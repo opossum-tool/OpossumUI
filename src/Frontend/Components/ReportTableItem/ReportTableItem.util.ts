@@ -28,7 +28,6 @@ export function getFormattedCellData(
       break;
     case 'originIds':
     case 'preferredOverOriginIds':
-    case 'linkedAttributionIds':
     case 'synthetic':
     case 'icons':
     case 'resources':

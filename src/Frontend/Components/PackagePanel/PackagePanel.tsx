@@ -111,10 +111,7 @@ export function PackagePanel(
     const cardConfig: PackageCardConfig = {
       isSelected: packageCardId === selectedPackageCardId,
       isPreSelected: isPreselected,
-      isResolved: [
-        ...(displayPackageInfo.linkedAttributionIds ?? []),
-        displayPackageInfo.id,
-      ].every((attributionId) =>
+      isResolved: [displayPackageInfo.id].every((attributionId) =>
         resolvedExternalAttributionIds.has(attributionId),
       ),
       isExternalAttribution,

@@ -6,10 +6,7 @@ import { memo, ReactElement } from 'react';
 
 import { PackagePanelTitle } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
-import {
-  getExternalAttributionsToHashes,
-  getExternalData,
-} from '../../state/selectors/all-views-resource-selectors';
+import { getExternalData } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { usePanelData } from '../../state/variables/use-panel-data';
 import { AttributionIdWithCount } from '../../types/types';
@@ -25,9 +22,6 @@ interface AggregatedAttributionsPanelProps {
 export const AggregatedAttributionsPanel = memo(
   (props: AggregatedAttributionsPanelProps): ReactElement => {
     const externalData = useAppSelector(getExternalData);
-    const attributionsToHashes = useAppSelector(
-      getExternalAttributionsToHashes,
-    );
     const selectedResourceId = useAppSelector(getSelectedResourceId);
 
     const [{ signalsInFolderContent, attributionsInFolderContent }] =
@@ -43,7 +37,6 @@ export const AggregatedAttributionsPanel = memo(
             )
           }
           attributions={externalData.attributions}
-          attributionsToHashes={attributionsToHashes}
           isAddToPackageEnabled={props.isAddToPackageEnabled}
           aria-label={'signals panel'}
         />

@@ -16,11 +16,7 @@ const [
 const [attributionId1, packageInfo1] = faker.opossum.rawAttribution();
 const [attributionId2, packageInfo2] = faker.opossum.rawAttribution();
 const [attributionId3, packageInfo3] = faker.opossum.rawAttribution();
-const [attributionId4a, packageInfo4a] = faker.opossum.rawAttribution({
-  comment: faker.lorem.sentence(),
-});
-const [attributionId4b, packageInfo4b] = faker.opossum.rawAttribution({
-  ...packageInfo4a,
+const [attributionId4, packageInfo4] = faker.opossum.rawAttribution({
   comment: faker.lorem.sentence(),
 });
 const [attributionId5, packageInfo5] = faker.opossum.rawAttribution();
@@ -36,15 +32,11 @@ test.use({
       }),
       attributionBreakpoints: [faker.opossum.folderPath(resourceName5)],
       externalAttributions: faker.opossum.rawAttributions({
-        [attributionId4a]: packageInfo4a,
-        [attributionId4b]: packageInfo4b,
+        [attributionId4]: packageInfo4,
         [attributionId5]: packageInfo5,
       }),
       resourcesToAttributions: faker.opossum.resourcesToAttributions({
-        [faker.opossum.filePath(resourceName4)]: [
-          attributionId4a,
-          attributionId4b,
-        ],
+        [faker.opossum.filePath(resourceName4)]: [attributionId4],
         [faker.opossum.folderPath(resourceName5)]: [attributionId5],
       }),
     }),
@@ -110,22 +102,19 @@ test('adds attribution and displays it correctly on parent and children', async 
   });
 
   await resourceBrowser.goto(resourceName4);
-  await resourceDetails.signalCard.assert.isVisible(packageInfo4a, {
+  await resourceDetails.signalCard.assert.isVisible(packageInfo4, {
     subContext: resourceDetails.signalsPanel,
   });
 
-  await resourceDetails.signalCard.click(packageInfo4a);
-  await attributionDetails.attributionForm.assert.matchesPackageInfo({
-    ...packageInfo4a,
-    comment: undefined,
-    comments: [packageInfo4a.comment!, packageInfo4b.comment!],
-  });
+  await resourceDetails.signalCard.click(packageInfo4);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo4,
+  );
 
-  await resourceDetails.signalCard.addButton(packageInfo4a).click();
+  await resourceDetails.signalCard.addButton(packageInfo4).click();
   await attributionDetails.attributionForm.assert.matchesPackageInfo({
-    ...packageInfo4a,
+    ...packageInfo4,
     attributionConfidence: DiscreteConfidence.High,
-    comment: undefined,
   });
 });
 

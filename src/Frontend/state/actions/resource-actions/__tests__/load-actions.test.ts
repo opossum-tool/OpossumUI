@@ -5,7 +5,6 @@
 import {
   AttributionData,
   Attributions,
-  AttributionsToHashes,
   BaseUrlsForSources,
   DiscreteConfidence,
   FrequentLicenses,
@@ -21,7 +20,6 @@ import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
   getExternalAttributionSources,
-  getExternalAttributionsToHashes,
   getExternalData,
   getFilesWithChildren,
   getFrequentLicensesNameOrder,
@@ -194,10 +192,6 @@ describe('loadFromFile', () => {
         ],
       },
     };
-    const expectedExternalAttributionsToHashes: AttributionsToHashes = {
-      doNotChangeMe1: '9263f76013801519989b1ba42aa42825de74ad93',
-      doNotChangeMe2: '9263f76013801519989b1ba42aa42825de74ad93',
-    };
 
     const testStore = createAppStore();
     expect(testStore.getState().resourceState).toMatchObject(
@@ -230,9 +224,6 @@ describe('loadFromFile', () => {
     expect(getExternalAttributionSources(testStore.getState())).toEqual({
       SC: { name: 'ScanCode', priority: 1, isRelevantForPreferred: true },
     });
-    expect(getExternalAttributionsToHashes(testStore.getState())).toEqual(
-      expectedExternalAttributionsToHashes,
-    );
     expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(true);
   });
 

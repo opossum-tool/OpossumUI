@@ -159,7 +159,6 @@ export function serializeAttributions(
           count,
           followUp,
           id,
-          linkedAttributionIds,
           resources,
           source,
           suffix,

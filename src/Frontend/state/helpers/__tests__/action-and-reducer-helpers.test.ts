@@ -24,7 +24,6 @@ import {
   attributionMatchesLocateFilter,
   calculateResourcesWithLocatedAttributions,
   computeChildrenWithAttributions,
-  createExternalAttributionsToHashes,
   getAttributionDataFromSetAttributionDataPayload,
   getAttributionIdOfFirstPackageCardInManualPackagePanel,
   getIndexOfAttributionInManualPackagePanel,
@@ -64,77 +63,6 @@ describe('computeChildrenWithAttributions', () => {
         '/root/src/something.js/',
       ],
     });
-  });
-});
-
-describe('createExternalAttributionsToHashes', () => {
-  it('yields correct results', () => {
-    const testExternalAttributions: Attributions = {
-      uuid1: {
-        attributionConfidence: 1,
-        comments: ['comment1'],
-        packageName: 'name',
-        originIds: ['abc'],
-        preSelected: true,
-        wasPreferred: false,
-        id: 'uuid1',
-      },
-      uuid2: {
-        attributionConfidence: 2,
-        comments: ['comment2'],
-        packageName: 'name',
-        originIds: ['def'],
-        preSelected: false,
-        wasPreferred: true,
-        id: 'uuid2',
-      },
-      uuid3: {
-        packageName: 'name',
-        id: 'uuid3',
-      },
-      uuid4: {
-        licenseName: '',
-        firstParty: true,
-        id: 'uuid4',
-      },
-      uuid5: {
-        firstParty: true,
-        id: 'uuid5',
-      },
-      uuid6: {
-        packageName: '',
-        id: 'uuid6',
-      },
-      uuid7: {
-        firstParty: false,
-        id: 'uuid7',
-      },
-    };
-
-    const testExternalAttributionsToHashes = createExternalAttributionsToHashes(
-      testExternalAttributions,
-    );
-
-    expect(testExternalAttributionsToHashes.uuid1).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid2).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid3).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid4).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid5).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid6).toBeUndefined();
-    expect(testExternalAttributionsToHashes.uuid7).toBeUndefined();
-
-    expect(testExternalAttributionsToHashes.uuid1).toEqual(
-      testExternalAttributionsToHashes.uuid2,
-    );
-    expect(testExternalAttributionsToHashes.uuid1).toEqual(
-      testExternalAttributionsToHashes.uuid3,
-    );
-    expect(testExternalAttributionsToHashes.uuid1).not.toEqual(
-      testExternalAttributionsToHashes.uuid4,
-    );
-    expect(testExternalAttributionsToHashes.uuid4).toEqual(
-      testExternalAttributionsToHashes.uuid5,
-    );
   });
 });
 

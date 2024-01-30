@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
-  AttributionsToHashes,
   Criticality,
   ExternalAttributionSources,
 } from '../../../../shared/shared-types';
@@ -82,15 +81,6 @@ const testAttributions_1: Attributions = {
     firstParty: true,
     id: 'uuid6',
   },
-  uuid7: {
-    source: {
-      name: 'SC',
-      documentConfidence: 10,
-    },
-    licenseName: 'The MIT License (MIT)',
-    firstParty: true,
-    id: 'uuid7',
-  },
 };
 
 const testAttributions_2: Attributions = {
@@ -148,10 +138,6 @@ const attributionSources: ExternalAttributionSources = {
 
 describe('aggregateLicensesAndSourcesFromAttributions', () => {
   it('counts sources for licenses, criticality', () => {
-    const testExternalAttributionsToHashes: AttributionsToHashes = {
-      uuid6: 'hash',
-      uuid7: 'hash',
-    };
     const expectedAttributionCountPerSourcePerLicense = {
       'Apache License Version 2.0': { ScanCode: 1, reuser: 2 },
       'The MIT License (MIT)': { ScanCode: 2, reuser: 1 },
@@ -169,10 +155,8 @@ describe('aggregateLicensesAndSourcesFromAttributions', () => {
       'The MIT License (MIT)': undefined,
     };
 
-    const strippedLicenseNameToAttribution = getUniqueLicenseNameToAttribution(
-      testAttributions_1,
-      testExternalAttributionsToHashes,
-    );
+    const strippedLicenseNameToAttribution =
+      getUniqueLicenseNameToAttribution(testAttributions_1);
     const { licenseCounts, licenseNamesWithCriticality } =
       aggregateLicensesAndSourcesFromAttributions(
         testAttributions_1,
@@ -276,9 +260,9 @@ describe('aggregateAttributionPropertiesFromAttributions', () => {
     } = {
       needsReview: 2,
       followUp: 1,
-      firstParty: 3,
+      firstParty: 2,
       incomplete: 4,
-      [ATTRIBUTION_TOTAL]: 7,
+      [ATTRIBUTION_TOTAL]: 6,
     };
 
     const attributionPropertyCountsObject =
@@ -471,7 +455,7 @@ describe('getIncompleteAttributionsCount', () => {
     const expectedIncompleteAttributionCount: Array<PieChartData> = [
       {
         name: 'Complete attributions',
-        count: 3,
+        count: 2,
       },
       {
         name: 'Incomplete attributions',

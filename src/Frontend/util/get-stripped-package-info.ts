@@ -41,7 +41,6 @@ const strippedPackageInfoTemplate: {
   id: false,
   licenseName: true,
   licenseText: true,
-  linkedAttributionIds: false,
   needsReview: true,
   originIds: true,
   packageName: true,

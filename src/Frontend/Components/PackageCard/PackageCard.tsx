@@ -218,10 +218,7 @@ export const PackageCard = memo((props: PackageCardProps) => {
       {showAssociatedResourcesPopup && (
         <ResourcePathPopup
           closePopup={(): void => setShowAssociatedResourcesPopup(false)}
-          attributionIds={[
-            props.packageInfo.id,
-            ...(props.packageInfo.linkedAttributionIds ?? []),
-          ]}
+          attributionIds={[props.packageInfo.id]}
           isExternalAttribution={Boolean(
             props.cardConfig.isExternalAttribution,
           )}

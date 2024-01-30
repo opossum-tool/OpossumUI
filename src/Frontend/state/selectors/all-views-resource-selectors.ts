@@ -7,7 +7,6 @@ import { isEqual } from 'lodash';
 import {
   AttributionData,
   Attributions,
-  AttributionsToHashes,
   AttributionsToResources,
   BaseUrlsForSources,
   ExternalAttributionSources,
@@ -199,12 +198,6 @@ export function getExternalAttributionSources(
   state: State,
 ): ExternalAttributionSources {
   return state.resourceState.allViews.externalAttributionSources;
-}
-
-export function getExternalAttributionsToHashes(
-  state: State,
-): AttributionsToHashes {
-  return state.resourceState.allViews.externalAttributionsToHashes;
 }
 
 export function getResourcesWithLocatedAttributions(state: State): {

@@ -105,10 +105,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     !temporaryDisplayPackageInfo.excludeFromNotice;
 
   const selectedPackageIsResolved = selectedPackagesAreResolved(
-    [
-      temporaryDisplayPackageInfo.id,
-      ...(temporaryDisplayPackageInfo.linkedAttributionIds ?? []),
-    ],
+    [temporaryDisplayPackageInfo.id],
     resolvedExternalAttributions,
   );
 
@@ -161,10 +158,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         value={'check'}
         selected={selectedPackageIsResolved}
         onChange={getResolvedToggleHandler(
-          [
-            temporaryDisplayPackageInfo.id,
-            ...(temporaryDisplayPackageInfo.linkedAttributionIds ?? []),
-          ],
+          [temporaryDisplayPackageInfo.id],
           resolvedExternalAttributions,
           dispatch,
         )}

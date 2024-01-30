@@ -13,7 +13,6 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getExternalAttributions,
   getExternalAttributionSources,
-  getExternalAttributionsToHashes,
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { useUserSetting } from '../../util/use-user-setting';
@@ -44,14 +43,9 @@ export function ProjectStatisticsPopup(): ReactElement {
   const manualAttributions = useAppSelector(getManualAttributions);
   const externalAttributions = useAppSelector(getExternalAttributions);
   const attributionSources = useAppSelector(getExternalAttributionSources);
-  const externalAttributionsToHashes = useAppSelector(
-    getExternalAttributionsToHashes,
-  );
 
-  const strippedLicenseNameToAttribution = getUniqueLicenseNameToAttribution(
-    externalAttributions,
-    externalAttributionsToHashes,
-  );
+  const strippedLicenseNameToAttribution =
+    getUniqueLicenseNameToAttribution(externalAttributions);
 
   const { licenseCounts, licenseNamesWithCriticality } =
     aggregateLicensesAndSourcesFromAttributions(

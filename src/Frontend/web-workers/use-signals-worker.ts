@@ -8,7 +8,6 @@ import { useAppSelector } from '../state/hooks';
 import {
   getAttributionBreakpoints,
   getExternalAttributionSources,
-  getExternalAttributionsToHashes,
   getExternalData,
   getFilesWithChildren,
   getManualData,
@@ -40,7 +39,6 @@ export function useSignalsWorker() {
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions,
   );
-  const attributionsToHashes = useAppSelector(getExternalAttributionsToHashes);
   const resources = useAppSelector(getResources);
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
@@ -167,13 +165,6 @@ export function useSignalsWorker() {
       data: sources,
     } satisfies SignalsWorkerInput);
   }, [sources, worker]);
-
-  useEffect(() => {
-    worker?.postMessage({
-      name: 'attributionsToHashes',
-      data: attributionsToHashes,
-    } satisfies SignalsWorkerInput);
-  }, [attributionsToHashes, worker]);
 
   useEffect(() => {
     worker?.postMessage({

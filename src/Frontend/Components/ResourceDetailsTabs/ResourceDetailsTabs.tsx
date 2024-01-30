@@ -30,7 +30,6 @@ import {
 } from '../../state/selectors/audit-view-resource-selectors';
 import { useSignalSorting } from '../../state/variables/use-active-sorting';
 import { createPackageCardId } from '../../util/create-package-card-id';
-import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
 import { IconButton } from '../IconButton/IconButton';
@@ -245,10 +244,7 @@ function getAssignableManualAttributionIdsAndDisplayPackageInfos(
       PackagePanelTitle.AllAttributions,
       index,
     );
-    displayPackageInfos[packageCardId] =
-      getDisplayPackageInfoWithCountFromAttributions([
-        [attributionId, manualAttributions[attributionId], undefined],
-      ]);
+    displayPackageInfos[packageCardId] = manualAttributions[attributionId];
   });
 
   return { assignableManualAttributionIds, displayPackageInfos };

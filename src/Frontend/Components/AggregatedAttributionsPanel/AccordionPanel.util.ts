@@ -5,7 +5,6 @@
 import {
   AttributionData,
   Attributions,
-  AttributionsToHashes,
   PackageInfo,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
@@ -16,14 +15,12 @@ import {
   getContainedExternalPackages,
   getContainedManualPackages,
 } from '../../util/get-contained-packages';
-import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
 import { getPackageSorter } from '../../util/get-package-sorter';
 
 export function getContainedExternalDisplayPackageInfosWithCount(args: {
   selectedResourceId: string;
   externalData: AttributionData;
   resolvedExternalAttributions: Readonly<Set<string>>;
-  attributionsToHashes: Readonly<AttributionsToHashes>;
   panelTitle: PackagePanelTitle;
   sorting: Sorting;
 }): [Array<string>, Attributions] {
@@ -36,7 +33,6 @@ export function getContainedExternalDisplayPackageInfosWithCount(args: {
   return getExternalDisplayPackageInfosWithCount(
     externalAttributionIdsWithCount,
     args.externalData.attributions,
-    args.attributionsToHashes,
     args.panelTitle,
     args.sorting,
   );
@@ -61,10 +57,10 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
         args.manualData.attributions[attributionId];
       const packageCardId = createPackageCardId(args.panelTitle, index);
       packageCardIds.push(packageCardId);
-      displayPackageInfos[packageCardId] =
-        getDisplayPackageInfoWithCountFromAttributions([
-          [attributionId, packageInfo, count],
-        ]);
+      displayPackageInfos[packageCardId] = {
+        ...packageInfo,
+        count,
+      };
     },
   );
 
@@ -76,64 +72,26 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
 export function getExternalDisplayPackageInfosWithCount(
   attributionIdsWithCount: Array<AttributionIdWithCount>,
   attributions: Attributions,
-  externalAttributionsToHashes: AttributionsToHashes,
   panelTitle: PackagePanelTitle,
   sorting: Sorting,
 ): [Array<string>, Attributions] {
   const packageCardIds: Array<string> = [];
   const displayPackageInfos: Attributions = {};
-  const hashToAttributions: {
-    [hash: string]: Array<[string, PackageInfo, number | undefined]>;
-  } = {};
   let indexCounter = 0;
 
   attributionIdsWithCount.forEach(({ attributionId, count }): void => {
     const packageInfo: PackageInfo = attributions[attributionId];
-    const savedHash = externalAttributionsToHashes[attributionId];
 
-    if (savedHash) {
-      if (!hashToAttributions[savedHash]) {
-        hashToAttributions[savedHash] = [];
-      }
-      hashToAttributions[savedHash].push([attributionId, packageInfo, count]);
-    } else {
-      const packageCardId = createPackageCardId(panelTitle, indexCounter);
-      packageCardIds.push(packageCardId);
-      displayPackageInfos[packageCardId] =
-        getDisplayPackageInfoWithCountFromAttributions([
-          [attributionId, packageInfo, count],
-        ]);
-      indexCounter++;
-    }
+    const packageCardId = createPackageCardId(panelTitle, indexCounter);
+    packageCardIds.push(packageCardId);
+    displayPackageInfos[packageCardId] = {
+      ...packageInfo,
+      count,
+    };
+    indexCounter++;
   });
-
-  addMergedSignals(
-    packageCardIds,
-    displayPackageInfos,
-    hashToAttributions,
-    panelTitle,
-    indexCounter,
-  );
 
   packageCardIds.sort(getPackageSorter(displayPackageInfos, sorting));
 
   return [packageCardIds, displayPackageInfos];
-}
-
-function addMergedSignals(
-  packageCardIds: Array<string>,
-  displayPackageInfos: Attributions,
-  hashToAttributions: {
-    [hash: string]: Array<[string, PackageInfo, number | undefined]>;
-  },
-  panelTitle: PackagePanelTitle,
-  indexCounter: number,
-): void {
-  Object.keys(hashToAttributions).forEach((hash: string): void => {
-    const packageCardId = createPackageCardId(panelTitle, indexCounter);
-    packageCardIds.push(packageCardId);
-    displayPackageInfos[packageCardId] =
-      getDisplayPackageInfoWithCountFromAttributions(hashToAttributions[hash]);
-    indexCounter++;
-  });
 }

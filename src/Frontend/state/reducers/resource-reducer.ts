@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   AttributionData,
-  AttributionsToHashes,
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenses,
@@ -41,7 +40,6 @@ import {
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
-  ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
   ACTION_SET_FILE_SEARCH,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
@@ -93,7 +91,6 @@ export const initialResourceState: ResourceState = {
     metadata: EMPTY_PROJECT_METADATA,
     baseUrlsForSources: {},
     externalAttributionSources: {},
-    externalAttributionsToHashes: {},
     resourcesWithLocatedAttributions: {
       resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
@@ -141,7 +138,6 @@ export type ResourceState = {
     metadata: ProjectMetadata;
     baseUrlsForSources: BaseUrlsForSources;
     externalAttributionSources: ExternalAttributionSources;
-    externalAttributionsToHashes: AttributionsToHashes;
     resourcesWithLocatedAttributions: {
       resourcesWithLocatedChildren: Set<string>;
       locatedResources: Set<string>;
@@ -220,12 +216,9 @@ export const resourceState = (
         },
       };
     case ACTION_SET_SELECTED_RESOURCE_ID:
-      const linkedAttributionIds: Array<string> | undefined =
-        state.allViews.manualData.resourcesToAttributions[action.payload];
-
       const displayedAttributionId =
         getAttributionIdOfFirstPackageCardInManualPackagePanel(
-          linkedAttributionIds,
+          state.allViews.manualData.resourcesToAttributions[action.payload],
           action.payload,
           state,
         );
@@ -727,14 +720,6 @@ export const resourceState = (
             ...state.auditView.accordionSearchField,
             searchTerm: action.payload,
           },
-        },
-      };
-    case ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES:
-      return {
-        ...state,
-        allViews: {
-          ...state.allViews,
-          externalAttributionsToHashes: action.payload,
         },
       };
     case ACTION_SET_ENABLE_PREFERENCE_FEATURE:

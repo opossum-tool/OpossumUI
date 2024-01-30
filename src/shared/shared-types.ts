@@ -50,7 +50,6 @@ interface EphemeralPackageInfoProps {
   count?: number;
   synthetic?: boolean;
   id: string;
-  linkedAttributionIds?: Array<string>;
   resources?: Array<string>;
   suffix?: string;
 }
@@ -104,10 +103,6 @@ export interface ResourcesToAttributions {
 
 export interface AttributionsToResources {
   [uuid: string]: Array<string>;
-}
-
-export interface AttributionsToHashes {
-  [uuid: string]: string;
 }
 
 export interface ResourcesWithAttributedChildren {

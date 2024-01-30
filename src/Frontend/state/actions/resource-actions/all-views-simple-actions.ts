@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
-  AttributionsToHashes,
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenses,
@@ -21,7 +20,6 @@ import {
   ACTION_SET_ENABLE_PREFERENCE_FEATURE,
   ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
-  ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
@@ -32,7 +30,6 @@ import {
   SetAttributionBreakpoints,
   SetBaseUrlsForSources,
   SetExternalAttributionSources,
-  SetExternalAttributionsToHashes,
   SetExternalDataAction,
   SetFilesWithChildren,
   SetFrequentLicensesAction,
@@ -131,15 +128,6 @@ export function setExternalAttributionSources(
   return {
     type: ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
     payload: externalAttributionSources,
-  };
-}
-
-export function setExternalAttributionsToHashes(
-  externalAttributionsToHashes: AttributionsToHashes,
-): SetExternalAttributionsToHashes {
-  return {
-    type: ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
-    payload: externalAttributionsToHashes,
   };
 }
 

@@ -5,7 +5,6 @@
 import {
   AttributionData,
   Attributions,
-  AttributionsToHashes,
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenses,
@@ -72,8 +71,6 @@ export const ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS =
 export const ACTION_TOGGLE_ACCORDION_SEARCH_FIELD =
   'ACTION_TOGGLE_ACCORDION_SEARCH_FIELD';
 export const ACTION_SET_PACKAGE_SEARCH_TERM = 'ACTION_SET_PACKAGE_SEARCH_TERM';
-export const ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES =
-  'ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES';
 export const ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS =
   'ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS';
 export const ACTION_SET_ENABLE_PREFERENCE_FEATURE =
@@ -114,7 +111,6 @@ export type ResourceAction =
   | SetMultiSelectSelectedAttributionIds
   | ToggleAccordionSearchField
   | SetPackageSearchTerm
-  | SetExternalAttributionsToHashes
   | SetIsPreferenceFeatureEnabled
   | SetLocatePopupFilters;
 
@@ -295,11 +291,6 @@ export interface ToggleAccordionSearchField {
 export interface SetPackageSearchTerm {
   type: typeof ACTION_SET_PACKAGE_SEARCH_TERM;
   payload: string;
-}
-
-export interface SetExternalAttributionsToHashes {
-  type: typeof ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES;
-  payload: AttributionsToHashes;
 }
 
 export interface SetIsPreferenceFeatureEnabled {
