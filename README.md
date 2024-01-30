@@ -59,13 +59,12 @@ outputted in different formats.
 
 # <a id="user_quick_start_guide"></a> User's Quick Start Guide
 
-## Input and output files
+## Input files
 
-To work with OpossumUI, an input file can be opened to visualize and edit license compliance data of a project. When
-opening an input file for the first time, an accompanying output file with the naming convention
-"[INPUT NAME]\_attributions.json" is created in the same directory as the input file.
-
-If you open a `.opossum` file for the first time, it will be automatically updated.
+To work with OpossumUI, an input file can be opened to visualize and edit license compliance data of a project.
+Input files typically have the file ending `.opossum`, while opening the deprecated file format that has the file ending
+`.json` is still supported. In this case the app will inform the user that the deprecated file format is automatically
+converted to the new file format.
 
 ## Generating input files
 
