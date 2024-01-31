@@ -182,7 +182,7 @@ describe('get-filtered-attributions', () => {
 
   it('returns filtered attributions with needs-follow-up filter', () => {
     const packageInfo1 = faker.opossum.packageInfo({
-      followUp: 'FOLLOW_UP',
+      followUp: true,
     });
     const packageInfo2 = faker.opossum.packageInfo();
 

@@ -54,9 +54,7 @@ describe('getSaveFileListener', () => {
     expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
-        message:
-          'Error in app backend: Failed to save data. ' +
-          'The projectId is incorrect.\nprojectId: undefined',
+        message: 'Error in app backend: Project ID not found',
         buttons: ['Reload File', 'Quit'],
       }),
     );

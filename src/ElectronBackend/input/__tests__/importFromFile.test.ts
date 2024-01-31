@@ -11,7 +11,6 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   Criticality,
   DiscreteConfidence,
-  FollowUp,
   ParsedFileContent,
 } from '../../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
@@ -244,9 +243,6 @@ describe('Test of loading function', () => {
     expect(getGlobalBackendState().projectId).toBe(
       inputFileContent.metadata.projectId,
     );
-    expect(
-      getGlobalBackendState().inputContainsCriticalExternalAttributions,
-    ).toBeTruthy();
   });
 
   it('loads .opossum file, no output.json', async () => {
@@ -354,9 +350,6 @@ describe('Test of loading function', () => {
     expect(getGlobalBackendState().projectId).toBe(
       inputFileContent.metadata.projectId,
     );
-    expect(
-      getGlobalBackendState().inputContainsCriticalExternalAttributions,
-    ).toBeTruthy();
   });
 
   it(
@@ -604,7 +597,7 @@ function assertFileLoadedCorrectly(testUuid: string): void {
           packageName: 'Package',
           packageVersion: '1.0',
           licenseText: 'MIT',
-          followUp: FollowUp,
+          followUp: true,
           id: testUuid,
         },
       },

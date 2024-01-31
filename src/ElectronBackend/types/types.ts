@@ -32,7 +32,6 @@ export interface GlobalBackendState {
   spdxYamlFilePath?: string;
   spdxJsonFilePath?: string;
   projectId?: string;
-  inputContainsCriticalExternalAttributions?: boolean;
   inputFileChecksum?: string;
   inputFileRaw?: Uint8Array;
 }

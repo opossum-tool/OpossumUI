@@ -59,11 +59,8 @@ export function getSaveFileListener(
     (_: unknown, args: SaveFileArgs) => {
       const globalBackendState = getGlobalBackendState();
 
-      if (globalBackendState.projectId === undefined) {
-        throw new Error(
-          'Failed to save data. The projectId is incorrect.' +
-            `\nprojectId: ${globalBackendState.projectId}`,
-        );
+      if (!globalBackendState.projectId) {
+        throw new Error('Project ID not found');
       }
 
       const outputFileContent: OpossumOutputFile = {

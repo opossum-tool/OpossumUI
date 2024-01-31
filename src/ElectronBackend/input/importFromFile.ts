@@ -98,8 +98,10 @@ export async function loadInputAndOutputFromFilePath(
     parsedInputData = parsingResult;
   }
 
-  const [externalAttributions, inputContainsCriticalExternalAttributions] =
-    deserializeAttributions(parsedInputData.externalAttributions);
+  logger.info('Deserializing signals');
+  const externalAttributions = deserializeAttributions(
+    parsedInputData.externalAttributions,
+  );
 
   logger.info('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
@@ -137,7 +139,8 @@ export async function loadInputAndOutputFromFilePath(
     }
   }
 
-  const [manualAttributions] = deserializeAttributions(
+  logger.info('Deserializing attributions');
+  const manualAttributions = deserializeAttributions(
     parsedOutputData.manualAttributions,
   );
 
@@ -173,6 +176,7 @@ export async function loadInputAndOutputFromFilePath(
     externalAttributionSources:
       parsedInputData.externalAttributionSources ?? {},
   };
+
   logger.info('Sending data to user interface');
   mainWindow.webContents.send(
     AllowedFrontendChannels.FileLoaded,
@@ -182,8 +186,6 @@ export async function loadInputAndOutputFromFilePath(
   logger.info('Finalizing global state');
   getGlobalBackendState().projectTitle = parsedInputData.metadata.projectTitle;
   getGlobalBackendState().projectId = parsedInputData.metadata.projectId;
-  getGlobalBackendState().inputContainsCriticalExternalAttributions =
-    inputContainsCriticalExternalAttributions;
 }
 
 async function createOutputInOpossumFile(

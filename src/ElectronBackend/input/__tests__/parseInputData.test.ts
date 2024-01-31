@@ -7,7 +7,6 @@ import {
   AttributionsToResources,
   BaseUrlsForSources,
   Criticality,
-  FollowUp,
   FrequentLicenses,
   RawAttributions,
   Resources,
@@ -90,38 +89,37 @@ describe('cleanNonExistentResolvedExternalAttributions', () => {
 });
 
 describe('deserializeAttributions', () => {
-  it('leaves FollowUp as followUp', () => {
+  it('converts follow-up string to boolean', () => {
     const rawAttributions: RawAttributions = {
       id: {
-        followUp: FollowUp,
+        followUp: 'FOLLOW_UP',
       },
     };
     const expectedAttributions: Attributions = {
       id: {
         id: 'id',
-        followUp: FollowUp,
+        followUp: true,
       },
     };
-    const expectedCriticalExternalAttributionsFlag = false;
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<
-      [Attributions, boolean]
-    >([expectedAttributions, expectedCriticalExternalAttributionsFlag]);
+    expect(deserializeAttributions(rawAttributions)).toEqual(
+      expectedAttributions,
+    );
   });
 
-  it('removes unknown strings from followUp', () => {
+  it('removes unknown strings from follow-up', () => {
     const rawAttributions: RawAttributions = {
       id: {
-        followUp: 'UNKNOWN_STRING' as FollowUp,
+        followUp: 'UNKNOWN_STRING' as 'FOLLOW_UP',
       },
     };
     const expectedAttributions: Attributions = {
       id: { id: 'id' },
     };
-    const expectedCriticalExternalAttributionsFlag = false;
-    expect(deserializeAttributions(rawAttributions)).toEqual<
-      [Attributions, boolean]
-    >([expectedAttributions, expectedCriticalExternalAttributionsFlag]);
+
+    expect(deserializeAttributions(rawAttributions)).toEqual(
+      expectedAttributions,
+    );
   });
 
   it('leaves non-empty comment unchanged', () => {
@@ -136,11 +134,10 @@ describe('deserializeAttributions', () => {
         comments: ['Test comment'],
       },
     };
-    const expectedCriticalExternalAttributionsFlag = false;
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<
-      [Attributions, boolean]
-    >([expectedAttributions, expectedCriticalExternalAttributionsFlag]);
+    expect(deserializeAttributions(rawAttributions)).toEqual(
+      expectedAttributions,
+    );
   });
 
   it('removes empty comment', () => {
@@ -152,11 +149,10 @@ describe('deserializeAttributions', () => {
     const expectedAttributions: Attributions = {
       id: { id: 'id' },
     };
-    const expectedCriticalExternalAttributionsFlag = false;
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<
-      [Attributions, boolean]
-    >([expectedAttributions, expectedCriticalExternalAttributionsFlag]);
+    expect(deserializeAttributions(rawAttributions)).toEqual(
+      expectedAttributions,
+    );
   });
 
   it('leaves criticality unchanged', () => {
@@ -171,11 +167,10 @@ describe('deserializeAttributions', () => {
         criticality: Criticality.High,
       },
     };
-    const expectedCriticalExternalAttributionsFlag = true;
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<
-      [Attributions, boolean]
-    >([expectedAttributions, expectedCriticalExternalAttributionsFlag]);
+    expect(deserializeAttributions(rawAttributions)).toEqual(
+      expectedAttributions,
+    );
   });
 
   it('removes invalid criticality', () => {
@@ -187,11 +182,10 @@ describe('deserializeAttributions', () => {
     const expectedAttributions: Attributions = {
       id: { id: 'id' },
     };
-    const expectedCriticalExternalAttributionsFlag = false;
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<
-      [Attributions, boolean]
-    >([expectedAttributions, expectedCriticalExternalAttributionsFlag]);
+    expect(deserializeAttributions(rawAttributions)).toEqual(
+      expectedAttributions,
+    );
   });
 
   it('merges originIds and originId if both exist', () => {
@@ -207,13 +201,10 @@ describe('deserializeAttributions', () => {
         id: 'uuid',
       },
     };
-    const expectedCriticalExternalAttributionsFlag = false;
-    expect(deserializeAttributions(testRawAttributions)).toEqual<
-      [Attributions, boolean]
-    >([
+
+    expect(deserializeAttributions(testRawAttributions)).toEqual(
       expectedParsedRawAttributions,
-      expectedCriticalExternalAttributionsFlag,
-    ]);
+    );
   });
 
   it('creates originIds and writes originId into it if originIds does not exist initially', () => {
@@ -228,13 +219,10 @@ describe('deserializeAttributions', () => {
         id: 'uuid',
       },
     };
-    const expectedCriticalExternalAttributionsFlag = false;
-    expect(deserializeAttributions(testRawAttributions)).toEqual<
-      [Attributions, boolean]
-    >([
+
+    expect(deserializeAttributions(testRawAttributions)).toEqual(
       expectedParsedRawAttributions,
-      expectedCriticalExternalAttributionsFlag,
-    ]);
+    );
   });
 
   it('leaves originIds as it is if originId does not exist', () => {
@@ -249,13 +237,10 @@ describe('deserializeAttributions', () => {
         id: 'uuid',
       },
     };
-    const expectedCriticalExternalAttributionsFlag = false;
-    expect(deserializeAttributions(testRawAttributions)).toEqual<
-      [Attributions, boolean]
-    >([
+
+    expect(deserializeAttributions(testRawAttributions)).toEqual(
       expectedParsedRawAttributions,
-      expectedCriticalExternalAttributionsFlag,
-    ]);
+    );
   });
 });
 

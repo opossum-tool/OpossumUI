@@ -7,7 +7,6 @@ import userEvent from '@testing-library/user-event';
 
 import {
   Attributions,
-  FollowUp,
   FrequentLicenses,
   Resources,
   ResourcesToAttributions,
@@ -45,7 +44,7 @@ describe('The ReportView', () => {
     packageVersion: '2.0',
     copyright: 'other Copyright John Doe',
     licenseText: 'Some other license text',
-    followUp: FollowUp,
+    followUp: true,
     excludeFromNotice: true,
     id: testOtherManualUuid,
   };
