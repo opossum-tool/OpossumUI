@@ -138,7 +138,18 @@ export function useAuditingOptions({
         interactive: !!originalPreferred,
         deleteIcon: <ReplayIcon aria-label={'undo modified preferred'} />,
         onDelete: originalPreferred
-          ? () => dispatch(setTemporaryDisplayPackageInfo(originalPreferred))
+          ? () =>
+              dispatch(
+                setTemporaryDisplayPackageInfo({
+                  ...originalPreferred,
+                  id: packageInfo.id,
+                  preSelected: undefined,
+                  comments:
+                    (originalPreferred.comments?.length ?? 0) > 1
+                      ? undefined
+                      : originalPreferred.comments,
+                }),
+              )
           : undefined,
       },
       {
@@ -271,6 +282,7 @@ export function useAuditingOptions({
       packageInfo.attributionConfidence,
       packageInfo.excludeFromNotice,
       packageInfo.followUp,
+      packageInfo.id,
       packageInfo.needsReview,
       packageInfo.preSelected,
       packageInfo.preferred,
