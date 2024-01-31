@@ -30,11 +30,7 @@ import { Checkbox } from '../Checkbox/Checkbox';
 import { IconButton } from '../IconButton/IconButton';
 import { ListCard } from '../ListCard/ListCard';
 import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
-import {
-  getKey,
-  getPackageCardHighlighting,
-  getRightIcons,
-} from './PackageCard.util';
+import { getPackageCardHighlighting, getRightIcons } from './PackageCard.util';
 
 const classes = {
   clickableIcon,
@@ -51,7 +47,6 @@ export const CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP =
 export const PACKAGE_CARD_HEIGHT = 42;
 
 interface PackageCardProps {
-  cardId: string;
   packageInfo: PackageInfo;
   packageCount?: number;
   cardConfig: PackageCardConfig;
@@ -171,7 +166,7 @@ export const PackageCard = memo((props: PackageCardProps) => {
         tooltipPlacement="left"
         disabled={props.packageInfo.preferred}
         onClick={props.onIconClick}
-        key={getKey('add-icon', props.cardId)}
+        key={'add-icon'}
         icon={
           <PlusIcon
             sx={
@@ -206,8 +201,8 @@ export const PackageCard = memo((props: PackageCardProps) => {
   );
 
   const rightIcons = useMemo(
-    () => getRightIcons(listCardConfig, props.cardId, openResourcesIcon),
-    [listCardConfig, openResourcesIcon, props.cardId],
+    () => getRightIcons(listCardConfig, openResourcesIcon),
+    [listCardConfig, openResourcesIcon],
   );
 
   return (

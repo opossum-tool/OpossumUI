@@ -48,7 +48,6 @@ describe('The ManualAttributionList', () => {
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
-        sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         onCardClick={mockCallback}
       />,
@@ -71,7 +70,6 @@ describe('The ManualAttributionList', () => {
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
-        sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         onCardClick={doNothing}
       />,
@@ -95,7 +93,6 @@ describe('The ManualAttributionList', () => {
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
-        sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         isAddNewAttributionItemShown={true}
         onCardClick={mockCallback}
@@ -122,7 +119,6 @@ describe('The ManualAttributionList', () => {
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
-        sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         onCardClick={mockCallback}
       />,

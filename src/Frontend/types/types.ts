@@ -75,11 +75,6 @@ export interface PopupInfo {
   attributionId?: string;
 }
 
-export interface PanelData {
-  sortedPackageCardIds: Array<string>;
-  displayPackageInfos: Attributions;
-}
-
 export interface DisplayPackageInfosWithCountAndResourceId {
   resourceId: string;
   sortedPackageCardIds: Array<string>;

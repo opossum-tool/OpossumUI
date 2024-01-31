@@ -15,29 +15,6 @@ describe('The AllAttributionsPanel', () => {
   const testManualAttributionUuid1 = '374ba87a-f68b-11ea-adc1-0242ac120002';
   const testManualAttributionUuid2 = '374bac4e-f68b-11ea-adc1-0242ac120002';
   const testManualAttributionUuid3 = '374bar8a-f68b-11ea-adc1-0242ac120002';
-  const testPackageCardId1 = 'All Attributions-0';
-  const testPackageCardId2 = 'All Attributions-1';
-  const testPackageCardId3 = 'All Attributions-2';
-  const testManualDisplayPackageInfos: Attributions = {
-    [testPackageCardId1]: {
-      packageVersion: '1.0',
-      packageName: 'Typescript',
-      licenseText: ' test License text',
-      id: testManualAttributionUuid1,
-    },
-    [testPackageCardId2]: {
-      packageVersion: '2.0',
-      packageName: 'React',
-      licenseText: ' test license text',
-      id: testManualAttributionUuid2,
-    },
-    [testPackageCardId3]: {
-      packageVersion: '3.0',
-      packageName: 'Vue',
-      licenseText: ' test license text',
-      id: testManualAttributionUuid3,
-    },
-  };
   const testManualAttributions: Attributions = {
     [testManualAttributionUuid1]: {
       packageVersion: '1.0',
@@ -61,19 +38,15 @@ describe('The AllAttributionsPanel', () => {
 
   it('renders non-empty list', () => {
     const testDisplayPackageInfos: Attributions = {
-      [testPackageCardId1]: {
+      [testManualAttributionUuid1]: {
         packageName: 'name 1',
-        id: 'uuid1',
+        id: testManualAttributionUuid1,
       },
 
-      [testPackageCardId2]: {
+      [testManualAttributionUuid2]: {
         packageName: 'name 2',
-        id: 'uuid2',
+        id: testManualAttributionUuid2,
       },
-    };
-    const testAttributions: Attributions = {
-      uuid1: { packageName: 'name 1', id: 'uuid1' },
-      uuid2: { packageName: 'name 2', id: 'uuid2' },
     };
     renderComponent(
       <AllAttributionsPanel
@@ -84,7 +57,7 @@ describe('The AllAttributionsPanel', () => {
         actions: [
           loadFromFile(
             getParsedInputFileEnrichedWithTestData({
-              manualAttributions: testAttributions,
+              manualAttributions: testDisplayPackageInfos,
             }),
           ),
         ],
@@ -97,7 +70,7 @@ describe('The AllAttributionsPanel', () => {
   it('does not show resource attribution of selected resource and next attributed parent', () => {
     const { store } = renderComponent(
       <AllAttributionsPanel
-        displayPackageInfos={testManualDisplayPackageInfos}
+        displayPackageInfos={testManualAttributions}
         selectedPackageCardId={testManualAttributionUuid2}
         isAddToPackageEnabled={true}
       />,

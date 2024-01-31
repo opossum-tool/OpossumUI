@@ -2,11 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AttributionData } from '../../../shared/shared-types';
-import { getContainedExternalDisplayPackageInfosWithCount } from '../../Components/AggregatedAttributionsPanel/AccordionPanel.util';
-import { PackagePanelTitle } from '../../enums/enums';
+import {
+  AttributionData,
+  Attributions,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { Sorting } from '../../shared-constants';
-import { PanelData } from '../../types/types';
+import { getContainedExternalPackages } from '../../util/get-contained-packages';
+import { sortAttributions } from '../../util/sort-attributions';
 
 interface Props {
   externalData: AttributionData;
@@ -20,18 +23,21 @@ export function getSignalsInFolderContent({
   resolvedExternalAttributions,
   resourceId,
   sorting,
-}: Props): PanelData {
-  const [sortedPackageCardIds, displayPackageInfos] =
-    getContainedExternalDisplayPackageInfosWithCount({
-      selectedResourceId: resourceId,
-      externalData,
-      resolvedExternalAttributions,
-      panelTitle: PackagePanelTitle.ContainedExternalPackages,
-      sorting,
-    });
+}: Props): Attributions {
+  const attributionIdsWithCount = getContainedExternalPackages(
+    resourceId,
+    externalData.resourcesWithAttributedChildren,
+    externalData.resourcesToAttributions,
+    resolvedExternalAttributions,
+  );
 
-  return {
-    sortedPackageCardIds,
-    displayPackageInfos,
-  };
+  return sortAttributions({
+    sorting,
+    attributions: attributionIdsWithCount.map<PackageInfo>(
+      ({ attributionId, count }) => ({
+        ...externalData.attributions[attributionId],
+        count,
+      }),
+    ),
+  });
 }

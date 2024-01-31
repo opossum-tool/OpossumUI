@@ -23,11 +23,14 @@ import {
   useAttributionSorting,
   useSignalSorting,
 } from '../state/variables/use-active-sorting';
+import {
+  useAttributionsInFolderContent,
+  useSignalsInFolderContent,
+} from '../state/variables/use-attributions-in-folder-content';
 import { useAutocompleteSignals } from '../state/variables/use-autocomplete-signals';
 import { useFilteredAttributions } from '../state/variables/use-filtered-attributions';
 import { useFolderProgressData } from '../state/variables/use-folder-progress-data';
 import { useOverallProgressData } from '../state/variables/use-overall-progress-data';
-import { usePanelData } from '../state/variables/use-panel-data';
 import { shouldNotBeCalled } from '../util/should-not-be-called';
 import { SignalsWorkerInput, SignalsWorkerOutput } from './signals-worker';
 
@@ -51,7 +54,8 @@ export function useSignalsWorker() {
   const [{ selectedFilters, search }, setFilteredAttributions] =
     useFilteredAttributions();
   const [, setAutocompleteSignals] = useAutocompleteSignals();
-  const [, setPanelData] = usePanelData();
+  const [, setAttributionsInFolderContent] = useAttributionsInFolderContent();
+  const [, setSignalsInFolderContent] = useSignalsInFolderContent();
   const [, setOverallProgressData] = useOverallProgressData();
   const [, setFolderProgressData] = useFolderProgressData();
 
@@ -79,16 +83,10 @@ export function useSignalsWorker() {
             setAutocompleteSignals(data.data);
             break;
           case 'attributionsInFolderContent':
-            setPanelData((panelData) => ({
-              ...panelData,
-              attributionsInFolderContent: data.data,
-            }));
+            setAttributionsInFolderContent(data.data);
             break;
           case 'signalsInFolderContent':
-            setPanelData((panelData) => ({
-              ...panelData,
-              signalsInFolderContent: data.data,
-            }));
+            setSignalsInFolderContent(data.data);
             break;
           case 'overallProgressData':
             setOverallProgressData(data.data);
@@ -115,11 +113,12 @@ export function useSignalsWorker() {
       };
     }
   }, [
+    setAttributionsInFolderContent,
     setAutocompleteSignals,
     setFilteredAttributions,
     setFolderProgressData,
     setOverallProgressData,
-    setPanelData,
+    setSignalsInFolderContent,
     worker,
   ]);
 

@@ -10,7 +10,7 @@ import {
   Resources,
 } from '../../shared/shared-types';
 import { Filter, FilterCounts, Sorting } from '../shared-constants';
-import { PanelData, ProgressBarData } from '../types/types';
+import { ProgressBarData } from '../types/types';
 import { shouldNotBeCalled } from '../util/should-not-be-called';
 import { getAttributionsInFolderContent } from './scripts/get-attributions-in-folder-content';
 import { getAutocompleteSignals } from './scripts/get-autocomplete-signals';
@@ -44,11 +44,11 @@ export type SignalsWorkerOutput =
     }
   | {
       name: 'attributionsInFolderContent';
-      data: PanelData;
+      data: Attributions;
     }
   | {
       name: 'signalsInFolderContent';
-      data: PanelData;
+      data: Attributions;
     }
   | {
       name: 'overallProgressData';

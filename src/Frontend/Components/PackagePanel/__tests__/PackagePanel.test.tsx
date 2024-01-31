@@ -61,7 +61,6 @@ describe('The PackagePanel', () => {
     renderComponent(
       <PackagePanel
         displayPackageInfos={testDisplayPackageInfos}
-        sortedPackageCardIds={testSortedPackageCardIds}
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
       />,
@@ -131,7 +130,6 @@ describe('The PackagePanel', () => {
     renderComponent(
       <PackagePanel
         displayPackageInfos={testDisplayPackageInfos}
-        sortedPackageCardIds={testSortedPackageCardIds}
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
       />,

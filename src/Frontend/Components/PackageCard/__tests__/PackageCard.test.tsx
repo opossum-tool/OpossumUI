@@ -62,7 +62,6 @@ describe('The PackageCard', () => {
     const { store } = renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
-        cardId={'some_id'}
         packageInfo={{
           packageName: 'packageName',
           id: testAttributionId,
@@ -110,7 +109,6 @@ describe('The PackageCard', () => {
     renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
-        cardId={'some_id'}
         packageInfo={{
           packageName: 'packageName',
           id: testAttributionId,
@@ -147,7 +145,6 @@ describe('The PackageCard', () => {
     renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
-        cardId={'some_id'}
         packageInfo={{
           packageName: 'packageName',
           id: testAttributionId,
@@ -180,7 +177,6 @@ describe('The PackageCard', () => {
     renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
-        cardId={'some_id'}
         packageInfo={{
           packageName: 'packageName',
           id: testAttributionId,
@@ -214,7 +210,6 @@ describe('The PackageCard', () => {
     renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: true }}
-        cardId={'some_id'}
         packageInfo={{
           id: testAttributionId,
           licenseName: 'MIT',
@@ -245,7 +240,6 @@ describe('The PackageCard', () => {
     renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: true }}
-        cardId={'some_id'}
         packageInfo={{
           id: testAttributionId,
           licenseName: 'Apache',

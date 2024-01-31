@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fromPairs, ListIterator, orderBy } from 'lodash';
+import { fromPairs } from 'lodash';
 
 import {
   AttributionData,
@@ -11,13 +11,11 @@ import {
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { Filter, FilterCounts, filters, Sorting } from '../../shared-constants';
-import { getCardLabels } from '../../util/get-card-labels';
-import { getNumericalCriticalityValue } from '../../util/get-package-sorter';
 import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
+import { sortAttributions } from '../../util/sort-attributions';
 
 export const LOW_CONFIDENCE_THRESHOLD = 60;
-const LARGEST_UNICODE_CHAR = '\u10FFFF';
 
 export const FILTER_FUNCTIONS: Record<
   Filter,
@@ -66,45 +64,19 @@ export function getFilteredAttributions({
   sorting: Sorting;
   search: string;
 }): Attributions {
-  // Item is alphabetical if starts with a letter. Sort empty attributions to the end of the list.
-  const iteratees: Array<ListIterator<[string, PackageInfo], unknown>> = [
-    ([, packageInfo]) => {
-      const title = getCardLabels(packageInfo)[0];
-      return title >= 'a' ? title : LARGEST_UNICODE_CHAR;
-    },
-  ];
-  const orders: Array<'asc' | 'desc'> = ['asc'];
-
-  if (sorting === text.sortings.criticality) {
-    iteratees.unshift(([, { criticality }]) =>
-      getNumericalCriticalityValue(criticality),
-    );
-    orders.unshift('desc');
-  } else if (sorting === text.sortings.occurrence) {
-    iteratees.unshift(([, { count }]) => count ?? 0);
-    orders.unshift('desc');
-  }
-
-  return fromPairs(
-    orderBy(
-      Object.entries(manualData.attributions)
-        .filter(
-          ([attributionId, attribution]) =>
-            packageInfoContainsSearchTerm(attribution, search) &&
-            selectedFilters.every((filter) =>
-              FILTER_FUNCTIONS[filter](manualData.attributions[attributionId]),
-            ),
-        )
-        .map<[string, PackageInfo]>(([attributionId, attribution]) => [
-          attributionId,
-          {
-            ...attribution,
-            count:
-              manualData.attributionsToResources[attributionId]?.length ?? 0,
-          },
-        ]),
-      iteratees,
-      orders,
-    ),
-  );
+  return sortAttributions({
+    sorting,
+    attributions: Object.values(manualData.attributions)
+      .filter(
+        (attribution) =>
+          packageInfoContainsSearchTerm(attribution, search) &&
+          selectedFilters.every((filter) =>
+            FILTER_FUNCTIONS[filter](attribution),
+          ),
+      )
+      .map<PackageInfo>((attribution) => ({
+        ...attribution,
+        count: manualData.attributionsToResources[attribution.id]?.length ?? 0,
+      })),
+  });
 }

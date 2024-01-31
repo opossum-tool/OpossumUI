@@ -114,8 +114,8 @@ describe('The ManualPackagePanel', () => {
     const nodePackage2 = screen.getByText(/Test package, 1\.0/);
     const nodePackage3 = screen.getByText(/\(C\) Copyright John Doe 2/);
 
-    expect(nodePackage3.compareDocumentPosition(nodePackage1)).toBe(2);
-    expect(nodePackage3.compareDocumentPosition(nodePackage2)).toBe(2);
+    expect(nodePackage3.compareDocumentPosition(nodePackage1)).toBe(4);
+    expect(nodePackage3.compareDocumentPosition(nodePackage2)).toBe(4);
     expect(nodePackage1.compareDocumentPosition(nodePackage2)).toBe(2);
   });
 });

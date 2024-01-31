@@ -26,7 +26,6 @@ import {
   computeChildrenWithAttributions,
   getAttributionDataFromSetAttributionDataPayload,
   getAttributionIdOfFirstPackageCardInManualPackagePanel,
-  getIndexOfAttributionInManualPackagePanel,
   getResourcesWithLocatedChildren,
 } from '../action-and-reducer-helpers';
 
@@ -157,52 +156,6 @@ describe('getAttributionIdOfFirstPackageCardInManualPackagePanel', () => {
     expect(testAttributionIdOfFirstPackageCard).toEqual(
       expectedAttributionIdOfFirstPackageCard,
     );
-  });
-});
-
-describe('getIndexOfAttributionInManualPackagePanel', () => {
-  const testManualData: AttributionData = {
-    ...EMPTY_ATTRIBUTION_DATA,
-    attributions: {
-      uuid_0: { packageName: 'Vue', id: 'uuid_0' },
-      uuid_1: { packageName: 'React', id: 'uuid_1' },
-    },
-    resourcesToAttributions: { file: ['uuid_0', 'uuid_1'] },
-  };
-  it('yields correct result if all necessary data are available', () => {
-    const testTargetAttributionId = 'uuid_0';
-    const testResourceId = 'file';
-    const expectedIndex = 1;
-    const testIndex = getIndexOfAttributionInManualPackagePanel(
-      testTargetAttributionId,
-      testResourceId,
-      testManualData,
-    );
-    expect(testIndex).toEqual(expectedIndex);
-  });
-
-  it('yields null if targetAttributionId is not on resource', () => {
-    const testTargetAttributionId = 'uuid_42';
-    const testResourceId = 'file';
-    const expectedIndex = null;
-    const testIndex = getIndexOfAttributionInManualPackagePanel(
-      testTargetAttributionId,
-      testResourceId,
-      testManualData,
-    );
-    expect(testIndex).toEqual(expectedIndex);
-  });
-
-  it('yields null if resource does not have attributions', () => {
-    const testTargetAttributionId = 'uuid_0';
-    const testResourceId = 'anotherFile';
-    const expectedIndex = null;
-    const testIndex = getIndexOfAttributionInManualPackagePanel(
-      testTargetAttributionId,
-      testResourceId,
-      testManualData,
-    );
-    expect(testIndex).toEqual(expectedIndex);
   });
 });
 

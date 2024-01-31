@@ -2,11 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AttributionData } from '../../../shared/shared-types';
-import { getContainedManualDisplayPackageInfosWithCount } from '../../Components/AggregatedAttributionsPanel/AccordionPanel.util';
-import { PackagePanelTitle } from '../../enums/enums';
+import {
+  AttributionData,
+  Attributions,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { Sorting } from '../../shared-constants';
-import { PanelData } from '../../types/types';
+import { getContainedManualPackages } from '../../util/get-contained-packages';
+import { sortAttributions } from '../../util/sort-attributions';
 
 interface Props {
   manualData: AttributionData;
@@ -18,17 +21,19 @@ export function getAttributionsInFolderContent({
   manualData,
   resourceId,
   sorting,
-}: Props): PanelData {
-  const [sortedPackageCardIds, displayPackageInfos] =
-    getContainedManualDisplayPackageInfosWithCount({
-      selectedResourceId: resourceId,
-      manualData,
-      panelTitle: PackagePanelTitle.ContainedManualPackages,
-      sorting,
-    });
+}: Props): Attributions {
+  const manualAttributionIdsWithCount = getContainedManualPackages(
+    resourceId,
+    manualData,
+  );
 
-  return {
-    sortedPackageCardIds,
-    displayPackageInfos,
-  };
+  return sortAttributions({
+    sorting,
+    attributions: manualAttributionIdsWithCount.map<PackageInfo>(
+      ({ attributionId, count }) => ({
+        ...manualData.attributions[attributionId],
+        count,
+      }),
+    ),
+  });
 }

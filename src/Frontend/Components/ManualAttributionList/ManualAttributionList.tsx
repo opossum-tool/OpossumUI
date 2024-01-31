@@ -20,7 +20,6 @@ const DISPLAY_PACKAGE_INFO_FOR_ADD_NEW_ATTRIBUTION_BUTTON: PackageInfo = {
 
 interface ManualAttributionListProps {
   displayPackageInfos: Attributions;
-  sortedPackageCardIds: Array<string>;
   selectedResourceId: string;
   selectedPackageCardId?: string;
   onCardClick(packageCardId: string, isButton?: boolean): void;
@@ -30,10 +29,11 @@ interface ManualAttributionListProps {
 export function ManualAttributionList(
   props: ManualAttributionListProps,
 ): ReactElement {
+  const sortedPackageCardIds = Object.keys(props.displayPackageInfos);
   const sortedPackageCardIdsPotentiallyWithAddNewAttributionButton =
     props.isAddNewAttributionItemShown
-      ? [...props.sortedPackageCardIds, ADD_NEW_ATTRIBUTION_BUTTON_ID]
-      : props.sortedPackageCardIds;
+      ? [...sortedPackageCardIds, ADD_NEW_ATTRIBUTION_BUTTON_ID]
+      : sortedPackageCardIds;
 
   function getAttributionCard(packageCardId: string): ReactElement {
     const isButton = packageCardId === ADD_NEW_ATTRIBUTION_BUTTON_ID;
@@ -56,7 +56,6 @@ export function ManualAttributionList(
         onClick={onClick}
         cardConfig={cardConfig}
         key={`AttributionCard-${displayPackageInfo.packageName}-${packageCardId}`}
-        cardId={`manual-${props.selectedResourceId}-${packageCardId}`}
         packageInfo={displayPackageInfo}
         showOpenResourcesIcon={!isButton}
       />

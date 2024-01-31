@@ -8,8 +8,10 @@ import { PackagePanelTitle } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
 import { getExternalData } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
-import { usePanelData } from '../../state/variables/use-panel-data';
-import { AttributionIdWithCount } from '../../types/types';
+import {
+  useAttributionsInFolderContent,
+  useSignalsInFolderContent,
+} from '../../state/variables/use-attributions-in-folder-content';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { getExternalAttributionIdsWithCount } from '../../util/get-contained-packages';
 import { AccordionPanel } from './AccordionPanel';
@@ -24,14 +26,14 @@ export const AggregatedAttributionsPanel = memo(
     const externalData = useAppSelector(getExternalData);
     const selectedResourceId = useAppSelector(getSelectedResourceId);
 
-    const [{ signalsInFolderContent, attributionsInFolderContent }] =
-      usePanelData();
+    const [attributionsInFolderContent] = useAttributionsInFolderContent();
+    const [signalsInFolderContent] = useSignalsInFolderContent();
 
     return (
       <>
         <SyncAccordionPanel
           title={PackagePanelTitle.ExternalPackages}
-          getAttributionIdsWithCount={(): Array<AttributionIdWithCount> =>
+          getAttributionIdsWithCount={() =>
             getExternalAttributionIdsWithCount(
               externalData.resourcesToAttributions[selectedResourceId] || [],
             )
@@ -44,13 +46,13 @@ export const AggregatedAttributionsPanel = memo(
           <>
             <AccordionPanel
               title={PackagePanelTitle.ContainedExternalPackages}
-              panelData={signalsInFolderContent}
+              attributions={signalsInFolderContent}
               isAddToPackageEnabled={props.isAddToPackageEnabled}
               aria-label={'signals in folder content panel'}
             />
             <AccordionPanel
               title={PackagePanelTitle.ContainedManualPackages}
-              panelData={attributionsInFolderContent}
+              attributions={attributionsInFolderContent}
               isAddToPackageEnabled={props.isAddToPackageEnabled}
               aria-label={'attributions in folder content panel'}
             />

@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { act, fireEvent, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import {
   Attributions,
@@ -13,12 +14,11 @@ import { text } from '../../../../shared/text';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ResourceDetailsTabs } from '../ResourceDetailsTabs';
 
 describe('The ResourceDetailsTabs', () => {
-  it('switches between tabs', () => {
+  it('switches between tabs', async () => {
     const testResources: Resources = {
       root: {
         fileWithoutAttribution: 1,
@@ -48,10 +48,10 @@ describe('The ResourceDetailsTabs', () => {
     });
     expect(screen.getByText('Signals')).toBeInTheDocument();
 
-    clickOnTab(screen, 'Global Tab');
+    await userEvent.click(screen.getByLabelText('Global Tab'));
     expect(screen.queryByText('Signals')).not.toBeInTheDocument();
 
-    clickOnTab(screen, 'Local Tab');
+    await userEvent.click(screen.getByLabelText('Local Tab'));
     expect(screen.getByText('Signals')).toBeInTheDocument();
   });
 
@@ -87,11 +87,10 @@ describe('The ResourceDetailsTabs', () => {
     });
     expect(screen.getByText('Signals')).toBeInTheDocument();
 
-    clickOnTab(screen, 'Global Tab');
-    expect(screen.getByText('Signals')).toBeInTheDocument();
+    expect(screen.getByLabelText('Global Tab')).toBeDisabled();
   });
 
-  it('has search functionality', () => {
+  it('has search functionality', async () => {
     const resourcesToManualAttributions: ResourcesToAttributions = {
       '/fileWithAttribution': ['uuid_1', 'uuid_2', 'uuid_3'],
     };
@@ -143,7 +142,7 @@ describe('The ResourceDetailsTabs', () => {
       store.dispatch(setSelectedResourceId('/root/fileWithoutAttribution'));
     });
 
-    clickOnTab(screen, 'Global Tab');
+    await userEvent.click(screen.getByLabelText('Global Tab'));
 
     screen.getByText(/package name 1/);
     screen.getByText(/package name 2/);

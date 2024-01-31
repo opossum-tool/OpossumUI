@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { pick } from 'lodash';
+
 import {
   AttributionData,
   Attributions,
@@ -15,12 +17,12 @@ import {
 import { text } from '../../../shared/text';
 import { LocatePopupFilters } from '../../types/types';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
-import { getPackageSorter } from '../../util/get-package-sorter';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
 import {
   licenseNameContainsSearchTerm,
   packageInfoContainsSearchTerm,
 } from '../../util/search-package-info';
+import { sortAttributions } from '../../util/sort-attributions';
 import { ResourceState } from '../reducers/resource-reducer';
 import { getParents } from './get-parents';
 import {
@@ -160,11 +162,14 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
 ): string {
   let displayedAttributionId = '';
   if (attributionIds && attributionIds.length > 0) {
-    displayedAttributionId = [...attributionIds].sort(
-      getPackageSorter(
-        state.allViews.manualData.attributions,
-        text.sortings.name,
-      ),
+    displayedAttributionId = Object.keys(
+      sortAttributions({
+        attributions: pick(
+          state.allViews.manualData.attributions,
+          attributionIds,
+        ),
+        sorting: text.sortings.name,
+      }),
     )[0];
   } else {
     const closestParentAttributionIds: Array<string> =
@@ -174,38 +179,18 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
         getAttributionBreakpointCheckForResourceState(state),
       );
     if (closestParentAttributionIds.length > 0) {
-      displayedAttributionId = [...closestParentAttributionIds].sort(
-        getPackageSorter(
-          state.allViews.manualData.attributions,
-          text.sortings.name,
-        ),
+      displayedAttributionId = Object.keys(
+        sortAttributions({
+          attributions: pick(
+            state.allViews.manualData.attributions,
+            closestParentAttributionIds,
+          ),
+          sorting: text.sortings.name,
+        }),
       )[0];
     }
   }
   return displayedAttributionId;
-}
-
-export function getIndexOfAttributionInManualPackagePanel(
-  targetAttributionId: string,
-  resourceId: string,
-  manualData: AttributionData,
-): number | null {
-  const manualAttributionIdsOnResource =
-    manualData.resourcesToAttributions[resourceId];
-
-  if (!manualAttributionIdsOnResource) {
-    return null;
-  }
-
-  const sortedAttributionIds = manualAttributionIdsOnResource.sort(
-    getPackageSorter(manualData.attributions, text.sortings.name),
-  );
-
-  const packageCardIndex = sortedAttributionIds.findIndex(
-    (attributionId) => attributionId === targetAttributionId,
-  );
-
-  return packageCardIndex !== -1 ? packageCardIndex : null;
 }
 
 export function calculateResourcesWithLocatedAttributions(
