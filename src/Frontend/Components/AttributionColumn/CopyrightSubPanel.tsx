@@ -32,13 +32,8 @@ export function CopyrightSubPanel({
 }: CopyrightSubPanelProps) {
   const dispatch = useAppDispatch();
 
-  return hidden && !expanded ? null : (
-    <MuiBox
-      sx={{
-        ...attributionColumnClasses.panel,
-        visibility: hidden ? 'hidden' : 'visible',
-      }}
-    >
+  return hidden ? null : (
+    <MuiBox sx={attributionColumnClasses.panel}>
       <TextBox
         readOnly={!onEdit}
         sx={attributionColumnClasses.textBox}
@@ -65,6 +60,7 @@ export function CopyrightSubPanel({
           showHighlight &&
           isImportantAttributionInformationMissing('copyright', packageInfo)
         }
+        endIcon={config?.endIcon}
       />
     </MuiBox>
   );

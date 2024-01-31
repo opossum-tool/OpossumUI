@@ -25,10 +25,15 @@ import { SplitButton } from '../SplitButton/SplitButton';
 interface ButtonRowProps {
   areButtonsHidden?: boolean;
   packageInfo: PackageInfo;
+
   onSaveButtonClick?(): void;
+
   onSaveGloballyButtonClick?(): void;
+
   onDeleteButtonClick?(): void;
+
   onDeleteGloballyButtonClick?(): void;
+
   showSaveGloballyButton?: boolean;
   hideDeleteButtons?: boolean;
   additionalActions?: Array<ButtonProps>;
@@ -165,7 +170,7 @@ export function ButtonRow({
       <Button
         onClick={() => setIsDiffPopupOpen(true)}
         color={'secondary'}
-        buttonText={text.buttons.compareToOrigin}
+        buttonText={text.buttons.compareToOriginal}
       />
     ) : null;
   }
@@ -189,6 +194,7 @@ export function ButtonRow({
         current={packageInfo}
         isOpen={isDiffPopupOpen}
         setOpen={setIsDiffPopupOpen}
+        key={isDiffPopupOpen.toString()}
       />
     ) : null;
   }

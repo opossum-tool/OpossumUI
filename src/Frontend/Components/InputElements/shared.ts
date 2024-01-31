@@ -62,4 +62,5 @@ export interface InputElementProps {
   isHighlighted?: boolean;
   color?: TextFieldProps['color'];
   focused?: boolean;
+  endIcon?: React.ReactElement;
 }

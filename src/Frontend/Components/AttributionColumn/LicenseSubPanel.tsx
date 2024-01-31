@@ -119,13 +119,8 @@ export function LicenseSubPanel({
     [frequentLicensesNames, onEdit, packageInfo.licenseName],
   );
 
-  return hidden && !expandedOverride ? null : (
-    <MuiBox
-      sx={{
-        ...classes.panel,
-        visibility: hidden ? 'hidden' : 'visible',
-      }}
-    >
+  return hidden ? null : (
+    <MuiBox sx={classes.panel}>
       <MuiAccordion
         sx={classes.expansionPanel}
         elevation={0}
@@ -154,11 +149,12 @@ export function LicenseSubPanel({
             showHighlight={showHighlight}
             onEdit={onEdit}
             endAdornment={
-              packageInfo.licenseText ? (
+              config?.licenseName?.endIcon ||
+              (packageInfo.licenseText ? (
                 <MuiInputAdornment position="end" sx={classes.endAdornment}>
                   {text.attributionColumn.licenseTextModified}
                 </MuiInputAdornment>
-              ) : undefined
+              ) : undefined)
             }
             defaults={defaultLicenses}
             color={config?.licenseName?.color}
@@ -194,6 +190,7 @@ export function LicenseSubPanel({
                 ),
               )
             }
+            endIcon={config?.licenseText?.endIcon}
           />
         </MuiAccordionDetails>
       </MuiAccordion>

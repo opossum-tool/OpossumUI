@@ -5,6 +5,7 @@
 import { isEqual, pickBy } from 'lodash';
 
 import { PackageInfo } from '../../shared/shared-types';
+import { thirdPartyKeys } from '../shared-constants';
 
 export function getStrippedPackageInfo(packageInfo: PackageInfo) {
   return pickBy(
@@ -19,12 +20,6 @@ export function getStrippedPackageInfo(packageInfo: PackageInfo) {
       !isEqual(value, []),
   );
 }
-
-const thirdPartyKeys: Array<keyof PackageInfo> = [
-  'copyright',
-  'licenseName',
-  'licenseText',
-];
 
 const strippedPackageInfoTemplate: {
   [P in keyof Required<PackageInfo>]: boolean;

@@ -17,6 +17,7 @@ interface IconButtonProps {
   icon: ReactElement;
   disabled?: boolean;
   hidden?: boolean;
+  'data-testid'?: string;
 }
 
 export function IconButton(props: IconButtonProps) {
@@ -41,6 +42,7 @@ export function IconButton(props: IconButtonProps) {
             props.onClick?.();
           }}
           disabled={props.disabled}
+          data-testid={props['data-testid']}
         >
           {props.icon}
         </MuiButtonBase>

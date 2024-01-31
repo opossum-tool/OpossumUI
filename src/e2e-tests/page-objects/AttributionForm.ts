@@ -39,6 +39,12 @@ export class AttributionForm {
     readonly previouslyPreferredLabel: Locator;
     readonly sourceLabel: Locator;
   };
+  readonly nameUndoButton: Locator;
+  readonly nameRedoButton: Locator;
+  readonly copyrightUndoButton: Locator;
+  readonly copyrightRedoButton: Locator;
+  readonly attributionTypeUndoButton: Locator;
+  readonly attributionTypeRedoButton: Locator;
 
   constructor(context: Locator, window: Page) {
     this.window = window;
@@ -115,6 +121,12 @@ export class AttributionForm {
         .getByRole('menuitem')
         .getByText(text.auditingOptions.excludedFromNotice),
     };
+    this.nameUndoButton = this.node.getByTestId('packageName-undo');
+    this.nameRedoButton = this.node.getByTestId('packageName-redo');
+    this.copyrightUndoButton = this.node.getByTestId('copyright-undo');
+    this.copyrightRedoButton = this.node.getByTestId('copyright-redo');
+    this.attributionTypeUndoButton = this.node.getByTestId('firstParty-undo');
+    this.attributionTypeRedoButton = this.node.getByTestId('firstParty-redo');
   }
 
   public comment(number = 0): Locator {
@@ -244,6 +256,42 @@ export class AttributionForm {
       label: keyof typeof this.auditingLabels,
     ): Promise<void> => {
       await expect(this.auditingLabels[label]).toBeHidden();
+    },
+    nameUndoButtonIsVisible: async () => {
+      await expect(this.nameUndoButton).toBeVisible();
+    },
+    nameUndoButtonIsHidden: async () => {
+      await expect(this.nameUndoButton).toBeHidden();
+    },
+    nameRedoButtonIsVisible: async () => {
+      await expect(this.nameRedoButton).toBeVisible();
+    },
+    nameRedoButtonIsHidden: async () => {
+      await expect(this.nameRedoButton).toBeHidden();
+    },
+    copyrightUndoButtonIsVisible: async () => {
+      await expect(this.copyrightUndoButton).toBeVisible();
+    },
+    copyrightUndoButtonIsHidden: async () => {
+      await expect(this.copyrightUndoButton).toBeHidden();
+    },
+    copyrightRedoButtonIsVisible: async () => {
+      await expect(this.copyrightRedoButton).toBeVisible();
+    },
+    copyrightRedoButtonIsHidden: async () => {
+      await expect(this.copyrightRedoButton).toBeHidden();
+    },
+    attributionTypeUndoButtonIsVisible: async () => {
+      await expect(this.attributionTypeUndoButton).toBeVisible();
+    },
+    attributionTypeUndoButtonIsHidden: async () => {
+      await expect(this.attributionTypeUndoButton).toBeHidden();
+    },
+    attributionTypeRedoButtonIsVisible: async () => {
+      await expect(this.attributionTypeRedoButton).toBeVisible();
+    },
+    attributionTypeRedoButtonIsHidden: async () => {
+      await expect(this.attributionTypeRedoButton).toBeHidden();
     },
   };
 

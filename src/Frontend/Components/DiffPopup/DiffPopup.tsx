@@ -3,9 +3,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
+import { isEqual } from 'lodash';
 
 import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { useAppDispatch } from '../../state/hooks';
+import {
+  FORM_ATTRIBUTES,
+  getComparableAttributes,
+} from '../../util/get-comparable-attributes';
 import { AttributionForm } from '../AttributionColumn/AttributionForm';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { DiffPopupContainer } from './DiffPopup.style';
@@ -20,31 +27,85 @@ interface DiffPopupProps {
 
 export function DiffPopup({
   current,
-  isOpen,
   original,
+  isOpen,
   setOpen,
 }: DiffPopupProps) {
-  const [originalFormConfig, currentFormConfig] = useAttributionFormConfigs({
-    current,
+  const dispatch = useAppDispatch();
+  const {
+    originalFormConfig,
+    bufferFormConfig,
+    bufferPackageInfo,
+    setBufferPackageInfo,
+  } = useAttributionFormConfigs({
     original,
+    current,
   });
+
+  function handleApplyChanges(
+    original: PackageInfo,
+    current: PackageInfo,
+    buffer: PackageInfo,
+  ) {
+    const markAsWasPreferred =
+      isEqual(
+        getComparableAttributes(buffer),
+        getComparableAttributes(original),
+      ) && original.wasPreferred;
+    const restoreLicenseAndCopyright = current.firstParty && buffer.firstParty;
+    dispatch(
+      setTemporaryDisplayPackageInfo({
+        ...buffer,
+        ...(markAsWasPreferred ? { wasPreferred: true } : {}),
+        ...(restoreLicenseAndCopyright
+          ? {
+              copyright: current.copyright,
+              licenseName: current.licenseName,
+              licenseText: current.licenseText,
+            }
+          : {}),
+      }),
+    );
+    setOpen(false);
+  }
 
   return (
     <NotificationPopup
       header={text.diffPopup.title}
       content={renderDiffView()}
       leftButtonConfig={{
-        disabled: true,
+        disabled: isEqual(
+          getComparableAttributes(bufferPackageInfo),
+          getComparableAttributes(current),
+        ),
         buttonText: text.buttons.diffPopup.applyChanges,
+        onClick: () => {
+          handleApplyChanges(original, current, bufferPackageInfo);
+        },
       }}
       centerRightButtonConfig={{
-        disabled: true,
+        disabled: isEqual(
+          getComparableAttributes(bufferPackageInfo),
+          getComparableAttributes(original),
+        ),
         buttonText: text.buttons.diffPopup.revertAll,
+        onClick: () => {
+          setBufferPackageInfo({
+            ...bufferPackageInfo,
+            ...FORM_ATTRIBUTES.reduce(
+              (acc, attribute) => ({
+                ...acc,
+                [attribute]: original[attribute],
+              }),
+              {},
+            ),
+          });
+        },
       }}
       rightButtonConfig={{
-        onClick: () => setOpen(false),
         buttonText: text.buttons.cancel,
         color: 'secondary',
+        onClick: () => setOpen(false),
       }}
       isOpen={isOpen}
       background={'lightestBlue'}
@@ -68,10 +129,10 @@ export function DiffPopup({
           orientation={'vertical'}
         />
         <AttributionForm
-          packageInfo={current}
+          packageInfo={bufferPackageInfo}
           variant={'diff'}
           label={'current'}
-          config={currentFormConfig}
+          config={bufferFormConfig}
         />
       </DiffPopupContainer>
     );
