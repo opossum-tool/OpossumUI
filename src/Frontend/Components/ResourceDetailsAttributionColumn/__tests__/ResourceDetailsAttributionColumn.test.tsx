@@ -67,7 +67,7 @@ describe('The ResourceDetailsAttributionColumn', () => {
   it('renders TextBoxes with right titles and content', () => {
     const testTemporaryDisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
-      comments: ['some comment'],
+      comment: 'some comment',
       packageName: 'Some package',
       packageVersion: '16.5.0',
       copyright: 'Copyright Doe Inc. 2019',
@@ -92,11 +92,9 @@ describe('The ResourceDetailsAttributionColumn', () => {
       'false',
     );
     expect(screen.getByLabelText('Comment')).toBeInTheDocument();
-    const testComment =
-      testTemporaryDisplayPackageInfo?.comments !== undefined
-        ? testTemporaryDisplayPackageInfo?.comments[0]
-        : '';
-    expect(screen.getByDisplayValue(testComment)).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.comment),
+    ).toBeInTheDocument();
     expect(
       screen.getByLabelText(text.attributionColumn.packageSubPanel.packageName),
     ).toBeInTheDocument();

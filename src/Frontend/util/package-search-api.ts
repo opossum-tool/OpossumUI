@@ -459,26 +459,24 @@ export class PackageSearchApi {
 
     return this.enrichPackageInfoViaRepoUrl({
       ...packageInfo,
-      comments: compact(packageInfo.comments).length
-        ? packageInfo.comments
-        : [
-            [
-              ...(description
-                ? [`${text.attributionColumn.description}: ${description}`]
-                : []),
-              ...(links?.homepage
-                ? [`${text.attributionColumn.homepage}: ${links.homepage}`]
-                : []),
-              ...(links?.origins?.length
-                ? links.origins.map(
-                    (origin, index, origins) =>
-                      `${text.attributionColumn.origin}${
-                        origins.length > 1 ? ` #${index + 1}` : ''
-                      }: ${origin}`,
-                  )
-                : []),
-            ].join('\n'),
-          ],
+      comment:
+        packageInfo.comment ||
+        [
+          ...(description
+            ? [`${text.attributionColumn.description}: ${description}`]
+            : []),
+          ...(links?.homepage
+            ? [`${text.attributionColumn.homepage}: ${links.homepage}`]
+            : []),
+          ...(links?.origins?.length
+            ? links.origins.map(
+                (origin, index, origins) =>
+                  `${text.attributionColumn.origin}${
+                    origins.length > 1 ? ` #${index + 1}` : ''
+                  }: ${origin}`,
+              )
+            : []),
+        ].join('\n'),
       licenseName:
         packageInfo.licenseName ||
         licenses

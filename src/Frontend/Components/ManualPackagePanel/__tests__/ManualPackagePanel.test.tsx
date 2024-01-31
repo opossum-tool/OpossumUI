@@ -72,7 +72,7 @@ describe('The ManualPackagePanel', () => {
       },
       uuid_2: {
         attributionConfidence: 0,
-        comments: ['Some comment'],
+        comment: 'Some comment',
         packageName: 'Test package',
         packageVersion: '1.0',
         copyright: 'Copyright John Doe',

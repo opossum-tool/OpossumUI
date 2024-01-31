@@ -16,7 +16,7 @@ describe('sortAttributions', () => {
       }),
       faker.opossum.packageInfo({
         attributionConfidence: 0,
-        comments: ['Some comment'],
+        comment: 'Some comment',
         packageName: 'Test package',
         packageVersion: '1.0',
         copyright: 'Copyright John Doe',
@@ -25,7 +25,7 @@ describe('sortAttributions', () => {
       }),
       faker.opossum.packageInfo({
         packageName: undefined,
-        comments: ['Example comment'],
+        comment: 'Example comment',
         id: 'c',
       }),
       faker.opossum.packageInfo({

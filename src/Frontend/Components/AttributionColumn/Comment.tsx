@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { ReactElement } from 'react';
 
 import { PackageInfo } from '../../../shared/shared-types';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -17,34 +16,30 @@ interface Props {
   onEdit?: Confirm;
 }
 
-export function CommentStack({ packageInfo, onEdit }: Props): ReactElement {
+export function Comment({ packageInfo, onEdit }: Props) {
   const dispatch = useAppDispatch();
-  const comments = packageInfo.comments?.length ? packageInfo.comments : [''];
 
   return (
     <MuiBox sx={attributionColumnClasses.panel}>
-      {comments.map((comment, index) => (
-        <TextBox
-          key={index}
-          isEditable={!!onEdit}
-          title={`Comment ${comments.length === 1 ? '' : index + 1}`.trim()}
-          text={comment}
-          minRows={3}
-          maxRows={10}
-          multiline={true}
-          handleChange={({ target: { value } }) =>
-            onEdit?.(() =>
-              dispatch(
-                setTemporaryDisplayPackageInfo({
-                  ...packageInfo,
-                  comments: [value],
-                  wasPreferred: undefined,
-                }),
-              ),
-            )
-          }
-        />
-      ))}
+      <TextBox
+        isEditable={!!onEdit}
+        title={'Comment'}
+        text={packageInfo.comment}
+        minRows={3}
+        maxRows={10}
+        multiline={true}
+        handleChange={(event) =>
+          onEdit?.(() =>
+            dispatch(
+              setTemporaryDisplayPackageInfo({
+                ...packageInfo,
+                comment: event.target.value,
+                wasPreferred: undefined,
+              }),
+            ),
+          )
+        }
+      />
     </MuiBox>
   );
 }

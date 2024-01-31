@@ -15,7 +15,7 @@ import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-act
 import { useAppDispatch } from '../../state/hooks';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { AuditingOptions } from './AuditingOptions';
-import { CommentStack } from './CommentStack';
+import { Comment } from './Comment';
 import { CopyrightSubPanel } from './CopyrightSubPanel';
 import { LicenseSubPanel } from './LicenseSubPanel';
 import { PackageSubPanel } from './PackageSubPanel';
@@ -74,7 +74,7 @@ export function AttributionForm(props: AttributionFormProps) {
           />
         </>
       )}
-      <CommentStack packageInfo={props.packageInfo} onEdit={props.onEdit} />
+      <Comment packageInfo={props.packageInfo} onEdit={props.onEdit} />
     </MuiBox>
   );
 

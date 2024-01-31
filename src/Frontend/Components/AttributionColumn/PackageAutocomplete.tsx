@@ -260,10 +260,6 @@ export function PackageAutocomplete({
             const merged: PackageInfo = {
               ...temporaryPackageInfo,
               ...omit(option, ['preSelected', 'id']),
-              comments:
-                (option.comments?.length ?? 0) > 1
-                  ? undefined
-                  : option.comments,
             };
             dispatch(
               setTemporaryDisplayPackageInfo(

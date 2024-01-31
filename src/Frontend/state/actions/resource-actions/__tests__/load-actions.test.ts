@@ -82,7 +82,7 @@ describe('loadFromFile', () => {
       },
       doNotChangeMe1: {
         packageName: 'name',
-        comments: ['comment1'],
+        comment: 'comment1',
         originIds: ['abc'],
         preSelected: true,
         attributionConfidence: 1,
@@ -90,7 +90,7 @@ describe('loadFromFile', () => {
       },
       doNotChangeMe2: {
         packageName: 'name',
-        comments: ['comment2'],
+        comment: 'comment2',
         originIds: ['def'],
         preSelected: false,
         attributionConfidence: 2,

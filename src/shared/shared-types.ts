@@ -46,7 +46,6 @@ export type Never<T, K extends keyof T> = Expand<
 >;
 
 interface EphemeralPackageInfoProps {
-  comments?: Array<string>;
   count?: number;
   synthetic?: boolean;
   id: string;
@@ -56,6 +55,7 @@ interface EphemeralPackageInfoProps {
 
 export interface PackageInfo extends EphemeralPackageInfoProps {
   attributionConfidence?: number;
+  comment?: string;
   copyright?: string;
   count?: number;
   criticality?: Criticality;
@@ -85,7 +85,6 @@ export interface RawPackageInfo
     keyof EphemeralPackageInfoProps
   > {
   originId?: string;
-  comment?: string;
   followUp?: 'FOLLOW_UP';
 }
 

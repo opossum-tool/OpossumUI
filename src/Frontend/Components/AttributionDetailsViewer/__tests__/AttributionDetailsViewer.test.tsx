@@ -25,7 +25,7 @@ describe('The AttributionDetailsViewer', () => {
   it('renders TextBoxes with right titles and content', () => {
     const testTemporaryDisplayPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
-      comments: ['some comment'],
+      comment: 'some comment',
       packageName: 'Some package',
       packageVersion: '16.5.0',
       copyright: 'Copyright Doe 2019',
@@ -49,9 +49,9 @@ describe('The AttributionDetailsViewer', () => {
     );
     expect(screen.getByLabelText('Comment')).toBeInTheDocument();
 
-    testTemporaryDisplayPackageInfo.comments?.forEach((comment) =>
-      expect(screen.getByDisplayValue(comment)).toBeInTheDocument(),
-    );
+    expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.comment || ''),
+    ).toBeInTheDocument();
     expect(
       screen.getByLabelText(text.attributionColumn.packageSubPanel.packageName),
     ).toBeInTheDocument();

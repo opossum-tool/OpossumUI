@@ -106,7 +106,7 @@ describe('Locator popup', () => {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
       licenseName: 'MIT',
-      comments: ['ManualPackage'],
+      comment: 'ManualPackage',
       id: 'uuid_1',
     };
     const testExternalAttributions: Attributions = {
@@ -149,14 +149,14 @@ describe('Locator popup', () => {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
       licenseName: 'MIT',
-      comments: ['ManualPackage'],
+      comment: 'ManualPackage',
       id: 'uuid_1',
     };
     const otherTestExternalAttribution: PackageInfo = {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
       licenseName: 'GPL-2.0',
-      comments: ['ManualPackage'],
+      comment: 'ManualPackage',
       id: 'uuid_2',
     };
     const testExternalAttributions: Attributions = {

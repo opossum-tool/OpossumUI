@@ -131,7 +131,7 @@ describe('deserializeAttributions', () => {
     const expectedAttributions: Attributions = {
       id: {
         id: 'id',
-        comments: ['Test comment'],
+        comment: 'Test comment',
       },
     };
 
@@ -254,23 +254,6 @@ describe('serializeAttributions', () => {
     };
     const rawAttributions: RawAttributions = {
       id: {},
-    };
-
-    expect(serializeAttributions(attributions)).toEqual<RawAttributions>(
-      rawAttributions,
-    );
-  });
-
-  it('converts multiple comments to single comment', () => {
-    const comments = faker.helpers.multiple(faker.lorem.word);
-    const attributions: Attributions = {
-      id: {
-        id: 'id',
-        comments,
-      },
-    };
-    const rawAttributions: RawAttributions = {
-      id: { comment: comments.join('\n') },
     };
 
     expect(serializeAttributions(attributions)).toEqual<RawAttributions>(

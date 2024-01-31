@@ -40,7 +40,7 @@ describe('BackendCommunication', () => {
     const completeTestAttributions: Attributions = {
       completeAttrib: {
         attributionConfidence: 1,
-        comments: ['Test'],
+        comment: 'Test',
         packageName: 'Test component',
         packageVersion: '',
         packageNamespace: 'org.apache.xmlgraphics',

@@ -47,5 +47,5 @@ export const tableConfigs: Array<TableConfig> = [
     displayName: 'Confidence',
     width: 'small',
   },
-  { attributionProperty: 'comments', displayName: 'Comments', width: 'small' },
+  { attributionProperty: 'comment', displayName: 'Comment', width: 'small' },
 ];

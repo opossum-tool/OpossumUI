@@ -455,7 +455,7 @@ describe('PackageSearchApi', () => {
         expect.objectContaining<Partial<PackageInfo>>({
           url: links.repo,
           licenseName: `${license1} AND ${license2}`,
-          comments: [`${text.attributionColumn.homepage}: ${links.homepage!}`],
+          comment: `${text.attributionColumn.homepage}: ${links.homepage!}`,
         }),
       );
     });

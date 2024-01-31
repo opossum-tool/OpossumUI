@@ -136,7 +136,7 @@ export function deserializeAttributions(
           originIds: (originIds ?? []).concat(originId ?? []),
         }),
         ...(followUp === 'FOLLOW_UP' && { followUp: true }),
-        ...(sanitizedComment && { comments: [sanitizedComment] }),
+        ...(sanitizedComment && { comment: sanitizedComment }),
         ...(isCritical && { criticality }),
         id: attributionId,
       };
@@ -155,7 +155,6 @@ export function serializeAttributions(
       [
         attributionId,
         {
-          comments,
           count,
           followUp,
           id,
@@ -167,14 +166,8 @@ export function serializeAttributions(
         },
       ],
     ) => {
-      const sanitizedComments = comments
-        ?.map((comment) => comment.replace(/^\s+|\s+$/g, ''))
-        .filter((comment) => !!comment);
       rawAttributions[attributionId] = {
         ...attribution,
-        ...(sanitizedComments?.length && {
-          comment: sanitizedComments.join('\n'),
-        }),
         ...(followUp && { followUp: 'FOLLOW_UP' }),
       };
       return rawAttributions;
