@@ -25,7 +25,7 @@ import { isAuditViewSelected } from '../../state/selectors/view-selector';
 import { useAutocompleteSignals } from '../../state/variables/use-autocomplete-signals';
 import { generatePurl } from '../../util/handle-purl';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
-import { omit, pick } from '../../util/lodash-extension-utils';
+import { omit } from '../../util/lodash-extension-utils';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { openUrl } from '../../util/open-url';
 import { PackageSearchHooks } from '../../util/package-search-hooks';
@@ -258,14 +258,12 @@ export function PackageAutocomplete({
           onClick={async (event) => {
             event.stopPropagation();
             const merged: PackageInfo = {
-              ...omit(option, ['preSelected', 'source']),
-              ...pick(temporaryPackageInfo, [
-                'attributionConfidence',
-                'excludeFromNotice',
-                'followUp',
-                'needsReview',
-                'preferred',
-              ]),
+              ...temporaryPackageInfo,
+              ...omit(option, ['preSelected', 'id']),
+              comments:
+                (option.comments?.length ?? 0) > 1
+                  ? undefined
+                  : option.comments,
             };
             dispatch(
               setTemporaryDisplayPackageInfo(
