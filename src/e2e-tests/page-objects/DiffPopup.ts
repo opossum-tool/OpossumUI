@@ -12,7 +12,7 @@ export class DiffPopup {
   readonly originalAttributionForm: AttributionForm;
   readonly currentAttributionForm: AttributionForm;
   readonly applyButton: Locator;
-  readonly revertButton: Locator;
+  readonly revertAllButton: Locator;
   readonly cancelButton: Locator;
 
   constructor(window: Page) {
@@ -29,7 +29,7 @@ export class DiffPopup {
       name: text.buttons.diffPopup.applyChanges,
       exact: true,
     });
-    this.revertButton = this.node.getByRole('button', {
+    this.revertAllButton = this.node.getByRole('button', {
       name: text.buttons.diffPopup.revertAll,
       exact: true,
     });
@@ -45,6 +45,12 @@ export class DiffPopup {
     },
     isHidden: async (): Promise<void> => {
       await expect(this.node).toBeHidden();
+    },
+    applyButtonIsDisabled: async () => {
+      await expect(this.applyButton).toBeDisabled();
+    },
+    revertAllButtonIsDisabled: async () => {
+      await expect(this.revertAllButton).toBeDisabled();
     },
   };
 }

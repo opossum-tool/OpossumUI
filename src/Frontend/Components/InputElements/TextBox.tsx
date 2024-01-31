@@ -12,7 +12,6 @@ import { inputElementClasses, InputElementProps } from './shared';
 interface TextBoxProps extends InputElementProps {
   minRows?: number;
   maxRows?: number;
-  endIcon?: React.ReactElement;
   multiline?: boolean;
   highlightingColor?: HighlightingColor;
   error?: boolean;

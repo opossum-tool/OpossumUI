@@ -27,6 +27,7 @@ export const inputElementClasses = {
         display: 'none',
       },
     },
+    '& .Mui-readOnly:hover fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' },
   },
   defaultHighlightedTextField: {
     '& div': {
@@ -48,7 +49,7 @@ export const inputElementClasses = {
       padding: '1px 3px',
     },
   },
-};
+} satisfies SxProps;
 
 export interface InputElementProps {
   title?: string;
@@ -62,4 +63,5 @@ export interface InputElementProps {
   isHighlighted?: boolean;
   color?: TextFieldProps['color'];
   focused?: boolean;
+  endIcon?: React.ReactElement;
 }

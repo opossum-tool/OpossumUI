@@ -8,23 +8,40 @@ import { without } from 'lodash';
 import { faker } from '../../../../testing/Faker';
 import { renderHook } from '../../../test-helpers/render';
 import {
-  AttributionFormConfig,
   FORM_ATTRIBUTES,
   FormAttribute,
-} from '../../AttributionColumn/AttributionForm';
+} from '../../../util/get-comparable-attributes';
+import { AttributionFormConfig } from '../../AttributionColumn/AttributionForm';
 import { useAttributionFormConfigs } from '../DiffPopup.util';
 
 describe('useAttributionFormConfigs', () => {
-  const EMPTY_CONFIG: AttributionFormConfig = {
-    copyright: { color: undefined, focused: false },
-    licenseName: { color: undefined, focused: false },
-    licenseText: { color: undefined, focused: false },
-    packageName: { color: undefined, focused: false },
-    packageNamespace: { color: undefined, focused: false },
-    packageVersion: { color: undefined, focused: false },
-    url: { color: undefined, focused: false },
-    packageType: { color: undefined, focused: false },
-  };
+  const EMPTY_ORIGINAL_CONFIG = FORM_ATTRIBUTES.reduce<AttributionFormConfig>(
+    (acc, attribute) => {
+      return attribute !== 'firstParty'
+        ? { ...acc, [attribute]: { color: undefined, focused: false } }
+        : { ...acc, [attribute]: { color: undefined } };
+    },
+    {},
+  );
+
+  const EMPTY_BUFFER_CONFIG = FORM_ATTRIBUTES.reduce<AttributionFormConfig>(
+    (acc, attribute) => {
+      return attribute !== 'firstParty'
+        ? {
+            ...acc,
+            [attribute]: {
+              color: undefined,
+              focused: false,
+              endIcon: undefined,
+            },
+          }
+        : {
+            ...acc,
+            [attribute]: { color: undefined, endIcon: undefined },
+          };
+    },
+    {},
+  );
 
   it.each(
     without(FORM_ATTRIBUTES, 'firstParty') as Array<
@@ -46,56 +63,65 @@ describe('useAttributionFormConfigs', () => {
         }),
       );
 
+      await waitFor(() => {
+        expect(
+          result.current.originalFormConfig,
+        ).toEqual<AttributionFormConfig>({
+          ...EMPTY_ORIGINAL_CONFIG,
+          [attribute]: { focused: true, color: 'error' },
+        });
+      });
       await waitFor(() =>
-        expect(result.current).toEqual<
-          [AttributionFormConfig, AttributionFormConfig]
-        >([
-          {
-            ...EMPTY_CONFIG,
-            [attribute]: { focused: true, color: 'error' },
+        expect(result.current.bufferFormConfig).toEqual<AttributionFormConfig>({
+          ...EMPTY_BUFFER_CONFIG,
+          [attribute]: {
+            focused: true,
+            color: 'success',
+            endIcon: expect.anything(),
           },
-          {
-            ...EMPTY_CONFIG,
-            [attribute]: { focused: true, color: 'success' },
-          },
-        ]),
+        }),
       );
     },
   );
 
-  const EXPECTED_ORIGINAL_CONFIG: AttributionFormConfig = {
-    copyright: { color: 'error', focused: true },
-    licenseName: { color: 'error', focused: true },
-    licenseText: { color: 'error', focused: true },
-    packageName: { color: undefined, focused: false },
-    packageNamespace: { color: undefined, focused: false },
-    packageVersion: { color: undefined, focused: false },
-    url: { color: undefined, focused: false },
-    packageType: { color: undefined, focused: false },
-  };
-  const EXPECTED_CURRENT_CONFIG: AttributionFormConfig = {
-    copyright: { color: 'success', focused: true },
-    licenseName: { color: 'success', focused: true },
-    licenseText: { color: 'success', focused: true },
-    packageName: { color: undefined, focused: false },
-    packageNamespace: { color: undefined, focused: false },
-    packageVersion: { color: undefined, focused: false },
-    url: { color: undefined, focused: false },
-    packageType: { color: undefined, focused: false },
-  };
+  const EXPECTED_ORIGINAL_CONFIG =
+    FORM_ATTRIBUTES.reduce<AttributionFormConfig>((acc, attribute) => {
+      return attribute !== 'firstParty'
+        ? { ...acc, [attribute]: { color: undefined, focused: false } }
+        : { ...acc, [attribute]: { color: 'error' } };
+    }, {});
+
+  const EXPECTED_BUFFER_CONFIG = FORM_ATTRIBUTES.reduce<AttributionFormConfig>(
+    (acc, attribute) => {
+      return attribute !== 'firstParty'
+        ? {
+            ...acc,
+            [attribute]: {
+              color: undefined,
+              focused: false,
+              endIcon: undefined,
+            },
+          }
+        : {
+            ...acc,
+            [attribute]: { color: 'success', endIcon: expect.anything() },
+          };
+    },
+    {},
+  );
 
   it.each<[boolean, boolean, [AttributionFormConfig, AttributionFormConfig]]>([
-    [true, true, [EMPTY_CONFIG, EMPTY_CONFIG]],
-    [true, false, [EXPECTED_ORIGINAL_CONFIG, EXPECTED_CURRENT_CONFIG]],
-    [false, true, [EXPECTED_ORIGINAL_CONFIG, EXPECTED_CURRENT_CONFIG]],
-    [false, false, [EMPTY_CONFIG, EMPTY_CONFIG]],
+    [true, true, [EMPTY_ORIGINAL_CONFIG, EMPTY_BUFFER_CONFIG]],
+    [true, false, [EXPECTED_ORIGINAL_CONFIG, EXPECTED_BUFFER_CONFIG]],
+    [false, true, [EXPECTED_ORIGINAL_CONFIG, EXPECTED_BUFFER_CONFIG]],
+    [false, false, [EMPTY_ORIGINAL_CONFIG, EMPTY_BUFFER_CONFIG]],
   ])(
     'computes attribution form config correctly if original is first party: %s and current is first party: %s',
     async (originalFirstParty, currentFirstParty, expectedConfigs) => {
       const originalPackageInfo = faker.opossum.packageInfo({
         firstParty: originalFirstParty,
       });
-      const currentPackageInfo = faker.opossum.packageInfo({
+      const bufferPackageInfo = faker.opossum.packageInfo({
         ...originalPackageInfo,
         ...{ firstParty: currentFirstParty },
       });
@@ -103,14 +129,17 @@ describe('useAttributionFormConfigs', () => {
       const { result } = renderHook(() =>
         useAttributionFormConfigs({
           original: originalPackageInfo,
-          current: currentPackageInfo,
+          current: bufferPackageInfo,
         }),
       );
 
       await waitFor(() =>
-        expect(result.current).toEqual<
-          [AttributionFormConfig, AttributionFormConfig]
-        >(expectedConfigs),
+        expect([
+          result.current.originalFormConfig,
+          result.current.bufferFormConfig,
+        ]).toEqual<[AttributionFormConfig, AttributionFormConfig]>(
+          expectedConfigs,
+        ),
       );
     },
   );

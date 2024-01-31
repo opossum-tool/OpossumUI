@@ -55,7 +55,7 @@ export const text = {
   },
   buttons: {
     cancel: 'Cancel',
-    compareToOrigin: 'Compare to origin',
+    compareToOriginal: 'Compare to original',
     confirm: 'Confirm',
     filter: 'Filter',
     sort: 'Sort',
