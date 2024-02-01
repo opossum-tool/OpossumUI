@@ -115,6 +115,7 @@ const expectedFileContent: ParsedFileContent = {
   manualAttributions: {
     attributions: {},
     resourcesToAttributions: {},
+    attributionsToResources: {},
   },
   externalAttributions: {
     attributions: {
@@ -142,6 +143,9 @@ const expectedFileContent: ParsedFileContent = {
     resourcesToAttributions: {
       '/a': [externalAttributionUuid],
       '/folder/': [externalAttributionUuid],
+    },
+    attributionsToResources: {
+      [externalAttributionUuid]: ['/a', '/folder/'],
     },
   },
   frequentLicenses: {
@@ -436,6 +440,9 @@ describe('Test of loading function', () => {
           resourcesToAttributions: {
             '/a': [manualAttributionUuid],
           },
+          attributionsToResources: {
+            [manualAttributionUuid]: ['/a'],
+          },
         },
         externalAttributions: {
           attributions: {
@@ -457,6 +464,9 @@ describe('Test of loading function', () => {
           },
           resourcesToAttributions: {
             '/a': [externalAttributionUuid],
+          },
+          attributionsToResources: {
+            [externalAttributionUuid]: ['/a'],
           },
         },
         frequentLicenses: {
@@ -577,6 +587,9 @@ describe('Test of loading function', () => {
         resourcesToAttributions: {
           '/a': ['uuid'],
         },
+        attributionsToResources: {
+          uuid: ['/a'],
+        },
       },
     };
 
@@ -603,6 +616,9 @@ function assertFileLoadedCorrectly(testUuid: string): void {
       },
       resourcesToAttributions: {
         '/path/1': [testUuid],
+      },
+      attributionsToResources: {
+        [testUuid]: ['/path/1'],
       },
     },
   };

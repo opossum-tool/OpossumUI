@@ -400,6 +400,8 @@ describe('The AttributionColumn', () => {
       originIds: [originId],
       wasPreferred: true,
     });
+    const filePath = faker.opossum.filePath();
+
     renderComponent(
       <AttributionColumn
         isEditable={true}
@@ -417,7 +419,10 @@ describe('The AttributionColumn', () => {
               [temporaryDisplayPackageInfo.id]: temporaryDisplayPackageInfo,
             }),
             faker.opossum.resourcesToAttributions({
-              [faker.opossum.filePath()]: [temporaryDisplayPackageInfo.id],
+              [filePath]: [temporaryDisplayPackageInfo.id],
+            }),
+            faker.opossum.attributionsToResources({
+              [temporaryDisplayPackageInfo.id]: [filePath],
             }),
           ),
           setExternalData(
@@ -425,7 +430,10 @@ describe('The AttributionColumn', () => {
               [packageInfo.id]: packageInfo,
             }),
             faker.opossum.resourcesToAttributions({
-              [faker.opossum.filePath()]: [packageInfo.id],
+              [filePath]: [packageInfo.id],
+            }),
+            faker.opossum.attributionsToResources({
+              [packageInfo.id]: [filePath],
             }),
           ),
         ],

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
-  AttributionsToResources,
   DiscreteConfidence,
   FrequentLicenses,
   PackageInfo,
@@ -14,6 +13,7 @@ import {
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
 import { AllowedSaveOperations } from '../../../../enums/enums';
+import { getAttributionsToResources } from '../../../../test-helpers/general-test-helpers';
 import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
@@ -84,6 +84,9 @@ const testManualAttributions: Attributions = {
 const testResourcesToManualAttributions: ResourcesToAttributions = {
   '/root/src/something.js': [testManualAttributionUuid_1],
 };
+const testManualAttributionsToResources = getAttributionsToResources(
+  testResourcesToManualAttributions,
+);
 
 describe('The load and navigation simple actions', () => {
   it('resets the state', () => {
@@ -95,7 +98,11 @@ describe('The load and navigation simple actions', () => {
       id: testManualAttributionUuid_1,
     };
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions),
+      setManualData(
+        testManualAttributions,
+        testResourcesToManualAttributions,
+        testManualAttributionsToResources,
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(
@@ -124,10 +131,9 @@ describe('The load and navigation simple actions', () => {
       '/some/path1': ['uuid1', 'uuid2'],
       '/some/path2': ['uuid1'],
     };
-    const expectedAttributionsToResources: AttributionsToResources = {
-      uuid1: ['/some/path1', '/some/path2'],
-      uuid2: ['/some/path1'],
-    };
+    const testAttributionsToResources = getAttributionsToResources(
+      testResourcesToAttributions,
+    );
     const expectedResourcesWithAttributedChildren: ResourcesWithAttributedChildren =
       {
         attributedChildren: {
@@ -156,16 +162,17 @@ describe('The load and navigation simple actions', () => {
     });
 
     testStore.dispatch(
-      setManualData(testAttributions, testResourcesToAttributions),
+      setManualData(
+        testAttributions,
+        testResourcesToAttributions,
+        testAttributionsToResources,
+      ),
     );
     expect(getManualAttributions(testStore.getState())).toEqual(
       testAttributions,
     );
-    expect(getResourcesToManualAttributions(testStore.getState())).toEqual(
-      testResourcesToAttributions,
-    );
     expect(getManualAttributionsToResources(testStore.getState())).toEqual(
-      expectedAttributionsToResources,
+      testAttributionsToResources,
     );
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
@@ -181,10 +188,9 @@ describe('The load and navigation simple actions', () => {
       '/some/path1': ['uuid1', 'uuid2'],
       '/some/path2': ['uuid1'],
     };
-    const expectedAttributionsToResources: AttributionsToResources = {
-      uuid1: ['/some/path1', '/some/path2'],
-      uuid2: ['/some/path1'],
-    };
+    const testAttributionsToResources = getAttributionsToResources(
+      testResourcesToAttributions,
+    );
     const expectedResourcesWithAttributedChildren: ResourcesWithAttributedChildren =
       {
         attributedChildren: {
@@ -217,7 +223,11 @@ describe('The load and navigation simple actions', () => {
     });
 
     testStore.dispatch(
-      setExternalData(testAttributions, testResourcesToAttributions),
+      setExternalData(
+        testAttributions,
+        testResourcesToAttributions,
+        testAttributionsToResources,
+      ),
     );
     expect(getExternalAttributions(testStore.getState())).toEqual(
       testAttributions,
@@ -226,7 +236,7 @@ describe('The load and navigation simple actions', () => {
       testResourcesToAttributions,
     );
     expect(getExternalAttributionsToResources(testStore.getState())).toEqual(
-      expectedAttributionsToResources,
+      testAttributionsToResources,
     );
     expect(
       getResourcesWithExternalAttributedChildren(testStore.getState()),

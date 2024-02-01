@@ -28,6 +28,7 @@ export function loadFromFile(
       setManualData(
         parsedFileContent.manualAttributions.attributions,
         parsedFileContent.manualAttributions.resourcesToAttributions,
+        parsedFileContent.manualAttributions.attributionsToResources,
       ),
     );
 
@@ -35,6 +36,7 @@ export function loadFromFile(
       setExternalData(
         parsedFileContent.externalAttributions.attributions,
         parsedFileContent.externalAttributions.resourcesToAttributions,
+        parsedFileContent.externalAttributions.attributionsToResources,
       ),
     );
 

@@ -266,7 +266,7 @@ function replaceAndDeleteAttribution(
   const resourcesToRelink =
     manualData.attributionsToResources[attributionIdToReplace];
 
-  resourcesToRelink.forEach((resourceId: string) => {
+  resourcesToRelink?.forEach((resourceId: string) => {
     manualData.resourcesToAttributions[resourceId] = [
       ...manualData.resourcesToAttributions[resourceId],
     ];
@@ -465,10 +465,10 @@ export function _getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions(
 
 export function _removeManualAttributionFromChildrenIfAllAreIdentical(
   manualData: AttributionData,
-  idsOfChildrenWithPossiblyTheSameAttributions: Array<string>,
+  idsOfChildrenWithPossiblyTheSameAttributions: Array<string> | undefined,
   isAttributionBreakpoint: PathPredicate,
 ): void {
-  idsOfChildrenWithPossiblyTheSameAttributions.forEach((childId) => {
+  idsOfChildrenWithPossiblyTheSameAttributions?.forEach((childId) => {
     removeManualAttributionFromChildIfInferable(
       manualData,
       childId,

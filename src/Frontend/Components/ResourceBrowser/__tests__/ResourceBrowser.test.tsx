@@ -31,6 +31,7 @@ import { addResolvedExternalAttribution } from '../../../state/actions/resource-
 import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
 import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
+import { getAttributionsToResources } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { collapseFolderByClickingOnIcon } from '../../../test-helpers/resource-browser-test-helpers';
 import { ResourceBrowser } from '../ResourceBrowser';
@@ -143,6 +144,9 @@ describe('ResourceBrowser', () => {
     const testUuid: string = faker.string.uuid();
     const testManualAttributions: Attributions = {};
     const testResourcesToManualAttributions: ResourcesToAttributions = {};
+    const testManualAttributionsToResources = getAttributionsToResources(
+      testResourcesToManualAttributions,
+    );
     const testExternalAttributions: Attributions = {
       [testUuid]: {
         packageName: 'jquery',
@@ -153,6 +157,9 @@ describe('ResourceBrowser', () => {
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
       '/root/src/': [testUuid],
     };
+    const testExternalAttributionsToResources = getAttributionsToResources(
+      testResourcesToExternalAttributions,
+    );
 
     const testLocatePopupSelectedCriticality = SelectedCriticality.High;
 
@@ -162,10 +169,12 @@ describe('ResourceBrowser', () => {
         setManualData(
           testManualAttributions,
           testResourcesToManualAttributions,
+          testManualAttributionsToResources,
         ),
         setExternalData(
           testExternalAttributions,
           testResourcesToExternalAttributions,
+          testExternalAttributionsToResources,
         ),
         setLocatePopupFilters({
           selectedCriticality: testLocatePopupSelectedCriticality,

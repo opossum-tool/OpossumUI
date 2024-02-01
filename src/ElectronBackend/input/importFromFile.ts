@@ -11,7 +11,6 @@ import { v4 as uuid4 } from 'uuid';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
-  AttributionsToResources,
   DiscreteConfidence,
   ParsedFileContent,
   ResourcesToAttributions,
@@ -35,9 +34,9 @@ import {
   parseOutputJsonFile,
 } from './parseFile';
 import {
-  cleanNonExistentAttributions,
-  cleanNonExistentResolvedExternalAttributions,
   deserializeAttributions,
+  getAttributionsToResources,
+  mergeAttributions,
   parseFrequentLicenses,
   sanitizeRawBaseUrlsForSources,
   sanitizeResourcesToAttributions,
@@ -98,20 +97,34 @@ export async function loadInputAndOutputFromFilePath(
     parsedInputData = parsingResult;
   }
 
+  logger.info('Sanitizing map of resources to signals');
+  const unmergedResourcesToExternalAttributions =
+    sanitizeResourcesToAttributions(
+      parsedInputData.resources,
+      parsedInputData.resourcesToAttributions,
+    );
+
   logger.info('Deserializing signals');
-  const externalAttributions = deserializeAttributions(
+  const unmergedExternalAttributions = deserializeAttributions(
     parsedInputData.externalAttributions,
   );
+
+  logger.info('Calculating signals to resources');
+  const externalAttributionsToResources = getAttributionsToResources(
+    unmergedResourcesToExternalAttributions,
+  );
+
+  logger.info('Merging similar signals');
+  const [externalAttributions, resourcesToExternalAttributions] =
+    mergeAttributions({
+      attributions: unmergedExternalAttributions,
+      resourcesToAttributions: unmergedResourcesToExternalAttributions,
+      attributionsToResources: externalAttributionsToResources,
+    });
 
   logger.info('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
     parsedInputData.frequentLicenses,
-  );
-
-  logger.info('Sanitizing map of resources to signals');
-  const resourcesToExternalAttributions = sanitizeResourcesToAttributions(
-    parsedInputData.resources,
-    parsedInputData.resourcesToAttributions,
   );
 
   if (parsedOutputData === null) {
@@ -139,33 +152,32 @@ export async function loadInputAndOutputFromFilePath(
     }
   }
 
+  logger.info('Calculating attributions to resources');
+  const manualAttributionsToResources = getAttributionsToResources(
+    parsedOutputData.resourcesToAttributions,
+  );
+
   logger.info('Deserializing attributions');
   const manualAttributions = deserializeAttributions(
     parsedOutputData.manualAttributions,
   );
 
-  logger.info('Converting and cleaning data');
-  const parsedFileContent: ParsedFileContent = {
+  logger.info('Sending data to user interface');
+  mainWindow.webContents.send(AllowedFrontendChannels.FileLoaded, {
     metadata: parsedInputData.metadata,
     resources: parsedInputData.resources,
     manualAttributions: {
       attributions: manualAttributions,
-      // For a time, a bug in the app produced corrupt files,
-      // which are fixed by this clean-up.
-      resourcesToAttributions: cleanNonExistentAttributions(
-        parsedOutputData.resourcesToAttributions ?? {},
-        manualAttributions,
-      ),
+      resourcesToAttributions: parsedOutputData.resourcesToAttributions,
+      attributionsToResources: manualAttributionsToResources,
     },
     externalAttributions: {
       attributions: externalAttributions,
       resourcesToAttributions: resourcesToExternalAttributions,
+      attributionsToResources: externalAttributionsToResources,
     },
     frequentLicenses,
-    resolvedExternalAttributions: cleanNonExistentResolvedExternalAttributions(
-      parsedOutputData.resolvedExternalAttributions,
-      externalAttributions,
-    ),
+    resolvedExternalAttributions: parsedOutputData.resolvedExternalAttributions,
     attributionBreakpoints: new Set(
       parsedInputData.attributionBreakpoints ?? [],
     ),
@@ -175,13 +187,7 @@ export async function loadInputAndOutputFromFilePath(
     ),
     externalAttributionSources:
       parsedInputData.externalAttributionSources ?? {},
-  };
-
-  logger.info('Sending data to user interface');
-  mainWindow.webContents.send(
-    AllowedFrontendChannels.FileLoaded,
-    parsedFileContent,
-  );
+  } satisfies ParsedFileContent);
 
   logger.info('Finalizing global state');
   getGlobalBackendState().projectTitle = parsedInputData.metadata.projectTitle;
@@ -191,7 +197,7 @@ export async function loadInputAndOutputFromFilePath(
 async function createOutputInOpossumFile(
   filePath: string,
   externalAttributions: Attributions,
-  resourcesToExternalAttributions: AttributionsToResources,
+  resourcesToExternalAttributions: ResourcesToAttributions,
   projectId: string,
 ): Promise<ParsedOpossumOutputFile> {
   logger.info('Preparing output');
@@ -216,7 +222,7 @@ async function createOutputInOpossumFile(
 async function parseOrCreateOutputJsonFile(
   filePath: string,
   externalAttributions: Attributions,
-  resourcesToExternalAttributions: AttributionsToResources,
+  resourcesToExternalAttributions: ResourcesToAttributions,
   projectId: string,
   inputFileMD5Checksum?: string,
 ): Promise<ParsedOpossumOutputFile> {
@@ -238,7 +244,7 @@ async function parseOrCreateOutputJsonFile(
 
 function createJsonOutputFile(
   externalAttributions: Attributions,
-  resourcesToExternalAttributions: AttributionsToResources,
+  resourcesToExternalAttributions: ResourcesToAttributions,
   projectId: string,
   inputFileMD5Checksum?: string,
 ): OpossumOutputFile {

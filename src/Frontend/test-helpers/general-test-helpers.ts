@@ -9,6 +9,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import {
   Attributions,
+  AttributionsToResources,
   ExternalAttributionSources,
   ParsedFileContent,
   Resources,
@@ -27,10 +28,12 @@ const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
   manualAttributions: {
     attributions: {},
     resourcesToAttributions: {},
+    attributionsToResources: {},
   },
   externalAttributions: {
     attributions: {},
     resourcesToAttributions: {},
+    attributionsToResources: {},
   },
   frequentLicenses: EMPTY_FREQUENT_LICENSES,
   resolvedExternalAttributions: new Set(),
@@ -77,10 +80,16 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
     manualAttributions: {
       attributions: testData.manualAttributions || {},
       resourcesToAttributions: testResourcesToManualAttributions,
+      attributionsToResources: getAttributionsToResources(
+        testResourcesToManualAttributions,
+      ),
     },
     externalAttributions: {
       attributions: testData.externalAttributions || {},
       resourcesToAttributions: testResourcesToExternalAttributions,
+      attributionsToResources: getAttributionsToResources(
+        testResourcesToExternalAttributions,
+      ),
     },
     attributionBreakpoints: testData.attributionBreakpoints || new Set(),
     filesWithChildren: testData.filesWithChildren || new Set(),
@@ -108,6 +117,27 @@ function getResourcesToAttributions(
   }
 
   return testResourcesToExternalAttributions;
+}
+
+export function getAttributionsToResources(
+  resourcesToAttributions: ResourcesToAttributions | undefined,
+): AttributionsToResources {
+  if (!resourcesToAttributions) {
+    return {};
+  }
+
+  return Object.entries(
+    resourcesToAttributions,
+  ).reduce<AttributionsToResources>((acc, [resource, attributionIds]) => {
+    attributionIds.forEach((attributionId) => {
+      if (acc[attributionId]) {
+        acc[attributionId].push(resource);
+      } else {
+        acc[attributionId] = [resource];
+      }
+    });
+    return acc;
+  }, {});
 }
 
 export function clickOnButton(screen: Screen, buttonLabel: string): void {

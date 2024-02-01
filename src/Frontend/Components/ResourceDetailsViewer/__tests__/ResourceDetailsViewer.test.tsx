@@ -28,7 +28,10 @@ import {
   expectValueInTextBox,
   expectValueNotInTextBox,
 } from '../../../test-helpers/attribution-column-test-helpers';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  getAttributionsToResources,
+  getParsedInputFileEnrichedWithTestData,
+} from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { PanelPackage } from '../../../types/types';
 import { ResourceDetailsViewer } from '../ResourceDetailsViewer';
@@ -166,6 +169,10 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/test_id': ['uuid_1'],
     };
+    const externalAttributionsToResources = getAttributionsToResources(
+      resourcesToExternalAttributions,
+    );
+
     renderComponent(<ResourceDetailsViewer />, {
       actions: [
         setSelectedResourceId('/test_id'),
@@ -175,7 +182,11 @@ describe('The ResourceDetailsViewer', () => {
             resourcesToExternalAttributions,
           }),
         ),
-        setExternalData(externalAttributions, resourcesToExternalAttributions),
+        setExternalData(
+          externalAttributions,
+          resourcesToExternalAttributions,
+          externalAttributionsToResources,
+        ),
         setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
       ],
     });

@@ -5,7 +5,6 @@
 import { pick } from 'lodash';
 
 import {
-  AttributionData,
   Attributions,
   AttributionsToResources,
   FrequentLicenseName,
@@ -49,7 +48,7 @@ export function computeChildrenWithAttributions(
   return childrenWithAttributions;
 }
 
-export function _addPathAndParentsToResourcesWithAttributedChildren(
+function _addPathAndParentsToResourcesWithAttributedChildren(
   attributedPath: string,
   childrenWithAttributions: ResourcesWithAttributedChildren,
 ): void {
@@ -76,58 +75,6 @@ export function _addPathAndParentsToResourcesWithAttributedChildren(
       attributedPathIndex,
     );
   });
-}
-
-export function getAttributionDataFromSetAttributionDataPayload(payload: {
-  attributions: Attributions;
-  resourcesToAttributions: ResourcesToAttributions;
-}): AttributionData {
-  const attributionsToResources = getAttributionsToResources(
-    payload.resourcesToAttributions,
-  );
-
-  pruneAttributionsWithoutResources(
-    payload.attributions,
-    attributionsToResources,
-  );
-
-  return {
-    attributions: payload.attributions,
-    resourcesToAttributions: payload.resourcesToAttributions,
-    attributionsToResources,
-    resourcesWithAttributedChildren: computeChildrenWithAttributions(
-      payload.resourcesToAttributions,
-    ),
-  };
-}
-
-export function pruneAttributionsWithoutResources(
-  attributions: Attributions,
-  attributionsToResources: AttributionsToResources,
-): void {
-  Object.keys(attributions).forEach((attributionId) => {
-    if (!attributionsToResources[attributionId]) {
-      delete attributions[attributionId];
-    }
-  });
-}
-
-function getAttributionsToResources(
-  resourcesToAttributions: ResourcesToAttributions,
-): AttributionsToResources {
-  const attributionsToResources: AttributionsToResources = {};
-
-  for (const resource of Object.keys(resourcesToAttributions)) {
-    for (const attribution of resourcesToAttributions[resource]) {
-      if (attributionsToResources[attribution]) {
-        attributionsToResources[attribution].push(resource);
-      } else {
-        attributionsToResources[attribution] = [resource];
-      }
-    }
-  }
-
-  return attributionsToResources;
 }
 
 export function addUnresolvedAttributionsToResourcesWithAttributedChildren(

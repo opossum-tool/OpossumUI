@@ -5,6 +5,7 @@
 import {
   AttributionData,
   Attributions,
+  AttributionsToResources,
   BaseUrlsForSources,
   DiscreteConfidence,
   FrequentLicenses,
@@ -66,6 +67,9 @@ const testManualAttributions: Attributions = {
 const testResourcesToManualAttributions: ResourcesToAttributions = {
   '/root/src/something.js': [testManualAttributionUuid_1],
 };
+const testManualAttributionsToResources: AttributionsToResources = {
+  [testManualAttributionUuid_1]: ['/root/src/something.js'],
+};
 
 describe('loadFromFile', () => {
   it('loads from file into state', () => {
@@ -105,6 +109,12 @@ describe('loadFromFile', () => {
         'doNotChangeMe2',
       ],
     };
+    const testExternalAttributionsToResources: AttributionsToResources = {
+      uuid: ['/root/src/something.js'],
+      test_id: ['/thirdParty/package_1.tr.gz'],
+      doNotChangeMe1: ['/thirdParty/package_1.tr.gz'],
+      doNotChangeMe2: ['/thirdParty/package_1.tr.gz'],
+    };
     const testFrequentLicenses: FrequentLicenses = {
       nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
       texts: {
@@ -122,10 +132,12 @@ describe('loadFromFile', () => {
       manualAttributions: {
         attributions: testManualAttributions,
         resourcesToAttributions: testResourcesToManualAttributions,
+        attributionsToResources: testManualAttributionsToResources,
       },
       externalAttributions: {
         attributions: testExternalAttributions,
         resourcesToAttributions: testResourcesToExternalAttributions,
+        attributionsToResources: testExternalAttributionsToResources,
       },
       frequentLicenses: testFrequentLicenses,
       resolvedExternalAttributions: new Set(['test_id']),
@@ -239,10 +251,12 @@ describe('loadFromFile', () => {
       manualAttributions: {
         attributions: testManualAttributions,
         resourcesToAttributions: testResourcesToManualAttributions,
+        attributionsToResources: testManualAttributionsToResources,
       },
       externalAttributions: {
         attributions: {},
         resourcesToAttributions: {},
+        attributionsToResources: {},
       },
       frequentLicenses: testFrequentLicenses,
       resolvedExternalAttributions: new Set(),

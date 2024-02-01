@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fromPairs } from 'lodash';
-
 import {
   AttributionData,
   Attributions,
@@ -43,7 +41,7 @@ export function getFilteredAttributionCounts({
 }: {
   manualData: AttributionData;
 }): FilterCounts {
-  return fromPairs(
+  return Object.fromEntries(
     filters.map((filter) => [
       filter,
       Object.values(manualData.attributions).filter((attribution) =>

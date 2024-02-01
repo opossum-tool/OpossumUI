@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { groupBy } from 'lodash';
+import { groupBy, orderBy } from 'lodash';
 import { ReactElement, useMemo } from 'react';
 
 import { Attributions } from '../../../shared/shared-types';
@@ -52,7 +52,7 @@ export function PackagePanel(
   const resourcesToExternalAttributions = useAppSelector(
     getResourcesToExternalAttributions,
   );
-  const attributionSources = useAppSelector(getExternalAttributionSources);
+  const sources = useAppSelector(getExternalAttributionSources);
   const dispatch = useAppDispatch();
 
   function getPreSelectedExternalAttributionIdsForSelectedResource(): Array<string> {
@@ -133,12 +133,18 @@ export function PackagePanel(
 
   const groups = useMemo(
     () =>
-      groupBy(props.displayPackageInfos, ({ source }) =>
-        source
-          ? attributionSources[source.name]?.name || source.name
-          : text.attributionList.unknownSource,
+      groupBy(
+        orderBy(
+          Object.values(props.displayPackageInfos),
+          ({ source }) => (source && sources[source.name])?.priority ?? 0,
+          'desc',
+        ),
+        ({ source }) =>
+          source
+            ? sources[source.name]?.name || source.name
+            : text.attributionList.unknownSource,
       ),
-    [attributionSources, props.displayPackageInfos],
+    [sources, props.displayPackageInfos],
   );
 
   return (
@@ -149,7 +155,7 @@ export function PackagePanel(
           displayPackageInfos={displayPackageInfos}
           getAttributionCard={getPackageCard}
           maxNumberOfDisplayedItems={15}
-          listTitle={prettifySource(sourceName, attributionSources)}
+          listTitle={prettifySource(sourceName, sources)}
         />
       ))}
     </MuiBox>

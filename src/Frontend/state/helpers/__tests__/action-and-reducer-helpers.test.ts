@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  AttributionData,
   Attributions,
   AttributionsToResources,
   Criticality,
@@ -13,7 +12,6 @@ import {
   SelectedCriticality,
 } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
 import { LocatePopupFilters } from '../../../types/types';
 import {
   initialResourceState,
@@ -24,7 +22,6 @@ import {
   attributionMatchesLocateFilter,
   calculateResourcesWithLocatedAttributions,
   computeChildrenWithAttributions,
-  getAttributionDataFromSetAttributionDataPayload,
   getAttributionIdOfFirstPackageCardInManualPackagePanel,
   getResourcesWithLocatedChildren,
 } from '../action-and-reducer-helpers';
@@ -156,23 +153,6 @@ describe('getAttributionIdOfFirstPackageCardInManualPackagePanel', () => {
     expect(testAttributionIdOfFirstPackageCard).toEqual(
       expectedAttributionIdOfFirstPackageCard,
     );
-  });
-});
-
-describe('getAttributionDataFromSetAttributionDataPayload', () => {
-  it('prunes attributions without linked resources', () => {
-    const expectedAttributionData: AttributionData = EMPTY_ATTRIBUTION_DATA;
-
-    const testAttributions: Attributions = {
-      uuid_0: { packageName: 'Vue', id: 'uuid_0' },
-    };
-    const testResourcesToAttributions: ResourcesToAttributions = {};
-    const attributionData = getAttributionDataFromSetAttributionDataPayload({
-      attributions: testAttributions,
-      resourcesToAttributions: testResourcesToAttributions,
-    });
-
-    expect(attributionData).toEqual(expectedAttributionData);
   });
 });
 

@@ -113,6 +113,7 @@ export interface ResourcesWithAttributedChildren {
 export interface InputFileAttributionData {
   attributions: Attributions;
   resourcesToAttributions: ResourcesToAttributions;
+  attributionsToResources: AttributionsToResources;
 }
 
 export interface AttributionData extends InputFileAttributionData {
