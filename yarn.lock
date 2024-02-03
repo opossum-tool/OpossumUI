@@ -9949,7 +9949,7 @@ __metadata:
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-hot-toast: "npm:^2.4.1"
-    react-hotkeys-hook: "npm:^4.4.4"
+    react-hotkeys-hook: "npm:^4.5.0"
     react-redux: "npm:^9.1.0"
     react-virtuoso: "npm:^4.6.3"
     recharts: "npm:^2.11.0"
@@ -10495,13 +10495,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hotkeys-hook@npm:^4.4.4":
-  version: 4.4.4
-  resolution: "react-hotkeys-hook@npm:4.4.4"
+"react-hotkeys-hook@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "react-hotkeys-hook@npm:4.5.0"
   peerDependencies:
     react: ">=16.8.1"
     react-dom: ">=16.8.1"
-  checksum: 10/96c77eb15f63bbfa1648cf5f45f2402e3d08546463d6aa0673b3b26d0d3c6e124cf791cd6bd2c286175a8c3876b4864d1ddbaaf272446cf08b0549f7a3c17519
+  checksum: 10/f83d4ef7d56e40717f293d936101fb9d72f83b92568d5eb85594cf99e2b7c66556ff8f94e6dd9008813c7d097185593ff1b716b941ccf7ebf1969fecb4dc4b84
   languageName: node
   linkType: hard
 
