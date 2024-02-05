@@ -27,6 +27,7 @@
         'compare-versions',
         'cross-env',
         'dayjs',
+        'electron',
         'electron-devtools-installer',
         'electron-log',
         'electron-playwright-helpers',
