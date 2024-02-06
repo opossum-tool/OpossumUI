@@ -4,10 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
-import { compact, pickBy } from 'lodash';
+import { compact } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setMultiSelectSelectedAttributionIds } from '../../state/actions/resource-actions/attribution-view-simple-actions';
@@ -19,9 +18,9 @@ import {
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getMultiSelectSelectedAttributionIds } from '../../state/selectors/attribution-view-resource-selectors';
-import { getPackageSorter } from '../../util/get-package-sorter';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
+import { sortAttributions } from '../../util/sort-attributions';
 import { List } from '../List/List';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { PACKAGE_CARD_HEIGHT, PackageCard } from '../PackageCard/PackageCard';
@@ -47,22 +46,19 @@ export function ReplaceAttributionsPopup() {
   const [search, setSearch] = useState('');
   const [targetAttributionId, setTargetAttributionId] = useState<string>();
 
-  const filteredAttributions = useMemo(
+  const filteredAndSortedAttributions = useMemo(
     () =>
-      pickBy(
-        attributions,
-        (_, attributionId) => !attributionIdsToReplace.includes(attributionId),
-      ),
-    [attributions, attributionIdsToReplace],
+      sortAttributions({
+        sorting: text.sortings.name,
+        attributions: Object.values(attributions).filter(
+          (attribution) =>
+            !attributionIdsToReplace.includes(attribution.id) &&
+            packageInfoContainsSearchTerm(attribution, search),
+        ),
+      }),
+    [attributionIdsToReplace, attributions, search],
   );
-  const { filteredAndSortedIds, filteredAndSortedAttributions } = useMemo(
-    () =>
-      getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
-        filteredAttributions,
-        search,
-      ),
-    [filteredAttributions, search],
-  );
+  const filteredAndSortedIds = Object.keys(filteredAndSortedAttributions);
 
   useEffect(() => {
     if (
@@ -154,7 +150,6 @@ export function ReplaceAttributionsPopup() {
 
             return (
               <PackageCard
-                cardId={attributionId}
                 cardConfig={{
                   isPreSelected: attribution.preSelected,
                 }}
@@ -192,7 +187,6 @@ export function ReplaceAttributionsPopup() {
 
             return (
               <PackageCard
-                cardId={attributionId}
                 onClick={() =>
                   targetAttributionId && targetAttributionId === attributionId
                     ? setTargetAttributionId(undefined)
@@ -212,30 +206,9 @@ export function ReplaceAttributionsPopup() {
             TOTAL_MAX_NUMBER_OF_PACKAGE_CARDS - attributionIdsToReplace.length,
             MAX_NUMBER_OF_PACKAGE_CARDS_PER_LIST,
           )}
-          minNumberOfItems={Object.keys(filteredAttributions).length}
+          minNumberOfItems={filteredAndSortedIds.length}
         />
       </MuiBox>
     );
   }
-}
-
-export function getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
-  attributions: Attributions,
-  search: string,
-) {
-  const sortedAttributionIds = Object.keys(attributions).sort(
-    getPackageSorter(attributions, text.sortings.name),
-  );
-
-  const filteredAndSortedIds: Array<string> = [];
-  const filteredAndSortedAttributions: Attributions = {};
-
-  sortedAttributionIds.forEach((attributionId) => {
-    const packageInfo = attributions[attributionId];
-    if (packageInfoContainsSearchTerm(packageInfo, search)) {
-      filteredAndSortedIds.push(attributionId);
-      filteredAndSortedAttributions[attributionId] = packageInfo;
-    }
-  });
-  return { filteredAndSortedIds, filteredAndSortedAttributions };
 }

@@ -185,7 +185,6 @@ export class AttributionForm {
     matchesPackageInfo: async ({
       attributionConfidence,
       comment,
-      comments,
       copyright,
       firstParty,
       licenseName,
@@ -195,9 +194,7 @@ export class AttributionForm {
       packageType,
       packageVersion,
       url,
-    }: Omit<RawPackageInfo, 'comments'> & {
-      comments?: Array<string>;
-    }): Promise<void> => {
+    }: RawPackageInfo): Promise<void> => {
       await Promise.all([
         ...(packageType ? [this.assert.typeIs(packageType)] : []),
         ...(packageNamespace
@@ -223,11 +220,6 @@ export class AttributionForm {
           : []),
         ...(licenseText ? [this.assert.licenseTextIs(licenseText)] : []),
         ...(comment ? [this.assert.commentIs(comment)] : []),
-        ...(comments
-          ? comments.map((item, index) =>
-              this.assert.commentIs(item, index + 1),
-            )
-          : []),
         ...(attributionConfidence
           ? [this.assert.confidenceIs(attributionConfidence)]
           : []),

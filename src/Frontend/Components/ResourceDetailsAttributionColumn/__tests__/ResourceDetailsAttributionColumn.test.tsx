@@ -18,7 +18,10 @@ import {
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  getAttributionsToResources,
+  getParsedInputFileEnrichedWithTestData,
+} from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ResourceDetailsAttributionColumn } from '../ResourceDetailsAttributionColumn';
 
@@ -49,6 +52,9 @@ function getActions(
     '/test_parent': ['uuid_1'],
     '/test_parent/test_child_with_own_attr': ['uuid_2'],
   };
+  const manualAttributionsToResources = getAttributionsToResources(
+    resourcesToManualAttributions,
+  );
 
   return [
     loadFromFile(
@@ -57,7 +63,11 @@ function getActions(
         resourcesToManualAttributions,
       }),
     ),
-    setManualData(manualAttributions, resourcesToManualAttributions),
+    setManualData(
+      manualAttributions,
+      resourcesToManualAttributions,
+      manualAttributionsToResources,
+    ),
     setSelectedResourceId(selectedResourceId),
     setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
   ];
@@ -67,7 +77,7 @@ describe('The ResourceDetailsAttributionColumn', () => {
   it('renders TextBoxes with right titles and content', () => {
     const testTemporaryDisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
-      comments: ['some comment'],
+      comment: 'some comment',
       packageName: 'Some package',
       packageVersion: '16.5.0',
       copyright: 'Copyright Doe Inc. 2019',
@@ -92,11 +102,9 @@ describe('The ResourceDetailsAttributionColumn', () => {
       'false',
     );
     expect(screen.getByLabelText('Comment')).toBeInTheDocument();
-    const testComment =
-      testTemporaryDisplayPackageInfo?.comments !== undefined
-        ? testTemporaryDisplayPackageInfo?.comments[0]
-        : '';
-    expect(screen.getByDisplayValue(testComment)).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.comment),
+    ).toBeInTheDocument();
     expect(
       screen.getByLabelText(text.attributionColumn.packageSubPanel.packageName),
     ).toBeInTheDocument();

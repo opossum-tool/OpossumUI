@@ -5,13 +5,12 @@
 import {
   AttributionData,
   Attributions,
-  AttributionsToHashes,
   ExternalAttributionSources,
   PackageInfo,
   Resources,
 } from '../../shared/shared-types';
 import { Filter, FilterCounts, Sorting } from '../shared-constants';
-import { PanelData, ProgressBarData } from '../types/types';
+import { ProgressBarData } from '../types/types';
 import { shouldNotBeCalled } from '../util/should-not-be-called';
 import { getAttributionsInFolderContent } from './scripts/get-attributions-in-folder-content';
 import { getAutocompleteSignals } from './scripts/get-autocomplete-signals';
@@ -28,7 +27,6 @@ export type SignalsWorkerInput =
   | { name: 'attributionBreakpoints'; data: Set<string> }
   | { name: 'attributionSorting'; data: Sorting }
   | { name: 'attributionSearch'; data: string }
-  | { name: 'attributionsToHashes'; data: AttributionsToHashes }
   | { name: 'externalData'; data: AttributionData }
   | { name: 'filesWithChildren'; data: Set<string> }
   | { name: 'manualData'; data: AttributionData }
@@ -46,11 +44,11 @@ export type SignalsWorkerOutput =
     }
   | {
       name: 'attributionsInFolderContent';
-      data: PanelData;
+      data: Attributions;
     }
   | {
       name: 'signalsInFolderContent';
-      data: PanelData;
+      data: Attributions;
     }
   | {
       name: 'overallProgressData';
@@ -73,7 +71,6 @@ interface State {
   attributionBreakpoints?: Set<string>;
   attributionSearch?: string;
   attributionSorting?: Sorting;
-  attributionsToHashes?: AttributionsToHashes;
   externalData?: AttributionData;
   filesWithChildren?: Set<string>;
   manualData?: AttributionData;
@@ -106,9 +103,6 @@ export class SignalsWorker {
     switch (input.name) {
       case 'selectedFilters':
         this.state.selectedFilters = input.data;
-        break;
-      case 'attributionsToHashes':
-        this.state.attributionsToHashes = input.data;
         break;
       case 'externalData':
         this.state.externalData = input.data;
@@ -194,7 +188,6 @@ export class SignalsWorker {
     if (
       this.isHydrated(this.state, input, [
         'resourceId',
-        'attributionsToHashes',
         'externalData',
         'resolvedExternalAttributions',
         'signalSorting',
@@ -204,7 +197,6 @@ export class SignalsWorker {
         name: 'signalsInFolderContent',
         data: getSignalsInFolderContent({
           resourceId: this.state.resourceId,
-          attributionsToHashes: this.state.attributionsToHashes,
           externalData: this.state.externalData,
           resolvedExternalAttributions: this.state.resolvedExternalAttributions,
           sorting: this.state.signalSorting,

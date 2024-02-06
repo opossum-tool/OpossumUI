@@ -18,7 +18,7 @@ describe('Test getPackageLabel', () => {
     packageVersion: '1.2',
     copyright: '(c) Test copyright',
     licenseText: 'Test license text',
-    comments: ['Test comment'],
+    comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
     id: faker.string.uuid(),
@@ -27,7 +27,7 @@ describe('Test getPackageLabel', () => {
     packageName: 'Test package name',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comments: ['Test comment'],
+    comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
     id: faker.string.uuid(),
@@ -36,7 +36,7 @@ describe('Test getPackageLabel', () => {
     packageName: undefined,
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comments: ['Test comment'],
+    comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
     id: faker.string.uuid(),
@@ -44,7 +44,7 @@ describe('Test getPackageLabel', () => {
   const testPropsWithoutName: PackageInfo = {
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comments: ['Test comment'],
+    comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
     id: faker.string.uuid(),
@@ -52,16 +52,16 @@ describe('Test getPackageLabel', () => {
   const testPropsCopyrightLicenseTextAndComment: PackageInfo = {
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comments: ['Test comment'],
+    comment: 'Test comment',
     id: faker.string.uuid(),
   };
   const testPropsWithLicenseTextAndComment: PackageInfo = {
     licenseText: 'Test license text',
-    comments: ['Test comment'],
+    comment: 'Test comment',
     id: faker.string.uuid(),
   };
   const testPropsJustComment: PackageInfo = {
-    comments: ['Test comment'],
+    comment: 'Test comment',
     id: faker.string.uuid(),
   };
   const testPropsJustUrlAndCopyright: PackageInfo = {
@@ -142,7 +142,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     packageVersion: '1.2',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comments: ['Test comment'],
+    comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
     id: faker.string.uuid(),
@@ -151,7 +151,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     packageName: 'Test package name',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comments: ['Test comment'],
+    comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
     id: faker.string.uuid(),
@@ -204,7 +204,7 @@ describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
     packageVersion: '1.2',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comments: ['Test comment'],
+    comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
     id: faker.string.uuid(),

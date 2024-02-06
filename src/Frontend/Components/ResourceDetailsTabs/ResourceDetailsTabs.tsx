@@ -5,12 +5,10 @@
 import MuiBox from '@mui/material/Box';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
-import { remove } from 'lodash';
+import { pickBy } from 'lodash';
 import { useEffect, useState } from 'react';
 
-import { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { PackagePanelTitle } from '../../enums/enums';
 import { Sorting } from '../../shared-constants';
 import { OpossumColors } from '../../shared-styles';
 import {
@@ -29,8 +27,6 @@ import {
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { useSignalSorting } from '../../state/variables/use-active-sorting';
-import { createPackageCardId } from '../../util/create-package-card-id';
-import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
 import { IconButton } from '../IconButton/IconButton';
@@ -130,11 +126,10 @@ export function ResourceDetailsTabs(props: ResourceDetailsTabsProps) {
     setSelectedTab(Tabs.Local);
   }, [selectedResourceId, Tabs.Local]);
 
-  const { assignableManualAttributionIds, displayPackageInfos } =
-    getAssignableManualAttributionIdsAndDisplayPackageInfos(
-      manualData.attributions,
-      attributionIdsOfSelectedResource,
-    );
+  const displayPackageInfos = pickBy(
+    manualData.attributions,
+    ({ id }) => !attributionIdsOfSelectedResource.includes(id),
+  );
 
   const isAddToPackageEnabled: boolean =
     props.isGlobalTabEnabled && props.isAddToPackageEnabled;
@@ -166,7 +161,7 @@ export function ResourceDetailsTabs(props: ResourceDetailsTabsProps) {
           id={`tab-${Tabs.Global}`}
           disabled={
             !props.isGlobalTabEnabled ||
-            assignableManualAttributionIds.length < 1
+            Object.keys(displayPackageInfos).length < 1
           }
           sx={classes.tab}
         />
@@ -224,32 +219,4 @@ export function ResourceDetailsTabs(props: ResourceDetailsTabsProps) {
       </MuiBox>
     </MuiBox>
   );
-}
-
-function getAssignableManualAttributionIdsAndDisplayPackageInfos(
-  manualAttributions: Attributions,
-  attributionIdsOfSelectedResource: Array<string>,
-): {
-  assignableManualAttributionIds: Array<string>;
-  displayPackageInfos: Attributions;
-} {
-  const assignableManualAttributionIds: Array<string> = remove(
-    Object.keys(manualAttributions),
-    (attributionId: string): boolean =>
-      !attributionIdsOfSelectedResource.includes(attributionId),
-  );
-
-  const displayPackageInfos: Attributions = {};
-  assignableManualAttributionIds.forEach((attributionId, index) => {
-    const packageCardId = createPackageCardId(
-      PackagePanelTitle.AllAttributions,
-      index,
-    );
-    displayPackageInfos[packageCardId] =
-      getDisplayPackageInfoWithCountFromAttributions([
-        [attributionId, manualAttributions[attributionId], undefined],
-      ]);
-  });
-
-  return { assignableManualAttributionIds, displayPackageInfos };
 }

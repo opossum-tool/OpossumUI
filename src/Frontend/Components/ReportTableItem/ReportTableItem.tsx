@@ -325,7 +325,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
             <br />
           </>
         )}
-        {attributionInfo.comments?.length && (
+        {attributionInfo.comment && (
           <>
             <CommentIcon
               sx={{

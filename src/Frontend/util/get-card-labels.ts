@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { first } from 'lodash';
-
 import { PackageInfo } from '../../shared/shared-types';
 
 const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES = [
@@ -11,7 +9,7 @@ const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES = [
   'licenseName',
   'copyright',
   'licenseText',
-  'comments',
+  'comment',
   'url',
 ] satisfies Array<keyof PackageInfo>;
 
@@ -73,8 +71,8 @@ export function addFirstLineOfPackageLabelFromAttribute(
       : `${packageInfo.packageName}`;
   } else if (attribute === 'copyright') {
     firstLinePackageLabel = addPreambleToCopyright(`${packageInfo.copyright}`);
-  } else if (attribute === 'comments') {
-    firstLinePackageLabel = first(packageInfo.comments) || '';
+  } else if (attribute === 'comment') {
+    firstLinePackageLabel = packageInfo.comment || '';
   } else {
     firstLinePackageLabel = packageInfo[attribute] || '';
   }
@@ -89,8 +87,8 @@ export function addSecondLineOfPackageLabelFromAttribute(
   let secondLinePackageLabel: string;
   if (attribute === 'copyright') {
     secondLinePackageLabel = addPreambleToCopyright(`${packageInfo.copyright}`);
-  } else if (attribute === 'comments') {
-    secondLinePackageLabel = first(packageInfo.comments) || '';
+  } else if (attribute === 'comment') {
+    secondLinePackageLabel = packageInfo.comment || '';
   } else {
     secondLinePackageLabel = packageInfo[attribute] || '';
   }

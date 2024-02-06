@@ -46,17 +46,16 @@ export type Never<T, K extends keyof T> = Expand<
 >;
 
 interface EphemeralPackageInfoProps {
-  comments?: Array<string>;
   count?: number;
   synthetic?: boolean;
   id: string;
-  linkedAttributionIds?: Array<string>;
   resources?: Array<string>;
   suffix?: string;
 }
 
 export interface PackageInfo extends EphemeralPackageInfoProps {
   attributionConfidence?: number;
+  comment?: string;
   copyright?: string;
   count?: number;
   criticality?: Criticality;
@@ -86,7 +85,6 @@ export interface RawPackageInfo
     keyof EphemeralPackageInfoProps
   > {
   originId?: string;
-  comment?: string;
   followUp?: 'FOLLOW_UP';
 }
 
@@ -106,10 +104,6 @@ export interface AttributionsToResources {
   [uuid: string]: Array<string>;
 }
 
-export interface AttributionsToHashes {
-  [uuid: string]: string;
-}
-
 export interface ResourcesWithAttributedChildren {
   paths: Array<string>;
   pathsToIndices: { [path: string]: number };
@@ -119,6 +113,7 @@ export interface ResourcesWithAttributedChildren {
 export interface InputFileAttributionData {
   attributions: Attributions;
   resourcesToAttributions: ResourcesToAttributions;
+  attributionsToResources: AttributionsToResources;
 }
 
 export interface AttributionData extends InputFileAttributionData {

@@ -5,7 +5,7 @@
 import MuiBox from '@mui/material/Box';
 import MuiPaper from '@mui/material/Paper';
 import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -23,8 +23,7 @@ import {
   getAttributionsOfSelectedResourceOrClosestParent,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { createPackageCardId } from '../../util/create-package-card-id';
-import { getPackageSorter } from '../../util/get-package-sorter';
+import { sortAttributions } from '../../util/sort-attributions';
 import { Button } from '../Button/Button';
 import { ManualAttributionList } from '../ManualAttributionList/ManualAttributionList';
 
@@ -67,8 +66,14 @@ export function ManualPackagePanel(
     ? attributionsOfSelectedResource
     : selectedResourceOrClosestParentAttributions;
 
-  const { sortedPackageCardIds, displayPackageInfos } =
-    getSortedPackageCardIdsAndDisplayPackageInfos(shownAttributionsOfResource);
+  const displayPackageInfos = useMemo(
+    () =>
+      sortAttributions({
+        sorting: text.sortings.name,
+        attributions: shownAttributionsOfResource,
+      }),
+    [shownAttributionsOfResource],
+  );
 
   function onCardClick(
     packageCardId: string,
@@ -105,7 +110,6 @@ export function ManualPackagePanel(
       </MuiTypography>
       <ManualAttributionList
         displayPackageInfos={displayPackageInfos}
-        sortedPackageCardIds={sortedPackageCardIds}
         selectedResourceId={selectedResourceId}
         selectedPackageCardId={selectedPackage?.packageCardId}
         onCardClick={onCardClick}
@@ -121,28 +125,4 @@ export function ManualPackagePanel(
       </MuiBox>
     </MuiPaper>
   );
-}
-
-function getSortedPackageCardIdsAndDisplayPackageInfos(
-  shownAttributionsOfResource: Attributions,
-): {
-  sortedPackageCardIds: Array<string>;
-  displayPackageInfos: Attributions;
-} {
-  const sortedAttributionIds = Object.keys(shownAttributionsOfResource).sort(
-    getPackageSorter(shownAttributionsOfResource, text.sortings.name),
-  );
-
-  const sortedPackageCardIds: Array<string> = [];
-  const displayPackageInfos: Attributions = {};
-  sortedAttributionIds.forEach((attributionId, index) => {
-    const packageCardId = createPackageCardId(
-      PackagePanelTitle.ManualPackages,
-      index,
-    );
-    sortedPackageCardIds.push(packageCardId);
-    displayPackageInfos[packageCardId] =
-      shownAttributionsOfResource[attributionId];
-  });
-  return { sortedPackageCardIds, displayPackageInfos };
 }

@@ -85,7 +85,6 @@ export function ConfirmMultiSelectDeletionPopup() {
 
             return (
               <PackageCard
-                cardId={attributionId}
                 cardConfig={{
                   isPreSelected: attribution.preSelected,
                 }}

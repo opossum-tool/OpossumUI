@@ -6,7 +6,6 @@ import { pickBy } from 'lodash';
 
 import {
   Attributions,
-  AttributionsToHashes,
   Criticality,
   ExternalAttributionSources,
   PackageInfo,
@@ -183,20 +182,9 @@ export function getLicenseCriticality(licenseCriticalityCounts: {
 
 export function getUniqueLicenseNameToAttribution(
   attributions: Attributions,
-  externalAttributionsToHashes: AttributionsToHashes,
 ): UniqueLicenseNameToAttributions {
   const uniqueLicenseNameToAttributions: UniqueLicenseNameToAttributions = {};
-  const usedHashes = new Set<string>();
   for (const attributionId of Object.keys(attributions)) {
-    // We do not take into account duplicating (a.k.a merged) signals
-    if (attributionId in externalAttributionsToHashes) {
-      const hash = externalAttributionsToHashes[attributionId];
-      if (usedHashes.has(hash)) {
-        continue;
-      }
-      usedHashes.add(hash);
-    }
-
     const licenseName = attributions[attributionId].licenseName;
     if (licenseName) {
       const strippedLicenseName = getStrippedLicenseName(licenseName);

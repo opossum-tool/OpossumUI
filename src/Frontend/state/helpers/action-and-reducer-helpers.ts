@@ -2,12 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import objectHash from 'object-hash';
+import { pick } from 'lodash';
 
 import {
-  AttributionData,
   Attributions,
-  AttributionsToHashes,
   AttributionsToResources,
   FrequentLicenseName,
   PackageInfo,
@@ -18,12 +16,12 @@ import {
 import { text } from '../../../shared/text';
 import { LocatePopupFilters } from '../../types/types';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
-import { getPackageSorter } from '../../util/get-package-sorter';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
 import {
   licenseNameContainsSearchTerm,
   packageInfoContainsSearchTerm,
 } from '../../util/search-package-info';
+import { sortAttributions } from '../../util/sort-attributions';
 import { ResourceState } from '../reducers/resource-reducer';
 import { getParents } from './get-parents';
 import {
@@ -50,7 +48,7 @@ export function computeChildrenWithAttributions(
   return childrenWithAttributions;
 }
 
-export function _addPathAndParentsToResourcesWithAttributedChildren(
+function _addPathAndParentsToResourcesWithAttributedChildren(
   attributedPath: string,
   childrenWithAttributions: ResourcesWithAttributedChildren,
 ): void {
@@ -79,58 +77,6 @@ export function _addPathAndParentsToResourcesWithAttributedChildren(
   });
 }
 
-export function getAttributionDataFromSetAttributionDataPayload(payload: {
-  attributions: Attributions;
-  resourcesToAttributions: ResourcesToAttributions;
-}): AttributionData {
-  const attributionsToResources = getAttributionsToResources(
-    payload.resourcesToAttributions,
-  );
-
-  pruneAttributionsWithoutResources(
-    payload.attributions,
-    attributionsToResources,
-  );
-
-  return {
-    attributions: payload.attributions,
-    resourcesToAttributions: payload.resourcesToAttributions,
-    attributionsToResources,
-    resourcesWithAttributedChildren: computeChildrenWithAttributions(
-      payload.resourcesToAttributions,
-    ),
-  };
-}
-
-export function pruneAttributionsWithoutResources(
-  attributions: Attributions,
-  attributionsToResources: AttributionsToResources,
-): void {
-  Object.keys(attributions).forEach((attributionId) => {
-    if (!attributionsToResources[attributionId]) {
-      delete attributions[attributionId];
-    }
-  });
-}
-
-function getAttributionsToResources(
-  resourcesToAttributions: ResourcesToAttributions,
-): AttributionsToResources {
-  const attributionsToResources: AttributionsToResources = {};
-
-  for (const resource of Object.keys(resourcesToAttributions)) {
-    for (const attribution of resourcesToAttributions[resource]) {
-      if (attributionsToResources[attribution]) {
-        attributionsToResources[attribution].push(resource);
-      } else {
-        attributionsToResources[attribution] = [resource];
-      }
-    }
-  }
-
-  return attributionsToResources;
-}
-
 export function addUnresolvedAttributionsToResourcesWithAttributedChildren(
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren,
   paths: Array<string>,
@@ -156,59 +102,6 @@ export function removeResolvedAttributionsFromResourcesWithAttributedChildren(
   });
 }
 
-const HASH_EXCLUDE_KEYS: Array<keyof PackageInfo> = [
-  'attributionConfidence',
-  'comments',
-  'id',
-  'originIds',
-  'preSelected',
-  'wasPreferred',
-];
-
-export function createExternalAttributionsToHashes(
-  externalAttributions: Attributions,
-): AttributionsToHashes {
-  const externalAttributionsToHashes: AttributionsToHashes = {};
-  const hashesToExternalAttributions: { [hash: string]: Array<string> } = {};
-
-  for (const [attributionId, attribution] of Object.entries(
-    externalAttributions,
-  )) {
-    if (attribution.firstParty || attribution.packageName) {
-      const attributionKeys = Object.keys(attribution) as Array<
-        keyof PackageInfo
-      >;
-      attributionKeys.forEach(
-        (key) =>
-          (attribution[key] === null || attribution[key] === '') &&
-          delete attribution[key],
-      );
-
-      const hash = objectHash(attribution, {
-        excludeKeys: (key) =>
-          HASH_EXCLUDE_KEYS.includes(key as keyof PackageInfo),
-      });
-
-      hashesToExternalAttributions[hash]
-        ? hashesToExternalAttributions[hash].push(attributionId)
-        : (hashesToExternalAttributions[hash] = [attributionId]);
-    }
-  }
-
-  Object.entries(hashesToExternalAttributions).forEach(
-    ([hash, attributionIds]) => {
-      if (attributionIds.length > 1) {
-        attributionIds.forEach(
-          (attributionId) =>
-            (externalAttributionsToHashes[attributionId] = hash),
-        );
-      }
-    },
-  );
-
-  return externalAttributionsToHashes;
-}
-
 export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
   attributionIds: Array<string> | undefined,
   resourceId: string,
@@ -216,11 +109,14 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
 ): string {
   let displayedAttributionId = '';
   if (attributionIds && attributionIds.length > 0) {
-    displayedAttributionId = [...attributionIds].sort(
-      getPackageSorter(
-        state.allViews.manualData.attributions,
-        text.sortings.name,
-      ),
+    displayedAttributionId = Object.keys(
+      sortAttributions({
+        attributions: pick(
+          state.allViews.manualData.attributions,
+          attributionIds,
+        ),
+        sorting: text.sortings.name,
+      }),
     )[0];
   } else {
     const closestParentAttributionIds: Array<string> =
@@ -230,38 +126,18 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
         getAttributionBreakpointCheckForResourceState(state),
       );
     if (closestParentAttributionIds.length > 0) {
-      displayedAttributionId = [...closestParentAttributionIds].sort(
-        getPackageSorter(
-          state.allViews.manualData.attributions,
-          text.sortings.name,
-        ),
+      displayedAttributionId = Object.keys(
+        sortAttributions({
+          attributions: pick(
+            state.allViews.manualData.attributions,
+            closestParentAttributionIds,
+          ),
+          sorting: text.sortings.name,
+        }),
       )[0];
     }
   }
   return displayedAttributionId;
-}
-
-export function getIndexOfAttributionInManualPackagePanel(
-  targetAttributionId: string,
-  resourceId: string,
-  manualData: AttributionData,
-): number | null {
-  const manualAttributionIdsOnResource =
-    manualData.resourcesToAttributions[resourceId];
-
-  if (!manualAttributionIdsOnResource) {
-    return null;
-  }
-
-  const sortedAttributionIds = manualAttributionIdsOnResource.sort(
-    getPackageSorter(manualData.attributions, text.sortings.name),
-  );
-
-  const packageCardIndex = sortedAttributionIds.findIndex(
-    (attributionId) => attributionId === targetAttributionId,
-  );
-
-  return packageCardIndex !== -1 ? packageCardIndex : null;
 }
 
 export function calculateResourcesWithLocatedAttributions(

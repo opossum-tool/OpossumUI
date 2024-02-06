@@ -117,15 +117,14 @@ test('adds attribution and displays it correctly on parent and children', async 
   await resourceDetails.signalCard.click(packageInfo4a);
   await attributionDetails.attributionForm.assert.matchesPackageInfo({
     ...packageInfo4a,
-    comment: undefined,
-    comments: [packageInfo4a.comment!, packageInfo4b.comment!],
+    comment: `${packageInfo4a.comment}\n\n${packageInfo4b.comment}`,
   });
 
   await resourceDetails.signalCard.addButton(packageInfo4a).click();
   await attributionDetails.attributionForm.assert.matchesPackageInfo({
     ...packageInfo4a,
     attributionConfidence: DiscreteConfidence.High,
-    comment: undefined,
+    comment: `${packageInfo4a.comment}\n\n${packageInfo4b.comment}`,
   });
 });
 

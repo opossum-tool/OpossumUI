@@ -3,9 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { Fragment, ReactElement } from 'react';
+import { groupBy, orderBy } from 'lodash';
+import { ReactElement, useMemo } from 'react';
 
 import { Attributions } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
@@ -24,10 +26,6 @@ import { PackageCardConfig } from '../../types/types';
 import { prettifySource } from '../../util/prettify-source';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { PackageList } from '../PackageList/PackageList';
-import {
-  getPackageCardIdsAndDisplayPackageInfosForSource,
-  getSortedSourcesFromDisplayPackageInfosWithCount,
-} from './PackagePanel.util';
 
 const classes = {
   root: {
@@ -38,7 +36,6 @@ const classes = {
 
 interface PackagePanelProps {
   displayPackageInfos: Attributions;
-  sortedPackageCardIds: Array<string>;
   title: PackagePanelTitle;
   isAddToPackageEnabled: boolean;
 }
@@ -55,7 +52,7 @@ export function PackagePanel(
   const resourcesToExternalAttributions = useAppSelector(
     getResourcesToExternalAttributions,
   );
-  const attributionSources = useAppSelector(getExternalAttributionSources);
+  const sources = useAppSelector(getExternalAttributionSources);
   const dispatch = useAppDispatch();
 
   function getPreSelectedExternalAttributionIdsForSelectedResource(): Array<string> {
@@ -111,10 +108,7 @@ export function PackagePanel(
     const cardConfig: PackageCardConfig = {
       isSelected: packageCardId === selectedPackageCardId,
       isPreSelected: isPreselected,
-      isResolved: [
-        ...(displayPackageInfo.linkedAttributionIds ?? []),
-        displayPackageInfo.id,
-      ].every((attributionId) =>
+      isResolved: [displayPackageInfo.id].every((attributionId) =>
         resolvedExternalAttributionIds.has(attributionId),
       ),
       isExternalAttribution,
@@ -130,7 +124,6 @@ export function PackagePanel(
         onIconClick={props.isAddToPackageEnabled ? onIconClick : undefined}
         key={`PackageCard-${displayPackageInfo.packageName}-${packageCardId}`}
         packageCount={packageCount}
-        cardId={`package-${selectedResourceId}-${packageCardId}`}
         packageInfo={displayPackageInfo}
         cardConfig={cardConfig}
         showOpenResourcesIcon={true}
@@ -138,36 +131,32 @@ export function PackagePanel(
     );
   }
 
-  const sortedSources = getSortedSourcesFromDisplayPackageInfosWithCount(
-    props.displayPackageInfos,
-    attributionSources,
+  const groups = useMemo(
+    () =>
+      groupBy(
+        orderBy(
+          Object.values(props.displayPackageInfos),
+          ({ source }) => (source && sources[source.name])?.priority ?? 0,
+          'desc',
+        ),
+        ({ source }) =>
+          source
+            ? sources[source.name]?.name || source.name
+            : text.attributionList.unknownSource,
+      ),
+    [sources, props.displayPackageInfos],
   );
-
-  function getPackageListForSource(sourceName: string | null): ReactElement {
-    const [sortedPackageCardIdsForSource, displayPackageInfosForSource] =
-      getPackageCardIdsAndDisplayPackageInfosForSource(
-        props.displayPackageInfos,
-        props.sortedPackageCardIds,
-        sourceName,
-      );
-
-    return (
-      <PackageList
-        displayPackageInfos={displayPackageInfosForSource}
-        sortedPackageCardIds={sortedPackageCardIdsForSource}
-        getAttributionCard={getPackageCard}
-        maxNumberOfDisplayedItems={15}
-        listTitle={prettifySource(sourceName, attributionSources)}
-      />
-    );
-  }
 
   return (
     <MuiBox sx={classes.root}>
-      {sortedSources.map((sourceName) => (
-        <Fragment key={`PackageListForSource-${sourceName}`}>
-          {getPackageListForSource(sourceName)}
-        </Fragment>
+      {Object.entries(groups).map(([sourceName, displayPackageInfos]) => (
+        <PackageList
+          key={sourceName}
+          displayPackageInfos={displayPackageInfos}
+          getAttributionCard={getPackageCard}
+          maxNumberOfDisplayedItems={15}
+          listTitle={prettifySource(sourceName, sources)}
+        />
       ))}
     </MuiBox>
   );

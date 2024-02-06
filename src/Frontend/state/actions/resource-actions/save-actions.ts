@@ -193,10 +193,6 @@ export function addToSelectedResource(
         savePackageInfo(getSelectedResourceId(getState()), null, {
           ...packageInfo,
           attributionConfidence: DiscreteConfidence.High,
-          comments:
-            (packageInfo.comments?.length ?? 0) > 1
-              ? undefined
-              : packageInfo.comments,
         }),
       );
     }

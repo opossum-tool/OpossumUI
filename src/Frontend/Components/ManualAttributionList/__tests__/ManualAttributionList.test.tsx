@@ -17,7 +17,7 @@ describe('The ManualAttributionList', () => {
   const testDisplayPackageInfos: Attributions = {
     [testSortedPackageCardIds[0]]: {
       attributionConfidence: 0,
-      comments: ['Some comment'],
+      comment: 'Some comment',
       packageName: 'Test package',
       packageVersion: '1.0',
       copyright: 'Copyright John Doe',
@@ -30,7 +30,7 @@ describe('The ManualAttributionList', () => {
   const packages: Attributions = {
     '1': {
       attributionConfidence: 0,
-      comments: ['Some comment'],
+      comment: 'Some comment',
       packageName: 'Test package',
       packageVersion: '1.0',
       copyright: 'Copyright John Doe',
@@ -48,7 +48,6 @@ describe('The ManualAttributionList', () => {
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
-        sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         onCardClick={mockCallback}
       />,
@@ -71,7 +70,6 @@ describe('The ManualAttributionList', () => {
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
-        sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         onCardClick={doNothing}
       />,
@@ -95,7 +93,6 @@ describe('The ManualAttributionList', () => {
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
-        sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         isAddNewAttributionItemShown={true}
         onCardClick={mockCallback}
@@ -122,7 +119,6 @@ describe('The ManualAttributionList', () => {
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
-        sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         onCardClick={mockCallback}
       />,

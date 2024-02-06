@@ -69,7 +69,7 @@ export function getHeadersFromColumns(columns: Array<keyof PackageInfo>): {
 } {
   const availableHeaders: { [key in keyof PackageInfo]: string } = {
     attributionConfidence: 'Confidence',
-    comments: 'Comments',
+    comment: 'Comment',
     copyright: 'Copyright',
     count: 'Count',
     criticality: 'criticality',
@@ -80,7 +80,6 @@ export function getHeadersFromColumns(columns: Array<keyof PackageInfo>): {
     id: 'ID',
     licenseName: 'License Name',
     licenseText: 'License Text (truncated)',
-    linkedAttributionIds: 'Linked Attribution IDs',
     needsReview: 'needs-review',
     originIds: 'Origin Attribution IDs',
     packageName: 'Package Name',

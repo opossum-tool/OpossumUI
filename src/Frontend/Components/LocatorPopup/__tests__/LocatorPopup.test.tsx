@@ -22,6 +22,7 @@ import { getLocatePopupFilters } from '../../../state/selectors/locate-popup-sel
 import {
   clickOnButton,
   expectElementsInAutoCompleteAndSelectFirst,
+  getAttributionsToResources,
 } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { LocatorPopup } from '../LocatorPopup';
@@ -106,7 +107,7 @@ describe('Locator popup', () => {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
       licenseName: 'MIT',
-      comments: ['ManualPackage'],
+      comment: 'ManualPackage',
       id: 'uuid_1',
     };
     const testExternalAttributions: Attributions = {
@@ -115,6 +116,9 @@ describe('Locator popup', () => {
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
       '/root/': ['uuid_1'],
     };
+    const testExternalAttributionsToResources = getAttributionsToResources(
+      testResourcesToExternalAttributions,
+    );
 
     const licenseSet = new Set(['MIT']);
     const expectedLocatedResources = {
@@ -127,6 +131,7 @@ describe('Locator popup', () => {
         setExternalData(
           testExternalAttributions,
           testResourcesToExternalAttributions,
+          testExternalAttributionsToResources,
         ),
       ],
     });
@@ -149,14 +154,14 @@ describe('Locator popup', () => {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
       licenseName: 'MIT',
-      comments: ['ManualPackage'],
+      comment: 'ManualPackage',
       id: 'uuid_1',
     };
     const otherTestExternalAttribution: PackageInfo = {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
       licenseName: 'GPL-2.0',
-      comments: ['ManualPackage'],
+      comment: 'ManualPackage',
       id: 'uuid_2',
     };
     const testExternalAttributions: Attributions = {
@@ -166,6 +171,9 @@ describe('Locator popup', () => {
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
       '/root/': ['uuid_1', 'uuid_2'],
     };
+    const testExternalAttributionsToResources = getAttributionsToResources(
+      testResourcesToExternalAttributions,
+    );
 
     const licenseSet = new Set(['MIT', 'GPL-2.0']);
     const expectedLocatedResources = {
@@ -178,6 +186,7 @@ describe('Locator popup', () => {
         setExternalData(
           testExternalAttributions,
           testResourcesToExternalAttributions,
+          testExternalAttributionsToResources,
         ),
       ],
     });
@@ -338,6 +347,9 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     '/pathToApacheMedium': ['ApacheMediumAttribution'],
     '/pathToGPLMedium': ['GPLMediumAttribution'],
   };
+  const testAttributionsToResources = getAttributionsToResources(
+    testResourcesToAttributions,
+  );
   const testFrequentLicenses: FrequentLicenses = {
     nameOrder: [
       {
@@ -357,7 +369,11 @@ describe('locateResourcesByCriticalityAndLicense', () => {
 
     const { store } = renderComponent(<LocatorPopup />, {
       actions: [
-        setExternalData(testAttributions, testResourcesToAttributions),
+        setExternalData(
+          testAttributions,
+          testResourcesToAttributions,
+          testAttributionsToResources,
+        ),
         setFrequentLicenses(testFrequentLicenses),
         setLocatePopupFilters({
           selectedCriticality: criticality,
@@ -382,7 +398,11 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     const searchTerm = '2.0';
     const { store } = renderComponent(<LocatorPopup />, {
       actions: [
-        setExternalData(testAttributions, testResourcesToAttributions),
+        setExternalData(
+          testAttributions,
+          testResourcesToAttributions,
+          testAttributionsToResources,
+        ),
         setFrequentLicenses(testFrequentLicenses),
         setLocatePopupFilters({
           selectedCriticality: SelectedCriticality.Any,
@@ -412,7 +432,11 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     const searchTerm = '2.0';
     const { store } = renderComponent(<LocatorPopup />, {
       actions: [
-        setExternalData(testAttributions, testResourcesToAttributions),
+        setExternalData(
+          testAttributions,
+          testResourcesToAttributions,
+          testAttributionsToResources,
+        ),
         setFrequentLicenses(testFrequentLicenses),
         setLocatePopupFilters({
           selectedCriticality: SelectedCriticality.Any,
@@ -438,7 +462,11 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     const licenseNames = new Set(['MIT']);
     const { store } = renderComponent(<LocatorPopup />, {
       actions: [
-        setExternalData(testAttributions, testResourcesToAttributions),
+        setExternalData(
+          testAttributions,
+          testResourcesToAttributions,
+          testAttributionsToResources,
+        ),
         setFrequentLicenses(testFrequentLicenses),
         setLocatePopupFilters({
           selectedCriticality: SelectedCriticality.Any,
@@ -466,7 +494,11 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     const criticality = SelectedCriticality.Medium;
     const { store } = renderComponent(<LocatorPopup />, {
       actions: [
-        setExternalData(testAttributions, testResourcesToAttributions),
+        setExternalData(
+          testAttributions,
+          testResourcesToAttributions,
+          testAttributionsToResources,
+        ),
         setFrequentLicenses(testFrequentLicenses),
         setLocatePopupFilters({
           selectedCriticality: criticality,
@@ -496,7 +528,11 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     const licenseNames = new Set(['GPL']);
     const { store } = renderComponent(<LocatorPopup />, {
       actions: [
-        setExternalData(testAttributions, testResourcesToAttributions),
+        setExternalData(
+          testAttributions,
+          testResourcesToAttributions,
+          testAttributionsToResources,
+        ),
         setFrequentLicenses(testFrequentLicenses),
         setLocatePopupFilters({
           selectedCriticality: criticality,
@@ -523,7 +559,11 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     const licenseNames = new Set(['GPL']);
     const { store } = renderComponent(<LocatorPopup />, {
       actions: [
-        setExternalData(testAttributions, testResourcesToAttributions),
+        setExternalData(
+          testAttributions,
+          testResourcesToAttributions,
+          testAttributionsToResources,
+        ),
         setFrequentLicenses(testFrequentLicenses),
         setLocatePopupFilters({
           selectedCriticality: criticality,

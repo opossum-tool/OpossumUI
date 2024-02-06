@@ -144,10 +144,6 @@ export function useAuditingOptions({
                   ...originalPreferred,
                   id: packageInfo.id,
                   preSelected: undefined,
-                  comments:
-                    (originalPreferred.comments?.length ?? 0) > 1
-                      ? undefined
-                      : originalPreferred.comments,
                 }),
               )
           : undefined,

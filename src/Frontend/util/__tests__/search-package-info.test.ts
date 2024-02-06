@@ -55,7 +55,7 @@ describe('packageInfoContainsSearchTerm', () => {
 
   it('ignores other fields', () => {
     const testPackageInfo: PackageInfo = {
-      comments: ['comment search_term'],
+      comment: 'comment search_term',
       licenseText: 'text search_term',
       url: 'www.search_term.com',
       id: 'uuid5',

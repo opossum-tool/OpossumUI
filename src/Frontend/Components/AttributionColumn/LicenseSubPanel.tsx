@@ -19,7 +19,6 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../InputElements/TextBox';
-import { getLicenseTextLabelText } from './AttributionColumn.util';
 import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
@@ -93,6 +92,22 @@ export function LicenseSubPanel({
       ),
     [frequentLicensesNames],
   );
+  const label = useMemo(
+    () =>
+      packageInfo.licenseName &&
+      frequentLicensesNames
+        .map((licenseNames) => [
+          licenseNames.shortName.toLowerCase(),
+          licenseNames.fullName.toLowerCase(),
+        ])
+        .flat()
+        .includes(packageInfo.licenseName.toLowerCase())
+        ? `Standard license text implied. ${
+            !!onEdit ? 'Insert notice text if necessary.' : ''
+          }`
+        : 'License Text (to appear in attribution document)',
+    [frequentLicensesNames, onEdit, packageInfo.licenseName],
+  );
 
   return (
     <MuiBox sx={classes.panel}>
@@ -137,11 +152,7 @@ export function LicenseSubPanel({
             minRows={3}
             maxRows={10}
             multiline={true}
-            title={getLicenseTextLabelText(
-              packageInfo.licenseName,
-              !!onEdit,
-              frequentLicensesNames,
-            )}
+            title={label}
             text={packageInfo.licenseText}
             handleChange={({ target: { value } }) =>
               onEdit?.(() =>

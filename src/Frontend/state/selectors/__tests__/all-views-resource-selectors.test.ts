@@ -12,6 +12,7 @@ import {
 } from '../../../../shared/shared-types';
 import { PackagePanelTitle, View } from '../../../enums/enums';
 import { EMPTY_PROJECT_METADATA } from '../../../shared-constants';
+import { getAttributionsToResources } from '../../../test-helpers/general-test-helpers';
 import { PanelPackage } from '../../../types/types';
 import {
   setAttributionBreakpoints,
@@ -48,11 +49,18 @@ describe('getPackageInfoOfSelectedAttribution', () => {
   const testResourcesToManualAttributions: ResourcesToAttributions = {
     '/root/src/something.js': [testManualAttributionUuid_1],
   };
+  const testAttributionsToResources = getAttributionsToResources(
+    testResourcesToManualAttributions,
+  );
 
   it('returns temporary package info of selected attribution', () => {
     const testStore = createAppStore();
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions),
+      setManualData(
+        testManualAttributions,
+        testResourcesToManualAttributions,
+        testAttributionsToResources,
+      ),
     );
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
     expect(
@@ -65,7 +73,11 @@ describe('getPackageInfoOfSelectedAttribution', () => {
   it('returns empty temporary package info if no selected attribution', () => {
     const testStore = createAppStore();
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions),
+      setManualData(
+        testManualAttributions,
+        testResourcesToManualAttributions,
+        testAttributionsToResources,
+      ),
     );
 
     expect(
@@ -179,9 +191,16 @@ describe('get displayPackageInfo', () => {
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       file: [testSelectedAttributionId],
     };
+    const testAttributionsToResources = getAttributionsToResources(
+      testResourcesToManualAttributions,
+    );
     const testStore = createAppStore();
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions),
+      setManualData(
+        testManualAttributions,
+        testResourcesToManualAttributions,
+        testAttributionsToResources,
+      ),
     );
     testStore.dispatch(setSelectedAttributionId(testSelectedAttributionId));
     testStore.dispatch(navigateToView(View.Attribution));
@@ -242,13 +261,20 @@ describe('The resource actions', () => {
   const testResourcesToManualAttributions: ResourcesToAttributions = {
     '/root/src/something.js': [testManualAttributionUuid_1],
   };
+  const testAttributionsToResources = getAttributionsToResources(
+    testResourcesToManualAttributions,
+  );
 
   it('getResourceIdsForSelectedAttributionId returns correct Ids in Audit View', () => {
     const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Audit));
     testStore.dispatch(setResources(testResources));
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions),
+      setManualData(
+        testManualAttributions,
+        testResourcesToManualAttributions,
+        testAttributionsToResources,
+      ),
     );
     testStore.dispatch(setDisplayedPackage(testSelectedPackage));
 
@@ -267,7 +293,11 @@ describe('The resource actions', () => {
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(setResources(testResources));
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions),
+      setManualData(
+        testManualAttributions,
+        testResourcesToManualAttributions,
+        testAttributionsToResources,
+      ),
     );
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
 

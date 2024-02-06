@@ -28,7 +28,7 @@ describe('The ReportView', () => {
   const testResourcesToManualAttributions: ResourcesToAttributions = {};
   testManualAttributions[testManualUuid] = {
     attributionConfidence: 0,
-    comments: ['Some comment'],
+    comment: 'Some comment',
     packageName: 'Test package',
     packageVersion: '1.0',
     copyright: 'Copyright John Doe',
@@ -39,7 +39,7 @@ describe('The ReportView', () => {
   testResourcesToManualAttributions['test resource'] = [testManualUuid];
   testManualAttributions[testOtherManualUuid] = {
     attributionConfidence: 0,
-    comments: ['Some other comment'],
+    comment: 'Some other comment',
     packageName: 'Test other package',
     packageVersion: '2.0',
     copyright: 'other Copyright John Doe',

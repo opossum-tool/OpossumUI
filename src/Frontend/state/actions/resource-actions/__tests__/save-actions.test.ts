@@ -1179,7 +1179,7 @@ describe('The addToSelectedResource action', () => {
       licenseText: ' test License text',
       url: 'test url',
       copyright: 'test copyright',
-      comments: ['Comment of signal'],
+      comment: 'Comment of signal',
       id: testManualAttributionUuid_1,
     };
     testStore.dispatch(addToSelectedResource(testPackageInfo));
@@ -1194,53 +1194,6 @@ describe('The addToSelectedResource action', () => {
       ...testPackageInfo,
       attributionConfidence: DiscreteConfidence.High,
       id: expect.any(String),
-    };
-    expect(manualData.attributions[uuidNewAttribution]).toEqual(
-      expectedModifiedPackageInfo,
-    );
-    expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
-      expectedModifiedPackageInfo,
-    );
-    expect(getOpenPopup(testStore.getState())).toBeNull();
-  });
-
-  it('adds an external attribution to the selected resource and removes comments if there are multiple', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    testStore.dispatch(setSelectedResourceId('/root/'));
-
-    const testPackageInfo: PackageInfo = {
-      attributionConfidence: 30,
-      packageVersion: '1.0',
-      packageName: 'test Package',
-      licenseName: 'test License name',
-      licenseText: ' test License text',
-      url: 'test url',
-      copyright: 'test copyright',
-      comments: ['Comment of signal', 'Another comment'],
-      id: testManualAttributionUuid_1,
-    };
-    testStore.dispatch(addToSelectedResource(testPackageInfo));
-
-    const manualData = getManualData(testStore.getState());
-    expect(manualData.resourcesToAttributions['/root/']).toHaveLength(1);
-    const uuidNewAttribution = manualData.resourcesToAttributions['/root/'][0];
-    expect(manualData.attributionsToResources[uuidNewAttribution]).toEqual([
-      '/root/',
-    ]);
-    const expectedModifiedPackageInfo: PackageInfo = {
-      ...testPackageInfo,
-      attributionConfidence: DiscreteConfidence.High,
-      id: expect.any(String),
-      comments: undefined,
     };
     expect(manualData.attributions[uuidNewAttribution]).toEqual(
       expectedModifiedPackageInfo,

@@ -140,7 +140,6 @@ export function AttributionList() {
 
     return (
       <PackageCard
-        cardId={`attribution-list-${attributionId}`}
         onClick={() => {
           if (selectedAttributionIdInAttributionView === attributionId) {
             return;

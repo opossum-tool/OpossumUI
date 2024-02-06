@@ -45,7 +45,7 @@ describe('The AttributionColumn', () => {
       packagePURLAppendix: '?appendix',
       packageNamespace: 'namespace',
       packageType: 'type',
-      comments: ['some comment'],
+      comment: 'some comment',
       copyright: 'Copyright Doe Inc. 2019',
       licenseText: 'Permission is hereby granted',
       licenseName: 'Made up license name',
@@ -131,10 +131,9 @@ describe('The AttributionColumn', () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('Comment')).toBeInTheDocument();
-    const comment = temporaryDisplayPackageInfo.comments
-      ? temporaryDisplayPackageInfo.comments[0]
-      : '';
-    expect(screen.getByDisplayValue(comment)).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue(temporaryDisplayPackageInfo.comment),
+    ).toBeInTheDocument();
     expect(
       screen.queryAllByText(text.attributionColumn.packageSubPanel.purl),
     ).toHaveLength(2);
@@ -401,6 +400,8 @@ describe('The AttributionColumn', () => {
       originIds: [originId],
       wasPreferred: true,
     });
+    const filePath = faker.opossum.filePath();
+
     renderComponent(
       <AttributionColumn
         isEditable={true}
@@ -418,7 +419,10 @@ describe('The AttributionColumn', () => {
               [temporaryDisplayPackageInfo.id]: temporaryDisplayPackageInfo,
             }),
             faker.opossum.resourcesToAttributions({
-              [faker.opossum.filePath()]: [temporaryDisplayPackageInfo.id],
+              [filePath]: [temporaryDisplayPackageInfo.id],
+            }),
+            faker.opossum.attributionsToResources({
+              [temporaryDisplayPackageInfo.id]: [filePath],
             }),
           ),
           setExternalData(
@@ -426,7 +430,10 @@ describe('The AttributionColumn', () => {
               [packageInfo.id]: packageInfo,
             }),
             faker.opossum.resourcesToAttributions({
-              [faker.opossum.filePath()]: [packageInfo.id],
+              [filePath]: [packageInfo.id],
+            }),
+            faker.opossum.attributionsToResources({
+              [packageInfo.id]: [filePath],
             }),
           ),
         ],

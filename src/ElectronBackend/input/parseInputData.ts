@@ -3,17 +3,22 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { compact, groupBy, min, sortBy } from 'lodash';
+import objectHash from 'object-hash';
+
 import { canResourceHaveChildren } from '../../Frontend/util/can-resource-have-children';
 import {
   Attributions,
+  AttributionsToResources,
   BaseUrlsForSources,
   Criticality,
+  DiscreteConfidence,
   FrequentLicenses,
+  PackageInfo,
   RawAttributions,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-import logger from '../main/logger';
 import { RawFrequentLicense } from '../types/types';
 
 function addTrailingSlashIfAbsent(resourcePath: string): string {
@@ -72,48 +77,108 @@ export function sanitizeResourcesToAttributions(
   );
 }
 
-export function cleanNonExistentAttributions(
+export function getAttributionsToResources(
   resourcesToAttributions: ResourcesToAttributions,
-  attributions: Attributions,
-): ResourcesToAttributions {
-  const attributionIds = new Set(Object.keys(attributions));
-
-  return Object.fromEntries(
-    Object.entries(resourcesToAttributions)
-      .map((entry) => {
-        const [path, entryAttributionIds] = entry;
-        const filteredAttributionIds = entryAttributionIds.filter(
-          (attributionId) => attributionIds.has(attributionId),
-        );
-        if (filteredAttributionIds.length < entryAttributionIds.length) {
-          logger.info(
-            `WARNING: There were abandoned attributions for path ${path}.` +
-              ' The import from the attribution file was cleaned up.',
-          );
-        }
-        return [path, filteredAttributionIds];
-      })
-      .filter((entry) => entry[1].length > 0),
-  );
+): AttributionsToResources {
+  return Object.entries(
+    resourcesToAttributions,
+  ).reduce<AttributionsToResources>((acc, [resource, attributionIds]) => {
+    attributionIds.forEach((attributionId) => {
+      if (acc[attributionId]) {
+        acc[attributionId].push(resource);
+      } else {
+        acc[attributionId] = [resource];
+      }
+    });
+    return acc;
+  }, {});
 }
 
-export function cleanNonExistentResolvedExternalAttributions(
-  resolvedExternalAttributions: Set<string>,
-  externalAttributions: Attributions,
-): Set<string> {
-  const externalAttributionIds = new Set(Object.keys(externalAttributions));
+export const HASH_EXCLUDE_KEYS = [
+  'attributionConfidence',
+  'comment',
+  'id',
+  'originIds',
+  'preSelected',
+  'wasPreferred',
+] satisfies Array<keyof PackageInfo>;
 
-  resolvedExternalAttributions.forEach((resolvedExternalAttributionId) => {
-    if (!externalAttributionIds.has(resolvedExternalAttributionId)) {
-      resolvedExternalAttributions.delete(resolvedExternalAttributionId);
-      logger.info(
-        `WARNING: There was an abandoned resolved external attribution: ${resolvedExternalAttributionId}.` +
-          ' The import from the attribution file was cleaned up.',
-      );
-    }
-  });
+export function mergePackageInfos(a: PackageInfo, b: PackageInfo): PackageInfo {
+  const diff: Required<Pick<PackageInfo, (typeof HASH_EXCLUDE_KEYS)[number]>> =
+    {
+      attributionConfidence:
+        min([a.attributionConfidence, b.attributionConfidence]) ||
+        DiscreteConfidence.High,
+      comment: compact([a.comment, b.comment]).join('\n\n'),
+      id: a.id,
+      originIds: Array.from(
+        new Set([...(a.originIds ?? []), ...(b.originIds ?? [])]),
+      ),
+      preSelected: a.preSelected || b.preSelected || false,
+      wasPreferred: a.wasPreferred || b.wasPreferred || false,
+    };
 
-  return resolvedExternalAttributions;
+  return { ...a, ...diff };
+}
+
+export function mergeAttributions({
+  attributions,
+  resourcesToAttributions,
+  attributionsToResources,
+}: {
+  attributions: Attributions;
+  resourcesToAttributions: ResourcesToAttributions;
+  attributionsToResources: AttributionsToResources;
+}): [Attributions, ResourcesToAttributions] {
+  const attributionsWithResources = Object.values(
+    attributions,
+  ).map<PackageInfo>((attribution) => ({
+    ...attribution,
+    resources: sortBy(attributionsToResources[attribution.id]),
+  }));
+
+  const groups = Object.values(
+    groupBy<PackageInfo>(attributionsWithResources, (attribution) =>
+      objectHash(attribution, {
+        excludeKeys: (key) =>
+          HASH_EXCLUDE_KEYS.some((excludeKey) => excludeKey === key),
+      }),
+    ),
+  );
+
+  return groups.reduce<[Attributions, ResourcesToAttributions]>(
+    ([attributions, resourcesToAttributions], group) => {
+      const { resources, ...attribution } = group
+        .slice(1)
+        .reduce(
+          (mergedAttribution, attribution) =>
+            mergePackageInfos(mergedAttribution, attribution),
+          group[0],
+        );
+
+      // Re-assign merged attribution to first attribution in group
+      attributions[attribution.id] = attribution;
+
+      // Remove obsolete attributions from attributions map
+      group.slice(1).forEach(({ id }) => {
+        delete attributions[id];
+      });
+
+      // Delete references to removed attributions
+      resources?.forEach((resource) => {
+        resourcesToAttributions[resource] = [
+          attribution.id,
+          ...resourcesToAttributions[resource].filter(
+            (attributionId) =>
+              !group.map(({ id }) => id).includes(attributionId),
+          ),
+        ];
+      });
+
+      return [attributions, resourcesToAttributions];
+    },
+    [attributions, resourcesToAttributions],
+  );
 }
 
 export function deserializeAttributions(
@@ -136,7 +201,7 @@ export function deserializeAttributions(
           originIds: (originIds ?? []).concat(originId ?? []),
         }),
         ...(followUp === 'FOLLOW_UP' && { followUp: true }),
-        ...(sanitizedComment && { comments: [sanitizedComment] }),
+        ...(sanitizedComment && { comment: sanitizedComment }),
         ...(isCritical && { criticality }),
         id: attributionId,
       };
@@ -155,11 +220,9 @@ export function serializeAttributions(
       [
         attributionId,
         {
-          comments,
           count,
           followUp,
           id,
-          linkedAttributionIds,
           resources,
           source,
           suffix,
@@ -168,14 +231,8 @@ export function serializeAttributions(
         },
       ],
     ) => {
-      const sanitizedComments = comments
-        ?.map((comment) => comment.replace(/^\s+|\s+$/g, ''))
-        .filter((comment) => !!comment);
       rawAttributions[attributionId] = {
         ...attribution,
-        ...(sanitizedComments?.length && {
-          comment: sanitizedComments.join('\n'),
-        }),
         ...(followUp && { followUp: 'FOLLOW_UP' }),
       };
       return rawAttributions;
@@ -212,7 +269,7 @@ export function sanitizeRawBaseUrlsForSources(
   return rawBaseUrlsForSources
     ? Object.fromEntries(
         Object.entries(rawBaseUrlsForSources).map(([path, url]) => {
-          return [path.endsWith('/') ? path : `${path}/`, url];
+          return [addTrailingSlashIfAbsent(path), url];
         }),
       )
     : {};

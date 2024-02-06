@@ -23,12 +23,8 @@ export function getFormattedCellData(
     case 'source':
       cellData = packageInfo[config.attributionProperty]?.name.trim() || '';
       break;
-    case 'comments':
-      cellData = packageInfo[config.attributionProperty]?.join('') || '';
-      break;
     case 'originIds':
     case 'preferredOverOriginIds':
-    case 'linkedAttributionIds':
     case 'synthetic':
     case 'icons':
     case 'resources':

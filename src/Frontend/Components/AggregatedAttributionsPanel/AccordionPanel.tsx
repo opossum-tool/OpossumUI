@@ -9,8 +9,8 @@ import MuiTypography from '@mui/material/Typography';
 import { isEmpty } from 'lodash';
 import { ReactElement, useMemo, useState } from 'react';
 
+import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
-import { PanelData } from '../../types/types';
 import { PackagePanel } from '../PackagePanel/PackagePanel';
 
 const classes = {
@@ -37,7 +37,7 @@ const classes = {
 };
 
 interface AccordionPanelProps {
-  panelData: PanelData;
+  attributions: Attributions;
   title: PackagePanelTitle;
   isAddToPackageEnabled: boolean;
   ['aria-label']?: string;
@@ -47,8 +47,8 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
   const [expanded, setExpanded] = useState<boolean>(false);
 
   useMemo(() => {
-    setExpanded(!isEmpty(props.panelData.displayPackageInfos));
-  }, [props.panelData.displayPackageInfos]);
+    setExpanded(!isEmpty(props.attributions));
+  }, [props.attributions]);
 
   function handleExpansionChange(
     _: React.ChangeEvent<unknown>,
@@ -68,7 +68,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
       key={`PackagePanel-${props.title}`}
       expanded={expanded}
       onChange={handleExpansionChange}
-      disabled={isEmpty(props.panelData.displayPackageInfos)}
+      disabled={isEmpty(props.attributions)}
       aria-label={props['aria-label']}
     >
       <MuiAccordionSummary
@@ -86,8 +86,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
       >
         <PackagePanel
           title={props.title}
-          displayPackageInfos={props.panelData.displayPackageInfos}
-          sortedPackageCardIds={props.panelData.sortedPackageCardIds}
+          displayPackageInfos={props.attributions}
           isAddToPackageEnabled={props.isAddToPackageEnabled}
         />
       </MuiAccordionDetails>

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiPaper from '@mui/material/Paper';
-import { ReactElement } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
@@ -13,7 +13,7 @@ import { addToSelectedResource } from '../../state/actions/resource-actions/save
 import { useAppDispatch } from '../../state/hooks';
 import { useSignalSorting } from '../../state/variables/use-active-sorting';
 import { PackageCardConfig } from '../../types/types';
-import { getPackageSorter } from '../../util/get-package-sorter';
+import { sortAttributions } from '../../util/sort-attributions';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { PackageList } from '../PackageList/PackageList';
 
@@ -63,7 +63,6 @@ export function AllAttributionsPanel(
 
     return (
       <PackageCard
-        cardId={`all-attributions-${packageCardId}`}
         onClick={onCardClick}
         onIconClick={props.isAddToPackageEnabled ? onAddClick : undefined}
         cardConfig={cardConfig}
@@ -74,15 +73,21 @@ export function AllAttributionsPanel(
     );
   }
 
-  const sortedPackageCardIds = Object.keys(props.displayPackageInfos).sort(
-    getPackageSorter(props.displayPackageInfos, signalSorting),
+  const sortedAttributions = useMemo(
+    () =>
+      Object.values(
+        sortAttributions({
+          attributions: props.displayPackageInfos,
+          sorting: signalSorting,
+        }),
+      ),
+    [props.displayPackageInfos, signalSorting],
   );
 
   return (
     <MuiPaper sx={classes.root} elevation={0} square={true}>
       <PackageList
-        displayPackageInfos={props.displayPackageInfos}
-        sortedPackageCardIds={sortedPackageCardIds}
+        displayPackageInfos={sortedAttributions}
         getAttributionCard={getPackageCard}
         listTitle={PackagePanelTitle.AllAttributions}
         fullHeight

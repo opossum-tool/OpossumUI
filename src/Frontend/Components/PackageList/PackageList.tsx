@@ -5,7 +5,7 @@
 import MuiTypography from '@mui/material/Typography';
 import { ReactElement, useMemo } from 'react';
 
-import { Attributions } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { useAppSelector } from '../../state/hooks';
 import { getPackageSearchTerm } from '../../state/selectors/audit-view-resource-selectors';
 import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
@@ -13,8 +13,7 @@ import { List } from '../List/List';
 import { PACKAGE_CARD_HEIGHT } from '../PackageCard/PackageCard';
 
 interface PackageListProps {
-  displayPackageInfos: Attributions;
-  sortedPackageCardIds: Array<string>;
+  displayPackageInfos: Array<PackageInfo>;
   getAttributionCard(attributionId: string): ReactElement | null;
   maxNumberOfDisplayedItems?: number;
   listTitle: string;
@@ -24,30 +23,27 @@ interface PackageListProps {
 export function PackageList(props: PackageListProps): ReactElement {
   const searchTerm = useAppSelector(getPackageSearchTerm);
 
-  const filteredPackageCardIds: Array<string> = useMemo(
+  const filteredPackages = useMemo(
     () =>
-      props.sortedPackageCardIds.filter((packageCardId) =>
-        packageInfoContainsSearchTerm(
-          props.displayPackageInfos[packageCardId],
-          searchTerm,
-        ),
+      props.displayPackageInfos.filter((packageInfo) =>
+        packageInfoContainsSearchTerm(packageInfo, searchTerm),
       ),
-    [props.displayPackageInfos, props.sortedPackageCardIds, searchTerm],
+    [props.displayPackageInfos, searchTerm],
   );
 
   return (
     <>
-      {filteredPackageCardIds.length === 0 ? null : (
+      {filteredPackages.length === 0 ? null : (
         <>
           {props.listTitle ? (
             <MuiTypography variant={'body2'}>{props.listTitle}</MuiTypography>
           ) : null}
           <List
-            getListItem={(index: number): ReactElement | null =>
-              props.getAttributionCard(filteredPackageCardIds[index])
+            getListItem={(index) =>
+              props.getAttributionCard(filteredPackages[index].id)
             }
             maxNumberOfItems={props.maxNumberOfDisplayedItems}
-            length={filteredPackageCardIds.length}
+            length={filteredPackages.length}
             cardHeight={PACKAGE_CARD_HEIGHT}
             fullHeight={props.fullHeight}
           />

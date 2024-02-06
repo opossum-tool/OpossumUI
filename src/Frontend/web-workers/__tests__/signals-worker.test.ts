@@ -77,7 +77,6 @@ describe('SignalsWorker', () => {
     const worker = new SignalsWorker(dispatch, {
       externalData: faker.opossum.externalAttributionData(),
       resolvedExternalAttributions: new Set<string>(),
-      attributionsToHashes: {},
       signalSorting: text.sortings.name,
     });
 
@@ -97,7 +96,6 @@ describe('SignalsWorker', () => {
     new SignalsWorker(dispatch, {
       externalData: faker.opossum.externalAttributionData(),
       resolvedExternalAttributions: new Set<string>(),
-      attributionsToHashes: {},
     });
 
     expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({

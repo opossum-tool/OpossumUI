@@ -22,7 +22,7 @@ describe('The Attribution Counts Panel', () => {
   const testManualAttributions: Attributions = {
     [testManualUuid]: {
       attributionConfidence: 0,
-      comments: ['Some comment'],
+      comment: 'Some comment',
       packageName: 'Test package',
       packageVersion: '1.0',
       copyright: 'Copyright John Doe',
@@ -32,7 +32,7 @@ describe('The Attribution Counts Panel', () => {
     },
     [testOtherManualUuid]: {
       attributionConfidence: 0,
-      comments: ['Some other comment'],
+      comment: 'Some other comment',
       packageName: '',
       packageVersion: '2.0',
       copyright: 'other Copyright John Doe',

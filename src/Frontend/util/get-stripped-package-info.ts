@@ -30,7 +30,7 @@ const strippedPackageInfoTemplate: {
   [P in keyof Required<PackageInfo>]: boolean;
 } = {
   attributionConfidence: true,
-  comments: true,
+  comment: true,
   copyright: true,
   count: false,
   criticality: false,
@@ -41,7 +41,6 @@ const strippedPackageInfoTemplate: {
   id: false,
   licenseName: true,
   licenseText: true,
-  linkedAttributionIds: false,
   needsReview: true,
   originIds: true,
   packageName: true,

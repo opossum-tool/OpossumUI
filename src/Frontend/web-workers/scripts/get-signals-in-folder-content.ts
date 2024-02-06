@@ -4,16 +4,15 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   AttributionData,
-  AttributionsToHashes,
+  Attributions,
+  PackageInfo,
 } from '../../../shared/shared-types';
-import { getContainedExternalDisplayPackageInfosWithCount } from '../../Components/AggregatedAttributionsPanel/AccordionPanel.util';
-import { PackagePanelTitle } from '../../enums/enums';
 import { Sorting } from '../../shared-constants';
-import { PanelData } from '../../types/types';
+import { getContainedExternalPackages } from '../../util/get-contained-packages';
+import { sortAttributions } from '../../util/sort-attributions';
 
 interface Props {
   externalData: AttributionData;
-  attributionsToHashes: AttributionsToHashes;
   resolvedExternalAttributions: Set<string>;
   resourceId: string;
   sorting: Sorting;
@@ -21,23 +20,24 @@ interface Props {
 
 export function getSignalsInFolderContent({
   externalData,
-  attributionsToHashes,
   resolvedExternalAttributions,
   resourceId,
   sorting,
-}: Props): PanelData {
-  const [sortedPackageCardIds, displayPackageInfos] =
-    getContainedExternalDisplayPackageInfosWithCount({
-      selectedResourceId: resourceId,
-      externalData,
-      resolvedExternalAttributions,
-      attributionsToHashes,
-      panelTitle: PackagePanelTitle.ContainedExternalPackages,
-      sorting,
-    });
+}: Props): Attributions {
+  const attributionIdsWithCount = getContainedExternalPackages(
+    resourceId,
+    externalData.resourcesWithAttributedChildren,
+    externalData.resourcesToAttributions,
+    resolvedExternalAttributions,
+  );
 
-  return {
-    sortedPackageCardIds,
-    displayPackageInfos,
-  };
+  return sortAttributions({
+    sorting,
+    attributions: attributionIdsWithCount.map<PackageInfo>(
+      ({ attributionId, count }) => ({
+        ...externalData.attributions[attributionId],
+        count,
+      }),
+    ),
+  });
 }

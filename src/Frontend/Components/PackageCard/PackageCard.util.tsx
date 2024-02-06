@@ -19,13 +19,8 @@ import {
   WasPreferredIcon,
 } from '../Icons/Icons';
 
-export function getKey(prefix: string, cardId: string): string {
-  return `${prefix}-${cardId}`;
-}
-
 export function getRightIcons(
   cardConfig: ListCardConfig,
-  cardId: string,
   openResourcesIcon?: JSX.Element,
 ): Array<ReactElement> {
   const rightIcons: Array<JSX.Element> = [];
@@ -35,39 +30,27 @@ export function getRightIcons(
   }
 
   if (cardConfig.needsReview) {
-    rightIcons.push(
-      <NeedsReviewIcon key={getKey('needs-review-icon', cardId)} />,
-    );
+    rightIcons.push(<NeedsReviewIcon key={'needs-review-icon'} />);
   }
   if (cardConfig.followUp) {
-    rightIcons.push(<FollowUpIcon key={getKey('follow-up-icon', cardId)} />);
+    rightIcons.push(<FollowUpIcon key={'follow-up-icon'} />);
   }
   if (cardConfig.firstParty) {
-    rightIcons.push(
-      <FirstPartyIcon key={getKey('first-party-icon', cardId)} />,
-    );
+    rightIcons.push(<FirstPartyIcon key={'first-party-icon'} />);
   }
   if (cardConfig.excludeFromNotice) {
-    rightIcons.push(
-      <ExcludeFromNoticeIcon key={getKey('exclude-icon', cardId)} />,
-    );
+    rightIcons.push(<ExcludeFromNoticeIcon key={'exclude-icon'} />);
   }
   if (cardConfig.isPreSelected) {
-    rightIcons.push(
-      <PreSelectedIcon key={getKey('pre-selected-icon', cardId)} />,
-    );
+    rightIcons.push(<PreSelectedIcon key={'pre-selected-icon'} />);
   }
   if (cardConfig.isPreferred) {
-    rightIcons.push(<PreferredIcon key={getKey('preferred-icon', cardId)} />);
+    rightIcons.push(<PreferredIcon key={'preferred-icon'} />);
   } else if (cardConfig.wasPreferred) {
-    rightIcons.push(
-      <WasPreferredIcon key={getKey('was-preferred-icon', cardId)} />,
-    );
+    rightIcons.push(<WasPreferredIcon key={'was-preferred-icon'} />);
   }
   if (cardConfig.isLocated) {
-    rightIcons.push(
-      <LocateSignalsIconWithTooltip key={getKey('is-located-icon', cardId)} />,
-    );
+    rightIcons.push(<LocateSignalsIconWithTooltip key={'is-located-icon'} />);
   }
 
   return rightIcons;

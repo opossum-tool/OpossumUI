@@ -13,7 +13,10 @@ import {
   ADD_NEW_ATTRIBUTION_BUTTON_ID,
   EMPTY_DISPLAY_PACKAGE_INFO,
 } from '../../../shared-constants';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  getAttributionsToResources,
+  getParsedInputFileEnrichedWithTestData,
+} from '../../../test-helpers/general-test-helpers';
 import { PanelPackage } from '../../../types/types';
 import { setManualData } from '../../actions/resource-actions/all-views-simple-actions';
 import {
@@ -56,6 +59,9 @@ describe('The audit view resource selectors', () => {
   const testResourcesToManualAttributions: ResourcesToAttributions = {
     '/root/src/something.js': [testManualAttributionUuid_1],
   };
+  const testAttributionsToResources = getAttributionsToResources(
+    testResourcesToManualAttributions,
+  );
 
   it('sets Attributions and getsAttribution for a ResourceId', () => {
     const testStore = createAppStore();
@@ -71,7 +77,11 @@ describe('The audit view resource selectors', () => {
     ).toBeNull();
 
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions),
+      setManualData(
+        testManualAttributions,
+        testResourcesToManualAttributions,
+        testAttributionsToResources,
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(

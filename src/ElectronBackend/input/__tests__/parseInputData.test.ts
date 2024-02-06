@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { pickBy } from 'lodash';
+
 import {
   Attributions,
   AttributionsToResources,
@@ -13,80 +15,18 @@ import {
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
-import logger from '../../main/logger';
 import { RawFrequentLicense } from '../../types/types';
 import {
-  cleanNonExistentAttributions,
-  cleanNonExistentResolvedExternalAttributions,
   deserializeAttributions,
   getAllResourcePaths,
+  HASH_EXCLUDE_KEYS,
+  mergeAttributions,
+  mergePackageInfos,
   parseFrequentLicenses,
   sanitizeRawBaseUrlsForSources,
   sanitizeResourcesToAttributions,
   serializeAttributions,
 } from '../parseInputData';
-
-jest.mock('../../main/logger');
-
-describe('cleanNonExistentAttributions', () => {
-  it('removes non-existent attributions', () => {
-    const resourcesToAttributions: ResourcesToAttributions = {
-      '/file1': ['attr1', 'attr2', 'attr3', 'attr4'],
-      '/file2': ['attr3'],
-      '/file3': ['attr4'],
-      '/file4': ['attr5', 'attr6'],
-    };
-    const attributions: Attributions = {
-      attr2: { id: 'attr2' },
-      attr4: { id: 'attr4' },
-    };
-    const result = cleanNonExistentAttributions(
-      resourcesToAttributions,
-      attributions,
-    );
-    expect(result).toEqual({
-      '/file1': ['attr2', 'attr4'],
-      '/file3': ['attr4'],
-    });
-    const expectedNumberOfCalls = 3;
-    expect(logger.info).toHaveBeenCalledTimes(expectedNumberOfCalls);
-    expect(logger.info).toHaveBeenNthCalledWith(
-      1,
-      expect.stringContaining('/file1'),
-    );
-    expect(logger.info).toHaveBeenNthCalledWith(
-      2,
-      expect.stringContaining('/file2'),
-    );
-    expect(logger.info).toHaveBeenNthCalledWith(
-      3,
-      expect.stringContaining('/file4'),
-    );
-  });
-});
-
-describe('cleanNonExistentResolvedExternalAttributions', () => {
-  it('removes non-existent resolved external attributions', () => {
-    const resolvedExternalAttributions: Set<string> = new Set<string>()
-      .add('attr2')
-      .add('invalid');
-    const externalAttributions: Attributions = {
-      attr2: { id: 'attr2' },
-      attr4: { id: 'attr4' },
-    };
-    const result = cleanNonExistentResolvedExternalAttributions(
-      resolvedExternalAttributions,
-      externalAttributions,
-    );
-    expect(result).toEqual(new Set<string>().add('attr2'));
-    expect(logger.info).toHaveBeenCalledTimes(1);
-    expect(logger.info).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'WARNING: There was an abandoned resolved external attribution: invalid',
-      ),
-    );
-  });
-});
 
 describe('deserializeAttributions', () => {
   it('converts follow-up string to boolean', () => {
@@ -131,7 +71,7 @@ describe('deserializeAttributions', () => {
     const expectedAttributions: Attributions = {
       id: {
         id: 'id',
-        comments: ['Test comment'],
+        comment: 'Test comment',
       },
     };
 
@@ -254,23 +194,6 @@ describe('serializeAttributions', () => {
     };
     const rawAttributions: RawAttributions = {
       id: {},
-    };
-
-    expect(serializeAttributions(attributions)).toEqual<RawAttributions>(
-      rawAttributions,
-    );
-  });
-
-  it('converts multiple comments to single comment', () => {
-    const comments = faker.helpers.multiple(faker.lorem.word);
-    const attributions: Attributions = {
-      id: {
-        id: 'id',
-        comments,
-      },
-    };
-    const rawAttributions: RawAttributions = {
-      id: { comment: comments.join('\n') },
     };
 
     expect(serializeAttributions(attributions)).toEqual<RawAttributions>(
@@ -481,5 +404,265 @@ describe('sanitizeResourcesToAttributions', () => {
       '/folder1/': ['uuid2', 'uuid3'],
       '/folder1/file2': ['uuid1'],
     });
+  });
+});
+
+describe('mergeAttributions', () => {
+  it('merges attributions that are similar and attached to the same resources', () => {
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo({
+      ...packageInfo1,
+      attributionConfidence: faker.number.int(100),
+      comment: faker.lorem.sentence(),
+      id: faker.string.uuid(),
+      originIds: [faker.string.uuid()],
+      preSelected: !packageInfo1.preSelected,
+      wasPreferred: !packageInfo1.wasPreferred,
+    });
+    const filePath = faker.system.filePath();
+    const attributionsToResources = faker.opossum.attributionsToResources({
+      [packageInfo1.id]: [filePath],
+      [packageInfo2.id]: [filePath],
+    });
+    const resourcesToAttributions = faker.opossum.resourcesToAttributions({
+      [filePath]: [packageInfo1.id, packageInfo2.id],
+    });
+    const attributions = faker.opossum.attributions({
+      [packageInfo1.id]: packageInfo1,
+      [packageInfo2.id]: packageInfo2,
+    });
+
+    const mergedAttributions = mergeAttributions({
+      attributions,
+      attributionsToResources,
+      resourcesToAttributions,
+    });
+
+    expect(mergedAttributions).toEqual<[Attributions, ResourcesToAttributions]>(
+      [
+        {
+          [packageInfo1.id]: mergePackageInfos(packageInfo1, packageInfo2),
+        },
+        {
+          [filePath]: [packageInfo1.id],
+        },
+      ],
+    );
+  });
+
+  it('does not merge attributions that are similar but attached to different resources', () => {
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo({
+      ...packageInfo1,
+      attributionConfidence: faker.number.int(100),
+      comment: faker.lorem.sentence(),
+      id: faker.string.uuid(),
+      originIds: [faker.string.uuid()],
+      preSelected: !packageInfo1.preSelected,
+      wasPreferred: !packageInfo1.wasPreferred,
+    });
+    const filePath1 = faker.system.filePath();
+    const filePath2 = faker.system.filePath();
+    const attributionsToResources = faker.opossum.attributionsToResources({
+      [packageInfo1.id]: [filePath1],
+      [packageInfo2.id]: [filePath2],
+    });
+    const resourcesToAttributions = faker.opossum.resourcesToAttributions({
+      [filePath1]: [packageInfo1.id],
+      [filePath2]: [packageInfo2.id],
+    });
+    const attributions = faker.opossum.attributions({
+      [packageInfo1.id]: packageInfo1,
+      [packageInfo2.id]: packageInfo2,
+    });
+
+    const mergedAttributions = mergeAttributions({
+      attributions,
+      attributionsToResources,
+      resourcesToAttributions,
+    });
+
+    expect(mergedAttributions).toEqual<[Attributions, ResourcesToAttributions]>(
+      [attributions, resourcesToAttributions],
+    );
+  });
+
+  it('does not merge attributions that are not similar but attached to the same resources', () => {
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+    const filePath = faker.system.filePath();
+    const attributionsToResources = faker.opossum.attributionsToResources({
+      [packageInfo1.id]: [filePath],
+      [packageInfo2.id]: [filePath],
+    });
+    const resourcesToAttributions = faker.opossum.resourcesToAttributions({
+      [filePath]: [packageInfo1.id, packageInfo2.id],
+    });
+    const attributions = faker.opossum.attributions({
+      [packageInfo1.id]: packageInfo1,
+      [packageInfo2.id]: packageInfo2,
+    });
+
+    const mergedAttributions = mergeAttributions({
+      attributions,
+      attributionsToResources,
+      resourcesToAttributions,
+    });
+
+    expect(mergedAttributions).toEqual<[Attributions, ResourcesToAttributions]>(
+      [attributions, resourcesToAttributions],
+    );
+  });
+});
+
+describe('mergePackageInfos', () => {
+  it('chooses lower confidence', () => {
+    const packageInfo1 = faker.opossum.packageInfo({
+      attributionConfidence: faker.number.int(100),
+    });
+    const packageInfo2 = faker.opossum.packageInfo({
+      attributionConfidence: packageInfo1.attributionConfidence! + 1,
+    });
+
+    expect(
+      mergePackageInfos(packageInfo1, packageInfo2).attributionConfidence,
+    ).toBe(packageInfo1.attributionConfidence);
+  });
+
+  it('handles undefined confidence', () => {
+    const packageInfo1 = faker.opossum.packageInfo({
+      attributionConfidence: undefined,
+    });
+    const packageInfo2 = faker.opossum.packageInfo({
+      attributionConfidence: faker.number.int(100),
+    });
+
+    expect(
+      mergePackageInfos(packageInfo1, packageInfo2).attributionConfidence,
+    ).toBe(packageInfo2.attributionConfidence);
+  });
+
+  it('concatenates comments', () => {
+    const packageInfo1 = faker.opossum.packageInfo({
+      comment: faker.lorem.sentence(),
+    });
+    const packageInfo2 = faker.opossum.packageInfo({
+      comment: faker.lorem.sentence(),
+    });
+
+    expect(mergePackageInfos(packageInfo1, packageInfo2).comment).toBe(
+      `${packageInfo1.comment}\n\n${packageInfo2.comment}`,
+    );
+  });
+
+  it('concatenates origin IDs', () => {
+    const packageInfo1 = faker.opossum.packageInfo({
+      originIds: [faker.string.uuid()],
+    });
+    const packageInfo2 = faker.opossum.packageInfo({
+      originIds: [faker.string.uuid()],
+    });
+
+    expect(mergePackageInfos(packageInfo1, packageInfo2).originIds).toEqual([
+      ...packageInfo1.originIds!,
+      ...packageInfo2.originIds!,
+    ]);
+  });
+
+  it('deduplicates origin IDs', () => {
+    const originId = faker.string.uuid();
+    const packageInfo1 = faker.opossum.packageInfo({
+      originIds: [originId],
+    });
+    const packageInfo2 = faker.opossum.packageInfo({
+      originIds: [originId],
+    });
+
+    expect(mergePackageInfos(packageInfo1, packageInfo2).originIds).toEqual([
+      originId,
+    ]);
+  });
+
+  it('handles undefined origin IDs', () => {
+    const originId = faker.string.uuid();
+    const packageInfo1 = faker.opossum.packageInfo({
+      originIds: undefined,
+    });
+    const packageInfo2 = faker.opossum.packageInfo({
+      originIds: [originId],
+    });
+
+    expect(mergePackageInfos(packageInfo1, packageInfo2).originIds).toEqual([
+      originId,
+    ]);
+  });
+
+  it('makes merged package info pre-selected if at least one input package info is pre-selected', () => {
+    const packageInfo1 = faker.opossum.packageInfo({
+      preSelected: true,
+    });
+    const packageInfo2 = faker.opossum.packageInfo({
+      preSelected: false,
+    });
+
+    expect(mergePackageInfos(packageInfo1, packageInfo2).preSelected).toBe(
+      true,
+    );
+  });
+
+  it('does not make merged package info pre-selected if no input package info is pre-selected', () => {
+    const packageInfo1 = faker.opossum.packageInfo({
+      preSelected: undefined,
+    });
+    const packageInfo2 = faker.opossum.packageInfo({
+      preSelected: false,
+    });
+
+    expect(mergePackageInfos(packageInfo1, packageInfo2).preSelected).toBe(
+      false,
+    );
+  });
+
+  it('makes merged package info previously-preferred if at least one input package info is previously-preferred', () => {
+    const packageInfo1 = faker.opossum.packageInfo({
+      wasPreferred: true,
+    });
+    const packageInfo2 = faker.opossum.packageInfo({
+      wasPreferred: false,
+    });
+
+    expect(mergePackageInfos(packageInfo1, packageInfo2).wasPreferred).toBe(
+      true,
+    );
+  });
+
+  it('does not make merged package info previously-preferred if no input package info is previously-preferred', () => {
+    const packageInfo1 = faker.opossum.packageInfo({
+      wasPreferred: undefined,
+    });
+    const packageInfo2 = faker.opossum.packageInfo({
+      wasPreferred: false,
+    });
+
+    expect(mergePackageInfos(packageInfo1, packageInfo2).wasPreferred).toBe(
+      false,
+    );
+  });
+
+  it('takes attribute value from first candidate for all keys that are relevant for uniqueness', () => {
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+
+    expect(
+      pickBy(
+        mergePackageInfos(packageInfo1, packageInfo2),
+        (_, key) => !HASH_EXCLUDE_KEYS.some((excludeKey) => excludeKey === key),
+      ),
+    ).toEqual(
+      pickBy(
+        packageInfo1,
+        (_, key) => !HASH_EXCLUDE_KEYS.some((excludeKey) => excludeKey === key),
+      ),
+    );
   });
 });

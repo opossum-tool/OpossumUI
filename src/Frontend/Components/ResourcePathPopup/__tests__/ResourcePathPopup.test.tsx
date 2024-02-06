@@ -14,6 +14,7 @@ import {
   setManualData,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../../state/hooks';
+import { getAttributionsToResources } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { doNothing } from '../../../util/do-nothing';
 import { ResourcePathPopup } from '../ResourcePathPopup';
@@ -30,13 +31,31 @@ function HelperComponent(props: HelperComponentProps): ReactElement {
   const resourcesToManualAttributions: ResourcesToAttributions = {
     '/thirdParty': ['uuid_1'],
   };
+  const manualAttributionsToResources = getAttributionsToResources(
+    resourcesToManualAttributions,
+  );
   const resourcesToExternalAttributions: ResourcesToAttributions = {
     '/firstParty': ['uuid_1'],
     '/folder/anotherFirstParty': ['uuid_1'],
   };
+  const externalAttributionsToResources = getAttributionsToResources(
+    resourcesToExternalAttributions,
+  );
 
-  dispatch(setExternalData(attributions, resourcesToExternalAttributions));
-  dispatch(setManualData(attributions, resourcesToManualAttributions));
+  dispatch(
+    setExternalData(
+      attributions,
+      resourcesToExternalAttributions,
+      externalAttributionsToResources,
+    ),
+  );
+  dispatch(
+    setManualData(
+      attributions,
+      resourcesToManualAttributions,
+      manualAttributionsToResources,
+    ),
+  );
   return (
     <ResourcePathPopup
       closePopup={doNothing}

@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
-  AttributionsToHashes,
+  AttributionsToResources,
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenses,
@@ -13,7 +13,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { getAttributionDataFromSetAttributionDataPayload } from '../../helpers/action-and-reducer-helpers';
+import { computeChildrenWithAttributions } from '../../helpers/action-and-reducer-helpers';
 import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
@@ -21,7 +21,6 @@ import {
   ACTION_SET_ENABLE_PREFERENCE_FEATURE,
   ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
-  ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
@@ -32,7 +31,6 @@ import {
   SetAttributionBreakpoints,
   SetBaseUrlsForSources,
   SetExternalAttributionSources,
-  SetExternalAttributionsToHashes,
   SetExternalDataAction,
   SetFilesWithChildren,
   SetFrequentLicensesAction,
@@ -54,26 +52,36 @@ export function setResources(resources: Resources | null): SetResourcesAction {
 export function setManualData(
   attributions: Attributions,
   resourcesToAttributions: ResourcesToAttributions,
+  attributionsToResources: AttributionsToResources,
 ): SetManualDataAction {
   return {
     type: ACTION_SET_MANUAL_ATTRIBUTION_DATA,
-    payload: getAttributionDataFromSetAttributionDataPayload({
+    payload: {
       attributions,
       resourcesToAttributions,
-    }),
+      attributionsToResources,
+      resourcesWithAttributedChildren: computeChildrenWithAttributions(
+        resourcesToAttributions,
+      ),
+    },
   };
 }
 
 export function setExternalData(
   attributions: Attributions,
   resourcesToAttributions: ResourcesToAttributions,
+  attributionsToResources: AttributionsToResources,
 ): SetExternalDataAction {
   return {
     type: ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
-    payload: getAttributionDataFromSetAttributionDataPayload({
+    payload: {
       attributions,
       resourcesToAttributions,
-    }),
+      attributionsToResources,
+      resourcesWithAttributedChildren: computeChildrenWithAttributions(
+        resourcesToAttributions,
+      ),
+    },
   };
 }
 
@@ -131,15 +139,6 @@ export function setExternalAttributionSources(
   return {
     type: ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
     payload: externalAttributionSources,
-  };
-}
-
-export function setExternalAttributionsToHashes(
-  externalAttributionsToHashes: AttributionsToHashes,
-): SetExternalAttributionsToHashes {
-  return {
-    type: ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
-    payload: externalAttributionsToHashes,
   };
 }
 

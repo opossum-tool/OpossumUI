@@ -11,7 +11,10 @@ import {
 } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { PackagePanelTitle } from '../../../enums/enums';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  getAttributionsToResources,
+  getParsedInputFileEnrichedWithTestData,
+} from '../../../test-helpers/general-test-helpers';
 import {
   setManualData,
   setTemporaryDisplayPackageInfo,
@@ -60,6 +63,9 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
   const testResourcesToManualAttributions: ResourcesToAttributions = {
     '/root/src/something.js': [testManualAttributionUuid_1],
   };
+  const testAttributionsToResources = getAttributionsToResources(
+    testResourcesToManualAttributions,
+  );
 
   it('returns true  when TemporaryDisplayPackageInfo have been modified', () => {
     const testStore = createAppStore();
@@ -70,7 +76,11 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
       id: faker.string.uuid(),
     };
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions),
+      setManualData(
+        testManualAttributions,
+        testResourcesToManualAttributions,
+        testAttributionsToResources,
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
@@ -95,7 +105,11 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
       id: faker.string.uuid(),
     };
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions),
+      setManualData(
+        testManualAttributions,
+        testResourcesToManualAttributions,
+        testAttributionsToResources,
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
@@ -141,7 +155,11 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
       id: testManualAttributionUuid_1,
     };
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions),
+      setManualData(
+        testManualAttributions,
+        testResourcesToManualAttributions,
+        testAttributionsToResources,
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(

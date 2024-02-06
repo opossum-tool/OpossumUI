@@ -12,7 +12,14 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { AllowedSaveOperations, ButtonText, View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
-import { setAllowedSaveOperations } from '../../state/actions/resource-actions/save-actions';
+import {
+  addResolvedExternalAttribution,
+  removeResolvedExternalAttribution,
+} from '../../state/actions/resource-actions/audit-view-simple-actions';
+import {
+  saveManualAndResolvedAttributionsToFile,
+  setAllowedSaveOperations,
+} from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getTemporaryDisplayPackageInfo,
@@ -29,10 +36,6 @@ import {
   useConfirmationDialog,
 } from '../ConfirmationDialog/ConfirmationDialog';
 import { WasPreferredIcon } from '../Icons/Icons';
-import {
-  getResolvedToggleHandler,
-  selectedPackagesAreResolved,
-} from './AttributionColumn.util';
 import { AttributionForm } from './AttributionForm';
 import { ButtonRow } from './ButtonRow';
 
@@ -104,12 +107,8 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     !temporaryDisplayPackageInfo.firstParty &&
     !temporaryDisplayPackageInfo.excludeFromNotice;
 
-  const selectedPackageIsResolved = selectedPackagesAreResolved(
-    [
-      temporaryDisplayPackageInfo.id,
-      ...(temporaryDisplayPackageInfo.linkedAttributionIds ?? []),
-    ],
-    resolvedExternalAttributions,
+  const selectedPackageIsResolved = resolvedExternalAttributions.has(
+    temporaryDisplayPackageInfo.id,
   );
 
   useEffect(() => {
@@ -160,14 +159,16 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       <MuiToggleButton
         value={'check'}
         selected={selectedPackageIsResolved}
-        onChange={getResolvedToggleHandler(
-          [
-            temporaryDisplayPackageInfo.id,
-            ...(temporaryDisplayPackageInfo.linkedAttributionIds ?? []),
-          ],
-          resolvedExternalAttributions,
-          dispatch,
-        )}
+        onChange={() => {
+          dispatch(
+            resolvedExternalAttributions.has(temporaryDisplayPackageInfo.id)
+              ? removeResolvedExternalAttribution(
+                  temporaryDisplayPackageInfo.id,
+                )
+              : addResolvedExternalAttribution(temporaryDisplayPackageInfo.id),
+          );
+          dispatch(saveManualAndResolvedAttributionsToFile());
+        }}
         sx={classes.showHideButton}
         aria-label={'resolve attribution'}
       >

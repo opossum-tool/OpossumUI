@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  AttributionData,
   Attributions,
   AttributionsToResources,
   Criticality,
@@ -13,7 +12,6 @@ import {
   SelectedCriticality,
 } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
 import { LocatePopupFilters } from '../../../types/types';
 import {
   initialResourceState,
@@ -24,10 +22,7 @@ import {
   attributionMatchesLocateFilter,
   calculateResourcesWithLocatedAttributions,
   computeChildrenWithAttributions,
-  createExternalAttributionsToHashes,
-  getAttributionDataFromSetAttributionDataPayload,
   getAttributionIdOfFirstPackageCardInManualPackagePanel,
-  getIndexOfAttributionInManualPackagePanel,
   getResourcesWithLocatedChildren,
 } from '../action-and-reducer-helpers';
 
@@ -64,77 +59,6 @@ describe('computeChildrenWithAttributions', () => {
         '/root/src/something.js/',
       ],
     });
-  });
-});
-
-describe('createExternalAttributionsToHashes', () => {
-  it('yields correct results', () => {
-    const testExternalAttributions: Attributions = {
-      uuid1: {
-        attributionConfidence: 1,
-        comments: ['comment1'],
-        packageName: 'name',
-        originIds: ['abc'],
-        preSelected: true,
-        wasPreferred: false,
-        id: 'uuid1',
-      },
-      uuid2: {
-        attributionConfidence: 2,
-        comments: ['comment2'],
-        packageName: 'name',
-        originIds: ['def'],
-        preSelected: false,
-        wasPreferred: true,
-        id: 'uuid2',
-      },
-      uuid3: {
-        packageName: 'name',
-        id: 'uuid3',
-      },
-      uuid4: {
-        licenseName: '',
-        firstParty: true,
-        id: 'uuid4',
-      },
-      uuid5: {
-        firstParty: true,
-        id: 'uuid5',
-      },
-      uuid6: {
-        packageName: '',
-        id: 'uuid6',
-      },
-      uuid7: {
-        firstParty: false,
-        id: 'uuid7',
-      },
-    };
-
-    const testExternalAttributionsToHashes = createExternalAttributionsToHashes(
-      testExternalAttributions,
-    );
-
-    expect(testExternalAttributionsToHashes.uuid1).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid2).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid3).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid4).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid5).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid6).toBeUndefined();
-    expect(testExternalAttributionsToHashes.uuid7).toBeUndefined();
-
-    expect(testExternalAttributionsToHashes.uuid1).toEqual(
-      testExternalAttributionsToHashes.uuid2,
-    );
-    expect(testExternalAttributionsToHashes.uuid1).toEqual(
-      testExternalAttributionsToHashes.uuid3,
-    );
-    expect(testExternalAttributionsToHashes.uuid1).not.toEqual(
-      testExternalAttributionsToHashes.uuid4,
-    );
-    expect(testExternalAttributionsToHashes.uuid4).toEqual(
-      testExternalAttributionsToHashes.uuid5,
-    );
   });
 });
 
@@ -229,69 +153,6 @@ describe('getAttributionIdOfFirstPackageCardInManualPackagePanel', () => {
     expect(testAttributionIdOfFirstPackageCard).toEqual(
       expectedAttributionIdOfFirstPackageCard,
     );
-  });
-});
-
-describe('getIndexOfAttributionInManualPackagePanel', () => {
-  const testManualData: AttributionData = {
-    ...EMPTY_ATTRIBUTION_DATA,
-    attributions: {
-      uuid_0: { packageName: 'Vue', id: 'uuid_0' },
-      uuid_1: { packageName: 'React', id: 'uuid_1' },
-    },
-    resourcesToAttributions: { file: ['uuid_0', 'uuid_1'] },
-  };
-  it('yields correct result if all necessary data are available', () => {
-    const testTargetAttributionId = 'uuid_0';
-    const testResourceId = 'file';
-    const expectedIndex = 1;
-    const testIndex = getIndexOfAttributionInManualPackagePanel(
-      testTargetAttributionId,
-      testResourceId,
-      testManualData,
-    );
-    expect(testIndex).toEqual(expectedIndex);
-  });
-
-  it('yields null if targetAttributionId is not on resource', () => {
-    const testTargetAttributionId = 'uuid_42';
-    const testResourceId = 'file';
-    const expectedIndex = null;
-    const testIndex = getIndexOfAttributionInManualPackagePanel(
-      testTargetAttributionId,
-      testResourceId,
-      testManualData,
-    );
-    expect(testIndex).toEqual(expectedIndex);
-  });
-
-  it('yields null if resource does not have attributions', () => {
-    const testTargetAttributionId = 'uuid_0';
-    const testResourceId = 'anotherFile';
-    const expectedIndex = null;
-    const testIndex = getIndexOfAttributionInManualPackagePanel(
-      testTargetAttributionId,
-      testResourceId,
-      testManualData,
-    );
-    expect(testIndex).toEqual(expectedIndex);
-  });
-});
-
-describe('getAttributionDataFromSetAttributionDataPayload', () => {
-  it('prunes attributions without linked resources', () => {
-    const expectedAttributionData: AttributionData = EMPTY_ATTRIBUTION_DATA;
-
-    const testAttributions: Attributions = {
-      uuid_0: { packageName: 'Vue', id: 'uuid_0' },
-    };
-    const testResourcesToAttributions: ResourcesToAttributions = {};
-    const attributionData = getAttributionDataFromSetAttributionDataPayload({
-      attributions: testAttributions,
-      resourcesToAttributions: testResourcesToAttributions,
-    });
-
-    expect(attributionData).toEqual(expectedAttributionData);
   });
 });
 

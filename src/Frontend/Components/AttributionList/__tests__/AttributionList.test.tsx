@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { fromPairs, remove } from 'lodash';
+import { remove } from 'lodash';
 
 import { Attributions } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -370,7 +370,7 @@ describe('AttributionList', () => {
           attributions: {
             [packageInfo.id]: packageInfo,
           },
-          counts: fromPairs(
+          counts: Object.fromEntries(
             filters.map((filter) => [
               filter,
               filter === text.filters.firstParty ? 1 : 0,
@@ -411,7 +411,7 @@ describe('AttributionList', () => {
           attributions: {
             [packageInfo.id]: packageInfo,
           },
-          counts: fromPairs(
+          counts: Object.fromEntries(
             filters.map((filter) => [filter, 1]),
           ) as FilterCounts,
         }),
@@ -446,7 +446,7 @@ describe('AttributionList', () => {
           attributions: {
             [packageInfo.id]: packageInfo,
           },
-          counts: fromPairs(
+          counts: Object.fromEntries(
             filters.map((filter) => [filter, 1]),
           ) as FilterCounts,
         }),
@@ -479,7 +479,7 @@ describe('AttributionList', () => {
             [packageInfo.id]: packageInfo,
           },
           selectedFilters: filters,
-          counts: fromPairs(
+          counts: Object.fromEntries(
             filters.map((filter) => [filter, 0]),
           ) as FilterCounts,
         }),

@@ -22,7 +22,7 @@ describe('The Table', () => {
         licenseName: 'licenseName',
         licenseText: 'licenseText',
         attributionConfidence: DiscreteConfidence.Low,
-        comments: ['test comment'],
+        comment: 'test comment',
         url: 'packageWebsite',
         firstParty: true,
         resources: ['/'],
@@ -63,7 +63,7 @@ describe('The Table', () => {
     expect(screen.getByText('Confidence')).toBeInTheDocument();
     expect(screen.getByText('20')).toBeInTheDocument();
 
-    expect(screen.getByText('Comments')).toBeInTheDocument();
+    expect(screen.getByText('Comment')).toBeInTheDocument();
     expect(screen.getByText('test comment')).toBeInTheDocument();
 
     expect(screen.getByText('URL')).toBeInTheDocument();

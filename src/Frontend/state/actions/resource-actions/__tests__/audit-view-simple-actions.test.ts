@@ -7,6 +7,7 @@ import {
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
 import { PackagePanelTitle } from '../../../../enums/enums';
+import { getAttributionsToResources } from '../../../../test-helpers/general-test-helpers';
 import { PanelPackage } from '../../../../types/types';
 import { createAppStore } from '../../../configure-store';
 import {
@@ -104,11 +105,15 @@ describe('The audit view simple actions', () => {
       '/root/src/': [uuid1],
       '/root/external/': [uuid2],
     };
+    const testExternalAttributionsToResources = getAttributionsToResources(
+      testResourcesToExternalAttributions,
+    );
 
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
         testResourcesToExternalAttributions,
+        testExternalAttributionsToResources,
       ),
     );
 
@@ -168,11 +173,15 @@ describe('The audit view simple actions', () => {
       '/root/src/': [uuid1, uuid3],
       '/root/external/': [uuid2],
     };
+    const testExternalAttributionsToResources = getAttributionsToResources(
+      testResourcesToExternalAttributions,
+    );
 
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
         testResourcesToExternalAttributions,
+        testExternalAttributionsToResources,
       ),
     );
 

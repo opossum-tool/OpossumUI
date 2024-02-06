@@ -115,6 +115,7 @@ const expectedFileContent: ParsedFileContent = {
   manualAttributions: {
     attributions: {},
     resourcesToAttributions: {},
+    attributionsToResources: {},
   },
   externalAttributions: {
     attributions: {
@@ -142,6 +143,9 @@ const expectedFileContent: ParsedFileContent = {
     resourcesToAttributions: {
       '/a': [externalAttributionUuid],
       '/folder/': [externalAttributionUuid],
+    },
+    attributionsToResources: {
+      [externalAttributionUuid]: ['/a', '/folder/'],
     },
   },
   frequentLicenses: {
@@ -426,7 +430,7 @@ describe('Test of loading function', () => {
             [manualAttributionUuid]: {
               packageName: 'my app',
               packageVersion: '1.2.3',
-              comments: ['some comment'],
+              comment: 'some comment',
               copyright: '(c) first party',
               preSelected: true,
               attributionConfidence: DiscreteConfidence.Low,
@@ -435,6 +439,9 @@ describe('Test of loading function', () => {
           },
           resourcesToAttributions: {
             '/a': [manualAttributionUuid],
+          },
+          attributionsToResources: {
+            [manualAttributionUuid]: ['/a'],
           },
         },
         externalAttributions: {
@@ -449,7 +456,7 @@ describe('Test of loading function', () => {
               copyright: '(c) first party',
               preSelected: true,
               attributionConfidence: 17,
-              comments: ['some comment'],
+              comment: 'some comment',
               preferred: true,
               preferredOverOriginIds: ['test-id'],
               id: externalAttributionUuid,
@@ -457,6 +464,9 @@ describe('Test of loading function', () => {
           },
           resourcesToAttributions: {
             '/a': [externalAttributionUuid],
+          },
+          attributionsToResources: {
+            [externalAttributionUuid]: ['/a'],
           },
         },
         frequentLicenses: {
@@ -577,6 +587,9 @@ describe('Test of loading function', () => {
         resourcesToAttributions: {
           '/a': ['uuid'],
         },
+        attributionsToResources: {
+          uuid: ['/a'],
+        },
       },
     };
 
@@ -603,6 +616,9 @@ function assertFileLoadedCorrectly(testUuid: string): void {
       },
       resourcesToAttributions: {
         '/path/1': [testUuid],
+      },
+      attributionsToResources: {
+        [testUuid]: ['/path/1'],
       },
     },
   };
