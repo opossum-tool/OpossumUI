@@ -3702,14 +3702,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.2.52":
-  version: 18.2.52
-  resolution: "@types/react@npm:18.2.52"
+"@types/react@npm:*, @types/react@npm:^18.2.53":
+  version: 18.2.54
+  resolution: "@types/react@npm:18.2.54"
   dependencies:
     "@types/prop-types": "npm:*"
     "@types/scheduler": "npm:*"
     csstype: "npm:^3.0.2"
-  checksum: 10/0ab90a37fd82028c3559f18ce50790d01b262589a2ea49d014d8888291f47d9c91e65cb7db031a3e5d58818cb5376577afb4b593068473abfd0c695fa7e6b7c4
+  checksum: 10/69f1a98c5504864fced16261247f0a79322bcfd8d689848cc523fb62e2dd1d64e6c7ac97819fc18f794f8904e1ff7b13fdb0dc28456060ca90b1da62eaa1ee5d
   languageName: node
   linkType: hard
 
@@ -9896,7 +9896,7 @@ __metadata:
     "@types/node": "npm:^20.11.16"
     "@types/object-hash": "npm:^3.0.6"
     "@types/prop-types": "npm:^15.7.11"
-    "@types/react": "npm:^18.2.52"
+    "@types/react": "npm:^18.2.53"
     "@types/react-dom": "npm:^18.2.18"
     "@types/recharts": "npm:^1.8.29"
     "@types/stream-json": "npm:^1.7.7"
