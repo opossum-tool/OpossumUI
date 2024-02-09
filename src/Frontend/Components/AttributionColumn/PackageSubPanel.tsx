@@ -209,59 +209,65 @@ export function PackageSubPanel({
         text={purl}
         disabled
         endIcon={
-          isDiff ? undefined : (
-            <>
-              <IconButton
-                tooltipTitle={
-                  text.attributionColumn.packageSubPanel.copyToClipboard
-                }
-                tooltipPlacement="left"
-                onClick={async () => {
-                  await navigator.clipboard.writeText(purl);
-                  toast.success(text.attributionColumn.copyToClipboardSuccess);
-                }}
-                icon={<ContentCopyIcon sx={clickableIcon} />}
-                hidden={!purl}
-                aria-label={
-                  text.attributionColumn.packageSubPanel.copyToClipboard
-                }
-              />
-              <IconButton
-                tooltipTitle={
-                  text.attributionColumn.packageSubPanel.pasteFromClipboard
-                }
-                hidden={!onEdit}
-                tooltipPlacement="left"
-                onClick={async () => {
-                  const parsedPurl = parsePurl(
-                    await navigator.clipboard.readText(),
-                  );
-                  if (parsedPurl) {
-                    dispatch(
-                      setTemporaryDisplayPackageInfo({
-                        ...packageInfo,
-                        packageName: parsedPurl.name,
-                        packageVersion: parsedPurl.version ?? undefined,
-                        packageType: parsedPurl.type,
-                        packageNamespace: parsedPurl.namespace ?? undefined,
-                      }),
-                    );
+          isDiff
+            ? undefined
+            : [
+                <IconButton
+                  tooltipTitle={
+                    text.attributionColumn.packageSubPanel.copyToClipboard
+                  }
+                  tooltipPlacement="left"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(purl);
                     toast.success(
                       text.attributionColumn.copyToClipboardSuccess,
                     );
-                  } else {
-                    toast.error(
-                      text.attributionColumn.pasteFromClipboardFailed,
-                    );
+                  }}
+                  icon={<ContentCopyIcon sx={clickableIcon} />}
+                  hidden={!purl}
+                  aria-label={
+                    text.attributionColumn.packageSubPanel.copyToClipboard
                   }
-                }}
-                icon={<ContentPasteIcon sx={clickableIcon} />}
-                aria-label={
-                  text.attributionColumn.packageSubPanel.pasteFromClipboard
-                }
-              />
-            </>
-          )
+                  key={text.attributionColumn.packageSubPanel.copyToClipboard}
+                />,
+                <IconButton
+                  tooltipTitle={
+                    text.attributionColumn.packageSubPanel.pasteFromClipboard
+                  }
+                  hidden={!onEdit}
+                  tooltipPlacement="left"
+                  onClick={async () => {
+                    const parsedPurl = parsePurl(
+                      await navigator.clipboard.readText(),
+                    );
+                    if (parsedPurl) {
+                      dispatch(
+                        setTemporaryDisplayPackageInfo({
+                          ...packageInfo,
+                          packageName: parsedPurl.name,
+                          packageVersion: parsedPurl.version ?? undefined,
+                          packageType: parsedPurl.type,
+                          packageNamespace: parsedPurl.namespace ?? undefined,
+                        }),
+                      );
+                      toast.success(
+                        text.attributionColumn.copyToClipboardSuccess,
+                      );
+                    } else {
+                      toast.error(
+                        text.attributionColumn.pasteFromClipboardFailed,
+                      );
+                    }
+                  }}
+                  icon={<ContentPasteIcon sx={clickableIcon} />}
+                  aria-label={
+                    text.attributionColumn.packageSubPanel.pasteFromClipboard
+                  }
+                  key={
+                    text.attributionColumn.packageSubPanel.pasteFromClipboard
+                  }
+                />,
+              ]
         }
       />
     );
@@ -279,47 +285,47 @@ export function PackageSubPanel({
         color={config?.url?.color}
         focused={config?.url?.focused}
         endAdornment={
-          config?.url?.endIcon || (
-            <>
-              <IconButton
-                tooltipTitle={text.attributionColumn.getUrlAndLegal}
-                tooltipPlacement={'left'}
-                hidden={
-                  !packageInfo.packageName ||
-                  !packageInfo.packageType ||
-                  !!(
-                    packageInfo.url &&
-                    packageInfo.copyright &&
-                    packageInfo.licenseName
-                  ) ||
-                  !onEdit
-                }
-                onClick={() =>
-                  onEdit?.(async () => {
-                    const enriched = await enrichPackageInfo({
-                      ...packageInfo,
-                      wasPreferred: undefined,
-                    });
-                    if (enriched) {
-                      dispatch(setTemporaryDisplayPackageInfo(enriched));
-                    }
-                  })
-                }
-                icon={<AutoFixHighIcon sx={clickableIcon} />}
-              />
-              <IconButton
-                tooltipTitle={
-                  text.attributionColumn.packageSubPanel.openLinkInBrowser
-                }
-                tooltipPlacement={'left'}
-                onClick={() => openUrl(packageInfo.url)}
-                hidden={!packageInfo.url}
-                icon={
-                  <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
-                }
-              />
-            </>
-          )
+          config?.url?.endIcon || [
+            <IconButton
+              tooltipTitle={text.attributionColumn.getUrlAndLegal}
+              tooltipPlacement={'left'}
+              hidden={
+                !packageInfo.packageName ||
+                !packageInfo.packageType ||
+                !!(
+                  packageInfo.url &&
+                  packageInfo.copyright &&
+                  packageInfo.licenseName
+                ) ||
+                !onEdit
+              }
+              onClick={() =>
+                onEdit?.(async () => {
+                  const enriched = await enrichPackageInfo({
+                    ...packageInfo,
+                    wasPreferred: undefined,
+                  });
+                  if (enriched) {
+                    dispatch(setTemporaryDisplayPackageInfo(enriched));
+                  }
+                })
+              }
+              icon={<AutoFixHighIcon sx={clickableIcon} />}
+              key={text.attributionColumn.getUrlAndLegal}
+            />,
+            <IconButton
+              tooltipTitle={
+                text.attributionColumn.packageSubPanel.openLinkInBrowser
+              }
+              tooltipPlacement={'left'}
+              onClick={() => openUrl(packageInfo.url)}
+              hidden={!packageInfo.url}
+              icon={
+                <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
+              }
+              key={text.attributionColumn.packageSubPanel.openLinkInBrowser}
+            />,
+          ]
         }
       />
     );

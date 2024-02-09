@@ -7,6 +7,7 @@ import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiTextField from '@mui/material/TextField';
 
 import { HighlightingColor } from '../../enums/enums';
+import { ensureArray } from '../../util/ensure-array';
 import { inputElementClasses, InputElementProps } from './shared';
 
 interface TextBoxProps extends InputElementProps {
@@ -55,11 +56,17 @@ export function TextBox(props: TextBoxProps) {
             sx: {
               overflowX: 'hidden',
               textOverflow: 'ellipsis',
-              padding: '8.5px 14px',
+              paddingTop: '8.5px',
+              paddingBottom: '8.5px',
+              paddingLeft: '14px',
+              paddingRight: `calc(14px + ${ensureArray(props.endIcon).length} * 28px)`,
             },
           },
           endAdornment: props.endIcon && (
-            <MuiInputAdornment sx={{ paddingRight: '14px' }} position="end">
+            <MuiInputAdornment
+              sx={inputElementClasses.endAdornmentRoot}
+              position="end"
+            >
               {props.endIcon}
             </MuiInputAdornment>
           ),
