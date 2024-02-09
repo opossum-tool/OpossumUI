@@ -48,6 +48,12 @@ export const inputElementClasses = {
       padding: '1px 3px',
     },
   },
+  endAdornmentRoot: {
+    position: 'absolute',
+    right: 0,
+    marginRight: '14px',
+    height: 0,
+  },
 };
 
 export interface InputElementProps {
@@ -62,5 +68,5 @@ export interface InputElementProps {
   isHighlighted?: boolean;
   color?: TextFieldProps['color'];
   focused?: boolean;
-  endIcon?: React.ReactElement;
+  endIcon?: React.ReactElement | Array<React.ReactElement>;
 }

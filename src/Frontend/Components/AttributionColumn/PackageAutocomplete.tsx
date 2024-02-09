@@ -46,7 +46,7 @@ interface Props {
   attribute: AutocompleteAttribute;
   packageInfo: PackageInfo;
   highlight?: 'default' | 'dark';
-  endAdornment?: React.ReactElement;
+  endAdornment?: React.ReactElement | Array<React.ReactElement>;
   defaults?: Array<PackageInfo>;
   readOnly?: boolean;
   disabled?: boolean;

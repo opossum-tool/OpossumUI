@@ -16,6 +16,7 @@ import { compact } from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { VirtuosoHandle } from 'react-virtuoso';
 
+import { ensureArray } from '../../util/ensure-array';
 import { ClearButton } from '../ClearButton/ClearButton';
 import { PopupIndicator } from '../PopupIndicator/PopupIndicator';
 import {
@@ -44,7 +45,7 @@ type AutocompleteProps<
     | 'renderOptionStartIcon'
   > & {
     ['aria-label']?: string;
-    endAdornment?: React.ReactNode;
+    endAdornment?: React.ReactNode | Array<React.ReactNode>;
     highlight?: 'default' | 'dark';
     inputProps?: MuiInputProps;
     onInputChange?: (
@@ -168,7 +169,11 @@ export function Autocomplete<
           label={title}
           highlight={highlight}
           numberOfEndAdornments={
-            compact([hasClearButton, hasPopupIndicator, !!endAdornment]).length
+            compact([
+              hasClearButton,
+              hasPopupIndicator,
+              ...ensureArray(endAdornment),
+            ]).length
           }
           size={'small'}
           InputLabelProps={getInputLabelProps()}
@@ -177,6 +182,12 @@ export function Autocomplete<
             startAdornment: renderStartAdornment(),
             endAdornment: renderEndAdornment(),
             readOnly,
+            inputProps: {
+              sx: {
+                overflowX: 'hidden',
+                textOverflow: 'ellipsis',
+              },
+            },
           }}
           onKeyDown={(event) => {
             // https://github.com/mui/material-ui/issues/21129
@@ -231,7 +242,7 @@ export function Autocomplete<
             onClick={undefined}
           />
         )}
-        {endAdornment}
+        {...ensureArray(endAdornment)}
       </EndAdornmentContainer>
     );
   }
