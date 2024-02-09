@@ -2659,9 +2659,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/icons-material@npm:^5.15.8":
-  version: 5.15.8
-  resolution: "@mui/icons-material@npm:5.15.8"
+"@mui/icons-material@npm:^5.15.9":
+  version: 5.15.9
+  resolution: "@mui/icons-material@npm:5.15.9"
   dependencies:
     "@babel/runtime": "npm:^7.23.9"
   peerDependencies:
@@ -2671,11 +2671,11 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10/a55c6fe713a4086522c223542b841bbd4d63c84660133a120a1ee8d155d3839a00c427bf80114fd9acf553fba7e138018efbaaf0810534ed0bfea95b9c007c76
+  checksum: 10/bcda24107125108569fe8252d05297f441362d33dbb96f8c32b35ac6d280a3c9a2f03548344c73d316e26c89d2d3e74057b292be6677ab1b582d94b6cf3ba100
   languageName: node
   linkType: hard
 
-"@mui/material@npm:^5.15.8":
+"@mui/material@npm:^5.15.9":
   version: 5.15.9
   resolution: "@mui/material@npm:5.15.9"
   dependencies:
@@ -2746,7 +2746,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/system@npm:^5.15.8, @mui/system@npm:^5.15.9":
+"@mui/system@npm:^5.15.9":
   version: 5.15.9
   resolution: "@mui/system@npm:5.15.9"
   dependencies:
@@ -9876,9 +9876,9 @@ __metadata:
     "@emotion/react": "npm:^11.11.3"
     "@emotion/styled": "npm:^11.11.0"
     "@faker-js/faker": "npm:^8.4.0"
-    "@mui/icons-material": "npm:^5.15.8"
-    "@mui/material": "npm:^5.15.8"
-    "@mui/system": "npm:^5.15.8"
+    "@mui/icons-material": "npm:^5.15.9"
+    "@mui/material": "npm:^5.15.9"
+    "@mui/system": "npm:^5.15.9"
     "@playwright/test": "npm:^1.41.2"
     "@reduxjs/toolkit": "npm:^2.1.0"
     "@tanstack/eslint-plugin-query": "npm:^5.18.1"
