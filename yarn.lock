@@ -2164,10 +2164,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^8.4.0":
-  version: 8.4.0
-  resolution: "@faker-js/faker@npm:8.4.0"
-  checksum: 10/f9253d0b4846ab0fd769cd78be88c4ea24741d9201cccb0038b3627ac21041a2aef150b0f843b2f63d5a056737bec28bcdf493e0b72201a892df4423be0dff79
+"@faker-js/faker@npm:^8.4.1":
+  version: 8.4.1
+  resolution: "@faker-js/faker@npm:8.4.1"
+  checksum: 10/5983c2ea64f26055ad6648de748878e11ebe2fb751e3c7435ae141cdffabc2dccfe4c4f49da69a3d2add71e21b415c683ac5fba196fab0d5ed6779fbec436c80
   languageName: node
   linkType: hard
 
@@ -9875,7 +9875,7 @@ __metadata:
     "@commitlint/types": "npm:^18.6.0"
     "@emotion/react": "npm:^11.11.3"
     "@emotion/styled": "npm:^11.11.0"
-    "@faker-js/faker": "npm:^8.4.0"
+    "@faker-js/faker": "npm:^8.4.1"
     "@mui/icons-material": "npm:^5.15.9"
     "@mui/material": "npm:^5.15.9"
     "@mui/system": "npm:^5.15.9"
