@@ -75,7 +75,7 @@
     "babel-jest": "^29.7.0",
     "babel-plugin-transform-import-meta": "^2.2.1",
     "cross-env": "^7.0.3",
-    "dotenv": "^16.4.1",
+    "dotenv": "^16.4.2",
     "dpdm": "^3.14.0",
     "electron": "28.2.2",
     "electron-builder": "^24.9.1",

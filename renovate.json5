@@ -27,6 +27,7 @@
         'compare-versions',
         'cross-env',
         'dayjs',
+        'dotenv',
         'electron',
         'electron-devtools-installer',
         'electron-log',
