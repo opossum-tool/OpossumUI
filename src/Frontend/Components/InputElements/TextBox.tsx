@@ -7,18 +7,19 @@ import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiTextField from '@mui/material/TextField';
 
 import { HighlightingColor } from '../../enums/enums';
+import { ensureArray } from '../../util/ensure-array';
 import { inputElementClasses, InputElementProps } from './shared';
 
-interface TextProps extends InputElementProps {
+interface TextBoxProps extends InputElementProps {
   minRows?: number;
   maxRows?: number;
-  endIcon?: React.ReactElement;
   multiline?: boolean;
   highlightingColor?: HighlightingColor;
   error?: boolean;
+  expanded?: boolean;
 }
 
-export function TextBox(props: TextProps) {
+export function TextBox(props: TextBoxProps) {
   const isDefaultHighlighting =
     props.highlightingColor === HighlightingColor.LightOrange ||
     props.highlightingColor === undefined;
@@ -32,14 +33,17 @@ export function TextBox(props: TextProps) {
   return (
     <MuiBox sx={props.sx}>
       <MuiTextField
-        disabled={!props.isEditable}
+        disabled={props.disabled}
         error={props.error}
         sx={{
           ...(props.isHighlighted ? highlightedStyling : {}),
           ...inputElementClasses.textField,
         }}
         label={props.title}
+        focused={props.focused}
+        color={props.color}
         InputProps={{
+          readOnly: props.readOnly,
           slotProps: {
             root: {
               sx: {
@@ -52,17 +56,23 @@ export function TextBox(props: TextProps) {
             sx: {
               overflowX: 'hidden',
               textOverflow: 'ellipsis',
-              padding: '8.5px 14px',
+              paddingTop: '8.5px',
+              paddingBottom: '8.5px',
+              paddingLeft: '14px',
+              paddingRight: `calc(14px + ${ensureArray(props.endIcon).length} * 28px)`,
             },
           },
           endAdornment: props.endIcon && (
-            <MuiInputAdornment sx={{ paddingRight: '14px' }} position="end">
+            <MuiInputAdornment
+              sx={inputElementClasses.endAdornmentRoot}
+              position="end"
+            >
               {props.endIcon}
             </MuiInputAdornment>
           ),
         }}
         multiline={props.multiline}
-        minRows={props.minRows}
+        minRows={props.expanded ? props.maxRows : props.minRows}
         maxRows={props.maxRows}
         variant="outlined"
         size="small"

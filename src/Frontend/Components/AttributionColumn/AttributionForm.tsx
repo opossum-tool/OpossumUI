@@ -13,7 +13,9 @@ import { text } from '../../../shared/text';
 import { AttributionType } from '../../enums/enums';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
+import { FormAttribute } from '../../util/get-comparable-attributes';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
+import { InputElementProps } from '../InputElements/shared';
 import { AuditingOptions } from './AuditingOptions';
 import { Comment } from './Comment';
 import { CopyrightSubPanel } from './CopyrightSubPanel';
@@ -29,81 +31,126 @@ const classes = {
     gap: '12px',
     overflow: 'hidden auto',
   },
+  attributionTypeContainer: {
+    position: 'relative',
+  },
 };
+
+export interface AttributeConfig
+  extends Pick<InputElementProps, 'color' | 'focused' | 'endIcon'> {}
+
+export type AttributionFormConfig = Partial<
+  Record<FormAttribute, AttributeConfig>
+>;
 
 interface AttributionFormProps {
   packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
+  variant?: 'default' | 'diff';
+  label?: string;
+  config?: AttributionFormConfig;
 }
 
-export function AttributionForm(props: AttributionFormProps) {
+export function AttributionForm({
+  packageInfo,
+  label,
+  onEdit,
+  showHighlight,
+  variant = 'default',
+  config,
+}: AttributionFormProps) {
   const dispatch = useAppDispatch();
+  const isDiff = variant === 'diff';
 
   return (
-    <MuiBox sx={classes.formContainer}>
-      <AuditingOptions
-        packageInfo={props.packageInfo}
-        isEditable={!!props.onEdit}
-      />
+    <MuiBox sx={classes.formContainer} aria-label={label}>
+      {!isDiff && (
+        <AuditingOptions packageInfo={packageInfo} isEditable={!!onEdit} />
+      )}
       <MuiDivider variant={'middle'}>
         <MuiTypography>
           {text.attributionColumn.packageCoordinates}
         </MuiTypography>
       </MuiDivider>
       <PackageSubPanel
-        packageInfo={props.packageInfo}
-        showHighlight={props.showHighlight}
-        onEdit={props.onEdit}
+        packageInfo={packageInfo}
+        showHighlight={showHighlight}
+        onEdit={onEdit}
+        isDiff={isDiff}
+        config={config}
       />
       <MuiDivider variant={'middle'}>
         <MuiTypography>{text.attributionColumn.legalInformation}</MuiTypography>
       </MuiDivider>
       {renderAttributionType()}
-      {props.packageInfo.firstParty ? null : (
-        <>
-          <CopyrightSubPanel
-            packageInfo={props.packageInfo}
-            showHighlight={props.showHighlight}
-            onEdit={props.onEdit}
-          />
-          <LicenseSubPanel
-            packageInfo={props.packageInfo}
-            showHighlight={props.showHighlight}
-            onEdit={props.onEdit}
-          />
-        </>
-      )}
-      <Comment packageInfo={props.packageInfo} onEdit={props.onEdit} />
+      <CopyrightSubPanel
+        packageInfo={packageInfo}
+        showHighlight={showHighlight}
+        onEdit={onEdit}
+        expanded={isDiff}
+        hidden={isDiff ? false : packageInfo.firstParty}
+        config={config?.copyright}
+      />
+      <LicenseSubPanel
+        packageInfo={packageInfo}
+        showHighlight={showHighlight}
+        onEdit={onEdit}
+        expanded={isDiff}
+        hidden={isDiff ? false : packageInfo.firstParty}
+        config={config}
+      />
+      <Comment
+        packageInfo={packageInfo}
+        onEdit={onEdit}
+        expanded={isDiff}
+        config={config?.comment}
+      />
     </MuiBox>
   );
 
   function renderAttributionType() {
     return (
-      <MuiToggleButtonGroup
-        value={props.packageInfo.firstParty || false}
-        exclusive
-        onChange={(_, newValue) =>
-          props.onEdit?.(() =>
-            dispatch(
-              setTemporaryDisplayPackageInfo({
-                ...props.packageInfo,
-                firstParty: newValue,
-                wasPreferred: undefined,
-              }),
-            ),
-          )
-        }
-        size={'small'}
-        fullWidth
-      >
-        <MuiToggleButton value={false} disableRipple>
-          {AttributionType.ThirdParty}
-        </MuiToggleButton>
-        <MuiToggleButton value={true} disableRipple>
-          {AttributionType.FirstParty}
-        </MuiToggleButton>
-      </MuiToggleButtonGroup>
+      <MuiBox sx={classes.attributionTypeContainer}>
+        <MuiToggleButtonGroup
+          value={packageInfo.firstParty || false}
+          exclusive
+          onChange={(_, newValue) =>
+            onEdit?.(() =>
+              dispatch(
+                setTemporaryDisplayPackageInfo({
+                  ...packageInfo,
+                  firstParty: newValue,
+                  wasPreferred: undefined,
+                }),
+              ),
+            )
+          }
+          size={'small'}
+          fullWidth
+          disabled={!onEdit}
+          color={config?.firstParty?.color}
+        >
+          <MuiToggleButton value={false} disableRipple>
+            {AttributionType.ThirdParty}
+          </MuiToggleButton>
+          <MuiToggleButton value={true} disableRipple>
+            {AttributionType.FirstParty}
+          </MuiToggleButton>
+        </MuiToggleButtonGroup>
+        {!config?.firstParty?.endIcon ? null : (
+          <MuiBox
+            sx={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            {config.firstParty.endIcon}
+          </MuiBox>
+        )}
+      </MuiBox>
     );
   }
 }

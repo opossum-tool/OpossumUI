@@ -24,6 +24,7 @@ import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../IconButton/IconButton';
 import { TextBox } from '../InputElements/TextBox';
 import { toast } from '../Toaster';
+import { AttributionFormConfig } from './AttributionForm';
 import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
@@ -68,12 +69,16 @@ interface PackageSubPanelProps {
   packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
+  isDiff?: boolean;
+  config?: AttributionFormConfig;
 }
 
 export function PackageSubPanel({
   packageInfo,
   showHighlight,
   onEdit,
+  isDiff,
+  config,
 }: PackageSubPanelProps) {
   const dispatch = useAppDispatch();
   const defaultPackageTypes = useMemo(
@@ -128,11 +133,15 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'packageName'}
         title={text.attributionColumn.packageSubPanel.packageName}
+        packageInfo={packageInfo}
         highlight={'dark'}
-        disabled={!onEdit}
+        readOnly={!onEdit}
         showHighlight={showHighlight}
         defaults={packageNames}
         onEdit={onEdit}
+        color={config?.packageName?.color}
+        focused={config?.packageName?.focused}
+        endAdornment={config?.packageName?.endIcon}
       />
     );
   }
@@ -142,11 +151,15 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'packageNamespace'}
         title={text.attributionColumn.packageSubPanel.packageNamespace}
+        packageInfo={packageInfo}
         highlight={'dark'}
-        disabled={!onEdit}
+        readOnly={!onEdit}
         showHighlight={showHighlight}
         defaults={packageNamespaces}
         onEdit={onEdit}
+        color={config?.packageNamespace?.color}
+        focused={config?.packageNamespace?.focused}
+        endAdornment={config?.packageNamespace?.endIcon}
       />
     );
   }
@@ -156,10 +169,14 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'packageVersion'}
         title={text.attributionColumn.packageSubPanel.packageVersion}
-        disabled={!onEdit}
+        packageInfo={packageInfo}
+        readOnly={!onEdit}
         showHighlight={showHighlight}
         defaults={packageVersions}
         onEdit={onEdit}
+        color={config?.packageVersion?.color}
+        focused={config?.packageVersion?.focused}
+        endAdornment={config?.packageVersion?.endIcon}
       />
     );
   }
@@ -169,11 +186,15 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'packageType'}
         title={text.attributionColumn.packageSubPanel.packageType}
+        packageInfo={packageInfo}
         highlight={'dark'}
-        disabled={!onEdit}
+        readOnly={!onEdit}
         showHighlight={showHighlight}
         defaults={defaultPackageTypes}
         onEdit={onEdit}
+        color={config?.packageType?.color}
+        focused={config?.packageType?.focused}
+        endAdornment={config?.packageType?.endIcon}
       />
     );
   }
@@ -186,55 +207,67 @@ export function PackageSubPanel({
         sx={attributionColumnClasses.textBox}
         title={text.attributionColumn.packageSubPanel.purl}
         text={purl}
-        isEditable={false}
+        disabled
         endIcon={
-          <>
-            <IconButton
-              tooltipTitle={
-                text.attributionColumn.packageSubPanel.copyToClipboard
-              }
-              tooltipPlacement="left"
-              onClick={async () => {
-                await navigator.clipboard.writeText(purl);
-                toast.success(text.attributionColumn.copyToClipboardSuccess);
-              }}
-              icon={<ContentCopyIcon sx={clickableIcon} />}
-              hidden={!purl}
-              aria-label={
-                text.attributionColumn.packageSubPanel.copyToClipboard
-              }
-            />
-            <IconButton
-              tooltipTitle={
-                text.attributionColumn.packageSubPanel.pasteFromClipboard
-              }
-              hidden={!onEdit}
-              tooltipPlacement="left"
-              onClick={async () => {
-                const parsedPurl = parsePurl(
-                  await navigator.clipboard.readText(),
-                );
-                if (parsedPurl) {
-                  dispatch(
-                    setTemporaryDisplayPackageInfo({
-                      ...packageInfo,
-                      packageName: parsedPurl.name,
-                      packageVersion: parsedPurl.version ?? undefined,
-                      packageType: parsedPurl.type,
-                      packageNamespace: parsedPurl.namespace ?? undefined,
-                    }),
-                  );
-                  toast.success(text.attributionColumn.copyToClipboardSuccess);
-                } else {
-                  toast.error(text.attributionColumn.pasteFromClipboardFailed);
-                }
-              }}
-              icon={<ContentPasteIcon sx={clickableIcon} />}
-              aria-label={
-                text.attributionColumn.packageSubPanel.pasteFromClipboard
-              }
-            />
-          </>
+          isDiff
+            ? undefined
+            : [
+                <IconButton
+                  tooltipTitle={
+                    text.attributionColumn.packageSubPanel.copyToClipboard
+                  }
+                  tooltipPlacement="left"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(purl);
+                    toast.success(
+                      text.attributionColumn.copyToClipboardSuccess,
+                    );
+                  }}
+                  icon={<ContentCopyIcon sx={clickableIcon} />}
+                  hidden={!purl}
+                  aria-label={
+                    text.attributionColumn.packageSubPanel.copyToClipboard
+                  }
+                  key={text.attributionColumn.packageSubPanel.copyToClipboard}
+                />,
+                <IconButton
+                  tooltipTitle={
+                    text.attributionColumn.packageSubPanel.pasteFromClipboard
+                  }
+                  hidden={!onEdit}
+                  tooltipPlacement="left"
+                  onClick={async () => {
+                    const parsedPurl = parsePurl(
+                      await navigator.clipboard.readText(),
+                    );
+                    if (parsedPurl) {
+                      dispatch(
+                        setTemporaryDisplayPackageInfo({
+                          ...packageInfo,
+                          packageName: parsedPurl.name,
+                          packageVersion: parsedPurl.version ?? undefined,
+                          packageType: parsedPurl.type,
+                          packageNamespace: parsedPurl.namespace ?? undefined,
+                        }),
+                      );
+                      toast.success(
+                        text.attributionColumn.copyToClipboardSuccess,
+                      );
+                    } else {
+                      toast.error(
+                        text.attributionColumn.pasteFromClipboardFailed,
+                      );
+                    }
+                  }}
+                  icon={<ContentPasteIcon sx={clickableIcon} />}
+                  aria-label={
+                    text.attributionColumn.packageSubPanel.pasteFromClipboard
+                  }
+                  key={
+                    text.attributionColumn.packageSubPanel.pasteFromClipboard
+                  }
+                />,
+              ]
         }
       />
     );
@@ -245,11 +278,14 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'url'}
         title={text.attributionColumn.packageSubPanel.repositoryUrl}
-        disabled={!onEdit}
+        packageInfo={packageInfo}
+        readOnly={!onEdit}
         showHighlight={showHighlight}
         onEdit={onEdit}
+        color={config?.url?.color}
+        focused={config?.url?.focused}
         endAdornment={
-          <>
+          config?.url?.endIcon || [
             <IconButton
               tooltipTitle={text.attributionColumn.getUrlAndLegal}
               tooltipPlacement={'left'}
@@ -260,7 +296,8 @@ export function PackageSubPanel({
                   packageInfo.url &&
                   packageInfo.copyright &&
                   packageInfo.licenseName
-                )
+                ) ||
+                !onEdit
               }
               onClick={() =>
                 onEdit?.(async () => {
@@ -274,7 +311,8 @@ export function PackageSubPanel({
                 })
               }
               icon={<AutoFixHighIcon sx={clickableIcon} />}
-            />
+              key={text.attributionColumn.getUrlAndLegal}
+            />,
             <IconButton
               tooltipTitle={
                 text.attributionColumn.packageSubPanel.openLinkInBrowser
@@ -285,8 +323,9 @@ export function PackageSubPanel({
               icon={
                 <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
               }
-            />
-          </>
+              key={text.attributionColumn.packageSubPanel.openLinkInBrowser}
+            />,
+          ]
         }
       />
     );

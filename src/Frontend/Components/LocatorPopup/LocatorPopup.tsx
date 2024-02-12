@@ -153,7 +153,6 @@ export function LocatorPopup(): ReactElement {
       </MuiBox>
       <Dropdown
         sx={classes.dropdown}
-        isEditable={true}
         title={'Criticality'}
         value={criticalityDropDownChoice}
         menuItems={criticalityMenuItems}

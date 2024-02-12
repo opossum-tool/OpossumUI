@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, Page } from '@playwright/test';
 
+import { text } from '../../shared/text';
 import { AttributionForm } from './AttributionForm';
 
 export class AttributionDetails {
@@ -32,6 +33,7 @@ export class AttributionDetails {
     readonly deleteGlobally: Locator;
   };
   readonly revertButton: Locator;
+  readonly compareButton: Locator;
   readonly showHideSignalButton: Locator;
 
   constructor(window: Page) {
@@ -93,6 +95,10 @@ export class AttributionDetails {
     };
     this.revertButton = this.node.getByRole('button', {
       name: 'Revert',
+      exact: true,
+    });
+    this.compareButton = this.node.getByRole('button', {
+      name: text.buttons.compareToOriginal,
       exact: true,
     });
     this.showHideSignalButton = this.node.getByLabel('resolve attribution');
@@ -164,6 +170,12 @@ export class AttributionDetails {
     },
     revertButtonIsHidden: async (): Promise<void> => {
       await expect(this.revertButton).toBeHidden();
+    },
+    compareButtonIsEnabled: async (): Promise<void> => {
+      await expect(this.compareButton).toBeEnabled();
+    },
+    compareButtonIsHidden: async (): Promise<void> => {
+      await expect(this.compareButton).toBeHidden();
     },
     showHideSignalButtonIsVisible: async (): Promise<void> => {
       await expect(this.showHideSignalButton).toBeVisible();

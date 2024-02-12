@@ -49,3 +49,9 @@ export const sortings = Object.values(text.sortings);
 export type Sorting = (typeof sortings)[number];
 export const attributionDefaultSorting = text.sortings.name;
 export const signalDefaultSorting = text.sortings.occurrence;
+
+export const thirdPartyKeys: Array<keyof PackageInfo> = [
+  'copyright',
+  'licenseName',
+  'licenseText',
+];

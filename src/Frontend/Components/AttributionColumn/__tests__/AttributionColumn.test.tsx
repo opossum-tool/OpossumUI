@@ -390,9 +390,10 @@ describe('The AttributionColumn', () => {
     );
   });
 
-  it('renders a chip for modified preferred and reverts to original state', async () => {
+  it('renders a chip for modified preferred', () => {
     const originId = faker.string.uuid();
     const temporaryDisplayPackageInfo = faker.opossum.packageInfo({
+      packageName: faker.lorem.word(),
       originIds: [originId],
       wasPreferred: false,
     });
@@ -443,12 +444,6 @@ describe('The AttributionColumn', () => {
     expect(
       screen.getByText(text.auditingOptions.modifiedPreferred),
     ).toBeInTheDocument();
-
-    await userEvent.click(screen.getByLabelText('undo modified preferred'));
-
-    expect(
-      screen.queryByText(text.auditingOptions.modifiedPreferred),
-    ).not.toBeInTheDocument();
   });
 
   it('renders a URL icon and opens a link in browser', () => {

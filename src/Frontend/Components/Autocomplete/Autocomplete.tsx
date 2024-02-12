@@ -6,7 +6,7 @@ import { SxProps } from '@mui/material';
 import MuiChip from '@mui/material/Chip';
 import MuiFade from '@mui/material/Fade';
 import { IconButtonProps as MuiIconButtonProps } from '@mui/material/IconButton';
-import { InputBaseComponentProps as MuiInputBaseComponentProps } from '@mui/material/InputBase';
+import { TextFieldProps as MuiInputProps } from '@mui/material/TextField';
 import useMuiAutocomplete, {
   AutocompleteHighlightChangeReason,
   AutocompleteInputChangeReason,
@@ -16,6 +16,7 @@ import { compact } from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { VirtuosoHandle } from 'react-virtuoso';
 
+import { ensureArray } from '../../util/ensure-array';
 import { ClearButton } from '../ClearButton/ClearButton';
 import { PopupIndicator } from '../PopupIndicator/PopupIndicator';
 import {
@@ -44,9 +45,9 @@ type AutocompleteProps<
     | 'renderOptionStartIcon'
   > & {
     ['aria-label']?: string;
-    endAdornment?: React.ReactNode;
+    endAdornment?: React.ReactNode | Array<React.ReactNode>;
     highlight?: 'default' | 'dark';
-    inputProps?: MuiInputBaseComponentProps;
+    inputProps?: MuiInputProps;
     onInputChange?: (
       event: React.SyntheticEvent | undefined,
       value: string,
@@ -75,6 +76,7 @@ export function Autocomplete<
   inputProps: customInputProps,
   multiple,
   optionText,
+  readOnly,
   renderOptionEndIcon,
   renderOptionStartIcon,
   sx,
@@ -137,6 +139,7 @@ export function Autocomplete<
     onHighlightChange,
     onOpen: () => setOpen(true),
     open,
+    readOnly,
     ...props,
   });
 
@@ -145,7 +148,8 @@ export function Autocomplete<
   }, [groupedOptions]);
 
   const hasPopupIndicator = !freeSolo;
-  const hasClearButton = !disableClearable && !disabled && containsValue;
+  const hasClearButton =
+    !disableClearable && !disabled && !readOnly && containsValue;
   const isPopupOpen = !!groupedOptions.length && popupOpen;
 
   const { ref, color, ...inputProps } = getInputProps();
@@ -160,19 +164,27 @@ export function Autocomplete<
       >
         <Input
           {...inputProps}
+          {...customInputProps}
           disabled={disabled}
           label={title}
           highlight={highlight}
           numberOfEndAdornments={
-            compact([hasClearButton, hasPopupIndicator, !!endAdornment]).length
+            compact([
+              hasClearButton,
+              hasPopupIndicator,
+              ...ensureArray(endAdornment),
+            ]).length
           }
           size={'small'}
           InputLabelProps={getInputLabelProps()}
           inputRef={ref}
-          inputProps={customInputProps}
           InputProps={{
             startAdornment: renderStartAdornment(),
             endAdornment: renderEndAdornment(),
+            readOnly,
+            inputProps: {
+              sx: { overflowX: 'hidden', textOverflow: 'ellipsis' },
+            },
           }}
           onKeyDown={(event) => {
             // https://github.com/mui/material-ui/issues/21129

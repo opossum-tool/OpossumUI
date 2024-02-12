@@ -60,6 +60,7 @@ export const Input = styled(MuiTextField, {
       display: 'none',
     },
   },
+  '& .Mui-readOnly:hover fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' },
 }));
 
 export const StyledPopper = styled((props: PopperProps) => (

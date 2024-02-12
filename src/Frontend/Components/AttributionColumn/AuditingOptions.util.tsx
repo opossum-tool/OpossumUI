@@ -4,13 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import ReplayIcon from '@mui/icons-material/Replay';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAltOutlined';
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
 import MuiRating from '@mui/material/Rating';
+import { isEqual } from 'lodash';
 import { useMemo } from 'react';
 
 import { PackageInfo } from '../../../shared/shared-types';
@@ -24,6 +24,7 @@ import {
   getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
+import { getComparableAttributes } from '../../util/get-comparable-attributes';
 import { prettifySource } from '../../util/prettify-source';
 import { useUserSetting } from '../../util/use-user-setting';
 import {
@@ -92,12 +93,18 @@ export function useAuditingOptions({
     () =>
       !!packageInfo.originIds?.length && !packageInfo.wasPreferred
         ? Object.values(externalAttributions).find(
-            ({ originIds, wasPreferred }) =>
-              wasPreferred &&
-              originIds?.some((id) => packageInfo.originIds?.includes(id)),
+            (candidate) =>
+              candidate.wasPreferred &&
+              candidate.originIds?.some((id) =>
+                packageInfo.originIds?.includes(id),
+              ) &&
+              !isEqual(
+                getComparableAttributes(candidate),
+                getComparableAttributes(packageInfo),
+              ),
           )
         : undefined,
-    [externalAttributions, packageInfo.originIds, packageInfo.wasPreferred],
+    [externalAttributions, packageInfo],
   );
 
   return useMemo<Array<AuditingOption>>(
@@ -121,7 +128,7 @@ export function useAuditingOptions({
               preferred: false,
             }),
           ),
-        interactive: isPreferenceFeatureEnabled && qaMode,
+        interactive: isPreferenceFeatureEnabled && qaMode && isEditable,
       },
       {
         id: 'was-preferred',
@@ -135,18 +142,7 @@ export function useAuditingOptions({
         label: text.auditingOptions.modifiedPreferred,
         icon: <ModifiedPreferredIcon noTooltip />,
         selected: !!originalPreferred,
-        interactive: !!originalPreferred,
-        deleteIcon: <ReplayIcon aria-label={'undo modified preferred'} />,
-        onDelete: originalPreferred
-          ? () =>
-              dispatch(
-                setTemporaryDisplayPackageInfo({
-                  ...originalPreferred,
-                  id: packageInfo.id,
-                  preSelected: undefined,
-                }),
-              )
-          : undefined,
+        interactive: false,
       },
       {
         id: 'pre-selected',
@@ -278,7 +274,6 @@ export function useAuditingOptions({
       packageInfo.attributionConfidence,
       packageInfo.excludeFromNotice,
       packageInfo.followUp,
-      packageInfo.id,
       packageInfo.needsReview,
       packageInfo.preSelected,
       packageInfo.preferred,

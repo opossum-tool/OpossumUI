@@ -55,9 +55,14 @@ export const text = {
   },
   buttons: {
     cancel: 'Cancel',
+    compareToOriginal: 'Compare to original',
     confirm: 'Confirm',
     filter: 'Filter',
     sort: 'Sort',
+    diffPopup: {
+      applyChanges: 'Apply changes',
+      revertAll: 'Revert all',
+    },
   },
   changePreferredStatusGloballyPopup: {
     markAsPreferred: 'Do you really want to prefer the attribution globally?',
@@ -132,5 +137,8 @@ export const text = {
   resourceDetails: {
     searchTooltip: 'Search',
     sortTooltip: 'Sort',
+  },
+  diffPopup: {
+    title: 'Compare to Original Signal',
   },
 } as const;

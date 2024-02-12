@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { SxProps } from '@mui/material';
+import { SxProps, TextFieldProps } from '@mui/material';
 import { ChangeEvent } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
@@ -27,6 +27,7 @@ export const inputElementClasses = {
         display: 'none',
       },
     },
+    '& .Mui-readOnly:hover fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' },
   },
   defaultHighlightedTextField: {
     '& div': {
@@ -48,15 +49,25 @@ export const inputElementClasses = {
       padding: '1px 3px',
     },
   },
-};
+  endAdornmentRoot: {
+    position: 'absolute',
+    right: 0,
+    marginRight: '14px',
+    height: 0,
+  },
+} satisfies SxProps;
 
 export interface InputElementProps {
   title?: string;
-  isEditable?: boolean;
+  readOnly?: boolean;
+  disabled?: boolean;
   text?: string;
   sx?: SxProps;
   handleChange?(
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ): void;
   isHighlighted?: boolean;
+  color?: TextFieldProps['color'];
+  focused?: boolean;
+  endIcon?: React.ReactElement | Array<React.ReactElement>;
 }

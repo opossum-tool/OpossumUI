@@ -9,7 +9,7 @@ import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
 import { sortBy } from 'lodash';
-import { ReactElement, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../InputElements/TextBox';
+import { AttributionFormConfig } from './AttributionForm';
 import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
@@ -45,6 +46,9 @@ const classes = {
     padding: '0px',
     width: 'calc(100% - 36px)',
   },
+  expansionPanelDetailsDiffView: {
+    padding: '0px',
+  },
   expandMoreIcon: {
     display: 'flex',
     alignItems: 'center',
@@ -65,15 +69,21 @@ interface LicenseSubPanelProps {
   packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
+  expanded?: boolean;
+  hidden?: boolean;
+  config?: AttributionFormConfig;
 }
 
 export function LicenseSubPanel({
   packageInfo,
   showHighlight,
   onEdit,
-}: LicenseSubPanelProps): ReactElement {
+  expanded: expandedOverride,
+  hidden,
+  config,
+}: LicenseSubPanelProps) {
   const dispatch = useAppDispatch();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(expandedOverride);
   const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
   const defaultLicenses = useMemo(
     () =>
@@ -109,7 +119,7 @@ export function LicenseSubPanel({
     [frequentLicensesNames, onEdit, packageInfo.licenseName],
   );
 
-  return (
+  return hidden ? null : (
     <MuiBox sx={classes.panel}>
       <MuiAccordion
         sx={classes.expansionPanel}
@@ -121,37 +131,52 @@ export function LicenseSubPanel({
         <MuiAccordionSummary
           sx={classes.expansionPanelSummary}
           expandIcon={
-            <MuiBox
-              sx={classes.expandMoreIcon}
-              onClick={() => setExpanded((prev) => !prev)}
-            >
-              <ExpandMoreIcon aria-label={'license text toggle'} />
-            </MuiBox>
+            expandedOverride ? null : (
+              <MuiBox
+                sx={classes.expandMoreIcon}
+                onClick={() => setExpanded((prev) => !prev)}
+              >
+                <ExpandMoreIcon aria-label={'license text toggle'} />
+              </MuiBox>
+            )
           }
         >
           <PackageAutocomplete
             attribute={'licenseName'}
             title={text.attributionColumn.licenseName}
-            disabled={!onEdit}
+            packageInfo={packageInfo}
+            readOnly={!onEdit}
             showHighlight={showHighlight}
             onEdit={onEdit}
             endAdornment={
-              packageInfo.licenseText ? (
+              config?.licenseName?.endIcon ||
+              (packageInfo.licenseText ? (
                 <MuiInputAdornment position="end" sx={classes.endAdornment}>
                   {text.attributionColumn.licenseTextModified}
                 </MuiInputAdornment>
-              ) : undefined
+              ) : undefined)
             }
             defaults={defaultLicenses}
+            color={config?.licenseName?.color}
+            focused={config?.licenseName?.focused}
           />
         </MuiAccordionSummary>
-        <MuiAccordionDetails sx={classes.expansionPanelDetails}>
+        <MuiAccordionDetails
+          sx={
+            expandedOverride
+              ? classes.expansionPanelDetailsDiffView
+              : classes.expansionPanelDetails
+          }
+        >
           <TextBox
-            isEditable={!!onEdit}
+            readOnly={!onEdit}
             sx={classes.licenseText}
+            maxRows={7}
             minRows={3}
-            maxRows={10}
-            multiline={true}
+            color={config?.licenseText?.color}
+            focused={config?.licenseText?.focused}
+            multiline
+            expanded={expandedOverride}
             title={label}
             text={packageInfo.licenseText}
             handleChange={({ target: { value } }) =>
@@ -165,6 +190,7 @@ export function LicenseSubPanel({
                 ),
               )
             }
+            endIcon={config?.licenseText?.endIcon}
           />
         </MuiAccordionDetails>
       </MuiAccordion>
