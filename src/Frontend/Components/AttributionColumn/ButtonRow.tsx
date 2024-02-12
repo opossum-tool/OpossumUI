@@ -165,7 +165,7 @@ export function ButtonRow({
       <Button
         onClick={() => setIsDiffPopupOpen(true)}
         color={'secondary'}
-        buttonText={text.buttons.compareToOrigin}
+        buttonText={text.buttons.compareToOriginal}
       />
     ) : null;
   }
@@ -189,6 +189,7 @@ export function ButtonRow({
         current={packageInfo}
         isOpen={isDiffPopupOpen}
         setOpen={setIsDiffPopupOpen}
+        key={isDiffPopupOpen.toString()}
       />
     ) : null;
   }
