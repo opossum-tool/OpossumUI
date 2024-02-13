@@ -19,16 +19,7 @@ export function useAttributionFormConfigs({
   original: PackageInfo;
   current: PackageInfo;
 }) {
-  const [bufferPackageInfo, setBufferPackageInfo] = useState(
-    current.firstParty
-      ? {
-          ...current,
-          copyright: undefined,
-          licenseName: undefined,
-          licenseText: undefined,
-        }
-      : current,
-  );
+  const [bufferPackageInfo, setBufferPackageInfo] = useState(current);
 
   const getEndIcon = useCallback(
     ({
@@ -212,4 +203,15 @@ export function useAttributionFormConfigs({
     bufferPackageInfo,
     setBufferPackageInfo,
   };
+}
+
+export function stripLicenseInfoIfFirstParty(packageInfo: PackageInfo) {
+  return packageInfo.firstParty
+    ? {
+        ...packageInfo,
+        copyright: undefined,
+        licenseName: undefined,
+        licenseText: undefined,
+      }
+    : packageInfo;
 }
