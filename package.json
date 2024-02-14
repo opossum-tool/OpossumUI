@@ -12,7 +12,7 @@
     "@mui/material": "^5.15.10",
     "@mui/system": "^5.15.9",
     "@reduxjs/toolkit": "^2.2.0",
-    "@tanstack/react-query": "^5.20.2",
+    "@tanstack/react-query": "^5.20.5",
     "compare-versions": "^6.1.0",
     "dayjs": "^1.11.10",
     "electron-devtools-installer": "^3.2.0",
