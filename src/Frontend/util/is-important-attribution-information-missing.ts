@@ -20,8 +20,31 @@ export function isPackageInfoIncomplete(packageInfo: PackageInfo): boolean {
   );
 }
 
+export function isLegalInformationIncomplete(
+  packageInfo: PackageInfo,
+): boolean {
+  const keys = ['copyright', 'licenseName'] satisfies Array<keyof PackageInfo>;
+  return keys.some((attributionProperty) =>
+    isImportantAttributionInformationMissing(attributionProperty, packageInfo),
+  );
+}
+
+export function arePackageCoordinatesIncomplete(
+  packageInfo: PackageInfo,
+): boolean {
+  const keys = [
+    'url',
+    'packageName',
+    'packageNamespace',
+    'packageType',
+  ] satisfies Array<keyof PackageInfo>;
+  return keys.some((attributionProperty) =>
+    isImportantAttributionInformationMissing(attributionProperty, packageInfo),
+  );
+}
+
 export function isImportantAttributionInformationMissing(
-  attributionProperty: string,
+  attributionProperty: keyof PackageInfo,
   packageInfo: PackageInfo,
 ): boolean {
   if (packageInfo.excludeFromNotice || packageInfo.firstParty) {

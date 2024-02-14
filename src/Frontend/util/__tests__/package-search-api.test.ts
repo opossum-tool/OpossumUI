@@ -282,7 +282,6 @@ describe('PackageSearchApi', () => {
           packageVersion: defaultVersion.versionKey.version,
           source: {
             name: text.attributionColumn.openSourceInsights,
-            documentConfidence: 100,
           },
           suffix: '(default)',
         }),
@@ -292,7 +291,6 @@ describe('PackageSearchApi', () => {
           packageVersion: nonDefaultVersion2.versionKey.version,
           source: {
             name: text.attributionColumn.openSourceInsights,
-            documentConfidence: 100,
           },
         }),
         expect.objectContaining<Partial<PackageInfo>>({
@@ -301,7 +299,6 @@ describe('PackageSearchApi', () => {
           packageVersion: nonDefaultVersion1.versionKey.version,
           source: {
             name: text.attributionColumn.openSourceInsights,
-            documentConfidence: 100,
           },
         }),
       ]);
@@ -332,7 +329,6 @@ describe('PackageSearchApi', () => {
           packageVersion: tagName,
           source: {
             name: text.attributionColumn.openSourceInsights,
-            documentConfidence: 100,
           },
           url: `https://github.com/${packageNamespace}/${packageName}`,
         }),
@@ -364,7 +360,6 @@ describe('PackageSearchApi', () => {
           packageVersion: tagName,
           source: {
             name: text.attributionColumn.openSourceInsights,
-            documentConfidence: 100,
           },
           url: `https://gitlab.com/${packageNamespace}/${packageName}`,
         }),

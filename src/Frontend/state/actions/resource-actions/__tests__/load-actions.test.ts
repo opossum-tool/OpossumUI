@@ -27,9 +27,9 @@ import {
   getFrequentLicensesTexts,
   getIsPreferenceFeatureEnabled,
   getManualData,
+  getResolvedExternalAttributions,
   getResources,
-} from '../../../selectors/all-views-resource-selectors';
-import { getResolvedExternalAttributions } from '../../../selectors/audit-view-resource-selectors';
+} from '../../../selectors/resource-selectors';
 import { loadFromFile } from '../load-actions';
 
 const testResources: Resources = {

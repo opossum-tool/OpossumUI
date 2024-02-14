@@ -13,7 +13,7 @@ import {
   FORM_ATTRIBUTES,
   getComparableAttributes,
 } from '../../util/get-comparable-attributes';
-import { AttributionForm } from '../AttributionColumn/AttributionForm';
+import { AttributionForm } from '../AttributionForm/AttributionForm';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { DiffPopupContainer } from './DiffPopup.style';
 import {
@@ -83,7 +83,7 @@ export function DiffPopup({
           getComparableAttributes(bufferPackageInfo),
           getComparableAttributes(current),
         ),
-        buttonText: text.buttons.diffPopup.applyChanges,
+        buttonText: text.diffPopup.applyChanges,
         onClick: () => {
           handleApplyChanges({ original, current, buffer: bufferPackageInfo });
         },
@@ -93,7 +93,7 @@ export function DiffPopup({
           getComparableAttributes(bufferPackageInfo),
           getComparableAttributes(original),
         ),
-        buttonText: text.buttons.diffPopup.revertAll,
+        buttonText: text.diffPopup.revertAll,
         onClick: () => {
           setBufferPackageInfo({
             ...bufferPackageInfo,

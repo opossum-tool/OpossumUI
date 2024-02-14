@@ -2,179 +2,77 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  Attributions,
-  DiscreteConfidence,
-  PackageInfo,
-  Resources,
-  ResourcesToAttributions,
-} from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { PackagePanelTitle } from '../../../enums/enums';
-import {
-  getAttributionsToResources,
-  getParsedInputFileEnrichedWithTestData,
-} from '../../../test-helpers/general-test-helpers';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import {
   setManualData,
   setTemporaryDisplayPackageInfo,
 } from '../../actions/resource-actions/all-views-simple-actions';
-import {
-  setDisplayedPackage,
-  setSelectedResourceId,
-} from '../../actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../actions/resource-actions/load-actions';
+import { setSelectedAttributionId } from '../../actions/resource-actions/audit-view-simple-actions';
 import { createAppStore } from '../../configure-store';
-import { wereTemporaryDisplayPackageInfoModified } from '../all-views-resource-selectors';
+import { getIsPackageInfoModified } from '../resource-selectors';
 
 describe('wereTemporaryDisplayPackageInfoModified', () => {
-  const testResources: Resources = {
-    thirdParty: {
-      'package_1.tr.gz': 1,
-      'package_2.tr.gz': 1,
-    },
-    root: {
-      src: {
-        'something.js': 1,
-      },
-      'readme.md': 1,
-    },
-  };
-
-  const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
-  const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-  const testTemporaryDisplayPackageInfo: PackageInfo = {
-    attributionConfidence: DiscreteConfidence.High,
-    packageVersion: '1.0',
-    packageName: 'test Package',
-    licenseText: ' test License text',
-    id: testManualAttributionUuid_1,
-  };
-  const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
-    packageVersion: '2.0',
-    packageName: 'not assigned test Package',
-    licenseText: ' test not assigned License text',
-    id: testManualAttributionUuid_2,
-  };
-  const testManualAttributions: Attributions = {
-    [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
-    [testManualAttributionUuid_2]: secondTestTemporaryDisplayPackageInfo,
-  };
-  const testResourcesToManualAttributions: ResourcesToAttributions = {
-    '/root/src/something.js': [testManualAttributionUuid_1],
-  };
-  const testAttributionsToResources = getAttributionsToResources(
-    testResourcesToManualAttributions,
-  );
-
-  it('returns true  when TemporaryDisplayPackageInfo have been modified', () => {
-    const testStore = createAppStore();
-    const testTemporaryDisplayPackageInfo: PackageInfo = {
-      packageVersion: '1.1',
-      packageName: 'test Package',
-      licenseText: ' test License text',
-      id: faker.string.uuid(),
-    };
-    testStore.dispatch(
+  it('returns false when package info has not been modified on any relevant attributes', () => {
+    const store = createAppStore();
+    const packageInfo = faker.opossum.packageInfo();
+    store.dispatch(
       setManualData(
-        testManualAttributions,
-        testResourcesToManualAttributions,
-        testAttributionsToResources,
+        faker.opossum.attributions({ [packageInfo.id]: packageInfo }),
+        {},
+        {},
       ),
     );
-    testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
-    );
-    testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-    );
-
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
-  });
-
-  it('returns true  when confidence is changed', () => {
-    const testStore = createAppStore();
-    const testTemporaryDisplayPackageInfo: PackageInfo = {
-      attributionConfidence: DiscreteConfidence.Low,
-      packageVersion: '1.0',
-      packageName: 'test Package',
-      licenseText: ' test License text',
-      id: faker.string.uuid(),
-    };
-    testStore.dispatch(
-      setManualData(
-        testManualAttributions,
-        testResourcesToManualAttributions,
-        testAttributionsToResources,
-      ),
-    );
-    testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
-    );
-    testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-    );
-
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
-  });
-
-  it('returns true when attribution is created', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(getParsedInputFileEnrichedWithTestData(testResources)),
-    );
-    testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
-    );
-    testStore.dispatch(
+    store.dispatch(setSelectedAttributionId(packageInfo.id));
+    store.dispatch(
       setTemporaryDisplayPackageInfo({
-        attributionConfidence: DiscreteConfidence.Low,
-        packageName: 'test Package',
+        ...packageInfo,
         id: faker.string.uuid(),
       }),
     );
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
+
+    expect(getIsPackageInfoModified(store.getState())).toBe(false);
   });
 
-  it('returns false when TemporaryDisplayPackageInfo have not been modified', () => {
-    const testStore = createAppStore();
-    const testTemporaryDisplayPackageInfo: PackageInfo = {
-      attributionConfidence: DiscreteConfidence.High,
-      packageVersion: '1.0',
-      packageName: 'test Package',
-      licenseText: ' test License text',
-      id: testManualAttributionUuid_1,
-    };
-    testStore.dispatch(
+  it('returns true when package info has been modified', () => {
+    const store = createAppStore();
+    const packageInfo = faker.opossum.packageInfo();
+    store.dispatch(
       setManualData(
-        testManualAttributions,
-        testResourcesToManualAttributions,
-        testAttributionsToResources,
+        faker.opossum.attributions({ [packageInfo.id]: packageInfo }),
+        {},
+        {},
       ),
     );
-    testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    testStore.dispatch(
-      setDisplayedPackage({
-        panel: PackagePanelTitle.ManualPackages,
-        packageCardId: 'Attributions-0',
-        displayPackageInfo: testTemporaryDisplayPackageInfo,
+    store.dispatch(setSelectedAttributionId(packageInfo.id));
+    store.dispatch(
+      setTemporaryDisplayPackageInfo({
+        ...packageInfo,
+        packageName: faker.string.sample(),
       }),
     );
+
+    expect(getIsPackageInfoModified(store.getState())).toBe(true);
+  });
+
+  it('returns false when creating a new attribution and no data has been entered yet', () => {
+    const testStore = createAppStore();
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
+      setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
     );
 
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
+  });
+
+  it('returns true when creating a new attribution and some data has been entered', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        ...EMPTY_DISPLAY_PACKAGE_INFO,
+        packageName: faker.string.sample(),
+      }),
     );
+
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
   });
 });

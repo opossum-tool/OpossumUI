@@ -258,37 +258,6 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           accelerator: 'CmdOrCtrl+A',
           role: 'selectAll',
         },
-        { type: 'separator' },
-        {
-          icon: getIconBasedOnTheme(
-            'icons/search-white.png',
-            'icons/search-black.png',
-          ),
-          label: 'Search for Files and Directories',
-          accelerator: 'CmdOrCtrl+F',
-          click(): void {
-            if (isFileLoaded(getGlobalBackendState())) {
-              webContents.send(AllowedFrontendChannels.ShowSearchPopup, {
-                showSearchPopup: true,
-              });
-            }
-          },
-        },
-        {
-          icon: getIconBasedOnTheme(
-            'icons/location-searching-white.png',
-            'icons/location-searching-black.png',
-          ),
-          label: 'Locate Signals',
-          accelerator: 'CmdOrCtrl+L',
-          click(): void {
-            if (isFileLoaded(getGlobalBackendState())) {
-              webContents.send(AllowedFrontendChannels.ShowLocatorPopup, {
-                showSearchPopup: true,
-              });
-            }
-          },
-        },
       ],
     },
     {
@@ -356,7 +325,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             );
             void UserSettings.set('qaMode', false);
           },
-          visible: qaMode,
+          visible: !!qaMode,
         },
       ],
     },

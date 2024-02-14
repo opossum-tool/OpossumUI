@@ -4,6 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
+import { text } from '../../shared/text';
+
 export class ConfirmationDialog {
   private readonly window: Page;
   private readonly node: Locator;
@@ -14,11 +16,11 @@ export class ConfirmationDialog {
     this.window = window;
     this.node = window.getByLabel('confirmation dialog');
     this.cancelButton = this.node.getByRole('button', {
-      name: 'Cancel',
+      name: text.buttons.cancel,
       exact: true,
     });
     this.okButton = this.node.getByRole('button', {
-      name: 'Ok',
+      name: text.buttons.ok,
       exact: true,
     });
   }

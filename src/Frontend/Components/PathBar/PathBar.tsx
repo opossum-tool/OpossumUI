@@ -5,12 +5,20 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import MuiBox from '@mui/material/Box';
+import HomeIcon from '@mui/icons-material/Home';
+import MuiBreadcrumbs from '@mui/material/Breadcrumbs';
+import Chip from '@mui/material/Chip';
+import Paper from '@mui/material/Paper';
 import { compact, uniq } from 'lodash';
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
-import { clickableIcon, disabledIcon } from '../../shared-styles';
+import { ROOT_PATH } from '../../shared-constants';
+import {
+  clickableIcon,
+  disabledIcon,
+  OpossumColors,
+} from '../../shared-styles';
 import { setSelectedResourceIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setExpandedIds } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { getParents } from '../../state/helpers/get-parents';
@@ -18,27 +26,29 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getExpandedIds,
   getSelectedResourceId,
-} from '../../state/selectors/audit-view-resource-selectors';
+} from '../../state/selectors/resource-selectors';
 import { usePrevious } from '../../util/use-previous';
-import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs';
 import { GoToLinkButton } from '../GoToLinkButton/GoToLinkButton';
 import { IconButton } from '../IconButton/IconButton';
 
 const classes = {
   root: {
-    padding: '0 6px',
+    zIndex: 4,
+    padding: '8px',
     display: 'flex',
     alignItems: 'center',
     minHeight: '24px',
+    gap: '8px',
+    background: OpossumColors.white,
   },
 };
 
-export function PathBar(): ReactElement | null {
-  const resourceId = useAppSelector(getSelectedResourceId);
+export function PathBar() {
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
   const expandedIds = useAppSelector(getExpandedIds);
   const dispatch = useAppDispatch();
   const [history, setHistory] = useState({
-    stack: [resourceId],
+    stack: [selectedResourceId],
     activeIndex: 0,
   });
   const activeResourceId = history.stack[history.activeIndex] as
@@ -48,14 +58,14 @@ export function PathBar(): ReactElement | null {
   const isGoBackEnabled = !!history.activeIndex;
   const isGoForwardEnabled = history.activeIndex !== history.stack.length - 1;
 
-  const pathElements = compact(resourceId.split('/'));
+  const pathElements = compact(selectedResourceId.split('/'));
 
   const cmdOrCtrl = useMemo(
     () => (window.navigator.platform.match(/^Mac/) ? '⌘' : 'Ctrl'),
     [],
   );
 
-  const handleGoBack = useCallback((): void => {
+  const handleGoBack = useCallback(() => {
     if (history.activeIndex > 0) {
       setHistory((prev) => ({ ...prev, activeIndex: prev.activeIndex - 1 }));
       dispatch(
@@ -66,7 +76,7 @@ export function PathBar(): ReactElement | null {
     }
   }, [dispatch, history.activeIndex, history.stack]);
 
-  const handleGoForward = useCallback((): void => {
+  const handleGoForward = useCallback(() => {
     if (history.activeIndex < history.stack.length - 1) {
       setHistory((prev) => ({ ...prev, activeIndex: prev.activeIndex + 1 }));
       dispatch(
@@ -90,13 +100,15 @@ export function PathBar(): ReactElement | null {
   );
 
   useEffect(() => {
-    if (resourceId && activeResourceId !== resourceId) {
+    if (selectedResourceId && activeResourceId !== selectedResourceId) {
       setHistory((prev) => ({
-        stack: prev.stack.slice(0, prev.activeIndex + 1).concat(resourceId),
+        stack: prev.stack
+          .slice(0, prev.activeIndex + 1)
+          .concat(selectedResourceId),
         activeIndex: prev.activeIndex + 1,
       }));
     }
-  }, [activeResourceId, resourceId]);
+  }, [activeResourceId, selectedResourceId]);
 
   useEffect(() => {
     if (
@@ -117,15 +129,15 @@ export function PathBar(): ReactElement | null {
   }, [activeResourceId, dispatch, expandedIds, previousActiveResourceId]);
 
   return (
-    <MuiBox aria-label={'path bar'} sx={classes.root}>
+    <Paper square elevation={3} aria-label={'path bar'} sx={classes.root}>
       {renderActions()}
       {renderBreadcrumbs()}
-    </MuiBox>
+    </Paper>
   );
 
-  function renderActions(): ReactElement {
+  function renderActions() {
     return (
-      <>
+      <div>
         <IconButton
           icon={
             <ArrowBackIcon
@@ -151,42 +163,60 @@ export function PathBar(): ReactElement | null {
           disabled={!isGoForwardEnabled}
         />
         <IconButton
-          icon={<ContentCopyIcon aria-label={'copy path'} sx={clickableIcon} />}
-          onClick={(): Promise<void> =>
-            navigator.clipboard.writeText(pathElements.join('/'))
+          icon={
+            <ContentCopyIcon
+              aria-label={'copy path'}
+              sx={pathElements.length ? clickableIcon : disabledIcon}
+            />
           }
+          onClick={() => navigator.clipboard.writeText(pathElements.join('/'))}
           tooltipPlacement={'left'}
           tooltipTitle={'Copy path to clipboard'}
           aria-label={'copy path'}
+          disabled={!pathElements.length}
         />
         <GoToLinkButton />
-      </>
+      </div>
     );
   }
 
-  function renderBreadcrumbs(): ReactElement {
-    const getResourceId = (resourceName: string): string => {
-      const elements = resourceId.split('/');
+  function renderBreadcrumbs() {
+    const getResourceId = (element: string) => {
+      const elements = selectedResourceId.split('/');
       return elements
-        .slice(0, elements.indexOf(resourceName) + 1)
+        .slice(0, elements.indexOf(element) + 1)
         .concat('')
         .join('/');
     };
 
     return (
-      <Breadcrumbs
-        idsToDisplayValues={pathElements.map((element) => [element, element])}
-        maxItems={5}
-        onClick={(resourceName): void =>
-          dispatch(
-            setSelectedResourceIdOrOpenUnsavedPopup(
-              getResourceId(resourceName),
-            ),
-          )
-        }
-        key={resourceId}
-        selectedId={pathElements[pathElements.length - 1]}
-      />
+      <MuiBreadcrumbs maxItems={10} itemsAfterCollapse={8}>
+        {[ROOT_PATH, ...pathElements].map((element, index) => (
+          <Chip
+            size={'small'}
+            key={element}
+            variant={'filled'}
+            onClick={
+              pathElements.length !== index
+                ? () => {
+                    dispatch(
+                      setSelectedResourceIdOrOpenUnsavedPopup(
+                        element === ROOT_PATH
+                          ? element
+                          : getResourceId(element),
+                      ),
+                    );
+                  }
+                : undefined
+            }
+            clickable={pathElements.length !== index}
+            label={element === ROOT_PATH ? 'Home' : element}
+            icon={
+              element === ROOT_PATH ? <HomeIcon fontSize="small" /> : undefined
+            }
+          />
+        ))}
+      </MuiBreadcrumbs>
     );
   }
 }

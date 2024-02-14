@@ -19,7 +19,7 @@ import { useAppDispatch, useAppStore } from '../hooks';
 export function useVariable<T>(
   name: string,
   initialValue: T,
-): [T, (newValue: T | ((prev: T) => T)) => void] {
+): [T, (newValue: T | ((prev: T) => T | Promise<T>)) => void] {
   const dispatch = useAppDispatch();
   const store = useAppStore();
   const getValue = useCallback(
@@ -36,7 +36,7 @@ export function useVariable<T>(
   return [
     useSelector<State, T>(getValue),
     useCallback(
-      (newValue: T | ((prev: T) => T)) => {
+      (newValue: T | ((prev: T) => T | Promise<T>)) => {
         dispatch(
           setVariable(
             name,

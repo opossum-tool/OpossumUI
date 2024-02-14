@@ -2,118 +2,60 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
+import { TableCell, TableRow } from '@mui/material';
 import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
+import { SxProps } from '@mui/system';
 
 import { OpossumColors } from '../../shared-styles';
-import { tableConfigs } from '../Table/TableConfig';
+import { tableConfigs } from '../ReportView/TableConfig';
 
-export const reportTableClasses = {
-  tableHeader: {
-    backgroundColor: OpossumColors.darkBlue,
-    position: 'sticky',
-    top: '10px',
-    textAlign: 'left',
+const classes = {
+  headerRow: {
+    backgroundColor: OpossumColors.lightBlue,
+    boxShadow:
+      '0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)',
   },
-  topHeader: {
-    height: '10px',
-    backgroundColor: OpossumColors.lightestBlue,
-    position: 'sticky',
-    top: '0px',
+  headerCell: {
+    borderRight: `1px solid ${OpossumColors.mediumGrey}`,
+    borderBottom: 'none',
   },
-  headerData: {
-    fontWeight: 'bold',
-    color: OpossumColors.white,
-  },
-  tableCell: {
+  headerText: {
     padding: '10px',
-    flex: '1 1 auto',
+    fontWeight: 'bold',
   },
-  emptyTableCellNoFlexGrow: {
-    flex: '0 1 auto',
+  iconsCell: {
+    position: 'sticky',
+    left: 0,
+    background: OpossumColors.lightBlue,
+    textAlign: 'center',
   },
-  wideTableCell: {
-    width: '380px',
-  },
-  mediumTableCell: {
-    width: '250px',
-  },
-  smallTableCell: {
-    width: '120px',
-  },
-  verySmallTableCell: {
-    width: '30px',
-    maxWidth: '40px',
-  },
-  tableRow: {
-    display: 'flex',
-    alignItems: 'stretch',
-  },
-  tableWidth: {
-    minWidth: '2500px',
-  },
-};
+} satisfies SxProps;
 
-export function ReportTableHeader(): ReactElement {
-  function getTableHeader(): ReactElement {
-    return (
-      <div>
-        <div>
-          {
-            // this elements implements the top padding
-          }
-          <MuiBox
-            sx={{
-              ...reportTableClasses.topHeader,
-              ...reportTableClasses.tableHeader,
-            }}
-          >
-            {''}
-          </MuiBox>
-        </div>
-        <MuiBox
+export function ReportTableHeader() {
+  return (
+    <TableRow sx={classes.headerRow}>
+      {tableConfigs.map((config) => (
+        <TableCell
+          variant={'head'}
+          component={'th'}
+          scope={'col'}
           sx={{
-            ...reportTableClasses.tableRow,
-            ...reportTableClasses.tableWidth,
+            minWidth: config.width,
+            maxWidth: config.width,
+            ...(config.attributionProperty === 'id' && classes.iconsCell),
+            ...classes.headerCell,
           }}
+          key={`table-header-${config.attributionProperty}`}
         >
-          {tableConfigs.map((config) => (
-            <MuiBox
-              sx={{
-                ...reportTableClasses.tableCell,
-                ...(config.width === 'small'
-                  ? reportTableClasses.smallTableCell
-                  : config.width === 'wide'
-                    ? reportTableClasses.wideTableCell
-                    : config.width === 'medium'
-                      ? reportTableClasses.mediumTableCell
-                      : config.width === 'verySmall'
-                        ? reportTableClasses.verySmallTableCell
-                        : {}),
-                ...reportTableClasses.tableHeader,
-              }}
-              key={`table-header-${config.attributionProperty}-${config.displayName}`}
-            >
-              <MuiTypography sx={reportTableClasses.headerData}>
-                {config.displayName}
-              </MuiTypography>
-            </MuiBox>
-          ))}
-          <MuiBox
-            sx={{
-              ...reportTableClasses.tableHeader,
-              ...reportTableClasses.emptyTableCellNoFlexGrow,
-            }}
-          >
-            {
-              // This element offsets the additional spacing by the virtualized list
-            }
-          </MuiBox>
-        </MuiBox>
-      </div>
-    );
-  }
-
-  return getTableHeader();
+          {typeof config.displayName === 'string' ? (
+            <MuiTypography sx={classes.headerText}>
+              {config.displayName}
+            </MuiTypography>
+          ) : (
+            config.displayName
+          )}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
 }

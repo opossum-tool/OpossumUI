@@ -77,7 +77,7 @@ describe('The helper getClosestParentAttribution', () => {
         path,
         testManualAttributions,
         resourcesToManualAttributions,
-        () => false,
+        new Set(),
       );
       expect(closest).toStrictEqual(expectedAttributions);
     },
@@ -113,7 +113,7 @@ describe('The helper getClosestParentAttribution', () => {
         path,
         testManualAttributions,
         resourcesToManualAttributions,
-        () => false,
+        new Set(),
       );
       expect(closest).toBeNull();
     },
@@ -126,7 +126,7 @@ describe('The helper getClosestParentAttribution', () => {
         [otherPackageUuid]: otherPackage,
       },
       { '/': [otherPackageUuid] },
-      () => false,
+      new Set(),
     );
     expect(closest).toBeNull();
   });
@@ -144,7 +144,7 @@ describe('getClosestParentWithAttributions', () => {
       getClosestParentWithAttributions(
         childId,
         resourcesToAttributions,
-        () => false,
+        new Set(),
       ),
     ).toBe('/parent1/parent2/');
   });
@@ -160,7 +160,7 @@ describe('getClosestParentWithAttributions', () => {
       getClosestParentWithAttributions(
         childId,
         resourcesToAttributions,
-        (path) => path === '/parent1/parent2/parent3/',
+        new Set(['/parent1/parent2/parent3/']),
       ),
     ).toBeNull();
   });

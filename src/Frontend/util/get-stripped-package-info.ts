@@ -43,6 +43,7 @@ const strippedPackageInfoTemplate: {
   packagePURLAppendix: true,
   packageType: true,
   packageVersion: true,
+  relation: false,
   preSelected: false,
   preferred: true,
   preferredOverOriginIds: true,

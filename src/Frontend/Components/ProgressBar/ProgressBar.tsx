@@ -8,7 +8,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { ReactElement } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
-import { ProgressBarData, ProgressBarType } from '../../types/types';
+import { ProgressBarData } from '../../types/types';
 import {
   getCriticalityBarBackground,
   getCriticalityBarTooltipText,
@@ -18,33 +18,22 @@ import {
 } from './ProgressBar.util';
 
 const classes = {
-  tooltip: {
-    fontSize: '12px',
-    whiteSpace: 'pre-wrap',
-    display: 'flex',
-  },
   bar: {
     flex: 1,
     border: `2px solid ${OpossumColors.white}`,
     marginTop: '6px',
+    height: '20px',
     '&:hover': {
       cursor: 'pointer',
       opacity: 0.75,
     },
   },
-  folderBar: {
-    height: '10px',
-  },
-  topBar: {
-    height: '20px',
-  },
 };
 
 interface ProgressBarProps {
-  sx: SxProps;
-  progressBarType: ProgressBarType;
+  sx?: SxProps;
   progressBarData: ProgressBarData;
-  progressBarCriticalityState?: boolean;
+  showCriticalSignals: boolean;
 }
 
 export function ProgressBar(props: ProgressBarProps): ReactElement {
@@ -63,31 +52,23 @@ export function ProgressBar(props: ProgressBarProps): ReactElement {
   return (
     <MuiBox sx={props.sx}>
       <MuiTooltip
-        sx={{ '&.MuiTooltip-tooltip': classes.tooltip }}
         title={
-          props.progressBarCriticalityState
+          props.showCriticalSignals
             ? getCriticalityBarTooltipText(props.progressBarData)
             : getProgressBarTooltipText(props.progressBarData)
         }
+        followCursor
       >
         <MuiBox
-          aria-label={props.progressBarType}
+          aria-label={'ProgressBar'}
           sx={{
             ...classes.bar,
-            ...(props.progressBarType === 'FolderProgressBar'
-              ? classes.folderBar
-              : classes.topBar),
-          }}
-          style={{
-            background: props.progressBarCriticalityState
+            background: props.showCriticalSignals
               ? getCriticalityBarBackground(props.progressBarData)
-              : getProgressBarBackground(
-                  props.progressBarData,
-                  props.progressBarType,
-                ),
+              : getProgressBarBackground(props.progressBarData),
           }}
           onClick={
-            props.progressBarCriticalityState
+            props.showCriticalSignals
               ? onCriticalityBarClick
               : onProgressBarClick
           }

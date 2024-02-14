@@ -2,139 +2,114 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, screen } from '@testing-library/react';
-import { compact } from 'lodash';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-import { ButtonText, PopupType, View } from '../../../enums/enums';
+import { text } from '../../../../shared/text';
+import { faker } from '../../../../testing/Faker';
+import { PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
+  setSelectedAttributionId,
   setSelectedResourceId,
+  setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import {
   openPopup,
+  setOpenFileRequest,
   setTargetView,
+  setView,
 } from '../../../state/actions/view-actions/view-actions';
-import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
-import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
+import {
+  getSelectedAttributionId,
+  getSelectedResourceId,
+  getTemporaryDisplayPackageInfo,
+} from '../../../state/selectors/resource-selectors';
 import {
   getOpenPopup,
-  isAttributionViewSelected,
-  isAuditViewSelected,
+  getSelectedView,
 } from '../../../state/selectors/view-selector';
 import { renderComponent } from '../../../test-helpers/render';
 import { NotSavedPopup } from '../NotSavedPopup';
 
-function getActions(targetView?: View) {
-  return compact([
-    openPopup(PopupType.NotSavedPopup),
-    setTargetSelectedResourceId('test_id'),
-    setSelectedResourceId(''),
-    targetView && setTargetView(targetView),
-  ]);
-}
-
-describe('NotSavedPopup and do not change view', () => {
-  it('renders a NotSavedPopup', () => {
-    const { store } = renderComponent(<NotSavedPopup />, {
-      actions: getActions(),
-    });
-
-    expect(screen.getByText('Warning')).toBeInTheDocument();
-    fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
-    expect(getOpenPopup(store.getState())).toBeNull();
-    expect(getSelectedResourceId(store.getState())).toBe('test_id');
-    expect(isAuditViewSelected(store.getState())).toBe(true);
-  });
-
-  it('renders a NotSavedPopup and click cancel', () => {
-    const { store } = renderComponent(<NotSavedPopup />, {
-      actions: getActions(),
-    });
-
-    expect(screen.getByText('There are unsaved changes.')).toBeInTheDocument();
-    fireEvent.click(screen.queryByText('Cancel') as Element);
-    expect(getOpenPopup(store.getState())).toBeFalsy();
-    expect(getSelectedResourceId(store.getState())).toBe('');
-    expect(isAuditViewSelected(store.getState())).toBe(true);
-  });
-
-  it('renders a NotSavedPopup and click reset', () => {
+describe('NotSavedPopup', () => {
+  it('cancels without changes', async () => {
+    const currentResourceId = faker.system.filePath();
+    const targetResourceId = faker.system.filePath();
+    const currentView = View.Audit;
+    const targetView = View.Report;
+    const currentAttributionId = faker.string.uuid();
+    const targetAttributionId = faker.string.uuid();
+    const packageInfo = faker.opossum.packageInfo();
     const { store } = renderComponent(<NotSavedPopup />, {
       actions: [
-        ...getActions(),
-        setTemporaryDisplayPackageInfo({
-          packageName: 'test name',
-          id: 'abc',
-        }),
+        openPopup(PopupType.NotSavedPopup),
+        setSelectedAttributionId(currentAttributionId),
+        setSelectedResourceId(currentResourceId),
+        setTargetSelectedAttributionId(targetAttributionId),
+        setTargetSelectedResourceId(targetResourceId),
+        setTargetView(targetView),
+        setTemporaryDisplayPackageInfo(packageInfo),
+        setView(currentView),
       ],
     });
 
-    expect(screen.getByText('Warning')).toBeInTheDocument();
-    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual({
-      packageName: 'test name',
-      id: 'abc',
-    });
+    await userEvent.click(screen.getByText(text.buttons.cancel));
 
-    fireEvent.click(screen.getByText(ButtonText.Discard));
-    expect(getOpenPopup(store.getState())).toBeNull();
-    expect(getSelectedResourceId(store.getState())).toBe('test_id');
-    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
-      EMPTY_DISPLAY_PACKAGE_INFO,
+    expect(getOpenPopup(store.getState())).toBeFalsy();
+    expect(getSelectedView(store.getState())).toBe(currentView);
+    expect(getSelectedResourceId(store.getState())).toBe(currentResourceId);
+    expect(getSelectedAttributionId(store.getState())).toBe(
+      currentAttributionId,
     );
-    expect(isAuditViewSelected(store.getState())).toBe(true);
-  });
-});
-
-describe('NotSavedPopup and change view', () => {
-  it('renders a NotSavedPopup', () => {
-    const { store } = renderComponent(<NotSavedPopup />, {
-      actions: getActions(View.Attribution),
-    });
-
-    expect(screen.getByText('Warning')).toBeInTheDocument();
-    fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
-    expect(getOpenPopup(store.getState())).toBeFalsy();
-    expect(getSelectedResourceId(store.getState())).toBe('test_id');
-    expect(isAttributionViewSelected(store.getState())).toBe(true);
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      packageInfo,
+    );
   });
 
-  it('renders a NotSavedPopup and click cancel', () => {
-    const { store } = renderComponent(<NotSavedPopup />, {
-      actions: getActions(View.Attribution),
-    });
-
-    expect(screen.getByText('Warning')).toBeInTheDocument();
-    fireEvent.click(screen.queryByText('Cancel') as Element);
-    expect(getOpenPopup(store.getState())).toBeFalsy();
-    expect(getSelectedResourceId(store.getState())).toBe('');
-    expect(isAuditViewSelected(store.getState())).toBe(true);
-  });
-
-  it('renders a NotSavedPopup and click reset', () => {
+  it('discards changes and navigates to target', async () => {
+    const currentResourceId = faker.system.filePath();
+    const targetResourceId = faker.system.filePath();
+    const currentView = View.Audit;
+    const targetView = View.Report;
+    const currentAttributionId = faker.string.uuid();
+    const targetAttributionId = faker.string.uuid();
+    const packageInfo = faker.opossum.packageInfo();
     const { store } = renderComponent(<NotSavedPopup />, {
       actions: [
-        ...getActions(View.Attribution),
-        setTemporaryDisplayPackageInfo({
-          packageName: 'test name',
-          id: 'abc',
-        }),
+        openPopup(PopupType.NotSavedPopup),
+        setSelectedAttributionId(currentAttributionId),
+        setSelectedResourceId(currentResourceId),
+        setTargetSelectedAttributionId(targetAttributionId),
+        setTargetSelectedResourceId(targetResourceId),
+        setTargetView(targetView),
+        setTemporaryDisplayPackageInfo(packageInfo),
+        setView(currentView),
       ],
     });
 
-    expect(screen.getByText('Warning')).toBeInTheDocument();
-    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual({
-      packageName: 'test name',
-      id: 'abc',
-    });
+    await userEvent.click(screen.getByText(text.unsavedChangesPopup.discard));
 
-    fireEvent.click(screen.getByText(ButtonText.Discard));
     expect(getOpenPopup(store.getState())).toBeFalsy();
-    expect(getSelectedResourceId(store.getState())).toBe('test_id');
+    expect(getSelectedView(store.getState())).toBe(targetView);
+    expect(getSelectedResourceId(store.getState())).toBe(targetResourceId);
+    expect(getSelectedAttributionId(store.getState())).toBe(
+      targetAttributionId,
+    );
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
-    expect(isAttributionViewSelected(store.getState())).toBe(true);
+  });
+
+  it('handles request to open a file', async () => {
+    renderComponent(<NotSavedPopup />, {
+      actions: [openPopup(PopupType.NotSavedPopup), setOpenFileRequest(true)],
+    });
+
+    await userEvent.click(screen.getByText(text.unsavedChangesPopup.discard));
+
+    expect(global.window.electronAPI.openFile).toHaveBeenCalledTimes(1);
   });
 });

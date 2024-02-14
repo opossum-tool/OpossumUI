@@ -9,7 +9,13 @@ import { ReportTableHeader } from '../ReportTableHeader';
 
 describe('The report view table header', () => {
   it('renders', () => {
-    renderComponent(<ReportTableHeader />);
+    renderComponent(
+      <table>
+        <thead>
+          <ReportTableHeader />
+        </thead>
+      </table>,
+    );
 
     expect(screen.getByText('License')).toBeInTheDocument();
     expect(screen.getByText('Version')).toBeInTheDocument();

@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import {
   FormControlLabel,
   FormControlLabelProps,
@@ -12,40 +10,31 @@ import {
 import MuiCheckbox from '@mui/material/Checkbox';
 import { forwardRef } from 'react';
 
-const classes = {
-  skeleton: {
-    fill: 'rgba(0, 0, 0, 0.6)',
-    width: '42px',
-  },
-};
-
 interface CheckboxProps extends Pick<FormControlLabelProps, 'labelPlacement'> {
-  label?: string;
-  disabled?: boolean;
   checked: boolean;
+  disableRipple?: boolean;
+  disabled?: boolean;
+  indeterminate?: boolean;
+  label?: string;
   onChange(event: React.ChangeEvent<HTMLInputElement>): void;
   sx?: SxProps;
-  skeleton?: boolean;
-  disableRipple?: boolean;
 }
 
 export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
   (
     {
       checked,
-      onChange,
       disableRipple,
       disabled,
+      indeterminate,
       label,
       labelPlacement,
-      skeleton,
+      onChange,
       sx,
       ...props
     },
     ref,
   ) => {
-    const Icon = checked ? CheckBoxIcon : CheckBoxOutlineBlankIcon;
-
     return (
       <FormControlLabel
         sx={{
@@ -57,22 +46,20 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
         disabled={disabled}
         labelPlacement={labelPlacement}
         control={
-          skeleton ? (
-            <Icon sx={classes.skeleton} />
-          ) : (
-            <MuiCheckbox
-              {...props}
-              ref={ref}
-              disabled={disabled}
-              checked={checked}
-              onChange={onChange}
-              inputProps={{
-                'aria-label': `checkbox ${label}`,
-              }}
-              color={'default'}
-              disableRipple={disableRipple}
-            />
-          )
+          <MuiCheckbox
+            {...props}
+            ref={ref}
+            disabled={disabled}
+            indeterminate={indeterminate}
+            checked={checked}
+            onChange={onChange}
+            inputProps={{
+              style: { zIndex: 'unset' },
+            }}
+            disableRipple={disableRipple}
+            size={'small'}
+            sx={{ padding: '7px' }}
+          />
         }
       />
     );

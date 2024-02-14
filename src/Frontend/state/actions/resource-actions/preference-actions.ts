@@ -13,8 +13,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { View } from '../../../enums/enums';
-import { PathPredicate, State } from '../../../types/types';
+import { State } from '../../../types/types';
 import { getSubtree } from '../../../util/get-attributions-with-resources';
 import { CalculatePreferredOverOriginIds } from '../../helpers/save-action-helpers';
 import { ResourceState } from '../../reducers/resource-reducer';
@@ -25,9 +24,7 @@ import {
   getResources,
   getResourcesToExternalAttributions,
   getResourcesToManualAttributions,
-} from '../../selectors/all-views-resource-selectors';
-import { getSelectedResourceId } from '../../selectors/audit-view-resource-selectors';
-import { getSelectedView } from '../../selectors/view-selector';
+} from '../../selectors/resource-selectors';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryDisplayPackageInfo } from './all-views-simple-actions';
 
@@ -36,7 +33,6 @@ export function toggleIsSelectedPackagePreferred(
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const state = getState();
-    const view = getSelectedView(state);
 
     const newTemporaryDisplayPackageInfo = cloneDeep(packageInfo);
     newTemporaryDisplayPackageInfo.preferred =
@@ -45,9 +41,7 @@ export function toggleIsSelectedPackagePreferred(
     if (newTemporaryDisplayPackageInfo.preferred) {
       newTemporaryDisplayPackageInfo.preferredOverOriginIds =
         getOriginIdsToPreferOver(
-          view === View.Audit
-            ? getSelectedResourceId(state)
-            : getResourceIdsOfSelectedAttribution(state) ?? [],
+          getResourceIdsOfSelectedAttribution(state),
           getResources(state) ?? {},
           getResourcesToExternalAttributions(state),
           getResourcesToManualAttributions(state),
@@ -71,7 +65,7 @@ export function setOriginIdsToPreferOverGlobally(
       setTemporaryDisplayPackageInfo({
         ...packageInfo,
         preferredOverOriginIds: getOriginIdsToPreferOver(
-          getResourceIdsOfSelectedAttribution(state) ?? [],
+          getResourceIdsOfSelectedAttribution(state),
           getResources(state) ?? {},
           getResourcesToExternalAttributions(state),
           getResourcesToManualAttributions(state),
@@ -92,8 +86,6 @@ export function getOriginIdsToPreferOver(
   externalAttributionSources: ExternalAttributionSources,
 ): Array<string> {
   let originIds: Array<string> = [];
-  const isBreakpoint: PathPredicate = (path: string) =>
-    path in resourcesToManualAttributions;
 
   if (typeof pathsToRootResources === 'string') {
     pathsToRootResources = [pathsToRootResources];
@@ -105,7 +97,7 @@ export function getOriginIdsToPreferOver(
     const subtreeResourcesIds = getResourceIdsInSubtreeWithBreakpoints(
       pathToRootResource,
       rootResource,
-      isBreakpoint,
+      resourcesToManualAttributions,
     );
 
     const packageInfos = getPackageInfosFromResources(
@@ -143,13 +135,13 @@ function getPackageInfosFromResources(
 function getResourceIdsInSubtreeWithBreakpoints(
   pathToRootResource: string,
   rootResource: Resources,
-  isBreakpoint: PathPredicate,
+  resourcesToManualAttributions: ResourcesToAttributions,
 ): Array<string> {
   const resources: Array<string> = [pathToRootResource];
 
   for (const childResourceName of Object.keys(rootResource)) {
     const pathToChildResource = pathToRootResource + childResourceName;
-    if (isBreakpoint(pathToChildResource)) {
+    if (pathToChildResource in resourcesToManualAttributions) {
       continue;
     }
     if (rootResource[childResourceName] === 1) {
@@ -158,7 +150,7 @@ function getResourceIdsInSubtreeWithBreakpoints(
       const results = getResourceIdsInSubtreeWithBreakpoints(
         `${pathToChildResource}/`,
         rootResource[childResourceName] as Resources,
-        isBreakpoint,
+        resourcesToManualAttributions,
       );
       for (const result of results) {
         resources.push(result);
@@ -196,10 +188,10 @@ export function getCalculatePreferredOverOriginIds(
   ) =>
     getOriginIdsToPreferOver(
       pathToResource,
-      state.allViews.resources ?? {},
-      state.allViews.externalData.resourcesToAttributions,
+      state.resources ?? {},
+      state.externalData.resourcesToAttributions,
       newManualAttributionToResources,
-      state.allViews.externalData.attributions,
-      state.allViews.externalAttributionSources,
+      state.externalData.attributions,
+      state.externalAttributionSources,
     );
 }

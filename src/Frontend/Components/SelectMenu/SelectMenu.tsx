@@ -4,98 +4,79 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiListItemIcon from '@mui/material/ListItemIcon';
 import MuiListItemText from '@mui/material/ListItemText';
-import { SxProps } from '@mui/system';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import {
+  MenuItemContainer,
   StyledCheckIcon,
   StyledMenu,
   StyledMenuItem,
 } from './SelectMenu.style';
 
+const FADED_OPACITY = 0.5;
+
 export interface SelectMenuProps {
+  anchorArrow?: boolean;
   anchorEl: HTMLElement | undefined;
+  anchorPosition?: 'left' | 'right' | 'center';
   hideSelected?: boolean;
-  horizontal?: 'left' | 'right' | 'center';
   multiple?: boolean;
   options: Array<SelectMenuOption>;
   setAnchorEl: (anchorEl: HTMLElement | undefined) => void;
-  sx?: SxProps;
 }
 
 export interface SelectMenuOption {
-  selected: boolean;
+  faded?: boolean;
   icon?: React.ReactElement;
   id: string;
   label: React.ReactNode;
   onAdd?(): void;
   onDelete?(): void;
+  selected: boolean;
 }
 
 export const SelectMenu: React.FC<SelectMenuProps> = ({
+  anchorArrow,
   anchorEl,
+  anchorPosition = 'center',
   hideSelected,
-  horizontal = 'center',
   multiple,
   options,
   setAnchorEl,
-  sx,
 }) => {
-  const [pendingOptionIds, setPendingOptionIds] = useState<Array<string>>(
-    hideSelected
-      ? []
-      : options.filter(({ selected }) => selected).map(({ id }) => id),
+  const selectedOptionIds = useMemo(
+    () =>
+      hideSelected
+        ? []
+        : options.filter(({ selected }) => selected).map(({ id }) => id),
+    [hideSelected, options],
   );
   const visibleOptions = useMemo(
     () =>
       hideSelected ? options.filter(({ selected }) => !selected) : options,
     [hideSelected, options],
   );
-  const handleClose = () => {
-    setAnchorEl(undefined);
-
-    if (hideSelected) {
-      pendingOptionIds.forEach((id) => {
-        options.find((option) => option.id === id)?.onAdd?.();
-      });
-      setPendingOptionIds([]);
-    } else {
-      options.forEach(({ selected, id, onAdd, onDelete }) => {
-        if (selected && !pendingOptionIds.includes(id)) {
-          onDelete?.();
-        } else if (!selected && pendingOptionIds.includes(id)) {
-          onAdd?.();
-        }
-      });
-    }
-  };
-
   return (
     <StyledMenu
+      anchorArrow={anchorArrow}
       anchorEl={anchorEl}
+      anchorPosition={anchorPosition}
+      onClose={() => setAnchorEl(undefined)}
       open={!!anchorEl}
-      onClose={handleClose}
-      horizontal={horizontal}
-      sx={sx}
+      sx={{ marginTop: anchorArrow ? '8px' : '4px' }}
     >
       {renderVisibleOptions()}
     </StyledMenu>
   );
 
   function renderVisibleOptions() {
-    return visibleOptions.map(({ label, icon, id, selected }, index) => (
-      <StyledMenuItem
-        aria-selected={selected}
-        key={index}
-        onClick={() => {
+    return visibleOptions.map(
+      ({ faded, label, icon, id, selected, onAdd, onDelete }, index) => {
+        const isLabelString = typeof label === 'string';
+        const toggleSelected = () => {
           if (multiple) {
-            setPendingOptionIds((prev) =>
-              prev.includes(id)
-                ? prev.filter((value) => value !== id)
-                : prev.concat(id),
-            );
+            selectedOptionIds.includes(id) ? onDelete?.() : onAdd?.();
           } else {
-            setPendingOptionIds([id]);
             options.forEach((option) => {
               if (option.id === id) {
                 option.onAdd?.();
@@ -105,19 +86,41 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
             });
             setAnchorEl(undefined);
           }
-        }}
-        divider={index + 1 !== visibleOptions.length}
-        disableRipple
-      >
-        <MuiListItemIcon>{icon}</MuiListItemIcon>
-        <MuiListItemText
-          primary={label}
-          primaryTypographyProps={{ sx: { marginTop: '3px' } }}
-        />
-        <StyledCheckIcon
-          visibility={pendingOptionIds.includes(id) ? 'visible' : 'hidden'}
-        />
-      </StyledMenuItem>
-    ));
+        };
+
+        return (
+          <StyledMenuItem
+            key={index}
+            aria-selected={selected}
+            onClick={isLabelString ? toggleSelected : undefined}
+            divider={index + 1 !== visibleOptions.length}
+            disableRipple
+            sx={{ padding: 0, opacity: faded ? FADED_OPACITY : 1 }}
+            onKeyDown={
+              isLabelString ? undefined : (event) => event.stopPropagation()
+            }
+          >
+            {isLabelString ? (
+              <MenuItemContainer>
+                <MuiListItemIcon sx={{ minWidth: '19px !important' }}>
+                  {icon}
+                </MuiListItemIcon>
+                <MuiListItemText
+                  primary={label}
+                  primaryTypographyProps={{ marginTop: '2px' }}
+                />
+                <StyledCheckIcon
+                  visibility={
+                    selectedOptionIds.includes(id) ? 'visible' : 'hidden'
+                  }
+                />
+              </MenuItemContainer>
+            ) : (
+              label
+            )}
+          </StyledMenuItem>
+        );
+      },
+    );
   }
 };

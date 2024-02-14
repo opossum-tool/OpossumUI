@@ -40,7 +40,7 @@ export class HttpClient {
 
     if (!response.ok && throwForStatus) {
       throw new Error(
-        `${response.status}(${response.statusText || text.errors.unknown})`,
+        `${response.status}(${response.statusText || text.generic.unknown})`,
       );
     }
 
