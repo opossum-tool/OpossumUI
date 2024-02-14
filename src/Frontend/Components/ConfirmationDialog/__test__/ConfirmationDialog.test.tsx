@@ -5,8 +5,8 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import { ButtonText } from '../../../enums/enums';
 import { renderComponent } from '../../../test-helpers/render';
 import {
   ConfirmationDialog,
@@ -74,7 +74,9 @@ describe('ConfirmationDialog', () => {
     );
 
     await userEvent.click(screen.getByRole('button'));
-    await userEvent.click(screen.getByRole('button', { name: ButtonText.Ok }));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.buttons.ok }),
+    );
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
     await waitFor(() =>
@@ -94,7 +96,7 @@ describe('ConfirmationDialog', () => {
 
     await userEvent.click(screen.getByRole('button'));
     await userEvent.click(
-      screen.getByRole('button', { name: ButtonText.Cancel }),
+      screen.getByRole('button', { name: text.buttons.cancel }),
     );
 
     expect(onCancel).toHaveBeenCalledTimes(1);

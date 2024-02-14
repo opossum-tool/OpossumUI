@@ -55,7 +55,7 @@ test.use({
   },
 });
 
-test('adds a new third-party attribution in audit view', async ({
+test('adds a new third-party attribution', async ({
   attributionDetails,
   notSavedPopup,
   resourceBrowser,
@@ -100,7 +100,7 @@ test('adds a new third-party attribution in audit view', async ({
   await resourceDetails.attributionCard.assert.isVisible(newPackageInfo);
 });
 
-test('allows user to edit an existing attribution locally and globally in audit view', async ({
+test('allows user to edit an existing attribution locally and globally', async ({
   attributionDetails,
   resourceBrowser,
 }) => {
@@ -182,76 +182,6 @@ test('allows user to edit an existing attribution locally and globally in audit 
   await attributionDetails.attributionForm.assert.nameIs(newPackageName);
 });
 
-test('displays and edits an existing attribution in attribution view', async ({
-  attributionDetails,
-  attributionList,
-  resourceBrowser,
-  topBar,
-}) => {
-  const newPackageInfo = faker.opossum.rawPackageInfo({
-    comment: faker.lorem.sentences(),
-    licenseText: faker.lorem.sentences(),
-    attributionConfidence: packageInfo1.attributionConfidence,
-    packageType: undefined,
-  });
-  await topBar.gotoAttributionView();
-  await resourceBrowser.assert.isHidden();
-  await attributionDetails.assert.isHidden();
-
-  await attributionList.attributionCard.click(packageInfo1);
-  await resourceBrowser.assert.isVisible();
-  await attributionDetails.assert.isVisible();
-  await resourceBrowser.assert.resourceIsVisible(resourceName1);
-  await resourceBrowser.assert.resourceIsVisible(resourceName2);
-  await resourceBrowser.assert.resourceIsHidden(resourceName3);
-  await resourceBrowser.assert.resourceIsHidden(resourceName4);
-  await attributionDetails.attributionForm.assert.licenseTextIsHidden();
-  await attributionDetails.attributionForm.assert.matchesPackageInfo(
-    packageInfo1,
-  );
-  await attributionDetails.assert.saveButtonIsDisabled();
-  await attributionDetails.assert.revertButtonIsDisabled();
-
-  await attributionDetails.attributionForm.toggleLicenseTextVisibility();
-  await attributionDetails.attributionForm.assert.licenseTextIsVisible();
-
-  await attributionDetails.attributionForm.licenseText.fill(
-    newPackageInfo.licenseText!,
-  );
-  await attributionDetails.attributionForm.assert.licenseTextIs(
-    newPackageInfo.licenseText!,
-  );
-
-  await attributionDetails.attributionForm.toggleLicenseTextVisibility();
-  await attributionDetails.attributionForm.assert.licenseTextIsHidden();
-
-  await attributionDetails.attributionForm.name.fill(
-    newPackageInfo.packageName!,
-  );
-  await attributionDetails.attributionForm.version.fill(
-    newPackageInfo.packageVersion!,
-  );
-  await attributionDetails.attributionForm.url.fill(newPackageInfo.url!);
-  await attributionDetails.attributionForm.copyright.fill(
-    newPackageInfo.copyright!,
-  );
-  await attributionDetails.attributionForm.licenseName.fill(
-    newPackageInfo.licenseName!,
-  );
-  await attributionDetails.attributionForm
-    .comment()
-    .fill(newPackageInfo.comment!);
-  await attributionDetails.attributionForm.assert.matchesPackageInfo(
-    newPackageInfo,
-  );
-  await attributionDetails.assert.saveButtonIsEnabled();
-  await attributionDetails.assert.revertButtonIsEnabled();
-
-  await attributionDetails.saveButton.click();
-  await attributionDetails.assert.saveButtonIsDisabled();
-  await attributionDetails.assert.revertButtonIsDisabled();
-});
-
 test('warns user of unsaved changes if user attempts to navigate away before saving', async ({
   attributionDetails,
   attributionList,
@@ -275,10 +205,6 @@ test('warns user of unsaved changes if user attempts to navigate away before sav
     .comment()
     .fill(faker.lorem.sentences());
   await topBar.gotoReportView();
-  await notSavedPopup.assert.isVisible();
-
-  await notSavedPopup.cancelButton.click();
-  await topBar.gotoAttributionView();
   await notSavedPopup.assert.isVisible();
 
   await notSavedPopup.discardButton.click();

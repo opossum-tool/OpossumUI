@@ -4,15 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { act } from '@testing-library/react';
 
-import { View } from '../../../enums/enums';
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
 import { setExpandedIds } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import {
   getExpandedIds,
   getSelectedResourceId,
-} from '../../../state/selectors/audit-view-resource-selectors';
-import { getSelectedView } from '../../../state/selectors/view-selector';
+} from '../../../state/selectors/resource-selectors';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProgressBarData } from '../../../types/types';
 import {
@@ -51,20 +48,6 @@ describe('ProgressBar helpers', () => {
     expect(getExpandedIds(store.getState())).toEqual(['id_1']);
   });
 
-  it('useOnProgressBarClickHook selects audit view', () => {
-    const { store } = renderComponent(<TestComponent resourceIds={['id_1']} />);
-    store.dispatch(navigateToView(View.Attribution));
-
-    expect(getSelectedResourceId(store.getState())).toBe('');
-    expect(getExpandedIds(store.getState())).toEqual(['/']);
-    expect(getSelectedView(store.getState())).toEqual(View.Attribution);
-
-    act(() => useOnProgressBarClickHook());
-    expect(getSelectedResourceId(store.getState())).toBe('id_1');
-    expect(getExpandedIds(store.getState())).toEqual(['id_1']);
-    expect(getSelectedView(store.getState())).toEqual(View.Audit);
-  });
-
   it('useOnProgressBarClickHook works with empty list', () => {
     const { store } = renderComponent(<TestComponent resourceIds={[]} />);
     store.dispatch(setExpandedIds(['test_id']));
@@ -99,10 +82,8 @@ describe('ProgressBar helpers', () => {
       ` ${OpossumColors.pastelMiddleGreen} 66%,` +
       ` ${OpossumColors.pastelRed} 66% 99%,` +
       ` ${OpossumColors.lightestBlue} 99%)`;
-    const actualProgressBarBackground = getProgressBarBackground(
-      testProgressBarData,
-      'TopProgressBar',
-    );
+    const actualProgressBarBackground =
+      getProgressBarBackground(testProgressBarData);
     expect(actualProgressBarBackground).toEqual(expectedProgressBarBackground);
   });
 

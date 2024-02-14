@@ -36,7 +36,7 @@ test.use({
       }),
     }),
     outputData: faker.opossum.outputData({
-      resolvedExternalAttributions: new Set([attributionId1]),
+      resolvedExternalAttributions: [attributionId1],
     }),
   },
 });

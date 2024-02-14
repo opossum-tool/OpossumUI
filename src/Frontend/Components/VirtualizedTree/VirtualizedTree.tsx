@@ -2,17 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/system';
 import { useMemo } from 'react';
 
+import { useAppSelector } from '../../state/hooks';
+import { getFilesWithChildren } from '../../state/selectors/resource-selectors';
 import { List } from '../List/List';
-import { ResizableBox } from '../ResizableBox/ResizableBox';
-import {
-  getTreeNodeProps,
-  NodeIdPredicateForTree,
-  NodesForTree,
-  TreeNodeStyle,
-} from './VirtualizedTree.util';
+import { getTreeNodeProps, NodesForTree } from './VirtualizedTree.util';
 import { VirtualizedTreeNode } from './VirtualizedTreeNode/VirtualizedTreeNode';
 
 interface VirtualizedTreeProps {
@@ -23,67 +20,53 @@ interface VirtualizedTreeProps {
     nodeId: string,
   ) => React.ReactElement;
   expandedIds: Array<string>;
-  selectedNodeId: string;
-  isFakeNonExpandableNode: NodeIdPredicateForTree;
+  selectedNodeId?: string;
   onSelect: (event: React.ChangeEvent<unknown>, nodeId: string) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
-  cardHeight: number;
   width?: number | string;
-  expandedNodeIcon?: React.ReactElement;
-  nonExpandedNodeIcon?: React.ReactElement;
   sx?: SxProps;
-  treeNodeStyle?: TreeNodeStyle;
   breakpoints?: Set<string>;
-  locatorIcon?: React.ReactElement;
-  locatedResourceIcon?: React.ReactElement;
-  locatedResources?: Set<string>;
-  resourcesWithLocatedChildren?: Set<string>;
-  resizable?: boolean;
+  readOnly?: boolean;
 }
 
 export function VirtualizedTree(props: VirtualizedTreeProps) {
+  const filesWithChildren = useAppSelector(getFilesWithChildren);
   const treeNodeProps = getTreeNodeProps(
     props.nodes,
     '',
     props.expandedIds,
-    props.selectedNodeId,
-    props.isFakeNonExpandableNode,
+    props.selectedNodeId || '',
+    filesWithChildren,
     props.onSelect,
     props.onToggle,
     props.getTreeNodeLabel,
-    props.locatedResources,
-    props.resourcesWithLocatedChildren,
     props.breakpoints,
+    props.readOnly,
   );
   const indexToScrollTo = useMemo(
     () =>
-      treeNodeProps.findIndex(({ nodeId }) => nodeId === props.selectedNodeId),
+      props.selectedNodeId
+        ? treeNodeProps.findIndex(
+            ({ nodeId }) => nodeId === props.selectedNodeId,
+          )
+        : -1,
     [props.selectedNodeId, treeNodeProps],
   );
 
-  return props.nodes ? (
-    <ResizableBox
-      aria-label={'resource browser'}
-      sx={props.sx}
-      defaultSize={{ width: props.width ?? 'auto', height: '100%' }}
-      enable={props.resizable === true ? undefined : false}
-    >
-      {props.locatorIcon}
+  return (
+    <MuiBox sx={{ flex: 1, ...props.sx }}>
       <List
         length={treeNodeProps.length}
-        cardHeight={props.cardHeight}
-        getListItem={(index) => (
-          <VirtualizedTreeNode
-            {...treeNodeProps[index]}
-            expandedNodeIcon={props.expandedNodeIcon}
-            nonExpandedNodeIcon={props.nonExpandedNodeIcon}
-            locatedResourceIcon={props.locatedResourceIcon}
-            treeNodeStyle={props.treeNodeStyle}
-          />
-        )}
+        cardHeight={20}
+        getListItem={(index) => {
+          if (!(index in treeNodeProps)) {
+            return null;
+          }
+
+          return <VirtualizedTreeNode {...treeNodeProps[index]} />;
+        }}
         indexToScrollTo={indexToScrollTo}
-        fullHeight
       />
-    </ResizableBox>
-  ) : null;
+    </MuiBox>
+  );
 }

@@ -2,32 +2,25 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { styled } from '@mui/material';
 import MuiCircularProgress from '@mui/material/CircularProgress';
+import { SxProps } from '@mui/system';
 
 import { baseIcon } from '../../shared-styles';
 
-const DEFAULT_SIZE = 16;
-
-const Container = styled('div')({
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-});
+const DEFAULT_SIZE = 12;
 
 interface SpinnerProps {
   size?: number;
+  sx?: SxProps;
 }
 
-export function Spinner({ size = DEFAULT_SIZE }: SpinnerProps) {
+export function Spinner({ size = DEFAULT_SIZE, sx }: SpinnerProps) {
   return (
-    <Container>
-      <MuiCircularProgress
-        disableShrink
-        size={size}
-        sx={baseIcon}
-        data-testid={'spinner'}
-      />
-    </Container>
+    <MuiCircularProgress
+      disableShrink
+      size={size}
+      sx={{ ...baseIcon, ...sx }}
+      data-testid={'spinner'}
+    />
   );
 }

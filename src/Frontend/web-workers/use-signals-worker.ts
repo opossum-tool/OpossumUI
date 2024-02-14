@@ -4,7 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useState } from 'react';
 
-import { useAppSelector } from '../state/hooks';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../shared-constants';
+import { changeSelectedAttributionOrOpenUnsavedPopup } from '../state/actions/popup-actions/popup-actions';
+import { useAppDispatch, useAppSelector } from '../state/hooks';
 import {
   getAttributionBreakpoints,
   getExternalAttributionSources,
@@ -12,29 +14,22 @@ import {
   getFilesWithChildren,
   getManualData,
   getProjectMetadata,
-  getResources,
-} from '../state/selectors/all-views-resource-selectors';
-import {
   getResolvedExternalAttributions,
+  getResources,
   getSelectedResourceId,
-} from '../state/selectors/audit-view-resource-selectors';
-import { isAuditViewSelected } from '../state/selectors/view-selector';
-import {
-  useAttributionSorting,
-  useSignalSorting,
-} from '../state/variables/use-active-sorting';
-import {
-  useAttributionsInFolderContent,
-  useSignalsInFolderContent,
-} from '../state/variables/use-attributions-in-folder-content';
+} from '../state/selectors/resource-selectors';
+import { useAreHiddenSignalsVisible } from '../state/variables/use-are-hidden-signals-visible';
 import { useAutocompleteSignals } from '../state/variables/use-autocomplete-signals';
-import { useFilteredAttributions } from '../state/variables/use-filtered-attributions';
-import { useFolderProgressData } from '../state/variables/use-folder-progress-data';
-import { useOverallProgressData } from '../state/variables/use-overall-progress-data';
-import { shouldNotBeCalled } from '../util/should-not-be-called';
+import {
+  useFilteredAttributions,
+  useFilteredSignals,
+} from '../state/variables/use-filtered-data';
+import { useProgressData } from '../state/variables/use-progress-data';
+import { useDebouncedInput } from '../util/use-debounced-input';
 import { SignalsWorkerInput, SignalsWorkerOutput } from './signals-worker';
 
 export function useSignalsWorker() {
+  const dispatch = useAppDispatch();
   const resourceId = useAppSelector(getSelectedResourceId);
   const externalData = useAppSelector(getExternalData);
   const manualData = useAppSelector(getManualData);
@@ -45,19 +40,32 @@ export function useSignalsWorker() {
   const resources = useAppSelector(getResources);
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
-  const isAuditView = useAppSelector(isAuditViewSelected);
   const { projectId } = useAppSelector(getProjectMetadata);
   const [worker, setWorker] = useState<Worker>();
 
-  const { signalSorting } = useSignalSorting();
-  const { attributionSorting } = useAttributionSorting();
-  const [{ selectedFilters, search }, setFilteredAttributions] =
-    useFilteredAttributions();
+  const [
+    {
+      sorting: signalSorting,
+      filters: signalFilters,
+      search: signalSearch,
+      selectedLicense: signalSelectedLicense,
+    },
+    setFilteredSignals,
+  ] = useFilteredSignals();
+  const [
+    {
+      sorting: attributionSorting,
+      filters: attributionFilters,
+      search: attributionSearch,
+      selectedLicense: attributionSelectedLicense,
+    },
+    setFilteredAttributions,
+  ] = useFilteredAttributions();
+  const debouncedSignalSearch = useDebouncedInput(signalSearch);
+  const debouncedAttributionSearch = useDebouncedInput(attributionSearch);
+  const [areHiddenSignalsVisible] = useAreHiddenSignalsVisible();
   const [, setAutocompleteSignals] = useAutocompleteSignals();
-  const [, setAttributionsInFolderContent] = useAttributionsInFolderContent();
-  const [, setSignalsInFolderContent] = useSignalsInFolderContent();
-  const [, setOverallProgressData] = useOverallProgressData();
-  const [, setFolderProgressData] = useFolderProgressData();
+  const [, setProgressData] = useProgressData();
 
   useEffect(() => {
     if (!projectId) {
@@ -82,17 +90,8 @@ export function useSignalsWorker() {
           case 'autocompleteSignals':
             setAutocompleteSignals(data.data);
             break;
-          case 'attributionsInFolderContent':
-            setAttributionsInFolderContent(data.data);
-            break;
-          case 'signalsInFolderContent':
-            setSignalsInFolderContent(data.data);
-            break;
-          case 'overallProgressData':
-            setOverallProgressData(data.data);
-            break;
-          case 'folderProgressData':
-            setFolderProgressData(data.data);
+          case 'progressData':
+            setProgressData(data.data);
             break;
           case 'filteredAttributionCounts':
             setFilteredAttributions((prev) => ({
@@ -101,35 +100,67 @@ export function useSignalsWorker() {
             }));
             break;
           case 'filteredAttributions':
-            setFilteredAttributions((prev) => ({
+            setFilteredAttributions((prev) => {
+              if (prev.selectFirstAttribution) {
+                dispatch(
+                  changeSelectedAttributionOrOpenUnsavedPopup(
+                    Object.values(data.data).find(
+                      ({ relation }) => relation === 'resource',
+                    ) || EMPTY_DISPLAY_PACKAGE_INFO,
+                  ),
+                );
+              }
+              return {
+                ...prev,
+                loading: false,
+                attributions: data.data,
+                selectFirstAttribution: false,
+              };
+            });
+            break;
+          case 'filteredSignalCounts':
+            setFilteredSignals((prev) => ({
+              ...prev,
+              counts: data.data,
+            }));
+            break;
+          case 'filteredSignals':
+            setFilteredSignals((prev) => ({
               ...prev,
               loading: false,
               attributions: data.data,
             }));
             break;
-          default:
-            shouldNotBeCalled(data);
+          case 'filteredAttributionsLoading':
+            setFilteredAttributions((prev) => ({
+              ...prev,
+              loading: data.data,
+            }));
+            break;
+          case 'filteredSignalsLoading':
+            setFilteredSignals((prev) => ({
+              ...prev,
+              loading: data.data,
+            }));
+            break;
         }
       };
     }
   }, [
-    setAttributionsInFolderContent,
+    dispatch,
     setAutocompleteSignals,
     setFilteredAttributions,
-    setFolderProgressData,
-    setOverallProgressData,
-    setSignalsInFolderContent,
+    setFilteredSignals,
+    setProgressData,
     worker,
   ]);
 
   useEffect(() => {
-    if (isAuditView && resourceId) {
-      worker?.postMessage({
-        name: 'resourceId',
-        data: resourceId,
-      } satisfies SignalsWorkerInput);
-    }
-  }, [isAuditView, resourceId, worker]);
+    worker?.postMessage({
+      name: 'resourceId',
+      data: resourceId,
+    } satisfies SignalsWorkerInput);
+  }, [resourceId, worker]);
 
   useEffect(() => {
     worker?.postMessage({
@@ -190,13 +221,6 @@ export function useSignalsWorker() {
 
   useEffect(() => {
     worker?.postMessage({
-      name: 'signalSorting',
-      data: signalSorting,
-    } satisfies SignalsWorkerInput);
-  }, [signalSorting, worker]);
-
-  useEffect(() => {
-    worker?.postMessage({
       name: 'attributionSorting',
       data: attributionSorting,
     } satisfies SignalsWorkerInput);
@@ -204,25 +228,57 @@ export function useSignalsWorker() {
 
   useEffect(() => {
     worker?.postMessage({
-      name: 'selectedFilters',
-      data: selectedFilters,
+      name: 'attributionFilters',
+      data: attributionFilters,
     } satisfies SignalsWorkerInput);
-
-    setFilteredAttributions((prev) => ({
-      ...prev,
-      loading: true,
-    }));
-  }, [selectedFilters, setFilteredAttributions, worker]);
+  }, [attributionFilters, worker]);
 
   useEffect(() => {
     worker?.postMessage({
       name: 'attributionSearch',
-      data: search,
+      data: debouncedAttributionSearch,
     } satisfies SignalsWorkerInput);
+  }, [debouncedAttributionSearch, worker]);
 
-    setFilteredAttributions((prev) => ({
-      ...prev,
-      loading: true,
-    }));
-  }, [search, setFilteredAttributions, worker]);
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'signalSorting',
+      data: signalSorting,
+    } satisfies SignalsWorkerInput);
+  }, [signalSorting, worker]);
+
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'areHiddenSignalsVisible',
+      data: areHiddenSignalsVisible,
+    } satisfies SignalsWorkerInput);
+  }, [areHiddenSignalsVisible, worker]);
+
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'signalFilters',
+      data: signalFilters,
+    } satisfies SignalsWorkerInput);
+  }, [signalFilters, worker]);
+
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'signalSearch',
+      data: debouncedSignalSearch,
+    } satisfies SignalsWorkerInput);
+  }, [debouncedSignalSearch, worker]);
+
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'attributionSelectedLicense',
+      data: attributionSelectedLicense,
+    } satisfies SignalsWorkerInput);
+  }, [worker, attributionSelectedLicense]);
+
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'signalSelectedLicense',
+      data: signalSelectedLicense,
+    } satisfies SignalsWorkerInput);
+  }, [worker, signalSelectedLicense]);
 }

@@ -2,8 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { compact } from 'lodash';
+
 import { PackageInfo } from '../../../shared/shared-types';
-import { TableConfig } from '../Table/TableConfig';
+import { TableConfig } from '../ReportView/TableConfig';
 
 export function getFormattedCellData(
   config: TableConfig,
@@ -29,6 +31,12 @@ export function getFormattedCellData(
     case 'icons':
     case 'resources':
       cellData = '';
+      break;
+    case 'packageName':
+      cellData = compact([
+        packageInfo.packageName,
+        packageInfo.packageNamespace,
+      ]).join(':');
       break;
     default:
       cellData = packageInfo[config.attributionProperty] || '';

@@ -9,7 +9,7 @@ import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-act
 import { useAppDispatch } from '../../state/hooks';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
-import { TextBox } from '../InputElements/TextBox';
+import { TextBox } from '../TextBox/TextBox';
 import { AttributeConfig } from './AttributionForm';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
@@ -56,9 +56,11 @@ export function CopyrightSubPanel({
             ),
           )
         }
-        isHighlighted={
+        highlight={
           showHighlight &&
           isImportantAttributionInformationMissing('copyright', packageInfo)
+            ? 'default'
+            : undefined
         }
         endIcon={config?.endIcon}
       />

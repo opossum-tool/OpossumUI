@@ -13,12 +13,11 @@ import { useMemo, useState } from 'react';
 
 import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
+import { getFrequentLicensesNameOrder } from '../../state/selectors/resource-selectors';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
-import { TextBox } from '../InputElements/TextBox';
+import { TextBox } from '../TextBox/TextBox';
 import { AttributionFormConfig } from './AttributionForm';
 import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
@@ -26,13 +25,12 @@ import { attributionColumnClasses } from './shared-attribution-column-styles';
 const classes = {
   ...attributionColumnClasses,
   expansionPanel: {
-    backgroundColor: OpossumColors.lightestBlue,
+    backgroundColor: 'transparent',
     '&.MuiAccordion-expanded': {
       margin: '0px 0px 6px 0px !important',
     },
   },
   expansionPanelSummary: {
-    backgroundColor: `${OpossumColors.lightestBlue} !important`,
     minHeight: '36px',
     padding: '0px',
     '& div.MuiAccordionSummary-content': {
@@ -127,6 +125,7 @@ export function LicenseSubPanel({
         key={'License'}
         disableGutters
         expanded={expanded}
+        square
       >
         <MuiAccordionSummary
           sx={classes.expansionPanelSummary}

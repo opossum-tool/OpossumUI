@@ -16,10 +16,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [],
+      filters: [],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -31,8 +33,8 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 0 },
-      [packageInfo2.id]: { ...packageInfo2, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
+      [packageInfo2.id]: { ...packageInfo2, relation: 'resource' },
     });
   });
 
@@ -41,10 +43,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [],
+      filters: [],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -62,8 +66,8 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 2 },
-      [packageInfo2.id]: { ...packageInfo2, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
+      [packageInfo2.id]: { ...packageInfo2, relation: 'resource' },
     });
   });
 
@@ -76,10 +80,12 @@ describe('get-filtered-attributions', () => {
     });
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [],
+      filters: [],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -105,10 +111,12 @@ describe('get-filtered-attributions', () => {
     });
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [],
+      filters: [],
       sorting: text.sortings.criticality,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -125,15 +133,17 @@ describe('get-filtered-attributions', () => {
     ]);
   });
 
-  it('sorts attributions by frequency', () => {
+  it('sorts attributions by occurrence', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [],
+      filters: [],
       sorting: text.sortings.occurrence,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -161,10 +171,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [],
+      filters: [],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: packageInfo1.packageName!,
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -176,7 +188,7 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
     });
   });
 
@@ -187,10 +199,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [text.filters.needsFollowUp],
+      filters: [text.filters.needsFollowUp],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -202,7 +216,7 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
     });
   });
 
@@ -213,10 +227,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [text.filters.preSelected],
+      filters: [text.filters.preSelected],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -228,7 +244,7 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
     });
   });
 
@@ -239,10 +255,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [text.filters.excludedFromNotice],
+      filters: [text.filters.excludedFromNotice],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -254,7 +272,7 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
     });
   });
 
@@ -267,10 +285,12 @@ describe('get-filtered-attributions', () => {
     });
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [text.filters.lowConfidence],
+      filters: [text.filters.lowConfidence],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -282,7 +302,7 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
     });
   });
 
@@ -293,10 +313,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [text.filters.firstParty],
+      filters: [text.filters.firstParty],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -308,7 +330,7 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
     });
   });
 
@@ -319,10 +341,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [text.filters.thirdParty],
+      filters: [text.filters.thirdParty],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -334,7 +358,7 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo2.id]: { ...packageInfo2, count: 0 },
+      [packageInfo2.id]: { ...packageInfo2, relation: 'resource' },
     });
   });
 
@@ -345,10 +369,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [text.filters.needsReview],
+      filters: [text.filters.needsReview],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -360,7 +386,7 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
     });
   });
 
@@ -371,10 +397,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [text.filters.currentlyPreferred],
+      filters: [text.filters.currentlyPreferred],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -386,7 +414,7 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
     });
   });
 
@@ -397,10 +425,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [text.filters.previouslyPreferred],
+      filters: [text.filters.previouslyPreferred],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -412,7 +442,7 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
     });
   });
 
@@ -423,10 +453,12 @@ describe('get-filtered-attributions', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: [text.filters.incomplete],
+      filters: [text.filters.incomplete],
       sorting: text.sortings.name,
+      selectedLicense: '',
       search: '',
-      manualData: faker.opossum.manualAttributionData({
+      resourceId: '',
+      data: faker.opossum.attributionData({
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -438,7 +470,7 @@ describe('get-filtered-attributions', () => {
     });
 
     expect(attributions).toEqual<Attributions>({
-      [packageInfo1.id]: { ...packageInfo1, count: 0 },
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
     });
   });
 });

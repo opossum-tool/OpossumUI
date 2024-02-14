@@ -17,8 +17,7 @@ import { text } from '../../../shared/text';
 import { clickableIcon } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getExternalAttributionSources } from '../../state/selectors/all-views-resource-selectors';
-import { isAuditViewSelected } from '../../state/selectors/view-selector';
+import { getExternalAttributionSources } from '../../state/selectors/resource-selectors';
 import { useAutocompleteSignals } from '../../state/variables/use-autocomplete-signals';
 import { generatePurl } from '../../util/handle-purl';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
@@ -87,19 +86,16 @@ export function PackageAutocomplete({
   const attributeValue = packageInfo[attribute] || '';
   const [inputValue, setInputValue] = useState(attributeValue);
   const sources = useAppSelector(getExternalAttributionSources);
-  const isAuditView = useAppSelector(isAuditViewSelected);
 
   const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo();
 
   const [autocompleteSignals] = useAutocompleteSignals();
   const filteredSignals = useMemo(
     () =>
-      isAuditView
-        ? autocompleteSignals
-            .filter((signal) => !['', undefined].includes(signal[attribute]))
-            .concat(defaults)
-        : defaults,
-    [isAuditView, autocompleteSignals, defaults, attribute],
+      autocompleteSignals
+        .filter((signal) => !['', undefined].includes(signal[attribute]))
+        .concat(defaults),
+    [autocompleteSignals, defaults, attribute],
   );
 
   useEffect(() => {
@@ -157,7 +153,7 @@ export function PackageAutocomplete({
       groupBy={(option) =>
         option.source
           ? sources[option.source.name]?.name || option.source.name
-          : text.attributionColumn.manualAttributions
+          : text.attributionColumn.attributions
       }
       groupProps={{
         icon: () => <SourceIcon noTooltip />,
@@ -210,9 +206,9 @@ export function PackageAutocomplete({
     }
 
     const tooltipTitle = [
-      `${maybePluralize(option.count, text.attributionColumn.occurrence)} ${
-        text.attributionColumn.amongSignals
-      }`,
+      maybePluralize(option.count, text.attributionColumn.occurrence, {
+        showOne: true,
+      }),
       ...(() => {
         if (option.preferred) {
           return [text.auditingOptions.currentlyPreferred.toLowerCase()];
@@ -237,7 +233,14 @@ export function PackageAutocomplete({
             return null;
           })()}
         >
-          <MuiChip label={option.count} size={'small'} />
+          <MuiChip
+            sx={{ minWidth: '24px' }}
+            label={new Intl.NumberFormat('en-US', {
+              notation: 'compact',
+              compactDisplay: 'short',
+            }).format(option.count)}
+            size={'small'}
+          />
         </Badge>
       </MuiTooltip>
     );

@@ -4,50 +4,58 @@
 // SPDX-License-Identifier: Apache-2.0
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import MuiChip from '@mui/material/Chip';
+import MuiTooltip from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
 import { merge } from 'lodash';
-import { ReactElement, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { HighlightingColor } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
-import { ListCardConfig } from '../../types/types';
+import { maybePluralize } from '../../util/maybe-pluralize';
 
-const defaultCardHeight = '40px';
-const hoveredSelectedBackgroundColor = OpossumColors.middleBlueOnHover;
+export interface ListCardConfig {
+  criticality?: Criticality;
+  excludeFromNotice?: boolean;
+  firstParty?: boolean;
+  followUp?: boolean;
+  hideCount?: boolean;
+  isPreSelected?: boolean;
+  isPreferred?: boolean;
+  isResolved?: boolean;
+  isSelected?: boolean;
+  needsReview?: boolean;
+  wasPreferred?: boolean;
+}
+
+export const LIST_CARD_HEIGHT = 40;
+
+const hoveredSelectedBackgroundColor = OpossumColors.middleBlue;
 const hoveredBackgroundColor = OpossumColors.lightestBlueOnHover;
 const defaultBackgroundColor = OpossumColors.lightestBlue;
-const packageBorder = `1px ${OpossumColors.white} solid`;
 
 const classes = {
   root: {
     flex: 1,
     display: 'flex',
     alignItems: 'center',
-    height: defaultCardHeight,
+    height: LIST_CARD_HEIGHT,
+    paddingLeft: '8px',
+  },
+  innerRoot: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    height: LIST_CARD_HEIGHT,
+    overflow: 'hidden',
   },
   hover: {
     '&:hover': {
       cursor: 'pointer',
       background: hoveredBackgroundColor,
     },
-  },
-  package: {
-    border: packageBorder,
-    background: defaultBackgroundColor,
-  },
-  externalAttribution: {
-    background: defaultBackgroundColor,
-    '&:hover': {
-      background: hoveredBackgroundColor,
-    },
-  },
-  resource: {
-    background: OpossumColors.white,
-    '&:hover': {
-      background: OpossumColors.whiteOnHover,
-    },
-    height: '24px',
   },
   selected: {
     background: OpossumColors.middleBlue,
@@ -57,63 +65,24 @@ const classes = {
   },
   resolved: {
     opacity: 0.5,
-  },
-  highCriticality: {
-    width: '4px',
-    height: defaultCardHeight,
-    background: OpossumColors.orange,
-  },
-  mediumCriticality: {
-    width: '4px',
-    height: defaultCardHeight,
-    background: OpossumColors.mediumOrange,
-  },
-  textShortened: {
-    overflowY: 'auto',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-  },
-  textShortenedFromLeftSide: {
-    overflowY: 'auto',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    direction: 'rtl',
-    textAlign: 'left',
-  },
-  count: {
-    '&.MuiTypography-body2': {
-      fontSize: '0.85rem',
-      fontWeight: 'bold',
-      lineHeight: '19px',
-    },
-    height: '19px',
-    width: '26px',
-    textAlign: 'center',
-    writingMode: 'horizontal-tb',
+    backgroundColor: 'white',
   },
   iconColumn: {
-    display: 'flex',
-    justifyContent: 'start',
-    alignItems: 'flex-end',
-    flexWrap: 'wrap-reverse',
-    // fix for width of column flexbox container not growing after wrap
-    // -> use row flexbox with vertical writing mode
-    writingMode: 'vertical-lr',
-    height: defaultCardHeight,
+    display: 'grid',
+    gridTemplateRows: '1fr 1fr',
+    gridAutoFlow: 'column',
+    direction: 'rtl',
   },
   textLines: {
     flex: 1,
-  },
-  longTextInFlexbox: {
-    // standard fix for css problem "child element with text in flexbox is too long"
-    minWidth: '0px',
+    overflow: 'hidden',
   },
   textLine: {
-    '&.MuiTypography-body2': {
-      fontSize: '0.85rem',
-    },
+    paddingLeft: '6px',
+    userSelect: 'none',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
   },
 };
 
@@ -123,29 +92,15 @@ const PADDING_PER_ICON_COLUMN = 20;
 interface ListCardProps {
   text: string;
   secondLineText?: string;
-  cardConfig: ListCardConfig;
   count?: number;
+  cardConfig: ListCardConfig;
   onClick?(): void;
-  leftIcon?: JSX.Element;
-  rightIcons?: Array<JSX.Element>;
-  leftElement?: JSX.Element;
+  rightIcons?: Array<React.ReactNode>;
+  leftElement?: React.ReactNode;
   highlighting?: HighlightingColor;
 }
 
-export function ListCard(props: ListCardProps): ReactElement | null {
-  const displayedCount = useMemo((): string => {
-    const digitsInAThousand = 4;
-    const digitsInAMillion = 7;
-    const count = props.count ? props.count.toString() : '';
-
-    if (count.length < digitsInAThousand) {
-      return count;
-    } else if (count.length < digitsInAMillion) {
-      return `${count.slice(0, -(digitsInAThousand - 1))}k`;
-    }
-    return `${count.slice(0, -(digitsInAMillion - 1))}M`;
-  }, [props.count]);
-
+export function ListCard(props: ListCardProps) {
   const paddingRight = useMemo(
     () =>
       Math.max(
@@ -165,73 +120,43 @@ export function ListCard(props: ListCardProps): ReactElement | null {
       )}
     >
       {props.leftElement}
-      <MuiBox
-        sx={{
-          ...classes.root,
-          ...(props.cardConfig.isResource ? {} : classes.longTextInFlexbox),
-        }}
-        onClick={props.onClick}
-      >
-        <MuiBox sx={classes.iconColumn}>
-          {props.leftIcon}
-          {displayedCount ? (
-            <MuiTypography variant={'body2'} sx={classes.count}>
-              {displayedCount}
-            </MuiTypography>
-          ) : null}
-        </MuiBox>
+      <MuiBox sx={classes.innerRoot} onClick={props.onClick}>
+        {props.count && (
+          <MuiTooltip
+            title={maybePluralize(
+              props.count,
+              text.attributionColumn.occurrence,
+              {
+                showOne: true,
+              },
+            )}
+            enterDelay={500}
+          >
+            <MuiChip
+              sx={{ minWidth: '24px', marginRight: '4px', userSelect: 'none' }}
+              label={new Intl.NumberFormat('en-US', {
+                notation: 'compact',
+                compactDisplay: 'short',
+              }).format(props.count)}
+              size={'small'}
+            />
+          </MuiTooltip>
+        )}
         <MuiBox
           sx={{
+            paddingRight: props.highlighting ? `${paddingRight}px` : '14px',
             ...classes.textLines,
-            ...(props.cardConfig.isResource ? {} : classes.longTextInFlexbox),
-            ...(props.highlighting && {
-              paddingRight: `${paddingRight}px`,
-            }),
           }}
         >
-          <MuiTypography
-            variant={'body2'}
-            sx={{
-              ...(!props.leftIcon && !displayedCount && { paddingLeft: '6px' }),
-              ...classes.textLine,
-              ...(props.cardConfig.isResource
-                ? classes.textShortenedFromLeftSide
-                : classes.textShortened),
-            }}
-          >
-            {props.cardConfig.isResource ? <bdi>{props.text}</bdi> : props.text}
-          </MuiTypography>
+          <MuiTypography sx={classes.textLine}>{props.text}</MuiTypography>
           {props.secondLineText ? (
-            <MuiTypography
-              variant={'body2'}
-              sx={{
-                ...(!props.leftIcon &&
-                  !displayedCount && { paddingLeft: '6px' }),
-                ...classes.textLine,
-                ...(props.cardConfig.isResource
-                  ? classes.textShortenedFromLeftSide
-                  : classes.textShortened),
-              }}
-            >
-              {props.cardConfig.isResource ? (
-                <bdi>{props.secondLineText}</bdi>
-              ) : (
-                props.secondLineText
-              )}
+            <MuiTypography sx={classes.textLine}>
+              {props.secondLineText}
             </MuiTypography>
           ) : null}
         </MuiBox>
         <MuiBox sx={classes.iconColumn}>{props.rightIcons}</MuiBox>
       </MuiBox>
-      <MuiBox
-        sx={{
-          ...(props.cardConfig.criticality === Criticality.High
-            ? classes.highCriticality
-            : props.cardConfig.criticality === Criticality.Medium
-              ? classes.mediumCriticality
-              : {}),
-        }}
-      />
     </MuiBox>
   );
 }
@@ -242,16 +167,6 @@ function getSx(
   clickable: boolean,
 ): SxProps {
   let sxProps: SxProps = { ...classes.root };
-
-  if (cardConfig.isResource) {
-    sxProps = merge(sxProps, classes.resource);
-  } else {
-    sxProps = merge(sxProps, classes.package);
-  }
-
-  if (cardConfig.isExternalAttribution) {
-    sxProps = merge(sxProps, classes.externalAttribution);
-  }
 
   if (clickable) {
     sxProps = merge(sxProps, classes.hover);
@@ -292,39 +207,16 @@ function getHighlightedListCardStyle(
   const backgroundColor = selected
     ? OpossumColors.middleBlue
     : defaultBackgroundColor;
-  const highlightColorOnHover =
-    color === HighlightingColor.LightOrange
-      ? OpossumColors.lightOrangeOnHover
-      : OpossumColors.darkOrangeOnHover;
   const backgroundColorOnHover = selected
     ? hoveredSelectedBackgroundColor
     : hoveredBackgroundColor;
 
-  return getHighlightedStyleClass(
-    highlightColor,
-    backgroundColor,
-    highlightColorOnHover,
-    backgroundColorOnHover,
-    packageBorder,
-    clickable,
-  );
-}
-
-function getHighlightedStyleClass(
-  highlightColor: string,
-  backgroundColor: string,
-  highlightColorOnHover: string,
-  backgroundColorOnHover: string,
-  border: string,
-  clickable: boolean,
-): SxProps {
   return {
-    border,
     background: getHighlightedBackground(highlightColor, backgroundColor),
     ...(clickable && {
       '&:hover': {
         background: getHighlightedBackground(
-          highlightColorOnHover,
+          highlightColor,
           backgroundColorOnHover,
         ),
       },

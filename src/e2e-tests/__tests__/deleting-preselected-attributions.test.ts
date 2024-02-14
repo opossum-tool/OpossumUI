@@ -107,9 +107,6 @@ test('deletes pre-selected attributions', async ({
   await attributionDetails.assert.deleteButtonIsHidden();
   await attributionDetails.assert.deleteGloballyButtonIsHidden();
 
-  await topBar.gotoAttributionView();
-  await resourceBrowser.assert.isHidden();
-
   await attributionList.attributionCard.click(packageInfo2);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo2,

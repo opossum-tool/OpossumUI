@@ -38,7 +38,7 @@ test.use({
   },
 });
 
-test('updates progress bar when user confirms preselected attributions in audit view', async ({
+test('updates progress bar when user confirms preselected attributions', async ({
   attributionDetails,
   resourceBrowser,
   resourceDetails,
@@ -89,12 +89,10 @@ test('updates progress bar when user confirms preselected attributions in audit 
   await attributionDetails.assert.confirmGloballyButtonIsHidden();
 });
 
-test('confirms multiple preselected attributions in attribution view', async ({
+test('confirms multiple preselected attributions', async ({
   attributionList,
   attributionDetails,
-  topBar,
 }) => {
-  await topBar.gotoAttributionView();
   await attributionList.attributionCard.click(packageInfo1);
   await attributionDetails.assert.confirmButtonIsVisible();
   await attributionList.attributionCard.click(packageInfo2);

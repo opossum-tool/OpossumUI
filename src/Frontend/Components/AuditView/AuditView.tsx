@@ -2,16 +2,21 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Fragment, ReactElement } from 'react';
-
+import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
+import { PackageLists } from '../PackageLists/PackageLists';
+import { PathBar } from '../PathBar/PathBar';
 import { ResourceBrowser } from '../ResourceBrowser/ResourceBrowser';
-import { ResourceDetailsViewer } from '../ResourceDetailsViewer/ResourceDetailsViewer';
+import { Container } from './AuditView.style';
 
-export function AuditView(): ReactElement {
+export function AuditView() {
   return (
-    <Fragment>
-      <ResourceBrowser />
-      <ResourceDetailsViewer />
-    </Fragment>
+    <>
+      <PathBar />
+      <Container>
+        <ResourceBrowser />
+        <PackageLists />
+        <AttributionColumn />
+      </Container>
+    </>
   );
 }

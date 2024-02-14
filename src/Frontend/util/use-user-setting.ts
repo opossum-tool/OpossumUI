@@ -16,9 +16,13 @@ import { useIpcRenderer } from './use-ipc-renderer';
  * @returns A tuple containing the current value, a setter function and a boolean indicating whether the value has been hydrated.
  */
 export const useUserSetting = <T extends keyof UserSettings>(
-  { defaultValue, key }: { defaultValue: UserSettings[T]; key: T },
+  { defaultValue, key }: { defaultValue: NonNullable<UserSettings[T]>; key: T },
   deps: DependencyList = [],
-): [UserSettings[T], (newValue: UserSettings[T]) => Promise<void>, boolean] => {
+): [
+  NonNullable<UserSettings[T]>,
+  (newValue: UserSettings[T]) => Promise<void>,
+  boolean,
+] => {
   const [{ hydrated, storedValue }, setVariable] = useVariable(key, {
     hydrated: false,
     storedValue: defaultValue,
@@ -33,12 +37,15 @@ export const useUserSetting = <T extends keyof UserSettings>(
     deps,
   );
 
-  const readStoredValue = useCallback(async (): Promise<UserSettings[T]> => {
-    const value = await window.electronAPI.getUserSetting(key);
+  const readStoredValue = useCallback(
+    async (): Promise<NonNullable<UserSettings[T]>> => {
+      const value = await window.electronAPI.getUserSetting(key);
 
-    return value ?? defaultValue;
+      return value ?? defaultValue;
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+    deps,
+  );
 
   useEffect(() => {
     void (async (): Promise<void> => setStoredValue(await readStoredValue()))();
@@ -49,7 +56,7 @@ export const useUserSetting = <T extends keyof UserSettings>(
     async () =>
       setVariable({
         hydrated: true,
-        storedValue: (await readStoredValue()) ?? defaultValue,
+        storedValue: await readStoredValue(),
       }),
     [readStoredValue],
   );

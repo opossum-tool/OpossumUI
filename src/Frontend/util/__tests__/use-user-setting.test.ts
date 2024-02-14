@@ -26,23 +26,19 @@ describe('useUserSetting', () => {
     window.electronAPI = electronAPI as ElectronAPI;
   });
 
-  function extract(result: { current: ReturnType<typeof useUserSetting> }) {
-    return {
-      value: result.current[0],
-      setValue: result.current[1],
-      hydrated: result.current[2],
-    };
-  }
-
   it('returns default value when no stored value exist', async () => {
     const defaultValue = faker.datatype.boolean();
-    const { result } = renderHook(() =>
+    const {
+      result: {
+        current: [value, _, hydrated],
+      },
+    } = renderHook(() =>
       useUserSetting({ key: 'showProjectStatistics', defaultValue }),
     );
 
-    await waitFor(() => expect(extract(result).hydrated).toBe(true));
+    await waitFor(() => expect(hydrated).toBe(true));
 
-    expect(extract(result).value).toBe(defaultValue);
+    expect(value).toBe(defaultValue);
     expect(mockGetUserSetting).toHaveBeenCalledTimes(1);
     expect(mockSetUserSetting).toHaveBeenCalledTimes(1);
   });
@@ -51,11 +47,15 @@ describe('useUserSetting', () => {
     const defaultValue = faker.datatype.boolean();
     const storedValue = !defaultValue;
     mockGetUserSetting.mockReturnValue(storedValue);
-    const { result } = renderHook(() =>
+    const {
+      result: {
+        current: [value],
+      },
+    } = renderHook(() =>
       useUserSetting({ key: 'showProjectStatistics', defaultValue }),
     );
 
-    expect(extract(result).value).toBe(defaultValue);
+    expect(value).toBe(defaultValue);
     expect(mockGetUserSetting).toHaveBeenCalledTimes(1);
     expect(mockSetUserSetting).not.toHaveBeenCalled();
   });
@@ -64,13 +64,17 @@ describe('useUserSetting', () => {
     const defaultValue = faker.datatype.boolean();
     const storedValue = !defaultValue;
     mockGetUserSetting.mockReturnValue(storedValue);
-    const { result } = renderHook(() =>
+    const {
+      result: {
+        current: [value, _, hydrated],
+      },
+    } = renderHook(() =>
       useUserSetting({ key: 'showProjectStatistics', defaultValue }),
     );
 
-    await waitFor(() => expect(extract(result).hydrated).toBe(true));
+    await waitFor(() => expect(hydrated).toBe(true));
 
-    expect(extract(result).value).toBe(storedValue);
+    expect(value).toBe(storedValue);
     expect(mockGetUserSetting).toHaveBeenCalledTimes(1);
     expect(mockSetUserSetting).toHaveBeenCalledTimes(1);
   });
@@ -78,16 +82,20 @@ describe('useUserSetting', () => {
   it('updates user setting', async () => {
     const defaultValue = faker.datatype.boolean();
     const newValue = !defaultValue;
-    const { result } = renderHook(() =>
+    const {
+      result: {
+        current: [value, setValue, hydrated],
+      },
+    } = renderHook(() =>
       useUserSetting({ key: 'showProjectStatistics', defaultValue }),
     );
 
-    await waitFor(() => expect(extract(result).hydrated).toBe(true));
+    await waitFor(() => expect(hydrated).toBe(true));
     await act(async () => {
-      await extract(result).setValue(newValue);
+      await setValue(newValue);
     });
 
-    expect(extract(result).value).toBe(newValue);
+    expect(value).toBe(newValue);
     expect(mockGetUserSetting).toHaveBeenCalledTimes(1);
     expect(mockSetUserSetting).toHaveBeenCalledTimes(2);
   });

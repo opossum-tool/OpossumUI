@@ -13,7 +13,7 @@ import MuiRating from '@mui/material/Rating';
 import { isEqual } from 'lodash';
 import { useMemo } from 'react';
 
-import { PackageInfo } from '../../../shared/shared-types';
+import { Criticality, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -23,11 +23,12 @@ import {
   getExternalAttributionSources,
   getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
-} from '../../state/selectors/all-views-resource-selectors';
+} from '../../state/selectors/resource-selectors';
 import { getComparableAttributes } from '../../util/get-comparable-attributes';
 import { prettifySource } from '../../util/prettify-source';
 import { useUserSetting } from '../../util/use-user-setting';
 import {
+  CriticalityIcon,
   ExcludeFromNoticeIcon,
   FollowUpIcon,
   ModifiedPreferredIcon,
@@ -224,6 +225,18 @@ export function useAuditingOptions({
         interactive: false,
       },
       {
+        id: 'criticality',
+        label:
+          packageInfo.criticality === Criticality.High
+            ? text.auditingOptions.highCriticality
+            : text.auditingOptions.mediumCriticality,
+        icon: (
+          <CriticalityIcon noTooltip criticality={packageInfo.criticality} />
+        ),
+        selected: !!packageInfo.criticality,
+        interactive: false,
+      },
+      {
         id: 'confidence',
         label: text.auditingOptions.confidence,
         icon: (
@@ -272,6 +285,7 @@ export function useAuditingOptions({
       isPreferenceFeatureEnabled,
       originalPreferred,
       packageInfo.attributionConfidence,
+      packageInfo.criticality,
       packageInfo.excludeFromNotice,
       packageInfo.followUp,
       packageInfo.needsReview,

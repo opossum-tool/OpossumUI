@@ -19,6 +19,7 @@ import {
   ParsedFileContent,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
+import { ROOT_PATH } from '../../shared-constants';
 import {
   resetResourceState,
   setBaseUrlsForSources,
@@ -33,14 +34,12 @@ import {
   getFrequentLicensesTexts,
   getManualData,
   getResources,
-} from '../../state/selectors/all-views-resource-selectors';
+} from '../../state/selectors/resource-selectors';
 import {
   getAttributionsWithAllChildResourcesWithoutFolders,
   getAttributionsWithResources,
   removeSlashesFromFilesWithChildren,
 } from '../../util/get-attributions-with-resources';
-import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
-import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 
 export function BackendCommunication(): ReactElement | null {
@@ -94,13 +93,13 @@ export function BackendCommunication(): ReactElement | null {
         manualData.attributionsToResources,
         manualData.resourcesToAttributions,
         resources || {},
-        getAttributionBreakpointCheck(attributionBreakpoints),
-        getFileWithChildrenCheck(filesWithChildren),
+        attributionBreakpoints,
+        filesWithChildren,
       );
     const followUpAttributionsWithFormattedResources =
       removeSlashesFromFilesWithChildren(
         followUpAttributionsWithResources,
-        getFileWithChildrenCheck(filesWithChildren),
+        filesWithChildren,
       );
 
     window.electronAPI.exportFile({
@@ -156,7 +155,7 @@ export function BackendCommunication(): ReactElement | null {
     const bomAttributionsWithFormattedResources =
       removeSlashesFromFilesWithChildren(
         bomAttributionsWithResources,
-        getFileWithChildrenCheck(filesWithChildren),
+        filesWithChildren,
       );
 
     window.electronAPI.exportFile({
@@ -181,24 +180,6 @@ export function BackendCommunication(): ReactElement | null {
   ): void {
     if (resetState) {
       dispatch(resetResourceState());
-    }
-  }
-
-  function showSearchPopupListener(
-    _: IpcRendererEvent,
-    showSearchPopUp: boolean,
-  ): void {
-    if (showSearchPopUp) {
-      dispatch(openPopup(PopupType.FileSearchPopup));
-    }
-  }
-
-  function showLocatorPopupListener(
-    _: IpcRendererEvent,
-    showLocatePopUp: boolean,
-  ): void {
-    if (showLocatePopUp) {
-      dispatch(openPopup(PopupType.LocatorPopup));
     }
   }
 
@@ -246,7 +227,7 @@ export function BackendCommunication(): ReactElement | null {
       dispatch(
         setBaseUrlsForSources({
           ...baseUrlsForSources,
-          '/': baseURLForRootArgs.baseURLForRoot,
+          [ROOT_PATH]: baseURLForRootArgs.baseURLForRoot,
         }),
       );
     }
@@ -277,16 +258,6 @@ export function BackendCommunication(): ReactElement | null {
     AllowedFrontendChannels.Logging,
     (_, { date, level, message }) =>
       console[level](`${dayjs(date).format('HH:mm:ss.SSS')} ${message}`),
-    [dispatch],
-  );
-  useIpcRenderer(
-    AllowedFrontendChannels.ShowSearchPopup,
-    showSearchPopupListener,
-    [dispatch],
-  );
-  useIpcRenderer(
-    AllowedFrontendChannels.ShowLocatorPopup,
-    showLocatorPopupListener,
     [dispatch],
   );
   useIpcRenderer(

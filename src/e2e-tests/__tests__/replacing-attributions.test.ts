@@ -52,16 +52,12 @@ test.use({
   },
 });
 
-test('replaces attributions in attribution view', async ({
+test('replaces attributions', async ({
   attributionDetails,
   attributionList,
   replaceAttributionsPopup,
   resourceBrowser,
-  topBar,
 }) => {
-  await topBar.gotoAttributionView();
-  await resourceBrowser.assert.isHidden();
-
   await attributionList.attributionCard.click(packageInfo1);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo1,

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Resources } from '../../../../shared/shared-types';
-import { getPathsFromResources } from '../file-search-helpers';
+import { getPathsFromResources } from '../resources-helpers';
 
 describe('The getPathsFromResources function', () => {
   const testResources: Resources = {

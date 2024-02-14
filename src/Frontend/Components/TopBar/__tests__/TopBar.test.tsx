@@ -8,7 +8,6 @@ import { fireEvent, screen } from '@testing-library/react';
 import { setResources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import {
-  isAttributionViewSelected,
   isAuditViewSelected,
   isReportViewSelected,
 } from '../../../state/selectors/view-selector';
@@ -19,7 +18,7 @@ describe('TopBar', () => {
   it('renders an Open file icon', () => {
     const { store } = renderComponent(<TopBar />);
 
-    fireEvent.click(screen.queryByLabelText('open file') as Element);
+    fireEvent.click(screen.getByLabelText('open file'));
 
     expect(store.getState().resourceState).toMatchObject(initialResourceState);
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
@@ -28,19 +27,12 @@ describe('TopBar', () => {
   it('switches between views', () => {
     const { store } = renderComponent(<TopBar />);
 
-    fireEvent.click(screen.queryByText('Audit') as Element);
+    fireEvent.click(screen.getByText('Attribution'));
     expect(isAuditViewSelected(store.getState())).toBe(true);
-    expect(isAttributionViewSelected(store.getState())).toBe(false);
     expect(isReportViewSelected(store.getState())).toBe(false);
 
-    fireEvent.click(screen.queryByText('Attribution') as Element);
+    fireEvent.click(screen.getByText('Report'));
     expect(isAuditViewSelected(store.getState())).toBe(false);
-    expect(isAttributionViewSelected(store.getState())).toBe(true);
-    expect(isReportViewSelected(store.getState())).toBe(false);
-
-    fireEvent.click(screen.queryByText('Report') as Element);
-    expect(isAuditViewSelected(store.getState())).toBe(false);
-    expect(isAttributionViewSelected(store.getState())).toBe(false);
     expect(isReportViewSelected(store.getState())).toBe(true);
   });
 

@@ -223,6 +223,7 @@ export function serializeAttributions(
           count,
           followUp,
           id,
+          relation,
           resources,
           source,
           suffix,

@@ -9,10 +9,7 @@ import {
   ExternalAttributionSources,
   PackageInfo,
 } from '../../../shared/shared-types';
-import {
-  getContainedExternalPackages,
-  getContainedManualPackages,
-} from '../../util/get-contained-packages';
+import { getContainedAttributionCount } from '../../util/get-contained-attribution-count';
 import { generatePurl } from '../../util/handle-purl';
 
 export interface Props {
@@ -24,25 +21,27 @@ export interface Props {
 }
 
 export function getAutocompleteSignals({
-  externalData,
+  externalData: {
+    attributions,
+    resourcesToAttributions,
+    resourcesWithAttributedChildren,
+  },
   manualData,
   resolvedExternalAttributions,
   resourceId,
   sources,
 }: Props) {
-  const signalsOnResource = (
-    externalData.resourcesToAttributions[resourceId] || []
-  ).map((id) => externalData.attributions[id]);
-  const signalsOnChildren = getContainedExternalPackages(
-    resourceId,
-    externalData.resourcesWithAttributedChildren,
-    externalData.resourcesToAttributions,
-    resolvedExternalAttributions,
-  ).map(({ attributionId }) => externalData.attributions[attributionId]);
-  const attributionsOnChildren = getContainedManualPackages(
-    resourceId,
-    manualData,
-  ).map(({ attributionId }) => manualData.attributions[attributionId]);
+  const signalsOnResource = (resourcesToAttributions[resourceId] || []).map(
+    (id) => attributions[id],
+  );
+  const signalsOnChildren = Object.keys(
+    getContainedAttributionCount({
+      resourceId,
+      resourcesWithAttributedChildren,
+      resourcesToAttributions,
+      resolvedExternalAttributions,
+    }),
+  ).map((id) => attributions[id]);
 
   const getUniqueKey = (packageInfo: PackageInfo) =>
     compact([
@@ -55,9 +54,13 @@ export function getAutocompleteSignals({
   const signals = [
     ...signalsOnResource,
     ...signalsOnChildren,
-    ...attributionsOnChildren,
+    ...Object.values(manualData.attributions),
   ].reduce<Array<PackageInfo>>((acc, signal) => {
-    if (!generatePurl(signal) || signal.preferred) {
+    if (
+      !generatePurl(signal) ||
+      signal.preferred ||
+      resolvedExternalAttributions.has(signal.id)
+    ) {
       return acc;
     }
 

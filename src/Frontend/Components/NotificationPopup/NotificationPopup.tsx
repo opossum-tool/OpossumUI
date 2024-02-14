@@ -13,13 +13,7 @@ import { ReactElement } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 import { OpossumColors } from '../../shared-styles';
-import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 import { Button, ButtonProps } from '../Button/Button';
-
-const classes = {
-  content: { display: 'flex', flexDirection: 'column' },
-  fullHeightPaper: { height: '100%' },
-};
 
 interface NotificationPopupProps {
   header: string;
@@ -32,7 +26,6 @@ interface NotificationPopupProps {
   onEscapeKeyDown?(): void;
   isOpen: boolean;
   fullWidth?: boolean;
-  fullHeight?: boolean;
   headerSx?: SxProps;
   contentSx?: SxProps;
   'aria-label'?: string;
@@ -56,7 +49,6 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       PaperProps={{
         sx: {
           ...(props.width && { width: props.width }),
-          ...(props.fullHeight && classes.fullHeightPaper),
           ...(props.background && {
             background: OpossumColors[props.background],
           }),
@@ -69,12 +61,7 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       >
         {props.header}
       </MuiDialogTitle>
-      <MuiDialogContent
-        sx={getSxFromPropsAndClasses({
-          sxProps: props.contentSx,
-          styleClass: props.fullHeight ? classes.content : undefined,
-        })}
-      >
+      <MuiDialogContent sx={props.contentSx}>
         {typeof props.content === 'string' ? (
           <MuiDialogContentText>{props.content}</MuiDialogContentText>
         ) : (

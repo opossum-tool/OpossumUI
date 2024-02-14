@@ -98,7 +98,7 @@ export class AttributionDetails {
       exact: true,
     });
     this.compareButton = this.node.getByRole('button', {
-      name: text.buttons.compareToOriginal,
+      name: text.attributionColumn.compareToOriginal,
       exact: true,
     });
     this.showHideSignalButton = this.node.getByLabel('resolve attribution');

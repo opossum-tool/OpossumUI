@@ -17,16 +17,14 @@ SPDX-License-Identifier: CC0-1.0
    2. [Json files](#json_files)
    3. [Opening a file](#opening_a_file)
    4. [Search](#search)
-   5. [Locate signals](#locator)
-   6. [Project Metadata](#project_metadata)
-   7. [Project Statistics](#project_statistics)
-   8. [Exporting Formats](#exporting_formats)
-   9. [Attributions](#attributions)
-   10. [Top Bar](#top_bar)
-   11. [Audit View](#audit_view)
-   12. [Attribution View](#attribution_view)
-   13. [Report View](#report_view)
-   14. [Preferred Attributions](#preferred_attributions)
+   5. [Project Metadata](#project_metadata)
+   6. [Project Statistics](#project_statistics)
+   7. [Exporting Formats](#exporting_formats)
+   8. [Attributions](#attributions)
+   9. [Top Bar](#top_bar)
+   10. [Audit View](#audit_view)
+   11. [Report View](#report_view)
+   12. [Preferred Attributions](#preferred_attributions)
 
 ## How to get & run OpossumUI <a name="get_and_run_OpossumUI"></a>
 
@@ -74,30 +72,6 @@ _File_ menu with the same name).
 ![integration](./docs/user_guide_screenshots/open_file.png)
 
 If you try to open a _.json_ file, a popup will be shown which asks whether you would like to create a `.opossum` file and proceed (recommended) or continue working with the old format (two separate _.json_ files).
-
-### Search <a name="search"></a>
-
-To search for a path, press `CTRL + F` or open the `Edit` menu and select `Search for Files and Folders`.
-
-![integration](./docs/user_guide_screenshots/search.png)
-
-### Locate signals <a name="locator"></a>
-
-To locate signals, press `CTRL + L` or open the `Edit` menu and select `Locate Signals`. This will open the Locate Signals popup.
-From here, you can choose which signals you want to locate in the resource tree. You can search for signals by string, criticality
-or choose one or multiple existing license name(s). Once selected, the locations of matching signals will be highlighted in the resource tree.
-
-Note: When searching for matching resources, the input of the search field, the selected criticality and the selected
-license names are linked with **and**, while different license names in the license search field are linked with **or**.
-That is, when searching for a license name using the search field (and the checkbox) and additionally selecting
-another license name, only the resources matching the license name **and** the term in the search field will be highlighted
-while when searching for multiple license names, all resources matching **one of these** licenses will be highlighted.
-
-![integration](./docs/user_guide_screenshots/locator.png)
-
-You can also locate signals by license from the [Project Statistics](#project_statistics) popup, by clicking on the locator icon next to each license.
-
-![integration](./docs/user_guide_screenshots/locator_project_statistics.png)
 
 ### Project Metadata <a name="project_metadata"></a>
 
@@ -155,11 +129,11 @@ containing all 4 numbers. Clicking on the bar navigates to a file that has a sig
 
 Clicking the `Progress Bar Toggle` replaces the `Progress Bar` by the `Critical Signals Progress Bar`. The
 `Critical Signals Progress Bar` indicates how many files have a highly critical signal but no attribution (red),
-a medium critical signal but no attribution (orange) with respect to the total number of files not having an attribution.
+a critical signal but no attribution (orange) with respect to the total number of files not having an attribution.
 Hovering on the bar shows a tooltip containing all 4 numbers. Clicking on the bar navigates to a file that has a critical signal,
 but no attribution.
 
-The `View Switch` allows to change between the `Audit View`, the `Attribution View`, and the `Report View` (the views
+The `View Switch` allows to change between the `Audit View` and the `Report View` (the views
 are described in more detail in the respective sections).
 
 The app version is crucial to allow the development team to reproduce bugs: please always include it in
@@ -254,9 +228,7 @@ attribution can be added by clicking on the corresponding **+ icon**.
 
 #### Attribution Details Column
 
-The `Attribution Details Column` is used in the `Audit View` and in the `Attribution View` (see next section) to show
-details of the selected attribution and to edit and save the information of the selected attribution. Note that inferred
-attribution information and signals cannot be edited.
+The `Attribution Details Column` is used to show details of the selected attribution and to edit and save the information of the selected attribution. Note that inferred attribution information and signals cannot be edited.
 
 IMPORTANT: Some fields in the column have special meanings/behaviors:
 
@@ -298,36 +270,6 @@ the respective attribution.
 The `Attribution Details Column`, when a signal is selected, shows the _HIDE_ button. It can be used to hide the given
 signal in the App for the current input/output files, and it will not have any consequence in the DB. When clicking _HIDE_ for a merged signal, all individual signals that make up the merged signal are hidden.
 
-### Attribution View <a name="attribution_view"></a>
-
-![integration](./docs/user_guide_screenshots/attribution_view.png)
-
-In the `Attribution View` all attributions are listed and can be viewed and edited. The page is in structure similar to
-the `Audit View` and has two main components:
-
-- an `Attribution List` on the left,
-- a `Selected Attribution Panel` on the center right (shown only if an attribution has been selected from the list).
-
-#### Attribution List
-
-All existing attributions are listed and can be selected. **Pre-selected**
-attributions are signaled by an `P` icon. They can be confirmed, which converts them into attributions
-in all views and in the progress bar. However, that is not a requirement. **Pre-selected** and manual
-attributions are both written in the output file. On top there is an icon for opening the filter section. By clicking
-on it, a dropdown will be shown with filters that allows for filtering for attributions marked for follow-up, first
-party, third party, and other aspects. Additionally, the attribution view has a multi-select mode.
-
-#### Selected Attribution Panel
-
-The `Selected Attribution Panel` looks much like the `Selected Resource Panel`. The main differences are:
-
-- Only information for the **selected attribution** are shown, in a fashion almost identical to
-  the `Selected Resource Panel`. They are always editable.
-- The _SAVE_ and _Delete_ buttons allow saving/deleting the selected attribution. Note that the changes affect multiple
-  resources if the selected attribution is linked to multiple resources.
-- A `Resource List` shows the path of all resources linked to the selected attribution. Clicking on a path shows the
-  selected resource in the `Audit View`.
-
 ### Report View <a name="report_view"></a>
 
 ![integration](./docs/user_guide_screenshots/report_view.png)
@@ -336,7 +278,7 @@ In the `Report View` all attributions are shown in a table to provide an overvie
 filters that allows for filtering for attributions marked for follow-up, first party and not first party. The last two
 are mutually exclusive.
 
-Clicking on the _edit_ buttons in the _name_ columns, navigates to the respective attribution in the `attribution view`.
+Clicking on the _edit_ buttons in the _name_ columns, navigates to the respective attribution in the `audit view`.
 
 ### Preferred Attributions <a name="preferred_attributions"></a>
 

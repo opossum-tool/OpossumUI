@@ -15,9 +15,6 @@ test('provides expected functionality when no file is open', async ({
   await topBar.assert.modeButtonsAreVisible();
   await topBar.assert.auditViewIsActive();
 
-  await topBar.gotoAttributionView();
-  await topBar.assert.attributionViewIsActive();
-
   await topBar.gotoReportView();
   await topBar.assert.reportViewIsActive();
 });

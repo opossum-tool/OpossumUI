@@ -121,8 +121,8 @@ describe('getAttributionsWithAllChildResources', () => {
         testAttributionsToResources,
         testResourcesToAttributions,
         resources,
-        () => false,
-        () => false,
+        new Set(),
+        new Set(),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });
@@ -162,8 +162,8 @@ describe('getAttributionsWithAllChildResources', () => {
         testAttributionsToResources,
         testResourcesToAttributions,
         resources,
-        () => false,
-        () => false,
+        new Set(),
+        new Set(),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });
@@ -229,8 +229,8 @@ describe('getAttributionsWithAllChildResources', () => {
         testAttributionsToResources,
         testResourcesToAttributions,
         resources,
-        () => false,
-        () => false,
+        new Set(),
+        new Set(),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });
@@ -242,8 +242,8 @@ describe('getAttributionsWithAllChildResources', () => {
         {},
         {},
         {},
-        () => false,
-        () => false,
+        new Set(),
+        new Set(),
       ),
     ).toEqual({});
   });
@@ -298,8 +298,8 @@ describe('getAttributionsWithAllChildResources', () => {
         testAttributionsToResources,
         testResourcesToAttributions,
         resources,
-        (path) => path === '/folder/folder/folder/',
-        () => false,
+        new Set('/folder/folder/folder/'),
+        new Set(),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });
@@ -348,8 +348,8 @@ describe('getAttributionsWithAllChildResources', () => {
         testAttributionsToResources,
         testResourcesToAttributions,
         resources,
-        () => false,
-        (path) => path === '/fileWithChildren/',
+        new Set(),
+        new Set('/fileWithChildren/'),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });
@@ -399,8 +399,8 @@ describe('getAttributionsWithAllChildResources', () => {
           testAttributionsToResources,
           testResourcesToAttributions,
           resources,
-          () => false,
-          (path) => path === '/root/fileWithChildren/',
+          new Set(),
+          new Set(),
         ),
       ).toEqual(expectedAttributionsWithResources);
     },
@@ -437,7 +437,7 @@ describe('removeSlashesFromFilesWithChildren', () => {
     expect(
       removeSlashesFromFilesWithChildren(
         testAttributionsWithResources,
-        (path) => path === '/some/path3/',
+        new Set('/some/path3/'),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });

@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { render, screen } from '@testing-library/react';
+import { noop } from 'lodash';
 
-import { doNothing } from '../../../util/do-nothing';
 import { IconButton } from '../IconButton';
 
 describe('IconButton', () => {
@@ -14,7 +14,7 @@ describe('IconButton', () => {
         tooltipTitle={'Test'}
         tooltipPlacement="left"
         disabled={false}
-        onClick={doNothing}
+        onClick={noop}
         icon={<div>Test Icon</div>}
       />,
     );
@@ -29,7 +29,7 @@ describe('IconButton', () => {
         tooltipTitle={'Test'}
         tooltipPlacement="left"
         disabled={false}
-        onClick={doNothing}
+        onClick={noop}
         icon={<div>Test Icon</div>}
         hidden={false}
       />,
@@ -44,7 +44,7 @@ describe('IconButton', () => {
         tooltipTitle={'Test'}
         tooltipPlacement="left"
         disabled={false}
-        onClick={doNothing}
+        onClick={noop}
         icon={<div>Test Icon</div>}
         hidden={true}
       />,
@@ -59,7 +59,7 @@ describe('IconButton', () => {
         tooltipTitle={'Test'}
         tooltipPlacement="left"
         disabled={false}
-        onClick={doNothing}
+        onClick={noop}
         icon={<div>Test Icon</div>}
         hidden={true}
       />,

@@ -2,11 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { SxProps } from '@mui/material';
+import { TextFieldProps as MuiTextFieldProps, SxProps } from '@mui/material';
 import MuiChip from '@mui/material/Chip';
 import MuiFade from '@mui/material/Fade';
 import { IconButtonProps as MuiIconButtonProps } from '@mui/material/IconButton';
 import { TextFieldProps as MuiInputProps } from '@mui/material/TextField';
+import MuiTooltip from '@mui/material/Tooltip';
 import useMuiAutocomplete, {
   AutocompleteHighlightChangeReason,
   AutocompleteInputChangeReason,
@@ -45,6 +46,7 @@ type AutocompleteProps<
     | 'renderOptionStartIcon'
   > & {
     ['aria-label']?: string;
+    background?: string;
     endAdornment?: React.ReactNode | Array<React.ReactNode>;
     highlight?: 'default' | 'dark';
     inputProps?: MuiInputProps;
@@ -53,8 +55,12 @@ type AutocompleteProps<
       value: string,
       reason: AutocompleteInputChangeReason,
     ) => void;
+    placeholder?: string;
+    hidePopupIndicator?: boolean;
+    startAdornment?: React.ReactNode;
     sx?: SxProps;
-    title: string;
+    title?: string;
+    variant?: MuiTextFieldProps['variant'];
   };
 
 export function Autocomplete<
@@ -63,6 +69,7 @@ export function Autocomplete<
   DisableClearable extends boolean | undefined,
   FreeSolo extends boolean | undefined,
 >({
+  background,
   disableClearable,
   disableListWrap = true,
   disabled,
@@ -72,15 +79,19 @@ export function Autocomplete<
   getOptionLabel,
   groupBy,
   groupProps,
+  hidePopupIndicator,
   highlight,
   inputProps: customInputProps,
   multiple,
   optionText,
+  placeholder,
   readOnly,
   renderOptionEndIcon,
   renderOptionStartIcon,
+  startAdornment,
   sx,
   title,
+  variant = 'outlined',
   ...props
 }: AutocompleteProps<Value, Multiple, DisableClearable, FreeSolo>) {
   const [open, setOpen] = useState(false);
@@ -147,7 +158,7 @@ export function Autocomplete<
     groupedOptionsRef.current = groupedOptions as Array<Value>;
   }, [groupedOptions]);
 
-  const hasPopupIndicator = !freeSolo;
+  const hasPopupIndicator = !freeSolo && !hidePopupIndicator;
   const hasClearButton =
     !disableClearable && !disabled && !readOnly && containsValue;
   const isPopupOpen = !!groupedOptions.length && popupOpen;
@@ -159,12 +170,14 @@ export function Autocomplete<
       <Container
         aria-label={props['aria-label']}
         {...getRootProps()}
-        sx={sx}
         ref={setAnchorEl}
       >
         <Input
           {...inputProps}
           {...customInputProps}
+          background={background}
+          variant={variant}
+          placeholder={placeholder}
           disabled={disabled}
           label={title}
           highlight={highlight}
@@ -178,13 +191,21 @@ export function Autocomplete<
           size={'small'}
           InputLabelProps={getInputLabelProps()}
           inputRef={ref}
+          inputProps={{
+            sx: {
+              overflowX: 'hidden',
+              textOverflow: 'ellipsis',
+              '&::placeholder': {
+                opacity: 1,
+              },
+            },
+          }}
           InputProps={{
-            startAdornment: renderStartAdornment(),
+            startAdornment: startAdornment || renderStartAdornment(),
             endAdornment: renderEndAdornment(),
             readOnly,
-            inputProps: {
-              sx: { overflowX: 'hidden', textOverflow: 'ellipsis' },
-            },
+            sx,
+            ...(variant === 'filled' && { disableUnderline: true }),
           }}
           onKeyDown={(event) => {
             // https://github.com/mui/material-ui/issues/21129
@@ -207,14 +228,16 @@ export function Autocomplete<
       const label = getOptionLabel?.(option) ?? option;
 
       return (
-        <MuiChip
-          size={'small'}
-          key={key}
-          label={label}
-          {...tagProps}
-          onMouseDown={(event) => event.stopPropagation()}
-          data-testid={`tag-${label}`}
-        />
+        <MuiTooltip title={label} key={key}>
+          <MuiChip
+            size={'small'}
+            label={label}
+            {...tagProps}
+            onMouseDown={(event) => event.stopPropagation()}
+            data-testid={`tag-${label}`}
+            sx={{ cursor: 'default' }}
+          />
+        </MuiTooltip>
       );
     });
   }

@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { noop } from 'lodash';
 
 import {
   Attributions,
@@ -13,25 +12,25 @@ import {
   FrequentLicenses,
   PackageInfo,
   ResourcesToAttributions,
-  SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { AttributionType } from '../../../enums/enums';
 import {
-  setExternalData,
   setFrequentLicenses,
-  setManualData,
   setTemporaryDisplayPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
-import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
+import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
+import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import {
-  clickOnButton,
-  getParsedInputFileEnrichedWithTestData,
-} from '../../../test-helpers/general-test-helpers';
+  FILTERED_SIGNALS,
+  FilteredData,
+} from '../../../state/variables/use-filtered-data';
+import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { generatePurl } from '../../../util/handle-purl';
 import { AttributionColumn } from '../AttributionColumn';
@@ -52,22 +51,12 @@ describe('The AttributionColumn', () => {
       url: 'www.1999.com',
       id: faker.string.uuid(),
     } satisfies PackageInfo;
-    renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-      {
-        actions: [
-          setSelectedResourceId('test_id'),
-          setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
-        ],
-      },
-    );
+    renderComponent(<AttributionColumn />, {
+      actions: [
+        setSelectedResourceId('test_id'),
+        setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+      ],
+    });
 
     expect(
       screen.getByText(text.attributionColumn.packageSubPanel.confidence),
@@ -146,17 +135,9 @@ describe('The AttributionColumn', () => {
     const writeText = jest.fn();
     (navigator.clipboard as unknown) = { writeText };
     const packageInfo = faker.opossum.packageInfo();
-    renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-      { actions: [setTemporaryDisplayPackageInfo(packageInfo)] },
-    );
+    renderComponent(<AttributionColumn />, {
+      actions: [setTemporaryDisplayPackageInfo(packageInfo)],
+    });
 
     await userEvent.click(
       screen.getByLabelText(
@@ -173,16 +154,7 @@ describe('The AttributionColumn', () => {
     const purl = generatePurl(packageInfo);
     const readText = jest.fn().mockReturnValue(purl.toString());
     (navigator.clipboard as unknown) = { readText };
-    renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-    );
+    renderComponent(<AttributionColumn />);
 
     await userEvent.click(
       screen.getByLabelText(
@@ -207,22 +179,12 @@ describe('The AttributionColumn', () => {
       source: faker.opossum.source(),
       id: faker.string.uuid(),
     };
-    renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-      {
-        actions: [
-          setSelectedResourceId('test_id'),
-          setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
-        ],
-      },
-    );
+    renderComponent(<AttributionColumn />, {
+      actions: [
+        setSelectedResourceId('test_id'),
+        setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+      ],
+    });
 
     expect(
       screen.getByText(temporaryDisplayPackageInfo.source!.name),
@@ -237,19 +199,9 @@ describe('The AttributionColumn', () => {
       id: faker.string.uuid(),
     };
 
-    renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-      {
-        actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
-      },
-    );
+    renderComponent(<AttributionColumn />, {
+      actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
+    });
 
     expect(
       screen.getByText(temporaryDisplayPackageInfo.source!.additionalName!),
@@ -284,30 +236,20 @@ describe('The AttributionColumn', () => {
         [faker.opossum.folderPath(resourceName)]: [manualPackageInfo.id],
       });
 
-    renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-      {
-        actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              resources,
-              manualAttributions,
-              resourcesToManualAttributions,
-              externalAttributions,
-              resourcesToExternalAttributions,
-            }),
-          ),
-          setTemporaryDisplayPackageInfo(manualPackageInfo),
-        ],
-      },
-    );
+    renderComponent(<AttributionColumn />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources,
+            manualAttributions,
+            resourcesToManualAttributions,
+            externalAttributions,
+            resourcesToExternalAttributions,
+          }),
+        ),
+        setTemporaryDisplayPackageInfo(manualPackageInfo),
+      ],
+    });
 
     expect(
       screen.getByText(text.attributionColumn.originallyFrom + source.name),
@@ -315,16 +257,7 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a chip for follow-up', async () => {
-    const { store } = renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-    );
+    const { store } = renderComponent(<AttributionColumn />);
 
     expect(
       getTemporaryDisplayPackageInfo(store.getState()).followUp,
@@ -340,16 +273,7 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a chip for exclude from notice', async () => {
-    const { store } = renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-    );
+    const { store } = renderComponent(<AttributionColumn />);
 
     expect(
       getTemporaryDisplayPackageInfo(store.getState()).excludeFromNotice,
@@ -366,16 +290,7 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a chip for needs review', async () => {
-    const { store } = renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-    );
+    const { store } = renderComponent(<AttributionColumn />);
 
     expect(
       getTemporaryDisplayPackageInfo(store.getState()).needsReview,
@@ -403,43 +318,29 @@ describe('The AttributionColumn', () => {
     });
     const filePath = faker.opossum.filePath();
 
-    renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-      {
-        actions: [
-          setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
-          setManualData(
-            faker.opossum.attributions({
+    renderComponent(<AttributionColumn />, {
+      actions: [
+        setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions: faker.opossum.attributions({
               [temporaryDisplayPackageInfo.id]: temporaryDisplayPackageInfo,
             }),
-            faker.opossum.resourcesToAttributions({
-              [filePath]: [temporaryDisplayPackageInfo.id],
-            }),
-            faker.opossum.attributionsToResources({
-              [temporaryDisplayPackageInfo.id]: [filePath],
-            }),
-          ),
-          setExternalData(
-            faker.opossum.attributions({
+            resourcesToManualAttributions:
+              faker.opossum.resourcesToAttributions({
+                [filePath]: [temporaryDisplayPackageInfo.id],
+              }),
+            externalAttributions: faker.opossum.attributions({
               [packageInfo.id]: packageInfo,
             }),
-            faker.opossum.resourcesToAttributions({
-              [filePath]: [packageInfo.id],
-            }),
-            faker.opossum.attributionsToResources({
-              [packageInfo.id]: [filePath],
-            }),
-          ),
-        ],
-      },
-    );
+            resourcesToExternalAttributions:
+              faker.opossum.resourcesToAttributions({
+                [filePath]: [packageInfo.id],
+              }),
+          }),
+        ),
+      ],
+    });
 
     expect(
       screen.getByText(text.auditingOptions.modifiedPreferred),
@@ -451,19 +352,9 @@ describe('The AttributionColumn', () => {
       url: 'https://www.testurl.com/',
       id: faker.string.uuid(),
     };
-    renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-      {
-        actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
-      },
-    );
+    renderComponent(<AttributionColumn />, {
+      actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
+    });
 
     expect(screen.getByLabelText('Url icon')).toBeInTheDocument();
     clickGoToLinkIcon(screen, 'Url icon');
@@ -477,19 +368,9 @@ describe('The AttributionColumn', () => {
       url: 'www.testurl.com',
       id: faker.string.uuid(),
     };
-    renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-      {
-        actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
-      },
-    );
+    renderComponent(<AttributionColumn />, {
+      actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
+    });
 
     clickGoToLinkIcon(screen, 'Url icon');
     expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
@@ -502,19 +383,9 @@ describe('The AttributionColumn', () => {
       url: '',
       id: faker.string.uuid(),
     };
-    renderComponent(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-      {
-        actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
-      },
-    );
+    renderComponent(<AttributionColumn />, {
+      actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
+    });
 
     expect(screen.queryByLabelText('Url icon')).not.toBeInTheDocument();
   });
@@ -525,21 +396,9 @@ describe('The AttributionColumn', () => {
         packageName: 'jQuery',
         id: faker.string.uuid(),
       };
-      renderComponent(
-        <AttributionColumn
-          isEditable={true}
-          onSaveButtonClick={noop}
-          onSaveGloballyButtonClick={noop}
-          saveFileRequestListener={noop}
-          onDeleteButtonClick={noop}
-          onDeleteGloballyButtonClick={noop}
-        />,
-        {
-          actions: [
-            setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
-          ],
-        },
-      );
+      renderComponent(<AttributionColumn />, {
+        actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
+      });
 
       expect(
         screen.getByLabelText(
@@ -549,7 +408,7 @@ describe('The AttributionColumn', () => {
     });
 
     it('shows shortened text if not editable and frequent license', () => {
-      const temporaryDisplayPackageInfo: PackageInfo = {
+      const packageInfo: PackageInfo = {
         packageName: 'jQuery',
         licenseName: 'Mit',
         id: faker.string.uuid(),
@@ -558,22 +417,22 @@ describe('The AttributionColumn', () => {
         nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
         texts: { MIT: 'text' },
       };
-      renderComponent(
-        <AttributionColumn
-          isEditable={false}
-          onSaveButtonClick={noop}
-          onSaveGloballyButtonClick={noop}
-          saveFileRequestListener={noop}
-          onDeleteButtonClick={noop}
-          onDeleteGloballyButtonClick={noop}
-        />,
-        {
-          actions: [
-            setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
-            setFrequentLicenses(frequentLicenses),
-          ],
-        },
-      );
+      renderComponent(<AttributionColumn />, {
+        actions: [
+          setTemporaryDisplayPackageInfo(packageInfo),
+          setFrequentLicenses(frequentLicenses),
+          setSelectedAttributionId(packageInfo.id),
+          setVariable<FilteredData>(FILTERED_SIGNALS, {
+            attributions: { [packageInfo.id]: packageInfo },
+            counts: {},
+            filters: [],
+            loading: false,
+            search: '',
+            selectedLicense: '',
+            sorting: text.sortings.name,
+          }),
+        ],
+      });
 
       expect(
         screen.getByLabelText('Standard license text implied.'),
@@ -590,22 +449,12 @@ describe('The AttributionColumn', () => {
         nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
         texts: { MIT: 'text' },
       };
-      renderComponent(
-        <AttributionColumn
-          isEditable={true}
-          onSaveButtonClick={noop}
-          onSaveGloballyButtonClick={noop}
-          saveFileRequestListener={noop}
-          onDeleteButtonClick={noop}
-          onDeleteGloballyButtonClick={noop}
-        />,
-        {
-          actions: [
-            setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
-            setFrequentLicenses(frequentLicenses),
-          ],
-        },
-      );
+      renderComponent(<AttributionColumn />, {
+        actions: [
+          setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+          setFrequentLicenses(frequentLicenses),
+        ],
+      });
 
       expect(
         screen.getByLabelText(
@@ -617,16 +466,7 @@ describe('The AttributionColumn', () => {
 
   describe('while changing the first party value', () => {
     it('sets first party flag and hides third party inputs when choosing first party', async () => {
-      const { store } = renderComponent(
-        <AttributionColumn
-          isEditable={true}
-          onSaveButtonClick={noop}
-          onSaveGloballyButtonClick={noop}
-          saveFileRequestListener={noop}
-          onDeleteButtonClick={noop}
-          onDeleteGloballyButtonClick={noop}
-        />,
-      );
+      const { store } = renderComponent(<AttributionColumn />);
 
       expect(
         getTemporaryDisplayPackageInfo(store.getState()).copyright,
@@ -645,39 +485,34 @@ describe('The AttributionColumn', () => {
   });
 
   describe('The ResolveButton', () => {
-    it('saves resolved external attributions', () => {
-      const temporaryDisplayPackageInfo: PackageInfo = {
-        id: faker.string.uuid(),
-      };
-      const expectedSaveFileArgs: SaveFileArgs = {
-        manualAttributions: {},
-        resolvedExternalAttributions: new Set<string>().add(
-          temporaryDisplayPackageInfo.id,
-        ),
-        resourcesToAttributions: {},
-      };
-      renderComponent(
-        <AttributionColumn
-          isEditable={true}
-          onSaveButtonClick={noop}
-          onSaveGloballyButtonClick={noop}
-          saveFileRequestListener={noop}
-          onDeleteButtonClick={noop}
-          onDeleteGloballyButtonClick={noop}
-          showHideButton
-        />,
-        {
-          actions: [
-            setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
-          ],
-        },
+    it('saves resolved external attributions', async () => {
+      const packageInfo = faker.opossum.packageInfo();
+      renderComponent(<AttributionColumn />, {
+        actions: [
+          setTemporaryDisplayPackageInfo(packageInfo),
+          setSelectedAttributionId(packageInfo.id),
+          setVariable<FilteredData>(FILTERED_SIGNALS, {
+            attributions: { [packageInfo.id]: packageInfo },
+            counts: {},
+            filters: [],
+            loading: false,
+            search: '',
+            selectedLicense: '',
+            sorting: text.sortings.name,
+          }),
+        ],
+      });
+
+      await userEvent.click(
+        screen.getByRole('button', { name: text.attributionColumn.delete }),
       );
 
-      clickOnButton(screen, 'resolve attribution');
       expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-      expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-        expectedSaveFileArgs,
-      );
+      expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
+        manualAttributions: {},
+        resolvedExternalAttributions: new Set<string>().add(packageInfo.id),
+        resourcesToAttributions: {},
+      });
     });
   });
 });

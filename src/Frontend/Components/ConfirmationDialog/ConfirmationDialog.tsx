@@ -10,7 +10,7 @@ import {
   useState,
 } from 'react';
 
-import { ButtonText } from '../../enums/enums';
+import { text } from '../../../shared/text';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export interface ConfirmOptions {
@@ -118,12 +118,12 @@ export const ConfirmationDialog = forwardRef<Confirm, ConfirmationDialogProps>(
         header={title}
         isOpen={open}
         rightButtonConfig={{
-          buttonText: ButtonText.Cancel,
+          buttonText: text.buttons.cancel,
           color: 'secondary',
           onClick: () => resolveRef.current?.(false),
         }}
         centerLeftButtonConfig={{
-          buttonText: ButtonText.Ok,
+          buttonText: text.buttons.ok,
           onClick: () => resolveRef.current?.(true),
         }}
         aria-label={'confirmation dialog'}

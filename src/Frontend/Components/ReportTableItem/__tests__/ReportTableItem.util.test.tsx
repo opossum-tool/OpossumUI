@@ -5,7 +5,7 @@
 import { PackageInfo } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { isImportantAttributionInformationMissing } from '../../../util/is-important-attribution-information-missing';
-import { TableConfig } from '../../Table/TableConfig';
+import { TableConfig } from '../../ReportView/TableConfig';
 import { getFormattedCellData } from '../ReportTableItem.util';
 
 describe('The table helpers', () => {
@@ -13,6 +13,7 @@ describe('The table helpers', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'attributionConfidence',
       displayName: 'confidence',
+      width: '100px',
     };
     const testAttributionInfo: PackageInfo = {
       resources: ['a', 'b'],
@@ -25,6 +26,7 @@ describe('The table helpers', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'firstParty',
       displayName: 'First Party',
+      width: '100px',
     };
     const testAttributionInfo1: PackageInfo = {
       firstParty: true,
@@ -61,6 +63,7 @@ describe('The table helpers', () => {
       const testTableConfig: TableConfig = {
         attributionProperty: 'followUp',
         displayName: 'Follow-up',
+        width: '100px',
       };
 
       const testAttributionInfo: PackageInfo = {
@@ -87,6 +90,7 @@ describe('The table helpers', () => {
       const testTableConfig: TableConfig = {
         attributionProperty: property,
         displayName: 'Follow-up',
+        width: '100px',
       };
 
       let testAttributionInfo: PackageInfo = {
@@ -133,6 +137,7 @@ describe('The table helpers', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'licenseName',
       displayName: 'Unimportant',
+      width: '100px',
     };
 
     let testAttributionInfo: PackageInfo = {

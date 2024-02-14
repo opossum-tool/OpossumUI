@@ -19,7 +19,7 @@ describe('getAutocompleteSignals', () => {
     const packageInfo3 = faker.opossum.packageInfo();
 
     const signals = getAutocompleteSignals({
-      externalData: faker.opossum.externalAttributionData({
+      externalData: faker.opossum.attributionData({
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
           [faker.opossum.folderPath(resourceName1)]: [packageInfo1.id],
           [faker.opossum.filePath(resourceName1, resourceName2)]: [
@@ -52,7 +52,7 @@ describe('getAutocompleteSignals', () => {
             ],
           }),
       }),
-      manualData: faker.opossum.manualAttributionData(),
+      manualData: faker.opossum.attributionData(),
       resolvedExternalAttributions: new Set(),
       resourceId: faker.opossum.folderPath(resourceName1),
       sources: faker.opossum.externalAttributionSources(),
@@ -73,7 +73,7 @@ describe('getAutocompleteSignals', () => {
     });
 
     const signals = getAutocompleteSignals({
-      externalData: faker.opossum.externalAttributionData({
+      externalData: faker.opossum.attributionData({
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
           [faker.opossum.folderPath(resourceName1)]: [packageInfo1.id],
           [faker.opossum.filePath(resourceName1, resourceName2)]: [
@@ -98,7 +98,7 @@ describe('getAutocompleteSignals', () => {
             ],
           }),
       }),
-      manualData: faker.opossum.manualAttributionData(),
+      manualData: faker.opossum.attributionData(),
       resolvedExternalAttributions: new Set(),
       resourceId: faker.opossum.folderPath(resourceName1),
       sources: faker.opossum.externalAttributionSources(),
@@ -116,7 +116,7 @@ describe('getAutocompleteSignals', () => {
     const packageInfo2 = faker.opossum.packageInfo();
 
     const signals = getAutocompleteSignals({
-      externalData: faker.opossum.externalAttributionData({
+      externalData: faker.opossum.attributionData({
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
           [faker.opossum.folderPath(resourceName1)]: [packageInfo1.id],
           [faker.opossum.filePath(resourceName1, resourceName2)]: [
@@ -147,7 +147,7 @@ describe('getAutocompleteSignals', () => {
             ],
           }),
       }),
-      manualData: faker.opossum.manualAttributionData(),
+      manualData: faker.opossum.attributionData(),
       resolvedExternalAttributions: new Set(),
       resourceId: faker.opossum.folderPath(resourceName1),
       sources: faker.opossum.externalAttributionSources(),
@@ -172,7 +172,7 @@ describe('getAutocompleteSignals', () => {
     });
 
     const signals = getAutocompleteSignals({
-      externalData: faker.opossum.externalAttributionData({
+      externalData: faker.opossum.attributionData({
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
           [faker.opossum.folderPath(resourceName1)]: [packageInfo1.id],
           [faker.opossum.filePath(resourceName1, resourceName2)]: [
@@ -198,7 +198,7 @@ describe('getAutocompleteSignals', () => {
             ],
           }),
       }),
-      manualData: faker.opossum.manualAttributionData(),
+      manualData: faker.opossum.attributionData(),
       resolvedExternalAttributions: new Set(),
       resourceId: faker.opossum.folderPath(resourceName1),
       sources: faker.opossum.externalAttributionSources(),
@@ -225,7 +225,7 @@ describe('getAutocompleteSignals', () => {
     });
 
     const signals = getAutocompleteSignals({
-      externalData: faker.opossum.externalAttributionData({
+      externalData: faker.opossum.attributionData({
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
           [faker.opossum.folderPath(resourceName1)]: [packageInfo1.id],
           [faker.opossum.filePath(resourceName1, resourceName2)]: [
@@ -251,7 +251,7 @@ describe('getAutocompleteSignals', () => {
             ],
           }),
       }),
-      manualData: faker.opossum.manualAttributionData(),
+      manualData: faker.opossum.attributionData(),
       resolvedExternalAttributions: new Set(),
       resourceId: faker.opossum.folderPath(resourceName1),
       sources: faker.opossum.externalAttributionSources({

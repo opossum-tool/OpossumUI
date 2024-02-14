@@ -2,190 +2,116 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import WestRoundedIcon from '@mui/icons-material/WestRounded';
-import remove from 'lodash/remove';
-import { ReactElement } from 'react';
+import { useMemo } from 'react';
 
-import { Resources } from '../../../shared/shared-types';
-import { PopupType } from '../../enums/enums';
+import { text } from '../../../shared/text';
+import { getPathsFromResources } from '../../state/helpers/resources-helpers';
+import { useAppSelector } from '../../state/hooks';
 import {
-  OpossumColors,
-  TREE_ROOT_FOLDER_LABEL,
-  TREE_ROW_HEIGHT,
-  treeClasses,
-} from '../../shared-styles';
-import { setSelectedResourceIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { setExpandedIds } from '../../state/actions/resource-actions/audit-view-simple-actions';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getAttributionBreakpoints,
-  getExternalData,
-  getFilesWithChildren,
-  getManualAttributions,
+  getResourceIdsOfSelectedAttribution,
   getResources,
-  getResourcesToExternalAttributions,
-  getResourcesToManualAttributions,
-  getResourcesWithExternalAttributedChildren,
-  getResourcesWithLocatedAttributions,
-  getResourcesWithManualAttributedChildren,
-} from '../../state/selectors/all-views-resource-selectors';
-import {
-  getExpandedIds,
-  getResolvedExternalAttributions,
-  getSelectedResourceId,
-} from '../../state/selectors/audit-view-resource-selectors';
-import { isLocateSignalActive } from '../../state/selectors/locate-popup-selectors';
-import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
-import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { IconButton } from '../IconButton/IconButton';
-import { LocateSignalsIcon } from '../Icons/Icons';
-import { VirtualizedTree } from '../VirtualizedTree/VirtualizedTree';
-import { getResourceBrowserTreeItemLabel } from './get-resource-browser-tree-item-label';
+} from '../../state/selectors/resource-selectors';
+import { useIsSelectedAttributionVisible } from '../../state/variables/use-filtered-data';
+import { useVariable } from '../../state/variables/use-variable';
+import { useDebouncedInput } from '../../util/use-debounced-input';
+import { usePanelSizes } from '../../util/use-panel-sizes';
+import { ResizePanels } from '../ResizePanels/ResizePanels';
+import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
+import { Panel, SearchInput } from './ResourceBrowser.style';
+import { ResourcesTree } from './ResourcesTree/ResourcesTree';
 
-const classes = {
-  locatorIconContainer: {
-    margin: '4px',
-    position: 'absolute',
-    top: 5,
-    right: 15,
-    zIndex: 1,
-  },
-  locatorIcon: {
-    padding: '2px',
-    color: OpossumColors.darkBlue,
-    '&:hover': {
-      background: OpossumColors.middleBlue,
-    },
-  },
-  locatedResourceIcon: {
-    marginLeft: '10px',
-    stroke: OpossumColors.darkBlue,
-    fontSize: '20px',
-  },
-  tree: {
-    background: OpossumColors.white,
-    height: '100%',
-    position: 'relative',
-  },
-};
+const ALL_RESOURCES_SEARCH = 'all-resources-search';
+const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
 
-export function ResourceBrowser(): ReactElement | null {
+export function ResourceBrowser() {
+  const resourceIdsOfSelectedAttribution = useAppSelector(
+    getResourceIdsOfSelectedAttribution,
+  );
   const resources = useAppSelector(getResources);
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const expandedIds = useAppSelector(getExpandedIds);
-
-  const manualAttributions = useAppSelector(getManualAttributions);
-  const resourcesToManualAttributions = useAppSelector(
-    getResourcesToManualAttributions,
-  );
-  const resourcesWithManualAttributedChildren = useAppSelector(
-    getResourcesWithManualAttributedChildren,
+  const allPaths = useMemo(
+    () => getPathsFromResources(resources ?? {}),
+    [resources],
   );
 
-  const resourcesToExternalAttributions = useAppSelector(
-    getResourcesToExternalAttributions,
+  const isSelectedAttributionVisible = useIsSelectedAttributionVisible();
+
+  const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
+  const [searchLinked, setSearchLinked] = useVariable(
+    LINKED_RESOURCES_SEARCH,
+    '',
   );
-  const resourcesWithExternalAttributedChildren = useAppSelector(
-    getResourcesWithExternalAttributedChildren,
+  const debouncedSearchAll = useDebouncedInput(searchAll);
+  const debouncedSearchLinked = useDebouncedInput(searchLinked);
+  const {
+    resourceBrowserWidth,
+    setResourceBrowserWidth,
+    linkedResourcesPanelHeight,
+    setLinkedResourcesPanelHeight,
+  } = usePanelSizes();
+
+  const allResourcesFiltered = useMemo(
+    () =>
+      allPaths.filter((path) =>
+        path.toLowerCase().includes(debouncedSearchAll),
+      ),
+    [allPaths, debouncedSearchAll],
   );
-  const resolvedExternalAttributions = useAppSelector(
-    getResolvedExternalAttributions,
+  const linkedResourcesFiltered = useMemo(
+    () =>
+      isSelectedAttributionVisible
+        ? resourceIdsOfSelectedAttribution.filter((path) =>
+            path.toLowerCase().includes(debouncedSearchLinked),
+          )
+        : [],
+    [
+      isSelectedAttributionVisible,
+      resourceIdsOfSelectedAttribution,
+      debouncedSearchLinked,
+    ],
   );
 
-  const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
-  const filesWithChildren = useAppSelector(getFilesWithChildren);
-  const externalData = useAppSelector(getExternalData);
-  const dispatch = useAppDispatch();
-
-  function handleToggle(nodeIdsToExpand: Array<string>): void {
-    let newExpandedNodeIds = [...expandedIds];
-    if (expandedIds.includes(nodeIdsToExpand[0])) {
-      remove(newExpandedNodeIds, (nodeId: string): boolean =>
-        nodeId.startsWith(nodeIdsToExpand[0]),
-      );
-    } else {
-      newExpandedNodeIds = newExpandedNodeIds.concat(nodeIdsToExpand);
-    }
-    dispatch(setExpandedIds(newExpandedNodeIds));
-  }
-
-  function handleSelect(_: React.ChangeEvent<unknown>, nodeId: string): void {
-    dispatch(setSelectedResourceIdOrOpenUnsavedPopup(nodeId));
-  }
-
-  function getTreeItemLabelGetter() {
-    return (
-      resourceName: string,
-      resource: Resources | 1,
-      nodeId: string,
-    ): ReactElement =>
-      getResourceBrowserTreeItemLabel(
-        resourceName,
-        resource,
-        nodeId,
-        resourcesToManualAttributions,
-        resourcesToExternalAttributions,
-        manualAttributions,
-        resourcesWithExternalAttributedChildren,
-        resourcesWithManualAttributedChildren,
-        resolvedExternalAttributions,
-        getAttributionBreakpointCheck(attributionBreakpoints),
-        getFileWithChildrenCheck(filesWithChildren),
-        externalData,
-      );
-  }
-
-  const locateSignalActive = useAppSelector(isLocateSignalActive);
-  const locatorIcon = locateSignalActive ? (
-    <IconButton
-      iconSx={classes.locatorIcon}
-      containerSx={classes.locatorIconContainer}
-      tooltipTitle="locate active"
-      tooltipPlacement="right"
-      onClick={(): void => {
-        dispatch(openPopup(PopupType.LocatorPopup));
+  return (
+    <ResizePanels
+      main={'upper'}
+      width={resourceBrowserWidth}
+      height={linkedResourcesPanelHeight}
+      setWidth={setResourceBrowserWidth}
+      setHeight={setLinkedResourcesPanelHeight}
+      upperPanel={{
+        component: (
+          <Panel>
+            <SearchInput
+              onInputChange={setSearchAll}
+              search={searchAll}
+              placeholder={text.resourceBrowser.searchAllPlaceholder}
+            />
+            <ResourcesTree
+              resourceIds={allResourcesFiltered}
+              sx={{ height: 'calc(100% - 36px)' }}
+            />
+          </Panel>
+        ),
+        title: text.resourceBrowser.allResources(allResourcesFiltered.length),
       }}
-      icon={<LocateSignalsIcon />}
-    />
-  ) : undefined;
-  const resourcesWithLocatedAttributions = useAppSelector(
-    getResourcesWithLocatedAttributions,
-  );
-
-  const locatedResourceIcon = (
-    <WestRoundedIcon
-      sx={classes.locatedResourceIcon}
-      aria-label={'located attribution'}
-    />
-  );
-
-  return resources ? (
-    <VirtualizedTree
-      expandedIds={expandedIds}
-      isFakeNonExpandableNode={getFileWithChildrenCheck(filesWithChildren)}
-      onSelect={handleSelect}
-      onToggle={handleToggle}
-      nodes={{ [TREE_ROOT_FOLDER_LABEL]: resources }}
-      selectedNodeId={selectedResourceId}
-      getTreeNodeLabel={getTreeItemLabelGetter()}
-      breakpoints={attributionBreakpoints}
-      cardHeight={TREE_ROW_HEIGHT}
-      sx={classes.tree}
-      treeNodeStyle={{
-        root: treeClasses.treeItemLabel,
-        childrenOfSelected: treeClasses.treeItemLabelChildrenOfSelected,
-        selected: treeClasses.treeItemLabelSelected,
-        treeExpandIcon: treeClasses.treeExpandIcon,
+      lowerPanel={{
+        component: (
+          <Panel>
+            <SearchInput
+              onInputChange={setSearchLinked}
+              search={searchLinked}
+              placeholder={text.resourceBrowser.searchLinkedPlaceholder}
+            />
+            <LinkedResourcesTree
+              resourceIds={linkedResourcesFiltered}
+              sx={{ height: 'calc(100% - 36px)' }}
+            />
+          </Panel>
+        ),
+        title: text.resourceBrowser.linkedResources(
+          linkedResourcesFiltered.length,
+        ),
+        hidden: !resourceIdsOfSelectedAttribution.length,
       }}
-      locatorIcon={locatorIcon}
-      locatedResourceIcon={locatedResourceIcon}
-      locatedResources={resourcesWithLocatedAttributions.locatedResources}
-      resourcesWithLocatedChildren={
-        resourcesWithLocatedAttributions.resourcesWithLocatedChildren
-      }
-      resizable
-      width={300}
     />
-  ) : null;
+  );
 }

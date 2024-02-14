@@ -22,7 +22,7 @@ import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../IconButton/IconButton';
-import { TextBox } from '../InputElements/TextBox';
+import { TextBox } from '../TextBox/TextBox';
 import { toast } from '../Toaster';
 import { AttributionFormConfig } from './AttributionForm';
 import { PackageAutocomplete } from './PackageAutocomplete';

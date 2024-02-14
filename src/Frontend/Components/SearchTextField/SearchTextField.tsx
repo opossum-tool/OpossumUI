@@ -2,73 +2,47 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import ClearIcon from '@mui/icons-material/Clear';
 import { InputAdornment, SxProps } from '@mui/material';
-import MuiTextField from '@mui/material/TextField';
-import { ReactElement } from 'react';
 
-import { OpossumColors } from '../../shared-styles';
-import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
-import { inputElementClasses } from '../InputElements/shared';
-
-const classes = {
-  searchField: {
-    marginTop: '8px',
-    '& div': {
-      borderRadius: '0px',
-    },
-    '& input[type=search]::-webkit-search-cancel-button': { display: 'none' },
-  },
-  startAdornment: {
-    width: '20px',
-    color: OpossumColors.grey,
-  },
-  endAdornment: {
-    width: '20px',
-    color: OpossumColors.grey,
-    '&:hover': {
-      color: OpossumColors.darkBlue,
-      cursor: 'pointer',
-    },
-  },
-};
+import { text } from '../../../shared/text';
+import { ClearButton } from '../ClearButton/ClearButton';
+import { Input } from './SearchTextField.style';
 
 interface SearchTextFieldProps {
+  className?: string;
   onInputChange(search: string): void;
+  placeholder?: string;
   search: string;
-  autoFocus?: boolean;
   sx?: SxProps;
 }
 
-export function SearchTextField(props: SearchTextFieldProps): ReactElement {
+export function SearchTextField({
+  className,
+  onInputChange,
+  placeholder = text.buttons.search,
+  search,
+  sx,
+}: SearchTextFieldProps) {
   return (
-    <MuiTextField
-      label="Search"
-      type="search"
-      variant="outlined"
-      autoFocus={props.autoFocus ?? false}
-      size="small"
-      sx={getSxFromPropsAndClasses({
-        styleClass: {
-          ...classes.searchField,
-          ...inputElementClasses.textField,
-        },
-        sxProps: props.sx,
-      })}
-      value={props.search}
-      fullWidth={true}
-      onChange={(event): void => props.onInputChange(event.target.value)}
-      InputProps={{
-        endAdornment: props.search ? (
+    <Input
+      placeholder={placeholder}
+      className={className}
+      type={'search'}
+      size={'small'}
+      value={search}
+      fullWidth
+      onChange={(event) => onInputChange(event.target.value)}
+      endAdornment={
+        search ? (
           <InputAdornment position="end">
-            <ClearIcon
-              onClick={(): void => props.onInputChange('')}
-              sx={classes.endAdornment}
+            <ClearButton
+              onClick={() => onInputChange('')}
               aria-label={'clear search'}
             />
           </InputAdornment>
-        ) : undefined,
-      }}
+        ) : undefined
+      }
+      sx={sx}
     />
   );
 }

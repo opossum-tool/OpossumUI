@@ -10,7 +10,6 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { PackagePanelTitle } from '../../../enums/enums';
 import {
   getAttributionsToResources,
   getParsedInputFileEnrichedWithTestData,
@@ -19,13 +18,10 @@ import {
   setManualData,
   setTemporaryDisplayPackageInfo,
 } from '../../actions/resource-actions/all-views-simple-actions';
-import {
-  setDisplayedPackage,
-  setSelectedResourceId,
-} from '../../actions/resource-actions/audit-view-simple-actions';
+import { setSelectedResourceId } from '../../actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { createAppStore } from '../../configure-store';
-import { wereTemporaryDisplayPackageInfoModified } from '../all-views-resource-selectors';
+import { getIsPackageInfoModified } from '../resource-selectors';
 
 describe('wereTemporaryDisplayPackageInfoModified', () => {
   const testResources: Resources = {
@@ -83,16 +79,12 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
       ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
     testStore.dispatch(
       setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
 
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
   });
 
   it('returns true  when confidence is changed', () => {
@@ -112,16 +104,12 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
       ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
     testStore.dispatch(
       setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
 
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
   });
 
   it('returns true when attribution is created', () => {
@@ -130,9 +118,7 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
       loadFromFile(getParsedInputFileEnrichedWithTestData(testResources)),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
     testStore.dispatch(
       setTemporaryDisplayPackageInfo({
         attributionConfidence: DiscreteConfidence.Low,
@@ -140,9 +126,7 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
         id: faker.string.uuid(),
       }),
     );
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
   });
 
   it('returns false when TemporaryDisplayPackageInfo have not been modified', () => {
@@ -163,18 +147,9 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(
-      setDisplayedPackage({
-        panel: PackagePanelTitle.ManualPackages,
-        packageCardId: 'Attributions-0',
-        displayPackageInfo: testTemporaryDisplayPackageInfo,
-      }),
-    );
-    testStore.dispatch(
       setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
 
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
   });
 });

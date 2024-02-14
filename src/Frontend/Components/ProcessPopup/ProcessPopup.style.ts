@@ -3,19 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Typography } from '@mui/material';
+import MuiDialogContent from '@mui/material/DialogContent';
 import { styled } from '@mui/system';
 
-export const MessageContainer = styled('div')({
-  display: 'flex',
-  alignItems: 'flex-start',
-  gap: '8px',
-  paddingBottom: '4px',
-});
-
-export const MetaContainer = styled('div')({
-  display: 'flex',
-  gap: '8px',
-  alignItems: 'center',
+export const DialogContent = styled(MuiDialogContent)({
+  display: 'grid',
+  gridTemplateColumns: '24px 80px 1fr',
+  gridTemplateRows: 'repeat(auto-fill, 1fr)',
+  columnGap: '8px',
+  rowGap: '4px',
 });
 
 export const BreakableTypography = styled(Typography)({

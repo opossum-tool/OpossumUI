@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Button } from '@mui/material';
 import { screen } from '@testing-library/react';
 import { ReactElement } from 'react';
 
@@ -27,11 +26,10 @@ describe('The VirtualizedTree', () => {
     docs: { 'readme.md': 1 },
   };
 
-  it('renders VirtualizedTree, no locator icon', () => {
+  it('renders VirtualizedTree', () => {
     renderComponent(
       <VirtualizedTree
         expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', 'docs/']}
-        isFakeNonExpandableNode={(path: string): boolean => Boolean(path)}
         onSelect={(): void => {}}
         onToggle={(): void => {}}
         nodes={testNodes}
@@ -40,7 +38,6 @@ describe('The VirtualizedTree', () => {
           <div>{nodeName || '/'}</div>
         )}
         breakpoints={new Set()}
-        cardHeight={20}
       />,
     );
 
@@ -58,31 +55,5 @@ describe('The VirtualizedTree', () => {
     ]) {
       expect(screen.getByText(label)).toBeInTheDocument();
     }
-
-    expect(
-      screen.queryByLabelText('locate attributions'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders VirtualizedTree with the locator icon', () => {
-    const locatorIcon = <Button aria-label={'locator icon'} />;
-    renderComponent(
-      <VirtualizedTree
-        expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', 'docs/']}
-        isFakeNonExpandableNode={(path: string): boolean => Boolean(path)}
-        onSelect={(): void => {}}
-        onToggle={(): void => {}}
-        nodes={testNodes}
-        selectedNodeId={'/thirdParty/'}
-        getTreeNodeLabel={(nodeName): ReactElement => (
-          <div>{nodeName || '/'}</div>
-        )}
-        breakpoints={new Set()}
-        cardHeight={20}
-        locatorIcon={locatorIcon}
-      />,
-    );
-
-    expect(screen.getByLabelText('locator icon')).toBeInTheDocument();
   });
 });

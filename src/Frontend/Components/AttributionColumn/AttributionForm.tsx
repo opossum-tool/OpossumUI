@@ -15,7 +15,7 @@ import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-act
 import { useAppDispatch } from '../../state/hooks';
 import { FormAttribute } from '../../util/get-comparable-attributes';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
-import { InputElementProps } from '../InputElements/shared';
+import { TextBoxProps } from '../TextBox/TextBox';
 import { AuditingOptions } from './AuditingOptions';
 import { Comment } from './Comment';
 import { CopyrightSubPanel } from './CopyrightSubPanel';
@@ -27,9 +27,9 @@ const classes = {
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
-    padding: '6px',
     gap: '12px',
     overflow: 'hidden auto',
+    padding: '20px 20px 0 20px',
   },
   attributionTypeContainer: {
     position: 'relative',
@@ -37,7 +37,7 @@ const classes = {
 };
 
 export interface AttributeConfig
-  extends Pick<InputElementProps, 'color' | 'focused' | 'endIcon'> {}
+  extends Pick<TextBoxProps, 'color' | 'focused' | 'endIcon'> {}
 
 export type AttributionFormConfig = Partial<
   Record<FormAttribute, AttributeConfig>

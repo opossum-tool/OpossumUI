@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  isChildOf,
   removeFromArrayCloneAndDeleteKeyFromObjectIfEmpty,
   removeFromSetCloneAndDeleteKeyFromObjectIfEmpty,
   replaceInArray,
@@ -115,19 +114,4 @@ describe('removeFromSetAndDeleteKeyFromObjectIfEmpty', () => {
     );
     expect(testObjectToMutate).toEqual(expectedObject);
   });
-});
-
-describe('isChildOf', () => {
-  it.each`
-    testedItem             | parentId      | possibleChildId    | expectedReturn
-    ${'a child'}           | ${'/folder/'} | ${'/folder/file'}  | ${true}
-    ${'a non-child'}       | ${'/folder/'} | ${'/folder2/file'} | ${false}
-    ${'same id'}           | ${'/folder/'} | ${'/folder/'}      | ${false}
-    ${'non-folder parent'} | ${'/file'}    | ${'/file.txt'}     | ${false}
-  `(
-    'returns $returnValue for $testedItem',
-    ({ parentId, possibleChildId, expectedReturn }) => {
-      expect(isChildOf(parentId, possibleChildId)).toEqual(expectedReturn);
-    },
-  );
 });

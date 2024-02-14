@@ -1,0 +1,203 @@
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+import ClearIcon from '@mui/icons-material/Clear';
+import Filter3Icon from '@mui/icons-material/Filter3';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import RuleIcon from '@mui/icons-material/Rule';
+import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
+import MuiBadge from '@mui/material/Badge';
+import MuiIconButton from '@mui/material/IconButton';
+import MuiTooltip from '@mui/material/Tooltip';
+import { difference } from 'lodash';
+import { useMemo, useState } from 'react';
+
+import { text } from '../../../shared/text';
+import { Filter, FILTERS, QA_FILTERS } from '../../shared-constants';
+import { baseIcon, OpossumColors } from '../../shared-styles';
+import { UseFilteredData } from '../../state/variables/use-filtered-data';
+import { useUserSetting } from '../../util/use-user-setting';
+import {
+  ExcludeFromNoticeIcon,
+  FirstPartyIcon,
+  FollowUpIcon,
+  NeedsReviewIcon,
+  PreferredIcon,
+  PreSelectedIcon,
+  WasPreferredIcon,
+} from '../Icons/Icons';
+import {
+  SelectMenu,
+  SelectMenuOption,
+  SelectMenuProps,
+} from '../SelectMenu/SelectMenu';
+import { LicenseAutocomplete } from './LicenseAutocomplete/LicenseAutocomplete';
+
+const FILTER_ICONS: Record<Filter, React.ReactElement> = {
+  [text.filters.currentlyPreferred]: <PreferredIcon noTooltip />,
+  [text.filters.excludedFromNotice]: <ExcludeFromNoticeIcon noTooltip />,
+  [text.filters.firstParty]: <FirstPartyIcon noTooltip />,
+  [text.filters.incomplete]: <RuleIcon color={'info'} sx={baseIcon} />,
+  [text.filters.lowConfidence]: (
+    <SentimentDissatisfiedIcon color={'error'} sx={baseIcon} />
+  ),
+  [text.filters.needsFollowUp]: <FollowUpIcon noTooltip />,
+  [text.filters.needsReview]: <NeedsReviewIcon noTooltip />,
+  [text.filters.preSelected]: <PreSelectedIcon noTooltip />,
+  [text.filters.previouslyPreferred]: <WasPreferredIcon noTooltip />,
+  [text.filters.thirdParty]: (
+    <Filter3Icon sx={{ ...baseIcon, color: OpossumColors.darkBlue }} />
+  ),
+};
+
+interface Props
+  extends Pick<SelectMenuProps, 'anchorArrow' | 'anchorPosition'> {
+  useFilteredData: UseFilteredData;
+}
+
+export const FilterButton: React.FC<Props> = ({
+  anchorArrow,
+  anchorPosition,
+  useFilteredData,
+}) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement>();
+  const [isClearHovered, setIsClearHovered] = useState(false);
+  const [
+    { attributions, filters, counts, selectedLicense },
+    setFilteredAttributions,
+  ] = useFilteredData();
+  const [qaMode] = useUserSetting({ defaultValue: false, key: 'qaMode' });
+  const isSomeFilterActive = !!filters.length || !!selectedLicense;
+
+  const filterOptions = useMemo(
+    () =>
+      difference(FILTERS, qaMode ? [] : QA_FILTERS)
+        .map<SelectMenuOption>((option) => ({
+          selected: filters.includes(option),
+          faded: !counts?.[option],
+          id: option,
+          label:
+            counts?.[option] !== undefined
+              ? `${option} (${counts[option]})`
+              : option,
+          icon: FILTER_ICONS[option],
+          onAdd: () =>
+            setFilteredAttributions((prev) => ({
+              ...prev,
+              filters: [...prev.filters, option],
+            })),
+          onDelete: () =>
+            setFilteredAttributions((prev) => ({
+              ...prev,
+              filters: prev.filters.filter((filter) => filter !== option),
+            })),
+        }))
+        .concat({
+          selected: false,
+          id: 'license',
+          label: (
+            <LicenseAutocomplete
+              attributions={attributions}
+              selectedLicense={selectedLicense}
+              setSelectedLicense={(license) =>
+                setFilteredAttributions((prev) => ({
+                  ...prev,
+                  selectedLicense: license || '',
+                }))
+              }
+            />
+          ),
+        }),
+    [
+      qaMode,
+      attributions,
+      selectedLicense,
+      filters,
+      counts,
+      setFilteredAttributions,
+    ],
+  );
+
+  return (
+    <>
+      <MuiIconButton
+        aria-label={'filter button'}
+        onClick={(event) => setAnchorEl(event.currentTarget)}
+        disabled={!Object.keys(attributions).length && !isSomeFilterActive}
+        sx={{
+          '&:hover': {
+            background: isClearHovered ? 'none' : 'rgba(0, 0, 0, 0.04)',
+          },
+        }}
+      >
+        <MuiBadge
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          invisible={!isSomeFilterActive}
+          componentsProps={{
+            badge: {
+              style: {
+                padding: 0,
+                minWidth: 'unset',
+                width: 'fit-content',
+                height: 'fit-content',
+              },
+            },
+          }}
+          badgeContent={renderClearButton()}
+        >
+          <MuiTooltip
+            title={text.buttons.filter}
+            disableInteractive
+            placement={'top'}
+          >
+            <FilterAltIcon />
+          </MuiTooltip>
+        </MuiBadge>
+      </MuiIconButton>
+      <SelectMenu
+        anchorArrow={anchorArrow}
+        anchorEl={anchorEl}
+        anchorPosition={anchorPosition}
+        multiple
+        options={filterOptions}
+        setAnchorEl={setAnchorEl}
+      />
+    </>
+  );
+
+  function renderClearButton() {
+    return (
+      <MuiTooltip
+        title={text.packageLists.clearFilters}
+        disableInteractive
+        placement={'top'}
+        enterDelay={500}
+        enterNextDelay={500}
+      >
+        <ClearIcon
+          color={'error'}
+          fontSize={'inherit'}
+          onMouseEnter={() => setIsClearHovered(true)}
+          onMouseLeave={() => setIsClearHovered(false)}
+          onClick={(event) => {
+            event.stopPropagation();
+            setFilteredAttributions((prev) => ({
+              ...prev,
+              filters: [],
+              selectedLicense: '',
+            }));
+          }}
+          sx={{
+            padding: '2px',
+            borderRadius: '50%',
+            cursor: 'pointer',
+            '&:hover': {
+              background: 'rgba(0, 0, 0, 0.04)',
+            },
+          }}
+        />
+      </MuiTooltip>
+    );
+  }
+};

@@ -177,11 +177,11 @@ export async function loadInputAndOutputFromFilePath(
       attributionsToResources: externalAttributionsToResources,
     },
     frequentLicenses,
-    resolvedExternalAttributions: parsedOutputData.resolvedExternalAttributions,
-    attributionBreakpoints: new Set(
-      parsedInputData.attributionBreakpoints ?? [],
+    resolvedExternalAttributions: new Set(
+      parsedOutputData.resolvedExternalAttributions,
     ),
-    filesWithChildren: new Set(parsedInputData.filesWithChildren ?? []),
+    attributionBreakpoints: new Set(parsedInputData.attributionBreakpoints),
+    filesWithChildren: new Set(parsedInputData.filesWithChildren),
     baseUrlsForSources: sanitizeRawBaseUrlsForSources(
       parsedInputData.baseUrlsForSources,
     ),

@@ -9,20 +9,18 @@ import {
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { getParentsUpToNextAttributionBreakpoint } from '../state/helpers/get-parents';
-import { PathPredicate } from '../types/types';
 
 export function getClosestParentAttributions(
   path: string,
   manualAttributions: Attributions,
   resourcesToManualAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate,
+  attributionBreakpoints: Set<string>,
 ): Attributions | null {
-  const closestParentAttributionIds: Array<string> =
-    getClosestParentAttributionIds(
-      path,
-      resourcesToManualAttributions,
-      isAttributionBreakpoint,
-    );
+  const closestParentAttributionIds = getClosestParentAttributionIds(
+    path,
+    resourcesToManualAttributions,
+    attributionBreakpoints,
+  );
   if (closestParentAttributionIds.length > 0) {
     return pick(manualAttributions, closestParentAttributionIds);
   }
@@ -33,16 +31,16 @@ export function getClosestParentAttributions(
 export function getClosestParentAttributionIds(
   path: string,
   resourcesToManualAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate,
+  attributionBreakpoints: Set<string>,
 ): Array<string> {
-  const parentId: string | null = getClosestParentWithAttributions(
+  const parentResourceId = getClosestParentWithAttributions(
     path,
     resourcesToManualAttributions,
-    isAttributionBreakpoint,
+    attributionBreakpoints,
   );
 
-  if (parentId) {
-    return resourcesToManualAttributions[parentId];
+  if (parentResourceId) {
+    return resourcesToManualAttributions[parentResourceId];
   }
 
   return [];
@@ -51,11 +49,11 @@ export function getClosestParentAttributionIds(
 export function getClosestParentWithAttributions(
   childId: string,
   resourcesToAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate,
+  attributionBreakpoints: Set<string>,
 ): string | null {
-  const parentIds: Array<string> = getParentsUpToNextAttributionBreakpoint(
+  const parentIds = getParentsUpToNextAttributionBreakpoint(
     childId,
-    isAttributionBreakpoint,
+    attributionBreakpoints,
   );
 
   for (const parentId of parentIds.reverse()) {

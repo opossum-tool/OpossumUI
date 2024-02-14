@@ -2,94 +2,57 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
-import { pickBy } from 'lodash';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { TableVirtuoso } from 'react-virtuoso';
 
-import { View } from '../../enums/enums';
-import { Filter, filters } from '../../shared-constants';
-import { OpossumColors } from '../../shared-styles';
-import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { navigateToView } from '../../state/actions/view-actions/view-actions';
+import { text } from '../../../shared/text';
+import { ROOT_PATH } from '../../shared-constants';
+import { setSelectedResourceId } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
+import { useFilteredAttributions } from '../../state/variables/use-filtered-data';
+import { notInTests } from '../../util/not-in-tests';
+import { ReportTableHeader } from '../ReportTableHeader/ReportTableHeader';
 import {
-  getFilesWithChildren,
-  getManualAttributions,
-  getManualAttributionsToResources,
-} from '../../state/selectors/all-views-resource-selectors';
-import { getAttributionsWithResources } from '../../util/get-attributions-with-resources';
-import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { FILTER_FUNCTIONS } from '../../web-workers/scripts/get-filtered-attributions';
-import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
-import { FILTER_ICONS } from '../AttributionList/AttributionList.util';
-import { Autocomplete } from '../Autocomplete/Autocomplete';
-import { Table } from '../Table/Table';
-
-const classes = {
-  root: {
-    width: '100vw',
-    height: '100%',
-    backgroundColor: OpossumColors.lightestBlue,
-  },
-};
+  REPORT_VIEW_ROW_HEIGHT,
+  ReportTableItem,
+} from '../ReportTableItem/ReportTableItem';
+import { TABLE_COMPONENTS } from './TableConfig';
 
 export function ReportView() {
-  const attributionsToResources = useAppSelector(
-    getManualAttributionsToResources,
-  );
-  const manualAttributions = useAppSelector(getManualAttributions);
-  const filesWithChildren = useAppSelector(getFilesWithChildren);
-
-  const [selectedFilters, setActiveFilters] = useState<Array<Filter>>([]);
-  const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
   const dispatch = useAppDispatch();
-
-  const attributionsWithResources = getAttributionsWithResources(
-    useMemo(
-      () =>
-        selectedFilters.length
-          ? pickBy(manualAttributions, (attribution) =>
-              selectedFilters.every((filter) =>
-                FILTER_FUNCTIONS[filter](attribution),
-              ),
-            )
-          : manualAttributions,
-      [selectedFilters, manualAttributions],
-    ),
-    attributionsToResources,
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const [{ attributions }, setFilteredAttributions] = useFilteredAttributions();
+  const packageInfos = Object.values(attributions);
+  const selectedIndex = useMemo(
+    () => packageInfos.findIndex(({ id }) => id === selectedAttributionId),
+    [packageInfos, selectedAttributionId],
   );
+
+  // filtered attributions depend on the selected resource and the sorting
+  // but in report view we want to see all attributions with the default sorting
+  useEffect(() => {
+    dispatch(setSelectedResourceId(ROOT_PATH));
+    setFilteredAttributions((prev) => ({
+      ...prev,
+      sorting: text.sortings.name,
+    }));
+  }, [dispatch, setFilteredAttributions]);
 
   return (
-    <MuiBox aria-label={'report view'} sx={classes.root}>
-      <Table
-        attributionsWithResources={attributionsWithResources}
-        isFileWithChildren={isFileWithChildren}
-        onIconClick={(attributionId) => {
-          dispatch(
-            changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId),
-          );
-          dispatch(navigateToView(View.Attribution));
-        }}
-        topElement={
-          <MuiBox sx={{ display: 'flex', alignItems: 'center' }}>
-            <Autocomplete<Filter, true, false, false>
-              options={filters}
-              optionText={{ primary: (option) => option }}
-              multiple
-              title={'Filter'}
-              value={selectedFilters}
-              onChange={(_, value) => setActiveFilters(value)}
-              renderOptionStartIcon={(option) => FILTER_ICONS[option]}
-              filterSelectedOptions
-              sx={{ flex: 'initial', width: 300 }}
-              aria-label={'attribution filters'}
-            />
-            <AttributionCountsPanel
-              sx={{ display: 'inline-block', margin: '20px' }}
-            />
-          </MuiBox>
-        }
-      />
-    </MuiBox>
+    <TableVirtuoso
+      // https://github.com/petyosi/react-virtuoso/issues/609
+      style={{ overflowAnchor: 'none' }}
+      components={TABLE_COMPONENTS}
+      // https://github.com/petyosi/react-virtuoso/issues/1001
+      initialTopMostItemIndex={notInTests(~selectedIndex && selectedIndex)}
+      fixedHeaderContent={() => <ReportTableHeader />}
+      data={packageInfos}
+      fixedItemHeight={REPORT_VIEW_ROW_HEIGHT}
+      defaultItemHeight={REPORT_VIEW_ROW_HEIGHT}
+      itemContent={(_, packageInfo) => (
+        <ReportTableItem packageInfo={packageInfo} />
+      )}
+    />
   );
 }

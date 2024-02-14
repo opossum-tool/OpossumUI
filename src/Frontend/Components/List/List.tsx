@@ -2,107 +2,102 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { styled } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import MuiDivider from '@mui/material/Divider';
+import { SxProps } from '@mui/system';
 import { defer } from 'lodash';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+
+import { notInTests } from '../../util/not-in-tests';
 
 const NUMBER_OF_OVERSCROLL_ITEMS = 10;
 
-const classes = {
-  scrollChild: {
-    direction: 'ltr',
-  },
-};
+const StyledVirtuoso = styled(Virtuoso)({
+  '& > [data-viewport-type]': { width: 'unset !important', minWidth: '100%' },
+});
 
 type Props = {
   cardHeight: number;
-  fullHeight?: boolean;
-  getListItem(
-    index: number,
-    props: { isScrolling: boolean },
-  ): React.ReactElement | null;
+  getListItem(index: number): React.ReactElement | null;
   indexToScrollTo?: number;
-  leftScrollBar?: boolean;
   length: number;
   minNumberOfItems?: number;
+  divider?: boolean;
+  sx?: SxProps;
 } & (
-  | { maxHeight?: number; maxNumberOfItems?: never }
+  | { maxHeight?: number | string; maxNumberOfItems?: never }
   | { maxHeight?: never; maxNumberOfItems?: number }
 );
 
 export function List({
   cardHeight,
-  fullHeight,
   getListItem,
   indexToScrollTo = 0,
-  leftScrollBar,
   length,
   minNumberOfItems,
+  divider,
+  sx,
   ...props
 }: Props) {
+  const effectiveCardHeight = divider ? cardHeight + 1 : cardHeight;
   const ref = useRef<VirtuosoHandle>(null);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const maxHeight = ((): number | undefined => {
+  const maxHeight = ((): number | string | undefined => {
     if ('maxHeight' in props) {
       return props.maxHeight;
     }
     if ('maxNumberOfItems' in props && props.maxNumberOfItems) {
-      return props.maxNumberOfItems * cardHeight;
+      return props.maxNumberOfItems * effectiveCardHeight;
     }
     return undefined;
   })();
-  const currentHeight = length * cardHeight;
+  const currentHeight = length * effectiveCardHeight;
 
   useEffect(() => {
-    if (indexToScrollTo > 0) {
+    if (indexToScrollTo >= 0) {
       defer(() =>
-        ref.current?.scrollToIndex({
+        ref.current?.scrollIntoView({
           index: indexToScrollTo,
           align: 'center',
-          behavior: 'smooth',
         }),
       );
     }
   }, [indexToScrollTo]);
 
   return (
-    <Virtuoso
+    <StyledVirtuoso
       ref={ref}
-      fixedItemHeight={cardHeight}
-      initialTopMostItemIndex={
-        window?.process?.env.JEST_WORKER_ID // https://github.com/petyosi/react-virtuoso/issues/1001
-          ? undefined
-          : {
-              index: indexToScrollTo,
-              behavior: 'auto',
-              align: 'center',
-            }
-      }
+      defaultItemHeight={effectiveCardHeight}
+      // https://github.com/petyosi/react-virtuoso/issues/1001
+      initialTopMostItemIndex={notInTests(
+        ~indexToScrollTo && {
+          index: indexToScrollTo,
+          behavior: 'auto',
+          align: 'center',
+        },
+      )}
       totalCount={length}
-      isScrolling={setIsScrolling}
-      style={{
-        height: fullHeight ? '100%' : currentHeight,
+      sx={{
+        ...sx,
         maxHeight,
         minHeight: minNumberOfItems
           ? Math.min(
               minNumberOfItems,
               props.maxNumberOfItems ?? minNumberOfItems,
-            ) * cardHeight
+            ) * effectiveCardHeight
           : undefined,
-        direction: leftScrollBar ? 'rtl' : 'ltr',
         overflowX: 'auto',
-        overflowY: maxHeight && currentHeight < maxHeight ? 'hidden' : 'auto',
+        overflowY:
+          typeof maxHeight === 'number' && currentHeight < maxHeight
+            ? 'hidden'
+            : 'auto',
       }}
-      overscan={cardHeight * NUMBER_OF_OVERSCROLL_ITEMS}
+      increaseViewportBy={effectiveCardHeight * NUMBER_OF_OVERSCROLL_ITEMS}
       itemContent={(index) => (
-        <MuiBox
-          sx={{
-            ...(leftScrollBar && classes.scrollChild),
-            height: cardHeight,
-          }}
-        >
-          {getListItem(index, { isScrolling })}
+        <MuiBox sx={{ height: effectiveCardHeight }}>
+          {getListItem(index)}
+          {divider ? <MuiDivider /> : null}
         </MuiBox>
       )}
     />
