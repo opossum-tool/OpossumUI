@@ -27,7 +27,7 @@ export const inputElementClasses = {
         display: 'none',
       },
     },
-    '& .Mui-readOnly:hover :not(.Mui-focused) fieldset': {
+    '& .Mui-readOnly:hover:not(.Mui-focused) fieldset': {
       borderColor: 'rgba(0, 0, 0, 0.23)',
     },
   },
