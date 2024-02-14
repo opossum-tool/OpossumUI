@@ -27,7 +27,9 @@ export const inputElementClasses = {
         display: 'none',
       },
     },
-    '& .Mui-readOnly:hover fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' },
+    '& .Mui-readOnly:hover :not(.Mui-focused) fieldset': {
+      borderColor: 'rgba(0, 0, 0, 0.23)',
+    },
   },
   defaultHighlightedTextField: {
     '& div': {
