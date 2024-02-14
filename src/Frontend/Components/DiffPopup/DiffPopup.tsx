@@ -16,7 +16,10 @@ import {
 import { AttributionForm } from '../AttributionColumn/AttributionForm';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { DiffPopupContainer } from './DiffPopup.style';
-import { useAttributionFormConfigs } from './DiffPopup.util';
+import {
+  stripLicenseInfoIfFirstParty,
+  useAttributionFormConfigs,
+} from './DiffPopup.util';
 
 interface DiffPopupProps {
   original: PackageInfo;
@@ -38,8 +41,8 @@ export function DiffPopup({
     bufferPackageInfo,
     setBufferPackageInfo,
   } = useAttributionFormConfigs({
-    original,
-    current,
+    original: stripLicenseInfoIfFirstParty(original),
+    current: stripLicenseInfoIfFirstParty(current),
   });
 
   function handleApplyChanges({
@@ -120,7 +123,7 @@ export function DiffPopup({
     return (
       <DiffPopupContainer>
         <AttributionForm
-          packageInfo={original}
+          packageInfo={stripLicenseInfoIfFirstParty(original)}
           variant={'diff'}
           label={'original'}
           config={originalFormConfig}
