@@ -42,7 +42,14 @@ export function UpdateAppPopup() {
 
   function renderContent() {
     if (latestReleaseLoading) {
-      return <Spinner />;
+      return (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Spinner />
+          <MuiTypography style={{ marginLeft: '12px' }}>
+            {text.updateAppPopup.loading}
+          </MuiTypography>
+        </div>
+      );
     }
 
     if (latestReleaseError) {

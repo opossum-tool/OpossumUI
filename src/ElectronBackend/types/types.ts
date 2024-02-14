@@ -62,7 +62,7 @@ export interface ParsedOpossumOutputFile {
   };
   manualAttributions: RawAttributions;
   resourcesToAttributions: ResourcesToAttributions;
-  resolvedExternalAttributions: Set<string>;
+  resolvedExternalAttributions: Array<string> | undefined;
 }
 
 export interface ParsedOpossumInputAndOutput {

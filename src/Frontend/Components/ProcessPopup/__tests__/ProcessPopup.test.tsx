@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen, within } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import { IpcRendererEvent } from 'electron';
 import { noop } from 'lodash';
 
@@ -53,51 +53,6 @@ describe('ProcessPopup', () => {
     );
 
     expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
-  });
-
-  it('shows log messages with expected icon', () => {
-    const date = faker.date.recent();
-    const message1 = faker.lorem.sentence();
-    const message2 = faker.lorem.sentence();
-    renderComponent(<ProcessPopup />);
-
-    act(
-      () =>
-        void electronAPI.send(AllowedFrontendChannels.FileLoading, {
-          isLoading: true,
-        }),
-    );
-    act(
-      () =>
-        void electronAPI.send(AllowedFrontendChannels.Logging, {
-          date,
-          message: message1,
-          level: 'info',
-        } satisfies Log),
-    );
-    act(
-      () =>
-        void electronAPI.send(AllowedFrontendChannels.Logging, {
-          date,
-          message: message2,
-          level: 'info',
-        } satisfies Log),
-    );
-
-    expect(screen.getByText(message1)).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('message-1')).getByTestId('CheckIcon'),
-    ).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('message-1')).queryByTestId('spinner'),
-    ).not.toBeInTheDocument();
-    expect(screen.getByText(message2)).toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('message-2')).queryByTestId('CheckIcon'),
-    ).not.toBeInTheDocument();
-    expect(
-      within(screen.getByTestId('message-2')).getByTestId('spinner'),
-    ).toBeInTheDocument();
   });
 
   it('clears previous log messages when loading begins another time', () => {

@@ -11,7 +11,6 @@ import { v4 as uuid4 } from 'uuid';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
-  DiscreteConfidence,
   ParsedFileContent,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -177,11 +176,11 @@ export async function loadInputAndOutputFromFilePath(
       attributionsToResources: externalAttributionsToResources,
     },
     frequentLicenses,
-    resolvedExternalAttributions: parsedOutputData.resolvedExternalAttributions,
-    attributionBreakpoints: new Set(
-      parsedInputData.attributionBreakpoints ?? [],
+    resolvedExternalAttributions: new Set(
+      parsedOutputData.resolvedExternalAttributions,
     ),
-    filesWithChildren: new Set(parsedInputData.filesWithChildren ?? []),
+    attributionBreakpoints: new Set(parsedInputData.attributionBreakpoints),
+    filesWithChildren: new Set(parsedInputData.filesWithChildren),
     baseUrlsForSources: sanitizeRawBaseUrlsForSources(
       parsedInputData.baseUrlsForSources,
     ),
@@ -261,12 +260,6 @@ function createJsonOutputFile(
       delete packageInfo.source;
       delete packageInfo.preferred;
       delete packageInfo.preferredOverOriginIds;
-      if (packageInfo.attributionConfidence !== undefined) {
-        packageInfo.attributionConfidence =
-          packageInfo.attributionConfidence >= DiscreteConfidence.High
-            ? DiscreteConfidence.High
-            : DiscreteConfidence.Low;
-      }
 
       const newUUID = uuid4();
       manualAttributions[newUUID] = packageInfo;

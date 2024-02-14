@@ -10,12 +10,11 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { PathPredicate } from '../types/types';
+import { ROOT_PATH } from '../shared-constants';
 import {
   canResourceHaveChildren,
   isIdOfResourceWithChildren,
 } from './can-resource-have-children';
-import { removeTrailingSlashIfFileWithChildren } from './remove-trailing-slash-if-file-with-children';
 
 export function getAttributionsWithResources(
   attributions: Attributions,
@@ -33,27 +32,20 @@ export function getAttributionsWithAllChildResourcesWithoutFolders(
   attributionsToResources: AttributionsToResources,
   resourcesToAttributions: ResourcesToAttributions,
   resources: Resources,
-  isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate,
+  attributionBreakpoints: Set<string>,
+  filesWithChildren: Set<string>,
 ): Attributions {
-  function getGetResourcesRecursively() {
-    return (
-      attributionsToResources: AttributionsToResources,
-      attributionId: string,
-    ): Array<string> =>
+  return getAttributionsWithResourcePaths(
+    attributions,
+    attributionsToResources,
+    (attributionsToResources, attributionId) =>
       getResourcesRecursively(
         attributionsToResources[attributionId] || [],
         resources,
         resourcesToAttributions,
-        isAttributionBreakpoint,
-        isFileWithChildren,
-      );
-  }
-
-  return getAttributionsWithResourcePaths(
-    attributions,
-    attributionsToResources,
-    getGetResourcesRecursively(),
+        attributionBreakpoints,
+        filesWithChildren,
+      ),
   );
 }
 
@@ -65,18 +57,16 @@ function getAttributionsWithResourcePaths(
     attributionId: string,
   ) => Array<string>,
 ): Attributions {
-  const reducer = (
-    attributionsWithResources: Attributions,
-    attributionId: string,
-  ): Attributions => ({
-    ...attributionsWithResources,
-    [attributionId]: {
-      ...attributions[attributionId],
-      resources: getResources(attributionsToResources, attributionId),
-    },
-  });
-
-  return Object.keys(attributions).reduce(reducer, {});
+  return Object.keys(attributions).reduce<Attributions>(
+    (attributionsWithResources, attributionId) => ({
+      ...attributionsWithResources,
+      [attributionId]: {
+        ...attributions[attributionId],
+        resources: getResources(attributionsToResources, attributionId),
+      },
+    }),
+    {},
+  );
 }
 
 function getResources(
@@ -90,8 +80,8 @@ function getResourcesRecursively(
   resourcePaths: Array<string>,
   resources: Resources,
   resourcesToAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate,
+  attributionBreakpoints: Set<string>,
+  filesWithChildren: Set<string>,
 ): Array<string> {
   return resourcePaths.flatMap((path) => {
     if (isIdOfResourceWithChildren(path)) {
@@ -99,10 +89,10 @@ function getResourcesRecursively(
         path,
         getSubtree(resources, path),
         resourcesToAttributions,
-        isAttributionBreakpoint,
-        isFileWithChildren,
+        attributionBreakpoints,
+        filesWithChildren,
       );
-      return isFileWithChildren(path) ? childPaths.concat(path) : childPaths;
+      return filesWithChildren.has(path) ? childPaths.concat(path) : childPaths;
     }
     return [path];
   });
@@ -112,7 +102,7 @@ export function getSubtree(
   resourceTree: Resources,
   folderPath: string,
 ): Resources {
-  if (folderPath === '/') {
+  if (folderPath === ROOT_PATH) {
     return resourceTree;
   }
 
@@ -127,8 +117,8 @@ function getAllChildPathsOfFolder(
   folderPath: string,
   childTree: Resources,
   resourcesToAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate,
+  attributionBreakpoints: Set<string>,
+  filesWithChildren: Set<string>,
 ): Array<string> {
   let childPaths: Array<string> = [];
 
@@ -136,7 +126,7 @@ function getAllChildPathsOfFolder(
     const childSubtree = childTree[directChild];
     if (canResourceHaveChildren(childSubtree)) {
       const directChildPath = `${folderPath + directChild}/`;
-      if (isAttributionBreakpoint(directChildPath)) {
+      if (attributionBreakpoints.has(directChildPath)) {
         continue;
       }
 
@@ -146,11 +136,11 @@ function getAllChildPathsOfFolder(
             directChildPath,
             childSubtree,
             resourcesToAttributions,
-            isAttributionBreakpoint,
-            isFileWithChildren,
+            attributionBreakpoints,
+            filesWithChildren,
           ),
         );
-        if (isFileWithChildren(directChildPath)) {
+        if (filesWithChildren.has(directChildPath)) {
           childPaths.push(directChildPath);
         }
       }
@@ -168,16 +158,16 @@ function getAllChildPathsOfFolder(
 
 export function removeSlashesFromFilesWithChildren(
   attributionsWithResources: Attributions,
-  isFileWithChildren: PathPredicate,
+  filesWithChildren: Set<string>,
 ): Attributions {
   return Object.fromEntries(
-    Object.entries(attributionsWithResources).map(([id, attributionInfo]) => {
+    Object.entries(attributionsWithResources).map(([id, attribution]) => {
       return [
         id,
         {
-          ...attributionInfo,
-          resources: attributionInfo.resources?.map((path) =>
-            removeTrailingSlashIfFileWithChildren(path, isFileWithChildren),
+          ...attribution,
+          resources: attribution.resources?.map((path) =>
+            filesWithChildren.has(path) ? path.replace(/\/$/, '') : path,
           ),
         },
       ];

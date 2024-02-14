@@ -121,8 +121,8 @@ describe('getAttributionsWithAllChildResources', () => {
         testAttributionsToResources,
         testResourcesToAttributions,
         resources,
-        () => false,
-        () => false,
+        new Set(),
+        new Set(),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });
@@ -162,8 +162,8 @@ describe('getAttributionsWithAllChildResources', () => {
         testAttributionsToResources,
         testResourcesToAttributions,
         resources,
-        () => false,
-        () => false,
+        new Set(),
+        new Set(),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });
@@ -229,8 +229,8 @@ describe('getAttributionsWithAllChildResources', () => {
         testAttributionsToResources,
         testResourcesToAttributions,
         resources,
-        () => false,
-        () => false,
+        new Set(),
+        new Set(),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });
@@ -242,8 +242,8 @@ describe('getAttributionsWithAllChildResources', () => {
         {},
         {},
         {},
-        () => false,
-        () => false,
+        new Set(),
+        new Set(),
       ),
     ).toEqual({});
   });
@@ -298,8 +298,8 @@ describe('getAttributionsWithAllChildResources', () => {
         testAttributionsToResources,
         testResourcesToAttributions,
         resources,
-        (path) => path === '/folder/folder/folder/',
-        () => false,
+        new Set(['/folder/folder/folder/']),
+        new Set(),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });
@@ -348,63 +348,59 @@ describe('getAttributionsWithAllChildResources', () => {
         testAttributionsToResources,
         testResourcesToAttributions,
         resources,
-        () => false,
-        (path) => path === '/fileWithChildren/',
+        new Set(),
+        new Set(['/fileWithChildren/']),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });
 
-  it(
-    'does return resources that are files with children' +
-      ' if it has inferred attributions',
-    () => {
-      const testAttributions: Attributions = {
-        uuid2: { packageName: 'Vue', id: 'uuid2' },
-      };
+  it('does return resources that are files with children if it has inferred attributions', () => {
+    const testAttributions: Attributions = {
+      uuid2: { packageName: 'Vue', id: 'uuid2' },
+    };
 
-      const testAttributionsToResources: AttributionsToResources = {
-        uuid2: ['/root/'],
-      };
+    const testAttributionsToResources: AttributionsToResources = {
+      uuid2: ['/root/'],
+    };
 
-      const testResourcesToAttributions: AttributionsToResources = {
-        '/root/': ['uuid2'],
-      };
+    const testResourcesToAttributions: AttributionsToResources = {
+      '/root/': ['uuid2'],
+    };
 
-      const resources: Resources = {
-        root: {
-          fileWithChildren: {
-            folder: {
-              file: 1,
-            },
+    const resources: Resources = {
+      root: {
+        fileWithChildren: {
+          folder: {
+            file: 1,
           },
-          file: 1,
         },
-      };
+        file: 1,
+      },
+    };
 
-      const expectedAttributionsWithResources: Attributions = {
-        uuid2: {
-          packageName: 'Vue',
-          resources: [
-            '/root/fileWithChildren/folder/file',
-            '/root/fileWithChildren/',
-            '/root/file',
-          ],
-          id: 'uuid2',
-        },
-      };
+    const expectedAttributionsWithResources: Attributions = {
+      uuid2: {
+        packageName: 'Vue',
+        resources: [
+          '/root/fileWithChildren/folder/file',
+          '/root/fileWithChildren/',
+          '/root/file',
+        ],
+        id: 'uuid2',
+      },
+    };
 
-      expect(
-        getAttributionsWithAllChildResourcesWithoutFolders(
-          testAttributions,
-          testAttributionsToResources,
-          testResourcesToAttributions,
-          resources,
-          () => false,
-          (path) => path === '/root/fileWithChildren/',
-        ),
-      ).toEqual(expectedAttributionsWithResources);
-    },
-  );
+    expect(
+      getAttributionsWithAllChildResourcesWithoutFolders(
+        testAttributions,
+        testAttributionsToResources,
+        testResourcesToAttributions,
+        resources,
+        new Set(),
+        new Set(['/root/fileWithChildren/']),
+      ),
+    ).toEqual(expectedAttributionsWithResources);
+  });
 });
 
 describe('removeSlashesFromFilesWithChildren', () => {
@@ -437,7 +433,7 @@ describe('removeSlashesFromFilesWithChildren', () => {
     expect(
       removeSlashesFromFilesWithChildren(
         testAttributionsWithResources,
-        (path) => path === '/some/path3/',
+        new Set(['/some/path3/']),
       ),
     ).toEqual(expectedAttributionsWithResources);
   });

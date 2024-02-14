@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { ParsedFileContent } from '../../../../shared/shared-types';
-import { AppThunkAction, AppThunkDispatch } from '../../types';
+import { AppThunkAction } from '../../types';
 import {
   setAttributionBreakpoints,
   setBaseUrlsForSources,
@@ -16,12 +16,12 @@ import {
   setProjectMetadata,
   setResources,
 } from './all-views-simple-actions';
-import { addResolvedExternalAttribution } from './audit-view-simple-actions';
+import { setResolvedExternalAttributions } from './audit-view-simple-actions';
 
 export function loadFromFile(
   parsedFileContent: ParsedFileContent,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch): void => {
+  return (dispatch) => {
     dispatch(setResources(parsedFileContent.resources));
 
     dispatch(
@@ -37,6 +37,13 @@ export function loadFromFile(
         parsedFileContent.externalAttributions.attributions,
         parsedFileContent.externalAttributions.resourcesToAttributions,
         parsedFileContent.externalAttributions.attributionsToResources,
+        parsedFileContent.resolvedExternalAttributions,
+      ),
+    );
+
+    dispatch(
+      setResolvedExternalAttributions(
+        parsedFileContent.resolvedExternalAttributions,
       ),
     );
 
@@ -58,16 +65,12 @@ export function loadFromFile(
       ),
     );
 
-    const fileContainsSourcesRelevantForPreferred = Object.values(
-      parsedFileContent.externalAttributionSources,
-    ).some((source) => source.isRelevantForPreferred);
-
     dispatch(
-      setIsPreferenceFeatureEnabled(fileContainsSourcesRelevantForPreferred),
-    );
-
-    parsedFileContent.resolvedExternalAttributions.forEach((attribution) =>
-      dispatch(addResolvedExternalAttribution(attribution)),
+      setIsPreferenceFeatureEnabled(
+        Object.values(parsedFileContent.externalAttributionSources).some(
+          (source) => source.isRelevantForPreferred,
+        ),
+      ),
     );
   };
 }

@@ -3,13 +3,12 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 
 import { BaseUrlsForSources } from '../../../../shared/shared-types';
 import { setBaseUrlsForSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { GoToLinkButton } from '../GoToLinkButton';
 
@@ -41,7 +40,7 @@ describe('The GoToLinkButton', () => {
       expect(
         screen.getByLabelText('Open resource in browser'),
       ).toBeInTheDocument();
-      clickGoToLinkIcon(screen, 'link to open');
+      fireEvent.click(screen.getByLabelText('link to open'));
 
       expect(window.electronAPI.openLink).toHaveBeenCalledTimes(1);
       expect(window.electronAPI.openLink).toHaveBeenCalledWith(expected_link);

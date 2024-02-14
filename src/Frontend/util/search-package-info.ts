@@ -5,37 +5,19 @@
 import { PackageInfo } from '../../shared/shared-types';
 
 export function packageInfoContainsSearchTerm(
-  attribution: PackageInfo,
-  searchTerm: string,
+  {
+    copyright,
+    comment,
+    packageName,
+    packageNamespace,
+    packageVersion,
+  }: PackageInfo,
+  search: string,
 ): boolean {
-  return Boolean(
-    attribution &&
-      (searchTerm === '' ||
-        (attribution.packageName &&
-          attribution.packageName
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
-        (attribution.licenseName &&
-          attribution.licenseName
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
-        (attribution.copyright &&
-          attribution.copyright
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
-        (attribution.packageVersion &&
-          attribution.packageVersion
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()))),
-  );
-}
-
-export function licenseNameContainsSearchTerm(
-  attribution: PackageInfo,
-  searchTerm: string,
-): boolean {
-  return Boolean(
-    attribution.licenseName &&
-      attribution.licenseName.toLowerCase().includes(searchTerm.toLowerCase()),
+  return (
+    search === '' ||
+    [copyright, comment, packageName, packageNamespace, packageVersion]
+      .map((value) => value?.toLowerCase())
+      .some((value) => value?.includes(search.toLowerCase()))
   );
 }

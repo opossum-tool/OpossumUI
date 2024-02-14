@@ -1,0 +1,9 @@
+<!-- SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+
+SPDX-License-Identifier: Apache-2.0 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="15.7527 59.8928 668.5 74.11">
+	<path
+		d="M 16 61.805 c 0 -1.541 1.784 -2.454 3.04 -1.56 c 9.937 7.084 43.257 28.853 85.372 35.117 c 29.172 5.676 56.674 -13.864 97.479 -10.79 c 38.277 2.882 61.675 23.041 93.109 22.428 c 31.271 1.25 62.719 -4.994 93.847 -3.971 c 31.127 1.022 63.574 10.153 89.022 11.971 c 25.448 1.818 69.967 -0.95 97.319 -4.773 c 27.352 -3.824 57.297 -17.708 91.836 -24.635 C 683.992 84.081 684 84.571 684 84.571 v 47.583 a 1.847 1.847 0 0 1 0 1.846 H 16 A 1.846 1.846 0 0 1 16 132.154 V 61.805 z"
+		fill="#D1E1F6" />
+</svg>

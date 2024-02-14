@@ -197,7 +197,6 @@ export class PackageSearchApi {
     const type = system || projectType;
     const source: Source = {
       name: text.attributionColumn.openSourceInsights,
-      documentConfidence: 100,
     };
     switch (type) {
       case 'MAVEN': {

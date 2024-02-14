@@ -7,9 +7,4 @@ import MuiBox from '@mui/material/Box';
 
 export const DiffPopupContainer = styled(MuiBox)({
   display: 'flex',
-  flexDirection: 'row',
-  flex: 1,
-  padding: '6px',
-  gap: '12px',
-  overflow: 'hidden auto',
 });

@@ -42,7 +42,7 @@ export function Toaster() {
               {typeof toast.message === 'function' ? (
                 toast.message(toast)
               ) : (
-                <Typography variant={'body2'}>{toast.message}</Typography>
+                <Typography>{toast.message}</Typography>
               )}
             </ToastContainer>
           )}

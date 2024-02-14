@@ -23,8 +23,4 @@ export class ProjectStatisticsPopup {
       await expect(this.title).toBeHidden();
     },
   };
-
-  async close(): Promise<void> {
-    await this.closeButton.click();
-  }
 }

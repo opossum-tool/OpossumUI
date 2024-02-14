@@ -15,6 +15,6 @@ test('allows user to switch to .opossum extension when user opens deprecated fil
   fileSupportPopup,
 }) => {
   await fileSupportPopup.assert.titleIsVisible();
-  await fileSupportPopup.convertToNew();
+  await fileSupportPopup.convertButton.click();
   await fileSupportPopup.assert.titleIsHidden();
 });

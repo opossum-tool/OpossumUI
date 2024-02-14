@@ -12,7 +12,6 @@ import {
   ResourcesWithAttributedChildren,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
-import { AllowedSaveOperations } from '../../../../enums/enums';
 import { getAttributionsToResources } from '../../../../test-helpers/general-test-helpers';
 import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
@@ -23,9 +22,7 @@ import {
   getExternalAttributionsToResources,
   getFrequentLicensesNameOrder,
   getFrequentLicensesTexts,
-  getIsGlobalSavingDisabled,
   getIsPreferenceFeatureEnabled,
-  getIsSavingDisabled,
   getManualAttributions,
   getManualAttributionsToResources,
   getResources,
@@ -34,7 +31,7 @@ import {
   getResourcesWithExternalAttributedChildren,
   getResourcesWithManualAttributedChildren,
   getTemporaryDisplayPackageInfo,
-} from '../../../selectors/all-views-resource-selectors';
+} from '../../../selectors/resource-selectors';
 import {
   resetResourceState,
   setBaseUrlsForSources,
@@ -47,7 +44,6 @@ import {
   setTemporaryDisplayPackageInfo,
 } from '../all-views-simple-actions';
 import { setSelectedResourceId } from '../audit-view-simple-actions';
-import { setAllowedSaveOperations } from '../save-actions';
 
 const testResources: Resources = {
   thirdParty: {
@@ -227,6 +223,7 @@ describe('The load and navigation simple actions', () => {
         testAttributions,
         testResourcesToAttributions,
         testAttributionsToResources,
+        new Set(),
       ),
     );
     expect(getExternalAttributions(testStore.getState())).toEqual(
@@ -277,31 +274,6 @@ describe('The load and navigation simple actions', () => {
       testDisplayPackageInfo,
     );
   });
-
-  it.each`
-    allowedSaveOperationValue      | expectedIsSavingDisabled | expectedIsGlobalSavingDisabled
-    ${AllowedSaveOperations.None}  | ${true}                  | ${true}
-    ${AllowedSaveOperations.All}   | ${false}                 | ${false}
-    ${AllowedSaveOperations.Local} | ${false}                 | ${true}
-  `(
-    'sets isSavingDisabled to $allowedSaveOperationValue and gets is(Global)SavingDisabled',
-    ({
-      allowedSaveOperationValue,
-      expectedIsSavingDisabled,
-      expectedIsGlobalSavingDisabled,
-    }) => {
-      const testStore = createAppStore();
-      expect(getIsSavingDisabled(testStore.getState())).toBe(false);
-
-      testStore.dispatch(setAllowedSaveOperations(allowedSaveOperationValue));
-      expect(getIsSavingDisabled(testStore.getState())).toBe(
-        expectedIsSavingDisabled,
-      );
-      expect(getIsGlobalSavingDisabled(testStore.getState())).toBe(
-        expectedIsGlobalSavingDisabled,
-      );
-    },
-  );
 
   it('sets and gets baseUrlsForSources', () => {
     const testStore = createAppStore();

@@ -26,11 +26,11 @@ export class DiffPopup {
       window,
     );
     this.applyButton = this.node.getByRole('button', {
-      name: text.buttons.diffPopup.applyChanges,
+      name: text.diffPopup.applyChanges,
       exact: true,
     });
     this.revertAllButton = this.node.getByRole('button', {
-      name: text.buttons.diffPopup.revertAll,
+      name: text.diffPopup.revertAll,
       exact: true,
     });
     this.cancelButton = this.node.getByRole('button', {

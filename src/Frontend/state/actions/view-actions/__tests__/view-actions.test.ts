@@ -10,7 +10,6 @@ import {
   getPopupAttributionId,
   getSelectedView,
   getTargetView,
-  isAttributionViewSelected,
   isAuditViewSelected,
   isReportViewSelected,
 } from '../../../selectors/view-selector';
@@ -23,66 +22,24 @@ import {
 } from '../view-actions';
 
 describe('view actions', () => {
-  it('sets view to AuditView as initial value', () => {
+  it('sets view to audit view', () => {
     const testStore = createAppStore();
+    testStore.dispatch(navigateToView(View.Audit));
+
+    expect(isReportViewSelected(testStore.getState())).toBe(false);
     expect(isAuditViewSelected(testStore.getState())).toBe(true);
-    expect(isReportViewSelected(testStore.getState())).toBe(false);
-    expect(isAttributionViewSelected(testStore.getState())).toBe(false);
   });
 
-  it('sets view to AttributionView', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(navigateToView(View.Attribution));
-
-    expect(isAuditViewSelected(testStore.getState())).toBe(false);
-    expect(isReportViewSelected(testStore.getState())).toBe(false);
-    expect(isAttributionViewSelected(testStore.getState())).toBe(true);
-  });
-
-  it('sets view to ReportView', () => {
+  it('sets view to report view', () => {
     const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Report));
 
     expect(isAuditViewSelected(testStore.getState())).toBe(false);
-    expect(isAttributionViewSelected(testStore.getState())).toBe(false);
     expect(isReportViewSelected(testStore.getState())).toBe(true);
-  });
-
-  it('sets view to AttributionView and back to AuditView', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(navigateToView(View.Attribution));
-
-    expect(isAuditViewSelected(testStore.getState())).toBe(false);
-    expect(isReportViewSelected(testStore.getState())).toBe(false);
-    expect(isAttributionViewSelected(testStore.getState())).toBe(true);
-
-    testStore.dispatch(navigateToView(View.Audit));
-
-    expect(isAuditViewSelected(testStore.getState())).toBe(true);
-    expect(isReportViewSelected(testStore.getState())).toBe(false);
-    expect(isAttributionViewSelected(testStore.getState())).toBe(false);
-  });
-
-  it('sets view to AuditView even if it is already set', () => {
-    const testStore = createAppStore();
-
-    expect(isAuditViewSelected(testStore.getState())).toBe(true);
-    expect(isReportViewSelected(testStore.getState())).toBe(false);
-    expect(isAttributionViewSelected(testStore.getState())).toBe(false);
-
-    testStore.dispatch(navigateToView(View.Audit));
-
-    expect(isAuditViewSelected(testStore.getState())).toBe(true);
-    expect(isReportViewSelected(testStore.getState())).toBe(false);
-    expect(isAttributionViewSelected(testStore.getState())).toBe(false);
   });
 
   it('sets the selectedView', () => {
     const testStore = createAppStore();
-    testStore.dispatch(navigateToView(View.Attribution));
-
-    expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
-
     testStore.dispatch(navigateToView(View.Audit));
 
     expect(getSelectedView(testStore.getState())).toBe(View.Audit);
@@ -94,16 +51,16 @@ describe('view actions', () => {
 
   it('resets view state', () => {
     const testStore = createAppStore();
-    testStore.dispatch(navigateToView(View.Attribution));
+    testStore.dispatch(navigateToView(View.Report));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(setTargetView(View.Audit));
+    testStore.dispatch(setTargetView(View.Report));
 
-    expect(isAttributionViewSelected(testStore.getState())).toBe(true);
-    expect(getTargetView(testStore.getState())).toBe(View.Audit);
+    expect(isAuditViewSelected(testStore.getState())).toBe(false);
+    expect(getTargetView(testStore.getState())).toBe(View.Report);
     expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
 
     testStore.dispatch(resetViewState());
-    expect(isAttributionViewSelected(testStore.getState())).toBe(false);
+    expect(isAuditViewSelected(testStore.getState())).toBe(true);
     expect(getTargetView(testStore.getState())).toBeNull();
     expect(getOpenPopup(testStore.getState())).toBeNull();
   });
@@ -127,19 +84,16 @@ describe('popup actions', () => {
     testStore.dispatch(closePopup());
     expect(getOpenPopup(testStore.getState())).toBeFalsy();
   });
+
   it('sets targetAttributionId and popupType', () => {
     const testStore = createAppStore();
     expect(getPopupAttributionId(testStore.getState())).toBeNull();
     const testAttributionId = 'test';
-    testStore.dispatch(
-      openPopup(PopupType.ConfirmDeletionPopup, testAttributionId),
-    );
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup, testAttributionId));
     expect(getPopupAttributionId(testStore.getState())).toEqual(
       testAttributionId,
     );
-    expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.ConfirmDeletionPopup,
-    );
+    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
   });
 
   it('handles multiple opened popups', () => {
@@ -151,9 +105,11 @@ describe('popup actions', () => {
     );
     expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
 
-    testStore.dispatch(openPopup(PopupType.LocatorPopup));
+    testStore.dispatch(openPopup(PopupType.ProjectMetadataPopup));
     expect(getPopupAttributionId(testStore.getState())).toBeNull();
-    expect(getOpenPopup(testStore.getState())).toBe(PopupType.LocatorPopup);
+    expect(getOpenPopup(testStore.getState())).toBe(
+      PopupType.ProjectMetadataPopup,
+    );
 
     testStore.dispatch(closePopup());
     expect(getPopupAttributionId(testStore.getState())).toEqual(
@@ -170,9 +126,9 @@ describe('popup actions', () => {
     const testStore = createAppStore();
     expect(getOpenPopup(testStore.getState())).toBeNull();
     // open file search popup twice
-    testStore.dispatch(openPopup(PopupType.FileSearchPopup));
-    testStore.dispatch(openPopup(PopupType.FileSearchPopup));
-    expect(getOpenPopup(testStore.getState())).toBe(PopupType.FileSearchPopup);
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
 
     // there should be only one search popup open
     testStore.dispatch(closePopup());

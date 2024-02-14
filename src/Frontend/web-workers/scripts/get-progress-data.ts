@@ -12,7 +12,6 @@ interface Props {
   filesWithChildren: Set<string>;
   manualData: AttributionData;
   resolvedExternalAttributions: Set<string>;
-  resourceId: string;
   resources: Resources;
 }
 
@@ -22,12 +21,10 @@ export function getProgressData({
   filesWithChildren,
   manualData,
   resolvedExternalAttributions,
-  resourceId,
   resources,
 }: Props): ProgressBarData {
   return getUpdatedProgressBarData({
     resources,
-    resourceId,
     manualAttributions: manualData.attributions,
     externalAttributions: externalData.attributions,
     resourcesToManualAttributions: manualData.resourcesToAttributions,

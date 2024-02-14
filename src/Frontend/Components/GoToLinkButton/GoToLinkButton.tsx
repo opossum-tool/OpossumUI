@@ -15,18 +15,14 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
-} from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
-import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
+  getSelectedResourceId,
+} from '../../state/selectors/resource-selectors';
 import { IconButton } from '../IconButton/IconButton';
 
 export function GoToLinkButton(): ReactElement | null {
   const path = useAppSelector(getSelectedResourceId);
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
-  const isAttributionBreakpoint = getAttributionBreakpointCheck(
-    attributionBreakpoints,
-  );
   const dispatch = useAppDispatch();
 
   function getOpenLinkArgs(): OpenLinkArgs {
@@ -39,8 +35,8 @@ export function GoToLinkButton(): ReactElement | null {
       const parent = sortedParents[index];
       const baseUrlOfParent = baseUrlsForSources[parent];
       if (
-        isAttributionBreakpoint(parent) ||
-        isAttributionBreakpoint(path) ||
+        attributionBreakpoints.has(parent) ||
+        attributionBreakpoints.has(path) ||
         baseUrlOfParent === null
       ) {
         break;

@@ -8,33 +8,17 @@ import {
   PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { PackagePanelTitle } from '../../../enums/enums';
-import {
-  ADD_NEW_ATTRIBUTION_BUTTON_ID,
-  EMPTY_DISPLAY_PACKAGE_INFO,
-} from '../../../shared-constants';
-import {
-  getAttributionsToResources,
-  getParsedInputFileEnrichedWithTestData,
-} from '../../../test-helpers/general-test-helpers';
-import { PanelPackage } from '../../../types/types';
+import { getAttributionsToResources } from '../../../test-helpers/general-test-helpers';
 import { setManualData } from '../../actions/resource-actions/all-views-simple-actions';
 import {
-  setDisplayedPackage,
   setResolvedExternalAttributions,
-  setSelectedResourceId,
+  setSelectedAttributionId,
 } from '../../actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { createAppStore } from '../../configure-store';
 import {
-  getAttributionIdOfDisplayedPackageInManualPanel,
-  getManualDisplayPackageInfoOfSelected,
-} from '../all-views-resource-selectors';
-import {
-  getAttributionIdsOfSelectedResource,
-  getAttributionsOfSelectedResourceOrClosestParent,
+  getPackageInfoOfSelectedAttribution,
   getResolvedExternalAttributions,
-} from '../audit-view-resource-selectors';
+} from '../resource-selectors';
 
 describe('The audit view resource selectors', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
@@ -73,7 +57,7 @@ describe('The audit view resource selectors', () => {
       id: testManualAttributionUuid_1,
     };
     expect(
-      getManualDisplayPackageInfoOfSelected(testStore.getState()),
+      getPackageInfoOfSelectedAttribution(testStore.getState()),
     ).toBeNull();
 
     testStore.dispatch(
@@ -83,77 +67,10 @@ describe('The audit view resource selectors', () => {
         testAttributionsToResources,
       ),
     );
-    testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
+    testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
+    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
       expectedDisplayPackageInfo,
     );
-  });
-
-  it('gets attributions and attribution ids for the selected resource', () => {
-    const testStore = createAppStore();
-    const reactPackage: PackageInfo = { packageName: 'React', id: 'uuid1' };
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: { file: 1 },
-          manualAttributions: {
-            uuid1: reactPackage,
-            uuid2: { packageName: 'Angular', id: 'uuid2' },
-          },
-          resourcesToManualAttributions: { '/file': ['uuid1'] },
-        }),
-      ),
-    );
-
-    testStore.dispatch(setSelectedResourceId('/file'));
-    expect(getAttributionIdsOfSelectedResource(testStore.getState())).toEqual([
-      'uuid1',
-    ]);
-    expect(
-      getAttributionsOfSelectedResourceOrClosestParent(testStore.getState()),
-    ).toEqual({
-      uuid1: reactPackage,
-    });
-  });
-
-  it('gets getAttributionIdOfDisplayedPackageInManualPanel', () => {
-    const manualPackagesSelectedPackage: PanelPackage = {
-      panel: PackagePanelTitle.ManualPackages,
-      packageCardId: 'Attributions-0',
-      displayPackageInfo: { packageName: 'React', id: 'uuid1' },
-    };
-    const manualPackagesDefaultSelectedPackage: PanelPackage = {
-      panel: PackagePanelTitle.ManualPackages,
-      packageCardId: ADD_NEW_ATTRIBUTION_BUTTON_ID,
-      displayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
-    };
-    const containedSelectedPackage: PanelPackage = {
-      panel: PackagePanelTitle.ContainedManualPackages,
-      packageCardId: 'Signals in Folder Content-0',
-      displayPackageInfo: { packageName: 'Vue', id: 'uuid2' },
-    };
-
-    const testStore = createAppStore();
-    expect(
-      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-    ).toBeNull();
-
-    testStore.dispatch(setDisplayedPackage(manualPackagesSelectedPackage));
-    expect(
-      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-    ).toBe('uuid1');
-
-    testStore.dispatch(
-      setDisplayedPackage(manualPackagesDefaultSelectedPackage),
-    );
-    expect(
-      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-    ).toBeNull();
-
-    testStore.dispatch(setDisplayedPackage(containedSelectedPackage));
-    expect(
-      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-    ).toBeNull();
   });
 
   it('sets and gets resolvedExternalAttributions', () => {

@@ -4,26 +4,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow } from 'electron';
 import settings from 'electron-settings';
-import { isEqual } from 'lodash';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { UserSettings as IUserSettings } from '../../shared/shared-types';
 
 export class UserSettings {
   public static async init() {
-    const current: Partial<IUserSettings> = await settings.get();
-    const reset = process.argv.includes('--reset');
-
-    const updated = {
-      ...current,
-      showProjectStatistics: reset
-        ? false
-        : current.showProjectStatistics ?? true,
-      qaMode: reset ? false : current.qaMode ?? false,
-    } satisfies IUserSettings;
-
-    if (!isEqual(current, updated)) {
-      await settings.set(updated);
+    if (process.argv.includes('--reset')) {
+      await settings.set({});
     }
   }
 

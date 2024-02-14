@@ -2,97 +2,33 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ReactElement } from 'react';
-
-import { ButtonText, View } from '../../enums/enums';
+import { text } from '../../../shared/text';
 import {
-  checkIfPreferredStatusChangedAndShowWarningOrSave,
   closePopupAndUnsetTargets,
   navigateToTargetResourceOrAttributionOrOpenFileDialog,
-  unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled,
 } from '../../state/actions/popup-actions/popup-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getCurrentAttributionId,
-  getIsGlobalSavingDisabled,
-  getIsSavingDisabled,
-  getManualAttributionsToResources,
-} from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedView } from '../../state/selectors/view-selector';
-import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
+import { useAppDispatch } from '../../state/hooks';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
-export function NotSavedPopup(): ReactElement {
+export function NotSavedPopup() {
   const dispatch = useAppDispatch();
-  const currentAttributionId = useAppSelector(getCurrentAttributionId);
-  const attributionsToResources = useAppSelector(
-    getManualAttributionsToResources,
-  );
-  const view = useAppSelector(getSelectedView);
-  const isSavingDisabled = useAppSelector(getIsSavingDisabled);
-  const isGlobalSavingDisabled = useAppSelector(getIsGlobalSavingDisabled);
-  const showSaveGloballyButton =
-    view === View.Audit &&
-    hasAttributionMultipleResources(
-      currentAttributionId,
-      attributionsToResources,
-    );
-
-  function handleSaveClick(): void {
-    dispatch(
-      unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
-    );
-  }
-
-  function handleSaveGloballyClick(): void {
-    dispatch(checkIfPreferredStatusChangedAndShowWarningOrSave());
-  }
-
-  function handleDiscardClick(): void {
-    dispatch(navigateToTargetResourceOrAttributionOrOpenFileDialog());
-  }
-
-  function handleCancelClick(): void {
-    dispatch(closePopupAndUnsetTargets());
-  }
-
-  const content = `There are unsaved changes. ${
-    isSavingDisabled ? 'Unable to save.' : ''
-  }`;
 
   return (
     <NotificationPopup
-      content={content}
-      header={'Warning'}
+      content={text.unsavedChangesPopup.message}
+      header={text.unsavedChangesPopup.title}
       leftButtonConfig={{
-        onClick: showSaveGloballyButton
-          ? handleSaveClick
-          : handleSaveGloballyClick,
-        buttonText: ButtonText.Save,
-        disabled: isSavingDisabled,
-      }}
-      centerLeftButtonConfig={
-        showSaveGloballyButton
-          ? {
-              onClick: handleSaveGloballyClick,
-              buttonText: ButtonText.SaveGlobally,
-              disabled: isGlobalSavingDisabled,
-              color: 'secondary',
-            }
-          : undefined
-      }
-      centerRightButtonConfig={{
-        onClick: handleDiscardClick,
-        buttonText: ButtonText.Discard,
+        onClick: () =>
+          dispatch(navigateToTargetResourceOrAttributionOrOpenFileDialog()),
+        buttonText: text.unsavedChangesPopup.discard,
         color: 'secondary',
       }}
       rightButtonConfig={{
-        onClick: handleCancelClick,
-        buttonText: ButtonText.Cancel,
-        color: 'secondary',
+        onClick: () => dispatch(closePopupAndUnsetTargets()),
+        buttonText: text.buttons.cancel,
       }}
-      isOpen={true}
-      aria-label={'not saved popup'}
+      isOpen
+      aria-label={'unsaved changes popup'}
     />
   );
 }

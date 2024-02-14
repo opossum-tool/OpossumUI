@@ -170,6 +170,14 @@ class OpossumModule {
     );
   }
 
+  public static attributionBreakpoints(props?: Set<string>): Set<string> {
+    return props || new Set();
+  }
+
+  public static resolvedAttributions(props?: Set<string>): Set<string> {
+    return props || new Set();
+  }
+
   public static resourcesToAttributions(
     props?: ResourcesToAttributions,
   ): ResourcesToAttributions {
@@ -268,7 +276,7 @@ class OpossumModule {
       metadata: OpossumModule.metadata(),
       manualAttributions: {},
       resourcesToAttributions: {},
-      resolvedExternalAttributions: new Set([]),
+      resolvedExternalAttributions: [],
       ...props,
     };
   }
@@ -284,20 +292,7 @@ class OpossumModule {
     };
   }
 
-  public static manualAttributionData(
-    props: Partial<AttributionData> = {},
-  ): AttributionData {
-    return {
-      attributions: OpossumModule.attributions(),
-      attributionsToResources: OpossumModule.attributionsToResources(),
-      resourcesToAttributions: OpossumModule.resourcesToAttributions(),
-      resourcesWithAttributedChildren:
-        OpossumModule.resourcesWithAttributedChildren(),
-      ...props,
-    };
-  }
-
-  public static externalAttributionData(
+  public static attributionData(
     props: Partial<AttributionData> = {},
   ): AttributionData {
     return {

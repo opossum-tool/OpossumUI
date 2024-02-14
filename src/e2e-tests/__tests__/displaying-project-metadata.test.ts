@@ -20,6 +20,6 @@ test('opens, displays, and closes project metadata', async ({
   await projectMetadataPopup.assert.titleIsVisible();
   await projectMetadataPopup.assert.attributeIsVisible(metadata.projectId);
 
-  await projectMetadataPopup.close();
+  await projectMetadataPopup.closeButton.click();
   await projectMetadataPopup.assert.titleIsHidden();
 });

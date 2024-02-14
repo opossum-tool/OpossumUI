@@ -3,10 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { PackageInfo } from '../../../shared/shared-types';
-import {
-  licenseNameContainsSearchTerm,
-  packageInfoContainsSearchTerm,
-} from '../search-package-info';
+import { packageInfoContainsSearchTerm } from '../search-package-info';
 
 describe('packageInfoContainsSearchTerm', () => {
   it('searches by package name', () => {
@@ -31,17 +28,6 @@ describe('packageInfoContainsSearchTerm', () => {
     );
   });
 
-  it('searches by license name', () => {
-    const testPackageInfo: PackageInfo = {
-      licenseName: 'Search_term licence',
-      id: 'uuid3',
-    };
-
-    expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
-      true,
-    );
-  });
-
   it('searches by package version', () => {
     const testPackageInfo: PackageInfo = {
       packageVersion: 'version search_term',
@@ -55,7 +41,6 @@ describe('packageInfoContainsSearchTerm', () => {
 
   it('ignores other fields', () => {
     const testPackageInfo: PackageInfo = {
-      comment: 'comment search_term',
       licenseText: 'text search_term',
       url: 'www.search_term.com',
       id: 'uuid5',
@@ -63,19 +48,6 @@ describe('packageInfoContainsSearchTerm', () => {
 
     expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
       false,
-    );
-  });
-});
-
-describe('licenseNameContainsSearchTerm', () => {
-  it('searches by license name', () => {
-    const testPackageInfo: PackageInfo = {
-      licenseName: 'Search_term licence',
-      id: 'uuid3',
-    };
-
-    expect(licenseNameContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
-      true,
     );
   });
 });

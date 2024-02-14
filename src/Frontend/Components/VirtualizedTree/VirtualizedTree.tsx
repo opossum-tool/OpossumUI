@@ -5,85 +5,80 @@
 import { SxProps } from '@mui/system';
 import { useMemo } from 'react';
 
+import { TREE_ROOT_FOLDER_LABEL } from '../../shared-styles';
+import { getResourcesFromIds } from '../../state/helpers/resources-helpers';
+import { useAppSelector } from '../../state/hooks';
+import { getFilesWithChildren } from '../../state/selectors/resource-selectors';
 import { List } from '../List/List';
-import { ResizableBox } from '../ResizableBox/ResizableBox';
+import { getTreeNodes } from './VirtualizedTree.util';
 import {
-  getTreeNodeProps,
-  NodeIdPredicateForTree,
-  NodesForTree,
-  TreeNodeStyle,
-} from './VirtualizedTree.util';
-import { VirtualizedTreeNode } from './VirtualizedTreeNode/VirtualizedTreeNode';
+  TreeNode,
+  VirtualizedTreeNode,
+} from './VirtualizedTreeNode/VirtualizedTreeNode';
 
 interface VirtualizedTreeProps {
-  nodes: NodesForTree;
-  getTreeNodeLabel: (
-    nodeName: string,
-    node: NodesForTree | 1,
-    nodeId: string,
-  ) => React.ReactElement;
+  TreeNodeLabel: React.FC<TreeNode>;
   expandedIds: Array<string>;
-  selectedNodeId: string;
-  isFakeNonExpandableNode: NodeIdPredicateForTree;
-  onSelect: (event: React.ChangeEvent<unknown>, nodeId: string) => void;
+  resourceIds: Array<string>;
+  onSelect: (nodeId: string) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
-  cardHeight: number;
-  width?: number | string;
-  expandedNodeIcon?: React.ReactElement;
-  nonExpandedNodeIcon?: React.ReactElement;
+  readOnly?: boolean;
+  selectedNodeId?: string;
   sx?: SxProps;
-  treeNodeStyle?: TreeNodeStyle;
-  breakpoints?: Set<string>;
-  locatorIcon?: React.ReactElement;
-  locatedResourceIcon?: React.ReactElement;
-  locatedResources?: Set<string>;
-  resourcesWithLocatedChildren?: Set<string>;
-  resizable?: boolean;
+  testId?: string;
 }
 
-export function VirtualizedTree(props: VirtualizedTreeProps) {
-  const treeNodeProps = getTreeNodeProps(
-    props.nodes,
-    '',
-    props.expandedIds,
-    props.selectedNodeId,
-    props.isFakeNonExpandableNode,
-    props.onSelect,
-    props.onToggle,
-    props.getTreeNodeLabel,
-    props.locatedResources,
-    props.resourcesWithLocatedChildren,
-    props.breakpoints,
+export function VirtualizedTree({
+  TreeNodeLabel,
+  expandedIds,
+  onSelect,
+  onToggle,
+  readOnly,
+  resourceIds,
+  selectedNodeId,
+  sx,
+  testId,
+}: VirtualizedTreeProps) {
+  const filesWithChildren = useAppSelector(getFilesWithChildren);
+  const resources = useMemo(
+    () => getResourcesFromIds(resourceIds),
+    [resourceIds],
   );
-  const indexToScrollTo = useMemo(
+  const treeNodes = useMemo(
     () =>
-      treeNodeProps.findIndex(({ nodeId }) => nodeId === props.selectedNodeId),
-    [props.selectedNodeId, treeNodeProps],
+      getTreeNodes(
+        { [TREE_ROOT_FOLDER_LABEL]: resources },
+        expandedIds,
+        filesWithChildren,
+      ),
+    [expandedIds, filesWithChildren, resources],
   );
 
-  return props.nodes ? (
-    <ResizableBox
-      aria-label={'resource browser'}
-      sx={props.sx}
-      defaultSize={{ width: props.width ?? 'auto', height: '100%' }}
-      enable={props.resizable === true ? undefined : false}
-    >
-      {props.locatorIcon}
-      <List
-        length={treeNodeProps.length}
-        cardHeight={props.cardHeight}
-        getListItem={(index) => (
-          <VirtualizedTreeNode
-            {...treeNodeProps[index]}
-            expandedNodeIcon={props.expandedNodeIcon}
-            nonExpandedNodeIcon={props.nonExpandedNodeIcon}
-            locatedResourceIcon={props.locatedResourceIcon}
-            treeNodeStyle={props.treeNodeStyle}
-          />
-        )}
-        indexToScrollTo={indexToScrollTo}
-        fullHeight
-      />
-    </ResizableBox>
-  ) : null;
+  return (
+    <List
+      data={resourceIds.length ? Object.keys(treeNodes) : []}
+      renderItemContent={(nodeId) => (
+        <VirtualizedTreeNode
+          TreeNodeLabel={TreeNodeLabel}
+          isExpandedNode={expandedIds.includes(nodeId)}
+          onToggle={onToggle}
+          onSelect={onSelect}
+          readOnly={readOnly}
+          selected={nodeId === selectedNodeId}
+          {...treeNodes[nodeId]}
+        />
+      )}
+      selected={selectedNodeId}
+      testId={testId}
+      sx={{
+        height: '100%',
+        // allow tree node selected indicator to overflow the width of the list
+        '& [data-viewport-type]': {
+          width: 'unset !important',
+          minWidth: '100%',
+        },
+        ...sx,
+      }}
+    />
+  );
 }
