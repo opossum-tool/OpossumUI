@@ -19,23 +19,23 @@ import {
 } from '../../ElectronBackend/types/types';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { AttributionDetails } from '../page-objects/AttributionDetails';
-import { AttributionList } from '../page-objects/AttributionList';
-import { ChangePreferredStatusGloballyPopup } from '../page-objects/ChangePreferredStatusGloballyPopup';
+import { AttributionsPanel } from '../page-objects/AttributionsPanel';
 import { ConfirmationDialog } from '../page-objects/ConfirmationDialog';
-import { ConfirmationPopup } from '../page-objects/ConfirmationPopup';
+import { ConfirmDeletionPopup } from '../page-objects/ConfirmDeletionPopup';
+import { ConfirmSavePopup } from '../page-objects/ConfirmSavePopup';
 import { DiffPopup } from '../page-objects/DiffPopup';
 import { ErrorPopup } from '../page-objects/ErrorPopup';
-import { FileSearchPopup } from '../page-objects/FileSearchPopup';
 import { FileSupportPopup } from '../page-objects/FileSupportPopup';
+import { LinkedResourcesTree } from '../page-objects/LinkedResourcesTree';
 import { MenuBar } from '../page-objects/MenuBar';
 import { NotSavedPopup } from '../page-objects/NotSavedPopup';
+import { PathBar } from '../page-objects/PathBar';
 import { ProjectMetadataPopup } from '../page-objects/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../page-objects/ProjectStatisticsPopup';
 import { ReplaceAttributionsPopup } from '../page-objects/ReplaceAttributionsPopup';
 import { ReportView } from '../page-objects/ReportView';
-import { ResourceBrowser } from '../page-objects/ResourceBrowser';
-import { ResourceDetails } from '../page-objects/ResourceDetails';
-import { ResourcePathPopup } from '../page-objects/ResourcePathPopup';
+import { ResourcesTree } from '../page-objects/ResourcesTree';
+import { SignalsPanel } from '../page-objects/SignalsPanel';
 import { TopBar } from '../page-objects/TopBar';
 
 const LOAD_TIMEOUT = 15000;
@@ -52,25 +52,25 @@ export const test = base.extend<{
   data: OpossumData | undefined;
   /** Run this function at any point in a test to abort the test at that point and inspect the opossum file. */
   debug: () => void;
+  modKey: string;
   attributionDetails: AttributionDetails;
-  attributionList: AttributionList;
-  changePreferredStatusGloballyPopup: ChangePreferredStatusGloballyPopup;
+  attributionsPanel: AttributionsPanel;
+  confirmDeletionPopup: ConfirmDeletionPopup;
+  confirmSavePopup: ConfirmSavePopup;
   confirmationDialog: ConfirmationDialog;
-  confirmationPopup: ConfirmationPopup;
   diffPopup: DiffPopup;
   errorPopup: ErrorPopup;
-  fileSearchPopup: FileSearchPopup;
   fileSupportPopup: FileSupportPopup;
+  linkedResourcesTree: LinkedResourcesTree;
   menuBar: MenuBar;
-  modKey: string;
   notSavedPopup: NotSavedPopup;
+  pathBar: PathBar;
   projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
   replaceAttributionsPopup: ReplaceAttributionsPopup;
   reportView: ReportView;
-  resourceBrowser: ResourceBrowser;
-  resourceDetails: ResourceDetails;
-  resourcePathPopup: ResourcePathPopup;
+  resourcesTree: ResourcesTree;
+  signalsPanel: SignalsPanel;
   topBar: TopBar;
 }>({
   data: undefined,
@@ -118,11 +118,11 @@ export const test = base.extend<{
   fileSupportPopup: async ({ window }, use) => {
     await use(new FileSupportPopup(window));
   },
-  resourceBrowser: async ({ window }, use) => {
-    await use(new ResourceBrowser(window));
+  resourcesTree: async ({ window }, use) => {
+    await use(new ResourcesTree(window));
   },
-  resourceDetails: async ({ window }, use) => {
-    await use(new ResourceDetails(window));
+  pathBar: async ({ window }, use) => {
+    await use(new PathBar(window));
   },
   errorPopup: async ({ window }, use) => {
     await use(new ErrorPopup(window));
@@ -139,26 +139,14 @@ export const test = base.extend<{
   menuBar: async ({ window }, use) => {
     await use(new MenuBar(window));
   },
-  fileSearchPopup: async ({ window }, use) => {
-    await use(new FileSearchPopup(window));
+  confirmDeletionPopup: async ({ window }, use) => {
+    await use(new ConfirmDeletionPopup(window));
   },
-  changePreferredStatusGloballyPopup: async ({ window }, use) => {
-    await use(new ChangePreferredStatusGloballyPopup(window));
-  },
-  confirmationPopup: async ({ window }, use) => {
-    await use(new ConfirmationPopup(window));
-  },
-  attributionList: async ({ window }, use) => {
-    await use(new AttributionList(window));
-  },
-  resourcePathPopup: async ({ window }, use) => {
-    await use(new ResourcePathPopup(window));
+  attributionsPanel: async ({ window }, use) => {
+    await use(new AttributionsPanel(window));
   },
   attributionDetails: async ({ window }, use) => {
     await use(new AttributionDetails(window));
-  },
-  reportView: async ({ window }, use) => {
-    await use(new ReportView(window));
   },
   confirmationDialog: async ({ window }, use) => {
     await use(new ConfirmationDialog(window));
@@ -168,6 +156,18 @@ export const test = base.extend<{
   },
   diffPopup: async ({ window }, use) => {
     await use(new DiffPopup(window));
+  },
+  signalsPanel: async ({ window }, use) => {
+    await use(new SignalsPanel(window));
+  },
+  confirmSavePopup: async ({ window }, use) => {
+    await use(new ConfirmSavePopup(window));
+  },
+  linkedResourcesTree: async ({ window }, use) => {
+    await use(new LinkedResourcesTree(window));
+  },
+  reportView: async ({ window }, use) => {
+    await use(new ReportView(window));
   },
 });
 

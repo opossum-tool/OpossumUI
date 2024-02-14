@@ -49,107 +49,104 @@ test.use({
   },
 });
 
-test('deletes attributions in audit view', async ({
+test('deletes single attributions and updates progress bar', async ({
   attributionDetails,
-  attributionList,
-  confirmationPopup,
-  resourceBrowser,
-  resourceDetails,
+  attributionsPanel,
+  confirmDeletionPopup,
+  resourcesTree,
   topBar,
+  linkedResourcesTree,
 }) => {
-  await resourceBrowser.goto(resourceName1);
-  await resourceDetails.attributionCard.click(packageInfo3);
+  await resourcesTree.goto(resourceName1);
+  await attributionsPanel.packageCard.click(packageInfo3);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo3,
   );
   await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 5,
     filesWithAttributions: 5,
   });
 
-  await attributionDetails.selectDeleteMenuOption('deleteGlobally');
-  await attributionDetails.deleteGloballyButton.click();
-  await confirmationPopup.assert.isVisible();
+  await attributionDetails.deleteButton.click();
+  await confirmDeletionPopup.assert.isVisible();
 
-  await confirmationPopup.confirm();
+  await confirmDeletionPopup.deleteGloballyButton.click();
   await attributionDetails.attributionForm.assert.isEmpty();
   await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 5,
     filesWithAttributions: 5,
   });
 
-  await resourceDetails.attributionCard.click(packageInfo1);
+  await attributionsPanel.packageCard.click(packageInfo1);
+  await attributionsPanel.assert.selectedTabIs('onResource');
+  await attributionsPanel.assert.tabIsVisible('unrelated');
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo1,
   );
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName1);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName2);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName3);
 
   await attributionDetails.deleteButton.click();
-  await confirmationPopup.confirm();
+  await confirmDeletionPopup.deleteLocallyButton.click();
+  await attributionsPanel.assert.selectedTabIs('unrelated');
+  await attributionsPanel.assert.tabIsHidden('onResource');
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
   await attributionDetails.attributionForm.assert.isEmpty();
   await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 5,
     filesWithAttributions: 4,
   });
 
-  await resourceBrowser.goto(resourceName2);
-  await attributionDetails.selectDeleteMenuOption('deleteGlobally');
-  await attributionDetails.deleteGloballyButton.click();
-  await confirmationPopup.confirm();
+  await resourcesTree.goto(resourceName2);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo1,
+  );
+  await linkedResourcesTree.assert.resourceIsHidden(resourceName1);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName2);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName3);
+  await attributionDetails.deleteButton.click();
+  await confirmDeletionPopup.deleteGloballyButton.click();
+  await attributionsPanel.assert.selectedTabIs('unrelated');
+  await attributionsPanel.assert.tabIsHidden('onResource');
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo1);
   await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 5,
     filesWithAttributions: 2,
   });
 
-  await resourceBrowser.goto(resourceName3);
+  await resourcesTree.goto(resourceName3);
   await attributionDetails.attributionForm.assert.isEmpty();
   await attributionDetails.assert.deleteButtonIsHidden();
-  await attributionDetails.assert.deleteGloballyButtonIsHidden();
 
-  await topBar.gotoAttributionView();
-  await resourceBrowser.assert.isHidden();
-
-  await attributionList.attributionCard.click(packageInfo2);
+  await attributionsPanel.packageCard.click(packageInfo2);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo2,
   );
   await attributionDetails.assert.deleteButtonIsVisible();
-  await attributionDetails.assert.deleteGloballyButtonIsHidden();
 
   await attributionDetails.deleteButton.click();
-  await confirmationPopup.confirm();
+  await confirmDeletionPopup.deleteGloballyButton.click();
   await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 5,
     filesWithAttributions: 0,
   });
 });
 
-test('deletes multiple attributions at once in attribution view', async ({
+test('deletes multiple attributions at once', async ({
   attributionDetails,
-  attributionList,
-  confirmationPopup,
-  resourceBrowser,
-  topBar,
+  attributionsPanel,
+  confirmDeletionPopup,
 }) => {
-  await topBar.gotoAttributionView();
-  await attributionList.attributionCard.assert.checkboxIsUnchecked(
-    packageInfo1,
-  );
-  await attributionList.attributionCard.assert.checkboxIsUnchecked(
-    packageInfo2,
-  );
+  await attributionsPanel.packageCard.assert.checkboxIsUnchecked(packageInfo1);
+  await attributionsPanel.packageCard.assert.checkboxIsUnchecked(packageInfo2);
 
-  await attributionList.attributionCard.checkbox(packageInfo1).click();
-  await attributionList.attributionCard.checkbox(packageInfo2).click();
-  await attributionList.attributionCard.assert.checkboxIsChecked(packageInfo1);
-  await attributionList.attributionCard.assert.checkboxIsChecked(packageInfo2);
+  await attributionsPanel.packageCard.checkbox(packageInfo1).check();
+  await attributionsPanel.packageCard.checkbox(packageInfo2).check();
+  await attributionsPanel.packageCard.assert.checkboxIsChecked(packageInfo1);
+  await attributionsPanel.packageCard.assert.checkboxIsChecked(packageInfo2);
 
-  await attributionList.deleteButton.click();
-  await confirmationPopup.assert.hasText('2 attributions');
+  await attributionsPanel.deleteButton.click();
+  await confirmDeletionPopup.assert.hasText('2 attributions');
 
-  await confirmationPopup.confirm();
-  await confirmationPopup.assert.isHidden();
-  await attributionList.attributionCard.assert.isHidden(packageInfo1);
-  await attributionList.attributionCard.assert.isHidden(packageInfo2);
-  await attributionDetails.assert.isHidden();
-  await resourceBrowser.assert.isHidden();
+  await confirmDeletionPopup.deleteGloballyButton.click();
+  await confirmDeletionPopup.assert.isHidden();
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo1);
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
+  await attributionDetails.attributionForm.assert.isEmpty();
 });

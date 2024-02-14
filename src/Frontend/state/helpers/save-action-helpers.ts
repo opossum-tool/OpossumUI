@@ -12,7 +12,6 @@ import {
   PackageInfo,
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
-import { PathPredicate } from '../../types/types';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { getClosestParentWithAttributions } from '../../util/get-closest-parent-attributions';
 import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
@@ -102,26 +101,24 @@ export function updateManualAttribution(
 
 export function deleteManualAttribution(
   manualData: AttributionData,
-  attributionToDeleteId: string,
-  isAttributionBreakpoint: PathPredicate,
+  attributionId: string,
+  attributionBreakpoints: Set<string>,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
-  const newManualData: AttributionData =
-    getAttributionDataShallowCopy(manualData);
+  const newManualData = getAttributionDataShallowCopy(manualData);
 
-  const resourcesLinkedToAttributionThatIsDeleted =
-    manualData.attributionsToResources[attributionToDeleteId];
-  delete newManualData.attributions[attributionToDeleteId];
-  delete newManualData.attributionsToResources[attributionToDeleteId];
+  const resourceIds = manualData.attributionsToResources[attributionId] || [];
+  delete newManualData.attributions[attributionId];
+  delete newManualData.attributionsToResources[attributionId];
 
-  resourcesLinkedToAttributionThatIsDeleted.forEach((resourceId) => {
+  resourceIds.forEach((resourceId) => {
     if (newManualData.resourcesToAttributions[resourceId].length > 1) {
       newManualData.resourcesToAttributions[resourceId] = [
         ...newManualData.resourcesToAttributions[resourceId],
       ];
       remove(
         newManualData.resourcesToAttributions[resourceId],
-        (attributionId: string) => attributionId === attributionToDeleteId,
+        (id) => id === attributionId,
       );
     } else {
       delete newManualData.resourcesToAttributions[resourceId];
@@ -134,11 +131,11 @@ export function deleteManualAttribution(
 
   _removeAttributionsFromChildrenAndParents(
     newManualData,
-    resourcesLinkedToAttributionThatIsDeleted,
-    isAttributionBreakpoint,
+    resourceIds,
+    attributionBreakpoints,
   );
 
-  resourcesLinkedToAttributionThatIsDeleted.forEach((resourceId) => {
+  resourceIds.forEach((resourceId) => {
     recalculatePreferencesOfParents(
       resourceId,
       newManualData,
@@ -152,19 +149,19 @@ export function deleteManualAttribution(
 export function _removeAttributionsFromChildrenAndParents(
   newManualData: AttributionData,
   resourceIds: Array<string>,
-  isAttributionBreakpoint: PathPredicate,
+  attributionBreakpoints: Set<string>,
 ): void {
   for (const resourceId of resourceIds) {
     removeManualAttributionFromChildrenOfParentsIfInferable(
       newManualData,
       resourceId,
-      isAttributionBreakpoint,
+      attributionBreakpoints,
     );
 
     removeManualAttributionFromChildIfInferable(
       newManualData,
       resourceId,
-      isAttributionBreakpoint,
+      attributionBreakpoints,
     );
   }
 }
@@ -239,7 +236,7 @@ export function replaceAttributionWithMatchingAttributionId(
   manualData: AttributionData,
   attributionIdToReplaceWith: string,
   attributionIdToReplace: string,
-  isAttributionBreakpoint: PathPredicate,
+  attributionBreakpoints: Set<string>,
 ): AttributionData {
   const newManualData = getAttributionDataShallowCopy(manualData);
 
@@ -252,7 +249,7 @@ export function replaceAttributionWithMatchingAttributionId(
   _removeManualAttributionFromChildrenIfAllAreIdentical(
     newManualData,
     newManualData.attributionsToResources[attributionIdToReplaceWith],
-    isAttributionBreakpoint,
+    attributionBreakpoints,
   );
 
   return newManualData;
@@ -268,17 +265,17 @@ function replaceAndDeleteAttribution(
 
   resourcesToRelink?.forEach((resourceId: string) => {
     manualData.resourcesToAttributions[resourceId] = [
-      ...manualData.resourcesToAttributions[resourceId],
+      ...(manualData.resourcesToAttributions[resourceId] ?? []),
     ];
 
     if (
-      manualData.resourcesToAttributions[resourceId].includes(
+      manualData.resourcesToAttributions[resourceId]?.includes(
         attributionIdToReplaceWith,
       )
     ) {
       remove(
         manualData.resourcesToAttributions[resourceId],
-        (attributionId: string) => attributionId === attributionIdToReplace,
+        (attributionId) => attributionId === attributionIdToReplace,
       );
     } else {
       replaceInArray(
@@ -288,9 +285,10 @@ function replaceAndDeleteAttribution(
       );
 
       manualData.attributionsToResources[attributionIdToReplaceWith] = [
-        ...manualData.attributionsToResources[attributionIdToReplaceWith],
+        ...(manualData.attributionsToResources[attributionIdToReplaceWith] ??
+          []),
       ];
-      manualData.attributionsToResources[attributionIdToReplaceWith].push(
+      manualData.attributionsToResources[attributionIdToReplaceWith]?.push(
         resourceId,
       );
     }
@@ -304,7 +302,7 @@ export function linkToAttributionManualData(
   manualData: AttributionData,
   selectedResourceId: string,
   matchingAttributionId: string,
-  isAttributionBreakpoint: PathPredicate,
+  attributionBreakpoints: Set<string>,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
   const newManualData: AttributionData =
@@ -325,7 +323,7 @@ export function linkToAttributionManualData(
       selectedResourceId,
       matchingAttributionId,
     ),
-    isAttributionBreakpoint,
+    attributionBreakpoints,
   );
 
   recalculatePreferencesOfParents(
@@ -466,13 +464,13 @@ export function _getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions(
 export function _removeManualAttributionFromChildrenIfAllAreIdentical(
   manualData: AttributionData,
   idsOfChildrenWithPossiblyTheSameAttributions: Array<string> | undefined,
-  isAttributionBreakpoint: PathPredicate,
+  attributionBreakpoints: Set<string>,
 ): void {
   idsOfChildrenWithPossiblyTheSameAttributions?.forEach((childId) => {
     removeManualAttributionFromChildIfInferable(
       manualData,
       childId,
-      isAttributionBreakpoint,
+      attributionBreakpoints,
     );
   });
 }
@@ -480,12 +478,12 @@ export function _removeManualAttributionFromChildrenIfAllAreIdentical(
 function removeManualAttributionFromChildIfInferable(
   manualData: AttributionData,
   childId: string,
-  isAttributionBreakpoint: PathPredicate,
+  attributionBreakpoints: Set<string>,
 ): void {
   const closestParentWithAttribution = getClosestParentWithAttributions(
     childId,
     manualData.resourcesToAttributions,
-    isAttributionBreakpoint,
+    attributionBreakpoints,
   );
 
   if (!closestParentWithAttribution) {
@@ -561,7 +559,7 @@ function resourcesHaveTheSameAttributions(
 function removeManualAttributionFromChildrenOfParentsIfInferable(
   manualData: AttributionData,
   parentId: string,
-  isAttributionBreakpoint: PathPredicate,
+  attributionBreakpoints: Set<string>,
 ): void {
   // heuristic: restrict to children that share this attribution
   const firstAttributionId: string | undefined =
@@ -583,7 +581,7 @@ function removeManualAttributionFromChildrenOfParentsIfInferable(
     removeManualAttributionFromChildIfInferable(
       manualData,
       childId,
-      isAttributionBreakpoint,
+      attributionBreakpoints,
     ),
   );
 }

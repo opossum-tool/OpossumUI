@@ -41,13 +41,6 @@ export const OpossumColors = {
 export const criticalityColor = {
   high: OpossumColors.orange,
   medium: OpossumColors.mediumOrange,
-  undefined: OpossumColors.darkBlue,
-};
-
-export const tooltipStyle = {
-  '& tooltip': {
-    fontSize: '12px',
-  },
 };
 
 export const baseIcon = {
@@ -93,62 +86,12 @@ export const tableClasses = {
   },
 };
 
-export const TREE_ROW_HEIGHT = 20;
 export const TREE_ROOT_FOLDER_LABEL = '';
 
-export const treeClasses = {
-  treeItemLabel: {
-    height: '19px',
-    whiteSpace: 'nowrap',
-    '&:hover': {
-      backgroundColor: `${OpossumColors.lightBlueOnHover}`,
-      cursor: 'pointer',
-    },
-  },
-  treeItemLabelChildrenOfSelected: {
-    backgroundColor: `${OpossumColors.lightestBlue}`,
-    borderBottom: `1px ${OpossumColors.lightestBlue} solid`,
-  },
-  treeItemLabelSelected: {
-    backgroundColor: `${OpossumColors.lightestBlue} !important`,
-    borderBottom: `1px ${OpossumColors.lightestBlue} solid`,
-    '&:hover': {
-      backgroundColor: `${OpossumColors.lightBlueOnHover} !important`,
-    },
-  },
-  treeExpandIcon: {
-    width: '16px',
-    height: '20px',
-    padding: '0px',
-    margin: '0px',
-    color: OpossumColors.darkBlue,
-    '&:hover': {
-      background: OpossumColors.middleBlue,
-    },
-  },
-};
-
 export const treeItemClasses = {
-  manualIcon: {
-    color: OpossumColors.darkBlue,
-    height: '20px',
-    width: '20px',
-  },
-  externalIcon: {
-    color: OpossumColors.black,
-    height: '20px',
-    width: '20px',
-  },
   labelRoot: {
     display: 'flex',
     alignItems: 'center',
-  },
-  spacer: {
-    flex: 1,
-  },
-  arrowPlaceholder: {
-    height: '20px',
-    width: '20px',
   },
   text: {
     paddingRight: '5px',
@@ -158,16 +101,13 @@ export const treeItemClasses = {
     color: OpossumColors.grey,
   },
   hasSignal: {
-    color: OpossumColors.orange,
+    color: OpossumColors.pastelRed,
   },
   hasAttribution: {
     color: OpossumColors.green,
   },
   hasParentWithManualAttribution: {
     color: OpossumColors.pastelMiddleGreen,
-  },
-  containsExternalAttribution: {
-    color: OpossumColors.pastelRed,
   },
   containsManualAttribution: {
     color: OpossumColors.pastelMiddleGreen,
@@ -181,5 +121,6 @@ export const treeItemClasses = {
   notContainsResourcesWithOnlyExternalAttribution: {
     color: OpossumColors.pastelMiddleGreen,
   },
-  tooltip: tooltipStyle,
 };
+
+export const TRANSITION = 'all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms';

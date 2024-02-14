@@ -6,12 +6,11 @@ import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
 import WarningIcon from '@mui/icons-material/Warning';
 import MuiDialog from '@mui/material/Dialog';
-import MuiDialogContent from '@mui/material/DialogContent';
 import MuiDialogTitle from '@mui/material/DialogTitle';
 import { SvgIconProps } from '@mui/material/SvgIcon';
 import MuiTypography from '@mui/material/Typography';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { Log } from '../../../shared/shared-types';
@@ -23,11 +22,7 @@ import {
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
 import { Spinner } from '../Spinner/Spinner';
-import {
-  BreakableTypography,
-  MessageContainer,
-  MetaContainer,
-} from './ProcessPopup.style';
+import { BreakableTypography, DialogContent } from './ProcessPopup.style';
 
 const icon: Record<
   Log['level'],
@@ -69,28 +64,25 @@ export function ProcessPopup() {
   );
 
   function renderDialogContent() {
-    return logs.length ? (
-      <MuiDialogContent>
+    return (
+      <DialogContent>
         {logs.map(({ date, level, message }, index) => (
-          <MessageContainer key={index} data-testid={`message-${index + 1}`}>
-            <MetaContainer>
-              {renderIcon(index, level)}
-              <MuiTypography color={'darkblue'}>
-                {dayjs(date).format('HH:mm:ss.SSS')}
-              </MuiTypography>
-              <MuiTypography>{'•'}</MuiTypography>
-            </MetaContainer>
+          <Fragment key={index}>
+            {renderIcon(index, level)}
+            <MuiTypography color={'darkblue'}>
+              {dayjs(date).format('HH:mm:ss.SSS')}
+            </MuiTypography>
             <BreakableTypography>{message}</BreakableTypography>
-          </MessageContainer>
+          </Fragment>
         ))}
-      </MuiDialogContent>
-    ) : null;
+      </DialogContent>
+    );
   }
 
   function renderIcon(index: number, level: Log['level']) {
     const { color, Component } = icon[level];
     return index === logs.length - 1 ? (
-      <Spinner size={15} />
+      <Spinner sx={{ marginTop: '1px' }} />
     ) : (
       <Component sx={{ ...baseIcon, color }} />
     );

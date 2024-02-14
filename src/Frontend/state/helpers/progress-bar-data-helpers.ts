@@ -8,10 +8,9 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import { PathPredicate, ProgressBarData } from '../../types/types';
+import { TREE_ROOT_FOLDER_LABEL } from '../../shared-styles';
+import { ProgressBarData } from '../../types/types';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
-import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
-import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 
 export function filterResourcesToAttributions(
   resourcesToAttributions: ResourcesToAttributions,
@@ -38,8 +37,8 @@ function updateProgressBarDataForResources(
   externalAttributions: Attributions,
   resourcesToManualAttributions: ResourcesToAttributions,
   resourcesToExternalAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate,
+  attributionBreakpoints: Set<string>,
+  filesWithChildren: Set<string>,
   parentPath = '',
   hasParentManualAttribution = false,
   hasParentOnlyPreselectedAttribution = false,
@@ -79,7 +78,7 @@ function updateProgressBarDataForResources(
       externalAttributions,
     );
 
-    if (!resourceCanHaveChildren || isFileWithChildren(path)) {
+    if (!resourceCanHaveChildren || filesWithChildren.has(path)) {
       progressBarData.fileCount++;
       if (hasOnlyPreselectedAttribution) {
         progressBarData.filesWithOnlyPreSelectedAttributionCount++;
@@ -113,7 +112,7 @@ function updateProgressBarDataForResources(
 
     if (resourceCanHaveChildren) {
       if (
-        !isFileWithChildren(path) &&
+        !filesWithChildren.has(path) &&
         !hasManualAttribution &&
         hasNonInheritedExternalAttributions
       ) {
@@ -131,7 +130,7 @@ function updateProgressBarDataForResources(
         }
       }
 
-      const isBreakpoint = isAttributionBreakpoint(path);
+      const isBreakpoint = attributionBreakpoints.has(path);
       updateProgressBarDataForResources(
         progressBarData,
         resource,
@@ -139,8 +138,8 @@ function updateProgressBarDataForResources(
         externalAttributions,
         resourcesToManualAttributions,
         resourcesToExternalAttributions,
-        isAttributionBreakpoint,
-        isFileWithChildren,
+        attributionBreakpoints,
+        filesWithChildren,
         path,
         hasManualAttribution && !isBreakpoint,
         hasOnlyPreselectedAttribution && !isBreakpoint,
@@ -193,8 +192,7 @@ export function resourceHasOnlyPreSelectedAttributions(
 }
 
 export function getUpdatedProgressBarData(args: {
-  resources: Resources | null;
-  resourceId: string;
+  resources: Resources;
   manualAttributions: Attributions;
   externalAttributions: Attributions;
   resourcesToManualAttributions: ResourcesToAttributions;
@@ -203,23 +201,11 @@ export function getUpdatedProgressBarData(args: {
   attributionBreakpoints: Set<string>;
   filesWithChildren: Set<string>;
 }): ProgressBarData {
-  const isAttributionBreakpoint = getAttributionBreakpointCheck(
-    args.attributionBreakpoints,
-  );
-  const isFileWithChildren = getFileWithChildrenCheck(args.filesWithChildren);
   const progressBarData = getEmptyProgressBarData();
-
-  let resources = args.resources || {};
-  if (args.resourceId) {
-    const parentAndCurrentResources = args.resourceId.slice(1, -1).split('/');
-    resources = {
-      '': getCurrentSubTree(parentAndCurrentResources, resources),
-    };
-  }
 
   updateProgressBarDataForResources(
     progressBarData,
-    resources,
+    { [TREE_ROOT_FOLDER_LABEL]: args.resources },
     args.manualAttributions,
     args.externalAttributions,
     args.resourcesToManualAttributions,
@@ -227,8 +213,8 @@ export function getUpdatedProgressBarData(args: {
       args.resourcesToExternalAttributions,
       args.resolvedExternalAttributions,
     ),
-    isAttributionBreakpoint,
-    isFileWithChildren,
+    args.attributionBreakpoints,
+    args.filesWithChildren,
   );
 
   return progressBarData;
@@ -246,20 +232,4 @@ export function getEmptyProgressBarData(): ProgressBarData {
     resourcesWithHighlyCriticalExternalAttributions: [],
     resourcesWithMediumCriticalExternalAttributions: [],
   };
-}
-
-function getCurrentSubTree(
-  parentAndCurrentResources: Array<string>,
-  resources: Resources,
-): Resources {
-  const resource = parentAndCurrentResources.shift();
-  if (resource) {
-    return {
-      [resource]: getCurrentSubTree(
-        parentAndCurrentResources,
-        resources[resource] as Resources,
-      ),
-    };
-  }
-  return resources;
 }

@@ -17,15 +17,6 @@ export enum Criticality {
   Medium = 'medium',
 }
 
-enum AnyCriticality {
-  Any = 'any',
-}
-export type SelectedCriticality = Criticality | AnyCriticality;
-export const SelectedCriticality = {
-  ...Criticality,
-  ...AnyCriticality,
-};
-
 export enum DiscreteConfidence {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   High = 80,
@@ -35,9 +26,11 @@ export enum DiscreteConfidence {
 
 export interface Source {
   name: string;
-  documentConfidence: number;
+  documentConfidence?: number;
   additionalName?: string;
 }
+
+export type Relation = 'resource' | 'children' | 'parents' | 'unrelated';
 
 export type Expand<T> = T extends unknown ? { [K in keyof T]: T[K] } : never;
 
@@ -51,6 +44,7 @@ interface EphemeralPackageInfoProps {
   id: string;
   resources?: Array<string>;
   suffix?: string;
+  relation?: Relation;
 }
 
 export interface PackageInfo extends EphemeralPackageInfoProps {
@@ -275,6 +269,13 @@ export interface Log {
 }
 
 export interface UserSettings {
-  showProjectStatistics: boolean;
-  qaMode: boolean;
+  qaMode: boolean | null;
+  showProjectStatistics: boolean | null;
+  areHiddenSignalsVisible: boolean | null;
+  panelSizes: {
+    resourceBrowserWidth: number;
+    packageListsWidth: number;
+    linkedResourcesPanelHeight: number | null;
+    signalsPanelHeight: number | null;
+  } | null;
 }

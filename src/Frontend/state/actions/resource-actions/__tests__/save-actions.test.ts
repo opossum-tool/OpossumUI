@@ -14,47 +14,37 @@ import {
   SaveFileArgs,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
-import {
-  AllowedSaveOperations,
-  PackagePanelTitle,
-  PopupType,
-} from '../../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { createAppStore } from '../../../configure-store';
 import {
-  getAttributionIdOfDisplayedPackageInManualPanel,
+  getIsPackageInfoModified,
   getManualAttributions,
   getManualAttributionsToResources,
   getManualData,
-  getManualDisplayPackageInfoOfSelected,
+  getPackageInfoOfSelectedAttribution,
   getResourcesToManualAttributions,
   getResourcesWithManualAttributedChildren,
+  getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
-  wereTemporaryDisplayPackageInfoModified,
-} from '../../../selectors/all-views-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from '../../../selectors/attribution-view-resource-selectors';
+} from '../../../selectors/resource-selectors';
 import { getOpenPopup } from '../../../selectors/view-selector';
 import {
   setResources,
   setTemporaryDisplayPackageInfo,
 } from '../all-views-simple-actions';
-import { setSelectedAttributionId } from '../attribution-view-simple-actions';
 import {
-  addResolvedExternalAttribution,
-  setDisplayedPackage,
+  addResolvedExternalAttributions,
+  setSelectedAttributionId,
   setSelectedResourceId,
 } from '../audit-view-simple-actions';
 import { loadFromFile } from '../load-actions';
 import {
   addToSelectedResource,
   deleteAttributionAndSave,
-  deleteAttributionGloballyAndSave,
   saveManualAndResolvedAttributionsToFile,
   savePackageInfo,
-  savePackageInfoIfSavingIsNotDisabled,
-  setAllowedSaveOperations,
-  unlinkAttributionAndSavePackageInfo,
+  unlinkAttributionAndSave,
 } from '../save-actions';
 
 const testResources: Resources = {
@@ -101,39 +91,6 @@ const testResourcesToExternalAttributions: ResourcesToAttributions = {
 };
 
 describe('The savePackageInfo action', () => {
-  it('does not save if saving is disabled', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        }),
-      ),
-    );
-    testStore.dispatch(setSelectedResourceId('/root/src/'));
-    testStore.dispatch(setTemporaryDisplayPackageInfo(testPackageInfo));
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
-    testStore.dispatch(setAllowedSaveOperations(AllowedSaveOperations.None));
-
-    testStore.dispatch(
-      savePackageInfoIfSavingIsNotDisabled(
-        '/root/src/something.js',
-        getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-        testPackageInfo,
-      ),
-    );
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
-    expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.UnableToSavePopup,
-    );
-  });
-
   it('creates a new attribution', () => {
     const expectedTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '1.0',
@@ -165,12 +122,10 @@ describe('The savePackageInfo action', () => {
       pathsToIndices: {},
       paths: [],
     });
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
 
     testStore.dispatch(savePackageInfo('/root/src/', null, testPackageInfo));
-    expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
+    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
       expectedTemporaryDisplayPackageInfo,
     );
     expect(
@@ -187,9 +142,7 @@ describe('The savePackageInfo action', () => {
       },
       paths: ['/root/src/', '/', '/root/'],
     });
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
   });
 
   it('updates an attribution', () => {
@@ -212,6 +165,7 @@ describe('The savePackageInfo action', () => {
       ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
+    testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
     testStore.dispatch(setTemporaryDisplayPackageInfo(testPackageInfo));
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
@@ -230,19 +184,17 @@ describe('The savePackageInfo action', () => {
       paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
     });
 
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
 
     testStore.dispatch(
       savePackageInfo(
         '/root/src/something.js',
-        getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
+        testManualAttributionUuid_1,
         testPackageInfo,
       ),
     );
 
-    expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
+    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
       testPackageInfo,
     );
     expect(
@@ -261,9 +213,7 @@ describe('The savePackageInfo action', () => {
       },
       paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
     });
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
   });
 
   it('removes an attribution', () => {
@@ -353,9 +303,7 @@ describe('The savePackageInfo action', () => {
     testStore.dispatch(
       setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
     );
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
 
     testStore.dispatch(
       savePackageInfo('/root/src/something.js', testUuidA, { id: testUuidA }),
@@ -368,73 +316,11 @@ describe('The savePackageInfo action', () => {
         '/root/src/something.js'
       ],
     ).toBeUndefined();
-    expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState()),
-    ).toBe('');
+    expect(getSelectedAttributionId(testStore.getState())).toBe('');
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual(expectedResourcesWithManualAttributedChildren2);
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
-    );
-  });
-
-  it('removes an attribution keeping the selectedAttributionId when the attribution still exists', () => {
-    const testResources: Resources = {
-      'something.js': 1,
-      'somethingElse.js': 1,
-    };
-    const testManualAttributions: Attributions = {
-      uuid1: {
-        packageName: 'React',
-        id: 'uuid1',
-      },
-      uuid2: {
-        packageName: 'Vue',
-        id: 'uuid2',
-      },
-    };
-    const testResourcesToManualAttributions: ResourcesToAttributions = {
-      '/something.js': ['uuid1'],
-      '/somethingElse.js': ['uuid2'],
-    };
-
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    testStore.dispatch(setSelectedResourceId('/something.js'));
-    testStore.dispatch(setSelectedAttributionId('uuid2'));
-
-    testStore.dispatch(
-      setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
-    );
-    testStore.dispatch(
-      setDisplayedPackage({
-        panel: PackagePanelTitle.ManualPackages,
-        packageCardId: 'Attributions-0',
-        displayPackageInfo: {
-          packageName: 'react',
-          id: 'uuid1',
-        },
-      }),
-    );
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true,
-    );
-
-    testStore.dispatch(
-      savePackageInfo('/something.js', null, EMPTY_DISPLAY_PACKAGE_INFO),
-    );
-    expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState()),
-    ).toBe('uuid2');
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
   });
 
   it('removes an attribution from child and removes all remaining attributions if parent has identical ones', () => {
@@ -583,9 +469,7 @@ describe('The savePackageInfo action', () => {
       ),
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
-    expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState()),
-    ).toBe('uuid1');
+    expect(getSelectedAttributionId(testStore.getState())).toBe('uuid1');
   });
 
   it('links to an attribution when the attribution already exists', () => {
@@ -768,9 +652,7 @@ describe('The savePackageInfo action', () => {
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       testTemporaryDisplayPackageInfo,
     );
-    expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState()),
-    ).toBe('uuid2');
+    expect(getSelectedAttributionId(testStore.getState())).toBe('uuid2');
   });
 
   it('creates a new attribution, keeps temporary package info for selected attribution and stay at selected attribution', () => {
@@ -812,13 +694,6 @@ describe('The savePackageInfo action', () => {
 
     testStore.dispatch(setSelectedResourceId('/something.js'));
     testStore.dispatch(
-      setDisplayedPackage({
-        panel: PackagePanelTitle.ManualPackages,
-        packageCardId: 'Attributions-0',
-        displayPackageInfo: testPackageInfo,
-      }),
-    );
-    testStore.dispatch(
       setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
     testStore.dispatch(
@@ -827,9 +702,6 @@ describe('The savePackageInfo action', () => {
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       testTemporaryDisplayPackageInfo,
     );
-    expect(
-      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-    ).toBe('uuid1');
   });
 
   it('updates an attribution and keeps temporary package info for selected attribution', () => {
@@ -869,17 +741,12 @@ describe('The savePackageInfo action', () => {
   });
 });
 
-describe('The unlinkAttributionAndSavePackageInfo action', () => {
+describe('The unlinkAttributionAndSave action', () => {
   it('saves attribution updates for a single resource', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.Low,
       id: 'reactUuid',
-    };
-    const testVue: PackageInfo = {
-      packageName: 'Vue',
-      attributionConfidence: DiscreteConfidence.Low,
-      id: faker.string.uuid(),
     };
     const testResources: Resources = {
       'something.js': 1,
@@ -916,14 +783,8 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
     ]);
 
     testStore.dispatch(
-      unlinkAttributionAndSavePackageInfo(
-        '/something.js',
-        'reactUuid',
-        testVue,
-      ),
+      unlinkAttributionAndSave('/something.js', ['reactUuid']),
     );
-    const finalManualAttributions = getManualAttributions(testStore.getState());
-    expect(Object.keys(finalManualAttributions)).toHaveLength(2);
     const finalManualAttributionsToResources = getManualAttributionsToResources(
       testStore.getState(),
     );
@@ -968,7 +829,7 @@ describe('The deleteAttributionAndSave action', () => {
       ),
     );
 
-    testStore.dispatch(deleteAttributionAndSave('/file1', 'toUnlink'));
+    testStore.dispatch(deleteAttributionAndSave('toUnlink'));
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
   });
 
@@ -1017,7 +878,7 @@ describe('The deleteAttributionAndSave action', () => {
       ),
     );
 
-    testStore.dispatch(deleteAttributionAndSave('/file1', 'toUnlink'));
+    testStore.dispatch(deleteAttributionAndSave('toUnlink'));
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO,
@@ -1086,14 +947,12 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     );
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
 
-    testStore.dispatch(deleteAttributionGloballyAndSave('reactUuid'));
+    testStore.dispatch(deleteAttributionAndSave('reactUuid'));
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
-    expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState()),
-    ).toBe('');
+    expect(getSelectedAttributionId(testStore.getState())).toBe('');
   });
 });
 
@@ -1116,46 +975,20 @@ describe('The addToSelectedResource action', () => {
       ],
     ).toEqual(['/root/src/something.js']);
 
-    testStore.dispatch(addToSelectedResource(testPackageInfo));
-    const manualData: AttributionData = getManualData(testStore.getState());
+    testStore.dispatch(
+      addToSelectedResource(testPackageInfo, testPackageInfo.id),
+    );
+    const manualData = getManualData(testStore.getState());
     expect(manualData.resourcesToAttributions['/root/']).toEqual([
       testManualAttributionUuid_1,
     ]);
     expect(
       manualData.attributionsToResources[testManualAttributionUuid_1],
     ).toEqual(['/root/']);
-    expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
+    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
       testPackageInfo,
     );
     expect(getOpenPopup(testStore.getState())).toBeNull();
-  });
-
-  it('opens popup', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    testStore.dispatch(setSelectedResourceId('/root/'));
-    expect(
-      getManualAttributionsToResources(testStore.getState())[
-        testManualAttributionUuid_1
-      ],
-    ).toEqual(['/root/src/something.js']);
-
-    testStore.dispatch(
-      setTemporaryDisplayPackageInfo({
-        packageName: 'modified',
-        id: faker.string.uuid(),
-      }),
-    );
-    testStore.dispatch(addToSelectedResource(testPackageInfo));
-    expect(getOpenPopup(testStore.getState())).toBe('NotSavedPopup');
   });
 
   it('adds an external attribution to the selected resource', () => {
@@ -1192,13 +1025,12 @@ describe('The addToSelectedResource action', () => {
     ]);
     const expectedModifiedPackageInfo: PackageInfo = {
       ...testPackageInfo,
-      attributionConfidence: DiscreteConfidence.High,
       id: expect.any(String),
     };
     expect(manualData.attributions[uuidNewAttribution]).toEqual(
       expectedModifiedPackageInfo,
     );
-    expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
+    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
       expectedModifiedPackageInfo,
     );
     expect(getOpenPopup(testStore.getState())).toBeNull();
@@ -1208,7 +1040,7 @@ describe('The addToSelectedResource action', () => {
     const testStore = createAppStore();
     testStore.dispatch(setResources({}));
     testStore.dispatch(
-      addResolvedExternalAttribution('TestExternalAttribution'),
+      addResolvedExternalAttributions(['TestExternalAttribution']),
     );
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {},

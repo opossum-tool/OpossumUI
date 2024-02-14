@@ -13,7 +13,13 @@
 export function maybePluralize(
   count: number,
   noun: string,
-  { pluralNoun }: Partial<{ pluralNoun: string }> = {},
+  {
+    pluralNoun,
+    showOne,
+  }: Partial<{ pluralNoun: string; showOne: boolean }> = {},
 ) {
-  return `${count} ${count === 1 ? noun : pluralNoun || `${noun}s`}`;
+  if (count === 1) {
+    return showOne ? `${count} ${noun}` : noun;
+  }
+  return `${new Intl.NumberFormat().format(count)} ${pluralNoun || `${noun}s`}`;
 }

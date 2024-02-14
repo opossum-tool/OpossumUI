@@ -6,6 +6,7 @@ import { expect, type Locator } from '@playwright/test';
 import { compact } from 'lodash';
 
 import { RawPackageInfo } from '../../shared/shared-types';
+import { text } from '../../shared/text';
 
 export class PackageCard {
   private readonly context: Locator;
@@ -17,15 +18,15 @@ export class PackageCard {
   private getCardLabel({
     packageName,
     packageVersion,
+    firstParty,
   }: RawPackageInfo): string {
-    return compact([packageName, packageVersion]).join(', ');
+    return firstParty
+      ? text.packageLists.firstParty
+      : compact([packageName, packageVersion]).join(', ');
   }
 
-  private node(
-    packageInfo: RawPackageInfo,
-    { subContext }: { subContext?: Locator } = {},
-  ): Locator {
-    return (subContext ?? this.context).getByLabel(
+  private node(packageInfo: RawPackageInfo): Locator {
+    return this.context.getByLabel(
       `package card ${this.getCardLabel(packageInfo)}`,
     );
   }
@@ -34,43 +35,22 @@ export class PackageCard {
     return this.node(packageInfo).getByRole('checkbox');
   }
 
-  public addButton(packageInfo: RawPackageInfo): Locator {
-    return this.node(packageInfo).getByRole('button').getByLabel('add');
-  }
-
-  public showResourcesButton(packageInfo: RawPackageInfo): Locator {
-    return this.node(packageInfo).getByLabel('show resources');
-  }
-
   public preferredIcon(packageInfo: RawPackageInfo): Locator {
     return this.node(packageInfo).getByLabel('Preferred icon', { exact: true });
   }
 
   public wasPreferredIcon(packageInfo: RawPackageInfo): Locator {
-    return this.node(packageInfo).getByLabel('was preferred icon');
+    return this.node(packageInfo).getByLabel('Was Preferred icon', {
+      exact: true,
+    });
   }
 
   public assert = {
-    isVisible: async (
-      packageInfo: RawPackageInfo,
-      {
-        count = 1,
-        subContext,
-      }: Partial<{ count: number; subContext: Locator }> = {},
-    ): Promise<void> => {
-      await expect(this.node(packageInfo, { subContext })).toHaveCount(count);
+    isVisible: async (packageInfo: RawPackageInfo): Promise<void> => {
+      await expect(this.node(packageInfo)).toBeVisible();
     },
-    isHidden: async (
-      packageInfo: RawPackageInfo,
-      { subContext }: { subContext?: Locator } = {},
-    ): Promise<void> => {
-      await expect(this.node(packageInfo, { subContext })).toBeHidden();
-    },
-    addButtonIsVisible: async (packageInfo: RawPackageInfo): Promise<void> => {
-      await expect(this.addButton(packageInfo)).toBeVisible();
-    },
-    addButtonIsHidden: async (packageInfo: RawPackageInfo): Promise<void> => {
-      await expect(this.addButton(packageInfo)).toBeHidden();
+    isHidden: async (packageInfo: RawPackageInfo): Promise<void> => {
+      await expect(this.node(packageInfo)).toBeHidden();
     },
     preferredIconIsVisible: async (
       packageInfo: RawPackageInfo,

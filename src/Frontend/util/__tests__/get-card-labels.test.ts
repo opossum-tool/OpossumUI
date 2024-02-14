@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { PackageInfo } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { faker } from '../../../testing/Faker';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import {
@@ -132,7 +133,9 @@ describe('Test getPackageLabel', () => {
   });
 
   it('finds label for package with just first party', () => {
-    expect(getCardLabels(testPropsJustFirstParty)).toEqual(['First party']);
+    expect(getCardLabels(testPropsJustFirstParty)).toEqual([
+      text.packageLists.firstParty,
+    ]);
   });
 });
 

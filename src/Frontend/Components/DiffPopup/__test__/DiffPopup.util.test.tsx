@@ -11,7 +11,7 @@ import {
   FORM_ATTRIBUTES,
   FormAttribute,
 } from '../../../util/get-comparable-attributes';
-import { AttributionFormConfig } from '../../AttributionColumn/AttributionForm';
+import { AttributionFormConfig } from '../../AttributionForm/AttributionForm';
 import { useAttributionFormConfigs } from '../DiffPopup.util';
 
 describe('useAttributionFormConfigs', () => {

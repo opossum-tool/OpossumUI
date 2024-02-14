@@ -26,18 +26,6 @@ export class MenuBar {
     await clickMenuItem(this.window.app, 'label', 'Project Statistics');
   }
 
-  async locateSignals(): Promise<void> {
-    await clickMenuItem(this.window.app, 'label', 'Locate Signals');
-  }
-
-  async searchForFilesAndDirectories(): Promise<void> {
-    await clickMenuItem(
-      this.window.app,
-      'label',
-      'Search for Files and Directories',
-    );
-  }
-
   async toggleQaMode(): Promise<void> {
     await clickMenuItem(this.window.app, 'label', 'QA Mode');
   }

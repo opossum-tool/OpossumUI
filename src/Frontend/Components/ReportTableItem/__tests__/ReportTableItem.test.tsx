@@ -9,7 +9,6 @@ import {
   DiscreteConfidence,
 } from '../../../../shared/shared-types';
 import { renderComponent } from '../../../test-helpers/render';
-import { doNothing } from '../../../util/do-nothing';
 import { ReportTableItem } from '../ReportTableItem';
 
 describe('The ReportTableItem', () => {
@@ -30,28 +29,24 @@ describe('The ReportTableItem', () => {
       },
     };
     renderComponent(
-      <ReportTableItem
-        attributionId={'uuid1'}
-        attributionInfo={testAttributionsWithResources['uuid1']}
-        onIconClick={doNothing}
-        isFileWithChildren={(path: string): boolean =>
-          path === '/file/with/children'
-        }
-      />,
+      <table>
+        <tbody>
+          <tr>
+            <ReportTableItem
+              packageInfo={testAttributionsWithResources['uuid1']}
+            />
+          </tr>
+        </tbody>
+      </table>,
     );
-    expect(screen.getByText('1.0')).toBeInTheDocument();
 
+    expect(screen.getByText('1.0')).toBeInTheDocument();
     expect(screen.getByText('React')).toBeInTheDocument();
     expect(screen.getByText('licenseName')).toBeInTheDocument();
-
     expect(screen.getByText('test copyright')).toBeInTheDocument();
-
     expect(screen.getByText('licenseText')).toBeInTheDocument();
-
     expect(screen.getByText('20')).toBeInTheDocument();
-
     expect(screen.getByText('test comment')).toBeInTheDocument();
-
     expect(screen.getByText('packageWebsite')).toBeInTheDocument();
   });
 
@@ -81,27 +76,20 @@ describe('The ReportTableItem', () => {
       },
     };
     renderComponent(
-      <>
-        <ReportTableItem
-          attributionId={'uuid1'}
-          attributionInfo={testAttributionsWithResources['uuid1']}
-          onIconClick={doNothing}
-          isFileWithChildren={(path: string): boolean =>
-            path === '/file/with/children'
-          }
-        />
-        <ReportTableItem
-          attributionId={'uuid2'}
-          attributionInfo={testAttributionsWithResources['uuid2']}
-          onIconClick={doNothing}
-          isFileWithChildren={(path: string): boolean =>
-            path === '/file/with/children'
-          }
-        />
-      </>,
+      <table>
+        <tbody>
+          <tr>
+            <ReportTableItem
+              packageInfo={testAttributionsWithResources['uuid1']}
+            />
+            <ReportTableItem
+              packageInfo={testAttributionsWithResources['uuid2']}
+            />
+          </tr>
+        </tbody>
+      </table>,
     );
 
-    expect(screen.getByLabelText('Comment icon')).toBeInTheDocument();
     expect(screen.getByLabelText('First party icon')).toBeInTheDocument();
     expect(screen.getByLabelText('Follow-up icon')).toBeInTheDocument();
     expect(

@@ -5,28 +5,10 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import {
-  Attributions,
-  Criticality,
-  ResourcesToAttributions,
-} from '../../../../shared/shared-types';
+import { Attributions } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import {
-  PopupType,
-  ProjectStatisticsPopupTitle,
-  View,
-} from '../../../enums/enums';
+import { ProjectStatisticsPopupTitle } from '../../../enums/enums';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import {
-  navigateToView,
-  openPopup,
-} from '../../../state/actions/view-actions/view-actions';
-import { getResourcesWithLocatedAttributions } from '../../../state/selectors/all-views-resource-selectors';
-import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
-import {
-  getOpenPopup,
-  getSelectedView,
-} from '../../../state/selectors/view-selector';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup';
@@ -65,98 +47,6 @@ describe('The ProjectStatisticsPopup', () => {
     expect(screen.getByText('The MIT License (MIT)')).toBeInTheDocument();
     expect(screen.getByText('Scancode')).toBeInTheDocument();
     expect(screen.getByText('Reuser')).toBeInTheDocument();
-  });
-
-  it('renders search icons in CriticalLicensesTable', () => {
-    const testExternalAttributions: Attributions = {
-      uuid_1: {
-        licenseName: 'GNU General Public License v2.0',
-        criticality: Criticality.High,
-        id: 'uuid_1',
-      },
-      uuid_2: {
-        licenseName: 'The MIT License (MIT)',
-        criticality: Criticality.Medium,
-        id: 'uuid_2',
-      },
-    };
-    renderComponent(<ProjectStatisticsPopup />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions: testExternalAttributions,
-          }),
-        ),
-      ],
-    });
-
-    expect(
-      screen.getByText(ProjectStatisticsPopupTitle.CriticalLicensesTable),
-    ).toBeInTheDocument();
-    const iconButtonGPL = screen.getByRole('button', {
-      name: 'locate signals with "GNU General Public License v2.0"',
-    });
-    const iconButtonMIT = screen.getByRole('button', {
-      name: 'locate signals with "The MIT License (MIT)"',
-    });
-    expect(iconButtonGPL).toBeEnabled();
-    expect(iconButtonMIT).toBeEnabled();
-  });
-
-  it('locates attributions when clicking on a search license icon', async () => {
-    const testExternalAttributions: Attributions = {
-      uuid_1: {
-        licenseName: 'MIT',
-        criticality: Criticality.Medium,
-        id: 'uuid_1',
-      },
-    };
-    const testResourcesToExternalAttributions: ResourcesToAttributions = {
-      '/folder/file': ['uuid_1'],
-      '/folder/otherFile': ['uuid_1'],
-    };
-    const { store } = renderComponent(<ProjectStatisticsPopup />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions: testExternalAttributions,
-            resourcesToExternalAttributions:
-              testResourcesToExternalAttributions,
-          }),
-        ),
-        navigateToView(View.Attribution),
-        openPopup(PopupType.ProjectStatisticsPopup),
-      ],
-    });
-
-    expect(getSelectedView(store.getState())).toBe(View.Attribution);
-    expect(getSelectedResourceId(store.getState())).toBe('');
-    expect(getOpenPopup(store.getState())).toBe(
-      PopupType.ProjectStatisticsPopup,
-    );
-    const iconButtonMIT = screen.getByRole('button', {
-      name: 'locate signals with "MIT"',
-    });
-    await userEvent.click(iconButtonMIT);
-
-    const { locatedResources, resourcesWithLocatedChildren } =
-      getResourcesWithLocatedAttributions(store.getState());
-    const expectedLocatedResources = new Set<string>([
-      '/folder/file',
-      '/folder/otherFile',
-    ]);
-    const expectedResourcesWithLocatedChildren = new Set<string>([
-      '/',
-      '/folder/',
-    ]);
-
-    expect(locatedResources).toEqual(expectedLocatedResources);
-    expect(resourcesWithLocatedChildren).toEqual(
-      expectedResourcesWithLocatedChildren,
-    );
-    expect(getSelectedView(store.getState())).toBe(View.Audit);
-    expect(getSelectedResourceId(store.getState())).toBe('');
-    expect(getOpenPopup(store.getState())).toBeNull();
   });
 
   it('renders pie charts when there are attributions', () => {

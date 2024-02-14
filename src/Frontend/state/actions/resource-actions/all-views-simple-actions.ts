@@ -61,7 +61,7 @@ export function setManualData(
       resourcesToAttributions,
       attributionsToResources,
       resourcesWithAttributedChildren: computeChildrenWithAttributions(
-        resourcesToAttributions,
+        attributionsToResources,
       ),
     },
   };
@@ -71,6 +71,7 @@ export function setExternalData(
   attributions: Attributions,
   resourcesToAttributions: ResourcesToAttributions,
   attributionsToResources: AttributionsToResources,
+  resolvedAttributions: Set<string>,
 ): SetExternalDataAction {
   return {
     type: ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
@@ -79,7 +80,8 @@ export function setExternalData(
       resourcesToAttributions,
       attributionsToResources,
       resourcesWithAttributedChildren: computeChildrenWithAttributions(
-        resourcesToAttributions,
+        attributionsToResources,
+        resolvedAttributions,
       ),
     },
   };

@@ -3,45 +3,37 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { SxProps } from '@mui/material';
+import MuiButton, { ButtonProps } from '@mui/material/Button';
 import MuiDialog from '@mui/material/Dialog';
 import MuiDialogActions from '@mui/material/DialogActions';
 import MuiDialogContent from '@mui/material/DialogContent';
 import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiDialogTitle from '@mui/material/DialogTitle';
 import { noop } from 'lodash';
-import { ReactElement } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 import { OpossumColors } from '../../shared-styles';
-import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
-import { Button, ButtonProps } from '../Button/Button';
-
-const classes = {
-  content: { display: 'flex', flexDirection: 'column' },
-  fullHeightPaper: { height: '100%' },
-};
 
 interface NotificationPopupProps {
   header: string;
-  content: ReactElement | string;
-  leftButtonConfig?: ButtonProps;
-  rightButtonConfig?: ButtonProps;
-  centerLeftButtonConfig?: ButtonProps;
-  centerRightButtonConfig?: ButtonProps;
+  content: React.ReactNode;
+  leftButtonConfig?: ButtonProps & { buttonText: string };
+  rightButtonConfig?: ButtonProps & { buttonText: string };
+  centerLeftButtonConfig?: ButtonProps & { buttonText: string };
+  centerRightButtonConfig?: ButtonProps & { buttonText: string };
   onBackdropClick?(): void;
   onEscapeKeyDown?(): void;
   isOpen: boolean;
   fullWidth?: boolean;
-  fullHeight?: boolean;
   headerSx?: SxProps;
   contentSx?: SxProps;
   'aria-label'?: string;
-  customAction?: ReactElement;
+  customAction?: React.ReactNode;
   background?: keyof typeof OpossumColors;
   width?: number;
 }
 
-export function NotificationPopup(props: NotificationPopupProps): ReactElement {
+export function NotificationPopup(props: NotificationPopupProps) {
   useHotkeys('esc', props.onEscapeKeyDown || noop, [props.onEscapeKeyDown]);
 
   return (
@@ -56,7 +48,6 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       PaperProps={{
         sx: {
           ...(props.width && { width: props.width }),
-          ...(props.fullHeight && classes.fullHeightPaper),
           ...(props.background && {
             background: OpossumColors[props.background],
           }),
@@ -69,12 +60,7 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       >
         {props.header}
       </MuiDialogTitle>
-      <MuiDialogContent
-        sx={getSxFromPropsAndClasses({
-          sxProps: props.contentSx,
-          styleClass: props.fullHeight ? classes.content : undefined,
-        })}
-      >
+      <MuiDialogContent sx={props.contentSx}>
         {typeof props.content === 'string' ? (
           <MuiDialogContentText>{props.content}</MuiDialogContentText>
         ) : (
@@ -84,44 +70,44 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       <MuiDialogActions>
         {props.customAction}
         {props.leftButtonConfig ? (
-          <Button
-            buttonText={props.leftButtonConfig.buttonText}
+          <MuiButton
+            variant={'contained'}
             onClick={props.leftButtonConfig.onClick}
             color={props.leftButtonConfig.color}
             disabled={props.leftButtonConfig.disabled}
-            tooltipText={props.leftButtonConfig.tooltipText ?? ''}
-            tooltipPlacement={props.leftButtonConfig.tooltipPlacement}
-          />
+          >
+            {props.leftButtonConfig.buttonText}
+          </MuiButton>
         ) : null}
         {props.centerLeftButtonConfig ? (
-          <Button
-            buttonText={props.centerLeftButtonConfig.buttonText}
+          <MuiButton
+            variant={'contained'}
             onClick={props.centerLeftButtonConfig.onClick}
             color={props.centerLeftButtonConfig.color}
             disabled={props.centerLeftButtonConfig.disabled}
-            tooltipText={props.centerLeftButtonConfig.tooltipText ?? ''}
-            tooltipPlacement={props.centerLeftButtonConfig.tooltipPlacement}
-          />
+          >
+            {props.centerLeftButtonConfig.buttonText}
+          </MuiButton>
         ) : null}
         {props.centerRightButtonConfig ? (
-          <Button
-            buttonText={props.centerRightButtonConfig.buttonText}
+          <MuiButton
+            variant={'contained'}
             onClick={props.centerRightButtonConfig.onClick}
             color={props.centerRightButtonConfig.color}
             disabled={props.centerRightButtonConfig.disabled}
-            tooltipText={props.centerRightButtonConfig.tooltipText ?? ''}
-            tooltipPlacement={props.centerRightButtonConfig.tooltipPlacement}
-          />
+          >
+            {props.centerRightButtonConfig.buttonText}
+          </MuiButton>
         ) : null}
         {props.rightButtonConfig ? (
-          <Button
-            buttonText={props.rightButtonConfig.buttonText}
+          <MuiButton
+            variant={'contained'}
             onClick={props.rightButtonConfig.onClick}
             color={props.rightButtonConfig.color}
             disabled={props.rightButtonConfig.disabled}
-            tooltipText={props.rightButtonConfig.tooltipText ?? ''}
-            tooltipPlacement={props.rightButtonConfig.tooltipPlacement}
-          />
+          >
+            {props.rightButtonConfig.buttonText}
+          </MuiButton>
         ) : null}
       </MuiDialogActions>
     </MuiDialog>

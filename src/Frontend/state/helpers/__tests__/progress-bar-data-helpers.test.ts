@@ -102,7 +102,6 @@ describe('The getUpdatedProgressBarData function', () => {
 
     const progressBarData = getUpdatedProgressBarData({
       resources: testResources,
-      resourceId: '/',
       manualAttributions: testManualAttributions,
       externalAttributions: testExternalAttributions,
       resourcesToManualAttributions: testResourcesToManualAttributions,
@@ -222,7 +221,6 @@ describe('The getUpdatedProgressBarData function', () => {
 
     const progressBarData = getUpdatedProgressBarData({
       resources: testResources,
-      resourceId: '/',
       manualAttributions: testManualAttributions,
       externalAttributions: testExternalAttributions,
       resourcesToManualAttributions: testResourcesToManualAttributions,
@@ -342,7 +340,6 @@ describe('The getUpdatedProgressBarData function', () => {
 
     const progressBarData = getUpdatedProgressBarData({
       resources: testResources,
-      resourceId: '/',
       manualAttributions: testManualAttributions,
       externalAttributions: testExternalAttributions,
       resourcesToManualAttributions: testResourcesToManualAttributions,
@@ -414,7 +411,6 @@ describe('The getUpdatedProgressBarData function', () => {
 
     const progressBarData = getUpdatedProgressBarData({
       resources: testResources,
-      resourceId: '/',
       manualAttributions: testManualAttributions,
       externalAttributions: testExternalAttributions,
       resourcesToManualAttributions: testResourcesToManualAttributions,
@@ -430,96 +426,6 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toBe(0);
     expect(
       progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
-    ).toEqual([]);
-  });
-
-  it('gets updated progress data for current folder', () => {
-    const testResources: Resources = {
-      thirdParty: {
-        'package_1.tr.gz': 1,
-        'package_2.tr.gz': 1,
-      },
-      root: {
-        src: {
-          'something.js': 1,
-        },
-        'readme.md': 1,
-      },
-    };
-    const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
-    const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-
-    const testExternalAttributionUuid = 'b17e7d19-5bb2-4268-86e0-246aa5a858d6';
-    const testResolvedExternalAttributionUuid =
-      'aafdf604-5881-42f1-9d65-ef76efa44fd6';
-
-    const testTemporaryDisplayPackageInfo: PackageInfo = {
-      attributionConfidence: DiscreteConfidence.High,
-      packageVersion: '1.0',
-      packageName: 'test Package',
-      licenseText: ' test License text',
-      id: testManualAttributionUuid_1,
-    };
-    const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
-      packageVersion: '2.0',
-      packageName: 'not assigned test Package',
-      licenseText: ' test not assigned License text',
-      id: testManualAttributionUuid_2,
-    };
-
-    const thirdTemporaryDisplayPackageInfo: PackageInfo = {
-      packageVersion: '3.0',
-      packageName: 'test package for external attribution',
-      licenseText: 'test package for external attribution License text',
-      id: testExternalAttributionUuid,
-    };
-
-    const forthTemporaryDisplayPackageInfo: PackageInfo = {
-      packageVersion: '4.0',
-      packageName: 'test another package for external attribution',
-      licenseText: 'test another package for external attribution License text',
-      id: testResolvedExternalAttributionUuid,
-    };
-
-    const testManualAttributions: Attributions = {
-      [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
-      [testManualAttributionUuid_2]: secondTestTemporaryDisplayPackageInfo,
-    };
-
-    const testExternalAttributions: Attributions = {
-      [testExternalAttributionUuid]: thirdTemporaryDisplayPackageInfo,
-      [testResolvedExternalAttributionUuid]: forthTemporaryDisplayPackageInfo,
-    };
-
-    const testResourcesToManualAttributions: ResourcesToAttributions = {
-      '/root/src/something.js': [testManualAttributionUuid_1],
-    };
-
-    const testResourcesToExternalAttributions: ResourcesToAttributions = {
-      '/root/src/something.js': [
-        testExternalAttributionUuid,
-        testResolvedExternalAttributionUuid,
-      ],
-      '/thirdParty/package_1.tr.gz': [testExternalAttributionUuid],
-      '/thirdParty/package_2.tr.gz': [testResolvedExternalAttributionUuid],
-    };
-
-    const progressBarData = getUpdatedProgressBarData({
-      resources: testResources,
-      resourceId: '/root/',
-      manualAttributions: testManualAttributions,
-      externalAttributions: testExternalAttributions,
-      resourcesToManualAttributions: testResourcesToManualAttributions,
-      resourcesToExternalAttributions: testResourcesToExternalAttributions,
-      resolvedExternalAttributions: new Set<string>(),
-      attributionBreakpoints: new Set<string>(),
-      filesWithChildren: new Set<string>(),
-    });
-    expect(progressBarData?.fileCount).toBe(2);
-    expect(progressBarData?.filesWithManualAttributionCount).toBe(1);
-    expect(progressBarData?.filesWithOnlyExternalAttributionCount).toBe(0);
-    expect(
-      progressBarData?.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual([]);
   });
 });

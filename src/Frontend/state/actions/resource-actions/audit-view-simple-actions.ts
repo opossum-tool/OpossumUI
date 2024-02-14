@@ -2,28 +2,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { PanelPackage } from '../../../types/types';
 import {
-  ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTION,
-  ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTION,
-  ACTION_SET_DISPLAYED_PANEL_PACKAGE,
+  ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTIONS,
+  ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_EXPANDED_IDS,
-  ACTION_SET_PACKAGE_SEARCH_TERM,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
+  ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
-  ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE,
+  ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
-  ACTION_TOGGLE_ACCORDION_SEARCH_FIELD,
-  AddResolvedExternalAttribution,
-  RemoveResolvedExternalAttribution,
-  SetDisplayedPanelPackageAction,
+  AddResolvedExternalAttributions,
+  RemoveResolvedExternalAttributions,
   SetExpandedIdsAction,
-  SetPackageSearchTerm,
   SetResolvedExternalAttributions,
+  SetSelectedAttributionId,
   SetSelectedResourceIdAction,
-  SetTargetDisplayedPanelPackageAction,
+  SetTargetSelectedAttributionIdAction,
   SetTargetSelectedResourceId,
-  ToggleAccordionSearchField,
 } from './types';
 
 export function setSelectedResourceId(
@@ -47,24 +42,6 @@ export function setExpandedIds(
   return { type: ACTION_SET_EXPANDED_IDS, payload: expandedIds };
 }
 
-export function setDisplayedPackage(
-  displayedPanel: PanelPackage | null,
-): SetDisplayedPanelPackageAction {
-  return {
-    type: ACTION_SET_DISPLAYED_PANEL_PACKAGE,
-    payload: displayedPanel,
-  };
-}
-
-export function setTargetDisplayedPackage(
-  targetDisplayedPanel: PanelPackage | null,
-): SetTargetDisplayedPanelPackageAction {
-  return {
-    type: ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE,
-    payload: targetDisplayedPanel,
-  };
-}
-
 export function setResolvedExternalAttributions(
   resolvedExternalAttributions: Set<string>,
 ): SetResolvedExternalAttributions {
@@ -74,31 +51,38 @@ export function setResolvedExternalAttributions(
   };
 }
 
-export function addResolvedExternalAttribution(
-  resolvedExternalAttribution: string,
-): AddResolvedExternalAttribution {
+export function addResolvedExternalAttributions(
+  attributionIds: Array<string>,
+): AddResolvedExternalAttributions {
   return {
-    type: ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTION,
-    payload: resolvedExternalAttribution,
+    type: ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTIONS,
+    payload: attributionIds,
   };
 }
 
-export function removeResolvedExternalAttribution(
-  resolvedExternalAttribution: string,
-): RemoveResolvedExternalAttribution {
+export function removeResolvedExternalAttributions(
+  attributionIds: Array<string>,
+): RemoveResolvedExternalAttributions {
   return {
-    type: ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTION,
-    payload: resolvedExternalAttribution,
+    type: ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTIONS,
+    payload: attributionIds,
   };
 }
 
-export function toggleAccordionSearchField(): ToggleAccordionSearchField {
-  return { type: ACTION_TOGGLE_ACCORDION_SEARCH_FIELD };
+export function setSelectedAttributionId(
+  selectedAttributionId: string,
+): SetSelectedAttributionId {
+  return {
+    type: ACTION_SET_SELECTED_ATTRIBUTION_ID,
+    payload: selectedAttributionId,
+  };
 }
 
-export function setPackageSearchTerm(searchTerm: string): SetPackageSearchTerm {
+export function setTargetSelectedAttributionId(
+  targetSelectedAttributionId: string | null,
+): SetTargetSelectedAttributionIdAction {
   return {
-    type: ACTION_SET_PACKAGE_SEARCH_TERM,
-    payload: searchTerm,
+    type: ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
+    payload: targetSelectedAttributionId,
   };
 }

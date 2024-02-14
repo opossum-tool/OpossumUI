@@ -5,14 +5,11 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import { text } from '../../shared/text';
-import { PackageCard } from './PackageCard';
 
 export class ReplaceAttributionsPopup {
   private readonly node: Locator;
   readonly cancelButton: Locator;
   readonly replaceButton: Locator;
-  readonly searchInput: Locator;
-  readonly attributionCard: PackageCard;
 
   constructor(window: Page) {
     this.node = window.getByLabel('replace attributions popup');
@@ -22,8 +19,6 @@ export class ReplaceAttributionsPopup {
     this.replaceButton = this.node.getByRole('button', {
       name: text.replaceAttributionsPopup.replace,
     });
-    this.searchInput = this.node.getByRole('searchbox');
-    this.attributionCard = new PackageCard(this.node);
   }
 
   public assert = {
@@ -33,19 +28,8 @@ export class ReplaceAttributionsPopup {
     isHidden: async (): Promise<void> => {
       await expect(this.node).toBeHidden();
     },
-    replaceButtonIsDisabled: async (): Promise<void> => {
-      await expect(this.replaceButton).toBeDisabled();
-    },
-    replaceButtonIsEnabled: async (): Promise<void> => {
-      await expect(this.replaceButton).toBeEnabled();
+    hasText: async (text: string): Promise<void> => {
+      await expect(this.node.getByText(text)).toBeVisible();
     },
   };
-
-  async cancel(): Promise<void> {
-    await this.cancelButton.click();
-  }
-
-  async replace(): Promise<void> {
-    await this.replaceButton.click();
-  }
 }

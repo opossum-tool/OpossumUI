@@ -46,7 +46,7 @@ describe('sortAttributions', () => {
       sorting: text.sortings.name,
     });
 
-    expect(Object.keys(sorted)).toEqual(['c', 'e', 'd', 'b', 'a']);
+    expect(Object.keys(sorted)).toEqual(['c', 'd', 'e', 'b', 'a']);
   });
 
   it('sorts by criticality', () => {

@@ -18,7 +18,7 @@ import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { getCalculatePreferredOverOriginIds } from '../../actions/resource-actions/preference-actions';
 import { createAppStore } from '../../configure-store';
 import { initialResourceState } from '../../reducers/resource-reducer';
-import { getManualData } from '../../selectors/all-views-resource-selectors';
+import { getManualData } from '../../selectors/resource-selectors';
 import {
   _getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions,
   _removeAttributionsFromChildrenAndParents,
@@ -146,7 +146,7 @@ describe('The deleteManualAttribution function', () => {
     const newManualData: AttributionData = deleteManualAttribution(
       testManualData,
       testUuid,
-      () => false,
+      new Set(),
       getCalculatePreferredOverOriginIds(initialResourceState),
     );
     expect(isEmpty(newManualData.attributions)).toBe(true);
@@ -198,7 +198,7 @@ describe('The deleteManualAttribution function', () => {
     const newManualData: AttributionData = deleteManualAttribution(
       testManualData,
       testUuid,
-      () => false,
+      new Set(),
       getCalculatePreferredOverOriginIds(initialResourceState),
     );
     expect(newManualData.attributions).toEqual<Attributions>({
@@ -266,7 +266,7 @@ describe('The deleteManualAttribution function', () => {
     const newManualData: AttributionData = deleteManualAttribution(
       testManualData,
       'manualUuid2',
-      () => false,
+      new Set(),
       getCalculatePreferredOverOriginIds(resourceState),
     );
 
@@ -350,7 +350,7 @@ describe('The linkToAttributionManualData function', () => {
       testManualData,
       '/first/',
       testUuid,
-      () => false,
+      new Set(),
       getCalculatePreferredOverOriginIds(initialResourceState),
     );
 
@@ -423,7 +423,7 @@ describe('The linkToAttributionManualData function', () => {
       testManualData,
       testSelectedResourceId,
       'childAttributionUuid',
-      () => false,
+      new Set(),
       getCalculatePreferredOverOriginIds(resourceState),
     );
 
@@ -612,7 +612,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
     _removeManualAttributionFromChildrenIfAllAreIdentical(
       testManualData,
       ['/first/second/', '/first/second/third/'],
-      () => false,
+      new Set(),
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
@@ -734,7 +734,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
         '/first/second/third/',
         '/first/second/third/fourth',
       ],
-      () => false,
+      new Set(),
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
@@ -855,7 +855,7 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
     _removeAttributionsFromChildrenAndParents(
       testManualData,
       [testSelectedResourceId],
-      () => false,
+      new Set(),
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
@@ -952,7 +952,7 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
     _removeAttributionsFromChildrenAndParents(
       testManualData,
       [testSelectedResourceId],
-      () => false,
+      new Set(),
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });

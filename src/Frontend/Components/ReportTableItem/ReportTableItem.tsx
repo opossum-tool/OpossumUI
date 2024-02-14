@@ -3,17 +3,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import EditorIcon from '@mui/icons-material/Edit';
+import { SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiLink from '@mui/material/Link';
 import MuiTypography from '@mui/material/Typography';
-import { compact } from 'lodash';
-import { ReactElement } from 'react';
+import { Fragment } from 'react';
 
 import { PackageInfo } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
+import { View } from '../../enums/enums';
 import { clickableIcon, OpossumColors } from '../../shared-styles';
-import { useAppSelector } from '../../state/hooks';
-import { getFrequentLicensesTexts } from '../../state/selectors/all-views-resource-selectors';
-import { PathPredicate } from '../../types/types';
+import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { navigateToView } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getFrequentLicensesTexts } from '../../state/selectors/resource-selectors';
 import {
   isImportantAttributionInformationMissing,
   isPackageInfoIncomplete,
@@ -21,7 +24,6 @@ import {
 import { openUrl } from '../../util/open-url';
 import { IconButton } from '../IconButton/IconButton';
 import {
-  CommentIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
@@ -29,59 +31,43 @@ import {
   PreferredIcon,
   PreSelectedIcon,
 } from '../Icons/Icons';
-import { reportTableClasses } from '../ReportTableHeader/ReportTableHeader';
-import { TableConfig, tableConfigs } from '../Table/TableConfig';
+import { TableConfig, tableConfigs } from '../ReportView/TableConfig';
 import { getFormattedCellData } from './ReportTableItem.util';
 
-export const reportTableRowHeight = 190;
-const padding = 10;
+export const REPORT_VIEW_ROW_HEIGHT = 150;
+const PADDING = 10;
 
 const classes = {
   tableData: {
     overflow: 'auto',
     whiteSpace: 'pre-line',
-    padding: `${padding}px`,
-    height: `${reportTableRowHeight - 2 * padding}px`,
-  },
-  noWrap: {
-    whiteSpace: 'pre',
+    padding: `${PADDING}px`,
+    height: `${REPORT_VIEW_ROW_HEIGHT - 2 * PADDING}px`,
   },
   bold: {
     fontWeight: 'bold',
   },
-  greyText: {
-    color: OpossumColors.disabledGrey,
-  },
   iconTableData: {
-    overflow: 'hidden',
-    whiteSpace: 'pre-line',
-    paddingTop: '7px',
-    paddingBottom: '7px',
-    height: `${reportTableRowHeight - 2 * padding}px`,
-    textAlign: 'center',
+    padding: `${PADDING}px 7px`,
+    height: `${REPORT_VIEW_ROW_HEIGHT - 2 * PADDING}px`,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+    alignItems: 'center',
   },
-  tableCell: {
-    flex: '1 1 auto',
-    overflowY: 'auto',
-    verticalAlign: 'middle',
-  },
-  scrollableTableCell: { overflow: 'hidden' },
-  iconTableCell: {
-    flex: '1 1 auto',
-    overflowY: 'auto',
-    verticalAlign: 'text-top',
-    borderRightWidth: '0.5px',
+  tableCell: { wordBreak: 'break-all' },
+  iconsCell: {
+    position: 'sticky',
+    left: 0,
+    background: '#e3e3e3',
   },
   borders: {
-    border: `0.5px ${OpossumColors.lightBlue} solid`,
+    borderRight: `1px solid ${OpossumColors.mediumGrey}`,
+    borderBottom: `1px solid ${OpossumColors.mediumGrey}`,
   },
   icon: {
     width: '15px',
     height: '15px',
-    margin: '1px',
-  },
-  iconButton: {
-    marginBottom: '5px',
   },
   editIcon: {
     backgroundColor: OpossumColors.white,
@@ -113,276 +99,170 @@ const classes = {
   markedTableCell: {
     backgroundColor: OpossumColors.lightOrange,
   },
-  tableRow: {
-    display: 'flex',
-    minWidth: '2480px',
-    backgroundColor: OpossumColors.white,
-    alignItems: 'stretch',
-  },
-  containerWithoutLineBreak: {
-    whiteSpace: 'nowrap',
-  },
   clickableIcon,
-};
-
-const CELLS_WITHOUT_TEXT_WRAP = [
-  'resources',
-  'url',
-  'copyright',
-  'licenseText',
-];
+} satisfies SxProps;
 
 interface ReportTableItemProps {
-  attributionInfo: PackageInfo;
-  attributionId: string;
-  isFileWithChildren: PathPredicate;
-  onIconClick(attributionId: string): void;
+  packageInfo: PackageInfo;
 }
 
-export function ReportTableItem(props: ReportTableItemProps): ReactElement {
-  const reportTableItemClasses = { ...reportTableClasses, ...classes };
+export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
+  const dispatch = useAppDispatch();
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
 
-  function getTableRow(
-    attributionInfo: PackageInfo,
-    attributionId: string,
-  ): ReactElement {
-    return (
-      <MuiBox
-        aria-label={`attribution row ${compact([
-          attributionInfo.packageName,
-          attributionInfo.packageVersion,
-        ]).join(', ')}`}
-        key={`table-row-${attributionInfo.packageName}-${attributionId}`}
-        sx={reportTableItemClasses.tableRow}
-      >
-        {tableConfigs.map((config, index) =>
-          getTableCell(attributionInfo, attributionId, config, index),
-        )}
-      </MuiBox>
-    );
-  }
+  return (
+    <Fragment key={`table-row-${packageInfo.id}`}>
+      {tableConfigs.map((config, index) =>
+        renderTableCell(packageInfo, config, index),
+      )}
+    </Fragment>
+  );
 
-  function getTableCell(
-    attributionInfo: PackageInfo,
-    attributionId: string,
+  function renderTableCell(
+    packageInfo: PackageInfo,
     config: TableConfig,
     index: number,
-  ): ReactElement {
+  ) {
     const hasFrequentLicenseName =
-      attributionInfo.licenseName &&
-      Object.keys(frequentLicenseTexts).includes(attributionInfo.licenseName);
+      packageInfo.licenseName &&
+      Object.keys(frequentLicenseTexts).includes(packageInfo.licenseName);
     const isFrequentLicenseAndHasNoText =
-      hasFrequentLicenseName && !attributionInfo.licenseText;
+      hasFrequentLicenseName && !packageInfo.licenseText;
     const displayAttributionInfo =
-      attributionInfo.licenseName && isFrequentLicenseAndHasNoText
+      packageInfo.licenseName && isFrequentLicenseAndHasNoText
         ? {
-            ...attributionInfo,
-            licenseText: frequentLicenseTexts[attributionInfo.licenseName],
+            ...packageInfo,
+            licenseText: frequentLicenseTexts[packageInfo.licenseName],
           }
-        : attributionInfo;
+        : packageInfo;
 
     const cellData = getFormattedCellData(config, displayAttributionInfo);
 
     return (
-      <MuiBox
+      <TableCell
+        data-testid={
+          config.attributionProperty === 'id' ? packageInfo.id : undefined
+        }
         sx={{
-          ...reportTableItemClasses.borders,
-          ...reportTableItemClasses.scrollableTableCell,
-          ...(config.attributionProperty === 'icons'
+          minWidth: config.width,
+          maxWidth: config.width,
+          ...classes.borders,
+          ...classes.tableCell,
+          ...(config.attributionProperty === 'id'
             ? {
-                ...classes.iconTableCell,
-                ...(isPackageInfoIncomplete(attributionInfo)
-                  ? classes.markedTableCell
-                  : {}),
+                ...classes.iconsCell,
+                ...(isPackageInfoIncomplete(packageInfo) &&
+                  classes.markedTableCell),
               }
             : {
-                ...classes.tableCell,
                 ...(isImportantAttributionInformationMissing(
                   config.attributionProperty,
-                  attributionInfo,
-                )
-                  ? classes.markedTableCell
-                  : {}),
+                  packageInfo,
+                ) && classes.markedTableCell),
               }),
-          ...(config.width === 'small'
-            ? reportTableItemClasses.smallTableCell
-            : config.width === 'wide'
-              ? reportTableItemClasses.wideTableCell
-              : config.width === 'medium'
-                ? reportTableItemClasses.mediumTableCell
-                : config.width === 'verySmall'
-                  ? reportTableItemClasses.verySmallTableCell
-                  : {}),
         }}
         key={`table-row-${config.attributionProperty}-${index}`}
       >
-        {config.attributionProperty !== 'icons' && (
+        {config.attributionProperty === 'id' ? (
+          getIcons(packageInfo)
+        ) : (
           <MuiTypography
             sx={{
               ...classes.tableData,
-              ...(CELLS_WITHOUT_TEXT_WRAP.includes(config.attributionProperty)
-                ? classes.noWrap
-                : {}),
               ...(config.attributionProperty === 'licenseName' &&
-              hasFrequentLicenseName
-                ? classes.bold
-                : {}),
-              ...(config.attributionProperty === 'licenseText' &&
-              isFrequentLicenseAndHasNoText
-                ? classes.greyText
-                : {}),
+                hasFrequentLicenseName &&
+                classes.bold),
             }}
             component={'div'}
           >
-            {getCellData(cellData, config.attributionProperty)}
+            {config.attributionProperty === 'url' ? (
+              <MuiLink href={'#'} onClick={() => openUrl(cellData.toString())}>
+                {cellData}
+              </MuiLink>
+            ) : (
+              cellData
+            )}
           </MuiTypography>
         )}
-        {config.attributionProperty === 'icons' &&
-          getIcons(attributionInfo, attributionId)}
-      </MuiBox>
+      </TableCell>
     );
   }
 
-  function getCellData(
-    cellData: string | number,
-    attributionProperty: keyof PackageInfo,
-  ): ReactElement {
-    if (attributionProperty === 'resources' && typeof cellData === 'string') {
-      return (
-        <div>
-          {cellData.split('\n').map((path, index) => (
-            <MuiBox
-              key={`table-cell-content-${attributionProperty}-${index}`}
-              sx={reportTableItemClasses.containerWithoutLineBreak}
-            >
-              {path}
-            </MuiBox>
-          ))}
-        </div>
-      );
-    } else if (attributionProperty === 'url') {
-      return (
-        <MuiBox sx={reportTableItemClasses.containerWithoutLineBreak}>
-          <MuiLink
-            component="button"
-            onClick={(): void => openUrl(cellData.toString())}
-          >
-            {cellData}
-          </MuiLink>
-        </MuiBox>
-      );
-    }
-    return <div>{cellData}</div>;
-  }
-
-  function getIcons(
-    attributionInfo: PackageInfo,
-    attributionId: string,
-  ): ReactElement {
+  function getIcons(packageInfo: PackageInfo) {
     return (
-      <MuiBox sx={reportTableItemClasses.iconTableData}>
-        <>
-          <IconButton
-            tooltipTitle="edit"
-            tooltipPlacement="left"
-            iconSx={classes.iconButton}
-            onClick={(): void => {
-              props.onIconClick(attributionId);
+      <MuiBox sx={classes.iconTableData}>
+        <IconButton
+          tooltipTitle={text.reportView.openInAuditView}
+          tooltipPlacement={'right'}
+          onClick={() => {
+            dispatch(changeSelectedAttributionOrOpenUnsavedPopup(packageInfo));
+            dispatch(navigateToView(View.Audit));
+          }}
+          icon={
+            <EditorIcon
+              sx={{
+                ...classes.icon,
+                ...classes.clickableIcon,
+                ...classes.editIcon,
+              }}
+            />
+          }
+        />
+        {packageInfo.needsReview && (
+          <NeedsReviewIcon
+            tooltipPlacement={'right'}
+            sx={{
+              ...classes.icon,
+              ...classes.needsReviewIcon,
             }}
-            icon={
-              <EditorIcon
-                sx={{
-                  ...reportTableItemClasses.icon,
-                  ...reportTableItemClasses.clickableIcon,
-                  ...reportTableItemClasses.editIcon,
-                }}
-                aria-label={`edit ${attributionInfo['packageName'] || ''}`}
-              />
-            }
           />
-          <br />
-        </>
-        {attributionInfo.needsReview && (
-          <>
-            <NeedsReviewIcon
-              sx={{
-                ...reportTableItemClasses.icon,
-                ...reportTableItemClasses.needsReviewIcon,
-              }}
-            />{' '}
-            <br />
-          </>
         )}
-        {attributionInfo.followUp && (
-          <>
-            <FollowUpIcon
-              sx={{
-                ...reportTableItemClasses.icon,
-                ...reportTableItemClasses.followUpIcon,
-              }}
-            />{' '}
-            <br />
-          </>
+        {packageInfo.followUp && (
+          <FollowUpIcon
+            tooltipPlacement={'right'}
+            sx={{
+              ...classes.icon,
+              ...classes.followUpIcon,
+            }}
+          />
         )}
-        {attributionInfo.comment && (
-          <>
-            <CommentIcon
-              sx={{
-                ...reportTableItemClasses.icon,
-                ...reportTableItemClasses.commentIcon,
-              }}
-            />{' '}
-            <br />
-          </>
+        {packageInfo.firstParty && (
+          <FirstPartyIcon
+            tooltipPlacement={'right'}
+            sx={{
+              ...classes.icon,
+              ...classes.firstPartyIcon,
+            }}
+          />
         )}
-        {attributionInfo.firstParty && (
-          <>
-            <FirstPartyIcon
-              sx={{
-                ...reportTableItemClasses.icon,
-                ...reportTableItemClasses.firstPartyIcon,
-              }}
-            />{' '}
-            <br />
-          </>
+        {packageInfo.excludeFromNotice && (
+          <ExcludeFromNoticeIcon
+            tooltipPlacement={'right'}
+            sx={{
+              ...classes.icon,
+              ...classes.excludeFromNoticeIcon,
+            }}
+          />
         )}
-        {attributionInfo.excludeFromNotice && (
-          <>
-            <ExcludeFromNoticeIcon
-              sx={{
-                ...reportTableItemClasses.icon,
-                ...reportTableItemClasses.excludeFromNoticeIcon,
-              }}
-            />{' '}
-            <br />
-          </>
+        {packageInfo.preSelected && (
+          <PreSelectedIcon
+            tooltipPlacement={'right'}
+            sx={{
+              ...classes.icon,
+              ...classes.preSelectedIcon,
+            }}
+          />
         )}
-        {attributionInfo.preSelected && (
-          <>
-            <PreSelectedIcon
-              sx={{
-                ...reportTableItemClasses.icon,
-                ...reportTableItemClasses.preSelectedIcon,
-              }}
-            />{' '}
-            <br />
-          </>
-        )}
-        {attributionInfo.preferred && (
-          <>
-            <PreferredIcon
-              sx={{
-                ...reportTableItemClasses.icon,
-                ...reportTableItemClasses.preferredIcon,
-              }}
-            />{' '}
-            <br />
-          </>
+        {packageInfo.preferred && (
+          <PreferredIcon
+            tooltipPlacement={'right'}
+            sx={{
+              ...classes.icon,
+              ...classes.preferredIcon,
+            }}
+          />
         )}
       </MuiBox>
     );
   }
-
-  return getTableRow(props.attributionInfo, props.attributionId);
 }

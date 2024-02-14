@@ -5,21 +5,23 @@
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen } from '@testing-library/react';
 
-import { setResources } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { View } from '../../../enums/enums';
+import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import {
-  isAttributionViewSelected,
   isAuditViewSelected,
   isReportViewSelected,
 } from '../../../state/selectors/view-selector';
+import { PROGRESS_DATA } from '../../../state/variables/use-progress-data';
 import { renderComponent } from '../../../test-helpers/render';
+import { ProgressBarData } from '../../../types/types';
 import { TopBar } from '../TopBar';
 
 describe('TopBar', () => {
-  it('renders an Open file icon', () => {
+  it('renders an open file icon', () => {
     const { store } = renderComponent(<TopBar />);
 
-    fireEvent.click(screen.queryByLabelText('open file') as Element);
+    fireEvent.click(screen.getByLabelText('open file'));
 
     expect(store.getState().resourceState).toMatchObject(initialResourceState);
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
@@ -28,31 +30,36 @@ describe('TopBar', () => {
   it('switches between views', () => {
     const { store } = renderComponent(<TopBar />);
 
-    fireEvent.click(screen.queryByText('Audit') as Element);
+    fireEvent.click(screen.getByText(View.Audit));
     expect(isAuditViewSelected(store.getState())).toBe(true);
-    expect(isAttributionViewSelected(store.getState())).toBe(false);
     expect(isReportViewSelected(store.getState())).toBe(false);
 
-    fireEvent.click(screen.queryByText('Attribution') as Element);
+    fireEvent.click(screen.getByText(View.Report));
     expect(isAuditViewSelected(store.getState())).toBe(false);
-    expect(isAttributionViewSelected(store.getState())).toBe(true);
-    expect(isReportViewSelected(store.getState())).toBe(false);
-
-    fireEvent.click(screen.queryByText('Report') as Element);
-    expect(isAuditViewSelected(store.getState())).toBe(false);
-    expect(isAttributionViewSelected(store.getState())).toBe(false);
     expect(isReportViewSelected(store.getState())).toBe(true);
   });
 
-  it('does not display the TopProgressBar when no file has been opened', () => {
+  it('does not display the progress bar when no progress data available', () => {
     renderComponent(<TopBar />);
-    expect(screen.queryByLabelText('TopProgressBar')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('ProgressBar')).not.toBeInTheDocument();
   });
 
-  it('displays the TopProgressBar after a file has been opened', () => {
+  it('displays the progress bar when progress data available', () => {
     renderComponent(<TopBar />, {
-      actions: [setResources({ '': 1 })],
+      actions: [
+        setVariable<ProgressBarData>(PROGRESS_DATA, {
+          fileCount: 6,
+          filesWithHighlyCriticalExternalAttributionsCount: 1,
+          filesWithMediumCriticalExternalAttributionsCount: 1,
+          filesWithManualAttributionCount: 3,
+          filesWithOnlyExternalAttributionCount: 1,
+          filesWithOnlyPreSelectedAttributionCount: 1,
+          resourcesWithMediumCriticalExternalAttributions: [],
+          resourcesWithNonInheritedExternalAttributionOnly: [],
+          resourcesWithHighlyCriticalExternalAttributions: [],
+        }),
+      ],
     });
-    expect(screen.getByLabelText('TopProgressBar')).toBeInTheDocument();
+    expect(screen.getByLabelText('ProgressBar')).toBeInTheDocument();
   });
 });

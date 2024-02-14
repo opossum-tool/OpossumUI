@@ -20,6 +20,7 @@ const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
 const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
   preSelected: true,
 });
+const [attributionId4, packageInfo4] = faker.opossum.rawAttribution();
 
 test.use({
   data: {
@@ -30,6 +31,14 @@ test.use({
           [resourceName2]: { [resourceName3]: 1, [resourceName4]: 1 },
         },
         [resourceName5]: 1,
+      }),
+      externalAttributions: faker.opossum.rawAttributions({
+        [attributionId4]: packageInfo4,
+      }),
+      resourcesToAttributions: faker.opossum.resourcesToAttributions({
+        [faker.opossum.filePath(resourceName1, resourceName2, resourceName3)]: [
+          attributionId4,
+        ],
       }),
     }),
     outputData: faker.opossum.outputData({
@@ -52,39 +61,81 @@ test.use({
   },
 });
 
-test('replaces attributions in attribution view', async ({
+test('replaces an attribution with another', async ({
   attributionDetails,
-  attributionList,
+  attributionsPanel,
   replaceAttributionsPopup,
-  resourceBrowser,
-  topBar,
+  linkedResourcesTree,
 }) => {
-  await topBar.gotoAttributionView();
-  await resourceBrowser.assert.isHidden();
-
-  await attributionList.attributionCard.click(packageInfo1);
+  await attributionsPanel.packageCard.click(packageInfo1);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo1,
   );
-  await resourceBrowser.assert.resourceIsVisible(resourceName3);
-  await resourceBrowser.assert.resourceIsHidden(resourceName4);
+  await linkedResourcesTree.assert.resourceIsHidden(resourceName4);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName3);
+  await attributionDetails.assert.saveButtonIsVisible();
+  await attributionDetails.assert.replaceButtonIsHidden();
 
-  await attributionList.attributionCard.checkbox(packageInfo1).click();
-  await attributionList.replaceButton.click();
+  await attributionsPanel.replaceButton.click();
+  await attributionDetails.assert.saveButtonIsHidden();
+  await attributionDetails.assert.replaceButtonIsHidden();
+
+  await attributionsPanel.packageCard.click(packageInfo2);
+  await linkedResourcesTree.assert.resourceIsHidden(resourceName3);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
+  await attributionDetails.assert.replaceButtonIsVisible();
+
+  await attributionDetails.replaceButton.click();
   await replaceAttributionsPopup.assert.isVisible();
-  await replaceAttributionsPopup.assert.replaceButtonIsDisabled();
 
-  await replaceAttributionsPopup.searchInput.fill(packageInfo2.packageName!);
-  await replaceAttributionsPopup.attributionCard.click(packageInfo2);
-  await replaceAttributionsPopup.assert.replaceButtonIsEnabled();
+  await replaceAttributionsPopup.replaceButton.click();
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo1);
 
-  await replaceAttributionsPopup.replace();
-  await attributionList.attributionCard.assert.isHidden(packageInfo1);
-
-  await attributionList.attributionCard.click(packageInfo2);
+  await attributionsPanel.packageCard.click(packageInfo2);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo2,
   );
-  await resourceBrowser.assert.resourceIsVisible(resourceName3);
-  await resourceBrowser.assert.resourceIsVisible(resourceName4);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName3);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
+});
+
+test('replaces multiple attributions with another', async ({
+  attributionDetails,
+  attributionsPanel,
+  replaceAttributionsPopup,
+  linkedResourcesTree,
+}) => {
+  await attributionsPanel.packageCard.checkbox(packageInfo2).check();
+  await attributionsPanel.packageCard.checkbox(packageInfo3).check();
+
+  await attributionsPanel.replaceButton.click();
+  await attributionsPanel.packageCard.click(packageInfo1);
+  await attributionDetails.assert.replaceButtonIsVisible();
+
+  await attributionDetails.replaceButton.click();
+  await replaceAttributionsPopup.assert.isVisible();
+  await replaceAttributionsPopup.assert.hasText('2 attributions');
+
+  await replaceAttributionsPopup.replaceButton.click();
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo3);
+
+  await attributionsPanel.packageCard.click(packageInfo1);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName3);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
+});
+
+test('exits replacement mode when user tries to select a signal as replacement', async ({
+  attributionDetails,
+  attributionsPanel,
+  signalsPanel,
+}) => {
+  await attributionsPanel.packageCard.click(packageInfo1);
+  await attributionsPanel.replaceButton.click();
+  await attributionDetails.assert.saveButtonIsHidden();
+  await attributionDetails.assert.replaceButtonIsHidden();
+
+  await signalsPanel.packageCard.click(packageInfo4);
+  await attributionDetails.assert.linkButtonIsVisible();
+  await attributionDetails.assert.replaceButtonIsHidden();
 });

@@ -8,11 +8,7 @@ import * as zlib from 'zlib';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import {
-  Criticality,
-  DiscreteConfidence,
-  ParsedFileContent,
-} from '../../../shared/shared-types';
+import { Criticality, ParsedFileContent } from '../../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
 import {
@@ -433,7 +429,7 @@ describe('Test of loading function', () => {
               comment: 'some comment',
               copyright: '(c) first party',
               preSelected: true,
-              attributionConfidence: DiscreteConfidence.Low,
+              attributionConfidence: 17,
               id: manualAttributionUuid,
             },
           },

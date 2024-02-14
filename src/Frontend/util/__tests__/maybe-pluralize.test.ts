@@ -12,14 +12,14 @@ describe('maybePluralize', () => {
   });
 
   it('makes plural by adding s if no plural is provided', () => {
-    expect(maybePluralize(2, 'User')).toBe('2 Users');
+    expect(maybePluralize(2, 'user')).toBe('2 users');
   });
 
   it('uses plural when value is zero', () => {
-    expect(maybePluralize(0, 'User')).toBe('0 Users');
+    expect(maybePluralize(0, 'user')).toBe('0 users');
   });
 
   it('does not add suffix when value is 1', () => {
-    expect(maybePluralize(1, 'User')).toBe('1 User');
+    expect(maybePluralize(1, 'user')).toBe('user');
   });
 });

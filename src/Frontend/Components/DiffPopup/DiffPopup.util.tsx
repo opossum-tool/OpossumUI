@@ -9,7 +9,7 @@ import {
   FORM_ATTRIBUTES,
   FormAttribute,
 } from '../../util/get-comparable-attributes';
-import { AttributionFormConfig } from '../AttributionColumn/AttributionForm';
+import { AttributionFormConfig } from '../AttributionForm/AttributionForm';
 import { DiffEndIcon } from '../DiffEndIcon/DiffEndIcon';
 
 export function useAttributionFormConfigs({

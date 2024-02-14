@@ -5,66 +5,26 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export enum View {
-  Attribution = 'Attribution',
   Audit = 'Audit',
   Report = 'Report',
 }
 
 export enum PopupType {
-  UnableToSavePopup = 'UnableToSavePopup',
+  FileSupportDotOpossumAlreadyExistsPopup = 'FileSupportDotOpossumAlreadyExistsPopup',
+  FileSupportPopup = 'FileSupportPopup',
   InvalidLinkPopup = 'InvalidLinkPopup',
-  FileSearchPopup = 'FileSearchPopup',
+  NotSavedPopup = 'NotSavedPopup',
   ProjectMetadataPopup = 'ProjectMetadataPopup',
   ProjectStatisticsPopup = 'ProjectStatisticsPopup',
-  NotSavedPopup = 'NotSavedPopup',
-  ReplaceAttributionsPopup = 'ReplaceAttributionsPopup',
-  ConfirmDeletionPopup = 'ConfirmDeletionPopup',
-  ConfirmDeletionGloballyPopup = 'ConfirmDeletionGloballyPopup',
-  ConfirmMultiSelectDeletionPopup = 'ConfirmMultiSelectDeletionPopup',
-  ChangedInputFilePopup = 'ChangedInputFilePopup',
-  FileSupportPopup = 'FileSupportPopup',
-  FileSupportDotOpossumAlreadyExistsPopup = 'FileSupportDotOpossumAlreadyExistsPopup',
   UpdateAppPopup = 'UpdateAppPopup',
-  LocatorPopup = 'LocatorPopup',
-  ChangePreferredStatusGloballyPopup = 'ChangePreferredStatusGloballyPopup',
-}
-
-export enum AllowedSaveOperations {
-  All = 'All',
-  Local = 'Local',
-  None = 'None',
-}
-
-export enum PackagePanelTitle {
-  AllAttributions = 'All Attributions',
-  ContainedExternalPackages = 'Signals in Folder Content',
-  ContainedManualPackages = 'Attributions in Folder Content',
-  ExternalPackages = 'Signals',
-  ManualPackages = 'Attributions',
 }
 
 export enum ButtonText {
-  Apply = 'Apply',
-  Back = 'Back',
-  Cancel = 'Cancel',
-  Clear = 'Clear',
   Close = 'Close',
-  Confirm = 'Confirm',
-  ConfirmGlobally = 'Confirm globally',
   CreateAndProceed = 'Create and proceed',
   Delete = 'Delete',
-  DeleteGlobally = 'Delete globally',
-  Discard = 'Discard',
-  Hide = 'Hide',
   Keep = 'Keep',
-  Next = 'Next',
-  Ok = 'Ok',
   OpenDotOpossumFile = 'Open ".opossum" file',
-  Revert = 'Revert',
-  Save = 'Save',
-  SaveGlobally = 'Save globally',
-  ShowResources = 'Show resources',
-  Unhide = 'Unhide',
 }
 
 export enum ProjectStatisticsPopupTitle {
@@ -86,12 +46,7 @@ export enum CriticalityTypes {
 export enum PieChartCriticalityNames {
   HighCriticality = 'Highly critical signals',
   MediumCriticality = 'Medium critical signals',
-  NoCriticality = 'Not critical signals',
-}
-
-export enum HighlightingColor {
-  LightOrange = 'Light Orange',
-  DarkOrange = 'Dark Orange',
+  NoCriticality = 'Non-critical signals',
 }
 
 export enum AttributionType {

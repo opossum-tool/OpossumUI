@@ -31,52 +31,52 @@ export async function parseOpossumFile(
 ): Promise<
   ParsedOpossumInputAndOutput | JsonParsingError | InvalidDotOpossumFileError
 > {
-  let parsedInputData: unknown;
-  let parsedOutputData: unknown = null;
-  let jsonParsingError: JsonParsingError | null = null;
-  let invalidDotOpossumFileError: InvalidDotOpossumFileError | null = null;
+  let parsedInputData: ParsedOpossumInputFile;
+  let parsedOutputData: ParsedOpossumOutputFile | null = null;
 
   const zip: fflate.Unzipped = await readZipAsync(opossumFilePath);
+
   if (!zip[INPUT_FILE_NAME]) {
-    invalidDotOpossumFileError = {
+    return {
       filesInArchive: Object.keys(zip)
         .map((fileName) => `'${fileName}'`)
         .join(', '),
       type: 'invalidDotOpossumFileError',
-    };
-  } else {
-    getGlobalBackendState().inputFileRaw = zip[INPUT_FILE_NAME];
-    const inputJson = fflate.strFromU8(zip[INPUT_FILE_NAME]);
-    try {
-      parsedInputData = parseAndValidateJson(inputJson, OpossumInputFileSchema);
-    } catch (err) {
-      jsonParsingError = {
-        message: `Error: ${opossumFilePath} does not contain a valid input file.\n Original error message: ${err?.toString()}`,
-        type: 'jsonParsingError',
-      };
-    }
+    } satisfies InvalidDotOpossumFileError;
+  }
 
-    if (zip[OUTPUT_FILE_NAME]) {
-      try {
-        const outputJson = fflate.strFromU8(zip[OUTPUT_FILE_NAME]);
-        parsedOutputData = parseOutputJsonContent(outputJson, opossumFilePath);
-      } catch (err) {
-        jsonParsingError = {
-          message: `Error: ${opossumFilePath} does not contain a valid output file.\n${err?.toString()}`,
-          type: 'jsonParsingError',
-        };
-      }
+  getGlobalBackendState().inputFileRaw = zip[INPUT_FILE_NAME];
+
+  try {
+    parsedInputData = JSON.parse(fflate.strFromU8(zip[INPUT_FILE_NAME]));
+    jsonSchemaValidator.validate(
+      parsedInputData,
+      OpossumInputFileSchema,
+      validationOptions,
+    );
+  } catch (err) {
+    return {
+      message: `Error: ${opossumFilePath} does not contain a valid input file.\n Original error message: ${err?.toString()}`,
+      type: 'jsonParsingError',
+    } satisfies JsonParsingError;
+  }
+
+  if (zip[OUTPUT_FILE_NAME]) {
+    try {
+      const outputJson = fflate.strFromU8(zip[OUTPUT_FILE_NAME]);
+      parsedOutputData = parseOutputJsonContent(outputJson, opossumFilePath);
+    } catch (err) {
+      return {
+        message: `Error: ${opossumFilePath} does not contain a valid output file.\n${err?.toString()}`,
+        type: 'jsonParsingError',
+      } satisfies JsonParsingError;
     }
   }
 
-  return jsonParsingError
-    ? jsonParsingError
-    : invalidDotOpossumFileError
-      ? invalidDotOpossumFileError
-      : {
-          input: parsedInputData as ParsedOpossumInputFile,
-          output: parsedOutputData as ParsedOpossumOutputFile,
-        };
+  return {
+    input: parsedInputData,
+    output: parsedOutputData,
+  };
 }
 
 async function readZipAsync(opossumFilePath: string): Promise<fflate.Unzipped> {
@@ -160,34 +160,17 @@ export function parseOutputJsonContent(
   fileContent: string,
   filePath: fs.PathLike,
 ): ParsedOpossumOutputFile {
-  let outputJsonContent;
   try {
-    outputJsonContent = parseAndValidateJson(
-      fileContent,
+    const jsonContent = JSON.parse(fileContent);
+    jsonSchemaValidator.validate(
+      jsonContent,
       OpossumOutputFileSchema,
+      validationOptions,
     );
+    return jsonContent;
   } catch (err) {
     throw new Error(
       `Error: ${filePath.toString()} contains an invalid output file.\n Original error message: ${err?.toString()}`,
     );
   }
-
-  const resolvedExternalAttributions = (
-    outputJsonContent as Record<string, unknown>
-  ).resolvedExternalAttributions;
-  return {
-    ...(outputJsonContent as Record<string, unknown>),
-    resolvedExternalAttributions: resolvedExternalAttributions
-      ? new Set(resolvedExternalAttributions as Array<string>)
-      : new Set(),
-  } as ParsedOpossumOutputFile;
-}
-
-function parseAndValidateJson(
-  content: string,
-  schema: typeof OpossumInputFileSchema | typeof OpossumOutputFileSchema,
-): unknown {
-  const jsonContent = JSON.parse(content);
-  jsonSchemaValidator.validate(jsonContent, schema, validationOptions);
-  return jsonContent;
 }
