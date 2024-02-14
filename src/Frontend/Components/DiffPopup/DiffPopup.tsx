@@ -124,7 +124,7 @@ export function DiffPopup({
       <DiffPopupContainer>
         <AttributionForm
           packageInfo={stripLicenseInfoIfFirstParty(original)}
-          variant={'diff'}
+          variant={'diff-original'}
           label={'original'}
           config={originalFormConfig}
         />
@@ -135,7 +135,7 @@ export function DiffPopup({
         />
         <AttributionForm
           packageInfo={bufferPackageInfo}
-          variant={'diff'}
+          variant={'diff-current'}
           label={'current'}
           config={bufferFormConfig}
         />
