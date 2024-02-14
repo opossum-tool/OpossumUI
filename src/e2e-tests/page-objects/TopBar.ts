@@ -10,7 +10,6 @@ export class TopBar {
   readonly window: Page;
   readonly node: Locator;
   readonly auditViewButton: Locator;
-  readonly attributionViewButton: Locator;
   readonly reportViewButton: Locator;
   readonly progressBar: Locator;
   readonly openFileButton: Locator;
@@ -20,9 +19,6 @@ export class TopBar {
     this.window = window;
     this.node = window.getByLabel('top bar');
     this.auditViewButton = this.node.getByRole('button', { name: 'audit' });
-    this.attributionViewButton = this.node.getByRole('button', {
-      name: 'attribution',
-    });
     this.reportViewButton = this.node.getByRole('button', { name: 'report' });
     this.progressBar = this.node.getByLabel('TopProgressBar');
     this.openFileButton = this.node.getByRole('button', { name: 'open file' });
@@ -35,38 +31,18 @@ export class TopBar {
     },
     modeButtonsAreVisible: async (): Promise<void> => {
       await expect(this.auditViewButton).toBeVisible();
-      await expect(this.attributionViewButton).toBeVisible();
       await expect(this.reportViewButton).toBeVisible();
     },
     auditViewIsActive: async (): Promise<void> => {
       await Promise.all([
         expect(this.auditViewButton).toHaveAttribute('aria-pressed', 'true'),
         expect(this.auditViewButton).toBeDisabled(),
-        expect(this.attributionViewButton).toHaveAttribute(
-          'aria-pressed',
-          'false',
-        ),
-        expect(this.reportViewButton).toHaveAttribute('aria-pressed', 'false'),
-      ]);
-    },
-    attributionViewIsActive: async (): Promise<void> => {
-      await Promise.all([
-        expect(this.auditViewButton).toHaveAttribute('aria-pressed', 'false'),
-        expect(this.attributionViewButton).toHaveAttribute(
-          'aria-pressed',
-          'true',
-        ),
-        expect(this.attributionViewButton).toBeDisabled(),
         expect(this.reportViewButton).toHaveAttribute('aria-pressed', 'false'),
       ]);
     },
     reportViewIsActive: async (): Promise<void> => {
       await Promise.all([
         expect(this.auditViewButton).toHaveAttribute('aria-pressed', 'false'),
-        expect(this.attributionViewButton).toHaveAttribute(
-          'aria-pressed',
-          'false',
-        ),
         expect(this.reportViewButton).toHaveAttribute('aria-pressed', 'true'),
         expect(this.reportViewButton).toBeDisabled(),
       ]);
@@ -111,10 +87,6 @@ export class TopBar {
 
   async gotoAuditView(): Promise<void> {
     await this.auditViewButton.click();
-  }
-
-  async gotoAttributionView(): Promise<void> {
-    await this.attributionViewButton.click();
   }
 
   async gotoReportView(): Promise<void> {

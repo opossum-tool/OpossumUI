@@ -22,7 +22,7 @@ import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../IconButton/IconButton';
-import { TextBox } from '../InputElements/TextBox';
+import { TextBox } from '../TextBox/TextBox';
 import { toast } from '../Toaster';
 import { AttributionFormConfig } from './AttributionForm';
 import { PackageAutocomplete } from './PackageAutocomplete';
@@ -132,9 +132,8 @@ export function PackageSubPanel({
     return (
       <PackageAutocomplete
         attribute={'packageName'}
-        title={text.attributionColumn.packageSubPanel.packageName}
+        title={text.attributionColumn.packageName}
         packageInfo={packageInfo}
-        highlight={'dark'}
         readOnly={!onEdit}
         showHighlight={showHighlight}
         defaults={packageNames}
@@ -150,9 +149,8 @@ export function PackageSubPanel({
     return (
       <PackageAutocomplete
         attribute={'packageNamespace'}
-        title={text.attributionColumn.packageSubPanel.packageNamespace}
+        title={text.attributionColumn.packageNamespace}
         packageInfo={packageInfo}
-        highlight={'dark'}
         readOnly={!onEdit}
         showHighlight={showHighlight}
         defaults={packageNamespaces}
@@ -168,7 +166,7 @@ export function PackageSubPanel({
     return (
       <PackageAutocomplete
         attribute={'packageVersion'}
-        title={text.attributionColumn.packageSubPanel.packageVersion}
+        title={text.attributionColumn.packageVersion}
         packageInfo={packageInfo}
         readOnly={!onEdit}
         showHighlight={showHighlight}
@@ -185,9 +183,8 @@ export function PackageSubPanel({
     return (
       <PackageAutocomplete
         attribute={'packageType'}
-        title={text.attributionColumn.packageSubPanel.packageType}
+        title={text.attributionColumn.packageType}
         packageInfo={packageInfo}
-        highlight={'dark'}
         readOnly={!onEdit}
         showHighlight={showHighlight}
         defaults={defaultPackageTypes}
@@ -205,7 +202,7 @@ export function PackageSubPanel({
     return (
       <TextBox
         sx={attributionColumnClasses.textBox}
-        title={text.attributionColumn.packageSubPanel.purl}
+        title={text.attributionColumn.purl}
         text={purl}
         disabled
         endIcon={
@@ -213,9 +210,7 @@ export function PackageSubPanel({
             ? undefined
             : [
                 <IconButton
-                  tooltipTitle={
-                    text.attributionColumn.packageSubPanel.copyToClipboard
-                  }
+                  tooltipTitle={text.attributionColumn.copyToClipboard}
                   tooltipPlacement="left"
                   onClick={async () => {
                     await navigator.clipboard.writeText(purl);
@@ -225,15 +220,11 @@ export function PackageSubPanel({
                   }}
                   icon={<ContentCopyIcon sx={clickableIcon} />}
                   hidden={!purl}
-                  aria-label={
-                    text.attributionColumn.packageSubPanel.copyToClipboard
-                  }
-                  key={text.attributionColumn.packageSubPanel.copyToClipboard}
+                  aria-label={text.attributionColumn.copyToClipboard}
+                  key={text.attributionColumn.copyToClipboard}
                 />,
                 <IconButton
-                  tooltipTitle={
-                    text.attributionColumn.packageSubPanel.pasteFromClipboard
-                  }
+                  tooltipTitle={text.attributionColumn.pasteFromClipboard}
                   hidden={!onEdit}
                   tooltipPlacement="left"
                   onClick={async () => {
@@ -260,12 +251,8 @@ export function PackageSubPanel({
                     }
                   }}
                   icon={<ContentPasteIcon sx={clickableIcon} />}
-                  aria-label={
-                    text.attributionColumn.packageSubPanel.pasteFromClipboard
-                  }
-                  key={
-                    text.attributionColumn.packageSubPanel.pasteFromClipboard
-                  }
+                  aria-label={text.attributionColumn.pasteFromClipboard}
+                  key={text.attributionColumn.pasteFromClipboard}
                 />,
               ]
         }
@@ -277,7 +264,7 @@ export function PackageSubPanel({
     return (
       <PackageAutocomplete
         attribute={'url'}
-        title={text.attributionColumn.packageSubPanel.repositoryUrl}
+        title={text.attributionColumn.repositoryUrl}
         packageInfo={packageInfo}
         readOnly={!onEdit}
         showHighlight={showHighlight}
@@ -314,16 +301,14 @@ export function PackageSubPanel({
               key={text.attributionColumn.getUrlAndLegal}
             />,
             <IconButton
-              tooltipTitle={
-                text.attributionColumn.packageSubPanel.openLinkInBrowser
-              }
+              tooltipTitle={text.attributionColumn.openLinkInBrowser}
               tooltipPlacement={'left'}
               onClick={() => openUrl(packageInfo.url)}
               hidden={!packageInfo.url}
               icon={
                 <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
               }
-              key={text.attributionColumn.packageSubPanel.openLinkInBrowser}
+              key={text.attributionColumn.openLinkInBrowser}
             />,
           ]
         }

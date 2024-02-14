@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { compact } from 'lodash';
+
 import { PackageInfo } from '../../shared/shared-types';
 
 const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES = [
@@ -15,10 +17,14 @@ const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES = [
 
 type Attribute = (typeof PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES)[number];
 
-const FIRST_PARTY_TEXT = 'First party';
+const FIRST_PARTY_TEXT = 'First Party';
 
 export function getCardLabels(packageInfo: PackageInfo): Array<string> {
   const packageLabels: Array<string> = [];
+
+  if (packageInfo.firstParty) {
+    return compact([FIRST_PARTY_TEXT, packageInfo.comment]);
+  }
 
   for (const attribute of PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES) {
     addPackageLabelsFromAttribute(packageInfo, attribute, packageLabels);
@@ -27,7 +33,6 @@ export function getCardLabels(packageInfo: PackageInfo): Array<string> {
     }
   }
 
-  addFirstPartyTextIfNoOtherTextPresent(packageLabels, packageInfo);
   return packageLabels;
 }
 
@@ -110,13 +115,4 @@ export function addPreambleToCopyright(originalCopyright: string): string {
     copyright = `(c) ${originalCopyright}`;
   }
   return copyright;
-}
-
-function addFirstPartyTextIfNoOtherTextPresent(
-  packageLabels: Array<string>,
-  packageInfo: PackageInfo,
-): void {
-  if (packageLabels.length === 0 && packageInfo.firstParty) {
-    packageLabels.push(FIRST_PARTY_TEXT);
-  }
 }

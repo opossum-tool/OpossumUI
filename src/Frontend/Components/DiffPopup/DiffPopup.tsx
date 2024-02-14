@@ -83,7 +83,7 @@ export function DiffPopup({
           getComparableAttributes(bufferPackageInfo),
           getComparableAttributes(current),
         ),
-        buttonText: text.buttons.diffPopup.applyChanges,
+        buttonText: text.diffPopup.applyChanges,
         onClick: () => {
           handleApplyChanges({ original, current, buffer: bufferPackageInfo });
         },
@@ -93,7 +93,7 @@ export function DiffPopup({
           getComparableAttributes(bufferPackageInfo),
           getComparableAttributes(original),
         ),
-        buttonText: text.buttons.diffPopup.revertAll,
+        buttonText: text.diffPopup.revertAll,
         onClick: () => {
           setBufferPackageInfo({
             ...bufferPackageInfo,

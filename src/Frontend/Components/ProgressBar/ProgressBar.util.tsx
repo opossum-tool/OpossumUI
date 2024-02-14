@@ -3,22 +3,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { sum } from 'lodash';
+import { debounce, sum } from 'lodash';
 import { useState } from 'react';
 
+import { RAGE_DEBOUNCE_TIME } from '../../shared-constants';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { ProgressBarData, ProgressBarType } from '../../types/types';
-import { doNothing } from '../../util/do-nothing';
+import { ProgressBarData } from '../../types/types';
 
-export function useOnProgressBarClick(resourceIds: Array<string>): () => void {
+export function useOnProgressBarClick(
+  resourceIds: Array<string> | undefined,
+): () => void {
   const [numberOfClicks, setNumberOfClicks] = useState(-1);
   const dispatch = useAppDispatch();
 
   function onProgressBarClick(): void {
-    if (!resourceIds.length) {
-      return doNothing();
+    if (!resourceIds?.length) {
+      return;
     }
 
     const newNumberOfClicks = (numberOfClicks + 1) % resourceIds.length;
@@ -28,7 +30,7 @@ export function useOnProgressBarClick(resourceIds: Array<string>): () => void {
     );
   }
 
-  return onProgressBarClick;
+  return debounce(onProgressBarClick, RAGE_DEBOUNCE_TIME);
 }
 
 export function getProgressBarTooltipText(
@@ -36,15 +38,22 @@ export function getProgressBarTooltipText(
 ): React.ReactNode {
   return (
     <MuiBox>
-      Number of files: {progressBarData.fileCount}
+      Number of resources…
       <br />
-      Files with attributions: {progressBarData.filesWithManualAttributionCount}
+      …with attributions:{' '}
+      {new Intl.NumberFormat().format(
+        progressBarData.filesWithManualAttributionCount,
+      )}
       <br />
-      Files with only pre-selected attributions:{' '}
-      {progressBarData.filesWithOnlyPreSelectedAttributionCount}
+      …with only pre-selected attributions:{' '}
+      {new Intl.NumberFormat().format(
+        progressBarData.filesWithOnlyPreSelectedAttributionCount,
+      )}
       <br />
-      Files with only signals:{' '}
-      {progressBarData.filesWithOnlyExternalAttributionCount}
+      …with only signals:{' '}
+      {new Intl.NumberFormat().format(
+        progressBarData.filesWithOnlyExternalAttributionCount,
+      )}
     </MuiBox>
   );
 }
@@ -58,21 +67,26 @@ export function getCriticalityBarTooltipText(
     progressBarData.filesWithMediumCriticalExternalAttributionsCount;
   return (
     <MuiBox>
-      Number of files with signals and no attributions (
-      {progressBarData.filesWithOnlyExternalAttributionCount}) <br />
-      containing highly-critical signals:{' '}
-      {progressBarData.filesWithHighlyCriticalExternalAttributionsCount} <br />
-      containing medium-critical signals:{' '}
-      {progressBarData.filesWithMediumCriticalExternalAttributionsCount} <br />
-      containing only non-critical signals:{' '}
-      {filesWithNonCriticalExternalAttributions}
+      Number of resources with signals and no attributions…
+      <br />
+      …containing highly critical signals:{' '}
+      {new Intl.NumberFormat().format(
+        progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
+      )}{' '}
+      <br />
+      …containing medium critical signals:{' '}
+      {new Intl.NumberFormat().format(
+        progressBarData.filesWithMediumCriticalExternalAttributionsCount,
+      )}{' '}
+      <br />
+      …containing only non-critical signals:{' '}
+      {new Intl.NumberFormat().format(filesWithNonCriticalExternalAttributions)}
     </MuiBox>
   );
 }
 
 export function getProgressBarBackground(
   progressBarData: ProgressBarData,
-  progressBarType: ProgressBarType,
 ): string {
   let filesWithManualAttributions: number =
     (progressBarData.filesWithManualAttributionCount /
@@ -116,11 +130,7 @@ export function getProgressBarBackground(
     ` ${OpossumColors.pastelLightGreen} ${filesWithManualAttributions}%,` +
     ` ${OpossumColors.pastelMiddleGreen} ${filesWithPreselectedOrManualAttributions}%,` +
     ` ${OpossumColors.pastelRed} ${filesWithPreselectedOrManualAttributions}% ${allFilesWithAttributions}%,` +
-    ` ${
-      progressBarType === 'FolderProgressBar'
-        ? OpossumColors.almostWhiteBlue
-        : OpossumColors.lightestBlue
-    } ${allFilesWithAttributions}%)`
+    ` ${OpossumColors.lightestBlue} ${allFilesWithAttributions}%)`
   );
 }
 

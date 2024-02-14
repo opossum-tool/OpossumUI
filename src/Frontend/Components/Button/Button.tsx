@@ -6,8 +6,6 @@ import MuiButton, { ButtonProps as MuiButtonProps } from '@mui/material/Button';
 import MuiTooltip from '@mui/material/Tooltip';
 import { ReactElement } from 'react';
 
-import { tooltipStyle } from '../../shared-styles';
-
 export interface ButtonProps
   extends Pick<MuiButtonProps, 'disabled' | 'onClick' | 'color'> {
   buttonText: string;
@@ -18,7 +16,6 @@ export interface ButtonProps
 export function Button(props: ButtonProps): ReactElement {
   return (
     <MuiTooltip
-      sx={tooltipStyle}
       title={props.tooltipText}
       placement={props.tooltipPlacement}
       describeChild={true}

@@ -6,10 +6,6 @@
 import { PopupType, View } from '../../enums/enums';
 import { State } from '../../types/types';
 
-export function isAttributionViewSelected(state: State): boolean {
-  return state.viewState.view === View.Attribution;
-}
-
 export function isAuditViewSelected(state: State): boolean {
   return state.viewState.view === View.Audit;
 }

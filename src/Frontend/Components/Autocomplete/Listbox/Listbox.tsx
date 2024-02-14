@@ -10,6 +10,7 @@ import {
   AutocompleteFreeSoloValueMapping,
   UseAutocompleteRenderedOption,
 } from '@mui/material/useAutocomplete';
+import { SxProps } from '@mui/system';
 import { groupBy as _groupBy } from 'lodash';
 import { forwardRef, useMemo, useState } from 'react';
 import { GroupedVirtuoso, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
@@ -43,6 +44,7 @@ export type ListboxProps<
     { closePopper }: { closePopper: () => void },
   ) => React.ReactNode;
   optionText: {
+    sx?: SxProps;
     primary: (
       option: Value | AutocompleteFreeSoloValueMapping<FreeSolo>,
     ) => React.ReactNode;
@@ -119,8 +121,7 @@ export const Listbox = forwardRef(
         <GroupedVirtuoso
           ref={virtuosoRef}
           style={{ ...styles.virtuoso, height: height + groupNames.length }}
-          overscan={4}
-          increaseViewportBy={2}
+          increaseViewportBy={20}
           initialTopMostItemIndex={
             ~firstSelectedIndex && {
               index: firstSelectedIndex,
@@ -158,12 +159,11 @@ export const Listbox = forwardRef(
           ref={virtuosoRef}
           style={{
             ...styles.virtuoso,
-            height,
+            height: height + Math.floor(options.length / 2),
           }}
           data={options}
           itemContent={(index, option) => renderOption({ option, index })}
-          overscan={4}
-          increaseViewportBy={2}
+          increaseViewportBy={20}
           totalListHeightChanged={setHeight}
         />
       );
@@ -184,7 +184,7 @@ export const Listbox = forwardRef(
           selected={optionProps['aria-selected'] as boolean}
           disabled={optionProps['aria-disabled'] as boolean}
           key={getOptionKey?.(option) ?? key}
-          sx={{ gap: '12px' }}
+          sx={{ gap: '12px', ...optionText.sx }}
           dense
         >
           {renderOptionStartIcon?.(option, { closePopper })}

@@ -4,8 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { omit as _omit, pick as _pick, remove } from 'lodash';
 
-import { isIdOfResourceWithChildren } from './can-resource-have-children';
-
 export function replaceInArray<T>(
   array: Array<T>,
   itemToReplace: T,
@@ -66,14 +64,6 @@ export function removeFromSetCloneAndDeleteKeyFromObjectIfEmpty<T>(
   }
 }
 
-export function isChildOf(parentId: string, possibleChildId: string): boolean {
-  if (!isIdOfResourceWithChildren(parentId) || possibleChildId === parentId) {
-    return false;
-  }
-
-  return possibleChildId.includes(parentId);
-}
-
 /** Improves the lodash pick typing by correctly inferring the type of keys */
 export function pick<T extends object, K extends keyof T>(
   object: T,
@@ -88,4 +78,12 @@ export function omit<T extends object, K extends keyof T>(
   keys: Array<K>,
 ): Omit<T, K> {
   return _omit(object, keys);
+}
+
+/** Converts a string to title case, e.g., "foo bar" -> "Foo Bar" */
+export function toTitleCase(str: string) {
+  return str.replace(
+    /\w\S*/g,
+    (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase(),
+  );
 }

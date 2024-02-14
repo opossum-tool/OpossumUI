@@ -8,7 +8,7 @@ import { PackageInfo } from '../../../shared/shared-types';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
-import { TextBox } from '../InputElements/TextBox';
+import { TextBox } from '../TextBox/TextBox';
 import { AttributeConfig } from './AttributionForm';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 

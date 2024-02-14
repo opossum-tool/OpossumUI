@@ -7,15 +7,15 @@ import MuiTypography from '@mui/material/Typography';
 import { ReactElement } from 'react';
 
 import { text } from '../../../shared/text';
-import { ButtonText, ProjectStatisticsPopupTitle } from '../../enums/enums';
+import { ProjectStatisticsPopupTitle } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getExternalAttributions,
   getExternalAttributionSources,
   getManualAttributions,
-} from '../../state/selectors/all-views-resource-selectors';
-import { useUserSetting } from '../../util/use-user-setting';
+} from '../../state/selectors/resource-selectors';
+import { useUserSetting } from '../../state/variables/use-user-setting';
 import { AccordionWithPieChart } from '../AccordionWithPieChart/AccordionWithPieChart';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { AttributionPropertyCountTable } from '../AttributionPropertyCountTable/AttributionPropertyCountTable';
@@ -131,12 +131,12 @@ export function ProjectStatisticsPopup(): ReactElement {
           />
         </>
       }
-      header={'Project Statistics'}
+      header={text.projectStatisticsPopup.title}
       isOpen={true}
       fullWidth={true}
       rightButtonConfig={{
         onClick: close,
-        buttonText: ButtonText.Close,
+        buttonText: text.buttons.close,
       }}
       onBackdropClick={close}
       onEscapeKeyDown={close}

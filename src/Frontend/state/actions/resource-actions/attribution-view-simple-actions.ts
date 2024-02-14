@@ -3,10 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
-  SetMultiSelectSelectedAttributionIds,
   SetSelectedAttributionId,
   SetTargetSelectedAttributionIdAction,
 } from './types';
@@ -26,14 +24,5 @@ export function setTargetSelectedAttributionId(
   return {
     type: ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
     payload: targetSelectedAttributionId,
-  };
-}
-
-export function setMultiSelectSelectedAttributionIds(
-  multiSelectSelectedAttributionIds: Array<string>,
-): SetMultiSelectSelectedAttributionIds {
-  return {
-    type: ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS,
-    payload: multiSelectSelectedAttributionIds,
   };
 }

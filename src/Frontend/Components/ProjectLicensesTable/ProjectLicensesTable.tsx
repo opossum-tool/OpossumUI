@@ -29,7 +29,6 @@ interface ProjectLicensesTableProps {
   columnHeaders: Array<string>;
   columnNames: Array<string>;
   rowNames: Array<string>;
-  firstColumnIconButtons?: { [rowName: string]: ReactElement };
   tableContent: TableContent;
   tableFooter?: Array<string>;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
@@ -77,10 +76,7 @@ export function ProjectLicensesTable(
                     align={columnIndex === 0 ? 'left' : 'center'}
                   >
                     {columnIndex === 0 ? (
-                      <>
-                        <span>{rowName}</span>
-                        {props.firstColumnIconButtons?.[rowName]}
-                      </>
+                      <span>{rowName}</span>
                     ) : (
                       props.tableContent[rowName][columnName] ||
                       PLACEHOLDER_ATTRIBUTION_COUNT

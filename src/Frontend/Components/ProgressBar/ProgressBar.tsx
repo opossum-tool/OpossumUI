@@ -8,7 +8,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { ReactElement } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
-import { ProgressBarData, ProgressBarType } from '../../types/types';
+import { ProgressBarData } from '../../types/types';
 import {
   getCriticalityBarBackground,
   getCriticalityBarTooltipText,
@@ -41,8 +41,7 @@ const classes = {
 };
 
 interface ProgressBarProps {
-  sx: SxProps;
-  progressBarType: ProgressBarType;
+  sx?: SxProps;
   progressBarData: ProgressBarData;
   progressBarCriticalityState?: boolean;
 }
@@ -69,22 +68,18 @@ export function ProgressBar(props: ProgressBarProps): ReactElement {
             ? getCriticalityBarTooltipText(props.progressBarData)
             : getProgressBarTooltipText(props.progressBarData)
         }
+        followCursor
       >
         <MuiBox
-          aria-label={props.progressBarType}
+          aria-label={'ProgressBar'}
           sx={{
             ...classes.bar,
-            ...(props.progressBarType === 'FolderProgressBar'
-              ? classes.folderBar
-              : classes.topBar),
+            ...classes.topBar,
           }}
           style={{
             background: props.progressBarCriticalityState
               ? getCriticalityBarBackground(props.progressBarData)
-              : getProgressBarBackground(
-                  props.progressBarData,
-                  props.progressBarType,
-                ),
+              : getProgressBarBackground(props.progressBarData),
           }}
           onClick={
             props.progressBarCriticalityState

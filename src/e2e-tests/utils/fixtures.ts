@@ -20,7 +20,6 @@ import {
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { AttributionDetails } from '../page-objects/AttributionDetails';
 import { AttributionList } from '../page-objects/AttributionList';
-import { ChangePreferredStatusGloballyPopup } from '../page-objects/ChangePreferredStatusGloballyPopup';
 import { ConfirmationDialog } from '../page-objects/ConfirmationDialog';
 import { ConfirmationPopup } from '../page-objects/ConfirmationPopup';
 import { DiffPopup } from '../page-objects/DiffPopup';
@@ -54,7 +53,6 @@ export const test = base.extend<{
   debug: () => void;
   attributionDetails: AttributionDetails;
   attributionList: AttributionList;
-  changePreferredStatusGloballyPopup: ChangePreferredStatusGloballyPopup;
   confirmationDialog: ConfirmationDialog;
   confirmationPopup: ConfirmationPopup;
   diffPopup: DiffPopup;
@@ -141,9 +139,6 @@ export const test = base.extend<{
   },
   fileSearchPopup: async ({ window }, use) => {
     await use(new FileSearchPopup(window));
-  },
-  changePreferredStatusGloballyPopup: async ({ window }, use) => {
-    await use(new ChangePreferredStatusGloballyPopup(window));
   },
   confirmationPopup: async ({ window }, use) => {
     await use(new ConfirmationPopup(window));

@@ -49,7 +49,7 @@ test.use({
   },
 });
 
-test('deletes attributions in audit view', async ({
+test('deletes single attributions', async ({
   attributionDetails,
   attributionList,
   confirmationPopup,
@@ -105,7 +105,6 @@ test('deletes attributions in audit view', async ({
   await attributionDetails.assert.deleteButtonIsHidden();
   await attributionDetails.assert.deleteGloballyButtonIsHidden();
 
-  await topBar.gotoAttributionView();
   await resourceBrowser.assert.isHidden();
 
   await attributionList.attributionCard.click(packageInfo2);
@@ -123,14 +122,12 @@ test('deletes attributions in audit view', async ({
   });
 });
 
-test('deletes multiple attributions at once in attribution view', async ({
+test('deletes multiple attributions at once', async ({
   attributionDetails,
   attributionList,
   confirmationPopup,
   resourceBrowser,
-  topBar,
 }) => {
-  await topBar.gotoAttributionView();
   await attributionList.attributionCard.assert.checkboxIsUnchecked(
     packageInfo1,
   );

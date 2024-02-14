@@ -3,10 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { PackageInfo } from '../../../shared/shared-types';
-import {
-  licenseNameContainsSearchTerm,
-  packageInfoContainsSearchTerm,
-} from '../search-package-info';
+import { packageInfoContainsSearchTerm } from '../search-package-info';
 
 describe('packageInfoContainsSearchTerm', () => {
   it('searches by package name', () => {
@@ -63,19 +60,6 @@ describe('packageInfoContainsSearchTerm', () => {
 
     expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
       false,
-    );
-  });
-});
-
-describe('licenseNameContainsSearchTerm', () => {
-  it('searches by license name', () => {
-    const testPackageInfo: PackageInfo = {
-      licenseName: 'Search_term licence',
-      id: 'uuid3',
-    };
-
-    expect(licenseNameContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
-      true,
     );
   });
 });

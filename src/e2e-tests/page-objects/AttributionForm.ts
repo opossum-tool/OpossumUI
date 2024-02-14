@@ -49,33 +49,28 @@ export class AttributionForm {
   constructor(context: Locator, window: Page) {
     this.window = window;
     this.node = context;
-    this.type = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.packageType,
-      { exact: true },
-    );
+    this.type = this.node.getByLabel(text.attributionColumn.packageType, {
+      exact: true,
+    });
     this.namespace = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.packageNamespace,
+      text.attributionColumn.packageNamespace,
       {
         exact: true,
       },
     );
     this.attributionType = this.node.getByRole('group');
-    this.name = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.packageName,
-      { exact: true },
-    );
-    this.version = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.packageVersion,
-      { exact: true },
-    );
-    this.purl = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.purl,
-      { exact: true },
-    );
-    this.url = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.repositoryUrl,
-      { exact: true },
-    );
+    this.name = this.node.getByLabel(text.attributionColumn.packageName, {
+      exact: true,
+    });
+    this.version = this.node.getByLabel(text.attributionColumn.packageVersion, {
+      exact: true,
+    });
+    this.purl = this.node.getByLabel(text.attributionColumn.purl, {
+      exact: true,
+    });
+    this.url = this.node.getByLabel(text.attributionColumn.repositoryUrl, {
+      exact: true,
+    });
     this.copyright = this.node.getByLabel('Copyright', { exact: true });
     this.licenseName = this.node.getByLabel(
       text.attributionColumn.licenseName,

@@ -5,32 +5,19 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiDialogContentText from '@mui/material/DialogContentText';
-import MuiToggleButton from '@mui/material/ToggleButton';
-import { ReactElement, useEffect } from 'react';
 
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
-import { AllowedSaveOperations, ButtonText, View } from '../../enums/enums';
-import { OpossumColors } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
 import {
-  addResolvedExternalAttribution,
-  removeResolvedExternalAttribution,
-} from '../../state/actions/resource-actions/audit-view-simple-actions';
-import {
-  saveManualAndResolvedAttributionsToFile,
-  setAllowedSaveOperations,
-} from '../../state/actions/resource-actions/save-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
+  getAttributionBreakpoints,
+  getManualAttributions,
+  getSelectedAttributionId,
+  getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
-  wereTemporaryDisplayPackageInfoModified,
-} from '../../state/selectors/all-views-resource-selectors';
-import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
-import { getSelectedView } from '../../state/selectors/view-selector';
-import {
-  ResetStateListener,
-  useIpcRenderer,
-} from '../../util/use-ipc-renderer';
+} from '../../state/selectors/resource-selectors';
+import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
+import { useIsSelectedAttributionVisible } from '../../state/variables/use-filtered-data';
+import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 import {
   ConfirmationDialog,
   useConfirmationDialog,
@@ -44,141 +31,53 @@ const classes = {
     display: 'flex',
     flexDirection: 'column',
     width: '100%',
-  },
-  buttonsContainer: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    margin: '8px',
-  },
-  showHideButton: {
-    height: '40px',
-    minWidth: '100px',
-    background: OpossumColors.lightBlue,
-    color: OpossumColors.black,
-    '&:hover': {
-      background: OpossumColors.lightBlueOnHover,
-    },
-    '&.Mui-selected': {
-      background: OpossumColors.darkBlue,
-      color: OpossumColors.white,
-    },
+    position: 'relative',
   },
 };
 
-interface AttributionColumnProps {
-  isEditable: boolean;
-  areButtonsHidden?: boolean;
-  showSaveGloballyButton?: boolean;
-  hideDeleteButtons?: boolean;
-  showParentAttributions?: boolean;
-  showHideButton?: boolean;
-  onSaveButtonClick?(): void;
-  onSaveGloballyButtonClick?(): void;
-  onDeleteButtonClick?(): void;
-  onDeleteGloballyButtonClick?(): void;
-  saveFileRequestListener(): void;
-}
-
-export function AttributionColumn(props: AttributionColumnProps): ReactElement {
-  const dispatch = useAppDispatch();
-  const resolvedExternalAttributions = useAppSelector(
-    getResolvedExternalAttributions,
-  );
+export function AttributionColumn() {
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const manualAttributions = useAppSelector(getManualAttributions);
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
+
+  const isSelectedAttributionVisible = useIsSelectedAttributionVisible();
+
   const [confirmEditWasPreferredRef, confirmEditWasPreferred] =
     useConfirmationDialog({
       skip: !temporaryDisplayPackageInfo.wasPreferred,
     });
-  const packageInfoWereModified = useAppSelector(
-    wereTemporaryDisplayPackageInfoModified,
-  );
-  const view = useAppSelector(getSelectedView);
+  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
 
-  useIpcRenderer<ResetStateListener>(
-    AllowedFrontendChannels.SaveFileRequest,
-    () => props.saveFileRequestListener(),
-    [props.saveFileRequestListener],
-  );
+  const isEditable =
+    !attributionIdsForReplacement.length &&
+    (!selectedAttributionId ||
+      Object.keys(manualAttributions).includes(selectedAttributionId));
 
   const showHighlight =
-    view === View.Attribution &&
-    !temporaryDisplayPackageInfo.firstParty &&
-    !temporaryDisplayPackageInfo.excludeFromNotice;
+    isEditable && isPackageInfoIncomplete(temporaryDisplayPackageInfo);
 
-  const selectedPackageIsResolved = resolvedExternalAttributions.has(
-    temporaryDisplayPackageInfo.id,
-  );
-
-  useEffect(() => {
-    dispatch(
-      setAllowedSaveOperations(
-        packageInfoWereModified || temporaryDisplayPackageInfo.preSelected
-          ? AllowedSaveOperations.All
-          : AllowedSaveOperations.None,
-      ),
-    );
-  }, [
-    dispatch,
-    packageInfoWereModified,
-    temporaryDisplayPackageInfo.preSelected,
-  ]);
-
-  return (
-    <>
-      <MuiBox aria-label={'attribution column'} sx={classes.root}>
-        <AttributionForm
-          packageInfo={temporaryDisplayPackageInfo}
-          showHighlight={showHighlight}
-          onEdit={props.isEditable ? confirmEditWasPreferred : undefined}
-        />
-        <MuiBox sx={classes.buttonsContainer}>
-          {props.showHideButton ? (
-            renderShowHideButton()
-          ) : (
-            <ButtonRow
-              areButtonsHidden={props.areButtonsHidden}
-              packageInfo={temporaryDisplayPackageInfo}
-              hideDeleteButtons={props.hideDeleteButtons}
-              onDeleteButtonClick={props.onDeleteButtonClick}
-              onDeleteGloballyButtonClick={props.onDeleteGloballyButtonClick}
-              onSaveButtonClick={props.onSaveButtonClick}
-              onSaveGloballyButtonClick={props.onSaveGloballyButtonClick}
-              showSaveGloballyButton={props.showSaveGloballyButton}
-            />
-          )}
-        </MuiBox>
-      </MuiBox>
-      {renderConfirmationDialog()}
-    </>
-  );
-
-  function renderShowHideButton() {
-    return (
-      <MuiToggleButton
-        value={'check'}
-        selected={selectedPackageIsResolved}
-        onChange={() => {
-          dispatch(
-            resolvedExternalAttributions.has(temporaryDisplayPackageInfo.id)
-              ? removeResolvedExternalAttribution(
-                  temporaryDisplayPackageInfo.id,
-                )
-              : addResolvedExternalAttribution(temporaryDisplayPackageInfo.id),
-          );
-          dispatch(saveManualAndResolvedAttributionsToFile());
-        }}
-        sx={classes.showHideButton}
-        aria-label={'resolve attribution'}
-      >
-        {selectedPackageIsResolved ? ButtonText.Unhide : ButtonText.Hide}
-      </MuiToggleButton>
-    );
+  if (
+    attributionBreakpoints.has(selectedResourceId) ||
+    (!!selectedAttributionId && !isSelectedAttributionVisible)
+  ) {
+    return null;
   }
 
-  function renderConfirmationDialog() {
-    return (
+  return (
+    <MuiBox aria-label={'attribution column'} sx={classes.root}>
+      <AttributionForm
+        packageInfo={temporaryDisplayPackageInfo}
+        showHighlight={showHighlight}
+        onEdit={isEditable ? confirmEditWasPreferred : undefined}
+      />
+      <ButtonRow
+        isEditable={isEditable}
+        packageInfo={temporaryDisplayPackageInfo}
+      />
       <ConfirmationDialog
         ref={confirmEditWasPreferredRef}
         message={
@@ -190,8 +89,8 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
             {'.'}
           </MuiDialogContentText>
         }
-        title={text.modifyWasPreferredPopup.header}
+        title={text.modifyWasPreferredPopup.title}
       />
-    );
-  }
+    </MuiBox>
+  );
 }

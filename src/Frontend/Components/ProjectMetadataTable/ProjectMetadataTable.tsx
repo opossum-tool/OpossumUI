@@ -14,7 +14,7 @@ import React, { ReactElement } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
-import { getProjectMetadata } from '../../state/selectors/all-views-resource-selectors';
+import { getProjectMetadata } from '../../state/selectors/resource-selectors';
 
 export const projectMetadataTableClasses = {
   firstColumn: {

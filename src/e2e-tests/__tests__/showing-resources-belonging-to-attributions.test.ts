@@ -46,11 +46,9 @@ test.use({
 
 test('shows resources belonging to attributions', async ({
   attributionDetails,
-  attributionList,
   resourceBrowser,
   resourceDetails,
   resourcePathPopup,
-  topBar,
 }) => {
   await resourceBrowser.gotoRoot();
   await resourceDetails.assert.signalsInFolderContentAccordionIsVisible();
@@ -83,11 +81,4 @@ test('shows resources belonging to attributions', async ({
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     manualPackageInfo2,
   );
-
-  await topBar.gotoAttributionView();
-  await resourceBrowser.assert.isHidden();
-
-  await attributionList.attributionCard.click(manualPackageInfo1);
-  await resourceBrowser.goto(resourceName1);
-  await resourceDetails.assert.breadcrumbsAreVisible(resourceName1);
 });

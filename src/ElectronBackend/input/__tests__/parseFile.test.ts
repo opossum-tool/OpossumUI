@@ -124,9 +124,9 @@ const correctOutput: OpossumOutputFile = {
   resolvedExternalAttributions: [],
 };
 
-const correctParsedOuput: ParsedOpossumOutputFile = {
+const correctParsedOutput: ParsedOpossumOutputFile = {
   ...correctOutput,
-  resolvedExternalAttributions: new Set(),
+  resolvedExternalAttributions: [],
 };
 
 describe('parseOpossumFile', () => {
@@ -154,7 +154,7 @@ describe('parseOpossumFile', () => {
       opossumFilePath,
     )) as ParsedOpossumInputAndOutput;
     expect(parsingResult.input).toStrictEqual(correctInput);
-    expect(parsingResult.output).toStrictEqual(correctParsedOuput);
+    expect(parsingResult.output).toStrictEqual(correctParsedOutput);
   });
 
   it('returns JSONParsingError on an incorrect .opossum file', async () => {
@@ -248,7 +248,7 @@ describe('parseOutputJsonFile', () => {
 
     const attributions = parseOutputJsonFile(attributionPath);
 
-    expect(attributions).toStrictEqual(correctParsedOuput);
+    expect(attributions).toStrictEqual(correctParsedOutput);
   });
 
   it('throws when reading an incorrect file', async () => {
@@ -272,7 +272,7 @@ describe('parseOutputJsonFile', () => {
       'cff9095a-5c24-46e6-b84d-cc8596b17c58',
     );
     const parsedFileContentWithWrongProjectId: ParsedOpossumOutputFile = set(
-      cloneDeep(correctParsedOuput),
+      cloneDeep(correctParsedOutput),
       'metadata.projectId',
       'cff9095a-5c24-46e6-b84d-cc8596b17c58',
     );

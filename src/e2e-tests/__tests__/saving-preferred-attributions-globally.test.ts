@@ -54,7 +54,6 @@ test.use({
 
 test('marks and unmarks an attribution as preferred globally if user saves globally via button', async ({
   attributionDetails,
-  changePreferredStatusGloballyPopup,
   resourceBrowser,
   resourceDetails,
   menuBar,
@@ -75,8 +74,6 @@ test('marks and unmarks an attribution as preferred globally if user saves globa
     await attributionDetails.attributionForm.auditingOptionsMenu.currentlyPreferredOption.click();
     await attributionDetails.attributionForm.closeAuditingOptionsMenu();
     await attributionDetails.saveButton.click();
-    await changePreferredStatusGloballyPopup.assert.isHidden();
-
     await resourceDetails.attributionCard.assert.preferredIconIsVisible(
       packageInfo1,
     );
@@ -96,9 +93,6 @@ test('marks and unmarks an attribution as preferred globally if user saves globa
     await attributionDetails.attributionForm.closeAuditingOptionsMenu();
     await attributionDetails.selectSaveMenuOption('saveGlobally');
     await attributionDetails.saveGloballyButton.click();
-    await changePreferredStatusGloballyPopup.assert.markAsPreferredWarningIsVisible();
-
-    await changePreferredStatusGloballyPopup.okButton.click();
     await resourceDetails.attributionCard.assert.preferredIconIsVisible(
       packageInfo1,
     );
@@ -115,9 +109,6 @@ test('marks and unmarks an attribution as preferred globally if user saves globa
     );
     await attributionDetails.selectSaveMenuOption('saveGlobally');
     await attributionDetails.saveGloballyButton.click();
-    await changePreferredStatusGloballyPopup.assert.unmarkAsPreferredWarningIsVisible();
-
-    await changePreferredStatusGloballyPopup.okButton.click();
     await resourceDetails.attributionCard.assert.preferredIconIsHidden(
       packageInfo1,
     );
@@ -148,7 +139,6 @@ test('marks and unmarks an attribution as preferred globally if user saves globa
 
 test('marks and unmarks an attribution as preferred globally if user navigates away and saves', async ({
   attributionDetails,
-  changePreferredStatusGloballyPopup,
   notSavedPopup,
   resourceBrowser,
   resourceDetails,
@@ -169,12 +159,10 @@ test('marks and unmarks an attribution as preferred globally if user navigates a
     await attributionDetails.attributionForm.openAuditingOptionsMenu();
     await attributionDetails.attributionForm.auditingOptionsMenu.currentlyPreferredOption.click();
     await attributionDetails.attributionForm.closeAuditingOptionsMenu();
-    await topBar.gotoAttributionView();
+    await topBar.gotoReportView();
     await notSavedPopup.assert.isVisible();
 
     await notSavedPopup.saveButton.click();
-    await changePreferredStatusGloballyPopup.assert.isHidden();
-
     await topBar.gotoAuditView();
     await resourceBrowser.goto(resourceName1);
     await resourceDetails.attributionCard.assert.preferredIconIsVisible(
@@ -197,9 +185,6 @@ test('marks and unmarks an attribution as preferred globally if user navigates a
     await notSavedPopup.assert.isVisible();
 
     await notSavedPopup.saveGloballyButton.click();
-    await changePreferredStatusGloballyPopup.assert.markAsPreferredWarningIsVisible();
-
-    await changePreferredStatusGloballyPopup.okButton.click();
     await resourceDetails.attributionCard.assert.preferredIconIsVisible(
       packageInfo1,
     );
@@ -217,129 +202,8 @@ test('marks and unmarks an attribution as preferred globally if user navigates a
     await notSavedPopup.assert.isVisible();
 
     await notSavedPopup.saveGloballyButton.click();
-    await changePreferredStatusGloballyPopup.assert.unmarkAsPreferredWarningIsVisible();
-
-    await changePreferredStatusGloballyPopup.okButton.click();
     await resourceDetails.attributionCard.assert.preferredIconIsHidden(
       packageInfo1,
-    );
-  });
-});
-
-test('show prefer globally warning only if necessary and do nothing on cancel', async ({
-  attributionDetails,
-  changePreferredStatusGloballyPopup,
-  notSavedPopup,
-  resourceBrowser,
-  resourceDetails,
-  menuBar,
-  topBar,
-}) => {
-  await menuBar.toggleQaMode();
-
-  await test.step('popup is not shown if attribution has a single resource', async () => {
-    await resourceBrowser.goto(resourceName4);
-    await resourceDetails.attributionCard.assert.preferredIconIsHidden(
-      packageInfo2,
-    );
-
-    await attributionDetails.attributionForm.openAuditingOptionsMenu();
-    await attributionDetails.attributionForm.auditingOptionsMenu.currentlyPreferredOption.click();
-    await attributionDetails.attributionForm.closeAuditingOptionsMenu();
-    await attributionDetails.assert.saveGloballyButtonIsHidden();
-    await resourceBrowser.goto(resourceName3);
-    await notSavedPopup.assert.isVisible();
-    await notSavedPopup.assert.saveGloballyButtonIsHidden();
-
-    await notSavedPopup.saveButton.click();
-    await changePreferredStatusGloballyPopup.assert.isHidden();
-  });
-
-  await test.step('cancel button preserves changes and prevents navigating away', async () => {
-    const comment = faker.lorem.sentence();
-
-    await resourceBrowser.goto(resourceName3);
-    await resourceDetails.attributionCard.assert.preferredIconIsHidden(
-      packageInfo1,
-    );
-
-    await attributionDetails.attributionForm.openAuditingOptionsMenu();
-    await attributionDetails.attributionForm.auditingOptionsMenu.currentlyPreferredOption.click();
-    await attributionDetails.attributionForm.closeAuditingOptionsMenu();
-
-    await attributionDetails.attributionForm.comment().fill(comment);
-    await topBar.gotoAttributionView();
-    await notSavedPopup.assert.isVisible();
-
-    await notSavedPopup.saveGloballyButton.click();
-    await changePreferredStatusGloballyPopup.assert.markAsPreferredWarningIsVisible();
-
-    await changePreferredStatusGloballyPopup.cancelButton.click();
-    await topBar.assert.auditViewIsActive();
-    await resourceDetails.attributionCard.assert.preferredIconIsHidden(
-      packageInfo1,
-    );
-    await attributionDetails.attributionForm.assert.commentIs(comment);
-    await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
-      'currentlyPreferredLabel',
-    );
-  });
-});
-
-test('show prefer globally warning if attribution is marked as preferred and saved in attribution view', async ({
-  attributionDetails,
-  attributionList,
-  changePreferredStatusGloballyPopup,
-  menuBar,
-  topBar,
-}) => {
-  await menuBar.toggleQaMode();
-
-  await test.step('prefer attribution with multiple resources and click save button', async () => {
-    await topBar.gotoAttributionView();
-    await attributionList.attributionCard.click(packageInfo1);
-    await attributionList.attributionCard.assert.preferredIconIsHidden(
-      packageInfo1,
-    );
-
-    await attributionDetails.attributionForm.openAuditingOptionsMenu();
-    await attributionDetails.attributionForm.auditingOptionsMenu.currentlyPreferredOption.click();
-    await attributionDetails.attributionForm.closeAuditingOptionsMenu();
-    await attributionDetails.saveButton.click();
-    await changePreferredStatusGloballyPopup.assert.markAsPreferredWarningIsVisible();
-
-    await changePreferredStatusGloballyPopup.okButton.click();
-    await attributionList.attributionCard.assert.preferredIconIsVisible(
-      packageInfo1,
-    );
-  });
-
-  await test.step('prefer attribution with multiple resources and save via menu', async () => {
-    await attributionDetails.attributionForm.removeAuditingLabel(
-      'currentlyPreferredLabel',
-    );
-    await menuBar.saveChanges();
-    await changePreferredStatusGloballyPopup.assert.unmarkAsPreferredWarningIsVisible();
-
-    await changePreferredStatusGloballyPopup.okButton.click();
-    await attributionList.attributionCard.assert.preferredIconIsHidden(
-      packageInfo1,
-    );
-  });
-
-  await test.step('do not show warning if attribution with single resource is marked as preferred', async () => {
-    await attributionList.attributionCard.click(packageInfo2);
-    await attributionList.attributionCard.assert.preferredIconIsHidden(
-      packageInfo2,
-    );
-
-    await attributionDetails.attributionForm.openAuditingOptionsMenu();
-    await attributionDetails.attributionForm.auditingOptionsMenu.currentlyPreferredOption.click();
-    await attributionDetails.attributionForm.closeAuditingOptionsMenu();
-    await menuBar.saveChanges();
-    await changePreferredStatusGloballyPopup.assert.isHidden();
-    await attributionList.attributionCard.assert.preferredIconIsVisible(
-      packageInfo2,
     );
   });
 });

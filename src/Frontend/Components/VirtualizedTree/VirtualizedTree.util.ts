@@ -2,35 +2,32 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { SxProps } from '@mui/system';
-import { isEmpty } from 'lodash';
 import { ReactElement } from 'react';
 
-import { getParents } from '../../state/helpers/get-parents';
-import { VirtualizedTreeNodeData } from './VirtualizedTreeNode/VirtualizedTreeNode';
+import { Resources } from '../../../shared/shared-types';
+import { VirtualizedTreeNodeProps } from './VirtualizedTreeNode/VirtualizedTreeNode';
 
 export function getTreeNodeProps(
-  nodes: NodesForTree,
+  nodes: Resources,
   parentPath: string,
   expandedNodes: Array<string>,
   selected: string,
-  isFileWithChildren: NodeIdPredicateForTree,
+  filesWithChildren: Set<string>,
   onSelect: (event: React.ChangeEvent<unknown>, nodeId: string) => void,
   onToggle: (nodeIdsToExpand: Array<string>) => void,
   getTreeNodeLabel: (
     nodeName: string,
-    node: NodesForTree | 1,
+    node: Resources | 1,
     nodeId: string,
   ) => ReactElement,
-  locatedResources?: Set<string>,
-  resourcesWithLocatedChildren?: Set<string>,
   breakpoints?: Set<string>,
-): Array<VirtualizedTreeNodeData> {
+  readonly: boolean = false,
+): Array<VirtualizedTreeNodeProps> {
   const sortedNodeNames: Array<string> = Object.keys(nodes).sort(
-    getSortFunction(nodes, isFileWithChildren, parentPath),
+    getSortFunction(nodes, filesWithChildren, parentPath),
   );
 
-  let treeNodes: Array<VirtualizedTreeNodeData> = [];
+  let treeNodes: Array<VirtualizedTreeNodeProps> = [];
 
   for (const nodeName of sortedNodeNames) {
     const node = nodes[nodeName];
@@ -38,12 +35,6 @@ export function getTreeNodeProps(
       canNodeHaveChildren(node) && Object.keys(node).length !== 0;
     const nodeId = getNodeId(nodeName, parentPath, canNodeHaveChildren(node));
     const isExpandedNode = isExpanded(nodeId, expandedNodes);
-    const isLocatedNode = isLocated(
-      nodeId,
-      isExpandedNode,
-      locatedResources,
-      resourcesWithLocatedChildren,
-    );
 
     const nodeIdsToExpand: Array<string> = getNodeIdsToExpand(nodeId, node);
 
@@ -64,29 +55,31 @@ export function getTreeNodeProps(
       isExpandedNode,
       nodeId,
       nodeIdsToExpand,
-      onClick: isExpandable ? onExpandableNodeClick : onSimpleNodeClick,
+      onClick: readonly
+        ? undefined
+        : isExpandable
+          ? onExpandableNodeClick
+          : onSimpleNodeClick,
       onToggle,
       node,
       nodeName,
       selected,
       breakpoints,
-      isLocatedNode,
     });
 
     if (isExpandedNode) {
       treeNodes = treeNodes.concat(
         getTreeNodeProps(
-          node as NodesForTree,
+          node as Resources,
           nodeId,
           expandedNodes,
           selected,
-          isFileWithChildren,
+          filesWithChildren,
           onSelect,
           onToggle,
           getTreeNodeLabel,
-          locatedResources,
-          resourcesWithLocatedChildren,
           breakpoints,
+          readonly,
         ),
       );
     }
@@ -95,25 +88,9 @@ export function getTreeNodeProps(
   return treeNodes;
 }
 
-export function isLocated(
-  nodeId: string,
-  isExpandedNode: boolean,
-  locatedResources?: Set<string>,
-  resourcesWithLocatedChildren?: Set<string>,
-): boolean {
-  if (locatedResources && locatedResources.has(nodeId)) {
-    return true;
-  }
-  return !!(
-    resourcesWithLocatedChildren &&
-    resourcesWithLocatedChildren.has(nodeId) &&
-    !isExpandedNode
-  );
-}
-
 export function getNodeIdsToExpand(
   nodeId: string,
-  node: NodesForTree | 1,
+  node: Resources | 1,
 ): Array<string> {
   const nodeIdsToExpand: Array<string> = [nodeId];
   addNodeIdsToExpand(nodeIdsToExpand, node);
@@ -122,7 +99,7 @@ export function getNodeIdsToExpand(
 
 function addNodeIdsToExpand(
   nodeIdsToExpand: Array<string>,
-  node: NodesForTree | 1,
+  node: Resources | 1,
 ): void {
   const containedNodes = Object.keys(node);
   if (node !== 1 && containsExactlyOneFolder(node, containedNodes)) {
@@ -134,7 +111,7 @@ function addNodeIdsToExpand(
 }
 
 function containsExactlyOneFolder(
-  node: NodesForTree,
+  node: Resources,
   containedNodes: Array<string>,
 ): boolean {
   return (
@@ -145,7 +122,7 @@ function containsExactlyOneFolder(
 function getNodeIdOfFirstContainedNode(
   containedNodes: Array<string>,
   nodeIdsToExpand: Array<string>,
-  node: NodesForTree,
+  node: Resources,
 ): string {
   const latestNodeIdToExpand = nodeIdsToExpand[nodeIdsToExpand.length - 1];
   return getNodeId(
@@ -177,33 +154,9 @@ export function isSelected(nodeId: string, selectedId: string): boolean {
   return nodeId === selectedId;
 }
 
-export function isChildOfSelected(nodeId: string, selectedId: string): boolean {
-  return (
-    nodeId.startsWith(selectedId) &&
-    !isSelected(nodeId, selectedId) &&
-    selectedId.slice(-1) === '/'
-  );
-}
-
-export function isBreakpointOrChildOfBreakpoint(
-  nodeId: string,
-  selectedId: string,
-  breakpoints?: Set<string>,
-): boolean {
-  if (!breakpoints || isEmpty(breakpoints)) {
-    return false;
-  }
-  const relativePathToNodeFromSelected = nodeId.replace(selectedId, '');
-  const parents = getParents(relativePathToNodeFromSelected);
-  const isChildOfBreakpoint =
-    parents.filter((item) => breakpoints.has(selectedId + item)).length > 0;
-
-  return breakpoints.has(nodeId) || isChildOfBreakpoint;
-}
-
 function getSortFunction(
-  nodes: NodesForTree,
-  isFakeNonExpandableNode: NodeIdPredicateForTree,
+  nodes: Resources,
+  filesWithChildren: Set<string>,
   path: string,
 ) {
   return (left: string, right: string): number => {
@@ -215,9 +168,9 @@ function getSortFunction(
     const rightNodeId = getNodeId(right, path, rightIsFolderOrFileWithChildren);
 
     const leftNodeIsFolder =
-      leftIsFolderOrFileWithChildren && !isFakeNonExpandableNode(leftNodeId);
+      leftIsFolderOrFileWithChildren && !filesWithChildren.has(leftNodeId);
     const rightNodeIsFolder =
-      rightIsFolderOrFileWithChildren && !isFakeNonExpandableNode(rightNodeId);
+      rightIsFolderOrFileWithChildren && !filesWithChildren.has(rightNodeId);
 
     if (leftNodeIsFolder && !rightNodeIsFolder) {
       return -1;
@@ -228,22 +181,10 @@ function getSortFunction(
   };
 }
 
-function canNodeHaveChildren(node: NodesForTree | 1): node is NodesForTree {
+function canNodeHaveChildren(node: Resources | 1): node is Resources {
   return node !== 1;
 }
 
 function isIdOfNodeWithChildren(nodeId: string): boolean {
   return nodeId.slice(-1) === '/';
-}
-export interface NodeIdPredicateForTree {
-  (path: string): boolean;
-}
-export interface NodesForTree {
-  [nodeName: string]: NodesForTree | 1;
-}
-export interface TreeNodeStyle {
-  root: SxProps;
-  childrenOfSelected: SxProps;
-  selected: SxProps;
-  treeExpandIcon: SxProps;
 }

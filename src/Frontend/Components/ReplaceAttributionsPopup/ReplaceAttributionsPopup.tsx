@@ -2,98 +2,54 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
+import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
-import { compact } from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
 
+import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { setMultiSelectSelectedAttributionIds } from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getCurrentAttributionId,
-  getManualAttributions,
-} from '../../state/selectors/all-views-resource-selectors';
-import { getMultiSelectSelectedAttributionIds } from '../../state/selectors/attribution-view-resource-selectors';
+import { getManualAttributions } from '../../state/selectors/resource-selectors';
+import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
 import { maybePluralize } from '../../util/maybe-pluralize';
-import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
-import { sortAttributions } from '../../util/sort-attributions';
-import { List } from '../List/List';
+import { CardList } from '../CardList/CardList';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { PACKAGE_CARD_HEIGHT, PackageCard } from '../PackageCard/PackageCard';
-import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { ContentContainer } from './ReplaceAttributionsPopup.style';
+import { PackageCard } from '../PackageCard/PackageCard';
 
-const TOTAL_MAX_NUMBER_OF_PACKAGE_CARDS = 10;
-const MAX_NUMBER_OF_PACKAGE_CARDS_PER_LIST = 5;
+interface Props {
+  selectedAttribution: PackageInfo;
+  open: boolean;
+  onClose: () => void;
+}
 
-export function ReplaceAttributionsPopup() {
+export const ReplaceAttributionsPopup = ({
+  selectedAttribution,
+  onClose,
+  open,
+}: Props) => {
   const dispatch = useAppDispatch();
   const attributions = useAppSelector(getManualAttributions);
-  const multiSelectSelectedAttributionIds = useAppSelector(
-    getMultiSelectSelectedAttributionIds,
-  );
-  const selectedAttributionId = useAppSelector(getCurrentAttributionId);
-  const attributionIdsToReplace = compact(
-    multiSelectSelectedAttributionIds.length
-      ? multiSelectSelectedAttributionIds
-      : [selectedAttributionId],
-  );
 
-  const [search, setSearch] = useState('');
-  const [targetAttributionId, setTargetAttributionId] = useState<string>();
-
-  const filteredAndSortedAttributions = useMemo(
-    () =>
-      sortAttributions({
-        sorting: text.sortings.name,
-        attributions: Object.values(attributions).filter(
-          (attribution) =>
-            !attributionIdsToReplace.includes(attribution.id) &&
-            packageInfoContainsSearchTerm(attribution, search),
-        ),
-      }),
-    [attributionIdsToReplace, attributions, search],
-  );
-  const filteredAndSortedIds = Object.keys(filteredAndSortedAttributions);
-
-  useEffect(() => {
-    if (
-      targetAttributionId &&
-      !filteredAndSortedIds.includes(targetAttributionId)
-    ) {
-      setTargetAttributionId(undefined);
-    }
-  }, [filteredAndSortedIds, targetAttributionId]);
+  const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
+    useAttributionIdsForReplacement();
 
   const handleReplace = () => {
-    if (!targetAttributionId) {
-      return;
-    }
-    dispatch(setMultiSelectSelectedAttributionIds([]));
-    dispatch(closePopup());
-    dispatch(
-      changeSelectedAttributionIdOrOpenUnsavedPopup(targetAttributionId),
-    );
-    if (attributions[targetAttributionId].preSelected) {
+    setAttributionIdsForReplacement([]);
+    onClose();
+    dispatch(changeSelectedAttributionOrOpenUnsavedPopup(selectedAttribution));
+    if (selectedAttribution.preSelected) {
       dispatch(
-        savePackageInfo(
-          null,
-          targetAttributionId,
-          attributions[targetAttributionId],
-        ),
+        savePackageInfo(null, selectedAttribution.id, selectedAttribution),
       );
     }
-    attributionIdsToReplace.forEach((attributionId) => {
+    attributionIdsForReplacement.forEach((attributionId) => {
       dispatch(
         savePackageInfo(
           null,
           attributionId,
-          attributions[targetAttributionId],
-          attributionId !== targetAttributionId,
+          selectedAttribution,
+          attributionId !== selectedAttribution.id,
         ),
       );
     });
@@ -102,18 +58,23 @@ export function ReplaceAttributionsPopup() {
   return (
     <NotificationPopup
       content={renderContent()}
+      contentSx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+      }}
       header={text.replaceAttributionsPopup.title}
       leftButtonConfig={{
-        disabled: !targetAttributionId,
         onClick: handleReplace,
         buttonText: text.replaceAttributionsPopup.replace,
+        color: 'error',
       }}
       rightButtonConfig={{
-        onClick: () => dispatch(closePopup()),
+        onClick: () => onClose(),
         buttonText: text.buttons.cancel,
         color: 'secondary',
       }}
-      isOpen
+      isOpen={open}
       aria-label={'replace attributions popup'}
       width={500}
     />
@@ -121,94 +82,61 @@ export function ReplaceAttributionsPopup() {
 
   function renderContent() {
     return (
-      <ContentContainer>
+      <>
         {renderAttributionsToRemove()}
-        {renderAttributionsToAdd()}
-      </ContentContainer>
+        {renderAttributionToAdd()}
+      </>
     );
   }
 
   function renderAttributionsToRemove() {
     return (
-      <MuiBox data-testid={'removed-attributions'}>
-        <MuiTypography paragraph>
+      <>
+        <MuiTypography>
           {text.replaceAttributionsPopup.removeAttributions(
             maybePluralize(
-              attributionIdsToReplace.length,
-              text.attributionList.attribution,
+              attributionIdsForReplacement.length,
+              text.packageLists.attribution,
             ),
           )}
         </MuiTypography>
-        <List
-          getListItem={(index) => {
-            const attributionId = attributionIdsToReplace[index];
-            const attribution = attributions[attributionId];
-
-            if (!attribution) {
+        <CardList
+          data={attributionIdsForReplacement}
+          data-testid={'removed-attributions'}
+          renderItemContent={(attributionId, index) => {
+            if (!attributionId || !(attributionId in attributions)) {
               return null;
             }
 
             return (
-              <PackageCard
-                cardConfig={{
-                  isPreSelected: attribution.preSelected,
-                }}
-                packageInfo={attribution}
-              />
+              <>
+                <PackageCard packageInfo={attributions[attributionId]} />
+                {index + 1 !== attributionIdsForReplacement.length && (
+                  <MuiDivider />
+                )}
+              </>
             );
           }}
-          length={attributionIdsToReplace.length}
-          cardHeight={PACKAGE_CARD_HEIGHT}
-          maxNumberOfItems={MAX_NUMBER_OF_PACKAGE_CARDS_PER_LIST}
         />
-      </MuiBox>
+      </>
     );
   }
 
-  function renderAttributionsToAdd() {
+  function renderAttributionToAdd() {
+    const { count, ...attributionWithoutCount } = selectedAttribution;
     return (
-      <MuiBox data-testid={'added-attributions'}>
-        <MuiTypography paragraph>
-          {text.replaceAttributionsPopup.selectReplacement}
+      <>
+        <MuiTypography>
+          {text.replaceAttributionsPopup.replacement}
         </MuiTypography>
-        <SearchTextField
-          onInputChange={(value) => setSearch(value)}
-          search={search}
-          sx={{ marginTop: 0, marginBottom: '4px' }}
-        />
-        <List
-          getListItem={(index) => {
-            const attributionId = filteredAndSortedIds[index];
-            const attribution = filteredAndSortedAttributions[attributionId];
-
-            if (!attribution) {
-              return null;
-            }
-
-            return (
-              <PackageCard
-                onClick={() =>
-                  targetAttributionId && targetAttributionId === attributionId
-                    ? setTargetAttributionId(undefined)
-                    : setTargetAttributionId(attributionId)
-                }
-                cardConfig={{
-                  isSelected: attributionId === targetAttributionId,
-                  isPreSelected: attribution.preSelected,
-                }}
-                packageInfo={attribution}
-              />
-            );
-          }}
-          length={filteredAndSortedIds.length}
-          cardHeight={PACKAGE_CARD_HEIGHT}
-          maxNumberOfItems={Math.max(
-            TOTAL_MAX_NUMBER_OF_PACKAGE_CARDS - attributionIdsToReplace.length,
-            MAX_NUMBER_OF_PACKAGE_CARDS_PER_LIST,
+        <CardList
+          data={[selectedAttribution.id]}
+          data-testid={'added attributions'}
+          renderItemContent={() => (
+            <PackageCard packageInfo={attributionWithoutCount} />
           )}
-          minNumberOfItems={filteredAndSortedIds.length}
         />
-      </MuiBox>
+      </>
     );
   }
-}
+};

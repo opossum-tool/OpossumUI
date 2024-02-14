@@ -30,10 +30,8 @@ export enum AllowedFrontendChannels {
   SetBaseURLForRoot = 'set-base-url-for-root',
   ShowChangedInputFilePopup = 'show-changed-input-file-pop-up',
   ShowFileSupportPopup = 'show-file-support-popup',
-  ShowSearchPopup = 'show-search-pop-up',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
   ShowUpdateAppPopup = 'show-update-app-pop-up',
-  ShowLocatorPopup = 'show-locator-pop-up',
   UserSettingsChanged = 'user-settings-changed',
 }

@@ -38,11 +38,11 @@ export function AuditingOptions({ packageInfo, isEditable, sx }: Props) {
         {renderSelectedOptions()}
       </MuiBox>
       <SelectMenu
+        anchorArrow
         anchorEl={anchorEl}
         hideSelected
         setAnchorEl={setAnchorEl}
         options={options.filter(({ interactive }) => interactive)}
-        sx={{ marginTop: '8px' }}
         multiple
       />
     </>

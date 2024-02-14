@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { render, screen } from '@testing-library/react';
+import { noop } from 'lodash';
 
-import { doNothing } from '../../../util/do-nothing';
 import { Checkbox } from '../../Checkbox/Checkbox';
 import { ListCard } from '../ListCard';
 
@@ -14,7 +14,7 @@ describe('The ListCard', () => {
       <ListCard
         text={'card text'}
         secondLineText={'card text of second line'}
-        onClick={doNothing}
+        onClick={noop}
         cardConfig={{}}
       />,
     );
@@ -29,7 +29,7 @@ describe('The ListCard', () => {
         text={'card text'}
         secondLineText={'card text of second line'}
         count={13}
-        onClick={doNothing}
+        onClick={noop}
         cardConfig={{}}
       />,
     );
@@ -45,7 +45,7 @@ describe('The ListCard', () => {
         text={'card text'}
         secondLineText={'card text of second line'}
         count={13000}
-        onClick={doNothing}
+        onClick={noop}
         cardConfig={{}}
       />,
     );
@@ -61,7 +61,7 @@ describe('The ListCard', () => {
         text={'card text'}
         secondLineText={'card text of second line'}
         count={1300000}
-        onClick={doNothing}
+        onClick={noop}
         cardConfig={{}}
       />,
     );
@@ -77,7 +77,7 @@ describe('The ListCard', () => {
       <ListCard
         text={'card text'}
         secondLineText={'card text of second line'}
-        onClick={doNothing}
+        onClick={noop}
         cardConfig={{}}
         leftElement={leftElement}
       />,
