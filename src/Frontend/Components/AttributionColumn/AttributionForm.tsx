@@ -47,7 +47,7 @@ interface AttributionFormProps {
   packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
-  variant?: 'default' | 'diff';
+  variant?: 'default' | 'diff-original' | 'diff-current';
   label?: string;
   config?: AttributionFormConfig;
 }
@@ -61,7 +61,7 @@ export function AttributionForm({
   config,
 }: AttributionFormProps) {
   const dispatch = useAppDispatch();
-  const isDiff = variant === 'diff';
+  const isDiff = variant === 'diff-original' || variant === 'diff-current';
 
   return (
     <MuiBox sx={classes.formContainer} aria-label={label}>
@@ -70,7 +70,11 @@ export function AttributionForm({
       )}
       <MuiDivider variant={'middle'}>
         <MuiTypography>
-          {text.attributionColumn.packageCoordinates}
+          {isDiff
+            ? variant === 'diff-original'
+              ? text.attributionColumn.originalPackageCoordinates
+              : text.attributionColumn.currentPackageCoordinates
+            : text.attributionColumn.packageCoordinates}
         </MuiTypography>
       </MuiDivider>
       <PackageSubPanel
@@ -81,7 +85,13 @@ export function AttributionForm({
         config={config}
       />
       <MuiDivider variant={'middle'}>
-        <MuiTypography>{text.attributionColumn.legalInformation}</MuiTypography>
+        <MuiTypography>
+          {isDiff
+            ? variant === 'diff-original'
+              ? text.attributionColumn.originalLicenseInformation
+              : text.attributionColumn.currentLicenseInformation
+            : text.attributionColumn.legalInformation}
+        </MuiTypography>
       </MuiDivider>
       {renderAttributionType()}
       <CopyrightSubPanel
