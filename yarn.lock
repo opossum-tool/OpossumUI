@@ -6775,13 +6775,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-csv@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "fast-csv@npm:5.0.0"
+"fast-csv@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "fast-csv@npm:5.0.1"
   dependencies:
     "@fast-csv/format": "npm:5.0.0"
     "@fast-csv/parse": "npm:5.0.0"
-  checksum: 10/909e8f5824a4a9292496524d639e00428f2d7f97948ee9990490ed09604563718fcd608088ee0cac7fba7c68f2f6585b27365bae78464255663cf039af5510d7
+  checksum: 10/ba9e66abc63d49c723784492da1477bce26af9db9b0ba66967a3ffa2ca3e4c69642963b19e4d20dd55f0452c945a72aa07adbb5d42875b31845490e5728e7820
   languageName: node
   linkType: hard
 
@@ -9998,7 +9998,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.33.2"
     eslint-plugin-react-hooks: "npm:^4.6.0"
     eslint-plugin-testing-library: "npm:^6.2.0"
-    fast-csv: "npm:^5.0.0"
+    fast-csv: "npm:^5.0.1"
     fflate: "npm:^0.8.2"
     husky: "npm:9.0.11"
     jest: "npm:^29.7.0"
