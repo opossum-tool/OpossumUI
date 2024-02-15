@@ -1555,7 +1555,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/config-conventional@npm:^18.6.1":
+"@commitlint/config-conventional@npm:^18.6.2":
   version: 18.6.2
   resolution: "@commitlint/config-conventional@npm:18.6.2"
   dependencies:
@@ -9944,7 +9944,7 @@ __metadata:
     "@babel/preset-react": "npm:^7.23.3"
     "@babel/preset-typescript": "npm:^7.23.3"
     "@commitlint/cli": "npm:^18.6.1"
-    "@commitlint/config-conventional": "npm:^18.6.1"
+    "@commitlint/config-conventional": "npm:^18.6.2"
     "@commitlint/types": "npm:^18.6.1"
     "@emotion/react": "npm:^11.11.3"
     "@emotion/styled": "npm:^11.11.0"
