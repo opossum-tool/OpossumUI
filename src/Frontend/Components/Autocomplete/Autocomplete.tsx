@@ -225,18 +225,17 @@ export function Autocomplete<
     }
 
     return (
-      <EndAdornmentContainer>
+      <EndAdornmentContainer
+        onClick={(event) => event.stopPropagation()}
+        onMouseDown={(event) => event.stopPropagation()}
+      >
         {hasClearButton && (
-          <ClearButton
-            {...(getClearProps() as MuiIconButtonProps)}
-            onMouseDown={(event) => event.stopPropagation()}
-          />
+          <ClearButton {...(getClearProps() as MuiIconButtonProps)} />
         )}
         {hasPopupIndicator && (
           <PopupIndicator
             popupOpen={isPopupOpen}
             {...(getPopupIndicatorProps() as MuiIconButtonProps)}
-            onClick={undefined}
           />
         )}
         {endAdornment}

@@ -13,7 +13,7 @@ interface IconButtonProps {
   tooltipPlacement?: TooltipProps['placement'];
   iconSx?: SxProps;
   containerSx?: SxProps;
-  onClick?(): void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   icon: ReactElement;
   disabled?: boolean;
   hidden?: boolean;
@@ -39,7 +39,7 @@ export function IconButton(props: IconButtonProps) {
           sx={props.iconSx}
           onClick={(event) => {
             event.stopPropagation();
-            props.onClick?.();
+            props.onClick?.(event);
           }}
           disabled={props.disabled}
           data-testid={props['data-testid']}
