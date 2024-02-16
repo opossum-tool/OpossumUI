@@ -107,7 +107,7 @@ export function mergePackageInfos(a: PackageInfo, b: PackageInfo): PackageInfo {
   const diff: Required<Pick<PackageInfo, (typeof HASH_EXCLUDE_KEYS)[number]>> =
     {
       attributionConfidence:
-        min([a.attributionConfidence, b.attributionConfidence]) ||
+        min([a.attributionConfidence, b.attributionConfidence]) ??
         DiscreteConfidence.High,
       comment: compact([a.comment, b.comment]).join('\n\n'),
       id: a.id,
