@@ -354,3 +354,9 @@ Note that you are only able to mark an attribution as preferred (or unmark if it
 If "QA Mode" is enabled the icon will change as in the screenshot below.
 
 ![enabled_qa_mode](./docs/user_guide_screenshots/enabled_qa_mode.png)
+
+### Comparing an Attribution to its original Signal
+
+If an attribution originates from a signal, a `Compare to Original` button will be displayed in the row of buttons below the details of the currently selected attribution. Clicking this button opens a popup, where the package coordinates and legal information of both the current attribution and its original signal are displayed side by side. Fields that have changed are highlighted by colored outlines.
+
+You can revert individual fields by pressing the arrow button inside the field. The action can be undone using the same button, which will point in the opposite direction after a revert. Additionally, all changes can be reverted at once by pressing the `Revert All` button of the popup. Changes are applied to the attribution once the `Apply Changes` button is pressed, which also closes the popup. To save the changes, you can, for example, use the standard `Save` button.
