@@ -29,6 +29,7 @@
         'dayjs',
         'dotenv',
         'electron',
+        'electron-builder',
         'electron-devtools-installer',
         'electron-log',
         'electron-playwright-helpers',
