@@ -17,6 +17,8 @@ export enum IpcChannel {
   OpenDotOpossumFile = 'open-dot-opossum-file',
   GetUserSettings = 'get-user-settings',
   SetUserSettings = 'set-user-settings',
+  Quit = 'quit',
+  Relaunch = 'relaunch',
 }
 
 export enum AllowedFrontendChannels {
