@@ -3629,21 +3629,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.11.19":
-  version: 20.11.19
-  resolution: "@types/node@npm:20.11.19"
+"@types/node@npm:*, @types/node@npm:^20.11.19, @types/node@npm:^20.9.0":
+  version: 20.11.20
+  resolution: "@types/node@npm:20.11.20"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10/c7f4705d6c84aa21679ad180c33c13ca9567f650e66e14bcee77c7c43d14619c7cd3b4d7b2458947143030b7b1930180efa6d12d999b45366abff9fed7a17472
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^18.11.18":
-  version: 18.19.3
-  resolution: "@types/node@npm:18.19.3"
-  dependencies:
-    undici-types: "npm:~5.26.4"
-  checksum: 10/b95d0c0be342275e27d882bb6ca73c0b757d1672a121cae1fc3249eda4f86a8abeb5745e5c5c1150914bcfda323a3fc51526cd34e2097f8355bf7cbf12fa6bcb
+  checksum: 10/ff449bdc94810dadb54e0f77dd587c6505ef79ffa5a208c16eb29b223365b188f4c935a3abaf0906a01d05257c3da1f72465594a841d35bcf7b6deac7a6938fb
   languageName: node
   linkType: hard
 
@@ -6065,16 +6056,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:28.2.4":
-  version: 28.2.4
-  resolution: "electron@npm:28.2.4"
+"electron@npm:29.0.1":
+  version: 29.0.1
+  resolution: "electron@npm:29.0.1"
   dependencies:
     "@electron/get": "npm:^2.0.0"
-    "@types/node": "npm:^18.11.18"
+    "@types/node": "npm:^20.9.0"
     extract-zip: "npm:^2.0.1"
   bin:
     electron: cli.js
-  checksum: 10/6179c1359a756c7ab13bbac1518f7c1a8a7670cdb53abcf3a9bb4b09fa6f398605543141659ad32bce86649fc21ddf920d72fc2f346b8e3cfd83010414ac2ca0
+  checksum: 10/3b3b8359d1fa261988954b9a73205cc081b582a715f01935fe339a6da83147f29b2c554d8186e1ae674ea3e72bf09b3c3bcc8492e3d738770fcccc10d64915d5
   languageName: node
   linkType: hard
 
@@ -9985,7 +9976,7 @@ __metadata:
     dayjs: "npm:^1.11.10"
     dotenv: "npm:^16.4.5"
     dpdm: "npm:^3.14.0"
-    electron: "npm:28.2.4"
+    electron: "npm:29.0.1"
     electron-builder: "npm:^24.12.0"
     electron-devtools-installer: "npm:^3.2.0"
     electron-log: "npm:^5.1.1"
