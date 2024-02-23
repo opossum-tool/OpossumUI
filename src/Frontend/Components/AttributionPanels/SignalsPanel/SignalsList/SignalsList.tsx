@@ -14,7 +14,10 @@ import {
   getResolvedExternalAttributions,
 } from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
-import { GroupedList } from '../../../GroupedList/GroupedList';
+import {
+  GroupedList,
+  GroupedListItemContentProps,
+} from '../../../GroupedList/GroupedList';
 import { SourceIcon } from '../../../Icons/Icons';
 import { PackageCard } from '../../../PackageCard/PackageCard';
 import { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
@@ -79,7 +82,10 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
     />
   );
 
-  function renderAttributionCard(attributionId: string) {
+  function renderAttributionCard(
+    attributionId: string,
+    { focused, selected }: GroupedListItemContentProps,
+  ) {
     const attribution = attributions?.[attributionId];
 
     if (!attribution) {
@@ -96,7 +102,8 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
               );
           }}
           cardConfig={{
-            selected: attributionId === selectedAttributionId,
+            selected,
+            focused,
             resolved: resolvedExternalAttributionIds.has(attributionId),
           }}
           packageInfo={attribution}

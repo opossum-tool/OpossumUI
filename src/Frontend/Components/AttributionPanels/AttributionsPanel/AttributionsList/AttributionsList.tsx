@@ -10,7 +10,7 @@ import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/a
 import { useAppDispatch } from '../../../../state/hooks';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { isPackageInfoIncomplete } from '../../../../util/is-important-attribution-information-missing';
-import { List } from '../../../List/List';
+import { List, ListItemContentProps } from '../../../List/List';
 import { PackageCard } from '../../../PackageCard/PackageCard';
 import { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
@@ -37,7 +37,10 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
     />
   );
 
-  function renderAttributionCard(attributionId: string) {
+  function renderAttributionCard(
+    attributionId: string,
+    { selected, focused }: ListItemContentProps,
+  ) {
     const attribution = attributions?.[attributionId];
 
     if (!attribution) {
@@ -54,7 +57,8 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
               );
           }}
           cardConfig={{
-            selected: attributionId === selectedAttributionId,
+            selected,
+            focused,
             resolved: attributionIdsForReplacement.includes(attributionId),
             incomplete: isPackageInfoIncomplete(attribution),
           }}

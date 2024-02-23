@@ -12,6 +12,7 @@ export class AttributionsPanel {
   private readonly node: Locator;
   private readonly header: Locator;
   readonly packageCard: PackageCard;
+  readonly selectAllCheckbox: Locator;
   readonly createButton: Locator;
   readonly linkButton: Locator;
   readonly confirmButton: Locator;
@@ -47,6 +48,9 @@ export class AttributionsPanel {
     this.node = window.getByTestId('attributions-panel');
     this.header = window.getByTestId('attributions-panel-header');
     this.packageCard = new PackageCard(this.node);
+    this.selectAllCheckbox = this.node.getByRole('checkbox', {
+      name: 'Select all',
+    });
     this.confirmButton = this.node.getByRole('button', {
       name: text.packageLists.confirm,
       exact: true,
