@@ -1535,7 +1535,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/cli@npm:^19.0.0":
+"@commitlint/cli@npm:^19.0.1":
   version: 19.0.3
   resolution: "@commitlint/cli@npm:19.0.3"
   dependencies:
@@ -9848,7 +9848,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.23.9"
     "@babel/preset-react": "npm:^7.23.3"
     "@babel/preset-typescript": "npm:^7.23.3"
-    "@commitlint/cli": "npm:^19.0.0"
+    "@commitlint/cli": "npm:^19.0.1"
     "@commitlint/config-conventional": "npm:^19.0.0"
     "@commitlint/types": "npm:^19.0.0"
     "@emotion/react": "npm:^11.11.3"
