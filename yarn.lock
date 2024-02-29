@@ -1535,7 +1535,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/cli@npm:^19.0.1":
+"@commitlint/cli@npm:^19.0.3":
   version: 19.0.3
   resolution: "@commitlint/cli@npm:19.0.3"
   dependencies:
@@ -1552,7 +1552,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/config-conventional@npm:^19.0.0":
+"@commitlint/config-conventional@npm:^19.0.3":
   version: 19.0.3
   resolution: "@commitlint/config-conventional@npm:19.0.3"
   dependencies:
@@ -1716,7 +1716,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/types@npm:^19.0.0, @commitlint/types@npm:^19.0.3":
+"@commitlint/types@npm:^19.0.3":
   version: 19.0.3
   resolution: "@commitlint/types@npm:19.0.3"
   dependencies:
@@ -9848,9 +9848,9 @@ __metadata:
     "@babel/preset-env": "npm:^7.23.9"
     "@babel/preset-react": "npm:^7.23.3"
     "@babel/preset-typescript": "npm:^7.23.3"
-    "@commitlint/cli": "npm:^19.0.1"
-    "@commitlint/config-conventional": "npm:^19.0.0"
-    "@commitlint/types": "npm:^19.0.0"
+    "@commitlint/cli": "npm:^19.0.3"
+    "@commitlint/config-conventional": "npm:^19.0.3"
+    "@commitlint/types": "npm:^19.0.3"
     "@emotion/react": "npm:^11.11.4"
     "@emotion/styled": "npm:^11.11.0"
     "@faker-js/faker": "npm:^8.4.1"
