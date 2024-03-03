@@ -5932,7 +5932,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-builder@npm:^24.13.2":
+"electron-builder@npm:^24.13.3":
   version: 24.13.3
   resolution: "electron-builder@npm:24.13.3"
   dependencies:
@@ -9889,7 +9889,7 @@ __metadata:
     dotenv: "npm:^16.4.5"
     dpdm: "npm:^3.14.0"
     electron: "npm:29.1.0"
-    electron-builder: "npm:^24.13.2"
+    electron-builder: "npm:^24.13.3"
     electron-devtools-installer: "npm:^3.2.0"
     electron-log: "npm:^5.1.1"
     electron-playwright-helpers: "npm:^1.7.1"
