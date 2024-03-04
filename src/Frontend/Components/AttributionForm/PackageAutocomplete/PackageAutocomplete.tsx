@@ -128,6 +128,22 @@ export function PackageAutocomplete({
     }
   }, [attributeValue, inputValue]);
 
+  const getOptionLabel = (title: string) => (option: string | PackageInfo) => {
+    if (typeof option === 'string') {
+      return option;
+    }
+    switch (title) {
+      case text.attributionColumn.licenseName:
+        // show suffix which is the shortname for common licenses and strip brackets
+        return (
+          option.suffix?.substring(1, option.suffix?.length - 1) ||
+          option[attribute] ||
+          ''
+        );
+      default:
+        return option[attribute] || '';
+    }
+  };
   return (
     <Autocomplete
       title={title}
@@ -143,9 +159,7 @@ export function PackageAutocomplete({
         isImportantAttributionInformationMissing(attribute, packageInfo)
       }
       options={options}
-      getOptionLabel={(option) =>
-        typeof option === 'string' ? option : option[attribute] || ''
-      }
+      getOptionLabel={getOptionLabel(title)}
       getOptionKey={(option) =>
         typeof option === 'string'
           ? option

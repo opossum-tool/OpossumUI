@@ -258,3 +258,18 @@ test('removes previously-preferred status from modified previously preferred att
     wasPreferredPackageInfo,
   );
 });
+
+test('save the short name of a common license as license name if selected', async ({
+  attributionDetails,
+  resourcesTree,
+}) => {
+  await resourcesTree.goto(resourceName1);
+  await attributionDetails.attributionForm.licenseName.click();
+  await attributionDetails.attributionForm.selectLicense(license1);
+  await attributionDetails.saveButton.click();
+
+  await attributionDetails.attributionForm.assert.matchesPackageInfo({
+    ...packageInfo1,
+    licenseName: license1.shortName,
+  });
+});
