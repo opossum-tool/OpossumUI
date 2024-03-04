@@ -62,13 +62,8 @@ export const ATTRIBUTION_FILTERS = [
   text.filters.preSelected,
   text.filters.currentlyPreferred,
   text.filters.previouslyPreferred,
+  text.filters.modifiedPreviouslyPreferred,
 ] satisfies Array<Filter>;
 
 export const SORTINGS = Object.values(text.sortings);
 export type Sorting = (typeof SORTINGS)[number];
-
-export const thirdPartyKeys: Array<keyof PackageInfo> = [
-  'copyright',
-  'licenseName',
-  'licenseText',
-];

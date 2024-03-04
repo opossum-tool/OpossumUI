@@ -7,6 +7,7 @@ import { compact, groupBy, min, sortBy } from 'lodash';
 import objectHash from 'object-hash';
 
 import { canResourceHaveChildren } from '../../Frontend/util/can-resource-have-children';
+import { getSwitchModifiedPreferred } from '../../shared/get-switch-modified-preferred';
 import {
   Attributions,
   AttributionsToResources,
@@ -183,6 +184,7 @@ export function mergeAttributions({
 
 export function deserializeAttributions(
   rawAttributions: RawAttributions,
+  mergedExternalAttributions?: Attributions,
 ): Attributions {
   return Object.entries(rawAttributions).reduce<Attributions>(
     (
@@ -195,16 +197,30 @@ export function deserializeAttributions(
       const isCritical =
         !!criticality && Object.values(Criticality).includes(criticality);
       const sanitizedComment = comment?.replace(/^\s+|\s+$/g, '');
-      attributions[attributionId] = {
+      const deserializedAttribution: PackageInfo = {
         ...attribution,
         ...((originId || originIds?.length) && {
           originIds: (originIds ?? []).concat(originId ?? []),
         }),
         ...(followUp === 'FOLLOW_UP' && { followUp: true }),
-        ...(sanitizedComment && { comment: sanitizedComment }),
         ...(isCritical && { criticality }),
+        ...(sanitizedComment && { comment: sanitizedComment }),
         id: attributionId,
       };
+
+      const modifiedPreferredState = mergedExternalAttributions
+        ? getSwitchModifiedPreferred({
+            attribution: deserializedAttribution,
+            externalAttributionsList: Object.values(mergedExternalAttributions),
+          })
+        : undefined;
+      if (modifiedPreferredState) {
+        deserializedAttribution.modifiedPreferred =
+          modifiedPreferredState.modifiedPreferred;
+      }
+
+      attributions[attributionId] = deserializedAttribution;
+
       return attributions;
     },
     {},

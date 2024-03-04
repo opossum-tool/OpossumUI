@@ -5,9 +5,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isEmpty, isEqual } from 'lodash';
 
+import { getSwitchModifiedPreferred } from '../../../../shared/get-switch-modified-preferred';
 import { PackageInfo } from '../../../../shared/shared-types';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
+  getExternalAttributions,
   getManualAttributions,
   getManualAttributionsToResources,
   getResolvedExternalAttributions,
@@ -44,14 +46,28 @@ export function savePackageInfo(
   ignorePreSelected?: boolean,
 ): AppThunkAction {
   return (dispatch, getState) => {
-    const strippedPackageInfo = getStrippedPackageInfo(packageInfo);
+    const externalAttributions = getExternalAttributions(getState());
+    const switchModifiedPreferred = getSwitchModifiedPreferred({
+      attribution: packageInfo,
+      externalAttributionsList: Object.values(externalAttributions),
+    });
+    const updatedPackageInfo = { ...packageInfo };
+    if (switchModifiedPreferred) {
+      updatedPackageInfo.modifiedPreferred =
+        switchModifiedPreferred.modifiedPreferred;
+      updatedPackageInfo.wasPreferred = switchModifiedPreferred.wasPreferred;
+    }
+
+    const strippedPackageInfo = getStrippedPackageInfo(updatedPackageInfo);
     const matchedPackageInfo = Object.values(
       getManualAttributions(getState()),
-    ).find(
-      (attribution) =>
+    ).find((attribution) => {
+      const strippedAttribution = getStrippedPackageInfo(attribution);
+      return (
         (ignorePreSelected || !attribution.preSelected) &&
-        isEqual(getStrippedPackageInfo(attribution), strippedPackageInfo),
-    );
+        isEqual(strippedAttribution, strippedPackageInfo)
+      );
+    });
 
     if (attributionId && isEmpty(strippedPackageInfo)) {
       // DELETE
@@ -76,11 +92,15 @@ export function savePackageInfo(
       );
     } else if (resourceId && !attributionId) {
       // CREATE
-      dispatch(createAttributionForSelectedResource(packageInfo));
+      dispatch(createAttributionForSelectedResource(updatedPackageInfo));
     } else if (attributionId) {
       // UPDATE
       dispatch(
-        updateAttribution(attributionId, packageInfo, !isSavedPackageInactive),
+        updateAttribution(
+          attributionId,
+          updatedPackageInfo,
+          !isSavedPackageInactive,
+        ),
       );
     }
 

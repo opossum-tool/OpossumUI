@@ -39,6 +39,8 @@ const FILTER_FUNCTIONS: Record<Filter, (packageInfo: PackageInfo) => boolean> =
     [text.filters.lowConfidence]: (packageInfo) =>
       packageInfo.attributionConfidence !== undefined &&
       packageInfo.attributionConfidence < LOW_CONFIDENCE_THRESHOLD,
+    [text.filters.modifiedPreviouslyPreferred]: (packageInfo) =>
+      !!packageInfo.modifiedPreferred,
     [text.filters.needsFollowUp]: (packageInfo) => !!packageInfo.followUp,
     [text.filters.needsReview]: (packageInfo) => !!packageInfo.needsReview,
     [text.filters.notExcludedFromNotice]: (packageInfo) =>

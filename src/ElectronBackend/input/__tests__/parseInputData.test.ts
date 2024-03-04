@@ -182,6 +182,136 @@ describe('deserializeAttributions', () => {
       expectedParsedRawAttributions,
     );
   });
+
+  it('labels attributions that are modified previously preferred as such', () => {
+    const testManualRawAttributions: RawAttributions = {
+      uuid: {
+        packageName: faker.word.noun(),
+        originIds: ['abc'],
+      },
+    };
+    const testExternalAttributions: Attributions = {
+      uuid: {
+        packageName: faker.word.noun(),
+        wasPreferred: true,
+        originIds: ['abc', 'def'],
+        id: 'uuid',
+      },
+    };
+    const expectedParsedRawAttributions: Attributions = {
+      uuid: {
+        packageName: testManualRawAttributions.uuid.packageName,
+        modifiedPreferred: true,
+        originIds: ['abc'],
+        id: 'uuid',
+      },
+    };
+
+    expect(
+      deserializeAttributions(
+        testManualRawAttributions,
+        testExternalAttributions,
+      ),
+    ).toEqual(expectedParsedRawAttributions);
+  });
+
+  it('does not mark as modified preferred if original signal was not preferred', () => {
+    const testManualRawAttributions: RawAttributions = {
+      uuid: {
+        packageName: faker.word.noun(),
+        originIds: ['abc'],
+      },
+    };
+    const testExternalAttributions: Attributions = {
+      uuid: {
+        packageName: faker.word.noun(),
+        originIds: ['abc', 'def'],
+        id: 'uuid',
+      },
+    };
+    const expectedParsedRawAttributions: Attributions = {
+      uuid: {
+        packageName: testManualRawAttributions.uuid.packageName,
+        originIds: ['abc'],
+        id: 'uuid',
+      },
+    };
+
+    expect(
+      deserializeAttributions(
+        testManualRawAttributions,
+        testExternalAttributions,
+      ),
+    ).toEqual(expectedParsedRawAttributions);
+  });
+
+  it('takes into account originIds and originId when identifying attribution as modified preferred', () => {
+    const testManualRawAttributions: RawAttributions = {
+      uuid: {
+        packageName: faker.word.noun(),
+        originId: 'abc',
+      },
+    };
+    const testExternalAttributions: Attributions = {
+      uuid: {
+        packageName: faker.word.noun(),
+        wasPreferred: true,
+        originIds: ['abc', 'def'],
+        id: 'uuid',
+      },
+    };
+    const expectedParsedRawAttributions: Attributions = {
+      uuid: {
+        packageName: testManualRawAttributions.uuid.packageName,
+        modifiedPreferred: true,
+        originIds: ['abc'],
+        id: 'uuid',
+      },
+    };
+
+    expect(
+      deserializeAttributions(
+        testManualRawAttributions,
+        testExternalAttributions,
+      ),
+    ).toEqual(expectedParsedRawAttributions);
+  });
+
+  it('compares deserialized comments when identifying attribution as modified preferred', () => {
+    const comment = faker.lorem.sentence();
+    const testManualRawAttributions: RawAttributions = {
+      uuid: {
+        packageName: faker.word.noun(),
+        originId: 'abc',
+        comment: `    ${comment}    `,
+      },
+    };
+    const testExternalAttributions: Attributions = {
+      uuid: {
+        packageName: faker.word.noun(),
+        wasPreferred: true,
+        originIds: ['abc', 'def'],
+        comment,
+        id: 'uuid',
+      },
+    };
+    const expectedParsedRawAttributions: Attributions = {
+      uuid: {
+        packageName: testManualRawAttributions.uuid.packageName,
+        modifiedPreferred: true,
+        originIds: ['abc'],
+        comment,
+        id: 'uuid',
+      },
+    };
+
+    expect(
+      deserializeAttributions(
+        testManualRawAttributions,
+        testExternalAttributions,
+      ),
+    ).toEqual(expectedParsedRawAttributions);
+  });
 });
 
 describe('serializeAttributions', () => {

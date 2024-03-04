@@ -5,14 +5,14 @@
 import MuiDivider from '@mui/material/Divider';
 import { isEqual } from 'lodash';
 
+import {
+  COMPARABLE_ATTRIBUTES,
+  getComparableAttributes,
+} from '../../../shared/get-comparable-attributes';
 import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
-import {
-  FORM_ATTRIBUTES,
-  getComparableAttributes,
-} from '../../util/get-comparable-attributes';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { DiffPopupContainer } from './DiffPopup.style';
@@ -97,7 +97,7 @@ export function DiffPopup({
         onClick: () => {
           setBufferPackageInfo({
             ...bufferPackageInfo,
-            ...FORM_ATTRIBUTES.reduce(
+            ...COMPARABLE_ATTRIBUTES.reduce(
               (acc, attribute) => ({
                 ...acc,
                 [attribute]: original[attribute],

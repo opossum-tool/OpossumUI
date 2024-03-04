@@ -62,11 +62,13 @@ const testResources: Resources = {
 
 const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
 const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
+const originId = faker.string.uuid();
 const testPackageInfo: PackageInfo = {
   attributionConfidence: DiscreteConfidence.High,
   packageVersion: '1.0',
   packageName: 'test Package',
   licenseText: ' test License text',
+  originIds: [originId],
   id: testManualAttributionUuid_1,
 };
 const secondTestPackageInfo: PackageInfo = {
@@ -93,10 +95,7 @@ const testResourcesToExternalAttributions: ResourcesToAttributions = {
 describe('The savePackageInfo action', () => {
   it('creates a new attribution', () => {
     const expectedTemporaryDisplayPackageInfo: PackageInfo = {
-      packageVersion: '1.0',
-      packageName: 'test Package',
-      licenseText: ' test License text',
-      attributionConfidence: DiscreteConfidence.High,
+      ...testPackageInfo,
       id: expect.any(String),
     };
 
@@ -141,6 +140,45 @@ describe('The savePackageInfo action', () => {
         '/root/src/': 0,
       },
       paths: ['/root/src/', '/', '/root/'],
+    });
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
+  });
+
+  // this case can occur when an attribution is linked to multiple resources and a change
+  // is only saved on the selected resource
+  it('creates a new attribution as modified preferred if original was preferred', () => {
+    const temporaryDisplayPackageInfo: PackageInfo = {
+      ...testPackageInfo,
+      packageName: faker.word.noun(),
+      id: expect.any(String),
+    };
+    const testStore = createAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          externalAttributions: {
+            uuid_2: {
+              ...testManualAttributions[testManualAttributionUuid_1],
+              wasPreferred: true,
+              id: 'uuid_2',
+            },
+          },
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        }),
+      ),
+    );
+
+    testStore.dispatch(setSelectedResourceId('/root/src/'));
+    testStore.dispatch(setTemporaryDisplayPackageInfo(testPackageInfo));
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
+
+    testStore.dispatch(
+      savePackageInfo('/root/src/', null, temporaryDisplayPackageInfo),
+    );
+    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual({
+      ...temporaryDisplayPackageInfo,
+      modifiedPreferred: true,
     });
     expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
   });
@@ -197,6 +235,160 @@ describe('The savePackageInfo action', () => {
     expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
       testPackageInfo,
     );
+    expect(
+      getResourcesWithManualAttributedChildren(testStore.getState()),
+    ).toEqual({
+      attributedChildren: {
+        '1': new Set<number>().add(0),
+        '2': new Set<number>().add(0),
+        '3': new Set<number>().add(0),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/src/': 3,
+        '/root/src/something.js': 0,
+      },
+      paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
+    });
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
+  });
+
+  it('sets modified preferred correctly when updating an attribution', () => {
+    const testStore = createAppStore();
+    const modifiedTestPackageInfo: PackageInfo = {
+      ...testPackageInfo,
+      packageVersion: '1.1',
+    };
+
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+          externalAttributions: {
+            uuid_2: {
+              ...testManualAttributions[testManualAttributionUuid_1],
+              wasPreferred: true,
+              id: 'uuid_2',
+            },
+          },
+        }),
+      ),
+    );
+    testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
+    testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
+    testStore.dispatch(setTemporaryDisplayPackageInfo(modifiedTestPackageInfo));
+    expect(
+      getResourcesWithManualAttributedChildren(testStore.getState()),
+    ).toEqual({
+      attributedChildren: {
+        '1': new Set().add(0),
+        '2': new Set().add(0),
+        '3': new Set().add(0),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/src/': 3,
+        '/root/src/something.js': 0,
+      },
+      paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
+    });
+
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
+
+    testStore.dispatch(
+      savePackageInfo(
+        '/root/src/something.js',
+        testManualAttributionUuid_1,
+        modifiedTestPackageInfo,
+      ),
+    );
+
+    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual({
+      ...modifiedTestPackageInfo,
+      modifiedPreferred: true,
+    });
+    expect(
+      getResourcesWithManualAttributedChildren(testStore.getState()),
+    ).toEqual({
+      attributedChildren: {
+        '1': new Set<number>().add(0),
+        '2': new Set<number>().add(0),
+        '3': new Set<number>().add(0),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/src/': 3,
+        '/root/src/something.js': 0,
+      },
+      paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
+    });
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
+  });
+
+  it('resets previously preferred correctly when updating an attribution', () => {
+    const testStore = createAppStore();
+    const previouslyModifiedTestPackageInfo: PackageInfo = {
+      ...testPackageInfo,
+      modifiedPreferred: true,
+    };
+
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+          externalAttributions: {
+            uuid_2: {
+              ...testManualAttributions[testManualAttributionUuid_1],
+              wasPreferred: true,
+              id: 'uuid_2',
+            },
+          },
+        }),
+      ),
+    );
+    testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
+    testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(previouslyModifiedTestPackageInfo),
+    );
+    expect(
+      getResourcesWithManualAttributedChildren(testStore.getState()),
+    ).toEqual({
+      attributedChildren: {
+        '1': new Set().add(0),
+        '2': new Set().add(0),
+        '3': new Set().add(0),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/src/': 3,
+        '/root/src/something.js': 0,
+      },
+      paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
+    });
+
+    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
+
+    testStore.dispatch(
+      savePackageInfo(
+        '/root/src/something.js',
+        testManualAttributionUuid_1,
+        previouslyModifiedTestPackageInfo,
+      ),
+    );
+
+    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual({
+      ...testPackageInfo,
+      wasPreferred: true,
+    });
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual({
@@ -464,6 +656,158 @@ describe('The savePackageInfo action', () => {
     expect(getSelectedAttributionId(testStore.getState())).toBe('uuid1');
   });
 
+  it('replaces an attribution also if it is not marked as modifiedPreferred yet', () => {
+    const testPackageInfo: PackageInfo = {
+      packageName: 'React',
+      attributionConfidence: DiscreteConfidence.High,
+      id: 'uuid1',
+    };
+    const testResources: Resources = {
+      'something.js': 1,
+      'somethingElse.js': 1,
+    };
+    const testInitialManualAttributions: Attributions = {
+      uuid1: testPackageInfo,
+      toReplaceUuid: {
+        ...testPackageInfo,
+        modifiedPreferred: true,
+        id: 'toReplaceUuid',
+      },
+    };
+    const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
+      '/something.js': ['uuid1'],
+      '/somethingElse.js': ['toReplaceUuid'],
+    };
+    const expectedManualData: AttributionData = {
+      attributions: {
+        uuid1: testPackageInfo,
+      },
+      resourcesToAttributions: {
+        '/something.js': ['uuid1'],
+        '/somethingElse.js': ['uuid1'],
+      },
+      attributionsToResources: {
+        uuid1: ['/something.js', '/somethingElse.js'],
+      },
+      resourcesWithAttributedChildren: {
+        attributedChildren: {
+          '1': new Set<number>().add(0).add(2),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/something.js': 0,
+          '/somethingElse.js': 2,
+        },
+        paths: ['/something.js', '/', '/somethingElse.js'],
+      },
+    };
+
+    const testStore = createAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testInitialManualAttributions,
+          resourcesToManualAttributions:
+            testInitialResourcesToManualAttributions,
+          externalAttributions: {
+            uuid_1: { copyright: 'copyright', id: 'uuid_1' },
+          },
+          resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
+        }),
+      ),
+    );
+
+    testStore.dispatch(setSelectedAttributionId('uuid1'));
+    testStore.dispatch(
+      savePackageInfo(
+        '/somethingElse.js',
+        'toReplaceUuid',
+        testPackageInfo,
+        false,
+      ),
+    );
+    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
+    expect(getSelectedAttributionId(testStore.getState())).toBe('uuid1');
+  });
+
+  it('replaces an attribution that was modifiedPreferred with its wasPreferred original when it is changed to its original state', () => {
+    const testPackageInfo: PackageInfo = {
+      packageName: 'React',
+      attributionConfidence: DiscreteConfidence.High,
+      originIds: [faker.string.uuid()],
+      id: 'uuid1',
+    };
+    const temporaryDisplayPackageInfo: PackageInfo = {
+      ...testPackageInfo,
+      modifiedPreferred: true,
+      id: 'uuid2',
+    };
+    const testResources: Resources = {
+      'something.js': 1,
+      'somethingElse.js': 1,
+    };
+    const testInitialManualAttributions: Attributions = {
+      uuid1: { ...testPackageInfo, wasPreferred: true },
+      uuid2: { ...temporaryDisplayPackageInfo, packageName: 'Vue' },
+    };
+    const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
+      '/something.js': ['uuid1'],
+      '/somethingElse.js': ['uuid2'],
+    };
+    const expectedManualData: AttributionData = {
+      attributions: {
+        uuid1: { ...testPackageInfo, wasPreferred: true },
+      },
+      resourcesToAttributions: {
+        '/something.js': ['uuid1'],
+        '/somethingElse.js': ['uuid1'],
+      },
+      attributionsToResources: {
+        uuid1: ['/something.js', '/somethingElse.js'],
+      },
+      resourcesWithAttributedChildren: {
+        attributedChildren: {
+          '1': new Set<number>().add(0).add(2),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/something.js': 0,
+          '/somethingElse.js': 2,
+        },
+        paths: ['/something.js', '/', '/somethingElse.js'],
+      },
+    };
+
+    const testStore = createAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testInitialManualAttributions,
+          resourcesToManualAttributions:
+            testInitialResourcesToManualAttributions,
+          externalAttributions: {
+            uuid3: { ...testPackageInfo, wasPreferred: true, id: 'uuid3' },
+          },
+          resourcesToExternalAttributions: { '/somethingElse.js': ['uuid3'] },
+        }),
+      ),
+    );
+
+    testStore.dispatch(setSelectedAttributionId('uuid2'));
+    testStore.dispatch(
+      savePackageInfo(
+        '/somethingElse.js',
+        'uuid2',
+        temporaryDisplayPackageInfo,
+        false,
+      ),
+    );
+    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
+    expect(getSelectedAttributionId(testStore.getState())).toBe('uuid1');
+  });
+
   it('links to an attribution when the attribution already exists', () => {
     const testUuid = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
     const testPackageInfo: PackageInfo = {
@@ -476,7 +820,7 @@ describe('The savePackageInfo action', () => {
       folder: { 'somethingElse.js': 1 },
     };
     const testManualAttributions: Attributions = {
-      [testUuid]: testPackageInfo,
+      [testUuid]: { ...testPackageInfo },
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       '/something.js': [testUuid],

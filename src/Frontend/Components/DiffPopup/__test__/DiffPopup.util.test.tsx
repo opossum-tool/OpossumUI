@@ -5,27 +5,25 @@
 import { waitFor } from '@testing-library/react';
 import { without } from 'lodash';
 
+import {
+  COMPARABLE_ATTRIBUTES,
+  ComparableAttribute,
+} from '../../../../shared/get-comparable-attributes';
 import { faker } from '../../../../testing/Faker';
 import { renderHook } from '../../../test-helpers/render';
-import {
-  FORM_ATTRIBUTES,
-  FormAttribute,
-} from '../../../util/get-comparable-attributes';
 import { AttributionFormConfig } from '../../AttributionForm/AttributionForm';
 import { useAttributionFormConfigs } from '../DiffPopup.util';
 
 describe('useAttributionFormConfigs', () => {
-  const EMPTY_ORIGINAL_CONFIG = FORM_ATTRIBUTES.reduce<AttributionFormConfig>(
-    (acc, attribute) => {
+  const EMPTY_ORIGINAL_CONFIG =
+    COMPARABLE_ATTRIBUTES.reduce<AttributionFormConfig>((acc, attribute) => {
       return attribute !== 'firstParty'
         ? { ...acc, [attribute]: { color: undefined, focused: false } }
         : { ...acc, [attribute]: { color: undefined } };
-    },
-    {},
-  );
+    }, {});
 
-  const EMPTY_BUFFER_CONFIG = FORM_ATTRIBUTES.reduce<AttributionFormConfig>(
-    (acc, attribute) => {
+  const EMPTY_BUFFER_CONFIG =
+    COMPARABLE_ATTRIBUTES.reduce<AttributionFormConfig>((acc, attribute) => {
       return attribute !== 'firstParty'
         ? {
             ...acc,
@@ -39,13 +37,11 @@ describe('useAttributionFormConfigs', () => {
             ...acc,
             [attribute]: { color: undefined, endIcon: undefined },
           };
-    },
-    {},
-  );
+    }, {});
 
   it.each(
-    without(FORM_ATTRIBUTES, 'firstParty') as Array<
-      Exclude<FormAttribute, 'firstParty'>
+    without(COMPARABLE_ATTRIBUTES, 'firstParty') as Array<
+      Exclude<ComparableAttribute, 'firstParty'>
     >,
   )(
     'computes attribution form config correctly when %s changes',
@@ -85,14 +81,14 @@ describe('useAttributionFormConfigs', () => {
   );
 
   const EXPECTED_ORIGINAL_CONFIG =
-    FORM_ATTRIBUTES.reduce<AttributionFormConfig>((acc, attribute) => {
+    COMPARABLE_ATTRIBUTES.reduce<AttributionFormConfig>((acc, attribute) => {
       return attribute !== 'firstParty'
         ? { ...acc, [attribute]: { color: undefined, focused: false } }
         : { ...acc, [attribute]: { color: 'error' } };
     }, {});
 
-  const EXPECTED_BUFFER_CONFIG = FORM_ATTRIBUTES.reduce<AttributionFormConfig>(
-    (acc, attribute) => {
+  const EXPECTED_BUFFER_CONFIG =
+    COMPARABLE_ATTRIBUTES.reduce<AttributionFormConfig>((acc, attribute) => {
       return attribute !== 'firstParty'
         ? {
             ...acc,
@@ -106,9 +102,7 @@ describe('useAttributionFormConfigs', () => {
             ...acc,
             [attribute]: { color: 'success', endIcon: expect.anything() },
           };
-    },
-    {},
-  );
+    }, {});
 
   it.each<[boolean, boolean, [AttributionFormConfig, AttributionFormConfig]]>([
     [true, true, [EMPTY_ORIGINAL_CONFIG, EMPTY_BUFFER_CONFIG]],

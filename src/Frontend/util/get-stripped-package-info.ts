@@ -4,8 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isEqual, pickBy } from 'lodash';
 
-import { PackageInfo } from '../../shared/shared-types';
-import { thirdPartyKeys } from '../shared-constants';
+import { PackageInfo, thirdPartyKeys } from '../../shared/shared-types';
 
 export function getStrippedPackageInfo(packageInfo: PackageInfo) {
   return pickBy(
@@ -36,6 +35,7 @@ const strippedPackageInfoTemplate: {
   id: false,
   licenseName: true,
   licenseText: true,
+  modifiedPreferred: true,
   needsReview: true,
   originIds: true,
   packageName: true,

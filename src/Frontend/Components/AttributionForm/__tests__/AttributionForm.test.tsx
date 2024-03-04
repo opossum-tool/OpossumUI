@@ -195,18 +195,14 @@ describe('AttributionForm', () => {
 
   it('renders a chip for modified preferred', () => {
     const originId = faker.string.uuid();
-    const modifiedPackageInfo = faker.opossum.packageInfo({
-      packageName: faker.lorem.word(),
-      originIds: [originId],
-      wasPreferred: false,
-    });
     const packageInfo = faker.opossum.packageInfo({
       originIds: [originId],
       wasPreferred: true,
+      modifiedPreferred: true,
     });
     const filePath = faker.opossum.filePath();
 
-    renderComponent(<AttributionForm packageInfo={modifiedPackageInfo} />, {
+    renderComponent(<AttributionForm packageInfo={packageInfo} />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({

@@ -525,4 +525,30 @@ describe('get-filtered-attributions', () => {
       [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
     });
   });
+
+  it('returns filtered attributions with modified previously preferred filter', () => {
+    const packageInfo1 = faker.opossum.packageInfo({ modifiedPreferred: true });
+    const packageInfo2 = faker.opossum.packageInfo();
+
+    const attributions = getFilteredAttributions({
+      filters: [text.filters.modifiedPreviouslyPreferred],
+      sorting: text.sortings.name,
+      selectedLicense: '',
+      search: '',
+      resourceId: '',
+      data: faker.opossum.attributionData({
+        attributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToAttributions: faker.opossum.resourcesToAttributions({
+          [faker.opossum.filePath()]: [packageInfo1.id, packageInfo2.id],
+        }),
+      }),
+    });
+
+    expect(attributions).toEqual<Attributions>({
+      [packageInfo1.id]: { ...packageInfo1, relation: 'resource' },
+    });
+  });
 });
