@@ -198,6 +198,7 @@ export const text = {
     incompleteCoordinates: 'Incomplete Package Coordinates',
     incompleteLegal: 'Incomplete Legal Information',
     lowConfidence: 'Low Confidence',
+    modifiedPreviouslyPreferred: 'Modified Previously Preferred',
     needsFollowUp: 'Needs Follow-Up',
     needsReview: 'Needs Review by QA',
     notExcludedFromNotice: 'Not excluded from Notice',

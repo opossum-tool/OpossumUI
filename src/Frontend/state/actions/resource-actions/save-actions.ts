@@ -45,13 +45,17 @@ export function savePackageInfo(
 ): AppThunkAction {
   return (dispatch, getState) => {
     const strippedPackageInfo = getStrippedPackageInfo(packageInfo);
+    delete strippedPackageInfo.modifiedPreferred;
     const matchedPackageInfo = Object.values(
       getManualAttributions(getState()),
-    ).find(
-      (attribution) =>
+    ).find((attribution) => {
+      const strippedAttribution = getStrippedPackageInfo(attribution);
+      delete strippedAttribution.modifiedPreferred;
+      return (
         (ignorePreSelected || !attribution.preSelected) &&
-        isEqual(getStrippedPackageInfo(attribution), strippedPackageInfo),
-    );
+        isEqual(strippedAttribution, strippedPackageInfo)
+      );
+    });
 
     if (attributionId && isEmpty(strippedPackageInfo)) {
       // DELETE

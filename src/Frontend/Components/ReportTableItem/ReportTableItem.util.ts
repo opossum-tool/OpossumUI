@@ -20,6 +20,7 @@ export function getFormattedCellData(
     case 'excludeFromNotice':
     case 'preferred':
     case 'wasPreferred':
+    case 'modifiedPreferred':
       cellData = packageInfo[config.attributionProperty] ? 'Yes' : 'No';
       break;
     case 'source':

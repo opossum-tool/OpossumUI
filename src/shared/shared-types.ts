@@ -40,11 +40,12 @@ export type Never<T, K extends keyof T> = Expand<
 
 interface EphemeralPackageInfoProps {
   count?: number;
-  synthetic?: boolean;
   id: string;
+  modifiedPreferred?: boolean;
+  relation?: Relation;
   resources?: Array<string>;
   suffix?: string;
-  relation?: Relation;
+  synthetic?: boolean;
 }
 
 export interface PackageInfo extends EphemeralPackageInfoProps {
@@ -73,10 +74,16 @@ export interface PackageInfo extends EphemeralPackageInfoProps {
   wasPreferred?: boolean;
 }
 
+export const thirdPartyKeys: Array<keyof PackageInfo> = [
+  'copyright',
+  'licenseName',
+  'licenseText',
+];
+
 export interface RawPackageInfo
   extends Never<
     Omit<PackageInfo, 'followUp'>,
-    keyof EphemeralPackageInfoProps
+    keyof Omit<EphemeralPackageInfoProps, 'modifiedPreferred'>
   > {
   originId?: string;
   followUp?: 'FOLLOW_UP';

@@ -18,7 +18,10 @@ import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { getCalculatePreferredOverOriginIds } from '../../actions/resource-actions/preference-actions';
 import { createAppStore } from '../../configure-store';
 import { initialResourceState } from '../../reducers/resource-reducer';
-import { getManualData } from '../../selectors/resource-selectors';
+import {
+  getExternalData,
+  getManualData,
+} from '../../selectors/resource-selectors';
 import {
   _getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions,
   _removeAttributionsFromChildrenAndParents,
@@ -36,6 +39,7 @@ const testUuid: string = faker.string.uuid();
 describe('The createManualAttribution function', () => {
   it('adds a new manual attribution', () => {
     const testManualData: AttributionData = EMPTY_ATTRIBUTION_DATA;
+    const testExternalData: AttributionData = EMPTY_ATTRIBUTION_DATA;
     const testSelectedResourceId = '/something.js';
     const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
@@ -47,6 +51,7 @@ describe('The createManualAttribution function', () => {
       testSelectedResourceId,
       testTemporaryDisplayPackageInfo,
       getCalculatePreferredOverOriginIds(initialResourceState),
+      testExternalData,
     );
     expect(newManualData.attributions[newAttributionId]).toEqual(
       testTemporaryDisplayPackageInfo,
@@ -100,18 +105,80 @@ describe('The createManualAttribution function', () => {
     );
     const resourceState = testStore.getState().resourceState;
     const testManualData = getManualData(testStore.getState());
+    const testExternalData: AttributionData = getExternalData(
+      testStore.getState(),
+    );
 
     const { newManualData } = createManualAttribution(
       testManualData,
       testSelectedResourceId,
       testTemporaryDisplayPackageInfo,
       getCalculatePreferredOverOriginIds(resourceState),
+      testExternalData,
     );
 
     expect(newManualData.attributions['manualUuid1']).toEqual<PackageInfo>({
       id: 'manualUuid1',
       preferred: true,
       preferredOverOriginIds: [],
+    });
+  });
+
+  it('correctly adds modifiedPreferred to attributions with original that was preferred', () => {
+    const testSelectedResourceId = '/child';
+    const packageName = faker.word.noun();
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
+      packageName,
+      originIds: ['originId'],
+      id: faker.string.uuid(),
+    };
+
+    const testStore = createAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: { child: 1 },
+          resourcesToExternalAttributions: {
+            '/child': ['externalUuid'],
+          },
+          externalAttributions: {
+            externalUuid: {
+              packageName: faker.word.noun(),
+              wasPreferred: true,
+              source: { name: 'testSource', documentConfidence: 0 },
+              originIds: ['originId'],
+              id: 'externalUuid',
+            },
+          },
+          externalAttributionSources: {
+            testSource: {
+              name: 'Test source',
+              priority: 0,
+              isRelevantForPreferred: true,
+            },
+          },
+        }),
+      ),
+    );
+    const resourceState = testStore.getState().resourceState;
+    const testManualData = getManualData(testStore.getState());
+    const testExternalData: AttributionData = getExternalData(
+      testStore.getState(),
+    );
+
+    const { newManualData, newAttributionId } = createManualAttribution(
+      testManualData,
+      testSelectedResourceId,
+      testTemporaryDisplayPackageInfo,
+      getCalculatePreferredOverOriginIds(resourceState),
+      testExternalData,
+    );
+
+    expect(newManualData.attributions[newAttributionId]).toEqual<PackageInfo>({
+      id: newAttributionId,
+      packageName,
+      modifiedPreferred: true,
+      originIds: ['originId'],
     });
   });
 });
@@ -306,14 +373,94 @@ describe('The updateManualAttribution function', () => {
       },
     };
 
+    const testExternalData: AttributionData = {
+      attributions: { [testUuid]: testPackageInfo },
+      resourcesToAttributions: testResourcesToManualAttributions,
+      attributionsToResources: {
+        [testUuid]: ['/something.js', 'somethingElse.js'],
+      },
+      resourcesWithAttributedChildren: {
+        attributedChildren: {},
+        pathsToIndices: {},
+        paths: [],
+      },
+    };
+
     const newManualData: AttributionData = updateManualAttribution(
       testUuid,
       testManualData,
       testTemporaryDisplayPackageInfo,
+      testExternalData,
     );
 
     expect(newManualData.attributions).toEqual({
       [testUuid]: testTemporaryDisplayPackageInfo,
+    });
+    expect(newManualData.resourcesToAttributions).toEqual(
+      testResourcesToManualAttributions,
+    );
+    expect(newManualData.attributionsToResources).toEqual(
+      expectedManualAttributionsToResources,
+    );
+  });
+
+  it('correctly updates modified preferred', () => {
+    const originId = faker.string.uuid();
+    const testPackageInfo: PackageInfo = {
+      packageName: 'Vue',
+      id: testUuid,
+      originIds: [originId],
+    };
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
+      packageName: 'React',
+      originIds: [originId],
+      id: testUuid,
+    };
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/something.js': [testUuid],
+      'somethingElse.js': [testUuid],
+    };
+    const expectedManualAttributionsToResources: AttributionsToResources = {
+      [testUuid]: ['/something.js', 'somethingElse.js'],
+    };
+    const testManualData: AttributionData = {
+      attributions: { [testUuid]: testPackageInfo },
+      resourcesToAttributions: testResourcesToManualAttributions,
+      attributionsToResources: {
+        [testUuid]: ['/something.js', 'somethingElse.js'],
+      },
+      resourcesWithAttributedChildren: {
+        attributedChildren: {},
+        pathsToIndices: {},
+        paths: [],
+      },
+    };
+
+    const testExternalData: AttributionData = {
+      attributions: { [testUuid]: { ...testPackageInfo, wasPreferred: true } },
+      resourcesToAttributions: testResourcesToManualAttributions,
+      attributionsToResources: {
+        [testUuid]: ['/something.js', 'somethingElse.js'],
+      },
+      resourcesWithAttributedChildren: {
+        attributedChildren: {},
+        pathsToIndices: {},
+        paths: [],
+      },
+    };
+
+    const newManualData: AttributionData = updateManualAttribution(
+      testUuid,
+      testManualData,
+      testTemporaryDisplayPackageInfo,
+      testExternalData,
+    );
+
+    expect(newManualData.attributions).toEqual({
+      [testUuid]: {
+        ...testTemporaryDisplayPackageInfo,
+        modifiedPreferred: true,
+      },
     });
     expect(newManualData.resourcesToAttributions).toEqual(
       testResourcesToManualAttributions,

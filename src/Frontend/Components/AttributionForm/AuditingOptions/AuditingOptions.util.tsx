@@ -10,7 +10,6 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
 import MuiRating from '@mui/material/Rating';
-import { isEqual } from 'lodash';
 import { useMemo } from 'react';
 
 import { Criticality, PackageInfo } from '../../../../shared/shared-types';
@@ -29,7 +28,6 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
 import { useUserSetting } from '../../../state/variables/use-user-setting';
-import { getComparableAttributes } from '../../../util/get-comparable-attributes';
 import { prettifySource } from '../../../util/prettify-source';
 import {
   CriticalityIcon,
@@ -94,24 +92,6 @@ export function useAuditingOptions({
     packageInfo.source?.name,
   ]);
 
-  const originalPreferred = useMemo(
-    () =>
-      !!packageInfo.originIds?.length && !packageInfo.wasPreferred
-        ? Object.values(externalAttributions).find(
-            (candidate) =>
-              candidate.wasPreferred &&
-              candidate.originIds?.some((id) =>
-                packageInfo.originIds?.includes(id),
-              ) &&
-              !isEqual(
-                getComparableAttributes(candidate),
-                getComparableAttributes(packageInfo),
-              ),
-          )
-        : undefined,
-    [externalAttributions, packageInfo],
-  );
-
   return useMemo<Array<AuditingOption>>(
     () => [
       {
@@ -146,7 +126,7 @@ export function useAuditingOptions({
         id: 'is-modified-preferred',
         label: text.auditingOptions.modifiedPreferred,
         icon: <ModifiedPreferredIcon noTooltip />,
-        selected: !!originalPreferred,
+        selected: !!packageInfo.modifiedPreferred,
         interactive: false,
       },
       {
@@ -287,11 +267,11 @@ export function useAuditingOptions({
       dispatch,
       isEditable,
       isPreferenceFeatureEnabled,
-      originalPreferred,
       packageInfo.attributionConfidence,
       packageInfo.criticality,
       packageInfo.excludeFromNotice,
       packageInfo.followUp,
+      packageInfo.modifiedPreferred,
       packageInfo.needsReview,
       packageInfo.preSelected,
       packageInfo.preferred,

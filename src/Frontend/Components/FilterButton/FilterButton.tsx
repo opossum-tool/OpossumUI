@@ -20,6 +20,7 @@ import {
   FirstPartyIcon,
   FollowUpIcon,
   IncompleteIcon,
+  ModifiedPreferredIcon,
   NeedsReviewIcon,
   PreferredIcon,
   PreSelectedIcon,
@@ -45,6 +46,9 @@ const FILTER_ICONS: Record<Filter, React.ReactElement> = {
   ),
   [text.filters.highConfidence]: (
     <SentimentSatisfied color={'success'} sx={baseIcon} />
+  ),
+  [text.filters.modifiedPreviouslyPreferred]: (
+    <ModifiedPreferredIcon noTooltip />
   ),
   [text.filters.needsFollowUp]: <FollowUpIcon noTooltip />,
   [text.filters.needsReview]: <NeedsReviewIcon noTooltip />,

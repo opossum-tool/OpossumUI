@@ -4,11 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useCallback, useMemo, useState } from 'react';
 
-import { PackageInfo } from '../../../shared/shared-types';
 import {
-  FORM_ATTRIBUTES,
-  FormAttribute,
-} from '../../util/get-comparable-attributes';
+  COMPARABLE_ATTRIBUTES,
+  ComparableAttribute,
+} from '../../../shared/get-comparable-attributes';
+import { PackageInfo } from '../../../shared/shared-types';
 import { AttributionFormConfig } from '../AttributionForm/AttributionForm';
 import { DiffEndIcon } from '../DiffEndIcon/DiffEndIcon';
 
@@ -29,7 +29,7 @@ export function useAttributionFormConfigs({
     }: {
       isChanged: boolean;
       wasChanged: boolean;
-      attribute: FormAttribute;
+      attribute: ComparableAttribute;
     }) => {
       if (isChanged && attribute !== 'firstParty') {
         return (
@@ -112,7 +112,9 @@ export function useAttributionFormConfigs({
 
   const [originalFormConfig, bufferFormConfig] = useMemo(
     () =>
-      FORM_ATTRIBUTES.reduce<[AttributionFormConfig, AttributionFormConfig]>(
+      COMPARABLE_ATTRIBUTES.reduce<
+        [AttributionFormConfig, AttributionFormConfig]
+      >(
         ([originalFormConfig, bufferFormConfig], attribute) => {
           switch (attribute) {
             case 'copyright':

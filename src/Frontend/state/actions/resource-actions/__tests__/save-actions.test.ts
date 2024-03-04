@@ -464,6 +464,81 @@ describe('The savePackageInfo action', () => {
     expect(getSelectedAttributionId(testStore.getState())).toBe('uuid1');
   });
 
+  it('replaces an attribution also if it is not marked as modifiedPreferred yet', () => {
+    const testPackageInfo: PackageInfo = {
+      packageName: 'React',
+      attributionConfidence: DiscreteConfidence.High,
+      id: 'uuid1',
+    };
+    const testResources: Resources = {
+      'something.js': 1,
+      'somethingElse.js': 1,
+    };
+    const testInitialManualAttributions: Attributions = {
+      uuid1: testPackageInfo,
+      toReplaceUuid: {
+        ...testPackageInfo,
+        modifiedPreferred: true,
+        id: 'toReplaceUuid',
+      },
+    };
+    const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
+      '/something.js': ['uuid1'],
+      '/somethingElse.js': ['toReplaceUuid'],
+    };
+    const expectedManualData: AttributionData = {
+      attributions: {
+        uuid1: testPackageInfo,
+      },
+      resourcesToAttributions: {
+        '/something.js': ['uuid1'],
+        '/somethingElse.js': ['uuid1'],
+      },
+      attributionsToResources: {
+        uuid1: ['/something.js', '/somethingElse.js'],
+      },
+      resourcesWithAttributedChildren: {
+        attributedChildren: {
+          '1': new Set<number>().add(0).add(2),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/something.js': 0,
+          '/somethingElse.js': 2,
+        },
+        paths: ['/something.js', '/', '/somethingElse.js'],
+      },
+    };
+
+    const testStore = createAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testInitialManualAttributions,
+          resourcesToManualAttributions:
+            testInitialResourcesToManualAttributions,
+          externalAttributions: {
+            uuid_1: { copyright: 'copyright', id: 'uuid_1' },
+          },
+          resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
+        }),
+      ),
+    );
+
+    testStore.dispatch(setSelectedAttributionId('uuid1'));
+    testStore.dispatch(
+      savePackageInfo(
+        '/somethingElse.js',
+        'toReplaceUuid',
+        testPackageInfo,
+        false,
+      ),
+    );
+    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
+    expect(getSelectedAttributionId(testStore.getState())).toBe('uuid1');
+  });
+
   it('links to an attribution when the attribution already exists', () => {
     const testUuid = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
     const testPackageInfo: PackageInfo = {
@@ -476,7 +551,7 @@ describe('The savePackageInfo action', () => {
       folder: { 'somethingElse.js': 1 },
     };
     const testManualAttributions: Attributions = {
-      [testUuid]: testPackageInfo,
+      [testUuid]: { ...testPackageInfo, modifiedPreferred: true },
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       '/something.js': [testUuid],

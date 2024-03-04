@@ -6,6 +6,7 @@ import { remove } from 'lodash';
 import isEqual from 'lodash/isEqual';
 import { v4 as uuid4 } from 'uuid';
 
+import { getModifiedPreferredState } from '../../../shared/get-modified-preferred-state';
 import {
   AttributionData,
   AttributionsToResources,
@@ -32,6 +33,7 @@ export function createManualAttribution(
   selectedResourceId: string,
   packageInfo: PackageInfo,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
+  externalData: AttributionData,
 ): { newManualData: AttributionData; newAttributionId: string } {
   const newAttributionId = uuid4();
 
@@ -40,6 +42,15 @@ export function createManualAttribution(
     ? [...manualData.resourcesToAttributions[selectedResourceId]]
     : [];
   attributionIdsOfSelectedResource.push(newAttributionId);
+
+  const modifiedPreferredState = getModifiedPreferredState({
+    attribution: packageInfo,
+    externalAttributionsList: Object.values(externalData.attributions),
+  });
+  if (modifiedPreferredState) {
+    packageInfo.modifiedPreferred = modifiedPreferredState.modifiedPreferred;
+    packageInfo.wasPreferred = modifiedPreferredState.wasPreferred;
+  }
 
   const newManualData: AttributionData = {
     attributions: {
@@ -86,7 +97,17 @@ export function updateManualAttribution(
   attributionIdToUpdate: string,
   manualData: AttributionData,
   packageInfo: PackageInfo,
+  externalData: AttributionData,
 ): AttributionData {
+  const modifiedPreferredState = getModifiedPreferredState({
+    attribution: packageInfo,
+    externalAttributionsList: Object.values(externalData.attributions),
+  });
+  if (modifiedPreferredState) {
+    packageInfo.modifiedPreferred = modifiedPreferredState.modifiedPreferred;
+    packageInfo.wasPreferred = modifiedPreferredState.wasPreferred;
+  }
+
   return {
     ...manualData,
     attributions: {

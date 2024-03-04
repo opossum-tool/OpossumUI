@@ -4,10 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { pickBy } from 'lodash';
 
-import { PackageInfo } from '../../shared/shared-types';
-import { thirdPartyKeys } from '../shared-constants';
+import { PackageInfo, RawPackageInfo, thirdPartyKeys } from './shared-types';
 
-export const FORM_ATTRIBUTES = [
+export const COMPARABLE_ATTRIBUTES = [
   'packageName',
   'packageVersion',
   'packageNamespace',
@@ -20,13 +19,15 @@ export const FORM_ATTRIBUTES = [
   'comment',
 ] satisfies Array<keyof PackageInfo>;
 
-export type FormAttribute = (typeof FORM_ATTRIBUTES)[number];
+export type ComparableAttribute = (typeof COMPARABLE_ATTRIBUTES)[number];
 
-export function getComparableAttributes(packageInfo: PackageInfo) {
+export function getComparableAttributes(
+  packageInfo: PackageInfo | RawPackageInfo,
+) {
   return pickBy(
     packageInfo,
     (value, key) =>
-      FORM_ATTRIBUTES.some((attribute) => attribute === key) &&
+      COMPARABLE_ATTRIBUTES.some((attribute) => attribute === key) &&
       (packageInfo.firstParty
         ? !thirdPartyKeys.includes(key as keyof PackageInfo)
         : true) &&

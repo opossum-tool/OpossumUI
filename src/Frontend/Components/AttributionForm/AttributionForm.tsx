@@ -8,12 +8,12 @@ import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
 
+import { ComparableAttribute } from '../../../shared/get-comparable-attributes';
 import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { AttributionType } from '../../enums/enums';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { FormAttribute } from '../../util/get-comparable-attributes';
 import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { TextBoxProps } from '../TextBox/TextBox';
@@ -41,7 +41,7 @@ export interface AttributeConfig
   extends Pick<TextBoxProps, 'color' | 'focused' | 'endIcon'> {}
 
 export type AttributionFormConfig = Partial<
-  Record<FormAttribute, AttributeConfig>
+  Record<ComparableAttribute, AttributeConfig>
 >;
 
 interface AttributionFormProps {
