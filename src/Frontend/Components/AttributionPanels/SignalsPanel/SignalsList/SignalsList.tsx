@@ -69,7 +69,7 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   return (
     <GroupedList
       grouped={groupedIds}
-      selected={selectedAttributionId}
+      selectedId={selectedAttributionId}
       renderItemContent={renderAttributionCard}
       renderGroupName={(sourceName) => (
         <>

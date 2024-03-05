@@ -24,7 +24,7 @@ export interface ListProps {
     datum: string,
     props: ListItemContentProps,
   ) => React.ReactNode;
-  selected?: string;
+  selectedId?: string;
   sx?: SxProps;
   testId?: string;
 }
@@ -34,7 +34,7 @@ export function List({
   data,
   loading,
   renderItemContent,
-  selected,
+  selectedId,
   sx,
   testId,
   ...props
@@ -47,7 +47,7 @@ export function List({
     selectedIndex,
   } = useVirtuosoRefs<VirtuosoHandle>({
     data,
-    selected,
+    selectedId,
   });
 
   return (

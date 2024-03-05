@@ -39,7 +39,7 @@ export interface GroupedListProps {
     datum: string,
     props: GroupedListItemContentProps,
   ) => React.ReactNode;
-  selected?: string;
+  selectedId?: string;
   sx?: SxProps;
   testId?: string;
 }
@@ -50,7 +50,7 @@ export function GroupedList({
   loading,
   renderGroupName,
   renderItemContent,
-  selected,
+  selectedId,
   sx,
   testId,
   ...props
@@ -82,7 +82,7 @@ export function GroupedList({
     selectedIndex,
   } = useVirtuosoRefs<GroupedVirtuosoHandle>({
     data: groups?.ids,
-    selected,
+    selectedId,
   });
 
   return (

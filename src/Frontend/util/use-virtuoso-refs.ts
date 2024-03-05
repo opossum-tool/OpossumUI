@@ -8,33 +8,41 @@ import { VirtuosoHandle } from 'react-virtuoso';
 
 export function useVirtuosoRefs<T extends VirtuosoHandle>({
   data,
-  selected,
+  selectedId,
 }: {
   data: ReadonlyArray<string> | null | undefined;
-  selected: string | undefined;
+  selectedId: string | undefined;
 }) {
   const ref = useRef<T>(null);
   const listRef = useRef<Window | HTMLElement>();
   const [isVirtuosoFocused, setIsVirtuosoFocused] = useState(false);
-  const [focusedIndex, setFocusedIndex] = useState<number>();
+  const [focusedId, setFocusedId] = useState<string>();
 
   const selectedIndex = useMemo(() => {
     if (!data) {
       return undefined;
     }
 
-    return data.findIndex((datum) => datum === selected);
-  }, [data, selected]);
+    return data.findIndex((datum) => datum === selectedId);
+  }, [data, selectedId]);
+
+  const focusedIndex = useMemo(() => {
+    if (!data) {
+      return undefined;
+    }
+
+    return data.findIndex((datum) => datum === focusedId);
+  }, [data, focusedId]);
 
   useEffect(() => {
     if (isVirtuosoFocused) {
-      setFocusedIndex(selectedIndex);
+      setFocusedId(selectedId);
     }
 
     return () => {
-      setFocusedIndex(undefined);
+      setFocusedId(undefined);
     };
-  }, [isVirtuosoFocused, selectedIndex]);
+  }, [isVirtuosoFocused, selectedId]);
 
   useEffect(() => {
     if (selectedIndex !== undefined && selectedIndex >= 0) {
@@ -68,12 +76,12 @@ export function useVirtuosoRefs<T extends VirtuosoHandle>({
             index,
             behavior: 'auto',
           });
-          setFocusedIndex(index);
+          setFocusedId(data[index]);
           event.preventDefault();
         }
       }
     },
-    [data?.length, focusedIndex],
+    [data, focusedIndex],
   );
 
   const scrollerRef = useCallback(
