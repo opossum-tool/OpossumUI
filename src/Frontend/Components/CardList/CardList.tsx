@@ -6,13 +6,14 @@ import { styled } from '@mui/material';
 
 import { OpossumColors } from '../../shared-styles';
 import { List } from '../List/List';
-import { LIST_CARD_HEIGHT } from '../ListCard/ListCard';
+import { PACKAGE_CARD_HEIGHT } from '../PackageCard/PackageCard';
 
 const MAX_NUMBER_OF_CARDS = 4;
 
 export const CardList = styled(List)(({ data }) => {
   const height =
-    Math.min(MAX_NUMBER_OF_CARDS, data?.length ?? 0) * (LIST_CARD_HEIGHT + 1) +
+    Math.min(MAX_NUMBER_OF_CARDS, data?.length ?? 0) *
+      (PACKAGE_CARD_HEIGHT + 1) +
     1;
 
   return {

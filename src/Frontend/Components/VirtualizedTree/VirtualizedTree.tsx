@@ -57,18 +57,19 @@ export function VirtualizedTree({
   return (
     <List
       data={resourceIds.length ? Object.keys(treeNodes) : []}
-      renderItemContent={(nodeId) => (
+      renderItemContent={(nodeId, { selected, focused }) => (
         <VirtualizedTreeNode
           TreeNodeLabel={TreeNodeLabel}
           isExpandedNode={expandedIds.includes(nodeId)}
           onToggle={onToggle}
           onSelect={onSelect}
           readOnly={readOnly}
-          selected={nodeId === selectedNodeId}
+          selected={selected}
+          focused={focused}
           {...treeNodes[nodeId]}
         />
       )}
-      selected={selectedNodeId}
+      selectedId={selectedNodeId}
       testId={testId}
       sx={{
         height: '100%',

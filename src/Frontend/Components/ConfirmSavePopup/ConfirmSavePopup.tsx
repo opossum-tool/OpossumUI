@@ -147,7 +147,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         </MuiTypography>
         <CardList
           data={attributionIdsToSave}
-          renderItemContent={(attributionId, index) => {
+          renderItemContent={(attributionId, { index }) => {
             if (!attributionId || !(attributionId in attributions)) {
               return null;
             }

@@ -12,6 +12,7 @@ export class SignalsPanel {
   private readonly node: Locator;
   private readonly header: Locator;
   readonly packageCard: PackageCard;
+  readonly selectAllCheckbox: Locator;
   readonly linkButton: Locator;
   readonly deleteButton: Locator;
   readonly restoreButton: Locator;
@@ -42,6 +43,9 @@ export class SignalsPanel {
     this.node = window.getByTestId('signals-panel');
     this.header = window.getByTestId('signals-panel-header');
     this.packageCard = new PackageCard(this.node);
+    this.selectAllCheckbox = this.node.getByRole('checkbox', {
+      name: 'Select all',
+    });
     this.deleteButton = this.node.getByRole('button', {
       name: text.packageLists.delete,
       exact: true,

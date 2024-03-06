@@ -15,9 +15,9 @@ import {
   PreSelectedIcon,
   WasPreferredIcon,
 } from '../Icons/Icons';
-import { ListCardConfig } from '../ListCard/ListCard';
+import { PackageCardConfig } from './PackageCard';
 
-export function getRightIcons(cardConfig: ListCardConfig) {
+export function getRightIcons(cardConfig: PackageCardConfig) {
   const rightIcons: Array<JSX.Element> = [];
 
   if (cardConfig.preferred) {
