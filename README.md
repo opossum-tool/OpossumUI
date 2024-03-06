@@ -28,9 +28,8 @@ OpossumUI is a tool to
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/opossum-tool/opossumUI)](https://github.com/opossum-tool/opossumUI/releases/latest)
 ![build workflow](https://github.com/opossum-tool/opossumUI/actions/workflows/check-code-quality.yml/badge.svg)
 ![build workflow](https://github.com/opossum-tool/opossumUI/actions/workflows/build-and-e2e-test.yml/badge.svg)
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
-![screenshots_of_the_ui](./docs/screenshots_of_the_ui/screenshots_of_the_ui.gif)
+![screenshots_of_the_ui](./docs/screenshots_of_the_ui.gif)
 
 ## Use Cases
 
@@ -57,7 +56,7 @@ outputted in different formats.
 
 ![integration](./docs/integration.png)
 
-# <a id="user_quick_start_guide"></a> User's Quick Start Guide
+# Getting Started
 
 ## Input files
 
@@ -77,17 +76,17 @@ reporter. It uses metadata from the analyzer as well as scan results from the sc
 [oss-review-toolkit/ort](https://github.com/oss-review-toolkit/ort) and the new reporter output
 is called `Opossum`.
 
-For details of the file format, see [File formats](#file_formats).
+For details of the file format, see [file formats](#file-formats).
 
-## How to get & run OpossumUI
+## How to get and run OpossumUI
 
 Check out our short getting started video:
 
-<a href="https://www.youtube.com/watch?v=tXMV04f-CHg" target="_blank">![click to play video](docs/readme_images/opossum_youtube.png)</a>
+[![click to play video](docs/opossum_youtube.png)](https://www.youtube.com/watch?v=tXMV04f-CHg)
 
 ### Get the latest release
 
-Download the latest release for your OS from [Github](https://github.com/opossum-tool/OpossumUI/releases/latest).
+Download the latest release for your OS from [GitHub](https://github.com/opossum-tool/OpossumUI/releases/latest).
 
 ### Running the app
 
@@ -109,7 +108,7 @@ Check out our [short video](https://youtu.be/bqGX9IQYpJY?si=BjNeCi9osPWy7z1H), w
 
 For an in-depth explanation, please read the [Users's Guide](USER_GUIDE.md).
 
-## <a id="file_formats"></a> File formats
+## File formats
 
 Files with a `.opossum` extension are zip-archives which contain an `input.json` (must be provided) together with an `output.json` (optional).
 JSON schemas for both the [input](src/ElectronBackend/input/OpossumInputFileSchema.json)
@@ -134,24 +133,27 @@ There are additional fields which are optional:
   files like `package.json`, usually also setting an attribution breakpoint.
 - `baseUrlsForSources`: a map from paths to the respective base url. The base url should contain a {path} placeholder.
   E.g.
+
+  ```json
+  "baseUrlsForSources": {
+    "/": "https://github.com/opossum-tool/opossumUI/blob/main/{path}"
+  }
   ```
-    "baseUrlsForSources": {
-      "/": "https://github.com/opossum-tool/opossumUI/blob/main/{path}"
-    }
-  ```
+
 - `externalAttributionSources`: used to store a mapping of short names for attribution sources to full names and priorities used for sorting in the PackagePanel. Entries with higher numbers have a higher priority. E.g.:
-  ```
-    "externalAttributionSources": {
-      SC: {
-        name: "ScanCode",
-        priority: 1
-      }
+
+  ```json
+  "externalAttributionSources": {
+    "SC": {
+      "name": "ScanCode",
+      "priority": 1
     }
+  }
   ```
 
 ### Output file
 
-Contains 4 main fields:
+Contains four main fields:
 
 - `metadata`: contains some project-level information,
 - `manualAttributions`: contains all attributions created by the user or preselected,
@@ -163,19 +165,19 @@ Contains 4 main fields:
 
 In addition to the default output file, OpossumUI provides the following export options.
 
-#### Exporting SPDX documents:
+#### Exporting SPDX documents
 
 An SPDX document can be exported in the json and the yaml format through the _Export_ ⟶ _SPDX (yaml)_ and _SPDX (json)_
 option in the _File_ menu.
 
-#### Exporting BOM-like CSV files:
+#### Exporting BOM-like CSV files
 
 These can be exported through the _Export_ ⟶ _Compact / Detailed component list_ option in the _File_ menu. Both
 component list files contain a list of all attributions that are present in the project, including package name,
 version, copyright, license name and URL. In addition, the detailed component list is more comprehensive and includes
 the PURL and its subcomponents, as well as the license texts.
 
-#### Exporting follow-up document:
+#### Exporting follow-up document
 
 This can be exported through the _Export_ ⟶ _Follow-Up_ option in the _File_ menu. Similar to the component list, it
 contains attributions with licenses flagged for legal review through the _Follow-Up_ checkbox in the UI.
