@@ -5,6 +5,7 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
+import { useEffect, useRef } from 'react';
 
 import { Resources } from '../../../../shared/shared-types';
 import { OpossumColors } from '../../../shared-styles';
@@ -25,6 +26,12 @@ const classes = {
     height: '20px',
     '&:hover .tree-node-selected-indicator': {
       display: 'block',
+    },
+    '&:focus .tree-node-selected-indicator': {
+      display: 'block',
+    },
+    '&:focus': {
+      outline: 'none',
     },
   },
   clickableIcon: {
@@ -74,6 +81,7 @@ interface VirtualizedTreeNodeProps extends TreeNode {
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   readOnly?: boolean;
   selected: boolean;
+  focused: boolean;
 }
 
 export function VirtualizedTreeNode({
@@ -86,6 +94,7 @@ export function VirtualizedTreeNode({
   onToggle,
   readOnly,
   selected,
+  focused,
 }: VirtualizedTreeNodeProps) {
   const isExpandable = node !== 1 && Object.keys(node).length !== 0;
   const marginRight =
@@ -95,6 +104,14 @@ export function VirtualizedTreeNode({
       : nodeId.endsWith('/')
         ? SIMPLE_FOLDER_EXTRA_INDENT
         : SIMPLE_NODE_EXTRA_INDENT);
+
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (focused) {
+      ref.current?.focus();
+    }
+  }, [focused]);
 
   const handleClick = readOnly
     ? undefined
@@ -106,7 +123,24 @@ export function VirtualizedTreeNode({
       };
 
   return (
-    <MuiBox sx={classes.listNode} onClick={handleClick}>
+    <MuiBox
+      sx={classes.listNode}
+      onClick={handleClick}
+      tabIndex={0}
+      ref={ref}
+      onKeyDown={(event) => {
+        if (['Enter', 'Space'].includes(event.code)) {
+          event.preventDefault();
+          handleClick?.();
+        } else if (event.code === 'ArrowRight' && !isExpandedNode) {
+          event.preventDefault();
+          onToggle?.([nodeId]);
+        } else if (event.code === 'ArrowLeft' && isExpandedNode) {
+          event.preventDefault();
+          onToggle?.([nodeId]);
+        }
+      }}
+    >
       <MuiBox sx={classes.treeNodeSpacer} style={{ width: marginRight }} />
       {renderExpandableNodeIcon()}
       <MuiBox

@@ -31,7 +31,7 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
     <List
       renderItemContent={renderAttributionCard}
       data={activeAttributionIds}
-      selected={selectedAttributionId}
+      selectedId={selectedAttributionId}
       loading={loading}
       sx={{ transition: TRANSITION, height: contentHeight }}
     />
