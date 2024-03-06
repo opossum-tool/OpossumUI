@@ -5,38 +5,35 @@ SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 SPDX-License-Identifier: CC0-1.0
 -->
 
-# User's Guide
+# User Guide
 
 ## Table of contents
 
-1. [How to get & run OpossumUI](#get_and_run_OpossumUI)
-   1. [Get the latest release](#get_latest_release)
-   2. [Running the app](#running_the_app)
-2. [Working with OpossumUI](#working_with_OpossumUI)
-   1. [Opossum file format](#dot_opossum)
-   2. [Json files](#json_files)
-   3. [Opening a file](#opening_a_file)
-   4. [Search](#search)
-   5. [Locate signals](#locator)
-   6. [Project Metadata](#project_metadata)
-   7. [Project Statistics](#project_statistics)
-   8. [Exporting Formats](#exporting_formats)
-   9. [Attributions](#attributions)
-   10. [Top Bar](#top_bar)
-   11. [Audit View](#audit_view)
-   12. [Attribution View](#attribution_view)
-   13. [Report View](#report_view)
-   14. [Preferred Attributions](#preferred_attributions)
+- [Getting Started](#getting-started)
+  - [Get the latest release](#get-the-latest-release)
+  - [Running the app](#running-the-app)
+- [Working with OpossumUI](#working-with-opossumui)
+  - [Opossum file format](#opossum-file-format)
+  - [JSON files](#json-files)
+  - [Opening a file](#opening-a-file)
+  - [Project Metadata](#project-metadata)
+  - [Project Statistics](#project-statistics)
+  - [Exporting Formats](#exporting-formats)
+  - [Attributions](#attributions)
+  - [Top Bar](#top-bar)
+  - [Audit View](#audit-view)
+  - [Report View](#report-view)
+  - [Preferred Attributions](#preferred-attributions)
 
-## How to get & run OpossumUI <a name="get_and_run_OpossumUI"></a>
+## Getting Started
 
-### Get the latest release <a name="get_latest_release"></a>
+### Get the latest release
 
-Download the latest release for your OS from [Github](https://github.com/opossum-tool/OpossumUI/releases/latest).
+Download the latest release for your OS from [GitHub](https://github.com/opossum-tool/OpossumUI/releases/latest).
 
 To check if your installation is up to date, open the `Help` menu and select `Check for updates`.
 
-### Running the app <a name="running_the_app"></a>
+### Running the app
 
 #### Linux
 
@@ -50,15 +47,15 @@ Run _OpossumUI_ in _OpossumUI-for-mac.zip_.
 
 Run _OpossumUI-for-win.exe_ to install the OpossumUI. Then open _OpossumUI_ from the start menu.
 
-## Working with OpossumUI <a name="working_with_OpossumUI"></a>
+## Working with OpossumUI
 
-### Opossum file format <a name="dot_opossum"></a>
+### Opossum file format
 
 Files with a `.opossum` extension are zip-archives which contain an _input.json_ (must be provided) together with an _output.json_ (optional). An output file will be automatically created and added to the archive after opening the archive if there is no such file yet.
 
-### Json files <a name="json_files"></a>
+### JSON files
 
-Two .json files are used by the app to store data:
+Two .JSON files are used by the app to store data:
 
 - an input file, that must be provided,
 - an output file, which is created by the app when saving for the first time if not already present.
@@ -66,49 +63,22 @@ Two .json files are used by the app to store data:
 The output file must be in the same folder as the input file and called `[NAME_OF_THE_FIRST_FILE]_attributions.json`
 to be recognized by the app.
 
-### Opening a File <a name="opening_a_file"></a>
+### Opening a File
 
-To open the input file in the app, click the _Open File_ button on the left of the top bar (or on the entry in the
-_File_ menu with the same name).
-
-![integration](./docs/user_guide_screenshots/open_file.png)
+To open the input file in the app, click the _Open File_ button on the left of the top bar (or on the entry in the _File_ menu with the same name).
 
 If you try to open a _.json_ file, a popup will be shown which asks whether you would like to create a `.opossum` file and proceed (recommended) or continue working with the old format (two separate _.json_ files).
 
-### Search <a name="search"></a>
-
-To search for a path, press `CTRL + F` or open the `Edit` menu and select `Search for Files and Folders`.
-
-![integration](./docs/user_guide_screenshots/search.png)
-
-### Locate signals <a name="locator"></a>
-
-To locate signals, press `CTRL + L` or open the `Edit` menu and select `Locate Signals`. This will open the Locate Signals popup.
-From here, you can choose which signals you want to locate in the resource tree. You can search for signals by string, criticality
-or choose one or multiple existing license name(s). Once selected, the locations of matching signals will be highlighted in the resource tree.
-
-Note: When searching for matching resources, the input of the search field, the selected criticality and the selected
-license names are linked with **and**, while different license names in the license search field are linked with **or**.
-That is, when searching for a license name using the search field (and the checkbox) and additionally selecting
-another license name, only the resources matching the license name **and** the term in the search field will be highlighted
-while when searching for multiple license names, all resources matching **one of these** licenses will be highlighted.
-
-![integration](./docs/user_guide_screenshots/locator.png)
-
-You can also locate signals by license from the [Project Statistics](#project_statistics) popup, by clicking on the locator icon next to each license.
-
-![integration](./docs/user_guide_screenshots/locator_project_statistics.png)
-
-### Project Metadata <a name="project_metadata"></a>
+### Project Metadata
 
 To view project metadata, open the `File` menu and select `Project Metadata`.
 
-### Project Statistics <a name="project_statistics"></a>
+### Project Statistics
 
 To view project statistics, open the `File` menu and select `Project Statistics`. This opens a popup that shows various
 tables and pie charts summarizing the state of the project.
 
-### Exporting Formats <a name="exporting_formats"></a>
+### Exporting Formats
 
 It is possible to directly export data to files. The following formats are available:
 
@@ -120,71 +90,55 @@ It is possible to directly export data to files. The following formats are avail
 
 To generate a document, open the `File` menu and select `Export`.
 
-![integration](./docs/user_guide_screenshots/exports.png)
+### Attributions
 
-### Attributions <a name="attributions"></a>
-
-The basic building block of license/attribution information in the opossumUI is the **Attribution**. An **Attribution**
-isn't only a software package with name & version (or purl) and copyright, distributed under one or more licenses. It
-can in principle be any file which has a copyright or is distributed under a license. **The purpose of the opossumUI is to
+The basic building block of license/attribution information in the OpossumUI is the **Attribution**. An **Attribution**
+isn't only a software package with name & version (or PURL) and copyright, distributed under one or more licenses. It
+can in principle be any file which has a copyright or is distributed under a license. **The purpose of the OpossumUI is to
 link resources to the corresponding attributions, with an emphasis on correct licensing and copyright information.**
-In the opossumUI, a distinction between **signals** and **attributions** is made:
+In the OpossumUI, a distinction between **signals** and **attributions** is made:
 
-- **attributions** are attribution information that are created in the current run of the opossumUI. They are stored in
+- **attributions** are attribution information that are created in the current run of the OpossumUI. They are stored in
   the output file, together with the resources they have been linked to,
-- **signals** are attribution information that have been linked to a resource before the current opossumUI run. They can
-  come from automatic tools or previous run of the opossumUI. They have a **source** and can be used as starting point for
+- **signals** are attribution information that have been linked to a resource before the current OpossumUI run. They can
+  come from automatic tools or previous run of the OpossumUI. They have a **source** and can be used as starting point for
   assigning attributions.
 
-### Top Bar <a name="top_bar"></a>
-
-In the `Top Bar`, the following elements are present. From left to right:
-
-- the _Open File_ button (read _Open File_ section to learn more about opening a file),
-- the `Progress Bar` (shown only if a file is currently opened),
-- the `Progress Bar Toggle`,
-- the `View Switch`,
-- the app version.
-
-The `Progress Bar` indicates how many files have manually received an attribution (dark green), how many have an
-automatically **pre-selected** attribution (lighter green with gradient), and how many files have a signal, but have not
-yet received an attribution (orange), with respect to the total number of files. Hovering on the bar shows a tooltip
-containing all 4 numbers. Clicking on the bar navigates to a file that has a signal, but no attribution.
+### Top Bar
 
 ![integration](./docs/user_guide_screenshots/top_bar.png)
 
-Clicking the `Progress Bar Toggle` replaces the `Progress Bar` by the `Critical Signals Progress Bar`. The
-`Critical Signals Progress Bar` indicates how many files have a highly critical signal but no attribution (red),
-a medium critical signal but no attribution (orange) with respect to the total number of files not having an attribution.
-Hovering on the bar shows a tooltip containing all 4 numbers. Clicking on the bar navigates to a file that has a critical signal,
+In the `Top Bar`, the following elements are present:
+
+- the _Open File_ button,
+- the `Progress Bar`,
+- the `Progress Bar Toggle`,
+- the `View Switch`,
+- the app version,
+- the path bar.
+
+The `Progress Bar` indicates how many files have manually received an attribution (dark green), how many have an automatically **pre-selected** attribution (lighter green with gradient), and how many files have a signal, but have not yet received an attribution (orange), with respect to the total number of files. Hovering on the bar shows a tooltip containing all four numbers. Clicking on the bar navigates to a file that has a signal, but no attribution.
+
+Clicking the `Progress Bar Toggle` replaces the `Progress Bar` by the `Critical Signals Progress Bar`. The `Critical Signals Progress Bar` indicates how many files have a highly critical signal but no attribution (red), a critical signal but no attribution (orange) with respect to the total number of files not having an attribution. Hovering on the bar shows a tooltip containing all 4 numbers. Clicking on the bar navigates to a file that has a critical signal,
 but no attribution.
 
-The `View Switch` allows to change between the `Audit View`, the `Attribution View`, and the `Report View` (the views
-are described in more detail in the respective sections).
+The `View Switch` allows to change between the `Audit View` and the `Report View`.
 
-The app version is crucial to allow the development team to reproduce bugs: please always include it in
-screenshots/videos/emails documenting a bug.
+The `path bar` shows the path of the currently selected resource. It also provides opens to navigate back and forth in the selection history, to copy the path to the clipboard, and, if possible, to open the resource's source repository in a browser.
 
-### Audit View <a name="audit_view"></a>
+### Audit View
 
 ![integration](./docs/user_guide_screenshots/audit_view.png)
 
-**Resource** is the generic name used throughout the app to indicate a file or a folder (as in many cases they are
-treated the same). The `Audit View` focuses on the navigation through the resources to add/edit/remove attributions
-while seeing which signals have been found by the remote tools. The page has two main components:
+**Resource** is the generic name used throughout the app to indicate a file or a folder (as in many cases they are treated the same). The `Audit View` focuses on the navigation through the resources to add/edit/remove attributions while seeing which signals have been found by the remote tools. The page has three main components:
 
-- a `Resource Tree` on the left,
-- a `Selected Resource Panel` on the center right (shown only if a resource has been selected in the `Resource Tree`).
+- a resource browser on the left,
+- panels to list attributions and signals on the selected resource in the middle,
+- and attribution details, if an attribution or signal has been selected, on the right.
 
-#### Folders and inferred attributions
+#### Resource Browser
 
-In the case that a folder receives an attribution this attribution is also inferred to all its children that
-do not have their own attribution. Therefore, adding an attribution to a folder affects its children if these
-are not attributed themselves. The inference stops once a folder or a file is hit that has a differing attribution.
-
-#### Resource Tree
-
-In the `Resource Tree` resources can be selected. **Icons** help to find information in the folder
+In the resource browser, resources can be selected for assigning attributions or inspecting signals. **Icons** help to find information in the folder
 structure:
 
 - a **file icon** ![integration](./docs/user_guide_screenshots/file_icon.png) indicates that the resource is a file,
@@ -193,8 +147,6 @@ structure:
   that are included to visually collect a set of dependencies. These folders cannot have any signal or attribution.
   Furthermore, no attribution is inferred beyond such a breakpoint),
 - a **exclamation mark** ![integration](./docs/user_guide_screenshots/has_signals_icon.png) indicates the presence of signals attached to the resource.
-
-![integration](./docs/user_guide_screenshots/filetree.png)
 
 The coloring scheme reads as follows:
 
@@ -205,158 +157,99 @@ The coloring scheme reads as follows:
 - **grey** indicates the absence of both, signals and attribution, in children,
 - **blue** indicates the presence of signals in children but no attribution of the resource itself.
 
-#### Selected Resource Panel
+Please note that in case a resource has an attribution, this attribution also applies to all of its children that do not have attributions of their own. Therefore, adding an attribution to a folder affects its children if these are not attributed themselves. The inference stops once a folder or a file is hit that has a differing attribution.
 
-The `Selected Resource Panel` shows the path of the selected resource at the top. If the input file contains information
-about the location of the file (`baseUrlsForSources`) an icon to externally open the file is shown.
+At the bottom of the resource browser you will find a panel listing resources linked to the selected attribution or signal.
 
-Below the path, the element is divided into two columns. In the `Attribution Selection Column`, in the center of the
-screen, attributions and signals related to the selected resource are listed. In the `Attribution Details Column` on
-the right, additional information is shown for the selected attribution/signal.
+#### Attributions Panel
 
-![integration](./docs/user_guide_screenshots/selected_resource_panel.png)
+The attributions panel lists attributions as they relate to the selected resource. The possible relationships, by which attributions are grouped into tabs, are:
 
-##### Attribution Selection Column
+- **on the selected resource:** attributions directly assigned to the selected resource
+- **on children of the selected resource:** attributions assigned to resources contained in the selected resource
+- **on parents of the selected resource:** attributions assigned to resources containing the selected resource
+- **unrelated:** attributions that are not directly or indirectly linked to the selected resource
 
-In the `Attribution Selection Column` the following sub-panels may be present:
+Besides searching, sorting, and filtering attributions according to your needs, you can also perform any of the following actions:
 
-- `Attribution Sub-Panel` (always shown),
-- `Signals Sub-Panel` (accessible via the `LOCAL` tab),
-- `Attributions in Folder Content Sub-Panel` (accessible via the `LOCAL` tab),
-- `Signals in Folder Content Sub-Panel` (accessible via the `LOCAL` tab),
-- `Add to Attribution Sub-Panel` (accessible via the `GLOBAL` tab).
+- **create new attribution:** creates a new attribution on the selected resource from scratch
+- **link as attribution on selected resource:** links the selected attributions to the selected resource (only available if some of the selected attributions are not already linked)
+- **confirm:** confirms any of the selected attributions which are pre-selected (P)
+- **replace:** enters replacement mode during which you can select a replacement for the selected attributions
+- **delete:** deletes the selected attributions
 
-The `Attributions Sub-Panel` shows a list of all attributions that are assigned to the selected resource.
-**Pre-selected** attributions are signaled by an `P` icon. They can be confirmed, therefore being considered
-attributions in all views and in the progress bar. However, that is not a requirement. **Pre-selected** and
-attributions are both written in the output file. Clicking on one of the
-attributions, shows the details of that attribution in the `Attribution Details Column`. Clicking on _Add new
-attribution_ shows a blank `Attribution Details Column` that allows for adding a new attribution to the list of
-attributions, upon saving. If the shown attributions are inferred from a containing folder, they cannot be modified.
-Instead, the
-_OVERRIDE PARENT_ button can be clicked for creating new attributions for the selected resource. (Note that attributions
-are not saved separately, if they are identical to the attributions of a containing folder and can thus be inferred.)
+#### Signals Panel
 
-The `Signals Sub-Panel`, `Attributions in Folder Content Sub-Panel` and `Signals in Folder Content Sub-Panel` show lists
-of the signals of the selected resource and the attributions and signals of the resources contained within the selected
-folder. Clicking on the one of the listed items, shows the details of the respective attribution/signal in the
-`Attribution Details Column`. By clicking the **+ icon** of an item, the respective attribution/signal can be added to
-the attributions of the selected resource. In the `Signals Sub-Panel` signals that were used to create the pre-selected
-attributions are shown with a `P` icon, even if the relative attributions have been deleted. The cards in the
-` ... in folder content` sub-panels also show the number of resources in the folder that are linked to the shown
-attribution.
+The signals panel lists signals as they relate to the selected resource. The possible relationships, by which attributions are grouped into tabs, are:
 
-Similar signals that deviate only by `comment`, `attributionConfidence`, `originIds`, or the `preSelected` flag are merged into a single signal with multiple comments according to the comments of the individual merged signals. When adding a merged signal to the attributions of the current resource, the comment of the resulting attribution is empty. Relevant parts can be copied from the merged signal.
+- **on the selected resource:** attributions directly assigned to the selected resource
+- **on children of the selected resource:** attributions assigned to resources contained in the selected resource
 
-The `Add to Attribution Sub-Panel` allows to add an existing attribution to the attributions of the selected resource.
-As in the other panels, the details of the attributions can be shown by clicking on the respective list item, while the
-attribution can be added by clicking on the corresponding **+ icon**.
+Besides searching, sorting, and filtering signals according to your needs, you can also perform any of the following actions:
 
-#### Attribution Details Column
+- **link as attribution on selected resource:** converts the selected signals to attributions and links them to the selected resource
+- **delete:** soft-deletes the selected signals, i.e., hides them from the list
+- **restore:** restores the selected soft-deleted signals (only available when you include the deleted signals via the show/hide button)
+- **show/hide deleted signals:** shows/hides the soft-deleted signals
 
-The `Attribution Details Column` is used in the `Audit View` and in the `Attribution View` (see next section) to show
-details of the selected attribution and to edit and save the information of the selected attribution. Note that inferred
-attribution information and signals cannot be edited.
+#### Attribution Details
 
-IMPORTANT: Some fields in the column have special meanings/behaviors:
+The attribution details show the attributes of the selected attribution or signal. It is here that you can edit and save details of attributions as well. Signals can never be edited (only hidden).
 
-- _PURL_: If provided, package name and version are extracted from it, and the corresponding fields are not editable. A
-  basic validity check is done on the purl: if the purl text is red it means it is invalid and saving is prevented.
-- _License Text_: It will appear in the attributions document. It will be automatically filled in for licenses suggested
-  in the license name dropdown.
-- _Exclude From Notice Checkbox_: If checked, the relative attribution will not be shown in the notice document.
-  In the case of first party code, the respective flag should be preferred.
-  _Exclude From Notice Checkbox_ should be used only if:
+The attributes are divided into three categories:
+
+- **auditing options:** certain annotations and tags that facilitate the auditing process
+- **package coordinates:** attributes used to uniquely identify the package
+- **legal information:** attributes used to describe the OSS licensing aspects of the package
+
+##### Auditing Options
+
+- _Exclude From Notice_: If chosen, the relative attribution will not be shown in the notice document. In the case of first party code, the respective flag should be used. _Exclude From Notice_ should be used only if:
   - the content of the attribution does not need attribution or
   - the attribution isn't an actual attribution or
-  - it was globally decided that this attribution does not need attribution (e.g. it is proprietary but bought for the
-    whole company).
-- _Comment / Comments_: In the case of an ordinary signal or an attribution, the comment textbox is displaying a single comment. In the case of a merged signal, the comment textbox is displaying multiple comments according to the comments of the individual merged signals.
-- _Needs Review Checkbox_: This checkbox can be used to signal to another OpossumUI user that an attribution needs further review.
-  The state of the checkbox is persisted when saving the attribution, so it can e.g. be used for a typical QA workflow.
+  - it was globally decided that this attribution does not need attribution (e.g. it is proprietary but bought for the whole company).
+- _Needs Review by QA_: This flag can be used to signal to another OpossumUI user, for example someone performing quality assurance, that an attribution needs review.
+- _Needs Follow-Up_: This flag can be used to indicate that the attribution requires follow-up, usually with the development team, as it would be part of a blacklist.
+- _Confidence_: This field is used to indicate the confidence in the correctness of the attribution. It is a emoticon on a scale of 1 to 5. You can also filter for attributions with low confidence in the attributions panel.
 
-The `Attribution Details Column`, if editable, shows the following buttons:
+##### Package Coordinates
 
-- _SAVE_, saves the edited information for the selected resource only, removing the **pre-selected** attribute if
-  present.
-- _SAVE GLOBALLY_, (shown only if the attribution of the selected resource is also linked to other resources) saves the
-  changes for all the linked resources. The same can also be done by pressing _Ctrl + S_.
-- _CONFIRM_, removes the **pre-selected** attribute from the attribution for the selected resource only.
-- _CONFIRM GLOBALLY_, (shown only if the attribution of the selected resource is also linked to other resources) removes
-  the **pre-selected** attribute from the attribution for all linked resources.
-- _..._, opens a menu with the following buttons:
-  - _Revert_, discards the changes,
-  - _Delete_, deletes the attribution of the selected resource only.
-  - _Delete Globally_, (shown only if the attribution of the selected resource is also linked to other resources)
-    deletes the attribution for all the linked resources.
+These coordinates serve to uniquely identify the package. In particular, package name and package type are required information from which a PURL ("Package URL") is automatically generated. Some package types also require the presence of a namespace. For example, GitHub and Maven packages require a namespace, while NPM packages do not.
 
-The _SAVE_ / _SAVE GLOBALLY_ and _Revert_ buttons are disabled if no change has been made.
+Also try to fill the repository URL of the attribution as it often helps to automatically compute the correct license information from it.
 
-When all fields except for the _confidence_ field are empty, pressing the _SAVE_ or the _SAVE GLOBALLY_ button deletes
-the respective attribution.
+Be aware that different package versions may result in different license information. Thus, providing a version whenever possible is also very helpful.
 
-The `Attribution Details Column`, when a signal is selected, shows the _HIDE_ button. It can be used to hide the given
-signal in the App for the current input/output files, and it will not have any consequence in the DB. When clicking _HIDE_ for a merged signal, all individual signals that make up the merged signal are hidden.
+##### Legal Information
 
-### Attribution View <a name="attribution_view"></a>
+Copyright and license name are the most important part of an attribution when it comes to OSS compliance. However, if you are dealing with first-party code, then please select this option in this section. You then no longer will be asked to supply copyright and license name.
 
-![integration](./docs/user_guide_screenshots/attribution_view.png)
+##### Comparing an Attribution to its Original Signal
 
-In the `Attribution View` all attributions are listed and can be viewed and edited. The page is in structure similar to
-the `Audit View` and has two main components:
+If an attribution originates from a signal, a `Compare to Original Signal` icon button will be displayed in the row of buttons at the bottom of the attribution details. Clicking this button opens a popup where the package coordinates and legal information of both the current attribution and its original signal are displayed side-by-side. Attributes that have changed are highlighted by colored outlines.
 
-- an `Attribution List` on the left,
-- a `Selected Attribution Panel` on the center right (shown only if an attribution has been selected from the list).
+You can revert individual attributes to their original state by pressing the arrow button inside the field. The action can be undone using the same button, which will point in the opposite direction after a revert. Additionally, all changes can be reverted at once by pressing the `Revert All` button of the popup. Changes are applied to the attribution once the `Apply Changes` button is pressed, which also closes the popup.
 
-#### Attribution List
-
-All existing attributions are listed and can be selected. **Pre-selected**
-attributions are signaled by an `P` icon. They can be confirmed, which converts them into attributions
-in all views and in the progress bar. However, that is not a requirement. **Pre-selected** and manual
-attributions are both written in the output file. On top there is an icon for opening the filter section. By clicking
-on it, a dropdown will be shown with filters that allows for filtering for attributions marked for follow-up, first
-party, third party, and other aspects. Additionally, the attribution view has a multi-select mode.
-
-#### Selected Attribution Panel
-
-The `Selected Attribution Panel` looks much like the `Selected Resource Panel`. The main differences are:
-
-- Only information for the **selected attribution** are shown, in a fashion almost identical to
-  the `Selected Resource Panel`. They are always editable.
-- The _SAVE_ and _Delete_ buttons allow saving/deleting the selected attribution. Note that the changes affect multiple
-  resources if the selected attribution is linked to multiple resources.
-- A `Resource List` shows the path of all resources linked to the selected attribution. Clicking on a path shows the
-  selected resource in the `Audit View`.
-
-### Report View <a name="report_view"></a>
+### Report View
 
 ![integration](./docs/user_guide_screenshots/report_view.png)
 
-In the `Report View` all attributions are shown in a table to provide an overview. On top there is a dropdown list with
-filters that allows for filtering for attributions marked for follow-up, first party and not first party. The last two
-are mutually exclusive.
+In the `Report View` all attributions together with most of their attributes are shown in a table to provide a scrollable overview. As in the attributions panel, you can filter attributions by pressing the funnel icon in the top-left corner.
 
-Clicking on the _edit_ buttons in the _name_ columns, navigates to the respective attribution in the `attribution view`.
+Clicking on the _edit_ buttons in the _name_ columns, navigates to the respective attribution in the `Audit View`.
 
-### Preferred Attributions <a name="preferred_attributions"></a>
+### Preferred Attributions
 
-In the audit view, an attributions can be marked as preferred, to indicate that it is preferred over the displayed signals. This feature does not have any immediate effect on the signals displayed in OpossumUI; instead, it is intended to give additional information to tools that consume `.opossum` files. A preferred attribution will store origin IDs of signals visible to the user when it was marked as preferred.
+In the `Audit View`, an attribution can be marked as preferred to indicate that it is preferred over the displayed signals. This feature does not have any immediate effect on the signals displayed in OpossumUI. Instead, it is intended to give additional information to tools that consume `.opossum` files. A preferred attribution will store origin IDs of signals visible to the user when it was marked as preferred.
 
-Only signals with a source marked as `isRelevantForPreference` can be preferred over. If no signal source has this flag set, then the feature is disabled.
+Only signals with a source marked as `isRelevantForPreference` can be preferred over. If no signal source has this flag set, the feature is disabled.
 
-To mark an attribution as preferred, choose an attribution in the audit view, and open the auditing options menu. You will see an option to mark the attribution as preferred. When an attribution is marked as preferred, `preferred = true` is written to the `.opossum` file, and the origin IDs of all visible signals relevant for preference are written in the field `preferredOverOriginIds`. Preferred attributions are displayed with a star icon.
+To mark an attribution as preferred, choose an attribution in the `Audit View`, and open the auditing options menu. You will see an option to mark the attribution as preferred. When an attribution is marked as preferred, `preferred = true` is written to the `.opossum` file, and the origin IDs of all visible signals relevant for preference are written in the field `preferredOverOriginIds`. Preferred attributions are displayed with a star icon.
 
-Note that you are only able to mark an attribution as preferred (or unmark if it was preferred beforehand) if you are in
-"QA Mode". To enable this mode click the item "QA Mode" in the `View` submenu.
+Note that you are only able to mark an attribution as preferred (or unmark it if it was preferred beforehand) if you are in "QA Mode". To enable this mode click the item "QA Mode" in the `View` submenu.
 
 ![disabled_qa_mode](./docs/user_guide_screenshots/disabled_qa_mode.png)
 
 If "QA Mode" is enabled the icon will change as in the screenshot below.
 
 ![enabled_qa_mode](./docs/user_guide_screenshots/enabled_qa_mode.png)
-
-### Comparing an Attribution to its original Signal
-
-If an attribution originates from a signal, a `Compare to Original` button will be displayed in the row of buttons below the details of the currently selected attribution. Clicking this button opens a popup, where the package coordinates and legal information of both the current attribution and its original signal are displayed side by side. Fields that have changed are highlighted by colored outlines.
-
-You can revert individual fields by pressing the arrow button inside the field. The action can be undone using the same button, which will point in the opposite direction after a revert. Additionally, all changes can be reverted at once by pressing the `Revert All` button of the popup. Changes are applied to the attribution once the `Apply Changes` button is pressed, which also closes the popup. To save the changes, you can, for example, use the standard `Save` button.

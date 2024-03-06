@@ -51,13 +51,13 @@ test.use({
 test('opens the diff popup if attribution has original and compare button is clicked', async ({
   attributionDetails,
   diffPopup,
-  resourceBrowser,
+  resourcesTree,
 }) => {
-  await resourceBrowser.goto(resourceName1);
+  await resourcesTree.goto(resourceName1);
   await attributionDetails.assert.compareButtonIsHidden();
 
-  await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.compareButtonIsEnabled();
+  await resourcesTree.goto(resourceName2);
+  await attributionDetails.assert.compareButtonIsVisible();
 
   await attributionDetails.compareButton.click();
   await diffPopup.assert.isVisible();
@@ -66,9 +66,9 @@ test('opens the diff popup if attribution has original and compare button is cli
 test('reverts all changes and applies reverted state to temporary package info', async ({
   attributionDetails,
   diffPopup,
-  resourceBrowser,
+  resourcesTree,
 }) => {
-  await resourceBrowser.goto(resourceName2);
+  await resourcesTree.goto(resourceName2);
   const newPackageName = faker.lorem.word();
   await attributionDetails.attributionForm.name.fill(newPackageName);
   await attributionDetails.attributionForm.selectAttributionType(
@@ -102,9 +102,9 @@ test('reverts all changes and applies reverted state to temporary package info',
 test('reverts single fields correctly', async ({
   attributionDetails,
   diffPopup,
-  resourceBrowser,
+  resourcesTree,
 }) => {
-  await resourceBrowser.goto(resourceName2);
+  await resourcesTree.goto(resourceName2);
   const newPackageName = faker.lorem.word();
   await attributionDetails.attributionForm.name.fill(newPackageName);
   const newCopyright = faker.lorem.sentence();
@@ -141,9 +141,9 @@ test('reverts single fields correctly', async ({
 test('handles pending license and copyright changes in temporary package info correctly', async ({
   attributionDetails,
   diffPopup,
-  resourceBrowser,
+  resourcesTree,
 }) => {
-  await resourceBrowser.goto(resourceName2);
+  await resourcesTree.goto(resourceName2);
   const newPackageName = faker.lorem.word();
   await attributionDetails.attributionForm.name.fill(newPackageName);
   await attributionDetails.attributionForm.selectAttributionType(

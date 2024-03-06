@@ -3,8 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, Screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import isEmpty from 'lodash/isEmpty';
 
 import {
@@ -18,7 +16,6 @@ import {
 import {
   EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_METADATA,
-  Filter,
 } from '../shared-constants';
 import { canResourceHaveChildren } from '../util/can-resource-have-children';
 
@@ -138,45 +135,4 @@ export function getAttributionsToResources(
     });
     return acc;
   }, {});
-}
-
-export function clickOnButton(screen: Screen, buttonLabel: string): void {
-  fireEvent.click(screen.getByRole('button', { name: buttonLabel }));
-}
-
-export function clickOnCheckbox(screen: Screen, label: string): void {
-  fireEvent.click(
-    screen.getByRole('checkbox', { name: `checkbox ${label}` }) as Element,
-  );
-}
-
-export async function selectFilter(screen: Screen, filter: Filter) {
-  await userEvent.click(screen.getByRole('combobox'));
-  await userEvent.paste(filter);
-  await userEvent.click(screen.getByText(filter));
-}
-
-export function expectElementsInAutoCompleteAndSelectFirst(
-  screen: Screen,
-  elements: Array<string>,
-): void {
-  const autoComplete = screen.getByLabelText('license names');
-  autoComplete.focus();
-  fireEvent.keyDown(autoComplete, { key: 'ArrowDown' });
-
-  elements.forEach((element) =>
-    expect(screen.getByText(element)).toBeInTheDocument(),
-  );
-
-  fireEvent.click(screen.getByText(elements[0]) as Element);
-}
-
-export function getPackagePanel(
-  screen: Screen,
-  packagePanelName: string,
-): HTMLElement {
-  return (
-    (screen.getByText(packagePanelName).parentElement as HTMLElement)
-      .parentElement as HTMLElement
-  ).parentElement as HTMLElement;
 }

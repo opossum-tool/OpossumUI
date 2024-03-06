@@ -8,8 +8,5 @@ export function prettifySource(
   source: string | undefined | null,
   attributionSources: ExternalAttributionSources,
 ): string {
-  if (!source) {
-    return '';
-  }
-  return attributionSources[source] ? attributionSources[source].name : source;
+  return source ? attributionSources[source]?.name || source : '';
 }

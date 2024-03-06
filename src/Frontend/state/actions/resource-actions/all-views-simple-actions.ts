@@ -13,7 +13,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { computeChildrenWithAttributions } from '../../helpers/action-and-reducer-helpers';
+import { computeChildrenWithAttributions } from '../../helpers/save-action-helpers';
 import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
@@ -61,7 +61,7 @@ export function setManualData(
       resourcesToAttributions,
       attributionsToResources,
       resourcesWithAttributedChildren: computeChildrenWithAttributions(
-        resourcesToAttributions,
+        attributionsToResources,
       ),
     },
   };
@@ -71,6 +71,7 @@ export function setExternalData(
   attributions: Attributions,
   resourcesToAttributions: ResourcesToAttributions,
   attributionsToResources: AttributionsToResources,
+  resolvedAttributions: Set<string>,
 ): SetExternalDataAction {
   return {
     type: ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
@@ -79,7 +80,8 @@ export function setExternalData(
       resourcesToAttributions,
       attributionsToResources,
       resourcesWithAttributedChildren: computeChildrenWithAttributions(
-        resourcesToAttributions,
+        attributionsToResources,
+        resolvedAttributions,
       ),
     },
   };

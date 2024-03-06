@@ -8,100 +8,52 @@ import { text } from '../../shared/text';
 import { AttributionForm } from './AttributionForm';
 
 export class AttributionDetails {
-  private readonly window: Page;
   private readonly node: Locator;
   readonly attributionForm: AttributionForm;
-  readonly saveButton: Locator;
-  readonly saveGloballyButton: Locator;
-  readonly saveMenuButton: Locator;
-  readonly saveMenuOptions: {
-    readonly save: Locator;
-    readonly saveGlobally: Locator;
-  };
-  readonly confirmButton: Locator;
-  readonly confirmGloballyButton: Locator;
-  readonly confirmMenuButton: Locator;
-  readonly confirmMenuOptions: {
-    readonly confirm: Locator;
-    readonly confirmGlobally: Locator;
-  };
-  readonly deleteButton: Locator;
-  readonly deleteGloballyButton: Locator;
-  readonly deleteMenuButton: Locator;
-  readonly deleteMenuOptions: {
-    readonly delete: Locator;
-    readonly deleteGlobally: Locator;
-  };
-  readonly revertButton: Locator;
   readonly compareButton: Locator;
-  readonly showHideSignalButton: Locator;
+  readonly confirmButton: Locator;
+  readonly deleteButton: Locator;
+  readonly linkButton: Locator;
+  readonly replaceButton: Locator;
+  readonly restoreButton: Locator;
+  readonly revertButton: Locator;
+  readonly saveButton: Locator;
 
   constructor(window: Page) {
-    this.window = window;
     this.node = window.getByLabel('attribution column');
     this.attributionForm = new AttributionForm(this.node, window);
     this.confirmButton = this.node.getByRole('button', {
-      name: 'Confirm',
+      name: text.attributionColumn.confirm,
       exact: true,
     });
-    this.confirmGloballyButton = this.node.getByRole('button', {
-      name: 'Confirm globally',
-      exact: true,
-    });
-    this.confirmMenuButton = this.node.getByLabel('save menu button');
-    this.confirmMenuOptions = {
-      confirm: this.window.getByRole('menuitem').getByText('Confirm', {
-        exact: true,
-      }),
-      confirmGlobally: this.window
-        .getByRole('menuitem')
-        .getByText('Confirm globally', { exact: true }),
-    };
     this.saveButton = this.node.getByRole('button', {
-      name: 'Save',
+      name: text.attributionColumn.save,
       exact: true,
     });
-    this.saveMenuButton = this.node.getByLabel('save menu button');
-    this.saveMenuOptions = {
-      save: this.window.getByRole('menuitem').getByText('Save', {
-        exact: true,
-      }),
-      saveGlobally: this.window
-        .getByRole('menuitem')
-        .getByText('Save globally', {
-          exact: true,
-        }),
-    };
-    this.saveGloballyButton = this.node.getByRole('button', {
-      name: 'Save globally',
+    this.restoreButton = this.node.getByRole('button', {
+      name: text.attributionColumn.restore,
+      exact: true,
+    });
+    this.linkButton = this.node.getByRole('button', {
+      name: text.attributionColumn.link,
       exact: true,
     });
     this.deleteButton = this.node.getByRole('button', {
-      name: 'Delete',
+      name: text.attributionColumn.delete,
       exact: true,
     });
-    this.deleteGloballyButton = this.node.getByRole('button', {
-      name: 'Delete globally',
-      exact: true,
-    });
-    this.deleteMenuButton = this.node.getByLabel('delete menu button');
-    this.deleteMenuOptions = {
-      delete: this.window
-        .getByRole('menuitem')
-        .getByText('Delete', { exact: true }),
-      deleteGlobally: this.window
-        .getByRole('menuitem')
-        .getByText('Delete globally', { exact: true }),
-    };
     this.revertButton = this.node.getByRole('button', {
-      name: 'Revert',
+      name: text.attributionColumn.revert,
+      exact: true,
+    });
+    this.replaceButton = this.node.getByRole('button', {
+      name: text.attributionColumn.replace,
       exact: true,
     });
     this.compareButton = this.node.getByRole('button', {
-      name: text.buttons.compareToOriginal,
+      name: text.attributionColumn.compareToOriginal,
       exact: true,
     });
-    this.showHideSignalButton = this.node.getByLabel('resolve attribution');
   }
 
   public assert = {
@@ -129,17 +81,11 @@ export class AttributionDetails {
     revertButtonIsDisabled: async (): Promise<void> => {
       await expect(this.revertButton).toBeDisabled();
     },
-    saveGloballyButtonIsVisible: async (): Promise<void> => {
-      await expect(this.saveGloballyButton).toBeVisible();
+    revertButtonIsVisible: async (): Promise<void> => {
+      await expect(this.revertButton).toBeVisible();
     },
-    saveGloballyButtonIsHidden: async (): Promise<void> => {
-      await expect(this.saveGloballyButton).toBeHidden();
-    },
-    saveGloballyButtonIsEnabled: async (): Promise<void> => {
-      await expect(this.saveGloballyButton).toBeEnabled();
-    },
-    saveGloballyButtonIsDisabled: async (): Promise<void> => {
-      await expect(this.saveGloballyButton).toBeDisabled();
+    revertButtonIsHidden: async (): Promise<void> => {
+      await expect(this.revertButton).toBeHidden();
     },
     confirmButtonIsVisible: async (): Promise<void> => {
       await expect(this.confirmButton).toBeVisible();
@@ -147,11 +93,11 @@ export class AttributionDetails {
     confirmButtonIsHidden: async (): Promise<void> => {
       await expect(this.confirmButton).toBeHidden();
     },
-    confirmGloballyButtonIsVisible: async (): Promise<void> => {
-      await expect(this.confirmGloballyButton).toBeVisible();
+    confirmButtonIsEnabled: async (): Promise<void> => {
+      await expect(this.confirmButton).toBeEnabled();
     },
-    confirmGloballyButtonIsHidden: async (): Promise<void> => {
-      await expect(this.confirmGloballyButton).toBeHidden();
+    confirmButtonIsDisabled: async (): Promise<void> => {
+      await expect(this.confirmButton).toBeDisabled();
     },
     deleteButtonIsVisible: async (): Promise<void> => {
       await expect(this.deleteButton).toBeVisible();
@@ -159,50 +105,35 @@ export class AttributionDetails {
     deleteButtonIsHidden: async (): Promise<void> => {
       await expect(this.deleteButton).toBeHidden();
     },
-    deleteGloballyButtonIsVisible: async (): Promise<void> => {
-      await expect(this.deleteGloballyButton).toBeVisible();
-    },
-    deleteGloballyButtonIsHidden: async (): Promise<void> => {
-      await expect(this.deleteGloballyButton).toBeHidden();
-    },
-    revertButtonIsVisible: async (): Promise<void> => {
-      await expect(this.revertButton).toBeVisible();
-    },
-    revertButtonIsHidden: async (): Promise<void> => {
-      await expect(this.revertButton).toBeHidden();
-    },
-    compareButtonIsEnabled: async (): Promise<void> => {
-      await expect(this.compareButton).toBeEnabled();
-    },
     compareButtonIsHidden: async (): Promise<void> => {
       await expect(this.compareButton).toBeHidden();
     },
-    showHideSignalButtonIsVisible: async (): Promise<void> => {
-      await expect(this.showHideSignalButton).toBeVisible();
+    compareButtonIsVisible: async (): Promise<void> => {
+      await expect(this.compareButton).toBeVisible();
     },
-    showHideSignalButtonIsHidden: async (): Promise<void> => {
-      await expect(this.showHideSignalButton).toBeHidden();
+    replaceButtonIsVisible: async (): Promise<void> => {
+      await expect(this.replaceButton).toBeVisible();
+    },
+    replaceButtonIsHidden: async (): Promise<void> => {
+      await expect(this.replaceButton).toBeHidden();
+    },
+    restoreButtonIsVisible: async (): Promise<void> => {
+      await expect(this.restoreButton).toBeVisible();
+    },
+    restoreButtonIsHidden: async (): Promise<void> => {
+      await expect(this.restoreButton).toBeHidden();
+    },
+    linkButtonIsVisible: async (): Promise<void> => {
+      await expect(this.linkButton).toBeVisible();
+    },
+    linkButtonIsHidden: async (): Promise<void> => {
+      await expect(this.linkButton).toBeHidden();
+    },
+    linkButtonIsEnabled: async (): Promise<void> => {
+      await expect(this.linkButton).toBeEnabled();
+    },
+    linkButtonIsDisabled: async (): Promise<void> => {
+      await expect(this.linkButton).toBeDisabled();
     },
   };
-
-  async selectSaveMenuOption(
-    option: keyof typeof this.saveMenuOptions,
-  ): Promise<void> {
-    await this.saveMenuButton.click();
-    await this.saveMenuOptions[option].click();
-  }
-
-  async selectConfirmMenuOption(
-    option: keyof typeof this.confirmMenuOptions,
-  ): Promise<void> {
-    await this.confirmMenuButton.click();
-    await this.confirmMenuOptions[option].click();
-  }
-
-  async selectDeleteMenuOption(
-    option: keyof typeof this.deleteMenuOptions,
-  ): Promise<void> {
-    await this.deleteMenuButton.click();
-    await this.deleteMenuOptions[option].click();
-  }
 }

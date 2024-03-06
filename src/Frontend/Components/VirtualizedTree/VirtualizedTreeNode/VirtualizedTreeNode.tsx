@@ -4,27 +4,28 @@
 // SPDX-License-Identifier: Apache-2.0
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
-import { ReactElement } from 'react';
 
-import {
-  isBreakpointOrChildOfBreakpoint,
-  isChildOfSelected,
-  isSelected,
-  NodesForTree,
-  TreeNodeStyle,
-} from '../VirtualizedTree.util';
+import { Resources } from '../../../../shared/shared-types';
+import { OpossumColors } from '../../../shared-styles';
+import { getNodeIdsToExpand } from './VirtualizedTreeNode.util';
 
 const INDENT_PER_DEPTH_LEVEL = 12;
 const SIMPLE_NODE_EXTRA_INDENT = 28;
+const SIMPLE_FOLDER_EXTRA_INDENT = 16;
 
 const classes = {
   treeNodeSpacer: {
+    position: 'relative',
+    zIndex: 1,
     flexShrink: 0,
   },
   listNode: {
     display: 'flex',
+    height: '20px',
+    '&:hover .tree-node-selected-indicator': {
+      display: 'block',
+    },
   },
   clickableIcon: {
     width: '16px',
@@ -32,99 +33,123 @@ const classes = {
     padding: '0px',
     margin: '0px',
   },
+  treeItemLabel: {
+    position: 'relative',
+    zIndex: 1,
+    whiteSpace: 'nowrap',
+    userSelect: 'none',
+  },
+  treeExpandIcon: {
+    position: 'relative',
+    zIndex: 1,
+    width: '16px',
+    height: '20px',
+    padding: '0px',
+    margin: '0px',
+    color: OpossumColors.darkBlue,
+    '&:hover': {
+      color: OpossumColors.black,
+    },
+  },
+  treeNodeSelectedIndicator: {
+    position: 'absolute',
+    width: '100%',
+    height: '20px',
+    background: 'white',
+    zIndex: 0,
+    left: 0,
+  },
 };
 
-export interface VirtualizedTreeNodeData {
-  nodeId: string;
+export interface TreeNode {
   nodeName: string;
-  node: NodesForTree | 1;
-  isExpandable: boolean;
-  selected: string;
-  onClick: (event: React.ChangeEvent<unknown>) => void;
-  onToggle: (nodeIdsToExpand: Array<string>) => void;
-  isExpandedNode: boolean;
-  nodeIdsToExpand: Array<string>;
-  getTreeNodeLabel: (
-    nodeName: string,
-    node: NodesForTree | 1,
-    nodeId: string,
-  ) => ReactElement;
-  expandedNodeIcon?: ReactElement;
-  nonExpandedNodeIcon?: ReactElement;
-  treeNodeStyle?: TreeNodeStyle;
-  breakpoints?: Set<string>;
-  isLocatedNode: boolean;
-  locatedResourceIcon?: ReactElement;
+  node: Resources | 1;
+  nodeId: string;
 }
 
-export function VirtualizedTreeNode(
-  props: VirtualizedTreeNodeData,
-): ReactElement | null {
+interface VirtualizedTreeNodeProps extends TreeNode {
+  TreeNodeLabel: React.FC<TreeNode>;
+  isExpandedNode: boolean;
+  onSelect: (nodeId: string) => void;
+  onToggle: (nodeIdsToExpand: Array<string>) => void;
+  readOnly?: boolean;
+  selected: boolean;
+}
+
+export function VirtualizedTreeNode({
+  TreeNodeLabel,
+  isExpandedNode,
+  node,
+  nodeId,
+  nodeName,
+  onSelect,
+  onToggle,
+  readOnly,
+  selected,
+}: VirtualizedTreeNodeProps) {
+  const isExpandable = node !== 1 && Object.keys(node).length !== 0;
   const marginRight =
-    ((props.nodeId.match(/\//g) || []).length - 1) * INDENT_PER_DEPTH_LEVEL +
-    (!props.isExpandable ? SIMPLE_NODE_EXTRA_INDENT : 0);
+    ((nodeId.match(/\//g) || []).length - 1) * INDENT_PER_DEPTH_LEVEL +
+    (isExpandable
+      ? 0
+      : nodeId.endsWith('/')
+        ? SIMPLE_FOLDER_EXTRA_INDENT
+        : SIMPLE_NODE_EXTRA_INDENT);
+
+  const handleClick = readOnly
+    ? undefined
+    : () => {
+        if (isExpandable && !isExpandedNode) {
+          onToggle(getNodeIdsToExpand(nodeId, node));
+        }
+        onSelect(nodeId);
+      };
 
   return (
-    <MuiBox sx={classes.listNode}>
+    <MuiBox sx={classes.listNode} onClick={handleClick}>
       <MuiBox sx={classes.treeNodeSpacer} style={{ width: marginRight }} />
-      {props.isExpandable
-        ? getExpandableNodeIcon(
-            props.isExpandedNode,
-            props.nodeId,
-            props.nodeIdsToExpand,
-            props.onToggle,
-            props.treeNodeStyle?.treeExpandIcon || classes.clickableIcon,
-            props.expandedNodeIcon,
-            props.nonExpandedNodeIcon,
-          )
-        : null}
+      {renderExpandableNodeIcon()}
       <MuiBox
-        sx={
-          {
-            ...(props.treeNodeStyle?.root || {}),
-            ...((isSelected(props.nodeId, props.selected)
-              ? props.treeNodeStyle?.selected
-              : isChildOfSelected(props.nodeId, props.selected)
-                ? !isBreakpointOrChildOfBreakpoint(
-                    props.nodeId,
-                    props.selected,
-                    props.breakpoints,
-                  )
-                  ? props.treeNodeStyle?.childrenOfSelected
-                  : null
-                : null) || {}),
-          } as SxProps
-        }
-        onClick={props.onClick}
+        sx={{
+          ...classes.treeItemLabel,
+          cursor: handleClick ? 'pointer' : 'default',
+        }}
       >
-        {props.getTreeNodeLabel(props.nodeName, props.node, props.nodeId)}
+        <TreeNodeLabel nodeName={nodeName} node={node} nodeId={nodeId} />
       </MuiBox>
       <MuiBox />
-      {props.isLocatedNode ? props.locatedResourceIcon : null}
+      <MuiBox
+        className={'tree-node-selected-indicator'}
+        sx={{
+          ...classes.treeNodeSelectedIndicator,
+          display: selected ? 'block' : 'none',
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          opacity: selected ? 1 : 0.5,
+          cursor: handleClick ? 'pointer' : 'default',
+        }}
+      />
     </MuiBox>
   );
-}
 
-function getExpandableNodeIcon(
-  isExpandedNode: boolean,
-  nodeId: string,
-  nodeIdsToExpand: Array<string>,
-  onToggle: (nodeIdsToExpand: Array<string>) => void,
-  sx: SxProps,
-  expandedNodeIcon: ReactElement = <ExpandMoreIcon sx={sx} />,
-  nonExpandedNodeIcon: ReactElement = <ChevronRightIcon sx={sx} />,
-): ReactElement {
-  const ariaLabel = isExpandedNode ? `collapse ${nodeId}` : `expand ${nodeId}`;
-  const icon = isExpandedNode ? expandedNodeIcon : nonExpandedNodeIcon;
-  return (
-    <MuiBox
-      onClick={(event): void => {
-        event.stopPropagation();
-        onToggle(nodeIdsToExpand);
-      }}
-      aria-label={ariaLabel}
-    >
-      {icon}
-    </MuiBox>
-  );
+  function renderExpandableNodeIcon() {
+    if (!isExpandable) {
+      return null;
+    }
+
+    return (
+      <MuiBox
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggle(getNodeIdsToExpand(nodeId, node));
+        }}
+        aria-label={isExpandedNode ? `collapse ${nodeId}` : `expand ${nodeId}`}
+      >
+        {isExpandedNode ? (
+          <ExpandMoreIcon sx={classes.treeExpandIcon} />
+        ) : (
+          <ChevronRightIcon sx={classes.treeExpandIcon} />
+        )}
+      </MuiBox>
+    );
+  }
 }

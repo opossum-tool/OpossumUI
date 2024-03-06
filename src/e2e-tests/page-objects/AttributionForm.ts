@@ -5,7 +5,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 
 import { RawFrequentLicense } from '../../ElectronBackend/types/types';
-import { DiscreteConfidence, RawPackageInfo } from '../../shared/shared-types';
+import { RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 
 export class AttributionForm {
@@ -17,6 +17,7 @@ export class AttributionForm {
   readonly version: Locator;
   readonly purl: Locator;
   readonly url: Locator;
+  readonly comment: Locator;
   readonly copyright: Locator;
   readonly licenseName: Locator;
   readonly licenseText: Locator;
@@ -31,6 +32,7 @@ export class AttributionForm {
   };
   readonly auditingLabels: {
     readonly confidenceLabel: Locator;
+    readonly criticalityLabel: Locator;
     readonly currentlyPreferredLabel: Locator;
     readonly excludedFromNoticeLabel: Locator;
     readonly followUpLabel: Locator;
@@ -49,33 +51,29 @@ export class AttributionForm {
   constructor(context: Locator, window: Page) {
     this.window = window;
     this.node = context;
-    this.type = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.packageType,
-      { exact: true },
-    );
+    this.type = this.node.getByLabel(text.attributionColumn.packageType, {
+      exact: true,
+    });
     this.namespace = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.packageNamespace,
+      text.attributionColumn.packageNamespace,
       {
         exact: true,
       },
     );
     this.attributionType = this.node.getByRole('group');
-    this.name = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.packageName,
-      { exact: true },
-    );
-    this.version = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.packageVersion,
-      { exact: true },
-    );
-    this.purl = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.purl,
-      { exact: true },
-    );
-    this.url = this.node.getByLabel(
-      text.attributionColumn.packageSubPanel.repositoryUrl,
-      { exact: true },
-    );
+    this.name = this.node.getByLabel(text.attributionColumn.packageName, {
+      exact: true,
+    });
+    this.version = this.node.getByLabel(text.attributionColumn.packageVersion, {
+      exact: true,
+    });
+    this.purl = this.node.getByLabel(text.attributionColumn.purl, {
+      exact: true,
+    });
+    this.url = this.node.getByLabel(text.attributionColumn.repositoryUrl, {
+      exact: true,
+    });
+    this.comment = this.node.getByLabel('Comment', { exact: true });
     this.copyright = this.node.getByLabel('Copyright', { exact: true });
     this.licenseName = this.node.getByLabel(
       text.attributionColumn.licenseName,
@@ -91,6 +89,7 @@ export class AttributionForm {
     this.auditingLabels = {
       sourceLabel: this.node.getByTestId('auditing-option-source'),
       confidenceLabel: this.node.getByTestId('auditing-option-confidence'),
+      criticalityLabel: this.node.getByTestId('auditing-option-criticality'),
       preselectedLabel: this.node.getByTestId('auditing-option-pre-selected'),
       currentlyPreferredLabel: this.node.getByTestId(
         'auditing-option-preferred',
@@ -129,21 +128,14 @@ export class AttributionForm {
     this.attributionTypeRedoButton = this.node.getByTestId('firstParty-redo');
   }
 
-  public comment(number = 0): Locator {
-    return this.node.getByLabel(number ? `Comment ${number}` : 'Comment', {
-      exact: true,
-    });
-  }
-
   public assert = {
     isEmpty: async (): Promise<void> => {
       await expect(this.name).toBeEmpty();
       await expect(this.version).toBeEmpty();
       await expect(this.purl).toBeEmpty();
       await expect(this.url).toBeEmpty();
-      await expect(this.comment()).toBeEmpty();
+      await expect(this.comment).toBeEmpty();
       await expect(this.licenseName).toBeEmpty();
-      await this.assert.confidenceIs(DiscreteConfidence.High);
       await this.assert.attributionTypeIs('Third Party');
     },
     typeIs: async (type: string): Promise<void> => {
@@ -191,8 +183,8 @@ export class AttributionForm {
     licenseTextIsHidden: async (): Promise<void> => {
       await expect(this.licenseText).toBeHidden();
     },
-    commentIs: async (comment: string, number = 0): Promise<void> => {
-      await expect(this.comment(number)).toHaveValue(comment);
+    commentIs: async (comment: string): Promise<void> => {
+      await expect(this.comment).toHaveValue(comment);
     },
     matchesPackageInfo: async ({
       attributionConfidence,
@@ -317,7 +309,9 @@ export class AttributionForm {
     await this.auditingLabels[label].getByTestId('CancelIcon').click();
   }
 
-  async selectAttributionType(type: string): Promise<void> {
+  async selectAttributionType(
+    type: 'First Party' | 'Third Party',
+  ): Promise<void> {
     await this.attributionType
       .getByRole('button', { name: type, exact: true })
       .click();

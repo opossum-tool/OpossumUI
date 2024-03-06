@@ -58,6 +58,12 @@ export async function main(): Promise<void> {
       },
     );
 
+    ipcMain.handle(IpcChannel.Quit, () => {
+      mainWindow.close();
+    });
+    ipcMain.handle(IpcChannel.Relaunch, () => {
+      mainWindow.reload();
+    });
     ipcMain.handle(
       IpcChannel.ConvertInputFile,
       getConvertInputFileToDotOpossumAndOpenListener(mainWindow),

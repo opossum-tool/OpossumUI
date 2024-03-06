@@ -18,11 +18,12 @@ import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { getCalculatePreferredOverOriginIds } from '../../actions/resource-actions/preference-actions';
 import { createAppStore } from '../../configure-store';
 import { initialResourceState } from '../../reducers/resource-reducer';
-import { getManualData } from '../../selectors/all-views-resource-selectors';
+import { getManualData } from '../../selectors/resource-selectors';
 import {
   _getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions,
   _removeAttributionsFromChildrenAndParents,
   _removeManualAttributionFromChildrenIfAllAreIdentical,
+  computeChildrenWithAttributions,
   createManualAttribution,
   deleteManualAttribution,
   linkToAttributionManualData,
@@ -146,7 +147,8 @@ describe('The deleteManualAttribution function', () => {
     const newManualData: AttributionData = deleteManualAttribution(
       testManualData,
       testUuid,
-      () => false,
+      new Set(),
+      new Set(),
       getCalculatePreferredOverOriginIds(initialResourceState),
     );
     expect(isEmpty(newManualData.attributions)).toBe(true);
@@ -154,11 +156,8 @@ describe('The deleteManualAttribution function', () => {
     expect(isEmpty(newManualData.attributionsToResources)).toBe(true);
     expect(newManualData.resourcesWithAttributedChildren).toEqual({
       attributedChildren: {},
-      pathsToIndices: {
-        '/': 0,
-        '/first/': 1,
-      },
-      paths: ['/', '/first/'],
+      pathsToIndices: {},
+      paths: [],
     });
   });
 
@@ -198,7 +197,8 @@ describe('The deleteManualAttribution function', () => {
     const newManualData: AttributionData = deleteManualAttribution(
       testManualData,
       testUuid,
-      () => false,
+      new Set(),
+      new Set(),
       getCalculatePreferredOverOriginIds(initialResourceState),
     );
     expect(newManualData.attributions).toEqual<Attributions>({
@@ -266,7 +266,8 @@ describe('The deleteManualAttribution function', () => {
     const newManualData: AttributionData = deleteManualAttribution(
       testManualData,
       'manualUuid2',
-      () => false,
+      new Set(),
+      new Set(),
       getCalculatePreferredOverOriginIds(resourceState),
     );
 
@@ -350,7 +351,7 @@ describe('The linkToAttributionManualData function', () => {
       testManualData,
       '/first/',
       testUuid,
-      () => false,
+      new Set(),
       getCalculatePreferredOverOriginIds(initialResourceState),
     );
 
@@ -423,7 +424,7 @@ describe('The linkToAttributionManualData function', () => {
       testManualData,
       testSelectedResourceId,
       'childAttributionUuid',
-      () => false,
+      new Set(),
       getCalculatePreferredOverOriginIds(resourceState),
     );
 
@@ -470,6 +471,7 @@ describe('The unlinkResourceFromAttributionId function', () => {
       testManualData,
       '/first/',
       testUuid,
+      new Set(),
       getCalculatePreferredOverOriginIds(initialResourceState),
     );
 
@@ -478,11 +480,8 @@ describe('The unlinkResourceFromAttributionId function', () => {
     expect(isEmpty(newManualData.attributionsToResources)).toBe(true);
     expect(newManualData.resourcesWithAttributedChildren).toEqual({
       attributedChildren: {},
-      pathsToIndices: {
-        '/': 0,
-        '/first/': 1,
-      },
-      paths: ['/', '/first/'],
+      pathsToIndices: {},
+      paths: [],
     });
   });
 
@@ -536,6 +535,7 @@ describe('The unlinkResourceFromAttributionId function', () => {
       testManualData,
       testSelectedResourceId,
       'childAttributionUuid',
+      new Set(),
       getCalculatePreferredOverOriginIds(resourceState),
     );
 
@@ -612,7 +612,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
     _removeManualAttributionFromChildrenIfAllAreIdentical(
       testManualData,
       ['/first/second/', '/first/second/third/'],
-      () => false,
+      new Set(),
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
@@ -734,7 +734,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
         '/first/second/third/',
         '/first/second/third/fourth',
       ],
-      () => false,
+      new Set(),
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
@@ -855,7 +855,7 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
     _removeAttributionsFromChildrenAndParents(
       testManualData,
       [testSelectedResourceId],
-      () => false,
+      new Set(),
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
@@ -952,7 +952,7 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
     _removeAttributionsFromChildrenAndParents(
       testManualData,
       [testSelectedResourceId],
-      () => false,
+      new Set(),
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
@@ -1015,5 +1015,38 @@ describe('_getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions', () =>
         testAttributionId,
       ),
     ).toEqual(expectedOutput);
+  });
+});
+
+describe('computeChildrenWithAttributions', () => {
+  it('parses ResourcesWithAttributionsFromDb', () => {
+    const testUuid = faker.string.uuid();
+    const attributionsToResources: AttributionsToResources = {
+      [testUuid]: ['/root/src/', '/root/src/something.js/subfolder'],
+    };
+    const result = computeChildrenWithAttributions(attributionsToResources);
+
+    expect(result).toEqual({
+      attributedChildren: {
+        '0': new Set<number>().add(3),
+        '1': new Set<number>().add(0).add(3),
+        '2': new Set<number>().add(0).add(3),
+        '4': new Set<number>().add(3),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/src/': 0,
+        '/root/src/something.js/': 4,
+        '/root/src/something.js/subfolder': 3,
+      },
+      paths: [
+        '/root/src/',
+        '/',
+        '/root/',
+        '/root/src/something.js/subfolder',
+        '/root/src/something.js/',
+      ],
+    });
   });
 });

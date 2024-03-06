@@ -2,94 +2,62 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
-import { pickBy } from 'lodash';
-import { useMemo, useState } from 'react';
+import { defer } from 'lodash';
+import { useEffect, useMemo, useRef } from 'react';
+import { TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 
-import { View } from '../../enums/enums';
-import { Filter, filters } from '../../shared-constants';
-import { OpossumColors } from '../../shared-styles';
-import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { navigateToView } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { useAppSelector } from '../../state/hooks';
+import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
+import { useFilteredAttributionsInReportView } from '../../state/variables/use-filtered-data';
+import { ReportTableHeader } from '../ReportTableHeader/ReportTableHeader';
 import {
-  getFilesWithChildren,
-  getManualAttributions,
-  getManualAttributionsToResources,
-} from '../../state/selectors/all-views-resource-selectors';
-import { getAttributionsWithResources } from '../../util/get-attributions-with-resources';
-import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { FILTER_FUNCTIONS } from '../../web-workers/scripts/get-filtered-attributions';
-import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
-import { FILTER_ICONS } from '../AttributionList/AttributionList.util';
-import { Autocomplete } from '../Autocomplete/Autocomplete';
-import { Table } from '../Table/Table';
+  REPORT_VIEW_ROW_HEIGHT,
+  ReportTableItem,
+} from '../ReportTableItem/ReportTableItem';
+import { TABLE_COMPONENTS } from './TableConfig';
 
-const classes = {
-  root: {
-    width: '100vw',
-    height: '100%',
-    backgroundColor: OpossumColors.lightestBlue,
-  },
-};
+export const ReportView: React.FC = () => {
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
-export function ReportView() {
-  const attributionsToResources = useAppSelector(
-    getManualAttributionsToResources,
+  const ref = useRef<TableVirtuosoHandle>(null);
+
+  const [{ attributions }] = useFilteredAttributionsInReportView();
+  const packageInfos = attributions && Object.values(attributions);
+
+  const selectedIndex = useMemo(
+    () => packageInfos?.findIndex(({ id }) => id === selectedAttributionId),
+    [packageInfos, selectedAttributionId],
   );
-  const manualAttributions = useAppSelector(getManualAttributions);
-  const filesWithChildren = useAppSelector(getFilesWithChildren);
 
-  const [selectedFilters, setActiveFilters] = useState<Array<Filter>>([]);
-  const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
-  const dispatch = useAppDispatch();
+  useEffect(() => {
+    if (selectedIndex !== undefined && selectedIndex >= 0) {
+      defer(() =>
+        ref.current?.scrollIntoView({
+          index: selectedIndex,
+          align: 'center',
+        }),
+      );
+    }
+  }, [selectedIndex]);
 
-  const attributionsWithResources = getAttributionsWithResources(
-    useMemo(
-      () =>
-        selectedFilters.length
-          ? pickBy(manualAttributions, (attribution) =>
-              selectedFilters.every((filter) =>
-                FILTER_FUNCTIONS[filter](attribution),
-              ),
-            )
-          : manualAttributions,
-      [selectedFilters, manualAttributions],
-    ),
-    attributionsToResources,
-  );
+  if (!packageInfos) {
+    return null;
+  }
 
   return (
-    <MuiBox aria-label={'report view'} sx={classes.root}>
-      <Table
-        attributionsWithResources={attributionsWithResources}
-        isFileWithChildren={isFileWithChildren}
-        onIconClick={(attributionId) => {
-          dispatch(
-            changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId),
-          );
-          dispatch(navigateToView(View.Attribution));
-        }}
-        topElement={
-          <MuiBox sx={{ display: 'flex', alignItems: 'center' }}>
-            <Autocomplete<Filter, true, false, false>
-              options={filters}
-              optionText={{ primary: (option) => option }}
-              multiple
-              title={'Filter'}
-              value={selectedFilters}
-              onChange={(_, value) => setActiveFilters(value)}
-              renderOptionStartIcon={(option) => FILTER_ICONS[option]}
-              filterSelectedOptions
-              sx={{ flex: 'initial', width: 300 }}
-              aria-label={'attribution filters'}
-            />
-            <AttributionCountsPanel
-              sx={{ display: 'inline-block', margin: '20px' }}
-            />
-          </MuiBox>
-        }
-      />
-    </MuiBox>
+    <TableVirtuoso
+      aria-label={'report view'}
+      ref={ref}
+      // https://github.com/petyosi/react-virtuoso/issues/609
+      style={{ overflowAnchor: 'none' }}
+      components={TABLE_COMPONENTS}
+      fixedHeaderContent={() => <ReportTableHeader />}
+      data={packageInfos}
+      fixedItemHeight={REPORT_VIEW_ROW_HEIGHT}
+      defaultItemHeight={REPORT_VIEW_ROW_HEIGHT}
+      itemContent={(_, packageInfo) => (
+        <ReportTableItem packageInfo={packageInfo} />
+      )}
+    />
   );
-}
+};

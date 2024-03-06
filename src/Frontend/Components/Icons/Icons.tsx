@@ -4,36 +4,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AnnouncementIcon from '@mui/icons-material/Announcement';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ExploreIcon from '@mui/icons-material/Explore';
 import Filter1Icon from '@mui/icons-material/Filter1';
 import FolderOutlinedIcon from '@mui/icons-material/Folder';
-import InsertCommentIcon from '@mui/icons-material/InsertComment';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
-import MyLocationIcon from '@mui/icons-material/MyLocation';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
-import RectangleIcon from '@mui/icons-material/Rectangle';
 import ReplayIcon from '@mui/icons-material/Replay';
-import SearchIcon from '@mui/icons-material/Search';
-import SortIcon from '@mui/icons-material/Sort';
+import RuleIcon from '@mui/icons-material/Rule';
 import StarIcon from '@mui/icons-material/Star';
+import WhatshotIcon from '@mui/icons-material/Whatshot';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import { SxProps } from '@mui/material';
-import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
-import { ReactElement } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import {
-  baseIcon,
-  criticalityColor,
-  OpossumColors,
-  tooltipStyle,
-} from '../../shared-styles';
-import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
+import { baseIcon, criticalityColor, OpossumColors } from '../../shared-styles';
 
 const classes = {
   nonClickableIcon: {
@@ -49,23 +37,13 @@ const classes = {
   resourceDefaultColor: {
     color: OpossumColors.middleBlue,
   },
-  tooltip: tooltipStyle,
-};
-
-const criticalityTooltipText = {
-  high: 'has high criticality signals',
-  medium: 'has medium criticality signals',
-  undefined: 'has signals',
 };
 
 interface IconProps {
   sx?: SxProps;
   noTooltip?: boolean;
   className?: string;
-}
-
-interface SignalIconProps {
-  criticality?: Criticality;
+  tooltipPlacement?: 'top' | 'bottom' | 'left' | 'right';
 }
 
 interface LabelDetailIconProps extends IconProps {
@@ -73,9 +51,18 @@ interface LabelDetailIconProps extends IconProps {
   disabled?: boolean;
 }
 
-export function FirstPartyIcon({ className, noTooltip, sx }: IconProps) {
+export function FirstPartyIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
   return (
-    <MuiTooltip title={noTooltip ? undefined : 'is first party'}>
+    <MuiTooltip
+      title={noTooltip ? undefined : text.filters.firstParty}
+      placement={tooltipPlacement}
+      disableInteractive
+    >
       <Filter1Icon
         aria-label={'First party icon'}
         sx={{
@@ -89,24 +76,17 @@ export function FirstPartyIcon({ className, noTooltip, sx }: IconProps) {
   );
 }
 
-export function CommentIcon(props: IconProps) {
-  return (
-    <MuiTooltip sx={classes.tooltip} title="has comment">
-      <InsertCommentIcon
-        aria-label={'Comment icon'}
-        sx={getSxFromPropsAndClasses({
-          styleClass: classes.nonClickableIcon,
-          sxProps: props.sx,
-        })}
-      />
-    </MuiTooltip>
-  );
-}
-
-export function ExcludeFromNoticeIcon({ className, noTooltip, sx }: IconProps) {
+export function ExcludeFromNoticeIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
   return (
     <MuiTooltip
       title={noTooltip ? undefined : text.auditingOptions.excludedFromNotice}
+      placement={tooltipPlacement}
+      disableInteractive
     >
       <PlaylistRemoveIcon
         aria-label={'Exclude from notice icon'}
@@ -121,9 +101,43 @@ export function ExcludeFromNoticeIcon({ className, noTooltip, sx }: IconProps) {
   );
 }
 
-export function FollowUpIcon({ className, noTooltip, sx }: IconProps) {
+export function IncompleteIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
   return (
-    <MuiTooltip title={noTooltip ? undefined : text.auditingOptions.followUp}>
+    <MuiTooltip
+      title={noTooltip ? undefined : text.packageLists.incompleteInformation}
+      placement={tooltipPlacement}
+      disableInteractive
+    >
+      <RuleIcon
+        aria-label={'Incomplete icon'}
+        sx={{
+          ...baseIcon,
+          color: `${OpossumColors.brown} !important`,
+          ...sx,
+        }}
+        className={className}
+      />
+    </MuiTooltip>
+  );
+}
+
+export function FollowUpIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
+  return (
+    <MuiTooltip
+      title={noTooltip ? undefined : text.auditingOptions.followUp}
+      placement={tooltipPlacement}
+      disableInteractive
+    >
       <ReplayIcon
         aria-label={'Follow-up icon'}
         sx={{
@@ -137,10 +151,17 @@ export function FollowUpIcon({ className, noTooltip, sx }: IconProps) {
   );
 }
 
-export function NeedsReviewIcon({ className, noTooltip, sx }: IconProps) {
+export function NeedsReviewIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
   return (
     <MuiTooltip
       title={noTooltip ? undefined : text.auditingOptions.needsReview}
+      placement={tooltipPlacement}
+      disableInteractive
     >
       <QuestionMarkIcon
         aria-label={'Needs-review icon'}
@@ -155,40 +176,76 @@ export function NeedsReviewIcon({ className, noTooltip, sx }: IconProps) {
   );
 }
 
-export function SignalIcon(props: SignalIconProps) {
+export function CriticalityIcon({
+  className,
+  criticality,
+  noTooltip,
+  tooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps & {
+  criticality?: Criticality;
+  tooltip?: string;
+}) {
+  if (!criticality) {
+    return null;
+  }
+
   return (
     <MuiTooltip
-      sx={classes.tooltip}
-      title={criticalityTooltipText[props.criticality ?? 'undefined']}
+      title={noTooltip ? undefined : tooltip}
+      placement={tooltipPlacement}
+      disableInteractive
+    >
+      <WhatshotIcon
+        aria-label={'Criticality icon'}
+        sx={{
+          ...baseIcon,
+          color: `${criticalityColor[criticality]} !important`,
+          ...sx,
+        }}
+        className={className}
+      />
+    </MuiTooltip>
+  );
+}
+
+export function SignalIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
+  return (
+    <MuiTooltip
+      title={noTooltip ? undefined : text.resourceBrowser.hasSignals}
+      placement={tooltipPlacement || 'right'}
+      disableInteractive
     >
       <AnnouncementIcon
         aria-label={'Signal icon'}
         sx={{
           ...baseIcon,
-          color: criticalityColor[props.criticality ?? 'undefined'],
+          color: `${OpossumColors.darkBlue} !important`,
+          ...sx,
         }}
+        className={className}
       />
     </MuiTooltip>
   );
 }
 
 export function DirectoryIcon({ sx, labelDetail }: LabelDetailIconProps) {
-  const sxProps = sx
-    ? getSxFromPropsAndClasses({
-        styleClass: classes.resourceIcon,
-        sxProps: sx,
-      })
-    : {
-        ...classes.resourceIcon,
-        ...classes.resourceDefaultColor,
-      };
-
   return (
     <FolderOutlinedIcon
       aria-label={
         labelDetail ? `Directory icon ${labelDetail}` : 'Directory icon'
       }
-      sx={sxProps}
+      sx={{
+        ...classes.resourceIcon,
+        ...classes.resourceDefaultColor,
+        ...sx,
+      }}
     />
   );
 }
@@ -203,28 +260,29 @@ export function BreakpointIcon() {
 }
 
 export function FileIcon({ sx, labelDetail }: LabelDetailIconProps) {
-  const sxProps = sx
-    ? getSxFromPropsAndClasses({
-        styleClass: classes.resourceIcon,
-        sxProps: sx,
-      })
-    : {
-        ...classes.resourceIcon,
-        ...classes.resourceDefaultColor,
-      };
-
   return (
     <DescriptionIcon
       aria-label={labelDetail ? `File icon ${labelDetail}` : 'File icon'}
-      sx={sxProps}
+      sx={{
+        ...classes.resourceIcon,
+        ...classes.resourceDefaultColor,
+        ...sx,
+      }}
     />
   );
 }
 
-export function PreSelectedIcon({ className, noTooltip, sx }: IconProps) {
+export function PreSelectedIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
   return (
     <MuiTooltip
       title={noTooltip ? undefined : text.auditingOptions.preselected}
+      placement={tooltipPlacement}
+      disableInteractive
     >
       <LocalParkingIcon
         aria-label={'Pre-selected icon'}
@@ -239,89 +297,17 @@ export function PreSelectedIcon({ className, noTooltip, sx }: IconProps) {
   );
 }
 
-export function SearchPackagesIcon(props: IconProps) {
-  return (
-    <SearchIcon
-      sx={getSxFromPropsAndClasses({
-        styleClass: classes.nonClickableIcon,
-        sxProps: props.sx,
-      })}
-      aria-label={'Search packages icon'}
-    />
-  );
-}
-
-export function SortAttributionsIcon(props: IconProps): ReactElement {
-  return (
-    <SortIcon
-      sx={getSxFromPropsAndClasses({
-        styleClass: classes.nonClickableIcon,
-        sxProps: props.sx,
-      })}
-      aria-label={'Sort icon'}
-    />
-  );
-}
-
-export function IncompleteAttributionsIcon(props: IconProps) {
-  return (
-    <MuiTooltip sx={classes.tooltip} title="contains incomplete information">
-      <RectangleIcon
-        aria-label={'Incomplete icon'}
-        sx={getSxFromPropsAndClasses({
-          styleClass: classes.nonClickableIcon,
-          sxProps: props.sx,
-        })}
-      />
-    </MuiTooltip>
-  );
-}
-
-export function ManuallyAddedListItemIcon(props: IconProps) {
-  return (
-    <MuiTooltip
-      describeChild={true}
-      sx={classes.tooltip}
-      title={'entry was added manually'}
-      placement={'left'}
-    >
-      <AutoAwesomeIcon sx={props.sx} />
-    </MuiTooltip>
-  );
-}
-
-export function MissingPackageNameIcon(props: IconProps) {
-  return (
-    <MuiTooltip sx={classes.tooltip} title="is missing a package name">
-      <RectangleIcon
-        aria-label={'Missing packagename icon'}
-        sx={getSxFromPropsAndClasses({
-          styleClass: classes.nonClickableIcon,
-          sxProps: props.sx,
-        })}
-      />
-    </MuiTooltip>
-  );
-}
-
-export function LocateSignalsIcon(props: IconProps) {
-  return <MyLocationIcon aria-label={'locate signals icon'} sx={props.sx} />;
-}
-
-export function LocateSignalsIconWithTooltip() {
-  return (
-    <MuiTooltip sx={classes.tooltip} title="signal matches locate filters">
-      <MuiBox>
-        <LocateSignalsIcon sx={classes.nonClickableIcon} />
-      </MuiBox>
-    </MuiTooltip>
-  );
-}
-
-export function PreferredIcon({ className, noTooltip, sx }: IconProps) {
+export function PreferredIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
   return (
     <MuiTooltip
       title={noTooltip ? undefined : text.auditingOptions.currentlyPreferred}
+      placement={tooltipPlacement}
+      disableInteractive
     >
       <StarIcon
         aria-label={'Preferred icon'}
@@ -337,10 +323,17 @@ export function PreferredIcon({ className, noTooltip, sx }: IconProps) {
   );
 }
 
-export function WasPreferredIcon({ className, noTooltip, sx }: IconProps) {
+export function WasPreferredIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
   return (
     <MuiTooltip
       title={noTooltip ? undefined : text.auditingOptions.previouslyPreferred}
+      placement={tooltipPlacement}
+      disableInteractive
     >
       <StarIcon
         aria-label={'Was Preferred icon'}
@@ -356,10 +349,17 @@ export function WasPreferredIcon({ className, noTooltip, sx }: IconProps) {
   );
 }
 
-export function ModifiedPreferredIcon({ className, noTooltip, sx }: IconProps) {
+export function ModifiedPreferredIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
   return (
     <MuiTooltip
       title={noTooltip ? undefined : text.auditingOptions.modifiedPreferred}
+      placement={tooltipPlacement}
+      disableInteractive
     >
       <StarIcon
         aria-label={'Modified preferred icon'}
@@ -374,9 +374,18 @@ export function ModifiedPreferredIcon({ className, noTooltip, sx }: IconProps) {
   );
 }
 
-export function SourceIcon({ className, noTooltip, sx }: IconProps) {
+export function SourceIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
   return (
-    <MuiTooltip title={noTooltip ? undefined : text.attributionColumn.source}>
+    <MuiTooltip
+      title={noTooltip ? undefined : text.attributionColumn.source}
+      placement={tooltipPlacement}
+      disableInteractive
+    >
       <ExploreIcon
         aria-label={'Source icon'}
         sx={{

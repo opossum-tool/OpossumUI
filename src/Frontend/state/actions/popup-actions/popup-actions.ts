@@ -3,72 +3,44 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  PackageInfo,
-  SelectedCriticality,
-} from '../../../../shared/shared-types';
-import { getLicenseNameVariants } from '../../../Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
-import { PackagePanelTitle, PopupType, View } from '../../../enums/enums';
+import { PackageInfo } from '../../../../shared/shared-types';
+import { PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
-import { State } from '../../../types/types';
-import { hasAttributionMultipleResources } from '../../../util/has-attribution-multiple-resources';
 import {
-  getCurrentAttributionId,
-  getDisplayPackageInfoOfSelected,
-  getExternalAttributions,
-  getIsSavingDisabled,
-  getManualAttributions,
-  getManualAttributionsToResources,
-  getResourcesWithLocatedAttributions,
-  getTemporaryDisplayPackageInfo,
-  wereTemporaryDisplayPackageInfoModified,
-} from '../../selectors/all-views-resource-selectors';
-import {
-  getDidPreferredFieldChange,
+  getIsPackageInfoModified,
+  getPackageInfoOfSelectedAttribution,
   getSelectedResourceId,
-} from '../../selectors/audit-view-resource-selectors';
+} from '../../selectors/resource-selectors';
 import {
   getOpenFileRequest,
-  getSelectedView,
   getTargetView,
 } from '../../selectors/view-selector';
-import { AppThunkAction, AppThunkDispatch } from '../../types';
+import { AppThunkAction } from '../../types';
 import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
 import {
   setSelectedAttributionId,
-  setTargetSelectedAttributionId,
-} from '../resource-actions/attribution-view-simple-actions';
-import {
   setSelectedResourceId,
-  setTargetDisplayedPackage,
+  setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../resource-actions/audit-view-simple-actions';
-import { setLocatePopupFilters } from '../resource-actions/locate-popup-actions';
 import {
   openResourceInResourceBrowser,
-  setDisplayedPackageAndResetTemporaryDisplayPackageInfo,
   setSelectedResourceOrAttributionIdToTargetValue,
 } from '../resource-actions/navigation-actions';
-import {
-  savePackageInfo,
-  unlinkAttributionAndSavePackageInfo,
-} from '../resource-actions/save-actions';
 import {
   closePopup,
   navigateToView,
   openPopup,
   setOpenFileRequest,
-  setShowNoSignalsLocatedMessage,
   setTargetView,
 } from '../view-actions/view-actions';
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    if (wereTemporaryDisplayPackageInfoModified(getState())) {
+  return (dispatch, getState) => {
+    if (getIsPackageInfoModified(getState())) {
       dispatch(setTargetSelectedResourceId(resourcePath));
-      dispatch(setTargetView(View.Audit));
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(openResourceInResourceBrowser(resourcePath));
@@ -76,26 +48,27 @@ export function navigateToSelectedPathOrOpenUnsavedPopup(
   };
 }
 
-export function changeSelectedAttributionIdOrOpenUnsavedPopup(
-  attributionId: string,
+export function changeSelectedAttributionOrOpenUnsavedPopup(
+  packageInfo: PackageInfo | null,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const manualAttributions = getManualAttributions(getState());
-    if (wereTemporaryDisplayPackageInfoModified(getState())) {
-      dispatch(setTargetSelectedAttributionId(attributionId));
+  return (dispatch, getState) => {
+    if (getIsPackageInfoModified(getState())) {
+      dispatch(setTargetSelectedAttributionId(packageInfo?.id || ''));
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
-      dispatch(setSelectedAttributionId(attributionId));
+      dispatch(setSelectedAttributionId(packageInfo?.id ?? ''));
       dispatch(
-        setTemporaryDisplayPackageInfo(manualAttributions[attributionId]),
+        setTemporaryDisplayPackageInfo(
+          packageInfo || EMPTY_DISPLAY_PACKAGE_INFO,
+        ),
       );
     }
   };
 }
 
 export function setViewOrOpenUnsavedPopup(selectedView: View): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    if (wereTemporaryDisplayPackageInfoModified(getState())) {
+  return (dispatch, getState) => {
+    if (getIsPackageInfoModified(getState())) {
       dispatch(setTargetView(selectedView));
       dispatch(setTargetSelectedResourceId(getSelectedResourceId(getState())));
       dispatch(openPopup(PopupType.NotSavedPopup));
@@ -108,8 +81,8 @@ export function setViewOrOpenUnsavedPopup(selectedView: View): AppThunkAction {
 export function setSelectedResourceIdOrOpenUnsavedPopup(
   resourceId: string,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    if (wereTemporaryDisplayPackageInfoModified(getState())) {
+  return (dispatch, getState) => {
+    if (getIsPackageInfoModified(getState())) {
       dispatch(setTargetSelectedResourceId(resourceId));
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
@@ -118,105 +91,9 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
   };
 }
 
-export function selectPackageCardInAuditViewOrOpenUnsavedPopup(
-  packagePanelTitle: PackagePanelTitle,
-  packageCardId: string,
-  displayPackageInfo: PackageInfo,
-): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    if (wereTemporaryDisplayPackageInfoModified(getState())) {
-      dispatch(
-        setTargetDisplayedPackage({
-          panel: packagePanelTitle,
-          packageCardId,
-          displayPackageInfo,
-        }),
-      );
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      dispatch(
-        setDisplayedPackageAndResetTemporaryDisplayPackageInfo({
-          panel: packagePanelTitle,
-          packageCardId,
-          displayPackageInfo,
-        }),
-      );
-    }
-  };
-}
-
-export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const selectedResourceId = getSelectedResourceId(getState());
-    const attributionId = getCurrentAttributionId(getState());
-    const temporaryDisplayPackageInfo =
-      getTemporaryDisplayPackageInfo(getState());
-    if (getIsSavingDisabled(getState()) || !attributionId) {
-      dispatch(closePopup());
-      dispatch(openPopup(PopupType.UnableToSavePopup));
-      return;
-    }
-    dispatch(
-      unlinkAttributionAndSavePackageInfo(
-        selectedResourceId,
-        attributionId,
-        temporaryDisplayPackageInfo,
-      ),
-    );
-    dispatch(navigateToTargetResourceOrAttributionOrOpenFileDialog());
-  };
-}
-
-export function saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const selectedResourceId = getSelectedResourceId(getState());
-    const attributionId = getCurrentAttributionId(getState());
-    const temporaryDisplayPackageInfo =
-      getTemporaryDisplayPackageInfo(getState());
-    if (getIsSavingDisabled(getState())) {
-      dispatch(closePopup());
-      dispatch(openPopup(PopupType.UnableToSavePopup));
-      return;
-    }
-    dispatch(
-      savePackageInfo(
-        selectedResourceId,
-        attributionId,
-        temporaryDisplayPackageInfo,
-      ),
-    );
-    dispatch(navigateToTargetResourceOrAttributionOrOpenFileDialog());
-  };
-}
-
-export function checkIfPreferredStatusChangedAndShowWarningOrSave(): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const currentAttributionId = getCurrentAttributionId(getState());
-    const attributionsToResources =
-      getManualAttributionsToResources(getState());
-    const attributionHasMultipleResources = hasAttributionMultipleResources(
-      currentAttributionId,
-      attributionsToResources,
-    );
-
-    if (
-      attributionHasMultipleResources &&
-      getDidPreferredFieldChange(getState())
-    ) {
-      dispatch(closePopup());
-      dispatch(openPopup(PopupType.ChangePreferredStatusGloballyPopup));
-    } else {
-      dispatch(
-        saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
-      );
-    }
-  };
-}
-
 export function navigateToTargetResourceOrAttributionOrOpenFileDialog(): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+  return (dispatch, getState) => {
     const targetView = getTargetView(getState());
-    const view = getSelectedView(getState());
     const openFileRequest = getOpenFileRequest(getState());
 
     dispatch(closePopup());
@@ -232,86 +109,19 @@ export function navigateToTargetResourceOrAttributionOrOpenFileDialog(): AppThun
     }
     dispatch(
       setTemporaryDisplayPackageInfo(
-        getDisplayPackageInfoOfSelected(getState()) ||
+        getPackageInfoOfSelectedAttribution(getState()) ||
           EMPTY_DISPLAY_PACKAGE_INFO,
       ),
     );
-
-    if (view === View.Report) {
-      dispatch(closePopup());
-    }
   };
 }
 
 export function closePopupAndUnsetTargets(): AppThunkAction {
-  return (dispatch: AppThunkDispatch): void => {
+  return (dispatch) => {
     dispatch(setTargetView(null));
     dispatch(setTargetSelectedResourceId(''));
     dispatch(setTargetSelectedAttributionId(''));
     dispatch(closePopup());
     dispatch(setOpenFileRequest(false));
-  };
-}
-
-export function locateSignalsFromLocatorPopup(
-  criticality: SelectedCriticality,
-  licenseNames: Set<string>,
-  searchTerm: string,
-  searchOnlyLicenseName: boolean,
-): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: criticality,
-        selectedLicenses: licenseNames,
-        searchTerm,
-        searchOnlyLicenseName,
-      }),
-    );
-
-    const { locatedResources, resourcesWithLocatedChildren } =
-      getResourcesWithLocatedAttributions(getState());
-    const noSignalsAreFound =
-      locatedResources.size === 0 && resourcesWithLocatedChildren.size === 0;
-    const allFiltersAreEmpty =
-      criticality === SelectedCriticality.Any &&
-      licenseNames.size === 0 &&
-      searchTerm === '';
-    const showNoSignalsLocatedMessage =
-      noSignalsAreFound && !allFiltersAreEmpty;
-
-    dispatch(setShowNoSignalsLocatedMessage(showNoSignalsLocatedMessage));
-
-    if (!showNoSignalsLocatedMessage) {
-      dispatch(closePopup());
-      if (getSelectedView(getState()) !== View.Audit) {
-        dispatch(setViewOrOpenUnsavedPopup(View.Audit));
-      }
-    }
-  };
-}
-
-export function locateSignalsFromProjectStatisticsPopup(
-  licenseName: string,
-): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const externalAttributions = getExternalAttributions(getState());
-    const licenseNames: Set<string> = getLicenseNameVariants(
-      licenseName,
-      externalAttributions,
-    );
-
-    dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: SelectedCriticality.Any,
-        selectedLicenses: licenseNames,
-        searchTerm: '',
-        searchOnlyLicenseName: false,
-      }),
-    );
-    dispatch(closePopup());
-    if (getSelectedView(getState()) !== View.Audit) {
-      dispatch(setViewOrOpenUnsavedPopup(View.Audit));
-    }
   };
 }

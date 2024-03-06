@@ -63,16 +63,6 @@ describe('SelectMenu', () => {
       screen.getByRole('menuitem', { name: option1.label!.toString() }),
     );
 
-    expect(
-      within(
-        screen.getByRole('menuitem', { name: option1.label!.toString() }),
-      ).getByTestId('CheckIcon'),
-    ).toBeVisible();
-    expect(
-      within(
-        screen.getByRole('menuitem', { name: option2.label!.toString() }),
-      ).getByTestId('CheckIcon'),
-    ).not.toBeVisible();
     expect(setAnchorEl).toHaveBeenCalledTimes(1);
     expect(setAnchorEl).toHaveBeenCalledWith(undefined);
     expect(onAdd).toHaveBeenCalledTimes(1);
@@ -128,16 +118,6 @@ describe('SelectMenu', () => {
       screen.getByRole('menuitem', { name: option2.label!.toString() }),
     );
 
-    expect(
-      within(
-        screen.getByRole('menuitem', { name: option1.label!.toString() }),
-      ).getByTestId('CheckIcon'),
-    ).toBeVisible();
-    expect(
-      within(
-        screen.getByRole('menuitem', { name: option2.label!.toString() }),
-      ).getByTestId('CheckIcon'),
-    ).not.toBeVisible();
     expect(setAnchorEl).not.toHaveBeenCalled();
 
     await userEvent.keyboard('{Escape}');
@@ -193,11 +173,6 @@ describe('SelectMenu', () => {
       screen.getByRole('menuitem', { name: option1.label!.toString() }),
     );
 
-    expect(
-      within(
-        screen.getByRole('menuitem', { name: option1.label!.toString() }),
-      ).getByTestId('CheckIcon'),
-    ).toBeVisible();
     expect(setAnchorEl).not.toHaveBeenCalled();
 
     await userEvent.keyboard('{Escape}');

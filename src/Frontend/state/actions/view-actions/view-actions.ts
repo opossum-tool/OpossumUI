@@ -2,14 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { PackageInfo } from '../../../../shared/shared-types';
 import { PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';
-import {
-  getDisplayPackageInfoOfDisplayedPackage,
-  getDisplayPackageInfoOfSelectedAttributionInAttributionView,
-} from '../../selectors/all-views-resource-selectors';
+import { getPackageInfoOfSelectedAttribution } from '../../selectors/resource-selectors';
 import { getSelectedView } from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
@@ -18,14 +14,12 @@ import {
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_OPEN_FILE_REQUEST,
-  ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   ClosePopupAction,
   OpenPopupAction,
   ResetViewStateAction,
   SetOpenFileRequestAction,
-  SetShowNoSignalsLocatedMessage,
   SetTargetView,
   SetView,
 } from './types';
@@ -43,12 +37,9 @@ export function navigateToView(view: View): AppThunkAction {
     dispatch(setTargetView(null));
     dispatch(setView(view));
 
-    const updatedTemporaryDisplayPackageInfo: PackageInfo =
-      (view === View.Audit
-        ? getDisplayPackageInfoOfDisplayedPackage(getState())
-        : getDisplayPackageInfoOfSelectedAttributionInAttributionView(
-            getState(),
-          )) || EMPTY_DISPLAY_PACKAGE_INFO;
+    const updatedTemporaryDisplayPackageInfo =
+      getPackageInfoOfSelectedAttribution(getState()) ||
+      EMPTY_DISPLAY_PACKAGE_INFO;
     dispatch(
       setTemporaryDisplayPackageInfo(updatedTemporaryDisplayPackageInfo),
     );
@@ -84,15 +75,6 @@ export function openPopup(
 
 export function closePopup(): ClosePopupAction {
   return { type: ACTION_CLOSE_POPUP };
-}
-
-export function setShowNoSignalsLocatedMessage(
-  showMessage: boolean,
-): SetShowNoSignalsLocatedMessage {
-  return {
-    type: ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE,
-    payload: showMessage,
-  };
 }
 
 export function setOpenFileRequest(

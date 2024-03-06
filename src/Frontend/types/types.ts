@@ -3,13 +3,8 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  Attributions,
-  Criticality,
-  PackageInfo,
-  SelectedCriticality,
-} from '../../shared/shared-types';
-import { PackagePanelTitle, PopupType } from '../enums/enums';
+import { Criticality } from '../../shared/shared-types';
+import { PopupType } from '../enums/enums';
 import { ResourceState } from '../state/reducers/resource-reducer';
 import { VariablesState } from '../state/reducers/variables-reducer';
 import { ViewState } from '../state/reducers/view-reducer';
@@ -32,58 +27,9 @@ export interface ProgressBarData {
   resourcesWithMediumCriticalExternalAttributions: Array<string>;
 }
 
-export interface PanelPackage {
-  panel: PackagePanelTitle;
-  packageCardId: string;
-  displayPackageInfo: PackageInfo;
-}
-
-export interface PackageCardConfig {
-  isExternalAttribution?: boolean;
-  isSelected?: boolean;
-  isResolved?: boolean;
-  isPreSelected?: boolean;
-}
-
-export interface ListCardConfig {
-  isResource?: true;
-  isExternalAttribution?: boolean;
-  isSelected?: boolean;
-  isResolved?: boolean;
-  isPreSelected?: boolean;
-  isPreferred?: boolean;
-  wasPreferred?: boolean;
-  excludeFromNotice?: boolean;
-  firstParty?: boolean;
-  needsReview?: boolean;
-  followUp?: boolean;
-  isMultiSelected?: boolean;
-  criticality?: Criticality;
-  isLocated?: boolean;
-}
-
-export interface PathPredicate {
-  (path: string): boolean;
-}
-
-export interface ResourcesListBatch {
-  resourceIds: Array<string>;
-}
-
 export interface PopupInfo {
   popup: PopupType;
   attributionId?: string;
-}
-
-export interface DisplayPackageInfosWithCountAndResourceId {
-  resourceId: string;
-  sortedPackageCardIds: Array<string>;
-  displayPackageInfos: Attributions;
-}
-
-export interface ProgressBarDataAndResourceId {
-  progressBarData: ProgressBarData | null;
-  resourceId: string;
 }
 
 export interface PieChartData {
@@ -103,18 +49,4 @@ export interface AttributionCountPerSourcePerLicense {
 
 export interface LicenseNamesWithCriticality {
   [licenseName: string]: Criticality | undefined;
-}
-
-export type ProgressBarType = 'FolderProgressBar' | 'TopProgressBar';
-
-export interface AttributionIdWithCount {
-  attributionId: string;
-  count?: number;
-}
-
-export interface LocatePopupFilters {
-  selectedCriticality: SelectedCriticality;
-  selectedLicenses: Set<string>;
-  searchTerm: string;
-  searchOnlyLicenseName: boolean;
 }

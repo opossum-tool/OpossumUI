@@ -3,98 +3,45 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { isEmpty, isEqual, sortBy } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 
-import {
-  DiscreteConfidence,
-  PackageInfo,
-} from '../../../../shared/shared-types';
-import { AllowedSaveOperations, PopupType } from '../../../enums/enums';
+import { PackageInfo } from '../../../../shared/shared-types';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
-  getIsSavingDisabled,
   getManualAttributions,
   getManualAttributionsToResources,
-  getResourcesToManualAttributions,
-  wereTemporaryDisplayPackageInfoModified,
-} from '../../selectors/all-views-resource-selectors';
-import {
-  getAttributionIdsOfSelectedResource,
-  getAttributionIdsOfSelectedResourceClosestParent,
   getResolvedExternalAttributions,
+  getResourcesToManualAttributions,
   getSelectedResourceId,
-} from '../../selectors/audit-view-resource-selectors';
+} from '../../selectors/resource-selectors';
 import { AppThunkAction } from '../../types';
-import { openPopup } from '../view-actions/view-actions';
 import {
-  resetSelectedPackagePanelIfContainedAttributionWasRemoved,
-  resetTemporaryDisplayPackageInfo,
-} from './navigation-actions';
+  addResolvedExternalAttributions,
+  removeResolvedExternalAttributions,
+  setSelectedAttributionId,
+} from './audit-view-simple-actions';
+import { resetTemporaryDisplayPackageInfo } from './navigation-actions';
 import {
   ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
   ACTION_DELETE_ATTRIBUTION,
   ACTION_LINK_TO_ATTRIBUTION,
   ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
-  ACTION_SET_ALLOWED_SAVE_OPERATIONS,
   ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
   ACTION_UPDATE_ATTRIBUTION,
   CreateAttributionForSelectedResource,
   DeleteAttribution,
   LinkToAttributionAction,
   ReplaceAttributionWithMatchingAttributionAction,
-  SetAllowedSaveOperation,
   UnlinkResourceFromAttributionAction,
   UpdateAttribution,
 } from './types';
-
-export function setAllowedSaveOperations(
-  allowedSaveOperations: AllowedSaveOperations,
-): SetAllowedSaveOperation {
-  return {
-    type: ACTION_SET_ALLOWED_SAVE_OPERATIONS,
-    payload: allowedSaveOperations,
-  };
-}
-
-export function savePackageInfoIfSavingIsNotDisabled(
-  resourceId: string | null,
-  attributionId: string | null,
-  packageInfo: PackageInfo,
-): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsSavingDisabled(getState())) {
-      dispatch(openPopup(PopupType.UnableToSavePopup));
-    } else {
-      dispatch(savePackageInfo(resourceId, attributionId, packageInfo));
-    }
-  };
-}
-
-export function unlinkAttributionAndSavePackageInfoIfSavingIsNotDisabled(
-  resourceId: string,
-  attributionId: string,
-  packageInfo: PackageInfo,
-): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsSavingDisabled(getState())) {
-      dispatch(openPopup(PopupType.UnableToSavePopup));
-    } else {
-      dispatch(
-        unlinkAttributionAndSavePackageInfo(
-          resourceId,
-          attributionId,
-          packageInfo,
-        ),
-      );
-    }
-  };
-}
 
 export function savePackageInfo(
   resourceId: string | null,
   attributionId: string | null,
   packageInfo: PackageInfo,
   isSavedPackageInactive?: boolean,
+  ignorePreSelected?: boolean,
 ): AppThunkAction {
   return (dispatch, getState) => {
     const strippedPackageInfo = getStrippedPackageInfo(packageInfo);
@@ -102,7 +49,7 @@ export function savePackageInfo(
       getManualAttributions(getState()),
     ).find(
       (attribution) =>
-        !attribution.preSelected &&
+        (ignorePreSelected || !attribution.preSelected) &&
         isEqual(getStrippedPackageInfo(attribution), strippedPackageInfo),
     );
 
@@ -120,15 +67,16 @@ export function savePackageInfo(
       );
     } else if (matchedPackageInfo && resourceId) {
       // LINK
-      dispatch(linkToAttribution(resourceId, matchedPackageInfo.id));
-    } else if (resourceId && !attributionId) {
-      // CREATE
       dispatch(
-        createAttributionForSelectedResource(
-          packageInfo,
+        linkToAttribution(
+          resourceId,
+          matchedPackageInfo.id,
           !isSavedPackageInactive,
         ),
       );
+    } else if (resourceId && !attributionId) {
+      // CREATE
+      dispatch(createAttributionForSelectedResource(packageInfo));
     } else if (attributionId) {
       // UPDATE
       dispatch(
@@ -136,7 +84,6 @@ export function savePackageInfo(
       );
     }
 
-    dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
     if (!isSavedPackageInactive) {
       dispatch(resetTemporaryDisplayPackageInfo());
     }
@@ -155,51 +102,53 @@ export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
   };
 }
 
-export function unlinkAttributionAndSavePackageInfo(
+export function unlinkAttributionAndSave(
   resourceId: string,
-  attributionId: string,
+  attributionIds: Array<string>,
+): AppThunkAction {
+  return (dispatch) => {
+    attributionIds.forEach((attributionId) => {
+      dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
+    });
+    dispatch(setSelectedAttributionId(''));
+    dispatch(resetTemporaryDisplayPackageInfo());
+    dispatch(saveManualAndResolvedAttributionsToFile());
+  };
+}
+
+export function unlinkAttributionAndCreateNew(
+  resourceId: string,
   packageInfo: PackageInfo,
-  selectedAttributionId?: string,
 ): AppThunkAction {
   return (dispatch, getState) => {
     const attributionsToResources =
       getManualAttributionsToResources(getState());
 
-    if (attributionsToResources[attributionId]?.length > 1) {
-      dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
+    if (attributionsToResources[packageInfo.id]?.length > 1) {
+      dispatch(unlinkResourceFromAttribution(resourceId, packageInfo.id));
+      dispatch(savePackageInfo(resourceId, null, packageInfo));
     }
-
-    dispatch(
-      savePackageInfo(
-        resourceId,
-        null,
-        packageInfo,
-        selectedAttributionId
-          ? attributionId !== selectedAttributionId
-          : undefined,
-      ),
-    );
   };
 }
 
 export function addToSelectedResource(
   packageInfo: PackageInfo,
+  selectedAttributionId?: string,
 ): AppThunkAction {
   return (dispatch, getState) => {
-    if (wereTemporaryDisplayPackageInfoModified(getState())) {
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      dispatch(
-        savePackageInfo(getSelectedResourceId(getState()), null, {
-          ...packageInfo,
-          attributionConfidence: DiscreteConfidence.High,
-        }),
-      );
-    }
+    dispatch(
+      savePackageInfo(
+        getSelectedResourceId(getState()),
+        null,
+        packageInfo,
+        selectedAttributionId ? packageInfo.id !== selectedAttributionId : true,
+        true,
+      ),
+    );
   };
 }
 
-export function deleteAttributionGloballyAndSave(
+export function deleteAttributionAndSave(
   attributionId: string,
   selectedAttributionId?: string,
 ): AppThunkAction {
@@ -217,79 +166,30 @@ export function deleteAttributionGloballyAndSave(
   };
 }
 
-export function deleteAttributionAndSave(
-  resourceId: string,
-  attributionId: string,
-  selectedAttributionId?: string,
-): AppThunkAction {
-  return (dispatch, getState) => {
-    const attributionsToResources =
-      getManualAttributionsToResources(getState());
-
-    if (attributionsToResources[attributionId].length > 1) {
-      dispatch(
-        unlinkResourceFromAttributionAndSave(
-          resourceId,
-          attributionId,
-          selectedAttributionId,
-        ),
-      );
-    } else {
-      dispatch(
-        deleteAttributionGloballyAndSave(attributionId, selectedAttributionId),
-      );
-    }
-  };
-}
-
-function unlinkResourceFromAttributionAndSave(
-  resourceId: string,
-  attributionId: string,
-  selectedAttributionId?: string,
+export function addResolvedExternalAttributionAndSave(
+  attributionIds: Array<string>,
 ): AppThunkAction {
   return (dispatch) => {
-    const differentAttributionIsDeleted = selectedAttributionId
-      ? attributionId !== selectedAttributionId
-      : undefined;
-    dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
-
-    dispatch(unlinkAttributionsIfParentAttributionsAreIdentical(resourceId));
-    dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
-    if (!differentAttributionIsDeleted) {
-      dispatch(resetTemporaryDisplayPackageInfo());
-    }
+    dispatch(addResolvedExternalAttributions(attributionIds));
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
 
-function unlinkAttributionsIfParentAttributionsAreIdentical(
-  resourceId: string,
+export function removeResolvedExternalAttributionAndSave(
+  attributionIds: Array<string>,
 ): AppThunkAction {
-  return (dispatch, getState) => {
-    const attributionsIdsForResource =
-      getAttributionIdsOfSelectedResource(getState());
-    const attributionIdsForClosestParent =
-      getAttributionIdsOfSelectedResourceClosestParent(getState());
-    if (
-      isEqual(
-        sortBy(attributionsIdsForResource),
-        sortBy(attributionIdsForClosestParent),
-      )
-    ) {
-      attributionIdsForClosestParent.forEach((attributionId) => {
-        dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
-      });
-    }
+  return (dispatch) => {
+    dispatch(removeResolvedExternalAttributions(attributionIds));
+    dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
 
 function createAttributionForSelectedResource(
   packageInfo: PackageInfo,
-  jumpToCreatedAttribution = true,
 ): CreateAttributionForSelectedResource {
   return {
     type: ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
-    payload: { packageInfo, jumpToCreatedAttribution },
+    payload: packageInfo,
   };
 }
 
@@ -333,10 +233,11 @@ function replaceAttributionWithMatchingAttribution(
 function linkToAttribution(
   resourceId: string,
   attributionId: string,
+  jumpToMatchingAttribution = true,
 ): LinkToAttributionAction {
   return {
     type: ACTION_LINK_TO_ATTRIBUTION,
-    payload: { resourceId, attributionId },
+    payload: { resourceId, attributionId, jumpToMatchingAttribution },
   };
 }
 

@@ -7,13 +7,15 @@ import { faker } from '../../../testing/Faker';
 import { SignalsWorker, SignalsWorkerOutput } from '../signals-worker';
 
 describe('SignalsWorker', () => {
-  it('dispatches autocomplete signals when dependencies are met', () => {
+  it('dispatches filtered attributions when dependencies are met', () => {
     const dispatch = jest.fn();
     const worker = new SignalsWorker(dispatch, {
-      externalData: faker.opossum.externalAttributionData(),
-      manualData: faker.opossum.manualAttributionData(),
-      resolvedExternalAttributions: new Set<string>(),
-      sources: faker.opossum.externalAttributionSources(),
+      attributionBreakpoints: faker.opossum.attributionBreakpoints(),
+      attributionFilters: [],
+      attributionSearch: '',
+      attributionSelectedLicense: '',
+      attributionSorting: text.sortings.name,
+      manualData: faker.opossum.attributionData(),
     });
 
     worker.processInput({
@@ -22,30 +24,41 @@ describe('SignalsWorker', () => {
     });
 
     expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'autocompleteSignals',
-      data: expect.any(Array),
+      name: 'filteredAttributions',
+      data: expect.any(Object),
     });
   });
 
-  it('does not dispatch autocomplete signals when dependencies are missing', () => {
+  it('does not dispatch filtered attributions when dependencies are missing', () => {
     const dispatch = jest.fn();
-    new SignalsWorker(dispatch, {
-      externalData: faker.opossum.externalAttributionData(),
-      manualData: faker.opossum.manualAttributionData(),
-      resolvedExternalAttributions: new Set<string>(),
-      sources: faker.opossum.externalAttributionSources(),
+    const worker = new SignalsWorker(dispatch, {
+      attributionBreakpoints: faker.opossum.attributionBreakpoints(),
+      attributionFilters: [],
+      attributionSearch: '',
+      attributionSelectedLicense: '',
+      attributionSorting: text.sortings.name,
+    });
+
+    worker.processInput({
+      name: 'resourceId',
+      data: faker.opossum.resourceName(),
     });
 
     expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'autocompleteSignals',
-      data: expect.any(Array),
+      name: 'filteredAttributions',
+      data: expect.any(Object),
     });
   });
 
-  it('dispatches attributions in folder content when dependencies are met', () => {
+  it('dispatches filtered signals when dependencies are met', () => {
     const dispatch = jest.fn();
     const worker = new SignalsWorker(dispatch, {
-      manualData: faker.opossum.manualAttributionData(),
+      areHiddenSignalsVisible: false,
+      externalData: faker.opossum.attributionData(),
+      resolvedExternalAttributions: faker.opossum.resolvedAttributions(),
+      signalFilters: [],
+      signalSearch: '',
+      signalSelectedLicense: '',
       signalSorting: text.sortings.name,
     });
 
@@ -55,29 +68,20 @@ describe('SignalsWorker', () => {
     });
 
     expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'attributionsInFolderContent',
+      name: 'filteredSignals',
       data: expect.any(Object),
     });
   });
 
-  it('does not dispatch attributions in folder content when dependencies are missing', () => {
-    const dispatch = jest.fn();
-    new SignalsWorker(dispatch, {
-      manualData: faker.opossum.manualAttributionData(),
-    });
-
-    expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'attributionsInFolderContent',
-      data: expect.any(Object),
-    });
-  });
-
-  it('dispatches signals in folder content when dependencies are met', () => {
+  it('does not dispatch filtered signals when dependencies are missing', () => {
     const dispatch = jest.fn();
     const worker = new SignalsWorker(dispatch, {
-      externalData: faker.opossum.externalAttributionData(),
-      resolvedExternalAttributions: new Set<string>(),
-      signalSorting: text.sortings.name,
+      areHiddenSignalsVisible: false,
+      externalData: faker.opossum.attributionData(),
+      resolvedExternalAttributions: faker.opossum.resolvedAttributions(),
+      signalFilters: [],
+      signalSearch: '',
+      signalSelectedLicense: '',
     });
 
     worker.processInput({
@@ -85,32 +89,19 @@ describe('SignalsWorker', () => {
       data: faker.opossum.resourceName(),
     });
 
-    expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'signalsInFolderContent',
-      data: expect.any(Object),
-    });
-  });
-
-  it('does not dispatch signals in folder content when dependencies are missing', () => {
-    const dispatch = jest.fn();
-    new SignalsWorker(dispatch, {
-      externalData: faker.opossum.externalAttributionData(),
-      resolvedExternalAttributions: new Set<string>(),
-    });
-
     expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'signalsInFolderContent',
+      name: 'filteredSignals',
       data: expect.any(Object),
     });
   });
 
-  it('dispatches overall progress data when dependencies are met', () => {
+  it('dispatches progress data when dependencies are met', () => {
     const dispatch = jest.fn();
     const worker = new SignalsWorker(dispatch, {
       attributionBreakpoints: new Set<string>(),
-      externalData: faker.opossum.externalAttributionData(),
+      externalData: faker.opossum.attributionData(),
       filesWithChildren: new Set<string>(),
-      manualData: faker.opossum.manualAttributionData(),
+      manualData: faker.opossum.attributionData(),
       resolvedExternalAttributions: new Set<string>(),
     });
 
@@ -120,62 +111,27 @@ describe('SignalsWorker', () => {
     });
 
     expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'overallProgressData',
+      name: 'progressData',
       data: expect.any(Object),
     });
   });
 
-  it('does not dispatch overall progress data when dependencies are missing', () => {
-    const dispatch = jest.fn();
-    new SignalsWorker(dispatch, {
-      attributionBreakpoints: new Set<string>(),
-      externalData: faker.opossum.externalAttributionData(),
-      filesWithChildren: new Set<string>(),
-      manualData: faker.opossum.manualAttributionData(),
-      resolvedExternalAttributions: new Set<string>(),
-    });
-
-    expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'overallProgressData',
-      data: expect.any(Object),
-    });
-  });
-
-  it('dispatches folder progress data when dependencies are met', () => {
+  it('does not dispatch progress data when dependencies are missing', () => {
     const dispatch = jest.fn();
     const worker = new SignalsWorker(dispatch, {
       attributionBreakpoints: new Set<string>(),
-      externalData: faker.opossum.externalAttributionData(),
+      externalData: faker.opossum.attributionData(),
       filesWithChildren: new Set<string>(),
-      manualData: faker.opossum.manualAttributionData(),
-      resolvedExternalAttributions: new Set<string>(),
-      resources: faker.opossum.resources(),
+      manualData: faker.opossum.attributionData(),
     });
 
     worker.processInput({
-      name: 'resourceId',
-      data: faker.opossum.resourceName(),
-    });
-
-    expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'folderProgressData',
-      data: expect.any(Object),
-    });
-  });
-
-  it('does not dispatch folder progress data when dependencies are missing', () => {
-    const dispatch = jest.fn();
-    new SignalsWorker(dispatch, {
-      attributionBreakpoints: new Set<string>(),
-      externalData: faker.opossum.externalAttributionData(),
-      filesWithChildren: new Set<string>(),
-      manualData: faker.opossum.manualAttributionData(),
-      resolvedExternalAttributions: new Set<string>(),
-      resources: faker.opossum.resources(),
+      name: 'resources',
+      data: faker.opossum.resources(),
     });
 
     expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'folderProgressData',
+      name: 'progressData',
       data: expect.any(Object),
     });
   });

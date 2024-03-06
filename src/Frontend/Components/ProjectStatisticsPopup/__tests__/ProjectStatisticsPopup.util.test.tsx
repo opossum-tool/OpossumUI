@@ -7,6 +7,7 @@ import {
   Criticality,
   ExternalAttributionSources,
 } from '../../../../shared/shared-types';
+import { PieChartCriticalityNames } from '../../../enums/enums';
 import {
   LicenseCounts,
   LicenseNamesWithCriticality,
@@ -401,15 +402,15 @@ describe('getCriticalSignalsCount', () => {
   it('counts number of critical signals across all licenses', () => {
     const expectedCriticalSignalCount: Array<PieChartData> = [
       {
-        name: 'Highly critical signals',
+        name: PieChartCriticalityNames.HighCriticality,
         count: 3,
       },
       {
-        name: 'Medium critical signals',
+        name: PieChartCriticalityNames.MediumCriticality,
         count: 4,
       },
       {
-        name: 'Not critical signals',
+        name: PieChartCriticalityNames.NoCriticality,
         count: 2,
       },
     ];

@@ -10,7 +10,6 @@ import {
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_OPEN_FILE_REQUEST,
-  ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   ViewAction,
@@ -20,7 +19,6 @@ export interface ViewState {
   view: View;
   targetView: View | null;
   popupInfo: Array<PopupInfo>;
-  showNoSignalsLocatedMessage: boolean;
   openFileRequest: boolean;
 }
 
@@ -28,7 +26,6 @@ export const initialViewState: ViewState = {
   view: View.Audit,
   targetView: null,
   popupInfo: [],
-  showNoSignalsLocatedMessage: false,
   openFileRequest: false,
 };
 
@@ -62,11 +59,6 @@ export function viewState(
       return {
         ...state,
         popupInfo: newPopupInfo,
-      };
-    case ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE:
-      return {
-        ...state,
-        showNoSignalsLocatedMessage: action.payload,
       };
     case ACTION_SET_OPEN_FILE_REQUEST:
       return {

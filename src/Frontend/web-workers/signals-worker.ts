@@ -5,57 +5,27 @@
 import {
   AttributionData,
   Attributions,
-  ExternalAttributionSources,
-  PackageInfo,
   Resources,
 } from '../../shared/shared-types';
-import { Filter, FilterCounts, Sorting } from '../shared-constants';
+import { text } from '../../shared/text';
+import { Filter, FilterCounts, ROOT_PATH, Sorting } from '../shared-constants';
 import { ProgressBarData } from '../types/types';
-import { shouldNotBeCalled } from '../util/should-not-be-called';
-import { getAttributionsInFolderContent } from './scripts/get-attributions-in-folder-content';
-import { getAutocompleteSignals } from './scripts/get-autocomplete-signals';
 import {
   getFilteredAttributionCounts,
   getFilteredAttributions,
 } from './scripts/get-filtered-attributions';
 import { getProgressData } from './scripts/get-progress-data';
-import { getSignalsInFolderContent } from './scripts/get-signals-in-folder-content';
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
-
-export type SignalsWorkerInput =
-  | { name: 'attributionBreakpoints'; data: Set<string> }
-  | { name: 'attributionSorting'; data: Sorting }
-  | { name: 'attributionSearch'; data: string }
-  | { name: 'externalData'; data: AttributionData }
-  | { name: 'filesWithChildren'; data: Set<string> }
-  | { name: 'manualData'; data: AttributionData }
-  | { name: 'resolvedExternalAttributions'; data: Set<string> }
-  | { name: 'resourceId'; data: string }
-  | { name: 'resources'; data: Resources }
-  | { name: 'selectedFilters'; data: Array<Filter> }
-  | { name: 'signalSorting'; data: Sorting }
-  | { name: 'sources'; data: ExternalAttributionSources };
+type Unionize<T extends object> = NonNullable<
+  {
+    [k in keyof T]: { name: k; data: T[k] };
+  }[keyof T]
+>;
 
 export type SignalsWorkerOutput =
   | {
-      name: 'autocompleteSignals';
-      data: Array<PackageInfo>;
-    }
-  | {
-      name: 'attributionsInFolderContent';
-      data: Attributions;
-    }
-  | {
-      name: 'signalsInFolderContent';
-      data: Attributions;
-    }
-  | {
-      name: 'overallProgressData';
-      data: ProgressBarData;
-    }
-  | {
-      name: 'folderProgressData';
+      name: 'progressData';
       data: ProgressBarData;
     }
   | {
@@ -65,24 +35,145 @@ export type SignalsWorkerOutput =
   | {
       name: 'filteredAttributions';
       data: Attributions;
+    }
+  | {
+      name: 'filteredAttributionsInReportView';
+      data: Attributions;
+    }
+  | {
+      name: 'filteredSignalCounts';
+      data: FilterCounts;
+    }
+  | {
+      name: 'filteredSignals';
+      data: Attributions;
+    }
+  | {
+      name: 'filteredSignalsLoading';
+      data: boolean;
+    }
+  | {
+      name: 'filteredAttributionsLoading';
+      data: boolean;
+    }
+  | {
+      name: 'filteredAttributionsInReportViewLoading';
+      data: boolean;
+    }
+  | {
+      name: 'reportViewFilteredAttributionCounts';
+      data: FilterCounts;
     };
 
 interface State {
+  areHiddenSignalsVisible?: boolean;
   attributionBreakpoints?: Set<string>;
+  attributionFilters?: Array<Filter>;
   attributionSearch?: string;
+  attributionSelectedLicense?: string;
   attributionSorting?: Sorting;
   externalData?: AttributionData;
   filesWithChildren?: Set<string>;
   manualData?: AttributionData;
+  reportViewAttributionFilters?: Array<Filter>;
+  reportViewAttributionSelectedLicense?: string;
   resolvedExternalAttributions?: Set<string>;
   resourceId?: string;
   resources?: Resources;
-  selectedFilters?: Array<Filter>;
+  signalFilters?: Array<Filter>;
+  signalSearch?: string;
+  signalSelectedLicense?: string;
   signalSorting?: Sorting;
-  sources?: ExternalAttributionSources;
 }
 
+export type SignalsWorkerInput = Unionize<State>;
+
 export class SignalsWorker {
+  private readonly config = {
+    filteredAttributions: {
+      dependencies: [
+        'attributionBreakpoints',
+        'attributionFilters',
+        'attributionSearch',
+        'attributionSelectedLicense',
+        'attributionSorting',
+        'manualData',
+        'resourceId',
+      ],
+      loading: 'filteredAttributionsLoading',
+    },
+    filteredAttributionsInReportView: {
+      dependencies: [
+        'reportViewAttributionFilters',
+        'reportViewAttributionSelectedLicense',
+        'manualData',
+      ],
+      loading: 'filteredAttributionsInReportViewLoading',
+    },
+    filteredSignals: {
+      dependencies: [
+        'areHiddenSignalsVisible',
+        'externalData',
+        'resolvedExternalAttributions',
+        'resourceId',
+        'signalFilters',
+        'signalSearch',
+        'signalSelectedLicense',
+        'signalSorting',
+      ],
+      loading: 'filteredSignalsLoading',
+    },
+    progressData: {
+      dependencies: [
+        'attributionBreakpoints',
+        'externalData',
+        'filesWithChildren',
+        'manualData',
+        'resolvedExternalAttributions',
+        'resources',
+      ],
+      loading: undefined,
+    },
+    filteredAttributionCounts: {
+      dependencies: [
+        'attributionFilters',
+        'attributionSearch',
+        'attributionSelectedLicense',
+        'manualData',
+        'resourceId',
+      ],
+      loading: undefined,
+    },
+    filteredSignalCounts: {
+      dependencies: [
+        'areHiddenSignalsVisible',
+        'externalData',
+        'resolvedExternalAttributions',
+        'resourceId',
+        'signalFilters',
+        'signalSearch',
+        'signalSelectedLicense',
+      ],
+      loading: undefined,
+    },
+    filteredAttributionsLoading: { dependencies: [], loading: undefined },
+    reportViewFilteredAttributionCounts: {
+      dependencies: ['reportViewAttributionFilters', 'manualData'],
+      loading: undefined,
+    },
+    filteredAttributionsInReportViewLoading: {
+      dependencies: [],
+      loading: undefined,
+    },
+    filteredSignalsLoading: { dependencies: [], loading: undefined },
+  } satisfies Record<
+    SignalsWorkerOutput['name'],
+    {
+      dependencies: Array<keyof State>;
+      loading: SignalsWorkerOutput['name'] | undefined;
+    }
+  >;
+
   constructor(
     private readonly dispatch: (output: SignalsWorkerOutput) => void,
     private readonly state: State = {},
@@ -90,168 +181,41 @@ export class SignalsWorker {
 
   public processInput(input: SignalsWorkerInput) {
     this.setData(input);
-    this.dispatchSignalsInFolderContent(input);
-    this.dispatchAttributionsInFolderContent(input);
-    this.dispatchFolderProgressData(input);
-    this.dispatchOverallProgressData(input);
-    this.dispatchAutocompleteSignals(input);
     this.dispatchFilteredAttributions(input);
+    this.dispatchFilteredAttributionsInReportView(input);
+    this.dispatchFilteredSignals(input);
+    this.dispatchProgressData(input);
     this.dispatchFilteredAttributionCounts(input);
+    this.dispatchFilteredSignalCounts(input);
+    this.dispatchReportViewFilteredAttributionCounts(input);
   }
 
   private setData(input: SignalsWorkerInput) {
-    switch (input.name) {
-      case 'selectedFilters':
-        this.state.selectedFilters = input.data;
-        break;
-      case 'externalData':
-        this.state.externalData = input.data;
-        break;
-      case 'manualData':
-        this.state.manualData = input.data;
-        break;
-      case 'resolvedExternalAttributions':
-        this.state.resolvedExternalAttributions = input.data;
-        break;
-      case 'sources':
-        this.state.sources = input.data;
-        break;
-      case 'resourceId':
-        this.state.resourceId = input.data;
-        break;
-      case 'resources':
-        this.state.resources = input.data;
-        break;
-      case 'attributionBreakpoints':
-        this.state.attributionBreakpoints = input.data;
-        break;
-      case 'filesWithChildren':
-        this.state.filesWithChildren = input.data;
-        break;
-      case 'signalSorting':
-        this.state.signalSorting = input.data;
-        break;
-      case 'attributionSorting':
-        this.state.attributionSorting = input.data;
-        break;
-      case 'attributionSearch':
-        this.state.attributionSearch = input.data;
-        break;
-      default:
-        shouldNotBeCalled(input);
-    }
+    //@ts-expect-error TypeScript does not support dynamic keys
+    this.state[input.name] = input.data;
+
+    Object.values(this.config).forEach(({ loading, dependencies }) => {
+      if (
+        loading &&
+        dependencies.some((dependency) => dependency === input.name)
+      ) {
+        this.dispatch({ name: loading, data: true });
+      }
+    });
   }
 
-  private dispatchAutocompleteSignals(input: SignalsWorkerInput) {
+  private dispatchProgressData(input: SignalsWorkerInput) {
     if (
-      this.isHydrated(this.state, input, [
-        'resourceId',
-        'externalData',
-        'manualData',
-        'resolvedExternalAttributions',
-        'sources',
-      ])
+      this.isHydrated(this.state, input, this.config.progressData.dependencies)
     ) {
       this.dispatch({
-        name: 'autocompleteSignals',
-        data: getAutocompleteSignals({
-          resourceId: this.state.resourceId,
-          externalData: this.state.externalData,
-          manualData: this.state.manualData,
-          resolvedExternalAttributions: this.state.resolvedExternalAttributions,
-          sources: this.state.sources,
-        }),
-      });
-    }
-  }
-
-  private dispatchAttributionsInFolderContent(input: SignalsWorkerInput) {
-    if (
-      this.isHydrated(this.state, input, [
-        'resourceId',
-        'manualData',
-        'signalSorting',
-      ])
-    ) {
-      this.dispatch({
-        name: 'attributionsInFolderContent',
-        data: getAttributionsInFolderContent({
-          resourceId: this.state.resourceId,
-          manualData: this.state.manualData,
-          sorting: this.state.signalSorting,
-        }),
-      });
-    }
-  }
-
-  private dispatchSignalsInFolderContent(input: SignalsWorkerInput) {
-    if (
-      this.isHydrated(this.state, input, [
-        'resourceId',
-        'externalData',
-        'resolvedExternalAttributions',
-        'signalSorting',
-      ])
-    ) {
-      this.dispatch({
-        name: 'signalsInFolderContent',
-        data: getSignalsInFolderContent({
-          resourceId: this.state.resourceId,
-          externalData: this.state.externalData,
-          resolvedExternalAttributions: this.state.resolvedExternalAttributions,
-          sorting: this.state.signalSorting,
-        }),
-      });
-    }
-  }
-
-  private dispatchOverallProgressData(input: SignalsWorkerInput) {
-    if (
-      this.isHydrated(this.state, input, [
-        'attributionBreakpoints',
-        'externalData',
-        'filesWithChildren',
-        'manualData',
-        'resolvedExternalAttributions',
-        'resources',
-      ])
-    ) {
-      this.dispatch({
-        name: 'overallProgressData',
+        name: 'progressData',
         data: getProgressData({
           attributionBreakpoints: this.state.attributionBreakpoints,
           externalData: this.state.externalData,
           filesWithChildren: this.state.filesWithChildren,
           manualData: this.state.manualData,
           resolvedExternalAttributions: this.state.resolvedExternalAttributions,
-          resourceId: '/',
-          resources: this.state.resources,
-        }),
-      });
-    }
-  }
-
-  private dispatchFolderProgressData(input: SignalsWorkerInput) {
-    if (
-      this.isHydrated(this.state, input, [
-        'attributionBreakpoints',
-        'externalData',
-        'filesWithChildren',
-        'manualData',
-        'resolvedExternalAttributions',
-        'resourceId',
-        'resources',
-      ])
-    ) {
-      this.dispatch({
-        name: 'folderProgressData',
-        data: getProgressData({
-          attributionBreakpoints: this.state.attributionBreakpoints,
-          externalData: this.state.externalData,
-          filesWithChildren: this.state.filesWithChildren,
-          manualData: this.state.manualData,
-          resolvedExternalAttributions: this.state.resolvedExternalAttributions,
-          resourceId: this.state.resourceId,
           resources: this.state.resources,
         }),
       });
@@ -259,11 +223,22 @@ export class SignalsWorker {
   }
 
   private dispatchFilteredAttributionCounts(input: SignalsWorkerInput) {
-    if (this.isHydrated(this.state, input, ['manualData'])) {
+    if (
+      this.isHydrated(
+        this.state,
+        input,
+        this.config.filteredAttributionCounts.dependencies,
+      )
+    ) {
       this.dispatch({
         name: 'filteredAttributionCounts',
         data: getFilteredAttributionCounts({
-          manualData: this.state.manualData,
+          data: this.state.manualData,
+          filters: this.state.attributionFilters,
+          includeGlobal: true,
+          resourceId: this.state.resourceId,
+          search: this.state.attributionSearch,
+          selectedLicense: this.state.attributionSelectedLicense,
         }),
       });
     }
@@ -271,20 +246,117 @@ export class SignalsWorker {
 
   private dispatchFilteredAttributions(input: SignalsWorkerInput) {
     if (
-      this.isHydrated(this.state, input, [
-        'selectedFilters',
-        'manualData',
-        'attributionSorting',
-        'attributionSearch',
-      ])
+      this.isHydrated(
+        this.state,
+        input,
+        this.config.filteredAttributions.dependencies,
+      )
     ) {
       this.dispatch({
         name: 'filteredAttributions',
         data: getFilteredAttributions({
-          selectedFilters: this.state.selectedFilters,
-          manualData: this.state.manualData,
-          sorting: this.state.attributionSorting,
+          attributionBreakpoints: this.state.attributionBreakpoints,
+          data: this.state.manualData,
+          filters: this.state.attributionFilters,
+          includeGlobal: true,
+          resourceId: this.state.resourceId,
           search: this.state.attributionSearch,
+          selectedLicense: this.state.attributionSelectedLicense,
+          sorting: this.state.attributionSorting,
+        }),
+      });
+    }
+  }
+
+  private dispatchReportViewFilteredAttributionCounts(
+    input: SignalsWorkerInput,
+  ) {
+    if (
+      this.isHydrated(
+        this.state,
+        input,
+        this.config.reportViewFilteredAttributionCounts.dependencies,
+      )
+    ) {
+      this.dispatch({
+        name: 'reportViewFilteredAttributionCounts',
+        data: getFilteredAttributionCounts({
+          data: this.state.manualData,
+          filters: this.state.reportViewAttributionFilters,
+          resourceId: ROOT_PATH,
+          search: '',
+          selectedLicense: '',
+        }),
+      });
+    }
+  }
+
+  private dispatchFilteredAttributionsInReportView(input: SignalsWorkerInput) {
+    if (
+      this.isHydrated(
+        this.state,
+        input,
+        this.config.filteredAttributionsInReportView.dependencies,
+      )
+    ) {
+      this.dispatch({
+        name: 'filteredAttributionsInReportView',
+        data: getFilteredAttributions({
+          data: this.state.manualData,
+          filters: this.state.reportViewAttributionFilters,
+          resourceId: ROOT_PATH,
+          search: '',
+          selectedLicense: this.state.reportViewAttributionSelectedLicense,
+          sorting: text.sortings.name,
+        }),
+      });
+    }
+  }
+
+  private dispatchFilteredSignalCounts(input: SignalsWorkerInput) {
+    if (
+      this.isHydrated(
+        this.state,
+        input,
+        this.config.filteredSignalCounts.dependencies,
+      )
+    ) {
+      this.dispatch({
+        name: 'filteredSignalCounts',
+        data: getFilteredAttributionCounts({
+          data: this.state.externalData,
+          resolvedExternalAttributions: this.state.areHiddenSignalsVisible
+            ? undefined
+            : this.state.resolvedExternalAttributions,
+          resourceId: this.state.resourceId,
+          filters: this.state.signalFilters,
+          search: this.state.signalSearch,
+          selectedLicense: this.state.signalSelectedLicense,
+        }),
+      });
+    }
+  }
+
+  private dispatchFilteredSignals(input: SignalsWorkerInput) {
+    if (
+      this.isHydrated(
+        this.state,
+        input,
+        this.config.filteredSignals.dependencies,
+      )
+    ) {
+      this.dispatch({
+        name: 'filteredSignals',
+        data: getFilteredAttributions({
+          data: this.state.externalData,
+          filters: this.state.signalFilters,
+          resolvedExternalAttributions: this.state.areHiddenSignalsVisible
+            ? undefined
+            : this.state.resolvedExternalAttributions,
+          resourceId: this.state.resourceId,
+          search: this.state.signalSearch,
+          selectedLicense: this.state.signalSelectedLicense,
+          sorting: this.state.signalSorting,
         }),
       });
     }

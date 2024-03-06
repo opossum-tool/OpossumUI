@@ -11,6 +11,7 @@ import { OpossumColors } from '../../shared-styles';
 const classes = {
   commitDisplay: {
     color: OpossumColors.lightBlue,
+    userSelect: 'none',
   },
 };
 

@@ -10,8 +10,6 @@ export const ACTION_SET_VIEW = 'ACTION_SET_VIEW';
 export const ACTION_OPEN_POPUP = 'ACTION_OPEN_POPUP';
 export const ACTION_CLOSE_POPUP = 'ACTION_CLOSE_POPUP';
 export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
-export const ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE =
-  'ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE';
 export const ACTION_SET_OPEN_FILE_REQUEST = 'ACTION_SET_OPEN_FILE_REQUEST';
 
 export type ViewAction =
@@ -20,7 +18,6 @@ export type ViewAction =
   | ClosePopupAction
   | ResetViewStateAction
   | OpenPopupAction
-  | SetShowNoSignalsLocatedMessage
   | SetOpenFileRequestAction;
 
 export interface ResetViewStateAction {
@@ -44,11 +41,6 @@ export interface ClosePopupAction {
 export interface OpenPopupAction {
   type: typeof ACTION_OPEN_POPUP;
   payload: PopupInfo;
-}
-
-export interface SetShowNoSignalsLocatedMessage {
-  type: typeof ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE;
-  payload: boolean;
 }
 
 export interface SetOpenFileRequestAction {

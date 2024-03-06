@@ -32,6 +32,8 @@ class ResizeObserver {
 }
 
 global.window.electronAPI = {
+  quit: jest.fn(),
+  relaunch: jest.fn(),
   openLink: jest.fn().mockReturnValue(Promise.resolve()),
   openFile: jest.fn(),
   deleteFile: jest.fn(),

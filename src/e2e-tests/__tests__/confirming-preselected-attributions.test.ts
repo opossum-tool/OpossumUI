@@ -38,74 +38,85 @@ test.use({
   },
 });
 
-test('updates progress bar when user confirms preselected attributions in audit view', async ({
+test('updates progress bar when user confirms pre-selected attributions', async ({
   attributionDetails,
-  resourceBrowser,
-  resourceDetails,
+  resourcesTree,
+  attributionsPanel,
   topBar,
+  confirmSavePopup,
+  linkedResourcesTree,
 }) => {
-  await resourceBrowser.goto(resourceName1);
+  await resourcesTree.goto(resourceName1);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo1,
   );
   await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 4,
     filesWithOnlyPreSelectedAttributions: 4,
   });
   await attributionDetails.assert.confirmButtonIsVisible();
-  await attributionDetails.assert.confirmGloballyButtonIsHidden();
   await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
     'preselectedLabel',
   );
 
-  await resourceDetails.attributionCard.click(packageInfo1);
+  await attributionsPanel.packageCard.click(packageInfo1);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName1);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName2);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName3);
+
   await attributionDetails.confirmButton.click();
+  await confirmSavePopup.confirmLocallyButton.click();
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName1);
+  await linkedResourcesTree.assert.resourceIsHidden(resourceName2);
+  await linkedResourcesTree.assert.resourceIsHidden(resourceName3);
   await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 4,
     filesWithAttributions: 1,
     filesWithOnlyPreSelectedAttributions: 3,
   });
   await attributionDetails.assert.confirmButtonIsHidden();
-  await attributionDetails.assert.confirmGloballyButtonIsHidden();
   await attributionDetails.attributionForm.assert.auditingLabelIsHidden(
     'preselectedLabel',
   );
 
-  await resourceBrowser.goto(resourceName2);
+  await resourcesTree.goto(resourceName2);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo1,
   );
+  await linkedResourcesTree.assert.resourceIsHidden(resourceName1);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName2);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName3);
 
-  await attributionDetails.selectConfirmMenuOption('confirmGlobally');
-  await attributionDetails.confirmGloballyButton.click();
+  await attributionDetails.confirmButton.click();
+  await confirmSavePopup.confirmGloballyButton.click();
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName1);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName2);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName3);
   await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 4,
     filesWithAttributions: 3,
     filesWithOnlyPreSelectedAttributions: 1,
   });
 
-  await resourceBrowser.goto(resourceName3);
+  await resourcesTree.goto(resourceName3);
   await attributionDetails.assert.confirmButtonIsHidden();
-  await attributionDetails.assert.confirmGloballyButtonIsHidden();
 });
 
-test('confirms multiple preselected attributions in attribution view', async ({
-  attributionList,
+test('confirms multiple pre-selected attributions', async ({
+  attributionsPanel,
   attributionDetails,
-  topBar,
+  confirmSavePopup,
 }) => {
-  await topBar.gotoAttributionView();
-  await attributionList.attributionCard.click(packageInfo1);
+  await attributionsPanel.packageCard.click(packageInfo1);
   await attributionDetails.assert.confirmButtonIsVisible();
-  await attributionList.attributionCard.click(packageInfo2);
+  await attributionsPanel.packageCard.click(packageInfo2);
   await attributionDetails.assert.confirmButtonIsVisible();
 
-  await attributionList.attributionCard.checkbox(packageInfo1).click();
-  await attributionList.attributionCard.checkbox(packageInfo2).click();
-  await attributionList.confirmButton.click();
+  await attributionsPanel.packageCard.checkbox(packageInfo1).check();
+  await attributionsPanel.packageCard.checkbox(packageInfo2).check();
+  await attributionsPanel.confirmButton.click();
+  await confirmSavePopup.assert.hasText('2 attributions');
 
-  await attributionList.attributionCard.click(packageInfo1);
+  await confirmSavePopup.confirmGloballyButton.click();
+  await attributionsPanel.packageCard.click(packageInfo1);
   await attributionDetails.assert.confirmButtonIsHidden();
-  await attributionList.attributionCard.click(packageInfo2);
+  await attributionsPanel.packageCard.click(packageInfo2);
   await attributionDetails.assert.confirmButtonIsHidden();
 });

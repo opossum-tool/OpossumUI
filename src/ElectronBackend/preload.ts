@@ -9,6 +9,8 @@ import { IpcChannel } from '../shared/ipc-channels';
 import { ElectronAPI } from '../shared/shared-types';
 
 const electronAPI: ElectronAPI = {
+  quit: () => ipcRenderer.invoke(IpcChannel.Quit),
+  relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
   openFile: () => ipcRenderer.invoke(IpcChannel.OpenFile),
   deleteFile: () => ipcRenderer.invoke(IpcChannel.DeleteFile),

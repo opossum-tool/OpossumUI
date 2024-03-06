@@ -19,37 +19,32 @@ export const TagsContainer = styled('div')({
 
 export const Input = styled(MuiTextField, {
   shouldForwardProp: (name: string) =>
-    !['highlight', 'numberOfEndAdornments'].includes(name),
+    !['error', 'numberOfEndAdornments', 'background'].includes(name),
 })<{
-  highlight: 'default' | 'dark' | undefined;
+  background?: string;
+  error?: boolean;
   numberOfEndAdornments: number;
-}>(({ highlight, numberOfEndAdornments }) => ({
+}>(({ background, error, numberOfEndAdornments }) => ({
   '& .MuiInputLabel-root': {
-    backgroundColor: highlight
-      ? highlight === 'default'
-        ? OpossumColors.lightOrange
-        : OpossumColors.darkOrange
-      : OpossumColors.white,
+    backgroundColor:
+      background || (error ? OpossumColors.lightOrange : OpossumColors.white),
     padding: '0px 3px',
     fontSize: '13px',
     top: '1px',
   },
   '& .MuiInputBase-root': {
-    backgroundColor: highlight
-      ? highlight === 'default'
-        ? OpossumColors.lightOrange
-        : OpossumColors.darkOrange
-      : OpossumColors.white,
+    backgroundColor:
+      background || (error ? OpossumColors.lightOrange : OpossumColors.white),
     borderRadius: '0px',
     display: 'flex',
     flexWrap: 'wrap',
     alignItems: 'center',
-    gap: '4px',
+    gap: '8px',
     minHeight: '36.67px',
     paddingTop: '6px',
     paddingBottom: '6px',
-    paddingLeft: '14px',
-    paddingRight: `calc(14px + ${numberOfEndAdornments} * 28px)`,
+    paddingLeft: '12px',
+    paddingRight: `calc(12px + ${numberOfEndAdornments} * 28px)`,
   },
   '& .MuiInputBase-input': {
     flex: 1,

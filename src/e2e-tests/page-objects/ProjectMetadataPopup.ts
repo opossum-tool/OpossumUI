@@ -33,8 +33,4 @@ export class ProjectMetadataPopup {
       ).toBeHidden();
     },
   };
-
-  async close(): Promise<void> {
-    await this.closeButton.click();
-  }
 }

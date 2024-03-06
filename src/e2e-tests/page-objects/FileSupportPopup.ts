@@ -27,8 +27,4 @@ export class FileSupportPopup {
       await expect(this.title).toBeHidden();
     },
   };
-
-  async convertToNew(): Promise<void> {
-    await this.convertButton.click();
-  }
 }

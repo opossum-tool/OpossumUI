@@ -51,6 +51,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: artifacts
-          path: src/e2e-tests/artifacts
+          name: artifacts-${{ matrix.os }}
+          path: src/e2e-tests/artifacts-${{ matrix.os }}
           retention-days: 30

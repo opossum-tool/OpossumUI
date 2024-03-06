@@ -38,7 +38,7 @@ export function renderComponent(
         <Provider store={store}>
           <QueryClientProvider client={makeReactQueryClient()}>
             <VirtuosoMockContext.Provider
-              value={{ itemHeight: 200, viewportHeight: 600 }}
+              value={{ itemHeight: 40, viewportHeight: 1200 }}
             >
               {children}
             </VirtuosoMockContext.Provider>
