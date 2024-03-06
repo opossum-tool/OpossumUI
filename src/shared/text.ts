@@ -229,4 +229,9 @@ export const text = {
     applyChanges: 'Apply changes',
     revertAll: 'Revert all',
   },
+  errorBoundary: {
+    unexpectedError: "We're sorry, an unexpected error occurred!",
+    relaunch: 'Relaunch App',
+    quit: 'Quit App',
+  },
 } as const;

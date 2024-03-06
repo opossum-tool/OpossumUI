@@ -48,6 +48,7 @@
         'prettier',
         'prop-types',
         'proxy-memoize',
+        'react-error-boundary',
         'react-hot-toast',
         'react-hotkeys-hook',
         'react-virtuoso',

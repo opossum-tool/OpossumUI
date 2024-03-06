@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import '@fontsource-variable/karla';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
+import { ErrorBoundary } from 'react-error-boundary';
 
 import { View } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
@@ -12,7 +13,7 @@ import { getSelectedView } from '../../state/selectors/view-selector';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useSignalsWorker } from '../../web-workers/use-signals-worker';
 import { AuditView } from '../AuditView/AuditView';
-import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
+import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
 import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
 import { ProcessPopup } from '../ProcessPopup/ProcessPopup';
 import { ReportView } from '../ReportView/ReportView';
@@ -32,18 +33,18 @@ export function App() {
   usePanelSizes(); // pre-hydrate size of panels
 
   return (
-    <ErrorBoundary>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <GlobalPopup />
-          <ProcessPopup />
-          <ViewContainer>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <ViewContainer>
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <GlobalPopup />
+            <ProcessPopup />
             <TopBar />
             {renderView()}
-          </ViewContainer>
-        </ThemeProvider>
-      </StyledEngineProvider>
-    </ErrorBoundary>
+          </ErrorBoundary>
+        </ViewContainer>
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 
   function renderView() {

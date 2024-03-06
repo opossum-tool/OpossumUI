@@ -235,6 +235,8 @@ export interface FileSupportPopupArgs {
 export type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
 export interface ElectronAPI {
+  quit: () => void;
+  relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: () => Promise<unknown>;
   deleteFile: () => Promise<unknown>;
