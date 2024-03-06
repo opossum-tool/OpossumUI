@@ -6,8 +6,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Resizable } from 're-resizable';
 import { useEffect, useRef, useState } from 'react';
 
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { TRANSITION } from '../../shared-styles';
+import { useIpcRenderer } from '../../util/use-ipc-renderer';
 import { ResizableBox } from '../ResizableBox/ResizableBox';
+import { SearchRefContext } from '../SearchRefContext/SearchRefContext';
 import { ResizeButton } from './ResizeButton/ResizeButton';
 import {
   ClearButton,
@@ -25,8 +28,11 @@ const GOLDEN_RATIO = 1.61803398875;
 interface ResizePanel {
   component: React.ReactNode;
   title: string;
-  search: string;
-  setSearch: (search: string) => void;
+  search: {
+    value: string;
+    setValue: (search: string) => void;
+    channel: AllowedFrontendChannels;
+  };
   hidden?: boolean;
   headerTestId?: string;
 }
@@ -66,6 +72,8 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
   const fraction = FRACTIONS[main];
   const [isResizing, setIsResizing] = useState(true);
   const containerRef = useRef<Resizable>(null);
+  const upperSearchRef = useRef<HTMLInputElement>(null);
+  const lowerSearchRef = useRef<HTMLInputElement>(null);
 
   const isLowerCollapsed = effectiveHeight <= HEADER_HEIGHT;
   const isUpperCollapsed =
@@ -84,6 +92,26 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
       window.removeEventListener('resize', applyGoldenRatio);
     };
   }, [fraction, heightIsNull, setHeight]);
+
+  useIpcRenderer(
+    upperPanel.search.channel,
+    () => {
+      if (!isUpperCollapsed) {
+        upperSearchRef.current?.focus();
+      }
+    },
+    [isUpperCollapsed],
+  );
+
+  useIpcRenderer(
+    lowerPanel.search.channel,
+    () => {
+      if (!isLowerCollapsed) {
+        lowerSearchRef.current?.focus();
+      }
+    },
+    [isLowerCollapsed],
+  );
 
   return (
     <ResizableBox
@@ -115,8 +143,14 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
 
     return (
       <>
-        {renderHeader({ ...upperPanel, showSearch: !isUpperCollapsed })}
-        {upperPanel.component}
+        {renderHeader({
+          ...upperPanel,
+          showSearch: !isUpperCollapsed,
+          searchRef: upperSearchRef,
+        })}
+        <SearchRefContext.Provider value={upperSearchRef}>
+          {upperPanel.component}
+        </SearchRefContext.Provider>
       </>
     );
   }
@@ -151,8 +185,11 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
           ...lowerPanel,
           showResizeButtons: true,
           showSearch: !isLowerCollapsed,
+          searchRef: lowerSearchRef,
         })}
-        {lowerPanel.component}
+        <SearchRefContext.Provider value={lowerSearchRef}>
+          {lowerPanel.component}
+        </SearchRefContext.Provider>
       </ResizableBox>
     );
   }
@@ -160,19 +197,20 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
   function renderHeader({
     title,
     search,
-    setSearch,
     showResizeButtons,
+    searchRef,
     showSearch,
     headerTestId,
-  }: Pick<ResizePanel, 'title' | 'search' | 'setSearch' | 'headerTestId'> & {
+  }: Pick<ResizePanel, 'title' | 'search' | 'headerTestId'> & {
     title: string;
     showResizeButtons?: boolean;
     showSearch: boolean;
+    searchRef: React.RefObject<HTMLInputElement>;
   }) {
     return (
       <Header data-testid={headerTestId} square>
         <HeaderText color={'ghostwhite'}>{title}</HeaderText>
-        {showSearch && renderSearchButton({ search, setSearch })}
+        {showSearch && renderSearchButton({ search, searchRef })}
         {showResizeButtons && renderDownResizeButton()}
         {showResizeButtons && renderUpResizeButton()}
       </Header>
@@ -180,24 +218,27 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
   }
 
   function renderSearchButton({
-    search,
-    setSearch,
-  }: Pick<ResizePanel, 'search' | 'setSearch'>) {
+    search: { value, setValue },
+    searchRef,
+  }: Pick<ResizePanel, 'search'> & {
+    searchRef: React.RefObject<HTMLInputElement>;
+  }) {
     return (
-      <Search hasValue={!!search}>
+      <Search hasValue={!!value}>
         <SearchIconWrapper>
           <SearchIcon color={'secondary'} fontSize={'inherit'} />
         </SearchIconWrapper>
         <StyledInputBase
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
           spellCheck={false}
           type={'search'}
+          inputRef={searchRef}
         />
-        {!!search && (
+        {!!value && (
           <ClearIconWrapper>
             <ClearButton
-              onClick={() => setSearch('')}
+              onClick={() => setValue('')}
               aria-label={'clear search'}
               color={'secondary'}
               fontSize={'inherit'}

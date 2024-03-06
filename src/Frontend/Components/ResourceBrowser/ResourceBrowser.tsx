@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useCallback, useMemo } from 'react';
 
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
 import {
@@ -89,8 +90,11 @@ export function ResourceBrowser() {
       setHeight={setHeight}
       upperPanel={{
         title: text.resourceBrowser.allResources(allResourcesFiltered.length),
-        search: searchAll,
-        setSearch: setSearchAll,
+        search: {
+          value: searchAll,
+          setValue: setSearchAll,
+          channel: AllowedFrontendChannels.SearchResources,
+        },
         component: <ResourcesTree resourceIds={allResourcesFiltered} />,
         headerTestId: 'resources-tree-header',
       }}
@@ -98,8 +102,11 @@ export function ResourceBrowser() {
         title: text.resourceBrowser.linkedResources(
           linkedResourcesFiltered.length,
         ),
-        search: searchLinked,
-        setSearch: setSearchLinked,
+        search: {
+          value: searchLinked,
+          setValue: setSearchLinked,
+          channel: AllowedFrontendChannels.SearchLinkedResources,
+        },
         hidden: !resourceIdsOfSelectedAttribution.length,
         component: (
           <LinkedResourcesTree resourceIds={linkedResourcesFiltered} />

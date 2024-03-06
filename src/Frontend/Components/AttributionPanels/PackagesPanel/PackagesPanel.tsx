@@ -123,17 +123,20 @@ export const PackagesPanel = ({
     [attributionIds, multiSelectedAttributionIds, selectedAttributionId],
   );
 
-  const areAllAttributionsSelected = useMemo(
-    () =>
-      !!attributionIds?.length &&
-      !difference(
-        attributionIds.filter(
-          (id) => attributions?.[id].relation === activeRelation,
-        ),
-        multiSelectedAttributionIds,
-      ).length,
-    [activeRelation, attributionIds, attributions, multiSelectedAttributionIds],
-  );
+  const areAllAttributionsSelected = useMemo(() => {
+    const activeAttributionIds = attributionIds?.filter(
+      (id) => attributions?.[id].relation === activeRelation,
+    );
+    return (
+      !!activeAttributionIds?.length &&
+      !difference(activeAttributionIds, multiSelectedAttributionIds).length
+    );
+  }, [
+    activeRelation,
+    attributionIds,
+    attributions,
+    multiSelectedAttributionIds,
+  ]);
 
   const effectiveSelectedIds = useMemo(
     () => intersection(attributionIds, multiSelectedAttributionIds),

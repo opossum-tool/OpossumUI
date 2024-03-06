@@ -6,6 +6,8 @@ import MuiButtonBase from '@mui/material/ButtonBase';
 import MuiTooltip, { TooltipProps } from '@mui/material/Tooltip';
 import { ReactElement } from 'react';
 
+import { OpossumColors } from '../../shared-styles';
+
 interface IconButtonProps {
   tooltipTitle?: string;
   tooltipPlacement?: TooltipProps['placement'];
@@ -38,6 +40,11 @@ export function IconButton(props: IconButtonProps) {
           }}
           disabled={props.disabled}
           data-testid={props['data-testid']}
+          sx={{
+            '&:focus': {
+              background: OpossumColors.middleBlue,
+            },
+          }}
         >
           {props.icon}
         </MuiButtonBase>

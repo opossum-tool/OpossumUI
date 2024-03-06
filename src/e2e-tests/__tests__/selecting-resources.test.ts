@@ -60,7 +60,7 @@ test('allows navigating up and down the resource tree by keyboard', async ({
 
   await window.keyboard.press('ArrowUp');
   await window.keyboard.press('ArrowUp');
-  await window.keyboard.press('Space');
+  await window.keyboard.press('Enter');
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo1,
   );

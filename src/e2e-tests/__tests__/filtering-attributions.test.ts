@@ -133,6 +133,8 @@ test('filters attributions in report view', async ({ reportView, topBar }) => {
 
 test('only displays attributions matching search term', async ({
   attributionsPanel,
+  window,
+  modKey,
 }) => {
   await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
   await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
@@ -147,4 +149,11 @@ test('only displays attributions matching search term', async ({
   await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
   await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
   await attributionsPanel.packageCard.assert.isVisible(packageInfo3);
+
+  await attributionsPanel.packageCard.click(packageInfo1);
+  await window.keyboard.press(`${modKey}+F`);
+  await window.keyboard.type(packageInfo1.packageName!);
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo3);
 });

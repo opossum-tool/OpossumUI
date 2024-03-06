@@ -84,7 +84,7 @@ export const tableConfigs: Array<TableConfig> = [
   },
 ];
 
-// table components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
+// Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
 export const TABLE_COMPONENTS: TableComponents<PackageInfo> = {
   Scroller: forwardRef((props, ref) => <TableContainer {...props} ref={ref} />),
   Table: (props) => (

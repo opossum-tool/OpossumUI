@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useCallback } from 'react';
 
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import {
   useFilteredAttributions,
@@ -49,17 +50,23 @@ export function AttributionPanels() {
         setHeight={setHeight}
         upperPanel={{
           component: <AttributionsPanel />,
-          search: attributionSearch,
-          setSearch: (search) =>
-            setFilteredAttributions((prev) => ({ ...prev, search })),
+          search: {
+            value: attributionSearch,
+            setValue: (search) =>
+              setFilteredAttributions((prev) => ({ ...prev, search })),
+            channel: AllowedFrontendChannels.SearchAttributions,
+          },
           title: text.packageLists.attributionsPanelTitle,
           headerTestId: 'attributions-panel-header',
         }}
         lowerPanel={{
           component: <SignalsPanel />,
-          search: signalSearch,
-          setSearch: (search) =>
-            setFilteredSignals((prev) => ({ ...prev, search })),
+          search: {
+            value: signalSearch,
+            setValue: (search) =>
+              setFilteredSignals((prev) => ({ ...prev, search })),
+            channel: AllowedFrontendChannels.SearchSignals,
+          },
           title: text.packageLists.signalsPanelTitle,
           headerTestId: 'signals-panel-header',
         }}

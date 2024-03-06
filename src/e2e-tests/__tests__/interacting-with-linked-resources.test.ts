@@ -65,9 +65,11 @@ test('shows resources linked to an attribution', async ({
   await signalsPanel.packageCard.assert.isVisible(externalPackageInfo);
 });
 
-test('shows only resources matching search', async ({
+test('shows only linked resources matching search', async ({
   resourcesTree,
   linkedResourcesTree,
+  window,
+  modKey,
 }) => {
   await resourcesTree.goto(resourceName1);
   await linkedResourcesTree.assert.isVisible();
@@ -80,5 +82,11 @@ test('shows only resources matching search', async ({
 
   await linkedResourcesTree.clearSearchButton.click();
   await linkedResourcesTree.assert.resourceIsVisible(resourceName1);
+  await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
+
+  await linkedResourcesTree.goto(resourceName1);
+  await window.keyboard.press(`${modKey}+F`);
+  await window.keyboard.type(resourceName4);
+  await linkedResourcesTree.assert.resourceIsHidden(resourceName1);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
 });

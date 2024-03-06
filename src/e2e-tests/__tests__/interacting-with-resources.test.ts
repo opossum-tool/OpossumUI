@@ -137,7 +137,11 @@ test('shows expected breadcrumbs as user navigates through browser history', asy
   await pathBar.assert.breadcrumbsAreHidden(resourceName2, resourceName3);
 });
 
-test('shows only resources matching search', async ({ resourcesTree }) => {
+test('shows only resources matching search', async ({
+  resourcesTree,
+  window,
+  modKey,
+}) => {
   await resourcesTree.assert.resourceIsVisible(resourceName1);
   await resourcesTree.assert.resourceIsVisible(resourceName4);
 
@@ -147,5 +151,11 @@ test('shows only resources matching search', async ({ resourcesTree }) => {
 
   await resourcesTree.clearSearchButton.click();
   await resourcesTree.assert.resourceIsVisible(resourceName1);
+  await resourcesTree.assert.resourceIsVisible(resourceName4);
+
+  await resourcesTree.gotoRoot();
+  await window.keyboard.press(`${modKey}+F`);
+  await window.keyboard.type(resourceName4);
+  await resourcesTree.assert.resourceIsHidden(resourceName1);
   await resourcesTree.assert.resourceIsVisible(resourceName4);
 });

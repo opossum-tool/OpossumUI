@@ -40,7 +40,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           ),
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
-          click(): void {
+          click: () => {
             void getOpenFileListener(mainWindow)();
           },
         },
@@ -51,7 +51,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           ),
           label: 'Save',
           accelerator: 'CmdOrCtrl+S',
-          click(): void {
+          click: () => {
             webContents.send(AllowedFrontendChannels.SaveFileRequest, {
               saveFile: true,
             });
@@ -70,7 +70,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
                 'icons/follow-up-white.png',
                 'icons/follow-up-black.png',
               ),
-              click(): void {
+              click: () => {
                 setLoadingState(mainWindow.webContents, true);
                 logger.info('Preparing data for follow-up export');
                 webContents.send(
@@ -85,7 +85,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
                 'icons/com-list-black.png',
               ),
               label: 'Compact component list',
-              click(): void {
+              click: () => {
                 setLoadingState(mainWindow.webContents, true);
                 logger.info('Preparing data for compact component list export');
                 webContents.send(
@@ -100,7 +100,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
                 'icons/det-list-black.png',
               ),
               label: 'Detailed component list',
-              click(): void {
+              click: () => {
                 setLoadingState(mainWindow.webContents, true);
                 logger.info(
                   'Preparing data for detailed component list export',
@@ -117,7 +117,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
                 'icons/yaml-black.png',
               ),
               label: 'SPDX (yaml)',
-              click(): void {
+              click: () => {
                 setLoadingState(mainWindow.webContents, true);
                 logger.info('Preparing data for SPDX (yaml) export');
                 webContents.send(
@@ -132,7 +132,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
                 'icons/json-black.png',
               ),
               label: 'SPDX (json)',
-              click(): void {
+              click: () => {
                 setLoadingState(mainWindow.webContents, true);
                 logger.info('Preparing data for SPDX (json) export');
                 webContents.send(
@@ -149,7 +149,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/about-black.png',
           ),
           label: 'Project Metadata',
-          click(): void {
+          click: () => {
             if (isFileLoaded(getGlobalBackendState())) {
               webContents.send(
                 AllowedFrontendChannels.ShowProjectMetadataPopup,
@@ -166,7 +166,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/statictics-black.png',
           ),
           label: 'Project Statistics',
-          click(): void {
+          click: () => {
             if (isFileLoaded(getGlobalBackendState())) {
               webContents.send(
                 AllowedFrontendChannels.ShowProjectStatisticsPopup,
@@ -183,7 +183,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/restore-black.png',
           ),
           label: 'Set Path to Sources',
-          click(): void {
+          click: () => {
             getSelectBaseURLListener(mainWindow)();
           },
         },
@@ -194,7 +194,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           ),
           label: 'Quit',
           accelerator: 'CmdOrCtrl+Q',
-          click(): void {
+          click: () => {
             app.quit();
           },
         },
@@ -257,6 +257,59 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           label: 'Select All',
           accelerator: 'CmdOrCtrl+A',
           role: 'selectAll',
+        },
+        { type: 'separator' },
+        {
+          icon: getIconBasedOnTheme(
+            'icons/magnifying-glass-white.png',
+            'icons/magnifying-glass-black.png',
+          ),
+          label: 'Search Attributions',
+          accelerator: 'CmdOrCtrl+Shift+A',
+          click: () => {
+            if (isFileLoaded(getGlobalBackendState())) {
+              webContents.send(AllowedFrontendChannels.SearchAttributions);
+            }
+          },
+        },
+        {
+          icon: getIconBasedOnTheme(
+            'icons/magnifying-glass-white.png',
+            'icons/magnifying-glass-black.png',
+          ),
+          label: 'Search Signals',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click: () => {
+            if (isFileLoaded(getGlobalBackendState())) {
+              webContents.send(AllowedFrontendChannels.SearchSignals);
+            }
+          },
+        },
+        {
+          icon: getIconBasedOnTheme(
+            'icons/search-white.png',
+            'icons/search-black.png',
+          ),
+          label: 'Search All Resources',
+          accelerator: 'CmdOrCtrl+Shift+R',
+          click: () => {
+            if (isFileLoaded(getGlobalBackendState())) {
+              webContents.send(AllowedFrontendChannels.SearchResources);
+            }
+          },
+        },
+        {
+          icon: getIconBasedOnTheme(
+            'icons/search-white.png',
+            'icons/search-black.png',
+          ),
+          label: 'Search Linked Resources',
+          accelerator: 'CmdOrCtrl+Shift+L',
+          click: () => {
+            if (isFileLoaded(getGlobalBackendState())) {
+              webContents.send(AllowedFrontendChannels.SearchLinkedResources);
+            }
+          },
         },
       ],
     },
@@ -338,11 +391,8 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/github-black.png',
           ),
           label: 'Open on GitHub',
-          click: async (): Promise<void> => {
-            await shell.openExternal(
-              'https://github.com/opossum-tool/opossumUI',
-            );
-          },
+          click: () =>
+            shell.openExternal('https://github.com/opossum-tool/opossumUI'),
         },
         {
           icon: getIconBasedOnTheme(
@@ -350,9 +400,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/notice-black.png',
           ),
           label: 'OpossumUI Notices',
-          click: async (): Promise<void> => {
-            await shell.openPath(getPathOfNoticeDocument());
-          },
+          click: () => shell.openPath(getPathOfNoticeDocument()),
         },
         {
           icon: getIconBasedOnTheme(
@@ -360,9 +408,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/chromium-black.png',
           ),
           label: 'Chromium Notices',
-          click: async (): Promise<void> => {
-            await shell.openPath(getPathOfChromiumNoticeDocument());
-          },
+          click: () => shell.openPath(getPathOfChromiumNoticeDocument()),
         },
       ],
     },
@@ -375,11 +421,10 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/user-guide-black.png',
           ),
           label: "User's Guide",
-          click: async (): Promise<void> => {
-            await shell.openExternal(
+          click: () =>
+            shell.openExternal(
               'https://github.com/opossum-tool/OpossumUI/blob/main/USER_GUIDE.md',
-            );
-          },
+            ),
         },
         {
           icon: getIconBasedOnTheme(
@@ -387,9 +432,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/log-black.png',
           ),
           label: 'Open log files folder',
-          click: async (): Promise<void> => {
-            await shell.openPath(app.getPath('logs'));
-          },
+          click: () => shell.openPath(app.getPath('logs')),
         },
         {
           icon: getIconBasedOnTheme(
@@ -397,7 +440,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/update-black.png',
           ),
           label: 'Check for updates',
-          click(): void {
+          click: () => {
             webContents.send(AllowedFrontendChannels.ShowUpdateAppPopup, {
               showUpdateAppPopup: true,
             });
