@@ -129,14 +129,11 @@ export function VirtualizedTreeNode({
       tabIndex={0}
       ref={ref}
       onKeyDown={(event) => {
-        if (['Enter', 'Space'].includes(event.code)) {
-          event.preventDefault();
+        if (['Enter'].includes(event.code)) {
           handleClick?.();
         } else if (event.code === 'ArrowRight' && !isExpandedNode) {
-          event.preventDefault();
           onToggle?.([nodeId]);
         } else if (event.code === 'ArrowLeft' && isExpandedNode) {
-          event.preventDefault();
           onToggle?.([nodeId]);
         }
       }}

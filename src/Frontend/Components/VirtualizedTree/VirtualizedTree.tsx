@@ -10,6 +10,7 @@ import { getResourcesFromIds } from '../../state/helpers/resources-helpers';
 import { useAppSelector } from '../../state/hooks';
 import { getFilesWithChildren } from '../../state/selectors/resource-selectors';
 import { List } from '../List/List';
+import { SearchList } from '../SearchList/SearchList';
 import { getTreeNodes } from './VirtualizedTree.util';
 import {
   TreeNode,
@@ -57,6 +58,7 @@ export function VirtualizedTree({
   return (
     <List
       data={resourceIds.length ? Object.keys(treeNodes) : []}
+      components={{ List: SearchList }}
       renderItemContent={(nodeId, { selected, focused }) => (
         <VirtualizedTreeNode
           TreeNodeLabel={TreeNodeLabel}

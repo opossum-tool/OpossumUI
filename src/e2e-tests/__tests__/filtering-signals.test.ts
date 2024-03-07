@@ -90,7 +90,11 @@ test('filters signals', async ({ signalsPanel }) => {
   await signalsPanel.packageCard.assert.isHidden(packageInfo3);
 });
 
-test('only displays signals matching search term', async ({ signalsPanel }) => {
+test('only displays signals matching search term', async ({
+  signalsPanel,
+  window,
+  modKey,
+}) => {
   await signalsPanel.packageCard.assert.isVisible(packageInfo1);
   await signalsPanel.packageCard.assert.isVisible(packageInfo2);
   await signalsPanel.packageCard.assert.isVisible(packageInfo3);
@@ -104,4 +108,11 @@ test('only displays signals matching search term', async ({ signalsPanel }) => {
   await signalsPanel.packageCard.assert.isVisible(packageInfo1);
   await signalsPanel.packageCard.assert.isVisible(packageInfo2);
   await signalsPanel.packageCard.assert.isVisible(packageInfo3);
+
+  await signalsPanel.packageCard.click(packageInfo1);
+  await window.keyboard.press(`${modKey}+F`);
+  await window.keyboard.type(packageInfo1.packageName!);
+  await signalsPanel.packageCard.assert.isVisible(packageInfo1);
+  await signalsPanel.packageCard.assert.isHidden(packageInfo2);
+  await signalsPanel.packageCard.assert.isHidden(packageInfo3);
 });

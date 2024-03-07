@@ -95,7 +95,7 @@ test('allows navigating through the attributions list by keyboard', async ({
   );
 
   await window.keyboard.press('ArrowUp');
-  await window.keyboard.press('Space');
+  await window.keyboard.press('Enter');
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo2,
   );

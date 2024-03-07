@@ -145,8 +145,7 @@ export const PackageCard = memo(
         aria-label={`package card ${packageLabels[0]}`}
         tabIndex={0}
         onKeyDown={(event) => {
-          if (['Enter', 'Space'].includes(event.code)) {
-            event.preventDefault();
+          if (['Enter'].includes(event.code)) {
             onClick?.();
           }
         }}
@@ -162,7 +161,6 @@ export const PackageCard = memo(
             checked={checkbox.checked}
             disabled={checkbox.disabled}
             onChange={checkbox.onChange}
-            disableRipple
           />
         )}
         <MuiBox sx={classes.innerRoot} onClick={onClick}>

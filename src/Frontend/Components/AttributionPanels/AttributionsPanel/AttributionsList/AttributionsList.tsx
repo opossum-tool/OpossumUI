@@ -12,6 +12,7 @@ import { useAttributionIdsForReplacement } from '../../../../state/variables/use
 import { isPackageInfoIncomplete } from '../../../../util/is-important-attribution-information-missing';
 import { List, ListItemContentProps } from '../../../List/List';
 import { PackageCard } from '../../../PackageCard/PackageCard';
+import { SearchList } from '../../../SearchList/SearchList';
 import { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
@@ -31,6 +32,7 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
     <List
       renderItemContent={renderAttributionCard}
       data={activeAttributionIds}
+      components={{ List: SearchList }}
       selectedId={selectedAttributionId}
       loading={loading}
       sx={{ transition: TRANSITION, height: contentHeight }}

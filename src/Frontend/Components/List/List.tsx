@@ -6,8 +6,9 @@ import { SxProps } from '@mui/system';
 import { Virtuoso, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
 
 import { useVirtuosoRefs } from '../../util/use-virtuoso-refs';
+import { EmptyPlaceholder } from '../EmptyPlaceholder/EmptyPlaceholder';
 import { LoadingMask } from '../LoadingMask/LoadingMask';
-import { NoResults } from '../NoResults/NoResults';
+import { VirtuosoComponentContext } from '../VirtuosoComponentContext/VirtuosoComponentContext';
 import { StyledLinearProgress } from './List.style';
 
 export interface ListItemContentProps {
@@ -37,6 +38,7 @@ export function List({
   selectedId,
   sx,
   testId,
+  components,
   ...props
 }: ListProps & Omit<VirtuosoProps<string, unknown>, 'data' | 'selected'>) {
   const {
@@ -45,6 +47,7 @@ export function List({
     scrollerRef,
     setIsVirtuosoFocused,
     selectedIndex,
+    isVirtuosoFocused,
   } = useVirtuosoRefs<VirtuosoHandle>({
     data,
     selectedId,
@@ -59,25 +62,31 @@ export function List({
     >
       {loading && <StyledLinearProgress data-testid={'loading'} />}
       {data && (
-        <Virtuoso
-          ref={ref}
-          onFocus={() => setIsVirtuosoFocused(true)}
-          onBlur={() => setIsVirtuosoFocused(false)}
-          components={{
-            EmptyPlaceholder:
-              loading || data.length ? undefined : () => <NoResults />,
-          }}
-          scrollerRef={scrollerRef}
-          data={data}
-          itemContent={(index) =>
-            renderItemContent(data[index], {
-              index,
-              selected: index === selectedIndex,
-              focused: index === focusedIndex,
-            })
-          }
-          {...props}
-        />
+        // Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
+        <VirtuosoComponentContext.Provider
+          value={{ isVirtuosoFocused, loading }}
+        >
+          <Virtuoso
+            ref={ref}
+            onFocus={() => setIsVirtuosoFocused(true)}
+            onBlur={() => setIsVirtuosoFocused(false)}
+            tabIndex={-1}
+            components={{
+              EmptyPlaceholder,
+              ...components,
+            }}
+            scrollerRef={scrollerRef}
+            data={data}
+            itemContent={(index) =>
+              renderItemContent(data[index], {
+                index,
+                selected: index === selectedIndex,
+                focused: index === focusedIndex,
+              })
+            }
+            {...props}
+          />
+        </VirtuosoComponentContext.Provider>
       )}
     </LoadingMask>
   );

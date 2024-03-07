@@ -14,7 +14,7 @@ export const TABS_CONTAINER_HEIGHT = 30;
 
 export const Panel = styled(MuiBox)({
   flex: 1,
-  overflowY: 'auto',
+  overflowY: 'hidden',
 });
 
 export const ActionBarContainer = styled(MuiBox)({

@@ -5,7 +5,8 @@
 
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import ClearIcon from '@mui/icons-material/Clear';
-import { alpha, InputBase, styled } from '@mui/material';
+import { alpha, styled } from '@mui/material';
+import MuiInputBase from '@mui/material/InputBase';
 import MuiPaper from '@mui/material/Paper';
 import MuiTypography from '@mui/material/Typography';
 
@@ -55,7 +56,7 @@ export const Search = styled('div')<{ hasValue: boolean }>(
 );
 
 export const SearchIconWrapper = styled('div')({
-  padding: '0px 6px',
+  padding: '0px 5px',
   position: 'absolute',
   pointerEvents: 'none',
   display: 'flex',
@@ -81,7 +82,7 @@ export const ClearButton = styled(ClearIcon)({
   },
 });
 
-export const StyledInputBase = styled(InputBase)(({ value }) => ({
+export const StyledInputBase = styled(MuiInputBase)(({ value }) => ({
   color: 'white',
   maxWidth: '144px',
   height: '24px',
@@ -90,8 +91,8 @@ export const StyledInputBase = styled(InputBase)(({ value }) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     caretColor: 'white',
-    paddingRight: value ? '26px' : '0px',
-    paddingLeft: '26px',
+    paddingRight: value ? '24px' : '0px',
+    paddingLeft: '24px',
     transition: TRANSITION,
     width: value ? '120px' : '0px',
     '&:focus': {
