@@ -957,15 +957,14 @@ describe('The addToSelectedResource action', () => {
       ),
     );
     testStore.dispatch(setSelectedResourceId('/root/'));
+    testStore.dispatch(setSelectedAttributionId(testPackageInfo.id));
     expect(
       getManualAttributionsToResources(testStore.getState())[
         testManualAttributionUuid_1
       ],
     ).toEqual(['/root/src/something.js']);
 
-    testStore.dispatch(
-      addToSelectedResource(testPackageInfo, testPackageInfo.id),
-    );
+    testStore.dispatch(addToSelectedResource(testPackageInfo));
     const manualData = getManualData(testStore.getState());
     expect(manualData.resourcesToAttributions['/root/']).toEqual([
       testManualAttributionUuid_1,

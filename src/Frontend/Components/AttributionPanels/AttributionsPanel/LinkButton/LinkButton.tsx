@@ -19,7 +19,6 @@ import { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   activeRelation,
   attributions,
-  selectedAttributionId,
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
 }) => {
@@ -43,12 +42,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
       onClick={() => {
         attributions &&
           selectedAttributionIds.forEach((attributionId) => {
-            dispatch(
-              addToSelectedResource(
-                attributions[attributionId],
-                selectedAttributionId,
-              ),
-            );
+            dispatch(addToSelectedResource(attributions[attributionId]));
           });
         setMultiSelectedAttributionIds([]);
       }}

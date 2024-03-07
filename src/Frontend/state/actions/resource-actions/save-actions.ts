@@ -12,6 +12,7 @@ import {
   getManualAttributionsToResources,
   getResolvedExternalAttributions,
   getResourcesToManualAttributions,
+  getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../selectors/resource-selectors';
 import { AppThunkAction } from '../../types';
@@ -133,7 +134,6 @@ export function unlinkAttributionAndCreateNew(
 
 export function addToSelectedResource(
   packageInfo: PackageInfo,
-  selectedAttributionId?: string,
 ): AppThunkAction {
   return (dispatch, getState) => {
     dispatch(
@@ -141,7 +141,7 @@ export function addToSelectedResource(
         getSelectedResourceId(getState()),
         null,
         packageInfo,
-        selectedAttributionId ? packageInfo.id !== selectedAttributionId : true,
+        packageInfo.id !== getSelectedAttributionId(getState()),
         true,
       ),
     );
