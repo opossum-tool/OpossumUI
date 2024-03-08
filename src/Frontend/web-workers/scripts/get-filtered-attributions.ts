@@ -48,6 +48,9 @@ const FILTER_FUNCTIONS: Record<Filter, (packageInfo: PackageInfo) => boolean> =
     [text.filters.previouslyPreferred]: (packageInfo) =>
       !!packageInfo.wasPreferred,
     [text.filters.thirdParty]: (packageInfo) => !packageInfo.firstParty,
+    [text.filters.modifiedPreferred]: (packageInfo) =>
+      !!packageInfo.originalAttributionWasPreferred &&
+      !packageInfo.wasPreferred,
   };
 
 function getVisiblePackages({

@@ -55,6 +55,7 @@ const mainWindow = {
   setTitle: jest.fn(),
 } as unknown as BrowserWindow;
 
+const source = faker.opossum.source();
 const inputFileContent: ParsedOpossumInputFile = {
   metadata: {
     ...EMPTY_PROJECT_METADATA,
@@ -66,10 +67,7 @@ const inputFileContent: ParsedOpossumInputFile = {
   },
   externalAttributions: {
     [externalAttributionUuid]: {
-      source: {
-        name: 'REUSER:HHC',
-        documentConfidence: 13,
-      },
+      source,
       packageName: 'my app',
       packageVersion: '1.2.3',
       packageNamespace: 'org.apache.xmlgraphics',
@@ -116,10 +114,7 @@ const expectedFileContent: ParsedFileContent = {
   externalAttributions: {
     attributions: {
       [externalAttributionUuid]: {
-        source: {
-          name: 'REUSER:HHC',
-          documentConfidence: 13,
-        },
+        source,
         packageName: 'my app',
         packageVersion: '1.2.3',
         packageNamespace: 'org.apache.xmlgraphics',
@@ -134,6 +129,9 @@ const expectedFileContent: ParsedFileContent = {
         preferredOverOriginIds: ['test-id'],
         wasPreferred: true,
         id: externalAttributionUuid,
+        originalAttributionSource: source,
+        originalAttributionId: externalAttributionUuid,
+        originalAttributionWasPreferred: true,
       },
     },
     resourcesToAttributions: {
@@ -356,6 +354,7 @@ describe('Test of loading function', () => {
     'loads file and parses json successfully, ' +
       'attribution file and preSelected attributions',
     async () => {
+      const source = faker.opossum.source();
       const inputFileContentWithPreselectedAttribution: ParsedOpossumInputFile =
         {
           metadata: EMPTY_PROJECT_METADATA,
@@ -364,10 +363,7 @@ describe('Test of loading function', () => {
           },
           externalAttributions: {
             [externalAttributionUuid]: {
-              source: {
-                name: 'REUSER:HHC',
-                documentConfidence: 13,
-              },
+              source,
               packageName: 'my app',
               packageVersion: '1.2.3',
               copyright: '(c) first party',
@@ -443,10 +439,7 @@ describe('Test of loading function', () => {
         externalAttributions: {
           attributions: {
             [externalAttributionUuid]: {
-              source: {
-                name: 'REUSER:HHC',
-                documentConfidence: 13,
-              },
+              source,
               packageName: 'my app',
               packageVersion: '1.2.3',
               copyright: '(c) first party',
@@ -456,6 +449,9 @@ describe('Test of loading function', () => {
               preferred: true,
               preferredOverOriginIds: ['test-id'],
               id: externalAttributionUuid,
+              originalAttributionSource: source,
+              originalAttributionId: externalAttributionUuid,
+              originalAttributionWasPreferred: undefined,
             },
           },
           resourcesToAttributions: {
@@ -539,15 +535,12 @@ describe('Test of loading function', () => {
   });
 
   it('loads file and parses json successfully, origin Ids and original source', async () => {
+    const source = faker.opossum.source();
     const inputFileContentWithOriginIds: ParsedOpossumInputFile = {
       ...inputFileContent,
       externalAttributions: {
         uuid: {
-          source: faker.opossum.source({
-            name: 'MERGER',
-            documentConfidence: 13,
-            additionalName: 'Original Source',
-          }),
+          source,
           packageName: 'react',
           originIds: ['abc', 'def'],
         },
@@ -570,14 +563,13 @@ describe('Test of loading function', () => {
       externalAttributions: {
         attributions: {
           uuid: {
-            source: faker.opossum.source({
-              name: 'MERGER',
-              documentConfidence: 13,
-              additionalName: 'Original Source',
-            }),
+            source,
             packageName: 'react',
             originIds: ['abc', 'def'],
             id: 'uuid',
+            originalAttributionId: 'uuid',
+            originalAttributionSource: source,
+            originalAttributionWasPreferred: undefined,
           },
         },
         resourcesToAttributions: {

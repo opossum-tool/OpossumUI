@@ -40,11 +40,14 @@ export type Never<T, K extends keyof T> = Expand<
 
 interface EphemeralPackageInfoProps {
   count?: number;
-  synthetic?: boolean;
   id: string;
+  originalAttributionId?: string;
+  originalAttributionWasPreferred?: boolean;
+  originalAttributionSource?: Source;
+  relation?: Relation;
   resources?: Array<string>;
   suffix?: string;
-  relation?: Relation;
+  synthetic?: boolean;
 }
 
 export interface PackageInfo extends EphemeralPackageInfoProps {

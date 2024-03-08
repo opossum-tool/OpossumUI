@@ -572,9 +572,10 @@ describe('AttributionDetails', () => {
   });
 
   it('compares attribution to original signal', async () => {
-    const originId = faker.string.uuid();
-    const signal = faker.opossum.packageInfo({ originIds: [originId] });
-    const attribution = faker.opossum.packageInfo({ originIds: [originId] });
+    const signal = faker.opossum.packageInfo();
+    const attribution = faker.opossum.packageInfo({
+      originalAttributionId: signal.id,
+    });
     const resourceId = faker.system.filePath();
     renderComponent(<AttributionDetails />, {
       actions: [

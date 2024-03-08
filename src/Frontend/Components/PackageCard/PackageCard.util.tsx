@@ -10,6 +10,7 @@ import {
   FirstPartyIcon,
   FollowUpIcon,
   IncompleteIcon,
+  ModifiedPreferredIcon,
   NeedsReviewIcon,
   PreferredIcon,
   PreSelectedIcon,
@@ -24,6 +25,8 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
     rightIcons.push(<PreferredIcon key={'preferred-icon'} />);
   } else if (cardConfig.wasPreferred) {
     rightIcons.push(<WasPreferredIcon key={'was-preferred-icon'} />);
+  } else if (cardConfig.originalWasPreferred) {
+    rightIcons.push(<ModifiedPreferredIcon key={'modified-preferred-icon'} />);
   }
   if (cardConfig.criticality) {
     rightIcons.push(

@@ -19,6 +19,7 @@ import {
   FirstPartyIcon,
   FollowUpIcon,
   IncompleteIcon,
+  ModifiedPreferredIcon,
   NeedsReviewIcon,
   PreferredIcon,
   PreSelectedIcon,
@@ -53,6 +54,7 @@ const FILTER_ICONS: Record<Filter, React.ReactElement> = {
   [text.filters.thirdParty]: (
     <Filter3Icon sx={{ ...baseIcon, color: OpossumColors.darkBlue }} />
   ),
+  [text.filters.modifiedPreferred]: <ModifiedPreferredIcon noTooltip />,
 };
 
 interface Props

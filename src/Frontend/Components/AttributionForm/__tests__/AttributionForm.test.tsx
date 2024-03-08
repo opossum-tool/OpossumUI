@@ -6,19 +6,12 @@
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import {
-  Attributions,
-  FrequentLicenses,
-  PackageInfo,
-  ResourcesToAttributions,
-} from '../../../../shared/shared-types';
+import { FrequentLicenses, PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setFrequentLicenses } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { generatePurl } from '../../../util/handle-purl';
 import { AttributionForm } from '../AttributionForm';
@@ -73,62 +66,26 @@ describe('AttributionForm', () => {
     expect(screen.getByText(packageInfo.source!.name)).toBeInTheDocument();
   });
 
-  it('renders the name of the original source', () => {
-    const packageInfo: PackageInfo = {
-      source: faker.opossum.source({
-        additionalName: faker.company.name(),
-      }),
-      id: faker.string.uuid(),
-    };
+  it('renders the name of the original source for external attributions', () => {
+    const source = faker.opossum.source({
+      additionalName: faker.company.name(),
+    });
+    const packageInfo = faker.opossum.packageInfo({
+      source,
+    });
 
     renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
-    expect(
-      screen.getByText(packageInfo.source!.additionalName!),
-    ).toBeInTheDocument();
+    expect(screen.getByText(source.additionalName!)).toBeInTheDocument();
   });
 
   it('renders original signal source for manual attributions', () => {
-    const resourceName = faker.opossum.resourceName();
-    const resources = faker.opossum.resources({
-      [resourceName]: 1,
-    });
     const source = faker.opossum.source();
-    const externalPackageInfo = faker.opossum.packageInfo({
-      originIds: [faker.string.uuid()],
-      source,
-    });
-    const externalAttributions = faker.opossum.attributions({
-      [externalPackageInfo.id]: externalPackageInfo,
-    });
-    const resourcesToExternalAttributions: ResourcesToAttributions =
-      faker.opossum.resourcesToAttributions({
-        [faker.opossum.folderPath(resourceName)]: [externalPackageInfo.id],
-      });
     const packageInfo = faker.opossum.packageInfo({
-      originIds: externalPackageInfo.originIds,
+      originalAttributionSource: source,
     });
-    const manualAttributions: Attributions = faker.opossum.attributions({
-      [packageInfo.id]: packageInfo,
-    });
-    const resourcesToManualAttributions: ResourcesToAttributions =
-      faker.opossum.resourcesToAttributions({
-        [faker.opossum.folderPath(resourceName)]: [packageInfo.id],
-      });
 
-    renderComponent(<AttributionForm packageInfo={packageInfo} />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            resources,
-            manualAttributions,
-            resourcesToManualAttributions,
-            externalAttributions,
-            resourcesToExternalAttributions,
-          }),
-        ),
-      ],
-    });
+    renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
     expect(
       screen.getByText(text.attributionColumn.originallyFrom + source.name),
@@ -194,40 +151,13 @@ describe('AttributionForm', () => {
   });
 
   it('renders a chip for modified preferred', () => {
-    const originId = faker.string.uuid();
-    const modifiedPackageInfo = faker.opossum.packageInfo({
+    const packageInfo = faker.opossum.packageInfo({
       packageName: faker.lorem.word(),
-      originIds: [originId],
+      originalAttributionWasPreferred: true,
       wasPreferred: false,
     });
-    const packageInfo = faker.opossum.packageInfo({
-      originIds: [originId],
-      wasPreferred: true,
-    });
-    const filePath = faker.opossum.filePath();
 
-    renderComponent(<AttributionForm packageInfo={modifiedPackageInfo} />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [packageInfo.id]: packageInfo,
-            }),
-            resourcesToManualAttributions:
-              faker.opossum.resourcesToAttributions({
-                [filePath]: [packageInfo.id],
-              }),
-            externalAttributions: faker.opossum.attributions({
-              [packageInfo.id]: packageInfo,
-            }),
-            resourcesToExternalAttributions:
-              faker.opossum.resourcesToAttributions({
-                [filePath]: [packageInfo.id],
-              }),
-          }),
-        ),
-      ],
-    });
+    renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
     expect(
       screen.getByText(text.auditingOptions.modifiedPreferred),

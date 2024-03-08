@@ -12,7 +12,7 @@ import UndoIcon from '@mui/icons-material/Undo';
 import MuiButton from '@mui/material/Button';
 import MuiFab from '@mui/material/Fab';
 import MuiTooltip from '@mui/material/Tooltip';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { PackageInfo } from '../../../../shared/shared-types';
@@ -67,16 +67,6 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   );
 
   const [isDiffPopupOpen, setIsDiffPopupOpen] = useState(false);
-
-  const originalDisplayPackageInfo = useMemo(
-    () =>
-      !!isEditable && !!packageInfo.originIds?.length
-        ? Object.values(externalAttributions).find(({ originIds }) =>
-            originIds?.some((id) => packageInfo.originIds?.includes(id)),
-          )
-        : undefined,
-    [externalAttributions, isEditable, packageInfo.originIds],
-  );
 
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
@@ -306,7 +296,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   }
 
   function renderCompareButton() {
-    if (!originalDisplayPackageInfo) {
+    if (!isEditable || !packageInfo.originalAttributionId) {
       return null;
     }
 
@@ -328,7 +318,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
           </span>
         </MuiTooltip>
         <DiffPopup
-          original={originalDisplayPackageInfo}
+          original={externalAttributions[packageInfo.originalAttributionId]}
           current={packageInfo}
           isOpen={isDiffPopupOpen}
           setOpen={setIsDiffPopupOpen}

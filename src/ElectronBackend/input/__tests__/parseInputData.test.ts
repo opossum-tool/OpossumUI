@@ -35,16 +35,16 @@ describe('deserializeAttributions', () => {
         followUp: 'FOLLOW_UP',
       },
     };
-    const expectedAttributions: Attributions = {
+
+    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       id: {
         id: 'id',
         followUp: true,
+        originalAttributionId: 'id',
+        originalAttributionSource: undefined,
+        originalAttributionWasPreferred: undefined,
       },
-    };
-
-    expect(deserializeAttributions(rawAttributions)).toEqual(
-      expectedAttributions,
-    );
+    });
   });
 
   it('removes unknown strings from follow-up', () => {
@@ -53,13 +53,15 @@ describe('deserializeAttributions', () => {
         followUp: 'UNKNOWN_STRING' as 'FOLLOW_UP',
       },
     };
-    const expectedAttributions: Attributions = {
-      id: { id: 'id' },
-    };
 
-    expect(deserializeAttributions(rawAttributions)).toEqual(
-      expectedAttributions,
-    );
+    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+      id: {
+        id: 'id',
+        originalAttributionId: 'id',
+        originalAttributionSource: undefined,
+        originalAttributionWasPreferred: undefined,
+      },
+    });
   });
 
   it('leaves non-empty comment unchanged', () => {
@@ -68,16 +70,16 @@ describe('deserializeAttributions', () => {
         comment: 'Test comment',
       },
     };
-    const expectedAttributions: Attributions = {
+
+    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       id: {
         id: 'id',
         comment: 'Test comment',
+        originalAttributionId: 'id',
+        originalAttributionSource: undefined,
+        originalAttributionWasPreferred: undefined,
       },
-    };
-
-    expect(deserializeAttributions(rawAttributions)).toEqual(
-      expectedAttributions,
-    );
+    });
   });
 
   it('removes empty comment', () => {
@@ -86,13 +88,15 @@ describe('deserializeAttributions', () => {
         comment: '',
       },
     };
-    const expectedAttributions: Attributions = {
-      id: { id: 'id' },
-    };
 
-    expect(deserializeAttributions(rawAttributions)).toEqual(
-      expectedAttributions,
-    );
+    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+      id: {
+        id: 'id',
+        originalAttributionId: 'id',
+        originalAttributionSource: undefined,
+        originalAttributionWasPreferred: undefined,
+      },
+    });
   });
 
   it('leaves criticality unchanged', () => {
@@ -101,16 +105,16 @@ describe('deserializeAttributions', () => {
         criticality: 'high' as Criticality,
       },
     };
-    const expectedAttributions: Attributions = {
+
+    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       id: {
         id: 'id',
         criticality: Criticality.High,
+        originalAttributionId: 'id',
+        originalAttributionSource: undefined,
+        originalAttributionWasPreferred: undefined,
       },
-    };
-
-    expect(deserializeAttributions(rawAttributions)).toEqual(
-      expectedAttributions,
-    );
+    });
   });
 
   it('removes invalid criticality', () => {
@@ -119,68 +123,70 @@ describe('deserializeAttributions', () => {
         criticality: 'invalid value' as Criticality,
       },
     };
-    const expectedAttributions: Attributions = {
-      id: { id: 'id' },
-    };
 
-    expect(deserializeAttributions(rawAttributions)).toEqual(
-      expectedAttributions,
-    );
+    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+      id: {
+        id: 'id',
+        originalAttributionId: 'id',
+        originalAttributionSource: undefined,
+        originalAttributionWasPreferred: undefined,
+      },
+    });
   });
 
   it('merges originIds and originId if both exist', () => {
-    const testRawAttributions: RawAttributions = {
+    const rawAttributions: RawAttributions = {
       uuid: {
         originId: 'abc',
         originIds: ['def', 'ghi'],
       },
     };
-    const expectedParsedRawAttributions: Attributions = {
+
+    expect(deserializeAttributions(rawAttributions)).toEqual({
       uuid: {
         originIds: ['def', 'ghi', 'abc'],
         id: 'uuid',
+        originalAttributionId: 'uuid',
+        originalAttributionSource: undefined,
+        originalAttributionWasPreferred: undefined,
       },
-    };
-
-    expect(deserializeAttributions(testRawAttributions)).toEqual(
-      expectedParsedRawAttributions,
-    );
+    });
   });
 
   it('creates originIds and writes originId into it if originIds does not exist initially', () => {
-    const testRawAttributions: RawAttributions = {
+    const rawAttributions: RawAttributions = {
       uuid: {
         originId: 'abc',
       },
     };
-    const expectedParsedRawAttributions: Attributions = {
+
+    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       uuid: {
         originIds: ['abc'],
         id: 'uuid',
+        originalAttributionId: 'uuid',
+        originalAttributionSource: undefined,
+        originalAttributionWasPreferred: undefined,
       },
-    };
-
-    expect(deserializeAttributions(testRawAttributions)).toEqual(
-      expectedParsedRawAttributions,
-    );
+    });
   });
 
   it('leaves originIds as it is if originId does not exist', () => {
-    const testRawAttributions: RawAttributions = {
+    const rawAttributions: RawAttributions = {
       uuid: {
         originIds: ['abc', 'cde'],
-      },
-    };
-    const expectedParsedRawAttributions: Attributions = {
-      uuid: {
-        originIds: ['abc', 'cde'],
-        id: 'uuid',
       },
     };
 
-    expect(deserializeAttributions(testRawAttributions)).toEqual(
-      expectedParsedRawAttributions,
-    );
+    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+      uuid: {
+        originIds: ['abc', 'cde'],
+        id: 'uuid',
+        originalAttributionId: 'uuid',
+        originalAttributionSource: undefined,
+        originalAttributionWasPreferred: undefined,
+      },
+    });
   });
 });
 
