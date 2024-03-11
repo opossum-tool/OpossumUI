@@ -52,5 +52,5 @@ jobs:
         if: failure()
         with:
           name: artifacts-${{ matrix.os }}
-          path: src/e2e-tests/artifacts-${{ matrix.os }}
+          path: src/e2e-tests/artifacts
           retention-days: 30
