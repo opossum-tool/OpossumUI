@@ -55,7 +55,6 @@ export const ATTRIBUTION_FILTERS = [
   text.filters.thirdParty,
   text.filters.incompleteLegal,
   text.filters.incompleteCoordinates,
-  text.filters.modifiedPreferred,
   text.filters.excludedFromNotice,
   text.filters.lowConfidence,
   text.filters.needsFollowUp,
@@ -63,6 +62,7 @@ export const ATTRIBUTION_FILTERS = [
   text.filters.preSelected,
   text.filters.currentlyPreferred,
   text.filters.previouslyPreferred,
+  text.filters.modifiedPreferred,
 ] satisfies Array<Filter>;
 
 export const SORTINGS = Object.values(text.sortings);

@@ -99,6 +99,9 @@ export const HASH_EXCLUDE_KEYS = [
   'comment',
   'id',
   'originIds',
+  'originalAttributionId',
+  'originalAttributionSource',
+  'originalAttributionWasPreferred',
   'preSelected',
   'wasPreferred',
 ] satisfies Array<keyof PackageInfo>;
@@ -116,6 +119,14 @@ export function mergePackageInfos(a: PackageInfo, b: PackageInfo): PackageInfo {
       ),
       preSelected: a.preSelected || b.preSelected || false,
       wasPreferred: a.wasPreferred || b.wasPreferred || false,
+      originalAttributionId:
+        a.originalAttributionId || b.originalAttributionId || '',
+      originalAttributionSource: a.originalAttributionSource ||
+        b.originalAttributionSource || { name: '' },
+      originalAttributionWasPreferred:
+        a.originalAttributionWasPreferred ||
+        b.originalAttributionWasPreferred ||
+        false,
     };
 
   return { ...a, ...diff };

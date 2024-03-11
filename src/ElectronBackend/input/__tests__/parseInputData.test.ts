@@ -188,6 +188,88 @@ describe('deserializeAttributions', () => {
       },
     });
   });
+
+  it('writes originalAttribution properties correctly', () => {
+    const manualAttributionId = faker.string.uuid();
+    const externalAttributionId = faker.string.uuid();
+    const originId = faker.string.uuid();
+    const testManualRawAttributions: RawAttributions = {
+      [manualAttributionId]: {
+        packageName: faker.word.noun(),
+        originIds: [originId],
+      },
+    };
+    const testExternalAttributions: Attributions = {
+      [externalAttributionId]: {
+        packageName: faker.word.noun(),
+        wasPreferred: true,
+        originIds: [originId, faker.string.uuid()],
+        source: faker.opossum.source(),
+        id: externalAttributionId,
+      },
+    };
+    const man = testManualRawAttributions[manualAttributionId];
+    console.log(man);
+    const expectedParsedRawAttributions: Attributions = {
+      [manualAttributionId]: {
+        packageName: testManualRawAttributions[manualAttributionId].packageName,
+        originIds: [originId],
+        originalAttributionId: externalAttributionId,
+        originalAttributionSource:
+          testExternalAttributions[externalAttributionId].source,
+        originalAttributionWasPreferred:
+          testExternalAttributions[externalAttributionId].wasPreferred,
+        id: manualAttributionId,
+      },
+    };
+
+    expect(
+      deserializeAttributions(
+        testManualRawAttributions,
+        testExternalAttributions,
+      ),
+    ).toEqual(expectedParsedRawAttributions);
+  });
+
+  it('takes into account originIds and originId when identifying an original attribution', () => {
+    const manualAttributionId = faker.string.uuid();
+    const externalAttributionId = faker.string.uuid();
+    const originId = faker.string.uuid();
+    const testManualRawAttributions: RawAttributions = {
+      [manualAttributionId]: {
+        packageName: faker.word.noun(),
+        originId,
+      },
+    };
+    const testExternalAttributions: Attributions = {
+      [externalAttributionId]: {
+        packageName: faker.word.noun(),
+        wasPreferred: true,
+        originIds: [originId, faker.string.uuid()],
+        source: faker.opossum.source(),
+        id: externalAttributionId,
+      },
+    };
+    const expectedParsedRawAttributions: Attributions = {
+      [manualAttributionId]: {
+        packageName: testManualRawAttributions[manualAttributionId].packageName,
+        originIds: [originId],
+        originalAttributionId: externalAttributionId,
+        originalAttributionSource:
+          testExternalAttributions[externalAttributionId].source,
+        originalAttributionWasPreferred:
+          testExternalAttributions[externalAttributionId].wasPreferred,
+        id: manualAttributionId,
+      },
+    };
+
+    expect(
+      deserializeAttributions(
+        testManualRawAttributions,
+        testExternalAttributions,
+      ),
+    ).toEqual(expectedParsedRawAttributions);
+  });
 });
 
 describe('serializeAttributions', () => {

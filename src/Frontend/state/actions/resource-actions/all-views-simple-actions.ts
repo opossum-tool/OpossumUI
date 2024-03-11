@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { isEqual } from 'lodash';
+
 import {
   Attributions,
   AttributionsToResources,
@@ -13,7 +15,10 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { getComparableAttributes } from '../../../util/get-comparable-attributes';
 import { computeChildrenWithAttributions } from '../../helpers/save-action-helpers';
+import { getExternalAttributions } from '../../selectors/resource-selectors';
+import { AppThunkAction } from '../../types';
 import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
@@ -94,6 +99,30 @@ export function setFrequentLicenses(
 }
 
 export function setTemporaryDisplayPackageInfo(
+  packageInfo: PackageInfo,
+): AppThunkAction {
+  return (dispatch, getState) => {
+    const externalAttributions = getExternalAttributions(getState());
+    const restoreWasPreferred =
+      !packageInfo.wasPreferred &&
+      !!packageInfo?.originalAttributionId &&
+      packageInfo.originalAttributionWasPreferred &&
+      isEqual(
+        getComparableAttributes(
+          externalAttributions[packageInfo.originalAttributionId],
+        ),
+        getComparableAttributes(packageInfo),
+      );
+    dispatch(
+      _setTemporaryDisplayPackageInfo_BETTER_NAME___({
+        ...packageInfo,
+        ...(restoreWasPreferred ? { wasPreferred: true } : {}),
+      }),
+    );
+  };
+}
+
+function _setTemporaryDisplayPackageInfo_BETTER_NAME___(
   packageInfo: PackageInfo,
 ): SetTemporaryDisplayPackageInfoAction {
   return { type: ACTION_SET_TEMPORARY_PACKAGE_INFO, payload: packageInfo };
