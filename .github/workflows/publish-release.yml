@@ -36,12 +36,12 @@ jobs:
       - run: yarn ship:auto
 
       - name: Upload release asset
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: ${{ matrix.FILE }}
 
       - name: Upload user guide
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: USER_GUIDE.md
 
@@ -49,6 +49,6 @@ jobs:
         run: yarn spdx
 
       - name: Upload SPDX document
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: opossum-ui.spdx.json
