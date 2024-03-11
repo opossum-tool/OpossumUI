@@ -13,11 +13,11 @@ export function getFormattedCellData(
 ): string | number {
   let cellData: string | number;
   switch (config.attributionProperty) {
+    case 'excludeFromNotice':
     case 'firstParty':
     case 'followUp':
-    case 'preSelected':
     case 'needsReview':
-    case 'excludeFromNotice':
+    case 'preSelected':
     case 'preferred':
     case 'wasPreferred':
       cellData = packageInfo[config.attributionProperty] ? 'Yes' : 'No';
@@ -25,11 +25,14 @@ export function getFormattedCellData(
     case 'source':
       cellData = packageInfo[config.attributionProperty]?.name.trim() || '';
       break;
-    case 'originIds':
-    case 'preferredOverOriginIds':
-    case 'synthetic':
     case 'id':
+    case 'originIds':
+    case 'originalAttributionId':
+    case 'originalAttributionSource':
+    case 'originalAttributionWasPreferred':
+    case 'preferredOverOriginIds':
     case 'resources':
+    case 'synthetic':
       cellData = '';
       break;
     case 'packageName':

@@ -34,12 +34,12 @@ export function Comment({ packageInfo, onEdit, config, expanded }: Props) {
         color={config?.color}
         focused={config?.focused}
         expanded={expanded}
-        handleChange={(event) =>
+        handleChange={({ target: { value } }) =>
           onEdit?.(() =>
             dispatch(
               setTemporaryDisplayPackageInfo({
                 ...packageInfo,
-                comment: event.target.value,
+                comment: value,
                 wasPreferred: undefined,
               }),
             ),

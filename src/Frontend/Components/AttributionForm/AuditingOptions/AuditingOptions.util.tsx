@@ -10,7 +10,6 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
 import MuiRating from '@mui/material/Rating';
-import { isEqual } from 'lodash';
 import { useMemo } from 'react';
 
 import { Criticality, PackageInfo } from '../../../../shared/shared-types';
@@ -23,13 +22,11 @@ import {
   useAppStore,
 } from '../../../state/hooks';
 import {
-  getExternalAttributions,
   getExternalAttributionSources,
   getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
 import { useUserSetting } from '../../../state/variables/use-user-setting';
-import { getComparableAttributes } from '../../../util/get-comparable-attributes';
 import { prettifySource } from '../../../util/prettify-source';
 import {
   CriticalityIcon,
@@ -63,7 +60,6 @@ export function useAuditingOptions({
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,
   );
-  const externalAttributions = useAppSelector(getExternalAttributions);
   const source = useMemo(() => {
     const sourceName =
       packageInfo.source?.additionalName || packageInfo.source?.name;
@@ -75,42 +71,18 @@ export function useAuditingOptions({
       };
     }
 
-    const originSource = (
-      packageInfo.originIds?.length
-        ? Object.values(externalAttributions).find(({ originIds }) =>
-            originIds?.some((id) => packageInfo.originIds?.includes(id)),
-          )
-        : undefined
-    )?.source;
-
     return {
-      sourceName: originSource?.additionalName || originSource?.name,
+      sourceName:
+        packageInfo.originalAttributionSource?.additionalName ||
+        packageInfo.originalAttributionSource?.name,
       fromOrigin: true,
     };
   }, [
-    externalAttributions,
-    packageInfo.originIds,
+    packageInfo.originalAttributionSource?.additionalName,
+    packageInfo.originalAttributionSource?.name,
     packageInfo.source?.additionalName,
     packageInfo.source?.name,
   ]);
-
-  const originalPreferred = useMemo(
-    () =>
-      !!packageInfo.originIds?.length && !packageInfo.wasPreferred
-        ? Object.values(externalAttributions).find(
-            (candidate) =>
-              candidate.wasPreferred &&
-              candidate.originIds?.some((id) =>
-                packageInfo.originIds?.includes(id),
-              ) &&
-              !isEqual(
-                getComparableAttributes(candidate),
-                getComparableAttributes(packageInfo),
-              ),
-          )
-        : undefined,
-    [externalAttributions, packageInfo],
-  );
 
   return useMemo<Array<AuditingOption>>(
     () => [
@@ -146,7 +118,9 @@ export function useAuditingOptions({
         id: 'is-modified-preferred',
         label: text.auditingOptions.modifiedPreferred,
         icon: <ModifiedPreferredIcon noTooltip />,
-        selected: !!originalPreferred,
+        selected:
+          !packageInfo.wasPreferred &&
+          !!packageInfo.originalAttributionWasPreferred,
         interactive: false,
       },
       {
@@ -287,12 +261,12 @@ export function useAuditingOptions({
       dispatch,
       isEditable,
       isPreferenceFeatureEnabled,
-      originalPreferred,
       packageInfo.attributionConfidence,
       packageInfo.criticality,
       packageInfo.excludeFromNotice,
       packageInfo.followUp,
       packageInfo.needsReview,
+      packageInfo.originalAttributionWasPreferred,
       packageInfo.preSelected,
       packageInfo.preferred,
       packageInfo.wasPreferred,

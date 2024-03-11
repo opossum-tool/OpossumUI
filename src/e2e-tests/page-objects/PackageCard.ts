@@ -45,6 +45,12 @@ export class PackageCard {
     });
   }
 
+  public modifiedPreferredIcon(packageInfo: RawPackageInfo): Locator {
+    return this.node(packageInfo).getByLabel('Modified preferred icon', {
+      exact: true,
+    });
+  }
+
   public assert = {
     isVisible: async (packageInfo: RawPackageInfo): Promise<void> => {
       await expect(this.node(packageInfo)).toBeVisible();
@@ -71,6 +77,16 @@ export class PackageCard {
       packageInfo: RawPackageInfo,
     ): Promise<void> => {
       await expect(this.wasPreferredIcon(packageInfo)).toBeHidden();
+    },
+    modifiedPreferredIconIsVisible: async (
+      packageInfo: RawPackageInfo,
+    ): Promise<void> => {
+      await expect(this.modifiedPreferredIcon(packageInfo)).toBeVisible();
+    },
+    modifiedPreferredIconIsHidden: async (
+      packageInfo: RawPackageInfo,
+    ): Promise<void> => {
+      await expect(this.modifiedPreferredIcon(packageInfo)).toBeHidden();
     },
     checkboxIsChecked: async (packageInfo: RawPackageInfo): Promise<void> => {
       await expect(this.checkbox(packageInfo)).toBeChecked();

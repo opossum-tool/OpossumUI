@@ -159,6 +159,7 @@ export async function loadInputAndOutputFromFilePath(
   logger.info('Deserializing attributions');
   const manualAttributions = deserializeAttributions(
     parsedOutputData.manualAttributions,
+    externalAttributions,
   );
 
   logger.info('Sending data to user interface');

@@ -26,6 +26,7 @@ import {
   computeChildrenWithAttributions,
   createManualAttribution,
   deleteManualAttribution,
+  getWasPreferred,
   linkToAttributionManualData,
   unlinkResourceFromAttributionId,
   updateManualAttribution,
@@ -1048,5 +1049,64 @@ describe('computeChildrenWithAttributions', () => {
         '/root/src/something.js/',
       ],
     });
+  });
+});
+
+describe('getWasPreferred', () => {
+  const originalAttributionId = faker.string.uuid();
+
+  it("returns the attribution's value of wasPreferred if it has no original", () => {
+    const wasPreferred = getWasPreferred({
+      packageInfo: faker.opossum.packageInfo({ wasPreferred: true }),
+      externalAttributions: {},
+    });
+    const wasNotPreferred = getWasPreferred({
+      packageInfo: faker.opossum.packageInfo(),
+      externalAttributions: {},
+    });
+
+    expect(wasPreferred).toBe(true);
+    expect(wasNotPreferred).toBeUndefined();
+  });
+
+  it('is undefined if original is equal but was not previously preferred', () => {
+    const packageInfo = faker.opossum.packageInfo({
+      originalAttributionId,
+      wasPreferred: false,
+    });
+    const wasPreferred = getWasPreferred({
+      packageInfo,
+      externalAttributions: {
+        [originalAttributionId]: { ...packageInfo, wasPreferred: undefined },
+      },
+    });
+
+    expect(wasPreferred).toBeUndefined();
+  });
+
+  it('is true if original is equal and was previously preferred', () => {
+    const packageInfo = faker.opossum.packageInfo({
+      wasPreferred: true,
+      originalAttributionId,
+    });
+    const wasPreferred = getWasPreferred({
+      packageInfo: { ...packageInfo, wasPreferred: undefined },
+      externalAttributions: { [originalAttributionId]: packageInfo },
+    });
+
+    expect(wasPreferred).toBe(true);
+  });
+
+  it('is false if original was previously preferred but is not equal', () => {
+    const packageInfo = faker.opossum.packageInfo({
+      wasPreferred: true,
+      originalAttributionId,
+    });
+    const wasPreferred = getWasPreferred({
+      packageInfo: { ...packageInfo, packageName: faker.word.noun() },
+      externalAttributions: { [originalAttributionId]: packageInfo },
+    });
+
+    expect(wasPreferred).toBe(false);
   });
 });

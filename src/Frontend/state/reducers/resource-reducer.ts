@@ -53,6 +53,7 @@ import {
   computeChildrenWithAttributions,
   createManualAttribution,
   deleteManualAttribution,
+  getWasPreferred,
   linkToAttributionManualData,
   replaceAttributionWithMatchingAttributionId,
   unlinkResourceFromAttributionId,
@@ -144,7 +145,13 @@ export const resourceState = (
     case ACTION_SET_TEMPORARY_PACKAGE_INFO:
       return {
         ...state,
-        temporaryDisplayPackageInfo: action.payload,
+        temporaryDisplayPackageInfo: {
+          ...action.payload,
+          wasPreferred: getWasPreferred({
+            externalAttributions: state.externalData.attributions,
+            packageInfo: action.payload,
+          }),
+        },
       };
     case ACTION_SET_SELECTED_RESOURCE_ID:
       return {

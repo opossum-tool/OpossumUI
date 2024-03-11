@@ -20,14 +20,21 @@ const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
   packageType: undefined,
   licenseName: license1.fullName,
 });
-const [wasPreferredAttributionId, wasPreferredPackageInfo] =
+const originId = faker.string.uuid();
+const [wasPreferredOriginalAttributionId, wasPreferredOriginalPackageInfo] =
   faker.opossum.rawAttribution({
     wasPreferred: true,
+    originIds: [originId],
   });
+const [wasPreferredAttributionId, wasPreferredPackageInfo] =
+  faker.opossum.rawAttribution({ ...wasPreferredOriginalPackageInfo });
 
 test.use({
   data: {
     inputData: faker.opossum.inputData({
+      externalAttributions: faker.opossum.rawAttributions({
+        [wasPreferredOriginalAttributionId]: wasPreferredOriginalPackageInfo,
+      }),
       resources: faker.opossum.resources({
         [resourceName1]: 1,
         [resourceName2]: 1,
@@ -222,7 +229,7 @@ test('allows user to revert changes', async ({
   );
 });
 
-test('removes previously-preferred status from modified previously preferred attribution', async ({
+test('switches correctly between previously-preferred and modified previously preferred statuses of an attribution', async ({
   attributionDetails,
   confirmationDialog,
   resourcesTree,
@@ -252,9 +259,37 @@ test('removes previously-preferred status from modified previously preferred att
   await attributionDetails.attributionForm.assert.auditingLabelIsHidden(
     'previouslyPreferredLabel',
   );
+  await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
+    'modifiedPreferredLabel',
+  );
 
   await attributionDetails.saveButton.click();
   await attributionsPanel.packageCard.assert.wasPreferredIconIsHidden(
     wasPreferredPackageInfo,
   );
+  await attributionsPanel.packageCard.assert.modifiedPreferredIconIsVisible(
+    wasPreferredPackageInfo,
+  );
+
+  await attributionDetails.attributionForm.comment.fill('');
+  await attributionsPanel.packageCard.assert.modifiedPreferredIconIsVisible(
+    wasPreferredPackageInfo,
+  );
+  await attributionDetails.attributionForm.assert.auditingLabelIsHidden(
+    'modifiedPreferredLabel',
+  );
+  await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
+    'previouslyPreferredLabel',
+  );
+
+  await attributionDetails.saveButton.click();
+  await attributionsPanel.packageCard.assert.modifiedPreferredIconIsHidden(
+    wasPreferredPackageInfo,
+  );
+  await attributionsPanel.packageCard.assert.wasPreferredIconIsVisible(
+    wasPreferredPackageInfo,
+  );
+
+  await attributionDetails.attributionForm.comment.fill(faker.lorem.sentence());
+  await confirmationDialog.assert.isVisible();
 });

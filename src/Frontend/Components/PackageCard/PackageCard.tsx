@@ -85,14 +85,15 @@ export interface PackageCardConfig {
   criticality?: Criticality;
   excludeFromNotice?: boolean;
   firstParty?: boolean;
+  focused?: boolean;
   followUp?: boolean;
   incomplete?: boolean;
   needsReview?: boolean;
+  originalWasPreferred?: boolean;
   preSelected?: boolean;
   preferred?: boolean;
   resolved?: boolean;
   selected?: boolean;
-  focused?: boolean;
   wasPreferred?: boolean;
 }
 
@@ -123,6 +124,7 @@ export const PackageCard = memo(
         preSelected: packageInfo.preSelected,
         preferred: packageInfo.preferred,
         needsReview: packageInfo.needsReview,
+        originalWasPreferred: packageInfo.originalAttributionWasPreferred,
         wasPreferred: packageInfo.wasPreferred,
         ...cardConfig,
       }),
