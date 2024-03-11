@@ -95,7 +95,7 @@ export const TABLE_COMPONENTS: TableComponents<PackageInfo> = {
       style={{ borderCollapse: 'separate' }}
     />
   ),
-  TableHead,
+  TableHead: forwardRef((props, ref) => <TableHead {...props} ref={ref} />),
   TableRow: (props) => {
     const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
