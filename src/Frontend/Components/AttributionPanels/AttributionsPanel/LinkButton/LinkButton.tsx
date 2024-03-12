@@ -34,6 +34,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
       aria-label={text.packageLists.linkAsAttribution}
       disabled={
         isSelectedResourceBreakpoint ||
+        !selectedAttributionIds.length ||
         isPackageInfoModified ||
         activeRelation === 'resource' ||
         !!attributionIdsForReplacement.length

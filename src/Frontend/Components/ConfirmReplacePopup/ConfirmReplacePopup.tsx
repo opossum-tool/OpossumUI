@@ -96,10 +96,10 @@ export const ConfirmReplacePopup = ({
           )}
         </MuiTypography>
         <CardList
-          data={attributionIdsForReplacement}
+          data={attributionIdsForReplacement.filter((id) => id in attributions)}
           data-testid={'removed-attributions'}
           renderItemContent={(attributionId, { index }) => {
-            if (!attributionId || !(attributionId in attributions)) {
+            if (!attributions[attributionId]) {
               return null;
             }
 
