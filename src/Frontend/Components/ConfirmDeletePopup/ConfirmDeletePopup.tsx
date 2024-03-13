@@ -117,9 +117,9 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
           })}
         </MuiTypography>
         <CardList
-          data={attributionIdsToDelete}
+          data={attributionIdsToDelete.filter((id) => id in attributions)}
           renderItemContent={(attributionId, { index }) => {
-            if (!attributionId || !(attributionId in attributions)) {
+            if (!attributions[attributionId]) {
               return null;
             }
 
