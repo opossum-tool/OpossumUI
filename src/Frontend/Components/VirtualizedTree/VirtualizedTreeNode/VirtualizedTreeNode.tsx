@@ -130,10 +130,13 @@ export function VirtualizedTreeNode({
       ref={ref}
       onKeyDown={(event) => {
         if (['Enter'].includes(event.code)) {
+          event.preventDefault();
           handleClick?.();
         } else if (event.code === 'ArrowRight' && !isExpandedNode) {
+          event.preventDefault();
           onToggle?.([nodeId]);
         } else if (event.code === 'ArrowLeft' && isExpandedNode) {
+          event.preventDefault();
           onToggle?.([nodeId]);
         }
       }}
