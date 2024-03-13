@@ -80,7 +80,6 @@ test('reverts all changes and applies reverted state to temporary package info',
     AttributionType.FirstParty,
   );
   await diffPopup.currentAttributionForm.assert.copyrightIs('');
-  await diffPopup.currentAttributionForm.assert.licenseTextIsVisible();
   await diffPopup.currentAttributionForm.assert.licenseTextIs('');
   await diffPopup.currentAttributionForm.assert.licenseNameIs('');
   await diffPopup.currentAttributionForm.assert.nameUndoButtonIsVisible();
@@ -168,8 +167,6 @@ test('handles pending license and copyright changes in temporary package info co
 
   await diffPopup.currentAttributionForm.attributionTypeRedoButton.click();
   await diffPopup.applyButton.click();
-  await attributionDetails.attributionForm.assert.licenseTextIsHidden();
-
   await attributionDetails.attributionForm.selectAttributionType(
     AttributionType.ThirdParty,
   );

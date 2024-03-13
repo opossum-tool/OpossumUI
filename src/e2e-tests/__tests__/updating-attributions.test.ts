@@ -127,15 +127,11 @@ test('allows user to update an attribution on the selected resource only', async
   await resourcesTree.goto(resourceName1);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName1);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName2);
-  await attributionDetails.attributionForm.assert.licenseTextIsHidden();
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     packageInfo1,
   );
   await attributionDetails.assert.saveButtonIsDisabled();
   await attributionDetails.assert.revertButtonIsDisabled();
-
-  await attributionDetails.attributionForm.toggleLicenseTextVisibility();
-  await attributionDetails.attributionForm.assert.licenseTextIsVisible();
 
   await attributionDetails.attributionForm.licenseText.fill(
     newPackageInfo.licenseText!,
@@ -143,9 +139,6 @@ test('allows user to update an attribution on the selected resource only', async
   await attributionDetails.attributionForm.assert.licenseTextIs(
     newPackageInfo.licenseText!,
   );
-
-  await attributionDetails.attributionForm.toggleLicenseTextVisibility();
-  await attributionDetails.attributionForm.assert.licenseTextIsHidden();
 
   await attributionDetails.attributionForm.selectAttributionType('First Party');
   await attributionDetails.attributionForm.assert.matchesPackageInfo({

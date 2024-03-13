@@ -6,11 +6,10 @@
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { FrequentLicenses, PackageInfo } from '../../../../shared/shared-types';
+import { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setFrequentLicenses } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { renderComponent } from '../../../test-helpers/render';
 import { generatePurl } from '../../../util/handle-purl';
@@ -201,63 +200,61 @@ describe('AttributionForm', () => {
     expect(screen.queryByLabelText('Url icon')).not.toBeInTheDocument();
   });
 
-  it('shows standard text if editable and non frequent license', () => {
-    const packageInfo: PackageInfo = {
-      packageName: 'jQuery',
-      id: faker.string.uuid(),
-    };
-    renderComponent(
-      <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
-    );
-
-    expect(
-      screen.getByLabelText('License Text (to appear in attribution document)'),
-    ).toBeInTheDocument();
-  });
-
-  it('shows shortened text if not editable and frequent license', () => {
-    const packageInfo: PackageInfo = {
-      packageName: 'jQuery',
-      licenseName: 'Mit',
-      id: faker.string.uuid(),
-    };
-    const frequentLicenses: FrequentLicenses = {
-      nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
-      texts: { MIT: 'text' },
-    };
-    renderComponent(<AttributionForm packageInfo={packageInfo} />, {
-      actions: [
-        setFrequentLicenses(frequentLicenses),
-        setSelectedAttributionId(packageInfo.id),
-      ],
-    });
-
-    expect(
-      screen.getByLabelText('Standard license text implied.'),
-    ).toBeInTheDocument();
-  });
-
-  it('shows long text if editable and frequent license', () => {
-    const packageInfo: PackageInfo = {
-      packageName: 'jQuery',
-      licenseName: 'mit',
-      id: faker.string.uuid(),
-    };
-    const frequentLicenses: FrequentLicenses = {
-      nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
-      texts: { MIT: 'text' },
-    };
+  it('shows default license text placeholder when frequent license name selected and no custom license text entered', () => {
+    const defaultLicenseText = faker.lorem.paragraphs();
+    const packageInfo = faker.opossum.packageInfo();
     renderComponent(
       <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
       {
-        actions: [setFrequentLicenses(frequentLicenses)],
+        actions: [
+          setFrequentLicenses({
+            nameOrder: [],
+            texts: { [packageInfo.licenseName!]: defaultLicenseText },
+          }),
+        ],
       },
     );
 
     expect(
-      screen.getByLabelText(
-        'Standard license text implied. Insert notice text if necessary.',
-      ),
+      screen.getByRole('textbox', {
+        name: text.attributionColumn.licenseTextDefault,
+      }),
+    ).toHaveAttribute('placeholder', defaultLicenseText);
+    expect(
+      screen.getByLabelText(text.attributionColumn.licenseTextDefault),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(text.attributionColumn.licenseText),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not show default license text placeholder when custom license text entered', () => {
+    const defaultLicenseText = faker.lorem.paragraphs();
+    const packageInfo = faker.opossum.packageInfo({
+      licenseText: faker.lorem.paragraphs(),
+    });
+    renderComponent(
+      <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
+      {
+        actions: [
+          setFrequentLicenses({
+            nameOrder: [],
+            texts: { [packageInfo.licenseName!]: defaultLicenseText },
+          }),
+        ],
+      },
+    );
+
+    expect(
+      screen.getByRole('textbox', {
+        name: text.attributionColumn.licenseText,
+      }),
+    ).not.toHaveAttribute('placeholder', defaultLicenseText);
+    expect(
+      screen.queryByLabelText(text.attributionColumn.licenseTextDefault),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByLabelText(text.attributionColumn.licenseText),
     ).toBeInTheDocument();
   });
 

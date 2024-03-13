@@ -29,7 +29,7 @@ export function Comment({ packageInfo, onEdit, config, expanded }: Props) {
         title={'Comment'}
         text={packageInfo.comment}
         minRows={3}
-        maxRows={10}
+        maxRows={5}
         multiline={true}
         color={config?.color}
         focused={config?.focused}
