@@ -48,22 +48,14 @@ export function DiffPopup({
   function handleApplyChanges({
     buffer,
     current,
-    original,
   }: {
-    original: PackageInfo;
     current: PackageInfo;
     buffer: PackageInfo;
   }) {
-    const markAsWasPreferred =
-      isEqual(
-        getComparableAttributes(buffer),
-        getComparableAttributes(original),
-      ) && original.wasPreferred;
     const restoreLicenseAndCopyright = current.firstParty && buffer.firstParty;
     dispatch(
       setTemporaryDisplayPackageInfo({
         ...buffer,
-        ...(markAsWasPreferred && { wasPreferred: true }),
         ...(restoreLicenseAndCopyright && {
           copyright: current.copyright,
           licenseName: current.licenseName,
@@ -85,7 +77,7 @@ export function DiffPopup({
         ),
         buttonText: text.diffPopup.applyChanges,
         onClick: () => {
-          handleApplyChanges({ original, current, buffer: bufferPackageInfo });
+          handleApplyChanges({ current, buffer: bufferPackageInfo });
         },
       }}
       centerRightButtonConfig={{

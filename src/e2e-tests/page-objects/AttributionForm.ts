@@ -36,6 +36,7 @@ export class AttributionForm {
     readonly currentlyPreferredLabel: Locator;
     readonly excludedFromNoticeLabel: Locator;
     readonly followUpLabel: Locator;
+    readonly modifiedPreferredLabel: Locator;
     readonly needsReviewLabel: Locator;
     readonly preselectedLabel: Locator;
     readonly previouslyPreferredLabel: Locator;
@@ -87,21 +88,24 @@ export class AttributionForm {
     );
     this.licenseTextToggleButton = this.node.getByLabel('license text toggle');
     this.auditingLabels = {
-      sourceLabel: this.node.getByTestId('auditing-option-source'),
-      confidenceLabel: this.node.getByTestId('auditing-option-confidence'),
       criticalityLabel: this.node.getByTestId('auditing-option-criticality'),
-      preselectedLabel: this.node.getByTestId('auditing-option-pre-selected'),
+      confidenceLabel: this.node.getByTestId('auditing-option-confidence'),
       currentlyPreferredLabel: this.node.getByTestId(
         'auditing-option-preferred',
       ),
-      previouslyPreferredLabel: this.node.getByTestId(
-        'auditing-option-was-preferred',
-      ),
-      followUpLabel: this.node.getByTestId('auditing-option-follow-up'),
-      needsReviewLabel: this.node.getByTestId('auditing-option-needs-review'),
       excludedFromNoticeLabel: this.node.getByTestId(
         'auditing-option-excluded-from-notice',
       ),
+      followUpLabel: this.node.getByTestId('auditing-option-follow-up'),
+      modifiedPreferredLabel: this.node.getByTestId(
+        'auditing-option-is-modified-preferred',
+      ),
+      needsReviewLabel: this.node.getByTestId('auditing-option-needs-review'),
+      preselectedLabel: this.node.getByTestId('auditing-option-pre-selected'),
+      previouslyPreferredLabel: this.node.getByTestId(
+        'auditing-option-was-preferred',
+      ),
+      sourceLabel: this.node.getByTestId('auditing-option-source'),
     };
     this.addAuditingOptionButton = this.node.getByRole('button', {
       name: text.auditingOptions.add,

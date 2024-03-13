@@ -99,24 +99,31 @@ export const HASH_EXCLUDE_KEYS = [
   'comment',
   'id',
   'originIds',
+  'originalAttributionId',
+  'originalAttributionSource',
+  'originalAttributionWasPreferred',
   'preSelected',
   'wasPreferred',
 ] satisfies Array<keyof PackageInfo>;
 
 export function mergePackageInfos(a: PackageInfo, b: PackageInfo): PackageInfo {
-  const diff: Required<Pick<PackageInfo, (typeof HASH_EXCLUDE_KEYS)[number]>> =
-    {
-      attributionConfidence:
-        min([a.attributionConfidence, b.attributionConfidence]) ??
-        DiscreteConfidence.High,
-      comment: compact([a.comment, b.comment]).join('\n\n'),
-      id: a.id,
-      originIds: Array.from(
-        new Set([...(a.originIds ?? []), ...(b.originIds ?? [])]),
-      ),
-      preSelected: a.preSelected || b.preSelected || false,
-      wasPreferred: a.wasPreferred || b.wasPreferred || false,
-    };
+  const diff: Pick<PackageInfo, (typeof HASH_EXCLUDE_KEYS)[number]> = {
+    attributionConfidence:
+      min([a.attributionConfidence, b.attributionConfidence]) ??
+      DiscreteConfidence.High,
+    comment: compact([a.comment, b.comment]).join('\n\n'),
+    id: a.id,
+    originIds: Array.from(
+      new Set([...(a.originIds ?? []), ...(b.originIds ?? [])]),
+    ),
+    originalAttributionId: a.originalAttributionId || b.originalAttributionId,
+    originalAttributionSource:
+      a.originalAttributionSource || b.originalAttributionSource,
+    originalAttributionWasPreferred:
+      a.originalAttributionWasPreferred || b.originalAttributionWasPreferred,
+    preSelected: a.preSelected || b.preSelected,
+    wasPreferred: a.wasPreferred || b.wasPreferred,
+  };
 
   return { ...a, ...diff };
 }
@@ -183,27 +190,44 @@ export function mergeAttributions({
 
 export function deserializeAttributions(
   rawAttributions: RawAttributions,
+  originalAttributions?: Attributions,
 ): Attributions {
   return Object.entries(rawAttributions).reduce<Attributions>(
     (
       attributions,
       [
-        attributionId,
+        id,
         { followUp, comment, criticality, originId, originIds, ...attribution },
       ],
     ) => {
       const isCritical =
         !!criticality && Object.values(Criticality).includes(criticality);
       const sanitizedComment = comment?.replace(/^\s+|\s+$/g, '');
-      attributions[attributionId] = {
+      const effectiveOriginIds =
+        originId || originIds?.length
+          ? (originIds ?? []).concat(originId ?? [])
+          : undefined;
+      const originalAttribution = originalAttributions
+        ? effectiveOriginIds &&
+          Object.values(originalAttributions).find((attribution) =>
+            attribution.originIds?.some((id) =>
+              effectiveOriginIds.includes(id),
+            ),
+          )
+        : { id, ...attribution };
+
+      attributions[id] = {
         ...attribution,
-        ...((originId || originIds?.length) && {
-          originIds: (originIds ?? []).concat(originId ?? []),
-        }),
+        ...(effectiveOriginIds && { originIds: effectiveOriginIds }),
         ...(followUp === 'FOLLOW_UP' && { followUp: true }),
-        ...(sanitizedComment && { comment: sanitizedComment }),
         ...(isCritical && { criticality }),
-        id: attributionId,
+        ...(originalAttribution && {
+          originalAttributionId: originalAttribution.id,
+          originalAttributionSource: originalAttribution.source,
+          originalAttributionWasPreferred: originalAttribution.wasPreferred,
+        }),
+        ...(sanitizedComment && { comment: sanitizedComment }),
+        id,
       };
       return attributions;
     },
@@ -223,6 +247,9 @@ export function serializeAttributions(
           count,
           followUp,
           id,
+          originalAttributionId,
+          originalAttributionSource,
+          originalAttributionWasPreferred,
           relation,
           resources,
           source,

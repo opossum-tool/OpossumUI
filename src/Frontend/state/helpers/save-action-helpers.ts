@@ -8,12 +8,14 @@ import { v4 as uuid4 } from 'uuid';
 
 import {
   AttributionData,
+  Attributions,
   AttributionsToResources,
   PackageInfo,
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { getClosestParentWithAttributions } from '../../util/get-closest-parent-attributions';
+import { getComparableAttributes } from '../../util/get-comparable-attributes';
 import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 import {
   removeFromArrayCloneAndDeleteKeyFromObjectIfEmpty,
@@ -640,4 +642,24 @@ function _addPathAndParentsToResourcesWithAttributedChildren(
       attributedPathIndex,
     );
   });
+}
+
+export function getWasPreferred({
+  externalAttributions,
+  packageInfo,
+}: {
+  packageInfo: PackageInfo;
+  externalAttributions: Attributions;
+}): boolean | undefined {
+  const originalAttributionId = packageInfo.originalAttributionId;
+  const originalAttribution = originalAttributionId
+    ? externalAttributions[originalAttributionId]
+    : undefined;
+
+  return originalAttribution
+    ? isEqual(
+        getComparableAttributes(packageInfo),
+        getComparableAttributes(originalAttribution),
+      ) && originalAttribution.wasPreferred
+    : packageInfo.wasPreferred;
 }
