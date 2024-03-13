@@ -1535,30 +1535,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/cli@npm:^19.0.3":
-  version: 19.0.3
-  resolution: "@commitlint/cli@npm:19.0.3"
+"@commitlint/cli@npm:^19.1.0":
+  version: 19.1.0
+  resolution: "@commitlint/cli@npm:19.1.0"
   dependencies:
     "@commitlint/format": "npm:^19.0.3"
-    "@commitlint/lint": "npm:^19.0.3"
-    "@commitlint/load": "npm:^19.0.3"
+    "@commitlint/lint": "npm:^19.1.0"
+    "@commitlint/load": "npm:^19.1.0"
     "@commitlint/read": "npm:^19.0.3"
     "@commitlint/types": "npm:^19.0.3"
     execa: "npm:^8.0.1"
     yargs: "npm:^17.0.0"
   bin:
     commitlint: cli.js
-  checksum: 10/8cdde638eb462981a801d80cb82c7c4d75198b4bb8741c5fb7ec632a00ed3bec669fb3179813622023890b197abbc4419fbe361f6f539a2b1e13e922dbea16b6
+  checksum: 10/1c01c74749c849dc24c4c21a78e1de4b415bdddc7045eeb39839e3067057c69e91165da13621ec5174e20b91c8bb71c11e4a8ef35ade27b87aa0575d41f4ed54
   languageName: node
   linkType: hard
 
-"@commitlint/config-conventional@npm:^19.0.3":
-  version: 19.0.3
-  resolution: "@commitlint/config-conventional@npm:19.0.3"
+"@commitlint/config-conventional@npm:^19.1.0":
+  version: 19.1.0
+  resolution: "@commitlint/config-conventional@npm:19.1.0"
   dependencies:
     "@commitlint/types": "npm:^19.0.3"
     conventional-changelog-conventionalcommits: "npm:^7.0.2"
-  checksum: 10/6fa0aec688739c5da97848ff42d17625f4f81b282a512049f16a2699ecfbbd06673ea04a10dba6d4756414aded858cadccf7b8cb8a50e74174a7268dd7c4b2cc
+  checksum: 10/e3a6ccb521d8849600b7db1d777eed4861ab85c83f26bba56057f05a3cd3481bcce2bbfa29cada03929d3560c4b5509c3d0089ee1d3f530fdbc658e8e6311f26
   languageName: node
   linkType: hard
 
@@ -1613,25 +1613,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/lint@npm:^19.0.3":
-  version: 19.0.3
-  resolution: "@commitlint/lint@npm:19.0.3"
+"@commitlint/lint@npm:^19.1.0":
+  version: 19.1.0
+  resolution: "@commitlint/lint@npm:19.1.0"
   dependencies:
     "@commitlint/is-ignored": "npm:^19.0.3"
     "@commitlint/parse": "npm:^19.0.3"
     "@commitlint/rules": "npm:^19.0.3"
     "@commitlint/types": "npm:^19.0.3"
-  checksum: 10/6d07cceb0ccc117d3958e14592cd351d16ecdbb4649055615deefe77f220a2b29d2c5b8ba2f25e6ac3d563ea2d47c23bb8fe23db07d48ebc74014ff5da38a8f4
+  checksum: 10/caeac7a989e186fb2e0fbd42ea6f32e3eff68525fbd8cd0a8c9bd242e038c3bfaac89c0da9c8f98dd07247b5656d6986163746eed225c3dd5374cd39cc7664a8
   languageName: node
   linkType: hard
 
-"@commitlint/load@npm:^19.0.3":
-  version: 19.0.3
-  resolution: "@commitlint/load@npm:19.0.3"
+"@commitlint/load@npm:^19.1.0":
+  version: 19.1.0
+  resolution: "@commitlint/load@npm:19.1.0"
   dependencies:
     "@commitlint/config-validator": "npm:^19.0.3"
     "@commitlint/execute-rule": "npm:^19.0.0"
-    "@commitlint/resolve-extends": "npm:^19.0.3"
+    "@commitlint/resolve-extends": "npm:^19.1.0"
     "@commitlint/types": "npm:^19.0.3"
     chalk: "npm:^5.3.0"
     cosmiconfig: "npm:^8.3.6"
@@ -1639,7 +1639,7 @@ __metadata:
     lodash.isplainobject: "npm:^4.0.6"
     lodash.merge: "npm:^4.6.2"
     lodash.uniq: "npm:^4.5.0"
-  checksum: 10/6827337fad156dc6e9daa0e0b55d0b2142cdaa0f9a31e06c048812e0af862334576441346bab89f7acf22c9ef794f1450dc92acc694a748c2234f4071cb0e3c2
+  checksum: 10/d9dfe8a9ca13ae3ab4df7ce6211a0ad0cb6ade195333cc0b8a08b6bf4eb9c8723b91e29ee7e43326a31a33a2e0cbd0e18bb421c7e2a06c21fdd89daa436cb879
   languageName: node
   linkType: hard
 
@@ -1673,9 +1673,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/resolve-extends@npm:^19.0.3":
-  version: 19.0.3
-  resolution: "@commitlint/resolve-extends@npm:19.0.3"
+"@commitlint/resolve-extends@npm:^19.1.0":
+  version: 19.1.0
+  resolution: "@commitlint/resolve-extends@npm:19.1.0"
   dependencies:
     "@commitlint/config-validator": "npm:^19.0.3"
     "@commitlint/types": "npm:^19.0.3"
@@ -1683,7 +1683,7 @@ __metadata:
     import-meta-resolve: "npm:^4.0.0"
     lodash.mergewith: "npm:^4.6.2"
     resolve-from: "npm:^5.0.0"
-  checksum: 10/b60199b094c5f5c69950db33b44c7e6efc070deb2eb161111cf9c45bb1a14e78b3d53ca34c20c966602b011b57ef8b1751ec857759d034295da6d41f7476e1ef
+  checksum: 10/453f8828b091886dc7cb4b13285bf3300be94266c3fc13453ab62fddc524a3969434dcebea3e4c4775621576fa25b41efbc62d773e3c44c1e87d12d7211166de
   languageName: node
   linkType: hard
 
@@ -9835,8 +9835,8 @@ __metadata:
     "@babel/preset-env": "npm:^7.24.0"
     "@babel/preset-react": "npm:^7.23.3"
     "@babel/preset-typescript": "npm:^7.23.3"
-    "@commitlint/cli": "npm:^19.0.3"
-    "@commitlint/config-conventional": "npm:^19.0.3"
+    "@commitlint/cli": "npm:^19.1.0"
+    "@commitlint/config-conventional": "npm:^19.1.0"
     "@commitlint/types": "npm:^19.0.3"
     "@emotion/react": "npm:^11.11.4"
     "@emotion/styled": "npm:^11.11.0"
