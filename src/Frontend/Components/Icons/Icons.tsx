@@ -14,6 +14,7 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import ReplayIcon from '@mui/icons-material/Replay';
 import RuleIcon from '@mui/icons-material/Rule';
 import StarIcon from '@mui/icons-material/Star';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import { SxProps } from '@mui/material';
@@ -361,11 +362,11 @@ export function ModifiedPreferredIcon({
       placement={tooltipPlacement}
       disableInteractive
     >
-      <StarIcon
+      <StarHalfIcon
         aria-label={'Modified preferred icon'}
         sx={{
           ...baseIcon,
-          color: `${OpossumColors.black} !important`,
+          color: `${OpossumColors.mediumGrey} !important`,
           ...sx,
         }}
         className={className}
