@@ -21,7 +21,6 @@ export class AttributionForm {
   readonly copyright: Locator;
   readonly licenseName: Locator;
   readonly licenseText: Locator;
-  readonly licenseTextToggleButton: Locator;
   readonly attributionType: Locator;
   readonly addAuditingOptionButton: Locator;
   readonly auditingOptionsMenu: {
@@ -83,10 +82,9 @@ export class AttributionForm {
       },
     );
     this.licenseText = this.node.getByLabel(
-      'License Text (to appear in attribution document)',
+      text.attributionColumn.licenseText,
       { exact: true },
     );
-    this.licenseTextToggleButton = this.node.getByLabel('license text toggle');
     this.auditingLabels = {
       criticalityLabel: this.node.getByTestId('auditing-option-criticality'),
       confidenceLabel: this.node.getByTestId('auditing-option-confidence'),
@@ -180,12 +178,6 @@ export class AttributionForm {
     },
     licenseTextIs: async (licenseText: string): Promise<void> => {
       await expect(this.licenseText).toHaveValue(licenseText);
-    },
-    licenseTextIsVisible: async (): Promise<void> => {
-      await expect(this.licenseText).toBeVisible();
-    },
-    licenseTextIsHidden: async (): Promise<void> => {
-      await expect(this.licenseText).toBeHidden();
     },
     commentIs: async (comment: string): Promise<void> => {
       await expect(this.comment).toHaveValue(comment);
@@ -297,10 +289,6 @@ export class AttributionForm {
 
   async closeAuditingOptionsMenu(): Promise<void> {
     await this.window.keyboard.press('Escape');
-  }
-
-  async toggleLicenseTextVisibility(): Promise<void> {
-    await this.licenseTextToggleButton.click();
   }
 
   async selectLicense(license: RawFrequentLicense): Promise<void> {

@@ -57,6 +57,7 @@ export const classes = {
 
 export interface TextBoxProps {
   color?: TextFieldProps['color'];
+  placeholder?: string;
   disabled?: boolean;
   expanded?: boolean;
   focused?: boolean;
@@ -70,7 +71,7 @@ export interface TextBoxProps {
   readOnly?: boolean;
   sx?: SxProps;
   text?: string;
-  title?: string;
+  title: string;
   endIcon?: React.ReactElement | Array<React.ReactElement>;
 }
 
@@ -79,6 +80,7 @@ export function TextBox(props: TextBoxProps) {
     <MuiBox sx={props.sx}>
       <MuiTextField
         disabled={props.disabled}
+        placeholder={props.placeholder}
         sx={{
           ...classes.textField,
           ...(props.error && classes.defaultHighlightedTextField),
@@ -86,6 +88,9 @@ export function TextBox(props: TextBoxProps) {
         label={props.title}
         focused={props.focused}
         color={props.color}
+        InputLabelProps={{
+          shrink: !!props.placeholder || !!props.text,
+        }}
         InputProps={{
           readOnly: props.readOnly,
           slotProps: { root: { sx: { padding: 0 } } },

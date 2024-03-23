@@ -40,7 +40,7 @@ export function CopyrightSubPanel({
         title={'Copyright'}
         text={packageInfo.copyright}
         minRows={3}
-        maxRows={7}
+        maxRows={5}
         color={config?.color}
         focused={config?.focused}
         multiline
