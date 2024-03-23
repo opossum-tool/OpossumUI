@@ -9960,7 +9960,7 @@ __metadata:
     unimported: "npm:^1.31.1"
     upath: "npm:^2.0.1"
     uuid: "npm:^9.0.1"
-    vite: "npm:^5.2.2"
+    vite: "npm:^5.2.3"
     vite-plugin-electron: "npm:^0.28.4"
     vite-plugin-svgr: "npm:^4.2.0"
     vite-tsconfig-paths: "npm:^4.3.2"
@@ -12495,9 +12495,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^5.2.2":
-  version: 5.2.2
-  resolution: "vite@npm:5.2.2"
+"vite@npm:^5.2.3":
+  version: 5.2.4
+  resolution: "vite@npm:5.2.4"
   dependencies:
     esbuild: "npm:^0.20.1"
     fsevents: "npm:~2.3.3"
@@ -12531,7 +12531,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10/8e7f1e79e00a092b43378565898b5b60f66738d55fdcd2bb3a17b07183d32c3bfda30135490956ad8eb5eb77b0e56d4377655bf9478898616edbb20645477edb
+  checksum: 10/ed3d4fa2023642dd578e90eb02876e01729fda0af196304bb1c3a7f037b457f1a505bfa36c10f28d0466945b9da7d7972219716554d43ff3c025f26ed3d89e11
   languageName: node
   linkType: hard
 
