@@ -226,7 +226,7 @@ export function BackendCommunication(): ReactElement | null {
     _: IpcRendererEvent,
     fileSupportPopupArgs: FileSupportPopupArgs,
   ): void {
-    if (fileSupportPopupArgs && fileSupportPopupArgs.showFileSupportPopup) {
+    if (fileSupportPopupArgs?.showFileSupportPopup) {
       if (fileSupportPopupArgs.dotOpossumFileAlreadyExists) {
         dispatch(openPopup(PopupType.FileSupportDotOpossumAlreadyExistsPopup));
       } else {

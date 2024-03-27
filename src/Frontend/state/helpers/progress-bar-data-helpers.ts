@@ -178,16 +178,10 @@ export function resourceHasOnlyPreSelectedAttributions(
   resourcesToManualAttributions: ResourcesToAttributions,
   manualAttributions: Attributions,
 ): boolean {
-  return (
-    resourcesToManualAttributions[path] &&
-    resourcesToManualAttributions[path].every(
-      (attributionId: string): boolean => {
-        return Boolean(
-          manualAttributions[attributionId] &&
-            manualAttributions[attributionId].preSelected,
-        );
-      },
-    )
+  return resourcesToManualAttributions[path]?.every(
+    (attributionId: string): boolean => {
+      return Boolean(manualAttributions[attributionId]?.preSelected);
+    },
   );
 }
 
