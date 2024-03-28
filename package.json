@@ -33,7 +33,7 @@
     "react-hot-toast": "^2.4.1",
     "react-hotkeys-hook": "^4.5.0",
     "react-redux": "^9.1.0",
-    "react-virtuoso": "^4.7.4",
+    "react-virtuoso": "^4.7.5",
     "recharts": "^2.12.3",
     "spdx-license-ids": "^3.0.17",
     "stream-json": "^1.8.0",
