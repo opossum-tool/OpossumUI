@@ -62,7 +62,7 @@
     "@types/lodash": "^4.17.0",
     "@types/node": "^20.12.2",
     "@types/object-hash": "^3.0.6",
-    "@types/react": "^18.2.73",
+    "@types/react": "^18.2.74",
     "@types/react-dom": "^18.2.23",
     "@types/recharts": "^1.8.29",
     "@types/stream-json": "^1.7.7",
