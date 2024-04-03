@@ -60,7 +60,7 @@
     "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.9",
     "@types/lodash": "^4.17.0",
-    "@types/node": "^20.12.2",
+    "@types/node": "^20.12.3",
     "@types/object-hash": "^3.0.6",
     "@types/react": "^18.2.74",
     "@types/react-dom": "^18.2.23",
