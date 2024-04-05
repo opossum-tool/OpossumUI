@@ -100,7 +100,7 @@
     "run-script-os": "^1.1.6",
     "start-server-and-test": "^2.0.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.3",
+    "typescript": "^5.4.4",
     "unimported": "^1.31.1",
     "vite": "^5.2.8",
     "vite-plugin-electron": "^0.28.4",
