@@ -9955,7 +9955,7 @@ __metadata:
     react-hotkeys-hook: "npm:^4.5.0"
     react-redux: "npm:^9.1.0"
     react-virtuoso: "npm:^4.7.7"
-    recharts: "npm:^2.12.3"
+    recharts: "npm:^2.12.4"
     run-script-os: "npm:^1.1.6"
     spdx-license-ids: "npm:^3.0.17"
     start-server-and-test: "npm:^2.0.3"
@@ -10685,9 +10685,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recharts@npm:^2.12.3":
-  version: 2.12.3
-  resolution: "recharts@npm:2.12.3"
+"recharts@npm:^2.12.4":
+  version: 2.12.4
+  resolution: "recharts@npm:2.12.4"
   dependencies:
     clsx: "npm:^2.0.0"
     eventemitter3: "npm:^4.0.1"
@@ -10700,7 +10700,7 @@ __metadata:
   peerDependencies:
     react: ^16.0.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 10/2ddc8fe628a50f1a4d61d875d5dc18885d2e233bbc937a1ae6065a48ac59cd8ea90bd84290487bf02113f1ed40d890e716ee907d46cb90c36bca67a985e3236f
+  checksum: 10/5f9009b24a8c48484f2417e1f756ebab456270fbdee5bbae1be2e2976bb1f067954184adb3e46274c255450c9ab636c3673eb68df59720d19da9366fdc76b982
   languageName: node
   linkType: hard
 
