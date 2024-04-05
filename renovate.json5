@@ -17,6 +17,10 @@
   minimumReleaseAge: '1 day',
   packageRules: [
     {
+      matchPackageNames: ['react-virtuoso'],
+      enabled: false,
+    },
+    {
       matchPackagePrefixes: ['@testing-library/', 'eslint-', '@babel/'],
       matchPackageNames: [
         '@faker-js/faker',
@@ -51,7 +55,6 @@
         'react-error-boundary',
         'react-hot-toast',
         'react-hotkeys-hook',
-        'react-virtuoso',
         'recharts',
         'run-script-os',
         'spdx-license-ids',
