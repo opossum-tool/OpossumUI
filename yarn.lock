@@ -3300,7 +3300,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:^15.0.0":
+"@testing-library/react@npm:^15.0.1":
   version: 15.0.1
   resolution: "@testing-library/react@npm:15.0.1"
   dependencies:
@@ -9797,7 +9797,7 @@ __metadata:
     "@tanstack/react-query": "npm:^5.29.2"
     "@testing-library/dom": "npm:^10.0.0"
     "@testing-library/jest-dom": "npm:^6.4.2"
-    "@testing-library/react": "npm:^15.0.0"
+    "@testing-library/react": "npm:^15.0.1"
     "@testing-library/user-event": "npm:^14.5.2"
     "@trivago/prettier-plugin-sort-imports": "npm:^4.3.0"
     "@types/babel__core": "npm:^7.20.5"
