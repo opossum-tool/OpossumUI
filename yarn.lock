@@ -3721,13 +3721,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.2.77":
-  version: 18.2.77
-  resolution: "@types/react@npm:18.2.77"
+"@types/react@npm:*, @types/react@npm:^18.2.78":
+  version: 18.2.78
+  resolution: "@types/react@npm:18.2.78"
   dependencies:
     "@types/prop-types": "npm:*"
     csstype: "npm:^3.0.2"
-  checksum: 10/80d7ad9cf13e15895a857c66f5b0c1ce758c1e7580a76936d8d1b19c71e4485fa4b35d762a1de98de4eb91506cbc8507582c9a979f357b6f5f75f86009d8ca07
+  checksum: 10/a4bf8104c580fab40535cc6058425ac6a47c19b8dad45b566cdb38aaafa3ffa1f24e7b65ec95e391a6c18ccf4a33738a591c1f723c00300f13d61fc456a1eb8d
   languageName: node
   linkType: hard
 
@@ -9806,7 +9806,7 @@ __metadata:
     "@types/lodash": "npm:^4.17.0"
     "@types/node": "npm:^20.12.7"
     "@types/object-hash": "npm:^3.0.6"
-    "@types/react": "npm:^18.2.77"
+    "@types/react": "npm:^18.2.78"
     "@types/react-dom": "npm:^18.2.25"
     "@types/recharts": "npm:^1.8.29"
     "@types/stream-json": "npm:^1.7.7"
