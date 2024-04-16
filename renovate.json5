@@ -75,6 +75,11 @@
       automerge: true,
     },
     {
+      matchPackageNames: ['node'],
+      matchUpdateTypes: ['minor', 'patch'],
+      automerge: true,
+    },
+    {
       matchPackagePrefixes: ['@typescript-eslint/'],
       groupName: 'TypeScript ESLint dependencies',
       groupSlug: 'typescript-eslint',
