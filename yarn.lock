@@ -6482,14 +6482,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-testing-library@npm:^6.2.1":
-  version: 6.2.1
-  resolution: "eslint-plugin-testing-library@npm:6.2.1"
+"eslint-plugin-testing-library@npm:^6.2.2":
+  version: 6.2.2
+  resolution: "eslint-plugin-testing-library@npm:6.2.2"
   dependencies:
     "@typescript-eslint/utils": "npm:^5.58.0"
   peerDependencies:
     eslint: ^7.5.0 || ^8.0.0
-  checksum: 10/12b6b5fe4b66513f576ca1c59d8ad8ade6e6f06c3be76a7fb2d0bf49b6f5a71f12de7c32a51641714afc2618120cb5770ce699fd4525f0a063ce74f4251cdcf9
+  checksum: 10/61947d0b81de1565c8627ec2d1e6636a8b6613cfe554a4671d011b3e88dfd77b498ce83b15bcf0a2df5570c44ad1d46d54058ed488f4e515d764196cbc6d65cf
   languageName: node
   linkType: hard
 
@@ -9834,7 +9834,7 @@ __metadata:
     eslint-plugin-playwright: "npm:^1.6.0"
     eslint-plugin-react: "npm:^7.34.1"
     eslint-plugin-react-hooks: "npm:^4.6.0"
-    eslint-plugin-testing-library: "npm:^6.2.1"
+    eslint-plugin-testing-library: "npm:^6.2.2"
     fast-csv: "npm:^5.0.1"
     fflate: "npm:^0.8.2"
     husky: "npm:9.0.11"
