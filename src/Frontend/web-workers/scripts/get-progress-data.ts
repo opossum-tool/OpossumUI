@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { AttributionData, Resources } from '../../../shared/shared-types';
 import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
-import { ProgressBarData } from '../../types/types';
+import { ProgressBarWithButtonsData } from '../../types/types';
 
 interface Props {
   attributionBreakpoints: Set<string>;
@@ -22,7 +22,7 @@ export function getProgressData({
   manualData,
   resolvedExternalAttributions,
   resources,
-}: Props): ProgressBarData {
+}: Props): ProgressBarWithButtonsData {
   return getUpdatedProgressBarData({
     resources,
     manualAttributions: manualData.attributions,

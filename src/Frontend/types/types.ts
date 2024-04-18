@@ -15,16 +15,24 @@ export type State = {
   variablesState: VariablesState;
 };
 
-export interface ProgressBarData {
-  fileCount: number;
-  filesWithManualAttributionCount: number;
-  filesWithOnlyPreSelectedAttributionCount: number;
-  filesWithOnlyExternalAttributionCount: number;
-  resourcesWithNonInheritedExternalAttributionOnly: Array<string>;
-  filesWithHighlyCriticalExternalAttributionsCount: number;
-  filesWithMediumCriticalExternalAttributionsCount: number;
-  resourcesWithHighlyCriticalExternalAttributions: Array<string>;
-  resourcesWithMediumCriticalExternalAttributions: Array<string>;
+export type ProgressBarFileCounts = {
+  files: number;
+  filesWithManualAttribution: number;
+  filesWithOnlyPreSelectedAttribution: number;
+  filesWithOnlyExternalAttribution: number;
+  filesWithHighlyCriticalExternalAttributions: number;
+  filesWithMediumCriticalExternalAttributions: number;
+};
+
+export type ProgressBarResourcesData = {
+  withNonInheritedExternalAttributionOnly: Array<string>;
+  withHighlyCriticalExternalAttributions: Array<string>;
+  withMediumCriticalExternalAttributions: Array<string>;
+};
+
+export interface ProgressBarWithButtonsData {
+  count: ProgressBarFileCounts;
+  resources: ProgressBarResourcesData;
 }
 
 export interface PopupInfo {

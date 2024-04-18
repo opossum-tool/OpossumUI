@@ -236,4 +236,11 @@ export const text = {
     relaunch: 'Relaunch App',
     quit: 'Quit App',
   },
+  progressBarButtons: {
+    jumpButtonTooltipProgress: 'jump to next resource with unresolved signals',
+    jumpButtonTooltipCritical:
+      'jump to next resource with unresolved critical signals',
+    switchButtonTooltipProgress: 'Progress bar selected',
+    switchButtonTooltipCritical: 'Critical signals progress bar selected',
+  },
 } as const;

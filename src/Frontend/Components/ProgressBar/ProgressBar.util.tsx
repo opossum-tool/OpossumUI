@@ -12,7 +12,7 @@ import {
   getResourceIds,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
-import { ProgressBarData } from '../../types/types';
+import { ProgressBarFileCounts } from '../../types/types';
 import { moveElementsToEnd } from '../../util/lodash-extension-utils';
 
 export function useOnProgressBarClick(resourceIds: Array<string>) {
@@ -38,7 +38,7 @@ export function useOnProgressBarClick(resourceIds: Array<string>) {
 }
 
 export function getProgressBarTooltipText(
-  progressBarData: ProgressBarData,
+  progressBarData: ProgressBarFileCounts,
 ): React.ReactNode {
   return (
     <MuiBox>
@@ -46,41 +46,41 @@ export function getProgressBarTooltipText(
       <br />
       …with attributions:{' '}
       {new Intl.NumberFormat().format(
-        progressBarData.filesWithManualAttributionCount,
+        progressBarData.filesWithManualAttribution,
       )}
       <br />
       …with only pre-selected attributions:{' '}
       {new Intl.NumberFormat().format(
-        progressBarData.filesWithOnlyPreSelectedAttributionCount,
+        progressBarData.filesWithOnlyPreSelectedAttribution,
       )}
       <br />
       …with only signals:{' '}
       {new Intl.NumberFormat().format(
-        progressBarData.filesWithOnlyExternalAttributionCount,
+        progressBarData.filesWithOnlyExternalAttribution,
       )}
     </MuiBox>
   );
 }
 
 export function getCriticalityBarTooltipText(
-  progressBarData: ProgressBarData,
+  progressBarData: ProgressBarFileCounts,
 ): React.ReactNode {
   const filesWithNonCriticalExternalAttributions =
-    progressBarData.filesWithOnlyExternalAttributionCount -
-    progressBarData.filesWithHighlyCriticalExternalAttributionsCount -
-    progressBarData.filesWithMediumCriticalExternalAttributionsCount;
+    progressBarData.filesWithOnlyExternalAttribution -
+    progressBarData.filesWithHighlyCriticalExternalAttributions -
+    progressBarData.filesWithMediumCriticalExternalAttributions;
   return (
     <MuiBox>
       Number of resources with signals and no attributions…
       <br />
       …containing highly critical signals:{' '}
       {new Intl.NumberFormat().format(
-        progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
+        progressBarData.filesWithHighlyCriticalExternalAttributions,
       )}{' '}
       <br />
       …containing medium critical signals:{' '}
       {new Intl.NumberFormat().format(
-        progressBarData.filesWithMediumCriticalExternalAttributionsCount,
+        progressBarData.filesWithMediumCriticalExternalAttributions,
       )}{' '}
       <br />
       …containing only non-critical signals:{' '}
@@ -90,19 +90,16 @@ export function getCriticalityBarTooltipText(
 }
 
 export function getProgressBarBackground(
-  progressBarData: ProgressBarData,
+  progressBarData: ProgressBarFileCounts,
 ): string {
   let filesWithManualAttributions: number =
-    (progressBarData.filesWithManualAttributionCount /
-      progressBarData.fileCount) *
-    100;
+    (progressBarData.filesWithManualAttribution / progressBarData.files) * 100;
   let filesWithOnlyPreselectedAttributions: number =
-    (progressBarData.filesWithOnlyPreSelectedAttributionCount /
-      progressBarData.fileCount) *
+    (progressBarData.filesWithOnlyPreSelectedAttribution /
+      progressBarData.files) *
     100;
   let filesWithOnlyExternalAttributions: number =
-    (progressBarData.filesWithOnlyExternalAttributionCount /
-      progressBarData.fileCount) *
+    (progressBarData.filesWithOnlyExternalAttribution / progressBarData.files) *
     100;
   let filesWithNothing: number =
     100 -
@@ -139,18 +136,18 @@ export function getProgressBarBackground(
 }
 
 export function getCriticalityBarBackground(
-  progressBarData: ProgressBarData,
+  progressBarData: ProgressBarFileCounts,
 ): string {
-  if (progressBarData.filesWithOnlyExternalAttributionCount === 0) {
+  if (progressBarData.filesWithOnlyExternalAttribution === 0) {
     return `linear-gradient(to right, ${OpossumColors.pastelDarkGreen} 0% 100%)`;
   }
   let filesWithHighlyCriticalExternalAttributions =
-    (progressBarData.filesWithHighlyCriticalExternalAttributionsCount /
-      progressBarData.filesWithOnlyExternalAttributionCount) *
+    (progressBarData.filesWithHighlyCriticalExternalAttributions /
+      progressBarData.filesWithOnlyExternalAttribution) *
     100;
   let filesWithMediumCriticalExternalAttributions =
-    (progressBarData.filesWithMediumCriticalExternalAttributionsCount /
-      progressBarData.filesWithOnlyExternalAttributionCount) *
+    (progressBarData.filesWithMediumCriticalExternalAttributions /
+      progressBarData.filesWithOnlyExternalAttribution) *
     100;
   let filesWithNonCriticalAttributions =
     100 -

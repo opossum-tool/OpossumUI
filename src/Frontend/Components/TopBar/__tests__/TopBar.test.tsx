@@ -14,7 +14,7 @@ import {
 } from '../../../state/selectors/view-selector';
 import { PROGRESS_DATA } from '../../../state/variables/use-progress-data';
 import { renderComponent } from '../../../test-helpers/render';
-import { ProgressBarData } from '../../../types/types';
+import { ProgressBarWithButtonsData } from '../../../types/types';
 import { TopBar } from '../TopBar';
 
 describe('TopBar', () => {
@@ -47,16 +47,20 @@ describe('TopBar', () => {
   it('displays the progress bar when progress data available', () => {
     renderComponent(<TopBar />, {
       actions: [
-        setVariable<ProgressBarData>(PROGRESS_DATA, {
-          fileCount: 6,
-          filesWithHighlyCriticalExternalAttributionsCount: 1,
-          filesWithMediumCriticalExternalAttributionsCount: 1,
-          filesWithManualAttributionCount: 3,
-          filesWithOnlyExternalAttributionCount: 1,
-          filesWithOnlyPreSelectedAttributionCount: 1,
-          resourcesWithMediumCriticalExternalAttributions: [],
-          resourcesWithNonInheritedExternalAttributionOnly: [],
-          resourcesWithHighlyCriticalExternalAttributions: [],
+        setVariable<ProgressBarWithButtonsData>(PROGRESS_DATA, {
+          count: {
+            files: 6,
+            filesWithHighlyCriticalExternalAttributions: 1,
+            filesWithMediumCriticalExternalAttributions: 1,
+            filesWithManualAttribution: 3,
+            filesWithOnlyExternalAttribution: 1,
+            filesWithOnlyPreSelectedAttribution: 1,
+          },
+          resources: {
+            withMediumCriticalExternalAttributions: [],
+            withNonInheritedExternalAttributionOnly: [],
+            withHighlyCriticalExternalAttributions: [],
+          },
         }),
       ],
     });

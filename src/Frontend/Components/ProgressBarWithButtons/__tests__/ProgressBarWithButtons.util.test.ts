@@ -3,29 +3,29 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
-import { ProgressBarData } from '../../../types/types';
+import { ProgressBarWithButtonsData } from '../../../types/types';
 import {
   getCriticalityBarBackground,
   getProgressBarBackground,
   roundToAtLeastOnePercentAndNormalize,
-} from '../ProgressBar.util';
+} from '../../ProgressBar/ProgressBar.util';
 
 describe('ProgressBar helpers', () => {
   it('getProgressBarBackground returns correct distribution', () => {
-    const testProgressBarData: ProgressBarData = {
-      fileCount: 9,
-      filesWithManualAttributionCount: 3,
-      filesWithOnlyPreSelectedAttributionCount: 3,
-      filesWithOnlyExternalAttributionCount: 3,
-      resourcesWithNonInheritedExternalAttributionOnly: [
-        'file1',
-        'file2',
-        'file3',
-      ],
-      filesWithHighlyCriticalExternalAttributionsCount: 1,
-      filesWithMediumCriticalExternalAttributionsCount: 2,
-      resourcesWithHighlyCriticalExternalAttributions: ['file1'],
-      resourcesWithMediumCriticalExternalAttributions: ['file2', 'file3'],
+    const testProgressBarData: ProgressBarWithButtonsData = {
+      count: {
+        files: 9,
+        filesWithManualAttribution: 3,
+        filesWithOnlyPreSelectedAttribution: 3,
+        filesWithOnlyExternalAttribution: 3,
+        filesWithHighlyCriticalExternalAttributions: 1,
+        filesWithMediumCriticalExternalAttributions: 2,
+      },
+      resources: {
+        withNonInheritedExternalAttributionOnly: ['file1', 'file2', 'file3'],
+        withHighlyCriticalExternalAttributions: ['file1'],
+        withMediumCriticalExternalAttributions: ['file2', 'file3'],
+      },
     };
     const expectedProgressBarBackground: string =
       'linear-gradient(to right,' +
@@ -34,34 +34,36 @@ describe('ProgressBar helpers', () => {
       ` ${OpossumColors.pastelMiddleGreen} 66%,` +
       ` ${OpossumColors.pastelRed} 66% 99%,` +
       ` ${OpossumColors.lightestBlue} 99%)`;
-    const actualProgressBarBackground =
-      getProgressBarBackground(testProgressBarData);
+    const actualProgressBarBackground = getProgressBarBackground(
+      testProgressBarData.count,
+    );
     expect(actualProgressBarBackground).toEqual(expectedProgressBarBackground);
   });
 
   it('getCriticalityBarBackground returns correct distribution', () => {
-    const testProgressBarData: ProgressBarData = {
-      fileCount: 9,
-      filesWithManualAttributionCount: 3,
-      filesWithOnlyPreSelectedAttributionCount: 3,
-      filesWithOnlyExternalAttributionCount: 3,
-      resourcesWithNonInheritedExternalAttributionOnly: [
-        'file1',
-        'file2',
-        'file3',
-      ],
-      filesWithHighlyCriticalExternalAttributionsCount: 1,
-      filesWithMediumCriticalExternalAttributionsCount: 1,
-      resourcesWithHighlyCriticalExternalAttributions: ['file1'],
-      resourcesWithMediumCriticalExternalAttributions: ['file2'],
+    const testProgressBarData: ProgressBarWithButtonsData = {
+      count: {
+        files: 9,
+        filesWithManualAttribution: 3,
+        filesWithOnlyPreSelectedAttribution: 3,
+        filesWithOnlyExternalAttribution: 3,
+        filesWithHighlyCriticalExternalAttributions: 1,
+        filesWithMediumCriticalExternalAttributions: 1,
+      },
+      resources: {
+        withNonInheritedExternalAttributionOnly: ['file1', 'file2', 'file3'],
+        withHighlyCriticalExternalAttributions: ['file1'],
+        withMediumCriticalExternalAttributions: ['file2'],
+      },
     };
     const expectedCriticalityBarBackground: string =
       'linear-gradient(to right,' +
       ` ${criticalityColor.high} 34%,` +
       ` ${criticalityColor.medium} 34% 67%,` +
       ` ${OpossumColors.lightestBlue} 67%)`;
-    const actualCriticalityBarBackground =
-      getCriticalityBarBackground(testProgressBarData);
+    const actualCriticalityBarBackground = getCriticalityBarBackground(
+      testProgressBarData.count,
+    );
     expect(actualCriticalityBarBackground).toEqual(
       expectedCriticalityBarBackground,
     );

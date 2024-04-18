@@ -9,7 +9,7 @@ import {
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { Filter, FilterCounts, ROOT_PATH, Sorting } from '../shared-constants';
-import { ProgressBarData } from '../types/types';
+import { ProgressBarWithButtonsData } from '../types/types';
 import {
   getFilteredAttributionCounts,
   getFilteredAttributions,
@@ -26,7 +26,7 @@ type Unionize<T extends object> = NonNullable<
 export type SignalsWorkerOutput =
   | {
       name: 'progressData';
-      data: ProgressBarData;
+      data: ProgressBarWithButtonsData;
     }
   | {
       name: 'filteredAttributionCounts';

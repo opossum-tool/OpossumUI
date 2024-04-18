@@ -9,7 +9,7 @@ import {
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { TREE_ROOT_FOLDER_LABEL } from '../../shared-styles';
-import { ProgressBarData } from '../../types/types';
+import { ProgressBarWithButtonsData } from '../../types/types';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 
 export function filterResourcesToAttributions(
@@ -31,7 +31,7 @@ export function filterResourcesToAttributions(
 }
 
 function updateProgressBarDataForResources(
-  progressBarData: ProgressBarData,
+  progressBarData: ProgressBarWithButtonsData,
   resources: Resources,
   manualAttributions: Attributions,
   externalAttributions: Attributions,
@@ -79,33 +79,33 @@ function updateProgressBarDataForResources(
     );
 
     if (!resourceCanHaveChildren || filesWithChildren.has(path)) {
-      progressBarData.fileCount++;
+      progressBarData.count.files++;
       if (hasOnlyPreselectedAttribution) {
-        progressBarData.filesWithOnlyPreSelectedAttributionCount++;
+        progressBarData.count.filesWithOnlyPreSelectedAttribution++;
       } else if (hasManualAttribution) {
-        progressBarData.filesWithManualAttributionCount++;
+        progressBarData.count.filesWithManualAttribution++;
       } else if (hasNonInheritedExternalAttributions) {
-        progressBarData.filesWithOnlyExternalAttributionCount++;
-        progressBarData.resourcesWithNonInheritedExternalAttributionOnly.push(
+        progressBarData.count.filesWithOnlyExternalAttribution++;
+        progressBarData.resources.withNonInheritedExternalAttributionOnly.push(
           path,
         );
         if (highestCriticality === Criticality.High) {
-          progressBarData.filesWithHighlyCriticalExternalAttributionsCount++;
-          progressBarData.resourcesWithHighlyCriticalExternalAttributions.push(
+          progressBarData.count.filesWithHighlyCriticalExternalAttributions++;
+          progressBarData.resources.withHighlyCriticalExternalAttributions.push(
             path,
           );
         } else if (highestCriticality === Criticality.Medium) {
-          progressBarData.filesWithMediumCriticalExternalAttributionsCount++;
-          progressBarData.resourcesWithMediumCriticalExternalAttributions.push(
+          progressBarData.count.filesWithMediumCriticalExternalAttributions++;
+          progressBarData.resources.withMediumCriticalExternalAttributions.push(
             path,
           );
         }
       } else if (hasParentExternalAttribution) {
-        progressBarData.filesWithOnlyExternalAttributionCount++;
+        progressBarData.count.filesWithOnlyExternalAttribution++;
         if (highestCriticality === Criticality.High) {
-          progressBarData.filesWithHighlyCriticalExternalAttributionsCount++;
+          progressBarData.count.filesWithHighlyCriticalExternalAttributions++;
         } else if (highestCriticality === Criticality.Medium) {
-          progressBarData.filesWithMediumCriticalExternalAttributionsCount++;
+          progressBarData.count.filesWithMediumCriticalExternalAttributions++;
         }
       }
     }
@@ -116,15 +116,15 @@ function updateProgressBarDataForResources(
         !hasManualAttribution &&
         hasNonInheritedExternalAttributions
       ) {
-        progressBarData.resourcesWithNonInheritedExternalAttributionOnly.push(
+        progressBarData.resources.withNonInheritedExternalAttributionOnly.push(
           path,
         );
         if (highestCriticality === Criticality.High) {
-          progressBarData.resourcesWithHighlyCriticalExternalAttributions.push(
+          progressBarData.resources.withHighlyCriticalExternalAttributions.push(
             path,
           );
         } else if (highestCriticality === Criticality.Medium) {
-          progressBarData.resourcesWithMediumCriticalExternalAttributions.push(
+          progressBarData.resources.withMediumCriticalExternalAttributions.push(
             path,
           );
         }
@@ -194,7 +194,7 @@ export function getUpdatedProgressBarData(args: {
   resolvedExternalAttributions: Set<string>;
   attributionBreakpoints: Set<string>;
   filesWithChildren: Set<string>;
-}): ProgressBarData {
+}): ProgressBarWithButtonsData {
   const progressBarData = getEmptyProgressBarData();
 
   updateProgressBarDataForResources(
@@ -214,16 +214,20 @@ export function getUpdatedProgressBarData(args: {
   return progressBarData;
 }
 
-export function getEmptyProgressBarData(): ProgressBarData {
+export function getEmptyProgressBarData(): ProgressBarWithButtonsData {
   return {
-    fileCount: 0,
-    filesWithManualAttributionCount: 0,
-    filesWithOnlyPreSelectedAttributionCount: 0,
-    filesWithOnlyExternalAttributionCount: 0,
-    resourcesWithNonInheritedExternalAttributionOnly: [],
-    filesWithHighlyCriticalExternalAttributionsCount: 0,
-    filesWithMediumCriticalExternalAttributionsCount: 0,
-    resourcesWithHighlyCriticalExternalAttributions: [],
-    resourcesWithMediumCriticalExternalAttributions: [],
+    count: {
+      files: 0,
+      filesWithManualAttribution: 0,
+      filesWithOnlyPreSelectedAttribution: 0,
+      filesWithOnlyExternalAttribution: 0,
+      filesWithHighlyCriticalExternalAttributions: 0,
+      filesWithMediumCriticalExternalAttributions: 0,
+    },
+    resources: {
+      withNonInheritedExternalAttributionOnly: [],
+      withHighlyCriticalExternalAttributions: [],
+      withMediumCriticalExternalAttributions: [],
+    },
   };
 }
