@@ -9,6 +9,7 @@ import * as zlib from 'zlib';
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { Criticality, ParsedFileContent } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
 import {
@@ -631,7 +632,7 @@ describe('getMessageBoxForParsingError', () => {
       expect.objectContaining({
         type: 'error',
         message: 'Error parsing the input file.',
-        detail: 'parsingErrorMessage',
+        detail: `parsingErrorMessage\n${text.errorBoundary.outdatedAppVersion}`,
         buttons: ['OK'],
       }),
     );

@@ -232,6 +232,8 @@ export const text = {
     revertAll: 'Revert all',
   },
   errorBoundary: {
+    outdatedAppVersion:
+      'This might be caused by an outdated version of the app. Make sure you are using the newest version of the app to open the file.',
     unexpectedError: "We're sorry, an unexpected error occurred!",
     relaunch: 'Relaunch App',
     quit: 'Quit App',
