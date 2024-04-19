@@ -14,6 +14,7 @@ import {
   ParsedFileContent,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
+import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import logger from '../main/logger';
@@ -215,8 +216,7 @@ async function createOutputInOpossumFile(
   const parsingResult = (await parseOpossumFile(
     filePath,
   )) as ParsedOpossumInputAndOutput;
-  const parsedOutputFile = parsingResult.output as ParsedOpossumOutputFile;
-  return parsedOutputFile;
+  return parsingResult.output as ParsedOpossumOutputFile;
 }
 
 async function parseOrCreateOutputJsonFile(
@@ -238,8 +238,7 @@ async function parseOrCreateOutputJsonFile(
   }
 
   logger.info('Parsing output');
-  const parsedOutputFile = parseOutputJsonFile(filePath);
-  return parsedOutputFile;
+  return parseOutputJsonFile(filePath);
 }
 
 function createJsonOutputFile(
@@ -306,7 +305,7 @@ export async function getMessageBoxForParsingError(
     defaultId: 0,
     title: 'Parsing Error',
     message: 'Error parsing the input file.',
-    detail: errorMessage,
+    detail: `${errorMessage}\n${text.errorBoundary.outdatedAppVersion}`,
   });
 }
 
