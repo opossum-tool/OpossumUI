@@ -6396,19 +6396,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest-dom@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "eslint-plugin-jest-dom@npm:5.2.0"
+"eslint-plugin-jest-dom@npm:^5.4.0":
+  version: 5.4.0
+  resolution: "eslint-plugin-jest-dom@npm:5.4.0"
   dependencies:
     "@babel/runtime": "npm:^7.16.3"
     requireindex: "npm:^1.2.0"
   peerDependencies:
-    "@testing-library/dom": ^8.0.0 || ^9.0.0
-    eslint: ^6.8.0 || ^7.0.0 || ^8.0.0
+    "@testing-library/dom": ^8.0.0 || ^9.0.0 || ^10.0.0
+    eslint: ^6.8.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
   peerDependenciesMeta:
     "@testing-library/dom":
       optional: true
-  checksum: 10/2b3d62ac3e2148ae3e926421c1b1c96064b9832f68d4851728786112179b48bb12823859ea45c39217e556632f135605f3eeb3dcbb99dd47692c12ba3450a590
+  checksum: 10/b8b0b0249d066658a75723892bc6f52d6bcf03ff0a69fc5020548c49f740613a8f3acce647f8f04b292606d2bd0ab3372a695aa3d90b4efb19e71870bbddf637
   languageName: node
   linkType: hard
 
@@ -9830,7 +9830,7 @@ __metadata:
     eslint-config-prettier: "npm:^9.1.0"
     eslint-plugin-filenames: "npm:^1.3.2"
     eslint-plugin-jest: "npm:^28.2.0"
-    eslint-plugin-jest-dom: "npm:^5.2.0"
+    eslint-plugin-jest-dom: "npm:^5.4.0"
     eslint-plugin-playwright: "npm:^1.6.0"
     eslint-plugin-react: "npm:^7.34.1"
     eslint-plugin-react-hooks: "npm:^4.6.0"
