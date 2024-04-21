@@ -2255,10 +2255,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fontsource-variable/karla@npm:^5.0.20":
-  version: 5.0.20
-  resolution: "@fontsource-variable/karla@npm:5.0.20"
-  checksum: 10/45936277cbb93fc2f93cb1a0fa9a2b483b061ec767ac59752a1e8201d072334bfffcb2a3f4f240ae56861b3bc6d78ec7ed5800e1e6562b52a51a2603c4c8ce99
+"@fontsource-variable/karla@npm:^5.0.21":
+  version: 5.0.21
+  resolution: "@fontsource-variable/karla@npm:5.0.21"
+  checksum: 10/d5414d0545b1764573454c6f36fe5a131285ed36118d11c55f93d5a4bbfaead40f05a2e41901dd9ee14b1297fbd60f46adf41ed61348ca12782e2d074134e517
   languageName: node
   linkType: hard
 
@@ -9787,7 +9787,7 @@ __metadata:
     "@emotion/react": "npm:^11.11.4"
     "@emotion/styled": "npm:^11.11.5"
     "@faker-js/faker": "npm:^8.4.1"
-    "@fontsource-variable/karla": "npm:^5.0.20"
+    "@fontsource-variable/karla": "npm:^5.0.21"
     "@mui/icons-material": "npm:^5.15.15"
     "@mui/material": "npm:^5.15.15"
     "@mui/system": "npm:^5.15.15"
