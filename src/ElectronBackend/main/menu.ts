@@ -25,6 +25,61 @@ import {
 } from './notice-document-helpers';
 import { UserSettings } from './user-settings';
 
+const INITIALLY_DISABLED_MENU_ITEMS = [
+  'save',
+  'projectMetadata',
+  'projectStatistics',
+  'followUp',
+  'compactComponentList',
+  'detailedComponentList',
+  'spdxYAML',
+  'spdxJSON',
+  'selectAll',
+  'searchAttributions',
+  'searchSignals',
+  'searchResourcesAll',
+  'searchResourceLinked',
+] as const;
+
+type Item = { label: string; id: string };
+
+const INITIALLY_DISABLED_ITEMS_INFO: Record<
+  (typeof INITIALLY_DISABLED_MENU_ITEMS)[number],
+  Item
+> = {
+  save: { label: 'Save', id: 'save' },
+  followUp: { label: 'Follow-Up', id: 'follow-up' },
+  compactComponentList: {
+    label: 'Compact component list',
+    id: 'compact-list',
+  },
+  detailedComponentList: {
+    label: 'Detailed component list',
+    id: 'detailed-list',
+  },
+  spdxYAML: { label: 'SPDX (yaml)', id: 'spdx-yaml' },
+  spdxJSON: { label: 'SPDX (json)', id: 'spdx-json' },
+  projectMetadata: { label: 'Project Metadata', id: 'project-metadata' },
+  projectStatistics: {
+    label: 'Project Statistics',
+    id: 'project-statistics',
+  },
+  selectAll: { label: 'Select All', id: 'select-all' },
+  searchAttributions: {
+    label: 'Search Attributions',
+    id: 'search-attributions',
+  },
+  searchSignals: { label: 'Search Signals', id: 'search-signals' },
+  searchResourcesAll: {
+    label: 'Search All Resources',
+    id: 'search-resources-all',
+  },
+  searchResourceLinked: {
+    label: 'Search Linked Resources',
+    id: 'search-resources-linked',
+  },
+};
+
 export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
   const webContents = mainWindow.webContents;
   const qaMode = await UserSettings.get('qaMode');
@@ -49,13 +104,15 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/save-white.png',
             'icons/save-black.png',
           ),
-          label: 'Save',
+          label: INITIALLY_DISABLED_ITEMS_INFO.save.label,
           accelerator: 'CmdOrCtrl+S',
           click: () => {
             webContents.send(AllowedFrontendChannels.SaveFileRequest, {
               saveFile: true,
             });
           },
+          id: INITIALLY_DISABLED_ITEMS_INFO.save.id,
+          enabled: false,
         },
         {
           label: 'Export',
@@ -65,7 +122,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           ),
           submenu: [
             {
-              label: 'Follow-Up',
+              label: INITIALLY_DISABLED_ITEMS_INFO.followUp.label,
               icon: getIconBasedOnTheme(
                 'icons/follow-up-white.png',
                 'icons/follow-up-black.png',
@@ -78,13 +135,15 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
                   ExportType.FollowUp,
                 );
               },
+              id: INITIALLY_DISABLED_ITEMS_INFO.followUp.id,
+              enabled: false,
             },
             {
               icon: getIconBasedOnTheme(
                 'icons/com-list-white.png',
                 'icons/com-list-black.png',
               ),
-              label: 'Compact component list',
+              label: INITIALLY_DISABLED_ITEMS_INFO.compactComponentList.label,
               click: () => {
                 setLoadingState(mainWindow.webContents, true);
                 logger.info('Preparing data for compact component list export');
@@ -93,13 +152,15 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
                   ExportType.CompactBom,
                 );
               },
+              id: INITIALLY_DISABLED_ITEMS_INFO.compactComponentList.id,
+              enabled: false,
             },
             {
               icon: getIconBasedOnTheme(
                 'icons/det-list-white.png',
                 'icons/det-list-black.png',
               ),
-              label: 'Detailed component list',
+              label: INITIALLY_DISABLED_ITEMS_INFO.detailedComponentList.label,
               click: () => {
                 setLoadingState(mainWindow.webContents, true);
                 logger.info(
@@ -110,13 +171,15 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
                   ExportType.DetailedBom,
                 );
               },
+              id: INITIALLY_DISABLED_ITEMS_INFO.detailedComponentList.id,
+              enabled: false,
             },
             {
               icon: getIconBasedOnTheme(
                 'icons/yaml-white.png',
                 'icons/yaml-black.png',
               ),
-              label: 'SPDX (yaml)',
+              label: INITIALLY_DISABLED_ITEMS_INFO.spdxYAML.label,
               click: () => {
                 setLoadingState(mainWindow.webContents, true);
                 logger.info('Preparing data for SPDX (yaml) export');
@@ -125,13 +188,15 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
                   ExportType.SpdxDocumentYaml,
                 );
               },
+              id: INITIALLY_DISABLED_ITEMS_INFO.spdxYAML.id,
+              enabled: false,
             },
             {
               icon: getIconBasedOnTheme(
                 'icons/json-white.png',
                 'icons/json-black.png',
               ),
-              label: 'SPDX (json)',
+              label: INITIALLY_DISABLED_ITEMS_INFO.spdxJSON.label,
               click: () => {
                 setLoadingState(mainWindow.webContents, true);
                 logger.info('Preparing data for SPDX (json) export');
@@ -140,6 +205,8 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
                   ExportType.SpdxDocumentJson,
                 );
               },
+              id: INITIALLY_DISABLED_ITEMS_INFO.spdxJSON.id,
+              enabled: false,
             },
           ],
         },
@@ -148,7 +215,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/about-white.png',
             'icons/about-black.png',
           ),
-          label: 'Project Metadata',
+          label: INITIALLY_DISABLED_ITEMS_INFO.projectMetadata.label,
           click: () => {
             if (isFileLoaded(getGlobalBackendState())) {
               webContents.send(
@@ -159,13 +226,15 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
               );
             }
           },
+          id: INITIALLY_DISABLED_ITEMS_INFO.projectMetadata.id,
+          enabled: false,
         },
         {
           icon: getIconBasedOnTheme(
             'icons/statictics-white.png',
             'icons/statictics-black.png',
           ),
-          label: 'Project Statistics',
+          label: INITIALLY_DISABLED_ITEMS_INFO.projectStatistics.label,
           click: () => {
             if (isFileLoaded(getGlobalBackendState())) {
               webContents.send(
@@ -176,6 +245,8 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
               );
             }
           },
+          id: INITIALLY_DISABLED_ITEMS_INFO.projectStatistics.id,
+          enabled: false,
         },
         {
           icon: getIconBasedOnTheme(
@@ -254,9 +325,11 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/select-all-white.png',
             'icons/select-all-black.png',
           ),
-          label: 'Select All',
+          label: INITIALLY_DISABLED_ITEMS_INFO.selectAll.label,
           accelerator: 'CmdOrCtrl+A',
           role: 'selectAll',
+          id: INITIALLY_DISABLED_ITEMS_INFO.selectAll.id,
+          enabled: false,
         },
         { type: 'separator' },
         {
@@ -264,52 +337,60 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/magnifying-glass-white.png',
             'icons/magnifying-glass-black.png',
           ),
-          label: 'Search Attributions',
+          label: INITIALLY_DISABLED_ITEMS_INFO.searchAttributions.label,
           accelerator: 'CmdOrCtrl+Shift+A',
           click: () => {
             if (isFileLoaded(getGlobalBackendState())) {
               webContents.send(AllowedFrontendChannels.SearchAttributions);
             }
           },
+          id: INITIALLY_DISABLED_ITEMS_INFO.searchAttributions.id,
+          enabled: false,
         },
         {
           icon: getIconBasedOnTheme(
             'icons/magnifying-glass-white.png',
             'icons/magnifying-glass-black.png',
           ),
-          label: 'Search Signals',
+          label: INITIALLY_DISABLED_ITEMS_INFO.searchSignals.label,
           accelerator: 'CmdOrCtrl+Shift+S',
           click: () => {
             if (isFileLoaded(getGlobalBackendState())) {
               webContents.send(AllowedFrontendChannels.SearchSignals);
             }
           },
+          id: INITIALLY_DISABLED_ITEMS_INFO.searchSignals.id,
+          enabled: false,
         },
         {
           icon: getIconBasedOnTheme(
             'icons/search-white.png',
             'icons/search-black.png',
           ),
-          label: 'Search All Resources',
+          label: INITIALLY_DISABLED_ITEMS_INFO.searchResourcesAll.label,
           accelerator: 'CmdOrCtrl+Shift+R',
           click: () => {
             if (isFileLoaded(getGlobalBackendState())) {
               webContents.send(AllowedFrontendChannels.SearchResources);
             }
           },
+          id: INITIALLY_DISABLED_ITEMS_INFO.searchResourcesAll.id,
+          enabled: false,
         },
         {
           icon: getIconBasedOnTheme(
             'icons/search-white.png',
             'icons/search-black.png',
           ),
-          label: 'Search Linked Resources',
+          label: INITIALLY_DISABLED_ITEMS_INFO.searchResourceLinked.label,
           accelerator: 'CmdOrCtrl+Shift+L',
           click: () => {
             if (isFileLoaded(getGlobalBackendState())) {
               webContents.send(AllowedFrontendChannels.SearchLinkedResources);
             }
           },
+          id: INITIALLY_DISABLED_ITEMS_INFO.searchResourceLinked.id,
+          enabled: false,
         },
       ],
     },
@@ -449,4 +530,16 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
       ],
     },
   ]);
+}
+
+export function activateMenuItems(): void {
+  const menu = Menu.getApplicationMenu();
+  INITIALLY_DISABLED_MENU_ITEMS.forEach((key) => {
+    const menuItem = menu?.getMenuItemById(
+      INITIALLY_DISABLED_ITEMS_INFO[key].id,
+    );
+    if (menuItem) {
+      menuItem.enabled = true;
+    }
+  });
 }
