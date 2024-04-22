@@ -50,6 +50,15 @@ export function getResolvedExternalAttributions(state: State): Set<string> {
   return state.resourceState.resolvedExternalAttributions;
 }
 
+export function getUnresolvedExternalAttributions(state: State): Attributions {
+  return Object.fromEntries(
+    Object.entries(state.resourceState.externalData.attributions).filter(
+      ([attributionId]) =>
+        !state.resourceState.resolvedExternalAttributions.has(attributionId),
+    ),
+  );
+}
+
 export function getExpandedIds(state: State): Array<string> {
   return state.resourceState.expandedIds;
 }

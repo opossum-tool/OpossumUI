@@ -206,7 +206,7 @@ describe('ResourcesTree', () => {
     act(() => {
       store.dispatch(addResolvedExternalAttributions([testUuid]));
     });
-    expectIconToExist(screen, 'Criticality icon', 'src', true);
+    expectIconToExist(screen, 'Criticality icon', 'src', false);
     expectResourceIconLabelToBe(
       screen,
       'src',
