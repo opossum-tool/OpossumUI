@@ -8,13 +8,12 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { ReactElement } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
-import { ProgressBarData } from '../../types/types';
+import { ProgressBarFileCounts } from '../../types/types';
 import {
   getCriticalityBarBackground,
   getCriticalityBarTooltipText,
   getProgressBarBackground,
   getProgressBarTooltipText,
-  useOnProgressBarClick,
 } from './ProgressBar.util';
 
 const classes = {
@@ -32,23 +31,12 @@ const classes = {
 
 interface ProgressBarProps {
   sx?: SxProps;
-  progressBarData: ProgressBarData;
+  progressBarData: ProgressBarFileCounts;
   showCriticalSignals: boolean;
+  onClick: () => void;
 }
 
 export function ProgressBar(props: ProgressBarProps): ReactElement {
-  const onProgressBarClick = useOnProgressBarClick(
-    props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
-  );
-  const resourcesWithCriticalExternalAttributions =
-    props.progressBarData.resourcesWithHighlyCriticalExternalAttributions.concat(
-      props.progressBarData.resourcesWithMediumCriticalExternalAttributions,
-    );
-  const onCriticalityBarClick = useOnProgressBarClick(
-    resourcesWithCriticalExternalAttributions.length > 0
-      ? resourcesWithCriticalExternalAttributions
-      : props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
-  );
   return (
     <MuiBox sx={props.sx}>
       <MuiTooltip
@@ -67,11 +55,7 @@ export function ProgressBar(props: ProgressBarProps): ReactElement {
               ? getCriticalityBarBackground(props.progressBarData)
               : getProgressBarBackground(props.progressBarData),
           }}
-          onClick={
-            props.showCriticalSignals
-              ? onCriticalityBarClick
-              : onProgressBarClick
-          }
+          onClick={props.onClick}
         />
       </MuiTooltip>
     </MuiBox>

@@ -112,29 +112,29 @@ describe('The getUpdatedProgressBarData function', () => {
     });
     const expectedNumberOfFiles = 5;
     const expectedNumberOfFilesWithOnlyExternalAttribution = 3;
-    expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
-    expect(progressBarData.filesWithManualAttributionCount).toBe(1);
-    expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(
+    expect(progressBarData.count.files).toEqual(expectedNumberOfFiles);
+    expect(progressBarData.count.filesWithManualAttribution).toBe(1);
+    expect(progressBarData.count.filesWithOnlyExternalAttribution).toEqual(
       expectedNumberOfFilesWithOnlyExternalAttribution,
     );
     expect(
-      progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
+      progressBarData.resources.withNonInheritedExternalAttributionOnly,
     ).toEqual([
       '/thirdParty/package/',
       '/thirdParty/package_1.tr.gz',
       '/thirdParty/package_2.tr.gz',
     ]);
     expect(
-      progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
+      progressBarData.count.filesWithHighlyCriticalExternalAttributions,
     ).toBe(1);
     expect(
-      progressBarData.resourcesWithHighlyCriticalExternalAttributions,
+      progressBarData.resources.withHighlyCriticalExternalAttributions,
     ).toEqual(['/thirdParty/package_1.tr.gz']);
     expect(
-      progressBarData.filesWithMediumCriticalExternalAttributionsCount,
+      progressBarData.count.filesWithMediumCriticalExternalAttributions,
     ).toBe(1);
     expect(
-      progressBarData.resourcesWithMediumCriticalExternalAttributions,
+      progressBarData.resources.withMediumCriticalExternalAttributions,
     ).toEqual(['/thirdParty/package/', '/thirdParty/package_2.tr.gz']);
   });
 
@@ -230,11 +230,11 @@ describe('The getUpdatedProgressBarData function', () => {
       filesWithChildren: new Set<string>(),
     });
     const expectedNumberOfFiles = 4;
-    expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
-    expect(progressBarData.filesWithManualAttributionCount).toBe(1);
-    expect(progressBarData.filesWithOnlyExternalAttributionCount).toBe(1);
+    expect(progressBarData.count.files).toEqual(expectedNumberOfFiles);
+    expect(progressBarData.count.filesWithManualAttribution).toBe(1);
+    expect(progressBarData.count.filesWithOnlyExternalAttribution).toBe(1);
     expect(
-      progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
+      progressBarData.resources.withNonInheritedExternalAttributionOnly,
     ).toEqual(['/thirdParty/package_1.tr.gz']);
   });
 
@@ -349,12 +349,12 @@ describe('The getUpdatedProgressBarData function', () => {
       filesWithChildren: new Set<string>(),
     });
     const expectedNumberOfFiles = 12;
-    expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
-    expect(progressBarData.filesWithManualAttributionCount).toBe(2);
-    expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toBe(2);
-    expect(progressBarData.filesWithOnlyExternalAttributionCount).toBe(5);
+    expect(progressBarData.count.files).toEqual(expectedNumberOfFiles);
+    expect(progressBarData.count.filesWithManualAttribution).toBe(2);
+    expect(progressBarData.count.filesWithOnlyPreSelectedAttribution).toBe(2);
+    expect(progressBarData.count.filesWithOnlyExternalAttribution).toBe(5);
     expect(
-      progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
+      progressBarData.resources.withNonInheritedExternalAttributionOnly,
     ).toEqual([
       '/folder1/breakpoint1/file1',
       '/folder2/',
@@ -420,12 +420,12 @@ describe('The getUpdatedProgressBarData function', () => {
       filesWithChildren: testFilesWithChildren,
     });
     const expectedNumberOfFiles = 3;
-    expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
-    expect(progressBarData.filesWithManualAttributionCount).toBe(2);
-    expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toBe(1);
-    expect(progressBarData.filesWithOnlyExternalAttributionCount).toBe(0);
+    expect(progressBarData.count.files).toEqual(expectedNumberOfFiles);
+    expect(progressBarData.count.filesWithManualAttribution).toBe(2);
+    expect(progressBarData.count.filesWithOnlyPreSelectedAttribution).toBe(1);
+    expect(progressBarData.count.filesWithOnlyExternalAttribution).toBe(0);
     expect(
-      progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
+      progressBarData.resources.withNonInheritedExternalAttributionOnly,
     ).toEqual([]);
   });
 });

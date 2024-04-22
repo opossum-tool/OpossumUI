@@ -9,9 +9,9 @@ import { faker } from '../../../../testing/Faker';
 import { setResources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { renderComponent } from '../../../test-helpers/render';
-import { ProgressBar } from '../ProgressBar';
+import { ProgressBarWithButtons } from '../ProgressBarWithButtons';
 
-describe('ProgressBar', () => {
+describe('ProgressBarWithButtons', () => {
   beforeEach(() => {
     jest.useFakeTimers();
   });
@@ -23,19 +23,24 @@ describe('ProgressBar', () => {
 
   it('renders regular progress bar', async () => {
     renderComponent(
-      <ProgressBar
+      <ProgressBarWithButtons
         showCriticalSignals={false}
-        progressBarData={{
-          fileCount: 6,
-          filesWithHighlyCriticalExternalAttributionsCount: 1,
-          filesWithMediumCriticalExternalAttributionsCount: 1,
-          filesWithManualAttributionCount: 3,
-          filesWithOnlyExternalAttributionCount: 1,
-          filesWithOnlyPreSelectedAttributionCount: 1,
-          resourcesWithMediumCriticalExternalAttributions: [],
-          resourcesWithNonInheritedExternalAttributionOnly: [],
-          resourcesWithHighlyCriticalExternalAttributions: [],
+        progressBarWithButtonsData={{
+          count: {
+            files: 6,
+            filesWithHighlyCriticalExternalAttributions: 1,
+            filesWithMediumCriticalExternalAttributions: 1,
+            filesWithManualAttribution: 3,
+            filesWithOnlyExternalAttribution: 1,
+            filesWithOnlyPreSelectedAttribution: 1,
+          },
+          resources: {
+            withMediumCriticalExternalAttributions: [],
+            withNonInheritedExternalAttributionOnly: [],
+            withHighlyCriticalExternalAttributions: [],
+          },
         }}
+        onSwitchClick={() => {}}
       />,
     );
 
@@ -57,22 +62,24 @@ describe('ProgressBar', () => {
     const resourceName2 = faker.opossum.resourceName();
     const resourceId2 = faker.opossum.filePath(resourceName2);
     const { store } = renderComponent(
-      <ProgressBar
+      <ProgressBarWithButtons
         showCriticalSignals={false}
-        progressBarData={{
-          fileCount: 6,
-          filesWithHighlyCriticalExternalAttributionsCount: 1,
-          filesWithMediumCriticalExternalAttributionsCount: 1,
-          filesWithManualAttributionCount: 3,
-          filesWithOnlyExternalAttributionCount: 1,
-          filesWithOnlyPreSelectedAttributionCount: 1,
-          resourcesWithMediumCriticalExternalAttributions: [],
-          resourcesWithNonInheritedExternalAttributionOnly: [
-            resourceId1,
-            resourceId2,
-          ],
-          resourcesWithHighlyCriticalExternalAttributions: [],
+        progressBarWithButtonsData={{
+          count: {
+            files: 6,
+            filesWithHighlyCriticalExternalAttributions: 1,
+            filesWithMediumCriticalExternalAttributions: 1,
+            filesWithManualAttribution: 3,
+            filesWithOnlyExternalAttribution: 1,
+            filesWithOnlyPreSelectedAttribution: 1,
+          },
+          resources: {
+            withMediumCriticalExternalAttributions: [],
+            withNonInheritedExternalAttributionOnly: [resourceId1, resourceId2],
+            withHighlyCriticalExternalAttributions: [],
+          },
         }}
+        onSwitchClick={() => {}}
       />,
       { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
     );
@@ -98,19 +105,24 @@ describe('ProgressBar', () => {
 
   it('renders criticality progress bar', async () => {
     renderComponent(
-      <ProgressBar
+      <ProgressBarWithButtons
         showCriticalSignals
-        progressBarData={{
-          fileCount: 6,
-          filesWithHighlyCriticalExternalAttributionsCount: 1,
-          filesWithMediumCriticalExternalAttributionsCount: 1,
-          filesWithManualAttributionCount: 1,
-          filesWithOnlyExternalAttributionCount: 3,
-          filesWithOnlyPreSelectedAttributionCount: 1,
-          resourcesWithMediumCriticalExternalAttributions: [],
-          resourcesWithNonInheritedExternalAttributionOnly: [],
-          resourcesWithHighlyCriticalExternalAttributions: [],
+        progressBarWithButtonsData={{
+          count: {
+            files: 6,
+            filesWithHighlyCriticalExternalAttributions: 1,
+            filesWithMediumCriticalExternalAttributions: 1,
+            filesWithManualAttribution: 1,
+            filesWithOnlyExternalAttribution: 3,
+            filesWithOnlyPreSelectedAttribution: 1,
+          },
+          resources: {
+            withMediumCriticalExternalAttributions: [],
+            withNonInheritedExternalAttributionOnly: [],
+            withHighlyCriticalExternalAttributions: [],
+          },
         }}
+        onSwitchClick={() => {}}
       />,
     );
 
@@ -138,19 +150,24 @@ describe('ProgressBar', () => {
     const resourceName2 = faker.opossum.resourceName();
     const resourceId2 = faker.opossum.filePath(resourceName2);
     const { store } = renderComponent(
-      <ProgressBar
+      <ProgressBarWithButtons
         showCriticalSignals
-        progressBarData={{
-          fileCount: 6,
-          filesWithHighlyCriticalExternalAttributionsCount: 1,
-          filesWithMediumCriticalExternalAttributionsCount: 1,
-          filesWithManualAttributionCount: 1,
-          filesWithOnlyExternalAttributionCount: 3,
-          filesWithOnlyPreSelectedAttributionCount: 1,
-          resourcesWithMediumCriticalExternalAttributions: [resourceId1],
-          resourcesWithNonInheritedExternalAttributionOnly: [],
-          resourcesWithHighlyCriticalExternalAttributions: [resourceId2],
+        progressBarWithButtonsData={{
+          count: {
+            files: 6,
+            filesWithHighlyCriticalExternalAttributions: 1,
+            filesWithMediumCriticalExternalAttributions: 1,
+            filesWithManualAttribution: 1,
+            filesWithOnlyExternalAttribution: 3,
+            filesWithOnlyPreSelectedAttribution: 1,
+          },
+          resources: {
+            withMediumCriticalExternalAttributions: [resourceId1],
+            withNonInheritedExternalAttributionOnly: [],
+            withHighlyCriticalExternalAttributions: [resourceId2],
+          },
         }}
+        onSwitchClick={() => {}}
       />,
       { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
     );

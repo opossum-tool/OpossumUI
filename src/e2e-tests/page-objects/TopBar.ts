@@ -14,7 +14,6 @@ export class TopBar {
   readonly progressBar: Locator;
   readonly openFileButton: Locator;
   readonly tooltip: Locator;
-
   constructor(window: Page) {
     this.window = window;
     this.node = window.getByLabel('top bar');

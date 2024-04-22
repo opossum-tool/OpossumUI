@@ -23,23 +23,13 @@ import { useProgressData } from '../../state/variables/use-progress-data';
 import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
 import { CommitInfoDisplay } from '../CommitInfoDisplay/CommitInfoDisplay';
 import { IconButton } from '../IconButton/IconButton';
-import { ProgressBar } from '../ProgressBar/ProgressBar';
-import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
+import { ProgressBarWithButtons } from '../ProgressBarWithButtons/ProgressBarWithButtons';
 
 const classes = {
   root: {
     height: '36px',
     background: OpossumColors.darkBlue,
     display: 'flex',
-  },
-  progressBarContainer: {
-    flex: 1,
-    display: 'flex',
-    marginLeft: '12px',
-    marginRight: '12px',
-  },
-  switch: {
-    margin: 'auto',
   },
   openFileIcon: {
     margin: '8px',
@@ -115,7 +105,15 @@ export function TopBar(): ReactElement {
           />
         }
       />
-      {renderProgressBar()}
+      {progressData ? (
+        <ProgressBarWithButtons
+          progressBarWithButtonsData={progressData}
+          showCriticalSignals={showCriticalSignals}
+          onSwitchClick={() => setShowCriticalSignals(!showCriticalSignals)}
+        />
+      ) : (
+        <MuiBox flex={1} />
+      )}
       <MuiToggleButtonGroup
         size="small"
         value={selectedView}
@@ -142,30 +140,4 @@ export function TopBar(): ReactElement {
       </MuiBox>
     </MuiBox>
   );
-
-  function renderProgressBar() {
-    if (!progressData) {
-      return <MuiBox flex={1} />;
-    }
-
-    return (
-      <MuiBox sx={classes.progressBarContainer}>
-        <ProgressBar
-          sx={classes.progressBarContainer}
-          progressBarData={progressData}
-          showCriticalSignals={showCriticalSignals}
-        />
-        <SwitchWithTooltip
-          sx={classes.switch}
-          switchToolTipText={
-            showCriticalSignals
-              ? 'Critical signals progress bar selected'
-              : 'Progress bar selected'
-          }
-          isChecked={showCriticalSignals}
-          handleSwitchClick={() => setShowCriticalSignals(!showCriticalSignals)}
-        />
-      </MuiBox>
-    );
-  }
 }

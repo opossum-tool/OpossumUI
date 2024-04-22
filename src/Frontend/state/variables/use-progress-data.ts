@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ProgressBarData } from '../../types/types';
+import { ProgressBarWithButtonsData } from '../../types/types';
 import { useVariable } from './use-variable';
 
 export const PROGRESS_DATA = 'progress-data';
 
 export function useProgressData() {
-  return useVariable<ProgressBarData | null>(PROGRESS_DATA, null);
+  return useVariable<ProgressBarWithButtonsData | null>(PROGRESS_DATA, null);
 }
