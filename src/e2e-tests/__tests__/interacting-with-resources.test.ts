@@ -90,6 +90,35 @@ test('cycles through resources as user clicks on progress bar', async ({
   await signalsPanel.packageCard.assert.isVisible(packageInfo1);
 });
 
+test('cycles through resources as user clicks on jump button next to progress bar', async ({
+  signalsPanel,
+  topBar,
+}) => {
+  await topBar.jumpButton.click();
+  await signalsPanel.packageCard.assert.isVisible(packageInfo1);
+  await signalsPanel.packageCard.click(packageInfo1);
+
+  await topBar.jumpButton.click();
+  await signalsPanel.packageCard.assert.isVisible(packageInfo2);
+  await signalsPanel.packageCard.click(packageInfo2);
+
+  await topBar.jumpButton.click();
+  await signalsPanel.packageCard.assert.isVisible(packageInfo3);
+  await signalsPanel.packageCard.click(packageInfo3);
+
+  await signalsPanel.linkButton.click();
+  await topBar.jumpButton.click();
+  await signalsPanel.packageCard.assert.isVisible(packageInfo1);
+  await signalsPanel.packageCard.click(packageInfo1);
+
+  await topBar.jumpButton.click();
+  await signalsPanel.packageCard.assert.isVisible(packageInfo2);
+  await signalsPanel.packageCard.click(packageInfo2);
+
+  await topBar.jumpButton.click();
+  await signalsPanel.packageCard.assert.isVisible(packageInfo1);
+});
+
 test('shows expected breadcrumbs as user navigates through browser history', async ({
   modKey,
   resourcesTree,

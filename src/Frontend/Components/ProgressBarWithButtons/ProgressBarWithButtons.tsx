@@ -1,13 +1,16 @@
-// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPD-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import NextPlanIcon from '@mui/icons-material/NextPlan';
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import { ReactElement } from 'react';
 
 import { text } from '../../../shared/text';
+import { OpossumColors } from '../../shared-styles';
 import { ProgressBarWithButtonsData } from '../../types/types';
+import { IconButton } from '../IconButton/IconButton';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 import { useOnProgressBarClick } from '../ProgressBar/ProgressBar.util';
 import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
@@ -16,11 +19,23 @@ const classes = {
   progressBarContainer: {
     flex: 1,
     display: 'flex',
-    marginLeft: '12px',
+    marginLeft: '2px',
     marginRight: '12px',
   },
   switch: {
     margin: 'auto',
+  },
+  jumpFileIcon: {
+    margin: '8px',
+    marginRight: '4px',
+    marginLeft: '12px',
+    width: '18px',
+    height: '18px',
+    padding: '2px',
+    color: OpossumColors.white,
+    '&:hover': {
+      background: OpossumColors.middleBlue,
+    },
   },
 };
 
@@ -58,6 +73,18 @@ export function ProgressBarWithButtons({
 
   return (
     <>
+      <IconButton
+        tooltipTitle={
+          showCriticalSignals
+            ? text.progressBarButtons.jumpButtonTooltipCritical
+            : text.progressBarButtons.jumpButtonTooltipProgress
+        }
+        tooltipPlacement="right"
+        onClick={onJumpClick}
+        icon={
+          <NextPlanIcon sx={classes.jumpFileIcon} aria-label={'JumpButton'} />
+        }
+      />
       <MuiBox sx={classes.progressBarContainer}>
         <ProgressBar
           sx={classes.progressBarContainer}

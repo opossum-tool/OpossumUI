@@ -56,52 +56,58 @@ describe('ProgressBarWithButtons', () => {
     expect(screen.getByText(/with only signals: 1/)).toBeInTheDocument();
   });
 
-  it('click on regular progress bar goes to next resource with non-inherited external attributions only', async () => {
-    const resourceName1 = faker.opossum.resourceName();
-    const resourceId1 = faker.opossum.filePath(resourceName1);
-    const resourceName2 = faker.opossum.resourceName();
-    const resourceId2 = faker.opossum.filePath(resourceName2);
-    const { store } = renderComponent(
-      <ProgressBarWithButtons
-        showCriticalSignals={false}
-        progressBarWithButtonsData={{
-          count: {
-            files: 6,
-            filesWithHighlyCriticalExternalAttributions: 1,
-            filesWithMediumCriticalExternalAttributions: 1,
-            filesWithManualAttribution: 3,
-            filesWithOnlyExternalAttribution: 1,
-            filesWithOnlyPreSelectedAttribution: 1,
-          },
-          resources: {
-            withMediumCriticalExternalAttributions: [],
-            withNonInheritedExternalAttributionOnly: [resourceId1, resourceId2],
-            withHighlyCriticalExternalAttributions: [],
-          },
-        }}
-        onSwitchClick={() => {}}
-      />,
-      { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
-    );
+  it.each<[string]>([['ProgressBar'], ['JumpButton']])(
+    'click on regular %s goes to next resource with non-inherited external attributions only',
+    async (ariaLabel: string) => {
+      const resourceName1 = faker.opossum.resourceName();
+      const resourceId1 = faker.opossum.filePath(resourceName1);
+      const resourceName2 = faker.opossum.resourceName();
+      const resourceId2 = faker.opossum.filePath(resourceName2);
+      const { store } = renderComponent(
+        <ProgressBarWithButtons
+          showCriticalSignals={false}
+          progressBarWithButtonsData={{
+            count: {
+              files: 6,
+              filesWithHighlyCriticalExternalAttributions: 1,
+              filesWithMediumCriticalExternalAttributions: 1,
+              filesWithManualAttribution: 3,
+              filesWithOnlyExternalAttribution: 1,
+              filesWithOnlyPreSelectedAttribution: 1,
+            },
+            resources: {
+              withMediumCriticalExternalAttributions: [],
+              withNonInheritedExternalAttributionOnly: [
+                resourceId1,
+                resourceId2,
+              ],
+              withHighlyCriticalExternalAttributions: [],
+            },
+          }}
+          onSwitchClick={() => {}}
+        />,
+        { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
+      );
 
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+      await userEvent.click(screen.getByLabelText(ariaLabel), {
+        advanceTimers: jest.runOnlyPendingTimersAsync,
+      });
 
-    expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
+      expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
 
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+      await userEvent.click(screen.getByLabelText(ariaLabel), {
+        advanceTimers: jest.runOnlyPendingTimersAsync,
+      });
 
-    expect(getSelectedResourceId(store.getState())).toBe(resourceId2);
+      expect(getSelectedResourceId(store.getState())).toBe(resourceId2);
 
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+      await userEvent.click(screen.getByLabelText(ariaLabel), {
+        advanceTimers: jest.runOnlyPendingTimersAsync,
+      });
 
-    expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
-  });
+      expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
+    },
+  );
 
   it('renders criticality progress bar', async () => {
     renderComponent(
@@ -144,50 +150,53 @@ describe('ProgressBarWithButtons', () => {
     ).toBeInTheDocument();
   });
 
-  it('click on criticality progress bar goes to next resource with a critical attribution', async () => {
-    const resourceName1 = faker.opossum.resourceName();
-    const resourceId1 = faker.opossum.filePath(resourceName1);
-    const resourceName2 = faker.opossum.resourceName();
-    const resourceId2 = faker.opossum.filePath(resourceName2);
-    const { store } = renderComponent(
-      <ProgressBarWithButtons
-        showCriticalSignals
-        progressBarWithButtonsData={{
-          count: {
-            files: 6,
-            filesWithHighlyCriticalExternalAttributions: 1,
-            filesWithMediumCriticalExternalAttributions: 1,
-            filesWithManualAttribution: 1,
-            filesWithOnlyExternalAttribution: 3,
-            filesWithOnlyPreSelectedAttribution: 1,
-          },
-          resources: {
-            withMediumCriticalExternalAttributions: [resourceId1],
-            withNonInheritedExternalAttributionOnly: [],
-            withHighlyCriticalExternalAttributions: [resourceId2],
-          },
-        }}
-        onSwitchClick={() => {}}
-      />,
-      { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
-    );
+  it.each<[string]>([['ProgressBar'], ['JumpButton']])(
+    'click on criticality %s goes to next resource with a critical attribution',
+    async (ariaLabel: string) => {
+      const resourceName1 = faker.opossum.resourceName();
+      const resourceId1 = faker.opossum.filePath(resourceName1);
+      const resourceName2 = faker.opossum.resourceName();
+      const resourceId2 = faker.opossum.filePath(resourceName2);
+      const { store } = renderComponent(
+        <ProgressBarWithButtons
+          showCriticalSignals
+          progressBarWithButtonsData={{
+            count: {
+              files: 6,
+              filesWithHighlyCriticalExternalAttributions: 1,
+              filesWithMediumCriticalExternalAttributions: 1,
+              filesWithManualAttribution: 1,
+              filesWithOnlyExternalAttribution: 3,
+              filesWithOnlyPreSelectedAttribution: 1,
+            },
+            resources: {
+              withMediumCriticalExternalAttributions: [resourceId1],
+              withNonInheritedExternalAttributionOnly: [],
+              withHighlyCriticalExternalAttributions: [resourceId2],
+            },
+          }}
+          onSwitchClick={() => {}}
+        />,
+        { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
+      );
 
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+      await userEvent.click(screen.getByLabelText(ariaLabel), {
+        advanceTimers: jest.runOnlyPendingTimersAsync,
+      });
 
-    expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
+      expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
 
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+      await userEvent.click(screen.getByLabelText(ariaLabel), {
+        advanceTimers: jest.runOnlyPendingTimersAsync,
+      });
 
-    expect(getSelectedResourceId(store.getState())).toBe(resourceId2);
+      expect(getSelectedResourceId(store.getState())).toBe(resourceId2);
 
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+      await userEvent.click(screen.getByLabelText(ariaLabel), {
+        advanceTimers: jest.runOnlyPendingTimersAsync,
+      });
 
-    expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
-  });
+      expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
+    },
+  );
 });

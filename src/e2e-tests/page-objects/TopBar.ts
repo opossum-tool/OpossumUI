@@ -14,6 +14,8 @@ export class TopBar {
   readonly progressBar: Locator;
   readonly openFileButton: Locator;
   readonly tooltip: Locator;
+  readonly jumpButton: Locator;
+
   constructor(window: Page) {
     this.window = window;
     this.node = window.getByLabel('top bar');
@@ -22,6 +24,10 @@ export class TopBar {
     this.progressBar = this.node.getByLabel('ProgressBar');
     this.openFileButton = this.node.getByRole('button', { name: 'open file' });
     this.tooltip = this.window.getByRole('tooltip');
+    this.jumpButton = this.node.getByRole('button', {
+      name: 'jump to next',
+      exact: false,
+    });
   }
 
   public assert = {
