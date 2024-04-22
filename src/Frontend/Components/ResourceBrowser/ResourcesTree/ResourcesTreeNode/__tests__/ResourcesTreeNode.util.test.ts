@@ -38,6 +38,7 @@ describe('ResourcesTreeNode', () => {
         nodeId,
         resourcesToExternalAttributions,
         externalAttributions,
+        new Set(),
       );
       expect(criticality).toEqual(expectedCriticalities[nodeId]);
     }

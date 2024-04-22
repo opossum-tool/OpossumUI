@@ -80,7 +80,7 @@ describe('ResourcesTreeNodeLabel', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders a folder with resolved signal and icon', () => {
+  it('renders a folder with resolved signal but without criticality icon', () => {
     render(
       <ResourcesTreeNodeLabel
         labelText={'Test label'}
@@ -99,7 +99,6 @@ describe('ResourcesTreeNodeLabel', () => {
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
-    expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
     expect(
       screen.getByLabelText('Directory icon without information'),
     ).toBeInTheDocument();

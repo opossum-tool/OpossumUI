@@ -93,7 +93,7 @@ export function ResourcesTreeNodeLabel(props: Props): ReactElement {
       >
         {props.labelText}
       </MuiTypography>
-      {props.hasExternalAttribution &&
+      {props.hasUnresolvedExternalAttribution &&
         (props.criticality ? (
           <CriticalityIcon
             criticality={props.criticality}
