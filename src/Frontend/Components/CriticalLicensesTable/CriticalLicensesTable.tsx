@@ -6,16 +6,16 @@ import { sortBy } from 'lodash';
 import { ReactElement } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { clickableIcon } from '../../shared-styles';
 import { LicenseNamesWithCriticality } from '../../types/types';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
 
 const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
-const COUNT_COLUMN_NAME_IN_TABLE = 'Signals Count';
 const FOOTER_TITLE = 'Total';
 const TABLE_COLUMN_NAMES = [
   LICENSE_COLUMN_NAME_IN_TABLE,
-  COUNT_COLUMN_NAME_IN_TABLE,
+  text.projectStatisticsPopup.criticalLicensesSignalCountColumnName,
 ];
 
 const classes = {
@@ -93,7 +93,9 @@ export function CriticalLicensesTable(
           ({ licenseName, totalNumberOfAttributions }) => [
             licenseName,
             {
-              [COUNT_COLUMN_NAME_IN_TABLE]: totalNumberOfAttributions,
+              [text.projectStatisticsPopup
+                .criticalLicensesSignalCountColumnName]:
+                totalNumberOfAttributions,
             },
           ],
         ),
