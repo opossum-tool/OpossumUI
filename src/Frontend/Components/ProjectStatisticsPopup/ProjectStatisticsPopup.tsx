@@ -11,9 +11,9 @@ import { ProjectStatisticsPopupTitle } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
+  getExternalAttributions,
   getExternalAttributionSources,
   getManualAttributions,
-  getUnresolvedExternalAttributions,
 } from '../../state/selectors/resource-selectors';
 import { useUserSetting } from '../../state/variables/use-user-setting';
 import { AccordionWithPieChart } from '../AccordionWithPieChart/AccordionWithPieChart';
@@ -41,19 +41,15 @@ export function ProjectStatisticsPopup(): ReactElement {
   const dispatch = useAppDispatch();
 
   const manualAttributions = useAppSelector(getManualAttributions);
+  const externalAttributions = useAppSelector(getExternalAttributions);
   const attributionSources = useAppSelector(getExternalAttributionSources);
 
-  const unresolvedExternalAttribution = useAppSelector(
-    getUnresolvedExternalAttributions,
-  );
-
-  const strippedLicenseNameToAttribution = getUniqueLicenseNameToAttribution(
-    unresolvedExternalAttribution,
-  );
+  const strippedLicenseNameToAttribution =
+    getUniqueLicenseNameToAttribution(externalAttributions);
 
   const { licenseCounts, licenseNamesWithCriticality } =
     aggregateLicensesAndSourcesFromAttributions(
-      unresolvedExternalAttribution,
+      externalAttributions,
       strippedLicenseNameToAttribution,
       attributionSources,
     );
