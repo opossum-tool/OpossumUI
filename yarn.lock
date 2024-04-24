@@ -6010,16 +6010,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-settings@npm:^4.0.3":
-  version: 4.0.3
-  resolution: "electron-settings@npm:4.0.3"
+"electron-settings@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "electron-settings@npm:4.0.4"
   dependencies:
     lodash: "npm:^4.17.21"
     mkdirp: "npm:^1.0.4"
     write-file-atomic: "npm:^3.0.3"
   peerDependencies:
     electron: ">= 2"
-  checksum: 10/7e212861c98196213a3ad4e4118b8c7276232604c9682c385b07222631e8d6b684570cc9a915ae63c7abc8a04688c0e4efbc797ea370c6840925baa71229bf4c
+  checksum: 10/a7fe4615f4cbef6a257828cc4f61abcf66d07a87f35eaf38fc7051572a9650ee1e0846f5ba4c12de9c782235fcfc7cd2c72d73c65e37b7ceaf1810a66dbc5976
   languageName: node
   linkType: hard
 
@@ -9825,7 +9825,7 @@ __metadata:
     electron-builder: "npm:^24.13.3"
     electron-log: "npm:^5.1.2"
     electron-playwright-helpers: "npm:^1.7.1"
-    electron-settings: "npm:^4.0.3"
+    electron-settings: "npm:^4.0.4"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-plugin-filenames: "npm:^1.3.2"
