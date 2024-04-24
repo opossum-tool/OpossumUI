@@ -102,7 +102,6 @@ export const text = {
   projectStatisticsPopup: {
     title: 'Project Statistics',
     toggleStartupCheckbox: 'Show project statistics on startup',
-    criticalLicensesSignalCountColumnName: 'Signals Count',
   },
   unsavedChangesPopup: {
     title: 'Unsaved Changes',

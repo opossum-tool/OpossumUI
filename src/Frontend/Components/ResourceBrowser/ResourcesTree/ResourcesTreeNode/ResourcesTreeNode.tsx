@@ -86,7 +86,6 @@ export function ResourcesTreeNode({ node, nodeId, nodeName }: TreeNode) {
         nodeId,
         resourcesToExternalAttributions,
         externalAttributions,
-        resolvedExternalAttributions,
       )}
       isAttributionBreakpoint={attributionBreakpoints.has(nodeId)}
       showFolderIcon={canHaveChildren && !filesWithChildren.has(nodeId)}

@@ -50,22 +50,6 @@ export function getResolvedExternalAttributions(state: State): Set<string> {
   return state.resourceState.resolvedExternalAttributions;
 }
 
-export function getUnresolvedExternalAttributions(state: State): Attributions {
-  let unresolvedExternalAttribution = {};
-  for (const [attributionId, packageInfo] of Object.entries(
-    state.resourceState.externalData.attributions,
-  )) {
-    if (!state.resourceState.resolvedExternalAttributions.has(attributionId)) {
-      unresolvedExternalAttribution = {
-        ...unresolvedExternalAttribution,
-        [attributionId]: packageInfo,
-      };
-    }
-  }
-
-  return unresolvedExternalAttribution;
-}
-
 export function getExpandedIds(state: State): Array<string> {
   return state.resourceState.expandedIds;
 }
