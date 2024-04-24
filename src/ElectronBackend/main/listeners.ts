@@ -46,6 +46,7 @@ import {
   setGlobalBackendState,
 } from './globalBackendState';
 import logger from './logger';
+import { activateMenuItems } from './menu';
 
 const outputFileEnding = '_attributions.json';
 const jsonGzipFileExtension = '.json.gz';
@@ -139,6 +140,7 @@ export async function handleOpeningFile(
   }
 
   await openFile(mainWindow, filePath);
+  activateMenuItems();
 }
 
 function initializeGlobalBackendState(
