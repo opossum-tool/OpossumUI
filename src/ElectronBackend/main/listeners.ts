@@ -140,7 +140,6 @@ export async function handleOpeningFile(
   }
 
   await openFile(mainWindow, filePath);
-  activateMenuItems();
 }
 
 function initializeGlobalBackendState(
@@ -241,6 +240,7 @@ export async function openFile(
   try {
     await loadInputAndOutputFromFilePath(mainWindow, filePath);
     setTitle(mainWindow, filePath);
+    activateMenuItems();
   } finally {
     setLoadingState(mainWindow.webContents, false);
   }
