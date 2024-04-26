@@ -52,6 +52,7 @@
         'prettier',
         'prop-types',
         'proxy-memoize',
+        're-resizable',
         'react-error-boundary',
         'react-hot-toast',
         'react-hotkeys-hook',
