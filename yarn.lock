@@ -6416,7 +6416,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest@npm:^28.4.0":
+"eslint-plugin-jest@npm:^28.5.0":
   version: 28.5.0
   resolution: "eslint-plugin-jest@npm:28.5.0"
   dependencies:
@@ -9833,7 +9833,7 @@ __metadata:
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-plugin-filenames: "npm:^1.3.2"
-    eslint-plugin-jest: "npm:^28.4.0"
+    eslint-plugin-jest: "npm:^28.5.0"
     eslint-plugin-jest-dom: "npm:^5.4.0"
     eslint-plugin-playwright: "npm:^1.6.0"
     eslint-plugin-react: "npm:^7.34.1"
