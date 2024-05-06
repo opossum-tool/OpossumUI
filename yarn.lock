@@ -9856,7 +9856,7 @@ __metadata:
     packageurl-js: "npm:^1.2.1"
     prettier: "npm:^3.2.5"
     prettier-plugin-sh: "npm:^0.14.0"
-    proxy-memoize: "npm:^2.0.6"
+    proxy-memoize: "npm:^3.0.0"
     re-resizable: "npm:^6.9.16"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
@@ -10299,10 +10299,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proxy-compare@npm:2.6.0":
-  version: 2.6.0
-  resolution: "proxy-compare@npm:2.6.0"
-  checksum: 10/c7fc9e50873f01bd79bf68ed861f740891d6c590332954b9522479a5c7d598a62225fdfa8a42460d9be5bc7a78c28377839d9d06fbced26cae62332c4410b81a
+"proxy-compare@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "proxy-compare@npm:3.0.0"
+  checksum: 10/072b654e303ac6c7a9ac94648614b84388bd8b25828bd4971123dfe5a843e0848e5bf17d0ce546e9878395f356e695109b234c97183614469ff757e68ed39904
   languageName: node
   linkType: hard
 
@@ -10313,12 +10313,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proxy-memoize@npm:^2.0.6":
-  version: 2.0.6
-  resolution: "proxy-memoize@npm:2.0.6"
+"proxy-memoize@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "proxy-memoize@npm:3.0.0"
   dependencies:
-    proxy-compare: "npm:2.6.0"
-  checksum: 10/4f80cba32e9c9018a242d3104d391baaa65582d620595514c9737cce497aab264da39a97e24b6a66622e5d5aad295a907540b4a09512ad17a47f7447b30feb71
+    proxy-compare: "npm:^3.0.0"
+  checksum: 10/2214a2ed297002e8ac3aafa8a3d67195f52ce5226739b66a897c98ec1abb1c2cc786b54f36f18cc859e942a21fec6d30b26d396aec26b5dee51155ba1d2ccb36
   languageName: node
   linkType: hard
 
