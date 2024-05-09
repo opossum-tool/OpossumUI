@@ -2678,16 +2678,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/core-downloads-tracker@npm:^5.15.16":
-  version: 5.15.16
-  resolution: "@mui/core-downloads-tracker@npm:5.15.16"
-  checksum: 10/161ef72ea930bc5831d1b7699e048644da397cc585cde33535296037b0e9a09093c50585ee7e5913e62b7f15a6cc13400f97e443ee85ea242cb087c55f7d88e3
+"@mui/core-downloads-tracker@npm:^5.15.17":
+  version: 5.15.17
+  resolution: "@mui/core-downloads-tracker@npm:5.15.17"
+  checksum: 10/246bf7ee7ed25709006edd92fd344f57cdd9dec0b570df9f41127f87d15ee890af641eb8c646b4cd52972c71c273e8b564b999083b9828510ce72eccb153a0fd
   languageName: node
   linkType: hard
 
-"@mui/icons-material@npm:^5.15.16":
-  version: 5.15.16
-  resolution: "@mui/icons-material@npm:5.15.16"
+"@mui/icons-material@npm:^5.15.17":
+  version: 5.15.17
+  resolution: "@mui/icons-material@npm:5.15.17"
   dependencies:
     "@babel/runtime": "npm:^7.23.9"
   peerDependencies:
@@ -2697,17 +2697,17 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10/348e67f1f6b4ccd00ed779b149d56f84452105e70af7c8a1720a61f967c47d58984f16f5db2aac14f2f57698821748f6e11f2f50bbd1ae40a8db6f1dea2ed76d
+  checksum: 10/fa7c33e1a47dbc85bf994e3b1c08dc0f504fd60a1b8bcee61c83c1b0fc126134eaff1b8acf894721c5ed8b4bbb48c4ba6b846e73a541314a72870990089c0426
   languageName: node
   linkType: hard
 
-"@mui/material@npm:^5.15.16":
-  version: 5.15.16
-  resolution: "@mui/material@npm:5.15.16"
+"@mui/material@npm:^5.15.17":
+  version: 5.15.17
+  resolution: "@mui/material@npm:5.15.17"
   dependencies:
     "@babel/runtime": "npm:^7.23.9"
     "@mui/base": "npm:5.0.0-beta.40"
-    "@mui/core-downloads-tracker": "npm:^5.15.16"
+    "@mui/core-downloads-tracker": "npm:^5.15.17"
     "@mui/system": "npm:^5.15.15"
     "@mui/types": "npm:^7.2.14"
     "@mui/utils": "npm:^5.15.14"
@@ -2730,7 +2730,7 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 10/fa52a5c259cea4b8c312e234a6ab4fe3a9bb93228aa0f3ff9b55c7ce906fc2941843aee1fdaf3826ccd46d8a39b14e457de6b5b7777bb0646e34284de1ec10e0
+  checksum: 10/bd40a428bfe1425240f4c16b2ed253e5316241bfbed922c9ef7effddee4ad7b9539c12f0ae9478d9565e43423d0a33d16817f71758d21f49f5e427ae8532d860
   languageName: node
   linkType: hard
 
@@ -9792,8 +9792,8 @@ __metadata:
     "@emotion/styled": "npm:^11.11.5"
     "@faker-js/faker": "npm:^8.4.1"
     "@fontsource-variable/karla": "npm:^5.0.21"
-    "@mui/icons-material": "npm:^5.15.16"
-    "@mui/material": "npm:^5.15.16"
+    "@mui/icons-material": "npm:^5.15.17"
+    "@mui/material": "npm:^5.15.17"
     "@mui/system": "npm:^5.15.15"
     "@playwright/test": "npm:^1.44.0"
     "@reduxjs/toolkit": "npm:^2.2.3"
