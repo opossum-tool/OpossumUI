@@ -70,6 +70,20 @@ export const theme = createTheme({
     },
   },
   components: {
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          minHeight: '36px !important',
+        },
+      },
+    },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          padding: '5px',
+        },
+      },
+    },
     MuiSwitch: {
       styleOverrides: {
         switchBase: {

@@ -93,6 +93,7 @@ test('reverts all changes and applies reverted state to temporary package info',
   await diffPopup.revertAllButton.click();
   await diffPopup.applyButton.click();
   await diffPopup.assert.isHidden();
+  await attributionDetails.attributionForm.licenseTextToggleButton.click();
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     manualPackageInfo2,
   );
@@ -132,6 +133,7 @@ test('reverts single fields correctly', async ({
   await diffPopup.revertAllButton.click();
   await diffPopup.applyButton.click();
   await diffPopup.assert.isHidden();
+  await attributionDetails.attributionForm.licenseTextToggleButton.click();
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     manualPackageInfo2,
   );
@@ -170,6 +172,7 @@ test('handles pending license and copyright changes in temporary package info co
   await attributionDetails.attributionForm.selectAttributionType(
     AttributionType.ThirdParty,
   );
+  await attributionDetails.attributionForm.licenseTextToggleButton.click();
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     manualPackageInfo2,
   );

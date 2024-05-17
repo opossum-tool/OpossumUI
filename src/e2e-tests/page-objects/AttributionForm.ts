@@ -21,6 +21,7 @@ export class AttributionForm {
   readonly copyright: Locator;
   readonly licenseName: Locator;
   readonly licenseText: Locator;
+  readonly licenseTextToggleButton: Locator;
   readonly attributionType: Locator;
   readonly addAuditingOptionButton: Locator;
   readonly auditingOptionsMenu: {
@@ -80,6 +81,9 @@ export class AttributionForm {
       {
         exact: true,
       },
+    );
+    this.licenseTextToggleButton = this.node.getByLabel(
+      'license-text-toggle-button',
     );
     this.licenseText = this.node.getByLabel(
       text.attributionColumn.licenseText,
