@@ -36,12 +36,12 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
     const targetSelectedAttributionId =
       getTargetSelectedAttributionId(getState());
 
-    if (targetSelectedResourceId) {
+    if (targetSelectedResourceId !== null) {
       dispatch(setSelectedResourceId(targetSelectedResourceId));
       dispatch(setTargetSelectedResourceId(null));
     }
 
-    if (targetSelectedAttributionId) {
+    if (targetSelectedAttributionId !== null) {
       dispatch(setSelectedAttributionId(targetSelectedAttributionId));
       dispatch(setTargetSelectedAttributionId(null));
     }

@@ -97,9 +97,7 @@ test('warns user of unsaved changes if user attempts to navigate away before sav
   await notSavedPopup.assert.isVisible();
 
   await notSavedPopup.discardButton.click();
-  await attributionDetails.attributionForm.assert.matchesPackageInfo(
-    packageInfo1,
-  );
+  await attributionDetails.attributionForm.assert.isEmpty();
 
   await attributionDetails.attributionForm.comment.fill(
     faker.lorem.sentences(),
