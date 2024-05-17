@@ -200,7 +200,7 @@ describe('AttributionForm', () => {
     expect(screen.queryByLabelText('Url icon')).not.toBeInTheDocument();
   });
 
-  it('shows default license text placeholder when frequent license name selected and no custom license text entered', () => {
+  it('shows default license text placeholder when frequent license name selected and no custom license text entered', async () => {
     const defaultLicenseText = faker.lorem.paragraphs();
     const packageInfo = faker.opossum.packageInfo();
     renderComponent(
@@ -215,6 +215,8 @@ describe('AttributionForm', () => {
       },
     );
 
+    await userEvent.click(screen.getByLabelText('license-text-toggle-button'));
+
     expect(
       screen.getByRole('textbox', {
         name: text.attributionColumn.licenseTextDefault,
@@ -228,7 +230,7 @@ describe('AttributionForm', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('does not show default license text placeholder when custom license text entered', () => {
+  it('does not show default license text placeholder when custom license text entered', async () => {
     const defaultLicenseText = faker.lorem.paragraphs();
     const packageInfo = faker.opossum.packageInfo({
       licenseText: faker.lorem.paragraphs(),
@@ -244,6 +246,8 @@ describe('AttributionForm', () => {
         ],
       },
     );
+
+    await userEvent.click(screen.getByLabelText('license-text-toggle-button'));
 
     expect(
       screen.getByRole('textbox', {

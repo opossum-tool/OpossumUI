@@ -41,7 +41,7 @@ export function IconButton(props: IconButtonProps) {
           disabled={props.disabled}
           data-testid={props['data-testid']}
           sx={{
-            '&:focus': {
+            '&.Mui-focusVisible': {
               background: OpossumColors.middleBlue,
             },
           }}

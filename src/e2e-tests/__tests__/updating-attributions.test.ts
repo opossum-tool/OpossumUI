@@ -133,6 +133,7 @@ test('allows user to update an attribution on the selected resource only', async
   await attributionDetails.assert.saveButtonIsDisabled();
   await attributionDetails.assert.revertButtonIsDisabled();
 
+  await attributionDetails.attributionForm.licenseTextToggleButton.click();
   await attributionDetails.attributionForm.licenseText.fill(
     newPackageInfo.licenseText!,
   );

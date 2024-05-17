@@ -3,8 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, screen } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { act, fireEvent, screen } from '@testing-library/react';
 
 import { BaseUrlsForSources } from '../../../../shared/shared-types';
 import { setBaseUrlsForSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
