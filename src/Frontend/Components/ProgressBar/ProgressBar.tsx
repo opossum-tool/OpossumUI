@@ -4,27 +4,21 @@
 // SPDX-License-Identifier: Apache-2.0
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
-import MuiTooltip from '@mui/material/Tooltip';
+import { ResponsiveBar } from '@nivo/bar';
 
-import { OpossumColors } from '../../shared-styles';
+import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { ProgressBarData } from '../../types/types';
 import {
-  getCriticalityBarBackground,
   getCriticalityBarTooltipText,
-  getProgressBarBackground,
   getProgressBarTooltipText,
   useOnProgressBarClick,
 } from './ProgressBar.util';
 
 const classes = {
   bar: {
-    flex: 1,
-    border: `2px solid ${OpossumColors.white}`,
-    marginTop: '6px',
-    height: '20px',
     '&:hover': {
       cursor: 'pointer',
-      opacity: 0.75,
+      opacity: 1,
     },
   },
 };
@@ -48,31 +42,78 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       ? resourcesWithCriticalExternalAttributions
       : props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
   );
+  const data: Array<{ [key: string]: number }> = props.showCriticalSignals
+    ? [
+        {
+          high_critical:
+            props.progressBarData
+              .filesWithHighlyCriticalExternalAttributionsCount,
+          medium_critical:
+            props.progressBarData
+              .filesWithMediumCriticalExternalAttributionsCount,
+          rest:
+            props.progressBarData.filesWithOnlyExternalAttributionCount -
+            (props.progressBarData
+              .filesWithHighlyCriticalExternalAttributionsCount +
+              props.progressBarData
+                .filesWithMediumCriticalExternalAttributionsCount),
+        },
+      ]
+    : [
+        {
+          attribution: props.progressBarData.filesWithManualAttributionCount,
+          preselected:
+            props.progressBarData.filesWithOnlyPreSelectedAttributionCount,
+          signals: props.progressBarData.filesWithOnlyExternalAttributionCount,
+          rest:
+            props.progressBarData.fileCount -
+            (props.progressBarData.filesWithManualAttributionCount +
+              props.progressBarData.filesWithOnlyPreSelectedAttributionCount +
+              props.progressBarData.filesWithOnlyExternalAttributionCount),
+        },
+      ];
+
   return (
-    <MuiBox sx={props.sx}>
-      <MuiTooltip
-        title={
+    <MuiBox sx={{ ...props.sx, ...classes.bar }} aria-label={'ProgressBar'}>
+      <ResponsiveBar
+        data={data}
+        keys={Object.keys(data[0])}
+        margin={{ top: 5, right: 1, bottom: 5, left: 6 }}
+        maxValue={
+          props.showCriticalSignals
+            ? props.progressBarData.filesWithOnlyExternalAttributionCount
+            : props.progressBarData.fileCount
+        }
+        layout="horizontal"
+        valueScale={{ type: 'linear' }}
+        labelSkipWidth={1}
+        axisBottom={null}
+        axisLeft={null}
+        animate={false}
+        colors={
+          props.showCriticalSignals
+            ? [
+                criticalityColor.high,
+                criticalityColor.medium,
+                OpossumColors.lightestBlue,
+              ]
+            : [
+                OpossumColors.pastelDarkGreen,
+                OpossumColors.pastelMiddleGreen,
+                OpossumColors.pastelRed,
+                OpossumColors.lightestBlue,
+              ]
+        }
+        labelTextColor="black"
+        tooltip={() =>
           props.showCriticalSignals
             ? getCriticalityBarTooltipText(props.progressBarData)
             : getProgressBarTooltipText(props.progressBarData)
         }
-        followCursor
-      >
-        <MuiBox
-          aria-label={'ProgressBar'}
-          sx={{
-            ...classes.bar,
-            background: props.showCriticalSignals
-              ? getCriticalityBarBackground(props.progressBarData)
-              : getProgressBarBackground(props.progressBarData),
-          }}
-          onClick={
-            props.showCriticalSignals
-              ? onCriticalityBarClick
-              : onProgressBarClick
-          }
-        />
-      </MuiTooltip>
+        onClick={
+          props.showCriticalSignals ? onCriticalityBarClick : onProgressBarClick
+        }
+      />
     </MuiBox>
   );
 };
