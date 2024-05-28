@@ -21,7 +21,12 @@
       enabled: false,
     },
     {
-      matchPackagePrefixes: ['@testing-library/', 'eslint-', '@babel/'],
+      matchPackagePrefixes: [
+        '@testing-library/',
+        'eslint-',
+        '@eslint/',
+        '@babel/',
+      ],
       matchPackageNames: [
         '@faker-js/faker',
         '@playwright/test',
@@ -63,6 +68,7 @@
         'stream-json',
         'ts-node',
         'typescript',
+        'typescript-eslint',
         'upath',
         'uuid',
         'whatwg-fetch',
@@ -77,13 +83,6 @@
     },
     {
       matchPackageNames: ['node'],
-      matchUpdateTypes: ['minor', 'patch'],
-      automerge: true,
-    },
-    {
-      matchPackagePrefixes: ['@typescript-eslint/'],
-      groupName: 'TypeScript ESLint dependencies',
-      groupSlug: 'typescript-eslint',
       matchUpdateTypes: ['minor', 'patch'],
       automerge: true,
     },

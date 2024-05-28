@@ -58,10 +58,9 @@ export function isImportantAttributionInformationMissing(
     case 'url':
       return !packageInfo[attributionProperty];
     case 'packageNamespace':
-      const packageType = packageInfo['packageType'];
       return (
-        !!packageType &&
-        TYPES_REQUIRING_NAMESPACE.includes(packageType) &&
+        !!packageInfo.packageType &&
+        TYPES_REQUIRING_NAMESPACE.includes(packageInfo.packageType) &&
         !packageInfo[attributionProperty]
       );
     default:
