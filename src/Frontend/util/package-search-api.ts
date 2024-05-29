@@ -13,8 +13,8 @@ import { pick } from './lodash-extension-utils';
 
 const DEPS_DEV_NON_STANDARD_LICENSE_MARKER = 'non-standard';
 const COPYRIGHT_REGEX = /^Copyright \(c\).*$/gm;
-const GITHUB_REGEX = /^https:\/\/(www\.)?github\.com\/([^\/]+)\/([^\/]+)/;
-const GITLAB_REGEX = /^https:\/\/(www\.)?gitlab\.com\/([^\/]+)\/([^\/]+)/;
+const GITHUB_REGEX = /^https:\/\/(www\.)?github\.com\/(.+)\/(.+)/;
+const GITLAB_REGEX = /^https:\/\/(www\.)?gitlab\.com\/(.+)\/(.+)/;
 
 export const packageSystems = [
   'GO',

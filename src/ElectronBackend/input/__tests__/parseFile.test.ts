@@ -261,7 +261,7 @@ describe('parseOutputJsonFile', () => {
     });
 
     expect(() => parseOutputJsonFile(attributionPath)).toThrow(
-      `Error: ${attributionPath} contains an invalid output file.\n Original error message: instance requires property \"metadata\"`,
+      `Error: ${attributionPath} contains an invalid output file.\n Original error message: instance requires property "metadata"`,
     );
   });
 

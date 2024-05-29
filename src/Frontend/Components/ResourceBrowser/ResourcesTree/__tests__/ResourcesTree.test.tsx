@@ -2,14 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  act,
-  fireEvent,
-  getByLabelText,
-  queryByLabelText,
-  Screen,
-  screen,
-} from '@testing-library/react';
+import { act, fireEvent, Screen, screen, within } from '@testing-library/react';
 import { isEqual } from 'lodash';
 
 import {
@@ -356,11 +349,11 @@ function expectIconToExist(
   const resourceTreeRow = treeItem.parentElement?.parentElement
     ?.parentElement as HTMLElement;
   expectedToExist
-    ? // eslint-disable-next-line testing-library/prefer-screen-queries
-      expect(getByLabelText(resourceTreeRow, iconLabel)).toBeInTheDocument()
+    ? expect(
+        within(resourceTreeRow).getByLabelText(iconLabel),
+      ).toBeInTheDocument()
     : expect(
-        // eslint-disable-next-line testing-library/prefer-screen-queries
-        queryByLabelText(resourceTreeRow, iconLabel),
+        within(resourceTreeRow).queryByLabelText(iconLabel),
       ).not.toBeInTheDocument();
 }
 
@@ -371,7 +364,6 @@ function expectResourceIconLabelToBe(
 ): void {
   const treeItem = screen.getByText(resourceName);
   expect(
-    // eslint-disable-next-line testing-library/prefer-screen-queries
-    getByLabelText(treeItem.parentElement as HTMLElement, iconLabel),
+    within(treeItem.parentElement as HTMLElement).getByLabelText(iconLabel),
   ).toBeInTheDocument();
 }

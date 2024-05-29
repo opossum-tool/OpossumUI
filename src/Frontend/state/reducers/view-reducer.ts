@@ -52,13 +52,13 @@ export function viewState(
         popupInfo: state.popupInfo.slice(0, -1),
       };
     case ACTION_OPEN_POPUP:
-      const openPopups = state.popupInfo.map((popupInfo) => popupInfo.popup);
-      const newPopupInfo = openPopups.includes(action.payload.popup)
-        ? state.popupInfo
-        : state.popupInfo.concat(action.payload);
       return {
         ...state,
-        popupInfo: newPopupInfo,
+        popupInfo: state.popupInfo
+          .map((popupInfo) => popupInfo.popup)
+          .includes(action.payload.popup)
+          ? state.popupInfo
+          : state.popupInfo.concat(action.payload),
       };
     case ACTION_SET_OPEN_FILE_REQUEST:
       return {
