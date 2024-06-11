@@ -101,7 +101,7 @@
     "start-server-and-test": "^2.0.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.12.0",
+    "typescript-eslint": "^7.13.0",
     "unimported": "^1.31.1",
     "vite": "^5.2.13",
     "vite-plugin-electron": "^0.28.7",
