@@ -6124,16 +6124,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:30.1.0":
-  version: 30.1.0
-  resolution: "electron@npm:30.1.0"
+"electron@npm:31.0.0":
+  version: 31.0.0
+  resolution: "electron@npm:31.0.0"
   dependencies:
     "@electron/get": "npm:^2.0.0"
     "@types/node": "npm:^20.9.0"
     extract-zip: "npm:^2.0.1"
   bin:
     electron: cli.js
-  checksum: 10/f85682c89b146806de9a40aa38bd29a4ab36caf78099f92a1339f44de679e0c0c7f5975dc68ece641790e6d622e741e4d762a456bf5ab0f86abc362656fe4dbe
+  checksum: 10/da0ae8cb1d7cef2e4d4b4c34acfd8bef932aa729377e599a08b1058d967af8328576723bee5f1170bfa3c0c56fc10d544ac6a11e5d565363c76704c34d306adc
   languageName: node
   linkType: hard
 
@@ -9956,7 +9956,7 @@ __metadata:
     dayjs: "npm:^1.11.11"
     dotenv: "npm:^16.4.5"
     dpdm: "npm:^3.14.0"
-    electron: "npm:30.1.0"
+    electron: "npm:31.0.0"
     electron-builder: "npm:^24.13.3"
     electron-log: "npm:^5.1.5"
     electron-playwright-helpers: "npm:^1.7.1"
