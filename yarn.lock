@@ -9044,7 +9044,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lint-staged@npm:^15.2.6":
+"lint-staged@npm:^15.2.7":
   version: 15.2.7
   resolution: "lint-staged@npm:15.2.7"
   dependencies:
@@ -9977,7 +9977,7 @@ __metadata:
     jest-watch-typeahead: "npm:^2.2.2"
     js-yaml: "npm:^4.1.0"
     jsonschema: "npm:^1.4.1"
-    lint-staged: "npm:^15.2.6"
+    lint-staged: "npm:^15.2.7"
     lodash: "npm:^4.17.21"
     mkdirp: "npm:^3.0.1"
     mockdate: "npm:^3.0.5"
