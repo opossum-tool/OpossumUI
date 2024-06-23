@@ -149,7 +149,7 @@ function getResourceIdsInSubtreeWithBreakpoints(
     } else {
       const results = getResourceIdsInSubtreeWithBreakpoints(
         `${pathToChildResource}/`,
-        rootResource[childResourceName] as Resources,
+        rootResource[childResourceName],
         resourcesToManualAttributions,
       );
       for (const result of results) {
