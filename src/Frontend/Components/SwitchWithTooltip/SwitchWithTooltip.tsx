@@ -22,6 +22,7 @@ export function SwitchWithTooltip(props: SwitchWithTooltipProps): ReactElement {
         onChange={props.handleSwitchClick}
         size="small"
         sx={props.sx}
+        aria-label={'switch-bar'}
       />
     </MuiTooltip>
   );
