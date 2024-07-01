@@ -3243,7 +3243,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/eslint-plugin-query@npm:^5.49.0":
+"@tanstack/eslint-plugin-query@npm:^5.49.1":
   version: 5.49.1
   resolution: "@tanstack/eslint-plugin-query@npm:5.49.1"
   dependencies:
@@ -3261,7 +3261,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.49.0":
+"@tanstack/react-query@npm:^5.49.2":
   version: 5.49.2
   resolution: "@tanstack/react-query@npm:5.49.2"
   dependencies:
@@ -9929,8 +9929,8 @@ __metadata:
     "@mui/system": "npm:^5.15.20"
     "@playwright/test": "npm:^1.45.0"
     "@reduxjs/toolkit": "npm:^2.2.6"
-    "@tanstack/eslint-plugin-query": "npm:^5.49.0"
-    "@tanstack/react-query": "npm:^5.49.0"
+    "@tanstack/eslint-plugin-query": "npm:^5.49.1"
+    "@tanstack/react-query": "npm:^5.49.2"
     "@testing-library/dom": "npm:^10.2.0"
     "@testing-library/jest-dom": "npm:^6.4.6"
     "@testing-library/react": "npm:^16.0.0"
