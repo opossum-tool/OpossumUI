@@ -21,7 +21,7 @@ export default tseslint.config(
       filenames: eslintConfigFilenames,
       jest: eslintConfigJest,
       // @ts-ignore
-      '@tanstack/query': fixupPluginRules(eslintPluginQuery),
+      '@tanstack/query': fixupPluginRules(eslintPluginQuery.default),
       // @ts-ignore
       'react-hooks': fixupPluginRules(eslintPluginReactHooks),
     },
@@ -69,7 +69,7 @@ export default tseslint.config(
     },
     // @ts-ignore
     rules: {
-      ...eslintPluginQuery.configs.recommended.rules,
+      ...eslintPluginQuery.default.configs.recommended.rules,
       ...eslintPluginReactHooks.configs.recommended.rules,
       'react/display-name': 'off',
       'react/prop-types': 'off',

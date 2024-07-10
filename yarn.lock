@@ -3243,32 +3243,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/eslint-plugin-query@npm:^5.49.1":
-  version: 5.49.1
-  resolution: "@tanstack/eslint-plugin-query@npm:5.49.1"
+"@tanstack/eslint-plugin-query@npm:^5.50.1":
+  version: 5.50.1
+  resolution: "@tanstack/eslint-plugin-query@npm:5.50.1"
   dependencies:
     "@typescript-eslint/utils": "npm:8.0.0-alpha.30"
   peerDependencies:
     eslint: ^8 || ^9
-  checksum: 10/1275f3c452181ade179664c20765cbe9828b349f710ea11283f18a568fe310366b89bfe506c44b74ea99426d9301318338de40ac04a17e777431780a67326cd0
+  checksum: 10/8a45162e708e83bf100e7cf5250d90b6e2bb91d6a98f652fba7a8f237251cadf2a8efece0b365e69cecfac49bb23b6739b823f15102a42f87e5026d32f5e6a72
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.49.1":
-  version: 5.49.1
-  resolution: "@tanstack/query-core@npm:5.49.1"
-  checksum: 10/38c4a6dbf61ec9d8490717702a18254b26672b7601f793c7d26f35bd4d9f5a5ec739c3d2eed09a3d2b3e8d3c36c9c21a51b6808214d01a29818e2803d21e1e5c
+"@tanstack/query-core@npm:5.50.1":
+  version: 5.50.1
+  resolution: "@tanstack/query-core@npm:5.50.1"
+  checksum: 10/f89f74bb6381738b04223534b9c4df435de418a242abb86af4f6db3010c96f2addd38ee658db3f500ac42070e6b15cdd0177636d3b046312d03a3220b13cf277
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.49.2":
-  version: 5.49.2
-  resolution: "@tanstack/react-query@npm:5.49.2"
+"@tanstack/react-query@npm:^5.50.1":
+  version: 5.50.1
+  resolution: "@tanstack/react-query@npm:5.50.1"
   dependencies:
-    "@tanstack/query-core": "npm:5.49.1"
+    "@tanstack/query-core": "npm:5.50.1"
   peerDependencies:
     react: ^18.0.0
-  checksum: 10/16232d373ac805cc79c23bdce5a355e6ab2aaf29ac3ef1436388f068eac799bcdfbc375d1569f549405a3ace1f5b7ba0d68b18175ea6abf0396d53923c4b4de2
+  checksum: 10/ab70f213ae77f9d59172cb571c0832d3d443b85c6cfb6540d4a15235373d26af18dd5214cd1f62275cfbc54164f64f6f2ef5a85e7cb442639b411a41fb65aae6
   languageName: node
   linkType: hard
 
@@ -9929,8 +9929,8 @@ __metadata:
     "@mui/system": "npm:^5.16.0"
     "@playwright/test": "npm:^1.45.1"
     "@reduxjs/toolkit": "npm:^2.2.6"
-    "@tanstack/eslint-plugin-query": "npm:^5.49.1"
-    "@tanstack/react-query": "npm:^5.49.2"
+    "@tanstack/eslint-plugin-query": "npm:^5.50.1"
+    "@tanstack/react-query": "npm:^5.50.1"
     "@testing-library/dom": "npm:^10.3.1"
     "@testing-library/jest-dom": "npm:^6.4.6"
     "@testing-library/react": "npm:^16.0.0"
