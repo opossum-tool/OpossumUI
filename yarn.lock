@@ -2166,10 +2166,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/compat@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@eslint/compat@npm:1.1.0"
-  checksum: 10/b3a081df313e20cb803af15eb66164fb36ba5e1663b8ec1bf65375425fe6bd4baef4b34383abafcc289936a3dedb04de2f74cabae817f23f37636ee40c0f8a7e
+"@eslint/compat@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@eslint/compat@npm:1.1.1"
+  checksum: 10/9004697701e9e9a7749d9e37452ee965af3620af46796ac0ee196478bbda490c780d17686c2888353c2a12d764837fa71c027c3ca18b1c3af6136105caa93642
   languageName: node
   linkType: hard
 
@@ -9920,7 +9920,7 @@ __metadata:
     "@commitlint/types": "npm:^19.0.3"
     "@emotion/react": "npm:^11.11.4"
     "@emotion/styled": "npm:^11.11.5"
-    "@eslint/compat": "npm:^1.1.0"
+    "@eslint/compat": "npm:^1.1.1"
     "@eslint/js": "npm:^9.6.0"
     "@faker-js/faker": "npm:^8.4.1"
     "@fontsource-variable/karla": "npm:^5.0.21"
