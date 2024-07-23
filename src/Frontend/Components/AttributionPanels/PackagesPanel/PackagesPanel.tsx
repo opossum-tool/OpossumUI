@@ -193,7 +193,9 @@ export const PackagesPanel = ({
   }, [selectedAttributionRelation]);
 
   const childrenProps: PackagesPanelChildrenProps = {
-    activeAttributionIds: groupedIds ? groupedIds[activeRelation] ?? [] : null,
+    activeAttributionIds: groupedIds
+      ? (groupedIds[activeRelation] ?? [])
+      : null,
     activeRelation,
     attributionIds,
     attributions,
