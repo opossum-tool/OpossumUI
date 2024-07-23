@@ -19,7 +19,7 @@ const config: PlaywrightTestConfig = {
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   timeout: process.env.CI ? CI_SINGLE_TEST_TIMEOUT : undefined,
-  workers: process.env.CI ? 1 : process.env.WORKERS ?? 1,
+  workers: process.env.CI ? 1 : (process.env.WORKERS ?? 1),
   globalTimeout: process.env.CI ? GLOBAL_TIMEOUT : undefined,
 };
 
