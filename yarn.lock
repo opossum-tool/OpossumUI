@@ -3229,7 +3229,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^6.4.7":
+"@testing-library/jest-dom@npm:^6.4.8":
   version: 6.4.8
   resolution: "@testing-library/jest-dom@npm:6.4.8"
   dependencies:
@@ -9833,7 +9833,7 @@ __metadata:
     "@tanstack/eslint-plugin-query": "npm:^5.51.12"
     "@tanstack/react-query": "npm:^5.51.11"
     "@testing-library/dom": "npm:^10.4.0"
-    "@testing-library/jest-dom": "npm:^6.4.7"
+    "@testing-library/jest-dom": "npm:^6.4.8"
     "@testing-library/react": "npm:^16.0.0"
     "@testing-library/user-event": "npm:^14.5.2"
     "@trivago/prettier-plugin-sort-imports": "npm:^4.3.0"
