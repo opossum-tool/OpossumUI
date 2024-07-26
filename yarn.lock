@@ -3185,14 +3185,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/eslint-plugin-query@npm:^5.51.12":
-  version: 5.51.12
-  resolution: "@tanstack/eslint-plugin-query@npm:5.51.12"
+"@tanstack/eslint-plugin-query@npm:^5.51.13":
+  version: 5.51.15
+  resolution: "@tanstack/eslint-plugin-query@npm:5.51.15"
   dependencies:
     "@typescript-eslint/utils": "npm:8.0.0-alpha.30"
   peerDependencies:
     eslint: ^8 || ^9
-  checksum: 10/2e3b992e780f8d51a24cfea31a87332356c8154c2747c11eabc707dc73799f8d397b65bc8da2457c311fac7aecdd504bf7cc8aa4eef30d95e4e6aaef68992b4c
+  checksum: 10/bc15879904e39020cb4184039bf0b53c539f86d601520c2aa93a0d913e509ded566ba26aed4e88f7a25b23ffcab81cc92122b6af41d5ab01b07023e75379e47f
   languageName: node
   linkType: hard
 
@@ -9831,7 +9831,7 @@ __metadata:
     "@mui/system": "npm:^5.16.5"
     "@playwright/test": "npm:^1.45.3"
     "@reduxjs/toolkit": "npm:^2.2.6"
-    "@tanstack/eslint-plugin-query": "npm:^5.51.12"
+    "@tanstack/eslint-plugin-query": "npm:^5.51.13"
     "@tanstack/react-query": "npm:^5.51.11"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/jest-dom": "npm:^6.4.8"
