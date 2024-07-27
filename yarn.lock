@@ -3185,7 +3185,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/eslint-plugin-query@npm:^5.51.13":
+"@tanstack/eslint-plugin-query@npm:^5.51.15":
   version: 5.51.15
   resolution: "@tanstack/eslint-plugin-query@npm:5.51.15"
   dependencies:
@@ -3196,21 +3196,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.51.9":
-  version: 5.51.9
-  resolution: "@tanstack/query-core@npm:5.51.9"
-  checksum: 10/263f64a2e9448cc412fa9f29b0b77af1a5eeb66ecba6965548d4be97b7e99cca0dd194992b686426745030240764846d9d7e39e43d3ed64b97afb47f3a9661d7
+"@tanstack/query-core@npm:5.51.15":
+  version: 5.51.15
+  resolution: "@tanstack/query-core@npm:5.51.15"
+  checksum: 10/66d319e29891a1bcb8c3800ad69e11941d8aff64687dd3e042e1f6ccc73917d47bdab4dc04d3d7536211a5ff9f4e7e9b0b47d4f438f44db0d0a7d4d91a1ccc02
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.51.11":
-  version: 5.51.11
-  resolution: "@tanstack/react-query@npm:5.51.11"
+"@tanstack/react-query@npm:^5.51.15":
+  version: 5.51.15
+  resolution: "@tanstack/react-query@npm:5.51.15"
   dependencies:
-    "@tanstack/query-core": "npm:5.51.9"
+    "@tanstack/query-core": "npm:5.51.15"
   peerDependencies:
     react: ^18.0.0
-  checksum: 10/e840eb5f90fb6ec1693f98be651c5fa55a2885930015a2bf1f8699def596293eac79df8b3335e31b87af0a189d40597d35986379c930faf3496fc5061861d988
+  checksum: 10/637a79951d35f9bc28eb6667f4d7936436e80b2e51377cce3dafe83a21ba65575272036e980f6bf755b5b4b4cde2e35cddb9c0d14c5ed9a83a15b68372fced72
   languageName: node
   linkType: hard
 
@@ -9831,8 +9831,8 @@ __metadata:
     "@mui/system": "npm:^5.16.5"
     "@playwright/test": "npm:^1.45.3"
     "@reduxjs/toolkit": "npm:^2.2.6"
-    "@tanstack/eslint-plugin-query": "npm:^5.51.13"
-    "@tanstack/react-query": "npm:^5.51.11"
+    "@tanstack/eslint-plugin-query": "npm:^5.51.15"
+    "@tanstack/react-query": "npm:^5.51.15"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/jest-dom": "npm:^6.4.8"
     "@testing-library/react": "npm:^16.0.0"
