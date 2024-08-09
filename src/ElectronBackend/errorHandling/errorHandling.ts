@@ -19,7 +19,7 @@ import { getLoadedFilePath } from '../utils/getLoadedFile';
 
 export function createListenerCallbackWithErrorHandling(
   mainWindow: BrowserWindow,
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   func: Function,
 ): (...args: Array<unknown>) => Promise<void> {
   return async (...args: Array<unknown>): Promise<void> => {
