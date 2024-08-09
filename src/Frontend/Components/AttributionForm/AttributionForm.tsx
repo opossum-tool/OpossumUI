@@ -37,8 +37,10 @@ const classes = {
   },
 };
 
-export interface AttributeConfig
-  extends Pick<TextBoxProps, 'color' | 'focused' | 'endIcon'> {}
+export type AttributeConfig = Pick<
+  TextBoxProps,
+  'color' | 'focused' | 'endIcon'
+>;
 
 export type AttributionFormConfig = Partial<
   Record<FormAttribute, AttributeConfig>
