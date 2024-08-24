@@ -17,6 +17,11 @@
   minimumReleaseAge: '1 day',
   packageRules: [
     {
+      nvm: {
+        enabled: false,
+      },
+    },
+    {
       matchPackageNames: ['react-virtuoso'],
       enabled: false,
     },
