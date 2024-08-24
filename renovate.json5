@@ -15,12 +15,10 @@
   prCreation: 'not-pending',
   rangeStrategy: 'bump',
   minimumReleaseAge: '1 day',
+  nvm: {
+    enabled: false,
+  },
   packageRules: [
-    {
-      nvm: {
-        enabled: false,
-      },
-    },
     {
       matchPackageNames: ['react-virtuoso'],
       enabled: false,
