@@ -104,7 +104,7 @@ describe('createSpdxDocument', () => {
       name: 'name 1',
       version: 'version 1',
       namespace: 'namespace 1',
-      type: 'type 1',
+      type: 'type',
       appendix: 'appendix 1',
       dependencies: [],
     };
@@ -156,7 +156,7 @@ describe('createSpdxDocument', () => {
             {
               referenceCategory: 'PACKAGE_MANAGER',
               referenceLocator:
-                'pkg:type%201/namespace%201/name%201@version%201appendix 1',
+                'pkg:type/namespace%201/name%201@version%201appendix 1',
               referenceType: 'purl',
             },
           ],
