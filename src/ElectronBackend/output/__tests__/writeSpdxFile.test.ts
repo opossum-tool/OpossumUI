@@ -43,7 +43,7 @@ describe('writeSpdxFile', () => {
         id: 'uuid_1',
       },
       uuid_2: {
-        packageName: 'second-test-Package',
+        packageName: 'second-test-package',
         packageVersion: '2.1',
         packageType: 'npm',
         id: 'uuid_2',
@@ -64,7 +64,7 @@ describe('writeSpdxFile', () => {
     expect(fileContent).toContain('extractedText: test license text');
     expect(fileContent).toContain('name: license name');
     expect(fileContent).toContain(
-      'referenceLocator: pkg:npm/second-test-Package@2.1',
+      'referenceLocator: pkg:npm/second-test-package@2.1',
     );
   });
 });
