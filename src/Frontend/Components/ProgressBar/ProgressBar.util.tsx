@@ -39,20 +39,18 @@ export function useOnProgressBarClick(resourceIds: Array<string>) {
 
 const classes = {
   tooltip: {
-    flex: 1,
     background: 'rgba(97, 97, 97, 0.92)',
     borderRadius: '4px',
     color: 'white',
     fontFamily: 'Karla Variable, sans-serif',
-    padding: 4,
-    fontSize: 10,
+    padding: 8,
+    fontSize: 12,
     margin: 2,
     fontWeight: 500,
     position: 'relative',
-    top: 100,
-    'z-index': 100,
+    top: '200',
   } as CSSProperties,
-  div: { display: 'flex', 'align-items': 'center' },
+  tooltipLine: { display: 'flex', 'align-items': 'center', padding: 4 },
   colorBlock: {
     display: 'block',
     width: 12,
@@ -70,13 +68,13 @@ export function getProgressBarTooltipText(
   return (
     <MuiBox aria-label={'tooltip'} style={classes.tooltip}>
       Number of resources...
-      <div style={classes.div}>
+      <div style={classes.tooltipLine}>
         <span
           style={{
             ...classes.colorBlock,
             background: OpossumColors.pastelDarkGreen,
           }}
-        ></span>
+        />
         <span>
           ...with attributions:{' '}
           {new Intl.NumberFormat().format(
@@ -84,40 +82,40 @@ export function getProgressBarTooltipText(
           )}
         </span>
       </div>
-      <div style={classes.div}>
+      <div style={classes.tooltipLine}>
         <span
           style={{
             ...classes.colorBlock,
             background: OpossumColors.pastelMiddleGreen,
           }}
-        ></span>
+        />
         <span>
-          …with only pre-selected attributions:{' '}
+          ...with only pre-selected attributions:{' '}
           {new Intl.NumberFormat().format(
             progressBarData.filesWithOnlyPreSelectedAttributionCount,
           )}
         </span>
       </div>
-      <div style={classes.div}>
+      <div style={classes.tooltipLine}>
         <span
           style={{ ...classes.colorBlock, background: OpossumColors.pastelRed }}
-        ></span>
+        />
         <span>
-          …with only signals:{' '}
+          ...with only signals:{' '}
           {new Intl.NumberFormat().format(
             progressBarData.filesWithOnlyExternalAttributionCount,
           )}
         </span>
       </div>
-      <div style={classes.div}>
+      <div style={classes.tooltipLine}>
         <span
           style={{
             ...classes.colorBlock,
             background: OpossumColors.lightestBlue,
           }}
-        ></span>
+        />
         <span>
-          …without any signal or attribution:{' '}
+          ...without any signal or attribution:{' '}
           {new Intl.NumberFormat().format(
             progressBarData.fileCount -
               (progressBarData.filesWithManualAttributionCount +
@@ -139,41 +137,41 @@ export function getCriticalityBarTooltipText(
     progressBarData.filesWithMediumCriticalExternalAttributionsCount;
   return (
     <MuiBox aria-label={'tooltip'} style={classes.tooltip}>
-      Number of resources with signals and no attributions…
-      <div style={classes.div} role="tooltip" aria-label="tooltip">
+      Number of resources with signals and no attributions...
+      <div style={classes.tooltipLine} role="tooltip" aria-label="tooltip">
         <span
           style={{ ...classes.colorBlock, background: criticalityColor.high }}
-        ></span>
+        />
         <span>
-          …containing highly critical signals:{' '}
+          ...containing highly critical signals:{' '}
           {new Intl.NumberFormat().format(
             progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
-          )}{' '}
+          )}
         </span>
       </div>
-      <div style={classes.div}>
+      <div style={classes.tooltipLine}>
         <span
           style={{
             ...classes.colorBlock,
             background: criticalityColor.medium,
           }}
-        ></span>
+        />
         <span>
-          …containing medium critical signals:{' '}
+          ...containing medium critical signals:{' '}
           {new Intl.NumberFormat().format(
             progressBarData.filesWithMediumCriticalExternalAttributionsCount,
-          )}{' '}
+          )}
         </span>
       </div>
-      <div style={classes.div}>
+      <div style={classes.tooltipLine}>
         <span
           style={{
             ...classes.colorBlock,
             background: OpossumColors.lightestBlue,
           }}
-        ></span>
+        />
         <span>
-          …containing only non-critical signals:{' '}
+          ...containing only non-critical signals:{' '}
           {new Intl.NumberFormat().format(
             filesWithNonCriticalExternalAttributions,
           )}

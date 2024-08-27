@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
-import { ResponsiveBar } from '@nivo/bar';
+import { BarDatum, ResponsiveBar } from '@nivo/bar';
 
 import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { ProgressBarData } from '../../types/types';
@@ -18,7 +18,6 @@ const classes = {
   bar: {
     '&:hover': {
       cursor: 'pointer',
-      opacity: 1,
     },
   },
 };
@@ -42,13 +41,13 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       ? resourcesWithCriticalExternalAttributions
       : props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
   );
-  const data: Array<{ [key: string]: number }> = props.showCriticalSignals
+  const data: Array<BarDatum> = props.showCriticalSignals
     ? [
         {
-          high_critical:
+          highCritical:
             props.progressBarData
               .filesWithHighlyCriticalExternalAttributionsCount,
-          medium_critical:
+          mediumCritical:
             props.progressBarData
               .filesWithMediumCriticalExternalAttributionsCount,
           rest:
@@ -78,7 +77,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       <ResponsiveBar
         data={data}
         keys={Object.keys(data[0])}
-        margin={{ top: 5, right: 1, bottom: 5, left: 6 }}
+        margin={{ top: 4, bottom: 4 }}
         maxValue={
           props.showCriticalSignals
             ? props.progressBarData.filesWithOnlyExternalAttributionCount
