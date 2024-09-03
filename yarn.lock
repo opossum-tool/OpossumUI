@@ -3245,7 +3245,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.53.2":
+"@tanstack/react-query@npm:^5.53.3":
   version: 5.53.3
   resolution: "@tanstack/react-query@npm:5.53.3"
   dependencies:
@@ -9848,7 +9848,7 @@ __metadata:
     "@playwright/test": "npm:^1.46.1"
     "@reduxjs/toolkit": "npm:^2.2.7"
     "@tanstack/eslint-plugin-query": "npm:^5.53.0"
-    "@tanstack/react-query": "npm:^5.53.2"
+    "@tanstack/react-query": "npm:^5.53.3"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/jest-dom": "npm:^6.5.0"
     "@testing-library/react": "npm:^16.0.1"
