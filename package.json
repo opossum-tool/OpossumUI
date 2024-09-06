@@ -51,7 +51,7 @@
     "@eslint/compat": "^1.1.1",
     "@eslint/js": "^9.9.1",
     "@faker-js/faker": "^8.4.1",
-    "@playwright/test": "^1.46.1",
+    "@playwright/test": "^1.47.0",
     "@tanstack/eslint-plugin-query": "^5.53.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.5.0",
