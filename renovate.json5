@@ -58,6 +58,7 @@
         'mockdate',
         'nunjucks',
         'object-hash',
+        'packageurl-js',
         'prettier',
         'prop-types',
         'proxy-memoize',

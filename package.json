@@ -24,7 +24,7 @@
     "jsonschema": "^1.4.1",
     "lodash": "^4.17.21",
     "object-hash": "^3.0.0",
-    "packageurl-js": "^2.0.0",
+    "packageurl-js": "^2.0.1",
     "proxy-memoize": "^3.0.1",
     "re-resizable": "^6.9.17",
     "react": "^18.3.1",
