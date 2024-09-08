@@ -372,7 +372,9 @@ class PackageSearchModule {
     props: Partial<VersionsResponse> = {},
   ): VersionsResponse {
     return {
-      versions: faker.helpers.multiple(PackageSearchModule.versionResponse),
+      versions: faker.helpers.multiple(() =>
+        PackageSearchModule.versionResponse(),
+      ),
       ...props,
     };
   }
@@ -464,7 +466,7 @@ class PackageSearchModule {
 
   public static links(props: Partial<Links> = {}): Links {
     return {
-      origins: faker.helpers.multiple(faker.internet.url),
+      origins: faker.helpers.multiple(() => faker.internet.url()),
       homepage: faker.internet.url(),
       repo: faker.internet.url(),
       issues: faker.internet.url(),
