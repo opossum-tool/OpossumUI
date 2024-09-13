@@ -17,7 +17,7 @@ export function getFilePathWithAppendix(
   return basePath.concat(fileNameWithAppendix);
 }
 
-function getBasePaths(resourceFilePath: string | Buffer | URL): {
+function getBasePaths(resourceFilePath: fs.PathLike): {
   baseFileName: string;
   basePath: string;
 } {
@@ -30,7 +30,7 @@ function getBasePaths(resourceFilePath: string | Buffer | URL): {
   return { baseFileName, basePath };
 }
 
-function getFileExtension(resourceFilePath: string | Buffer | URL): string {
+function getFileExtension(resourceFilePath: fs.PathLike): string {
   const gzipFileExtension = '.gz';
   const fileIsGziped =
     path.extname(resourceFilePath.toString()) === gzipFileExtension;
