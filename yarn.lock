@@ -3793,7 +3793,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.3.6":
+"@types/react@npm:*, @types/react@npm:^18.3.7":
   version: 18.3.7
   resolution: "@types/react@npm:18.3.7"
   dependencies:
@@ -10180,7 +10180,7 @@ __metadata:
     "@types/lodash": "npm:^4.17.7"
     "@types/node": "npm:^20.16.5"
     "@types/object-hash": "npm:^3.0.6"
-    "@types/react": "npm:^18.3.6"
+    "@types/react": "npm:^18.3.7"
     "@types/react-dom": "npm:^18.3.0"
     "@types/recharts": "npm:^1.8.29"
     "@types/stream-json": "npm:^1.7.7"
