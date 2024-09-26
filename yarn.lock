@@ -3742,7 +3742,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.16.7, @types/node@npm:^20.9.0":
+"@types/node@npm:*, @types/node@npm:^20.16.9, @types/node@npm:^20.9.0":
   version: 20.16.9
   resolution: "@types/node@npm:20.16.9"
   dependencies:
@@ -10195,7 +10195,7 @@ __metadata:
     "@types/jest": "npm:^29.5.13"
     "@types/js-yaml": "npm:^4.0.9"
     "@types/lodash": "npm:^4.17.9"
-    "@types/node": "npm:^20.16.7"
+    "@types/node": "npm:^20.16.9"
     "@types/object-hash": "npm:^3.0.6"
     "@types/react": "npm:^18.3.9"
     "@types/react-dom": "npm:^18.3.0"
