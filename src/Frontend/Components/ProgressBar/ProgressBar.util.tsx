@@ -47,10 +47,9 @@ const classes = {
     fontSize: 12,
     margin: 2,
     fontWeight: 500,
-    position: 'relative',
-    top: '200',
+    transform: 'translate(0px, 168px)',
   } as CSSProperties,
-  tooltipLine: { display: 'flex', 'align-items': 'center', padding: 4 },
+  tooltipLine: { display: 'flex', alignItems: 'center', padding: 4 },
   colorBlock: {
     display: 'block',
     width: 12,
@@ -62,9 +61,9 @@ const classes = {
   },
 };
 
-export function getProgressBarTooltipText(
-  progressBarData: ProgressBarData,
-): React.ReactNode {
+export const ProgressBarTooltip: React.FC<ProgressBarData> = (
+  progressBarData,
+) => {
   return (
     <MuiBox aria-label={'tooltip'} style={classes.tooltip}>
       Number of resources...
@@ -126,11 +125,9 @@ export function getProgressBarTooltipText(
       </div>
     </MuiBox>
   );
-}
+};
 
-export function getCriticalityBarTooltipText(
-  progressBarData: ProgressBarData,
-): React.ReactNode {
+export const CriticalityBarTooltip = (progressBarData: ProgressBarData) => {
   const filesWithNonCriticalExternalAttributions =
     progressBarData.filesWithOnlyExternalAttributionCount -
     progressBarData.filesWithHighlyCriticalExternalAttributionsCount -
@@ -179,4 +176,4 @@ export function getCriticalityBarTooltipText(
       </div>
     </MuiBox>
   );
-}
+};

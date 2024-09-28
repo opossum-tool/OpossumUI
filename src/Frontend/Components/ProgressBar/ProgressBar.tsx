@@ -10,8 +10,8 @@ import { ReactElement } from 'react';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { ProgressBarData } from '../../types/types';
 import {
-  getCriticalityBarTooltipText,
-  getProgressBarTooltipText,
+  CriticalityBarTooltip,
+  ProgressBarTooltip,
   useOnProgressBarClick,
 } from './ProgressBar.util';
 
@@ -106,9 +106,11 @@ export function ProgressBar(props: ProgressBarProps): ReactElement {
         }
         labelTextColor="black"
         tooltip={() =>
-          props.showCriticalSignals
-            ? getCriticalityBarTooltipText(props.progressBarData)
-            : getProgressBarTooltipText(props.progressBarData)
+          props.showCriticalSignals ? (
+            <CriticalityBarTooltip {...props.progressBarData} />
+          ) : (
+            <ProgressBarTooltip {...props.progressBarData} />
+          )
         }
         onClick={
           props.showCriticalSignals ? onCriticalityBarClick : onProgressBarClick
