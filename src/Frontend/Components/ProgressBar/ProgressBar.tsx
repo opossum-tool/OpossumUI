@@ -9,8 +9,8 @@ import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { ProgressBarData } from '../../types/types';
 import {
-  getCriticalityBarTooltipText,
-  getProgressBarTooltipText,
+  CriticalityBarTooltip,
+  ProgressBarTooltip,
   useOnProgressBarClick,
 } from './ProgressBar.util';
 
@@ -105,9 +105,11 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
         }
         labelTextColor="black"
         tooltip={() =>
-          props.showCriticalSignals
-            ? getCriticalityBarTooltipText(props.progressBarData)
-            : getProgressBarTooltipText(props.progressBarData)
+          props.showCriticalSignals ? (
+            <CriticalityBarTooltip {...props.progressBarData} />
+          ) : (
+            <ProgressBarTooltip {...props.progressBarData} />
+          )
         }
         onClick={
           props.showCriticalSignals ? onCriticalityBarClick : onProgressBarClick
