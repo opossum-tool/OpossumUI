@@ -8,6 +8,7 @@
     ':automergeLinters',
     ':automergeTesters',
     'monorepo:yarn',
+    'monorepo:nivo',
   ],
   postUpdateOptions: ['yarnDedupeHighest'],
   addLabels: ['dependencies'],
