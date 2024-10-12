@@ -4368,9 +4368,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"app-builder-lib@npm:25.1.7":
-  version: 25.1.7
-  resolution: "app-builder-lib@npm:25.1.7"
+"app-builder-lib@npm:25.1.8":
+  version: 25.1.8
+  resolution: "app-builder-lib@npm:25.1.8"
   dependencies:
     "@develar/schema-utils": "npm:~2.6.5"
     "@electron/notarize": "npm:2.5.0"
@@ -4405,9 +4405,9 @@ __metadata:
     tar: "npm:^6.1.12"
     temp-file: "npm:^3.4.0"
   peerDependencies:
-    dmg-builder: 25.1.7
-    electron-builder-squirrel-windows: 25.1.7
-  checksum: 10/44c46ccd8c28559d53f29ef4fa431ed4b204047393fcf3a8b4f14b2d701f981c646f0b7eb04fcbaa8929068a9262c2f9d1be5063f925484c57dde3fd99206c11
+    dmg-builder: 25.1.8
+    electron-builder-squirrel-windows: 25.1.8
+  checksum: 10/0af82ffd8389b6dbacffd0ee3191ed056b411f069c362e0f676bf00413d8cb14f0d6d9047e1ab388a578e7f41c8338daa489a259de1203d4b9fc465254dda685
   languageName: node
   linkType: hard
 
@@ -5899,11 +5899,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dmg-builder@npm:25.1.7":
-  version: 25.1.7
-  resolution: "dmg-builder@npm:25.1.7"
+"dmg-builder@npm:25.1.8":
+  version: 25.1.8
+  resolution: "dmg-builder@npm:25.1.8"
   dependencies:
-    app-builder-lib: "npm:25.1.7"
+    app-builder-lib: "npm:25.1.8"
     builder-util: "npm:25.1.7"
     builder-util-runtime: "npm:9.2.10"
     dmg-license: "npm:^1.0.11"
@@ -5913,7 +5913,7 @@ __metadata:
   dependenciesMeta:
     dmg-license:
       optional: true
-  checksum: 10/91d0316516dde3b483cb296b1ad66289ff64085192701442e8045aac5905952b6b055a1334dca5848434937c3040b0a3a2614fdfb8a6d4aba8468ae18afb3312
+  checksum: 10/e776d27f1841a585db56e63b946b91aae89a1661ba5801b3adf0ff39996f7aad6090889eea6cc4db19c1664d86d9958ab0b3001bc2b69e97375e63ce3e5fe24e
   languageName: node
   linkType: hard
 
@@ -6054,15 +6054,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-builder@npm:^25.1.7":
-  version: 25.1.7
-  resolution: "electron-builder@npm:25.1.7"
+"electron-builder@npm:^25.1.8":
+  version: 25.1.8
+  resolution: "electron-builder@npm:25.1.8"
   dependencies:
-    app-builder-lib: "npm:25.1.7"
+    app-builder-lib: "npm:25.1.8"
     builder-util: "npm:25.1.7"
     builder-util-runtime: "npm:9.2.10"
     chalk: "npm:^4.1.2"
-    dmg-builder: "npm:25.1.7"
+    dmg-builder: "npm:25.1.8"
     fs-extra: "npm:^10.1.0"
     is-ci: "npm:^3.0.0"
     lazy-val: "npm:^1.0.5"
@@ -6071,7 +6071,7 @@ __metadata:
   bin:
     electron-builder: cli.js
     install-app-deps: install-app-deps.js
-  checksum: 10/0a83dab031461e24feac8ed873dbe109f22a0d579352b84ca81dcaaee5ea8d0513970219383f1ca8935cfca7023d2206420cc4875b1846dd58dce9cd0443b1ab
+  checksum: 10/d7eb5fd600f243a2824851eb6e4d2fa947bf17c3a78429f9dabc35f4bc32a5c5be90ed98b871475d56aaa2a490168a19d906a5aa5eb0d9744885f45412bef1b7
   languageName: node
   linkType: hard
 
@@ -10150,7 +10150,7 @@ __metadata:
     dotenv: "npm:^16.4.5"
     dpdm: "npm:^3.14.0"
     electron: "npm:32.2.0"
-    electron-builder: "npm:^25.1.7"
+    electron-builder: "npm:^25.1.8"
     electron-log: "npm:^5.2.0"
     electron-playwright-helpers: "npm:^1.7.1"
     electron-settings: "npm:^4.0.4"
