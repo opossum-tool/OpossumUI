@@ -76,7 +76,7 @@
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "dpdm": "^3.14.0",
-    "electron": "33.0.0",
+    "electron": "33.0.1",
     "electron-builder": "^25.1.8",
     "electron-playwright-helpers": "^1.7.1",
     "eslint": "^9.12.0",
