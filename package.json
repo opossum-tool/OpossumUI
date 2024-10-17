@@ -54,7 +54,7 @@
     "@playwright/test": "^1.48.1",
     "@tanstack/eslint-plugin-query": "^5.59.7",
     "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/jest-dom": "^6.6.1",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
