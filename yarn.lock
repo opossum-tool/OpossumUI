@@ -6584,7 +6584,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-testing-library@npm:^6.3.2":
+"eslint-plugin-testing-library@npm:^6.3.4":
   version: 6.4.0
   resolution: "eslint-plugin-testing-library@npm:6.4.0"
   dependencies:
@@ -10161,7 +10161,7 @@ __metadata:
     eslint-plugin-playwright: "npm:^1.7.0"
     eslint-plugin-react: "npm:^7.37.1"
     eslint-plugin-react-hooks: "npm:^4.6.2"
-    eslint-plugin-testing-library: "npm:^6.3.2"
+    eslint-plugin-testing-library: "npm:^6.3.4"
     fast-csv: "npm:^5.0.1"
     fflate: "npm:^0.8.2"
     husky: "npm:9.1.6"
