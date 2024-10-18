@@ -10183,7 +10183,7 @@ __metadata:
     re-resizable: "npm:^6.10.0"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    react-error-boundary: "npm:^4.1.0"
+    react-error-boundary: "npm:^4.1.1"
     react-hot-toast: "npm:^2.4.1"
     react-hotkeys-hook: "npm:^4.5.1"
     react-redux: "npm:^9.1.2"
@@ -10759,14 +10759,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-error-boundary@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "react-error-boundary@npm:4.1.0"
+"react-error-boundary@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "react-error-boundary@npm:4.1.1"
   dependencies:
     "@babel/runtime": "npm:^7.12.5"
   peerDependencies:
     react: ">=16.13.1"
-  checksum: 10/f564911edcddcfc832630adc430ba24531af803aae253d69c905765e9b12a3b131c50d378dd8a6f429648948379c8e6515b0f1a1cf1f6625ea2cd91ffcbbc32f
+  checksum: 10/06ad1e4fb0d12e5067e8ffcccf0b058a3da804c9e48b5181d0be4af4afcb3e09186f0a73cbc4494d931fff8988408f0e9377635cb0c69292bb6603f8a6a7604e
   languageName: node
   linkType: hard
 
