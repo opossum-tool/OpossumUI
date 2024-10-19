@@ -62,7 +62,7 @@
     "@types/eslint__js": "^8.42.3",
     "@types/jest": "^29.5.13",
     "@types/js-yaml": "^4.0.9",
-    "@types/lodash": "^4.17.10",
+    "@types/lodash": "^4.17.11",
     "@types/node": "^20.16.12",
     "@types/object-hash": "^3.0.6",
     "@types/react": "^18.3.11",
