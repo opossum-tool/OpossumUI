@@ -5,13 +5,13 @@
 // @ts-check
 import { fixupPluginRules } from '@eslint/compat';
 import eslint from '@eslint/js';
-import * as eslintPluginQuery from '@tanstack/eslint-plugin-query';
+import eslintPluginQuery from '@tanstack/eslint-plugin-query';
 import eslintConfigFilenames from 'eslint-plugin-filenames-simple';
 import eslintConfigJest from 'eslint-plugin-jest';
 import eslintConfigJestDom from 'eslint-plugin-jest-dom';
 import eslintConfigPlaywright from 'eslint-plugin-playwright';
+import eslintConfigReact from 'eslint-plugin-react';
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
-import eslintConfigReact from 'eslint-plugin-react/configs/recommended.js';
 import eslintConfigTestingLibrary from 'eslint-plugin-testing-library';
 import tseslint from 'typescript-eslint';
 
@@ -20,8 +20,7 @@ export default tseslint.config(
     plugins: {
       filenames: eslintConfigFilenames,
       jest: eslintConfigJest,
-      // @ts-ignore
-      '@tanstack/query': fixupPluginRules(eslintPluginQuery.default),
+      '@tanstack/query': eslintPluginQuery,
       // @ts-ignore
       'react-hooks': fixupPluginRules(eslintPluginReactHooks),
     },
@@ -56,11 +55,11 @@ export default tseslint.config(
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
-      eslintConfigReact,
-      eslintConfigTestingLibrary['flat/react'],
-      eslintConfigJest['flat/recommended'],
-      eslintConfigJest['flat/style'],
-      eslintConfigJestDom['flat/recommended'],
+      eslintConfigReact.configs.flat.recommended,
+      eslintConfigTestingLibrary.configs['flat/react'],
+      eslintConfigJest.configs['flat/recommended'],
+      eslintConfigJest.configs['flat/style'],
+      eslintConfigJestDom.configs['flat/recommended'],
     ],
     settings: {
       react: {
@@ -69,7 +68,7 @@ export default tseslint.config(
     },
     // @ts-ignore
     rules: {
-      ...eslintPluginQuery.default.configs.recommended.rules,
+      ...eslintPluginQuery.configs.recommended.rules,
       ...eslintPluginReactHooks.configs.recommended.rules,
       'react/display-name': 'off',
       'react/prop-types': 'off',

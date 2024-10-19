@@ -424,6 +424,7 @@ describe('PackagesPanel', () => {
       screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
     ).toBeInTheDocument();
     expect(
+      // eslint-disable-next-line testing-library/no-node-access
       screen.queryByRole('tab', { name: new RegExp(text.relations.children) }),
     ).not.toBeInTheDocument();
     expect(

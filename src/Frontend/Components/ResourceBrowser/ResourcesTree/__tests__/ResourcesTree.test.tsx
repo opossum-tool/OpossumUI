@@ -1,3 +1,4 @@
+/* eslint-disable testing-library/no-node-access */
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
