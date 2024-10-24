@@ -18,7 +18,7 @@
     "dayjs": "^1.11.13",
     "electron-log": "^5.2.0",
     "electron-settings": "^4.0.4",
-    "fast-csv": "^5.0.1",
+    "fast-csv": "^5.0.2",
     "fflate": "^0.8.2",
     "js-yaml": "^4.1.0",
     "jsonschema": "^1.4.1",

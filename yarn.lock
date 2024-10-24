@@ -2206,22 +2206,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fast-csv/format@npm:5.0.0":
-  version: 5.0.0
-  resolution: "@fast-csv/format@npm:5.0.0"
+"@fast-csv/format@npm:5.0.2":
+  version: 5.0.2
+  resolution: "@fast-csv/format@npm:5.0.2"
   dependencies:
     lodash.escaperegexp: "npm:^4.1.2"
     lodash.isboolean: "npm:^3.0.3"
     lodash.isequal: "npm:^4.5.0"
     lodash.isfunction: "npm:^3.0.9"
     lodash.isnil: "npm:^4.0.0"
-  checksum: 10/c2ef812401b9167ca2a883dfee953c8273687b8433a17ba29008fd02d3f0cba6fdc7c6415be97c3f7fa0a6dbe8aa788d4e1cafbbecb9253790572e844f1b9f71
+  checksum: 10/69e758e4756ac3bb66da35b45d15eccf7c0163f0ac3fb71d699e8c91fc1d8f74086de918b4f90f1afd8fc6cf25bec4ac180786f4ed5f9a8dfa842969b8dbb518
   languageName: node
   linkType: hard
 
-"@fast-csv/parse@npm:5.0.0":
-  version: 5.0.0
-  resolution: "@fast-csv/parse@npm:5.0.0"
+"@fast-csv/parse@npm:5.0.2":
+  version: 5.0.2
+  resolution: "@fast-csv/parse@npm:5.0.2"
   dependencies:
     lodash.escaperegexp: "npm:^4.1.2"
     lodash.groupby: "npm:^4.6.0"
@@ -2229,7 +2229,7 @@ __metadata:
     lodash.isnil: "npm:^4.0.0"
     lodash.isundefined: "npm:^3.0.1"
     lodash.uniq: "npm:^4.5.0"
-  checksum: 10/1bd8e3a2066c7c09678f5373be60d5e78296f775d3e31b7b38356109457c8005cafc075541734732b042e764ae722c814852bee5a93e0317c73f9febedcf9914
+  checksum: 10/700b59345d0c128793472ad810e1bd5b19b9ad35457afa8b6645701ae04c7abf4f795cfe08de1cbfeb5ebe6cfa5c51eb7e1f67feaf6df99dd8e0c82dbdb1fdaa
   languageName: node
   linkType: hard
 
@@ -6859,13 +6859,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-csv@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "fast-csv@npm:5.0.1"
+"fast-csv@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "fast-csv@npm:5.0.2"
   dependencies:
-    "@fast-csv/format": "npm:5.0.0"
-    "@fast-csv/parse": "npm:5.0.0"
-  checksum: 10/ba9e66abc63d49c723784492da1477bce26af9db9b0ba66967a3ffa2ca3e4c69642963b19e4d20dd55f0452c945a72aa07adbb5d42875b31845490e5728e7820
+    "@fast-csv/format": "npm:5.0.2"
+    "@fast-csv/parse": "npm:5.0.2"
+  checksum: 10/c3356a97b19df3f49b1bb8869c76a79dadba89032138dce8f27de802c171d30822c4ac50d519721a8273f9cdff6094bf3071aff11f0a57752c56f0fef8e90429
   languageName: node
   linkType: hard
 
@@ -10161,7 +10161,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.37.2"
     eslint-plugin-react-hooks: "npm:^5.0.0"
     eslint-plugin-testing-library: "npm:^6.4.0"
-    fast-csv: "npm:^5.0.1"
+    fast-csv: "npm:^5.0.2"
     fflate: "npm:^0.8.2"
     husky: "npm:9.1.6"
     jest: "npm:^29.7.0"
