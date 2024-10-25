@@ -10191,7 +10191,7 @@ __metadata:
     run-script-os: "npm:^1.1.6"
     spdx-license-ids: "npm:^3.0.20"
     start-server-and-test: "npm:^2.0.8"
-    stream-json: "npm:^1.8.0"
+    stream-json: "npm:^1.9.0"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.6.3"
     typescript-eslint: "npm:^8.11.0"
@@ -11868,12 +11868,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stream-json@npm:^1.8.0":
-  version: 1.8.0
-  resolution: "stream-json@npm:1.8.0"
+"stream-json@npm:^1.9.0":
+  version: 1.9.0
+  resolution: "stream-json@npm:1.9.0"
   dependencies:
     stream-chain: "npm:^2.2.5"
-  checksum: 10/a1cc448dd71267e1e44bfae4a2b0590690213c97dd6d273cc93e345aa2442b0f959e7a3da6cfa5386a6718e0f8afee0774be5b13126a6e79943499fbc4479f6c
+  checksum: 10/ee88617342ffbb10f01e089eedd5904d910eb134dd2d6521893e58dd0ae95bbd2bff0529f770ce9a458798314de048fdb0c4b46c5742060bc94f1837c38b1da0
   languageName: node
   linkType: hard
 
