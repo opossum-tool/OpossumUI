@@ -10144,7 +10144,7 @@ __metadata:
     react-hotkeys-hook: "npm:^4.5.1"
     react-redux: "npm:^9.1.2"
     react-virtuoso: "npm:4.7.6"
-    recharts: "npm:^2.13.1"
+    recharts: "npm:^2.13.2"
     run-script-os: "npm:^1.1.6"
     spdx-license-ids: "npm:^3.0.20"
     start-server-and-test: "npm:^2.0.8"
@@ -10897,7 +10897,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recharts@npm:^2.13.1":
+"recharts@npm:^2.13.2":
   version: 2.13.2
   resolution: "recharts@npm:2.13.2"
   dependencies:
