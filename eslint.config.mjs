@@ -55,7 +55,7 @@ export default tseslint.config(
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
-      eslintConfigReact.configs.flat.recommended,
+      eslintConfigReact.configs.flat?.recommended,
       eslintConfigTestingLibrary.configs['flat/react'],
       eslintConfigJest.configs['flat/recommended'],
       eslintConfigJest.configs['flat/style'],
@@ -109,7 +109,10 @@ export default tseslint.config(
         'error',
         { allowBoolean: true, allowNumber: true, allowNever: true },
       ],
-      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      '@typescript-eslint/switch-exhaustiveness-check': [
+        'error',
+        { considerDefaultExhaustiveForUnions: true },
+      ],
       'jest/consistent-test-it': 'error',
       'jest/prefer-spy-on': 'error',
       'filenames/naming-convention': [
