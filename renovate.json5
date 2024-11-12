@@ -9,7 +9,6 @@
     ':automergeTesters',
     'monorepo:yarn',
   ],
-  postUpdateOptions: ['yarnDedupeHighest'],
   addLabels: ['dependencies'],
   automergeType: 'branch',
   prConcurrentLimit: 5,
