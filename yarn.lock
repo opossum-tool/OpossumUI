@@ -3831,13 +3831,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/stream-json@npm:^1.7.7":
-  version: 1.7.7
-  resolution: "@types/stream-json@npm:1.7.7"
+"@types/stream-json@npm:^1.7.8":
+  version: 1.7.8
+  resolution: "@types/stream-json@npm:1.7.8"
   dependencies:
     "@types/node": "npm:*"
     "@types/stream-chain": "npm:*"
-  checksum: 10/a9f1ce0e59a4dd88f72623748b218ccc6d22f41f2e7b1dcc72b6d4ee15006f46d7d2d77b24a19ee4c7d34a3c94b2c6171eb400dfcf4fd2ad5a48a668284ccc03
+  checksum: 10/5712526d446850b779cba1ae4d93b58683d3fd9799a328195168751aa8cab354c03b52dca228733c3dbbb5c6d918594f5697571d62c61f34b131b2f9fcdcd1f2
   languageName: node
   linkType: hard
 
@@ -10186,7 +10186,7 @@ __metadata:
     "@types/react": "npm:^18.3.12"
     "@types/react-dom": "npm:^18.3.1"
     "@types/recharts": "npm:^1.8.29"
-    "@types/stream-json": "npm:^1.7.7"
+    "@types/stream-json": "npm:^1.7.8"
     "@types/uuid": "npm:^10.0.0"
     "@vitejs/plugin-react": "npm:^4.3.3"
     babel-jest: "npm:^29.7.0"
