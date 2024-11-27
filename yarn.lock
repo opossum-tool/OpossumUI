@@ -10234,7 +10234,7 @@ __metadata:
     nunjucks: "npm:^3.2.4"
     object-hash: "npm:^3.0.0"
     packageurl-js: "npm:^2.0.1"
-    prettier: "npm:^3.4.0"
+    prettier: "npm:^3.4.1"
     prettier-plugin-sh: "npm:^0.14.0"
     proxy-memoize: "npm:^3.0.1"
     re-resizable: "npm:^6.10.1"
@@ -10632,7 +10632,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.4.0":
+"prettier@npm:^3.4.1":
   version: 3.4.1
   resolution: "prettier@npm:3.4.1"
   bin:
