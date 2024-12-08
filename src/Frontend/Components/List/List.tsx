@@ -63,9 +63,7 @@ export function List({
       {loading && <StyledLinearProgress data-testid={'loading'} />}
       {data && (
         // Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
-        <VirtuosoComponentContext.Provider
-          value={{ isVirtuosoFocused, loading }}
-        >
+        <VirtuosoComponentContext value={{ isVirtuosoFocused, loading }}>
           <Virtuoso
             ref={ref}
             onFocus={() => setIsVirtuosoFocused(true)}
@@ -86,7 +84,7 @@ export function List({
             }
             {...props}
           />
-        </VirtuosoComponentContext.Provider>
+        </VirtuosoComponentContext>
       )}
     </LoadingMask>
   );

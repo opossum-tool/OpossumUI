@@ -49,7 +49,6 @@ export default tseslint.config(
       'jest.config.ts',
       'notices.template.html',
       'tools',
-      'typings',
       'vite.config.mts',
     ],
     extends: [

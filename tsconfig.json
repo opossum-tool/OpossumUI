@@ -28,6 +28,6 @@
       "@testing-library/jest-dom"
     ]
   },
-  "include": ["src/**/*", "typings"],
+  "include": ["src/**/*"],
   "exclude": ["src/ElectronBackend/**/*"]
 }

@@ -36,11 +36,11 @@ export function renderComponent(
       wrapper: ({ children }) => (
         <Provider store={store}>
           <QueryClientProvider client={makeReactQueryClient()}>
-            <VirtuosoMockContext.Provider
+            <VirtuosoMockContext
               value={{ itemHeight: 40, viewportHeight: 1200 }}
             >
               {children}
-            </VirtuosoMockContext.Provider>
+            </VirtuosoMockContext>
           </QueryClientProvider>
         </Provider>
       ),
