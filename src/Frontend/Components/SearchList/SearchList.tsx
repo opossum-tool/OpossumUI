@@ -2,14 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { forwardRef } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { ListProps } from 'react-virtuoso';
 
 import { useSearchRef } from '../SearchRefContext/SearchRefContext';
 import { useVirtuosoComponent } from '../VirtuosoComponentContext/VirtuosoComponentContext';
 
-export const SearchList: React.FC<ListProps> = forwardRef((props, ref) => {
+export const SearchList: React.FC<ListProps> = (props) => {
   const searchRef = useSearchRef();
   const { isVirtuosoFocused } = useVirtuosoComponent();
   useHotkeys(
@@ -21,5 +20,5 @@ export const SearchList: React.FC<ListProps> = forwardRef((props, ref) => {
     [isVirtuosoFocused],
   );
 
-  return <div {...props} ref={ref} />;
-});
+  return <div {...props} />;
+};
