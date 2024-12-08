@@ -10,7 +10,6 @@ import MuiTableContainer from '@mui/material/TableContainer';
 import MuiTableHead from '@mui/material/TableHead';
 import MuiTableRow from '@mui/material/TableRow';
 import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
 
 import { tableClasses } from '../../shared-styles';
 
@@ -37,9 +36,9 @@ interface AttributionPropertyCountTableProps {
   title: string;
 }
 
-export function AttributionPropertyCountTable(
-  props: AttributionPropertyCountTableProps,
-): ReactElement {
+export const AttributionPropertyCountTable: React.FC<
+  AttributionPropertyCountTableProps
+> = (props) => {
   const attributionPropertyDisplayNames =
     props.attributionPropertyCountsEntries.map((entry) =>
       _getAttributionPropertyDisplayNameFromId(entry[0].toString()),
@@ -87,7 +86,7 @@ export function AttributionPropertyCountTable(
       </MuiTableContainer>
     </MuiBox>
   );
-}
+};
 
 //exported only for testing
 export function _getAttributionPropertyDisplayNameFromId(

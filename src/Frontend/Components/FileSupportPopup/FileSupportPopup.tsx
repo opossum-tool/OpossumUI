@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
 
 import { ButtonText } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
@@ -28,7 +27,7 @@ const classes = {
   },
 };
 
-export function FileSupportPopup(): ReactElement {
+export const FileSupportPopup: React.FC = () => {
   const dispatch = useAppDispatch();
 
   function close(): void {
@@ -59,4 +58,4 @@ export function FileSupportPopup(): ReactElement {
       aria-label={'file support'}
     />
   );
-}
+};

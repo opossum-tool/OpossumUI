@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiAlert from '@mui/material/Alert';
 import MuiLink from '@mui/material/Link';
 import MuiTypography from '@mui/material/Typography';
 
@@ -11,7 +12,6 @@ import { ButtonText } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { openUrl } from '../../util/open-url';
-import { Alert } from '../Alert/Alert';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { Spinner } from '../Spinner/Spinner';
 import { useLatestRelease } from './UpdateAppPopup.util';
@@ -54,11 +54,9 @@ export function UpdateAppPopup() {
 
     if (latestReleaseError) {
       return (
-        <Alert
-          errorMessage={text.updateAppPopup.fetchFailed(
-            latestReleaseError.message,
-          )}
-        />
+        <MuiAlert severity="error">
+          {text.updateAppPopup.fetchFailed(latestReleaseError.message)}
+        </MuiAlert>
       );
     }
 

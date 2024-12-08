@@ -39,7 +39,7 @@ export type Confirm = (
  */
 export function useConfirmationDialog(
   options?: ConfirmOptions,
-): [React.RefObject<Confirm>, Confirm] {
+): [React.RefObject<Confirm | null>, Confirm] {
   const confirmRef = useRef<Confirm>(null);
 
   const confirm = useCallback<Confirm>(
@@ -63,7 +63,7 @@ export function useConfirmationDialog(
 
 export interface ConfirmationDialogProps {
   title: string;
-  message: React.ReactElement | string;
+  message: React.ReactNode;
 }
 
 /**
@@ -82,7 +82,7 @@ export interface ConfirmationDialogProps {
 export const ConfirmationDialog = forwardRef<Confirm, ConfirmationDialogProps>(
   ({ message, title }, ref) => {
     const [open, setOpen] = useState(false);
-    const resolveRef = useRef<(value: boolean) => void>();
+    const resolveRef = useRef<(value: boolean) => void>(undefined);
 
     useImperativeHandle(
       ref,

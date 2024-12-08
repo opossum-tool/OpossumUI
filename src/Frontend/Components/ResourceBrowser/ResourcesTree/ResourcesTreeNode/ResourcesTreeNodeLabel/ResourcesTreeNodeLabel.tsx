@@ -5,7 +5,6 @@
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
 
 import { Criticality } from '../../../../../../shared/shared-types';
 import { text } from '../../../../../../shared/text';
@@ -33,7 +32,7 @@ interface Props {
   criticality?: Criticality;
 }
 
-export function ResourcesTreeNodeLabel(props: Props): ReactElement {
+export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
   let iconSx: SxProps | undefined;
   let labelDetail: string | undefined;
   if (props.hasManualAttribution) {
@@ -109,4 +108,4 @@ export function ResourcesTreeNodeLabel(props: Props): ReactElement {
         ))}
     </MuiBox>
   );
-}
+};
