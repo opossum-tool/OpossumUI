@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { ReactElement } from 'react';
 
 import { OpenLinkArgs } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
@@ -19,7 +18,7 @@ import {
 } from '../../state/selectors/resource-selectors';
 import { IconButton } from '../IconButton/IconButton';
 
-export function GoToLinkButton(): ReactElement | null {
+export const GoToLinkButton: React.FC = () => {
   const path = useAppSelector(getSelectedResourceId);
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
@@ -95,4 +94,4 @@ export function GoToLinkButton(): ReactElement | null {
       disabled={!openLinkArgs.link}
     />
   );
-}
+};

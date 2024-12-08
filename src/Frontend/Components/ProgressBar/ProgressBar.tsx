@@ -5,7 +5,6 @@
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
-import { ReactElement } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
 import { ProgressBarData } from '../../types/types';
@@ -36,7 +35,7 @@ interface ProgressBarProps {
   showCriticalSignals: boolean;
 }
 
-export function ProgressBar(props: ProgressBarProps): ReactElement {
+export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const onProgressBarClick = useOnProgressBarClick(
     props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
   );
@@ -76,4 +75,4 @@ export function ProgressBar(props: ProgressBarProps): ReactElement {
       </MuiTooltip>
     </MuiBox>
   );
-}
+};

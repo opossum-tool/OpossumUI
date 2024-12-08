@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiButtonBase from '@mui/material/ButtonBase';
 import MuiTooltip, { TooltipProps } from '@mui/material/Tooltip';
-import { ReactElement } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
 
@@ -12,7 +11,7 @@ interface IconButtonProps {
   tooltipTitle?: string;
   tooltipPlacement?: TooltipProps['placement'];
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
-  icon: ReactElement;
+  icon: React.ReactElement<unknown>;
   disabled?: boolean;
   hidden?: boolean;
   'data-testid'?: string;
