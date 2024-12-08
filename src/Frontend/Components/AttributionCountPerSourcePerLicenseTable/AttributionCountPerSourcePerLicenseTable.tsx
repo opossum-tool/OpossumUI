@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { sortBy } from 'lodash';
-import { ReactElement } from 'react';
 
 import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
@@ -25,9 +24,9 @@ interface AttributionCountPerSourcePerLicenseTableProps {
   title: string;
 }
 
-export function AttributionCountPerSourcePerLicenseTable(
-  props: AttributionCountPerSourcePerLicenseTableProps,
-): ReactElement {
+export const AttributionCountPerSourcePerLicenseTable: React.FC<
+  AttributionCountPerSourcePerLicenseTableProps
+> = (props) => {
   const sourceNames = Object.keys(
     props.licenseCounts.totalAttributionsPerSource,
   );
@@ -71,4 +70,4 @@ export function AttributionCountPerSourcePerLicenseTable(
       licenseNamesWithCriticality={props.licenseNamesWithCriticality}
     />
   );
-}
+};

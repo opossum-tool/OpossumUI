@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
 
 import { ROOT_PATH } from '../../../../shared-constants';
 import { treeItemClasses } from '../../../../shared-styles';
@@ -18,11 +17,11 @@ import { TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/Virtualiz
 
 const labelDetail = 'without information';
 
-export function LinkedResourcesTreeNode({
+export const LinkedResourcesTreeNode: React.FC<TreeNode> = ({
   node,
   nodeId,
   nodeName,
-}: TreeNode): ReactElement {
+}) => {
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
 
@@ -57,4 +56,4 @@ export function LinkedResourcesTreeNode({
       </MuiTypography>
     </MuiBox>
   );
-}
+};

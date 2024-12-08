@@ -21,36 +21,6 @@ describe('ProgressBar', () => {
     jest.useRealTimers();
   });
 
-  it('renders regular progress bar', async () => {
-    renderComponent(
-      <ProgressBar
-        showCriticalSignals={false}
-        progressBarData={{
-          fileCount: 6,
-          filesWithHighlyCriticalExternalAttributionsCount: 1,
-          filesWithMediumCriticalExternalAttributionsCount: 1,
-          filesWithManualAttributionCount: 3,
-          filesWithOnlyExternalAttributionCount: 1,
-          filesWithOnlyPreSelectedAttributionCount: 1,
-          resourcesWithMediumCriticalExternalAttributions: [],
-          resourcesWithNonInheritedExternalAttributionOnly: [],
-          resourcesWithHighlyCriticalExternalAttributions: [],
-        }}
-      />,
-    );
-
-    await userEvent.hover(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
-
-    expect(screen.getByText(/Number of resources/)).toBeInTheDocument();
-    expect(screen.getByText(/with attributions: 3/)).toBeInTheDocument();
-    expect(
-      screen.getByText(/with only pre-selected attributions: 1/),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/with only signals: 1/)).toBeInTheDocument();
-  });
-
   it('click on regular progress bar goes to next resource with non-inherited external attributions only', async () => {
     const resourceName1 = faker.opossum.resourceName();
     const resourceId1 = faker.opossum.filePath(resourceName1);
@@ -94,6 +64,36 @@ describe('ProgressBar', () => {
     });
 
     expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
+  });
+
+  it('renders regular progress bar', async () => {
+    renderComponent(
+      <ProgressBar
+        showCriticalSignals={false}
+        progressBarData={{
+          fileCount: 6,
+          filesWithHighlyCriticalExternalAttributionsCount: 1,
+          filesWithMediumCriticalExternalAttributionsCount: 1,
+          filesWithManualAttributionCount: 3,
+          filesWithOnlyExternalAttributionCount: 1,
+          filesWithOnlyPreSelectedAttributionCount: 1,
+          resourcesWithMediumCriticalExternalAttributions: [],
+          resourcesWithNonInheritedExternalAttributionOnly: [],
+          resourcesWithHighlyCriticalExternalAttributions: [],
+        }}
+      />,
+    );
+
+    await userEvent.hover(screen.getByLabelText('ProgressBar'), {
+      advanceTimers: jest.runOnlyPendingTimersAsync,
+    });
+
+    expect(screen.getByText(/Number of resources/)).toBeInTheDocument();
+    expect(screen.getByText(/with attributions: 3/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/with only pre-selected attributions: 1/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/with only signals: 1/)).toBeInTheDocument();
   });
 
   it('renders criticality progress bar', async () => {

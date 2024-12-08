@@ -33,7 +33,7 @@ import {
 import { ClearButton, IconButton } from './FilterButton.style';
 import { LicenseAutocomplete } from './LicenseAutocomplete/LicenseAutocomplete';
 
-const FILTER_ICONS: Record<Filter, React.ReactElement> = {
+const FILTER_ICONS: Record<Filter, React.ReactElement<unknown>> = {
   [text.filters.currentlyPreferred]: <PreferredIcon noTooltip />,
   [text.filters.excludedFromNotice]: <ExcludeFromNoticeIcon noTooltip />,
   [text.filters.notExcludedFromNotice]: <ExcludeFromNoticeIcon noTooltip />,

@@ -7,8 +7,10 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import MuiBox from '@mui/material/Box';
 import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { ReactElement, useState } from 'react';
+import MuiTypography from '@mui/material/Typography';
+import { useState } from 'react';
 
+import commitInfo from '../../../commitInfo.json';
 import { PopupType, View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
@@ -21,7 +23,6 @@ import { getIsPackageInfoModified } from '../../state/selectors/resource-selecto
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { useProgressData } from '../../state/variables/use-progress-data';
 import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
-import { CommitInfoDisplay } from '../CommitInfoDisplay/CommitInfoDisplay';
 import { IconButton } from '../IconButton/IconButton';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
@@ -71,9 +72,13 @@ const classes = {
     background: OpossumColors.darkBlue,
     float: 'right',
   },
+  commitDisplay: {
+    color: OpossumColors.lightBlue,
+    userSelect: 'none',
+  },
 };
 
-export function TopBar(): ReactElement {
+export const TopBar: React.FC = () => {
   const selectedView = useAppSelector(getSelectedView);
   const dispatch = useAppDispatch();
   const isTemporaryPackageInfoModified = useAppSelector(
@@ -138,7 +143,9 @@ export function TopBar(): ReactElement {
         </MuiToggleButton>
       </MuiToggleButtonGroup>
       <MuiBox sx={classes.versionInfo}>
-        <CommitInfoDisplay />
+        <MuiTypography variant={'subtitle2'} sx={classes.commitDisplay}>
+          {commitInfo.commitInfo}
+        </MuiTypography>
       </MuiBox>
     </MuiBox>
   );
@@ -168,4 +175,4 @@ export function TopBar(): ReactElement {
       </MuiBox>
     );
   }
-}
+};

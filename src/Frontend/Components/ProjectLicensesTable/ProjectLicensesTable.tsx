@@ -11,7 +11,6 @@ import MuiTableFooter from '@mui/material/TableFooter';
 import MuiTableHead from '@mui/material/TableHead';
 import MuiTableRow from '@mui/material/TableRow';
 import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { OpossumColors, tableClasses } from '../../shared-styles';
@@ -34,9 +33,9 @@ interface ProjectLicensesTableProps {
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
 }
 
-export function ProjectLicensesTable(
-  props: ProjectLicensesTableProps,
-): ReactElement {
+export const ProjectLicensesTable: React.FC<ProjectLicensesTableProps> = (
+  props,
+) => {
   return (
     <MuiBox>
       <MuiTypography variant="subtitle1">{props.title}</MuiTypography>
@@ -105,4 +104,4 @@ export function ProjectLicensesTable(
       </MuiTableContainer>
     </MuiBox>
   );
-}
+};

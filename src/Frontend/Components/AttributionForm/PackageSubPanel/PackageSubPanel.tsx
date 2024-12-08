@@ -194,7 +194,7 @@ export function PackageSubPanel({
     );
   }
 
-  function renderPurl(): React.ReactElement {
+  function renderPurl() {
     const purl = generatePurl(packageInfo);
 
     return (
