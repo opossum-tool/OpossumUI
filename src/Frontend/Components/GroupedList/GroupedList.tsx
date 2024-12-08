@@ -98,9 +98,7 @@ export function GroupedList({
       {loading && <StyledLinearProgress data-testid={'loading'} />}
       {groups && (
         // Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
-        <VirtuosoComponentContext.Provider
-          value={{ isVirtuosoFocused, loading }}
-        >
+        <VirtuosoComponentContext value={{ isVirtuosoFocused, loading }}>
           <GroupedVirtuoso
             ref={ref}
             onFocus={() => setIsVirtuosoFocused(true)}
@@ -133,7 +131,7 @@ export function GroupedList({
             }
             {...props}
           />
-        </VirtuosoComponentContext.Provider>
+        </VirtuosoComponentContext>
       )}
     </LoadingMask>
   );

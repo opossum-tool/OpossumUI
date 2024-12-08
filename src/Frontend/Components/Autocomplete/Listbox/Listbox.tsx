@@ -12,7 +12,7 @@ import {
 } from '@mui/material/useAutocomplete';
 import { SxProps } from '@mui/system';
 import { groupBy as _groupBy } from 'lodash';
-import { forwardRef, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { GroupedVirtuoso, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import { GroupContainer, styles } from './Listbox.style';
@@ -21,6 +21,7 @@ export type ListboxProps<
   Value,
   FreeSolo extends boolean | undefined,
 > = React.HTMLAttributes<HTMLElement> & {
+  ref?: React.RefObject<HTMLDivElement>;
   virtuosoRef: React.RefObject<VirtuosoHandle | null>;
   options: Array<Value>;
   groupProps?: {
@@ -61,147 +62,134 @@ interface Groups<Value> {
   firstSelectedIndex: number;
 }
 
-export const Listbox = forwardRef(
-  <Value, FreeSolo extends boolean | undefined>(
-    {
-      virtuosoRef,
-      closePopper,
-      getOptionKey,
-      getOptionProps,
-      groupBy,
-      groupProps,
-      optionText,
-      options,
-      renderOptionEndIcon,
-      renderOptionStartIcon,
-      ...listboxProps
-    }: ListboxProps<Value, FreeSolo>,
-    forwardedRef: React.ForwardedRef<HTMLDivElement>,
-  ) => {
-    const [height, setHeight] = useState<number>(Number.MAX_SAFE_INTEGER); // will result in max-height
+export const Listbox = <Value, FreeSolo extends boolean | undefined>({
+  virtuosoRef,
+  closePopper,
+  getOptionKey,
+  getOptionProps,
+  groupBy,
+  groupProps,
+  optionText,
+  options,
+  renderOptionEndIcon,
+  renderOptionStartIcon,
+  ref,
+  ...listboxProps
+}: ListboxProps<Value, FreeSolo>) => {
+  const [height, setHeight] = useState<number>(Number.MAX_SAFE_INTEGER); // will result in max-height
 
-    const groups = useMemo((): Groups<Value> | undefined => {
-      if (!groupBy) {
-        return undefined;
-      }
+  const groups = useMemo((): Groups<Value> | undefined => {
+    if (!groupBy) {
+      return undefined;
+    }
 
-      const grouped = _groupBy(options, groupBy);
-      const flattened = Object.values(grouped).flat();
+    const grouped = _groupBy(options, groupBy);
+    const flattened = Object.values(grouped).flat();
 
-      return {
-        options: flattened,
-        groupNames: Object.keys(grouped),
-        groupCounts: Object.values(grouped).map((group) => group.length),
-        firstSelectedIndex: flattened.findIndex(
-          (option, index) =>
-            !!getOptionProps({ option, index })['aria-selected'],
-        ),
-      };
-    }, [getOptionProps, groupBy, options]);
+    return {
+      options: flattened,
+      groupNames: Object.keys(grouped),
+      groupCounts: Object.values(grouped).map((group) => group.length),
+      firstSelectedIndex: flattened.findIndex(
+        (option, index) => !!getOptionProps({ option, index })['aria-selected'],
+      ),
+    };
+  }, [getOptionProps, groupBy, options]);
+
+  return (
+    <MuiPaper {...listboxProps} ref={ref} elevation={4} square role={'listbox'}>
+      {groups ? renderGroupedList(groups) : renderList(options)}
+    </MuiPaper>
+  );
+
+  function renderGroupedList({
+    groupCounts,
+    groupNames,
+    options,
+    firstSelectedIndex,
+  }: Groups<Value>) {
+    return (
+      <GroupedVirtuoso
+        ref={virtuosoRef}
+        style={{ ...styles.virtuoso, height }}
+        increaseViewportBy={20}
+        initialTopMostItemIndex={
+          ~firstSelectedIndex && {
+            index: firstSelectedIndex,
+            align: 'center',
+          }
+        }
+        totalListHeightChanged={setHeight}
+        groupCounts={groupCounts}
+        groupContent={(index) => {
+          const IconComp = groupProps?.icon || (() => null);
+          const ActionComp = groupProps?.action || (() => null);
+
+          return (
+            <GroupContainer role={'group'}>
+              <IconComp name={groupNames[index]} />
+              <MuiTypography
+                sx={{ ...styles.overflowEllipsis, paddingTop: '2px' }}
+              >
+                {groupNames[index]}
+              </MuiTypography>
+              <ActionComp name={groupNames[index]} />
+            </GroupContainer>
+          );
+        }}
+        itemContent={(index) => renderOption({ index, option: options[index] })}
+      />
+    );
+  }
+
+  function renderList(options: Array<Value>) {
+    return (
+      <Virtuoso
+        ref={virtuosoRef}
+        style={{
+          ...styles.virtuoso,
+          height,
+        }}
+        data={options}
+        itemContent={(index, option) => renderOption({ option, index })}
+        increaseViewportBy={20}
+        totalListHeightChanged={setHeight}
+      />
+    );
+  }
+
+  function renderOption({
+    index,
+    option,
+  }: UseAutocompleteRenderedOption<Value>) {
+    const { key, ...optionProps } = getOptionProps({
+      option,
+      index,
+    });
 
     return (
-      <MuiPaper
-        {...listboxProps}
-        ref={forwardedRef}
-        elevation={4}
-        square
-        role={'listbox'}
+      <MuiListItemButton
+        {...optionProps}
+        selected={optionProps['aria-selected'] as boolean}
+        disabled={optionProps['aria-disabled'] as boolean}
+        key={getOptionKey?.(option) ?? key}
+        sx={{ gap: '12px', ...optionText.sx }}
+        dense
       >
-        {groups ? renderGroupedList(groups) : renderList(options)}
-      </MuiPaper>
+        {renderOptionStartIcon?.(option, { closePopper })}
+        <MuiListItemText
+          primary={optionText.primary(option)}
+          primaryTypographyProps={{
+            sx: { ...styles.overflowEllipsis },
+          }}
+          secondary={optionText.secondary?.(option)}
+          secondaryTypographyProps={{
+            variant: 'caption',
+            sx: styles.overflowEllipsis,
+          }}
+        />
+        {renderOptionEndIcon?.(option, { closePopper })}
+      </MuiListItemButton>
     );
-
-    function renderGroupedList({
-      groupCounts,
-      groupNames,
-      options,
-      firstSelectedIndex,
-    }: Groups<Value>) {
-      return (
-        <GroupedVirtuoso
-          ref={virtuosoRef}
-          style={{ ...styles.virtuoso, height }}
-          increaseViewportBy={20}
-          initialTopMostItemIndex={
-            ~firstSelectedIndex && {
-              index: firstSelectedIndex,
-              align: 'center',
-            }
-          }
-          totalListHeightChanged={setHeight}
-          groupCounts={groupCounts}
-          groupContent={(index) => {
-            const IconComp = groupProps?.icon || (() => null);
-            const ActionComp = groupProps?.action || (() => null);
-
-            return (
-              <GroupContainer role={'group'}>
-                <IconComp name={groupNames[index]} />
-                <MuiTypography
-                  sx={{ ...styles.overflowEllipsis, paddingTop: '2px' }}
-                >
-                  {groupNames[index]}
-                </MuiTypography>
-                <ActionComp name={groupNames[index]} />
-              </GroupContainer>
-            );
-          }}
-          itemContent={(index) =>
-            renderOption({ index, option: options[index] })
-          }
-        />
-      );
-    }
-
-    function renderList(options: Array<Value>) {
-      return (
-        <Virtuoso
-          ref={virtuosoRef}
-          style={{
-            ...styles.virtuoso,
-            height,
-          }}
-          data={options}
-          itemContent={(index, option) => renderOption({ option, index })}
-          increaseViewportBy={20}
-          totalListHeightChanged={setHeight}
-        />
-      );
-    }
-
-    function renderOption({
-      index,
-      option,
-    }: UseAutocompleteRenderedOption<Value>) {
-      const { key, ...optionProps } = getOptionProps({
-        option,
-        index,
-      });
-
-      return (
-        <MuiListItemButton
-          {...optionProps}
-          selected={optionProps['aria-selected'] as boolean}
-          disabled={optionProps['aria-disabled'] as boolean}
-          key={getOptionKey?.(option) ?? key}
-          sx={{ gap: '12px', ...optionText.sx }}
-          dense
-        >
-          {renderOptionStartIcon?.(option, { closePopper })}
-          <MuiListItemText
-            primary={optionText.primary(option)}
-            primaryTypographyProps={{
-              sx: { ...styles.overflowEllipsis },
-            }}
-            secondary={optionText.secondary?.(option)}
-            secondaryTypographyProps={{
-              variant: 'caption',
-              sx: styles.overflowEllipsis,
-            }}
-          />
-          {renderOptionEndIcon?.(option, { closePopper })}
-        </MuiListItemButton>
-      );
-    }
-  },
-);
+  }
+};
