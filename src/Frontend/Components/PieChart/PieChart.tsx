@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { ReactElement } from 'react';
 import {
   Cell as RcCell,
   Legend as RcLegend,
@@ -61,23 +60,8 @@ const classes = {
   },
 };
 
-export function PieChart(props: PieChartProps): ReactElement {
+export const PieChart: React.FC<PieChartProps> = (props) => {
   const pieChartColors = props.colors || defaultPieChartColors;
-
-  function renderLegend(props: {
-    payload?: Array<{ value: string }>;
-  }): ReactElement {
-    return (
-      <div>
-        {props.payload?.map((entry: { value: string }, index: number) => (
-          <div style={classes.legendElement} key={`item-${index}`}>
-            <div style={classes.legendIcon(pieChartColors[index])} />
-            <div>{entry.value}</div>
-          </div>
-        ))}
-      </div>
-    );
-  }
 
   return (
     <MuiBox sx={classes.root}>
@@ -113,4 +97,17 @@ export function PieChart(props: PieChartProps): ReactElement {
       </RcResponsiveContainer>
     </MuiBox>
   );
-}
+
+  function renderLegend(props: { payload?: Array<{ value: string }> }) {
+    return (
+      <div>
+        {props.payload?.map((entry: { value: string }, index: number) => (
+          <div style={classes.legendElement} key={`item-${index}`}>
+            <div style={classes.legendIcon(pieChartColors[index])} />
+            <div>{entry.value}</div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+};

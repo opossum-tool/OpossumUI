@@ -3,8 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ReactElement } from 'react';
-
 import { PopupType } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
@@ -37,7 +35,7 @@ function getPopupComponent(popupType: PopupType | null) {
   }
 }
 
-export function GlobalPopup(): ReactElement | null {
+export const GlobalPopup: React.FC = () => {
   const openPopupType = useAppSelector(getOpenPopup);
   return getPopupComponent(openPopupType);
-}
+};

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
 
 import { text } from '../../../shared/text';
 import { ProjectStatisticsPopupTitle } from '../../enums/enums';
@@ -37,7 +36,7 @@ const classes = {
   rightPanel: { flexGrow: 1, marginLeft: '2vw' },
 };
 
-export function ProjectStatisticsPopup(): ReactElement {
+export const ProjectStatisticsPopup: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const manualAttributions = useAppSelector(getManualAttributions);
@@ -155,4 +154,4 @@ export function ProjectStatisticsPopup(): ReactElement {
       }
     />
   );
-}
+};

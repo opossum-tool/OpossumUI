@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { sortBy } from 'lodash';
-import { ReactElement } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -41,9 +40,9 @@ interface LicenseNameAndTotalNumberOfAttributions {
   totalNumberOfAttributions: number;
 }
 
-export function CriticalLicensesTable(
-  props: CriticalLicensesTableProps,
-): ReactElement {
+export const CriticalLicensesTable: React.FC<CriticalLicensesTableProps> = (
+  props,
+) => {
   const allLicensesWithCriticality = Object.entries(
     props.licenseNamesWithCriticality,
   ).map((licenseNameAndCriticality) => {
@@ -108,7 +107,7 @@ export function CriticalLicensesTable(
       licenseNamesWithCriticality={props.licenseNamesWithCriticality}
     />
   );
-}
+};
 
 function getLicenseNamesByCriticality(
   allLicensesWithCriticality: Array<{

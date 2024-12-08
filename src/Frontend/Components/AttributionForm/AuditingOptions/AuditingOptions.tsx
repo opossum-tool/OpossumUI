@@ -24,7 +24,11 @@ interface Props {
   sx?: SxProps<Theme>;
 }
 
-export function AuditingOptions({ packageInfo, isEditable, sx }: Props) {
+export const AuditingOptions: React.FC<Props> = ({
+  packageInfo,
+  isEditable,
+  sx,
+}) => {
   const options = useAuditingOptions({ packageInfo, isEditable });
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const unselectedOptions = options.filter(
@@ -78,4 +82,4 @@ export function AuditingOptions({ packageInfo, isEditable, sx }: Props) {
         />
       ));
   }
-}
+};

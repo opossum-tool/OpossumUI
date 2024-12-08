@@ -205,7 +205,7 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
     title: string;
     showResizeButtons?: boolean;
     showSearch: boolean;
-    searchRef: React.RefObject<HTMLInputElement>;
+    searchRef: React.RefObject<HTMLInputElement | null>;
   }) {
     return (
       <Header data-testid={headerTestId} square>
@@ -221,7 +221,7 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
     search: { value, setValue },
     searchRef,
   }: Pick<ResizePanel, 'search'> & {
-    searchRef: React.RefObject<HTMLInputElement>;
+    searchRef: React.RefObject<HTMLInputElement | null>;
   }) {
     return (
       <Search hasValue={!!value}>

@@ -7,7 +7,6 @@ import MuiAccordion from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
 
 import {
   PieChartCriticalityNames,
@@ -68,9 +67,7 @@ export function getColorsForPieChart(
   return pieChartColors;
 }
 
-export function AccordionWithPieChart(
-  props: AccordionProps,
-): ReactElement | null {
+export const AccordionWithPieChart: React.FC<AccordionProps> = (props) => {
   if (props.data.length === 0) {
     return null;
   }
@@ -95,4 +92,4 @@ export function AccordionWithPieChart(
       </MuiAccordionDetails>
     </MuiAccordion>
   );
-}
+};

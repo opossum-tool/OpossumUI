@@ -72,7 +72,7 @@ export interface TextBoxProps {
   sx?: SxProps;
   text?: string;
   title: string;
-  endIcon?: React.ReactElement | Array<React.ReactElement>;
+  endIcon?: React.ReactElement<unknown> | Array<React.ReactElement<unknown>>;
 }
 
 export function TextBox(props: TextBoxProps) {
