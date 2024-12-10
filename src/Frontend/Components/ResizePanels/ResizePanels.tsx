@@ -148,9 +148,9 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
           showSearch: !isUpperCollapsed,
           searchRef: upperSearchRef,
         })}
-        <SearchRefContext.Provider value={upperSearchRef}>
+        <SearchRefContext value={upperSearchRef}>
           {upperPanel.component}
-        </SearchRefContext.Provider>
+        </SearchRefContext>
       </>
     );
   }
@@ -187,9 +187,9 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
           showSearch: !isLowerCollapsed,
           searchRef: lowerSearchRef,
         })}
-        <SearchRefContext.Provider value={lowerSearchRef}>
+        <SearchRefContext value={lowerSearchRef}>
           {lowerPanel.component}
-        </SearchRefContext.Provider>
+        </SearchRefContext>
       </ResizableBox>
     );
   }
