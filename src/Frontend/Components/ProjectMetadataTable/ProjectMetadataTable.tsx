@@ -10,7 +10,6 @@ import MuiTableContainer from '@mui/material/TableContainer';
 import MuiTableRow from '@mui/material/TableRow';
 import MuiTypography from '@mui/material/Typography';
 import dayjs from 'dayjs';
-import React, { ReactElement } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
@@ -46,7 +45,7 @@ const values: { [key: string]: { title: string; date: boolean } } = {
   projectVersion: { title: 'Project Version', date: false },
 };
 
-export function ProjectMetadataTable(): ReactElement {
+export const ProjectMetadataTable: React.FC = () => {
   const projectMetadata = useAppSelector(getProjectMetadata);
 
   return (
@@ -79,4 +78,4 @@ export function ProjectMetadataTable(): ReactElement {
       </MuiTableRow>
     ));
   }
-}
+};

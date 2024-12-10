@@ -5,7 +5,6 @@
 import { SxProps } from '@mui/material';
 import MuiSwitch from '@mui/material/Switch';
 import MuiTooltip from '@mui/material/Tooltip';
-import { ReactElement } from 'react';
 
 interface SwitchWithTooltipProps {
   sx: SxProps;
@@ -14,7 +13,7 @@ interface SwitchWithTooltipProps {
   handleSwitchClick: () => void;
 }
 
-export function SwitchWithTooltip(props: SwitchWithTooltipProps): ReactElement {
+export const SwitchWithTooltip: React.FC<SwitchWithTooltipProps> = (props) => {
   return (
     <MuiTooltip title={props.switchToolTipText}>
       <MuiSwitch
@@ -25,4 +24,4 @@ export function SwitchWithTooltip(props: SwitchWithTooltipProps): ReactElement {
       />
     </MuiTooltip>
   );
-}
+};

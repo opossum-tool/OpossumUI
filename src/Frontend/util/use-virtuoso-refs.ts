@@ -14,7 +14,7 @@ export function useVirtuosoRefs<T extends VirtuosoHandle>({
   selectedId: string | undefined;
 }) {
   const ref = useRef<T>(null);
-  const listRef = useRef<Window | HTMLElement>();
+  const listRef = useRef<Window | HTMLElement>(undefined);
   const [isVirtuosoFocused, setIsVirtuosoFocused] = useState(false);
   const [focusedId, setFocusedId] = useState<string>();
 

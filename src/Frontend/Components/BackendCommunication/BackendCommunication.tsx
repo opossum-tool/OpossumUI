@@ -6,7 +6,6 @@
 import dayjs from 'dayjs';
 import { IpcRendererEvent } from 'electron';
 import pick from 'lodash/pick';
-import { ReactElement } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
@@ -42,7 +41,7 @@ import {
 } from '../../util/get-attributions-with-resources';
 import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 
-export function BackendCommunication(): ReactElement | null {
+export const BackendCommunication: React.FC = () => {
   const resources = useAppSelector(getResources);
   const manualData = useAppSelector(getManualData);
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
@@ -286,7 +285,7 @@ export function BackendCommunication(): ReactElement | null {
   );
 
   return null;
-}
+};
 
 export function getBomAttributions(
   attributions: Attributions,

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook as nativeRenderHook, render } from '@testing-library/react';
-import { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
@@ -21,7 +20,7 @@ function makeReactQueryClient() {
 }
 
 export function renderComponent(
-  component: ReactElement,
+  component: React.ReactElement<unknown>,
   {
     actions,
   }: {
