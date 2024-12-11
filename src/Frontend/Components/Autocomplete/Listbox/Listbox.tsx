@@ -21,7 +21,7 @@ export type ListboxProps<
   Value,
   FreeSolo extends boolean | undefined,
 > = React.HTMLAttributes<HTMLElement> & {
-  virtuosoRef: React.RefObject<VirtuosoHandle>;
+  virtuosoRef: React.RefObject<VirtuosoHandle | null>;
   options: Array<Value>;
   groupProps?: {
     icon?: React.FC<{ name: string }>;

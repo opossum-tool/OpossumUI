@@ -44,7 +44,7 @@ interface Props {
   title: string;
   attribute: AutocompleteAttribute;
   packageInfo: PackageInfo;
-  endAdornment?: React.ReactElement | Array<React.ReactElement>;
+  endAdornment?: React.ReactNode | Array<React.ReactNode>;
   defaults?: Array<PackageInfo>;
   readOnly?: boolean;
   disabled?: boolean;

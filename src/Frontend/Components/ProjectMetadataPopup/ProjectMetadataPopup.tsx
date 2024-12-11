@@ -2,15 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ReactElement } from 'react';
-
 import { ButtonText } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { ProjectMetadataTable } from '../ProjectMetadataTable/ProjectMetadataTable';
 
-export function ProjectMetadataPopup(): ReactElement {
+export const ProjectMetadataPopup: React.FC = () => {
   const dispatch = useAppDispatch();
 
   function close(): void {
@@ -32,4 +30,4 @@ export function ProjectMetadataPopup(): ReactElement {
       aria-label={'project metadata'}
     />
   );
-}
+};

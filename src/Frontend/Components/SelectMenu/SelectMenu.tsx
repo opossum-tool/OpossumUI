@@ -26,7 +26,7 @@ export interface SelectMenuProps {
 
 export interface SelectMenuOption {
   faded?: boolean;
-  icon?: React.ReactElement;
+  icon?: React.ReactElement<unknown>;
   id: string;
   label: React.ReactNode;
   onAdd?(): void;
