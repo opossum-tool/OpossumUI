@@ -91,7 +91,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-watch-typeahead": "^2.2.2",
-    "lint-staged": "^15.2.10",
+    "lint-staged": "^15.2.11",
     "mkdirp": "^3.0.1",
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.4",
