@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { alpha } from '@mui/material';

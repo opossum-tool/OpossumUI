@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import ClearIcon from '@mui/icons-material/Clear';
 import { alpha, styled } from '@mui/material';

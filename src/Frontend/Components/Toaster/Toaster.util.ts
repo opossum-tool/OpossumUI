@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 /* eslint-disable no-restricted-imports */
 import toaster, { ToastOptions } from 'react-hot-toast';
 
