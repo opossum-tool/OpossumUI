@@ -5782,7 +5782,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:4.3.7, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4":
+"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4":
   version: 4.3.7
   resolution: "debug@npm:4.3.7"
   dependencies:
@@ -5794,7 +5794,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:~4.4.0":
+"debug@npm:4.4.0, debug@npm:~4.4.0":
   version: 4.4.0
   resolution: "debug@npm:4.4.0"
   dependencies:
@@ -10226,7 +10226,7 @@ __metadata:
     recharts: "npm:^2.14.1"
     run-script-os: "npm:^1.1.6"
     spdx-license-ids: "npm:^3.0.20"
-    start-server-and-test: "npm:^2.0.8"
+    start-server-and-test: "npm:^2.0.9"
     stream-json: "npm:^1.9.1"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.7.2"
@@ -11883,14 +11883,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"start-server-and-test@npm:^2.0.8":
-  version: 2.0.8
-  resolution: "start-server-and-test@npm:2.0.8"
+"start-server-and-test@npm:^2.0.9":
+  version: 2.0.9
+  resolution: "start-server-and-test@npm:2.0.9"
   dependencies:
     arg: "npm:^5.0.2"
     bluebird: "npm:3.7.2"
     check-more-types: "npm:2.24.0"
-    debug: "npm:4.3.7"
+    debug: "npm:4.4.0"
     execa: "npm:5.1.1"
     lazy-ass: "npm:1.6.0"
     ps-tree: "npm:1.2.0"
@@ -11899,7 +11899,7 @@ __metadata:
     server-test: src/bin/start.js
     start-server-and-test: src/bin/start.js
     start-test: src/bin/start.js
-  checksum: 10/4067c3dd120e1e515e4d087f2a60faebaae512517374dc30d14b29492a6761e2ab72f82c8bcb72f0eefc060fd7345674821e1255bb58a6ceaa5a1fac4257790a
+  checksum: 10/85aa1299ff5bbb41546b17089a08b1f2d84ae72b19d6500c25f41224e65096f765f280f043c4d40ca3199059ecf234d62f17ea240986573e8ff25f17d1380ffc
   languageName: node
   linkType: hard
 

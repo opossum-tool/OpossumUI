@@ -98,7 +98,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-sh": "^0.14.0",
     "run-script-os": "^1.1.6",
-    "start-server-and-test": "^2.0.8",
+    "start-server-and-test": "^2.0.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.0",
