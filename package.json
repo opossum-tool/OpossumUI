@@ -34,7 +34,7 @@
     "react-hotkeys-hook": "^4.6.1",
     "react-redux": "^9.2.0",
     "react-virtuoso": "4.7.6",
-    "recharts": "^2.14.1",
+    "recharts": "^2.15.0",
     "spdx-license-ids": "^3.0.20",
     "stream-json": "^1.9.1",
     "upath": "^2.0.1",
