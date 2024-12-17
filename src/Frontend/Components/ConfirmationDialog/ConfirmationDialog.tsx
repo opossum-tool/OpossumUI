@@ -2,13 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  forwardRef,
-  useCallback,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useImperativeHandle, useRef, useState } from 'react';
 
 import { text } from '../../../shared/text';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -62,6 +56,7 @@ export function useConfirmationDialog(
 }
 
 export interface ConfirmationDialogProps {
+  ref: React.RefObject<Confirm | null>;
   title: string;
   message: React.ReactNode;
 }
@@ -79,55 +74,57 @@ export interface ConfirmationDialogProps {
  * // ...
  * <ConfirmationDialog ref={confirmRef} title="Confirm" message="Are you sure?" />
  */
-export const ConfirmationDialog = forwardRef<Confirm, ConfirmationDialogProps>(
-  ({ message, title }, ref) => {
-    const [open, setOpen] = useState(false);
-    const resolveRef = useRef<(value: boolean) => void>(undefined);
+export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
+  ref,
+  message,
+  title,
+}) => {
+  const [open, setOpen] = useState(false);
+  const resolveRef = useRef<(value: boolean) => void>(undefined);
 
-    useImperativeHandle(
-      ref,
-      () =>
-        async (onConfirm, { onCancel, skip } = {}) => {
-          if (skip) {
-            void onConfirm?.();
-            return true;
-          }
+  useImperativeHandle(
+    ref,
+    () =>
+      async (onConfirm, { onCancel, skip } = {}) => {
+        if (skip) {
+          void onConfirm?.();
+          return true;
+        }
 
-          setOpen(true);
+        setOpen(true);
 
-          const result = await new Promise<boolean>((resolve) => {
-            resolveRef.current = resolve;
-          });
+        const result = await new Promise<boolean>((resolve) => {
+          resolveRef.current = resolve;
+        });
 
-          if (result) {
-            void onConfirm?.();
-          } else {
-            void onCancel?.();
-          }
+        if (result) {
+          void onConfirm?.();
+        } else {
+          void onCancel?.();
+        }
 
-          setOpen(false);
+        setOpen(false);
 
-          return result;
-        },
-      [],
-    );
+        return result;
+      },
+    [],
+  );
 
-    return (
-      <NotificationPopup
-        content={message}
-        header={title}
-        isOpen={open}
-        rightButtonConfig={{
-          buttonText: text.buttons.cancel,
-          color: 'secondary',
-          onClick: () => resolveRef.current?.(false),
-        }}
-        centerLeftButtonConfig={{
-          buttonText: text.buttons.ok,
-          onClick: () => resolveRef.current?.(true),
-        }}
-        aria-label={'confirmation dialog'}
-      />
-    );
-  },
-);
+  return (
+    <NotificationPopup
+      content={message}
+      header={title}
+      isOpen={open}
+      rightButtonConfig={{
+        buttonText: text.buttons.cancel,
+        color: 'secondary',
+        onClick: () => resolveRef.current?.(false),
+      }}
+      centerLeftButtonConfig={{
+        buttonText: text.buttons.ok,
+        onClick: () => resolveRef.current?.(true),
+      }}
+      aria-label={'confirmation dialog'}
+    />
+  );
+};

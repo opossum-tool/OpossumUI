@@ -7,7 +7,6 @@ import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { forwardRef } from 'react';
 import { TableComponents } from 'react-virtuoso';
 
 import { PackageInfo } from '../../../shared/shared-types';
@@ -86,7 +85,7 @@ export const tableConfigs: Array<TableConfig> = [
 
 // Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
 export const TABLE_COMPONENTS: TableComponents<PackageInfo> = {
-  Scroller: forwardRef((props, ref) => <TableContainer {...props} ref={ref} />),
+  Scroller: (props) => <TableContainer {...props} />,
   Table: (props) => (
     <Table
       size={'small'}
@@ -95,7 +94,7 @@ export const TABLE_COMPONENTS: TableComponents<PackageInfo> = {
       style={{ borderCollapse: 'separate' }}
     />
   ),
-  TableHead: forwardRef((props, ref) => <TableHead {...props} ref={ref} />),
+  TableHead: (props) => <TableHead {...props} />,
   TableRow: (props) => {
     const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
@@ -107,5 +106,5 @@ export const TABLE_COMPONENTS: TableComponents<PackageInfo> = {
       />
     );
   },
-  TableBody: forwardRef((props, ref) => <TableBody {...props} ref={ref} />),
+  TableBody: (props) => <TableBody {...props} />,
 };
