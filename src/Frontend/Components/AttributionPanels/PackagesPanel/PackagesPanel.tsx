@@ -65,10 +65,10 @@ export interface Alert {
 interface Props {
   alert?: Alert;
   availableFilters: Array<Filter>;
-  children: React.FC<PackagesPanelChildrenProps>;
+  children: (props: PackagesPanelChildrenProps) => React.ReactNode;
   disableSelectAll?: boolean;
   useFilteredData: UseFilteredData;
-  renderActions: React.FC<PackagesPanelChildrenProps>;
+  renderActions: (props: PackagesPanelChildrenProps) => React.ReactNode;
   testId?: string;
 }
 
