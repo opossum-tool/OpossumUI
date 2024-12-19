@@ -19,7 +19,7 @@ import {
 import { PackageCardConfig } from './PackageCard';
 
 export function getRightIcons(cardConfig: PackageCardConfig) {
-  const rightIcons: Array<JSX.Element> = [];
+  const rightIcons: Array<React.ReactElement> = [];
 
   if (cardConfig.preferred) {
     rightIcons.push(<PreferredIcon key={'preferred-icon'} />);
