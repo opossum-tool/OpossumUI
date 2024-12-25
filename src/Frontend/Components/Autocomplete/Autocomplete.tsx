@@ -157,7 +157,7 @@ export function Autocomplete<
   });
 
   useEffect(() => {
-    groupedOptionsRef.current = groupedOptions as Array<Value>;
+    groupedOptionsRef.current = groupedOptions;
   }, [groupedOptions]);
 
   const hasPopupIndicator = !freeSolo && !hidePopupIndicator;
@@ -290,7 +290,7 @@ export function Autocomplete<
               virtuosoRef={virtuosoRef}
               closePopper={closePopper}
               optionText={optionText}
-              options={groupedOptions as Array<Value>}
+              options={groupedOptions}
               groupBy={groupBy}
               groupProps={groupProps}
               getOptionKey={getOptionKey}
