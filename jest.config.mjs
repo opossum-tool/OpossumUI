@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { Config } from 'jest';
 
-const config: Config = {
+/** @type {import('jest').Config} */
+const config = {
   testEnvironment: 'jsdom',
   resetMocks: false,
   transformIgnorePatterns: ['/node_modules/(?!d3-*|internmap|axios)'],

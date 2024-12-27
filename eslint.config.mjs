@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-// @ts-check
 import { fixupPluginRules } from '@eslint/compat';
 import eslint from '@eslint/js';
 import eslintPluginQuery from '@tanstack/eslint-plugin-query';
@@ -46,7 +45,7 @@ export default tseslint.config(
       'commitlint.config.ts',
       'eslint.config.mjs',
       'index.html',
-      'jest.config.ts',
+      'jest.config.mjs',
       'notices.template.html',
       'tools',
       'vite.config.mts',
@@ -65,7 +64,6 @@ export default tseslint.config(
         version: 'detect',
       },
     },
-    // @ts-ignore
     rules: {
       ...eslintPluginQuery.configs.recommended.rules,
       ...eslintPluginReactHooks.configs.recommended.rules,
