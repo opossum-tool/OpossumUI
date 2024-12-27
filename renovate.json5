@@ -64,7 +64,6 @@
         'spdx-license-ids',
         'start-server-and-test',
         'stream-json',
-        'ts-node',
         'typescript',
         'typescript-eslint',
         'upath',
