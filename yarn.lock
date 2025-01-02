@@ -3600,7 +3600,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.10.2":
+"@types/node@npm:*":
   version: 22.10.2
   resolution: "@types/node@npm:22.10.2"
   dependencies:
@@ -3615,6 +3615,15 @@ __metadata:
   dependencies:
     undici-types: "npm:~6.19.2"
   checksum: 10/d1f4cd7158df97167953031f7245af3203f52b5f4965c175253b96489c7c55e4c2d4c8a697bb34211bfb99b8824cfcf6287e16cabdac6184a99eedcb26fdd432
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.10.3":
+  version: 22.10.3
+  resolution: "@types/node@npm:22.10.3"
+  dependencies:
+    undici-types: "npm:~6.20.0"
+  checksum: 10/c63bd7800b82a53efd3fc0e115d045ae539eaa6367a7804fc17db84a311995a2228b8dce3e8eed089b4f91ae28224cfcf86086ff1ecf48a16c3b9efc03a725f8
   languageName: node
   linkType: hard
 
@@ -9996,7 +10005,7 @@ __metadata:
     "@types/jest": "npm:^29.5.14"
     "@types/js-yaml": "npm:^4.0.9"
     "@types/lodash": "npm:^4.17.13"
-    "@types/node": "npm:^22.10.2"
+    "@types/node": "npm:^22.10.3"
     "@types/object-hash": "npm:^3.0.6"
     "@types/react": "npm:^19.0.2"
     "@types/react-dom": "npm:^19.0.2"
