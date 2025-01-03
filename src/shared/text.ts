@@ -25,6 +25,7 @@ export const text = {
     invalidPurl: 'INVALID PURL',
     legalInformation: 'Legal Information',
     licenseName: 'License Name',
+    licenseExpression: 'License Expression',
     licenseText: 'License Text',
     licenseTextDefault: 'License Text (inferred from license name)',
     link: 'Link as attribution on selected resource',

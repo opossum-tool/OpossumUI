@@ -14,6 +14,7 @@ SPDX-License-Identifier: CC0-1.0
 - **[Benedikt Richter](https://github.com/benedikt-richter)** (<benedikt.richter@tngtech.com>)
 - **[Benjamin Petek](https://github.com/b-petek)**
 - **[David Mundelius](https://github.com/davidmundelius)** (<david.mundelius@tngtech.com>)
+- **[Dominikus Hellgartner](https://github.com/Hellgartner)** (<dominikus.hellgartner@tngtech.com>)
 - **[Florian Schepers](https://github.com/FlorianSchepers)** (<florian.schepers@tngtech.com>)
 - **[Indira Bhatt](https://github.com/indirabhatt)** (<Indira.bhatt@gmail.com>)
 - **[Jakob Schubert](https://github.com/JakobSchubert)**
