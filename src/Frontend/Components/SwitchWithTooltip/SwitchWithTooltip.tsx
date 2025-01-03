@@ -21,6 +21,7 @@ export const SwitchWithTooltip: React.FC<SwitchWithTooltipProps> = (props) => {
         onChange={props.handleSwitchClick}
         size="small"
         sx={props.sx}
+        aria-label={'switch-bar'}
       />
     </MuiTooltip>
   );
