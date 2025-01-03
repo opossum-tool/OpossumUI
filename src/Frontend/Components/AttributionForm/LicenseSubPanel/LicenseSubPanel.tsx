@@ -77,7 +77,7 @@ export function LicenseSubPanel({
       <MuiBox display={'flex'} alignItems={'center'} gap={'8px'}>
         <PackageAutocomplete
           attribute={'licenseName'}
-          title={text.attributionColumn.licenseName}
+          title={text.attributionColumn.licenseExpression}
           packageInfo={packageInfo}
           readOnly={!onEdit}
           showHighlight={showHighlight}

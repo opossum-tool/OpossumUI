@@ -267,6 +267,16 @@ describe('AttributionForm', () => {
     renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
     expect(screen.queryByLabelText('Copyright')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('License Name')).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('License Expression'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does show copyright or license name fields when attribution is third party', () => {
+    const packageInfo = faker.opossum.packageInfo({ firstParty: false });
+    renderComponent(<AttributionForm packageInfo={packageInfo} />);
+
+    expect(screen.getByLabelText('Copyright')).toBeInTheDocument();
+    expect(screen.getByLabelText('License Expression')).toBeInTheDocument();
   });
 });

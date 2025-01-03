@@ -77,7 +77,7 @@ export class AttributionForm {
     this.comment = this.node.getByLabel('Comment', { exact: true });
     this.copyright = this.node.getByLabel('Copyright', { exact: true });
     this.licenseName = this.node.getByLabel(
-      text.attributionColumn.licenseName,
+      text.attributionColumn.licenseExpression,
       {
         exact: true,
       },
