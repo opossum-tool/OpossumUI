@@ -124,10 +124,10 @@ It has to be generated through external tools and provided to the app. Contains 
 - `externalAttributions`: contains all attributions which are provided as signals (preselected signals will be
   automatically used by the app to create attributions in the output file),
 - `resourcesToAttributions`: links attributions to file paths,
-- `frequentlicenses`: A list of licenses that can be selected in a dropdown when the user enters a license name.
 
 There are additional fields which are optional:
 
+- `frequentLicenses`: A list of licenses that can be selected in a dropdown when the user enters a license name.
 - `attributionBreakpoints`: a list of folder paths where attribution inference stops, e.g. `node_modules`."
 - `filesWithChildren`: a list of folders that are treated as files. This can be used to attach another file tree to
   files like `package.json`, usually also setting an attribution breakpoint.
