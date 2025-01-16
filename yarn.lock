@@ -10073,7 +10073,7 @@ __metadata:
     react-virtuoso: "npm:4.7.6"
     recharts: "npm:^2.15.0"
     run-script-os: "npm:^1.1.6"
-    spdx-license-ids: "npm:^3.0.20"
+    spdx-license-ids: "npm:^3.0.21"
     start-server-and-test: "npm:^2.0.10"
     stream-json: "npm:^1.9.1"
     typescript: "npm:^5.7.3"
@@ -11699,10 +11699,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spdx-license-ids@npm:^3.0.0, spdx-license-ids@npm:^3.0.20":
+"spdx-license-ids@npm:^3.0.0":
   version: 3.0.20
   resolution: "spdx-license-ids@npm:3.0.20"
   checksum: 10/30e566ea74b04232c64819d1f5313c00d92e9c73d054541650331fc794499b3bcc4991bcd90fa3c2fc4d040006f58f63104706255266e87a9d452e6574afc60c
+  languageName: node
+  linkType: hard
+
+"spdx-license-ids@npm:^3.0.21":
+  version: 3.0.21
+  resolution: "spdx-license-ids@npm:3.0.21"
+  checksum: 10/17a033b4c3485f081fc9faa1729dde8782a85d9131b156f2397c71256c2e1663132857d3cba1457c4965f179a4dcf1b69458a31e9d3d0c766d057ef0e3a0b4f2
   languageName: node
   linkType: hard
 
