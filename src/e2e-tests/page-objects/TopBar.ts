@@ -23,7 +23,7 @@ export class TopBar {
     this.reportViewButton = this.node.getByRole('button', { name: 'report' });
     this.progressBar = this.node.getByLabel('ProgressBar');
     this.openFileButton = this.node.getByRole('button', { name: 'open file' });
-    this.tooltip = this.progressBar.getByLabel('tooltip');
+    this.tooltip = this.node.getByLabel('tooltip');
     this.switchBar = this.node.getByLabel('switch-bar');
   }
 

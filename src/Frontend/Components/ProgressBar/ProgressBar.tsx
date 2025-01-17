@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { SxProps } from '@mui/material';
-import MuiBox from '@mui/material/Box';
 import { BarDatum, ResponsiveBar } from '@nivo/bar';
 
 import { criticalityColor, OpossumColors } from '../../shared-styles';
@@ -13,14 +12,6 @@ import {
   ProgressBarTooltip,
   useOnProgressBarClick,
 } from './ProgressBar.util';
-
-const classes = {
-  bar: {
-    '&:hover': {
-      cursor: 'pointer',
-    },
-  },
-};
 
 interface ProgressBarProps {
   sx?: SxProps;
@@ -73,48 +64,50 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       ];
 
   return (
-    <MuiBox sx={{ ...props.sx, ...classes.bar }} aria-label={'ProgressBar'}>
-      <ResponsiveBar
-        data={data}
-        keys={Object.keys(data[0])}
-        margin={{ top: 4, bottom: 4 }}
-        maxValue={
-          props.showCriticalSignals
-            ? props.progressBarData.filesWithOnlyExternalAttributionCount
-            : props.progressBarData.fileCount
-        }
-        layout="horizontal"
-        valueScale={{ type: 'linear' }}
-        labelSkipWidth={1}
-        axisBottom={null}
-        axisLeft={null}
-        animate={false}
-        colors={
-          props.showCriticalSignals
-            ? [
-                criticalityColor.high,
-                criticalityColor.medium,
-                OpossumColors.lightestBlue,
-              ]
-            : [
-                OpossumColors.pastelDarkGreen,
-                OpossumColors.pastelMiddleGreen,
-                OpossumColors.pastelRed,
-                OpossumColors.lightestBlue,
-              ]
-        }
-        labelTextColor="black"
-        tooltip={() =>
-          props.showCriticalSignals ? (
-            <CriticalityBarTooltip {...props.progressBarData} />
-          ) : (
-            <ProgressBarTooltip {...props.progressBarData} />
-          )
-        }
-        onClick={
-          props.showCriticalSignals ? onCriticalityBarClick : onProgressBarClick
-        }
-      />
-    </MuiBox>
+    <ResponsiveBar
+      onMouseEnter={(_datum, event) => {
+        event.currentTarget.style.cursor = 'pointer';
+      }}
+      data={data}
+      keys={Object.keys(data[0])}
+      margin={{ top: 4, bottom: 4 }}
+      maxValue={
+        props.showCriticalSignals
+          ? props.progressBarData.filesWithOnlyExternalAttributionCount
+          : props.progressBarData.fileCount
+      }
+      layout="horizontal"
+      valueScale={{ type: 'linear' }}
+      labelSkipWidth={1}
+      ariaLabel={'ProgressBar'}
+      axisBottom={null}
+      axisLeft={null}
+      animate={false}
+      colors={
+        props.showCriticalSignals
+          ? [
+              criticalityColor.high,
+              criticalityColor.medium,
+              OpossumColors.lightestBlue,
+            ]
+          : [
+              OpossumColors.pastelDarkGreen,
+              OpossumColors.pastelMiddleGreen,
+              OpossumColors.pastelRed,
+              OpossumColors.lightestBlue,
+            ]
+      }
+      labelTextColor="black"
+      tooltip={() =>
+        props.showCriticalSignals ? (
+          <CriticalityBarTooltip {...props.progressBarData} />
+        ) : (
+          <ProgressBarTooltip {...props.progressBarData} />
+        )
+      }
+      onClick={
+        props.showCriticalSignals ? onCriticalityBarClick : onProgressBarClick
+      }
+    />
   );
 };
