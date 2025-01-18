@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
+          - os: ubuntu-22.04-arm
             FILE: release/linux/OpossumUI-for-linux.AppImage
           - os: macos-latest
             FILE: release/mac/OpossumUI-for-mac.zip
