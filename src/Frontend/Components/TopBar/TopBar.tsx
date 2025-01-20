@@ -38,6 +38,7 @@ const classes = {
     display: 'flex',
     marginLeft: '12px',
     marginRight: '12px',
+    width: '50%',
   },
   switch: {
     margin: 'auto',
