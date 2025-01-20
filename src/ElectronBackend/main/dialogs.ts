@@ -12,7 +12,7 @@ export function openFileDialog(): Array<string> | undefined {
         filters: [
           {
             name: 'Opossum Input File',
-            extensions: ['json', 'json.gz', 'opossum'],
+            extensions: ['opossum'],
           },
         ],
       })
