@@ -23,7 +23,7 @@ import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
 import { createWindow } from '../createWindow';
-import { openFileDialog, selectBaseURLDialog } from '../dialogs';
+import { openOpossumFileDialog, selectBaseURLDialog } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   exportFile,
@@ -99,7 +99,7 @@ jest.mock('../../input/importFromFile', () => ({
 }));
 
 jest.mock('../dialogs', () => ({
-  openFileDialog: jest.fn(),
+  openOpossumFileDialog: jest.fn(),
   selectBaseURLDialog: jest.fn(),
 }));
 
@@ -117,11 +117,11 @@ describe('getOpenFileListener', () => {
       path: faker.outputPath(`${faker.string.uuid()}.json`),
     });
 
-    (openFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
+    (openOpossumFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
 
     await getOpenFileListener(mainWindow)();
 
-    expect(openFileDialog).toHaveBeenCalled();
+    expect(openOpossumFileDialog).toHaveBeenCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
@@ -146,11 +146,11 @@ describe('getOpenFileListener', () => {
       path: faker.outputPath(`${fileName}.opossum`),
     });
 
-    (openFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
+    (openOpossumFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
 
     await getOpenFileListener(mainWindow)();
 
-    expect(openFileDialog).toHaveBeenCalled();
+    expect(openOpossumFileDialog).toHaveBeenCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: true },
@@ -171,13 +171,13 @@ describe('getOpenFileListener', () => {
       path: faker.outputPath(`${fileName}.json`),
     });
 
-    (openFileDialog as jest.Mock).mockReturnValueOnce([
+    (openOpossumFileDialog as jest.Mock).mockReturnValueOnce([
       faker.outputPath(`${fileName}_attributions.json`),
     ]);
 
     await getOpenFileListener(mainWindow)();
 
-    expect(openFileDialog).toHaveBeenCalled();
+    expect(openOpossumFileDialog).toHaveBeenCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
@@ -198,13 +198,13 @@ describe('getOpenFileListener', () => {
       path: faker.outputPath(`${fileName}.json.gz`),
     });
 
-    (openFileDialog as jest.Mock).mockReturnValueOnce([
+    (openOpossumFileDialog as jest.Mock).mockReturnValueOnce([
       faker.outputPath(`${fileName}_attributions.json`),
     ]);
 
     await getOpenFileListener(mainWindow)();
 
-    expect(openFileDialog).toHaveBeenCalled();
+    expect(openOpossumFileDialog).toHaveBeenCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },

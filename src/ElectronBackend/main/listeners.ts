@@ -40,7 +40,7 @@ import { GlobalBackendState, OpossumOutputFile } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { getLoadedFileType } from '../utils/getLoadedFile';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
-import { openFileDialog, selectBaseURLDialog } from './dialogs';
+import { openOpossumFileDialog, selectBaseURLDialog } from './dialogs';
 import {
   getGlobalBackendState,
   setGlobalBackendState,
@@ -105,7 +105,7 @@ export function getOpenFileListener(
   mainWindow: BrowserWindow,
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(mainWindow, async () => {
-    const filePaths = openFileDialog();
+    const filePaths = openOpossumFileDialog();
     if (!filePaths || filePaths.length < 1) {
       return;
     }
@@ -283,6 +283,7 @@ export function getOpenLinkListener(): (
   return async (_, args: OpenLinkArgs): Promise<Error | void> => {
     try {
       if (!linkHasHttpSchema(args.link)) {
+        // noinspection ExceptionCaughtLocallyJS
         throw new Error(`Invalid URL ${args.link}`);
       }
       // Does not throw on Linux if link cannot be opened.
