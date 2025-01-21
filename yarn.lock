@@ -10081,7 +10081,7 @@ __metadata:
     unimported: "npm:^1.31.1"
     upath: "npm:^2.0.1"
     uuid: "npm:^11.0.5"
-    vite: "npm:^6.0.9"
+    vite: "npm:^6.0.10"
     vite-plugin-electron: "npm:^0.29.0"
     vite-plugin-svgr: "npm:^4.3.0"
     vite-tsconfig-paths: "npm:^5.1.4"
@@ -12739,7 +12739,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^6.0.9":
+"vite@npm:^6.0.10":
   version: 6.0.11
   resolution: "vite@npm:6.0.11"
   dependencies:
