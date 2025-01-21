@@ -13,7 +13,6 @@ export enum IpcChannel {
   SaveFile = 'save-file',
   SendErrorInformation = 'send-error-information',
   ConvertInputFile = 'convert-input-file',
-  UseOutdatedInputFile = 'use-outdated-input-file',
   OpenDotOpossumFile = 'open-dot-opossum-file',
   GetUserSettings = 'get-user-settings',
   SetUserSettings = 'set-user-settings',
