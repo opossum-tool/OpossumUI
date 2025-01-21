@@ -142,6 +142,15 @@ export async function handleOpeningFile(
   await openFile(mainWindow, filePath);
 }
 
+export function getImportFileListener(
+  mainWindow: BrowserWindow,
+  fileFormat: [string, Array<string>],
+): () => Promise<void> {
+  return createListenerCallbackWithErrorHandling(mainWindow, () => {
+    console.log(`Import ${fileFormat[0]}`);
+  });
+}
+
 function initializeGlobalBackendState(
   filePath: string,
   isOpossumFormat: boolean,

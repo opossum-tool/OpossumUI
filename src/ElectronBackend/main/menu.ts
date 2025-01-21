@@ -14,6 +14,7 @@ import {
   makeFirstIconVisibleAndSecondHidden,
 } from './iconHelpers';
 import {
+  getImportFileListener,
   getOpenFileListener,
   getSelectBaseURLListener,
   setLoadingState,
@@ -84,6 +85,10 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
   const webContents = mainWindow.webContents;
   const qaMode = await UserSettings.get('qaMode');
 
+  const importFileFormats: { [key: string]: Array<string> } = {
+    'Legacy Opossum File': ['json', 'json.gz'],
+  };
+
   return Menu.buildFromTemplate([
     {
       label: 'File',
@@ -95,9 +100,21 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           ),
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
-          click: () => {
-            void getOpenFileListener(mainWindow)();
-          },
+          click: getOpenFileListener(mainWindow),
+        },
+        {
+          icon: getIconBasedOnTheme(
+            'icons/import-white.png',
+            'icons/import-black.png',
+          ),
+          label: 'Import File',
+          submenu: Object.keys(importFileFormats).map((key) => ({
+            label: `${key} (${importFileFormats[key].map((ext) => `.${ext}`).join('/')})`,
+            click: getImportFileListener(mainWindow, [
+              key,
+              importFileFormats[key],
+            ]),
+          })),
         },
         {
           icon: getIconBasedOnTheme(
