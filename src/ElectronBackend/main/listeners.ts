@@ -123,6 +123,7 @@ export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   filePath: string,
 ): Promise<void> {
+  // TODO: remove handling of non-.opossum files here
   const isOpossumFormat = isOpossumFileFormat(filePath);
   logger.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, isOpossumFormat);
@@ -147,7 +148,10 @@ export function getImportFileListener(
   fileFormat: [string, Array<string>],
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(mainWindow, () => {
-    console.log(`Import ${fileFormat[0]}`);
+    mainWindow.webContents.send(
+      AllowedFrontendChannels.ShowImportDialog,
+      fileFormat,
+    );
   });
 }
 

@@ -34,6 +34,7 @@ export enum AllowedFrontendChannels {
   SearchSignals = 'search-signals',
   SetBaseURLForRoot = 'set-base-url-for-root',
   ShowFileSupportPopup = 'show-file-support-popup',
+  ShowImportDialog = 'show-import-dialog',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
   ShowUpdateAppPopup = 'show-update-app-pop-up',

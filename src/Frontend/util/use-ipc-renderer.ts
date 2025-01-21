@@ -48,6 +48,11 @@ export type ShowFileSupportPopupListener = (
   fileSupportPopupArgs: FileSupportPopupArgs,
 ) => void;
 
+export type ShowImportDialogListener = (
+  event: IpcRendererEvent,
+  fileFormat: [string, Array<string>],
+) => void;
+
 export type Listener =
   | ResetStateListener
   | SetStateListener
@@ -55,7 +60,8 @@ export type Listener =
   | ExportFileRequestListener
   | SetBaseURLForRootListener
   | IsLoadingListener
-  | ShowFileSupportPopupListener;
+  | ShowFileSupportPopupListener
+  | ShowImportDialogListener;
 
 export function useIpcRenderer<T extends Listener>(
   channel: AllowedFrontendChannels,
