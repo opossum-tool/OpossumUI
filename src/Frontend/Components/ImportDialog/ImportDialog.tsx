@@ -2,14 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Folder } from '@mui/icons-material';
-import { FormControl, FormHelperText, IconButton } from '@mui/material';
-import MuiTextField from '@mui/material/TextField';
-import MuiBox from '@mui/system/Box';
 import { useState } from 'react';
 
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
+import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 interface ImportDialogProps {
@@ -41,6 +38,8 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
   const showError = filePathIsInvalid && filePath !== null;
 
+  const errorMessage = showError ? 'Invalid file path' : null;
+
   function updateFilePath(filePath: string) {
     setFilePath(filePath);
   }
@@ -56,34 +55,17 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     );
   }
 
-  // TODO: extract file input into reusable component FilePathInput
   return (
     <NotificationPopup
       header={`Import ${fileFormat[0]}`}
       content={
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <FormControl sx={{ display: 'flex', flexDirection: 'column' }}>
-            <MuiBox sx={{ display: 'flex', alignItems: 'center', pt: '10px' }}>
-              <MuiTextField
-                label={'Path to input file'}
-                value={displayedFilePath}
-                error={showError}
-                onChange={(event) => updateFilePath(event.target.value)}
-                sx={{ width: 600 }}
-              />
-              <IconButton
-                type="button"
-                sx={{ p: '10px', ml: '10px' }}
-                onClick={onButtonClick}
-                size="large"
-              >
-                <Folder fontSize="inherit" />
-              </IconButton>
-            </MuiBox>
-            <FormHelperText>
-              {showError ? 'Invalid file path' : ' '}
-            </FormHelperText>
-          </FormControl>
+          <FilePathInput
+            displayedFilePath={displayedFilePath}
+            updateFilePath={updateFilePath}
+            onButtonClick={onButtonClick}
+            errorMessage={errorMessage}
+          />
         </div>
       }
       isOpen={true}
