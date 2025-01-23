@@ -15,6 +15,10 @@ const electronAPI: ElectronAPI = {
   openFile: () => ipcRenderer.invoke(IpcChannel.OpenFile),
   importFileSelectInput: (fileFormat) =>
     ipcRenderer.invoke(IpcChannel.ImportFileSelectInput, fileFormat),
+  importFileConvertAndLoad: (filePath) => {
+    console.log(`send convert-and-load for ${filePath}`);
+    ipcRenderer.send(IpcChannel.ImportFileConvertAndLoad, filePath);
+  },
   deleteFile: () => ipcRenderer.invoke(IpcChannel.DeleteFile),
   keepFile: () => ipcRenderer.invoke(IpcChannel.KeepFile),
   convertInputFileToDotOpossum: () =>

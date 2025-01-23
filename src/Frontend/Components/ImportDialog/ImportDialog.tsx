@@ -25,8 +25,11 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
   function onConfirm(): void {
     console.log(`Selected input file: ${filePath}`);
+    if (filePath) {
+      window.electronAPI.importFileConvertAndLoad(filePath);
 
-    dispatch(closePopup());
+      dispatch(closePopup());
+    }
   }
 
   const [filePath, setFilePath] = useState<string | null>(null);

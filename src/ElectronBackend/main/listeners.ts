@@ -178,6 +178,35 @@ export function getImportFileSelectInputListener(
   );
 }
 
+export function getImportFileConvertAndLoadListener(
+  mainWindow: BrowserWindow,
+): (_: Electron.IpcMainInvokeEvent, filePath: string) => Promise<void> {
+  return createVoidListenerCallbackWithErrorHandling(
+    mainWindow,
+    async (_: Electron.IpcMainInvokeEvent, resourceFilePath: string) => {
+      logger.info('Converting .json to .opossum format');
+
+      if (!resourceFilePath) {
+        throw new Error(`Resource file path is invalid: ${resourceFilePath}`);
+      }
+
+      // TODO: replace with output file path received from frontend
+      const dotOpossumFilePath = getDotOpossumFilePath(resourceFilePath);
+
+      await writeOpossumFile({
+        path: dotOpossumFilePath,
+        input: getInputJson(resourceFilePath),
+        output: getOutputJson(resourceFilePath),
+      });
+
+      logger.info('Updating global backend state');
+      initializeGlobalBackendState(dotOpossumFilePath, true);
+
+      await openFile(mainWindow, dotOpossumFilePath);
+    },
+  );
+}
+
 function initializeGlobalBackendState(
   filePath: string,
   isOpossumFormat: boolean,

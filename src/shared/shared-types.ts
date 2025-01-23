@@ -245,6 +245,7 @@ export interface ElectronAPI {
   importFileSelectInput: (
     fileFormat: [string, Array<string>],
   ) => Promise<string | null>;
+  importFileConvertAndLoad: (filePath: string) => void;
   deleteFile: () => Promise<unknown>;
   keepFile: () => Promise<unknown>;
   convertInputFileToDotOpossum: () => void;
