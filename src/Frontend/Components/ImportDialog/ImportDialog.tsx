@@ -34,6 +34,10 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   // updates from the button are not processed correctly if value starts at null
   const displayedFilePath = filePath || '';
 
+  const filePathIsInvalid = !filePath?.trim();
+
+  const showError = filePathIsInvalid && filePath !== null;
+
   function updateFilePath(filePath: string) {
     setFilePath(filePath);
   }
@@ -60,7 +64,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
               <MuiTextField
                 label={'Path to input file'}
                 value={displayedFilePath}
-                error={filePath === ''}
+                error={showError}
                 onChange={(event) => updateFilePath(event.target.value)}
                 sx={{ width: 600 }}
               />
@@ -74,7 +78,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
               </IconButton>
             </MuiBox>
             <FormHelperText>
-              {filePath === '' ? 'Path is empty' : ' '}
+              {showError ? 'Invalid file path' : ' '}
             </FormHelperText>
           </FormControl>
         </div>
@@ -87,6 +91,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       rightButtonConfig={{
         onClick: onConfirm,
         buttonText: 'Ok',
+        disabled: filePathIsInvalid,
       }}
     />
   );
