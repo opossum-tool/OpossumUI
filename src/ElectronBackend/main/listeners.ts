@@ -40,7 +40,11 @@ import { GlobalBackendState, OpossumOutputFile } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { getLoadedFileType } from '../utils/getLoadedFile';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
-import { openOpossumFileDialog, selectBaseURLDialog } from './dialogs';
+import {
+  openNonOpossumFileDialog,
+  openOpossumFileDialog,
+  selectBaseURLDialog,
+} from './dialogs';
 import {
   getGlobalBackendState,
   setGlobalBackendState,
@@ -149,10 +153,28 @@ export function getImportFileListener(
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(mainWindow, () => {
     mainWindow.webContents.send(
-      AllowedFrontendChannels.ShowImportDialog,
+      AllowedFrontendChannels.ImportFileShowDialog,
       fileFormat,
     );
   });
+}
+
+export function getImportFileSelectInputListener(
+  mainWindow: BrowserWindow,
+): (
+  _: Electron.IpcMainInvokeEvent,
+  fileFormat: [string, Array<string>],
+) => Promise<string> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow,
+    (_: Electron.IpcMainInvokeEvent, fileFormat: [string, Array<string>]) => {
+      const filePaths = openNonOpossumFileDialog(fileFormat);
+      if (!filePaths || filePaths.length < 1) {
+        return '';
+      }
+      return filePaths[0];
+    },
+  );
 }
 
 function initializeGlobalBackendState(

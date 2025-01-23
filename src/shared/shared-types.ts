@@ -242,6 +242,9 @@ export interface ElectronAPI {
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: () => Promise<unknown>;
+  importFileSelectInput: (
+    fileFormat: [string, Array<string>],
+  ) => Promise<string>;
   deleteFile: () => Promise<unknown>;
   keepFile: () => Promise<unknown>;
   convertInputFileToDotOpossum: () => void;

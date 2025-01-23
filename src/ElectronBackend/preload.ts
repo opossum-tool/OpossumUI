@@ -13,6 +13,8 @@ const electronAPI: ElectronAPI = {
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
   openFile: () => ipcRenderer.invoke(IpcChannel.OpenFile),
+  importFileSelectInput: (fileFormat) =>
+    ipcRenderer.invoke(IpcChannel.ImportFileSelectInput, fileFormat),
   deleteFile: () => ipcRenderer.invoke(IpcChannel.DeleteFile),
   keepFile: () => ipcRenderer.invoke(IpcChannel.KeepFile),
   convertInputFileToDotOpossum: () =>

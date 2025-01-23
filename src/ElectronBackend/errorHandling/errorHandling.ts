@@ -17,14 +17,14 @@ import { getGlobalBackendState } from '../main/globalBackendState';
 import logger from '../main/logger';
 import { getLoadedFilePath } from '../utils/getLoadedFile';
 
-export function createListenerCallbackWithErrorHandling(
+export function createListenerCallbackWithErrorHandling<T>(
   mainWindow: BrowserWindow,
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   func: Function,
-): (...args: Array<unknown>) => Promise<void> {
-  return async (...args: Array<unknown>): Promise<void> => {
+): (...args: Array<unknown>) => Promise<T> {
+  return async (...args: Array<unknown>): Promise<T> => {
     try {
-      await func(...args);
+      return await func(...args);
     } catch (error: unknown) {
       if (error instanceof Error) {
         logger.info(`Failed executing callback function: ${error.message}`);
@@ -43,6 +43,7 @@ export function createListenerCallbackWithErrorHandling(
           true,
         );
       }
+      return Promise.reject(error);
     }
   };
 }

@@ -9,6 +9,7 @@ import { getOpenPopup } from '../../state/selectors/view-selector';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
 import { FileSupportDotOpossumAlreadyExistsPopup } from '../FileSupportDotOpossumAlreadyExistsPopup/FileSupportDotOpossumAlreadyExistsPopup';
 import { FileSupportPopup } from '../FileSupportPopup/FileSupportPopup';
+import { ImportDialog } from '../ImportDialog/ImportDialog';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
@@ -30,6 +31,8 @@ function getPopupComponent(popupType: PopupType | null) {
       return <FileSupportDotOpossumAlreadyExistsPopup />;
     case PopupType.UpdateAppPopup:
       return <UpdateAppPopup />;
+    case PopupType.ImportDialog:
+      return <ImportDialog />;
     case null:
       return null;
   }

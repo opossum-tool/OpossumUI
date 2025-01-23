@@ -12,6 +12,7 @@ import {
   getConvertInputFileToDotOpossumAndOpenListener,
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
+  getImportFileSelectInputListener,
   getKeepFileListener,
   getOpenDotOpossumFileInsteadListener,
   getOpenFileListener,
@@ -73,6 +74,10 @@ export async function main(): Promise<void> {
       getOpenDotOpossumFileInsteadListener(mainWindow),
     );
     ipcMain.handle(IpcChannel.OpenFile, getOpenFileListener(mainWindow));
+    ipcMain.handle(
+      IpcChannel.ImportFileSelectInput,
+      getImportFileSelectInputListener(mainWindow),
+    );
     ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.DeleteFile,

@@ -234,11 +234,13 @@ export const BackendCommunication: React.FC = () => {
     }
   }
 
-  function showImportDialogListener(
+  function importFileShowDialogListener(
     _: IpcRendererEvent,
     fileFormat: [string, Array<string>],
   ): void {
+    // TODO: remove log statement
     console.log(`showImportDialogListener called for ${fileFormat[0]}`);
+    dispatch(openPopup(PopupType.ImportDialog));
   }
 
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
@@ -291,10 +293,9 @@ export const BackendCommunication: React.FC = () => {
     [dispatch],
   );
   useIpcRenderer(
-    AllowedFrontendChannels.ShowImportDialog,
-    showImportDialogListener,
-    // TODO: check what dependencies are needed here
-    [],
+    AllowedFrontendChannels.ImportFileShowDialog,
+    importFileShowDialogListener,
+    [dispatch],
   );
 
   return null;
