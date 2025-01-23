@@ -6,6 +6,7 @@
 import { PopupType } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
+import { PopupInfo } from '../../types/types';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
 import { FileSupportDotOpossumAlreadyExistsPopup } from '../FileSupportDotOpossumAlreadyExistsPopup/FileSupportDotOpossumAlreadyExistsPopup';
 import { FileSupportPopup } from '../FileSupportPopup/FileSupportPopup';
@@ -15,8 +16,8 @@ import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPop
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
 import { UpdateAppPopup } from '../UpdateAppPopup/UpdateAppPopup';
 
-function getPopupComponent(popupType: PopupType | null) {
-  switch (popupType) {
+function getPopupComponent(popupInfo: PopupInfo | null) {
+  switch (popupInfo?.popup) {
     case PopupType.NotSavedPopup:
       return <NotSavedPopup />;
     case PopupType.InvalidLinkPopup:
@@ -32,13 +33,16 @@ function getPopupComponent(popupType: PopupType | null) {
     case PopupType.UpdateAppPopup:
       return <UpdateAppPopup />;
     case PopupType.ImportDialog:
-      return <ImportDialog />;
-    case null:
+      if (popupInfo?.fileFormat) {
+        return <ImportDialog fileFormat={popupInfo.fileFormat} />;
+      }
+      return null;
+    default:
       return null;
   }
 }
 
 export const GlobalPopup: React.FC = () => {
-  const openPopupType = useAppSelector(getOpenPopup);
-  return getPopupComponent(openPopupType);
+  const openPopupInfo = useAppSelector(getOpenPopup);
+  return getPopupComponent(openPopupInfo);
 };

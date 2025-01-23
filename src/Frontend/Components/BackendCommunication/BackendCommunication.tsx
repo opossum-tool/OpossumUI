@@ -240,7 +240,7 @@ export const BackendCommunication: React.FC = () => {
   ): void {
     // TODO: remove log statement
     console.log(`showImportDialogListener called for ${fileFormat[0]}`);
-    dispatch(openPopup(PopupType.ImportDialog));
+    dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat));
   }
 
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [

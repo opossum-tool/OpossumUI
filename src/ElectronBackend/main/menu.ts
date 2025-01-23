@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { app, BrowserWindow, Menu, shell } from 'electron';
 
+import { importFileFormats } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { ExportType } from '../../shared/shared-types';
 import { isFileLoaded } from '../utils/getLoadedFile';
@@ -84,10 +85,6 @@ const INITIALLY_DISABLED_ITEMS_INFO: Record<
 export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
   const webContents = mainWindow.webContents;
   const qaMode = await UserSettings.get('qaMode');
-
-  const importFileFormats: { [key: string]: Array<string> } = {
-    'Legacy Opossum File': ['json', 'json.gz'],
-  };
 
   return Menu.buildFromTemplate([
     {

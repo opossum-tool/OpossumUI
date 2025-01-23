@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { PopupType, View } from '../../enums/enums';
-import { State } from '../../types/types';
+import { View } from '../../enums/enums';
+import { PopupInfo, State } from '../../types/types';
 
 export function isAuditViewSelected(state: State): boolean {
   return state.viewState.view === View.Audit;
@@ -22,10 +22,10 @@ export function getTargetView(state: State): View | null {
   return state.viewState.targetView;
 }
 
-export function getOpenPopup(state: State): null | PopupType {
+export function getOpenPopup(state: State): null | PopupInfo {
   const popup = state.viewState.popupInfo.slice(-1);
 
-  return popup.length === 1 ? popup[0].popup : null;
+  return popup.length === 1 ? popup[0] : null;
 }
 
 export function getPopupAttributionId(state: State): string | null {

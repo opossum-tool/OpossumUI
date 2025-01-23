@@ -121,7 +121,7 @@ describe('The actions checking for unsaved changes', () => {
           'uuid_1',
         );
         expect(getSelectedView(testStore.getState())).toBe(View.Audit);
-        expect(getOpenPopup(testStore.getState())).toBe(
+        expect(getOpenPopup(testStore.getState())?.popup).toBe(
           PopupType.NotSavedPopup,
         );
         expect(getSelectedAttributionId(testStore.getState())).toBe('');
@@ -208,7 +208,9 @@ describe('The actions checking for unsaved changes', () => {
       expect(getTargetSelectedResourceId(testStore.getState())).toBe(
         '/testId/',
       );
-      expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
+      expect(getOpenPopup(testStore.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
     });
   });
 
@@ -294,7 +296,9 @@ describe('The actions checking for unsaved changes', () => {
       expect(getTargetSelectedResourceId(testStore.getState())).toBe(
         '/thirdParty/',
       );
-      expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
+      expect(getOpenPopup(testStore.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
     });
   });
 });

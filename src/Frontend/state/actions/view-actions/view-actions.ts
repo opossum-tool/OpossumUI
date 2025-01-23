@@ -63,12 +63,14 @@ export function setTargetView(targetView: View | null): SetTargetView {
 export function openPopup(
   popup: PopupType,
   attributionId?: string,
+  fileFormat?: [string, Array<string>],
 ): OpenPopupAction {
   return {
     type: ACTION_OPEN_POPUP,
     payload: {
       popup,
       attributionId,
+      fileFormat,
     },
   };
 }

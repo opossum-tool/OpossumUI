@@ -12,7 +12,11 @@ import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
-export const ImportDialog: React.FC = () => {
+interface ImportDialogProps {
+  fileFormat: [string, Array<string>];
+}
+
+export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const dispatch = useAppDispatch();
 
   function onCancel(): void {
@@ -35,11 +39,6 @@ export const ImportDialog: React.FC = () => {
   }
 
   function onButtonClick(): void {
-    // TODO: receive file format as parameter
-    const fileFormat: [string, Array<string>] = [
-      'Legacy Opossum File',
-      ['json', 'json.gz'],
-    ];
     window.electronAPI.importFileSelectInput(fileFormat).then(
       (filePath) => {
         if (filePath) {
@@ -53,7 +52,7 @@ export const ImportDialog: React.FC = () => {
   // TODO: extract file input into reusable component FilePathInput
   return (
     <NotificationPopup
-      header={'Import File'}
+      header={`Import ${fileFormat[0]}`}
       content={
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <FormControl sx={{ display: 'flex', flexDirection: 'column' }}>

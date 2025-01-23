@@ -30,6 +30,7 @@ export interface ProgressBarData {
 export interface PopupInfo {
   popup: PopupType;
   attributionId?: string;
+  fileFormat?: [string, Array<string>];
 }
 
 export interface PieChartData {

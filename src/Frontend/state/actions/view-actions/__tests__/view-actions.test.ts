@@ -57,7 +57,9 @@ describe('view actions', () => {
 
     expect(isAuditViewSelected(testStore.getState())).toBe(false);
     expect(getTargetView(testStore.getState())).toBe(View.Report);
-    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
 
     testStore.dispatch(resetViewState());
     expect(isAuditViewSelected(testStore.getState())).toBe(true);
@@ -75,7 +77,9 @@ describe('popup actions', () => {
   it('open NotSavedPopup', () => {
     const testStore = createAppStore();
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
   });
 
   it('close NotSavedPopup', () => {
@@ -93,7 +97,9 @@ describe('popup actions', () => {
     expect(getPopupAttributionId(testStore.getState())).toEqual(
       testAttributionId,
     );
-    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
   });
 
   it('handles multiple opened popups', () => {
@@ -103,11 +109,13 @@ describe('popup actions', () => {
     expect(getPopupAttributionId(testStore.getState())).toEqual(
       testAttributionId,
     );
-    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
 
     testStore.dispatch(openPopup(PopupType.ProjectMetadataPopup));
     expect(getPopupAttributionId(testStore.getState())).toBeNull();
-    expect(getOpenPopup(testStore.getState())).toBe(
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
       PopupType.ProjectMetadataPopup,
     );
 
@@ -115,7 +123,9 @@ describe('popup actions', () => {
     expect(getPopupAttributionId(testStore.getState())).toEqual(
       testAttributionId,
     );
-    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
 
     testStore.dispatch(closePopup());
     expect(getPopupAttributionId(testStore.getState())).toBeNull();
@@ -128,7 +138,9 @@ describe('popup actions', () => {
     // open file search popup twice
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
 
     // there should be only one search popup open
     testStore.dispatch(closePopup());
