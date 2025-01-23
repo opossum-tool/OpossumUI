@@ -9,7 +9,7 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { SendErrorInformationArgs } from '../../../shared/shared-types';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import {
-  createListenerCallbackWithErrorHandling,
+  createVoidListenerCallbackWithErrorHandling,
   getMessageBoxContentForErrorsWrapper,
   getMessageBoxForErrors,
 } from '../errorHandling';
@@ -46,7 +46,7 @@ describe('error handling', () => {
         arg2: true,
       };
 
-      await createListenerCallbackWithErrorHandling(
+      await createVoidListenerCallbackWithErrorHandling(
         mainWindow,
         testFunction,
       )(testArgs);
@@ -65,7 +65,10 @@ describe('error handling', () => {
         throw new Error('TEST_ERROR');
       }
 
-      await createListenerCallbackWithErrorHandling(mainWindow, testFunction)();
+      await createVoidListenerCallbackWithErrorHandling(
+        mainWindow,
+        testFunction,
+      )();
 
       expect(dialog.showMessageBox).toHaveBeenCalledWith(
         expect.objectContaining({

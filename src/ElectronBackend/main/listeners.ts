@@ -30,6 +30,7 @@ import {
 import { LoadedFileFormat } from '../enums/enums';
 import {
   createListenerCallbackWithErrorHandling,
+  createVoidListenerCallbackWithErrorHandling,
   getMessageBoxForErrors,
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
@@ -59,7 +60,7 @@ const jsonFileExtension = '.json';
 export function getSaveFileListener(
   mainWindow: BrowserWindow,
 ): (_: unknown, args: SaveFileArgs) => Promise<void> {
-  return createListenerCallbackWithErrorHandling(
+  return createVoidListenerCallbackWithErrorHandling(
     mainWindow,
     (_: unknown, args: SaveFileArgs) => {
       const globalBackendState = getGlobalBackendState();
@@ -108,7 +109,7 @@ async function writeOutputJsonToFile(
 export function getOpenFileListener(
   mainWindow: BrowserWindow,
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, async () => {
     const filePaths = openOpossumFileDialog();
     if (!filePaths || filePaths.length < 1) {
       return;
@@ -151,7 +152,7 @@ export function getImportFileListener(
   mainWindow: BrowserWindow,
   fileFormat: [string, Array<string>],
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, () => {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, () => {
     mainWindow.webContents.send(
       AllowedFrontendChannels.ImportFileShowDialog,
       fileFormat,
@@ -164,7 +165,7 @@ export function getImportFileSelectInputListener(
 ): (
   _: Electron.IpcMainInvokeEvent,
   fileFormat: [string, Array<string>],
-) => Promise<string> {
+) => Promise<string | null> {
   return createListenerCallbackWithErrorHandling(
     mainWindow,
     (_: Electron.IpcMainInvokeEvent, fileFormat: [string, Array<string>]) => {
@@ -207,7 +208,7 @@ function initializeGlobalBackendState(
 export function getKeepFileListener(
   mainWindow: BrowserWindow,
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, async () => {
     const filePath = getGlobalBackendState().resourceFilePath as string;
     await openFile(mainWindow, filePath);
   });
@@ -216,7 +217,7 @@ export function getKeepFileListener(
 export function getDeleteAndCreateNewAttributionFileListener(
   mainWindow: BrowserWindow,
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, async () => {
     const globalBackendState = getGlobalBackendState();
     const resourceFilePath = globalBackendState.resourceFilePath as string;
 
@@ -237,7 +238,7 @@ export function getDeleteAndCreateNewAttributionFileListener(
 export function getSelectBaseURLListener(
   mainWindow: BrowserWindow,
 ): () => void {
-  return createListenerCallbackWithErrorHandling(mainWindow, () => {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, () => {
     const baseURLs = selectBaseURLDialog();
     if (!baseURLs || baseURLs.length < 1) {
       return;
@@ -414,7 +415,7 @@ export function exportFile(mainWindow: BrowserWindow) {
 export function getExportFileListener(
   mainWindow: BrowserWindow,
 ): (_: unknown, args: ExportArgsType) => Promise<void> {
-  return createListenerCallbackWithErrorHandling(
+  return createVoidListenerCallbackWithErrorHandling(
     mainWindow,
     exportFile(mainWindow),
   );
@@ -496,7 +497,7 @@ export function setLoadingState(
 export function getConvertInputFileToDotOpossumAndOpenListener(
   mainWindow: BrowserWindow,
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, async () => {
     logger.info('Converting .json to .opossum format');
 
     const isOpossumFormat = true;
@@ -568,7 +569,7 @@ function getOutputJson(resourceFilePath: string): string | undefined {
 export function getOpenDotOpossumFileInsteadListener(
   mainWindow: BrowserWindow,
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, async () => {
     const globalBackendState = getGlobalBackendState();
     const opossumFilePath = globalBackendState.opossumFilePath;
     if (!opossumFilePath) {

@@ -17,33 +17,54 @@ import { getGlobalBackendState } from '../main/globalBackendState';
 import logger from '../main/logger';
 import { getLoadedFilePath } from '../utils/getLoadedFile';
 
+async function reportListenerError(
+  mainWindow: BrowserWindow,
+  error: unknown,
+): Promise<void> {
+  if (error instanceof Error) {
+    logger.info(`Failed executing callback function: ${error.message}`);
+    await getMessageBoxForErrors(
+      error.message,
+      error.stack ?? '',
+      mainWindow,
+      true,
+    );
+  } else {
+    logger.info('Failed executing callback function.');
+    await getMessageBoxForErrors(
+      'Unexpected internal error',
+      '',
+      mainWindow,
+      true,
+    );
+  }
+}
+
+export function createVoidListenerCallbackWithErrorHandling(
+  mainWindow: BrowserWindow,
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  func: Function,
+): (...args: Array<unknown>) => Promise<void> {
+  return async (...args: Array<unknown>): Promise<void> => {
+    try {
+      await func(...args);
+    } catch (error: unknown) {
+      await reportListenerError(mainWindow, error);
+    }
+  };
+}
+
 export function createListenerCallbackWithErrorHandling<T>(
   mainWindow: BrowserWindow,
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   func: Function,
-): (...args: Array<unknown>) => Promise<T> {
-  return async (...args: Array<unknown>): Promise<T> => {
+): (...args: Array<unknown>) => Promise<T | null> {
+  return async (...args: Array<unknown>): Promise<T | null> => {
     try {
       return await func(...args);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        logger.info(`Failed executing callback function: ${error.message}`);
-        await getMessageBoxForErrors(
-          error.message,
-          error.stack ?? '',
-          mainWindow,
-          true,
-        );
-      } else {
-        logger.info('Failed executing callback function.');
-        await getMessageBoxForErrors(
-          'Unexpected internal error',
-          '',
-          mainWindow,
-          true,
-        );
-      }
-      return Promise.reject(error);
+      await reportListenerError(mainWindow, error);
+      return Promise.resolve(null);
     }
   };
 }
