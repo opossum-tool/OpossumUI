@@ -15,7 +15,7 @@ export function getDotOpossumFilePath(
 ): string {
   const fileExtensionLength = possibleExtensions
     .map((extension) => {
-      if (resourceFilePath.endsWith(extension)) {
+      if (resourceFilePath.endsWith(`.${extension}`)) {
         return extension.length;
       }
       return 0;

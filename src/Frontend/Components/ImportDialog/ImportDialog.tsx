@@ -54,7 +54,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   function updateInputFilePath(filePath: string) {
     setInputFilePath(filePath);
     if (
-      fileFormat[1].some((extension) => filePath.endsWith(extension)) &&
+      fileFormat[1].some((extension) => filePath.endsWith(`.${extension}`)) &&
       !opossumFilePathEdited
     ) {
       const opossumFilePath = getDotOpossumFilePath(filePath, fileFormat[1]);
