@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
-import { strFromU8, unzip } from 'fflate';
 import fs from 'fs';
 
 import {
@@ -23,16 +22,12 @@ import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
 import { createWindow } from '../createWindow';
-import { openOpossumFileDialog, selectBaseURLDialog } from '../dialogs';
+import { selectBaseURLDialog } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   exportFile,
-  getConvertInputFileToDotOpossumAndOpenListener,
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
-  getKeepFileListener,
-  getOpenDotOpossumFileInsteadListener,
-  getOpenFileListener,
   getOpenLinkListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
@@ -103,197 +98,7 @@ jest.mock('../dialogs', () => ({
   selectBaseURLDialog: jest.fn(),
 }));
 
-describe('getOpenFileListener', () => {
-  it('sends signal for opening FileSupportPopup to frontend when .opossum file is not existent', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const jsonPath = await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${faker.string.uuid()}.json`),
-    });
-
-    (openOpossumFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
-
-    await getOpenFileListener(mainWindow)();
-
-    expect(openOpossumFileDialog).toHaveBeenCalled();
-    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
-    );
-  });
-
-  it('sends signal for opening FileSupportPopupDotOpossumExistent to frontend when .opossum file exists', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const fileName = faker.string.uuid();
-    const jsonPath = await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${fileName}.json`),
-    });
-    await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${fileName}.opossum`),
-    });
-
-    (openOpossumFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
-
-    await getOpenFileListener(mainWindow)();
-
-    expect(openOpossumFileDialog).toHaveBeenCalled();
-    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: true },
-    );
-  });
-
-  it('handles _attributions.json files correctly if .json present', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const fileName = faker.string.uuid();
-    await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${fileName}.json`),
-    });
-
-    (openOpossumFileDialog as jest.Mock).mockReturnValueOnce([
-      faker.outputPath(`${fileName}_attributions.json`),
-    ]);
-
-    await getOpenFileListener(mainWindow)();
-
-    expect(openOpossumFileDialog).toHaveBeenCalled();
-    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
-    );
-  });
-
-  it('handles _attributions.json files correctly if .json.gz present', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const fileName = faker.string.uuid();
-    await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${fileName}.json.gz`),
-    });
-
-    (openOpossumFileDialog as jest.Mock).mockReturnValueOnce([
-      faker.outputPath(`${fileName}_attributions.json`),
-    ]);
-
-    await getOpenFileListener(mainWindow)();
-
-    expect(openOpossumFileDialog).toHaveBeenCalled();
-    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
-    );
-  });
-});
-
-describe('getConvertInputFileToDotOpossumListener', () => {
-  it('converts outdated input file formats correctly and loads .opossum', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const fileName = faker.string.uuid();
-    const resourcesJson = faker.string.sample();
-    const attributionsJson = faker.string.sample();
-    const expectedDotOpossumFilePath = faker.outputPath(`${fileName}.opossum`);
-
-    const resourcesJsonPath = await writeFile({
-      content: resourcesJson,
-      path: faker.outputPath(`${fileName}.json`),
-    });
-    await writeFile({
-      content: attributionsJson,
-      path: faker.outputPath(`${fileName}_attributions.json`),
-    });
-
-    setGlobalBackendState({
-      resourceFilePath: resourcesJsonPath,
-    });
-
-    await getConvertInputFileToDotOpossumAndOpenListener(mainWindow)();
-
-    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-      expect.anything(),
-      expectedDotOpossumFilePath,
-    );
-
-    let parsedInputJson: unknown;
-    let parsedOutputJson: unknown;
-
-    await new Promise<void>((resolve) => {
-      fs.readFile(expectedDotOpossumFilePath, (err, data) => {
-        if (err) {
-          throw err;
-        }
-
-        unzip(data, (err, unzippedData) => {
-          if (err) {
-            throw err;
-          }
-          parsedInputJson = strFromU8(unzippedData['input.json']);
-          parsedOutputJson = strFromU8(unzippedData['output.json']);
-
-          resolve();
-        });
-      });
-    });
-
-    expect(parsedInputJson).toEqual(resourcesJson);
-    expect(parsedOutputJson).toEqual(attributionsJson);
-  });
-});
-
-describe('getOpenDotOpossumFileListener', () => {
-  it('opens .opossum file', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const opossumFilePath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-    setGlobalBackendState({
-      opossumFilePath,
-    });
-
-    await getOpenDotOpossumFileInsteadListener(mainWindow)();
-
-    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-      expect.anything(),
-      opossumFilePath,
-    );
-  });
-});
+// TODO: add tests for import listeners
 
 describe('getDeleteAndCreateNewAttributionFileListener', () => {
   it('deletes attribution file and calls loadInputAndOutputFromFilePath', async () => {
@@ -322,28 +127,6 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
       resourceFilePath,
-    );
-  });
-});
-
-describe('getKeepFileListener', () => {
-  it('calls loadInputAndOutputFromFilePath with a correct path', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    setGlobalBackendState({
-      resourceFilePath: '/somefile.json',
-    });
-
-    await getKeepFileListener(mainWindow)();
-
-    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-      expect.anything(),
-      '/somefile.json',
     );
   });
 });

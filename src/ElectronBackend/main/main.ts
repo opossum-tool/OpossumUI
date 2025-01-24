@@ -9,18 +9,14 @@ import { IpcChannel } from '../../shared/ipc-channels';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow } from './createWindow';
 import {
-  getConvertInputFileToDotOpossumAndOpenListener,
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
   getImportFileConvertAndLoadListener,
   getImportFileSelectInputListener,
   getImportFileSelectSaveLocationListener,
-  getKeepFileListener,
-  getOpenDotOpossumFileInsteadListener,
   getOpenFileListener,
   getOpenLinkListener,
   getSaveFileListener,
-  getSendErrorInformationListener,
 } from './listeners';
 import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
@@ -67,14 +63,6 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.Relaunch, () => {
       mainWindow.reload();
     });
-    ipcMain.handle(
-      IpcChannel.ConvertInputFile,
-      getConvertInputFileToDotOpossumAndOpenListener(mainWindow),
-    );
-    ipcMain.handle(
-      IpcChannel.OpenDotOpossumFile,
-      getOpenDotOpossumFileInsteadListener(mainWindow),
-    );
     ipcMain.handle(IpcChannel.OpenFile, getOpenFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.ImportFileSelectInput,
@@ -92,11 +80,6 @@ export async function main(): Promise<void> {
     ipcMain.handle(
       IpcChannel.DeleteFile,
       getDeleteAndCreateNewAttributionFileListener(mainWindow),
-    );
-    ipcMain.handle(IpcChannel.KeepFile, getKeepFileListener(mainWindow));
-    ipcMain.handle(
-      IpcChannel.SendErrorInformation,
-      getSendErrorInformationListener(mainWindow),
     );
     ipcMain.handle(IpcChannel.ExportFile, getExportFileListener(mainWindow));
     ipcMain.handle(IpcChannel.OpenLink, getOpenLinkListener());

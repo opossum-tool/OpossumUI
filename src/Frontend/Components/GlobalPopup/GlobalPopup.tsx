@@ -8,8 +8,6 @@ import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
 import { PopupInfo } from '../../types/types';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
-import { FileSupportDotOpossumAlreadyExistsPopup } from '../FileSupportDotOpossumAlreadyExistsPopup/FileSupportDotOpossumAlreadyExistsPopup';
-import { FileSupportPopup } from '../FileSupportPopup/FileSupportPopup';
 import { ImportDialog } from '../ImportDialog/ImportDialog';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
@@ -26,10 +24,6 @@ function getPopupComponent(popupInfo: PopupInfo | null) {
       return <ProjectMetadataPopup />;
     case PopupType.ProjectStatisticsPopup:
       return <ProjectStatisticsPopup />;
-    case PopupType.FileSupportPopup:
-      return <FileSupportPopup />;
-    case PopupType.FileSupportDotOpossumAlreadyExistsPopup:
-      return <FileSupportDotOpossumAlreadyExistsPopup />;
     case PopupType.UpdateAppPopup:
       return <UpdateAppPopup />;
     case PopupType.ImportDialog:

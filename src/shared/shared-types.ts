@@ -229,11 +229,6 @@ export interface ExternalAttributionSources {
   [source: string]: ExternalAttributionSource;
 }
 
-export interface FileSupportPopupArgs {
-  showFileSupportPopup: boolean;
-  dotOpossumFileAlreadyExists: boolean;
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
@@ -246,13 +241,9 @@ export interface ElectronAPI {
     fileFormat: [string, Array<string>],
   ) => Promise<string | null>;
   importFileSelectSaveLocation: (defaultPath: string) => Promise<string | null>;
-  importFileConvertAndLoad: (filePath: string) => void;
-  deleteFile: () => Promise<unknown>;
-  keepFile: () => Promise<unknown>;
-  convertInputFileToDotOpossum: () => void;
-  openDotOpossumFile: () => void;
-  sendErrorInformation: (
-    errorInformationArgs: SendErrorInformationArgs,
+  importFileConvertAndLoad: (
+    inputFilePath: string,
+    opossumFilePath: string,
   ) => void;
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;

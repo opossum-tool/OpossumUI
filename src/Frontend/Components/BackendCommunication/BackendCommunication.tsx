@@ -14,7 +14,6 @@ import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
-  FileSupportPopupArgs,
   ParsedFileContent,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
@@ -221,19 +220,6 @@ export const BackendCommunication: React.FC = () => {
     }
   }
 
-  function showFileSupportPopupListener(
-    _: IpcRendererEvent,
-    fileSupportPopupArgs: FileSupportPopupArgs,
-  ): void {
-    if (fileSupportPopupArgs?.showFileSupportPopup) {
-      if (fileSupportPopupArgs.dotOpossumFileAlreadyExists) {
-        dispatch(openPopup(PopupType.FileSupportDotOpossumAlreadyExistsPopup));
-      } else {
-        dispatch(openPopup(PopupType.FileSupportPopup));
-      }
-    }
-  }
-
   function importFileShowDialogListener(
     _: IpcRendererEvent,
     fileFormat: [string, Array<string>],
@@ -279,11 +265,6 @@ export const BackendCommunication: React.FC = () => {
       frequentLicenseTexts,
       filesWithChildren,
     ],
-  );
-  useIpcRenderer(
-    AllowedFrontendChannels.ShowFileSupportPopup,
-    showFileSupportPopupListener,
-    [dispatch],
   );
   useIpcRenderer(
     AllowedFrontendChannels.ShowUpdateAppPopup,

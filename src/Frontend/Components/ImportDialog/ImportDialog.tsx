@@ -36,8 +36,11 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   }
 
   function onConfirm(): void {
-    if (inputFilePath) {
-      window.electronAPI.importFileConvertAndLoad(inputFilePath);
+    if (inputFilePath && opossumFilePath) {
+      window.electronAPI.importFileConvertAndLoad(
+        inputFilePath,
+        opossumFilePath,
+      );
 
       dispatch(closePopup());
     }
