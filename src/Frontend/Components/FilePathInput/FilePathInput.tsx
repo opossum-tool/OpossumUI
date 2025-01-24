@@ -8,8 +8,9 @@ import MuiTextField from '@mui/material/TextField';
 import MuiBox from '@mui/system/Box';
 
 interface FilePathInputProps {
+  label: string;
   displayedFilePath: string;
-  updateFilePath: (filePath: string) => void;
+  onEdit: (filePath: string) => void;
   onButtonClick: () => void;
   errorMessage: string | null;
 }
@@ -19,10 +20,10 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
     <FormControl sx={{ display: 'flex', flexDirection: 'column' }}>
       <MuiBox sx={{ display: 'flex', alignItems: 'center', pt: '10px' }}>
         <MuiTextField
-          label={'Path to input file'}
+          label={props.label}
           value={props.displayedFilePath}
           error={props.errorMessage !== null}
-          onChange={(event) => props.updateFilePath(event.target.value)}
+          onChange={(event) => props.onEdit(event.target.value)}
           sx={{ width: 600 }}
         />
         <IconButton

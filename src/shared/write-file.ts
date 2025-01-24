@@ -9,6 +9,27 @@ export const OPOSSUM_FILE_EXTENSION = '.opossum';
 export const INPUT_FILE_NAME = 'input.json';
 export const OUTPUT_FILE_NAME = 'output.json';
 
+export function getDotOpossumFilePath(
+  resourceFilePath: string,
+  possibleExtensions: Array<string>,
+): string {
+  const fileExtensionLength = possibleExtensions
+    .map((extension) => {
+      if (resourceFilePath.endsWith(extension)) {
+        return extension.length;
+      }
+      return 0;
+    })
+    .reduce((a, b) => Math.max(a, b), 0);
+
+  const resourceFilePathWithoutFileExtension = resourceFilePath.slice(
+    0,
+    -(fileExtensionLength + 1),
+  );
+
+  return resourceFilePathWithoutFileExtension + OPOSSUM_FILE_EXTENSION;
+}
+
 export async function writeFile({
   content,
   path,
