@@ -14,6 +14,7 @@ import {
   getExportFileListener,
   getImportFileConvertAndLoadListener,
   getImportFileSelectInputListener,
+  getImportFileSelectSaveLocationListener,
   getKeepFileListener,
   getOpenDotOpossumFileInsteadListener,
   getOpenFileListener,
@@ -78,6 +79,10 @@ export async function main(): Promise<void> {
     ipcMain.handle(
       IpcChannel.ImportFileSelectInput,
       getImportFileSelectInputListener(mainWindow),
+    );
+    ipcMain.handle(
+      IpcChannel.ImportFileSelectSaveLocation,
+      getImportFileSelectSaveLocationListener(mainWindow),
     );
     ipcMain.on(
       IpcChannel.ImportFileConvertAndLoad,

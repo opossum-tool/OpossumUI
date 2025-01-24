@@ -19,7 +19,7 @@ function openFileDialog(
 export function openOpossumFileDialog(): Array<string> | undefined {
   const filters = [
     {
-      name: 'Opossum Input File',
+      name: 'Opossum File',
       extensions: ['opossum'],
     },
   ];
@@ -36,6 +36,13 @@ export function openNonOpossumFileDialog(
     },
   ];
   return openFileDialog(filters);
+}
+
+export function saveFileDialog(defaultPath?: string): string | undefined {
+  const window = BrowserWindow.getFocusedWindow();
+  return window
+    ? dialog.showSaveDialogSync(window, { defaultPath })
+    : undefined;
 }
 
 export function selectBaseURLDialog(): Array<string> | undefined {

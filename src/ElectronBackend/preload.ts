@@ -15,6 +15,8 @@ const electronAPI: ElectronAPI = {
   openFile: () => ipcRenderer.invoke(IpcChannel.OpenFile),
   importFileSelectInput: (fileFormat) =>
     ipcRenderer.invoke(IpcChannel.ImportFileSelectInput, fileFormat),
+  importFileSelectSaveLocation: (defaultPath) =>
+    ipcRenderer.invoke(IpcChannel.ImportFileSelectSaveLocation, defaultPath),
   importFileConvertAndLoad: (filePath) => {
     console.log(`send convert-and-load for ${filePath}`);
     ipcRenderer.send(IpcChannel.ImportFileConvertAndLoad, filePath);

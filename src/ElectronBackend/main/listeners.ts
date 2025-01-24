@@ -44,6 +44,7 @@ import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
 import {
   openNonOpossumFileDialog,
   openOpossumFileDialog,
+  saveFileDialog,
   selectBaseURLDialog,
 } from './dialogs';
 import {
@@ -174,6 +175,21 @@ export function getImportFileSelectInputListener(
         return '';
       }
       return filePaths[0];
+    },
+  );
+}
+
+export function getImportFileSelectSaveLocationListener(
+  mainWindow: BrowserWindow,
+): (
+  _: Electron.IpcMainInvokeEvent,
+  defaultPath: string,
+) => Promise<string | null> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow,
+    (_: Electron.IpcMainInvokeEvent, defaultPath: string) => {
+      const filePath = saveFileDialog(defaultPath);
+      return filePath ?? null;
     },
   );
 }

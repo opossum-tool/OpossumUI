@@ -82,7 +82,17 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     );
   }
 
-  function selectOpossumFilePath(): void {}
+  function selectOpossumFilePath(): void {
+    const defaultPath = opossumFilePath || 'imported.opossum';
+    window.electronAPI.importFileSelectSaveLocation(defaultPath).then(
+      (filePath) => {
+        if (filePath) {
+          editOpossumFilePath(filePath);
+        }
+      },
+      () => {},
+    );
+  }
 
   return (
     <NotificationPopup
@@ -90,14 +100,14 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       content={
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <FilePathInput
-            label={'Location of input file'}
+            label={'Input file'}
             displayedFilePath={displayedInputFilePath}
             onEdit={updateInputFilePath}
             onButtonClick={selectInputFilePath}
             errorMessage={inputFilePathErrorMessage}
           />
           <FilePathInput
-            label={'Location of newly created opossum file'}
+            label={'Opossum file save location'}
             displayedFilePath={displayedOpossumFilePath}
             onEdit={editOpossumFilePath}
             onButtonClick={selectOpossumFilePath}
