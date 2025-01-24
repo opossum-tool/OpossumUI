@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiTypography from '@mui/material/Typography';
 import { useMemo, useState } from 'react';
 
 import { getDotOpossumFilePath } from '../../../shared/write-file';
@@ -16,6 +17,12 @@ enum FilePathValidity {
   EMPTY_STRING,
   WRONG_EXTENSION,
 }
+
+const explanationTextLine1 =
+  'OpossumUI will convert the selected file into a new opossum file.';
+
+const explanationTextLine2 =
+  'All changes made to the project in OpossumUI will be saved in this opossum file.';
 
 interface ImportDialogProps {
   fileFormat: [string, Array<string>];
@@ -145,8 +152,12 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       header={`Import ${fileFormat[0]}`}
       content={
         <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <MuiTypography>{explanationTextLine1}</MuiTypography>
+          <MuiTypography sx={{ mb: '10px' }}>
+            {explanationTextLine2}
+          </MuiTypography>
           <FilePathInput
-            label={'Input file'}
+            label={'File to import'}
             displayedFilePath={displayedInputFilePath}
             onEdit={updateInputFilePath}
             onButtonClick={selectInputFilePath}
