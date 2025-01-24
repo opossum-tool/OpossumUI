@@ -2,13 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+
+enum FilePathValidity {
+  VALID,
+  NULL_VALUE,
+  EMPTY_STRING,
+  WRONG_EXTENSION,
+}
 
 interface ImportDialogProps {
   fileFormat: [string, Array<string>];
@@ -38,23 +45,62 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const displayedInputFilePath = inputFilePath || '';
   const displayedOpossumFilePath = opossumFilePath || '';
 
-  const inputFilePathIsInvalid = !inputFilePath?.trim();
-  const opossumFilePathIsInvalid = !opossumFilePath?.trim();
+  function validateFilePath(
+    filePath: string | null,
+    expectedExtensions: Array<string>,
+  ): FilePathValidity {
+    if (filePath === null) {
+      return FilePathValidity.NULL_VALUE;
+    } else if (!filePath?.trim()) {
+      return FilePathValidity.EMPTY_STRING;
+    } else if (
+      !expectedExtensions.some((extension) =>
+        filePath.endsWith(`.${extension}`),
+      )
+    ) {
+      return FilePathValidity.WRONG_EXTENSION;
+    }
 
-  const inputFilePathErrorMessage =
-    inputFilePathIsInvalid && inputFilePath !== null
-      ? 'Invalid file path'
-      : null;
+    return FilePathValidity.VALID;
+  }
 
-  const opossumFilePathErrorMessage =
-    opossumFilePathIsInvalid && opossumFilePath !== null
-      ? 'Invalid file path'
-      : null;
+  const inputFilePathValidity = validateFilePath(inputFilePath, fileFormat[1]);
+
+  const opossumFilePathValidity = validateFilePath(opossumFilePath, [
+    'opossum',
+  ]);
+
+  const inputFilePathIsValid = inputFilePathValidity === FilePathValidity.VALID;
+
+  const opossumFilePathIsValid =
+    opossumFilePathValidity === FilePathValidity.VALID;
+
+  const inputFilePathErrorMessage = useMemo(() => {
+    switch (inputFilePathValidity) {
+      case FilePathValidity.EMPTY_STRING:
+        return 'No file selected';
+      case FilePathValidity.WRONG_EXTENSION:
+        return `Invalid file extension, should be ${fileFormat[1].map((ext) => `.${ext}`).join(' or ')}`;
+      default:
+        return null;
+    }
+  }, [inputFilePathValidity, fileFormat]);
+
+  const opossumFilePathErrorMessage = useMemo(() => {
+    switch (opossumFilePathValidity) {
+      case FilePathValidity.EMPTY_STRING:
+        return 'No save location selected';
+      case FilePathValidity.WRONG_EXTENSION:
+        return 'File extension has to be .opossum';
+      default:
+        return null;
+    }
+  }, [opossumFilePathValidity]);
 
   function updateInputFilePath(filePath: string) {
     setInputFilePath(filePath);
     if (
-      fileFormat[1].some((extension) => filePath.endsWith(`.${extension}`)) &&
+      validateFilePath(filePath, fileFormat[1]) === FilePathValidity.VALID &&
       !opossumFilePathEdited
     ) {
       const opossumFilePath = getDotOpossumFilePath(filePath, fileFormat[1]);
@@ -119,7 +165,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: 'Import',
-        disabled: inputFilePathIsInvalid || opossumFilePathIsInvalid,
+        disabled: !inputFilePathIsValid || !opossumFilePathIsValid,
       }}
       rightButtonConfig={{
         onClick: onCancel,
