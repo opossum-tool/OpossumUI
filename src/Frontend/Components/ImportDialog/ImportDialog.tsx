@@ -16,6 +16,7 @@ enum FilePathValidity {
   NULL_VALUE,
   EMPTY_STRING,
   WRONG_EXTENSION,
+  PATH_DOESNT_EXIST,
 }
 
 const explanationTextLine1 =
@@ -51,6 +52,10 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const [opossumFilePathEdited, setOpossumFilePathEdited] =
     useState<boolean>(false);
 
+  const [inputFilePathExists, setInputFilePathExists] = useState<boolean>(true);
+  const [opossumFilePathExists, setOpossumFilePathExists] =
+    useState<boolean>(true);
+
   // updates from the button are not processed correctly if value starts at null
   const displayedInputFilePath = inputFilePath || '';
   const displayedOpossumFilePath = opossumFilePath || '';
@@ -58,11 +63,14 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   function validateFilePath(
     filePath: string | null,
     expectedExtensions: Array<string>,
+    filePathExists: boolean,
   ): FilePathValidity {
     if (filePath === null) {
       return FilePathValidity.NULL_VALUE;
     } else if (!filePath?.trim()) {
       return FilePathValidity.EMPTY_STRING;
+    } else if (!filePathExists) {
+      return FilePathValidity.PATH_DOESNT_EXIST;
     } else if (
       !expectedExtensions.some((extension) =>
         filePath.endsWith(`.${extension}`),
@@ -74,11 +82,17 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     return FilePathValidity.VALID;
   }
 
-  const inputFilePathValidity = validateFilePath(inputFilePath, fileFormat[1]);
+  const inputFilePathValidity = validateFilePath(
+    inputFilePath,
+    fileFormat[1],
+    inputFilePathExists,
+  );
 
-  const opossumFilePathValidity = validateFilePath(opossumFilePath, [
-    'opossum',
-  ]);
+  const opossumFilePathValidity = validateFilePath(
+    opossumFilePath,
+    ['opossum'],
+    opossumFilePathExists,
+  );
 
   const inputFilePathIsValid = inputFilePathValidity === FilePathValidity.VALID;
 
@@ -91,6 +105,8 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         return 'No file selected';
       case FilePathValidity.WRONG_EXTENSION:
         return `Invalid file extension, should be ${fileFormat[1].map((ext) => `.${ext}`).join(' or ')}`;
+      case FilePathValidity.PATH_DOESNT_EXIST:
+        return 'The specified file does not exist';
       default:
         return null;
     }
@@ -102,6 +118,8 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         return 'No save location selected';
       case FilePathValidity.WRONG_EXTENSION:
         return 'File extension has to be .opossum';
+      case FilePathValidity.PATH_DOESNT_EXIST:
+        return 'The path contains a non-existent directory';
       default:
         return null;
     }
@@ -110,16 +128,29 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   function updateInputFilePath(filePath: string) {
     setInputFilePath(filePath);
     if (
-      validateFilePath(filePath, fileFormat[1]) === FilePathValidity.VALID &&
+      // Setting the opossum file path even though the current input file doesn't exist is fine
+      validateFilePath(filePath, fileFormat[1], true) ===
+        FilePathValidity.VALID &&
       !opossumFilePathEdited
     ) {
-      const opossumFilePath = getDotOpossumFilePath(filePath, fileFormat[1]);
-      setOpossumFilePath(opossumFilePath);
+      const derivedOpossumFilePath = getDotOpossumFilePath(
+        filePath,
+        fileFormat[1],
+      );
+      checkPathsOnFS(filePath, derivedOpossumFilePath);
+      setOpossumFilePath(derivedOpossumFilePath);
+    } else {
+      checkPathsOnFS(filePath, opossumFilePath);
     }
   }
 
-  function editOpossumFilePath(filePath: string) {
+  function updateOpossumFilePath(filePath: string) {
+    checkPathsOnFS(inputFilePath, filePath);
     setOpossumFilePath(filePath);
+  }
+
+  function editOpossumFilePath(filePath: string) {
+    updateOpossumFilePath(filePath);
     if (filePath) {
       setOpossumFilePathEdited(true);
     } else {
@@ -148,6 +179,24 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       },
       () => {},
     );
+  }
+
+  function checkPathsOnFS(
+    inputFilePath: string | null,
+    opossumFilePath: string | null,
+  ): void {
+    window.electronAPI
+      .importFileValidatePaths(inputFilePath ?? '', opossumFilePath ?? '')
+      .then(
+        (reply) => {
+          if (reply) {
+            const [inputFilePathExists, opossumFilePathExists] = reply;
+            setInputFilePathExists(inputFilePathExists);
+            setOpossumFilePathExists(opossumFilePathExists);
+          }
+        },
+        () => {},
+      );
   }
 
   return (

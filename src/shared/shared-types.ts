@@ -245,6 +245,10 @@ export interface ElectronAPI {
     inputFilePath: string,
     opossumFilePath: string,
   ) => void;
+  importFileValidatePaths: (
+    inputFilePath: string,
+    opossumFilePath: string,
+  ) => Promise<[boolean, boolean] | null>;
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;

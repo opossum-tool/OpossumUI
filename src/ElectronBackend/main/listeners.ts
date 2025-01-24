@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, shell, WebContents } from 'electron';
 import fs from 'fs';
+import path from 'path';
 import upath from 'upath';
 import zlib from 'zlib';
 
@@ -203,6 +204,29 @@ export function getImportFileConvertAndLoadListener(
       initializeGlobalBackendState(opossumFilePath, true);
 
       await openFile(mainWindow, opossumFilePath);
+    },
+  );
+}
+
+export function getImportFileValidatePathsListener(
+  mainWindow: BrowserWindow,
+): (
+  _: Electron.IpcMainInvokeEvent,
+  inputFilePath: string,
+  opossumFilePath: string,
+) => Promise<boolean | null> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow,
+    (
+      _: Electron.IpcMainInvokeEvent,
+      inputFilePath: string,
+      opossumFilePath: string,
+    ) => {
+      const inputFilePathExists = fs.existsSync(inputFilePath);
+      const opossumDirectoryExists = fs.existsSync(
+        path.dirname(opossumFilePath),
+      );
+      return [inputFilePathExists, opossumDirectoryExists];
     },
   );
 }

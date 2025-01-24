@@ -11,6 +11,7 @@ export enum IpcChannel {
   ImportFileSelectInput = 'import-file-select-input',
   ImportFileSelectSaveLocation = 'import-file-select-save-location',
   ImportFileConvertAndLoad = 'import-file-convert-and-load',
+  ImportFileValidatePaths = 'import-file-validate-paths',
   OpenLink = 'open-link',
   SaveFile = 'save-file',
   GetUserSettings = 'get-user-settings',
