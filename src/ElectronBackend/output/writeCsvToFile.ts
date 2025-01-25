@@ -16,7 +16,7 @@ export async function writeCsvToFile(
   attributionsToWrite: Attributions,
   columns: Array<keyof PackageInfo>,
   shortenResources = false,
-): Promise<unknown> {
+): Promise<void> {
   try {
     const writeStream = fs.createWriteStream(filePath);
     const csvStream = csv.format({
