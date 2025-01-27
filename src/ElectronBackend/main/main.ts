@@ -73,7 +73,7 @@ export async function main(): Promise<void> {
       IpcChannel.ImportFileSelectSaveLocation,
       getImportFileSelectSaveLocationListener(mainWindow),
     );
-    ipcMain.on(
+    ipcMain.handle(
       IpcChannel.ImportFileConvertAndLoad,
       getImportFileConvertAndLoadListener(mainWindow),
     );

@@ -244,7 +244,7 @@ export interface ElectronAPI {
   importFileConvertAndLoad: (
     inputFilePath: string,
     opossumFilePath: string,
-  ) => void;
+  ) => Promise<boolean | null>;
   importFileValidatePaths: (
     inputFilePath: string,
     opossumFilePath: string,

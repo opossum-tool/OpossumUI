@@ -172,38 +172,49 @@ export function getImportFileSelectSaveLocationListener(
 
 export function getImportFileConvertAndLoadListener(
   mainWindow: BrowserWindow,
-): (_: Electron.IpcMainInvokeEvent, filePath: string) => Promise<void> {
-  return createVoidListenerCallbackWithErrorHandling(
+): (
+  _: Electron.IpcMainInvokeEvent,
+  resourceFilePath: string,
+  opossumFilePath: string,
+) => Promise<boolean | null> {
+  return createListenerCallbackWithErrorHandling(
     mainWindow,
-    async (
+    (
       _: Electron.IpcMainInvokeEvent,
       resourceFilePath: string,
       opossumFilePath: string,
     ) => {
       logger.info('Converting .json to .opossum format');
 
-      if (!resourceFilePath) {
-        throw new Error(`Resource file path is invalid: ${resourceFilePath}`);
+      if (!resourceFilePath || !fs.existsSync(resourceFilePath)) {
+        return false;
       }
 
-      if (!opossumFilePath) {
-        throw new Error(`Opossum file path is invalid: ${opossumFilePath}`);
+      if (!opossumFilePath || !fs.existsSync(path.dirname(opossumFilePath))) {
+        return false;
       }
 
-      if (resourceFilePath.endsWith(outputFileEnding)) {
-        resourceFilePath = tryToGetInputFileFromOutputFile(resourceFilePath);
-      }
+      const convertAndLoadContinuation =
+        createListenerCallbackWithErrorHandling(mainWindow, async () => {
+          if (resourceFilePath.endsWith(outputFileEnding)) {
+            resourceFilePath =
+              tryToGetInputFileFromOutputFile(resourceFilePath);
+          }
 
-      await writeOpossumFile({
-        path: opossumFilePath,
-        input: getInputJson(resourceFilePath),
-        output: getOutputJson(resourceFilePath),
-      });
+          await writeOpossumFile({
+            path: opossumFilePath,
+            input: getInputJson(resourceFilePath),
+            output: getOutputJson(resourceFilePath),
+          });
 
-      logger.info('Updating global backend state');
-      initializeGlobalBackendState(opossumFilePath, true);
+          logger.info('Updating global backend state');
+          initializeGlobalBackendState(opossumFilePath, true);
 
-      await openFile(mainWindow, opossumFilePath);
+          await openFile(mainWindow, opossumFilePath);
+        });
+
+      void convertAndLoadContinuation();
+      return true;
     },
   );
 }

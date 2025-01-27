@@ -18,7 +18,7 @@ const electronAPI: ElectronAPI = {
   importFileSelectSaveLocation: (defaultPath) =>
     ipcRenderer.invoke(IpcChannel.ImportFileSelectSaveLocation, defaultPath),
   importFileConvertAndLoad: (inputFilePath, opossumFilePath) =>
-    ipcRenderer.send(
+    ipcRenderer.invoke(
       IpcChannel.ImportFileConvertAndLoad,
       inputFilePath,
       opossumFilePath,
