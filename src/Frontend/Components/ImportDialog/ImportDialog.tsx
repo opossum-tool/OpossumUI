@@ -225,15 +225,17 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
             {explanationTextLine2}
           </MuiTypography>
           <FilePathInput
-            label={'File to import'}
+            label={`File to import (${fileFormat[1].map((ext) => `.${ext}`).join('/')})`}
             displayedFilePath={displayedInputFilePath}
+            buttonToolTip="Select file"
             onEdit={updateInputFilePath}
             onButtonClick={selectInputFilePath}
             errorMessage={inputFilePathErrorMessage}
           />
           <FilePathInput
-            label={'Opossum file save location'}
+            label="Opossum file save location"
             displayedFilePath={displayedOpossumFilePath}
+            buttonToolTip="Select save location"
             onEdit={editOpossumFilePath}
             onButtonClick={selectOpossumFilePath}
             errorMessage={opossumFilePathErrorMessage}
