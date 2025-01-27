@@ -14,6 +14,7 @@ import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
+  FileFormatInfo,
   ParsedFileContent,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
@@ -222,7 +223,7 @@ export const BackendCommunication: React.FC = () => {
 
   function importFileShowDialogListener(
     _: IpcRendererEvent,
-    fileFormat: [string, Array<string>],
+    fileFormat: FileFormatInfo,
   ): void {
     dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat));
   }

@@ -4,6 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog } from 'electron';
 
+import { FileFormatInfo } from '../../shared/shared-types';
+
 function openFileDialog(
   filters: Array<Electron.FileFilter>,
 ): Array<string> | undefined {
@@ -27,7 +29,7 @@ export function openOpossumFileDialog(): Array<string> | undefined {
 }
 
 export function openNonOpossumFileDialog(
-  fileFormat: [string, Array<string>],
+  fileFormat: FileFormatInfo,
 ): Array<string> | undefined {
   const filters = [
     {

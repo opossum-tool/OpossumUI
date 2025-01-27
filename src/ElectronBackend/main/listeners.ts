@@ -18,6 +18,7 @@ import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
+  FileFormatInfo,
   OpenLinkArgs,
   PackageInfo,
   SaveFileArgs,
@@ -141,11 +142,11 @@ export function getImportFileSelectInputListener(
   mainWindow: BrowserWindow,
 ): (
   _: Electron.IpcMainInvokeEvent,
-  fileFormat: [string, Array<string>],
+  fileFormat: FileFormatInfo,
 ) => Promise<string | null> {
   return createListenerCallbackWithErrorHandling(
     mainWindow,
-    (_: Electron.IpcMainInvokeEvent, fileFormat: [string, Array<string>]) => {
+    (_: Electron.IpcMainInvokeEvent, fileFormat: FileFormatInfo) => {
       const filePaths = openNonOpossumFileDialog(fileFormat);
       if (!filePaths || filePaths.length < 1) {
         return '';

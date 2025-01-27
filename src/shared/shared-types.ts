@@ -229,6 +229,8 @@ export interface ExternalAttributionSources {
   [source: string]: ExternalAttributionSource;
 }
 
+export type FileFormatInfo = [string, Array<string>];
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
@@ -237,9 +239,7 @@ export interface ElectronAPI {
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: () => Promise<unknown>;
-  importFileSelectInput: (
-    fileFormat: [string, Array<string>],
-  ) => Promise<string | null>;
+  importFileSelectInput: (fileFormat: FileFormatInfo) => Promise<string | null>;
   importFileSelectSaveLocation: (defaultPath: string) => Promise<string | null>;
   importFileConvertAndLoad: (
     inputFilePath: string,

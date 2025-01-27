@@ -5,6 +5,7 @@
 import MuiTypography from '@mui/material/Typography';
 import { useMemo, useState } from 'react';
 
+import { FileFormatInfo } from '../../../shared/shared-types';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
@@ -26,7 +27,7 @@ const explanationTextLine2 =
   'All changes made to the project in OpossumUI will be saved in this opossum file.';
 
 interface ImportDialogProps {
-  fileFormat: [string, Array<string>];
+  fileFormat: FileFormatInfo;
 }
 
 export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
