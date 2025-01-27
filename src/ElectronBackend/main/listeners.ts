@@ -223,10 +223,15 @@ export function getImportFileValidatePathsListener(
       opossumFilePath: string,
     ) => {
       const inputFilePathExists = fs.existsSync(inputFilePath);
-      const opossumDirectoryExists = fs.existsSync(
+      const opossumFileDirectoryExists = fs.existsSync(
         path.dirname(opossumFilePath),
       );
-      return [inputFilePathExists, opossumDirectoryExists];
+      const opossumFileAlreadyExists = fs.existsSync(opossumFilePath);
+      return [
+        inputFilePathExists,
+        opossumFileDirectoryExists,
+        opossumFileAlreadyExists,
+      ];
     },
   );
 }

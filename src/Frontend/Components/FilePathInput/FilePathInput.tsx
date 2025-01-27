@@ -13,6 +13,7 @@ interface FilePathInputProps {
   onEdit: (filePath: string) => void;
   onButtonClick: () => void;
   errorMessage: string | null;
+  warnMessage?: string | null;
 }
 
 export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
@@ -35,7 +36,9 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
           <Folder fontSize="inherit" />
         </IconButton>
       </MuiBox>
-      <FormHelperText error={true}>{props.errorMessage ?? ' '}</FormHelperText>
+      <FormHelperText error={true}>
+        {props.errorMessage ?? props.warnMessage ?? ' '}
+      </FormHelperText>
     </FormControl>
   );
 };

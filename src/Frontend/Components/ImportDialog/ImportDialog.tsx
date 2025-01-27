@@ -53,8 +53,10 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     useState<boolean>(false);
 
   const [inputFilePathExists, setInputFilePathExists] = useState<boolean>(true);
-  const [opossumFilePathExists, setOpossumFilePathExists] =
+  const [opossumFileDirectoryExists, setOpossumFileDirectoryExists] =
     useState<boolean>(true);
+  const [opossumFileAlreadyExists, setOpossumFileAlreadyExists] =
+    useState<boolean>(false);
 
   // updates from the button are not processed correctly if value starts at null
   const displayedInputFilePath = inputFilePath || '';
@@ -91,7 +93,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const opossumFilePathValidity = validateFilePath(
     opossumFilePath,
     ['opossum'],
-    opossumFilePathExists,
+    opossumFileDirectoryExists,
   );
 
   const inputFilePathIsValid = inputFilePathValidity === FilePathValidity.VALID;
@@ -124,6 +126,10 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         return null;
     }
   }, [opossumFilePathValidity]);
+
+  const opossumFilePathWarnMessage = opossumFileAlreadyExists
+    ? 'Warning: A file already exists at this location. If you continue, the existing file will be overwritten!'
+    : null;
 
   function updateInputFilePath(filePath: string) {
     setInputFilePath(filePath);
@@ -190,9 +196,14 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       .then(
         (reply) => {
           if (reply) {
-            const [inputFilePathExists, opossumFilePathExists] = reply;
+            const [
+              inputFilePathExists,
+              opossumFileDirectoryExists,
+              opossumFileAlreadyExists,
+            ] = reply;
             setInputFilePathExists(inputFilePathExists);
-            setOpossumFilePathExists(opossumFilePathExists);
+            setOpossumFileDirectoryExists(opossumFileDirectoryExists);
+            setOpossumFileAlreadyExists(opossumFileAlreadyExists);
           }
         },
         () => {},
@@ -221,6 +232,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
             onEdit={editOpossumFilePath}
             onButtonClick={selectOpossumFilePath}
             errorMessage={opossumFilePathErrorMessage}
+            warnMessage={opossumFilePathWarnMessage}
           />
         </div>
       }
