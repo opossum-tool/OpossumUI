@@ -6,6 +6,7 @@ import { screen } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
 import { PopupType } from '../../../enums/enums';
+import { importFileFormats } from '../../../shared-constants';
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import { renderComponent } from '../../../test-helpers/render';
 import { GlobalPopup } from '../GlobalPopup';
@@ -50,5 +51,20 @@ describe('The GlobalPopUp', () => {
 
     expect(screen.getByText(text.updateAppPopup.title)).toBeInTheDocument();
   });
-  //TODO: add tests for ImportDialog
+
+  it('opens the ImportDialog', () => {
+    renderComponent(<GlobalPopup />, {
+      actions: [
+        openPopup(
+          PopupType.ImportDialog,
+          undefined,
+          importFileFormats.legacyOpossumFile,
+        ),
+      ],
+    });
+
+    expect(
+      screen.getByText(`Import ${importFileFormats.legacyOpossumFile[0]}`),
+    ).toBeInTheDocument();
+  });
 });
