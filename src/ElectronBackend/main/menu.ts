@@ -105,12 +105,9 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
             'icons/import-black.png',
           ),
           label: 'Import File',
-          submenu: Object.keys(importFileFormats).map((key) => ({
-            label: `${key} (${importFileFormats[key].map((ext) => `.${ext}`).join('/')})`,
-            click: getImportFileListener(mainWindow, [
-              key,
-              importFileFormats[key],
-            ]),
+          submenu: Object.values(importFileFormats).map((fileFormat) => ({
+            label: `${fileFormat[0]} (${fileFormat[1].map((ext) => `.${ext}`).join('/')})`,
+            click: getImportFileListener(mainWindow, fileFormat),
           })),
         },
         {
