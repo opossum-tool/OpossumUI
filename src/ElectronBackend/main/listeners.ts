@@ -128,7 +128,7 @@ export async function handleOpeningFile(
 
 export function getImportFileListener(
   mainWindow: BrowserWindow,
-  fileFormat: readonly [string, ReadonlyArray<string>],
+  fileFormat: FileFormatInfo,
 ): () => Promise<void> {
   return createVoidListenerCallbackWithErrorHandling(mainWindow, () => {
     mainWindow.webContents.send(

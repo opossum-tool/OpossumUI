@@ -75,10 +75,6 @@ export const thirdPartyKeys: Array<keyof PackageInfo> = [
   'licenseText',
 ];
 
-interface ImportFileFormats {
-  legacyOpossumFile: FileFormatInfo;
-}
-
-export const importFileFormats: ImportFileFormats = {
-  legacyOpossumFile: ['Legacy Opossum File', ['json', 'json.gz']],
-};
+export const importFileFormats: Array<FileFormatInfo> = [
+  ['Legacy Opossum File', ['json', 'json.gz']],
+];

@@ -55,16 +55,12 @@ describe('The GlobalPopUp', () => {
   it('opens the ImportDialog', () => {
     renderComponent(<GlobalPopup />, {
       actions: [
-        openPopup(
-          PopupType.ImportDialog,
-          undefined,
-          importFileFormats.legacyOpossumFile,
-        ),
+        openPopup(PopupType.ImportDialog, undefined, importFileFormats[0]),
       ],
     });
 
     expect(
-      screen.getByText(`Import ${importFileFormats.legacyOpossumFile[0]}`),
+      screen.getByText(`Import ${importFileFormats[0][0]}`),
     ).toBeInTheDocument();
   });
 });
