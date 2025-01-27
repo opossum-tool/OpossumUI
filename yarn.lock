@@ -2952,9 +2952,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reduxjs/toolkit@npm:^2.5.0":
-  version: 2.5.0
-  resolution: "@reduxjs/toolkit@npm:2.5.0"
+"@reduxjs/toolkit@npm:^2.5.1":
+  version: 2.5.1
+  resolution: "@reduxjs/toolkit@npm:2.5.1"
   dependencies:
     immer: "npm:^10.0.3"
     redux: "npm:^5.0.1"
@@ -2968,7 +2968,7 @@ __metadata:
       optional: true
     react-redux:
       optional: true
-  checksum: 10/b24ee7e89bd00c5f3ee5df12cbc1b6395784ff215b9bf75d2c1b211d8494af220057ced666f49c6e815b723252bc3eb704f7be4a3c261ab06ee7b776f4565d4b
+  checksum: 10/f291b560a16d66092086b222aa950fc19493d6775ce0359d263d99486302fbf013eec1989b1e87921b0d84e5008a8f1a029522999cfb3be485cfa3c015fef197
   languageName: node
   linkType: hard
 
@@ -10125,7 +10125,7 @@ __metadata:
     "@mui/material": "npm:^6.4.1"
     "@mui/system": "npm:^6.4.1"
     "@playwright/test": "npm:^1.50.0"
-    "@reduxjs/toolkit": "npm:^2.5.0"
+    "@reduxjs/toolkit": "npm:^2.5.1"
     "@tanstack/eslint-plugin-query": "npm:^5.64.2"
     "@tanstack/react-query": "npm:^5.64.2"
     "@testing-library/dom": "npm:^10.4.0"
