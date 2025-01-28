@@ -142,7 +142,11 @@
     "ship:auto:win32": "yarn ship-win",
     "clean": "rm -rf ./build/ ./release/",
     "postinstall": "husky && yarn update-commit-hash",
-    "pre-commit": "lint-staged"
+    "pre-commit": "lint-staged",
+    "install-deps": "run-script-os",
+    "install-deps:darwin": "yarn node tools/downloadOpossumFileCLI.js mac",
+    "install-deps:linux": "yarn node tools/downloadOpossumFileCLI.js ubuntu",
+    "install-deps:win32": "yarn node tools/downloadOpossumFileCLI.js windows.exe"
   },
   "main": "build/ElectronBackend/app.js",
   "build": {
