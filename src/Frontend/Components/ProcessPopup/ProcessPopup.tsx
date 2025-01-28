@@ -16,6 +16,8 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
+import { getOpenPopup } from '../../state/selectors/view-selector';
 import {
   IsLoadingListener,
   LoggingListener,
@@ -57,7 +59,10 @@ export function ProcessPopup() {
   );
 
   return (
-    <MuiDialog open={loading} fullWidth>
+    <MuiDialog
+      open={useAppSelector(getOpenPopup) === null && loading}
+      fullWidth
+    >
       <MuiDialogTitle>{text.processPopup.title}</MuiDialogTitle>
       {renderDialogContent()}
     </MuiDialog>

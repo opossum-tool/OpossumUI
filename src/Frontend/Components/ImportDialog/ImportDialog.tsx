@@ -5,10 +5,12 @@
 import MuiTypography from '@mui/material/Typography';
 import { useEffect, useMemo, useState } from 'react';
 
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { FileFormatInfo, FilePathValidity } from '../../../shared/shared-types';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
+import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
@@ -30,6 +32,8 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   }
 
   async function onConfirm(): Promise<void> {
+    setConfirmButtonDisabled(true);
+
     setShowInputFilePathErrors(true);
     setShowOpossumFilePathErrors(true);
 
@@ -43,6 +47,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         dispatch(closePopup());
       } else {
         validateFilePaths();
+        setConfirmButtonDisabled(false);
       }
     }
   }
@@ -61,6 +66,32 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     useState<boolean>(false);
   const [showOpossumFilePathErrors, setShowOpossumFilePathErrors] =
     useState<boolean>(false);
+
+  const [processInfo, setProcessInfo] = useState<string>('');
+
+  const [confirmButtonDisabled, setConfirmButtonDisabled] =
+    useState<boolean>(false);
+
+  useIpcRenderer<LoggingListener>(
+    AllowedFrontendChannels.Logging,
+    (_, log) => setProcessInfo(log.message),
+    [],
+  );
+
+  const [loadingDots, setLoadingDots] = useState<string>('.');
+
+  useEffect(() => {
+    const updateInterval = 500;
+    const maxDots = 3;
+    let numDots = 1;
+
+    const intervalId = setInterval(() => {
+      numDots = (numDots % maxDots) + 1;
+      setLoadingDots('.'.repeat(numDots));
+    }, updateInterval);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   // updates from the button are not processed correctly if value starts at null
   const displayedInputFilePath = inputFilePath || '';
@@ -202,9 +233,15 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         </div>
       }
       isOpen={true}
+      customAction={
+        <MuiTypography sx={{ maxWidth: '470px', mr: '10px' }}>
+          {processInfo ? processInfo + loadingDots : ''}
+        </MuiTypography>
+      }
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: 'Import',
+        disabled: confirmButtonDisabled,
       }}
       rightButtonConfig={{
         onClick: onCancel,

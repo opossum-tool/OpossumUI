@@ -181,7 +181,7 @@ export function getImportFileConvertAndLoadListener(
 ) => Promise<boolean | null> {
   return createListenerCallbackWithErrorHandling(
     mainWindow,
-    (
+    async (
       _: Electron.IpcMainInvokeEvent,
       resourceFilePath: string,
       opossumFilePath: string,
@@ -196,26 +196,21 @@ export function getImportFileConvertAndLoadListener(
         return false;
       }
 
-      const convertAndLoadContinuation =
-        createListenerCallbackWithErrorHandling(mainWindow, async () => {
-          if (resourceFilePath.endsWith(outputFileEnding)) {
-            resourceFilePath =
-              tryToGetInputFileFromOutputFile(resourceFilePath);
-          }
+      if (resourceFilePath.endsWith(outputFileEnding)) {
+        resourceFilePath = tryToGetInputFileFromOutputFile(resourceFilePath);
+      }
 
-          await writeOpossumFile({
-            path: opossumFilePath,
-            input: getInputJson(resourceFilePath),
-            output: getOutputJson(resourceFilePath),
-          });
+      await writeOpossumFile({
+        path: opossumFilePath,
+        input: getInputJson(resourceFilePath),
+        output: getOutputJson(resourceFilePath),
+      });
 
-          logger.info('Updating global backend state');
-          initializeGlobalBackendState(opossumFilePath, true);
+      logger.info('Updating global backend state');
+      initializeGlobalBackendState(opossumFilePath, true);
 
-          await openFile(mainWindow, opossumFilePath);
-        });
+      await openFile(mainWindow, opossumFilePath);
 
-      void convertAndLoadContinuation();
       return true;
     },
   );
