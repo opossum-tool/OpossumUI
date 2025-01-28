@@ -20,6 +20,7 @@
     "electron-settings": "^4.0.4",
     "fast-csv": "^5.0.2",
     "fflate": "^0.8.2",
+    "gh-release-fetch": "^4.0.3",
     "js-yaml": "^4.1.0",
     "jsonschema": "^1.5.0",
     "lodash": "^4.17.21",
