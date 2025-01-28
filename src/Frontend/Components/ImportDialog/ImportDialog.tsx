@@ -37,7 +37,10 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     setShowInputFilePathErrors(true);
     setShowOpossumFilePathErrors(true);
 
-    if (inputFilePath && opossumFilePath) {
+    if (
+      inputFilePathValidity === FilePathValidity.VALID &&
+      opossumFilePathValidity === FilePathValidity.VALID
+    ) {
       const success = await window.electronAPI.importFileConvertAndLoad(
         inputFilePath,
         opossumFilePath,
