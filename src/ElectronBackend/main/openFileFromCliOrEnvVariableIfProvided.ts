@@ -5,6 +5,7 @@
 import { BrowserWindow } from 'electron';
 import log from 'electron-log';
 
+import { convertScanCodeToOpossum } from '../opossum-file/convertToOpossum';
 import { handleOpeningFile } from './listeners';
 
 export async function openFileFromCliOrEnvVariableIfProvided(
@@ -38,6 +39,15 @@ export async function openFileFromCliOrEnvVariableIfProvided(
       );
     }
   }
+
+  const inputScanCodeFileFromEnvVariable: string | undefined =
+    process.env.SCANCODE_JSON;
+  if (!inputFileName && inputScanCodeFileFromEnvVariable) {
+    inputFileName = await convertScanCodeToOpossum(
+      inputScanCodeFileFromEnvVariable,
+    );
+  }
+
   if (inputFileName) {
     await handleOpeningFile(mainWindow, inputFileName);
   }
