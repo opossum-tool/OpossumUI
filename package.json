@@ -141,7 +141,7 @@
     "ship:auto:linux": "yarn ship-linux",
     "ship:auto:win32": "yarn ship-win",
     "clean": "rm -rf ./build/ ./release/",
-    "postinstall": "husky && yarn update-commit-hash",
+    "postinstall": "yarn install-deps && husky && yarn update-commit-hash",
     "pre-commit": "lint-staged",
     "install-deps": "run-script-os",
     "install-deps:darwin": "yarn node tools/downloadOpossumFileCLI.js mac",
