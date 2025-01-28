@@ -231,6 +231,16 @@ export interface ExternalAttributionSources {
 
 export type FileFormatInfo = [string, Array<string>];
 
+export enum FilePathValidity {
+  VALID,
+  NULL_VALUE,
+  EMPTY_STRING,
+  WRONG_EXTENSION,
+  PATH_DOESNT_EXIST,
+  VALIDATION_FAILED,
+  OVERWRITE_WARNING,
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
@@ -246,9 +256,10 @@ export interface ElectronAPI {
     opossumFilePath: string,
   ) => Promise<boolean | null>;
   importFileValidatePaths: (
-    inputFilePath: string,
-    opossumFilePath: string,
-  ) => Promise<[boolean, boolean, boolean] | null>;
+    inputFilePath: string | null,
+    extensions: Array<string>,
+    opossumFilePath: string | null,
+  ) => Promise<[FilePathValidity, FilePathValidity] | null>;
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;

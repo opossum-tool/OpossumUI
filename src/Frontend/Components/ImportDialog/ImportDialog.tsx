@@ -3,22 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiTypography from '@mui/material/Typography';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { FileFormatInfo } from '../../../shared/shared-types';
+import { FileFormatInfo, FilePathValidity } from '../../../shared/shared-types';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-
-enum FilePathValidity {
-  VALID,
-  NULL_VALUE,
-  EMPTY_STRING,
-  WRONG_EXTENSION,
-  PATH_DOESNT_EXIST,
-}
 
 const explanationTextLine1 =
   'OpossumUI will convert the selected file into a new opossum file.';
@@ -47,7 +39,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       if (success) {
         dispatch(closePopup());
       } else {
-        checkPathsOnFS(inputFilePath, opossumFilePath);
+        validateFilePaths();
       }
     }
   }
@@ -57,54 +49,40 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const [opossumFilePathEdited, setOpossumFilePathEdited] =
     useState<boolean>(false);
 
-  const [inputFilePathExists, setInputFilePathExists] = useState<boolean>(true);
-  const [opossumFileDirectoryExists, setOpossumFileDirectoryExists] =
-    useState<boolean>(true);
-  const [opossumFileAlreadyExists, setOpossumFileAlreadyExists] =
-    useState<boolean>(false);
+  const [inputFilePathValidity, setInputFilePathValidity] =
+    useState<FilePathValidity>(FilePathValidity.NULL_VALUE);
+  const [opossumFilePathValidity, setOpossumFilePathValidity] =
+    useState<FilePathValidity>(FilePathValidity.NULL_VALUE);
 
   // updates from the button are not processed correctly if value starts at null
   const displayedInputFilePath = inputFilePath || '';
   const displayedOpossumFilePath = opossumFilePath || '';
 
-  function validateFilePath(
-    filePath: string | null,
-    expectedExtensions: Array<string>,
-    filePathExists: boolean,
-  ): FilePathValidity {
-    if (filePath === null) {
-      return FilePathValidity.NULL_VALUE;
-    } else if (!filePath?.trim()) {
-      return FilePathValidity.EMPTY_STRING;
-    } else if (!filePathExists) {
-      return FilePathValidity.PATH_DOESNT_EXIST;
-    } else if (
-      !expectedExtensions.some((extension) =>
-        filePath.endsWith(`.${extension}`),
-      )
-    ) {
-      return FilePathValidity.WRONG_EXTENSION;
-    }
-
-    return FilePathValidity.VALID;
+  function validateFilePaths(): void {
+    console.log(`Validate [${inputFilePath}, ${opossumFilePath}]`);
+    window.electronAPI
+      .importFileValidatePaths(inputFilePath, fileFormat[1], opossumFilePath)
+      .then(
+        (validationResult) => {
+          if (validationResult) {
+            setInputFilePathValidity(validationResult[0]);
+            setOpossumFilePathValidity(validationResult[1]);
+          } else {
+            setInputFilePathValidity(FilePathValidity.VALIDATION_FAILED);
+            setOpossumFilePathValidity(FilePathValidity.VALIDATION_FAILED);
+          }
+        },
+        () => {},
+      );
   }
 
-  const inputFilePathValidity = validateFilePath(
-    inputFilePath,
-    fileFormat[1],
-    inputFilePathExists,
-  );
-
-  const opossumFilePathValidity = validateFilePath(
-    opossumFilePath,
-    ['opossum'],
-    opossumFileDirectoryExists,
-  );
+  useEffect(validateFilePaths, [inputFilePath, fileFormat, opossumFilePath]);
 
   const inputFilePathIsValid = inputFilePathValidity === FilePathValidity.VALID;
 
   const opossumFilePathIsValid =
-    opossumFilePathValidity === FilePathValidity.VALID;
+    opossumFilePathValidity === FilePathValidity.VALID ||
+    opossumFilePathValidity === FilePathValidity.OVERWRITE_WARNING;
 
   const inputFilePathErrorMessage = useMemo(() => {
     switch (inputFilePathValidity) {
@@ -114,6 +92,8 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         return `Invalid file extension, should be ${fileFormat[1].map((ext) => `.${ext}`).join(' or ')}`;
       case FilePathValidity.PATH_DOESNT_EXIST:
         return 'The specified file does not exist';
+      case FilePathValidity.VALIDATION_FAILED:
+        return 'Invalid file path';
       default:
         return null;
     }
@@ -127,36 +107,30 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         return 'File extension has to be .opossum';
       case FilePathValidity.PATH_DOESNT_EXIST:
         return 'The path contains a non-existent directory';
+      case FilePathValidity.VALIDATION_FAILED:
+        return 'Invalid file path';
       default:
         return null;
     }
   }, [opossumFilePathValidity]);
 
-  const opossumFilePathWarnMessage = opossumFileAlreadyExists
-    ? 'Warning: A file already exists at this location. If you continue, the existing file will be overwritten!'
-    : null;
+  const opossumFilePathWarnMessage =
+    opossumFilePathValidity === FilePathValidity.OVERWRITE_WARNING
+      ? 'Warning: A file already exists at this location. If you continue, the existing file will be overwritten!'
+      : null;
 
   function updateInputFilePath(filePath: string) {
     setInputFilePath(filePath);
-    if (
-      // Setting the opossum file path even though the current input file doesn't exist is fine
-      validateFilePath(filePath, fileFormat[1], true) ===
-        FilePathValidity.VALID &&
-      !opossumFilePathEdited
-    ) {
+    if (!opossumFilePathEdited) {
       const derivedOpossumFilePath = getDotOpossumFilePath(
         filePath,
         fileFormat[1],
       );
-      checkPathsOnFS(filePath, derivedOpossumFilePath);
       setOpossumFilePath(derivedOpossumFilePath);
-    } else {
-      checkPathsOnFS(filePath, opossumFilePath);
     }
   }
 
   function updateOpossumFilePath(filePath: string) {
-    checkPathsOnFS(inputFilePath, filePath);
     setOpossumFilePath(filePath);
   }
 
@@ -190,29 +164,6 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       },
       () => {},
     );
-  }
-
-  function checkPathsOnFS(
-    inputFilePath: string | null,
-    opossumFilePath: string | null,
-  ): void {
-    window.electronAPI
-      .importFileValidatePaths(inputFilePath ?? '', opossumFilePath ?? '')
-      .then(
-        (reply) => {
-          if (reply) {
-            const [
-              inputFilePathExists,
-              opossumFileDirectoryExists,
-              opossumFileAlreadyExists,
-            ] = reply;
-            setInputFilePathExists(inputFilePathExists);
-            setOpossumFileDirectoryExists(opossumFileDirectoryExists);
-            setOpossumFileAlreadyExists(opossumFileAlreadyExists);
-          }
-        },
-        () => {},
-      );
   }
 
   return (

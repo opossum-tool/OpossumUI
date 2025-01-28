@@ -19,6 +19,7 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
   FileFormatInfo,
+  FilePathValidity,
   OpenLinkArgs,
   PackageInfo,
   SaveFileArgs,
@@ -224,28 +225,70 @@ export function getImportFileValidatePathsListener(
   mainWindow: BrowserWindow,
 ): (
   _: Electron.IpcMainInvokeEvent,
-  inputFilePath: string,
-  opossumFilePath: string,
-) => Promise<boolean | null> {
+  inputFilePath: string | null,
+  extensions: Array<string>,
+  opossumFilePath: string | null,
+) => Promise<[FilePathValidity, FilePathValidity] | null> {
   return createListenerCallbackWithErrorHandling(
     mainWindow,
     (
       _: Electron.IpcMainInvokeEvent,
-      inputFilePath: string,
-      opossumFilePath: string,
+      inputFilePath: string | null,
+      extensions: Array<string>,
+      opossumFilePath: string | null,
     ) => {
-      const inputFilePathExists = fs.existsSync(inputFilePath);
-      const opossumFileDirectoryExists = fs.existsSync(
-        path.dirname(opossumFilePath),
-      );
-      const opossumFileAlreadyExists = fs.existsSync(opossumFilePath);
-      return [
+      console.log(`Validate [${inputFilePath}, ${opossumFilePath}]`);
+
+      const inputFilePathExists = inputFilePath
+        ? fs.existsSync(inputFilePath)
+        : false;
+      const opossumFileDirectoryExists = opossumFilePath
+        ? fs.existsSync(path.dirname(opossumFilePath))
+        : false;
+      const opossumFileAlreadyExists = opossumFilePath
+        ? fs.existsSync(opossumFilePath)
+        : false;
+
+      const inputFilePathValidity = validateFilePathFormat(
+        inputFilePath,
+        extensions,
         inputFilePathExists,
+      );
+
+      const opossumFilePathValidity = validateFilePathFormat(
+        opossumFilePath,
+        ['opossum'],
         opossumFileDirectoryExists,
-        opossumFileAlreadyExists,
-      ];
+      );
+      const opossumFilePathValidityWithWarning =
+        opossumFilePathValidity === FilePathValidity.VALID &&
+        opossumFileAlreadyExists
+          ? FilePathValidity.OVERWRITE_WARNING
+          : opossumFilePathValidity;
+
+      return [inputFilePathValidity, opossumFilePathValidityWithWarning];
     },
   );
+}
+
+function validateFilePathFormat(
+  filePath: string | null,
+  expectedExtensions: Array<string>,
+  filePathExists: boolean,
+): FilePathValidity {
+  if (filePath === null) {
+    return FilePathValidity.NULL_VALUE;
+  } else if (!filePath?.trim()) {
+    return FilePathValidity.EMPTY_STRING;
+  } else if (!filePathExists) {
+    return FilePathValidity.PATH_DOESNT_EXIST;
+  } else if (
+    !expectedExtensions.some((extension) => filePath.endsWith(`.${extension}`))
+  ) {
+    return FilePathValidity.WRONG_EXTENSION;
+  }
+
+  return FilePathValidity.VALID;
 }
 
 function initializeGlobalBackendState(
