@@ -32,7 +32,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   }
 
   async function onConfirm(): Promise<void> {
-    setConfirmButtonDisabled(true);
+    setIsLoading(true);
 
     setShowInputFilePathErrors(true);
     setShowOpossumFilePathErrors(true);
@@ -47,7 +47,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         dispatch(closePopup());
       } else {
         validateFilePaths();
-        setConfirmButtonDisabled(false);
+        setIsLoading(false);
       }
     }
   }
@@ -69,8 +69,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
   const [processInfo, setProcessInfo] = useState<string>('');
 
-  const [confirmButtonDisabled, setConfirmButtonDisabled] =
-    useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useIpcRenderer<LoggingListener>(
     AllowedFrontendChannels.Logging,
@@ -85,13 +84,17 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     const maxDots = 3;
     let numDots = 1;
 
-    const intervalId = setInterval(() => {
-      numDots = (numDots % maxDots) + 1;
-      setLoadingDots('.'.repeat(numDots));
-    }, updateInterval);
+    if (processInfo) {
+      const intervalId = setInterval(() => {
+        numDots = (numDots % maxDots) + 1;
+        setLoadingDots('.'.repeat(numDots));
+      }, updateInterval);
 
-    return () => clearInterval(intervalId);
-  }, []);
+      return () => clearInterval(intervalId);
+    }
+
+    return () => {};
+  }, [processInfo]);
 
   // updates from the button are not processed correctly if value starts at null
   const displayedInputFilePath = inputFilePath || '';
@@ -241,12 +244,13 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: 'Import',
-        disabled: confirmButtonDisabled,
+        loading: isLoading,
       }}
       rightButtonConfig={{
         onClick: onCancel,
         buttonText: 'Cancel',
         color: 'secondary',
+        disabled: isLoading,
       }}
     />
   );
