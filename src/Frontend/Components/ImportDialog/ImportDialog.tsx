@@ -27,35 +27,6 @@ interface ImportDialogProps {
 export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const dispatch = useAppDispatch();
 
-  function onCancel(): void {
-    dispatch(closePopup());
-  }
-
-  async function onConfirm(): Promise<void> {
-    setIsLoading(true);
-
-    setShowInputFilePathErrors(true);
-    setShowOpossumFilePathErrors(true);
-
-    if (
-      inputFilePathValidity === FilePathValidity.VALID &&
-      opossumFilePathValidity === FilePathValidity.VALID
-    ) {
-      const success = await window.electronAPI.importFileConvertAndLoad(
-        inputFilePath,
-        opossumFilePath,
-      );
-
-      if (success) {
-        dispatch(closePopup());
-      } else {
-        validateFilePaths();
-      }
-    }
-    setIsLoading(false);
-    setProcessInfo('');
-  }
-
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
   const [opossumFilePathEdited, setOpossumFilePathEdited] =
@@ -65,6 +36,11 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     useState<FilePathValidity>(FilePathValidity.EMPTY_STRING);
   const [opossumFilePathValidity, setOpossumFilePathValidity] =
     useState<FilePathValidity>(FilePathValidity.EMPTY_STRING);
+
+  const inputFilePathIsValid = inputFilePathValidity === FilePathValidity.VALID;
+  const opossumFilePathIsValid =
+    opossumFilePathValidity === FilePathValidity.VALID ||
+    opossumFilePathValidity === FilePathValidity.OVERWRITE_WARNING;
 
   const [showInputFilePathErrors, setShowInputFilePathErrors] =
     useState<boolean>(false);
@@ -199,6 +175,32 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       },
       () => {},
     );
+  }
+
+  function onCancel(): void {
+    dispatch(closePopup());
+  }
+
+  async function onConfirm(): Promise<void> {
+    setIsLoading(true);
+
+    setShowInputFilePathErrors(true);
+    setShowOpossumFilePathErrors(true);
+
+    if (inputFilePathIsValid && opossumFilePathIsValid) {
+      const success = await window.electronAPI.importFileConvertAndLoad(
+        inputFilePath,
+        opossumFilePath,
+      );
+
+      if (success) {
+        dispatch(closePopup());
+      } else {
+        validateFilePaths();
+      }
+    }
+    setIsLoading(false);
+    setProcessInfo('');
   }
 
   return (
