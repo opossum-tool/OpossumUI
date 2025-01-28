@@ -233,7 +233,6 @@ export type FileFormatInfo = [string, Array<string>];
 
 export enum FilePathValidity {
   VALID,
-  NULL_VALUE,
   EMPTY_STRING,
   WRONG_EXTENSION,
   PATH_DOESNT_EXIST,
@@ -256,9 +255,9 @@ export interface ElectronAPI {
     opossumFilePath: string,
   ) => Promise<boolean | null>;
   importFileValidatePaths: (
-    inputFilePath: string | null,
+    inputFilePath: string,
     extensions: Array<string>,
-    opossumFilePath: string | null,
+    opossumFilePath: string,
   ) => Promise<[FilePathValidity, FilePathValidity] | null>;
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;

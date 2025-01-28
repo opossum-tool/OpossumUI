@@ -47,20 +47,21 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         dispatch(closePopup());
       } else {
         validateFilePaths();
-        setIsLoading(false);
       }
     }
+    setIsLoading(false);
+    setProcessInfo('');
   }
 
-  const [inputFilePath, setInputFilePath] = useState<string | null>(null);
-  const [opossumFilePath, setOpossumFilePath] = useState<string | null>(null);
+  const [inputFilePath, setInputFilePath] = useState<string>('');
+  const [opossumFilePath, setOpossumFilePath] = useState<string>('');
   const [opossumFilePathEdited, setOpossumFilePathEdited] =
     useState<boolean>(false);
 
   const [inputFilePathValidity, setInputFilePathValidity] =
-    useState<FilePathValidity>(FilePathValidity.NULL_VALUE);
+    useState<FilePathValidity>(FilePathValidity.EMPTY_STRING);
   const [opossumFilePathValidity, setOpossumFilePathValidity] =
-    useState<FilePathValidity>(FilePathValidity.NULL_VALUE);
+    useState<FilePathValidity>(FilePathValidity.EMPTY_STRING);
 
   const [showInputFilePathErrors, setShowInputFilePathErrors] =
     useState<boolean>(false);
@@ -95,10 +96,6 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
     return () => {};
   }, [processInfo]);
-
-  // updates from the button are not processed correctly if value starts at null
-  const displayedInputFilePath = inputFilePath || '';
-  const displayedOpossumFilePath = opossumFilePath || '';
 
   function validateFilePaths(): void {
     window.electronAPI
@@ -212,7 +209,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           </MuiTypography>
           <FilePathInput
             label={`File to import (${fileFormat[1].map((ext) => `.${ext}`).join('/')})`}
-            displayedFilePath={displayedInputFilePath}
+            text={inputFilePath}
             buttonToolTip="Select file"
             onEdit={updateInputFilePath}
             onBlur={() => setShowInputFilePathErrors(true)}
@@ -223,7 +220,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           />
           <FilePathInput
             label="Opossum file save location"
-            displayedFilePath={displayedOpossumFilePath}
+            text={opossumFilePath}
             buttonToolTip="Select save location"
             onEdit={editOpossumFilePath}
             onBlur={() => setShowOpossumFilePathErrors(true)}

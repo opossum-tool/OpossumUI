@@ -11,7 +11,7 @@ import { TextBox } from '../TextBox/TextBox';
 
 interface FilePathInputProps {
   label: string;
-  displayedFilePath: string;
+  text: string;
   buttonToolTip: string;
   onEdit: (filePath: string) => void;
   onBlur?: () => void;
@@ -26,7 +26,7 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       <MuiBox sx={{ display: 'flex', alignItems: 'center', pt: '10px' }}>
         <TextBox
           title={props.label}
-          text={props.displayedFilePath}
+          text={props.text}
           error={props.errorMessage !== null}
           handleChange={(event) => props.onEdit(event.target.value)}
           onBlur={props.onBlur}

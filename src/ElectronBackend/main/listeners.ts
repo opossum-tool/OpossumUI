@@ -186,15 +186,15 @@ export function getImportFileConvertAndLoadListener(
       resourceFilePath: string,
       opossumFilePath: string,
     ) => {
+      if (!fs.existsSync(resourceFilePath)) {
+        return false;
+      }
+
+      if (!fs.existsSync(path.dirname(opossumFilePath))) {
+        return false;
+      }
+
       logger.info('Converting .json to .opossum format');
-
-      if (!resourceFilePath || !fs.existsSync(resourceFilePath)) {
-        return false;
-      }
-
-      if (!opossumFilePath || !fs.existsSync(path.dirname(opossumFilePath))) {
-        return false;
-      }
 
       if (resourceFilePath.endsWith(outputFileEnding)) {
         resourceFilePath = tryToGetInputFileFromOutputFile(resourceFilePath);
@@ -220,27 +220,23 @@ export function getImportFileValidatePathsListener(
   mainWindow: BrowserWindow,
 ): (
   _: Electron.IpcMainInvokeEvent,
-  inputFilePath: string | null,
+  inputFilePath: string,
   extensions: Array<string>,
-  opossumFilePath: string | null,
+  opossumFilePath: string,
 ) => Promise<[FilePathValidity, FilePathValidity] | null> {
   return createListenerCallbackWithErrorHandling(
     mainWindow,
     (
       _: Electron.IpcMainInvokeEvent,
-      inputFilePath: string | null,
+      inputFilePath: string,
       extensions: Array<string>,
-      opossumFilePath: string | null,
+      opossumFilePath: string,
     ) => {
-      const inputFilePathExists = inputFilePath
-        ? fs.existsSync(inputFilePath)
-        : false;
-      const opossumFileDirectoryExists = opossumFilePath
-        ? fs.existsSync(path.dirname(opossumFilePath))
-        : false;
-      const opossumFileAlreadyExists = opossumFilePath
-        ? fs.existsSync(opossumFilePath)
-        : false;
+      const inputFilePathExists = fs.existsSync(inputFilePath);
+      const opossumFileDirectoryExists = fs.existsSync(
+        path.dirname(opossumFilePath),
+      );
+      const opossumFileAlreadyExists = fs.existsSync(opossumFilePath);
 
       const inputFilePathValidity = validateFilePathFormat(
         inputFilePath,
@@ -265,13 +261,11 @@ export function getImportFileValidatePathsListener(
 }
 
 function validateFilePathFormat(
-  filePath: string | null,
+  filePath: string,
   expectedExtensions: Array<string>,
   filePathExists: boolean,
 ): FilePathValidity {
-  if (filePath === null) {
-    return FilePathValidity.NULL_VALUE;
-  } else if (!filePath?.trim()) {
+  if (!filePath.trim()) {
     return FilePathValidity.EMPTY_STRING;
   } else if (!filePathExists) {
     return FilePathValidity.PATH_DOESNT_EXIST;
