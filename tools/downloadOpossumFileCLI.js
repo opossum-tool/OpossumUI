@@ -21,11 +21,6 @@ const OS = process.argv[2];
 const OPOSSUM_FILE_BINARY_NAME = 'opossum-file-for-' + OS;
 const DOWNLOAD_DESTINATION = 'bin';
 
-if (fs.existsSync('bin/opossum-file')) {
-  console.info('Found opossum-file binary. No download.');
-  exit(0);
-}
-
 fetchVersion({
   repository: 'opossum-tool/opossum-file',
   package: OPOSSUM_FILE_BINARY_NAME,
@@ -35,13 +30,28 @@ fetchVersion({
 })
   .then(() => {
     console.info(
-      "Downloaded 'opossum-file@'" + VERSION + "' to",
+      "Downloaded 'opossum-file@" + VERSION + "' to",
       DOWNLOAD_DESTINATION,
     );
     CURRENT_NAME = join(DOWNLOAD_DESTINATION, OPOSSUM_FILE_BINARY_NAME);
     TARGET_NAME = join(DOWNLOAD_DESTINATION, 'opossum-file');
+    if (fs.existsSync(TARGET_NAME)) {
+      console.info('Found opossum-file binary. Overwriting.');
+    }
+
     fs.renameSync(CURRENT_NAME, TARGET_NAME);
     console.info('Renamed', CURRENT_NAME, 'to', TARGET_NAME);
+    fs.chmod(TARGET_NAME, 0o755, (err) => {
+      if (err) {
+        console.error(
+          'Could not mark',
+          TARGET_NAME,
+          'as executable.',
+          err ?? '',
+        );
+        exit(1);
+      }
+    });
   })
   .catch((error) => {
     console.error(
