@@ -129,7 +129,7 @@ export function PackageAutocomplete({
   }, [attributeValue, inputValue]);
 
   return (
-    <Autocomplete
+    <Autocomplete<PackageInfo, false, true, true>
       title={title}
       disabled={disabled}
       readOnly={readOnly}
@@ -200,6 +200,20 @@ export function PackageAutocomplete({
         secondary: (option) =>
           typeof option === 'string' ? option : generatePurl(option),
       }}
+      onChange={(_, value) =>
+        typeof value !== 'string' &&
+        value[attribute] !== packageInfo[attribute] &&
+        onEdit?.(() => {
+          dispatch(
+            setTemporaryDisplayPackageInfo({
+              ...packageInfo,
+              [attribute]: value[attribute],
+              ...(attribute === 'licenseName' ? { licenseText: '' } : null),
+              wasPreferred: undefined,
+            }),
+          );
+        })
+      }
       onInputChange={(event, value) =>
         event &&
         packageInfo[attribute] !== value &&

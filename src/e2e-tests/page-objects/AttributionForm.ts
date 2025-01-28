@@ -85,10 +85,7 @@ export class AttributionForm {
     this.licenseTextToggleButton = this.node.getByLabel(
       'license-text-toggle-button',
     );
-    this.licenseText = this.node.getByLabel(
-      text.attributionColumn.licenseText,
-      { exact: true },
-    );
+    this.licenseText = this.node.getByLabel(text.attributionColumn.licenseText);
     this.auditingLabels = {
       criticalityLabel: this.node.getByTestId('auditing-option-criticality'),
       confidenceLabel: this.node.getByTestId('auditing-option-confidence'),
