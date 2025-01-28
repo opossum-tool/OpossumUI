@@ -237,8 +237,6 @@ export function getImportFileValidatePathsListener(
       extensions: Array<string>,
       opossumFilePath: string | null,
     ) => {
-      console.log(`Validate [${inputFilePath}, ${opossumFilePath}]`);
-
       const inputFilePathExists = inputFilePath
         ? fs.existsSync(inputFilePath)
         : false;

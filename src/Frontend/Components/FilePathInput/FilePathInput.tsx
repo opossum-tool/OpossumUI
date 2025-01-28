@@ -14,6 +14,7 @@ interface FilePathInputProps {
   displayedFilePath: string;
   buttonToolTip: string;
   onEdit: (filePath: string) => void;
+  onBlur?: () => void;
   onButtonClick: () => void;
   errorMessage: string | null;
   warnMessage?: string | null;
@@ -28,6 +29,7 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
           text={props.displayedFilePath}
           error={props.errorMessage !== null}
           handleChange={(event) => props.onEdit(event.target.value)}
+          onBlur={props.onBlur}
           sx={{ width: 600, mr: '10px' }}
         />
         <IconButton

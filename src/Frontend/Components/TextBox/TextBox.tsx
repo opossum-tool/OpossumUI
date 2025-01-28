@@ -64,6 +64,7 @@ export interface TextBoxProps {
   handleChange?: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
+  onBlur?: () => void;
   error?: boolean;
   maxRows?: number;
   minRows?: number;
@@ -118,6 +119,7 @@ export function TextBox(props: TextBoxProps) {
         size="small"
         value={props.text || ''}
         onChange={props.handleChange}
+        onBlur={props.onBlur}
       />
     </MuiBox>
   );

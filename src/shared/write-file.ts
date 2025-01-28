@@ -22,10 +22,10 @@ export function getDotOpossumFilePath(
     })
     .reduce((a, b) => Math.max(a, b), 0);
 
-  const resourceFilePathWithoutFileExtension = resourceFilePath.slice(
-    0,
-    -(fileExtensionLength + 1),
-  );
+  const resourceFilePathWithoutFileExtension =
+    fileExtensionLength === 0
+      ? resourceFilePath
+      : resourceFilePath.slice(0, -(fileExtensionLength + 1));
 
   return resourceFilePathWithoutFileExtension + OPOSSUM_FILE_EXTENSION;
 }

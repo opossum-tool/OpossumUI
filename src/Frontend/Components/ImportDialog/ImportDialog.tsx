@@ -30,6 +30,9 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   }
 
   async function onConfirm(): Promise<void> {
+    setShowInputFilePathErrors(true);
+    setShowOpossumFilePathErrors(true);
+
     if (inputFilePath && opossumFilePath) {
       const success = await window.electronAPI.importFileConvertAndLoad(
         inputFilePath,
@@ -54,12 +57,16 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const [opossumFilePathValidity, setOpossumFilePathValidity] =
     useState<FilePathValidity>(FilePathValidity.NULL_VALUE);
 
+  const [showInputFilePathErrors, setShowInputFilePathErrors] =
+    useState<boolean>(false);
+  const [showOpossumFilePathErrors, setShowOpossumFilePathErrors] =
+    useState<boolean>(false);
+
   // updates from the button are not processed correctly if value starts at null
   const displayedInputFilePath = inputFilePath || '';
   const displayedOpossumFilePath = opossumFilePath || '';
 
   function validateFilePaths(): void {
-    console.log(`Validate [${inputFilePath}, ${opossumFilePath}]`);
     window.electronAPI
       .importFileValidatePaths(inputFilePath, fileFormat[1], opossumFilePath)
       .then(
@@ -77,12 +84,6 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   }
 
   useEffect(validateFilePaths, [inputFilePath, fileFormat, opossumFilePath]);
-
-  const inputFilePathIsValid = inputFilePathValidity === FilePathValidity.VALID;
-
-  const opossumFilePathIsValid =
-    opossumFilePathValidity === FilePathValidity.VALID ||
-    opossumFilePathValidity === FilePathValidity.OVERWRITE_WARNING;
 
   const inputFilePathErrorMessage = useMemo(() => {
     switch (inputFilePathValidity) {
@@ -180,16 +181,22 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
             displayedFilePath={displayedInputFilePath}
             buttonToolTip="Select file"
             onEdit={updateInputFilePath}
+            onBlur={() => setShowInputFilePathErrors(true)}
             onButtonClick={selectInputFilePath}
-            errorMessage={inputFilePathErrorMessage}
+            errorMessage={
+              showInputFilePathErrors ? inputFilePathErrorMessage : null
+            }
           />
           <FilePathInput
             label="Opossum file save location"
             displayedFilePath={displayedOpossumFilePath}
             buttonToolTip="Select save location"
             onEdit={editOpossumFilePath}
+            onBlur={() => setShowOpossumFilePathErrors(true)}
             onButtonClick={selectOpossumFilePath}
-            errorMessage={opossumFilePathErrorMessage}
+            errorMessage={
+              showOpossumFilePathErrors ? opossumFilePathErrorMessage : null
+            }
             warnMessage={opossumFilePathWarnMessage}
           />
         </div>
@@ -198,7 +205,6 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: 'Import',
-        disabled: !inputFilePathIsValid || !opossumFilePathIsValid,
       }}
       rightButtonConfig={{
         onClick: onCancel,
