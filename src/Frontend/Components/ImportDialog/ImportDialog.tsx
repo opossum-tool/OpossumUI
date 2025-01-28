@@ -13,6 +13,7 @@ import { useAppDispatch } from '../../state/hooks';
 import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import { Spinner } from '../Spinner/Spinner';
 
 const explanationTextLine1 =
   'OpossumUI will convert the selected file into a new opossum file.';
@@ -56,25 +57,6 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     (_, log) => setProcessInfo(log.message),
     [],
   );
-
-  const [loadingDots, setLoadingDots] = useState<string>('.');
-
-  useEffect(() => {
-    const updateInterval = 500;
-    const maxDots = 3;
-    let numDots = 1;
-
-    if (processInfo) {
-      const intervalId = setInterval(() => {
-        numDots = (numDots % maxDots) + 1;
-        setLoadingDots('.'.repeat(numDots));
-      }, updateInterval);
-
-      return () => clearInterval(intervalId);
-    }
-
-    return () => {};
-  }, [processInfo]);
 
   function validateFilePaths(): void {
     window.electronAPI
@@ -239,14 +221,30 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       }
       isOpen={true}
       customAction={
-        <MuiTypography sx={{ maxWidth: '470px', mr: '10px' }}>
-          {processInfo ? processInfo + loadingDots : ''}
-        </MuiTypography>
+        isLoading ? (
+          <>
+            <Spinner sx={{ ml: '20px' }} />
+            <MuiTypography
+              sx={{
+                width: '430px',
+                ml: '10px',
+                mr: '10px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {processInfo}
+            </MuiTypography>
+          </>
+        ) : (
+          <></>
+        )
       }
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: 'Import',
-        loading: isLoading,
+        disabled: isLoading,
       }}
       rightButtonConfig={{
         onClick: onCancel,
