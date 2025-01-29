@@ -6,7 +6,6 @@
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
 import fs from 'fs';
 
-import { importFileFormats } from '../../../Frontend/shared-constants';
 import {
   AllowedFrontendChannels,
   IpcChannel,
@@ -42,6 +41,7 @@ import {
   getSelectBaseURLListener,
   linkHasHttpSchema,
 } from '../listeners';
+import { importFileFormats } from '../menu';
 
 jest.mock('electron', () => ({
   app: {
@@ -109,8 +109,6 @@ jest.mock('../dialogs', () => ({
   saveFileDialog: jest.fn(),
   selectBaseURLDialog: jest.fn(),
 }));
-
-// TODO: add tests for import listeners
 
 describe('getDeleteAndCreateNewAttributionFileListener', () => {
   it('deletes attribution file and calls loadInputAndOutputFromFilePath', async () => {

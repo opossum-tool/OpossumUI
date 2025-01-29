@@ -19,25 +19,23 @@ function openFileDialog(
 }
 
 export function openOpossumFileDialog(): Array<string> | undefined {
-  const filters = [
+  return openFileDialog([
     {
       name: 'Opossum File',
       extensions: ['opossum'],
     },
-  ];
-  return openFileDialog(filters);
+  ]);
 }
 
 export function openNonOpossumFileDialog(
   fileFormat: FileFormatInfo,
 ): Array<string> | undefined {
-  const filters = [
+  return openFileDialog([
     {
       name: `${fileFormat[0]}s (${fileFormat[1].map((ext) => `.${ext}`).join('/')})`,
       extensions: fileFormat[1],
     },
-  ];
-  return openFileDialog(filters);
+  ]);
 }
 
 export function saveFileDialog(defaultPath?: string): string | undefined {

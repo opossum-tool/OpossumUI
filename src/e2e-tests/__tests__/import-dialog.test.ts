@@ -6,13 +6,13 @@ import { expect } from '@playwright/test';
 
 import { faker, test } from '../utils';
 
-const [resourceName1] = faker.opossum.resourceNames({ count: 1 });
+const [resourceName] = faker.opossum.resourceName();
 
 test.use({
   data: {
     inputData: faker.opossum.inputData({
       resources: faker.opossum.resources({
-        [resourceName1]: 1,
+        [resourceName]: 1,
       }),
       metadata: faker.opossum.metadata({
         projectId: 'test_project',
@@ -43,7 +43,7 @@ test('opens .json file', async ({ menuBar, importDialog, resourcesTree }) => {
   await importDialog.inputFilePathTextField.fill(importDialog.inputFilePath);
   await importDialog.importButton.click();
 
-  await resourcesTree.assert.resourceIsVisible(resourceName1);
+  await resourcesTree.assert.resourceIsVisible(resourceName);
 });
 
 test('blocks and shows error when no file path is set', async ({

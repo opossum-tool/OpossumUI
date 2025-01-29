@@ -191,13 +191,13 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       content={
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <MuiTypography>{explanationTextLine1}</MuiTypography>
-          <MuiTypography sx={{ mb: '10px' }}>
+          <MuiTypography sx={{ marginBottom: '10px' }}>
             {explanationTextLine2}
           </MuiTypography>
           <FilePathInput
             label={`File to import (${fileFormat[1].map((ext) => `.${ext}`).join('/')})`}
             text={inputFilePath}
-            buttonToolTip="Select file"
+            buttonTooltip="Select file"
             onEdit={updateInputFilePath}
             onBlur={() => setShowInputFilePathErrors(true)}
             onButtonClick={selectInputFilePath}
@@ -208,7 +208,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           <FilePathInput
             label="Opossum file save location"
             text={opossumFilePath}
-            buttonToolTip="Select save location"
+            buttonTooltip="Select save location"
             onEdit={editOpossumFilePath}
             onBlur={() => setShowOpossumFilePathErrors(true)}
             onButtonClick={selectOpossumFilePath}
@@ -223,12 +223,12 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       customAction={
         isLoading ? (
           <>
-            <Spinner sx={{ ml: '20px' }} />
+            <Spinner sx={{ marginLeft: '20px' }} />
             <MuiTypography
               sx={{
                 width: '430px',
-                ml: '10px',
-                mr: '10px',
+                marginLeft: '10px',
+                marginRight: '10px',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -237,9 +237,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
               {processInfo}
             </MuiTypography>
           </>
-        ) : (
-          <></>
-        )
+        ) : undefined
       }
       leftButtonConfig={{
         onClick: onConfirm,

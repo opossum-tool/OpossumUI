@@ -12,7 +12,7 @@ import { TextBox } from '../TextBox/TextBox';
 interface FilePathInputProps {
   label: string;
   text: string;
-  buttonToolTip: string;
+  buttonTooltip: string;
   onEdit: (filePath: string) => void;
   onBlur?: () => void;
   onButtonClick: () => void;
@@ -23,19 +23,21 @@ interface FilePathInputProps {
 export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
   return (
     <FormControl sx={{ display: 'flex', flexDirection: 'column' }}>
-      <MuiBox sx={{ display: 'flex', alignItems: 'center', pt: '10px' }}>
+      <MuiBox
+        sx={{ display: 'flex', alignItems: 'center', paddingTop: '10px' }}
+      >
         <TextBox
           title={props.label}
           text={props.text}
           error={props.errorMessage !== null}
           handleChange={(event) => props.onEdit(event.target.value)}
           onBlur={props.onBlur}
-          sx={{ width: 600, mr: '10px' }}
+          sx={{ width: 600, marginRight: '10px' }}
         />
         <IconButton
           icon={<Folder fontSize="medium" />}
           onClick={props.onButtonClick}
-          tooltipTitle={props.buttonToolTip}
+          tooltipTitle={props.buttonTooltip}
         />
       </MuiBox>
       <FormHelperText aria-label={'file path helper text'} error={true}>

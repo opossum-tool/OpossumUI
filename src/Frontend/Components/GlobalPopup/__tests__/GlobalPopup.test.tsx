@@ -4,10 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
+import { importFileFormats } from '../../../../ElectronBackend/main/menu';
 import { FilePathValidity } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { PopupType } from '../../../enums/enums';
-import { importFileFormats } from '../../../shared-constants';
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import { renderComponent } from '../../../test-helpers/render';
 import { GlobalPopup } from '../GlobalPopup';

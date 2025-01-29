@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   AttributionData,
-  FileFormatInfo,
   FrequentLicenses,
   PackageInfo,
   ProjectMetadata,
@@ -73,8 +72,4 @@ export const thirdPartyKeys: Array<keyof PackageInfo> = [
   'copyright',
   'licenseName',
   'licenseText',
-];
-
-export const importFileFormats: Array<FileFormatInfo> = [
-  ['Legacy Opossum File', ['json', 'json.gz']],
 ];
