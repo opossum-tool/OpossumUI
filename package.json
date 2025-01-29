@@ -154,9 +154,9 @@
     "appId": "opossum_ui_electron",
     "files": [
       "build/**/*",
+      "bin/*",
       "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
-      "!build/**/__tests__/**/*",
-      "bin/*"
+      "!build/**/__tests__/**/*"
     ],
     "directories": {
       "output": "release"

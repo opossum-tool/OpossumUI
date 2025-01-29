@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { execFile as execFileCallback } from 'child_process';
-import { app } from 'electron';
 import { uniqueId } from 'lodash';
+import { tmpdir } from 'os';
 import { join } from 'path';
 import { promisify } from 'util';
 
@@ -15,7 +15,7 @@ const execFile = promisify(execFileCallback);
 const OPOSSUM_FILE_EXECUTABLE = './bin/opossum-file';
 
 function getTempPath(): string {
-  return join(app.getPath('temp'), uniqueId('opossum_'));
+  return join(tmpdir(), uniqueId('opossum_'));
 }
 
 export async function convertScanCodeToOpossum(
