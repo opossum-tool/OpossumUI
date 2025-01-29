@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
+import { FilePathValidity } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { PopupType } from '../../../enums/enums';
 import { importFileFormats } from '../../../shared-constants';
@@ -53,6 +54,10 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the ImportDialog', () => {
+    jest
+      .spyOn(window.electronAPI, 'importFileValidatePaths')
+      .mockResolvedValue([FilePathValidity.VALID, FilePathValidity.VALID]);
+
     renderComponent(<GlobalPopup />, {
       actions: [
         openPopup(PopupType.ImportDialog, undefined, importFileFormats[0]),
