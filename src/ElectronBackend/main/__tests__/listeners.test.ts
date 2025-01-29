@@ -6,6 +6,7 @@
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
 import fs from 'fs';
 
+import { importFileFormats } from '../../../Frontend/shared-constants';
 import {
   AllowedFrontendChannels,
   IpcChannel,
@@ -15,6 +16,7 @@ import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
+  FilePathValidity,
 } from '../../../shared/shared-types';
 import { writeFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
@@ -22,12 +24,20 @@ import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
 import { createWindow } from '../createWindow';
-import { selectBaseURLDialog } from '../dialogs';
+import {
+  openNonOpossumFileDialog,
+  saveFileDialog,
+  selectBaseURLDialog,
+} from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   exportFile,
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
+  getImportFileListener,
+  getImportFileSelectInputListener,
+  getImportFileSelectSaveLocationListener,
+  getImportFileValidatePathsListener,
   getOpenLinkListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
@@ -95,6 +105,8 @@ jest.mock('../../input/importFromFile', () => ({
 
 jest.mock('../dialogs', () => ({
   openOpossumFileDialog: jest.fn(),
+  openNonOpossumFileDialog: jest.fn(),
+  saveFileDialog: jest.fn(),
   selectBaseURLDialog: jest.fn(),
 }));
 
@@ -418,6 +430,228 @@ describe('_exportFileAndOpenFolder', () => {
     );
     expect(writeSpdxFile).not.toHaveBeenCalled();
     expect(shell.showItemInFolder).not.toHaveBeenCalled();
+  });
+});
+
+describe('getImportFileListener', () => {
+  it('sends an IPC message on the ImportFileShowDialog channel', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
+
+    const fileFormat = importFileFormats[0];
+
+    const listener = getImportFileListener(mainWindow, fileFormat);
+
+    await listener();
+
+    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ImportFileShowDialog,
+      fileFormat,
+    );
+  });
+});
+
+describe('getImportFileSelectInputListener', () => {
+  it('calls openNonOpossumFileDialog and returns received file path', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const fileFormat = importFileFormats[0];
+    const selectedFilePath = '/home/input.json';
+
+    const listener = getImportFileSelectInputListener(mainWindow);
+
+    jest.mocked(openNonOpossumFileDialog).mockReturnValue([selectedFilePath]);
+
+    const returnedFilePath = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      fileFormat,
+    );
+
+    expect(openNonOpossumFileDialog).toHaveBeenCalledWith(fileFormat);
+    expect(returnedFilePath).toBe(selectedFilePath);
+  });
+
+  it('returns an empty string when no file was selected', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const fileFormat = importFileFormats[0];
+
+    const listener = getImportFileSelectInputListener(mainWindow);
+
+    jest
+      .mocked(openNonOpossumFileDialog)
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce(undefined);
+
+    const returnedFilePath1 = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      fileFormat,
+    );
+    const returnedFilePath2 = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      fileFormat,
+    );
+
+    expect(returnedFilePath1).toBe('');
+    expect(returnedFilePath2).toBe('');
+  });
+});
+
+describe('getImportFileSelectSaveLocationListener', () => {
+  it('calls saveFileDialog and returns received file path', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const defaultPath = '/home';
+    const selectedFilePath = '/home/input.opossum';
+
+    const listener = getImportFileSelectSaveLocationListener(mainWindow);
+
+    jest.mocked(saveFileDialog).mockReturnValue(selectedFilePath);
+
+    const returnedFilePath = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      defaultPath,
+    );
+
+    expect(saveFileDialog).toHaveBeenCalledWith(defaultPath);
+    expect(returnedFilePath).toBe(selectedFilePath);
+  });
+
+  it('returns null when no save location was selected', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
+
+    const listener = getImportFileSelectSaveLocationListener(mainWindow);
+
+    jest.mocked(saveFileDialog).mockReturnValue(undefined);
+
+    const returnedFilePath = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      '',
+    );
+
+    expect(returnedFilePath).toBeNull();
+  });
+});
+
+describe('getImportFileValidatePathsListener', () => {
+  it('recognizes empty strings', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
+
+    const inputFilePath = '';
+    const extensions = ['json', 'json.gz'];
+    const opossumFilePath = '  \t';
+
+    const listener = getImportFileValidatePathsListener(mainWindow);
+
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+
+    const result = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      inputFilePath,
+      extensions,
+      opossumFilePath,
+    );
+
+    expect(result).toStrictEqual([
+      FilePathValidity.EMPTY_STRING,
+      FilePathValidity.EMPTY_STRING,
+    ]);
+  });
+
+  it('recognizes non-existent file paths', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
+
+    const inputFilePath = '/home/input.json';
+    const extensions = ['json', 'json.gz'];
+    const opossumFilePath = '/hom/input.opossum';
+
+    const listener = getImportFileValidatePathsListener(mainWindow);
+
+    jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+
+    const result = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      inputFilePath,
+      extensions,
+      opossumFilePath,
+    );
+
+    expect(result).toStrictEqual([
+      FilePathValidity.PATH_DOESNT_EXIST,
+      FilePathValidity.PATH_DOESNT_EXIST,
+    ]);
+  });
+
+  it('recognizes invalid file extensions', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
+
+    const inputFilePath = '/home/input.txt';
+    const extensions = ['json', 'json.gz'];
+    const opossumFilePath = '/home/input.oposs';
+
+    const listener = getImportFileValidatePathsListener(mainWindow);
+
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+
+    const result = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      inputFilePath,
+      extensions,
+      opossumFilePath,
+    );
+
+    expect(result).toStrictEqual([
+      FilePathValidity.WRONG_EXTENSION,
+      FilePathValidity.WRONG_EXTENSION,
+    ]);
+  });
+
+  it('returns valid when no problem is found', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
+
+    const inputFilePath = '/home/input.json.gz';
+    const extensions = ['json', 'json.gz'];
+    const opossumFilePath = '/home/input.opossum';
+
+    const listener = getImportFileValidatePathsListener(mainWindow);
+
+    jest
+      .spyOn(fs, 'existsSync')
+      .mockReturnValueOnce(true)
+      .mockReturnValueOnce(true)
+      .mockReturnValueOnce(false);
+
+    const result = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      inputFilePath,
+      extensions,
+      opossumFilePath,
+    );
+
+    expect(result).toStrictEqual([
+      FilePathValidity.VALID,
+      FilePathValidity.VALID,
+    ]);
+  });
+
+  it('gives overwrite warning when opossum file already exists', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
+
+    const inputFilePath = '/home/input.json.gz';
+    const extensions = ['json', 'json.gz'];
+    const opossumFilePath = '/home/input.opossum';
+
+    const listener = getImportFileValidatePathsListener(mainWindow);
+
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+
+    const result = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      inputFilePath,
+      extensions,
+      opossumFilePath,
+    );
+
+    expect(result).toStrictEqual([
+      FilePathValidity.VALID,
+      FilePathValidity.OVERWRITE_WARNING,
+    ]);
   });
 });
 
