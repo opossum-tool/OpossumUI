@@ -27,6 +27,7 @@ import { ConfirmSavePopup } from '../page-objects/ConfirmSavePopup';
 import { DiffPopup } from '../page-objects/DiffPopup';
 import { ErrorPopup } from '../page-objects/ErrorPopup';
 import { FileSupportPopup } from '../page-objects/FileSupportPopup';
+import { ImportDialog } from '../page-objects/ImportDialog';
 import { LinkedResourcesTree } from '../page-objects/LinkedResourcesTree';
 import { MenuBar } from '../page-objects/MenuBar';
 import { NotSavedPopup } from '../page-objects/NotSavedPopup';
@@ -62,9 +63,11 @@ export const test = base.extend<{
   diffPopup: DiffPopup;
   errorPopup: ErrorPopup;
   fileSupportPopup: FileSupportPopup;
+  importDialog: ImportDialog;
   linkedResourcesTree: LinkedResourcesTree;
   menuBar: MenuBar;
   notSavedPopup: NotSavedPopup;
+  openFileManually: boolean;
   pathBar: PathBar;
   projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
@@ -74,14 +77,18 @@ export const test = base.extend<{
   topBar: TopBar;
 }>({
   data: undefined,
-  window: async ({ data }, use, info) => {
+  openFileManually: false,
+  window: async ({ data, openFileManually }, use, info) => {
     const filePath = data && (await createTestFile({ data, info }));
 
     const [executablePath, main] = getLaunchProps();
     const args = ['--reset'];
 
     const app = await electron.launch({
-      args: [main, ...(!filePath ? args : args.concat([filePath]))],
+      args: [
+        main,
+        ...(!filePath || openFileManually ? args : args.concat([filePath])),
+      ],
       executablePath,
     });
 
@@ -166,6 +173,11 @@ export const test = base.extend<{
   },
   reportView: async ({ window }, use) => {
     await use(new ReportView(window));
+  },
+  importDialog: async ({ window, data }, use, info) => {
+    await use(
+      new ImportDialog(window, data?.inputData.metadata.projectId, info),
+    );
   },
 });
 

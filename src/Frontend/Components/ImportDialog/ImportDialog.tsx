@@ -252,6 +252,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         color: 'secondary',
         disabled: isLoading,
       }}
+      aria-label={'import dialog'}
     />
   );
 };

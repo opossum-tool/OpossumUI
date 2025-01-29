@@ -38,7 +38,7 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
           tooltipTitle={props.buttonToolTip}
         />
       </MuiBox>
-      <FormHelperText error={true}>
+      <FormHelperText aria-label={'file path helper text'} error={true}>
         {props.errorMessage ?? props.warnMessage ?? ' '}
       </FormHelperText>
     </FormControl>
