@@ -30,7 +30,7 @@ export class ImportDialog {
       .first();
     this.opossumFilePathErrorMessage = this.node
       .getByLabel('file path helper text')
-      .first();
+      .last();
     this.importButton = this.node.getByRole('button', { name: 'Import' });
     this.cancelButton = this.node.getByRole('button', { name: 'Cancel' });
 
