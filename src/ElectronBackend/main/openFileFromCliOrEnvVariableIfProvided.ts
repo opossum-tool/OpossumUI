@@ -8,6 +8,7 @@ import log from 'electron-log';
 import { convertScancodeToOpossum } from '../opossum-file/convertScancodeToOpossum';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { handleOpeningFile } from './listeners';
+import { activateMenuItems } from './menu';
 
 export async function openFileFromCliOrEnvVariableIfProvided(
   mainWindow: BrowserWindow,
@@ -51,6 +52,6 @@ export async function openFileFromCliOrEnvVariableIfProvided(
   }
 
   if (inputFileName) {
-    await handleOpeningFile(mainWindow, inputFileName);
+    await handleOpeningFile(mainWindow, inputFileName, activateMenuItems);
   }
 }

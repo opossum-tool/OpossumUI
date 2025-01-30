@@ -48,7 +48,6 @@ import {
   setGlobalBackendState,
 } from './globalBackendState';
 import logger from './logger';
-import { activateMenuItems } from './menu';
 
 const outputFileEnding = '_attributions.json';
 const jsonGzipFileExtension = '.json.gz';
@@ -105,6 +104,7 @@ async function writeOutputJsonToFile(
 
 export function getOpenFileListener(
   mainWindow: BrowserWindow,
+  onOpen: () => void,
 ): () => Promise<void> {
   return createVoidListenerCallbackWithErrorHandling(mainWindow, async () => {
     const filePaths = openOpossumFileDialog();
@@ -113,18 +113,19 @@ export function getOpenFileListener(
     }
     const filePath = filePaths[0];
 
-    await handleOpeningFile(mainWindow, filePath);
+    await handleOpeningFile(mainWindow, filePath, onOpen);
   });
 }
 
 export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   filePath: string,
+  onOpen: () => void,
 ): Promise<void> {
   logger.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, true);
 
-  await openFile(mainWindow, filePath);
+  await openFile(mainWindow, filePath, onOpen);
 }
 
 export function getImportFileListener(
@@ -174,6 +175,7 @@ export function getImportFileSelectSaveLocationListener(
 
 export function getImportFileConvertAndLoadListener(
   mainWindow: BrowserWindow,
+  onOpen: () => void,
 ): (
   _: Electron.IpcMainInvokeEvent,
   resourceFilePath: string,
@@ -209,7 +211,7 @@ export function getImportFileConvertAndLoadListener(
       logger.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath, true);
 
-      await openFile(mainWindow, opossumFilePath);
+      await openFile(mainWindow, opossumFilePath, onOpen);
 
       return true;
     },
@@ -307,6 +309,7 @@ function initializeGlobalBackendState(
 
 export function getDeleteAndCreateNewAttributionFileListener(
   mainWindow: BrowserWindow,
+  onOpen: () => void,
 ): () => Promise<void> {
   return createVoidListenerCallbackWithErrorHandling(mainWindow, async () => {
     const globalBackendState = getGlobalBackendState();
@@ -322,7 +325,7 @@ export function getDeleteAndCreateNewAttributionFileListener(
         `Failed to delete output file. Attribution file path is incorrect: ${globalBackendState.attributionFilePath}`,
       );
     }
-    await openFile(mainWindow, resourceFilePath);
+    await openFile(mainWindow, resourceFilePath, onOpen);
   });
 }
 
@@ -361,13 +364,14 @@ function tryToGetInputFileFromOutputFile(filePath: string): string {
 export async function openFile(
   mainWindow: BrowserWindow,
   filePath: string,
+  onOpen: () => void,
 ): Promise<void> {
   setLoadingState(mainWindow.webContents, true);
 
   try {
     await loadInputAndOutputFromFilePath(mainWindow, filePath);
     setTitle(mainWindow, filePath);
-    activateMenuItems();
+    onOpen();
   } finally {
     setLoadingState(mainWindow.webContents, false);
   }

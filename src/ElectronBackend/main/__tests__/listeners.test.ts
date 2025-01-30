@@ -131,7 +131,7 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
       attributionFilePath: jsonPath,
     });
 
-    await getDeleteAndCreateNewAttributionFileListener(mainWindow)();
+    await getDeleteAndCreateNewAttributionFileListener(mainWindow, () => {})();
 
     expect(fs.existsSync(jsonPath)).toBeFalsy();
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(

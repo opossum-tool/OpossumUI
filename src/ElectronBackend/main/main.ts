@@ -19,7 +19,7 @@ import {
   getOpenLinkListener,
   getSaveFileListener,
 } from './listeners';
-import { createMenu } from './menu';
+import { activateMenuItems, createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { UserSettings } from './user-settings';
 
@@ -64,7 +64,10 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.Relaunch, () => {
       mainWindow.reload();
     });
-    ipcMain.handle(IpcChannel.OpenFile, getOpenFileListener(mainWindow));
+    ipcMain.handle(
+      IpcChannel.OpenFile,
+      getOpenFileListener(mainWindow, activateMenuItems),
+    );
     ipcMain.handle(
       IpcChannel.ImportFileSelectInput,
       getImportFileSelectInputListener(mainWindow),
@@ -75,7 +78,7 @@ export async function main(): Promise<void> {
     );
     ipcMain.handle(
       IpcChannel.ImportFileConvertAndLoad,
-      getImportFileConvertAndLoadListener(mainWindow),
+      getImportFileConvertAndLoadListener(mainWindow, activateMenuItems),
     );
     ipcMain.handle(
       IpcChannel.ImportFileValidatePaths,
@@ -84,7 +87,10 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.DeleteFile,
-      getDeleteAndCreateNewAttributionFileListener(mainWindow),
+      getDeleteAndCreateNewAttributionFileListener(
+        mainWindow,
+        activateMenuItems,
+      ),
     );
     ipcMain.handle(IpcChannel.ExportFile, getExportFileListener(mainWindow));
     ipcMain.handle(IpcChannel.OpenLink, getOpenLinkListener());

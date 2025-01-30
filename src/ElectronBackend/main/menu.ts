@@ -103,7 +103,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           ),
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
-          click: getOpenFileListener(mainWindow),
+          click: getOpenFileListener(mainWindow, activateMenuItems),
         },
         {
           icon: getIconBasedOnTheme(
