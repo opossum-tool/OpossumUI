@@ -166,7 +166,7 @@ describe('getSelectBaseURLListener', () => {
 
 describe('getExportFollowUpListener', () => {
   it('throws error when followUpFilePath is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.FollowUp,
@@ -184,7 +184,7 @@ describe('getExportFollowUpListener', () => {
   });
 
   it('calls getExportFollowUpListener', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     setGlobalBackendState({
       followUpFilePath: '/somefile.csv',
     });
@@ -229,7 +229,7 @@ describe('getExportFollowUpListener', () => {
 
 describe('getExportBomListener', () => {
   it('throws error when bomFilePath is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.CompactBom,
@@ -247,7 +247,7 @@ describe('getExportBomListener', () => {
   });
 
   it('calls getExportBomListener for compact bom', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     const listener = getExportFileListener(mainWindow);
 
@@ -282,7 +282,7 @@ describe('getExportBomListener', () => {
   });
 
   it('calls getExportBomListener for detailed bom', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     const listener = getExportFileListener(mainWindow);
 
@@ -332,7 +332,7 @@ describe('getExportBomListener', () => {
 
 describe('getExportSpdxDocumentListener', () => {
   it('throws if path is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.SpdxDocumentYaml,
@@ -350,7 +350,7 @@ describe('getExportSpdxDocumentListener', () => {
   });
 
   it('calls getExportSpdxDocumentListener for yaml', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     const testArgs: ExportSpdxDocumentYamlArgs = {
       type: ExportType.SpdxDocumentYaml,
       spdxAttributions: {},
@@ -366,7 +366,7 @@ describe('getExportSpdxDocumentListener', () => {
   });
 
   it('calls getExportSpdxDocumentListener for json', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     const testArgs: ExportSpdxDocumentJsonArgs = {
       type: ExportType.SpdxDocumentJson,
       spdxAttributions: {},
@@ -395,7 +395,7 @@ describe('getOpenLinkListener', () => {
 
 describe('_exportFileAndOpenFolder', () => {
   it('calls the createFile function', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     const testSpdxDocumentYamlFilePath = '/some/path.json';
     setGlobalBackendState({ spdxYamlFilePath: testSpdxDocumentYamlFilePath });
     const testArgs: ExportSpdxDocumentYamlArgs = {
@@ -416,7 +416,7 @@ describe('_exportFileAndOpenFolder', () => {
   });
 
   it('throws if outputFilePath is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     setGlobalBackendState({ spdxYamlFilePath: undefined });
     const testArgs: ExportSpdxDocumentYamlArgs = {
       type: ExportType.SpdxDocumentYaml,
@@ -433,7 +433,7 @@ describe('_exportFileAndOpenFolder', () => {
 
 describe('getImportFileListener', () => {
   it('sends an IPC message on the ImportFileShowDialog channel', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     const fileFormat = importFileFormats[0];
 
@@ -450,7 +450,7 @@ describe('getImportFileListener', () => {
 
 describe('getImportFileSelectInputListener', () => {
   it('returns file path selected by user', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     const fileFormat = importFileFormats[0];
     const selectedFilePath = '/home/input.json';
 
@@ -467,7 +467,7 @@ describe('getImportFileSelectInputListener', () => {
   });
 
   it('returns an empty string when no file was selected', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     const fileFormat = importFileFormats[0];
 
     const listener = getImportFileSelectInputListener(mainWindow);
@@ -493,7 +493,7 @@ describe('getImportFileSelectInputListener', () => {
 
 describe('getImportFileSelectSaveLocationListener', () => {
   it('calls saveFileDialog and returns received file path', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     const defaultPath = '/home';
     const selectedFilePath = '/home/input.opossum';
 
@@ -511,7 +511,7 @@ describe('getImportFileSelectSaveLocationListener', () => {
   });
 
   it('returns null when no save location was selected', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     const listener = getImportFileSelectSaveLocationListener(mainWindow);
 
@@ -528,7 +528,7 @@ describe('getImportFileSelectSaveLocationListener', () => {
 
 describe('getImportFileValidatePathsListener', () => {
   it('recognizes empty strings', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     const inputFilePath = '';
     const extensions = ['json', 'json.gz'];
@@ -552,7 +552,7 @@ describe('getImportFileValidatePathsListener', () => {
   });
 
   it('recognizes non-existent file paths', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     const inputFilePath = '/home/input.json';
     const extensions = ['json', 'json.gz'];
@@ -576,7 +576,7 @@ describe('getImportFileValidatePathsListener', () => {
   });
 
   it('recognizes invalid file extensions', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     const inputFilePath = '/home/input.txt';
     const extensions = ['json', 'json.gz'];
@@ -600,7 +600,7 @@ describe('getImportFileValidatePathsListener', () => {
   });
 
   it('returns valid when no problem is found', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     const inputFilePath = '/home/input.json.gz';
     const extensions = ['json', 'json.gz'];
@@ -628,7 +628,7 @@ describe('getImportFileValidatePathsListener', () => {
   });
 
   it('gives overwrite warning when opossum file already exists', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     const inputFilePath = '/home/input.json.gz';
     const extensions = ['json', 'json.gz'];
@@ -652,7 +652,7 @@ describe('getImportFileValidatePathsListener', () => {
   });
 });
 
-function prepareBomSPdxAndFollowUpit(): Promise<BrowserWindow> {
+function initWindowAndBackendState(): Promise<BrowserWindow> {
   (writeCsvToFile as jest.Mock).mockReset();
   setGlobalBackendState({});
 
