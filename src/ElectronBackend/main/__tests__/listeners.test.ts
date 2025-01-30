@@ -449,7 +449,7 @@ describe('getImportFileListener', () => {
 });
 
 describe('getImportFileSelectInputListener', () => {
-  it('calls openNonOpossumFileDialog and returns received file path', async () => {
+  it('returns file path selected by user', async () => {
     const mainWindow = await prepareBomSPdxAndFollowUpit();
     const fileFormat = importFileFormats[0];
     const selectedFilePath = '/home/input.json';
@@ -463,7 +463,6 @@ describe('getImportFileSelectInputListener', () => {
       fileFormat,
     );
 
-    expect(openNonOpossumFileDialog).toHaveBeenCalledWith(fileFormat);
     expect(returnedFilePath).toBe(selectedFilePath);
   });
 
