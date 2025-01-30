@@ -3,17 +3,27 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { existsSync } from 'fs';
+import { uniqueId } from 'lodash';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
 import { parseOpossumFile } from '../../input/parseFile';
 import { isOpossumFileFormat } from '../../utils/isOpossumFileFormat';
-import { convertScanCodeToOpossum } from '../convertToOpossum';
+import { convertScancodeToOpossum } from '../convertScancodeToOpossum';
+
+function getTempPath(): string {
+  return join(tmpdir(), uniqueId('opossum_'));
+}
 
 describe('successfulConversionOfScanCodeFile', () => {
   const SCANCODE_TEST_FILE =
     'src/ElectronBackend/opossum-file/__tests__/scancode.json';
 
   it('should convert the ScanCode file and return a path to a valid .opossum file', async () => {
-    const path = await convertScanCodeToOpossum(SCANCODE_TEST_FILE);
+    const path = await convertScancodeToOpossum(
+      SCANCODE_TEST_FILE,
+      getTempPath(),
+    );
     expect(existsSync(path)).toBe(true);
     expect(isOpossumFileFormat(path)).toBe(true);
 
