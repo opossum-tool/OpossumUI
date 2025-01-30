@@ -229,7 +229,10 @@ export interface ExternalAttributionSources {
   [source: string]: ExternalAttributionSource;
 }
 
-export type FileFormatInfo = [string, Array<string>];
+export interface FileFormatInfo {
+  name: string;
+  extensions: Array<string>;
+}
 
 export enum FilePathValidity {
   VALID,

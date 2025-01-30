@@ -65,7 +65,7 @@ describe('The GlobalPopUp', () => {
     });
 
     expect(
-      screen.getByText(`Import ${importFileFormats[0][0]}`),
+      screen.getByText(`Import ${importFileFormats[0].name}`),
     ).toBeInTheDocument();
   });
 });

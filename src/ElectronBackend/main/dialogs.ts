@@ -32,8 +32,8 @@ export function openNonOpossumFileDialog(
 ): Array<string> | undefined {
   return openFileDialog([
     {
-      name: `${fileFormat[0]}s (${fileFormat[1].map((ext) => `.${ext}`).join('/')})`,
-      extensions: fileFormat[1],
+      name: `${fileFormat.name}s (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+      extensions: fileFormat.extensions,
     },
   ]);
 }

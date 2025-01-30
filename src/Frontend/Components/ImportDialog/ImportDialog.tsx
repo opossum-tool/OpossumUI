@@ -60,7 +60,11 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
   function validateFilePaths(): void {
     window.electronAPI
-      .importFileValidatePaths(inputFilePath, fileFormat[1], opossumFilePath)
+      .importFileValidatePaths(
+        inputFilePath,
+        fileFormat.extensions,
+        opossumFilePath,
+      )
       .then(
         (validationResult) => {
           if (validationResult) {
@@ -82,7 +86,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       case FilePathValidity.EMPTY_STRING:
         return 'No file selected';
       case FilePathValidity.WRONG_EXTENSION:
-        return `Invalid file extension, should be ${fileFormat[1].map((ext) => `.${ext}`).join(' or ')}`;
+        return `Invalid file extension, should be ${fileFormat.extensions.map((ext) => `.${ext}`).join(' or ')}`;
       case FilePathValidity.PATH_DOESNT_EXIST:
         return 'The specified file does not exist';
       case FilePathValidity.VALIDATION_FAILED:
@@ -117,7 +121,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     if (!opossumFilePathEdited) {
       const derivedOpossumFilePath = getDotOpossumFilePath(
         filePath,
-        fileFormat[1],
+        fileFormat.extensions,
       );
       setOpossumFilePath(derivedOpossumFilePath);
     }
@@ -187,7 +191,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
   return (
     <NotificationPopup
-      header={`Import ${fileFormat[0]}`}
+      header={`Import ${fileFormat.name}`}
       content={
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <MuiTypography>{explanationTextLine1}</MuiTypography>
@@ -195,7 +199,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
             {explanationTextLine2}
           </MuiTypography>
           <FilePathInput
-            label={`File to import (${fileFormat[1].map((ext) => `.${ext}`).join('/')})`}
+            label={`File to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`}
             text={inputFilePath}
             buttonTooltip="Select file"
             onEdit={updateInputFilePath}

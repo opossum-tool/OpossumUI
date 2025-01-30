@@ -82,7 +82,10 @@ const INITIALLY_DISABLED_ITEMS_INFO: Record<
 };
 
 export const importFileFormats: Array<FileFormatInfo> = [
-  ['Legacy Opossum File', ['json', 'json.gz']],
+  {
+    name: 'Legacy Opossum File',
+    extensions: ['json', 'json.gz'],
+  },
 ];
 
 export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
@@ -109,7 +112,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           ),
           label: 'Import File',
           submenu: importFileFormats.map((fileFormat) => ({
-            label: `${fileFormat[0]} (${fileFormat[1].map((ext) => `.${ext}`).join('/')})`,
+            label: `${fileFormat.name} (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
             click: getImportFileListener(mainWindow, fileFormat),
           })),
         },
