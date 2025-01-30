@@ -6,8 +6,6 @@ import fs from 'fs';
 import { fetchLatest } from 'gh-release-fetch';
 import { join } from 'path';
 
-fetchLatest(undefined).then(() => {});
-
 async function installOpossumFileCLI(osSuffix, downloadDestination = 'bin') {
   const TARGET_NAME = 'bin/opossum-file';
   const opossumFileBinaryName = 'opossum-file-for-' + osSuffix;
