@@ -40,12 +40,20 @@ async function reportListenerError(
   }
 }
 
-export function createVoidListenerCallbackWithErrorHandling(
+type FuncType<T> = T extends (...args: infer P) => infer R
+  ? (...args: P) => R
+  : never;
+
+type RemovePromise<A> = A extends Promise<infer B> ? B : A;
+type ReturnTypeWithoutPromise<A> =
+  A extends FuncType<A> ? RemovePromise<ReturnType<A>> : never;
+type FTParameters<A> = A extends FuncType<A> ? Parameters<A> : never;
+
+export function createVoidListenerCallbackWithErrorHandling<F>(
   mainWindow: BrowserWindow,
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  func: Function,
-): (...args: Array<unknown>) => Promise<void> {
-  return async (...args: Array<unknown>): Promise<void> => {
+  func: F & FuncType<F>,
+): (...args: FTParameters<F>) => Promise<void> {
+  return async (...args: FTParameters<F>): Promise<void> => {
     try {
       await func(...args);
     } catch (error: unknown) {
@@ -54,14 +62,15 @@ export function createVoidListenerCallbackWithErrorHandling(
   };
 }
 
-export function createListenerCallbackWithErrorHandling<T>(
+export function createListenerCallbackWithErrorHandling<F>(
   mainWindow: BrowserWindow,
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  func: Function,
-): (...args: Array<unknown>) => Promise<T | null> {
-  return async (...args: Array<unknown>): Promise<T | null> => {
+  func: F & FuncType<F>,
+): (...args: FTParameters<F>) => Promise<ReturnTypeWithoutPromise<F> | null> {
+  return async (
+    ...args: FTParameters<F>
+  ): Promise<ReturnTypeWithoutPromise<F> | null> => {
     try {
-      return await func(...args);
+      return (await func(...args)) as ReturnTypeWithoutPromise<F>;
     } catch (error: unknown) {
       await reportListenerError(mainWindow, error);
       return Promise.resolve(null);

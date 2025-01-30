@@ -233,7 +233,7 @@ export function getImportFileValidatePathsListener(
       inputFilePath: string,
       extensions: Array<string>,
       opossumFilePath: string,
-    ) => {
+    ): [FilePathValidity, FilePathValidity] => {
       const inputFilePathExists = fs.existsSync(inputFilePath);
       const opossumFileDirectoryExists = fs.existsSync(
         path.dirname(opossumFilePath),
