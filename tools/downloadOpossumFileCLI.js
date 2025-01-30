@@ -2,63 +2,63 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import fs from 'fs';
+import { fetchLatest } from 'gh-release-fetch';
+import { join } from 'path';
 
-const { fetchVersion } = require('gh-release-fetch');
-const fs = require('fs');
-const { exit } = require('process');
-const { join } = require('path');
+fetchLatest(undefined).then(() => {});
 
-const VERSION = 'v0.1.0-ALPHA';
-
-if (process.argv.length !== 3) {
-  console.error(
-    'downloadOpossumFileCLI.js requires an argument with the OS-specific suffix of the opossum-file binary.',
-  );
-  exit(1);
-}
-
-const OS = process.argv[2];
-const OPOSSUM_FILE_BINARY_NAME = 'opossum-file-for-' + OS;
-const DOWNLOAD_DESTINATION = 'bin';
-
-fetchVersion({
-  repository: 'opossum-tool/opossum-file',
-  package: OPOSSUM_FILE_BINARY_NAME,
-  destination: DOWNLOAD_DESTINATION,
-  version: VERSION,
-  extract: false,
-})
-  .then(() => {
+async function installOpossumFileCLI(osSuffix, downloadDestination = 'bin') {
+  const TARGET_NAME = 'bin/opossum-file';
+  const opossumFileBinaryName = 'opossum-file-for-' + osSuffix;
+  const downloadedFileName = join(downloadDestination, opossumFileBinaryName);
+  try {
+    const release = {
+      repository: 'opossum-tool/opossum-file',
+      package: opossumFileBinaryName,
+      destination: downloadDestination,
+      version: undefined,
+      extract: false,
+    };
+    await fetchLatest(release);
     console.info(
-      "Downloaded 'opossum-file@" + VERSION + "' to",
-      DOWNLOAD_DESTINATION,
+      "Downloaded 'opossum-file@" + release.version + "' to",
+      downloadedFileName,
     );
-    CURRENT_NAME = join(DOWNLOAD_DESTINATION, OPOSSUM_FILE_BINARY_NAME);
-    TARGET_NAME = join(DOWNLOAD_DESTINATION, 'opossum-file');
-    if (fs.existsSync(TARGET_NAME)) {
-      console.info('Found opossum-file binary. Overwriting.');
-    }
-
-    fs.renameSync(CURRENT_NAME, TARGET_NAME);
-    console.info('Renamed', CURRENT_NAME, 'to', TARGET_NAME);
-    fs.chmod(TARGET_NAME, 0o755, (err) => {
-      if (err) {
-        console.error(
-          'Could not mark',
-          TARGET_NAME,
-          'as executable.',
-          err ?? '',
-        );
-        exit(1);
-      }
-    });
-  })
-  .catch((error) => {
+  } catch (error) {
     console.error(
       "Download of 'opossum-file' failed:",
       error.message,
       '\n',
       error,
     );
-    exit(1);
-  });
+    process.exit(1);
+  }
+
+  if (fs.existsSync(TARGET_NAME)) {
+    console.info('Found opossum-file binary. Overwriting.');
+  }
+  try {
+    fs.renameSync(downloadedFileName, TARGET_NAME);
+    console.info('Renamed', downloadedFileName, 'to', TARGET_NAME);
+  } catch (error) {
+    console.error('Renaming failed:', error);
+    process.exit(1);
+  }
+
+  try {
+    await fs.promises.chmod(TARGET_NAME, 0o755);
+  } catch (error) {
+    console.error('Could not mark', TARGET_NAME, 'as executable.', error);
+    process.exit(1);
+  }
+}
+
+if (process.argv.length !== 3) {
+  console.error(
+    'downloadOpossumFileCLI.js requires an argument with the OS-specific suffix of the opossum-file binary.',
+  );
+  process.exit(1);
+}
+const OS = process.argv[2];
+await installOpossumFileCLI(OS);
