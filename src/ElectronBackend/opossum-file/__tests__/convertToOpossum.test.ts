@@ -16,8 +16,7 @@ function getTempPath(): string {
 }
 
 describe('successfulConversionOfScanCodeFile', () => {
-  const SCANCODE_TEST_FILE =
-    'src/ElectronBackend/opossum-file/__tests__/scancode.json';
+  const SCANCODE_TEST_FILE = join(__dirname, 'scancode.json');
 
   it('should convert the ScanCode file and return a path to a valid .opossum file', async () => {
     const path = await convertScancodeToOpossum(
