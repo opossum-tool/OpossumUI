@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { FileFormatInfo } from './shared-types';
+
 export const text = {
   attributionColumn: {
     commonEcosystems: 'Common Ecosystems',
@@ -90,6 +92,7 @@ export const text = {
     ok: 'OK',
     search: 'Search',
     sort: 'Sort',
+    import: 'Import',
   },
   modifyWasPreferredPopup: {
     title: 'Modifying Previously Preferred Attribution',
@@ -238,5 +241,21 @@ export const text = {
     unexpectedError: "We're sorry, an unexpected error occurred!",
     relaunch: 'Relaunch App',
     quit: 'Quit App',
+  },
+  importDialog: {
+    title: (fileFormat: FileFormatInfo) => `Import ${fileFormat.name}`,
+    explanationText: [
+      'OpossumUI will convert the selected file into a new opossum file.',
+      'All changes made to the project in OpossumUI will be saved in this opossum file.',
+    ],
+    inputFilePath: {
+      textFieldLabel: (fileFormat: FileFormatInfo) =>
+        `File to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+      buttonTooltip: 'Select file',
+    },
+    opossumFilePath: {
+      textFieldLabel: 'Opossum file save location',
+      buttonTooltip: 'Select save location',
+    },
   },
 } as const;

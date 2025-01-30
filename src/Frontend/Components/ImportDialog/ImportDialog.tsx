@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { FileFormatInfo, FilePathValidity } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
@@ -14,12 +15,6 @@ import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { Spinner } from '../Spinner/Spinner';
-
-const explanationTextLine1 =
-  'OpossumUI will convert the selected file into a new opossum file.';
-
-const explanationTextLine2 =
-  'All changes made to the project in OpossumUI will be saved in this opossum file.';
 
 interface ImportDialogProps {
   fileFormat: FileFormatInfo;
@@ -191,17 +186,17 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
   return (
     <NotificationPopup
-      header={`Import ${fileFormat.name}`}
+      header={text.importDialog.title(fileFormat)}
       content={
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <MuiTypography>{explanationTextLine1}</MuiTypography>
+          <MuiTypography>{text.importDialog.explanationText[0]}</MuiTypography>
           <MuiTypography sx={{ marginBottom: '10px' }}>
-            {explanationTextLine2}
+            {text.importDialog.explanationText[1]}
           </MuiTypography>
           <FilePathInput
-            label={`File to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`}
+            label={text.importDialog.inputFilePath.textFieldLabel(fileFormat)}
             text={inputFilePath}
-            buttonTooltip="Select file"
+            buttonTooltip={text.importDialog.inputFilePath.buttonTooltip}
             onEdit={updateInputFilePath}
             onBlur={() => setShowInputFilePathErrors(true)}
             onButtonClick={selectInputFilePath}
@@ -210,9 +205,9 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
             }
           />
           <FilePathInput
-            label="Opossum file save location"
+            label={text.importDialog.opossumFilePath.textFieldLabel}
             text={opossumFilePath}
-            buttonTooltip="Select save location"
+            buttonTooltip={text.importDialog.opossumFilePath.buttonTooltip}
             onEdit={editOpossumFilePath}
             onBlur={() => setShowOpossumFilePathErrors(true)}
             onButtonClick={selectOpossumFilePath}
@@ -245,12 +240,12 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       }
       leftButtonConfig={{
         onClick: onConfirm,
-        buttonText: 'Import',
+        buttonText: text.buttons.import,
         disabled: isLoading,
       }}
       rightButtonConfig={{
         onClick: onCancel,
-        buttonText: 'Cancel',
+        buttonText: text.buttons.cancel,
         color: 'secondary',
         disabled: isLoading,
       }}
