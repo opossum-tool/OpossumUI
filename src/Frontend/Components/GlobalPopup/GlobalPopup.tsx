@@ -8,7 +8,6 @@ import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
 import { PopupInfo } from '../../types/types';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
-import { ImportDialog } from '../ImportDialog/ImportDialog';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
@@ -26,16 +25,15 @@ function getPopupComponent(popupInfo: PopupInfo | null) {
       return <ProjectStatisticsPopup />;
     case PopupType.UpdateAppPopup:
       return <UpdateAppPopup />;
-    case PopupType.ImportDialog:
-      if (popupInfo?.fileFormat) {
-        return <ImportDialog fileFormat={popupInfo.fileFormat} />;
-      }
-      return null;
     default:
       return null;
   }
 }
 
+/**
+ * @deprecated GlobalPopup is a deprecated mechanism for managing popups.
+ * Do not use this for new popups!
+ */
 export const GlobalPopup: React.FC = () => {
   const openPopupInfo = useAppSelector(getOpenPopup);
   return getPopupComponent(openPopupInfo);

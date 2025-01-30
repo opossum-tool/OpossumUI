@@ -9,19 +9,42 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { FileFormatInfo, FilePathValidity } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch } from '../../state/hooks';
-import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
+import {
+  LoggingListener,
+  ShowImportDialogListener,
+  useIpcRenderer,
+} from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { Spinner } from '../Spinner/Spinner';
 
-interface ImportDialogProps {
-  fileFormat: FileFormatInfo;
-}
+export const ImportDialog: React.FC = () => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [fileFormat, setFileFormat] = useState<FileFormatInfo>({
+    name: '',
+    extensions: [],
+  });
 
-export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
-  const dispatch = useAppDispatch();
+  function resetState() {
+    setInputFilePath('');
+    setOpossumFilePath('');
+    setOpossumFilePathEdited(false);
+    setInputFilePathValidity(FilePathValidity.EMPTY_STRING);
+    setOpossumFilePathValidity(FilePathValidity.EMPTY_STRING);
+    setShowInputFilePathErrors(false);
+    setShowOpossumFilePathErrors(false);
+    setProcessInfo('');
+  }
+
+  useIpcRenderer<ShowImportDialogListener>(
+    AllowedFrontendChannels.ImportFileShowDialog,
+    (_, fileFormat) => {
+      resetState();
+      setFileFormat(fileFormat);
+      setIsOpen(true);
+    },
+    [],
+  );
 
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
@@ -159,7 +182,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   }
 
   function onCancel(): void {
-    dispatch(closePopup());
+    setIsOpen(false);
   }
 
   async function onConfirm(): Promise<void> {
@@ -175,7 +198,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       );
 
       if (success) {
-        dispatch(closePopup());
+        setIsOpen(false);
       } else {
         validateFilePaths();
       }
@@ -218,7 +241,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           />
         </div>
       }
-      isOpen={true}
+      isOpen={isOpen}
       customAction={
         isLoading ? (
           <>

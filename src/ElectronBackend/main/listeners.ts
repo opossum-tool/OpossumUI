@@ -211,7 +211,7 @@ export function getImportFileConvertAndLoadListener(
       logger.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath, true);
 
-      await openFile(mainWindow, opossumFilePath, onOpen);
+      await openFile(mainWindow, opossumFilePath, onOpen, true);
 
       return true;
     },
@@ -365,15 +365,20 @@ export async function openFile(
   mainWindow: BrowserWindow,
   filePath: string,
   onOpen: () => void,
+  isImport?: boolean,
 ): Promise<void> {
-  setLoadingState(mainWindow.webContents, true);
+  if (!isImport) {
+    setLoadingState(mainWindow.webContents, true);
+  }
 
   try {
     await loadInputAndOutputFromFilePath(mainWindow, filePath);
     setTitle(mainWindow, filePath);
     onOpen();
   } finally {
-    setLoadingState(mainWindow.webContents, false);
+    if (!isImport) {
+      setLoadingState(mainWindow.webContents, false);
+    }
   }
 }
 

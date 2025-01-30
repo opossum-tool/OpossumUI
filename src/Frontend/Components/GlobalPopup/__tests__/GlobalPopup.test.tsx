@@ -4,8 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import { importFileFormats } from '../../../../ElectronBackend/main/menu';
-import { FilePathValidity } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { PopupType } from '../../../enums/enums';
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
@@ -51,21 +49,5 @@ describe('The GlobalPopUp', () => {
     });
 
     expect(screen.getByText(text.updateAppPopup.title)).toBeInTheDocument();
-  });
-
-  it('opens the ImportDialog', () => {
-    jest
-      .spyOn(window.electronAPI, 'importFileValidatePaths')
-      .mockResolvedValue([FilePathValidity.VALID, FilePathValidity.VALID]);
-
-    renderComponent(<GlobalPopup />, {
-      actions: [
-        openPopup(PopupType.ImportDialog, undefined, importFileFormats[0]),
-      ],
-    });
-
-    expect(
-      screen.getByText(`Import ${importFileFormats[0].name}`),
-    ).toBeInTheDocument();
   });
 });

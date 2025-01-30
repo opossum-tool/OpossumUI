@@ -14,7 +14,6 @@ import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
-  FileFormatInfo,
   ParsedFileContent,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
@@ -221,13 +220,6 @@ export const BackendCommunication: React.FC = () => {
     }
   }
 
-  function importFileShowDialogListener(
-    _: IpcRendererEvent,
-    fileFormat: FileFormatInfo,
-  ): void {
-    dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat));
-  }
-
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
     dispatch,
   ]);
@@ -270,11 +262,6 @@ export const BackendCommunication: React.FC = () => {
   useIpcRenderer(
     AllowedFrontendChannels.ShowUpdateAppPopup,
     showUpdateAppPopupListener,
-    [dispatch],
-  );
-  useIpcRenderer(
-    AllowedFrontendChannels.ImportFileShowDialog,
-    importFileShowDialogListener,
     [dispatch],
   );
 
