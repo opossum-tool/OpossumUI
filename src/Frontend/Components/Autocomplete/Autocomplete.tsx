@@ -187,24 +187,26 @@ export function Autocomplete<
             ]).length
           }
           size={'small'}
-          InputLabelProps={getInputLabelProps()}
           inputRef={ref}
-          inputProps={{
-            'aria-label': props['aria-label'],
-            sx: {
-              overflowX: 'hidden',
-              textOverflow: 'ellipsis',
-              '&::placeholder': {
-                opacity: 1,
+          slotProps={{
+            input: {
+              startAdornment: startAdornment || renderStartAdornment(),
+              endAdornment: renderEndAdornment(),
+              readOnly,
+              sx,
+              ...(variant === 'filled' && { disableUnderline: true }),
+            },
+            inputLabel: getInputLabelProps(),
+            htmlInput: {
+              'aria-label': props['aria-label'],
+              sx: {
+                overflowX: 'hidden',
+                textOverflow: 'ellipsis',
+                '&::placeholder': {
+                  opacity: 1,
+                },
               },
             },
-          }}
-          InputProps={{
-            startAdornment: startAdornment || renderStartAdornment(),
-            endAdornment: renderEndAdornment(),
-            readOnly,
-            sx,
-            ...(variant === 'filled' && { disableUnderline: true }),
           }}
           onKeyDown={(event) => {
             // https://github.com/mui/material-ui/issues/21129

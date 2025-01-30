@@ -285,3 +285,20 @@ test('switches correctly between previously-preferred and modified previously pr
   await attributionDetails.attributionForm.comment.fill(faker.lorem.sentence());
   await confirmationDialog.assert.isVisible();
 });
+
+test('resets custom license text when user selects suggested license expression', async ({
+  attributionDetails,
+  resourcesTree,
+}) => {
+  const licenseText = faker.lorem.sentences();
+
+  await resourcesTree.goto(resourceName1);
+
+  await attributionDetails.attributionForm.licenseTextToggleButton.click();
+  await attributionDetails.attributionForm.licenseText.fill(licenseText);
+  await attributionDetails.attributionForm.assert.licenseTextIs(licenseText);
+
+  await attributionDetails.attributionForm.licenseName.click();
+  await attributionDetails.attributionForm.selectLicense(license1);
+  await attributionDetails.attributionForm.assert.licenseTextIs('');
+});

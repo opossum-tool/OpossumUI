@@ -95,11 +95,9 @@ export const test = base.extend<{
     await use(Object.assign(window, { app }));
 
     await window.context().tracing.stop({
-      path: info.error
-        ? info.outputPath(
-            `${data?.inputData.metadata.projectId || 'app'}.trace.zip`,
-          )
-        : undefined,
+      path: info.outputPath(
+        `${data?.inputData.metadata.projectId || 'app'}.trace.zip`,
+      ),
     });
     await app.close();
   },

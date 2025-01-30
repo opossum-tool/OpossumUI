@@ -140,7 +140,7 @@ Please note, that there seem to be some issues with this plugin. It can help to 
 
 ### Debugging the end-to-end tests
 
-Each executed end-to-end test creates artifacts in the folder `src/e2e-tests/artifacts`. The artifacts contain the auto-generated .opossum file that the test was run against and, in case the test failed, a Playwright trace file.
+Each executed end-to-end test creates artifacts in the folder `src/e2e-tests/artifacts`. The artifacts contain the auto-generated .opossum file that the test was run against and a Playwright trace file.
 
 The trace file includes screenshots and DOM snapshots at each step of the test up to the failure. You can open this file (do not unzip it!) in your browser by going to the [Playwright Trace Viewer](https://trace.playwright.dev/).
 
