@@ -132,14 +132,12 @@ export const ImportDialog: React.FC = () => {
             text={inputFilePath}
             buttonTooltip={text.importDialog.inputFilePath.buttonTooltip}
             onButtonClick={selectInputFilePath}
-            readOnly={true}
           />
           <FilePathInput
             label={text.importDialog.opossumFilePath.textFieldLabel}
             text={opossumFilePath}
             buttonTooltip={text.importDialog.opossumFilePath.buttonTooltip}
             onButtonClick={selectOpossumFilePath}
-            readOnly={true}
           />
         </div>
       }
@@ -156,7 +154,7 @@ export const ImportDialog: React.FC = () => {
           >
             <LogDisplay
               log={currentLog}
-              isActive={isLoading}
+              isInProgress={isLoading}
               showDate={false}
               useEllipsis={true}
             />

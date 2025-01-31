@@ -26,22 +26,22 @@ const icons: Record<
 
 interface LogDisplayProps {
   log: Log;
-  isActive: boolean;
+  isInProgress: boolean;
   showDate: boolean;
   useEllipsis?: boolean;
 }
 
 export function LogDisplay(props: LogDisplayProps) {
-  const { log, isActive, showDate, useEllipsis } = props;
+  const { log, isInProgress, showDate, useEllipsis } = props;
 
   const icon = useMemo(() => {
     const { color, Component } = icons[log.level];
-    return isActive ? (
+    return !isInProgress ? (
       <Spinner sx={{ marginTop: '1px' }} />
     ) : (
       <Component sx={{ ...baseIcon, color }} />
     );
-  }, [log, isActive]);
+  }, [log, isInProgress]);
 
   return (
     <Fragment>

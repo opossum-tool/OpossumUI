@@ -54,7 +54,7 @@ export function ProcessPopup() {
           <LogDisplay
             key={index}
             log={log}
-            isActive={index === logs.length - 1}
+            isInProgress={index === logs.length - 1}
             showDate={true}
           />
         ))}
