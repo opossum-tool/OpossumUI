@@ -4,13 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page, TestInfo } from '@playwright/test';
 
-import { text } from '../../shared/text';
-
 export class ImportDialog {
   private readonly node: Locator;
   readonly title: Locator;
-  readonly openFileDialogButton: Locator;
-  readonly saveFileDialogButton: Locator;
+  readonly inputFileSelection: Locator;
+  readonly opossumFileSelection: Locator;
   readonly importButton: Locator;
   readonly cancelButton: Locator;
   readonly errorIcon: Locator;
@@ -20,11 +18,9 @@ export class ImportDialog {
   constructor(window: Page, filename: string | undefined, info: TestInfo) {
     this.node = window.getByLabel('import dialog');
     this.title = this.node.getByRole('heading').getByText('Import');
-    this.openFileDialogButton = this.node.getByLabel(
-      text.importDialog.inputFilePath.buttonTooltip,
-    );
-    this.saveFileDialogButton = this.node.getByLabel(
-      text.importDialog.opossumFilePath.buttonTooltip,
+    this.inputFileSelection = this.node.getByLabel('Select file to import');
+    this.opossumFileSelection = this.node.getByLabel(
+      'Select opossum file save location',
     );
     this.importButton = this.node.getByRole('button', { name: 'Import' });
     this.cancelButton = this.node.getByRole('button', { name: 'Cancel' });

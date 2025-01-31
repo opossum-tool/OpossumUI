@@ -55,8 +55,8 @@ test('opens .json file', async ({
   await menuBar.openImportDialog();
   await importDialog.assert.titleIsVisible();
 
-  await importDialog.openFileDialogButton.click();
-  await importDialog.saveFileDialogButton.click();
+  await importDialog.inputFileSelection.click();
+  await importDialog.opossumFileSelection.click();
   await importDialog.importButton.click();
 
   await importDialog.assert.titleIsHidden();
