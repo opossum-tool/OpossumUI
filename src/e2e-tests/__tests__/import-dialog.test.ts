@@ -81,8 +81,8 @@ test('imports scancode file', async ({
   await menuBar.openByLabel(importDialog.scancodeMenuLabel);
   await importDialog.assert.titleIsVisible();
 
-  await importDialog.openFileDialogButton.click();
-  await importDialog.saveFileDialogButton.click();
+  await importDialog.inputFileSelection.click();
+  await importDialog.opossumFileSelection.click();
   await importDialog.importButton.click();
 
   await importDialog.assert.titleIsHidden();
