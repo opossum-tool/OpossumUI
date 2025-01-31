@@ -13,14 +13,14 @@ export function getDotOpossumFilePath(
   resourceFilePath: string,
   possibleExtensions: Array<string>,
 ): string {
-  const fileExtensionLength = possibleExtensions
-    .map((extension) => {
+  const fileExtensionLength = Math.max(
+    ...possibleExtensions.map((extension) => {
       if (resourceFilePath.endsWith(`.${extension}`)) {
         return extension.length;
       }
       return 0;
-    })
-    .reduce((a, b) => Math.max(a, b), 0);
+    }),
+  );
 
   const resourceFilePathWithoutFileExtension =
     fileExtensionLength === 0

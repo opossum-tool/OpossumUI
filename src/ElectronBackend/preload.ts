@@ -23,13 +23,6 @@ const electronAPI: ElectronAPI = {
       inputFilePath,
       opossumFilePath,
     ),
-  importFileValidatePaths: (inputFilePath, extensions, opossumFilePath) =>
-    ipcRenderer.invoke(
-      IpcChannel.ImportFileValidatePaths,
-      inputFilePath,
-      extensions,
-      opossumFilePath,
-    ),
   exportFile: (args) => ipcRenderer.invoke(IpcChannel.ExportFile, args),
   saveFile: (saveFileArgs) =>
     ipcRenderer.invoke(IpcChannel.SaveFile, saveFileArgs),

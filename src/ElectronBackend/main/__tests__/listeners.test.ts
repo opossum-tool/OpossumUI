@@ -15,7 +15,6 @@ import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
-  FilePathValidity,
 } from '../../../shared/shared-types';
 import { writeFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
@@ -36,7 +35,6 @@ import {
   getImportFileListener,
   getImportFileSelectInputListener,
   getImportFileSelectSaveLocationListener,
-  getImportFileValidatePathsListener,
   getOpenLinkListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
@@ -523,132 +521,6 @@ describe('getImportFileSelectSaveLocationListener', () => {
     );
 
     expect(returnedFilePath).toBeNull();
-  });
-});
-
-describe('getImportFileValidatePathsListener', () => {
-  it('recognizes empty strings', async () => {
-    const mainWindow = await initWindowAndBackendState();
-
-    const inputFilePath = '';
-    const extensions = ['json', 'json.gz'];
-    const opossumFilePath = '  \t';
-
-    const listener = getImportFileValidatePathsListener(mainWindow);
-
-    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-
-    const result = await listener(
-      {} as Electron.IpcMainInvokeEvent,
-      inputFilePath,
-      extensions,
-      opossumFilePath,
-    );
-
-    expect(result).toStrictEqual([
-      FilePathValidity.EMPTY_STRING,
-      FilePathValidity.EMPTY_STRING,
-    ]);
-  });
-
-  it('recognizes non-existent file paths', async () => {
-    const mainWindow = await initWindowAndBackendState();
-
-    const inputFilePath = '/home/input.json';
-    const extensions = ['json', 'json.gz'];
-    const opossumFilePath = '/hom/input.opossum';
-
-    const listener = getImportFileValidatePathsListener(mainWindow);
-
-    jest.spyOn(fs, 'existsSync').mockReturnValue(false);
-
-    const result = await listener(
-      {} as Electron.IpcMainInvokeEvent,
-      inputFilePath,
-      extensions,
-      opossumFilePath,
-    );
-
-    expect(result).toStrictEqual([
-      FilePathValidity.PATH_DOESNT_EXIST,
-      FilePathValidity.PATH_DOESNT_EXIST,
-    ]);
-  });
-
-  it('recognizes invalid file extensions', async () => {
-    const mainWindow = await initWindowAndBackendState();
-
-    const inputFilePath = '/home/input.txt';
-    const extensions = ['json', 'json.gz'];
-    const opossumFilePath = '/home/input.oposs';
-
-    const listener = getImportFileValidatePathsListener(mainWindow);
-
-    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-
-    const result = await listener(
-      {} as Electron.IpcMainInvokeEvent,
-      inputFilePath,
-      extensions,
-      opossumFilePath,
-    );
-
-    expect(result).toStrictEqual([
-      FilePathValidity.WRONG_EXTENSION,
-      FilePathValidity.WRONG_EXTENSION,
-    ]);
-  });
-
-  it('returns valid when no problem is found', async () => {
-    const mainWindow = await initWindowAndBackendState();
-
-    const inputFilePath = '/home/input.json.gz';
-    const extensions = ['json', 'json.gz'];
-    const opossumFilePath = '/home/input.opossum';
-
-    const listener = getImportFileValidatePathsListener(mainWindow);
-
-    jest
-      .spyOn(fs, 'existsSync')
-      .mockReturnValueOnce(true)
-      .mockReturnValueOnce(true)
-      .mockReturnValueOnce(false);
-
-    const result = await listener(
-      {} as Electron.IpcMainInvokeEvent,
-      inputFilePath,
-      extensions,
-      opossumFilePath,
-    );
-
-    expect(result).toStrictEqual([
-      FilePathValidity.VALID,
-      FilePathValidity.VALID,
-    ]);
-  });
-
-  it('gives overwrite warning when opossum file already exists', async () => {
-    const mainWindow = await initWindowAndBackendState();
-
-    const inputFilePath = '/home/input.json.gz';
-    const extensions = ['json', 'json.gz'];
-    const opossumFilePath = '/home/input.opossum';
-
-    const listener = getImportFileValidatePathsListener(mainWindow);
-
-    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-
-    const result = await listener(
-      {} as Electron.IpcMainInvokeEvent,
-      inputFilePath,
-      extensions,
-      opossumFilePath,
-    );
-
-    expect(result).toStrictEqual([
-      FilePathValidity.VALID,
-      FilePathValidity.OVERWRITE_WARNING,
-    ]);
   });
 });
 

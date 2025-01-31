@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Folder } from '@mui/icons-material';
-import { FormControl, FormHelperText } from '@mui/material';
+import { FormControl } from '@mui/material';
 import MuiBox from '@mui/system/Box';
 
 import { IconButton } from '../IconButton/IconButton';
@@ -13,25 +13,28 @@ interface FilePathInputProps {
   label: string;
   text: string;
   buttonTooltip: string;
-  onEdit: (filePath: string) => void;
-  onBlur?: () => void;
+  onEdit?: (filePath: string) => void;
   onButtonClick: () => void;
-  errorMessage: string | null;
-  warnMessage?: string | null;
+  readOnly?: boolean;
 }
 
 export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
   return (
-    <FormControl sx={{ display: 'flex', flexDirection: 'column' }}>
+    <FormControl
+      sx={{ display: 'flex', flexDirection: 'column', marginTop: '10px' }}
+    >
       <MuiBox
         sx={{ display: 'flex', alignItems: 'center', paddingTop: '10px' }}
       >
         <TextBox
           title={props.label}
+          readOnly={props.readOnly}
           text={props.text}
-          error={props.errorMessage !== null}
-          handleChange={(event) => props.onEdit(event.target.value)}
-          onBlur={props.onBlur}
+          handleChange={(event) => {
+            if (props.onEdit) {
+              props.onEdit(event.target.value);
+            }
+          }}
           sx={{ width: 600, marginRight: '10px' }}
         />
         <IconButton
@@ -40,9 +43,6 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
           tooltipTitle={props.buttonTooltip}
         />
       </MuiBox>
-      <FormHelperText aria-label={'file path helper text'} error={true}>
-        {props.errorMessage ?? props.warnMessage ?? ' '}
-      </FormHelperText>
     </FormControl>
   );
 };

@@ -4,35 +4,31 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page, TestInfo } from '@playwright/test';
 
+import { text } from '../../shared/text';
+
 export class ImportDialog {
   private readonly node: Locator;
   readonly title: Locator;
-  readonly inputFilePathTextField;
-  readonly opossumFilePathTextField;
-  readonly inputFilePathErrorMessage;
-  readonly opossumFilePathErrorMessage;
+  readonly openFileDialogButton: Locator;
+  readonly saveFileDialogButton: Locator;
   readonly importButton: Locator;
   readonly cancelButton: Locator;
+  readonly errorIcon: Locator;
 
   readonly inputFilePath: string;
 
   constructor(window: Page, filename: string | undefined, info: TestInfo) {
     this.node = window.getByLabel('import dialog');
     this.title = this.node.getByRole('heading').getByText('Import');
-    this.inputFilePathTextField = this.node.getByRole('textbox', {
-      name: 'File to import',
-    });
-    this.opossumFilePathTextField = this.node.getByRole('textbox', {
-      name: 'Opossum file save location',
-    });
-    this.inputFilePathErrorMessage = this.node
-      .getByLabel('file path helper text')
-      .first();
-    this.opossumFilePathErrorMessage = this.node
-      .getByLabel('file path helper text')
-      .last();
+    this.openFileDialogButton = this.node.getByLabel(
+      text.importDialog.inputFilePath.buttonTooltip,
+    );
+    this.saveFileDialogButton = this.node.getByLabel(
+      text.importDialog.opossumFilePath.buttonTooltip,
+    );
     this.importButton = this.node.getByRole('button', { name: 'Import' });
     this.cancelButton = this.node.getByRole('button', { name: 'Cancel' });
+    this.errorIcon = this.node.getByTestId('ErrorIcon').locator('path');
 
     this.inputFilePath = info.outputPath(`${filename}.json`);
   }
@@ -43,6 +39,9 @@ export class ImportDialog {
     },
     titleIsHidden: async (): Promise<void> => {
       await expect(this.title).toBeHidden();
+    },
+    showsError: async (): Promise<void> => {
+      await expect(this.errorIcon).toBeVisible();
     },
   };
 }

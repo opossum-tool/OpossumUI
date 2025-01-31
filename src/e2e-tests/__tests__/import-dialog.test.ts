@@ -2,8 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { expect } from '@playwright/test';
+import { stubDialog } from 'electron-playwright-helpers';
 
+import { getDotOpossumFilePath } from '../../shared/write-file';
 import { faker, test } from '../utils';
 
 const [resourceName] = faker.opossum.resourceName();
@@ -36,17 +37,33 @@ test('opens, displays and closes import dialog', async ({
   await importDialog.assert.titleIsHidden();
 });
 
-test('opens .json file', async ({ menuBar, importDialog, resourcesTree }) => {
+test('opens .json file', async ({
+  menuBar,
+  importDialog,
+  resourcesTree,
+  window,
+}) => {
+  await stubDialog(window.app, 'showOpenDialogSync', [
+    importDialog.inputFilePath,
+  ]);
+  await stubDialog(
+    window.app,
+    'showSaveDialogSync',
+    getDotOpossumFilePath(importDialog.inputFilePath, ['json', 'json.gz']),
+  );
+
   await menuBar.openImportDialog();
   await importDialog.assert.titleIsVisible();
 
-  await importDialog.inputFilePathTextField.fill(importDialog.inputFilePath);
+  await importDialog.openFileDialogButton.click();
+  await importDialog.saveFileDialogButton.click();
   await importDialog.importButton.click();
 
+  await importDialog.assert.titleIsHidden();
   await resourcesTree.assert.resourceIsVisible(resourceName);
 });
 
-test('blocks and shows error when no file path is set', async ({
+test('shows error when no file path is set', async ({
   menuBar,
   importDialog,
 }) => {
@@ -55,10 +72,5 @@ test('blocks and shows error when no file path is set', async ({
 
   await importDialog.importButton.click();
 
-  await expect(importDialog.inputFilePathErrorMessage).toHaveText(
-    'No file selected',
-  );
-  await expect(importDialog.opossumFilePathErrorMessage).toHaveText(
-    'No save location selected',
-  );
+  await importDialog.assert.showsError();
 });

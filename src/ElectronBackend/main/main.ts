@@ -14,7 +14,6 @@ import {
   getImportFileConvertAndLoadListener,
   getImportFileSelectInputListener,
   getImportFileSelectSaveLocationListener,
-  getImportFileValidatePathsListener,
   getOpenFileListener,
   getOpenLinkListener,
   getSaveFileListener,
@@ -79,10 +78,6 @@ export async function main(): Promise<void> {
     ipcMain.handle(
       IpcChannel.ImportFileConvertAndLoad,
       getImportFileConvertAndLoadListener(mainWindow, activateMenuItems),
-    );
-    ipcMain.handle(
-      IpcChannel.ImportFileValidatePaths,
-      getImportFileValidatePathsListener(mainWindow),
     );
     ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(mainWindow));
     ipcMain.handle(

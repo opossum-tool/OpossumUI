@@ -2,11 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { FileFormatInfo, FilePathValidity } from '../../../shared/shared-types';
+import { FileFormatInfo, Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import {
@@ -15,8 +16,8 @@ import {
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
+import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { Spinner } from '../Spinner/Spinner';
 
 export const ImportDialog: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -28,12 +29,7 @@ export const ImportDialog: React.FC = () => {
   function resetState() {
     setInputFilePath('');
     setOpossumFilePath('');
-    setOpossumFilePathEdited(false);
-    setInputFilePathValidity(FilePathValidity.EMPTY_STRING);
-    setOpossumFilePathValidity(FilePathValidity.EMPTY_STRING);
-    setShowInputFilePathErrors(false);
-    setShowOpossumFilePathErrors(false);
-    setProcessInfo('');
+    setCurrentLog(null);
   }
 
   useIpcRenderer<ShowImportDialogListener>(
@@ -48,114 +44,25 @@ export const ImportDialog: React.FC = () => {
 
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
-  const [opossumFilePathEdited, setOpossumFilePathEdited] =
-    useState<boolean>(false);
 
-  const [inputFilePathValidity, setInputFilePathValidity] =
-    useState<FilePathValidity>(FilePathValidity.EMPTY_STRING);
-  const [opossumFilePathValidity, setOpossumFilePathValidity] =
-    useState<FilePathValidity>(FilePathValidity.EMPTY_STRING);
-
-  const inputFilePathIsValid = inputFilePathValidity === FilePathValidity.VALID;
-  const opossumFilePathIsValid =
-    opossumFilePathValidity === FilePathValidity.VALID ||
-    opossumFilePathValidity === FilePathValidity.OVERWRITE_WARNING;
-
-  const [showInputFilePathErrors, setShowInputFilePathErrors] =
-    useState<boolean>(false);
-  const [showOpossumFilePathErrors, setShowOpossumFilePathErrors] =
-    useState<boolean>(false);
-
-  const [processInfo, setProcessInfo] = useState<string>('');
+  const [currentLog, setCurrentLog] = useState<Log | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useIpcRenderer<LoggingListener>(
     AllowedFrontendChannels.Logging,
-    (_, log) => setProcessInfo(log.message),
+    (_, log) => setCurrentLog(log),
     [],
   );
 
-  function validateFilePaths(): void {
-    window.electronAPI
-      .importFileValidatePaths(
-        inputFilePath,
-        fileFormat.extensions,
-        opossumFilePath,
-      )
-      .then(
-        (validationResult) => {
-          if (validationResult) {
-            setInputFilePathValidity(validationResult[0]);
-            setOpossumFilePathValidity(validationResult[1]);
-          } else {
-            setInputFilePathValidity(FilePathValidity.VALIDATION_FAILED);
-            setOpossumFilePathValidity(FilePathValidity.VALIDATION_FAILED);
-          }
-        },
-        () => {},
-      );
-  }
-
-  useEffect(validateFilePaths, [inputFilePath, fileFormat, opossumFilePath]);
-
-  const inputFilePathErrorMessage = useMemo(() => {
-    switch (inputFilePathValidity) {
-      case FilePathValidity.EMPTY_STRING:
-        return 'No file selected';
-      case FilePathValidity.WRONG_EXTENSION:
-        return `Invalid file extension, should be ${fileFormat.extensions.map((ext) => `.${ext}`).join(' or ')}`;
-      case FilePathValidity.PATH_DOESNT_EXIST:
-        return 'The specified file does not exist';
-      case FilePathValidity.VALIDATION_FAILED:
-        return 'Invalid file path';
-      default:
-        return null;
-    }
-  }, [inputFilePathValidity, fileFormat]);
-
-  const opossumFilePathErrorMessage = useMemo(() => {
-    switch (opossumFilePathValidity) {
-      case FilePathValidity.EMPTY_STRING:
-        return 'No save location selected';
-      case FilePathValidity.WRONG_EXTENSION:
-        return 'File extension has to be .opossum';
-      case FilePathValidity.PATH_DOESNT_EXIST:
-        return 'The path contains a non-existent directory';
-      case FilePathValidity.VALIDATION_FAILED:
-        return 'Invalid file path';
-      default:
-        return null;
-    }
-  }, [opossumFilePathValidity]);
-
-  const opossumFilePathWarnMessage =
-    opossumFilePathValidity === FilePathValidity.OVERWRITE_WARNING
-      ? 'Warning: A file already exists at this location. If you continue, the existing file will be overwritten!'
-      : null;
-
   function updateInputFilePath(filePath: string) {
     setInputFilePath(filePath);
-    if (!opossumFilePathEdited) {
-      const derivedOpossumFilePath = getDotOpossumFilePath(
-        filePath,
-        fileFormat.extensions,
-      );
-      setOpossumFilePath(derivedOpossumFilePath);
-    }
+    setCurrentLog(null);
   }
 
   function updateOpossumFilePath(filePath: string) {
     setOpossumFilePath(filePath);
-  }
-
-  function editOpossumFilePath(filePath: string) {
-    updateOpossumFilePath(filePath);
-    if (filePath) {
-      setOpossumFilePathEdited(true);
-    } else {
-      setOpossumFilePathEdited(false);
-    }
+    setCurrentLog(null);
   }
 
   function selectInputFilePath(): void {
@@ -170,11 +77,22 @@ export const ImportDialog: React.FC = () => {
   }
 
   function selectOpossumFilePath(): void {
-    const defaultPath = opossumFilePath || 'imported.opossum';
+    let defaultPath = 'imported.opossum';
+    const derivedPath = getDotOpossumFilePath(
+      inputFilePath,
+      fileFormat.extensions,
+    );
+
+    if (opossumFilePath) {
+      defaultPath = opossumFilePath;
+    } else if (derivedPath && derivedPath !== '.opossum') {
+      defaultPath = derivedPath;
+    }
+
     window.electronAPI.importFileSelectSaveLocation(defaultPath).then(
       (filePath) => {
         if (filePath) {
-          editOpossumFilePath(filePath);
+          updateOpossumFilePath(filePath);
         }
       },
       () => {},
@@ -188,23 +106,16 @@ export const ImportDialog: React.FC = () => {
   async function onConfirm(): Promise<void> {
     setIsLoading(true);
 
-    setShowInputFilePathErrors(true);
-    setShowOpossumFilePathErrors(true);
+    const success = await window.electronAPI.importFileConvertAndLoad(
+      inputFilePath,
+      opossumFilePath,
+    );
 
-    if (inputFilePathIsValid && opossumFilePathIsValid) {
-      const success = await window.electronAPI.importFileConvertAndLoad(
-        inputFilePath,
-        opossumFilePath,
-      );
-
-      if (success) {
-        setIsOpen(false);
-      } else {
-        validateFilePaths();
-      }
+    if (success) {
+      setIsOpen(false);
     }
+
     setIsLoading(false);
-    setProcessInfo('');
   }
 
   return (
@@ -220,45 +131,36 @@ export const ImportDialog: React.FC = () => {
             label={text.importDialog.inputFilePath.textFieldLabel(fileFormat)}
             text={inputFilePath}
             buttonTooltip={text.importDialog.inputFilePath.buttonTooltip}
-            onEdit={updateInputFilePath}
-            onBlur={() => setShowInputFilePathErrors(true)}
             onButtonClick={selectInputFilePath}
-            errorMessage={
-              showInputFilePathErrors ? inputFilePathErrorMessage : null
-            }
+            readOnly={true}
           />
           <FilePathInput
             label={text.importDialog.opossumFilePath.textFieldLabel}
             text={opossumFilePath}
             buttonTooltip={text.importDialog.opossumFilePath.buttonTooltip}
-            onEdit={editOpossumFilePath}
-            onBlur={() => setShowOpossumFilePathErrors(true)}
             onButtonClick={selectOpossumFilePath}
-            errorMessage={
-              showOpossumFilePathErrors ? opossumFilePathErrorMessage : null
-            }
-            warnMessage={opossumFilePathWarnMessage}
+            readOnly={true}
           />
         </div>
       }
       isOpen={isOpen}
       customAction={
-        isLoading ? (
-          <>
-            <Spinner sx={{ marginLeft: '20px' }} />
-            <MuiTypography
-              sx={{
-                width: '430px',
-                marginLeft: '10px',
-                marginRight: '10px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {processInfo}
-            </MuiTypography>
-          </>
+        currentLog ? (
+          <MuiBox
+            sx={{
+              display: 'flex',
+              justifyContent: 'start',
+              columnGap: '4px',
+              width: '470px',
+            }}
+          >
+            <LogDisplay
+              log={currentLog}
+              isActive={isLoading}
+              showDate={false}
+              useEllipsis={true}
+            />
+          </MuiBox>
         ) : undefined
       }
       leftButtonConfig={{

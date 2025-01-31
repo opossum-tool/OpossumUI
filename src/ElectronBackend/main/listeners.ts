@@ -19,7 +19,6 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
   FileFormatInfo,
-  FilePathValidity,
   OpenLinkArgs,
   PackageInfo,
   SaveFileArgs,
@@ -188,11 +187,23 @@ export function getImportFileConvertAndLoadListener(
       resourceFilePath: string,
       opossumFilePath: string,
     ) => {
-      if (!fs.existsSync(resourceFilePath)) {
+      if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
+        logger.error('Input file does not exist');
+        return false;
+      }
+
+      if (!opossumFilePath.trim()) {
+        logger.error('No .opossum save location selected');
+        return false;
+      }
+
+      if (!opossumFilePath.endsWith('.opossum')) {
+        logger.error('Output file name must have .opossum extension');
         return false;
       }
 
       if (!fs.existsSync(path.dirname(opossumFilePath))) {
+        logger.error('Output directory does not exist');
         return false;
       }
 
@@ -216,68 +227,6 @@ export function getImportFileConvertAndLoadListener(
       return true;
     },
   );
-}
-
-export function getImportFileValidatePathsListener(
-  mainWindow: BrowserWindow,
-): (
-  _: Electron.IpcMainInvokeEvent,
-  inputFilePath: string,
-  extensions: Array<string>,
-  opossumFilePath: string,
-) => Promise<[FilePathValidity, FilePathValidity] | null> {
-  return createListenerCallbackWithErrorHandling(
-    mainWindow,
-    (
-      _: Electron.IpcMainInvokeEvent,
-      inputFilePath: string,
-      extensions: Array<string>,
-      opossumFilePath: string,
-    ): [FilePathValidity, FilePathValidity] => {
-      const inputFilePathExists = fs.existsSync(inputFilePath);
-      const opossumFileDirectoryExists = fs.existsSync(
-        path.dirname(opossumFilePath),
-      );
-      const opossumFileAlreadyExists = fs.existsSync(opossumFilePath);
-
-      const inputFilePathValidity = validateFilePathFormat(
-        inputFilePath,
-        extensions,
-        inputFilePathExists,
-      );
-
-      const opossumFilePathValidity = validateFilePathFormat(
-        opossumFilePath,
-        ['opossum'],
-        opossumFileDirectoryExists,
-      );
-      const opossumFilePathValidityWithWarning =
-        opossumFilePathValidity === FilePathValidity.VALID &&
-        opossumFileAlreadyExists
-          ? FilePathValidity.OVERWRITE_WARNING
-          : opossumFilePathValidity;
-
-      return [inputFilePathValidity, opossumFilePathValidityWithWarning];
-    },
-  );
-}
-
-function validateFilePathFormat(
-  filePath: string,
-  expectedExtensions: Array<string>,
-  filePathExists: boolean,
-): FilePathValidity {
-  if (!filePath.trim()) {
-    return FilePathValidity.EMPTY_STRING;
-  } else if (!filePathExists) {
-    return FilePathValidity.PATH_DOESNT_EXIST;
-  } else if (
-    !expectedExtensions.some((extension) => filePath.endsWith(`.${extension}`))
-  ) {
-    return FilePathValidity.WRONG_EXTENSION;
-  }
-
-  return FilePathValidity.VALID;
 }
 
 function initializeGlobalBackendState(
