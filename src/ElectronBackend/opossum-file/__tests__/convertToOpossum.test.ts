@@ -20,7 +20,7 @@ describe('successfulConversionOfScanCodeFile', () => {
 
   it('should convert the ScanCode file and return a path to a valid .opossum file', async () => {
     const opossumPath = getTempPath();
-    await convertScancodeToOpossum(SCANCODE_TEST_FILE, getTempPath());
+    await convertScancodeToOpossum(SCANCODE_TEST_FILE, opossumPath);
     expect(existsSync(opossumPath)).toBe(true);
     expect(isOpossumFileFormat(opossumPath)).toBe(true);
 

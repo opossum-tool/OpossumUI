@@ -37,7 +37,7 @@ export class ImportDialog {
     this.errorIcon = this.node.getByTestId('ErrorIcon').locator('path');
 
     this.legacyFilePath = info.outputPath(`${legacyFilename}.json`);
-    this.scancodeFilePath = info.outputPath('scancode.json');
+    this.scancodeFilePath = 'scancode.json';
   }
 
   public assert = {

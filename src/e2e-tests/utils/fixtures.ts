@@ -10,7 +10,6 @@ import {
   TestInfo,
 } from '@playwright/test';
 import { parseElectronApp } from 'electron-playwright-helpers';
-import { copyFileSync } from 'node:fs';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -220,11 +219,6 @@ function createTestFile({
   const filename = inputData.metadata.projectId;
 
   if (provideImportFiles) {
-    copyFileSync(
-      '../ElectronBackend/opossum-file/__tests__/scancode.json',
-      info.outputPath('scancode.json'),
-    );
-
     return writeFile({
       path: info.outputPath(`${filename}.json`),
       content: inputData,
