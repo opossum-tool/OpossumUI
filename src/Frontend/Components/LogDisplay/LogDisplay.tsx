@@ -36,7 +36,7 @@ export function LogDisplay(props: LogDisplayProps) {
 
   const icon = useMemo(() => {
     const { color, Component } = icons[log.level];
-    return !isInProgress ? (
+    return isInProgress ? (
       <Spinner sx={{ marginTop: '1px' }} />
     ) : (
       <Component sx={{ ...baseIcon, color }} />
