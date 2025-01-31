@@ -7,7 +7,7 @@ import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { FileFormatInfo, Log } from '../../../shared/shared-types';
+import { FileFormatInfo, FileType, Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import {
@@ -22,6 +22,7 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 export const ImportDialog: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [fileFormat, setFileFormat] = useState<FileFormatInfo>({
+    fileType: FileType.LEGACY_OPOSSUM,
     name: '',
     extensions: [],
   });
@@ -100,6 +101,7 @@ export const ImportDialog: React.FC = () => {
 
     const success = await window.electronAPI.importFileConvertAndLoad(
       inputFilePath,
+      fileFormat.fileType,
       opossumFilePath,
     );
 

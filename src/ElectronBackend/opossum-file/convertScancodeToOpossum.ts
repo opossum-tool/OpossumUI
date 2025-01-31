@@ -7,8 +7,6 @@ import { app } from 'electron';
 import { join } from 'path';
 import { promisify } from 'util';
 
-import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
-
 const execFile = promisify(execFileCallback);
 
 const OPOSSUM_FILE_EXECUTABLE = join(
@@ -18,10 +16,8 @@ const OPOSSUM_FILE_EXECUTABLE = join(
 
 export async function convertScancodeToOpossum(
   pathToScanCode: string,
-  pathToOutput: string,
-): Promise<string> {
-  const pathToOpossum = getFilePathWithAppendix(pathToOutput, '.opossum');
-
+  pathToOpossum: string,
+): Promise<void> {
   await execFile(OPOSSUM_FILE_EXECUTABLE, [
     'generate',
     '-o',
@@ -29,5 +25,4 @@ export async function convertScancodeToOpossum(
     '--scan-code-json',
     pathToScanCode,
   ]);
-  return pathToOpossum;
 }

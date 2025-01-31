@@ -13,9 +13,17 @@ export class ImportDialog {
   readonly cancelButton: Locator;
   readonly errorIcon: Locator;
 
-  readonly inputFilePath: string;
+  readonly legacyFilePath: string;
+  readonly scancodeFilePath: string;
 
-  constructor(window: Page, filename: string | undefined, info: TestInfo) {
+  readonly legacyMenuLabel: string = 'Legacy Opossum File (.json/.json.gz)';
+  readonly scancodeMenuLabel: string = 'ScanCode File (.json)';
+
+  constructor(
+    window: Page,
+    legacyFilename: string | undefined,
+    info: TestInfo,
+  ) {
     this.node = window.getByLabel('import dialog');
     this.title = this.node.getByRole('heading').getByText('Import');
     this.inputFileSelection = this.node
@@ -28,7 +36,8 @@ export class ImportDialog {
     this.cancelButton = this.node.getByRole('button', { name: 'Cancel' });
     this.errorIcon = this.node.getByTestId('ErrorIcon').locator('path');
 
-    this.inputFilePath = info.outputPath(`${filename}.json`);
+    this.legacyFilePath = info.outputPath(`${legacyFilename}.json`);
+    this.scancodeFilePath = info.outputPath('scancode.json');
   }
 
   public assert = {

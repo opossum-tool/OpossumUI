@@ -45,9 +45,13 @@ export async function openFileFromCliOrEnvVariableIfProvided(
   const inputScanCodeFileFromEnvVariable: string | undefined =
     process.env.SCANCODE_JSON;
   if (!inputFileName && inputScanCodeFileFromEnvVariable) {
-    inputFileName = await convertScancodeToOpossum(
+    inputFileName = getFilePathWithAppendix(
       inputScanCodeFileFromEnvVariable,
-      getFilePathWithAppendix(inputScanCodeFileFromEnvVariable, '.opossum'),
+      '.opossum',
+    );
+    await convertScancodeToOpossum(
+      inputScanCodeFileFromEnvVariable,
+      inputFileName,
     );
   }
 

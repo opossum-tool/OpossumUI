@@ -26,12 +26,8 @@ export class MenuBar {
     await clickMenuItem(this.window.app, 'label', 'Project Statistics');
   }
 
-  async openImportDialog(): Promise<void> {
-    await clickMenuItem(
-      this.window.app,
-      'label',
-      'Legacy Opossum File (.json/.json.gz)',
-    );
+  async openByLabel(label: string): Promise<void> {
+    await clickMenuItem(this.window.app, 'label', label);
   }
 
   async toggleQaMode(): Promise<void> {

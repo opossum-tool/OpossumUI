@@ -19,6 +19,7 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
   FileFormatInfo,
+  FileType,
   OpenLinkArgs,
   PackageInfo,
   SaveFileArgs,
@@ -31,6 +32,7 @@ import {
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { serializeAttributions } from '../input/parseInputData';
+import { convertScancodeToOpossum } from '../opossum-file/convertScancodeToOpossum';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import { GlobalBackendState, OpossumOutputFile } from '../types/types';
@@ -180,6 +182,7 @@ export function getImportFileConvertAndLoadListener(
 ): (
   _: Electron.IpcMainInvokeEvent,
   resourceFilePath: string,
+  fileType: FileType,
   opossumFilePath: string,
 ) => Promise<boolean | null> {
   return createListenerCallbackWithErrorHandling(
@@ -187,6 +190,7 @@ export function getImportFileConvertAndLoadListener(
     async (
       _: Electron.IpcMainInvokeEvent,
       resourceFilePath: string,
+      fileType: FileType,
       opossumFilePath: string,
     ) => {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
@@ -215,11 +219,17 @@ export function getImportFileConvertAndLoadListener(
         resourceFilePath = tryToGetInputFileFromOutputFile(resourceFilePath);
       }
 
-      await writeOpossumFile({
-        path: opossumFilePath,
-        input: getInputJson(resourceFilePath),
-        output: getOutputJson(resourceFilePath),
-      });
+      switch (fileType) {
+        case FileType.LEGACY_OPOSSUM:
+          await writeOpossumFile({
+            path: opossumFilePath,
+            input: getInputJson(resourceFilePath),
+            output: getOutputJson(resourceFilePath),
+          });
+          break;
+        case FileType.SCANCODE_JSON:
+          await convertScancodeToOpossum(resourceFilePath, opossumFilePath);
+      }
 
       logger.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath, true);

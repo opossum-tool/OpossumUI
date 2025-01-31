@@ -10,6 +10,7 @@ import {
   TestInfo,
 } from '@playwright/test';
 import { parseElectronApp } from 'electron-playwright-helpers';
+import { copyFileSync } from 'node:fs';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -44,7 +45,7 @@ const LOAD_TIMEOUT = 15000;
 interface OpossumData {
   inputData: ParsedOpossumInputFile;
   outputData?: ParsedOpossumOutputFile;
-  decompress?: boolean;
+  provideImportFiles?: boolean;
 }
 
 export const test = base.extend<{
@@ -67,7 +68,7 @@ export const test = base.extend<{
   linkedResourcesTree: LinkedResourcesTree;
   menuBar: MenuBar;
   notSavedPopup: NotSavedPopup;
-  openFileManually: boolean;
+  testImport: boolean;
   pathBar: PathBar;
   projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
@@ -77,8 +78,8 @@ export const test = base.extend<{
   topBar: TopBar;
 }>({
   data: undefined,
-  openFileManually: false,
-  window: async ({ data, openFileManually }, use, info) => {
+  testImport: false,
+  window: async ({ data, testImport }, use, info) => {
     const filePath = data && (await createTestFile({ data, info }));
 
     const [executablePath, main] = getLaunchProps();
@@ -90,7 +91,7 @@ export const test = base.extend<{
     const app = await electron.launch({
       args: [
         main,
-        ...(!filePath || openFileManually ? args : args.concat([filePath])),
+        ...(!filePath || testImport ? args : args.concat([filePath])),
       ],
       executablePath,
     });
@@ -210,7 +211,7 @@ function getReleasePath(): string {
 }
 
 function createTestFile({
-  data: { inputData, outputData, decompress },
+  data: { inputData, outputData, provideImportFiles },
   info,
 }: {
   data: OpossumData;
@@ -218,7 +219,12 @@ function createTestFile({
 }): Promise<string> {
   const filename = inputData.metadata.projectId;
 
-  if (decompress) {
+  if (provideImportFiles) {
+    copyFileSync(
+      '../ElectronBackend/opossum-file/__tests__/scancode.json',
+      info.outputPath('scancode.json'),
+    );
+
     return writeFile({
       path: info.outputPath(`${filename}.json`),
       content: inputData,
