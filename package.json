@@ -87,6 +87,7 @@
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-testing-library": "^7.1.1",
+    "gh-release-fetch": "^4.0.3",
     "husky": "9.1.7",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
@@ -131,17 +132,21 @@
     "update-commit-hash:darwin:linux": "COMMIT_INFO=$(git describe --exact-match --tags 2> /dev/null || git rev-parse --short HEAD); echo \"{\\\"commitInfo\\\" : \\\"$COMMIT_INFO\\\" }\" > \"src/commitInfo.json\"",
     "update-commit-hash:win32": "tools/get_app_version_for_windows.bat",
     "generate-notice": "mkdirp notices && yarn licenses generate-disclaimer --production > notices/notices.txt && yarn node tools/generateNotices.js",
-    "ship-linux": "yarn build && electron-builder --linux --x64 --publish never && mkdir -p release/linux && mv 'release/OpossumUI-0.1.0.AppImage' 'release/linux/OpossumUI-for-linux.AppImage'",
-    "ship-win": "yarn build && electron-builder --win --x64 --publish never && mkdirp release/win && mv \"release/OpossumUI Setup 0.1.0.exe\" \"release/win/OpossumUI-for-win.exe\"",
-    "ship-mac": "yarn build && electron-builder --mac --x64 --publish never && zip -r -y -q 'release/mac/OpossumUI-for-mac.zip' 'release/mac/'",
+    "ship-linux": "yarn install-deps:linux && yarn build && electron-builder --linux --x64 --publish never && mkdir -p release/linux && mv 'release/OpossumUI-0.1.0.AppImage' 'release/linux/OpossumUI-for-linux.AppImage'",
+    "ship-win": "yarn install-deps:win32 && yarn build && electron-builder --win --x64 --publish never && mkdirp release/win && mv \"release/OpossumUI Setup 0.1.0.exe\" \"release/win/OpossumUI-for-win.exe\"",
+    "ship-mac": "yarn install-deps:darwin && yarn build && electron-builder --mac --x64 --publish never && zip -r -y -q 'release/mac/OpossumUI-for-mac.zip' 'release/mac/'",
     "ship": "yarn ship-linux && yarn ship-win && yarn ship-mac",
     "ship:auto": "run-script-os",
     "ship:auto:darwin": "yarn ship-mac",
     "ship:auto:linux": "yarn ship-linux",
     "ship:auto:win32": "yarn ship-win",
     "clean": "rm -rf ./build/ ./release/",
-    "postinstall": "husky && yarn update-commit-hash",
-    "pre-commit": "lint-staged"
+    "postinstall": "yarn install-deps && husky && yarn update-commit-hash",
+    "pre-commit": "lint-staged",
+    "install-deps": "run-script-os",
+    "install-deps:darwin": "yarn node tools/downloadOpossumFileCLI.js mac",
+    "install-deps:linux": "yarn node tools/downloadOpossumFileCLI.js ubuntu",
+    "install-deps:win32": "yarn node tools/downloadOpossumFileCLI.js windows.exe"
   },
   "main": "build/ElectronBackend/app.js",
   "build": {
@@ -149,6 +154,7 @@
     "appId": "opossum_ui_electron",
     "files": [
       "build/**/*",
+      "bin/*",
       "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
       "!build/**/__tests__/**/*"
     ],

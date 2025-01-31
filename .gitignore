@@ -17,6 +17,7 @@
 /src/e2e-tests/artifacts
 playwright-report
 /test-output
+/bin
 
 # production
 /build
