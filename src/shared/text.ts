@@ -249,12 +249,17 @@ export const text = {
       'All changes made to the project in OpossumUI will be saved in this opossum file.',
     ],
     inputFilePath: {
-      textFieldLabel: (fileFormat: FileFormatInfo) =>
-        `File to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+      textFieldLabel: (fileFormat: FileFormatInfo, hasBeenSelected: boolean) =>
+        hasBeenSelected
+          ? `File to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
+          : `Select file to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
       buttonTooltip: 'Select file',
     },
     opossumFilePath: {
-      textFieldLabel: 'Opossum file save location',
+      textFieldLabel: (hasBeenSelected: boolean) =>
+        hasBeenSelected
+          ? 'Opossum file save location'
+          : 'Select opossum file save location',
       buttonTooltip: 'Select save location',
     },
   },

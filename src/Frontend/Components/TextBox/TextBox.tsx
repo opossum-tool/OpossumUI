@@ -47,6 +47,12 @@ export const classes = {
       padding: '1px 3px',
     },
   },
+  startAdornmentRoot: {
+    position: 'absolute',
+    left: 0,
+    marginLeft: '14px',
+    height: 0,
+  },
   endAdornmentRoot: {
     position: 'absolute',
     right: 0,
@@ -64,6 +70,7 @@ export interface TextBoxProps {
   handleChange?: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
+  onClick?: () => void;
   error?: boolean;
   maxRows?: number;
   minRows?: number;
@@ -72,7 +79,9 @@ export interface TextBoxProps {
   sx?: SxProps;
   text?: string;
   title: string;
-  endIcon?: React.ReactElement<unknown> | Array<React.ReactElement<unknown>>;
+  startIcon?: React.ReactElement | Array<React.ReactElement>;
+  endIcon?: React.ReactElement | Array<React.ReactElement>;
+  cursor?: string;
 }
 
 export function TextBox(props: TextBoxProps) {
@@ -90,6 +99,9 @@ export function TextBox(props: TextBoxProps) {
         color={props.color}
         InputLabelProps={{
           shrink: !!props.placeholder || !!props.text,
+          sx: {
+            marginLeft: `calc(${ensureArray(props.startIcon).length} * 28px)`,
+          },
         }}
         InputProps={{
           readOnly: props.readOnly,
@@ -101,10 +113,17 @@ export function TextBox(props: TextBoxProps) {
               textOverflow: 'ellipsis',
               paddingTop: '8.5px',
               paddingBottom: '8.5px',
-              paddingLeft: '14px',
+              paddingLeft: `calc(${ensureArray(props.startIcon).length} * 28px)`,
               paddingRight: `calc(14px + ${ensureArray(props.endIcon).length} * 28px)`,
+              cursor: props.cursor,
             },
           },
+          sx: { cursor: props.cursor },
+          startAdornment: props.startIcon && (
+            <MuiInputAdornment sx={classes.startAdornmentRoot} position="start">
+              {props.startIcon}
+            </MuiInputAdornment>
+          ),
           endAdornment: props.endIcon && (
             <MuiInputAdornment sx={classes.endAdornmentRoot} position="end">
               {props.endIcon}
@@ -118,6 +137,7 @@ export function TextBox(props: TextBoxProps) {
         size="small"
         value={props.text || ''}
         onChange={props.handleChange}
+        onClick={props.onClick}
       />
     </MuiBox>
   );

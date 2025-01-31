@@ -128,16 +128,19 @@ export const ImportDialog: React.FC = () => {
             {text.importDialog.explanationText[1]}
           </MuiTypography>
           <FilePathInput
-            label={text.importDialog.inputFilePath.textFieldLabel(fileFormat)}
+            label={text.importDialog.inputFilePath.textFieldLabel(
+              fileFormat,
+              !!inputFilePath,
+            )}
             text={inputFilePath}
-            buttonTooltip={text.importDialog.inputFilePath.buttonTooltip}
-            onButtonClick={selectInputFilePath}
+            onClick={selectInputFilePath}
           />
           <FilePathInput
-            label={text.importDialog.opossumFilePath.textFieldLabel}
+            label={text.importDialog.opossumFilePath.textFieldLabel(
+              !!opossumFilePath,
+            )}
             text={opossumFilePath}
-            buttonTooltip={text.importDialog.opossumFilePath.buttonTooltip}
-            onButtonClick={selectOpossumFilePath}
+            onClick={selectOpossumFilePath}
           />
         </div>
       }
