@@ -86,6 +86,10 @@ export const test = base.extend<{
     });
 
     const window = await app.firstWindow();
+    await window.setViewportSize({
+      width: 1920,
+      height: 1080,
+    });
     // eslint-disable-next-line playwright/no-networkidle
     await window.waitForLoadState('networkidle', { timeout: LOAD_TIMEOUT });
     await window
