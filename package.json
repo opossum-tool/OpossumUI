@@ -174,7 +174,8 @@
         "snap",
         "AppImage"
       ],
-      "icon": "public/icons/icon_512x512.png"
+      "icon": "public/icons/icon_512x512.png",
+      "category": "Development"
     },
     "extraMetadata": {
       "main": "build/ElectronBackend/app.js"
