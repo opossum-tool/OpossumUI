@@ -13,9 +13,7 @@ interface FilePathInputProps {
   label: string;
   text: string;
   buttonTooltip: string;
-  onEdit?: (filePath: string) => void;
   onButtonClick: () => void;
-  readOnly?: boolean;
 }
 
 export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
@@ -28,13 +26,7 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       >
         <TextBox
           title={props.label}
-          readOnly={props.readOnly}
           text={props.text}
-          handleChange={(event) => {
-            if (props.onEdit) {
-              props.onEdit(event.target.value);
-            }
-          }}
           sx={{ width: 600, marginRight: '10px' }}
         />
         <IconButton
