@@ -6,10 +6,13 @@ import fs from 'fs';
 import { fetchLatest } from 'gh-release-fetch';
 import { join } from 'path';
 
-async function installOpossumFileCLI(osSuffix, downloadDestination = 'bin') {
+const EXECUTE_PERMISSIONS = 0o755;
+
+async function downloadOpossumFile(osSuffix, downloadDestination = 'bin') {
   const TARGET_NAME = 'bin/opossum-file';
-  const opossumFileBinaryName = 'opossum-file-for-' + osSuffix;
+  const opossumFileBinaryName = `opossum-file-for-${osSuffix}`;
   const downloadedFileName = join(downloadDestination, opossumFileBinaryName);
+
   try {
     const release = {
       repository: 'opossum-tool/opossum-file',
@@ -20,7 +23,7 @@ async function installOpossumFileCLI(osSuffix, downloadDestination = 'bin') {
     };
     await fetchLatest(release);
     console.info(
-      "Downloaded 'opossum-file@" + release.version + "' to",
+      `Downloaded 'opossum-file@${release.version}' to`,
       downloadedFileName,
     );
   } catch (error) {
@@ -36,6 +39,7 @@ async function installOpossumFileCLI(osSuffix, downloadDestination = 'bin') {
   if (fs.existsSync(TARGET_NAME)) {
     console.info('Found opossum-file binary. Overwriting.');
   }
+
   try {
     fs.renameSync(downloadedFileName, TARGET_NAME);
     console.info('Renamed', downloadedFileName, 'to', TARGET_NAME);
@@ -45,18 +49,20 @@ async function installOpossumFileCLI(osSuffix, downloadDestination = 'bin') {
   }
 
   try {
-    await fs.promises.chmod(TARGET_NAME, 0o755);
+    await fs.promises.chmod(TARGET_NAME, EXECUTE_PERMISSIONS);
   } catch (error) {
     console.error('Could not mark', TARGET_NAME, 'as executable.', error);
     process.exit(1);
   }
 }
 
-if (process.argv.length !== 3) {
+const osSuffix = process.argv[2];
+
+if (!osSuffix) {
   console.error(
-    'downloadOpossumFileCLI.js requires an argument with the OS-specific suffix of the opossum-file binary.',
+    'Please specify one of the following options: mac, ubuntu, windows.exe',
   );
   process.exit(1);
 }
-const OS = process.argv[2];
-await installOpossumFileCLI(OS);
+
+await downloadOpossumFile(osSuffix);
