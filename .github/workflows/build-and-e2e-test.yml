@@ -31,7 +31,8 @@ jobs:
             E2E: yarn test:e2e:ci
           - os: windows-latest
             E2E: yarn test:e2e:ci
-
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
