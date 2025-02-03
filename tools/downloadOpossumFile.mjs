@@ -8,116 +8,66 @@ import { env } from 'process';
 import { pipeline } from 'stream';
 
 const EXECUTE_PERMISSIONS = 0o755;
-const HTTP_FORBIDDEN = 403;
 
-async function getLatestRelease(request_params = undefined) {
-  try {
-    const res = await fetch(
-      'https://api.github.com/repos/opossum-tool/opossum-file/releases/latest',
-      request_params,
+async function downloadOpossumFile() {
+  const osSuffix = process.argv[2];
+
+  if (!osSuffix) {
+    console.error(
+      'Please specify one of the following options: mac, ubuntu, windows.exe',
     );
-    const data = await res.json();
-    if (
-      res.status === HTTP_FORBIDDEN &&
-      typeof data.message === 'string' &&
-      data.message.includes('API rate limit exceeded')
-    ) {
-      throw new Error('API rate limit exceeded, please try again later');
-    }
-    return data.tag_name;
-  } catch (err) {
-    throw new Error(`Fetching the latest release failed: ${err.message}`);
+    process.exit(1);
   }
-}
 
-async function downloadBinary(
-  version,
-  filename,
-  savepath,
-  request_params = undefined,
-) {
-  const url = `https://github.com/opossum-tool/opossum-file/releases/download/${version}/${filename}`;
-  try {
-    const res = await fetch(url, request_params);
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-    await new Promise((resolve, reject) => {
-      pipeline(res.body, fs.createWriteStream(savepath), (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
-    console.log(`File downloaded and saved to ${savepath}`);
-  } catch (err) {
-    console.error(`Error downloading file: ${err.message}`);
-  }
-}
-
-function prepareDownloadLocation(path) {
-  const folder = dirname(path);
-  if (!fs.existsSync(folder)) {
-    console.info(`Creating folder ${folder}`);
-    fs.mkdirSync(folder);
-  }
-  if (fs.existsSync(path)) {
-    console.info("Deleting existing 'opossum-file'.");
-    fs.rmSync(path);
-  }
-}
-
-async function downloadOpossumFile(osSuffix, headers = undefined) {
-  const TARGET_NAME = 'bin/opossum-file';
+  const destinationPath = 'bin/opossum-file';
   const opossumFileBinaryName = `opossum-file-for-${osSuffix}`;
-  prepareDownloadLocation(TARGET_NAME);
 
-  try {
-    const currentVersion = await getLatestRelease(headers);
-    await downloadBinary(
-      currentVersion,
-      opossumFileBinaryName,
-      TARGET_NAME,
-      headers,
-    );
-    console.info(
-      `Downloaded 'opossum-file@${currentVersion}' to ${TARGET_NAME}`,
-    );
-  } catch (error) {
-    console.error(`Download of 'opossum-file' failed: ${error.message}`);
-    process.exit(1);
+  const folder = dirname(destinationPath);
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder);
+  } else if (fs.existsSync(destinationPath)) {
+    fs.rmSync(destinationPath);
   }
 
-  try {
-    await fs.promises.chmod(TARGET_NAME, EXECUTE_PERMISSIONS);
-  } catch (error) {
-    console.error('Could not mark', TARGET_NAME, 'as executable.', error);
-    process.exit(1);
-  }
-}
+  const requestParams = !env.GITHUB_TOKEN
+    ? undefined
+    : {
+        headers: {
+          Authorization: `Bearer ${env.GITHUB_TOKEN}`,
+        },
+      };
 
-function createRequestHeaders() {
-  if (!env.GITHUB_TOKEN) {
-    return undefined;
-  }
-  console.info('Found GITHUB_TOKEN.');
-  return {
-    headers: {
-      Authorization: `Bearer ${env.GITHUB_TOKEN}`,
-    },
-  };
-}
-
-const osSuffix = process.argv[2];
-
-if (!osSuffix) {
-  console.error(
-    'Please specify one of the following options: mac, ubuntu, windows.exe',
+  const resVersion = await fetch(
+    'https://api.github.com/repos/opossum-tool/opossum-file/releases/latest',
+    requestParams,
   );
-  process.exit(1);
+  if (!resVersion.ok) {
+    throw new Error(
+      `HTTP error while fetching the current version tag! Status: ${res.status}`,
+    );
+  }
+  const currentVersion = (await resVersion.json()).tag_name;
+
+  const res = await fetch(
+    `https://github.com/opossum-tool/opossum-file/releases/download/${currentVersion}/${opossumFileBinaryName}`,
+    requestParams,
+  );
+  if (!res.ok) {
+    throw new Error(
+      `HTTP error while downloading the binary! Status: ${res.status}`,
+    );
+  }
+  await new Promise((resolve, reject) => {
+    pipeline(res.body, fs.createWriteStream(destinationPath), (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+
+  await fs.promises.chmod(destinationPath, EXECUTE_PERMISSIONS);
 }
 
-const requestHeaders = createRequestHeaders();
-await downloadOpossumFile(osSuffix, requestHeaders);
+await downloadOpossumFile();

@@ -56,6 +56,7 @@ export default tseslint.config(
         ...globals.node,
         Atomics: 'readonly',
         SharedArrayBuffer: 'readonly',
+        fetch: true,
       },
       parserOptions: {
         ecmaFeatures: {
