@@ -19,6 +19,7 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       text={props.text}
       onClick={props.onClick}
       startIcon={<AttachFile />}
+      readOnly={true}
       cursor={'pointer'}
       sx={{ width: 600, marginTop: '20px' }}
     />
