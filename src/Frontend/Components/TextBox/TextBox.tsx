@@ -6,6 +6,7 @@ import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiTextField, { TextFieldProps } from '@mui/material/TextField';
+import { Property } from 'csstype';
 
 import { OpossumColors } from '../../shared-styles';
 import { ensureArray } from '../../util/ensure-array';
@@ -81,7 +82,7 @@ export interface TextBoxProps {
   title: string;
   startIcon?: React.ReactElement | Array<React.ReactElement>;
   endIcon?: React.ReactElement | Array<React.ReactElement>;
-  cursor?: string;
+  cursor?: Property.Cursor;
 }
 
 export function TextBox(props: TextBoxProps) {
