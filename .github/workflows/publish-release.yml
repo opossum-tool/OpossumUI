@@ -12,6 +12,8 @@ on:
 jobs:
   publish-release:
     runs-on: ${{ matrix.os }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
       matrix:

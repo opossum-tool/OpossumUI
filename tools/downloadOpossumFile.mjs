@@ -29,6 +29,14 @@ async function downloadOpossumFile() {
     fs.rmSync(destinationPath);
   }
 
+  const githubToken = env.GITHUB_TOKEN;
+
+  if (!githubToken) {
+    console.warn(
+      'No GitHub token is provided. The download will be rate-limited.',
+    );
+  }
+
   const requestParams = !env.GITHUB_TOKEN
     ? undefined
     : {
@@ -37,34 +45,39 @@ async function downloadOpossumFile() {
         },
       };
 
-  const resVersion = await fetch(
+  const latestReleaseResponse = await fetch(
     'https://api.github.com/repos/opossum-tool/opossum-file/releases/latest',
     requestParams,
   );
-  if (!resVersion.ok) {
-    throw new Error(
-      `HTTP error while fetching the current version tag! Status: ${res.status}`,
-    );
-  }
-  const currentVersion = (await resVersion.json()).tag_name;
+  const latestRelease = await latestReleaseResponse.json();
 
-  const res = await fetch(
-    `https://github.com/opossum-tool/opossum-file/releases/download/${currentVersion}/${opossumFileBinaryName}`,
+  if (!latestReleaseResponse.ok) {
+    throw new Error(latestRelease.message ?? 'Failed to fetch latest release');
+  }
+
+  const downloadResponse = await fetch(
+    `https://github.com/opossum-tool/opossum-file/releases/download/${latestRelease.tag_name}/${opossumFileBinaryName}`,
     requestParams,
   );
-  if (!res.ok) {
+
+  if (!downloadResponse.ok) {
     throw new Error(
-      `HTTP error while downloading the binary! Status: ${res.status}`,
+      downloadResponse.message ?? 'Failed to download the binary',
     );
   }
+
   await new Promise((resolve, reject) => {
-    pipeline(res.body, fs.createWriteStream(destinationPath), (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
+    pipeline(
+      downloadResponse.body,
+      fs.createWriteStream(destinationPath),
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      },
+    );
   });
 
   await fs.promises.chmod(destinationPath, EXECUTE_PERMISSIONS);
