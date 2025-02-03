@@ -4,14 +4,16 @@
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
 import { dirname } from 'path';
+import { env } from 'process';
 import { pipeline } from 'stream';
 
 const EXECUTE_PERMISSIONS = 0o755;
 
-async function getLatestRelease() {
+async function getLatestRelease(request_params = undefined) {
   try {
     const res = await fetch(
       'https://api.github.com/repos/opossum-tool/opossum-file/releases/latest',
+      request_params,
     );
     const data = await res.json();
     if (
@@ -27,10 +29,15 @@ async function getLatestRelease() {
   }
 }
 
-async function downloadBinary(version, filename, savepath) {
+async function downloadBinary(
+  version,
+  filename,
+  savepath,
+  request_params = undefined,
+) {
   const url = `https://github.com/opossum-tool/opossum-file/releases/download/${version}/${filename}`;
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, request_params);
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
@@ -61,19 +68,24 @@ function prepareDownloadLocation(path) {
   }
 }
 
-async function installOpossumFileCLI(osSuffix) {
+async function downloadOpossumFile(osSuffix, headers = undefined) {
   const TARGET_NAME = 'bin/opossum-file';
   const opossumFileBinaryName = 'opossum-file-for-' + osSuffix;
   prepareDownloadLocation(TARGET_NAME);
 
   try {
-    const currentVersion = await getLatestRelease();
-    await downloadBinary(currentVersion, opossumFileBinaryName, TARGET_NAME);
+    const currentVersion = await getLatestRelease(headers);
+    await downloadBinary(
+      currentVersion,
+      opossumFileBinaryName,
+      TARGET_NAME,
+      headers,
+    );
     console.info(
       `Downloaded 'opossum-file@${currentVersion}' to ${TARGET_NAME}`,
     );
   } catch (error) {
-    console.error(`Download of 'opossum-file' failed: ${err}`);
+    console.error(`Download of 'opossum-file' failed: ${error}`);
     process.exit(1);
   }
 
@@ -85,6 +97,16 @@ async function installOpossumFileCLI(osSuffix) {
   }
 }
 
+function createRequestHeaders() {
+  if (!env.GITHUB_TOKEN) return undefined;
+  console.info('Found GITHUB_TOKEN.');
+  return {
+    headers: {
+      Authorization: `Bearer ${env.GITHUB_TOKEN}`,
+    },
+  };
+}
+
 const osSuffix = process.argv[2];
 
 if (!osSuffix) {
@@ -94,4 +116,5 @@ if (!osSuffix) {
   process.exit(1);
 }
 
-await installOpossumFileCLI(osSuffix);
+const requestHeaders = createRequestHeaders();
+await downloadOpossumFile(osSuffix, requestHeaders);
