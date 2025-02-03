@@ -131,7 +131,7 @@
     "update-commit-hash": "run-script-os",
     "update-commit-hash:darwin:linux": "COMMIT_INFO=$(git describe --exact-match --tags 2> /dev/null || git rev-parse --short HEAD); echo \"{\\\"commitInfo\\\" : \\\"$COMMIT_INFO\\\" }\" > \"src/commitInfo.json\"",
     "update-commit-hash:win32": "tools/get_app_version_for_windows.bat",
-    "generate-notice": "mkdirp notices && yarn licenses generate-disclaimer --production > notices/notices.txt && yarn node tools/generateNotices.js",
+    "generate-notice": "mkdirp notices && yarn licenses generate-disclaimer --production > notices/notices.txt && yarn node tools/generateNotices.mjs",
     "ship-linux": "yarn install-deps:linux && yarn build && electron-builder --linux --x64 --publish never && mkdir -p release/linux && mv 'release/OpossumUI-0.1.0.AppImage' 'release/linux/OpossumUI-for-linux.AppImage'",
     "ship-win": "yarn install-deps:win32 && yarn build && electron-builder --win --x64 --publish never && mkdirp release/win && mv \"release/OpossumUI Setup 0.1.0.exe\" \"release/win/OpossumUI-for-win.exe\"",
     "ship-mac": "yarn install-deps:darwin && yarn build && electron-builder --mac --x64 --publish never && zip -r -y -q 'release/mac/OpossumUI-for-mac.zip' 'release/mac/'",
@@ -144,9 +144,9 @@
     "postinstall": "yarn install-deps && husky && yarn update-commit-hash",
     "pre-commit": "lint-staged",
     "install-deps": "run-script-os",
-    "install-deps:darwin": "yarn node tools/downloadOpossumFileCLI.js mac",
-    "install-deps:linux": "yarn node tools/downloadOpossumFileCLI.js ubuntu",
-    "install-deps:win32": "yarn node tools/downloadOpossumFileCLI.js windows.exe"
+    "install-deps:darwin": "yarn node tools/downloadOpossumFile.mjs mac",
+    "install-deps:linux": "yarn node tools/downloadOpossumFile.mjs ubuntu",
+    "install-deps:win32": "yarn node tools/downloadOpossumFile.mjs windows.exe"
   },
   "main": "build/ElectronBackend/app.js",
   "build": {

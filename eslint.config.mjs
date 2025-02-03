@@ -12,6 +12,7 @@ import eslintConfigPlaywright from 'eslint-plugin-playwright';
 import eslintConfigReact from 'eslint-plugin-react';
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
 import eslintConfigTestingLibrary from 'eslint-plugin-testing-library';
+import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
@@ -28,6 +29,7 @@ export default tseslint.config(
     },
     languageOptions: {
       globals: {
+        ...globals.node,
         Atomics: 'readonly',
         SharedArrayBuffer: 'readonly',
       },
@@ -37,7 +39,11 @@ export default tseslint.config(
         },
         ecmaVersion: 2018,
         sourceType: 'module',
-        project: ['tsconfig.json', 'src/ElectronBackend/tsconfig.json'],
+        project: [
+          'tsconfig.json',
+          'tsconfig.eslint.json',
+          'src/ElectronBackend/tsconfig.json',
+        ],
       },
     },
     ignores: [
@@ -47,7 +53,6 @@ export default tseslint.config(
       'index.html',
       'jest.config.mjs',
       'notices.template.html',
-      'tools',
       'vite.config.mts',
     ],
     extends: [
