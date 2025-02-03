@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { AttachFile } from '@mui/icons-material';
 
+import { clickableIcon } from '../../shared-styles';
 import { TextBox } from '../TextBox/TextBox';
 
 interface FilePathInputProps {
@@ -18,7 +19,7 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       title={props.label}
       text={props.text}
       onClick={props.onClick}
-      startIcon={<AttachFile />}
+      startIcon={<AttachFile sx={clickableIcon} />}
       readOnly={true}
       cursor={'pointer'}
       sx={{ width: 600, marginTop: '20px' }}
