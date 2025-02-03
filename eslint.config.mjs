@@ -3,6 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { fixupPluginRules } from '@eslint/compat';
+import {
+  convertIgnorePatternToMinimatch,
+  includeIgnoreFile,
+} from '@eslint/compat';
 import eslint from '@eslint/js';
 import eslintPluginQuery from '@tanstack/eslint-plugin-query';
 import eslintConfigFilenames from 'eslint-plugin-filenames-simple';
@@ -13,9 +17,29 @@ import eslintConfigReact from 'eslint-plugin-react';
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
 import eslintConfigTestingLibrary from 'eslint-plugin-testing-library';
 import globals from 'globals';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import tseslint from 'typescript-eslint';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const gitignorePath = path.resolve(__dirname, '.gitignore');
+
 export default tseslint.config(
+  includeIgnoreFile(gitignorePath),
+  {
+    name: 'Global ignore patterns',
+    ignores: [
+      '.lintstagedrc.js',
+      'commitlint.config.ts',
+      'eslint.config.mjs',
+      'index.html',
+      'jest.config.mjs',
+      'notices.template.html',
+      'vite.config.mts',
+      '.yarn',
+    ],
+  },
   {
     plugins: {
       filenames: eslintConfigFilenames,
@@ -46,15 +70,6 @@ export default tseslint.config(
         ],
       },
     },
-    ignores: [
-      '.lintstagedrc.js',
-      'commitlint.config.ts',
-      'eslint.config.mjs',
-      'index.html',
-      'jest.config.mjs',
-      'notices.template.html',
-      'vite.config.mts',
-    ],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
