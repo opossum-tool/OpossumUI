@@ -48,7 +48,7 @@
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
     "@commitlint/types": "^19.5.0",
-    "@eslint/compat": "^1.2.5",
+    "@eslint/compat": "^1.2.6",
     "@eslint/js": "^9.19.0",
     "@faker-js/faker": "^9.4.0",
     "@playwright/test": "^1.50.1",
