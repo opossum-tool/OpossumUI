@@ -8,6 +8,7 @@ import { env } from 'process';
 import { pipeline } from 'stream';
 
 const EXECUTE_PERMISSIONS = 0o755;
+const HTTP_FORBIDDEN = 403;
 
 async function getLatestRelease(request_params = undefined) {
   try {
@@ -17,7 +18,7 @@ async function getLatestRelease(request_params = undefined) {
     );
     const data = await res.json();
     if (
-      res.status === 403 &&
+      res.status === HTTP_FORBIDDEN &&
       typeof data.message === 'string' &&
       data.message.includes('API rate limit exceeded')
     ) {
@@ -25,7 +26,7 @@ async function getLatestRelease(request_params = undefined) {
     }
     return data.tag_name;
   } catch (err) {
-    throw new Error(`Fetching the latest release failed: ${err}`);
+    throw new Error(`Fetching the latest release failed: ${err.message}`);
   }
 }
 
@@ -52,7 +53,7 @@ async function downloadBinary(
     });
     console.log(`File downloaded and saved to ${savepath}`);
   } catch (err) {
-    console.error(`Error downloading file: ${err}`);
+    console.error(`Error downloading file: ${err.message}`);
   }
 }
 
@@ -70,7 +71,7 @@ function prepareDownloadLocation(path) {
 
 async function downloadOpossumFile(osSuffix, headers = undefined) {
   const TARGET_NAME = 'bin/opossum-file';
-  const opossumFileBinaryName = 'opossum-file-for-' + osSuffix;
+  const opossumFileBinaryName = `opossum-file-for-${osSuffix}`;
   prepareDownloadLocation(TARGET_NAME);
 
   try {
@@ -85,7 +86,7 @@ async function downloadOpossumFile(osSuffix, headers = undefined) {
       `Downloaded 'opossum-file@${currentVersion}' to ${TARGET_NAME}`,
     );
   } catch (error) {
-    console.error(`Download of 'opossum-file' failed: ${error}`);
+    console.error(`Download of 'opossum-file' failed: ${error.message}`);
     process.exit(1);
   }
 
@@ -98,7 +99,9 @@ async function downloadOpossumFile(osSuffix, headers = undefined) {
 }
 
 function createRequestHeaders() {
-  if (!env.GITHUB_TOKEN) return undefined;
+  if (!env.GITHUB_TOKEN) {
+    return undefined;
+  }
   console.info('Found GITHUB_TOKEN.');
   return {
     headers: {
