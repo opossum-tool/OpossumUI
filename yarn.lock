@@ -6279,10 +6279,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-log@npm:^5.2.4":
-  version: 5.2.4
-  resolution: "electron-log@npm:5.2.4"
-  checksum: 10/e971f179b58712b3ec3a552a4056a91f81521675eff188cce8a8ec84cbc944877599be8e464e07773a320920714b05100b5ab6f68084a409d9d548cf8a4b1917
+"electron-log@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "electron-log@npm:5.3.0"
+  checksum: 10/e4d3f78b45bad6a1c511ebe22ab52624a44960d18930c8165fff61ab74cf049b555e992e93f0fc19af2d4ff62647034b91ab22c9f80cb179e3b4166a9842bb7b
   languageName: node
   linkType: hard
 
@@ -10545,7 +10545,7 @@ __metadata:
     dpdm: "npm:^3.14.0"
     electron: "npm:34.0.2"
     electron-builder: "npm:^25.1.8"
-    electron-log: "npm:^5.2.4"
+    electron-log: "npm:^5.3.0"
     electron-playwright-helpers: "npm:^1.7.1"
     electron-settings: "npm:^4.0.4"
     eslint: "npm:^9.19.0"
