@@ -152,7 +152,7 @@ export const ImportDialog: React.FC = () => {
               display: 'flex',
               justifyContent: 'start',
               columnGap: '4px',
-              width: '470px',
+              width: '440px',
             }}
           >
             <LogDisplay
