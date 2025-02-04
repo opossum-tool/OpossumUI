@@ -11,7 +11,7 @@ import { TextBox, TextBoxCustomInputProps } from '../TextBox/TextBox';
 const CustomInput: React.FC<TextBoxCustomInputProps> = (props) => {
   return (
     <MuiTypography
-      sx={{ ...props.customStyles, whiteSpace: 'nowrap', userSelect: 'none' }}
+      sx={{ ...props.sx, whiteSpace: 'nowrap', userSelect: 'none' }}
       aria-label={props['aria-label']}
     >
       {props.value}

@@ -2,11 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { InputBaseComponentProps, SxProps } from '@mui/material';
+import { InputBaseComponentsPropsOverrides, SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiTextField, { TextFieldProps } from '@mui/material/TextField';
 import MuiTooltip from '@mui/material/Tooltip';
+import { Theme } from '@mui/system';
 
 import { OpossumColors } from '../../shared-styles';
 import { ensureArray } from '../../util/ensure-array';
@@ -62,11 +63,9 @@ export const classes = {
   },
 } satisfies SxProps;
 
-export interface TextBoxCustomInputProps extends InputBaseComponentProps {
-  value?: string;
-  // calling this sx doesn't properly pass on this prop for some reason
-  customStyles?: SxProps;
-}
+export type TextBoxCustomInputProps =
+  React.InputHTMLAttributes<HTMLInputElement> &
+    InputBaseComponentsPropsOverrides & { sx?: SxProps<Theme> };
 
 export interface TextBoxProps {
   color?: TextFieldProps['color'];
@@ -94,13 +93,6 @@ export interface TextBoxProps {
 }
 
 export function TextBox(props: TextBoxProps) {
-  const inputSx = {
-    overflowX: 'hidden',
-    textOverflow: 'ellipsis',
-    padding: `8.5px calc(8px + ${ensureArray(props.startIcon).length} * 20px)`,
-    cursor: props.cursor,
-  };
-
   return (
     <MuiBox sx={props.sx}>
       <MuiTooltip title={props.showTooltip && props.text}>
@@ -114,36 +106,43 @@ export function TextBox(props: TextBoxProps) {
           label={props.title}
           focused={props.focused}
           color={props.color}
-          InputLabelProps={{
-            shrink: !!props.placeholder || !!props.text,
-            sx: {
-              marginLeft: `calc(${ensureArray(props.startIcon).length} * 20px)`,
+          slotProps={{
+            inputLabel: {
+              shrink: !!props.placeholder || !!props.text,
+              sx: {
+                marginLeft: `calc(${ensureArray(props.startIcon).length} * 20px)`,
+              },
             },
-          }}
-          InputProps={{
-            readOnly: props.readOnly,
-            slotProps: { root: { sx: { padding: 0 } } },
-            inputComponent: props.inputComponent,
-            inputProps: {
-              'aria-label': props.title,
-              value: props.text,
-              sx: inputSx,
-              customStyles: inputSx,
+            input: {
+              readOnly: props.readOnly,
+              slotProps: {
+                root: { sx: { padding: 0 } },
+                input: {
+                  'aria-label': props.title,
+                  value: props.text || '',
+                  sx: {
+                    overflowX: 'hidden',
+                    textOverflow: 'ellipsis',
+                    padding: `8.5px calc(3px + ${ensureArray(props.startIcon).length} * 20px)`,
+                  },
+                },
+              },
+              slots: { input: props.inputComponent },
+              sx: { cursor: props.cursor },
+              startAdornment: props.startIcon && (
+                <MuiInputAdornment
+                  sx={{ ...classes.startAdornmentRoot }}
+                  position="start"
+                >
+                  {props.startIcon}
+                </MuiInputAdornment>
+              ),
+              endAdornment: props.endIcon && (
+                <MuiInputAdornment sx={classes.endAdornmentRoot} position="end">
+                  {props.endIcon}
+                </MuiInputAdornment>
+              ),
             },
-            sx: { cursor: props.cursor },
-            startAdornment: props.startIcon && (
-              <MuiInputAdornment
-                sx={classes.startAdornmentRoot}
-                position="start"
-              >
-                {props.startIcon}
-              </MuiInputAdornment>
-            ),
-            endAdornment: props.endIcon && (
-              <MuiInputAdornment sx={classes.endAdornmentRoot} position="end">
-                {props.endIcon}
-              </MuiInputAdornment>
-            ),
           }}
           multiline={props.multiline}
           minRows={props.expanded ? props.maxRows : props.minRows}
