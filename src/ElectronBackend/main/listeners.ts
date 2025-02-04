@@ -149,10 +149,12 @@ export function getImportFileSelectInputListener(
     mainWindow,
     (_: Electron.IpcMainInvokeEvent, fileFormat: FileFormatInfo) => {
       const filePaths = openNonOpossumFileDialog(fileFormat);
-      if (!filePaths?.length) {
-        return '';
-      }
-      return filePaths[0];
+
+      // NOTE: explicitly checking filePaths.length creates issues in e2e tests
+      // because the mocked return value of the dialog is not an array but rather
+      // and object with number indices for some reason, so filePaths.length is
+      // undefined in e2e tests
+      return filePaths?.[0] || '';
     },
   );
 }
