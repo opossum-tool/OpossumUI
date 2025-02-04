@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { SxProps } from '@mui/material';
+import { InputBaseComponentProps, SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiTextField, { TextFieldProps } from '@mui/material/TextField';
@@ -51,16 +51,22 @@ export const classes = {
   startAdornmentRoot: {
     position: 'absolute',
     left: 0,
-    marginLeft: '14px',
+    marginLeft: '8px',
     height: 0,
   },
   endAdornmentRoot: {
     position: 'absolute',
     right: 0,
-    marginRight: '14px',
+    marginRight: '8px',
     height: 0,
   },
 } satisfies SxProps;
+
+export interface TextBoxCustomInputProps extends InputBaseComponentProps {
+  value?: string;
+  // calling this sx doesn't properly pass on this prop for some reason
+  customStyles?: SxProps;
+}
 
 export interface TextBoxProps {
   color?: TextFieldProps['color'];
@@ -84,9 +90,17 @@ export interface TextBoxProps {
   endIcon?: React.ReactElement | Array<React.ReactElement>;
   cursor?: React.CSSProperties['cursor'];
   showTooltip?: boolean;
+  inputComponent?: React.ElementType<TextBoxCustomInputProps>;
 }
 
 export function TextBox(props: TextBoxProps) {
+  const inputSx = {
+    overflowX: 'hidden',
+    textOverflow: 'ellipsis',
+    padding: `8.5px calc(8px + ${ensureArray(props.startIcon).length} * 20px)`,
+    cursor: props.cursor,
+  };
+
   return (
     <MuiBox sx={props.sx}>
       <MuiTooltip title={props.showTooltip && props.text}>
@@ -103,23 +117,18 @@ export function TextBox(props: TextBoxProps) {
           InputLabelProps={{
             shrink: !!props.placeholder || !!props.text,
             sx: {
-              marginLeft: `calc(${ensureArray(props.startIcon).length} * 28px)`,
+              marginLeft: `calc(${ensureArray(props.startIcon).length} * 20px)`,
             },
           }}
           InputProps={{
             readOnly: props.readOnly,
             slotProps: { root: { sx: { padding: 0 } } },
+            inputComponent: props.inputComponent,
             inputProps: {
               'aria-label': props.title,
-              sx: {
-                overflowX: 'hidden',
-                textOverflow: 'ellipsis',
-                paddingTop: '8.5px',
-                paddingBottom: '8.5px',
-                paddingLeft: `calc(${ensureArray(props.startIcon).length} * 28px)`,
-                paddingRight: `calc(14px + ${ensureArray(props.endIcon).length} * 28px)`,
-                cursor: props.cursor,
-              },
+              value: props.text,
+              sx: inputSx,
+              customStyles: inputSx,
             },
             sx: { cursor: props.cursor },
             startAdornment: props.startIcon && (

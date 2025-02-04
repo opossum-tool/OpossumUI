@@ -3,9 +3,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { AttachFile } from '@mui/icons-material';
+import MuiTypography from '@mui/material/Typography';
 
-import { clickableIcon } from '../../shared-styles';
-import { TextBox } from '../TextBox/TextBox';
+import { baseIcon } from '../../shared-styles';
+import { TextBox, TextBoxCustomInputProps } from '../TextBox/TextBox';
+
+const CustomInput: React.FC<TextBoxCustomInputProps> = (props) => {
+  return (
+    <MuiTypography
+      sx={{ ...props.customStyles, whiteSpace: 'nowrap', userSelect: 'none' }}
+      aria-label={props['aria-label']}
+    >
+      {props.value}
+    </MuiTypography>
+  );
+};
 
 interface FilePathInputProps {
   label: string;
@@ -19,10 +31,12 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       title={props.label}
       text={props.text}
       onClick={props.onClick}
-      startIcon={<AttachFile sx={clickableIcon} />}
-      readOnly={true}
+      startIcon={<AttachFile sx={baseIcon} />}
       cursor={'pointer'}
       showTooltip={true}
+      // using a custom input component allows us to disable a lot of TextField
+      // behavior (e.g. horizontal text scrolling) that we don't want here
+      inputComponent={CustomInput}
       sx={{ width: 600, marginTop: '20px' }}
     />
   );
