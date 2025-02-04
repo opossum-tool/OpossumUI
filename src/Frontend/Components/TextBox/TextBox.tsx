@@ -116,19 +116,20 @@ export function TextBox(props: TextBoxProps) {
             input: {
               readOnly: props.readOnly,
               slotProps: {
-                root: { sx: { padding: 0 } },
                 input: {
                   'aria-label': props.title,
                   value: props.text || '',
                   sx: {
                     overflowX: 'hidden',
                     textOverflow: 'ellipsis',
-                    padding: `8.5px calc(3px + ${ensureArray(props.startIcon).length} * 20px)`,
+                    paddingY: '8.5px',
+                    paddingLeft: `calc(14px + ${ensureArray(props.startIcon).length} * 20px)`,
+                    paddingRight: `calc(14px + ${ensureArray(props.endIcon).length} * 20px)`,
                   },
                 },
               },
+              sx: { padding: 0, cursor: props.cursor },
               slots: { input: props.inputComponent },
-              sx: { cursor: props.cursor },
               startAdornment: props.startIcon && (
                 <MuiInputAdornment
                   sx={{ ...classes.startAdornmentRoot }}
