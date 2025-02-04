@@ -18,10 +18,12 @@ export class ImportDialog {
   constructor(window: Page, filename: string | undefined, info: TestInfo) {
     this.node = window.getByLabel('import dialog');
     this.title = this.node.getByRole('heading').getByText('Import');
-    this.inputFileSelection = this.node.getByLabel('Select file to import');
-    this.opossumFileSelection = this.node.getByLabel(
-      'Select opossum file save location',
-    );
+    this.inputFileSelection = this.node
+      .getByLabel('Select file to import')
+      .locator('..');
+    this.opossumFileSelection = this.node
+      .getByLabel('Select opossum file save location')
+      .locator('..');
     this.importButton = this.node.getByRole('button', { name: 'Import' });
     this.cancelButton = this.node.getByRole('button', { name: 'Cancel' });
     this.errorIcon = this.node.getByTestId('ErrorIcon').locator('path');
