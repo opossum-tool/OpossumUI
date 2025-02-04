@@ -22,6 +22,7 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       startIcon={<AttachFile sx={clickableIcon} />}
       readOnly={true}
       cursor={'pointer'}
+      showTooltip={true}
       sx={{ width: 600, marginTop: '20px' }}
     />
   );
