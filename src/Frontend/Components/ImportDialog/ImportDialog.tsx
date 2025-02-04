@@ -55,21 +55,12 @@ export const ImportDialog: React.FC = () => {
     [],
   );
 
-  function updateInputFilePath(filePath: string) {
-    setInputFilePath(filePath);
-    setCurrentLog(null);
-  }
-
-  function updateOpossumFilePath(filePath: string) {
-    setOpossumFilePath(filePath);
-    setCurrentLog(null);
-  }
-
   function selectInputFilePath(): void {
     window.electronAPI.importFileSelectInput(fileFormat).then(
       (filePath) => {
         if (filePath) {
-          updateInputFilePath(filePath);
+          setInputFilePath(filePath);
+          setCurrentLog(null);
         }
       },
       () => {},
@@ -92,7 +83,8 @@ export const ImportDialog: React.FC = () => {
     window.electronAPI.importFileSelectSaveLocation(defaultPath).then(
       (filePath) => {
         if (filePath) {
-          updateOpossumFilePath(filePath);
+          setOpossumFilePath(filePath);
+          setCurrentLog(null);
         }
       },
       () => {},

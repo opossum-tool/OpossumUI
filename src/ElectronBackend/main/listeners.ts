@@ -149,7 +149,7 @@ export function getImportFileSelectInputListener(
     mainWindow,
     (_: Electron.IpcMainInvokeEvent, fileFormat: FileFormatInfo) => {
       const filePaths = openNonOpossumFileDialog(fileFormat);
-      if (!filePaths || filePaths.length < 1) {
+      if (!filePaths?.length) {
         return '';
       }
       return filePaths[0];
