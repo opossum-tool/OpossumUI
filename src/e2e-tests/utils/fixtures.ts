@@ -79,6 +79,9 @@ export const test = base.extend<{
 
     const [executablePath, main] = getLaunchProps();
     const args = ['--reset'];
+    if (os.platform() === 'linux') {
+      args.push('--no-sandbox');
+    }
 
     const app = await electron.launch({
       args: [main, ...(!filePath ? args : args.concat([filePath]))],

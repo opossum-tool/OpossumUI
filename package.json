@@ -131,7 +131,7 @@
     "update-commit-hash:darwin:linux": "COMMIT_INFO=$(git describe --exact-match --tags 2> /dev/null || git rev-parse --short HEAD); echo \"{\\\"commitInfo\\\" : \\\"$COMMIT_INFO\\\" }\" > \"src/commitInfo.json\"",
     "update-commit-hash:win32": "tools/get_app_version_for_windows.bat",
     "generate-notice": "mkdirp notices && yarn licenses generate-disclaimer --production > notices/notices.txt && yarn node tools/generateNotices.mjs",
-    "ship-linux": "yarn install-deps:linux && yarn build && electron-builder --linux --x64 --publish never && mkdir -p release/linux && mv 'release/OpossumUI-0.1.0.AppImage' 'release/linux/OpossumUI-for-linux.AppImage'",
+    "ship-linux": "yarn install-deps:linux && yarn build && tools/build_linux_release.sh",
     "ship-win": "yarn install-deps:win32 && yarn build && electron-builder --win --x64 --publish never && mkdirp release/win && mv \"release/OpossumUI Setup 0.1.0.exe\" \"release/win/OpossumUI-for-win.exe\"",
     "ship-mac": "yarn install-deps:darwin && yarn build && electron-builder --mac --x64 --publish never && zip -r -y -q 'release/mac/OpossumUI-for-mac.zip' 'release/mac/'",
     "ship": "yarn ship-linux && yarn ship-win && yarn ship-mac",
@@ -169,8 +169,12 @@
       "icon": "public/icons/icon_512x512.png"
     },
     "linux": {
-      "target": "AppImage",
-      "icon": "public/icons/icon_512x512.png"
+      "target": [
+        "snap",
+        "AppImage"
+      ],
+      "icon": "public/icons/icon_512x512.png",
+      "category": "Development"
     },
     "extraMetadata": {
       "main": "build/ElectronBackend/app.js"
