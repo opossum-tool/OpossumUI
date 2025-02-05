@@ -7,42 +7,23 @@ import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { FileFormatInfo, FileType, Log } from '../../../shared/shared-types';
+import { FileFormatInfo, Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
-import {
-  LoggingListener,
-  ShowImportDialogListener,
-  useIpcRenderer,
-} from '../../util/use-ipc-renderer';
+import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
-export const ImportDialog: React.FC = () => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [fileFormat, setFileFormat] = useState<FileFormatInfo>({
-    fileType: FileType.LEGACY_OPOSSUM,
-    name: '',
-    extensions: [],
-  });
+export interface ImportDialogProps {
+  fileFormat: FileFormatInfo;
+  closeDialog: () => void;
+}
 
-  function resetState() {
-    setInputFilePath('');
-    setOpossumFilePath('');
-    setCurrentLog(null);
-  }
-
-  useIpcRenderer<ShowImportDialogListener>(
-    AllowedFrontendChannels.ImportFileShowDialog,
-    (_, fileFormat) => {
-      resetState();
-      setFileFormat(fileFormat);
-      setIsOpen(true);
-    },
-    [],
-  );
-
+export const ImportDialog: React.FC<ImportDialogProps> = ({
+  fileFormat,
+  closeDialog,
+}) => {
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
 
@@ -93,7 +74,7 @@ export const ImportDialog: React.FC = () => {
   }
 
   function onCancel(): void {
-    setIsOpen(false);
+    closeDialog();
   }
 
   async function onConfirm(): Promise<void> {
@@ -106,7 +87,7 @@ export const ImportDialog: React.FC = () => {
     );
 
     if (success) {
-      setIsOpen(false);
+      closeDialog();
     }
 
     setIsLoading(false);
@@ -138,7 +119,7 @@ export const ImportDialog: React.FC = () => {
           />
         </div>
       }
-      isOpen={isOpen}
+      isOpen={true}
       customAction={
         currentLog ? (
           <MuiBox
