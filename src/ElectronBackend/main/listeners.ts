@@ -229,6 +229,7 @@ export function getImportFileConvertAndLoadListener(
           break;
         case FileType.SCANCODE_JSON:
           await convertScancodeToOpossum(resourceFilePath, opossumFilePath);
+          break;
       }
 
       logger.info('Updating global backend state');
