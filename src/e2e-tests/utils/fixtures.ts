@@ -67,7 +67,7 @@ export const test = base.extend<{
   linkedResourcesTree: LinkedResourcesTree;
   menuBar: MenuBar;
   notSavedPopup: NotSavedPopup;
-  testImport: boolean;
+  isImportFileTest: boolean;
   pathBar: PathBar;
   projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
@@ -77,8 +77,8 @@ export const test = base.extend<{
   topBar: TopBar;
 }>({
   data: undefined,
-  testImport: false,
-  window: async ({ data, testImport }, use, info) => {
+  isImportFileTest: false,
+  window: async ({ data, isImportFileTest }, use, info) => {
     const filePath = data && (await createTestFile({ data, info }));
 
     const [executablePath, main] = getLaunchProps();
@@ -90,7 +90,7 @@ export const test = base.extend<{
     const app = await electron.launch({
       args: [
         main,
-        ...(!filePath || testImport ? args : args.concat([filePath])),
+        ...(!filePath || isImportFileTest ? args : args.concat([filePath])),
       ],
       executablePath,
     });

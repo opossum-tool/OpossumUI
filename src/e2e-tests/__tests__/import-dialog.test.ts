@@ -22,7 +22,7 @@ test.use({
     outputData: faker.opossum.outputData({}),
     provideImportFiles: true,
   },
-  testImport: true,
+  isImportFileTest: true,
 });
 
 test('opens, displays and closes import dialog', async ({
