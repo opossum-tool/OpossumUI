@@ -118,7 +118,7 @@
     "test:unit": "jest",
     "test:changed": "jest --onlyChanged",
     "test:watch": "jest --watch",
-    "test:e2e": "start-server-and-test \"tsc -p src/ElectronBackend && vite -m e2e\" http-get://localhost:5173/index.html \"yarn playwright test -c src/e2e-tests/playwright.config.ts\"",
+    "test:e2e": "NODE_ENV=test start-server-and-test \"tsc -p src/ElectronBackend && vite -m e2e\" http-get://localhost:5173/index.html \"yarn playwright test -c src/e2e-tests/playwright.config.ts\"",
     "test:e2e:ci": "yarn playwright test -c src/e2e-tests/playwright.config.ts",
     "lint": "eslint --fix",
     "lint-check": "eslint",

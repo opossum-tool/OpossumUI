@@ -11,6 +11,7 @@ const execFile = promisify(execFileCallback);
 
 const OPOSSUM_FILE_EXECUTABLE = join(
   app?.getAppPath?.() ?? './',
+  process.env.NODE_ENV === 'test' ? '../..' : '',
   'bin/opossum-file',
 );
 
