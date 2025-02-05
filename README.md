@@ -110,7 +110,7 @@ Install the snap file locally using
 snap install ./OpossumUI-for-linux.snap --dangerous
 ```
 
-Open Opossum UI via the start menu of your distribution (should be in the `development` category) or by running
+Open OpossumUI via the start menu of your distribution (should be in the `development` category) or by running
 
 ```shell
 opossum-ui
