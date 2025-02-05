@@ -16,9 +16,6 @@ export class ImportDialog {
   readonly legacyFilePath: string;
   readonly scancodeFilePath: string;
 
-  readonly legacyMenuLabel: string = 'Legacy Opossum File (.json/.json.gz)';
-  readonly scancodeMenuLabel: string = 'ScanCode File (.json)';
-
   constructor(
     window: Page,
     legacyFilename: string | undefined,

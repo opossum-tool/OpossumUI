@@ -29,7 +29,7 @@ test('opens, displays and closes import dialog', async ({
   menuBar,
   importDialog,
 }) => {
-  await menuBar.openByLabel(importDialog.legacyMenuLabel);
+  await menuBar.openImportLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.cancelButton.click();
@@ -52,7 +52,7 @@ test('imports legacy opossum file', async ({
     getDotOpossumFilePath(importDialog.legacyFilePath, ['json', 'json.gz']),
   );
 
-  await menuBar.openByLabel(importDialog.legacyMenuLabel);
+  await menuBar.openImportLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.inputFileSelection.click();
@@ -78,7 +78,7 @@ test('imports scancode file', async ({
     getDotOpossumFilePath(importDialog.scancodeFilePath, ['json']),
   );
 
-  await menuBar.openByLabel(importDialog.scancodeMenuLabel);
+  await menuBar.openImportScanCodeFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.inputFileSelection.click();
@@ -93,7 +93,7 @@ test('shows error when no file path is set', async ({
   menuBar,
   importDialog,
 }) => {
-  await menuBar.openByLabel(importDialog.legacyMenuLabel);
+  await menuBar.openImportLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.importButton.click();

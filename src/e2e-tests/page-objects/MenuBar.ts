@@ -26,8 +26,16 @@ export class MenuBar {
     await clickMenuItem(this.window.app, 'label', 'Project Statistics');
   }
 
-  async openByLabel(label: string): Promise<void> {
-    await clickMenuItem(this.window.app, 'label', label);
+  async openImportLegacyOpossumFile(): Promise<void> {
+    await clickMenuItem(
+      this.window.app,
+      'label',
+      'Legacy Opossum File (.json/.json.gz)',
+    );
+  }
+
+  async openImportScanCodeFile(): Promise<void> {
+    await clickMenuItem(this.window.app, 'label', 'ScanCode File (.json)');
   }
 
   async toggleQaMode(): Promise<void> {
