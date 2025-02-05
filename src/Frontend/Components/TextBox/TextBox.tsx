@@ -6,7 +6,7 @@ import { InputBaseComponentsPropsOverrides, SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiTextField, { TextFieldProps } from '@mui/material/TextField';
-import MuiTooltip from '@mui/material/Tooltip';
+import MuiTooltip, { TooltipProps } from '@mui/material/Tooltip';
 import { Theme } from '@mui/system';
 
 import { OpossumColors } from '../../shared-styles';
@@ -89,13 +89,18 @@ export interface TextBoxProps {
   endIcon?: React.ReactElement | Array<React.ReactElement>;
   cursor?: React.CSSProperties['cursor'];
   showTooltip?: boolean;
+  tooltipProps?: Partial<TooltipProps>;
   inputComponent?: React.ElementType<TextBoxCustomInputProps>;
 }
 
 export function TextBox(props: TextBoxProps) {
   return (
     <MuiBox sx={props.sx}>
-      <MuiTooltip title={props.showTooltip && props.text}>
+      <MuiTooltip
+        {...props.tooltipProps}
+        title={props.showTooltip && props.text}
+        disableInteractive={true}
+      >
         <MuiTextField
           disabled={props.disabled}
           placeholder={props.placeholder}

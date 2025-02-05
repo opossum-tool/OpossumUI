@@ -109,6 +109,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
             )}
             text={inputFilePath}
             onClick={selectInputFilePath}
+            tooltipProps={{ placement: 'top' }}
           />
           <FilePathInput
             label={text.importDialog.opossumFilePath.textFieldLabel(
