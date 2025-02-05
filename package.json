@@ -144,7 +144,7 @@
     "pre-commit": "lint-staged",
     "install-deps": "run-script-os",
     "install-deps:darwin": "yarn node tools/downloadOpossumFile.mjs mac",
-    "install-deps:linux": "yarn node tools/downloadOpossumFile.mjs ubuntu",
+    "install-deps:linux": "yarn node tools/downloadOpossumFile.mjs linux",
     "install-deps:win32": "yarn node tools/downloadOpossumFile.mjs windows.exe"
   },
   "main": "build/ElectronBackend/app.js",

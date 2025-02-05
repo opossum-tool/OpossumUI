@@ -14,7 +14,7 @@ async function downloadOpossumFile() {
 
   if (!osSuffix) {
     console.error(
-      'Please specify one of the following options: mac, ubuntu, windows.exe',
+      'Please specify one of the following options: mac, linux, windows.exe',
     );
     process.exit(1);
   }
