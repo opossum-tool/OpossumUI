@@ -10,7 +10,7 @@ import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   BaseURLForRootArgs,
   ExportType,
-  FileSupportPopupArgs,
+  FileFormatInfo,
   IsLoadingArgs,
   Log,
   ParsedFileContent,
@@ -43,9 +43,9 @@ export type IsLoadingListener = (
   isLoadingArgs: IsLoadingArgs,
 ) => void;
 
-export type ShowFileSupportPopupListener = (
+export type ShowImportDialogListener = (
   event: IpcRendererEvent,
-  fileSupportPopupArgs: FileSupportPopupArgs,
+  fileFormat: FileFormatInfo,
 ) => void;
 
 export type Listener =
@@ -55,7 +55,7 @@ export type Listener =
   | ExportFileRequestListener
   | SetBaseURLForRootListener
   | IsLoadingListener
-  | ShowFileSupportPopupListener;
+  | ShowImportDialogListener;
 
 export function useIpcRenderer<T extends Listener>(
   channel: AllowedFrontendChannels,

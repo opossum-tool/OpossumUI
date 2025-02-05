@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, shell, WebContents } from 'electron';
 import fs from 'fs';
+import path from 'path';
 import upath from 'upath';
 import zlib from 'zlib';
 
@@ -17,20 +18,16 @@ import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
+  FileFormatInfo,
   OpenLinkArgs,
   PackageInfo,
   SaveFileArgs,
-  SendErrorInformationArgs,
 } from '../../shared/shared-types';
-import {
-  OPOSSUM_FILE_EXTENSION,
-  writeFile,
-  writeOpossumFile,
-} from '../../shared/write-file';
+import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { LoadedFileFormat } from '../enums/enums';
 import {
   createListenerCallbackWithErrorHandling,
-  getMessageBoxForErrors,
+  createVoidListenerCallbackWithErrorHandling,
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { serializeAttributions } from '../input/parseInputData';
@@ -39,14 +36,17 @@ import { writeSpdxFile } from '../output/writeSpdxFile';
 import { GlobalBackendState, OpossumOutputFile } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { getLoadedFileType } from '../utils/getLoadedFile';
-import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
-import { openFileDialog, selectBaseURLDialog } from './dialogs';
+import {
+  openNonOpossumFileDialog,
+  openOpossumFileDialog,
+  saveFileDialog,
+  selectBaseURLDialog,
+} from './dialogs';
 import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from './globalBackendState';
 import logger from './logger';
-import { activateMenuItems } from './menu';
 
 const outputFileEnding = '_attributions.json';
 const jsonGzipFileExtension = '.json.gz';
@@ -55,7 +55,7 @@ const jsonFileExtension = '.json';
 export function getSaveFileListener(
   mainWindow: BrowserWindow,
 ): (_: unknown, args: SaveFileArgs) => Promise<void> {
-  return createListenerCallbackWithErrorHandling(
+  return createVoidListenerCallbackWithErrorHandling(
     mainWindow,
     (_: unknown, args: SaveFileArgs) => {
       const globalBackendState = getGlobalBackendState();
@@ -103,43 +103,132 @@ async function writeOutputJsonToFile(
 
 export function getOpenFileListener(
   mainWindow: BrowserWindow,
+  onOpen: () => void,
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
-    const filePaths = openFileDialog();
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, async () => {
+    const filePaths = openOpossumFileDialog();
     if (!filePaths || filePaths.length < 1) {
       return;
     }
-    let filePath = filePaths[0];
+    const filePath = filePaths[0];
 
-    if (filePath.endsWith(outputFileEnding)) {
-      filePath = tryToGetInputFileFromOutputFile(filePath);
-    }
-
-    await handleOpeningFile(mainWindow, filePath);
+    await handleOpeningFile(mainWindow, filePath, onOpen);
   });
 }
 
 export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   filePath: string,
+  onOpen: () => void,
 ): Promise<void> {
-  const isOpossumFormat = isOpossumFileFormat(filePath);
   logger.info('Initializing global backend state');
-  initializeGlobalBackendState(filePath, isOpossumFormat);
+  initializeGlobalBackendState(filePath, true);
 
-  if (!isOpossumFormat) {
-    const dotOpossumFilePath = getDotOpossumFilePath(filePath);
-    if (fs.existsSync(dotOpossumFilePath)) {
-      initializeGlobalBackendState(dotOpossumFilePath, !isOpossumFormat);
-    }
-    mainWindow.webContents.send(AllowedFrontendChannels.ShowFileSupportPopup, {
-      showFileSupportPopup: true,
-      dotOpossumFileAlreadyExists: fs.existsSync(dotOpossumFilePath),
-    });
-    return;
-  }
+  await openFile(mainWindow, filePath, onOpen);
+}
 
-  await openFile(mainWindow, filePath);
+export function getImportFileListener(
+  mainWindow: BrowserWindow,
+  fileFormat: FileFormatInfo,
+): () => Promise<void> {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, () => {
+    mainWindow.webContents.send(
+      AllowedFrontendChannels.ImportFileShowDialog,
+      fileFormat,
+    );
+  });
+}
+
+export function getImportFileSelectInputListener(
+  mainWindow: BrowserWindow,
+): (
+  _: Electron.IpcMainInvokeEvent,
+  fileFormat: FileFormatInfo,
+) => Promise<string | null> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow,
+    (_: Electron.IpcMainInvokeEvent, fileFormat: FileFormatInfo) => {
+      const filePaths = openNonOpossumFileDialog(fileFormat);
+
+      // NOTE: explicitly checking filePaths.length creates issues in e2e tests
+      // because the mocked return value of the dialog is not an array but rather
+      // and object with number indices for some reason, so filePaths.length is
+      // undefined in e2e tests
+      return filePaths?.[0] || '';
+    },
+  );
+}
+
+export function getImportFileSelectSaveLocationListener(
+  mainWindow: BrowserWindow,
+): (
+  _: Electron.IpcMainInvokeEvent,
+  defaultPath: string,
+) => Promise<string | null> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow,
+    (_: Electron.IpcMainInvokeEvent, defaultPath: string) => {
+      const filePath = saveFileDialog(defaultPath);
+      return filePath ?? null;
+    },
+  );
+}
+
+export function getImportFileConvertAndLoadListener(
+  mainWindow: BrowserWindow,
+  onOpen: () => void,
+): (
+  _: Electron.IpcMainInvokeEvent,
+  resourceFilePath: string,
+  opossumFilePath: string,
+) => Promise<boolean | null> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow,
+    async (
+      _: Electron.IpcMainInvokeEvent,
+      resourceFilePath: string,
+      opossumFilePath: string,
+    ) => {
+      if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
+        logger.error('Input file does not exist');
+        return false;
+      }
+
+      if (!opossumFilePath.trim()) {
+        logger.error('No .opossum save location selected');
+        return false;
+      }
+
+      if (!opossumFilePath.endsWith('.opossum')) {
+        logger.error('Output file name must have .opossum extension');
+        return false;
+      }
+
+      if (!fs.existsSync(path.dirname(opossumFilePath))) {
+        logger.error('Output directory does not exist');
+        return false;
+      }
+
+      logger.info('Converting .json to .opossum format');
+
+      if (resourceFilePath.endsWith(outputFileEnding)) {
+        resourceFilePath = tryToGetInputFileFromOutputFile(resourceFilePath);
+      }
+
+      await writeOpossumFile({
+        path: opossumFilePath,
+        input: getInputJson(resourceFilePath),
+        output: getOutputJson(resourceFilePath),
+      });
+
+      logger.info('Updating global backend state');
+      initializeGlobalBackendState(opossumFilePath, true);
+
+      await openFile(mainWindow, opossumFilePath, onOpen, true);
+
+      return true;
+    },
+  );
 }
 
 function initializeGlobalBackendState(
@@ -169,19 +258,11 @@ function initializeGlobalBackendState(
   setGlobalBackendState(newGlobalBackendState);
 }
 
-export function getKeepFileListener(
-  mainWindow: BrowserWindow,
-): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
-    const filePath = getGlobalBackendState().resourceFilePath as string;
-    await openFile(mainWindow, filePath);
-  });
-}
-
 export function getDeleteAndCreateNewAttributionFileListener(
   mainWindow: BrowserWindow,
+  onOpen: () => void,
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, async () => {
     const globalBackendState = getGlobalBackendState();
     const resourceFilePath = globalBackendState.resourceFilePath as string;
 
@@ -195,14 +276,14 @@ export function getDeleteAndCreateNewAttributionFileListener(
         `Failed to delete output file. Attribution file path is incorrect: ${globalBackendState.attributionFilePath}`,
       );
     }
-    await openFile(mainWindow, resourceFilePath);
+    await openFile(mainWindow, resourceFilePath, onOpen);
   });
 }
 
 export function getSelectBaseURLListener(
   mainWindow: BrowserWindow,
 ): () => void {
-  return createListenerCallbackWithErrorHandling(mainWindow, () => {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, () => {
     const baseURLs = selectBaseURLDialog();
     if (!baseURLs || baseURLs.length < 1) {
       return;
@@ -234,15 +315,21 @@ function tryToGetInputFileFromOutputFile(filePath: string): string {
 export async function openFile(
   mainWindow: BrowserWindow,
   filePath: string,
+  onOpen: () => void,
+  isImport?: boolean,
 ): Promise<void> {
-  setLoadingState(mainWindow.webContents, true);
+  if (!isImport) {
+    setLoadingState(mainWindow.webContents, true);
+  }
 
   try {
     await loadInputAndOutputFromFilePath(mainWindow, filePath);
     setTitle(mainWindow, filePath);
-    activateMenuItems();
+    onOpen();
   } finally {
-    setLoadingState(mainWindow.webContents, false);
+    if (!isImport) {
+      setLoadingState(mainWindow.webContents, false);
+    }
   }
 }
 
@@ -257,20 +344,6 @@ function setTitle(mainWindow: BrowserWindow, filePath: string): void {
   );
 }
 
-export function getSendErrorInformationListener(
-  mainWindow: BrowserWindow,
-): (_: unknown, args: SendErrorInformationArgs) => Promise<void> {
-  return async (_, args: SendErrorInformationArgs): Promise<void> => {
-    logger.error(args.error.message + args.errorInfo.componentStack);
-    await getMessageBoxForErrors(
-      args.error.message,
-      args.errorInfo.componentStack,
-      mainWindow,
-      false,
-    );
-  };
-}
-
 export function linkHasHttpSchema(link: string): boolean {
   const url = new URL(link);
   return url.protocol === 'https:' || url.protocol === 'http:';
@@ -283,6 +356,7 @@ export function getOpenLinkListener(): (
   return async (_, args: OpenLinkArgs): Promise<Error | void> => {
     try {
       if (!linkHasHttpSchema(args.link)) {
+        // noinspection ExceptionCaughtLocallyJS
         throw new Error(`Invalid URL ${args.link}`);
       }
       // Does not throw on Linux if link cannot be opened.
@@ -378,7 +452,7 @@ export function exportFile(mainWindow: BrowserWindow) {
 export function getExportFileListener(
   mainWindow: BrowserWindow,
 ): (_: unknown, args: ExportArgsType) => Promise<void> {
-  return createListenerCallbackWithErrorHandling(
+  return createVoidListenerCallbackWithErrorHandling(
     mainWindow,
     exportFile(mainWindow),
   );
@@ -457,50 +531,6 @@ export function setLoadingState(
   });
 }
 
-export function getConvertInputFileToDotOpossumAndOpenListener(
-  mainWindow: BrowserWindow,
-): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
-    logger.info('Converting .json to .opossum format');
-
-    const isOpossumFormat = true;
-    const globalBackendState = getGlobalBackendState();
-    const resourceFilePath = globalBackendState.resourceFilePath;
-
-    if (!resourceFilePath) {
-      throw new Error(`Resource file path is invalid: ${resourceFilePath}`);
-    }
-
-    const dotOpossumFilePath = getDotOpossumFilePath(resourceFilePath);
-
-    await writeOpossumFile({
-      path: dotOpossumFilePath,
-      input: getInputJson(resourceFilePath),
-      output: getOutputJson(resourceFilePath),
-    });
-
-    logger.info('Updating global backend state');
-    initializeGlobalBackendState(dotOpossumFilePath, isOpossumFormat);
-
-    await openFile(mainWindow, dotOpossumFilePath);
-  });
-}
-
-function getDotOpossumFilePath(resourceFilePath: string): string {
-  let fileExtension: string;
-  if (resourceFilePath.endsWith(jsonGzipFileExtension)) {
-    fileExtension = jsonGzipFileExtension;
-  } else {
-    fileExtension = jsonFileExtension;
-  }
-  const resourceFilePathWithoutFileExtension = resourceFilePath.slice(
-    0,
-    -fileExtension.length,
-  );
-
-  return resourceFilePathWithoutFileExtension + OPOSSUM_FILE_EXTENSION;
-}
-
 function getInputJson(resourceFilePath: string): string {
   let inputJson: string;
   if (resourceFilePath.endsWith(jsonGzipFileExtension)) {
@@ -527,17 +557,4 @@ function getOutputJson(resourceFilePath: string): string | undefined {
   }
 
   return undefined;
-}
-
-export function getOpenDotOpossumFileInsteadListener(
-  mainWindow: BrowserWindow,
-): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
-    const globalBackendState = getGlobalBackendState();
-    const opossumFilePath = globalBackendState.opossumFilePath;
-    if (!opossumFilePath) {
-      throw new Error(`Resource file path is invalid: ${opossumFilePath}`);
-    }
-    await openFile(mainWindow, opossumFilePath);
-  });
 }

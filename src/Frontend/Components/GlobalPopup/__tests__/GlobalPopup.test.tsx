@@ -43,24 +43,6 @@ describe('The GlobalPopUp', () => {
     expect(screen.getByText('Project Statistics')).toBeInTheDocument();
   });
 
-  it('opens the FileSupportPopup', () => {
-    renderComponent(<GlobalPopup />, {
-      actions: [openPopup(PopupType.FileSupportPopup)],
-    });
-
-    const header = 'Warning: Outdated input file format';
-    expect(screen.getByText(header)).toBeInTheDocument();
-  });
-
-  it('opens the FileSupportDotOpossumAlreadyExistsPopup', () => {
-    renderComponent(<GlobalPopup />, {
-      actions: [openPopup(PopupType.FileSupportDotOpossumAlreadyExistsPopup)],
-    });
-
-    const header = 'Warning: Outdated input file format';
-    expect(screen.getByText(header)).toBeInTheDocument();
-  });
-
   it('opens the UpdateAppPopup', () => {
     renderComponent(<GlobalPopup />, {
       actions: [openPopup(PopupType.UpdateAppPopup)],

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Criticality } from '../../shared/shared-types';
+import { Criticality, FileFormatInfo } from '../../shared/shared-types';
 import { PopupType } from '../enums/enums';
 import { ResourceState } from '../state/reducers/resource-reducer';
 import { VariablesState } from '../state/reducers/variables-reducer';
@@ -30,6 +30,7 @@ export interface ProgressBarData {
 export interface PopupInfo {
   popup: PopupType;
   attributionId?: string;
+  fileFormat?: FileFormatInfo;
 }
 
 export interface PieChartData {

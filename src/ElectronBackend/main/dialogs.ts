@@ -4,18 +4,44 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog } from 'electron';
 
-export function openFileDialog(): Array<string> | undefined {
+import { FileFormatInfo } from '../../shared/shared-types';
+
+function openFileDialog(
+  filters: Array<Electron.FileFilter>,
+): Array<string> | undefined {
   const window = BrowserWindow.getFocusedWindow();
   return window
     ? dialog.showOpenDialogSync(window, {
         properties: ['openFile'],
-        filters: [
-          {
-            name: 'Opossum Input File',
-            extensions: ['json', 'json.gz', 'opossum'],
-          },
-        ],
+        filters,
       })
+    : undefined;
+}
+
+export function openOpossumFileDialog(): Array<string> | undefined {
+  return openFileDialog([
+    {
+      name: 'Opossum File',
+      extensions: ['opossum'],
+    },
+  ]);
+}
+
+export function openNonOpossumFileDialog(
+  fileFormat: FileFormatInfo,
+): Array<string> | undefined {
+  return openFileDialog([
+    {
+      name: `${fileFormat.name}s (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+      extensions: fileFormat.extensions,
+    },
+  ]);
+}
+
+export function saveFileDialog(defaultPath?: string): string | undefined {
+  const window = BrowserWindow.getFocusedWindow();
+  return window
+    ? dialog.showSaveDialogSync(window, { defaultPath })
     : undefined;
 }
 

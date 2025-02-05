@@ -9,17 +9,16 @@ import { IpcChannel } from '../../shared/ipc-channels';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow } from './createWindow';
 import {
-  getConvertInputFileToDotOpossumAndOpenListener,
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
-  getKeepFileListener,
-  getOpenDotOpossumFileInsteadListener,
+  getImportFileConvertAndLoadListener,
+  getImportFileSelectInputListener,
+  getImportFileSelectSaveLocationListener,
   getOpenFileListener,
   getOpenLinkListener,
   getSaveFileListener,
-  getSendErrorInformationListener,
 } from './listeners';
-import { createMenu } from './menu';
+import { activateMenuItems, createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { UserSettings } from './user-settings';
 
@@ -65,23 +64,28 @@ export async function main(): Promise<void> {
       mainWindow.reload();
     });
     ipcMain.handle(
-      IpcChannel.ConvertInputFile,
-      getConvertInputFileToDotOpossumAndOpenListener(mainWindow),
+      IpcChannel.OpenFile,
+      getOpenFileListener(mainWindow, activateMenuItems),
     );
     ipcMain.handle(
-      IpcChannel.OpenDotOpossumFile,
-      getOpenDotOpossumFileInsteadListener(mainWindow),
+      IpcChannel.ImportFileSelectInput,
+      getImportFileSelectInputListener(mainWindow),
     );
-    ipcMain.handle(IpcChannel.OpenFile, getOpenFileListener(mainWindow));
+    ipcMain.handle(
+      IpcChannel.ImportFileSelectSaveLocation,
+      getImportFileSelectSaveLocationListener(mainWindow),
+    );
+    ipcMain.handle(
+      IpcChannel.ImportFileConvertAndLoad,
+      getImportFileConvertAndLoadListener(mainWindow, activateMenuItems),
+    );
     ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.DeleteFile,
-      getDeleteAndCreateNewAttributionFileListener(mainWindow),
-    );
-    ipcMain.handle(IpcChannel.KeepFile, getKeepFileListener(mainWindow));
-    ipcMain.handle(
-      IpcChannel.SendErrorInformation,
-      getSendErrorInformationListener(mainWindow),
+      getDeleteAndCreateNewAttributionFileListener(
+        mainWindow,
+        activateMenuItems,
+      ),
     );
     ipcMain.handle(IpcChannel.ExportFile, getExportFileListener(mainWindow));
     ipcMain.handle(IpcChannel.OpenLink, getOpenLinkListener());

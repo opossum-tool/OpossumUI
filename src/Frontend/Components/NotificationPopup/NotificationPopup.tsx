@@ -71,6 +71,7 @@ export function NotificationPopup(props: NotificationPopupProps) {
             onClick={props.leftButtonConfig.onClick}
             color={props.leftButtonConfig.color}
             disabled={props.leftButtonConfig.disabled}
+            loading={props.leftButtonConfig.loading}
           >
             {props.leftButtonConfig.buttonText}
           </MuiButton>
@@ -81,6 +82,7 @@ export function NotificationPopup(props: NotificationPopupProps) {
             onClick={props.centerLeftButtonConfig.onClick}
             color={props.centerLeftButtonConfig.color}
             disabled={props.centerLeftButtonConfig.disabled}
+            loading={props.centerLeftButtonConfig.loading}
           >
             {props.centerLeftButtonConfig.buttonText}
           </MuiButton>
@@ -91,6 +93,7 @@ export function NotificationPopup(props: NotificationPopupProps) {
             onClick={props.centerRightButtonConfig.onClick}
             color={props.centerRightButtonConfig.color}
             disabled={props.centerRightButtonConfig.disabled}
+            loading={props.centerRightButtonConfig.loading}
           >
             {props.centerRightButtonConfig.buttonText}
           </MuiButton>
@@ -101,6 +104,7 @@ export function NotificationPopup(props: NotificationPopupProps) {
             onClick={props.rightButtonConfig.onClick}
             color={props.rightButtonConfig.color}
             disabled={props.rightButtonConfig.disabled}
+            loading={props.rightButtonConfig.loading}
           >
             {props.rightButtonConfig.buttonText}
           </MuiButton>

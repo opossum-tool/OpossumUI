@@ -44,6 +44,7 @@ describe('openFileFromCli', () => {
       expect(mockHandleOpeningFile).toHaveBeenCalledWith([
         'mockBrowserWindow',
         inputFileName,
+        expect.anything(),
       ]);
 
       process.argv = oldProcessArgv;
@@ -96,6 +97,7 @@ describe('openFileFromEnvVariable', () => {
     expect(mockHandleOpeningFile).toHaveBeenCalledWith([
       'mockBrowserWindow',
       inputFileName,
+      expect.anything(),
     ]);
   });
 
@@ -121,6 +123,7 @@ describe('openFileFromEnvVariable', () => {
     expect(mockHandleOpeningFile).toHaveBeenCalledWith([
       'mockBrowserWindow',
       inputFileName,
+      expect.anything(),
     ]);
   });
 });

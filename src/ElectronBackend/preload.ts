@@ -13,13 +13,16 @@ const electronAPI: ElectronAPI = {
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
   openFile: () => ipcRenderer.invoke(IpcChannel.OpenFile),
-  deleteFile: () => ipcRenderer.invoke(IpcChannel.DeleteFile),
-  keepFile: () => ipcRenderer.invoke(IpcChannel.KeepFile),
-  convertInputFileToDotOpossum: () =>
-    ipcRenderer.invoke(IpcChannel.ConvertInputFile),
-  openDotOpossumFile: () => ipcRenderer.invoke(IpcChannel.OpenDotOpossumFile),
-  sendErrorInformation: (errorInformationArgs) =>
-    ipcRenderer.invoke(IpcChannel.SendErrorInformation, errorInformationArgs),
+  importFileSelectInput: (fileFormat) =>
+    ipcRenderer.invoke(IpcChannel.ImportFileSelectInput, fileFormat),
+  importFileSelectSaveLocation: (defaultPath) =>
+    ipcRenderer.invoke(IpcChannel.ImportFileSelectSaveLocation, defaultPath),
+  importFileConvertAndLoad: (inputFilePath, opossumFilePath) =>
+    ipcRenderer.invoke(
+      IpcChannel.ImportFileConvertAndLoad,
+      inputFilePath,
+      opossumFilePath,
+    ),
   exportFile: (args) => ipcRenderer.invoke(IpcChannel.ExportFile, args),
   saveFile: (saveFileArgs) =>
     ipcRenderer.invoke(IpcChannel.SaveFile, saveFileArgs),

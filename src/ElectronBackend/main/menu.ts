@@ -6,7 +6,7 @@
 import { app, BrowserWindow, Menu, shell } from 'electron';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import { ExportType } from '../../shared/shared-types';
+import { ExportType, FileFormatInfo } from '../../shared/shared-types';
 import { isFileLoaded } from '../utils/getLoadedFile';
 import { getGlobalBackendState } from './globalBackendState';
 import {
@@ -14,6 +14,7 @@ import {
   makeFirstIconVisibleAndSecondHidden,
 } from './iconHelpers';
 import {
+  getImportFileListener,
   getOpenFileListener,
   getSelectBaseURLListener,
   setLoadingState,
@@ -80,6 +81,13 @@ const INITIALLY_DISABLED_ITEMS_INFO: Record<
   },
 };
 
+export const importFileFormats: Array<FileFormatInfo> = [
+  {
+    name: 'Legacy Opossum File',
+    extensions: ['json', 'json.gz'],
+  },
+];
+
 export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
   const webContents = mainWindow.webContents;
   const qaMode = await UserSettings.get('qaMode');
@@ -95,9 +103,18 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           ),
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
-          click: () => {
-            void getOpenFileListener(mainWindow)();
-          },
+          click: getOpenFileListener(mainWindow, activateMenuItems),
+        },
+        {
+          icon: getIconBasedOnTheme(
+            'icons/import-white.png',
+            'icons/import-black.png',
+          ),
+          label: 'Import File',
+          submenu: importFileFormats.map((fileFormat) => ({
+            label: `${fileFormat.name} (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+            click: getImportFileListener(mainWindow, fileFormat),
+          })),
         },
         {
           icon: getIconBasedOnTheme(

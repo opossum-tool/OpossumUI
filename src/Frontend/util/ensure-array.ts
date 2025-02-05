@@ -7,5 +7,8 @@ export function ensureArray<T>(elementOrArray: T | Array<T>): Array<T> {
   if (Array.isArray(elementOrArray)) {
     return elementOrArray;
   }
+  if (elementOrArray === undefined) {
+    return [];
+  }
   return [elementOrArray];
 }

@@ -229,9 +229,9 @@ export interface ExternalAttributionSources {
   [source: string]: ExternalAttributionSource;
 }
 
-export interface FileSupportPopupArgs {
-  showFileSupportPopup: boolean;
-  dotOpossumFileAlreadyExists: boolean;
+export interface FileFormatInfo {
+  name: string;
+  extensions: Array<string>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -242,13 +242,12 @@ export interface ElectronAPI {
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: () => Promise<unknown>;
-  deleteFile: () => Promise<unknown>;
-  keepFile: () => Promise<unknown>;
-  convertInputFileToDotOpossum: () => void;
-  openDotOpossumFile: () => void;
-  sendErrorInformation: (
-    errorInformationArgs: SendErrorInformationArgs,
-  ) => void;
+  importFileSelectInput: (fileFormat: FileFormatInfo) => Promise<string | null>;
+  importFileSelectSaveLocation: (defaultPath: string) => Promise<string | null>;
+  importFileConvertAndLoad: (
+    inputFilePath: string,
+    opossumFilePath: string,
+  ) => Promise<boolean | null>;
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;

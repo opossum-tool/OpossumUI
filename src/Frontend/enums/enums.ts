@@ -10,8 +10,6 @@ export enum View {
 }
 
 export enum PopupType {
-  FileSupportDotOpossumAlreadyExistsPopup = 'FileSupportDotOpossumAlreadyExistsPopup',
-  FileSupportPopup = 'FileSupportPopup',
   InvalidLinkPopup = 'InvalidLinkPopup',
   NotSavedPopup = 'NotSavedPopup',
   ProjectMetadataPopup = 'ProjectMetadataPopup',
@@ -21,10 +19,7 @@ export enum PopupType {
 
 export enum ButtonText {
   Close = 'Close',
-  CreateAndProceed = 'Create and proceed',
   Delete = 'Delete',
-  Keep = 'Keep',
-  OpenDotOpossumFile = 'Open ".opossum" file',
 }
 
 export enum ProjectStatisticsPopupTitle {
@@ -35,12 +30,6 @@ export enum ProjectStatisticsPopupTitle {
   MostFrequentLicenseCountPieChart = 'Most Frequent Licenses',
   CriticalSignalsCountPieChart = 'Signals by Criticality',
   IncompleteLicensesPieChart = 'Incomplete Attributions',
-}
-
-export enum CriticalityTypes {
-  HighCriticality = 'High',
-  MediumCriticality = 'Medium',
-  AnyCriticality = 'Any',
 }
 
 export enum PieChartCriticalityNames {

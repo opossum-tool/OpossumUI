@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { FileFormatInfo } from '../../../../shared/shared-types';
 import { PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';
@@ -63,12 +64,14 @@ export function setTargetView(targetView: View | null): SetTargetView {
 export function openPopup(
   popup: PopupType,
   attributionId?: string,
+  fileFormat?: FileFormatInfo,
 ): OpenPopupAction {
   return {
     type: ACTION_OPEN_POPUP,
     payload: {
       popup,
       attributionId,
+      fileFormat,
     },
   };
 }

@@ -6,16 +6,15 @@
 import { PopupType } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
+import { PopupInfo } from '../../types/types';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
-import { FileSupportDotOpossumAlreadyExistsPopup } from '../FileSupportDotOpossumAlreadyExistsPopup/FileSupportDotOpossumAlreadyExistsPopup';
-import { FileSupportPopup } from '../FileSupportPopup/FileSupportPopup';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
 import { UpdateAppPopup } from '../UpdateAppPopup/UpdateAppPopup';
 
-function getPopupComponent(popupType: PopupType | null) {
-  switch (popupType) {
+function getPopupComponent(popupInfo: PopupInfo | null) {
+  switch (popupInfo?.popup) {
     case PopupType.NotSavedPopup:
       return <NotSavedPopup />;
     case PopupType.InvalidLinkPopup:
@@ -24,18 +23,18 @@ function getPopupComponent(popupType: PopupType | null) {
       return <ProjectMetadataPopup />;
     case PopupType.ProjectStatisticsPopup:
       return <ProjectStatisticsPopup />;
-    case PopupType.FileSupportPopup:
-      return <FileSupportPopup />;
-    case PopupType.FileSupportDotOpossumAlreadyExistsPopup:
-      return <FileSupportDotOpossumAlreadyExistsPopup />;
     case PopupType.UpdateAppPopup:
       return <UpdateAppPopup />;
-    case null:
+    default:
       return null;
   }
 }
 
+/**
+ * @deprecated GlobalPopup is a deprecated mechanism for managing popups.
+ * Do not use this for new popups!
+ */
 export const GlobalPopup: React.FC = () => {
-  const openPopupType = useAppSelector(getOpenPopup);
-  return getPopupComponent(openPopupType);
+  const openPopupInfo = useAppSelector(getOpenPopup);
+  return getPopupComponent(openPopupInfo);
 };

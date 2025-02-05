@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
-import { strFromU8, unzip } from 'fflate';
 import fs from 'fs';
 
 import {
@@ -23,20 +22,24 @@ import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
 import { createWindow } from '../createWindow';
-import { openFileDialog, selectBaseURLDialog } from '../dialogs';
+import {
+  openNonOpossumFileDialog,
+  saveFileDialog,
+  selectBaseURLDialog,
+} from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   exportFile,
-  getConvertInputFileToDotOpossumAndOpenListener,
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
-  getKeepFileListener,
-  getOpenDotOpossumFileInsteadListener,
-  getOpenFileListener,
+  getImportFileListener,
+  getImportFileSelectInputListener,
+  getImportFileSelectSaveLocationListener,
   getOpenLinkListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
 } from '../listeners';
+import { importFileFormats } from '../menu';
 
 jest.mock('electron', () => ({
   app: {
@@ -99,201 +102,11 @@ jest.mock('../../input/importFromFile', () => ({
 }));
 
 jest.mock('../dialogs', () => ({
-  openFileDialog: jest.fn(),
+  openOpossumFileDialog: jest.fn(),
+  openNonOpossumFileDialog: jest.fn(),
+  saveFileDialog: jest.fn(),
   selectBaseURLDialog: jest.fn(),
 }));
-
-describe('getOpenFileListener', () => {
-  it('sends signal for opening FileSupportPopup to frontend when .opossum file is not existent', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const jsonPath = await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${faker.string.uuid()}.json`),
-    });
-
-    (openFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
-
-    await getOpenFileListener(mainWindow)();
-
-    expect(openFileDialog).toHaveBeenCalled();
-    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
-    );
-  });
-
-  it('sends signal for opening FileSupportPopupDotOpossumExistent to frontend when .opossum file exists', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const fileName = faker.string.uuid();
-    const jsonPath = await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${fileName}.json`),
-    });
-    await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${fileName}.opossum`),
-    });
-
-    (openFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
-
-    await getOpenFileListener(mainWindow)();
-
-    expect(openFileDialog).toHaveBeenCalled();
-    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: true },
-    );
-  });
-
-  it('handles _attributions.json files correctly if .json present', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const fileName = faker.string.uuid();
-    await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${fileName}.json`),
-    });
-
-    (openFileDialog as jest.Mock).mockReturnValueOnce([
-      faker.outputPath(`${fileName}_attributions.json`),
-    ]);
-
-    await getOpenFileListener(mainWindow)();
-
-    expect(openFileDialog).toHaveBeenCalled();
-    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
-    );
-  });
-
-  it('handles _attributions.json files correctly if .json.gz present', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const fileName = faker.string.uuid();
-    await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${fileName}.json.gz`),
-    });
-
-    (openFileDialog as jest.Mock).mockReturnValueOnce([
-      faker.outputPath(`${fileName}_attributions.json`),
-    ]);
-
-    await getOpenFileListener(mainWindow)();
-
-    expect(openFileDialog).toHaveBeenCalled();
-    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
-    );
-  });
-});
-
-describe('getConvertInputFileToDotOpossumListener', () => {
-  it('converts outdated input file formats correctly and loads .opossum', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const fileName = faker.string.uuid();
-    const resourcesJson = faker.string.sample();
-    const attributionsJson = faker.string.sample();
-    const expectedDotOpossumFilePath = faker.outputPath(`${fileName}.opossum`);
-
-    const resourcesJsonPath = await writeFile({
-      content: resourcesJson,
-      path: faker.outputPath(`${fileName}.json`),
-    });
-    await writeFile({
-      content: attributionsJson,
-      path: faker.outputPath(`${fileName}_attributions.json`),
-    });
-
-    setGlobalBackendState({
-      resourceFilePath: resourcesJsonPath,
-    });
-
-    await getConvertInputFileToDotOpossumAndOpenListener(mainWindow)();
-
-    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-      expect.anything(),
-      expectedDotOpossumFilePath,
-    );
-
-    let parsedInputJson: unknown;
-    let parsedOutputJson: unknown;
-
-    await new Promise<void>((resolve) => {
-      fs.readFile(expectedDotOpossumFilePath, (err, data) => {
-        if (err) {
-          throw err;
-        }
-
-        unzip(data, (err, unzippedData) => {
-          if (err) {
-            throw err;
-          }
-          parsedInputJson = strFromU8(unzippedData['input.json']);
-          parsedOutputJson = strFromU8(unzippedData['output.json']);
-
-          resolve();
-        });
-      });
-    });
-
-    expect(parsedInputJson).toEqual(resourcesJson);
-    expect(parsedOutputJson).toEqual(attributionsJson);
-  });
-});
-
-describe('getOpenDotOpossumFileListener', () => {
-  it('opens .opossum file', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const opossumFilePath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-    setGlobalBackendState({
-      opossumFilePath,
-    });
-
-    await getOpenDotOpossumFileInsteadListener(mainWindow)();
-
-    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-      expect.anything(),
-      opossumFilePath,
-    );
-  });
-});
 
 describe('getDeleteAndCreateNewAttributionFileListener', () => {
   it('deletes attribution file and calls loadInputAndOutputFromFilePath', async () => {
@@ -316,34 +129,12 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
       attributionFilePath: jsonPath,
     });
 
-    await getDeleteAndCreateNewAttributionFileListener(mainWindow)();
+    await getDeleteAndCreateNewAttributionFileListener(mainWindow, () => {})();
 
     expect(fs.existsSync(jsonPath)).toBeFalsy();
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
       resourceFilePath,
-    );
-  });
-});
-
-describe('getKeepFileListener', () => {
-  it('calls loadInputAndOutputFromFilePath with a correct path', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    setGlobalBackendState({
-      resourceFilePath: '/somefile.json',
-    });
-
-    await getKeepFileListener(mainWindow)();
-
-    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-      expect.anything(),
-      '/somefile.json',
     );
   });
 });
@@ -373,7 +164,7 @@ describe('getSelectBaseURLListener', () => {
 
 describe('getExportFollowUpListener', () => {
   it('throws error when followUpFilePath is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.FollowUp,
@@ -391,7 +182,7 @@ describe('getExportFollowUpListener', () => {
   });
 
   it('calls getExportFollowUpListener', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     setGlobalBackendState({
       followUpFilePath: '/somefile.csv',
     });
@@ -436,7 +227,7 @@ describe('getExportFollowUpListener', () => {
 
 describe('getExportBomListener', () => {
   it('throws error when bomFilePath is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.CompactBom,
@@ -454,7 +245,7 @@ describe('getExportBomListener', () => {
   });
 
   it('calls getExportBomListener for compact bom', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     const listener = getExportFileListener(mainWindow);
 
@@ -489,7 +280,7 @@ describe('getExportBomListener', () => {
   });
 
   it('calls getExportBomListener for detailed bom', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     const listener = getExportFileListener(mainWindow);
 
@@ -539,7 +330,7 @@ describe('getExportBomListener', () => {
 
 describe('getExportSpdxDocumentListener', () => {
   it('throws if path is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
 
     await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.SpdxDocumentYaml,
@@ -557,7 +348,7 @@ describe('getExportSpdxDocumentListener', () => {
   });
 
   it('calls getExportSpdxDocumentListener for yaml', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     const testArgs: ExportSpdxDocumentYamlArgs = {
       type: ExportType.SpdxDocumentYaml,
       spdxAttributions: {},
@@ -573,7 +364,7 @@ describe('getExportSpdxDocumentListener', () => {
   });
 
   it('calls getExportSpdxDocumentListener for json', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     const testArgs: ExportSpdxDocumentJsonArgs = {
       type: ExportType.SpdxDocumentJson,
       spdxAttributions: {},
@@ -602,7 +393,7 @@ describe('getOpenLinkListener', () => {
 
 describe('_exportFileAndOpenFolder', () => {
   it('calls the createFile function', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     const testSpdxDocumentYamlFilePath = '/some/path.json';
     setGlobalBackendState({ spdxYamlFilePath: testSpdxDocumentYamlFilePath });
     const testArgs: ExportSpdxDocumentYamlArgs = {
@@ -623,7 +414,7 @@ describe('_exportFileAndOpenFolder', () => {
   });
 
   it('throws if outputFilePath is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpit();
+    const mainWindow = await initWindowAndBackendState();
     setGlobalBackendState({ spdxYamlFilePath: undefined });
     const testArgs: ExportSpdxDocumentYamlArgs = {
       type: ExportType.SpdxDocumentYaml,
@@ -638,7 +429,102 @@ describe('_exportFileAndOpenFolder', () => {
   });
 });
 
-function prepareBomSPdxAndFollowUpit(): Promise<BrowserWindow> {
+describe('getImportFileListener', () => {
+  it('sends an IPC message on the ImportFileShowDialog channel', async () => {
+    const mainWindow = await initWindowAndBackendState();
+
+    const fileFormat = importFileFormats[0];
+
+    const listener = getImportFileListener(mainWindow, fileFormat);
+
+    await listener();
+
+    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ImportFileShowDialog,
+      fileFormat,
+    );
+  });
+});
+
+describe('getImportFileSelectInputListener', () => {
+  it('returns file path selected by user', async () => {
+    const mainWindow = await initWindowAndBackendState();
+    const fileFormat = importFileFormats[0];
+    const selectedFilePath = '/home/input.json';
+
+    const listener = getImportFileSelectInputListener(mainWindow);
+
+    jest.mocked(openNonOpossumFileDialog).mockReturnValue([selectedFilePath]);
+
+    const returnedFilePath = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      fileFormat,
+    );
+
+    expect(returnedFilePath).toBe(selectedFilePath);
+  });
+
+  it('returns an empty string when no file was selected', async () => {
+    const mainWindow = await initWindowAndBackendState();
+    const fileFormat = importFileFormats[0];
+
+    const listener = getImportFileSelectInputListener(mainWindow);
+
+    jest
+      .mocked(openNonOpossumFileDialog)
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce(undefined);
+
+    const returnedFilePath1 = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      fileFormat,
+    );
+    const returnedFilePath2 = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      fileFormat,
+    );
+
+    expect(returnedFilePath1).toBe('');
+    expect(returnedFilePath2).toBe('');
+  });
+});
+
+describe('getImportFileSelectSaveLocationListener', () => {
+  it('calls saveFileDialog and returns received file path', async () => {
+    const mainWindow = await initWindowAndBackendState();
+    const defaultPath = '/home';
+    const selectedFilePath = '/home/input.opossum';
+
+    const listener = getImportFileSelectSaveLocationListener(mainWindow);
+
+    jest.mocked(saveFileDialog).mockReturnValue(selectedFilePath);
+
+    const returnedFilePath = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      defaultPath,
+    );
+
+    expect(saveFileDialog).toHaveBeenCalledWith(defaultPath);
+    expect(returnedFilePath).toBe(selectedFilePath);
+  });
+
+  it('returns null when no save location was selected', async () => {
+    const mainWindow = await initWindowAndBackendState();
+
+    const listener = getImportFileSelectSaveLocationListener(mainWindow);
+
+    jest.mocked(saveFileDialog).mockReturnValue(undefined);
+
+    const returnedFilePath = await listener(
+      {} as Electron.IpcMainInvokeEvent,
+      '',
+    );
+
+    expect(returnedFilePath).toBeNull();
+  });
+});
+
+function initWindowAndBackendState(): Promise<BrowserWindow> {
   (writeCsvToFile as jest.Mock).mockReset();
   setGlobalBackendState({});
 
