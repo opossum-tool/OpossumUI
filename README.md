@@ -92,7 +92,31 @@ Download the latest release for your OS from [GitHub](https://github.com/opossum
 
 #### Linux
 
-Run the executable _OpossumUI-for-linux.AppImage_
+#### AppImage
+
+Run the executable _OpossumUI-for-linux.AppImage_.
+
+Note that for ubuntu versions 22.04+ you will run into a sandboxing issue with app images (see this [electron github issue](https://github.com/electron/electron/issues/41066) for details). This can be circumvented by opening the application with the `--no-sandbox` flag:
+
+```shell
+./OpossumUI-for-linux.AppImage --no-sandbox
+```
+
+#### snap
+
+Install the snap file locally using
+
+```shell
+snap install ./OpossumUI-for-linux.snap --dangerous
+```
+
+Open Opossum UI via the start menu of your distribution (should be in the `development` category) or by running
+
+```shell
+opossum-ui
+```
+
+from the command line
 
 #### macOS
 
