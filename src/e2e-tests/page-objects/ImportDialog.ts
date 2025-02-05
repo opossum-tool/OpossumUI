@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page, TestInfo } from '@playwright/test';
+import * as path from 'path';
 
 export class ImportDialog {
   private readonly node: Locator;
@@ -34,7 +35,7 @@ export class ImportDialog {
     this.errorIcon = this.node.getByTestId('ErrorIcon').locator('path');
 
     this.legacyFilePath = info.outputPath(`${legacyFilename}.json`);
-    this.scancodeFilePath = 'scancode.json';
+    this.scancodeFilePath = path.resolve(__dirname, '..', 'scancode.json');
   }
 
   public assert = {
