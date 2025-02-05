@@ -5,8 +5,6 @@
 import { BrowserWindow } from 'electron';
 import log from 'electron-log';
 
-import { convertScancodeToOpossum } from '../opossum-file/convertScancodeToOpossum';
-import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { handleOpeningFile } from './listeners';
 import { activateMenuItems } from './menu';
 
@@ -16,11 +14,7 @@ export async function openFileFromCliOrEnvVariableIfProvided(
   let inputFileName: string | null = null;
 
   function fileHasValidEnding(arg: string): boolean {
-    return (
-      arg.endsWith('.json') ||
-      arg.endsWith('.json.gz') ||
-      arg.endsWith('.opossum')
-    );
+    return arg.endsWith('.opossum');
   }
 
   for (const arg of process.argv) {
@@ -40,19 +34,6 @@ export async function openFileFromCliOrEnvVariableIfProvided(
           'Opening OpossumUI without loading a file.',
       );
     }
-  }
-
-  const inputScanCodeFileFromEnvVariable: string | undefined =
-    process.env.SCANCODE_JSON;
-  if (!inputFileName && inputScanCodeFileFromEnvVariable) {
-    inputFileName = getFilePathWithAppendix(
-      inputScanCodeFileFromEnvVariable,
-      '.opossum',
-    );
-    await convertScancodeToOpossum(
-      inputScanCodeFileFromEnvVariable,
-      inputFileName,
-    );
   }
 
   if (inputFileName) {
