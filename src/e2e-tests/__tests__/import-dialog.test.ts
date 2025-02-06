@@ -83,6 +83,7 @@ test('imports scancode file', async ({
 
   await importDialog.inputFileSelection.click();
   await importDialog.opossumFileSelection.click();
+  await importDialog.cancelButton.hover();
   await importDialog.importButton.click();
 
   await importDialog.assert.titleIsHidden();
