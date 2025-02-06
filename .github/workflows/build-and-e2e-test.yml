@@ -27,7 +27,7 @@ jobs:
           - os: ubuntu-latest
             # https://github.com/microsoft/playwright/issues/11932
             E2E: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e:ci
-          - os: macos-13
+          - os: macos-latest
             E2E: yarn test:e2e:ci
           - os: windows-latest
             E2E: yarn test:e2e:ci
