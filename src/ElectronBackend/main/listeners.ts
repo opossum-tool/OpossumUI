@@ -32,7 +32,7 @@ import {
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { serializeAttributions } from '../input/parseInputData';
-// import { convertScancodeToOpossum } from '../opossum-file/convertScancodeToOpossum';
+import { convertScancodeToOpossum } from '../opossum-file/convertScancodeToOpossum';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import { GlobalBackendState, OpossumOutputFile } from '../types/types';
@@ -228,7 +228,7 @@ export function getImportFileConvertAndLoadListener(
           });
           break;
         case FileType.SCANCODE_JSON:
-          // await convertScancodeToOpossum(resourceFilePath, opossumFilePath);
+          await convertScancodeToOpossum(resourceFilePath, opossumFilePath);
           break;
       }
 

@@ -22,21 +22,23 @@ async function reportListenerError(
   error: unknown,
 ): Promise<void> {
   if (error instanceof Error) {
-    logger.info(`Failed executing callback function: ${error.message}`);
-    await getMessageBoxForErrors(
-      error.message,
-      error.stack ?? '',
-      mainWindow,
-      true,
-    );
+    logger.error(`Failed executing callback function: ${error.message}`);
+    console.log(mainWindow.title);
+    await Promise.resolve();
+    // await getMessageBoxForErrors(
+    //   error.message,
+    //   error.stack ?? '',
+    //   mainWindow,
+    //   true,
+    // );
   } else {
-    logger.info('Failed executing callback function.');
-    await getMessageBoxForErrors(
-      'Unexpected internal error',
-      '',
-      mainWindow,
-      true,
-    );
+    logger.error('Failed executing callback function.');
+    // await getMessageBoxForErrors(
+    //   'Unexpected internal error',
+    //   '',
+    //   mainWindow,
+    //   true,
+    // );
   }
 }
 
