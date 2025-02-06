@@ -83,6 +83,7 @@ export function PackageAutocomplete({
 
   const options = useMemo(
     () => [
+      ...defaults,
       ...sortBy(
         Object.entries(
           groupBy(attributions, (attribution) =>
@@ -117,7 +118,6 @@ export function PackageAutocomplete({
           })),
         ({ count }) => -(count ?? 0),
       ),
-      ...defaults,
     ],
     [attribute, attributions, defaults, signals],
   );
