@@ -39,11 +39,10 @@ export function openNonOpossumFileDialog(
 }
 
 export function saveFileDialog(defaultPath?: string): string | undefined {
-  return defaultPath;
-  // const window = BrowserWindow.getFocusedWindow();
-  // return window
-  //   ? dialog.showSaveDialogSync(window, { defaultPath })
-  //   : undefined;
+  const window = BrowserWindow.getFocusedWindow();
+  return window
+    ? dialog.showSaveDialogSync(window, { defaultPath })
+    : undefined;
 }
 
 export function selectBaseURLDialog(): Array<string> | undefined {
