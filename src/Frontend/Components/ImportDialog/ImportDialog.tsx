@@ -80,17 +80,17 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
   async function onConfirm(): Promise<void> {
     setIsLoading(true);
 
-    // const success = await window.electronAPI.importFileConvertAndLoad(
-    //   inputFilePath,
-    //   fileFormat.fileType,
-    //   opossumFilePath,
-    // );
+    const success = await window.electronAPI.importFileConvertAndLoad(
+      inputFilePath,
+      fileFormat.fileType,
+      opossumFilePath,
+    );
 
     await Promise.resolve();
 
-    // if (success) {
-    closeDialog();
-    // }
+    if (success) {
+      closeDialog();
+    }
 
     setIsLoading(false);
   }
