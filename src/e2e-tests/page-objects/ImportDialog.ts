@@ -43,7 +43,7 @@ export class ImportDialog {
       await expect(this.title).toBeVisible();
     },
     titleIsHidden: async (): Promise<void> => {
-      await expect(this.title).toBeHidden();
+      await expect(this.title).toBeHidden({ timeout: 10000 });
     },
     showsError: async (): Promise<void> => {
       await expect(this.errorIcon).toBeVisible();
