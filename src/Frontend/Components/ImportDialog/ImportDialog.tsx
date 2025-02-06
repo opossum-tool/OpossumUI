@@ -29,7 +29,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
 
   const [currentLog, setCurrentLog] = useState<Log | null>(null);
 
-  const [isLoading /*setIsLoading*/] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useIpcRenderer<LoggingListener>(
     AllowedFrontendChannels.Logging,
@@ -78,19 +78,21 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
   }
 
   async function onConfirm(): Promise<void> {
-    // setIsLoading(true);
-    //
+    setIsLoading(true);
+
     // const success = await window.electronAPI.importFileConvertAndLoad(
     //   inputFilePath,
     //   fileFormat.fileType,
     //   opossumFilePath,
     // );
-    //
+
+    await Promise.resolve();
+
     // if (success) {
-    //   closeDialog();
+    closeDialog();
     // }
-    //
-    // setIsLoading(false);
+
+    setIsLoading(false);
   }
 
   return (
