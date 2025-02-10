@@ -134,7 +134,7 @@
     "ship-linux": "yarn install-deps:linux && yarn build && tools/build_linux_release.sh",
     "ship-win": "yarn install-deps:win32 && yarn build && electron-builder --win --x64 --publish never && mkdirp release/win && mv \"release/OpossumUI Setup 0.1.0.exe\" \"release/win/OpossumUI-for-win.exe\"",
     "ship-mac:x64": "yarn install-deps:darwin:x64 && yarn build && electron-builder --mac --x64 --publish never && zip -r -y -q 'release/mac/OpossumUI-for-mac-intel.zip' 'release/mac/'",
-    "ship-mac:arm64": "yarn install-deps:darwin:arm64 && yarn build && electron-builder --mac --arm64 --publish never && zip -r -y -q 'release/mac-arm64/OpossumUI-for-mac-arm64.zip' 'release/mac-arm64/'",
+    "ship-mac:arm64": "yarn install-deps:darwin:arm64 && yarn build && electron-builder --mac --arm64 --publish never && codesign --force --deep -s - release/mac-arm64/OpossumUI.app && zip -r -y -q 'release/mac-arm64/OpossumUI-for-mac-arm64.zip' 'release/mac-arm64/'",
     "ship": "yarn ship-linux && yarn ship-win && yarn ship-mac",
     "ship:auto": "run-script-os",
     "ship:auto:darwin": "yarn node tools/runScriptArch.mjs ship-mac",
