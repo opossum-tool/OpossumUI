@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function generateNotices() {
   const noticeDocumentFolder = join(__dirname, '..', 'notices');
-  const fileContent = readFileSync(join(noticeDocumentFolder, 'notices.txt'));
+  const noticeContent = readFileSync(join(noticeDocumentFolder, 'notices.txt'));
 
   copyFileSync(
     join(
@@ -27,7 +27,7 @@ function generateNotices() {
   writeFileSync(
     join(noticeDocumentFolder, 'notices.html'),
     nunjucks.render(join(__dirname, 'notices.template.html'), {
-      fileContent,
+      noticeContent,
     }),
   );
 }
