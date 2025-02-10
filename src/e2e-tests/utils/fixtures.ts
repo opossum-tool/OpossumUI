@@ -201,6 +201,9 @@ function getReleasePath(): string {
   if (os.platform() === 'win32') {
     return path.join(__dirname, '..', '..', '..', 'release', 'win-unpacked');
   } else if (os.platform() === 'darwin') {
+    if (os.arch() === 'arm64') {
+      return path.join(__dirname, '..', '..', '..', 'release', 'mac-arm64');
+    }
     return path.join(__dirname, '..', '..', '..', 'release', 'mac');
   } else if (os.platform() === 'linux') {
     return path.join(__dirname, '..', '..', '..', 'release', 'linux-unpacked');
