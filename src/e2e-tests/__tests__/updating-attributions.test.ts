@@ -156,7 +156,7 @@ test('allows user to update an attribution on the selected resource only', async
   await attributionDetails.attributionForm.copyright.fill(
     newPackageInfo.copyright!,
   );
-  await attributionDetails.attributionForm.licenseName.fill(
+  await attributionDetails.attributionForm.licenseExpression.fill(
     newPackageInfo.licenseName!,
   );
   await attributionDetails.attributionForm.comment.fill(
@@ -298,7 +298,7 @@ test('resets custom license text when user selects suggested license expression'
   await attributionDetails.attributionForm.licenseText.fill(licenseText);
   await attributionDetails.attributionForm.assert.licenseTextIs(licenseText);
 
-  await attributionDetails.attributionForm.licenseName.click();
+  await attributionDetails.attributionForm.licenseExpression.click();
   await attributionDetails.attributionForm.selectLicense(license1);
   await attributionDetails.attributionForm.assert.licenseTextIs('');
 });

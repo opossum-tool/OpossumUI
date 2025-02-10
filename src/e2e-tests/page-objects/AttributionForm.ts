@@ -19,7 +19,7 @@ export class AttributionForm {
   readonly url: Locator;
   readonly comment: Locator;
   readonly copyright: Locator;
-  readonly licenseName: Locator;
+  readonly licenseExpression: Locator;
   readonly licenseText: Locator;
   readonly licenseTextToggleButton: Locator;
   readonly attributionType: Locator;
@@ -76,7 +76,7 @@ export class AttributionForm {
     });
     this.comment = this.node.getByLabel('Comment', { exact: true });
     this.copyright = this.node.getByLabel('Copyright', { exact: true });
-    this.licenseName = this.node.getByLabel(
+    this.licenseExpression = this.node.getByLabel(
       text.attributionColumn.licenseExpression,
       {
         exact: true,
@@ -138,7 +138,7 @@ export class AttributionForm {
       await expect(this.purl).toBeEmpty();
       await expect(this.url).toBeEmpty();
       await expect(this.comment).toBeEmpty();
-      await expect(this.licenseName).toBeEmpty();
+      await expect(this.licenseExpression).toBeEmpty();
       await this.assert.attributionTypeIs('Third Party');
     },
     typeIs: async (type: string): Promise<void> => {
@@ -175,7 +175,7 @@ export class AttributionForm {
       ).toHaveAttribute('aria-pressed', 'true');
     },
     licenseNameIs: async (licenseName: string): Promise<void> => {
-      await expect(this.licenseName).toHaveValue(licenseName);
+      await expect(this.licenseExpression).toHaveValue(licenseName);
     },
     licenseTextIs: async (licenseText: string): Promise<void> => {
       await expect(this.licenseText).toHaveValue(licenseText);
@@ -215,7 +215,7 @@ export class AttributionForm {
         ...(licenseName
           ? [
               firstParty
-                ? await expect(this.licenseName).toBeHidden()
+                ? await expect(this.licenseExpression).toBeHidden()
                 : this.assert.licenseNameIs(licenseName),
             ]
           : []),
