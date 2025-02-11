@@ -17,7 +17,7 @@ import { getGlobalBackendState } from '../main/globalBackendState';
 import logger from '../main/logger';
 import { getLoadedFilePath } from '../utils/getLoadedFile';
 
-async function reportListenerError(
+async function reportListenerErrorInBackend(
   mainWindow: BrowserWindow,
   error: unknown,
 ): Promise<void> {
@@ -40,6 +40,19 @@ async function reportListenerError(
   }
 }
 
+function reportListenerErrorInFrontend(_: BrowserWindow, error: unknown): void {
+  if (error instanceof Error) {
+    logger.error(error.message);
+  } else {
+    logger.error('Unexpected internal error');
+  }
+}
+
+export const ListenerErrorReporter = {
+  Backend: reportListenerErrorInBackend,
+  Frontend: reportListenerErrorInFrontend,
+};
+
 type FuncType<T> = T extends (...args: infer P) => infer R
   ? (...args: P) => R
   : never;
@@ -52,28 +65,37 @@ type FTParameters<A> = A extends FuncType<A> ? Parameters<A> : never;
 export function createVoidListenerCallbackWithErrorHandling<F>(
   mainWindow: BrowserWindow,
   func: F & FuncType<F>,
+  reportError: (
+    mainWindow: BrowserWindow,
+    error: unknown,
+  ) => Promise<void> | void = reportListenerErrorInBackend,
 ): (...args: FTParameters<F>) => Promise<void> {
   return async (...args: FTParameters<F>): Promise<void> => {
     try {
       await func(...args);
     } catch (error: unknown) {
-      await reportListenerError(mainWindow, error);
+      await reportError(mainWindow, error);
     }
   };
 }
 
 export function createListenerCallbackWithErrorHandling<F>(
   mainWindow: BrowserWindow,
+  returnValueOnError: ReturnTypeWithoutPromise<F>,
   func: F & FuncType<F>,
-): (...args: FTParameters<F>) => Promise<ReturnTypeWithoutPromise<F> | null> {
+  reportError: (
+    mainWindow: BrowserWindow,
+    error: unknown,
+  ) => Promise<void> | void = reportListenerErrorInBackend,
+): (...args: FTParameters<F>) => Promise<ReturnTypeWithoutPromise<F>> {
   return async (
     ...args: FTParameters<F>
-  ): Promise<ReturnTypeWithoutPromise<F> | null> => {
+  ): Promise<ReturnTypeWithoutPromise<F>> => {
     try {
       return (await func(...args)) as ReturnTypeWithoutPromise<F>;
     } catch (error: unknown) {
-      await reportListenerError(mainWindow, error);
-      return Promise.resolve(null);
+      await reportError(mainWindow, error);
+      return Promise.resolve(returnValueOnError);
     }
   };
 }

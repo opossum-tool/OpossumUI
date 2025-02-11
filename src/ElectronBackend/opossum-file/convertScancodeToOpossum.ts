@@ -19,11 +19,15 @@ export async function convertScancodeToOpossum(
   pathToScanCode: string,
   pathToOpossum: string,
 ): Promise<void> {
-  await execFile(OPOSSUM_FILE_EXECUTABLE, [
-    'generate',
-    '-o',
-    pathToOpossum,
-    '--scan-code-json',
-    pathToScanCode,
-  ]);
+  try {
+    await execFile(OPOSSUM_FILE_EXECUTABLE, [
+      'generate',
+      '-o',
+      pathToOpossum,
+      '--scan-code-json',
+      pathToScanCode,
+    ]);
+  } catch (error) {
+    throw new Error('Conversion of ScanCode file to .opossum file failed');
+  }
 }
