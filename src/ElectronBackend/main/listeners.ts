@@ -29,6 +29,7 @@ import { LoadedFileFormat } from '../enums/enums';
 import {
   createListenerCallbackWithErrorHandling,
   createVoidListenerCallbackWithErrorHandling,
+  ListenerErrorReporter,
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { serializeAttributions } from '../input/parseInputData';
@@ -146,9 +147,10 @@ export function getImportFileSelectInputListener(
 ): (
   _: Electron.IpcMainInvokeEvent,
   fileFormat: FileFormatInfo,
-) => Promise<string | null> {
+) => Promise<string> {
   return createListenerCallbackWithErrorHandling(
     mainWindow,
+    '',
     (_: Electron.IpcMainInvokeEvent, fileFormat: FileFormatInfo) => {
       const filePaths = openNonOpossumFileDialog(fileFormat);
 
@@ -163,15 +165,13 @@ export function getImportFileSelectInputListener(
 
 export function getImportFileSelectSaveLocationListener(
   mainWindow: BrowserWindow,
-): (
-  _: Electron.IpcMainInvokeEvent,
-  defaultPath: string,
-) => Promise<string | null> {
+): (_: Electron.IpcMainInvokeEvent, defaultPath: string) => Promise<string> {
   return createListenerCallbackWithErrorHandling(
     mainWindow,
+    '',
     (_: Electron.IpcMainInvokeEvent, defaultPath: string) => {
       const filePath = saveFileDialog(defaultPath);
-      return filePath ?? null;
+      return filePath ?? '';
     },
   );
 }
@@ -184,9 +184,10 @@ export function getImportFileConvertAndLoadListener(
   resourceFilePath: string,
   fileType: FileType,
   opossumFilePath: string,
-) => Promise<boolean | null> {
+) => Promise<boolean> {
   return createListenerCallbackWithErrorHandling(
     mainWindow,
+    false,
     async (
       _: Electron.IpcMainInvokeEvent,
       resourceFilePath: string,
@@ -194,23 +195,19 @@ export function getImportFileConvertAndLoadListener(
       opossumFilePath: string,
     ) => {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
-        logger.error('Input file does not exist');
-        return false;
+        throw new Error('Input file does not exists');
       }
 
       if (!opossumFilePath.trim()) {
-        logger.error('No .opossum save location selected');
-        return false;
+        throw new Error('No .opossum save location selected');
       }
 
       if (!opossumFilePath.endsWith('.opossum')) {
-        logger.error('Output file name must have .opossum extension');
-        return false;
+        throw new Error('Output file name must have .opossum extension');
       }
 
       if (!fs.existsSync(path.dirname(opossumFilePath))) {
-        logger.error('Output directory does not exist');
-        return false;
+        throw new Error('Output directory does not exist');
       }
 
       logger.info('Converting .json to .opossum format');
@@ -239,6 +236,7 @@ export function getImportFileConvertAndLoadListener(
 
       return true;
     },
+    ListenerErrorReporter.Frontend,
   );
 }
 
