@@ -6,7 +6,11 @@
 import { app, BrowserWindow, Menu, shell } from 'electron';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import { ExportType, FileFormatInfo } from '../../shared/shared-types';
+import {
+  ExportType,
+  FileFormatInfo,
+  FileType,
+} from '../../shared/shared-types';
 import { isFileLoaded } from '../utils/getLoadedFile';
 import { getGlobalBackendState } from './globalBackendState';
 import {
@@ -83,8 +87,14 @@ const INITIALLY_DISABLED_ITEMS_INFO: Record<
 
 export const importFileFormats: Array<FileFormatInfo> = [
   {
+    fileType: FileType.LEGACY_OPOSSUM,
     name: 'Legacy Opossum File',
     extensions: ['json', 'json.gz'],
+  },
+  {
+    fileType: FileType.SCANCODE_JSON,
+    name: 'ScanCode File',
+    extensions: ['json'],
   },
 ];
 

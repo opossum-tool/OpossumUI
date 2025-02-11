@@ -11,22 +11,16 @@ import { parseOpossumFile } from '../../input/parseFile';
 import { isOpossumFileFormat } from '../../utils/isOpossumFileFormat';
 import { convertScancodeToOpossum } from '../convertScancodeToOpossum';
 
-function getTempPath(): string {
-  return join(tmpdir(), uniqueId('opossum_'));
-}
-
 describe('successfulConversionOfScanCodeFile', () => {
   const SCANCODE_TEST_FILE = join(__dirname, 'scancode.json');
 
   it('should convert the ScanCode file and return a path to a valid .opossum file', async () => {
-    const path = await convertScancodeToOpossum(
-      SCANCODE_TEST_FILE,
-      getTempPath(),
-    );
-    expect(existsSync(path)).toBe(true);
-    expect(isOpossumFileFormat(path)).toBe(true);
+    const opossumPath = join(tmpdir(), `${uniqueId('opossum_')}.opossum`);
+    await convertScancodeToOpossum(SCANCODE_TEST_FILE, opossumPath);
+    expect(existsSync(opossumPath)).toBe(true);
+    expect(isOpossumFileFormat(opossumPath)).toBe(true);
 
-    const parsingResult = await parseOpossumFile(path);
+    const parsingResult = await parseOpossumFile(opossumPath);
     expect(parsingResult).toHaveProperty('input');
   });
 });

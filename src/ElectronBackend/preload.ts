@@ -17,10 +17,11 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IpcChannel.ImportFileSelectInput, fileFormat),
   importFileSelectSaveLocation: (defaultPath) =>
     ipcRenderer.invoke(IpcChannel.ImportFileSelectSaveLocation, defaultPath),
-  importFileConvertAndLoad: (inputFilePath, opossumFilePath) =>
+  importFileConvertAndLoad: (inputFilePath, fileType, opossumFilePath) =>
     ipcRenderer.invoke(
       IpcChannel.ImportFileConvertAndLoad,
       inputFilePath,
+      fileType,
       opossumFilePath,
     ),
   exportFile: (args) => ipcRenderer.invoke(IpcChannel.ExportFile, args),

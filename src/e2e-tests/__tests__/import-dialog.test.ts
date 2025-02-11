@@ -20,16 +20,16 @@ test.use({
       }),
     }),
     outputData: faker.opossum.outputData({}),
-    decompress: true,
+    provideImportFiles: true,
   },
-  openFileManually: true,
+  isImportFileTest: true,
 });
 
 test('opens, displays and closes import dialog', async ({
   menuBar,
   importDialog,
 }) => {
-  await menuBar.openImportDialog();
+  await menuBar.openImportLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.cancelButton.click();
@@ -37,22 +37,22 @@ test('opens, displays and closes import dialog', async ({
   await importDialog.assert.titleIsHidden();
 });
 
-test('opens .json file', async ({
+test('imports legacy opossum file', async ({
   menuBar,
   importDialog,
   resourcesTree,
   window,
 }) => {
   await stubDialog(window.app, 'showOpenDialogSync', [
-    importDialog.inputFilePath,
+    importDialog.legacyFilePath,
   ]);
   await stubDialog(
     window.app,
     'showSaveDialogSync',
-    getDotOpossumFilePath(importDialog.inputFilePath, ['json', 'json.gz']),
+    getDotOpossumFilePath(importDialog.legacyFilePath, ['json', 'json.gz']),
   );
 
-  await menuBar.openImportDialog();
+  await menuBar.openImportLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.inputFileSelection.click();
@@ -63,11 +63,37 @@ test('opens .json file', async ({
   await resourcesTree.assert.resourceIsVisible(resourceName);
 });
 
+test('imports scancode file', async ({
+  menuBar,
+  importDialog,
+  resourcesTree,
+  window,
+}) => {
+  await stubDialog(window.app, 'showOpenDialogSync', [
+    importDialog.scancodeFilePath,
+  ]);
+  await stubDialog(
+    window.app,
+    'showSaveDialogSync',
+    getDotOpossumFilePath(importDialog.scancodeFilePath, ['json']),
+  );
+
+  await menuBar.openImportScanCodeFile();
+  await importDialog.assert.titleIsVisible();
+
+  await importDialog.inputFileSelection.click();
+  await importDialog.opossumFileSelection.click();
+  await importDialog.importButton.click();
+
+  await importDialog.assert.titleIsHidden();
+  await resourcesTree.assert.resourceIsVisible('src');
+});
+
 test('shows error when no file path is set', async ({
   menuBar,
   importDialog,
 }) => {
-  await menuBar.openImportDialog();
+  await menuBar.openImportLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.importButton.click();

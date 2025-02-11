@@ -193,6 +193,10 @@ test('allows user to update an attribution on all linked resources', async ({
   await attributionDetails.attributionForm.name.fill(newPackageName);
   await attributionDetails.saveButton.click();
   await confirmSavePopup.saveGloballyButton.click();
+  // need to make sure that the confirmSavePopup is closed before any assertions
+  // are run on linkedResourcesTree, because the confirmSavePopup also contains
+  // a LinkedResourcesTree which makes locators resolve to 2 elements
+  await confirmSavePopup.assert.isHidden();
   await attributionDetails.attributionForm.assert.nameIs(newPackageName);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName1);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName2);

@@ -229,7 +229,13 @@ export interface ExternalAttributionSources {
   [source: string]: ExternalAttributionSource;
 }
 
+export enum FileType {
+  LEGACY_OPOSSUM,
+  SCANCODE_JSON,
+}
+
 export interface FileFormatInfo {
+  fileType: FileType;
   name: string;
   extensions: Array<string>;
 }
@@ -246,6 +252,7 @@ export interface ElectronAPI {
   importFileSelectSaveLocation: (defaultPath: string) => Promise<string | null>;
   importFileConvertAndLoad: (
     inputFilePath: string,
+    fileType: FileType,
     opossumFilePath: string,
   ) => Promise<boolean | null>;
   exportFile: (args: ExportArgsType) => void;

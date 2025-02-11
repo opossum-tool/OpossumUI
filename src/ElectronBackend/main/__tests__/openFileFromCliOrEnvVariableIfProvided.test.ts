@@ -25,9 +25,8 @@ describe('openFileFromCli', () => {
 
   it.each`
     inputFileName          | extraParameter
-    ${'inputFile.json'}    | ${null}
-    ${'inputFile.json.gz'} | ${null}
-    ${'inputFile.json'}    | ${'--dev'}
+    ${'inputFile.opossum'} | ${null}
+    ${'inputFile.opossum'} | ${'--dev'}
   `(
     'calls openFile with input file $inputFileName and extraParameter $extraParameter',
     async ({ inputFileName, extraParameter }) => {

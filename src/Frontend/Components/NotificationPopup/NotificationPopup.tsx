@@ -29,7 +29,9 @@ interface NotificationPopupProps {
   'aria-label'?: string;
   customAction?: React.ReactNode;
   background?: keyof typeof OpossumColors;
-  width?: number;
+  width?: React.CSSProperties['width'];
+  minWidth?: React.CSSProperties['minWidth'];
+  maxWidth?: React.CSSProperties['maxWidth'];
   className?: string;
 }
 
@@ -45,12 +47,16 @@ export function NotificationPopup(props: NotificationPopupProps) {
       onClose={(_, reason) =>
         reason === 'backdropClick' && props.onBackdropClick?.()
       }
-      PaperProps={{
-        sx: {
-          ...(props.width && { width: props.width }),
-          ...(props.background && {
-            background: OpossumColors[props.background],
-          }),
+      slotProps={{
+        paper: {
+          sx: {
+            ...(props.width && { width: props.width }),
+            ...(props.minWidth && { minWidth: props.minWidth }),
+            ...(props.maxWidth && { maxWidth: props.maxWidth }),
+            ...(props.background && {
+              background: OpossumColors[props.background],
+            }),
+          },
         },
       }}
       aria-label={props['aria-label']}

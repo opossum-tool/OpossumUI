@@ -10,38 +10,20 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { FileFormatInfo, Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
-import {
-  LoggingListener,
-  ShowImportDialogListener,
-  useIpcRenderer,
-} from '../../util/use-ipc-renderer';
+import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
-export const ImportDialog: React.FC = () => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [fileFormat, setFileFormat] = useState<FileFormatInfo>({
-    name: '',
-    extensions: [],
-  });
+export interface ImportDialogProps {
+  fileFormat: FileFormatInfo;
+  closeDialog: () => void;
+}
 
-  function resetState() {
-    setInputFilePath('');
-    setOpossumFilePath('');
-    setCurrentLog(null);
-  }
-
-  useIpcRenderer<ShowImportDialogListener>(
-    AllowedFrontendChannels.ImportFileShowDialog,
-    (_, fileFormat) => {
-      resetState();
-      setFileFormat(fileFormat);
-      setIsOpen(true);
-    },
-    [],
-  );
-
+export const ImportDialog: React.FC<ImportDialogProps> = ({
+  fileFormat,
+  closeDialog,
+}) => {
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
 
@@ -92,7 +74,7 @@ export const ImportDialog: React.FC = () => {
   }
 
   function onCancel(): void {
-    setIsOpen(false);
+    closeDialog();
   }
 
   async function onConfirm(): Promise<void> {
@@ -100,11 +82,12 @@ export const ImportDialog: React.FC = () => {
 
     const success = await window.electronAPI.importFileConvertAndLoad(
       inputFilePath,
+      fileFormat.fileType,
       opossumFilePath,
     );
 
     if (success) {
-      setIsOpen(false);
+      closeDialog();
     }
 
     setIsLoading(false);
@@ -113,6 +96,9 @@ export const ImportDialog: React.FC = () => {
   return (
     <NotificationPopup
       header={text.importDialog.title(fileFormat)}
+      width={'80vw'}
+      minWidth={'300px'}
+      maxWidth={'700px'}
       content={
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <MuiTypography>{text.importDialog.explanationText[0]}</MuiTypography>
@@ -126,6 +112,7 @@ export const ImportDialog: React.FC = () => {
             )}
             text={inputFilePath}
             onClick={selectInputFilePath}
+            tooltipProps={{ placement: 'top' }}
           />
           <FilePathInput
             label={text.importDialog.opossumFilePath.textFieldLabel(
@@ -136,7 +123,7 @@ export const ImportDialog: React.FC = () => {
           />
         </div>
       }
-      isOpen={isOpen}
+      isOpen={true}
       customAction={
         currentLog ? (
           <MuiBox

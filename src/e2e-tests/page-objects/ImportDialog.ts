@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page, TestInfo } from '@playwright/test';
+import * as path from 'path';
 
 export class ImportDialog {
   private readonly node: Locator;
@@ -13,9 +14,14 @@ export class ImportDialog {
   readonly cancelButton: Locator;
   readonly errorIcon: Locator;
 
-  readonly inputFilePath: string;
+  readonly legacyFilePath: string;
+  readonly scancodeFilePath: string;
 
-  constructor(window: Page, filename: string | undefined, info: TestInfo) {
+  constructor(
+    window: Page,
+    legacyFilename: string | undefined,
+    info: TestInfo,
+  ) {
     this.node = window.getByLabel('import dialog');
     this.title = this.node.getByRole('heading').getByText('Import');
     this.inputFileSelection = this.node
@@ -28,7 +34,8 @@ export class ImportDialog {
     this.cancelButton = this.node.getByRole('button', { name: 'Cancel' });
     this.errorIcon = this.node.getByTestId('ErrorIcon').locator('path');
 
-    this.inputFilePath = info.outputPath(`${filename}.json`);
+    this.legacyFilePath = info.outputPath(`${legacyFilename}.json`);
+    this.scancodeFilePath = path.resolve(__dirname, '..', 'scancode.json');
   }
 
   public assert = {
@@ -36,7 +43,7 @@ export class ImportDialog {
       await expect(this.title).toBeVisible();
     },
     titleIsHidden: async (): Promise<void> => {
-      await expect(this.title).toBeHidden();
+      await expect(this.title).toBeHidden({ timeout: 10000 });
     },
     showsError: async (): Promise<void> => {
       await expect(this.errorIcon).toBeVisible();

@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { AttachFile } from '@mui/icons-material';
+import { TooltipProps } from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
 
 import { baseIcon } from '../../shared-styles';
@@ -23,6 +24,7 @@ interface FilePathInputProps {
   label: string;
   text: string;
   onClick: () => void;
+  tooltipProps?: Partial<TooltipProps>;
 }
 
 export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
@@ -34,10 +36,11 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       startIcon={<AttachFile sx={baseIcon} />}
       cursor={'pointer'}
       showTooltip={true}
+      tooltipProps={props.tooltipProps}
       // using a custom input component allows us to disable a lot of TextField
       // behavior (e.g. horizontal text scrolling) that we don't want here
       inputComponent={CustomInput}
-      sx={{ width: 600, marginTop: '20px' }}
+      sx={{ marginTop: '20px' }}
     />
   );
 };
