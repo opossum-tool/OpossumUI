@@ -40,7 +40,7 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       // using a custom input component allows us to disable a lot of TextField
       // behavior (e.g. horizontal text scrolling) that we don't want here
       inputComponent={CustomInput}
-      sx={{ width: 600, marginTop: '20px' }}
+      sx={{ marginTop: '20px' }}
     />
   );
 };

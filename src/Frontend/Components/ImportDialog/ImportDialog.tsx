@@ -96,6 +96,9 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
   return (
     <NotificationPopup
       header={text.importDialog.title(fileFormat)}
+      width={'80vw'}
+      minWidth={'300px'}
+      maxWidth={'700px'}
       content={
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <MuiTypography>{text.importDialog.explanationText[0]}</MuiTypography>
