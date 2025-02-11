@@ -8,6 +8,7 @@ SPDX-License-Identifier: CC0-1.0
 # Contributors (sorted alphabetically)
 
 - **Adam Woffinden** (<woffindenag@gmail.com>)
+- **[Adrian Braemer](https://github.com/abraemer)**
 - **[Alexander zur Bonsen](https://github.com/alexzurbonsen)**
 - **Alma Chao** (<alma@almachao.com>)
 - **[Anton Bauhofer](https://github.com/antonbauhofer)** (<anton.bauhofer@tngtech.com>)
@@ -27,6 +28,7 @@ SPDX-License-Identifier: CC0-1.0
 - **[Meret Behrens](https://github.com/meretp)**
 - **[Michael Cheng](https://github.com/syotfs)** (<m@priorart.io>)
 - **[Nico Carl](https://github.com/nicarl)**
+- **[Philipp Martens](https://github.com/PhilippMa)**
 - **[Ruiyun Xie](https://github.com/mayayunx)**
 - **[Sebastian Thomas](https://github.com/sebathomas)** (<sebastian.thomas@tngtech.com>)
 - **[Vasily Pozdnyakov](https://github.com/vasily-pozdnyakov)** (<vasily.pozdnyakov@tngtech.com>)

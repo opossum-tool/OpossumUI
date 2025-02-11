@@ -17,13 +17,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-13, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
             FILES: |
               release/linux/OpossumUI-for-linux.AppImage
               release/linux/OpossumUI-for-linux.snap
+          - os: macos-13
+            FILES: release/mac/OpossumUI-for-mac-intel.zip
           - os: macos-latest
-            FILES: release/mac/OpossumUI-for-mac.zip
+            FILES: release/mac-arm64/OpossumUI-for-mac-arm64.zip
           - os: windows-latest
             FILES: release/win/OpossumUI-for-win.exe
 
