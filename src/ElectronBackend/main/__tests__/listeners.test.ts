@@ -520,7 +520,7 @@ describe('getImportFileSelectSaveLocationListener', () => {
       '',
     );
 
-    expect(returnedFilePath).toBeNull();
+    expect(returnedFilePath).toBe('');
   });
 });
 
