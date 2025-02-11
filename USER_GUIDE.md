@@ -14,8 +14,8 @@ SPDX-License-Identifier: CC0-1.0
   - [Running the app](#running-the-app)
 - [Working with OpossumUI](#working-with-opossumui)
   - [Opossum file format](#opossum-file-format)
-  - [JSON files](#json-files)
   - [Opening a file](#opening-a-file)
+  - [Importing a File](#importing-a-file)
   - [Project Metadata](#project-metadata)
   - [Project Statistics](#project-statistics)
   - [Exporting Formats](#exporting-formats)
@@ -51,23 +51,28 @@ Run _OpossumUI-for-win.exe_ to install the OpossumUI. Then open _OpossumUI_ from
 
 ### Opossum file format
 
-Files with a `.opossum` extension are zip-archives which contain an _input.json_ (must be provided) together with an _output.json_ (optional). An output file will be automatically created and added to the archive after opening the archive if there is no such file yet.
+Files with a `.opossum` extension are zip-archives which contain two JSON files:
 
-### JSON files
-
-Two .JSON files are used by the app to store data:
-
-- an input file, that must be provided,
-- an output file, which is created by the app when saving for the first time if not already present.
+- an input file
+- (optionally) an output file, which is created by the app when saving for the first time if not already present.
 
 The output file must be in the same folder as the input file and called `[NAME_OF_THE_FIRST_FILE]_attributions.json`
 to be recognized by the app.
 
 ### Opening a File
 
-To open the input file in the app, click the _Open File_ button on the left of the top bar (or on the entry in the _File_ menu with the same name).
+To open a `.opossum` file in the app, simply click the _Open File_ button on the left of the top bar (or on the entry in
+the _File_ menu with the same name).
 
-If you try to open a _.json_ file, a popup will be shown which asks whether you would like to create a `.opossum` file and proceed (recommended) or continue working with the old format (two separate _.json_ files).
+### Importing a File
+
+To import a legacy opossum file (`.json`/`.json.gz`) or a file produced by a scanner (e.g. a ScanCode Json file), click
+the _Import File_ item in the _File_ menu and select the desired file format from the submenu. You will be presented
+with a dialog window where you can select the file that you wish to import. Because OpossumUI converts this file into a
+new `.opossum` file as part of the import process, you will also be prompted to select where this file should be saved.
+Clicking the _Import_ button converts the file into a new `.opossum` file and opens it in OpossumUI. Please note
+that edits made through OpossumUI are **ONLY** saved in this new `.opossum` file, **NOT** in the file you selected for
+import.
 
 ### Project Metadata
 
@@ -143,10 +148,10 @@ structure:
 
 - a **file icon** ![integration](./docs/user_guide_screenshots/file_icon.png) indicates that the resource is a file,
 - a **folder icon** ![integration](./docs/user_guide_screenshots/directory_icon.png) indicates that the resource is a folder,
-- a **icon consisting of four squares** ![integration](./docs/user_guide_screenshots/breakpoint_icon.png) indicates that the resource is a breakpoint (**breakpoints** are special folders
+- an **icon consisting of four squares** ![integration](./docs/user_guide_screenshots/breakpoint_icon.png) indicates that the resource is a breakpoint (**breakpoints** are special folders
   that are included to visually collect a set of dependencies. These folders cannot have any signal or attribution.
   Furthermore, no attribution is inferred beyond such a breakpoint),
-- a **exclamation mark** ![integration](./docs/user_guide_screenshots/has_signals_icon.png) indicates the presence of signals attached to the resource.
+- an **exclamation mark** ![integration](./docs/user_guide_screenshots/has_signals_icon.png) indicates the presence of signals attached to the resource.
 
 The coloring scheme reads as follows:
 
@@ -210,7 +215,7 @@ The attributes are divided into three categories:
   - it was globally decided that this attribution does not need attribution (e.g. it is proprietary but bought for the whole company).
 - _Needs Review by QA_: This flag can be used to signal to another OpossumUI user, for example someone performing quality assurance, that an attribution needs review.
 - _Needs Follow-Up_: This flag can be used to indicate that the attribution requires follow-up, usually with the development team, as it would be part of a blacklist.
-- _Confidence_: This field is used to indicate the confidence in the correctness of the attribution. It is a emoticon on a scale of 1 to 5. You can also filter for attributions with low confidence in the attributions panel.
+- _Confidence_: This field is used to indicate the confidence in the correctness of the attribution. It is an emoticon on a scale of 1 to 5. You can also filter for attributions with low confidence in the attributions panel.
 
 ##### Package Coordinates
 
