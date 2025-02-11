@@ -87,6 +87,7 @@ test('updates progress bar when user confirms pre-selected attributions', async 
 
   await attributionDetails.confirmButton.click();
   await confirmSavePopup.confirmGloballyButton.click();
+  await confirmSavePopup.assert.isHidden();
   await linkedResourcesTree.assert.resourceIsVisible(resourceName1);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName2);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName3);
