@@ -29,7 +29,7 @@ import { LoadedFileFormat } from '../enums/enums';
 import {
   createListenerCallbackWithErrorHandling,
   createVoidListenerCallbackWithErrorHandling,
-  ListenerErrorReporter,
+  ListenerErrorReporting,
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { serializeAttributions } from '../input/parseInputData';
@@ -236,7 +236,7 @@ export function getImportFileConvertAndLoadListener(
 
       return true;
     },
-    ListenerErrorReporter.Frontend,
+    ListenerErrorReporting.SendToFrontend,
   );
 }
 

@@ -17,7 +17,7 @@ import { getGlobalBackendState } from '../main/globalBackendState';
 import logger from '../main/logger';
 import { getLoadedFilePath } from '../utils/getLoadedFile';
 
-async function reportListenerErrorInBackend(
+async function showListenerErrorInMessageBox(
   mainWindow: BrowserWindow,
   error: unknown,
 ): Promise<void> {
@@ -40,7 +40,8 @@ async function reportListenerErrorInBackend(
   }
 }
 
-function reportListenerErrorInFrontend(_: BrowserWindow, error: unknown): void {
+function sendListenerErrorToFrontend(_: BrowserWindow, error: unknown): void {
+  // NOTE: these log messages are forwarded to the frontend
   if (error instanceof Error) {
     logger.error(error.message);
   } else {
@@ -48,9 +49,9 @@ function reportListenerErrorInFrontend(_: BrowserWindow, error: unknown): void {
   }
 }
 
-export const ListenerErrorReporter = {
-  Backend: reportListenerErrorInBackend,
-  Frontend: reportListenerErrorInFrontend,
+export const ListenerErrorReporting = {
+  ShowMessageBox: showListenerErrorInMessageBox,
+  SendToFrontend: sendListenerErrorToFrontend,
 };
 
 type FuncType<T> = T extends (...args: infer P) => infer R
@@ -68,7 +69,7 @@ export function createVoidListenerCallbackWithErrorHandling<F>(
   reportError: (
     mainWindow: BrowserWindow,
     error: unknown,
-  ) => Promise<void> | void = reportListenerErrorInBackend,
+  ) => Promise<void> | void = showListenerErrorInMessageBox,
 ): (...args: FTParameters<F>) => Promise<void> {
   return async (...args: FTParameters<F>): Promise<void> => {
     try {
@@ -86,7 +87,7 @@ export function createListenerCallbackWithErrorHandling<F>(
   reportError: (
     mainWindow: BrowserWindow,
     error: unknown,
-  ) => Promise<void> | void = reportListenerErrorInBackend,
+  ) => Promise<void> | void = showListenerErrorInMessageBox,
 ): (...args: FTParameters<F>) => Promise<ReturnTypeWithoutPromise<F>> {
   return async (
     ...args: FTParameters<F>

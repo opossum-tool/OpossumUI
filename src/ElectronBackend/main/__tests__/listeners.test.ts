@@ -508,7 +508,7 @@ describe('getImportFileSelectSaveLocationListener', () => {
     expect(returnedFilePath).toBe(selectedFilePath);
   });
 
-  it('returns null when no save location was selected', async () => {
+  it('returns an empty string when no save location was selected', async () => {
     const mainWindow = await initWindowAndBackendState();
 
     const listener = getImportFileSelectSaveLocationListener(mainWindow);
