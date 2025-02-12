@@ -3,12 +3,14 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { FileFormatInfo } from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
 import { PopupInfo } from '../../types/types';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
+  ACTION_SET_IMPORT_FILE_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -20,6 +22,7 @@ export interface ViewState {
   targetView: View | null;
   popupInfo: Array<PopupInfo>;
   openFileRequest: boolean;
+  importFileRequest: FileFormatInfo | null;
 }
 
 export const initialViewState: ViewState = {
@@ -27,6 +30,7 @@ export const initialViewState: ViewState = {
   targetView: null,
   popupInfo: [],
   openFileRequest: false,
+  importFileRequest: null,
 };
 
 export function viewState(
@@ -64,6 +68,11 @@ export function viewState(
       return {
         ...state,
         openFileRequest: action.payload,
+      };
+    case ACTION_SET_IMPORT_FILE_REQUEST:
+      return {
+        ...state,
+        importFileRequest: action.payload,
       };
     default:
       return state;

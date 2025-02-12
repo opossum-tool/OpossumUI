@@ -5,7 +5,7 @@
 import { text } from '../../../shared/text';
 import {
   closePopupAndUnsetTargets,
-  navigateToTargetResourceOrAttributionOrOpenFileDialog,
+  proceedFromUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -18,8 +18,7 @@ export function NotSavedPopup() {
       content={text.unsavedChangesPopup.message}
       header={text.unsavedChangesPopup.title}
       leftButtonConfig={{
-        onClick: () =>
-          dispatch(navigateToTargetResourceOrAttributionOrOpenFileDialog()),
+        onClick: () => dispatch(proceedFromUnsavedPopup()),
         buttonText: text.unsavedChangesPopup.discard,
         color: 'secondary',
       }}

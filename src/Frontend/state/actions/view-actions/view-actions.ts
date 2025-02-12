@@ -14,12 +14,14 @@ import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
+  ACTION_SET_IMPORT_FILE_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   ClosePopupAction,
   OpenPopupAction,
   ResetViewStateAction,
+  SetImportFileRequestAction,
   SetOpenFileRequestAction,
   SetTargetView,
   SetView,
@@ -84,4 +86,10 @@ export function setOpenFileRequest(
   openFileRequest: boolean,
 ): SetOpenFileRequestAction {
   return { type: ACTION_SET_OPEN_FILE_REQUEST, payload: openFileRequest };
+}
+
+export function setImportFileRequest(
+  fileFormat: FileFormatInfo | null,
+): SetImportFileRequestAction {
+  return { type: ACTION_SET_IMPORT_FILE_REQUEST, payload: fileFormat };
 }

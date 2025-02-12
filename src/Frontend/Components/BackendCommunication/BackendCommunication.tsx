@@ -18,6 +18,7 @@ import {
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
+import { showImportDialog } from '../../state/actions/popup-actions/popup-actions';
 import {
   resetResourceState,
   setBaseUrlsForSources,
@@ -38,7 +39,11 @@ import {
   getAttributionsWithResources,
   removeSlashesFromFilesWithChildren,
 } from '../../util/get-attributions-with-resources';
-import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
+import {
+  LoggingListener,
+  ShowImportDialogListener,
+  useIpcRenderer,
+} from '../../util/use-ipc-renderer';
 
 export const BackendCommunication: React.FC = () => {
   const resources = useAppSelector(getResources);
@@ -262,6 +267,13 @@ export const BackendCommunication: React.FC = () => {
   useIpcRenderer(
     AllowedFrontendChannels.ShowUpdateAppPopup,
     showUpdateAppPopupListener,
+    [dispatch],
+  );
+  useIpcRenderer<ShowImportDialogListener>(
+    AllowedFrontendChannels.ImportFileShowDialog,
+    (_, fileFormat) => {
+      dispatch(showImportDialog(fileFormat));
+    },
     [dispatch],
   );
 

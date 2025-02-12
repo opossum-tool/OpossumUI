@@ -10,6 +10,8 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { FileFormatInfo, Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
+import { closePopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch } from '../../state/hooks';
 import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
@@ -17,13 +19,11 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export interface ImportDialogProps {
   fileFormat: FileFormatInfo;
-  closeDialog: () => void;
 }
 
-export const ImportDialog: React.FC<ImportDialogProps> = ({
-  fileFormat,
-  closeDialog,
-}) => {
+export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
+  const dispatch = useAppDispatch();
+
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
 
@@ -74,7 +74,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
   }
 
   function onCancel(): void {
-    closeDialog();
+    dispatch(closePopup());
   }
 
   async function onConfirm(): Promise<void> {
@@ -87,10 +87,8 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
     );
 
     if (success) {
-      closeDialog();
+      dispatch(closePopup());
     }
-
-    setIsLoading(false);
   }
 
   return (

@@ -15,7 +15,6 @@ import { useSignalsWorker } from '../../web-workers/use-signals-worker';
 import { AuditView } from '../AuditView/AuditView';
 import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
 import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
-import { ImportDialogProvider } from '../ImportDialog/ImportDialogProvider';
 import { ProcessPopup } from '../ProcessPopup/ProcessPopup';
 import { ReportView } from '../ReportView/ReportView';
 import { TopBar } from '../TopBar/TopBar';
@@ -40,7 +39,6 @@ export function App() {
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <GlobalPopup />
             <ProcessPopup />
-            <ImportDialogProvider />
             <TopBar />
             {renderView()}
           </ErrorBoundary>
