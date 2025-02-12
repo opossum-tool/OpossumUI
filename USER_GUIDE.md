@@ -69,10 +69,10 @@ the _File_ menu with the same name).
 To import a legacy opossum file (`.json`/`.json.gz`) or a file produced by a scanner (e.g. a ScanCode Json file), click
 the _Import File_ item in the _File_ menu and select the desired file format from the submenu. You will be presented
 with a dialog window where you can select the file that you wish to import. Because OpossumUI converts this file into a
-new `.opossum` file as part of the import process, you will also be prompted to select where this file should be saved.
-Clicking the _Import_ button converts the file into a new `.opossum` file and opens it in OpossumUI. Please note
-that edits made through OpossumUI are **ONLY** saved in this new `.opossum` file, **NOT** in the file you selected for
-import.
+new `.opossum` file as part of the import process, you will also be prompted to select where this new `.opossum` file
+should be saved. Clicking the _Import_ button converts the file into a new `.opossum` file and opens it in OpossumUI.
+Please note that edits made through OpossumUI are **ONLY** saved in this new `.opossum` file, **NOT** in the file you
+selected for import.
 
 ### Project Metadata
 
