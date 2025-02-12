@@ -2791,35 +2791,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/core-downloads-tracker@npm:^6.4.3":
-  version: 6.4.3
-  resolution: "@mui/core-downloads-tracker@npm:6.4.3"
-  checksum: 10/db1449d2b3c97b3dac3e8802e54d58114f369f508d919c3efd6dfbb08fba3cd1440e66ffb174eb99abacabf01607c3b99aa4150dea8e76f75ae50a26c1c70ac2
+"@mui/core-downloads-tracker@npm:^6.4.4":
+  version: 6.4.4
+  resolution: "@mui/core-downloads-tracker@npm:6.4.4"
+  checksum: 10/93f43021ebda70980446e2dc0dbfe3b3ab53772e446d0e94b05182a28e4b42d8573b4aae4048bbcfe2db7648088a20ec7ce71c79ca370ad30a91c0eba85ebef7
   languageName: node
   linkType: hard
 
-"@mui/icons-material@npm:^6.4.3":
-  version: 6.4.3
-  resolution: "@mui/icons-material@npm:6.4.3"
+"@mui/icons-material@npm:^6.4.4":
+  version: 6.4.4
+  resolution: "@mui/icons-material@npm:6.4.4"
   dependencies:
     "@babel/runtime": "npm:^7.26.0"
   peerDependencies:
-    "@mui/material": ^6.4.3
+    "@mui/material": ^6.4.4
     "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
     react: ^17.0.0 || ^18.0.0 || ^19.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10/7726ba3681d4247b93191cf72ca016b9d3830674e045acc4babb8e0eb0341fe6cc8e5933a7df36216b260ca071c00ee121a549fc1b1958f97ecb9bb9b7641c53
+  checksum: 10/5e2d1cd28475c85b86978f117a7f95e66101658ac30585f1547b245b037becd9337875172a0ecb16f75147e337e42a54d4b858024856fb115d77513eca0bae0d
   languageName: node
   linkType: hard
 
-"@mui/material@npm:^6.4.3":
-  version: 6.4.3
-  resolution: "@mui/material@npm:6.4.3"
+"@mui/material@npm:^6.4.4":
+  version: 6.4.4
+  resolution: "@mui/material@npm:6.4.4"
   dependencies:
     "@babel/runtime": "npm:^7.26.0"
-    "@mui/core-downloads-tracker": "npm:^6.4.3"
+    "@mui/core-downloads-tracker": "npm:^6.4.4"
     "@mui/system": "npm:^6.4.3"
     "@mui/types": "npm:^7.2.21"
     "@mui/utils": "npm:^6.4.3"
@@ -2846,7 +2846,7 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 10/ffafd6e55317712941550fca7873b4228e28b85295d91248994a28412c32faf750c8e0543bd234d299db1ceecc0e6a1a30ec5c258c87eec045cea80ca41415a0
+  checksum: 10/6be46bbd22a2b766c9adc37ae477be6446f597048ac2b39b0bbeae81ca67ba12e446d073509d8aa2b9f800b616f218f480ee4fd5cbc3569abf10c7700190b02e
   languageName: node
   linkType: hard
 
@@ -10269,8 +10269,8 @@ __metadata:
     "@eslint/js": "npm:^9.20.0"
     "@faker-js/faker": "npm:^9.4.0"
     "@fontsource-variable/karla": "npm:^5.1.1"
-    "@mui/icons-material": "npm:^6.4.3"
-    "@mui/material": "npm:^6.4.3"
+    "@mui/icons-material": "npm:^6.4.4"
+    "@mui/material": "npm:^6.4.4"
     "@mui/system": "npm:^6.4.3"
     "@playwright/test": "npm:^1.50.1"
     "@reduxjs/toolkit": "npm:^2.5.1"
