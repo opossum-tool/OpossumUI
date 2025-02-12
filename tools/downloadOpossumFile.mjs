@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
 import { dirname } from 'path';
-import { env } from 'process';
 import { pipeline } from 'stream';
 
 const EXECUTE_PERMISSIONS = 0o755;
@@ -14,7 +13,7 @@ async function downloadOpossumFile() {
 
   if (!osSuffix) {
     console.error(
-      'Please specify one of the following options: mac, linux, windows.exe',
+      'Please specify one of the following options: mac-intel, mac-arm64, linux, windows.exe',
     );
     process.exit(1);
   }
@@ -29,19 +28,19 @@ async function downloadOpossumFile() {
     fs.rmSync(destinationPath);
   }
 
-  const githubToken = env.GITHUB_TOKEN;
+  const githubToken = process.env.GITHUB_TOKEN;
 
   if (!githubToken) {
     console.warn(
-      'No GitHub token is provided. The download will be rate-limited.',
+      'No GitHub token is provided. The opossum-file download will be rate-limited.',
     );
   }
 
-  const requestParams = !env.GITHUB_TOKEN
+  const requestParams = !githubToken
     ? undefined
     : {
         headers: {
-          Authorization: `Bearer ${env.GITHUB_TOKEN}`,
+          Authorization: `Bearer ${githubToken}`,
         },
       };
 

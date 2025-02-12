@@ -8,7 +8,7 @@ const config: UserConfig = {
   extends: ['@commitlint/config-conventional'],
   rules: {
     'body-leading-blank': [2, 'always'],
-    'body-max-line-length': [2, 'always', 120],
+    'body-max-line-length': [2, 'always', 600],
     'footer-leading-blank': [2, 'always'],
   },
 };
