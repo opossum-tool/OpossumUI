@@ -18,7 +18,10 @@ import {
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
-import { showImportDialog } from '../../state/actions/popup-actions/popup-actions';
+import {
+  openFileWithUnsavedCheck,
+  showImportDialog,
+} from '../../state/actions/popup-actions/popup-actions';
 import {
   resetResourceState,
   setBaseUrlsForSources,
@@ -269,11 +272,14 @@ export const BackendCommunication: React.FC = () => {
     showUpdateAppPopupListener,
     [dispatch],
   );
+  useIpcRenderer(
+    AllowedFrontendChannels.OpenFileWithUnsavedCheck,
+    () => dispatch(openFileWithUnsavedCheck()),
+    [dispatch],
+  );
   useIpcRenderer<ShowImportDialogListener>(
     AllowedFrontendChannels.ImportFileShowDialog,
-    (_, fileFormat) => {
-      dispatch(showImportDialog(fileFormat));
-    },
+    (_, fileFormat) => dispatch(showImportDialog(fileFormat)),
     [dispatch],
   );
 

@@ -146,3 +146,14 @@ export function showImportDialog(fileFormat: FileFormatInfo): AppThunkAction {
     }
   };
 }
+
+export function openFileWithUnsavedCheck(): AppThunkAction {
+  return (dispatch, getState) => {
+    if (getIsPackageInfoModified(getState())) {
+      dispatch(setOpenFileRequest(true));
+      dispatch(openPopup(PopupType.NotSavedPopup));
+    } else {
+      void window.electronAPI.openFile();
+    }
+  };
+}
