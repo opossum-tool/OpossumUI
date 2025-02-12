@@ -15,6 +15,7 @@ export enum PopupType {
   ProjectMetadataPopup = 'ProjectMetadataPopup',
   ProjectStatisticsPopup = 'ProjectStatisticsPopup',
   UpdateAppPopup = 'UpdateAppPopup',
+  ImportDialog = 'ImportDialog',
 }
 
 export enum ButtonText {

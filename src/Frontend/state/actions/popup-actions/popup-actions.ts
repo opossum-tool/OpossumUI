@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { PackageInfo } from '../../../../shared/shared-types';
+import { FileFormatInfo, PackageInfo } from '../../../../shared/shared-types';
 import { PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import {
@@ -12,6 +12,7 @@ import {
   getSelectedResourceId,
 } from '../../selectors/resource-selectors';
 import {
+  getImportFileRequest,
   getOpenFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
@@ -31,6 +32,7 @@ import {
   closePopup,
   navigateToView,
   openPopup,
+  setImportFileRequest,
   setOpenFileRequest,
   setTargetView,
 } from '../view-actions/view-actions';
@@ -91,15 +93,22 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
   };
 }
 
-export function navigateToTargetResourceOrAttributionOrOpenFileDialog(): AppThunkAction {
+export function proceedFromUnsavedPopup(): AppThunkAction {
   return (dispatch, getState) => {
     const targetView = getTargetView(getState());
     const openFileRequest = getOpenFileRequest(getState());
+    const importFileRequest = getImportFileRequest(getState());
 
     dispatch(closePopup());
+
     if (openFileRequest) {
       void window.electronAPI.openFile();
       dispatch(setOpenFileRequest(false));
+      return;
+    }
+
+    if (importFileRequest) {
+      dispatch(openPopup(PopupType.ImportDialog, undefined, importFileRequest));
       return;
     }
 
@@ -123,5 +132,17 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setTargetSelectedAttributionId(''));
     dispatch(closePopup());
     dispatch(setOpenFileRequest(false));
+    dispatch(setImportFileRequest(null));
+  };
+}
+
+export function showImportDialog(fileFormat: FileFormatInfo): AppThunkAction {
+  return (dispatch, getState) => {
+    if (getIsPackageInfoModified(getState())) {
+      dispatch(setImportFileRequest(fileFormat));
+      dispatch(openPopup(PopupType.NotSavedPopup));
+    } else {
+      dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat));
+    }
   };
 }

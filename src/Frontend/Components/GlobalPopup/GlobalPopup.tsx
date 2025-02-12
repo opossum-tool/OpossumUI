@@ -8,6 +8,7 @@ import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
 import { PopupInfo } from '../../types/types';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
+import { ImportDialog } from '../ImportDialog/ImportDialog';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
@@ -25,6 +26,10 @@ function getPopupComponent(popupInfo: PopupInfo | null) {
       return <ProjectStatisticsPopup />;
     case PopupType.UpdateAppPopup:
       return <UpdateAppPopup />;
+    case PopupType.ImportDialog:
+      return popupInfo?.fileFormat ? (
+        <ImportDialog fileFormat={popupInfo?.fileFormat} />
+      ) : null;
     default:
       return null;
   }

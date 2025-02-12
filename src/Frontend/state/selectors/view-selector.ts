@@ -3,6 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { FileFormatInfo } from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
 import { PopupInfo, State } from '../../types/types';
 
@@ -36,4 +37,8 @@ export function getPopupAttributionId(state: State): string | null {
 
 export function getOpenFileRequest(state: State): boolean {
   return state.viewState.openFileRequest;
+}
+
+export function getImportFileRequest(state: State): FileFormatInfo | null {
+  return state.viewState.importFileRequest;
 }

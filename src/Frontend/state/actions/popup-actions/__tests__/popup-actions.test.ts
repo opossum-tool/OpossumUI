@@ -49,7 +49,7 @@ import {
   changeSelectedAttributionOrOpenUnsavedPopup,
   closePopupAndUnsetTargets,
   navigateToSelectedPathOrOpenUnsavedPopup,
-  navigateToTargetResourceOrAttributionOrOpenFileDialog,
+  proceedFromUnsavedPopup,
   setSelectedResourceIdOrOpenUnsavedPopup,
   setViewOrOpenUnsavedPopup,
 } from '../popup-actions';
@@ -321,9 +321,7 @@ describe('The actions called from the unsaved popup', () => {
       testStore.dispatch(setTargetView(View.Audit));
       testStore.dispatch(openPopup(PopupType.NotSavedPopup));
       testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
-      testStore.dispatch(
-        navigateToTargetResourceOrAttributionOrOpenFileDialog(),
-      );
+      testStore.dispatch(proceedFromUnsavedPopup());
       return testStore.getState();
     }
 
