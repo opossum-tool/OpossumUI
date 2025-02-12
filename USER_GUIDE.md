@@ -39,7 +39,7 @@ To check if your installation is up to date, open the `Help` menu and select `Ch
 
 Run the executable _OpossumUI-for-linux.AppImage_
 
-#### macOS
+#### MacOS
 
 Run _OpossumUI_ in _OpossumUI-for-mac.zip_.
 
