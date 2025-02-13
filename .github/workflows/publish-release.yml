@@ -19,7 +19,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            build-command: yarn ship:auto
+            build-command: yarn ship-linux
             FILES: |
               release/linux/OpossumUI-for-linux.AppImage
               release/linux/OpossumUI-for-linux.snap
@@ -27,10 +27,10 @@ jobs:
             build-command: yarn ship-mac:x64
             FILES: release/mac/OpossumUI-for-mac-intel.zip
           - os: macos-latest
-            build-command: yarn ship:auto
+            build-command: yarn ship-mac:arm64
             FILES: release/mac-arm64/OpossumUI-for-mac-arm64.zip
           - os: windows-latest
-            build-command: yarn ship:auto
+            build-command: yarn ship-win
             FILES: release/win/OpossumUI-for-win.exe
 
     steps:
@@ -50,8 +50,19 @@ jobs:
         with:
           files: ${{ matrix.FILES }}
 
+  upload-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: 'yarn'
+          node-version: 22
+
+      - run: yarn install --immutable
+
       - name: Upload user guide
-        continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
           files: USER_GUIDE.md
@@ -60,7 +71,6 @@ jobs:
         run: yarn spdx
 
       - name: Upload SPDX document
-        continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
           files: opossum-ui.spdx.json
