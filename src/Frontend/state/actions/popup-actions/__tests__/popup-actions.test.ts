@@ -6,6 +6,8 @@
 import {
   Attributions,
   DiscreteConfidence,
+  ExportType,
+  FileType,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -25,6 +27,9 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/resource-selectors';
 import {
+  getExportFileRequest,
+  getImportFileRequest,
+  getOpenFileRequest,
   getOpenPopup,
   getSelectedView,
   getTargetView,
@@ -36,13 +41,18 @@ import {
 import {
   setSelectedAttributionId,
   setSelectedResourceId,
+  setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../../resource-actions/audit-view-simple-actions';
+import * as exportActions from '../../resource-actions/export-actions';
 import { loadFromFile } from '../../resource-actions/load-actions';
 import { savePackageInfo } from '../../resource-actions/save-actions';
 import {
   navigateToView,
   openPopup,
+  setExportFileRequest,
+  setImportFileRequest,
+  setOpenFileRequest,
   setTargetView,
 } from '../../view-actions/view-actions';
 import {
@@ -303,64 +313,120 @@ describe('The actions checking for unsaved changes', () => {
   });
 });
 
-describe('The actions called from the unsaved popup', () => {
-  describe('navigateToTargetResourceOrAttribution', () => {
-    function prepareTestState(): State {
-      const testStore = createAppStore();
-      testStore.dispatch(
-        setResources({ selectedResource: 1, newSelectedResource: 1 }),
-      );
-      testStore.dispatch(setSelectedResourceId('selectedResource'));
-      testStore.dispatch(
-        setTemporaryDisplayPackageInfo({
-          packageName: 'Test',
-          id: faker.string.uuid(),
-        }),
-      );
-      testStore.dispatch(navigateToView(View.Report));
-      testStore.dispatch(setTargetView(View.Audit));
-      testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-      testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
-      testStore.dispatch(proceedFromUnsavedPopup());
-      return testStore.getState();
-    }
+describe('proceedFromUnsavedPopup', () => {
+  function prepareTestState(): State {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setResources({ selectedResource: 1, newSelectedResource: 1 }),
+    );
+    testStore.dispatch(setSelectedResourceId('selectedResource'));
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'Test',
+        id: faker.string.uuid(),
+      }),
+    );
+    testStore.dispatch(navigateToView(View.Report));
+    testStore.dispatch(setTargetView(View.Audit));
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+    testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
+    testStore.dispatch(proceedFromUnsavedPopup());
+    return testStore.getState();
+  }
 
-    it('closes popup', () => {
-      const state = prepareTestState();
-      expect(getOpenPopup(state)).toBeFalsy();
-    });
+  it('closes popup', () => {
+    const state = prepareTestState();
+    expect(getOpenPopup(state)).toBeFalsy();
+  });
 
-    it('sets the view', () => {
-      const state = prepareTestState();
-      expect(getSelectedView(state)).toBe(View.Audit);
-    });
+  it('sets the view', () => {
+    const state = prepareTestState();
+    expect(getSelectedView(state)).toBe(View.Audit);
+  });
 
-    it('sets targetSelectedResourceOrAttribution', () => {
-      const state = prepareTestState();
-      expect(getSelectedResourceId(state)).toBe('newSelectedResource');
-    });
+  it('sets targetSelectedResourceOrAttribution', () => {
+    const state = prepareTestState();
+    expect(getSelectedResourceId(state)).toBe('newSelectedResource');
+  });
 
-    it('sets temporaryDisplayPackageInfo', () => {
-      const state = prepareTestState();
-      expect(getTemporaryDisplayPackageInfo(state)).toMatchObject({});
-    });
+  it('sets temporaryDisplayPackageInfo', () => {
+    const state = prepareTestState();
+    expect(getTemporaryDisplayPackageInfo(state)).toMatchObject({});
+  });
 
-    it('does not save temporaryDisplayPackageInfo', () => {
-      const state = prepareTestState();
-      expect(getManualAttributions(state)).toMatchObject({});
-    });
+  it('does not save temporaryDisplayPackageInfo', () => {
+    const state = prepareTestState();
+    expect(getManualAttributions(state)).toMatchObject({});
+  });
+
+  it('proceeds with open file request', () => {
+    jest.spyOn(window.electronAPI, 'openFile').mockResolvedValue({});
+
+    const testStore = createAppStore();
+    testStore.dispatch(setOpenFileRequest(true));
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+    testStore.dispatch(proceedFromUnsavedPopup());
+
+    expect(window.electronAPI.openFile).toHaveBeenCalled();
+    expect(getOpenFileRequest(testStore.getState())).toBe(false);
+  });
+
+  it('proceeds with import file request', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setImportFileRequest({
+        fileType: FileType.LEGACY_OPOSSUM,
+        extensions: [],
+        name: '',
+      }),
+    );
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+    testStore.dispatch(proceedFromUnsavedPopup());
+
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.ImportDialog,
+    );
+    expect(getImportFileRequest(testStore.getState())).toBeNull();
+  });
+
+  it('proceeds with export file request', () => {
+    jest.spyOn(exportActions, 'exportFile').mockReturnValue(() => {});
+
+    const testStore = createAppStore();
+    testStore.dispatch(setExportFileRequest(ExportType.FollowUp));
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+    testStore.dispatch(proceedFromUnsavedPopup());
+
+    expect(exportActions.exportFile).toHaveBeenCalledWith(ExportType.FollowUp);
+    expect(getExportFileRequest(testStore.getState())).toBeNull();
   });
 });
 
-describe('closePopupAndReopenEditAttributionPopupIfItWasPreviouslyOpen', () => {
+describe('closePopupAndUnsetTargets', () => {
   it('closes popup and unsets targets', () => {
     const testStore = createAppStore();
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+    testStore.dispatch(setTargetView(View.Audit));
+    testStore.dispatch(setTargetSelectedResourceId('resourceID'));
+    testStore.dispatch(setTargetSelectedAttributionId('attributionID'));
+    testStore.dispatch(setOpenFileRequest(true));
+    testStore.dispatch(
+      setImportFileRequest({
+        fileType: FileType.LEGACY_OPOSSUM,
+        extensions: [],
+        name: '',
+      }),
+    );
+    testStore.dispatch(setExportFileRequest(ExportType.FollowUp));
 
     testStore.dispatch(closePopupAndUnsetTargets());
+
     expect(getTargetView(testStore.getState())).toBeNull();
     expect(getTargetSelectedResourceId(testStore.getState())).toBe('');
     expect(getTargetSelectedAttributionId(testStore.getState())).toBe('');
+    expect(getOpenFileRequest(testStore.getState())).toBe(false);
+    expect(getImportFileRequest(testStore.getState())).toBeNull();
+    expect(getExportFileRequest(testStore.getState())).toBeNull();
     expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 });
