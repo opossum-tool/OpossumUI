@@ -89,6 +89,8 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     if (success) {
       dispatch(closePopup());
     }
+
+    setIsLoading(false);
   }
 
   return (
@@ -127,9 +129,9 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           <MuiBox
             sx={{
               display: 'flex',
-              justifyContent: 'start',
               columnGap: '4px',
-              width: '440px',
+              marginLeft: '10px',
+              flexGrow: 1,
             }}
           >
             <LogDisplay
