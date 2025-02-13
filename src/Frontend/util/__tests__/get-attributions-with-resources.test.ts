@@ -8,10 +8,10 @@ import {
   Resources,
 } from '../../../shared/shared-types';
 import {
+  attributionUtils,
   getAttributionsWithAllChildResourcesWithoutFolders,
-  getAttributionsWithResources,
   removeSlashesFromFilesWithChildren,
-} from '../get-attributions-with-resources';
+} from '../attribution-utils';
 
 describe('getAttributionsWithResources', () => {
   it('returns attributions with resources', () => {
@@ -46,15 +46,12 @@ describe('getAttributionsWithResources', () => {
     };
 
     expect(
-      getAttributionsWithResources(
-        testAttributions,
-        testAttributionsToResources,
-      ),
+      attributionUtils(testAttributions, testAttributionsToResources),
     ).toEqual(expectedAttributionsWithResources);
   });
 
   it('returns attributions with resources for empty attributions', () => {
-    expect(getAttributionsWithResources({}, {})).toEqual({});
+    expect(attributionUtils({}, {})).toEqual({});
   });
 });
 
