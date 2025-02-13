@@ -102,14 +102,6 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
 
 export function proceedFromUnsavedPopup(): AppThunkAction {
   return (dispatch, getState) => {
-    // discard changes
-    dispatch(
-      setTemporaryDisplayPackageInfo(
-        getPackageInfoOfSelectedAttribution(getState()) ||
-          EMPTY_DISPLAY_PACKAGE_INFO,
-      ),
-    );
-
     const targetView = getTargetView(getState());
     const openFileRequest = getOpenFileRequest(getState());
     const importFileRequest = getImportFileRequest(getState());
@@ -120,33 +112,37 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     if (openFileRequest) {
       void window.electronAPI.openFile();
       dispatch(setOpenFileRequest(false));
-      return;
     }
 
     if (importFileRequest) {
       dispatch(openPopup(PopupType.ImportDialog, undefined, importFileRequest));
       dispatch(setImportFileRequest(null));
-      return;
     }
 
     if (exportFileRequest) {
       dispatch(exportFile(exportFileRequest));
       dispatch(setExportFileRequest(null));
-      return;
     }
 
     dispatch(setSelectedResourceOrAttributionIdToTargetValue());
     if (targetView) {
       dispatch(navigateToView(targetView));
     }
+
+    dispatch(
+      setTemporaryDisplayPackageInfo(
+        getPackageInfoOfSelectedAttribution(getState()) ||
+          EMPTY_DISPLAY_PACKAGE_INFO,
+      ),
+    );
   };
 }
 
 export function closePopupAndUnsetTargets(): AppThunkAction {
   return (dispatch) => {
     dispatch(setTargetView(null));
-    dispatch(setTargetSelectedResourceId(''));
-    dispatch(setTargetSelectedAttributionId(''));
+    dispatch(setTargetSelectedResourceId(null));
+    dispatch(setTargetSelectedAttributionId(null));
     dispatch(closePopup());
     dispatch(setOpenFileRequest(false));
     dispatch(setImportFileRequest(null));
