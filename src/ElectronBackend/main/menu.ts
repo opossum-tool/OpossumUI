@@ -17,12 +17,7 @@ import {
   getIconBasedOnTheme,
   makeFirstIconVisibleAndSecondHidden,
 } from './iconHelpers';
-import {
-  getImportFileListener,
-  getSelectBaseURLListener,
-  setLoadingState,
-} from './listeners';
-import logger from './logger';
+import { getImportFileListener, getSelectBaseURLListener } from './listeners';
 import {
   getPathOfChromiumNoticeDocument,
   getPathOfNoticeDocument,
@@ -157,8 +152,6 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
                 'icons/follow-up-black.png',
               ),
               click: () => {
-                setLoadingState(mainWindow.webContents, true);
-                logger.info('Preparing data for follow-up export');
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.FollowUp,
@@ -174,8 +167,6 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
               ),
               label: INITIALLY_DISABLED_ITEMS_INFO.compactComponentList.label,
               click: () => {
-                setLoadingState(mainWindow.webContents, true);
-                logger.info('Preparing data for compact component list export');
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.CompactBom,
@@ -191,10 +182,6 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
               ),
               label: INITIALLY_DISABLED_ITEMS_INFO.detailedComponentList.label,
               click: () => {
-                setLoadingState(mainWindow.webContents, true);
-                logger.info(
-                  'Preparing data for detailed component list export',
-                );
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.DetailedBom,
@@ -210,8 +197,6 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
               ),
               label: INITIALLY_DISABLED_ITEMS_INFO.spdxYAML.label,
               click: () => {
-                setLoadingState(mainWindow.webContents, true);
-                logger.info('Preparing data for SPDX (yaml) export');
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.SpdxDocumentYaml,
@@ -227,8 +212,6 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
               ),
               label: INITIALLY_DISABLED_ITEMS_INFO.spdxJSON.label,
               click: () => {
-                setLoadingState(mainWindow.webContents, true);
-                logger.info('Preparing data for SPDX (json) export');
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.SpdxDocumentJson,

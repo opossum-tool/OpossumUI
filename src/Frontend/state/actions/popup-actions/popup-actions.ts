@@ -3,7 +3,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FileFormatInfo, PackageInfo } from '../../../../shared/shared-types';
+import {
+  ExportType,
+  FileFormatInfo,
+  PackageInfo,
+} from '../../../../shared/shared-types';
 import { PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import {
@@ -12,6 +16,7 @@ import {
   getSelectedResourceId,
 } from '../../selectors/resource-selectors';
 import {
+  getExportFileRequest,
   getImportFileRequest,
   getOpenFileRequest,
   getTargetView,
@@ -24,6 +29,7 @@ import {
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../resource-actions/audit-view-simple-actions';
+import { exportFile } from '../resource-actions/export-actions';
 import {
   openResourceInResourceBrowser,
   setSelectedResourceOrAttributionIdToTargetValue,
@@ -32,6 +38,7 @@ import {
   closePopup,
   navigateToView,
   openPopup,
+  setExportFileRequest,
   setImportFileRequest,
   setOpenFileRequest,
   setTargetView,
@@ -95,9 +102,18 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
 
 export function proceedFromUnsavedPopup(): AppThunkAction {
   return (dispatch, getState) => {
+    // discard changes
+    dispatch(
+      setTemporaryDisplayPackageInfo(
+        getPackageInfoOfSelectedAttribution(getState()) ||
+          EMPTY_DISPLAY_PACKAGE_INFO,
+      ),
+    );
+
     const targetView = getTargetView(getState());
     const openFileRequest = getOpenFileRequest(getState());
     const importFileRequest = getImportFileRequest(getState());
+    const exportFileRequest = getExportFileRequest(getState());
 
     dispatch(closePopup());
 
@@ -109,6 +125,11 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
 
     if (importFileRequest) {
       dispatch(openPopup(PopupType.ImportDialog, undefined, importFileRequest));
+      return;
+    }
+
+    if (exportFileRequest) {
+      dispatch(exportFile(exportFileRequest));
       return;
     }
 
@@ -133,6 +154,7 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(closePopup());
     dispatch(setOpenFileRequest(false));
     dispatch(setImportFileRequest(null));
+    dispatch(setExportFileRequest(null));
   };
 }
 
@@ -154,6 +176,19 @@ export function openFileWithUnsavedCheck(): AppThunkAction {
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       void window.electronAPI.openFile();
+    }
+  };
+}
+
+export function exportFileWithUnsavedCheck(
+  exportType: ExportType,
+): AppThunkAction {
+  return (dispatch, getState) => {
+    if (getIsPackageInfoModified(getState())) {
+      dispatch(setExportFileRequest(exportType));
+      dispatch(openPopup(PopupType.NotSavedPopup));
+    } else {
+      dispatch(exportFile(exportType));
     }
   };
 }
