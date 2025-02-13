@@ -51,6 +51,7 @@ jobs:
           files: ${{ matrix.FILES }}
 
       - name: Upload user guide
+        continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
           files: USER_GUIDE.md
@@ -59,6 +60,7 @@ jobs:
         run: yarn spdx
 
       - name: Upload SPDX document
+        continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
           files: opossum-ui.spdx.json
