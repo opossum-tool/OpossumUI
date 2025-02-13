@@ -44,60 +44,63 @@ import {
   setTargetView,
 } from '../view-actions/view-actions';
 
-export function navigateToSelectedPathOrOpenUnsavedPopup(
-  resourcePath: string,
+function withUnsavedCheck(
+  executeImmediately: AppThunkAction,
+  requestContinuation: AppThunkAction,
 ): AppThunkAction {
   return (dispatch, getState) => {
     if (getIsPackageInfoModified(getState())) {
-      dispatch(setTargetSelectedResourceId(resourcePath));
+      dispatch(requestContinuation);
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
-      dispatch(openResourceInResourceBrowser(resourcePath));
+      dispatch(executeImmediately);
     }
   };
+}
+
+export function navigateToSelectedPathOrOpenUnsavedPopup(
+  resourcePath: string,
+): AppThunkAction {
+  return withUnsavedCheck(
+    (dispatch) => dispatch(openResourceInResourceBrowser(resourcePath)),
+    (dispatch) => dispatch(setTargetSelectedResourceId(resourcePath)),
+  );
 }
 
 export function changeSelectedAttributionOrOpenUnsavedPopup(
   packageInfo: PackageInfo | null,
 ): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsPackageInfoModified(getState())) {
-      dispatch(setTargetSelectedAttributionId(packageInfo?.id || ''));
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
+  return withUnsavedCheck(
+    (dispatch) => {
       dispatch(setSelectedAttributionId(packageInfo?.id ?? ''));
       dispatch(
         setTemporaryDisplayPackageInfo(
           packageInfo || EMPTY_DISPLAY_PACKAGE_INFO,
         ),
       );
-    }
-  };
+    },
+    (dispatch) =>
+      dispatch(setTargetSelectedAttributionId(packageInfo?.id || '')),
+  );
 }
 
 export function setViewOrOpenUnsavedPopup(selectedView: View): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsPackageInfoModified(getState())) {
+  return withUnsavedCheck(
+    (dispatch) => dispatch(navigateToView(selectedView)),
+    (dispatch, getState) => {
       dispatch(setTargetView(selectedView));
       dispatch(setTargetSelectedResourceId(getSelectedResourceId(getState())));
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      dispatch(navigateToView(selectedView));
-    }
-  };
+    },
+  );
 }
 
 export function setSelectedResourceIdOrOpenUnsavedPopup(
   resourceId: string,
 ): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsPackageInfoModified(getState())) {
-      dispatch(setTargetSelectedResourceId(resourceId));
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      dispatch(setSelectedResourceId(resourceId));
-    }
-  };
+  return withUnsavedCheck(
+    (dispatch) => dispatch(setSelectedResourceId(resourceId)),
+    (dispatch) => dispatch(setTargetSelectedResourceId(resourceId)),
+  );
 }
 
 export function proceedFromUnsavedPopup(): AppThunkAction {
@@ -150,26 +153,12 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
   };
 }
 
-function actionWithUnsavedCheck(
-  executeAction: () => void,
-  requestAction: () => void,
-): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsPackageInfoModified(getState())) {
-      requestAction();
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      executeAction();
-    }
-  };
-}
-
 export function showImportDialogWithUnsavedCheck(
   fileFormat: FileFormatInfo,
 ): AppThunkAction {
   return (dispatch, _) => {
     dispatch(
-      actionWithUnsavedCheck(
+      withUnsavedCheck(
         () =>
           dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat)),
         () => dispatch(setImportFileRequest(fileFormat)),
@@ -181,7 +170,7 @@ export function showImportDialogWithUnsavedCheck(
 export function openFileWithUnsavedCheck(): AppThunkAction {
   return (dispatch, _) => {
     dispatch(
-      actionWithUnsavedCheck(
+      withUnsavedCheck(
         () => void window.electronAPI.openFile(),
         () => dispatch(setOpenFileRequest(true)),
       ),
@@ -194,7 +183,7 @@ export function exportFileWithUnsavedCheck(
 ): AppThunkAction {
   return (dispatch, _) => {
     dispatch(
-      actionWithUnsavedCheck(
+      withUnsavedCheck(
         () => dispatch(exportFile(exportType)),
         () => dispatch(setExportFileRequest(exportType)),
       ),
