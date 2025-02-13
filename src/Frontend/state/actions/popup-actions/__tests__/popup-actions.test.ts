@@ -422,8 +422,8 @@ describe('closePopupAndUnsetTargets', () => {
     testStore.dispatch(closePopupAndUnsetTargets());
 
     expect(getTargetView(testStore.getState())).toBeNull();
-    expect(getTargetSelectedResourceId(testStore.getState())).toBe('');
-    expect(getTargetSelectedAttributionId(testStore.getState())).toBe('');
+    expect(getTargetSelectedResourceId(testStore.getState())).toBeNull();
+    expect(getTargetSelectedAttributionId(testStore.getState())).toBeNull();
     expect(getOpenFileRequest(testStore.getState())).toBe(false);
     expect(getImportFileRequest(testStore.getState())).toBeNull();
     expect(getExportFileRequest(testStore.getState())).toBeNull();
