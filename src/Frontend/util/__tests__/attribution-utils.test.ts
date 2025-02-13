@@ -9,8 +9,8 @@ import {
   Resources,
 } from '../../../shared/shared-types';
 import {
-  attributionUtils,
   getAttributionsWithAllChildResourcesWithoutFolders,
+  getAttributionsWithResources,
   getBomAttributions,
   removeSlashesFromFilesWithChildren,
 } from '../attribution-utils';
@@ -48,12 +48,15 @@ describe('getAttributionsWithResources', () => {
     };
 
     expect(
-      attributionUtils(testAttributions, testAttributionsToResources),
+      getAttributionsWithResources(
+        testAttributions,
+        testAttributionsToResources,
+      ),
     ).toEqual(expectedAttributionsWithResources);
   });
 
   it('returns attributions with resources for empty attributions', () => {
-    expect(attributionUtils({}, {})).toEqual({});
+    expect(getAttributionsWithResources({}, {})).toEqual({});
   });
 });
 
