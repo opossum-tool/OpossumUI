@@ -37,11 +37,13 @@ test('opens, displays and closes import dialog', async ({
   await importDialog.assert.titleIsHidden();
 });
 
-test('imports legacy opossum file', async ({
+test('imports legacy opossum file and works with NotSavedPopup', async ({
   menuBar,
   importDialog,
   resourcesTree,
   window,
+  attributionDetails,
+  notSavedPopup,
 }) => {
   await stubDialog(window.app, 'showOpenDialogSync', [
     importDialog.legacyFilePath,
@@ -61,6 +63,15 @@ test('imports legacy opossum file', async ({
 
   await importDialog.assert.titleIsHidden();
   await resourcesTree.assert.resourceIsVisible(resourceName);
+
+  const comment = faker.lorem.sentences();
+  await resourcesTree.goto(resourceName);
+  await attributionDetails.attributionForm.comment.fill(comment);
+
+  await menuBar.openImportLegacyOpossumFile();
+  await notSavedPopup.assert.isVisible();
+  await notSavedPopup.discardButton.click();
+  await importDialog.assert.titleIsVisible();
 });
 
 test('imports scancode file', async ({
