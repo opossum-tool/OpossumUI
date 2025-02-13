@@ -62,15 +62,12 @@ jobs:
 
       - run: yarn install --immutable
 
-      - name: Upload user guide
-        uses: softprops/action-gh-release@v2
-        with:
-          files: USER_GUIDE.md
-
       - name: Create SPDX document
         run: yarn spdx
 
-      - name: Upload SPDX document
+      - name: Upload user guide and SPDX document
         uses: softprops/action-gh-release@v2
         with:
-          files: opossum-ui.spdx.json
+          files: |
+            USER_GUIDE.md
+            opossum-ui.spdx.json
