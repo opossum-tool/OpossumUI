@@ -125,11 +125,13 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
 
     if (importFileRequest) {
       dispatch(openPopup(PopupType.ImportDialog, undefined, importFileRequest));
+      dispatch(setImportFileRequest(null));
       return;
     }
 
     if (exportFileRequest) {
       dispatch(exportFile(exportFileRequest));
+      dispatch(setExportFileRequest(null));
       return;
     }
 
@@ -137,12 +139,6 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     if (targetView) {
       dispatch(navigateToView(targetView));
     }
-    dispatch(
-      setTemporaryDisplayPackageInfo(
-        getPackageInfoOfSelectedAttribution(getState()) ||
-          EMPTY_DISPLAY_PACKAGE_INFO,
-      ),
-    );
   };
 }
 
