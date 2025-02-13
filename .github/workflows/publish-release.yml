@@ -60,6 +60,8 @@ jobs:
           cache: 'yarn'
           node-version: 22
 
+      - run: yarn install --immutable
+
       - name: Upload user guide
         uses: softprops/action-gh-release@v2
         with:
