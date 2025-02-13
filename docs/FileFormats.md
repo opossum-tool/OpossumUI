@@ -1,8 +1,8 @@
 # File formats
 
 Files with a `.opossum` extension are zip-archives which contain an `input.json` (must be provided) together with an `output.json` (optional).
-JSON schemas for both the [input](src/ElectronBackend/input/OpossumInputFileSchema.json)
-and [output](src/ElectronBackend/input/OpossumOutputFileSchema.json) files are available. Example files can be found
+JSON schemas for both the [input](../src/ElectronBackend/input/OpossumInputFileSchema.json)
+and [output](../src/ElectronBackend/input/OpossumOutputFileSchema.json) files are available. Example files can be found
 under [example files](example-files/).
 
 ### Input file
