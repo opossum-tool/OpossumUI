@@ -195,7 +195,7 @@ export function getImportFileConvertAndLoadListener(
       opossumFilePath: string,
     ) => {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
-        throw new Error('Input file does not exists');
+        throw new Error('Input file does not exist');
       }
 
       if (!opossumFilePath.trim()) {
