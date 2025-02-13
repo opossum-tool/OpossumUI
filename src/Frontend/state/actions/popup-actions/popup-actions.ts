@@ -154,37 +154,54 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
   };
 }
 
-export function showImportDialog(fileFormat: FileFormatInfo): AppThunkAction {
+function actionWithUnsavedCheck(
+  executeAction: () => void,
+  requestAction: () => void,
+): AppThunkAction {
   return (dispatch, getState) => {
     if (getIsPackageInfoModified(getState())) {
-      dispatch(setImportFileRequest(fileFormat));
+      requestAction();
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
-      dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat));
+      executeAction();
     }
   };
 }
 
+export function showImportDialogWithUnsavedCheck(
+  fileFormat: FileFormatInfo,
+): AppThunkAction {
+  return (dispatch, _) => {
+    dispatch(
+      actionWithUnsavedCheck(
+        () =>
+          dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat)),
+        () => dispatch(setImportFileRequest(fileFormat)),
+      ),
+    );
+  };
+}
+
 export function openFileWithUnsavedCheck(): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsPackageInfoModified(getState())) {
-      dispatch(setOpenFileRequest(true));
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      void window.electronAPI.openFile();
-    }
+  return (dispatch, _) => {
+    dispatch(
+      actionWithUnsavedCheck(
+        () => void window.electronAPI.openFile(),
+        () => dispatch(setOpenFileRequest(true)),
+      ),
+    );
   };
 }
 
 export function exportFileWithUnsavedCheck(
   exportType: ExportType,
 ): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsPackageInfoModified(getState())) {
-      dispatch(setExportFileRequest(exportType));
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      dispatch(exportFile(exportType));
-    }
+  return (dispatch, _) => {
+    dispatch(
+      actionWithUnsavedCheck(
+        () => dispatch(exportFile(exportType)),
+        () => dispatch(setExportFileRequest(exportType)),
+      ),
+    );
   };
 }

@@ -16,7 +16,7 @@ import { ROOT_PATH } from '../../shared-constants';
 import {
   exportFileWithUnsavedCheck,
   openFileWithUnsavedCheck,
-  showImportDialog,
+  showImportDialogWithUnsavedCheck,
 } from '../../state/actions/popup-actions/popup-actions';
 import {
   resetResourceState,
@@ -142,7 +142,7 @@ export const BackendCommunication: React.FC = () => {
   );
   useIpcRenderer<ShowImportDialogListener>(
     AllowedFrontendChannels.ImportFileShowDialog,
-    (_, fileFormat) => dispatch(showImportDialog(fileFormat)),
+    (_, fileFormat) => dispatch(showImportDialogWithUnsavedCheck(fileFormat)),
     [dispatch],
   );
 
