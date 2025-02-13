@@ -18,7 +18,7 @@ import {
   isIdOfResourceWithChildren,
 } from './can-resource-have-children';
 
-export function attributionUtils(
+export function getAttributionsWithResources(
   attributions: Attributions,
   attributionsToResources: AttributionsToResources,
 ): Attributions {

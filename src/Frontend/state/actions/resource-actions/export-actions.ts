@@ -12,8 +12,8 @@ import {
 } from '../../../../shared/shared-types';
 import { State } from '../../../types/types';
 import {
-  attributionUtils,
   getAttributionsWithAllChildResourcesWithoutFolders,
+  getAttributionsWithResources,
   getBomAttributions,
   removeSlashesFromFilesWithChildren,
 } from '../../../util/attribution-utils';
@@ -112,7 +112,7 @@ function getDetailedBomExportListener(state: State): void {
     ExportType.DetailedBom,
   );
 
-  const bomAttributionsWithResources = attributionUtils(
+  const bomAttributionsWithResources = getAttributionsWithResources(
     bomAttributions,
     getManualData(state).attributionsToResources,
   );
