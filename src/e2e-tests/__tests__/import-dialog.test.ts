@@ -89,6 +89,32 @@ test('imports scancode file', async ({
   await resourcesTree.assert.resourceIsVisible('src');
 });
 
+test('imports OWASP file', async ({
+  menuBar,
+  importDialog,
+  resourcesTree,
+  window,
+}) => {
+  await stubDialog(window.app, 'showOpenDialogSync', [
+    importDialog.owaspFilePath,
+  ]);
+  await stubDialog(
+    window.app,
+    'showSaveDialogSync',
+    getDotOpossumFilePath(importDialog.owaspFilePath, ['json']),
+  );
+
+  await menuBar.openImportOwaspDependencyScanFile();
+  await importDialog.assert.titleIsVisible();
+
+  await importDialog.inputFileSelection.click();
+  await importDialog.opossumFileSelection.click();
+  await importDialog.importButton.click();
+
+  await importDialog.assert.titleIsHidden();
+  await resourcesTree.assert.resourceIsVisible('contrib');
+});
+
 test('shows error when no file path is set', async ({
   menuBar,
   importDialog,

@@ -1,0 +1,301 @@
+{
+  "reportSchema": "1.1",
+  "scanInfo": {
+    "engineVersion": "6.2.2",
+    "dataSource": [
+      {
+        "name": "NVD CVE Checked",
+        "timestamp": "2021-09-20T12:10:45"
+      },
+      {
+        "name": "NVD CVE Modified",
+        "timestamp": "2021-09-20T12:00:01"
+      },
+      {
+        "name": "VersionCheckOn",
+        "timestamp": "2021-09-19T13:55:55"
+      }
+    ]
+  },
+  "projectInfo": {
+    "name": "",
+    "reportDate": "2021-09-20T12:10:51.304633Z",
+    "credits": {
+      "NVD": "This report contains data retrieved from the National Vulnerability Database: http://nvd.nist.gov",
+      "NPM": "This report may contain data retrieved from the NPM Public Advisories: https://www.npmjs.com/advisories",
+      "RETIREJS": "This report may contain data retrieved from the RetireJS community: https://retirejs.github.io/retire.js/",
+      "OSSINDEX": "This report may contain data retrieved from the Sonatype OSS Index: https://ossindex.sonatype.org"
+    }
+  },
+  "dependencies": [
+    {
+      "isVirtual": false,
+      "fileName": "DotZLib.csproj",
+      "filePath": "contrib/dotzlib/DotZLib/DotZLib.csproj",
+      "md5": "1549ce82a2662e77a22625f68c0a5d36",
+      "sha1": "99238c2ad633a641687d722e8c80aaa0a8c8bdd2",
+      "sha256": "21606db31dfef6410dd438b73f1db68856eacabcce6c0f0411fc4f17e17001f3",
+      "evidenceCollected": {
+        "vendorEvidence": [
+          {
+            "type": "vendor",
+            "confidence": "HIGH",
+            "source": "file",
+            "name": "name",
+            "value": "DotZLib"
+          }
+        ],
+        "productEvidence": [
+          {
+            "type": "product",
+            "confidence": "HIGH",
+            "source": "file",
+            "name": "name",
+            "value": "DotZLib"
+          }
+        ],
+        "versionEvidence": []
+      }
+    },
+    {
+      "isVirtual": true,
+      "fileName": "async:2.6.3",
+      "filePath": "/home/hellgartner/workspace/meta_oss/code/old-opossumUI/yarn.lock?async",
+      "projectReferences": ["yarn.lock: transitive"],
+      "evidenceCollected": {
+        "vendorEvidence": [
+          {
+            "type": "vendor",
+            "confidence": "HIGH",
+            "source": "package.json",
+            "name": "name",
+            "value": "async"
+          }
+        ],
+        "productEvidence": [
+          {
+            "type": "product",
+            "confidence": "HIGHEST",
+            "source": "package.json",
+            "name": "name",
+            "value": "async"
+          }
+        ],
+        "versionEvidence": [
+          {
+            "type": "version",
+            "confidence": "HIGHEST",
+            "source": "package.json",
+            "name": "version",
+            "value": "2.6.3"
+          }
+        ]
+      },
+      "packages": [
+        {
+          "id": "pkg:npm/async@2.6.3",
+          "confidence": "HIGHEST",
+          "url": "https://ossindex.sonatype.org/component/pkg:npm/async@2.6.3?utm_source=dependency-check&utm_medium=integration&utm_content=12.0.2"
+        }
+      ],
+      "vulnerabilities": [
+        {
+          "source": "OSSINDEX",
+          "name": "CVE-2021-43138",
+          "severity": "HIGH",
+          "cvssv3": {
+            "baseScore": 7.800000190734863,
+            "attackVector": "LOCAL",
+            "attackComplexity": "LOW",
+            "privilegesRequired": "NONE",
+            "userInteraction": "REQUIRED",
+            "scope": "UNCHANGED",
+            "confidentialityImpact": "HIGH",
+            "integrityImpact": "HIGH",
+            "availabilityImpact": "HIGH",
+            "baseSeverity": "HIGH",
+            "version": "3.1"
+          },
+          "cwes": ["CWE-1321"],
+          "description": "In Async before 2.6.4 and 3.x before 3.2.2, a malicious user can obtain privileges via the mapValues() method, aka lib/internal/iterator.js createObjectIterator prototype pollution.\n\nSonatype's research suggests that this CVE's details differ from those defined at NVD. See https://ossindex.sonatype.org/vulnerability/CVE-2021-43138 for details",
+          "notes": "",
+          "references": [
+            {
+              "source": "OSSIndex",
+              "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2021-43138",
+              "name": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2021-43138"
+            },
+            {
+              "source": "OSSINDEX",
+              "url": "https://ossindex.sonatype.org/vulnerability/CVE-2021-43138?component-type=npm&component-name=async&utm_source=dependency-check&utm_medium=integration&utm_content=12.0.2",
+              "name": "[CVE-2021-43138] CWE-1321"
+            },
+            {
+              "source": "OSSIndex",
+              "url": "https://github.com/caolan/async/pull/1828",
+              "name": "https://github.com/caolan/async/pull/1828"
+            }
+          ],
+          "vulnerableSoftware": [
+            {
+              "software": {
+                "id": "cpe:2.3:a:*:async:2.6.3:*:*:*:*:*:*:*",
+                "vulnerabilityIdMatched": "true"
+              }
+            }
+          ]
+        },
+        {
+          "source": "NPM",
+          "name": "GHSA-fwr7-v2mv-hh25",
+          "unscored": "true",
+          "severity": "high",
+          "cvssv3": {
+            "baseScore": 7.800000190734863,
+            "attackVector": "LOCAL",
+            "attackComplexity": "LOW",
+            "privilegesRequired": "NONE",
+            "userInteraction": "REQUIRED",
+            "scope": "UNCHANGED",
+            "confidentialityImpact": "HIGH",
+            "integrityImpact": "HIGH",
+            "availabilityImpact": "HIGH",
+            "baseSeverity": "HIGH",
+            "version": "3.1"
+          },
+          "cwes": ["CWE-1321"],
+          "description": "A vulnerability exists in Async through 3.2.1 for 3.x and through 2.6.3 for 2.x (fixed in 3.2.2 and 2.6.4), which could let a malicious user obtain privileges via the `mapValues()` method.",
+          "notes": "",
+          "references": [
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/UM6XJ73Q3NAM5KSGCOKJ2ZIA6GUWUJLK",
+              "name": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/UM6XJ73Q3NAM5KSGCOKJ2ZIA6GUWUJLK"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://github.com/caolan/async/blob/v2.6.4/CHANGELOG.md#v264",
+              "name": "https://github.com/caolan/async/blob/v2.6.4/CHANGELOG.md#v264"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://jsfiddle.net/oz5twjd9",
+              "name": "https://jsfiddle.net/oz5twjd9"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/UM6XJ73Q3NAM5KSGCOKJ2ZIA6GUWUJLK",
+              "name": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/UM6XJ73Q3NAM5KSGCOKJ2ZIA6GUWUJLK"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://github.com/caolan/async/commit/e1ecdbf79264f9ab488c7799f4c76996d5dca66d",
+              "name": "https://github.com/caolan/async/commit/e1ecdbf79264f9ab488c7799f4c76996d5dca66d"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://github.com/caolan/async/blob/master/lib/mapValuesLimit.js",
+              "name": "https://github.com/caolan/async/blob/master/lib/mapValuesLimit.js"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://github.com/caolan/async/compare/v2.6.3...v2.6.4",
+              "name": "https://github.com/caolan/async/compare/v2.6.3...v2.6.4"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://github.com/caolan/async/commit/8f7f90342a6571ba1c197d747ebed30c368096d2",
+              "name": "https://github.com/caolan/async/commit/8f7f90342a6571ba1c197d747ebed30c368096d2"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/MTEUUTNIEBHGKUKKLNUZSV7IEP6IP3Q3",
+              "name": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/MTEUUTNIEBHGKUKKLNUZSV7IEP6IP3Q3"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://security.netapp.com/advisory/ntap-20240621-0006",
+              "name": "https://security.netapp.com/advisory/ntap-20240621-0006"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://nvd.nist.gov/vuln/detail/CVE-2021-43138",
+              "name": "https://nvd.nist.gov/vuln/detail/CVE-2021-43138"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://github.com/advisories/GHSA-fwr7-v2mv-hh25",
+              "name": "https://github.com/advisories/GHSA-fwr7-v2mv-hh25"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/MTEUUTNIEBHGKUKKLNUZSV7IEP6IP3Q3",
+              "name": "https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/MTEUUTNIEBHGKUKKLNUZSV7IEP6IP3Q3"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://github.com/caolan/async/blob/master/lib/internal/iterator.js",
+              "name": "https://github.com/caolan/async/blob/master/lib/internal/iterator.js"
+            },
+            {
+              "source": "NPM Advisory reference: ",
+              "url": "https://github.com/caolan/async/pull/1828",
+              "name": "https://github.com/caolan/async/pull/1828"
+            }
+          ],
+          "vulnerableSoftware": [
+            {
+              "software": {
+                "id": "cpe:2.3:a:*:async:\\>\\=2.0.0\\<2.6.4:*:*:*:*:*:*:*"
+              }
+            }
+          ]
+        },
+        {
+          "source": "OSSINDEX",
+          "name": "CVE-2024-39249",
+          "severity": "MEDIUM",
+          "cvssv2": {
+            "score": 6.300000190734863,
+            "accessVector": "NETWORK",
+            "accessComplexity": "LOW",
+            "authenticationr": "$enc.json($vuln.cvssV2.cvssData.authentication)",
+            "confidentialityImpact": "$enc.json($vuln.cvssV2.cvssData.confidentialityImpact)",
+            "integrityImpact": "$enc.json($vuln.cvssV2.cvssData.integrityImpact)",
+            "availabilityImpact": "$enc.json($vuln.cvssV2.cvssData.availabilityImpact)",
+            "severity": "MEDIUM",
+            "version": "2.0"
+          },
+          "cwes": ["CWE-1333"],
+          "description": "Async <= 2.6.4 and <= 3.2.5 are vulnerable to ReDoS (Regular Expression Denial of Service) while parsing function in autoinject function. NOTE: this is disputed by the supplier because there is no realistic threat model: regular expressions are not used with untrusted input.\n\nSonatype's research suggests that this CVE's details differ from those defined at NVD. See https://ossindex.sonatype.org/vulnerability/CVE-2024-39249 for details",
+          "notes": "",
+          "references": [
+            {
+              "source": "OSSIndex",
+              "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2024-39249",
+              "name": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2024-39249"
+            },
+            {
+              "source": "OSSINDEX",
+              "url": "https://ossindex.sonatype.org/vulnerability/CVE-2024-39249?component-type=npm&component-name=async&utm_source=dependency-check&utm_medium=integration&utm_content=12.0.2",
+              "name": "[CVE-2024-39249] CWE-1333"
+            },
+            {
+              "source": "OSSIndex",
+              "url": "https://github.com/caolan/async/issues/1975",
+              "name": "https://github.com/caolan/async/issues/1975"
+            }
+          ],
+          "vulnerableSoftware": [
+            {
+              "software": {
+                "id": "cpe:2.3:a:*:async:2.6.3:*:*:*:*:*:*:*",
+                "vulnerabilityIdMatched": "true"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

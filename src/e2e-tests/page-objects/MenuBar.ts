@@ -38,6 +38,14 @@ export class MenuBar {
     await clickMenuItem(this.window.app, 'label', 'ScanCode File (.json)');
   }
 
+  async openImportOwaspDependencyScanFile(): Promise<void> {
+    await clickMenuItem(
+      this.window.app,
+      'label',
+      'OWASP Dependency-Check (.json)',
+    );
+  }
+
   async toggleQaMode(): Promise<void> {
     await clickMenuItem(this.window.app, 'label', 'QA Mode');
   }
