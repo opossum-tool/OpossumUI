@@ -37,7 +37,7 @@ test('opens, displays and closes import dialog', async ({
   await importDialog.assert.titleIsHidden();
 });
 
-test('imports legacy opossum file and works with NotSavedPopup', async ({
+test('imports legacy opossum file and checks for unsaved changes', async ({
   menuBar,
   importDialog,
   resourcesTree,
