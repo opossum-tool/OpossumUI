@@ -4,15 +4,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { FileFormatInfo, Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch } from '../../state/hooks';
-import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getLogMessage } from '../../state/selectors/view-selector';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -27,22 +26,23 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
 
-  const [currentLog, setCurrentLog] = useState<Log | null>(null);
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useIpcRenderer<LoggingListener>(
-    AllowedFrontendChannels.Logging,
-    (_, log) => setCurrentLog(log),
-    [],
-  );
+  const newestLogMessage = useAppSelector(getLogMessage);
+  const [logToDisplay, setLogToDisplay] = useState<Log | null>(null);
+
+  useEffect(() => {
+    if (isLoading) {
+      setLogToDisplay(newestLogMessage);
+    }
+  }, [isLoading, newestLogMessage]);
 
   function selectInputFilePath(): void {
     window.electronAPI.importFileSelectInput(fileFormat).then(
       (filePath) => {
         if (filePath) {
           setInputFilePath(filePath);
-          setCurrentLog(null);
+          setLogToDisplay(null);
         }
       },
       () => {},
@@ -66,7 +66,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       (filePath) => {
         if (filePath) {
           setOpossumFilePath(filePath);
-          setCurrentLog(null);
+          setLogToDisplay(null);
         }
       },
       () => {},
@@ -125,7 +125,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       }
       isOpen={true}
       customAction={
-        currentLog ? (
+        logToDisplay ? (
           <MuiBox
             sx={{
               display: 'flex',
@@ -135,7 +135,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
             }}
           >
             <LogDisplay
-              log={currentLog}
+              log={logToDisplay}
               isInProgress={isLoading}
               showDate={false}
               useEllipsis={true}
