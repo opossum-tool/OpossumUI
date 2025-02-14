@@ -373,19 +373,20 @@ describe('proceedFromUnsavedPopup', () => {
 
   it('proceeds with import file request', () => {
     const testStore = createAppStore();
-    testStore.dispatch(
-      setImportFileRequest({
-        fileType: FileType.LEGACY_OPOSSUM,
-        extensions: [],
-        name: '',
-      }),
-    );
+    const fileFormat = {
+      fileType: FileType.LEGACY_OPOSSUM,
+      extensions: [],
+      name: '',
+    };
+    testStore.dispatch(setImportFileRequest(fileFormat));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(proceedFromUnsavedPopup());
 
-    expect(getOpenPopup(testStore.getState())?.popup).toBe(
-      PopupType.ImportDialog,
-    );
+    expect(getOpenPopup(testStore.getState())).toStrictEqual({
+      popup: PopupType.ImportDialog,
+      attributionId: undefined,
+      fileFormat,
+    });
     expect(getImportFileRequest(testStore.getState())).toBeNull();
   });
 
