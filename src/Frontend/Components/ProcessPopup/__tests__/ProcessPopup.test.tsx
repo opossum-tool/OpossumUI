@@ -8,7 +8,7 @@ import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import {
   setLoading,
-  setLogMessage,
+  writeLogMessage,
 } from '../../../state/actions/view-actions/view-actions';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProcessPopup } from '../ProcessPopup';
@@ -35,7 +35,7 @@ describe('ProcessPopup', () => {
     const { store, rerender } = renderComponent(popup, {
       actions: [
         setLoading(true),
-        setLogMessage({
+        writeLogMessage({
           date,
           message,
           level: 'info',
