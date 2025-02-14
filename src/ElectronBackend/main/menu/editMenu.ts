@@ -3,13 +3,13 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { MenuItemConstructorOptions } from 'electron';
+
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import { INITIALLY_DISABLED_ITEMS_INFO } from './initiallyDisabledMenuItems';
-
-import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 
 const UNDO: MenuItemConstructorOptions = {
   icon: getIconBasedOnTheme('icons/undo-white.png', 'icons/undo-black.png'),

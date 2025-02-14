@@ -3,13 +3,13 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { MenuItemConstructorOptions } from 'electron';
+
 import {
   getIconBasedOnTheme,
   makeFirstIconVisibleAndSecondHidden,
 } from '../iconHelpers';
 import { UserSettings } from '../user-settings';
-
-import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 
 const SHOW_DEV_TOOLS: MenuItemConstructorOptions = {
   icon: getIconBasedOnTheme(
