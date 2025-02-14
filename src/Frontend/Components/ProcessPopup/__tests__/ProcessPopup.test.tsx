@@ -2,40 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen } from '@testing-library/react';
-import { IpcRendererEvent } from 'electron';
-import { noop } from 'lodash';
+import { screen } from '@testing-library/react';
 
-import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
-import { ElectronAPI, Log } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import {
+  setLoading,
+  setLogMessage,
+} from '../../../state/actions/view-actions/view-actions';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProcessPopup } from '../ProcessPopup';
 
-type Listener = (event: IpcRendererEvent, ...args: Array<unknown>) => void;
-
-const electronAPI: {
-  events: Partial<Record<AllowedFrontendChannels, Listener>>;
-  on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
-  send: (channel: AllowedFrontendChannels, ...args: Array<unknown>) => void;
-} = {
-  events: {},
-  on(channel: AllowedFrontendChannels, listener: Listener): () => void {
-    this.events[channel] = listener;
-    return noop;
-  },
-  send(channel: AllowedFrontendChannels, ...args: Array<unknown>): void {
-    this.events[channel]?.({} as IpcRendererEvent, ...args);
-  },
-};
-
 describe('ProcessPopup', () => {
-  beforeEach(() => {
-    electronAPI.events = {};
-    global.window.electronAPI = electronAPI as unknown as ElectronAPI;
-  });
-
   it('renders no dialog when loading is false', () => {
     renderComponent(<ProcessPopup />);
 
@@ -43,14 +21,7 @@ describe('ProcessPopup', () => {
   });
 
   it('renders dialog when loading is true', () => {
-    renderComponent(<ProcessPopup />);
-
-    act(
-      () =>
-        void electronAPI.send(AllowedFrontendChannels.FileLoading, {
-          isLoading: true,
-        }),
-    );
+    renderComponent(<ProcessPopup />, { actions: [setLoading(true)] });
 
     expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
   });
@@ -58,28 +29,24 @@ describe('ProcessPopup', () => {
   it('clears previous log messages when loading begins another time', () => {
     const date = faker.date.recent();
     const message = faker.lorem.sentence();
-    renderComponent(<ProcessPopup />);
 
-    act(
-      () =>
-        void electronAPI.send(AllowedFrontendChannels.FileLoading, {
-          isLoading: true,
-        }),
-    );
-    act(
-      () =>
-        void electronAPI.send(AllowedFrontendChannels.Logging, {
+    const popup = <ProcessPopup />;
+
+    const { store, rerender } = renderComponent(popup, {
+      actions: [
+        setLoading(true),
+        setLogMessage({
           date,
           message,
           level: 'info',
-        } satisfies Log),
-    );
-    act(
-      () =>
-        void electronAPI.send(AllowedFrontendChannels.FileLoading, {
-          isLoading: true,
         }),
-    );
+      ],
+    });
+
+    store.dispatch(setLoading(false));
+    rerender(popup);
+    store.dispatch(setLoading(true));
+    rerender(popup);
 
     expect(screen.queryByText(message)).not.toBeInTheDocument();
   });
