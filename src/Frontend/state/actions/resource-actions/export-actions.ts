@@ -34,21 +34,18 @@ export function exportFile(exportType: ExportType): AppThunkAction {
     switch (exportType) {
       case ExportType.SpdxDocumentJson:
         dispatch(writeInfoLogMessage('Preparing data for SPDX (json) export'));
-        return getSpdxDocumentExportListener(
-          getState(),
-          ExportType.SpdxDocumentJson,
-        );
+        exportSpdxDocument(getState(), ExportType.SpdxDocumentJson);
+        break;
 
       case ExportType.SpdxDocumentYaml:
         dispatch(writeInfoLogMessage('Preparing data for SPDX (yaml) export'));
-        return getSpdxDocumentExportListener(
-          getState(),
-          ExportType.SpdxDocumentYaml,
-        );
+        exportSpdxDocument(getState(), ExportType.SpdxDocumentYaml);
+        break;
 
       case ExportType.FollowUp:
         dispatch(writeInfoLogMessage('Preparing data for follow-up export'));
-        return getFollowUpExportListener(getState());
+        exportFollowUp(getState());
+        break;
 
       case ExportType.CompactBom:
         dispatch(
@@ -56,7 +53,8 @@ export function exportFile(exportType: ExportType): AppThunkAction {
             'Preparing data for compact component list export',
           ),
         );
-        return getCompactBomExportListener(getState());
+        exportCompactBom(getState());
+        break;
 
       case ExportType.DetailedBom:
         dispatch(
@@ -64,12 +62,13 @@ export function exportFile(exportType: ExportType): AppThunkAction {
             'Preparing data for detailed component list export',
           ),
         );
-        return getDetailedBomExportListener(getState());
+        exportDetailedBom(getState());
+        break;
     }
   };
 }
 
-function getFollowUpExportListener(state: State): void {
+function exportFollowUp(state: State): void {
   const followUpAttributions = pick(
     getManualData(state).attributions,
     Object.keys(getManualData(state).attributions).filter(
@@ -100,7 +99,7 @@ function getFollowUpExportListener(state: State): void {
   });
 }
 
-function getSpdxDocumentExportListener(
+function exportSpdxDocument(
   state: State,
   exportType: ExportType.SpdxDocumentYaml | ExportType.SpdxDocumentJson,
 ): void {
@@ -133,7 +132,7 @@ function getSpdxDocumentExportListener(
   window.electronAPI.exportFile(args);
 }
 
-function getDetailedBomExportListener(state: State): void {
+function exportDetailedBom(state: State): void {
   const bomAttributions = getBomAttributions(
     getManualData(state).attributions,
     ExportType.DetailedBom,
@@ -156,7 +155,7 @@ function getDetailedBomExportListener(state: State): void {
   });
 }
 
-function getCompactBomExportListener(state: State): void {
+function exportCompactBom(state: State): void {
   window.electronAPI.exportFile({
     type: ExportType.CompactBom,
     bomAttributions: getBomAttributions(
