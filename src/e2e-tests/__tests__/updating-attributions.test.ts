@@ -66,6 +66,7 @@ test('warns user of unsaved changes if user attempts to open new file before sav
   notSavedPopup,
   resourcesTree,
   topBar,
+  menuBar,
 }) => {
   const comment = faker.lorem.sentences();
   await resourcesTree.goto(resourceName1);
@@ -77,7 +78,7 @@ test('warns user of unsaved changes if user attempts to open new file before sav
   await notSavedPopup.cancelButton.click();
   await attributionDetails.attributionForm.assert.commentIs(comment);
 
-  await topBar.openFileButton.click();
+  await menuBar.openFile();
   await notSavedPopup.assert.isVisible();
 });
 
@@ -107,6 +108,34 @@ test('warns user of unsaved changes if user attempts to navigate away before sav
 
   await notSavedPopup.discardButton.click();
   await topBar.assert.reportViewIsActive();
+});
+
+test('warns user of unsaved changes if user attempts to import new file before saving', async ({
+  attributionDetails,
+  notSavedPopup,
+  resourcesTree,
+  menuBar,
+}) => {
+  const comment = faker.lorem.sentences();
+  await resourcesTree.goto(resourceName1);
+  await attributionDetails.attributionForm.comment.fill(comment);
+
+  await menuBar.importLegacyOpossumFile();
+  await notSavedPopup.assert.isVisible();
+});
+
+test('warns user of unsaved changes if user attempts to export data before saving', async ({
+  attributionDetails,
+  notSavedPopup,
+  resourcesTree,
+  menuBar,
+}) => {
+  const comment = faker.lorem.sentences();
+  await resourcesTree.goto(resourceName1);
+  await attributionDetails.attributionForm.comment.fill(comment);
+
+  await menuBar.exportFollowUp();
+  await notSavedPopup.assert.isVisible();
 });
 
 test('allows user to update an attribution on the selected resource only', async ({
