@@ -25,9 +25,11 @@ import {
   getResources,
 } from '../../selectors/resource-selectors';
 import { AppThunkAction } from '../../types';
+import { setLoading } from '../view-actions/view-actions';
 
 export function exportFile(exportType: ExportType): AppThunkAction {
-  return (_, getState) => {
+  return (dispatch, getState) => {
+    dispatch(setLoading(true));
     switch (exportType) {
       case ExportType.SpdxDocumentJson:
       case ExportType.SpdxDocumentYaml:

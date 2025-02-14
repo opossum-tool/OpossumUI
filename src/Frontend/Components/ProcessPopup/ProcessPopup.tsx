@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 
 import { Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { useAppSelector } from '../../state/hooks';
+import { useAppSelector, useStateEffect } from '../../state/hooks';
 import { getLogMessage, isLoading } from '../../state/selectors/view-selector';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { DialogContent } from './ProcessPopup.style';
@@ -16,7 +16,6 @@ import { DialogContent } from './ProcessPopup.style';
 export function ProcessPopup() {
   const [logs, setLogs] = useState<Array<Log>>([]);
   const loading = useAppSelector(isLoading);
-  const newestLogMessage = useAppSelector(getLogMessage);
 
   useEffect(() => {
     if (loading) {
@@ -24,11 +23,15 @@ export function ProcessPopup() {
     }
   }, [loading]);
 
-  useEffect(() => {
-    if (newestLogMessage) {
-      setLogs((prev) => [...prev, newestLogMessage]);
-    }
-  }, [newestLogMessage]);
+  useStateEffect(
+    getLogMessage,
+    (log) => {
+      if (log) {
+        setLogs((prev) => [...prev, log]);
+      }
+    },
+    [],
+  );
 
   return (
     <MuiDialog open={loading} fullWidth>
