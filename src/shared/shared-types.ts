@@ -232,6 +232,7 @@ export interface ExternalAttributionSources {
 export enum FileType {
   LEGACY_OPOSSUM,
   SCANCODE_JSON,
+  OWASP_JSON,
 }
 
 export interface FileFormatInfo {

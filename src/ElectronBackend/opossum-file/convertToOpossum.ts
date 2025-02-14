@@ -31,3 +31,22 @@ export async function convertScancodeToOpossum(
     throw new Error('Conversion of ScanCode file to .opossum file failed');
   }
 }
+
+export async function convertOwaspToOpossum(
+  pathToOwasp: string,
+  pathToOpossum: string,
+): Promise<void> {
+  try {
+    await execFile(OPOSSUM_FILE_EXECUTABLE, [
+      'generate',
+      '-o',
+      pathToOpossum,
+      '--owasp-json',
+      pathToOwasp,
+    ]);
+  } catch (error) {
+    throw new Error(
+      'Conversion of OWASP Dependency-check file to .opossum file failed',
+    );
+  }
+}

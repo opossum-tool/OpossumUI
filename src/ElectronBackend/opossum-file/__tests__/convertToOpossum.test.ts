@@ -9,7 +9,7 @@ import { join } from 'path';
 
 import { parseOpossumFile } from '../../input/parseFile';
 import { isOpossumFileFormat } from '../../utils/isOpossumFileFormat';
-import { convertScancodeToOpossum } from '../convertScancodeToOpossum';
+import { convertScancodeToOpossum } from '../convertToOpossum';
 
 describe('successfulConversionOfScanCodeFile', () => {
   const SCANCODE_TEST_FILE = join(__dirname, 'scancode.json');

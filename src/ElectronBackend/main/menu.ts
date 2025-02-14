@@ -96,6 +96,11 @@ export const importFileFormats: Array<FileFormatInfo> = [
     name: 'ScanCode File',
     extensions: ['json'],
   },
+  {
+    fileType: FileType.OWASP_JSON,
+    name: 'OWASP Dependency-Check',
+    extensions: ['json'],
+  },
 ];
 
 export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
