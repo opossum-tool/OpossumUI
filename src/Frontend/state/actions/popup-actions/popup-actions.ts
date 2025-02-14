@@ -44,10 +44,13 @@ import {
   setTargetView,
 } from '../view-actions/view-actions';
 
-function withUnsavedCheck(
-  executeImmediately: AppThunkAction,
-  requestContinuation: AppThunkAction,
-): AppThunkAction {
+function withUnsavedCheck({
+  executeImmediately,
+  requestContinuation,
+}: {
+  executeImmediately: AppThunkAction;
+  requestContinuation: AppThunkAction;
+}): AppThunkAction {
   return (dispatch, getState) => {
     if (getIsPackageInfoModified(getState())) {
       dispatch(requestContinuation);
@@ -61,17 +64,19 @@ function withUnsavedCheck(
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string,
 ): AppThunkAction {
-  return withUnsavedCheck(
-    (dispatch) => dispatch(openResourceInResourceBrowser(resourcePath)),
-    (dispatch) => dispatch(setTargetSelectedResourceId(resourcePath)),
-  );
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) =>
+      dispatch(openResourceInResourceBrowser(resourcePath)),
+    requestContinuation: (dispatch) =>
+      dispatch(setTargetSelectedResourceId(resourcePath)),
+  });
 }
 
 export function changeSelectedAttributionOrOpenUnsavedPopup(
   packageInfo: PackageInfo | null,
 ): AppThunkAction {
-  return withUnsavedCheck(
-    (dispatch) => {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) => {
       dispatch(setSelectedAttributionId(packageInfo?.id ?? ''));
       dispatch(
         setTemporaryDisplayPackageInfo(
@@ -79,54 +84,58 @@ export function changeSelectedAttributionOrOpenUnsavedPopup(
         ),
       );
     },
-    (dispatch) =>
+    requestContinuation: (dispatch) =>
       dispatch(setTargetSelectedAttributionId(packageInfo?.id || '')),
-  );
+  });
 }
 
 export function setViewOrOpenUnsavedPopup(selectedView: View): AppThunkAction {
-  return withUnsavedCheck(
-    (dispatch) => dispatch(navigateToView(selectedView)),
-    (dispatch, getState) => {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) => dispatch(navigateToView(selectedView)),
+    requestContinuation: (dispatch, getState) => {
       dispatch(setTargetView(selectedView));
       dispatch(setTargetSelectedResourceId(getSelectedResourceId(getState())));
     },
-  );
+  });
 }
 
 export function setSelectedResourceIdOrOpenUnsavedPopup(
   resourceId: string,
 ): AppThunkAction {
-  return withUnsavedCheck(
-    (dispatch) => dispatch(setSelectedResourceId(resourceId)),
-    (dispatch) => dispatch(setTargetSelectedResourceId(resourceId)),
-  );
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) =>
+      dispatch(setSelectedResourceId(resourceId)),
+    requestContinuation: (dispatch) =>
+      dispatch(setTargetSelectedResourceId(resourceId)),
+  });
 }
 
 export function showImportDialogOrOpenUnsavedPopup(
   fileFormat: FileFormatInfo,
 ): AppThunkAction {
-  return withUnsavedCheck(
-    (dispatch) =>
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) =>
       dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat)),
-    (dispatch) => dispatch(setImportFileRequest(fileFormat)),
-  );
+    requestContinuation: (dispatch) =>
+      dispatch(setImportFileRequest(fileFormat)),
+  });
 }
 
 export function openFileOrOpenUnsavedPopup(): AppThunkAction {
-  return withUnsavedCheck(
-    () => void window.electronAPI.openFile(),
-    (dispatch) => dispatch(setOpenFileRequest(true)),
-  );
+  return withUnsavedCheck({
+    executeImmediately: () => void window.electronAPI.openFile(),
+    requestContinuation: (dispatch) => dispatch(setOpenFileRequest(true)),
+  });
 }
 
 export function exportFileOrOpenUnsavedPopup(
   exportType: ExportType,
 ): AppThunkAction {
-  return withUnsavedCheck(
-    (dispatch) => dispatch(exportFile(exportType)),
-    (dispatch) => dispatch(setExportFileRequest(exportType)),
-  );
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) => dispatch(exportFile(exportType)),
+    requestContinuation: (dispatch) =>
+      dispatch(setExportFileRequest(exportType)),
+  });
 }
 
 export function proceedFromUnsavedPopup(): AppThunkAction {
