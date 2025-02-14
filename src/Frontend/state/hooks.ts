@@ -29,8 +29,9 @@ export const useStateEffect = <T>(
   selectorDeps: Array<unknown> = [],
 ): void => {
   const selectedState = useAppSelector(selector, selectorDeps);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const effectCallback = useCallback(effect, effectDeps);
   useEffect(() => {
-    return effect(selectedState);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedState, effect, ...effectDeps]);
+    return effectCallback(selectedState);
+  }, [selectedState, effectCallback]);
 };
