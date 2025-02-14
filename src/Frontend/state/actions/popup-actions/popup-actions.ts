@@ -103,6 +103,32 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
   );
 }
 
+export function showImportDialogOrOpenUnsavedPopup(
+  fileFormat: FileFormatInfo,
+): AppThunkAction {
+  return withUnsavedCheck(
+    (dispatch) =>
+      dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat)),
+    (dispatch) => dispatch(setImportFileRequest(fileFormat)),
+  );
+}
+
+export function openFileOrOpenUnsavedPopup(): AppThunkAction {
+  return withUnsavedCheck(
+    () => void window.electronAPI.openFile(),
+    (dispatch) => dispatch(setOpenFileRequest(true)),
+  );
+}
+
+export function exportFileOrOpenUnsavedPopup(
+  exportType: ExportType,
+): AppThunkAction {
+  return withUnsavedCheck(
+    (dispatch) => dispatch(exportFile(exportType)),
+    (dispatch) => dispatch(setExportFileRequest(exportType)),
+  );
+}
+
 export function proceedFromUnsavedPopup(): AppThunkAction {
   return (dispatch, getState) => {
     const targetView = getTargetView(getState());
@@ -150,43 +176,5 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setOpenFileRequest(false));
     dispatch(setImportFileRequest(null));
     dispatch(setExportFileRequest(null));
-  };
-}
-
-export function showImportDialogWithUnsavedCheck(
-  fileFormat: FileFormatInfo,
-): AppThunkAction {
-  return (dispatch, _) => {
-    dispatch(
-      withUnsavedCheck(
-        () =>
-          dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat)),
-        () => dispatch(setImportFileRequest(fileFormat)),
-      ),
-    );
-  };
-}
-
-export function openFileWithUnsavedCheck(): AppThunkAction {
-  return (dispatch, _) => {
-    dispatch(
-      withUnsavedCheck(
-        () => void window.electronAPI.openFile(),
-        () => dispatch(setOpenFileRequest(true)),
-      ),
-    );
-  };
-}
-
-export function exportFileWithUnsavedCheck(
-  exportType: ExportType,
-): AppThunkAction {
-  return (dispatch, _) => {
-    dispatch(
-      withUnsavedCheck(
-        () => dispatch(exportFile(exportType)),
-        () => dispatch(setExportFileRequest(exportType)),
-      ),
-    );
   };
 }

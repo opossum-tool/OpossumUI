@@ -14,7 +14,7 @@ import commitInfo from '../../../commitInfo.json';
 import { View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import {
-  openFileWithUnsavedCheck,
+  openFileOrOpenUnsavedPopup,
   setViewOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -91,7 +91,7 @@ export const TopBar: React.FC = () => {
   }
 
   function handleOpenFileClick(): void {
-    dispatch(openFileWithUnsavedCheck());
+    dispatch(openFileOrOpenUnsavedPopup());
   }
 
   return (

@@ -14,9 +14,9 @@ import {
 import { PopupType } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
 import {
-  exportFileWithUnsavedCheck,
-  openFileWithUnsavedCheck,
-  showImportDialogWithUnsavedCheck,
+  exportFileOrOpenUnsavedPopup,
+  openFileOrOpenUnsavedPopup,
+  showImportDialogOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import {
   resetResourceState,
@@ -127,7 +127,7 @@ export const BackendCommunication: React.FC = () => {
   );
   useIpcRenderer<ExportFileRequestListener>(
     AllowedFrontendChannels.ExportFileRequest,
-    (_, exportType) => dispatch(exportFileWithUnsavedCheck(exportType)),
+    (_, exportType) => dispatch(exportFileOrOpenUnsavedPopup(exportType)),
     [dispatch],
   );
   useIpcRenderer(
@@ -137,12 +137,12 @@ export const BackendCommunication: React.FC = () => {
   );
   useIpcRenderer(
     AllowedFrontendChannels.OpenFileWithUnsavedCheck,
-    () => dispatch(openFileWithUnsavedCheck()),
+    () => dispatch(openFileOrOpenUnsavedPopup()),
     [dispatch],
   );
   useIpcRenderer<ShowImportDialogListener>(
     AllowedFrontendChannels.ImportFileShowDialog,
-    (_, fileFormat) => dispatch(showImportDialogWithUnsavedCheck(fileFormat)),
+    (_, fileFormat) => dispatch(showImportDialogOrOpenUnsavedPopup(fileFormat)),
     [dispatch],
   );
 
