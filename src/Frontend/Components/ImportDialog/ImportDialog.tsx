@@ -4,13 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { FileFormatInfo, Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { useAppDispatch, useStateEffect } from '../../state/hooks';
 import { getLogMessage } from '../../state/selectors/view-selector';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
@@ -28,14 +28,17 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const newestLogMessage = useAppSelector(getLogMessage);
   const [logToDisplay, setLogToDisplay] = useState<Log | null>(null);
 
-  useEffect(() => {
-    if (isLoading) {
-      setLogToDisplay(newestLogMessage);
-    }
-  }, [isLoading, newestLogMessage]);
+  useStateEffect(
+    getLogMessage,
+    (log) => {
+      if (isLoading) {
+        setLogToDisplay(log);
+      }
+    },
+    [isLoading],
+  );
 
   function selectInputFilePath(): void {
     window.electronAPI.importFileSelectInput(fileFormat).then(
