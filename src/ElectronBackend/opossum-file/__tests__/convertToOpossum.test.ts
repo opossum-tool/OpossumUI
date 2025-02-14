@@ -7,12 +7,10 @@ import { uniqueId } from 'lodash';
 import { tmpdir } from 'os';
 import { join } from 'path';
 
+import { FileType } from '../../../shared/shared-types';
 import { parseOpossumFile } from '../../input/parseFile';
 import { isOpossumFileFormat } from '../../utils/isOpossumFileFormat';
-import {
-  convertOwaspToOpossum,
-  convertScancodeToOpossum,
-} from '../convertToOpossum';
+import { convertToOpossum } from '../convertToOpossum';
 
 describe('conversion to opossum', () => {
   const SCANCODE_TEST_FILE = join(__dirname, 'scancode.json');
@@ -20,7 +18,11 @@ describe('conversion to opossum', () => {
 
   it('should convert the ScanCode file and return a path to a valid .opossum file', async () => {
     const opossumPath = join(tmpdir(), `${uniqueId('opossum_')}.opossum`);
-    await convertScancodeToOpossum(SCANCODE_TEST_FILE, opossumPath);
+    await convertToOpossum(
+      SCANCODE_TEST_FILE,
+      opossumPath,
+      FileType.SCANCODE_JSON,
+    );
     expect(existsSync(opossumPath)).toBe(true);
     expect(isOpossumFileFormat(opossumPath)).toBe(true);
 
@@ -30,7 +32,7 @@ describe('conversion to opossum', () => {
 
   it('should convert the owasp file and return a path to a valid .opossum file', async () => {
     const opossumPath = join(tmpdir(), `${uniqueId('opossum_')}.opossum`);
-    await convertOwaspToOpossum(OWASP_TEST_FILE, opossumPath);
+    await convertToOpossum(OWASP_TEST_FILE, opossumPath, FileType.OWASP_JSON);
     expect(existsSync(opossumPath)).toBe(true);
     expect(isOpossumFileFormat(opossumPath)).toBe(true);
 

@@ -73,3 +73,7 @@ export const thirdPartyKeys: Array<keyof PackageInfo> = [
   'licenseName',
   'licenseText',
 ];
+
+export const outputFileEnding = '_attributions.json';
+export const jsonGzipFileExtension = '.json.gz';
+export const jsonFileExtension = '.json';
