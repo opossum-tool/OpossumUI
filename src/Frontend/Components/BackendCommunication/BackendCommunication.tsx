@@ -26,7 +26,7 @@ import { loadFromFile } from '../../state/actions/resource-actions/load-actions'
 import {
   openPopup,
   setLoading,
-  setLogMessage,
+  writeLogMessage,
 } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getBaseUrlsForSources } from '../../state/selectors/resource-selectors';
@@ -121,7 +121,7 @@ export const BackendCommunication: React.FC = () => {
     (_, log) => {
       const { date, level, message } = log;
       console[level](`${dayjs(date).format('HH:mm:ss.SSS')} ${message}`);
-      dispatch(setLogMessage(log));
+      dispatch(writeLogMessage(log));
     },
     [dispatch],
   );

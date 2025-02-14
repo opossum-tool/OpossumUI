@@ -114,6 +114,14 @@ export function setLoading(loading: boolean): SetLoadingAction {
   return { type: ACTION_SET_LOADING, payload: loading };
 }
 
-export function setLogMessage(message: Log): SetLogMessageAction {
-  return { type: ACTION_SET_LOG_MESSAGE, payload: message };
+export function writeLogMessage(log: Log): SetLogMessageAction {
+  return { type: ACTION_SET_LOG_MESSAGE, payload: log };
+}
+
+export function writeInfoLogMessage(message: string): SetLogMessageAction {
+  return writeLogMessage({
+    date: new Date(),
+    message,
+    level: 'info',
+  });
 }
