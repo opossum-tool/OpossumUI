@@ -22,11 +22,15 @@ export class MenuBar {
     await clickMenuItem(this.window.app, 'label', 'Project Metadata');
   }
 
+  async openFile(): Promise<void> {
+    await clickMenuItem(this.window.app, 'label', 'Open File');
+  }
+
   async openProjectStatistics(): Promise<void> {
     await clickMenuItem(this.window.app, 'label', 'Project Statistics');
   }
 
-  async openImportLegacyOpossumFile(): Promise<void> {
+  async importLegacyOpossumFile(): Promise<void> {
     await clickMenuItem(
       this.window.app,
       'label',
@@ -34,8 +38,12 @@ export class MenuBar {
     );
   }
 
-  async openImportScanCodeFile(): Promise<void> {
+  async importScanCodeFile(): Promise<void> {
     await clickMenuItem(this.window.app, 'label', 'ScanCode File (.json)');
+  }
+
+  async exportFollowUp(): Promise<void> {
+    await clickMenuItem(this.window.app, 'label', 'Follow-Up');
   }
 
   async toggleQaMode(): Promise<void> {

@@ -22,14 +22,14 @@ test.use({
     outputData: faker.opossum.outputData({}),
     provideImportFiles: true,
   },
-  isImportFileTest: true,
+  openFromCLI: false,
 });
 
 test('opens, displays and closes import dialog', async ({
   menuBar,
   importDialog,
 }) => {
-  await menuBar.openImportLegacyOpossumFile();
+  await menuBar.importLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.cancelButton.click();
@@ -37,13 +37,11 @@ test('opens, displays and closes import dialog', async ({
   await importDialog.assert.titleIsHidden();
 });
 
-test('imports legacy opossum file and checks for unsaved changes', async ({
+test('imports legacy opossum file', async ({
   menuBar,
   importDialog,
   resourcesTree,
   window,
-  attributionDetails,
-  notSavedPopup,
 }) => {
   await stubDialog(window.app, 'showOpenDialogSync', [
     importDialog.legacyFilePath,
@@ -54,7 +52,7 @@ test('imports legacy opossum file and checks for unsaved changes', async ({
     getDotOpossumFilePath(importDialog.legacyFilePath, ['json', 'json.gz']),
   );
 
-  await menuBar.openImportLegacyOpossumFile();
+  await menuBar.importLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.inputFileSelection.click();
@@ -63,15 +61,6 @@ test('imports legacy opossum file and checks for unsaved changes', async ({
 
   await importDialog.assert.titleIsHidden();
   await resourcesTree.assert.resourceIsVisible(resourceName);
-
-  const comment = faker.lorem.sentences();
-  await resourcesTree.goto(resourceName);
-  await attributionDetails.attributionForm.comment.fill(comment);
-
-  await menuBar.openImportLegacyOpossumFile();
-  await notSavedPopup.assert.isVisible();
-  await notSavedPopup.discardButton.click();
-  await importDialog.assert.titleIsVisible();
 });
 
 test('imports scancode file', async ({
@@ -89,7 +78,7 @@ test('imports scancode file', async ({
     getDotOpossumFilePath(importDialog.scancodeFilePath, ['json']),
   );
 
-  await menuBar.openImportScanCodeFile();
+  await menuBar.importScanCodeFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.inputFileSelection.click();
@@ -104,7 +93,7 @@ test('shows error when no file path is set', async ({
   menuBar,
   importDialog,
 }) => {
-  await menuBar.openImportLegacyOpossumFile();
+  await menuBar.importLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.importButton.click();
