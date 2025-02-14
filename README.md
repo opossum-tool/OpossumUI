@@ -57,6 +57,7 @@ For details of the file format, see [file formats](docs/FileFormats.md).
 The following additional file types can be directly imported from inside OpossumUI:
 
 - ScanCode JSON files (`.json`)
+- OWASP Dependency check (`.json`)
 - more to come
 
 Result files (yaml/json) from the OSS Review Toolkit can be converted into opossum files via a reporter and then imported as described above. The implementation of this reporter can be found in the [official OSS Review Toolkit repository](https://github.com/oss-review-toolkit/ort/tree/main/plugins/reporters/opossum).
