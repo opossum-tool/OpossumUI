@@ -1,0 +1,239 @@
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+import { app, BrowserWindow } from 'electron';
+
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import {
+  ExportType,
+  FileFormatInfo,
+  FileType,
+} from '../../../shared/shared-types';
+import { isFileLoaded } from '../../utils/getLoadedFile';
+import { getGlobalBackendState } from '../globalBackendState';
+import { getIconBasedOnTheme } from '../iconHelpers';
+import {
+  getImportFileListener,
+  getOpenFileListener,
+  getSelectBaseURLListener,
+  setLoadingState,
+} from '../listeners';
+import logger from '../logger';
+import {
+  activateMenuItems,
+  INITIALLY_DISABLED_ITEMS_INFO,
+} from './initiallyDisabledMenuItems';
+
+export const importFileFormats: Array<FileFormatInfo> = [
+  {
+    fileType: FileType.LEGACY_OPOSSUM,
+    name: 'Legacy Opossum File',
+    extensions: ['json', 'json.gz'],
+  },
+  {
+    fileType: FileType.SCANCODE_JSON,
+    name: 'ScanCode File',
+    extensions: ['json'],
+  },
+  {
+    fileType: FileType.OWASP_JSON,
+    name: 'OWASP Dependency-Check',
+    extensions: ['json'],
+  },
+];
+
+export function getFileMenu(mainWindow: BrowserWindow) {
+  const webContents = mainWindow.webContents;
+  return {
+    label: 'File',
+    submenu: [
+      {
+        icon: getIconBasedOnTheme(
+          'icons/open-white.png',
+          'icons/open-black.png',
+        ),
+        label: 'Open File',
+        accelerator: 'CmdOrCtrl+O',
+        click: getOpenFileListener(mainWindow, activateMenuItems),
+      },
+      {
+        icon: getIconBasedOnTheme(
+          'icons/import-white.png',
+          'icons/import-black.png',
+        ),
+        label: 'Import File',
+        submenu: importFileFormats.map((fileFormat) => ({
+          label: `${fileFormat.name} (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+          click: getImportFileListener(mainWindow, fileFormat),
+        })),
+      },
+      {
+        icon: getIconBasedOnTheme(
+          'icons/save-white.png',
+          'icons/save-black.png',
+        ),
+        label: INITIALLY_DISABLED_ITEMS_INFO.save.label,
+        accelerator: 'CmdOrCtrl+S',
+        click: () => {
+          webContents.send(AllowedFrontendChannels.SaveFileRequest, {
+            saveFile: true,
+          });
+        },
+        id: INITIALLY_DISABLED_ITEMS_INFO.save.id,
+        enabled: false,
+      },
+      {
+        label: 'Export',
+        icon: getIconBasedOnTheme(
+          'icons/export-white.png',
+          'icons/export-black.png',
+        ),
+        submenu: [
+          {
+            label: INITIALLY_DISABLED_ITEMS_INFO.followUp.label,
+            icon: getIconBasedOnTheme(
+              'icons/follow-up-white.png',
+              'icons/follow-up-black.png',
+            ),
+            click: () => {
+              setLoadingState(mainWindow.webContents, true);
+              logger.info('Preparing data for follow-up export');
+              webContents.send(
+                AllowedFrontendChannels.ExportFileRequest,
+                ExportType.FollowUp,
+              );
+            },
+            id: INITIALLY_DISABLED_ITEMS_INFO.followUp.id,
+            enabled: false,
+          },
+          {
+            icon: getIconBasedOnTheme(
+              'icons/com-list-white.png',
+              'icons/com-list-black.png',
+            ),
+            label: INITIALLY_DISABLED_ITEMS_INFO.compactComponentList.label,
+            click: () => {
+              setLoadingState(mainWindow.webContents, true);
+              logger.info('Preparing data for compact component list export');
+              webContents.send(
+                AllowedFrontendChannels.ExportFileRequest,
+                ExportType.CompactBom,
+              );
+            },
+            id: INITIALLY_DISABLED_ITEMS_INFO.compactComponentList.id,
+            enabled: false,
+          },
+          {
+            icon: getIconBasedOnTheme(
+              'icons/det-list-white.png',
+              'icons/det-list-black.png',
+            ),
+            label: INITIALLY_DISABLED_ITEMS_INFO.detailedComponentList.label,
+            click: () => {
+              setLoadingState(mainWindow.webContents, true);
+              logger.info('Preparing data for detailed component list export');
+              webContents.send(
+                AllowedFrontendChannels.ExportFileRequest,
+                ExportType.DetailedBom,
+              );
+            },
+            id: INITIALLY_DISABLED_ITEMS_INFO.detailedComponentList.id,
+            enabled: false,
+          },
+          {
+            icon: getIconBasedOnTheme(
+              'icons/yaml-white.png',
+              'icons/yaml-black.png',
+            ),
+            label: INITIALLY_DISABLED_ITEMS_INFO.spdxYAML.label,
+            click: () => {
+              setLoadingState(mainWindow.webContents, true);
+              logger.info('Preparing data for SPDX (yaml) export');
+              webContents.send(
+                AllowedFrontendChannels.ExportFileRequest,
+                ExportType.SpdxDocumentYaml,
+              );
+            },
+            id: INITIALLY_DISABLED_ITEMS_INFO.spdxYAML.id,
+            enabled: false,
+          },
+          {
+            icon: getIconBasedOnTheme(
+              'icons/json-white.png',
+              'icons/json-black.png',
+            ),
+            label: INITIALLY_DISABLED_ITEMS_INFO.spdxJSON.label,
+            click: () => {
+              setLoadingState(mainWindow.webContents, true);
+              logger.info('Preparing data for SPDX (json) export');
+              webContents.send(
+                AllowedFrontendChannels.ExportFileRequest,
+                ExportType.SpdxDocumentJson,
+              );
+            },
+            id: INITIALLY_DISABLED_ITEMS_INFO.spdxJSON.id,
+            enabled: false,
+          },
+        ],
+      },
+      {
+        icon: getIconBasedOnTheme(
+          'icons/about-white.png',
+          'icons/about-black.png',
+        ),
+        label: INITIALLY_DISABLED_ITEMS_INFO.projectMetadata.label,
+        click: () => {
+          if (isFileLoaded(getGlobalBackendState())) {
+            webContents.send(AllowedFrontendChannels.ShowProjectMetadataPopup, {
+              showProjectMetadataPopup: true,
+            });
+          }
+        },
+        id: INITIALLY_DISABLED_ITEMS_INFO.projectMetadata.id,
+        enabled: false,
+      },
+      {
+        icon: getIconBasedOnTheme(
+          'icons/statictics-white.png',
+          'icons/statictics-black.png',
+        ),
+        label: INITIALLY_DISABLED_ITEMS_INFO.projectStatistics.label,
+        click: () => {
+          if (isFileLoaded(getGlobalBackendState())) {
+            webContents.send(
+              AllowedFrontendChannels.ShowProjectStatisticsPopup,
+              {
+                showProjectStatisticsPopup: true,
+              },
+            );
+          }
+        },
+        id: INITIALLY_DISABLED_ITEMS_INFO.projectStatistics.id,
+        enabled: false,
+      },
+      {
+        icon: getIconBasedOnTheme(
+          'icons/restore-white.png',
+          'icons/restore-black.png',
+        ),
+        label: 'Set Path to Sources',
+        click: () => {
+          getSelectBaseURLListener(mainWindow)();
+        },
+      },
+      {
+        icon: getIconBasedOnTheme(
+          'icons/quit-white.png',
+          'icons/quit-black.png',
+        ),
+        label: 'Quit',
+        accelerator: 'CmdOrCtrl+Q',
+        click: () => {
+          app.quit();
+        },
+      },
+    ],
+  };
+}
