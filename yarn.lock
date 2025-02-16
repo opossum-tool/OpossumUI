@@ -10388,7 +10388,7 @@ __metadata:
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
     react-error-boundary: "npm:^5.0.0"
-    react-hot-toast: "npm:^2.5.1"
+    react-hot-toast: "npm:^2.5.2"
     react-hotkeys-hook: "npm:^4.6.1"
     react-redux: "npm:^9.2.0"
     react-virtuoso: "npm:4.7.6"
@@ -10979,16 +10979,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hot-toast@npm:^2.5.1":
-  version: 2.5.1
-  resolution: "react-hot-toast@npm:2.5.1"
+"react-hot-toast@npm:^2.5.2":
+  version: 2.5.2
+  resolution: "react-hot-toast@npm:2.5.2"
   dependencies:
     csstype: "npm:^3.1.3"
     goober: "npm:^2.1.16"
   peerDependencies:
     react: ">=16"
     react-dom: ">=16"
-  checksum: 10/1b1a552a49806ece102087718e5a856ede94fbca14d02008e92e5c3efca03e5324c212f3740d9c13cbfe87715677bcb3aa442859edb95be1ed4943dafa20102f
+  checksum: 10/fde6aaa26d85a8de6fbc2b62c66fd71da555b389e8276b0b1e3636f0bf2956e57f40d7692959f2fb0ee91000ae44cad2ab5add779ef0e9b7fc9eb148203dca54
   languageName: node
   linkType: hard
 
