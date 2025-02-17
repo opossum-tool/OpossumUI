@@ -6,12 +6,13 @@
 import { app, shell } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
 
 function getOpenlogfiles() {
   return {
     icon: getIconBasedOnTheme('icons/log-white.png', 'icons/log-black.png'),
-    label: 'Open log files folder',
+    label: text.menu.helpSubmenu.openLogFiles,
     click: () => shell.openPath(app.getPath('logs')),
   };
 }
@@ -22,7 +23,7 @@ function getCheckForUpdates(webContents: Electron.WebContents) {
       'icons/update-white.png',
       'icons/update-black.png',
     ),
-    label: 'Check for updates',
+    label: text.menu.helpSubmenu.checkForUpdates,
     click: () => {
       webContents.send(AllowedFrontendChannels.ShowUpdateAppPopup, {
         showUpdateAppPopup: true,
@@ -37,7 +38,7 @@ function getUsersGuide() {
       'icons/user-guide-white.png',
       'icons/user-guide-black.png',
     ),
-    label: "User's Guide",
+    label: text.menu.helpSubmenu.userGuide,
     click: () =>
       shell.openExternal(
         'https://github.com/opossum-tool/OpossumUI/blob/main/USER_GUIDE.md',
@@ -47,7 +48,7 @@ function getUsersGuide() {
 
 export function getHelpMenu(webContents: Electron.WebContents) {
   return {
-    label: 'Help',
+    label: text.menu.help,
     submenu: [
       getUsersGuide(),
       getOpenlogfiles(),

@@ -5,6 +5,61 @@
 import { FileFormatInfo } from './shared-types';
 
 export const text = {
+  menu: {
+    file: 'File',
+    fileSubmenu: {
+      open: 'Open...',
+      import: 'Import',
+      importSubmenu: (fileFormat: FileFormatInfo) =>
+        `${fileFormat.name} (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})...`,
+      save: 'Save',
+      projectMetadata: 'Project Metadata',
+      projectStatistics: 'Project Statistics',
+      setBaseURL: 'Set Path to Sources',
+      quit: 'Quit',
+      export: 'Export',
+      exportSubmenu: {
+        followUp: 'Follow-Up',
+        compactComponentList: 'Compact component list',
+        detailedComponentList: 'Detailed component list',
+        spdxYAML: 'SPDX (yaml)',
+        spdxJSON: 'SPDX (json)',
+      },
+    },
+    edit: 'Edit',
+    editSubmenu: {
+      undo: 'Undo',
+      redo: 'Redo',
+      cut: 'Cut',
+      copy: 'Copy',
+      paste: 'Paste',
+      selectAll: 'Select All',
+      searchAttributions: 'Search Attributions',
+      searchSignals: 'Search Signals',
+      searchResourcesAll: 'Search All Resources',
+      searchResourceLinked: 'Search Linked Resources',
+    },
+    view: 'View',
+    viewSubmenu: {
+      showDevTools: 'Show Developer Tools',
+      toggleFullScreen: 'Full Screen',
+      zoomIn: 'Zoom In',
+      zoomOut: 'Zoom Out',
+      qaMode: 'QA Mode',
+    },
+    about: 'About',
+    aboutSubmenu: {
+      openOnGithub: 'Open on GitHub',
+      opossumUINotices: 'OpossumUI Notices',
+      chromiumNotices: 'Chromium Notices',
+    },
+    help: 'Help',
+    helpSubmenu: {
+      openLogFiles: 'Open log files folder',
+      checkForUpdates: 'Check For Updates',
+      userGuide: 'User Guide',
+    },
+  },
   attributionColumn: {
     commonEcosystems: 'Common Ecosystems',
     commonLicenses: 'Common Licenses',
