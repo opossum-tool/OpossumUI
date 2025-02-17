@@ -22,14 +22,14 @@ test.use({
     outputData: faker.opossum.outputData({}),
     provideImportFiles: true,
   },
-  isImportFileTest: true,
+  openFromCLI: false,
 });
 
 test('opens, displays and closes import dialog', async ({
   menuBar,
   importDialog,
 }) => {
-  await menuBar.openImportLegacyOpossumFile();
+  await menuBar.importLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.cancelButton.click();
@@ -52,7 +52,7 @@ test('imports legacy opossum file', async ({
     getDotOpossumFilePath(importDialog.legacyFilePath, ['json', 'json.gz']),
   );
 
-  await menuBar.openImportLegacyOpossumFile();
+  await menuBar.importLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.inputFileSelection.click();
@@ -78,7 +78,7 @@ test('imports scancode file', async ({
     getDotOpossumFilePath(importDialog.scancodeFilePath, ['json']),
   );
 
-  await menuBar.openImportScanCodeFile();
+  await menuBar.importScanCodeFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.inputFileSelection.click();
@@ -104,7 +104,7 @@ test('imports OWASP file', async ({
     getDotOpossumFilePath(importDialog.owaspFilePath, ['json']),
   );
 
-  await menuBar.openImportOwaspDependencyScanFile();
+  await menuBar.importOwaspDependencyScanFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.inputFileSelection.click();
@@ -119,7 +119,7 @@ test('shows error when no file path is set', async ({
   menuBar,
   importDialog,
 }) => {
-  await menuBar.openImportLegacyOpossumFile();
+  await menuBar.importLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await importDialog.importButton.click();

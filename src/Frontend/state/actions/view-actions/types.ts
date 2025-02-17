@@ -2,6 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import {
+  ExportType,
+  FileFormatInfo,
+  Log,
+} from '../../../../shared/shared-types';
 import { View } from '../../../enums/enums';
 import { PopupInfo } from '../../../types/types';
 
@@ -11,6 +16,10 @@ export const ACTION_OPEN_POPUP = 'ACTION_OPEN_POPUP';
 export const ACTION_CLOSE_POPUP = 'ACTION_CLOSE_POPUP';
 export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
 export const ACTION_SET_OPEN_FILE_REQUEST = 'ACTION_SET_OPEN_FILE_REQUEST';
+export const ACTION_SET_IMPORT_FILE_REQUEST = 'ACTION_SET_IMPORT_FILE_REQUEST';
+export const ACTION_SET_EXPORT_FILE_REQUEST = 'ACTION_SET_EXPORT_FILE_REQUEST';
+export const ACTION_SET_LOADING = 'ACTION_SET_LOADING';
+export const ACTION_SET_LOG_MESSAGE = 'ACTION_SET_LOG_MESSAGE';
 
 export type ViewAction =
   | SetView
@@ -18,7 +27,11 @@ export type ViewAction =
   | ClosePopupAction
   | ResetViewStateAction
   | OpenPopupAction
-  | SetOpenFileRequestAction;
+  | SetOpenFileRequestAction
+  | SetImportFileRequestAction
+  | SetExportFileRequestAction
+  | SetLoadingAction
+  | SetLogMessageAction;
 
 export interface ResetViewStateAction {
   type: typeof ACTION_RESET_VIEW_STATE;
@@ -46,4 +59,24 @@ export interface OpenPopupAction {
 export interface SetOpenFileRequestAction {
   type: typeof ACTION_SET_OPEN_FILE_REQUEST;
   payload: boolean;
+}
+
+export interface SetImportFileRequestAction {
+  type: typeof ACTION_SET_IMPORT_FILE_REQUEST;
+  payload: FileFormatInfo | null;
+}
+
+export interface SetExportFileRequestAction {
+  type: typeof ACTION_SET_EXPORT_FILE_REQUEST;
+  payload: ExportType | null;
+}
+
+export interface SetLoadingAction {
+  type: typeof ACTION_SET_LOADING;
+  payload: boolean;
+}
+
+export interface SetLogMessageAction {
+  type: typeof ACTION_SET_LOG_MESSAGE;
+  payload: Log;
 }

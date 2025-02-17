@@ -3,7 +3,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { PackageInfo } from '../../../../shared/shared-types';
+import {
+  ExportType,
+  FileFormatInfo,
+  PackageInfo,
+} from '../../../../shared/shared-types';
 import { PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import {
@@ -12,6 +16,8 @@ import {
   getSelectedResourceId,
 } from '../../selectors/resource-selectors';
 import {
+  getExportFileRequest,
+  getImportFileRequest,
   getOpenFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
@@ -23,6 +29,7 @@ import {
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../resource-actions/audit-view-simple-actions';
+import { exportFile } from '../resource-actions/export-actions';
 import {
   openResourceInResourceBrowser,
   setSelectedResourceOrAttributionIdToTargetValue,
@@ -31,82 +38,135 @@ import {
   closePopup,
   navigateToView,
   openPopup,
+  setExportFileRequest,
+  setImportFileRequest,
   setOpenFileRequest,
   setTargetView,
 } from '../view-actions/view-actions';
 
+function withUnsavedCheck({
+  executeImmediately,
+  requestContinuation,
+}: {
+  executeImmediately: AppThunkAction;
+  requestContinuation: AppThunkAction;
+}): AppThunkAction {
+  return (dispatch, getState) => {
+    if (getIsPackageInfoModified(getState())) {
+      dispatch(requestContinuation);
+      dispatch(openPopup(PopupType.NotSavedPopup));
+    } else {
+      dispatch(executeImmediately);
+    }
+  };
+}
+
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string,
 ): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsPackageInfoModified(getState())) {
-      dispatch(setTargetSelectedResourceId(resourcePath));
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      dispatch(openResourceInResourceBrowser(resourcePath));
-    }
-  };
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) =>
+      dispatch(openResourceInResourceBrowser(resourcePath)),
+    requestContinuation: (dispatch) =>
+      dispatch(setTargetSelectedResourceId(resourcePath)),
+  });
 }
 
 export function changeSelectedAttributionOrOpenUnsavedPopup(
   packageInfo: PackageInfo | null,
 ): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsPackageInfoModified(getState())) {
-      dispatch(setTargetSelectedAttributionId(packageInfo?.id || ''));
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) => {
       dispatch(setSelectedAttributionId(packageInfo?.id ?? ''));
       dispatch(
         setTemporaryDisplayPackageInfo(
           packageInfo || EMPTY_DISPLAY_PACKAGE_INFO,
         ),
       );
-    }
-  };
+    },
+    requestContinuation: (dispatch) =>
+      dispatch(setTargetSelectedAttributionId(packageInfo?.id || '')),
+  });
 }
 
 export function setViewOrOpenUnsavedPopup(selectedView: View): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsPackageInfoModified(getState())) {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) => dispatch(navigateToView(selectedView)),
+    requestContinuation: (dispatch, getState) => {
       dispatch(setTargetView(selectedView));
       dispatch(setTargetSelectedResourceId(getSelectedResourceId(getState())));
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      dispatch(navigateToView(selectedView));
-    }
-  };
+    },
+  });
 }
 
 export function setSelectedResourceIdOrOpenUnsavedPopup(
   resourceId: string,
 ): AppThunkAction {
-  return (dispatch, getState) => {
-    if (getIsPackageInfoModified(getState())) {
-      dispatch(setTargetSelectedResourceId(resourceId));
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      dispatch(setSelectedResourceId(resourceId));
-    }
-  };
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) =>
+      dispatch(setSelectedResourceId(resourceId)),
+    requestContinuation: (dispatch) =>
+      dispatch(setTargetSelectedResourceId(resourceId)),
+  });
 }
 
-export function navigateToTargetResourceOrAttributionOrOpenFileDialog(): AppThunkAction {
+export function showImportDialogOrOpenUnsavedPopup(
+  fileFormat: FileFormatInfo,
+): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) =>
+      dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat)),
+    requestContinuation: (dispatch) =>
+      dispatch(setImportFileRequest(fileFormat)),
+  });
+}
+
+export function openFileOrOpenUnsavedPopup(): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: () => void window.electronAPI.openFile(),
+    requestContinuation: (dispatch) => dispatch(setOpenFileRequest(true)),
+  });
+}
+
+export function exportFileOrOpenUnsavedPopup(
+  exportType: ExportType,
+): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) => dispatch(exportFile(exportType)),
+    requestContinuation: (dispatch) =>
+      dispatch(setExportFileRequest(exportType)),
+  });
+}
+
+export function proceedFromUnsavedPopup(): AppThunkAction {
   return (dispatch, getState) => {
     const targetView = getTargetView(getState());
     const openFileRequest = getOpenFileRequest(getState());
+    const importFileRequest = getImportFileRequest(getState());
+    const exportFileRequest = getExportFileRequest(getState());
 
     dispatch(closePopup());
+
     if (openFileRequest) {
       void window.electronAPI.openFile();
       dispatch(setOpenFileRequest(false));
-      return;
+    }
+
+    if (importFileRequest) {
+      dispatch(openPopup(PopupType.ImportDialog, undefined, importFileRequest));
+      dispatch(setImportFileRequest(null));
+    }
+
+    if (exportFileRequest) {
+      dispatch(exportFile(exportFileRequest));
+      dispatch(setExportFileRequest(null));
     }
 
     dispatch(setSelectedResourceOrAttributionIdToTargetValue());
     if (targetView) {
       dispatch(navigateToView(targetView));
     }
+
     dispatch(
       setTemporaryDisplayPackageInfo(
         getPackageInfoOfSelectedAttribution(getState()) ||
@@ -119,9 +179,11 @@ export function navigateToTargetResourceOrAttributionOrOpenFileDialog(): AppThun
 export function closePopupAndUnsetTargets(): AppThunkAction {
   return (dispatch) => {
     dispatch(setTargetView(null));
-    dispatch(setTargetSelectedResourceId(''));
-    dispatch(setTargetSelectedAttributionId(''));
+    dispatch(setTargetSelectedResourceId(null));
+    dispatch(setTargetSelectedAttributionId(null));
     dispatch(closePopup());
     dispatch(setOpenFileRequest(false));
+    dispatch(setImportFileRequest(null));
+    dispatch(setExportFileRequest(null));
   };
 }

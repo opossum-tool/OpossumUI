@@ -11,15 +11,13 @@ import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
 import commitInfo from '../../../commitInfo.json';
-import { PopupType, View } from '../../enums/enums';
+import { View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
-import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import {
-  openPopup,
-  setOpenFileRequest,
-} from '../../state/actions/view-actions/view-actions';
+  openFileOrOpenUnsavedPopup,
+  setViewOrOpenUnsavedPopup,
+} from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getIsPackageInfoModified } from '../../state/selectors/resource-selectors';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { useProgressData } from '../../state/variables/use-progress-data';
 import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
@@ -81,9 +79,6 @@ const classes = {
 export const TopBar: React.FC = () => {
   const selectedView = useAppSelector(getSelectedView);
   const dispatch = useAppDispatch();
-  const isTemporaryPackageInfoModified = useAppSelector(
-    getIsPackageInfoModified,
-  );
 
   const [showCriticalSignals, setShowCriticalSignals] = useState(false);
   const [progressData] = useProgressData();
@@ -96,12 +91,7 @@ export const TopBar: React.FC = () => {
   }
 
   function handleOpenFileClick(): void {
-    if (isTemporaryPackageInfoModified) {
-      dispatch(setOpenFileRequest(true));
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      void window.electronAPI.openFile();
-    }
+    dispatch(openFileOrOpenUnsavedPopup());
   }
 
   return (

@@ -5,13 +5,15 @@
 import {
   Attributions,
   AttributionsToResources,
+  ExportType,
   Resources,
 } from '../../../shared/shared-types';
 import {
   getAttributionsWithAllChildResourcesWithoutFolders,
   getAttributionsWithResources,
+  getBomAttributions,
   removeSlashesFromFilesWithChildren,
-} from '../get-attributions-with-resources';
+} from '../attribution-utils';
 
 describe('getAttributionsWithResources', () => {
   it('returns attributions with resources', () => {
@@ -436,5 +438,40 @@ describe('removeSlashesFromFilesWithChildren', () => {
         new Set(['/some/path3/']),
       ),
     ).toEqual(expectedAttributionsWithResources);
+  });
+});
+
+describe('getBomAttributions', () => {
+  const testAttributions: Attributions = {
+    genericAttrib: { id: 'genericAttrib' },
+    firstPartyAttrib: { firstParty: true, id: 'firstPartyAttrib' },
+    followupAttrib: { followUp: true, id: 'followupAttrib' },
+    excludeAttrib: { excludeFromNotice: true, id: 'excludeAttrib' },
+    firstPartyExcludeAttrib: {
+      firstParty: true,
+      excludeFromNotice: true,
+      id: 'firstPartyExcludeAttrib',
+    },
+  };
+
+  it('filters out attributions marked as follow up or first party', () => {
+    const detailedBomAttributions = getBomAttributions(
+      testAttributions,
+      ExportType.DetailedBom,
+    );
+    expect(detailedBomAttributions).toEqual<Attributions>({
+      genericAttrib: { id: 'genericAttrib' },
+      excludeAttrib: { excludeFromNotice: true, id: 'excludeAttrib' },
+    });
+  });
+
+  it('filters out attributions excluded from notice for compact BOM export', () => {
+    const compactBomAttributions = getBomAttributions(
+      testAttributions,
+      ExportType.CompactBom,
+    );
+    expect(compactBomAttributions).toEqual<Attributions>({
+      genericAttrib: { id: 'genericAttrib' },
+    });
   });
 });

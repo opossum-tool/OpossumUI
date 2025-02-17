@@ -14,17 +14,8 @@ import {
 import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
-import {
-  getImportFileListener,
-  getOpenFileListener,
-  getSelectBaseURLListener,
-  setLoadingState,
-} from '../listeners';
-import logger from '../logger';
-import {
-  activateMenuItems,
-  INITIALLY_DISABLED_ITEMS_INFO,
-} from './initiallyDisabledMenuItems';
+import { getImportFileListener, getSelectBaseURLListener } from '../listeners';
+import { INITIALLY_DISABLED_ITEMS_INFO } from './initiallyDisabledMenuItems';
 
 export const importFileFormats: Array<FileFormatInfo> = [
   {
@@ -49,7 +40,10 @@ function getOpenFile(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
     icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
     label: 'Open File',
     accelerator: 'CmdOrCtrl+O',
-    click: getOpenFileListener(mainWindow, activateMenuItems),
+    click: () =>
+      mainWindow.webContents.send(
+        AllowedFrontendChannels.OpenFileWithUnsavedCheck,
+      ),
   };
 }
 
@@ -141,10 +135,7 @@ function getQuit() {
   };
 }
 
-function getExportFollowUp(
-  mainWindow: Electron.CrossProcessExports.BrowserWindow,
-  webContents: Electron.WebContents,
-) {
+function getExportFollowUp(webContents: Electron.WebContents) {
   return {
     label: INITIALLY_DISABLED_ITEMS_INFO.followUp.label,
     icon: getIconBasedOnTheme(
@@ -152,8 +143,6 @@ function getExportFollowUp(
       'icons/follow-up-black.png',
     ),
     click: () => {
-      setLoadingState(mainWindow.webContents, true);
-      logger.info('Preparing data for follow-up export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.FollowUp,
@@ -164,10 +153,7 @@ function getExportFollowUp(
   };
 }
 
-function getExportCompactBom(
-  mainWindow: Electron.CrossProcessExports.BrowserWindow,
-  webContents: Electron.WebContents,
-) {
+function getExportCompactBom(webContents: Electron.WebContents) {
   return {
     icon: getIconBasedOnTheme(
       'icons/com-list-white.png',
@@ -175,8 +161,6 @@ function getExportCompactBom(
     ),
     label: INITIALLY_DISABLED_ITEMS_INFO.compactComponentList.label,
     click: () => {
-      setLoadingState(mainWindow.webContents, true);
-      logger.info('Preparing data for compact component list export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.CompactBom,
@@ -187,10 +171,7 @@ function getExportCompactBom(
   };
 }
 
-function getExportDetailedBom(
-  mainWindow: Electron.CrossProcessExports.BrowserWindow,
-  webContents: Electron.WebContents,
-) {
+function getExportDetailedBom(webContents: Electron.WebContents) {
   return {
     icon: getIconBasedOnTheme(
       'icons/det-list-white.png',
@@ -198,8 +179,6 @@ function getExportDetailedBom(
     ),
     label: INITIALLY_DISABLED_ITEMS_INFO.detailedComponentList.label,
     click: () => {
-      setLoadingState(mainWindow.webContents, true);
-      logger.info('Preparing data for detailed component list export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.DetailedBom,
@@ -210,16 +189,11 @@ function getExportDetailedBom(
   };
 }
 
-function getExportSpdxYaml(
-  mainWindow: Electron.CrossProcessExports.BrowserWindow,
-  webContents: Electron.WebContents,
-) {
+function getExportSpdxYaml(webContents: Electron.WebContents) {
   return {
     icon: getIconBasedOnTheme('icons/yaml-white.png', 'icons/yaml-black.png'),
     label: INITIALLY_DISABLED_ITEMS_INFO.spdxYAML.label,
     click: () => {
-      setLoadingState(mainWindow.webContents, true);
-      logger.info('Preparing data for SPDX (yaml) export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.SpdxDocumentYaml,
@@ -230,16 +204,11 @@ function getExportSpdxYaml(
   };
 }
 
-function getExportSpdsJson(
-  mainWindow: Electron.CrossProcessExports.BrowserWindow,
-  webContents: Electron.WebContents,
-) {
+function getExportSpdsJson(webContents: Electron.WebContents) {
   return {
     icon: getIconBasedOnTheme('icons/json-white.png', 'icons/json-black.png'),
     label: INITIALLY_DISABLED_ITEMS_INFO.spdxJSON.label,
     click: () => {
-      setLoadingState(mainWindow.webContents, true);
-      logger.info('Preparing data for SPDX (json) export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.SpdxDocumentJson,
@@ -250,10 +219,7 @@ function getExportSpdsJson(
   };
 }
 
-function getExportSubMenu(
-  mainWindow: Electron.CrossProcessExports.BrowserWindow,
-  webContents: Electron.WebContents,
-) {
+function getExportSubMenu(webContents: Electron.WebContents) {
   return {
     label: 'Export',
     icon: getIconBasedOnTheme(
@@ -261,11 +227,11 @@ function getExportSubMenu(
       'icons/export-black.png',
     ),
     submenu: [
-      getExportFollowUp(mainWindow, webContents),
-      getExportCompactBom(mainWindow, webContents),
-      getExportDetailedBom(mainWindow, webContents),
-      getExportSpdxYaml(mainWindow, webContents),
-      getExportSpdsJson(mainWindow, webContents),
+      getExportFollowUp(webContents),
+      getExportCompactBom(webContents),
+      getExportDetailedBom(webContents),
+      getExportSpdxYaml(webContents),
+      getExportSpdsJson(webContents),
     ],
   };
 }
@@ -278,7 +244,7 @@ export function getFileMenu(mainWindow: BrowserWindow) {
       getOpenFile(mainWindow),
       getImportFile(mainWindow),
       getSaveFile(webContents),
-      getExportSubMenu(mainWindow, webContents),
+      getExportSubMenu(webContents),
       getProjectMetadata(webContents),
       getProjectStatistics(webContents),
       getSetBaseUrl(mainWindow),

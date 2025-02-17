@@ -14,7 +14,7 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { State } from '../../../types/types';
-import { getSubtree } from '../../../util/get-attributions-with-resources';
+import { getSubtree } from '../../../util/attribution-utils';
 import { CalculatePreferredOverOriginIds } from '../../helpers/save-action-helpers';
 import { ResourceState } from '../../reducers/resource-reducer';
 import {

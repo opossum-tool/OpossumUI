@@ -13,6 +13,8 @@ export async function createWindow(): Promise<BrowserWindow> {
   const mainWindow = new BrowserWindow({
     width: 1920,
     height: 1080,
+    minWidth: 500,
+    minHeight: 300,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,

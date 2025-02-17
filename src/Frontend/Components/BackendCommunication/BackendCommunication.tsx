@@ -5,47 +5,40 @@
 // SPDX-License-Identifier: Apache-2.0
 import dayjs from 'dayjs';
 import { IpcRendererEvent } from 'electron';
-import pick from 'lodash/pick';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
-  Attributions,
   BaseURLForRootArgs,
-  ExportSpdxDocumentJsonArgs,
-  ExportSpdxDocumentYamlArgs,
-  ExportType,
   ParsedFileContent,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
 import {
+  exportFileOrOpenUnsavedPopup,
+  openFileOrOpenUnsavedPopup,
+  showImportDialogOrOpenUnsavedPopup,
+} from '../../state/actions/popup-actions/popup-actions';
+import {
   resetResourceState,
   setBaseUrlsForSources,
 } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../state/actions/resource-actions/load-actions';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
+import {
+  openPopup,
+  setLoading,
+  writeLogMessage,
+} from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getBaseUrlsForSources } from '../../state/selectors/resource-selectors';
 import {
-  getAttributionBreakpoints,
-  getBaseUrlsForSources,
-  getFilesWithChildren,
-  getFrequentLicensesTexts,
-  getManualData,
-  getResources,
-} from '../../state/selectors/resource-selectors';
-import {
-  getAttributionsWithAllChildResourcesWithoutFolders,
-  getAttributionsWithResources,
-  removeSlashesFromFilesWithChildren,
-} from '../../util/get-attributions-with-resources';
-import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
+  ExportFileRequestListener,
+  IsLoadingListener,
+  LoggingListener,
+  ShowImportDialogListener,
+  useIpcRenderer,
+} from '../../util/use-ipc-renderer';
 
 export const BackendCommunication: React.FC = () => {
-  const resources = useAppSelector(getResources);
-  const manualData = useAppSelector(getManualData);
-  const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
-  const filesWithChildren = useAppSelector(getFilesWithChildren);
-  const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
   const dispatch = useAppDispatch();
 
@@ -56,118 +49,6 @@ export const BackendCommunication: React.FC = () => {
     dispatch(loadFromFile(parsedFileContent));
     (await window.electronAPI.getUserSetting('showProjectStatistics')) &&
       dispatch(openPopup(PopupType.ProjectStatisticsPopup));
-  }
-
-  function getExportFileRequestListener(
-    _: IpcRendererEvent,
-    exportType: ExportType,
-  ): void {
-    switch (exportType) {
-      case ExportType.SpdxDocumentJson:
-      case ExportType.SpdxDocumentYaml:
-        return getSpdxDocumentExportListener(exportType);
-      case ExportType.FollowUp:
-        return getFollowUpExportListener();
-      case ExportType.CompactBom:
-        return getCompactBomExportListener();
-      case ExportType.DetailedBom:
-        return getDetailedBomExportListener();
-    }
-  }
-
-  function getFollowUpExportListener(): void {
-    const followUpAttributions = pick(
-      manualData.attributions,
-      Object.keys(manualData.attributions).filter(
-        (attributionId) => manualData.attributions[attributionId].followUp,
-      ),
-    );
-
-    const followUpAttributionsWithResources =
-      getAttributionsWithAllChildResourcesWithoutFolders(
-        followUpAttributions,
-        manualData.attributionsToResources,
-        manualData.resourcesToAttributions,
-        resources || {},
-        attributionBreakpoints,
-        filesWithChildren,
-      );
-    const followUpAttributionsWithFormattedResources =
-      removeSlashesFromFilesWithChildren(
-        followUpAttributionsWithResources,
-        filesWithChildren,
-      );
-
-    window.electronAPI.exportFile({
-      type: ExportType.FollowUp,
-      followUpAttributionsWithResources:
-        followUpAttributionsWithFormattedResources,
-    });
-  }
-
-  function getSpdxDocumentExportListener(
-    exportType: ExportType.SpdxDocumentYaml | ExportType.SpdxDocumentJson,
-  ): void {
-    const attributions = Object.fromEntries(
-      Object.entries(manualData.attributions).map((entry) => {
-        const packageInfo = entry[1];
-
-        const licenseName = packageInfo.licenseName || '';
-        const isFrequentLicense =
-          licenseName && licenseName in frequentLicenseTexts;
-        const licenseText =
-          packageInfo.licenseText || isFrequentLicense
-            ? frequentLicenseTexts[licenseName]
-            : '';
-        return [
-          entry[0],
-          {
-            ...entry[1],
-            licenseText,
-          },
-        ];
-      }),
-    );
-
-    const args: ExportSpdxDocumentYamlArgs | ExportSpdxDocumentJsonArgs = {
-      type: exportType,
-      spdxAttributions: attributions,
-    };
-
-    window.electronAPI.exportFile(args);
-  }
-
-  function getDetailedBomExportListener(): void {
-    const bomAttributions = getBomAttributions(
-      manualData.attributions,
-      ExportType.DetailedBom,
-    );
-
-    const bomAttributionsWithResources = getAttributionsWithResources(
-      bomAttributions,
-      manualData.attributionsToResources,
-    );
-
-    const bomAttributionsWithFormattedResources =
-      removeSlashesFromFilesWithChildren(
-        bomAttributionsWithResources,
-        filesWithChildren,
-      );
-
-    window.electronAPI.exportFile({
-      type: ExportType.DetailedBom,
-      bomAttributionsWithResources: bomAttributionsWithFormattedResources,
-    });
-  }
-
-  function getCompactBomExportListener(): void {
-    window.electronAPI.exportFile({
-      type: ExportType.CompactBom,
-      bomAttributions: getBomAttributions(
-        manualData.attributions,
-        ExportType.CompactBom,
-      ),
-    });
   }
 
   function resetLoadedFileListener(
@@ -220,6 +101,13 @@ export const BackendCommunication: React.FC = () => {
     }
   }
 
+  useIpcRenderer<IsLoadingListener>(
+    AllowedFrontendChannels.FileLoading,
+    (_, { isLoading }) => {
+      dispatch(setLoading(isLoading));
+    },
+    [dispatch],
+  );
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
     dispatch,
   ]);
@@ -230,8 +118,11 @@ export const BackendCommunication: React.FC = () => {
   );
   useIpcRenderer<LoggingListener>(
     AllowedFrontendChannels.Logging,
-    (_, { date, level, message }) =>
-      console[level](`${dayjs(date).format('HH:mm:ss.SSS')} ${message}`),
+    (_, log) => {
+      const { date, level, message } = log;
+      console[level](`${dayjs(date).format('HH:mm:ss.SSS')} ${message}`);
+      dispatch(writeLogMessage(log));
+    },
     [dispatch],
   );
   useIpcRenderer(
@@ -249,39 +140,26 @@ export const BackendCommunication: React.FC = () => {
     setBaseURLForRootListener,
     [dispatch, baseUrlsForSources],
   );
-  useIpcRenderer(
+  useIpcRenderer<ExportFileRequestListener>(
     AllowedFrontendChannels.ExportFileRequest,
-    getExportFileRequestListener,
-    [
-      manualData,
-      attributionBreakpoints,
-      frequentLicenseTexts,
-      filesWithChildren,
-    ],
+    (_, exportType) => dispatch(exportFileOrOpenUnsavedPopup(exportType)),
+    [dispatch],
   );
   useIpcRenderer(
     AllowedFrontendChannels.ShowUpdateAppPopup,
     showUpdateAppPopupListener,
     [dispatch],
   );
+  useIpcRenderer(
+    AllowedFrontendChannels.OpenFileWithUnsavedCheck,
+    () => dispatch(openFileOrOpenUnsavedPopup()),
+    [dispatch],
+  );
+  useIpcRenderer<ShowImportDialogListener>(
+    AllowedFrontendChannels.ImportFileShowDialog,
+    (_, fileFormat) => dispatch(showImportDialogOrOpenUnsavedPopup(fileFormat)),
+    [dispatch],
+  );
 
   return null;
 };
-
-export function getBomAttributions(
-  attributions: Attributions,
-  exportType: ExportType,
-): Attributions {
-  return pick(
-    attributions,
-    Object.keys(attributions).filter(
-      (attributionId) =>
-        !attributions[attributionId].followUp &&
-        !attributions[attributionId].firstParty &&
-        !(
-          exportType === ExportType.CompactBom &&
-          attributions[attributionId].excludeFromNotice
-        ),
-    ),
-  );
-}

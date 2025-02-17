@@ -3,12 +3,17 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { ExportType, FileFormatInfo, Log } from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
 import { PopupInfo } from '../../types/types';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
+  ACTION_SET_EXPORT_FILE_REQUEST,
+  ACTION_SET_IMPORT_FILE_REQUEST,
+  ACTION_SET_LOADING,
+  ACTION_SET_LOG_MESSAGE,
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -20,6 +25,10 @@ export interface ViewState {
   targetView: View | null;
   popupInfo: Array<PopupInfo>;
   openFileRequest: boolean;
+  importFileRequest: FileFormatInfo | null;
+  exportFileRequest: ExportType | null;
+  loading: boolean;
+  logMessage: Log | null;
 }
 
 export const initialViewState: ViewState = {
@@ -27,6 +36,10 @@ export const initialViewState: ViewState = {
   targetView: null,
   popupInfo: [],
   openFileRequest: false,
+  importFileRequest: null,
+  exportFileRequest: null,
+  loading: false,
+  logMessage: null,
 };
 
 export function viewState(
@@ -64,6 +77,26 @@ export function viewState(
       return {
         ...state,
         openFileRequest: action.payload,
+      };
+    case ACTION_SET_IMPORT_FILE_REQUEST:
+      return {
+        ...state,
+        importFileRequest: action.payload,
+      };
+    case ACTION_SET_EXPORT_FILE_REQUEST:
+      return {
+        ...state,
+        exportFileRequest: action.payload,
+      };
+    case ACTION_SET_LOADING:
+      return {
+        ...state,
+        loading: action.payload,
+      };
+    case ACTION_SET_LOG_MESSAGE:
+      return {
+        ...state,
+        logMessage: action.payload,
       };
     default:
       return state;

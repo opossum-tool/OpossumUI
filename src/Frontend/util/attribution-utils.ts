@@ -3,10 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import get from 'lodash/get';
+import pick from 'lodash/pick';
 
 import {
   Attributions,
   AttributionsToResources,
+  ExportType,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -172,5 +174,23 @@ export function removeSlashesFromFilesWithChildren(
         },
       ];
     }),
+  );
+}
+
+export function getBomAttributions(
+  attributions: Attributions,
+  exportType: ExportType,
+): Attributions {
+  return pick(
+    attributions,
+    Object.keys(attributions).filter(
+      (attributionId) =>
+        !attributions[attributionId].followUp &&
+        !attributions[attributionId].firstParty &&
+        !(
+          exportType === ExportType.CompactBom &&
+          attributions[attributionId].excludeFromNotice
+        ),
+    ),
   );
 }

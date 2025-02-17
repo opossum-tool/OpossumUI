@@ -13,7 +13,10 @@ class Logger {
     message: string,
     { level }: Pick<Log, 'level'>,
   ): void {
-    BrowserWindow.getFocusedWindow()?.webContents.send(
+    // NOTE: there are situations where BrowserWindow.getAllWindows() returns a
+    // non-empty array but BrowserWindow.getFocusedWindow() returns null.
+    // Thus, using getAllWindows here is more robust than getFocusedWindow
+    BrowserWindow.getAllWindows()[0]?.webContents.send(
       AllowedFrontendChannels.Logging,
       {
         date: new Date(),
