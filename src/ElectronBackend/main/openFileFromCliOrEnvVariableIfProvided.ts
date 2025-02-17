@@ -6,7 +6,7 @@ import { BrowserWindow } from 'electron';
 import log from 'electron-log';
 
 import { handleOpeningFile } from './listeners';
-import { activateMenuItems } from './menu/initiallyDisabledMenuItems';
+import { DisabledMenuItemHandler } from './menu/DisabledMenuItemHandler';
 
 export async function openFileFromCliOrEnvVariableIfProvided(
   mainWindow: BrowserWindow,
@@ -37,6 +37,10 @@ export async function openFileFromCliOrEnvVariableIfProvided(
   }
 
   if (inputFileName) {
-    await handleOpeningFile(mainWindow, inputFileName, activateMenuItems);
+    await handleOpeningFile(
+      mainWindow,
+      inputFileName,
+      DisabledMenuItemHandler.activateMenuItems,
+    );
   }
 }

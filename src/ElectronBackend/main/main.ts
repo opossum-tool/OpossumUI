@@ -18,7 +18,7 @@ import {
   saveFileListener,
 } from './listeners';
 import { createMenu } from './menu';
-import { activateMenuItems } from './menu/initiallyDisabledMenuItems';
+import { DisabledMenuItemHandler } from './menu/DisabledMenuItemHandler';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { UserSettings } from './user-settings';
 
@@ -65,7 +65,10 @@ export async function main(): Promise<void> {
     });
     ipcMain.handle(
       IpcChannel.OpenFile,
-      openFileListener(mainWindow, activateMenuItems),
+      openFileListener(
+        mainWindow,
+        DisabledMenuItemHandler.activateMenuItems,
+      ),
     );
     ipcMain.handle(
       IpcChannel.ImportFileSelectInput,
@@ -77,7 +80,10 @@ export async function main(): Promise<void> {
     );
     ipcMain.handle(
       IpcChannel.ImportFileConvertAndLoad,
-      importFileConvertAndLoadListener(mainWindow, activateMenuItems),
+      importFileConvertAndLoadListener(
+        mainWindow,
+        DisabledMenuItemHandler.activateMenuItems,
+      ),
     );
     ipcMain.handle(IpcChannel.SaveFile, saveFileListener(mainWindow));
     ipcMain.handle(IpcChannel.ExportFile, exportFileListener(mainWindow));
