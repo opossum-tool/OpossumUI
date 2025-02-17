@@ -4,14 +4,19 @@
 // SPDX-License-Identifier: Apache-2.0
 import { FileFormatInfo } from './shared-types';
 
+function menuLabelForFileFormat(fileFormat: FileFormatInfo): string {
+  return `${fileFormat.name} (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})...`;
+}
+
 export const text = {
   menu: {
     file: 'File',
     fileSubmenu: {
       open: 'Open...',
       import: 'Import',
-      importSubmenu: (fileFormat: FileFormatInfo) =>
-        `${fileFormat.name} (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})...`,
+      importSubmenu: menuLabelForFileFormat,
+      merge: 'Merge',
+      mergeSubmenu: menuLabelForFileFormat,
       save: 'Save',
       projectMetadata: 'Project Metadata',
       projectStatistics: 'Project Statistics',

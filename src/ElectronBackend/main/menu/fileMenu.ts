@@ -67,6 +67,22 @@ function getImportFile(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
   };
 }
 
+function getMerge(_: Electron.CrossProcessExports.BrowserWindow) {
+  return {
+    icon: getIconBasedOnTheme(
+      'icons/import-white.png',
+      'icons/import-black.png',
+    ),
+    label: text.menu.fileSubmenu.merge,
+    submenu: importFileFormats.map((fileFormat) => ({
+      label: text.menu.fileSubmenu.mergeSubmenu(fileFormat),
+      click: () => console.log(`merge ${fileFormat.name}`),
+      id: DisabledMenuItemHandler.registerDisabledMenuItem(),
+      enabled: false,
+    })),
+  };
+}
+
 function getSaveFile(webContents: Electron.WebContents) {
   return {
     icon: getIconBasedOnTheme('icons/save-white.png', 'icons/save-black.png'),
@@ -257,6 +273,7 @@ export function getFileMenu(mainWindow: BrowserWindow) {
     submenu: [
       getOpenFile(mainWindow),
       getImportFile(mainWindow),
+      getMerge(mainWindow),
       getSaveFile(webContents),
       getExportSubMenu(webContents),
       getProjectMetadata(webContents),
