@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
@@ -32,7 +32,7 @@ describe('ProcessPopup', () => {
 
     const popup = <ProcessPopup />;
 
-    const { store, rerender } = renderComponent(popup, {
+    const { store } = renderComponent(popup, {
       actions: [
         setLoading(true),
         writeLogMessage({
@@ -43,10 +43,8 @@ describe('ProcessPopup', () => {
       ],
     });
 
-    store.dispatch(setLoading(false));
-    rerender(popup);
-    store.dispatch(setLoading(true));
-    rerender(popup);
+    act(() => void store.dispatch(setLoading(false)));
+    act(() => void store.dispatch(setLoading(true)));
 
     expect(screen.queryByText(message)).not.toBeInTheDocument();
   });
