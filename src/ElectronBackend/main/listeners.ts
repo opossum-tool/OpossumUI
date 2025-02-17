@@ -33,7 +33,7 @@ import {
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { serializeAttributions } from '../input/parseInputData';
-import { convertToOpossum } from '../opossum-file/convertToOpossum';
+import { convertToOpossum } from '../opossum-file/opossum-file';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import { GlobalBackendState, OpossumOutputFile } from '../types/types';
