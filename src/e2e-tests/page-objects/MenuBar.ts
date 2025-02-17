@@ -42,6 +42,14 @@ export class MenuBar {
     await clickMenuItem(this.window.app, 'label', 'ScanCode File (.json)');
   }
 
+  async importOwaspDependencyScanFile(): Promise<void> {
+    await clickMenuItem(
+      this.window.app,
+      'label',
+      'OWASP Dependency-Check (.json)',
+    );
+  }
+
   async exportFollowUp(): Promise<void> {
     await clickMenuItem(this.window.app, 'label', 'Follow-Up');
   }

@@ -18,7 +18,8 @@ import {
   getOpenLinkListener,
   getSaveFileListener,
 } from './listeners';
-import { activateMenuItems, createMenu } from './menu';
+import { createMenu } from './menu';
+import { activateMenuItems } from './menu/initiallyDisabledMenuItems';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { UserSettings } from './user-settings';
 

@@ -16,6 +16,7 @@ export class ImportDialog {
 
   readonly legacyFilePath: string;
   readonly scancodeFilePath: string;
+  readonly owaspFilePath: string;
 
   constructor(
     window: Page,
@@ -36,6 +37,11 @@ export class ImportDialog {
 
     this.legacyFilePath = info.outputPath(`${legacyFilename}.json`);
     this.scancodeFilePath = path.resolve(__dirname, '..', 'scancode.json');
+    this.owaspFilePath = path.resolve(
+      __dirname,
+      '..',
+      'owasp-dependency-check-report.json',
+    );
   }
 
   public assert = {
