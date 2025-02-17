@@ -11,52 +11,64 @@ import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import { INITIALLY_DISABLED_ITEMS_INFO } from './initiallyDisabledMenuItems';
 
-const UNDO: MenuItemConstructorOptions = {
-  icon: getIconBasedOnTheme('icons/undo-white.png', 'icons/undo-black.png'),
-  label: 'Undo',
-  accelerator: 'CmdOrCtrl+Z',
-  role: 'undo',
-};
+function getUndo(): MenuItemConstructorOptions {
+  return {
+    icon: getIconBasedOnTheme('icons/undo-white.png', 'icons/undo-black.png'),
+    label: 'Undo',
+    accelerator: 'CmdOrCtrl+Z',
+    role: 'undo',
+  };
+}
 
-const REDO: MenuItemConstructorOptions = {
-  icon: getIconBasedOnTheme('icons/redo-white.png', 'icons/redo-black.png'),
-  label: 'Redo',
-  accelerator: 'Shift+CmdOrCtrl+Z',
-  role: 'redo',
-};
+function getRedo(): MenuItemConstructorOptions {
+  return {
+    icon: getIconBasedOnTheme('icons/redo-white.png', 'icons/redo-black.png'),
+    label: 'Redo',
+    accelerator: 'Shift+CmdOrCtrl+Z',
+    role: 'redo',
+  };
+}
 
-const CUT: MenuItemConstructorOptions = {
-  icon: getIconBasedOnTheme('icons/cut-white.png', 'icons/cut-black.png'),
-  label: 'Cut',
-  accelerator: 'CmdOrCtrl+X',
-  role: 'cut',
-};
+function getCut(): MenuItemConstructorOptions {
+  return {
+    icon: getIconBasedOnTheme('icons/cut-white.png', 'icons/cut-black.png'),
+    label: 'Cut',
+    accelerator: 'CmdOrCtrl+X',
+    role: 'cut',
+  };
+}
 
-const COPY: MenuItemConstructorOptions = {
-  icon: getIconBasedOnTheme('icons/copy-white.png', 'icons/copy-black.png'),
-  label: 'Copy',
-  accelerator: 'CmdOrCtrl+C',
-  role: 'copy',
-};
+function getCopy(): MenuItemConstructorOptions {
+  return {
+    icon: getIconBasedOnTheme('icons/copy-white.png', 'icons/copy-black.png'),
+    label: 'Copy',
+    accelerator: 'CmdOrCtrl+C',
+    role: 'copy',
+  };
+}
 
-const PASTE: MenuItemConstructorOptions = {
-  icon: getIconBasedOnTheme('icons/paste-white.png', 'icons/paste-black.png'),
-  label: 'Paste',
-  accelerator: 'CmdOrCtrl+V',
-  role: 'paste',
-};
+function getPaste(): MenuItemConstructorOptions {
+  return {
+    icon: getIconBasedOnTheme('icons/paste-white.png', 'icons/paste-black.png'),
+    label: 'Paste',
+    accelerator: 'CmdOrCtrl+V',
+    role: 'paste',
+  };
+}
 
-const SELECT_ALL: MenuItemConstructorOptions = {
-  icon: getIconBasedOnTheme(
-    'icons/select-all-white.png',
-    'icons/select-all-black.png',
-  ),
-  label: INITIALLY_DISABLED_ITEMS_INFO.selectAll.label,
-  accelerator: 'CmdOrCtrl+A',
-  role: 'selectAll',
-  id: INITIALLY_DISABLED_ITEMS_INFO.selectAll.id,
-  enabled: false,
-};
+function getSelectAll(): MenuItemConstructorOptions {
+  return {
+    icon: getIconBasedOnTheme(
+      'icons/select-all-white.png',
+      'icons/select-all-black.png',
+    ),
+    label: INITIALLY_DISABLED_ITEMS_INFO.selectAll.label,
+    accelerator: 'CmdOrCtrl+A',
+    role: 'selectAll',
+    id: INITIALLY_DISABLED_ITEMS_INFO.selectAll.id,
+    enabled: false,
+  };
+}
 
 function getSearchAttributions(webContents: Electron.WebContents) {
   return {
@@ -136,13 +148,13 @@ export function getEditMenu(
   return {
     label: 'Edit',
     submenu: [
-      UNDO,
-      REDO,
+      getUndo(),
+      getRedo(),
       { type: 'separator' },
-      CUT,
-      COPY,
-      PASTE,
-      SELECT_ALL,
+      getCut(),
+      getCopy(),
+      getPaste(),
+      getSelectAll(),
       { type: 'separator' },
       getSearchAttributions(webContents),
       getSearchSignals(webContents),

@@ -11,41 +11,49 @@ import {
 } from '../iconHelpers';
 import { UserSettings } from '../user-settings';
 
-const SHOW_DEV_TOOLS: MenuItemConstructorOptions = {
-  icon: getIconBasedOnTheme(
-    'icons/developer-tool-white.png',
-    'icons/developer-tool-black.png',
-  ),
-  label: 'Show Developer Tools',
-  role: 'toggleDevTools',
-};
+function getShowDevTools(): MenuItemConstructorOptions {
+  return {
+    icon: getIconBasedOnTheme(
+      'icons/developer-tool-white.png',
+      'icons/developer-tool-black.png',
+    ),
+    label: 'Show Developer Tools',
+    role: 'toggleDevTools',
+  };
+}
 
-const TOGGLE_FULL_SCREEN: MenuItemConstructorOptions = {
-  icon: getIconBasedOnTheme(
-    'icons/full-screen-white.png',
-    'icons/full-screen-black.png',
-  ),
-  label: 'Full Screen',
-  role: 'togglefullscreen',
-};
+function getToggleFullScreen(): MenuItemConstructorOptions {
+  return {
+    icon: getIconBasedOnTheme(
+      'icons/full-screen-white.png',
+      'icons/full-screen-black.png',
+    ),
+    label: 'Full Screen',
+    role: 'togglefullscreen',
+  };
+}
 
-const ZOOM_IN: MenuItemConstructorOptions = {
-  icon: getIconBasedOnTheme(
-    'icons/zoom-in-white.png',
-    'icons/zoom-in-black.png',
-  ),
-  label: 'Zoom In',
-  role: 'zoomIn',
-};
+function getZoomIn(): MenuItemConstructorOptions {
+  return {
+    icon: getIconBasedOnTheme(
+      'icons/zoom-in-white.png',
+      'icons/zoom-in-black.png',
+    ),
+    label: 'Zoom In',
+    role: 'zoomIn',
+  };
+}
 
-const ZOOM_OUT: MenuItemConstructorOptions = {
-  icon: getIconBasedOnTheme(
-    'icons/zoom-out-white.png',
-    'icons/zoom-out-black.png',
-  ),
-  label: 'Zoom Out',
-  role: 'zoomOut',
-};
+function getZoomOut(): MenuItemConstructorOptions {
+  return {
+    icon: getIconBasedOnTheme(
+      'icons/zoom-out-white.png',
+      'icons/zoom-out-black.png',
+    ),
+    label: 'Zoom Out',
+    role: 'zoomOut',
+  };
+}
 
 function getEnableQaMode(qaMode: null | boolean) {
   return {
@@ -91,10 +99,10 @@ export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
   return {
     label: 'View',
     submenu: [
-      SHOW_DEV_TOOLS,
-      TOGGLE_FULL_SCREEN,
-      ZOOM_IN,
-      ZOOM_OUT,
+      getShowDevTools(),
+      getToggleFullScreen(),
+      getZoomIn(),
+      getZoomOut(),
       getEnableQaMode(qaMode),
       getDisableQaMode(qaMode),
     ],
