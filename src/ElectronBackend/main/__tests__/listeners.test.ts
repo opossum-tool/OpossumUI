@@ -39,7 +39,7 @@ import {
   getSelectBaseURLListener,
   linkHasHttpSchema,
 } from '../listeners';
-import { importFileFormats } from '../menu';
+import { importFileFormats } from '../menu/fileMenu';
 
 jest.mock('electron', () => ({
   app: {

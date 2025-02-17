@@ -6,7 +6,7 @@ import { BrowserWindow } from 'electron';
 import log from 'electron-log';
 
 import { handleOpeningFile } from './listeners';
-import { activateMenuItems } from './menu';
+import { activateMenuItems } from './menu/initiallyDisabledMenuItems';
 
 export async function openFileFromCliOrEnvVariableIfProvided(
   mainWindow: BrowserWindow,
