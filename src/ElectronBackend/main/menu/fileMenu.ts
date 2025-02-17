@@ -19,9 +19,7 @@ import {
   getImportFileListener,
   getSelectBaseURLListener,
 } from '../listeners';
-import {
-  INITIALLY_DISABLED_ITEMS_IDS,
-} from './initiallyDisabledMenuItems';
+import { DisabledMenuItemHandler } from './DisabledMenuItemHandler';
 
 export const importFileFormats: Array<FileFormatInfo> = [
   {
@@ -77,7 +75,7 @@ function getSaveFile(webContents: Electron.WebContents) {
         saveFile: true,
       });
     },
-    id: INITIALLY_DISABLED_ITEMS_IDS.save,
+    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
     enabled: false,
   };
 }
@@ -93,7 +91,7 @@ function getProjectMetadata(webContents: Electron.WebContents) {
         });
       }
     },
-    id: INITIALLY_DISABLED_ITEMS_IDS.projectMetadata,
+    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
     enabled: false,
   };
 }
@@ -112,7 +110,7 @@ function getProjectStatistics(webContents: Electron.WebContents) {
         });
       }
     },
-    id: INITIALLY_DISABLED_ITEMS_IDS.projectStatistics,
+    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
     enabled: false,
   };
 }
@@ -154,7 +152,7 @@ function getExportFollowUp(webContents: Electron.WebContents) {
         ExportType.FollowUp,
       );
     },
-    id: INITIALLY_DISABLED_ITEMS_IDS.followUp,
+    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
     enabled: false,
   };
 }
@@ -172,7 +170,7 @@ function getExportCompactBom(webContents: Electron.WebContents) {
         ExportType.CompactBom,
       );
     },
-    id: INITIALLY_DISABLED_ITEMS_IDS.compactComponentList,
+    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
     enabled: false,
   };
 }
@@ -190,7 +188,7 @@ function getExportDetailedBom(webContents: Electron.WebContents) {
         ExportType.DetailedBom,
       );
     },
-    id: INITIALLY_DISABLED_ITEMS_IDS.detailedComponentList,
+    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
     enabled: false,
   };
 }
@@ -205,7 +203,7 @@ function getExportSpdxYaml(webContents: Electron.WebContents) {
         ExportType.SpdxDocumentYaml,
       );
     },
-    id: INITIALLY_DISABLED_ITEMS_IDS.spdxYAML,
+    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
     enabled: false,
   };
 }
@@ -220,7 +218,7 @@ function getExportSpdsJson(webContents: Electron.WebContents) {
         ExportType.SpdxDocumentJson,
       );
     },
-    id: INITIALLY_DISABLED_ITEMS_IDS.spdxJSON,
+    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
     enabled: false,
   };
 }
