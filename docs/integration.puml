@@ -31,6 +31,7 @@ mindmapDiagram {
 --- oss-review-toolkit/ort
 ----_ OSS Review Toolkit JSON / YAML
 --_ ScanCode JSON
+--_ OWASP Dependency check JSON
 ++_ SPDX-2.2 (Lite) JSON / YAML
 ++_ CSV attributions list
 ++_ CSV follow-up list
