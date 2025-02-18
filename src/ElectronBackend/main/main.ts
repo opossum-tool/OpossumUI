@@ -13,6 +13,7 @@ import {
   getExportFileListener,
   getImportFileConvertAndLoadListener,
   getImportFileSelectSaveLocationListener,
+  getMergeFileAndLoadListener,
   getOpenFileListener,
   getOpenLinkListener,
   getSaveFileListener,
@@ -82,6 +83,10 @@ export async function main(): Promise<void> {
         mainWindow,
         DisabledMenuItemHandler.activateMenuItems,
       ),
+    );
+    ipcMain.handle(
+      IpcChannel.MergeFileAndLoad,
+      getMergeFileAndLoadListener(mainWindow),
     );
     ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(mainWindow));
     ipcMain.handle(

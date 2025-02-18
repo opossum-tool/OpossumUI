@@ -24,6 +24,8 @@ const electronAPI: ElectronAPI = {
       fileType,
       opossumFilePath,
     ),
+  mergeFileAndLoad: (inputFilePath, fileType) =>
+    ipcRenderer.invoke(IpcChannel.MergeFileAndLoad, inputFilePath, fileType),
   exportFile: (args) => ipcRenderer.invoke(IpcChannel.ExportFile, args),
   saveFile: (saveFileArgs) =>
     ipcRenderer.invoke(IpcChannel.SaveFile, saveFileArgs),
