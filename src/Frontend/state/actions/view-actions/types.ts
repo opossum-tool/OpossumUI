@@ -84,5 +84,5 @@ export interface SetLoadingAction {
 
 export interface SetLogMessageAction {
   type: typeof ACTION_SET_LOG_MESSAGE;
-  payload: Log;
+  payload: Log | null;
 }

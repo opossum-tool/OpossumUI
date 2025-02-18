@@ -153,6 +153,7 @@ export const text = {
     search: 'Search',
     sort: 'Sort',
     import: 'Import',
+    merge: 'Merge',
   },
   modifyWasPreferredPopup: {
     title: 'Modifying Previously Preferred Attribution',
@@ -313,14 +314,26 @@ export const text = {
         hasBeenSelected
           ? `File to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
           : `Select file to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
-      buttonTooltip: 'Select file',
     },
     opossumFilePath: {
       textFieldLabel: (hasBeenSelected: boolean) =>
         hasBeenSelected
           ? 'Opossum file save location'
           : 'Select opossum file save location',
-      buttonTooltip: 'Select save location',
+    },
+  },
+  mergeDialog: {
+    title: (fileFormat: FileFormatInfo) =>
+      `Merge ${fileFormat.name} into current file`,
+    explanationText: [
+      'OpossumUI will merge the selected file into the currently open opossum file.',
+      'THIS ACTION CANNOT BE UNDONE!',
+    ],
+    inputFilePath: {
+      textFieldLabel: (fileFormat: FileFormatInfo, hasBeenSelected: boolean) =>
+        hasBeenSelected
+          ? `File to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
+          : `Select file to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
     },
   },
 } as const;

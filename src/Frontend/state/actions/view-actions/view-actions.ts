@@ -133,3 +133,7 @@ export function writeInfoLogMessage(message: string): SetLogMessageAction {
     level: 'info',
   });
 }
+
+export function clearLogMessage(): SetLogMessageAction {
+  return { type: ACTION_SET_LOG_MESSAGE, payload: null };
+}

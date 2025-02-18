@@ -7,7 +7,6 @@ import { useState } from 'react';
 
 import { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { getDotOpossumFilePath } from '../../../shared/write-file';
 import {
   clearLogMessage,
   closePopup,
@@ -17,15 +16,14 @@ import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { LogDisplayForDialog } from '../LogDisplay/LogDisplayForDialog';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
-export interface ImportDialogProps {
+export interface MergeDialogProps {
   fileFormat: FileFormatInfo;
 }
 
-export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
+export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
   const dispatch = useAppDispatch();
 
   const [inputFilePath, setInputFilePath] = useState<string>('');
-  const [opossumFilePath, setOpossumFilePath] = useState<string>('');
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -41,30 +39,6 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     );
   }
 
-  function selectOpossumFilePath(): void {
-    let defaultPath = 'imported.opossum';
-    const derivedPath = getDotOpossumFilePath(
-      inputFilePath,
-      fileFormat.extensions,
-    );
-
-    if (opossumFilePath) {
-      defaultPath = opossumFilePath;
-    } else if (derivedPath && derivedPath !== '.opossum') {
-      defaultPath = derivedPath;
-    }
-
-    window.electronAPI.importFileSelectSaveLocation(defaultPath).then(
-      (filePath) => {
-        if (filePath) {
-          setOpossumFilePath(filePath);
-          dispatch(clearLogMessage());
-        }
-      },
-      () => {},
-    );
-  }
-
   function onCancel(): void {
     dispatch(closePopup());
   }
@@ -72,10 +46,9 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   async function onConfirm(): Promise<void> {
     setIsLoading(true);
 
-    const success = await window.electronAPI.importFileConvertAndLoad(
+    const success = await window.electronAPI.mergeFileAndLoad(
       inputFilePath,
       fileFormat.fileType,
-      opossumFilePath,
     );
 
     if (success) {
@@ -87,31 +60,23 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
   return (
     <NotificationPopup
-      header={text.importDialog.title(fileFormat)}
+      header={text.mergeDialog.title(fileFormat)}
       width={'80vw'}
       minWidth={'300px'}
       maxWidth={'700px'}
       content={
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <MuiTypography>{text.importDialog.explanationText[0]}</MuiTypography>
+          <MuiTypography>{text.mergeDialog.explanationText[0]}</MuiTypography>
           <MuiTypography sx={{ marginBottom: '10px' }}>
-            {text.importDialog.explanationText[1]}
+            {text.mergeDialog.explanationText[1]}
           </MuiTypography>
           <FilePathInput
-            label={text.importDialog.inputFilePath.textFieldLabel(
+            label={text.mergeDialog.inputFilePath.textFieldLabel(
               fileFormat,
               !!inputFilePath,
             )}
             text={inputFilePath}
             onClick={selectInputFilePath}
-            tooltipProps={{ placement: 'top' }}
-          />
-          <FilePathInput
-            label={text.importDialog.opossumFilePath.textFieldLabel(
-              !!opossumFilePath,
-            )}
-            text={opossumFilePath}
-            onClick={selectOpossumFilePath}
           />
         </div>
       }
@@ -119,7 +84,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       customAction={<LogDisplayForDialog isLoading={isLoading} />}
       leftButtonConfig={{
         onClick: onConfirm,
-        buttonText: text.buttons.import,
+        buttonText: text.buttons.merge,
         disabled: isLoading,
       }}
       rightButtonConfig={{
@@ -128,7 +93,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         color: 'secondary',
         disabled: isLoading,
       }}
-      aria-label={'import dialog'}
+      aria-label={'merge dialog'}
     />
   );
 };
