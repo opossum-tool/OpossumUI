@@ -17,6 +17,7 @@ import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import {
   getImportFileListener,
+  getMergeListener,
   getSelectBaseURLListener,
 } from '../listeners';
 import { DisabledMenuItemHandler } from './DisabledMenuItemHandler';
@@ -65,7 +66,7 @@ function getImportFile(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
   };
 }
 
-function getMerge(_: Electron.CrossProcessExports.BrowserWindow) {
+function getMerge(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
   return {
     icon: getIconBasedOnTheme(
       'icons/import-white.png',
@@ -74,7 +75,7 @@ function getMerge(_: Electron.CrossProcessExports.BrowserWindow) {
     label: text.menu.fileSubmenu.merge,
     submenu: importFileFormats.map((fileFormat) => ({
       label: text.menu.fileSubmenu.mergeSubmenu(fileFormat),
-      click: () => console.log(`merge ${fileFormat.name}`),
+      click: getMergeListener(mainWindow, fileFormat),
       id: DisabledMenuItemHandler.registerDisabledMenuItem(),
       enabled: false,
     })),

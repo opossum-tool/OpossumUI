@@ -17,6 +17,7 @@ export const ACTION_CLOSE_POPUP = 'ACTION_CLOSE_POPUP';
 export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
 export const ACTION_SET_OPEN_FILE_REQUEST = 'ACTION_SET_OPEN_FILE_REQUEST';
 export const ACTION_SET_IMPORT_FILE_REQUEST = 'ACTION_SET_IMPORT_FILE_REQUEST';
+export const ACTION_SET_MERGE_REQUEST = 'ACTION_SET_MERGE_REQUEST';
 export const ACTION_SET_EXPORT_FILE_REQUEST = 'ACTION_SET_EXPORT_FILE_REQUEST';
 export const ACTION_SET_LOADING = 'ACTION_SET_LOADING';
 export const ACTION_SET_LOG_MESSAGE = 'ACTION_SET_LOG_MESSAGE';
@@ -63,6 +64,11 @@ export interface SetOpenFileRequestAction {
 
 export interface SetImportFileRequestAction {
   type: typeof ACTION_SET_IMPORT_FILE_REQUEST;
+  payload: FileFormatInfo | null;
+}
+
+export interface SetMergeRequestAction {
+  type: typeof ACTION_SET_MERGE_REQUEST;
   payload: FileFormatInfo | null;
 }
 

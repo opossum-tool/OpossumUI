@@ -40,6 +40,7 @@ import {
   openPopup,
   setExportFileRequest,
   setImportFileRequest,
+  setMergeRequest,
   setOpenFileRequest,
   setTargetView,
 } from '../view-actions/view-actions';
@@ -118,6 +119,16 @@ export function showImportDialogOrOpenUnsavedPopup(
       dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat)),
     requestContinuation: (dispatch) =>
       dispatch(setImportFileRequest(fileFormat)),
+  });
+}
+
+export function showMergeDialogOrOpenUnsavedPopup(
+  fileFormat: FileFormatInfo,
+): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) =>
+      dispatch(openPopup(PopupType.MergeDialog, undefined, fileFormat)),
+    requestContinuation: (dispatch) => dispatch(setMergeRequest(fileFormat)),
   });
 }
 

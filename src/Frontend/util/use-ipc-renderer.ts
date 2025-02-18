@@ -48,6 +48,11 @@ export type ShowImportDialogListener = (
   fileFormat: FileFormatInfo,
 ) => void;
 
+export type ShowMergeDialogListener = (
+  event: IpcRendererEvent,
+  fileFormat: FileFormatInfo,
+) => void;
+
 export type Listener =
   | ResetStateListener
   | SetStateListener
@@ -55,7 +60,8 @@ export type Listener =
   | ExportFileRequestListener
   | SetBaseURLForRootListener
   | IsLoadingListener
-  | ShowImportDialogListener;
+  | ShowImportDialogListener
+  | ShowMergeDialogListener;
 
 export function useIpcRenderer<T extends Listener>(
   channel: AllowedFrontendChannels,
