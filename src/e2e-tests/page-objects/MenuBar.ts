@@ -23,7 +23,7 @@ export class MenuBar {
   }
 
   async openFile(): Promise<void> {
-    await clickMenuItem(this.window.app, 'label', 'Open File');
+    await clickMenuItem(this.window.app, 'label', 'Open...');
   }
 
   async openProjectStatistics(): Promise<void> {
@@ -34,19 +34,19 @@ export class MenuBar {
     await clickMenuItem(
       this.window.app,
       'label',
-      'Legacy Opossum File (.json/.json.gz)',
+      'Legacy Opossum File (.json/.json.gz)...',
     );
   }
 
   async importScanCodeFile(): Promise<void> {
-    await clickMenuItem(this.window.app, 'label', 'ScanCode File (.json)');
+    await clickMenuItem(this.window.app, 'label', 'ScanCode File (.json)...');
   }
 
   async importOwaspDependencyScanFile(): Promise<void> {
     await clickMenuItem(
       this.window.app,
       'label',
-      'OWASP Dependency-Check (.json)',
+      'OWASP Dependency-Check File (.json)...',
     );
   }
 
