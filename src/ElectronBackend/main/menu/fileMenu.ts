@@ -62,6 +62,7 @@ function getImportFile(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
     submenu: importFileFormats.map((fileFormat) => ({
       label: text.menu.fileSubmenu.importSubmenu(fileFormat),
       click: getImportFileListener(mainWindow, fileFormat),
+      id: `import ${fileFormat.name}`,
     })),
   };
 }

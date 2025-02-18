@@ -82,6 +82,10 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       dispatch(closePopup());
     }
 
+    // NOTE: without a tiny delay, isLoading is sometimes set to false before the
+    // final log message is processed by LogDisplayForDialog, causing it to be
+    // missed. This seems to only happen when running the app with yarn start
+    await new Promise((resolve) => setTimeout(resolve, 1));
     setIsLoading(false);
   }
 
