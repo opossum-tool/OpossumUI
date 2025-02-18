@@ -266,6 +266,10 @@ export interface ElectronAPI {
     fileType: FileType,
     opossumFilePath: string,
   ) => Promise<boolean>;
+  mergeFileAndLoad: (
+    inputFilePath: string,
+    fileType: FileType,
+  ) => Promise<boolean>;
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;
   /**

@@ -10,11 +10,13 @@ import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHand
 import { createWindow } from './createWindow';
 import {
   exportFileListener,
+  getMergeFileAndLoadListener,
   importFileConvertAndLoadListener,
   importFileSelectSaveLocationListener,
   openFileListener,
   openLinkListener,
   saveFileListener,
+  selectFileListener,
   selectInputListener,
 } from './listeners';
 import { createMenu } from './menu';
@@ -81,6 +83,10 @@ export async function main(): Promise<void> {
         mainWindow,
         DisabledMenuItemHandler.activateMenuItems,
       ),
+    );
+    ipcMain.handle(
+      IpcChannel.MergeFileAndLoad,
+      getMergeFileAndLoadListener(mainWindow),
     );
     ipcMain.handle(IpcChannel.SaveFile, saveFileListener(mainWindow));
     ipcMain.handle(IpcChannel.ExportFile, exportFileListener(mainWindow));

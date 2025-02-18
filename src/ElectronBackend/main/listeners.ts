@@ -228,6 +228,47 @@ export const importFileConvertAndLoadListener =
     }
   };
 
+export function getMergeFileAndLoadListener(
+  mainWindow: BrowserWindow,
+): (
+  _: Electron.IpcMainInvokeEvent,
+  inputFilePath: string,
+  fileType: FileType,
+) => Promise<boolean> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow,
+    false,
+    async (
+      _: Electron.IpcMainInvokeEvent,
+      inputFilePath: string,
+      fileType: FileType,
+    ) => {
+      if (!inputFilePath.trim() || !fs.existsSync(inputFilePath)) {
+        throw new Error('Input file does not exist');
+      }
+
+      const currentlyOpenOpossumFilePath =
+        getGlobalBackendState().opossumFilePath;
+
+      if (!currentlyOpenOpossumFilePath) {
+        throw new Error('No open file to merge into');
+      }
+
+      logger.info('Merging input file into current .opossum file');
+      await convertToOpossum(
+        inputFilePath,
+        currentlyOpenOpossumFilePath,
+        fileType,
+      );
+
+      await openFile(mainWindow, currentlyOpenOpossumFilePath, () => {}, true);
+
+      return true;
+    },
+    ListenerErrorReporting.SendToFrontend,
+  );
+}
+
 function initializeGlobalBackendState(
   filePath: string,
   isOpossumFormat: boolean,
