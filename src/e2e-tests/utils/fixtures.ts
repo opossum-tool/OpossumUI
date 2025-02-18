@@ -30,6 +30,7 @@ import { FileSupportPopup } from '../page-objects/FileSupportPopup';
 import { ImportDialog } from '../page-objects/ImportDialog';
 import { LinkedResourcesTree } from '../page-objects/LinkedResourcesTree';
 import { MenuBar } from '../page-objects/MenuBar';
+import { MergeDialog } from '../page-objects/MergeDialog';
 import { NotSavedPopup } from '../page-objects/NotSavedPopup';
 import { PathBar } from '../page-objects/PathBar';
 import { ProjectMetadataPopup } from '../page-objects/ProjectMetadataPopup';
@@ -64,6 +65,7 @@ export const test = base.extend<{
   errorPopup: ErrorPopup;
   fileSupportPopup: FileSupportPopup;
   importDialog: ImportDialog;
+  mergeDialog: MergeDialog;
   linkedResourcesTree: LinkedResourcesTree;
   menuBar: MenuBar;
   notSavedPopup: NotSavedPopup;
@@ -186,6 +188,11 @@ export const test = base.extend<{
       new ImportDialog(window, data?.inputData.metadata.projectId, info),
     );
   },
+  mergeDialog: async ({ window, data }, use, info) => {
+    await use(
+      new MergeDialog(window, data?.inputData.metadata.projectId, info),
+    );
+  },
 });
 
 function getLaunchProps(): [executablePath: string | undefined, main: string] {
@@ -212,7 +219,7 @@ function getReleasePath(): string {
   throw new Error('Unsupported platform');
 }
 
-function createTestFile({
+async function createTestFile({
   data: { inputData, outputData, provideImportFiles },
   info,
 }: {
@@ -222,7 +229,7 @@ function createTestFile({
   const filename = inputData.metadata.projectId;
 
   if (provideImportFiles) {
-    return writeFile({
+    await writeFile({
       path: info.outputPath(`${filename}.json`),
       content: inputData,
     });
