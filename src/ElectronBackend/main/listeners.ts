@@ -32,7 +32,10 @@ import {
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { serializeAttributions } from '../input/parseInputData';
-import { convertToOpossum } from '../opossum-file/opossum-file';
+import {
+  convertToOpossum,
+  mergeFileIntoOpossum,
+} from '../opossum-file/opossum-file';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import { GlobalBackendState, OpossumOutputFile } from '../types/types';
@@ -255,7 +258,7 @@ export function getMergeFileAndLoadListener(
       }
 
       logger.info('Merging input file into current .opossum file');
-      await convertToOpossum(
+      await mergeFileIntoOpossum(
         inputFilePath,
         currentlyOpenOpossumFilePath,
         fileType,

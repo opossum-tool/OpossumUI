@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
@@ -18,7 +17,7 @@ import {
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
-import { LogDisplay } from '../LogDisplay/LogDisplay';
+import { LogDisplayForDialog } from '../LogDisplay/LogDisplayForDialog';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export interface ImportDialogProps {
@@ -56,7 +55,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       (filePath) => {
         if (filePath) {
           setInputFilePath(filePath);
-          setLogToDisplay(null);
+          dispatch(clearLogMessage());
         }
       },
       () => {},
@@ -80,7 +79,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       (filePath) => {
         if (filePath) {
           setOpossumFilePath(filePath);
-          setLogToDisplay(null);
+          dispatch(clearLogMessage());
         }
       },
       () => {},
@@ -134,25 +133,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         </div>
       }
       isOpen={true}
-      customAction={
-        logToDisplay ? (
-          <MuiBox
-            sx={{
-              display: 'flex',
-              columnGap: '4px',
-              marginLeft: '10px',
-              flexGrow: 1,
-            }}
-          >
-            <LogDisplay
-              log={logToDisplay}
-              isInProgress={isLoading}
-              showDate={false}
-              useEllipsis={true}
-            />
-          </MuiBox>
-        ) : undefined
-      }
+      customAction={<LogDisplayForDialog isLoading={isLoading} />}
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: text.buttons.import,
