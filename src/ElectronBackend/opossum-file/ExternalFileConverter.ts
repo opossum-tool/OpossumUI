@@ -5,21 +5,21 @@
 import { FileConverter } from './FileConverter';
 
 export abstract class ExternalFileConverter extends FileConverter {
-  protected override preConvertInputFile(_: string): Promise<string | null> {
+  protected override preConvertFile(_: string): Promise<string | null> {
     return new Promise((resolve) => resolve(null));
   }
 
-  override async convertFile(
-    pathToInputFile: string,
-    pathToOpossumFile: string,
+  override async convertToOpossum(
+    toBeConvertedFilePath: string,
+    opossumSaveLocation: string,
   ): Promise<void> {
     try {
       await this.execFile(this.OPOSSUM_FILE_EXECUTABLE, [
         'generate',
         '-o',
-        pathToOpossumFile,
+        opossumSaveLocation,
         this.fileTypeSwitch,
-        pathToInputFile,
+        toBeConvertedFilePath,
       ]);
     } catch (error) {
       throw new Error(

@@ -11,7 +11,7 @@ import { FileType } from '../../../shared/shared-types';
 import { parseOpossumFile } from '../../input/parseFile';
 import { ParsedOpossumInputAndOutput } from '../../types/types';
 import { isOpossumFileFormat } from '../../utils/isOpossumFileFormat';
-import { convertToOpossum, mergeFiles } from '../opossum-file';
+import { convertToOpossum, mergeFileIntoOpossum } from '../opossum-file';
 
 describe('conversion to opossum', () => {
   const SCANCODE_TEST_FILE = join(__dirname, 'scancode.json');
@@ -46,7 +46,7 @@ describe('conversion to opossum', () => {
 
   it('should merge the legacy opossum file into an existing .opossum file', async () => {
     fs.copyFileSync(OPOSSUM_TEST_FILE, OPOSSUM_TEST_FILE_COPY);
-    await mergeFiles(
+    await mergeFileIntoOpossum(
       LEGACY_OPOSSUM_TEST_FILE,
       OPOSSUM_TEST_FILE_COPY,
       FileType.LEGACY_OPOSSUM,
@@ -68,7 +68,7 @@ describe('conversion to opossum', () => {
 
   it('should merge the ScanCode file into an existing .opossum file', async () => {
     fs.copyFileSync(OPOSSUM_TEST_FILE, OPOSSUM_TEST_FILE_COPY);
-    await mergeFiles(
+    await mergeFileIntoOpossum(
       SCANCODE_TEST_FILE,
       OPOSSUM_TEST_FILE_COPY,
       FileType.SCANCODE_JSON,
@@ -88,7 +88,7 @@ describe('conversion to opossum', () => {
 
   it('should merge the owasp file into an existing .opossum file', async () => {
     fs.copyFileSync(OPOSSUM_TEST_FILE, OPOSSUM_TEST_FILE_COPY);
-    await mergeFiles(
+    await mergeFileIntoOpossum(
       OWASP_TEST_FILE,
       OPOSSUM_TEST_FILE_COPY,
       FileType.OWASP_JSON,

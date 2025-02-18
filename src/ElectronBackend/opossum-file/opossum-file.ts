@@ -20,23 +20,23 @@ const fileTypeToConverter: Record<FileType, FileConverter> = {
 };
 
 export async function convertToOpossum(
-  pathToInputFile: string,
-  pathToOpossumFile: string,
+  toBeConvertedFilePath: string,
+  opossumSaveLocation: string,
   fileType: FileType,
 ): Promise<void> {
-  await fileTypeToConverter[fileType].convertFile(
-    pathToInputFile,
-    pathToOpossumFile,
+  await fileTypeToConverter[fileType].convertToOpossum(
+    toBeConvertedFilePath,
+    opossumSaveLocation,
   );
 }
 
-export async function mergeFiles(
-  pathToInputFile: string,
+export async function mergeFileIntoOpossum(
+  toBeConvertedFilePath: string,
   pathToOpossumFile: string,
   fileType: FileType,
 ): Promise<void> {
-  await fileTypeToConverter[fileType].mergeFiles(
-    pathToInputFile,
+  await fileTypeToConverter[fileType].mergeFileIntoOpossum(
+    toBeConvertedFilePath,
     pathToOpossumFile,
   );
 }

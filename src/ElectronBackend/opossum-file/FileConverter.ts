@@ -20,35 +20,36 @@ export abstract class FileConverter {
     'bin/opossum-file',
   );
 
-  protected abstract preConvertInputFile(
-    pathToInputFile: string,
+  protected abstract preConvertFile(
+    toBeConvertedFilePath: string,
   ): Promise<string | null>;
 
-  abstract convertFile(
-    pathToInputFile: string,
-    pathToOpossumFile: string,
+  abstract convertToOpossum(
+    toBeConvertedFilePath: string,
+    opossumSaveLocation: string,
   ): Promise<void>;
 
-  async mergeFiles(
-    pathToInputFile: string,
-    pathToOpossumFile: string,
+  async mergeFileIntoOpossum(
+    toBeConvertedFilePath: string,
+    opossumFilePath: string,
   ): Promise<void> {
-    try {
-      const pathToPreConvertedInputFile =
-        await this.preConvertInputFile(pathToInputFile);
+    const preConvertedFilePath = await this.preConvertFile(
+      toBeConvertedFilePath,
+    );
 
+    try {
       await this.execFile(this.OPOSSUM_FILE_EXECUTABLE, [
         'generate',
         '-o',
-        pathToOpossumFile,
+        opossumFilePath,
         this.fileTypeSwitch,
-        pathToPreConvertedInputFile || pathToInputFile,
+        preConvertedFilePath || toBeConvertedFilePath,
         '--opossum',
-        pathToOpossumFile,
+        opossumFilePath,
       ]);
 
-      if (pathToPreConvertedInputFile) {
-        fs.rmSync(pathToPreConvertedInputFile);
+      if (preConvertedFilePath) {
+        fs.rmSync(preConvertedFilePath);
       }
     } catch (error) {
       throw new Error(

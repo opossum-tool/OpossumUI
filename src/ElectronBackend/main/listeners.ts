@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import upath from 'upath';
 
-import { outputFileEnding } from '../../Frontend/shared-constants';
+import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   ExportArgsType,
@@ -229,7 +229,7 @@ function initializeGlobalBackendState(
     resourceFilePath: isOpossumFormat ? undefined : filePath,
     attributionFilePath: isOpossumFormat
       ? undefined
-      : getFilePathWithAppendix(filePath, outputFileEnding),
+      : getFilePathWithAppendix(filePath, legacyOutputFileEnding),
     opossumFilePath: isOpossumFormat ? filePath : undefined,
     followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
     compactBomFilePath: getFilePathWithAppendix(
