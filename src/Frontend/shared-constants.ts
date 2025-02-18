@@ -73,3 +73,5 @@ export const thirdPartyKeys: Array<keyof PackageInfo> = [
   'licenseName',
   'licenseText',
 ];
+
+export const legacyOutputFileEnding = '_attributions.json';

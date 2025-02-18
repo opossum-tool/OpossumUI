@@ -7,8 +7,8 @@ import { BrowserWindow, shell, WebContents } from 'electron';
 import fs from 'fs';
 import path from 'path';
 import upath from 'upath';
-import zlib from 'zlib';
 
+import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   ExportArgsType,
@@ -33,10 +33,7 @@ import {
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { serializeAttributions } from '../input/parseInputData';
-import {
-  convertOwaspToOpossum,
-  convertScancodeToOpossum,
-} from '../opossum-file/convertToOpossum';
+import { convertToOpossum } from '../opossum-file/opossum-file';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import { GlobalBackendState, OpossumOutputFile } from '../types/types';
@@ -53,10 +50,6 @@ import {
   setGlobalBackendState,
 } from './globalBackendState';
 import logger from './logger';
-
-const outputFileEnding = '_attributions.json';
-const jsonGzipFileExtension = '.json.gz';
-const jsonFileExtension = '.json';
 
 export function getSaveFileListener(
   mainWindow: BrowserWindow,
@@ -213,27 +206,8 @@ export function getImportFileConvertAndLoadListener(
         throw new Error('Output directory does not exist');
       }
 
-      logger.info('Converting .json to .opossum format');
-
-      if (resourceFilePath.endsWith(outputFileEnding)) {
-        resourceFilePath = tryToGetInputFileFromOutputFile(resourceFilePath);
-      }
-
-      switch (fileType) {
-        case FileType.LEGACY_OPOSSUM:
-          await writeOpossumFile({
-            path: opossumFilePath,
-            input: getInputJson(resourceFilePath),
-            output: getOutputJson(resourceFilePath),
-          });
-          break;
-        case FileType.SCANCODE_JSON:
-          await convertScancodeToOpossum(resourceFilePath, opossumFilePath);
-          break;
-        case FileType.OWASP_JSON:
-          await convertOwaspToOpossum(resourceFilePath, opossumFilePath);
-          break;
-      }
+      logger.info('Converting input file to .opossum format');
+      await convertToOpossum(resourceFilePath, opossumFilePath, fileType);
 
       logger.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath, true);
@@ -255,7 +229,7 @@ function initializeGlobalBackendState(
     resourceFilePath: isOpossumFormat ? undefined : filePath,
     attributionFilePath: isOpossumFormat
       ? undefined
-      : getFilePathWithAppendix(filePath, outputFileEnding),
+      : getFilePathWithAppendix(filePath, legacyOutputFileEnding),
     opossumFilePath: isOpossumFormat ? filePath : undefined,
     followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
     compactBomFilePath: getFilePathWithAppendix(
@@ -314,17 +288,6 @@ export function getSelectBaseURLListener(
 
 function formatBaseURL(baseURL: string): string {
   return `file://${baseURL}/{path}`;
-}
-
-function tryToGetInputFileFromOutputFile(filePath: string): string {
-  const outputFilePattern = `(${outputFileEnding})$`;
-  const outputFileRegex = new RegExp(outputFilePattern);
-
-  return fs.existsSync(filePath.replace(outputFileRegex, jsonFileExtension))
-    ? filePath.replace(outputFileRegex, jsonFileExtension)
-    : fs.existsSync(filePath.replace(outputFileRegex, jsonGzipFileExtension))
-      ? filePath.replace(outputFileRegex, jsonGzipFileExtension)
-      : filePath;
 }
 
 export async function openFile(
@@ -544,32 +507,4 @@ export function setLoadingState(
   webContents.send(AllowedFrontendChannels.FileLoading, {
     isLoading,
   });
-}
-
-function getInputJson(resourceFilePath: string): string {
-  let inputJson: string;
-  if (resourceFilePath.endsWith(jsonGzipFileExtension)) {
-    const file = fs.readFileSync(resourceFilePath);
-    inputJson = zlib.gunzipSync(file).toString();
-  } else {
-    inputJson = fs.readFileSync(resourceFilePath, {
-      encoding: 'utf-8',
-    });
-  }
-
-  return inputJson;
-}
-
-function getOutputJson(resourceFilePath: string): string | undefined {
-  const expectedAssociatedAttributionFilePath = getFilePathWithAppendix(
-    resourceFilePath,
-    outputFileEnding,
-  );
-  if (fs.existsSync(expectedAssociatedAttributionFilePath)) {
-    return fs.readFileSync(expectedAssociatedAttributionFilePath, {
-      encoding: 'utf-8',
-    });
-  }
-
-  return undefined;
 }
