@@ -18,6 +18,7 @@ import {
 import {
   getExportFileRequest,
   getImportFileRequest,
+  getMergeRequest,
   getOpenFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
@@ -154,6 +155,7 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     const targetView = getTargetView(getState());
     const openFileRequest = getOpenFileRequest(getState());
     const importFileRequest = getImportFileRequest(getState());
+    const mergeRequest = getMergeRequest(getState());
     const exportFileRequest = getExportFileRequest(getState());
 
     dispatch(closePopup());
@@ -166,6 +168,11 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     if (importFileRequest) {
       dispatch(openPopup(PopupType.ImportDialog, undefined, importFileRequest));
       dispatch(setImportFileRequest(null));
+    }
+
+    if (mergeRequest) {
+      dispatch(openPopup(PopupType.MergeDialog, undefined, mergeRequest));
+      dispatch(setMergeRequest(null));
     }
 
     if (exportFileRequest) {

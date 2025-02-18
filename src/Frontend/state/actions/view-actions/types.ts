@@ -30,6 +30,7 @@ export type ViewAction =
   | OpenPopupAction
   | SetOpenFileRequestAction
   | SetImportFileRequestAction
+  | SetMergeRequestAction
   | SetExportFileRequestAction
   | SetLoadingAction
   | SetLogMessageAction;
