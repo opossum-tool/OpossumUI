@@ -412,7 +412,7 @@ describe('getImportFileListener', () => {
     listener();
 
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ImportFileShowDialog,
+      AllowedFrontendChannels.ShowImportDialog,
       fileFormat,
     );
   });

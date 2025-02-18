@@ -132,7 +132,19 @@ export async function handleOpeningFile(
 export const importFileListener =
   (mainWindow: BrowserWindow, fileFormat: FileFormatInfo) => (): void => {
     mainWindow.webContents.send(
-      AllowedFrontendChannels.ImportFileShowDialog,
+      AllowedFrontendChannels.ShowImportDialog,
+      fileFormat,
+    );
+  });
+}
+
+export function getMergeListener(
+  mainWindow: BrowserWindow,
+  fileFormat: FileFormatInfo,
+): () => Promise<void> {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, () => {
+    mainWindow.webContents.send(
+      AllowedFrontendChannels.ShowMergeDialog,
       fileFormat,
     );
   };

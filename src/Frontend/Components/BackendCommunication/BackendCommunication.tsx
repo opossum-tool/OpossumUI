@@ -17,6 +17,7 @@ import {
   exportFileOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
   showImportDialogOrOpenUnsavedPopup,
+  showMergeDialogOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import {
   resetResourceState,
@@ -30,6 +31,7 @@ import {
   ExportFileRequestListener,
   LoggingListener,
   ShowImportDialogListener,
+  ShowMergeDialogListener,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
 
@@ -142,8 +144,13 @@ export const BackendCommunication: React.FC = () => {
     [dispatch],
   );
   useIpcRenderer<ShowImportDialogListener>(
-    AllowedFrontendChannels.ImportFileShowDialog,
+    AllowedFrontendChannels.ShowImportDialog,
     (_, fileFormat) => dispatch(showImportDialogOrOpenUnsavedPopup(fileFormat)),
+    [dispatch],
+  );
+  useIpcRenderer<ShowMergeDialogListener>(
+    AllowedFrontendChannels.ShowMergeDialog,
+    (_, fileFormat) => dispatch(showMergeDialogOrOpenUnsavedPopup(fileFormat)),
     [dispatch],
   );
 
