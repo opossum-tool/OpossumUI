@@ -150,7 +150,7 @@ export function getMergeListener(
   });
 }
 
-export function getImportFileSelectInputListener(
+export function selectFileListener(
   mainWindow: BrowserWindow,
 ): (
   _: Electron.IpcMainInvokeEvent,

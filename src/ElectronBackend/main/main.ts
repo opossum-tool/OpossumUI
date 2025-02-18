@@ -12,11 +12,11 @@ import {
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
   getImportFileConvertAndLoadListener,
-  getImportFileSelectInputListener,
   getImportFileSelectSaveLocationListener,
   getOpenFileListener,
   getOpenLinkListener,
   getSaveFileListener,
+  selectFileListener,
 } from './listeners';
 import { createMenu } from './menu';
 import { DisabledMenuItemHandler } from './menu/DisabledMenuItemHandler';
@@ -71,10 +71,7 @@ export async function main(): Promise<void> {
         DisabledMenuItemHandler.activateMenuItems,
       ),
     );
-    ipcMain.handle(
-      IpcChannel.ImportFileSelectInput,
-      getImportFileSelectInputListener(mainWindow),
-    );
+    ipcMain.handle(IpcChannel.SelectFile, selectFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.ImportFileSelectSaveLocation,
       getImportFileSelectSaveLocationListener(mainWindow),

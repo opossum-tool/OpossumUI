@@ -33,11 +33,11 @@ import {
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
   getImportFileListener,
-  getImportFileSelectInputListener,
   getImportFileSelectSaveLocationListener,
   getOpenLinkListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
+  selectFileListener,
 } from '../listeners';
 import { importFileFormats } from '../menu/fileMenu';
 
@@ -452,7 +452,7 @@ describe('getImportFileSelectInputListener', () => {
     const fileFormat = importFileFormats[0];
     const selectedFilePath = '/home/input.json';
 
-    const listener = getImportFileSelectInputListener(mainWindow);
+    const listener = selectFileListener(mainWindow);
 
     jest.mocked(openNonOpossumFileDialog).mockReturnValue([selectedFilePath]);
 
@@ -468,7 +468,7 @@ describe('getImportFileSelectInputListener', () => {
     const mainWindow = await initWindowAndBackendState();
     const fileFormat = importFileFormats[0];
 
-    const listener = getImportFileSelectInputListener(mainWindow);
+    const listener = selectFileListener(mainWindow);
 
     jest
       .mocked(openNonOpossumFileDialog)

@@ -36,7 +36,7 @@ global.window.electronAPI = {
   relaunch: jest.fn(),
   openLink: jest.fn().mockReturnValue(Promise.resolve()),
   openFile: jest.fn(),
-  importFileSelectInput: jest.fn(),
+  selectFile: jest.fn(),
   importFileSelectSaveLocation: jest.fn(),
   importFileConvertAndLoad: jest.fn(),
   exportFile: jest.fn(),
