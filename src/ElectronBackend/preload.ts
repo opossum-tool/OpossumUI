@@ -13,8 +13,8 @@ const electronAPI: ElectronAPI = {
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
   openFile: () => ipcRenderer.invoke(IpcChannel.OpenFile),
-  importFileSelectInput: (fileFormat) =>
-    ipcRenderer.invoke(IpcChannel.ImportFileSelectInput, fileFormat),
+  selectFile: (fileFormat) =>
+    ipcRenderer.invoke(IpcChannel.SelectFile, fileFormat),
   importFileSelectSaveLocation: (defaultPath) =>
     ipcRenderer.invoke(IpcChannel.ImportFileSelectSaveLocation, defaultPath),
   importFileConvertAndLoad: (inputFilePath, fileType, opossumFilePath) =>

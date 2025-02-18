@@ -52,7 +52,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   );
 
   function selectInputFilePath(): void {
-    window.electronAPI.importFileSelectInput(fileFormat).then(
+    window.electronAPI.selectFile(fileFormat).then(
       (filePath) => {
         if (filePath) {
           setInputFilePath(filePath);

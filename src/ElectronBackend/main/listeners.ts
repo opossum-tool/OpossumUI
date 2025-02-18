@@ -147,9 +147,10 @@ export function getMergeListener(
       AllowedFrontendChannels.ShowMergeDialog,
       fileFormat,
     );
-  };
+  });
+}
 
-export const importFileSelectInputListener =
+export const selectFileListener =
   (mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,

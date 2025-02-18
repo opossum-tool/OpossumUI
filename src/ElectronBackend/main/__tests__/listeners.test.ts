@@ -29,11 +29,11 @@ import { setGlobalBackendState } from '../globalBackendState';
 import {
   exportFileListener,
   importFileListener,
-  importFileSelectInputListener,
   importFileSelectSaveLocationListener,
   linkHasHttpSchema,
   openLinkListener,
   selectBaseURLListener,
+  selectFileListener
 } from '../listeners';
 import { importFileFormats } from '../menu/fileMenu';
 
@@ -424,7 +424,7 @@ describe('getImportFileSelectInputListener', () => {
     const fileFormat = importFileFormats[0];
     const selectedFilePath = '/home/input.json';
 
-    const listener = importFileSelectInputListener(mainWindow);
+    const listener = selectFileListener(mainWindow);
 
     jest.mocked(openNonOpossumFileDialog).mockReturnValue([selectedFilePath]);
 
@@ -440,7 +440,7 @@ describe('getImportFileSelectInputListener', () => {
     const mainWindow = await initWindowAndBackendState();
     const fileFormat = importFileFormats[0];
 
-    const listener = importFileSelectInputListener(mainWindow);
+    const listener = selectFileListener(mainWindow);
 
     jest
       .mocked(openNonOpossumFileDialog)

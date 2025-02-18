@@ -7,7 +7,7 @@
 export enum IpcChannel {
   ExportFile = 'export-file',
   OpenFile = 'open-file',
-  ImportFileSelectInput = 'import-file-select-input',
+  SelectFile = 'select-file',
   ImportFileSelectSaveLocation = 'import-file-select-save-location',
   ImportFileConvertAndLoad = 'import-file-convert-and-load',
   OpenLink = 'open-link',

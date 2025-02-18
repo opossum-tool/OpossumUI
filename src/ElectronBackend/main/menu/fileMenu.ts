@@ -37,7 +37,7 @@ export const importFileFormats: Array<FileFormatInfo> = [
   },
   {
     fileType: FileType.OWASP_JSON,
-    name: 'OWASP Dependency-Check',
+    name: 'OWASP Dependency-Check File',
     extensions: ['json'],
   },
 ];
