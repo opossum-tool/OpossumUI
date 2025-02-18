@@ -59,7 +59,7 @@ export class MenuBar {
   }
 
   async importScanCodeFile(): Promise<void> {
-    await this.clickSubmenuItem('Import', 'ScanCode File (.json...');
+    await this.clickSubmenuItem('Import', 'ScanCode File (.json)...');
   }
 
   async importOwaspDependencyScanFile(): Promise<void> {
