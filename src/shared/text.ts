@@ -5,7 +5,7 @@
 import { FileFormatInfo } from './shared-types';
 
 function menuLabelForFileFormat(fileFormat: FileFormatInfo): string {
-  return `${fileFormat.name} (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})...`;
+  return `${fileFormat.name} File (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})...`;
 }
 
 export const text = {
@@ -25,8 +25,8 @@ export const text = {
       export: 'Export',
       exportSubmenu: {
         followUp: 'Follow-Up',
-        compactComponentList: 'Compact component list',
-        detailedComponentList: 'Detailed component list',
+        compactComponentList: 'Compact Component List',
+        detailedComponentList: 'Detailed Component List',
         spdxYAML: 'SPDX (yaml)',
         spdxJSON: 'SPDX (json)',
       },
@@ -60,8 +60,8 @@ export const text = {
     },
     help: 'Help',
     helpSubmenu: {
-      openLogFiles: 'Open log files folder',
-      checkForUpdates: 'Check For Updates',
+      openLogFiles: 'Open Log Files Folder',
+      checkForUpdates: 'Check for Updates',
       userGuide: 'User Guide',
     },
   },
@@ -304,7 +304,7 @@ export const text = {
     quit: 'Quit App',
   },
   importDialog: {
-    title: (fileFormat: FileFormatInfo) => `Import ${fileFormat.name}`,
+    title: (fileFormat: FileFormatInfo) => `Import ${fileFormat.name} file`,
     explanationText: [
       'OpossumUI will convert the selected file into a new Opossum file.',
       'All changes made to the project in OpossumUI will be saved in this Opossum file.',
@@ -324,7 +324,7 @@ export const text = {
   },
   mergeDialog: {
     title: (fileFormat: FileFormatInfo) =>
-      `Merge ${fileFormat.name} into current file`,
+      `Merge ${fileFormat.name} file into current file`,
     explanationText:
       'OpossumUI will merge the selected file into the currently open Opossum file.',
     warningText:

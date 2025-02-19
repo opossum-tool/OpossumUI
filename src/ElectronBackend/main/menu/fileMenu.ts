@@ -27,17 +27,17 @@ import { DisabledMenuItemHandler } from './DisabledMenuItemHandler';
 export const importFileFormats: Array<FileFormatInfo> = [
   {
     fileType: FileType.LEGACY_OPOSSUM,
-    name: 'Legacy Opossum File',
+    name: 'Legacy Opossum',
     extensions: ['json', 'json.gz'],
   },
   {
     fileType: FileType.SCANCODE_JSON,
-    name: 'ScanCode File',
+    name: 'ScanCode',
     extensions: ['json'],
   },
   {
     fileType: FileType.OWASP_JSON,
-    name: 'OWASP Dependency-Check File',
+    name: 'OWASP Dependency-Check',
     extensions: ['json'],
   },
 ];
