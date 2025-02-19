@@ -50,19 +50,16 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     [isLoading],
   );
 
-  function selectInputFilePath(): void {
-    window.electronAPI.selectFile(fileFormat).then(
-      (filePath) => {
-        if (filePath) {
-          setInputFilePath(filePath);
-          dispatch(clearLogMessage());
-        }
-      },
-      () => {},
-    );
+  async function selectInputFilePath(): Promise<void> {
+    const filePath = await window.electronAPI.selectFile(fileFormat);
+
+    if (filePath) {
+      setInputFilePath(filePath);
+      dispatch(clearLogMessage());
+    }
   }
 
-  function selectOpossumFilePath(): void {
+  async function selectOpossumFilePath(): Promise<void> {
     let defaultPath = 'imported.opossum';
     const derivedPath = getDotOpossumFilePath(
       inputFilePath,
@@ -75,15 +72,13 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       defaultPath = derivedPath;
     }
 
-    window.electronAPI.importFileSelectSaveLocation(defaultPath).then(
-      (filePath) => {
-        if (filePath) {
-          setOpossumFilePath(filePath);
-          dispatch(clearLogMessage());
-        }
-      },
-      () => {},
-    );
+    const filePath =
+      await window.electronAPI.importFileSelectSaveLocation(defaultPath);
+
+    if (filePath) {
+      setOpossumFilePath(filePath);
+      dispatch(clearLogMessage());
+    }
   }
 
   function onCancel(): void {
