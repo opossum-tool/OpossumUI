@@ -71,10 +71,7 @@ function getImportFile(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
 
 function getMerge(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
   return {
-    icon: getIconBasedOnTheme(
-      'icons/import-white.png',
-      'icons/import-black.png',
-    ),
+    icon: getIconBasedOnTheme('icons/merge-white.png', 'icons/merge-black.png'),
     label: text.menu.fileSubmenu.merge,
     submenu: importFileFormats.map((fileFormat) => ({
       label: text.menu.fileSubmenu.mergeSubmenu(fileFormat),
