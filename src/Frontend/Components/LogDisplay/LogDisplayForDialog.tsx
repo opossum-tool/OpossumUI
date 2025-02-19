@@ -31,6 +31,7 @@ export function LogDisplayForDialog({ isLoading }: LogDisplayForDialogProps) {
     <MuiBox
       sx={{
         display: 'flex',
+        alignItems: 'center',
         columnGap: '4px',
         marginLeft: '10px',
         flexGrow: 1,
