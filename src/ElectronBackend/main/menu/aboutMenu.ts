@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { shell } from 'electron';
 
+import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import {
   getPathOfChromiumNoticeDocument,
@@ -17,7 +18,7 @@ function getOpenOnGithub() {
       'icons/github-white.png',
       'icons/github-black.png',
     ),
-    label: 'Open on GitHub',
+    label: text.menu.aboutSubmenu.openOnGithub,
     click: () =>
       shell.openExternal('https://github.com/opossum-tool/opossumUI'),
   };
@@ -29,7 +30,7 @@ function getOpossumUiNotices() {
       'icons/notice-white.png',
       'icons/notice-black.png',
     ),
-    label: 'OpossumUI Notices',
+    label: text.menu.aboutSubmenu.opossumUINotices,
     click: () => shell.openPath(getPathOfNoticeDocument()),
   };
 }
@@ -40,14 +41,14 @@ function getChromiumNotices() {
       'icons/chromium-white.png',
       'icons/chromium-black.png',
     ),
-    label: 'Chromium Notices',
+    label: text.menu.aboutSubmenu.chromiumNotices,
     click: () => shell.openPath(getPathOfChromiumNoticeDocument()),
   };
 }
 
 export function getAboutMenu() {
   return {
-    label: 'About',
+    label: text.menu.about,
     submenu: [getOpenOnGithub(), getOpossumUiNotices(), getChromiumNotices()],
   };
 }

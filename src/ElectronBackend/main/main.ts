@@ -12,14 +12,15 @@ import {
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
   getImportFileConvertAndLoadListener,
-  getImportFileSelectInputListener,
   getImportFileSelectSaveLocationListener,
+  getMergeFileAndLoadListener,
   getOpenFileListener,
   getOpenLinkListener,
   getSaveFileListener,
+  selectFileListener,
 } from './listeners';
 import { createMenu } from './menu';
-import { activateMenuItems } from './menu/initiallyDisabledMenuItems';
+import { DisabledMenuItemHandler } from './menu/DisabledMenuItemHandler';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { UserSettings } from './user-settings';
 
@@ -66,26 +67,33 @@ export async function main(): Promise<void> {
     });
     ipcMain.handle(
       IpcChannel.OpenFile,
-      getOpenFileListener(mainWindow, activateMenuItems),
+      getOpenFileListener(
+        mainWindow,
+        DisabledMenuItemHandler.activateMenuItems,
+      ),
     );
-    ipcMain.handle(
-      IpcChannel.ImportFileSelectInput,
-      getImportFileSelectInputListener(mainWindow),
-    );
+    ipcMain.handle(IpcChannel.SelectFile, selectFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.ImportFileSelectSaveLocation,
       getImportFileSelectSaveLocationListener(mainWindow),
     );
     ipcMain.handle(
       IpcChannel.ImportFileConvertAndLoad,
-      getImportFileConvertAndLoadListener(mainWindow, activateMenuItems),
+      getImportFileConvertAndLoadListener(
+        mainWindow,
+        DisabledMenuItemHandler.activateMenuItems,
+      ),
+    );
+    ipcMain.handle(
+      IpcChannel.MergeFileAndLoad,
+      getMergeFileAndLoadListener(mainWindow),
     );
     ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.DeleteFile,
       getDeleteAndCreateNewAttributionFileListener(
         mainWindow,
-        activateMenuItems,
+        DisabledMenuItemHandler.activateMenuItems,
       ),
     );
     ipcMain.handle(IpcChannel.ExportFile, getExportFileListener(mainWindow));

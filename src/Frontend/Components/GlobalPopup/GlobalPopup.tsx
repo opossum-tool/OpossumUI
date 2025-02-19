@@ -9,6 +9,7 @@ import { getOpenPopup } from '../../state/selectors/view-selector';
 import { PopupInfo } from '../../types/types';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
 import { ImportDialog } from '../ImportDialog/ImportDialog';
+import { MergeDialog } from '../MergeDialog/MergeDialog';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
@@ -29,6 +30,10 @@ function getPopupComponent(popupInfo: PopupInfo | null) {
     case PopupType.ImportDialog:
       return popupInfo?.fileFormat ? (
         <ImportDialog fileFormat={popupInfo?.fileFormat} />
+      ) : null;
+    case PopupType.MergeDialog:
+      return popupInfo?.fileFormat ? (
+        <MergeDialog fileFormat={popupInfo?.fileFormat} />
       ) : null;
     default:
       return null;

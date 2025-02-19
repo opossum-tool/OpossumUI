@@ -33,7 +33,10 @@ import {
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { serializeAttributions } from '../input/parseInputData';
-import { convertToOpossum } from '../opossum-file/opossum-file';
+import {
+  convertToOpossum,
+  mergeFileIntoOpossum,
+} from '../opossum-file/opossum-file';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import { GlobalBackendState, OpossumOutputFile } from '../types/types';
@@ -132,13 +135,25 @@ export function getImportFileListener(
 ): () => Promise<void> {
   return createVoidListenerCallbackWithErrorHandling(mainWindow, () => {
     mainWindow.webContents.send(
-      AllowedFrontendChannels.ImportFileShowDialog,
+      AllowedFrontendChannels.ShowImportDialog,
       fileFormat,
     );
   });
 }
 
-export function getImportFileSelectInputListener(
+export function getMergeListener(
+  mainWindow: BrowserWindow,
+  fileFormat: FileFormatInfo,
+): () => Promise<void> {
+  return createVoidListenerCallbackWithErrorHandling(mainWindow, () => {
+    mainWindow.webContents.send(
+      AllowedFrontendChannels.ShowMergeDialog,
+      fileFormat,
+    );
+  });
+}
+
+export function selectFileListener(
   mainWindow: BrowserWindow,
 ): (
   _: Electron.IpcMainInvokeEvent,
@@ -194,6 +209,12 @@ export function getImportFileConvertAndLoadListener(
         throw new Error('Input file does not exist');
       }
 
+      try {
+        fs.accessSync(resourceFilePath, fs.constants.R_OK);
+      } catch (error) {
+        throw new Error('Permission error: cannot read input file');
+      }
+
       if (!opossumFilePath.trim()) {
         throw new Error('No .opossum save location selected');
       }
@@ -206,6 +227,12 @@ export function getImportFileConvertAndLoadListener(
         throw new Error('Output directory does not exist');
       }
 
+      try {
+        fs.accessSync(path.dirname(opossumFilePath), fs.constants.W_OK);
+      } catch (error) {
+        throw new Error('Permission error: cannot write to output directory');
+      }
+
       logger.info('Converting input file to .opossum format');
       await convertToOpossum(resourceFilePath, opossumFilePath, fileType);
 
@@ -213,6 +240,64 @@ export function getImportFileConvertAndLoadListener(
       initializeGlobalBackendState(opossumFilePath, true);
 
       await openFile(mainWindow, opossumFilePath, onOpen, true);
+
+      return true;
+    },
+    ListenerErrorReporting.SendToFrontend,
+  );
+}
+
+export function getMergeFileAndLoadListener(
+  mainWindow: BrowserWindow,
+): (
+  _: Electron.IpcMainInvokeEvent,
+  inputFilePath: string,
+  fileType: FileType,
+) => Promise<boolean> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow,
+    false,
+    async (
+      _: Electron.IpcMainInvokeEvent,
+      inputFilePath: string,
+      fileType: FileType,
+    ) => {
+      if (!inputFilePath.trim() || !fs.existsSync(inputFilePath)) {
+        throw new Error('Input file does not exist');
+      }
+
+      try {
+        fs.accessSync(inputFilePath, fs.constants.R_OK);
+      } catch (error) {
+        throw new Error('Permission error: cannot read input file');
+      }
+
+      const currentlyOpenOpossumFilePath =
+        getGlobalBackendState().opossumFilePath;
+
+      if (!currentlyOpenOpossumFilePath) {
+        throw new Error('No open file to merge into');
+      }
+
+      try {
+        fs.copyFileSync(
+          currentlyOpenOpossumFilePath,
+          `${currentlyOpenOpossumFilePath}.backup`,
+        );
+      } catch (error) {
+        throw new Error(
+          'Unable to create backup of currently open Opossum file',
+        );
+      }
+
+      logger.info('Merging input file into current .opossum file');
+      await mergeFileIntoOpossum(
+        inputFilePath,
+        currentlyOpenOpossumFilePath,
+        fileType,
+      );
+
+      await openFile(mainWindow, currentlyOpenOpossumFilePath, () => {}, true);
 
       return true;
     },

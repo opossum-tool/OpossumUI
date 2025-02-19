@@ -14,6 +14,7 @@ import {
   ACTION_SET_IMPORT_FILE_REQUEST,
   ACTION_SET_LOADING,
   ACTION_SET_LOG_MESSAGE,
+  ACTION_SET_MERGE_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -26,6 +27,7 @@ export interface ViewState {
   popupInfo: Array<PopupInfo>;
   openFileRequest: boolean;
   importFileRequest: FileFormatInfo | null;
+  mergeRequest: FileFormatInfo | null;
   exportFileRequest: ExportType | null;
   loading: boolean;
   logMessage: Log | null;
@@ -37,6 +39,7 @@ export const initialViewState: ViewState = {
   popupInfo: [],
   openFileRequest: false,
   importFileRequest: null,
+  mergeRequest: null,
   exportFileRequest: null,
   loading: false,
   logMessage: null,
@@ -82,6 +85,11 @@ export function viewState(
       return {
         ...state,
         importFileRequest: action.payload,
+      };
+    case ACTION_SET_MERGE_REQUEST:
+      return {
+        ...state,
+        mergeRequest: action.payload,
       };
     case ACTION_SET_EXPORT_FILE_REQUEST:
       return {

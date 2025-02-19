@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { MenuItemConstructorOptions } from 'electron';
 
+import { text } from '../../../shared/text';
 import {
   getIconBasedOnTheme,
   makeFirstIconVisibleAndSecondHidden,
@@ -17,7 +18,7 @@ function getShowDevTools(): MenuItemConstructorOptions {
       'icons/developer-tool-white.png',
       'icons/developer-tool-black.png',
     ),
-    label: 'Show Developer Tools',
+    label: text.menu.viewSubmenu.showDevTools,
     role: 'toggleDevTools',
   };
 }
@@ -28,7 +29,7 @@ function getToggleFullScreen(): MenuItemConstructorOptions {
       'icons/full-screen-white.png',
       'icons/full-screen-black.png',
     ),
-    label: 'Full Screen',
+    label: text.menu.viewSubmenu.toggleFullScreen,
     role: 'togglefullscreen',
   };
 }
@@ -39,7 +40,7 @@ function getZoomIn(): MenuItemConstructorOptions {
       'icons/zoom-in-white.png',
       'icons/zoom-in-black.png',
     ),
-    label: 'Zoom In',
+    label: text.menu.viewSubmenu.zoomIn,
     role: 'zoomIn',
   };
 }
@@ -50,7 +51,7 @@ function getZoomOut(): MenuItemConstructorOptions {
       'icons/zoom-out-white.png',
       'icons/zoom-out-black.png',
     ),
-    label: 'Zoom Out',
+    label: text.menu.viewSubmenu.zoomOut,
     role: 'zoomOut',
   };
 }
@@ -61,7 +62,7 @@ function getEnableQaMode(qaMode: null | boolean) {
       'icons/check-box-blank-white.png',
       'icons/check-box-blank-black.png',
     ),
-    label: 'QA Mode',
+    label: text.menu.viewSubmenu.qaMode,
     id: 'disabled-qa-mode',
     click: () => {
       makeFirstIconVisibleAndSecondHidden(
@@ -80,7 +81,7 @@ function getDisableQaMode(qaMode: null | boolean) {
       'icons/check-box-white.png',
       'icons/check-box-black.png',
     ),
-    label: 'QA Mode',
+    label: text.menu.viewSubmenu.qaMode,
     id: 'enabled-qa-mode',
     click: () => {
       makeFirstIconVisibleAndSecondHidden(
@@ -97,7 +98,7 @@ export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
   const qaMode = await UserSettings.get('qaMode');
 
   return {
-    label: 'View',
+    label: text.menu.view,
     submenu: [
       getShowDevTools(),
       getToggleFullScreen(),

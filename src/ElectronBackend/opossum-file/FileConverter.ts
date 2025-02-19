@@ -47,14 +47,12 @@ export abstract class FileConverter {
         '--opossum',
         opossumFilePath,
       ]);
-
-      if (preConvertedFilePath) {
-        fs.rmSync(preConvertedFilePath);
-      }
     } catch (error) {
-      throw new Error(
-        `Merging ${this.fileTypeName} file into current file failed`,
-      );
+      throw new Error(`Input file is not a valid ${this.fileTypeName} file`);
+    }
+
+    if (preConvertedFilePath) {
+      fs.rmSync(preConvertedFilePath);
     }
   }
 }
