@@ -27,16 +27,13 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  function selectInputFilePath(): void {
-    window.electronAPI.selectFile(fileFormat).then(
-      (filePath) => {
-        if (filePath) {
-          setInputFilePath(filePath);
-          dispatch(clearLogMessage());
-        }
-      },
-      () => {},
-    );
+  async function selectInputFilePath(): Promise<void> {
+    const filePath = await window.electronAPI.selectFile(fileFormat);
+
+    if (filePath) {
+      setInputFilePath(filePath);
+      dispatch(clearLogMessage());
+    }
   }
 
   function onCancel(): void {
