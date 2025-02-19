@@ -64,13 +64,11 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
       header={text.mergeDialog.title(fileFormat)}
       width={'80vw'}
       minWidth={'300px'}
-      maxWidth={'700px'}
+      maxWidth={'730px'}
       content={
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <MuiTypography>{text.mergeDialog.explanationText[0]}</MuiTypography>
-          <MuiTypography sx={{ marginBottom: '10px' }}>
-            {text.mergeDialog.explanationText[1]}
-          </MuiTypography>
+          <MuiTypography>{text.mergeDialog.explanationText}</MuiTypography>
+          <MuiTypography>{text.mergeDialog.warningText}</MuiTypography>
           <FilePathInput
             label={text.mergeDialog.inputFilePath.textFieldLabel(
               fileFormat,

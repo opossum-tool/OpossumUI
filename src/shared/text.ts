@@ -306,8 +306,8 @@ export const text = {
   importDialog: {
     title: (fileFormat: FileFormatInfo) => `Import ${fileFormat.name}`,
     explanationText: [
-      'OpossumUI will convert the selected file into a new opossum file.',
-      'All changes made to the project in OpossumUI will be saved in this opossum file.',
+      'OpossumUI will convert the selected file into a new Opossum file.',
+      'All changes made to the project in OpossumUI will be saved in this Opossum file.',
     ],
     inputFilePath: {
       textFieldLabel: (fileFormat: FileFormatInfo, hasBeenSelected: boolean) =>
@@ -319,16 +319,16 @@ export const text = {
       textFieldLabel: (hasBeenSelected: boolean) =>
         hasBeenSelected
           ? 'Opossum file save location'
-          : 'Select opossum file save location',
+          : 'Select Opossum file save location',
     },
   },
   mergeDialog: {
     title: (fileFormat: FileFormatInfo) =>
       `Merge ${fileFormat.name} into current file`,
-    explanationText: [
-      'OpossumUI will merge the selected file into the currently open opossum file.',
-      'THIS ACTION CANNOT BE UNDONE!',
-    ],
+    explanationText:
+      'OpossumUI will merge the selected file into the currently open Opossum file.',
+    warningText:
+      'As this action cannot be undone, OpossumUI will also create a backup of the currently open Opossum file.',
     inputFilePath: {
       textFieldLabel: (fileFormat: FileFormatInfo, hasBeenSelected: boolean) =>
         hasBeenSelected
