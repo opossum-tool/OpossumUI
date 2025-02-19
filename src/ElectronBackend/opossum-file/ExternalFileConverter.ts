@@ -22,9 +22,7 @@ export abstract class ExternalFileConverter extends FileConverter {
         toBeConvertedFilePath,
       ]);
     } catch (error) {
-      throw new Error(
-        `Conversion of ${this.fileTypeName} file to .opossum file failed`,
-      );
+      throw new Error(`Input file is not a valid ${this.fileTypeName} file`);
     }
   }
 }
