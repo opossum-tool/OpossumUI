@@ -11,6 +11,18 @@
   ],
   "additionalProperties": false,
   "properties": {
+    "config": {
+      "type": "object",
+      "description": "Additional configuration for OpossumUI.",
+      "additionalProperties": true,
+      "properties": {
+        "classifications": {
+          "type": "object",
+          "description": "Mapping of classification values to human-readable labels. See \"classification\" field of \"externalAttribution\".",
+          "additionalProperties": true
+        }
+      }
+    },
     "resources": {
       "id": "#ResourcesSchema",
       "type": "object",
@@ -120,6 +132,11 @@
           "criticality": {
             "type": "string",
             "description": "Indication on how critical a signal is. Possible values are \"high\" and \"medium\"."
+          },
+          "classification": {
+            "type": "number",
+            "description": "Signal classification by usage, usually based on the license. Zero corresponds to unrestricted usage ehile higher levels mean more and more restrictions. Exact values and labels need to be configured in the config section.",
+            "minimum": 0
           },
           "copyright": {
             "type": "string",
