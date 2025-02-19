@@ -209,6 +209,12 @@ export function getImportFileConvertAndLoadListener(
         throw new Error('Input file does not exist');
       }
 
+      try {
+        fs.accessSync(resourceFilePath, fs.constants.R_OK);
+      } catch (error) {
+        throw new Error('Permission error: cannot read input file');
+      }
+
       if (!opossumFilePath.trim()) {
         throw new Error('No .opossum save location selected');
       }
@@ -219,6 +225,12 @@ export function getImportFileConvertAndLoadListener(
 
       if (!fs.existsSync(path.dirname(opossumFilePath))) {
         throw new Error('Output directory does not exist');
+      }
+
+      try {
+        fs.accessSync(path.dirname(opossumFilePath), fs.constants.W_OK);
+      } catch (error) {
+        throw new Error('Permission error: cannot write to output directory');
       }
 
       logger.info('Converting input file to .opossum format');
@@ -252,6 +264,12 @@ export function getMergeFileAndLoadListener(
     ) => {
       if (!inputFilePath.trim() || !fs.existsSync(inputFilePath)) {
         throw new Error('Input file does not exist');
+      }
+
+      try {
+        fs.accessSync(inputFilePath, fs.constants.R_OK);
+      } catch (error) {
+        throw new Error('Permission error: cannot read input file');
       }
 
       const currentlyOpenOpossumFilePath =

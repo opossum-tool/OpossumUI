@@ -67,24 +67,22 @@ export class LegacyFileConverter extends FileConverter {
     toBeConvertedFilePath: string,
     opossumSaveLocation: string,
   ): Promise<void> {
+    let pathToInputJson = toBeConvertedFilePath;
+
+    if (toBeConvertedFilePath.endsWith(legacyOutputFileEnding)) {
+      pathToInputJson = this.tryToGetLegacyInputJsonFromLegacyOutputJson(
+        toBeConvertedFilePath,
+      );
+    }
+
     try {
-      let pathToInputJson = toBeConvertedFilePath;
-
-      if (toBeConvertedFilePath.endsWith(legacyOutputFileEnding)) {
-        pathToInputJson = this.tryToGetLegacyInputJsonFromLegacyOutputJson(
-          toBeConvertedFilePath,
-        );
-      }
-
       await writeOpossumFile({
         path: opossumSaveLocation,
         input: this.readInputJson(pathToInputJson),
         output: this.readOutputJson(pathToInputJson),
       });
     } catch (error) {
-      throw new Error(
-        'Conversion of Legacy Opossum file to .opossum file failed',
-      );
+      throw new Error('Input file is not a valid Legacy Opossum file');
     }
   }
 
