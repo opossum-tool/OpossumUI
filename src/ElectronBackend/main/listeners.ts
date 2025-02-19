@@ -275,6 +275,17 @@ export function getMergeFileAndLoadListener(
         throw new Error('No open file to merge into');
       }
 
+      try {
+        fs.copyFileSync(
+          currentlyOpenOpossumFilePath,
+          `${currentlyOpenOpossumFilePath}.backup`,
+        );
+      } catch (error) {
+        throw new Error(
+          'Unable to create backup of currently open Opossum file',
+        );
+      }
+
       logger.info('Merging input file into current .opossum file');
       await mergeFileIntoOpossum(
         inputFilePath,
