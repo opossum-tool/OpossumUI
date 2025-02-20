@@ -268,17 +268,16 @@ export function getMergeFileAndLoadListener(
         throw new Error('Permission error: cannot read input file');
       }
 
-      const currentlyOpenOpossumFilePath =
-        getGlobalBackendState().opossumFilePath;
+      const currentOpossumFilePath = getGlobalBackendState().opossumFilePath;
 
-      if (!currentlyOpenOpossumFilePath) {
+      if (!currentOpossumFilePath) {
         throw new Error('No open file to merge into');
       }
 
       try {
         fs.copyFileSync(
-          currentlyOpenOpossumFilePath,
-          `${currentlyOpenOpossumFilePath}.backup`,
+          currentOpossumFilePath,
+          `${currentOpossumFilePath}.backup`,
         );
       } catch (error) {
         throw new Error(
@@ -289,11 +288,11 @@ export function getMergeFileAndLoadListener(
       logger.info('Merging input file into current .opossum file');
       await mergeFileIntoOpossum(
         inputFilePath,
-        currentlyOpenOpossumFilePath,
+        currentOpossumFilePath,
         fileType,
       );
 
-      await openFile(mainWindow, currentlyOpenOpossumFilePath, () => {}, true);
+      await openFile(mainWindow, currentOpossumFilePath, () => {}, true);
 
       return true;
     },
