@@ -8,6 +8,7 @@ import path from 'path';
 import zlib from 'zlib';
 
 import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
+import { text } from '../../shared/text';
 import { writeOpossumFile } from '../../shared/write-file';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { FileConverter } from './FileConverter';
@@ -82,7 +83,7 @@ export class LegacyFileConverter extends FileConverter {
         output: this.readOutputJson(pathToInputJson),
       });
     } catch (error) {
-      throw new Error('Input file is not a valid Legacy Opossum file');
+      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName));
     }
   }
 

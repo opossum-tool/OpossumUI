@@ -336,4 +336,17 @@ export const text = {
           : `Select file to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
     },
   },
+  backendError: {
+    inputFileDoesNotExist: 'Input file does not exist',
+    inputFilePermissionError: 'Permission error: cannot read input file',
+    inputFileInvalid: (fileTypeName: string) =>
+      `Input file is not a valid ${fileTypeName} file`,
+    opossumFileNotSelected: 'No .opossum save location selected',
+    opossumFileWrongExtension: 'Output file name must have .opossum extension',
+    opossumFileDirectoryDoesNotExist: 'Output directory does not exist',
+    opossumFilePermissionError:
+      'Permission error: cannot write to output directory',
+    noOpenFileToMergeInto: 'No open file to merge into',
+    cantCreateBackup: 'Unable to create backup of currently open Opossum file',
+  },
 } as const;

@@ -24,6 +24,7 @@ import {
   PackageInfo,
   SaveFileArgs,
 } from '../../shared/shared-types';
+import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { LoadedFileFormat } from '../enums/enums';
 import {
@@ -199,31 +200,31 @@ export const importFileConvertAndLoadListener =
 
     try {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
-        throw new Error('Input file does not exist');
+        throw new Error(text.backendError.inputFileDoesNotExist);
       }
 
       try {
         fs.accessSync(resourceFilePath, fs.constants.R_OK);
       } catch (error) {
-        throw new Error('Permission error: cannot read input file');
+        throw new Error(text.backendError.inputFilePermissionError);
       }
 
       if (!opossumFilePath.trim()) {
-        throw new Error('No .opossum save location selected');
+        throw new Error(text.backendError.opossumFileNotSelected);
       }
 
       if (!opossumFilePath.endsWith('.opossum')) {
-        throw new Error('Output file name must have .opossum extension');
+        throw new Error(text.backendError.opossumFileWrongExtension);
       }
 
       if (!fs.existsSync(path.dirname(opossumFilePath))) {
-        throw new Error('Output directory does not exist');
+        throw new Error(text.backendError.opossumFileDirectoryDoesNotExist);
       }
 
       try {
         fs.accessSync(path.dirname(opossumFilePath), fs.constants.W_OK);
       } catch (error) {
-        throw new Error('Permission error: cannot write to output directory');
+        throw new Error(text.backendError.opossumFilePermissionError);
       }
 
       logger.info('Converting input file to .opossum format');
@@ -259,19 +260,19 @@ export function getMergeFileAndLoadListener(
       fileType: FileType,
     ) => {
       if (!inputFilePath.trim() || !fs.existsSync(inputFilePath)) {
-        throw new Error('Input file does not exist');
+        throw new Error(text.backendError.inputFileDoesNotExist);
       }
 
       try {
         fs.accessSync(inputFilePath, fs.constants.R_OK);
       } catch (error) {
-        throw new Error('Permission error: cannot read input file');
+        throw new Error(text.backendError.inputFilePermissionError);
       }
 
       const currentOpossumFilePath = getGlobalBackendState().opossumFilePath;
 
       if (!currentOpossumFilePath) {
-        throw new Error('No open file to merge into');
+        throw new Error(text.backendError.noOpenFileToMergeInto);
       }
 
       try {
@@ -280,9 +281,7 @@ export function getMergeFileAndLoadListener(
           `${currentOpossumFilePath}.backup`,
         );
       } catch (error) {
-        throw new Error(
-          'Unable to create backup of currently open Opossum file',
-        );
+        throw new Error(text.backendError.cantCreateBackup);
       }
 
       logger.info('Merging input file into current .opossum file');

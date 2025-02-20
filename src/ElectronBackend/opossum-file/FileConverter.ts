@@ -8,6 +8,8 @@ import fs from 'fs';
 import { join } from 'path';
 import { promisify } from 'util';
 
+import { text } from '../../shared/text';
+
 export abstract class FileConverter {
   protected abstract readonly fileTypeSwitch: string;
   protected abstract readonly fileTypeName: string;
@@ -48,7 +50,7 @@ export abstract class FileConverter {
         opossumFilePath,
       ]);
     } catch (error) {
-      throw new Error(`Input file is not a valid ${this.fileTypeName} file`);
+      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName));
     }
 
     if (preConvertedFilePath) {
