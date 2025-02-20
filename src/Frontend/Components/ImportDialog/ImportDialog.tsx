@@ -17,7 +17,7 @@ import {
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
-import { LogDisplayForDialog } from '../LogDisplay/LogDisplayForDialog';
+import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export interface ImportDialogProps {
@@ -43,6 +43,18 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   useIpcRenderer<LoggingListener>(
     AllowedFrontendChannels.Logging,
     (_, log) => {
+      if (isLoading) {
+        setLogToDisplay(log);
+      }
+    },
+    [isLoading],
+  );
+
+  const [logToDisplay, setLogToDisplay] = useState<Log | null>(null);
+
+  useStateEffect(
+    getLogMessage,
+    (log) => {
       if (isLoading) {
         setLogToDisplay(log);
       }
@@ -128,7 +140,23 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         </div>
       }
       isOpen={true}
-      customAction={<LogDisplayForDialog isLoading={isLoading} />}
+      customAction={
+        logToDisplay ? (
+          <LogDisplay
+            log={logToDisplay}
+            isInProgress={isLoading}
+            showDate={false}
+            useEllipsis={true}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              columnGap: '4px',
+              marginLeft: '10px',
+              flexGrow: 1,
+            }}
+          />
+        ) : undefined
+      }
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: text.buttons.import,

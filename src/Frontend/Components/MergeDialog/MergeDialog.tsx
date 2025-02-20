@@ -5,15 +5,16 @@
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
-import { FileFormatInfo } from '../../../shared/shared-types';
+import { FileFormatInfo, Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import {
   clearLogMessage,
   closePopup,
 } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch } from '../../state/hooks';
+import { useAppDispatch, useStateEffect } from '../../state/hooks';
+import { getLogMessage } from '../../state/selectors/view-selector';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
-import { LogDisplayForDialog } from '../LogDisplay/LogDisplayForDialog';
+import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export interface MergeDialogProps {
@@ -26,6 +27,18 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
   const [inputFilePath, setInputFilePath] = useState<string>('');
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [logToDisplay, setLogToDisplay] = useState<Log | null>(null);
+
+  useStateEffect(
+    getLogMessage,
+    (log) => {
+      if (isLoading) {
+        setLogToDisplay(log);
+      }
+    },
+    [isLoading],
+  );
 
   async function selectInputFilePath(): Promise<void> {
     const filePath = await window.electronAPI.selectFile(fileFormat);
@@ -80,7 +93,23 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
         </div>
       }
       isOpen={true}
-      customAction={<LogDisplayForDialog isLoading={isLoading} />}
+      customAction={
+        logToDisplay ? (
+          <LogDisplay
+            log={logToDisplay}
+            isInProgress={isLoading}
+            showDate={false}
+            useEllipsis={true}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              columnGap: '4px',
+              marginLeft: '10px',
+              flexGrow: 1,
+            }}
+          />
+        ) : undefined
+      }
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: text.buttons.merge,
