@@ -6,10 +6,12 @@ import MuiDialog from '@mui/material/Dialog';
 import MuiDialogTitle from '@mui/material/DialogTitle';
 import { useEffect, useState } from 'react';
 
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { useAppSelector, useStateEffect } from '../../state/hooks';
-import { getLogMessage, isLoading } from '../../state/selectors/view-selector';
+import { useAppSelector } from '../../state/hooks';
+import { isLoading } from '../../state/selectors/view-selector';
+import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { DialogContent } from './ProcessPopup.style';
 
@@ -23,9 +25,9 @@ export function ProcessPopup() {
     }
   }, [loading]);
 
-  useStateEffect(
-    getLogMessage,
-    (log) => {
+  useIpcRenderer<LoggingListener>(
+    AllowedFrontendChannels.Logging,
+    (_, log) => {
       if (log) {
         setLogs((prev) => [...prev, log]);
       }

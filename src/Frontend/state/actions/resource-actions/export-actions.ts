@@ -25,7 +25,7 @@ import {
   getResources,
 } from '../../selectors/resource-selectors';
 import { AppThunkAction } from '../../types';
-import { setLoading, writeInfoLogMessage } from '../view-actions/view-actions';
+import { setLoading } from '../view-actions/view-actions';
 
 export function exportFile(exportType: ExportType): AppThunkAction {
   return (dispatch, getState) => {
@@ -33,35 +33,22 @@ export function exportFile(exportType: ExportType): AppThunkAction {
 
     switch (exportType) {
       case ExportType.SpdxDocumentJson:
-        dispatch(writeInfoLogMessage('Preparing data for SPDX (json) export'));
         exportSpdxDocument(getState(), ExportType.SpdxDocumentJson);
         break;
 
       case ExportType.SpdxDocumentYaml:
-        dispatch(writeInfoLogMessage('Preparing data for SPDX (yaml) export'));
         exportSpdxDocument(getState(), ExportType.SpdxDocumentYaml);
         break;
 
       case ExportType.FollowUp:
-        dispatch(writeInfoLogMessage('Preparing data for follow-up export'));
         exportFollowUp(getState());
         break;
 
       case ExportType.CompactBom:
-        dispatch(
-          writeInfoLogMessage(
-            'Preparing data for compact component list export',
-          ),
-        );
         exportCompactBom(getState());
         break;
 
       case ExportType.DetailedBom:
-        dispatch(
-          writeInfoLogMessage(
-            'Preparing data for detailed component list export',
-          ),
-        );
         exportDetailedBom(getState());
         break;
     }

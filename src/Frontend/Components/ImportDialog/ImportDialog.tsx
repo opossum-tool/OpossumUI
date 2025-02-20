@@ -6,12 +6,13 @@ import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { FileFormatInfo, Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch, useStateEffect } from '../../state/hooks';
-import { getLogMessage } from '../../state/selectors/view-selector';
+import { useAppDispatch } from '../../state/hooks';
+import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -30,9 +31,9 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
   const [logToDisplay, setLogToDisplay] = useState<Log | null>(null);
 
-  useStateEffect(
-    getLogMessage,
-    (log) => {
+  useIpcRenderer<LoggingListener>(
+    AllowedFrontendChannels.Logging,
+    (_, log) => {
       if (isLoading) {
         setLogToDisplay(log);
       }

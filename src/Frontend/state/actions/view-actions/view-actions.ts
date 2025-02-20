@@ -2,11 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  ExportType,
-  FileFormatInfo,
-  Log,
-} from '../../../../shared/shared-types';
+import { ExportType, FileFormatInfo } from '../../../../shared/shared-types';
 import { PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';
@@ -21,7 +17,6 @@ import {
   ACTION_SET_EXPORT_FILE_REQUEST,
   ACTION_SET_IMPORT_FILE_REQUEST,
   ACTION_SET_LOADING,
-  ACTION_SET_LOG_MESSAGE,
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -31,7 +26,6 @@ import {
   SetExportFileRequestAction,
   SetImportFileRequestAction,
   SetLoadingAction,
-  SetLogMessageAction,
   SetOpenFileRequestAction,
   SetTargetView,
   SetView,
@@ -112,16 +106,4 @@ export function setExportFileRequest(
 
 export function setLoading(loading: boolean): SetLoadingAction {
   return { type: ACTION_SET_LOADING, payload: loading };
-}
-
-export function writeLogMessage(log: Log): SetLogMessageAction {
-  return { type: ACTION_SET_LOG_MESSAGE, payload: log };
-}
-
-export function writeInfoLogMessage(message: string): SetLogMessageAction {
-  return writeLogMessage({
-    date: new Date(),
-    message,
-    level: 'info',
-  });
 }
