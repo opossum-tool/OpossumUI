@@ -13,13 +13,17 @@
   "properties": {
     "config": {
       "type": "object",
-      "description": "Additional configuration for OpossumUI.",
-      "additionalProperties": true,
+      "description": "Configuration for OpossumUI.",
       "properties": {
         "classifications": {
           "type": "object",
           "description": "Mapping of classification values to human-readable labels. See \"classification\" field of \"externalAttribution\".",
-          "additionalProperties": true
+          "additionalProperties": false,
+          "patternProperties": {
+            "^[0-9]+$": {
+              "type": "string"
+            }
+          }
         }
       }
     },
@@ -135,7 +139,7 @@
           },
           "classification": {
             "type": "number",
-            "description": "Signal classification by usage, usually based on the license. Zero corresponds to unrestricted usage ehile higher levels mean more and more restrictions. Exact values and labels need to be configured in the config section.",
+            "description": "Signal classification by usage, usually based on the license. Zero corresponds to unrestricted usage while higher levels mean more and more restrictions. Exact values and labels need to be configured in the config section.",
             "minimum": 0
           },
           "copyright": {
