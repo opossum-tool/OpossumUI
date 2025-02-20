@@ -10,6 +10,7 @@ import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { ElectronAPI, Log } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { setLoading } from '../../../state/actions/view-actions/view-actions';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProcessPopup } from '../ProcessPopup';
 
@@ -42,30 +43,20 @@ describe('ProcessPopup', () => {
     expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
   });
 
-  it('renders dialog when loading is true', () => {
-    renderComponent(<ProcessPopup />);
+  it('renders dialog when loading is true', async () => {
+    const { store } = renderComponent(<ProcessPopup />);
 
-    act(
-      () =>
-        void electronAPI.send(AllowedFrontendChannels.FileLoading, {
-          isLoading: true,
-        }),
-    );
+    await act(() => store.dispatch(setLoading(true)));
 
     expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
   });
 
-  it('clears previous log messages when loading begins another time', () => {
+  it('clears previous log messages when loading begins another time', async () => {
     const date = faker.date.recent();
     const message = faker.lorem.sentence();
-    renderComponent(<ProcessPopup />);
+    const { store } = renderComponent(<ProcessPopup />);
 
-    act(
-      () =>
-        void electronAPI.send(AllowedFrontendChannels.FileLoading, {
-          isLoading: true,
-        }),
-    );
+    await act(() => store.dispatch(setLoading(true)));
     act(
       () =>
         void electronAPI.send(AllowedFrontendChannels.Logging, {
@@ -74,12 +65,8 @@ describe('ProcessPopup', () => {
           level: 'info',
         } satisfies Log),
     );
-    act(
-      () =>
-        void electronAPI.send(AllowedFrontendChannels.FileLoading, {
-          isLoading: true,
-        }),
-    );
+    await act(() => store.dispatch(setLoading(false)));
+    await act(() => store.dispatch(setLoading(true)));
 
     expect(screen.queryByText(message)).not.toBeInTheDocument();
   });
