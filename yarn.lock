@@ -10382,7 +10382,7 @@ __metadata:
     object-hash: "npm:^3.0.0"
     packageurl-js: "npm:^2.0.1"
     prettier: "npm:^3.5.1"
-    prettier-plugin-sh: "npm:^0.14.0"
+    prettier-plugin-sh: "npm:^0.15.0"
     proxy-memoize: "npm:^3.0.1"
     re-resizable: "npm:^6.10.3"
     react: "npm:^19.0.0"
@@ -10766,15 +10766,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-sh@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "prettier-plugin-sh@npm:0.14.0"
+"prettier-plugin-sh@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "prettier-plugin-sh@npm:0.15.0"
   dependencies:
     mvdan-sh: "npm:^0.10.1"
-    sh-syntax: "npm:^0.4.1"
+    sh-syntax: "npm:^0.4.2"
   peerDependencies:
     prettier: ^3.0.3
-  checksum: 10/9dd100a01983dd7ee8a051659457b1e2f2d43d2736947e7f4ff3ca74d3cc156ef9d3f3ed74ecda06658aa1ebed1ff6b817e40eabf0ec92a54c0e08499b3b81f4
+  checksum: 10/31365460c9fadb98d471136097163d3840a03416ab6b6dd37ccd19e6e94c43f3e05301e4741c3e6186c37b72fdc86c7732e0fc19f761e8e36fe4772207289583
   languageName: node
   linkType: hard
 
@@ -11747,12 +11747,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sh-syntax@npm:^0.4.1":
-  version: 0.4.1
-  resolution: "sh-syntax@npm:0.4.1"
+"sh-syntax@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "sh-syntax@npm:0.4.2"
   dependencies:
-    tslib: "npm:^2.6.0"
-  checksum: 10/52ab7923575dc8312df0fad30256dafc6682667f49f0a765666fb94a17fde9eb9712e8d739c4fcc130691c0a17a7da8904d1069894eef5145e5a7df8083b6a6b
+    tslib: "npm:^2.6.2"
+  checksum: 10/12aae8b6f57b86150a5a35975ef241cd6bb882347b732477a0cf562876e043d7a804c14e3ba602c9650c7024bd30a365a53a1538f6c3fa63d5d06d5714a2f2b3
   languageName: node
   linkType: hard
 
@@ -12560,7 +12560,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.6.0, tslib@npm:^2.6.2":
+"tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.6.2":
   version: 2.6.2
   resolution: "tslib@npm:2.6.2"
   checksum: 10/bd26c22d36736513980091a1e356378e8b662ded04204453d353a7f34a4c21ed0afc59b5f90719d4ba756e581a162ecbf93118dc9c6be5acf70aa309188166ca
