@@ -8,6 +8,7 @@ import fs from 'fs';
 import { cloneDeep } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
+import { EMPTY_PROJECT_CONFIG } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
@@ -167,7 +168,7 @@ export async function loadInputAndOutputFromFilePath(
   mainWindow.webContents.send(AllowedFrontendChannels.FileLoaded, {
     metadata: parsedInputData.metadata,
     resources: parsedInputData.resources,
-    config: parsedInputData.config,
+    config: parsedInputData.config ?? EMPTY_PROJECT_CONFIG,
     manualAttributions: {
       attributions: manualAttributions,
       resourcesToAttributions: parsedOutputData.resourcesToAttributions,

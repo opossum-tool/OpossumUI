@@ -46,7 +46,7 @@ export interface RawFrequentLicense {
 export interface ParsedOpossumInputFile {
   metadata: ProjectMetadata;
   resources: Resources;
-  config: ProjectConfig;
+  config?: ProjectConfig;
   externalAttributions: RawAttributions;
   resourcesToAttributions: ResourcesToAttributions;
   frequentLicenses?: Array<RawFrequentLicense>;
