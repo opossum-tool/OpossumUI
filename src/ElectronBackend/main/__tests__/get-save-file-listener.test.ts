@@ -9,7 +9,7 @@ import * as MockDate from 'mockdate';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { writeFile } from '../../../shared/write-file';
 import { setGlobalBackendState } from '../globalBackendState';
-import { getSaveFileListener } from '../listeners';
+import { saveFileListener } from '../listeners';
 
 jest.mock('electron', () => ({
   dialog: {
@@ -42,7 +42,7 @@ describe('getSaveFileListener', () => {
     } as unknown as BrowserWindow;
     setGlobalBackendState({});
 
-    await getSaveFileListener(mainWindow)(
+    await saveFileListener(mainWindow)(
       AllowedFrontendChannels.SaveFileRequest,
       {
         manualAttributions: {},
@@ -72,7 +72,7 @@ describe('getSaveFileListener', () => {
       projectId: 'uuid_1',
     });
 
-    await getSaveFileListener(mainWindow)(
+    await saveFileListener(mainWindow)(
       AllowedFrontendChannels.SaveFileRequest,
       {
         manualAttributions: {},
@@ -102,7 +102,7 @@ describe('getSaveFileListener', () => {
       } as unknown as BrowserWindow;
       setGlobalBackendState({});
 
-      const listener = getSaveFileListener(mainWindow);
+      const listener = saveFileListener(mainWindow);
 
       setGlobalBackendState({
         resourceFilePath: '/resourceFile.json',

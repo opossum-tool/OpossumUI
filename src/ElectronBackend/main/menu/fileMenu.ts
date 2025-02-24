@@ -14,7 +14,7 @@ import {
 import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
-import { getImportFileListener, getSelectBaseURLListener } from '../listeners';
+import { importFileListener, selectBaseURLListener } from '../listeners';
 import { INITIALLY_DISABLED_ITEMS_INFO } from './initiallyDisabledMenuItems';
 
 export const importFileFormats: Array<FileFormatInfo> = [
@@ -56,7 +56,7 @@ function getImportFile(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
     label: 'Import File',
     submenu: importFileFormats.map((fileFormat) => ({
       label: `${fileFormat.name} (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
-      click: getImportFileListener(mainWindow, fileFormat),
+      click: importFileListener(mainWindow, fileFormat),
     })),
   };
 }
@@ -118,9 +118,7 @@ function getSetBaseUrl(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
       'icons/restore-black.png',
     ),
     label: 'Set Path to Sources',
-    click: () => {
-      getSelectBaseURLListener(mainWindow)();
-    },
+    click: selectBaseURLListener(mainWindow),
   };
 }
 

@@ -17,7 +17,7 @@ import { getGlobalBackendState } from '../main/globalBackendState';
 import logger from '../main/logger';
 import { getLoadedFilePath } from '../utils/getLoadedFile';
 
-async function showListenerErrorInMessageBox(
+export async function showListenerErrorInMessageBox(
   mainWindow: BrowserWindow,
   error: unknown,
 ): Promise<void> {
@@ -40,65 +40,16 @@ async function showListenerErrorInMessageBox(
   }
 }
 
-function sendListenerErrorToFrontend(_: BrowserWindow, error: unknown): void {
+export function sendListenerErrorToFrontend(
+  _: BrowserWindow,
+  error: unknown,
+): void {
   // NOTE: these log messages are forwarded to the frontend
   if (error instanceof Error) {
     logger.error(error.message);
   } else {
     logger.error('Unexpected internal error');
   }
-}
-
-export const ListenerErrorReporting = {
-  ShowMessageBox: showListenerErrorInMessageBox,
-  SendToFrontend: sendListenerErrorToFrontend,
-};
-
-type FuncType<T> = T extends (...args: infer P) => infer R
-  ? (...args: P) => R
-  : never;
-
-type RemovePromise<A> = A extends Promise<infer B> ? B : A;
-type ReturnTypeWithoutPromise<A> =
-  A extends FuncType<A> ? RemovePromise<ReturnType<A>> : never;
-type FTParameters<A> = A extends FuncType<A> ? Parameters<A> : never;
-
-export function createVoidListenerCallbackWithErrorHandling<F>(
-  mainWindow: BrowserWindow,
-  func: F & FuncType<F>,
-  reportError: (
-    mainWindow: BrowserWindow,
-    error: unknown,
-  ) => Promise<void> | void = showListenerErrorInMessageBox,
-): (...args: FTParameters<F>) => Promise<void> {
-  return async (...args: FTParameters<F>): Promise<void> => {
-    try {
-      await func(...args);
-    } catch (error: unknown) {
-      await reportError(mainWindow, error);
-    }
-  };
-}
-
-export function createListenerCallbackWithErrorHandling<F>(
-  mainWindow: BrowserWindow,
-  returnValueOnError: ReturnTypeWithoutPromise<F>,
-  func: F & FuncType<F>,
-  reportError: (
-    mainWindow: BrowserWindow,
-    error: unknown,
-  ) => Promise<void> | void = showListenerErrorInMessageBox,
-): (...args: FTParameters<F>) => Promise<ReturnTypeWithoutPromise<F>> {
-  return async (
-    ...args: FTParameters<F>
-  ): Promise<ReturnTypeWithoutPromise<F>> => {
-    try {
-      return (await func(...args)) as ReturnTypeWithoutPromise<F>;
-    } catch (error: unknown) {
-      await reportError(mainWindow, error);
-      return Promise.resolve(returnValueOnError);
-    }
-  };
 }
 
 export function getMessageBoxForErrors(
