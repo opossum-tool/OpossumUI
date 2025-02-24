@@ -18,6 +18,7 @@ import {
 } from '../../../shared/shared-types';
 import { writeFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
+import * as errorHandling from '../../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
@@ -420,9 +421,16 @@ describe('_exportFileAndOpenFolder', () => {
       spdxAttributions: {},
     };
 
-    await expect(
-      exportFileListener(mainWindow)(undefined, testArgs),
-    ).rejects.toThrow('Failed to create export');
+    jest
+      .spyOn(errorHandling, 'showListenerErrorInMessageBox')
+      .mockImplementation(jest.fn());
+
+    await exportFileListener(mainWindow)(undefined, testArgs);
+
+    expect(errorHandling.showListenerErrorInMessageBox).toHaveBeenCalledWith(
+      expect.anything(),
+      new Error('Failed to create export'),
+    );
     expect(writeSpdxFile).not.toHaveBeenCalled();
     expect(shell.showItemInFolder).not.toHaveBeenCalled();
   });

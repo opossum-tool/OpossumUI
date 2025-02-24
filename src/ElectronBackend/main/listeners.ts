@@ -73,7 +73,7 @@ export const saveFileListener =
         ),
       };
 
-      return writeOutputJsonToFile(outputFileContent);
+      await writeOutputJsonToFile(outputFileContent);
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
     }
