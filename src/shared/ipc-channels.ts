@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export enum IpcChannel {
-  DeleteFile = 'delete-file',
   ExportFile = 'export-file',
   OpenFile = 'open-file',
   ImportFileSelectInput = 'import-file-select-input',
@@ -13,6 +12,10 @@ export enum IpcChannel {
   ImportFileConvertAndLoad = 'import-file-convert-and-load',
   OpenLink = 'open-link',
   SaveFile = 'save-file',
+  /**
+   * @deprecated see https://github.com/opossum-tool/OpossumUI/issues/2812
+   */
+  StopLoading = 'stop-loading',
   GetUserSettings = 'get-user-settings',
   SetUserSettings = 'set-user-settings',
   Quit = 'quit',

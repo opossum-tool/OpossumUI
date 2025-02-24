@@ -41,6 +41,7 @@ global.window.electronAPI = {
   importFileConvertAndLoad: jest.fn(),
   exportFile: jest.fn(),
   saveFile: jest.fn(),
+  stopLoading: jest.fn(),
   on: jest.fn().mockReturnValue(jest.fn()),
   getUserSetting: jest.fn().mockReturnValue(undefined),
   setUserSetting: jest.fn(),

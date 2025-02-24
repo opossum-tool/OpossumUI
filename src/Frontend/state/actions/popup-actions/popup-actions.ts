@@ -185,5 +185,6 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setOpenFileRequest(false));
     dispatch(setImportFileRequest(null));
     dispatch(setExportFileRequest(null));
+    window.electronAPI.stopLoading();
   };
 }

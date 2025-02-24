@@ -119,10 +119,14 @@ export async function handleOpeningFile(
   filePath: string,
   onOpen: () => void,
 ): Promise<void> {
+  setLoadingState(mainWindow.webContents, true);
+
   logger.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, true);
 
   await openFile(mainWindow, filePath, onOpen);
+
+  setLoadingState(mainWindow.webContents, false);
 }
 
 export const importFileListener =
@@ -175,6 +179,8 @@ export const importFileConvertAndLoadListener =
     fileType: FileType,
     opossumFilePath: string,
   ): Promise<boolean> => {
+    setLoadingState(mainWindow.webContents, true);
+
     try {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
         throw new Error('Input file does not exist');
@@ -198,12 +204,14 @@ export const importFileConvertAndLoadListener =
       logger.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath, true);
 
-      await openFile(mainWindow, opossumFilePath, onOpen, true);
+      await openFile(mainWindow, opossumFilePath, onOpen);
 
       return true;
     } catch (error) {
       sendListenerErrorToFrontend(mainWindow, error);
       return false;
+    } finally {
+      setLoadingState(mainWindow.webContents, false);
     }
   };
 
@@ -234,29 +242,6 @@ function initializeGlobalBackendState(
   setGlobalBackendState(newGlobalBackendState);
 }
 
-export const deleteAndCreateNewAttributionFileListener =
-  (mainWindow: BrowserWindow, onOpen: () => void) =>
-  async (): Promise<void> => {
-    try {
-      const globalBackendState = getGlobalBackendState();
-      const resourceFilePath = globalBackendState.resourceFilePath as string;
-
-      logger.info(
-        `Deleting attribution file and opening input file ${resourceFilePath}`,
-      );
-      if (globalBackendState.attributionFilePath) {
-        fs.unlinkSync(globalBackendState.attributionFilePath);
-      } else {
-        throw new Error(
-          `Failed to delete output file. Attribution file path is incorrect: ${globalBackendState.attributionFilePath}`,
-        );
-      }
-      await openFile(mainWindow, resourceFilePath, onOpen);
-    } catch (error) {
-      await showListenerErrorInMessageBox(mainWindow, error);
-    }
-  };
-
 export const selectBaseURLListener =
   (mainWindow: BrowserWindow) => async (): Promise<void> => {
     try {
@@ -283,21 +268,10 @@ export async function openFile(
   mainWindow: BrowserWindow,
   filePath: string,
   onOpen: () => void,
-  isImport?: boolean,
 ): Promise<void> {
-  if (!isImport) {
-    setLoadingState(mainWindow.webContents, true);
-  }
-
-  try {
-    await loadInputAndOutputFromFilePath(mainWindow, filePath);
-    setTitle(mainWindow, filePath);
-    onOpen();
-  } finally {
-    if (!isImport) {
-      setLoadingState(mainWindow.webContents, false);
-    }
-  }
+  await loadInputAndOutputFromFilePath(mainWindow, filePath);
+  setTitle(mainWindow, filePath);
+  onOpen();
 }
 
 function setTitle(mainWindow: BrowserWindow, filePath: string): void {

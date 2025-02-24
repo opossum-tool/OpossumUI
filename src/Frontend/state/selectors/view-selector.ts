@@ -46,7 +46,3 @@ export function getImportFileRequest(state: State): FileFormatInfo | null {
 export function getExportFileRequest(state: State): ExportType | null {
   return state.viewState.exportFileRequest;
 }
-
-export function isLoading(state: State): boolean {
-  return state.viewState.loading;
-}

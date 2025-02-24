@@ -12,7 +12,6 @@ import {
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_EXPORT_FILE_REQUEST,
   ACTION_SET_IMPORT_FILE_REQUEST,
-  ACTION_SET_LOADING,
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -26,7 +25,6 @@ export interface ViewState {
   openFileRequest: boolean;
   importFileRequest: FileFormatInfo | null;
   exportFileRequest: ExportType | null;
-  loading: boolean;
 }
 
 export const initialViewState: ViewState = {
@@ -36,7 +34,6 @@ export const initialViewState: ViewState = {
   openFileRequest: false,
   importFileRequest: null,
   exportFileRequest: null,
-  loading: false,
 };
 
 export function viewState(
@@ -84,11 +81,6 @@ export function viewState(
       return {
         ...state,
         exportFileRequest: action.payload,
-      };
-    case ACTION_SET_LOADING:
-      return {
-        ...state,
-        loading: action.payload,
       };
     default:
       return state;

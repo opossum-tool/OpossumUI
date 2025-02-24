@@ -14,7 +14,6 @@ export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
 export const ACTION_SET_OPEN_FILE_REQUEST = 'ACTION_SET_OPEN_FILE_REQUEST';
 export const ACTION_SET_IMPORT_FILE_REQUEST = 'ACTION_SET_IMPORT_FILE_REQUEST';
 export const ACTION_SET_EXPORT_FILE_REQUEST = 'ACTION_SET_EXPORT_FILE_REQUEST';
-export const ACTION_SET_LOADING = 'ACTION_SET_LOADING';
 
 export type ViewAction =
   | SetView
@@ -24,8 +23,7 @@ export type ViewAction =
   | OpenPopupAction
   | SetOpenFileRequestAction
   | SetImportFileRequestAction
-  | SetExportFileRequestAction
-  | SetLoadingAction;
+  | SetExportFileRequestAction;
 
 export interface ResetViewStateAction {
   type: typeof ACTION_RESET_VIEW_STATE;
@@ -63,9 +61,4 @@ export interface SetImportFileRequestAction {
 export interface SetExportFileRequestAction {
   type: typeof ACTION_SET_EXPORT_FILE_REQUEST;
   payload: ExportType | null;
-}
-
-export interface SetLoadingAction {
-  type: typeof ACTION_SET_LOADING;
-  payload: boolean;
 }

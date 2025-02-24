@@ -16,7 +16,6 @@ import {
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_EXPORT_FILE_REQUEST,
   ACTION_SET_IMPORT_FILE_REQUEST,
-  ACTION_SET_LOADING,
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -25,7 +24,6 @@ import {
   ResetViewStateAction,
   SetExportFileRequestAction,
   SetImportFileRequestAction,
-  SetLoadingAction,
   SetOpenFileRequestAction,
   SetTargetView,
   SetView,
@@ -102,8 +100,4 @@ export function setExportFileRequest(
   exportFileRequest: ExportType | null,
 ): SetExportFileRequestAction {
   return { type: ACTION_SET_EXPORT_FILE_REQUEST, payload: exportFileRequest };
-}
-
-export function setLoading(loading: boolean): SetLoadingAction {
-  return { type: ACTION_SET_LOADING, payload: loading };
 }

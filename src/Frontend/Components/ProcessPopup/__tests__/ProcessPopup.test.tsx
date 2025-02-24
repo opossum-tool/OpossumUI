@@ -10,7 +10,6 @@ import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { ElectronAPI, Log } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import { setLoading } from '../../../state/actions/view-actions/view-actions';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProcessPopup } from '../ProcessPopup';
 
@@ -43,20 +42,28 @@ describe('ProcessPopup', () => {
     expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
   });
 
-  it('renders dialog when loading is true', async () => {
-    const { store } = renderComponent(<ProcessPopup />);
+  it('renders dialog when loading is true', () => {
+    renderComponent(<ProcessPopup />);
 
-    await act(() => store.dispatch(setLoading(true)));
+    act(() =>
+      electronAPI.send(AllowedFrontendChannels.FileLoading, {
+        isLoading: true,
+      }),
+    );
 
     expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
   });
 
-  it('clears previous log messages when loading begins another time', async () => {
+  it('clears previous log messages when loading begins another time', () => {
     const date = faker.date.recent();
     const message = faker.lorem.sentence();
-    const { store } = renderComponent(<ProcessPopup />);
+    renderComponent(<ProcessPopup />);
 
-    await act(() => store.dispatch(setLoading(true)));
+    act(() =>
+      electronAPI.send(AllowedFrontendChannels.FileLoading, {
+        isLoading: true,
+      }),
+    );
     act(
       () =>
         void electronAPI.send(AllowedFrontendChannels.Logging, {
@@ -65,8 +72,11 @@ describe('ProcessPopup', () => {
           level: 'info',
         } satisfies Log),
     );
-    await act(() => store.dispatch(setLoading(false)));
-    await act(() => store.dispatch(setLoading(true)));
+    act(() =>
+      electronAPI.send(AllowedFrontendChannels.FileLoading, {
+        isLoading: true,
+      }),
+    );
 
     expect(screen.queryByText(message)).not.toBeInTheDocument();
   });

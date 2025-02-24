@@ -5,11 +5,10 @@
 import { dialog, ipcMain, Menu, systemPreferences } from 'electron';
 import os from 'os';
 
-import { IpcChannel } from '../../shared/ipc-channels';
+import { AllowedFrontendChannels, IpcChannel } from '../../shared/ipc-channels';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow } from './createWindow';
 import {
-  deleteAndCreateNewAttributionFileListener,
   exportFileListener,
   importFileConvertAndLoadListener,
   importFileSelectInputListener,
@@ -81,11 +80,12 @@ export async function main(): Promise<void> {
       importFileConvertAndLoadListener(mainWindow, activateMenuItems),
     );
     ipcMain.handle(IpcChannel.SaveFile, saveFileListener(mainWindow));
-    ipcMain.handle(
-      IpcChannel.DeleteFile,
-      deleteAndCreateNewAttributionFileListener(mainWindow, activateMenuItems),
-    );
     ipcMain.handle(IpcChannel.ExportFile, exportFileListener(mainWindow));
+    ipcMain.handle(IpcChannel.StopLoading, () =>
+      mainWindow.webContents.send(AllowedFrontendChannels.FileLoading, {
+        isLoading: false,
+      }),
+    );
     ipcMain.handle(IpcChannel.OpenLink, openLinkListener);
     ipcMain.handle(IpcChannel.GetUserSettings, (_, key) =>
       UserSettings.get(key),
