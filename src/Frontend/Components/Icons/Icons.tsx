@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AnnouncementIcon from '@mui/icons-material/Announcement';
+import ContentPasteSharpIcon from '@mui/icons-material/ContentPasteSharp';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ExploreIcon from '@mui/icons-material/Explore';
 import Filter1Icon from '@mui/icons-material/Filter1';
@@ -203,6 +204,40 @@ export function CriticalityIcon({
         sx={{
           ...baseIcon,
           color: `${criticalityColor[criticality]} !important`,
+          ...sx,
+        }}
+        className={className}
+      />
+    </MuiTooltip>
+  );
+}
+
+export function ClassificationIcon({
+  className,
+  classification,
+  noTooltip,
+  tooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps & {
+  classification?: number;
+  tooltip?: string;
+}) {
+  if (!classification || classification === 0) {
+    return null;
+  }
+
+  return (
+    <MuiTooltip
+      title={noTooltip ? undefined : tooltip}
+      placement={tooltipPlacement}
+      disableInteractive
+    >
+      <ContentPasteSharpIcon
+        aria-label={'Classification icon'}
+        sx={{
+          ...baseIcon,
+          color: `${OpossumColors.mediumOrange} !important`,
           ...sx,
         }}
         className={className}
