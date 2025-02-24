@@ -16,6 +16,7 @@ import {
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_EXPORT_FILE_REQUEST,
   ACTION_SET_IMPORT_FILE_REQUEST,
+  ACTION_SET_MERGE_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -24,6 +25,7 @@ import {
   ResetViewStateAction,
   SetExportFileRequestAction,
   SetImportFileRequestAction,
+  SetMergeRequestAction,
   SetOpenFileRequestAction,
   SetTargetView,
   SetView,
@@ -94,6 +96,12 @@ export function setImportFileRequest(
   fileFormat: FileFormatInfo | null,
 ): SetImportFileRequestAction {
   return { type: ACTION_SET_IMPORT_FILE_REQUEST, payload: fileFormat };
+}
+
+export function setMergeRequest(
+  fileFormat: FileFormatInfo | null,
+): SetMergeRequestAction {
+  return { type: ACTION_SET_MERGE_REQUEST, payload: fileFormat };
 }
 
 export function setExportFileRequest(

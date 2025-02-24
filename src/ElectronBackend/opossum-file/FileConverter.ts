@@ -8,6 +8,8 @@ import fs from 'fs';
 import { join } from 'path';
 import { promisify } from 'util';
 
+import { text } from '../../shared/text';
+
 export abstract class FileConverter {
   protected abstract readonly fileTypeSwitch: string;
   protected abstract readonly fileTypeName: string;
@@ -47,14 +49,12 @@ export abstract class FileConverter {
         '--opossum',
         opossumFilePath,
       ]);
-
-      if (preConvertedFilePath) {
-        fs.rmSync(preConvertedFilePath);
-      }
     } catch (error) {
-      throw new Error(
-        `Merging ${this.fileTypeName} file into current file failed`,
-      );
+      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName));
+    }
+
+    if (preConvertedFilePath) {
+      fs.rmSync(preConvertedFilePath);
     }
   }
 }

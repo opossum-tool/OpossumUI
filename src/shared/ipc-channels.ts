@@ -7,9 +7,10 @@
 export enum IpcChannel {
   ExportFile = 'export-file',
   OpenFile = 'open-file',
-  ImportFileSelectInput = 'import-file-select-input',
+  SelectFile = 'select-file',
   ImportFileSelectSaveLocation = 'import-file-select-save-location',
   ImportFileConvertAndLoad = 'import-file-convert-and-load',
+  MergeFileAndLoad = 'merge-file-and-load',
   OpenLink = 'open-link',
   SaveFile = 'save-file',
   /**
@@ -36,7 +37,8 @@ export enum AllowedFrontendChannels {
   SearchSignals = 'search-signals',
   SetBaseURLForRoot = 'set-base-url-for-root',
   OpenFileWithUnsavedCheck = 'open-file-with-unsaved-check',
-  ImportFileShowDialog = 'import-file-show-dialog',
+  ShowImportDialog = 'show-import-dialog',
+  ShowMergeDialog = 'show-merge-dialog',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
   ShowUpdateAppPopup = 'show-update-app-pop-up',
