@@ -268,6 +268,7 @@ export interface ElectronAPI {
   ) => Promise<boolean>;
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;
+  stopLoading: () => void;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
   getUserSetting: <T extends keyof UserSettings>(
     key: T,

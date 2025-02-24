@@ -27,6 +27,7 @@ const electronAPI: ElectronAPI = {
   exportFile: (args) => ipcRenderer.invoke(IpcChannel.ExportFile, args),
   saveFile: (saveFileArgs) =>
     ipcRenderer.invoke(IpcChannel.SaveFile, saveFileArgs),
+  stopLoading: () => ipcRenderer.invoke(IpcChannel.StopLoading),
   on: (channel, listener) => {
     ipcRenderer.on(channel, listener);
     return () => ipcRenderer.removeListener(channel, listener);

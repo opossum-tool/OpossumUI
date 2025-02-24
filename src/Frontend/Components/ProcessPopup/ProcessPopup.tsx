@@ -4,26 +4,37 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDialog from '@mui/material/Dialog';
 import MuiDialogTitle from '@mui/material/DialogTitle';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
-import { isLoading } from '../../state/selectors/view-selector';
-import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
+import { getOpenPopup } from '../../state/selectors/view-selector';
+import {
+  IsLoadingListener,
+  LoggingListener,
+  useIpcRenderer,
+} from '../../util/use-ipc-renderer';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { DialogContent } from './ProcessPopup.style';
 
 export function ProcessPopup() {
   const [logs, setLogs] = useState<Array<Log>>([]);
-  const loading = useAppSelector(isLoading);
 
-  useEffect(() => {
-    if (loading) {
-      setLogs([]);
-    }
-  }, [loading]);
+  const [isLoading, setIsLoading] = useState(false);
+  const isOtherPopupOpen = !!useAppSelector(getOpenPopup);
+
+  useIpcRenderer<IsLoadingListener>(
+    AllowedFrontendChannels.FileLoading,
+    (_, { isLoading }) => {
+      setIsLoading(isLoading);
+      if (isLoading) {
+        setLogs([]);
+      }
+    },
+    [],
+  );
 
   useIpcRenderer<LoggingListener>(
     AllowedFrontendChannels.Logging,
@@ -36,7 +47,7 @@ export function ProcessPopup() {
   );
 
   return (
-    <MuiDialog open={loading} fullWidth>
+    <MuiDialog open={isLoading && !isOtherPopupOpen} fullWidth>
       <MuiDialogTitle>{text.processPopup.title}</MuiDialogTitle>
       {renderDialogContent()}
     </MuiDialog>

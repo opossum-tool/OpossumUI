@@ -12,7 +12,11 @@ import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
+import {
+  IsLoadingListener,
+  LoggingListener,
+  useIpcRenderer,
+} from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -27,7 +31,13 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useIpcRenderer<IsLoadingListener>(
+    AllowedFrontendChannels.FileLoading,
+    (_, { isLoading }) => setIsLoading(isLoading),
+    [],
+  );
 
   const [logToDisplay, setLogToDisplay] = useState<Log | null>(null);
 
@@ -82,8 +92,6 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   }
 
   async function onConfirm(): Promise<void> {
-    setIsLoading(true);
-
     const success = await window.electronAPI.importFileConvertAndLoad(
       inputFilePath,
       fileFormat.fileType,
@@ -93,8 +101,6 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     if (success) {
       dispatch(closePopup());
     }
-
-    setIsLoading(false);
   }
 
   return (

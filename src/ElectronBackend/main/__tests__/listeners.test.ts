@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
-import fs from 'fs';
 
 import {
   AllowedFrontendChannels,
@@ -16,10 +15,8 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
 } from '../../../shared/shared-types';
-import { writeFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
 import * as errorHandling from '../../errorHandling/errorHandling';
-import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
 import { createWindow } from '../createWindow';
@@ -30,7 +27,6 @@ import {
 } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
-  deleteAndCreateNewAttributionFileListener,
   exportFileListener,
   importFileListener,
   importFileSelectInputListener,
@@ -107,37 +103,6 @@ jest.mock('../dialogs', () => ({
   saveFileDialog: jest.fn(),
   selectBaseURLDialog: jest.fn(),
 }));
-
-describe('getDeleteAndCreateNewAttributionFileListener', () => {
-  it('deletes attribution file and calls loadInputAndOutputFromFilePath', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const fileName = faker.string.uuid();
-    const resourceFilePath = `${fileName}.json`;
-    const jsonPath = await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${fileName}_attribution.json`),
-    });
-
-    setGlobalBackendState({
-      resourceFilePath,
-      attributionFilePath: jsonPath,
-    });
-
-    await deleteAndCreateNewAttributionFileListener(mainWindow, () => {})();
-
-    expect(fs.existsSync(jsonPath)).toBeFalsy();
-    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-      expect.anything(),
-      resourceFilePath,
-    );
-  });
-});
 
 describe('getSelectBaseURLListener', () => {
   it('opens base url dialog and sends selected path to frontend', async () => {

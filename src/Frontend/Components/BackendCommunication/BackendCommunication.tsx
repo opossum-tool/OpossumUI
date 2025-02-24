@@ -23,15 +23,11 @@ import {
   setBaseUrlsForSources,
 } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../state/actions/resource-actions/load-actions';
-import {
-  openPopup,
-  setLoading,
-} from '../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getBaseUrlsForSources } from '../../state/selectors/resource-selectors';
 import {
   ExportFileRequestListener,
-  IsLoadingListener,
   LoggingListener,
   ShowImportDialogListener,
   useIpcRenderer,
@@ -99,14 +95,6 @@ export const BackendCommunication: React.FC = () => {
       );
     }
   }
-
-  useIpcRenderer<IsLoadingListener>(
-    AllowedFrontendChannels.FileLoading,
-    (_, { isLoading }) => {
-      dispatch(setLoading(isLoading));
-    },
-    [dispatch],
-  );
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
     dispatch,
   ]);
