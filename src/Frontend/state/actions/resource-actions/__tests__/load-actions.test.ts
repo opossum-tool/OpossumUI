@@ -223,7 +223,9 @@ describe('loadFromFile', () => {
 
     testStore.dispatch(loadFromFile(testParsedFileContent));
     expect(getResources(testStore.getState())).toEqual(expectedResources);
-    expect(getClassifications(testStore.getState())).toEqual(expectedConfig);
+    expect(getClassifications(testStore.getState())).toEqual(
+      expectedConfig.classifications,
+    );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getExternalData(testStore.getState())).toEqual(expectedExternalData);
     expect(getFrequentLicensesNameOrder(testStore.getState())).toEqual(

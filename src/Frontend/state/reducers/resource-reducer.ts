@@ -38,6 +38,7 @@ import {
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
+  ACTION_SET_PROJECT_CONFIG,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_RESOURCES,
@@ -120,6 +121,11 @@ export const resourceState = (
         resourceIds: action.payload
           ? getResourceIdsFromResources(action.payload)
           : null,
+      };
+    case ACTION_SET_PROJECT_CONFIG:
+      return {
+        ...state,
+        config: action.payload,
       };
     case ACTION_SET_MANUAL_ATTRIBUTION_DATA:
       return {
