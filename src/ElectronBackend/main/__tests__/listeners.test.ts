@@ -33,7 +33,7 @@ import {
   linkHasHttpSchema,
   openLinkListener,
   selectBaseURLListener,
-  selectFileListener
+  selectFileListener,
 } from '../listeners';
 import { importFileFormats } from '../menu/fileMenu';
 

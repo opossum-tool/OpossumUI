@@ -16,8 +16,8 @@ import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import {
-  importFileListener,
   getMergeListener,
+  importFileListener,
   selectBaseURLListener,
   setLoadingState,
 } from '../listeners';
