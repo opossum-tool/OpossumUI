@@ -27,9 +27,8 @@ import {
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { LoadedFileFormat } from '../enums/enums';
 import {
-  createListenerCallbackWithErrorHandling,
-  createVoidListenerCallbackWithErrorHandling,
-  ListenerErrorReporting,
+  sendListenerErrorToFrontend,
+  showListenerErrorInMessageBox,
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { serializeAttributions } from '../input/parseInputData';
@@ -51,12 +50,10 @@ import {
 } from './globalBackendState';
 import logger from './logger';
 
-export function getSaveFileListener(
-  mainWindow: BrowserWindow,
-): (_: unknown, args: SaveFileArgs) => Promise<void> {
-  return createVoidListenerCallbackWithErrorHandling(
-    mainWindow,
-    (_: unknown, args: SaveFileArgs) => {
+export const saveFileListener =
+  (mainWindow: BrowserWindow) =>
+  async (_: unknown, args: SaveFileArgs): Promise<void> => {
+    try {
       const globalBackendState = getGlobalBackendState();
 
       if (!globalBackendState.projectId) {
@@ -76,10 +73,11 @@ export function getSaveFileListener(
         ),
       };
 
-      return writeOutputJsonToFile(outputFileContent);
-    },
-  );
-}
+      await writeOutputJsonToFile(outputFileContent);
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
+    }
+  };
 
 async function writeOutputJsonToFile(
   outputFileContent: OpossumOutputFile,
@@ -100,20 +98,21 @@ async function writeOutputJsonToFile(
   }
 }
 
-export function getOpenFileListener(
-  mainWindow: BrowserWindow,
-  onOpen: () => void,
-): () => Promise<void> {
-  return createVoidListenerCallbackWithErrorHandling(mainWindow, async () => {
-    const filePaths = openOpossumFileDialog();
-    if (!filePaths || filePaths.length < 1) {
-      return;
-    }
-    const filePath = filePaths[0];
+export const openFileListener =
+  (mainWindow: BrowserWindow, onOpen: () => void) =>
+  async (): Promise<void> => {
+    try {
+      const filePaths = openOpossumFileDialog();
+      if (!filePaths || filePaths.length < 1) {
+        return;
+      }
+      const filePath = filePaths[0];
 
-    await handleOpeningFile(mainWindow, filePath, onOpen);
-  });
-}
+      await handleOpeningFile(mainWindow, filePath, onOpen);
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
+    }
+  };
 
 export async function handleOpeningFile(
   mainWindow: BrowserWindow,
@@ -126,28 +125,21 @@ export async function handleOpeningFile(
   await openFile(mainWindow, filePath, onOpen);
 }
 
-export function getImportFileListener(
-  mainWindow: BrowserWindow,
-  fileFormat: FileFormatInfo,
-): () => Promise<void> {
-  return createVoidListenerCallbackWithErrorHandling(mainWindow, () => {
+export const importFileListener =
+  (mainWindow: BrowserWindow, fileFormat: FileFormatInfo) => (): void => {
     mainWindow.webContents.send(
       AllowedFrontendChannels.ImportFileShowDialog,
       fileFormat,
     );
-  });
-}
+  };
 
-export function getImportFileSelectInputListener(
-  mainWindow: BrowserWindow,
-): (
-  _: Electron.IpcMainInvokeEvent,
-  fileFormat: FileFormatInfo,
-) => Promise<string> {
-  return createListenerCallbackWithErrorHandling(
-    mainWindow,
-    '',
-    (_: Electron.IpcMainInvokeEvent, fileFormat: FileFormatInfo) => {
+export const importFileSelectInputListener =
+  (mainWindow: BrowserWindow) =>
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    fileFormat: FileFormatInfo,
+  ): Promise<string> => {
+    try {
       const filePaths = openNonOpossumFileDialog(fileFormat);
 
       // NOTE: explicitly checking filePaths.length creates issues in e2e tests
@@ -155,41 +147,35 @@ export function getImportFileSelectInputListener(
       // and object with number indices for some reason, so filePaths.length is
       // undefined in e2e tests
       return filePaths?.[0] || '';
-    },
-  );
-}
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
+      return '';
+    }
+  };
 
-export function getImportFileSelectSaveLocationListener(
-  mainWindow: BrowserWindow,
-): (_: Electron.IpcMainInvokeEvent, defaultPath: string) => Promise<string> {
-  return createListenerCallbackWithErrorHandling(
-    mainWindow,
-    '',
-    (_: Electron.IpcMainInvokeEvent, defaultPath: string) => {
-      const filePath = saveFileDialog(defaultPath);
-      return filePath ?? '';
-    },
-  );
-}
+export const importFileSelectSaveLocationListener =
+  (mainWindow: BrowserWindow) =>
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    defaultPath: string,
+  ): Promise<string> => {
+    try {
+      return saveFileDialog(defaultPath) ?? '';
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
+      return '';
+    }
+  };
 
-export function getImportFileConvertAndLoadListener(
-  mainWindow: BrowserWindow,
-  onOpen: () => void,
-): (
-  _: Electron.IpcMainInvokeEvent,
-  resourceFilePath: string,
-  fileType: FileType,
-  opossumFilePath: string,
-) => Promise<boolean> {
-  return createListenerCallbackWithErrorHandling(
-    mainWindow,
-    false,
-    async (
-      _: Electron.IpcMainInvokeEvent,
-      resourceFilePath: string,
-      fileType: FileType,
-      opossumFilePath: string,
-    ) => {
+export const importFileConvertAndLoadListener =
+  (mainWindow: BrowserWindow, onOpen: () => void) =>
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    resourceFilePath: string,
+    fileType: FileType,
+    opossumFilePath: string,
+  ): Promise<boolean> => {
+    try {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
         throw new Error('Input file does not exist');
       }
@@ -215,10 +201,11 @@ export function getImportFileConvertAndLoadListener(
       await openFile(mainWindow, opossumFilePath, onOpen, true);
 
       return true;
-    },
-    ListenerErrorReporting.SendToFrontend,
-  );
-}
+    } catch (error) {
+      sendListenerErrorToFrontend(mainWindow, error);
+      return false;
+    }
+  };
 
 function initializeGlobalBackendState(
   filePath: string,
@@ -247,44 +234,46 @@ function initializeGlobalBackendState(
   setGlobalBackendState(newGlobalBackendState);
 }
 
-export function getDeleteAndCreateNewAttributionFileListener(
-  mainWindow: BrowserWindow,
-  onOpen: () => void,
-): () => Promise<void> {
-  return createVoidListenerCallbackWithErrorHandling(mainWindow, async () => {
-    const globalBackendState = getGlobalBackendState();
-    const resourceFilePath = globalBackendState.resourceFilePath as string;
+export const deleteAndCreateNewAttributionFileListener =
+  (mainWindow: BrowserWindow, onOpen: () => void) =>
+  async (): Promise<void> => {
+    try {
+      const globalBackendState = getGlobalBackendState();
+      const resourceFilePath = globalBackendState.resourceFilePath as string;
 
-    logger.info(
-      `Deleting attribution file and opening input file ${resourceFilePath}`,
-    );
-    if (globalBackendState.attributionFilePath) {
-      fs.unlinkSync(globalBackendState.attributionFilePath);
-    } else {
-      throw new Error(
-        `Failed to delete output file. Attribution file path is incorrect: ${globalBackendState.attributionFilePath}`,
+      logger.info(
+        `Deleting attribution file and opening input file ${resourceFilePath}`,
       );
+      if (globalBackendState.attributionFilePath) {
+        fs.unlinkSync(globalBackendState.attributionFilePath);
+      } else {
+        throw new Error(
+          `Failed to delete output file. Attribution file path is incorrect: ${globalBackendState.attributionFilePath}`,
+        );
+      }
+      await openFile(mainWindow, resourceFilePath, onOpen);
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
     }
-    await openFile(mainWindow, resourceFilePath, onOpen);
-  });
-}
+  };
 
-export function getSelectBaseURLListener(
-  mainWindow: BrowserWindow,
-): () => void {
-  return createVoidListenerCallbackWithErrorHandling(mainWindow, () => {
-    const baseURLs = selectBaseURLDialog();
-    if (!baseURLs || baseURLs.length < 1) {
-      return;
+export const selectBaseURLListener =
+  (mainWindow: BrowserWindow) => async (): Promise<void> => {
+    try {
+      const baseURLs = selectBaseURLDialog();
+      if (!baseURLs || baseURLs.length < 1) {
+        return;
+      }
+      const baseURL = baseURLs[0];
+      const formattedBaseURL = formatBaseURL(baseURL);
+
+      mainWindow.webContents.send(AllowedFrontendChannels.SetBaseURLForRoot, {
+        baseURLForRoot: formattedBaseURL,
+      });
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
     }
-    const baseURL = baseURLs[0];
-    const formattedBaseURL = formatBaseURL(baseURL);
-
-    mainWindow.webContents.send(AllowedFrontendChannels.SetBaseURLForRoot, {
-      baseURLForRoot: formattedBaseURL,
-    });
-  });
-}
+  };
 
 function formatBaseURL(baseURL: string): string {
   return `file://${baseURL}/{path}`;
@@ -327,28 +316,26 @@ export function linkHasHttpSchema(link: string): boolean {
   return url.protocol === 'https:' || url.protocol === 'http:';
 }
 
-export function getOpenLinkListener(): (
+export async function openLinkListener(
   _: unknown,
   args: OpenLinkArgs,
-) => Promise<Error | void> {
-  return async (_, args: OpenLinkArgs): Promise<Error | void> => {
-    try {
-      if (!linkHasHttpSchema(args.link)) {
-        // noinspection ExceptionCaughtLocallyJS
-        throw new Error(`Invalid URL ${args.link}`);
-      }
-      // Does not throw on Linux if link cannot be opened.
-      // see https://github.com/electron/electron/issues/28183
-      return await shell.openExternal(args.link);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        logger.info(`Cannot open link ${args.link}: ${error.message}`);
-        return error;
-      }
-      logger.info(`Cannot open link ${args.link}`);
-      return new Error('Cannot open link');
+): Promise<Error | void> {
+  try {
+    if (!linkHasHttpSchema(args.link)) {
+      // noinspection ExceptionCaughtLocallyJS
+      throw new Error(`Invalid URL ${args.link}`);
     }
-  };
+    // Does not throw on Linux if link cannot be opened.
+    // see https://github.com/electron/electron/issues/28183
+    return await shell.openExternal(args.link);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      logger.info(`Cannot open link ${args.link}: ${error.message}`);
+      return error;
+    }
+    logger.info(`Cannot open link ${args.link}`);
+    return new Error('Cannot open link');
+  }
 }
 
 interface FileExporterAndExportedFilePath<T> {
@@ -404,8 +391,9 @@ export function getExportedFilePathAndFileExporter(
   }
 }
 
-export function exportFile(mainWindow: BrowserWindow) {
-  return async (_: unknown, exportArgs: ExportArgsType): Promise<void> => {
+export const exportFileListener =
+  (mainWindow: BrowserWindow) =>
+  async (_: unknown, exportArgs: ExportArgsType): Promise<void> => {
     const { exportedFilePath, fileExporter } =
       getExportedFilePathAndFileExporter(exportArgs.type);
 
@@ -417,6 +405,8 @@ export function exportFile(mainWindow: BrowserWindow) {
         logger.error('Failed to create export');
         throw new Error('Failed to create export');
       }
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
     } finally {
       setLoadingState(mainWindow.webContents, false);
 
@@ -425,16 +415,6 @@ export function exportFile(mainWindow: BrowserWindow) {
       }
     }
   };
-}
-
-export function getExportFileListener(
-  mainWindow: BrowserWindow,
-): (_: unknown, args: ExportArgsType) => Promise<void> {
-  return createVoidListenerCallbackWithErrorHandling(
-    mainWindow,
-    exportFile(mainWindow),
-  );
-}
 
 async function createFollowUp(
   followUpFilePath: string,

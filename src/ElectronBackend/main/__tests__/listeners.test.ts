@@ -18,6 +18,7 @@ import {
 } from '../../../shared/shared-types';
 import { writeFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
+import * as errorHandling from '../../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
@@ -29,15 +30,14 @@ import {
 } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
-  exportFile,
-  getDeleteAndCreateNewAttributionFileListener,
-  getExportFileListener,
-  getImportFileListener,
-  getImportFileSelectInputListener,
-  getImportFileSelectSaveLocationListener,
-  getOpenLinkListener,
-  getSelectBaseURLListener,
+  deleteAndCreateNewAttributionFileListener,
+  exportFileListener,
+  importFileListener,
+  importFileSelectInputListener,
+  importFileSelectSaveLocationListener,
   linkHasHttpSchema,
+  openLinkListener,
+  selectBaseURLListener,
 } from '../listeners';
 import { importFileFormats } from '../menu/fileMenu';
 
@@ -129,7 +129,7 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
       attributionFilePath: jsonPath,
     });
 
-    await getDeleteAndCreateNewAttributionFileListener(mainWindow, () => {})();
+    await deleteAndCreateNewAttributionFileListener(mainWindow, () => {})();
 
     expect(fs.existsSync(jsonPath)).toBeFalsy();
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
@@ -140,7 +140,7 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
 });
 
 describe('getSelectBaseURLListener', () => {
-  it('opens base url dialog and sends selected path to frontend', () => {
+  it('opens base url dialog and sends selected path to frontend', async () => {
     const mockCallback = jest.fn();
     const mainWindow = {
       webContents: { send: mockCallback as unknown } as WebContents,
@@ -150,7 +150,7 @@ describe('getSelectBaseURLListener', () => {
 
     (selectBaseURLDialog as jest.Mock).mockReturnValueOnce([baseURL]);
 
-    getSelectBaseURLListener(mainWindow)();
+    await selectBaseURLListener(mainWindow)();
 
     expect(selectBaseURLDialog).toHaveBeenCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
@@ -166,7 +166,7 @@ describe('getExportFollowUpListener', () => {
   it('throws error when followUpFilePath is not set', async () => {
     const mainWindow = await initWindowAndBackendState();
 
-    await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
+    await exportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.FollowUp,
       followUpAttributionsWithResources: {},
     });
@@ -187,7 +187,7 @@ describe('getExportFollowUpListener', () => {
       followUpFilePath: '/somefile.csv',
     });
 
-    const listener = getExportFileListener(mainWindow);
+    const listener = exportFileListener(mainWindow);
 
     const followUpAttributionsWithResources: Attributions = {
       key1: {
@@ -229,7 +229,7 @@ describe('getExportBomListener', () => {
   it('throws error when bomFilePath is not set', async () => {
     const mainWindow = await initWindowAndBackendState();
 
-    await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
+    await exportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.CompactBom,
       bomAttributions: {},
     });
@@ -247,7 +247,7 @@ describe('getExportBomListener', () => {
   it('calls getExportBomListener for compact bom', async () => {
     const mainWindow = await initWindowAndBackendState();
 
-    const listener = getExportFileListener(mainWindow);
+    const listener = exportFileListener(mainWindow);
 
     setGlobalBackendState({
       compactBomFilePath: '/somefile.csv',
@@ -282,7 +282,7 @@ describe('getExportBomListener', () => {
   it('calls getExportBomListener for detailed bom', async () => {
     const mainWindow = await initWindowAndBackendState();
 
-    const listener = getExportFileListener(mainWindow);
+    const listener = exportFileListener(mainWindow);
 
     setGlobalBackendState({
       detailedBomFilePath: '/somefile.csv',
@@ -332,7 +332,7 @@ describe('getExportSpdxDocumentListener', () => {
   it('throws if path is not set', async () => {
     const mainWindow = await initWindowAndBackendState();
 
-    await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
+    await exportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.SpdxDocumentYaml,
       spdxAttributions: {},
     });
@@ -354,7 +354,7 @@ describe('getExportSpdxDocumentListener', () => {
       spdxAttributions: {},
     };
 
-    const listener = getExportFileListener(mainWindow);
+    const listener = exportFileListener(mainWindow);
 
     setGlobalBackendState({ spdxYamlFilePath: '/test.yaml' });
 
@@ -370,7 +370,7 @@ describe('getExportSpdxDocumentListener', () => {
       spdxAttributions: {},
     };
 
-    const listener = getExportFileListener(mainWindow);
+    const listener = exportFileListener(mainWindow);
 
     setGlobalBackendState({ spdxJsonFilePath: '/test.json' });
 
@@ -383,7 +383,7 @@ describe('getExportSpdxDocumentListener', () => {
 describe('getOpenLinkListener', () => {
   it('opens link', async () => {
     const testLink = 'https://www.test.de/link';
-    await getOpenLinkListener()(IpcChannel.OpenLink, {
+    await openLinkListener(IpcChannel.OpenLink, {
       link: testLink,
     });
 
@@ -401,7 +401,7 @@ describe('_exportFileAndOpenFolder', () => {
       spdxAttributions: {},
     };
 
-    await exportFile(mainWindow)(undefined, testArgs);
+    await exportFileListener(mainWindow)(undefined, testArgs);
 
     expect(writeSpdxFile).toHaveBeenNthCalledWith(
       1,
@@ -421,8 +421,15 @@ describe('_exportFileAndOpenFolder', () => {
       spdxAttributions: {},
     };
 
-    await expect(exportFile(mainWindow)(undefined, testArgs)).rejects.toThrow(
-      'Failed to create export',
+    jest
+      .spyOn(errorHandling, 'showListenerErrorInMessageBox')
+      .mockImplementation(jest.fn());
+
+    await exportFileListener(mainWindow)(undefined, testArgs);
+
+    expect(errorHandling.showListenerErrorInMessageBox).toHaveBeenCalledWith(
+      expect.anything(),
+      new Error('Failed to create export'),
     );
     expect(writeSpdxFile).not.toHaveBeenCalled();
     expect(shell.showItemInFolder).not.toHaveBeenCalled();
@@ -435,9 +442,9 @@ describe('getImportFileListener', () => {
 
     const fileFormat = importFileFormats[0];
 
-    const listener = getImportFileListener(mainWindow, fileFormat);
+    const listener = importFileListener(mainWindow, fileFormat);
 
-    await listener();
+    listener();
 
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ImportFileShowDialog,
@@ -452,7 +459,7 @@ describe('getImportFileSelectInputListener', () => {
     const fileFormat = importFileFormats[0];
     const selectedFilePath = '/home/input.json';
 
-    const listener = getImportFileSelectInputListener(mainWindow);
+    const listener = importFileSelectInputListener(mainWindow);
 
     jest.mocked(openNonOpossumFileDialog).mockReturnValue([selectedFilePath]);
 
@@ -468,7 +475,7 @@ describe('getImportFileSelectInputListener', () => {
     const mainWindow = await initWindowAndBackendState();
     const fileFormat = importFileFormats[0];
 
-    const listener = getImportFileSelectInputListener(mainWindow);
+    const listener = importFileSelectInputListener(mainWindow);
 
     jest
       .mocked(openNonOpossumFileDialog)
@@ -495,7 +502,7 @@ describe('getImportFileSelectSaveLocationListener', () => {
     const defaultPath = '/home';
     const selectedFilePath = '/home/input.opossum';
 
-    const listener = getImportFileSelectSaveLocationListener(mainWindow);
+    const listener = importFileSelectSaveLocationListener(mainWindow);
 
     jest.mocked(saveFileDialog).mockReturnValue(selectedFilePath);
 
@@ -511,7 +518,7 @@ describe('getImportFileSelectSaveLocationListener', () => {
   it('returns an empty string when no save location was selected', async () => {
     const mainWindow = await initWindowAndBackendState();
 
-    const listener = getImportFileSelectSaveLocationListener(mainWindow);
+    const listener = importFileSelectSaveLocationListener(mainWindow);
 
     jest.mocked(saveFileDialog).mockReturnValue(undefined);
 

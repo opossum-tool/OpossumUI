@@ -9,7 +9,6 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { SendErrorInformationArgs } from '../../../shared/shared-types';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import {
-  createVoidListenerCallbackWithErrorHandling,
   getMessageBoxContentForErrorsWrapper,
   getMessageBoxForErrors,
 } from '../errorHandling';
@@ -34,52 +33,6 @@ jest.mock('../../main/listeners', () => ({
 }));
 
 describe('error handling', () => {
-  describe('createListenerCallbackWithErrorHandling', () => {
-    it('returns a wrapper that calls the input function with the same parameters', async () => {
-      const mainWindow = {
-        webContents: { send: jest.fn() },
-      } as unknown as BrowserWindow;
-
-      const testFunction = jest.fn();
-      const testArgs = {
-        arg1: '1',
-        arg2: true,
-      };
-
-      await createVoidListenerCallbackWithErrorHandling(
-        mainWindow,
-        testFunction,
-      )(testArgs);
-      expect(testFunction).toHaveBeenCalledTimes(1);
-      expect(testFunction).toHaveBeenCalledWith(
-        expect.objectContaining(testArgs),
-      );
-    });
-
-    it('shows errors from the input function in a messageBox', async () => {
-      const mainWindow = {
-        webContents: { send: jest.fn() },
-      } as unknown as BrowserWindow;
-
-      function testFunction(): void {
-        throw new Error('TEST_ERROR');
-      }
-
-      await createVoidListenerCallbackWithErrorHandling(
-        mainWindow,
-        testFunction,
-      )();
-
-      expect(dialog.showMessageBox).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'error',
-          message: 'Error in app backend: TEST_ERROR',
-          buttons: ['Reload File', 'Quit'],
-        }),
-      );
-    });
-  });
-
   describe('getMessageBoxContentForErrors', () => {
     it('for backend errors', () => {
       const testError = new Error('TEST_ERROR');
