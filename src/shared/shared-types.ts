@@ -268,6 +268,9 @@ export interface ElectronAPI {
   ) => Promise<boolean>;
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;
+  /**
+   * @deprecated see https://github.com/opossum-tool/OpossumUI/issues/2812
+   */
   stopLoading: () => void;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
   getUserSetting: <T extends keyof UserSettings>(
