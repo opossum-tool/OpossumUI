@@ -179,6 +179,8 @@ export const importFileConvertAndLoadListener =
     fileType: FileType,
     opossumFilePath: string,
   ): Promise<boolean> => {
+    setLoadingState(mainWindow.webContents, true);
+
     try {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
         throw new Error('Input file does not exist');
@@ -195,8 +197,6 @@ export const importFileConvertAndLoadListener =
       if (!fs.existsSync(path.dirname(opossumFilePath))) {
         throw new Error('Output directory does not exist');
       }
-
-      setLoadingState(mainWindow.webContents, true);
 
       logger.info('Converting input file to .opossum format');
       await convertToOpossum(resourceFilePath, opossumFilePath, fileType);
