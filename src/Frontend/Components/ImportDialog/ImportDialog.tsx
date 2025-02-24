@@ -50,24 +50,12 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     [isLoading],
   );
 
-  const [logToDisplay, setLogToDisplay] = useState<Log | null>(null);
-
-  useStateEffect(
-    getLogMessage,
-    (log) => {
-      if (isLoading) {
-        setLogToDisplay(log);
-      }
-    },
-    [isLoading],
-  );
-
   async function selectInputFilePath(): Promise<void> {
     const filePath = await window.electronAPI.selectFile(fileFormat);
 
     if (filePath) {
       setInputFilePath(filePath);
-      dispatch(clearLogMessage());
+      setLogToDisplay(null);
     }
   }
 
@@ -89,7 +77,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
     if (filePath) {
       setOpossumFilePath(filePath);
-      dispatch(clearLogMessage());
+      setLogToDisplay(null);
     }
   }
 

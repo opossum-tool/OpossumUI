@@ -139,20 +139,15 @@ export const importFileListener =
       AllowedFrontendChannels.ShowImportDialog,
       fileFormat,
     );
-  });
-}
+  };
 
-export function getMergeListener(
-  mainWindow: BrowserWindow,
-  fileFormat: FileFormatInfo,
-): () => Promise<void> {
-  return createVoidListenerCallbackWithErrorHandling(mainWindow, () => {
+export const getMergeListener =
+  (mainWindow: BrowserWindow, fileFormat: FileFormatInfo) => (): void => {
     mainWindow.webContents.send(
       AllowedFrontendChannels.ShowMergeDialog,
       fileFormat,
     );
-  });
-}
+  };
 
 export const selectFileListener =
   (mainWindow: BrowserWindow) =>
@@ -244,21 +239,16 @@ export const importFileConvertAndLoadListener =
     }
   };
 
-export function getMergeFileAndLoadListener(
-  mainWindow: BrowserWindow,
-): (
-  _: Electron.IpcMainInvokeEvent,
-  inputFilePath: string,
-  fileType: FileType,
-) => Promise<boolean> {
-  return createListenerCallbackWithErrorHandling(
-    mainWindow,
-    false,
-    async (
-      _: Electron.IpcMainInvokeEvent,
-      inputFilePath: string,
-      fileType: FileType,
-    ) => {
+export const getMergeFileAndLoadListener =
+  (mainWindow: BrowserWindow) =>
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    inputFilePath: string,
+    fileType: FileType,
+  ): Promise<boolean> => {
+    setLoadingState(mainWindow.webContents, true);
+
+    try {
       if (!inputFilePath.trim() || !fs.existsSync(inputFilePath)) {
         throw new Error(text.backendError.inputFileDoesNotExist);
       }
@@ -291,13 +281,16 @@ export function getMergeFileAndLoadListener(
         fileType,
       );
 
-      await openFile(mainWindow, currentOpossumFilePath, () => {}, true);
+      await openFile(mainWindow, currentOpossumFilePath, () => {});
 
       return true;
-    },
-    ListenerErrorReporting.SendToFrontend,
-  );
-}
+    } catch (error) {
+      sendListenerErrorToFrontend(mainWindow, error);
+      return false;
+    } finally {
+      setLoadingState(mainWindow.webContents, false);
+    }
+  };
 
 function initializeGlobalBackendState(
   filePath: string,

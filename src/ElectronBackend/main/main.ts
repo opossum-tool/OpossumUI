@@ -17,7 +17,6 @@ import {
   openLinkListener,
   saveFileListener,
   selectFileListener,
-  selectInputListener,
 } from './listeners';
 import { createMenu } from './menu';
 import { DisabledMenuItemHandler } from './menu/DisabledMenuItemHandler';
@@ -67,10 +66,7 @@ export async function main(): Promise<void> {
     });
     ipcMain.handle(
       IpcChannel.OpenFile,
-      openFileListener(
-        mainWindow,
-        DisabledMenuItemHandler.activateMenuItems,
-      ),
+      openFileListener(mainWindow, DisabledMenuItemHandler.activateMenuItems),
     );
     ipcMain.handle(IpcChannel.SelectFile, selectFileListener(mainWindow));
     ipcMain.handle(
