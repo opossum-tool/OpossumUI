@@ -52,6 +52,7 @@ interface EphemeralPackageInfoProps {
 
 export interface PackageInfo extends EphemeralPackageInfoProps {
   attributionConfidence?: number;
+  classification?: number;
   comment?: string;
   copyright?: string;
   count?: number;
@@ -139,9 +140,18 @@ export interface ProjectMetadata {
   [otherMetadata: string]: unknown;
 }
 
+export interface Classifications {
+  [classification: number]: string;
+}
+
+export interface ProjectConfig {
+  classifications: Classifications;
+}
+
 export interface ParsedFileContent {
   metadata: ProjectMetadata;
   resources: Resources;
+  config: ProjectConfig;
   manualAttributions: InputFileAttributionData;
   externalAttributions: InputFileAttributionData;
   frequentLicenses: FrequentLicenses;

@@ -66,6 +66,12 @@ const inputFileContent: ParsedOpossumInputFile = {
     a: 1,
     folder: {},
   },
+  config: {
+    classifications: {
+      0: 'UNKNOWN',
+      1: 'CRITICAL',
+    },
+  },
   externalAttributions: {
     [externalAttributionUuid]: {
       source,
@@ -107,6 +113,12 @@ const expectedFileContent: ParsedFileContent = {
     projectTitle: 'Test Title',
   },
   resources: { a: 1, folder: {} },
+  config: {
+    classifications: {
+      0: 'UNKNOWN',
+      1: 'CRITICAL',
+    },
+  },
   manualAttributions: {
     attributions: {},
     resourcesToAttributions: {},
@@ -362,6 +374,12 @@ describe('Test of loading function', () => {
           resources: {
             a: 1,
           },
+          config: {
+            classifications: {
+              0: 'UNKNOWN',
+              1: 'CRITICAL',
+            },
+          },
           externalAttributions: {
             [externalAttributionUuid]: {
               source,
@@ -418,6 +436,12 @@ describe('Test of loading function', () => {
       const expectedLoadedFile: ParsedFileContent = {
         metadata: EMPTY_PROJECT_METADATA,
         resources: { a: 1 },
+        config: {
+          classifications: {
+            0: 'UNKNOWN',
+            1: 'CRITICAL',
+          },
+        },
         manualAttributions: {
           attributions: {
             [manualAttributionUuid]: {

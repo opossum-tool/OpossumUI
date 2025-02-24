@@ -263,6 +263,7 @@ class OpossumModule {
     return {
       metadata: OpossumModule.metadata(),
       resources: {},
+      config: { classifications: {} },
       externalAttributions: {},
       resourcesToAttributions: {},
       ...props,

@@ -25,6 +25,12 @@ const correctInput: ParsedOpossumInputFile = {
     projectId: '2a58a469-738e-4508-98d3-a27bce6e71f7',
     fileCreationDate: '2020-07-23 11:47:13.764544',
   },
+  config: {
+    classifications: {
+      0: 'UNKNOWN',
+      1: 'CRITICAL',
+    },
+  },
   externalAttributions: {
     [testUuid]: {
       source: {

@@ -26,6 +26,7 @@ const strippedPackageInfoTemplate: {
 } = {
   attributionConfidence: true,
   comment: true,
+  classification: false,
   copyright: true,
   count: false,
   criticality: false,

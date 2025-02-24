@@ -6,6 +6,7 @@ import {
   AttributionData,
   FrequentLicenses,
   PackageInfo,
+  ProjectConfig,
   ProjectMetadata,
 } from '../shared/shared-types';
 import { text } from '../shared/text';
@@ -31,6 +32,10 @@ export const EMPTY_FREQUENT_LICENSES: FrequentLicenses = {
 export const EMPTY_PROJECT_METADATA: ProjectMetadata = {
   projectId: '',
   fileCreationDate: '',
+};
+
+export const EMPTY_PROJECT_CONFIG: ProjectConfig = {
+  classifications: {},
 };
 
 export const EMPTY_DISPLAY_PACKAGE_INFO: PackageInfo = {

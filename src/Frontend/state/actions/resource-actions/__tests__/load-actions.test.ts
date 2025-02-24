@@ -11,6 +11,7 @@ import {
   FrequentLicenses,
   PackageInfo,
   ParsedFileContent,
+  ProjectConfig,
   Resources,
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
@@ -20,6 +21,7 @@ import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
+  getClassifications,
   getExternalAttributionSources,
   getExternalData,
   getFilesWithChildren,
@@ -42,6 +44,13 @@ const testResources: Resources = {
       'something.js': 1,
     },
     'readme.md': 1,
+  },
+};
+
+const testConfig: ProjectConfig = {
+  classifications: {
+    0: 'UNKNOWN',
+    1: 'CRITICAL',
   },
 };
 
@@ -129,6 +138,7 @@ describe('loadFromFile', () => {
     const testParsedFileContent: ParsedFileContent = {
       metadata: EMPTY_PROJECT_METADATA,
       resources: testResources,
+      config: testConfig,
       manualAttributions: {
         attributions: testManualAttributions,
         resourcesToAttributions: testResourcesToManualAttributions,
@@ -149,6 +159,7 @@ describe('loadFromFile', () => {
       },
     };
     const expectedResources: Resources = testResources;
+    const expectedConfig: ProjectConfig = testConfig;
     const expectedManualData: AttributionData = {
       attributions: testManualAttributions,
       resourcesToAttributions: testResourcesToManualAttributions,
@@ -212,6 +223,7 @@ describe('loadFromFile', () => {
 
     testStore.dispatch(loadFromFile(testParsedFileContent));
     expect(getResources(testStore.getState())).toEqual(expectedResources);
+    expect(getClassifications(testStore.getState())).toEqual(expectedConfig);
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getExternalData(testStore.getState())).toEqual(expectedExternalData);
     expect(getFrequentLicensesNameOrder(testStore.getState())).toEqual(
@@ -248,6 +260,7 @@ describe('loadFromFile', () => {
     const testParsedFileContent: ParsedFileContent = {
       metadata: EMPTY_PROJECT_METADATA,
       resources: testResources,
+      config: testConfig,
       manualAttributions: {
         attributions: testManualAttributions,
         resourcesToAttributions: testResourcesToManualAttributions,

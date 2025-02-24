@@ -9,6 +9,7 @@ import {
   Attributions,
   AttributionsToResources,
   BaseUrlsForSources,
+  Classifications,
   ExternalAttributionSources,
   FrequentLicenseName,
   LicenseTexts,
@@ -139,6 +140,10 @@ export function getFilesWithChildren(state: State): Set<string> {
 
 export function getProjectMetadata(state: State): ProjectMetadata {
   return state.resourceState.metadata;
+}
+
+export function getClassifications(state: State): Classifications {
+  return state.resourceState.config.classifications;
 }
 
 export function getPackageInfoOfSelectedAttribution(

@@ -8,6 +8,7 @@ import {
   ExternalAttributionSources,
   FrequentLicenses,
   PackageInfo,
+  ProjectConfig,
   ProjectMetadata,
   Resources,
 } from '../../../shared/shared-types';
@@ -15,6 +16,7 @@ import {
   EMPTY_ATTRIBUTION_DATA,
   EMPTY_DISPLAY_PACKAGE_INFO,
   EMPTY_FREQUENT_LICENSES,
+  EMPTY_PROJECT_CONFIG,
   EMPTY_PROJECT_METADATA,
   ROOT_PATH,
 } from '../../shared-constants';
@@ -71,6 +73,7 @@ export const initialResourceState: ResourceState = {
   isPreferenceFeatureEnabled: false,
   manualData: EMPTY_ATTRIBUTION_DATA,
   metadata: EMPTY_PROJECT_METADATA,
+  config: EMPTY_PROJECT_CONFIG,
   resolvedExternalAttributions: new Set(),
   resources: null,
   resourceIds: null,
@@ -92,6 +95,7 @@ export type ResourceState = {
   isPreferenceFeatureEnabled: boolean;
   manualData: AttributionData;
   metadata: ProjectMetadata;
+  config: ProjectConfig;
   resolvedExternalAttributions: Set<string>;
   resources: Resources | null;
   resourceIds: Array<string> | null;
