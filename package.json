@@ -26,7 +26,7 @@
     "object-hash": "^3.0.0",
     "packageurl-js": "^2.0.1",
     "proxy-memoize": "^3.0.1",
-    "re-resizable": "^6.10.3",
+    "re-resizable": "^6.11.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-error-boundary": "^5.0.0",

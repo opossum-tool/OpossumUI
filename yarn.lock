@@ -10365,7 +10365,7 @@ __metadata:
     prettier: "npm:^3.5.2"
     prettier-plugin-sh: "npm:^0.15.0"
     proxy-memoize: "npm:^3.0.1"
-    re-resizable: "npm:^6.10.3"
+    re-resizable: "npm:^6.11.0"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
     react-error-boundary: "npm:^5.0.0"
@@ -10928,13 +10928,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"re-resizable@npm:^6.10.3":
-  version: 6.10.3
-  resolution: "re-resizable@npm:6.10.3"
+"re-resizable@npm:^6.11.0":
+  version: 6.11.0
+  resolution: "re-resizable@npm:6.11.0"
   peerDependencies:
     react: ^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10/23c69efa9a5b5827b7e3873077e2047cda584825f43fea924d6f3ecbee683c959b69461461d93ec1302eafa5603f4e7a2afef35839a31ecf2e9f849940bc0a83
+  checksum: 10/34daac41c51cdfdcafa18cf8ade5d98b01b4a1fc6d9a6e9993f1f558f3bcb5b3e4b60392cbc3f85f65b8b2ee7ad1c78b7398f8b93d32cbed0b58c58b28d15615
   languageName: node
   linkType: hard
 
