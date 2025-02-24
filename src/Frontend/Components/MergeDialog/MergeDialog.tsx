@@ -10,7 +10,11 @@ import { FileFormatInfo, Log } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
+import {
+  IsLoadingListener,
+  LoggingListener,
+  useIpcRenderer,
+} from '../../util/use-ipc-renderer';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -24,7 +28,13 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
 
   const [inputFilePath, setInputFilePath] = useState<string>('');
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useIpcRenderer<IsLoadingListener>(
+    AllowedFrontendChannels.FileLoading,
+    (_, { isLoading }) => setIsLoading(isLoading),
+    [],
+  );
 
   const [logToDisplay, setLogToDisplay] = useState<Log | null>(null);
 
@@ -52,8 +62,6 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
   }
 
   async function onConfirm(): Promise<void> {
-    setIsLoading(true);
-
     const success = await window.electronAPI.mergeFileAndLoad(
       inputFilePath,
       fileFormat.fileType,
@@ -62,12 +70,6 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
     if (success) {
       dispatch(closePopup());
     }
-
-    // NOTE: without a tiny delay, isLoading is sometimes set to false before the
-    // final log message is processed by LogDisplayForDialog, causing it to be
-    // missed. This seems to only happen when running the app with yarn start
-    await new Promise((resolve) => setTimeout(resolve, 1));
-    setIsLoading(false);
   }
 
   return (
