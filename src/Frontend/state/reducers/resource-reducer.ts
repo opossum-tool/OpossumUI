@@ -8,6 +8,7 @@ import {
   ExternalAttributionSources,
   FrequentLicenses,
   PackageInfo,
+  ProjectConfig,
   ProjectMetadata,
   Resources,
 } from '../../../shared/shared-types';
@@ -15,6 +16,7 @@ import {
   EMPTY_ATTRIBUTION_DATA,
   EMPTY_DISPLAY_PACKAGE_INFO,
   EMPTY_FREQUENT_LICENSES,
+  EMPTY_PROJECT_CONFIG,
   EMPTY_PROJECT_METADATA,
   ROOT_PATH,
 } from '../../shared-constants';
@@ -36,6 +38,7 @@ import {
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
+  ACTION_SET_PROJECT_CONFIG,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_RESOURCES,
@@ -71,6 +74,7 @@ export const initialResourceState: ResourceState = {
   isPreferenceFeatureEnabled: false,
   manualData: EMPTY_ATTRIBUTION_DATA,
   metadata: EMPTY_PROJECT_METADATA,
+  config: EMPTY_PROJECT_CONFIG,
   resolvedExternalAttributions: new Set(),
   resources: null,
   resourceIds: null,
@@ -92,6 +96,7 @@ export type ResourceState = {
   isPreferenceFeatureEnabled: boolean;
   manualData: AttributionData;
   metadata: ProjectMetadata;
+  config: ProjectConfig;
   resolvedExternalAttributions: Set<string>;
   resources: Resources | null;
   resourceIds: Array<string> | null;
@@ -116,6 +121,11 @@ export const resourceState = (
         resourceIds: action.payload
           ? getResourceIdsFromResources(action.payload)
           : null,
+      };
+    case ACTION_SET_PROJECT_CONFIG:
+      return {
+        ...state,
+        config: action.payload,
       };
     case ACTION_SET_MANUAL_ATTRIBUTION_DATA:
       return {

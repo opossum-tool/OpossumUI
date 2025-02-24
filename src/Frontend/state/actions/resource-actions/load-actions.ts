@@ -7,6 +7,7 @@ import { AppThunkAction } from '../../types';
 import {
   setAttributionBreakpoints,
   setBaseUrlsForSources,
+  setConfig,
   setExternalAttributionSources,
   setExternalData,
   setFilesWithChildren,
@@ -23,6 +24,8 @@ export function loadFromFile(
 ): AppThunkAction {
   return (dispatch) => {
     dispatch(setResources(parsedFileContent.resources));
+
+    dispatch(setConfig(parsedFileContent.config));
 
     dispatch(
       setManualData(

@@ -9,6 +9,7 @@ import {
   ExternalAttributionSources,
   FrequentLicenses,
   PackageInfo,
+  ProjectConfig,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -18,6 +19,7 @@ export const ACTION_SET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_SELECTED_ATTRIBUTION_ID';
 export const ACTION_RESET_RESOURCE_STATE = 'ACTION_RESET_RESOURCE_STATE';
 export const ACTION_SET_RESOURCES = 'ACTION_SET_RESOURCES';
+export const ACTION_SET_PROJECT_CONFIG = 'ACTION_SET_PROJECT_CONFIG';
 export const ACTION_SET_MANUAL_ATTRIBUTION_DATA =
   'ACTION_SET_MANUAL_ATTRIBUTION_DATA';
 export const ACTION_SET_EXTERNAL_ATTRIBUTION_DATA =
@@ -63,6 +65,7 @@ export const ACTION_SET_ENABLE_PREFERENCE_FEATURE =
 export type ResourceAction =
   | ResetResourceStateAction
   | SetResourcesAction
+  | SetProjectConfigAction
   | SetManualDataAction
   | SetExternalDataAction
   | SetFrequentLicensesAction
@@ -95,6 +98,11 @@ export interface ResetResourceStateAction {
 export interface SetResourcesAction {
   type: typeof ACTION_SET_RESOURCES;
   payload: Resources | null;
+}
+
+export interface SetProjectConfigAction {
+  type: typeof ACTION_SET_PROJECT_CONFIG;
+  payload: ProjectConfig;
 }
 
 export interface SetManualDataAction {

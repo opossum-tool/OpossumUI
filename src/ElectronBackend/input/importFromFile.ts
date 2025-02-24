@@ -167,6 +167,7 @@ export async function loadInputAndOutputFromFilePath(
   mainWindow.webContents.send(AllowedFrontendChannels.FileLoaded, {
     metadata: parsedInputData.metadata,
     resources: parsedInputData.resources,
+    config: parsedInputData.config,
     manualAttributions: {
       attributions: manualAttributions,
       resourcesToAttributions: parsedOutputData.resourcesToAttributions,

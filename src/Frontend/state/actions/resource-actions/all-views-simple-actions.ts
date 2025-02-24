@@ -9,6 +9,7 @@ import {
   ExternalAttributionSources,
   FrequentLicenses,
   PackageInfo,
+  ProjectConfig,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -24,6 +25,7 @@ import {
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
+  ACTION_SET_PROJECT_CONFIG,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOURCES,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
@@ -36,6 +38,7 @@ import {
   SetFrequentLicensesAction,
   SetIsPreferenceFeatureEnabled,
   SetManualDataAction,
+  SetProjectConfigAction,
   SetProjectMetadata,
   SetResourcesAction,
   SetTemporaryDisplayPackageInfoAction,
@@ -47,6 +50,10 @@ export function resetResourceState(): ResetResourceStateAction {
 
 export function setResources(resources: Resources | null): SetResourcesAction {
   return { type: ACTION_SET_RESOURCES, payload: resources };
+}
+
+export function setConfig(config: ProjectConfig): SetProjectConfigAction {
+  return { type: ACTION_SET_PROJECT_CONFIG, payload: config };
 }
 
 export function setManualData(
