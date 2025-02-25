@@ -12,7 +12,7 @@
     "@mui/icons-material": "^6.4.5",
     "@mui/material": "^6.4.5",
     "@mui/system": "^6.4.3",
-    "@reduxjs/toolkit": "^2.5.1",
+    "@reduxjs/toolkit": "^2.6.0",
     "@tanstack/react-query": "^5.66.9",
     "compare-versions": "^6.1.1",
     "dayjs": "^1.11.13",
