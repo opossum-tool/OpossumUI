@@ -47,6 +47,31 @@ export function getCriticality(
   return Criticality.None;
 }
 
+export function getClassification(
+  nodeId: string,
+  resourcesToExternalAttributions: ResourcesToAttributions,
+  externalAttributions: Attributions,
+  resolvedExternalAttributions: Set<string>,
+): number | undefined {
+  if (
+    hasUnresolvedExternalAttribution(
+      nodeId,
+      resourcesToExternalAttributions,
+      resolvedExternalAttributions,
+    )
+  ) {
+    return Math.max(
+      ...resourcesToExternalAttributions[nodeId]
+        .map(
+          (attributionId) =>
+            externalAttributions[attributionId]?.classification,
+        )
+        .filter((classification) => classification !== undefined),
+    );
+  }
+  return undefined;
+}
+
 function isRootResource(resourceName: string): boolean {
   return resourceName === '';
 }

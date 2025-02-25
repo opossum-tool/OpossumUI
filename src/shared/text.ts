@@ -181,6 +181,7 @@ export const text = {
     hasHighlyCriticalSignals: 'Has highly critical signals',
     hasMediumCriticalSignals: 'Has medium critical signals',
     hasSignals: 'Has signals',
+    unknownClassification: 'Unknown classification',
   },
   auditingOptions: {
     add: 'Add Auditing Option',
@@ -194,6 +195,7 @@ export const text = {
     needsReview: 'Needs Review by QA',
     preselected: 'Pre-selected',
     previouslyPreferred: 'Previously Preferred',
+    unknownClassification: 'Unknown Classification',
   },
   generic: {
     unknown: 'unknown',
