@@ -237,7 +237,7 @@ export function ClassificationIcon({
         aria-label={'Classification icon'}
         sx={{
           ...baseIcon,
-          color: `${OpossumColors.mediumOrange} !important`,
+          color: `${OpossumColors.red} !important`,
           ...sx,
         }}
         className={className}
