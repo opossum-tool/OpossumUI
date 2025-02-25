@@ -10,6 +10,7 @@ import { ProjectStatisticsPopupTitle } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
+  getClassifications,
   getExternalAttributionSources,
   getManualAttributions,
   getUnresolvedExternalAttributions,
@@ -27,6 +28,7 @@ import {
   getCriticalSignalsCount,
   getIncompleteAttributionsCount,
   getMostFrequentLicenses,
+  getSignalCountByClassification,
   getUniqueLicenseNameToAttribution,
 } from './ProjectStatisticsPopup.util';
 
@@ -41,6 +43,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   const manualAttributions = useAppSelector(getManualAttributions);
   const attributionSources = useAppSelector(getExternalAttributionSources);
+  const classifications = useAppSelector(getClassifications);
 
   const unresolvedExternalAttribution = useAppSelector(
     getUnresolvedExternalAttributions,
@@ -50,18 +53,27 @@ export const ProjectStatisticsPopup: React.FC = () => {
     unresolvedExternalAttribution,
   );
 
-  const { licenseCounts, licenseNamesWithCriticality } =
-    aggregateLicensesAndSourcesFromAttributions(
-      unresolvedExternalAttribution,
-      strippedLicenseNameToAttribution,
-      attributionSources,
-    );
+  const {
+    licenseCounts,
+    licenseNamesWithCriticality,
+    licenseNamesWithClassification,
+  } = aggregateLicensesAndSourcesFromAttributions(
+    unresolvedExternalAttribution,
+    strippedLicenseNameToAttribution,
+    attributionSources,
+  );
 
   const mostFrequentLicenseCountData = getMostFrequentLicenses(licenseCounts);
 
   const criticalSignalsCountData = getCriticalSignalsCount(
     licenseCounts,
     licenseNamesWithCriticality,
+  );
+
+  const signalCountByClassification = getSignalCountByClassification(
+    licenseCounts,
+    licenseNamesWithClassification,
+    classifications,
   );
 
   const manualAttributionPropertyCounts =
@@ -120,6 +132,12 @@ export const ProjectStatisticsPopup: React.FC = () => {
               <AccordionWithPieChart
                 data={criticalSignalsCountData}
                 title={ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart}
+              />
+              <AccordionWithPieChart
+                data={signalCountByClassification}
+                title={
+                  ProjectStatisticsPopupTitle.SignalCountByClassificationPieChart
+                }
               />
               <AccordionWithPieChart
                 data={incompleteAttributionsData}
