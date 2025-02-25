@@ -239,7 +239,7 @@ export const importFileConvertAndLoadListener =
     }
   };
 
-export const getMergeFileAndLoadListener =
+export const mergeFileAndLoadListener =
   (mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,

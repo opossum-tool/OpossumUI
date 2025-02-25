@@ -10,9 +10,9 @@ import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHand
 import { createWindow } from './createWindow';
 import {
   exportFileListener,
-  getMergeFileAndLoadListener,
   importFileConvertAndLoadListener,
   importFileSelectSaveLocationListener,
+  mergeFileAndLoadListener,
   openFileListener,
   openLinkListener,
   saveFileListener,
@@ -82,7 +82,7 @@ export async function main(): Promise<void> {
     );
     ipcMain.handle(
       IpcChannel.MergeFileAndLoad,
-      getMergeFileAndLoadListener(mainWindow),
+      mergeFileAndLoadListener(mainWindow),
     );
     ipcMain.handle(IpcChannel.SaveFile, saveFileListener(mainWindow));
     ipcMain.handle(IpcChannel.ExportFile, exportFileListener(mainWindow));
