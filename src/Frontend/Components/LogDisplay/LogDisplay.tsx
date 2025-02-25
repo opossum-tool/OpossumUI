@@ -32,10 +32,11 @@ interface LogDisplayProps {
   showDate: boolean;
   useEllipsis?: boolean;
   sx?: SxProps;
+  className?: string;
 }
 
 export function LogDisplay(props: LogDisplayProps) {
-  const { log, isInProgress, showDate, useEllipsis, sx } = props;
+  const { log, isInProgress, showDate, useEllipsis, sx, className } = props;
 
   const icon = useMemo(() => {
     const { color, Component } = icons[log.level];
@@ -47,7 +48,7 @@ export function LogDisplay(props: LogDisplayProps) {
   }, [log, isInProgress]);
 
   return (
-    <MuiBox sx={sx}>
+    <MuiBox sx={sx} className={className}>
       {icon}
       {showDate ? (
         <MuiTypography color={'darkblue'}>

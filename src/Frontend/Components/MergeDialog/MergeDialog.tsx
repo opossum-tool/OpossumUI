@@ -15,8 +15,8 @@ import {
   LoggingListener,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
+import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
-import { LogDisplay } from '../LogDisplay/LogDisplay';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export interface MergeDialogProps {
@@ -95,17 +95,13 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
       isOpen={true}
       customAction={
         logToDisplay ? (
-          <LogDisplay
+          <DialogLogDisplay
             log={logToDisplay}
             isInProgress={isLoading}
             showDate={false}
             useEllipsis={true}
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              columnGap: '4px',
               marginLeft: '10px',
-              flexGrow: 1,
             }}
           />
         ) : undefined
