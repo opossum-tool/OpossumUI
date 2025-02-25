@@ -8,6 +8,7 @@ import path from 'path';
 import zlib from 'zlib';
 
 import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
+import { text } from '../../shared/text';
 import { writeOpossumFile } from '../../shared/write-file';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { FileConverter } from './FileConverter';
@@ -67,24 +68,22 @@ export class LegacyFileConverter extends FileConverter {
     toBeConvertedFilePath: string,
     opossumSaveLocation: string,
   ): Promise<void> {
+    let pathToInputJson = toBeConvertedFilePath;
+
+    if (toBeConvertedFilePath.endsWith(legacyOutputFileEnding)) {
+      pathToInputJson = this.tryToGetLegacyInputJsonFromLegacyOutputJson(
+        toBeConvertedFilePath,
+      );
+    }
+
     try {
-      let pathToInputJson = toBeConvertedFilePath;
-
-      if (toBeConvertedFilePath.endsWith(legacyOutputFileEnding)) {
-        pathToInputJson = this.tryToGetLegacyInputJsonFromLegacyOutputJson(
-          toBeConvertedFilePath,
-        );
-      }
-
       await writeOpossumFile({
         path: opossumSaveLocation,
         input: this.readInputJson(pathToInputJson),
         output: this.readOutputJson(pathToInputJson),
       });
     } catch (error) {
-      throw new Error(
-        'Conversion of Legacy Opossum file to .opossum file failed',
-      );
+      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName));
     }
   }
 

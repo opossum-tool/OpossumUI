@@ -18,6 +18,7 @@ import {
 import {
   getExportFileRequest,
   getImportFileRequest,
+  getMergeRequest,
   getOpenFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
@@ -40,6 +41,7 @@ import {
   openPopup,
   setExportFileRequest,
   setImportFileRequest,
+  setMergeRequest,
   setOpenFileRequest,
   setTargetView,
 } from '../view-actions/view-actions';
@@ -121,6 +123,16 @@ export function showImportDialogOrOpenUnsavedPopup(
   });
 }
 
+export function showMergeDialogOrOpenUnsavedPopup(
+  fileFormat: FileFormatInfo,
+): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) =>
+      dispatch(openPopup(PopupType.MergeDialog, undefined, fileFormat)),
+    requestContinuation: (dispatch) => dispatch(setMergeRequest(fileFormat)),
+  });
+}
+
 export function openFileOrOpenUnsavedPopup(): AppThunkAction {
   return withUnsavedCheck({
     executeImmediately: () => void window.electronAPI.openFile(),
@@ -143,6 +155,7 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     const targetView = getTargetView(getState());
     const openFileRequest = getOpenFileRequest(getState());
     const importFileRequest = getImportFileRequest(getState());
+    const mergeRequest = getMergeRequest(getState());
     const exportFileRequest = getExportFileRequest(getState());
 
     dispatch(closePopup());
@@ -155,6 +168,11 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     if (importFileRequest) {
       dispatch(openPopup(PopupType.ImportDialog, undefined, importFileRequest));
       dispatch(setImportFileRequest(null));
+    }
+
+    if (mergeRequest) {
+      dispatch(openPopup(PopupType.MergeDialog, undefined, mergeRequest));
+      dispatch(setMergeRequest(null));
     }
 
     if (exportFileRequest) {

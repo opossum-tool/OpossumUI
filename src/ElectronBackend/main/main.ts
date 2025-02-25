@@ -11,14 +11,15 @@ import { createWindow } from './createWindow';
 import {
   exportFileListener,
   importFileConvertAndLoadListener,
-  importFileSelectInputListener,
   importFileSelectSaveLocationListener,
+  mergeFileAndLoadListener,
   openFileListener,
   openLinkListener,
   saveFileListener,
+  selectFileListener,
 } from './listeners';
 import { createMenu } from './menu';
-import { activateMenuItems } from './menu/initiallyDisabledMenuItems';
+import { DisabledMenuItemHandler } from './menu/DisabledMenuItemHandler';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { UserSettings } from './user-settings';
 
@@ -65,19 +66,23 @@ export async function main(): Promise<void> {
     });
     ipcMain.handle(
       IpcChannel.OpenFile,
-      openFileListener(mainWindow, activateMenuItems),
+      openFileListener(mainWindow, DisabledMenuItemHandler.activateMenuItems),
     );
-    ipcMain.handle(
-      IpcChannel.ImportFileSelectInput,
-      importFileSelectInputListener(mainWindow),
-    );
+    ipcMain.handle(IpcChannel.SelectFile, selectFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.ImportFileSelectSaveLocation,
       importFileSelectSaveLocationListener(mainWindow),
     );
     ipcMain.handle(
       IpcChannel.ImportFileConvertAndLoad,
-      importFileConvertAndLoadListener(mainWindow, activateMenuItems),
+      importFileConvertAndLoadListener(
+        mainWindow,
+        DisabledMenuItemHandler.activateMenuItems,
+      ),
+    );
+    ipcMain.handle(
+      IpcChannel.MergeFileAndLoad,
+      mergeFileAndLoadListener(mainWindow),
     );
     ipcMain.handle(IpcChannel.SaveFile, saveFileListener(mainWindow));
     ipcMain.handle(IpcChannel.ExportFile, exportFileListener(mainWindow));

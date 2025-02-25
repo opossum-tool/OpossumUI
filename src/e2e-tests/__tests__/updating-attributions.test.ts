@@ -124,6 +124,20 @@ test('warns user of unsaved changes if user attempts to import new file before s
   await notSavedPopup.assert.isVisible();
 });
 
+test('warns user of unsaved changes if user attempts to merge file before saving', async ({
+  attributionDetails,
+  notSavedPopup,
+  resourcesTree,
+  menuBar,
+}) => {
+  const comment = faker.lorem.sentences();
+  await resourcesTree.goto(resourceName1);
+  await attributionDetails.attributionForm.comment.fill(comment);
+
+  await menuBar.mergeLegacyOpossumFile();
+  await notSavedPopup.assert.isVisible();
+});
+
 test('warns user of unsaved changes if user attempts to export data before saving', async ({
   attributionDetails,
   notSavedPopup,

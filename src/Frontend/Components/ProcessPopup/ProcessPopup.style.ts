@@ -5,10 +5,16 @@
 import MuiDialogContent from '@mui/material/DialogContent';
 import { styled } from '@mui/system';
 
+import { LogDisplay } from '../LogDisplay/LogDisplay';
+
 export const DialogContent = styled(MuiDialogContent)({
   display: 'grid',
-  gridTemplateColumns: '24px 80px 1fr',
   gridTemplateRows: 'repeat(auto-fill, 1fr)',
-  columnGap: '8px',
   rowGap: '4px',
+});
+
+export const GridLogDisplay = styled(LogDisplay)({
+  display: 'grid',
+  gridTemplateColumns: '24px 80px 1fr',
+  columnGap: '8px',
 });

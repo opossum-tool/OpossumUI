@@ -259,12 +259,16 @@ export interface ElectronAPI {
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: () => Promise<unknown>;
-  importFileSelectInput: (fileFormat: FileFormatInfo) => Promise<string>;
+  selectFile: (fileFormat: FileFormatInfo) => Promise<string>;
   importFileSelectSaveLocation: (defaultPath: string) => Promise<string>;
   importFileConvertAndLoad: (
     inputFilePath: string,
     fileType: FileType,
     opossumFilePath: string,
+  ) => Promise<boolean>;
+  mergeFileAndLoad: (
+    inputFilePath: string,
+    fileType: FileType,
   ) => Promise<boolean>;
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;

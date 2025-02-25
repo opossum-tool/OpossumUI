@@ -5,10 +5,12 @@
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
 import WarningIcon from '@mui/icons-material/Warning';
+import MuiBox from '@mui/material/Box';
 import { SvgIconProps } from '@mui/material/SvgIcon';
 import MuiTypography from '@mui/material/Typography';
+import { SxProps } from '@mui/system';
 import dayjs from 'dayjs';
-import { Fragment, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { Log } from '../../../shared/shared-types';
 import { baseIcon } from '../../shared-styles';
@@ -29,10 +31,12 @@ interface LogDisplayProps {
   isInProgress: boolean;
   showDate: boolean;
   useEllipsis?: boolean;
+  sx?: SxProps;
+  className?: string;
 }
 
 export function LogDisplay(props: LogDisplayProps) {
-  const { log, isInProgress, showDate, useEllipsis } = props;
+  const { log, isInProgress, showDate, useEllipsis, sx, className } = props;
 
   const icon = useMemo(() => {
     const { color, Component } = icons[log.level];
@@ -44,7 +48,7 @@ export function LogDisplay(props: LogDisplayProps) {
   }, [log, isInProgress]);
 
   return (
-    <Fragment>
+    <MuiBox sx={sx} className={className}>
       {icon}
       {showDate ? (
         <MuiTypography color={'darkblue'}>
@@ -56,6 +60,6 @@ export function LogDisplay(props: LogDisplayProps) {
       ) : (
         <BreakableTypography>{log.message}</BreakableTypography>
       )}
-    </Fragment>
+    </MuiBox>
   );
 }

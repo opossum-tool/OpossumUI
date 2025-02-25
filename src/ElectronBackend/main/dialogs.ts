@@ -32,7 +32,7 @@ export function openNonOpossumFileDialog(
 ): Array<string> | undefined {
   return openFileDialog([
     {
-      name: `${fileFormat.name}s (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+      name: `${fileFormat.name} Files (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
       extensions: fileFormat.extensions,
     },
   ]);

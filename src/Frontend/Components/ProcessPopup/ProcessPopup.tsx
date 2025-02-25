@@ -16,8 +16,7 @@ import {
   LoggingListener,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
-import { LogDisplay } from '../LogDisplay/LogDisplay';
-import { DialogContent } from './ProcessPopup.style';
+import { DialogContent, GridLogDisplay } from './ProcessPopup.style';
 
 export function ProcessPopup() {
   const [logs, setLogs] = useState<Array<Log>>([]);
@@ -57,7 +56,7 @@ export function ProcessPopup() {
     return (
       <DialogContent>
         {logs.map((log, index) => (
-          <LogDisplay
+          <GridLogDisplay
             key={index}
             log={log}
             isInProgress={index === logs.length - 1}

@@ -43,6 +43,10 @@ export function getImportFileRequest(state: State): FileFormatInfo | null {
   return state.viewState.importFileRequest;
 }
 
+export function getMergeRequest(state: State): FileFormatInfo | null {
+  return state.viewState.mergeRequest;
+}
+
 export function getExportFileRequest(state: State): ExportType | null {
   return state.viewState.exportFileRequest;
 }

@@ -4,7 +4,67 @@
 // SPDX-License-Identifier: Apache-2.0
 import { FileFormatInfo } from './shared-types';
 
+function menuLabelForFileFormat(fileFormat: FileFormatInfo): string {
+  return `${fileFormat.name} File (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})...`;
+}
+
 export const text = {
+  menu: {
+    file: 'File',
+    fileSubmenu: {
+      open: 'Open...',
+      import: 'Import',
+      importSubmenu: menuLabelForFileFormat,
+      merge: 'Merge',
+      mergeSubmenu: menuLabelForFileFormat,
+      save: 'Save',
+      projectMetadata: 'Project Metadata',
+      projectStatistics: 'Project Statistics',
+      setBaseURL: 'Set Path to Sources',
+      quit: 'Quit',
+      export: 'Export',
+      exportSubmenu: {
+        followUp: 'Follow-Up',
+        compactComponentList: 'Compact Component List',
+        detailedComponentList: 'Detailed Component List',
+        spdxYAML: 'SPDX (yaml)',
+        spdxJSON: 'SPDX (json)',
+      },
+    },
+    edit: 'Edit',
+    editSubmenu: {
+      undo: 'Undo',
+      redo: 'Redo',
+      cut: 'Cut',
+      copy: 'Copy',
+      paste: 'Paste',
+      selectAll: 'Select All',
+      searchAttributions: 'Search Attributions',
+      searchSignals: 'Search Signals',
+      searchResourcesAll: 'Search All Resources',
+      searchResourceLinked: 'Search Linked Resources',
+    },
+    view: 'View',
+    viewSubmenu: {
+      showDevTools: 'Show Developer Tools',
+      toggleFullScreen: 'Full Screen',
+      zoomIn: 'Zoom In',
+      zoomOut: 'Zoom Out',
+      qaMode: 'QA Mode',
+    },
+    about: 'About',
+    aboutSubmenu: {
+      openOnGithub: 'Open on GitHub',
+      opossumUINotices: 'OpossumUI Notices',
+      chromiumNotices: 'Chromium Notices',
+    },
+    help: 'Help',
+    helpSubmenu: {
+      openLogFiles: 'Open Log Files Folder',
+      checkForUpdates: 'Check for Updates',
+      userGuide: 'User Guide',
+    },
+  },
   attributionColumn: {
     commonEcosystems: 'Common Ecosystems',
     commonLicenses: 'Common Licenses',
@@ -93,6 +153,7 @@ export const text = {
     search: 'Search',
     sort: 'Sort',
     import: 'Import',
+    merge: 'Merge',
   },
   modifyWasPreferredPopup: {
     title: 'Modifying Previously Preferred Attribution',
@@ -243,24 +304,49 @@ export const text = {
     quit: 'Quit App',
   },
   importDialog: {
-    title: (fileFormat: FileFormatInfo) => `Import ${fileFormat.name}`,
+    title: (fileFormat: FileFormatInfo) => `Import ${fileFormat.name} file`,
     explanationText: [
-      'OpossumUI will convert the selected file into a new opossum file.',
-      'All changes made to the project in OpossumUI will be saved in this opossum file.',
+      'OpossumUI will convert the selected file into a new Opossum file.',
+      'All changes made to the project in OpossumUI will be saved in this Opossum file.',
     ],
     inputFilePath: {
       textFieldLabel: (fileFormat: FileFormatInfo, hasBeenSelected: boolean) =>
         hasBeenSelected
           ? `File to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
           : `Select file to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
-      buttonTooltip: 'Select file',
     },
     opossumFilePath: {
       textFieldLabel: (hasBeenSelected: boolean) =>
         hasBeenSelected
           ? 'Opossum file save location'
-          : 'Select opossum file save location',
-      buttonTooltip: 'Select save location',
+          : 'Select Opossum file save location',
     },
+  },
+  mergeDialog: {
+    title: (fileFormat: FileFormatInfo) =>
+      `Merge ${fileFormat.name} file into current file`,
+    explanationText:
+      'OpossumUI will merge the selected file into the currently open Opossum file.',
+    warningText:
+      'As this action cannot be undone, OpossumUI will also create a backup of the currently open Opossum file.',
+    inputFilePath: {
+      textFieldLabel: (fileFormat: FileFormatInfo, hasBeenSelected: boolean) =>
+        hasBeenSelected
+          ? `File to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
+          : `Select file to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+    },
+  },
+  backendError: {
+    inputFileDoesNotExist: 'Input file does not exist',
+    inputFilePermissionError: 'Permission error: cannot read input file',
+    inputFileInvalid: (fileTypeName: string) =>
+      `Input file is not a valid ${fileTypeName} file`,
+    opossumFileNotSelected: 'No .opossum save location selected',
+    opossumFileWrongExtension: 'Output file name must have .opossum extension',
+    opossumFileDirectoryDoesNotExist: 'Output directory does not exist',
+    opossumFilePermissionError:
+      'Permission error: cannot write to output directory',
+    noOpenFileToMergeInto: 'No open file to merge into',
+    cantCreateBackup: 'Unable to create backup of currently open Opossum file',
   },
 } as const;

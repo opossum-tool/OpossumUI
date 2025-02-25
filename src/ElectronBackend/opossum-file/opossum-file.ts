@@ -15,7 +15,7 @@ const fileTypeToConverter: Record<FileType, FileConverter> = {
   })(),
   [FileType.OWASP_JSON]: new (class extends ExternalFileConverter {
     readonly fileTypeSwitch: string = '--owasp-json';
-    readonly fileTypeName: string = 'OWASP Dependency-check';
+    readonly fileTypeName: string = 'OWASP Dependency-Check';
   })(),
 };
 

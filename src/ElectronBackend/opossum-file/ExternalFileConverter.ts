@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { text } from '../../shared/text';
 import { FileConverter } from './FileConverter';
 
 export abstract class ExternalFileConverter extends FileConverter {
@@ -22,9 +23,7 @@ export abstract class ExternalFileConverter extends FileConverter {
         toBeConvertedFilePath,
       ]);
     } catch (error) {
-      throw new Error(
-        `Conversion of ${this.fileTypeName} file to .opossum file failed`,
-      );
+      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName));
     }
   }
 }

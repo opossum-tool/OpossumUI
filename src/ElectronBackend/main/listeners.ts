@@ -24,6 +24,7 @@ import {
   PackageInfo,
   SaveFileArgs,
 } from '../../shared/shared-types';
+import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { LoadedFileFormat } from '../enums/enums';
 import {
@@ -32,7 +33,10 @@ import {
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { serializeAttributions } from '../input/parseInputData';
-import { convertToOpossum } from '../opossum-file/opossum-file';
+import {
+  convertToOpossum,
+  mergeFileIntoOpossum,
+} from '../opossum-file/opossum-file';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import { GlobalBackendState, OpossumOutputFile } from '../types/types';
@@ -132,12 +136,20 @@ export async function handleOpeningFile(
 export const importFileListener =
   (mainWindow: BrowserWindow, fileFormat: FileFormatInfo) => (): void => {
     mainWindow.webContents.send(
-      AllowedFrontendChannels.ImportFileShowDialog,
+      AllowedFrontendChannels.ShowImportDialog,
       fileFormat,
     );
   };
 
-export const importFileSelectInputListener =
+export const getMergeListener =
+  (mainWindow: BrowserWindow, fileFormat: FileFormatInfo) => (): void => {
+    mainWindow.webContents.send(
+      AllowedFrontendChannels.ShowMergeDialog,
+      fileFormat,
+    );
+  };
+
+export const selectFileListener =
   (mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,
@@ -183,19 +195,31 @@ export const importFileConvertAndLoadListener =
 
     try {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
-        throw new Error('Input file does not exist');
+        throw new Error(text.backendError.inputFileDoesNotExist);
+      }
+
+      try {
+        fs.accessSync(resourceFilePath, fs.constants.R_OK);
+      } catch (error) {
+        throw new Error(text.backendError.inputFilePermissionError);
       }
 
       if (!opossumFilePath.trim()) {
-        throw new Error('No .opossum save location selected');
+        throw new Error(text.backendError.opossumFileNotSelected);
       }
 
       if (!opossumFilePath.endsWith('.opossum')) {
-        throw new Error('Output file name must have .opossum extension');
+        throw new Error(text.backendError.opossumFileWrongExtension);
       }
 
       if (!fs.existsSync(path.dirname(opossumFilePath))) {
-        throw new Error('Output directory does not exist');
+        throw new Error(text.backendError.opossumFileDirectoryDoesNotExist);
+      }
+
+      try {
+        fs.accessSync(path.dirname(opossumFilePath), fs.constants.W_OK);
+      } catch (error) {
+        throw new Error(text.backendError.opossumFilePermissionError);
       }
 
       logger.info('Converting input file to .opossum format');
@@ -205,6 +229,59 @@ export const importFileConvertAndLoadListener =
       initializeGlobalBackendState(opossumFilePath, true);
 
       await openFile(mainWindow, opossumFilePath, onOpen);
+
+      return true;
+    } catch (error) {
+      sendListenerErrorToFrontend(mainWindow, error);
+      return false;
+    } finally {
+      setLoadingState(mainWindow.webContents, false);
+    }
+  };
+
+export const mergeFileAndLoadListener =
+  (mainWindow: BrowserWindow) =>
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    inputFilePath: string,
+    fileType: FileType,
+  ): Promise<boolean> => {
+    setLoadingState(mainWindow.webContents, true);
+
+    try {
+      if (!inputFilePath.trim() || !fs.existsSync(inputFilePath)) {
+        throw new Error(text.backendError.inputFileDoesNotExist);
+      }
+
+      try {
+        fs.accessSync(inputFilePath, fs.constants.R_OK);
+      } catch (error) {
+        throw new Error(text.backendError.inputFilePermissionError);
+      }
+
+      const currentOpossumFilePath = getGlobalBackendState().opossumFilePath;
+
+      if (!currentOpossumFilePath) {
+        throw new Error(text.backendError.noOpenFileToMergeInto);
+      }
+
+      try {
+        fs.copyFileSync(
+          currentOpossumFilePath,
+          `${currentOpossumFilePath}.backup`,
+        );
+      } catch (error) {
+        throw new Error(text.backendError.cantCreateBackup);
+      }
+
+      logger.info('Merging input file into current .opossum file');
+      await mergeFileIntoOpossum(
+        inputFilePath,
+        currentOpossumFilePath,
+        fileType,
+      );
+
+      await openFile(mainWindow, currentOpossumFilePath, () => {});
 
       return true;
     } catch (error) {
