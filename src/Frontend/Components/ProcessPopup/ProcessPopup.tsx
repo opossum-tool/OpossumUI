@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDialog from '@mui/material/Dialog';
-import MuiDialogContent from '@mui/material/DialogContent';
 import MuiDialogTitle from '@mui/material/DialogTitle';
 import { useState } from 'react';
 
@@ -18,6 +17,7 @@ import {
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
 import { LogDisplay } from '../LogDisplay/LogDisplay';
+import { DialogContent } from './ProcessPopup.style';
 
 export function ProcessPopup() {
   const [logs, setLogs] = useState<Array<Log>>([]);
@@ -55,7 +55,7 @@ export function ProcessPopup() {
 
   function renderDialogContent() {
     return (
-      <MuiDialogContent>
+      <DialogContent>
         {logs.map((log, index) => (
           <LogDisplay
             key={index}
@@ -65,13 +65,11 @@ export function ProcessPopup() {
             sx={{
               display: 'grid',
               gridTemplateColumns: '24px 80px 1fr',
-              gridTemplateRows: 'repeat(auto-fill, 1fr)',
               columnGap: '8px',
-              rowGap: '4px',
             }}
           />
         ))}
-      </MuiDialogContent>
+      </DialogContent>
     );
   }
 }
