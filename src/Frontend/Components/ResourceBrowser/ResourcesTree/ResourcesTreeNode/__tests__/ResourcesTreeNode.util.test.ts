@@ -10,6 +10,7 @@ import {
 } from '../../../../../../shared/shared-types';
 import {
   containsManualAttribution,
+  getClassification,
   getCriticality,
 } from '../ResourcesTreeNode.util';
 
@@ -41,6 +42,36 @@ describe('ResourcesTreeNode', () => {
         new Set(),
       );
       expect(criticality).toEqual(expectedCriticalities[nodeId]);
+    }
+  });
+
+  it('getClassification', () => {
+    const resourcesToExternalAttributions: ResourcesToAttributions = {
+      '/test_file1.ts': ['attr1', 'attr2'],
+      '/test_file2.ts': ['attr3'],
+      '/test_file3.ts': ['attr2', 'attr3'],
+    };
+    const externalAttributions: Attributions = {
+      attr1: { classification: 2, id: 'attr1' },
+      attr2: { classification: 0, id: 'attr2' },
+      attr3: { id: 'attr3' },
+    };
+    const expectedClassifications: {
+      [resource: string]: number | undefined;
+    } = {
+      '/test_file1.ts': 2,
+      '/test_file2.ts': undefined,
+      '/test_file3.ts': 0,
+    };
+
+    for (const nodeId of Object.keys(resourcesToExternalAttributions)) {
+      const classification = getClassification(
+        nodeId,
+        resourcesToExternalAttributions,
+        externalAttributions,
+        new Set(),
+      );
+      expect(classification).toEqual(expectedClassifications[nodeId]);
     }
   });
 
