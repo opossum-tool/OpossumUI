@@ -60,7 +60,7 @@ export function getClassification(
       resolvedExternalAttributions,
     )
   ) {
-    return Math.max(
+    const largestClassification = Math.max(
       ...resourcesToExternalAttributions[nodeId]
         .map(
           (attributionId) =>
@@ -68,6 +68,7 @@ export function getClassification(
         )
         .filter((classification) => classification !== undefined),
     );
+    return largestClassification < 0 ? undefined : largestClassification;
   }
   return undefined;
 }

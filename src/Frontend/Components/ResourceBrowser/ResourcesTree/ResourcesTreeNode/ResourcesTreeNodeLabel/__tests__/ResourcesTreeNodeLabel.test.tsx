@@ -55,7 +55,7 @@ describe('ResourcesTreeNodeLabel', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders a folder with signal and icon', () => {
+  it('renders a folder with signal and criticality icon', () => {
     render(
       <ResourcesTreeNodeLabel
         labelText={'Test label'}
@@ -99,6 +99,59 @@ describe('ResourcesTreeNodeLabel', () => {
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Criticality icon')).not.toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Directory icon without information'),
+    ).toBeInTheDocument();
+  });
+
+  it('renders a folder with signal and classification icon', () => {
+    render(
+      <ResourcesTreeNodeLabel
+        labelText={'Test label'}
+        hasManualAttribution={false}
+        hasExternalAttribution={true}
+        hasUnresolvedExternalAttribution={true}
+        containsExternalAttribution={false}
+        containsManualAttribution={false}
+        hasParentWithManualAttribution={false}
+        canHaveChildren={true}
+        isAttributionBreakpoint={false}
+        showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={true}
+        classification={1}
+      />,
+    );
+
+    expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Directory icon with signal'),
+    ).toBeInTheDocument();
+  });
+
+  it('renders a folder with resolved signal but without classification icon', () => {
+    render(
+      <ResourcesTreeNodeLabel
+        labelText={'Test label'}
+        hasManualAttribution={false}
+        hasExternalAttribution={true}
+        hasUnresolvedExternalAttribution={false}
+        containsExternalAttribution={false}
+        containsManualAttribution={false}
+        hasParentWithManualAttribution={false}
+        canHaveChildren={true}
+        isAttributionBreakpoint={false}
+        showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={true}
+        classification={1}
+      />,
+    );
+
+    expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Classification icon'),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByLabelText('Directory icon without information'),
     ).toBeInTheDocument();
