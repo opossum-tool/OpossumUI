@@ -2,10 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { pickBy } from 'lodash';
+import { pickBy, toNumber } from 'lodash';
 
 import {
   Attributions,
+  Classifications,
   Criticality,
   ExternalAttributionSources,
   PackageInfo,
@@ -14,6 +15,7 @@ import { PieChartCriticalityNames } from '../../enums/enums';
 import {
   AttributionCountPerSourcePerLicense,
   LicenseCounts,
+  LicenseNamesWithClassification,
   LicenseNamesWithCriticality,
   PieChartData,
 } from '../../types/types';
@@ -39,11 +41,13 @@ export function aggregateLicensesAndSourcesFromAttributions(
 ): {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
+  licenseNamesWithClassification: LicenseNamesWithClassification;
 } {
   const {
     attributionCountPerSourcePerLicense,
     totalAttributionsPerLicense,
     licenseNamesWithCriticality,
+    licenseNamesWithClassification,
   } = getLicenseDataFromAttributionsAndSources(
     strippedLicenseNameToAttribution,
     attributions,
@@ -67,7 +71,11 @@ export function aggregateLicensesAndSourcesFromAttributions(
     totalAttributionsPerSource,
   };
 
-  return { licenseCounts, licenseNamesWithCriticality };
+  return {
+    licenseCounts,
+    licenseNamesWithCriticality,
+    licenseNamesWithClassification,
+  };
 }
 
 function getLicenseDataFromAttributionsAndSources(
@@ -78,8 +86,10 @@ function getLicenseDataFromAttributionsAndSources(
   attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
   totalAttributionsPerLicense: { [licenseName: string]: number };
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
+  licenseNamesWithClassification: LicenseNamesWithClassification;
 } {
   const licenseNamesWithCriticality: LicenseNamesWithCriticality = {};
+  const licenseNamesWithClassification: LicenseNamesWithClassification = {};
   const attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense =
     {};
   const totalAttributionsPerLicense: { [licenseName: string]: number } = {};
@@ -90,6 +100,7 @@ function getLicenseDataFromAttributionsAndSources(
     const {
       mostFrequentLicenseName,
       licenseCriticality,
+      licenseClassification,
       sourcesCountForLicense,
     } = getLicenseDataFromVariants(
       strippedLicenseNameToAttribution[strippedLicenseName],
@@ -98,6 +109,8 @@ function getLicenseDataFromAttributionsAndSources(
     );
 
     licenseNamesWithCriticality[mostFrequentLicenseName] = licenseCriticality;
+    licenseNamesWithClassification[mostFrequentLicenseName] =
+      licenseClassification;
     attributionCountPerSourcePerLicense[mostFrequentLicenseName] =
       sourcesCountForLicense;
     totalAttributionsPerLicense[mostFrequentLicenseName] = Object.values(
@@ -111,6 +124,7 @@ function getLicenseDataFromAttributionsAndSources(
     attributionCountPerSourcePerLicense,
     totalAttributionsPerLicense,
     licenseNamesWithCriticality,
+    licenseNamesWithClassification,
   };
 }
 
@@ -121,6 +135,7 @@ function getLicenseDataFromVariants(
 ): {
   mostFrequentLicenseName: string;
   licenseCriticality: Criticality | undefined;
+  licenseClassification: number;
   sourcesCountForLicense: {
     [sourceNameOrTotal: string]: number;
   };
@@ -133,6 +148,8 @@ function getLicenseDataFromVariants(
   } = {};
   const licenseCriticalityCounts = { high: 0, medium: 0, none: 0 };
 
+  let licenseClassification = 0;
+
   for (const attributionId of attributionIds) {
     const licenseName = attributions[attributionId].licenseName;
     if (licenseName) {
@@ -140,6 +157,11 @@ function getLicenseDataFromVariants(
         (licenseNameVariantsCount[licenseName] || 0) + 1;
 
       const variantCriticality = attributions[attributionId].criticality;
+
+      licenseClassification = Math.max(
+        licenseClassification,
+        attributions[attributionId].classification ?? 0,
+      );
 
       licenseCriticalityCounts[variantCriticality || 'none']++;
 
@@ -163,6 +185,7 @@ function getLicenseDataFromVariants(
   return {
     mostFrequentLicenseName,
     licenseCriticality,
+    licenseClassification,
     sourcesCountForLicense,
   };
 }
@@ -325,6 +348,33 @@ export function getCriticalSignalsCount(
   return criticalityData.filter(
     (criticalityDataWithCount) => criticalityDataWithCount['count'] !== 0,
   );
+}
+
+export function getSignalCountByClassification(
+  licenseCounts: LicenseCounts,
+  licenseNamesWithClassification: LicenseNamesWithClassification,
+  classifications: Classifications,
+): Array<PieChartData> {
+  const classificationCounts: { [classification: number]: number } = {};
+
+  for (const [license, attributionCount] of Object.entries(
+    licenseCounts.totalAttributionsPerLicense,
+  )) {
+    classificationCounts[licenseNamesWithClassification[license]] =
+      (classificationCounts[licenseNamesWithClassification[license]] ?? 0) +
+      attributionCount;
+  }
+
+  return Object.keys(classifications).map((classification) => {
+    const classificationName = classifications[toNumber(classification)];
+    const classificationCount =
+      classificationCounts[toNumber(classification)] ?? 0;
+
+    return {
+      name: classificationName,
+      count: classificationCount,
+    };
+  });
 }
 
 export function getIncompleteAttributionsCount(

@@ -51,3 +51,7 @@ export interface AttributionCountPerSourcePerLicense {
 export interface LicenseNamesWithCriticality {
   [licenseName: string]: Criticality | undefined;
 }
+
+export interface LicenseNamesWithClassification {
+  [licenseName: string]: number;
+}

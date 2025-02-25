@@ -31,6 +31,7 @@ export enum ProjectStatisticsPopupTitle {
   PieChartsSectionHeader = 'Pie Charts',
   MostFrequentLicenseCountPieChart = 'Most Frequent Licenses',
   CriticalSignalsCountPieChart = 'Signals by Criticality',
+  SignalCountByClassificationPieChart = 'Signals by Classification',
   IncompleteLicensesPieChart = 'Incomplete Attributions',
 }
 
