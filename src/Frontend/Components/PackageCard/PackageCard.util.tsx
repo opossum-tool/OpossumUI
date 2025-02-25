@@ -43,14 +43,14 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
     );
   }
   if (cardConfig.classification) {
-    const text = cardConfig.classification_mapping
-      ? cardConfig.classification_mapping[cardConfig.classification]
-      : 'Unknown classification';
     rightIcons.push(
       <ClassificationIcon
         key={'classification-icon'}
         classification={cardConfig.classification}
-        tooltip={text}
+        tooltip={
+          cardConfig.classification_mapping?.[cardConfig.classification] ??
+          text.auditingOptions.unknownClassification
+        }
       />,
     );
   }
