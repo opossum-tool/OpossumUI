@@ -21,7 +21,6 @@ import { AccordionWithPieChart } from '../AccordionWithPieChart/AccordionWithPie
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { AttributionPropertyCountTable } from '../AttributionPropertyCountTable/AttributionPropertyCountTable';
 import { Checkbox } from '../Checkbox/Checkbox';
-import { CriticalLicensesTable } from '../CriticalLicensesTable/CriticalLicensesTable';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   aggregateAttributionPropertiesFromAttributions,
@@ -116,13 +115,6 @@ export const ProjectStatisticsPopup: React.FC = () => {
                   text.projectStatisticsPopup.charts
                     .attributionPropertyCountTable
                 }
-              />
-              <CriticalLicensesTable
-                totalAttributionsPerLicense={
-                  licenseCounts.totalAttributionsPerLicense
-                }
-                licenseNamesWithCriticality={licenseNamesWithCriticality}
-                title={text.projectStatisticsPopup.charts.criticalLicensesTable}
               />
             </MuiBox>
             <MuiBox style={classes.rightPanel}>

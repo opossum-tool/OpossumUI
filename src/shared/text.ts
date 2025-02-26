@@ -170,12 +170,19 @@ export const text = {
     charts: {
       licenseCountsTable: 'Signals per Sources',
       attributionPropertyCountTable: 'Attributions Overview',
-      criticalLicensesTable: 'Critical Licenses',
       pieChartsSectionHeader: 'Pie Charts',
       mostFrequentLicenseCountPieChart: 'Most Frequent Licenses',
       criticalSignalsCountPieChart: 'Signals by Criticality',
       signalCountByClassificationPieChart: 'Signals by Classification',
       incompleteAttributionsPieChart: 'Incomplete Attributions',
+    },
+  },
+  attributionCountPerSourcePerLicenseTable: {
+    footerTitle: 'Total',
+    columnNames: {
+      licenseName: 'License Name',
+      criticality: 'Criticality',
+      totalSources: 'Total',
     },
   },
   unsavedChangesPopup: {
