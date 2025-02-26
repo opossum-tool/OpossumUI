@@ -6,6 +6,8 @@ import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
 import { text } from '../../../shared/text';
+import { PieChartCriticalityNames } from '../../enums/enums';
+import { OpossumColors } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -69,6 +71,12 @@ export const ProjectStatisticsPopup: React.FC = () => {
     licenseNamesWithCriticality,
   );
 
+  const criticalSignalsCountColors = {
+    [PieChartCriticalityNames.HighCriticality]: OpossumColors.orange,
+    [PieChartCriticalityNames.MediumCriticality]: OpossumColors.mediumOrange,
+    [PieChartCriticalityNames.NoCriticality]: OpossumColors.darkBlue,
+  };
+
   const signalCountByClassification = getSignalCountByClassification(
     licenseCounts,
     licenseNamesWithClassification,
@@ -84,6 +92,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
   const isThereAnyPieChartData =
     mostFrequentLicenseCountData.length > 0 ||
     criticalSignalsCountData.length > 0 ||
+    signalCountByClassification.length > 0 ||
     incompleteAttributionsData.length > 0;
 
   function close(): void {
@@ -136,6 +145,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                   text.projectStatisticsPopup.charts
                     .criticalSignalsCountPieChart
                 }
+                pieChartColorMap={criticalSignalsCountColors}
               />
               <AccordionWithPieChart
                 data={signalCountByClassification}

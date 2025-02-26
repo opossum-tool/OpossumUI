@@ -341,9 +341,7 @@ export function getCriticalSignalsCount(
     },
   ];
 
-  return criticalityData.filter(
-    (criticalityDataWithCount) => criticalityDataWithCount['count'] !== 0,
-  );
+  return criticalityData.filter(({ count }) => count > 0);
 }
 
 export function getSignalCountByClassification(
