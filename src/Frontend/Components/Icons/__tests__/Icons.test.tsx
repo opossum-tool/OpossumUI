@@ -7,6 +7,7 @@ import { render, screen } from '@testing-library/react';
 import { Criticality } from '../../../../shared/shared-types';
 import {
   BreakpointIcon,
+  ClassificationIcon,
   CriticalityIcon,
   DirectoryIcon,
   ExcludeFromNoticeIcon,
@@ -60,6 +61,20 @@ describe('The Icons', () => {
     render(<CriticalityIcon criticality={Criticality.High} />);
 
     expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
+  });
+
+  it('does not render ClassificationIcon for classification 0', () => {
+    render(<ClassificationIcon classification={0} />);
+
+    expect(
+      screen.queryByLabelText('Classification icon'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders ClassificationIcon', () => {
+    render(<ClassificationIcon classification={1} />);
+
+    expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
   });
 
   it('renders BreakpointIcon', () => {

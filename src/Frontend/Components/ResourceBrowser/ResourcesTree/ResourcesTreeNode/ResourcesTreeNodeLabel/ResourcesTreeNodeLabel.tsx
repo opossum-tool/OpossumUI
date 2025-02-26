@@ -6,11 +6,15 @@ import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
-import { Criticality } from '../../../../../../shared/shared-types';
+import {
+  Classifications,
+  Criticality,
+} from '../../../../../../shared/shared-types';
 import { text } from '../../../../../../shared/text';
 import { treeItemClasses } from '../../../../../shared-styles';
 import {
   BreakpointIcon,
+  ClassificationIcon,
   CriticalityIcon,
   DirectoryIcon,
   FileIcon,
@@ -30,6 +34,8 @@ interface Props {
   showFolderIcon: boolean;
   containsResourcesWithOnlyExternalAttribution: boolean;
   criticality?: Criticality;
+  classification?: number;
+  classification_mapping?: Classifications;
 }
 
 export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
@@ -100,6 +106,19 @@ export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
               props.criticality === Criticality.High
                 ? text.resourceBrowser.hasHighlyCriticalSignals
                 : text.resourceBrowser.hasMediumCriticalSignals
+            }
+            tooltipPlacement={'right'}
+          />
+        ) : (
+          <SignalIcon />
+        ))}
+      {props.hasUnresolvedExternalAttribution &&
+        (props.classification && props.classification > 0 ? (
+          <ClassificationIcon
+            classification={props.classification}
+            tooltip={
+              props.classification_mapping?.[props.classification] ??
+              text.resourceBrowser.unknownClassification
             }
             tooltipPlacement={'right'}
           />

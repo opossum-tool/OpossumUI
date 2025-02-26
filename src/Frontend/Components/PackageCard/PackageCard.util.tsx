@@ -5,6 +5,7 @@
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import {
+  ClassificationIcon,
   CriticalityIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
@@ -37,6 +38,18 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
           cardConfig.criticality === Criticality.High
             ? text.auditingOptions.highCriticality
             : text.auditingOptions.mediumCriticality
+        }
+      />,
+    );
+  }
+  if (cardConfig.classification) {
+    rightIcons.push(
+      <ClassificationIcon
+        key={'classification-icon'}
+        classification={cardConfig.classification}
+        tooltip={
+          cardConfig.classification_mapping?.[cardConfig.classification] ??
+          text.auditingOptions.unknownClassification
         }
       />,
     );

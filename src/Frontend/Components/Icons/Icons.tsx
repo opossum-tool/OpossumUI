@@ -17,7 +17,7 @@ import StarIcon from '@mui/icons-material/Star';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import WidgetsIcon from '@mui/icons-material/Widgets';
-import { SxProps } from '@mui/material';
+import { Icon, SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 
 import { Criticality } from '../../../shared/shared-types';
@@ -207,6 +207,45 @@ export function CriticalityIcon({
         }}
         className={className}
       />
+    </MuiTooltip>
+  );
+}
+
+export function ClassificationIcon({
+  className,
+  classification,
+  noTooltip,
+  tooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps & {
+  classification?: number;
+  tooltip?: string;
+}) {
+  if (!classification || classification === 0) {
+    return null;
+  }
+
+  return (
+    <MuiTooltip
+      title={noTooltip ? undefined : tooltip}
+      placement={tooltipPlacement}
+      disableInteractive
+    >
+      <Icon
+        aria-label={'Classification icon'}
+        sx={{
+          ...baseIcon,
+          color: `${OpossumColors.red} !important`,
+          ...sx,
+          fontFamily: 'sans-serif',
+          fontWeight: 'bold',
+          fontSize: 'medium !important',
+        }}
+        className={className}
+      >
+        C
+      </Icon>
     </MuiTooltip>
   );
 }

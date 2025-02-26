@@ -5,6 +5,7 @@
 import { useAppSelector } from '../../../../state/hooks';
 import {
   getAttributionBreakpoints,
+  getClassifications,
   getExternalAttributions,
   getFilesWithChildren,
   getManualAttributions,
@@ -19,6 +20,7 @@ import {
   containsExternalAttribution,
   containsManualAttribution,
   containsResourcesWithOnlyExternalAttribution,
+  getClassification,
   getCriticality,
   getDisplayName,
   hasExternalAttribution,
@@ -50,6 +52,7 @@ export function ResourcesTreeNode({ node, nodeId, nodeName }: TreeNode) {
   const filesWithChildren = useAppSelector(getFilesWithChildren);
 
   const canHaveChildren = node !== 1;
+  const classification_mapping = useAppSelector(getClassifications);
 
   return (
     <ResourcesTreeNodeLabel
@@ -88,6 +91,13 @@ export function ResourcesTreeNode({ node, nodeId, nodeName }: TreeNode) {
         externalAttributions,
         resolvedExternalAttributions,
       )}
+      classification={getClassification(
+        nodeId,
+        resourcesToExternalAttributions,
+        externalAttributions,
+        resolvedExternalAttributions,
+      )}
+      classification_mapping={classification_mapping}
       isAttributionBreakpoint={attributionBreakpoints.has(nodeId)}
       showFolderIcon={canHaveChildren && !filesWithChildren.has(nodeId)}
       containsResourcesWithOnlyExternalAttribution={
