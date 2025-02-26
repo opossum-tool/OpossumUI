@@ -50,8 +50,8 @@ const testResources: Resources = {
 
 const testConfig: ProjectConfig = {
   classifications: {
-    0: 'UNKNOWN',
-    1: 'CRITICAL',
+    0: 'GOOD',
+    1: 'BAD',
   },
 };
 
