@@ -53,5 +53,5 @@ export interface LicenseNamesWithCriticality {
 }
 
 export interface LicenseNamesWithClassification {
-  [licenseName: string]: number;
+  [licenseName: string]: number | undefined;
 }

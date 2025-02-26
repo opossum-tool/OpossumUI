@@ -135,7 +135,7 @@ function getLicenseDataFromVariants(
 ): {
   mostFrequentLicenseName: string;
   licenseCriticality: Criticality | undefined;
-  licenseClassification: number;
+  licenseClassification: number | undefined;
   sourcesCountForLicense: {
     [sourceNameOrTotal: string]: number;
   };
@@ -148,7 +148,7 @@ function getLicenseDataFromVariants(
   } = {};
   const licenseCriticalityCounts = { high: 0, medium: 0, none: 0 };
 
-  let licenseClassification = 0;
+  let licenseClassification: number | undefined = undefined;
 
   for (const attributionId of attributionIds) {
     const licenseName = attributions[attributionId].licenseName;
@@ -158,10 +158,16 @@ function getLicenseDataFromVariants(
 
       const variantCriticality = attributions[attributionId].criticality;
 
-      licenseClassification = Math.max(
-        licenseClassification,
-        attributions[attributionId].classification ?? 0,
-      );
+      const variantClassification = attributions[attributionId].classification;
+
+      if (licenseClassification === undefined) {
+        licenseClassification = variantClassification;
+      } else if (variantClassification !== undefined) {
+        licenseClassification = Math.max(
+          licenseClassification,
+          attributions[attributionId].classification ?? 0,
+        );
+      }
 
       licenseCriticalityCounts[variantCriticality || 'none']++;
 
@@ -360,12 +366,13 @@ export function getSignalCountByClassification(
   for (const [license, attributionCount] of Object.entries(
     licenseCounts.totalAttributionsPerLicense,
   )) {
-    classificationCounts[licenseNamesWithClassification[license]] =
-      (classificationCounts[licenseNamesWithClassification[license]] ?? 0) +
-      attributionCount;
+    // count undefined classification at index -1 in classificationCounts
+    const classification = licenseNamesWithClassification[license] ?? -1;
+    classificationCounts[classification] =
+      (classificationCounts[classification] ?? 0) + attributionCount;
   }
 
-  return Object.keys(classifications).map((classification) => {
+  const pieChartData = Object.keys(classifications).map((classification) => {
     const classificationName = classifications[toNumber(classification)];
     const classificationCount =
       classificationCounts[toNumber(classification)] ?? 0;
@@ -375,6 +382,15 @@ export function getSignalCountByClassification(
       count: classificationCount,
     };
   });
+
+  if (classificationCounts[-1]) {
+    return pieChartData.concat({
+      name: 'No Classification',
+      count: classificationCounts[-1],
+    });
+  }
+
+  return pieChartData;
 }
 
 export function getIncompleteAttributionsCount(
