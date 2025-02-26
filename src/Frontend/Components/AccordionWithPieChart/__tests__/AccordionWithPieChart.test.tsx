@@ -2,10 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  PieChartCriticalityNames,
-  ProjectStatisticsPopupTitle,
-} from '../../../enums/enums';
+import { text } from '../../../../shared/text';
+import { PieChartCriticalityNames } from '../../../enums/enums';
 import { OpossumColors } from '../../../shared-styles';
 import { PieChartData } from '../../../types/types';
 import { getColorsForPieChart } from '../AccordionWithPieChart';
@@ -34,7 +32,7 @@ describe('getColorsForPieChart', () => {
 
     const pieChartColors = getColorsForPieChart(
       criticalSignalsCount,
-      ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
+      text.projectStatisticsPopup.charts.criticalSignalsCountPieChart,
     );
 
     expect(pieChartColors).toEqual(expectedPieChartColors);
@@ -55,7 +53,7 @@ describe('getColorsForPieChart', () => {
 
     const pieChartColors = getColorsForPieChart(
       sortedMostFrequentLicenses,
-      ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
+      text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
     );
 
     expect(pieChartColors).toEqual(expectedPieChartColors);

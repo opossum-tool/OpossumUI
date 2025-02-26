@@ -8,10 +8,8 @@ import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiTypography from '@mui/material/Typography';
 
-import {
-  PieChartCriticalityNames,
-  ProjectStatisticsPopupTitle,
-} from '../../enums/enums';
+import { text } from '../../../shared/text';
+import { PieChartCriticalityNames } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { PieChartData } from '../../types/types';
 import { PieChart } from '../PieChart/PieChart';
@@ -46,7 +44,8 @@ export function getColorsForPieChart(
   const pieChartColors: Array<string> = [];
 
   if (
-    pieChartTitle === ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart
+    pieChartTitle ===
+    text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
   ) {
     for (const pieChartSegment of pieChartData) {
       switch (pieChartSegment.name) {

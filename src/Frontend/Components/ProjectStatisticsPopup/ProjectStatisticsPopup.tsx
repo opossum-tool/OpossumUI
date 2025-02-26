@@ -6,7 +6,6 @@ import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
 import { text } from '../../../shared/text';
-import { ProjectStatisticsPopupTitle } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -105,7 +104,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
                   manualAttributionPropertyCounts,
                 )}
                 title={
-                  ProjectStatisticsPopupTitle.AttributionPropertyCountTable
+                  text.projectStatisticsPopup.charts
+                    .attributionPropertyCountTable
                 }
               />
               <CriticalLicensesTable
@@ -113,42 +113,50 @@ export const ProjectStatisticsPopup: React.FC = () => {
                   licenseCounts.totalAttributionsPerLicense
                 }
                 licenseNamesWithCriticality={licenseNamesWithCriticality}
-                title={ProjectStatisticsPopupTitle.CriticalLicensesTable}
+                title={text.projectStatisticsPopup.charts.criticalLicensesTable}
               />
             </MuiBox>
             <MuiBox style={classes.rightPanel}>
               <MuiTypography variant="subtitle1">
                 {isThereAnyPieChartData
-                  ? ProjectStatisticsPopupTitle.PieChartsSectionHeader
+                  ? text.projectStatisticsPopup.charts.pieChartsSectionHeader
                   : null}
               </MuiTypography>
               <AccordionWithPieChart
                 data={mostFrequentLicenseCountData}
                 title={
-                  ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart
+                  text.projectStatisticsPopup.charts
+                    .mostFrequentLicenseCountPieChart
                 }
                 defaultExpanded={true}
               />
               <AccordionWithPieChart
                 data={criticalSignalsCountData}
-                title={ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart}
+                title={
+                  text.projectStatisticsPopup.charts
+                    .criticalSignalsCountPieChart
+                }
               />
               <AccordionWithPieChart
                 data={signalCountByClassification}
                 title={
-                  ProjectStatisticsPopupTitle.SignalCountByClassificationPieChart
+                  text.projectStatisticsPopup.charts
+                    .signalCountByClassificationPieChart
                 }
               />
               <AccordionWithPieChart
                 data={incompleteAttributionsData}
-                title={ProjectStatisticsPopupTitle.IncompleteLicensesPieChart}
+                title={
+                  text.projectStatisticsPopup.charts
+                    .incompleteAttributionsPieChart
+                }
               />
             </MuiBox>
           </MuiBox>
           <AttributionCountPerSourcePerLicenseTable
             licenseCounts={licenseCounts}
             licenseNamesWithCriticality={licenseNamesWithCriticality}
-            title={ProjectStatisticsPopupTitle.LicenseCountsTable}
+            title={text.projectStatisticsPopup.charts.licenseCountsTable}
           />
         </>
       }
