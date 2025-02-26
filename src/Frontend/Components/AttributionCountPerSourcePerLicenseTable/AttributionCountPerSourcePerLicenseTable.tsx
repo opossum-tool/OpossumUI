@@ -15,7 +15,13 @@ import MuiTypography from '@mui/material/Typography';
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors, tableClasses } from '../../shared-styles';
-import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
+import { useAppSelector } from '../../state/hooks';
+import { getClassifications } from '../../state/selectors/resource-selectors';
+import {
+  LicenseCounts,
+  LicenseNamesWithClassification,
+  LicenseNamesWithCriticality,
+} from '../../types/types';
 
 const classes = {
   container: {
@@ -29,12 +35,15 @@ const TOTAL_SOURCE_NAME = 'Total';
 interface AttributionCountPerSourcePerLicenseTableProps {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
+  licenseNamesWithClassification: LicenseNamesWithClassification;
   title: string;
 }
 
 export const AttributionCountPerSourcePerLicenseTable: React.FC<
   AttributionCountPerSourcePerLicenseTableProps
 > = (props) => {
+  const classifications = useAppSelector(getClassifications);
+
   const sourceNames = Object.keys(
     props.licenseCounts.totalAttributionsPerSource,
   );
@@ -51,6 +60,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
   const footerRow = [
     text.attributionCountPerSourcePerLicenseTable.footerTitle,
     '',
+    '',
     ...totalNumberOfAttributionsPerSource,
     totalNumberOfAttributions,
   ];
@@ -58,6 +68,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
   const headerRow = [
     text.attributionCountPerSourcePerLicenseTable.columnNames.licenseName,
     text.attributionCountPerSourcePerLicenseTable.columnNames.criticality,
+    text.attributionCountPerSourcePerLicenseTable.columnNames.classification,
     ...sourceNames,
     text.attributionCountPerSourcePerLicenseTable.columnNames.totalSources,
   ].map(
@@ -122,6 +133,25 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
       </MuiTableCell>
     );
 
+    const licenseClassification =
+      props.licenseNamesWithClassification[licenseName];
+
+    const classificationCell = (
+      <MuiTableCell
+        sx={{
+          ...tableClasses.body,
+        }}
+        key={1}
+        align={'center'}
+      >
+        <span>
+          {licenseClassification
+            ? (classifications[licenseClassification] ?? '-')
+            : '-'}
+        </span>
+      </MuiTableCell>
+    );
+
     const buildCountBySourceCell =
       (columnOffset: number) => (sourceName: string, sourceIdx: number) => {
         const columnIndex = columnOffset + sourceIdx;
@@ -141,7 +171,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
         );
       };
 
-    const singleCells = [licenseNameCell, criticalityCell];
+    const singleCells = [licenseNameCell, criticalityCell, classificationCell];
 
     return (
       <MuiTableRow key={rowIndex}>
