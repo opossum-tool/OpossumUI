@@ -166,6 +166,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
           <AttributionCountPerSourcePerLicenseTable
             licenseCounts={licenseCounts}
             licenseNamesWithCriticality={licenseNamesWithCriticality}
+            licenseNamesWithClassification={licenseNamesWithClassification}
             title={text.projectStatisticsPopup.charts.licenseCountsTable}
           />
         </>
