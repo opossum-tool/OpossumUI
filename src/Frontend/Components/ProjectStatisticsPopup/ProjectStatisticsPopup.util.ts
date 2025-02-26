@@ -372,16 +372,18 @@ export function getSignalCountByClassification(
       (classificationCounts[classification] ?? 0) + attributionCount;
   }
 
-  const pieChartData = Object.keys(classifications).map((classification) => {
-    const classificationName = classifications[toNumber(classification)];
-    const classificationCount =
-      classificationCounts[toNumber(classification)] ?? 0;
+  const pieChartData = Object.keys(classifications)
+    .map((classification) => {
+      const classificationName = classifications[toNumber(classification)];
+      const classificationCount =
+        classificationCounts[toNumber(classification)] ?? 0;
 
-    return {
-      name: classificationName,
-      count: classificationCount,
-    };
-  });
+      return {
+        name: classificationName,
+        count: classificationCount,
+      };
+    })
+    .filter(({ count }) => count > 0);
 
   if (classificationCounts[-1]) {
     return pieChartData.concat({
