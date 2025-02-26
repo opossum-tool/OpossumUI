@@ -158,7 +158,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
               <AccordionWithPieChart
                 data={signalCountByClassification}
                 title={
-                  ProjectStatisticsPopupTitle.SignalCountByClassificationPieChart
+                  text.projectStatisticsPopup.charts
+                    .signalCountByClassificationPieChart
                 }
               />
               <AccordionWithPieChart
