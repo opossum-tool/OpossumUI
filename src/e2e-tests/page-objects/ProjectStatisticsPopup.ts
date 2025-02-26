@@ -4,24 +4,19 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
-import { text } from '../../shared/text';
-
 export class ProjectStatisticsPopup {
   private readonly node: Locator;
   readonly title: Locator;
   readonly closeButton: Locator;
-  readonly totalCriticalLicensesCount: Locator;
+  readonly totalSignalCount: Locator;
 
   constructor(window: Page) {
     this.node = window.getByLabel('project statistics');
     this.title = this.node.getByRole('heading').getByText('Project Statistics');
     this.closeButton = this.node.getByRole('button', { name: 'Close' });
-    const signalsCount = window.getByText(
-      text.projectStatisticsPopup.criticalLicensesSignalCountColumnName,
-    );
-    this.totalCriticalLicensesCount = this.node
+    this.totalSignalCount = this.node
       .getByRole('table')
-      .filter({ has: signalsCount })
+      .filter({ hasText: 'License name' })
       .getByRole('row')
       .last()
       .getByRole('cell')
@@ -35,10 +30,8 @@ export class ProjectStatisticsPopup {
     titleIsHidden: async (): Promise<void> => {
       await expect(this.title).toBeHidden();
     },
-    criticalLicenseCount: async (count: number): Promise<void> => {
-      await expect(this.totalCriticalLicensesCount).toContainText(
-        count.toString(),
-      );
+    totalSignalCount: async (count: number): Promise<void> => {
+      await expect(this.totalSignalCount).toContainText(count.toString());
     },
   };
 }
