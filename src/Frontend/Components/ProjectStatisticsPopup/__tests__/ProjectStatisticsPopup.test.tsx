@@ -91,6 +91,7 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
+            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
             manualAttributions: testManualAttributions,
             externalAttributions: testExternalAttributions,
           }),
@@ -109,6 +110,11 @@ describe('The ProjectStatisticsPopup', () => {
       ),
     ).toBeInTheDocument();
     expect(
+      screen.getByText(
+        ProjectStatisticsPopupTitle.SignalCountByClassificationPieChart,
+      ),
+    ).toBeInTheDocument();
+    expect(
       screen.getAllByText(
         ProjectStatisticsPopupTitle.IncompleteLicensesPieChart,
       ),
@@ -121,6 +127,7 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
+            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
             externalAttributions: testExternalAttributions,
           }),
         ),
@@ -137,6 +144,11 @@ describe('The ProjectStatisticsPopup', () => {
       ),
     ).not.toBeInTheDocument();
     expect(
+      screen.queryByText(
+        ProjectStatisticsPopupTitle.SignalCountByClassificationPieChart,
+      ),
+    ).not.toBeInTheDocument();
+    expect(
       screen.getByText(ProjectStatisticsPopupTitle.IncompleteLicensesPieChart),
     ).toBeInTheDocument();
     expect(
@@ -146,7 +158,7 @@ describe('The ProjectStatisticsPopup', () => {
     ).not.toHaveLength(2);
   });
 
-  it('renders pie charts pie charts related to signals even if there are no attributions', () => {
+  it('renders pie charts related to signals even if there are no attributions', () => {
     const testManualAttributions: Attributions = {};
     const testExternalAttributions: Attributions = {
       uuid_1: {
@@ -170,6 +182,7 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
+            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
             manualAttributions: testManualAttributions,
             externalAttributions: testExternalAttributions,
           }),
@@ -184,6 +197,11 @@ describe('The ProjectStatisticsPopup', () => {
     expect(
       screen.getByText(
         ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        ProjectStatisticsPopupTitle.SignalCountByClassificationPieChart,
       ),
     ).toBeInTheDocument();
     expect(

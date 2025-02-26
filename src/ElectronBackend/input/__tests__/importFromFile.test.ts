@@ -68,8 +68,8 @@ const inputFileContent: ParsedOpossumInputFile = {
   },
   config: {
     classifications: {
-      0: 'UNKNOWN',
-      1: 'CRITICAL',
+      0: 'GOOD',
+      1: 'BAD',
     },
   },
   externalAttributions: {
@@ -115,8 +115,8 @@ const expectedFileContent: ParsedFileContent = {
   resources: { a: 1, folder: {} },
   config: {
     classifications: {
-      0: 'UNKNOWN',
-      1: 'CRITICAL',
+      0: 'GOOD',
+      1: 'BAD',
     },
   },
   manualAttributions: {
@@ -376,8 +376,8 @@ describe('Test of loading function', () => {
           },
           config: {
             classifications: {
-              0: 'UNKNOWN',
-              1: 'CRITICAL',
+              0: 'GOOD',
+              1: 'BAD',
             },
           },
           externalAttributions: {
@@ -438,8 +438,8 @@ describe('Test of loading function', () => {
         resources: { a: 1 },
         config: {
           classifications: {
-            0: 'UNKNOWN',
-            1: 'CRITICAL',
+            0: 'GOOD',
+            1: 'BAD',
           },
         },
         manualAttributions: {
