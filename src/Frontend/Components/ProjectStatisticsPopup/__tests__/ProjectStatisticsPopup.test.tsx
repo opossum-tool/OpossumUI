@@ -7,7 +7,6 @@ import userEvent from '@testing-library/user-event';
 
 import { Attributions } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { ProjectStatisticsPopupTitle } from '../../../enums/enums';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -49,7 +48,7 @@ describe('The ProjectStatisticsPopup', () => {
     expect(screen.getByText('Reuser')).toBeInTheDocument();
   });
 
-  it('renders pie charts when there are attributions', () => {
+  it('renders pie charts when there are signals', () => {
     const testManualAttributions: Attributions = {
       uuid_1: {
         source: {
@@ -91,6 +90,7 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
+            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
             manualAttributions: testManualAttributions,
             externalAttributions: testExternalAttributions,
           }),
@@ -100,27 +100,33 @@ describe('The ProjectStatisticsPopup', () => {
 
     expect(
       screen.getByText(
-        ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
+        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
       ),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
+        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart,
       ),
     ).toBeInTheDocument();
     expect(
       screen.getAllByText(
-        ProjectStatisticsPopupTitle.IncompleteLicensesPieChart,
+        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart,
       ),
     ).toHaveLength(2);
   });
 
-  it('does not render pie charts when there are no attributions', () => {
+  it('does not render pie charts when there are no signals', () => {
     const testExternalAttributions: Attributions = {};
     renderComponent(<ProjectStatisticsPopup />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
+            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
             externalAttributions: testExternalAttributions,
           }),
         ),
@@ -128,25 +134,27 @@ describe('The ProjectStatisticsPopup', () => {
     });
     expect(
       screen.queryByText(
-        ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
+        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
       ),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText(
-        ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
+        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart,
       ),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByText(ProjectStatisticsPopupTitle.IncompleteLicensesPieChart),
-    ).toBeInTheDocument();
-    expect(
-      screen.getAllByText(
-        ProjectStatisticsPopupTitle.IncompleteLicensesPieChart,
+      screen.queryByText(
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart,
       ),
-    ).not.toHaveLength(2);
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart,
+      ),
+    ).toBeInTheDocument();
   });
 
-  it('renders pie charts pie charts related to signals even if there are no attributions', () => {
+  it('renders pie charts related to signals even if there are no attributions', () => {
     const testManualAttributions: Attributions = {};
     const testExternalAttributions: Attributions = {
       uuid_1: {
@@ -170,6 +178,7 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
+            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
             manualAttributions: testManualAttributions,
             externalAttributions: testExternalAttributions,
           }),
@@ -178,25 +187,27 @@ describe('The ProjectStatisticsPopup', () => {
     });
     expect(
       screen.getByText(
-        ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
+        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
       ),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
+        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart,
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(ProjectStatisticsPopupTitle.IncompleteLicensesPieChart),
+      screen.getByText(
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart,
+      ),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByText(
-        ProjectStatisticsPopupTitle.IncompleteLicensesPieChart,
+      screen.getByText(
+        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart,
       ),
-    ).not.toHaveLength(2);
+    ).toBeInTheDocument();
   });
 
-  it('renders tables when there are no attributions', () => {
+  it('renders tables when there are no attributions and no signals', () => {
     const testExternalAttributions: Attributions = {};
     renderComponent(<ProjectStatisticsPopup />, {
       actions: [

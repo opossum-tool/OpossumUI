@@ -10,6 +10,7 @@ import {
   AttributionsToResources,
   ExternalAttributionSources,
   ParsedFileContent,
+  ProjectConfig,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -44,6 +45,7 @@ const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
 
 export function getParsedInputFileEnrichedWithTestData(testData: {
   resources?: Resources;
+  config?: ProjectConfig;
   manualAttributions?: Attributions;
   resourcesToManualAttributions?: ResourcesToAttributions;
   externalAttributions?: Attributions;
@@ -76,6 +78,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
   return {
     ...EMPTY_PARSED_FILE_CONTENT,
     resources,
+    ...(testData.config ? { config: testData.config } : {}),
     manualAttributions: {
       attributions: testData.manualAttributions || {},
       resourcesToAttributions: testResourcesToManualAttributions,
