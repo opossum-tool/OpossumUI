@@ -12,12 +12,9 @@ import MuiTableHead from '@mui/material/TableHead';
 import MuiTableRow from '@mui/material/TableRow';
 import MuiTypography from '@mui/material/Typography';
 
-import { tableClasses } from '../../shared-styles';
-import {
-  LicenseCounts,
-  LicenseNamesWithClassification,
-  LicenseNamesWithCriticality,
-} from '../../types/types';
+import { Criticality } from '../../../shared/shared-types';
+import { OpossumColors, tableClasses } from '../../shared-styles';
+import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
 
 const classes = {
   container: {
@@ -27,13 +24,13 @@ const classes = {
 };
 
 const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
+const CRITICALITY_COLUMN_NAME_IN_TABLE = 'Criticality';
 const FOOTER_TITLE = 'Total';
 const TOTAL_SOURCES_TITLE = 'Total';
 
 interface AttributionCountPerSourcePerLicenseTableProps {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
-  licenseNamesWithClassification: LicenseNamesWithClassification;
   title: string;
 }
 
@@ -54,9 +51,11 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     .toString();
 
   const footerRow = [FOOTER_TITLE]
+    .concat('')
     .concat(totalNumberOfAttributionsPerSource)
     .concat(totalNumberOfAttributions);
   const headerRow = [LICENSE_COLUMN_NAME_IN_TABLE]
+    .concat(CRITICALITY_COLUMN_NAME_IN_TABLE)
     .concat(sourceNames)
     .concat(TOTAL_SOURCES_TITLE)
     .map(
@@ -100,10 +99,30 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
       </MuiTableCell>
     );
 
-    const countBySourceCells = sourceNames
-      .concat(TOTAL_SOURCES_TITLE)
-      .map((sourceName, sourceIdx) => {
-        const columnIndex = 1 + sourceIdx;
+    const licenseCriticality = props.licenseNamesWithCriticality[licenseName];
+    const criticalityColor =
+      licenseCriticality === Criticality.High
+        ? OpossumColors.orange
+        : licenseCriticality === Criticality.Medium
+          ? OpossumColors.mediumOrange
+          : undefined;
+
+    const criticalityCell = (
+      <MuiTableCell
+        sx={{
+          ...tableClasses.body,
+          color: criticalityColor,
+        }}
+        key={1}
+        align={'center'}
+      >
+        <span>{licenseCriticality ?? '-'}</span>
+      </MuiTableCell>
+    );
+
+    const buildCountBySourceCell =
+      (columnOffset: number) => (sourceName: string, sourceIdx: number) => {
+        const columnIndex = columnOffset + sourceIdx;
 
         return (
           <MuiTableCell
@@ -118,11 +137,17 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
             ][sourceName] || '-'}
           </MuiTableCell>
         );
-      });
+      };
+
+    const singleCells = [licenseNameCell, criticalityCell];
 
     return (
       <MuiTableRow key={rowIndex}>
-        {[licenseNameCell, ...countBySourceCells]}
+        {singleCells.concat(
+          sourceNames
+            .concat(TOTAL_SOURCES_TITLE)
+            .map(buildCountBySourceCell(singleCells.length)),
+        )}
       </MuiTableRow>
     );
   };
