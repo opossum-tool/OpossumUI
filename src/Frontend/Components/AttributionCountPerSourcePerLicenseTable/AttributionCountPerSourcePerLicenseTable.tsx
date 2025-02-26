@@ -13,6 +13,7 @@ import MuiTableRow from '@mui/material/TableRow';
 import MuiTypography from '@mui/material/Typography';
 
 import { Criticality } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { OpossumColors, tableClasses } from '../../shared-styles';
 import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
 
@@ -23,10 +24,7 @@ const classes = {
   },
 };
 
-const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
-const CRITICALITY_COLUMN_NAME_IN_TABLE = 'Criticality';
-const FOOTER_TITLE = 'Total';
-const TOTAL_SOURCES_TITLE = 'Total';
+const TOTAL_SOURCE_NAME = 'Total';
 
 interface AttributionCountPerSourcePerLicenseTableProps {
   licenseCounts: LicenseCounts;
@@ -50,23 +48,27 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     .reduce((partialSum, num) => partialSum + num, 0)
     .toString();
 
-  const footerRow = [FOOTER_TITLE]
-    .concat('')
-    .concat(totalNumberOfAttributionsPerSource)
-    .concat(totalNumberOfAttributions);
-  const headerRow = [LICENSE_COLUMN_NAME_IN_TABLE]
-    .concat(CRITICALITY_COLUMN_NAME_IN_TABLE)
-    .concat(sourceNames)
-    .concat(TOTAL_SOURCES_TITLE)
-    .map(
-      (sourceName) => sourceName.charAt(0).toUpperCase() + sourceName.slice(1),
-    );
+  const footerRow = [
+    text.attributionCountPerSourcePerLicenseTable.footerTitle,
+    '',
+    ...totalNumberOfAttributionsPerSource,
+    totalNumberOfAttributions,
+  ];
+
+  const headerRow = [
+    text.attributionCountPerSourcePerLicenseTable.columnNames.licenseName,
+    text.attributionCountPerSourcePerLicenseTable.columnNames.criticality,
+    ...sourceNames,
+    text.attributionCountPerSourcePerLicenseTable.columnNames.totalSources,
+  ].map(
+    (sourceName) => sourceName.charAt(0).toUpperCase() + sourceName.slice(1),
+  );
 
   Object.entries(
     props.licenseCounts.attributionCountPerSourcePerLicense,
   ).forEach(
     ([licenseName, value]) =>
-      (value[TOTAL_SOURCES_TITLE] =
+      (value[TOTAL_SOURCE_NAME] =
         props.licenseCounts.totalAttributionsPerLicense[licenseName]),
   );
 
@@ -145,7 +147,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
       <MuiTableRow key={rowIndex}>
         {singleCells.concat(
           sourceNames
-            .concat(TOTAL_SOURCES_TITLE)
+            .concat(TOTAL_SOURCE_NAME)
             .map(buildCountBySourceCell(singleCells.length)),
         )}
       </MuiTableRow>
