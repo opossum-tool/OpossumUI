@@ -170,7 +170,6 @@ export const text = {
     charts: {
       licenseCountsTable: 'Signals per Sources',
       attributionPropertyCountTable: 'Attributions Overview',
-      criticalLicensesTable: 'Critical Licenses',
       pieChartsSectionHeader: 'Pie Charts',
       mostFrequentLicenseCountPieChart: 'Most Frequent Licenses',
       criticalSignalsCountPieChart: 'Signals by Criticality',
