@@ -185,6 +185,14 @@ export const text = {
       incompleteAttributionsPieChart: 'Incomplete Attributions',
     },
   },
+  attributionCountPerSourcePerLicenseTable: {
+    footerTitle: 'Total',
+    columnNames: {
+      licenseName: 'License Name',
+      criticality: 'Criticality',
+      totalSources: 'Total',
+    },
+  },
   unsavedChangesPopup: {
     title: 'Unsaved Changes',
     message: 'You have unsaved changes. What would you like to do?',
