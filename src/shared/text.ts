@@ -182,6 +182,7 @@ export const text = {
     columnNames: {
       licenseName: 'License Name',
       criticality: 'Criticality',
+      classification: 'Classification',
       totalSources: 'Total',
     },
   },
