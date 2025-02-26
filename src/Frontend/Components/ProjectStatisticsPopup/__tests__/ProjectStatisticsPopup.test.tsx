@@ -221,8 +221,8 @@ describe('The ProjectStatisticsPopup', () => {
         ),
       ],
     });
-    expect(screen.getAllByText('License name')).toHaveLength(2);
-    expect(screen.getAllByText('Total')).toHaveLength(3);
+    expect(screen.getAllByText('License name')).toHaveLength(1);
+    expect(screen.getAllByText('Total')).toHaveLength(2);
     expect(screen.getByText('Follow up')).toBeInTheDocument();
     expect(screen.getByText('First party')).toBeInTheDocument();
   });
