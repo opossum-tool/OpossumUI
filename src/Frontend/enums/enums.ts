@@ -24,17 +24,6 @@ export enum ButtonText {
   Delete = 'Delete',
 }
 
-export enum ProjectStatisticsPopupTitle {
-  LicenseCountsTable = 'Signals per Sources',
-  AttributionPropertyCountTable = 'Attributions Overview',
-  CriticalLicensesTable = 'Critical Licenses',
-  PieChartsSectionHeader = 'Pie Charts',
-  MostFrequentLicenseCountPieChart = 'Most Frequent Licenses',
-  CriticalSignalsCountPieChart = 'Signals by Criticality',
-  SignalCountByClassificationPieChart = 'Signals by Classification',
-  IncompleteLicensesPieChart = 'Incomplete Attributions',
-}
-
 export enum PieChartCriticalityNames {
   HighCriticality = 'Highly critical signals',
   MediumCriticality = 'Medium critical signals',
