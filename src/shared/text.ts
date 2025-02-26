@@ -194,6 +194,7 @@ export const text = {
         medium: 'Medium Criticality',
         high: 'High Criticality',
       },
+      classification: 'Classification',
       totalSources: 'Total',
     },
   },
