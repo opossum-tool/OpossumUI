@@ -8,8 +8,6 @@ import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiTypography from '@mui/material/Typography';
 
-import { text } from '../../../shared/text';
-import { PieChartCriticalityNames } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { PieChartData } from '../../types/types';
 import { PieChart } from '../PieChart/PieChart';
@@ -35,35 +33,18 @@ interface AccordionProps {
   data: Array<PieChartData>;
   title: string;
   defaultExpanded?: boolean;
+  pieChartColorMap?: { [segmentName: string]: string };
 }
 
 export function getColorsForPieChart(
   pieChartData: Array<PieChartData>,
-  pieChartTitle: string,
+  pieChartColorMap?: { [segmentName: string]: string },
 ): Array<string> | undefined {
-  const pieChartColors: Array<string> = [];
-
-  if (
-    pieChartTitle ===
-    text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
-  ) {
-    for (const pieChartSegment of pieChartData) {
-      switch (pieChartSegment.name) {
-        case PieChartCriticalityNames.HighCriticality:
-          pieChartColors.push(OpossumColors.orange);
-          break;
-        case PieChartCriticalityNames.MediumCriticality:
-          pieChartColors.push(OpossumColors.mediumOrange);
-          break;
-        default:
-          pieChartColors.push(OpossumColors.darkBlue);
-          break;
-      }
-    }
-  } else {
+  if (pieChartColorMap === undefined) {
     return;
   }
-  return pieChartColors;
+
+  return pieChartData.map(({ name }) => pieChartColorMap[name]);
 }
 
 export const AccordionWithPieChart: React.FC<AccordionProps> = (props) => {
@@ -86,7 +67,7 @@ export const AccordionWithPieChart: React.FC<AccordionProps> = (props) => {
       <MuiAccordionDetails sx={classes.accordionDetails}>
         <PieChart
           segments={props.data}
-          colors={getColorsForPieChart(props.data, props.title)}
+          colors={getColorsForPieChart(props.data, props.pieChartColorMap)}
         />
       </MuiAccordionDetails>
     </MuiAccordion>
