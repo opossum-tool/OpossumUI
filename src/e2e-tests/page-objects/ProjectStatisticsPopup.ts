@@ -4,6 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
+import { text } from '../../shared/text';
+
 export class ProjectStatisticsPopup {
   private readonly node: Locator;
   readonly title: Locator;
@@ -16,7 +18,10 @@ export class ProjectStatisticsPopup {
     this.closeButton = this.node.getByRole('button', { name: 'Close' });
     this.totalSignalCount = this.node
       .getByRole('table')
-      .filter({ hasText: 'License name' })
+      .filter({
+        hasText:
+          text.attributionCountPerSourcePerLicenseTable.columnNames.licenseName,
+      })
       .getByRole('row')
       .last()
       .getByRole('cell')
