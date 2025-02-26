@@ -122,6 +122,11 @@ describe('The ProjectStatisticsPopup', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
+        ProjectStatisticsPopupTitle.SignalCountByClassificationPieChart,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
         text.projectStatisticsPopup.charts.incompleteAttributionsPieChart,
       ),
     ).toBeInTheDocument();
@@ -147,6 +152,11 @@ describe('The ProjectStatisticsPopup', () => {
     expect(
       screen.queryByText(
         text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
+      ),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        ProjectStatisticsPopupTitle.SignalCountByClassificationPieChart,
       ),
     ).not.toBeInTheDocument();
     expect(
@@ -203,6 +213,11 @@ describe('The ProjectStatisticsPopup', () => {
     expect(
       screen.getByText(
         text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        ProjectStatisticsPopupTitle.SignalCountByClassificationPieChart,
       ),
     ).toBeInTheDocument();
     expect(
