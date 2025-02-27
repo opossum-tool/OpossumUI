@@ -5,9 +5,9 @@
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
+import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { PieChartCriticalityNames } from '../../enums/enums';
-import { OpossumColors } from '../../shared-styles';
+import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -66,15 +66,30 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   const mostFrequentLicenseCountData = getMostFrequentLicenses(licenseCounts);
 
-  const criticalSignalsCountData = getCriticalSignalsCount(
+  const criticalSignalsCount = getCriticalSignalsCount(
     licenseCounts,
     licenseNamesWithCriticality,
   );
 
+  const criticalSignalsCountPieChartData = criticalSignalsCount.map(
+    ({ criticality, count }) => ({
+      name: text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.segmentLabel(
+        criticality,
+      ),
+      count,
+    }),
+  );
+
   const criticalSignalsCountColors = {
-    [PieChartCriticalityNames.HighCriticality]: OpossumColors.orange,
-    [PieChartCriticalityNames.MediumCriticality]: OpossumColors.mediumOrange,
-    [PieChartCriticalityNames.NoCriticality]: OpossumColors.darkBlue,
+    [text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.segmentLabel(
+      Criticality.High,
+    )]: criticalityColor.high,
+    [text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.segmentLabel(
+      Criticality.Medium,
+    )]: criticalityColor.medium,
+    [text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.segmentLabel(
+      undefined,
+    )]: OpossumColors.darkBlue,
   };
 
   const signalCountByClassification = getSignalCountByClassification(
@@ -91,7 +106,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   const isThereAnyPieChartData =
     mostFrequentLicenseCountData.length > 0 ||
-    criticalSignalsCountData.length > 0 ||
+    criticalSignalsCount.length > 0 ||
     signalCountByClassification.length > 0 ||
     incompleteAttributionsData.length > 0;
 
@@ -140,10 +155,10 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 defaultExpanded={true}
               />
               <AccordionWithPieChart
-                data={criticalSignalsCountData}
+                data={criticalSignalsCountPieChartData}
                 title={
                   text.projectStatisticsPopup.charts
-                    .criticalSignalsCountPieChart
+                    .criticalSignalsCountPieChart.title
                 }
                 pieChartColorMap={criticalSignalsCountColors}
               />

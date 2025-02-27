@@ -173,7 +173,19 @@ export const text = {
       criticalLicensesTable: 'Critical Licenses',
       pieChartsSectionHeader: 'Pie Charts',
       mostFrequentLicenseCountPieChart: 'Most Frequent Licenses',
-      criticalSignalsCountPieChart: 'Signals by Criticality',
+      criticalSignalsCountPieChart: {
+        title: 'Signals by Criticality',
+        segmentLabel: (criticality: Criticality | undefined) => {
+          switch (criticality) {
+            case Criticality.High:
+              return 'Highly Critical Signals';
+            case Criticality.Medium:
+              return 'Medium Critical Signals';
+            case undefined:
+              return 'Non-Critical Signals';
+          }
+        },
+      },
       signalCountByClassificationPieChart: 'Signals by Classification',
       incompleteAttributionsPieChart: 'Incomplete Attributions',
     },
