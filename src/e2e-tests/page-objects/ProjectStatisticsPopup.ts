@@ -20,7 +20,7 @@ export class ProjectStatisticsPopup {
       .getByRole('table')
       .filter({
         hasText:
-          text.attributionCountPerSourcePerLicenseTable.columnNames.licenseName,
+          text.attributionCountPerSourcePerLicenseTable.columns.licenseName,
       })
       .getByRole('row')
       .last()
