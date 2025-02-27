@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { app, BrowserWindow } from 'electron';
+import os from 'os';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
@@ -278,7 +279,7 @@ export function getFileMenu(mainWindow: BrowserWindow) {
       getProjectMetadata(webContents),
       getProjectStatistics(webContents),
       getSetBaseUrl(mainWindow),
-      getQuit(),
+      ...(os.platform() === 'darwin' ? [] : [getQuit()]),
     ],
   };
 }
