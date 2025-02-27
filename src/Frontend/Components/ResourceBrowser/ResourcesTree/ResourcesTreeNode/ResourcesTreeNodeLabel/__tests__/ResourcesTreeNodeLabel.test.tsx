@@ -120,6 +120,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
         classification={1}
+        classification_mapping={{ 1: 'Test' }}
       />,
     );
 

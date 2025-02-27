@@ -72,7 +72,12 @@ describe('The Icons', () => {
   });
 
   it('renders ClassificationIcon', () => {
-    render(<ClassificationIcon classification={1} />);
+    render(
+      <ClassificationIcon
+        classification={1}
+        classification_mapping={{ 1: 'Test' }}
+      />,
+    );
 
     expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
   });

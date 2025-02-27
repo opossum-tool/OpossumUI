@@ -112,19 +112,13 @@ export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
         ) : (
           <SignalIcon />
         ))}
-      {props.hasUnresolvedExternalAttribution &&
-        (props.classification && props.classification > 0 ? (
-          <ClassificationIcon
-            classification={props.classification}
-            tooltip={
-              props.classification_mapping?.[props.classification] ??
-              text.resourceBrowser.unknownClassification
-            }
-            tooltipPlacement={'right'}
-          />
-        ) : (
-          <SignalIcon />
-        ))}
+      {props.hasUnresolvedExternalAttribution && (
+        <ClassificationIcon
+          classification={props.classification}
+          classification_mapping={props.classification_mapping}
+          tooltipPlacement={'right'}
+        />
+      )}
     </MuiBox>
   );
 };
