@@ -22,7 +22,6 @@ import {
   getLicenseNameVariants,
   getMostFrequentLicenses,
   getStrippedLicenseName,
-  getUniqueLicenseNameToAttribution,
 } from '../ProjectStatisticsPopup.util';
 
 const testAttributions_1: Attributions = {
@@ -161,12 +160,9 @@ describe('aggregateLicensesAndSourcesFromAttributions', () => {
       'The MIT License (MIT)': Criticality.None,
     };
 
-    const strippedLicenseNameToAttribution =
-      getUniqueLicenseNameToAttribution(testAttributions_1);
     const { licenseCounts, licenseNamesWithCriticality } =
       aggregateLicensesAndSourcesFromAttributions(
         testAttributions_1,
-        strippedLicenseNameToAttribution,
         attributionSources,
       );
 
