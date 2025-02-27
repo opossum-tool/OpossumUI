@@ -48,13 +48,14 @@ export const CRITICALITY_LABEL: Record<Criticality, string> = {
 
 export function aggregateLicensesAndSourcesFromAttributions(
   attributions: Attributions,
-  strippedLicenseNameToAttribution: UniqueLicenseNameToAttributions,
   attributionSources: ExternalAttributionSources,
 ): {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
   licenseNamesWithClassification: LicenseNamesWithClassification;
 } {
+  const strippedLicenseNameToAttribution =
+    getUniqueLicenseNameToAttribution(attributions);
   const {
     attributionCountPerSourcePerLicense,
     totalAttributionsPerLicense,
