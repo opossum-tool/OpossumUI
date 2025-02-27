@@ -11,7 +11,6 @@ import {
   ExternalAttributionSources,
   PackageInfo,
 } from '../../../shared/shared-types';
-import { PieChartCriticalityNames } from '../../enums/enums';
 import {
   AttributionCountPerSourcePerLicense,
   LicenseCounts,
@@ -326,7 +325,7 @@ export function getMostFrequentLicenses(
 export function getCriticalSignalsCount(
   licenseCounts: LicenseCounts,
   licenseNamesWithCriticality: LicenseNamesWithCriticality,
-): Array<PieChartData> {
+): Array<{ criticality: Criticality | undefined; count: number }> {
   const licenseCriticalityCounts = { high: 0, medium: 0, none: 0 };
 
   for (const license of Object.keys(
@@ -338,15 +337,15 @@ export function getCriticalSignalsCount(
 
   const criticalityData = [
     {
-      name: PieChartCriticalityNames.HighCriticality,
+      criticality: Criticality.High,
       count: licenseCriticalityCounts['high'],
     },
     {
-      name: PieChartCriticalityNames.MediumCriticality,
+      criticality: Criticality.Medium,
       count: licenseCriticalityCounts['medium'],
     },
     {
-      name: PieChartCriticalityNames.NoCriticality,
+      criticality: undefined,
       count: licenseCriticalityCounts['none'],
     },
   ];

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FileFormatInfo } from './shared-types';
+import { Criticality, FileFormatInfo } from './shared-types';
 
 function menuLabelForFileFormat(fileFormat: FileFormatInfo): string {
   return `${fileFormat.name} File (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})...`;
@@ -173,7 +173,19 @@ export const text = {
       criticalLicensesTable: 'Critical Licenses',
       pieChartsSectionHeader: 'Pie Charts',
       mostFrequentLicenseCountPieChart: 'Most Frequent Licenses',
-      criticalSignalsCountPieChart: 'Signals by Criticality',
+      criticalSignalsCountPieChart: {
+        title: 'Signals by Criticality',
+        segmentLabel: (criticality: Criticality | undefined) => {
+          switch (criticality) {
+            case Criticality.High:
+              return 'Highly Critical Signals';
+            case Criticality.Medium:
+              return 'Medium Critical Signals';
+            case undefined:
+              return 'Non-Critical Signals';
+          }
+        },
+      },
       signalCountByClassificationPieChart: 'Signals by Classification',
       incompleteAttributionsPieChart: 'Incomplete Attributions',
     },
