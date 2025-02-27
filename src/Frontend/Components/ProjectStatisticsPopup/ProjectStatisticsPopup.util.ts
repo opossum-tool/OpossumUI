@@ -36,13 +36,14 @@ export const ATTRIBUTION_TOTAL = 'Total Attributions';
 
 export function aggregateLicensesAndSourcesFromAttributions(
   attributions: Attributions,
-  strippedLicenseNameToAttribution: UniqueLicenseNameToAttributions,
   attributionSources: ExternalAttributionSources,
 ): {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
   licenseNamesWithClassification: LicenseNamesWithClassification;
 } {
+  const strippedLicenseNameToAttribution =
+    getUniqueLicenseNameToAttribution(attributions);
   const {
     attributionCountPerSourcePerLicense,
     totalAttributionsPerLicense,
@@ -209,7 +210,7 @@ export function getLicenseCriticality(licenseCriticalityCounts: {
       : undefined;
 }
 
-export function getUniqueLicenseNameToAttribution(
+function getUniqueLicenseNameToAttribution(
   attributions: Attributions,
 ): UniqueLicenseNameToAttributions {
   const uniqueLicenseNameToAttributions: UniqueLicenseNameToAttributions = {};

@@ -29,7 +29,6 @@ import {
   getIncompleteAttributionsCount,
   getMostFrequentLicenses,
   getSignalCountByClassification,
-  getUniqueLicenseNameToAttribution,
 } from './ProjectStatisticsPopup.util';
 
 const classes = {
@@ -49,17 +48,12 @@ export const ProjectStatisticsPopup: React.FC = () => {
     getUnresolvedExternalAttributions,
   );
 
-  const strippedLicenseNameToAttribution = getUniqueLicenseNameToAttribution(
-    unresolvedExternalAttribution,
-  );
-
   const {
     licenseCounts,
     licenseNamesWithCriticality,
     licenseNamesWithClassification,
   } = aggregateLicensesAndSourcesFromAttributions(
     unresolvedExternalAttribution,
-    strippedLicenseNameToAttribution,
     attributionSources,
   );
 
