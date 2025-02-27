@@ -189,7 +189,11 @@ export const text = {
     footerTitle: 'Total',
     columnNames: {
       licenseName: 'License Name',
-      criticality: 'Criticality',
+      criticality: {
+        title: 'Criticality',
+        medium: 'Medium Criticality',
+        high: 'High Criticality',
+      },
       totalSources: 'Total',
     },
   },

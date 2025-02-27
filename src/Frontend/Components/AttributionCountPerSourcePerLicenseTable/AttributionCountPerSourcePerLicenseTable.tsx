@@ -14,8 +14,9 @@ import MuiTypography from '@mui/material/Typography';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { OpossumColors, tableClasses } from '../../shared-styles';
+import { tableClasses } from '../../shared-styles';
 import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
+import { CriticalityIcon } from '../Icons/Icons';
 
 const classes = {
   container: {
@@ -57,7 +58,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
 
   const headerRow = [
     text.attributionCountPerSourcePerLicenseTable.columnNames.licenseName,
-    text.attributionCountPerSourcePerLicenseTable.columnNames.criticality,
+    text.attributionCountPerSourcePerLicenseTable.columnNames.criticality.title,
     ...sourceNames,
     text.attributionCountPerSourcePerLicenseTable.columnNames.totalSources,
   ].map(
@@ -102,23 +103,31 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     );
 
     const licenseCriticality = props.licenseNamesWithCriticality[licenseName];
-    const criticalityColor =
-      licenseCriticality === Criticality.High
-        ? OpossumColors.orange
-        : licenseCriticality === Criticality.Medium
-          ? OpossumColors.mediumOrange
-          : undefined;
 
     const criticalityCell = (
       <MuiTableCell
         sx={{
           ...tableClasses.body,
-          color: criticalityColor,
         }}
         key={1}
         align={'center'}
       >
-        <span>{licenseCriticality ?? '-'}</span>
+        <span>
+          {licenseCriticality === undefined ? (
+            '-'
+          ) : (
+            <CriticalityIcon
+              criticality={licenseCriticality}
+              tooltip={
+                licenseCriticality === Criticality.High
+                  ? text.attributionCountPerSourcePerLicenseTable.columnNames
+                      .criticality.high
+                  : text.attributionCountPerSourcePerLicenseTable.columnNames
+                      .criticality.medium
+              }
+            />
+          )}
+        </span>
       </MuiTableCell>
     );
 
