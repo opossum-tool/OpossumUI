@@ -1,5 +1,6 @@
 {
   "name": "opossum-ui",
+  "productName": "OpossumUI",
   "description": "The OpossumUI enables the editing of attribution information that is assigned to a resource tree.",
   "license": "Apache-2.0",
   "version": "0.1.0",
