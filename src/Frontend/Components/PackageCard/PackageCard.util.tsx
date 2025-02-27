@@ -38,15 +38,15 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
       />,
     );
   }
-  if (cardConfig.classification) {
+  if (
+    cardConfig.classification &&
+    cardConfig.classification_mapping?.[cardConfig.classification]
+  ) {
     rightIcons.push(
       <ClassificationIcon
         key={'classification-icon'}
         classification={cardConfig.classification}
-        tooltip={
-          cardConfig.classification_mapping?.[cardConfig.classification] ??
-          text.auditingOptions.unknownClassification
-        }
+        classification_mapping={cardConfig.classification_mapping}
       />,
     );
   }

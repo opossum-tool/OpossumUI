@@ -90,6 +90,7 @@ const classes = {
 export interface PackageCardConfig {
   criticality: Criticality;
   classification?: number;
+  classification_mapping?: Classifications;
   excludeFromNotice?: boolean;
   firstParty?: boolean;
   focused?: boolean;
@@ -102,7 +103,6 @@ export interface PackageCardConfig {
   resolved?: boolean;
   selected?: boolean;
   wasPreferred?: boolean;
-  classification_mapping?: Classifications;
 }
 
 export interface PackageCardProps {

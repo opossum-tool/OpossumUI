@@ -20,7 +20,7 @@ import WidgetsIcon from '@mui/icons-material/Widgets';
 import { Icon, SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 
-import { Criticality } from '../../../shared/shared-types';
+import { Classifications, Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, criticalityColor, OpossumColors } from '../../shared-styles';
 
@@ -214,24 +214,23 @@ export function CriticalityIcon({
 export function ClassificationIcon({
   className,
   classification,
-  noTooltip,
-  tooltip,
+  classification_mapping,
   sx,
   tooltipPlacement,
 }: IconProps & {
   classification?: number;
-  tooltip?: string;
+  classification_mapping?: Classifications;
 }) {
   if (!classification || classification === 0) {
     return null;
   }
+  const tooltip = classification_mapping?.[classification];
+  if (!tooltip) {
+    return null;
+  }
 
   return (
-    <MuiTooltip
-      title={noTooltip ? undefined : tooltip}
-      placement={tooltipPlacement}
-      disableInteractive
-    >
+    <MuiTooltip title={tooltip} placement={tooltipPlacement} disableInteractive>
       <Icon
         aria-label={'Classification icon'}
         sx={{
