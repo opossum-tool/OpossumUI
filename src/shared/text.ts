@@ -187,8 +187,10 @@ export const text = {
   },
   attributionCountPerSourcePerLicenseTable: {
     footerTitle: 'Total',
-    columnNames: {
-      licenseName: 'License Name',
+    columns: {
+      licenseInfo: 'License Info',
+      signalCountPerSource: 'Signal Count per Source',
+      licenseName: 'Name',
       criticality: {
         title: 'Criticality',
         medium: 'Medium Criticality',
@@ -197,6 +199,7 @@ export const text = {
       classification: 'Classification',
       totalSources: 'Total',
     },
+    absent: '-',
   },
   unsavedChangesPopup: {
     title: 'Unsaved Changes',
