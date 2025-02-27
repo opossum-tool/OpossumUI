@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { pickBy, toNumber } from 'lodash';
+import { groupBy, pickBy, toNumber } from 'lodash';
 
 import {
   Attributions,
@@ -210,21 +210,16 @@ export function getLicenseCriticality(licenseCriticalityCounts: {
       : undefined;
 }
 
-function getUniqueLicenseNameToAttribution(
+export function getUniqueLicenseNameToAttribution(
   attributions: Attributions,
 ): UniqueLicenseNameToAttributions {
-  const uniqueLicenseNameToAttributions: UniqueLicenseNameToAttributions = {};
-  for (const attributionId of Object.keys(attributions)) {
-    const licenseName = attributions[attributionId].licenseName;
-    if (licenseName) {
-      const strippedLicenseName = getStrippedLicenseName(licenseName);
-      if (!uniqueLicenseNameToAttributions[strippedLicenseName]) {
-        uniqueLicenseNameToAttributions[strippedLicenseName] = [];
-      }
-      uniqueLicenseNameToAttributions[strippedLicenseName].push(attributionId);
-    }
-  }
-  return uniqueLicenseNameToAttributions;
+  return groupBy(
+    Object.keys(attributions).filter(
+      (attributionId) => attributions[attributionId].licenseName !== undefined,
+    ),
+    (attributionId) =>
+      getStrippedLicenseName(attributions[attributionId].licenseName as string),
+  );
 }
 
 export function getStrippedLicenseName(licenseName: string): string {
