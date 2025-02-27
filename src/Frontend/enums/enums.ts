@@ -24,12 +24,6 @@ export enum ButtonText {
   Delete = 'Delete',
 }
 
-export enum PieChartCriticalityNames {
-  HighCriticality = 'Highly critical signals',
-  MediumCriticality = 'Medium critical signals',
-  NoCriticality = 'Non-critical signals',
-}
-
 export enum AttributionType {
   FirstParty = 'First Party',
   ThirdParty = 'Third Party',
