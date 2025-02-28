@@ -199,7 +199,7 @@ export const text = {
       classification: 'Classification',
       totalSources: 'Total',
     },
-    absent: '-',
+    none: '-',
   },
   unsavedChangesPopup: {
     title: 'Unsaved Changes',
