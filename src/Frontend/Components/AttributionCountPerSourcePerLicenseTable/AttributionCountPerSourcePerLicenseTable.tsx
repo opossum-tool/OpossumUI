@@ -8,7 +8,11 @@ import MuiTableBody from '@mui/material/TableBody';
 import MuiTableContainer from '@mui/material/TableContainer';
 import MuiTypography from '@mui/material/Typography';
 
-import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
+import {
+  LicenseCounts,
+  LicenseNamesWithClassification,
+  LicenseNamesWithCriticality,
+} from '../../types/types';
 import { AttributionCountPerSourcePerLicenseTableFooter } from './AttributionCountPerSourcePerLicenseTableFooter/AttributionCountPerSourcePerLicenseTableFooter';
 import { AttributionCountPerSourcePerLicenseTableHead } from './AttributionCountPerSourcePerLicenseTableHead/AttributionCountPerSourcePerLicenseTableHead';
 import { AttributionCountPerSourcePerLicenseTableRow } from './AttributionCountPerSourcePerLicenseTableRow/AttributionCountPerSourcePerLicenseTableRow';
@@ -23,6 +27,7 @@ const classes = {
 interface AttributionCountPerSourcePerLicenseTableProps {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
+  licenseNamesWithClassification: LicenseNamesWithClassification;
   title: string;
 }
 
@@ -56,10 +61,14 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
                   licenseCriticality={
                     props.licenseNamesWithCriticality[licenseName]
                   }
+                  licenseClassification={
+                    props.licenseNamesWithClassification[licenseName]
+                  }
                   totalSignalCount={
                     props.licenseCounts.totalAttributionsPerLicense[licenseName]
                   }
                   key={rowIndex}
+                  rowIndex={rowIndex}
                 />
               ))}
           </MuiTableBody>

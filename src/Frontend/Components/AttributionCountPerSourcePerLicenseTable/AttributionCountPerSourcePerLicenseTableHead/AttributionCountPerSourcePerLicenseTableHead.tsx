@@ -5,10 +5,20 @@
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableHead from '@mui/material/TableHead';
 import MuiTableRow from '@mui/material/TableRow';
+import { SxProps } from '@mui/system';
 import { upperFirst } from 'lodash';
 
 import { text } from '../../../../shared/text';
 import { tableClasses } from '../../../shared-styles';
+
+const classes = {
+  headerCellWithVerticalSeparator: {
+    borderRight: '2px solid lightgray',
+  },
+  headerCellWithHorizontalSeparator: {
+    borderBottom: '1.5px solid lightgray',
+  },
+} satisfies SxProps;
 
 interface AttributionCountPerSourcePerLicenseTableHeadProps {
   sourceNames: Array<string>;
@@ -20,18 +30,47 @@ export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
   const componentText = text.attributionCountPerSourcePerLicenseTable;
 
   const headerRow = [
-    componentText.columnNames.licenseName,
-    componentText.columnNames.criticality.title,
+    componentText.columns.licenseName,
+    componentText.columns.criticality.title,
+    componentText.columns.classification,
     ...props.sourceNames.map(upperFirst),
-    componentText.columnNames.totalSources,
+    componentText.columns.totalSources,
   ];
 
   return (
-    <MuiTableHead>
+    <MuiTableHead sx={{ position: 'sticky', top: 0 }}>
+      <MuiTableRow>
+        <MuiTableCell
+          sx={{
+            ...tableClasses.head,
+            ...classes.headerCellWithVerticalSeparator,
+            ...classes.headerCellWithHorizontalSeparator,
+          }}
+          align={'center'}
+          colSpan={3}
+        >
+          {componentText.columns.licenseInfo}
+        </MuiTableCell>
+        <MuiTableCell
+          sx={{
+            ...tableClasses.head,
+            ...classes.headerCellWithHorizontalSeparator,
+          }}
+          align={'center'}
+          colSpan={props.sourceNames.length + 1}
+        >
+          {componentText.columns.signalCountPerSource}
+        </MuiTableCell>
+      </MuiTableRow>
       <MuiTableRow>
         {headerRow.map((columnHeader, columnIndex) => (
           <MuiTableCell
-            sx={tableClasses.head}
+            sx={{
+              ...tableClasses.head,
+              ...(columnIndex === 2
+                ? classes.headerCellWithVerticalSeparator
+                : {}),
+            }}
             key={columnIndex}
             align={columnIndex === 0 ? 'left' : 'center'}
           >

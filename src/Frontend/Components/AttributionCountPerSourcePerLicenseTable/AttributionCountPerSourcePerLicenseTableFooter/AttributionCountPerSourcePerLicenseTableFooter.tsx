@@ -25,6 +25,7 @@ export const AttributionCountPerSourcePerLicenseTableFooter: React.FC<
           {text.attributionCountPerSourcePerLicenseTable.footerTitle}
         </MuiTableCell>
         <MuiTableCell sx={tableClasses.footer} />
+        <MuiTableCell sx={tableClasses.footer} />
         {props.sourceNames.map((sourceName, sourceIdx) => (
           <MuiTableCell
             sx={tableClasses.footer}

@@ -36,13 +36,14 @@ export const ATTRIBUTION_TOTAL = 'Total Attributions';
 
 export function aggregateLicensesAndSourcesFromAttributions(
   attributions: Attributions,
-  strippedLicenseNameToAttribution: UniqueLicenseNameToAttributions,
   attributionSources: ExternalAttributionSources,
 ): {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
   licenseNamesWithClassification: LicenseNamesWithClassification;
 } {
+  const strippedLicenseNameToAttribution =
+    getUniqueLicenseNameToAttribution(attributions);
   const {
     attributionCountPerSourcePerLicense,
     totalAttributionsPerLicense,
@@ -209,7 +210,7 @@ export function getLicenseCriticality(licenseCriticalityCounts: {
       : undefined;
 }
 
-export function getUniqueLicenseNameToAttribution(
+function getUniqueLicenseNameToAttribution(
   attributions: Attributions,
 ): UniqueLicenseNameToAttributions {
   const uniqueLicenseNameToAttributions: UniqueLicenseNameToAttributions = {};
@@ -224,28 +225,6 @@ export function getUniqueLicenseNameToAttribution(
     }
   }
   return uniqueLicenseNameToAttributions;
-}
-
-export function getLicenseNameVariants(
-  licenseName: string,
-  attributions: Attributions,
-): Set<string> {
-  const strippedLicenseName = getStrippedLicenseName(licenseName);
-  const licenseNames: Set<string> = new Set<string>();
-
-  for (const attributionId of Object.keys(attributions)) {
-    const attributionLicenseName =
-      attributions[attributionId].licenseName || '';
-    const attributionStrippedLicenseName = getStrippedLicenseName(
-      attributions[attributionId].licenseName || '',
-    );
-
-    if (attributionStrippedLicenseName === strippedLicenseName) {
-      licenseNames.add(attributionLicenseName);
-    }
-  }
-
-  return licenseNames;
 }
 
 export function getStrippedLicenseName(licenseName: string): string {
