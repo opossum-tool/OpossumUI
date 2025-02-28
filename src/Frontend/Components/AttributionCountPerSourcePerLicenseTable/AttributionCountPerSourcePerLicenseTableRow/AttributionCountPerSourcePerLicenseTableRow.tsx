@@ -51,7 +51,7 @@ export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
           align={'center'}
           key={sourceIdx}
         >
-          {props.signalCountsPerSource[sourceName] || '-'}
+          {props.signalCountsPerSource[sourceName] || componentText.absent}
         </MuiTableCell>
       ))}
       <MuiTableCell sx={bodyClassWithBackgroundColor} align={'center'}>
@@ -64,7 +64,7 @@ export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
     return (
       <MuiTableCell sx={bodyClassWithBackgroundColor} align={'center'}>
         {props.licenseCriticality === undefined ? (
-          '-'
+          componentText.absent
         ) : (
           <CriticalityIcon
             criticality={props.licenseCriticality}
