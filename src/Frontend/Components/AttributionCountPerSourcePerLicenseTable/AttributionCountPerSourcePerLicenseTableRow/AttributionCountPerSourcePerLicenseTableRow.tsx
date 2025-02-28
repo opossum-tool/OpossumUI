@@ -16,7 +16,6 @@ interface AttributionCountPerSourcePerLicenseTableRowProps {
   licenseName: string;
   licenseCriticality: Criticality | undefined;
   totalSignalCount: number;
-  key: React.Key;
 }
 
 export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
@@ -41,12 +40,7 @@ export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
 
   function renderCriticalityCell() {
     return (
-      <MuiTableCell
-        sx={{
-          ...tableClasses.body,
-        }}
-        align={'center'}
-      >
+      <MuiTableCell sx={tableClasses.body} align={'center'}>
         {props.licenseCriticality === undefined ? (
           '-'
         ) : (

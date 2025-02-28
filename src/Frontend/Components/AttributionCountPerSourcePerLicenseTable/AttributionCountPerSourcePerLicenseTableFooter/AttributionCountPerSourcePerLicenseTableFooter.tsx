@@ -5,7 +5,7 @@
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableFooter from '@mui/material/TableFooter';
 import MuiTableRow from '@mui/material/TableRow';
-import _ from 'lodash';
+import { sum } from 'lodash';
 
 import { text } from '../../../../shared/text';
 import { tableClasses } from '../../../shared-styles';
@@ -35,7 +35,7 @@ export const AttributionCountPerSourcePerLicenseTableFooter: React.FC<
           </MuiTableCell>
         ))}
         <MuiTableCell sx={tableClasses.footer} align={'center'}>
-          {_.sum(Object.values(props.totalAttributionsPerSource))}
+          {sum(Object.values(props.totalAttributionsPerSource))}
         </MuiTableCell>
       </MuiTableRow>
     </MuiTableFooter>
