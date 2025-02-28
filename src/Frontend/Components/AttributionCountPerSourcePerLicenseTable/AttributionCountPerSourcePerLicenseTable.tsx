@@ -5,18 +5,13 @@
 import MuiBox from '@mui/material/Box';
 import MuiTable from '@mui/material/Table';
 import MuiTableBody from '@mui/material/TableBody';
-import MuiTableCell from '@mui/material/TableCell';
 import MuiTableContainer from '@mui/material/TableContainer';
-import MuiTableFooter from '@mui/material/TableFooter';
-import MuiTableHead from '@mui/material/TableHead';
-import MuiTableRow from '@mui/material/TableRow';
 import MuiTypography from '@mui/material/Typography';
 
-import { Criticality } from '../../../shared/shared-types';
-import { text } from '../../../shared/text';
-import { tableClasses } from '../../shared-styles';
 import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
-import { CriticalityIcon } from '../Icons/Icons';
+import { AttributionCountPerSourcePerLicenseTableFooter } from './AttributionCountPerSourcePerLicenseTableFooter/AttributionCountPerSourcePerLicenseTableFooter';
+import { AttributionCountPerSourcePerLicenseTableHead } from './AttributionCountPerSourcePerLicenseTableHead/AttributionCountPerSourcePerLicenseTableHead';
+import { AttributionCountPerSourcePerLicenseTableRow } from './AttributionCountPerSourcePerLicenseTableRow/AttributionCountPerSourcePerLicenseTableRow';
 
 const classes = {
   container: {
@@ -24,8 +19,6 @@ const classes = {
     marginBottom: '3px',
   },
 };
-
-const TOTAL_SOURCE_NAME = 'Total';
 
 interface AttributionCountPerSourcePerLicenseTableProps {
   licenseCounts: LicenseCounts;
@@ -40,157 +33,42 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     props.licenseCounts.totalAttributionsPerSource,
   );
 
-  const totalNumberOfAttributionsPerSource = sourceNames.map((sourceName) =>
-    props.licenseCounts.totalAttributionsPerSource[sourceName].toString(),
-  );
-  const totalNumberOfAttributions = Object.values(
-    props.licenseCounts.totalAttributionsPerSource,
-  )
-    .reduce((partialSum, num) => partialSum + num, 0)
-    .toString();
-
-  const footerRow = [
-    text.attributionCountPerSourcePerLicenseTable.footerTitle,
-    '',
-    ...totalNumberOfAttributionsPerSource,
-    totalNumberOfAttributions,
-  ];
-
-  const headerRow = [
-    text.attributionCountPerSourcePerLicenseTable.columnNames.licenseName,
-    text.attributionCountPerSourcePerLicenseTable.columnNames.criticality.title,
-    ...sourceNames,
-    text.attributionCountPerSourcePerLicenseTable.columnNames.totalSources,
-  ].map(
-    (sourceName) => sourceName.charAt(0).toUpperCase() + sourceName.slice(1),
-  );
-
-  Object.entries(
-    props.licenseCounts.attributionCountPerSourcePerLicense,
-  ).forEach(
-    ([licenseName, value]) =>
-      (value[TOTAL_SOURCE_NAME] =
-        props.licenseCounts.totalAttributionsPerLicense[licenseName]),
-  );
-
-  const tableHead = (
-    <MuiTableHead>
-      <MuiTableRow>
-        {headerRow.map((columnHeader, columnIndex) => (
-          <MuiTableCell
-            sx={tableClasses.head}
-            key={columnIndex}
-            align={columnIndex === 0 ? 'left' : 'center'}
-          >
-            {columnHeader}
-          </MuiTableCell>
-        ))}
-      </MuiTableRow>
-    </MuiTableHead>
-  );
-
-  const buildTableRow = (licenseName: string, rowIndex: number) => {
-    const licenseNameCell = (
-      <MuiTableCell
-        sx={{
-          ...tableClasses.body,
-        }}
-        key={0}
-        align={'left'}
-      >
-        <span>{licenseName}</span>
-      </MuiTableCell>
-    );
-
-    const licenseCriticality = props.licenseNamesWithCriticality[licenseName];
-
-    const criticalityCell = (
-      <MuiTableCell
-        sx={{
-          ...tableClasses.body,
-        }}
-        key={1}
-        align={'center'}
-      >
-        <span>
-          {licenseCriticality === undefined ? (
-            '-'
-          ) : (
-            <CriticalityIcon
-              criticality={licenseCriticality}
-              tooltip={
-                licenseCriticality === Criticality.High
-                  ? text.attributionCountPerSourcePerLicenseTable.columnNames
-                      .criticality.high
-                  : text.attributionCountPerSourcePerLicenseTable.columnNames
-                      .criticality.medium
-              }
-            />
-          )}
-        </span>
-      </MuiTableCell>
-    );
-
-    const buildCountBySourceCell =
-      (columnOffset: number) => (sourceName: string, sourceIdx: number) => {
-        const columnIndex = columnOffset + sourceIdx;
-
-        return (
-          <MuiTableCell
-            sx={{
-              ...tableClasses.body,
-            }}
-            key={columnIndex}
-            align={'center'}
-          >
-            {props.licenseCounts.attributionCountPerSourcePerLicense[
-              licenseName
-            ][sourceName] || '-'}
-          </MuiTableCell>
-        );
-      };
-
-    const singleCells = [licenseNameCell, criticalityCell];
-
-    return (
-      <MuiTableRow key={rowIndex}>
-        {singleCells.concat(
-          sourceNames
-            .concat(TOTAL_SOURCE_NAME)
-            .map(buildCountBySourceCell(singleCells.length)),
-        )}
-      </MuiTableRow>
-    );
-  };
-
-  const tableFooter = (
-    <MuiTableFooter>
-      <MuiTableRow>
-        {footerRow.map((total, columnIndex) => (
-          <MuiTableCell
-            sx={tableClasses.footer}
-            key={columnIndex}
-            align={columnIndex === 0 ? 'left' : 'center'}
-          >
-            {total}
-          </MuiTableCell>
-        ))}
-      </MuiTableRow>
-    </MuiTableFooter>
-  );
-
   return (
     <MuiBox>
       <MuiTypography variant="subtitle1">{props.title}</MuiTypography>
       <MuiTableContainer sx={classes.container}>
         <MuiTable size="small" stickyHeader>
-          {tableHead}
+          <AttributionCountPerSourcePerLicenseTableHead
+            sourceNames={sourceNames}
+          />
           <MuiTableBody>
             {Object.keys(props.licenseNamesWithCriticality)
               .toSorted()
-              .map(buildTableRow)}
+              .map((licenseName, rowIndex) => (
+                <AttributionCountPerSourcePerLicenseTableRow
+                  sourceNames={sourceNames}
+                  signalCountsPerSource={
+                    props.licenseCounts.attributionCountPerSourcePerLicense[
+                      licenseName
+                    ]
+                  }
+                  licenseName={licenseName}
+                  licenseCriticality={
+                    props.licenseNamesWithCriticality[licenseName]
+                  }
+                  totalSignalCount={
+                    props.licenseCounts.totalAttributionsPerLicense[licenseName]
+                  }
+                  key={rowIndex}
+                />
+              ))}
           </MuiTableBody>
-          {tableFooter}
+          <AttributionCountPerSourcePerLicenseTableFooter
+            sourceNames={sourceNames}
+            totalAttributionsPerSource={
+              props.licenseCounts.totalAttributionsPerSource
+            }
+          />
         </MuiTable>
       </MuiTableContainer>
     </MuiBox>
