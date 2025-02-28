@@ -71,25 +71,31 @@ export const ProjectStatisticsPopup: React.FC = () => {
     licenseNamesWithCriticality,
   );
 
+  const criticalitySegmentLabel = (criticality: Criticality | undefined) => {
+    switch (criticality) {
+      case Criticality.High:
+        return text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+          .highlyCritical;
+      case Criticality.Medium:
+        return text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+          .mediumCritical;
+      case undefined:
+        return text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+          .nonCritical;
+    }
+  };
+
   const criticalSignalsCountPieChartData = criticalSignalsCount.map(
     ({ criticality, count }) => ({
-      name: text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.segmentLabel(
-        criticality,
-      ),
+      name: criticalitySegmentLabel(criticality),
       count,
     }),
   );
 
   const criticalSignalsCountColors = {
-    [text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.segmentLabel(
-      Criticality.High,
-    )]: criticalityColor.high,
-    [text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.segmentLabel(
-      Criticality.Medium,
-    )]: criticalityColor.medium,
-    [text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.segmentLabel(
-      undefined,
-    )]: OpossumColors.darkBlue,
+    [criticalitySegmentLabel(Criticality.High)]: criticalityColor.high,
+    [criticalitySegmentLabel(Criticality.Medium)]: criticalityColor.medium,
+    [criticalitySegmentLabel(undefined)]: OpossumColors.darkBlue,
   };
 
   const signalCountByClassification = getSignalCountByClassification(
@@ -166,7 +172,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 data={signalCountByClassification}
                 title={
                   text.projectStatisticsPopup.charts
-                    .signalCountByClassificationPieChart
+                    .signalCountByClassificationPieChart.title
                 }
               />
               <AccordionWithPieChart

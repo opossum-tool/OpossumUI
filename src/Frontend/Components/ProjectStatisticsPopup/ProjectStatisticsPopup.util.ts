@@ -11,6 +11,7 @@ import {
   ExternalAttributionSources,
   PackageInfo,
 } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import {
   AttributionCountPerSourcePerLicense,
   LicenseCounts,
@@ -374,7 +375,8 @@ export function getSignalCountByClassification(
 
   if (classificationCounts[-1]) {
     return pieChartData.concat({
-      name: 'No Classification',
+      name: text.projectStatisticsPopup.charts
+        .signalCountByClassificationPieChart.noClassification,
       count: classificationCounts[-1],
     });
   }
