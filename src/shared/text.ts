@@ -358,10 +358,10 @@ export const text = {
     report: 'Report',
     switchableProgressBar: {
       criticalSignalsBar: {
-        switcherTooltip: 'Critical signals progress bar selected',
+        selectLabel: 'Criticality',
       },
-      defaultProgressBar: {
-        switcherTooltip: 'Progress bar selected',
+      attributionProgressBar: {
+        selectLabel: 'Attributions',
       },
     },
   },
