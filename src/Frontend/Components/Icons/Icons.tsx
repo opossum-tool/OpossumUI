@@ -17,10 +17,10 @@ import StarIcon from '@mui/icons-material/Star';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import WidgetsIcon from '@mui/icons-material/Widgets';
-import { SxProps } from '@mui/material';
+import { Icon, SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 
-import { Criticality } from '../../../shared/shared-types';
+import { Classifications, Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, criticalityColor, OpossumColors } from '../../shared-styles';
 
@@ -207,6 +207,44 @@ export function CriticalityIcon({
         }}
         className={className}
       />
+    </MuiTooltip>
+  );
+}
+
+export function ClassificationIcon({
+  className,
+  classification,
+  classification_mapping,
+  sx,
+  tooltipPlacement,
+}: IconProps & {
+  classification?: number;
+  classification_mapping?: Classifications;
+}) {
+  if (!classification || classification === 0) {
+    return null;
+  }
+  const tooltip = classification_mapping?.[classification];
+  if (!tooltip) {
+    return null;
+  }
+
+  return (
+    <MuiTooltip title={tooltip} placement={tooltipPlacement} disableInteractive>
+      <Icon
+        aria-label={'Classification icon'}
+        sx={{
+          ...baseIcon,
+          color: `${OpossumColors.red} !important`,
+          ...sx,
+          fontFamily: 'sans-serif',
+          fontWeight: 'bold',
+          fontSize: 'medium !important',
+        }}
+        className={className}
+      >
+        C
+      </Icon>
     </MuiTooltip>
   );
 }
