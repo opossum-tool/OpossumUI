@@ -5,6 +5,7 @@
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableHead from '@mui/material/TableHead';
 import MuiTableRow from '@mui/material/TableRow';
+import { SxProps } from '@mui/system';
 import { upperFirst } from 'lodash';
 
 import { text } from '../../../../shared/text';
@@ -17,7 +18,7 @@ const classes = {
   headerCellWithHorizontalSeparator: {
     borderBottom: '1.5px solid lightgray',
   },
-};
+} satisfies SxProps;
 
 interface AttributionCountPerSourcePerLicenseTableHeadProps {
   sourceNames: Array<string>;
