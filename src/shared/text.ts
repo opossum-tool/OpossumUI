@@ -170,7 +170,6 @@ export const text = {
     charts: {
       licenseCountsTable: 'Signals per Sources',
       attributionPropertyCountTable: 'Attributions Overview',
-      criticalLicensesTable: 'Critical Licenses',
       pieChartsSectionHeader: 'Pie Charts',
       mostFrequentLicenseCountPieChart: 'Most Frequent Licenses',
       criticalSignalsCountPieChart: {
@@ -184,6 +183,18 @@ export const text = {
         noClassification: 'No classification',
       },
       incompleteAttributionsPieChart: 'Incomplete Attributions',
+    },
+  },
+  attributionCountPerSourcePerLicenseTable: {
+    footerTitle: 'Total',
+    columnNames: {
+      licenseName: 'License Name',
+      criticality: {
+        title: 'Criticality',
+        medium: 'Medium Criticality',
+        high: 'High Criticality',
+      },
+      totalSources: 'Total',
     },
   },
   unsavedChangesPopup: {
