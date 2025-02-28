@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { pickBy, toNumber } from 'lodash';
+import { Dictionary, groupBy, maxBy, pickBy, toNumber } from 'lodash';
 
 import {
   Attributions,
@@ -33,6 +33,92 @@ const UNKNOWN_SOURCE_PLACEHOLDER = '-';
 
 // exported only for tests
 export const ATTRIBUTION_TOTAL = 'Total Attributions';
+
+export interface AttributionStatistics {
+  licenseName: string;
+  criticality: Criticality | undefined;
+  classification: number;
+  sourceName?: string;
+  isIncomplete: boolean;
+  needsReview: boolean;
+  followUp: boolean;
+  firstParty: boolean;
+}
+
+function getSourceName(
+  package_info: PackageInfo,
+  attributionSources: ExternalAttributionSources,
+) {
+  const sourceId = package_info.source?.name ?? UNKNOWN_SOURCE_PLACEHOLDER;
+  return Object.keys(attributionSources).includes(sourceId) &&
+    sourceId !== UNKNOWN_SOURCE_PLACEHOLDER
+    ? attributionSources[sourceId]['name']
+    : sourceId;
+}
+
+export function prepareStatistics(
+  attributions: Attributions,
+  attributionSources?: ExternalAttributionSources,
+): Array<AttributionStatistics> {
+  return Object.values(attributions)
+    .filter((package_info) => !!package_info.licenseName)
+    .map((package_info) => {
+      return {
+        licenseName: package_info.licenseName as string,
+        criticality: package_info.criticality,
+        classification: package_info.classification ?? -1,
+        sourceName: attributionSources
+          ? getSourceName(package_info, attributionSources)
+          : undefined,
+        isIncomplete: isPackageInfoIncomplete(package_info),
+        needsReview: package_info.needsReview,
+        followUp: package_info.followUp,
+        firstParty: package_info.firstParty,
+      } as AttributionStatistics;
+    });
+}
+
+export function getMostFrequentLicenses2(
+  stats: Array<AttributionStatistics>,
+  limitDisplayed?: number,
+): Array<PieChartData> {
+  const licenseGroups = groupBy(
+    stats.filter(({ licenseName }) => !!licenseName),
+    ({ licenseName }) => getStrippedLicenseName(licenseName),
+  );
+  const licensesWithCount = Object.values(licenseGroups).map((group) => {
+    return {
+      name: maxBy(group, 'licenseName')?.licenseName,
+      count: group.length,
+    } as PieChartData;
+  });
+  if (!limitDisplayed || licensesWithCount.length <= limitDisplayed + 1) {
+    return licensesWithCount;
+  }
+  // sort ascending
+  const sortedLicensesWithCount = licensesWithCount.sort(
+    ({ count: c1 }, { count: c2 }) => c2 - c1,
+  );
+  const mostFrequentLicenses = sortedLicensesWithCount.slice(0, limitDisplayed);
+  mostFrequentLicenses.push({
+    name: 'Other',
+    count: sortedLicensesWithCount
+      .slice(limitDisplayed)
+      .reduce((total, { count }) => total + count, 0),
+  });
+  return mostFrequentLicenses;
+}
+
+export function convertToPieChartData(
+  data: Dictionary<number>,
+): Array<PieChartData> {
+  return Object.entries(data).map(([key, value]) => {
+    return {
+      name: key,
+      count: value,
+    } as PieChartData;
+  });
+}
 
 export function aggregateLicensesAndSourcesFromAttributions(
   attributions: Attributions,
