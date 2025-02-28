@@ -5,6 +5,7 @@
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableHead from '@mui/material/TableHead';
 import MuiTableRow from '@mui/material/TableRow';
+import { upperFirst } from 'lodash';
 
 import { text } from '../../../../shared/text';
 import { tableClasses } from '../../../shared-styles';
@@ -21,11 +22,9 @@ export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
   const headerRow = [
     componentText.columnNames.licenseName,
     componentText.columnNames.criticality.title,
-    ...props.sourceNames,
+    ...props.sourceNames.map(upperFirst),
     componentText.columnNames.totalSources,
-  ].map(
-    (sourceName) => sourceName.charAt(0).toUpperCase() + sourceName.slice(1),
-  );
+  ];
 
   return (
     <MuiTableHead>
