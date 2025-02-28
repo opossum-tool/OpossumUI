@@ -2,13 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import MuiBox from '@mui/material/Box';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { text as fullText } from '../../../shared/text';
 import { useProgressData } from '../../state/variables/use-progress-data';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
-import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
+
+type SelectedProgressBar = 'attribution' | 'criticality';
 
 const classes = {
   progressBarContainer: {
@@ -17,22 +19,42 @@ const classes = {
     marginLeft: '12px',
     marginRight: '12px',
   },
-  switch: {
+  select: {
     margin: 'auto',
+    width: '150px',
+  },
+};
+interface ProgressBarConfiguration {
+  selectLabel: string;
+  showCriticalSignals: boolean;
+}
+
+const text = fullText.topBar.switchableProgressBar;
+
+const progressBarConfigurations: Record<
+  SelectedProgressBar,
+  ProgressBarConfiguration
+> = {
+  attribution: {
+    selectLabel: text.attributionProgressBar.selectLabel,
+    showCriticalSignals: false,
+  },
+  criticality: {
+    selectLabel: text.criticalSignalsBar.selectLabel,
+    showCriticalSignals: true,
   },
 };
 
 export const SwitchableProcessBar: React.FC = () => {
-  const text = fullText.topBar.switchableProgressBar;
-  const [showCriticalSignals, setShowCriticalSignals] = useState(false);
+  const [currentProgressBar, setCurrentProgressBar] =
+    useState<SelectedProgressBar>('attribution');
   const [progressData] = useProgressData();
 
-  function toggleShowCriticalSignals() {
-    return () =>
-      setShowCriticalSignals(
-        (currentShowCriticalSignals: boolean) => !currentShowCriticalSignals,
-      );
-  }
+  const handleProgressBarChange = (
+    event: SelectChangeEvent<SelectedProgressBar>,
+  ): void => {
+    setCurrentProgressBar(event.target.value as SelectedProgressBar);
+  };
 
   if (!progressData) {
     return <MuiBox flex={1} />;
@@ -42,18 +64,26 @@ export const SwitchableProcessBar: React.FC = () => {
       <ProgressBar
         sx={classes.progressBarContainer}
         progressBarData={progressData}
-        showCriticalSignals={showCriticalSignals}
-      />
-      <SwitchWithTooltip
-        sx={classes.switch}
-        switchToolTipText={
-          showCriticalSignals
-            ? text.criticalSignalsBar.switcherTooltip
-            : text.defaultProgressBar.switcherTooltip
+        showCriticalSignals={
+          progressBarConfigurations[currentProgressBar].showCriticalSignals
         }
-        isChecked={showCriticalSignals}
-        handleSwitchClick={toggleShowCriticalSignals()}
       />
+      <Select<SelectedProgressBar>
+        size={'small'}
+        onChange={handleProgressBarChange}
+        sx={classes.select}
+        value={currentProgressBar}
+      >
+        {Object.entries(progressBarConfigurations).map(
+          ([key, progressBarConfiguration]) => {
+            return (
+              <MenuItem key={key} value={key}>
+                {progressBarConfiguration.selectLabel}
+              </MenuItem>
+            );
+          },
+        )}
+      </Select>
     </MuiBox>
   );
 };
