@@ -2,16 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { groupBy, pickBy, toNumber } from 'lodash';
+import { Dictionary, groupBy, maxBy, sum } from 'lodash';
 
 import {
   Attributions,
-  Classifications,
   Criticality,
   ExternalAttributionSources,
   PackageInfo,
 } from '../../../shared/shared-types';
-import { PieChartCriticalityNames } from '../../enums/enums';
 import {
   AttributionCountPerSourcePerLicense,
   LicenseCounts,
@@ -25,14 +23,96 @@ interface UniqueLicenseNameToAttributions {
   [strippedLicenseName: string]: Array<string>;
 }
 
-const ATTRIBUTION_PROPERTY_NEEDS_REVIEW = 'needsReview';
-const ATTRIBUTION_PROPERTY_FOLLOW_UP = 'followUp';
-const ATTRIBUTION_PROPERTY_FIRST_PARTY = 'firstParty';
-const ATTRIBUTION_PROPERTY_INCOMPLETE = 'incomplete';
 const UNKNOWN_SOURCE_PLACEHOLDER = '-';
 
 // exported only for tests
 export const ATTRIBUTION_TOTAL = 'Total Attributions';
+
+export interface AttributionStatistics {
+  licenseName: string;
+  criticality: Criticality | undefined;
+  classification: number;
+  sourceName?: string;
+  isIncomplete: boolean;
+  needsReview: boolean;
+  followUp: boolean;
+  firstParty: boolean;
+}
+
+function getSourceName(
+  package_info: PackageInfo,
+  attributionSources: ExternalAttributionSources,
+) {
+  const sourceId = package_info.source?.name ?? UNKNOWN_SOURCE_PLACEHOLDER;
+  return Object.keys(attributionSources).includes(sourceId) &&
+    sourceId !== UNKNOWN_SOURCE_PLACEHOLDER
+    ? attributionSources[sourceId]['name']
+    : sourceId;
+}
+
+export function prepareStatistics(
+  attributions: Attributions,
+  attributionSources?: ExternalAttributionSources,
+): Array<AttributionStatistics> {
+  return Object.values(attributions)
+    .filter((package_info) => !!package_info.licenseName)
+    .map((package_info) => {
+      return {
+        licenseName: package_info.licenseName as string,
+        criticality: package_info.criticality,
+        classification: package_info.classification ?? -1,
+        sourceName: attributionSources
+          ? getSourceName(package_info, attributionSources)
+          : undefined,
+        isIncomplete: isPackageInfoIncomplete(package_info),
+        needsReview: package_info.needsReview,
+        followUp: package_info.followUp,
+        firstParty: package_info.firstParty,
+      } as AttributionStatistics;
+    });
+}
+
+export function getMostFrequentLicenses(
+  stats: Array<AttributionStatistics>,
+  limitDisplayed?: number,
+): Array<PieChartData> {
+  const licenseGroups = groupBy(
+    stats.filter(({ licenseName }) => !!licenseName),
+    ({ licenseName }) => getStrippedLicenseName(licenseName),
+  );
+  const licensesWithCount = Object.values(licenseGroups).map((group) => {
+    return {
+      name: maxBy(group, 'licenseName')?.licenseName,
+      count: group.length,
+    } as PieChartData;
+  });
+  if (!limitDisplayed || licensesWithCount.length <= limitDisplayed + 1) {
+    return licensesWithCount;
+  }
+  // sort ascending
+  const sortedLicensesWithCount = licensesWithCount.sort(
+    ({ count: c1 }, { count: c2 }) => c2 - c1,
+  );
+  const mostFrequentLicenses = sortedLicensesWithCount.slice(0, limitDisplayed);
+  mostFrequentLicenses.push({
+    name: 'Other',
+    count: sortedLicensesWithCount
+      .slice(limitDisplayed)
+      .reduce((total, { count }) => total + count, 0),
+  });
+  return mostFrequentLicenses;
+}
+
+export function convertToPieChartData(
+  data: Dictionary<number>,
+): Array<PieChartData> {
+  return Object.entries(data).map(([key, value]) => {
+    return {
+      name: key,
+      count: value,
+    } as PieChartData;
+  });
+}
 
 export function aggregateLicensesAndSourcesFromAttributions(
   attributions: Attributions,
@@ -42,15 +122,12 @@ export function aggregateLicensesAndSourcesFromAttributions(
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
   licenseNamesWithClassification: LicenseNamesWithClassification;
 } {
-  const strippedLicenseNameToAttribution =
-    getUniqueLicenseNameToAttribution(attributions);
   const {
     attributionCountPerSourcePerLicense,
     totalAttributionsPerLicense,
     licenseNamesWithCriticality,
     licenseNamesWithClassification,
   } = getLicenseDataFromAttributionsAndSources(
-    strippedLicenseNameToAttribution,
     attributions,
     attributionSources,
   );
@@ -80,7 +157,6 @@ export function aggregateLicensesAndSourcesFromAttributions(
 }
 
 function getLicenseDataFromAttributionsAndSources(
-  strippedLicenseNameToAttribution: UniqueLicenseNameToAttributions,
   attributions: Attributions,
   attributionSources: ExternalAttributionSources,
 ): {
@@ -89,13 +165,15 @@ function getLicenseDataFromAttributionsAndSources(
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
   licenseNamesWithClassification: LicenseNamesWithClassification;
 } {
+  const strippedLicenseNameToAttribution =
+    getUniqueLicenseNameToAttribution(attributions);
   const licenseNamesWithCriticality: LicenseNamesWithCriticality = {};
   const licenseNamesWithClassification: LicenseNamesWithClassification = {};
   const attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense =
     {};
   const totalAttributionsPerLicense: { [licenseName: string]: number } = {};
 
-  for (const strippedLicenseName of Object.keys(
+  for (const groupedAttributionIds of Object.values(
     strippedLicenseNameToAttribution,
   )) {
     const {
@@ -104,7 +182,7 @@ function getLicenseDataFromAttributionsAndSources(
       licenseClassification,
       sourcesCountForLicense,
     } = getLicenseDataFromVariants(
-      strippedLicenseNameToAttribution[strippedLicenseName],
+      groupedAttributionIds,
       attributions,
       attributionSources,
     );
@@ -114,11 +192,9 @@ function getLicenseDataFromAttributionsAndSources(
       licenseClassification;
     attributionCountPerSourcePerLicense[mostFrequentLicenseName] =
       sourcesCountForLicense;
-    totalAttributionsPerLicense[mostFrequentLicenseName] = Object.values(
-      attributionCountPerSourcePerLicense[mostFrequentLicenseName],
-    ).reduce((total, value) => {
-      return total + value;
-    });
+    totalAttributionsPerLicense[mostFrequentLicenseName] = sum(
+      Object.values(sourcesCountForLicense),
+    );
   }
 
   return {
@@ -158,7 +234,6 @@ function getLicenseDataFromVariants(
         (licenseNameVariantsCount[licenseName] || 0) + 1;
 
       const variantCriticality = attributions[attributionId].criticality;
-
       const variantClassification = attributions[attributionId].classification;
 
       if (licenseClassification === undefined) {
@@ -224,171 +299,4 @@ export function getUniqueLicenseNameToAttribution(
 
 export function getStrippedLicenseName(licenseName: string): string {
   return licenseName.replace(/[\s-]/g, '').toLowerCase();
-}
-
-export function aggregateAttributionPropertiesFromAttributions(
-  attributions: Attributions,
-): {
-  [attributionPropertyOrTotal: string]: number;
-} {
-  const attributionPropertyCounts: {
-    [attributionPropertyOrTotal: string]: number;
-  } = {};
-  attributionPropertyCounts[ATTRIBUTION_PROPERTY_NEEDS_REVIEW] = Object.keys(
-    pickBy(attributions, (value: PackageInfo) => value.needsReview),
-  ).length;
-  attributionPropertyCounts[ATTRIBUTION_PROPERTY_FOLLOW_UP] = Object.keys(
-    pickBy(attributions, (value: PackageInfo) => value.followUp),
-  ).length;
-  attributionPropertyCounts[ATTRIBUTION_PROPERTY_FIRST_PARTY] = Object.keys(
-    pickBy(attributions, (value: PackageInfo) => value.firstParty),
-  ).length;
-  attributionPropertyCounts[ATTRIBUTION_PROPERTY_INCOMPLETE] = Object.keys(
-    pickBy(attributions, (value: PackageInfo) =>
-      isPackageInfoIncomplete(value),
-    ),
-  ).length;
-  // We expect Total Attributions to always be the last entry in the returned value
-  attributionPropertyCounts[ATTRIBUTION_TOTAL] =
-    Object.values(attributions).length;
-
-  return attributionPropertyCounts;
-}
-
-export function getMostFrequentLicenses(
-  licenseCounts: LicenseCounts,
-): Array<PieChartData> {
-  const numberOfDisplayedLicenses = 5;
-  const mostFrequentLicenses: Array<PieChartData> = [];
-
-  for (const license of Object.keys(
-    licenseCounts.attributionCountPerSourcePerLicense,
-  )) {
-    mostFrequentLicenses.push({
-      name: license,
-      count: licenseCounts.totalAttributionsPerLicense[license],
-    });
-  }
-  const sortedMostFrequentLicenses = mostFrequentLicenses.sort(
-    (a, b) => b.count - a.count,
-  );
-
-  if (sortedMostFrequentLicenses.length > numberOfDisplayedLicenses) {
-    const sortedTopFiveFrequentLicensesAndOther =
-      sortedMostFrequentLicenses.slice(0, numberOfDisplayedLicenses);
-
-    const total = Object.values(
-      licenseCounts.totalAttributionsPerSource,
-    ).reduce((partialSum, num) => partialSum + num, 0);
-
-    const sumTopFiveFrequentLicensesCount =
-      sortedTopFiveFrequentLicensesAndOther.reduce((accumulator, object) => {
-        return accumulator + object.count;
-      }, 0);
-
-    const other = total - sumTopFiveFrequentLicensesCount;
-
-    sortedTopFiveFrequentLicensesAndOther.push({
-      name: 'Other',
-      count: other,
-    });
-    return sortedTopFiveFrequentLicensesAndOther;
-  }
-  return sortedMostFrequentLicenses;
-}
-
-export function getCriticalSignalsCount(
-  licenseCounts: LicenseCounts,
-  licenseNamesWithCriticality: LicenseNamesWithCriticality,
-): Array<PieChartData> {
-  const licenseCriticalityCounts = { high: 0, medium: 0, none: 0 };
-
-  for (const license of Object.keys(
-    licenseCounts.attributionCountPerSourcePerLicense,
-  )) {
-    licenseCriticalityCounts[licenseNamesWithCriticality[license] || 'none'] +=
-      licenseCounts.totalAttributionsPerLicense[license];
-  }
-
-  const criticalityData = [
-    {
-      name: PieChartCriticalityNames.HighCriticality,
-      count: licenseCriticalityCounts['high'],
-    },
-    {
-      name: PieChartCriticalityNames.MediumCriticality,
-      count: licenseCriticalityCounts['medium'],
-    },
-    {
-      name: PieChartCriticalityNames.NoCriticality,
-      count: licenseCriticalityCounts['none'],
-    },
-  ];
-
-  return criticalityData.filter(({ count }) => count > 0);
-}
-
-export function getSignalCountByClassification(
-  licenseCounts: LicenseCounts,
-  licenseNamesWithClassification: LicenseNamesWithClassification,
-  classifications: Classifications,
-): Array<PieChartData> {
-  const classificationCounts: { [classification: number]: number } = {};
-
-  for (const [license, attributionCount] of Object.entries(
-    licenseCounts.totalAttributionsPerLicense,
-  )) {
-    // count undefined classification at index -1 in classificationCounts
-    const classification = licenseNamesWithClassification[license] ?? -1;
-    classificationCounts[classification] =
-      (classificationCounts[classification] ?? 0) + attributionCount;
-  }
-
-  const pieChartData = Object.keys(classifications)
-    .map((classification) => {
-      const classificationName = classifications[toNumber(classification)];
-      const classificationCount =
-        classificationCounts[toNumber(classification)] ?? 0;
-
-      return {
-        name: classificationName,
-        count: classificationCount,
-      };
-    })
-    .filter(({ count }) => count > 0);
-
-  if (classificationCounts[-1]) {
-    return pieChartData.concat({
-      name: 'No Classification',
-      count: classificationCounts[-1],
-    });
-  }
-
-  return pieChartData;
-}
-
-export function getIncompleteAttributionsCount(
-  attributions: Attributions,
-): Array<PieChartData> {
-  const incompleteAttributionsData: Array<PieChartData> = [];
-  const numberOfAttributions = Object.keys(attributions).length;
-  const numberOfIncompleteAttributions = Object.keys(
-    pickBy(attributions, (value: PackageInfo) =>
-      isPackageInfoIncomplete(value),
-    ),
-  ).length;
-
-  if (numberOfAttributions - numberOfIncompleteAttributions !== 0) {
-    incompleteAttributionsData.push({
-      name: 'Complete attributions',
-      count: numberOfAttributions - numberOfIncompleteAttributions,
-    });
-  }
-  if (numberOfIncompleteAttributions !== 0) {
-    incompleteAttributionsData.push({
-      name: 'Incomplete attributions',
-      count: numberOfIncompleteAttributions,
-    });
-  }
-  return incompleteAttributionsData;
 }

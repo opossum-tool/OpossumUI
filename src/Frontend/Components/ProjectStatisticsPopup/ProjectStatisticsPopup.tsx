@@ -4,7 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
+import { countBy } from 'lodash';
 
+import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { PieChartCriticalityNames } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
@@ -23,12 +25,10 @@ import { AttributionPropertyCountTable } from '../AttributionPropertyCountTable/
 import { Checkbox } from '../Checkbox/Checkbox';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
-  aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
-  getCriticalSignalsCount,
-  getIncompleteAttributionsCount,
+  convertToPieChartData,
   getMostFrequentLicenses,
-  getSignalCountByClassification,
+  prepareStatistics,
 } from './ProjectStatisticsPopup.util';
 
 const classes = {
@@ -37,16 +37,56 @@ const classes = {
   rightPanel: { flexGrow: 1, marginLeft: '2vw' },
 };
 
+const MAX_DISPLAYED_FREQUENT_LICENSES = 5;
+
+function mapCriticalityToText(criticality?: Criticality) {
+  if (criticality === Criticality.High) {
+    return PieChartCriticalityNames.HighCriticality;
+  } else if (criticality === Criticality.Medium) {
+    return PieChartCriticalityNames.MediumCriticality;
+  }
+  return PieChartCriticalityNames.NoCriticality;
+}
+
 export const ProjectStatisticsPopup: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const manualAttributions = useAppSelector(getManualAttributions);
   const attributionSources = useAppSelector(getExternalAttributionSources);
   const classifications = useAppSelector(getClassifications);
-
   const unresolvedExternalAttribution = useAppSelector(
     getUnresolvedExternalAttributions,
   );
+
+  const externalAttributionStats = prepareStatistics(
+    unresolvedExternalAttribution,
+    attributionSources,
+  );
+  const mostFrequentLicenseCountData = getMostFrequentLicenses(
+    externalAttributionStats,
+    MAX_DISPLAYED_FREQUENT_LICENSES,
+  );
+  const criticalSignalsCountData = convertToPieChartData(
+    countBy(externalAttributionStats, ({ criticality }) =>
+      mapCriticalityToText(criticality),
+    ),
+  );
+  const signalCountByClassification = convertToPieChartData(
+    countBy(
+      externalAttributionStats,
+      ({ classification }) =>
+        classifications[classification] ?? 'No Classification',
+    ),
+  );
+
+  const manualAttributionStats = prepareStatistics(manualAttributions);
+  const incompleteAttributionsData = convertToPieChartData(
+    countBy(manualAttributionStats, ({ isIncomplete }) =>
+      isIncomplete ? 'Incomplete attributions' : 'Complete attributions',
+    ),
+  );
+
+  //const signalsPerSourcesTableData = groupBy(externalAttributionStats, ({ licenseName, criticality, classification }) => {return {licenseName:licenseName, criticality:criticality, classification:classification}})
 
   const {
     licenseCounts,
@@ -57,30 +97,11 @@ export const ProjectStatisticsPopup: React.FC = () => {
     attributionSources,
   );
 
-  const mostFrequentLicenseCountData = getMostFrequentLicenses(licenseCounts);
-
-  const criticalSignalsCountData = getCriticalSignalsCount(
-    licenseCounts,
-    licenseNamesWithCriticality,
-  );
-
   const criticalSignalsCountColors = {
     [PieChartCriticalityNames.HighCriticality]: OpossumColors.orange,
     [PieChartCriticalityNames.MediumCriticality]: OpossumColors.mediumOrange,
     [PieChartCriticalityNames.NoCriticality]: OpossumColors.darkBlue,
   };
-
-  const signalCountByClassification = getSignalCountByClassification(
-    licenseCounts,
-    licenseNamesWithClassification,
-    classifications,
-  );
-
-  const manualAttributionPropertyCounts =
-    aggregateAttributionPropertiesFromAttributions(manualAttributions);
-
-  const incompleteAttributionsData =
-    getIncompleteAttributionsCount(manualAttributions);
 
   const isThereAnyPieChartData =
     mostFrequentLicenseCountData.length > 0 ||
@@ -102,9 +123,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
           <MuiBox style={classes.panels}>
             <MuiBox style={classes.leftPanel}>
               <AttributionPropertyCountTable
-                attributionPropertyCountsEntries={Object.entries(
-                  manualAttributionPropertyCounts,
-                )}
+                statistics={manualAttributionStats}
                 title={
                   text.projectStatisticsPopup.charts
                     .attributionPropertyCountTable

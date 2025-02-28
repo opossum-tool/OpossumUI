@@ -10,17 +10,28 @@ import MuiTableContainer from '@mui/material/TableContainer';
 import MuiTableHead from '@mui/material/TableHead';
 import MuiTableRow from '@mui/material/TableRow';
 import MuiTypography from '@mui/material/Typography';
+import { map, sum } from 'lodash';
 
 import { tableClasses } from '../../shared-styles';
+import { AttributionStatistics } from '../ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 
-const ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME: {
+const ATTRIBUTION_PROPERTY_TO_DISPLAY_NAME: {
   [attributionProperty: string]: string;
 } = {
   needsReview: 'Needs review',
   followUp: 'Follow up',
   firstParty: 'First party',
   incomplete: 'Incomplete Attributions',
+  total: 'Total Attributions',
 };
+
+const ATTRIBUTION_PROPERTY_IN_ORDER_OF_COLUMNS = [
+  'needsReview',
+  'followUp',
+  'firstParty',
+  'incomplete',
+  'total',
+];
 
 const classes = {
   container: {
@@ -32,20 +43,21 @@ const classes = {
 };
 
 interface AttributionPropertyCountTableProps {
-  attributionPropertyCountsEntries: Array<Array<string | number>>;
+  statistics: Array<AttributionStatistics>;
   title: string;
 }
 
 export const AttributionPropertyCountTable: React.FC<
   AttributionPropertyCountTableProps
 > = (props) => {
-  const attributionPropertyDisplayNames =
-    props.attributionPropertyCountsEntries.map((entry) =>
-      _getAttributionPropertyDisplayNameFromId(entry[0].toString()),
-    );
-  const attributionPropertyCounts = props.attributionPropertyCountsEntries.map(
-    (entry) => entry[1].toString(),
-  );
+  const attributionStats = props.statistics;
+  const attributionTableData: Record<string, number> = {
+    needsReview: sum(map(attributionStats, 'needsReview')) ?? 0,
+    followUp: sum(map(attributionStats, 'followUp')) ?? 0,
+    firstParty: sum(map(attributionStats, 'firstParty')) ?? 0,
+    incomplete: sum(map(attributionStats, 'isIncomplete')) ?? 0,
+    total: attributionStats.length,
+  };
 
   return (
     <MuiBox>
@@ -54,14 +66,14 @@ export const AttributionPropertyCountTable: React.FC<
         <MuiTable size="small" stickyHeader>
           <MuiTableHead>
             <MuiTableRow>
-              {attributionPropertyDisplayNames.map(
-                (attributionPropertyDisplayName, index) => (
+              {ATTRIBUTION_PROPERTY_IN_ORDER_OF_COLUMNS.map(
+                (propertyName, index) => (
                   <MuiTableCell
                     sx={tableClasses.head}
                     key={index}
                     align="center"
                   >
-                    {attributionPropertyDisplayName}
+                    {ATTRIBUTION_PROPERTY_TO_DISPLAY_NAME[propertyName]}
                   </MuiTableCell>
                 ),
               )}
@@ -69,14 +81,14 @@ export const AttributionPropertyCountTable: React.FC<
           </MuiTableHead>
           <MuiTableBody>
             <MuiTableRow>
-              {attributionPropertyCounts.map(
-                (attributionPropertyCount, index) => (
+              {ATTRIBUTION_PROPERTY_IN_ORDER_OF_COLUMNS.map(
+                (propertyName, index) => (
                   <MuiTableCell
                     sx={tableClasses.body}
                     key={index}
                     align="center"
                   >
-                    {attributionPropertyCount}
+                    {attributionTableData[propertyName]}
                   </MuiTableCell>
                 ),
               )}
@@ -92,8 +104,8 @@ export const AttributionPropertyCountTable: React.FC<
 export function _getAttributionPropertyDisplayNameFromId(
   attributionProperty: string,
 ): string {
-  if (attributionProperty in ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME) {
-    return ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME[attributionProperty];
+  if (attributionProperty in ATTRIBUTION_PROPERTY_TO_DISPLAY_NAME) {
+    return ATTRIBUTION_PROPERTY_TO_DISPLAY_NAME[attributionProperty];
   }
   return attributionProperty;
 }
