@@ -8,7 +8,6 @@ import MuiBox from '@mui/material/Box';
 import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
-import { useState } from 'react';
 
 import commitInfo from '../../../commitInfo.json';
 import { View } from '../../enums/enums';
@@ -19,26 +18,15 @@ import {
 } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getSelectedView } from '../../state/selectors/view-selector';
-import { useProgressData } from '../../state/variables/use-progress-data';
 import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
 import { IconButton } from '../IconButton/IconButton';
-import { ProgressBar } from '../ProgressBar/ProgressBar';
-import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
+import { SwitchableProcessBar } from '../SwitchableProcessBar/SwitchableProcessBar';
 
 const classes = {
   root: {
     height: '36px',
     background: OpossumColors.darkBlue,
     display: 'flex',
-  },
-  progressBarContainer: {
-    flex: 1,
-    display: 'flex',
-    marginLeft: '12px',
-    marginRight: '12px',
-  },
-  switch: {
-    margin: 'auto',
   },
   openFileIcon: {
     margin: '8px',
@@ -80,9 +68,6 @@ export const TopBar: React.FC = () => {
   const selectedView = useAppSelector(getSelectedView);
   const dispatch = useAppDispatch();
 
-  const [showCriticalSignals, setShowCriticalSignals] = useState(false);
-  const [progressData] = useProgressData();
-
   function handleClick(
     _: React.MouseEvent<HTMLElement>,
     selectedView: View,
@@ -110,7 +95,7 @@ export const TopBar: React.FC = () => {
           />
         }
       />
-      {renderProgressBar()}
+      <SwitchableProcessBar />
       <MuiToggleButtonGroup
         size="small"
         value={selectedView}
@@ -139,30 +124,4 @@ export const TopBar: React.FC = () => {
       </MuiBox>
     </MuiBox>
   );
-
-  function renderProgressBar() {
-    if (!progressData) {
-      return <MuiBox flex={1} />;
-    }
-
-    return (
-      <MuiBox sx={classes.progressBarContainer}>
-        <ProgressBar
-          sx={classes.progressBarContainer}
-          progressBarData={progressData}
-          showCriticalSignals={showCriticalSignals}
-        />
-        <SwitchWithTooltip
-          sx={classes.switch}
-          switchToolTipText={
-            showCriticalSignals
-              ? 'Critical signals progress bar selected'
-              : 'Progress bar selected'
-          }
-          isChecked={showCriticalSignals}
-          handleSwitchClick={() => setShowCriticalSignals(!showCriticalSignals)}
-        />
-      </MuiBox>
-    );
-  }
 };
