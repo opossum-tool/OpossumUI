@@ -25,6 +25,13 @@ export const SwitchableProcessBar: React.FC = () => {
   const [showCriticalSignals, setShowCriticalSignals] = useState(false);
   const [progressData] = useProgressData();
 
+  function toggleShowCriticalSignals() {
+    return () =>
+      setShowCriticalSignals(
+        (currentShowCriticalSignals: boolean) => !currentShowCriticalSignals,
+      );
+  }
+
   if (!progressData) {
     return <MuiBox flex={1} />;
   }
@@ -43,7 +50,7 @@ export const SwitchableProcessBar: React.FC = () => {
             : 'Progress bar selected'
         }
         isChecked={showCriticalSignals}
-        handleSwitchClick={() => setShowCriticalSignals(!showCriticalSignals)}
+        handleSwitchClick={toggleShowCriticalSignals()}
       />
     </MuiBox>
   );
