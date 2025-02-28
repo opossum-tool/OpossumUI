@@ -349,4 +349,20 @@ export const text = {
     noOpenFileToMergeInto: 'No open file to merge into',
     cantCreateBackup: 'Unable to create backup of currently open Opossum file',
   },
+  topBar: {
+    openFile: {
+      ariaLabel: 'open file icon',
+      toolTipTitle: 'open file',
+    },
+    audit: 'Audit',
+    report: 'Report',
+    switchableProgressBar: {
+      criticalSignalsBar: {
+        switcherTooltip: 'Critical signals progress bar selected',
+      },
+      defaultProgressBar: {
+        switcherTooltip: 'Progress bar selected',
+      },
+    },
+  },
 } as const;

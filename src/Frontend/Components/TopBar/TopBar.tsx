@@ -10,6 +10,7 @@ import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
 
 import commitInfo from '../../../commitInfo.json';
+import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import {
@@ -83,7 +84,7 @@ export const TopBar: React.FC = () => {
     <MuiBox aria-label={'top bar'} sx={classes.root}>
       <BackendCommunication />
       <IconButton
-        tooltipTitle="open file"
+        tooltipTitle={text.topBar.openFile.toolTipTitle}
         tooltipPlacement="right"
         onClick={(): void => {
           handleOpenFileClick();
@@ -91,7 +92,7 @@ export const TopBar: React.FC = () => {
         icon={
           <FolderOpenIcon
             sx={classes.openFileIcon}
-            aria-label={'open file icon'}
+            aria-label={text.topBar.openFile.ariaLabel}
           />
         }
       />
@@ -107,14 +108,14 @@ export const TopBar: React.FC = () => {
           sx={classes.viewButtons}
           disabled={selectedView === View.Audit}
         >
-          {'Audit'}
+          {text.topBar.audit}
         </MuiToggleButton>
         <MuiToggleButton
           value={View.Report}
           sx={classes.viewButtons}
           disabled={selectedView === View.Report}
         >
-          {'Report'}
+          {text.topBar.report}
         </MuiToggleButton>
       </MuiToggleButtonGroup>
       <MuiBox sx={classes.versionInfo}>

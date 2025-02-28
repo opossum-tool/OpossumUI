@@ -5,6 +5,7 @@
 import MuiBox from '@mui/material/Box';
 import { useState } from 'react';
 
+import { text as fullText } from '../../../shared/text';
 import { useProgressData } from '../../state/variables/use-progress-data';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
@@ -22,6 +23,7 @@ const classes = {
 };
 
 export const SwitchableProcessBar: React.FC = () => {
+  const text = fullText.topBar.switchableProgressBar;
   const [showCriticalSignals, setShowCriticalSignals] = useState(false);
   const [progressData] = useProgressData();
 
@@ -46,8 +48,8 @@ export const SwitchableProcessBar: React.FC = () => {
         sx={classes.switch}
         switchToolTipText={
           showCriticalSignals
-            ? 'Critical signals progress bar selected'
-            : 'Progress bar selected'
+            ? text.criticalSignalsBar.switcherTooltip
+            : text.defaultProgressBar.switcherTooltip
         }
         isChecked={showCriticalSignals}
         handleSwitchClick={toggleShowCriticalSignals()}
