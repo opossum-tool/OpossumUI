@@ -61,10 +61,14 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
                   licenseCriticality={
                     props.licenseNamesWithCriticality[licenseName]
                   }
+                  licenseClassification={
+                    props.licenseNamesWithClassification[licenseName]
+                  }
                   totalSignalCount={
                     props.licenseCounts.totalAttributionsPerLicense[licenseName]
                   }
                   key={rowIndex}
+                  rowIndex={rowIndex}
                 />
               ))}
           </MuiTableBody>
