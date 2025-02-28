@@ -110,7 +110,8 @@ describe('The ProjectStatisticsPopup', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart,
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
+          .title,
       ),
     ).toBeInTheDocument();
     expect(
@@ -144,7 +145,8 @@ describe('The ProjectStatisticsPopup', () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart,
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
+          .title,
       ),
     ).not.toBeInTheDocument();
     expect(
@@ -197,7 +199,8 @@ describe('The ProjectStatisticsPopup', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart,
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
+          .title,
       ),
     ).toBeInTheDocument();
     expect(
