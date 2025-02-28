@@ -10,6 +10,10 @@ import { upperFirst } from 'lodash';
 
 import { text } from '../../../../shared/text';
 import { tableClasses } from '../../../shared-styles';
+import {
+  Order,
+  TableCellWithSorting,
+} from '../../TableCellWithSorting/TableCellWithSorting';
 
 const classes = {
   headerCellWithVerticalSeparator: {
@@ -22,6 +26,9 @@ const classes = {
 
 interface AttributionCountPerSourcePerLicenseTableHeadProps {
   sourceNames: Array<string>;
+  order: Order;
+  orderBy: number;
+  onRequestSort: (columnIndex: number) => void;
 }
 
 export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
@@ -64,7 +71,7 @@ export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
       </MuiTableRow>
       <MuiTableRow>
         {headerRow.map((columnHeader, columnIndex) => (
-          <MuiTableCell
+          <TableCellWithSorting
             sx={{
               ...tableClasses.head,
               ...(columnIndex === 2
@@ -73,9 +80,12 @@ export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
             }}
             key={columnIndex}
             align={columnIndex === 0 ? 'left' : 'center'}
+            order={props.order}
+            isSortedColumn={props.orderBy === columnIndex}
+            onRequestSort={() => props.onRequestSort(columnIndex)}
           >
             {columnHeader}
-          </MuiTableCell>
+          </TableCellWithSorting>
         ))}
       </MuiTableRow>
     </MuiTableHead>
