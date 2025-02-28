@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
+  Criticality,
   ExternalAttributionSources,
   Resources,
   ResourcesToAttributions,
@@ -30,21 +31,25 @@ describe('getOriginIdsToPreferOver', () => {
       uuid0: {
         originIds: ['originUuid0'],
         source: testSource,
+        criticality: Criticality.NonCritical,
         id: 'uuid0',
       },
       uuid1: {
         originIds: ['originUuid1'],
         source: testSource,
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
       uuid2: {
         originIds: ['originUuid2'],
         source: testSource,
+        criticality: Criticality.NonCritical,
         id: 'uuid2',
       },
       uuid3: {
         originIds: ['originUuid3'],
         source: testSource,
+        criticality: Criticality.NonCritical,
         id: 'uuid3',
       },
     };
@@ -79,15 +84,22 @@ describe('getOriginIdsToPreferOver', () => {
     };
     const resourcesToManualAttributions: ResourcesToAttributions = {};
     const externalAttributions: Attributions = {
-      uuid1: { originIds: ['originUuid1'], source: testSource, id: 'uuid1' },
+      uuid1: {
+        originIds: ['originUuid1'],
+        source: testSource,
+        criticality: Criticality.NonCritical,
+        id: 'uuid1',
+      },
       uuid2: {
         originIds: ['originUuid2', 'originUuid3'],
         source: testSource,
+        criticality: Criticality.NonCritical,
         id: 'uuid2',
       },
       uuid3: {
         originIds: ['originUuid3', 'originUuid4'],
         source: testSource,
+        criticality: Criticality.NonCritical,
         id: 'uuid3',
       },
     };
@@ -129,8 +141,18 @@ describe('getOriginIdsToPreferOver', () => {
       '/folder/file1': ['uuid2'],
     };
     const externalAttributions: Attributions = {
-      uuid0: { originIds: ['originUuid0'], source: testSource, id: 'uuid0' },
-      uuid1: { originIds: ['originUuid1'], source: testSource, id: 'uuid1' },
+      uuid0: {
+        originIds: ['originUuid0'],
+        source: testSource,
+        criticality: Criticality.NonCritical,
+        id: 'uuid0',
+      },
+      uuid1: {
+        originIds: ['originUuid1'],
+        source: testSource,
+        criticality: Criticality.NonCritical,
+        id: 'uuid1',
+      },
     };
     const externalAttributionsSources: ExternalAttributionSources = {
       testSource: {
@@ -173,9 +195,15 @@ describe('getOriginIdsToPreferOver', () => {
       uuid1: {
         originIds: ['originUuid1'],
         source: relevantSource,
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
-      uuid2: { originIds: ['originUuid2'], source: otherSource, id: 'uuid2' },
+      uuid2: {
+        originIds: ['originUuid2'],
+        source: otherSource,
+        criticality: Criticality.NonCritical,
+        id: 'uuid2',
+      },
     };
     const externalAttributionsSources: ExternalAttributionSources = {
       relevantSource: {
@@ -224,11 +252,13 @@ describe('getOriginIdsToPreferOver', () => {
       [uuid1]: {
         originIds: [originUuid1],
         source: attributionSource,
+        criticality: Criticality.NonCritical,
         id: uuid1,
       },
       [uuid2]: {
         originIds: [originUuid2],
         source: attributionSource,
+        criticality: Criticality.NonCritical,
         id: uuid2,
       },
     });

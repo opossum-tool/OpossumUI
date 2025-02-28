@@ -6,6 +6,7 @@ import { screen } from '@testing-library/react';
 
 import {
   Attributions,
+  Criticality,
   DiscreteConfidence,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -31,11 +32,13 @@ describe('ReportView', () => {
         url: 'packageWebsite',
         firstParty: true,
         resources: ['/'],
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: [],
+        criticality: Criticality.NonCritical,
         id: 'uuid2',
       },
     };

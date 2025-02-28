@@ -82,7 +82,7 @@ const classes = {
 } satisfies SxProps;
 
 export interface PackageCardConfig {
-  criticality?: Criticality;
+  criticality: Criticality;
   excludeFromNotice?: boolean;
   firstParty?: boolean;
   focused?: boolean;

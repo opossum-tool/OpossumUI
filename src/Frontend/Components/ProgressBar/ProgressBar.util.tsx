@@ -5,6 +5,7 @@
 import MuiBox from '@mui/material/Box';
 import { sum } from 'lodash';
 
+import { Criticality } from '../../../shared/shared-types';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -172,8 +173,8 @@ export function getCriticalityBarBackground(
 
   return (
     'linear-gradient(to right,' +
-    ` ${criticalityColor.high} ${filesWithHighlyCriticalExternalAttributions}%,` +
-    ` ${criticalityColor.medium} ${filesWithHighlyCriticalExternalAttributions}% ${filesWithHighOrMediumCriticalExternalAttributions}%,` +
+    ` ${criticalityColor[Criticality.High]} ${filesWithHighlyCriticalExternalAttributions}%,` +
+    ` ${criticalityColor[Criticality.Medium]} ${filesWithHighlyCriticalExternalAttributions}% ${filesWithHighOrMediumCriticalExternalAttributions}%,` +
     ` ${OpossumColors.lightestBlue} ${filesWithHighOrMediumCriticalExternalAttributions}%)`
   );
 }

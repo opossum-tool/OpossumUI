@@ -6,6 +6,7 @@ import { screen } from '@testing-library/react';
 
 import {
   Attributions,
+  Criticality,
   DiscreteConfidence,
 } from '../../../../shared/shared-types';
 import { renderComponent } from '../../../test-helpers/render';
@@ -25,6 +26,7 @@ describe('The ReportTableItem', () => {
         url: 'packageWebsite',
         firstParty: true,
         resources: ['/'],
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
     };
@@ -65,6 +67,7 @@ describe('The ReportTableItem', () => {
         resources: ['/'],
         needsReview: true,
         preferred: true,
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
       uuid2: {
@@ -72,6 +75,7 @@ describe('The ReportTableItem', () => {
         resources: [],
         followUp: true,
         excludeFromNotice: true,
+        criticality: Criticality.NonCritical,
         id: 'uuid2',
       },
     };

@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { Criticality } from '../shared/shared-types';
 
 export const OpossumColors = {
   white: 'hsl(0, 0%, 100%)',
@@ -40,8 +41,9 @@ export const OpossumColors = {
 };
 
 export const criticalityColor = {
-  high: OpossumColors.orange,
-  medium: OpossumColors.mediumOrange,
+  [Criticality.High]: OpossumColors.orange,
+  [Criticality.Medium]: OpossumColors.mediumOrange,
+  [Criticality.NonCritical]: OpossumColors.darkBlue,
 };
 
 export const baseIcon = {

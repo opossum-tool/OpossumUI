@@ -8,6 +8,7 @@ import {
   AttributionData,
   Attributions,
   AttributionsToResources,
+  Criticality,
   PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
@@ -40,6 +41,7 @@ describe('The createManualAttribution function', () => {
     const testSelectedResourceId = '/something.js';
     const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
+      criticality: Criticality.NonCritical,
       id: expect.any(String),
     };
 
@@ -61,6 +63,7 @@ describe('The createManualAttribution function', () => {
     const testSelectedResourceId = '/child';
     const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
+      criticality: Criticality.NonCritical,
       id: faker.string.uuid(),
     };
 
@@ -76,6 +79,7 @@ describe('The createManualAttribution function', () => {
             externalUuid: {
               source: { name: 'testSource', documentConfidence: 0 },
               originIds: ['originId'],
+              criticality: Criticality.NonCritical,
               id: 'externalUuid',
             },
           },
@@ -90,6 +94,7 @@ describe('The createManualAttribution function', () => {
             manualUuid1: {
               preferred: true,
               preferredOverOriginIds: ['originId'],
+              criticality: Criticality.NonCritical,
               id: 'manualUuid1',
             },
           },
@@ -111,6 +116,7 @@ describe('The createManualAttribution function', () => {
 
     expect(newManualData.attributions['manualUuid1']).toEqual<PackageInfo>({
       id: 'manualUuid1',
+      criticality: Criticality.NonCritical,
       preferred: true,
       preferredOverOriginIds: [],
     });
@@ -125,6 +131,7 @@ describe('The deleteManualAttribution function', () => {
           packageName: 'testpackage',
           packageVersion: '2.0',
           licenseText: 'Permission is hereby granted',
+          criticality: Criticality.NonCritical,
           id: testUuid,
         },
       },
@@ -168,12 +175,14 @@ describe('The deleteManualAttribution function', () => {
       attributions: {
         [testAnotherUuid]: {
           packageName: 'another testpackage',
+          criticality: Criticality.NonCritical,
           id: testAnotherUuid,
         },
         [testUuid]: {
           packageName: 'testpackage',
           packageVersion: '2.0',
           licenseText: 'Permission is hereby granted',
+          criticality: Criticality.NonCritical,
           id: testUuid,
         },
       },
@@ -203,7 +212,11 @@ describe('The deleteManualAttribution function', () => {
       getCalculatePreferredOverOriginIds(initialResourceState),
     );
     expect(newManualData.attributions).toEqual<Attributions>({
-      '000': { packageName: 'another testpackage', id: '000' },
+      '000': {
+        packageName: 'another testpackage',
+        criticality: Criticality.NonCritical,
+        id: '000',
+      },
     });
     expect(newManualData.resourcesToAttributions).toEqual({
       '/first/': ['000'],
@@ -236,6 +249,7 @@ describe('The deleteManualAttribution function', () => {
             externalUuid: {
               source: { name: 'testSource', documentConfidence: 0 },
               originIds: ['originId'],
+              criticality: Criticality.NonCritical,
               id: 'externalUuid',
             },
           },
@@ -250,9 +264,13 @@ describe('The deleteManualAttribution function', () => {
             manualUuid1: {
               preferred: true,
               preferredOverOriginIds: [],
+              criticality: Criticality.NonCritical,
               id: 'manualUuid1',
             },
-            manualUuid2: { id: 'manualUuid2' },
+            manualUuid2: {
+              criticality: Criticality.NonCritical,
+              id: 'manualUuid2',
+            },
           },
           resourcesToManualAttributions: {
             '/': ['manualUuid1'],
@@ -274,6 +292,7 @@ describe('The deleteManualAttribution function', () => {
 
     expect(newManualData.attributions['manualUuid1']).toEqual<PackageInfo>({
       id: 'manualUuid1',
+      criticality: Criticality.NonCritical,
       preferred: true,
       preferredOverOriginIds: ['originId'],
     });
@@ -282,9 +301,14 @@ describe('The deleteManualAttribution function', () => {
 
 describe('The updateManualAttribution function', () => {
   it('updates an existing manual attribution', () => {
-    const testPackageInfo: PackageInfo = { packageName: 'Vue', id: testUuid };
+    const testPackageInfo: PackageInfo = {
+      packageName: 'Vue',
+      criticality: Criticality.NonCritical,
+      id: testUuid,
+    };
     const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
+      criticality: Criticality.NonCritical,
       id: testUuid,
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {
@@ -333,6 +357,7 @@ describe('The linkToAttributionManualData function', () => {
           packageName: 'testpackage',
           packageVersion: '2.0',
           licenseText: 'Permission is hereby granted',
+          criticality: Criticality.NonCritical,
           id: testUuid,
         },
       },
@@ -390,6 +415,7 @@ describe('The linkToAttributionManualData function', () => {
             externalUuid: {
               source: { name: 'testSource', documentConfidence: 0 },
               originIds: ['originId'],
+              criticality: Criticality.NonCritical,
               id: 'externalUuid',
             },
           },
@@ -404,10 +430,12 @@ describe('The linkToAttributionManualData function', () => {
             parentAttriubtionUuid: {
               preferred: true,
               preferredOverOriginIds: [],
+              criticality: Criticality.NonCritical,
               id: 'parentAttriubtionUuid',
             },
             childAttributionUuid: {
               preferred: false,
+              criticality: Criticality.NonCritical,
               id: 'childAttributionUuid',
             },
           },
@@ -433,6 +461,7 @@ describe('The linkToAttributionManualData function', () => {
       newManualData.attributions['parentAttriubtionUuid'],
     ).toEqual<PackageInfo>({
       id: 'parentAttriubtionUuid',
+      criticality: Criticality.NonCritical,
       preferred: true,
       preferredOverOriginIds: [],
     });
@@ -447,6 +476,7 @@ describe('The unlinkResourceFromAttributionId function', () => {
           packageName: 'testpackage',
           packageVersion: '2.0',
           licenseText: 'Permission is hereby granted',
+          criticality: Criticality.NonCritical,
           id: testUuid,
         },
       },
@@ -501,6 +531,7 @@ describe('The unlinkResourceFromAttributionId function', () => {
             externalUuid: {
               source: { name: 'testSource', documentConfidence: 0 },
               originIds: ['originId'],
+              criticality: Criticality.NonCritical,
               id: 'externalUuid',
             },
           },
@@ -515,10 +546,12 @@ describe('The unlinkResourceFromAttributionId function', () => {
             parentAttriubtionUuid: {
               preferred: true,
               preferredOverOriginIds: [],
+              criticality: Criticality.NonCritical,
               id: 'parentAttriubtionUuid',
             },
             childAttributionUuid: {
               preferred: false,
+              criticality: Criticality.NonCritical,
               id: 'childAttributionUuid',
             },
           },
@@ -544,6 +577,7 @@ describe('The unlinkResourceFromAttributionId function', () => {
       newManualData.attributions['parentAttriubtionUuid'],
     ).toEqual<PackageInfo>({
       id: 'parentAttriubtionUuid',
+      criticality: Criticality.NonCritical,
       preferred: true,
       preferredOverOriginIds: ['originId'],
     });
@@ -556,6 +590,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          criticality: Criticality.NonCritical,
           id: 'uuid1',
         },
       },
@@ -587,6 +622,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          criticality: Criticality.NonCritical,
           id: 'uuid1',
         },
       },
@@ -623,14 +659,17 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          criticality: Criticality.NonCritical,
           id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          criticality: Criticality.NonCritical,
           id: 'uuid2',
         },
         uuid3: {
           packageName: 'Angular',
+          criticality: Criticality.NonCritical,
           id: 'uuid3',
         },
       },
@@ -678,14 +717,17 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          criticality: Criticality.NonCritical,
           id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          criticality: Criticality.NonCritical,
           id: 'uuid2',
         },
         uuid3: {
           packageName: 'Angular',
+          criticality: Criticality.NonCritical,
           id: 'uuid3',
         },
       },
@@ -747,14 +789,17 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          criticality: Criticality.NonCritical,
           id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          criticality: Criticality.NonCritical,
           id: 'uuid2',
         },
         uuid3: {
           packageName: 'Angular',
+          criticality: Criticality.NonCritical,
           id: 'uuid3',
         },
       },
@@ -804,14 +849,17 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          criticality: Criticality.NonCritical,
           id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          criticality: Criticality.NonCritical,
           id: 'uuid2',
         },
         uuid3: {
           packageName: 'Angular',
+          criticality: Criticality.NonCritical,
           id: 'uuid3',
         },
       },
@@ -866,10 +914,12 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          criticality: Criticality.NonCritical,
           id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          criticality: Criticality.NonCritical,
           id: 'uuid2',
         },
       },
@@ -911,10 +961,12 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          criticality: Criticality.NonCritical,
           id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          criticality: Criticality.NonCritical,
           id: 'uuid2',
         },
       },

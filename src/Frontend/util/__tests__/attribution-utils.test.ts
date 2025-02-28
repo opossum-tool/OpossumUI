@@ -5,6 +5,7 @@
 import {
   Attributions,
   AttributionsToResources,
+  Criticality,
   ExportType,
   Resources,
 } from '../../../shared/shared-types';
@@ -18,9 +19,21 @@ import {
 describe('getAttributionsWithResources', () => {
   it('returns attributions with resources', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React', id: 'uuid1' },
-      uuid2: { packageName: 'Redux', id: 'uuid2' },
-      uuid3: { packageName: 'root package', id: 'uuid3' },
+      uuid1: {
+        packageName: 'React',
+        criticality: Criticality.NonCritical,
+        id: 'uuid1',
+      },
+      uuid2: {
+        packageName: 'Redux',
+        criticality: Criticality.NonCritical,
+        id: 'uuid2',
+      },
+      uuid3: {
+        packageName: 'root package',
+        criticality: Criticality.NonCritical,
+        id: 'uuid3',
+      },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -33,16 +46,19 @@ describe('getAttributionsWithResources', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/some/path1/', '/some/path2/'],
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: ['/some/path1/'],
+        criticality: Criticality.NonCritical,
         id: 'uuid2',
       },
       uuid3: {
         packageName: 'root package',
         resources: ['/'],
+        criticality: Criticality.NonCritical,
         id: 'uuid3',
       },
     };
@@ -63,10 +79,26 @@ describe('getAttributionsWithResources', () => {
 describe('getAttributionsWithAllChildResources', () => {
   it('returns attributions with resources recursively', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React', id: 'uuid1' },
-      uuid2: { packageName: 'Redux', id: 'uuid2' },
-      uuid3: { packageName: 'JQuery', id: 'uuid3' },
-      uuid4: { packageName: 'root package', id: 'uuid4' },
+      uuid1: {
+        packageName: 'React',
+        criticality: Criticality.NonCritical,
+        id: 'uuid1',
+      },
+      uuid2: {
+        packageName: 'Redux',
+        criticality: Criticality.NonCritical,
+        id: 'uuid2',
+      },
+      uuid3: {
+        packageName: 'JQuery',
+        criticality: Criticality.NonCritical,
+        id: 'uuid3',
+      },
+      uuid4: {
+        packageName: 'root package',
+        criticality: Criticality.NonCritical,
+        id: 'uuid4',
+      },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -87,21 +119,25 @@ describe('getAttributionsWithAllChildResources', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/some/path1/something.js', '/some/file1'],
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: ['/some/path1/something.js'],
+        criticality: Criticality.NonCritical,
         id: 'uuid2',
       },
       uuid3: {
         packageName: 'JQuery',
         resources: ['/some/path3/some_other_thing.js'],
+        criticality: Criticality.NonCritical,
         id: 'uuid3',
       },
       uuid4: {
         packageName: 'root package',
         resources: [],
+        criticality: Criticality.NonCritical,
         id: 'uuid4',
       },
     };
@@ -131,7 +167,11 @@ describe('getAttributionsWithAllChildResources', () => {
 
   it('returns attributions with resources recursively in the edge case of same folder names', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React', id: 'uuid1' },
+      uuid1: {
+        packageName: 'React',
+        criticality: Criticality.NonCritical,
+        id: 'uuid1',
+      },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -154,6 +194,7 @@ describe('getAttributionsWithAllChildResources', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/foo/foo/foo'],
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
     };
@@ -172,7 +213,11 @@ describe('getAttributionsWithAllChildResources', () => {
 
   it('returns attributions with resources recursively for a deep file tree', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React', id: 'uuid1' },
+      uuid1: {
+        packageName: 'React',
+        criticality: Criticality.NonCritical,
+        id: 'uuid1',
+      },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -221,6 +266,7 @@ describe('getAttributionsWithAllChildResources', () => {
           '/folder/folder2/file',
           '/folder/file',
         ],
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
     };
@@ -252,8 +298,16 @@ describe('getAttributionsWithAllChildResources', () => {
 
   it('does not return resources inside a breakpoint', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React', id: 'uuid1' },
-      uuid2: { packageName: 'Vue', id: 'uuid2' },
+      uuid1: {
+        packageName: 'React',
+        criticality: Criticality.NonCritical,
+        id: 'uuid1',
+      },
+      uuid2: {
+        packageName: 'Vue',
+        criticality: Criticality.NonCritical,
+        id: 'uuid2',
+      },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -285,11 +339,13 @@ describe('getAttributionsWithAllChildResources', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/folder/folder/file'],
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Vue',
         resources: ['/folder/folder/folder/folder/file'],
+        criticality: Criticality.NonCritical,
         id: 'uuid2',
       },
     };
@@ -308,8 +364,16 @@ describe('getAttributionsWithAllChildResources', () => {
 
   it('does return resources that are files with children', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React', id: 'uuid1' },
-      uuid2: { packageName: 'Vue', id: 'uuid2' },
+      uuid1: {
+        packageName: 'React',
+        criticality: Criticality.NonCritical,
+        id: 'uuid1',
+      },
+      uuid2: {
+        packageName: 'Vue',
+        criticality: Criticality.NonCritical,
+        id: 'uuid2',
+      },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -335,11 +399,13 @@ describe('getAttributionsWithAllChildResources', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/fileWithChildren/folder/file'],
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Vue',
         resources: ['/fileWithChildren/'],
+        criticality: Criticality.NonCritical,
         id: 'uuid2',
       },
     };
@@ -358,7 +424,11 @@ describe('getAttributionsWithAllChildResources', () => {
 
   it('does return resources that are files with children if it has inferred attributions', () => {
     const testAttributions: Attributions = {
-      uuid2: { packageName: 'Vue', id: 'uuid2' },
+      uuid2: {
+        packageName: 'Vue',
+        criticality: Criticality.NonCritical,
+        id: 'uuid2',
+      },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -388,6 +458,7 @@ describe('getAttributionsWithAllChildResources', () => {
           '/root/fileWithChildren/',
           '/root/file',
         ],
+        criticality: Criticality.NonCritical,
         id: 'uuid2',
       },
     };
@@ -411,16 +482,19 @@ describe('removeSlashesFromFilesWithChildren', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/some/path1/', '/some/path2/'],
+        criticality: Criticality.NonCritical,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: ['/some/path3/'],
+        criticality: Criticality.NonCritical,
         id: 'uuid2',
       },
       uuid3: {
         packageName: 'root package',
         resources: ['/'],
+        criticality: Criticality.NonCritical,
         id: 'uuid3',
       },
     };
@@ -443,13 +517,29 @@ describe('removeSlashesFromFilesWithChildren', () => {
 
 describe('getBomAttributions', () => {
   const testAttributions: Attributions = {
-    genericAttrib: { id: 'genericAttrib' },
-    firstPartyAttrib: { firstParty: true, id: 'firstPartyAttrib' },
-    followupAttrib: { followUp: true, id: 'followupAttrib' },
-    excludeAttrib: { excludeFromNotice: true, id: 'excludeAttrib' },
+    genericAttrib: {
+      criticality: Criticality.NonCritical,
+      id: 'genericAttrib',
+    },
+    firstPartyAttrib: {
+      firstParty: true,
+      criticality: Criticality.NonCritical,
+      id: 'firstPartyAttrib',
+    },
+    followupAttrib: {
+      followUp: true,
+      criticality: Criticality.NonCritical,
+      id: 'followupAttrib',
+    },
+    excludeAttrib: {
+      excludeFromNotice: true,
+      criticality: Criticality.NonCritical,
+      id: 'excludeAttrib',
+    },
     firstPartyExcludeAttrib: {
       firstParty: true,
       excludeFromNotice: true,
+      criticality: Criticality.NonCritical,
       id: 'firstPartyExcludeAttrib',
     },
   };
@@ -460,8 +550,15 @@ describe('getBomAttributions', () => {
       ExportType.DetailedBom,
     );
     expect(detailedBomAttributions).toEqual<Attributions>({
-      genericAttrib: { id: 'genericAttrib' },
-      excludeAttrib: { excludeFromNotice: true, id: 'excludeAttrib' },
+      genericAttrib: {
+        criticality: Criticality.NonCritical,
+        id: 'genericAttrib',
+      },
+      excludeAttrib: {
+        excludeFromNotice: true,
+        criticality: Criticality.NonCritical,
+        id: 'excludeAttrib',
+      },
     });
   });
 
@@ -471,7 +568,10 @@ describe('getBomAttributions', () => {
       ExportType.CompactBom,
     );
     expect(compactBomAttributions).toEqual<Attributions>({
-      genericAttrib: { id: 'genericAttrib' },
+      genericAttrib: {
+        criticality: Criticality.NonCritical,
+        id: 'genericAttrib',
+      },
     });
   });
 });

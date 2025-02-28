@@ -11,7 +11,11 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { compact, groupBy, sortBy } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Attributions, PackageInfo } from '../../../../shared/shared-types';
+import {
+  Attributions,
+  Criticality,
+  PackageInfo,
+} from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { clickableIcon, OpossumColors } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
@@ -76,6 +80,7 @@ function getSortedAttributions(
         source: {
           name: text.attributionColumn.fromAttributions,
         },
+        criticality: Criticality.NonCritical,
         id: attributions[0].id,
       })),
     ({ count }) => -(count ?? 0),
@@ -95,6 +100,7 @@ function getSortedSignals(
         source: {
           name: text.attributionColumn.fromSignals,
         },
+        criticality: Criticality.NonCritical,
         id: signals[0].id,
       })),
     ({ count }) => -(count ?? 0),

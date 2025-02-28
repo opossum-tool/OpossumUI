@@ -12,13 +12,14 @@ import PackageSearchApi from './package-search-api';
 import { tryit } from './tryit';
 
 function usePackageNames(
-  { id, packageName, packageNamespace, packageType }: PackageInfo,
+  { id, criticality, packageName, packageNamespace, packageType }: PackageInfo,
   { disabled }: Partial<{ disabled: boolean }> = {},
 ) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
       'package-name-suggestions',
       id,
+      criticality,
       packageName,
       packageNamespace,
       packageType,
@@ -26,6 +27,7 @@ function usePackageNames(
     queryFn: () =>
       PackageSearchApi.getNames({
         id,
+        criticality,
         packageName,
         packageNamespace,
         packageType,
@@ -40,13 +42,14 @@ function usePackageNames(
 }
 
 function usePackageNamespaces(
-  { id, packageName, packageNamespace, packageType }: PackageInfo,
+  { id, criticality, packageName, packageNamespace, packageType }: PackageInfo,
   { disabled }: Partial<{ disabled: boolean }> = {},
 ) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
       'package-namespace-suggestions',
       id,
+      criticality,
       packageName,
       packageNamespace,
       packageType,
@@ -54,6 +57,7 @@ function usePackageNamespaces(
     queryFn: () =>
       PackageSearchApi.getNamespaces({
         id,
+        criticality,
         packageName,
         packageNamespace,
         packageType,
@@ -70,6 +74,7 @@ function usePackageNamespaces(
 function usePackageVersions(
   {
     id,
+    criticality,
     packageName,
     packageNamespace,
     packageType,
@@ -81,6 +86,7 @@ function usePackageVersions(
     queryKey: [
       'package-version-suggestions',
       id,
+      criticality,
       packageName,
       packageNamespace,
       packageType,
@@ -89,6 +95,7 @@ function usePackageVersions(
     queryFn: () =>
       PackageSearchApi.getVersions({
         id,
+        criticality,
         packageName,
         packageNamespace,
         packageType,

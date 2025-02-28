@@ -8,7 +8,7 @@ import MuiBox from '@mui/material/Box';
 import { sortBy } from 'lodash';
 import { useMemo, useState } from 'react';
 
-import { PackageInfo } from '../../../../shared/shared-types';
+import { Criticality, PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
@@ -57,6 +57,7 @@ export function LicenseSubPanel({
       sortBy(
         frequentLicensesNames.map<PackageInfo>(({ fullName, shortName }) => ({
           id: shortName,
+          criticality: Criticality.NonCritical,
           licenseName: fullName,
           source: {
             name: text.attributionColumn.commonLicenses,

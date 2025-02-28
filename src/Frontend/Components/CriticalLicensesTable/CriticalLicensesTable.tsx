@@ -112,7 +112,7 @@ export const CriticalLicensesTable: React.FC<CriticalLicensesTableProps> = (
 function getLicenseNamesByCriticality(
   allLicensesWithCriticality: Array<{
     licenseName: string;
-    criticality: Criticality | undefined;
+    criticality: Criticality;
   }>,
   criticality: Criticality,
 ): Array<string> {
