@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { PackageInfo } from '../../../../shared/shared-types';
+import { Criticality, PackageInfo } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { isImportantAttributionInformationMissing } from '../../../util/is-important-attribution-information-missing';
 import { TableConfig } from '../../ReportView/TableConfig';
@@ -17,6 +17,7 @@ describe('The table helpers', () => {
     };
     const testAttributionInfo: PackageInfo = {
       resources: ['a', 'b'],
+      criticality: Criticality.NonCritical,
       id: faker.string.uuid(),
     };
     expect(getFormattedCellData(testTableConfig, testAttributionInfo)).toBe('');
@@ -31,15 +32,18 @@ describe('The table helpers', () => {
     const testAttributionInfo1: PackageInfo = {
       firstParty: true,
       resources: ['1'],
+      criticality: Criticality.NonCritical,
       id: faker.string.uuid(),
     };
     const testAttributionInfo2: PackageInfo = {
       firstParty: false,
       resources: ['1'],
+      criticality: Criticality.NonCritical,
       id: faker.string.uuid(),
     };
     const testAttributionInfo3: PackageInfo = {
       resources: ['1'],
+      criticality: Criticality.NonCritical,
       id: faker.string.uuid(),
     };
     expect(getFormattedCellData(testTableConfig, testAttributionInfo1)).toBe(
@@ -69,6 +73,7 @@ describe('The table helpers', () => {
       const testAttributionInfo: PackageInfo = {
         followUp,
         resources: ['1'],
+        criticality: Criticality.NonCritical,
         id: faker.string.uuid(),
       };
 
@@ -96,6 +101,7 @@ describe('The table helpers', () => {
       let testAttributionInfo: PackageInfo = {
         [property]: '',
         resources: ['1'],
+        criticality: Criticality.NonCritical,
         id: faker.string.uuid(),
       };
 
@@ -108,6 +114,7 @@ describe('The table helpers', () => {
 
       testAttributionInfo = {
         resources: ['1'],
+        criticality: Criticality.NonCritical,
         id: faker.string.uuid(),
       };
 
@@ -121,6 +128,7 @@ describe('The table helpers', () => {
       testAttributionInfo = {
         [property]: 'test',
         resources: ['1'],
+        criticality: Criticality.NonCritical,
         id: faker.string.uuid(),
       };
 
@@ -142,6 +150,7 @@ describe('The table helpers', () => {
 
     let testAttributionInfo: PackageInfo = {
       resources: ['1'],
+      criticality: Criticality.NonCritical,
       id: faker.string.uuid(),
     };
     expect(
@@ -154,6 +163,7 @@ describe('The table helpers', () => {
     testAttributionInfo = {
       resources: ['1'],
       firstParty: true,
+      criticality: Criticality.NonCritical,
       id: faker.string.uuid(),
     };
     expect(
@@ -166,6 +176,7 @@ describe('The table helpers', () => {
     testAttributionInfo = {
       resources: ['1'],
       excludeFromNotice: true,
+      criticality: Criticality.NonCritical,
       id: faker.string.uuid(),
     };
     expect(
@@ -179,6 +190,7 @@ describe('The table helpers', () => {
       resources: ['1'],
       firstParty: false,
       excludeFromNotice: false,
+      criticality: Criticality.NonCritical,
       id: faker.string.uuid(),
     };
     expect(

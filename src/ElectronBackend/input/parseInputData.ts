@@ -16,6 +16,7 @@ import {
   FrequentLicenses,
   PackageInfo,
   RawAttributions,
+  RawCriticality,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -200,8 +201,6 @@ export function deserializeAttributions(
         { followUp, comment, criticality, originId, originIds, ...attribution },
       ],
     ) => {
-      const isCritical =
-        !!criticality && Object.values(Criticality).includes(criticality);
       const sanitizedComment = comment?.replace(/^\s+|\s+$/g, '');
       const effectiveOriginIds =
         originId || originIds?.length
@@ -220,7 +219,7 @@ export function deserializeAttributions(
         ...attribution,
         ...(effectiveOriginIds && { originIds: effectiveOriginIds }),
         ...(followUp === 'FOLLOW_UP' && { followUp: true }),
-        ...(isCritical && { criticality }),
+        criticality: deserializeCriticality(criticality),
         ...(originalAttribution && {
           originalAttributionId: originalAttribution.id,
           originalAttributionSource: originalAttribution.source,
@@ -235,6 +234,17 @@ export function deserializeAttributions(
   );
 }
 
+function deserializeCriticality(criticality: string | undefined): Criticality {
+  switch (criticality) {
+    case RawCriticality[Criticality.High]:
+      return Criticality.High;
+    case RawCriticality[Criticality.Medium]:
+      return Criticality.Medium;
+    default:
+      return Criticality.NonCritical;
+  }
+}
+
 export function serializeAttributions(
   attributions: Attributions,
 ): RawAttributions {
@@ -244,6 +254,7 @@ export function serializeAttributions(
       [
         attributionId,
         {
+          criticality,
           count,
           followUp,
           id,
@@ -262,6 +273,7 @@ export function serializeAttributions(
       rawAttributions[attributionId] = {
         ...attribution,
         ...(followUp && { followUp: 'FOLLOW_UP' }),
+        criticality: RawCriticality[criticality],
       };
       return rawAttributions;
     },

@@ -11,7 +11,7 @@ import MuiBox from '@mui/material/Box';
 import { styled } from '@mui/system';
 import { useMemo } from 'react';
 
-import { PackageInfo } from '../../../../shared/shared-types';
+import { Criticality, PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { clickableIcon } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
@@ -89,6 +89,7 @@ export function PackageSubPanel({
         source: {
           name: text.attributionColumn.commonEcosystems,
         },
+        criticality: Criticality.NonCritical,
       })),
     [],
   );

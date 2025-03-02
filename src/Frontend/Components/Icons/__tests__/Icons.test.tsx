@@ -90,7 +90,7 @@ describe('The SignalIcon', () => {
   });
 
   it('renders no criticality SignalIcon', () => {
-    render(<CriticalityIcon criticality={undefined} />);
+    render(<CriticalityIcon criticality={Criticality.NonCritical} />);
 
     expect(screen.queryByLabelText('Criticality icon')).not.toBeInTheDocument();
   });

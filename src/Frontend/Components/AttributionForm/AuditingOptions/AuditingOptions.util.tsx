@@ -204,13 +204,13 @@ export function useAuditingOptions({
       {
         id: 'criticality',
         label:
-          packageInfo.criticality === Criticality.High
-            ? text.auditingOptions.highCriticality
-            : text.auditingOptions.mediumCriticality,
+          packageInfo.criticality === Criticality.NonCritical
+            ? ''
+            : text.auditingOptions[packageInfo.criticality],
         icon: (
           <CriticalityIcon noTooltip criticality={packageInfo.criticality} />
         ),
-        selected: !!packageInfo.criticality,
+        selected: packageInfo.criticality !== Criticality.NonCritical,
         interactive: false,
       },
       {

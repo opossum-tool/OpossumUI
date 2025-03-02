@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Criticality } from '../../shared/shared-types';
+import { Criticality, RawCriticality } from '../../shared/shared-types';
 import { faker, test } from '../utils';
 
 const [resourceName1] = faker.opossum.resourceNames({ count: 1 });
 const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
-  criticality: Criticality.Medium,
+  criticality: RawCriticality[Criticality.Medium],
 });
 const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
-  criticality: Criticality.Medium,
+  criticality: RawCriticality[Criticality.Medium],
 });
 test.use({
   data: {

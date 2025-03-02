@@ -6,7 +6,7 @@ import { compareVersions, validate } from 'compare-versions';
 import { compact, mapValues, partition } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
-import { PackageInfo, Source } from '../../shared/shared-types';
+import { Criticality, PackageInfo, Source } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { HttpClient } from './http-client';
 import { pick } from './lodash-extension-utils';
@@ -203,6 +203,7 @@ export class PackageSearchApi {
         const [packageNamespace, packageName] = name.split(':');
         return {
           synthetic: true,
+          criticality: Criticality.NonCritical,
           id: uuid4(),
           packageName,
           packageNamespace,
@@ -217,6 +218,7 @@ export class PackageSearchApi {
         const [packageNamespace, packageName] = name.split('/');
         return {
           synthetic: true,
+          criticality: Criticality.NonCritical,
           id: uuid4(),
           packageName,
           packageNamespace,
@@ -229,6 +231,7 @@ export class PackageSearchApi {
       case 'GO': {
         return {
           synthetic: true,
+          criticality: Criticality.NonCritical,
           id: uuid4(),
           packageName: name,
           packageNamespace: undefined,
@@ -240,6 +243,7 @@ export class PackageSearchApi {
       default: {
         return {
           synthetic: true,
+          criticality: Criticality.NonCritical,
           id: uuid4(),
           packageName: name,
           packageNamespace: undefined,

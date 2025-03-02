@@ -154,23 +154,22 @@ export function getHighestCriticalityOfExternalAttributions(
   path: string,
   resourcesToExternalAttributions: ResourcesToAttributions,
   externalAttributions: Attributions,
-): Criticality | null {
-  let hasMediumCriticality = false;
+): Criticality {
+  let highestCriticality = Criticality.NonCritical;
+
   const externalAttributionsOfCurrentResource =
     resourcesToExternalAttributions[path];
+
   if (externalAttributionsOfCurrentResource) {
     for (const attributionId of externalAttributionsOfCurrentResource) {
-      const criticality = externalAttributions[attributionId]
-        ? externalAttributions[attributionId].criticality
-        : null;
-      if (criticality === Criticality.High) {
-        return Criticality.High;
-      } else if (criticality === Criticality.Medium) {
-        hasMediumCriticality = true;
-      }
+      const criticality =
+        externalAttributions[attributionId]?.criticality ??
+        Criticality.NonCritical;
+      highestCriticality = Math.max(highestCriticality, criticality);
     }
   }
-  return hasMediumCriticality ? Criticality.Medium : null;
+
+  return highestCriticality;
 }
 
 export function resourceHasOnlyPreSelectedAttributions(

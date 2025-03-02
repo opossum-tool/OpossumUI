@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { Criticality } from '../../../../shared/shared-types';
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
 import { ProgressBarData } from '../../../types/types';
 import {
@@ -57,8 +58,8 @@ describe('ProgressBar helpers', () => {
     };
     const expectedCriticalityBarBackground: string =
       'linear-gradient(to right,' +
-      ` ${criticalityColor.high} 34%,` +
-      ` ${criticalityColor.medium} 34% 67%,` +
+      ` ${criticalityColor[Criticality.High]} 34%,` +
+      ` ${criticalityColor[Criticality.Medium]} 34% 67%,` +
       ` ${OpossumColors.lightestBlue} 67%)`;
     const actualCriticalityBarBackground =
       getCriticalityBarBackground(testProgressBarData);

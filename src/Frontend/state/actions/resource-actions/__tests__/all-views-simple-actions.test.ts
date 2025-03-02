@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
+  Criticality,
   DiscreteConfidence,
   FrequentLicenses,
   PackageInfo,
@@ -65,12 +66,14 @@ const testTemporaryDisplayPackageInfo: PackageInfo = {
   packageVersion: '1.0',
   packageName: 'test Package',
   licenseText: ' test License text',
+  criticality: Criticality.NonCritical,
   id: testManualAttributionUuid_1,
 };
 const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
   packageVersion: '2.0',
   packageName: 'not assigned test Package',
   licenseText: ' test not assigned License text',
+  criticality: Criticality.NonCritical,
   id: testManualAttributionUuid_2,
 };
 const testManualAttributions: Attributions = {
@@ -91,6 +94,7 @@ describe('The load and navigation simple actions', () => {
       packageVersion: '1.1',
       packageName: 'test Package',
       licenseText: ' test License text',
+      criticality: Criticality.NonCritical,
       id: testManualAttributionUuid_1,
     };
     testStore.dispatch(
@@ -120,8 +124,16 @@ describe('The load and navigation simple actions', () => {
 
   it('sets and gets manual attribution data', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React', id: 'uuid1' },
-      uuid2: { packageName: 'Redux', id: 'uuid2' },
+      uuid1: {
+        packageName: 'React',
+        criticality: Criticality.NonCritical,
+        id: 'uuid1',
+      },
+      uuid2: {
+        packageName: 'Redux',
+        criticality: Criticality.NonCritical,
+        id: 'uuid2',
+      },
     };
     const testResourcesToAttributions: ResourcesToAttributions = {
       '/some/path1': ['uuid1', 'uuid2'],
@@ -177,8 +189,16 @@ describe('The load and navigation simple actions', () => {
 
   it('sets and gets external attribution data', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React', id: 'uuid1' },
-      uuid2: { packageName: 'Redux', id: 'uuid2' },
+      uuid1: {
+        packageName: 'React',
+        criticality: Criticality.NonCritical,
+        id: 'uuid1',
+      },
+      uuid2: {
+        packageName: 'Redux',
+        criticality: Criticality.NonCritical,
+        id: 'uuid2',
+      },
     };
     const testResourcesToAttributions: ResourcesToAttributions = {
       '/some/path1': ['uuid1', 'uuid2'],
@@ -266,6 +286,7 @@ describe('The load and navigation simple actions', () => {
       packageName: 'test',
       packageVersion: '1.0',
       licenseText: 'License Text',
+      criticality: Criticality.NonCritical,
       id: faker.string.uuid(),
     };
     const testStore = createAppStore();

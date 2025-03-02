@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
+  Criticality,
   DiscreteConfidence,
   PackageInfo,
   ResourcesToAttributions,
@@ -28,12 +29,14 @@ describe('The audit view resource selectors', () => {
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
+    criticality: Criticality.NonCritical,
     id: testManualAttributionUuid_1,
   };
   const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
     packageVersion: '2.0',
     packageName: 'not assigned test Package',
     licenseText: ' test not assigned License text',
+    criticality: Criticality.NonCritical,
     id: testManualAttributionUuid_2,
   };
   const testManualAttributions: Attributions = {
@@ -54,6 +57,7 @@ describe('The audit view resource selectors', () => {
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
+      criticality: Criticality.NonCritical,
       id: testManualAttributionUuid_1,
     };
     expect(
