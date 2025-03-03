@@ -20,10 +20,7 @@ const classes = {
     display: 'flex',
     marginLeft: '12px',
     marginRight: '12px',
-    gap: '12px',
-  },
-  tooltip: {
-    margin: 'auto',
+    gap: '4px',
   },
 } satisfies SxProps;
 
@@ -78,6 +75,9 @@ export const SwitchableProcessBar: React.FC = () => {
           margin: 'auto',
           width: '150px',
           backgroundColor: OpossumColors.lightestBlue,
+          minHeight: 'unset !important',
+          marginBottom: '4px',
+          marginTop: '4px',
         }}
         value={currentProgressBar}
       >
