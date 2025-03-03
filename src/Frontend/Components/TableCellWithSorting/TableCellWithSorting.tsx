@@ -22,7 +22,7 @@ export const TableCellWithSorting: React.FC<TableCellWithSortingProps> = (
     <MuiTableCell
       {...props}
       sx={{
-        '.Mui-active': { color: 'white' },
+        '.Mui-active': { color: 'white !important' },
         '& :hover': { color: 'white !important' },
         ...props.sx,
       }}
