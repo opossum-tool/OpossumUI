@@ -79,6 +79,7 @@ export const SwitchableProcessBar: React.FC = () => {
           minHeight: 'unset !important',
         }}
         value={currentProgressBar}
+        aria-label={text.selectAriaLabel}
       >
         {Object.entries(progressBarConfigurations).map(
           ([key, progressBarConfiguration]) => {

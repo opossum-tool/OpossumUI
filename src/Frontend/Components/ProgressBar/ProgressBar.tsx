@@ -6,6 +6,7 @@ import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
 
+import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { ProgressBarData } from '../../types/types';
 import {
@@ -59,7 +60,12 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
         followCursor
       >
         <MuiBox
-          aria-label={'ProgressBar'}
+          aria-label={
+            props.showCriticalSignals
+              ? text.topBar.switchableProgressBar.criticalSignalsBar.ariaLabel
+              : text.topBar.switchableProgressBar.attributionProgressBar
+                  .ariaLabel
+          }
           sx={{
             ...classes.bar,
             background: props.showCriticalSignals
