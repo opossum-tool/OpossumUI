@@ -7,7 +7,7 @@ import MuiTypography from '@mui/material/Typography';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { criticalityColor, OpossumColors } from '../../shared-styles';
+import { criticalityColor } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -71,32 +71,31 @@ export const ProjectStatisticsPopup: React.FC = () => {
     licenseNamesWithCriticality,
   );
 
-  const criticalitySegmentLabel = (criticality: Criticality | undefined) => {
-    switch (criticality) {
-      case Criticality.High:
-        return text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
-          .highlyCritical;
-      case Criticality.Medium:
-        return text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
-          .mediumCritical;
-      case undefined:
-        return text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
-          .nonCritical;
-    }
+  const CRITICALITY_LABEL: Record<Criticality, string> = {
+    [Criticality.High]:
+      text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+        .highlyCritical,
+    [Criticality.Medium]:
+      text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+        .mediumCritical,
+    [Criticality.None]:
+      text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+        .nonCritical,
+  };
+
+  const CRITICALITY_COLORS = {
+    [CRITICALITY_LABEL[Criticality.High]]: criticalityColor[Criticality.High],
+    [CRITICALITY_LABEL[Criticality.Medium]]:
+      criticalityColor[Criticality.Medium],
+    [CRITICALITY_LABEL[Criticality.None]]: criticalityColor[Criticality.None],
   };
 
   const criticalSignalsCountPieChartData = criticalSignalsCount.map(
     ({ criticality, count }) => ({
-      name: criticalitySegmentLabel(criticality),
+      name: CRITICALITY_LABEL[criticality],
       count,
     }),
   );
-
-  const criticalSignalsCountColors = {
-    [criticalitySegmentLabel(Criticality.High)]: criticalityColor.high,
-    [criticalitySegmentLabel(Criticality.Medium)]: criticalityColor.medium,
-    [criticalitySegmentLabel(undefined)]: OpossumColors.darkBlue,
-  };
 
   const signalCountByClassification = getSignalCountByClassification(
     licenseCounts,
@@ -166,7 +165,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                   text.projectStatisticsPopup.charts
                     .criticalSignalsCountPieChart.title
                 }
-                pieChartColorMap={criticalSignalsCountColors}
+                pieChartColorMap={CRITICALITY_COLORS}
               />
               <AccordionWithPieChart
                 data={signalCountByClassification}
