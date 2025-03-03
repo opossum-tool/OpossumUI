@@ -45,6 +45,7 @@ export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
           <MuiTableCell
             sx={bodyClassWithBackgroundColor}
             key={columnIdx}
+            data-testid={`signalsPerSourceBodyCell${columnIdx}`}
             align={column.align}
           >
             <RowCellContent
