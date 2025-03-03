@@ -13,7 +13,7 @@ import MuiTableRow from '@mui/material/TableRow';
 import MuiTypography from '@mui/material/Typography';
 
 import { Criticality } from '../../../shared/shared-types';
-import { OpossumColors, tableClasses } from '../../shared-styles';
+import { criticalityColor, tableClasses } from '../../shared-styles';
 import { LicenseNamesWithCriticality } from '../../types/types';
 
 const PLACEHOLDER_ATTRIBUTION_COUNT = '-';
@@ -61,14 +61,15 @@ export const ProjectLicensesTable: React.FC<ProjectLicensesTableProps> = (
                   <MuiTableCell
                     sx={{
                       ...tableClasses.body,
-                      ...(columnIndex === 0
-                        ? props.licenseNamesWithCriticality[rowName] ===
-                          Criticality.High
-                          ? { color: OpossumColors.orange }
-                          : props.licenseNamesWithCriticality[rowName] ===
-                              Criticality.Medium
-                            ? { color: OpossumColors.mediumOrange }
-                            : {}
+                      ...(columnIndex === 0 &&
+                      props.licenseNamesWithCriticality[rowName] !==
+                        Criticality.None
+                        ? {
+                            color:
+                              criticalityColor[
+                                props.licenseNamesWithCriticality[rowName]
+                              ],
+                          }
                         : {}),
                     }}
                     key={columnIndex}

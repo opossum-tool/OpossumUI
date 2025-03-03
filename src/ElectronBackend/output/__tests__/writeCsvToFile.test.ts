@@ -4,7 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import * as fs from 'fs';
 
-import { Attributions, PackageInfo } from '../../../shared/shared-types';
+import {
+  Attributions,
+  Criticality,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
 import {
   CUT_OFF_LENGTH,
@@ -23,11 +27,13 @@ describe('writeCsvToFile', () => {
         licenseText: 'license text, with; commas',
         firstParty: true,
         resources: ['/test.file'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
       key2: {
         packageName: 'Fancy name,: tt',
         resources: ['/a/c/bla.mm', '/b'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
     };
@@ -57,11 +63,13 @@ describe('writeCsvToFile', () => {
         licenseText: 'license text, with; commas',
         firstParty: true,
         resources: ['/test.file'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
       key2: {
         packageName: 'Fancy name,: tt',
         resources: ['/a/c/bla.mm', '/b'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
     };
@@ -88,11 +96,13 @@ describe('writeCsvToFile', () => {
         licenseText: 'license text, with; commas',
         firstParty: true,
         resources: ['/test.file'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
       key2: {
         packageName: 'Fancy name,: tt',
         resources: ['/a/c/bla.mm', '/b'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
     };
@@ -128,11 +138,13 @@ describe('writeCsvToFile', () => {
         licenseText: 'license text, with; commas',
         firstParty: true,
         resources: ['/test.file'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
       key2: {
         packageName: 'Fancy name,: tt',
         resources: manyResources,
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
     };
@@ -166,10 +178,12 @@ describe('writeCsvToFile', () => {
         followUp: undefined,
         licenseText: 'license text, with; commas',
         firstParty: true,
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
       key2: {
         packageName: 'Fancy name,: tt',
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
     };
@@ -193,6 +207,7 @@ describe('writeCsvToFile', () => {
         licenseText: 'license text, with; commas',
         firstParty: true,
         resources: ['/test.file'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
       key2: {
@@ -206,6 +221,7 @@ describe('writeCsvToFile', () => {
           '/a/b/c/testi.blub',
           '/other',
         ],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
     };

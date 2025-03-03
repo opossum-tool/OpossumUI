@@ -28,16 +28,12 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
   } else if (cardConfig.originalWasPreferred) {
     rightIcons.push(<ModifiedPreferredIcon key={'modified-preferred-icon'} />);
   }
-  if (cardConfig.criticality) {
+  if (cardConfig.criticality !== Criticality.None) {
     rightIcons.push(
       <CriticalityIcon
         key={'criticality-icon'}
         criticality={cardConfig.criticality}
-        tooltip={
-          cardConfig.criticality === Criticality.High
-            ? text.auditingOptions.highCriticality
-            : text.auditingOptions.mediumCriticality
-        }
+        tooltip={text.auditingOptions[cardConfig.criticality]}
       />,
     );
   }

@@ -4,7 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
 
-import { Attributions, ExportType } from '../../../shared/shared-types';
+import {
+  Attributions,
+  Criticality,
+  ExportType,
+} from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
 import { writeSpdxFile } from '../writeSpdxFile';
 
@@ -40,12 +44,14 @@ describe('writeSpdxFile', () => {
         packageVersion: '1.1',
         licenseText: 'test license text',
         licenseName: 'license name',
+        criticality: Criticality.None,
         id: 'uuid_1',
       },
       uuid_2: {
         packageName: 'second-test-package',
         packageVersion: '2.1',
         packageType: 'npm',
+        criticality: Criticality.None,
         id: 'uuid_2',
       },
     };

@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isEmpty, isEqual } from 'lodash';
 
-import { PackageInfo } from '../../../../shared/shared-types';
+import { Criticality, PackageInfo } from '../../../../shared/shared-types';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
   getManualAttributions,
@@ -157,7 +157,7 @@ export function deleteAttributionAndSave(
       savePackageInfo(
         null,
         attributionId,
-        { id: attributionId },
+        { criticality: Criticality.None, id: attributionId },
         selectedAttributionId
           ? attributionId !== selectedAttributionId
           : undefined,

@@ -4,12 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { keyBy, ListIterator, orderBy } from 'lodash';
 
-import {
-  Attributions,
-  Criticality,
-  PackageInfo,
-  Relation,
-} from '../../shared/shared-types';
+import { Attributions, PackageInfo, Relation } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { Sorting } from '../shared-constants';
 import { getCardLabels } from './get-card-labels';
@@ -27,7 +22,7 @@ export function sortAttributions({
   const orders: Array<'asc' | 'desc'> = ['asc'];
 
   if (sorting === text.sortings.criticality) {
-    iteratees.unshift(({ criticality }) => getCriticalityPriority(criticality));
+    iteratees.unshift(({ criticality }) => criticality);
     orders.unshift('desc');
   } else if (sorting === text.sortings.occurrence) {
     iteratees.unshift(({ count }) => count ?? 0);
@@ -41,19 +36,6 @@ export function sortAttributions({
   );
 
   return keyBy(orderedAttributions, ({ id }) => id);
-}
-
-export function getCriticalityPriority(
-  criticality: Criticality | undefined,
-): 2 | 1 | 0 {
-  switch (criticality) {
-    case Criticality.High:
-      return 2;
-    case Criticality.Medium:
-      return 1;
-    case undefined:
-      return 0;
-  }
 }
 
 export function getRelationPriority(relation: Relation | undefined): 2 | 1 | 0 {

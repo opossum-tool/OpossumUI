@@ -10,6 +10,7 @@ import {
   AttributionData,
   Attributions,
   AttributionsToResources,
+  Criticality,
   PackageInfo,
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
@@ -48,6 +49,7 @@ export function createManualAttribution(
       ...manualData.attributions,
       [newAttributionId]: {
         ...getStrippedPackageInfo(packageInfo),
+        criticality: Criticality.None,
         id: newAttributionId,
       },
     },
@@ -95,6 +97,7 @@ export function updateManualAttribution(
       ...manualData.attributions,
       [attributionIdToUpdate]: {
         ...getStrippedPackageInfo(packageInfo),
+        criticality: Criticality.None,
         id: attributionIdToUpdate,
       },
     },

@@ -6,6 +6,7 @@
 import {
   AttributionData,
   Attributions,
+  Criticality,
   DiscreteConfidence,
   PackageInfo,
   Resources,
@@ -67,12 +68,14 @@ const testPackageInfo: PackageInfo = {
   packageVersion: '1.0',
   packageName: 'test Package',
   licenseText: ' test License text',
+  criticality: Criticality.None,
   id: testManualAttributionUuid_1,
 };
 const secondTestPackageInfo: PackageInfo = {
   packageVersion: '2.0',
   packageName: 'not assigned test Package',
   licenseText: ' test not assigned License text',
+  criticality: Criticality.None,
   id: testManualAttributionUuid_2,
 };
 const testManualAttributions: Attributions = {
@@ -83,7 +86,11 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
   '/root/src/something.js': [testManualAttributionUuid_1],
 };
 const testExternalAttributions: Attributions = {
-  uuid_1: { copyright: '2020', id: 'uuid_1' },
+  uuid_1: {
+    copyright: '2020',
+    criticality: Criticality.None,
+    id: 'uuid_1',
+  },
 };
 const testResourcesToExternalAttributions: ResourcesToAttributions = {
   '/root/src/something.js': ['uuid_1'],
@@ -97,6 +104,7 @@ describe('The savePackageInfo action', () => {
       packageName: 'test Package',
       licenseText: ' test License text',
       attributionConfidence: DiscreteConfidence.High,
+      criticality: Criticality.None,
       id: expect.any(String),
     };
 
@@ -152,6 +160,7 @@ describe('The savePackageInfo action', () => {
       packageName: 'test Package',
       licenseText: ' test License text',
       attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
       id: testManualAttributionUuid_1,
     };
 
@@ -227,10 +236,12 @@ describe('The savePackageInfo action', () => {
         packageVersion: '1.0',
         packageName: 'test Package',
         licenseText: ' test License text',
+        criticality: Criticality.None,
         id: testUuidA,
       },
       [testUuidB]: {
         packageVersion: '1.0',
+        criticality: Criticality.None,
         id: testUuidB,
       },
     };
@@ -298,7 +309,10 @@ describe('The savePackageInfo action', () => {
     expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
 
     testStore.dispatch(
-      savePackageInfo('/root/src/something.js', testUuidA, { id: testUuidA }),
+      savePackageInfo('/root/src/something.js', testUuidA, {
+        criticality: Criticality.None,
+        id: testUuidA,
+      }),
     );
     expect(
       getManualAttributions(testStore.getState())?.[testUuidA],
@@ -324,10 +338,12 @@ describe('The savePackageInfo action', () => {
     const testManualAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Vue',
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };
@@ -348,7 +364,10 @@ describe('The savePackageInfo action', () => {
     );
 
     testStore.dispatch(
-      savePackageInfo('/parent/child.js', 'uuid2', { id: 'uuid2' }),
+      savePackageInfo('/parent/child.js', 'uuid2', {
+        criticality: Criticality.None,
+        id: 'uuid2',
+      }),
     );
     expect(getResourcesToManualAttributions(testStore.getState())).toEqual({
       '/parent/': ['uuid1'],
@@ -364,10 +383,12 @@ describe('The savePackageInfo action', () => {
     const testManualAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Vue',
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };
@@ -387,7 +408,12 @@ describe('The savePackageInfo action', () => {
       ),
     );
 
-    testStore.dispatch(savePackageInfo('/parent/', 'uuid2', { id: 'uuid2' }));
+    testStore.dispatch(
+      savePackageInfo('/parent/', 'uuid2', {
+        criticality: Criticality.None,
+        id: 'uuid2',
+      }),
+    );
     expect(getResourcesToManualAttributions(testStore.getState())).toEqual({
       '/parent/': ['uuid1'],
     });
@@ -397,6 +423,7 @@ describe('The savePackageInfo action', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.High,
+      criticality: Criticality.None,
       id: 'uuid1',
     };
     const testResources: Resources = {
@@ -405,7 +432,11 @@ describe('The savePackageInfo action', () => {
     };
     const testInitialManualAttributions: Attributions = {
       uuid1: testPackageInfo,
-      toReplaceUuid: { packageName: 'Vue', id: 'toReplaceUuid' },
+      toReplaceUuid: {
+        packageName: 'Vue',
+        criticality: Criticality.None,
+        id: 'toReplaceUuid',
+      },
     };
     const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
       '/something.js': ['uuid1'],
@@ -444,7 +475,11 @@ describe('The savePackageInfo action', () => {
           resourcesToManualAttributions:
             testInitialResourcesToManualAttributions,
           externalAttributions: {
-            uuid_1: { copyright: 'copyright', id: 'uuid_1' },
+            uuid_1: {
+              copyright: 'copyright',
+              criticality: Criticality.None,
+              id: 'uuid_1',
+            },
           },
           resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
         }),
@@ -469,6 +504,7 @@ describe('The savePackageInfo action', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
       id: testUuid,
     };
     const testResources: Resources = {
@@ -538,10 +574,12 @@ describe('The savePackageInfo action', () => {
         packageVersion: '1.0',
         packageName: 'test Package',
         licenseText: ' test License text',
+        criticality: Criticality.None,
         id: testUuidA,
       },
       [testUuidB]: {
         packageName: 'second test Package',
+        criticality: Criticality.None,
         id: testUuidB,
       },
     };
@@ -554,6 +592,7 @@ describe('The savePackageInfo action', () => {
       packageVersion: '1.0',
       packageName: 'test Package modified',
       licenseText: ' test License text',
+      criticality: Criticality.None,
       id: testUuidA,
     };
 
@@ -578,7 +617,7 @@ describe('The savePackageInfo action', () => {
       savePackageInfo(
         '/root/src/something.js',
         testUuidB,
-        { id: testUuidB },
+        { criticality: Criticality.None, id: testUuidB },
         true,
       ),
     );
@@ -591,6 +630,7 @@ describe('The savePackageInfo action', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.High,
+      criticality: Criticality.None,
       id: 'uuid1',
     };
     const testResources: Resources = {
@@ -599,8 +639,16 @@ describe('The savePackageInfo action', () => {
     };
     const testInitialManualAttributions: Attributions = {
       uuid1: testPackageInfo,
-      toReplaceUuid: { packageName: 'Vue', id: 'toReplaceUuid' },
-      uuid2: { packageName: 'second test Package', id: 'uuid2' },
+      toReplaceUuid: {
+        packageName: 'Vue',
+        criticality: Criticality.None,
+        id: 'toReplaceUuid',
+      },
+      uuid2: {
+        packageName: 'second test Package',
+        criticality: Criticality.None,
+        id: 'uuid2',
+      },
     };
     const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
       '/something.js': ['uuid1'],
@@ -611,6 +659,7 @@ describe('The savePackageInfo action', () => {
       packageVersion: '1.0',
       packageName: 'test Package modified',
       licenseText: ' test License text',
+      criticality: Criticality.None,
       id: 'uuid2',
     };
 
@@ -623,7 +672,11 @@ describe('The savePackageInfo action', () => {
           resourcesToManualAttributions:
             testInitialResourcesToManualAttributions,
           externalAttributions: {
-            uuid_1: { copyright: 'copyright', id: 'uuid_1' },
+            uuid_1: {
+              copyright: 'copyright',
+              criticality: Criticality.None,
+              id: 'uuid_1',
+            },
           },
           resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
         }),
@@ -652,12 +705,14 @@ describe('The savePackageInfo action', () => {
       packageVersion: '1.1',
       packageName: 'test Package',
       licenseText: ' test License text',
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
 
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.High,
+      criticality: Criticality.None,
       id: 'uuid1',
     };
     const testResources: Resources = {
@@ -689,7 +744,12 @@ describe('The savePackageInfo action', () => {
       setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
     testStore.dispatch(
-      savePackageInfo('/something.js', null, { id: faker.string.uuid() }, true),
+      savePackageInfo(
+        '/something.js',
+        null,
+        { criticality: Criticality.None, id: faker.string.uuid() },
+        true,
+      ),
     );
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       testTemporaryDisplayPackageInfo,
@@ -700,6 +760,7 @@ describe('The savePackageInfo action', () => {
     const testStore = createAppStore();
     const testPackageInfo: PackageInfo = {
       packageName: 'test Package modified',
+      criticality: Criticality.None,
       id: testManualAttributionUuid_1,
     };
     const packageInfoToUpdate: PackageInfo = {
@@ -738,6 +799,7 @@ describe('The unlinkAttributionAndSave action', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
       id: 'reactUuid',
     };
     const testResources: Resources = {
@@ -792,7 +854,11 @@ describe('The deleteAttributionAndSave action', () => {
       file1: 1,
     };
     const testAttributions: Attributions = {
-      toUnlink: { packageName: 'Vue', id: 'toUnlink' },
+      toUnlink: {
+        packageName: 'Vue',
+        criticality: Criticality.None,
+        id: 'toUnlink',
+      },
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       '/file1': ['toUnlink'],
@@ -827,14 +893,26 @@ describe('The deleteAttributionAndSave action', () => {
       file1: 1,
     };
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React', id: 'uuid1' },
-      toUnlink: { packageName: 'Vue', id: 'toUnlink' },
+      uuid1: {
+        packageName: 'React',
+        criticality: Criticality.None,
+        id: 'uuid1',
+      },
+      toUnlink: {
+        packageName: 'Vue',
+        criticality: Criticality.None,
+        id: 'toUnlink',
+      },
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       '/file1': ['uuid1', 'toUnlink'],
     };
     const expectedManualAttributions: Attributions = {
-      uuid1: { packageName: 'React', id: 'uuid1' },
+      uuid1: {
+        packageName: 'React',
+        criticality: Criticality.None,
+        id: 'uuid1',
+      },
     };
     const expectedManualData: AttributionData = {
       attributions: expectedManualAttributions,
@@ -880,11 +958,13 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
       id: 'reactUuid',
     };
     const testVue: PackageInfo = {
       packageName: 'Vue',
       attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
       id: 'vueUuid',
     };
     const testResources: Resources = {
@@ -1000,6 +1080,7 @@ describe('The addToSelectedResource action', () => {
       url: 'test url',
       copyright: 'test copyright',
       comment: 'Comment of signal',
+      criticality: Criticality.None,
       id: testManualAttributionUuid_1,
     };
     testStore.dispatch(addToSelectedResource(testPackageInfo));

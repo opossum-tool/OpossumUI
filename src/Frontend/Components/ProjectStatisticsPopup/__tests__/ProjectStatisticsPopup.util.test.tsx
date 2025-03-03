@@ -19,7 +19,6 @@ import {
   ATTRIBUTION_TOTAL,
   getCriticalSignalsCount,
   getIncompleteAttributionsCount,
-  getLicenseCriticality,
   getLicenseNameVariants,
   getMostFrequentLicenses,
   getStrippedLicenseName,
@@ -52,6 +51,7 @@ const testAttributions_1: Attributions = {
       name: 'reuser',
       documentConfidence: 90,
     },
+    criticality: Criticality.None,
     licenseName: ' Apache license version-2.0 ',
     followUp: true,
     needsReview: true,
@@ -62,6 +62,7 @@ const testAttributions_1: Attributions = {
       name: 'reuser',
       documentConfidence: 90,
     },
+    criticality: Criticality.None,
     licenseName: ' The-MIT-License (MIT) ',
     id: 'uuid4',
   },
@@ -70,6 +71,7 @@ const testAttributions_1: Attributions = {
       name: 'SC',
       documentConfidence: 10,
     },
+    criticality: Criticality.None,
     licenseName: 'The MIT License (MIT)',
     id: 'uuid5',
   },
@@ -78,6 +80,7 @@ const testAttributions_1: Attributions = {
       name: 'SC',
       documentConfidence: 10,
     },
+    criticality: Criticality.None,
     licenseName: 'The MIT License (MIT)',
     firstParty: true,
     id: 'uuid6',
@@ -108,6 +111,7 @@ const testAttributions_2: Attributions = {
       name: 'HC',
       documentConfidence: 90,
     },
+    criticality: Criticality.None,
     licenseName: 'apache license version-2.0 ',
     id: 'uuid3',
   },
@@ -125,6 +129,7 @@ const testAttributions_2: Attributions = {
       name: 'SC',
       documentConfidence: 10,
     },
+    criticality: Criticality.None,
     licenseName: 'The MIT License (MIT)',
     id: 'uuid5',
   },
@@ -153,7 +158,7 @@ describe('aggregateLicensesAndSourcesFromAttributions', () => {
     };
     const expectedLicenseNamesWithCriticality: LicenseNamesWithCriticality = {
       'Apache License Version 2.0': Criticality.High,
-      'The MIT License (MIT)': undefined,
+      'The MIT License (MIT)': Criticality.None,
     };
 
     const strippedLicenseNameToAttribution =
@@ -180,45 +185,26 @@ describe('aggregateLicensesAndSourcesFromAttributions', () => {
   });
 });
 
-describe('getLicenseCriticality', () => {
-  it('obtains undefined criticality', () => {
-    const expectedLicenseCriticality: Criticality | undefined = undefined;
-    const licenseCriticalityCounts = { high: 0, medium: 0, none: 5 };
-
-    const licenseCriticality = getLicenseCriticality(licenseCriticalityCounts);
-
-    expect(licenseCriticality).toEqual(expectedLicenseCriticality);
-  });
-
-  it('obtains medium criticality', () => {
-    const expectedLicenseCriticality: Criticality | undefined =
-      Criticality.Medium;
-    const licenseCriticalityCounts = { high: 0, medium: 3, none: 2 };
-
-    const licenseCriticality = getLicenseCriticality(licenseCriticalityCounts);
-
-    expect(licenseCriticality).toEqual(expectedLicenseCriticality);
-  });
-
-  it('obtains high criticality', () => {
-    const expectedLicenseCriticality: Criticality | undefined =
-      Criticality.High;
-    const licenseCriticalityCounts = { high: 1, medium: 3, none: 10 };
-
-    const licenseCriticality = getLicenseCriticality(licenseCriticalityCounts);
-
-    expect(licenseCriticality).toEqual(expectedLicenseCriticality);
-  });
-});
-
 describe('getLicenseNameVariants', () => {
   it('gets equivalent license names from attributions', () => {
     const gpl2 = 'GPL-2.0';
     const gpl2variant1 = 'gpl 2.0';
     const testAttributions: Attributions = {
-      uuid1: { licenseName: gpl2, id: 'uuid1' },
-      uuid2: { licenseName: gpl2variant1, id: 'uuid2' },
-      uuid3: { licenseName: 'something else', id: 'uuid3' },
+      uuid1: {
+        licenseName: gpl2,
+        id: 'uuid1',
+        criticality: Criticality.None,
+      },
+      uuid2: {
+        licenseName: gpl2variant1,
+        id: 'uuid2',
+        criticality: Criticality.None,
+      },
+      uuid3: {
+        licenseName: 'something else',
+        id: 'uuid3',
+        criticality: Criticality.None,
+      },
     };
     const expectedLicenseNameVariants = new Set([gpl2, gpl2variant1]);
 
@@ -435,7 +421,7 @@ describe('getCriticalSignalsCount', () => {
     };
     const licenseNamesWithCriticality: LicenseNamesWithCriticality = {
       'Apache License Version 2.0': Criticality.High,
-      'The MIT License (MIT)': undefined,
+      'The MIT License (MIT)': Criticality.None,
       'Apache License Version 1.0': Criticality.Medium,
       'Apache License Version 1.0.1': Criticality.Medium,
       'Apache License Version 1.0.0.1': Criticality.Medium,

@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
+  Criticality,
   DiscreteConfidence,
   ExportType,
   FileType,
@@ -94,7 +95,11 @@ describe('The actions checking for unsaved changes', () => {
           selectedResource: 1,
           newSelectedResource: 1,
         };
-        const attribution: PackageInfo = { packageName: 'React', id: 'uuid_1' };
+        const attribution: PackageInfo = {
+          packageName: 'React',
+          criticality: Criticality.None,
+          id: 'uuid_1',
+        };
         const testManualAttributions: Attributions = {
           uuid_1: attribution,
         };
@@ -113,12 +118,14 @@ describe('The actions checking for unsaved changes', () => {
         testStore.dispatch(
           savePackageInfo(null, null, {
             packageName: 'Test',
+            criticality: Criticality.None,
             id: faker.string.uuid(),
           }),
         );
         testStore.dispatch(
           setTemporaryDisplayPackageInfo({
             packageName: 'Test 2',
+            criticality: Criticality.None,
             id: faker.string.uuid(),
           }),
         );
@@ -148,7 +155,11 @@ describe('The actions checking for unsaved changes', () => {
         selectedResource: 1,
         newSelectedResource: 1,
       };
-      const attribution: PackageInfo = { packageName: 'React', id: 'uuid_1' };
+      const attribution: PackageInfo = {
+        packageName: 'React',
+        criticality: Criticality.None,
+        id: 'uuid_1',
+      };
       const testManualAttributions: Attributions = {
         uuid_1: attribution,
       };
@@ -168,12 +179,14 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'Test',
+          criticality: Criticality.None,
           id: faker.string.uuid(),
         }),
       );
       testStore.dispatch(
         savePackageInfo('selectedResource', 'selectedAttributionId', {
           packageName: 'Test',
+          criticality: Criticality.None,
           id: faker.string.uuid(),
         }),
       );
@@ -189,6 +202,7 @@ describe('The actions checking for unsaved changes', () => {
         getTemporaryDisplayPackageInfo(testStore.getState()),
       ).toEqual<PackageInfo>({
         packageName: 'React',
+        criticality: Criticality.None,
         id: 'uuid_1',
       });
     });
@@ -209,6 +223,7 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'new Name',
+          criticality: Criticality.None,
           id: faker.string.uuid(),
         }),
       );
@@ -245,12 +260,14 @@ describe('The actions checking for unsaved changes', () => {
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
+      criticality: Criticality.None,
       id: testManualAttributionUuid_1,
     };
     const secondTestPackageInfo: PackageInfo = {
       packageVersion: '2.0',
       packageName: 'not assigned test Package',
       licenseText: ' test not assigned License text',
+      criticality: Criticality.None,
       id: testManualAttributionUuid_2,
     };
     const testManualAttributions: Attributions = {
@@ -295,6 +312,7 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'new Name',
+          criticality: Criticality.None,
           id: faker.string.uuid(),
         }),
       );
@@ -323,6 +341,7 @@ describe('proceedFromUnsavedPopup', () => {
     testStore.dispatch(
       setTemporaryDisplayPackageInfo({
         packageName: 'Test',
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       }),
     );

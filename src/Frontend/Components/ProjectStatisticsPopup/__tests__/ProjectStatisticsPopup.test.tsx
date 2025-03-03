@@ -5,7 +5,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { Attributions } from '../../../../shared/shared-types';
+import { Attributions, Criticality } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { ProjectStatisticsPopupTitle } from '../../../enums/enums';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
@@ -22,6 +22,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 10,
         },
         licenseName: 'Apache License Version 2.0',
+        criticality: Criticality.None,
         id: 'uuid_1',
       },
       uuid_2: {
@@ -30,6 +31,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 90,
         },
         licenseName: 'The MIT License (MIT)',
+        criticality: Criticality.None,
         id: 'uuid_2',
       },
     };
@@ -57,6 +59,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 10,
         },
         licenseName: 'Apache License Version 2.0',
+        criticality: Criticality.None,
         id: 'uuid_1',
       },
       uuid_2: {
@@ -65,6 +68,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 90,
         },
         licenseName: 'The MIT License (MIT)',
+        criticality: Criticality.None,
         id: 'uuid_2',
       },
     };
@@ -75,6 +79,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 90,
         },
         licenseName: 'Apache License Version 3.0',
+        criticality: Criticality.None,
         id: 'uuid_3',
       },
       uuid_2: {
@@ -83,6 +88,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 90,
         },
         licenseName: 'The MIT License (MIT)',
+        criticality: Criticality.None,
         id: 'uuid_2',
       },
     };
@@ -155,6 +161,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 10,
         },
         licenseName: 'Apache License Version 2.0',
+        criticality: Criticality.None,
         id: 'uuid_1',
       },
       uuid_2: {
@@ -163,6 +170,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 90,
         },
         licenseName: 'The MIT License (MIT)',
+        criticality: Criticality.None,
         id: 'uuid_2',
       },
     };

@@ -13,9 +13,16 @@ export interface Resources {
 }
 
 export enum Criticality {
-  High = 'high',
-  Medium = 'medium',
+  None,
+  Medium,
+  High,
 }
+
+export const RawCriticality: Record<Criticality, string | undefined> = {
+  [Criticality.None]: undefined,
+  [Criticality.Medium]: 'medium',
+  [Criticality.High]: 'high',
+};
 
 export enum DiscreteConfidence {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -56,7 +63,7 @@ export interface PackageInfo extends EphemeralPackageInfoProps {
   comment?: string;
   copyright?: string;
   count?: number;
-  criticality?: Criticality;
+  criticality: Criticality;
   excludeFromNotice?: boolean;
   firstParty?: boolean;
   followUp?: boolean;
@@ -79,10 +86,11 @@ export interface PackageInfo extends EphemeralPackageInfoProps {
 
 export interface RawPackageInfo
   extends Never<
-    Omit<PackageInfo, 'followUp'>,
+    Omit<Omit<PackageInfo, 'followUp'>, 'criticality'>,
     keyof EphemeralPackageInfoProps
   > {
   originId?: string;
+  criticality?: string;
   followUp?: 'FOLLOW_UP';
 }
 

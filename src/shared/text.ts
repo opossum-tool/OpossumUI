@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FileFormatInfo } from './shared-types';
+import { Criticality, FileFormatInfo } from './shared-types';
 
 function menuLabelForFileFormat(fileFormat: FileFormatInfo): string {
   return `${fileFormat.name} File (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})...`;
@@ -188,8 +188,8 @@ export const text = {
     currentlyPreferred: 'Currently Preferred',
     excludedFromNotice: 'Excluded from Notice',
     followUp: 'Needs Follow-Up',
-    highCriticality: 'High Criticality',
-    mediumCriticality: 'Medium Criticality',
+    [Criticality.High]: 'High Criticality',
+    [Criticality.Medium]: 'Medium Criticality',
     modifiedPreferred: 'Modified Previously Preferred',
     needsReview: 'Needs Review by QA',
     preselected: 'Pre-selected',

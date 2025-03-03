@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   AttributionData,
+  Criticality,
   FrequentLicenses,
   PackageInfo,
   ProjectConfig,
@@ -40,6 +41,7 @@ export const EMPTY_PROJECT_CONFIG: ProjectConfig = {
 
 export const EMPTY_DISPLAY_PACKAGE_INFO: PackageInfo = {
   id: '',
+  criticality: Criticality.None,
 };
 
 export const FILTERS = Object.values(text.filters);

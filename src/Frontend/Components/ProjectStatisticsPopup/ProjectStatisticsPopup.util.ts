@@ -120,7 +120,7 @@ function getLicenseDataFromVariants(
   attributionSources: ExternalAttributionSources,
 ): {
   mostFrequentLicenseName: string;
-  licenseCriticality: Criticality | undefined;
+  licenseCriticality: Criticality;
   sourcesCountForLicense: {
     [sourceNameOrTotal: string]: number;
   };
@@ -131,7 +131,7 @@ function getLicenseDataFromVariants(
   const sourcesCountForLicense: {
     [sourceNameOrTotal: string]: number;
   } = {};
-  const licenseCriticalityCounts = { high: 0, medium: 0, none: 0 };
+  let licenseCriticality = Criticality.None;
 
   for (const attributionId of attributionIds) {
     const licenseName = attributions[attributionId].licenseName;
@@ -141,7 +141,7 @@ function getLicenseDataFromVariants(
 
       const variantCriticality = attributions[attributionId].criticality;
 
-      licenseCriticalityCounts[variantCriticality || 'none']++;
+      licenseCriticality = Math.max(licenseCriticality, variantCriticality);
 
       const sourceId =
         attributions[attributionId].source?.name ?? UNKNOWN_SOURCE_PLACEHOLDER;
@@ -155,7 +155,6 @@ function getLicenseDataFromVariants(
         (sourcesCountForLicense[sourceName] || 0) + 1;
     }
   }
-  const licenseCriticality = getLicenseCriticality(licenseCriticalityCounts);
   const mostFrequentLicenseName = Object.keys(licenseNameVariantsCount).reduce(
     (a, b) =>
       licenseNameVariantsCount[a] > licenseNameVariantsCount[b] ? a : b,
@@ -165,19 +164,6 @@ function getLicenseDataFromVariants(
     licenseCriticality,
     sourcesCountForLicense,
   };
-}
-
-// right now getLicenseCriticality is being exported only to be tested
-export function getLicenseCriticality(licenseCriticalityCounts: {
-  high: number;
-  medium: number;
-  none: number;
-}): Criticality | undefined {
-  return licenseCriticalityCounts['high'] > 0
-    ? Criticality.High
-    : licenseCriticalityCounts['medium'] > 0
-      ? Criticality.Medium
-      : undefined;
 }
 
 export function getUniqueLicenseNameToAttribution(
@@ -298,27 +284,31 @@ export function getCriticalSignalsCount(
   licenseCounts: LicenseCounts,
   licenseNamesWithCriticality: LicenseNamesWithCriticality,
 ): Array<PieChartData> {
-  const licenseCriticalityCounts = { high: 0, medium: 0, none: 0 };
+  const licenseCriticalityCounts = {
+    [Criticality.High]: 0,
+    [Criticality.Medium]: 0,
+    [Criticality.None]: 0,
+  };
 
   for (const license of Object.keys(
     licenseCounts.attributionCountPerSourcePerLicense,
   )) {
-    licenseCriticalityCounts[licenseNamesWithCriticality[license] || 'none'] +=
+    licenseCriticalityCounts[licenseNamesWithCriticality[license]] +=
       licenseCounts.totalAttributionsPerLicense[license];
   }
 
   const criticalityData = [
     {
       name: PieChartCriticalityNames.HighCriticality,
-      count: licenseCriticalityCounts['high'],
+      count: licenseCriticalityCounts[Criticality.High],
     },
     {
       name: PieChartCriticalityNames.MediumCriticality,
-      count: licenseCriticalityCounts['medium'],
+      count: licenseCriticalityCounts[Criticality.Medium],
     },
     {
       name: PieChartCriticalityNames.NoCriticality,
-      count: licenseCriticalityCounts['none'],
+      count: licenseCriticalityCounts[Criticality.None],
     },
   ];
 

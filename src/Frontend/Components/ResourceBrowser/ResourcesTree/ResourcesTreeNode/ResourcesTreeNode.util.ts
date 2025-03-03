@@ -17,7 +17,7 @@ export function getCriticality(
   resourcesToExternalAttributions: ResourcesToAttributions,
   externalAttributions: Attributions,
   resolvedExternalAttributions: Set<string>,
-): Criticality | undefined {
+): Criticality {
   if (
     hasUnresolvedExternalAttribution(
       nodeId,
@@ -44,7 +44,7 @@ export function getCriticality(
       }
     }
   }
-  return undefined;
+  return Criticality.None;
 }
 
 function isRootResource(resourceName: string): boolean {

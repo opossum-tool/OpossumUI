@@ -8,7 +8,11 @@ import * as zlib from 'zlib';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { Criticality, ParsedFileContent } from '../../../shared/shared-types';
+import {
+  Criticality,
+  ParsedFileContent,
+  RawCriticality,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
@@ -84,7 +88,7 @@ const inputFileContent: ParsedOpossumInputFile = {
       copyright: '(c) first party',
       firstParty: true,
       excludeFromNotice: true,
-      criticality: Criticality.High,
+      criticality: RawCriticality[Criticality.High],
       preferred: true,
       preferredOverOriginIds: ['test-id'],
       wasPreferred: true,
@@ -452,6 +456,7 @@ describe('Test of loading function', () => {
               preSelected: true,
               attributionConfidence: 17,
               id: manualAttributionUuid,
+              criticality: Criticality.None,
             },
           },
           resourcesToAttributions: {
@@ -477,6 +482,7 @@ describe('Test of loading function', () => {
               originalAttributionSource: source,
               originalAttributionId: externalAttributionUuid,
               originalAttributionWasPreferred: undefined,
+              criticality: Criticality.None,
             },
           },
           resourcesToAttributions: {
@@ -595,6 +601,7 @@ describe('Test of loading function', () => {
             originalAttributionId: 'uuid',
             originalAttributionSource: source,
             originalAttributionWasPreferred: undefined,
+            criticality: Criticality.None,
           },
         },
         resourcesToAttributions: {
@@ -625,6 +632,7 @@ function assertFileLoadedCorrectly(testUuid: string): void {
           licenseText: 'MIT',
           followUp: true,
           id: testUuid,
+          criticality: Criticality.None,
         },
       },
       resourcesToAttributions: {

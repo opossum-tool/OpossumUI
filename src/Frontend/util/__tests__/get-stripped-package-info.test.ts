@@ -11,6 +11,7 @@ describe('getStrippedPackageInfo', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       packageVersion: '',
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
 
@@ -28,6 +29,7 @@ describe('getStrippedPackageInfo', () => {
         name: 'HC',
         documentConfidence: 10,
       },
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
 
@@ -42,6 +44,7 @@ describe('getStrippedPackageInfo', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       preSelected: true,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
 
@@ -70,6 +73,7 @@ describe('getStrippedPackageInfo', () => {
     const testPackageInfo = {
       packageName: 'React',
       foo: 0,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
 

@@ -5,6 +5,7 @@
 import MuiDivider from '@mui/material/Divider';
 import { without } from 'lodash';
 
+import { Criticality } from '../../../../../shared/shared-types';
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../../../state/hooks';
@@ -63,6 +64,7 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
             focused,
             resolved: attributionIdsForReplacement.includes(attributionId),
             incomplete: isPackageInfoIncomplete(attribution),
+            criticality: Criticality.None,
           }}
           packageInfo={attribution}
           checkbox={{

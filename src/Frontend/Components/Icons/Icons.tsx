@@ -185,10 +185,10 @@ export function CriticalityIcon({
   sx,
   tooltipPlacement,
 }: IconProps & {
-  criticality?: Criticality;
+  criticality: Criticality;
   tooltip?: string;
 }) {
-  if (!criticality) {
+  if (criticality === Criticality.None) {
     return null;
   }
 

@@ -11,6 +11,7 @@ import {
   Criticality,
   FrequentLicenses,
   RawAttributions,
+  RawCriticality,
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
@@ -39,6 +40,7 @@ describe('deserializeAttributions', () => {
     expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       id: {
         id: 'id',
+        criticality: Criticality.None,
         followUp: true,
         originalAttributionId: 'id',
         originalAttributionSource: undefined,
@@ -57,6 +59,7 @@ describe('deserializeAttributions', () => {
     expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       id: {
         id: 'id',
+        criticality: Criticality.None,
         originalAttributionId: 'id',
         originalAttributionSource: undefined,
         originalAttributionWasPreferred: undefined,
@@ -74,6 +77,7 @@ describe('deserializeAttributions', () => {
     expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       id: {
         id: 'id',
+        criticality: Criticality.None,
         comment: 'Test comment',
         originalAttributionId: 'id',
         originalAttributionSource: undefined,
@@ -92,6 +96,7 @@ describe('deserializeAttributions', () => {
     expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       id: {
         id: 'id',
+        criticality: Criticality.None,
         originalAttributionId: 'id',
         originalAttributionSource: undefined,
         originalAttributionWasPreferred: undefined,
@@ -102,7 +107,7 @@ describe('deserializeAttributions', () => {
   it('leaves criticality unchanged', () => {
     const rawAttributions: RawAttributions = {
       id: {
-        criticality: 'high' as Criticality,
+        criticality: RawCriticality[Criticality.High],
       },
     };
 
@@ -120,7 +125,7 @@ describe('deserializeAttributions', () => {
   it('removes invalid criticality', () => {
     const rawAttributions: RawAttributions = {
       id: {
-        criticality: 'invalid value' as Criticality,
+        criticality: 'invalid value',
       },
     };
 
@@ -130,6 +135,7 @@ describe('deserializeAttributions', () => {
         originalAttributionId: 'id',
         originalAttributionSource: undefined,
         originalAttributionWasPreferred: undefined,
+        criticality: Criticality.None,
       },
     });
   });
@@ -145,6 +151,7 @@ describe('deserializeAttributions', () => {
     expect(deserializeAttributions(rawAttributions)).toEqual({
       uuid: {
         originIds: ['def', 'ghi', 'abc'],
+        criticality: Criticality.None,
         id: 'uuid',
         originalAttributionId: 'uuid',
         originalAttributionSource: undefined,
@@ -164,6 +171,7 @@ describe('deserializeAttributions', () => {
       uuid: {
         originIds: ['abc'],
         id: 'uuid',
+        criticality: Criticality.None,
         originalAttributionId: 'uuid',
         originalAttributionSource: undefined,
         originalAttributionWasPreferred: undefined,
@@ -182,6 +190,7 @@ describe('deserializeAttributions', () => {
       uuid: {
         originIds: ['abc', 'cde'],
         id: 'uuid',
+        criticality: Criticality.None,
         originalAttributionId: 'uuid',
         originalAttributionSource: undefined,
         originalAttributionWasPreferred: undefined,
@@ -206,6 +215,7 @@ describe('deserializeAttributions', () => {
         originIds: [originId, faker.string.uuid()],
         source: faker.opossum.source(),
         id: originalAttributionId,
+        criticality: Criticality.None,
       },
     };
 
@@ -221,6 +231,7 @@ describe('deserializeAttributions', () => {
         originalAttributionWasPreferred:
           originalAttributions[originalAttributionId].wasPreferred,
         id: attributionId,
+        criticality: Criticality.None,
       },
     });
   });
@@ -232,6 +243,7 @@ describe('serializeAttributions', () => {
       id: {
         id: 'id',
         source: faker.opossum.source(),
+        criticality: Criticality.None,
       },
     };
     const rawAttributions: RawAttributions = {

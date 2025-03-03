@@ -2,7 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Attributions, PackageInfo } from '../../../../../shared/shared-types';
+import {
+  Attributions,
+  Criticality,
+  PackageInfo,
+} from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
 import { View } from '../../../../enums/enums';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
@@ -35,6 +39,7 @@ describe('resetTemporaryDisplayPackageInfo', () => {
   it('works correctly', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
+      criticality: Criticality.None,
       id: 'uuid1',
     };
     const testManualAttributions: Attributions = {
@@ -42,6 +47,7 @@ describe('resetTemporaryDisplayPackageInfo', () => {
     };
     const initialTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'Vue',
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
 

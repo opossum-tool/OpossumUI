@@ -11,6 +11,7 @@ import {
 } from '../../../shared/ipc-channels';
 import {
   Attributions,
+  Criticality,
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
@@ -160,11 +161,13 @@ describe('getExportFollowUpListener', () => {
         licenseText: 'license text',
         firstParty: true,
         resources: ['/'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
       key2: {
         packageName: 'license text',
         resources: ['/a', '/b'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
     };
@@ -223,10 +226,12 @@ describe('getExportBomListener', () => {
         followUp: undefined,
         licenseText: 'license text',
         firstParty: true,
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
       key2: {
         packageName: 'license text',
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
     };
@@ -259,11 +264,13 @@ describe('getExportBomListener', () => {
         licenseText: 'license text',
         firstParty: true,
         resources: ['/somefile.csv'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
       key2: {
         packageName: 'license text',
         resources: ['/a', '/b'],
+        criticality: Criticality.None,
         id: faker.string.uuid(),
       },
     };
