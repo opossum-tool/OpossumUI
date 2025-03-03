@@ -63,17 +63,9 @@ export function orderLicenseNames(
   licenseNamesWithCriticality: LicenseNamesWithCriticality,
   licenseNamesWithClassification: LicenseNamesWithClassification,
   licenseCounts: LicenseCounts,
-  columnConfig: ColumnConfig,
-  ordering: TableOrdering,
+  orderDirection: Order,
+  orderedColumnType: ColumnType,
 ): Array<string> {
-  const orderedColumnType = columnConfig.getColumnById(
-    ordering.orderedColumn,
-  )?.columnType;
-
-  if (orderedColumnType === undefined) {
-    return [];
-  }
-
   return orderBy(
     Object.keys(licenseNamesWithCriticality),
     [
@@ -103,6 +95,6 @@ export function orderLicenseNames(
       },
       (licenseName) => licenseName.toLowerCase(),
     ],
-    [ordering.orderDirection, 'asc'],
+    [orderDirection, 'asc'],
   );
 }
