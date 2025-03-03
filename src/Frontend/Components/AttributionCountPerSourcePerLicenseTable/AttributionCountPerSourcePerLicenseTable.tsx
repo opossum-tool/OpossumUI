@@ -11,18 +11,19 @@ import MuiTableFooter from '@mui/material/TableFooter';
 import MuiTableHead from '@mui/material/TableHead';
 import MuiTableRow from '@mui/material/TableRow';
 import MuiTypography from '@mui/material/Typography';
-import { orderBy } from 'lodash';
 import { useMemo, useState } from 'react';
 
-import { Criticality } from '../../../shared/shared-types';
 import {
   LicenseCounts,
   LicenseNamesWithClassification,
   LicenseNamesWithCriticality,
 } from '../../types/types';
-import { Order } from '../TableCellWithSorting/TableCellWithSorting';
+import { orderLicenseNames } from './AttributionCountPerSourcePerLicenseTable.util';
 import { AttributionCountPerSourcePerLicenseTableFooter } from './AttributionCountPerSourcePerLicenseTableFooter/AttributionCountPerSourcePerLicenseTableFooter';
-import { AttributionCountPerSourcePerLicenseTableHead } from './AttributionCountPerSourcePerLicenseTableHead/AttributionCountPerSourcePerLicenseTableHead';
+import {
+  AttributionCountPerSourcePerLicenseTableHead,
+  TableOrdering,
+} from './AttributionCountPerSourcePerLicenseTableHead/AttributionCountPerSourcePerLicenseTableHead';
 import { AttributionCountPerSourcePerLicenseTableRow } from './AttributionCountPerSourcePerLicenseTableRow/AttributionCountPerSourcePerLicenseTableRow';
 import { tableClasses } from '../../shared-styles';
 
@@ -31,6 +32,11 @@ const classes = {
     maxHeight: '400px',
     marginBottom: '3px',
   },
+};
+
+const DEFAULT_ORDERING: TableOrdering = {
+  orderDirection: 'asc',
+  orderedColumn: 0,
 };
 
 interface AttributionCountPerSourcePerLicenseTableProps {
@@ -43,56 +49,40 @@ interface AttributionCountPerSourcePerLicenseTableProps {
 export const AttributionCountPerSourcePerLicenseTable: React.FC<
   AttributionCountPerSourcePerLicenseTableProps
 > = (props) => {
-  const [order, setOrder] = useState<Order>('asc');
-  const [orderedColumn, setOrderedColumn] = useState(0);
+  const [ordering, setOrdering] = useState(DEFAULT_ORDERING);
 
   const handleRequestSort = (columnIndex: number) => {
-    setOrder(orderedColumn === columnIndex && order === 'asc' ? 'desc' : 'asc');
-    setOrderedColumn(columnIndex);
+    if (ordering.orderedColumn === columnIndex) {
+      setOrdering({
+        ...ordering,
+        orderDirection: ordering.orderDirection === 'asc' ? 'desc' : 'asc',
+      });
+    } else {
+      setOrdering({
+        orderDirection: 'asc',
+        orderedColumn: columnIndex,
+      });
+    }
   };
 
   const sourceNames = Object.keys(
     props.licenseCounts.totalAttributionsPerSource,
   );
 
-  const sortedLicenseNames = useMemo(
+  const orderedLicenseNames = useMemo(
     () =>
-      orderBy(
-        Object.keys(props.licenseNamesWithCriticality).toSorted(),
-        (licenseName) => {
-          const numStartingColumns = 3;
-
-          if (orderedColumn === 0) {
-            return licenseName.toLowerCase();
-          } else if (orderedColumn === 1) {
-            switch (props.licenseNamesWithCriticality[licenseName]) {
-              case Criticality.High:
-                return 2;
-              case Criticality.Medium:
-                return 1;
-              default:
-                return 0;
-            }
-          } else if (orderedColumn === 2) {
-            return props.licenseNamesWithClassification[licenseName];
-          } else if (orderedColumn < numStartingColumns + sourceNames.length) {
-            return (
-              props.licenseCounts.attributionCountPerSourcePerLicense[
-                licenseName
-              ][sourceNames[orderedColumn - numStartingColumns]] ?? 0
-            );
-          }
-
-          return props.licenseCounts.totalAttributionsPerLicense[licenseName];
-        },
-        order,
+      orderLicenseNames(
+        props.licenseNamesWithCriticality,
+        props.licenseNamesWithClassification,
+        props.licenseCounts,
+        ordering,
+        sourceNames,
       ),
     [
       props.licenseNamesWithCriticality,
       props.licenseNamesWithClassification,
       props.licenseCounts,
-      order,
-      orderedColumn,
+      ordering,
       sourceNames,
     ],
   );
@@ -104,12 +94,11 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
         <MuiTable size="small" stickyHeader>
           <AttributionCountPerSourcePerLicenseTableHead
             sourceNames={sourceNames}
-            order={order}
-            orderBy={orderedColumn}
+            tableOrdering={ordering}
             onRequestSort={handleRequestSort}
           />
           <MuiTableBody>
-            {sortedLicenseNames.map((licenseName, rowIndex) => (
+            {orderedLicenseNames.map((licenseName, rowIndex) => (
               <AttributionCountPerSourcePerLicenseTableRow
                 sourceNames={sourceNames}
                 signalCountsPerSource={
