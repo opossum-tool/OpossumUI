@@ -24,6 +24,14 @@ const classes = {
     marginBottom: '4px',
     marginTop: '4px',
   },
+  select: {
+    width: '150px',
+    backgroundColor: OpossumColors.lightestBlue,
+    minHeight: 'unset !important',
+  },
+  progressBar: {
+    flex: 1,
+  },
 } satisfies SxProps;
 
 const text = fullText.topBar.switchableProgressBar;
@@ -64,7 +72,7 @@ export const SwitchableProcessBar: React.FC = () => {
   return (
     <MuiBox sx={classes.container}>
       <ProgressBar
-        sx={{ flex: 1 }}
+        sx={classes.progressBar}
         progressBarData={progressData}
         showCriticalSignals={
           progressBarConfigurations[currentProgressBar].showCriticalSignals
@@ -73,11 +81,7 @@ export const SwitchableProcessBar: React.FC = () => {
       <Select<SelectedProgressBar>
         size={'small'}
         onChange={handleProgressBarChange}
-        sx={{
-          width: '150px',
-          backgroundColor: OpossumColors.lightestBlue,
-          minHeight: 'unset !important',
-        }}
+        sx={classes.select}
         value={currentProgressBar}
         aria-label={text.selectAriaLabel}
       >
