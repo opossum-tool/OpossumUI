@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
+import { SxProps } from '@mui/system';
 import { useState } from 'react';
 
 import { text as fullText } from '../../../shared/text';
@@ -10,16 +11,12 @@ import { useProgressData } from '../../state/variables/use-progress-data';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
 
-const classes = {
-  progressBarContainer: {
-    flex: 1,
-    display: 'flex',
-    marginLeft: '12px',
-    marginRight: '12px',
-  },
-  switch: {
-    margin: 'auto',
-  },
+const progressBarContainerStyling: SxProps = {
+  flex: 1,
+  display: 'flex',
+  marginLeft: '12px',
+  marginRight: '12px',
+  gap: '12px',
 };
 
 export const SwitchableProcessBar: React.FC = () => {
@@ -38,14 +35,14 @@ export const SwitchableProcessBar: React.FC = () => {
     return <MuiBox flex={1} />;
   }
   return (
-    <MuiBox sx={classes.progressBarContainer}>
+    <MuiBox sx={progressBarContainerStyling}>
       <ProgressBar
-        sx={classes.progressBarContainer}
+        sx={{ flex: 1 }}
         progressBarData={progressData}
         showCriticalSignals={showCriticalSignals}
       />
       <SwitchWithTooltip
-        sx={classes.switch}
+        sx={{ margin: 'auto' }}
         switchToolTipText={
           showCriticalSignals
             ? text.criticalSignalsBar.switcherTooltip
