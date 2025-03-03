@@ -8,7 +8,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
-import { ProgressBarData } from '../../types/types';
+import { ProgressBarData, SelectedProgressBar } from '../../types/types';
 import {
   getCriticalityBarBackground,
   getCriticalityBarTooltipText,
@@ -33,7 +33,7 @@ const classes = {
 interface ProgressBarProps {
   sx?: SxProps;
   progressBarData: ProgressBarData;
-  showCriticalSignals: boolean;
+  selectedProgressBar: SelectedProgressBar;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
@@ -53,7 +53,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     <MuiBox sx={props.sx}>
       <MuiTooltip
         title={
-          props.showCriticalSignals
+          props.selectedProgressBar === 'criticality'
             ? getCriticalityBarTooltipText(props.progressBarData)
             : getProgressBarTooltipText(props.progressBarData)
         }
@@ -61,19 +61,20 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       >
         <MuiBox
           aria-label={
-            props.showCriticalSignals
+            props.selectedProgressBar === 'criticality'
               ? text.topBar.switchableProgressBar.criticalSignalsBar.ariaLabel
               : text.topBar.switchableProgressBar.attributionProgressBar
                   .ariaLabel
           }
           sx={{
             ...classes.bar,
-            background: props.showCriticalSignals
-              ? getCriticalityBarBackground(props.progressBarData)
-              : getProgressBarBackground(props.progressBarData),
+            background:
+              props.selectedProgressBar === 'criticality'
+                ? getCriticalityBarBackground(props.progressBarData)
+                : getProgressBarBackground(props.progressBarData),
           }}
           onClick={
-            props.showCriticalSignals
+            props.selectedProgressBar === 'criticality'
               ? onCriticalityBarClick
               : onProgressBarClick
           }
