@@ -241,7 +241,7 @@ function deserializeCriticality(criticality: string | undefined): Criticality {
     case RawCriticality[Criticality.Medium]:
       return Criticality.Medium;
     default:
-      return Criticality.NonCritical;
+      return Criticality.None;
   }
 }
 

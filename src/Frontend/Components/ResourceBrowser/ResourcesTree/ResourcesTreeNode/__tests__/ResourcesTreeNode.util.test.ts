@@ -23,13 +23,13 @@ describe('ResourcesTreeNode', () => {
     const externalAttributions: Attributions = {
       attr1: { criticality: Criticality.High, id: 'attr1' },
       attr2: { criticality: Criticality.Medium, id: 'attr2' },
-      attr3: { criticality: Criticality.NonCritical, id: 'attr3' },
+      attr3: { criticality: Criticality.None, id: 'attr3' },
     };
     const expectedCriticalities: {
       [resource: string]: Criticality;
     } = {
       '/test_file1.ts': Criticality.High,
-      '/test_file2.ts': Criticality.NonCritical,
+      '/test_file2.ts': Criticality.None,
       '/test_file3.ts': Criticality.Medium,
     };
 

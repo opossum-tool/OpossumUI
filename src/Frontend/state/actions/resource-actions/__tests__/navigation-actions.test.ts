@@ -39,7 +39,7 @@ describe('resetTemporaryDisplayPackageInfo', () => {
   it('works correctly', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'uuid1',
     };
     const testManualAttributions: Attributions = {
@@ -47,7 +47,7 @@ describe('resetTemporaryDisplayPackageInfo', () => {
     };
     const initialTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'Vue',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
 

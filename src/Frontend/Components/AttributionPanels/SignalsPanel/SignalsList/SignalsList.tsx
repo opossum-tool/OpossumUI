@@ -108,7 +108,7 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
             selected,
             focused,
             resolved: resolvedExternalAttributionIds.has(attributionId),
-            criticality: Criticality.NonCritical,
+            criticality: Criticality.None,
           }}
           packageInfo={attribution}
           checkbox={{

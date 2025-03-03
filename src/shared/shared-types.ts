@@ -13,13 +13,13 @@ export interface Resources {
 }
 
 export enum Criticality {
-  NonCritical,
+  None,
   Medium,
   High,
 }
 
 export const RawCriticality: Record<Criticality, string | undefined> = {
-  [Criticality.NonCritical]: undefined,
+  [Criticality.None]: undefined,
   [Criticality.Medium]: 'medium',
   [Criticality.High]: 'high',
 };

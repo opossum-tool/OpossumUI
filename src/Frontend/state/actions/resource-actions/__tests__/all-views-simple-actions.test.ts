@@ -66,14 +66,14 @@ const testTemporaryDisplayPackageInfo: PackageInfo = {
   packageVersion: '1.0',
   packageName: 'test Package',
   licenseText: ' test License text',
-  criticality: Criticality.NonCritical,
+  criticality: Criticality.None,
   id: testManualAttributionUuid_1,
 };
 const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
   packageVersion: '2.0',
   packageName: 'not assigned test Package',
   licenseText: ' test not assigned License text',
-  criticality: Criticality.NonCritical,
+  criticality: Criticality.None,
   id: testManualAttributionUuid_2,
 };
 const testManualAttributions: Attributions = {
@@ -94,7 +94,7 @@ describe('The load and navigation simple actions', () => {
       packageVersion: '1.1',
       packageName: 'test Package',
       licenseText: ' test License text',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testManualAttributionUuid_1,
     };
     testStore.dispatch(
@@ -126,12 +126,12 @@ describe('The load and navigation simple actions', () => {
     const testAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };
@@ -191,12 +191,12 @@ describe('The load and navigation simple actions', () => {
     const testAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };
@@ -286,7 +286,7 @@ describe('The load and navigation simple actions', () => {
       packageName: 'test',
       packageVersion: '1.0',
       licenseText: 'License Text',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
     const testStore = createAppStore();

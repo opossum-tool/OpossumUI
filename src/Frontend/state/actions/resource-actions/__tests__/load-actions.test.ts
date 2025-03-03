@@ -62,14 +62,14 @@ const testTemporaryDisplayPackageInfo: PackageInfo = {
   packageVersion: '1.0',
   packageName: 'test Package',
   licenseText: ' test License text',
-  criticality: Criticality.NonCritical,
+  criticality: Criticality.None,
   id: testManualAttributionUuid_1,
 };
 const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
   packageVersion: '2.0',
   packageName: 'not assigned test Package',
   licenseText: ' test not assigned License text',
-  criticality: Criticality.NonCritical,
+  criticality: Criticality.None,
   id: testManualAttributionUuid_2,
 };
 const testManualAttributions: Attributions = {
@@ -94,7 +94,7 @@ describe('loadFromFile', () => {
           name: 'Test document',
           documentConfidence: 99,
         },
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: testManualAttributionUuid_1,
       },
       doNotChangeMe1: {
@@ -103,7 +103,7 @@ describe('loadFromFile', () => {
         originIds: ['abc'],
         preSelected: true,
         attributionConfidence: 1,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'doNotChangeMe1',
       },
       doNotChangeMe2: {
@@ -112,7 +112,7 @@ describe('loadFromFile', () => {
         originIds: ['def'],
         preSelected: false,
         attributionConfidence: 2,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'doNotChangeMe2',
       },
     };

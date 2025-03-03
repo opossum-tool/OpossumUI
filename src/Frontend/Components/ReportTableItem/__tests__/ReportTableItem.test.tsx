@@ -26,7 +26,7 @@ describe('The ReportTableItem', () => {
         url: 'packageWebsite',
         firstParty: true,
         resources: ['/'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
     };
@@ -67,7 +67,7 @@ describe('The ReportTableItem', () => {
         resources: ['/'],
         needsReview: true,
         preferred: true,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
@@ -75,7 +75,7 @@ describe('The ReportTableItem', () => {
         resources: [],
         followUp: true,
         excludeFromNotice: true,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };

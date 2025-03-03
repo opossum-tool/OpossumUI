@@ -31,25 +31,25 @@ describe('getOriginIdsToPreferOver', () => {
       uuid0: {
         originIds: ['originUuid0'],
         source: testSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid0',
       },
       uuid1: {
         originIds: ['originUuid1'],
         source: testSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         originIds: ['originUuid2'],
         source: testSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
       uuid3: {
         originIds: ['originUuid3'],
         source: testSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid3',
       },
     };
@@ -87,19 +87,19 @@ describe('getOriginIdsToPreferOver', () => {
       uuid1: {
         originIds: ['originUuid1'],
         source: testSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         originIds: ['originUuid2', 'originUuid3'],
         source: testSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
       uuid3: {
         originIds: ['originUuid3', 'originUuid4'],
         source: testSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid3',
       },
     };
@@ -144,13 +144,13 @@ describe('getOriginIdsToPreferOver', () => {
       uuid0: {
         originIds: ['originUuid0'],
         source: testSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid0',
       },
       uuid1: {
         originIds: ['originUuid1'],
         source: testSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
     };
@@ -195,13 +195,13 @@ describe('getOriginIdsToPreferOver', () => {
       uuid1: {
         originIds: ['originUuid1'],
         source: relevantSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         originIds: ['originUuid2'],
         source: otherSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };
@@ -252,13 +252,13 @@ describe('getOriginIdsToPreferOver', () => {
       [uuid1]: {
         originIds: [originUuid1],
         source: attributionSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: uuid1,
       },
       [uuid2]: {
         originIds: [originUuid2],
         source: attributionSource,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: uuid2,
       },
     });

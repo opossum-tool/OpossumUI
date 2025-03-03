@@ -456,7 +456,7 @@ describe('Test of loading function', () => {
               preSelected: true,
               attributionConfidence: 17,
               id: manualAttributionUuid,
-              criticality: Criticality.NonCritical,
+              criticality: Criticality.None,
             },
           },
           resourcesToAttributions: {
@@ -482,7 +482,7 @@ describe('Test of loading function', () => {
               originalAttributionSource: source,
               originalAttributionId: externalAttributionUuid,
               originalAttributionWasPreferred: undefined,
-              criticality: Criticality.NonCritical,
+              criticality: Criticality.None,
             },
           },
           resourcesToAttributions: {
@@ -601,7 +601,7 @@ describe('Test of loading function', () => {
             originalAttributionId: 'uuid',
             originalAttributionSource: source,
             originalAttributionWasPreferred: undefined,
-            criticality: Criticality.NonCritical,
+            criticality: Criticality.None,
           },
         },
         resourcesToAttributions: {
@@ -632,7 +632,7 @@ function assertFileLoadedCorrectly(testUuid: string): void {
           licenseText: 'MIT',
           followUp: true,
           id: testUuid,
-          criticality: Criticality.NonCritical,
+          criticality: Criticality.None,
         },
       },
       resourcesToAttributions: {

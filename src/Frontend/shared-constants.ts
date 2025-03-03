@@ -41,7 +41,7 @@ export const EMPTY_PROJECT_CONFIG: ProjectConfig = {
 
 export const EMPTY_DISPLAY_PACKAGE_INFO: PackageInfo = {
   id: '',
-  criticality: Criticality.NonCritical,
+  criticality: Criticality.None,
 };
 
 export const FILTERS = Object.values(text.filters);

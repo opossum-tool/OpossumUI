@@ -203,7 +203,7 @@ export class PackageSearchApi {
         const [packageNamespace, packageName] = name.split(':');
         return {
           synthetic: true,
-          criticality: Criticality.NonCritical,
+          criticality: Criticality.None,
           id: uuid4(),
           packageName,
           packageNamespace,
@@ -218,7 +218,7 @@ export class PackageSearchApi {
         const [packageNamespace, packageName] = name.split('/');
         return {
           synthetic: true,
-          criticality: Criticality.NonCritical,
+          criticality: Criticality.None,
           id: uuid4(),
           packageName,
           packageNamespace,
@@ -231,7 +231,7 @@ export class PackageSearchApi {
       case 'GO': {
         return {
           synthetic: true,
-          criticality: Criticality.NonCritical,
+          criticality: Criticality.None,
           id: uuid4(),
           packageName: name,
           packageNamespace: undefined,
@@ -243,7 +243,7 @@ export class PackageSearchApi {
       default: {
         return {
           synthetic: true,
-          criticality: Criticality.NonCritical,
+          criticality: Criticality.None,
           id: uuid4(),
           packageName: name,
           packageNamespace: undefined,

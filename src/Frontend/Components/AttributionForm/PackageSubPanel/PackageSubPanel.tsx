@@ -89,7 +89,7 @@ export function PackageSubPanel({
         source: {
           name: text.attributionColumn.commonEcosystems,
         },
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
       })),
     [],
   );

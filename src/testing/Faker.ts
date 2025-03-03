@@ -137,7 +137,7 @@ class OpossumModule {
         max: DiscreteConfidence.High - 1,
       }),
       copyright: OpossumModule.copyright(),
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
       licenseName: faker.commerce.productName(),
       packageName: faker.internet.domainWord(),

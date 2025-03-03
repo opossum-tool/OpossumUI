@@ -42,14 +42,14 @@ describe('The getUpdatedProgressBarData function', () => {
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testManualAttributionUuid_1,
     };
     const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '2.0',
       packageName: 'not assigned test Package',
       licenseText: ' test not assigned License text',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testManualAttributionUuid_2,
     };
     const testManualAttributions: Attributions = {
@@ -161,14 +161,14 @@ describe('The getUpdatedProgressBarData function', () => {
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testManualAttributionUuid_1,
     };
     const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '2.0',
       packageName: 'not assigned test Package',
       licenseText: ' test not assigned License text',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testManualAttributionUuid_2,
     };
     const testManualAttributions: Attributions = {
@@ -275,39 +275,39 @@ describe('The getUpdatedProgressBarData function', () => {
 
     const testPackageInfo1: PackageInfo = {
       packageName: 'package1',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testManualAttributionUuid1,
     };
     const testPackageInfo2: PackageInfo = {
       packageName: 'package2',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testExternalAttributionUuid1,
     };
     const testPreselectedPackageInfo3: PackageInfo = {
       packageName: 'package3',
       preSelected: true,
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testPreselectedManualAttributionUuid2,
     };
     const testPackageInfo4: PackageInfo = {
       packageName: 'package4',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testManualAttributionUuid3,
     };
     const testPackageInfo5: PackageInfo = {
       packageName: 'package5',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testExternalAttributionUuid3,
     };
     const testPreselectedPackageInfo6: PackageInfo = {
       packageName: 'package6',
       preSelected: true,
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testPreselectedExternalAttributionUuid4,
     };
     const testPackageInfo7: PackageInfo = {
       packageName: 'package7',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testExternalAttributionUuid5,
     };
     const testManualAttributions: Attributions = {
@@ -393,13 +393,13 @@ describe('The getUpdatedProgressBarData function', () => {
 
     const testPackageInfo1: PackageInfo = {
       packageName: 'package1',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testManualAttributionUuid1,
     };
     const testPreselectedPackageInfo2: PackageInfo = {
       packageName: 'package2',
       preSelected: true,
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testPreselectedManualAttributionUuid2,
     };
     const testManualAttributions: Attributions = {
@@ -499,7 +499,7 @@ describe('The getHighestCriticalityOfExternalAttributions function', () => {
       packageVersion: '3.0',
       packageName: 'non-critical Package',
       licenseText: ' test non-critical Package License text',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testNonCriticalExternalAttributionUuid,
     };
     const testExternalAttributions: Attributions = {
@@ -546,7 +546,7 @@ describe('The getHighestCriticalityOfExternalAttributions function', () => {
       packageVersion: '3.0',
       packageName: 'non-critical Package',
       licenseText: ' test non-critical Package License text',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testNonCriticalExternalAttributionUuid,
     };
 
@@ -581,7 +581,7 @@ describe('The getHighestCriticalityOfExternalAttributions function', () => {
       packageVersion: '3.0',
       packageName: 'non-critical Package',
       licenseText: ' test non-critical Package License text',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: testNonCriticalExternalAttributionUuid,
     };
     const testExternalAttributions: Attributions = {
@@ -598,7 +598,7 @@ describe('The getHighestCriticalityOfExternalAttributions function', () => {
       testExternalAttributions,
     );
 
-    expect(criticality).toBe(Criticality.NonCritical);
+    expect(criticality).toBe(Criticality.None);
   });
 });
 
@@ -614,18 +614,18 @@ function getTestObjectsForResourcesWithPreSelectedAttributions(): {
     uuid1: {
       packageName: 'React',
       preSelected: true,
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'uuid1',
     },
     uuid2: {
       packageName: 'Vue',
       preSelected: true,
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'uuid2',
     },
     uuid3: {
       packageName: 'Angular',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'uuid3',
     },
   };

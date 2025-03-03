@@ -43,7 +43,7 @@ export const OpossumColors = {
 export const criticalityColor = {
   [Criticality.High]: OpossumColors.orange,
   [Criticality.Medium]: OpossumColors.mediumOrange,
-  [Criticality.NonCritical]: OpossumColors.darkBlue,
+  [Criticality.None]: OpossumColors.darkBlue,
 };
 
 export const baseIcon = {

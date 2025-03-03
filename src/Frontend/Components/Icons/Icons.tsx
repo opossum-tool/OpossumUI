@@ -188,7 +188,7 @@ export function CriticalityIcon({
   criticality: Criticality;
   tooltip?: string;
 }) {
-  if (criticality === Criticality.NonCritical) {
+  if (criticality === Criticality.None) {
     return null;
   }
 

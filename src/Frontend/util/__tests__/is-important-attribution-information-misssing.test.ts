@@ -10,7 +10,7 @@ describe('isImportantAttributionInformationMissing', () => {
   it('returns true for a github purl without namespace', () => {
     const testAttributionInfo: PackageInfo = {
       packageType: 'github',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
     expect(
@@ -24,7 +24,7 @@ describe('isImportantAttributionInformationMissing', () => {
   it('returns false if exclude from notice', () => {
     const testAttributionInfo: PackageInfo = {
       excludeFromNotice: true,
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
     expect(
@@ -37,7 +37,7 @@ describe('isImportantAttributionInformationMissing', () => {
 
   it('returns true if package name is missing', () => {
     const testAttributionInfo: PackageInfo = {
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
     expect(
@@ -51,7 +51,7 @@ describe('isImportantAttributionInformationMissing', () => {
   it('returns false if copyright is not missing', () => {
     const testAttributionInfo: PackageInfo = {
       copyright: 'test',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
     expect(

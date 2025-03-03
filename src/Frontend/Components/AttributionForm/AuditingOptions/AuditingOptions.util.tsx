@@ -204,13 +204,13 @@ export function useAuditingOptions({
       {
         id: 'criticality',
         label:
-          packageInfo.criticality === Criticality.NonCritical
+          packageInfo.criticality === Criticality.None
             ? ''
             : text.auditingOptions[packageInfo.criticality],
         icon: (
           <CriticalityIcon noTooltip criticality={packageInfo.criticality} />
         ),
-        selected: packageInfo.criticality !== Criticality.NonCritical,
+        selected: packageInfo.criticality !== Criticality.None,
         interactive: false,
       },
       {

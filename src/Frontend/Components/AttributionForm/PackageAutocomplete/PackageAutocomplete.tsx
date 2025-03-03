@@ -80,7 +80,7 @@ function getSortedAttributions(
         source: {
           name: text.attributionColumn.fromAttributions,
         },
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: attributions[0].id,
       })),
     ({ count }) => -(count ?? 0),
@@ -100,7 +100,7 @@ function getSortedSignals(
         source: {
           name: text.attributionColumn.fromSignals,
         },
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: signals[0].id,
       })),
     ({ count }) => -(count ?? 0),

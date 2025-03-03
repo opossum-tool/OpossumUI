@@ -58,7 +58,7 @@ describe('AttributionForm', () => {
   it('renders a source name, if it is defined', () => {
     const packageInfo: PackageInfo = {
       source: faker.opossum.source(),
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
     renderComponent(<AttributionForm packageInfo={packageInfo} />);
@@ -167,7 +167,7 @@ describe('AttributionForm', () => {
   it('renders a URL icon and opens a link in browser', () => {
     const packageInfo: PackageInfo = {
       url: 'https://www.testurl.com/',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
     renderComponent(<AttributionForm packageInfo={packageInfo} />);
@@ -182,7 +182,7 @@ describe('AttributionForm', () => {
   it('opens a link without protocol', () => {
     const packageInfo: PackageInfo = {
       url: 'www.testurl.com',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
     renderComponent(<AttributionForm packageInfo={packageInfo} />);
@@ -196,7 +196,7 @@ describe('AttributionForm', () => {
   it('hides url icon if empty url', () => {
     const packageInfo: PackageInfo = {
       url: '',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
     renderComponent(<AttributionForm packageInfo={packageInfo} />);

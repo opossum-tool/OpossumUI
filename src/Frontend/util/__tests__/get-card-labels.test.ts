@@ -22,7 +22,7 @@ describe('Test getPackageLabel', () => {
     comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
   const testPropsWithoutVersion: PackageInfo = {
@@ -32,7 +32,7 @@ describe('Test getPackageLabel', () => {
     comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
   const testPropsWithUndefinedName: PackageInfo = {
@@ -42,7 +42,7 @@ describe('Test getPackageLabel', () => {
     comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
   const testPropsWithoutName: PackageInfo = {
@@ -51,36 +51,36 @@ describe('Test getPackageLabel', () => {
     comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
   const testPropsCopyrightLicenseTextAndComment: PackageInfo = {
     copyright: 'Test copyright',
     licenseText: 'Test license text',
     comment: 'Test comment',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
   const testPropsWithLicenseTextAndComment: PackageInfo = {
     licenseText: 'Test license text',
     comment: 'Test comment',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
   const testPropsJustComment: PackageInfo = {
     comment: 'Test comment',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
   const testPropsJustUrlAndCopyright: PackageInfo = {
     copyright: 'Test copyright',
     url: 'Test url',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
   const testPropsJustFirstParty: PackageInfo = {
     firstParty: true,
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
 
@@ -157,7 +157,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
   const testPropsWithoutVersion: PackageInfo = {
@@ -167,7 +167,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
 
@@ -221,7 +221,7 @@ describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
     comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: faker.string.uuid(),
   };
   it('adds copyright', () => {

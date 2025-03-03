@@ -14,7 +14,7 @@ describe('generatePurlFromPackageInfo', () => {
       packageType: 'type',
       packageVersion: 'version',
       packagePURLAppendix: '?appendix',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
     const expectedPurl = 'pkg:type/namespace/name@version';
@@ -28,7 +28,7 @@ describe('generatePurlFromPackageInfo', () => {
       packageNamespace: 'namespace',
       packageType: 'type',
       packageVersion: 'version',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
     const expectedPurl = 'pkg:type/namespace/name@version';
@@ -41,7 +41,7 @@ describe('generatePurlFromPackageInfo', () => {
       packageNamespace: 'namespace',
       packageType: 'type',
       packageVersion: 'version',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: faker.string.uuid(),
     };
 

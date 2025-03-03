@@ -32,13 +32,13 @@ describe('ReportView', () => {
         url: 'packageWebsite',
         firstParty: true,
         resources: ['/'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: [],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };

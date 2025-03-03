@@ -40,7 +40,7 @@ describe('deserializeAttributions', () => {
     expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       id: {
         id: 'id',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         followUp: true,
         originalAttributionId: 'id',
         originalAttributionSource: undefined,
@@ -59,7 +59,7 @@ describe('deserializeAttributions', () => {
     expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       id: {
         id: 'id',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         originalAttributionId: 'id',
         originalAttributionSource: undefined,
         originalAttributionWasPreferred: undefined,
@@ -77,7 +77,7 @@ describe('deserializeAttributions', () => {
     expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       id: {
         id: 'id',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         comment: 'Test comment',
         originalAttributionId: 'id',
         originalAttributionSource: undefined,
@@ -96,7 +96,7 @@ describe('deserializeAttributions', () => {
     expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
       id: {
         id: 'id',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         originalAttributionId: 'id',
         originalAttributionSource: undefined,
         originalAttributionWasPreferred: undefined,
@@ -135,7 +135,7 @@ describe('deserializeAttributions', () => {
         originalAttributionId: 'id',
         originalAttributionSource: undefined,
         originalAttributionWasPreferred: undefined,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
       },
     });
   });
@@ -151,7 +151,7 @@ describe('deserializeAttributions', () => {
     expect(deserializeAttributions(rawAttributions)).toEqual({
       uuid: {
         originIds: ['def', 'ghi', 'abc'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid',
         originalAttributionId: 'uuid',
         originalAttributionSource: undefined,
@@ -171,7 +171,7 @@ describe('deserializeAttributions', () => {
       uuid: {
         originIds: ['abc'],
         id: 'uuid',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         originalAttributionId: 'uuid',
         originalAttributionSource: undefined,
         originalAttributionWasPreferred: undefined,
@@ -190,7 +190,7 @@ describe('deserializeAttributions', () => {
       uuid: {
         originIds: ['abc', 'cde'],
         id: 'uuid',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         originalAttributionId: 'uuid',
         originalAttributionSource: undefined,
         originalAttributionWasPreferred: undefined,
@@ -215,7 +215,7 @@ describe('deserializeAttributions', () => {
         originIds: [originId, faker.string.uuid()],
         source: faker.opossum.source(),
         id: originalAttributionId,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
       },
     };
 
@@ -231,7 +231,7 @@ describe('deserializeAttributions', () => {
         originalAttributionWasPreferred:
           originalAttributions[originalAttributionId].wasPreferred,
         id: attributionId,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
       },
     });
   });
@@ -243,7 +243,7 @@ describe('serializeAttributions', () => {
       id: {
         id: 'id',
         source: faker.opossum.source(),
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
       },
     };
     const rawAttributions: RawAttributions = {

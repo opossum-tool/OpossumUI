@@ -131,7 +131,7 @@ function getLicenseDataFromVariants(
   const sourcesCountForLicense: {
     [sourceNameOrTotal: string]: number;
   } = {};
-  let licenseCriticality = Criticality.NonCritical;
+  let licenseCriticality = Criticality.None;
 
   for (const attributionId of attributionIds) {
     const licenseName = attributions[attributionId].licenseName;
@@ -287,7 +287,7 @@ export function getCriticalSignalsCount(
   const licenseCriticalityCounts = {
     [Criticality.High]: 0,
     [Criticality.Medium]: 0,
-    [Criticality.NonCritical]: 0,
+    [Criticality.None]: 0,
   };
 
   for (const license of Object.keys(
@@ -308,7 +308,7 @@ export function getCriticalSignalsCount(
     },
     {
       name: PieChartCriticalityNames.NoCriticality,
-      count: licenseCriticalityCounts[Criticality.NonCritical],
+      count: licenseCriticalityCounts[Criticality.None],
     },
   ];
 

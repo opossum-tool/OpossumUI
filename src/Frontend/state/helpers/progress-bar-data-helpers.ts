@@ -155,7 +155,7 @@ export function getHighestCriticalityOfExternalAttributions(
   resourcesToExternalAttributions: ResourcesToAttributions,
   externalAttributions: Attributions,
 ): Criticality {
-  let highestCriticality = Criticality.NonCritical;
+  let highestCriticality = Criticality.None;
 
   const externalAttributionsOfCurrentResource =
     resourcesToExternalAttributions[path];
@@ -163,8 +163,7 @@ export function getHighestCriticalityOfExternalAttributions(
   if (externalAttributionsOfCurrentResource) {
     for (const attributionId of externalAttributionsOfCurrentResource) {
       const criticality =
-        externalAttributions[attributionId]?.criticality ??
-        Criticality.NonCritical;
+        externalAttributions[attributionId]?.criticality ?? Criticality.None;
       highestCriticality = Math.max(highestCriticality, criticality);
     }
   }

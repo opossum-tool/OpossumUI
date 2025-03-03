@@ -17,12 +17,12 @@ const expectedPackageUuid = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
 const otherPackageUuid = 'd8ff89ae-34d0-4899-9519-7f736e7fd7da';
 const expectedPackage: PackageInfo = {
   packageName: 'right',
-  criticality: Criticality.NonCritical,
+  criticality: Criticality.None,
   id: expectedPackageUuid,
 };
 const otherPackage: PackageInfo = {
   packageName: 'wrong',
-  criticality: Criticality.NonCritical,
+  criticality: Criticality.None,
   id: otherPackageUuid,
 };
 const testManualAttributions: Attributions = {

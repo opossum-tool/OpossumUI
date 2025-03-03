@@ -49,7 +49,7 @@ export function createManualAttribution(
       ...manualData.attributions,
       [newAttributionId]: {
         ...getStrippedPackageInfo(packageInfo),
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: newAttributionId,
       },
     },
@@ -97,7 +97,7 @@ export function updateManualAttribution(
       ...manualData.attributions,
       [attributionIdToUpdate]: {
         ...getStrippedPackageInfo(packageInfo),
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: attributionIdToUpdate,
       },
     },

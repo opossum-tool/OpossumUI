@@ -64,7 +64,7 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
             focused,
             resolved: attributionIdsForReplacement.includes(attributionId),
             incomplete: isPackageInfoIncomplete(attribution),
-            criticality: Criticality.NonCritical,
+            criticality: Criticality.None,
           }}
           packageInfo={attribution}
           checkbox={{

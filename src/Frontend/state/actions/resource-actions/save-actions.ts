@@ -157,7 +157,7 @@ export function deleteAttributionAndSave(
       savePackageInfo(
         null,
         attributionId,
-        { criticality: Criticality.NonCritical, id: attributionId },
+        { criticality: Criticality.None, id: attributionId },
         selectedAttributionId
           ? attributionId !== selectedAttributionId
           : undefined,

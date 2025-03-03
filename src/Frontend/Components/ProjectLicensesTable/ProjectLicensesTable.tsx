@@ -63,7 +63,7 @@ export const ProjectLicensesTable: React.FC<ProjectLicensesTableProps> = (
                       ...tableClasses.body,
                       ...(columnIndex === 0 &&
                       props.licenseNamesWithCriticality[rowName] !==
-                        Criticality.NonCritical
+                        Criticality.None
                         ? {
                             color:
                               criticalityColor[

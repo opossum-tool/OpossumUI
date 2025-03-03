@@ -21,17 +21,17 @@ describe('getAttributionsWithResources', () => {
     const testAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
       uuid3: {
         packageName: 'root package',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid3',
       },
     };
@@ -46,19 +46,19 @@ describe('getAttributionsWithResources', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/some/path1/', '/some/path2/'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: ['/some/path1/'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
       uuid3: {
         packageName: 'root package',
         resources: ['/'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid3',
       },
     };
@@ -81,22 +81,22 @@ describe('getAttributionsWithAllChildResources', () => {
     const testAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
       uuid3: {
         packageName: 'JQuery',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid3',
       },
       uuid4: {
         packageName: 'root package',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid4',
       },
     };
@@ -119,25 +119,25 @@ describe('getAttributionsWithAllChildResources', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/some/path1/something.js', '/some/file1'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: ['/some/path1/something.js'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
       uuid3: {
         packageName: 'JQuery',
         resources: ['/some/path3/some_other_thing.js'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid3',
       },
       uuid4: {
         packageName: 'root package',
         resources: [],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid4',
       },
     };
@@ -169,7 +169,7 @@ describe('getAttributionsWithAllChildResources', () => {
     const testAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
     };
@@ -194,7 +194,7 @@ describe('getAttributionsWithAllChildResources', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/foo/foo/foo'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
     };
@@ -215,7 +215,7 @@ describe('getAttributionsWithAllChildResources', () => {
     const testAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
     };
@@ -266,7 +266,7 @@ describe('getAttributionsWithAllChildResources', () => {
           '/folder/folder2/file',
           '/folder/file',
         ],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
     };
@@ -300,12 +300,12 @@ describe('getAttributionsWithAllChildResources', () => {
     const testAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Vue',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };
@@ -339,13 +339,13 @@ describe('getAttributionsWithAllChildResources', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/folder/folder/file'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Vue',
         resources: ['/folder/folder/folder/folder/file'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };
@@ -366,12 +366,12 @@ describe('getAttributionsWithAllChildResources', () => {
     const testAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Vue',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };
@@ -399,13 +399,13 @@ describe('getAttributionsWithAllChildResources', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/fileWithChildren/folder/file'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Vue',
         resources: ['/fileWithChildren/'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };
@@ -426,7 +426,7 @@ describe('getAttributionsWithAllChildResources', () => {
     const testAttributions: Attributions = {
       uuid2: {
         packageName: 'Vue',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };
@@ -458,7 +458,7 @@ describe('getAttributionsWithAllChildResources', () => {
           '/root/fileWithChildren/',
           '/root/file',
         ],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
     };
@@ -482,19 +482,19 @@ describe('removeSlashesFromFilesWithChildren', () => {
       uuid1: {
         packageName: 'React',
         resources: ['/some/path1/', '/some/path2/'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: ['/some/path3/'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid2',
       },
       uuid3: {
         packageName: 'root package',
         resources: ['/'],
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid3',
       },
     };
@@ -518,28 +518,28 @@ describe('removeSlashesFromFilesWithChildren', () => {
 describe('getBomAttributions', () => {
   const testAttributions: Attributions = {
     genericAttrib: {
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'genericAttrib',
     },
     firstPartyAttrib: {
       firstParty: true,
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'firstPartyAttrib',
     },
     followupAttrib: {
       followUp: true,
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'followupAttrib',
     },
     excludeAttrib: {
       excludeFromNotice: true,
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'excludeAttrib',
     },
     firstPartyExcludeAttrib: {
       firstParty: true,
       excludeFromNotice: true,
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'firstPartyExcludeAttrib',
     },
   };
@@ -551,12 +551,12 @@ describe('getBomAttributions', () => {
     );
     expect(detailedBomAttributions).toEqual<Attributions>({
       genericAttrib: {
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'genericAttrib',
       },
       excludeAttrib: {
         excludeFromNotice: true,
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'excludeAttrib',
       },
     });
@@ -569,7 +569,7 @@ describe('getBomAttributions', () => {
     );
     expect(compactBomAttributions).toEqual<Attributions>({
       genericAttrib: {
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'genericAttrib',
       },
     });

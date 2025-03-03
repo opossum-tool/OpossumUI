@@ -39,7 +39,7 @@ describe('getPackageInfoOfSelectedAttribution', () => {
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: testManualAttributionUuid_1,
   };
   const testManualAttributions: Attributions = {
@@ -160,14 +160,14 @@ describe('The resource actions', () => {
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: testManualAttributionUuid_1,
   };
   const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
     packageVersion: '2.0',
     packageName: 'not assigned test Package',
     licenseText: ' test not assigned License text',
-    criticality: Criticality.NonCritical,
+    criticality: Criticality.None,
     id: testManualAttributionUuid_2,
   };
   const testManualAttributions: Attributions = {

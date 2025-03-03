@@ -9,7 +9,7 @@ describe('packageInfoContainsSearchTerm', () => {
   it('searches by package name', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'Search_term package',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'uuid1',
     };
 
@@ -21,7 +21,7 @@ describe('packageInfoContainsSearchTerm', () => {
   it('searches by copyright', () => {
     const testPackageInfo: PackageInfo = {
       copyright: '(c) Search_term 2022',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'uuid2',
     };
 
@@ -33,7 +33,7 @@ describe('packageInfoContainsSearchTerm', () => {
   it('searches by package version', () => {
     const testPackageInfo: PackageInfo = {
       packageVersion: 'version search_term',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'uuid4',
     };
 
@@ -46,7 +46,7 @@ describe('packageInfoContainsSearchTerm', () => {
     const testPackageInfo: PackageInfo = {
       licenseText: 'text search_term',
       url: 'www.search_term.com',
-      criticality: Criticality.NonCritical,
+      criticality: Criticality.None,
       id: 'uuid5',
     };
 

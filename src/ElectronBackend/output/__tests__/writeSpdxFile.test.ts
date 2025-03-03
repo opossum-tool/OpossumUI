@@ -44,14 +44,14 @@ describe('writeSpdxFile', () => {
         packageVersion: '1.1',
         licenseText: 'test license text',
         licenseName: 'license name',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid_1',
       },
       uuid_2: {
         packageName: 'second-test-package',
         packageVersion: '2.1',
         packageType: 'npm',
-        criticality: Criticality.NonCritical,
+        criticality: Criticality.None,
         id: 'uuid_2',
       },
     };

@@ -28,7 +28,7 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
   } else if (cardConfig.originalWasPreferred) {
     rightIcons.push(<ModifiedPreferredIcon key={'modified-preferred-icon'} />);
   }
-  if (cardConfig.criticality !== Criticality.NonCritical) {
+  if (cardConfig.criticality !== Criticality.None) {
     rightIcons.push(
       <CriticalityIcon
         key={'criticality-icon'}

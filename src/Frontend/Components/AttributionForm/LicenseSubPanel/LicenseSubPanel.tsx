@@ -57,7 +57,7 @@ export function LicenseSubPanel({
       sortBy(
         frequentLicensesNames.map<PackageInfo>(({ fullName, shortName }) => ({
           id: shortName,
-          criticality: Criticality.NonCritical,
+          criticality: Criticality.None,
           licenseName: fullName,
           source: {
             name: text.attributionColumn.commonLicenses,

@@ -44,7 +44,7 @@ export function getCriticality(
       }
     }
   }
-  return Criticality.NonCritical;
+  return Criticality.None;
 }
 
 function isRootResource(resourceName: string): boolean {
