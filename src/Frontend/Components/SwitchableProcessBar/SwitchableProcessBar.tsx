@@ -8,6 +8,7 @@ import { SxProps } from '@mui/system';
 import React, { useState } from 'react';
 
 import { text as fullText } from '../../../shared/text';
+import { OpossumColors } from '../../shared-styles';
 import { useProgressData } from '../../state/variables/use-progress-data';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 
@@ -73,8 +74,10 @@ export const SwitchableProcessBar: React.FC = () => {
       <Select<SelectedProgressBar>
         size={'small'}
         onChange={handleProgressBarChange}
-        sx={{ margin: 'auto',
-          width: '150px'
+        sx={{
+          margin: 'auto',
+          width: '150px',
+          backgroundColor: OpossumColors.lightestBlue,
         }}
         value={currentProgressBar}
       >
