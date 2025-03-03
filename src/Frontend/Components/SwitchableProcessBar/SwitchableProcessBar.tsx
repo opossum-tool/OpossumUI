@@ -37,7 +37,6 @@ const text = fullText.topBar.switchableProgressBar;
 
 interface ProgressBarConfiguration {
   selectLabel: string;
-  showCriticalSignals: boolean;
 }
 
 const progressBarConfigurations: Record<
@@ -46,11 +45,9 @@ const progressBarConfigurations: Record<
 > = {
   attribution: {
     selectLabel: text.attributionProgressBar.selectLabel,
-    showCriticalSignals: false,
   },
   criticality: {
     selectLabel: text.criticalSignalsBar.selectLabel,
-    showCriticalSignals: true,
   },
 };
 
