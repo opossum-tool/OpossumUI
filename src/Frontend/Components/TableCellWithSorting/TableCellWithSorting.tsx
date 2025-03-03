@@ -5,14 +5,18 @@
 import { TableCellProps, TableSortLabel } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTableCell from '@mui/material/TableCell';
+import { SxProps } from '@mui/system';
 import { visuallyHidden } from '@mui/utils';
+import { PropsWithChildren } from 'react';
 
 export type Order = 'asc' | 'desc';
 
-interface TableCellWithSortingProps extends TableCellProps {
+interface TableCellWithSortingProps extends PropsWithChildren {
   order: Order;
   isSortedColumn: boolean;
   onRequestSort: () => void;
+  tableCellProps?: TableCellProps;
+  sx?: SxProps;
 }
 
 export const TableCellWithSorting: React.FC<TableCellWithSortingProps> = (
@@ -20,7 +24,7 @@ export const TableCellWithSorting: React.FC<TableCellWithSortingProps> = (
 ) => {
   return (
     <MuiTableCell
-      {...props}
+      {...props.tableCellProps}
       sx={{
         '.Mui-active': { color: 'white !important' },
         '& :hover': { color: 'white !important' },
