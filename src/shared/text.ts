@@ -358,10 +358,10 @@ export const text = {
     report: 'Report',
     switchableProgressBar: {
       criticalSignalsBar: {
-        selectLabel: 'Criticality',
+        selectLabel: 'Critical Signals',
       },
       attributionProgressBar: {
-        selectLabel: 'Attributions',
+        selectLabel: 'Attribution Progress',
       },
     },
   },
