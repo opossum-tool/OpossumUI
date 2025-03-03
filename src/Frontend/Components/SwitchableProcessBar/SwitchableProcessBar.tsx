@@ -21,6 +21,8 @@ const classes = {
     marginLeft: '12px',
     marginRight: '12px',
     gap: '4px',
+    marginBottom: '4px',
+    marginTop: '4px',
   },
 } satisfies SxProps;
 
@@ -72,12 +74,9 @@ export const SwitchableProcessBar: React.FC = () => {
         size={'small'}
         onChange={handleProgressBarChange}
         sx={{
-          margin: 'auto',
           width: '150px',
           backgroundColor: OpossumColors.lightestBlue,
           minHeight: 'unset !important',
-          marginBottom: '4px',
-          marginTop: '4px',
         }}
         value={currentProgressBar}
       >
