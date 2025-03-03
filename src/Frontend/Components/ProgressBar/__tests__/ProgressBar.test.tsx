@@ -5,11 +5,56 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setResources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProgressBar } from '../ProgressBar';
+
+async function clickOnAttributionProgressBar() {
+  await userEvent.click(
+    screen.getByLabelText(
+      text.topBar.switchableProgressBar.attributionProgressBar.ariaLabel,
+    ),
+    {
+      advanceTimers: jest.runOnlyPendingTimersAsync,
+    },
+  );
+}
+
+async function hoverOverAttributionProgressBar() {
+  await userEvent.hover(
+    screen.getByLabelText(
+      text.topBar.switchableProgressBar.attributionProgressBar.ariaLabel,
+    ),
+    {
+      advanceTimers: jest.runOnlyPendingTimersAsync,
+    },
+  );
+}
+
+async function hoverOverCriticalityProgressBar() {
+  await userEvent.hover(
+    screen.getByLabelText(
+      text.topBar.switchableProgressBar.criticalSignalsBar.ariaLabel,
+    ),
+    {
+      advanceTimers: jest.runOnlyPendingTimersAsync,
+    },
+  );
+}
+
+async function clickOnCriticalityProgressBar() {
+  await userEvent.click(
+    screen.getByLabelText(
+      text.topBar.switchableProgressBar.criticalSignalsBar.ariaLabel,
+    ),
+    {
+      advanceTimers: jest.runOnlyPendingTimersAsync,
+    },
+  );
+}
 
 describe('ProgressBar', () => {
   beforeEach(() => {
@@ -46,22 +91,15 @@ describe('ProgressBar', () => {
       />,
       { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
     );
-
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+    await clickOnAttributionProgressBar();
 
     expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
 
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+    await clickOnAttributionProgressBar();
 
     expect(getSelectedResourceId(store.getState())).toBe(resourceId2);
 
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+    await clickOnAttributionProgressBar();
 
     expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
   });
@@ -83,10 +121,7 @@ describe('ProgressBar', () => {
         }}
       />,
     );
-
-    await userEvent.hover(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+    await hoverOverAttributionProgressBar();
 
     expect(screen.getByText(/Number of resources/)).toBeInTheDocument();
     expect(screen.getByText(/with attributions: 3/)).toBeInTheDocument();
@@ -113,10 +148,7 @@ describe('ProgressBar', () => {
         }}
       />,
     );
-
-    await userEvent.hover(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+    await hoverOverCriticalityProgressBar();
 
     expect(
       screen.getByText(/Number of resources with signals and no attributions/),
@@ -154,22 +186,15 @@ describe('ProgressBar', () => {
       />,
       { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
     );
-
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+    await clickOnCriticalityProgressBar();
 
     expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
 
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+    await clickOnCriticalityProgressBar();
 
     expect(getSelectedResourceId(store.getState())).toBe(resourceId2);
 
-    await userEvent.click(screen.getByLabelText('ProgressBar'), {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
-    });
+    await clickOnCriticalityProgressBar();
 
     expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
   });
