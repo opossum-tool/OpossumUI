@@ -7,7 +7,7 @@ import MuiTable from '@mui/material/Table';
 import MuiTableBody from '@mui/material/TableBody';
 import MuiTableContainer from '@mui/material/TableContainer';
 import MuiTypography from '@mui/material/Typography';
-import { upperFirst } from 'lodash';
+import { orderBy, upperFirst } from 'lodash';
 import { useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
@@ -115,23 +115,33 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     }
   };
 
-  const orderedLicenseNames = useMemo(
-    () =>
-      orderLicenseNames(
-        props.licenseNamesWithCriticality,
-        props.licenseNamesWithClassification,
-        props.licenseCounts,
-        columnConfig,
-        ordering,
-      ),
-    [
+  const orderedLicenseNames = useMemo(() => {
+    const orderedColumnType = columnConfig.getColumnById(
+      ordering.orderedColumn,
+    )?.columnType;
+
+    if (orderedColumnType === undefined) {
+      return orderBy(
+        Object.keys(props.licenseNamesWithCriticality),
+        (licenseName) => licenseName.toLowerCase(),
+        ordering.orderDirection,
+      );
+    }
+
+    return orderLicenseNames(
       props.licenseNamesWithCriticality,
       props.licenseNamesWithClassification,
       props.licenseCounts,
-      columnConfig,
-      ordering,
-    ],
-  );
+      ordering.orderDirection,
+      orderedColumnType,
+    );
+  }, [
+    props.licenseNamesWithCriticality,
+    props.licenseNamesWithClassification,
+    props.licenseCounts,
+    columnConfig,
+    ordering,
+  ]);
 
   return (
     <MuiBox>
