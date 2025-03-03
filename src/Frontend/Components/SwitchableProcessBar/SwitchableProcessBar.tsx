@@ -11,13 +11,18 @@ import { useProgressData } from '../../state/variables/use-progress-data';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
 
-const progressBarContainerStyling: SxProps = {
-  flex: 1,
-  display: 'flex',
-  marginLeft: '12px',
-  marginRight: '12px',
-  gap: '12px',
-};
+const classes = {
+  container: {
+    flex: 1,
+    display: 'flex',
+    marginLeft: '12px',
+    marginRight: '12px',
+    gap: '12px',
+  },
+  tooltip: {
+    margin: 'auto',
+  },
+} satisfies SxProps;
 
 export const SwitchableProcessBar: React.FC = () => {
   const text = fullText.topBar.switchableProgressBar;
@@ -35,14 +40,14 @@ export const SwitchableProcessBar: React.FC = () => {
     return <MuiBox flex={1} />;
   }
   return (
-    <MuiBox sx={progressBarContainerStyling}>
+    <MuiBox sx={classes.container}>
       <ProgressBar
         sx={{ flex: 1 }}
         progressBarData={progressData}
         showCriticalSignals={showCriticalSignals}
       />
       <SwitchWithTooltip
-        sx={{ margin: 'auto' }}
+        sx={classes.tooltip}
         switchToolTipText={
           showCriticalSignals
             ? text.criticalSignalsBar.switcherTooltip
