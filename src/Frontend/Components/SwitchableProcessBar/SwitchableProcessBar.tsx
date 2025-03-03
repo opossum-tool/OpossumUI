@@ -49,6 +49,9 @@ const progressBarConfigurations: Record<
   criticality: {
     selectLabel: text.criticalSignalsBar.selectLabel,
   },
+  classification: {
+    selectLabel: text.classificationProgressBar.selectLabel,
+  },
 };
 
 export const SwitchableProcessBar: React.FC = () => {

@@ -45,6 +45,17 @@ async function hoverOverCriticalityProgressBar() {
   );
 }
 
+async function hoverOverClassificationProgressBar() {
+  await userEvent.hover(
+    screen.getByLabelText(
+      text.topBar.switchableProgressBar.classificationProgressBar.ariaLabel,
+    ),
+    {
+      advanceTimers: jest.runOnlyPendingTimersAsync,
+    },
+  );
+}
+
 async function clickOnCriticalityProgressBar() {
   await userEvent.click(
     screen.getByLabelText(
@@ -197,5 +208,39 @@ describe('ProgressBar', () => {
     await clickOnCriticalityProgressBar();
 
     expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
+  });
+
+  it('renders classification progress bar', async () => {
+    renderComponent(
+      <ProgressBar
+        selectedProgressBar={'classification'}
+        progressBarData={{
+          fileCount: 6,
+          filesWithHighlyCriticalExternalAttributionsCount: 1,
+          filesWithMediumCriticalExternalAttributionsCount: 1,
+          filesWithManualAttributionCount: 1,
+          filesWithOnlyExternalAttributionCount: 3,
+          filesWithOnlyPreSelectedAttributionCount: 1,
+          resourcesWithMediumCriticalExternalAttributions: [],
+          resourcesWithNonInheritedExternalAttributionOnly: [],
+          resourcesWithHighlyCriticalExternalAttributions: [],
+        }}
+      />,
+    );
+    await hoverOverClassificationProgressBar();
+
+    //ToDo: Change texts
+    expect(
+      screen.getByText(/Number of resources with signals and no attributions/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/containing highly critical signals: 1/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/containing medium critical signals: 1/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/containing only non-critical signals: 1/),
+    ).toBeInTheDocument();
   });
 });
