@@ -24,10 +24,14 @@ const classes = {
   },
 } satisfies SxProps;
 
+export type TableOrdering = {
+  orderDirection: Order;
+  orderedColumn: number;
+};
+
 interface AttributionCountPerSourcePerLicenseTableHeadProps {
   sourceNames: Array<string>;
-  order: Order;
-  orderBy: number;
+  tableOrdering: TableOrdering;
   onRequestSort: (columnIndex: number) => void;
 }
 
@@ -80,8 +84,8 @@ export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
             }}
             key={columnIndex}
             align={columnIndex === 0 ? 'left' : 'center'}
-            order={props.order}
-            isSortedColumn={props.orderBy === columnIndex}
+            order={props.tableOrdering.orderDirection}
+            isSortedColumn={props.tableOrdering.orderedColumn === columnIndex}
             onRequestSort={() => props.onRequestSort(columnIndex)}
           >
             {columnHeader}
