@@ -134,7 +134,7 @@ function getLicenseDataFromVariants(
   attributionSources: ExternalAttributionSources,
 ): {
   mostFrequentLicenseName: string;
-  licenseCriticality: Criticality
+  licenseCriticality: Criticality;
   licenseClassification: number | undefined;
   sourcesCountForLicense: {
     [sourceNameOrTotal: string]: number;
@@ -312,7 +312,7 @@ export function getMostFrequentLicenses(
 export function getCriticalSignalsCount(
   licenseCounts: LicenseCounts,
   licenseNamesWithCriticality: LicenseNamesWithCriticality,
-): Array<{ criticality: Criticality | undefined; count: number }> {
+): Array<{ criticality: Criticality; count: number }> {
   const licenseCriticalityCounts = {
     [Criticality.High]: 0,
     [Criticality.Medium]: 0,
@@ -336,7 +336,7 @@ export function getCriticalSignalsCount(
       count: licenseCriticalityCounts[Criticality.Medium],
     },
     {
-      criticality: Criticality.None
+      criticality: Criticality.None,
       count: licenseCriticalityCounts[Criticality.None],
     },
   ];
