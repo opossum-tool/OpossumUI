@@ -10,9 +10,8 @@ import React, { useState } from 'react';
 import { text as fullText } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useProgressData } from '../../state/variables/use-progress-data';
+import { SelectedProgressBar } from '../../types/types';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
-
-type SelectedProgressBar = 'attribution' | 'criticality';
 
 const classes = {
   container: {
@@ -38,7 +37,6 @@ const text = fullText.topBar.switchableProgressBar;
 
 interface ProgressBarConfiguration {
   selectLabel: string;
-  showCriticalSignals: boolean;
 }
 
 const progressBarConfigurations: Record<
@@ -47,23 +45,21 @@ const progressBarConfigurations: Record<
 > = {
   attribution: {
     selectLabel: text.attributionProgressBar.selectLabel,
-    showCriticalSignals: false,
   },
   criticality: {
     selectLabel: text.criticalSignalsBar.selectLabel,
-    showCriticalSignals: true,
   },
 };
 
 export const SwitchableProcessBar: React.FC = () => {
-  const [currentProgressBar, setCurrentProgressBar] =
+  const [currentProgressBar, setcurrentProgressBar] =
     useState<SelectedProgressBar>('attribution');
   const [progressData] = useProgressData();
 
   const handleProgressBarChange = (
     event: SelectChangeEvent<SelectedProgressBar>,
   ): void => {
-    setCurrentProgressBar(event.target.value as SelectedProgressBar);
+    setcurrentProgressBar(event.target.value as SelectedProgressBar);
   };
 
   if (!progressData) {
@@ -74,9 +70,7 @@ export const SwitchableProcessBar: React.FC = () => {
       <ProgressBar
         sx={classes.progressBar}
         progressBarData={progressData}
-        showCriticalSignals={
-          progressBarConfigurations[currentProgressBar].showCriticalSignals
-        }
+        selectedProgressBar={currentProgressBar}
       />
       <Select<SelectedProgressBar>
         size={'small'}

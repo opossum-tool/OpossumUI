@@ -15,6 +15,8 @@ export type State = {
   variablesState: VariablesState;
 };
 
+export type SelectedProgressBar = 'attribution' | 'criticality';
+
 export interface ProgressBarData {
   fileCount: number;
   filesWithManualAttributionCount: number;

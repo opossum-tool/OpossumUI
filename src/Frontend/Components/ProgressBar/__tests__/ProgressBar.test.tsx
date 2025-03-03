@@ -73,7 +73,7 @@ describe('ProgressBar', () => {
     const resourceId2 = faker.opossum.filePath(resourceName2);
     const { store } = renderComponent(
       <ProgressBar
-        showCriticalSignals={false}
+        selectedProgressBar={'attribution'}
         progressBarData={{
           fileCount: 6,
           filesWithHighlyCriticalExternalAttributionsCount: 1,
@@ -107,7 +107,7 @@ describe('ProgressBar', () => {
   it('renders regular progress bar', async () => {
     renderComponent(
       <ProgressBar
-        showCriticalSignals={false}
+        selectedProgressBar={'attribution'}
         progressBarData={{
           fileCount: 6,
           filesWithHighlyCriticalExternalAttributionsCount: 1,
@@ -134,7 +134,7 @@ describe('ProgressBar', () => {
   it('renders criticality progress bar', async () => {
     renderComponent(
       <ProgressBar
-        showCriticalSignals
+        selectedProgressBar={'criticality'}
         progressBarData={{
           fileCount: 6,
           filesWithHighlyCriticalExternalAttributionsCount: 1,
@@ -171,7 +171,7 @@ describe('ProgressBar', () => {
     const resourceId2 = faker.opossum.filePath(resourceName2);
     const { store } = renderComponent(
       <ProgressBar
-        showCriticalSignals
+        selectedProgressBar={'criticality'}
         progressBarData={{
           fileCount: 6,
           filesWithHighlyCriticalExternalAttributionsCount: 1,
