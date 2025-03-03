@@ -74,6 +74,13 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       background: getCriticalityBarBackground(props.progressBarData),
       onClickHandler: onCriticalityBarClick,
     },
+    classification: {
+      tooltipText: getCriticalityBarTooltipText(props.progressBarData), // ToDo: Update
+      ariaLabel:
+        text.topBar.switchableProgressBar.classificationProgressBar.ariaLabel,
+      background: getCriticalityBarBackground(props.progressBarData), // ToDo: Update
+      onClickHandler: onCriticalityBarClick, // ToDo: Update
+    },
   };
 
   const currentProgressBarConfiguration =

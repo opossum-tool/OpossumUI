@@ -38,6 +38,7 @@ const text = fullText.topBar.switchableProgressBar;
 const progressBarLabels: Record<SelectedProgressBar, string> = {
   attribution: text.attributionProgressBar.selectLabel,
   criticality: text.criticalSignalsBar.selectLabel,
+  classification: text.classificationProgressBar.selectLabel
 };
 
 export const SwitchableProcessBar: React.FC = () => {
