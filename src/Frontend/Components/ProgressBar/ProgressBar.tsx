@@ -20,7 +20,7 @@ const classes = {
   bar: {
     flex: 1,
     border: `2px solid ${OpossumColors.white}`,
-    marginTop: '6px',
+    marginTop: '2px',
     height: '20px',
     '&:hover': {
       cursor: 'pointer',
