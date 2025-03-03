@@ -349,13 +349,14 @@ export function getSignalCountByClassification(
   licenseNamesWithClassification: LicenseNamesWithClassification,
   classifications: Classifications,
 ): Array<PieChartData> {
+  const NO_CLASSIFICATION = -1;
   const classificationCounts: { [classification: number]: number } = {};
 
   for (const [license, attributionCount] of Object.entries(
     licenseCounts.totalAttributionsPerLicense,
   )) {
-    // count undefined classification at index -1 in classificationCounts
-    const classification = licenseNamesWithClassification[license] ?? -1;
+    const classification =
+      licenseNamesWithClassification[license] ?? NO_CLASSIFICATION;
     classificationCounts[classification] =
       (classificationCounts[classification] ?? 0) + attributionCount;
   }
@@ -373,11 +374,11 @@ export function getSignalCountByClassification(
     })
     .filter(({ count }) => count > 0);
 
-  if (classificationCounts[-1]) {
+  if (classificationCounts[NO_CLASSIFICATION]) {
     return pieChartData.concat({
       name: text.projectStatisticsPopup.charts
         .signalCountByClassificationPieChart.noClassification,
-      count: classificationCounts[-1],
+      count: classificationCounts[NO_CLASSIFICATION],
     });
   }
 
