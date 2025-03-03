@@ -67,7 +67,9 @@ export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
                     : {}),
                 }}
                 key={column.columnName}
-                align={column.align}
+                tableCellProps={{
+                  align: column.align,
+                }}
                 order={props.tableOrdering.orderDirection}
                 isSortedColumn={
                   props.tableOrdering.orderedColumn === column.columnId
