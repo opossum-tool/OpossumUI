@@ -2430,7 +2430,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fontsource-variable/karla@npm:^5.2.0":
+"@fontsource-variable/karla@npm:^5.2.5":
   version: 5.2.5
   resolution: "@fontsource-variable/karla@npm:5.2.5"
   checksum: 10/7cad2a99c3efcfff1a3ca6c1475906afce212626a7d7de65d02864bded7ff1e0a5d5d9b1e02ffe469aceb8e42a55679e5be86e9de22e05b311c1e2e57b0461e1
@@ -10301,7 +10301,7 @@ __metadata:
     "@eslint/compat": "npm:^1.2.7"
     "@eslint/js": "npm:^9.21.0"
     "@faker-js/faker": "npm:^9.5.1"
-    "@fontsource-variable/karla": "npm:^5.2.0"
+    "@fontsource-variable/karla": "npm:^5.2.5"
     "@mui/icons-material": "npm:^6.4.6"
     "@mui/material": "npm:^6.4.6"
     "@mui/system": "npm:^6.4.6"
