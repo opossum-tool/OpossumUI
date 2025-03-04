@@ -5,7 +5,7 @@
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableRow from '@mui/material/TableRow';
 
-import { Criticality } from '../../../../shared/shared-types';
+import { Classification, Criticality } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { OpossumColors, tableClasses } from '../../../shared-styles';
 import { useAppSelector } from '../../../state/hooks';
@@ -21,8 +21,8 @@ interface AttributionCountPerSourcePerLicenseTableRowProps {
   columnConfig: ColumnConfig;
   signalCountsPerSource: { [sourceName: string]: number };
   licenseName: string;
-  licenseCriticality: Criticality | undefined;
-  licenseClassification: number | undefined;
+  licenseCriticality: Criticality;
+  licenseClassification: Classification | undefined;
   totalSignalCount: number;
   rowIndex: number;
 }
@@ -66,8 +66,8 @@ export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
 interface RowCellContentProps {
   signalCountsPerSource: { [sourceName: string]: number };
   licenseName: string;
-  licenseCriticality: Criticality | undefined;
-  licenseClassification: number | undefined;
+  licenseCriticality: Criticality;
+  licenseClassification: Classification | undefined;
   totalSignalCount: number;
   column: Column;
 }
@@ -80,7 +80,7 @@ const RowCellContent: React.FC<RowCellContentProps> = (props) => {
   if (props.column.columnType === SingleColumn.NAME) {
     return props.licenseName;
   } else if (props.column.columnType === SingleColumn.CRITICALITY) {
-    return props.licenseCriticality === undefined ? (
+    return props.licenseCriticality === Criticality.None ? (
       componentText.none
     ) : (
       <CriticalityIcon
