@@ -155,16 +155,16 @@ export interface ClassificationEntry {
   color: string;
 }
 
-export type Classifications = Record<Classification, ClassificationEntry>;
+export type ClassificationsConfig = Record<Classification, ClassificationEntry>;
 
-export type RawClassifications = Record<Classification, string>
+export type RawClassificationsConfig = Record<Classification, string>
 
 export interface ProjectConfig {
-  classifications: Classifications;
+  classifications: ClassificationsConfig;
 }
 
 export interface RawProjectConfig {
-  classifications: RawClassifications;
+  classifications: RawClassificationsConfig;
 }
 
 export interface ParsedFileContent {

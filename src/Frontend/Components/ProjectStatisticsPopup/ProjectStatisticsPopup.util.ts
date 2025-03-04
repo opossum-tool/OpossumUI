@@ -7,7 +7,7 @@ import { pickBy, toNumber } from 'lodash';
 import {
   Attributions,
   Classification,
-  Classifications,
+  ClassificationsConfig,
   Criticality,
   ExternalAttributionSources,
   PackageInfo,
@@ -359,7 +359,7 @@ export function getCriticalSignalsCount(
 export function getSignalCountByClassification(
   licenseCounts: LicenseCounts,
   licenseNamesWithClassification: LicenseNamesWithClassification,
-  classifications: Classifications,
+  classifications: ClassificationsConfig,
 ): Array<PieChartData> {
   const NO_CLASSIFICATION = -1;
   const classificationCounts: Record<Classification, number> = {};
