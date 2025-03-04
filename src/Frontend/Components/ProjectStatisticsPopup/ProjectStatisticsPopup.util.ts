@@ -34,6 +34,17 @@ const UNKNOWN_SOURCE_PLACEHOLDER = '-';
 // exported only for tests
 export const ATTRIBUTION_TOTAL = 'Total Attributions';
 
+export const CRITICALITY_LABEL: Record<Criticality, string> = {
+  [Criticality.High]:
+    text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+      .highlyCritical,
+  [Criticality.Medium]:
+    text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+      .mediumCritical,
+  [Criticality.None]:
+    text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.nonCritical,
+};
+
 export function aggregateLicensesAndSourcesFromAttributions(
   attributions: Attributions,
   strippedLicenseNameToAttribution: UniqueLicenseNameToAttributions,
@@ -167,7 +178,7 @@ function getLicenseDataFromVariants(
       } else if (variantClassification !== undefined) {
         licenseClassification = Math.max(
           licenseClassification,
-          attributions[attributionId].classification ?? 0,
+          variantClassification,
         );
       }
 
@@ -312,7 +323,7 @@ export function getMostFrequentLicenses(
 export function getCriticalSignalsCount(
   licenseCounts: LicenseCounts,
   licenseNamesWithCriticality: LicenseNamesWithCriticality,
-): Array<{ criticality: Criticality; count: number }> {
+): Array<PieChartData> {
   const licenseCriticalityCounts = {
     [Criticality.High]: 0,
     [Criticality.Medium]: 0,
@@ -328,15 +339,15 @@ export function getCriticalSignalsCount(
 
   const criticalityData = [
     {
-      criticality: Criticality.High,
+      name: CRITICALITY_LABEL[Criticality.High],
       count: licenseCriticalityCounts[Criticality.High],
     },
     {
-      criticality: Criticality.Medium,
+      name: CRITICALITY_LABEL[Criticality.Medium],
       count: licenseCriticalityCounts[Criticality.Medium],
     },
     {
-      criticality: Criticality.None,
+      name: CRITICALITY_LABEL[Criticality.None],
       count: licenseCriticalityCounts[Criticality.None],
     },
   ];
@@ -362,8 +373,9 @@ export function getSignalCountByClassification(
   }
 
   const pieChartData = Object.keys(classifications)
-    .map((classification) => {
-      const classificationName = classifications[toNumber(classification)];
+    .map(Number)
+    .map<PieChartData>((classification) => {
+      const classificationName = classifications[classification];
       const classificationCount =
         classificationCounts[toNumber(classification)] ?? 0;
 
