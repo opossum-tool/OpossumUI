@@ -150,10 +150,10 @@ export interface ProjectMetadata {
   [otherMetadata: string]: unknown;
 }
 
-export type Classifications = Record<Classification, string>;
+export type ClassificationsConfig = Record<Classification, string>;
 
 export interface ProjectConfig {
-  classifications: Classifications;
+  classifications: ClassificationsConfig;
 }
 
 export interface ParsedFileContent {
