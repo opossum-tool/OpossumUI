@@ -103,10 +103,11 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
 
   const handleRequestSort = (columnId: string) => {
     if (ordering.orderedColumn === columnId) {
-      setOrdering({
-        ...ordering,
-        orderDirection: ordering.orderDirection === 'asc' ? 'desc' : 'asc',
-      });
+      setOrdering((currentOrdering) => ({
+        ...currentOrdering,
+        orderDirection:
+          currentOrdering.orderDirection === 'asc' ? 'desc' : 'asc',
+      }));
     } else {
       setOrdering({
         orderDirection: 'asc',
