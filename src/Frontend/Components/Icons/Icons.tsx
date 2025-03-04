@@ -20,7 +20,10 @@ import WidgetsIcon from '@mui/icons-material/Widgets';
 import { SvgIcon, SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 
-import { Classifications, Criticality } from '../../../shared/shared-types';
+import {
+  ClassificationsConfig,
+  Criticality,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, criticalityColor, OpossumColors } from '../../shared-styles';
 
@@ -210,7 +213,7 @@ export function CriticalityIcon({
 export function ClassificationIcon(
   props: IconProps & {
     classification?: number;
-    classification_mapping?: Classifications;
+    classificationsConfig?: ClassificationsConfig;
   },
 ) {
   if (!props.classification) {
@@ -218,9 +221,9 @@ export function ClassificationIcon(
   }
 
   const tooltip =
-    props.classification_mapping?.[props.classification]?.description;
+    props.classificationsConfig?.[props.classification]?.description;
   const color =
-    props.classification_mapping?.[props.classification]?.color ??
+    props.classificationsConfig?.[props.classification]?.color ??
     OpossumColors.red;
 
   return (

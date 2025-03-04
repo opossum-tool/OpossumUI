@@ -97,7 +97,7 @@ export function ResourcesTreeNode({ node, nodeId, nodeName }: TreeNode) {
         externalAttributions,
         resolvedExternalAttributions,
       )}
-      classification_mapping={classification_mapping}
+      classificationsConfig={classification_mapping}
       isAttributionBreakpoint={attributionBreakpoints.has(nodeId)}
       showFolderIcon={canHaveChildren && !filesWithChildren.has(nodeId)}
       containsResourcesWithOnlyExternalAttribution={
