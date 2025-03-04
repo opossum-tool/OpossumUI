@@ -395,7 +395,7 @@ describe('getCriticalSignalsCount', () => {
         count: 4,
       },
       {
-        criticality: undefined,
+        criticality: Criticality.None,
         count: 2,
       },
     ];
