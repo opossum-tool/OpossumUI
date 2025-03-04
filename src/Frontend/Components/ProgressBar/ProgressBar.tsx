@@ -6,8 +6,9 @@ import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
 
+import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
-import { ProgressBarData } from '../../types/types';
+import { ProgressBarData, SelectedProgressBar } from '../../types/types';
 import {
   getCriticalityBarBackground,
   getCriticalityBarTooltipText,
@@ -20,7 +21,7 @@ const classes = {
   bar: {
     flex: 1,
     border: `2px solid ${OpossumColors.white}`,
-    marginTop: '6px',
+    marginTop: '2px',
     height: '20px',
     '&:hover': {
       cursor: 'pointer',
@@ -29,10 +30,17 @@ const classes = {
   },
 };
 
+interface ProgressBarInternals {
+  tooltipText: React.ReactNode;
+  ariaLabel: string;
+  background: string;
+  onClickHandler: () => void;
+}
+
 interface ProgressBarProps {
   sx?: SxProps;
   progressBarData: ProgressBarData;
-  showCriticalSignals: boolean;
+  selectedProgressBar: SelectedProgressBar;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
@@ -48,29 +56,42 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       ? resourcesWithCriticalExternalAttributions
       : props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
   );
+
+  const progressBarConfiguration: Record<
+    SelectedProgressBar,
+    ProgressBarInternals
+  > = {
+    attribution: {
+      tooltipText: getProgressBarTooltipText(props.progressBarData),
+      ariaLabel:
+        text.topBar.switchableProgressBar.attributionProgressBar.ariaLabel,
+      background: getProgressBarBackground(props.progressBarData),
+      onClickHandler: onProgressBarClick,
+    },
+    criticality: {
+      tooltipText: getCriticalityBarTooltipText(props.progressBarData),
+      ariaLabel: text.topBar.switchableProgressBar.criticalSignalsBar.ariaLabel,
+      background: getCriticalityBarBackground(props.progressBarData),
+      onClickHandler: onCriticalityBarClick,
+    },
+  };
+
+  const currentProgressBarConfiguration =
+    progressBarConfiguration[props.selectedProgressBar];
+
   return (
     <MuiBox sx={props.sx}>
       <MuiTooltip
-        title={
-          props.showCriticalSignals
-            ? getCriticalityBarTooltipText(props.progressBarData)
-            : getProgressBarTooltipText(props.progressBarData)
-        }
+        title={currentProgressBarConfiguration.tooltipText}
         followCursor
       >
         <MuiBox
-          aria-label={'ProgressBar'}
+          aria-label={currentProgressBarConfiguration.ariaLabel}
           sx={{
             ...classes.bar,
-            background: props.showCriticalSignals
-              ? getCriticalityBarBackground(props.progressBarData)
-              : getProgressBarBackground(props.progressBarData),
+            background: currentProgressBarConfiguration.background,
           }}
-          onClick={
-            props.showCriticalSignals
-              ? onCriticalityBarClick
-              : onProgressBarClick
-          }
+          onClick={currentProgressBarConfiguration.onClickHandler}
         />
       </MuiTooltip>
     </MuiBox>

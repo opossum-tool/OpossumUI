@@ -357,11 +357,14 @@ export const text = {
     audit: 'Audit',
     report: 'Report',
     switchableProgressBar: {
+      selectAriaLabel: 'ProgressBar Switcher',
       criticalSignalsBar: {
-        switcherTooltip: 'Critical signals progress bar selected',
+        selectLabel: 'Critical Signals',
+        ariaLabel: 'Progress bar for to be handled critical signals',
       },
-      defaultProgressBar: {
-        switcherTooltip: 'Progress bar selected',
+      attributionProgressBar: {
+        selectLabel: 'Attribution Progress',
+        ariaLabel: 'Progress bar attribution progress',
       },
     },
   },
