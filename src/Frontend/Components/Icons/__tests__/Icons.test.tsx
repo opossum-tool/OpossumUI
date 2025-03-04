@@ -75,7 +75,7 @@ describe('The Icons', () => {
     render(
       <ClassificationIcon
         classification={1}
-        classification_mapping={{ 1: 'Test' }}
+        classificationsConfig={{ 1: 'Test' }}
       />,
     );
 

@@ -20,7 +20,10 @@ import WidgetsIcon from '@mui/icons-material/Widgets';
 import { Icon, SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 
-import { Classifications, Criticality } from '../../../shared/shared-types';
+import {
+  ClassificationsConfig,
+  Criticality,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, criticalityColor, OpossumColors } from '../../shared-styles';
 
@@ -214,17 +217,17 @@ export function CriticalityIcon({
 export function ClassificationIcon({
   className,
   classification,
-  classification_mapping,
+  classificationsConfig,
   sx,
   tooltipPlacement,
 }: IconProps & {
   classification?: number;
-  classification_mapping?: Classifications;
+  classificationsConfig?: ClassificationsConfig;
 }) {
   if (!classification || classification === 0) {
     return null;
   }
-  const tooltip = classification_mapping?.[classification];
+  const tooltip = classificationsConfig?.[classification];
   if (!tooltip) {
     return null;
   }
