@@ -30,6 +30,7 @@ export interface ProgressBarData {
   filesWithMediumCriticalExternalAttributionsCount: number;
   resourcesWithHighlyCriticalExternalAttributions: Array<string>;
   resourcesWithMediumCriticalExternalAttributions: Array<string>;
+  classificationStatistics: Record<number, number>;
 }
 
 export interface PopupInfo {
