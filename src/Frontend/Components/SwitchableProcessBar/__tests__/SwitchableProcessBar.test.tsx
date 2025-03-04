@@ -12,7 +12,7 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ProgressBarData } from '../../../types/types';
 import { SwitchableProcessBar } from '../SwitchableProcessBar';
 
-const PROGRESS_BAR_DATA = {
+const PROGRESS_BAR_DATA: ProgressBarData = {
   fileCount: 6,
   filesWithHighlyCriticalExternalAttributionsCount: 1,
   filesWithMediumCriticalExternalAttributionsCount: 1,
@@ -22,6 +22,7 @@ const PROGRESS_BAR_DATA = {
   resourcesWithMediumCriticalExternalAttributions: [],
   resourcesWithNonInheritedExternalAttributionOnly: [],
   resourcesWithHighlyCriticalExternalAttributions: [],
+  classificationStatistics: {},
 };
 
 const switchableProgressBarText = text.topBar.switchableProgressBar;

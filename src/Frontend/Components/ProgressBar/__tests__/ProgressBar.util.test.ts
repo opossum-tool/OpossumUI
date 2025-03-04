@@ -27,6 +27,7 @@ describe('ProgressBar helpers', () => {
       filesWithMediumCriticalExternalAttributionsCount: 2,
       resourcesWithHighlyCriticalExternalAttributions: ['file1'],
       resourcesWithMediumCriticalExternalAttributions: ['file2', 'file3'],
+      classificationStatistics: {},
     };
     const expectedProgressBarBackground: string =
       'linear-gradient(to right,' +
@@ -55,6 +56,7 @@ describe('ProgressBar helpers', () => {
       filesWithMediumCriticalExternalAttributionsCount: 1,
       resourcesWithHighlyCriticalExternalAttributions: ['file1'],
       resourcesWithMediumCriticalExternalAttributions: ['file2'],
+      classificationStatistics: {},
     };
     const expectedCriticalityBarBackground: string =
       'linear-gradient(to right,' +

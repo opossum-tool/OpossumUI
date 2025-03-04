@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
+  Classifications,
   Criticality,
   Resources,
   ResourcesToAttributions,
@@ -43,6 +44,7 @@ function updateProgressBarDataForResources(
   hasParentManualAttribution = false,
   hasParentOnlyPreselectedAttribution = false,
   hasParentExternalAttribution = false,
+  highestClassification: number | undefined = undefined,
 ): void {
   for (const resourceName of Object.keys(resources)) {
     const resource = resources[resourceName] as Resources | 1 | undefined;
@@ -78,6 +80,21 @@ function updateProgressBarDataForResources(
       externalAttributions,
     );
 
+    const currentResourcesHighestClassification =
+      getHighestClassificationOfExternalAttributions(
+        path,
+        resourcesToExternalAttributions,
+        externalAttributions,
+      );
+
+    if (
+      currentResourcesHighestClassification &&
+      (!highestClassification ||
+        currentResourcesHighestClassification > highestClassification)
+    ) {
+      highestClassification = currentResourcesHighestClassification;
+    }
+
     if (!resourceCanHaveChildren || filesWithChildren.has(path)) {
       progressBarData.fileCount++;
       if (hasOnlyPreselectedAttribution) {
@@ -100,12 +117,18 @@ function updateProgressBarDataForResources(
             path,
           );
         }
+        if (highestClassification) {
+          progressBarData.classificationStatistics[highestClassification]++;
+        }
       } else if (hasParentExternalAttribution) {
         progressBarData.filesWithOnlyExternalAttributionCount++;
         if (highestCriticality === Criticality.High) {
           progressBarData.filesWithHighlyCriticalExternalAttributionsCount++;
         } else if (highestCriticality === Criticality.Medium) {
           progressBarData.filesWithMediumCriticalExternalAttributionsCount++;
+        }
+        if (highestClassification) {
+          progressBarData.classificationStatistics[highestClassification]++;
         }
       }
     }
@@ -145,6 +168,7 @@ function updateProgressBarDataForResources(
         hasOnlyPreselectedAttribution && !isBreakpoint,
         (hasNonInheritedExternalAttributions || hasParentExternalAttribution) &&
           !isBreakpoint,
+        highestClassification,
       );
     }
   }
@@ -171,6 +195,30 @@ export function getHighestCriticalityOfExternalAttributions(
   return highestCriticality;
 }
 
+export function getHighestClassificationOfExternalAttributions(
+  path: string,
+  resourcesToExternalAttributions: ResourcesToAttributions,
+  externalAttributions: Attributions,
+): number | undefined {
+  let highestClassification = undefined;
+  const externalAttributionsOfCurrentResource =
+    resourcesToExternalAttributions[path];
+  if (externalAttributionsOfCurrentResource) {
+    for (const attributionId of externalAttributionsOfCurrentResource) {
+      const classification = externalAttributions[attributionId]
+        ? externalAttributions[attributionId].classification
+        : 0;
+      if (
+        classification &&
+        (!highestClassification || classification > highestClassification)
+      ) {
+        highestClassification = classification;
+      }
+    }
+  }
+  return highestClassification;
+}
+
 export function resourceHasOnlyPreSelectedAttributions(
   path: string,
   resourcesToManualAttributions: ResourcesToAttributions,
@@ -192,8 +240,9 @@ export function getUpdatedProgressBarData(args: {
   resolvedExternalAttributions: Set<string>;
   attributionBreakpoints: Set<string>;
   filesWithChildren: Set<string>;
+  classifications: Classifications;
 }): ProgressBarData {
-  const progressBarData = getEmptyProgressBarData();
+  const progressBarData = getEmptyProgressBarData(args.classifications);
 
   updateProgressBarDataForResources(
     progressBarData,
@@ -212,7 +261,16 @@ export function getUpdatedProgressBarData(args: {
   return progressBarData;
 }
 
-export function getEmptyProgressBarData(): ProgressBarData {
+export function getEmptyProgressBarData(
+  classifications: Classifications,
+): ProgressBarData {
+  const classificationStatistics: Record<number, number> = {};
+  if (classifications) {
+    Object.keys(classifications).map((classificationNumber) => {
+      classificationStatistics[classificationNumber as unknown as number] = 0;
+    });
+  }
+
   return {
     fileCount: 0,
     filesWithManualAttributionCount: 0,
@@ -223,5 +281,6 @@ export function getEmptyProgressBarData(): ProgressBarData {
     filesWithMediumCriticalExternalAttributionsCount: 0,
     resourcesWithHighlyCriticalExternalAttributions: [],
     resourcesWithMediumCriticalExternalAttributions: [],
+    classificationStatistics,
   };
 }
