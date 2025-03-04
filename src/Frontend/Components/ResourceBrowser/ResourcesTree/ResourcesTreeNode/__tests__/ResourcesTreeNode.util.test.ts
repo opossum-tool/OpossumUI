@@ -31,7 +31,7 @@ describe('getting criticality from ResourcesTreeNode', () => {
       externalAttributions,
       new Set(),
     );
-    expect(criticality).toEqual(Criticality.None)
+    expect(criticality).toEqual(Criticality.None);
   });
   it('is medium if at least one attribute has medium criticality and there is no highly critical one', () => {
     const criticality = getCriticality(
@@ -60,9 +60,17 @@ describe('getting classification from ResourcesTreeNode', () => {
     '/test_file_0_2.ts': ['classification_0', 'classification_2'],
   };
   const externalAttributions: Attributions = {
-    classification_missing: { id: 'attr3', criticality: Criticality.None},
-    classification_0: { classification: 0, id: 'attr2', criticality: Criticality.None},
-    classification_2: { classification: 2, id: 'attr1', criticality: Criticality.None },
+    classification_missing: { id: 'attr3', criticality: Criticality.None },
+    classification_0: {
+      classification: 0,
+      id: 'attr2',
+      criticality: Criticality.None,
+    },
+    classification_2: {
+      classification: 2,
+      id: 'attr1',
+      criticality: Criticality.None,
+    },
   };
 
   it('is undefined if there is no information', () => {
