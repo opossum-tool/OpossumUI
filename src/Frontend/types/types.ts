@@ -3,7 +3,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Criticality, FileFormatInfo } from '../../shared/shared-types';
+import {
+  Classification,
+  Criticality,
+  FileFormatInfo,
+} from '../../shared/shared-types';
 import { PopupType } from '../enums/enums';
 import { ResourceState } from '../state/reducers/resource-reducer';
 import { VariablesState } from '../state/reducers/variables-reducer';
@@ -65,10 +69,9 @@ export interface AttributionCountPerSourcePerLicense {
   [licenseName: string]: { [sourceName: string]: number };
 }
 
-export interface LicenseNamesWithCriticality {
-  [licenseName: string]: Criticality;
-}
+export type LicenseNamesWithCriticality = Record<string, Criticality>;
 
-export interface LicenseNamesWithClassification {
-  [licenseName: string]: number | undefined;
-}
+export type LicenseNamesWithClassification = Record<
+  string,
+  Classification | undefined
+>;

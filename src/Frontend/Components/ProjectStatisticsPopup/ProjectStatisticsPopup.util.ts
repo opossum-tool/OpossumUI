@@ -6,6 +6,7 @@ import { pickBy, toNumber } from 'lodash';
 
 import {
   Attributions,
+  Classification,
   Classifications,
   Criticality,
   ExternalAttributionSources,
@@ -146,7 +147,7 @@ function getLicenseDataFromVariants(
 ): {
   mostFrequentLicenseName: string;
   licenseCriticality: Criticality;
-  licenseClassification: number | undefined;
+  licenseClassification: Classification | undefined;
   sourcesCountForLicense: {
     [sourceNameOrTotal: string]: number;
   };
@@ -159,7 +160,7 @@ function getLicenseDataFromVariants(
   } = {};
   let licenseCriticality = Criticality.None;
 
-  let licenseClassification: number | undefined = undefined;
+  let licenseClassification: Classification | undefined = undefined;
 
   for (const attributionId of attributionIds) {
     const licenseName = attributions[attributionId].licenseName;
@@ -361,7 +362,7 @@ export function getSignalCountByClassification(
   classifications: Classifications,
 ): Array<PieChartData> {
   const NO_CLASSIFICATION = -1;
-  const classificationCounts: { [classification: number]: number } = {};
+  const classificationCounts: Record<Classification, number> = {};
 
   for (const [license, attributionCount] of Object.entries(
     licenseCounts.totalAttributionsPerLicense,
