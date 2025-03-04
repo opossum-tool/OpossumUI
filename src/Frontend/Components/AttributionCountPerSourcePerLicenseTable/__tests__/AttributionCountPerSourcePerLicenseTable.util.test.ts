@@ -15,8 +15,8 @@ describe('orderLicenseNames', () => {
     b: Criticality.High,
     c: Criticality.Medium,
     d: Criticality.Medium,
-    e: undefined,
-    f: undefined,
+    e: Criticality.None,
+    f: Criticality.None,
   };
 
   const licenseNamesWithClassifications = {

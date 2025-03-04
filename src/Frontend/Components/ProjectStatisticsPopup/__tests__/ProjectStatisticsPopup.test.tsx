@@ -243,6 +243,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 10,
         },
         licenseName: 'Apache License Version 2.0',
+        criticality: Criticality.None,
         id: 'uuid_1',
       },
       uuid_2: {
@@ -251,6 +252,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 90,
         },
         licenseName: 'The MIT License (MIT)',
+        criticality: Criticality.None,
         id: 'uuid_2',
       },
     };
