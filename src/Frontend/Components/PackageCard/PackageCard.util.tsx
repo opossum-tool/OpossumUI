@@ -5,6 +5,7 @@
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import {
+  ClassificationIcon,
   CriticalityIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
@@ -34,6 +35,18 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
         key={'criticality-icon'}
         criticality={cardConfig.criticality}
         tooltip={text.auditingOptions[cardConfig.criticality]}
+      />,
+    );
+  }
+  if (
+    cardConfig.classification &&
+    cardConfig.classification_mapping?.[cardConfig.classification]
+  ) {
+    rightIcons.push(
+      <ClassificationIcon
+        key={'classification-icon'}
+        classification={cardConfig.classification}
+        classification_mapping={cardConfig.classification_mapping}
       />,
     );
   }

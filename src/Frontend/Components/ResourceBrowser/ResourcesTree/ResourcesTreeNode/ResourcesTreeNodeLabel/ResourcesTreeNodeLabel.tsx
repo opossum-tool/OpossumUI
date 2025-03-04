@@ -6,11 +6,15 @@ import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
-import { Criticality } from '../../../../../../shared/shared-types';
+import {
+  Classifications,
+  Criticality,
+} from '../../../../../../shared/shared-types';
 import { text } from '../../../../../../shared/text';
 import { treeItemClasses } from '../../../../../shared-styles';
 import {
   BreakpointIcon,
+  ClassificationIcon,
   CriticalityIcon,
   DirectoryIcon,
   FileIcon,
@@ -30,6 +34,8 @@ interface Props {
   showFolderIcon: boolean;
   containsResourcesWithOnlyExternalAttribution: boolean;
   criticality?: Criticality;
+  classification?: number;
+  classification_mapping?: Classifications;
 }
 
 export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
@@ -106,6 +112,13 @@ export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
         ) : (
           <SignalIcon />
         ))}
+      {props.hasUnresolvedExternalAttribution && (
+        <ClassificationIcon
+          classification={props.classification}
+          classification_mapping={props.classification_mapping}
+          tooltipPlacement={'right'}
+        />
+      )}
     </MuiBox>
   );
 };

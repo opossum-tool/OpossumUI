@@ -9,9 +9,15 @@ import MuiTypography from '@mui/material/Typography';
 import { SxProps } from '@mui/system';
 import { memo, useEffect, useMemo, useRef } from 'react';
 
-import { Criticality, PackageInfo } from '../../../shared/shared-types';
+import {
+  Classifications,
+  Criticality,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
+import { getClassifications } from '../../state/selectors/resource-selectors';
 import { getCardLabels } from '../../util/get-card-labels';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -83,6 +89,8 @@ const classes = {
 
 export interface PackageCardConfig {
   criticality: Criticality;
+  classification?: number;
+  classification_mapping?: Classifications;
   excludeFromNotice?: boolean;
   firstParty?: boolean;
   focused?: boolean;
@@ -115,9 +123,11 @@ export const PackageCard = memo(
       () => getCardLabels(packageInfo),
       [packageInfo],
     );
+    const classification_mapping = useAppSelector(getClassifications);
     const effectiveCardConfig = useMemo<PackageCardConfig>(
       () => ({
         criticality: packageInfo.criticality,
+        classification: packageInfo.classification,
         excludeFromNotice: packageInfo.excludeFromNotice,
         firstParty: packageInfo.firstParty,
         followUp: packageInfo.followUp,
@@ -126,9 +136,10 @@ export const PackageCard = memo(
         needsReview: packageInfo.needsReview,
         originalWasPreferred: packageInfo.originalAttributionWasPreferred,
         wasPreferred: packageInfo.wasPreferred,
+        classification_mapping,
         ...cardConfig,
       }),
-      [cardConfig, packageInfo],
+      [cardConfig, packageInfo, classification_mapping],
     );
     const rightIcons = useMemo(
       () => getRightIcons(effectiveCardConfig),
