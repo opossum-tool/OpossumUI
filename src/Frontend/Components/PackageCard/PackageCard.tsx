@@ -10,7 +10,7 @@ import { SxProps } from '@mui/system';
 import { memo, useEffect, useMemo, useRef } from 'react';
 
 import {
-  Classifications,
+  ClassificationsConfig,
   Criticality,
   PackageInfo,
 } from '../../../shared/shared-types';
@@ -90,7 +90,7 @@ const classes = {
 export interface PackageCardConfig {
   criticality: Criticality;
   classification?: number;
-  classification_mapping?: Classifications;
+  classificationsConfig?: ClassificationsConfig;
   excludeFromNotice?: boolean;
   firstParty?: boolean;
   focused?: boolean;
@@ -136,7 +136,7 @@ export const PackageCard = memo(
         needsReview: packageInfo.needsReview,
         originalWasPreferred: packageInfo.originalAttributionWasPreferred,
         wasPreferred: packageInfo.wasPreferred,
-        classification_mapping,
+        classificationsConfig: classification_mapping,
         ...cardConfig,
       }),
       [cardConfig, packageInfo, classification_mapping],
