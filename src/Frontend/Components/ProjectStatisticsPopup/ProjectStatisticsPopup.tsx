@@ -26,6 +26,7 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
+  CRITICALITY_LABEL,
   getCriticalSignalsCount,
   getIncompleteAttributionsCount,
   getMostFrequentLicenses,
@@ -37,6 +38,12 @@ const classes = {
   panels: { display: 'flex' },
   leftPanel: { width: 'fit-content' },
   rightPanel: { flexGrow: 1, marginLeft: '2vw' },
+};
+
+const CRITICALITY_COLORS = {
+  [CRITICALITY_LABEL[Criticality.High]]: criticalityColor[Criticality.High],
+  [CRITICALITY_LABEL[Criticality.Medium]]: criticalityColor[Criticality.Medium],
+  [CRITICALITY_LABEL[Criticality.None]]: criticalityColor[Criticality.None],
 };
 
 export const ProjectStatisticsPopup: React.FC = () => {
@@ -69,32 +76,6 @@ export const ProjectStatisticsPopup: React.FC = () => {
   const criticalSignalsCount = getCriticalSignalsCount(
     licenseCounts,
     licenseNamesWithCriticality,
-  );
-
-  const CRITICALITY_LABEL: Record<Criticality, string> = {
-    [Criticality.High]:
-      text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
-        .highlyCritical,
-    [Criticality.Medium]:
-      text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
-        .mediumCritical,
-    [Criticality.None]:
-      text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
-        .nonCritical,
-  };
-
-  const CRITICALITY_COLORS = {
-    [CRITICALITY_LABEL[Criticality.High]]: criticalityColor[Criticality.High],
-    [CRITICALITY_LABEL[Criticality.Medium]]:
-      criticalityColor[Criticality.Medium],
-    [CRITICALITY_LABEL[Criticality.None]]: criticalityColor[Criticality.None],
-  };
-
-  const criticalSignalsCountPieChartData = criticalSignalsCount.map(
-    ({ criticality, count }) => ({
-      name: CRITICALITY_LABEL[criticality],
-      count,
-    }),
   );
 
   const signalCountByClassification = getSignalCountByClassification(
@@ -160,7 +141,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 defaultExpanded={true}
               />
               <AccordionWithPieChart
-                data={criticalSignalsCountPieChartData}
+                data={criticalSignalsCount}
                 title={
                   text.projectStatisticsPopup.charts
                     .criticalSignalsCountPieChart.title
