@@ -5,19 +5,24 @@
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableRow from '@mui/material/TableRow';
 
-import { Criticality } from '../../../../shared/shared-types';
+import { Classification, Criticality } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { OpossumColors, tableClasses } from '../../../shared-styles';
 import { useAppSelector } from '../../../state/hooks';
 import { getClassifications } from '../../../state/selectors/resource-selectors';
 import { CriticalityIcon } from '../../Icons/Icons';
+import {
+  Column,
+  ColumnConfig,
+  SingleColumn,
+} from '../AttributionCountPerSourcePerLicenseTable.util';
 
 interface AttributionCountPerSourcePerLicenseTableRowProps {
-  sourceNames: Array<string>;
+  columnConfig: ColumnConfig;
   signalCountsPerSource: { [sourceName: string]: number };
   licenseName: string;
-  licenseCriticality: Criticality | undefined;
-  licenseClassification: number | undefined;
+  licenseCriticality: Criticality;
+  licenseClassification: Classification | undefined;
   totalSignalCount: number;
   rowIndex: number;
 }
@@ -33,61 +38,70 @@ export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
         : OpossumColors.almostWhiteBlue,
   };
 
+  return (
+    <MuiTableRow>
+      {props.columnConfig.getColumns().map((column, columnIdx) => {
+        return (
+          <MuiTableCell
+            sx={bodyClassWithBackgroundColor}
+            key={columnIdx}
+            data-testid={`signalsPerSourceBodyCell${columnIdx}`}
+            align={column.align}
+          >
+            <RowCellContent
+              signalCountsPerSource={props.signalCountsPerSource}
+              licenseName={props.licenseName}
+              licenseCriticality={props.licenseCriticality}
+              licenseClassification={props.licenseClassification}
+              totalSignalCount={props.totalSignalCount}
+              column={column}
+            />
+          </MuiTableCell>
+        );
+      })}
+    </MuiTableRow>
+  );
+};
+
+interface RowCellContentProps {
+  signalCountsPerSource: { [sourceName: string]: number };
+  licenseName: string;
+  licenseCriticality: Criticality;
+  licenseClassification: Classification | undefined;
+  totalSignalCount: number;
+  column: Column;
+}
+
+const RowCellContent: React.FC<RowCellContentProps> = (props) => {
   const componentText = text.attributionCountPerSourcePerLicenseTable;
 
   const classifications = useAppSelector(getClassifications);
 
+  if (props.column.columnType === SingleColumn.NAME) {
+    return props.licenseName;
+  } else if (props.column.columnType === SingleColumn.CRITICALITY) {
+    return props.licenseCriticality === Criticality.None ? (
+      componentText.none
+    ) : (
+      <CriticalityIcon
+        criticality={props.licenseCriticality}
+        tooltip={
+          props.licenseCriticality === Criticality.High
+            ? componentText.columns.criticality.high
+            : componentText.columns.criticality.medium
+        }
+      />
+    );
+  } else if (props.column.columnType === SingleColumn.CLASSIFICATION) {
+    return props.licenseClassification
+      ? (classifications[props.licenseClassification] ?? componentText.none)
+      : componentText.none;
+  } else if (props.column.columnType === SingleColumn.TOTAL) {
+    return props.totalSignalCount;
+  }
+
   return (
-    <MuiTableRow>
-      <MuiTableCell sx={bodyClassWithBackgroundColor} align={'left'}>
-        {props.licenseName}
-      </MuiTableCell>
-      {renderCriticalityCell()}
-      {renderClassificationCell()}
-      {props.sourceNames.map((sourceName, sourceIdx) => (
-        <MuiTableCell
-          sx={bodyClassWithBackgroundColor}
-          align={'center'}
-          key={sourceIdx}
-        >
-          {props.signalCountsPerSource[sourceName] || componentText.none}
-        </MuiTableCell>
-      ))}
-      <MuiTableCell sx={bodyClassWithBackgroundColor} align={'center'}>
-        {props.totalSignalCount}
-      </MuiTableCell>
-    </MuiTableRow>
+    props.signalCountsPerSource[props.column.columnType.sourceName] ||
+    componentText.none
   );
-
-  function renderCriticalityCell() {
-    return (
-      <MuiTableCell sx={bodyClassWithBackgroundColor} align={'center'}>
-        {props.licenseCriticality === undefined ? (
-          componentText.none
-        ) : (
-          <CriticalityIcon
-            criticality={props.licenseCriticality}
-            tooltip={
-              props.licenseCriticality === Criticality.High
-                ? componentText.columns.criticality.high
-                : componentText.columns.criticality.medium
-            }
-          />
-        )}
-      </MuiTableCell>
-    );
-  }
-
-  function renderClassificationCell() {
-    return (
-      <MuiTableCell sx={bodyClassWithBackgroundColor} key={1} align={'center'}>
-        <span>
-          {props.licenseClassification
-            ? (classifications[props.licenseClassification] ??
-              componentText.none)
-            : componentText.none}
-        </span>
-      </MuiTableCell>
-    );
-  }
 };
