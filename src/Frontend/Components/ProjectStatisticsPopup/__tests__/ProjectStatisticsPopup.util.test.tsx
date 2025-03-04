@@ -16,6 +16,7 @@ import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
   ATTRIBUTION_TOTAL,
+  CRITICALITY_LABEL,
   getCriticalSignalsCount,
   getIncompleteAttributionsCount,
   getLicenseNameVariants,
@@ -387,15 +388,15 @@ describe('getCriticalSignalsCount', () => {
   it('counts number of critical signals across all licenses', () => {
     const expectedCriticalSignalCount = [
       {
-        criticality: Criticality.High,
+        name: CRITICALITY_LABEL[Criticality.High],
         count: 3,
       },
       {
-        criticality: Criticality.Medium,
+        name: CRITICALITY_LABEL[Criticality.Medium],
         count: 4,
       },
       {
-        criticality: Criticality.None,
+        name: CRITICALITY_LABEL[Criticality.None],
         count: 2,
       },
     ];
