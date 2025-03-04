@@ -35,20 +35,9 @@ const classes = {
 
 const text = fullText.topBar.switchableProgressBar;
 
-interface ProgressBarConfiguration {
-  selectLabel: string;
-}
-
-const progressBarConfigurations: Record<
-  SelectedProgressBar,
-  ProgressBarConfiguration
-> = {
-  attribution: {
-    selectLabel: text.attributionProgressBar.selectLabel,
-  },
-  criticality: {
-    selectLabel: text.criticalSignalsBar.selectLabel,
-  },
+const progressBarLabels: Record<SelectedProgressBar, string> = {
+  attribution: text.attributionProgressBar.selectLabel,
+  criticality: text.criticalSignalsBar.selectLabel,
 };
 
 export const SwitchableProcessBar: React.FC = () => {
@@ -79,15 +68,13 @@ export const SwitchableProcessBar: React.FC = () => {
         value={currentProgressBar}
         aria-label={text.selectAriaLabel}
       >
-        {Object.entries(progressBarConfigurations).map(
-          ([key, progressBarConfiguration]) => {
-            return (
-              <MenuItem key={key} value={key}>
-                {progressBarConfiguration.selectLabel}
-              </MenuItem>
-            );
-          },
-        )}
+        {Object.entries(progressBarLabels).map(([key, progressBarLabel]) => {
+          return (
+            <MenuItem key={key} value={key}>
+              {progressBarLabel}
+            </MenuItem>
+          );
+        })}
       </Select>
     </MuiBox>
   );
