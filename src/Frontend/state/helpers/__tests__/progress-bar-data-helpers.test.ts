@@ -109,6 +109,7 @@ describe('The getUpdatedProgressBarData function', () => {
       resolvedExternalAttributions: new Set<string>(),
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: new Set<string>(),
+      classifications: {},
     });
     const expectedNumberOfFiles = 5;
     const expectedNumberOfFilesWithOnlyExternalAttribution = 3;
@@ -228,6 +229,7 @@ describe('The getUpdatedProgressBarData function', () => {
       resolvedExternalAttributions: testResolvedExternalAttributions,
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: new Set<string>(),
+      classifications: {},
     });
     const expectedNumberOfFiles = 4;
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
@@ -347,6 +349,7 @@ describe('The getUpdatedProgressBarData function', () => {
       resolvedExternalAttributions: testResolvedExternalAttributions,
       attributionBreakpoints: testAttributionBreakpoints,
       filesWithChildren: new Set<string>(),
+      classifications: {},
     });
     const expectedNumberOfFiles = 12;
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
@@ -418,6 +421,7 @@ describe('The getUpdatedProgressBarData function', () => {
       resolvedExternalAttributions: testResolvedExternalAttributions,
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: testFilesWithChildren,
+      classifications: {},
     });
     const expectedNumberOfFiles = 3;
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);

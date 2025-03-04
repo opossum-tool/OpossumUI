@@ -103,6 +103,7 @@ describe('SignalsWorker', () => {
       filesWithChildren: new Set<string>(),
       manualData: faker.opossum.attributionData(),
       resolvedExternalAttributions: new Set<string>(),
+      classifications: {},
     });
 
     worker.processInput({

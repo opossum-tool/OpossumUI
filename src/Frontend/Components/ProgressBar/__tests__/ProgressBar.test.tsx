@@ -98,6 +98,7 @@ describe('ProgressBar', () => {
             resourceId2,
           ],
           resourcesWithHighlyCriticalExternalAttributions: [],
+          classificationStatistics: {},
         }}
       />,
       { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
@@ -129,6 +130,7 @@ describe('ProgressBar', () => {
           resourcesWithMediumCriticalExternalAttributions: [],
           resourcesWithNonInheritedExternalAttributionOnly: [],
           resourcesWithHighlyCriticalExternalAttributions: [],
+          classificationStatistics: {},
         }}
       />,
     );
@@ -156,6 +158,7 @@ describe('ProgressBar', () => {
           resourcesWithMediumCriticalExternalAttributions: [],
           resourcesWithNonInheritedExternalAttributionOnly: [],
           resourcesWithHighlyCriticalExternalAttributions: [],
+          classificationStatistics: {},
         }}
       />,
     );
@@ -193,6 +196,7 @@ describe('ProgressBar', () => {
           resourcesWithMediumCriticalExternalAttributions: [resourceId1],
           resourcesWithNonInheritedExternalAttributionOnly: [],
           resourcesWithHighlyCriticalExternalAttributions: [resourceId2],
+          classificationStatistics: {},
         }}
       />,
       { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
@@ -224,6 +228,7 @@ describe('ProgressBar', () => {
           resourcesWithMediumCriticalExternalAttributions: [],
           resourcesWithNonInheritedExternalAttributionOnly: [],
           resourcesWithHighlyCriticalExternalAttributions: [],
+          classificationStatistics: {},
         }}
       />,
     );
