@@ -59,6 +59,26 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       : props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
   );
 
+  let filesToForwardToForCriticality =
+    props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly;
+  const mostCriticalActiveEntry = Object.entries(
+    props.progressBarData.classificationStatistics,
+  )
+    .toSorted(
+      ([firstClassification, _], [secondClassification, __]) =>
+        (firstClassification as unknown as number) -
+        (secondClassification as unknown as number),
+    )
+    .map(([_, entry]) => entry)
+    .reverse()
+    .filter((entry) => entry.correspondingFiles.length > 0)[0];
+  if (mostCriticalActiveEntry) {
+    filesToForwardToForCriticality = mostCriticalActiveEntry.correspondingFiles;
+  }
+  const onClassificationBarClick = useOnProgressBarClick(
+    filesToForwardToForCriticality,
+  );
+
   const progressBarConfiguration: Record<
     SelectedProgressBar,
     ProgressBarInternals
@@ -81,7 +101,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       ariaLabel:
         text.topBar.switchableProgressBar.classificationProgressBar.ariaLabel,
       background: getClassificationBarBackground(props.progressBarData),
-      onClickHandler: onCriticalityBarClick, // ToDo: Update
+      onClickHandler: onClassificationBarClick,
     },
   };
 

@@ -67,6 +67,17 @@ async function clickOnCriticalityProgressBar() {
   );
 }
 
+async function clickOnClassificationProgressBar() {
+  await userEvent.click(
+    screen.getByLabelText(
+      text.topBar.switchableProgressBar.classificationProgressBar.ariaLabel,
+    ),
+    {
+      advanceTimers: jest.runOnlyPendingTimersAsync,
+    },
+  );
+}
+
 describe('ProgressBar', () => {
   beforeEach(() => {
     jest.useFakeTimers();
@@ -253,5 +264,135 @@ describe('ProgressBar', () => {
     expect(
       screen.getByText(/containing classification third: 2/),
     ).toBeInTheDocument();
+  });
+
+  it('forwards the user to the next resource with maximum classification', async () => {
+    const resourceName1 = faker.opossum.resourceName();
+    const resourceId1 = faker.opossum.filePath(resourceName1);
+    const resourceName2 = faker.opossum.resourceName();
+    const resourceId2 = faker.opossum.filePath(resourceName2);
+    const { store } = renderComponent(
+      <ProgressBar
+        selectedProgressBar={'classification'}
+        progressBarData={{
+          fileCount: 6,
+          filesWithHighlyCriticalExternalAttributionsCount: 1,
+          filesWithMediumCriticalExternalAttributionsCount: 1,
+          filesWithManualAttributionCount: 1,
+          filesWithOnlyExternalAttributionCount: 3,
+          filesWithOnlyPreSelectedAttributionCount: 1,
+          resourcesWithMediumCriticalExternalAttributions: [],
+          resourcesWithNonInheritedExternalAttributionOnly: [],
+          resourcesWithHighlyCriticalExternalAttributions: [],
+          classificationStatistics: {
+            0: {
+              description: 'all fine',
+              correspondingFiles: [resourceId1],
+            },
+            1: {
+              description: 'alert',
+              correspondingFiles: [resourceId2],
+            },
+          },
+        }}
+      />,
+      { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
+    );
+
+    await clickOnClassificationProgressBar();
+
+    expect(getSelectedResourceId(store.getState())).toBe(resourceId2);
+
+    await clickOnClassificationProgressBar();
+
+    expect(getSelectedResourceId(store.getState())).toBe(resourceId2);
+  });
+
+  it('forwards the user to the next resource with maximum classification if configuration is not ordered', async () => {
+    const resourceName1 = faker.opossum.resourceName();
+    const resourceId1 = faker.opossum.filePath(resourceName1);
+    const resourceName2 = faker.opossum.resourceName();
+    const resourceId2 = faker.opossum.filePath(resourceName2);
+    const { store } = renderComponent(
+      <ProgressBar
+        selectedProgressBar={'classification'}
+        progressBarData={{
+          fileCount: 6,
+          filesWithHighlyCriticalExternalAttributionsCount: 1,
+          filesWithMediumCriticalExternalAttributionsCount: 1,
+          filesWithManualAttributionCount: 1,
+          filesWithOnlyExternalAttributionCount: 3,
+          filesWithOnlyPreSelectedAttributionCount: 1,
+          resourcesWithMediumCriticalExternalAttributions: [],
+          resourcesWithNonInheritedExternalAttributionOnly: [],
+          resourcesWithHighlyCriticalExternalAttributions: [],
+          classificationStatistics: {
+            1: {
+              description: 'all fine',
+              correspondingFiles: [resourceId1],
+            },
+            0: {
+              description: 'alert',
+              correspondingFiles: [resourceId2],
+            },
+          },
+        }}
+      />,
+      { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
+    );
+
+    await clickOnClassificationProgressBar();
+
+    expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
+
+    await clickOnClassificationProgressBar();
+
+    expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
+  });
+
+  it('forwards the user to the next resource with maximum classification ignoring empty classification values', async () => {
+    const resourceName1 = faker.opossum.resourceName();
+    const resourceId1 = faker.opossum.filePath(resourceName1);
+    const resourceName2 = faker.opossum.resourceName();
+    const resourceId2 = faker.opossum.filePath(resourceName2);
+    const { store } = renderComponent(
+      <ProgressBar
+        selectedProgressBar={'classification'}
+        progressBarData={{
+          fileCount: 6,
+          filesWithHighlyCriticalExternalAttributionsCount: 1,
+          filesWithMediumCriticalExternalAttributionsCount: 1,
+          filesWithManualAttributionCount: 1,
+          filesWithOnlyExternalAttributionCount: 3,
+          filesWithOnlyPreSelectedAttributionCount: 1,
+          resourcesWithMediumCriticalExternalAttributions: [],
+          resourcesWithNonInheritedExternalAttributionOnly: [],
+          resourcesWithHighlyCriticalExternalAttributions: [],
+          classificationStatistics: {
+            1: {
+              description: 'alert',
+              correspondingFiles: [resourceId1],
+            },
+            2: {
+              description: 'I do not know',
+              correspondingFiles: [],
+            },
+            0: {
+              description: 'all fine',
+              correspondingFiles: [resourceId2],
+            },
+          },
+        }}
+      />,
+      { actions: [setResources({ [resourceName1]: 1, [resourceName2]: 1 })] },
+    );
+
+    await clickOnClassificationProgressBar();
+
+    expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
+
+    await clickOnClassificationProgressBar();
+
+    expect(getSelectedResourceId(store.getState())).toBe(resourceId1);
   });
 });
