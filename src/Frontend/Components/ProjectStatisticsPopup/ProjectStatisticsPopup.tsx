@@ -21,7 +21,6 @@ import { AccordionWithPieChart } from '../AccordionWithPieChart/AccordionWithPie
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { AttributionPropertyCountTable } from '../AttributionPropertyCountTable/AttributionPropertyCountTable';
 import { Checkbox } from '../Checkbox/Checkbox';
-import { CriticalLicensesTable } from '../CriticalLicensesTable/CriticalLicensesTable';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   aggregateAttributionPropertiesFromAttributions,
@@ -31,7 +30,6 @@ import {
   getIncompleteAttributionsCount,
   getMostFrequentLicenses,
   getSignalCountByClassification,
-  getUniqueLicenseNameToAttribution,
 } from './ProjectStatisticsPopup.util';
 
 const classes = {
@@ -57,17 +55,12 @@ export const ProjectStatisticsPopup: React.FC = () => {
     getUnresolvedExternalAttributions,
   );
 
-  const strippedLicenseNameToAttribution = getUniqueLicenseNameToAttribution(
-    unresolvedExternalAttribution,
-  );
-
   const {
     licenseCounts,
     licenseNamesWithCriticality,
     licenseNamesWithClassification,
   } = aggregateLicensesAndSourcesFromAttributions(
     unresolvedExternalAttribution,
-    strippedLicenseNameToAttribution,
     attributionSources,
   );
 
@@ -118,13 +111,6 @@ export const ProjectStatisticsPopup: React.FC = () => {
                     .attributionPropertyCountTable
                 }
               />
-              <CriticalLicensesTable
-                totalAttributionsPerLicense={
-                  licenseCounts.totalAttributionsPerLicense
-                }
-                licenseNamesWithCriticality={licenseNamesWithCriticality}
-                title={text.projectStatisticsPopup.charts.criticalLicensesTable}
-              />
             </MuiBox>
             <MuiBox style={classes.rightPanel}>
               <MuiTypography variant="subtitle1">
@@ -167,6 +153,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
           <AttributionCountPerSourcePerLicenseTable
             licenseCounts={licenseCounts}
             licenseNamesWithCriticality={licenseNamesWithCriticality}
+            licenseNamesWithClassification={licenseNamesWithClassification}
             title={text.projectStatisticsPopup.charts.licenseCountsTable}
           />
         </>

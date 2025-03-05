@@ -19,10 +19,8 @@ import {
   CRITICALITY_LABEL,
   getCriticalSignalsCount,
   getIncompleteAttributionsCount,
-  getLicenseNameVariants,
   getMostFrequentLicenses,
   getStrippedLicenseName,
-  getUniqueLicenseNameToAttribution,
 } from '../ProjectStatisticsPopup.util';
 
 const testAttributions_1: Attributions = {
@@ -161,12 +159,9 @@ describe('aggregateLicensesAndSourcesFromAttributions', () => {
       'The MIT License (MIT)': Criticality.None,
     };
 
-    const strippedLicenseNameToAttribution =
-      getUniqueLicenseNameToAttribution(testAttributions_1);
     const { licenseCounts, licenseNamesWithCriticality } =
       aggregateLicensesAndSourcesFromAttributions(
         testAttributions_1,
-        strippedLicenseNameToAttribution,
         attributionSources,
       );
 
@@ -182,35 +177,6 @@ describe('aggregateLicensesAndSourcesFromAttributions', () => {
     expect(licenseNamesWithCriticality).toEqual(
       expectedLicenseNamesWithCriticality,
     );
-  });
-});
-
-describe('getLicenseNameVariants', () => {
-  it('gets equivalent license names from attributions', () => {
-    const gpl2 = 'GPL-2.0';
-    const gpl2variant1 = 'gpl 2.0';
-    const testAttributions: Attributions = {
-      uuid1: {
-        licenseName: gpl2,
-        id: 'uuid1',
-        criticality: Criticality.None,
-      },
-      uuid2: {
-        licenseName: gpl2variant1,
-        id: 'uuid2',
-        criticality: Criticality.None,
-      },
-      uuid3: {
-        licenseName: 'something else',
-        id: 'uuid3',
-        criticality: Criticality.None,
-      },
-    };
-    const expectedLicenseNameVariants = new Set([gpl2, gpl2variant1]);
-
-    const licenseNameVariants = getLicenseNameVariants(gpl2, testAttributions);
-
-    expect(licenseNameVariants).toEqual(expectedLicenseNameVariants);
   });
 });
 

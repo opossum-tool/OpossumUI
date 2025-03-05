@@ -2,10 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sortBy } from 'lodash';
+import MuiBox from '@mui/material/Box';
+import MuiTable from '@mui/material/Table';
+import MuiTableBody from '@mui/material/TableBody';
+import MuiTableContainer from '@mui/material/TableContainer';
+import MuiTypography from '@mui/material/Typography';
 
-import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
-import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
+import {
+  LicenseCounts,
+  LicenseNamesWithClassification,
+  LicenseNamesWithCriticality,
+} from '../../types/types';
+import { AttributionCountPerSourcePerLicenseTableFooter } from './AttributionCountPerSourcePerLicenseTableFooter/AttributionCountPerSourcePerLicenseTableFooter';
+import { AttributionCountPerSourcePerLicenseTableHead } from './AttributionCountPerSourcePerLicenseTableHead/AttributionCountPerSourcePerLicenseTableHead';
+import { AttributionCountPerSourcePerLicenseTableRow } from './AttributionCountPerSourcePerLicenseTableRow/AttributionCountPerSourcePerLicenseTableRow';
 
 const classes = {
   container: {
@@ -14,13 +24,10 @@ const classes = {
   },
 };
 
-const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
-const FOOTER_TITLE = 'Total';
-const TOTAL_SOURCES_TITLE = 'Total';
-
 interface AttributionCountPerSourcePerLicenseTableProps {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
+  licenseNamesWithClassification: LicenseNamesWithClassification;
   title: string;
 }
 
@@ -31,43 +38,48 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     props.licenseCounts.totalAttributionsPerSource,
   );
 
-  const totalNumberOfAttributionsPerSource = sourceNames.map((sourceName) =>
-    props.licenseCounts.totalAttributionsPerSource[sourceName].toString(),
-  );
-  const totalNumberOfAttributions = Object.values(
-    props.licenseCounts.totalAttributionsPerSource,
-  )
-    .reduce((partialSum, num) => partialSum + num, 0)
-    .toString();
-
-  const footerRow = [FOOTER_TITLE]
-    .concat(totalNumberOfAttributionsPerSource)
-    .concat(totalNumberOfAttributions);
-  const headerRow = [LICENSE_COLUMN_NAME_IN_TABLE]
-    .concat(sourceNames)
-    .concat(TOTAL_SOURCES_TITLE)
-    .map(
-      (sourceName) => sourceName.charAt(0).toUpperCase() + sourceName.slice(1),
-    );
-
-  Object.entries(
-    props.licenseCounts.attributionCountPerSourcePerLicense,
-  ).forEach(
-    ([licenseName, value]) =>
-      (value[TOTAL_SOURCES_TITLE] =
-        props.licenseCounts.totalAttributionsPerLicense[licenseName]),
-  );
-
   return (
-    <ProjectLicensesTable
-      title={props.title}
-      containerStyle={classes.container}
-      columnHeaders={headerRow}
-      columnNames={headerRow}
-      rowNames={sortBy(Object.keys(props.licenseNamesWithCriticality))}
-      tableContent={props.licenseCounts.attributionCountPerSourcePerLicense}
-      tableFooter={footerRow}
-      licenseNamesWithCriticality={props.licenseNamesWithCriticality}
-    />
+    <MuiBox>
+      <MuiTypography variant="subtitle1">{props.title}</MuiTypography>
+      <MuiTableContainer sx={classes.container}>
+        <MuiTable size="small" stickyHeader>
+          <AttributionCountPerSourcePerLicenseTableHead
+            sourceNames={sourceNames}
+          />
+          <MuiTableBody>
+            {Object.keys(props.licenseNamesWithCriticality)
+              .toSorted()
+              .map((licenseName, rowIndex) => (
+                <AttributionCountPerSourcePerLicenseTableRow
+                  sourceNames={sourceNames}
+                  signalCountsPerSource={
+                    props.licenseCounts.attributionCountPerSourcePerLicense[
+                      licenseName
+                    ]
+                  }
+                  licenseName={licenseName}
+                  licenseCriticality={
+                    props.licenseNamesWithCriticality[licenseName]
+                  }
+                  licenseClassification={
+                    props.licenseNamesWithClassification[licenseName]
+                  }
+                  totalSignalCount={
+                    props.licenseCounts.totalAttributionsPerLicense[licenseName]
+                  }
+                  key={rowIndex}
+                  rowIndex={rowIndex}
+                />
+              ))}
+          </MuiTableBody>
+          <AttributionCountPerSourcePerLicenseTableFooter
+            sourceNames={sourceNames}
+            totalAttributionsPerSource={
+              props.licenseCounts.totalAttributionsPerSource
+            }
+          />
+        </MuiTable>
+      </MuiTableContainer>
+    </MuiBox>
   );
 };
