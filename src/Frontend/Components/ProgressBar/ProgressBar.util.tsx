@@ -179,6 +179,61 @@ export function getCriticalityBarBackground(
   );
 }
 
+export function getClassificationBarBackground(
+  progressBarData: ProgressBarData,
+) {
+  if (progressBarData.filesWithOnlyExternalAttributionCount === 0) {
+    return `${OpossumColors.pastelDarkGreen}`;
+  }
+  const classificationStatistics = progressBarData.classificationStatistics;
+  let percentages = Object.values(classificationStatistics)
+    .map(
+      (fileCount) =>
+        (fileCount * 100) /
+        progressBarData.filesWithOnlyExternalAttributionCount,
+    )
+    .reverse();
+  const totalPercentage = sum(percentages);
+  percentages.push(100 - totalPercentage);
+  percentages = roundToAtLeastOnePercentAndNormalize(percentages);
+  const numberOfClassifications = Object.keys(classificationStatistics).length;
+
+  const progressBarSteps = percentages.map((percentage, index) => {
+    const hueRed = 0;
+    const hueGreeen = 146;
+    const normalization =
+      numberOfClassifications > 1 ? numberOfClassifications - 1 : 1;
+    const hue = ((hueGreeen - hueRed) * index) / normalization;
+    const color = `hsl(${hue.toFixed(0)} 100 45)`;
+    return {
+      widthInPercent: percentage,
+      color,
+    };
+  });
+  progressBarSteps[progressBarSteps.length - 1].color =
+    OpossumColors.lightestBlue;
+
+  let backgroundColor = 'linear-gradient(to right,';
+  let currentPercentage = 0;
+  let first = true;
+  for (const progressBarStep of progressBarSteps) {
+    if (!first) {
+      backgroundColor += ' , ';
+    }
+    backgroundColor += `${progressBarStep.color} `;
+    if (!first) {
+      backgroundColor += `${currentPercentage}% `;
+    } else {
+      first = false;
+    }
+    currentPercentage += progressBarStep.widthInPercent;
+    backgroundColor += `${currentPercentage}% `;
+  }
+
+  backgroundColor += ' )';
+  return backgroundColor;
+}
+
 // We want to round everything > 0 to at least one percent so all possible segments of
 // the progress bar are always visible. For example, if there is only one file with
 // only signal left, we still want the user to see it even if there are 100,000

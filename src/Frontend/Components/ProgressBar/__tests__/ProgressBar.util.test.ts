@@ -6,6 +6,7 @@ import { Criticality } from '../../../../shared/shared-types';
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
 import { ProgressBarData } from '../../../types/types';
 import {
+  getClassificationBarBackground,
   getCriticalityBarBackground,
   getProgressBarBackground,
   roundToAtLeastOnePercentAndNormalize,
@@ -68,6 +69,75 @@ describe('ProgressBar helpers', () => {
     expect(actualCriticalityBarBackground).toEqual(
       expectedCriticalityBarBackground,
     );
+  });
+
+  describe('getClassificationBarBackground', () => {
+    it('returns correct background color fur multiple classifications', () => {
+      const classificationStatistics: Record<number, number> = {
+        0: 5,
+        1: 3,
+        2: 4,
+        3: 1,
+      };
+      const testProgressBarData: ProgressBarData = {
+        fileCount: 30,
+        filesWithManualAttributionCount: 3,
+        filesWithOnlyPreSelectedAttributionCount: 3,
+        filesWithOnlyExternalAttributionCount: 20,
+        resourcesWithNonInheritedExternalAttributionOnly: [],
+        filesWithHighlyCriticalExternalAttributionsCount: 1,
+        filesWithMediumCriticalExternalAttributionsCount: 1,
+        resourcesWithHighlyCriticalExternalAttributions: [],
+        resourcesWithMediumCriticalExternalAttributions: [],
+        classificationStatistics,
+      };
+
+      const background = getClassificationBarBackground(testProgressBarData);
+
+      const expectedBackground =
+        'linear-gradient(to right,hsl(0 100 45) 5%  , hsl(49 100 45) 5% 25%  , hsl(97 100 45) 25% 40%  , hsl(146 100 45) 40% 65%  , hsl(220, 41%, 92%) 65% 100%  )';
+      expect(background).toEqual(expectedBackground);
+    });
+
+    it('returns constant background color for zero files affected', () => {
+      const testProgressBarData: ProgressBarData = {
+        fileCount: 30,
+        filesWithManualAttributionCount: 3,
+        filesWithOnlyPreSelectedAttributionCount: 3,
+        filesWithOnlyExternalAttributionCount: 0,
+        resourcesWithNonInheritedExternalAttributionOnly: [],
+        filesWithHighlyCriticalExternalAttributionsCount: 1,
+        filesWithMediumCriticalExternalAttributionsCount: 1,
+        resourcesWithHighlyCriticalExternalAttributions: [],
+        resourcesWithMediumCriticalExternalAttributions: [],
+        classificationStatistics: {},
+      };
+
+      const background = getClassificationBarBackground(testProgressBarData);
+
+      expect(background).toBe('hsl(146, 50%, 55%)');
+    });
+
+    it('works for only one classification level configured', () => {
+      const testProgressBarData: ProgressBarData = {
+        fileCount: 30,
+        filesWithManualAttributionCount: 3,
+        filesWithOnlyPreSelectedAttributionCount: 3,
+        filesWithOnlyExternalAttributionCount: 20,
+        resourcesWithNonInheritedExternalAttributionOnly: [],
+        filesWithHighlyCriticalExternalAttributionsCount: 1,
+        filesWithMediumCriticalExternalAttributionsCount: 1,
+        resourcesWithHighlyCriticalExternalAttributions: [],
+        resourcesWithMediumCriticalExternalAttributions: [],
+        classificationStatistics: { 0: 5 },
+      };
+
+      const background = getClassificationBarBackground(testProgressBarData);
+
+      const expectedBackground =
+        'linear-gradient(to right,hsl(0 100 45) 25%  , hsl(220, 41%, 92%) 25% 100%  )';
+      expect(background).toBe(expectedBackground);
+    });
   });
 
   it.each([

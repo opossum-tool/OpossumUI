@@ -10,6 +10,7 @@ import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { ProgressBarData, SelectedProgressBar } from '../../types/types';
 import {
+  getClassificationBarBackground,
   getCriticalityBarBackground,
   getCriticalityBarTooltipText,
   getProgressBarBackground,
@@ -78,7 +79,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       tooltipText: getCriticalityBarTooltipText(props.progressBarData), // ToDo: Update
       ariaLabel:
         text.topBar.switchableProgressBar.classificationProgressBar.ariaLabel,
-      background: getCriticalityBarBackground(props.progressBarData), // ToDo: Update
+      background: getClassificationBarBackground(props.progressBarData),
       onClickHandler: onCriticalityBarClick, // ToDo: Update
     },
   };
