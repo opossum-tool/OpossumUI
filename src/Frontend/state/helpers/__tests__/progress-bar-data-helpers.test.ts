@@ -470,9 +470,9 @@ describe('The getUpdatedProgressBarData function', () => {
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
-        0: 0,
-        1: 0,
-        14: 0,
+        0: { description: 'foo', numberOfOccurrences: 0 },
+        1: { description: 'bar', numberOfOccurrences: 0 },
+        14: { description: 'something else', numberOfOccurrences: 0 },
       });
     });
 
@@ -522,9 +522,9 @@ describe('The getUpdatedProgressBarData function', () => {
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
-        0: 0,
-        1: 1,
-        14: 2,
+        0: { description: 'foo', numberOfOccurrences: 0 },
+        1: { description: 'bar', numberOfOccurrences: 1 },
+        14: { description: 'something else', numberOfOccurrences: 2 },
       });
     });
 
@@ -574,10 +574,10 @@ describe('The getUpdatedProgressBarData function', () => {
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
-        0: 0,
-        1: 1,
-        14: 0,
-        22: 2,
+        0: { description: 'foo', numberOfOccurrences: 0 },
+        1: { description: 'bar', numberOfOccurrences: 1 },
+        14: { description: 'something else', numberOfOccurrences: 0 },
+        22: { description: '22', numberOfOccurrences: 2 },
       });
     });
   });

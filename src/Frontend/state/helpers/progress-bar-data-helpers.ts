@@ -10,7 +10,7 @@ import {
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { TREE_ROOT_FOLDER_LABEL } from '../../shared-styles';
-import { ProgressBarData } from '../../types/types';
+import { ClassificationStatistics, ProgressBarData } from '../../types/types';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 
 export function filterResourcesToAttributions(
@@ -36,9 +36,13 @@ function updateClassificationStatistics(
   highestClassification: number,
 ) {
   if (progressBarData.classificationStatistics[highestClassification]) {
-    progressBarData.classificationStatistics[highestClassification]++;
+    progressBarData.classificationStatistics[highestClassification]
+      .numberOfOccurrences++;
   } else {
-    progressBarData.classificationStatistics[highestClassification] = 1;
+    progressBarData.classificationStatistics[highestClassification] = {
+      description: highestClassification.toFixed(0),
+      numberOfOccurrences: 1,
+    };
   }
 }
 
@@ -281,11 +285,16 @@ export function getUpdatedProgressBarData(args: {
 export function getEmptyProgressBarData(
   classifications: Classifications,
 ): ProgressBarData {
-  const classificationStatistics: Record<number, number> = {};
+  const classificationStatistics: ClassificationStatistics = {};
   if (classifications) {
-    Object.keys(classifications).map((classificationNumber) => {
-      classificationStatistics[classificationNumber as unknown as number] = 0;
-    });
+    Object.entries(classifications).map(
+      ([classificationNumber, description]) => {
+        classificationStatistics[classificationNumber as unknown as number] = {
+          description,
+          numberOfOccurrences: 0,
+        };
+      },
+    );
   }
 
   return {

@@ -20,6 +20,16 @@ export type SelectedProgressBar =
   | 'criticality'
   | 'classification';
 
+export interface ClassificationStatisticsEntry {
+  description: string;
+  numberOfOccurrences: number;
+}
+
+export type ClassificationStatistics = Record<
+  number,
+  ClassificationStatisticsEntry
+>;
+
 export interface ProgressBarData {
   fileCount: number;
   filesWithManualAttributionCount: number;
@@ -30,7 +40,7 @@ export interface ProgressBarData {
   filesWithMediumCriticalExternalAttributionsCount: number;
   resourcesWithHighlyCriticalExternalAttributions: Array<string>;
   resourcesWithMediumCriticalExternalAttributions: Array<string>;
-  classificationStatistics: Record<number, number>;
+  classificationStatistics: ClassificationStatistics;
 }
 
 export interface PopupInfo {

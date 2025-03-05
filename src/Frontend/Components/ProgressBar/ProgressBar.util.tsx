@@ -97,9 +97,11 @@ export function getClassificationBarTooltipText(
     <MuiBox>
       Number of resources with signals and no attributions…
       {Object.entries(progressBarData.classificationStatistics).map(
-        ([classification, count]) => (
-          <div key={classification}>
-            ...containing classification {classification}: {count}
+        ([_, classificationStatisticsEntry]) => (
+          <div key={classificationStatisticsEntry.description}>
+            ...containing classification{' '}
+            {classificationStatisticsEntry.description}:{' '}
+            {classificationStatisticsEntry.numberOfOccurrences}
           </div>
         ),
       )}
@@ -220,8 +222,8 @@ function calculateProgressBarSteps(
   const classificationStatistics = progressBarData.classificationStatistics;
   let percentages = Object.values(classificationStatistics)
     .map(
-      (fileCount) =>
-        (fileCount * 100) /
+      (statisticsEntry) =>
+        (statisticsEntry.numberOfOccurrences * 100) /
         progressBarData.filesWithOnlyExternalAttributionCount,
     )
     .reverse();

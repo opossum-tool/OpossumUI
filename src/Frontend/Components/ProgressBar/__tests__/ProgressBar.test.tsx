@@ -229,9 +229,9 @@ describe('ProgressBar', () => {
           resourcesWithNonInheritedExternalAttributionOnly: [],
           resourcesWithHighlyCriticalExternalAttributions: [],
           classificationStatistics: {
-            0: 4,
-            1: 3,
-            2: 2,
+            0: { description: 'first', numberOfOccurrences: 4 },
+            1: { description: 'second', numberOfOccurrences: 3 },
+            2: { description: 'third', numberOfOccurrences: 2 },
           },
         }}
       />,
@@ -242,13 +242,13 @@ describe('ProgressBar', () => {
       screen.getByText(/Number of resources with signals and no attributions/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/containing classification 0: 4/),
+      screen.getByText(/containing classification first: 4/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/containing classification 1: 3/),
+      screen.getByText(/containing classification second: 3/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/containing classification 2: 2/),
+      screen.getByText(/containing classification third: 2/),
     ).toBeInTheDocument();
   });
 });

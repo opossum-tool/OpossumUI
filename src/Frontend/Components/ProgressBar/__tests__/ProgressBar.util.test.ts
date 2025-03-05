@@ -3,8 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
-import { ProgressBarData } from '../../../types/types';
+import {
+  ClassificationStatistics,
+  ProgressBarData,
+} from '../../../types/types';
 import {
   getClassificationBarBackground,
   getCriticalityBarBackground,
@@ -73,11 +77,19 @@ describe('ProgressBar helpers', () => {
 
   describe('getClassificationBarBackground', () => {
     it('returns correct background color fur multiple classifications', () => {
-      const classificationStatistics: Record<number, number> = {
-        0: 5,
-        1: 3,
-        2: 4,
-        3: 1,
+      const classificationStatistics: ClassificationStatistics = {
+        0: faker.progressBar.classificationStatisticsEntry({
+          numberOfOccurrences: 5,
+        }),
+        1: faker.progressBar.classificationStatisticsEntry({
+          numberOfOccurrences: 3,
+        }),
+        2: faker.progressBar.classificationStatisticsEntry({
+          numberOfOccurrences: 4,
+        }),
+        3: faker.progressBar.classificationStatisticsEntry({
+          numberOfOccurrences: 1,
+        }),
       };
       const testProgressBarData: ProgressBarData = {
         fileCount: 30,
@@ -129,7 +141,11 @@ describe('ProgressBar helpers', () => {
         filesWithMediumCriticalExternalAttributionsCount: 1,
         resourcesWithHighlyCriticalExternalAttributions: [],
         resourcesWithMediumCriticalExternalAttributions: [],
-        classificationStatistics: { 0: 5 },
+        classificationStatistics: {
+          0: faker.progressBar.classificationStatisticsEntry({
+            numberOfOccurrences: 5,
+          }),
+        },
       };
 
       const background = getClassificationBarBackground(testProgressBarData);
