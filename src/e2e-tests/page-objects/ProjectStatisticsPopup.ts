@@ -10,12 +10,14 @@ export class ProjectStatisticsPopup {
   private readonly node: Locator;
   readonly title: Locator;
   readonly closeButton: Locator;
+  readonly detailsTab: Locator;
   readonly totalSignalCount: Locator;
 
   constructor(window: Page) {
     this.node = window.getByLabel('project statistics');
     this.title = this.node.getByRole('heading').getByText('Project Statistics');
     this.closeButton = this.node.getByRole('button', { name: 'Close' });
+    this.detailsTab = this.node.getByRole('tab', { name: 'Details' });
     this.totalSignalCount = this.node
       .getByRole('table')
       .filter({

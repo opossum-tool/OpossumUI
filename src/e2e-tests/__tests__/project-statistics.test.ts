@@ -53,6 +53,7 @@ test('hidden signals are ignored for project statistics', async ({
 }) => {
   await menuBar.openProjectStatistics();
   await projectStatisticsPopup.assert.titleIsVisible();
+  await projectStatisticsPopup.detailsTab.click();
 
   await projectStatisticsPopup.assert.totalSignalCount(2);
 
@@ -67,5 +68,7 @@ test('hidden signals are ignored for project statistics', async ({
   await signalsPanel.packageCard.assert.isHidden(packageInfo3);
 
   await menuBar.openProjectStatistics();
+  await projectStatisticsPopup.detailsTab.click();
+
   await projectStatisticsPopup.assert.totalSignalCount(1);
 });

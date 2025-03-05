@@ -3,7 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
+import MuiTab from '@mui/material/Tab';
+import MuiTabs from '@mui/material/Tabs';
 import MuiTypography from '@mui/material/Typography';
+import { useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -96,66 +99,80 @@ export const ProjectStatisticsPopup: React.FC = () => {
   const [showProjectStatistics, setShowProjectStatistics, hydrated] =
     useUserSetting({ defaultValue: true, key: 'showProjectStatistics' });
 
+  const [selectedTab, setSelectedTab] = useState(0);
+
   return (
     <NotificationPopup
       content={
         <>
-          <MuiBox style={classes.panels}>
-            <MuiBox style={classes.leftPanel}>
-              <AttributionPropertyCountTable
-                attributionPropertyCountsEntries={Object.entries(
-                  manualAttributionPropertyCounts,
-                )}
-                title={
-                  text.projectStatisticsPopup.charts
-                    .attributionPropertyCountTable
-                }
-              />
+          <MuiTabs
+            value={selectedTab}
+            onChange={(_, tab) => setSelectedTab(tab)}
+            sx={{ marginBottom: '10px' }}
+          >
+            <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
+            <MuiTab label={text.projectStatisticsPopup.tabs.details} />
+          </MuiTabs>
+          <TabPanel tabIndex={0} selectedTab={selectedTab}>
+            <MuiBox style={classes.panels}>
+              <MuiBox style={classes.leftPanel}>
+                <AttributionPropertyCountTable
+                  attributionPropertyCountsEntries={Object.entries(
+                    manualAttributionPropertyCounts,
+                  )}
+                  title={
+                    text.projectStatisticsPopup.charts
+                      .attributionPropertyCountTable
+                  }
+                />
+              </MuiBox>
+              <MuiBox style={classes.rightPanel}>
+                <MuiTypography variant="subtitle1">
+                  {isThereAnyPieChartData
+                    ? text.projectStatisticsPopup.charts.pieChartsSectionHeader
+                    : null}
+                </MuiTypography>
+                <AccordionWithPieChart
+                  data={mostFrequentLicenseCountData}
+                  title={
+                    text.projectStatisticsPopup.charts
+                      .mostFrequentLicenseCountPieChart
+                  }
+                  defaultExpanded={true}
+                />
+                <AccordionWithPieChart
+                  data={criticalSignalsCount}
+                  title={
+                    text.projectStatisticsPopup.charts
+                      .criticalSignalsCountPieChart.title
+                  }
+                  pieChartColorMap={CRITICALITY_COLORS}
+                />
+                <AccordionWithPieChart
+                  data={signalCountByClassification}
+                  title={
+                    text.projectStatisticsPopup.charts
+                      .signalCountByClassificationPieChart.title
+                  }
+                />
+                <AccordionWithPieChart
+                  data={incompleteAttributionsData}
+                  title={
+                    text.projectStatisticsPopup.charts
+                      .incompleteAttributionsPieChart
+                  }
+                />
+              </MuiBox>
             </MuiBox>
-            <MuiBox style={classes.rightPanel}>
-              <MuiTypography variant="subtitle1">
-                {isThereAnyPieChartData
-                  ? text.projectStatisticsPopup.charts.pieChartsSectionHeader
-                  : null}
-              </MuiTypography>
-              <AccordionWithPieChart
-                data={mostFrequentLicenseCountData}
-                title={
-                  text.projectStatisticsPopup.charts
-                    .mostFrequentLicenseCountPieChart
-                }
-                defaultExpanded={true}
-              />
-              <AccordionWithPieChart
-                data={criticalSignalsCount}
-                title={
-                  text.projectStatisticsPopup.charts
-                    .criticalSignalsCountPieChart.title
-                }
-                pieChartColorMap={CRITICALITY_COLORS}
-              />
-              <AccordionWithPieChart
-                data={signalCountByClassification}
-                title={
-                  text.projectStatisticsPopup.charts
-                    .signalCountByClassificationPieChart.title
-                }
-              />
-              <AccordionWithPieChart
-                data={incompleteAttributionsData}
-                title={
-                  text.projectStatisticsPopup.charts
-                    .incompleteAttributionsPieChart
-                }
-              />
-            </MuiBox>
-          </MuiBox>
-          <AttributionCountPerSourcePerLicenseTable
-            licenseCounts={licenseCounts}
-            licenseNamesWithCriticality={licenseNamesWithCriticality}
-            licenseNamesWithClassification={licenseNamesWithClassification}
-            title={text.projectStatisticsPopup.charts.licenseCountsTable}
-          />
+          </TabPanel>
+          <TabPanel tabIndex={1} selectedTab={selectedTab}>
+            <AttributionCountPerSourcePerLicenseTable
+              licenseCounts={licenseCounts}
+              licenseNamesWithCriticality={licenseNamesWithCriticality}
+              licenseNamesWithClassification={licenseNamesWithClassification}
+              title={text.projectStatisticsPopup.charts.licenseCountsTable}
+            />
+          </TabPanel>
         </>
       }
       header={text.projectStatisticsPopup.title}
@@ -177,5 +194,20 @@ export const ProjectStatisticsPopup: React.FC = () => {
         />
       }
     />
+  );
+};
+
+interface TabPanelProps extends React.PropsWithChildren {
+  tabIndex: number;
+  selectedTab: number;
+}
+
+const TabPanel: React.FC<TabPanelProps> = (props) => {
+  return (
+    <div
+      style={props.selectedTab !== props.tabIndex ? { display: 'none' } : {}}
+    >
+      {props.children}
+    </div>
   );
 };
