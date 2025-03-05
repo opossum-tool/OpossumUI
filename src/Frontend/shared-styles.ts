@@ -127,3 +127,16 @@ export const treeItemClasses = {
 };
 
 export const TRANSITION = 'all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms';
+
+export const chartTooltipContentStyle: React.CSSProperties = {
+  fontSize: '12px',
+  background: OpossumColors.grey,
+  padding: 3,
+  border: 0,
+  borderRadius: '4px',
+};
+
+export const chartTooltipTextStyle: React.CSSProperties = {
+  color: OpossumColors.white,
+  fontFamily: 'sans-serif',
+};
