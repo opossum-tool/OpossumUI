@@ -3872,16 +3872,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.9.0":
-  version: 20.17.1
-  resolution: "@types/node@npm:20.17.1"
-  dependencies:
-    undici-types: "npm:~6.19.2"
-  checksum: 10/d1f4cd7158df97167953031f7245af3203f52b5f4965c175253b96489c7c55e4c2d4c8a697bb34211bfb99b8824cfcf6287e16cabdac6184a99eedcb26fdd432
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^22.13.9":
+"@types/node@npm:^22.13.9, @types/node@npm:^22.7.7":
   version: 22.13.9
   resolution: "@types/node@npm:22.13.9"
   dependencies:
@@ -6320,16 +6311,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:34.3.0":
-  version: 34.3.0
-  resolution: "electron@npm:34.3.0"
+"electron@npm:35.0.0":
+  version: 35.0.0
+  resolution: "electron@npm:35.0.0"
   dependencies:
     "@electron/get": "npm:^2.0.0"
-    "@types/node": "npm:^20.9.0"
+    "@types/node": "npm:^22.7.7"
     extract-zip: "npm:^2.0.1"
   bin:
     electron: cli.js
-  checksum: 10/82a7cf87406573c68a86bf9b9291edaefbca4c9c86230ac8e71009cbe01ac63bc3e6f4e67095a3a73771f6a3c26600d7418124ac3bbaf9104b0bb801c92d6711
+  checksum: 10/dc0b19ea5df5de17aaeb3fc522044d47f627afec9778d913c24e9cea9d98d8d8889ff39759861407b98a210163967af32abfad19bee2462276d2256da3bd54c8
   languageName: node
   linkType: hard
 
@@ -10334,7 +10325,7 @@ __metadata:
     dayjs: "npm:^1.11.13"
     dotenv: "npm:^16.4.7"
     dpdm: "npm:^3.14.0"
-    electron: "npm:34.3.0"
+    electron: "npm:35.0.0"
     electron-builder: "npm:^25.1.8"
     electron-log: "npm:^5.3.1"
     electron-playwright-helpers: "npm:^1.7.1"
@@ -12738,13 +12729,6 @@ __metadata:
     has-symbols: "npm:^1.1.0"
     which-boxed-primitive: "npm:^1.1.1"
   checksum: 10/fadb347020f66b2c8aeacf8b9a79826fa34cc5e5457af4eb0bbc4e79bd87fed0fa795949825df534320f7c13f199259516ad30abc55a6e7b91d8d996ca069e50
-  languageName: node
-  linkType: hard
-
-"undici-types@npm:~6.19.2":
-  version: 6.19.8
-  resolution: "undici-types@npm:6.19.8"
-  checksum: 10/cf0b48ed4fc99baf56584afa91aaffa5010c268b8842f62e02f752df209e3dea138b372a60a963b3b2576ed932f32329ce7ddb9cb5f27a6c83040d8cd74b7a70
   languageName: node
   linkType: hard
 
