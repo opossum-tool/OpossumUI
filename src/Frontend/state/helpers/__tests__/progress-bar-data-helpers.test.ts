@@ -489,10 +489,12 @@ describe('The getUpdatedProgressBarData function', () => {
       const testPackageInfoWithClassification: PackageInfo = {
         classification: 1,
         id: 'someId',
+        criticality: Criticality.None,
       };
       const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
         classification: 14,
         id: 'anotherId',
+        criticality: Criticality.None,
       };
 
       const externalAttributions = {
@@ -547,10 +549,12 @@ describe('The getUpdatedProgressBarData function', () => {
       const testPackageInfoWithClassification: PackageInfo = {
         classification: 1,
         id: 'someId',
+        criticality: Criticality.None,
       };
       const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
         classification: 22,
         id: 'anotherId',
+        criticality: Criticality.None,
       };
 
       const externalAttributions = {
