@@ -103,6 +103,34 @@ describe('ProgressBar helpers', () => {
       expect(background).toEqual(expectedBackground);
     });
 
+    it('is independent of the ordering of the classification statistics', () => {
+      const classificationStatistics: ClassificationStatistics = {
+        11: faker.progressBar.classificationStatisticsEntry({}, 1),
+        1: faker.progressBar.classificationStatisticsEntry({}, 3),
+        2: faker.progressBar.classificationStatisticsEntry({}, 4),
+        0: faker.progressBar.classificationStatisticsEntry({}, 5),
+      };
+
+      const testProgressBarData: ProgressBarData = {
+        fileCount: 30,
+        filesWithManualAttributionCount: 3,
+        filesWithOnlyPreSelectedAttributionCount: 3,
+        filesWithOnlyExternalAttributionCount: 20,
+        resourcesWithNonInheritedExternalAttributionOnly: [],
+        filesWithHighlyCriticalExternalAttributionsCount: 1,
+        filesWithMediumCriticalExternalAttributionsCount: 1,
+        resourcesWithHighlyCriticalExternalAttributions: [],
+        resourcesWithMediumCriticalExternalAttributions: [],
+        classificationStatistics,
+      };
+
+      const background = getClassificationBarBackground(testProgressBarData);
+
+      const expectedBackground =
+        'linear-gradient(to right,hsl(0 100 45) 5%  , hsl(49 100 45) 5% 25%  , hsl(97 100 45) 25% 40%  , hsl(146 100 45) 40% 65%  , hsl(220, 41%, 92%) 65% 100%  )';
+      expect(background).toEqual(expectedBackground);
+    });
+
     it('returns constant background color for zero files affected', () => {
       const testProgressBarData: ProgressBarData = {
         fileCount: 30,
