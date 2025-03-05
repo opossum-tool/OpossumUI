@@ -9,7 +9,7 @@ import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiTypography from '@mui/material/Typography';
 
 import { OpossumColors } from '../../shared-styles';
-import { PieChartData } from '../../types/types';
+import { ChartDataItem } from '../../types/types';
 import { PieChart } from '../PieChart/PieChart';
 
 const classes = {
@@ -30,14 +30,14 @@ const classes = {
 };
 
 interface AccordionProps {
-  data: Array<PieChartData>;
+  data: Array<ChartDataItem>;
   title: string;
   defaultExpanded?: boolean;
   pieChartColorMap?: { [segmentName: string]: string };
 }
 
 export function getColorsForPieChart(
-  pieChartData: Array<PieChartData>,
+  pieChartData: Array<ChartDataItem>,
   pieChartColorMap?: { [segmentName: string]: string },
 ): Array<string> | undefined {
   if (pieChartColorMap === undefined) {

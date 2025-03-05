@@ -172,8 +172,16 @@ export const text = {
     toggleStartupCheckbox: 'Show project statistics on startup',
     criticalLicensesSignalCountColumnName: 'Signals Count',
     charts: {
+      countTooltipName: 'Count',
       licenseCountsTable: 'Signals per Sources',
-      attributionPropertyCountTable: 'Attributions Overview',
+      attributionProperties: {
+        title: 'Attributions Overview',
+        needsReview: 'Needs Review',
+        followUp: 'Follow Up',
+        firstParty: 'First Party',
+        incomplete: 'Incomplete Attributions',
+        total: 'Total Attributions',
+      },
       pieChartsSectionHeader: 'Pie Charts',
       mostFrequentLicenseCountPieChart: 'Most Frequent Licenses',
       criticalSignalsCountPieChart: {
