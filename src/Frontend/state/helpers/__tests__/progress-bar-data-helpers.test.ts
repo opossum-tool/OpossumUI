@@ -445,6 +445,142 @@ describe('The getUpdatedProgressBarData function', () => {
       progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual([]);
   });
+
+  describe('classification handling', () => {
+    it('returns configured classifications if no classifications in attributions', () => {
+      const testResources: Resources = {
+        folder: {
+          'somefile.ts': 1,
+        },
+      };
+      const progressBarData = getUpdatedProgressBarData({
+        resources: testResources,
+        manualAttributions: {},
+        externalAttributions: {},
+        resourcesToManualAttributions: {},
+        resourcesToExternalAttributions: {},
+        resolvedExternalAttributions: new Set<string>(),
+        attributionBreakpoints: new Set<string>(),
+        filesWithChildren: new Set<string>(),
+        classifications: {
+          0: 'foo',
+          1: 'bar',
+          14: 'something else',
+        },
+      });
+
+      expect(progressBarData.classificationStatistics).toEqual({
+        0: 0,
+        1: 0,
+        14: 0,
+      });
+    });
+
+    it('returns correct classification counts', () => {
+      const testResources: Resources = {
+        folder: {
+          'somefile.ts': 1,
+          package: {
+            'anotherFile.js': 1,
+            'thirdFile.js': 1,
+          },
+        },
+      };
+      const testPackageInfoWithClassification: PackageInfo = {
+        classification: 1,
+        id: 'someId',
+      };
+      const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
+        classification: 14,
+        id: 'anotherId',
+      };
+
+      const externalAttributions = {
+        id1: testPackageInfoWithClassification,
+        id2: secondTestTemporaryDisplayPackageInfo,
+      };
+
+      const resourcesToExternalAttributions = {
+        '/folder/somefile.ts': ['id1'],
+        '/folder/package/': ['id2'],
+      };
+
+      const progressBarData = getUpdatedProgressBarData({
+        resources: testResources,
+        manualAttributions: {},
+        externalAttributions,
+        resourcesToManualAttributions: {},
+        resourcesToExternalAttributions,
+        resolvedExternalAttributions: new Set<string>(),
+        attributionBreakpoints: new Set<string>(),
+        filesWithChildren: new Set<string>(),
+        classifications: {
+          0: 'foo',
+          1: 'bar',
+          14: 'something else',
+        },
+      });
+
+      expect(progressBarData.classificationStatistics).toEqual({
+        0: 0,
+        1: 1,
+        14: 2,
+      });
+    });
+
+    it('handles non-configured classifications', () => {
+      const testResources: Resources = {
+        folder: {
+          'somefile.ts': 1,
+          package: {
+            'anotherFile.js': 1,
+            'thirdFile.js': 1,
+          },
+        },
+      };
+      const testPackageInfoWithClassification: PackageInfo = {
+        classification: 1,
+        id: 'someId',
+      };
+      const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
+        classification: 22,
+        id: 'anotherId',
+      };
+
+      const externalAttributions = {
+        id1: testPackageInfoWithClassification,
+        id2: secondTestTemporaryDisplayPackageInfo,
+      };
+
+      const resourcesToExternalAttributions = {
+        '/folder/somefile.ts': ['id1'],
+        '/folder/package/': ['id2'],
+      };
+
+      const progressBarData = getUpdatedProgressBarData({
+        resources: testResources,
+        manualAttributions: {},
+        externalAttributions,
+        resourcesToManualAttributions: {},
+        resourcesToExternalAttributions,
+        resolvedExternalAttributions: new Set<string>(),
+        attributionBreakpoints: new Set<string>(),
+        filesWithChildren: new Set<string>(),
+        classifications: {
+          0: 'foo',
+          1: 'bar',
+          14: 'something else',
+        },
+      });
+
+      expect(progressBarData.classificationStatistics).toEqual({
+        0: 0,
+        1: 1,
+        14: 0,
+        22: 2,
+      });
+    });
+  });
 });
 
 describe('The resourceHasOnlyPreSelectedAttributions function', () => {

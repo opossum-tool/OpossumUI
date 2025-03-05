@@ -31,6 +31,17 @@ export function filterResourcesToAttributions(
   );
 }
 
+function updateClassificationStatistics(
+  progressBarData: ProgressBarData,
+  highestClassification: number,
+) {
+  if (progressBarData.classificationStatistics[highestClassification]) {
+    progressBarData.classificationStatistics[highestClassification]++;
+  } else {
+    progressBarData.classificationStatistics[highestClassification] = 1;
+  }
+}
+
 function updateProgressBarDataForResources(
   progressBarData: ProgressBarData,
   resources: Resources,
@@ -118,7 +129,10 @@ function updateProgressBarDataForResources(
           );
         }
         if (highestClassification) {
-          progressBarData.classificationStatistics[highestClassification]++;
+          updateClassificationStatistics(
+            progressBarData,
+            highestClassification,
+          );
         }
       } else if (hasParentExternalAttribution) {
         progressBarData.filesWithOnlyExternalAttributionCount++;
@@ -128,7 +142,10 @@ function updateProgressBarDataForResources(
           progressBarData.filesWithMediumCriticalExternalAttributionsCount++;
         }
         if (highestClassification) {
-          progressBarData.classificationStatistics[highestClassification]++;
+          updateClassificationStatistics(
+            progressBarData,
+            highestClassification,
+          );
         }
       }
     }
