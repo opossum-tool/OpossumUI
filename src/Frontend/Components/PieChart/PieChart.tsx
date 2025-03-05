@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 
 import { OpossumColors } from '../../shared-styles';
-import { PieChartData } from '../../types/types';
+import { ChartDataItem } from '../../types/types';
 
 const defaultPieChartColors = [
   OpossumColors.darkBlue,
@@ -25,7 +25,7 @@ const defaultPieChartColors = [
 ];
 
 interface PieChartProps {
-  segments: Array<PieChartData>;
+  segments: Array<ChartDataItem>;
   colors?: Array<string>;
 }
 
