@@ -90,6 +90,25 @@ export function getCriticalityBarTooltipText(
   );
 }
 
+export function getClassificationBarTooltipText(
+  progressBarData: ProgressBarData,
+): React.ReactNode {
+  return (
+    <MuiBox>
+      Number of resources with signals and no attributions…
+      {Object.entries(progressBarData.classificationStatistics).map(
+        ([_, classificationStatisticsEntry]) => (
+          <div key={classificationStatisticsEntry.description}>
+            ...containing classification{' '}
+            {classificationStatisticsEntry.description}:{' '}
+            {classificationStatisticsEntry.correspondingFiles.length}
+          </div>
+        ),
+      )}
+    </MuiBox>
+  );
+}
+
 export function getProgressBarBackground(
   progressBarData: ProgressBarData,
 ): string {
@@ -177,6 +196,87 @@ export function getCriticalityBarBackground(
     ` ${criticalityColor[Criticality.Medium]} ${filesWithHighlyCriticalExternalAttributions}% ${filesWithHighOrMediumCriticalExternalAttributions}%,` +
     ` ${OpossumColors.lightestBlue} ${filesWithHighOrMediumCriticalExternalAttributions}%)`
   );
+}
+
+type Color = string;
+interface ProgressBarStep {
+  widthInPercent: number;
+  color: Color;
+}
+
+function interpolateFromRedToGreen(
+  numberOfClassifications: number,
+  index: number,
+) {
+  const hueRed = 0;
+  const hueGreen = 146;
+  const normalization =
+    numberOfClassifications > 1 ? numberOfClassifications - 1 : 1;
+  const hue = ((hueGreen - hueRed) * index) / normalization;
+  return `hsl(${hue.toFixed(0)} 100 45)`;
+}
+
+function calculateProgressBarSteps(
+  progressBarData: ProgressBarData,
+): Array<ProgressBarStep> {
+  const classificationStatistics = progressBarData.classificationStatistics;
+  let percentages = Object.values(classificationStatistics)
+    .map(
+      (statisticsEntry) =>
+        (statisticsEntry.correspondingFiles.length * 100) /
+        progressBarData.filesWithOnlyExternalAttributionCount,
+    )
+    .reverse();
+  //add files without classifications
+  const totalPercentage = sum(percentages);
+  percentages.push(100 - totalPercentage);
+  percentages = roundToAtLeastOnePercentAndNormalize(percentages);
+
+  const numberOfClassifications = Object.keys(classificationStatistics).length;
+  const progressBarSteps = percentages.map((percentage, index) => {
+    return {
+      widthInPercent: percentage,
+      color: interpolateFromRedToGreen(numberOfClassifications, index),
+    };
+  });
+  //files without classifications do have a dedicated color
+  progressBarSteps[progressBarSteps.length - 1].color =
+    OpossumColors.lightestBlue;
+  return progressBarSteps;
+}
+
+function createBackgroundFromProgressBarSteps(
+  progressBarSteps: Array<ProgressBarStep>,
+) {
+  let backgroundColor = 'linear-gradient(to right,';
+  let currentPercentage = 0;
+  let first = true;
+  for (const progressBarStep of progressBarSteps) {
+    if (!first) {
+      backgroundColor += ' , ';
+    }
+    backgroundColor += `${progressBarStep.color} `;
+    if (!first) {
+      backgroundColor += `${currentPercentage}% `;
+    } else {
+      first = false;
+    }
+    currentPercentage += progressBarStep.widthInPercent;
+    backgroundColor += `${currentPercentage}% `;
+  }
+
+  backgroundColor += ' )';
+  return backgroundColor;
+}
+
+export function getClassificationBarBackground(
+  progressBarData: ProgressBarData,
+) {
+  if (progressBarData.filesWithOnlyExternalAttributionCount === 0) {
+    return `${OpossumColors.pastelDarkGreen}`;
+  }
+  const progressBarSteps = calculateProgressBarSteps(progressBarData);
+  return createBackgroundFromProgressBarSteps(progressBarSteps);
 }
 
 // We want to round everything > 0 to at least one percent so all possible segments of

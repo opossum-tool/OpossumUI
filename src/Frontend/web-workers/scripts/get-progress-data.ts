@@ -2,7 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AttributionData, Resources } from '../../../shared/shared-types';
+import {
+  AttributionData,
+  Classifications,
+  Resources,
+} from '../../../shared/shared-types';
 import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
 import { ProgressBarData } from '../../types/types';
 
@@ -13,6 +17,7 @@ interface Props {
   manualData: AttributionData;
   resolvedExternalAttributions: Set<string>;
   resources: Resources;
+  classifications: Classifications;
 }
 
 export function getProgressData({
@@ -22,6 +27,7 @@ export function getProgressData({
   manualData,
   resolvedExternalAttributions,
   resources,
+  classifications,
 }: Props): ProgressBarData {
   return getUpdatedProgressBarData({
     resources,
@@ -32,5 +38,6 @@ export function getProgressData({
     resolvedExternalAttributions,
     attributionBreakpoints,
     filesWithChildren,
+    classifications,
   });
 }

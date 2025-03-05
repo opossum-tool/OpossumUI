@@ -111,6 +111,7 @@ describe('The getUpdatedProgressBarData function', () => {
       resolvedExternalAttributions: new Set<string>(),
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: new Set<string>(),
+      classifications: {},
     });
     const expectedNumberOfFiles = 5;
     const expectedNumberOfFilesWithOnlyExternalAttribution = 3;
@@ -232,6 +233,7 @@ describe('The getUpdatedProgressBarData function', () => {
       resolvedExternalAttributions: testResolvedExternalAttributions,
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: new Set<string>(),
+      classifications: {},
     });
     const expectedNumberOfFiles = 4;
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
@@ -358,6 +360,7 @@ describe('The getUpdatedProgressBarData function', () => {
       resolvedExternalAttributions: testResolvedExternalAttributions,
       attributionBreakpoints: testAttributionBreakpoints,
       filesWithChildren: new Set<string>(),
+      classifications: {},
     });
     const expectedNumberOfFiles = 12;
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
@@ -431,6 +434,7 @@ describe('The getUpdatedProgressBarData function', () => {
       resolvedExternalAttributions: testResolvedExternalAttributions,
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: testFilesWithChildren,
+      classifications: {},
     });
     const expectedNumberOfFiles = 3;
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
@@ -440,6 +444,158 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(
       progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual([]);
+  });
+
+  describe('classification handling', () => {
+    it('returns configured classifications if no classifications in attributions', () => {
+      const testResources: Resources = {
+        folder: {
+          'somefile.ts': 1,
+        },
+      };
+      const progressBarData = getUpdatedProgressBarData({
+        resources: testResources,
+        manualAttributions: {},
+        externalAttributions: {},
+        resourcesToManualAttributions: {},
+        resourcesToExternalAttributions: {},
+        resolvedExternalAttributions: new Set<string>(),
+        attributionBreakpoints: new Set<string>(),
+        filesWithChildren: new Set<string>(),
+        classifications: {
+          0: 'foo',
+          1: 'bar',
+          14: 'something else',
+        },
+      });
+
+      expect(progressBarData.classificationStatistics).toEqual({
+        0: { description: 'foo', correspondingFiles: [] },
+        1: { description: 'bar', correspondingFiles: [] },
+        14: { description: 'something else', correspondingFiles: [] },
+      });
+    });
+
+    it('returns correct classification counts', () => {
+      const testResources: Resources = {
+        folder: {
+          'somefile.ts': 1,
+          package: {
+            'anotherFile.js': 1,
+            'thirdFile.js': 1,
+          },
+        },
+      };
+      const testPackageInfoWithClassification: PackageInfo = {
+        classification: 1,
+        id: 'someId',
+        criticality: Criticality.None,
+      };
+      const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
+        classification: 14,
+        id: 'anotherId',
+        criticality: Criticality.None,
+      };
+
+      const externalAttributions = {
+        id1: testPackageInfoWithClassification,
+        id2: secondTestTemporaryDisplayPackageInfo,
+      };
+
+      const resourcesToExternalAttributions = {
+        '/folder/somefile.ts': ['id1'],
+        '/folder/package/': ['id2'],
+      };
+
+      const progressBarData = getUpdatedProgressBarData({
+        resources: testResources,
+        manualAttributions: {},
+        externalAttributions,
+        resourcesToManualAttributions: {},
+        resourcesToExternalAttributions,
+        resolvedExternalAttributions: new Set<string>(),
+        attributionBreakpoints: new Set<string>(),
+        filesWithChildren: new Set<string>(),
+        classifications: {
+          0: 'foo',
+          1: 'bar',
+          14: 'something else',
+        },
+      });
+
+      expect(progressBarData.classificationStatistics).toEqual({
+        0: { description: 'foo', correspondingFiles: [] },
+        1: { description: 'bar', correspondingFiles: ['/folder/somefile.ts'] },
+        14: {
+          description: 'something else',
+          correspondingFiles: [
+            '/folder/package/anotherFile.js',
+            '/folder/package/thirdFile.js',
+          ],
+        },
+      });
+    });
+
+    it('handles non-configured classifications', () => {
+      const testResources: Resources = {
+        folder: {
+          'somefile.ts': 1,
+          package: {
+            'anotherFile.js': 1,
+            'thirdFile.js': 1,
+          },
+        },
+      };
+      const testPackageInfoWithClassification: PackageInfo = {
+        classification: 1,
+        id: 'someId',
+        criticality: Criticality.None,
+      };
+      const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
+        classification: 22,
+        id: 'anotherId',
+        criticality: Criticality.None,
+      };
+
+      const externalAttributions = {
+        id1: testPackageInfoWithClassification,
+        id2: secondTestTemporaryDisplayPackageInfo,
+      };
+
+      const resourcesToExternalAttributions = {
+        '/folder/somefile.ts': ['id1'],
+        '/folder/package/': ['id2'],
+      };
+
+      const progressBarData = getUpdatedProgressBarData({
+        resources: testResources,
+        manualAttributions: {},
+        externalAttributions,
+        resourcesToManualAttributions: {},
+        resourcesToExternalAttributions,
+        resolvedExternalAttributions: new Set<string>(),
+        attributionBreakpoints: new Set<string>(),
+        filesWithChildren: new Set<string>(),
+        classifications: {
+          0: 'foo',
+          1: 'bar',
+          14: 'something else',
+        },
+      });
+
+      expect(progressBarData.classificationStatistics).toEqual({
+        0: { description: 'foo', correspondingFiles: [] },
+        1: { description: 'bar', correspondingFiles: ['/folder/somefile.ts'] },
+        14: { description: 'something else', correspondingFiles: [] },
+        22: {
+          description: '22',
+          correspondingFiles: [
+            '/folder/package/anotherFile.js',
+            '/folder/package/thirdFile.js',
+          ],
+        },
+      });
+    });
   });
 });
 

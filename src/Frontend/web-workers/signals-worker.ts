@@ -5,6 +5,7 @@
 import {
   AttributionData,
   Attributions,
+  Classifications,
   Resources,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
@@ -84,6 +85,7 @@ interface State {
   signalSearch?: string;
   signalSelectedLicense?: string;
   signalSorting?: Sorting;
+  classifications?: Classifications;
 }
 
 export type SignalsWorkerInput = Unionize<State>;
@@ -131,6 +133,7 @@ export class SignalsWorker {
         'manualData',
         'resolvedExternalAttributions',
         'resources',
+        'classifications',
       ],
       loading: undefined,
     },
@@ -217,6 +220,7 @@ export class SignalsWorker {
           manualData: this.state.manualData,
           resolvedExternalAttributions: this.state.resolvedExternalAttributions,
           resources: this.state.resources,
+          classifications: this.state.classifications,
         }),
       });
     }
