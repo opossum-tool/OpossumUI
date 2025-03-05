@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { SxProps } from '@mui/system';
 import {
   Bar as RcBar,
   BarChart as RcBarChart,
@@ -14,25 +13,12 @@ import {
 } from 'recharts';
 
 import { text } from '../../../shared/text';
-import { OpossumColors } from '../../shared-styles';
+import {
+  chartTooltipContentStyle,
+  chartTooltipTextStyle,
+  OpossumColors,
+} from '../../shared-styles';
 import { ChartDataItem } from '../../types/types';
-
-const rootStyle = {
-  maxWidth: '500px',
-} satisfies SxProps;
-
-const tooltipContentStyle = {
-  fontSize: '12px',
-  background: OpossumColors.grey,
-  padding: 3,
-  border: 0,
-  borderRadius: '4px',
-} satisfies React.CSSProperties;
-
-const tooltipTextStyle = {
-  color: OpossumColors.white,
-  fontFamily: 'sans-serif',
-} satisfies React.CSSProperties;
 
 const tickStyle = {
   fontFamily: 'sans-serif',
@@ -45,7 +31,7 @@ interface BarChartProps {
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
   return (
-    <MuiBox sx={rootStyle}>
+    <MuiBox sx={{ maxWidth: '500px' }}>
       <RcResponsiveContainer minWidth={300} maxHeight={200} aspect={2}>
         <RcBarChart
           layout={'vertical'}
@@ -55,9 +41,9 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           <RcXAxis type={'number'} tick={tickStyle} />
           <RcYAxis dataKey={'name'} type={'category'} tick={tickStyle} />
           <RcTooltip
-            contentStyle={tooltipContentStyle}
-            itemStyle={tooltipTextStyle}
-            labelStyle={tooltipTextStyle}
+            contentStyle={chartTooltipContentStyle}
+            itemStyle={chartTooltipTextStyle}
+            labelStyle={chartTooltipTextStyle}
           />
           <RcBar
             name={text.projectStatisticsPopup.charts.countTooltipName}
