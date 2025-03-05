@@ -228,24 +228,27 @@ describe('ProgressBar', () => {
           resourcesWithMediumCriticalExternalAttributions: [],
           resourcesWithNonInheritedExternalAttributionOnly: [],
           resourcesWithHighlyCriticalExternalAttributions: [],
-          classificationStatistics: {},
+          classificationStatistics: {
+            0: 4,
+            1: 3,
+            2: 2,
+          },
         }}
       />,
     );
     await hoverOverClassificationProgressBar();
 
-    //ToDo: Change texts
     expect(
       screen.getByText(/Number of resources with signals and no attributions/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/containing highly critical signals: 1/),
+      screen.getByText(/containing classification 0: 4/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/containing medium critical signals: 1/),
+      screen.getByText(/containing classification 1: 3/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/containing only non-critical signals: 1/),
+      screen.getByText(/containing classification 2: 2/),
     ).toBeInTheDocument();
   });
 });

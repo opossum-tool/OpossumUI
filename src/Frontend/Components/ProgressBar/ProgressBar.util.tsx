@@ -90,6 +90,23 @@ export function getCriticalityBarTooltipText(
   );
 }
 
+export function getClassificationBarTooltipText(
+  progressBarData: ProgressBarData,
+): React.ReactNode {
+  return (
+    <MuiBox>
+      Number of resources with signals and no attributions…
+      {Object.entries(progressBarData.classificationStatistics).map(
+        ([classification, count]) => (
+          <div key={classification}>
+            ...containing classification {classification}: {count}
+          </div>
+        ),
+      )}
+    </MuiBox>
+  );
+}
+
 export function getProgressBarBackground(
   progressBarData: ProgressBarData,
 ): string {
