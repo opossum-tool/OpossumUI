@@ -6,10 +6,13 @@ import MuiTableCell from '@mui/material/TableCell';
 import MuiTableHead from '@mui/material/TableHead';
 import MuiTableRow from '@mui/material/TableRow';
 import { SxProps } from '@mui/system';
-import { upperFirst } from 'lodash';
 
-import { text } from '../../../../shared/text';
 import { tableClasses } from '../../../shared-styles';
+import { TableCellWithSorting } from '../../TableCellWithSorting/TableCellWithSorting';
+import {
+  ColumnConfig,
+  TableOrdering,
+} from '../AttributionCountPerSourcePerLicenseTable.util';
 
 const classes = {
   headerCellWithVerticalSeparator: {
@@ -21,62 +24,63 @@ const classes = {
 } satisfies SxProps;
 
 interface AttributionCountPerSourcePerLicenseTableHeadProps {
-  sourceNames: Array<string>;
+  columnConfig: ColumnConfig;
+  tableOrdering: TableOrdering;
+  onRequestSort: (columnId: string) => void;
 }
 
 export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
   AttributionCountPerSourcePerLicenseTableHeadProps
 > = (props) => {
-  const componentText = text.attributionCountPerSourcePerLicenseTable;
-
-  const headerRow = [
-    componentText.columns.licenseName,
-    componentText.columns.criticality.title,
-    componentText.columns.classification,
-    ...props.sourceNames.map(upperFirst),
-    componentText.columns.totalSources,
-  ];
-
   return (
     <MuiTableHead sx={{ position: 'sticky', top: 0 }}>
       <MuiTableRow>
-        <MuiTableCell
-          sx={{
-            ...tableClasses.head,
-            ...classes.headerCellWithVerticalSeparator,
-            ...classes.headerCellWithHorizontalSeparator,
-          }}
-          align={'center'}
-          colSpan={3}
-        >
-          {componentText.columns.licenseInfo}
-        </MuiTableCell>
-        <MuiTableCell
-          sx={{
-            ...tableClasses.head,
-            ...classes.headerCellWithHorizontalSeparator,
-          }}
-          align={'center'}
-          colSpan={props.sourceNames.length + 1}
-        >
-          {componentText.columns.signalCountPerSource}
-        </MuiTableCell>
+        {props.columnConfig.groups.map((columnGroup, idx) => {
+          return (
+            <MuiTableCell
+              sx={{
+                ...tableClasses.head,
+                ...(idx !== props.columnConfig.groups.length - 1
+                  ? classes.headerCellWithVerticalSeparator
+                  : {}),
+                ...classes.headerCellWithHorizontalSeparator,
+              }}
+              align={'center'}
+              colSpan={columnGroup.columns.length}
+              key={idx}
+            >
+              {columnGroup.groupName}
+            </MuiTableCell>
+          );
+        })}
       </MuiTableRow>
       <MuiTableRow>
-        {headerRow.map((columnHeader, columnIndex) => (
-          <MuiTableCell
-            sx={{
-              ...tableClasses.head,
-              ...(columnIndex === 2
-                ? classes.headerCellWithVerticalSeparator
-                : {}),
-            }}
-            key={columnIndex}
-            align={columnIndex === 0 ? 'left' : 'center'}
-          >
-            {columnHeader}
-          </MuiTableCell>
-        ))}
+        {props.columnConfig.groups.flatMap((columnGroup, groupIdx) =>
+          columnGroup.columns.map((column, columnIdx) => {
+            return (
+              <TableCellWithSorting
+                sx={{
+                  ...tableClasses.head,
+                  ...(columnIdx === columnGroup.columns.length - 1 &&
+                  groupIdx !== props.columnConfig.groups.length - 1
+                    ? classes.headerCellWithVerticalSeparator
+                    : {}),
+                }}
+                key={column.columnName}
+                tableCellProps={{
+                  align: column.align,
+                }}
+                order={props.tableOrdering.orderDirection}
+                isSortedColumn={
+                  props.tableOrdering.orderedColumn === column.columnId
+                }
+                onRequestSort={() => props.onRequestSort(column.columnId)}
+              >
+                {column.columnName}
+              </TableCellWithSorting>
+            );
+          }),
+        )}
       </MuiTableRow>
     </MuiTableHead>
   );

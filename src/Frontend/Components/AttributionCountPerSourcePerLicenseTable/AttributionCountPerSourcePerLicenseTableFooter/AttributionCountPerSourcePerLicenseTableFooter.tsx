@@ -9,9 +9,14 @@ import { sum } from 'lodash';
 
 import { text } from '../../../../shared/text';
 import { tableClasses } from '../../../shared-styles';
+import {
+  Column,
+  ColumnConfig,
+  SingleColumn,
+} from '../AttributionCountPerSourcePerLicenseTable.util';
 
 interface AttributionCountPerSourcePerLicenseTableFooterProps {
-  sourceNames: Array<string>;
+  columnConfig: ColumnConfig;
   totalAttributionsPerSource: { [sourceName: string]: number };
 }
 
@@ -21,24 +26,41 @@ export const AttributionCountPerSourcePerLicenseTableFooter: React.FC<
   return (
     <MuiTableFooter>
       <MuiTableRow>
-        <MuiTableCell sx={tableClasses.footer} align={'left'}>
-          {text.attributionCountPerSourcePerLicenseTable.footerTitle}
-        </MuiTableCell>
-        <MuiTableCell sx={tableClasses.footer} />
-        <MuiTableCell sx={tableClasses.footer} />
-        {props.sourceNames.map((sourceName, sourceIdx) => (
-          <MuiTableCell
-            sx={tableClasses.footer}
-            key={sourceIdx}
-            align={'center'}
-          >
-            {props.totalAttributionsPerSource[sourceName]}
-          </MuiTableCell>
-        ))}
-        <MuiTableCell sx={tableClasses.footer} align={'center'}>
-          {sum(Object.values(props.totalAttributionsPerSource))}
-        </MuiTableCell>
+        {props.columnConfig.getColumns().map((column, columnIdx) => {
+          return (
+            <MuiTableCell
+              sx={tableClasses.footer}
+              key={columnIdx}
+              align={column.align}
+            >
+              <FooterCellContent
+                column={column}
+                totalAttributionsPerSource={props.totalAttributionsPerSource}
+              />
+            </MuiTableCell>
+          );
+        })}
       </MuiTableRow>
     </MuiTableFooter>
   );
+};
+
+interface FooterCellContentProps {
+  column: Column;
+  totalAttributionsPerSource: { [sourceName: string]: number };
+}
+
+const FooterCellContent: React.FC<FooterCellContentProps> = (props) => {
+  if (props.column.columnType === SingleColumn.NAME) {
+    return text.attributionCountPerSourcePerLicenseTable.footerTitle;
+  } else if (
+    props.column.columnType === SingleColumn.CRITICALITY ||
+    props.column.columnType === SingleColumn.CLASSIFICATION
+  ) {
+    return null;
+  } else if (props.column.columnType === SingleColumn.TOTAL) {
+    return sum(Object.values(props.totalAttributionsPerSource));
+  }
+
+  return props.totalAttributionsPerSource[props.column.columnType.sourceName];
 };
