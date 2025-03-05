@@ -34,14 +34,16 @@ export function filterResourcesToAttributions(
 function updateClassificationStatistics(
   progressBarData: ProgressBarData,
   highestClassification: number,
+  path: string,
 ) {
   if (progressBarData.classificationStatistics[highestClassification]) {
-    progressBarData.classificationStatistics[highestClassification]
-      .numberOfOccurrences++;
+    progressBarData.classificationStatistics[
+      highestClassification
+    ].correspondingFiles.push(path);
   } else {
     progressBarData.classificationStatistics[highestClassification] = {
       description: highestClassification.toFixed(0),
-      numberOfOccurrences: 1,
+      correspondingFiles: [path],
     };
   }
 }
@@ -136,6 +138,7 @@ function updateProgressBarDataForResources(
           updateClassificationStatistics(
             progressBarData,
             highestClassification,
+            path,
           );
         }
       } else if (hasParentExternalAttribution) {
@@ -149,6 +152,7 @@ function updateProgressBarDataForResources(
           updateClassificationStatistics(
             progressBarData,
             highestClassification,
+            path,
           );
         }
       }
@@ -291,7 +295,7 @@ export function getEmptyProgressBarData(
       ([classificationNumber, description]) => {
         classificationStatistics[classificationNumber as unknown as number] = {
           description,
-          numberOfOccurrences: 0,
+          correspondingFiles: [],
         };
       },
     );

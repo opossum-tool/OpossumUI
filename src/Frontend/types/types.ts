@@ -22,7 +22,7 @@ export type SelectedProgressBar =
 
 export interface ClassificationStatisticsEntry {
   description: string;
-  numberOfOccurrences: number;
+  correspondingFiles: Array<string>;
 }
 
 export type ClassificationStatistics = Record<

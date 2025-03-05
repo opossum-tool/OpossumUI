@@ -229,9 +229,12 @@ describe('ProgressBar', () => {
           resourcesWithNonInheritedExternalAttributionOnly: [],
           resourcesWithHighlyCriticalExternalAttributions: [],
           classificationStatistics: {
-            0: { description: 'first', numberOfOccurrences: 4 },
-            1: { description: 'second', numberOfOccurrences: 3 },
-            2: { description: 'third', numberOfOccurrences: 2 },
+            0: {
+              description: 'first',
+              correspondingFiles: ['a', 'b', 'c', 'd'],
+            },
+            1: { description: 'second', correspondingFiles: ['a', 'b', 'c'] },
+            2: { description: 'third', correspondingFiles: ['a', 'b'] },
           },
         }}
       />,

@@ -78,18 +78,10 @@ describe('ProgressBar helpers', () => {
   describe('getClassificationBarBackground', () => {
     it('returns correct background color fur multiple classifications', () => {
       const classificationStatistics: ClassificationStatistics = {
-        0: faker.progressBar.classificationStatisticsEntry({
-          numberOfOccurrences: 5,
-        }),
-        1: faker.progressBar.classificationStatisticsEntry({
-          numberOfOccurrences: 3,
-        }),
-        2: faker.progressBar.classificationStatisticsEntry({
-          numberOfOccurrences: 4,
-        }),
-        3: faker.progressBar.classificationStatisticsEntry({
-          numberOfOccurrences: 1,
-        }),
+        0: faker.progressBar.classificationStatisticsEntry({}, 5),
+        1: faker.progressBar.classificationStatisticsEntry({}, 3),
+        2: faker.progressBar.classificationStatisticsEntry({}, 4),
+        3: faker.progressBar.classificationStatisticsEntry({}, 1),
       };
       const testProgressBarData: ProgressBarData = {
         fileCount: 30,
@@ -142,9 +134,7 @@ describe('ProgressBar helpers', () => {
         resourcesWithHighlyCriticalExternalAttributions: [],
         resourcesWithMediumCriticalExternalAttributions: [],
         classificationStatistics: {
-          0: faker.progressBar.classificationStatisticsEntry({
-            numberOfOccurrences: 5,
-          }),
+          0: faker.progressBar.classificationStatisticsEntry({}, 5),
         },
       };
 

@@ -101,7 +101,7 @@ export function getClassificationBarTooltipText(
           <div key={classificationStatisticsEntry.description}>
             ...containing classification{' '}
             {classificationStatisticsEntry.description}:{' '}
-            {classificationStatisticsEntry.numberOfOccurrences}
+            {classificationStatisticsEntry.correspondingFiles.length}
           </div>
         ),
       )}
@@ -223,7 +223,7 @@ function calculateProgressBarSteps(
   let percentages = Object.values(classificationStatistics)
     .map(
       (statisticsEntry) =>
-        (statisticsEntry.numberOfOccurrences * 100) /
+        (statisticsEntry.correspondingFiles.length * 100) /
         progressBarData.filesWithOnlyExternalAttributionCount,
     )
     .reverse();

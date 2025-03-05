@@ -470,9 +470,9 @@ describe('The getUpdatedProgressBarData function', () => {
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
-        0: { description: 'foo', numberOfOccurrences: 0 },
-        1: { description: 'bar', numberOfOccurrences: 0 },
-        14: { description: 'something else', numberOfOccurrences: 0 },
+        0: { description: 'foo', correspondingFiles: [] },
+        1: { description: 'bar', correspondingFiles: [] },
+        14: { description: 'something else', correspondingFiles: [] },
       });
     });
 
@@ -522,9 +522,15 @@ describe('The getUpdatedProgressBarData function', () => {
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
-        0: { description: 'foo', numberOfOccurrences: 0 },
-        1: { description: 'bar', numberOfOccurrences: 1 },
-        14: { description: 'something else', numberOfOccurrences: 2 },
+        0: { description: 'foo', correspondingFiles: [] },
+        1: { description: 'bar', correspondingFiles: ['/folder/somefile.ts'] },
+        14: {
+          description: 'something else',
+          correspondingFiles: [
+            '/folder/package/anotherFile.js',
+            '/folder/package/thirdFile.js',
+          ],
+        },
       });
     });
 
@@ -574,10 +580,16 @@ describe('The getUpdatedProgressBarData function', () => {
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
-        0: { description: 'foo', numberOfOccurrences: 0 },
-        1: { description: 'bar', numberOfOccurrences: 1 },
-        14: { description: 'something else', numberOfOccurrences: 0 },
-        22: { description: '22', numberOfOccurrences: 2 },
+        0: { description: 'foo', correspondingFiles: [] },
+        1: { description: 'bar', correspondingFiles: ['/folder/somefile.ts'] },
+        14: { description: 'something else', correspondingFiles: [] },
+        22: {
+          description: '22',
+          correspondingFiles: [
+            '/folder/package/anotherFile.js',
+            '/folder/package/thirdFile.js',
+          ],
+        },
       });
     });
   });

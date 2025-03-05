@@ -503,14 +503,22 @@ class ProgressBarModule {
 
   classificationStatisticsEntry(
     overwrites: Partial<ClassificationStatisticsEntry> = {},
+    numberOfFiles: number | undefined = undefined,
   ): ClassificationStatisticsEntry {
-    const {
-      description = faker.word.noun(),
-      numberOfOccurrences = faker.number.int({ min: 0 }),
-    } = overwrites;
+    const { description = faker.word.noun() } = overwrites;
+    let { correspondingFiles } = overwrites;
+    if (!numberOfFiles) {
+      numberOfFiles = faker.number.int({ min: 0, max: 20 });
+    }
+    if (!correspondingFiles) {
+      correspondingFiles = faker.helpers.uniqueArray(
+        faker.word.noun,
+        numberOfFiles,
+      );
+    }
     return {
       description,
-      numberOfOccurrences,
+      correspondingFiles,
     };
   }
 }
