@@ -54,7 +54,7 @@ export interface PopupInfo {
   fileFormat?: FileFormatInfo;
 }
 
-export interface PieChartData {
+export interface ChartDataItem {
   name: string;
   count: number;
 }
