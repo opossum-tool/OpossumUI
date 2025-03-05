@@ -5,11 +5,13 @@
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
+import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { ProjectStatisticsPopupTitle } from '../../enums/enums';
+import { criticalityColor } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
+  getClassifications,
   getExternalAttributionSources,
   getManualAttributions,
   getUnresolvedExternalAttributions,
@@ -19,15 +21,15 @@ import { AccordionWithPieChart } from '../AccordionWithPieChart/AccordionWithPie
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { AttributionPropertyCountTable } from '../AttributionPropertyCountTable/AttributionPropertyCountTable';
 import { Checkbox } from '../Checkbox/Checkbox';
-import { CriticalLicensesTable } from '../CriticalLicensesTable/CriticalLicensesTable';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
+  CRITICALITY_LABEL,
   getCriticalSignalsCount,
   getIncompleteAttributionsCount,
   getMostFrequentLicenses,
-  getUniqueLicenseNameToAttribution,
+  getSignalCountByClassification,
 } from './ProjectStatisticsPopup.util';
 
 const classes = {
@@ -36,32 +38,43 @@ const classes = {
   rightPanel: { flexGrow: 1, marginLeft: '2vw' },
 };
 
+const CRITICALITY_COLORS = {
+  [CRITICALITY_LABEL[Criticality.High]]: criticalityColor[Criticality.High],
+  [CRITICALITY_LABEL[Criticality.Medium]]: criticalityColor[Criticality.Medium],
+  [CRITICALITY_LABEL[Criticality.None]]: criticalityColor[Criticality.None],
+};
+
 export const ProjectStatisticsPopup: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const manualAttributions = useAppSelector(getManualAttributions);
   const attributionSources = useAppSelector(getExternalAttributionSources);
+  const classifications = useAppSelector(getClassifications);
 
   const unresolvedExternalAttribution = useAppSelector(
     getUnresolvedExternalAttributions,
   );
 
-  const strippedLicenseNameToAttribution = getUniqueLicenseNameToAttribution(
+  const {
+    licenseCounts,
+    licenseNamesWithCriticality,
+    licenseNamesWithClassification,
+  } = aggregateLicensesAndSourcesFromAttributions(
     unresolvedExternalAttribution,
+    attributionSources,
   );
-
-  const { licenseCounts, licenseNamesWithCriticality } =
-    aggregateLicensesAndSourcesFromAttributions(
-      unresolvedExternalAttribution,
-      strippedLicenseNameToAttribution,
-      attributionSources,
-    );
 
   const mostFrequentLicenseCountData = getMostFrequentLicenses(licenseCounts);
 
-  const criticalSignalsCountData = getCriticalSignalsCount(
+  const criticalSignalsCount = getCriticalSignalsCount(
     licenseCounts,
     licenseNamesWithCriticality,
+  );
+
+  const signalCountByClassification = getSignalCountByClassification(
+    licenseCounts,
+    licenseNamesWithClassification,
+    classifications,
   );
 
   const manualAttributionPropertyCounts =
@@ -72,7 +85,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   const isThereAnyPieChartData =
     mostFrequentLicenseCountData.length > 0 ||
-    criticalSignalsCountData.length > 0 ||
+    criticalSignalsCount.length > 0 ||
+    signalCountByClassification.length > 0 ||
     incompleteAttributionsData.length > 0;
 
   function close(): void {
@@ -93,44 +107,54 @@ export const ProjectStatisticsPopup: React.FC = () => {
                   manualAttributionPropertyCounts,
                 )}
                 title={
-                  ProjectStatisticsPopupTitle.AttributionPropertyCountTable
+                  text.projectStatisticsPopup.charts
+                    .attributionPropertyCountTable
                 }
-              />
-              <CriticalLicensesTable
-                totalAttributionsPerLicense={
-                  licenseCounts.totalAttributionsPerLicense
-                }
-                licenseNamesWithCriticality={licenseNamesWithCriticality}
-                title={ProjectStatisticsPopupTitle.CriticalLicensesTable}
               />
             </MuiBox>
             <MuiBox style={classes.rightPanel}>
               <MuiTypography variant="subtitle1">
                 {isThereAnyPieChartData
-                  ? ProjectStatisticsPopupTitle.PieChartsSectionHeader
+                  ? text.projectStatisticsPopup.charts.pieChartsSectionHeader
                   : null}
               </MuiTypography>
               <AccordionWithPieChart
                 data={mostFrequentLicenseCountData}
                 title={
-                  ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart
+                  text.projectStatisticsPopup.charts
+                    .mostFrequentLicenseCountPieChart
                 }
                 defaultExpanded={true}
               />
               <AccordionWithPieChart
-                data={criticalSignalsCountData}
-                title={ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart}
+                data={criticalSignalsCount}
+                title={
+                  text.projectStatisticsPopup.charts
+                    .criticalSignalsCountPieChart.title
+                }
+                pieChartColorMap={CRITICALITY_COLORS}
+              />
+              <AccordionWithPieChart
+                data={signalCountByClassification}
+                title={
+                  text.projectStatisticsPopup.charts
+                    .signalCountByClassificationPieChart.title
+                }
               />
               <AccordionWithPieChart
                 data={incompleteAttributionsData}
-                title={ProjectStatisticsPopupTitle.IncompleteLicensesPieChart}
+                title={
+                  text.projectStatisticsPopup.charts
+                    .incompleteAttributionsPieChart
+                }
               />
             </MuiBox>
           </MuiBox>
           <AttributionCountPerSourcePerLicenseTable
             licenseCounts={licenseCounts}
             licenseNamesWithCriticality={licenseNamesWithCriticality}
-            title={ProjectStatisticsPopupTitle.LicenseCountsTable}
+            licenseNamesWithClassification={licenseNamesWithClassification}
+            title={text.projectStatisticsPopup.charts.licenseCountsTable}
           />
         </>
       }

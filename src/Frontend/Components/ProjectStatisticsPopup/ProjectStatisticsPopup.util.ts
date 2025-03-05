@@ -2,18 +2,21 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { pickBy } from 'lodash';
+import { pickBy, toNumber } from 'lodash';
 
 import {
   Attributions,
+  Classification,
+  ClassificationsConfig,
   Criticality,
   ExternalAttributionSources,
   PackageInfo,
 } from '../../../shared/shared-types';
-import { PieChartCriticalityNames } from '../../enums/enums';
+import { text } from '../../../shared/text';
 import {
   AttributionCountPerSourcePerLicense,
   LicenseCounts,
+  LicenseNamesWithClassification,
   LicenseNamesWithCriticality,
   PieChartData,
 } from '../../types/types';
@@ -32,18 +35,32 @@ const UNKNOWN_SOURCE_PLACEHOLDER = '-';
 // exported only for tests
 export const ATTRIBUTION_TOTAL = 'Total Attributions';
 
+export const CRITICALITY_LABEL: Record<Criticality, string> = {
+  [Criticality.High]:
+    text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+      .highlyCritical,
+  [Criticality.Medium]:
+    text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+      .mediumCritical,
+  [Criticality.None]:
+    text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.nonCritical,
+};
+
 export function aggregateLicensesAndSourcesFromAttributions(
   attributions: Attributions,
-  strippedLicenseNameToAttribution: UniqueLicenseNameToAttributions,
   attributionSources: ExternalAttributionSources,
 ): {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
+  licenseNamesWithClassification: LicenseNamesWithClassification;
 } {
+  const strippedLicenseNameToAttribution =
+    getUniqueLicenseNameToAttribution(attributions);
   const {
     attributionCountPerSourcePerLicense,
     totalAttributionsPerLicense,
     licenseNamesWithCriticality,
+    licenseNamesWithClassification,
   } = getLicenseDataFromAttributionsAndSources(
     strippedLicenseNameToAttribution,
     attributions,
@@ -67,7 +84,11 @@ export function aggregateLicensesAndSourcesFromAttributions(
     totalAttributionsPerSource,
   };
 
-  return { licenseCounts, licenseNamesWithCriticality };
+  return {
+    licenseCounts,
+    licenseNamesWithCriticality,
+    licenseNamesWithClassification,
+  };
 }
 
 function getLicenseDataFromAttributionsAndSources(
@@ -78,8 +99,10 @@ function getLicenseDataFromAttributionsAndSources(
   attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
   totalAttributionsPerLicense: { [licenseName: string]: number };
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
+  licenseNamesWithClassification: LicenseNamesWithClassification;
 } {
   const licenseNamesWithCriticality: LicenseNamesWithCriticality = {};
+  const licenseNamesWithClassification: LicenseNamesWithClassification = {};
   const attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense =
     {};
   const totalAttributionsPerLicense: { [licenseName: string]: number } = {};
@@ -90,6 +113,7 @@ function getLicenseDataFromAttributionsAndSources(
     const {
       mostFrequentLicenseName,
       licenseCriticality,
+      licenseClassification,
       sourcesCountForLicense,
     } = getLicenseDataFromVariants(
       strippedLicenseNameToAttribution[strippedLicenseName],
@@ -98,6 +122,8 @@ function getLicenseDataFromAttributionsAndSources(
     );
 
     licenseNamesWithCriticality[mostFrequentLicenseName] = licenseCriticality;
+    licenseNamesWithClassification[mostFrequentLicenseName] =
+      licenseClassification;
     attributionCountPerSourcePerLicense[mostFrequentLicenseName] =
       sourcesCountForLicense;
     totalAttributionsPerLicense[mostFrequentLicenseName] = Object.values(
@@ -111,6 +137,7 @@ function getLicenseDataFromAttributionsAndSources(
     attributionCountPerSourcePerLicense,
     totalAttributionsPerLicense,
     licenseNamesWithCriticality,
+    licenseNamesWithClassification,
   };
 }
 
@@ -121,6 +148,7 @@ function getLicenseDataFromVariants(
 ): {
   mostFrequentLicenseName: string;
   licenseCriticality: Criticality;
+  licenseClassification: Classification | undefined;
   sourcesCountForLicense: {
     [sourceNameOrTotal: string]: number;
   };
@@ -133,6 +161,8 @@ function getLicenseDataFromVariants(
   } = {};
   let licenseCriticality = Criticality.None;
 
+  let licenseClassification: Classification | undefined = undefined;
+
   for (const attributionId of attributionIds) {
     const licenseName = attributions[attributionId].licenseName;
     if (licenseName) {
@@ -142,6 +172,17 @@ function getLicenseDataFromVariants(
       const variantCriticality = attributions[attributionId].criticality;
 
       licenseCriticality = Math.max(licenseCriticality, variantCriticality);
+
+      const variantClassification = attributions[attributionId].classification;
+
+      if (licenseClassification === undefined) {
+        licenseClassification = variantClassification;
+      } else if (variantClassification !== undefined) {
+        licenseClassification = Math.max(
+          licenseClassification,
+          variantClassification,
+        );
+      }
 
       const sourceId =
         attributions[attributionId].source?.name ?? UNKNOWN_SOURCE_PLACEHOLDER;
@@ -162,6 +203,7 @@ function getLicenseDataFromVariants(
   return {
     mostFrequentLicenseName,
     licenseCriticality,
+    licenseClassification,
     sourcesCountForLicense,
   };
 }
@@ -181,28 +223,6 @@ export function getUniqueLicenseNameToAttribution(
     }
   }
   return uniqueLicenseNameToAttributions;
-}
-
-export function getLicenseNameVariants(
-  licenseName: string,
-  attributions: Attributions,
-): Set<string> {
-  const strippedLicenseName = getStrippedLicenseName(licenseName);
-  const licenseNames: Set<string> = new Set<string>();
-
-  for (const attributionId of Object.keys(attributions)) {
-    const attributionLicenseName =
-      attributions[attributionId].licenseName || '';
-    const attributionStrippedLicenseName = getStrippedLicenseName(
-      attributions[attributionId].licenseName || '',
-    );
-
-    if (attributionStrippedLicenseName === strippedLicenseName) {
-      licenseNames.add(attributionLicenseName);
-    }
-  }
-
-  return licenseNames;
 }
 
 export function getStrippedLicenseName(licenseName: string): string {
@@ -299,22 +319,62 @@ export function getCriticalSignalsCount(
 
   const criticalityData = [
     {
-      name: PieChartCriticalityNames.HighCriticality,
+      name: CRITICALITY_LABEL[Criticality.High],
       count: licenseCriticalityCounts[Criticality.High],
     },
     {
-      name: PieChartCriticalityNames.MediumCriticality,
+      name: CRITICALITY_LABEL[Criticality.Medium],
       count: licenseCriticalityCounts[Criticality.Medium],
     },
     {
-      name: PieChartCriticalityNames.NoCriticality,
+      name: CRITICALITY_LABEL[Criticality.None],
       count: licenseCriticalityCounts[Criticality.None],
     },
   ];
 
-  return criticalityData.filter(
-    (criticalityDataWithCount) => criticalityDataWithCount['count'] !== 0,
-  );
+  return criticalityData.filter(({ count }) => count > 0);
+}
+
+export function getSignalCountByClassification(
+  licenseCounts: LicenseCounts,
+  licenseNamesWithClassification: LicenseNamesWithClassification,
+  classifications: ClassificationsConfig,
+): Array<PieChartData> {
+  const NO_CLASSIFICATION = -1;
+  const classificationCounts: Record<Classification, number> = {};
+
+  for (const [license, attributionCount] of Object.entries(
+    licenseCounts.totalAttributionsPerLicense,
+  )) {
+    const classification =
+      licenseNamesWithClassification[license] ?? NO_CLASSIFICATION;
+    classificationCounts[classification] =
+      (classificationCounts[classification] ?? 0) + attributionCount;
+  }
+
+  const pieChartData = Object.keys(classifications)
+    .map(Number)
+    .map<PieChartData>((classification) => {
+      const classificationName = classifications[classification];
+      const classificationCount =
+        classificationCounts[toNumber(classification)] ?? 0;
+
+      return {
+        name: classificationName,
+        count: classificationCount,
+      };
+    })
+    .filter(({ count }) => count > 0);
+
+  if (classificationCounts[NO_CLASSIFICATION]) {
+    return pieChartData.concat({
+      name: text.projectStatisticsPopup.charts
+        .signalCountByClassificationPieChart.noClassification,
+      count: classificationCounts[NO_CLASSIFICATION],
+    });
+  }
+
+  return pieChartData;
 }
 
 export function getIncompleteAttributionsCount(

@@ -167,6 +167,39 @@ export const text = {
     title: 'Project Statistics',
     toggleStartupCheckbox: 'Show project statistics on startup',
     criticalLicensesSignalCountColumnName: 'Signals Count',
+    charts: {
+      licenseCountsTable: 'Signals per Sources',
+      attributionPropertyCountTable: 'Attributions Overview',
+      pieChartsSectionHeader: 'Pie Charts',
+      mostFrequentLicenseCountPieChart: 'Most Frequent Licenses',
+      criticalSignalsCountPieChart: {
+        title: 'Signals by Criticality',
+        highlyCritical: 'Highly Critical Signals',
+        mediumCritical: 'Medium Critical Signals',
+        nonCritical: 'Non-Critical Signals',
+      },
+      signalCountByClassificationPieChart: {
+        title: 'Signals by Classification',
+        noClassification: 'No classification',
+      },
+      incompleteAttributionsPieChart: 'Incomplete Attributions',
+    },
+  },
+  attributionCountPerSourcePerLicenseTable: {
+    footerTitle: 'Total',
+    columns: {
+      licenseInfo: 'License Info',
+      signalCountPerSource: 'Signal Count per Source',
+      licenseName: 'Name',
+      criticality: {
+        title: 'Criticality',
+        medium: 'Medium Criticality',
+        high: 'High Criticality',
+      },
+      classification: 'Classification',
+      totalSources: 'Total',
+    },
+    none: '-',
   },
   unsavedChangesPopup: {
     title: 'Unsaved Changes',
