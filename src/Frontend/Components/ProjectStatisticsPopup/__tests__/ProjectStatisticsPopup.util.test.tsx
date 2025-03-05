@@ -7,15 +7,15 @@ import {
   Criticality,
   ExternalAttributionSources,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import {
+  ChartDataItem,
   LicenseCounts,
   LicenseNamesWithCriticality,
-  PieChartData,
 } from '../../../types/types';
 import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
-  ATTRIBUTION_TOTAL,
   CRITICALITY_LABEL,
   getCriticalSignalsCount,
   getIncompleteAttributionsCount,
@@ -207,62 +207,80 @@ describe('getStrippedLicenseName', () => {
 });
 
 describe('aggregateAttributionPropertiesFromAttributions', () => {
-  it('counts attribution properties, ensures total attributions is the last element', () => {
-    const expectedAttributionPropertyCounts: {
-      [attributionPropertyOrTotal: string]: number;
-    } = {
-      needsReview: 2,
-      followUp: 1,
-      firstParty: 2,
-      incomplete: 4,
-      [ATTRIBUTION_TOTAL]: 6,
-    };
+  it('counts attribution properties', () => {
+    const attributionPropertiesText =
+      text.projectStatisticsPopup.charts.attributionProperties;
 
-    const attributionPropertyCountsObject =
+    const expectedAttributionPropertyCounts = [
+      {
+        name: attributionPropertiesText.needsReview,
+        count: 2,
+      },
+      {
+        name: attributionPropertiesText.followUp,
+        count: 1,
+      },
+      {
+        name: attributionPropertiesText.firstParty,
+        count: 2,
+      },
+      {
+        name: attributionPropertiesText.incomplete,
+        count: 4,
+      },
+      {
+        name: attributionPropertiesText.total,
+        count: 6,
+      },
+    ];
+
+    const attributionPropertyCounts =
       aggregateAttributionPropertiesFromAttributions(testAttributions_1);
-    const attributionPropertyCountsArray: Array<Array<string | number>> =
-      Object.entries(attributionPropertyCountsObject);
 
-    expect(attributionPropertyCountsObject).toEqual(
+    expect(attributionPropertyCounts).toEqual(
       expectedAttributionPropertyCounts,
     );
-    expect(
-      attributionPropertyCountsArray[
-        attributionPropertyCountsArray.length - 1
-      ][0],
-    ).toEqual(ATTRIBUTION_TOTAL);
   });
 
-  it('finds no follow up and first party attributions, ensures total attributions is the last element', () => {
-    const expectedAttributionPropertyCounts: {
-      [attributionPropertyOrTotal: string]: number;
-    } = {
-      needsReview: 0,
-      followUp: 0,
-      firstParty: 0,
-      incomplete: 5,
-      [ATTRIBUTION_TOTAL]: 5,
-    };
+  it('finds no follow up and first party attributions', () => {
+    const attributionPropertiesText =
+      text.projectStatisticsPopup.charts.attributionProperties;
 
-    const attributionPropertyCountsObject =
+    const expectedAttributionPropertyCounts = [
+      {
+        name: attributionPropertiesText.needsReview,
+        count: 0,
+      },
+      {
+        name: attributionPropertiesText.followUp,
+        count: 0,
+      },
+      {
+        name: attributionPropertiesText.firstParty,
+        count: 0,
+      },
+      {
+        name: attributionPropertiesText.incomplete,
+        count: 5,
+      },
+      {
+        name: attributionPropertiesText.total,
+        count: 5,
+      },
+    ];
+
+    const attributionPropertyCounts =
       aggregateAttributionPropertiesFromAttributions(testAttributions_2);
-    const attributionPropertyCountsArray: Array<Array<string | number>> =
-      Object.entries(attributionPropertyCountsObject);
 
-    expect(attributionPropertyCountsObject).toEqual(
+    expect(attributionPropertyCounts).toEqual(
       expectedAttributionPropertyCounts,
     );
-    expect(
-      attributionPropertyCountsArray[
-        attributionPropertyCountsArray.length - 1
-      ][0],
-    ).toEqual(ATTRIBUTION_TOTAL);
   });
 });
 
 describe('getMostFrequentLicenses', () => {
   it('obtains most frequent licenses without other accumulation', () => {
-    const expectedSortedMostFrequentLicenses: Array<PieChartData> = [
+    const expectedSortedMostFrequentLicenses: Array<ChartDataItem> = [
       {
         name: 'Apache License Version 2.0',
         count: 3,
@@ -296,7 +314,7 @@ describe('getMostFrequentLicenses', () => {
   });
 
   it('obtains most frequent licenses with other accumulation', () => {
-    const expectedSortedMostFrequentLicenses: Array<PieChartData> = [
+    const expectedSortedMostFrequentLicenses: Array<ChartDataItem> = [
       {
         name: 'Apache License Version 2.0',
         count: 3,
@@ -405,7 +423,7 @@ describe('getCriticalSignalsCount', () => {
 
 describe('getIncompleteAttributionsCount', () => {
   it('counts complete and incomplete attributions', () => {
-    const expectedIncompleteAttributionCount: Array<PieChartData> = [
+    const expectedIncompleteAttributionCount: Array<ChartDataItem> = [
       {
         name: 'Complete attributions',
         count: 2,
@@ -425,7 +443,7 @@ describe('getIncompleteAttributionsCount', () => {
   });
 
   it('counts only incomplete attributions', () => {
-    const expectedIncompleteAttributionCount: Array<PieChartData> = [
+    const expectedIncompleteAttributionCount: Array<ChartDataItem> = [
       {
         name: 'Incomplete attributions',
         count: 5,
