@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import MuiTypography from '@mui/material/Typography';
@@ -93,7 +92,9 @@ export const ProjectStatisticsPopup: React.FC = () => {
   return (
     <NotificationPopup
       content={
-        <>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+        >
           <MuiTabs
             value={selectedTab}
             onChange={(_, tab) => setSelectedTab(tab)}
@@ -106,83 +107,86 @@ export const ProjectStatisticsPopup: React.FC = () => {
             <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
             <MuiTab label={text.projectStatisticsPopup.tabs.details} />
           </MuiTabs>
-          <MuiBox>
-            <TabPanel
-              style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr' }}
-              tabIndex={0}
-              selectedTab={selectedTab}
-            >
-              <ChartCard>
+          <TabPanel
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+            }}
+            tabIndex={0}
+            selectedTab={selectedTab}
+          >
+            <ChartCard>
+              <MuiTypography variant="subtitle1">
+                {text.projectStatisticsPopup.charts.attributionProperties.title}
+              </MuiTypography>
+              <BarChart data={attributionBarChartData} />
+            </ChartCard>
+            <ChartCard>
+              {mostFrequentLicenseCountData.length > 0 ? (
                 <MuiTypography variant="subtitle1">
                   {
-                    text.projectStatisticsPopup.charts.attributionProperties
-                      .title
+                    text.projectStatisticsPopup.charts
+                      .mostFrequentLicenseCountPieChart
                   }
                 </MuiTypography>
-                <BarChart data={attributionBarChartData} />
-              </ChartCard>
-              <ChartCard>
-                {mostFrequentLicenseCountData.length > 0 ? (
-                  <MuiTypography variant="subtitle1">
-                    {
-                      text.projectStatisticsPopup.charts
-                        .mostFrequentLicenseCountPieChart
-                    }
-                  </MuiTypography>
-                ) : null}
-                <PieChart segments={mostFrequentLicenseCountData} />
-              </ChartCard>
-              <ChartCard>
-                {criticalSignalsCount.length > 0 ? (
-                  <MuiTypography variant="subtitle1">
-                    {
-                      text.projectStatisticsPopup.charts
-                        .criticalSignalsCountPieChart.title
-                    }
-                  </MuiTypography>
-                ) : null}
-                <PieChart
-                  segments={criticalSignalsCount}
-                  colorMap={CRITICALITY_COLORS}
-                />
-              </ChartCard>
-              <ChartCard>
-                {signalCountByClassification.length > 0 ? (
-                  <MuiTypography variant="subtitle1">
-                    {
-                      text.projectStatisticsPopup.charts
-                        .signalCountByClassificationPieChart.title
-                    }
-                  </MuiTypography>
-                ) : null}
-                <PieChart segments={signalCountByClassification} />
-              </ChartCard>
-              <ChartCard>
-                {incompleteAttributionsData.length > 0 ? (
-                  <MuiTypography variant="subtitle1">
-                    {
-                      text.projectStatisticsPopup.charts
-                        .incompleteAttributionsPieChart
-                    }
-                  </MuiTypography>
-                ) : null}
-                <PieChart segments={incompleteAttributionsData} />
-              </ChartCard>
-            </TabPanel>
-            <TabPanel tabIndex={1} selectedTab={selectedTab}>
-              <AttributionCountPerSourcePerLicenseTable
-                licenseCounts={licenseCounts}
-                licenseNamesWithCriticality={licenseNamesWithCriticality}
-                licenseNamesWithClassification={licenseNamesWithClassification}
-                title={text.projectStatisticsPopup.charts.licenseCountsTable}
+              ) : null}
+              <PieChart segments={mostFrequentLicenseCountData} />
+            </ChartCard>
+            <ChartCard>
+              {criticalSignalsCount.length > 0 ? (
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts
+                      .criticalSignalsCountPieChart.title
+                  }
+                </MuiTypography>
+              ) : null}
+              <PieChart
+                segments={criticalSignalsCount}
+                colorMap={CRITICALITY_COLORS}
               />
-            </TabPanel>
-          </MuiBox>
-        </>
+            </ChartCard>
+            <ChartCard>
+              {signalCountByClassification.length > 0 ? (
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts
+                      .signalCountByClassificationPieChart.title
+                  }
+                </MuiTypography>
+              ) : null}
+              <PieChart segments={signalCountByClassification} />
+            </ChartCard>
+            <ChartCard>
+              {incompleteAttributionsData.length > 0 ? (
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts
+                      .incompleteAttributionsPieChart
+                  }
+                </MuiTypography>
+              ) : null}
+              <PieChart segments={incompleteAttributionsData} />
+            </ChartCard>
+          </TabPanel>
+          <TabPanel
+            style={{ overflowY: 'auto' }}
+            tabIndex={1}
+            selectedTab={selectedTab}
+          >
+            <AttributionCountPerSourcePerLicenseTable
+              licenseCounts={licenseCounts}
+              licenseNamesWithCriticality={licenseNamesWithCriticality}
+              licenseNamesWithClassification={licenseNamesWithClassification}
+              title={text.projectStatisticsPopup.charts.licenseCountsTable}
+            />
+          </TabPanel>
+        </div>
       }
       header={text.projectStatisticsPopup.title}
       isOpen={true}
-      fullWidth={true}
+      width={'75vw'}
+      height={'75vh'}
       rightButtonConfig={{
         onClick: close,
         buttonText: text.buttons.close,
@@ -214,6 +218,7 @@ const TabPanel: React.FC<TabPanelProps> = (props) => {
       style={{
         ...props.style,
         ...(props.selectedTab !== props.tabIndex ? { display: 'none' } : {}),
+        flexGrow: 1,
       }}
     >
       {props.children}

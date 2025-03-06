@@ -56,7 +56,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   );
 
   return (
-    <RcResponsiveContainer width={'100%'} aspect={2}>
+    <RcResponsiveContainer width={'100%'} height={'100%'}>
       <RcPieChart>
         <RcPie
           data={props.segments}

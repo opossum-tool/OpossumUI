@@ -31,7 +31,7 @@ interface BarChartProps {
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
   return (
-    <RcResponsiveContainer minWidth={300} maxHeight={200} aspect={2}>
+    <RcResponsiveContainer width={'100%'} height={'100%'}>
       <RcBarChart
         layout={'vertical'}
         data={props.data}
