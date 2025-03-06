@@ -28,7 +28,6 @@ import { AttributionCountPerSourcePerLicenseTableRow } from './AttributionCountP
 
 const classes = {
   container: {
-    maxHeight: '400px',
     marginBottom: '3px',
   },
 };
@@ -145,7 +144,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
   ]);
 
   return (
-    <MuiBox>
+    <MuiBox sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <MuiTypography variant="subtitle1">{props.title}</MuiTypography>
       <MuiTableContainer sx={classes.container}>
         <MuiTable size="small" stickyHeader>
