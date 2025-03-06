@@ -108,7 +108,11 @@ export const ProjectStatisticsPopup: React.FC = () => {
           <MuiTabs
             value={selectedTab}
             onChange={(_, tab) => setSelectedTab(tab)}
-            sx={{ marginBottom: '10px' }}
+            sx={{
+              marginBottom: '12px',
+              borderBottom: 1,
+              borderColor: 'divider',
+            }}
           >
             <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
             <MuiTab label={text.projectStatisticsPopup.tabs.details} />
