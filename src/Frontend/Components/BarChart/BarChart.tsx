@@ -35,7 +35,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
       <RcBarChart
         layout={'vertical'}
         data={props.data}
-        margin={{ left: 8, right: 10 }}
+        margin={{ left: 8, right: 10, bottom: 4 }}
       >
         <RcXAxis type={'number'} tick={tickStyle}>
           <RcLabel
@@ -52,7 +52,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           labelStyle={chartTooltipTextStyle}
         />
         <RcBar
-          name={text.projectStatisticsPopup.charts.countTooltipName}
+          name={text.projectStatisticsPopup.charts.count}
           dataKey={'count'}
           fill={OpossumColors.darkBlue}
           isAnimationActive={false}
