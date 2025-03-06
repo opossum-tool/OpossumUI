@@ -99,7 +99,7 @@ describe('ProgressBar helpers', () => {
       const background = getClassificationBarBackground(testProgressBarData);
 
       const expectedBackground =
-        'linear-gradient(to right,hsl(0 100 45) 5%  , hsl(49 100 45) 5% 25%  , hsl(97 100 45) 25% 40%  , hsl(146 100 45) 40% 65%  , hsl(220, 41%, 92%) 65% 100%  )';
+        'linear-gradient(to right, hsl(0 100 45) 0% 5% , hsl(49 100 45) 5% 25% , hsl(97 100 45) 25% 40% , hsl(146 100 45) 40% 65% , hsl(220, 41%, 92%) 65% 100% )';
       expect(background).toEqual(expectedBackground);
     });
 
@@ -127,7 +127,7 @@ describe('ProgressBar helpers', () => {
       const background = getClassificationBarBackground(testProgressBarData);
 
       const expectedBackground =
-        'linear-gradient(to right,hsl(0 100 45) 5%  , hsl(49 100 45) 5% 25%  , hsl(97 100 45) 25% 40%  , hsl(146 100 45) 40% 65%  , hsl(220, 41%, 92%) 65% 100%  )';
+        'linear-gradient(to right, hsl(0 100 45) 0% 5% , hsl(49 100 45) 5% 25% , hsl(97 100 45) 25% 40% , hsl(146 100 45) 40% 65% , hsl(220, 41%, 92%) 65% 100% )';
       expect(background).toEqual(expectedBackground);
     });
 
@@ -169,7 +169,7 @@ describe('ProgressBar helpers', () => {
       const background = getClassificationBarBackground(testProgressBarData);
 
       const expectedBackground =
-        'linear-gradient(to right,hsl(0 100 45) 25%  , hsl(220, 41%, 92%) 25% 100%  )';
+        'linear-gradient(to right, hsl(0 100 45) 0% 25% , hsl(220, 41%, 92%) 25% 100% )';
       expect(background).toBe(expectedBackground);
     });
   });

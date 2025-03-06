@@ -248,23 +248,16 @@ function calculateProgressBarSteps(
 function createBackgroundFromProgressBarSteps(
   progressBarSteps: Array<ProgressBarStep>,
 ) {
-  let backgroundColor = 'linear-gradient(to right,';
+  let backgroundColor = 'linear-gradient(to right, ';
   let currentPercentage = 0;
-  let first = true;
+  const backgroundSteps: Array<string> = [];
   for (const progressBarStep of progressBarSteps) {
-    if (!first) {
-      backgroundColor += ' , ';
-    }
-    backgroundColor += `${progressBarStep.color} `;
-    if (!first) {
-      backgroundColor += `${currentPercentage}% `;
-    } else {
-      first = false;
-    }
+    backgroundSteps.push(
+      `${progressBarStep.color} ${currentPercentage}% ${currentPercentage + progressBarStep.widthInPercent}%`,
+    );
     currentPercentage += progressBarStep.widthInPercent;
-    backgroundColor += `${currentPercentage}% `;
   }
-
+  backgroundColor += backgroundSteps.join(' , ');
   backgroundColor += ' )';
   return backgroundColor;
 }
