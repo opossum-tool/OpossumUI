@@ -46,11 +46,15 @@ function getLegendIconStyle(backgroundColor: string): React.CSSProperties {
 
 interface PieChartProps {
   segments: Array<ChartDataItem>;
-  colors?: Array<string>;
+  colorMap?: { [segmentName: string]: string };
 }
 
 export const PieChart: React.FC<PieChartProps> = (props) => {
-  const pieChartColors = props.colors || defaultPieChartColors;
+  const pieChartColors = props.segments.map(
+    ({ name }, i) =>
+      props.colorMap?.[name] ??
+      defaultPieChartColors[i % defaultPieChartColors.length],
+  );
 
   return (
     <MuiBox sx={{ maxWidth: '500px' }}>

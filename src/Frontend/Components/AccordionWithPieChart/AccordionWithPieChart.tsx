@@ -36,17 +36,6 @@ interface AccordionProps {
   pieChartColorMap?: { [segmentName: string]: string };
 }
 
-export function getColorsForPieChart(
-  pieChartData: Array<ChartDataItem>,
-  pieChartColorMap?: { [segmentName: string]: string },
-): Array<string> | undefined {
-  if (pieChartColorMap === undefined) {
-    return;
-  }
-
-  return pieChartData.map(({ name }) => pieChartColorMap[name]);
-}
-
 export const AccordionWithPieChart: React.FC<AccordionProps> = (props) => {
   if (props.data.length === 0) {
     return null;
@@ -65,10 +54,7 @@ export const AccordionWithPieChart: React.FC<AccordionProps> = (props) => {
         <MuiTypography sx={classes.accordionTitle}>{props.title}</MuiTypography>
       </MuiAccordionSummary>
       <MuiAccordionDetails sx={classes.accordionDetails}>
-        <PieChart
-          segments={props.data}
-          colors={getColorsForPieChart(props.data, props.pieChartColorMap)}
-        />
+        <PieChart segments={props.data} colorMap={props.pieChartColorMap} />
       </MuiAccordionDetails>
     </MuiAccordion>
   );
