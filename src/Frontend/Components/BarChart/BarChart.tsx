@@ -6,6 +6,7 @@ import MuiBox from '@mui/material/Box';
 import {
   Bar as RcBar,
   BarChart as RcBarChart,
+  Label as RcLabel,
   ResponsiveContainer as RcResponsiveContainer,
   Tooltip as RcTooltip,
   XAxis as RcXAxis,
@@ -36,9 +37,16 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
         <RcBarChart
           layout={'vertical'}
           data={props.data}
-          margin={{ left: 8, right: 10 }}
+          margin={{ left: 8, right: 10, bottom: 4 }}
         >
-          <RcXAxis type={'number'} tick={tickStyle} />
+          <RcXAxis type={'number'} tick={tickStyle}>
+            <RcLabel
+              value={text.projectStatisticsPopup.charts.count}
+              offset={-3}
+              position={'insideBottom'}
+              style={tickStyle}
+            />
+          </RcXAxis>
           <RcYAxis dataKey={'name'} type={'category'} tick={tickStyle} />
           <RcTooltip
             contentStyle={chartTooltipContentStyle}
@@ -46,9 +54,10 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
             labelStyle={chartTooltipTextStyle}
           />
           <RcBar
-            name={text.projectStatisticsPopup.charts.countTooltipName}
+            name={text.projectStatisticsPopup.charts.count}
             dataKey={'count'}
             fill={OpossumColors.darkBlue}
+            isAnimationActive={false}
           />
         </RcBarChart>
       </RcResponsiveContainer>
