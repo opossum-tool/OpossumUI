@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
 import {
   Bar as RcBar,
   BarChart as RcBarChart,
@@ -32,35 +31,33 @@ interface BarChartProps {
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
   return (
-    <MuiBox sx={{ maxWidth: '500px' }}>
-      <RcResponsiveContainer minWidth={300} maxHeight={200} aspect={2}>
-        <RcBarChart
-          layout={'vertical'}
-          data={props.data}
-          margin={{ left: 8, right: 10, bottom: 4 }}
-        >
-          <RcXAxis type={'number'} tick={tickStyle}>
-            <RcLabel
-              value={text.projectStatisticsPopup.charts.count}
-              offset={-3}
-              position={'insideBottom'}
-              style={tickStyle}
-            />
-          </RcXAxis>
-          <RcYAxis dataKey={'name'} type={'category'} tick={tickStyle} />
-          <RcTooltip
-            contentStyle={chartTooltipContentStyle}
-            itemStyle={chartTooltipTextStyle}
-            labelStyle={chartTooltipTextStyle}
+    <RcResponsiveContainer minWidth={300} maxHeight={200} aspect={2}>
+      <RcBarChart
+        layout={'vertical'}
+        data={props.data}
+        margin={{ left: 8, right: 10 }}
+      >
+        <RcXAxis type={'number'} tick={tickStyle}>
+          <RcLabel
+            value={text.projectStatisticsPopup.charts.count}
+            offset={-3}
+            position={'insideBottom'}
+            style={tickStyle}
           />
-          <RcBar
-            name={text.projectStatisticsPopup.charts.count}
-            dataKey={'count'}
-            fill={OpossumColors.darkBlue}
-            isAnimationActive={false}
-          />
-        </RcBarChart>
-      </RcResponsiveContainer>
-    </MuiBox>
+        </RcXAxis>
+        <RcYAxis dataKey={'name'} type={'category'} tick={tickStyle} />
+        <RcTooltip
+          contentStyle={chartTooltipContentStyle}
+          itemStyle={chartTooltipTextStyle}
+          labelStyle={chartTooltipTextStyle}
+        />
+        <RcBar
+          name={text.projectStatisticsPopup.charts.countTooltipName}
+          dataKey={'count'}
+          fill={OpossumColors.darkBlue}
+          isAnimationActive={false}
+        />
+      </RcBarChart>
+    </RcResponsiveContainer>
   );
 };

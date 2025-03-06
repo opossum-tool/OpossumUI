@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
 import {
   Cell as RcCell,
   Legend as RcLegend,
@@ -57,38 +56,36 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   );
 
   return (
-    <MuiBox sx={{ maxWidth: '500px' }}>
-      <RcResponsiveContainer maxHeight={200} aspect={2}>
-        <RcPieChart>
-          <RcPie
-            data={props.segments}
-            dataKey="count"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            minAngle={15}
-            outerRadius={70}
-            isAnimationActive={false}
-            blendStroke={true}
-          >
-            {pieChartColors.map((record, index) => (
-              <RcCell key={`cell-${index}`} fill={record} />
-            ))}
-          </RcPie>
-          <RcTooltip
-            contentStyle={chartTooltipContentStyle}
-            itemStyle={chartTooltipTextStyle}
-          />
-          <RcLegend
-            content={renderLegend}
-            verticalAlign="middle"
-            align="right"
-            layout="vertical"
-            width={250}
-          />
-        </RcPieChart>
-      </RcResponsiveContainer>
-    </MuiBox>
+    <RcResponsiveContainer width={'100%'} aspect={2}>
+      <RcPieChart>
+        <RcPie
+          data={props.segments}
+          dataKey="count"
+          nameKey="name"
+          cx="50%"
+          cy="50%"
+          minAngle={15}
+          outerRadius={70}
+          isAnimationActive={false}
+          blendStroke={true}
+        >
+          {pieChartColors.map((record, index) => (
+            <RcCell key={`cell-${index}`} fill={record} />
+          ))}
+        </RcPie>
+        <RcTooltip
+          contentStyle={chartTooltipContentStyle}
+          itemStyle={chartTooltipTextStyle}
+        />
+        <RcLegend
+          content={renderLegend}
+          verticalAlign="middle"
+          align="right"
+          layout="vertical"
+          width={250}
+        />
+      </RcPieChart>
+    </RcResponsiveContainer>
   );
 
   function renderLegend(props: { payload?: Array<{ value: string }> }) {
