@@ -165,6 +165,10 @@ export const text = {
   },
   projectStatisticsPopup: {
     title: 'Project Statistics',
+    tabs: {
+      overview: 'Overview',
+      details: 'Details',
+    },
     toggleStartupCheckbox: 'Show project statistics on startup',
     criticalLicensesSignalCountColumnName: 'Signals Count',
     charts: {
