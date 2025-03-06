@@ -503,7 +503,7 @@ class ProgressBarModule {
 
   classificationStatisticsEntry(
     overwrites: Partial<ClassificationStatisticsEntry> = {},
-    numberOfFiles: number | undefined = undefined,
+    numberOfFiles?: number,
   ): ClassificationStatisticsEntry {
     const { description = faker.word.noun() } = overwrites;
     let { correspondingFiles } = overwrites;

@@ -61,13 +61,14 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
 
   let filesToForwardToForCriticality =
     props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly;
-  const mostCriticalActiveEntry = Object.values(
+  const recordWithHighestClassification = Object.values(
     props.progressBarData.classificationStatistics,
   )
     .reverse()
     .filter((entry) => entry.correspondingFiles.length > 0)[0];
-  if (mostCriticalActiveEntry) {
-    filesToForwardToForCriticality = mostCriticalActiveEntry.correspondingFiles;
+  if (recordWithHighestClassification) {
+    filesToForwardToForCriticality =
+      recordWithHighestClassification.correspondingFiles;
   }
   const onClassificationBarClick = useOnProgressBarClick(
     filesToForwardToForCriticality,
