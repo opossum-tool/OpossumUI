@@ -31,7 +31,7 @@ export function filterResourcesToAttributions(
   );
 }
 
-function updateClassificationStatistics(
+function addPathToClassificationStatistics(
   progressBarData: ProgressBarData,
   highestClassification: number,
   path: string,
@@ -133,7 +133,7 @@ function updateProgressBarDataForResources(
           );
         }
         if (highestClassification) {
-          updateClassificationStatistics(
+          addPathToClassificationStatistics(
             progressBarData,
             highestClassification,
             path,
@@ -147,7 +147,7 @@ function updateProgressBarDataForResources(
           progressBarData.filesWithMediumCriticalExternalAttributionsCount++;
         }
         if (highestClassification) {
-          updateClassificationStatistics(
+          addPathToClassificationStatistics(
             progressBarData,
             highestClassification,
             path,
