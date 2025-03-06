@@ -50,7 +50,7 @@ describe('The ProjectStatisticsPopup', () => {
     expect(screen.getByText('Reuser')).toBeInTheDocument();
   });
 
-  it('renders pie charts when there are signals', () => {
+  it('renders all pie charts when there are signals and attributions', () => {
     const testManualAttributions: Attributions = {
       uuid_1: {
         source: {
@@ -121,13 +121,13 @@ describe('The ProjectStatisticsPopup', () => {
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByText(
+      screen.getByText(
         text.projectStatisticsPopup.charts.incompleteAttributionsPieChart,
       ),
-    ).toHaveLength(2);
+    ).toBeInTheDocument();
   });
 
-  it('does not render pie charts when there are no signals', () => {
+  it('does not render pie charts when there are no signals and no attributions', () => {
     const testExternalAttributions: Attributions = {};
     renderComponent(<ProjectStatisticsPopup />, {
       actions: [
@@ -156,10 +156,10 @@ describe('The ProjectStatisticsPopup', () => {
       ),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByText(
+      screen.queryByText(
         text.projectStatisticsPopup.charts.incompleteAttributionsPieChart,
       ),
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
   });
 
   it('renders pie charts related to signals even if there are no attributions', () => {
@@ -211,14 +211,9 @@ describe('The ProjectStatisticsPopup', () => {
           .title,
       ),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart,
-      ),
-    ).toBeInTheDocument();
   });
 
-  it('renders tables when there are no attributions and no signals', () => {
+  it('renders attribution bar chart and signals per sources table even when there are no attributions and no signals', async () => {
     const testExternalAttributions: Attributions = {};
     renderComponent(<ProjectStatisticsPopup />, {
       actions: [
@@ -229,10 +224,12 @@ describe('The ProjectStatisticsPopup', () => {
         ),
       ],
     });
-    expect(screen.getAllByText('License Info')).toHaveLength(1);
-    expect(screen.getAllByText('Total')).toHaveLength(2);
-    expect(screen.getByText('Follow up')).toBeInTheDocument();
-    expect(screen.getByText('First party')).toBeInTheDocument();
+
+    expect(screen.getByText('Attributions Overview')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('Details'));
+
+    expect(screen.getByText('Signals per Sources')).toBeInTheDocument();
   });
 
   it('supports sorting the signals per sources table', async () => {

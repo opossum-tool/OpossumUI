@@ -173,7 +173,15 @@ export const text = {
     criticalLicensesSignalCountColumnName: 'Signals Count',
     charts: {
       licenseCountsTable: 'Signals per Sources',
-      attributionPropertyCountTable: 'Attributions Overview',
+      attributionProperties: {
+        title: 'Attributions Overview',
+        needsReview: 'Needs Review',
+        followUp: 'Follow Up',
+        firstParty: 'First Party',
+        incomplete: 'Incomplete Attributions',
+        total: 'Total Attributions',
+      },
+      count: 'Number of Attributions',
       pieChartsSectionHeader: 'Pie Charts',
       mostFrequentLicenseCountPieChart: 'Most Frequent Licenses',
       criticalSignalsCountPieChart: {

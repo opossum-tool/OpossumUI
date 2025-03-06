@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
+import MuiPaper from '@mui/material/Paper';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import MuiTypography from '@mui/material/Typography';
@@ -10,7 +11,7 @@ import { useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { criticalityColor } from '../../shared-styles';
+import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -22,7 +23,7 @@ import {
 import { useUserSetting } from '../../state/variables/use-user-setting';
 import { AccordionWithPieChart } from '../AccordionWithPieChart/AccordionWithPieChart';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
-import { AttributionPropertyCountTable } from '../AttributionPropertyCountTable/AttributionPropertyCountTable';
+import { BarChart } from '../BarChart/BarChart';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
@@ -80,7 +81,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
     classifications,
   );
 
-  const manualAttributionPropertyCounts =
+  const attributionBarChartData =
     aggregateAttributionPropertiesFromAttributions(manualAttributions);
 
   const incompleteAttributionsData =
@@ -120,15 +121,24 @@ export const ProjectStatisticsPopup: React.FC = () => {
           <TabPanel tabIndex={0} selectedTab={selectedTab}>
             <MuiBox style={classes.panels}>
               <MuiBox style={classes.leftPanel}>
-                <AttributionPropertyCountTable
-                  attributionPropertyCountsEntries={Object.entries(
-                    manualAttributionPropertyCounts,
-                  )}
-                  title={
-                    text.projectStatisticsPopup.charts
-                      .attributionPropertyCountTable
-                  }
-                />
+                <MuiPaper
+                  sx={{
+                    backgroundColor: OpossumColors.lightestBlue,
+                    borderRadius: '10px',
+                    padding: '10px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
+                  <MuiTypography variant="subtitle1">
+                    {
+                      text.projectStatisticsPopup.charts.attributionProperties
+                        .title
+                    }
+                  </MuiTypography>
+                  <BarChart data={attributionBarChartData} />
+                </MuiPaper>
               </MuiBox>
               <MuiBox style={classes.rightPanel}>
                 <MuiTypography variant="subtitle1">
