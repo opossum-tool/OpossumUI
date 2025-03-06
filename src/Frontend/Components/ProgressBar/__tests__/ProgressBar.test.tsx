@@ -234,7 +234,7 @@ describe('ProgressBar', () => {
           filesWithHighlyCriticalExternalAttributionsCount: 1,
           filesWithMediumCriticalExternalAttributionsCount: 1,
           filesWithManualAttributionCount: 1,
-          filesWithOnlyExternalAttributionCount: 3,
+          filesWithOnlyExternalAttributionCount: 20,
           filesWithOnlyPreSelectedAttributionCount: 1,
           resourcesWithMediumCriticalExternalAttributions: [],
           resourcesWithNonInheritedExternalAttributionOnly: [],
@@ -264,6 +264,7 @@ describe('ProgressBar', () => {
     expect(
       screen.getByText(/containing classification third: 2/),
     ).toBeInTheDocument();
+    expect(screen.getByText(/without classification: 11/)).toBeInTheDocument();
   });
 
   it('forwards the user to the next resource with maximum classification', async () => {

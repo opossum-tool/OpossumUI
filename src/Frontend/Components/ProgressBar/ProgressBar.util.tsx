@@ -93,17 +93,32 @@ export function getCriticalityBarTooltipText(
 export function getClassificationBarTooltipText(
   progressBarData: ProgressBarData,
 ): React.ReactNode {
+  const numberOfResourcesWithSignalsAndNoAttributionAndClassification = sum(
+    Object.values(progressBarData.classificationStatistics).map(
+      (entry) => entry.correspondingFiles.length,
+    ),
+  );
+
+  const numberOfResourcesWithSignalsAndNoAttributionAndNoClassification =
+    progressBarData.filesWithOnlyExternalAttributionCount -
+    numberOfResourcesWithSignalsAndNoAttributionAndClassification;
   return (
     <MuiBox>
       Number of resources with signals and no attributions…
-      {Object.entries(progressBarData.classificationStatistics).map(
-        ([_, classificationStatisticsEntry]) => (
+      {Object.values(progressBarData.classificationStatistics).map(
+        (classificationStatisticsEntry) => (
           <div key={classificationStatisticsEntry.description}>
             ...containing classification{' '}
             {classificationStatisticsEntry.description}:{' '}
             {classificationStatisticsEntry.correspondingFiles.length}
           </div>
         ),
+      )}
+      {numberOfResourcesWithSignalsAndNoAttributionAndNoClassification && (
+        <div>
+          ...without classification:{' '}
+          {numberOfResourcesWithSignalsAndNoAttributionAndNoClassification}
+        </div>
       )}
     </MuiBox>
   );
@@ -199,6 +214,7 @@ export function getCriticalityBarBackground(
 }
 
 type Color = string;
+
 interface ProgressBarStep {
   widthInPercent: number;
   color: Color;
