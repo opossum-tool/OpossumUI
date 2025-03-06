@@ -6,7 +6,11 @@
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { Criticality, PackageInfo } from '../../../../shared/shared-types';
+import {
+  Criticality,
+  PackageInfo,
+  RawCriticality,
+} from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setFrequentLicenses } from '../../../state/actions/resource-actions/all-views-simple-actions';
@@ -165,6 +169,26 @@ describe('AttributionForm', () => {
       expect(
         screen.getByText(text.auditingOptions.modifiedPreferred),
       ).toBeInTheDocument();
+    });
+
+    [Criticality.Medium, Criticality.High].forEach((criticality) => {
+      it(`renders a chip for ${RawCriticality[criticality]} criticality`, () => {
+        const packageInfo = faker.opossum.packageInfo({
+          criticality,
+        });
+
+        renderComponent(<AttributionForm packageInfo={packageInfo} />);
+
+        const criticalityChip = screen.queryByTestId(
+          'auditing-option-criticality',
+        );
+        expect(criticalityChip).toBeInTheDocument();
+        expect(criticalityChip).toHaveTextContent(
+          text.auditingOptions[
+            criticality !== Criticality.None ? criticality : Criticality.Medium
+          ] as string,
+        );
+      });
     });
   });
 
