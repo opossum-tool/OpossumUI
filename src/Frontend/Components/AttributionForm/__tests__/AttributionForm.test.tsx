@@ -157,6 +157,42 @@ describe('AttributionForm', () => {
       );
     });
 
+    it('renders a chip for preferred', () => {
+      const packageInfo = faker.opossum.packageInfo({ preferred: true });
+      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+
+      expect(
+        screen.getByTestId('auditing-option-preferred'),
+      ).toBeInTheDocument();
+    });
+
+    it('renders a chip for was-preferred', () => {
+      const packageInfo = faker.opossum.packageInfo({ wasPreferred: true });
+      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+
+      expect(
+        screen.getByTestId('auditing-option-was-preferred'),
+      ).toBeInTheDocument();
+    });
+
+    it('renders a chip for pre-selected signals', () => {
+      const packageInfo = faker.opossum.packageInfo({ preSelected: true });
+      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+
+      expect(
+        screen.getByTestId('auditing-option-pre-selected'),
+      ).toBeInTheDocument();
+    });
+
+    it('renders a chip showing the confidence', () => {
+      const packageInfo = faker.opossum.packageInfo({});
+      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+
+      expect(
+        screen.getByTestId('auditing-option-confidence'),
+      ).toBeInTheDocument();
+    });
+
     it('renders a chip for modified preferred', () => {
       const packageInfo = faker.opossum.packageInfo({
         packageName: faker.lorem.word(),
