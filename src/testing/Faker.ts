@@ -11,6 +11,7 @@ import type {
   ParsedOpossumOutputFile,
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
+import { ClassificationStatisticsEntry } from '../Frontend/types/types';
 import { HttpClient } from '../Frontend/util/http-client';
 import {
   AdvisorySuggestion,
@@ -497,9 +498,35 @@ class PackageSearchModule {
   }
 }
 
+class ProgressBarModule {
+  constructor(protected readonly faker: NativeFaker) {}
+
+  classificationStatisticsEntry(
+    overwrites: Partial<ClassificationStatisticsEntry> = {},
+    numberOfFiles?: number,
+  ): ClassificationStatisticsEntry {
+    const { description = faker.word.noun() } = overwrites;
+    let { correspondingFiles } = overwrites;
+    if (!numberOfFiles) {
+      numberOfFiles = faker.number.int({ min: 0, max: 20 });
+    }
+    if (!correspondingFiles) {
+      correspondingFiles = faker.helpers.uniqueArray(
+        faker.word.noun,
+        numberOfFiles,
+      );
+    }
+    return {
+      description,
+      correspondingFiles,
+    };
+  }
+}
+
 class Faker extends NativeFaker {
   public readonly opossum = OpossumModule;
   public readonly packageSearch = PackageSearchModule;
+  public readonly progressBar = new ProgressBarModule(this);
 
   public outputPath(fileName: string): string {
     return path.join('test-output', fileName);

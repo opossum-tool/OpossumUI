@@ -9,6 +9,7 @@ import { changeSelectedAttributionOrOpenUnsavedPopup } from '../state/actions/po
 import { useAppDispatch, useAppSelector } from '../state/hooks';
 import {
   getAttributionBreakpoints,
+  getClassifications,
   getExternalData,
   getFilesWithChildren,
   getManualData,
@@ -39,6 +40,7 @@ export function useSignalsWorker() {
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const { projectId } = useAppSelector(getProjectMetadata);
+  const classifications = useAppSelector(getClassifications);
   const [worker, setWorker] = useState<Worker>();
 
   const [
@@ -309,4 +311,11 @@ export function useSignalsWorker() {
       data: signalSelectedLicense,
     } satisfies SignalsWorkerInput);
   }, [worker, signalSelectedLicense]);
+
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'classifications',
+      data: classifications,
+    } satisfies SignalsWorkerInput);
+  }, [worker, classifications]);
 }

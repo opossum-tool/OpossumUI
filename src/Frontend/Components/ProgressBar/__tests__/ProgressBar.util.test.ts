@@ -3,9 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
-import { ProgressBarData } from '../../../types/types';
 import {
+  ClassificationStatistics,
+  ProgressBarData,
+} from '../../../types/types';
+import {
+  getClassificationBarBackground,
   getCriticalityBarBackground,
   getProgressBarBackground,
   roundToAtLeastOnePercentAndNormalize,
@@ -27,6 +32,7 @@ describe('ProgressBar helpers', () => {
       filesWithMediumCriticalExternalAttributionsCount: 2,
       resourcesWithHighlyCriticalExternalAttributions: ['file1'],
       resourcesWithMediumCriticalExternalAttributions: ['file2', 'file3'],
+      classificationStatistics: {},
     };
     const expectedProgressBarBackground: string =
       'linear-gradient(to right,' +
@@ -55,6 +61,7 @@ describe('ProgressBar helpers', () => {
       filesWithMediumCriticalExternalAttributionsCount: 1,
       resourcesWithHighlyCriticalExternalAttributions: ['file1'],
       resourcesWithMediumCriticalExternalAttributions: ['file2'],
+      classificationStatistics: {},
     };
     const expectedCriticalityBarBackground: string =
       'linear-gradient(to right,' +
@@ -66,6 +73,105 @@ describe('ProgressBar helpers', () => {
     expect(actualCriticalityBarBackground).toEqual(
       expectedCriticalityBarBackground,
     );
+  });
+
+  describe('getClassificationBarBackground', () => {
+    it('returns correct background color fur multiple classifications', () => {
+      const classificationStatistics: ClassificationStatistics = {
+        0: faker.progressBar.classificationStatisticsEntry({}, 5),
+        1: faker.progressBar.classificationStatisticsEntry({}, 3),
+        2: faker.progressBar.classificationStatisticsEntry({}, 4),
+        3: faker.progressBar.classificationStatisticsEntry({}, 1),
+      };
+      const testProgressBarData: ProgressBarData = {
+        fileCount: 30,
+        filesWithManualAttributionCount: 3,
+        filesWithOnlyPreSelectedAttributionCount: 3,
+        filesWithOnlyExternalAttributionCount: 20,
+        resourcesWithNonInheritedExternalAttributionOnly: [],
+        filesWithHighlyCriticalExternalAttributionsCount: 1,
+        filesWithMediumCriticalExternalAttributionsCount: 1,
+        resourcesWithHighlyCriticalExternalAttributions: [],
+        resourcesWithMediumCriticalExternalAttributions: [],
+        classificationStatistics,
+      };
+
+      const background = getClassificationBarBackground(testProgressBarData);
+
+      const expectedBackground =
+        'linear-gradient(to right, hsl(0 100 45) 0% 5% , hsl(49 100 45) 5% 25% , hsl(97 100 45) 25% 40% , hsl(146 100 45) 40% 65% , hsl(220, 41%, 92%) 65% 100% )';
+      expect(background).toEqual(expectedBackground);
+    });
+
+    it('is independent of the ordering of the classification statistics', () => {
+      const classificationStatistics: ClassificationStatistics = {
+        11: faker.progressBar.classificationStatisticsEntry({}, 1),
+        1: faker.progressBar.classificationStatisticsEntry({}, 3),
+        2: faker.progressBar.classificationStatisticsEntry({}, 4),
+        0: faker.progressBar.classificationStatisticsEntry({}, 5),
+      };
+
+      const testProgressBarData: ProgressBarData = {
+        fileCount: 30,
+        filesWithManualAttributionCount: 3,
+        filesWithOnlyPreSelectedAttributionCount: 3,
+        filesWithOnlyExternalAttributionCount: 20,
+        resourcesWithNonInheritedExternalAttributionOnly: [],
+        filesWithHighlyCriticalExternalAttributionsCount: 1,
+        filesWithMediumCriticalExternalAttributionsCount: 1,
+        resourcesWithHighlyCriticalExternalAttributions: [],
+        resourcesWithMediumCriticalExternalAttributions: [],
+        classificationStatistics,
+      };
+
+      const background = getClassificationBarBackground(testProgressBarData);
+
+      const expectedBackground =
+        'linear-gradient(to right, hsl(0 100 45) 0% 5% , hsl(49 100 45) 5% 25% , hsl(97 100 45) 25% 40% , hsl(146 100 45) 40% 65% , hsl(220, 41%, 92%) 65% 100% )';
+      expect(background).toEqual(expectedBackground);
+    });
+
+    it('returns constant background color for zero files affected', () => {
+      const testProgressBarData: ProgressBarData = {
+        fileCount: 30,
+        filesWithManualAttributionCount: 3,
+        filesWithOnlyPreSelectedAttributionCount: 3,
+        filesWithOnlyExternalAttributionCount: 0,
+        resourcesWithNonInheritedExternalAttributionOnly: [],
+        filesWithHighlyCriticalExternalAttributionsCount: 1,
+        filesWithMediumCriticalExternalAttributionsCount: 1,
+        resourcesWithHighlyCriticalExternalAttributions: [],
+        resourcesWithMediumCriticalExternalAttributions: [],
+        classificationStatistics: {},
+      };
+
+      const background = getClassificationBarBackground(testProgressBarData);
+
+      expect(background).toBe('hsl(146, 50%, 55%)');
+    });
+
+    it('works for only one classification level configured', () => {
+      const testProgressBarData: ProgressBarData = {
+        fileCount: 30,
+        filesWithManualAttributionCount: 3,
+        filesWithOnlyPreSelectedAttributionCount: 3,
+        filesWithOnlyExternalAttributionCount: 20,
+        resourcesWithNonInheritedExternalAttributionOnly: [],
+        filesWithHighlyCriticalExternalAttributionsCount: 1,
+        filesWithMediumCriticalExternalAttributionsCount: 1,
+        resourcesWithHighlyCriticalExternalAttributions: [],
+        resourcesWithMediumCriticalExternalAttributions: [],
+        classificationStatistics: {
+          0: faker.progressBar.classificationStatisticsEntry({}, 5),
+        },
+      };
+
+      const background = getClassificationBarBackground(testProgressBarData);
+
+      const expectedBackground =
+        'linear-gradient(to right, hsl(0 100 45) 0% 25% , hsl(220, 41%, 92%) 25% 100% )';
+      expect(background).toBe(expectedBackground);
+    });
   });
 
   it.each([

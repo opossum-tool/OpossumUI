@@ -4,12 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
+  Classifications,
   Criticality,
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { TREE_ROOT_FOLDER_LABEL } from '../../shared-styles';
-import { ProgressBarData } from '../../types/types';
+import { ClassificationStatistics, ProgressBarData } from '../../types/types';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 
 export function filterResourcesToAttributions(
@@ -30,6 +31,23 @@ export function filterResourcesToAttributions(
   );
 }
 
+function addPathToClassificationStatistics(
+  progressBarData: ProgressBarData,
+  highestClassification: number,
+  path: string,
+) {
+  if (progressBarData.classificationStatistics[highestClassification]) {
+    progressBarData.classificationStatistics[
+      highestClassification
+    ].correspondingFiles.push(path);
+  } else {
+    progressBarData.classificationStatistics[highestClassification] = {
+      description: highestClassification.toFixed(0),
+      correspondingFiles: [path],
+    };
+  }
+}
+
 function updateProgressBarDataForResources(
   progressBarData: ProgressBarData,
   resources: Resources,
@@ -43,8 +61,11 @@ function updateProgressBarDataForResources(
   hasParentManualAttribution = false,
   hasParentOnlyPreselectedAttribution = false,
   hasParentExternalAttribution = false,
+  highestClassification: number | undefined = undefined,
 ): void {
+  const highestClassificationAtThisFolderPath = highestClassification;
   for (const resourceName of Object.keys(resources)) {
+    highestClassification = highestClassificationAtThisFolderPath;
     const resource = resources[resourceName] as Resources | 1 | undefined;
     const path = `${parentPath}${resourceName}${
       canResourceHaveChildren(resource) ? '/' : ''
@@ -78,6 +99,17 @@ function updateProgressBarDataForResources(
       externalAttributions,
     );
 
+    const currentResourcesHighestClassification =
+      getHighestClassificationOfExternalAttributions(
+        path,
+        resourcesToExternalAttributions,
+        externalAttributions,
+      );
+
+    if (currentResourcesHighestClassification) {
+      highestClassification = currentResourcesHighestClassification;
+    }
+
     if (!resourceCanHaveChildren || filesWithChildren.has(path)) {
       progressBarData.fileCount++;
       if (hasOnlyPreselectedAttribution) {
@@ -100,12 +132,26 @@ function updateProgressBarDataForResources(
             path,
           );
         }
+        if (highestClassification) {
+          addPathToClassificationStatistics(
+            progressBarData,
+            highestClassification,
+            path,
+          );
+        }
       } else if (hasParentExternalAttribution) {
         progressBarData.filesWithOnlyExternalAttributionCount++;
         if (highestCriticality === Criticality.High) {
           progressBarData.filesWithHighlyCriticalExternalAttributionsCount++;
         } else if (highestCriticality === Criticality.Medium) {
           progressBarData.filesWithMediumCriticalExternalAttributionsCount++;
+        }
+        if (highestClassification) {
+          addPathToClassificationStatistics(
+            progressBarData,
+            highestClassification,
+            path,
+          );
         }
       }
     }
@@ -145,6 +191,7 @@ function updateProgressBarDataForResources(
         hasOnlyPreselectedAttribution && !isBreakpoint,
         (hasNonInheritedExternalAttributions || hasParentExternalAttribution) &&
           !isBreakpoint,
+        highestClassification,
       );
     }
   }
@@ -171,6 +218,30 @@ export function getHighestCriticalityOfExternalAttributions(
   return highestCriticality;
 }
 
+export function getHighestClassificationOfExternalAttributions(
+  path: string,
+  resourcesToExternalAttributions: ResourcesToAttributions,
+  externalAttributions: Attributions,
+): number | undefined {
+  let highestClassification = undefined;
+  const externalAttributionsOfCurrentResource =
+    resourcesToExternalAttributions[path];
+  if (externalAttributionsOfCurrentResource) {
+    for (const attributionId of externalAttributionsOfCurrentResource) {
+      const classification = externalAttributions[attributionId]
+        ? externalAttributions[attributionId].classification
+        : 0;
+      if (
+        classification &&
+        (!highestClassification || classification > highestClassification)
+      ) {
+        highestClassification = classification;
+      }
+    }
+  }
+  return highestClassification;
+}
+
 export function resourceHasOnlyPreSelectedAttributions(
   path: string,
   resourcesToManualAttributions: ResourcesToAttributions,
@@ -192,8 +263,9 @@ export function getUpdatedProgressBarData(args: {
   resolvedExternalAttributions: Set<string>;
   attributionBreakpoints: Set<string>;
   filesWithChildren: Set<string>;
+  classifications: Classifications;
 }): ProgressBarData {
-  const progressBarData = getEmptyProgressBarData();
+  const progressBarData = getEmptyProgressBarData(args.classifications);
 
   updateProgressBarDataForResources(
     progressBarData,
@@ -212,7 +284,21 @@ export function getUpdatedProgressBarData(args: {
   return progressBarData;
 }
 
-export function getEmptyProgressBarData(): ProgressBarData {
+export function getEmptyProgressBarData(
+  classifications: Classifications,
+): ProgressBarData {
+  const classificationStatistics: ClassificationStatistics = {};
+  if (classifications) {
+    Object.entries(classifications).map(
+      ([classificationNumber, description]) => {
+        classificationStatistics[classificationNumber as unknown as number] = {
+          description,
+          correspondingFiles: [],
+        };
+      },
+    );
+  }
+
   return {
     fileCount: 0,
     filesWithManualAttributionCount: 0,
@@ -223,5 +309,6 @@ export function getEmptyProgressBarData(): ProgressBarData {
     filesWithMediumCriticalExternalAttributionsCount: 0,
     resourcesWithHighlyCriticalExternalAttributions: [],
     resourcesWithMediumCriticalExternalAttributions: [],
+    classificationStatistics,
   };
 }
