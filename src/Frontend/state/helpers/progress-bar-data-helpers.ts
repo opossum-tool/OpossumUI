@@ -63,7 +63,9 @@ function updateProgressBarDataForResources(
   hasParentExternalAttribution = false,
   highestClassification: number | undefined = undefined,
 ): void {
+  const highestClassificationAtThisFolderPath = highestClassification;
   for (const resourceName of Object.keys(resources)) {
+    highestClassification = highestClassificationAtThisFolderPath;
     const resource = resources[resourceName] as Resources | 1 | undefined;
     const path = `${parentPath}${resourceName}${
       canResourceHaveChildren(resource) ? '/' : ''
@@ -104,11 +106,7 @@ function updateProgressBarDataForResources(
         externalAttributions,
       );
 
-    if (
-      currentResourcesHighestClassification &&
-      (!highestClassification ||
-        currentResourcesHighestClassification > highestClassification)
-    ) {
+    if (currentResourcesHighestClassification) {
       highestClassification = currentResourcesHighestClassification;
     }
 

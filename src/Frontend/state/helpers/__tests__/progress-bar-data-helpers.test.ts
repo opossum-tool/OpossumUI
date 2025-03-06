@@ -10,6 +10,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import {
   getHighestCriticalityOfExternalAttributions,
   getUpdatedProgressBarData,
@@ -485,26 +486,36 @@ describe('The getUpdatedProgressBarData function', () => {
             'thirdFile.js': 1,
           },
         },
+        'root.ts': 1,
+        'root.fs': 1,
       };
-      const testPackageInfoWithClassification: PackageInfo = {
+      const packageWithClassificationOne = faker.opossum.packageInfo({
         classification: 1,
-        id: 'someId',
-        criticality: Criticality.None,
-      };
-      const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
+      });
+      const packageWithClassification14 = faker.opossum.packageInfo({
         classification: 14,
-        id: 'anotherId',
-        criticality: Criticality.None,
-      };
+      });
+      const secondPackageWithClassification1 = faker.opossum.packageInfo({
+        classification: 1,
+      });
+
+      const packageWithUndefinedClassification = faker.opossum.packageInfo({
+        classification: undefined,
+      });
 
       const externalAttributions = {
-        id1: testPackageInfoWithClassification,
-        id2: secondTestTemporaryDisplayPackageInfo,
+        id1: packageWithClassificationOne,
+        id14: packageWithClassification14,
+        id3: secondPackageWithClassification1,
+        idUndefined: packageWithUndefinedClassification,
       };
 
       const resourcesToExternalAttributions = {
         '/folder/somefile.ts': ['id1'],
-        '/folder/package/': ['id2'],
+        '/folder/package/': ['id14'],
+        '/folder/package/thirdFile.js': ['id3'],
+        '/root.ts': ['id14'],
+        '/root.fs': ['idUndefined'],
       };
 
       const progressBarData = getUpdatedProgressBarData({
@@ -525,13 +536,16 @@ describe('The getUpdatedProgressBarData function', () => {
 
       expect(progressBarData.classificationStatistics).toEqual({
         0: { description: 'foo', correspondingFiles: [] },
-        1: { description: 'bar', correspondingFiles: ['/folder/somefile.ts'] },
-        14: {
-          description: 'something else',
+        1: {
+          description: 'bar',
           correspondingFiles: [
-            '/folder/package/anotherFile.js',
+            '/folder/somefile.ts',
             '/folder/package/thirdFile.js',
           ],
+        },
+        14: {
+          description: 'something else',
+          correspondingFiles: ['/folder/package/anotherFile.js', '/root.ts'],
         },
       });
     });
