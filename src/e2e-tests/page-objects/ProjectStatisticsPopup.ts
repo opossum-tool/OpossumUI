@@ -12,6 +12,7 @@ export class ProjectStatisticsPopup {
   readonly closeButton: Locator;
   readonly detailsTab: Locator;
   readonly totalSignalCount: Locator;
+  readonly numberOfAttributions: Locator;
 
   constructor(window: Page) {
     this.node = window.getByLabel('project statistics');
@@ -28,6 +29,9 @@ export class ProjectStatisticsPopup {
       .last()
       .getByRole('cell')
       .last();
+    this.numberOfAttributions = this.node.getByText(
+      text.projectStatisticsPopup.charts.count,
+    );
   }
 
   public assert = {
@@ -39,6 +43,9 @@ export class ProjectStatisticsPopup {
     },
     totalSignalCount: async (count: number): Promise<void> => {
       await expect(this.totalSignalCount).toContainText(count.toString());
+    },
+    attributionPropertiesIsVisible: async (): Promise<void> => {
+      await expect(this.numberOfAttributions).toBeVisible();
     },
   };
 }
