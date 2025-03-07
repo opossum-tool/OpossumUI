@@ -425,11 +425,13 @@ describe('getIncompleteAttributionsCount', () => {
   it('counts complete and incomplete attributions', () => {
     const expectedIncompleteAttributionCount: Array<ChartDataItem> = [
       {
-        name: 'Complete attributions',
+        name: text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
+          .completeAttributions,
         count: 2,
       },
       {
-        name: 'Incomplete attributions',
+        name: text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
+          .incompleteAttributions,
         count: 4,
       },
     ];
@@ -445,7 +447,8 @@ describe('getIncompleteAttributionsCount', () => {
   it('counts only incomplete attributions', () => {
     const expectedIncompleteAttributionCount: Array<ChartDataItem> = [
       {
-        name: 'Incomplete attributions',
+        name: text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
+          .incompleteAttributions,
         count: 5,
       },
     ];
