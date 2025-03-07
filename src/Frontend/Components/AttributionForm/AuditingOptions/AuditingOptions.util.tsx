@@ -21,6 +21,7 @@ import {
   useAppStore,
 } from '../../../state/hooks';
 import {
+  getClassifications,
   getExternalAttributionSources,
   getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
@@ -60,6 +61,8 @@ export function useAuditingOptions({
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,
   );
+  const classifications = useAppSelector(getClassifications);
+
   const source = useMemo(() => {
     const sourceName =
       packageInfo.source?.additionalName || packageInfo.source?.name;
@@ -216,7 +219,9 @@ export function useAuditingOptions({
       },
       {
         id: 'classification',
-        label: packageInfo.classification,
+        label:
+          classifications[packageInfo.classification ?? 0] ||
+          `${packageInfo.classification} - not configured`,
         icon: (
           <ClassificationIcon
             noTooltip
@@ -270,6 +275,7 @@ export function useAuditingOptions({
     ],
     [
       attributionSources,
+      classifications,
       dispatch,
       isEditable,
       isPreferenceFeatureEnabled,
