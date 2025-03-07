@@ -54,6 +54,8 @@ test('displays bar and pie charts in the overview tab', async ({
 }) => {
   await menuBar.openProjectStatistics();
   await projectStatisticsPopup.assert.titleIsVisible();
+  // hover on title to avoid getting tooltips that mess up locators
+  await projectStatisticsPopup.title.hover();
 
   await projectStatisticsPopup.assert.attributionPropertiesIsVisible();
   await projectStatisticsPopup.assert.mostFrequentLicensesPieChartIsVisible(
