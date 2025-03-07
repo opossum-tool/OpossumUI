@@ -235,11 +235,21 @@ describe('The ProjectStatisticsPopup', () => {
       ],
     });
 
-    expect(screen.getByText('Attributions Overview')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        text.projectStatisticsPopup.charts.attributionProperties.title,
+      ),
+    ).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText('Details'));
+    await userEvent.click(
+      screen.getByText(text.projectStatisticsPopup.tabs.details),
+    );
 
-    expect(screen.getByText('Signals per Sources')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        text.attributionCountPerSourcePerLicenseTable.columns.licenseInfo,
+      ),
+    ).toBeInTheDocument();
   });
 
   it('supports sorting the signals per sources table', async () => {
