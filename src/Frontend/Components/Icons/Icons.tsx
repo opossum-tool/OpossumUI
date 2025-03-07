@@ -25,10 +25,6 @@ import { text } from '../../../shared/text';
 import { baseIcon, criticalityColor, OpossumColors } from '../../shared-styles';
 
 const classes = {
-  nonClickableIcon: {
-    ...baseIcon,
-    color: OpossumColors.darkBlue,
-  },
   resourceIcon: {
     width: '18px',
     height: '18px',
