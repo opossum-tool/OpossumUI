@@ -249,14 +249,17 @@ function calculateProgressBarSteps(
 ): Array<ProgressBarStep> {
   const classificationStatistics = progressBarData.classificationStatistics;
   const numberOfClassifications = Object.keys(classificationStatistics).length;
-  const progressBarSteps = Object.values(classificationStatistics)
+  const progressBarSteps = Object.entries(classificationStatistics)
     .reverse()
-    .map((statisticsEntry, index) => {
+    .map(([classifictionNumericValue, statisticsEntry], index) => {
       return {
         widthInPercent:
           (statisticsEntry.correspondingFiles.length * 100) /
           progressBarData.filesWithOnlyExternalAttributionCount,
-        color: interpolateFromRedToGreen(numberOfClassifications, index),
+        color:
+          (classifictionNumericValue as unknown as number) === 0
+            ? OpossumColors.pastelDarkGreen
+            : interpolateFromRedToGreen(numberOfClassifications, index),
       };
     });
   //add files without classifications
@@ -267,6 +270,7 @@ function calculateProgressBarSteps(
     widthInPercent: 100 - totalPercentage,
     color: OpossumColors.lightestBlue,
   });
+
   return roundPercentagesToAtLeastOnePercentAndNormalize(progressBarSteps);
 }
 
