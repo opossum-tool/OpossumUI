@@ -13,7 +13,10 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import { setFrequentLicenses } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import {
+  setConfig,
+  setFrequentLicenses,
+} from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { renderComponent } from '../../../test-helpers/render';
 import { generatePurl } from '../../../util/handle-purl';
@@ -227,30 +230,68 @@ describe('AttributionForm', () => {
       });
     });
 
-    it('renders a chip for items with classification', () => {
-      const packageInfo = faker.opossum.packageInfo({
-        classification: 1,
+    describe('classification chip', () => {
+      it('renders a chip for items with classification', () => {
+        const packageInfo = faker.opossum.packageInfo({
+          classification: 1,
+        });
+
+        renderComponent(<AttributionForm packageInfo={packageInfo} />);
+
+        const classificationChip = screen.queryByTestId(
+          'auditing-option-classification',
+        );
+        expect(classificationChip).toBeInTheDocument();
       });
 
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      it('renders a chip for items with classification 0', () => {
+        const packageInfo = faker.opossum.packageInfo({
+          classification: 0,
+        });
 
-      const classificationChip = screen.queryByTestId(
-        'auditing-option-classification',
-      );
-      expect(classificationChip).toBeInTheDocument();
-    });
+        renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
-    it('renders a chip for items with classification 0', () => {
-      const packageInfo = faker.opossum.packageInfo({
-        classification: 0,
+        const classificationChip = screen.getByTestId(
+          'auditing-option-classification',
+        );
+        expect(classificationChip).toBeInTheDocument();
       });
 
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      it('shows the correct text if configured', () => {
+        const packageInfo = faker.opossum.packageInfo({
+          classification: 0,
+        });
+        const classificationText = faker.word.words();
 
-      const classificationChip = screen.queryByTestId(
-        'auditing-option-classification',
-      );
-      expect(classificationChip).toBeInTheDocument();
+        renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+          actions: [
+            setConfig({
+              classifications: {
+                0: classificationText,
+              },
+            }),
+          ],
+        });
+
+        const classificationChip = screen.getByTestId(
+          'auditing-option-classification',
+        );
+        expect(classificationChip).toBeInTheDocument();
+        expect(classificationChip).toHaveTextContent(classificationText);
+      });
+
+      it('shows the backup text if no configuration', () => {
+        const packageInfo = faker.opossum.packageInfo({
+          classification: 0,
+        });
+        renderComponent(<AttributionForm packageInfo={packageInfo} />);
+
+        const classificationChip = screen.getByTestId(
+          'auditing-option-classification',
+        );
+        expect(classificationChip).toBeInTheDocument();
+        expect(classificationChip).toHaveTextContent('0 - not configured');
+      });
     });
   });
 
