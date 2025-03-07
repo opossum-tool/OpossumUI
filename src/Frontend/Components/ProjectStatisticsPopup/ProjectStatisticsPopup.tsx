@@ -2,10 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { createTheme, Grid2 as MuiGrid, useTheme } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import MuiTypography from '@mui/material/Typography';
-import { useState } from 'react';
+import { PropsWithChildren, useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -108,66 +110,68 @@ export const ProjectStatisticsPopup: React.FC = () => {
             <MuiTab label={text.projectStatisticsPopup.tabs.details} />
           </MuiTabs>
           <TabPanel
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-            }}
+            style={{ overflowY: 'auto' }}
             tabIndex={0}
             selectedTab={selectedTab}
           >
-            <ChartCard>
-              <MuiTypography variant="subtitle1">
-                {text.projectStatisticsPopup.charts.attributionProperties.title}
-              </MuiTypography>
-              <BarChart data={attributionBarChartData} />
-            </ChartCard>
-            <ChartCard>
-              {mostFrequentLicenseCountData.length > 0 ? (
+            <ChartGrid>
+              <ChartGridItem>
                 <MuiTypography variant="subtitle1">
                   {
-                    text.projectStatisticsPopup.charts
-                      .mostFrequentLicenseCountPieChart
+                    text.projectStatisticsPopup.charts.attributionProperties
+                      .title
                   }
                 </MuiTypography>
-              ) : null}
-              <PieChart segments={mostFrequentLicenseCountData} />
-            </ChartCard>
-            <ChartCard>
-              {criticalSignalsCount.length > 0 ? (
-                <MuiTypography variant="subtitle1">
-                  {
-                    text.projectStatisticsPopup.charts
-                      .criticalSignalsCountPieChart.title
-                  }
-                </MuiTypography>
-              ) : null}
-              <PieChart
-                segments={criticalSignalsCount}
-                colorMap={CRITICALITY_COLORS}
-              />
-            </ChartCard>
-            <ChartCard>
-              {signalCountByClassification.length > 0 ? (
-                <MuiTypography variant="subtitle1">
-                  {
-                    text.projectStatisticsPopup.charts
-                      .signalCountByClassificationPieChart.title
-                  }
-                </MuiTypography>
-              ) : null}
-              <PieChart segments={signalCountByClassification} />
-            </ChartCard>
-            <ChartCard>
-              {incompleteAttributionsData.length > 0 ? (
-                <MuiTypography variant="subtitle1">
-                  {
-                    text.projectStatisticsPopup.charts
-                      .incompleteAttributionsPieChart.title
-                  }
-                </MuiTypography>
-              ) : null}
-              <PieChart segments={incompleteAttributionsData} />
-            </ChartCard>
+                <BarChart data={attributionBarChartData} />
+              </ChartGridItem>
+              <ChartGridItem>
+                {mostFrequentLicenseCountData.length > 0 ? (
+                  <MuiTypography variant="subtitle1">
+                    {
+                      text.projectStatisticsPopup.charts
+                        .mostFrequentLicenseCountPieChart
+                    }
+                  </MuiTypography>
+                ) : null}
+                <PieChart segments={mostFrequentLicenseCountData} />
+              </ChartGridItem>
+              <ChartGridItem>
+                {criticalSignalsCount.length > 0 ? (
+                  <MuiTypography variant="subtitle1">
+                    {
+                      text.projectStatisticsPopup.charts
+                        .criticalSignalsCountPieChart.title
+                    }
+                  </MuiTypography>
+                ) : null}
+                <PieChart
+                  segments={criticalSignalsCount}
+                  colorMap={CRITICALITY_COLORS}
+                />
+              </ChartGridItem>
+              <ChartGridItem>
+                {signalCountByClassification.length > 0 ? (
+                  <MuiTypography variant="subtitle1">
+                    {
+                      text.projectStatisticsPopup.charts
+                        .signalCountByClassificationPieChart.title
+                    }
+                  </MuiTypography>
+                ) : null}
+                <PieChart segments={signalCountByClassification} />
+              </ChartGridItem>
+              <ChartGridItem>
+                {incompleteAttributionsData.length > 0 ? (
+                  <MuiTypography variant="subtitle1">
+                    {
+                      text.projectStatisticsPopup.charts
+                        .incompleteAttributionsPieChart.title
+                    }
+                  </MuiTypography>
+                ) : null}
+                <PieChart segments={incompleteAttributionsData} />
+              </ChartGridItem>
+            </ChartGrid>
           </TabPanel>
           <TabPanel
             style={{ overflowY: 'auto' }}
@@ -223,5 +227,43 @@ const TabPanel: React.FC<TabPanelProps> = (props) => {
     >
       {props.children}
     </div>
+  );
+};
+
+const ChartGrid: React.FC<PropsWithChildren> = (props) => {
+  return (
+    <ThemeProvider
+      theme={createTheme({
+        ...useTheme(),
+        breakpoints: {
+          values: {
+            xs: 0,
+            sm: 0,
+            md: 1300,
+            lg: 1850,
+            xl: 2000,
+          },
+        },
+      })}
+    >
+      <MuiGrid
+        height={'100%'}
+        container
+        columns={{ sm: 1, md: 2, lg: 3 }}
+        spacing={{ sm: 3, lg: 3 }}
+        padding={'10px'}
+        alignContent={'flex-start'}
+      >
+        {props.children}
+      </MuiGrid>
+    </ThemeProvider>
+  );
+};
+
+const ChartGridItem: React.FC<PropsWithChildren> = (props) => {
+  return (
+    <MuiGrid size={1} minHeight={'220px'} height={'48%'} display={'flex'}>
+      <ChartCard>{props.children}</ChartCard>
+    </MuiGrid>
   );
 };

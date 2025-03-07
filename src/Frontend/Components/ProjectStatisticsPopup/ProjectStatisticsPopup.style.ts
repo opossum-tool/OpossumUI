@@ -11,8 +11,8 @@ export const ChartCard = styled(MuiPaper)({
   backgroundColor: OpossumColors.lightestBlue,
   borderRadius: '10px',
   padding: '12px',
-  margin: '12px',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
+  flex: 1,
 });
