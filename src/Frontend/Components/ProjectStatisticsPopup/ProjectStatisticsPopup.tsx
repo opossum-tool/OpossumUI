@@ -171,7 +171,6 @@ export const ProjectStatisticsPopup: React.FC = () => {
               licenseCounts={licenseCounts}
               licenseNamesWithCriticality={licenseNamesWithCriticality}
               licenseNamesWithClassification={licenseNamesWithClassification}
-              title={text.projectStatisticsPopup.charts.licenseCountsTable}
             />
           </TabPanel>
         </MuiBox>

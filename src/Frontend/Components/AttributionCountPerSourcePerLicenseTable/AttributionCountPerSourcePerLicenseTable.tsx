@@ -6,7 +6,6 @@ import MuiBox from '@mui/material/Box';
 import MuiTable from '@mui/material/Table';
 import MuiTableBody from '@mui/material/TableBody';
 import MuiTableContainer from '@mui/material/TableContainer';
-import MuiTypography from '@mui/material/Typography';
 import { orderBy, upperFirst } from 'lodash';
 import { useMemo, useState } from 'react';
 
@@ -36,7 +35,6 @@ interface AttributionCountPerSourcePerLicenseTableProps {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
   licenseNamesWithClassification: LicenseNamesWithClassification;
-  title: string;
 }
 
 export const AttributionCountPerSourcePerLicenseTable: React.FC<
@@ -144,8 +142,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
   ]);
 
   return (
-    <MuiBox sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <MuiTypography variant="subtitle1">{props.title}</MuiTypography>
+    <MuiBox sx={{ display: 'flex', height: '100%' }}>
       <MuiTableContainer sx={classes.container}>
         <MuiTable size="small" stickyHeader>
           <AttributionCountPerSourcePerLicenseTableHead
