@@ -296,18 +296,18 @@ describe('The ProjectStatisticsPopup', () => {
 
     await userEvent.click(screen.getByText('Scancode'));
 
-    // sorted by count on scancode source ASC
-    expect(getLicenseNames()).toStrictEqual([
-      'The MIT License (MIT)',
-      'Apache License Version 2.0',
-    ]);
-
-    await userEvent.click(screen.getByText('Scancode'));
-
     // sorted by count on scancode source DESC
     expect(getLicenseNames()).toStrictEqual([
       'Apache License Version 2.0',
       'The MIT License (MIT)',
+    ]);
+
+    await userEvent.click(screen.getByText('Scancode'));
+
+    // sorted by count on scancode source ASC
+    expect(getLicenseNames()).toStrictEqual([
+      'The MIT License (MIT)',
+      'Apache License Version 2.0',
     ]);
   });
 
