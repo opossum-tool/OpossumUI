@@ -226,6 +226,19 @@ describe('AttributionForm', () => {
         );
       });
     });
+
+    it('renders a chip for items with classification', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        classification: 1,
+      });
+
+      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+
+      const classificationChip = screen.queryByTestId(
+        'auditing-option-classification',
+      );
+      expect(classificationChip).toBeInTheDocument();
+    });
   });
 
   describe('url handling', () => {

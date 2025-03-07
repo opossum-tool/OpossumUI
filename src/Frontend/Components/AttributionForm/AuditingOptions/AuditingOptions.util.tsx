@@ -28,6 +28,7 @@ import {
 import { useUserSetting } from '../../../state/variables/use-user-setting';
 import { prettifySource } from '../../../util/prettify-source';
 import {
+  ClassificationIcon,
   CriticalityIcon,
   ExcludeFromNoticeIcon,
   FollowUpIcon,
@@ -214,6 +215,18 @@ export function useAuditingOptions({
         interactive: false,
       },
       {
+        id: 'classification',
+        label: packageInfo.classification,
+        icon: (
+          <ClassificationIcon
+            noTooltip
+            classification={packageInfo.classification}
+          />
+        ),
+        selected: !!packageInfo.classification,
+        interactive: false,
+      },
+      {
         id: 'confidence',
         label: text.auditingOptions.confidence,
         icon: (
@@ -261,6 +274,7 @@ export function useAuditingOptions({
       isEditable,
       isPreferenceFeatureEnabled,
       packageInfo.attributionConfidence,
+      packageInfo.classification,
       packageInfo.criticality,
       packageInfo.excludeFromNotice,
       packageInfo.followUp,
