@@ -232,33 +232,42 @@ function interpolateFromRedToGreen(
   return `hsl(${hue.toFixed(0)} 100 45)`;
 }
 
+function roundPercentagesToAtLeastOnePercentAndNormalize(
+  progressBarSteps: Array<ProgressBarStep>,
+): Array<ProgressBarStep> {
+  //percentages and steps need to be in parallel here
+  let percentages = progressBarSteps.map((step) => step.widthInPercent);
+  percentages = roundToAtLeastOnePercentAndNormalize(percentages);
+  for (let i = 0; i < percentages.length; i++) {
+    progressBarSteps[i].widthInPercent = percentages[i];
+  }
+  return progressBarSteps;
+}
+
 function calculateProgressBarSteps(
   progressBarData: ProgressBarData,
 ): Array<ProgressBarStep> {
   const classificationStatistics = progressBarData.classificationStatistics;
-  let percentages = Object.values(classificationStatistics)
-    .map(
-      (statisticsEntry) =>
-        (statisticsEntry.correspondingFiles.length * 100) /
-        progressBarData.filesWithOnlyExternalAttributionCount,
-    )
-    .reverse();
-  //add files without classifications
-  const totalPercentage = sum(percentages);
-  percentages.push(100 - totalPercentage);
-  percentages = roundToAtLeastOnePercentAndNormalize(percentages);
-
   const numberOfClassifications = Object.keys(classificationStatistics).length;
-  const progressBarSteps = percentages.map((percentage, index) => {
-    return {
-      widthInPercent: percentage,
-      color: interpolateFromRedToGreen(numberOfClassifications, index),
-    };
+  const progressBarSteps = Object.values(classificationStatistics)
+    .reverse()
+    .map((statisticsEntry, index) => {
+      return {
+        widthInPercent:
+          (statisticsEntry.correspondingFiles.length * 100) /
+          progressBarData.filesWithOnlyExternalAttributionCount,
+        color: interpolateFromRedToGreen(numberOfClassifications, index),
+      };
+    });
+  //add files without classifications
+  const totalPercentage = sum(
+    progressBarSteps.map((step) => step.widthInPercent),
+  );
+  progressBarSteps.push({
+    widthInPercent: 100 - totalPercentage,
+    color: OpossumColors.lightestBlue,
   });
-  //files without classifications do have a dedicated color
-  progressBarSteps[progressBarSteps.length - 1].color =
-    OpossumColors.lightestBlue;
-  return progressBarSteps;
+  return roundPercentagesToAtLeastOnePercentAndNormalize(progressBarSteps);
 }
 
 function createBackgroundFromProgressBarSteps(
