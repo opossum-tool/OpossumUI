@@ -27,10 +27,10 @@ const defaultPieChartColors = [
   OpossumColors.brown,
 ];
 
-const legendElementStyle: React.CSSProperties = {
-  display: 'flex',
+const legendTextStyle: React.CSSProperties = {
   fontFamily: 'sans-serif',
   fontSize: '12px',
+  width: '95%',
 };
 
 function getLegendIconStyle(backgroundColor: string): React.CSSProperties {
@@ -62,8 +62,6 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           data={props.segments}
           dataKey="count"
           nameKey="name"
-          cx="50%"
-          cy="50%"
           minAngle={15}
           outerRadius={70}
           isAnimationActive={false}
@@ -92,9 +90,9 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
     return (
       <div>
         {props.payload?.map((entry: { value: string }, index: number) => (
-          <div style={legendElementStyle} key={`item-${index}`}>
+          <div style={{ display: 'flex' }} key={`item-${index}`}>
             <div style={getLegendIconStyle(pieChartColors[index])} />
-            <div>{entry.value}</div>
+            <div style={legendTextStyle}>{entry.value}</div>
           </div>
         ))}
       </div>
