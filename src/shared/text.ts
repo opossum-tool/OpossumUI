@@ -367,8 +367,8 @@ export const text = {
         ariaLabel: 'Progress bar attribution progress',
       },
       classificationProgressBar: {
-        selectLabel: 'Signals by classification',
-        ariaLabel: 'Progress bar classification',
+        selectLabel: 'Signals by Classification',
+        ariaLabel: 'Progress bar Classification',
       },
     },
   },
