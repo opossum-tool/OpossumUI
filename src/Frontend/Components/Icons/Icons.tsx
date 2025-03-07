@@ -211,6 +211,7 @@ export function ClassificationIcon({
   className,
   classification,
   classification_mapping,
+  noTooltip,
   sx,
   tooltipPlacement,
 }: IconProps & {
@@ -220,13 +221,17 @@ export function ClassificationIcon({
   if (!classification || classification === 0) {
     return null;
   }
-  const tooltip = classification_mapping?.[classification];
-  if (!tooltip) {
-    return null;
-  }
+  const tooltip =
+    classification_mapping?.[classification] ||
+    `${classification} - not configured`;
 
   return (
-    <MuiTooltip title={tooltip} placement={tooltipPlacement} disableInteractive>
+    <MuiTooltip
+      title={noTooltip ? undefined : tooltip}
+      placement={tooltipPlacement}
+      disableInteractive
+      data-testid={'classification-tooltip'}
+    >
       <Icon
         aria-label={'Classification icon'}
         sx={{
