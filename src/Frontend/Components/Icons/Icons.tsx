@@ -19,6 +19,7 @@ import WhatshotIcon from '@mui/icons-material/Whatshot';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import { Icon, SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
+import { ReactNode } from 'react';
 
 import { Classifications, Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -207,7 +208,7 @@ export function CriticalityIcon({
   );
 }
 
-export function CriticalClassificationIcon({
+export function ClassificationIcon({
   className,
   classification,
   classification_mapping,
@@ -217,13 +218,16 @@ export function CriticalClassificationIcon({
 }: IconProps & {
   classification?: number;
   classification_mapping?: Classifications;
-}) {
-  if (!classification || classification === 0) {
+}): ReactNode {
+  if (classification === undefined) {
     return null;
   }
   const tooltip =
     classification_mapping?.[classification] ||
     `${classification} - not configured`;
+
+  const color =
+    classification === 0 ? OpossumColors.darkBlue : OpossumColors.red;
 
   return (
     <MuiTooltip
@@ -236,11 +240,11 @@ export function CriticalClassificationIcon({
         aria-label={'Classification icon'}
         sx={{
           ...baseIcon,
-          color: `${OpossumColors.red} !important`,
-          ...sx,
+          color: `${color} !important`,
           fontFamily: 'sans-serif',
           fontWeight: 'bold',
           fontSize: 'medium !important',
+          ...sx,
         }}
         className={className}
       >
@@ -248,6 +252,18 @@ export function CriticalClassificationIcon({
       </Icon>
     </MuiTooltip>
   );
+}
+
+export function CriticalClassificationIcon(
+  props: IconProps & {
+    classification?: number;
+    classification_mapping?: Classifications;
+  },
+) {
+  if (!props.classification || props.classification === 0) {
+    return null;
+  }
+  return <ClassificationIcon {...props} />;
 }
 
 export function SignalIcon({

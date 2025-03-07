@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { Criticality } from '../../../../shared/shared-types';
 import {
   BreakpointIcon,
+  ClassificationIcon,
   CriticalClassificationIcon,
   CriticalityIcon,
   DirectoryIcon,
@@ -78,7 +79,7 @@ describe('The Icons', () => {
     expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
   });
   describe('classification icon', () => {
-    it('does not render ClassificationIcon for classification 0', () => {
+    it('does not render CriticalClassificationIcon for classification 0', () => {
       render(<CriticalClassificationIcon classification={0} />);
 
       expect(
@@ -86,7 +87,7 @@ describe('The Icons', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('renders ClassificationIcon', async () => {
+    it('renders CriticalClassificationIcon for larger classifications', async () => {
       render(
         <CriticalClassificationIcon
           classification={1}
@@ -103,7 +104,7 @@ describe('The Icons', () => {
     });
 
     it('renders ClassificationIcon for un-configured classifications', async () => {
-      render(<CriticalClassificationIcon classification={1} />);
+      render(<ClassificationIcon classification={1} />);
 
       expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
 
@@ -111,6 +112,23 @@ describe('The Icons', () => {
 
       const tooltip = await screen.findByRole('tooltip');
       expect(tooltip).toHaveTextContent('1 - not configured');
+    });
+
+    it('renders ClassificationIcon for classification 0', () => {
+      render(<ClassificationIcon classification={0} />);
+
+      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
+    });
+
+    it('does not show tooltip if deactivated', async () => {
+      render(<ClassificationIcon classification={0} noTooltip />);
+
+      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
+
+      await hoverOverIcon('classification-tooltip');
+
+      const tooltip = screen.queryByRole('tooltip');
+      expect(tooltip).not.toBeInTheDocument();
     });
   });
 
