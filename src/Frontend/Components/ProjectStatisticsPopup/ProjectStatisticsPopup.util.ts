@@ -390,13 +390,15 @@ export function getIncompleteAttributionsCount(
 
   if (numberOfAttributions - numberOfIncompleteAttributions !== 0) {
     incompleteAttributionsData.push({
-      name: 'Complete attributions',
+      name: text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
+        .completeAttributions,
       count: numberOfAttributions - numberOfIncompleteAttributions,
     });
   }
   if (numberOfIncompleteAttributions !== 0) {
     incompleteAttributionsData.push({
-      name: 'Incomplete attributions',
+      name: text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
+        .incompleteAttributions,
       count: numberOfIncompleteAttributions,
     });
   }
