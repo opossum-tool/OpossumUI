@@ -109,11 +109,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
             <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
             <MuiTab label={text.projectStatisticsPopup.tabs.details} />
           </MuiTabs>
-          <TabPanel
-            style={{ overflowY: 'auto' }}
-            tabIndex={0}
-            selectedTab={selectedTab}
-          >
+          <TabPanel tabIndex={0} selectedTab={selectedTab}>
             <ChartGrid>
               <ChartGridItem>
                 <MuiTypography variant="subtitle1">
@@ -124,60 +120,52 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 </MuiTypography>
                 <BarChart data={attributionBarChartData} />
               </ChartGridItem>
-              <ChartGridItem>
-                {mostFrequentLicenseCountData.length > 0 ? (
-                  <MuiTypography variant="subtitle1">
-                    {
-                      text.projectStatisticsPopup.charts
-                        .mostFrequentLicenseCountPieChart
-                    }
-                  </MuiTypography>
-                ) : null}
+              <ChartGridItem
+                isHidden={mostFrequentLicenseCountData.length === 0}
+              >
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts
+                      .mostFrequentLicenseCountPieChart
+                  }
+                </MuiTypography>
                 <PieChart segments={mostFrequentLicenseCountData} />
               </ChartGridItem>
-              <ChartGridItem>
-                {criticalSignalsCount.length > 0 ? (
-                  <MuiTypography variant="subtitle1">
-                    {
-                      text.projectStatisticsPopup.charts
-                        .criticalSignalsCountPieChart.title
-                    }
-                  </MuiTypography>
-                ) : null}
+              <ChartGridItem isHidden={criticalSignalsCount.length === 0}>
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts
+                      .criticalSignalsCountPieChart.title
+                  }
+                </MuiTypography>
                 <PieChart
                   segments={criticalSignalsCount}
                   colorMap={CRITICALITY_COLORS}
                 />
               </ChartGridItem>
-              <ChartGridItem>
-                {signalCountByClassification.length > 0 ? (
-                  <MuiTypography variant="subtitle1">
-                    {
-                      text.projectStatisticsPopup.charts
-                        .signalCountByClassificationPieChart.title
-                    }
-                  </MuiTypography>
-                ) : null}
+              <ChartGridItem
+                isHidden={signalCountByClassification.length === 0}
+              >
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts
+                      .signalCountByClassificationPieChart.title
+                  }
+                </MuiTypography>
                 <PieChart segments={signalCountByClassification} />
               </ChartGridItem>
-              <ChartGridItem>
-                {incompleteAttributionsData.length > 0 ? (
-                  <MuiTypography variant="subtitle1">
-                    {
-                      text.projectStatisticsPopup.charts
-                        .incompleteAttributionsPieChart.title
-                    }
-                  </MuiTypography>
-                ) : null}
+              <ChartGridItem isHidden={incompleteAttributionsData.length === 0}>
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts
+                      .incompleteAttributionsPieChart.title
+                  }
+                </MuiTypography>
                 <PieChart segments={incompleteAttributionsData} />
               </ChartGridItem>
             </ChartGrid>
           </TabPanel>
-          <TabPanel
-            style={{ overflowY: 'auto' }}
-            tabIndex={1}
-            selectedTab={selectedTab}
-          >
+          <TabPanel tabIndex={1} selectedTab={selectedTab}>
             <AttributionCountPerSourcePerLicenseTable
               licenseCounts={licenseCounts}
               licenseNamesWithCriticality={licenseNamesWithCriticality}
@@ -223,6 +211,7 @@ const TabPanel: React.FC<TabPanelProps> = (props) => {
         ...props.style,
         ...(props.selectedTab !== props.tabIndex ? { display: 'none' } : {}),
         flexGrow: 1,
+        overflowY: 'auto',
       }}
     >
       {props.children}
@@ -260,8 +249,12 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
   );
 };
 
-const ChartGridItem: React.FC<PropsWithChildren> = (props) => {
-  return (
+interface ChartGridItemProps extends PropsWithChildren {
+  isHidden?: boolean;
+}
+
+const ChartGridItem: React.FC<ChartGridItemProps> = (props) => {
+  return props.isHidden ? null : (
     <MuiGrid size={1} minHeight={'220px'} height={'48%'} display={'flex'}>
       <ChartCard>{props.children}</ChartCard>
     </MuiGrid>
