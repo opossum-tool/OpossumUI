@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { Criticality } from '../../../../shared/shared-types';
 import {
   BreakpointIcon,
-  ClassificationIcon,
+  CriticalClassificationIcon,
   CriticalityIcon,
   DirectoryIcon,
   ExcludeFromNoticeIcon,
@@ -79,7 +79,7 @@ describe('The Icons', () => {
   });
   describe('classification icon', () => {
     it('does not render ClassificationIcon for classification 0', () => {
-      render(<ClassificationIcon classification={0} />);
+      render(<CriticalClassificationIcon classification={0} />);
 
       expect(
         screen.queryByLabelText('Classification icon'),
@@ -88,7 +88,7 @@ describe('The Icons', () => {
 
     it('renders ClassificationIcon', async () => {
       render(
-        <ClassificationIcon
+        <CriticalClassificationIcon
           classification={1}
           classification_mapping={{ 1: 'Test' }}
         />,
@@ -103,7 +103,7 @@ describe('The Icons', () => {
     });
 
     it('renders ClassificationIcon for un-configured classifications', async () => {
-      render(<ClassificationIcon classification={1} />);
+      render(<CriticalClassificationIcon classification={1} />);
 
       expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
 

@@ -207,7 +207,7 @@ export function CriticalityIcon({
   );
 }
 
-export function ClassificationIcon({
+export function CriticalClassificationIcon({
   className,
   classification,
   classification_mapping,
