@@ -31,6 +31,7 @@ export type Column = {
   columnType: ColumnType;
   columnId: string;
   align: TableCellProps['align'];
+  defaultOrder: Order;
 };
 
 export type ColumnGroup = {

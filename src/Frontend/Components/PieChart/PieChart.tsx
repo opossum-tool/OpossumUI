@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
 import {
   Cell as RcCell,
   Legend as RcLegend,
@@ -28,10 +27,10 @@ const defaultPieChartColors = [
   OpossumColors.brown,
 ];
 
-const legendElementStyle: React.CSSProperties = {
-  display: 'flex',
+const legendTextStyle: React.CSSProperties = {
   fontFamily: 'sans-serif',
   fontSize: '12px',
+  width: '95%',
 };
 
 function getLegendIconStyle(backgroundColor: string): React.CSSProperties {
@@ -46,54 +45,54 @@ function getLegendIconStyle(backgroundColor: string): React.CSSProperties {
 
 interface PieChartProps {
   segments: Array<ChartDataItem>;
-  colors?: Array<string>;
+  colorMap?: { [segmentName: string]: string };
 }
 
 export const PieChart: React.FC<PieChartProps> = (props) => {
-  const pieChartColors = props.colors || defaultPieChartColors;
+  const pieChartColors = props.segments.map(
+    ({ name }, i) =>
+      props.colorMap?.[name] ??
+      defaultPieChartColors[i % defaultPieChartColors.length],
+  );
 
   return (
-    <MuiBox sx={{ maxWidth: '500px' }}>
-      <RcResponsiveContainer maxHeight={200} aspect={2}>
-        <RcPieChart>
-          <RcPie
-            data={props.segments}
-            dataKey="count"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            minAngle={15}
-            outerRadius={70}
-            isAnimationActive={false}
-            blendStroke={true}
-          >
-            {pieChartColors.map((record, index) => (
-              <RcCell key={`cell-${index}`} fill={record} />
-            ))}
-          </RcPie>
-          <RcTooltip
-            contentStyle={chartTooltipContentStyle}
-            itemStyle={chartTooltipTextStyle}
-          />
-          <RcLegend
-            content={renderLegend}
-            verticalAlign="middle"
-            align="right"
-            layout="vertical"
-            width={250}
-          />
-        </RcPieChart>
-      </RcResponsiveContainer>
-    </MuiBox>
+    <RcResponsiveContainer width={'100%'} height={'100%'}>
+      <RcPieChart>
+        <RcPie
+          data={props.segments}
+          dataKey="count"
+          nameKey="name"
+          minAngle={15}
+          outerRadius={70}
+          isAnimationActive={false}
+          blendStroke={true}
+        >
+          {pieChartColors.map((record, index) => (
+            <RcCell key={`cell-${index}`} fill={record} />
+          ))}
+        </RcPie>
+        <RcTooltip
+          contentStyle={chartTooltipContentStyle}
+          itemStyle={chartTooltipTextStyle}
+        />
+        <RcLegend
+          content={renderLegend}
+          verticalAlign="middle"
+          align="right"
+          layout="vertical"
+          width={250}
+        />
+      </RcPieChart>
+    </RcResponsiveContainer>
   );
 
   function renderLegend(props: { payload?: Array<{ value: string }> }) {
     return (
       <div>
         {props.payload?.map((entry: { value: string }, index: number) => (
-          <div style={legendElementStyle} key={`item-${index}`}>
+          <div style={{ display: 'flex' }} key={`item-${index}`}>
             <div style={getLegendIconStyle(pieChartColors[index])} />
-            <div>{entry.value}</div>
+            <div style={legendTextStyle}>{entry.value}</div>
           </div>
         ))}
       </div>
