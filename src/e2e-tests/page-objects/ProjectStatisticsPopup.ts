@@ -12,7 +12,11 @@ export class ProjectStatisticsPopup {
   readonly closeButton: Locator;
   readonly detailsTab: Locator;
   readonly totalSignalCount: Locator;
-  readonly numberOfAttributions: Locator;
+  readonly attributionsOverviewDiv: Locator;
+  readonly mostFrequentLicensesDiv: Locator;
+  readonly signalsByCriticalityDiv: Locator;
+  readonly signalsByClassificationDiv: Locator;
+  readonly incompleteAttributionsDiv: Locator;
 
   constructor(window: Page) {
     this.node = window.getByLabel('project statistics');
@@ -29,9 +33,36 @@ export class ProjectStatisticsPopup {
       .last()
       .getByRole('cell')
       .last();
-    this.numberOfAttributions = this.node.getByText(
-      text.projectStatisticsPopup.charts.count,
-    );
+    this.attributionsOverviewDiv = this.node.locator('div').filter({
+      hasText: text.projectStatisticsPopup.charts.attributionProperties.title,
+      hasNotText:
+        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
+    });
+    this.mostFrequentLicensesDiv = this.node.locator('div').filter({
+      hasText:
+        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
+      hasNotText:
+        text.projectStatisticsPopup.charts.attributionProperties.title,
+    });
+    this.signalsByCriticalityDiv = this.node.locator('div').filter({
+      hasText:
+        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
+      hasNotText:
+        text.projectStatisticsPopup.charts.attributionProperties.title,
+    });
+    this.signalsByClassificationDiv = this.node.locator('div').filter({
+      hasText:
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
+          .title,
+      hasNotText:
+        text.projectStatisticsPopup.charts.attributionProperties.title,
+    });
+    this.incompleteAttributionsDiv = this.node.locator('div').filter({
+      hasText:
+        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
+      hasNotText:
+        text.projectStatisticsPopup.charts.attributionProperties.title,
+    });
   }
 
   public assert = {
@@ -45,7 +76,42 @@ export class ProjectStatisticsPopup {
       await expect(this.totalSignalCount).toContainText(count.toString());
     },
     attributionPropertiesIsVisible: async (): Promise<void> => {
-      await expect(this.numberOfAttributions).toBeVisible();
+      await expect(
+        this.attributionsOverviewDiv.getByText(
+          text.projectStatisticsPopup.charts.count,
+        ),
+      ).toBeVisible();
+    },
+    mostFrequentLicensesPieChartIsVisible: async (
+      licenseName: string,
+    ): Promise<void> => {
+      await expect(
+        this.mostFrequentLicensesDiv.getByText(licenseName),
+      ).toBeVisible();
+    },
+    signalsByCriticalityIsVisible: async (): Promise<void> => {
+      await expect(
+        this.signalsByCriticalityDiv.getByText(
+          text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+            .mediumCritical,
+        ),
+      ).toBeVisible();
+    },
+    signalsByClassificationIsVisible: async (): Promise<void> => {
+      await expect(
+        this.signalsByClassificationDiv.getByText(
+          text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
+            .noClassification,
+        ),
+      ).toBeVisible();
+    },
+    incompleteAttributionsIsVisible: async (): Promise<void> => {
+      await expect(
+        this.incompleteAttributionsDiv.getByText(
+          text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
+            .incompleteAttributions,
+        ),
+      ).toBeVisible();
     },
   };
 }
