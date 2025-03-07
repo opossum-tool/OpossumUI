@@ -7,6 +7,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import MuiTypography from '@mui/material/Typography';
+import MuiBox from '@mui/system/Box';
 import { PropsWithChildren, useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
@@ -94,8 +95,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
   return (
     <NotificationPopup
       content={
-        <div
-          style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+        <MuiBox
+          sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
           <MuiTabs
             value={selectedTab}
@@ -173,7 +174,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
               title={text.projectStatisticsPopup.charts.licenseCountsTable}
             />
           </TabPanel>
-        </div>
+        </MuiBox>
       }
       header={text.projectStatisticsPopup.title}
       isOpen={true}
@@ -205,15 +206,15 @@ interface TabPanelProps extends React.PropsWithChildren {
 
 const TabPanel: React.FC<TabPanelProps> = (props) => {
   return (
-    <div
-      style={{
+    <MuiBox
+      sx={{
         ...(props.selectedTab !== props.tabIndex ? { display: 'none' } : {}),
         flexGrow: 1,
         overflowY: 'auto',
       }}
     >
       {props.children}
-    </div>
+    </MuiBox>
   );
 };
 
@@ -235,10 +236,12 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
     >
       <MuiGrid
         height={'100%'}
+        minHeight={'fit-content'}
         container
         columns={{ sm: 1, md: 2, lg: 3 }}
         spacing={{ sm: 3, lg: 3 }}
-        padding={'10px'}
+        padding={'12px'}
+        paddingTop={'0px'}
         alignContent={'flex-start'}
       >
         {props.children}
