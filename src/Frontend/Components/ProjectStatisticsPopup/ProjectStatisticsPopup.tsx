@@ -201,14 +201,12 @@ export const ProjectStatisticsPopup: React.FC = () => {
 interface TabPanelProps extends React.PropsWithChildren {
   tabIndex: number;
   selectedTab: number;
-  style?: React.CSSProperties;
 }
 
 const TabPanel: React.FC<TabPanelProps> = (props) => {
   return (
     <div
       style={{
-        ...props.style,
         ...(props.selectedTab !== props.tabIndex ? { display: 'none' } : {}),
         flexGrow: 1,
         overflowY: 'auto',
