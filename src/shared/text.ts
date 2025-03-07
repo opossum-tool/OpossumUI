@@ -194,7 +194,11 @@ export const text = {
         title: 'Signals by Classification',
         noClassification: 'No classification',
       },
-      incompleteAttributionsPieChart: 'Incomplete Attributions',
+      incompleteAttributionsPieChart: {
+        title: 'Incomplete Attributions',
+        completeAttributions: 'Complete Attributions',
+        incompleteAttributions: 'Incomplete Attributions',
+      },
     },
   },
   attributionCountPerSourcePerLicenseTable: {

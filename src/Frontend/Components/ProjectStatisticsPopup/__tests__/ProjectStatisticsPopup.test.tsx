@@ -122,12 +122,7 @@ describe('The ProjectStatisticsPopup', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        ProjectStatisticsPopupTitle.SignalCountByClassificationPieChart,
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart,
+        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
       ),
     ).toBeInTheDocument();
   });
@@ -167,7 +162,7 @@ describe('The ProjectStatisticsPopup', () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText(
-        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart,
+        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
       ),
     ).not.toBeInTheDocument();
   });

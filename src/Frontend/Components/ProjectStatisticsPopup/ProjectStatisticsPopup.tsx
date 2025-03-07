@@ -162,7 +162,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 <MuiTypography variant="subtitle1">
                   {
                     text.projectStatisticsPopup.charts
-                      .incompleteAttributionsPieChart
+                      .incompleteAttributionsPieChart.title
                   }
                 </MuiTypography>
               ) : null}
