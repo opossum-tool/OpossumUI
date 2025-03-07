@@ -109,7 +109,8 @@ export class ProjectStatisticsPopup {
       await expect(
         this.incompleteAttributionsDiv.getByText(
           text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
-            .incompleteAttributions,
+            .completeAttributions,
+          { exact: true },
         ),
       ).toBeVisible();
     },
