@@ -22,7 +22,9 @@ export class ProjectStatisticsPopup {
     this.node = window.getByLabel('project statistics');
     this.title = this.node.getByRole('heading').getByText('Project Statistics');
     this.closeButton = this.node.getByRole('button', { name: 'Close' });
-    this.detailsTab = this.node.getByRole('tab', { name: 'Details' });
+    this.detailsTab = this.node.getByRole('tab', {
+      name: text.projectStatisticsPopup.tabs.details,
+    });
     this.totalSignalCount = this.node
       .getByRole('table')
       .filter({
