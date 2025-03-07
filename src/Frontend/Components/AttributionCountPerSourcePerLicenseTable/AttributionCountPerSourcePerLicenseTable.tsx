@@ -15,6 +15,7 @@ import {
   LicenseNamesWithClassification,
   LicenseNamesWithCriticality,
 } from '../../types/types';
+import { Order } from '../TableCellWithSorting/TableCellWithSorting';
 import {
   ColumnConfig,
   orderLicenseNames,
@@ -57,18 +58,21 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
               columnType: SingleColumn.NAME,
               columnId: SingleColumn.NAME,
               align: 'left',
+              defaultOrder: 'asc',
             },
             {
               columnName: componentText.columns.criticality.title,
               columnType: SingleColumn.CRITICALITY,
               columnId: SingleColumn.CRITICALITY,
               align: 'center',
+              defaultOrder: 'desc',
             },
             {
               columnName: componentText.columns.classification,
               columnType: SingleColumn.CLASSIFICATION,
               columnId: SingleColumn.CLASSIFICATION,
               align: 'center',
+              defaultOrder: 'desc',
             },
           ],
         },
@@ -80,12 +84,14 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
               columnType: { sourceName },
               columnId: sourceName,
               align: 'center' as const,
+              defaultOrder: 'desc' as Order,
             })),
             {
               columnName: componentText.columns.totalSources,
               columnType: SingleColumn.TOTAL,
               columnId: SingleColumn.TOTAL,
               align: 'center',
+              defaultOrder: 'desc',
             },
           ],
         },
@@ -98,7 +104,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     orderedColumn: SingleColumn.NAME,
   });
 
-  const handleRequestSort = (columnId: string) => {
+  const handleRequestSort = (columnId: string, defaultOrder: Order) => {
     if (ordering.orderedColumn === columnId) {
       setOrdering((currentOrdering) => ({
         ...currentOrdering,
@@ -107,7 +113,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
       }));
     } else {
       setOrdering({
-        orderDirection: 'asc',
+        orderDirection: defaultOrder,
         orderedColumn: columnId,
       });
     }
