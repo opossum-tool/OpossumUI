@@ -3650,7 +3650,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chroma-js@npm:^3":
+"@types/chroma-js@npm:^3.1.1":
   version: 3.1.1
   resolution: "@types/chroma-js@npm:3.1.1"
   checksum: 10/24770bd645425a1d90e3651dbb18bc5977290a2d2fc6e9f32d3892d4c43c1e9f554fb324cd0f4e20a23b734ee652278330a0d331973a7da824e0c15192ba129b
@@ -10344,7 +10344,7 @@ __metadata:
     "@testing-library/user-event": "npm:^14.6.1"
     "@trivago/prettier-plugin-sort-imports": "npm:^5.2.2"
     "@types/babel__core": "npm:^7.20.5"
-    "@types/chroma-js": "npm:^3"
+    "@types/chroma-js": "npm:^3.1.1"
     "@types/eslint__js": "npm:^9.14.0"
     "@types/jest": "npm:^29.5.14"
     "@types/js-yaml": "npm:^4.0.9"

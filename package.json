@@ -61,7 +61,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/babel__core": "^7.20.5",
-    "@types/chroma-js": "^3",
+    "@types/chroma-js": "^3.1.1",
     "@types/eslint__js": "^9.14.0",
     "@types/jest": "^29.5.14",
     "@types/js-yaml": "^4.0.9",
