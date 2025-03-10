@@ -226,9 +226,6 @@ export function ClassificationIcon({
     classification_mapping?.[classification] ||
     `${classification} - not configured`;
 
-  const color =
-    classification === 0 ? OpossumColors.darkBlue : OpossumColors.red;
-
   return (
     <MuiTooltip
       title={noTooltip ? undefined : tooltip}
@@ -240,7 +237,7 @@ export function ClassificationIcon({
         aria-label={'Classification icon'}
         sx={{
           ...baseIcon,
-          color: `${color} !important`,
+          color: `${OpossumColors.red} !important`,
           fontFamily: 'sans-serif',
           fontWeight: 'bold',
           fontSize: 'medium !important',
