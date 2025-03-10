@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
+import chroma from 'chroma-js';
 import { sum } from 'lodash';
 
 import { Criticality } from '../../../shared/shared-types';
@@ -220,16 +221,15 @@ interface ProgressBarStep {
   color: Color;
 }
 
-function interpolateFromRedToGreen(
+function interpolateBetweenRedAndWhite(
   numberOfClassifications: number,
   index: number,
 ) {
-  const hueRed = 0;
-  const hueGreen = 146;
-  const normalization =
-    numberOfClassifications > 1 ? numberOfClassifications - 1 : 1;
-  const hue = ((hueGreen - hueRed) * index) / normalization;
-  return `hsl(${hue.toFixed(0)} 100 45)`;
+  return chroma
+    .bezier(['red', 'white'])
+    .scale()
+    .correctLightness(true)
+    .colors(numberOfClassifications)[index];
 }
 
 function roundPercentagesToAtLeastOnePercentAndNormalize(
@@ -244,6 +244,16 @@ function roundPercentagesToAtLeastOnePercentAndNormalize(
   return progressBarSteps;
 }
 
+function getClassificationColor(
+  classificationNumericValue: string,
+  numberOfClassifications: number,
+  index: number,
+) {
+  return Number(classificationNumericValue) === 0
+    ? OpossumColors.pastelLightGreen
+    : interpolateBetweenRedAndWhite(numberOfClassifications, index);
+}
+
 function calculateProgressBarSteps(
   progressBarData: ProgressBarData,
 ): Array<ProgressBarStep> {
@@ -251,15 +261,16 @@ function calculateProgressBarSteps(
   const numberOfClassifications = Object.keys(classificationStatistics).length;
   const progressBarSteps = Object.entries(classificationStatistics)
     .reverse()
-    .map(([classifictionNumericValue, statisticsEntry], index) => {
+    .map(([classificationNumericValue, statisticsEntry], index) => {
       return {
         widthInPercent:
           (statisticsEntry.correspondingFiles.length * 100) /
           progressBarData.filesWithOnlyExternalAttributionCount,
-        color:
-          (classifictionNumericValue as unknown as number) === 0
-            ? OpossumColors.pastelDarkGreen
-            : interpolateFromRedToGreen(numberOfClassifications, index),
+        color: getClassificationColor(
+          classificationNumericValue,
+          numberOfClassifications,
+          index,
+        ),
       };
     });
   //add files without classifications
