@@ -167,12 +167,11 @@ export const text = {
     title: 'Project Statistics',
     tabs: {
       overview: 'Overview',
-      details: 'Details',
+      details: 'Licenses',
     },
     toggleStartupCheckbox: 'Show project statistics on startup',
     criticalLicensesSignalCountColumnName: 'Signals Count',
     charts: {
-      licenseCountsTable: 'Signals per Sources',
       attributionProperties: {
         title: 'Attributions Overview',
         needsReview: 'Needs Review',
@@ -194,7 +193,11 @@ export const text = {
         title: 'Signals by Classification',
         noClassification: 'No classification',
       },
-      incompleteAttributionsPieChart: 'Incomplete Attributions',
+      incompleteAttributionsPieChart: {
+        title: 'Incomplete Attributions',
+        completeAttributions: 'Complete Attributions',
+        incompleteAttributions: 'Incomplete Attributions',
+      },
     },
   },
   attributionCountPerSourcePerLicenseTable: {

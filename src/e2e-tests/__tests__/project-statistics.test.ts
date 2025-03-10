@@ -29,7 +29,11 @@ test.use({
         ],
       }),
     }),
-    outputData: faker.opossum.outputData({}),
+    outputData: faker.opossum.outputData({
+      manualAttributions: faker.opossum.rawAttributions({
+        [attributionId1]: packageInfo1,
+      }),
+    }),
   },
 });
 
@@ -42,6 +46,24 @@ test('opens, displays, and closes project statistics', async ({
 
   await projectStatisticsPopup.closeButton.click();
   await projectStatisticsPopup.assert.titleIsHidden();
+});
+
+test('displays bar and pie charts in the overview tab', async ({
+  menuBar,
+  projectStatisticsPopup,
+}) => {
+  await menuBar.openProjectStatistics();
+  await projectStatisticsPopup.assert.titleIsVisible();
+  // hover on title to avoid getting tooltips that mess up locators
+  await projectStatisticsPopup.title.hover();
+
+  await projectStatisticsPopup.assert.attributionPropertiesIsVisible();
+  await projectStatisticsPopup.assert.mostFrequentLicensesPieChartIsVisible(
+    packageInfo1.licenseName!,
+  );
+  await projectStatisticsPopup.assert.signalsByCriticalityIsVisible();
+  await projectStatisticsPopup.assert.signalsByClassificationIsVisible();
+  await projectStatisticsPopup.assert.incompleteAttributionsIsVisible();
 });
 
 test('hidden signals are ignored for project statistics', async ({

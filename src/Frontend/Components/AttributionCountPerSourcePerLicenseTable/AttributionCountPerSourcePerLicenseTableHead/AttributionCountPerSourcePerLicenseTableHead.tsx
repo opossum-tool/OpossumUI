@@ -8,7 +8,10 @@ import MuiTableRow from '@mui/material/TableRow';
 import { SxProps } from '@mui/system';
 
 import { tableClasses } from '../../../shared-styles';
-import { TableCellWithSorting } from '../../TableCellWithSorting/TableCellWithSorting';
+import {
+  Order,
+  TableCellWithSorting,
+} from '../../TableCellWithSorting/TableCellWithSorting';
 import {
   ColumnConfig,
   TableOrdering,
@@ -26,7 +29,7 @@ const classes = {
 interface AttributionCountPerSourcePerLicenseTableHeadProps {
   columnConfig: ColumnConfig;
   tableOrdering: TableOrdering;
-  onRequestSort: (columnId: string) => void;
+  onRequestSort: (columnId: string, defaultOrder: Order) => void;
 }
 
 export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
@@ -74,7 +77,10 @@ export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
                 isSortedColumn={
                   props.tableOrdering.orderedColumn === column.columnId
                 }
-                onRequestSort={() => props.onRequestSort(column.columnId)}
+                onRequestSort={() =>
+                  props.onRequestSort(column.columnId, column.defaultOrder)
+                }
+                defaultOrder={column.defaultOrder}
               >
                 {column.columnName}
               </TableCellWithSorting>
