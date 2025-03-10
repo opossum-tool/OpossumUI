@@ -495,8 +495,8 @@ describe('The getUpdatedProgressBarData function', () => {
       const packageWithClassification14 = faker.opossum.packageInfo({
         classification: 14,
       });
-      const secondPackageWithClassification1 = faker.opossum.packageInfo({
-        classification: 1,
+      const packageWithClassificationZero = faker.opossum.packageInfo({
+        classification: 0,
       });
 
       const packageWithUndefinedClassification = faker.opossum.packageInfo({
@@ -506,14 +506,14 @@ describe('The getUpdatedProgressBarData function', () => {
       const externalAttributions = {
         id1: packageWithClassificationOne,
         id14: packageWithClassification14,
-        id3: secondPackageWithClassification1,
+        id0: packageWithClassificationZero,
         idUndefined: packageWithUndefinedClassification,
       };
 
       const resourcesToExternalAttributions = {
         '/folder/somefile.ts': ['id1'],
         '/folder/package/': ['id14'],
-        '/folder/package/thirdFile.js': ['id3'],
+        '/folder/package/thirdFile.js': ['id0'],
         '/root.ts': ['id14'],
         '/root.fs': ['idUndefined'],
       };
@@ -535,13 +535,13 @@ describe('The getUpdatedProgressBarData function', () => {
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
-        0: { description: 'foo', correspondingFiles: [] },
+        0: {
+          description: 'foo',
+          correspondingFiles: ['/folder/package/thirdFile.js'],
+        },
         1: {
           description: 'bar',
-          correspondingFiles: [
-            '/folder/somefile.ts',
-            '/folder/package/thirdFile.js',
-          ],
+          correspondingFiles: ['/folder/somefile.ts'],
         },
         14: {
           description: 'something else',

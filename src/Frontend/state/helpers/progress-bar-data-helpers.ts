@@ -106,7 +106,7 @@ function updateProgressBarDataForResources(
         externalAttributions,
       );
 
-    if (currentResourcesHighestClassification) {
+    if (currentResourcesHighestClassification !== undefined) {
       highestClassification = currentResourcesHighestClassification;
     }
 
@@ -132,7 +132,7 @@ function updateProgressBarDataForResources(
             path,
           );
         }
-        if (highestClassification) {
+        if (highestClassification !== undefined) {
           addPathToClassificationStatistics(
             progressBarData,
             highestClassification,
@@ -232,8 +232,9 @@ export function getHighestClassificationOfExternalAttributions(
         ? externalAttributions[attributionId].classification
         : 0;
       if (
-        classification &&
-        (!highestClassification || classification > highestClassification)
+        classification !== undefined &&
+        (highestClassification === undefined ||
+          classification > highestClassification)
       ) {
         highestClassification = classification;
       }
