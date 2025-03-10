@@ -12,11 +12,11 @@ export class ProjectStatisticsPopup {
   readonly closeButton: Locator;
   readonly detailsTab: Locator;
   readonly totalSignalCount: Locator;
-  readonly attributionsOverviewDiv: Locator;
-  readonly mostFrequentLicensesDiv: Locator;
-  readonly signalsByCriticalityDiv: Locator;
-  readonly signalsByClassificationDiv: Locator;
-  readonly incompleteAttributionsDiv: Locator;
+  readonly attributionsOverviewChart: Locator;
+  readonly mostFrequentLicensesChart: Locator;
+  readonly signalsByCriticalityChart: Locator;
+  readonly signalsByClassificationChart: Locator;
+  readonly incompleteAttributionsChart: Locator;
 
   constructor(window: Page) {
     this.node = window.getByLabel('project statistics');
@@ -35,36 +35,21 @@ export class ProjectStatisticsPopup {
       .last()
       .getByRole('cell')
       .last();
-    this.attributionsOverviewDiv = this.node.locator('div').filter({
-      hasText: text.projectStatisticsPopup.charts.attributionProperties.title,
-      hasNotText:
-        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
-    });
-    this.mostFrequentLicensesDiv = this.node.locator('div').filter({
-      hasText:
-        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
-      hasNotText:
-        text.projectStatisticsPopup.charts.attributionProperties.title,
-    });
-    this.signalsByCriticalityDiv = this.node.locator('div').filter({
-      hasText:
-        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
-      hasNotText:
-        text.projectStatisticsPopup.charts.attributionProperties.title,
-    });
-    this.signalsByClassificationDiv = this.node.locator('div').filter({
-      hasText:
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
-          .title,
-      hasNotText:
-        text.projectStatisticsPopup.charts.attributionProperties.title,
-    });
-    this.incompleteAttributionsDiv = this.node.locator('div').filter({
-      hasText:
-        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
-      hasNotText:
-        text.projectStatisticsPopup.charts.attributionProperties.title,
-    });
+    this.attributionsOverviewChart = this.node.getByTestId(
+      'attributionBarChart',
+    );
+    this.mostFrequentLicensesChart = this.node.getByTestId(
+      'mostFrequentLicenseCountPieChart',
+    );
+    this.signalsByCriticalityChart = this.node.getByTestId(
+      'criticalSignalsCountPieChart',
+    );
+    this.signalsByClassificationChart = this.node.getByTestId(
+      'signalCountByClassificationPieChart',
+    );
+    this.incompleteAttributionsChart = this.node.getByTestId(
+      'incompleteAttributionsPieChart',
+    );
   }
 
   public assert = {
@@ -78,43 +63,32 @@ export class ProjectStatisticsPopup {
       await expect(this.totalSignalCount).toContainText(count.toString());
     },
     attributionPropertiesIsVisible: async (): Promise<void> => {
-      await expect(
-        this.attributionsOverviewDiv.getByText(
-          text.projectStatisticsPopup.charts.count,
-        ),
-      ).toBeVisible();
+      await expect(this.attributionsOverviewChart).toContainText(
+        text.projectStatisticsPopup.charts.count,
+      );
     },
     mostFrequentLicensesPieChartIsVisible: async (
       licenseName: string,
     ): Promise<void> => {
-      await expect(
-        this.mostFrequentLicensesDiv.getByText(licenseName),
-      ).toBeVisible();
+      await expect(this.mostFrequentLicensesChart).toContainText(licenseName);
     },
     signalsByCriticalityIsVisible: async (): Promise<void> => {
-      await expect(
-        this.signalsByCriticalityDiv.getByText(
-          text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
-            .mediumCritical,
-        ),
-      ).toBeVisible();
+      await expect(this.signalsByCriticalityChart).toContainText(
+        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+          .mediumCritical,
+      );
     },
     signalsByClassificationIsVisible: async (): Promise<void> => {
-      await expect(
-        this.signalsByClassificationDiv.getByText(
-          text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
-            .noClassification,
-        ),
-      ).toBeVisible();
+      await expect(this.signalsByClassificationChart).toContainText(
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
+          .noClassification,
+      );
     },
     incompleteAttributionsIsVisible: async (): Promise<void> => {
-      await expect(
-        this.incompleteAttributionsDiv.getByText(
-          text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
-            .completeAttributions,
-          { exact: true },
-        ),
-      ).toBeVisible();
+      await expect(this.incompleteAttributionsChart).toContainText(
+        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
+          .completeAttributions,
+      );
     },
   };
 }
