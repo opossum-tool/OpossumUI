@@ -112,7 +112,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
           </MuiTabs>
           <TabPanel tabIndex={0} selectedTab={selectedTab}>
             <ChartGrid>
-              <ChartGridItem>
+              <ChartGridItem testId={'attributionBarChart'}>
                 <MuiTypography variant="subtitle1">
                   {
                     text.projectStatisticsPopup.charts.attributionProperties
@@ -123,6 +123,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
               </ChartGridItem>
               <ChartGridItem
                 isHidden={mostFrequentLicenseCountData.length === 0}
+                testId={'mostFrequentLicenseCountPieChart'}
               >
                 <MuiTypography variant="subtitle1">
                   {
@@ -132,7 +133,10 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 </MuiTypography>
                 <PieChart segments={mostFrequentLicenseCountData} />
               </ChartGridItem>
-              <ChartGridItem isHidden={criticalSignalsCount.length === 0}>
+              <ChartGridItem
+                isHidden={criticalSignalsCount.length === 0}
+                testId={'criticalSignalsCountPieChart'}
+              >
                 <MuiTypography variant="subtitle1">
                   {
                     text.projectStatisticsPopup.charts
@@ -146,6 +150,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
               </ChartGridItem>
               <ChartGridItem
                 isHidden={signalCountByClassification.length === 0}
+                testId={'signalCountByClassificationPieChart'}
               >
                 <MuiTypography variant="subtitle1">
                   {
@@ -155,7 +160,10 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 </MuiTypography>
                 <PieChart segments={signalCountByClassification} />
               </ChartGridItem>
-              <ChartGridItem isHidden={incompleteAttributionsData.length === 0}>
+              <ChartGridItem
+                isHidden={incompleteAttributionsData.length === 0}
+                testId={'incompleteAttributionsPieChart'}
+              >
                 <MuiTypography variant="subtitle1">
                   {
                     text.projectStatisticsPopup.charts
@@ -251,11 +259,18 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
 
 interface ChartGridItemProps extends PropsWithChildren {
   isHidden?: boolean;
+  testId?: string;
 }
 
 const ChartGridItem: React.FC<ChartGridItemProps> = (props) => {
   return props.isHidden ? null : (
-    <MuiGrid size={1} minHeight={'220px'} height={'48%'} display={'flex'}>
+    <MuiGrid
+      size={1}
+      minHeight={'220px'}
+      height={'48%'}
+      display={'flex'}
+      data-testid={props.testId}
+    >
       <ChartCard>{props.children}</ChartCard>
     </MuiGrid>
   );
