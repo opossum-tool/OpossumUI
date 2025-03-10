@@ -244,22 +244,22 @@ describe('AttributionForm', () => {
         expect(classificationChip).toBeInTheDocument();
       });
 
-      it('renders a chip for items with classification 0', () => {
+      it('Does not render a chip for items with classification 0', () => {
         const packageInfo = faker.opossum.packageInfo({
           classification: 0,
         });
 
         renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
-        const classificationChip = screen.getByTestId(
+        const classificationChip = screen.queryByTestId(
           'auditing-option-classification',
         );
-        expect(classificationChip).toBeInTheDocument();
+        expect(classificationChip).not.toBeInTheDocument();
       });
 
       it('shows the correct text if configured', () => {
         const packageInfo = faker.opossum.packageInfo({
-          classification: 0,
+          classification: 1,
         });
         const classificationText = faker.word.words();
 
@@ -267,7 +267,7 @@ describe('AttributionForm', () => {
           actions: [
             setConfig({
               classifications: {
-                0: classificationText,
+                1: classificationText,
               },
             }),
           ],
@@ -282,7 +282,7 @@ describe('AttributionForm', () => {
 
       it('shows the backup text if no configuration', () => {
         const packageInfo = faker.opossum.packageInfo({
-          classification: 0,
+          classification: 1,
         });
         renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
@@ -290,7 +290,7 @@ describe('AttributionForm', () => {
           'auditing-option-classification',
         );
         expect(classificationChip).toBeInTheDocument();
-        expect(classificationChip).toHaveTextContent('0 - not configured');
+        expect(classificationChip).toHaveTextContent('1 - not configured');
       });
     });
   });
