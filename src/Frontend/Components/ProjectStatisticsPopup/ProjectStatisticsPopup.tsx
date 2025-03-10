@@ -263,7 +263,7 @@ interface ChartGridItemProps extends PropsWithChildren {
 }
 
 const ChartGridItem: React.FC<ChartGridItemProps> = (props) => {
-  return props.shouldRender ? (
+  return (props.shouldRender ?? true) ? (
     <MuiGrid
       size={1}
       minHeight={'220px'}
