@@ -122,7 +122,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 <BarChart data={attributionBarChartData} />
               </ChartGridItem>
               <ChartGridItem
-                isHidden={mostFrequentLicenseCountData.length === 0}
+                shouldRender={mostFrequentLicenseCountData.length > 0}
                 testId={'mostFrequentLicenseCountPieChart'}
               >
                 <MuiTypography variant="subtitle1">
@@ -134,7 +134,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 <PieChart segments={mostFrequentLicenseCountData} />
               </ChartGridItem>
               <ChartGridItem
-                isHidden={criticalSignalsCount.length === 0}
+                shouldRender={criticalSignalsCount.length > 0}
                 testId={'criticalSignalsCountPieChart'}
               >
                 <MuiTypography variant="subtitle1">
@@ -149,7 +149,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 />
               </ChartGridItem>
               <ChartGridItem
-                isHidden={signalCountByClassification.length === 0}
+                shouldRender={signalCountByClassification.length > 0}
                 testId={'signalCountByClassificationPieChart'}
               >
                 <MuiTypography variant="subtitle1">
@@ -161,7 +161,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 <PieChart segments={signalCountByClassification} />
               </ChartGridItem>
               <ChartGridItem
-                isHidden={incompleteAttributionsData.length === 0}
+                shouldRender={incompleteAttributionsData.length > 0}
                 testId={'incompleteAttributionsPieChart'}
               >
                 <MuiTypography variant="subtitle1">
@@ -246,7 +246,7 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
         minHeight={'fit-content'}
         container
         columns={{ sm: 1, md: 2, lg: 3 }}
-        spacing={{ sm: 3, lg: 3 }}
+        spacing={3}
         padding={'12px'}
         paddingTop={'0px'}
         alignContent={'flex-start'}
@@ -258,12 +258,12 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
 };
 
 interface ChartGridItemProps extends PropsWithChildren {
-  isHidden?: boolean;
+  shouldRender?: boolean;
   testId?: string;
 }
 
 const ChartGridItem: React.FC<ChartGridItemProps> = (props) => {
-  return props.isHidden ? null : (
+  return props.shouldRender ? (
     <MuiGrid
       size={1}
       minHeight={'220px'}
@@ -273,5 +273,5 @@ const ChartGridItem: React.FC<ChartGridItemProps> = (props) => {
     >
       <ChartCard>{props.children}</ChartCard>
     </MuiGrid>
-  );
+  ) : null;
 };
