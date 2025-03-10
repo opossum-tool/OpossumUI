@@ -235,13 +235,15 @@ function interpolateBetweenRedAndWhite(
 function roundPercentagesToAtLeastOnePercentAndNormalize(
   progressBarSteps: Array<ProgressBarStep>,
 ): Array<ProgressBarStep> {
-  //percentages and steps need to be in parallel here
-  let percentages = progressBarSteps.map((step) => step.widthInPercent);
-  percentages = roundToAtLeastOnePercentAndNormalize(percentages);
-  for (let i = 0; i < percentages.length; i++) {
-    progressBarSteps[i].widthInPercent = percentages[i];
-  }
-  return progressBarSteps;
+  const percentages = roundToAtLeastOnePercentAndNormalize(
+    progressBarSteps.map((step) => step.widthInPercent),
+  );
+  return progressBarSteps.map((progressBarStep, index) => {
+    return {
+      color: progressBarStep.color,
+      widthInPercent: percentages[index],
+    };
+  });
 }
 
 function getClassificationColor(
@@ -261,18 +263,20 @@ function calculateProgressBarSteps(
   const numberOfClassifications = Object.keys(classificationStatistics).length;
   const progressBarSteps = Object.entries(classificationStatistics)
     .reverse()
-    .map(([classificationNumericValue, statisticsEntry], index) => {
-      return {
-        widthInPercent:
-          (statisticsEntry.correspondingFiles.length * 100) /
-          progressBarData.filesWithOnlyExternalAttributionCount,
-        color: getClassificationColor(
-          classificationNumericValue,
-          numberOfClassifications,
-          index,
-        ),
-      };
-    });
+    .map<ProgressBarStep>(
+      ([classificationNumericValue, statisticsEntry], index) => {
+        return {
+          widthInPercent:
+            (statisticsEntry.correspondingFiles.length * 100) /
+            progressBarData.filesWithOnlyExternalAttributionCount,
+          color: getClassificationColor(
+            classificationNumericValue,
+            numberOfClassifications,
+            index,
+          ),
+        };
+      },
+    );
   //add files without classifications
   const totalPercentage = sum(
     progressBarSteps.map((step) => step.widthInPercent),
