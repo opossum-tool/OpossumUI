@@ -5,6 +5,7 @@
 import { screen } from '@testing-library/react';
 
 import { faker } from '../../../../testing/Faker';
+import { setConfig } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { renderComponent } from '../../../test-helpers/render';
 import { PackageCard } from '../PackageCard';
 
@@ -69,5 +70,70 @@ describe('The PackageCard', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(packageInfo.licenseName!)).toBeInTheDocument();
     expect(screen.getByRole('checkbox')).toBeInTheDocument();
+  });
+
+  describe('classification icon', () => {
+    it('renders the classification icon for classification > 0', () => {
+      const packageInfo = faker.opossum.packageInfo({ classification: 1 });
+      const classificationText = faker.word.words();
+
+      renderComponent(
+        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        {
+          actions: [
+            setConfig({
+              classifications: {
+                1: classificationText,
+              },
+            }),
+          ],
+        },
+      );
+
+      const classificationIcon = screen.getByTestId('classification-tooltip');
+      expect(classificationIcon).toBeVisible();
+    });
+
+    it('does not render the classification icon for classification 0', () => {
+      const packageInfo = faker.opossum.packageInfo({ classification: 0 });
+      const classificationText = faker.word.words();
+
+      renderComponent(
+        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        {
+          actions: [
+            setConfig({
+              classifications: {
+                1: classificationText,
+              },
+            }),
+          ],
+        },
+      );
+
+      const classificationIcon = screen.queryByTestId('classification-tooltip');
+      expect(classificationIcon).not.toBeInTheDocument();
+    });
+
+    it('does render the classification icon for un-configured classifications', () => {
+      const packageInfo = faker.opossum.packageInfo({ classification: 3 });
+      const classificationText = faker.word.words();
+
+      renderComponent(
+        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        {
+          actions: [
+            setConfig({
+              classifications: {
+                1: classificationText,
+              },
+            }),
+          ],
+        },
+      );
+
+      const classificationIcon = screen.queryByTestId('classification-tooltip');
+      expect(classificationIcon).toBeVisible();
+    });
   });
 });
