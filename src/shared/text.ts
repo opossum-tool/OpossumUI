@@ -359,16 +359,16 @@ export const text = {
     switchableProgressBar: {
       selectAriaLabel: 'ProgressBar Switcher',
       criticalSignalsBar: {
-        selectLabel: 'Critical Signals',
+        selectLabel: 'Criticalities',
         ariaLabel: 'Progress bar for to be handled critical signals',
       },
       attributionProgressBar: {
-        selectLabel: 'Attribution Progress',
-        ariaLabel: 'Progress bar attribution progress',
+        selectLabel: 'Attributions',
+        ariaLabel: 'Progress bar for attribution progress',
       },
       classificationProgressBar: {
-        selectLabel: 'Signals by classification',
-        ariaLabel: 'Progress bar classification',
+        selectLabel: 'Classifications',
+        ariaLabel: 'Progress bar for to be handled classifications',
       },
     },
   },
