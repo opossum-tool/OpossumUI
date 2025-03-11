@@ -11,6 +11,7 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
+import { OpossumColors } from '../../../shared-styles';
 import {
   getHighestCriticalityOfExternalAttributions,
   getUpdatedProgressBarData,
@@ -471,9 +472,21 @@ describe('The getUpdatedProgressBarData function', () => {
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
-        0: { description: 'foo', correspondingFiles: [] },
-        1: { description: 'bar', correspondingFiles: [] },
-        14: { description: 'something else', correspondingFiles: [] },
+        0: {
+          description: 'foo',
+          correspondingFiles: [],
+          color: OpossumColors.pastelLightGreen,
+        },
+        1: {
+          description: 'bar',
+          correspondingFiles: [],
+          color: '#ffa78c',
+        },
+        14: {
+          description: 'something else',
+          correspondingFiles: [],
+          color: '#ff0000',
+        },
       });
     });
 
@@ -538,14 +551,17 @@ describe('The getUpdatedProgressBarData function', () => {
         0: {
           description: 'foo',
           correspondingFiles: ['/folder/package/thirdFile.js'],
+          color: OpossumColors.pastelLightGreen,
         },
         1: {
           description: 'bar',
           correspondingFiles: ['/folder/somefile.ts'],
+          color: '#ffa78c',
         },
         14: {
           description: 'something else',
           correspondingFiles: ['/folder/package/anotherFile.js', '/root.ts'],
+          color: '#ff0000',
         },
       });
     });
@@ -598,15 +614,28 @@ describe('The getUpdatedProgressBarData function', () => {
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
-        0: { description: 'foo', correspondingFiles: [] },
-        1: { description: 'bar', correspondingFiles: ['/folder/somefile.ts'] },
-        14: { description: 'something else', correspondingFiles: [] },
+        0: {
+          description: 'foo',
+          correspondingFiles: [],
+          color: OpossumColors.pastelLightGreen,
+        },
+        1: {
+          description: 'bar',
+          correspondingFiles: ['/folder/somefile.ts'],
+          color: '#ffa78c',
+        },
+        14: {
+          description: 'something else',
+          correspondingFiles: [],
+          color: '#ff0000',
+        },
         22: {
           description: '22',
           correspondingFiles: [
             '/folder/package/anotherFile.js',
             '/folder/package/thirdFile.js',
           ],
+          color: OpossumColors.red,
         },
       });
     });

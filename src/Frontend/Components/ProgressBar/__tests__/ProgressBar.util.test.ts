@@ -98,8 +98,7 @@ describe('ProgressBar helpers', () => {
 
       const background = getClassificationBarBackground(testProgressBarData);
 
-      const expectedBackground =
-        'linear-gradient(to right, #ff0000 0% 5% , #ff8565 5% 25% , #ffc6b3 25% 40% , hsl(146, 50%, 80%) 40% 65% , hsl(220, 41%, 92%) 65% 100% )';
+      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[3].color} 0% 5% , ${classificationStatistics[2].color} 5% 25% , ${classificationStatistics[1].color} 25% 40% , ${classificationStatistics[0].color} 40% 65% , hsl(220, 41%, 92%) 65% 100% )`;
       expect(background).toEqual(expectedBackground);
     });
 
@@ -126,8 +125,7 @@ describe('ProgressBar helpers', () => {
 
       const background = getClassificationBarBackground(testProgressBarData);
 
-      const expectedBackground =
-        'linear-gradient(to right, #ff0000 0% 5% , #ff8565 5% 25% , #ffc6b3 25% 40% , hsl(146, 50%, 80%) 40% 65% , hsl(220, 41%, 92%) 65% 100% )';
+      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[11].color} 0% 5% , ${classificationStatistics[2].color} 5% 25% , ${classificationStatistics[1].color} 25% 40% , ${classificationStatistics[0].color} 40% 65% , hsl(220, 41%, 92%) 65% 100% )`;
       expect(background).toEqual(expectedBackground);
     });
 
@@ -151,6 +149,8 @@ describe('ProgressBar helpers', () => {
     });
 
     it('works for only one classification level configured', () => {
+      const classificationStatisticsEntry =
+        faker.progressBar.classificationStatisticsEntry({}, 5);
       const testProgressBarData: ProgressBarData = {
         fileCount: 30,
         filesWithManualAttributionCount: 3,
@@ -162,14 +162,13 @@ describe('ProgressBar helpers', () => {
         resourcesWithHighlyCriticalExternalAttributions: [],
         resourcesWithMediumCriticalExternalAttributions: [],
         classificationStatistics: {
-          0: faker.progressBar.classificationStatisticsEntry({}, 5),
+          0: classificationStatisticsEntry,
         },
       };
 
       const background = getClassificationBarBackground(testProgressBarData);
 
-      const expectedBackground =
-        'linear-gradient(to right, hsl(146, 50%, 80%) 0% 25% , hsl(220, 41%, 92%) 25% 100% )';
+      const expectedBackground = `linear-gradient(to right, ${classificationStatisticsEntry.color} 0% 25% , hsl(220, 41%, 92%) 25% 100% )`;
       expect(background).toBe(expectedBackground);
     });
   });

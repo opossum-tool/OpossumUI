@@ -23,6 +23,7 @@ export type SelectedProgressBar =
 export interface ClassificationStatisticsEntry {
   description: string;
   correspondingFiles: Array<string>;
+  color: string;
 }
 
 export type ClassificationStatistics = Record<

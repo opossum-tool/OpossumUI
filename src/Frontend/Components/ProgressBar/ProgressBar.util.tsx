@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import chroma from 'chroma-js';
 import { sum } from 'lodash';
 
 import { Criticality } from '../../../shared/shared-types';
@@ -221,17 +220,6 @@ interface ProgressBarStep {
   color: Color;
 }
 
-function interpolateBetweenRedAndWhite(
-  numberOfClassifications: number,
-  index: number,
-) {
-  return chroma
-    .bezier(['red', 'white'])
-    .scale()
-    .correctLightness(true)
-    .colors(numberOfClassifications)[index];
-}
-
 function roundPercentagesToAtLeastOnePercentAndNormalize(
   progressBarSteps: Array<ProgressBarStep>,
 ): Array<ProgressBarStep> {
@@ -246,37 +234,20 @@ function roundPercentagesToAtLeastOnePercentAndNormalize(
   });
 }
 
-function getClassificationColor(
-  classificationNumericValue: string,
-  numberOfClassifications: number,
-  index: number,
-) {
-  return Number(classificationNumericValue) === 0
-    ? OpossumColors.pastelLightGreen
-    : interpolateBetweenRedAndWhite(numberOfClassifications, index);
-}
-
 function calculateProgressBarSteps(
   progressBarData: ProgressBarData,
 ): Array<ProgressBarStep> {
   const classificationStatistics = progressBarData.classificationStatistics;
-  const numberOfClassifications = Object.keys(classificationStatistics).length;
-  const progressBarSteps = Object.entries(classificationStatistics)
+  const progressBarSteps = Object.values(classificationStatistics)
     .reverse()
-    .map<ProgressBarStep>(
-      ([classificationNumericValue, statisticsEntry], index) => {
-        return {
-          widthInPercent:
-            (statisticsEntry.correspondingFiles.length * 100) /
-            progressBarData.filesWithOnlyExternalAttributionCount,
-          color: getClassificationColor(
-            classificationNumericValue,
-            numberOfClassifications,
-            index,
-          ),
-        };
-      },
-    );
+    .map<ProgressBarStep>((statisticsEntry) => {
+      return {
+        widthInPercent:
+          (statisticsEntry.correspondingFiles.length * 100) /
+          progressBarData.filesWithOnlyExternalAttributionCount,
+        color: statisticsEntry.color,
+      };
+    });
   //add files without classifications
   const totalPercentage = sum(
     progressBarSteps.map((step) => step.widthInPercent),

@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import chroma from 'chroma-js';
+
 import {
   Attributions,
   Classifications,
@@ -9,7 +11,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import { TREE_ROOT_FOLDER_LABEL } from '../../shared-styles';
+import { OpossumColors, TREE_ROOT_FOLDER_LABEL } from '../../shared-styles';
 import { ClassificationStatistics, ProgressBarData } from '../../types/types';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 
@@ -44,6 +46,7 @@ function addPathToClassificationStatistics(
     progressBarData.classificationStatistics[highestClassification] = {
       description: highestClassification.toFixed(0),
       correspondingFiles: [path],
+      color: OpossumColors.red, //should never happen anyhow and if it is a failure
     };
   }
 }
@@ -285,19 +288,41 @@ export function getUpdatedProgressBarData(args: {
   return progressBarData;
 }
 
+function interpolateBetweenRedAndWhite(
+  numberOfClassifications: number,
+  index: number,
+) {
+  return chroma
+    .bezier(['red', 'white'])
+    .scale()
+    .correctLightness(true)
+    .colors(numberOfClassifications)[index];
+}
+
+function getClassificationColor(
+  classificationId: string,
+  classifications: Classifications,
+) {
+  const configuredClassificationIds = Object.keys(classifications).toReversed();
+  const numberOfClassifications = configuredClassificationIds.length;
+  const index = configuredClassificationIds.indexOf(classificationId);
+  return Number(classificationId) === 0
+    ? OpossumColors.pastelLightGreen
+    : interpolateBetweenRedAndWhite(numberOfClassifications, index);
+}
+
 export function getEmptyProgressBarData(
   classifications: Classifications,
 ): ProgressBarData {
   const classificationStatistics: ClassificationStatistics = {};
   if (classifications) {
-    Object.entries(classifications).map(
-      ([classificationNumber, description]) => {
-        classificationStatistics[classificationNumber as unknown as number] = {
-          description,
-          correspondingFiles: [],
-        };
-      },
-    );
+    Object.entries(classifications).map(([classificationId, description]) => {
+      classificationStatistics[Number(classificationId)] = {
+        description,
+        correspondingFiles: [],
+        color: getClassificationColor(classificationId, classifications),
+      };
+    });
   }
 
   return {
