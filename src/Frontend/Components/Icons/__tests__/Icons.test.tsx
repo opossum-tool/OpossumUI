@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Criticality } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import {
   BreakpointIcon,
   ClassificationIcon,
@@ -90,7 +91,9 @@ describe('The Icons', () => {
       render(
         <ClassificationIcon
           classification={1}
-          classification_mapping={{ 1: 'Test' }}
+          classification_mapping={{
+            1: faker.opossum.classificationEntry({ description: 'Test' }),
+          }}
         />,
       );
 

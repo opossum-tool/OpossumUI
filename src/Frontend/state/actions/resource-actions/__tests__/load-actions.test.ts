@@ -16,6 +16,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
+import { faker } from '../../../../../testing/Faker';
 import { EMPTY_PROJECT_METADATA } from '../../../../shared-constants';
 import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
@@ -50,8 +51,8 @@ const testResources: Resources = {
 
 const testConfig: ProjectConfig = {
   classifications: {
-    0: 'UNKNOWN',
-    1: 'CRITICAL',
+    0: faker.opossum.classificationEntry(),
+    1: faker.opossum.classificationEntry(),
   },
 };
 

@@ -3,14 +3,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { EMPTY_PROJECT_CONFIG } from '../../../Frontend/shared-constants';
+import { OpossumColors } from '../../../Frontend/shared-styles';
 import {
   Attributions,
-  Classifications,
   PackageInfo,
   ProjectConfig,
+  RawClassifications,
+  RawProjectConfig,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
-import { checkAndUpdateConfiguration } from '../checkConfiguration';
+import { checkAndConvertConfiguration } from '../checkConfiguration';
 
 function fakePackagesWithClassifications(
   ...classificationIds: Array<number>
@@ -26,28 +28,40 @@ function fakePackagesWithClassifications(
   return attributions;
 }
 
-function fakeConfigWithClassificationIds(...classificationIds: Array<number>) {
-  const classifications: Classifications = {};
+function fakeConfigWithClassificationIds(
+  ...classificationIds: Array<number>
+): RawProjectConfig {
+  const classifications: RawClassifications = {};
   classificationIds.forEach((classificationId) => {
     classifications[classificationId] = faker.word.words();
   });
-  const configuration: ProjectConfig = { classifications };
-  return configuration;
+  return { classifications };
 }
 
 describe('check and update configuration', () => {
   it('returns configuration with empty classifications if no configuration set', () => {
-    const result = checkAndUpdateConfiguration(undefined, {});
+    const result = checkAndConvertConfiguration(undefined, {});
 
     expect(result).toEqual(EMPTY_PROJECT_CONFIG);
   });
 
-  it('does not change the configuration if all classifications are correctly set', () => {
+  it('just converts the configuration if all classifications are correctly set', () => {
     const configuration = fakeConfigWithClassificationIds(0, 1);
-    const expectedConfiguration = { ...configuration };
+    const expectedConfiguration: ProjectConfig = {
+      classifications: {
+        0: {
+          description: configuration.classifications[0],
+          color: OpossumColors.pastelLightGreen,
+        },
+        1: {
+          description: configuration.classifications[1],
+          color: '#ff0000',
+        },
+      },
+    };
     const externalAttributions = fakePackagesWithClassifications(1, 0, 1, 0);
 
-    const result = checkAndUpdateConfiguration(
+    const result = checkAndConvertConfiguration(
       configuration,
       externalAttributions,
     );
@@ -57,19 +71,28 @@ describe('check and update configuration', () => {
 
   it('does updates the classification set on unknown classifications found', () => {
     const configuration = fakeConfigWithClassificationIds(0, 1);
-    const copiedClassifications = { ...configuration.classifications };
 
     const externalAttributions = fakePackagesWithClassifications(0, 1, 22);
 
-    const result = checkAndUpdateConfiguration(
+    const result = checkAndConvertConfiguration(
       configuration,
       externalAttributions,
     );
 
-    const expectedConfiguration = {
+    const expectedConfiguration: ProjectConfig = {
       classifications: {
-        ...copiedClassifications,
-        22: 'not configured - 22',
+        0: {
+          description: configuration.classifications[0],
+          color: OpossumColors.pastelLightGreen,
+        },
+        1: {
+          description: configuration.classifications[1],
+          color: '#ffa78c',
+        },
+        22: {
+          description: 'not configured - 22',
+          color: '#ff0000',
+        },
       },
     };
 

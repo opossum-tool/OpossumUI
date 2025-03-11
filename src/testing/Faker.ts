@@ -41,6 +41,7 @@ import {
   Attributions,
   AttributionsToResources,
   BaseUrlsForSources,
+  ClassificationEntry,
   Criticality,
   DiscreteConfidence,
   ExternalAttributionSource,
@@ -307,6 +308,20 @@ class OpossumModule {
       resourcesWithAttributedChildren:
         OpossumModule.resourcesWithAttributedChildren(),
       ...props,
+    };
+  }
+
+  public static classificationEntry(
+    overrides: Partial<ClassificationEntry> = {},
+  ): ClassificationEntry {
+    const {
+      description = faker.word.words(),
+      color = faker.color.hsl({ format: 'css' }),
+    } = overrides;
+
+    return {
+      description,
+      color,
     };
   }
 }

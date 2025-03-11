@@ -9,6 +9,7 @@ import {
   PackageInfo,
   ProjectConfig,
   ProjectMetadata,
+  RawProjectConfig,
 } from '../shared/shared-types';
 import { text } from '../shared/text';
 
@@ -36,6 +37,10 @@ export const EMPTY_PROJECT_METADATA: ProjectMetadata = {
 };
 
 export const EMPTY_PROJECT_CONFIG: ProjectConfig = {
+  classifications: {},
+};
+
+export const EMPTY_RAW_PROJECT_CONFIG: RawProjectConfig = {
   classifications: {},
 };
 
