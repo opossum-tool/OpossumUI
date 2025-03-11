@@ -325,6 +325,7 @@ export const text = {
     criticality: 'By Criticality',
     name: 'By Name',
     occurrence: 'By Occurrence',
+    classification: 'By Classification',
   },
   resourceDetails: {
     searchTooltip: 'Search',
