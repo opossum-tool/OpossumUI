@@ -5,7 +5,7 @@
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import {
-  CriticalClassificationIcon,
+  ClassificationIcon,
   CriticalityIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
@@ -40,7 +40,7 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
   }
   if (cardConfig.classification && cardConfig.classification_mapping) {
     rightIcons.push(
-      <CriticalClassificationIcon
+      <ClassificationIcon
         key={'classification-icon'}
         classification={cardConfig.classification}
         classification_mapping={cardConfig.classification_mapping}

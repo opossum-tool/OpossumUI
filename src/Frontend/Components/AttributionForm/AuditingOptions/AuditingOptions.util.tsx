@@ -29,7 +29,7 @@ import {
 import { useUserSetting } from '../../../state/variables/use-user-setting';
 import { prettifySource } from '../../../util/prettify-source';
 import {
-  CriticalClassificationIcon,
+  ClassificationIcon,
   CriticalityIcon,
   ExcludeFromNoticeIcon,
   FollowUpIcon,
@@ -223,7 +223,7 @@ export function useAuditingOptions({
           classifications[packageInfo.classification ?? 0] ||
           `${packageInfo.classification} - not configured`,
         icon: (
-          <CriticalClassificationIcon
+          <ClassificationIcon
             noTooltip
             classification={packageInfo.classification}
           />
