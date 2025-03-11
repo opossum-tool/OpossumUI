@@ -14,6 +14,7 @@ import { useMemo, useState } from 'react';
 import { text } from '../../../shared/text';
 import { Sorting, SORTINGS } from '../../shared-constants';
 import { UseFilteredData } from '../../state/variables/use-filtered-data';
+import { ClassificationIcon } from '../Icons/Icons';
 import {
   SelectMenu,
   SelectMenuOption,
@@ -33,6 +34,7 @@ const SORT_ICONS: Record<
   [text.sortings.occurrence]: ({ color }) => (
     <BarChartIcon color={color || 'info'} fontSize={'inherit'} />
   ),
+  [text.sortings.classification]: () => <ClassificationIcon />,
 };
 
 interface Props
