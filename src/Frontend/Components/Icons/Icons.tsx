@@ -25,10 +25,6 @@ import { text } from '../../../shared/text';
 import { baseIcon, criticalityColor, OpossumColors } from '../../shared-styles';
 
 const classes = {
-  nonClickableIcon: {
-    ...baseIcon,
-    color: OpossumColors.darkBlue,
-  },
   resourceIcon: {
     width: '18px',
     height: '18px',
@@ -211,37 +207,36 @@ export function CriticalityIcon({
   );
 }
 
-export function ClassificationIcon({
-  className,
-  classification,
-  classification_mapping,
-  sx,
-  tooltipPlacement,
-}: IconProps & {
-  classification?: number;
-  classification_mapping?: Classifications;
-}) {
-  if (!classification || classification === 0) {
-    return null;
-  }
-  const tooltip = classification_mapping?.[classification];
-  if (!tooltip) {
+export function ClassificationIcon(
+  props: IconProps & {
+    classification?: number;
+    classification_mapping?: Classifications;
+  },
+) {
+  if (!props.classification) {
     return null;
   }
 
+  const tooltip = props.classification_mapping?.[props.classification];
+
   return (
-    <MuiTooltip title={tooltip} placement={tooltipPlacement} disableInteractive>
+    <MuiTooltip
+      title={props.noTooltip ? undefined : tooltip}
+      placement={props.tooltipPlacement}
+      disableInteractive
+      data-testid={'classification-tooltip'}
+    >
       <Icon
         aria-label={'Classification icon'}
         sx={{
           ...baseIcon,
           color: `${OpossumColors.red} !important`,
-          ...sx,
           fontFamily: 'sans-serif',
           fontWeight: 'bold',
           fontSize: 'medium !important',
+          ...props.sx,
         }}
-        className={className}
+        className={props.className}
       >
         C
       </Icon>

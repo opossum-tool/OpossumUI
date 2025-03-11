@@ -21,6 +21,7 @@ import {
   useAppStore,
 } from '../../../state/hooks';
 import {
+  getClassifications,
   getExternalAttributionSources,
   getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
@@ -28,6 +29,7 @@ import {
 import { useUserSetting } from '../../../state/variables/use-user-setting';
 import { prettifySource } from '../../../util/prettify-source';
 import {
+  ClassificationIcon,
   CriticalityIcon,
   ExcludeFromNoticeIcon,
   FollowUpIcon,
@@ -59,6 +61,8 @@ export function useAuditingOptions({
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,
   );
+  const classifications = useAppSelector(getClassifications);
+
   const source = useMemo(() => {
     const sourceName =
       packageInfo.source?.additionalName || packageInfo.source?.name;
@@ -214,6 +218,20 @@ export function useAuditingOptions({
         interactive: false,
       },
       {
+        id: 'classification',
+        label:
+          classifications[packageInfo.classification ?? 0] ||
+          `${packageInfo.classification} - not configured`,
+        icon: (
+          <ClassificationIcon
+            noTooltip
+            classification={packageInfo.classification}
+          />
+        ),
+        selected: !!packageInfo.classification,
+        interactive: false,
+      },
+      {
         id: 'confidence',
         label: text.auditingOptions.confidence,
         icon: (
@@ -257,10 +275,12 @@ export function useAuditingOptions({
     ],
     [
       attributionSources,
+      classifications,
       dispatch,
       isEditable,
       isPreferenceFeatureEnabled,
       packageInfo.attributionConfidence,
+      packageInfo.classification,
       packageInfo.criticality,
       packageInfo.excludeFromNotice,
       packageInfo.followUp,
