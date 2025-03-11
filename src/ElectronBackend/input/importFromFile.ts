@@ -29,6 +29,7 @@ import {
 } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
+import { checkAndUpdateConfiguration } from './checkConfiguration';
 import {
   parseInputJsonFile,
   parseOpossumFile,
@@ -126,6 +127,12 @@ export async function loadInputAndOutputFromFilePath(
   logger.info('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
     parsedInputData.frequentLicenses,
+  );
+
+  logger.info('Checking configuration');
+  parsedInputData.config = checkAndUpdateConfiguration(
+    parsedInputData.config,
+    externalAttributions,
   );
 
   if (parsedOutputData === null) {
