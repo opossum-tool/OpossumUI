@@ -103,7 +103,7 @@
     "run-script-os": "^1.1.6",
     "start-server-and-test": "^2.0.10",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.0",
+    "typescript-eslint": "^8.26.1",
     "unimported": "^1.31.1",
     "vite": "^6.2.1",
     "vite-plugin-electron": "^0.29.0",
