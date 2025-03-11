@@ -14,7 +14,7 @@ import { text } from '../../../../../../shared/text';
 import { treeItemClasses } from '../../../../../shared-styles';
 import {
   BreakpointIcon,
-  CriticalClassificationIcon,
+  ClassificationIcon,
   CriticalityIcon,
   DirectoryIcon,
   FileIcon,
@@ -113,7 +113,7 @@ export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
           <SignalIcon />
         ))}
       {props.hasUnresolvedExternalAttribution && (
-        <CriticalClassificationIcon
+        <ClassificationIcon
           classification={props.classification}
           classification_mapping={props.classification_mapping}
           tooltipPlacement={'right'}

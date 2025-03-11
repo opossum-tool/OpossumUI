@@ -19,7 +19,6 @@ import WhatshotIcon from '@mui/icons-material/Whatshot';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import { Icon, SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
-import { ReactNode } from 'react';
 
 import { Classifications, Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -208,28 +207,22 @@ export function CriticalityIcon({
   );
 }
 
-export function ClassificationIcon({
-  className,
-  classification,
-  classification_mapping,
-  noTooltip,
-  sx,
-  tooltipPlacement,
-}: IconProps & {
-  classification?: number;
-  classification_mapping?: Classifications;
-}): ReactNode {
-  if (classification === undefined) {
+export function ClassificationIcon(
+  props: IconProps & {
+    classification?: number;
+    classification_mapping?: Classifications;
+  },
+) {
+  if (!props.classification) {
     return null;
   }
-  const tooltip =
-    classification_mapping?.[classification] ||
-    `${classification} - not configured`;
+
+  const tooltip = props.classification_mapping?.[props.classification];
 
   return (
     <MuiTooltip
-      title={noTooltip ? undefined : tooltip}
-      placement={tooltipPlacement}
+      title={props.noTooltip ? undefined : tooltip}
+      placement={props.tooltipPlacement}
       disableInteractive
       data-testid={'classification-tooltip'}
     >
@@ -241,26 +234,14 @@ export function ClassificationIcon({
           fontFamily: 'sans-serif',
           fontWeight: 'bold',
           fontSize: 'medium !important',
-          ...sx,
+          ...props.sx,
         }}
-        className={className}
+        className={props.className}
       >
         C
       </Icon>
     </MuiTooltip>
   );
-}
-
-export function CriticalClassificationIcon(
-  props: IconProps & {
-    classification?: number;
-    classification_mapping?: Classifications;
-  },
-) {
-  if (!props.classification || props.classification === 0) {
-    return null;
-  }
-  return <ClassificationIcon {...props} />;
 }
 
 export function SignalIcon({

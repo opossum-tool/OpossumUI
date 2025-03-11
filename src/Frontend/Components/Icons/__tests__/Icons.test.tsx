@@ -9,7 +9,6 @@ import { Criticality } from '../../../../shared/shared-types';
 import {
   BreakpointIcon,
   ClassificationIcon,
-  CriticalClassificationIcon,
   CriticalityIcon,
   DirectoryIcon,
   ExcludeFromNoticeIcon,
@@ -80,7 +79,7 @@ describe('The Icons', () => {
   });
   describe('classification icon', () => {
     it('does not render CriticalClassificationIcon for classification 0', () => {
-      render(<CriticalClassificationIcon classification={0} />);
+      render(<ClassificationIcon classification={0} />);
 
       expect(
         screen.queryByLabelText('Classification icon'),
@@ -89,7 +88,7 @@ describe('The Icons', () => {
 
     it('renders CriticalClassificationIcon for larger classifications', async () => {
       render(
-        <CriticalClassificationIcon
+        <ClassificationIcon
           classification={1}
           classification_mapping={{ 1: 'Test' }}
         />,
@@ -103,25 +102,8 @@ describe('The Icons', () => {
       expect(tooltip).toHaveTextContent('Test');
     });
 
-    it('renders ClassificationIcon for un-configured classifications', async () => {
-      render(<ClassificationIcon classification={1} />);
-
-      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
-
-      await hoverOverIcon('classification-tooltip');
-
-      const tooltip = await screen.findByRole('tooltip');
-      expect(tooltip).toHaveTextContent('1 - not configured');
-    });
-
-    it('renders ClassificationIcon for classification 0', () => {
-      render(<ClassificationIcon classification={0} />);
-
-      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
-    });
-
     it('does not show tooltip if deactivated', async () => {
-      render(<ClassificationIcon classification={0} noTooltip />);
+      render(<ClassificationIcon classification={1} noTooltip />);
 
       expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
 
