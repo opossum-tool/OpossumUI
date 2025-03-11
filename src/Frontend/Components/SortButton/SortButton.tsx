@@ -83,7 +83,7 @@ export const SortButton: React.FC<Props> = ({
         <MuiBadge
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           invisible={disabled}
-          componentsProps={{
+          slotProps={{
             badge: {
               style: {
                 padding: 0,
