@@ -219,9 +219,7 @@ export function useAuditingOptions({
       },
       {
         id: 'classification',
-        label:
-          classifications[packageInfo.classification ?? 0] ||
-          `${packageInfo.classification} - not configured`,
+        label: classifications[packageInfo.classification ?? 0] || '',
         icon: (
           <ClassificationIcon
             noTooltip
