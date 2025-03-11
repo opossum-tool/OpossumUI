@@ -219,6 +219,9 @@ export function ClassificationIcon(
 
   const tooltip =
     props.classification_mapping?.[props.classification]?.description;
+  const color =
+    props.classification_mapping?.[props.classification]?.color ??
+    OpossumColors.red;
 
   return (
     <MuiTooltip
@@ -231,7 +234,7 @@ export function ClassificationIcon(
         aria-label={'Classification icon'}
         sx={{
           ...baseIcon,
-          color: `${OpossumColors.red} !important`,
+          color: `${color} !important`,
           fontFamily: 'sans-serif',
           fontWeight: 'bold',
           fontSize: 'medium !important',
