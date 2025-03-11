@@ -11,6 +11,7 @@ import type {
   ParsedOpossumOutputFile,
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
+import { OpossumColors } from '../Frontend/shared-styles';
 import { ClassificationStatisticsEntry } from '../Frontend/types/types';
 import { HttpClient } from '../Frontend/util/http-client';
 import {
@@ -505,7 +506,10 @@ class ProgressBarModule {
     overwrites: Partial<ClassificationStatisticsEntry> = {},
     numberOfFiles?: number,
   ): ClassificationStatisticsEntry {
-    const { description = faker.word.noun() } = overwrites;
+    const {
+      description = faker.word.noun(),
+      color = faker.helpers.arrayElement(Object.values(OpossumColors)),
+    } = overwrites;
     let { correspondingFiles } = overwrites;
     if (!numberOfFiles) {
       numberOfFiles = faker.number.int({ min: 0, max: 20 });
@@ -519,6 +523,7 @@ class ProgressBarModule {
     return {
       description,
       correspondingFiles,
+      color,
     };
   }
 }
