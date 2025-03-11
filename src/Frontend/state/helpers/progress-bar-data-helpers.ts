@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import chroma from 'chroma-js';
-
 import {
   Attributions,
   Classifications,
@@ -288,41 +286,20 @@ export function getUpdatedProgressBarData(args: {
   return progressBarData;
 }
 
-function interpolateBetweenRedAndWhite(
-  numberOfClassifications: number,
-  index: number,
-) {
-  return chroma
-    .bezier(['red', 'white'])
-    .scale()
-    .correctLightness(true)
-    .colors(numberOfClassifications)[index];
-}
-
-function getClassificationColor(
-  classificationId: string,
-  classifications: Classifications,
-) {
-  const configuredClassificationIds = Object.keys(classifications).toReversed();
-  const numberOfClassifications = configuredClassificationIds.length;
-  const index = configuredClassificationIds.indexOf(classificationId);
-  return Number(classificationId) === 0
-    ? OpossumColors.pastelLightGreen
-    : interpolateBetweenRedAndWhite(numberOfClassifications, index);
-}
-
 export function getEmptyProgressBarData(
   classifications: Classifications,
 ): ProgressBarData {
   const classificationStatistics: ClassificationStatistics = {};
   if (classifications) {
-    Object.entries(classifications).map(([classificationId, description]) => {
-      classificationStatistics[Number(classificationId)] = {
-        description,
-        correspondingFiles: [],
-        color: getClassificationColor(classificationId, classifications),
-      };
-    });
+    Object.entries(classifications).forEach(
+      ([classificationId, classificationEntry]) => {
+        classificationStatistics[Number(classificationId)] = {
+          description: classificationEntry.description,
+          correspondingFiles: [],
+          color: classificationEntry.color,
+        };
+      },
+    );
   }
 
   return {

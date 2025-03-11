@@ -75,7 +75,6 @@ describe('The PackageCard', () => {
   describe('classification icon', () => {
     it('renders the classification icon for classification > 0', () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 1 });
-      const classificationText = faker.word.words();
 
       renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
@@ -83,7 +82,7 @@ describe('The PackageCard', () => {
           actions: [
             setConfig({
               classifications: {
-                1: classificationText,
+                1: faker.opossum.classificationEntry(),
               },
             }),
           ],
@@ -96,7 +95,6 @@ describe('The PackageCard', () => {
 
     it('does not render the classification icon for classification 0', () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 0 });
-      const classificationText = faker.word.words();
 
       renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
@@ -104,7 +102,7 @@ describe('The PackageCard', () => {
           actions: [
             setConfig({
               classifications: {
-                1: classificationText,
+                1: faker.opossum.classificationEntry(),
               },
             }),
           ],
@@ -117,7 +115,6 @@ describe('The PackageCard', () => {
 
     it('does render the classification icon for un-configured classifications', () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 3 });
-      const classificationText = faker.word.words();
 
       renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
@@ -125,7 +122,7 @@ describe('The PackageCard', () => {
           actions: [
             setConfig({
               classifications: {
-                1: classificationText,
+                1: faker.opossum.classificationEntry(),
               },
             }),
           ],

@@ -455,6 +455,15 @@ describe('The getUpdatedProgressBarData function', () => {
           'somefile.ts': 1,
         },
       };
+
+      const classifications = {
+        0: faker.opossum.classificationEntry({ description: 'foo' }),
+        1: faker.opossum.classificationEntry({ description: 'bar' }),
+        14: faker.opossum.classificationEntry({
+          description: 'something else',
+        }),
+      };
+
       const progressBarData = getUpdatedProgressBarData({
         resources: testResources,
         manualAttributions: {},
@@ -464,28 +473,21 @@ describe('The getUpdatedProgressBarData function', () => {
         resolvedExternalAttributions: new Set<string>(),
         attributionBreakpoints: new Set<string>(),
         filesWithChildren: new Set<string>(),
-        classifications: {
-          0: 'foo',
-          1: 'bar',
-          14: 'something else',
-        },
+        classifications,
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
         0: {
-          description: 'foo',
+          ...classifications[0],
           correspondingFiles: [],
-          color: OpossumColors.pastelLightGreen,
         },
         1: {
-          description: 'bar',
+          ...classifications[1],
           correspondingFiles: [],
-          color: '#ffa78c',
         },
         14: {
-          description: 'something else',
+          ...classifications[14],
           correspondingFiles: [],
-          color: '#ff0000',
         },
       });
     });
@@ -531,6 +533,14 @@ describe('The getUpdatedProgressBarData function', () => {
         '/root.fs': ['idUndefined'],
       };
 
+      const classifications = {
+        0: faker.opossum.classificationEntry({ description: 'foo' }),
+        1: faker.opossum.classificationEntry({ description: 'bar' }),
+        14: faker.opossum.classificationEntry({
+          description: 'something else',
+        }),
+      };
+
       const progressBarData = getUpdatedProgressBarData({
         resources: testResources,
         manualAttributions: {},
@@ -540,28 +550,21 @@ describe('The getUpdatedProgressBarData function', () => {
         resolvedExternalAttributions: new Set<string>(),
         attributionBreakpoints: new Set<string>(),
         filesWithChildren: new Set<string>(),
-        classifications: {
-          0: 'foo',
-          1: 'bar',
-          14: 'something else',
-        },
+        classifications,
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
         0: {
-          description: 'foo',
+          ...classifications[0],
           correspondingFiles: ['/folder/package/thirdFile.js'],
-          color: OpossumColors.pastelLightGreen,
         },
         1: {
-          description: 'bar',
+          ...classifications[1],
           correspondingFiles: ['/folder/somefile.ts'],
-          color: '#ffa78c',
         },
         14: {
-          description: 'something else',
+          ...classifications[14],
           correspondingFiles: ['/folder/package/anotherFile.js', '/root.ts'],
-          color: '#ff0000',
         },
       });
     });
@@ -597,6 +600,14 @@ describe('The getUpdatedProgressBarData function', () => {
         '/folder/package/': ['id2'],
       };
 
+      const classifications = {
+        0: faker.opossum.classificationEntry({ description: 'foo' }),
+        1: faker.opossum.classificationEntry({ description: 'bar' }),
+        14: faker.opossum.classificationEntry({
+          description: 'something else',
+        }),
+      };
+
       const progressBarData = getUpdatedProgressBarData({
         resources: testResources,
         manualAttributions: {},
@@ -606,28 +617,21 @@ describe('The getUpdatedProgressBarData function', () => {
         resolvedExternalAttributions: new Set<string>(),
         attributionBreakpoints: new Set<string>(),
         filesWithChildren: new Set<string>(),
-        classifications: {
-          0: 'foo',
-          1: 'bar',
-          14: 'something else',
-        },
+        classifications,
       });
 
       expect(progressBarData.classificationStatistics).toEqual({
         0: {
-          description: 'foo',
+          ...classifications[0],
           correspondingFiles: [],
-          color: OpossumColors.pastelLightGreen,
         },
         1: {
-          description: 'bar',
+          ...classifications[1],
           correspondingFiles: ['/folder/somefile.ts'],
-          color: '#ffa78c',
         },
         14: {
-          description: 'something else',
+          ...classifications[14],
           correspondingFiles: [],
-          color: '#ff0000',
         },
         22: {
           description: '22',

@@ -8,7 +8,6 @@ import fs from 'fs';
 import { cloneDeep } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
-import { EMPTY_PROJECT_CONFIG } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
@@ -29,7 +28,7 @@ import {
 } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
-import { checkAndUpdateConfiguration } from './checkConfiguration';
+import { checkAndConvertConfiguration } from './checkConfiguration';
 import {
   parseInputJsonFile,
   parseOpossumFile,
@@ -129,8 +128,8 @@ export async function loadInputAndOutputFromFilePath(
     parsedInputData.frequentLicenses,
   );
 
-  logger.info('Checking configuration');
-  parsedInputData.config = checkAndUpdateConfiguration(
+  logger.info('Checking and converting configuration');
+  const configuration = checkAndConvertConfiguration(
     parsedInputData.config,
     externalAttributions,
   );
@@ -175,7 +174,7 @@ export async function loadInputAndOutputFromFilePath(
   mainWindow.webContents.send(AllowedFrontendChannels.FileLoaded, {
     metadata: parsedInputData.metadata,
     resources: parsedInputData.resources,
-    config: parsedInputData.config ?? EMPTY_PROJECT_CONFIG,
+    config: configuration,
     manualAttributions: {
       attributions: manualAttributions,
       resourcesToAttributions: parsedOutputData.resourcesToAttributions,

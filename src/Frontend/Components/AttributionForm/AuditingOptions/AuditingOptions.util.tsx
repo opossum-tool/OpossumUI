@@ -219,7 +219,8 @@ export function useAuditingOptions({
       },
       {
         id: 'classification',
-        label: classifications[packageInfo.classification ?? 0] || '',
+        label:
+          classifications[packageInfo.classification ?? 0]?.description || '',
         icon: (
           <ClassificationIcon
             noTooltip

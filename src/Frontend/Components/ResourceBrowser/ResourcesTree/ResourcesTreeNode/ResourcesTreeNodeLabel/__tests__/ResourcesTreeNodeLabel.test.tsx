@@ -5,6 +5,7 @@
 import { render, screen } from '@testing-library/react';
 
 import { Criticality } from '../../../../../../../shared/shared-types';
+import { faker } from '../../../../../../../testing/Faker';
 import { ResourcesTreeNodeLabel } from '../ResourcesTreeNodeLabel';
 
 describe('ResourcesTreeNodeLabel', () => {
@@ -120,7 +121,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
         classification={1}
-        classification_mapping={{ 1: 'Test' }}
+        classification_mapping={{ 1: faker.opossum.classificationEntry() }}
       />,
     );
 

@@ -217,7 +217,8 @@ export function ClassificationIcon(
     return null;
   }
 
-  const tooltip = props.classification_mapping?.[props.classification];
+  const tooltip =
+    props.classification_mapping?.[props.classification]?.description;
 
   return (
     <MuiTooltip

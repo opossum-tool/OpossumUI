@@ -2,16 +2,46 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { EMPTY_PROJECT_CONFIG } from '../../Frontend/shared-constants';
+import chroma from 'chroma-js';
+
+import { EMPTY_RAW_PROJECT_CONFIG } from '../../Frontend/shared-constants';
+import { OpossumColors } from '../../Frontend/shared-styles';
 import {
   Attributions,
+  ClassificationEntry,
+  Classifications,
   PackageInfo,
   ProjectConfig,
+  RawClassifications,
+  RawProjectConfig,
 } from '../../shared/shared-types';
 import logger from '../main/logger';
 
+function interpolateBetweenRedAndWhite(
+  numberOfClassifications: number,
+  index: number,
+) {
+  return chroma
+    .bezier(['red', 'white'])
+    .scale()
+    .correctLightness(true)
+    .colors(numberOfClassifications)[index];
+}
+
+function getClassificationColor(
+  classificationId: string,
+  classifications: RawClassifications,
+) {
+  const configuredClassificationIds = Object.keys(classifications).toReversed();
+  const numberOfClassifications = configuredClassificationIds.length;
+  const index = configuredClassificationIds.indexOf(classificationId);
+  return Number(classificationId) === 0
+    ? OpossumColors.pastelLightGreen
+    : interpolateBetweenRedAndWhite(numberOfClassifications, index);
+}
+
 function checkAndUpdateClassifications(
-  config: ProjectConfig,
+  config: RawProjectConfig,
   externalAttributions: Attributions,
 ) {
   const classifications = config.classifications;
@@ -38,14 +68,33 @@ function checkAndUpdateClassifications(
   return classifications;
 }
 
-export function checkAndUpdateConfiguration(
-  rawConfig: ProjectConfig | undefined,
+export function checkAndConvertConfiguration(
+  rawConfig: RawProjectConfig | undefined,
   externalAttributions: Attributions,
-) {
-  const config = rawConfig ?? EMPTY_PROJECT_CONFIG;
-  config.classifications = checkAndUpdateClassifications(
-    config,
+): ProjectConfig {
+  const rawConfigOrDefault = rawConfig ?? EMPTY_RAW_PROJECT_CONFIG;
+  rawConfigOrDefault.classifications = checkAndUpdateClassifications(
+    rawConfigOrDefault,
     externalAttributions,
   );
-  return config;
+  const classifications: Classifications =
+    Object.fromEntries<ClassificationEntry>(
+      Object.entries(rawConfigOrDefault.classifications).map(
+        ([classificationId, classificationEntry]) => {
+          return [
+            classificationId,
+            {
+              description: classificationEntry,
+              color: getClassificationColor(
+                classificationId,
+                rawConfigOrDefault.classifications,
+              ),
+            },
+          ];
+        },
+      ),
+    );
+  return {
+    classifications,
+  };
 }

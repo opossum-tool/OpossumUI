@@ -267,7 +267,9 @@ describe('AttributionForm', () => {
           actions: [
             setConfig({
               classifications: {
-                1: classificationText,
+                1: faker.opossum.classificationEntry({
+                  description: classificationText,
+                }),
               },
             }),
           ],
