@@ -321,6 +321,7 @@ export interface UserSettings {
   qaMode: boolean | null;
   showProjectStatistics: boolean | null;
   areHiddenSignalsVisible: boolean | null;
+  showClassifications: boolean | null;
   panelSizes: {
     resourceBrowserWidth: number;
     packageListsWidth: number;

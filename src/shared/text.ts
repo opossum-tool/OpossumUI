@@ -51,6 +51,7 @@ export const text = {
       zoomIn: 'Zoom In',
       zoomOut: 'Zoom Out',
       qaMode: 'QA Mode',
+      showClassifications: 'Show Classifications',
     },
     about: 'About',
     aboutSubmenu: {

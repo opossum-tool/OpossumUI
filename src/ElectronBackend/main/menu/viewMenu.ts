@@ -6,11 +6,9 @@
 import { MenuItemConstructorOptions } from 'electron';
 
 import { text } from '../../../shared/text';
-import {
-  getIconBasedOnTheme,
-  makeFirstIconVisibleAndSecondHidden,
-} from '../iconHelpers';
+import { getIconBasedOnTheme } from '../iconHelpers';
 import { UserSettings } from '../user-settings';
+import { switchableMenuItem } from './switchableMenuItem';
 
 function getShowDevTools(): MenuItemConstructorOptions {
   return {
@@ -56,47 +54,29 @@ function getZoomOut(): MenuItemConstructorOptions {
   };
 }
 
-function getEnableQaMode(qaMode: null | boolean) {
-  return {
-    icon: getIconBasedOnTheme(
-      'icons/check-box-blank-white.png',
-      'icons/check-box-blank-black.png',
-    ),
-    label: text.menu.viewSubmenu.qaMode,
-    id: 'disabled-qa-mode',
-    click: () => {
-      makeFirstIconVisibleAndSecondHidden(
-        'enabled-qa-mode',
-        'disabled-qa-mode',
-      );
-      void UserSettings.set('qaMode', true);
-    },
-    visible: !qaMode,
-  };
+function getShowClassifications(
+  showClassifications: boolean | null,
+): Array<MenuItemConstructorOptions> {
+  return switchableMenuItem(showClassifications, {
+    id: 'show-classifications',
+    label: text.menu.viewSubmenu.showClassifications,
+    onToggle: (newState: boolean) =>
+      UserSettings.set('showClassifications', newState),
+  });
 }
 
-function getDisableQaMode(qaMode: null | boolean) {
-  return {
-    icon: getIconBasedOnTheme(
-      'icons/check-box-white.png',
-      'icons/check-box-black.png',
-    ),
+function getQaMode(qaMode: boolean | null): Array<MenuItemConstructorOptions> {
+  return switchableMenuItem(qaMode, {
+    id: 'qa-mode',
     label: text.menu.viewSubmenu.qaMode,
-    id: 'enabled-qa-mode',
-    click: () => {
-      makeFirstIconVisibleAndSecondHidden(
-        'disabled-qa-mode',
-        'enabled-qa-mode',
-      );
-      void UserSettings.set('qaMode', false);
-    },
-    visible: !!qaMode,
-  };
+    onToggle: (newState: boolean) => UserSettings.set('qaMode', newState),
+  });
 }
 
 export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
   const qaMode = await UserSettings.get('qaMode');
-
+  const showClassifications = await UserSettings.get('showClassifications');
+  console.log('showClassifications', showClassifications);
   return {
     label: text.menu.view,
     submenu: [
@@ -104,8 +84,8 @@ export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
       getToggleFullScreen(),
       getZoomIn(),
       getZoomOut(),
-      getEnableQaMode(qaMode),
-      getDisableQaMode(qaMode),
+      ...getQaMode(qaMode),
+      ...getShowClassifications(showClassifications),
     ],
   };
 }
