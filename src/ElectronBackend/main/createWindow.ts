@@ -27,7 +27,7 @@ export async function createWindow(): Promise<BrowserWindow> {
   if (!app.isPackaged) {
     await mainWindow.loadURL('http://localhost:5173/');
 
-    mainWindow.webContents.openDevTools();
+    openDevTools(mainWindow);
   } else {
     await mainWindow.loadURL(
       `file://${path.join(upath.toUnix(__dirname), '../../index.html')}`,
@@ -36,3 +36,9 @@ export async function createWindow(): Promise<BrowserWindow> {
 
   return mainWindow;
 }
+
+const openDevTools = (mainWindow: BrowserWindow) => {
+  const devtools = new BrowserWindow();
+  mainWindow.webContents.setDevToolsWebContents(devtools.webContents);
+  mainWindow.webContents.openDevTools({ mode: 'detach' });
+};
