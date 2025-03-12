@@ -40,22 +40,21 @@ function getClassificationColor(
     : interpolateBetweenRedAndWhite(numberOfClassifications, index);
 }
 
-function checkAndUpdateClassifications(
-  config: RawProjectConfig,
+function addUnconfiguredClassifications(
+  classifications: RawClassifications,
   externalAttributions: Attributions,
 ) {
-  const classifications = config.classifications;
-  const configuredAttributionKeys = Object.keys(classifications).map(
-    (configurationValue) => Number(configurationValue),
-  );
-  const containsUnconfiguredClassification = (packageInfo: PackageInfo) =>
+  const configuredAttributionKeys = Object.keys(classifications).map(Number);
+  const getUnconfiguredClassification = (packageInfo: PackageInfo) =>
     packageInfo.classification &&
-    !configuredAttributionKeys.includes(packageInfo.classification);
+    !configuredAttributionKeys.includes(packageInfo.classification)
+      ? [packageInfo.classification]
+      : [];
 
-  const unconfiguredClassifications = Object.values(externalAttributions)
-    .filter(containsUnconfiguredClassification)
-    .map<number | undefined>((packageInfo) => packageInfo.classification)
-    .filter((classificationId) => classificationId !== undefined);
+  const unconfiguredClassifications = Object.values(
+    externalAttributions,
+  ).flatMap(getUnconfiguredClassification);
+
   if (unconfiguredClassifications.length) {
     logger.warn(
       `Detected configuration values without configuration: ${unconfiguredClassifications.join(', ')}`,
@@ -69,17 +68,16 @@ function checkAndUpdateClassifications(
 }
 
 export function refineConfiguration(
-  rawConfig: RawProjectConfig | undefined,
+  rawConfig: RawProjectConfig = EMPTY_RAW_PROJECT_CONFIG,
   externalAttributions: Attributions,
 ): ProjectConfig {
-  const rawConfigOrDefault = rawConfig ?? EMPTY_RAW_PROJECT_CONFIG;
-  rawConfigOrDefault.classifications = checkAndUpdateClassifications(
-    rawConfigOrDefault,
+  rawConfig.classifications = addUnconfiguredClassifications(
+    rawConfig.classifications,
     externalAttributions,
   );
   const classifications: Classifications =
     Object.fromEntries<ClassificationEntry>(
-      Object.entries(rawConfigOrDefault.classifications).map(
+      Object.entries(rawConfig.classifications).map(
         ([classificationId, classificationEntry]) => {
           return [
             classificationId,
@@ -87,7 +85,7 @@ export function refineConfiguration(
               description: classificationEntry,
               color: getClassificationColor(
                 classificationId,
-                rawConfigOrDefault.classifications,
+                rawConfig.classifications,
               ),
             },
           ];
