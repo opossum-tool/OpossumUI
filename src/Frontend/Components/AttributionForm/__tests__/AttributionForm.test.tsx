@@ -267,7 +267,9 @@ describe('AttributionForm', () => {
           actions: [
             setConfig({
               classifications: {
-                1: classificationText,
+                1: faker.opossum.classificationEntry({
+                  description: classificationText,
+                }),
               },
             }),
           ],
@@ -280,7 +282,7 @@ describe('AttributionForm', () => {
         expect(classificationChip).toHaveTextContent(classificationText);
       });
 
-      it('shows the backup text if no configuration', () => {
+      it('shows empty text if no configuration', () => {
         const packageInfo = faker.opossum.packageInfo({
           classification: 1,
         });
@@ -290,7 +292,7 @@ describe('AttributionForm', () => {
           'auditing-option-classification',
         );
         expect(classificationChip).toBeInTheDocument();
-        expect(classificationChip).toHaveTextContent('1 - not configured');
+        expect(classificationChip).toHaveTextContent('C');
       });
     });
   });

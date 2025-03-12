@@ -148,7 +148,16 @@ export interface ProjectMetadata {
   [otherMetadata: string]: unknown;
 }
 
+export interface ClassificationEntry {
+  description: string;
+  color: string;
+}
+
 export interface Classifications {
+  [classification: number]: ClassificationEntry;
+}
+
+export interface RawClassifications {
   [classification: number]: string;
 }
 
@@ -156,10 +165,14 @@ export interface ProjectConfig {
   classifications: Classifications;
 }
 
+export interface RawProjectConfig {
+  classifications: RawClassifications;
+}
+
 export interface ParsedFileContent {
   metadata: ProjectMetadata;
   resources: Resources;
-  config: ProjectConfig;
+  config: RawProjectConfig;
   manualAttributions: InputFileAttributionData;
   externalAttributions: InputFileAttributionData;
   frequentLicenses: FrequentLicenses;

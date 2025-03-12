@@ -220,12 +220,12 @@ export function useAuditingOptions({
       {
         id: 'classification',
         label:
-          classifications[packageInfo.classification ?? 0] ||
-          `${packageInfo.classification} - not configured`,
+          classifications[packageInfo.classification ?? 0]?.description || '',
         icon: (
           <ClassificationIcon
             noTooltip
             classification={packageInfo.classification}
+            classification_mapping={classifications}
           />
         ),
         selected: !!packageInfo.classification,

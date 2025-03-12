@@ -17,7 +17,7 @@ import StarIcon from '@mui/icons-material/Star';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import WidgetsIcon from '@mui/icons-material/Widgets';
-import { Icon, SxProps } from '@mui/material';
+import { SvgIcon, SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 
 import { Classifications, Criticality } from '../../../shared/shared-types';
@@ -217,7 +217,11 @@ export function ClassificationIcon(
     return null;
   }
 
-  const tooltip = props.classification_mapping?.[props.classification];
+  const tooltip =
+    props.classification_mapping?.[props.classification]?.description;
+  const color =
+    props.classification_mapping?.[props.classification]?.color ??
+    OpossumColors.red;
 
   return (
     <MuiTooltip
@@ -226,20 +230,28 @@ export function ClassificationIcon(
       disableInteractive
       data-testid={'classification-tooltip'}
     >
-      <Icon
-        aria-label={'Classification icon'}
-        sx={{
-          ...baseIcon,
-          color: `${OpossumColors.red} !important`,
-          fontFamily: 'sans-serif',
-          fontWeight: 'bold',
-          fontSize: 'medium !important',
-          ...props.sx,
-        }}
-        className={props.className}
-      >
-        C
-      </Icon>
+      <SvgIcon sx={{ ...baseIcon, ...props.sx }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          stroke={OpossumColors.darkGrey}
+          strokeWidth={0.5}
+          fill={color}
+          aria-label={'Classification icon'}
+          className={props.className}
+        >
+          <text
+            x="12"
+            y="20"
+            fontSize="24"
+            fontWeight="bold"
+            textAnchor="middle"
+            fontFamily="sans-serif"
+          >
+            C
+          </text>
+        </svg>
+      </SvgIcon>
     </MuiTooltip>
   );
 }
