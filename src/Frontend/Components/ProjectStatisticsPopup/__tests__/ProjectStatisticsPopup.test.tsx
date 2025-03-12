@@ -7,7 +7,6 @@ import userEvent from '@testing-library/user-event';
 
 import { Attributions, Criticality } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { ProjectStatisticsPopupTitle } from '../../../enums/enums';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -51,7 +50,7 @@ describe('The ProjectStatisticsPopup', () => {
     expect(screen.getByText('Reuser')).toBeInTheDocument();
   });
 
-  it('renders pie charts when there are attributions', () => {
+  it('renders all pie charts when there are signals and attributions', () => {
     const testManualAttributions: Attributions = {
       uuid_1: {
         source: {
@@ -97,6 +96,7 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
+            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
             manualAttributions: testManualAttributions,
             externalAttributions: testExternalAttributions,
           }),
@@ -106,27 +106,34 @@ describe('The ProjectStatisticsPopup', () => {
 
     expect(
       screen.getByText(
-        ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
+        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
       ),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
+        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByText(
-        ProjectStatisticsPopupTitle.IncompleteLicensesPieChart,
+      screen.getByText(
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
+          .title,
       ),
-    ).toHaveLength(2);
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
+      ),
+    ).toBeInTheDocument();
   });
 
-  it('does not render pie charts when there are no attributions', () => {
+  it('does not render pie charts when there are no signals and no attributions', () => {
     const testExternalAttributions: Attributions = {};
     renderComponent(<ProjectStatisticsPopup />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
+            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
             externalAttributions: testExternalAttributions,
           }),
         ),
@@ -134,25 +141,28 @@ describe('The ProjectStatisticsPopup', () => {
     });
     expect(
       screen.queryByText(
-        ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
+        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
       ),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText(
-        ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
+        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
       ),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByText(ProjectStatisticsPopupTitle.IncompleteLicensesPieChart),
-    ).toBeInTheDocument();
-    expect(
-      screen.getAllByText(
-        ProjectStatisticsPopupTitle.IncompleteLicensesPieChart,
+      screen.queryByText(
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
+          .title,
       ),
-    ).not.toHaveLength(2);
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
+      ),
+    ).not.toBeInTheDocument();
   });
 
-  it('renders pie charts pie charts related to signals even if there are no attributions', () => {
+  it('renders pie charts related to signals even if there are no attributions', () => {
     const testManualAttributions: Attributions = {};
     const testExternalAttributions: Attributions = {
       uuid_1: {
@@ -178,6 +188,7 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
+            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
             manualAttributions: testManualAttributions,
             externalAttributions: testExternalAttributions,
           }),
@@ -186,25 +197,23 @@ describe('The ProjectStatisticsPopup', () => {
     });
     expect(
       screen.getByText(
-        ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
+        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
       ),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
+        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(ProjectStatisticsPopupTitle.IncompleteLicensesPieChart),
-    ).toBeInTheDocument();
-    expect(
-      screen.getAllByText(
-        ProjectStatisticsPopupTitle.IncompleteLicensesPieChart,
+      screen.getByText(
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
+          .title,
       ),
-    ).not.toHaveLength(2);
+    ).toBeInTheDocument();
   });
 
-  it('renders tables when there are no attributions', () => {
+  it('renders attribution bar chart and signals per sources table even when there are no attributions and no signals', async () => {
     const testExternalAttributions: Attributions = {};
     renderComponent(<ProjectStatisticsPopup />, {
       actions: [
@@ -215,10 +224,81 @@ describe('The ProjectStatisticsPopup', () => {
         ),
       ],
     });
-    expect(screen.getAllByText('License name')).toHaveLength(2);
-    expect(screen.getAllByText('Total')).toHaveLength(3);
-    expect(screen.getByText('Follow up')).toBeInTheDocument();
-    expect(screen.getByText('First party')).toBeInTheDocument();
+
+    expect(
+      screen.getByText(
+        text.projectStatisticsPopup.charts.attributionProperties.title,
+      ),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByText(text.projectStatisticsPopup.tabs.details),
+    );
+
+    expect(
+      screen.getByText(
+        text.attributionCountPerSourcePerLicenseTable.columns.licenseInfo,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('supports sorting the signals per sources table', async () => {
+    const testExternalAttributions: Attributions = {
+      uuid_1: {
+        source: {
+          name: 'scancode',
+          documentConfidence: 10,
+        },
+        licenseName: 'Apache License Version 2.0',
+        criticality: Criticality.None,
+        id: 'uuid_1',
+      },
+      uuid_2: {
+        source: {
+          name: 'reuser',
+          documentConfidence: 90,
+        },
+        licenseName: 'The MIT License (MIT)',
+        criticality: Criticality.None,
+        id: 'uuid_2',
+      },
+    };
+    renderComponent(<ProjectStatisticsPopup />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            externalAttributions: testExternalAttributions,
+          }),
+        ),
+      ],
+    });
+
+    const getLicenseNames = () =>
+      screen
+        .getAllByTestId('signalsPerSourceBodyCell0')
+        .map((element) => element.textContent);
+
+    // sorted by license name ASC
+    expect(getLicenseNames()).toStrictEqual([
+      'Apache License Version 2.0',
+      'The MIT License (MIT)',
+    ]);
+
+    await userEvent.click(screen.getByText('Scancode'));
+
+    // sorted by count on scancode source DESC
+    expect(getLicenseNames()).toStrictEqual([
+      'Apache License Version 2.0',
+      'The MIT License (MIT)',
+    ]);
+
+    await userEvent.click(screen.getByText('Scancode'));
+
+    // sorted by count on scancode source ASC
+    expect(getLicenseNames()).toStrictEqual([
+      'The MIT License (MIT)',
+      'Apache License Version 2.0',
+    ]);
   });
 
   it('allows toggling of show-on-startup checkbox', async () => {

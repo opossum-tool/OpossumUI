@@ -91,7 +91,7 @@ describe('The Icons', () => {
       render(
         <ClassificationIcon
           classification={1}
-          classification_mapping={{
+          classificationsConfig={{
             1: faker.opossum.classificationEntry({ description: 'Test' }),
           }}
         />,

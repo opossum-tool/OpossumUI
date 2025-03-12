@@ -9,7 +9,7 @@ import {
   Attributions,
   AttributionsToResources,
   BaseUrlsForSources,
-  Classifications,
+  ClassificationsConfig,
   ExternalAttributionSources,
   FrequentLicenseName,
   LicenseTexts,
@@ -142,7 +142,7 @@ export function getProjectMetadata(state: State): ProjectMetadata {
   return state.resourceState.metadata;
 }
 
-export function getClassifications(state: State): Classifications {
+export function getClassifications(state: State): ClassificationsConfig {
   return state.resourceState.config.classifications;
 }
 

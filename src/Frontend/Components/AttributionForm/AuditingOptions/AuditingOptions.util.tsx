@@ -225,7 +225,7 @@ export function useAuditingOptions({
           <ClassificationIcon
             noTooltip
             classification={packageInfo.classification}
-            classification_mapping={classifications}
+            classificationsConfig={classifications}
           />
         ),
         selected: !!packageInfo.classification,
