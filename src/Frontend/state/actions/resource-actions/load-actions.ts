@@ -2,7 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ParsedFileContent } from '../../../../shared/shared-types';
+import chroma from 'chroma-js';
+
+import {
+  ClassificationEntry,
+  Classifications,
+  ParsedFileContent,
+  ProjectConfig,
+  RawClassifications,
+  RawProjectConfig,
+} from '../../../../shared/shared-types';
+import { OpossumColors } from '../../../shared-styles';
 import { AppThunkAction } from '../../types';
 import {
   setAttributionBreakpoints,
@@ -19,13 +29,63 @@ import {
 } from './all-views-simple-actions';
 import { setResolvedExternalAttributions } from './audit-view-simple-actions';
 
+function interpolateBetweenRedAndWhite(
+  numberOfClassifications: number,
+  index: number,
+) {
+  return chroma
+    .bezier(['red', 'white'])
+    .scale()
+    .correctLightness(true)
+    .colors(numberOfClassifications)[index];
+}
+
+function getClassificationColor(
+  classificationId: string,
+  classifications: RawClassifications,
+) {
+  const configuredClassificationIds = Object.keys(classifications).toReversed();
+  const numberOfClassifications = configuredClassificationIds.length;
+  const index = configuredClassificationIds.indexOf(classificationId);
+  return Number(classificationId) === 0
+    ? OpossumColors.pastelLightGreen
+    : interpolateBetweenRedAndWhite(numberOfClassifications, index);
+}
+
+function addColorsToClassifications(
+  rawProjectConfig: RawProjectConfig,
+): ProjectConfig {
+  const classifications: Classifications =
+    Object.fromEntries<ClassificationEntry>(
+      Object.entries(rawProjectConfig.classifications).map(
+        ([classificationId, classificationEntry]) => {
+          return [
+            classificationId,
+            {
+              description: classificationEntry,
+              color: getClassificationColor(
+                classificationId,
+                rawProjectConfig.classifications,
+              ),
+            },
+          ];
+        },
+      ),
+    );
+
+  return {
+    ...rawProjectConfig,
+    classifications,
+  };
+}
+
 export function loadFromFile(
   parsedFileContent: ParsedFileContent,
 ): AppThunkAction {
   return (dispatch) => {
     dispatch(setResources(parsedFileContent.resources));
 
-    dispatch(setConfig(parsedFileContent.config));
+    dispatch(setConfig(addColorsToClassifications(parsedFileContent.config)));
 
     dispatch(
       setManualData(

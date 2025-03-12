@@ -2,43 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import chroma from 'chroma-js';
-
 import { EMPTY_RAW_PROJECT_CONFIG } from '../../Frontend/shared-constants';
-import { OpossumColors } from '../../Frontend/shared-styles';
 import {
   Attributions,
-  ClassificationEntry,
-  Classifications,
   PackageInfo,
-  ProjectConfig,
   RawClassifications,
   RawProjectConfig,
 } from '../../shared/shared-types';
 import logger from '../main/logger';
-
-function interpolateBetweenRedAndWhite(
-  numberOfClassifications: number,
-  index: number,
-) {
-  return chroma
-    .bezier(['red', 'white'])
-    .scale()
-    .correctLightness(true)
-    .colors(numberOfClassifications)[index];
-}
-
-function getClassificationColor(
-  classificationId: string,
-  classifications: RawClassifications,
-) {
-  const configuredClassificationIds = Object.keys(classifications).toReversed();
-  const numberOfClassifications = configuredClassificationIds.length;
-  const index = configuredClassificationIds.indexOf(classificationId);
-  return Number(classificationId) === 0
-    ? OpossumColors.pastelLightGreen
-    : interpolateBetweenRedAndWhite(numberOfClassifications, index);
-}
 
 function addUnconfiguredClassifications(
   classifications: RawClassifications,
@@ -70,29 +41,11 @@ function addUnconfiguredClassifications(
 export function refineConfiguration(
   rawConfig: RawProjectConfig = EMPTY_RAW_PROJECT_CONFIG,
   externalAttributions: Attributions,
-): ProjectConfig {
+): RawProjectConfig {
   rawConfig.classifications = addUnconfiguredClassifications(
     rawConfig.classifications,
     externalAttributions,
   );
-  const classifications: Classifications =
-    Object.fromEntries<ClassificationEntry>(
-      Object.entries(rawConfig.classifications).map(
-        ([classificationId, classificationEntry]) => {
-          return [
-            classificationId,
-            {
-              description: classificationEntry,
-              color: getClassificationColor(
-                classificationId,
-                rawConfig.classifications,
-              ),
-            },
-          ];
-        },
-      ),
-    );
-  return {
-    classifications,
-  };
+
+  return rawConfig;
 }

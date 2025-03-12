@@ -3,11 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { EMPTY_PROJECT_CONFIG } from '../../../Frontend/shared-constants';
-import { OpossumColors } from '../../../Frontend/shared-styles';
 import {
   Attributions,
   PackageInfo,
-  ProjectConfig,
   RawClassifications,
   RawProjectConfig,
 } from '../../../shared/shared-types';
@@ -45,20 +43,9 @@ describe('check and update configuration', () => {
     expect(result).toEqual(EMPTY_PROJECT_CONFIG);
   });
 
-  it('just converts the configuration if all classifications are correctly set', () => {
+  it('does not modify the configuration if all classifications are correctly set', () => {
     const configuration = fakeConfigWithClassificationIds(0, 1);
-    const expectedConfiguration: ProjectConfig = {
-      classifications: {
-        0: {
-          description: configuration.classifications[0],
-          color: OpossumColors.pastelLightGreen,
-        },
-        1: {
-          description: configuration.classifications[1],
-          color: '#ff0000',
-        },
-      },
-    };
+    const expectedConfiguration: RawProjectConfig = { ...configuration };
     const externalAttributions = fakePackagesWithClassifications(1, 0, 1, 0);
 
     const result = refineConfiguration(configuration, externalAttributions);
@@ -73,20 +60,10 @@ describe('check and update configuration', () => {
 
     const result = refineConfiguration(configuration, externalAttributions);
 
-    const expectedConfiguration: ProjectConfig = {
+    const expectedConfiguration: RawProjectConfig = {
       classifications: {
-        0: {
-          description: configuration.classifications[0],
-          color: OpossumColors.pastelLightGreen,
-        },
-        1: {
-          description: configuration.classifications[1],
-          color: '#ffa78c',
-        },
-        22: {
-          description: 'not configured - 22',
-          color: '#ff0000',
-        },
+        ...configuration.classifications,
+        22: 'not configured - 22',
       },
     };
 

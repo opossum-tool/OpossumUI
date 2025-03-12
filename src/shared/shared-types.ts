@@ -172,7 +172,7 @@ export interface RawProjectConfig {
 export interface ParsedFileContent {
   metadata: ProjectMetadata;
   resources: Resources;
-  config: ProjectConfig;
+  config: RawProjectConfig;
   manualAttributions: InputFileAttributionData;
   externalAttributions: InputFileAttributionData;
   frequentLicenses: FrequentLicenses;
