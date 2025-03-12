@@ -6,10 +6,10 @@ import chroma from 'chroma-js';
 
 import {
   ClassificationEntry,
-  Classifications,
+  ClassificationsConfig,
   ParsedFileContent,
   ProjectConfig,
-  RawClassifications,
+  RawClassificationsConfig,
   RawProjectConfig,
 } from '../../../../shared/shared-types';
 import { OpossumColors } from '../../../shared-styles';
@@ -42,7 +42,7 @@ function interpolateBetweenRedAndWhite(
 
 function getClassificationColor(
   classificationId: string,
-  classifications: RawClassifications,
+  classifications: RawClassificationsConfig,
 ) {
   const configuredClassificationIds = Object.keys(classifications).toReversed();
   const numberOfClassifications = configuredClassificationIds.length;
@@ -55,7 +55,7 @@ function getClassificationColor(
 function addColorsToClassifications(
   rawProjectConfig: RawProjectConfig,
 ): ProjectConfig {
-  const classifications: Classifications =
+  const classifications: ClassificationsConfig =
     Object.fromEntries<ClassificationEntry>(
       Object.entries(rawProjectConfig.classifications).map(
         ([classificationId, classificationEntry]) => {

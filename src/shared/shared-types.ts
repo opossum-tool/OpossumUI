@@ -157,7 +157,7 @@ export interface ClassificationEntry {
 
 export type ClassificationsConfig = Record<Classification, ClassificationEntry>;
 
-export type RawClassificationsConfig = Record<Classification, string>
+export type RawClassificationsConfig = Record<Classification, string>;
 
 export interface ProjectConfig {
   classifications: ClassificationsConfig;

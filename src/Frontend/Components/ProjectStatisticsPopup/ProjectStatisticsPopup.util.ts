@@ -357,7 +357,7 @@ export function getSignalCountByClassification(
   const pieChartData = Object.keys(classifications)
     .map(Number)
     .map<ChartDataItem>((classification) => {
-      const classificationName = classifications[classification];
+      const classificationName = classifications[classification].description;
       const classificationCount =
         classificationCounts[toNumber(classification)] ?? 0;
 

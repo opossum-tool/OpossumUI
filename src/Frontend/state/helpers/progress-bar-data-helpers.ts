@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
-  Classifications,
+  ClassificationsConfig,
   Criticality,
   Resources,
   ResourcesToAttributions,
@@ -265,7 +265,7 @@ export function getUpdatedProgressBarData(args: {
   resolvedExternalAttributions: Set<string>;
   attributionBreakpoints: Set<string>;
   filesWithChildren: Set<string>;
-  classifications: Classifications;
+  classifications: ClassificationsConfig;
 }): ProgressBarData {
   const progressBarData = getEmptyProgressBarData(args.classifications);
 
@@ -287,7 +287,7 @@ export function getUpdatedProgressBarData(args: {
 }
 
 export function getEmptyProgressBarData(
-  classifications: Classifications,
+  classifications: ClassificationsConfig,
 ): ProgressBarData {
   const classificationStatistics: ClassificationStatistics = {};
   if (classifications) {

@@ -94,7 +94,8 @@ const RowCellContent: React.FC<RowCellContentProps> = (props) => {
     );
   } else if (props.column.columnType === SingleColumn.CLASSIFICATION) {
     return props.licenseClassification
-      ? (classifications[props.licenseClassification] ?? componentText.none)
+      ? (classifications[props.licenseClassification]?.description ??
+          componentText.none)
       : componentText.none;
   } else if (props.column.columnType === SingleColumn.TOTAL) {
     return props.totalSignalCount;

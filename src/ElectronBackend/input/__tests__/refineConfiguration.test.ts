@@ -6,7 +6,7 @@ import { EMPTY_PROJECT_CONFIG } from '../../../Frontend/shared-constants';
 import {
   Attributions,
   PackageInfo,
-  RawClassifications,
+  RawClassificationsConfig,
   RawProjectConfig,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
@@ -29,7 +29,7 @@ function fakePackagesWithClassifications(
 function fakeConfigWithClassificationIds(
   ...classificationIds: Array<number>
 ): RawProjectConfig {
-  const classifications: RawClassifications = {};
+  const classifications: RawClassificationsConfig = {};
   classificationIds.forEach((classificationId) => {
     classifications[classificationId] = faker.word.words();
   });

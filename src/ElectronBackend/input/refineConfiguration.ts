@@ -6,13 +6,13 @@ import { EMPTY_RAW_PROJECT_CONFIG } from '../../Frontend/shared-constants';
 import {
   Attributions,
   PackageInfo,
-  RawClassifications,
+  RawClassificationsConfig,
   RawProjectConfig,
 } from '../../shared/shared-types';
 import logger from '../main/logger';
 
 function addUnconfiguredClassifications(
-  classifications: RawClassifications,
+  classifications: RawClassificationsConfig,
   externalAttributions: Attributions,
 ) {
   const configuredAttributionKeys = Object.keys(classifications).map(Number);
