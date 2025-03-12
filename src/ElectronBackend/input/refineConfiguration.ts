@@ -68,7 +68,7 @@ function checkAndUpdateClassifications(
   return classifications;
 }
 
-export function checkAndConvertConfiguration(
+export function refineConfiguration(
   rawConfig: RawProjectConfig | undefined,
   externalAttributions: Attributions,
 ): ProjectConfig {

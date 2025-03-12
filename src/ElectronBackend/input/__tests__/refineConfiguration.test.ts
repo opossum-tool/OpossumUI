@@ -12,7 +12,7 @@ import {
   RawProjectConfig,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
-import { checkAndConvertConfiguration } from '../checkConfiguration';
+import { refineConfiguration } from '../refineConfiguration';
 
 function fakePackagesWithClassifications(
   ...classificationIds: Array<number>
@@ -40,7 +40,7 @@ function fakeConfigWithClassificationIds(
 
 describe('check and update configuration', () => {
   it('returns configuration with empty classifications if no configuration set', () => {
-    const result = checkAndConvertConfiguration(undefined, {});
+    const result = refineConfiguration(undefined, {});
 
     expect(result).toEqual(EMPTY_PROJECT_CONFIG);
   });
@@ -61,10 +61,7 @@ describe('check and update configuration', () => {
     };
     const externalAttributions = fakePackagesWithClassifications(1, 0, 1, 0);
 
-    const result = checkAndConvertConfiguration(
-      configuration,
-      externalAttributions,
-    );
+    const result = refineConfiguration(configuration, externalAttributions);
 
     expect(result).toEqual(expectedConfiguration);
   });
@@ -74,10 +71,7 @@ describe('check and update configuration', () => {
 
     const externalAttributions = fakePackagesWithClassifications(0, 1, 22);
 
-    const result = checkAndConvertConfiguration(
-      configuration,
-      externalAttributions,
-    );
+    const result = refineConfiguration(configuration, externalAttributions);
 
     const expectedConfiguration: ProjectConfig = {
       classifications: {
