@@ -185,8 +185,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
       }
       header={text.projectStatisticsPopup.title}
       isOpen={true}
-      width={'75vw'}
-      height={'75vh'}
+      width={'min(90vw, max(550px, 75vw))'}
+      height={'min(90vh, max(550px, 75vh))'}
       rightButtonConfig={{
         onClick: close,
         buttonText: text.buttons.close,
@@ -247,8 +247,8 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
         container
         columns={{ sm: 1, md: 2, lg: 3 }}
         spacing={3}
-        padding={'12px'}
-        paddingTop={'0px'}
+        margin={'12px'}
+        marginTop={'0px'}
         alignContent={'flex-start'}
       >
         {props.children}
@@ -267,6 +267,7 @@ const ChartGridItem: React.FC<ChartGridItemProps> = (props) => {
     <MuiGrid
       size={1}
       minHeight={'220px'}
+      minWidth={'440px'}
       height={'48%'}
       display={'flex'}
       data-testid={props.testId}

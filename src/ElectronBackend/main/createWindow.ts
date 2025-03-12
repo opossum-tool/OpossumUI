@@ -14,7 +14,7 @@ export async function createWindow(): Promise<BrowserWindow> {
     width: 1920,
     height: 1080,
     minWidth: 500,
-    minHeight: 300,
+    minHeight: 400,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
