@@ -15,6 +15,7 @@ interface TableCellWithSortingProps extends PropsWithChildren {
   order: Order;
   isSortedColumn: boolean;
   onRequestSort: () => void;
+  defaultOrder: Order;
   tableCellProps?: TableCellProps;
   sx?: SxProps;
 }
@@ -37,7 +38,7 @@ export const TableCellWithSorting: React.FC<TableCellWithSortingProps> = (
           '& .MuiTableSortLabel-icon': { color: 'white !important' },
         }}
         active={props.isSortedColumn}
-        direction={props.isSortedColumn ? props.order : 'asc'}
+        direction={props.isSortedColumn ? props.order : props.defaultOrder}
         onClick={props.onRequestSort}
       >
         {props.children}

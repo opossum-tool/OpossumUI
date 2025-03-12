@@ -122,7 +122,7 @@ describe('The ProjectStatisticsPopup', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart,
+        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
       ),
     ).toBeInTheDocument();
   });
@@ -157,7 +157,7 @@ describe('The ProjectStatisticsPopup', () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText(
-        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart,
+        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
       ),
     ).not.toBeInTheDocument();
   });
@@ -225,11 +225,21 @@ describe('The ProjectStatisticsPopup', () => {
       ],
     });
 
-    expect(screen.getByText('Attributions Overview')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        text.projectStatisticsPopup.charts.attributionProperties.title,
+      ),
+    ).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText('Details'));
+    await userEvent.click(
+      screen.getByText(text.projectStatisticsPopup.tabs.details),
+    );
 
-    expect(screen.getByText('Signals per Sources')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        text.attributionCountPerSourcePerLicenseTable.columns.licenseInfo,
+      ),
+    ).toBeInTheDocument();
   });
 
   it('supports sorting the signals per sources table', async () => {
@@ -276,18 +286,18 @@ describe('The ProjectStatisticsPopup', () => {
 
     await userEvent.click(screen.getByText('Scancode'));
 
-    // sorted by count on scancode source ASC
-    expect(getLicenseNames()).toStrictEqual([
-      'The MIT License (MIT)',
-      'Apache License Version 2.0',
-    ]);
-
-    await userEvent.click(screen.getByText('Scancode'));
-
     // sorted by count on scancode source DESC
     expect(getLicenseNames()).toStrictEqual([
       'Apache License Version 2.0',
       'The MIT License (MIT)',
+    ]);
+
+    await userEvent.click(screen.getByText('Scancode'));
+
+    // sorted by count on scancode source ASC
+    expect(getLicenseNames()).toStrictEqual([
+      'The MIT License (MIT)',
+      'Apache License Version 2.0',
     ]);
   });
 
