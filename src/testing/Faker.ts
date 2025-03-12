@@ -314,14 +314,10 @@ class OpossumModule {
   public static classificationEntry(
     overrides: Partial<ClassificationEntry> = {},
   ): ClassificationEntry {
-    const {
-      description = faker.word.words(),
-      color = faker.color.hsl({ format: 'css' }),
-    } = overrides;
-
     return {
-      description,
-      color,
+      description: faker.word.words(),
+      color: faker.color.hsl({ format: 'css' }),
+      ...overrides,
     };
   }
 }
@@ -521,24 +517,18 @@ class ProgressBarModule {
     overwrites: Partial<ClassificationStatisticsEntry> = {},
     numberOfFiles?: number,
   ): ClassificationStatisticsEntry {
-    const {
-      description = faker.word.noun(),
-      color = faker.helpers.arrayElement(Object.values(OpossumColors)),
-    } = overwrites;
-    let { correspondingFiles } = overwrites;
-    if (!numberOfFiles) {
+    if (numberOfFiles === undefined) {
       numberOfFiles = faker.number.int({ min: 0, max: 20 });
     }
-    if (!correspondingFiles) {
-      correspondingFiles = faker.helpers.uniqueArray(
-        faker.word.noun,
-        numberOfFiles,
-      );
-    }
+    const correspondingFiles = faker.helpers.uniqueArray(
+      faker.word.noun,
+      numberOfFiles,
+    );
     return {
-      description,
+      description: faker.word.noun(),
+      color: faker.helpers.arrayElement(Object.values(OpossumColors)),
       correspondingFiles,
-      color,
+      ...overwrites,
     };
   }
 }
