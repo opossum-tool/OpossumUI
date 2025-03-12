@@ -7,7 +7,6 @@ import { BrowserWindow, dialog } from 'electron';
 import * as zlib from 'zlib';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
-import { OpossumColors } from '../../../Frontend/shared-styles';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   Criticality,
@@ -120,8 +119,8 @@ const expectedFileContent: ParsedFileContent = {
   resources: { a: 1, folder: {} },
   config: {
     classifications: {
-      0: { description: 'UNKNOWN', color: OpossumColors.pastelLightGreen },
-      1: { description: 'CRITICAL', color: '#ff0000' },
+      0: 'UNKNOWN',
+      1: 'CRITICAL',
     },
   },
   manualAttributions: {
@@ -443,11 +442,8 @@ describe('Test of loading function', () => {
         resources: { a: 1 },
         config: {
           classifications: {
-            0: {
-              description: 'UNKNOWN',
-              color: OpossumColors.pastelLightGreen,
-            },
-            1: { description: 'CRITICAL', color: '#ff0000' },
+            0: 'UNKNOWN',
+            1: 'CRITICAL',
           },
         },
         manualAttributions: {
