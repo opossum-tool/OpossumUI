@@ -28,7 +28,6 @@ import {
 } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
-import { checkAndConvertConfiguration } from './checkConfiguration';
 import {
   parseInputJsonFile,
   parseOpossumFile,
@@ -43,6 +42,7 @@ import {
   sanitizeResourcesToAttributions,
   serializeAttributions,
 } from './parseInputData';
+import { refineConfiguration } from './refineConfiguration';
 
 function isJsonParsingError(object: unknown): object is JsonParsingError {
   return (object as JsonParsingError).type === 'jsonParsingError';
@@ -129,7 +129,7 @@ export async function loadInputAndOutputFromFilePath(
   );
 
   logger.info('Checking and converting configuration');
-  const configuration = checkAndConvertConfiguration(
+  const configuration = refineConfiguration(
     parsedInputData.config,
     externalAttributions,
   );
