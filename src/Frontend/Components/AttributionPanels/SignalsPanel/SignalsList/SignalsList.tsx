@@ -6,7 +6,6 @@ import MuiDivider from '@mui/material/Divider';
 import { groupBy as _groupBy, orderBy as _orderBy, without } from 'lodash';
 import { useMemo } from 'react';
 
-import { Criticality } from '../../../../../shared/shared-types';
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
@@ -108,7 +107,6 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
             selected,
             focused,
             resolved: resolvedExternalAttributionIds.has(attributionId),
-            criticality: Criticality.None,
           }}
           packageInfo={attribution}
           checkbox={{
