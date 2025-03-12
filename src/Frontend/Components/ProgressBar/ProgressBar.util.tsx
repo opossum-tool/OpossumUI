@@ -105,15 +105,15 @@ export function getClassificationBarTooltipText(
   return (
     <MuiBox>
       Number of resources with signals and no attributions…
-      {Object.values(progressBarData.classificationStatistics).map(
-        (classificationStatisticsEntry) => (
+      {Object.values(progressBarData.classificationStatistics)
+        .toReversed()
+        .map((classificationStatisticsEntry) => (
           <div key={classificationStatisticsEntry.description}>
             ...containing classification{' '}
             {classificationStatisticsEntry.description}:{' '}
             {classificationStatisticsEntry.correspondingFiles.length}
           </div>
-        ),
-      )}
+        ))}
       {numberOfResourcesWithSignalsAndNoAttributionAndNoClassification && (
         <div>
           ...without classification:{' '}
