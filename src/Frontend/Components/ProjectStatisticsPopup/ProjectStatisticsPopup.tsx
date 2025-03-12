@@ -234,7 +234,7 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
           values: {
             xs: 0,
             sm: 0,
-            md: 1300,
+            md: 1250,
             lg: 1850,
             xl: 2000,
           },
