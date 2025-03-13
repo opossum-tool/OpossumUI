@@ -9,11 +9,15 @@ import settings from 'electron-settings';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { UserSettings as IUserSettings } from '../../shared/shared-types';
 
+const DEFAULT_USER_SETTINGS = {
+  showClassifications: true,
+};
+
 export class UserSettings {
   public static async init() {
     if (process.argv.includes('--reset') || process.env.RESET) {
       log.info('Resetting user settings');
-      await settings.set({});
+      await settings.set(DEFAULT_USER_SETTINGS);
     }
   }
 

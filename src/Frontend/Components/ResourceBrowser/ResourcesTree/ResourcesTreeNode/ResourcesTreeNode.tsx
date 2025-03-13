@@ -15,6 +15,7 @@ import {
   getResourcesWithExternalAttributedChildren,
   getResourcesWithManualAttributedChildren,
 } from '../../../../state/selectors/resource-selectors';
+import { useShowClassifications } from '../../../../state/variables/use-show-classifications';
 import { TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode';
 import {
   containsExternalAttribution,
@@ -53,6 +54,7 @@ export function ResourcesTreeNode({ node, nodeId, nodeName }: TreeNode) {
 
   const canHaveChildren = node !== 1;
   const classification_mapping = useAppSelector(getClassifications);
+  const [showClassifications] = useShowClassifications();
 
   return (
     <ResourcesTreeNodeLabel
@@ -109,6 +111,7 @@ export function ResourcesTreeNode({ node, nodeId, nodeName }: TreeNode) {
           node,
         )
       }
+      showClassifications={showClassifications}
     />
   );
 }

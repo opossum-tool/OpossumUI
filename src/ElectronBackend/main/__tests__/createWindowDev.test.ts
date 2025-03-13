@@ -36,8 +36,8 @@ jest.mock('electron', () => ({
 }));
 
 describe('createWindow', () => {
-  it('returns correct BrowserWindow in devMode', async () => {
-    const browserWindow = await createWindow();
+  it('returns correct BrowserWindow in devMode', () => {
+    const browserWindow = createWindow();
     expect(browserWindow.webContents.openDevTools).toHaveBeenCalled();
     expect(browserWindow.loadURL).toHaveBeenCalledWith(
       'http://localhost:5173/',

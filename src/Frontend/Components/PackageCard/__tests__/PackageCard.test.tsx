@@ -6,7 +6,9 @@ import { screen } from '@testing-library/react';
 
 import { faker } from '../../../../testing/Faker';
 import { setConfig } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { SHOW_CLASSIFICATIONS_KEY } from '../../../state/variables/use-show-classifications';
 import { renderComponent } from '../../../test-helpers/render';
+import { setUserSetting } from '../../../test-helpers/user-settings-helpers';
 import { PackageCard } from '../PackageCard';
 
 describe('The PackageCard', () => {
@@ -129,8 +131,29 @@ describe('The PackageCard', () => {
         },
       );
 
-      const classificationIcon = screen.queryByTestId('classification-tooltip');
+      const classificationIcon = screen.getByTestId('classification-tooltip');
       expect(classificationIcon).toBeVisible();
+    });
+
+    it('does not render the classification icon if classification display is disabled', () => {
+      const packageInfo = faker.opossum.packageInfo({ classification: 3 });
+
+      renderComponent(
+        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        {
+          actions: [
+            setConfig({
+              classifications: {
+                1: faker.opossum.classificationEntry(),
+              },
+            }),
+            setUserSetting(SHOW_CLASSIFICATIONS_KEY, false),
+          ],
+        },
+      );
+
+      const classificationIcon = screen.queryByTestId('classification-tooltip');
+      expect(classificationIcon).not.toBeInTheDocument();
     });
   });
 });

@@ -36,6 +36,7 @@ interface Props {
   criticality?: Criticality;
   classification?: number;
   classificationsConfig?: ClassificationsConfig;
+  showClassifications: boolean;
 }
 
 export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
@@ -112,7 +113,7 @@ export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
         ) : (
           <SignalIcon />
         ))}
-      {props.hasUnresolvedExternalAttribution && (
+      {props.showClassifications && props.hasUnresolvedExternalAttribution && (
         <ClassificationIcon
           classification={props.classification}
           classificationsConfig={props.classificationsConfig}

@@ -8,9 +8,58 @@ import userEvent from '@testing-library/user-event';
 import { Attributions, Criticality } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { SHOW_CLASSIFICATIONS_KEY } from '../../../state/variables/use-show-classifications';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
+import { setUserSetting } from '../../../test-helpers/user-settings-helpers';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup';
+
+const testManualAttributions: Attributions = {
+  uuid_1: {
+    source: {
+      name: 'scancode',
+      documentConfidence: 10,
+    },
+    licenseName: 'Apache License Version 2.0',
+    criticality: Criticality.None,
+    id: 'uuid_1',
+  },
+  uuid_2: {
+    source: {
+      name: 'reuser',
+      documentConfidence: 90,
+    },
+    licenseName: 'The MIT License (MIT)',
+    criticality: Criticality.None,
+    id: 'uuid_2',
+  },
+};
+const testExternalAttributions: Attributions = {
+  uuid_3: {
+    source: {
+      name: 'scancode',
+      documentConfidence: 90,
+    },
+    licenseName: 'Apache License Version 3.0',
+    criticality: Criticality.None,
+    id: 'uuid_3',
+  },
+  uuid_2: {
+    source: {
+      name: 'reuser',
+      documentConfidence: 90,
+    },
+    licenseName: 'The MIT License (MIT)',
+    criticality: Criticality.None,
+    id: 'uuid_2',
+  },
+};
+
+const fileSetup = {
+  config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
+  manualAttributions: testManualAttributions,
+  externalAttributions: testExternalAttributions,
+};
 
 describe('The ProjectStatisticsPopup', () => {
   it('displays license names and source names', () => {
@@ -51,56 +100,9 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('renders all pie charts when there are signals and attributions', () => {
-    const testManualAttributions: Attributions = {
-      uuid_1: {
-        source: {
-          name: 'scancode',
-          documentConfidence: 10,
-        },
-        licenseName: 'Apache License Version 2.0',
-        criticality: Criticality.None,
-        id: 'uuid_1',
-      },
-      uuid_2: {
-        source: {
-          name: 'reuser',
-          documentConfidence: 90,
-        },
-        licenseName: 'The MIT License (MIT)',
-        criticality: Criticality.None,
-        id: 'uuid_2',
-      },
-    };
-    const testExternalAttributions: Attributions = {
-      uuid_3: {
-        source: {
-          name: 'scancode',
-          documentConfidence: 90,
-        },
-        licenseName: 'Apache License Version 3.0',
-        criticality: Criticality.None,
-        id: 'uuid_3',
-      },
-      uuid_2: {
-        source: {
-          name: 'reuser',
-          documentConfidence: 90,
-        },
-        licenseName: 'The MIT License (MIT)',
-        criticality: Criticality.None,
-        id: 'uuid_2',
-      },
-    };
-
     renderComponent(<ProjectStatisticsPopup />, {
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
-            manualAttributions: testManualAttributions,
-            externalAttributions: testExternalAttributions,
-          }),
-        ),
+        loadFromFile(getParsedInputFileEnrichedWithTestData(fileSetup)),
       ],
     });
 
@@ -299,6 +301,22 @@ describe('The ProjectStatisticsPopup', () => {
       'The MIT License (MIT)',
       'Apache License Version 2.0',
     ]);
+  });
+
+  it('does not show the classification statistics if it has been disabled', () => {
+    renderComponent(<ProjectStatisticsPopup />, {
+      actions: [
+        setUserSetting(SHOW_CLASSIFICATIONS_KEY, false),
+        loadFromFile(getParsedInputFileEnrichedWithTestData(fileSetup)),
+      ],
+    });
+
+    expect(
+      screen.queryByText(
+        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
+          .title,
+      ),
+    ).not.toBeInTheDocument();
   });
 
   it('allows toggling of show-on-startup checkbox', async () => {

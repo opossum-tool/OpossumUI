@@ -21,6 +21,7 @@ import {
   getManualAttributions,
   getUnresolvedExternalAttributions,
 } from '../../state/selectors/resource-selectors';
+import { useShowClassifications } from '../../state/variables/use-show-classifications';
 import { useUserSetting } from '../../state/variables/use-user-setting';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { BarChart } from '../BarChart/BarChart';
@@ -92,6 +93,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   const [selectedTab, setSelectedTab] = useState(0);
 
+  const [showClassifications] = useShowClassifications();
+
   return (
     <NotificationPopup
       content={
@@ -149,7 +152,9 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 />
               </ChartGridItem>
               <ChartGridItem
-                shouldRender={signalCountByClassification.length > 0}
+                shouldRender={
+                  signalCountByClassification.length > 0 && showClassifications
+                }
                 testId={'signalCountByClassificationPieChart'}
               >
                 <MuiTypography variant="subtitle1">

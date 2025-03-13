@@ -18,7 +18,9 @@ import {
   setFrequentLicenses,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
+import { SHOW_CLASSIFICATIONS_KEY } from '../../../state/variables/use-show-classifications';
 import { renderComponent } from '../../../test-helpers/render';
+import { setUserSetting } from '../../../test-helpers/user-settings-helpers';
 import { generatePurl } from '../../../util/handle-purl';
 import { AttributionForm } from '../AttributionForm';
 
@@ -236,12 +238,29 @@ describe('AttributionForm', () => {
           classification: 1,
         });
 
-        renderComponent(<AttributionForm packageInfo={packageInfo} />);
+        renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+          actions: [setUserSetting(SHOW_CLASSIFICATIONS_KEY, true)],
+        });
+
+        const classificationChip = screen.getByTestId(
+          'auditing-option-classification',
+        );
+        expect(classificationChip).toBeInTheDocument();
+      });
+
+      it('does not render a chip for if showing of classification items is disabled', () => {
+        const packageInfo = faker.opossum.packageInfo({
+          classification: 1,
+        });
+
+        renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+          actions: [setUserSetting(SHOW_CLASSIFICATIONS_KEY, false)],
+        });
 
         const classificationChip = screen.queryByTestId(
           'auditing-option-classification',
         );
-        expect(classificationChip).toBeInTheDocument();
+        expect(classificationChip).not.toBeInTheDocument();
       });
 
       it('Does not render a chip for items with classification 0', () => {

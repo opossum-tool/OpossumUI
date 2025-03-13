@@ -18,6 +18,7 @@ import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import { getClassifications } from '../../state/selectors/resource-selectors';
+import { useShowClassifications } from '../../state/variables/use-show-classifications';
 import { getCardLabels } from '../../util/get-card-labels';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -141,9 +142,10 @@ export const PackageCard = memo(
       }),
       [cardConfig, packageInfo, classification_mapping],
     );
+    const [showClassifications] = useShowClassifications();
     const rightIcons = useMemo(
-      () => getRightIcons(effectiveCardConfig),
-      [effectiveCardConfig],
+      () => getRightIcons(effectiveCardConfig, showClassifications),
+      [effectiveCardConfig, showClassifications],
     );
 
     useEffect(() => {

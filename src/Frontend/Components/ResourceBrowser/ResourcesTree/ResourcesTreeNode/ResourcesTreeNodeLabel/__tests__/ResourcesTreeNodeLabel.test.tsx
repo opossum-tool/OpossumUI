@@ -23,6 +23,7 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={false}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
       />,
     );
 
@@ -47,6 +48,7 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
       />,
     );
 
@@ -71,6 +73,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
         criticality={Criticality.High}
+        showClassifications={false}
       />,
     );
 
@@ -96,6 +99,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
         criticality={Criticality.High}
+        showClassifications={false}
       />,
     );
 
@@ -106,57 +110,90 @@ describe('ResourcesTreeNodeLabel', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders a folder with signal and classification icon', () => {
-    render(
-      <ResourcesTreeNodeLabel
-        labelText={'Test label'}
-        hasManualAttribution={false}
-        hasExternalAttribution={true}
-        hasUnresolvedExternalAttribution={true}
-        containsExternalAttribution={false}
-        containsManualAttribution={false}
-        hasParentWithManualAttribution={false}
-        canHaveChildren={true}
-        isAttributionBreakpoint={false}
-        showFolderIcon={true}
-        containsResourcesWithOnlyExternalAttribution={true}
-        classification={1}
-        classificationsConfig={{ 1: faker.opossum.classificationEntry() }}
-      />,
-    );
+  describe('classification icon', () => {
+    it('renders a folder with signal and classification icon', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={true}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          classification={1}
+          classificationsConfig={{ 1: faker.opossum.classificationEntry() }}
+          showClassifications={true}
+        />,
+      );
 
-    expect(screen.getByText('Test label')).toBeInTheDocument();
-    expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Directory icon with signal'),
-    ).toBeInTheDocument();
-  });
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon with signal'),
+      ).toBeInTheDocument();
+    });
 
-  it('renders a folder with resolved signal but without classification icon', () => {
-    render(
-      <ResourcesTreeNodeLabel
-        labelText={'Test label'}
-        hasManualAttribution={false}
-        hasExternalAttribution={true}
-        hasUnresolvedExternalAttribution={false}
-        containsExternalAttribution={false}
-        containsManualAttribution={false}
-        hasParentWithManualAttribution={false}
-        canHaveChildren={true}
-        isAttributionBreakpoint={false}
-        showFolderIcon={true}
-        containsResourcesWithOnlyExternalAttribution={true}
-        classification={1}
-      />,
-    );
+    it('renders a folder with signal but without classification icon if classification showing disabled', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={true}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          classification={1}
+          classificationsConfig={{ 1: faker.opossum.classificationEntry() }}
+          showClassifications={false}
+        />,
+      );
 
-    expect(screen.getByText('Test label')).toBeInTheDocument();
-    expect(
-      screen.queryByLabelText('Classification icon'),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Directory icon without information'),
-    ).toBeInTheDocument();
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Classification icon'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon with signal'),
+      ).toBeInTheDocument();
+    });
+
+    it('renders a folder with resolved signal but without classification icon if no unresolved attributions', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={false}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          classification={1}
+          showClassifications={true}
+        />,
+      );
+
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Classification icon'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon without information'),
+      ).toBeInTheDocument();
+    });
   });
 
   it('renders a file with resolved signal and icon', () => {
@@ -174,6 +211,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={false}
         containsResourcesWithOnlyExternalAttribution={true}
         criticality={Criticality.High}
+        showClassifications={false}
       />,
     );
 
@@ -198,6 +236,7 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
       />,
     );
 
@@ -221,6 +260,7 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
       />,
     );
 
@@ -244,6 +284,7 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
       />,
     );
 
@@ -267,6 +308,7 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
       />,
     );
 
@@ -290,6 +332,7 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={false}
+        showClassifications={false}
       />,
     );
 
@@ -315,6 +358,7 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={true}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
       />,
     );
 

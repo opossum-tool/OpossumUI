@@ -11,6 +11,7 @@ import { useAppSelector } from '../../state/hooks';
 import { getResources } from '../../state/selectors/resource-selectors';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
+import { useShowClassifications } from '../../state/variables/use-show-classifications';
 import { useSignalsWorker } from '../../web-workers/use-signals-worker';
 import { AuditView } from '../AuditView/AuditView';
 import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
@@ -30,7 +31,9 @@ export function App() {
   const selectedView = useAppSelector(getSelectedView);
 
   useSignalsWorker();
-  usePanelSizes(); // pre-hydrate size of panels
+  //pre-hydrate values
+  usePanelSizes();
+  useShowClassifications();
 
   return (
     <StyledEngineProvider injectFirst>

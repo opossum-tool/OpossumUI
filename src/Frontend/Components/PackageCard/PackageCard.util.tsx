@@ -19,7 +19,10 @@ import {
 } from '../Icons/Icons';
 import { PackageCardConfig } from './PackageCard';
 
-export function getRightIcons(cardConfig: PackageCardConfig) {
+export function getRightIcons(
+  cardConfig: PackageCardConfig,
+  showClassifications: boolean,
+) {
   const rightIcons: Array<React.ReactElement> = [];
 
   if (cardConfig.preferred) {
@@ -38,7 +41,11 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
       />,
     );
   }
-  if (cardConfig.classification && cardConfig.classificationsConfig) {
+  if (
+    showClassifications &&
+    cardConfig.classification &&
+    cardConfig.classificationsConfig
+  ) {
     rightIcons.push(
       <ClassificationIcon
         key={'classification-icon'}
