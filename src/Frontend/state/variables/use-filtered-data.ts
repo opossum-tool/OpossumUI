@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Attributions } from '../../../shared/shared-types';
-import { text } from '../../../shared/text';
-import { Filter, FilterCounts, Sorting } from '../../shared-constants';
+import { SortOption } from '../../Components/SortButton/SortButton';
+import { Filter, FilterCounts } from '../../shared-constants';
 import { useAppSelector } from '../hooks';
 import { getSelectedAttributionId } from '../selectors/resource-selectors';
 import { useVariable } from './use-variable';
@@ -21,7 +21,7 @@ export interface FilteredData {
   search: string;
   selectFirstAttribution?: boolean;
   selectedLicense: string;
-  sorting: Sorting;
+  sorting: SortOption;
 }
 
 export const initialFilteredAttributions: FilteredData = {
@@ -31,7 +31,7 @@ export const initialFilteredAttributions: FilteredData = {
   loading: false,
   search: '',
   selectedLicense: '',
-  sorting: text.sortings.name,
+  sorting: 'alphabetically',
 };
 
 export const initialFilteredSignals: FilteredData = {
@@ -41,7 +41,7 @@ export const initialFilteredSignals: FilteredData = {
   loading: false,
   search: '',
   selectedLicense: '',
-  sorting: text.sortings.occurrence,
+  sorting: 'alphabetically',
 };
 
 export type UseFilteredData = typeof useFilteredAttributions;

@@ -11,7 +11,8 @@ import {
   Relation,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { Filter, FilterCounts, FILTERS, Sorting } from '../../shared-constants';
+import { SortOption } from '../../Components/SortButton/SortButton';
+import { Filter, FilterCounts, FILTERS } from '../../shared-constants';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getContainedAttributionCount } from '../../util/get-contained-attribution-count';
 import {
@@ -140,7 +141,7 @@ export function getFilteredAttributions({
   resourceId: string;
   search: string;
   selectedLicense: string;
-  sorting: Sorting;
+  sorting: SortOption;
 } & (
   | {
       includeGlobal: true;

@@ -8,8 +8,8 @@ import {
   ClassificationsConfig,
   Resources,
 } from '../../shared/shared-types';
-import { text } from '../../shared/text';
-import { Filter, FilterCounts, ROOT_PATH, Sorting } from '../shared-constants';
+import { SortOption } from '../Components/SortButton/SortButton';
+import { Filter, FilterCounts, ROOT_PATH } from '../shared-constants';
 import { ProgressBarData } from '../types/types';
 import {
   getFilteredAttributionCounts,
@@ -72,7 +72,7 @@ interface State {
   attributionFilters?: Array<Filter>;
   attributionSearch?: string;
   attributionSelectedLicense?: string;
-  attributionSorting?: Sorting;
+  attributionSorting?: SortOption;
   externalData?: AttributionData;
   filesWithChildren?: Set<string>;
   manualData?: AttributionData;
@@ -84,7 +84,7 @@ interface State {
   signalFilters?: Array<Filter>;
   signalSearch?: string;
   signalSelectedLicense?: string;
-  signalSorting?: Sorting;
+  signalSorting?: SortOption;
   classifications?: ClassificationsConfig;
 }
 
@@ -311,7 +311,7 @@ export class SignalsWorker {
           resourceId: ROOT_PATH,
           search: '',
           selectedLicense: this.state.reportViewAttributionSelectedLicense,
-          sorting: text.sortings.name,
+          sorting: 'alphabetically',
         }),
       });
     }

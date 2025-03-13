@@ -12,7 +12,6 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
-import { Sorting, SORTINGS } from '../../shared-constants';
 import { UseFilteredData } from '../../state/variables/use-filtered-data';
 import { ClassificationCIcon } from '../Icons/Icons';
 import {
@@ -21,25 +20,44 @@ import {
   SelectMenuProps,
 } from '../SelectMenu/SelectMenu';
 
-const SORT_ICONS: Record<
-  Sorting,
-  React.FC<{ color?: 'action' | 'disabled' }>
-> = {
-  [text.sortings.name]: ({ color }) => (
-    <SortByAlphaIcon color={color || 'action'} fontSize={'inherit'} />
-  ),
-  [text.sortings.criticality]: ({ color }) => (
-    <WhatshotIcon color={color || 'warning'} fontSize={'inherit'} />
-  ),
-  [text.sortings.occurrence]: ({ color }) => (
-    <BarChartIcon color={color || 'info'} fontSize={'inherit'} />
-  ),
-  [text.sortings.classification]: ({ color }) => (
-    <ClassificationCIcon
-      color={color || 'warning'}
-      sx={{ fontSize: 'inherit' }}
-    />
-  ),
+interface SortOptionConfiguration {
+  label: string;
+  icon: React.FC<{ color?: 'action' | 'disabled' }>;
+}
+
+export type SortOption =
+  | 'alphabetically'
+  | 'criticality'
+  | 'occurrence'
+  | 'classification';
+
+type SortConfiguration = Record<SortOption, SortOptionConfiguration>;
+
+export const SORT_CONFIGURATION: SortConfiguration = {
+  alphabetically: {
+    label: text.sortings.name,
+    icon: ({ color }: { color?: 'action' | 'disabled' }) => (
+      <SortByAlphaIcon color={color || 'action'} fontSize={'inherit'} />
+    ),
+  },
+  criticality: {
+    label: text.sortings.criticality,
+    icon: ({ color }: { color?: 'action' | 'disabled' }) => (
+      <WhatshotIcon color={color || 'warning'} fontSize={'inherit'} />
+    ),
+  },
+  occurrence: {
+    label: text.sortings.occurrence,
+    icon: ({ color }: { color?: 'action' | 'disabled' }) => (
+      <BarChartIcon color={color || 'info'} fontSize={'inherit'} />
+    ),
+  },
+  classification: {
+    label: text.sortings.classification,
+    icon: ({ color }: { color?: 'action' | 'disabled' }) => (
+      <ClassificationCIcon color={color || 'warning'} fontSize={'inherit'} />
+    ),
+  },
 };
 
 interface Props
@@ -58,26 +76,28 @@ export const SortButton: React.FC<Props> = ({
 
   const sortingOptions = useMemo(
     () =>
-      SORTINGS.map<SelectMenuOption>((option) => {
-        const Icon = SORT_ICONS[option];
-
-        return {
-          id: option,
-          label: option,
-          selected: option === sorting,
-          icon: <Icon />,
-          onAdd: () =>
-            setFilteredAttributions((prev) => ({
-              ...prev,
-              sorting: option,
-            })),
-        };
-      }),
+      Object.entries(SORT_CONFIGURATION).map<SelectMenuOption>(
+        ([key, entry]) => {
+          const Icon = entry.icon;
+          const sortOption: SortOption = key as SortOption;
+          return {
+            id: sortOption,
+            label: entry.label,
+            selected: sortOption === sorting,
+            icon: <Icon />,
+            onAdd: () =>
+              setFilteredAttributions((prev) => ({
+                ...prev,
+                sorting: sortOption,
+              })),
+          };
+        },
+      ),
     [setFilteredAttributions, sorting],
   );
 
   const disabled = !attributions || !Object.keys(attributions).length;
-  const BadgeContent = SORT_ICONS[sorting];
+  const BadgeContent = SORT_CONFIGURATION[sorting].icon;
 
   return (
     <>

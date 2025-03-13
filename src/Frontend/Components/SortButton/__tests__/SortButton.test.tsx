@@ -7,14 +7,13 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { faker } from '../../../../testing/Faker';
-import { Sorting } from '../../../shared-constants';
 import {
   FilteredData,
   initialFilteredAttributions,
   UseFilteredData,
 } from '../../../state/variables/use-filtered-data';
 import { renderComponent } from '../../../test-helpers/render';
-import { SortButton } from '../SortButton';
+import { SORT_CONFIGURATION, SortButton, SortOption } from '../SortButton';
 
 describe('SortButton', () => {
   it('switches to selected sorting', async () => {
@@ -23,7 +22,7 @@ describe('SortButton', () => {
     const setFilteredData = jest.fn((fn) => {
       result = fn(prev);
     });
-    const sorting: Sorting = 'By Criticality';
+    const sorting: SortOption = 'criticality';
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -34,7 +33,9 @@ describe('SortButton', () => {
     renderComponent(<SortButton useFilteredData={useFilteredData} />);
 
     await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
-    await userEvent.click(screen.getByRole('menuitem', { name: sorting }));
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: SORT_CONFIGURATION[sorting].label }),
+    );
 
     expect(result!.sorting).toEqual(sorting);
   });
