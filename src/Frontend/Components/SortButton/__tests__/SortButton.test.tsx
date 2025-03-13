@@ -6,6 +6,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import {
   FilteredData,
@@ -13,7 +14,8 @@ import {
   UseFilteredData,
 } from '../../../state/variables/use-filtered-data';
 import { renderComponent } from '../../../test-helpers/render';
-import { SORT_CONFIGURATION, SortButton, SortOption } from '../SortButton';
+import { SortButton } from '../SortButton';
+import { SortOption } from '../useSortingOptions';
 
 describe('SortButton', () => {
   it('switches to selected sorting', async () => {
@@ -34,7 +36,7 @@ describe('SortButton', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
     await userEvent.click(
-      screen.getByRole('menuitem', { name: SORT_CONFIGURATION[sorting].label }),
+      screen.getByRole('menuitem', { name: text.sortings.criticality }),
     );
 
     expect(result!.sorting).toEqual(sorting);
@@ -51,5 +53,24 @@ describe('SortButton', () => {
     renderComponent(<SortButton useFilteredData={useFilteredData} />);
 
     expect(screen.getByRole('button', { name: 'sort button' })).toBeDisabled();
+  });
+
+  it('shows all sort options', async () => {
+    const setFilteredData = jest.fn;
+    const useFilteredData: UseFilteredData = () => [
+      {
+        ...initialFilteredAttributions,
+        attributions: faker.opossum.attributions(),
+      },
+      setFilteredData,
+    ];
+    renderComponent(<SortButton useFilteredData={useFilteredData} />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
+    Object.values(text.sortings).forEach((menuItemText) => {
+      expect(
+        screen.getByRole('menuitem', { name: menuItemText }),
+      ).toBeVisible();
+    });
   });
 });

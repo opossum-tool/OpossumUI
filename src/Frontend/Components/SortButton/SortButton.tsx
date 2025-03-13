@@ -2,63 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import BarChartIcon from '@mui/icons-material/BarChart';
 import SortIcon from '@mui/icons-material/Sort';
-import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
-import WhatshotIcon from '@mui/icons-material/Whatshot';
 import MuiBadge from '@mui/material/Badge';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
 import { UseFilteredData } from '../../state/variables/use-filtered-data';
-import { ClassificationCIcon } from '../Icons/Icons';
 import {
   SelectMenu,
   SelectMenuOption,
   SelectMenuProps,
 } from '../SelectMenu/SelectMenu';
-
-interface SortOptionConfiguration {
-  label: string;
-  icon: React.FC<{ color?: 'action' | 'disabled' }>;
-}
-
-export type SortOption =
-  | 'alphabetically'
-  | 'criticality'
-  | 'occurrence'
-  | 'classification';
-
-type SortConfiguration = Record<SortOption, SortOptionConfiguration>;
-
-export const SORT_CONFIGURATION: SortConfiguration = {
-  alphabetically: {
-    label: text.sortings.name,
-    icon: ({ color }: { color?: 'action' | 'disabled' }) => (
-      <SortByAlphaIcon color={color || 'action'} fontSize={'inherit'} />
-    ),
-  },
-  criticality: {
-    label: text.sortings.criticality,
-    icon: ({ color }: { color?: 'action' | 'disabled' }) => (
-      <WhatshotIcon color={color || 'warning'} fontSize={'inherit'} />
-    ),
-  },
-  occurrence: {
-    label: text.sortings.occurrence,
-    icon: ({ color }: { color?: 'action' | 'disabled' }) => (
-      <BarChartIcon color={color || 'info'} fontSize={'inherit'} />
-    ),
-  },
-  classification: {
-    label: text.sortings.classification,
-    icon: ({ color }: { color?: 'action' | 'disabled' }) => (
-      <ClassificationCIcon color={color || 'warning'} fontSize={'inherit'} />
-    ),
-  },
-};
+import { SortOption, useSortConfiguration } from './useSortingOptions';
 
 interface Props
   extends Pick<SelectMenuProps, 'anchorArrow' | 'anchorPosition'> {
@@ -74,10 +31,32 @@ export const SortButton: React.FC<Props> = ({
   const [{ sorting, attributions }, setFilteredAttributions] =
     useFilteredData();
 
+  const sortConfiguration = useSortConfiguration();
+
+  const setSorting = useCallback(
+    (sortOption: SortOption) => {
+      setFilteredAttributions((prev) => ({
+        ...prev,
+        sorting: sortOption,
+      }));
+    },
+    [setFilteredAttributions],
+  );
+
+  useEffect(() => {
+    const availableKeys = Object.entries(sortConfiguration)
+      .filter(([_, entry]) => entry.active)
+      .map(([key, _]) => key);
+    if (!availableKeys.includes(sorting)) {
+      setSorting('alphabetically');
+    }
+  }, [sortConfiguration, sorting, setSorting]);
+
   const sortingOptions = useMemo(
     () =>
-      Object.entries(SORT_CONFIGURATION).map<SelectMenuOption>(
-        ([key, entry]) => {
+      Object.entries(sortConfiguration)
+        .filter(([_, entry]) => entry.active)
+        .map<SelectMenuOption>(([key, entry]) => {
           const Icon = entry.icon;
           const sortOption: SortOption = key as SortOption;
           return {
@@ -85,19 +64,14 @@ export const SortButton: React.FC<Props> = ({
             label: entry.label,
             selected: sortOption === sorting,
             icon: <Icon />,
-            onAdd: () =>
-              setFilteredAttributions((prev) => ({
-                ...prev,
-                sorting: sortOption,
-              })),
+            onAdd: () => setSorting(sortOption),
           };
-        },
-      ),
-    [setFilteredAttributions, sorting],
+        }),
+    [sorting, sortConfiguration, setSorting],
   );
 
   const disabled = !attributions || !Object.keys(attributions).length;
-  const BadgeContent = SORT_CONFIGURATION[sorting].icon;
+  const BadgeContent = sortConfiguration[sorting].icon;
 
   return (
     <>

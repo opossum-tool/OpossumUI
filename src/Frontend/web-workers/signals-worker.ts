@@ -8,7 +8,7 @@ import {
   ClassificationsConfig,
   Resources,
 } from '../../shared/shared-types';
-import { SortOption } from '../Components/SortButton/SortButton';
+import { SortOption } from '../Components/SortButton/useSortingOptions';
 import { Filter, FilterCounts, ROOT_PATH } from '../shared-constants';
 import { ProgressBarData } from '../types/types';
 import {

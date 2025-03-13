@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { createWindow } from '../createWindow';
+import { createWindow, loadWebApp } from '../createWindow';
 
 jest.mock('electron', () => ({
   app: {
@@ -36,8 +36,9 @@ jest.mock('electron', () => ({
 }));
 
 describe('createWindow', () => {
-  it('returns correct BrowserWindow in devMode', () => {
+  it('returns correct BrowserWindow in devMode', async () => {
     const browserWindow = createWindow();
+    await loadWebApp(browserWindow);
     expect(browserWindow.webContents.openDevTools).toHaveBeenCalled();
     expect(browserWindow.loadURL).toHaveBeenCalledWith(
       'http://localhost:5173/',

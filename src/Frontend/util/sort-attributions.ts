@@ -5,7 +5,7 @@
 import { keyBy, ListIterator, orderBy } from 'lodash';
 
 import { Attributions, PackageInfo, Relation } from '../../shared/shared-types';
-import { SortOption } from '../Components/SortButton/SortButton';
+import { SortOption } from '../Components/SortButton/useSortingOptions';
 import { getCardLabels } from './get-card-labels';
 
 export function sortAttributions({
