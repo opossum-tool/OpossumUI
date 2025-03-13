@@ -76,7 +76,6 @@ function getQaMode(qaMode: boolean | null): Array<MenuItemConstructorOptions> {
 export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
   const qaMode = await UserSettings.get('qaMode');
   const showClassifications = await UserSettings.get('showClassifications');
-  console.log('showClassifications', showClassifications);
   return {
     label: text.menu.view,
     submenu: [
