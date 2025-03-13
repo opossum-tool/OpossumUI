@@ -24,6 +24,7 @@ export class SignalsPanel {
     readonly name: Locator;
     readonly criticality: Locator;
     readonly occurrence: Locator;
+    readonly classification: Locator;
   };
   readonly filters: {
     readonly thirdParty: Locator;
@@ -77,6 +78,9 @@ export class SignalsPanel {
       }),
       occurrence: window.getByRole('menuitem', {
         name: text.sortings.occurrence,
+      }),
+      classification: window.getByRole('menuitem', {
+        name: text.sortings.classification,
       }),
     };
     this.filters = {

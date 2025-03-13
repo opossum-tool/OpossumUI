@@ -17,7 +17,7 @@ import StarIcon from '@mui/icons-material/Star';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import WidgetsIcon from '@mui/icons-material/Widgets';
-import { SvgIcon, SxProps } from '@mui/material';
+import { createSvgIcon, SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 
 import {
@@ -232,32 +232,38 @@ export function ClassificationIcon(
       placement={props.tooltipPlacement}
       disableInteractive
       data-testid={'classification-tooltip'}
+      color="none"
     >
-      <SvgIcon sx={{ ...baseIcon, ...props.sx }}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          stroke={OpossumColors.darkGrey}
-          strokeWidth={0.5}
-          fill={color}
-          aria-label={'Classification icon'}
-          className={props.className}
-        >
-          <text
-            x="12"
-            y="20"
-            fontSize="24"
-            fontWeight="bold"
-            textAnchor="middle"
-            fontFamily="sans-serif"
-          >
-            C
-          </text>
-        </svg>
-      </SvgIcon>
+      <ClassificationCIcon
+        htmlColor={color}
+        sx={{
+          ...baseIcon,
+          ...props.sx,
+          strokeWidth: 0.5,
+          stroke: OpossumColors.darkGrey,
+          color: `${color} !important`,
+        }}
+        aria-label={'Classification icon'}
+        className={props.className}
+      />
     </MuiTooltip>
   );
 }
+
+export const ClassificationCIcon = createSvgIcon(
+  <text
+    x="12"
+    y="20"
+    fontSize="24"
+    fontWeight="bold"
+    textAnchor="middle"
+    fontFamily="sans-serif"
+    fill="currentColor"
+  >
+    C
+  </text>,
+  'ClassificationCIcon',
+);
 
 export function SignalIcon({
   className,
