@@ -5,9 +5,9 @@
 import {
   BaseUrlsForSources,
   ExternalAttributionSources,
-  ProjectConfig,
   ProjectMetadata,
   RawAttributions,
+  RawProjectConfig,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -46,7 +46,7 @@ export interface RawFrequentLicense {
 export interface ParsedOpossumInputFile {
   metadata: ProjectMetadata;
   resources: Resources;
-  config?: ProjectConfig;
+  config?: RawProjectConfig;
   externalAttributions: RawAttributions;
   resourcesToAttributions: ResourcesToAttributions;
   frequentLicenses?: Array<RawFrequentLicense>;

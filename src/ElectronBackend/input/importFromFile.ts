@@ -8,7 +8,6 @@ import fs from 'fs';
 import { cloneDeep } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
-import { EMPTY_PROJECT_CONFIG } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
@@ -43,6 +42,7 @@ import {
   sanitizeResourcesToAttributions,
   serializeAttributions,
 } from './parseInputData';
+import { refineConfiguration } from './refineConfiguration';
 
 function isJsonParsingError(object: unknown): object is JsonParsingError {
   return (object as JsonParsingError).type === 'jsonParsingError';
@@ -128,6 +128,12 @@ export async function loadInputAndOutputFromFilePath(
     parsedInputData.frequentLicenses,
   );
 
+  logger.info('Checking and converting configuration');
+  const configuration = refineConfiguration(
+    parsedInputData.config,
+    externalAttributions,
+  );
+
   if (parsedOutputData === null) {
     logger.info('Creating output file');
     if (isOpossumFileFormat(filePath)) {
@@ -168,7 +174,7 @@ export async function loadInputAndOutputFromFilePath(
   mainWindow.webContents.send(AllowedFrontendChannels.FileLoaded, {
     metadata: parsedInputData.metadata,
     resources: parsedInputData.resources,
-    config: parsedInputData.config ?? EMPTY_PROJECT_CONFIG,
+    config: configuration,
     manualAttributions: {
       attributions: manualAttributions,
       resourcesToAttributions: parsedOutputData.resourcesToAttributions,

@@ -24,6 +24,8 @@ export const RawCriticality: Record<Criticality, string | undefined> = {
   [Criticality.High]: 'high',
 };
 
+export type Classification = number;
+
 export enum DiscreteConfidence {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   High = 80,
@@ -59,7 +61,7 @@ interface EphemeralPackageInfoProps {
 
 export interface PackageInfo extends EphemeralPackageInfoProps {
   attributionConfidence?: number;
-  classification?: number;
+  classification?: Classification;
   comment?: string;
   copyright?: string;
   count?: number;
@@ -148,18 +150,27 @@ export interface ProjectMetadata {
   [otherMetadata: string]: unknown;
 }
 
-export interface Classifications {
-  [classification: number]: string;
+export interface ClassificationEntry {
+  description: string;
+  color: string;
 }
 
+export type ClassificationsConfig = Record<Classification, ClassificationEntry>;
+
+export type RawClassificationsConfig = Record<Classification, string>;
+
 export interface ProjectConfig {
-  classifications: Classifications;
+  classifications: ClassificationsConfig;
+}
+
+export interface RawProjectConfig {
+  classifications: RawClassificationsConfig;
 }
 
 export interface ParsedFileContent {
   metadata: ProjectMetadata;
   resources: Resources;
-  config: ProjectConfig;
+  config: RawProjectConfig;
   manualAttributions: InputFileAttributionData;
   externalAttributions: InputFileAttributionData;
   frequentLicenses: FrequentLicenses;

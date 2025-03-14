@@ -5,7 +5,7 @@
 import {
   AttributionData,
   Attributions,
-  Classifications,
+  ClassificationsConfig,
   Resources,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
@@ -85,7 +85,7 @@ interface State {
   signalSearch?: string;
   signalSelectedLicense?: string;
   signalSorting?: Sorting;
-  classifications?: Classifications;
+  classifications?: ClassificationsConfig;
 }
 
 export type SignalsWorkerInput = Unionize<State>;

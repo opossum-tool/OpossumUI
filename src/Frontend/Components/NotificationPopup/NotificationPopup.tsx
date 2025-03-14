@@ -30,6 +30,7 @@ interface NotificationPopupProps {
   customAction?: React.ReactNode;
   background?: keyof typeof OpossumColors;
   width?: React.CSSProperties['width'];
+  height?: React.CSSProperties['height'];
   minWidth?: React.CSSProperties['minWidth'];
   maxWidth?: React.CSSProperties['maxWidth'];
   className?: string;
@@ -51,6 +52,7 @@ export function NotificationPopup(props: NotificationPopupProps) {
         paper: {
           sx: {
             ...(props.width && { width: props.width }),
+            ...(props.height && { height: props.height }),
             ...(props.minWidth && { minWidth: props.minWidth }),
             ...(props.maxWidth && { maxWidth: props.maxWidth }),
             ...(props.background && {

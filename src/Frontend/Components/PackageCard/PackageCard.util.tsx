@@ -38,15 +38,12 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
       />,
     );
   }
-  if (
-    cardConfig.classification &&
-    cardConfig.classification_mapping?.[cardConfig.classification]
-  ) {
+  if (cardConfig.classification && cardConfig.classificationsConfig) {
     rightIcons.push(
       <ClassificationIcon
         key={'classification-icon'}
         classification={cardConfig.classification}
-        classification_mapping={cardConfig.classification_mapping}
+        classificationsConfig={cardConfig.classificationsConfig}
       />,
     );
   }
