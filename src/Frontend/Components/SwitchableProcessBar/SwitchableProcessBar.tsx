@@ -80,6 +80,16 @@ export const SwitchableProcessBar: React.FC = () => {
     ? currentProgressBar
     : 'attribution';
 
+  const activeProgressBarConfigurations = Object.fromEntries(
+    Object.entries(switchableProgressBarConfiguration).filter(
+      ([_, progressBarSwitchConfiguration]) =>
+        progressBarSwitchConfiguration.active,
+    ),
+  );
+
+  const moreThanOneActiveProgressBars =
+    Object.keys(activeProgressBarConfigurations).length > 1;
+
   if (!progressData) {
     return <MuiBox flex={1} />;
   }
@@ -90,26 +100,25 @@ export const SwitchableProcessBar: React.FC = () => {
         progressBarData={progressData}
         selectedProgressBar={effectiveCurrentProgressBar}
       />
-      <Select<SelectedProgressBar>
-        size={'small'}
-        onChange={handleProgressBarChange}
-        sx={classes.select}
-        value={effectiveCurrentProgressBar}
-        aria-label={text.selectAriaLabel}
-      >
-        {Object.entries(switchableProgressBarConfiguration)
-          .filter(
-            ([_, progressBarSwitchConfiguration]) =>
-              progressBarSwitchConfiguration.active,
-          )
-          .map(([key, progressBarSwitchConfiguration]) => {
-            return (
-              <MenuItem key={key} value={key}>
-                {progressBarSwitchConfiguration.label}
-              </MenuItem>
-            );
-          })}
-      </Select>
+      {moreThanOneActiveProgressBars && (
+        <Select<SelectedProgressBar>
+          size={'small'}
+          onChange={handleProgressBarChange}
+          sx={classes.select}
+          value={effectiveCurrentProgressBar}
+          aria-label={text.selectAriaLabel}
+        >
+          {Object.entries(activeProgressBarConfigurations).map(
+            ([key, progressBarSwitchConfiguration]) => {
+              return (
+                <MenuItem key={key} value={key}>
+                  {progressBarSwitchConfiguration.label}
+                </MenuItem>
+              );
+            },
+          )}
+        </Select>
+      )}
     </MuiBox>
   );
 };

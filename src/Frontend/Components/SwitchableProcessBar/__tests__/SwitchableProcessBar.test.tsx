@@ -167,4 +167,16 @@ describe('SwitchableProcessBar', () => {
 
     expect(menuEntries).toEqual(['Attributions', 'Classifications']);
   });
+
+  it('does not show select if only one option to select', () => {
+    renderComponent(<SwitchableProcessBar />, {
+      actions: [
+        setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
+        setUserSetting('showCriticality', false),
+        setUserSetting('showClassifications', false),
+      ],
+    });
+
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+  });
 });
