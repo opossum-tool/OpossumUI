@@ -65,6 +65,17 @@ function getShowClassifications(
   });
 }
 
+function getShowCriticality(
+  showClassifications: boolean | null,
+): Array<MenuItemConstructorOptions> {
+  return switchableMenuItem(showClassifications, {
+    id: 'show-criticality',
+    label: text.menu.viewSubmenu.showCriticality,
+    onToggle: (newState: boolean) =>
+      UserSettings.set('showCriticality', newState),
+  });
+}
+
 function getQaMode(qaMode: boolean | null): Array<MenuItemConstructorOptions> {
   return switchableMenuItem(qaMode, {
     id: 'qa-mode',
@@ -75,6 +86,7 @@ function getQaMode(qaMode: boolean | null): Array<MenuItemConstructorOptions> {
 
 export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
   const qaMode = await UserSettings.get('qaMode');
+  const showCriticality = await UserSettings.get('showCriticality');
   const showClassifications = await UserSettings.get('showClassifications');
   return {
     label: text.menu.view,
@@ -84,6 +96,7 @@ export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
       getZoomIn(),
       getZoomOut(),
       ...getQaMode(qaMode),
+      ...getShowCriticality(showCriticality),
       ...getShowClassifications(showClassifications),
     ],
   };

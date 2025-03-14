@@ -51,6 +51,7 @@ export const text = {
       zoomIn: 'Zoom In',
       zoomOut: 'Zoom Out',
       qaMode: 'QA Mode',
+      showCriticality: 'Show Criticality',
       showClassifications: 'Show Classifications',
     },
     about: 'About',
