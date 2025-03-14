@@ -27,7 +27,6 @@ export type SortConfiguration = Record<SortOption, SortOptionConfiguration>;
 
 export function useSortConfiguration(): SortConfiguration {
   const [showClassifications] = useShowClassifications();
-  console.log('showClassifications', showClassifications);
 
   return useMemo(() => {
     return {

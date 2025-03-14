@@ -9,6 +9,7 @@ import { text } from '../../../../shared/text';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { PROGRESS_DATA } from '../../../state/variables/use-progress-data';
 import { renderComponent } from '../../../test-helpers/render';
+import { setUserSetting } from '../../../test-helpers/user-settings-helpers';
 import { ProgressBarData } from '../../../types/types';
 import { SwitchableProcessBar } from '../SwitchableProcessBar';
 
@@ -112,5 +113,45 @@ describe('SwitchableProcessBar', () => {
     );
 
     expect(getAttributionProgressBar()).toBeInTheDocument();
+  });
+
+  it('offers all three possible progress bars if classificaitions configured active', async () => {
+    renderComponent(<SwitchableProcessBar />, {
+      actions: [
+        setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
+        setUserSetting('showClassifications', true),
+      ],
+    });
+
+    openSelect();
+    expectSelectToBeOpen();
+
+    const menuEntries = (await screen.findAllByRole('option')).map(
+      (element) => element.textContent,
+    );
+
+    expect(menuEntries).toEqual([
+      'Attributions',
+      'Criticalities',
+      'Classifications',
+    ]);
+  });
+
+  it('does not offer classifications if disabled', async () => {
+    renderComponent(<SwitchableProcessBar />, {
+      actions: [
+        setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
+        setUserSetting('showClassifications', false),
+      ],
+    });
+
+    openSelect();
+    expectSelectToBeOpen();
+
+    const menuEntries = (await screen.findAllByRole('option')).map(
+      (element) => element.textContent,
+    );
+
+    expect(menuEntries).toEqual(['Attributions', 'Criticalities']);
   });
 });
