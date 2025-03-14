@@ -27,6 +27,7 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
 import { useShowClassifications } from '../../../state/variables/use-show-classifications';
+import { useShowCriticality } from '../../../state/variables/use-show-criticality';
 import { useUserSetting } from '../../../state/variables/use-user-setting';
 import { prettifySource } from '../../../util/prettify-source';
 import {
@@ -64,6 +65,7 @@ export function useAuditingOptions({
   );
   const classifications = useAppSelector(getClassifications);
   const [showClassifications] = useShowClassifications();
+  const [showCriticality] = useShowCriticality();
 
   const source = useMemo(() => {
     const sourceName =
@@ -216,7 +218,8 @@ export function useAuditingOptions({
         icon: (
           <CriticalityIcon noTooltip criticality={packageInfo.criticality} />
         ),
-        selected: packageInfo.criticality !== Criticality.None,
+        selected:
+          showCriticality && packageInfo.criticality !== Criticality.None,
         interactive: false,
       },
       {
@@ -293,6 +296,7 @@ export function useAuditingOptions({
       packageInfo.wasPreferred,
       qaMode,
       showClassifications,
+      showCriticality,
       source.fromOrigin,
       source.sourceName,
       store,

@@ -212,23 +212,42 @@ describe('AttributionForm', () => {
       ).toBeInTheDocument();
     });
 
-    [Criticality.Medium, Criticality.High].forEach((criticality) => {
-      it(`renders a chip for ${RawCriticality[criticality]} criticality`, () => {
+    describe('criticality chip', () => {
+      [Criticality.Medium, Criticality.High].forEach((criticality) => {
+        it(`renders a chip for ${RawCriticality[criticality]} criticality`, () => {
+          const packageInfo = faker.opossum.packageInfo({
+            criticality,
+          });
+
+          renderComponent(<AttributionForm packageInfo={packageInfo} />);
+
+          const criticalityChip = screen.queryByTestId(
+            'auditing-option-criticality',
+          );
+          expect(criticalityChip).toBeInTheDocument();
+          expect(criticalityChip).toHaveTextContent(
+            text.auditingOptions[
+              criticality !== Criticality.None
+                ? criticality
+                : Criticality.Medium
+            ] as string,
+          );
+        });
+      });
+
+      it('does not render a criticality chip if showing criticality is disabled', () => {
         const packageInfo = faker.opossum.packageInfo({
-          criticality,
+          criticality: Criticality.Medium,
         });
 
-        renderComponent(<AttributionForm packageInfo={packageInfo} />);
+        renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+          actions: [setUserSetting('showCriticality', false)],
+        });
 
         const criticalityChip = screen.queryByTestId(
           'auditing-option-criticality',
         );
-        expect(criticalityChip).toBeInTheDocument();
-        expect(criticalityChip).toHaveTextContent(
-          text.auditingOptions[
-            criticality !== Criticality.None ? criticality : Criticality.Medium
-          ] as string,
-        );
+        expect(criticalityChip).not.toBeInTheDocument();
       });
     });
 
