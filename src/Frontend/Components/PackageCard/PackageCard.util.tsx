@@ -22,6 +22,7 @@ import { PackageCardConfig } from './PackageCard';
 export function getRightIcons(
   cardConfig: PackageCardConfig,
   showClassifications: boolean,
+  showCriticality: boolean,
 ) {
   const rightIcons: Array<React.ReactElement> = [];
 
@@ -32,7 +33,7 @@ export function getRightIcons(
   } else if (cardConfig.originalWasPreferred) {
     rightIcons.push(<ModifiedPreferredIcon key={'modified-preferred-icon'} />);
   }
-  if (cardConfig.criticality !== Criticality.None) {
+  if (showCriticality && cardConfig.criticality !== Criticality.None) {
     rightIcons.push(
       <CriticalityIcon
         key={'criticality-icon'}
