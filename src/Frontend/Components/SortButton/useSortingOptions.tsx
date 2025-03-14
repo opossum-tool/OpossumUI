@@ -9,6 +9,7 @@ import { useMemo } from 'react';
 
 import { text } from '../../../shared/text';
 import { useShowClassifications } from '../../state/variables/use-show-classifications';
+import { useShowCriticality } from '../../state/variables/use-show-criticality';
 import { ClassificationCIcon } from '../Icons/Icons';
 
 export type SortOption =
@@ -27,6 +28,7 @@ export type SortConfiguration = Record<SortOption, SortOptionConfiguration>;
 
 export function useSortConfiguration(): SortConfiguration {
   const [showClassifications] = useShowClassifications();
+  const [showCriticality] = useShowCriticality();
 
   return useMemo(() => {
     return {
@@ -42,7 +44,7 @@ export function useSortConfiguration(): SortConfiguration {
         icon: ({ color }: { color?: 'action' | 'disabled' }) => (
           <WhatshotIcon color={color || 'warning'} fontSize={'inherit'} />
         ),
-        active: true,
+        active: showCriticality,
       },
       occurrence: {
         label: text.sortings.occurrence,
@@ -62,5 +64,5 @@ export function useSortConfiguration(): SortConfiguration {
         active: showClassifications,
       },
     };
-  }, [showClassifications]);
+  }, [showClassifications, showCriticality]);
 }
