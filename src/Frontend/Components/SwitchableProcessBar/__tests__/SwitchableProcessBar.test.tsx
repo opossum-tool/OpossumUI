@@ -38,11 +38,6 @@ function openSelect() {
 
 function expectSelectToBeOpen() {
   expect(
-    screen.getByText(switchableProgressBarText.criticalSignalsBar.selectLabel, {
-      selector: 'li',
-    }),
-  ).toBeInTheDocument();
-  expect(
     screen.getByText(
       switchableProgressBarText.attributionProgressBar.selectLabel,
       {
@@ -153,5 +148,23 @@ describe('SwitchableProcessBar', () => {
     );
 
     expect(menuEntries).toEqual(['Attributions', 'Criticalities']);
+  });
+
+  it('does not offer criticality if disabled', async () => {
+    renderComponent(<SwitchableProcessBar />, {
+      actions: [
+        setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
+        setUserSetting('showCriticality', false),
+      ],
+    });
+
+    openSelect();
+    expectSelectToBeOpen();
+
+    const menuEntries = (await screen.findAllByRole('option')).map(
+      (element) => element.textContent,
+    );
+
+    expect(menuEntries).toEqual(['Attributions', 'Classifications']);
   });
 });

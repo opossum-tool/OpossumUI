@@ -11,6 +11,7 @@ import { text as fullText } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useProgressData } from '../../state/variables/use-progress-data';
 import { useShowClassifications } from '../../state/variables/use-show-classifications';
+import { useShowCriticality } from '../../state/variables/use-show-criticality';
 import { SelectedProgressBar } from '../../types/types';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 
@@ -43,6 +44,7 @@ interface ProgressBarSwitchConfiguration {
 
 export const SwitchableProcessBar: React.FC = () => {
   const [showClassifications] = useShowClassifications();
+  const [showCriticality] = useShowCriticality();
 
   const switchableProgressBarConfiguration: Record<
     SelectedProgressBar,
@@ -52,7 +54,10 @@ export const SwitchableProcessBar: React.FC = () => {
       label: text.attributionProgressBar.selectLabel,
       active: true,
     },
-    criticality: { label: text.criticalSignalsBar.selectLabel, active: true },
+    criticality: {
+      label: text.criticalSignalsBar.selectLabel,
+      active: showCriticality,
+    },
     classification: {
       label: text.classificationProgressBar.selectLabel,
       active: showClassifications,
