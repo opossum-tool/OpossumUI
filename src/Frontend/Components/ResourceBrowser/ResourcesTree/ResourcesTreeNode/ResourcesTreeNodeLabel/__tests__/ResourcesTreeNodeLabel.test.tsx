@@ -24,6 +24,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={false}
         containsResourcesWithOnlyExternalAttribution={true}
         showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -49,6 +50,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
         showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -74,11 +76,39 @@ describe('ResourcesTreeNodeLabel', () => {
         containsResourcesWithOnlyExternalAttribution={true}
         criticality={Criticality.High}
         showClassifications={false}
+        showCriticality={true}
       />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Directory icon with signal'),
+    ).toBeInTheDocument();
+  });
+
+  it('renders a folder with signal and but withcout criticality icon if disabled', () => {
+    render(
+      <ResourcesTreeNodeLabel
+        labelText={'Test label'}
+        hasManualAttribution={false}
+        hasExternalAttribution={true}
+        hasUnresolvedExternalAttribution={true}
+        containsExternalAttribution={false}
+        containsManualAttribution={false}
+        hasParentWithManualAttribution={false}
+        canHaveChildren={true}
+        isAttributionBreakpoint={false}
+        showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={true}
+        criticality={Criticality.High}
+        showClassifications={false}
+        showCriticality={false}
+      />,
+    );
+
+    expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Criticality icon')).not.toBeInTheDocument();
     expect(
       screen.getByLabelText('Directory icon with signal'),
     ).toBeInTheDocument();
@@ -100,6 +130,7 @@ describe('ResourcesTreeNodeLabel', () => {
         containsResourcesWithOnlyExternalAttribution={true}
         criticality={Criticality.High}
         showClassifications={false}
+        showCriticality={true}
       />,
     );
 
@@ -128,6 +159,7 @@ describe('ResourcesTreeNodeLabel', () => {
           classification={1}
           classificationsConfig={{ 1: faker.opossum.classificationEntry() }}
           showClassifications={true}
+          showCriticality={false}
         />,
       );
 
@@ -155,6 +187,7 @@ describe('ResourcesTreeNodeLabel', () => {
           classification={1}
           classificationsConfig={{ 1: faker.opossum.classificationEntry() }}
           showClassifications={false}
+          showCriticality={false}
         />,
       );
 
@@ -183,6 +216,7 @@ describe('ResourcesTreeNodeLabel', () => {
           containsResourcesWithOnlyExternalAttribution={true}
           classification={1}
           showClassifications={true}
+          showCriticality={false}
         />,
       );
 
@@ -212,6 +246,7 @@ describe('ResourcesTreeNodeLabel', () => {
         containsResourcesWithOnlyExternalAttribution={true}
         criticality={Criticality.High}
         showClassifications={false}
+        showCriticality={true}
       />,
     );
 
@@ -237,6 +272,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
         showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -261,6 +297,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
         showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -285,6 +322,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
         showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -309,6 +347,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
         showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -333,6 +372,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={false}
         showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -359,6 +399,7 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
         showClassifications={false}
+        showCriticality={false}
       />,
     );
 
