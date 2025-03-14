@@ -107,7 +107,7 @@ export interface PackageCardConfig {
 
 export interface PackageCardProps {
   packageInfo: PackageInfo;
-  cardConfig?: PackageCardConfig;
+  cardConfig?: Partial<PackageCardConfig>;
   onClick?(): void;
   checkbox?: {
     checked: boolean;
