@@ -77,9 +77,6 @@ export const ATTRIBUTION_FILTERS = [
   text.filters.modifiedPreferred,
 ] satisfies Array<Filter>;
 
-export const SORTINGS = Object.values(text.sortings);
-export type Sorting = (typeof SORTINGS)[number];
-
 export const thirdPartyKeys: Array<keyof PackageInfo> = [
   'copyright',
   'licenseName',

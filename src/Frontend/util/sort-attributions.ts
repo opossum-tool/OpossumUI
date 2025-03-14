@@ -5,8 +5,7 @@
 import { keyBy, ListIterator, orderBy } from 'lodash';
 
 import { Attributions, PackageInfo, Relation } from '../../shared/shared-types';
-import { text } from '../../shared/text';
-import { Sorting } from '../shared-constants';
+import { SortOption } from '../Components/SortButton/useSortingOptions';
 import { getCardLabels } from './get-card-labels';
 
 export function sortAttributions({
@@ -14,20 +13,20 @@ export function sortAttributions({
   sorting,
 }: {
   attributions: Array<PackageInfo> | Attributions;
-  sorting: Sorting;
+  sorting: SortOption;
 }): Attributions {
   const iteratees: Array<ListIterator<PackageInfo, unknown>> = [
     (packageInfo) => getCardLabels(packageInfo).join('').toLowerCase(),
   ];
   const orders: Array<'asc' | 'desc'> = ['asc'];
 
-  if (sorting === text.sortings.criticality) {
+  if (sorting === 'criticality') {
     iteratees.unshift(({ criticality }) => criticality);
     orders.unshift('desc');
-  } else if (sorting === text.sortings.occurrence) {
+  } else if (sorting === 'occurrence') {
     iteratees.unshift(({ count }) => count ?? 0);
     orders.unshift('desc');
-  } else if (sorting === text.sortings.classification) {
+  } else if (sorting === 'classification') {
     iteratees.unshift(({ classification }) => classification ?? -1);
     orders.unshift('desc');
   }

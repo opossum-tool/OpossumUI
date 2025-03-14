@@ -45,8 +45,8 @@ jest.mock('../iconHelpers', () => ({
 }));
 
 describe('createWindow', () => {
-  it('returns correct BrowserWindow in production', async () => {
-    const browserWindow = await createWindow();
+  it('returns correct BrowserWindow in production', () => {
+    const browserWindow = createWindow();
     expect(browserWindow.webContents.openDevTools).not.toHaveBeenCalled();
     expect(browserWindow.loadURL).not.toHaveBeenCalledWith(
       'http://localhost:3000',

@@ -24,6 +24,20 @@ export function getIconBasedOnTheme(
     : path.join(getBasePathOfAssets(), black_icon);
 }
 
+export function getCheckboxBasedOnThemeAndCheckState(checked: boolean): string {
+  if (checked) {
+    return getIconBasedOnTheme(
+      'icons/check-box-white.png',
+      'icons/check-box-black.png',
+    );
+  }
+
+  return getIconBasedOnTheme(
+    'icons/check-box-blank-white.png',
+    'icons/check-box-blank-black.png',
+  );
+}
+
 export function makeFirstIconVisibleAndSecondHidden(
   firstItemId: string,
   secondItemId: string,
