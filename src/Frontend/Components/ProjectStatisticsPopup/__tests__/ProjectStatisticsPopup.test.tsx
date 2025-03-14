@@ -9,6 +9,7 @@ import { Attributions, Criticality } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { SHOW_CLASSIFICATIONS_KEY } from '../../../state/variables/use-show-classifications';
+import { SHOW_CRITICALITY_KEY } from '../../../state/variables/use-show-criticality';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { setUserSetting } from '../../../test-helpers/user-settings-helpers';
@@ -315,6 +316,21 @@ describe('The ProjectStatisticsPopup', () => {
       screen.queryByText(
         text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
           .title,
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not show the criticality statistics if it has been disabled', () => {
+    renderComponent(<ProjectStatisticsPopup />, {
+      actions: [
+        setUserSetting(SHOW_CRITICALITY_KEY, false),
+        loadFromFile(getParsedInputFileEnrichedWithTestData(fileSetup)),
+      ],
+    });
+
+    expect(
+      screen.queryByText(
+        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
       ),
     ).not.toBeInTheDocument();
   });
