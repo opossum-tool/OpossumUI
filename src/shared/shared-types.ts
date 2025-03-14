@@ -318,15 +318,15 @@ export interface Log {
 }
 
 export interface UserSettings {
-  qaMode: boolean | null;
-  showProjectStatistics: boolean | null;
-  areHiddenSignalsVisible: boolean | null;
-  showCriticality: boolean | null;
-  showClassifications: boolean | null;
+  qaMode: boolean;
+  showProjectStatistics: boolean;
+  areHiddenSignalsVisible: boolean;
+  showCriticality: boolean;
+  showClassifications: boolean;
   panelSizes: {
     resourceBrowserWidth: number;
     packageListsWidth: number;
     linkedResourcesPanelHeight: number | null;
     signalsPanelHeight: number | null;
-  } | null;
+  };
 }

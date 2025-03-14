@@ -112,7 +112,7 @@ export function useAuditingOptions({
               preferred: false,
             }),
           ),
-        interactive: isPreferenceFeatureEnabled && !!qaMode && isEditable,
+        interactive: isPreferenceFeatureEnabled && qaMode && isEditable,
       },
       {
         id: 'was-preferred',
