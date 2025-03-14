@@ -13,6 +13,7 @@ import {
   PackageInfo,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import { OpossumColors } from '../../shared-styles';
 import {
   AttributionCountPerSourcePerLicense,
   ChartDataItem,
@@ -337,11 +338,13 @@ export function getCriticalSignalsCount(
   return criticalityData.filter(({ count }) => count > 0);
 }
 
+type ColoredChartDataItem = ChartDataItem & { color: string };
+
 export function getSignalCountByClassification(
   licenseCounts: LicenseCounts,
   licenseNamesWithClassification: LicenseNamesWithClassification,
   classifications: ClassificationsConfig,
-): Array<ChartDataItem> {
+): [Array<ChartDataItem>, { [segmentName: string]: string }] {
   const NO_CLASSIFICATION = -1;
   const classificationCounts: Record<Classification, number> = {};
 
@@ -356,27 +359,37 @@ export function getSignalCountByClassification(
 
   const pieChartData = Object.keys(classifications)
     .map(Number)
-    .map<ChartDataItem>((classification) => {
+    .map<ColoredChartDataItem>((classification) => {
       const classificationName = classifications[classification].description;
       const classificationCount =
         classificationCounts[toNumber(classification)] ?? 0;
+      const color = classifications[classification].color;
 
       return {
         name: classificationName,
         count: classificationCount,
+        color,
       };
     })
     .filter(({ count }) => count > 0);
 
   if (classificationCounts[NO_CLASSIFICATION]) {
-    return pieChartData.concat({
+    pieChartData.push({
       name: text.projectStatisticsPopup.charts
         .signalCountByClassificationPieChart.noClassification,
       count: classificationCounts[NO_CLASSIFICATION],
+      color: OpossumColors.lightestBlue,
     });
   }
 
-  return pieChartData;
+  const colorMap = Object.fromEntries(
+    pieChartData.map((colorChartEntry) => [
+      colorChartEntry.name,
+      colorChartEntry.color,
+    ]),
+  );
+
+  return [pieChartData, colorMap];
 }
 
 export function getIncompleteAttributionsCount(
