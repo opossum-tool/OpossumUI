@@ -3,8 +3,14 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { app, BrowserWindow } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  MenuItemConstructorOptions,
+  WebContents,
+} from 'electron';
 import os from 'os';
+import path from 'path';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
@@ -18,11 +24,14 @@ import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import {
   getMergeListener,
+  handleOpeningFile,
   importFileListener,
   selectBaseURLListener,
   setLoadingState,
 } from '../listeners';
 import logger from '../logger';
+import { createMenu } from '../menu';
+import { UserSettings } from '../user-settings';
 import { DisabledMenuItemHandler } from './DisabledMenuItemHandler';
 
 export const importFileFormats: Array<FileFormatInfo> = [
@@ -43,7 +52,7 @@ export const importFileFormats: Array<FileFormatInfo> = [
   },
 ];
 
-function getOpenFile(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
+function getOpenFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
     label: text.menu.fileSubmenu.open,
@@ -55,7 +64,51 @@ function getOpenFile(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
   };
 }
 
-function getImportFile(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
+async function getOpenRecent(
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
+  const recentlyOpenedPaths = await UserSettings.get('recentlyOpenedPaths');
+
+  return {
+    icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
+    label: text.menu.fileSubmenu.openRecent,
+    submenu: getOpenRecentSubmenu(mainWindow, recentlyOpenedPaths),
+    enabled: !!recentlyOpenedPaths?.length,
+  };
+}
+
+function getOpenRecentSubmenu(
+  mainWindow: BrowserWindow,
+  recentlyOpenedPaths: Array<string> | null,
+): MenuItemConstructorOptions['submenu'] {
+  if (!recentlyOpenedPaths?.length) {
+    return undefined;
+  }
+
+  return [
+    ...recentlyOpenedPaths.map<MenuItemConstructorOptions>((recentPath) => ({
+      label: path.basename(recentPath, path.extname(recentPath)),
+      click: ({ id }) =>
+        handleOpeningFile(
+          mainWindow,
+          id,
+          DisabledMenuItemHandler.activateMenuItems,
+        ),
+      id: recentPath,
+    })),
+    { type: 'separator' },
+    {
+      id: 'clear-recent',
+      label: text.menu.fileSubmenu.clearRecent,
+      click: async () => {
+        await UserSettings.set('recentlyOpenedPaths', []);
+        await createMenu(mainWindow);
+      },
+    },
+  ];
+}
+
+function getImportFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/import-white.png',
@@ -70,7 +123,7 @@ function getImportFile(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
   };
 }
 
-function getMerge(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
+function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/merge-white.png', 'icons/merge-black.png'),
     label: text.menu.fileSubmenu.merge,
@@ -83,7 +136,7 @@ function getMerge(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
   };
 }
 
-function getSaveFile(webContents: Electron.WebContents) {
+function getSaveFile(webContents: WebContents): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/save-white.png', 'icons/save-black.png'),
     label: text.menu.fileSubmenu.save,
@@ -98,7 +151,9 @@ function getSaveFile(webContents: Electron.WebContents) {
   };
 }
 
-function getProjectMetadata(webContents: Electron.WebContents) {
+function getProjectMetadata(
+  webContents: WebContents,
+): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/about-white.png', 'icons/about-black.png'),
     label: text.menu.fileSubmenu.projectMetadata,
@@ -114,7 +169,9 @@ function getProjectMetadata(webContents: Electron.WebContents) {
   };
 }
 
-function getProjectStatistics(webContents: Electron.WebContents) {
+function getProjectStatistics(
+  webContents: WebContents,
+): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/statictics-white.png',
@@ -133,7 +190,7 @@ function getProjectStatistics(webContents: Electron.WebContents) {
   };
 }
 
-function getSetBaseUrl(mainWindow: Electron.CrossProcessExports.BrowserWindow) {
+function getSetBaseUrl(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/restore-white.png',
@@ -155,7 +212,9 @@ function getQuit() {
   };
 }
 
-function getExportFollowUp(webContents: Electron.WebContents) {
+function getExportFollowUp(
+  webContents: WebContents,
+): MenuItemConstructorOptions {
   return {
     label: text.menu.fileSubmenu.exportSubmenu.followUp,
     icon: getIconBasedOnTheme(
@@ -175,7 +234,9 @@ function getExportFollowUp(webContents: Electron.WebContents) {
   };
 }
 
-function getExportCompactBom(webContents: Electron.WebContents) {
+function getExportCompactBom(
+  webContents: WebContents,
+): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/com-list-white.png',
@@ -195,7 +256,9 @@ function getExportCompactBom(webContents: Electron.WebContents) {
   };
 }
 
-function getExportDetailedBom(webContents: Electron.WebContents) {
+function getExportDetailedBom(
+  webContents: WebContents,
+): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/det-list-white.png',
@@ -215,7 +278,9 @@ function getExportDetailedBom(webContents: Electron.WebContents) {
   };
 }
 
-function getExportSpdxYaml(webContents: Electron.WebContents) {
+function getExportSpdxYaml(
+  webContents: WebContents,
+): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/yaml-white.png', 'icons/yaml-black.png'),
     label: text.menu.fileSubmenu.exportSubmenu.spdxYAML,
@@ -232,7 +297,9 @@ function getExportSpdxYaml(webContents: Electron.WebContents) {
   };
 }
 
-function getExportSpdxJson(webContents: Electron.WebContents) {
+function getExportSpdxJson(
+  webContents: WebContents,
+): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/json-white.png', 'icons/json-black.png'),
     label: text.menu.fileSubmenu.exportSubmenu.spdxJSON,
@@ -249,7 +316,9 @@ function getExportSpdxJson(webContents: Electron.WebContents) {
   };
 }
 
-function getExportSubMenu(webContents: Electron.WebContents) {
+function getExportSubMenu(
+  webContents: WebContents,
+): MenuItemConstructorOptions {
   return {
     label: text.menu.fileSubmenu.export,
     icon: getIconBasedOnTheme(
@@ -266,12 +335,15 @@ function getExportSubMenu(webContents: Electron.WebContents) {
   };
 }
 
-export function getFileMenu(mainWindow: BrowserWindow) {
+export async function getFileMenu(
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
   const webContents = mainWindow.webContents;
   return {
     label: text.menu.file,
     submenu: [
       getOpenFile(mainWindow),
+      await getOpenRecent(mainWindow),
       getImportFile(mainWindow),
       getMerge(mainWindow),
       getSaveFile(webContents),

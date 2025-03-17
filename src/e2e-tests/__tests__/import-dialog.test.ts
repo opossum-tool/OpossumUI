@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { stubDialog } from 'electron-playwright-helpers';
 
-import { getDotOpossumFilePath } from '../../shared/write-file';
 import { faker, test } from '../utils';
 
 const [resourceName] = faker.opossum.resourceName();
@@ -20,7 +19,6 @@ test.use({
       }),
     }),
     outputData: faker.opossum.outputData({}),
-    provideImportFiles: true,
   },
   openFromCLI: false,
 });
@@ -42,14 +40,13 @@ test('imports legacy opossum file', async ({
   importDialog,
   resourcesTree,
   window,
-}) => {
-  await stubDialog(window.app, 'showOpenDialogSync', [
-    importDialog.legacyFilePath,
-  ]);
+  filePaths,
+}, testInfo) => {
+  await stubDialog(window.app, 'showOpenDialogSync', [filePaths!.json]);
   await stubDialog(
     window.app,
     'showSaveDialogSync',
-    getDotOpossumFilePath(importDialog.legacyFilePath, ['json', 'json.gz']),
+    testInfo.outputPath('report.opossum'),
   );
 
   await menuBar.importLegacyOpossumFile();
@@ -68,14 +65,14 @@ test('imports scancode file', async ({
   importDialog,
   resourcesTree,
   window,
-}) => {
+}, testInfo) => {
   await stubDialog(window.app, 'showOpenDialogSync', [
     importDialog.scancodeFilePath,
   ]);
   await stubDialog(
     window.app,
     'showSaveDialogSync',
-    getDotOpossumFilePath(importDialog.scancodeFilePath, ['json']),
+    testInfo.outputPath('scancode-report.opossum'),
   );
 
   await menuBar.importScanCodeFile();
@@ -94,14 +91,14 @@ test('imports OWASP file', async ({
   importDialog,
   resourcesTree,
   window,
-}) => {
+}, testInfo) => {
   await stubDialog(window.app, 'showOpenDialogSync', [
     importDialog.owaspFilePath,
   ]);
   await stubDialog(
     window.app,
     'showSaveDialogSync',
-    getDotOpossumFilePath(importDialog.owaspFilePath, ['json']),
+    testInfo.outputPath('owasp-dependency-check-report.opossum'),
   );
 
   await menuBar.importOwaspDependencyScanFile();

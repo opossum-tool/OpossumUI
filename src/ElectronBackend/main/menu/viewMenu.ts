@@ -3,13 +3,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { MenuItemConstructorOptions } from 'electron';
+import { BrowserWindow, MenuItemConstructorOptions } from 'electron';
 
 import { text } from '../../../shared/text';
-import {
-  getIconBasedOnTheme,
-  makeFirstIconVisibleAndSecondHidden,
-} from '../iconHelpers';
+import { getIconBasedOnTheme } from '../iconHelpers';
+import { createMenu } from '../menu';
 import { UserSettings } from '../user-settings';
 
 function getShowDevTools(): MenuItemConstructorOptions {
@@ -56,47 +54,33 @@ function getZoomOut(): MenuItemConstructorOptions {
   };
 }
 
-function getEnableQaMode(qaMode: null | boolean) {
+async function getQaMode(
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
+  const qaMode = (await UserSettings.get('qaMode')) ?? false;
+
   return {
-    icon: getIconBasedOnTheme(
-      'icons/check-box-blank-white.png',
-      'icons/check-box-blank-black.png',
-    ),
+    icon: qaMode
+      ? getIconBasedOnTheme(
+          'icons/check-box-white.png',
+          'icons/check-box-black.png',
+        )
+      : getIconBasedOnTheme(
+          'icons/check-box-blank-white.png',
+          'icons/check-box-blank-black.png',
+        ),
     label: text.menu.viewSubmenu.qaMode,
-    id: 'disabled-qa-mode',
-    click: () => {
-      makeFirstIconVisibleAndSecondHidden(
-        'enabled-qa-mode',
-        'disabled-qa-mode',
-      );
-      void UserSettings.set('qaMode', true);
+    id: qaMode ? 'enabled-qa-mode' : 'disabled-qa-mode',
+    click: async () => {
+      await UserSettings.set('qaMode', !qaMode);
+      await createMenu(mainWindow);
     },
-    visible: !qaMode,
   };
 }
 
-function getDisableQaMode(qaMode: null | boolean) {
-  return {
-    icon: getIconBasedOnTheme(
-      'icons/check-box-white.png',
-      'icons/check-box-black.png',
-    ),
-    label: text.menu.viewSubmenu.qaMode,
-    id: 'enabled-qa-mode',
-    click: () => {
-      makeFirstIconVisibleAndSecondHidden(
-        'disabled-qa-mode',
-        'enabled-qa-mode',
-      );
-      void UserSettings.set('qaMode', false);
-    },
-    visible: !!qaMode,
-  };
-}
-
-export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
-  const qaMode = await UserSettings.get('qaMode');
-
+export async function getViewMenu(
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
   return {
     label: text.menu.view,
     submenu: [
@@ -104,8 +88,7 @@ export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
       getToggleFullScreen(),
       getZoomIn(),
       getZoomOut(),
-      getEnableQaMode(qaMode),
-      getDisableQaMode(qaMode),
+      await getQaMode(mainWindow),
     ],
   };
 }

@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, shell, WebContents } from 'electron';
 import fs from 'fs';
+import { uniq } from 'lodash';
 import path from 'path';
 import upath from 'upath';
 
@@ -53,6 +54,10 @@ import {
   setGlobalBackendState,
 } from './globalBackendState';
 import logger from './logger';
+import { createMenu } from './menu';
+import { UserSettings } from './user-settings';
+
+const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
 export const saveFileListener =
   (mainWindow: BrowserWindow) =>
@@ -129,6 +134,10 @@ export async function handleOpeningFile(
   initializeGlobalBackendState(filePath, true);
 
   await openFile(mainWindow, filePath, onOpen);
+
+  await updateRecentlyOpenedPaths(filePath);
+
+  await createMenu(mainWindow);
 
   setLoadingState(mainWindow.webContents, false);
 }
@@ -349,6 +358,18 @@ export async function openFile(
   await loadInputAndOutputFromFilePath(mainWindow, filePath);
   setTitle(mainWindow, filePath);
   onOpen();
+}
+
+async function updateRecentlyOpenedPaths(filePath: string): Promise<void> {
+  const recentlyOpenedPaths = await UserSettings.get('recentlyOpenedPaths');
+  await UserSettings.set(
+    'recentlyOpenedPaths',
+    uniq([filePath, ...(recentlyOpenedPaths ?? [])]).slice(
+      0,
+      MAX_NUMBER_OF_RECENTLY_OPENED_PATHS,
+    ),
+    { skipNotification: true },
+  );
 }
 
 function setTitle(mainWindow: BrowserWindow, filePath: string): void {
