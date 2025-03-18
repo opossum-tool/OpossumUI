@@ -47,7 +47,7 @@ global.window.electronAPI = {
   on: jest.fn().mockReturnValue(jest.fn()),
   getUserSetting: jest.fn().mockReturnValue(undefined),
   getFullUserSettings: jest.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
-  setUserSetting: jest.fn(),
+  setUserSettings: jest.fn(),
 } satisfies ElectronAPI;
 
 window.ResizeObserver = ResizeObserver;

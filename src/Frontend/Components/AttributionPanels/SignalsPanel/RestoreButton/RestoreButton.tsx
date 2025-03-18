@@ -21,7 +21,7 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   const resolvedExternalAttributionIds = useAppSelector(
     getResolvedExternalAttributions,
   );
-  const [areHiddenSignalsVisible] = useAreHiddenSignalsVisible();
+  const areHiddenSignalsVisible = useAreHiddenSignalsVisible();
   const someSelectedAttributionsAreHidden = useMemo(
     () =>
       !!selectedAttributionIds.length &&

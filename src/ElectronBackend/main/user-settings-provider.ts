@@ -8,7 +8,10 @@ import settings from 'electron-settings';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { DEFAULT_USER_SETTINGS } from '../../shared/shared-constants';
-import { UserSettings as IUserSettings } from '../../shared/shared-types';
+import {
+  UserSettings as IUserSettings,
+  UserSettings,
+} from '../../shared/shared-types';
 
 export class UserSettingsProvider {
   public static async init() {
@@ -35,6 +38,19 @@ export class UserSettingsProvider {
       return settings.get(path) as Promise<IUserSettings[T]>;
     }
     return settings.get() as unknown as Promise<IUserSettings>;
+  }
+
+  public static async update(
+    userSettings: Partial<IUserSettings>,
+    skipNotification: boolean,
+  ): Promise<void> {
+    await Promise.all(
+      Object.entries(userSettings).map(async ([key, value]) => {
+        await UserSettingsProvider.set(key as keyof UserSettings, value, {
+          skipNotification,
+        });
+      }),
+    );
   }
 
   public static async set<T extends keyof IUserSettings>(

@@ -13,6 +13,7 @@ import { PropsWithChildren, useState } from 'react';
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor } from '../../shared-styles';
+import { updateUserSettings } from '../../state/actions/user-settings-actions/user-settings-actions';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -21,9 +22,9 @@ import {
   getManualAttributions,
   getUnresolvedExternalAttributions,
 } from '../../state/selectors/resource-selectors';
+import { getShowProjectStatistics } from '../../state/selectors/user-settings-selector';
 import { useShowClassifications } from '../../state/variables/use-show-classifications';
 import { useShowCriticality } from '../../state/variables/use-show-criticality';
-import { useUserSetting } from '../../state/variables/use-user-setting';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { BarChart } from '../BarChart/BarChart';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -89,8 +90,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
     dispatch(closePopup());
   }
 
-  const [showProjectStatistics, setShowProjectStatistics, hydrated] =
-    useUserSetting({ defaultValue: true, key: 'showProjectStatistics' });
+  const showProjectStatistics = useAppSelector(getShowProjectStatistics);
 
   const [selectedTab, setSelectedTab] = useState(0);
 
@@ -206,8 +206,13 @@ export const ProjectStatisticsPopup: React.FC = () => {
       customAction={
         <Checkbox
           checked={showProjectStatistics}
-          onChange={(event) => setShowProjectStatistics(event.target.checked)}
-          disabled={!hydrated}
+          onChange={(event) =>
+            dispatch(
+              updateUserSettings({
+                showProjectStatistics: event.target.checked,
+              }),
+            )
+          }
           label={text.projectStatisticsPopup.toggleStartupCheckbox}
         />
       }

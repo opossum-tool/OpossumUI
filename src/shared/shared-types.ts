@@ -300,10 +300,7 @@ export interface ElectronAPI {
     key: T,
   ) => Promise<UserSettings[T]>;
   getFullUserSettings: () => Promise<UserSettings>;
-  setUserSetting: <T extends keyof UserSettings>(
-    key: T,
-    value: UserSettings[T],
-  ) => Promise<void>;
+  setUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
 }
 
 declare global {
@@ -331,3 +328,5 @@ export interface UserSettings {
     signalsPanelHeight: number | null;
   };
 }
+
+export type PanelSizes = UserSettings['panelSizes'];

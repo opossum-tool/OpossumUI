@@ -6,6 +6,7 @@ import { dialog, ipcMain, Menu, systemPreferences } from 'electron';
 import os from 'os';
 
 import { AllowedFrontendChannels, IpcChannel } from '../../shared/ipc-channels';
+import { UserSettings } from '../../shared/shared-types';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow, loadWebApp } from './createWindow';
 import {
@@ -98,8 +99,10 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.GetFullUserSettings, () =>
       UserSettingsProvider.get(),
     );
-    ipcMain.handle(IpcChannel.SetUserSettings, (_, { key, value }) =>
-      UserSettingsProvider.set(key, value, { skipNotification: true }),
+    ipcMain.handle(
+      IpcChannel.SetUserSettings,
+      (_, userSettings: Partial<UserSettings>) =>
+        UserSettingsProvider.update(userSettings, true),
     );
 
     await loadWebApp(mainWindow);

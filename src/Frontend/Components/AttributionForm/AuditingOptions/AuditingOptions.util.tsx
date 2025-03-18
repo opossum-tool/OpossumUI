@@ -26,9 +26,9 @@ import {
   getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
+import { getQaMode } from '../../../state/selectors/user-settings-selector';
 import { useShowClassifications } from '../../../state/variables/use-show-classifications';
 import { useShowCriticality } from '../../../state/variables/use-show-criticality';
-import { useUserSetting } from '../../../state/variables/use-user-setting';
 import { prettifySource } from '../../../util/prettify-source';
 import {
   ClassificationIcon,
@@ -58,7 +58,7 @@ export function useAuditingOptions({
 }) {
   const dispatch = useAppDispatch();
   const store = useAppStore();
-  const [qaMode] = useUserSetting({ key: 'qaMode' });
+  const qaMode = useAppSelector(getQaMode);
   const attributionSources = useAppSelector(getExternalAttributionSources);
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,
