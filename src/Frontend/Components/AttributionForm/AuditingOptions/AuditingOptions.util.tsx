@@ -64,8 +64,8 @@ export function useAuditingOptions({
     getIsPreferenceFeatureEnabled,
   );
   const classifications = useAppSelector(getClassifications);
-  const [showClassifications] = useShowClassifications();
-  const [showCriticality] = useShowCriticality();
+  const showClassifications = useShowClassifications();
+  const showCriticality = useShowCriticality();
 
   const source = useMemo(() => {
     const sourceName =

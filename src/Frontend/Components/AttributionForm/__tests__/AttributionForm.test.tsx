@@ -17,10 +17,9 @@ import {
   setConfig,
   setFrequentLicenses,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
-import { SHOW_CLASSIFICATIONS_KEY } from '../../../state/variables/use-show-classifications';
 import { renderComponent } from '../../../test-helpers/render';
-import { setUserSetting } from '../../../test-helpers/user-settings-helpers';
 import { generatePurl } from '../../../util/handle-purl';
 import { AttributionForm } from '../AttributionForm';
 
@@ -241,7 +240,7 @@ describe('AttributionForm', () => {
         });
 
         renderComponent(<AttributionForm packageInfo={packageInfo} />, {
-          actions: [setUserSetting('showCriticality', false)],
+          actions: [setUserSetting({ showCriticality: false })],
         });
 
         const criticalityChip = screen.queryByTestId(
@@ -258,7 +257,7 @@ describe('AttributionForm', () => {
         });
 
         renderComponent(<AttributionForm packageInfo={packageInfo} />, {
-          actions: [setUserSetting(SHOW_CLASSIFICATIONS_KEY, true)],
+          actions: [setUserSetting({ showClassifications: true })],
         });
 
         const classificationChip = screen.getByTestId(
@@ -273,7 +272,7 @@ describe('AttributionForm', () => {
         });
 
         renderComponent(<AttributionForm packageInfo={packageInfo} />, {
-          actions: [setUserSetting(SHOW_CLASSIFICATIONS_KEY, false)],
+          actions: [setUserSetting({ showClassifications: false })],
         });
 
         const classificationChip = screen.queryByTestId(

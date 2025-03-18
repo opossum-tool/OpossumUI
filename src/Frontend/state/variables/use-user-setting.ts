@@ -87,16 +87,6 @@ export function useUserSetting<T extends keyof UserSettings>(
     })();
   }, [readStoredValue, setStoredValue]);
 
-  useIpcRenderer(
-    AllowedFrontendChannels.UserSettingsChanged,
-    async () =>
-      setVariable({
-        hydrated: true,
-        storedValue: await readStoredValue(),
-      }),
-    [readStoredValue],
-  );
-
   return [storedValue, setStoredValue, hydrated];
 }
 

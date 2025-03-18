@@ -94,8 +94,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   const [selectedTab, setSelectedTab] = useState(0);
 
-  const [showClassifications] = useShowClassifications();
-  const [showCriticality] = useShowCriticality();
+  const showClassifications = useShowClassifications();
+  const showCriticality = useShowCriticality();
 
   return (
     <NotificationPopup

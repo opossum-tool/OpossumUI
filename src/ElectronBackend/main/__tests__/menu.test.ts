@@ -5,7 +5,7 @@
 import electron, { BrowserWindow, MenuItemConstructorOptions } from 'electron';
 
 import { createMenu } from '../menu';
-import { UserSettings } from '../user-settings';
+import { UserSettingsProvider } from '../user-settings-provider';
 
 jest.mock('electron', () => ({
   BrowserWindow: class BrowserWindowMock {},
@@ -48,7 +48,7 @@ describe('create menu', () => {
   ];
   testCases.forEach((testCase) => {
     it(`evaluates ${testCase.darkMode ? 'dark' : 'light'} mode properly`, async () => {
-      await UserSettings.init();
+      await UserSettingsProvider.init();
       const mainWindow = new BrowserWindow();
 
       // Important to set this up only here and not in the mock setup

@@ -27,8 +27,8 @@ export interface SortOptionConfiguration {
 export type SortConfiguration = Record<SortOption, SortOptionConfiguration>;
 
 export function useSortConfiguration(): SortConfiguration {
-  const [showClassifications] = useShowClassifications();
-  const [showCriticality] = useShowCriticality();
+  const showClassifications = useShowClassifications();
+  const showCriticality = useShowCriticality();
 
   return useMemo(() => {
     return {

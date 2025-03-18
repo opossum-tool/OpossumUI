@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { UserSettings } from '../../../ElectronBackend/main/user-settings';
 import { DEFAULT_USER_SETTINGS } from '../../../shared/shared-constants';
+import { UserSettings } from '../../../shared/shared-types';
 import {
   ACTION_SET_USER_SETTING,
   UserSettingsAction,

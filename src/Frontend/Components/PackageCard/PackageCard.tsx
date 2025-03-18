@@ -143,8 +143,8 @@ export const PackageCard = memo(
       }),
       [cardConfig, packageInfo, classification_mapping],
     );
-    const [showClassifications] = useShowClassifications();
-    const [showCriticality] = useShowCriticality();
+    const showClassifications = useShowClassifications();
+    const showCriticality = useShowCriticality();
     const rightIcons = useMemo(
       () =>
         getRightIcons(

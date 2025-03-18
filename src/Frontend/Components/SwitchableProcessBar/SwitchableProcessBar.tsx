@@ -43,8 +43,8 @@ interface ProgressBarSwitchConfiguration {
 }
 
 export const SwitchableProcessBar: React.FC = () => {
-  const [showClassifications] = useShowClassifications();
-  const [showCriticality] = useShowCriticality();
+  const showClassifications = useShowClassifications();
+  const showCriticality = useShowCriticality();
 
   const switchableProgressBarConfiguration: Record<
     SelectedProgressBar,

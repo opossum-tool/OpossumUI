@@ -21,7 +21,7 @@ import {
 import { createMenu } from './menu';
 import { DisabledMenuItemHandler } from './menu/DisabledMenuItemHandler';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
-import { UserSettings } from './user-settings';
+import { UserSettingsProvider } from './user-settings-provider';
 
 export async function main(): Promise<void> {
   try {
@@ -35,7 +35,7 @@ export async function main(): Promise<void> {
 
     const mainWindow = createWindow();
 
-    await UserSettings.init();
+    await UserSettingsProvider.init();
     Menu.setApplicationMenu(await createMenu(mainWindow));
 
     mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
@@ -93,11 +93,13 @@ export async function main(): Promise<void> {
     );
     ipcMain.handle(IpcChannel.OpenLink, openLinkListener);
     ipcMain.handle(IpcChannel.GetUserSettings, (_, key) =>
-      UserSettings.get(key),
+      UserSettingsProvider.get(key),
     );
-    ipcMain.handle(IpcChannel.GetFullUserSettings, () => UserSettings.get());
+    ipcMain.handle(IpcChannel.GetFullUserSettings, () =>
+      UserSettingsProvider.get(),
+    );
     ipcMain.handle(IpcChannel.SetUserSettings, (_, { key, value }) =>
-      UserSettings.set(key, value, { skipNotification: true }),
+      UserSettingsProvider.set(key, value, { skipNotification: true }),
     );
 
     await loadWebApp(mainWindow);

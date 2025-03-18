@@ -10,7 +10,7 @@ import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { DEFAULT_USER_SETTINGS } from '../../shared/shared-constants';
 import { UserSettings as IUserSettings } from '../../shared/shared-types';
 
-export class UserSettings {
+export class UserSettingsProvider {
   public static async init() {
     if (process.argv.includes('--reset') || process.env.RESET) {
       log.info('Resetting user settings');
@@ -45,11 +45,12 @@ export class UserSettings {
     await settings.set(path, value);
 
     if (!skipNotification) {
+      const partialSettingsToUpdate = Object.fromEntries([[path, value]]);
       BrowserWindow.getAllWindows().forEach((window) => {
-        window.webContents.send(AllowedFrontendChannels.UserSettingsChanged, {
-          path,
-          value,
-        });
+        window.webContents.send(
+          AllowedFrontendChannels.UserSettingsChanged,
+          partialSettingsToUpdate,
+        );
       });
     }
   }

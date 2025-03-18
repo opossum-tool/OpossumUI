@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { DEFAULT_USER_SETTINGS } from '../../../shared/shared-constants';
-import { UserSettings } from '../user-settings';
+import { UserSettingsProvider } from '../user-settings-provider';
 
 describe('UserSettings', () => {
   let temporaryDir: string | undefined = undefined;
@@ -25,7 +25,7 @@ describe('UserSettings', () => {
   });
 
   it('sets up the default values if empty', async () => {
-    await UserSettings.init();
+    await UserSettingsProvider.init();
 
     const result = await settings.get();
 
@@ -35,7 +35,7 @@ describe('UserSettings', () => {
   it('overwrites only the non set values if there are already values set', async () => {
     await settings.set('qaMode', true);
 
-    await UserSettings.init();
+    await UserSettingsProvider.init();
 
     const result = await settings.get();
 
@@ -48,7 +48,7 @@ describe('UserSettings', () => {
 
     await settings.set('qaMode', true);
 
-    await UserSettings.init();
+    await UserSettingsProvider.init();
 
     const result = await settings.get();
 

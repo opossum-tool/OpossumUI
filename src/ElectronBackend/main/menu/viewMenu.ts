@@ -7,7 +7,7 @@ import { MenuItemConstructorOptions } from 'electron';
 
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
-import { UserSettings } from '../user-settings';
+import { UserSettingsProvider } from '../user-settings-provider';
 import { switchableMenuItem } from './switchableMenuItem';
 
 function getShowDevTools(): MenuItemConstructorOptions {
@@ -61,7 +61,7 @@ function getShowClassifications(
     id: 'show-classifications',
     label: text.menu.viewSubmenu.showClassifications,
     onToggle: (newState: boolean) =>
-      UserSettings.set('showClassifications', newState),
+      UserSettingsProvider.set('showClassifications', newState),
   });
 }
 
@@ -72,7 +72,7 @@ function getShowCriticality(
     id: 'show-criticality',
     label: text.menu.viewSubmenu.showCriticality,
     onToggle: (newState: boolean) =>
-      UserSettings.set('showCriticality', newState),
+      UserSettingsProvider.set('showCriticality', newState),
   });
 }
 
@@ -80,14 +80,17 @@ function getQaMode(qaMode: boolean | null): Array<MenuItemConstructorOptions> {
   return switchableMenuItem(qaMode, {
     id: 'qa-mode',
     label: text.menu.viewSubmenu.qaMode,
-    onToggle: (newState: boolean) => UserSettings.set('qaMode', newState),
+    onToggle: (newState: boolean) =>
+      UserSettingsProvider.set('qaMode', newState),
   });
 }
 
 export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
-  const qaMode = await UserSettings.get('qaMode');
-  const showCriticality = await UserSettings.get('showCriticality');
-  const showClassifications = await UserSettings.get('showClassifications');
+  const qaMode = await UserSettingsProvider.get('qaMode');
+  const showCriticality = await UserSettingsProvider.get('showCriticality');
+  const showClassifications = await UserSettingsProvider.get(
+    'showClassifications',
+  );
   return {
     label: text.menu.view,
     submenu: [
