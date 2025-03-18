@@ -6,6 +6,7 @@
 import '@testing-library/jest-dom';
 import { noop } from 'lodash';
 
+import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
 import { ElectronAPI } from '../shared/shared-types';
 import { faker } from './Faker';
 
@@ -45,6 +46,7 @@ global.window.electronAPI = {
   stopLoading: jest.fn(),
   on: jest.fn().mockReturnValue(jest.fn()),
   getUserSetting: jest.fn().mockReturnValue(undefined),
+  getFullUserSettings: jest.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
   setUserSetting: jest.fn(),
 } satisfies ElectronAPI;
 

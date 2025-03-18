@@ -26,8 +26,15 @@ export class UserSettings {
 
   public static get<T extends keyof IUserSettings>(
     path: T,
-  ): Promise<IUserSettings[T]> {
-    return settings.get(path) as Promise<IUserSettings[T]>;
+  ): Promise<IUserSettings[T]>;
+  public static get(): Promise<IUserSettings>;
+  public static get<T extends keyof IUserSettings>(
+    path?: T,
+  ): Promise<IUserSettings[T]> | Promise<IUserSettings> {
+    if (path) {
+      return settings.get(path) as Promise<IUserSettings[T]>;
+    }
+    return settings.get() as unknown as Promise<IUserSettings>;
   }
 
   public static async set<T extends keyof IUserSettings>(

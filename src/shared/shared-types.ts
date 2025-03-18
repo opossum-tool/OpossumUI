@@ -299,6 +299,7 @@ export interface ElectronAPI {
   getUserSetting: <T extends keyof UserSettings>(
     key: T,
   ) => Promise<UserSettings[T]>;
+  getFullUserSettings: () => Promise<UserSettings>;
   setUserSetting: <T extends keyof UserSettings>(
     key: T,
     value: UserSettings[T],

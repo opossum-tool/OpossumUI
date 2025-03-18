@@ -95,6 +95,7 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.GetUserSettings, (_, key) =>
       UserSettings.get(key),
     );
+    ipcMain.handle(IpcChannel.GetFullUserSettings, () => UserSettings.get());
     ipcMain.handle(IpcChannel.SetUserSettings, (_, { key, value }) =>
       UserSettings.set(key, value, { skipNotification: true }),
     );
