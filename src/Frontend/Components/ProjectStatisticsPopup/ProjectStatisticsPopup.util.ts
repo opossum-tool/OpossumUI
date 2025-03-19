@@ -13,7 +13,7 @@ import {
   PackageInfo,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { OpossumColors } from '../../shared-styles';
+import { classificationUnknownColor } from '../../shared-styles';
 import {
   AttributionCountPerSourcePerLicense,
   ChartDataItem,
@@ -378,7 +378,7 @@ export function getSignalCountByClassification(
       name: text.projectStatisticsPopup.charts
         .signalCountByClassificationPieChart.noClassification,
       count: classificationCounts[NO_CLASSIFICATION],
-      color: OpossumColors.lightestBlue,
+      color: classificationUnknownColor,
     });
   }
 
