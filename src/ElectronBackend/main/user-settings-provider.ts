@@ -42,15 +42,16 @@ export class UserSettingsProvider {
 
   public static async update(
     userSettings: Partial<IUserSettings>,
-    skipNotification: boolean,
+    skipNotification: boolean = false,
   ): Promise<void> {
-    await Promise.all(
-      Object.entries(userSettings).map(async ([key, value]) => {
-        await UserSettingsProvider.set(key as keyof UserSettings, value, {
+    for (const key of Object.keys(userSettings)) {
+      const properKey = key as keyof UserSettings;
+      if (userSettings[properKey] !== undefined) {
+        await UserSettingsProvider.set(properKey, userSettings[properKey], {
           skipNotification,
         });
-      }),
-    );
+      }
+    }
   }
 
   public static async set<T extends keyof IUserSettings>(
