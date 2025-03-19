@@ -102,8 +102,9 @@ export const test = base.extend<{
       width: 1920,
       height: 1080,
     });
-    // eslint-disable-next-line playwright/no-networkidle
-    await window.waitForLoadState('networkidle', { timeout: LOAD_TIMEOUT });
+    await window.waitForLoadState('domcontentloaded', {
+      timeout: LOAD_TIMEOUT,
+    });
     await window
       .context()
       .tracing.start({ screenshots: true, snapshots: true });

@@ -334,7 +334,9 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('allows toggling of show-on-startup checkbox', async () => {
-    renderComponent(<ProjectStatisticsPopup />);
+    renderComponent(<ProjectStatisticsPopup />, {
+      actions: [setUserSetting({ showProjectStatistics: true })],
+    });
 
     expect(
       screen.getByLabelText(text.projectStatisticsPopup.toggleStartupCheckbox),
