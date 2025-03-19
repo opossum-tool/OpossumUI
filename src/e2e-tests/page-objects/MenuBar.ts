@@ -95,6 +95,14 @@ export class MenuBar {
     await clickMenuItem(this.window.app, 'label', 'QA Mode');
   }
 
+  async toggleShowClassificationOff(): Promise<void> {
+    await clickMenuItemById(this.window.app, 'enabled-show-classifications');
+  }
+
+  async toggleShowCriticalityOff(): Promise<void> {
+    await clickMenuItemById(this.window.app, 'enabled-show-criticality');
+  }
+
   async saveChanges(): Promise<void> {
     await clickMenuItem(this.window.app, 'label', 'Save');
   }
