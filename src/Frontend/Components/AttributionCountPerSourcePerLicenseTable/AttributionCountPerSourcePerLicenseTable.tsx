@@ -7,9 +7,11 @@ import MuiTable from '@mui/material/Table';
 import MuiTableBody from '@mui/material/TableBody';
 import MuiTableContainer from '@mui/material/TableContainer';
 import { orderBy, upperFirst } from 'lodash';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
+import { useShowClassifications } from '../../state/variables/use-show-classifications';
+import { useShowCriticality } from '../../state/variables/use-show-criticality';
 import {
   LicenseCounts,
   LicenseNamesWithClassification,
@@ -17,6 +19,7 @@ import {
 } from '../../types/types';
 import { Order } from '../TableCellWithSorting/TableCellWithSorting';
 import {
+  Column,
   ColumnConfig,
   orderLicenseNames,
   SingleColumn,
@@ -32,7 +35,7 @@ const classes = {
   },
 };
 
-interface AttributionCountPerSourcePerLicenseTableProps {
+export interface AttributionCountPerSourcePerLicenseTableProps {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
   licenseNamesWithClassification: LicenseNamesWithClassification;
@@ -47,6 +50,39 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     props.licenseCounts.totalAttributionsPerSource,
   );
 
+  const showCriticality = useShowCriticality();
+  const showClassifications = useShowClassifications();
+
+  const getCriticalityColumn = useCallback((): Array<Column> => {
+    if (showCriticality) {
+      return [
+        {
+          columnName: componentText.columns.criticality.title,
+          columnType: SingleColumn.CRITICALITY,
+          columnId: SingleColumn.CRITICALITY,
+          align: 'center',
+          defaultOrder: 'desc',
+        },
+      ];
+    }
+    return [];
+  }, [componentText.columns.criticality.title, showCriticality]);
+
+  const getClassificationColumn = useCallback((): Array<Column> => {
+    if (showClassifications) {
+      return [
+        {
+          columnName: componentText.columns.classification,
+          columnType: SingleColumn.CLASSIFICATION,
+          columnId: SingleColumn.CLASSIFICATION,
+          align: 'center',
+          defaultOrder: 'desc',
+        },
+      ];
+    }
+    return [];
+  }, [componentText.columns.classification, showClassifications]);
+
   const columnConfig: ColumnConfig = useMemo(
     () =>
       new ColumnConfig([
@@ -60,20 +96,8 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
               align: 'left',
               defaultOrder: 'asc',
             },
-            {
-              columnName: componentText.columns.criticality.title,
-              columnType: SingleColumn.CRITICALITY,
-              columnId: SingleColumn.CRITICALITY,
-              align: 'center',
-              defaultOrder: 'desc',
-            },
-            {
-              columnName: componentText.columns.classification,
-              columnType: SingleColumn.CLASSIFICATION,
-              columnId: SingleColumn.CLASSIFICATION,
-              align: 'center',
-              defaultOrder: 'desc',
-            },
+            ...getCriticalityColumn(),
+            ...getClassificationColumn(),
           ],
         },
         {
@@ -96,7 +120,15 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
           ],
         },
       ]),
-    [sourceNames, componentText],
+    [
+      componentText.columns.licenseInfo,
+      componentText.columns.licenseName,
+      componentText.columns.classification,
+      componentText.columns.signalCountPerSource,
+      componentText.columns.totalSources,
+      getCriticalityColumn,
+      sourceNames,
+    ],
   );
 
   const [ordering, setOrdering] = useState<TableOrdering>({

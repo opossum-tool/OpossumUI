@@ -32,6 +32,7 @@ export const TableCellWithSorting: React.FC<TableCellWithSortingProps> = (
         ...props.sx,
       }}
       sortDirection={props.isSortedColumn ? props.order : false}
+      data-testid="classification-table-row-header"
     >
       <TableSortLabel
         sx={{

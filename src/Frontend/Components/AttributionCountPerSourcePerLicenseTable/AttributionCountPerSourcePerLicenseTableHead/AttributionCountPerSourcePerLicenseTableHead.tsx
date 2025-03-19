@@ -36,7 +36,10 @@ export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
   AttributionCountPerSourcePerLicenseTableHeadProps
 > = (props) => {
   return (
-    <MuiTableHead sx={{ position: 'sticky', top: 0 }}>
+    <MuiTableHead
+      sx={{ position: 'sticky', top: 0 }}
+      data-testid={'license-table-header'}
+    >
       <MuiTableRow>
         {props.columnConfig.groups.map((columnGroup, idx) => {
           return (
