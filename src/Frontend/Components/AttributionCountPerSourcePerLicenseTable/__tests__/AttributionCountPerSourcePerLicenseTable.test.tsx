@@ -2,7 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { Screen } from '@testing-library/dom/types/screen';
+import { act, fireEvent, screen } from '@testing-library/react';
 
 import { Criticality } from '../../../../shared/shared-types';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
@@ -43,6 +44,17 @@ const props: AttributionCountPerSourcePerLicenseTableProps = {
     licenseB: 3,
   },
 };
+
+function expectHeaderTextsToEqual(
+  screen: Screen,
+  expectedHeaderTexts: Array<string>,
+) {
+  const headerTexts = screen
+    .getAllByTestId('classification-table-row-header')
+    .map((node) => node.textContent);
+
+  expect(headerTexts).toEqual(expectedHeaderTexts);
+}
 
 describe('Attribution count per source per license table', () => {
   it('shows by default criticality and classification columns', () => {
@@ -92,6 +104,43 @@ describe('Attribution count per source per license table', () => {
     expect(headerTexts).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Criticality',
+      'SourceA',
+      'SourceB',
+      'Total',
+    ]);
+  });
+
+  it('switches back to default sorting if the sorted by column is dropped', () => {
+    const { store } = renderComponent(
+      <AttributionCountPerSourcePerLicenseTable {...props} />,
+    );
+    expectHeaderTextsToEqual(screen, [
+      'Namesorted ascending', //correct, the sorted, ascending is for a11y
+      'Criticality',
+      'Classification',
+      'SourceA',
+      'SourceB',
+      'Total',
+    ]);
+
+    fireEvent.click(screen.getByText('Criticality'));
+
+    expectHeaderTextsToEqual(screen, [
+      'Name', //correct, the sorted, ascending is for a11y
+      'Criticalitysorted descending',
+      'Classification',
+      'SourceA',
+      'SourceB',
+      'Total',
+    ]);
+
+    act(() => {
+      store.dispatch(setUserSetting({ showCriticality: false }));
+    });
+
+    expectHeaderTextsToEqual(screen, [
+      'Namesorted ascending', //correct, the sorted, ascending is for a11y
+      'Classification',
       'SourceA',
       'SourceB',
       'Total',
