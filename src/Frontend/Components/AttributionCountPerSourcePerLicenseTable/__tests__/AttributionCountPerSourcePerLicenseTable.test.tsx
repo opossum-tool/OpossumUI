@@ -50,7 +50,7 @@ function expectHeaderTextsToEqual(
   expectedHeaderTexts: Array<string>,
 ) {
   const headerTexts = screen
-    .getAllByTestId('classification-table-row-header')
+    .getAllByTestId('table-cell-with-sorting')
     .map((node) => node.textContent);
 
   expect(headerTexts).toEqual(expectedHeaderTexts);
@@ -60,11 +60,7 @@ describe('Attribution count per source per license table', () => {
   it('shows by default criticality and classification columns', () => {
     renderComponent(<AttributionCountPerSourcePerLicenseTable {...props} />);
 
-    const headerTexts = screen
-      .getAllByTestId('classification-table-row-header')
-      .map((node) => node.textContent);
-
-    expect(headerTexts).toEqual([
+    expectHeaderTextsToEqual(screen, [
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Criticality',
       'Classification',
@@ -79,11 +75,7 @@ describe('Attribution count per source per license table', () => {
       actions: [setUserSetting({ showCriticality: false })],
     });
 
-    const headerTexts = screen
-      .getAllByTestId('classification-table-row-header')
-      .map((node) => node.textContent);
-
-    expect(headerTexts).toEqual([
+    expectHeaderTextsToEqual(screen, [
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Classification',
       'SourceA',
@@ -97,11 +89,7 @@ describe('Attribution count per source per license table', () => {
       actions: [setUserSetting({ showClassifications: false })],
     });
 
-    const headerTexts = screen
-      .getAllByTestId('classification-table-row-header')
-      .map((node) => node.textContent);
-
-    expect(headerTexts).toEqual([
+    expectHeaderTextsToEqual(screen, [
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Criticality',
       'SourceA',
@@ -126,8 +114,8 @@ describe('Attribution count per source per license table', () => {
     fireEvent.click(screen.getByText('Criticality'));
 
     expectHeaderTextsToEqual(screen, [
-      'Name', //correct, the sorted, ascending is for a11y
-      'Criticalitysorted descending',
+      'Name',
+      'Criticalitysorted descending', //correct, the sorted, descending is for a11y
       'Classification',
       'SourceA',
       'SourceB',
