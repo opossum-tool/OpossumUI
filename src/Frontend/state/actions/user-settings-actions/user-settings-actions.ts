@@ -20,7 +20,7 @@ export function setUserSetting(setting: Partial<UserSettings>): SetUserSetting {
 
 export function fetchUserSettings(): AppThunkAction {
   return async (dispatch) => {
-    const userSettings = await window.electronAPI.getFullUserSettings();
+    const userSettings = await window.electronAPI.getUserSettings();
     dispatch(setUserSetting(userSettings));
   };
 }

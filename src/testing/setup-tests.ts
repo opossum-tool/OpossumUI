@@ -45,8 +45,7 @@ global.window.electronAPI = {
   saveFile: jest.fn(),
   stopLoading: jest.fn(),
   on: jest.fn().mockReturnValue(jest.fn()),
-  getUserSetting: jest.fn().mockReturnValue(undefined),
-  getFullUserSettings: jest.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
+  getUserSettings: jest.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
   setUserSettings: jest.fn(),
 } satisfies ElectronAPI;
 

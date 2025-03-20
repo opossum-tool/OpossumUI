@@ -34,8 +34,7 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.on(channel, listener);
     return () => ipcRenderer.removeListener(channel, listener);
   },
-  getUserSetting: (key) => ipcRenderer.invoke(IpcChannel.GetUserSettings, key),
-  getFullUserSettings: () => ipcRenderer.invoke(IpcChannel.GetFullUserSettings),
+  getUserSettings: () => ipcRenderer.invoke(IpcChannel.GetUserSettings),
   setUserSettings: (userSettings: Partial<UserSettings>) =>
     ipcRenderer.invoke(IpcChannel.SetUserSettings, userSettings),
 };

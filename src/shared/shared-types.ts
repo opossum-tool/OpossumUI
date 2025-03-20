@@ -296,10 +296,7 @@ export interface ElectronAPI {
    */
   stopLoading: () => void;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
-  getUserSetting: <T extends keyof UserSettings>(
-    key: T,
-  ) => Promise<UserSettings[T]>;
-  getFullUserSettings: () => Promise<UserSettings>;
+  getUserSettings: () => Promise<UserSettings>;
   setUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
 }
 

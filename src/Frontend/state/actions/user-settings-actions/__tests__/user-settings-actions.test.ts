@@ -39,7 +39,7 @@ describe('user-settings-actions', () => {
 
   it('loads the user settings from the backend', async () => {
     const store = createAppStore();
-    const backendCall = jest.mocked(window.electronAPI.getFullUserSettings);
+    const backendCall = jest.mocked(window.electronAPI.getUserSettings);
     backendCall.mockReturnValue(
       Promise.resolve({
         ...DEFAULT_USER_SETTINGS,

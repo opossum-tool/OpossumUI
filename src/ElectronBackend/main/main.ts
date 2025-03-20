@@ -93,10 +93,7 @@ export async function main(): Promise<void> {
       }),
     );
     ipcMain.handle(IpcChannel.OpenLink, openLinkListener);
-    ipcMain.handle(IpcChannel.GetUserSettings, (_, key) =>
-      UserSettingsProvider.get(key),
-    );
-    ipcMain.handle(IpcChannel.GetFullUserSettings, () =>
+    ipcMain.handle(IpcChannel.GetUserSettings, () =>
       UserSettingsProvider.get(),
     );
     ipcMain.handle(
