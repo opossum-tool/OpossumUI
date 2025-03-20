@@ -24,7 +24,10 @@ import {
   setBaseUrlsForSources,
 } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../state/actions/resource-actions/load-actions';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
+import {
+  openPopup,
+  openStatisticsPopupAfterFileLoadIfEnabled,
+} from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getBaseUrlsForSources } from '../../state/selectors/resource-selectors';
 import {
@@ -39,13 +42,12 @@ export const BackendCommunication: React.FC = () => {
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
   const dispatch = useAppDispatch();
 
-  async function fileLoadedListener(
+  function fileLoadedListener(
     _: IpcRendererEvent,
     parsedFileContent: ParsedFileContent,
-  ): Promise<void> {
+  ): void {
     dispatch(loadFromFile(parsedFileContent));
-    (await window.electronAPI.getUserSetting('showProjectStatistics')) &&
-      dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+    dispatch(openStatisticsPopupAfterFileLoadIfEnabled);
   }
 
   function resetLoadedFileListener(
@@ -97,6 +99,7 @@ export const BackendCommunication: React.FC = () => {
       );
     }
   }
+
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
     dispatch,
   ]);
