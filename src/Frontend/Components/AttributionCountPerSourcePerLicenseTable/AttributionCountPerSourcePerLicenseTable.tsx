@@ -136,9 +136,21 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
   );
 
   const [ordering, setOrdering] = useState<TableOrdering>(defaultOrdering);
+  const effectiveOrdering = columnConfig.getColumnById(ordering.orderedColumn)
+    ? ordering
+    : defaultOrdering;
 
   const handleRequestSort = (columnId: string, defaultOrder: Order) => {
-    if (ordering.orderedColumn === columnId) {
+    if (
+      effectiveOrdering !== ordering &&
+      effectiveOrdering.orderedColumn === columnId
+    ) {
+      setOrdering({
+        ...effectiveOrdering,
+        orderDirection:
+          effectiveOrdering.orderDirection === 'asc' ? 'desc' : 'asc',
+      });
+    } else if (ordering.orderedColumn === columnId) {
       setOrdering((currentOrdering) => ({
         ...currentOrdering,
         orderDirection:
@@ -151,10 +163,6 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
       });
     }
   };
-
-  const effectiveOrdering = columnConfig.getColumnById(ordering.orderedColumn)
-    ? ordering
-    : defaultOrdering;
 
   const orderedLicenseNames = useMemo(() => {
     const orderedColumnType = columnConfig.getColumnById(

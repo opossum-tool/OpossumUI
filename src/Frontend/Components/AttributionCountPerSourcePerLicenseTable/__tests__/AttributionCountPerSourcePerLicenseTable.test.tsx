@@ -133,5 +133,15 @@ describe('Attribution count per source per license table', () => {
       'SourceB',
       'Total',
     ]);
+
+    fireEvent.click(screen.getByText('Name'));
+
+    expectHeaderTextsToEqual(screen, [
+      'Namesorted descending', //correct, the sorted, descending is for a11y
+      'Classification',
+      'SourceA',
+      'SourceB',
+      'Total',
+    ]);
   });
 });
