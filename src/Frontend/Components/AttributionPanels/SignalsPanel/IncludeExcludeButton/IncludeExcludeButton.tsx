@@ -8,8 +8,9 @@ import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import MuiBox from '@mui/system/Box';
 
+import { UserSettings } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
-import { toggleAreHiddenSignalsVisible } from '../../../../state/actions/user-settings-actions/user-settings-actions';
+import { updateUserSettings } from '../../../../state/actions/user-settings-actions/user-settings-actions';
 import { useAppDispatch } from '../../../../state/hooks';
 import { useAreHiddenSignalsVisible } from '../../../../state/variables/use-are-hidden-signals-visible';
 
@@ -25,7 +26,11 @@ export const IncludeExcludeButton: React.FC = () => {
       aria-label={label}
       size={'small'}
       onClick={() => {
-        dispatch(toggleAreHiddenSignalsVisible);
+        dispatch(
+          updateUserSettings((currentSettings: UserSettings) => ({
+            areHiddenSignalsVisible: !currentSettings.areHiddenSignalsVisible,
+          })),
+        );
       }}
     >
       <MuiTooltip title={label} disableInteractive placement={'top'}>

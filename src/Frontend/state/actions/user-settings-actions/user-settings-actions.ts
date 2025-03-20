@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { PanelSizes, UserSettings } from '../../../../shared/shared-types';
+import { UserSettings } from '../../../../shared/shared-types';
 import { State } from '../../../types/types';
 import { getUserSettings } from '../../selectors/user-settings-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
@@ -45,26 +45,4 @@ export function updateUserSettings(
     await window.electronAPI.setUserSettings(userSettingsToSet);
     dispatch(setUserSetting(userSettingsToSet));
   };
-}
-
-export function updatePanelSizes(
-  panelSizes: Partial<PanelSizes>,
-): AppThunkAction {
-  return (dispatch): void => {
-    dispatch(
-      updateUserSettings((currentSettings: UserSettings) => ({
-        panelSizes: { ...currentSettings.panelSizes, ...panelSizes },
-      })),
-    );
-  };
-}
-
-export function toggleAreHiddenSignalsVisible(
-  dispatch: AppThunkDispatch,
-): void {
-  dispatch(
-    updateUserSettings((currentSettings: UserSettings) => ({
-      areHiddenSignalsVisible: !currentSettings.areHiddenSignalsVisible,
-    })),
-  );
 }
