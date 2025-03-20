@@ -13,7 +13,7 @@ import {
   UserSettings,
 } from '../../shared/shared-types';
 
-export class UserSettingsProvider {
+export class UserSettingsService {
   public static async init() {
     if (process.argv.includes('--reset') || process.env.RESET) {
       log.info('Resetting user settings');
@@ -47,7 +47,7 @@ export class UserSettingsProvider {
     for (const key of Object.keys(userSettings)) {
       const properKey = key as keyof UserSettings;
       if (userSettings[properKey] !== undefined) {
-        await UserSettingsProvider.set(properKey, userSettings[properKey], {
+        await UserSettingsService.set(properKey, userSettings[properKey], {
           skipNotification,
         });
       }

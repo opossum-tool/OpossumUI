@@ -31,7 +31,7 @@ import {
 } from '../listeners';
 import logger from '../logger';
 import { createMenu } from '../menu';
-import { UserSettingsProvider } from '../user-settings-provider';
+import { UserSettingsService } from '../user-settings-service';
 import { DisabledMenuItemHandler } from './DisabledMenuItemHandler';
 
 export const importFileFormats: Array<FileFormatInfo> = [
@@ -67,7 +67,7 @@ function getOpenFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
 async function getOpenRecent(
   mainWindow: BrowserWindow,
 ): Promise<MenuItemConstructorOptions> {
-  const recentlyOpenedPaths = await UserSettingsProvider.get(
+  const recentlyOpenedPaths = await UserSettingsService.get(
     'recentlyOpenedPaths',
   );
 
@@ -103,7 +103,7 @@ function getOpenRecentSubmenu(
       id: 'clear-recent',
       label: text.menu.fileSubmenu.clearRecent,
       click: async () => {
-        await UserSettingsProvider.set('recentlyOpenedPaths', []);
+        await UserSettingsService.set('recentlyOpenedPaths', []);
         await createMenu(mainWindow);
       },
     },

@@ -14,7 +14,7 @@ import {
   DEFAULT_PANEL_SIZES,
   DEFAULT_USER_SETTINGS,
 } from '../../../shared/shared-constants';
-import { UserSettingsProvider } from '../user-settings-provider';
+import { UserSettingsService } from '../user-settings-service';
 
 type MockedBrowserWindow = BrowserWindow & {
   sendFunction: (channel: string, ...args: Array<unknown>) => void;
@@ -53,7 +53,7 @@ describe('UserSettings', () => {
 
   describe('init', () => {
     it('sets up the default values if empty', async () => {
-      await UserSettingsProvider.init();
+      await UserSettingsService.init();
 
       const result = await settings.get();
 
@@ -63,7 +63,7 @@ describe('UserSettings', () => {
     it('overwrites only the non set values if there are already values set', async () => {
       await settings.set('qaMode', true);
 
-      await UserSettingsProvider.init();
+      await UserSettingsService.init();
 
       const result = await settings.get();
 
@@ -76,7 +76,7 @@ describe('UserSettings', () => {
 
       await settings.set('qaMode', true);
 
-      await UserSettingsProvider.init();
+      await UserSettingsService.init();
 
       const result = await settings.get();
 
@@ -87,17 +87,17 @@ describe('UserSettings', () => {
 
   describe('get', () => {
     it('gets a user setting from a predescribed path', async () => {
-      await UserSettingsProvider.init();
+      await UserSettingsService.init();
 
-      const panelSizes = await UserSettingsProvider.get('panelSizes');
+      const panelSizes = await UserSettingsService.get('panelSizes');
 
       expect(panelSizes).toEqual(DEFAULT_PANEL_SIZES);
     });
 
     it('gets the full user settings', async () => {
-      await UserSettingsProvider.init();
+      await UserSettingsService.init();
 
-      const userSettings = await UserSettingsProvider.get();
+      const userSettings = await UserSettingsService.get();
 
       expect(userSettings).toEqual(DEFAULT_USER_SETTINGS);
     });
@@ -105,9 +105,9 @@ describe('UserSettings', () => {
 
   describe('write operations', () => {
     it('sets a value and communicates to the frontend', async () => {
-      await UserSettingsProvider.set('qaMode', true);
+      await UserSettingsService.set('qaMode', true);
 
-      const qaMode = await UserSettingsProvider.get('qaMode');
+      const qaMode = await UserSettingsService.get('qaMode');
       expect(qaMode).toBe(true);
       expect(
         (BrowserWindow as unknown as MockedBrowserWindow).sendFunction,
@@ -117,11 +117,11 @@ describe('UserSettings', () => {
     });
 
     it('sets a value and does not communicates to the frontend if disabled', async () => {
-      await UserSettingsProvider.set('qaMode', true, {
+      await UserSettingsService.set('qaMode', true, {
         skipNotification: true,
       });
 
-      const qaMode = await UserSettingsProvider.get('qaMode');
+      const qaMode = await UserSettingsService.get('qaMode');
       expect(qaMode).toBe(true);
       expect(
         (BrowserWindow as unknown as MockedBrowserWindow).sendFunction,
@@ -129,14 +129,14 @@ describe('UserSettings', () => {
     });
 
     it('allows to update multiple values at once', async () => {
-      await UserSettingsProvider.init();
+      await UserSettingsService.init();
 
-      await UserSettingsProvider.update({
+      await UserSettingsService.update({
         qaMode: true,
         showClassifications: false,
       });
 
-      const userSettings = await UserSettingsProvider.get();
+      const userSettings = await UserSettingsService.get();
 
       expect(
         (BrowserWindow as unknown as MockedBrowserWindow).sendFunction,

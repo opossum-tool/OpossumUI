@@ -22,7 +22,7 @@ import {
 import { createMenu } from './menu';
 import { DisabledMenuItemHandler } from './menu/DisabledMenuItemHandler';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
-import { UserSettingsProvider } from './user-settings-provider';
+import { UserSettingsService } from './user-settings-service';
 
 export async function main(): Promise<void> {
   try {
@@ -36,7 +36,7 @@ export async function main(): Promise<void> {
 
     const mainWindow = createWindow();
 
-    await UserSettingsProvider.init();
+    await UserSettingsService.init();
     await createMenu(mainWindow);
 
     mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
@@ -93,13 +93,11 @@ export async function main(): Promise<void> {
       }),
     );
     ipcMain.handle(IpcChannel.OpenLink, openLinkListener);
-    ipcMain.handle(IpcChannel.GetUserSettings, () =>
-      UserSettingsProvider.get(),
-    );
+    ipcMain.handle(IpcChannel.GetUserSettings, () => UserSettingsService.get());
     ipcMain.handle(
       IpcChannel.SetUserSettings,
       (_, userSettings: Partial<UserSettings>) =>
-        UserSettingsProvider.update(userSettings, true),
+        UserSettingsService.update(userSettings, true),
     );
 
     await loadWebApp(mainWindow);

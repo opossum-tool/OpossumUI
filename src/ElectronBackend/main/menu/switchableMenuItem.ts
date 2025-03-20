@@ -7,7 +7,7 @@ import { BrowserWindow, MenuItemConstructorOptions } from 'electron';
 import { UserSettings as IUserSettings } from '../../../shared/shared-types';
 import { getCheckboxBasedOnThemeAndCheckState } from '../iconHelpers';
 import { createMenu } from '../menu';
-import { UserSettingsProvider } from '../user-settings-provider';
+import { UserSettingsService } from '../user-settings-service';
 
 export interface SwitchableItemOptions {
   id: string;
@@ -19,13 +19,13 @@ export async function switchableMenuItem(
   mainWindow: BrowserWindow,
   options: SwitchableItemOptions,
 ): Promise<MenuItemConstructorOptions> {
-  const state = !!(await UserSettingsProvider.get(options.userSettingsKey));
+  const state = !!(await UserSettingsService.get(options.userSettingsKey));
   return {
     icon: getCheckboxBasedOnThemeAndCheckState(state),
     id: state ? `enabled-${options.id}` : `disabled-${options.id}`,
     label: options.label,
     click: async () => {
-      await UserSettingsProvider.set(options.userSettingsKey, !state);
+      await UserSettingsService.set(options.userSettingsKey, !state);
       await createMenu(mainWindow);
     },
   };
