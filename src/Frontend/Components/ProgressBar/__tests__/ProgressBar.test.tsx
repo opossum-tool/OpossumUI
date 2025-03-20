@@ -240,12 +240,18 @@ describe('ProgressBar', () => {
           resourcesWithNonInheritedExternalAttributionOnly: [],
           resourcesWithHighlyCriticalExternalAttributions: [],
           classificationStatistics: {
-            0: {
+            0: faker.progressBar.classificationStatisticsEntry({
               description: 'first',
               correspondingFiles: ['a', 'b', 'c', 'd'],
-            },
-            1: { description: 'second', correspondingFiles: ['a', 'b', 'c'] },
-            2: { description: 'third', correspondingFiles: ['a', 'b'] },
+            }),
+            1: faker.progressBar.classificationStatisticsEntry({
+              description: 'second',
+              correspondingFiles: ['a', 'b', 'c'],
+            }),
+            2: faker.progressBar.classificationStatisticsEntry({
+              description: 'third',
+              correspondingFiles: ['a', 'b'],
+            }),
           },
         }}
       />,
@@ -286,14 +292,14 @@ describe('ProgressBar', () => {
           resourcesWithNonInheritedExternalAttributionOnly: [],
           resourcesWithHighlyCriticalExternalAttributions: [],
           classificationStatistics: {
-            0: {
+            0: faker.progressBar.classificationStatisticsEntry({
               description: 'all fine',
               correspondingFiles: [resourceId1],
-            },
-            1: {
+            }),
+            1: faker.progressBar.classificationStatisticsEntry({
               description: 'alert',
               correspondingFiles: [resourceId2],
-            },
+            }),
           },
         }}
       />,
@@ -328,14 +334,14 @@ describe('ProgressBar', () => {
           resourcesWithNonInheritedExternalAttributionOnly: [],
           resourcesWithHighlyCriticalExternalAttributions: [],
           classificationStatistics: {
-            1: {
+            1: faker.progressBar.classificationStatisticsEntry({
               description: 'all fine',
               correspondingFiles: [resourceId1],
-            },
-            0: {
+            }),
+            0: faker.progressBar.classificationStatisticsEntry({
               description: 'alert',
               correspondingFiles: [resourceId2],
-            },
+            }),
           },
         }}
       />,
@@ -370,18 +376,18 @@ describe('ProgressBar', () => {
           resourcesWithNonInheritedExternalAttributionOnly: [],
           resourcesWithHighlyCriticalExternalAttributions: [],
           classificationStatistics: {
-            1: {
+            1: faker.progressBar.classificationStatisticsEntry({
               description: 'alert',
               correspondingFiles: [resourceId1],
-            },
-            2: {
+            }),
+            2: faker.progressBar.classificationStatisticsEntry({
               description: 'I do not know',
               correspondingFiles: [],
-            },
-            0: {
+            }),
+            0: faker.progressBar.classificationStatisticsEntry({
               description: 'all fine',
               correspondingFiles: [resourceId2],
-            },
+            }),
           },
         }}
       />,

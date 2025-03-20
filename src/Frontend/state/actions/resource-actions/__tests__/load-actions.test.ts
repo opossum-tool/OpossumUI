@@ -13,10 +13,13 @@ import {
   PackageInfo,
   ParsedFileContent,
   ProjectConfig,
+  RawProjectConfig,
   Resources,
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
+import { faker } from '../../../../../testing/Faker';
 import { EMPTY_PROJECT_METADATA } from '../../../../shared-constants';
+import { OpossumColors } from '../../../../shared-styles';
 import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
@@ -48,10 +51,10 @@ const testResources: Resources = {
   },
 };
 
-const testConfig: ProjectConfig = {
+const testConfig: RawProjectConfig = {
   classifications: {
-    0: 'UNKNOWN',
-    1: 'CRITICAL',
+    0: faker.word.words(),
+    1: faker.word.words(),
   },
 };
 
@@ -165,7 +168,18 @@ describe('loadFromFile', () => {
       },
     };
     const expectedResources: Resources = testResources;
-    const expectedConfig: ProjectConfig = testConfig;
+    const expectedConfig: ProjectConfig = {
+      classifications: {
+        0: {
+          description: testConfig.classifications[0],
+          color: OpossumColors.pastelLightGreen,
+        },
+        1: {
+          description: testConfig.classifications[1],
+          color: '#ff0000',
+        },
+      },
+    };
     const expectedManualData: AttributionData = {
       attributions: testManualAttributions,
       resourcesToAttributions: testResourcesToManualAttributions,

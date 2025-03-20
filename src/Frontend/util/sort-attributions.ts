@@ -27,6 +27,9 @@ export function sortAttributions({
   } else if (sorting === text.sortings.occurrence) {
     iteratees.unshift(({ count }) => count ?? 0);
     orders.unshift('desc');
+  } else if (sorting === text.sortings.classification) {
+    iteratees.unshift(({ classification }) => classification ?? -1);
+    orders.unshift('desc');
   }
 
   const orderedAttributions = orderBy(
