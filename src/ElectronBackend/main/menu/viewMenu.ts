@@ -3,11 +3,10 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { MenuItemConstructorOptions } from 'electron';
+import { BrowserWindow, MenuItemConstructorOptions } from 'electron';
 
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
-import { UserSettingsProvider } from '../user-settings-provider';
 import { switchableMenuItem } from './switchableMenuItem';
 
 function getShowDevTools(): MenuItemConstructorOptions {
@@ -54,43 +53,39 @@ function getZoomOut(): MenuItemConstructorOptions {
   };
 }
 
+async function getQaMode(
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
+  return switchableMenuItem(mainWindow, {
+    id: 'qa-mode',
+    label: text.menu.viewSubmenu.qaMode,
+    userSettingsKey: 'qaMode',
+  });
+}
+
 function getShowClassifications(
-  showClassifications: boolean | null,
-): Array<MenuItemConstructorOptions> {
-  return switchableMenuItem(showClassifications, {
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
+  return switchableMenuItem(mainWindow, {
     id: 'show-classifications',
     label: text.menu.viewSubmenu.showClassifications,
-    onToggle: (newState: boolean) =>
-      UserSettingsProvider.set('showClassifications', newState),
+    userSettingsKey: 'showClassifications',
   });
 }
 
 function getShowCriticality(
-  showClassifications: boolean | null,
-): Array<MenuItemConstructorOptions> {
-  return switchableMenuItem(showClassifications, {
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
+  return switchableMenuItem(mainWindow, {
     id: 'show-criticality',
     label: text.menu.viewSubmenu.showCriticality,
-    onToggle: (newState: boolean) =>
-      UserSettingsProvider.set('showCriticality', newState),
+    userSettingsKey: 'showCriticality',
   });
 }
 
-function getQaMode(qaMode: boolean | null): Array<MenuItemConstructorOptions> {
-  return switchableMenuItem(qaMode, {
-    id: 'qa-mode',
-    label: text.menu.viewSubmenu.qaMode,
-    onToggle: (newState: boolean) =>
-      UserSettingsProvider.set('qaMode', newState),
-  });
-}
-
-export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
-  const qaMode = await UserSettingsProvider.get('qaMode');
-  const showCriticality = await UserSettingsProvider.get('showCriticality');
-  const showClassifications = await UserSettingsProvider.get(
-    'showClassifications',
-  );
+export async function getViewMenu(
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
   return {
     label: text.menu.view,
     submenu: [
@@ -98,9 +93,9 @@ export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
       getToggleFullScreen(),
       getZoomIn(),
       getZoomOut(),
-      ...getQaMode(qaMode),
-      ...getShowCriticality(showCriticality),
-      ...getShowClassifications(showClassifications),
+      await getQaMode(mainWindow),
+      await getShowCriticality(mainWindow),
+      await getShowClassifications(mainWindow),
     ],
   };
 }

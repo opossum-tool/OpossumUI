@@ -324,6 +324,7 @@ export interface UserSettings {
     linkedResourcesPanelHeight: number | null;
     signalsPanelHeight: number | null;
   };
+  recentlyOpenedPaths: Array<string>;
 }
 
 export type PanelSizes = UserSettings['panelSizes'];

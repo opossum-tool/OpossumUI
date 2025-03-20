@@ -14,6 +14,7 @@ jest.mock('electron', () => ({
   },
   Menu: {
     buildFromTemplate: jest.fn(),
+    setApplicationMenu: jest.fn(),
   },
 }));
 

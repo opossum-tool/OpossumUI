@@ -4,7 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { criticalityColor, OpossumColors } from '../../../shared-styles';
+import {
+  classificationUnknownColor,
+  criticalityColor,
+  OpossumColors,
+} from '../../../shared-styles';
 import {
   ClassificationStatistics,
   ProgressBarData,
@@ -98,7 +102,7 @@ describe('ProgressBar helpers', () => {
 
       const background = getClassificationBarBackground(testProgressBarData);
 
-      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[3].color} 0% 5% , ${classificationStatistics[2].color} 5% 25% , ${classificationStatistics[1].color} 25% 40% , ${classificationStatistics[0].color} 40% 65% , hsl(220, 41%, 92%) 65% 100% )`;
+      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[3].color} 0% 5% , ${classificationStatistics[2].color} 5% 25% , ${classificationStatistics[1].color} 25% 40% , ${classificationStatistics[0].color} 40% 65% , ${classificationUnknownColor} 65% 100% )`;
       expect(background).toEqual(expectedBackground);
     });
 
@@ -125,7 +129,7 @@ describe('ProgressBar helpers', () => {
 
       const background = getClassificationBarBackground(testProgressBarData);
 
-      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[11].color} 0% 5% , ${classificationStatistics[2].color} 5% 25% , ${classificationStatistics[1].color} 25% 40% , ${classificationStatistics[0].color} 40% 65% , hsl(220, 41%, 92%) 65% 100% )`;
+      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[11].color} 0% 5% , ${classificationStatistics[2].color} 5% 25% , ${classificationStatistics[1].color} 25% 40% , ${classificationStatistics[0].color} 40% 65% , ${classificationUnknownColor} 65% 100% )`;
       expect(background).toEqual(expectedBackground);
     });
 
@@ -168,7 +172,7 @@ describe('ProgressBar helpers', () => {
 
       const background = getClassificationBarBackground(testProgressBarData);
 
-      const expectedBackground = `linear-gradient(to right, ${classificationStatisticsEntry.color} 0% 25% , hsl(220, 41%, 92%) 25% 100% )`;
+      const expectedBackground = `linear-gradient(to right, ${classificationStatisticsEntry.color} 0% 25% , ${classificationUnknownColor} 25% 100% )`;
       expect(background).toBe(expectedBackground);
     });
   });

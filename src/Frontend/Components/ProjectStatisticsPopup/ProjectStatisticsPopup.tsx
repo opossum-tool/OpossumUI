@@ -74,11 +74,12 @@ export const ProjectStatisticsPopup: React.FC = () => {
     licenseNamesWithCriticality,
   );
 
-  const signalCountByClassification = getSignalCountByClassification(
-    licenseCounts,
-    licenseNamesWithClassification,
-    classifications,
-  );
+  const [signalCountByClassification, classificationColorMap] =
+    getSignalCountByClassification(
+      licenseCounts,
+      licenseNamesWithClassification,
+      classifications,
+    );
 
   const attributionBarChartData =
     aggregateAttributionPropertiesFromAttributions(manualAttributions);
@@ -167,7 +168,10 @@ export const ProjectStatisticsPopup: React.FC = () => {
                       .signalCountByClassificationPieChart.title
                   }
                 </MuiTypography>
-                <PieChart segments={signalCountByClassification} />
+                <PieChart
+                  segments={signalCountByClassification}
+                  colorMap={classificationColorMap}
+                />
               </ChartGridItem>
               <ChartGridItem
                 shouldRender={incompleteAttributionsData.length > 0}

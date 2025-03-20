@@ -7,7 +7,6 @@ import {
   _electron as electron,
   ElectronApplication,
   Page,
-  TestInfo,
 } from '@playwright/test';
 import { parseElectronApp } from 'electron-playwright-helpers';
 import * as os from 'os';
@@ -45,7 +44,11 @@ const LOAD_TIMEOUT = 15000;
 interface OpossumData {
   inputData: ParsedOpossumInputFile;
   outputData?: ParsedOpossumOutputFile;
-  provideImportFiles?: boolean;
+}
+
+interface FilePaths {
+  opossum: string;
+  json: string;
 }
 
 export const test = base.extend<{
@@ -63,6 +66,7 @@ export const test = base.extend<{
   confirmationDialog: ConfirmationDialog;
   diffPopup: DiffPopup;
   errorPopup: ErrorPopup;
+  filePaths: FilePaths | null;
   fileSupportPopup: FileSupportPopup;
   importDialog: ImportDialog;
   mergeDialog: MergeDialog;
@@ -80,8 +84,21 @@ export const test = base.extend<{
 }>({
   data: undefined,
   openFromCLI: true,
-  window: async ({ data, openFromCLI }, use, info) => {
-    const filePath = data && (await createTestFile({ data, info }));
+  filePaths: async ({ data }, use, info) => {
+    if (!data) {
+      return use(null);
+    }
+
+    const filename = data.inputData.metadata.projectId;
+
+    await use({
+      opossum: info.outputPath(`${filename}.opossum`),
+      json: info.outputPath(`${filename}.json`),
+    });
+  },
+  window: async ({ data, openFromCLI, filePaths }, use, info) => {
+    const opossumFilePath =
+      data && filePaths && (await createTestFiles({ data, filePaths }));
 
     const [executablePath, main] = getLaunchProps();
     const args = ['--reset'];
@@ -92,7 +109,9 @@ export const test = base.extend<{
     const app = await electron.launch({
       args: [
         main,
-        ...(!filePath || !openFromCLI ? args : args.concat([filePath])),
+        ...(!opossumFilePath || !openFromCLI
+          ? args
+          : args.concat([opossumFilePath])),
       ],
       executablePath,
     });
@@ -184,15 +203,11 @@ export const test = base.extend<{
   reportView: async ({ window }, use) => {
     await use(new ReportView(window));
   },
-  importDialog: async ({ window, data }, use, info) => {
-    await use(
-      new ImportDialog(window, data?.inputData.metadata.projectId, info),
-    );
+  importDialog: async ({ window }, use) => {
+    await use(new ImportDialog(window));
   },
-  mergeDialog: async ({ window, data }, use, info) => {
-    await use(
-      new MergeDialog(window, data?.inputData.metadata.projectId, info),
-    );
+  mergeDialog: async ({ window }, use) => {
+    await use(new MergeDialog(window));
   },
 });
 
@@ -220,25 +235,24 @@ function getReleasePath(): string {
   throw new Error('Unsupported platform');
 }
 
-async function createTestFile({
-  data: { inputData, outputData, provideImportFiles },
-  info,
+async function createTestFiles({
+  data: { inputData, outputData },
+  filePaths: { json, opossum },
 }: {
   data: OpossumData;
-  info: TestInfo;
+  filePaths: FilePaths;
 }): Promise<string> {
-  const filename = inputData.metadata.projectId;
-
-  if (provideImportFiles) {
-    await writeFile({
-      path: info.outputPath(`${filename}.json`),
+  await Promise.all([
+    writeFile({
+      path: json,
       content: inputData,
-    });
-  }
+    }),
+    writeOpossumFile({
+      input: inputData,
+      path: opossum,
+      output: outputData,
+    }),
+  ]);
 
-  return writeOpossumFile({
-    input: inputData,
-    path: info.outputPath(`${filename}.opossum`),
-    output: outputData,
-  });
+  return opossum;
 }

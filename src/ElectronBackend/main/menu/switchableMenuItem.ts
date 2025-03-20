@@ -2,48 +2,31 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { MenuItemConstructorOptions } from 'electron';
+import { BrowserWindow, MenuItemConstructorOptions } from 'electron';
 
-import {
-  getCheckboxBasedOnThemeAndCheckState,
-  makeFirstIconVisibleAndSecondHidden,
-} from '../iconHelpers';
+import { UserSettings as IUserSettings } from '../../../shared/shared-types';
+import { getCheckboxBasedOnThemeAndCheckState } from '../iconHelpers';
+import { createMenu } from '../menu';
+import { UserSettingsProvider } from '../user-settings-provider';
 
 export interface SwitchableItemOptions {
   id: string;
   label: string;
-  onToggle: (newState: boolean) => Promise<void>;
+  userSettingsKey: keyof IUserSettings;
 }
 
-export function switchableMenuItem(
-  initialState: null | boolean,
+export async function switchableMenuItem(
+  mainWindow: BrowserWindow,
   options: SwitchableItemOptions,
-): Array<MenuItemConstructorOptions> {
-  const disabledEntry: MenuItemConstructorOptions = {
-    icon: getCheckboxBasedOnThemeAndCheckState(false),
-    id: `disabled-${options.id}`,
-    visible: !initialState,
+): Promise<MenuItemConstructorOptions> {
+  const state = !!(await UserSettingsProvider.get(options.userSettingsKey));
+  return {
+    icon: getCheckboxBasedOnThemeAndCheckState(state),
+    id: state ? `enabled-${options.id}` : `disabled-${options.id}`,
     label: options.label,
-    click: () => {
-      makeFirstIconVisibleAndSecondHidden(
-        `enabled-${options.id}`,
-        `disabled-${options.id}`,
-      );
-      void options.onToggle(true);
+    click: async () => {
+      await UserSettingsProvider.set(options.userSettingsKey, !state);
+      await createMenu(mainWindow);
     },
   };
-  const enabledEntry: MenuItemConstructorOptions = {
-    icon: getCheckboxBasedOnThemeAndCheckState(true),
-    id: `enabled-${options.id}`,
-    label: options.label,
-    visible: !!initialState,
-    click: () => {
-      makeFirstIconVisibleAndSecondHidden(
-        `disabled-${options.id}`,
-        `enabled-${options.id}`,
-      );
-      void options.onToggle(false);
-    },
-  };
-  return [disabledEntry, enabledEntry];
 }

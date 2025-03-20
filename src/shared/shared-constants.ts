@@ -18,4 +18,5 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   showCriticality: true,
   showClassifications: true,
   panelSizes: DEFAULT_PANEL_SIZES,
+  recentlyOpenedPaths: [],
 };

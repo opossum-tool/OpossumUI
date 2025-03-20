@@ -3,13 +3,13 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { app, shell } from 'electron';
+import { app, MenuItemConstructorOptions, shell } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
 
-function getOpenlogfiles() {
+function getOpenLogFiles(): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/log-white.png', 'icons/log-black.png'),
     label: text.menu.helpSubmenu.openLogFiles,
@@ -17,7 +17,9 @@ function getOpenlogfiles() {
   };
 }
 
-function getCheckForUpdates(webContents: Electron.WebContents) {
+function getCheckForUpdates(
+  webContents: Electron.WebContents,
+): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/update-white.png',
@@ -32,7 +34,7 @@ function getCheckForUpdates(webContents: Electron.WebContents) {
   };
 }
 
-function getUsersGuide() {
+function getUsersGuide(): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/user-guide-white.png',
@@ -46,12 +48,14 @@ function getUsersGuide() {
   };
 }
 
-export function getHelpMenu(webContents: Electron.WebContents) {
+export function getHelpMenu(
+  webContents: Electron.WebContents,
+): MenuItemConstructorOptions {
   return {
     label: text.menu.help,
     submenu: [
       getUsersGuide(),
-      getOpenlogfiles(),
+      getOpenLogFiles(),
       getCheckForUpdates(webContents),
     ],
   };

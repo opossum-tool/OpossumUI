@@ -71,7 +71,9 @@ function getSelectAll(): MenuItemConstructorOptions {
   };
 }
 
-function getSearchAttributions(webContents: Electron.WebContents) {
+function getSearchAttributions(
+  webContents: Electron.WebContents,
+): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/magnifying-glass-white.png',
@@ -89,7 +91,9 @@ function getSearchAttributions(webContents: Electron.WebContents) {
   };
 }
 
-function getSearchSignals(webContents: Electron.WebContents) {
+function getSearchSignals(
+  webContents: Electron.WebContents,
+): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/magnifying-glass-white.png',
@@ -107,7 +111,9 @@ function getSearchSignals(webContents: Electron.WebContents) {
   };
 }
 
-function getSearchResources(webContents: Electron.WebContents) {
+function getSearchResources(
+  webContents: Electron.WebContents,
+): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/search-white.png',
@@ -125,7 +131,9 @@ function getSearchResources(webContents: Electron.WebContents) {
   };
 }
 
-function getSearchLinkedResources(webContents: Electron.WebContents) {
+function getSearchLinkedResources(
+  webContents: Electron.WebContents,
+): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/search-white.png',
