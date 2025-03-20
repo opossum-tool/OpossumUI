@@ -3,10 +3,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { MenuItemConstructorOptions } from 'electron';
+import { BrowserWindow, MenuItemConstructorOptions } from 'electron';
 
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
+import { createMenu } from '../menu';
 import { UserSettings } from '../user-settings';
 import { switchableMenuItem } from './switchableMenuItem';
 
@@ -54,6 +55,30 @@ function getZoomOut(): MenuItemConstructorOptions {
   };
 }
 
+async function getQaMode(
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
+  const qaMode = (await UserSettings.get('qaMode')) ?? false;
+
+  return {
+    icon: qaMode
+      ? getIconBasedOnTheme(
+          'icons/check-box-white.png',
+          'icons/check-box-black.png',
+        )
+      : getIconBasedOnTheme(
+          'icons/check-box-blank-white.png',
+          'icons/check-box-blank-black.png',
+        ),
+    label: text.menu.viewSubmenu.qaMode,
+    id: qaMode ? 'enabled-qa-mode' : 'disabled-qa-mode',
+    click: async () => {
+      await UserSettings.set('qaMode', !qaMode);
+      await createMenu(mainWindow);
+    },
+  };
+}
+
 function getShowClassifications(
   showClassifications: boolean | null,
 ): Array<MenuItemConstructorOptions> {
@@ -76,16 +101,9 @@ function getShowCriticality(
   });
 }
 
-function getQaMode(qaMode: boolean | null): Array<MenuItemConstructorOptions> {
-  return switchableMenuItem(qaMode, {
-    id: 'qa-mode',
-    label: text.menu.viewSubmenu.qaMode,
-    onToggle: (newState: boolean) => UserSettings.set('qaMode', newState),
-  });
-}
-
-export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
-  const qaMode = await UserSettings.get('qaMode');
+export async function getViewMenu(
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
   const showCriticality = await UserSettings.get('showCriticality');
   const showClassifications = await UserSettings.get('showClassifications');
   return {
@@ -95,7 +113,7 @@ export async function getViewMenu(): Promise<MenuItemConstructorOptions> {
       getToggleFullScreen(),
       getZoomIn(),
       getZoomOut(),
-      ...getQaMode(qaMode),
+      await getQaMode(mainWindow),
       ...getShowCriticality(showCriticality),
       ...getShowClassifications(showClassifications),
     ],

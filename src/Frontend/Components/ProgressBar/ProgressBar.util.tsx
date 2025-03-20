@@ -6,7 +6,11 @@ import MuiBox from '@mui/material/Box';
 import { sum } from 'lodash';
 
 import { Criticality } from '../../../shared/shared-types';
-import { criticalityColor, OpossumColors } from '../../shared-styles';
+import {
+  classificationUnknownColor,
+  criticalityColor,
+  OpossumColors,
+} from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -254,7 +258,7 @@ function calculateProgressBarSteps(
   );
   progressBarSteps.push({
     widthInPercent: 100 - totalPercentage,
-    color: OpossumColors.lightestBlue,
+    color: classificationUnknownColor,
   });
 
   return roundPercentagesToAtLeastOnePercentAndNormalize(progressBarSteps);

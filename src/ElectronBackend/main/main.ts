@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { dialog, ipcMain, Menu, systemPreferences } from 'electron';
+import { dialog, ipcMain, systemPreferences } from 'electron';
 import os from 'os';
 
 import { AllowedFrontendChannels, IpcChannel } from '../../shared/ipc-channels';
@@ -36,7 +36,7 @@ export async function main(): Promise<void> {
     const mainWindow = createWindow();
 
     await UserSettings.init();
-    Menu.setApplicationMenu(await createMenu(mainWindow));
+    await createMenu(mainWindow);
 
     mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
       (details, callback) => {
