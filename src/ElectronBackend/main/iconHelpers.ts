@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import electron, { app, Menu } from 'electron';
+import electron, { app } from 'electron';
 import path from 'path';
 import upath from 'upath';
 
@@ -36,19 +36,4 @@ export function getCheckboxBasedOnThemeAndCheckState(checked: boolean): string {
     'icons/check-box-blank-white.png',
     'icons/check-box-blank-black.png',
   );
-}
-
-export function makeFirstIconVisibleAndSecondHidden(
-  firstItemId: string,
-  secondItemId: string,
-): void {
-  const itemToMakeVisible =
-    Menu.getApplicationMenu()?.getMenuItemById(firstItemId);
-  if (itemToMakeVisible) {
-    itemToMakeVisible.visible = true;
-  }
-  const itemToHide = Menu.getApplicationMenu()?.getMenuItemById(secondItemId);
-  if (itemToHide) {
-    itemToHide.visible = false;
-  }
 }

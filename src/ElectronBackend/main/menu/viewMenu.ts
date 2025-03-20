@@ -7,8 +7,6 @@ import { BrowserWindow, MenuItemConstructorOptions } from 'electron';
 
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
-import { createMenu } from '../menu';
-import { UserSettings } from '../user-settings';
 import { switchableMenuItem } from './switchableMenuItem';
 
 function getShowDevTools(): MenuItemConstructorOptions {
@@ -58,54 +56,36 @@ function getZoomOut(): MenuItemConstructorOptions {
 async function getQaMode(
   mainWindow: BrowserWindow,
 ): Promise<MenuItemConstructorOptions> {
-  const qaMode = (await UserSettings.get('qaMode')) ?? false;
-
-  return {
-    icon: qaMode
-      ? getIconBasedOnTheme(
-          'icons/check-box-white.png',
-          'icons/check-box-black.png',
-        )
-      : getIconBasedOnTheme(
-          'icons/check-box-blank-white.png',
-          'icons/check-box-blank-black.png',
-        ),
+  return switchableMenuItem(mainWindow, {
+    id: 'qa-mode',
     label: text.menu.viewSubmenu.qaMode,
-    id: qaMode ? 'enabled-qa-mode' : 'disabled-qa-mode',
-    click: async () => {
-      await UserSettings.set('qaMode', !qaMode);
-      await createMenu(mainWindow);
-    },
-  };
+    userSettingsKey: 'qaMode',
+  });
 }
 
 function getShowClassifications(
-  showClassifications: boolean | null,
-): Array<MenuItemConstructorOptions> {
-  return switchableMenuItem(showClassifications, {
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
+  return switchableMenuItem(mainWindow, {
     id: 'show-classifications',
     label: text.menu.viewSubmenu.showClassifications,
-    onToggle: (newState: boolean) =>
-      UserSettings.set('showClassifications', newState),
+    userSettingsKey: 'showClassifications',
   });
 }
 
 function getShowCriticality(
-  showClassifications: boolean | null,
-): Array<MenuItemConstructorOptions> {
-  return switchableMenuItem(showClassifications, {
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
+  return switchableMenuItem(mainWindow, {
     id: 'show-criticality',
     label: text.menu.viewSubmenu.showCriticality,
-    onToggle: (newState: boolean) =>
-      UserSettings.set('showCriticality', newState),
+    userSettingsKey: 'showCriticality',
   });
 }
 
 export async function getViewMenu(
   mainWindow: BrowserWindow,
 ): Promise<MenuItemConstructorOptions> {
-  const showCriticality = await UserSettings.get('showCriticality');
-  const showClassifications = await UserSettings.get('showClassifications');
   return {
     label: text.menu.view,
     submenu: [
@@ -114,8 +94,8 @@ export async function getViewMenu(
       getZoomIn(),
       getZoomOut(),
       await getQaMode(mainWindow),
-      ...getShowCriticality(showCriticality),
-      ...getShowClassifications(showClassifications),
+      await getShowCriticality(mainWindow),
+      await getShowClassifications(mainWindow),
     ],
   };
 }
