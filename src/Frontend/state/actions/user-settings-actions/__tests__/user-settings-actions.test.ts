@@ -87,7 +87,7 @@ describe('user-settings-actions', () => {
       store.getState(),
     );
 
-    toggleAreHiddenSignalsVisible(store.dispatch, store.getState);
+    toggleAreHiddenSignalsVisible(store.dispatch);
 
     await waitFor(() =>
       expect(getAreHiddenSignalsVisible(store.getState())).toBe(
@@ -95,7 +95,7 @@ describe('user-settings-actions', () => {
       ),
     );
 
-    toggleAreHiddenSignalsVisible(store.dispatch, store.getState);
+    toggleAreHiddenSignalsVisible(store.dispatch);
 
     await waitFor(() =>
       expect(getAreHiddenSignalsVisible(store.getState())).toBe(

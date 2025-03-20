@@ -4,10 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { PanelSizes, UserSettings } from '../../../../shared/shared-types';
 import { State } from '../../../types/types';
-import {
-  getAreHiddenSignalsVisible,
-  getPanelSizes,
-} from '../../selectors/user-settings-selector';
+import { getUserSettings } from '../../selectors/user-settings-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { ACTION_SET_USER_SETTING, SetUserSetting } from './types';
 
@@ -25,39 +22,49 @@ export function fetchUserSettings(): AppThunkAction {
   };
 }
 
+function getUserSettingsToSet(
+  userSettings:
+    | Partial<UserSettings>
+    | ((currentSettings: UserSettings) => Partial<UserSettings>),
+  getState: () => State,
+): Partial<UserSettings> {
+  if (typeof userSettings === 'function') {
+    const currentUserSettings: UserSettings = getUserSettings(getState());
+    return userSettings(currentUserSettings);
+  }
+  return userSettings;
+}
+
 export function updateUserSettings(
-  userSettings: Partial<UserSettings>,
+  userSettings:
+    | Partial<UserSettings>
+    | ((currentSettings: UserSettings) => Partial<UserSettings>),
 ): AppThunkAction {
-  return async (dispatch) => {
-    await window.electronAPI.setUserSettings(userSettings);
-    dispatch(setUserSetting(userSettings));
+  return async (dispatch: AppThunkDispatch, getState: () => State) => {
+    const userSettingsToSet = getUserSettingsToSet(userSettings, getState);
+    await window.electronAPI.setUserSettings(userSettingsToSet);
+    dispatch(setUserSetting(userSettingsToSet));
   };
 }
 
 export function updatePanelSizes(
   panelSizes: Partial<PanelSizes>,
 ): AppThunkAction {
-  return (dispatch, getState): void => {
-    const currentState = getState();
-    const currentPanelSizes = getPanelSizes(currentState);
+  return (dispatch): void => {
     dispatch(
-      updateUserSettings({
-        panelSizes: { ...currentPanelSizes, ...panelSizes },
-      }),
+      updateUserSettings((currentSettings: UserSettings) => ({
+        panelSizes: { ...currentSettings.panelSizes, ...panelSizes },
+      })),
     );
   };
 }
 
 export function toggleAreHiddenSignalsVisible(
   dispatch: AppThunkDispatch,
-  getState: () => State,
 ): void {
-  const currentState = getState();
-  const currentAreHiddenSignalsVisible =
-    getAreHiddenSignalsVisible(currentState);
   dispatch(
-    updateUserSettings({
-      areHiddenSignalsVisible: !currentAreHiddenSignalsVisible,
-    }),
+    updateUserSettings((currentSettings: UserSettings) => ({
+      areHiddenSignalsVisible: !currentSettings.areHiddenSignalsVisible,
+    })),
   );
 }

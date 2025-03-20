@@ -5,6 +5,10 @@
 import { UserSettings } from '../../../shared/shared-types';
 import { State } from '../../types/types';
 
+export function getUserSettings(state: State): UserSettings {
+  return state.userSettingsState;
+}
+
 export function getShowCriticality(state: State): boolean {
   return state.userSettingsState.showCriticality;
 }
