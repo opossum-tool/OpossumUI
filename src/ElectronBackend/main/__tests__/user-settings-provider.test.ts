@@ -37,6 +37,7 @@ jest.mock('electron', () => {
     },
   };
 });
+
 describe('UserSettings', () => {
   let temporaryDir: string | undefined = undefined;
   beforeEach(async () => {
@@ -83,6 +84,7 @@ describe('UserSettings', () => {
       process.env = oldEnvironment;
     });
   });
+
   describe('get', () => {
     it('gets a user setting from a predescribed path', async () => {
       await UserSettingsProvider.init();
