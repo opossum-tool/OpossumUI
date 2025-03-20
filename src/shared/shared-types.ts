@@ -327,4 +327,5 @@ export interface UserSettings {
     linkedResourcesPanelHeight: number | null;
     signalsPanelHeight: number | null;
   } | null;
+  recentlyOpenedPaths: Array<string> | null;
 }

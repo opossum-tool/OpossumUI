@@ -13,6 +13,8 @@ export const text = {
     file: 'File',
     fileSubmenu: {
       open: 'Open...',
+      openRecent: 'Open Recent',
+      clearRecent: 'Clear Recent',
       import: 'Import',
       importSubmenu: menuLabelForFileFormat,
       merge: 'Merge',
