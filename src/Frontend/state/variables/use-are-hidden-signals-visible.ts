@@ -2,13 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useUserSetting } from './use-user-setting';
-
-export const ARE_HIDDEN_SIGNALS_VISIBLE = 'are-hidden-signals-visible';
+import { useAppSelector } from '../hooks';
+import { getAreHiddenSignalsVisible } from '../selectors/user-settings-selector';
 
 export function useAreHiddenSignalsVisible() {
-  return useUserSetting({
-    defaultValue: false,
-    key: 'areHiddenSignalsVisible',
-  });
+  return useAppSelector(getAreHiddenSignalsVisible);
 }

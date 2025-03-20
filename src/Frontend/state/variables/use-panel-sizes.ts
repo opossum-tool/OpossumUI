@@ -2,19 +2,22 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { UserSettings } from '../../../shared/shared-types';
-import { useUserSetting } from './use-user-setting';
+import { PanelSizes, UserSettings } from '../../../shared/shared-types';
+import { updateUserSettings } from '../actions/user-settings-actions/user-settings-actions';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { getPanelSizes } from '../selectors/user-settings-selector';
 
-export const DEFAULT_PANEL_SIZES: NonNullable<UserSettings['panelSizes']> = {
-  resourceBrowserWidth: 340,
-  packageListsWidth: 340,
-  linkedResourcesPanelHeight: null,
-  signalsPanelHeight: null,
-};
-
-export const usePanelSizes = () => {
-  return useUserSetting({
-    defaultValue: DEFAULT_PANEL_SIZES,
-    key: 'panelSizes',
-  });
+export const usePanelSizes = (): {
+  panelSizes: PanelSizes;
+  setPanelSizes: (panelsSizes: Partial<PanelSizes>) => void;
+} => {
+  const panelSizes = useAppSelector(getPanelSizes);
+  const dispatch = useAppDispatch();
+  const setPanelSizes = (panelSizes: Partial<PanelSizes>) =>
+    dispatch(
+      updateUserSettings((currentSettings: UserSettings) => ({
+        panelSizes: { ...currentSettings.panelSizes, ...panelSizes },
+      })),
+    );
+  return { panelSizes, setPanelSizes };
 };

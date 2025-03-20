@@ -5,15 +5,13 @@
 import { useCallback } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import { DEFAULT_PANEL_SIZES } from '../../../shared/shared-constants';
 import { text } from '../../../shared/text';
 import {
   useFilteredAttributions,
   useFilteredSignals,
 } from '../../state/variables/use-filtered-data';
-import {
-  DEFAULT_PANEL_SIZES,
-  usePanelSizes,
-} from '../../state/variables/use-panel-sizes';
+import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { Container } from './AttributionPanels.style';
 import { AttributionsPanel } from './AttributionsPanel/AttributionsPanel';
@@ -23,18 +21,16 @@ export function AttributionPanels() {
   const [{ search: attributionSearch }, setFilteredAttributions] =
     useFilteredAttributions();
   const [{ search: signalSearch }, setFilteredSignals] = useFilteredSignals();
-  const [{ packageListsWidth, signalsPanelHeight }, setPanelSizes] =
-    usePanelSizes();
+  const { panelSizes, setPanelSizes } = usePanelSizes();
 
   const setWidth = useCallback(
-    (width: number) =>
-      setPanelSizes((prev) => ({ ...prev, packageListsWidth: width })),
+    (width: number) => setPanelSizes({ packageListsWidth: width }),
     [setPanelSizes],
   );
 
   const setHeight = useCallback(
     (height: number) => {
-      setPanelSizes((prev) => ({ ...prev, signalsPanelHeight: height }));
+      setPanelSizes({ signalsPanelHeight: height });
     },
     [setPanelSizes],
   );
@@ -44,8 +40,8 @@ export function AttributionPanels() {
       <ResizePanels
         minWidth={DEFAULT_PANEL_SIZES.packageListsWidth}
         main={'lower'}
-        width={packageListsWidth}
-        height={signalsPanelHeight}
+        width={panelSizes.packageListsWidth}
+        height={panelSizes.signalsPanelHeight}
         setWidth={setWidth}
         setHeight={setHeight}
         upperPanel={{

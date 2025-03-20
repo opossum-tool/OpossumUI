@@ -55,8 +55,8 @@ export function ResourcesTreeNode({ node, nodeId, nodeName }: TreeNode) {
 
   const canHaveChildren = node !== 1;
   const classification_mapping = useAppSelector(getClassifications);
-  const [showClassifications] = useShowClassifications();
-  const [showCriticality] = useShowCriticality();
+  const showClassifications = useShowClassifications();
+  const showCriticality = useShowCriticality();
 
   return (
     <ResourcesTreeNodeLabel

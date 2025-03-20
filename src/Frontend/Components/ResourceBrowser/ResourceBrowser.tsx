@@ -37,8 +37,7 @@ export function ResourceBrowser() {
   );
   const debouncedSearchAll = useDebouncedInput(searchAll);
   const debouncedSearchLinked = useDebouncedInput(searchLinked);
-  const [{ resourceBrowserWidth, linkedResourcesPanelHeight }, setPanelSizes] =
-    usePanelSizes();
+  const { panelSizes, setPanelSizes } = usePanelSizes();
 
   const allResourcesFiltered = useMemo(
     () =>
@@ -62,17 +61,15 @@ export function ResourceBrowser() {
   );
 
   const setWidth = useCallback(
-    (width: number) =>
-      setPanelSizes((prev) => ({ ...prev, resourceBrowserWidth: width })),
+    (width: number) => setPanelSizes({ resourceBrowserWidth: width }),
     [setPanelSizes],
   );
 
   const setHeight = useCallback(
     (height: number) => {
-      setPanelSizes((prev) => ({
-        ...prev,
+      setPanelSizes({
         linkedResourcesPanelHeight: height,
-      }));
+      });
     },
     [setPanelSizes],
   );
@@ -84,8 +81,8 @@ export function ResourceBrowser() {
   return (
     <ResizePanels
       main={'upper'}
-      width={resourceBrowserWidth}
-      height={linkedResourcesPanelHeight}
+      width={panelSizes.resourceBrowserWidth}
+      height={panelSizes.linkedResourcesPanelHeight}
       setWidth={setWidth}
       setHeight={setHeight}
       upperPanel={{

@@ -2,13 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useUserSetting } from './use-user-setting';
-
-export const SHOW_CRITICALITY_KEY = 'showCriticality';
+import { useAppSelector } from '../hooks';
+import { getShowCriticality } from '../selectors/user-settings-selector';
 
 export function useShowCriticality() {
-  return useUserSetting({
-    key: SHOW_CRITICALITY_KEY,
-    defaultValue: true,
-  });
+  return useAppSelector(getShowCriticality);
 }

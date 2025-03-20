@@ -70,7 +70,7 @@ export function useSignalsWorker() {
   ] = useFilteredAttributionsInReportView();
   const debouncedSignalSearch = useDebouncedInput(signalSearch);
   const debouncedAttributionSearch = useDebouncedInput(attributionSearch);
-  const [areHiddenSignalsVisible] = useAreHiddenSignalsVisible();
+  const areHiddenSignalsVisible = useAreHiddenSignalsVisible();
   const [, setProgressData] = useProgressData();
 
   useEffect(() => {
