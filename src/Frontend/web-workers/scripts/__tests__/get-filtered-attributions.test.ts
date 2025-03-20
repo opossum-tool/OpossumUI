@@ -19,7 +19,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -55,7 +55,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: resourceId1,
@@ -95,7 +95,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -126,7 +126,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [],
-      sorting: text.sortings.criticality,
+      sorting: 'criticality',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -155,7 +155,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [],
-      sorting: text.sortings.occurrence,
+      sorting: 'occurrence',
       selectedLicense: '',
       search: '',
       resourceId: ROOT_PATH,
@@ -196,7 +196,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: packageInfo1.packageName!,
       resourceId: '',
@@ -224,7 +224,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.needsFollowUp],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -252,7 +252,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.preSelected],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -280,7 +280,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.excludedFromNotice],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -310,7 +310,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.lowConfidence],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -338,7 +338,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.firstParty],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -366,7 +366,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.thirdParty],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -394,7 +394,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.needsReview],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -422,7 +422,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.currentlyPreferred],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -450,7 +450,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.previouslyPreferred],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -478,7 +478,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.incompleteCoordinates],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -506,7 +506,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.incompleteLegal],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',
@@ -534,7 +534,7 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       filters: [text.filters.modifiedPreferred],
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
       selectedLicense: '',
       search: '',
       resourceId: '',

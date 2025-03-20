@@ -6,8 +6,8 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import { Sorting } from '../../../shared-constants';
 import {
   FilteredData,
   initialFilteredAttributions,
@@ -15,6 +15,7 @@ import {
 } from '../../../state/variables/use-filtered-data';
 import { renderComponent } from '../../../test-helpers/render';
 import { SortButton } from '../SortButton';
+import { SortOption } from '../useSortingOptions';
 
 describe('SortButton', () => {
   it('switches to selected sorting', async () => {
@@ -23,7 +24,7 @@ describe('SortButton', () => {
     const setFilteredData = jest.fn((fn) => {
       result = fn(prev);
     });
-    const sorting: Sorting = 'By Criticality';
+    const sorting: SortOption = 'criticality';
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -34,7 +35,9 @@ describe('SortButton', () => {
     renderComponent(<SortButton useFilteredData={useFilteredData} />);
 
     await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
-    await userEvent.click(screen.getByRole('menuitem', { name: sorting }));
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.sortings.criticality }),
+    );
 
     expect(result!.sorting).toEqual(sorting);
   });
@@ -50,5 +53,24 @@ describe('SortButton', () => {
     renderComponent(<SortButton useFilteredData={useFilteredData} />);
 
     expect(screen.getByRole('button', { name: 'sort button' })).toBeDisabled();
+  });
+
+  it('shows all sort options', async () => {
+    const setFilteredData = jest.fn;
+    const useFilteredData: UseFilteredData = () => [
+      {
+        ...initialFilteredAttributions,
+        attributions: faker.opossum.attributions(),
+      },
+      setFilteredData,
+    ];
+    renderComponent(<SortButton useFilteredData={useFilteredData} />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
+    Object.values(text.sortings).forEach((menuItemText) => {
+      expect(
+        screen.getByRole('menuitem', { name: menuItemText }),
+      ).toBeVisible();
+    });
   });
 });

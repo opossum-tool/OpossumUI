@@ -9,7 +9,6 @@ import {
   Criticality,
   DiscreteConfidence,
 } from '../../../../shared/shared-types';
-import { text } from '../../../../shared/text';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import {
   FILTERED_ATTRIBUTIONS_REPORT,
@@ -51,7 +50,7 @@ describe('ReportView', () => {
           loading: false,
           search: '',
           selectedLicense: '',
-          sorting: text.sortings.name,
+          sorting: 'alphabetically',
         }),
       ],
     });

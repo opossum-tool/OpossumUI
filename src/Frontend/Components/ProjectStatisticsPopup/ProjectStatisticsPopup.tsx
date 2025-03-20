@@ -21,6 +21,8 @@ import {
   getManualAttributions,
   getUnresolvedExternalAttributions,
 } from '../../state/selectors/resource-selectors';
+import { useShowClassifications } from '../../state/variables/use-show-classifications';
+import { useShowCriticality } from '../../state/variables/use-show-criticality';
 import { useUserSetting } from '../../state/variables/use-user-setting';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { BarChart } from '../BarChart/BarChart';
@@ -93,6 +95,9 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   const [selectedTab, setSelectedTab] = useState(0);
 
+  const [showClassifications] = useShowClassifications();
+  const [showCriticality] = useShowCriticality();
+
   return (
     <NotificationPopup
       content={
@@ -135,7 +140,9 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 <PieChart segments={mostFrequentLicenseCountData} />
               </ChartGridItem>
               <ChartGridItem
-                shouldRender={criticalSignalsCount.length > 0}
+                shouldRender={
+                  criticalSignalsCount.length > 0 && showCriticality
+                }
                 testId={'criticalSignalsCountPieChart'}
               >
                 <MuiTypography variant="subtitle1">
@@ -150,7 +157,9 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 />
               </ChartGridItem>
               <ChartGridItem
-                shouldRender={signalCountByClassification.length > 0}
+                shouldRender={
+                  signalCountByClassification.length > 0 && showClassifications
+                }
                 testId={'signalCountByClassificationPieChart'}
               >
                 <MuiTypography variant="subtitle1">

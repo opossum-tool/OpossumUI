@@ -9,8 +9,22 @@ import upath from 'upath';
 
 import { getIconPath } from './iconHelpers';
 
-export async function createWindow(): Promise<BrowserWindow> {
-  const mainWindow = new BrowserWindow({
+export async function loadWebApp(
+  mainWindow: Electron.CrossProcessExports.BrowserWindow,
+) {
+  if (!app.isPackaged) {
+    await mainWindow.loadURL('http://localhost:5173/');
+
+    mainWindow.webContents.openDevTools();
+  } else {
+    await mainWindow.loadURL(
+      `file://${path.join(upath.toUnix(__dirname), '../../index.html')}`,
+    );
+  }
+}
+
+export function createWindow(): BrowserWindow {
+  return new BrowserWindow({
     width: 1920,
     height: 1080,
     minWidth: 500,
@@ -23,16 +37,4 @@ export async function createWindow(): Promise<BrowserWindow> {
     },
     icon: getIconPath(),
   });
-
-  if (!app.isPackaged) {
-    await mainWindow.loadURL('http://localhost:5173/');
-
-    mainWindow.webContents.openDevTools();
-  } else {
-    await mainWindow.loadURL(
-      `file://${path.join(upath.toUnix(__dirname), '../../index.html')}`,
-    );
-  }
-
-  return mainWindow;
 }

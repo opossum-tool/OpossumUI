@@ -7,8 +7,7 @@ import { BrowserWindow, MenuItemConstructorOptions } from 'electron';
 
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
-import { createMenu } from '../menu';
-import { UserSettings } from '../user-settings';
+import { switchableMenuItem } from './switchableMenuItem';
 
 function getShowDevTools(): MenuItemConstructorOptions {
   return {
@@ -57,25 +56,31 @@ function getZoomOut(): MenuItemConstructorOptions {
 async function getQaMode(
   mainWindow: BrowserWindow,
 ): Promise<MenuItemConstructorOptions> {
-  const qaMode = (await UserSettings.get('qaMode')) ?? false;
-
-  return {
-    icon: qaMode
-      ? getIconBasedOnTheme(
-          'icons/check-box-white.png',
-          'icons/check-box-black.png',
-        )
-      : getIconBasedOnTheme(
-          'icons/check-box-blank-white.png',
-          'icons/check-box-blank-black.png',
-        ),
+  return switchableMenuItem(mainWindow, {
+    id: 'qa-mode',
     label: text.menu.viewSubmenu.qaMode,
-    id: qaMode ? 'enabled-qa-mode' : 'disabled-qa-mode',
-    click: async () => {
-      await UserSettings.set('qaMode', !qaMode);
-      await createMenu(mainWindow);
-    },
-  };
+    userSettingsKey: 'qaMode',
+  });
+}
+
+function getShowClassifications(
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
+  return switchableMenuItem(mainWindow, {
+    id: 'show-classifications',
+    label: text.menu.viewSubmenu.showClassifications,
+    userSettingsKey: 'showClassifications',
+  });
+}
+
+function getShowCriticality(
+  mainWindow: BrowserWindow,
+): Promise<MenuItemConstructorOptions> {
+  return switchableMenuItem(mainWindow, {
+    id: 'show-criticality',
+    label: text.menu.viewSubmenu.showCriticality,
+    userSettingsKey: 'showCriticality',
+  });
 }
 
 export async function getViewMenu(
@@ -89,6 +94,8 @@ export async function getViewMenu(
       getZoomIn(),
       getZoomOut(),
       await getQaMode(mainWindow),
+      await getShowCriticality(mainWindow),
+      await getShowClassifications(mainWindow),
     ],
   };
 }
