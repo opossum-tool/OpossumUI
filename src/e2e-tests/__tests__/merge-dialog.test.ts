@@ -20,7 +20,6 @@ test.use({
       }),
     }),
     outputData: faker.opossum.outputData({}),
-    provideImportFiles: true,
   },
 });
 
@@ -41,10 +40,9 @@ test('merges legacy opossum file', async ({
   mergeDialog,
   resourcesTree,
   window,
+  filePaths,
 }) => {
-  await stubDialog(window.app, 'showOpenDialogSync', [
-    mergeDialog.legacyFilePath,
-  ]);
+  await stubDialog(window.app, 'showOpenDialogSync', [filePaths!.json]);
 
   await menuBar.mergeLegacyOpossumFile();
   await mergeDialog.assert.titleIsVisible();

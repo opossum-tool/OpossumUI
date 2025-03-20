@@ -20,6 +20,34 @@ export class MenuBar {
     hasTitle: async (title: string): Promise<void> => {
       expect(await this.window.title()).toBe(title);
     },
+    openRecentIsEnabled: async (): Promise<void> => {
+      const menuItem = await findMenuItem(
+        this.window.app,
+        'label',
+        'Open Recent',
+      );
+      expect(menuItem!.enabled).toBe(true);
+    },
+    openRecentIsDisabled: async (): Promise<void> => {
+      const menuItem = await findMenuItem(
+        this.window.app,
+        'label',
+        'Open Recent',
+      );
+      expect(menuItem!.enabled).toBe(false);
+    },
+    hasRecentlyOpenedProject: async (projectName: string): Promise<void> => {
+      const submenu = (
+        await findMenuItem(this.window.app, 'label', 'Open Recent')
+      )?.submenu;
+      const menuItem = await findMenuItem(
+        this.window.app,
+        'label',
+        projectName,
+        submenu,
+      );
+      expect(menuItem).toBeDefined();
+    },
   };
 
   async openProjectMetadata(): Promise<void> {
@@ -31,20 +59,18 @@ export class MenuBar {
   }
 
   private async clickSubmenuItem(
+    menuLabel: string,
     submenuLabel: string,
-    itemLabel: string,
   ): Promise<void> {
-    const submenu = (await findMenuItem(this.window.app, 'label', submenuLabel))
-      ?.submenu;
+    const submenu = (await findMenuItem(this.window.app, 'label', menuLabel))!
+      .submenu;
     const menuItem = await findMenuItem(
       this.window.app,
       'label',
-      itemLabel,
+      submenuLabel,
       submenu,
     );
-    if (menuItem?.id) {
-      await clickMenuItemById(this.window.app, menuItem.id);
-    }
+    await clickMenuItemById(this.window.app, menuItem!.id);
   }
 
   async openProjectStatistics(): Promise<void> {

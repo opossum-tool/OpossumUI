@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, Menu, MenuItem } from 'electron';
+import { BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
 import os from 'os';
 
 import { getAboutMenu } from './menu/aboutMenu';
@@ -12,15 +12,19 @@ import { getFileMenu } from './menu/fileMenu';
 import { getHelpMenu } from './menu/helpMenu';
 import { getViewMenu } from './menu/viewMenu';
 
-export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
+export async function createMenu(mainWindow: BrowserWindow): Promise<void> {
   const webContents = mainWindow.webContents;
 
-  return Menu.buildFromTemplate([
-    ...(os.platform() === 'darwin' ? [{ role: 'appMenu' } as MenuItem] : []),
-    getFileMenu(mainWindow),
-    getEditMenu(webContents),
-    await getViewMenu(),
-    getAboutMenu(),
-    getHelpMenu(webContents),
-  ]);
+  return Menu.setApplicationMenu(
+    Menu.buildFromTemplate([
+      ...(os.platform() === 'darwin'
+        ? [{ role: 'appMenu' } satisfies MenuItemConstructorOptions]
+        : []),
+      await getFileMenu(mainWindow),
+      getEditMenu(webContents),
+      await getViewMenu(mainWindow),
+      getAboutMenu(),
+      getHelpMenu(webContents),
+    ]),
+  );
 }

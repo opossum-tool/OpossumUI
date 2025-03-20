@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { shell } from 'electron';
+import { MenuItemConstructorOptions, shell } from 'electron';
 
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
@@ -12,7 +12,7 @@ import {
   getPathOfNoticeDocument,
 } from '../notice-document-helpers';
 
-function getOpenOnGithub() {
+function getOpenOnGithub(): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/github-white.png',
@@ -24,7 +24,7 @@ function getOpenOnGithub() {
   };
 }
 
-function getOpossumUiNotices() {
+function getOpossumUiNotices(): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/notice-white.png',
@@ -35,7 +35,7 @@ function getOpossumUiNotices() {
   };
 }
 
-function getChromiumNotices() {
+function getChromiumNotices(): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme(
       'icons/chromium-white.png',
@@ -46,7 +46,7 @@ function getChromiumNotices() {
   };
 }
 
-export function getAboutMenu() {
+export function getAboutMenu(): MenuItemConstructorOptions {
   return {
     label: text.menu.about,
     submenu: [getOpenOnGithub(), getOpossumUiNotices(), getChromiumNotices()],
