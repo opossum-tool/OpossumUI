@@ -142,7 +142,7 @@ export const PackageCard = memo(
       }),
       [cardConfig, packageInfo, classification_mapping],
     );
-    const [userSettings, _] = useUserSettings();
+    const [userSettings] = useUserSettings();
     const showClassifications = userSettings.showClassifications;
     const showCriticality = userSettings.showCriticality;
     const rightIcons = useMemo(

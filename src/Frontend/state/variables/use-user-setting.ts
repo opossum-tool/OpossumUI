@@ -33,18 +33,22 @@ export function useInitialSyncUserSettings() {
   );
 }
 
-type PartialUserSettings =
-  | Partial<UserSettings>
-  | ((settings: UserSettings) => Partial<UserSettings>);
-
 export function useUserSettings(): [
   UserSettings,
-  (userSettings: PartialUserSettings) => void,
+  (
+    userSettings:
+      | Partial<UserSettings>
+      | ((settings: UserSettings) => Partial<UserSettings>),
+  ) => void,
 ] {
   const userSettings = useAppSelector(getUserSettings);
   const dispatch = useAppDispatch();
 
-  const updateUserSettings = (userSettings: PartialUserSettings): void => {
+  const updateUserSettings = (
+    userSettings:
+      | Partial<UserSettings>
+      | ((settings: UserSettings) => Partial<UserSettings>),
+  ): void => {
     dispatch(updateUserSettingsThunkAction(userSettings));
   };
   return [userSettings, updateUserSettings];

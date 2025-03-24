@@ -5,7 +5,7 @@
 import { UserSettings } from '../../../../shared/shared-types';
 import { State } from '../../../types/types';
 import { getUserSettings } from '../../selectors/user-settings-selector';
-import { AppThunkAction, AppThunkDispatch } from '../../types';
+import { AppThunkAction } from '../../types';
 import { ACTION_SET_USER_SETTING, SetUserSetting } from './types';
 
 export function setUserSetting(setting: Partial<UserSettings>): SetUserSetting {
@@ -29,7 +29,7 @@ function getUserSettingsToSet(
   getState: () => State,
 ): Partial<UserSettings> {
   if (typeof userSettings === 'function') {
-    const currentUserSettings: UserSettings = getUserSettings(getState());
+    const currentUserSettings = getUserSettings(getState());
     return userSettings(currentUserSettings);
   }
   return userSettings;
@@ -40,7 +40,7 @@ export function updateUserSettings(
     | Partial<UserSettings>
     | ((currentSettings: UserSettings) => Partial<UserSettings>),
 ): AppThunkAction {
-  return async (dispatch: AppThunkDispatch, getState: () => State) => {
+  return async (dispatch, getState) => {
     const userSettingsToSet = getUserSettingsToSet(userSettings, getState);
     await window.electronAPI.setUserSettings(userSettingsToSet);
     dispatch(setUserSetting(userSettingsToSet));

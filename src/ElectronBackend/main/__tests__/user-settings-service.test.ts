@@ -38,7 +38,7 @@ jest.mock('electron', () => {
   };
 });
 
-describe('UserSettings', () => {
+describe('UserSettingsService', () => {
   let temporaryDir: string | undefined = undefined;
   beforeEach(async () => {
     temporaryDir = await mkdtemp(join(tmpdir(), 'OpossumUiTesting-'));
