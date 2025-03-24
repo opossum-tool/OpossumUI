@@ -45,22 +45,23 @@ const props: AttributionCountPerSourcePerLicenseTableProps = {
   },
 };
 
-function expectHeaderTextsToEqual(
-  screen: Screen,
-  expectedHeaderTexts: Array<string>,
-) {
-  const headerTexts = screen
+function getHeaderTexts(screen: Screen): Array<string> {
+  const isHtmlElement = (
+    node: HTMLElement | undefined,
+  ): node is HTMLElement => {
+    return !!node;
+  };
+  return screen
     .getAllByTestId('table-cell-with-sorting')
-    .map((node) => node.textContent);
-
-  expect(headerTexts).toEqual(expectedHeaderTexts);
+    .filter(isHtmlElement)
+    .map((node) => node.textContent || '');
 }
 
 describe('Attribution count per source per license table', () => {
   it('shows by default criticality and classification columns', () => {
     renderComponent(<AttributionCountPerSourcePerLicenseTable {...props} />);
 
-    expectHeaderTextsToEqual(screen, [
+    expect(getHeaderTexts(screen)).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Criticality',
       'Classification',
@@ -75,7 +76,7 @@ describe('Attribution count per source per license table', () => {
       actions: [setUserSetting({ showCriticality: false })],
     });
 
-    expectHeaderTextsToEqual(screen, [
+    expect(getHeaderTexts(screen)).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Classification',
       'SourceA',
@@ -89,7 +90,7 @@ describe('Attribution count per source per license table', () => {
       actions: [setUserSetting({ showClassifications: false })],
     });
 
-    expectHeaderTextsToEqual(screen, [
+    expect(getHeaderTexts(screen)).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Criticality',
       'SourceA',
@@ -102,7 +103,7 @@ describe('Attribution count per source per license table', () => {
     const { store } = renderComponent(
       <AttributionCountPerSourcePerLicenseTable {...props} />,
     );
-    expectHeaderTextsToEqual(screen, [
+    expect(getHeaderTexts(screen)).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Criticality',
       'Classification',
@@ -113,7 +114,7 @@ describe('Attribution count per source per license table', () => {
 
     fireEvent.click(screen.getByText('Criticality'));
 
-    expectHeaderTextsToEqual(screen, [
+    expect(getHeaderTexts(screen)).toEqual([
       'Name',
       'Criticalitysorted descending', //correct, the sorted, descending is for a11y
       'Classification',
@@ -126,7 +127,7 @@ describe('Attribution count per source per license table', () => {
       store.dispatch(setUserSetting({ showCriticality: false }));
     });
 
-    expectHeaderTextsToEqual(screen, [
+    expect(getHeaderTexts(screen)).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Classification',
       'SourceA',
@@ -136,7 +137,7 @@ describe('Attribution count per source per license table', () => {
 
     fireEvent.click(screen.getByText('Name'));
 
-    expectHeaderTextsToEqual(screen, [
+    expect(getHeaderTexts(screen)).toEqual([
       'Namesorted descending', //correct, the sorted, descending is for a11y
       'Classification',
       'SourceA',
