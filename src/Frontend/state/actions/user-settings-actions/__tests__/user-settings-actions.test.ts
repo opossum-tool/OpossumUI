@@ -7,10 +7,6 @@ import { waitFor } from '@testing-library/react';
 import { DEFAULT_USER_SETTINGS } from '../../../../../shared/shared-constants';
 import { createAppStore } from '../../../configure-store';
 import {
-  getQaMode,
-  getShowClassifications,
-} from '../../../selectors/user-settings-selector';
-import {
   fetchUserSettings,
   updateUserSettings,
 } from '../user-settings-actions';
@@ -29,7 +25,7 @@ describe('user-settings-actions', () => {
     store.dispatch(fetchUserSettings());
 
     await waitFor(() => {
-      expect(getQaMode(store.getState())).toBe(true);
+      expect(store.getState().userSettingsState?.qaMode).toBe(true);
     });
   });
 
@@ -41,7 +37,9 @@ describe('user-settings-actions', () => {
     store.dispatch(updateUserSettings(userSettings));
 
     await waitFor(() => {
-      expect(getShowClassifications(store.getState())).toBe(false);
+      expect(store.getState().userSettingsState?.showClassifications).toBe(
+        false,
+      );
     });
     expect(backendCall).toHaveBeenCalledWith(userSettings);
   });

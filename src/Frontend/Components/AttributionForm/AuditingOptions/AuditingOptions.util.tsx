@@ -26,9 +26,7 @@ import {
   getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
-import { getQaMode } from '../../../state/selectors/user-settings-selector';
-import { useShowClassifications } from '../../../state/variables/use-show-classifications';
-import { useShowCriticality } from '../../../state/variables/use-show-criticality';
+import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { prettifySource } from '../../../util/prettify-source';
 import {
   ClassificationIcon,
@@ -58,14 +56,15 @@ export function useAuditingOptions({
 }) {
   const dispatch = useAppDispatch();
   const store = useAppStore();
-  const qaMode = useAppSelector(getQaMode);
   const attributionSources = useAppSelector(getExternalAttributionSources);
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,
   );
   const classifications = useAppSelector(getClassifications);
-  const showClassifications = useShowClassifications();
-  const showCriticality = useShowCriticality();
+  const [userSettings] = useUserSettings();
+  const qaMode = userSettings.qaMode;
+  const showClassifications = userSettings.showClassifications;
+  const showCriticality = userSettings.showCriticality;
 
   const source = useMemo(() => {
     const sourceName =

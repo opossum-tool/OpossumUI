@@ -3,21 +3,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { PanelSizes, UserSettings } from '../../../shared/shared-types';
-import { updateUserSettings } from '../actions/user-settings-actions/user-settings-actions';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { getPanelSizes } from '../selectors/user-settings-selector';
+import { useUserSettings } from './use-user-setting';
 
 export const usePanelSizes = (): {
   panelSizes: PanelSizes;
   setPanelSizes: (panelsSizes: Partial<PanelSizes>) => void;
 } => {
-  const panelSizes = useAppSelector(getPanelSizes);
-  const dispatch = useAppDispatch();
+  const [userSettings, updateUserSettings] = useUserSettings();
+  const panelSizes = userSettings.panelSizes;
   const setPanelSizes = (panelSizes: Partial<PanelSizes>) =>
-    dispatch(
-      updateUserSettings((currentSettings: UserSettings) => ({
-        panelSizes: { ...currentSettings.panelSizes, ...panelSizes },
-      })),
-    );
+    updateUserSettings((currentSettings: UserSettings) => ({
+      panelSizes: { ...currentSettings.panelSizes, ...panelSizes },
+    }));
   return { panelSizes, setPanelSizes };
 };

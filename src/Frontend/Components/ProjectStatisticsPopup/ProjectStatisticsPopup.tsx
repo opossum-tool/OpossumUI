@@ -13,7 +13,6 @@ import { PropsWithChildren, useState } from 'react';
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor } from '../../shared-styles';
-import { updateUserSettings } from '../../state/actions/user-settings-actions/user-settings-actions';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -22,9 +21,7 @@ import {
   getManualAttributions,
   getUnresolvedExternalAttributions,
 } from '../../state/selectors/resource-selectors';
-import { getShowProjectStatistics } from '../../state/selectors/user-settings-selector';
-import { useShowClassifications } from '../../state/variables/use-show-classifications';
-import { useShowCriticality } from '../../state/variables/use-show-criticality';
+import { useUserSettings } from '../../state/variables/use-user-setting';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { BarChart } from '../BarChart/BarChart';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -91,12 +88,13 @@ export const ProjectStatisticsPopup: React.FC = () => {
     dispatch(closePopup());
   }
 
-  const showProjectStatistics = useAppSelector(getShowProjectStatistics);
+  const [userSettings, updateUserSettings] = useUserSettings();
+
+  const showProjectStatistics = userSettings.showProjectStatistics;
+  const showClassifications = userSettings.showClassifications;
+  const showCriticality = userSettings.showCriticality;
 
   const [selectedTab, setSelectedTab] = useState(0);
-
-  const showClassifications = useShowClassifications();
-  const showCriticality = useShowCriticality();
 
   return (
     <NotificationPopup
@@ -211,11 +209,9 @@ export const ProjectStatisticsPopup: React.FC = () => {
         <Checkbox
           checked={showProjectStatistics}
           onChange={(event) =>
-            dispatch(
-              updateUserSettings({
-                showProjectStatistics: event.target.checked,
-              }),
-            )
+            updateUserSettings({
+              showProjectStatistics: event.target.checked,
+            })
           }
           label={text.projectStatisticsPopup.toggleStartupCheckbox}
         />

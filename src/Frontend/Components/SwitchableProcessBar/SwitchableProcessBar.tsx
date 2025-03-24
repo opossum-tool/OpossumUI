@@ -10,8 +10,7 @@ import React, { useState } from 'react';
 import { text as fullText } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useProgressData } from '../../state/variables/use-progress-data';
-import { useShowClassifications } from '../../state/variables/use-show-classifications';
-import { useShowCriticality } from '../../state/variables/use-show-criticality';
+import { useUserSettings } from '../../state/variables/use-user-setting';
 import { SelectedProgressBar } from '../../types/types';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 
@@ -43,8 +42,9 @@ interface ProgressBarSwitchConfiguration {
 }
 
 export const SwitchableProcessBar: React.FC = () => {
-  const showClassifications = useShowClassifications();
-  const showCriticality = useShowCriticality();
+  const [userSettings] = useUserSettings();
+  const showClassifications = userSettings.showClassifications;
+  const showCriticality = userSettings.showCriticality;
 
   const switchableProgressBarConfiguration: Record<
     SelectedProgressBar,

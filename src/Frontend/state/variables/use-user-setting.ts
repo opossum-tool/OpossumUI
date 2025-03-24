@@ -13,8 +13,10 @@ import {
 import {
   fetchUserSettings,
   setUserSetting,
+  updateUserSettings as updateUserSettingsThunkAction,
 } from '../actions/user-settings-actions/user-settings-actions';
-import { useAppDispatch } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { getUserSettings } from '../selectors/user-settings-selector';
 
 // should only be called once
 export function useInitialSyncUserSettings() {
@@ -29,4 +31,21 @@ export function useInitialSyncUserSettings() {
       dispatch(setUserSetting(updatedSettings)),
     [dispatch],
   );
+}
+
+type PartialUserSettings =
+  | Partial<UserSettings>
+  | ((settings: UserSettings) => Partial<UserSettings>);
+
+export function useUserSettings(): [
+  UserSettings,
+  (userSettings: PartialUserSettings) => void,
+] {
+  const userSettings = useAppSelector(getUserSettings);
+  const dispatch = useAppDispatch();
+
+  const updateUserSettings = (userSettings: PartialUserSettings): void => {
+    dispatch(updateUserSettingsThunkAction(userSettings));
+  };
+  return [userSettings, updateUserSettings];
 }

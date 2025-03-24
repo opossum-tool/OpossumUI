@@ -7,7 +7,7 @@ import { PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';
 import { getPackageInfoOfSelectedAttribution } from '../../selectors/resource-selectors';
-import { getShowProjectStatistics } from '../../selectors/user-settings-selector';
+import { getUserSettings } from '../../selectors/user-settings-selector';
 import { getSelectedView } from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
@@ -59,7 +59,7 @@ export function openStatisticsPopupAfterFileLoadIfEnabled(
   getState: () => State,
 ): void {
   const state = getState();
-  const showStatisticsPopup = getShowProjectStatistics(state);
+  const showStatisticsPopup = getUserSettings(state).showProjectStatistics;
   if (showStatisticsPopup) {
     dispatch(openPopup(PopupType.ProjectStatisticsPopup));
   }

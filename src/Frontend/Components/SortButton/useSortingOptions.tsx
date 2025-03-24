@@ -8,8 +8,7 @@ import WhatshotIcon from '@mui/icons-material/Whatshot';
 import { useMemo } from 'react';
 
 import { text } from '../../../shared/text';
-import { useShowClassifications } from '../../state/variables/use-show-classifications';
-import { useShowCriticality } from '../../state/variables/use-show-criticality';
+import { useUserSettings } from '../../state/variables/use-user-setting';
 import { ClassificationCIcon } from '../Icons/Icons';
 
 export type SortOption =
@@ -27,8 +26,9 @@ export interface SortOptionConfiguration {
 export type SortConfiguration = Record<SortOption, SortOptionConfiguration>;
 
 export function useSortConfiguration(): SortConfiguration {
-  const showClassifications = useShowClassifications();
-  const showCriticality = useShowCriticality();
+  const [userSettings] = useUserSettings();
+  const showClassifications = userSettings.showClassifications;
+  const showCriticality = userSettings.showCriticality;
 
   return useMemo(() => {
     return {

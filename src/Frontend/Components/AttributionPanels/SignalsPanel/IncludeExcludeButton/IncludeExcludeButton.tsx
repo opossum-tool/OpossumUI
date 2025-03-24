@@ -10,13 +10,11 @@ import MuiBox from '@mui/system/Box';
 
 import { UserSettings } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
-import { updateUserSettings } from '../../../../state/actions/user-settings-actions/user-settings-actions';
-import { useAppDispatch } from '../../../../state/hooks';
-import { useAreHiddenSignalsVisible } from '../../../../state/variables/use-are-hidden-signals-visible';
+import { useUserSettings } from '../../../../state/variables/use-user-setting';
 
 export const IncludeExcludeButton: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const areHiddenSignalsVisible = useAreHiddenSignalsVisible();
+  const [userSettings, updateUserSettings] = useUserSettings();
+  const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
   const label = areHiddenSignalsVisible
     ? text.packageLists.hideDeleted
     : text.packageLists.showDeleted;
@@ -26,11 +24,9 @@ export const IncludeExcludeButton: React.FC = () => {
       aria-label={label}
       size={'small'}
       onClick={() => {
-        dispatch(
-          updateUserSettings((currentSettings: UserSettings) => ({
-            areHiddenSignalsVisible: !currentSettings.areHiddenSignalsVisible,
-          })),
-        );
+        updateUserSettings((currentSettings: UserSettings) => ({
+          areHiddenSignalsVisible: !currentSettings.areHiddenSignalsVisible,
+        }));
       }}
     >
       <MuiTooltip title={label} disableInteractive placement={'top'}>
