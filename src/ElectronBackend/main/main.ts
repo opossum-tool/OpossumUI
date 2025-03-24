@@ -66,7 +66,10 @@ export async function main(): Promise<void> {
     });
     ipcMain.handle(
       IpcChannel.OpenFile,
-      openFileListener(mainWindow, DisabledMenuItemHandler.activateMenuItems),
+      openFileListener(
+        mainWindow,
+        DisabledMenuItemHandler.activateMenuItems(mainWindow),
+      ),
     );
     ipcMain.handle(IpcChannel.SelectFile, selectFileListener(mainWindow));
     ipcMain.handle(
@@ -77,7 +80,7 @@ export async function main(): Promise<void> {
       IpcChannel.ImportFileConvertAndLoad,
       importFileConvertAndLoadListener(
         mainWindow,
-        DisabledMenuItemHandler.activateMenuItems,
+        DisabledMenuItemHandler.activateMenuItems(mainWindow),
       ),
     );
     ipcMain.handle(

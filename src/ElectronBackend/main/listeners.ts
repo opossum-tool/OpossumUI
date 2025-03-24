@@ -55,6 +55,7 @@ import {
 } from './globalBackendState';
 import logger from './logger';
 import { createMenu } from './menu';
+import { DisabledMenuItemHandler } from './menu/DisabledMenuItemHandler';
 import { UserSettings } from './user-settings';
 
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
@@ -108,7 +109,7 @@ async function writeOutputJsonToFile(
 }
 
 export const openFileListener =
-  (mainWindow: BrowserWindow, onOpen: () => void) =>
+  (mainWindow: BrowserWindow, onOpen: () => Promise<void>) =>
   async (): Promise<void> => {
     try {
       const filePaths = openOpossumFileDialog();
@@ -126,7 +127,7 @@ export const openFileListener =
 export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   filePath: string,
-  onOpen: () => void,
+  onOpen: () => Promise<void>,
 ): Promise<void> {
   setLoadingState(mainWindow.webContents, true);
 
@@ -193,7 +194,7 @@ export const importFileSelectSaveLocationListener =
   };
 
 export const importFileConvertAndLoadListener =
-  (mainWindow: BrowserWindow, onOpen: () => void) =>
+  (mainWindow: BrowserWindow, onOpen: () => Promise<void>) =>
   async (
     _: Electron.IpcMainInvokeEvent,
     resourceFilePath: string,
@@ -290,7 +291,11 @@ export const mergeFileAndLoadListener =
         fileType,
       );
 
-      await openFile(mainWindow, currentOpossumFilePath, () => {});
+      await openFile(
+        mainWindow,
+        currentOpossumFilePath,
+        DisabledMenuItemHandler.activateMenuItems(mainWindow),
+      );
 
       return true;
     } catch (error) {
@@ -353,11 +358,11 @@ function formatBaseURL(baseURL: string): string {
 export async function openFile(
   mainWindow: BrowserWindow,
   filePath: string,
-  onOpen: () => void,
+  onOpen: () => Promise<void>,
 ): Promise<void> {
   await loadInputAndOutputFromFilePath(mainWindow, filePath);
   setTitle(mainWindow, filePath);
-  onOpen();
+  await onOpen();
 }
 
 async function updateRecentlyOpenedPaths(filePath: string): Promise<void> {

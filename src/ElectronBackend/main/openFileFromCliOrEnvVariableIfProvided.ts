@@ -40,7 +40,7 @@ export async function openFileFromCliOrEnvVariableIfProvided(
     await handleOpeningFile(
       mainWindow,
       inputFileName,
-      DisabledMenuItemHandler.activateMenuItems,
+      DisabledMenuItemHandler.activateMenuItems(mainWindow),
     );
   }
 }
