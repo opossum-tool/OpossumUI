@@ -25,7 +25,9 @@ export async function switchableMenuItem(
     id: state ? `enabled-${options.id}` : `disabled-${options.id}`,
     label: options.label,
     click: async () => {
-      await UserSettingsService.set(options.userSettingsKey, !state);
+      await UserSettingsService.update(
+        Object.fromEntries([[options.userSettingsKey, !state]]),
+      );
       await createMenu(mainWindow);
     },
   };
