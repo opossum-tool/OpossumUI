@@ -111,7 +111,6 @@ export class MenuBar {
       );
     },
     initiallyDisableEntriesAreEnabled: async (): Promise<void> => {
-      await this.assertMenuItemEnabled(text.menu.fileSubmenu.openRecent);
       await this.assertMenuItemEnabled(text.menu.fileSubmenu.projectStatistics);
       await this.assertMenuItemEnabled(text.menu.fileSubmenu.projectMetadata);
       await this.assertMenuItemEnabled(text.menu.fileSubmenu.save);

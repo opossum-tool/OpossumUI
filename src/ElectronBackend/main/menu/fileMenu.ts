@@ -32,7 +32,6 @@ import {
 import logger from '../logger';
 import { createMenu } from '../menu';
 import { UserSettings } from '../user-settings';
-import { getUpdateMenuItems } from './getUpdateMenuItems';
 
 export const importFileFormats: Array<FileFormatInfo> = [
   {
@@ -88,8 +87,7 @@ function getOpenRecentSubmenu(
   return [
     ...recentlyOpenedPaths.map<MenuItemConstructorOptions>((recentPath) => ({
       label: path.basename(recentPath, path.extname(recentPath)),
-      click: ({ id }) =>
-        handleOpeningFile(mainWindow, id, getUpdateMenuItems(mainWindow)),
+      click: ({ id }) => handleOpeningFile(mainWindow, id),
       id: recentPath,
     })),
     { type: 'separator' },

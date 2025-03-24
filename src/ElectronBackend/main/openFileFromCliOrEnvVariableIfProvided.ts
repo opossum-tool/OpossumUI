@@ -6,7 +6,6 @@ import { BrowserWindow } from 'electron';
 import log from 'electron-log';
 
 import { handleOpeningFile } from './listeners';
-import { getUpdateMenuItems } from './menu/getUpdateMenuItems';
 
 export async function openFileFromCliOrEnvVariableIfProvided(
   mainWindow: BrowserWindow,
@@ -37,10 +36,6 @@ export async function openFileFromCliOrEnvVariableIfProvided(
   }
 
   if (inputFileName) {
-    await handleOpeningFile(
-      mainWindow,
-      inputFileName,
-      getUpdateMenuItems(mainWindow),
-    );
+    await handleOpeningFile(mainWindow, inputFileName);
   }
 }
