@@ -70,6 +70,7 @@ export class MenuBar {
       submenuLabel,
       submenu,
     );
+    expect(menuItem?.enabled).toBe(true);
     await clickMenuItemById(this.window.app, menuItem!.id);
   }
 

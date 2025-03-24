@@ -127,6 +127,7 @@ function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
       label: text.menu.fileSubmenu.mergeSubmenu(fileFormat),
       click: getMergeListener(mainWindow, fileFormat),
       enabled: isFileLoaded(getGlobalBackendState()),
+      id: `id-${fileFormat.name}`,
     })),
   };
 }
