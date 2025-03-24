@@ -108,8 +108,7 @@ async function writeOutputJsonToFile(
 }
 
 export const openFileListener =
-  (mainWindow: BrowserWindow, onOpen: () => void) =>
-  async (): Promise<void> => {
+  (mainWindow: BrowserWindow) => async (): Promise<void> => {
     try {
       const filePaths = openOpossumFileDialog();
       if (!filePaths || filePaths.length < 1) {
@@ -117,7 +116,7 @@ export const openFileListener =
       }
       const filePath = filePaths[0];
 
-      await handleOpeningFile(mainWindow, filePath, onOpen);
+      await handleOpeningFile(mainWindow, filePath);
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
     }
@@ -126,14 +125,13 @@ export const openFileListener =
 export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   filePath: string,
-  onOpen: () => void,
 ): Promise<void> {
   setLoadingState(mainWindow.webContents, true);
 
   logger.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, true);
 
-  await openFile(mainWindow, filePath, onOpen);
+  await openFile(mainWindow, filePath);
 
   await updateRecentlyOpenedPaths(filePath);
 
@@ -193,7 +191,7 @@ export const importFileSelectSaveLocationListener =
   };
 
 export const importFileConvertAndLoadListener =
-  (mainWindow: BrowserWindow, onOpen: () => void) =>
+  (mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,
     resourceFilePath: string,
@@ -237,7 +235,7 @@ export const importFileConvertAndLoadListener =
       logger.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath, true);
 
-      await openFile(mainWindow, opossumFilePath, onOpen);
+      await openFile(mainWindow, opossumFilePath);
 
       return true;
     } catch (error) {
@@ -290,7 +288,7 @@ export const mergeFileAndLoadListener =
         fileType,
       );
 
-      await openFile(mainWindow, currentOpossumFilePath, () => {});
+      await openFile(mainWindow, currentOpossumFilePath);
 
       return true;
     } catch (error) {
@@ -353,11 +351,9 @@ function formatBaseURL(baseURL: string): string {
 export async function openFile(
   mainWindow: BrowserWindow,
   filePath: string,
-  onOpen: () => void,
 ): Promise<void> {
   await loadInputAndOutputFromFilePath(mainWindow, filePath);
   setTitle(mainWindow, filePath);
-  onOpen();
 }
 
 async function updateRecentlyOpenedPaths(filePath: string): Promise<void> {

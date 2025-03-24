@@ -10,7 +10,6 @@ import { text } from '../../../shared/text';
 import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
-import { DisabledMenuItemHandler } from './DisabledMenuItemHandler';
 
 function getUndo(): MenuItemConstructorOptions {
   return {
@@ -66,14 +65,14 @@ function getSelectAll(): MenuItemConstructorOptions {
     label: text.menu.editSubmenu.selectAll,
     accelerator: 'CmdOrCtrl+A',
     role: 'selectAll',
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
   };
 }
 
 function getSearchAttributions(
   webContents: Electron.WebContents,
 ): MenuItemConstructorOptions {
+  const isLoaded = isFileLoaded(getGlobalBackendState());
+
   return {
     icon: getIconBasedOnTheme(
       'icons/magnifying-glass-white.png',
@@ -82,18 +81,19 @@ function getSearchAttributions(
     label: text.menu.editSubmenu.searchAttributions,
     accelerator: 'CmdOrCtrl+Shift+A',
     click: () => {
-      if (isFileLoaded(getGlobalBackendState())) {
+      if (isLoaded) {
         webContents.send(AllowedFrontendChannels.SearchAttributions);
       }
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isLoaded,
   };
 }
 
 function getSearchSignals(
   webContents: Electron.WebContents,
 ): MenuItemConstructorOptions {
+  const isLoaded = isFileLoaded(getGlobalBackendState());
+
   return {
     icon: getIconBasedOnTheme(
       'icons/magnifying-glass-white.png',
@@ -102,18 +102,19 @@ function getSearchSignals(
     label: text.menu.editSubmenu.searchSignals,
     accelerator: 'CmdOrCtrl+Shift+S',
     click: () => {
-      if (isFileLoaded(getGlobalBackendState())) {
+      if (isLoaded) {
         webContents.send(AllowedFrontendChannels.SearchSignals);
       }
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isLoaded,
   };
 }
 
 function getSearchResources(
   webContents: Electron.WebContents,
 ): MenuItemConstructorOptions {
+  const isLoaded = isFileLoaded(getGlobalBackendState());
+
   return {
     icon: getIconBasedOnTheme(
       'icons/search-white.png',
@@ -122,18 +123,19 @@ function getSearchResources(
     label: text.menu.editSubmenu.searchResourcesAll,
     accelerator: 'CmdOrCtrl+Shift+R',
     click: () => {
-      if (isFileLoaded(getGlobalBackendState())) {
+      if (isLoaded) {
         webContents.send(AllowedFrontendChannels.SearchResources);
       }
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isLoaded,
   };
 }
 
 function getSearchLinkedResources(
   webContents: Electron.WebContents,
 ): MenuItemConstructorOptions {
+  const isLoaded = isFileLoaded(getGlobalBackendState());
+
   return {
     icon: getIconBasedOnTheme(
       'icons/search-white.png',
@@ -142,12 +144,11 @@ function getSearchLinkedResources(
     label: text.menu.editSubmenu.searchResourceLinked,
     accelerator: 'CmdOrCtrl+Shift+L',
     click: () => {
-      if (isFileLoaded(getGlobalBackendState())) {
+      if (isLoaded) {
         webContents.send(AllowedFrontendChannels.SearchLinkedResources);
       }
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isLoaded,
   };
 }
 

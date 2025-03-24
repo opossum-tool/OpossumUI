@@ -32,7 +32,6 @@ import {
 import logger from '../logger';
 import { createMenu } from '../menu';
 import { UserSettings } from '../user-settings';
-import { DisabledMenuItemHandler } from './DisabledMenuItemHandler';
 
 export const importFileFormats: Array<FileFormatInfo> = [
   {
@@ -88,12 +87,7 @@ function getOpenRecentSubmenu(
   return [
     ...recentlyOpenedPaths.map<MenuItemConstructorOptions>((recentPath) => ({
       label: path.basename(recentPath, path.extname(recentPath)),
-      click: ({ id }) =>
-        handleOpeningFile(
-          mainWindow,
-          id,
-          DisabledMenuItemHandler.activateMenuItems,
-        ),
+      click: ({ id }) => handleOpeningFile(mainWindow, id),
       id: recentPath,
     })),
     { type: 'separator' },
@@ -130,8 +124,7 @@ function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
     submenu: importFileFormats.map((fileFormat) => ({
       label: text.menu.fileSubmenu.mergeSubmenu(fileFormat),
       click: getMergeListener(mainWindow, fileFormat),
-      id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-      enabled: false,
+      enabled: isFileLoaded(getGlobalBackendState()),
     })),
   };
 }
@@ -146,8 +139,7 @@ function getSaveFile(webContents: WebContents): MenuItemConstructorOptions {
         saveFile: true,
       });
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -164,8 +156,7 @@ function getProjectMetadata(
         });
       }
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -185,8 +176,7 @@ function getProjectStatistics(
         });
       }
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -229,8 +219,7 @@ function getExportFollowUp(
         ExportType.FollowUp,
       );
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -251,8 +240,7 @@ function getExportCompactBom(
         ExportType.CompactBom,
       );
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -273,8 +261,7 @@ function getExportDetailedBom(
         ExportType.DetailedBom,
       );
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -292,8 +279,7 @@ function getExportSpdxYaml(
         ExportType.SpdxDocumentYaml,
       );
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -311,8 +297,7 @@ function getExportSpdxJson(
         ExportType.SpdxDocumentJson,
       );
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
