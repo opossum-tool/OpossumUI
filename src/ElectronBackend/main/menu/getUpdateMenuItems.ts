@@ -6,8 +6,8 @@ import { BrowserWindow } from 'electron';
 
 import { createMenu } from '../menu';
 
-export class DisabledMenuItemHandler {
-  static activateMenuItems(mainWindow: BrowserWindow): () => Promise<void> {
-    return async () => createMenu(mainWindow);
-  }
+export function getUpdateMenuItems(
+  mainWindow: BrowserWindow,
+): () => Promise<void> {
+  return async () => createMenu(mainWindow);
 }

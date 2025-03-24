@@ -55,7 +55,7 @@ import {
 } from './globalBackendState';
 import logger from './logger';
 import { createMenu } from './menu';
-import { DisabledMenuItemHandler } from './menu/DisabledMenuItemHandler';
+import { getUpdateMenuItems } from './menu/getUpdateMenuItems';
 import { UserSettings } from './user-settings';
 
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
@@ -294,7 +294,7 @@ export const mergeFileAndLoadListener =
       await openFile(
         mainWindow,
         currentOpossumFilePath,
-        DisabledMenuItemHandler.activateMenuItems(mainWindow),
+        getUpdateMenuItems(mainWindow),
       );
 
       return true;

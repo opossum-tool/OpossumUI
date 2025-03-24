@@ -32,7 +32,7 @@ import {
 import logger from '../logger';
 import { createMenu } from '../menu';
 import { UserSettings } from '../user-settings';
-import { DisabledMenuItemHandler } from './DisabledMenuItemHandler';
+import { getUpdateMenuItems } from './getUpdateMenuItems';
 
 export const importFileFormats: Array<FileFormatInfo> = [
   {
@@ -89,11 +89,7 @@ function getOpenRecentSubmenu(
     ...recentlyOpenedPaths.map<MenuItemConstructorOptions>((recentPath) => ({
       label: path.basename(recentPath, path.extname(recentPath)),
       click: ({ id }) =>
-        handleOpeningFile(
-          mainWindow,
-          id,
-          DisabledMenuItemHandler.activateMenuItems(mainWindow),
-        ),
+        handleOpeningFile(mainWindow, id, getUpdateMenuItems(mainWindow)),
       id: recentPath,
     })),
     { type: 'separator' },
