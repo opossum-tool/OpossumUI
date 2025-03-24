@@ -42,7 +42,9 @@ export class UserSettingsService {
 
   public static async update(
     userSettings: Partial<IUserSettings>,
-    skipNotification: boolean = false,
+    { skipNotification }: { skipNotification: boolean } = {
+      skipNotification: false,
+    },
   ): Promise<void> {
     for (const key of Object.keys(userSettings)) {
       const properKey = key as keyof UserSettings;
@@ -57,7 +59,9 @@ export class UserSettingsService {
   public static async set<T extends keyof IUserSettings>(
     path: T,
     value: IUserSettings[T],
-    { skipNotification }: { skipNotification?: boolean } = {},
+    { skipNotification }: { skipNotification: boolean } = {
+      skipNotification: false,
+    },
   ): Promise<void> {
     await settings.set(path, value);
 
