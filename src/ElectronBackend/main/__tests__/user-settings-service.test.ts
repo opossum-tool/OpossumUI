@@ -105,7 +105,7 @@ describe('UserSettingsService', () => {
 
   describe('write operations', () => {
     it('sets a value and communicates to the frontend', async () => {
-      await UserSettingsService.update({ qaMode: true });
+      await UserSettingsService.set({ qaMode: true });
 
       const qaMode = await UserSettingsService.get('qaMode');
       expect(qaMode).toBe(true);
@@ -117,7 +117,7 @@ describe('UserSettingsService', () => {
     });
 
     it('sets a value and does not communicates to the frontend if disabled', async () => {
-      await UserSettingsService.update(
+      await UserSettingsService.set(
         { qaMode: true },
         {
           skipNotification: true,
@@ -134,7 +134,7 @@ describe('UserSettingsService', () => {
     it('allows to update multiple values at once', async () => {
       await UserSettingsService.init();
 
-      await UserSettingsService.update({
+      await UserSettingsService.set({
         qaMode: true,
         showClassifications: false,
       });
@@ -143,7 +143,7 @@ describe('UserSettingsService', () => {
 
       expect(
         (BrowserWindow as unknown as MockedBrowserWindow).sendFunction,
-      ).toHaveBeenCalledTimes(2);
+      ).toHaveBeenCalledTimes(1);
       expect(userSettings).toEqual({
         ...DEFAULT_USER_SETTINGS,
         qaMode: true,

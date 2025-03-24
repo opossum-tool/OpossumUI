@@ -40,7 +40,7 @@ export class UserSettingsService {
     return settings.get() as unknown as Promise<IUserSettings>;
   }
 
-  public static async update(
+  public static async set(
     userSettings: Partial<IUserSettings>,
     { skipNotification }: { skipNotification: boolean } = {
       skipNotification: false,
@@ -49,28 +49,14 @@ export class UserSettingsService {
     for (const key of Object.keys(userSettings)) {
       const properKey = key as keyof UserSettings;
       if (userSettings[properKey] !== undefined) {
-        await UserSettingsService.set(properKey, userSettings[properKey], {
-          skipNotification,
-        });
+        await settings.set(properKey, userSettings[properKey]);
       }
     }
-  }
-
-  public static async set<T extends keyof IUserSettings>(
-    path: T,
-    value: IUserSettings[T],
-    { skipNotification }: { skipNotification: boolean } = {
-      skipNotification: false,
-    },
-  ): Promise<void> {
-    await settings.set(path, value);
-
     if (!skipNotification) {
-      const partialSettingsToUpdate = Object.fromEntries([[path, value]]);
       BrowserWindow.getAllWindows().forEach((window) => {
         window.webContents.send(
           AllowedFrontendChannels.UserSettingsChanged,
-          partialSettingsToUpdate,
+          userSettings,
         );
       });
     }

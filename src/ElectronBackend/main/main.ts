@@ -97,7 +97,7 @@ export async function main(): Promise<void> {
     ipcMain.handle(
       IpcChannel.SetUserSettings,
       (_, userSettings: Partial<UserSettings>) =>
-        UserSettingsService.update(userSettings, { skipNotification: true }),
+        UserSettingsService.set(userSettings, { skipNotification: true }),
     );
 
     await loadWebApp(mainWindow);
