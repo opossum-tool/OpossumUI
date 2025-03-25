@@ -95,9 +95,9 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.OpenLink, openLinkListener);
     ipcMain.handle(IpcChannel.GetUserSettings, () => UserSettingsService.get());
     ipcMain.handle(
-      IpcChannel.SetUserSettings,
+      IpcChannel.UpdateUserSettings,
       (_, userSettings: Partial<UserSettings>) =>
-        UserSettingsService.set(userSettings, { skipNotification: true }),
+        UserSettingsService.update(userSettings, { skipNotification: true }),
     );
 
     await loadWebApp(mainWindow);

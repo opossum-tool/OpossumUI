@@ -35,8 +35,8 @@ const electronAPI: ElectronAPI = {
     return () => ipcRenderer.removeListener(channel, listener);
   },
   getUserSettings: () => ipcRenderer.invoke(IpcChannel.GetUserSettings),
-  setUserSettings: (userSettings: Partial<UserSettings>) =>
-    ipcRenderer.invoke(IpcChannel.SetUserSettings, userSettings),
+  updateUserSettings: (userSettings: Partial<UserSettings>) =>
+    ipcRenderer.invoke(IpcChannel.UpdateUserSettings, userSettings),
 };
 
 // This exposes an API to communicate from the window in the frontend with the backend

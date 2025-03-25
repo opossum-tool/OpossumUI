@@ -40,7 +40,7 @@ export class UserSettingsService {
     return settings.get() as unknown as Promise<IUserSettings>;
   }
 
-  public static async set(
+  public static async update(
     userSettings: Partial<IUserSettings>,
     { skipNotification }: { skipNotification: boolean } = {
       skipNotification: false,

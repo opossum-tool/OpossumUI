@@ -42,7 +42,7 @@ export function updateUserSettings(
 ): AppThunkAction {
   return async (dispatch, getState) => {
     const userSettingsToSet = getUserSettingsToSet(userSettings, getState);
-    await window.electronAPI.setUserSettings(userSettingsToSet);
+    await window.electronAPI.updateUserSettings(userSettingsToSet);
     dispatch(setUserSetting(userSettingsToSet));
   };
 }

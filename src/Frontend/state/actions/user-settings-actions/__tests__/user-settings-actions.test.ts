@@ -31,7 +31,7 @@ describe('user-settings-actions', () => {
 
   it('updates user settings and communicates to the backend', async () => {
     const store = createAppStore();
-    const backendCall = jest.mocked(window.electronAPI.setUserSettings);
+    const backendCall = jest.mocked(window.electronAPI.updateUserSettings);
 
     const userSettings = { showClassifications: false };
     store.dispatch(updateUserSettings(userSettings));

@@ -364,7 +364,7 @@ async function updateRecentlyOpenedPaths(filePath: string): Promise<void> {
   const recentlyOpenedPaths = await UserSettingsService.get(
     'recentlyOpenedPaths',
   );
-  await UserSettingsService.set(
+  await UserSettingsService.update(
     {
       recentlyOpenedPaths: uniq([
         filePath,

@@ -103,7 +103,7 @@ function getOpenRecentSubmenu(
       id: 'clear-recent',
       label: text.menu.fileSubmenu.clearRecent,
       click: async () => {
-        await UserSettingsService.set(
+        await UserSettingsService.update(
           { recentlyOpenedPaths: [] },
           { skipNotification: true },
         );

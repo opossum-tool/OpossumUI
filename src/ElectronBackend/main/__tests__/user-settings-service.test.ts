@@ -105,7 +105,7 @@ describe('UserSettingsService', () => {
 
   describe('write operations', () => {
     it('sets a value and communicates to the frontend', async () => {
-      await UserSettingsService.set({ qaMode: true });
+      await UserSettingsService.update({ qaMode: true });
 
       const qaMode = await UserSettingsService.get('qaMode');
       expect(qaMode).toBe(true);
@@ -117,7 +117,7 @@ describe('UserSettingsService', () => {
     });
 
     it('sets a value and does not communicates to the frontend if disabled', async () => {
-      await UserSettingsService.set(
+      await UserSettingsService.update(
         { qaMode: true },
         {
           skipNotification: true,
@@ -134,7 +134,7 @@ describe('UserSettingsService', () => {
     it('allows to update multiple values at once', async () => {
       await UserSettingsService.init();
 
-      await UserSettingsService.set({
+      await UserSettingsService.update({
         qaMode: true,
         showClassifications: false,
       });

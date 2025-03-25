@@ -297,7 +297,7 @@ export interface ElectronAPI {
   stopLoading: () => void;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
   getUserSettings: () => Promise<UserSettings>;
-  setUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
+  updateUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
 }
 
 declare global {
