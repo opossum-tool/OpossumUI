@@ -14,6 +14,7 @@ import {
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { getGlobalBackendState } from '../main/globalBackendState';
+import { LoadStatusUpdater } from '../main/LoadStatusUpdater';
 import logger from '../main/logger';
 import { getLoadedFilePath } from '../utils/getLoadedFile';
 
@@ -41,14 +42,14 @@ export async function showListenerErrorInMessageBox(
 }
 
 export function sendListenerErrorToFrontend(
-  _: BrowserWindow,
+  loadStatusUpdater: LoadStatusUpdater,
   error: unknown,
 ): void {
   // NOTE: these log messages are forwarded to the frontend
   if (error instanceof Error) {
-    logger.error(error.message);
+    loadStatusUpdater.error(error.message);
   } else {
-    logger.error('Unexpected internal error');
+    loadStatusUpdater.error('Unexpected internal error');
   }
 }
 

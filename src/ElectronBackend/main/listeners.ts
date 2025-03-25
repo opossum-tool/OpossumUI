@@ -201,6 +201,7 @@ export const importFileConvertAndLoadListener =
     opossumFilePath: string,
   ): Promise<boolean> => {
     setLoadingState(mainWindow.webContents, true);
+    const loadStatusUpdater = new LoadStatusUpdater(mainWindow);
 
     try {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
@@ -231,7 +232,6 @@ export const importFileConvertAndLoadListener =
         throw new Error(text.backendError.opossumFilePermissionError);
       }
 
-      const loadStatusUpdater = new LoadStatusUpdater(mainWindow);
       loadStatusUpdater.info('Converting input file to .opossum format');
       await convertToOpossum(resourceFilePath, opossumFilePath, fileType);
 
@@ -242,7 +242,7 @@ export const importFileConvertAndLoadListener =
 
       return true;
     } catch (error) {
-      sendListenerErrorToFrontend(mainWindow, error);
+      sendListenerErrorToFrontend(loadStatusUpdater, error);
       return false;
     } finally {
       setLoadingState(mainWindow.webContents, false);
@@ -257,6 +257,7 @@ export const mergeFileAndLoadListener =
     fileType: FileType,
   ): Promise<boolean> => {
     setLoadingState(mainWindow.webContents, true);
+    const loadStatusUpdater = new LoadStatusUpdater(mainWindow);
 
     try {
       if (!inputFilePath.trim() || !fs.existsSync(inputFilePath)) {
@@ -284,7 +285,6 @@ export const mergeFileAndLoadListener =
         throw new Error(text.backendError.cantCreateBackup);
       }
 
-      const loadStatusUpdater = new LoadStatusUpdater(mainWindow);
       loadStatusUpdater.info('Merging input file into current .opossum file');
       await mergeFileIntoOpossum(
         inputFilePath,
@@ -296,7 +296,7 @@ export const mergeFileAndLoadListener =
 
       return true;
     } catch (error) {
-      sendListenerErrorToFrontend(mainWindow, error);
+      sendListenerErrorToFrontend(loadStatusUpdater, error);
       return false;
     } finally {
       setLoadingState(mainWindow.webContents, false);

@@ -6,15 +6,12 @@ import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { FileFormatInfo, Log } from '../../../shared/shared-types';
+import { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import {
-  IsLoadingListener,
-  LoggingListener,
-  useIpcRenderer,
-} from '../../util/use-ipc-renderer';
+import { useDataLoadEvents } from '../../util/use-data-load-events';
+import { IsLoadingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -36,24 +33,14 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
     [],
   );
 
-  const [logToDisplay, setLogToDisplay] = useState<Log | null>(null);
-
-  useIpcRenderer<LoggingListener>(
-    AllowedFrontendChannels.Logging,
-    (_, log) => {
-      if (isLoading) {
-        setLogToDisplay(log);
-      }
-    },
-    [isLoading],
-  );
+  const [dataLoadEvents, reset] = useDataLoadEvents();
 
   async function selectInputFilePath(): Promise<void> {
     const filePath = await window.electronAPI.selectFile(fileFormat);
 
     if (filePath) {
       setInputFilePath(filePath);
-      setLogToDisplay(null);
+      reset();
     }
   }
 
@@ -94,9 +81,9 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
       }
       isOpen={true}
       customAction={
-        logToDisplay ? (
+        dataLoadEvents.length ? (
           <DialogLogDisplay
-            log={logToDisplay}
+            log={dataLoadEvents[dataLoadEvents.length - 1]}
             isInProgress={isLoading}
             showDate={false}
             useEllipsis={true}
