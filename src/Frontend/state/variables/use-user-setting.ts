@@ -18,6 +18,10 @@ import {
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { getUserSettings } from '../selectors/user-settings-selector';
 
+type UpdateUserSettingsArguments =
+  | Partial<UserSettings>
+  | ((currentSettings: UserSettings) => Partial<UserSettings>);
+
 export function useInitUserSettings() {
   const dispatch = useAppDispatch();
   useEffect(() => {
@@ -33,9 +37,7 @@ export function useInitUserSettings() {
 }
 
 function getUserSettingsToSet(
-  userSettings:
-    | Partial<UserSettings>
-    | ((currentSettings: UserSettings) => Partial<UserSettings>),
+  userSettings: UpdateUserSettingsArguments,
   getState: () => State,
 ): Partial<UserSettings> {
   if (typeof userSettings === 'function') {
@@ -57,9 +59,7 @@ export function useUserSettings(): [
   const dispatch = useAppDispatch();
 
   const updateUserSettings = (
-    userSettings:
-      | Partial<UserSettings>
-      | ((settings: UserSettings) => Partial<UserSettings>),
+    userSettings: UpdateUserSettingsArguments,
   ): void => {
     void dispatch(async (dispatch, getState) => {
       const userSettingsToSet = getUserSettingsToSet(userSettings, getState);
