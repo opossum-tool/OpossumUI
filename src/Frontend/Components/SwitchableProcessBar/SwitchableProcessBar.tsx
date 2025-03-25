@@ -87,7 +87,7 @@ export const SwitchableProcessBar: React.FC = () => {
     ),
   );
 
-  const moreThanOneActiveProgressBars =
+  const hasMoreThanOneActiveProgressBar =
     Object.keys(activeProgressBarConfigurations).length > 1;
 
   if (!progressData) {
@@ -100,7 +100,7 @@ export const SwitchableProcessBar: React.FC = () => {
         progressBarData={progressData}
         selectedProgressBar={effectiveCurrentProgressBar}
       />
-      {moreThanOneActiveProgressBars && (
+      {hasMoreThanOneActiveProgressBar && (
         <Select<SelectedProgressBar>
           size={'small'}
           onChange={handleProgressBarChange}
