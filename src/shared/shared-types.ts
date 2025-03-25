@@ -312,6 +312,14 @@ export interface Log {
   level: 'info' | 'warn' | 'error';
 }
 
+export type DataLoadEventLevel = 'info' | 'error';
+
+export interface DataLoadEvent {
+  date: Date;
+  message: string;
+  level: DataLoadEventLevel;
+}
+
 export interface UserSettings {
   qaMode: boolean;
   showProjectStatistics: boolean;

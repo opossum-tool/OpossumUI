@@ -53,6 +53,7 @@ import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from './globalBackendState';
+import { LoadStatusUpdater } from './LoadStatusUpdater';
 import logger from './logger';
 import { createMenu } from './menu';
 import { UserSettingsService } from './user-settings-service';
@@ -128,7 +129,8 @@ export async function handleOpeningFile(
 ): Promise<void> {
   setLoadingState(mainWindow.webContents, true);
 
-  logger.info('Initializing global backend state');
+  const statusUpdater = new LoadStatusUpdater(mainWindow);
+  statusUpdater.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, true);
 
   await openFile(mainWindow, filePath);

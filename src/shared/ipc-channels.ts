@@ -43,4 +43,5 @@ export enum AllowedFrontendChannels {
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
   ShowUpdateAppPopup = 'show-update-app-pop-up',
   UserSettingsChanged = 'user-settings-changed',
+  DataLoadEvent = 'data-load-event',
 }

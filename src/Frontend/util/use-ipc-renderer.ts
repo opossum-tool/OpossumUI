@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   BaseURLForRootArgs,
+  DataLoadEvent,
   ExportType,
   FileFormatInfo,
   IsLoadingArgs,
@@ -33,6 +34,11 @@ export type ExportFileRequestListener = (
 ) => void;
 
 export type LoggingListener = (event: IpcRendererEvent, log: Log) => void;
+
+export type DataLoadEventListener = (
+  event: IpcRendererEvent,
+  loadEvent: DataLoadEvent,
+) => void;
 
 export type SetBaseURLForRootListener = (
   event: IpcRendererEvent,
@@ -67,6 +73,7 @@ export type Listener =
   | SetBaseURLForRootListener
   | IsLoadingListener
   | ShowImportDialogListener
+  | DataLoadEventListener
   | ShowMergeDialogListener
   | UserSettingsChangedListener;
 

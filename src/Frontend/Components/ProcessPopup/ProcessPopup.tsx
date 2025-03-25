@@ -12,6 +12,7 @@ import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
 import {
+  DataLoadEventListener,
   IsLoadingListener,
   LoggingListener,
   useIpcRenderer,
@@ -41,6 +42,14 @@ export function ProcessPopup() {
       if (log) {
         setLogs((prev) => [...prev, log]);
       }
+    },
+    [],
+  );
+
+  useIpcRenderer<DataLoadEventListener>(
+    AllowedFrontendChannels.DataLoadEvent,
+    (_, loadEvent) => {
+      console.log('load event happened', loadEvent);
     },
     [],
   );
