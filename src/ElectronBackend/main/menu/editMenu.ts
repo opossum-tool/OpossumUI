@@ -10,7 +10,6 @@ import { text } from '../../../shared/text';
 import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
-import { DisabledMenuItemHandler } from './DisabledMenuItemHandler';
 
 function getUndo(): MenuItemConstructorOptions {
   return {
@@ -66,8 +65,7 @@ function getSelectAll(): MenuItemConstructorOptions {
     label: text.menu.editSubmenu.selectAll,
     accelerator: 'CmdOrCtrl+A',
     role: 'selectAll',
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -86,8 +84,7 @@ function getSearchAttributions(
         webContents.send(AllowedFrontendChannels.SearchAttributions);
       }
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -106,8 +103,7 @@ function getSearchSignals(
         webContents.send(AllowedFrontendChannels.SearchSignals);
       }
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -126,8 +122,7 @@ function getSearchResources(
         webContents.send(AllowedFrontendChannels.SearchResources);
       }
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -146,8 +141,7 @@ function getSearchLinkedResources(
         webContents.send(AllowedFrontendChannels.SearchLinkedResources);
       }
     },
-    id: DisabledMenuItemHandler.registerDisabledMenuItem(),
-    enabled: false,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
