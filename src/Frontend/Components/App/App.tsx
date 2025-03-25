@@ -10,7 +10,7 @@ import { View } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
 import { getResources } from '../../state/selectors/resource-selectors';
 import { getSelectedView } from '../../state/selectors/view-selector';
-import { useInitialSyncUserSettings } from '../../state/variables/use-user-setting';
+import { useInitUserSettings } from '../../state/variables/use-user-setting';
 import { useSignalsWorker } from '../../web-workers/use-signals-worker';
 import { AuditView } from '../AuditView/AuditView';
 import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
@@ -31,7 +31,7 @@ export function App() {
 
   useSignalsWorker();
   //pre-hydrate values
-  useInitialSyncUserSettings();
+  useInitUserSettings();
 
   return (
     <StyledEngineProvider injectFirst>

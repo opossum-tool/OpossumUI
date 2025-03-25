@@ -18,8 +18,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { getUserSettings } from '../selectors/user-settings-selector';
 
-// should only be called once
-export function useInitialSyncUserSettings() {
+export function useInitUserSettings() {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(fetchUserSettings());
