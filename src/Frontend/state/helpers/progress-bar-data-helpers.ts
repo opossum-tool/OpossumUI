@@ -290,17 +290,15 @@ export function getEmptyProgressBarData(
   classifications: ClassificationsConfig,
 ): ProgressBarData {
   const classificationStatistics: ClassificationStatistics = {};
-  if (classifications) {
-    Object.entries(classifications).forEach(
-      ([classificationId, classificationEntry]) => {
-        classificationStatistics[Number(classificationId)] = {
-          description: classificationEntry.description,
-          correspondingFiles: [],
-          color: classificationEntry.color,
-        };
-      },
-    );
-  }
+  Object.entries(classifications).forEach(
+    ([classificationId, classificationEntry]) => {
+      classificationStatistics[Number(classificationId)] = {
+        description: classificationEntry.description,
+        correspondingFiles: [],
+        color: classificationEntry.color,
+      };
+    },
+  );
 
   return {
     fileCount: 0,
