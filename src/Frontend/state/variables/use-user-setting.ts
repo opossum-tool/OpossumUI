@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { UserSettings } from '../../../shared/shared-types';
+import { State } from '../../types/types';
 import {
   useIpcRenderer,
   UserSettingsChangedListener,
@@ -13,7 +14,6 @@ import {
 import {
   fetchUserSettings,
   setUserSetting,
-  updateUserSettings as updateUserSettingsThunkAction,
 } from '../actions/user-settings-actions/user-settings-actions';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { getUserSettings } from '../selectors/user-settings-selector';
@@ -32,6 +32,19 @@ export function useInitUserSettings() {
   );
 }
 
+function getUserSettingsToSet(
+  userSettings:
+    | Partial<UserSettings>
+    | ((currentSettings: UserSettings) => Partial<UserSettings>),
+  getState: () => State,
+): Partial<UserSettings> {
+  if (typeof userSettings === 'function') {
+    const currentUserSettings = getUserSettings(getState());
+    return userSettings(currentUserSettings);
+  }
+  return userSettings;
+}
+
 export function useUserSettings(): [
   UserSettings,
   (
@@ -48,7 +61,11 @@ export function useUserSettings(): [
       | Partial<UserSettings>
       | ((settings: UserSettings) => Partial<UserSettings>),
   ): void => {
-    dispatch(updateUserSettingsThunkAction(userSettings));
+    void dispatch(async (dispatch, getState) => {
+      const userSettingsToSet = getUserSettingsToSet(userSettings, getState);
+      await window.electronAPI.updateUserSettings(userSettingsToSet);
+      dispatch(setUserSetting(userSettingsToSet));
+    });
   };
   return [userSettings, updateUserSettings];
 }

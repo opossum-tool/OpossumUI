@@ -6,10 +6,7 @@ import { waitFor } from '@testing-library/react';
 
 import { DEFAULT_USER_SETTINGS } from '../../../../../shared/shared-constants';
 import { createAppStore } from '../../../configure-store';
-import {
-  fetchUserSettings,
-  updateUserSettings,
-} from '../user-settings-actions';
+import { fetchUserSettings } from '../user-settings-actions';
 
 describe('user-settings-actions', () => {
   it('loads the user settings from the backend', async () => {
@@ -27,20 +24,5 @@ describe('user-settings-actions', () => {
     await waitFor(() => {
       expect(store.getState().userSettingsState?.qaMode).toBe(true);
     });
-  });
-
-  it('updates user settings and communicates to the backend', async () => {
-    const store = createAppStore();
-    const backendCall = jest.mocked(window.electronAPI.updateUserSettings);
-
-    const userSettings = { showClassifications: false };
-    store.dispatch(updateUserSettings(userSettings));
-
-    await waitFor(() => {
-      expect(store.getState().userSettingsState?.showClassifications).toBe(
-        false,
-      );
-    });
-    expect(backendCall).toHaveBeenCalledWith(userSettings);
   });
 });

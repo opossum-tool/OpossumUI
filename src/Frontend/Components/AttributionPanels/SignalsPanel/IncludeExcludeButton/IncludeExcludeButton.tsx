@@ -8,7 +8,6 @@ import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import MuiBox from '@mui/system/Box';
 
-import { UserSettings } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { useUserSettings } from '../../../../state/variables/use-user-setting';
 
@@ -24,7 +23,7 @@ export const IncludeExcludeButton: React.FC = () => {
       aria-label={label}
       size={'small'}
       onClick={() => {
-        updateUserSettings((currentSettings: UserSettings) => ({
+        updateUserSettings((currentSettings) => ({
           areHiddenSignalsVisible: !currentSettings.areHiddenSignalsVisible,
         }));
       }}
