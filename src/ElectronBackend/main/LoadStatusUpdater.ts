@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow } from 'electron';
+import log from 'electron-log';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { DataLoadEvent, DataLoadEventLevel } from '../../shared/shared-types';
@@ -21,7 +22,23 @@ export class LoadStatusUpdater {
     } satisfies DataLoadEvent);
   }
 
-  info(message: string) {
+  info(
+    message: string,
+    options: { sendToBackendLog: boolean } = { sendToBackendLog: true },
+  ) {
+    if (options.sendToBackendLog) {
+      log.info(message);
+    }
     this.#sendToFrontend(message, 'info');
+  }
+
+  error(
+    message: string,
+    options: { sendToBackendLog: boolean } = { sendToBackendLog: true },
+  ) {
+    if (options.sendToBackendLog) {
+      log.error(message);
+    }
+    this.#sendToFrontend(message, 'error');
   }
 }

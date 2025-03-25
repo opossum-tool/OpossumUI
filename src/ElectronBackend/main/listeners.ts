@@ -231,10 +231,11 @@ export const importFileConvertAndLoadListener =
         throw new Error(text.backendError.opossumFilePermissionError);
       }
 
-      logger.info('Converting input file to .opossum format');
+      const loadStatusUpdater = new LoadStatusUpdater(mainWindow);
+      loadStatusUpdater.info('Converting input file to .opossum format');
       await convertToOpossum(resourceFilePath, opossumFilePath, fileType);
 
-      logger.info('Updating global backend state');
+      loadStatusUpdater.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath, true);
 
       await openFile(mainWindow, opossumFilePath);
@@ -283,7 +284,8 @@ export const mergeFileAndLoadListener =
         throw new Error(text.backendError.cantCreateBackup);
       }
 
-      logger.info('Merging input file into current .opossum file');
+      const loadStatusUpdater = new LoadStatusUpdater(mainWindow);
+      loadStatusUpdater.info('Merging input file into current .opossum file');
       await mergeFileIntoOpossum(
         inputFilePath,
         currentOpossumFilePath,

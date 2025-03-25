@@ -53,10 +53,46 @@ jest.mock('uuid', () => ({
   v4: (): string => manualAttributionUuid,
 }));
 
+type SendCall = {
+  channel: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  args: Array<any>;
+};
+
+class MockWebContents {
+  #calls: Array<SendCall> = [];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  send(channel: string, args: Array<any>): void {
+    this.#calls.push({ channel, args });
+  }
+
+  #callsFromChannel(channel: AllowedFrontendChannels): Array<SendCall> {
+    return this.#calls.filter(
+      (sendCall) => sendCall.channel === String(channel),
+    );
+  }
+
+  numberOfCallsFromChannel(channel: AllowedFrontendChannels): number {
+    return this.#callsFromChannel(channel).length;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  lastArgumentFromChannel(channel: AllowedFrontendChannels): any {
+    const callsFromChannel = this.#callsFromChannel(channel);
+    if (callsFromChannel.length) {
+      return callsFromChannel[callsFromChannel.length - 1].args;
+    }
+    return undefined;
+  }
+
+  reset(): void {
+    this.#calls = [];
+  }
+}
+
 const mainWindow = {
-  webContents: {
-    send: jest.fn(),
-  },
+  webContents: new MockWebContents(),
   setTitle: jest.fn(),
 } as unknown as BrowserWindow;
 
@@ -184,6 +220,7 @@ const validMetadata = {
 describe('Test of loading function', () => {
   afterEach(() => {
     jest.resetAllMocks();
+    (mainWindow.webContents as unknown as MockWebContents).reset();
   });
 
   it('handles Parsing error correctly', async () => {
@@ -209,10 +246,15 @@ describe('Test of loading function', () => {
 
     await loadInputAndOutputFromFilePath(mainWindow, corruptJsonPath);
 
-    const expectedNumberOfCalls = 3;
-    expect(mainWindow.webContents.send).toHaveBeenCalledTimes(
-      expectedNumberOfCalls,
-    );
+    const webContents = mainWindow.webContents as unknown as MockWebContents;
+    expect(
+      webContents.numberOfCallsFromChannel(
+        AllowedFrontendChannels.ResetLoadedFile,
+      ),
+    ).toBe(2);
+    expect(
+      webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
+    ).toBe(1);
 
     expect(getGlobalBackendState()).toEqual(expectedBackendState);
   });
@@ -273,11 +315,18 @@ describe('Test of loading function', () => {
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, opossumPath);
 
-    expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
-      AllowedFrontendChannels.FileLoaded,
-      expectedFileContent,
-    );
-    expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
+    const webContents = mainWindow.webContents as unknown as MockWebContents;
+    expect(
+      webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
+    ).toEqual(expectedFileContent);
+    expect(
+      webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
+    ).toBe(1);
+    expect(
+      webContents.numberOfCallsFromChannel(
+        AllowedFrontendChannels.ResetLoadedFile,
+      ),
+    ).toBe(1);
 
     expect(dialog.showMessageBox).not.toHaveBeenCalled();
   });
@@ -292,11 +341,20 @@ describe('Test of loading function', () => {
       setGlobalBackendState({});
       await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
 
-      expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
-      expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
-        AllowedFrontendChannels.FileLoaded,
-        expectedFileContent,
-      );
+      const webContents = mainWindow.webContents as unknown as MockWebContents;
+      expect(
+        webContents.numberOfCallsFromChannel(
+          AllowedFrontendChannels.FileLoaded,
+        ),
+      ).toBe(1);
+      expect(
+        webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
+      ).toEqual(expectedFileContent);
+      expect(
+        webContents.numberOfCallsFromChannel(
+          AllowedFrontendChannels.ResetLoadedFile,
+        ),
+      ).toBe(1);
 
       expect(dialog.showMessageBox).not.toHaveBeenCalled();
     });
@@ -313,11 +371,20 @@ describe('Test of loading function', () => {
       setGlobalBackendState({});
       await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
 
-      expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
-      expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
-        AllowedFrontendChannels.FileLoaded,
-        expectedFileContent,
-      );
+      const webContents = mainWindow.webContents as unknown as MockWebContents;
+      expect(
+        webContents.numberOfCallsFromChannel(
+          AllowedFrontendChannels.FileLoaded,
+        ),
+      ).toBe(1);
+      expect(
+        webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
+      ).toEqual(expectedFileContent);
+      expect(
+        webContents.numberOfCallsFromChannel(
+          AllowedFrontendChannels.ResetLoadedFile,
+        ),
+      ).toBe(1);
       expect(dialog.showMessageBox).not.toHaveBeenCalled();
     });
   });
@@ -519,10 +586,10 @@ describe('Test of loading function', () => {
         },
       };
 
-      expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
-        AllowedFrontendChannels.FileLoaded,
-        expectedLoadedFile,
-      );
+      const webContents = mainWindow.webContents as unknown as MockWebContents;
+      expect(
+        webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
+      ).toEqual(expectedLoadedFile);
       expect(dialog.showMessageBox).not.toHaveBeenCalled();
     },
   );
@@ -558,10 +625,10 @@ describe('Test of loading function', () => {
       metadata: inputFileContentWithCustomMetadata.metadata,
     };
 
-    expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
-      AllowedFrontendChannels.FileLoaded,
-      expectedLoadedFile,
-    );
+    const webContents = mainWindow.webContents as unknown as MockWebContents;
+    expect(
+      webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
+    ).toEqual(expectedLoadedFile);
     expect(dialog.showMessageBox).not.toHaveBeenCalled();
   });
 
@@ -613,11 +680,18 @@ describe('Test of loading function', () => {
       },
     };
 
-    expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
-    expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
-      AllowedFrontendChannels.FileLoaded,
-      expectedLoadedFile,
-    );
+    const webContents = mainWindow.webContents as unknown as MockWebContents;
+    expect(
+      webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
+    ).toEqual(expectedLoadedFile);
+    expect(
+      webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
+    ).toBe(1);
+    expect(
+      webContents.numberOfCallsFromChannel(
+        AllowedFrontendChannels.ResetLoadedFile,
+      ),
+    ).toBe(1);
   });
 });
 
@@ -644,10 +718,13 @@ function assertFileLoadedCorrectly(testUuid: string): void {
     },
   };
 
-  expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-    AllowedFrontendChannels.FileLoaded,
-    expectedLoadedFile,
-  );
+  const webContents = mainWindow.webContents as unknown as MockWebContents;
+  expect(
+    webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
+  ).toEqual(expectedLoadedFile);
+  expect(
+    webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
+  ).toBe(1);
   expect(dialog.showMessageBox).not.toHaveBeenCalled();
 }
 
