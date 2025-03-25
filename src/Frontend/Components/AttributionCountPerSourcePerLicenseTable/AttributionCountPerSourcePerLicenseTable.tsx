@@ -7,9 +7,11 @@ import MuiTable from '@mui/material/Table';
 import MuiTableBody from '@mui/material/TableBody';
 import MuiTableContainer from '@mui/material/TableContainer';
 import { orderBy, upperFirst } from 'lodash';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
+import { useShowClassifications } from '../../state/variables/use-show-classifications';
+import { useShowCriticality } from '../../state/variables/use-show-criticality';
 import {
   LicenseCounts,
   LicenseNamesWithClassification,
@@ -17,6 +19,7 @@ import {
 } from '../../types/types';
 import { Order } from '../TableCellWithSorting/TableCellWithSorting';
 import {
+  Column,
   ColumnConfig,
   orderLicenseNames,
   SingleColumn,
@@ -32,12 +35,16 @@ const classes = {
   },
 };
 
-interface AttributionCountPerSourcePerLicenseTableProps {
+export interface AttributionCountPerSourcePerLicenseTableProps {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
   licenseNamesWithClassification: LicenseNamesWithClassification;
 }
 
+const defaultOrdering: TableOrdering = {
+  orderDirection: 'asc',
+  orderedColumn: SingleColumn.NAME,
+};
 export const AttributionCountPerSourcePerLicenseTable: React.FC<
   AttributionCountPerSourcePerLicenseTableProps
 > = (props) => {
@@ -46,6 +53,39 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
   const sourceNames = Object.keys(
     props.licenseCounts.totalAttributionsPerSource,
   );
+
+  const showCriticality = useShowCriticality();
+  const showClassifications = useShowClassifications();
+
+  const getCriticalityColumn = useCallback((): Array<Column> => {
+    if (showCriticality) {
+      return [
+        {
+          columnName: componentText.columns.criticality.title,
+          columnType: SingleColumn.CRITICALITY,
+          columnId: SingleColumn.CRITICALITY,
+          align: 'center',
+          defaultOrder: 'desc',
+        },
+      ];
+    }
+    return [];
+  }, [componentText.columns.criticality.title, showCriticality]);
+
+  const getClassificationColumn = useCallback((): Array<Column> => {
+    if (showClassifications) {
+      return [
+        {
+          columnName: componentText.columns.classification,
+          columnType: SingleColumn.CLASSIFICATION,
+          columnId: SingleColumn.CLASSIFICATION,
+          align: 'center',
+          defaultOrder: 'desc',
+        },
+      ];
+    }
+    return [];
+  }, [componentText.columns.classification, showClassifications]);
 
   const columnConfig: ColumnConfig = useMemo(
     () =>
@@ -60,20 +100,8 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
               align: 'left',
               defaultOrder: 'asc',
             },
-            {
-              columnName: componentText.columns.criticality.title,
-              columnType: SingleColumn.CRITICALITY,
-              columnId: SingleColumn.CRITICALITY,
-              align: 'center',
-              defaultOrder: 'desc',
-            },
-            {
-              columnName: componentText.columns.classification,
-              columnType: SingleColumn.CLASSIFICATION,
-              columnId: SingleColumn.CLASSIFICATION,
-              align: 'center',
-              defaultOrder: 'desc',
-            },
+            ...getCriticalityColumn(),
+            ...getClassificationColumn(),
           ],
         },
         {
@@ -96,16 +124,33 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
           ],
         },
       ]),
-    [sourceNames, componentText],
+    [
+      componentText.columns.licenseInfo,
+      componentText.columns.licenseName,
+      componentText.columns.signalCountPerSource,
+      componentText.columns.totalSources,
+      getCriticalityColumn,
+      getClassificationColumn,
+      sourceNames,
+    ],
   );
 
-  const [ordering, setOrdering] = useState<TableOrdering>({
-    orderDirection: 'asc',
-    orderedColumn: SingleColumn.NAME,
-  });
+  const [ordering, setOrdering] = useState<TableOrdering>(defaultOrdering);
+  const effectiveOrdering = columnConfig.getColumnById(ordering.orderedColumn)
+    ? ordering
+    : defaultOrdering;
 
   const handleRequestSort = (columnId: string, defaultOrder: Order) => {
-    if (ordering.orderedColumn === columnId) {
+    if (
+      effectiveOrdering !== ordering &&
+      effectiveOrdering.orderedColumn === columnId
+    ) {
+      setOrdering({
+        ...effectiveOrdering,
+        orderDirection:
+          effectiveOrdering.orderDirection === 'asc' ? 'desc' : 'asc',
+      });
+    } else if (ordering.orderedColumn === columnId) {
       setOrdering((currentOrdering) => ({
         ...currentOrdering,
         orderDirection:
@@ -121,14 +166,14 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
 
   const orderedLicenseNames = useMemo(() => {
     const orderedColumnType = columnConfig.getColumnById(
-      ordering.orderedColumn,
+      effectiveOrdering.orderedColumn,
     )?.columnType;
 
     if (orderedColumnType === undefined) {
       return orderBy(
         Object.keys(props.licenseNamesWithCriticality),
         (licenseName) => licenseName.toLowerCase(),
-        ordering.orderDirection,
+        effectiveOrdering.orderDirection,
       );
     }
 
@@ -136,15 +181,16 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
       props.licenseNamesWithCriticality,
       props.licenseNamesWithClassification,
       props.licenseCounts,
-      ordering.orderDirection,
+      effectiveOrdering.orderDirection,
       orderedColumnType,
     );
   }, [
+    columnConfig,
+    effectiveOrdering.orderedColumn,
+    effectiveOrdering.orderDirection,
     props.licenseNamesWithCriticality,
     props.licenseNamesWithClassification,
     props.licenseCounts,
-    columnConfig,
-    ordering,
   ]);
 
   return (
@@ -153,7 +199,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
         <MuiTable size="small" stickyHeader>
           <AttributionCountPerSourcePerLicenseTableHead
             columnConfig={columnConfig}
-            tableOrdering={ordering}
+            tableOrdering={effectiveOrdering}
             onRequestSort={handleRequestSort}
           />
           <MuiTableBody>
