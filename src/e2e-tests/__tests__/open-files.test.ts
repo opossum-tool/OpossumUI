@@ -41,3 +41,19 @@ test('opens Opossum file and shows project as recently opened', async ({
     data!.inputData.metadata.projectId,
   );
 });
+
+test('opens file and activates initially disabled menu entries afterwards', async ({
+  menuBar,
+  window,
+  filePaths,
+  resourcesTree,
+}) => {
+  await menuBar.assert.openRecentIsDisabled();
+  await menuBar.assert.initiallyDisableEntriesAreDisabled();
+
+  await stubDialog(window.app, 'showOpenDialogSync', [filePaths!.opossum]);
+  await menuBar.openFile();
+
+  await resourcesTree.assert.resourceIsVisible(resourceName);
+  await menuBar.assert.initiallyDisableEntriesAreEnabled();
+});
