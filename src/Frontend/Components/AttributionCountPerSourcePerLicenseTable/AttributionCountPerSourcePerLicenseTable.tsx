@@ -10,8 +10,7 @@ import { orderBy, upperFirst } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
-import { useShowClassifications } from '../../state/variables/use-show-classifications';
-import { useShowCriticality } from '../../state/variables/use-show-criticality';
+import { useUserSettings } from '../../state/variables/use-user-setting';
 import {
   LicenseCounts,
   LicenseNamesWithClassification,
@@ -54,8 +53,9 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     props.licenseCounts.totalAttributionsPerSource,
   );
 
-  const showCriticality = useShowCriticality();
-  const showClassifications = useShowClassifications();
+  const [userSettings] = useUserSettings();
+  const showCriticality = userSettings.showCriticality;
+  const showClassifications = userSettings.showClassifications;
 
   const getCriticalityColumn = useCallback((): Array<Column> => {
     if (showCriticality) {
