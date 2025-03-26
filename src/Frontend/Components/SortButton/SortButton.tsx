@@ -43,14 +43,13 @@ export const SortButton: React.FC<Props> = ({
     [setFilteredAttributions],
   );
 
+  const isCurrentSortingActive = sortConfiguration[sorting].active;
+
   useEffect(() => {
-    const availableKeys = Object.entries(sortConfiguration)
-      .filter(([_, entry]) => entry.active)
-      .map(([key, _]) => key);
-    if (!availableKeys.includes(sorting)) {
+    if (!isCurrentSortingActive) {
       setSorting('alphabetically');
     }
-  }, [sortConfiguration, sorting, setSorting]);
+  }, [isCurrentSortingActive, setSorting]);
 
   const sortingOptions = useMemo(
     () =>

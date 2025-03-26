@@ -226,10 +226,13 @@ interface TabPanelProps extends React.PropsWithChildren {
 }
 
 const TabPanel: React.FC<TabPanelProps> = (props) => {
+  const isSelected = props.selectedTab === props.tabIndex;
+  if (!isSelected) {
+    return null;
+  }
   return (
     <MuiBox
       sx={{
-        ...(props.selectedTab !== props.tabIndex ? { display: 'none' } : {}),
         flexGrow: 1,
         overflowY: 'auto',
       }}
