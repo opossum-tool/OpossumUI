@@ -43,10 +43,7 @@ export const SortButton: React.FC<Props> = ({
     [setFilteredAttributions],
   );
 
-  const availableKeys = Object.entries(sortConfiguration)
-    .filter(([_, entry]) => entry.active)
-    .map(([key, _]) => key);
-  const isCurrentSortingActive = availableKeys.includes(sorting);
+  const isCurrentSortingActive = sortConfiguration[sorting].active;
 
   useEffect(() => {
     if (!isCurrentSortingActive) {
