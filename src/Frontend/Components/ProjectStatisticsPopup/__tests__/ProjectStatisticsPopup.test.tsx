@@ -13,7 +13,7 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup';
 
 describe('The ProjectStatisticsPopup', () => {
-  it('displays license names and source names', () => {
+  it('displays license names and source names', async () => {
     const testExternalAttributions: Attributions = {
       uuid_1: {
         source: {
@@ -44,10 +44,13 @@ describe('The ProjectStatisticsPopup', () => {
         ),
       ],
     });
-    expect(screen.getByText('Apache License Version 2.0')).toBeInTheDocument();
-    expect(screen.getByText('The MIT License (MIT)')).toBeInTheDocument();
-    expect(screen.getByText('Scancode')).toBeInTheDocument();
-    expect(screen.getByText('Reuser')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('Licenses'));
+
+    expect(screen.getByText('Apache License Version 2.0')).toBeVisible();
+    expect(screen.getByText('The MIT License (MIT)')).toBeVisible();
+    expect(screen.getByText('Scancode')).toBeVisible();
+    expect(screen.getByText('Reuser')).toBeVisible();
   });
 
   it('renders all pie charts when there are signals and attributions', () => {
@@ -108,23 +111,23 @@ describe('The ProjectStatisticsPopup', () => {
       screen.getByText(
         text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
       ),
-    ).toBeInTheDocument();
+    ).toBeVisible();
     expect(
       screen.getByText(
         text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
       ),
-    ).toBeInTheDocument();
+    ).toBeVisible();
     expect(
       screen.getByText(
         text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
           .title,
       ),
-    ).toBeInTheDocument();
+    ).toBeVisible();
     expect(
       screen.getByText(
         text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
       ),
-    ).toBeInTheDocument();
+    ).toBeVisible();
   });
 
   it('does not render pie charts when there are no signals and no attributions', () => {
@@ -199,18 +202,18 @@ describe('The ProjectStatisticsPopup', () => {
       screen.getByText(
         text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
       ),
-    ).toBeInTheDocument();
+    ).toBeVisible();
     expect(
       screen.getByText(
         text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
       ),
-    ).toBeInTheDocument();
+    ).toBeVisible();
     expect(
       screen.getByText(
         text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
           .title,
       ),
-    ).toBeInTheDocument();
+    ).toBeVisible();
   });
 
   it('renders attribution bar chart and signals per sources table even when there are no attributions and no signals', async () => {
@@ -229,7 +232,7 @@ describe('The ProjectStatisticsPopup', () => {
       screen.getByText(
         text.projectStatisticsPopup.charts.attributionProperties.title,
       ),
-    ).toBeInTheDocument();
+    ).toBeVisible();
 
     await userEvent.click(
       screen.getByText(text.projectStatisticsPopup.tabs.details),
@@ -239,7 +242,7 @@ describe('The ProjectStatisticsPopup', () => {
       screen.getByText(
         text.attributionCountPerSourcePerLicenseTable.columns.licenseInfo,
       ),
-    ).toBeInTheDocument();
+    ).toBeVisible();
   });
 
   it('supports sorting the signals per sources table', async () => {
@@ -272,6 +275,8 @@ describe('The ProjectStatisticsPopup', () => {
         ),
       ],
     });
+
+    await userEvent.click(screen.getByText('Licenses'));
 
     const getLicenseNames = () =>
       screen
