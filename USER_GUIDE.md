@@ -64,7 +64,7 @@ to be recognized by the app.
 To open a `.opossum` file in the app, simply click the _Open File_ button on the left of the top bar (or on the entry in
 the _File_ menu with the same name).
 
-To quickly access recently opened Files, select the relevant file from the `Open Recent` submenu.
+To quickly access recently opened files, select the relevant file from the `Open Recent` submenu.
 
 ### Importing a File
 
@@ -149,8 +149,8 @@ The `Top Bar` contains the following elements:
 
 The `Progress Bar` exists in various versions which can be selected via the `Progress Bar Dropdown`. Note that the possibilities offered depend on the settings chosen in the _View_ menu. Currently, the following progress bars are offered:
 
-- The `Attributions` progress bar indicates how many resources have manually received an attribution (dark green), how many have an automatically **pre-selected** attribution (lighter green with gradient), and how many resources have a signal, but have not yet received an attribution (orange), with respect to the total number of files. Hovering on the bar shows a tooltip containing all four numbers. Clicking on the bar navigates to a resource that has a signal, but no attribution.
-- The `Criticalities` progress bar indicates how many files have a highly critical signal but no attribution (red), a critical signal but no attribution (orange) with respect to the total number of files not having an attribution. Hovering on the bar shows a tooltip containing all 4 numbers. Clicking on the bar navigates to a resource that has a critical signal, but no attribution.
+- The `Attributions` progress bar indicates how many resources have an attribution (dark green), how many have a **pre-selected** attribution (lighter green with gradient), and how many resources have a signal, but have not yet received an attribution (orange), with respect to the total number of files. Hovering on the bar shows a tooltip containing all numbers. Clicking on the bar navigates to a resource that has a signal, but no attribution.
+- The `Criticalities` progress bar indicates how many files without an attribution have a highly critical signal (red), a critical signal (orange) or no critical signal (light blue) with respect to the total number of files not having an attribution. Hovering on the bar shows a tooltip containing the exact number of files. Clicking on the bar navigates to a resource that has a critical signal, but no attribution.
 - The `Classifications` progress bar indicates the distribution of the signals without attributions on the configured classification levels. Hovering over the bar shows a tooltip with the exact numbers of all classifications. Clicking on the progress bar navigates to the attribution-less resource with the highest classification level.
 
 The `View Switch` allows to change between the `Audit View` and the `Report View`.
