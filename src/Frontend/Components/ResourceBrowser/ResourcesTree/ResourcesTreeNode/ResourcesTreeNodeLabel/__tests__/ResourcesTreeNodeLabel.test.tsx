@@ -170,6 +170,36 @@ describe('ResourcesTreeNodeLabel', () => {
       ).toBeInTheDocument();
     });
 
+    it('renders a folder with signal, classification icon and criticality icon', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={true}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          classification={1}
+          classificationsConfig={{ 1: faker.opossum.classificationEntry() }}
+          showClassifications={true}
+          showCriticality={true}
+          criticality={Criticality.High}
+        />,
+      );
+
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon with signal'),
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
+    });
+
     it('renders a folder with signal but without classification icon if classification showing disabled', () => {
       render(
         <ResourcesTreeNodeLabel
