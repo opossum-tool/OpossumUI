@@ -35,14 +35,14 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     [],
   );
 
-  const [dataLoadEvents, reset] = useDataLoadEvents();
+  const [dataLoadEvents, resetDataLoadEvents] = useDataLoadEvents();
 
   async function selectInputFilePath(): Promise<void> {
     const filePath = await window.electronAPI.selectFile(fileFormat);
 
     if (filePath) {
       setInputFilePath(filePath);
-      reset();
+      resetDataLoadEvents();
     }
   }
 
@@ -64,7 +64,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
     if (filePath) {
       setOpossumFilePath(filePath);
-      reset();
+      resetDataLoadEvents();
     }
   }
 
