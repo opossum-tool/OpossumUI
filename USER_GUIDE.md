@@ -31,7 +31,7 @@ SPDX-License-Identifier: CC0-1.0
 
 Download the latest release for your OS from [GitHub](https://github.com/opossum-tool/OpossumUI/releases/latest).
 
-To check if your installation is up to date, open the `Help` menu and select `Check for updates`.
+To check if your installation is up-to-date, open the `Help` menu and select `Check for updates`.
 
 ### Running the app
 
@@ -136,7 +136,7 @@ In the OpossumUI, a distinction between **signals** and **attributions** is made
 
 ![integration](./docs/user_guide_screenshots/top_bar.png)
 
-In the `Top Bar`, the following elements are present:
+The `Top Bar` contains the following elements:
 
 - the _Open File_ button,
 - the `Progress Bar`,
