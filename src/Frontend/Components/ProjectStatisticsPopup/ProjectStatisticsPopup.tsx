@@ -114,7 +114,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
           <TabPanel
             tabIndex={0}
             selectedTab={selectedTab}
-            drawNotSelectedTab={false}
+            renderWhenInactive={false}
           >
             <ChartGrid>
               <ChartGridItem testId={'attributionBarChart'}>
@@ -185,7 +185,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
           <TabPanel
             tabIndex={1}
             selectedTab={selectedTab}
-            drawNotSelectedTab={true}
+            renderWhenInactive={true}
           >
             <AttributionCountPerSourcePerLicenseTable
               licenseCounts={licenseCounts}
@@ -221,13 +221,13 @@ export const ProjectStatisticsPopup: React.FC = () => {
 interface TabPanelProps extends React.PropsWithChildren {
   tabIndex: number;
   selectedTab: number;
-  drawNotSelectedTab: boolean;
+  renderWhenInactive: boolean;
 }
 
 const TabPanel: React.FC<TabPanelProps> = (props) => {
   const isSelected = props.selectedTab === props.tabIndex;
-  const hideViaCss = !isSelected && props.drawNotSelectedTab;
-  const doNotDrawAtAll = !isSelected && !props.drawNotSelectedTab;
+  const hideViaCss = !isSelected && props.renderWhenInactive;
+  const doNotDrawAtAll = !isSelected && !props.renderWhenInactive;
   if (doNotDrawAtAll) {
     return null;
   }
