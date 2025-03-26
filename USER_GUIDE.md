@@ -76,7 +76,7 @@ should be saved. Clicking the _Import_ button converts the file into a new `.opo
 Please note that edits made through OpossumUI are **ONLY** saved in this new `.opossum` file, **NOT** in the file you
 selected for import.
 
-### Merging additional information
+### Merging additional Information
 
 To enrich your currently open file with additional information from a different scanner, open the _Merge_ item in the _File_ menu and select the desired file format.
 
@@ -85,7 +85,7 @@ Note:
 - Merging a file will modify your currently open `.opossum` file and cannot be undone
 - Ensure that the paths in the merged file and the currently open file agree. Currently, there is no functionality to compensate differences.
 
-### Classifying signals
+### Classifying Signals
 
 To classify the severity of the various signals, OpossumUI supports two mechanisms.
 
