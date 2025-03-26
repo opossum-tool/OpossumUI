@@ -111,11 +111,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
             <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
             <MuiTab label={text.projectStatisticsPopup.tabs.details} />
           </MuiTabs>
-          <TabPanel
-            tabIndex={0}
-            selectedTab={selectedTab}
-            renderWhenInactive={false}
-          >
+          <TabPanel tabIndex={0} selectedTab={selectedTab}>
             <ChartGrid>
               <ChartGridItem testId={'attributionBarChart'}>
                 <MuiTypography variant="subtitle1">
@@ -182,11 +178,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
               </ChartGridItem>
             </ChartGrid>
           </TabPanel>
-          <TabPanel
-            tabIndex={1}
-            selectedTab={selectedTab}
-            renderWhenInactive={true}
-          >
+          <TabPanel tabIndex={1} selectedTab={selectedTab}>
             <AttributionCountPerSourcePerLicenseTable
               licenseCounts={licenseCounts}
               licenseNamesWithCriticality={licenseNamesWithCriticality}
@@ -221,20 +213,16 @@ export const ProjectStatisticsPopup: React.FC = () => {
 interface TabPanelProps extends React.PropsWithChildren {
   tabIndex: number;
   selectedTab: number;
-  renderWhenInactive: boolean;
 }
 
 const TabPanel: React.FC<TabPanelProps> = (props) => {
   const isSelected = props.selectedTab === props.tabIndex;
-  const hideViaCss = !isSelected && props.renderWhenInactive;
-  const doNotDrawAtAll = !isSelected && !props.renderWhenInactive;
-  if (doNotDrawAtAll) {
+  if (!isSelected) {
     return null;
   }
   return (
     <MuiBox
       sx={{
-        ...(hideViaCss ? { display: 'none' } : {}),
         flexGrow: 1,
         overflowY: 'auto',
       }}
