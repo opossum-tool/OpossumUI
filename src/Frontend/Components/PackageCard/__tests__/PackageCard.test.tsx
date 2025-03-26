@@ -7,9 +7,8 @@ import { screen } from '@testing-library/react';
 import { Criticality, RawCriticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { setConfig } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { SHOW_CLASSIFICATIONS_KEY } from '../../../state/variables/use-show-classifications';
+import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { renderComponent } from '../../../test-helpers/render';
-import { setUserSetting } from '../../../test-helpers/user-settings-helpers';
 import { PackageCard } from '../PackageCard';
 
 describe('The PackageCard', () => {
@@ -148,7 +147,7 @@ describe('The PackageCard', () => {
                 1: faker.opossum.classificationEntry(),
               },
             }),
-            setUserSetting(SHOW_CLASSIFICATIONS_KEY, false),
+            setUserSetting({ showClassifications: false }),
           ],
         },
       );
@@ -194,7 +193,7 @@ describe('The PackageCard', () => {
 
       renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
-        { actions: [setUserSetting('showCriticality', false)] },
+        { actions: [setUserSetting({ showCriticality: false })] },
       );
 
       const criticalityIcon = screen.queryByLabelText('Criticality icon');

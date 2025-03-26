@@ -21,9 +21,7 @@ import {
   getManualAttributions,
   getUnresolvedExternalAttributions,
 } from '../../state/selectors/resource-selectors';
-import { useShowClassifications } from '../../state/variables/use-show-classifications';
-import { useShowCriticality } from '../../state/variables/use-show-criticality';
-import { useUserSetting } from '../../state/variables/use-user-setting';
+import { useUserSettings } from '../../state/variables/use-user-setting';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { BarChart } from '../BarChart/BarChart';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -90,13 +88,13 @@ export const ProjectStatisticsPopup: React.FC = () => {
     dispatch(closePopup());
   }
 
-  const [showProjectStatistics, setShowProjectStatistics, hydrated] =
-    useUserSetting({ defaultValue: true, key: 'showProjectStatistics' });
+  const [userSettings, updateUserSettings] = useUserSettings();
+
+  const showProjectStatistics = userSettings.showProjectStatistics;
+  const showClassifications = userSettings.showClassifications;
+  const showCriticality = userSettings.showCriticality;
 
   const [selectedTab, setSelectedTab] = useState(0);
-
-  const [showClassifications] = useShowClassifications();
-  const [showCriticality] = useShowCriticality();
 
   return (
     <NotificationPopup
@@ -210,8 +208,11 @@ export const ProjectStatisticsPopup: React.FC = () => {
       customAction={
         <Checkbox
           checked={showProjectStatistics}
-          onChange={(event) => setShowProjectStatistics(event.target.checked)}
-          disabled={!hydrated}
+          onChange={(event) =>
+            updateUserSettings({
+              showProjectStatistics: event.target.checked,
+            })
+          }
           label={text.projectStatisticsPopup.toggleStartupCheckbox}
         />
       }

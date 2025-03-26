@@ -222,6 +222,14 @@ export class MenuBar {
     await this.clickMenuItem(text.menu.viewSubmenu.qaMode);
   }
 
+  async toggleShowClassificationOff(): Promise<void> {
+    await clickMenuItemById(this.window.app, 'enabled-show-classifications');
+  }
+
+  async toggleShowCriticalityOff(): Promise<void> {
+    await clickMenuItemById(this.window.app, 'enabled-show-criticality');
+  }
+
   async saveChanges(): Promise<void> {
     await this.clickMenuItem(text.menu.fileSubmenu.save);
   }

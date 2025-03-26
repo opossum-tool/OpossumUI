@@ -6,10 +6,10 @@ import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
+import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { PROGRESS_DATA } from '../../../state/variables/use-progress-data';
 import { renderComponent } from '../../../test-helpers/render';
-import { setUserSetting } from '../../../test-helpers/user-settings-helpers';
 import { ProgressBarData } from '../../../types/types';
 import { SwitchableProcessBar } from '../SwitchableProcessBar';
 
@@ -133,7 +133,7 @@ describe('SwitchableProcessBar', () => {
     renderComponent(<SwitchableProcessBar />, {
       actions: [
         setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
-        setUserSetting('showClassifications', false),
+        setUserSetting({ showClassifications: false }),
       ],
     });
 
@@ -151,7 +151,7 @@ describe('SwitchableProcessBar', () => {
     renderComponent(<SwitchableProcessBar />, {
       actions: [
         setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
-        setUserSetting('showCriticality', false),
+        setUserSetting({ showCriticality: false }),
       ],
     });
 
@@ -169,8 +169,7 @@ describe('SwitchableProcessBar', () => {
     renderComponent(<SwitchableProcessBar />, {
       actions: [
         setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
-        setUserSetting('showCriticality', false),
-        setUserSetting('showClassifications', false),
+        setUserSetting({ showCriticality: false, showClassifications: false }),
       ],
     });
 

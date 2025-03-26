@@ -6,6 +6,7 @@
 import '@testing-library/jest-dom';
 import { noop } from 'lodash';
 
+import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
 import { ElectronAPI } from '../shared/shared-types';
 import { faker } from './Faker';
 
@@ -44,8 +45,8 @@ global.window.electronAPI = {
   saveFile: jest.fn(),
   stopLoading: jest.fn(),
   on: jest.fn().mockReturnValue(jest.fn()),
-  getUserSetting: jest.fn().mockReturnValue(undefined),
-  setUserSetting: jest.fn(),
+  getUserSettings: jest.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
+  updateUserSettings: jest.fn(),
 } satisfies ElectronAPI;
 
 window.ResizeObserver = ResizeObserver;

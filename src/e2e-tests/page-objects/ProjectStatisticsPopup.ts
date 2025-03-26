@@ -78,11 +78,21 @@ export class ProjectStatisticsPopup {
           .mediumCritical,
       );
     },
+    signalsByCriticalityIsNotVisible: async (): Promise<void> => {
+      await expect(this.signalsByCriticalityChart).toBeHidden();
+    },
+
     signalsByClassificationIsVisible: async (): Promise<void> => {
       await expect(this.signalsByClassificationChart).toContainText(
         text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
           .noClassification,
       );
+    },
+    signalsByClassificationIsShown: async (): Promise<void> => {
+      await expect(this.signalsByClassificationChart).toBeVisible();
+    },
+    signalsByClassificationIsNotShown: async (): Promise<void> => {
+      await expect(this.signalsByClassificationChart).toBeHidden();
     },
     incompleteAttributionsIsVisible: async (): Promise<void> => {
       await expect(this.incompleteAttributionsChart).toContainText(

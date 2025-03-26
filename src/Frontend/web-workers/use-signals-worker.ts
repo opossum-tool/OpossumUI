@@ -18,13 +18,13 @@ import {
   getResources,
   getSelectedResourceId,
 } from '../state/selectors/resource-selectors';
-import { useAreHiddenSignalsVisible } from '../state/variables/use-are-hidden-signals-visible';
 import {
   useFilteredAttributions,
   useFilteredAttributionsInReportView,
   useFilteredSignals,
 } from '../state/variables/use-filtered-data';
 import { useProgressData } from '../state/variables/use-progress-data';
+import { useUserSettings } from '../state/variables/use-user-setting';
 import { useDebouncedInput } from '../util/use-debounced-input';
 import { SignalsWorkerInput, SignalsWorkerOutput } from './signals-worker';
 
@@ -70,7 +70,8 @@ export function useSignalsWorker() {
   ] = useFilteredAttributionsInReportView();
   const debouncedSignalSearch = useDebouncedInput(signalSearch);
   const debouncedAttributionSearch = useDebouncedInput(attributionSearch);
-  const [areHiddenSignalsVisible] = useAreHiddenSignalsVisible();
+  const [userSettings] = useUserSettings();
+  const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
   const [, setProgressData] = useProgressData();
 
   useEffect(() => {

@@ -18,8 +18,7 @@ import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import { getClassifications } from '../../state/selectors/resource-selectors';
-import { useShowClassifications } from '../../state/variables/use-show-classifications';
-import { useShowCriticality } from '../../state/variables/use-show-criticality';
+import { useUserSettings } from '../../state/variables/use-user-setting';
 import { getCardLabels } from '../../util/get-card-labels';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -143,8 +142,9 @@ export const PackageCard = memo(
       }),
       [cardConfig, packageInfo, classification_mapping],
     );
-    const [showClassifications] = useShowClassifications();
-    const [showCriticality] = useShowCriticality();
+    const [userSettings] = useUserSettings();
+    const showClassifications = userSettings.showClassifications;
+    const showCriticality = userSettings.showCriticality;
     const rightIcons = useMemo(
       () =>
         getRightIcons(

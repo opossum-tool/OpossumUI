@@ -7,6 +7,7 @@ import {
   Classification,
   Criticality,
   FileFormatInfo,
+  UserSettings,
 } from '../../shared/shared-types';
 import { PopupType } from '../enums/enums';
 import { ResourceState } from '../state/reducers/resource-reducer';
@@ -17,6 +18,7 @@ export type State = {
   resourceState: ResourceState;
   viewState: ViewState;
   variablesState: VariablesState;
+  userSettingsState: UserSettings;
 };
 
 export type SelectedProgressBar =

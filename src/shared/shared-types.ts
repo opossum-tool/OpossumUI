@@ -296,13 +296,8 @@ export interface ElectronAPI {
    */
   stopLoading: () => void;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
-  getUserSetting: <T extends keyof UserSettings>(
-    key: T,
-  ) => Promise<UserSettings[T]>;
-  setUserSetting: <T extends keyof UserSettings>(
-    key: T,
-    value: UserSettings[T],
-  ) => Promise<void>;
+  getUserSettings: () => Promise<UserSettings>;
+  updateUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
 }
 
 declare global {
@@ -318,16 +313,18 @@ export interface Log {
 }
 
 export interface UserSettings {
-  qaMode: boolean | null;
-  showProjectStatistics: boolean | null;
-  areHiddenSignalsVisible: boolean | null;
-  showCriticality: boolean | null;
-  showClassifications: boolean | null;
+  qaMode: boolean;
+  showProjectStatistics: boolean;
+  areHiddenSignalsVisible: boolean;
+  showCriticality: boolean;
+  showClassifications: boolean;
   panelSizes: {
     resourceBrowserWidth: number;
     packageListsWidth: number;
     linkedResourcesPanelHeight: number | null;
     signalsPanelHeight: number | null;
-  } | null;
-  recentlyOpenedPaths: Array<string> | null;
+  };
+  recentlyOpenedPaths: Array<string>;
 }
+
+export type PanelSizes = UserSettings['panelSizes'];

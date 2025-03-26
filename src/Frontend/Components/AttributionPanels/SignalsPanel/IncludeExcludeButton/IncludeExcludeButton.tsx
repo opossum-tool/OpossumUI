@@ -9,11 +9,11 @@ import MuiTooltip from '@mui/material/Tooltip';
 import MuiBox from '@mui/system/Box';
 
 import { text } from '../../../../../shared/text';
-import { useAreHiddenSignalsVisible } from '../../../../state/variables/use-are-hidden-signals-visible';
+import { useUserSettings } from '../../../../state/variables/use-user-setting';
 
 export const IncludeExcludeButton: React.FC = () => {
-  const [areHiddenSignalsVisible, setAreHiddenSignalsVisible] =
-    useAreHiddenSignalsVisible();
+  const [userSettings, updateUserSettings] = useUserSettings();
+  const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
   const label = areHiddenSignalsVisible
     ? text.packageLists.hideDeleted
     : text.packageLists.showDeleted;
@@ -22,7 +22,11 @@ export const IncludeExcludeButton: React.FC = () => {
     <MuiIconButton
       aria-label={label}
       size={'small'}
-      onClick={() => setAreHiddenSignalsVisible((prev) => !prev)}
+      onClick={() => {
+        updateUserSettings((currentSettings) => ({
+          areHiddenSignalsVisible: !currentSettings.areHiddenSignalsVisible,
+        }));
+      }}
     >
       <MuiTooltip title={label} disableInteractive placement={'top'}>
         <MuiBox sx={{ height: '24px' }}>

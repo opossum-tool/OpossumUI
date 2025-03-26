@@ -8,11 +8,9 @@ import userEvent from '@testing-library/user-event';
 import { Attributions, Criticality } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { SHOW_CLASSIFICATIONS_KEY } from '../../../state/variables/use-show-classifications';
-import { SHOW_CRITICALITY_KEY } from '../../../state/variables/use-show-criticality';
+import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { setUserSetting } from '../../../test-helpers/user-settings-helpers';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup';
 
 const testManualAttributions: Attributions = {
@@ -312,7 +310,7 @@ describe('The ProjectStatisticsPopup', () => {
   it('does not show the classification statistics if it has been disabled', () => {
     renderComponent(<ProjectStatisticsPopup />, {
       actions: [
-        setUserSetting(SHOW_CLASSIFICATIONS_KEY, false),
+        setUserSetting({ showClassifications: false }),
         loadFromFile(getParsedInputFileEnrichedWithTestData(fileSetup)),
       ],
     });
@@ -328,7 +326,7 @@ describe('The ProjectStatisticsPopup', () => {
   it('does not show the criticality statistics if it has been disabled', () => {
     renderComponent(<ProjectStatisticsPopup />, {
       actions: [
-        setUserSetting(SHOW_CRITICALITY_KEY, false),
+        setUserSetting({ showCriticality: false }),
         loadFromFile(getParsedInputFileEnrichedWithTestData(fileSetup)),
       ],
     });
@@ -341,7 +339,9 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('allows toggling of show-on-startup checkbox', async () => {
-    renderComponent(<ProjectStatisticsPopup />);
+    renderComponent(<ProjectStatisticsPopup />, {
+      actions: [setUserSetting({ showProjectStatistics: true })],
+    });
 
     expect(
       screen.getByLabelText(text.projectStatisticsPopup.toggleStartupCheckbox),
