@@ -45,7 +45,6 @@ export function sendListenerErrorToFrontend(
   loadStatusUpdater: LoadStatusUpdater,
   error: unknown,
 ): void {
-  // NOTE: these log messages are forwarded to the frontend
   if (error instanceof Error) {
     loadStatusUpdater.error(error.message);
   } else {
