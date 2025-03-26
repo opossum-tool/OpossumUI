@@ -60,85 +60,91 @@ describe('ResourcesTreeNodeLabel', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders a folder with signal and criticality icon', () => {
-    render(
-      <ResourcesTreeNodeLabel
-        labelText={'Test label'}
-        hasManualAttribution={false}
-        hasExternalAttribution={true}
-        hasUnresolvedExternalAttribution={true}
-        containsExternalAttribution={false}
-        containsManualAttribution={false}
-        hasParentWithManualAttribution={false}
-        canHaveChildren={true}
-        isAttributionBreakpoint={false}
-        showFolderIcon={true}
-        containsResourcesWithOnlyExternalAttribution={true}
-        criticality={Criticality.High}
-        showClassifications={false}
-        showCriticality={true}
-      />,
-    );
+  describe('criticality icon', () => {
+    it('renders a folder with signal and criticality icon', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={true}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          criticality={Criticality.High}
+          showClassifications={false}
+          showCriticality={true}
+        />,
+      );
 
-    expect(screen.getByText('Test label')).toBeInTheDocument();
-    expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Directory icon with signal'),
-    ).toBeInTheDocument();
-  });
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon with signal'),
+      ).toBeInTheDocument();
+    });
 
-  it('renders a folder with signal and but without criticality icon if disabled', () => {
-    render(
-      <ResourcesTreeNodeLabel
-        labelText={'Test label'}
-        hasManualAttribution={false}
-        hasExternalAttribution={true}
-        hasUnresolvedExternalAttribution={true}
-        containsExternalAttribution={false}
-        containsManualAttribution={false}
-        hasParentWithManualAttribution={false}
-        canHaveChildren={true}
-        isAttributionBreakpoint={false}
-        showFolderIcon={true}
-        containsResourcesWithOnlyExternalAttribution={true}
-        criticality={Criticality.High}
-        showClassifications={false}
-        showCriticality={false}
-      />,
-    );
+    it('renders a folder with signal and but without criticality icon if disabled', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={true}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          criticality={Criticality.High}
+          showClassifications={false}
+          showCriticality={false}
+        />,
+      );
 
-    expect(screen.getByText('Test label')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Criticality icon')).not.toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Directory icon with signal'),
-    ).toBeInTheDocument();
-  });
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Criticality icon'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon with signal'),
+      ).toBeInTheDocument();
+    });
 
-  it('renders a folder with resolved signal but without criticality icon', () => {
-    render(
-      <ResourcesTreeNodeLabel
-        labelText={'Test label'}
-        hasManualAttribution={false}
-        hasExternalAttribution={true}
-        hasUnresolvedExternalAttribution={false}
-        containsExternalAttribution={false}
-        containsManualAttribution={false}
-        hasParentWithManualAttribution={false}
-        canHaveChildren={true}
-        isAttributionBreakpoint={false}
-        showFolderIcon={true}
-        containsResourcesWithOnlyExternalAttribution={true}
-        criticality={Criticality.High}
-        showClassifications={false}
-        showCriticality={true}
-      />,
-    );
+    it('renders a folder with resolved signal but without criticality icon', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={false}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          criticality={Criticality.High}
+          showClassifications={false}
+          showCriticality={true}
+        />,
+      );
 
-    expect(screen.getByText('Test label')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Criticality icon')).not.toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Directory icon without information'),
-    ).toBeInTheDocument();
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Criticality icon'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon without information'),
+      ).toBeInTheDocument();
+    });
   });
 
   describe('classification icon', () => {

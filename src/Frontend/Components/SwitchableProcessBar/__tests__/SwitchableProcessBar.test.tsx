@@ -110,12 +110,9 @@ describe('SwitchableProcessBar', () => {
     expect(getAttributionProgressBar()).toBeInTheDocument();
   });
 
-  it('offers all three possible progress bars if classificaitions configured active', async () => {
+  it('offers all three possible progress bars by default', async () => {
     renderComponent(<SwitchableProcessBar />, {
-      actions: [
-        setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
-        setUserSetting('showClassifications', true),
-      ],
+      actions: [setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA)],
     });
 
     openSelect();
