@@ -209,6 +209,8 @@ Besides searching, sorting, and filtering attributions according to your needs, 
 - **replace:** enters replacement mode during which you can select a replacement for the selected attributions
 - **delete:** deletes the selected attributions
 
+Similar to the resource browser, icons on the attributions are used to highlight relevant properties of the attribution. For an overview, please refer to the Signals Panel section.
+
 #### Signals Panel
 
 The signals panel lists signals as they relate to the selected resource. The possible relationships, by which attributions are grouped into tabs, are:
@@ -223,16 +225,16 @@ Besides searching, sorting, and filtering signals according to your needs, you c
 - **restore:** restores the selected soft-deleted signals (only available when you include the deleted signals via the show/hide button)
 - **show/hide deleted signals:** shows/hides the soft-deleted signals
 
-Similar to the resource browser, icons on the attributions are used to highlight relevant properties of the attribution:
+Similar to the resource browser, icons on the signals are used to highlight relevant properties of the signal:
 
 - a **flame icon** ![integration](./docs/user_guide_screenshots/criticality_icon.png) indicates that the signal is marked as critical. The color scale indicates the criticality.
 - a **C-Icon** ![integration](./docs/user_guide_screenshots/classification_icon.png) indicates that the signal features a non-zero classification. The color scale indicates the number of the classification.
-- a **P-Icon** ![integration](./docs/user_guide_screenshots/preferred_icon.png) marks the signal as preferred
+- a **P-Icon** ![integration](./docs/user_guide_screenshots/preferred_icon.png) marks the signal as preferred.
 - a **star icon** ![integration](./docs/user_guide_screenshots/previously_preferred_icon.png) shows that the signal has been preferred in the past.
 - an **icon with a one** ![integration](./docs/user_guide_screenshots/first_party_icon.png) marks the signal as being first party.
-- a **replay icon** ![integration](./docs/user_guide_screenshots/needs_follow_up_icon.png) marks the signal as requiring follow up
-- a **text with an x icon** ![integration](./docs/user_guide_screenshots/exclude_from_notice_icon.png) indicates that the signal is excluded from notice
-- a **checklist with a missing item** ![integration](./docs/user_guide_screenshots/incomplete_information_icon.png) indicates that the signal information is incomplete
+- a **replay icon** ![integration](./docs/user_guide_screenshots/needs_follow_up_icon.png) marks the signal as requiring follow up.
+- a **text with an x icon** ![integration](./docs/user_guide_screenshots/exclude_from_notice_icon.png) indicates that the signal is excluded from notice.
+- a **checklist with a missing item** ![integration](./docs/user_guide_screenshots/incomplete_information_icon.png) indicates that the signal information is incomplete.
 
 #### Attribution Details
 
