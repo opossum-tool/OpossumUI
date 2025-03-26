@@ -87,7 +87,7 @@ describe('ResourcesTreeNodeLabel', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders a folder with signal and but withcout criticality icon if disabled', () => {
+  it('renders a folder with signal and but without criticality icon if disabled', () => {
     render(
       <ResourcesTreeNodeLabel
         labelText={'Test label'}
@@ -200,7 +200,7 @@ describe('ResourcesTreeNodeLabel', () => {
       ).toBeInTheDocument();
     });
 
-    it('renders a folder with resolved signal but without classification icon if no unresolved attributions', () => {
+    it('renders a folder with resolved signal but without classification icon', () => {
       render(
         <ResourcesTreeNodeLabel
           labelText={'Test label'}
