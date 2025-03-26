@@ -14,6 +14,7 @@ import {
   IsLoadingArgs,
   Log,
   ParsedFileContent,
+  UserSettings,
 } from '../../shared/shared-types';
 
 export type ResetStateListener = (
@@ -53,6 +54,11 @@ export type ShowMergeDialogListener = (
   fileFormat: FileFormatInfo,
 ) => void;
 
+export type UserSettingsChangedListener = (
+  event: IpcRendererEvent,
+  payload: Partial<UserSettings>,
+) => void;
+
 export type Listener =
   | ResetStateListener
   | SetStateListener
@@ -61,7 +67,8 @@ export type Listener =
   | SetBaseURLForRootListener
   | IsLoadingListener
   | ShowImportDialogListener
-  | ShowMergeDialogListener;
+  | ShowMergeDialogListener
+  | UserSettingsChangedListener;
 
 export function useIpcRenderer<T extends Listener>(
   channel: AllowedFrontendChannels,

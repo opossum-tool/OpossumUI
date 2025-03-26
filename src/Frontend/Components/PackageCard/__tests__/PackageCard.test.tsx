@@ -4,7 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
+import { Criticality, RawCriticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
+import { setConfig } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { renderComponent } from '../../../test-helpers/render';
 import { PackageCard } from '../PackageCard';
 
@@ -69,5 +72,132 @@ describe('The PackageCard', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(packageInfo.licenseName!)).toBeInTheDocument();
     expect(screen.getByRole('checkbox')).toBeInTheDocument();
+  });
+
+  describe('classification icon', () => {
+    it('renders the classification icon for classification > 0', () => {
+      const packageInfo = faker.opossum.packageInfo({ classification: 1 });
+
+      renderComponent(
+        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        {
+          actions: [
+            setConfig({
+              classifications: {
+                1: faker.opossum.classificationEntry(),
+              },
+            }),
+          ],
+        },
+      );
+
+      const classificationIcon = screen.getByTestId('classification-tooltip');
+      expect(classificationIcon).toBeVisible();
+    });
+
+    it('does not render the classification icon for classification 0', () => {
+      const packageInfo = faker.opossum.packageInfo({ classification: 0 });
+
+      renderComponent(
+        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        {
+          actions: [
+            setConfig({
+              classifications: {
+                1: faker.opossum.classificationEntry(),
+              },
+            }),
+          ],
+        },
+      );
+
+      const classificationIcon = screen.queryByTestId('classification-tooltip');
+      expect(classificationIcon).not.toBeInTheDocument();
+    });
+
+    it('does render the classification icon for un-configured classifications', () => {
+      const packageInfo = faker.opossum.packageInfo({ classification: 3 });
+
+      renderComponent(
+        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        {
+          actions: [
+            setConfig({
+              classifications: {
+                1: faker.opossum.classificationEntry(),
+              },
+            }),
+          ],
+        },
+      );
+
+      const classificationIcon = screen.getByTestId('classification-tooltip');
+      expect(classificationIcon).toBeVisible();
+    });
+
+    it('does not render the classification icon if classification display is disabled', () => {
+      const packageInfo = faker.opossum.packageInfo({ classification: 3 });
+
+      renderComponent(
+        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        {
+          actions: [
+            setConfig({
+              classifications: {
+                1: faker.opossum.classificationEntry(),
+              },
+            }),
+            setUserSetting({ showClassifications: false }),
+          ],
+        },
+      );
+
+      const classificationIcon = screen.queryByTestId('classification-tooltip');
+      expect(classificationIcon).not.toBeInTheDocument();
+    });
+  });
+
+  describe('criticality icon', () => {
+    [Criticality.Medium, Criticality.High].forEach((criticality) => {
+      it(`renders the criticality icon for criticality ${RawCriticality[criticality]}`, () => {
+        const packageInfo = faker.opossum.packageInfo({
+          criticality,
+        });
+
+        renderComponent(
+          <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        );
+
+        const criticalityIcon = screen.getByLabelText('Criticality icon');
+        expect(criticalityIcon).toBeVisible();
+      });
+    });
+
+    it('does not render the criticality icon for criticality none', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        criticality: Criticality.None,
+      });
+
+      renderComponent(
+        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+      );
+
+      const criticalityIcon = screen.queryByLabelText('Criticality icon');
+      expect(criticalityIcon).not.toBeInTheDocument();
+    });
+
+    it('does not render the criticality icon if disabled', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        criticality: Criticality.High,
+      });
+
+      renderComponent(
+        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        { actions: [setUserSetting({ showCriticality: false })] },
+      );
+
+      const criticalityIcon = screen.queryByLabelText('Criticality icon');
+      expect(criticalityIcon).not.toBeInTheDocument();
+    });
   });
 });

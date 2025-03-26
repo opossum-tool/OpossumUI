@@ -11,6 +11,7 @@ import type {
   ParsedOpossumOutputFile,
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
+import { OpossumColors } from '../Frontend/shared-styles';
 import { ClassificationStatisticsEntry } from '../Frontend/types/types';
 import { HttpClient } from '../Frontend/util/http-client';
 import {
@@ -40,6 +41,7 @@ import {
   Attributions,
   AttributionsToResources,
   BaseUrlsForSources,
+  ClassificationEntry,
   Criticality,
   DiscreteConfidence,
   ExternalAttributionSource,
@@ -308,6 +310,16 @@ class OpossumModule {
       ...props,
     };
   }
+
+  public static classificationEntry(
+    overrides: Partial<ClassificationEntry> = {},
+  ): ClassificationEntry {
+    return {
+      description: faker.word.words(),
+      color: faker.color.hsl({ format: 'css' }),
+      ...overrides,
+    };
+  }
 }
 
 class PackageSearchModule {
@@ -505,20 +517,18 @@ class ProgressBarModule {
     overwrites: Partial<ClassificationStatisticsEntry> = {},
     numberOfFiles?: number,
   ): ClassificationStatisticsEntry {
-    const { description = faker.word.noun() } = overwrites;
-    let { correspondingFiles } = overwrites;
-    if (!numberOfFiles) {
+    if (numberOfFiles === undefined) {
       numberOfFiles = faker.number.int({ min: 0, max: 20 });
     }
-    if (!correspondingFiles) {
-      correspondingFiles = faker.helpers.uniqueArray(
-        faker.word.noun,
-        numberOfFiles,
-      );
-    }
+    const correspondingFiles = faker.helpers.uniqueArray(
+      faker.word.noun,
+      numberOfFiles,
+    );
     return {
-      description,
+      description: faker.word.noun(),
+      color: faker.helpers.arrayElement(Object.values(OpossumColors)),
       correspondingFiles,
+      ...overwrites,
     };
   }
 }

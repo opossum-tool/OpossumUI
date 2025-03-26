@@ -18,7 +18,7 @@ export enum IpcChannel {
    */
   StopLoading = 'stop-loading',
   GetUserSettings = 'get-user-settings',
-  SetUserSettings = 'set-user-settings',
+  UpdateUserSettings = 'update-user-settings',
   Quit = 'quit',
   Relaunch = 'relaunch',
 }

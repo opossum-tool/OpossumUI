@@ -9,21 +9,9 @@ import upath from 'upath';
 
 import { getIconPath } from './iconHelpers';
 
-export async function createWindow(): Promise<BrowserWindow> {
-  const mainWindow = new BrowserWindow({
-    width: 1920,
-    height: 1080,
-    minWidth: 500,
-    minHeight: 300,
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: false,
-      preload: path.join(upath.toUnix(__dirname), '../preload.js'),
-    },
-    icon: getIconPath(),
-  });
-
+export async function loadWebApp(
+  mainWindow: Electron.CrossProcessExports.BrowserWindow,
+) {
   if (!app.isPackaged) {
     await mainWindow.loadURL('http://localhost:5173/');
 
@@ -33,6 +21,20 @@ export async function createWindow(): Promise<BrowserWindow> {
       `file://${path.join(upath.toUnix(__dirname), '../../index.html')}`,
     );
   }
+}
 
-  return mainWindow;
+export function createWindow(): BrowserWindow {
+  return new BrowserWindow({
+    width: 1920,
+    height: 1080,
+    minWidth: 500,
+    minHeight: 400,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      preload: path.join(upath.toUnix(__dirname), '../preload.js'),
+    },
+    icon: getIconPath(),
+  });
 }

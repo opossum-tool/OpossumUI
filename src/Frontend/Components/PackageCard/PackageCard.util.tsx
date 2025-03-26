@@ -19,7 +19,11 @@ import {
 } from '../Icons/Icons';
 import { PackageCardConfig } from './PackageCard';
 
-export function getRightIcons(cardConfig: PackageCardConfig) {
+export function getRightIcons(
+  cardConfig: PackageCardConfig,
+  showClassifications: boolean,
+  showCriticality: boolean,
+) {
   const rightIcons: Array<React.ReactElement> = [];
 
   if (cardConfig.preferred) {
@@ -29,7 +33,7 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
   } else if (cardConfig.originalWasPreferred) {
     rightIcons.push(<ModifiedPreferredIcon key={'modified-preferred-icon'} />);
   }
-  if (cardConfig.criticality !== Criticality.None) {
+  if (showCriticality && cardConfig.criticality !== Criticality.None) {
     rightIcons.push(
       <CriticalityIcon
         key={'criticality-icon'}
@@ -39,14 +43,15 @@ export function getRightIcons(cardConfig: PackageCardConfig) {
     );
   }
   if (
+    showClassifications &&
     cardConfig.classification &&
-    cardConfig.classification_mapping?.[cardConfig.classification]
+    cardConfig.classificationsConfig
   ) {
     rightIcons.push(
       <ClassificationIcon
         key={'classification-icon'}
         classification={cardConfig.classification}
-        classification_mapping={cardConfig.classification_mapping}
+        classificationsConfig={cardConfig.classificationsConfig}
       />,
     );
   }

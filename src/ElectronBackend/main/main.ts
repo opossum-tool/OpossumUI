@@ -6,8 +6,9 @@ import { dialog, ipcMain, systemPreferences } from 'electron';
 import os from 'os';
 
 import { AllowedFrontendChannels, IpcChannel } from '../../shared/ipc-channels';
+import { UserSettings } from '../../shared/shared-types';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
-import { createWindow } from './createWindow';
+import { createWindow, loadWebApp } from './createWindow';
 import {
   exportFileListener,
   importFileConvertAndLoadListener,
@@ -20,7 +21,7 @@ import {
 } from './listeners';
 import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
-import { UserSettings } from './user-settings';
+import { UserSettingsService } from './user-settings-service';
 
 export async function main(): Promise<void> {
   try {
@@ -32,9 +33,9 @@ export async function main(): Promise<void> {
       );
     }
 
-    const mainWindow = await createWindow();
+    const mainWindow = createWindow();
 
-    await UserSettings.init();
+    await UserSettingsService.init();
     await createMenu(mainWindow);
 
     mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
@@ -85,12 +86,14 @@ export async function main(): Promise<void> {
       }),
     );
     ipcMain.handle(IpcChannel.OpenLink, openLinkListener);
-    ipcMain.handle(IpcChannel.GetUserSettings, (_, key) =>
-      UserSettings.get(key),
+    ipcMain.handle(IpcChannel.GetUserSettings, () => UserSettingsService.get());
+    ipcMain.handle(
+      IpcChannel.UpdateUserSettings,
+      (_, userSettings: Partial<UserSettings>) =>
+        UserSettingsService.update(userSettings, { skipNotification: true }),
     );
-    ipcMain.handle(IpcChannel.SetUserSettings, (_, { key, value }) =>
-      UserSettings.set(key, value, { skipNotification: true }),
-    );
+
+    await loadWebApp(mainWindow);
 
     await openFileFromCliOrEnvVariableIfProvided(mainWindow);
   } catch (error) {

@@ -55,7 +55,7 @@ import {
 } from './globalBackendState';
 import logger from './logger';
 import { createMenu } from './menu';
-import { UserSettings } from './user-settings';
+import { UserSettingsService } from './user-settings-service';
 
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
@@ -358,13 +358,16 @@ export async function openFile(
 }
 
 async function updateRecentlyOpenedPaths(filePath: string): Promise<void> {
-  const recentlyOpenedPaths = await UserSettings.get('recentlyOpenedPaths');
-  await UserSettings.set(
+  const recentlyOpenedPaths = await UserSettingsService.get(
     'recentlyOpenedPaths',
-    uniq([filePath, ...(recentlyOpenedPaths ?? [])]).slice(
-      0,
-      MAX_NUMBER_OF_RECENTLY_OPENED_PATHS,
-    ),
+  );
+  await UserSettingsService.update(
+    {
+      recentlyOpenedPaths: uniq([
+        filePath,
+        ...(recentlyOpenedPaths ?? []),
+      ]).slice(0, MAX_NUMBER_OF_RECENTLY_OPENED_PATHS),
+    },
     { skipNotification: true },
   );
 }

@@ -15,6 +15,7 @@ import {
   getResourcesWithExternalAttributedChildren,
   getResourcesWithManualAttributedChildren,
 } from '../../../../state/selectors/resource-selectors';
+import { useUserSettings } from '../../../../state/variables/use-user-setting';
 import { TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode';
 import {
   containsExternalAttribution,
@@ -53,6 +54,9 @@ export function ResourcesTreeNode({ node, nodeId, nodeName }: TreeNode) {
 
   const canHaveChildren = node !== 1;
   const classification_mapping = useAppSelector(getClassifications);
+  const [userSettings] = useUserSettings();
+  const showClassifications = userSettings.showClassifications;
+  const showCriticality = userSettings.showCriticality;
 
   return (
     <ResourcesTreeNodeLabel
@@ -97,7 +101,7 @@ export function ResourcesTreeNode({ node, nodeId, nodeName }: TreeNode) {
         externalAttributions,
         resolvedExternalAttributions,
       )}
-      classification_mapping={classification_mapping}
+      classificationsConfig={classification_mapping}
       isAttributionBreakpoint={attributionBreakpoints.has(nodeId)}
       showFolderIcon={canHaveChildren && !filesWithChildren.has(nodeId)}
       containsResourcesWithOnlyExternalAttribution={
@@ -109,6 +113,8 @@ export function ResourcesTreeNode({ node, nodeId, nodeName }: TreeNode) {
           node,
         )
       }
+      showClassifications={showClassifications}
+      showCriticality={showCriticality}
     />
   );
 }

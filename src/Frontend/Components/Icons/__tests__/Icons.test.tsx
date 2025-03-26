@@ -3,8 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { Criticality } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import {
   BreakpointIcon,
   ClassificationIcon,
@@ -18,7 +20,21 @@ import {
   PreSelectedIcon,
 } from '../Icons';
 
+async function hoverOverIcon(testid: string) {
+  await userEvent.hover(screen.getByTestId(testid), {
+    advanceTimers: jest.runOnlyPendingTimersAsync,
+  });
+}
+
 describe('The Icons', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
   it('renders ExcludeFromNoticeIcon', () => {
     render(<ExcludeFromNoticeIcon />);
 
@@ -62,24 +78,43 @@ describe('The Icons', () => {
 
     expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
   });
+  describe('classification icon', () => {
+    it('does not render CriticalClassificationIcon for classification 0', () => {
+      render(<ClassificationIcon classification={0} />);
 
-  it('does not render ClassificationIcon for classification 0', () => {
-    render(<ClassificationIcon classification={0} />);
+      expect(
+        screen.queryByLabelText('Classification icon'),
+      ).not.toBeInTheDocument();
+    });
 
-    expect(
-      screen.queryByLabelText('Classification icon'),
-    ).not.toBeInTheDocument();
-  });
+    it('renders CriticalClassificationIcon for larger classifications', async () => {
+      render(
+        <ClassificationIcon
+          classification={1}
+          classificationsConfig={{
+            1: faker.opossum.classificationEntry({ description: 'Test' }),
+          }}
+        />,
+      );
 
-  it('renders ClassificationIcon', () => {
-    render(
-      <ClassificationIcon
-        classification={1}
-        classification_mapping={{ 1: 'Test' }}
-      />,
-    );
+      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
 
-    expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
+      await hoverOverIcon('classification-tooltip');
+
+      const tooltip = await screen.findByRole('tooltip');
+      expect(tooltip).toHaveTextContent('Test');
+    });
+
+    it('does not show tooltip if deactivated', async () => {
+      render(<ClassificationIcon classification={1} noTooltip />);
+
+      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
+
+      await hoverOverIcon('classification-tooltip');
+
+      const tooltip = screen.queryByRole('tooltip');
+      expect(tooltip).not.toBeInTheDocument();
+    });
   });
 
   it('renders BreakpointIcon', () => {

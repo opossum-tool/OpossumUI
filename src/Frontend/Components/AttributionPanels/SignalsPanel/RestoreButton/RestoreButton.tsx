@@ -11,7 +11,7 @@ import { text } from '../../../../../shared/text';
 import { removeResolvedExternalAttributionAndSave } from '../../../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import { getResolvedExternalAttributions } from '../../../../state/selectors/resource-selectors';
-import { useAreHiddenSignalsVisible } from '../../../../state/variables/use-are-hidden-signals-visible';
+import { useUserSettings } from '../../../../state/variables/use-user-setting';
 import { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
@@ -21,7 +21,8 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   const resolvedExternalAttributionIds = useAppSelector(
     getResolvedExternalAttributions,
   );
-  const [areHiddenSignalsVisible] = useAreHiddenSignalsVisible();
+  const [userSettings] = useUserSettings();
+  const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
   const someSelectedAttributionsAreHidden = useMemo(
     () =>
       !!selectedAttributionIds.length &&

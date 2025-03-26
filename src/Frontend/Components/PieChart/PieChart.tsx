@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
 import {
   Cell as RcCell,
   Legend as RcLegend,
@@ -12,8 +11,12 @@ import {
   Tooltip as RcTooltip,
 } from 'recharts';
 
-import { OpossumColors } from '../../shared-styles';
-import { PieChartData } from '../../types/types';
+import {
+  chartTooltipContentStyle,
+  chartTooltipTextStyle,
+  OpossumColors,
+} from '../../shared-styles';
+import { ChartDataItem } from '../../types/types';
 
 const defaultPieChartColors = [
   OpossumColors.darkBlue,
@@ -24,87 +27,72 @@ const defaultPieChartColors = [
   OpossumColors.brown,
 ];
 
-interface PieChartProps {
-  segments: Array<PieChartData>;
-  colors?: Array<string>;
-}
-
-const classes = {
-  root: {
-    maxWidth: '500px',
-  },
-  tooltipContentStyle: {
-    fontSize: '12px',
-    background: OpossumColors.grey,
-    padding: 3,
-    border: 0,
-    borderRadius: '4px',
-  },
-  tooltipItemStyle: {
-    color: OpossumColors.white,
-    fontFamily: 'sans-serif',
-  },
-  legendElement: {
-    display: 'flex',
-    fontFamily: 'sans-serif',
-    fontSize: '12px',
-  },
-  legendIcon: (backgroundColor: string): React.CSSProperties => {
-    return {
-      backgroundColor,
-      borderRadius: '6px',
-      height: '12px',
-      width: '12px',
-      marginRight: '4px',
-    };
-  },
+const legendTextStyle: React.CSSProperties = {
+  fontFamily: 'sans-serif',
+  fontSize: '12px',
+  width: '95%',
 };
 
+function getLegendIconStyle(backgroundColor: string): React.CSSProperties {
+  return {
+    backgroundColor,
+    borderRadius: '6px',
+    height: '12px',
+    width: '12px',
+    marginRight: '4px',
+  };
+}
+
+interface PieChartProps {
+  segments: Array<ChartDataItem>;
+  colorMap?: { [segmentName: string]: string };
+}
+
 export const PieChart: React.FC<PieChartProps> = (props) => {
-  const pieChartColors = props.colors || defaultPieChartColors;
+  const pieChartColors = props.segments.map(
+    ({ name }, i) =>
+      props.colorMap?.[name] ??
+      defaultPieChartColors[i % defaultPieChartColors.length],
+  );
 
   return (
-    <MuiBox sx={classes.root}>
-      <RcResponsiveContainer maxHeight={200} aspect={2}>
-        <RcPieChart>
-          <RcPie
-            data={props.segments}
-            dataKey="count"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            minAngle={15}
-            outerRadius={70}
-            isAnimationActive={false}
-            blendStroke={true}
-          >
-            {pieChartColors.map((record, index) => (
-              <RcCell key={`cell-${index}`} fill={record} />
-            ))}
-          </RcPie>
-          <RcTooltip
-            contentStyle={classes.tooltipContentStyle}
-            itemStyle={classes.tooltipItemStyle}
-          />
-          <RcLegend
-            content={renderLegend}
-            verticalAlign="middle"
-            align="right"
-            layout="vertical"
-            width={250}
-          />
-        </RcPieChart>
-      </RcResponsiveContainer>
-    </MuiBox>
+    <RcResponsiveContainer width={'100%'} height={'100%'}>
+      <RcPieChart>
+        <RcPie
+          data={props.segments}
+          dataKey="count"
+          nameKey="name"
+          minAngle={15}
+          outerRadius={70}
+          isAnimationActive={false}
+          blendStroke={true}
+        >
+          {pieChartColors.map((record, index) => (
+            <RcCell key={`cell-${index}`} fill={record} />
+          ))}
+        </RcPie>
+        <RcTooltip
+          contentStyle={chartTooltipContentStyle}
+          itemStyle={chartTooltipTextStyle}
+        />
+        <RcLegend
+          content={renderLegend}
+          verticalAlign="middle"
+          align="right"
+          layout="vertical"
+          width={250}
+        />
+      </RcPieChart>
+    </RcResponsiveContainer>
   );
 
   function renderLegend(props: { payload?: Array<{ value: string }> }) {
     return (
       <div>
         {props.payload?.map((entry: { value: string }, index: number) => (
-          <div style={classes.legendElement} key={`item-${index}`}>
-            <div style={classes.legendIcon(pieChartColors[index])} />
-            <div>{entry.value}</div>
+          <div style={{ display: 'flex' }} key={`item-${index}`}>
+            <div style={getLegendIconStyle(pieChartColors[index])} />
+            <div style={legendTextStyle}>{entry.value}</div>
           </div>
         ))}
       </div>

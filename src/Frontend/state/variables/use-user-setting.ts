@@ -2,92 +2,70 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { isFunction } from 'lodash';
-import { DependencyList, useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { UserSettings } from '../../../shared/shared-types';
-import { useIpcRenderer } from '../../util/use-ipc-renderer';
-import { useVariable } from './use-variable';
+import { State } from '../../types/types';
+import {
+  useIpcRenderer,
+  UserSettingsChangedListener,
+} from '../../util/use-ipc-renderer';
+import {
+  fetchUserSettings,
+  setUserSetting,
+} from '../actions/user-settings-actions/user-settings-actions';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { getUserSettings } from '../selectors/user-settings-selector';
 
-/**
- * Use this hook to get and set app-wide user settings.
- * @param props Specify the user setting key and its default value while hydrating.
- * @param deps Dependency array of the hook.
- * @returns A tuple containing the current value, a setter function and a boolean indicating whether the value has been hydrated.
- */
-export function useUserSetting<T extends keyof UserSettings>(
-  { defaultValue, key }: { defaultValue?: never; key: T },
-  deps?: DependencyList,
-): [UserSettings[T], (newValue: UserSettings[T]) => void, boolean];
-export function useUserSetting<T extends keyof UserSettings>(
-  { defaultValue, key }: { defaultValue: NonNullable<UserSettings[T]>; key: T },
-  deps?: DependencyList,
-): [
-  NonNullable<UserSettings[T]>,
-  (
-    newValue:
-      | UserSettings[T]
-      | ((prev: NonNullable<UserSettings[T]>) => UserSettings[T]),
-  ) => void,
-  boolean,
-];
-export function useUserSetting<T extends keyof UserSettings>(
-  { defaultValue, key }: { defaultValue?: UserSettings[T]; key: T },
-  deps: DependencyList = [],
-): [UserSettings[T] | undefined, (newValue: UserSettings[T]) => void, boolean] {
-  const [{ hydrated, storedValue }, setVariable] = useVariable(key, {
-    hydrated: false,
-    storedValue: defaultValue,
-  });
+type UpdateUserSettingsArguments =
+  | Partial<UserSettings>
+  | ((currentSettings: UserSettings) => Partial<UserSettings>);
 
-  const setStoredValue = useCallback(
-    (
-      newValue:
-        | UserSettings[T]
-        | ((prev: UserSettings[T] | undefined) => UserSettings[T]),
-    ): void => {
-      setVariable((prev) => {
-        const effectiveNewValue = isFunction(newValue)
-          ? newValue(prev.storedValue)
-          : newValue;
-        void window.electronAPI.setUserSetting(key, effectiveNewValue);
-        return {
-          hydrated: true,
-          storedValue: effectiveNewValue ?? defaultValue,
-        };
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    deps,
-  );
-
-  const readStoredValue = useCallback(
-    async (): Promise<UserSettings[T] | undefined> => {
-      const value = await window.electronAPI.getUserSetting(key);
-
-      return value ?? defaultValue;
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    deps,
-  );
-
+export function useInitUserSettings() {
+  const dispatch = useAppDispatch();
   useEffect(() => {
-    void (async (): Promise<void> => {
-      const storedValue = await readStoredValue();
-      storedValue !== undefined && setStoredValue(storedValue);
-    })();
-  }, [readStoredValue, setStoredValue]);
+    dispatch(fetchUserSettings());
+  }, [dispatch]);
 
-  useIpcRenderer(
+  useIpcRenderer<UserSettingsChangedListener>(
     AllowedFrontendChannels.UserSettingsChanged,
-    async () =>
-      setVariable({
-        hydrated: true,
-        storedValue: await readStoredValue(),
-      }),
-    [readStoredValue],
+    (_, updatedSettings: Partial<UserSettings>) =>
+      dispatch(setUserSetting(updatedSettings)),
+    [dispatch],
   );
+}
 
-  return [storedValue, setStoredValue, hydrated];
+function getUserSettingsToSet(
+  userSettings: UpdateUserSettingsArguments,
+  getState: () => State,
+): Partial<UserSettings> {
+  if (typeof userSettings === 'function') {
+    const currentUserSettings = getUserSettings(getState());
+    return userSettings(currentUserSettings);
+  }
+  return userSettings;
+}
+
+export function useUserSettings(): [
+  UserSettings,
+  (
+    userSettings:
+      | Partial<UserSettings>
+      | ((settings: UserSettings) => Partial<UserSettings>),
+  ) => void,
+] {
+  const userSettings = useAppSelector(getUserSettings);
+  const dispatch = useAppDispatch();
+
+  const updateUserSettings = (
+    userSettings: UpdateUserSettingsArguments,
+  ): void => {
+    void dispatch(async (dispatch, getState) => {
+      const userSettingsToSet = getUserSettingsToSet(userSettings, getState);
+      await window.electronAPI.updateUserSettings(userSettingsToSet);
+      dispatch(setUserSetting(userSettingsToSet));
+    });
+  };
+  return [userSettings, updateUserSettings];
 }

@@ -4,12 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
-  Classifications,
+  ClassificationsConfig,
   Criticality,
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import { TREE_ROOT_FOLDER_LABEL } from '../../shared-styles';
+import { OpossumColors, TREE_ROOT_FOLDER_LABEL } from '../../shared-styles';
 import { ClassificationStatistics, ProgressBarData } from '../../types/types';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 
@@ -44,6 +44,7 @@ function addPathToClassificationStatistics(
     progressBarData.classificationStatistics[highestClassification] = {
       description: highestClassification.toFixed(0),
       correspondingFiles: [path],
+      color: OpossumColors.red, //should never happen anyhow and if it is a failure
     };
   }
 }
@@ -264,7 +265,7 @@ export function getUpdatedProgressBarData(args: {
   resolvedExternalAttributions: Set<string>;
   attributionBreakpoints: Set<string>;
   filesWithChildren: Set<string>;
-  classifications: Classifications;
+  classifications: ClassificationsConfig;
 }): ProgressBarData {
   const progressBarData = getEmptyProgressBarData(args.classifications);
 
@@ -286,19 +287,18 @@ export function getUpdatedProgressBarData(args: {
 }
 
 export function getEmptyProgressBarData(
-  classifications: Classifications,
+  classifications: ClassificationsConfig,
 ): ProgressBarData {
   const classificationStatistics: ClassificationStatistics = {};
-  if (classifications) {
-    Object.entries(classifications).map(
-      ([classificationNumber, description]) => {
-        classificationStatistics[classificationNumber as unknown as number] = {
-          description,
-          correspondingFiles: [],
-        };
-      },
-    );
-  }
+  Object.entries(classifications).forEach(
+    ([classificationId, classificationEntry]) => {
+      classificationStatistics[Number(classificationId)] = {
+        description: classificationEntry.description,
+        correspondingFiles: [],
+        color: classificationEntry.color,
+      };
+    },
+  );
 
   return {
     fileCount: 0,

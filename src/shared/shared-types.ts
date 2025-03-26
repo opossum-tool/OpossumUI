@@ -24,6 +24,8 @@ export const RawCriticality: Record<Criticality, string | undefined> = {
   [Criticality.High]: 'high',
 };
 
+export type Classification = number;
+
 export enum DiscreteConfidence {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   High = 80,
@@ -59,7 +61,7 @@ interface EphemeralPackageInfoProps {
 
 export interface PackageInfo extends EphemeralPackageInfoProps {
   attributionConfidence?: number;
-  classification?: number;
+  classification?: Classification;
   comment?: string;
   copyright?: string;
   count?: number;
@@ -148,18 +150,27 @@ export interface ProjectMetadata {
   [otherMetadata: string]: unknown;
 }
 
-export interface Classifications {
-  [classification: number]: string;
+export interface ClassificationEntry {
+  description: string;
+  color: string;
 }
 
+export type ClassificationsConfig = Record<Classification, ClassificationEntry>;
+
+export type RawClassificationsConfig = Record<Classification, string>;
+
 export interface ProjectConfig {
-  classifications: Classifications;
+  classifications: ClassificationsConfig;
+}
+
+export interface RawProjectConfig {
+  classifications: RawClassificationsConfig;
 }
 
 export interface ParsedFileContent {
   metadata: ProjectMetadata;
   resources: Resources;
-  config: ProjectConfig;
+  config: RawProjectConfig;
   manualAttributions: InputFileAttributionData;
   externalAttributions: InputFileAttributionData;
   frequentLicenses: FrequentLicenses;
@@ -285,13 +296,8 @@ export interface ElectronAPI {
    */
   stopLoading: () => void;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
-  getUserSetting: <T extends keyof UserSettings>(
-    key: T,
-  ) => Promise<UserSettings[T]>;
-  setUserSetting: <T extends keyof UserSettings>(
-    key: T,
-    value: UserSettings[T],
-  ) => Promise<void>;
+  getUserSettings: () => Promise<UserSettings>;
+  updateUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
 }
 
 declare global {
@@ -307,14 +313,18 @@ export interface Log {
 }
 
 export interface UserSettings {
-  qaMode: boolean | null;
-  showProjectStatistics: boolean | null;
-  areHiddenSignalsVisible: boolean | null;
+  qaMode: boolean;
+  showProjectStatistics: boolean;
+  areHiddenSignalsVisible: boolean;
+  showCriticality: boolean;
+  showClassifications: boolean;
   panelSizes: {
     resourceBrowserWidth: number;
     packageListsWidth: number;
     linkedResourcesPanelHeight: number | null;
     signalsPanelHeight: number | null;
-  } | null;
-  recentlyOpenedPaths: Array<string> | null;
+  };
+  recentlyOpenedPaths: Array<string>;
 }
+
+export type PanelSizes = UserSettings['panelSizes'];

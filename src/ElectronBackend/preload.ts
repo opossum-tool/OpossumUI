@@ -6,7 +6,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 import { IpcChannel } from '../shared/ipc-channels';
-import { ElectronAPI } from '../shared/shared-types';
+import { ElectronAPI, UserSettings } from '../shared/shared-types';
 
 const electronAPI: ElectronAPI = {
   quit: () => ipcRenderer.invoke(IpcChannel.Quit),
@@ -34,9 +34,9 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.on(channel, listener);
     return () => ipcRenderer.removeListener(channel, listener);
   },
-  getUserSetting: (key) => ipcRenderer.invoke(IpcChannel.GetUserSettings, key),
-  setUserSetting: (key, value) =>
-    ipcRenderer.invoke(IpcChannel.SetUserSettings, { key, value }),
+  getUserSettings: () => ipcRenderer.invoke(IpcChannel.GetUserSettings),
+  updateUserSettings: (userSettings: Partial<UserSettings>) =>
+    ipcRenderer.invoke(IpcChannel.UpdateUserSettings, userSettings),
 };
 
 // This exposes an API to communicate from the window in the frontend with the backend

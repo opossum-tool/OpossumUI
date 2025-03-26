@@ -21,13 +21,15 @@ import {
   useAppStore,
 } from '../../../state/hooks';
 import {
+  getClassifications,
   getExternalAttributionSources,
   getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
-import { useUserSetting } from '../../../state/variables/use-user-setting';
+import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { prettifySource } from '../../../util/prettify-source';
 import {
+  ClassificationIcon,
   CriticalityIcon,
   ExcludeFromNoticeIcon,
   FollowUpIcon,
@@ -54,11 +56,16 @@ export function useAuditingOptions({
 }) {
   const dispatch = useAppDispatch();
   const store = useAppStore();
-  const [qaMode] = useUserSetting({ key: 'qaMode' });
   const attributionSources = useAppSelector(getExternalAttributionSources);
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,
   );
+  const classifications = useAppSelector(getClassifications);
+  const [userSettings] = useUserSettings();
+  const qaMode = userSettings.qaMode;
+  const showClassifications = userSettings.showClassifications;
+  const showCriticality = userSettings.showCriticality;
+
   const source = useMemo(() => {
     const sourceName =
       packageInfo.source?.additionalName || packageInfo.source?.name;
@@ -104,7 +111,7 @@ export function useAuditingOptions({
               preferred: false,
             }),
           ),
-        interactive: isPreferenceFeatureEnabled && !!qaMode && isEditable,
+        interactive: isPreferenceFeatureEnabled && qaMode && isEditable,
       },
       {
         id: 'was-preferred',
@@ -210,7 +217,22 @@ export function useAuditingOptions({
         icon: (
           <CriticalityIcon noTooltip criticality={packageInfo.criticality} />
         ),
-        selected: packageInfo.criticality !== Criticality.None,
+        selected:
+          showCriticality && packageInfo.criticality !== Criticality.None,
+        interactive: false,
+      },
+      {
+        id: 'classification',
+        label:
+          classifications[packageInfo.classification ?? 0]?.description || '',
+        icon: (
+          <ClassificationIcon
+            noTooltip
+            classification={packageInfo.classification}
+            classificationsConfig={classifications}
+          />
+        ),
+        selected: !!packageInfo.classification && showClassifications,
         interactive: false,
       },
       {
@@ -257,10 +279,12 @@ export function useAuditingOptions({
     ],
     [
       attributionSources,
+      classifications,
       dispatch,
       isEditable,
       isPreferenceFeatureEnabled,
       packageInfo.attributionConfidence,
+      packageInfo.classification,
       packageInfo.criticality,
       packageInfo.excludeFromNotice,
       packageInfo.followUp,
@@ -270,6 +294,8 @@ export function useAuditingOptions({
       packageInfo.preferred,
       packageInfo.wasPreferred,
       qaMode,
+      showClassifications,
+      showCriticality,
       source.fromOrigin,
       source.sourceName,
       store,

@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   AttributionData,
-  Classifications,
+  ClassificationsConfig,
   Resources,
 } from '../../../shared/shared-types';
 import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
@@ -17,7 +17,7 @@ interface Props {
   manualData: AttributionData;
   resolvedExternalAttributions: Set<string>;
   resources: Resources;
-  classifications: Classifications;
+  classifications: ClassificationsConfig;
 }
 
 export function getProgressData({

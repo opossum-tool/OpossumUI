@@ -10,20 +10,21 @@ import {
   AttributionsToResources,
   ExternalAttributionSources,
   ParsedFileContent,
+  RawProjectConfig,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import {
   EMPTY_FREQUENT_LICENSES,
-  EMPTY_PROJECT_CONFIG,
   EMPTY_PROJECT_METADATA,
+  EMPTY_RAW_PROJECT_CONFIG,
 } from '../shared-constants';
 import { canResourceHaveChildren } from '../util/can-resource-have-children';
 
 const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
   metadata: EMPTY_PROJECT_METADATA,
   resources: {},
-  config: EMPTY_PROJECT_CONFIG,
+  config: EMPTY_RAW_PROJECT_CONFIG,
   manualAttributions: {
     attributions: {},
     resourcesToAttributions: {},
@@ -44,6 +45,7 @@ const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
 
 export function getParsedInputFileEnrichedWithTestData(testData: {
   resources?: Resources;
+  config?: RawProjectConfig;
   manualAttributions?: Attributions;
   resourcesToManualAttributions?: ResourcesToAttributions;
   externalAttributions?: Attributions;
@@ -76,6 +78,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
   return {
     ...EMPTY_PARSED_FILE_CONTENT,
     resources,
+    ...(testData.config ? { config: testData.config } : {}),
     manualAttributions: {
       attributions: testData.manualAttributions || {},
       resourcesToAttributions: testResourcesToManualAttributions,

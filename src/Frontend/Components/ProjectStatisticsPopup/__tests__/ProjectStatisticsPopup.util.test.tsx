@@ -7,22 +7,20 @@ import {
   Criticality,
   ExternalAttributionSources,
 } from '../../../../shared/shared-types';
-import { PieChartCriticalityNames } from '../../../enums/enums';
+import { text } from '../../../../shared/text';
 import {
+  ChartDataItem,
   LicenseCounts,
   LicenseNamesWithCriticality,
-  PieChartData,
 } from '../../../types/types';
 import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
-  ATTRIBUTION_TOTAL,
+  CRITICALITY_LABEL,
   getCriticalSignalsCount,
   getIncompleteAttributionsCount,
-  getLicenseNameVariants,
   getMostFrequentLicenses,
   getStrippedLicenseName,
-  getUniqueLicenseNameToAttribution,
 } from '../ProjectStatisticsPopup.util';
 
 const testAttributions_1: Attributions = {
@@ -161,12 +159,9 @@ describe('aggregateLicensesAndSourcesFromAttributions', () => {
       'The MIT License (MIT)': Criticality.None,
     };
 
-    const strippedLicenseNameToAttribution =
-      getUniqueLicenseNameToAttribution(testAttributions_1);
     const { licenseCounts, licenseNamesWithCriticality } =
       aggregateLicensesAndSourcesFromAttributions(
         testAttributions_1,
-        strippedLicenseNameToAttribution,
         attributionSources,
       );
 
@@ -182,35 +177,6 @@ describe('aggregateLicensesAndSourcesFromAttributions', () => {
     expect(licenseNamesWithCriticality).toEqual(
       expectedLicenseNamesWithCriticality,
     );
-  });
-});
-
-describe('getLicenseNameVariants', () => {
-  it('gets equivalent license names from attributions', () => {
-    const gpl2 = 'GPL-2.0';
-    const gpl2variant1 = 'gpl 2.0';
-    const testAttributions: Attributions = {
-      uuid1: {
-        licenseName: gpl2,
-        id: 'uuid1',
-        criticality: Criticality.None,
-      },
-      uuid2: {
-        licenseName: gpl2variant1,
-        id: 'uuid2',
-        criticality: Criticality.None,
-      },
-      uuid3: {
-        licenseName: 'something else',
-        id: 'uuid3',
-        criticality: Criticality.None,
-      },
-    };
-    const expectedLicenseNameVariants = new Set([gpl2, gpl2variant1]);
-
-    const licenseNameVariants = getLicenseNameVariants(gpl2, testAttributions);
-
-    expect(licenseNameVariants).toEqual(expectedLicenseNameVariants);
   });
 });
 
@@ -241,62 +207,80 @@ describe('getStrippedLicenseName', () => {
 });
 
 describe('aggregateAttributionPropertiesFromAttributions', () => {
-  it('counts attribution properties, ensures total attributions is the last element', () => {
-    const expectedAttributionPropertyCounts: {
-      [attributionPropertyOrTotal: string]: number;
-    } = {
-      needsReview: 2,
-      followUp: 1,
-      firstParty: 2,
-      incomplete: 4,
-      [ATTRIBUTION_TOTAL]: 6,
-    };
+  it('counts attribution properties', () => {
+    const attributionPropertiesText =
+      text.projectStatisticsPopup.charts.attributionProperties;
 
-    const attributionPropertyCountsObject =
+    const expectedAttributionPropertyCounts = [
+      {
+        name: attributionPropertiesText.needsReview,
+        count: 2,
+      },
+      {
+        name: attributionPropertiesText.followUp,
+        count: 1,
+      },
+      {
+        name: attributionPropertiesText.firstParty,
+        count: 2,
+      },
+      {
+        name: attributionPropertiesText.incomplete,
+        count: 4,
+      },
+      {
+        name: attributionPropertiesText.total,
+        count: 6,
+      },
+    ];
+
+    const attributionPropertyCounts =
       aggregateAttributionPropertiesFromAttributions(testAttributions_1);
-    const attributionPropertyCountsArray: Array<Array<string | number>> =
-      Object.entries(attributionPropertyCountsObject);
 
-    expect(attributionPropertyCountsObject).toEqual(
+    expect(attributionPropertyCounts).toEqual(
       expectedAttributionPropertyCounts,
     );
-    expect(
-      attributionPropertyCountsArray[
-        attributionPropertyCountsArray.length - 1
-      ][0],
-    ).toEqual(ATTRIBUTION_TOTAL);
   });
 
-  it('finds no follow up and first party attributions, ensures total attributions is the last element', () => {
-    const expectedAttributionPropertyCounts: {
-      [attributionPropertyOrTotal: string]: number;
-    } = {
-      needsReview: 0,
-      followUp: 0,
-      firstParty: 0,
-      incomplete: 5,
-      [ATTRIBUTION_TOTAL]: 5,
-    };
+  it('finds no follow up and first party attributions', () => {
+    const attributionPropertiesText =
+      text.projectStatisticsPopup.charts.attributionProperties;
 
-    const attributionPropertyCountsObject =
+    const expectedAttributionPropertyCounts = [
+      {
+        name: attributionPropertiesText.needsReview,
+        count: 0,
+      },
+      {
+        name: attributionPropertiesText.followUp,
+        count: 0,
+      },
+      {
+        name: attributionPropertiesText.firstParty,
+        count: 0,
+      },
+      {
+        name: attributionPropertiesText.incomplete,
+        count: 5,
+      },
+      {
+        name: attributionPropertiesText.total,
+        count: 5,
+      },
+    ];
+
+    const attributionPropertyCounts =
       aggregateAttributionPropertiesFromAttributions(testAttributions_2);
-    const attributionPropertyCountsArray: Array<Array<string | number>> =
-      Object.entries(attributionPropertyCountsObject);
 
-    expect(attributionPropertyCountsObject).toEqual(
+    expect(attributionPropertyCounts).toEqual(
       expectedAttributionPropertyCounts,
     );
-    expect(
-      attributionPropertyCountsArray[
-        attributionPropertyCountsArray.length - 1
-      ][0],
-    ).toEqual(ATTRIBUTION_TOTAL);
   });
 });
 
 describe('getMostFrequentLicenses', () => {
   it('obtains most frequent licenses without other accumulation', () => {
-    const expectedSortedMostFrequentLicenses: Array<PieChartData> = [
+    const expectedSortedMostFrequentLicenses: Array<ChartDataItem> = [
       {
         name: 'Apache License Version 2.0',
         count: 3,
@@ -330,7 +314,7 @@ describe('getMostFrequentLicenses', () => {
   });
 
   it('obtains most frequent licenses with other accumulation', () => {
-    const expectedSortedMostFrequentLicenses: Array<PieChartData> = [
+    const expectedSortedMostFrequentLicenses: Array<ChartDataItem> = [
       {
         name: 'Apache License Version 2.0',
         count: 3,
@@ -386,17 +370,17 @@ describe('getMostFrequentLicenses', () => {
 
 describe('getCriticalSignalsCount', () => {
   it('counts number of critical signals across all licenses', () => {
-    const expectedCriticalSignalCount: Array<PieChartData> = [
+    const expectedCriticalSignalCount = [
       {
-        name: PieChartCriticalityNames.HighCriticality,
+        name: CRITICALITY_LABEL[Criticality.High],
         count: 3,
       },
       {
-        name: PieChartCriticalityNames.MediumCriticality,
+        name: CRITICALITY_LABEL[Criticality.Medium],
         count: 4,
       },
       {
-        name: PieChartCriticalityNames.NoCriticality,
+        name: CRITICALITY_LABEL[Criticality.None],
         count: 2,
       },
     ];
@@ -439,13 +423,15 @@ describe('getCriticalSignalsCount', () => {
 
 describe('getIncompleteAttributionsCount', () => {
   it('counts complete and incomplete attributions', () => {
-    const expectedIncompleteAttributionCount: Array<PieChartData> = [
+    const expectedIncompleteAttributionCount: Array<ChartDataItem> = [
       {
-        name: 'Complete attributions',
+        name: text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
+          .completeAttributions,
         count: 2,
       },
       {
-        name: 'Incomplete attributions',
+        name: text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
+          .incompleteAttributions,
         count: 4,
       },
     ];
@@ -459,9 +445,10 @@ describe('getIncompleteAttributionsCount', () => {
   });
 
   it('counts only incomplete attributions', () => {
-    const expectedIncompleteAttributionCount: Array<PieChartData> = [
+    const expectedIncompleteAttributionCount: Array<ChartDataItem> = [
       {
-        name: 'Incomplete attributions',
+        name: text.projectStatisticsPopup.charts.incompleteAttributionsPieChart
+          .incompleteAttributions,
         count: 5,
       },
     ];

@@ -17,18 +17,17 @@ import StarIcon from '@mui/icons-material/Star';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import WidgetsIcon from '@mui/icons-material/Widgets';
-import { Icon, SxProps } from '@mui/material';
+import { createSvgIcon, SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 
-import { Classifications, Criticality } from '../../../shared/shared-types';
+import {
+  ClassificationsConfig,
+  Criticality,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, criticalityColor, OpossumColors } from '../../shared-styles';
 
 const classes = {
-  nonClickableIcon: {
-    ...baseIcon,
-    color: OpossumColors.darkBlue,
-  },
   resourceIcon: {
     width: '18px',
     height: '18px',
@@ -211,43 +210,60 @@ export function CriticalityIcon({
   );
 }
 
-export function ClassificationIcon({
-  className,
-  classification,
-  classification_mapping,
-  sx,
-  tooltipPlacement,
-}: IconProps & {
-  classification?: number;
-  classification_mapping?: Classifications;
-}) {
-  if (!classification || classification === 0) {
-    return null;
-  }
-  const tooltip = classification_mapping?.[classification];
-  if (!tooltip) {
+export function ClassificationIcon(
+  props: IconProps & {
+    classification?: number;
+    classificationsConfig?: ClassificationsConfig;
+  },
+) {
+  if (!props.classification) {
     return null;
   }
 
+  const tooltip =
+    props.classificationsConfig?.[props.classification]?.description;
+  const color =
+    props.classificationsConfig?.[props.classification]?.color ??
+    OpossumColors.red;
+
   return (
-    <MuiTooltip title={tooltip} placement={tooltipPlacement} disableInteractive>
-      <Icon
-        aria-label={'Classification icon'}
+    <MuiTooltip
+      title={props.noTooltip ? undefined : tooltip}
+      placement={props.tooltipPlacement}
+      disableInteractive
+      data-testid={'classification-tooltip'}
+      color="none"
+    >
+      <ClassificationCIcon
+        htmlColor={color}
         sx={{
           ...baseIcon,
-          color: `${OpossumColors.red} !important`,
-          ...sx,
-          fontFamily: 'sans-serif',
-          fontWeight: 'bold',
-          fontSize: 'medium !important',
+          ...props.sx,
+          strokeWidth: 0.5,
+          stroke: OpossumColors.darkGrey,
+          color: `${color} !important`,
         }}
-        className={className}
-      >
-        C
-      </Icon>
+        aria-label={'Classification icon'}
+        className={props.className}
+      />
     </MuiTooltip>
   );
 }
+
+export const ClassificationCIcon = createSvgIcon(
+  <text
+    x="12"
+    y="20"
+    fontSize="24"
+    fontWeight="bold"
+    textAnchor="middle"
+    fontFamily="sans-serif"
+    fill="currentColor"
+  >
+    C
+  </text>,
+  'ClassificationCIcon',
+);
 
 export function SignalIcon({
   className,

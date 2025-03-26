@@ -9,6 +9,7 @@ import {
   PackageInfo,
   ProjectConfig,
   ProjectMetadata,
+  RawProjectConfig,
 } from '../shared/shared-types';
 import { text } from '../shared/text';
 
@@ -36,6 +37,10 @@ export const EMPTY_PROJECT_METADATA: ProjectMetadata = {
 };
 
 export const EMPTY_PROJECT_CONFIG: ProjectConfig = {
+  classifications: {},
+};
+
+export const EMPTY_RAW_PROJECT_CONFIG: RawProjectConfig = {
   classifications: {},
 };
 
@@ -71,9 +76,6 @@ export const ATTRIBUTION_FILTERS = [
   text.filters.previouslyPreferred,
   text.filters.modifiedPreferred,
 ] satisfies Array<Filter>;
-
-export const SORTINGS = Object.values(text.sortings);
-export type Sorting = (typeof SORTINGS)[number];
 
 export const thirdPartyKeys: Array<keyof PackageInfo> = [
   'copyright',

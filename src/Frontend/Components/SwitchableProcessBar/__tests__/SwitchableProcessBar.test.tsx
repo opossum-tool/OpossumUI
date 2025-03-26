@@ -6,6 +6,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
+import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { PROGRESS_DATA } from '../../../state/variables/use-progress-data';
 import { renderComponent } from '../../../test-helpers/render';
@@ -36,11 +37,6 @@ function openSelect() {
 }
 
 function expectSelectToBeOpen() {
-  expect(
-    screen.getByText(switchableProgressBarText.criticalSignalsBar.selectLabel, {
-      selector: 'li',
-    }),
-  ).toBeInTheDocument();
   expect(
     screen.getByText(
       switchableProgressBarText.attributionProgressBar.selectLabel,
@@ -112,5 +108,71 @@ describe('SwitchableProcessBar', () => {
     );
 
     expect(getAttributionProgressBar()).toBeInTheDocument();
+  });
+
+  it('offers all three possible progress bars by default', async () => {
+    renderComponent(<SwitchableProcessBar />, {
+      actions: [setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA)],
+    });
+
+    openSelect();
+    expectSelectToBeOpen();
+
+    const menuEntries = (await screen.findAllByRole('option')).map(
+      (element) => element.textContent,
+    );
+
+    expect(menuEntries).toEqual([
+      'Attributions',
+      'Criticalities',
+      'Classifications',
+    ]);
+  });
+
+  it('does not offer classifications if disabled', async () => {
+    renderComponent(<SwitchableProcessBar />, {
+      actions: [
+        setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
+        setUserSetting({ showClassifications: false }),
+      ],
+    });
+
+    openSelect();
+    expectSelectToBeOpen();
+
+    const menuEntries = (await screen.findAllByRole('option')).map(
+      (element) => element.textContent,
+    );
+
+    expect(menuEntries).toEqual(['Attributions', 'Criticalities']);
+  });
+
+  it('does not offer criticality if disabled', async () => {
+    renderComponent(<SwitchableProcessBar />, {
+      actions: [
+        setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
+        setUserSetting({ showCriticality: false }),
+      ],
+    });
+
+    openSelect();
+    expectSelectToBeOpen();
+
+    const menuEntries = (await screen.findAllByRole('option')).map(
+      (element) => element.textContent,
+    );
+
+    expect(menuEntries).toEqual(['Attributions', 'Classifications']);
+  });
+
+  it('does not show select if only one option to select', () => {
+    renderComponent(<SwitchableProcessBar />, {
+      actions: [
+        setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
+        setUserSetting({ showCriticality: false, showClassifications: false }),
+      ],
+    });
+
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 });

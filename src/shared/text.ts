@@ -53,6 +53,8 @@ export const text = {
       zoomIn: 'Zoom In',
       zoomOut: 'Zoom Out',
       qaMode: 'QA Mode',
+      showCriticality: 'Show Criticality',
+      showClassifications: 'Show Classifications',
     },
     about: 'About',
     aboutSubmenu: {
@@ -167,8 +169,56 @@ export const text = {
   },
   projectStatisticsPopup: {
     title: 'Project Statistics',
+    tabs: {
+      overview: 'Overview',
+      details: 'Licenses',
+    },
     toggleStartupCheckbox: 'Show project statistics on startup',
     criticalLicensesSignalCountColumnName: 'Signals Count',
+    charts: {
+      attributionProperties: {
+        title: 'Attributions Overview',
+        needsReview: 'Needs Review',
+        followUp: 'Follow Up',
+        firstParty: 'First Party',
+        incomplete: 'Incomplete Attributions',
+        total: 'Total Attributions',
+      },
+      count: 'Number of Attributions',
+      pieChartsSectionHeader: 'Pie Charts',
+      mostFrequentLicenseCountPieChart: 'Most Frequent Licenses',
+      criticalSignalsCountPieChart: {
+        title: 'Signals by Criticality',
+        highlyCritical: 'Highly Critical Signals',
+        mediumCritical: 'Medium Critical Signals',
+        nonCritical: 'Non-Critical Signals',
+      },
+      signalCountByClassificationPieChart: {
+        title: 'Signals by Classification',
+        noClassification: 'No classification',
+      },
+      incompleteAttributionsPieChart: {
+        title: 'Incomplete Attributions',
+        completeAttributions: 'Complete Attributions',
+        incompleteAttributions: 'Incomplete Attributions',
+      },
+    },
+  },
+  attributionCountPerSourcePerLicenseTable: {
+    footerTitle: 'Total',
+    columns: {
+      licenseInfo: 'License Info',
+      signalCountPerSource: 'Signal Count per Source',
+      licenseName: 'Name',
+      criticality: {
+        title: 'Criticality',
+        medium: 'Medium Criticality',
+        high: 'High Criticality',
+      },
+      classification: 'Classification',
+      totalSources: 'Total',
+    },
+    none: '-',
   },
   unsavedChangesPopup: {
     title: 'Unsaved Changes',
@@ -279,6 +329,7 @@ export const text = {
     criticality: 'By Criticality',
     name: 'By Name',
     occurrence: 'By Occurrence',
+    classification: 'By Classification',
   },
   resourceDetails: {
     searchTooltip: 'Search',

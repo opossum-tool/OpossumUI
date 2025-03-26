@@ -5,6 +5,7 @@
 import { render, screen } from '@testing-library/react';
 
 import { Criticality } from '../../../../../../../shared/shared-types';
+import { faker } from '../../../../../../../testing/Faker';
 import { ResourcesTreeNodeLabel } from '../ResourcesTreeNodeLabel';
 
 describe('ResourcesTreeNodeLabel', () => {
@@ -22,6 +23,8 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={false}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -46,6 +49,8 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -55,107 +60,210 @@ describe('ResourcesTreeNodeLabel', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders a folder with signal and criticality icon', () => {
-    render(
-      <ResourcesTreeNodeLabel
-        labelText={'Test label'}
-        hasManualAttribution={false}
-        hasExternalAttribution={true}
-        hasUnresolvedExternalAttribution={true}
-        containsExternalAttribution={false}
-        containsManualAttribution={false}
-        hasParentWithManualAttribution={false}
-        canHaveChildren={true}
-        isAttributionBreakpoint={false}
-        showFolderIcon={true}
-        containsResourcesWithOnlyExternalAttribution={true}
-        criticality={Criticality.High}
-      />,
-    );
+  describe('criticality icon', () => {
+    it('renders a folder with signal and criticality icon', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={true}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          criticality={Criticality.High}
+          showClassifications={false}
+          showCriticality={true}
+        />,
+      );
 
-    expect(screen.getByText('Test label')).toBeInTheDocument();
-    expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Directory icon with signal'),
-    ).toBeInTheDocument();
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon with signal'),
+      ).toBeInTheDocument();
+    });
+
+    it('renders a folder with signal and but without criticality icon if disabled', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={true}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          criticality={Criticality.High}
+          showClassifications={false}
+          showCriticality={false}
+        />,
+      );
+
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Criticality icon'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon with signal'),
+      ).toBeInTheDocument();
+    });
+
+    it('renders a folder with resolved signal but without criticality icon', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={false}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          criticality={Criticality.High}
+          showClassifications={false}
+          showCriticality={true}
+        />,
+      );
+
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Criticality icon'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon without information'),
+      ).toBeInTheDocument();
+    });
   });
 
-  it('renders a folder with resolved signal but without criticality icon', () => {
-    render(
-      <ResourcesTreeNodeLabel
-        labelText={'Test label'}
-        hasManualAttribution={false}
-        hasExternalAttribution={true}
-        hasUnresolvedExternalAttribution={false}
-        containsExternalAttribution={false}
-        containsManualAttribution={false}
-        hasParentWithManualAttribution={false}
-        canHaveChildren={true}
-        isAttributionBreakpoint={false}
-        showFolderIcon={true}
-        containsResourcesWithOnlyExternalAttribution={true}
-        criticality={Criticality.High}
-      />,
-    );
+  describe('classification icon', () => {
+    it('renders a folder with signal and classification icon', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={true}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          classification={1}
+          classificationsConfig={{ 1: faker.opossum.classificationEntry() }}
+          showClassifications={true}
+          showCriticality={false}
+        />,
+      );
 
-    expect(screen.getByText('Test label')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Criticality icon')).not.toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Directory icon without information'),
-    ).toBeInTheDocument();
-  });
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon with signal'),
+      ).toBeInTheDocument();
+    });
 
-  it('renders a folder with signal and classification icon', () => {
-    render(
-      <ResourcesTreeNodeLabel
-        labelText={'Test label'}
-        hasManualAttribution={false}
-        hasExternalAttribution={true}
-        hasUnresolvedExternalAttribution={true}
-        containsExternalAttribution={false}
-        containsManualAttribution={false}
-        hasParentWithManualAttribution={false}
-        canHaveChildren={true}
-        isAttributionBreakpoint={false}
-        showFolderIcon={true}
-        containsResourcesWithOnlyExternalAttribution={true}
-        classification={1}
-        classification_mapping={{ 1: 'Test' }}
-      />,
-    );
+    it('renders a folder with signal, classification icon and criticality icon', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={true}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          classification={1}
+          classificationsConfig={{ 1: faker.opossum.classificationEntry() }}
+          showClassifications={true}
+          showCriticality={true}
+          criticality={Criticality.High}
+        />,
+      );
 
-    expect(screen.getByText('Test label')).toBeInTheDocument();
-    expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Directory icon with signal'),
-    ).toBeInTheDocument();
-  });
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon with signal'),
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
+    });
 
-  it('renders a folder with resolved signal but without classification icon', () => {
-    render(
-      <ResourcesTreeNodeLabel
-        labelText={'Test label'}
-        hasManualAttribution={false}
-        hasExternalAttribution={true}
-        hasUnresolvedExternalAttribution={false}
-        containsExternalAttribution={false}
-        containsManualAttribution={false}
-        hasParentWithManualAttribution={false}
-        canHaveChildren={true}
-        isAttributionBreakpoint={false}
-        showFolderIcon={true}
-        containsResourcesWithOnlyExternalAttribution={true}
-        classification={1}
-      />,
-    );
+    it('renders a folder with signal but without classification icon if classification showing disabled', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={true}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          classification={1}
+          classificationsConfig={{ 1: faker.opossum.classificationEntry() }}
+          showClassifications={false}
+          showCriticality={false}
+        />,
+      );
 
-    expect(screen.getByText('Test label')).toBeInTheDocument();
-    expect(
-      screen.queryByLabelText('Classification icon'),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Directory icon without information'),
-    ).toBeInTheDocument();
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Classification icon'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon with signal'),
+      ).toBeInTheDocument();
+    });
+
+    it('renders a folder with resolved signal but without classification icon', () => {
+      render(
+        <ResourcesTreeNodeLabel
+          labelText={'Test label'}
+          hasManualAttribution={false}
+          hasExternalAttribution={true}
+          hasUnresolvedExternalAttribution={false}
+          containsExternalAttribution={false}
+          containsManualAttribution={false}
+          hasParentWithManualAttribution={false}
+          canHaveChildren={true}
+          isAttributionBreakpoint={false}
+          showFolderIcon={true}
+          containsResourcesWithOnlyExternalAttribution={true}
+          classification={1}
+          showClassifications={true}
+          showCriticality={false}
+        />,
+      );
+
+      expect(screen.getByText('Test label')).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Classification icon'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Directory icon without information'),
+      ).toBeInTheDocument();
+    });
   });
 
   it('renders a file with resolved signal and icon', () => {
@@ -173,6 +281,8 @@ describe('ResourcesTreeNodeLabel', () => {
         showFolderIcon={false}
         containsResourcesWithOnlyExternalAttribution={true}
         criticality={Criticality.High}
+        showClassifications={false}
+        showCriticality={true}
       />,
     );
 
@@ -197,6 +307,8 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -220,6 +332,8 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -243,6 +357,8 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -266,6 +382,8 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -289,6 +407,8 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={false}
+        showClassifications={false}
+        showCriticality={false}
       />,
     );
 
@@ -314,6 +434,8 @@ describe('ResourcesTreeNodeLabel', () => {
         isAttributionBreakpoint={true}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
+        showClassifications={false}
+        showCriticality={false}
       />,
     );
 

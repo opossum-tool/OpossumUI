@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../shared/shared-types';
-import { text } from '../../../shared/text';
 import { faker } from '../../../testing/Faker';
 import { sortAttributions } from '../sort-attributions';
 
@@ -43,7 +42,7 @@ describe('sortAttributions', () => {
     ];
     const sorted = sortAttributions({
       attributions,
-      sorting: text.sortings.name,
+      sorting: 'alphabetically',
     });
 
     expect(Object.keys(sorted)).toEqual(['c', 'd', 'e', 'b', 'a']);
@@ -71,7 +70,7 @@ describe('sortAttributions', () => {
     ];
     const sorted = sortAttributions({
       attributions,
-      sorting: text.sortings.criticality,
+      sorting: 'criticality',
     });
 
     expect(Object.keys(sorted)).toEqual(['c', 'b', 'a', 'd']);
@@ -99,7 +98,7 @@ describe('sortAttributions', () => {
     ];
     const sorted = sortAttributions({
       attributions,
-      sorting: text.sortings.occurrence,
+      sorting: 'occurrence',
     });
 
     expect(Object.keys(sorted)).toEqual(['c', 'b', 'a', 'd']);

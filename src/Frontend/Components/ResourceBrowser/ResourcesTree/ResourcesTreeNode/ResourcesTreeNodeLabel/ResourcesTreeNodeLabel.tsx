@@ -7,7 +7,7 @@ import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
 import {
-  Classifications,
+  ClassificationsConfig,
   Criticality,
 } from '../../../../../../shared/shared-types';
 import { text } from '../../../../../../shared/text';
@@ -35,7 +35,9 @@ interface Props {
   containsResourcesWithOnlyExternalAttribution: boolean;
   criticality?: Criticality;
   classification?: number;
-  classification_mapping?: Classifications;
+  classificationsConfig?: ClassificationsConfig;
+  showClassifications: boolean;
+  showCriticality: boolean;
 }
 
 export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
@@ -99,7 +101,7 @@ export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
         {props.labelText}
       </MuiTypography>
       {props.hasUnresolvedExternalAttribution &&
-        (props.criticality ? (
+        (props.criticality && props.showCriticality ? (
           <CriticalityIcon
             criticality={props.criticality}
             tooltip={
@@ -112,10 +114,10 @@ export const ResourcesTreeNodeLabel: React.FC<Props> = (props) => {
         ) : (
           <SignalIcon />
         ))}
-      {props.hasUnresolvedExternalAttribution && (
+      {props.showClassifications && props.hasUnresolvedExternalAttribution && (
         <ClassificationIcon
           classification={props.classification}
-          classification_mapping={props.classification_mapping}
+          classificationsConfig={props.classificationsConfig}
           tooltipPlacement={'right'}
         />
       )}
