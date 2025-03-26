@@ -97,6 +97,8 @@ To classify the severity of the various signals, OpossumUI supports two mechanis
 
 The relevant information needs to be already present in the `.opossum` files.
 
+This information is shown at various places in OpossumUI. You can disable the display of the information by de-selecting the relevant entries in the _View_ menu.
+
 ### Project Metadata
 
 To view project metadata, open the `File` menu and select `Project Metadata`.
