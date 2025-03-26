@@ -60,7 +60,7 @@ export const AttributionCountPerSourcePerLicenseTableHead: React.FC<
           );
         })}
       </MuiTableRow>
-      <MuiTableRow>
+      <MuiTableRow sx={tableClasses.head}>
         {props.columnConfig.groups.flatMap((columnGroup, groupIdx) =>
           columnGroup.columns.map((column, columnIdx) => {
             return (

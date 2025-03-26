@@ -25,7 +25,7 @@ export const AttributionCountPerSourcePerLicenseTableFooter: React.FC<
 > = (props) => {
   return (
     <MuiTableFooter>
-      <MuiTableRow>
+      <MuiTableRow sx={tableClasses.footer}>
         {props.columnConfig.getColumns().map((column, columnIdx) => {
           return (
             <MuiTableCell
