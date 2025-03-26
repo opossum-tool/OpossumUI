@@ -64,15 +64,38 @@ to be recognized by the app.
 To open a `.opossum` file in the app, simply click the _Open File_ button on the left of the top bar (or on the entry in
 the _File_ menu with the same name).
 
+To quickly access recently opened Files, select the relevant file from the `Open Recent` submenu.
+
 ### Importing a File
 
 To import a legacy opossum file (`.json`/`.json.gz`) or a file produced by a scanner (e.g. a ScanCode Json file), click
-the _Import File_ item in the _File_ menu and select the desired file format from the submenu. You will be presented
+the _Import_ item in the _File_ menu and select the desired file format from the submenu. You will be presented
 with a dialog window where you can select the file that you wish to import. Because OpossumUI converts this file into a
 new `.opossum` file as part of the import process, you will also be prompted to select where this new `.opossum` file
 should be saved. Clicking the _Import_ button converts the file into a new `.opossum` file and opens it in OpossumUI.
 Please note that edits made through OpossumUI are **ONLY** saved in this new `.opossum` file, **NOT** in the file you
 selected for import.
+
+### Merging additional information
+
+To enrich your currently open file with additional information from a different scanner, open the _Merge_ item in the _File_ menu and select the desired file format.
+
+Note:
+
+- Merging a file will modify your currently open `.opossum` file and cannot be undone
+- Ensure that the paths in the merged file and the currently open file agree. Currently, there is no functionality to compensate differences.
+
+### Classifying signals
+
+To classify the severity of the various signals, OpossumUI supports two mechanisms.
+
+- **Criticality**: This classification encompasses three different levels:
+  - Non-critical/unknown
+  - Medium critical
+  - Highly critical
+- **Classification**: The classification allows the creator of the `.opossum` file to predefine a severity schema of the form: `severityLevel --> description`. `severityLevel` needs to be a positive integer. By convention, 0 implies that the signal can be used without issues and the severity rises with higher numbers.
+
+The relevant information needs to be already present in the `.opossum` files.
 
 ### Project Metadata
 
@@ -81,7 +104,7 @@ To view project metadata, open the `File` menu and select `Project Metadata`.
 ### Project Statistics
 
 To view project statistics, open the `File` menu and select `Project Statistics`. This opens a popup that shows various
-tables and pie charts summarizing the state of the project.
+charts summarizing the state of the project. Additionally, a table with detailed license statistics is provided.
 
 ### Exporting Formats
 
@@ -117,15 +140,16 @@ In the `Top Bar`, the following elements are present:
 
 - the _Open File_ button,
 - the `Progress Bar`,
-- the `Progress Bar Toggle`,
+- the `Progress Bar Dropdown`,
 - the `View Switch`,
 - the app version,
 - the path bar.
 
-The `Progress Bar` indicates how many files have manually received an attribution (dark green), how many have an automatically **pre-selected** attribution (lighter green with gradient), and how many files have a signal, but have not yet received an attribution (orange), with respect to the total number of files. Hovering on the bar shows a tooltip containing all four numbers. Clicking on the bar navigates to a file that has a signal, but no attribution.
+The `Progress Bar` exists in various versions which can be selected via the `Progress Bar Dropdown`. Note that the possibilities offered depend on the settings chosen in the _View_ menu. Currently, the following progress bars are offered:
 
-Clicking the `Progress Bar Toggle` replaces the `Progress Bar` by the `Critical Signals Progress Bar`. The `Critical Signals Progress Bar` indicates how many files have a highly critical signal but no attribution (red), a critical signal but no attribution (orange) with respect to the total number of files not having an attribution. Hovering on the bar shows a tooltip containing all 4 numbers. Clicking on the bar navigates to a file that has a critical signal,
-but no attribution.
+- The `Attributions` progress bar indicates how many resources have manually received an attribution (dark green), how many have an automatically **pre-selected** attribution (lighter green with gradient), and how many resources have a signal, but have not yet received an attribution (orange), with respect to the total number of files. Hovering on the bar shows a tooltip containing all four numbers. Clicking on the bar navigates to a resource that has a signal, but no attribution.
+- The `Criticalities` progress bar indicates how many files have a highly critical signal but no attribution (red), a critical signal but no attribution (orange) with respect to the total number of files not having an attribution. Hovering on the bar shows a tooltip containing all 4 numbers. Clicking on the bar navigates to a resource that has a critical signal, but no attribution.
+- The `Classifications` progress bar indicates the distribution of the signals without attributions on the configured classification levels. Hovering over the bar shows a tooltip with the exact numbers of all classifications. Clicking on the progress bar navigates to the attribution-less resource with the highest classification level.
 
 The `View Switch` allows to change between the `Audit View` and the `Report View`.
 
@@ -152,6 +176,8 @@ structure:
   that are included to visually collect a set of dependencies. These folders cannot have any signal or attribution.
   Furthermore, no attribution is inferred beyond such a breakpoint),
 - an **exclamation mark** ![integration](./docs/user_guide_screenshots/has_signals_icon.png) indicates the presence of signals attached to the resource.
+- a **flame icon** ![integration](./docs/user_guide_screenshots/criticality_icon.png) indicates the presence of a critical signal. The color scale indicates the criticality.
+- a **C-Icon** ![integration](./docs/user_guide_screenshots/classification_icon.png) indicates the presence of a signal with non-zero classification. The color scale indicates the number of the classification.
 
 The coloring scheme reads as follows:
 
@@ -196,6 +222,17 @@ Besides searching, sorting, and filtering signals according to your needs, you c
 - **delete:** soft-deletes the selected signals, i.e., hides them from the list
 - **restore:** restores the selected soft-deleted signals (only available when you include the deleted signals via the show/hide button)
 - **show/hide deleted signals:** shows/hides the soft-deleted signals
+
+Similar to the resource browser, icons on the attributions are used to highlight relevant properties of the attribution:
+
+- a **flame icon** ![integration](./docs/user_guide_screenshots/criticality_icon.png) indicates that the signal is marked as critical. The color scale indicates the criticality.
+- a **C-Icon** ![integration](./docs/user_guide_screenshots/classification_icon.png) indicates that the signal features a non-zero classification. The color scale indicates the number of the classification.
+- a **P-Icon** ![integration](./docs/user_guide_screenshots/preferred_icon.png) marks the signal as preferred
+- a **star icon** ![integration](./docs/user_guide_screenshots/previously_preferred_icon.png) shows that the signal has been preferred in the past.
+- an **icon with a one** ![integration](./docs/user_guide_screenshots/first_party_icon.png) marks the signal as being first party.
+- a **replay icon** ![integration](./docs/user_guide_screenshots/needs_follow_up_icon.png) marks the signal as requiring follow up
+- a **text with an x icon** ![integration](./docs/user_guide_screenshots/exclude_from_notice_icon.png) indicates that the signal is excluded from notice
+- a **checklist with a missing item** ![integration](./docs/user_guide_screenshots/incomplete_information_icon.png) indicates that the signal information is incomplete
 
 #### Attribution Details
 
