@@ -10,6 +10,8 @@ import React, { useState } from 'react';
 import { text as fullText } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useProgressData } from '../../state/variables/use-progress-data';
+import { useShowClassifications } from '../../state/variables/use-show-classifications';
+import { useShowCriticality } from '../../state/variables/use-show-criticality';
 import { SelectedProgressBar } from '../../types/types';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 
@@ -35,13 +37,33 @@ const classes = {
 
 const text = fullText.topBar.switchableProgressBar;
 
-const progressBarLabels: Record<SelectedProgressBar, string> = {
-  attribution: text.attributionProgressBar.selectLabel,
-  criticality: text.criticalSignalsBar.selectLabel,
-  classification: text.classificationProgressBar.selectLabel,
-};
+interface ProgressBarSwitchConfiguration {
+  label: string;
+  active: boolean;
+}
 
 export const SwitchableProcessBar: React.FC = () => {
+  const [showClassifications] = useShowClassifications();
+  const [showCriticality] = useShowCriticality();
+
+  const switchableProgressBarConfiguration: Record<
+    SelectedProgressBar,
+    ProgressBarSwitchConfiguration
+  > = {
+    attribution: {
+      label: text.attributionProgressBar.selectLabel,
+      active: true,
+    },
+    criticality: {
+      label: text.criticalSignalsBar.selectLabel,
+      active: showCriticality,
+    },
+    classification: {
+      label: text.classificationProgressBar.selectLabel,
+      active: showClassifications,
+    },
+  };
+
   const [currentProgressBar, setcurrentProgressBar] =
     useState<SelectedProgressBar>('attribution');
   const [progressData] = useProgressData();
@@ -52,6 +74,22 @@ export const SwitchableProcessBar: React.FC = () => {
     setcurrentProgressBar(event.target.value as SelectedProgressBar);
   };
 
+  const effectiveCurrentProgressBar = switchableProgressBarConfiguration[
+    currentProgressBar
+  ].active
+    ? currentProgressBar
+    : 'attribution';
+
+  const activeProgressBarConfigurations = Object.fromEntries(
+    Object.entries(switchableProgressBarConfiguration).filter(
+      ([_, progressBarSwitchConfiguration]) =>
+        progressBarSwitchConfiguration.active,
+    ),
+  );
+
+  const hasMoreThanOneActiveProgressBar =
+    Object.keys(activeProgressBarConfigurations).length > 1;
+
   if (!progressData) {
     return <MuiBox flex={1} />;
   }
@@ -60,23 +98,27 @@ export const SwitchableProcessBar: React.FC = () => {
       <ProgressBar
         sx={classes.progressBar}
         progressBarData={progressData}
-        selectedProgressBar={currentProgressBar}
+        selectedProgressBar={effectiveCurrentProgressBar}
       />
-      <Select<SelectedProgressBar>
-        size={'small'}
-        onChange={handleProgressBarChange}
-        sx={classes.select}
-        value={currentProgressBar}
-        aria-label={text.selectAriaLabel}
-      >
-        {Object.entries(progressBarLabels).map(([key, progressBarLabel]) => {
-          return (
-            <MenuItem key={key} value={key}>
-              {progressBarLabel}
-            </MenuItem>
-          );
-        })}
-      </Select>
+      {hasMoreThanOneActiveProgressBar && (
+        <Select<SelectedProgressBar>
+          size={'small'}
+          onChange={handleProgressBarChange}
+          sx={classes.select}
+          value={effectiveCurrentProgressBar}
+          aria-label={text.selectAriaLabel}
+        >
+          {Object.entries(activeProgressBarConfigurations).map(
+            ([key, progressBarSwitchConfiguration]) => {
+              return (
+                <MenuItem key={key} value={key}>
+                  {progressBarSwitchConfiguration.label}
+                </MenuItem>
+              );
+            },
+          )}
+        </Select>
+      )}
     </MuiBox>
   );
 };

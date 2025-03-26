@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { text } from '../../../shared/text';
 import { faker } from '../../../testing/Faker';
 import { SignalsWorker, SignalsWorkerOutput } from '../signals-worker';
 
@@ -14,7 +13,7 @@ describe('SignalsWorker', () => {
       attributionFilters: [],
       attributionSearch: '',
       attributionSelectedLicense: '',
-      attributionSorting: text.sortings.name,
+      attributionSorting: 'alphabetically',
       manualData: faker.opossum.attributionData(),
     });
 
@@ -36,7 +35,7 @@ describe('SignalsWorker', () => {
       attributionFilters: [],
       attributionSearch: '',
       attributionSelectedLicense: '',
-      attributionSorting: text.sortings.name,
+      attributionSorting: 'alphabetically',
     });
 
     worker.processInput({
@@ -59,7 +58,7 @@ describe('SignalsWorker', () => {
       signalFilters: [],
       signalSearch: '',
       signalSelectedLicense: '',
-      signalSorting: text.sortings.name,
+      signalSorting: 'alphabetically',
     });
 
     worker.processInput({

@@ -2,45 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import BarChartIcon from '@mui/icons-material/BarChart';
 import SortIcon from '@mui/icons-material/Sort';
-import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
-import WhatshotIcon from '@mui/icons-material/Whatshot';
 import MuiBadge from '@mui/material/Badge';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
-import { Sorting, SORTINGS } from '../../shared-constants';
 import { UseFilteredData } from '../../state/variables/use-filtered-data';
-import { ClassificationCIcon } from '../Icons/Icons';
 import {
   SelectMenu,
   SelectMenuOption,
   SelectMenuProps,
 } from '../SelectMenu/SelectMenu';
-
-const SORT_ICONS: Record<
-  Sorting,
-  React.FC<{ color?: 'action' | 'disabled' }>
-> = {
-  [text.sortings.name]: ({ color }) => (
-    <SortByAlphaIcon color={color || 'action'} fontSize={'inherit'} />
-  ),
-  [text.sortings.criticality]: ({ color }) => (
-    <WhatshotIcon color={color || 'warning'} fontSize={'inherit'} />
-  ),
-  [text.sortings.occurrence]: ({ color }) => (
-    <BarChartIcon color={color || 'info'} fontSize={'inherit'} />
-  ),
-  [text.sortings.classification]: ({ color }) => (
-    <ClassificationCIcon
-      color={color || 'warning'}
-      sx={{ fontSize: 'inherit' }}
-    />
-  ),
-};
+import { SortOption, useSortConfiguration } from './useSortingOptions';
 
 interface Props
   extends Pick<SelectMenuProps, 'anchorArrow' | 'anchorPosition'> {
@@ -56,28 +31,46 @@ export const SortButton: React.FC<Props> = ({
   const [{ sorting, attributions }, setFilteredAttributions] =
     useFilteredData();
 
+  const sortConfiguration = useSortConfiguration();
+
+  const setSorting = useCallback(
+    (sortOption: SortOption) => {
+      setFilteredAttributions((prev) => ({
+        ...prev,
+        sorting: sortOption,
+      }));
+    },
+    [setFilteredAttributions],
+  );
+
+  const isCurrentSortingActive = sortConfiguration[sorting].active;
+
+  useEffect(() => {
+    if (!isCurrentSortingActive) {
+      setSorting('alphabetically');
+    }
+  }, [isCurrentSortingActive, setSorting]);
+
   const sortingOptions = useMemo(
     () =>
-      SORTINGS.map<SelectMenuOption>((option) => {
-        const Icon = SORT_ICONS[option];
-
-        return {
-          id: option,
-          label: option,
-          selected: option === sorting,
-          icon: <Icon />,
-          onAdd: () =>
-            setFilteredAttributions((prev) => ({
-              ...prev,
-              sorting: option,
-            })),
-        };
-      }),
-    [setFilteredAttributions, sorting],
+      Object.entries(sortConfiguration)
+        .filter(([_, entry]) => entry.active)
+        .map<SelectMenuOption>(([key, entry]) => {
+          const Icon = entry.icon;
+          const sortOption: SortOption = key as SortOption;
+          return {
+            id: sortOption,
+            label: entry.label,
+            selected: sortOption === sorting,
+            icon: <Icon />,
+            onAdd: () => setSorting(sortOption),
+          };
+        }),
+    [sorting, sortConfiguration, setSorting],
   );
 
   const disabled = !attributions || !Object.keys(attributions).length;
-  const BadgeContent = SORT_ICONS[sorting];
+  const BadgeContent = sortConfiguration[sorting].icon;
 
   return (
     <>

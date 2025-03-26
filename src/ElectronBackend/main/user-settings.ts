@@ -3,15 +3,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow } from 'electron';
+import log from 'electron-log';
 import settings from 'electron-settings';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { UserSettings as IUserSettings } from '../../shared/shared-types';
 
+const DEFAULT_USER_SETTINGS = {
+  showClassifications: true,
+};
+
 export class UserSettings {
   public static async init() {
-    if (process.argv.includes('--reset')) {
-      await settings.set({});
+    if (process.argv.includes('--reset') || process.env.RESET) {
+      log.info('Resetting user settings');
+      await settings.set(DEFAULT_USER_SETTINGS);
     }
   }
 

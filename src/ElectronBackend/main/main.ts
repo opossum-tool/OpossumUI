@@ -7,7 +7,7 @@ import os from 'os';
 
 import { AllowedFrontendChannels, IpcChannel } from '../../shared/ipc-channels';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
-import { createWindow } from './createWindow';
+import { createWindow, loadWebApp } from './createWindow';
 import {
   exportFileListener,
   importFileConvertAndLoadListener,
@@ -32,7 +32,7 @@ export async function main(): Promise<void> {
       );
     }
 
-    const mainWindow = await createWindow();
+    const mainWindow = createWindow();
 
     await UserSettings.init();
     await createMenu(mainWindow);
@@ -91,6 +91,8 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.SetUserSettings, (_, { key, value }) =>
       UserSettings.set(key, value, { skipNotification: true }),
     );
+
+    await loadWebApp(mainWindow);
 
     await openFileFromCliOrEnvVariableIfProvided(mainWindow);
   } catch (error) {
