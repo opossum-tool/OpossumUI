@@ -11,7 +11,10 @@ import { text } from '../../../shared/text';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useDataLoadEvents } from '../../util/use-data-load-events';
-import { IsLoadingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
+import {
+  BackendProcessingListener,
+  useIpcRenderer,
+} from '../../util/use-ipc-renderer';
 import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -27,9 +30,9 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  useIpcRenderer<IsLoadingListener>(
-    AllowedFrontendChannels.FileLoading,
-    (_, { isLoading }) => setIsLoading(isLoading),
+  useIpcRenderer<BackendProcessingListener>(
+    AllowedFrontendChannels.BackendProcessing,
+    (_, { isProcessing }) => setIsLoading(isProcessing),
     [],
   );
 

@@ -12,7 +12,10 @@ import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useDataLoadEvents } from '../../util/use-data-load-events';
-import { IsLoadingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
+import {
+  BackendProcessingListener,
+  useIpcRenderer,
+} from '../../util/use-ipc-renderer';
 import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -27,11 +30,11 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isBackendProcessing, setIsBackendProcessing] = useState(false);
 
-  useIpcRenderer<IsLoadingListener>(
-    AllowedFrontendChannels.FileLoading,
-    (_, { isLoading }) => setIsLoading(isLoading),
+  useIpcRenderer<BackendProcessingListener>(
+    AllowedFrontendChannels.BackendProcessing,
+    (_, { isProcessing }) => setIsBackendProcessing(isProcessing),
     [],
   );
 
@@ -119,7 +122,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         dataLoadEvents.length ? (
           <DialogLogDisplay
             log={dataLoadEvents[dataLoadEvents.length - 1]}
-            isInProgress={isLoading}
+            isInProgress={isBackendProcessing}
             showDate={false}
             useEllipsis={true}
             sx={{
@@ -131,13 +134,13 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: text.buttons.import,
-        disabled: isLoading,
+        disabled: isBackendProcessing,
       }}
       rightButtonConfig={{
         onClick: onCancel,
         buttonText: text.buttons.cancel,
         color: 'secondary',
-        disabled: isLoading,
+        disabled: isBackendProcessing,
       }}
       aria-label={'import dialog'}
     />

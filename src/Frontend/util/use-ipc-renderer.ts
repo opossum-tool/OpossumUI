@@ -12,7 +12,7 @@ import {
   DataLoadEvent,
   ExportType,
   FileFormatInfo,
-  IsLoadingArgs,
+  IsBackendProcessingArgs,
   Log,
   ParsedFileContent,
   UserSettings,
@@ -45,9 +45,9 @@ export type SetBaseURLForRootListener = (
   baseURLForRootArgs: BaseURLForRootArgs,
 ) => void;
 
-export type IsLoadingListener = (
+export type BackendProcessingListener = (
   event: IpcRendererEvent,
-  isLoadingArgs: IsLoadingArgs,
+  backendProcessingArgs: IsBackendProcessingArgs,
 ) => void;
 
 export type ShowImportDialogListener = (
@@ -71,7 +71,7 @@ export type Listener =
   | LoggingListener
   | ExportFileRequestListener
   | SetBaseURLForRootListener
-  | IsLoadingListener
+  | BackendProcessingListener
   | ShowImportDialogListener
   | DataLoadEventListener
   | ShowMergeDialogListener

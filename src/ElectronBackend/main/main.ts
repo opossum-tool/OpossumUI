@@ -81,8 +81,8 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.SaveFile, saveFileListener(mainWindow));
     ipcMain.handle(IpcChannel.ExportFile, exportFileListener(mainWindow));
     ipcMain.handle(IpcChannel.StopLoading, () =>
-      mainWindow.webContents.send(AllowedFrontendChannels.FileLoading, {
-        isLoading: false,
+      mainWindow.webContents.send(AllowedFrontendChannels.BackendProcessing, {
+        isProcessing: false,
       }),
     );
     ipcMain.handle(IpcChannel.OpenLink, openLinkListener);

@@ -244,8 +244,8 @@ export interface BaseURLForRootArgs {
   baseURLForRoot: string;
 }
 
-export interface IsLoadingArgs {
-  isLoading: boolean;
+export interface IsBackendProcessingArgs {
+  isProcessing: boolean;
 }
 
 export interface ExternalAttributionSource {

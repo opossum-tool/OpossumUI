@@ -11,17 +11,20 @@ import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
 import { useDataLoadEvents } from '../../util/use-data-load-events';
-import { IsLoadingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
+import {
+  BackendProcessingListener,
+  useIpcRenderer,
+} from '../../util/use-ipc-renderer';
 import { DialogContent, GridLogDisplay } from './ProcessPopup.style';
 
 export function ProcessPopup() {
   const [isLoading, setIsLoading] = useState(false);
   const isOtherPopupOpen = !!useAppSelector(getOpenPopup);
 
-  useIpcRenderer<IsLoadingListener>(
-    AllowedFrontendChannels.FileLoading,
-    (_, { isLoading }) => {
-      setIsLoading(isLoading);
+  useIpcRenderer<BackendProcessingListener>(
+    AllowedFrontendChannels.BackendProcessing,
+    (_, { isProcessing }) => {
+      setIsLoading(isProcessing);
     },
     [],
   );

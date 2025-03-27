@@ -127,7 +127,7 @@ export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   filePath: string,
 ): Promise<void> {
-  setLoadingState(mainWindow.webContents, true);
+  setBackendProcessingState(mainWindow.webContents, true);
 
   const statusUpdater = new LoadStatusUpdater(mainWindow);
   statusUpdater.info('Initializing global backend state');
@@ -139,7 +139,7 @@ export async function handleOpeningFile(
 
   await createMenu(mainWindow);
 
-  setLoadingState(mainWindow.webContents, false);
+  setBackendProcessingState(mainWindow.webContents, false);
 }
 
 export const importFileListener =
@@ -200,7 +200,7 @@ export const importFileConvertAndLoadListener =
     fileType: FileType,
     opossumFilePath: string,
   ): Promise<boolean> => {
-    setLoadingState(mainWindow.webContents, true);
+    setBackendProcessingState(mainWindow.webContents, true);
     const loadStatusUpdater = new LoadStatusUpdater(mainWindow);
 
     try {
@@ -245,7 +245,7 @@ export const importFileConvertAndLoadListener =
       sendListenerErrorToFrontend(loadStatusUpdater, error);
       return false;
     } finally {
-      setLoadingState(mainWindow.webContents, false);
+      setBackendProcessingState(mainWindow.webContents, false);
     }
   };
 
@@ -256,7 +256,7 @@ export const mergeFileAndLoadListener =
     inputFilePath: string,
     fileType: FileType,
   ): Promise<boolean> => {
-    setLoadingState(mainWindow.webContents, true);
+    setBackendProcessingState(mainWindow.webContents, true);
     const loadStatusUpdater = new LoadStatusUpdater(mainWindow);
 
     try {
@@ -299,7 +299,7 @@ export const mergeFileAndLoadListener =
       sendListenerErrorToFrontend(loadStatusUpdater, error);
       return false;
     } finally {
-      setLoadingState(mainWindow.webContents, false);
+      setBackendProcessingState(mainWindow.webContents, false);
     }
   };
 
@@ -484,7 +484,7 @@ export const exportFileListener =
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
     } finally {
-      setLoadingState(mainWindow.webContents, false);
+      setBackendProcessingState(mainWindow.webContents, false);
 
       if (exportedFilePath) {
         shell.showItemInFolder(exportedFilePath);
@@ -556,11 +556,11 @@ async function createDetailedBom(
   );
 }
 
-export function setLoadingState(
+export function setBackendProcessingState(
   webContents: WebContents,
-  isLoading: boolean,
+  isProcessing: boolean,
 ): void {
-  webContents.send(AllowedFrontendChannels.FileLoading, {
-    isLoading,
+  webContents.send(AllowedFrontendChannels.BackendProcessing, {
+    isProcessing,
   });
 }

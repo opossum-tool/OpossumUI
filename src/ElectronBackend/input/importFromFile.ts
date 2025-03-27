@@ -78,8 +78,8 @@ export async function loadInputAndOutputFromFilePath(
     }
     if (isInvalidDotOpossumFileError(parsingResult)) {
       loadStatusUpdater.info('Invalid input file');
-      mainWindow.webContents.send(AllowedFrontendChannels.FileLoading, {
-        isLoading: false,
+      mainWindow.webContents.send(AllowedFrontendChannels.BackendProcessing, {
+        isProcessing: false,
       });
       await getMessageBoxForInvalidDotOpossumFileError(
         parsingResult.filesInArchive,

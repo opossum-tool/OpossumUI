@@ -46,8 +46,8 @@ describe('ProcessPopup', () => {
     renderComponent(<ProcessPopup />);
 
     act(() =>
-      electronAPI.send(AllowedFrontendChannels.FileLoading, {
-        isLoading: true,
+      electronAPI.send(AllowedFrontendChannels.BackendProcessing, {
+        isProcessing: true,
       }),
     );
 
@@ -60,8 +60,8 @@ describe('ProcessPopup', () => {
     renderComponent(<ProcessPopup />);
 
     act(() =>
-      electronAPI.send(AllowedFrontendChannels.FileLoading, {
-        isLoading: true,
+      electronAPI.send(AllowedFrontendChannels.BackendProcessing, {
+        isProcessing: true,
       }),
     );
     act(
@@ -73,8 +73,8 @@ describe('ProcessPopup', () => {
         } satisfies Log),
     );
     act(() =>
-      electronAPI.send(AllowedFrontendChannels.FileLoading, {
-        isLoading: true,
+      electronAPI.send(AllowedFrontendChannels.BackendProcessing, {
+        isProcessing: true,
       }),
     );
 

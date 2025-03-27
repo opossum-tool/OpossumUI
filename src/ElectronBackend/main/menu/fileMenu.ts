@@ -27,7 +27,7 @@ import {
   handleOpeningFile,
   importFileListener,
   selectBaseURLListener,
-  setLoadingState,
+  setBackendProcessingState,
 } from '../listeners';
 import logger from '../logger';
 import { createMenu } from '../menu';
@@ -218,7 +218,7 @@ function getExportFollowUp(
       'icons/follow-up-black.png',
     ),
     click: () => {
-      setLoadingState(webContents, true);
+      setBackendProcessingState(webContents, true);
       logger.info('Preparing data for follow-up export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
@@ -239,7 +239,7 @@ function getExportCompactBom(
     ),
     label: text.menu.fileSubmenu.exportSubmenu.compactComponentList,
     click: () => {
-      setLoadingState(webContents, true);
+      setBackendProcessingState(webContents, true);
       logger.info('Preparing data for compact component list export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
@@ -260,7 +260,7 @@ function getExportDetailedBom(
     ),
     label: text.menu.fileSubmenu.exportSubmenu.detailedComponentList,
     click: () => {
-      setLoadingState(webContents, true);
+      setBackendProcessingState(webContents, true);
       logger.info('Preparing data for detailed component list export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
@@ -278,7 +278,7 @@ function getExportSpdxYaml(
     icon: getIconBasedOnTheme('icons/yaml-white.png', 'icons/yaml-black.png'),
     label: text.menu.fileSubmenu.exportSubmenu.spdxYAML,
     click: () => {
-      setLoadingState(webContents, true);
+      setBackendProcessingState(webContents, true);
       logger.info('Preparing data for SPDX (yaml) export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
@@ -296,7 +296,7 @@ function getExportSpdxJson(
     icon: getIconBasedOnTheme('icons/json-white.png', 'icons/json-black.png'),
     label: text.menu.fileSubmenu.exportSubmenu.spdxJSON,
     click: () => {
-      setLoadingState(webContents, true);
+      setBackendProcessingState(webContents, true);
       logger.info('Preparing data for SPDX (json) export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
