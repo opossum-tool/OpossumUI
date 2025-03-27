@@ -127,9 +127,8 @@ export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   filePath: string,
 ): Promise<void> {
-  setBackendProcessingState(mainWindow.webContents, true);
-
   const statusUpdater = new ProcessingStatusUpdater(mainWindow);
+  statusUpdater.startProcessing();
   statusUpdater.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, true);
 
@@ -139,7 +138,7 @@ export async function handleOpeningFile(
 
   await createMenu(mainWindow);
 
-  setBackendProcessingState(mainWindow.webContents, false);
+  statusUpdater.endProcessing();
 }
 
 export const importFileListener =
@@ -200,8 +199,8 @@ export const importFileConvertAndLoadListener =
     fileType: FileType,
     opossumFilePath: string,
   ): Promise<boolean> => {
-    setBackendProcessingState(mainWindow.webContents, true);
     const processingStatusUpdater = new ProcessingStatusUpdater(mainWindow);
+    processingStatusUpdater.startProcessing();
 
     try {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
@@ -245,7 +244,7 @@ export const importFileConvertAndLoadListener =
       sendListenerErrorToFrontend(processingStatusUpdater, error);
       return false;
     } finally {
-      setBackendProcessingState(mainWindow.webContents, false);
+      processingStatusUpdater.endProcessing();
     }
   };
 
@@ -256,8 +255,8 @@ export const mergeFileAndLoadListener =
     inputFilePath: string,
     fileType: FileType,
   ): Promise<boolean> => {
-    setBackendProcessingState(mainWindow.webContents, true);
     const processingStatusUpdater = new ProcessingStatusUpdater(mainWindow);
+    processingStatusUpdater.startProcessing();
 
     try {
       if (!inputFilePath.trim() || !fs.existsSync(inputFilePath)) {
@@ -301,7 +300,7 @@ export const mergeFileAndLoadListener =
       sendListenerErrorToFrontend(processingStatusUpdater, error);
       return false;
     } finally {
-      setBackendProcessingState(mainWindow.webContents, false);
+      processingStatusUpdater.endProcessing();
     }
   };
 

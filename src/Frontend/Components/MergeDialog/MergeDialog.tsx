@@ -5,15 +5,10 @@
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import {
-  BackendProcessingListener,
-  useIpcRenderer,
-} from '../../util/use-ipc-renderer';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
@@ -28,23 +23,18 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
 
   const [inputFilePath, setInputFilePath] = useState<string>('');
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  useIpcRenderer<BackendProcessingListener>(
-    AllowedFrontendChannels.BackendProcessing,
-    (_, { isProcessing }) => setIsLoading(isProcessing),
-    [],
-  );
-
-  const [processingStatusUpdatedEvents, resetProcessingStatusUpdatedEvents] =
-    useProcessingStatusUpdated();
+  const {
+    processingStatusUpdatedEvents,
+    resetProcessingStatusEvents,
+    processing,
+  } = useProcessingStatusUpdated();
 
   async function selectInputFilePath(): Promise<void> {
     const filePath = await window.electronAPI.selectFile(fileFormat);
 
     if (filePath) {
       setInputFilePath(filePath);
-      resetProcessingStatusUpdatedEvents();
+      resetProcessingStatusEvents();
     }
   }
 
@@ -92,7 +82,7 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
                 processingStatusUpdatedEvents.length - 1
               ]
             }
-            isInProgress={isLoading}
+            isInProgress={processing}
             showDate={false}
             useEllipsis={true}
             sx={{
@@ -104,13 +94,13 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: text.buttons.merge,
-        disabled: isLoading,
+        disabled: processing,
       }}
       rightButtonConfig={{
         onClick: onCancel,
         buttonText: text.buttons.cancel,
         color: 'secondary',
-        disabled: isLoading,
+        disabled: processing,
       }}
       aria-label={'merge dialog'}
     />

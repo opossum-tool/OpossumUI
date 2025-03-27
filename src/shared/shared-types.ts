@@ -314,7 +314,21 @@ export interface Log {
 
 export type ProcessingStateUpdatedEventLevel = 'info' | 'error';
 
+export type ProcessingStateChangedEvent =
+  | ProcessingStartedEvent
+  | ProcessingDoneEvent
+  | ProcessingStateUpdatedEvent;
+
+export interface ProcessingStartedEvent {
+  type: 'ProcessingStarted';
+}
+
+export interface ProcessingDoneEvent {
+  type: 'ProcessingDone';
+}
+
 export interface ProcessingStateUpdatedEvent {
+  type: 'ProcessingStateUpdated';
   date: Date;
   message: string;
   level: ProcessingStateUpdatedEventLevel;

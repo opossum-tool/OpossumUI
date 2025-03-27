@@ -5,38 +5,70 @@
 import { useCallback, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import { ProcessingStateUpdatedEvent } from '../../shared/shared-types';
+import {
+  ProcessingDoneEvent,
+  ProcessingStartedEvent,
+  ProcessingStateChangedEvent,
+  ProcessingStateUpdatedEvent,
+} from '../../shared/shared-types';
 import {
   ProcessingStateChangedListener,
   useIpcRenderer,
 } from './use-ipc-renderer';
 
-export function useProcessingStatusUpdated(): [
-  Array<ProcessingStateUpdatedEvent>,
-  () => void,
-] {
+export interface ProcessingStatusUpdatedResult {
+  processingStatusUpdatedEvents: Array<ProcessingStateUpdatedEvent>;
+  resetProcessingStatusEvents: () => void;
+  processing: boolean;
+}
+
+export function useProcessingStatusUpdated(): ProcessingStatusUpdatedResult {
   const [processingStatusUpdatedEvents, setProcessingStatusUpdatedEvents] =
     useState<Array<ProcessingStateUpdatedEvent>>([]);
+  const [processing, setProcessing] = useState<boolean>(false);
 
-  const reset = useCallback(() => {
+  const resetProcessingStatusEvents = useCallback(() => {
     setProcessingStatusUpdatedEvents([]);
   }, [setProcessingStatusUpdatedEvents]);
 
-  useIpcRenderer(
-    AllowedFrontendChannels.ResetLoadedFile,
-    () => setProcessingStatusUpdatedEvents([]),
-    [],
-  );
+  function isProcessingStateUpdate(
+    processingStateChangedEvent: ProcessingStateChangedEvent,
+  ): processingStateChangedEvent is ProcessingStateUpdatedEvent {
+    return processingStateChangedEvent.type === 'ProcessingStateUpdated';
+  }
+
+  function isProcessingStarted(
+    processingStateChangedEvent: ProcessingStateChangedEvent,
+  ): processingStateChangedEvent is ProcessingStartedEvent {
+    return processingStateChangedEvent.type === 'ProcessingStarted';
+  }
+
+  function isProcessingDone(
+    processingStateChangedEvent: ProcessingStateChangedEvent,
+  ): processingStateChangedEvent is ProcessingDoneEvent {
+    return processingStateChangedEvent.type === 'ProcessingDone';
+  }
 
   useIpcRenderer<ProcessingStateChangedListener>(
     AllowedFrontendChannels.ProcessingStateChanged,
     (_, processingStateChangedEvent) => {
-      setProcessingStatusUpdatedEvents((processingStateChangedEvents) => [
-        ...processingStateChangedEvents,
-        processingStateChangedEvent,
-      ]);
+      if (isProcessingStateUpdate(processingStateChangedEvent)) {
+        setProcessingStatusUpdatedEvents((processingStateChangedEvents) => [
+          ...processingStateChangedEvents,
+          processingStateChangedEvent,
+        ]);
+      } else if (isProcessingStarted(processingStateChangedEvent)) {
+        setProcessing(true);
+        resetProcessingStatusEvents();
+      } else if (isProcessingDone(processingStateChangedEvent)) {
+        setProcessing(false);
+      }
     },
     [],
   );
-  return [processingStatusUpdatedEvents, reset];
+  return {
+    processingStatusUpdatedEvents,
+    resetProcessingStatusEvents,
+    processing,
+  };
 }

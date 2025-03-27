@@ -7,6 +7,8 @@ import log from 'electron-log';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
+  ProcessingDoneEvent,
+  ProcessingStartedEvent,
   ProcessingStateUpdatedEvent,
   ProcessingStateUpdatedEventLevel,
 } from '../../shared/shared-types';
@@ -21,6 +23,7 @@ export class ProcessingStatusUpdater {
     this.#mainWindow.webContents.send(
       AllowedFrontendChannels.ProcessingStateChanged,
       {
+        type: 'ProcessingStateUpdated',
         date: new Date(),
         message,
         level,
@@ -46,5 +49,23 @@ export class ProcessingStatusUpdater {
       log.error(message);
     }
     this.#sendToFrontend(message, 'error');
+  }
+
+  startProcessing() {
+    this.#mainWindow.webContents.send(
+      AllowedFrontendChannels.ProcessingStateChanged,
+      {
+        type: 'ProcessingStarted',
+      } satisfies ProcessingStartedEvent,
+    );
+  }
+
+  endProcessing() {
+    this.#mainWindow.webContents.send(
+      AllowedFrontendChannels.ProcessingStateChanged,
+      {
+        type: 'ProcessingDone',
+      } satisfies ProcessingDoneEvent,
+    );
   }
 }

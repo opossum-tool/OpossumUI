@@ -14,7 +14,7 @@ import {
   IsBackendProcessingArgs,
   Log,
   ParsedFileContent,
-  ProcessingStateUpdatedEvent,
+  ProcessingStateChangedEvent,
   UserSettings,
 } from '../../shared/shared-types';
 
@@ -37,7 +37,7 @@ export type LoggingListener = (event: IpcRendererEvent, log: Log) => void;
 
 export type ProcessingStateChangedListener = (
   event: IpcRendererEvent,
-  processingStateChangedEvent: ProcessingStateUpdatedEvent,
+  processingStateChangedEvent: ProcessingStateChangedEvent,
 ) => void;
 
 export type SetBaseURLForRootListener = (

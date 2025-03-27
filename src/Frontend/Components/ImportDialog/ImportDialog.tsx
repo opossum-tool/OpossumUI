@@ -5,16 +5,11 @@
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import {
-  BackendProcessingListener,
-  useIpcRenderer,
-} from '../../util/use-ipc-renderer';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
@@ -30,23 +25,18 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
 
-  const [isBackendProcessing, setIsBackendProcessing] = useState(false);
-
-  useIpcRenderer<BackendProcessingListener>(
-    AllowedFrontendChannels.BackendProcessing,
-    (_, { isProcessing }) => setIsBackendProcessing(isProcessing),
-    [],
-  );
-
-  const [processingStatusUpdatedEvents, resetProcessingStatusUpdated] =
-    useProcessingStatusUpdated();
+  const {
+    processingStatusUpdatedEvents,
+    resetProcessingStatusEvents,
+    processing,
+  } = useProcessingStatusUpdated();
 
   async function selectInputFilePath(): Promise<void> {
     const filePath = await window.electronAPI.selectFile(fileFormat);
 
     if (filePath) {
       setInputFilePath(filePath);
-      resetProcessingStatusUpdated();
+      resetProcessingStatusEvents();
     }
   }
 
@@ -68,7 +58,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
     if (filePath) {
       setOpossumFilePath(filePath);
-      resetProcessingStatusUpdated();
+      resetProcessingStatusEvents();
     }
   }
 
@@ -127,7 +117,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
                 processingStatusUpdatedEvents.length - 1
               ]
             }
-            isInProgress={isBackendProcessing}
+            isInProgress={processing}
             showDate={false}
             useEllipsis={true}
             sx={{
@@ -139,13 +129,13 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: text.buttons.import,
-        disabled: isBackendProcessing,
+        disabled: processing,
       }}
       rightButtonConfig={{
         onClick: onCancel,
         buttonText: text.buttons.cancel,
         color: 'secondary',
-        disabled: isBackendProcessing,
+        disabled: processing,
       }}
       aria-label={'import dialog'}
     />
