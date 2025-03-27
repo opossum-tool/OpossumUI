@@ -27,10 +27,9 @@ import {
   handleOpeningFile,
   importFileListener,
   selectBaseURLListener,
-  setBackendProcessingState,
 } from '../listeners';
-import logger from '../logger';
 import { createMenu } from '../menu';
+import { ProcessingStatusUpdater } from '../ProcessingStatusUpdater';
 import { UserSettingsService } from '../user-settings-service';
 
 export const importFileFormats: Array<FileFormatInfo> = [
@@ -218,8 +217,9 @@ function getExportFollowUp(
       'icons/follow-up-black.png',
     ),
     click: () => {
-      setBackendProcessingState(webContents, true);
-      logger.info('Preparing data for follow-up export');
+      const processingStatusUpdater = new ProcessingStatusUpdater(webContents);
+      processingStatusUpdater.startProcessing();
+      processingStatusUpdater.info('Preparing data for follow-up export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.FollowUp,
@@ -239,8 +239,11 @@ function getExportCompactBom(
     ),
     label: text.menu.fileSubmenu.exportSubmenu.compactComponentList,
     click: () => {
-      setBackendProcessingState(webContents, true);
-      logger.info('Preparing data for compact component list export');
+      const processingStatusUpdater = new ProcessingStatusUpdater(webContents);
+      processingStatusUpdater.startProcessing();
+      processingStatusUpdater.info(
+        'Preparing data for compact component list export',
+      );
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.CompactBom,
@@ -260,8 +263,11 @@ function getExportDetailedBom(
     ),
     label: text.menu.fileSubmenu.exportSubmenu.detailedComponentList,
     click: () => {
-      setBackendProcessingState(webContents, true);
-      logger.info('Preparing data for detailed component list export');
+      const processingStatusUpdater = new ProcessingStatusUpdater(webContents);
+      processingStatusUpdater.startProcessing();
+      processingStatusUpdater.info(
+        'Preparing data for detailed component list export',
+      );
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.DetailedBom,
@@ -278,8 +284,9 @@ function getExportSpdxYaml(
     icon: getIconBasedOnTheme('icons/yaml-white.png', 'icons/yaml-black.png'),
     label: text.menu.fileSubmenu.exportSubmenu.spdxYAML,
     click: () => {
-      setBackendProcessingState(webContents, true);
-      logger.info('Preparing data for SPDX (yaml) export');
+      const processingStatusUpdater = new ProcessingStatusUpdater(webContents);
+      processingStatusUpdater.startProcessing();
+      processingStatusUpdater.info('Preparing data for SPDX (yaml) export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.SpdxDocumentYaml,
@@ -296,8 +303,9 @@ function getExportSpdxJson(
     icon: getIconBasedOnTheme('icons/json-white.png', 'icons/json-black.png'),
     label: text.menu.fileSubmenu.exportSubmenu.spdxJSON,
     click: () => {
-      setBackendProcessingState(webContents, true);
-      logger.info('Preparing data for SPDX (json) export');
+      const processingStatusUpdater = new ProcessingStatusUpdater(webContents);
+      processingStatusUpdater.startProcessing();
+      processingStatusUpdater.info('Preparing data for SPDX (json) export');
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.SpdxDocumentJson,

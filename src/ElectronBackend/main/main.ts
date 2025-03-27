@@ -5,21 +5,24 @@
 import { dialog, ipcMain, systemPreferences } from 'electron';
 import os from 'os';
 
-
-
 import { IpcChannel } from '../../shared/ipc-channels';
 import { UserSettings } from '../../shared/shared-types';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow, loadWebApp } from './createWindow';
-import { exportFileListener, importFileConvertAndLoadListener, importFileSelectSaveLocationListener, mergeFileAndLoadListener, openFileListener, openLinkListener, saveFileListener, selectFileListener } from './listeners';
+import {
+  exportFileListener,
+  importFileConvertAndLoadListener,
+  importFileSelectSaveLocationListener,
+  mergeFileAndLoadListener,
+  openFileListener,
+  openLinkListener,
+  saveFileListener,
+  selectFileListener,
+} from './listeners';
 import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { ProcessingStatusUpdater } from './ProcessingStatusUpdater';
 import { UserSettingsService } from './user-settings-service';
-
-
-
-
 
 export async function main(): Promise<void> {
   try {
@@ -79,7 +82,7 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.SaveFile, saveFileListener(mainWindow));
     ipcMain.handle(IpcChannel.ExportFile, exportFileListener(mainWindow));
     ipcMain.handle(IpcChannel.StopLoading, () =>
-      new ProcessingStatusUpdater(mainWindow).endProcessing(),
+      new ProcessingStatusUpdater(mainWindow.webContents).endProcessing(),
     );
     ipcMain.handle(IpcChannel.OpenLink, openLinkListener);
     ipcMain.handle(IpcChannel.GetUserSettings, () => UserSettingsService.get());

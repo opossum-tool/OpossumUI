@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { useCallback, useState } from 'react';
+import { flushSync } from 'react-dom';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
@@ -53,10 +54,14 @@ export function useProcessingStatusUpdated(): ProcessingStatusUpdatedResult {
     AllowedFrontendChannels.ProcessingStateChanged,
     (_, processingStateChangedEvent) => {
       if (isProcessingStateUpdate(processingStateChangedEvent)) {
-        setProcessingStatusUpdatedEvents((processingStateChangedEvents) => [
-          ...processingStateChangedEvents,
-          processingStateChangedEvent,
-        ]);
+        flushSync(() =>
+          setProcessingStatusUpdatedEvents((processingStateChangedEvents) => {
+            return [
+              ...processingStateChangedEvents,
+              processingStateChangedEvent,
+            ];
+          }),
+        );
       } else if (isProcessingStarted(processingStateChangedEvent)) {
         setProcessing(true);
         resetProcessingStatusEvents();

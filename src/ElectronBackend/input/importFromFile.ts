@@ -64,7 +64,9 @@ export async function loadInputAndOutputFromFilePath(
     resetState: true,
   });
 
-  const processingStatusUpdater = new ProcessingStatusUpdater(mainWindow);
+  const processingStatusUpdater = new ProcessingStatusUpdater(
+    mainWindow.webContents,
+  );
   let parsedInputData: ParsedOpossumInputFile;
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
 
@@ -127,7 +129,7 @@ export async function loadInputAndOutputFromFilePath(
     parsedInputData.frequentLicenses,
   );
 
-  logger.info('Checking and converting configuration');
+  processingStatusUpdater.info('Checking and converting configuration');
   const configuration = refineConfiguration(
     parsedInputData.config,
     externalAttributions,

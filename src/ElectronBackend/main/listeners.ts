@@ -55,8 +55,8 @@ import {
 } from './globalBackendState';
 import logger from './logger';
 import { createMenu } from './menu';
-import { UserSettingsService } from './user-settings-service';
 import { ProcessingStatusUpdater } from './ProcessingStatusUpdater';
+import { UserSettingsService } from './user-settings-service';
 
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
@@ -127,7 +127,7 @@ export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   filePath: string,
 ): Promise<void> {
-  const statusUpdater = new ProcessingStatusUpdater(mainWindow);
+  const statusUpdater = new ProcessingStatusUpdater(mainWindow.webContents);
   statusUpdater.startProcessing();
   statusUpdater.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, true);
@@ -199,7 +199,9 @@ export const importFileConvertAndLoadListener =
     fileType: FileType,
     opossumFilePath: string,
   ): Promise<boolean> => {
-    const processingStatusUpdater = new ProcessingStatusUpdater(mainWindow);
+    const processingStatusUpdater = new ProcessingStatusUpdater(
+      mainWindow.webContents,
+    );
     processingStatusUpdater.startProcessing();
 
     try {
@@ -255,7 +257,9 @@ export const mergeFileAndLoadListener =
     inputFilePath: string,
     fileType: FileType,
   ): Promise<boolean> => {
-    const processingStatusUpdater = new ProcessingStatusUpdater(mainWindow);
+    const processingStatusUpdater = new ProcessingStatusUpdater(
+      mainWindow.webContents,
+    );
     processingStatusUpdater.startProcessing();
 
     try {
@@ -474,19 +478,21 @@ export const exportFileListener =
     const { exportedFilePath, fileExporter } =
       getExportedFilePathAndFileExporter(exportArgs.type);
 
+    const processingStatusUpdater = new ProcessingStatusUpdater(
+      mainWindow.webContents,
+    );
     try {
       if (exportedFilePath) {
-        logger.info(`Writing to ${exportedFilePath}`);
+        processingStatusUpdater.info(`Writing to ${exportedFilePath}`);
         await fileExporter(exportedFilePath, exportArgs);
       } else {
-        logger.error('Failed to create export');
+        processingStatusUpdater.error('Failed to create export');
         throw new Error('Failed to create export');
       }
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
     } finally {
-      setBackendProcessingState(mainWindow.webContents, false);
-
+      processingStatusUpdater.endProcessing();
       if (exportedFilePath) {
         shell.showItemInFolder(exportedFilePath);
       }
