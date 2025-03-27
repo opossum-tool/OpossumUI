@@ -9,12 +9,12 @@ import { useEffect } from 'react';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   BaseURLForRootArgs,
-  DataLoadEvent,
   ExportType,
   FileFormatInfo,
   IsBackendProcessingArgs,
   Log,
   ParsedFileContent,
+  ProcessingStateUpdatedEvent,
   UserSettings,
 } from '../../shared/shared-types';
 
@@ -35,9 +35,9 @@ export type ExportFileRequestListener = (
 
 export type LoggingListener = (event: IpcRendererEvent, log: Log) => void;
 
-export type DataLoadEventListener = (
+export type ProcessingStateChangedListener = (
   event: IpcRendererEvent,
-  loadEvent: DataLoadEvent,
+  processingStateChangedEvent: ProcessingStateUpdatedEvent,
 ) => void;
 
 export type SetBaseURLForRootListener = (
@@ -73,7 +73,7 @@ export type Listener =
   | SetBaseURLForRootListener
   | BackendProcessingListener
   | ShowImportDialogListener
-  | DataLoadEventListener
+  | ProcessingStateChangedListener
   | ShowMergeDialogListener
   | UserSettingsChangedListener;
 

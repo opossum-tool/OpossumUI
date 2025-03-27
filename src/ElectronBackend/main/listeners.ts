@@ -53,10 +53,10 @@ import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from './globalBackendState';
-import { LoadStatusUpdater } from './LoadStatusUpdater';
 import logger from './logger';
 import { createMenu } from './menu';
 import { UserSettingsService } from './user-settings-service';
+import { ProcessingStatusUpdater } from './ProcessingStatusUpdater';
 
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
@@ -129,7 +129,7 @@ export async function handleOpeningFile(
 ): Promise<void> {
   setBackendProcessingState(mainWindow.webContents, true);
 
-  const statusUpdater = new LoadStatusUpdater(mainWindow);
+  const statusUpdater = new ProcessingStatusUpdater(mainWindow);
   statusUpdater.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, true);
 
@@ -201,7 +201,7 @@ export const importFileConvertAndLoadListener =
     opossumFilePath: string,
   ): Promise<boolean> => {
     setBackendProcessingState(mainWindow.webContents, true);
-    const loadStatusUpdater = new LoadStatusUpdater(mainWindow);
+    const processingStatusUpdater = new ProcessingStatusUpdater(mainWindow);
 
     try {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
@@ -232,17 +232,17 @@ export const importFileConvertAndLoadListener =
         throw new Error(text.backendError.opossumFilePermissionError);
       }
 
-      loadStatusUpdater.info('Converting input file to .opossum format');
+      processingStatusUpdater.info('Converting input file to .opossum format');
       await convertToOpossum(resourceFilePath, opossumFilePath, fileType);
 
-      loadStatusUpdater.info('Updating global backend state');
+      processingStatusUpdater.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath, true);
 
       await openFile(mainWindow, opossumFilePath);
 
       return true;
     } catch (error) {
-      sendListenerErrorToFrontend(loadStatusUpdater, error);
+      sendListenerErrorToFrontend(processingStatusUpdater, error);
       return false;
     } finally {
       setBackendProcessingState(mainWindow.webContents, false);
@@ -257,7 +257,7 @@ export const mergeFileAndLoadListener =
     fileType: FileType,
   ): Promise<boolean> => {
     setBackendProcessingState(mainWindow.webContents, true);
-    const loadStatusUpdater = new LoadStatusUpdater(mainWindow);
+    const processingStatusUpdater = new ProcessingStatusUpdater(mainWindow);
 
     try {
       if (!inputFilePath.trim() || !fs.existsSync(inputFilePath)) {
@@ -285,7 +285,9 @@ export const mergeFileAndLoadListener =
         throw new Error(text.backendError.cantCreateBackup);
       }
 
-      loadStatusUpdater.info('Merging input file into current .opossum file');
+      processingStatusUpdater.info(
+        'Merging input file into current .opossum file',
+      );
       await mergeFileIntoOpossum(
         inputFilePath,
         currentOpossumFilePath,
@@ -296,7 +298,7 @@ export const mergeFileAndLoadListener =
 
       return true;
     } catch (error) {
-      sendListenerErrorToFrontend(loadStatusUpdater, error);
+      sendListenerErrorToFrontend(processingStatusUpdater, error);
       return false;
     } finally {
       setBackendProcessingState(mainWindow.webContents, false);

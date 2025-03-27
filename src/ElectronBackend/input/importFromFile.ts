@@ -17,7 +17,7 @@ import {
 import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { getGlobalBackendState } from '../main/globalBackendState';
-import { LoadStatusUpdater } from '../main/LoadStatusUpdater';
+import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import {
   InvalidDotOpossumFileError,
   JsonParsingError,
@@ -64,20 +64,20 @@ export async function loadInputAndOutputFromFilePath(
     resetState: true,
   });
 
-  const loadStatusUpdater = new LoadStatusUpdater(mainWindow);
+  const processingStatusUpdater = new ProcessingStatusUpdater(mainWindow);
   let parsedInputData: ParsedOpossumInputFile;
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
 
   if (isOpossumFileFormat(filePath)) {
-    loadStatusUpdater.info(`Reading file ${filePath}`);
+    processingStatusUpdater.info(`Reading file ${filePath}`);
     const parsingResult = await parseOpossumFile(filePath);
     if (isJsonParsingError(parsingResult)) {
-      loadStatusUpdater.info('Invalid input file');
+      processingStatusUpdater.info('Invalid input file');
       await getMessageBoxForParsingError(parsingResult.message);
       return;
     }
     if (isInvalidDotOpossumFileError(parsingResult)) {
-      loadStatusUpdater.info('Invalid input file');
+      processingStatusUpdater.info('Invalid input file');
       mainWindow.webContents.send(AllowedFrontendChannels.BackendProcessing, {
         isProcessing: false,
       });
@@ -89,34 +89,34 @@ export async function loadInputAndOutputFromFilePath(
     parsedInputData = parsingResult.input;
     parsedOutputData = parsingResult.output;
   } else {
-    loadStatusUpdater.info('Parsing input file');
+    processingStatusUpdater.info('Parsing input file');
     const parsingResult = await parseInputJsonFile(filePath);
     if (isJsonParsingError(parsingResult)) {
-      loadStatusUpdater.error('Invalid input file');
+      processingStatusUpdater.error('Invalid input file');
       await getMessageBoxForParsingError(parsingResult.message);
       return;
     }
     parsedInputData = parsingResult;
   }
 
-  loadStatusUpdater.info('Sanitizing map of resources to signals');
+  processingStatusUpdater.info('Sanitizing map of resources to signals');
   const unmergedResourcesToExternalAttributions =
     sanitizeResourcesToAttributions(
       parsedInputData.resources,
       parsedInputData.resourcesToAttributions,
     );
 
-  loadStatusUpdater.info('Deserializing signals');
+  processingStatusUpdater.info('Deserializing signals');
   const unmergedExternalAttributions = deserializeAttributions(
     parsedInputData.externalAttributions,
   );
 
-  loadStatusUpdater.info('Calculating signals to resources');
+  processingStatusUpdater.info('Calculating signals to resources');
   const externalAttributionsToResources = getAttributionsToResources(
     unmergedResourcesToExternalAttributions,
   );
 
-  loadStatusUpdater.info('Merging similar signals');
+  processingStatusUpdater.info('Merging similar signals');
   const [externalAttributions, resourcesToExternalAttributions] =
     mergeAttributions({
       attributions: unmergedExternalAttributions,
@@ -124,7 +124,7 @@ export async function loadInputAndOutputFromFilePath(
       attributionsToResources: externalAttributionsToResources,
     });
 
-  loadStatusUpdater.info('Parsing frequent licenses from input');
+  processingStatusUpdater.info('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
     parsedInputData.frequentLicenses,
   );
@@ -136,14 +136,14 @@ export async function loadInputAndOutputFromFilePath(
   );
 
   if (parsedOutputData === null) {
-    loadStatusUpdater.info('Creating output file');
+    processingStatusUpdater.info('Creating output file');
     if (isOpossumFileFormat(filePath)) {
       parsedOutputData = await createOutputInOpossumFile(
         filePath,
         externalAttributions,
         resourcesToExternalAttributions,
         parsedInputData.metadata.projectId,
-        loadStatusUpdater,
+        processingStatusUpdater,
       );
     } else {
       const outputJsonPath = getFilePathWithAppendix(
@@ -156,24 +156,24 @@ export async function loadInputAndOutputFromFilePath(
         externalAttributions,
         resourcesToExternalAttributions,
         parsedInputData.metadata.projectId,
-        loadStatusUpdater,
+        processingStatusUpdater,
         inputFileMD5Checksum,
       );
     }
   }
 
-  loadStatusUpdater.info('Calculating attributions to resources');
+  processingStatusUpdater.info('Calculating attributions to resources');
   const manualAttributionsToResources = getAttributionsToResources(
     parsedOutputData.resourcesToAttributions,
   );
 
-  loadStatusUpdater.info('Deserializing attributions');
+  processingStatusUpdater.info('Deserializing attributions');
   const manualAttributions = deserializeAttributions(
     parsedOutputData.manualAttributions,
     externalAttributions,
   );
 
-  loadStatusUpdater.info('Sending data to user interface');
+  processingStatusUpdater.info('Sending data to user interface');
   mainWindow.webContents.send(AllowedFrontendChannels.FileLoaded, {
     metadata: parsedInputData.metadata,
     resources: parsedInputData.resources,
@@ -201,7 +201,7 @@ export async function loadInputAndOutputFromFilePath(
       parsedInputData.externalAttributionSources ?? {},
   } satisfies ParsedFileContent);
 
-  loadStatusUpdater.info('Finalizing global state');
+  processingStatusUpdater.info('Finalizing global state');
   getGlobalBackendState().projectTitle = parsedInputData.metadata.projectTitle;
   getGlobalBackendState().projectId = parsedInputData.metadata.projectId;
 }
@@ -211,9 +211,9 @@ async function createOutputInOpossumFile(
   externalAttributions: Attributions,
   resourcesToExternalAttributions: ResourcesToAttributions,
   projectId: string,
-  loadStatusUpdater: LoadStatusUpdater,
+  processingStatusUpdater: ProcessingStatusUpdater,
 ): Promise<ParsedOpossumOutputFile> {
-  loadStatusUpdater.info('Preparing output');
+  processingStatusUpdater.info('Preparing output');
   const attributionJSON = createJsonOutputFile(
     externalAttributions,
     resourcesToExternalAttributions,
@@ -224,7 +224,7 @@ async function createOutputInOpossumFile(
     input: getGlobalBackendState().inputFileRaw,
     output: attributionJSON,
   });
-  loadStatusUpdater.info('Parsing output');
+  processingStatusUpdater.info('Parsing output');
   const parsingResult = (await parseOpossumFile(
     filePath,
   )) as ParsedOpossumInputAndOutput;
@@ -236,11 +236,11 @@ async function parseOrCreateOutputJsonFile(
   externalAttributions: Attributions,
   resourcesToExternalAttributions: ResourcesToAttributions,
   projectId: string,
-  loadStatusUpdater: LoadStatusUpdater,
+  processingStatusUpdater: ProcessingStatusUpdater,
   inputFileMD5Checksum?: string,
 ): Promise<ParsedOpossumOutputFile> {
   if (!fs.existsSync(filePath)) {
-    loadStatusUpdater.info('Preparing output');
+    processingStatusUpdater.info('Preparing output');
     const attributionJSON = createJsonOutputFile(
       externalAttributions,
       resourcesToExternalAttributions,
@@ -250,7 +250,7 @@ async function parseOrCreateOutputJsonFile(
     await writeFile({ path: filePath, content: attributionJSON });
   }
 
-  loadStatusUpdater.info('Parsing output');
+  processingStatusUpdater.info('Parsing output');
   return parseOutputJsonFile(filePath);
 }
 

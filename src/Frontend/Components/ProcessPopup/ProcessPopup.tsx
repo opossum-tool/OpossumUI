@@ -10,11 +10,11 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
-import { useDataLoadEvents } from '../../util/use-data-load-events';
 import {
   BackendProcessingListener,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
+import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { DialogContent, GridLogDisplay } from './ProcessPopup.style';
 
 export function ProcessPopup() {
@@ -29,7 +29,7 @@ export function ProcessPopup() {
     [],
   );
 
-  const [dataLoadEvents] = useDataLoadEvents();
+  const [processingStatusUpdatedEvents] = useProcessingStatusUpdated();
 
   return (
     <MuiDialog open={isLoading && !isOtherPopupOpen} fullWidth>
@@ -41,11 +41,11 @@ export function ProcessPopup() {
   function renderDialogContent() {
     return (
       <DialogContent>
-        {dataLoadEvents.map((log, index) => (
+        {processingStatusUpdatedEvents.map((log, index) => (
           <GridLogDisplay
             key={index}
             log={log}
-            isInProgress={index === dataLoadEvents.length - 1}
+            isInProgress={index === processingStatusUpdatedEvents.length - 1}
             showDate={true}
           />
         ))}

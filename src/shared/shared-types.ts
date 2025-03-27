@@ -312,12 +312,12 @@ export interface Log {
   level: 'info' | 'warn' | 'error';
 }
 
-export type DataLoadEventLevel = 'info' | 'error';
+export type ProcessingStateUpdatedEventLevel = 'info' | 'error';
 
-export interface DataLoadEvent {
+export interface ProcessingStateUpdatedEvent {
   date: Date;
   message: string;
-  level: DataLoadEventLevel;
+  level: ProcessingStateUpdatedEventLevel;
 }
 
 export interface UserSettings {

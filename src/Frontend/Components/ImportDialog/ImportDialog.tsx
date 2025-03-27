@@ -11,11 +11,11 @@ import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { useDataLoadEvents } from '../../util/use-data-load-events';
 import {
   BackendProcessingListener,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
+import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -38,14 +38,15 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     [],
   );
 
-  const [dataLoadEvents, resetDataLoadEvents] = useDataLoadEvents();
+  const [processingStatusUpdatedEvents, resetProcessingStatusUpdated] =
+    useProcessingStatusUpdated();
 
   async function selectInputFilePath(): Promise<void> {
     const filePath = await window.electronAPI.selectFile(fileFormat);
 
     if (filePath) {
       setInputFilePath(filePath);
-      resetDataLoadEvents();
+      resetProcessingStatusUpdated();
     }
   }
 
@@ -67,7 +68,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
     if (filePath) {
       setOpossumFilePath(filePath);
-      resetDataLoadEvents();
+      resetProcessingStatusUpdated();
     }
   }
 
@@ -119,9 +120,13 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       }
       isOpen={true}
       customAction={
-        dataLoadEvents.length ? (
+        processingStatusUpdatedEvents.length ? (
           <DialogLogDisplay
-            log={dataLoadEvents[dataLoadEvents.length - 1]}
+            log={
+              processingStatusUpdatedEvents[
+                processingStatusUpdatedEvents.length - 1
+              ]
+            }
             isInProgress={isBackendProcessing}
             showDate={false}
             useEllipsis={true}
