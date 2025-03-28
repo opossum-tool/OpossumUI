@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, shell, WebContents } from 'electron';
+import { BrowserWindow, shell } from 'electron';
 import fs from 'fs';
 import { uniq } from 'lodash';
 import path from 'path';
@@ -561,13 +561,4 @@ async function createDetailedBom(
     args.bomAttributionsWithResources,
     detailedBomColumnOrder,
   );
-}
-
-export function setBackendProcessingState(
-  webContents: WebContents,
-  isProcessing: boolean,
-): void {
-  webContents.send(AllowedFrontendChannels.BackendProcessing, {
-    isProcessing,
-  });
 }
