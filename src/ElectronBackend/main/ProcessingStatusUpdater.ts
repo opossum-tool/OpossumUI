@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { WebContents } from 'electron';
-import log from 'electron-log';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
@@ -15,6 +14,7 @@ import {
 
 export class ProcessingStatusUpdater {
   readonly #webContents: WebContents;
+
   constructor(webContents: WebContents) {
     this.#webContents = webContents;
   }
@@ -28,33 +28,15 @@ export class ProcessingStatusUpdater {
     } satisfies ProcessingStateUpdatedEvent);
   }
 
-  info(
-    message: string,
-    options: { sendToBackendLog: boolean } = { sendToBackendLog: true },
-  ) {
-    if (options.sendToBackendLog) {
-      log.info(message);
-    }
+  info(message: string) {
     this.#sendToFrontend(message, 'info');
   }
 
-  warn(
-    message: string,
-    options: { sendToBackendLog: boolean } = { sendToBackendLog: true },
-  ) {
-    if (options.sendToBackendLog) {
-      log.warn(message);
-    }
+  warn(message: string) {
     this.#sendToFrontend(message, 'warn');
   }
 
-  error(
-    message: string,
-    options: { sendToBackendLog: boolean } = { sendToBackendLog: true },
-  ) {
-    if (options.sendToBackendLog) {
-      log.error(message);
-    }
+  error(message: string) {
     this.#sendToFrontend(message, 'error');
   }
 
