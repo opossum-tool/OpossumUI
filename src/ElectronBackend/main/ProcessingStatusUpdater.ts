@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { WebContents } from 'electron';
+import log from 'electron-log';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
@@ -30,14 +31,17 @@ export class ProcessingStatusUpdater {
 
   info(message: string) {
     this.#sendToFrontend(message, 'info');
+    log.info(message);
   }
 
   warn(message: string) {
     this.#sendToFrontend(message, 'warn');
+    log.warn(message);
   }
 
   error(message: string) {
     this.#sendToFrontend(message, 'error');
+    log.error(message);
   }
 
   startProcessing() {
