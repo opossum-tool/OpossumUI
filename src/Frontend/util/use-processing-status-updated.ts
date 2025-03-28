@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import dayjs from 'dayjs';
 import { useCallback, useState } from 'react';
 import { flushSync } from 'react-dom';
 
@@ -23,6 +24,24 @@ export interface ProcessingStatusUpdatedResult {
   processing: boolean;
 }
 
+function isProcessingStateUpdate(
+  processingStateChangedEvent: ProcessingStateChangedEvent,
+): processingStateChangedEvent is ProcessingStateUpdatedEvent {
+  return processingStateChangedEvent.type === 'ProcessingStateUpdated';
+}
+
+function isProcessingStarted(
+  processingStateChangedEvent: ProcessingStateChangedEvent,
+): processingStateChangedEvent is ProcessingStartedEvent {
+  return processingStateChangedEvent.type === 'ProcessingStarted';
+}
+
+function isProcessingDone(
+  processingStateChangedEvent: ProcessingStateChangedEvent,
+): processingStateChangedEvent is ProcessingDoneEvent {
+  return processingStateChangedEvent.type === 'ProcessingDone';
+}
+
 export function useProcessingStatusUpdated(): ProcessingStatusUpdatedResult {
   const [processingStatusUpdatedEvents, setProcessingStatusUpdatedEvents] =
     useState<Array<ProcessingStateUpdatedEvent>>([]);
@@ -31,24 +50,6 @@ export function useProcessingStatusUpdated(): ProcessingStatusUpdatedResult {
   const resetProcessingStatusEvents = useCallback(() => {
     setProcessingStatusUpdatedEvents([]);
   }, [setProcessingStatusUpdatedEvents]);
-
-  function isProcessingStateUpdate(
-    processingStateChangedEvent: ProcessingStateChangedEvent,
-  ): processingStateChangedEvent is ProcessingStateUpdatedEvent {
-    return processingStateChangedEvent.type === 'ProcessingStateUpdated';
-  }
-
-  function isProcessingStarted(
-    processingStateChangedEvent: ProcessingStateChangedEvent,
-  ): processingStateChangedEvent is ProcessingStartedEvent {
-    return processingStateChangedEvent.type === 'ProcessingStarted';
-  }
-
-  function isProcessingDone(
-    processingStateChangedEvent: ProcessingStateChangedEvent,
-  ): processingStateChangedEvent is ProcessingDoneEvent {
-    return processingStateChangedEvent.type === 'ProcessingDone';
-  }
 
   useIpcRenderer<ProcessingStateChangedListener>(
     AllowedFrontendChannels.ProcessingStateChanged,
@@ -76,4 +77,17 @@ export function useProcessingStatusUpdated(): ProcessingStatusUpdatedResult {
     resetProcessingStatusEvents,
     processing,
   };
+}
+
+export function useSyncProcessingStatusUpdatesToFrontendLogs() {
+  useIpcRenderer<ProcessingStateChangedListener>(
+    AllowedFrontendChannels.ProcessingStateChanged,
+    (_, processingStateChangedEvent) => {
+      if (isProcessingStateUpdate(processingStateChangedEvent)) {
+        const { level, date, message } = processingStateChangedEvent;
+        console[level](`${dayjs(date).format('HH:mm:ss.SSS')} ${message}`);
+      }
+    },
+    [],
+  );
 }
