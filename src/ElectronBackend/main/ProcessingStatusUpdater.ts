@@ -38,6 +38,16 @@ export class ProcessingStatusUpdater {
     this.#sendToFrontend(message, 'info');
   }
 
+  warn(
+    message: string,
+    options: { sendToBackendLog: boolean } = { sendToBackendLog: true },
+  ) {
+    if (options.sendToBackendLog) {
+      log.warn(message);
+    }
+    this.#sendToFrontend(message, 'warn');
+  }
+
   error(
     message: string,
     options: { sendToBackendLog: boolean } = { sendToBackendLog: true },

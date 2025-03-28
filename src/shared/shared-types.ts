@@ -244,10 +244,6 @@ export interface BaseURLForRootArgs {
   baseURLForRoot: string;
 }
 
-export interface IsBackendProcessingArgs {
-  isProcessing: boolean;
-}
-
 export interface ExternalAttributionSource {
   name: string;
   priority: number;
@@ -312,7 +308,7 @@ export interface Log {
   level: 'info' | 'warn' | 'error';
 }
 
-export type ProcessingStateUpdatedEventLevel = 'info' | 'error';
+export type ProcessingStateUpdatedEventLevel = 'info' | 'error' | 'warn';
 
 export type ProcessingStateChangedEvent =
   | ProcessingStartedEvent

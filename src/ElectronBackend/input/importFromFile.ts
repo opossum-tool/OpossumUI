@@ -133,6 +133,7 @@ export async function loadInputAndOutputFromFilePath(
   const configuration = refineConfiguration(
     parsedInputData.config,
     externalAttributions,
+    processingStatusUpdater,
   );
 
   if (parsedOutputData === null) {

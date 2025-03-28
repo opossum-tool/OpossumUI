@@ -11,7 +11,6 @@ import {
   BaseURLForRootArgs,
   ExportType,
   FileFormatInfo,
-  IsBackendProcessingArgs,
   Log,
   ParsedFileContent,
   ProcessingStateChangedEvent,
@@ -45,11 +44,6 @@ export type SetBaseURLForRootListener = (
   baseURLForRootArgs: BaseURLForRootArgs,
 ) => void;
 
-export type BackendProcessingListener = (
-  event: IpcRendererEvent,
-  backendProcessingArgs: IsBackendProcessingArgs,
-) => void;
-
 export type ShowImportDialogListener = (
   event: IpcRendererEvent,
   fileFormat: FileFormatInfo,
@@ -71,7 +65,6 @@ export type Listener =
   | LoggingListener
   | ExportFileRequestListener
   | SetBaseURLForRootListener
-  | BackendProcessingListener
   | ShowImportDialogListener
   | ProcessingStateChangedListener
   | ShowMergeDialogListener
