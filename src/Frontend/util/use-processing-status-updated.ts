@@ -7,12 +7,7 @@ import { useCallback, useState } from 'react';
 import { flushSync } from 'react-dom';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import {
-  ProcessingDoneEvent,
-  ProcessingStartedEvent,
-  ProcessingStateChangedEvent,
-  ProcessingStateUpdatedEvent,
-} from '../../shared/shared-types';
+import { ProcessingStateUpdatedEvent } from '../../shared/shared-types';
 import {
   ProcessingStateChangedListener,
   useIpcRenderer,
@@ -22,24 +17,6 @@ export interface ProcessingStatusUpdatedResult {
   processingStatusUpdatedEvents: Array<ProcessingStateUpdatedEvent>;
   resetProcessingStatusEvents: () => void;
   processing: boolean;
-}
-
-function isProcessingStateUpdate(
-  processingStateChangedEvent: ProcessingStateChangedEvent,
-): processingStateChangedEvent is ProcessingStateUpdatedEvent {
-  return processingStateChangedEvent.type === 'ProcessingStateUpdated';
-}
-
-function isProcessingStarted(
-  processingStateChangedEvent: ProcessingStateChangedEvent,
-): processingStateChangedEvent is ProcessingStartedEvent {
-  return processingStateChangedEvent.type === 'ProcessingStarted';
-}
-
-function isProcessingDone(
-  processingStateChangedEvent: ProcessingStateChangedEvent,
-): processingStateChangedEvent is ProcessingDoneEvent {
-  return processingStateChangedEvent.type === 'ProcessingDone';
 }
 
 export function useProcessingStatusUpdated(): ProcessingStatusUpdatedResult {
@@ -54,7 +31,7 @@ export function useProcessingStatusUpdated(): ProcessingStatusUpdatedResult {
   useIpcRenderer<ProcessingStateChangedListener>(
     AllowedFrontendChannels.ProcessingStateChanged,
     (_, processingStateChangedEvent) => {
-      if (isProcessingStateUpdate(processingStateChangedEvent)) {
+      if (processingStateChangedEvent.type === 'ProcessingStateUpdated') {
         flushSync(() =>
           setProcessingStatusUpdatedEvents((processingStateChangedEvents) => {
             return [
@@ -63,10 +40,10 @@ export function useProcessingStatusUpdated(): ProcessingStatusUpdatedResult {
             ];
           }),
         );
-      } else if (isProcessingStarted(processingStateChangedEvent)) {
+      } else if (processingStateChangedEvent.type === 'ProcessingStarted') {
         setProcessing(true);
         resetProcessingStatusEvents();
-      } else if (isProcessingDone(processingStateChangedEvent)) {
+      } else if (processingStateChangedEvent.type === 'ProcessingDone') {
         setProcessing(false);
       }
     },
@@ -83,7 +60,7 @@ export function useSyncProcessingStatusUpdatesToFrontendLogs() {
   useIpcRenderer<ProcessingStateChangedListener>(
     AllowedFrontendChannels.ProcessingStateChanged,
     (_, processingStateChangedEvent) => {
-      if (isProcessingStateUpdate(processingStateChangedEvent)) {
+      if (processingStateChangedEvent.type === 'ProcessingStateUpdated') {
         const { level, date, message } = processingStateChangedEvent;
         console[level](`${dayjs(date).format('HH:mm:ss.SSS')} ${message}`);
       }
