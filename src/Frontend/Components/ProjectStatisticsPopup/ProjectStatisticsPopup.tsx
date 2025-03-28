@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { createTheme, Grid2 as MuiGrid, useTheme } from '@mui/material';
+import { createTheme, Grid as MuiGrid, useTheme } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
