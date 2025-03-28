@@ -37,6 +37,7 @@ import {
   ShowMergeDialogListener,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
+import { useSyncProcessingStatusUpdatesToFrontendLogs } from '../../util/use-processing-status-updated';
 
 export const BackendCommunication: React.FC = () => {
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
@@ -116,6 +117,8 @@ export const BackendCommunication: React.FC = () => {
     },
     [dispatch],
   );
+  useSyncProcessingStatusUpdatesToFrontendLogs();
+
   useIpcRenderer(
     AllowedFrontendChannels.ShowProjectMetadataPopup,
     showProjectMetadataPopupListener,

@@ -5,17 +5,12 @@
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { FileFormatInfo, Log } from '../../../shared/shared-types';
+import { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import {
-  IsLoadingListener,
-  LoggingListener,
-  useIpcRenderer,
-} from '../../util/use-ipc-renderer';
+import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -30,32 +25,18 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  useIpcRenderer<IsLoadingListener>(
-    AllowedFrontendChannels.FileLoading,
-    (_, { isLoading }) => setIsLoading(isLoading),
-    [],
-  );
-
-  const [logToDisplay, setLogToDisplay] = useState<Log | null>(null);
-
-  useIpcRenderer<LoggingListener>(
-    AllowedFrontendChannels.Logging,
-    (_, log) => {
-      if (isLoading) {
-        setLogToDisplay(log);
-      }
-    },
-    [isLoading],
-  );
+  const {
+    processingStatusUpdatedEvents,
+    resetProcessingStatusEvents,
+    processing,
+  } = useProcessingStatusUpdated();
 
   async function selectInputFilePath(): Promise<void> {
     const filePath = await window.electronAPI.selectFile(fileFormat);
 
     if (filePath) {
       setInputFilePath(filePath);
-      setLogToDisplay(null);
+      resetProcessingStatusEvents();
     }
   }
 
@@ -77,7 +58,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
     if (filePath) {
       setOpossumFilePath(filePath);
-      setLogToDisplay(null);
+      resetProcessingStatusEvents();
     }
   }
 
@@ -129,10 +110,14 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       }
       isOpen={true}
       customAction={
-        logToDisplay ? (
+        processingStatusUpdatedEvents.length ? (
           <DialogLogDisplay
-            log={logToDisplay}
-            isInProgress={isLoading}
+            log={
+              processingStatusUpdatedEvents[
+                processingStatusUpdatedEvents.length - 1
+              ]
+            }
+            isInProgress={processing}
             showDate={false}
             useEllipsis={true}
             sx={{
@@ -144,13 +129,13 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: text.buttons.import,
-        disabled: isLoading,
+        disabled: processing,
       }}
       rightButtonConfig={{
         onClick: onCancel,
         buttonText: text.buttons.cancel,
         color: 'secondary',
-        disabled: isLoading,
+        disabled: processing,
       }}
       aria-label={'import dialog'}
     />

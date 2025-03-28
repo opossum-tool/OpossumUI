@@ -11,9 +11,9 @@ import {
   BaseURLForRootArgs,
   ExportType,
   FileFormatInfo,
-  IsLoadingArgs,
   Log,
   ParsedFileContent,
+  ProcessingStateChangedEvent,
   UserSettings,
 } from '../../shared/shared-types';
 
@@ -34,14 +34,14 @@ export type ExportFileRequestListener = (
 
 export type LoggingListener = (event: IpcRendererEvent, log: Log) => void;
 
+export type ProcessingStateChangedListener = (
+  event: IpcRendererEvent,
+  processingStateChangedEvent: ProcessingStateChangedEvent,
+) => void;
+
 export type SetBaseURLForRootListener = (
   event: IpcRendererEvent,
   baseURLForRootArgs: BaseURLForRootArgs,
-) => void;
-
-export type IsLoadingListener = (
-  event: IpcRendererEvent,
-  isLoadingArgs: IsLoadingArgs,
 ) => void;
 
 export type ShowImportDialogListener = (
@@ -65,8 +65,8 @@ export type Listener =
   | LoggingListener
   | ExportFileRequestListener
   | SetBaseURLForRootListener
-  | IsLoadingListener
   | ShowImportDialogListener
+  | ProcessingStateChangedListener
   | ShowMergeDialogListener
   | UserSettingsChangedListener;
 

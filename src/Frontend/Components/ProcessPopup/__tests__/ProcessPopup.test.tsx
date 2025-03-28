@@ -7,7 +7,7 @@ import { IpcRendererEvent } from 'electron';
 import { noop } from 'lodash';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
-import { ElectronAPI, Log } from '../../../../shared/shared-types';
+import { ElectronAPI } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { renderComponent } from '../../../test-helpers/render';
@@ -30,6 +30,33 @@ const electronAPI: {
   },
 };
 
+function simulateMessageFromBackend(message: string) {
+  act(() =>
+    electronAPI.send(AllowedFrontendChannels.ProcessingStateChanged, {
+      type: 'ProcessingStateUpdated',
+      date: faker.date.recent(),
+      message,
+      level: 'info',
+    }),
+  );
+}
+
+function simulateBackendProcessingStarted() {
+  act(() =>
+    electronAPI.send(AllowedFrontendChannels.ProcessingStateChanged, {
+      type: 'ProcessingStarted',
+    }),
+  );
+}
+
+function simulateBackendProcessingDone() {
+  act(() =>
+    electronAPI.send(AllowedFrontendChannels.ProcessingStateChanged, {
+      type: 'ProcessingDone',
+    }),
+  );
+}
+
 describe('ProcessPopup', () => {
   beforeEach(() => {
     electronAPI.events = {};
@@ -45,39 +72,57 @@ describe('ProcessPopup', () => {
   it('renders dialog when loading is true', () => {
     renderComponent(<ProcessPopup />);
 
-    act(() =>
-      electronAPI.send(AllowedFrontendChannels.FileLoading, {
-        isLoading: true,
-      }),
-    );
+    simulateBackendProcessingStarted();
 
     expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
   });
 
-  it('clears previous log messages when loading begins another time', () => {
-    const date = faker.date.recent();
+  it('shows messages during processing', () => {
+    const message = faker.lorem.sentence();
+
+    renderComponent(<ProcessPopup />);
+    simulateBackendProcessingStarted();
+    simulateMessageFromBackend(message);
+
+    expect(screen.getByText(message)).toBeInTheDocument();
+  });
+
+  it('shows multiple messages', () => {
     const message = faker.lorem.sentence();
     renderComponent(<ProcessPopup />);
 
-    act(() =>
-      electronAPI.send(AllowedFrontendChannels.FileLoading, {
-        isLoading: true,
-      }),
-    );
-    act(
-      () =>
-        void electronAPI.send(AllowedFrontendChannels.Logging, {
-          date,
-          message,
-          level: 'info',
-        } satisfies Log),
-    );
-    act(() =>
-      electronAPI.send(AllowedFrontendChannels.FileLoading, {
-        isLoading: true,
-      }),
-    );
+    simulateBackendProcessingStarted();
+    simulateMessageFromBackend(message);
+
+    expect(screen.getByText(message)).toBeInTheDocument();
+
+    const secondMessage = faker.lorem.sentence();
+    simulateMessageFromBackend(secondMessage);
+
+    expect(screen.getByText(secondMessage)).toBeInTheDocument();
+  });
+
+  it('clears previous log messages when loading begins another time', () => {
+    const message = faker.lorem.sentence();
+    renderComponent(<ProcessPopup />);
+
+    simulateBackendProcessingStarted();
+    simulateMessageFromBackend(message);
+
+    simulateBackendProcessingStarted();
 
     expect(screen.queryByText(message)).not.toBeInTheDocument();
+  });
+
+  it('does not render a dialog after processing is done', () => {
+    const message = faker.lorem.sentence();
+    renderComponent(<ProcessPopup />);
+
+    simulateBackendProcessingStarted();
+    simulateMessageFromBackend(message);
+
+    simulateBackendProcessingDone();
+
+    expect(screen.queryByText(text.processPopup.title)).not.toBeVisible();
   });
 });

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, shell, WebContents } from 'electron';
+import { BrowserWindow, shell } from 'electron';
 import fs from 'fs';
 import { uniq } from 'lodash';
 import path from 'path';
@@ -55,6 +55,7 @@ import {
 } from './globalBackendState';
 import logger from './logger';
 import { createMenu } from './menu';
+import { ProcessingStatusUpdater } from './ProcessingStatusUpdater';
 import { UserSettingsService } from './user-settings-service';
 
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
@@ -126,9 +127,9 @@ export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   filePath: string,
 ): Promise<void> {
-  setLoadingState(mainWindow.webContents, true);
-
-  logger.info('Initializing global backend state');
+  const statusUpdater = new ProcessingStatusUpdater(mainWindow.webContents);
+  statusUpdater.startProcessing();
+  statusUpdater.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, true);
 
   await openFile(mainWindow, filePath);
@@ -137,7 +138,7 @@ export async function handleOpeningFile(
 
   await createMenu(mainWindow);
 
-  setLoadingState(mainWindow.webContents, false);
+  statusUpdater.endProcessing();
 }
 
 export const importFileListener =
@@ -198,7 +199,10 @@ export const importFileConvertAndLoadListener =
     fileType: FileType,
     opossumFilePath: string,
   ): Promise<boolean> => {
-    setLoadingState(mainWindow.webContents, true);
+    const processingStatusUpdater = new ProcessingStatusUpdater(
+      mainWindow.webContents,
+    );
+    processingStatusUpdater.startProcessing();
 
     try {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
@@ -229,20 +233,20 @@ export const importFileConvertAndLoadListener =
         throw new Error(text.backendError.opossumFilePermissionError);
       }
 
-      logger.info('Converting input file to .opossum format');
+      processingStatusUpdater.info('Converting input file to .opossum format');
       await convertToOpossum(resourceFilePath, opossumFilePath, fileType);
 
-      logger.info('Updating global backend state');
+      processingStatusUpdater.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath, true);
 
       await openFile(mainWindow, opossumFilePath);
 
       return true;
     } catch (error) {
-      sendListenerErrorToFrontend(mainWindow, error);
+      sendListenerErrorToFrontend(processingStatusUpdater, error);
       return false;
     } finally {
-      setLoadingState(mainWindow.webContents, false);
+      processingStatusUpdater.endProcessing();
     }
   };
 
@@ -253,7 +257,10 @@ export const mergeFileAndLoadListener =
     inputFilePath: string,
     fileType: FileType,
   ): Promise<boolean> => {
-    setLoadingState(mainWindow.webContents, true);
+    const processingStatusUpdater = new ProcessingStatusUpdater(
+      mainWindow.webContents,
+    );
+    processingStatusUpdater.startProcessing();
 
     try {
       if (!inputFilePath.trim() || !fs.existsSync(inputFilePath)) {
@@ -281,7 +288,9 @@ export const mergeFileAndLoadListener =
         throw new Error(text.backendError.cantCreateBackup);
       }
 
-      logger.info('Merging input file into current .opossum file');
+      processingStatusUpdater.info(
+        'Merging input file into current .opossum file',
+      );
       await mergeFileIntoOpossum(
         inputFilePath,
         currentOpossumFilePath,
@@ -292,10 +301,10 @@ export const mergeFileAndLoadListener =
 
       return true;
     } catch (error) {
-      sendListenerErrorToFrontend(mainWindow, error);
+      sendListenerErrorToFrontend(processingStatusUpdater, error);
       return false;
     } finally {
-      setLoadingState(mainWindow.webContents, false);
+      processingStatusUpdater.endProcessing();
     }
   };
 
@@ -469,19 +478,21 @@ export const exportFileListener =
     const { exportedFilePath, fileExporter } =
       getExportedFilePathAndFileExporter(exportArgs.type);
 
+    const processingStatusUpdater = new ProcessingStatusUpdater(
+      mainWindow.webContents,
+    );
     try {
       if (exportedFilePath) {
-        logger.info(`Writing to ${exportedFilePath}`);
+        processingStatusUpdater.info(`Writing to ${exportedFilePath}`);
         await fileExporter(exportedFilePath, exportArgs);
       } else {
-        logger.error('Failed to create export');
+        processingStatusUpdater.error('Failed to create export');
         throw new Error('Failed to create export');
       }
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
     } finally {
-      setLoadingState(mainWindow.webContents, false);
-
+      processingStatusUpdater.endProcessing();
       if (exportedFilePath) {
         shell.showItemInFolder(exportedFilePath);
       }
@@ -550,13 +561,4 @@ async function createDetailedBom(
     args.bomAttributionsWithResources,
     detailedBomColumnOrder,
   );
-}
-
-export function setLoadingState(
-  webContents: WebContents,
-  isLoading: boolean,
-): void {
-  webContents.send(AllowedFrontendChannels.FileLoading, {
-    isLoading,
-  });
 }

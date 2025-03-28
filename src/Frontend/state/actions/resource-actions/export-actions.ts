@@ -27,7 +27,12 @@ import {
 import { AppThunkAction } from '../../types';
 
 export function exportFile(exportType: ExportType): AppThunkAction {
-  return (_, getState) => {
+  return async (_, getState) => {
+    //Poor man's way to ensure that the browser has enough processing time to show the
+    //updated ProgressPopup before the big computation blocks the main thread
+    //Compared to the progressing time the 100ms are negligible
+    //Note: This atm is clearly tech debt. To fix that once and for all resolve https://github.com/opossum-tool/OpossumUI/issues/2812
+    await new Promise((resolve) => setTimeout(resolve, 100));
     switch (exportType) {
       case ExportType.SpdxDocumentJson:
         exportSpdxDocument(getState(), ExportType.SpdxDocumentJson);

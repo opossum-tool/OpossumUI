@@ -26,7 +26,6 @@ export enum IpcChannel {
 export enum AllowedFrontendChannels {
   ExportFileRequest = 'export-file-request',
   FileLoaded = 'file-loaded',
-  FileLoading = 'file-loading',
   Logging = 'logging',
   ResetLoadedFile = 'reset-loaded-file',
   RestoreFrontend = 'restore-frontend',
@@ -43,4 +42,5 @@ export enum AllowedFrontendChannels {
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
   ShowUpdateAppPopup = 'show-update-app-pop-up',
   UserSettingsChanged = 'user-settings-changed',
+  ProcessingStateChanged = 'processing-state-changed',
 }

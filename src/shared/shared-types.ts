@@ -244,10 +244,6 @@ export interface BaseURLForRootArgs {
   baseURLForRoot: string;
 }
 
-export interface IsLoadingArgs {
-  isLoading: boolean;
-}
-
 export interface ExternalAttributionSource {
   name: string;
   priority: number;
@@ -310,6 +306,28 @@ export interface Log {
   date: Date;
   message: string;
   level: 'info' | 'warn' | 'error';
+}
+
+export type ProcessingStateUpdatedEventLevel = 'info' | 'error' | 'warn';
+
+export type ProcessingStateChangedEvent =
+  | ProcessingStartedEvent
+  | ProcessingDoneEvent
+  | ProcessingStateUpdatedEvent;
+
+export interface ProcessingStartedEvent {
+  type: 'ProcessingStarted';
+}
+
+export interface ProcessingDoneEvent {
+  type: 'ProcessingDone';
+}
+
+export interface ProcessingStateUpdatedEvent {
+  type: 'ProcessingStateUpdated';
+  date: Date;
+  message: string;
+  level: ProcessingStateUpdatedEventLevel;
 }
 
 export interface UserSettings {

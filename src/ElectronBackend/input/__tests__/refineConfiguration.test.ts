@@ -10,6 +10,7 @@ import {
   RawProjectConfig,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
+import { ProcessingStatusUpdater } from '../../main/ProcessingStatusUpdater';
 import { refineConfiguration } from '../refineConfiguration';
 
 function fakePackagesWithClassifications(
@@ -36,9 +37,21 @@ function fakeConfigWithClassificationIds(
   return { classifications };
 }
 
+function fakeProcessingStatusUpdater(): ProcessingStatusUpdater {
+  return {
+    warn: () => {},
+    info: () => {},
+    error: () => {},
+  } as unknown as ProcessingStatusUpdater;
+}
+
 describe('check and update configuration', () => {
   it('returns configuration with empty classifications if no configuration set', () => {
-    const result = refineConfiguration(undefined, {});
+    const result = refineConfiguration(
+      undefined,
+      {},
+      fakeProcessingStatusUpdater(),
+    );
 
     expect(result).toEqual(EMPTY_PROJECT_CONFIG);
   });
@@ -48,7 +61,11 @@ describe('check and update configuration', () => {
     const expectedConfiguration: RawProjectConfig = { ...configuration };
     const externalAttributions = fakePackagesWithClassifications(1, 0, 1, 0);
 
-    const result = refineConfiguration(configuration, externalAttributions);
+    const result = refineConfiguration(
+      configuration,
+      externalAttributions,
+      fakeProcessingStatusUpdater(),
+    );
 
     expect(result).toEqual(expectedConfiguration);
   });
@@ -58,7 +75,11 @@ describe('check and update configuration', () => {
 
     const externalAttributions = fakePackagesWithClassifications(0, 1, 22);
 
-    const result = refineConfiguration(configuration, externalAttributions);
+    const result = refineConfiguration(
+      configuration,
+      externalAttributions,
+      fakeProcessingStatusUpdater(),
+    );
 
     const expectedConfiguration: RawProjectConfig = {
       classifications: {
