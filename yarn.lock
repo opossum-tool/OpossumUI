@@ -1577,12 +1577,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.26.0, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7":
+"@babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7":
   version: 7.26.0
   resolution: "@babel/runtime@npm:7.26.0"
   dependencies:
     regenerator-runtime: "npm:^0.14.0"
   checksum: 10/9f4ea1c1d566c497c052d505587554e782e021e6ccd302c2ad7ae8291c8e16e3f19d4a7726fb64469e057779ea2081c28b7dbefec6d813a22f08a35712c0f699
+  languageName: node
+  linkType: hard
+
+"@babel/runtime@npm:^7.26.10":
+  version: 7.27.0
+  resolution: "@babel/runtime@npm:7.27.0"
+  dependencies:
+    regenerator-runtime: "npm:^0.14.0"
+  checksum: 10/e6966e03b695feb4c0ac0856a4355231c2580bf9ebd0298f47739f85c0ea658679dd84409daf26378d42c86c1cbe7e33feab709b14e784254b6c441d91606465
   languageName: node
   linkType: hard
 
@@ -2990,38 +2999,38 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/core-downloads-tracker@npm:^6.4.9":
-  version: 6.4.9
-  resolution: "@mui/core-downloads-tracker@npm:6.4.9"
-  checksum: 10/afd4f5ee57eaa86181464e2f05cf0c8f74a3ada309df5f0c74aacc3de0b48827757ac68dec487c09443f9eb5968a334c543a1986aa1130b2f160e8d70e39b735
+"@mui/core-downloads-tracker@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@mui/core-downloads-tracker@npm:7.0.0"
+  checksum: 10/ffe7ce3b5cab2b5aaaf1c99a5c54b191b27af688134f402121820eff66e81b510b18bb280871f4bcada88594d12e5c08876296116c33c727c3b39c5e65fbae86
   languageName: node
   linkType: hard
 
-"@mui/icons-material@npm:^6.4.9":
-  version: 6.4.9
-  resolution: "@mui/icons-material@npm:6.4.9"
+"@mui/icons-material@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@mui/icons-material@npm:7.0.0"
   dependencies:
-    "@babel/runtime": "npm:^7.26.0"
+    "@babel/runtime": "npm:^7.26.10"
   peerDependencies:
-    "@mui/material": ^6.4.9
+    "@mui/material": ^7.0.0
     "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
     react: ^17.0.0 || ^18.0.0 || ^19.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10/c41f4546a9817457cd9cf2107bb29e817e164a637fab01b24e6d16f387937c23d41643d39b1ae819bde9ff906bfa4a98f1c7851da5d9074ebbc0e4f4daec27e9
+  checksum: 10/c874315657c1861519354905040e40c6bef8be21e2c45aea70b93519c22043b88531c74c7a0d1a45143f9af7c8a822d551247d389d290fbdb060238569eafd50
   languageName: node
   linkType: hard
 
-"@mui/material@npm:^6.4.9":
-  version: 6.4.9
-  resolution: "@mui/material@npm:6.4.9"
+"@mui/material@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@mui/material@npm:7.0.0"
   dependencies:
-    "@babel/runtime": "npm:^7.26.0"
-    "@mui/core-downloads-tracker": "npm:^6.4.9"
-    "@mui/system": "npm:^6.4.9"
-    "@mui/types": "npm:~7.2.24"
-    "@mui/utils": "npm:^6.4.8"
+    "@babel/runtime": "npm:^7.26.10"
+    "@mui/core-downloads-tracker": "npm:^7.0.0"
+    "@mui/system": "npm:^7.0.0"
+    "@mui/types": "npm:^7.4.0"
+    "@mui/utils": "npm:^7.0.0"
     "@popperjs/core": "npm:^2.11.8"
     "@types/react-transition-group": "npm:^4.4.12"
     clsx: "npm:^2.1.1"
@@ -3032,7 +3041,7 @@ __metadata:
   peerDependencies:
     "@emotion/react": ^11.5.0
     "@emotion/styled": ^11.3.0
-    "@mui/material-pigment-css": ^6.4.9
+    "@mui/material-pigment-css": ^7.0.0
     "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
     react: ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -3045,16 +3054,16 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 10/721b9e61f72f755142acb12e7775b62d65f31231b88979dcce9960b08b88359b2b04dc9419bb79376dd40d74674ff452004b90a6ae39ce9319eae23bf2a50357
+  checksum: 10/a390179c53b6cf418e492c2ede3a2763c7952c77e8e954c918d419266f74e74b10c5b7f40d7c603ba86406275b0698d1b3a076466ca3fddf8ba9d990632514af
   languageName: node
   linkType: hard
 
-"@mui/private-theming@npm:^6.4.8":
-  version: 6.4.8
-  resolution: "@mui/private-theming@npm:6.4.8"
+"@mui/private-theming@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@mui/private-theming@npm:7.0.0"
   dependencies:
-    "@babel/runtime": "npm:^7.26.0"
-    "@mui/utils": "npm:^6.4.8"
+    "@babel/runtime": "npm:^7.26.10"
+    "@mui/utils": "npm:^7.0.0"
     prop-types: "npm:^15.8.1"
   peerDependencies:
     "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -3062,15 +3071,15 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10/23cffff71e07a5a64a6f94838f5eb7be870bb3a0a791d474e22fe1423b50e00774f23e6d4af4b991fde8a04f8c939be5d1fd74468b30ae1f2a17e601cfe33ea6
+  checksum: 10/73a621784aa7b8d219f5456c56562f1c7a74721ead19c6a25cbf964ba131a6ef4728dc950c7b754c4cb000054ab6364a4a8de85fdd7e60317731311710097bae
   languageName: node
   linkType: hard
 
-"@mui/styled-engine@npm:^6.4.9":
-  version: 6.4.9
-  resolution: "@mui/styled-engine@npm:6.4.9"
+"@mui/styled-engine@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@mui/styled-engine@npm:7.0.0"
   dependencies:
-    "@babel/runtime": "npm:^7.26.0"
+    "@babel/runtime": "npm:^7.26.10"
     "@emotion/cache": "npm:^11.13.5"
     "@emotion/serialize": "npm:^1.3.3"
     "@emotion/sheet": "npm:^1.4.0"
@@ -3085,19 +3094,19 @@ __metadata:
       optional: true
     "@emotion/styled":
       optional: true
-  checksum: 10/f3463295c6eee593c9be6645932a8b384a94ca30d607adec936c940347656b645d9da9b5deea474514446b5de5c2f124822fcb8f4a6d923d8d9ac6e5569dd18a
+  checksum: 10/3ab39459741a84ca921c4846f7b5f5b8b2933e0b5178d811eaebb0b0915fd3d75cc7b96be805a137dc79aee968295b541e0316c76f97b63287ad10f0ed73b44f
   languageName: node
   linkType: hard
 
-"@mui/system@npm:^6.4.9":
-  version: 6.4.9
-  resolution: "@mui/system@npm:6.4.9"
+"@mui/system@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@mui/system@npm:7.0.0"
   dependencies:
-    "@babel/runtime": "npm:^7.26.0"
-    "@mui/private-theming": "npm:^6.4.8"
-    "@mui/styled-engine": "npm:^6.4.9"
-    "@mui/types": "npm:~7.2.24"
-    "@mui/utils": "npm:^6.4.8"
+    "@babel/runtime": "npm:^7.26.10"
+    "@mui/private-theming": "npm:^7.0.0"
+    "@mui/styled-engine": "npm:^7.0.0"
+    "@mui/types": "npm:^7.4.0"
+    "@mui/utils": "npm:^7.0.0"
     clsx: "npm:^2.1.1"
     csstype: "npm:^3.1.3"
     prop-types: "npm:^15.8.1"
@@ -3113,28 +3122,30 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 10/125b6be99dfa0c3f7f509144a24b3ecd56f02a90b2da3d0587f014abe45b2924375ce649bc6ef1768d1536fcbfa6c159e7bc0c3a89a6eee254429a5b566f7194
+  checksum: 10/5fe4de0e3f8fea3a6982db4b107889a7f98477908a79e63968cac5baa491906f615203208862cc9f28fea011ea44e57207996a24235025a560e453f4294b5de0
   languageName: node
   linkType: hard
 
-"@mui/types@npm:~7.2.24":
-  version: 7.2.24
-  resolution: "@mui/types@npm:7.2.24"
+"@mui/types@npm:^7.4.0":
+  version: 7.4.0
+  resolution: "@mui/types@npm:7.4.0"
+  dependencies:
+    "@babel/runtime": "npm:^7.26.10"
   peerDependencies:
     "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10/5ed4f90ec62c7df901e58b53011bf6b377b48e13b07de9eeb15c7a6f3f759310f0682b64685c7762f660fad6edf4c8e05595313c93810fc63c54270b899b4a75
+  checksum: 10/11818dadb803ecce43b6435cca7acf3c84e93a669c9662b57160b855c4b84d4660c6736f9fac76d4fe8d2d752d8c33671a4a6a328df128d41ffe024f1c47179d
   languageName: node
   linkType: hard
 
-"@mui/utils@npm:^6.4.8":
-  version: 6.4.8
-  resolution: "@mui/utils@npm:6.4.8"
+"@mui/utils@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@mui/utils@npm:7.0.0"
   dependencies:
-    "@babel/runtime": "npm:^7.26.0"
-    "@mui/types": "npm:~7.2.24"
+    "@babel/runtime": "npm:^7.26.10"
+    "@mui/types": "npm:^7.4.0"
     "@types/prop-types": "npm:^15.7.14"
     clsx: "npm:^2.1.1"
     prop-types: "npm:^15.8.1"
@@ -3145,7 +3156,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10/8a67c5eecb5ed6ec0d4f193615ae27b5c72dce003403809c9d3ecd535fd3992cb8c94a7bae0ae9240c718855a4d43049de65b43d543d4bc6223635f85f880224
+  checksum: 10/898c2d0fa3d8b1bf7c73f9c036d6c32bfa7437c0d03bf9f020f52982c001dbe7c508aa66074403c6fb1c5aa7038717ba0732351d8ddcfd7e5772df2d6c9f53f5
   languageName: node
   linkType: hard
 
@@ -10364,9 +10375,9 @@ __metadata:
     "@eslint/js": "npm:^9.23.0"
     "@faker-js/faker": "npm:^9.5.1"
     "@fontsource-variable/karla": "npm:^5.2.5"
-    "@mui/icons-material": "npm:^6.4.9"
-    "@mui/material": "npm:^6.4.9"
-    "@mui/system": "npm:^6.4.9"
+    "@mui/icons-material": "npm:^7.0.0"
+    "@mui/material": "npm:^7.0.0"
+    "@mui/system": "npm:^7.0.0"
     "@playwright/test": "npm:^1.51.1"
     "@reduxjs/toolkit": "npm:^2.6.1"
     "@tanstack/eslint-plugin-query": "npm:^5.68.0"

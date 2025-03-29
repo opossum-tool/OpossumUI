@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AddIcon from '@mui/icons-material/Add';
+import CancelIcon from '@mui/icons-material/Cancel';
 import MuiBox from '@mui/material/Box';
 import MuiChip from '@mui/material/Chip';
 import { SxProps, Theme } from '@mui/system';
@@ -70,7 +71,7 @@ export const AuditingOptions: React.FC<Props> = ({
   function renderSelectedOptions() {
     return options
       .filter(({ selected }) => selected)
-      .map(({ label, icon, deleteIcon, onDelete, interactive, id }, index) => (
+      .map(({ label, icon, onDelete, interactive, id }, index) => (
         <MuiChip
           key={index}
           label={label}
@@ -78,7 +79,7 @@ export const AuditingOptions: React.FC<Props> = ({
           icon={icon}
           onDelete={interactive ? onDelete : undefined}
           data-testid={`auditing-option-${id}`}
-          deleteIcon={deleteIcon}
+          deleteIcon={<CancelIcon data-testid="CancelIcon" />}
         />
       ));
   }

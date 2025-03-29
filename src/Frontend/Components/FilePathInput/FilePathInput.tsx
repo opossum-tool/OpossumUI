@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AttachFile } from '@mui/icons-material';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { TooltipProps } from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
 
@@ -33,7 +33,7 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       title={props.label}
       text={props.text}
       onClick={props.onClick}
-      startIcon={<AttachFile sx={baseIcon} />}
+      startIcon={<AttachFileIcon sx={baseIcon} />}
       cursor={'pointer'}
       showTooltip={true}
       tooltipProps={props.tooltipProps}
