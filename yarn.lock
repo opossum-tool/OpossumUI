@@ -10427,7 +10427,7 @@ __metadata:
     object-hash: "npm:^3.0.0"
     packageurl-js: "npm:^2.0.1"
     prettier: "npm:^3.5.3"
-    prettier-plugin-sh: "npm:^0.15.0"
+    prettier-plugin-sh: "npm:^0.16.0"
     proxy-memoize: "npm:^3.0.1"
     re-resizable: "npm:^6.11.2"
     react: "npm:^19.1.0"
@@ -10811,15 +10811,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-sh@npm:^0.15.0":
-  version: 0.15.0
-  resolution: "prettier-plugin-sh@npm:0.15.0"
+"prettier-plugin-sh@npm:^0.16.0":
+  version: 0.16.0
+  resolution: "prettier-plugin-sh@npm:0.16.0"
   dependencies:
     mvdan-sh: "npm:^0.10.1"
     sh-syntax: "npm:^0.4.2"
   peerDependencies:
     prettier: ^3.0.3
-  checksum: 10/31365460c9fadb98d471136097163d3840a03416ab6b6dd37ccd19e6e94c43f3e05301e4741c3e6186c37b72fdc86c7732e0fc19f761e8e36fe4772207289583
+  checksum: 10/3e646b0d8cce89f5490a8c6045957d9fdf24791e957be470a8d71fa28bd35404e73842d8598cd4443f3aff616d2ea1d4038dcc8a68143f9e7afbbd7770bc452b
   languageName: node
   linkType: hard
 
