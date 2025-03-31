@@ -43,7 +43,6 @@ import {
 import { SelectMenuOption } from '../../SelectMenu/SelectMenu';
 
 interface AuditingOption extends SelectMenuOption {
-  deleteIcon?: React.ReactElement<unknown>;
   interactive: boolean;
 }
 

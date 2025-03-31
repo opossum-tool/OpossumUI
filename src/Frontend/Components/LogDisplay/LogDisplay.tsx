@@ -6,7 +6,6 @@ import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
 import WarningIcon from '@mui/icons-material/Warning';
 import MuiBox from '@mui/material/Box';
-import { SvgIconProps } from '@mui/material/SvgIcon';
 import MuiTypography from '@mui/material/Typography';
 import { SxProps } from '@mui/system';
 import dayjs from 'dayjs';
@@ -17,13 +16,12 @@ import { baseIcon } from '../../shared-styles';
 import { Spinner } from '../Spinner/Spinner';
 import { BreakableTypography, EllipsisTypography } from './LogDisplay.style';
 
-const icons: Record<
-  Log['level'],
-  { Component: React.FC<SvgIconProps>; color: string }
-> = {
-  error: { Component: ErrorIcon, color: 'red' },
-  warn: { Component: WarningIcon, color: 'orange' },
-  info: { Component: CheckIcon, color: 'green' },
+const icons: Record<Log['level'], React.ReactNode> = {
+  error: (
+    <ErrorIcon sx={{ ...baseIcon, color: 'red' }} data-testid="ErrorIcon" />
+  ),
+  warn: <WarningIcon sx={{ ...baseIcon, color: 'orange' }} />,
+  info: <CheckIcon sx={{ ...baseIcon, color: 'green' }} />,
 };
 
 interface LogDisplayProps {
@@ -39,11 +37,10 @@ export function LogDisplay(props: LogDisplayProps) {
   const { log, isInProgress, showDate, useEllipsis, sx, className } = props;
 
   const icon = useMemo(() => {
-    const { color, Component } = icons[log.level];
     return isInProgress ? (
       <Spinner sx={{ marginTop: '1px' }} />
     ) : (
-      <Component sx={{ ...baseIcon, color }} />
+      icons[log.level]
     );
   }, [log, isInProgress]);
 
