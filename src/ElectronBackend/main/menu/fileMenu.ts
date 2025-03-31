@@ -28,7 +28,6 @@ import {
   importFileListener,
   selectBaseURLListener,
 } from '../listeners';
-import { UpdateMenu } from '../menu';
 import { ProcessingStatusUpdater } from '../ProcessingStatusUpdater';
 import { UserSettingsService } from '../user-settings-service';
 
@@ -64,7 +63,7 @@ function getOpenFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
 
 async function getOpenRecent(
   mainWindow: BrowserWindow,
-  updateMenu: UpdateMenu,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   const recentlyOpenedPaths = await UserSettingsService.get(
     'recentlyOpenedPaths',
@@ -81,7 +80,7 @@ async function getOpenRecent(
 function getOpenRecentSubmenu(
   mainWindow: BrowserWindow,
   recentlyOpenedPaths: Array<string> | null,
-  updateMenu: UpdateMenu,
+  updateMenu: () => Promise<void>,
 ): MenuItemConstructorOptions['submenu'] {
   if (!recentlyOpenedPaths?.length) {
     return undefined;
@@ -338,7 +337,7 @@ function getExportSubMenu(
 
 export async function getFileMenu(
   mainWindow: BrowserWindow,
-  updateMenu: UpdateMenu,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   const webContents = mainWindow.webContents;
   return {

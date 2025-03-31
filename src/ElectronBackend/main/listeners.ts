@@ -54,7 +54,6 @@ import {
   setGlobalBackendState,
 } from './globalBackendState';
 import logger from './logger';
-import { UpdateMenu } from './menu';
 import { ProcessingStatusUpdater } from './ProcessingStatusUpdater';
 import { UserSettingsService } from './user-settings-service';
 
@@ -109,7 +108,7 @@ async function writeOutputJsonToFile(
 }
 
 export const openFileListener =
-  (mainWindow: BrowserWindow, updateMenu: UpdateMenu) =>
+  (mainWindow: BrowserWindow, updateMenu: () => Promise<void>) =>
   async (): Promise<void> => {
     try {
       const filePaths = openOpossumFileDialog();
@@ -127,7 +126,7 @@ export const openFileListener =
 export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   filePath: string,
-  updateMenu: UpdateMenu,
+  updateMenu: () => Promise<void>,
 ): Promise<void> {
   const statusUpdater = new ProcessingStatusUpdater(mainWindow.webContents);
   statusUpdater.startProcessing();
@@ -194,7 +193,7 @@ export const importFileSelectSaveLocationListener =
   };
 
 export const importFileConvertAndLoadListener =
-  (mainWindow: BrowserWindow, updateMenu: UpdateMenu) =>
+  (mainWindow: BrowserWindow, updateMenu: () => Promise<void>) =>
   async (
     _: Electron.IpcMainInvokeEvent,
     resourceFilePath: string,
@@ -253,7 +252,7 @@ export const importFileConvertAndLoadListener =
   };
 
 export const mergeFileAndLoadListener =
-  (mainWindow: BrowserWindow, updateMenu: UpdateMenu) =>
+  (mainWindow: BrowserWindow, updateMenu: () => Promise<void>) =>
   async (
     _: Electron.IpcMainInvokeEvent,
     inputFilePath: string,
@@ -362,7 +361,7 @@ function formatBaseURL(baseURL: string): string {
 export async function openFile(
   mainWindow: BrowserWindow,
   filePath: string,
-  updateMenu: UpdateMenu,
+  updateMenu: () => Promise<void>,
 ): Promise<void> {
   await loadInputAndOutputFromFilePath(mainWindow, filePath);
   setTitle(mainWindow, filePath);

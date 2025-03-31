@@ -7,7 +7,6 @@ import { MenuItemConstructorOptions } from 'electron';
 
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
-import { UpdateMenu } from '../menu';
 import { switchableMenuItem } from './switchableMenuItem';
 
 function getShowDevTools(): MenuItemConstructorOptions {
@@ -55,7 +54,7 @@ function getZoomOut(): MenuItemConstructorOptions {
 }
 
 async function getQaMode(
-  updateMenu: UpdateMenu,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   return switchableMenuItem(updateMenu, {
     id: 'qa-mode',
@@ -65,7 +64,7 @@ async function getQaMode(
 }
 
 function getShowClassifications(
-  updateMenu: UpdateMenu,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   return switchableMenuItem(updateMenu, {
     id: 'show-classifications',
@@ -75,7 +74,7 @@ function getShowClassifications(
 }
 
 function getShowCriticality(
-  updateMenu: UpdateMenu,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   return switchableMenuItem(updateMenu, {
     id: 'show-criticality',
@@ -85,7 +84,7 @@ function getShowCriticality(
 }
 
 export async function getViewMenu(
-  updateMenu: UpdateMenu,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   return {
     label: text.menu.view,

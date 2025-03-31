@@ -12,8 +12,6 @@ import { getFileMenu } from './menu/fileMenu';
 import { getHelpMenu } from './menu/helpMenu';
 import { getViewMenu } from './menu/viewMenu';
 
-export type UpdateMenu = () => Promise<void>;
-
 export async function createMenu(mainWindow: BrowserWindow): Promise<void> {
   const webContents = mainWindow.webContents;
 

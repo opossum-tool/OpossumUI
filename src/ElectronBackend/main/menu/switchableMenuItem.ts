@@ -6,7 +6,6 @@ import { MenuItemConstructorOptions } from 'electron';
 
 import { UserSettings as IUserSettings } from '../../../shared/shared-types';
 import { getCheckboxBasedOnThemeAndCheckState } from '../iconHelpers';
-import { UpdateMenu } from '../menu';
 import { UserSettingsService } from '../user-settings-service';
 
 export interface SwitchableItemOptions {
@@ -16,7 +15,7 @@ export interface SwitchableItemOptions {
 }
 
 export async function switchableMenuItem(
-  updateMenu: UpdateMenu,
+  updateMenu: () => Promise<void>,
   options: SwitchableItemOptions,
 ): Promise<MenuItemConstructorOptions> {
   const state = !!(await UserSettingsService.get(options.userSettingsKey));
