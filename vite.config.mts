@@ -28,4 +28,7 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     include: ['@mui/material/Tooltip'], // https://github.com/mui/material-ui/issues/32727
   },
+  resolve: {
+    conditions: ['mui-modern', 'module', 'browser', 'development|production'],
+  },
 }));
