@@ -9,14 +9,14 @@ import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 import { SxProps } from '@mui/system';
 import dayjs from 'dayjs';
-import { ReactNode, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { Log } from '../../../shared/shared-types';
 import { baseIcon } from '../../shared-styles';
 import { Spinner } from '../Spinner/Spinner';
 import { BreakableTypography, EllipsisTypography } from './LogDisplay.style';
 
-const icons: Record<Log['level'], ReactNode> = {
+const icons: Record<Log['level'], React.ReactNode> = {
   error: (
     <ErrorIcon sx={{ ...baseIcon, color: 'red' }} data-testid="ErrorIcon" />
   ),
