@@ -12,17 +12,20 @@ import { getFileMenu } from './menu/fileMenu';
 import { getHelpMenu } from './menu/helpMenu';
 import { getViewMenu } from './menu/viewMenu';
 
+export type UpdateMenu = () => Promise<void>;
+
 export async function createMenu(mainWindow: BrowserWindow): Promise<void> {
   const webContents = mainWindow.webContents;
 
+  const updateMenu = () => createMenu(mainWindow);
   return Menu.setApplicationMenu(
     Menu.buildFromTemplate([
       ...(os.platform() === 'darwin'
         ? [{ role: 'appMenu' } satisfies MenuItemConstructorOptions]
         : []),
-      await getFileMenu(mainWindow),
+      await getFileMenu(mainWindow, updateMenu),
       getEditMenu(webContents),
-      await getViewMenu(mainWindow),
+      await getViewMenu(updateMenu),
       getAboutMenu(),
       getHelpMenu(webContents),
     ]),

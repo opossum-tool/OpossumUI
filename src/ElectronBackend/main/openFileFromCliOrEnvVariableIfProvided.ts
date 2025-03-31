@@ -6,9 +6,11 @@ import { BrowserWindow } from 'electron';
 import log from 'electron-log';
 
 import { handleOpeningFile } from './listeners';
+import { UpdateMenu } from './menu';
 
 export async function openFileFromCliOrEnvVariableIfProvided(
   mainWindow: BrowserWindow,
+  updateMenu: UpdateMenu,
 ): Promise<void> {
   let inputFileName: string | null = null;
 
@@ -36,6 +38,6 @@ export async function openFileFromCliOrEnvVariableIfProvided(
   }
 
   if (inputFileName) {
-    await handleOpeningFile(mainWindow, inputFileName);
+    await handleOpeningFile(mainWindow, inputFileName, updateMenu);
   }
 }

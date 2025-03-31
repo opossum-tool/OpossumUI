@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, MenuItemConstructorOptions } from 'electron';
+import { MenuItemConstructorOptions } from 'electron';
 
 import { UserSettings as IUserSettings } from '../../../shared/shared-types';
 import { getCheckboxBasedOnThemeAndCheckState } from '../iconHelpers';
-import { createMenu } from '../menu';
+import { UpdateMenu } from '../menu';
 import { UserSettingsService } from '../user-settings-service';
 
 export interface SwitchableItemOptions {
@@ -16,7 +16,7 @@ export interface SwitchableItemOptions {
 }
 
 export async function switchableMenuItem(
-  mainWindow: BrowserWindow,
+  updateMenu: UpdateMenu,
   options: SwitchableItemOptions,
 ): Promise<MenuItemConstructorOptions> {
   const state = !!(await UserSettingsService.get(options.userSettingsKey));
@@ -28,7 +28,7 @@ export async function switchableMenuItem(
       await UserSettingsService.update(
         Object.fromEntries([[options.userSettingsKey, !state]]),
       );
-      await createMenu(mainWindow);
+      await updateMenu();
     },
   };
 }
