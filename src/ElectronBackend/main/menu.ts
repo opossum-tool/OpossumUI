@@ -15,14 +15,15 @@ import { getViewMenu } from './menu/viewMenu';
 export async function createMenu(mainWindow: BrowserWindow): Promise<void> {
   const webContents = mainWindow.webContents;
 
+  const updateMenu = () => createMenu(mainWindow);
   return Menu.setApplicationMenu(
     Menu.buildFromTemplate([
       ...(os.platform() === 'darwin'
         ? [{ role: 'appMenu' } satisfies MenuItemConstructorOptions]
         : []),
-      await getFileMenu(mainWindow),
+      await getFileMenu(mainWindow, updateMenu),
       getEditMenu(webContents),
-      await getViewMenu(mainWindow),
+      await getViewMenu(updateMenu),
       getAboutMenu(),
       getHelpMenu(webContents),
     ]),

@@ -38,6 +38,7 @@ export async function main(): Promise<void> {
 
     await UserSettingsService.init();
     await createMenu(mainWindow);
+    const updateMenu = () => createMenu(mainWindow);
 
     mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
       (details, callback) => {
@@ -65,7 +66,10 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.Relaunch, () => {
       mainWindow.reload();
     });
-    ipcMain.handle(IpcChannel.OpenFile, openFileListener(mainWindow));
+    ipcMain.handle(
+      IpcChannel.OpenFile,
+      openFileListener(mainWindow, updateMenu),
+    );
     ipcMain.handle(IpcChannel.SelectFile, selectFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.ImportFileSelectSaveLocation,
@@ -73,11 +77,11 @@ export async function main(): Promise<void> {
     );
     ipcMain.handle(
       IpcChannel.ImportFileConvertAndLoad,
-      importFileConvertAndLoadListener(mainWindow),
+      importFileConvertAndLoadListener(mainWindow, updateMenu),
     );
     ipcMain.handle(
       IpcChannel.MergeFileAndLoad,
-      mergeFileAndLoadListener(mainWindow),
+      mergeFileAndLoadListener(mainWindow, updateMenu),
     );
     ipcMain.handle(IpcChannel.SaveFile, saveFileListener(mainWindow));
     ipcMain.handle(IpcChannel.ExportFile, exportFileListener(mainWindow));
@@ -94,7 +98,7 @@ export async function main(): Promise<void> {
 
     await loadWebApp(mainWindow);
 
-    await openFileFromCliOrEnvVariableIfProvided(mainWindow);
+    await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu);
   } catch (error) {
     if (error instanceof Error) {
       await dialog.showMessageBox(

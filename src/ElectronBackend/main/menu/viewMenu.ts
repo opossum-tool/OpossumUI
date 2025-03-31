@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, MenuItemConstructorOptions } from 'electron';
+import { MenuItemConstructorOptions } from 'electron';
 
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
@@ -54,9 +54,9 @@ function getZoomOut(): MenuItemConstructorOptions {
 }
 
 async function getQaMode(
-  mainWindow: BrowserWindow,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
-  return switchableMenuItem(mainWindow, {
+  return switchableMenuItem(updateMenu, {
     id: 'qa-mode',
     label: text.menu.viewSubmenu.qaMode,
     userSettingsKey: 'qaMode',
@@ -64,9 +64,9 @@ async function getQaMode(
 }
 
 function getShowClassifications(
-  mainWindow: BrowserWindow,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
-  return switchableMenuItem(mainWindow, {
+  return switchableMenuItem(updateMenu, {
     id: 'show-classifications',
     label: text.menu.viewSubmenu.showClassifications,
     userSettingsKey: 'showClassifications',
@@ -74,9 +74,9 @@ function getShowClassifications(
 }
 
 function getShowCriticality(
-  mainWindow: BrowserWindow,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
-  return switchableMenuItem(mainWindow, {
+  return switchableMenuItem(updateMenu, {
     id: 'show-criticality',
     label: text.menu.viewSubmenu.showCriticality,
     userSettingsKey: 'showCriticality',
@@ -84,7 +84,7 @@ function getShowCriticality(
 }
 
 export async function getViewMenu(
-  mainWindow: BrowserWindow,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   return {
     label: text.menu.view,
@@ -93,9 +93,9 @@ export async function getViewMenu(
       getToggleFullScreen(),
       getZoomIn(),
       getZoomOut(),
-      await getQaMode(mainWindow),
-      await getShowCriticality(mainWindow),
-      await getShowClassifications(mainWindow),
+      await getQaMode(updateMenu),
+      await getShowCriticality(updateMenu),
+      await getShowClassifications(updateMenu),
     ],
   };
 }

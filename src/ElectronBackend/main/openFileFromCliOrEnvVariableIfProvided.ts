@@ -9,6 +9,7 @@ import { handleOpeningFile } from './listeners';
 
 export async function openFileFromCliOrEnvVariableIfProvided(
   mainWindow: BrowserWindow,
+  updateMenu: () => Promise<void>,
 ): Promise<void> {
   let inputFileName: string | null = null;
 
@@ -36,6 +37,6 @@ export async function openFileFromCliOrEnvVariableIfProvided(
   }
 
   if (inputFileName) {
-    await handleOpeningFile(mainWindow, inputFileName);
+    await handleOpeningFile(mainWindow, inputFileName, updateMenu);
   }
 }

@@ -116,7 +116,7 @@
     "start:darwin:linux": "tools/start_linux_darwin.sh",
     "start:win32": "tools/start_windows.bat",
     "build": "yarn generate-notice && vite build && tsc -p src/ElectronBackend",
-    "circular-import-check": "dpdm src/**/*.ts[x] --circular -T --tree false --warning false --exit-code circular:1",
+    "circular-import-check": "find src/ | xargs dpdm --circular -T --tree false --warning false --exit-code circular:1",
     "typecheck": "tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test:unit": "jest",
     "test:changed": "jest --onlyChanged",

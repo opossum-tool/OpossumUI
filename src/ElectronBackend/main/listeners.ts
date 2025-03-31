@@ -54,7 +54,6 @@ import {
   setGlobalBackendState,
 } from './globalBackendState';
 import logger from './logger';
-import { createMenu } from './menu';
 import { ProcessingStatusUpdater } from './ProcessingStatusUpdater';
 import { UserSettingsService } from './user-settings-service';
 
@@ -109,7 +108,8 @@ async function writeOutputJsonToFile(
 }
 
 export const openFileListener =
-  (mainWindow: BrowserWindow) => async (): Promise<void> => {
+  (mainWindow: BrowserWindow, updateMenu: () => Promise<void>) =>
+  async (): Promise<void> => {
     try {
       const filePaths = openOpossumFileDialog();
       if (!filePaths || filePaths.length < 1) {
@@ -117,7 +117,7 @@ export const openFileListener =
       }
       const filePath = filePaths[0];
 
-      await handleOpeningFile(mainWindow, filePath);
+      await handleOpeningFile(mainWindow, filePath, updateMenu);
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
     }
@@ -126,17 +126,18 @@ export const openFileListener =
 export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   filePath: string,
+  updateMenu: () => Promise<void>,
 ): Promise<void> {
   const statusUpdater = new ProcessingStatusUpdater(mainWindow.webContents);
   statusUpdater.startProcessing();
   statusUpdater.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, true);
 
-  await openFile(mainWindow, filePath);
+  await openFile(mainWindow, filePath, updateMenu);
 
   await updateRecentlyOpenedPaths(filePath);
 
-  await createMenu(mainWindow);
+  await updateMenu();
 
   statusUpdater.endProcessing();
 }
@@ -192,7 +193,7 @@ export const importFileSelectSaveLocationListener =
   };
 
 export const importFileConvertAndLoadListener =
-  (mainWindow: BrowserWindow) =>
+  (mainWindow: BrowserWindow, updateMenu: () => Promise<void>) =>
   async (
     _: Electron.IpcMainInvokeEvent,
     resourceFilePath: string,
@@ -239,7 +240,7 @@ export const importFileConvertAndLoadListener =
       processingStatusUpdater.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath, true);
 
-      await openFile(mainWindow, opossumFilePath);
+      await openFile(mainWindow, opossumFilePath, updateMenu);
 
       return true;
     } catch (error) {
@@ -251,7 +252,7 @@ export const importFileConvertAndLoadListener =
   };
 
 export const mergeFileAndLoadListener =
-  (mainWindow: BrowserWindow) =>
+  (mainWindow: BrowserWindow, updateMenu: () => Promise<void>) =>
   async (
     _: Electron.IpcMainInvokeEvent,
     inputFilePath: string,
@@ -297,7 +298,7 @@ export const mergeFileAndLoadListener =
         fileType,
       );
 
-      await openFile(mainWindow, currentOpossumFilePath);
+      await openFile(mainWindow, currentOpossumFilePath, updateMenu);
 
       return true;
     } catch (error) {
@@ -360,10 +361,11 @@ function formatBaseURL(baseURL: string): string {
 export async function openFile(
   mainWindow: BrowserWindow,
   filePath: string,
+  updateMenu: () => Promise<void>,
 ): Promise<void> {
   await loadInputAndOutputFromFilePath(mainWindow, filePath);
   setTitle(mainWindow, filePath);
-  await createMenu(mainWindow);
+  await updateMenu();
 }
 
 async function updateRecentlyOpenedPaths(filePath: string): Promise<void> {

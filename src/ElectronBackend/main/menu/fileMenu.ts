@@ -28,7 +28,6 @@ import {
   importFileListener,
   selectBaseURLListener,
 } from '../listeners';
-import { createMenu } from '../menu';
 import { ProcessingStatusUpdater } from '../ProcessingStatusUpdater';
 import { UserSettingsService } from '../user-settings-service';
 
@@ -64,6 +63,7 @@ function getOpenFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
 
 async function getOpenRecent(
   mainWindow: BrowserWindow,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   const recentlyOpenedPaths = await UserSettingsService.get(
     'recentlyOpenedPaths',
@@ -72,7 +72,7 @@ async function getOpenRecent(
   return {
     icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
     label: text.menu.fileSubmenu.openRecent,
-    submenu: getOpenRecentSubmenu(mainWindow, recentlyOpenedPaths),
+    submenu: getOpenRecentSubmenu(mainWindow, recentlyOpenedPaths, updateMenu),
     enabled: !!recentlyOpenedPaths?.length,
   };
 }
@@ -80,6 +80,7 @@ async function getOpenRecent(
 function getOpenRecentSubmenu(
   mainWindow: BrowserWindow,
   recentlyOpenedPaths: Array<string> | null,
+  updateMenu: () => Promise<void>,
 ): MenuItemConstructorOptions['submenu'] {
   if (!recentlyOpenedPaths?.length) {
     return undefined;
@@ -88,7 +89,7 @@ function getOpenRecentSubmenu(
   return [
     ...recentlyOpenedPaths.map<MenuItemConstructorOptions>((recentPath) => ({
       label: path.basename(recentPath, path.extname(recentPath)),
-      click: ({ id }) => handleOpeningFile(mainWindow, id),
+      click: ({ id }) => handleOpeningFile(mainWindow, id, updateMenu),
       id: recentPath,
     })),
     { type: 'separator' },
@@ -100,7 +101,7 @@ function getOpenRecentSubmenu(
           { recentlyOpenedPaths: [] },
           { skipNotification: true },
         );
-        await createMenu(mainWindow);
+        await updateMenu();
       },
     },
   ];
@@ -336,13 +337,14 @@ function getExportSubMenu(
 
 export async function getFileMenu(
   mainWindow: BrowserWindow,
+  updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   const webContents = mainWindow.webContents;
   return {
     label: text.menu.file,
     submenu: [
       getOpenFile(mainWindow),
-      await getOpenRecent(mainWindow),
+      await getOpenRecent(mainWindow, updateMenu),
       getImportFile(mainWindow),
       getMerge(mainWindow),
       getSaveFile(webContents),

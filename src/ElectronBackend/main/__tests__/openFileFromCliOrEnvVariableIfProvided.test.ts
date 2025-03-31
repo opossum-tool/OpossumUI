@@ -37,12 +37,15 @@ describe('openFileFromCli', () => {
       }
       process.argv.push(inputFileName);
 
+      const updateMenu = jest.fn();
       await openFileFromCliOrEnvVariableIfProvided(
         'mockBrowserWindow' as unknown as BrowserWindow,
+        updateMenu,
       );
       expect(mockHandleOpeningFile).toHaveBeenCalledWith([
         'mockBrowserWindow',
         inputFileName,
+        updateMenu,
       ]);
 
       process.argv = oldProcessArgv;
@@ -62,8 +65,10 @@ describe('openFileFromCli', () => {
         process.argv.push(inputFileName);
       }
 
+      const updateMenu = jest.fn();
       await openFileFromCliOrEnvVariableIfProvided(
         'mockBrowserWindow' as unknown as BrowserWindow,
+        updateMenu,
       );
       expect(mockHandleOpeningFile).not.toHaveBeenCalled();
 
@@ -89,18 +94,22 @@ describe('openFileFromEnvVariable', () => {
   it('opens a file if env variable provided', async () => {
     const inputFileName = '/path/inputFile.opossum';
     process.env.OPOSSUM_FILE = inputFileName;
+    const updateMenu = jest.fn();
     await openFileFromCliOrEnvVariableIfProvided(
       'mockBrowserWindow' as unknown as BrowserWindow,
+      updateMenu,
     );
     expect(mockHandleOpeningFile).toHaveBeenCalledWith([
       'mockBrowserWindow',
       inputFileName,
+      updateMenu,
     ]);
   });
 
   it('does not call openFile if env is not set', async () => {
     await openFileFromCliOrEnvVariableIfProvided(
       'mockBrowserWindow' as unknown as BrowserWindow,
+      jest.fn(),
     );
     expect(mockHandleOpeningFile).not.toHaveBeenCalledWith([
       'mockBrowserWindow',
@@ -113,13 +122,16 @@ describe('openFileFromEnvVariable', () => {
     process.argv = ['app'];
     process.argv.push(inputFileName);
 
+    const updateMenu = jest.fn();
     await openFileFromCliOrEnvVariableIfProvided(
       'mockBrowserWindow' as unknown as BrowserWindow,
+      updateMenu,
     );
 
     expect(mockHandleOpeningFile).toHaveBeenCalledWith([
       'mockBrowserWindow',
       inputFileName,
+      updateMenu,
     ]);
   });
 });
