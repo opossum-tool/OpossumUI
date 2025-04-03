@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   AttributionData,
-  Attributions,
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenses,
@@ -12,7 +11,6 @@ import {
   ProjectConfig,
   ProjectMetadata,
   Resources,
-  ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 
 export const ACTION_SET_SELECTED_ATTRIBUTION_ID =
@@ -118,14 +116,6 @@ export interface SetExternalDataAction {
 export interface SetFrequentLicensesAction {
   type: typeof ACTION_SET_FREQUENT_LICENSES;
   payload: FrequentLicenses;
-}
-
-export interface SetProgressBarDataPayload {
-  resources: Resources;
-  manualAttributions: Attributions;
-  resourcesToManualAttributions: ResourcesToAttributions;
-  resourcesToExternalAttributions: ResourcesToAttributions;
-  resolvedExternalAttributions: Set<string>;
 }
 
 export interface SetTemporaryDisplayPackageInfoAction {

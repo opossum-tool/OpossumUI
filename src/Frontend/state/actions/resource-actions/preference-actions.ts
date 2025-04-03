@@ -3,8 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { cloneDeep } from 'lodash';
-
 import {
   Attributions,
   AttributionsToResources,
@@ -13,69 +11,9 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { State } from '../../../types/types';
 import { getSubtree } from '../../../util/attribution-utils';
 import { CalculatePreferredOverOriginIds } from '../../helpers/save-action-helpers';
 import { ResourceState } from '../../reducers/resource-reducer';
-import {
-  getExternalAttributions,
-  getExternalAttributionSources,
-  getResourceIdsOfSelectedAttribution,
-  getResources,
-  getResourcesToExternalAttributions,
-  getResourcesToManualAttributions,
-} from '../../selectors/resource-selectors';
-import { AppThunkAction, AppThunkDispatch } from '../../types';
-import { setTemporaryDisplayPackageInfo } from './all-views-simple-actions';
-
-export function toggleIsSelectedPackagePreferred(
-  packageInfo: PackageInfo,
-): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const state = getState();
-
-    const newTemporaryDisplayPackageInfo = cloneDeep(packageInfo);
-    newTemporaryDisplayPackageInfo.preferred =
-      !newTemporaryDisplayPackageInfo.preferred;
-
-    if (newTemporaryDisplayPackageInfo.preferred) {
-      newTemporaryDisplayPackageInfo.preferredOverOriginIds =
-        getOriginIdsToPreferOver(
-          getResourceIdsOfSelectedAttribution(state),
-          getResources(state) ?? {},
-          getResourcesToExternalAttributions(state),
-          getResourcesToManualAttributions(state),
-          getExternalAttributions(state),
-          getExternalAttributionSources(state),
-        );
-    } else {
-      newTemporaryDisplayPackageInfo.preferredOverOriginIds = undefined;
-    }
-    dispatch(setTemporaryDisplayPackageInfo(newTemporaryDisplayPackageInfo));
-  };
-}
-
-export function setOriginIdsToPreferOverGlobally(
-  packageInfo: PackageInfo,
-): AppThunkAction {
-  return (dispatch, getState): void => {
-    const state = getState();
-
-    dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...packageInfo,
-        preferredOverOriginIds: getOriginIdsToPreferOver(
-          getResourceIdsOfSelectedAttribution(state),
-          getResources(state) ?? {},
-          getResourcesToExternalAttributions(state),
-          getResourcesToManualAttributions(state),
-          getExternalAttributions(state),
-          getExternalAttributionSources(state),
-        ),
-      }),
-    );
-  };
-}
 
 export function getOriginIdsToPreferOver(
   pathsToRootResources: string | Array<string>,

@@ -15,7 +15,7 @@ import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import { getProjectMetadata } from '../../state/selectors/resource-selectors';
 
-export const projectMetadataTableClasses = {
+const projectMetadataTableClasses = {
   firstColumn: {
     fontSize: 13,
     background: OpossumColors.darkBlue,

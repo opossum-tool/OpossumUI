@@ -31,7 +31,7 @@ export interface GroupedListItemContentProps {
   focused: boolean;
 }
 
-export interface GroupedListProps {
+interface GroupedListProps {
   className?: string;
   grouped: Record<string, ReadonlyArray<string>> | null;
   loading?: boolean;

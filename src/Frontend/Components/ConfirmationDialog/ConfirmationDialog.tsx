@@ -55,7 +55,7 @@ export function useConfirmationDialog(
   return [confirmRef, confirm];
 }
 
-export interface ConfirmationDialogProps {
+interface ConfirmationDialogProps {
   ref: React.RefObject<Confirm | null>;
   title: string;
   message: React.ReactNode;

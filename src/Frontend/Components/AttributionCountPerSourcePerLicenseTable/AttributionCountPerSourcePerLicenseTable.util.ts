@@ -20,11 +20,11 @@ export enum SingleColumn {
   TOTAL = 'TOTAL',
 }
 
-export type CountPerSourceColumn = {
+type CountPerSourceColumn = {
   sourceName: string;
 };
 
-export type ColumnType = SingleColumn | CountPerSourceColumn;
+type ColumnType = SingleColumn | CountPerSourceColumn;
 
 export type Column = {
   columnName: string;
@@ -34,7 +34,7 @@ export type Column = {
   defaultOrder: Order;
 };
 
-export type ColumnGroup = {
+type ColumnGroup = {
   groupName: string;
   columns: Array<Column>;
 };

@@ -29,9 +29,6 @@ interface UniqueLicenseNameToAttributions {
 
 const UNKNOWN_SOURCE_PLACEHOLDER = '-';
 
-// exported only for tests
-export const ATTRIBUTION_TOTAL = 'Total Attributions';
-
 export const CRITICALITY_LABEL: Record<Criticality, string> = {
   [Criticality.High]:
     text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
@@ -205,7 +202,7 @@ function getLicenseDataFromVariants(
   };
 }
 
-export function getUniqueLicenseNameToAttribution(
+function getUniqueLicenseNameToAttribution(
   attributions: Attributions,
 ): UniqueLicenseNameToAttributions {
   const uniqueLicenseNameToAttributions: UniqueLicenseNameToAttributions = {};

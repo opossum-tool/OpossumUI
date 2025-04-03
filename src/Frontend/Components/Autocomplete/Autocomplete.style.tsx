@@ -2,19 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Popper, PopperProps, styled, SxProps } from '@mui/material';
+import { Popper, PopperProps, styled } from '@mui/material';
 import MuiTextField from '@mui/material/TextField';
 
 import { OpossumColors } from '../../shared-styles';
 
 export const Container = styled('div')({
   flex: 1,
-});
-
-export const TagsContainer = styled('div')({
-  display: 'flex',
-  gap: '8px',
-  flexWrap: 'wrap',
 });
 
 export const Input = styled(MuiTextField, {
@@ -90,11 +84,3 @@ export const EndAdornmentContainer = styled('div')({
   height: '100%',
   alignItems: 'center',
 });
-
-export const styles = {
-  overflowEllipsis: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  },
-} satisfies SxProps;

@@ -5,5 +5,3 @@
 export * from '../../testing/Faker';
 export * from './fixtures';
 export * from './retry';
-
-export { expect, type Locator, type Page } from '@playwright/test';

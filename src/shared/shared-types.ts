@@ -41,9 +41,9 @@ export interface Source {
 
 export type Relation = 'resource' | 'children' | 'parents' | 'unrelated';
 
-export type Expand<T> = T extends unknown ? { [K in keyof T]: T[K] } : never;
+type Expand<T> = T extends unknown ? { [K in keyof T]: T[K] } : never;
 
-export type Never<T, K extends keyof T> = Expand<
+type Never<T, K extends keyof T> = Expand<
   Omit<T, K> & Partial<Record<K, never>>
 >;
 
@@ -118,7 +118,7 @@ export interface ResourcesWithAttributedChildren {
   attributedChildren: { [index: number]: Set<number> };
 }
 
-export interface InputFileAttributionData {
+interface InputFileAttributionData {
   attributions: Attributions;
   resourcesToAttributions: ResourcesToAttributions;
   attributionsToResources: AttributionsToResources;
@@ -267,7 +267,7 @@ export interface FileFormatInfo {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
+type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
 export interface ElectronAPI {
   quit: () => void;

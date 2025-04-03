@@ -106,7 +106,7 @@ export interface PackageCardConfig {
   wasPreferred?: boolean;
 }
 
-export interface PackageCardProps {
+interface PackageCardProps {
   packageInfo: PackageInfo;
   cardConfig?: Partial<PackageCardConfig>;
   onClick?(): void;
