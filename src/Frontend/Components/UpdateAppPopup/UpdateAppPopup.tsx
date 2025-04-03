@@ -8,7 +8,6 @@ import MuiTypography from '@mui/material/Typography';
 
 import commitInfo from '../../../commitInfo.json';
 import { text } from '../../../shared/text';
-import { ButtonText } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { openUrl } from '../../util/open-url';
@@ -33,7 +32,7 @@ export function UpdateAppPopup() {
       width={600}
       rightButtonConfig={{
         onClick: handleClose,
-        buttonText: ButtonText.Close,
+        buttonText: text.buttons.close,
       }}
       onBackdropClick={handleClose}
       onEscapeKeyDown={handleClose}

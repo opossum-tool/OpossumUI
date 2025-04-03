@@ -45,6 +45,6 @@ jobs:
 
       - run: yarn circular-import-check
 
-      - run: yarn unused-check
+      - run: yarn knip
 
       - run: yarn test:unit

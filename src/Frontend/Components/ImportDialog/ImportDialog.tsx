@@ -15,7 +15,7 @@ import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
-export interface ImportDialogProps {
+interface ImportDialogProps {
   fileFormat: FileFormatInfo;
 }
 

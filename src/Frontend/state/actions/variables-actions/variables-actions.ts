@@ -7,7 +7,7 @@ import { SET_VARIABLE } from './types';
 
 export type VariablesAction = SetVariable | ResetResourceStateAction;
 
-export interface SetVariable<T = unknown> {
+interface SetVariable<T = unknown> {
   type: SET_VARIABLE;
   name: string;
   value: T;

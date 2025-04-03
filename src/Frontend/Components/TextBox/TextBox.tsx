@@ -12,7 +12,7 @@ import { Theme } from '@mui/system';
 import { OpossumColors } from '../../shared-styles';
 import { ensureArray } from '../../util/ensure-array';
 
-export const classes = {
+const classes = {
   textField: {
     width: '100%',
     '& div': {

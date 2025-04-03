@@ -34,7 +34,7 @@ export const initialFilteredAttributions: FilteredData = {
   sorting: 'alphabetically',
 };
 
-export const initialFilteredSignals: FilteredData = {
+const initialFilteredSignals: FilteredData = {
   filters: [],
   attributions: null,
   counts: null,

@@ -17,7 +17,7 @@ export interface ListItemContentProps {
   focused: boolean;
 }
 
-export interface ListProps {
+interface ListProps {
   className?: string;
   data: ReadonlyArray<string> | null;
   loading?: boolean;

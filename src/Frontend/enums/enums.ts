@@ -19,11 +19,6 @@ export enum PopupType {
   MergeDialog = 'MergeDialog',
 }
 
-export enum ButtonText {
-  Close = 'Close',
-  Delete = 'Delete',
-}
-
 export enum AttributionType {
   FirstParty = 'First Party',
   ThirdParty = 'Third Party',

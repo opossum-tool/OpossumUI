@@ -358,7 +358,7 @@ function formatBaseURL(baseURL: string): string {
   return `file://${baseURL}/{path}`;
 }
 
-export async function openFile(
+async function openFile(
   mainWindow: BrowserWindow,
   filePath: string,
   updateMenu: () => Promise<void>,
@@ -426,7 +426,7 @@ interface FileExporterAndExportedFilePath<T> {
   fileExporter: (filePath: string, args: T) => Promise<void> | void;
 }
 
-export function getExportedFilePathAndFileExporter(
+function getExportedFilePathAndFileExporter(
   exportType: ExportType,
 ): FileExporterAndExportedFilePath<
   | ExportFollowUpArgs
@@ -435,7 +435,7 @@ export function getExportedFilePathAndFileExporter(
   | ExportSpdxDocumentYamlArgs
   | ExportSpdxDocumentJsonArgs
 >;
-export function getExportedFilePathAndFileExporter(
+function getExportedFilePathAndFileExporter(
   exportType: ExportType,
 ):
   | FileExporterAndExportedFilePath<ExportFollowUpArgs>

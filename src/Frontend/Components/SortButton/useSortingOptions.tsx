@@ -17,13 +17,13 @@ export type SortOption =
   | 'occurrence'
   | 'classification';
 
-export interface SortOptionConfiguration {
+interface SortOptionConfiguration {
   label: string;
   icon: React.FC<{ color?: 'action' | 'disabled' }>;
   active: boolean;
 }
 
-export type SortConfiguration = Record<SortOption, SortOptionConfiguration>;
+type SortConfiguration = Record<SortOption, SortOptionConfiguration>;
 
 export function useSortConfiguration(): SortConfiguration {
   const [userSettings] = useUserSettings();
