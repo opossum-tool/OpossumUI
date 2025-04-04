@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ButtonText } from '../../enums/enums';
+import { text } from '../../../shared/text';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -23,7 +23,7 @@ export const ProjectMetadataPopup: React.FC = () => {
       fullWidth={false}
       rightButtonConfig={{
         onClick: close,
-        buttonText: ButtonText.Close,
+        buttonText: text.buttons.close,
       }}
       onBackdropClick={close}
       onEscapeKeyDown={close}

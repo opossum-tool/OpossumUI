@@ -6,7 +6,7 @@ import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
-export const TIME_POPUP_IS_DISPLAYED = 1500;
+const TIME_POPUP_IS_DISPLAYED = 1500;
 
 interface ErrorPopupProps {
   content: string;

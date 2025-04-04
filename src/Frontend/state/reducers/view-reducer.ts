@@ -29,7 +29,7 @@ export interface ViewState {
   exportFileRequest: ExportType | null;
 }
 
-export const initialViewState: ViewState = {
+const initialViewState: ViewState = {
   view: View.Audit,
   targetView: null,
   popupInfo: [],

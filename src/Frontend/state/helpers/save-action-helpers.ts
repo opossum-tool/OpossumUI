@@ -347,7 +347,7 @@ function linkAttributionAndResource(
   }
 }
 
-export function recalculatePreferencesOfParents(
+function recalculatePreferencesOfParents(
   pathToChangedResource: string,
   newManualData: AttributionData,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
@@ -375,7 +375,7 @@ export function recalculatePreferencesOfParents(
   }
 }
 
-export function _addParentsToResourcesWithAttributedChildrenNoMutation(
+function _addParentsToResourcesWithAttributedChildrenNoMutation(
   attributedPath: string,
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren,
 ): void {
@@ -584,7 +584,7 @@ function getAttributionDataShallowCopy(
   };
 }
 
-export function addPathToIndexesIfMissingInResourcesWithAttributedChildren(
+function addPathToIndexesIfMissingInResourcesWithAttributedChildren(
   childrenWithAttributions: ResourcesWithAttributedChildren,
   path: string,
 ): number {

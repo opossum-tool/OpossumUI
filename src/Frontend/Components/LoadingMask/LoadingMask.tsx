@@ -6,7 +6,7 @@ import { SxProps } from '@mui/system';
 
 import { Anchor, Mask } from './LoadingMask.style';
 
-export interface LoadingMaskProps {
+interface LoadingMaskProps {
   active: boolean | undefined;
   children: React.ReactNode;
   sx?: SxProps;

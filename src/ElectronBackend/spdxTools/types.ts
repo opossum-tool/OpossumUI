@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export type RelationshipType =
+type RelationshipType =
   | 'DEPENDENCY_OF'
   | 'DESCRIBES'
   | 'DESCRIBED_BY'

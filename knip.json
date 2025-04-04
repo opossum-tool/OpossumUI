@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/index.tsx", "src/ElectronBackend/{app,preload}.ts"],
+  "project": ["**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}!"],
+  "ignoreDependencies": ["cross-env", "dpdm"],
+  "ignoreBinaries": [
+    "tools/*",
+    "spdx",
+    "reuse",
+    "licenses",
+    "codesign",
+    "ship-mac"
+  ]
+}
