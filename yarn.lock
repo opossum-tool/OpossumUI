@@ -3849,28 +3849,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/d3-path@npm:^1":
-  version: 1.0.10
-  resolution: "@types/d3-path@npm:1.0.10"
-  checksum: 10/994569679f9497e95b9eda064e99c6a58b426a70b679e8b10119cfc56b5e4f1d09c5da91519da2196355a13676f73ced76e344af62878e872df4a9241e03e733
-  languageName: node
-  linkType: hard
-
 "@types/d3-scale@npm:^4.0.2":
   version: 4.0.6
   resolution: "@types/d3-scale@npm:4.0.6"
   dependencies:
     "@types/d3-time": "npm:*"
   checksum: 10/632bd6d7a33f8d2c23b519d4da7dc12f97c4da7ebf710885d2e2d81b995443e7bd798ef09a99b5a5033d11ea2ff81866f4d3b7bd6ec3cf45bc8f94fcd7f0b31c
-  languageName: node
-  linkType: hard
-
-"@types/d3-shape@npm:^1":
-  version: 1.3.10
-  resolution: "@types/d3-shape@npm:1.3.10"
-  dependencies:
-    "@types/d3-path": "npm:^1"
-  checksum: 10/c604fa2276d478444c9a3396345cbff0912996c37e895874de5bf637ff18b0c22e7700ab006d6cb177ebb7092cf78592b918bd343b88062558841f9eb3a635ae
   languageName: node
   linkType: hard
 
@@ -4113,15 +4097,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*":
-  version: 19.0.2
-  resolution: "@types/react@npm:19.0.2"
-  dependencies:
-    csstype: "npm:^3.0.2"
-  checksum: 10/b355cfa22814e934b381c4f6de67c66652255377c3ddc6a757ea195ccbd0e7095aadfe1a28713d8ab1221222b8f2ec237903f4ec0e54eaf656ac832782d25dd2
-  languageName: node
-  linkType: hard
-
 "@types/react@npm:^19.1.0":
   version: 19.1.0
   resolution: "@types/react@npm:19.1.0"
@@ -4131,13 +4106,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/recharts@npm:^1.8.29":
-  version: 1.8.29
-  resolution: "@types/recharts@npm:1.8.29"
+"@types/recharts@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "@types/recharts@npm:2.0.1"
   dependencies:
-    "@types/d3-shape": "npm:^1"
-    "@types/react": "npm:*"
-  checksum: 10/436a5abf70b4c0902c1d3f5b9e56da1f886943e183fbdd45cce4fa73a326b390f86d4614d285e9ce3a0461d35070ee9aa604680d17bd2a12df50208d68a871be
+    recharts: "npm:*"
+  checksum: 10/627bc250f59a2aa7c5958328dd984445f44f3eff795d5959577f6506c68e225231e28cad088209b23304342d9db5f9f7e2858a3fbbcf9cf07affd6596fcdace8
   languageName: node
   linkType: hard
 
@@ -10455,7 +10429,7 @@ __metadata:
     "@types/object-hash": "npm:^3.0.6"
     "@types/react": "npm:^19.1.0"
     "@types/react-dom": "npm:^19.1.1"
-    "@types/recharts": "npm:^1.8.29"
+    "@types/recharts": "npm:^2.0.0"
     "@types/stream-json": "npm:^1.7.8"
     "@types/uuid": "npm:^10.0.0"
     "@vitejs/plugin-react": "npm:^4.3.4"
@@ -11277,7 +11251,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recharts@npm:^2.15.2":
+"recharts@npm:*, recharts@npm:^2.15.2":
   version: 2.15.2
   resolution: "recharts@npm:2.15.2"
   dependencies:
