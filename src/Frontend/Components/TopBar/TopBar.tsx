@@ -21,7 +21,7 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
 import { IconButton } from '../IconButton/IconButton';
-import { SwitchableProcessBar } from '../SwitchableProcessBar/SwitchableProcessBar';
+import { SwitchableProgressBar } from '../SwitchableProgressBar/SwitchableProgressBar';
 
 const classes = {
   root: {
@@ -96,7 +96,7 @@ export const TopBar: React.FC = () => {
           />
         }
       />
-      <SwitchableProcessBar />
+      <SwitchableProgressBar />
       <MuiToggleButtonGroup
         size="small"
         value={selectedView}
