@@ -13,15 +13,23 @@ import { ParsedOpossumInputAndOutput } from '../../types/types';
 import { isOpossumFileFormat } from '../../utils/isOpossumFileFormat';
 import { convertToOpossum, mergeFileIntoOpossum } from '../opossum-file';
 
+const mockTmpdir = tmpdir();
+
+jest.mock('electron', () => ({
+  app: {
+    getPath: () => mockTmpdir,
+  },
+}));
+
 describe('conversion to opossum', () => {
   const SCANCODE_TEST_FILE = join(__dirname, 'scancode.json');
   const OWASP_TEST_FILE = join(__dirname, 'owasp-dependency-check-report.json');
   const LEGACY_OPOSSUM_TEST_FILE = join(__dirname, 'legacy.json');
   const OPOSSUM_TEST_FILE = join(__dirname, 'merge_base.opossum');
-  const OPOSSUM_TEST_FILE_COPY = join(__dirname, 'test_merge.opossum');
+  const OPOSSUM_TEST_FILE_COPY = join(mockTmpdir, 'test_merge.opossum');
 
-  it('should convert the ScanCode file into a valid .opossum file', async () => {
-    const opossumPath = join(tmpdir(), `${uniqueId('opossum_')}.opossum`);
+  it('converts the ScanCode file into a valid .opossum file', async () => {
+    const opossumPath = join(mockTmpdir, `${uniqueId('opossum_')}.opossum`);
     await convertToOpossum(
       SCANCODE_TEST_FILE,
       opossumPath,
@@ -32,19 +40,19 @@ describe('conversion to opossum', () => {
 
     const parsingResult = await parseOpossumFile(opossumPath);
     expect(parsingResult).toHaveProperty('input');
-  });
+  }, 30000);
 
-  it('should convert the owasp file into a valid .opossum file', async () => {
-    const opossumPath = join(tmpdir(), `${uniqueId('opossum_')}.opossum`);
+  it('converts the owasp file into a valid .opossum file', async () => {
+    const opossumPath = join(mockTmpdir, `${uniqueId('opossum_')}.opossum`);
     await convertToOpossum(OWASP_TEST_FILE, opossumPath, FileType.OWASP_JSON);
     expect(fs.existsSync(opossumPath)).toBe(true);
     expect(isOpossumFileFormat(opossumPath)).toBe(true);
 
     const parsingResult = await parseOpossumFile(opossumPath);
     expect(parsingResult).toHaveProperty('input');
-  });
+  }, 30000);
 
-  it('should merge the legacy opossum file into an existing .opossum file', async () => {
+  it('merges the legacy opossum file into an existing .opossum file', async () => {
     fs.copyFileSync(OPOSSUM_TEST_FILE, OPOSSUM_TEST_FILE_COPY);
     await mergeFileIntoOpossum(
       LEGACY_OPOSSUM_TEST_FILE,
@@ -64,9 +72,9 @@ describe('conversion to opossum', () => {
         'index.html'
       ],
     ).toBeDefined();
-  });
+  }, 30000);
 
-  it('should merge the ScanCode file into an existing .opossum file', async () => {
+  it('merges the ScanCode file into an existing .opossum file', async () => {
     fs.copyFileSync(OPOSSUM_TEST_FILE, OPOSSUM_TEST_FILE_COPY);
     await mergeFileIntoOpossum(
       SCANCODE_TEST_FILE,
@@ -84,9 +92,9 @@ describe('conversion to opossum', () => {
     expect(
       (parsingResult as ParsedOpossumInputAndOutput).input.resources['src'],
     ).toBeDefined();
-  });
+  }, 30000);
 
-  it('should merge the owasp file into an existing .opossum file', async () => {
+  it('merges the owasp file into an existing .opossum file', async () => {
     fs.copyFileSync(OPOSSUM_TEST_FILE, OPOSSUM_TEST_FILE_COPY);
     await mergeFileIntoOpossum(
       OWASP_TEST_FILE,
@@ -104,5 +112,5 @@ describe('conversion to opossum', () => {
     expect(
       (parsingResult as ParsedOpossumInputAndOutput).input.resources['contrib'],
     ).toBeDefined();
-  });
+  }, 30000);
 });

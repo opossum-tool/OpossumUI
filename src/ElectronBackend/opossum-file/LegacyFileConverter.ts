@@ -90,13 +90,7 @@ export class LegacyFileConverter extends FileConverter {
   protected override async preConvertFile(
     toBeConvertedFilePath: string,
   ): Promise<string | null> {
-    let tempFilePath;
-    try {
-      tempFilePath = path.join(app.getPath('temp'), 'temp.opossum');
-    } catch (error) {
-      // When executing as part of unit tests, app.getPath('temp') throws an error
-      tempFilePath = path.join(__dirname, 'temp.opossum');
-    }
+    const tempFilePath = path.join(app.getPath('temp'), 'temp.opossum');
 
     await this.convertToOpossum(toBeConvertedFilePath, tempFilePath);
 
