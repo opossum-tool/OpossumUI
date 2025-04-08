@@ -60,21 +60,24 @@ export class TopBar {
       await retry(async () => {
         await this.progressBar.hover();
         await Promise.all([
-          expect(
-            this.tooltip.getByText(
-              `with attributions: ${filesWithAttributions}`,
-            ),
-          ).toBeVisible(),
-          expect(
-            this.tooltip.getByText(
-              `with only pre-selected attributions: ${filesWithOnlyPreSelectedAttributions}`,
-            ),
-          ).toBeVisible(),
-          expect(
-            this.tooltip.getByText(
-              `with only signals: ${filesWithOnlySignals}`,
-            ),
-          ).toBeVisible(),
+          filesWithAttributions &&
+            (await expect(
+              this.tooltip.getByText(
+                `with attributions: ${filesWithAttributions}`,
+              ),
+            ).toBeVisible()),
+          filesWithOnlyPreSelectedAttributions &&
+            (await expect(
+              this.tooltip.getByText(
+                `with only pre-selected attributions: ${filesWithOnlyPreSelectedAttributions}`,
+              ),
+            ).toBeVisible()),
+          filesWithOnlySignals &&
+            (await expect(
+              this.tooltip.getByText(
+                `with only signals: ${filesWithOnlySignals}`,
+              ),
+            ).toBeVisible()),
         ]);
       });
     },

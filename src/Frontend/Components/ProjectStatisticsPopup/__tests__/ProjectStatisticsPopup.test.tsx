@@ -101,7 +101,7 @@ describe('The ProjectStatisticsPopup', () => {
     expect(screen.getByText('Reuser')).toBeVisible();
   });
 
-  it('renders all pie charts when there are signals and attributions', () => {
+  it('renders expected pie charts when there are signals and attributions', () => {
     renderComponent(<ProjectStatisticsPopup />, {
       actions: [
         loadFromFile(getParsedInputFileEnrichedWithTestData(fileSetup)),
@@ -119,11 +119,11 @@ describe('The ProjectStatisticsPopup', () => {
       ),
     ).toBeVisible();
     expect(
-      screen.getByText(
+      screen.queryByText(
         text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
           .title,
       ),
-    ).toBeVisible();
+    ).not.toBeInTheDocument();
     expect(
       screen.getByText(
         text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
@@ -166,7 +166,7 @@ describe('The ProjectStatisticsPopup', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders pie charts related to signals even if there are no attributions', () => {
+  it('renders expected pie charts related to signals even if there are no attributions', () => {
     const testManualAttributions: Attributions = {};
     const testExternalAttributions: Attributions = {
       uuid_1: {
@@ -210,11 +210,11 @@ describe('The ProjectStatisticsPopup', () => {
       ),
     ).toBeVisible();
     expect(
-      screen.getByText(
+      screen.queryByText(
         text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
           .title,
       ),
-    ).toBeVisible();
+    ).not.toBeInTheDocument();
   });
 
   it('renders attribution bar chart and signals per sources table even when there are no attributions and no signals', async () => {

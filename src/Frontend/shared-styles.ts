@@ -40,8 +40,6 @@ export const OpossumColors = {
   brown: 'hsl(33, 55%, 44%)',
 };
 
-export const classificationUnknownColor = OpossumColors.lightOrange;
-
 export const criticalityColor = {
   [Criticality.High]: OpossumColors.orange,
   [Criticality.Medium]: OpossumColors.mediumOrange,

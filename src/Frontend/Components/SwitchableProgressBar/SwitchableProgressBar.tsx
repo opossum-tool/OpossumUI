@@ -51,15 +51,15 @@ export const SwitchableProgressBar: React.FC = () => {
     ProgressBarSwitchConfiguration
   > = {
     attribution: {
-      label: text.attributionProgressBar.selectLabel,
+      label: text.attributionBar.selectLabel,
       active: true,
     },
     criticality: {
-      label: text.criticalSignalsBar.selectLabel,
+      label: text.criticalityBar.selectLabel,
       active: showCriticality,
     },
     classification: {
-      label: text.classificationProgressBar.selectLabel,
+      label: text.classificationBar.selectLabel,
       active: showClassifications,
     },
   };

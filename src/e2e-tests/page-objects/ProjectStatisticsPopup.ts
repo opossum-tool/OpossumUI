@@ -83,10 +83,7 @@ export class ProjectStatisticsPopup {
     },
 
     signalsByClassificationIsVisible: async (): Promise<void> => {
-      await expect(this.signalsByClassificationChart).toContainText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
-          .noClassification,
-      );
+      await expect(this.signalsByClassificationChart).toBeVisible();
     },
     signalsByClassificationIsShown: async (): Promise<void> => {
       await expect(this.signalsByClassificationChart).toBeVisible();

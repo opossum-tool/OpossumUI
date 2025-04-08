@@ -128,6 +128,7 @@ class OpossumModule {
       packageType: faker.commerce.productMaterial().toLowerCase(),
       packageVersion: faker.system.semver(),
       source: OpossumModule.source(),
+      classification: 0,
       url: faker.internet.url(),
       ...props,
     };
@@ -268,7 +269,11 @@ class OpossumModule {
     return {
       metadata: OpossumModule.metadata(),
       resources: {},
-      config: { classifications: {} },
+      config: {
+        classifications: {
+          0: 'the good stuff',
+        },
+      },
       externalAttributions: {},
       resourcesToAttributions: {},
       ...props,

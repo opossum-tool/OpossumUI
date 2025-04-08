@@ -28,7 +28,7 @@ const PROGRESS_BAR_DATA: ProgressBarData = {
 
 const switchableProgressBarText = text.topBar.switchableProgressBar;
 const attributionProgressBarLabel =
-  switchableProgressBarText.attributionProgressBar.ariaLabel;
+  switchableProgressBarText.attributionBar.ariaLabel;
 
 function openSelect() {
   fireEvent.mouseDown(screen.getByRole('combobox'), {
@@ -38,12 +38,9 @@ function openSelect() {
 
 function expectSelectToBeOpen() {
   expect(
-    screen.getByText(
-      switchableProgressBarText.attributionProgressBar.selectLabel,
-      {
-        selector: 'li',
-      },
-    ),
+    screen.getByText(switchableProgressBarText.attributionBar.selectLabel, {
+      selector: 'li',
+    }),
   ).toBeInTheDocument();
 }
 
@@ -55,13 +52,13 @@ async function selectEntry(selectLabel: string) {
 
 function getCriticalSignalsProgressBar() {
   return screen.getByLabelText(
-    switchableProgressBarText.criticalSignalsBar.ariaLabel,
+    switchableProgressBarText.criticalityBar.ariaLabel,
   );
 }
 
 function getAttributionProgressBar() {
   return screen.getByLabelText(
-    switchableProgressBarText.attributionProgressBar.ariaLabel,
+    switchableProgressBarText.attributionBar.ariaLabel,
   );
 }
 
@@ -97,15 +94,13 @@ describe('SwitchableProcessBar', () => {
 
     openSelect();
     expectSelectToBeOpen();
-    await selectEntry(switchableProgressBarText.criticalSignalsBar.selectLabel);
+    await selectEntry(switchableProgressBarText.criticalityBar.selectLabel);
 
     expect(getCriticalSignalsProgressBar()).toBeInTheDocument();
 
     openSelect();
     expectSelectToBeOpen();
-    await selectEntry(
-      switchableProgressBarText.attributionProgressBar.selectLabel,
-    );
+    await selectEntry(switchableProgressBarText.attributionBar.selectLabel);
 
     expect(getAttributionProgressBar()).toBeInTheDocument();
   });

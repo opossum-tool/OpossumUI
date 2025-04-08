@@ -13,7 +13,6 @@ import {
   PackageInfo,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { classificationUnknownColor } from '../../shared-styles';
 import {
   AttributionCountPerSourcePerLicense,
   ChartDataItem,
@@ -342,14 +341,15 @@ export function getSignalCountByClassification(
   licenseNamesWithClassification: LicenseNamesWithClassification,
   classifications: ClassificationsConfig,
 ): [Array<ChartDataItem>, { [segmentName: string]: string }] {
-  const NO_CLASSIFICATION = -1;
   const classificationCounts: Record<Classification, number> = {};
 
   for (const [license, attributionCount] of Object.entries(
     licenseCounts.totalAttributionsPerLicense,
   )) {
-    const classification =
-      licenseNamesWithClassification[license] ?? NO_CLASSIFICATION;
+    const classification = licenseNamesWithClassification[license];
+    if (classification === undefined) {
+      continue;
+    }
     classificationCounts[classification] =
       (classificationCounts[classification] ?? 0) + attributionCount;
   }
@@ -369,15 +369,6 @@ export function getSignalCountByClassification(
       };
     })
     .filter(({ count }) => count > 0);
-
-  if (classificationCounts[NO_CLASSIFICATION]) {
-    pieChartData.push({
-      name: text.projectStatisticsPopup.charts
-        .signalCountByClassificationPieChart.noClassification,
-      count: classificationCounts[NO_CLASSIFICATION],
-      color: classificationUnknownColor,
-    });
-  }
 
   const colorMap = Object.fromEntries(
     pieChartData.map((colorChartEntry) => [

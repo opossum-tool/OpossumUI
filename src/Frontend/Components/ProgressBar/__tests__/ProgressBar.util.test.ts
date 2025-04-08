@@ -4,19 +4,16 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import {
-  classificationUnknownColor,
-  criticalityColor,
-  OpossumColors,
-} from '../../../shared-styles';
+import { criticalityColor, OpossumColors } from '../../../shared-styles';
 import {
   ClassificationStatistics,
   ProgressBarData,
 } from '../../../types/types';
 import {
+  classificationUnknownColor,
+  getAttributionBarBackground,
   getClassificationBarBackground,
   getCriticalityBarBackground,
-  getProgressBarBackground,
   roundToAtLeastOnePercentAndNormalize,
 } from '../ProgressBar.util';
 
@@ -46,7 +43,7 @@ describe('ProgressBar helpers', () => {
       ` ${OpossumColors.pastelRed} 66% 99%,` +
       ` ${OpossumColors.lightestBlue} 99%)`;
     const actualProgressBarBackground =
-      getProgressBarBackground(testProgressBarData);
+      getAttributionBarBackground(testProgressBarData);
     expect(actualProgressBarBackground).toEqual(expectedProgressBarBackground);
   });
 
