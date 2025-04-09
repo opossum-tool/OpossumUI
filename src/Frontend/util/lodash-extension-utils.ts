@@ -80,14 +80,6 @@ export function omit<T extends object, K extends keyof T>(
   return _omit(object, keys);
 }
 
-/** Converts a string to title case, e.g., "foo bar" -> "Foo Bar" */
-export function toTitleCase(str: string) {
-  return str.replace(
-    /\w\S*/g,
-    (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase(),
-  );
-}
-
 /** Moves the first n elements of an array to the end */
 export function moveElementsToEnd<T>(arr: Array<T>, n: number): Array<T> {
   if (n > arr.length) {

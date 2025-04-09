@@ -8,7 +8,7 @@ import { UserSettings as IUserSettings } from '../../../shared/shared-types';
 import { getCheckboxBasedOnThemeAndCheckState } from '../iconHelpers';
 import { UserSettingsService } from '../user-settings-service';
 
-export interface SwitchableItemOptions {
+interface SwitchableItemOptions {
   id: string;
   label: string;
   userSettingsKey: keyof IUserSettings;

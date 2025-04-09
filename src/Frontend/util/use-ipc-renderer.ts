@@ -17,12 +17,12 @@ import {
   UserSettings,
 } from '../../shared/shared-types';
 
-export type ResetStateListener = (
+type ResetStateListener = (
   event: IpcRendererEvent,
   resetState: boolean,
 ) => void;
 
-export type SetStateListener = (
+type SetStateListener = (
   event: IpcRendererEvent,
   resourceStructure: ParsedFileContent,
 ) => void;
@@ -39,7 +39,7 @@ export type ProcessingStateChangedListener = (
   processingStateChangedEvent: ProcessingStateChangedEvent,
 ) => void;
 
-export type SetBaseURLForRootListener = (
+type SetBaseURLForRootListener = (
   event: IpcRendererEvent,
   baseURLForRootArgs: BaseURLForRootArgs,
 ) => void;
@@ -59,7 +59,7 @@ export type UserSettingsChangedListener = (
   payload: Partial<UserSettings>,
 ) => void;
 
-export type Listener =
+type Listener =
   | ResetStateListener
   | SetStateListener
   | LoggingListener

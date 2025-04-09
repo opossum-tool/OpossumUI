@@ -13,7 +13,7 @@ import {
   useIpcRenderer,
 } from './use-ipc-renderer';
 
-export interface ProcessingStatusUpdatedResult {
+interface ProcessingStatusUpdatedResult {
   processingStatusUpdatedEvents: Array<ProcessingStateUpdatedEvent>;
   resetProcessingStatusEvents: () => void;
   processing: boolean;

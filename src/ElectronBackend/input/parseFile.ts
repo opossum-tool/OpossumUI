@@ -156,7 +156,7 @@ export function parseOutputJsonFile(
   return parseOutputJsonContent(content, attributionFilePath);
 }
 
-export function parseOutputJsonContent(
+function parseOutputJsonContent(
   fileContent: string,
   filePath: fs.PathLike,
 ): ParsedOpossumOutputFile {

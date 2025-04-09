@@ -7,7 +7,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { reducer } from './reducer';
 import { AppThunkAction } from './types';
 
-export type Store = ReturnType<typeof createAppStore>;
+type Store = ReturnType<typeof createAppStore>;
 export type Action = AppThunkAction | Parameters<Store['dispatch']>[0];
 
 export function createAppStore() {

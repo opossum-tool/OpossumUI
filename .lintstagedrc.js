@@ -5,6 +5,7 @@
 
 module.exports = {
   '*': [() => 'yarn copyright-lint-check', 'prettier --write --ignore-unknown'],
+  '*': [() => 'knip'],
   '*.{ts,tsx}': 'eslint',
   '!(src/ElectronBackend/**/*)*.{ts,tsx}': () => 'tsc -p ./',
   'src/ElectronBackend/**/*.{ts,tsx}': () =>

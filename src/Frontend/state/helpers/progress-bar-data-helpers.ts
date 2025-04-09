@@ -13,7 +13,7 @@ import { OpossumColors, TREE_ROOT_FOLDER_LABEL } from '../../shared-styles';
 import { ClassificationStatistics, ProgressBarData } from '../../types/types';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 
-export function filterResourcesToAttributions(
+function filterResourcesToAttributions(
   resourcesToAttributions: ResourcesToAttributions,
   attributionIdsToRemove: Set<string>,
 ): ResourcesToAttributions {
@@ -219,7 +219,7 @@ export function getHighestCriticalityOfExternalAttributions(
   return highestCriticality;
 }
 
-export function getHighestClassificationOfExternalAttributions(
+function getHighestClassificationOfExternalAttributions(
   path: string,
   resourcesToExternalAttributions: ResourcesToAttributions,
   externalAttributions: Attributions,
@@ -286,7 +286,7 @@ export function getUpdatedProgressBarData(args: {
   return progressBarData;
 }
 
-export function getEmptyProgressBarData(
+function getEmptyProgressBarData(
   classifications: ClassificationsConfig,
 ): ProgressBarData {
   const classificationStatistics: ClassificationStatistics = {};
