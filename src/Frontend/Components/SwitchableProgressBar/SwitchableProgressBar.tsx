@@ -41,7 +41,7 @@ interface ProgressBarSwitchConfiguration {
   active: boolean;
 }
 
-export const SwitchableProcessBar: React.FC = () => {
+export const SwitchableProgressBar: React.FC = () => {
   const [userSettings] = useUserSettings();
   const showClassifications = userSettings.showClassifications;
   const showCriticality = userSettings.showCriticality;
@@ -51,34 +51,33 @@ export const SwitchableProcessBar: React.FC = () => {
     ProgressBarSwitchConfiguration
   > = {
     attribution: {
-      label: text.attributionProgressBar.selectLabel,
+      label: text.attributionBar.selectLabel,
       active: true,
     },
     criticality: {
-      label: text.criticalSignalsBar.selectLabel,
+      label: text.criticalityBar.selectLabel,
       active: showCriticality,
     },
     classification: {
-      label: text.classificationProgressBar.selectLabel,
+      label: text.classificationBar.selectLabel,
       active: showClassifications,
     },
   };
 
-  const [currentProgressBar, setcurrentProgressBar] =
+  const [currentProgressBar, setCurrentProgressBar] =
     useState<SelectedProgressBar>('attribution');
   const [progressData] = useProgressData();
 
   const handleProgressBarChange = (
     event: SelectChangeEvent<SelectedProgressBar>,
   ): void => {
-    setcurrentProgressBar(event.target.value as SelectedProgressBar);
+    setCurrentProgressBar(event.target.value as SelectedProgressBar);
   };
 
-  const effectiveCurrentProgressBar = switchableProgressBarConfiguration[
-    currentProgressBar
-  ].active
-    ? currentProgressBar
-    : 'attribution';
+  const effectiveCurrentProgressBar: SelectedProgressBar =
+    switchableProgressBarConfiguration[currentProgressBar].active
+      ? currentProgressBar
+      : 'attribution';
 
   const activeProgressBarConfigurations = Object.fromEntries(
     Object.entries(switchableProgressBarConfiguration).filter(
@@ -93,6 +92,7 @@ export const SwitchableProcessBar: React.FC = () => {
   if (!progressData) {
     return <MuiBox flex={1} />;
   }
+
   return (
     <MuiBox sx={classes.container}>
       <ProgressBar
@@ -109,13 +109,11 @@ export const SwitchableProcessBar: React.FC = () => {
           aria-label={text.selectAriaLabel}
         >
           {Object.entries(activeProgressBarConfigurations).map(
-            ([key, progressBarSwitchConfiguration]) => {
-              return (
-                <MenuItem key={key} value={key}>
-                  {progressBarSwitchConfiguration.label}
-                </MenuItem>
-              );
-            },
+            ([key, progressBarSwitchConfiguration]) => (
+              <MenuItem key={key} value={key}>
+                {progressBarSwitchConfiguration.label}
+              </MenuItem>
+            ),
           )}
         </Select>
       )}

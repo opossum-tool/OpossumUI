@@ -11,7 +11,7 @@ import { setVariable } from '../../../state/actions/variables-actions/variables-
 import { PROGRESS_DATA } from '../../../state/variables/use-progress-data';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProgressBarData } from '../../../types/types';
-import { SwitchableProcessBar } from '../SwitchableProcessBar';
+import { SwitchableProgressBar } from '../SwitchableProgressBar';
 
 const PROGRESS_BAR_DATA: ProgressBarData = {
   fileCount: 6,
@@ -28,7 +28,7 @@ const PROGRESS_BAR_DATA: ProgressBarData = {
 
 const switchableProgressBarText = text.topBar.switchableProgressBar;
 const attributionProgressBarLabel =
-  switchableProgressBarText.attributionProgressBar.ariaLabel;
+  switchableProgressBarText.attributionBar.ariaLabel;
 
 function openSelect() {
   fireEvent.mouseDown(screen.getByRole('combobox'), {
@@ -38,12 +38,9 @@ function openSelect() {
 
 function expectSelectToBeOpen() {
   expect(
-    screen.getByText(
-      switchableProgressBarText.attributionProgressBar.selectLabel,
-      {
-        selector: 'li',
-      },
-    ),
+    screen.getByText(switchableProgressBarText.attributionBar.selectLabel, {
+      selector: 'li',
+    }),
   ).toBeInTheDocument();
 }
 
@@ -55,13 +52,13 @@ async function selectEntry(selectLabel: string) {
 
 function getCriticalSignalsProgressBar() {
   return screen.getByLabelText(
-    switchableProgressBarText.criticalSignalsBar.ariaLabel,
+    switchableProgressBarText.criticalityBar.ariaLabel,
   );
 }
 
 function getAttributionProgressBar() {
   return screen.getByLabelText(
-    switchableProgressBarText.attributionProgressBar.ariaLabel,
+    switchableProgressBarText.attributionBar.ariaLabel,
   );
 }
 
@@ -76,12 +73,12 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('does not display the progress bar when no progress data available', () => {
-    renderComponent(<SwitchableProcessBar />);
+    renderComponent(<SwitchableProgressBar />);
     expect(screen.queryByLabelText(/Progress bar .*/)).not.toBeInTheDocument();
   });
 
   it('displays the progress bar when progress data available', () => {
-    renderComponent(<SwitchableProcessBar />, {
+    renderComponent(<SwitchableProgressBar />, {
       actions: [setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA)],
     });
 
@@ -91,27 +88,25 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('switches the progress bar via the select', async () => {
-    renderComponent(<SwitchableProcessBar />, {
+    renderComponent(<SwitchableProgressBar />, {
       actions: [setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA)],
     });
 
     openSelect();
     expectSelectToBeOpen();
-    await selectEntry(switchableProgressBarText.criticalSignalsBar.selectLabel);
+    await selectEntry(switchableProgressBarText.criticalityBar.selectLabel);
 
     expect(getCriticalSignalsProgressBar()).toBeInTheDocument();
 
     openSelect();
     expectSelectToBeOpen();
-    await selectEntry(
-      switchableProgressBarText.attributionProgressBar.selectLabel,
-    );
+    await selectEntry(switchableProgressBarText.attributionBar.selectLabel);
 
     expect(getAttributionProgressBar()).toBeInTheDocument();
   });
 
   it('offers all three possible progress bars by default', async () => {
-    renderComponent(<SwitchableProcessBar />, {
+    renderComponent(<SwitchableProgressBar />, {
       actions: [setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA)],
     });
 
@@ -130,7 +125,7 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('does not offer classifications if disabled', async () => {
-    renderComponent(<SwitchableProcessBar />, {
+    renderComponent(<SwitchableProgressBar />, {
       actions: [
         setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
         setUserSetting({ showClassifications: false }),
@@ -148,7 +143,7 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('does not offer criticality if disabled', async () => {
-    renderComponent(<SwitchableProcessBar />, {
+    renderComponent(<SwitchableProgressBar />, {
       actions: [
         setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
         setUserSetting({ showCriticality: false }),
@@ -166,7 +161,7 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('does not show select if only one option to select', () => {
-    renderComponent(<SwitchableProcessBar />, {
+    renderComponent(<SwitchableProgressBar />, {
       actions: [
         setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
         setUserSetting({ showCriticality: false, showClassifications: false }),

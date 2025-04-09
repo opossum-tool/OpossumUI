@@ -15,7 +15,7 @@ import { ProgressBar } from '../ProgressBar';
 async function clickOnAttributionProgressBar() {
   await userEvent.click(
     screen.getByLabelText(
-      text.topBar.switchableProgressBar.attributionProgressBar.ariaLabel,
+      text.topBar.switchableProgressBar.attributionBar.ariaLabel,
     ),
     {
       advanceTimers: jest.runOnlyPendingTimersAsync,
@@ -26,7 +26,7 @@ async function clickOnAttributionProgressBar() {
 async function hoverOverAttributionProgressBar() {
   await userEvent.hover(
     screen.getByLabelText(
-      text.topBar.switchableProgressBar.attributionProgressBar.ariaLabel,
+      text.topBar.switchableProgressBar.attributionBar.ariaLabel,
     ),
     {
       advanceTimers: jest.runOnlyPendingTimersAsync,
@@ -37,7 +37,7 @@ async function hoverOverAttributionProgressBar() {
 async function hoverOverCriticalityProgressBar() {
   await userEvent.hover(
     screen.getByLabelText(
-      text.topBar.switchableProgressBar.criticalSignalsBar.ariaLabel,
+      text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
     ),
     {
       advanceTimers: jest.runOnlyPendingTimersAsync,
@@ -48,7 +48,7 @@ async function hoverOverCriticalityProgressBar() {
 async function hoverOverClassificationProgressBar() {
   await userEvent.hover(
     screen.getByLabelText(
-      text.topBar.switchableProgressBar.classificationProgressBar.ariaLabel,
+      text.topBar.switchableProgressBar.classificationBar.ariaLabel,
     ),
     {
       advanceTimers: jest.runOnlyPendingTimersAsync,
@@ -59,7 +59,7 @@ async function hoverOverClassificationProgressBar() {
 async function clickOnCriticalityProgressBar() {
   await userEvent.click(
     screen.getByLabelText(
-      text.topBar.switchableProgressBar.criticalSignalsBar.ariaLabel,
+      text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
     ),
     {
       advanceTimers: jest.runOnlyPendingTimersAsync,
@@ -70,7 +70,7 @@ async function clickOnCriticalityProgressBar() {
 async function clickOnClassificationProgressBar() {
   await userEvent.click(
     screen.getByLabelText(
-      text.topBar.switchableProgressBar.classificationProgressBar.ariaLabel,
+      text.topBar.switchableProgressBar.classificationBar.ariaLabel,
     ),
     {
       advanceTimers: jest.runOnlyPendingTimersAsync,
@@ -262,13 +262,13 @@ describe('ProgressBar', () => {
       screen.getByText(/Number of resources with signals and no attributions/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/containing classification first: 4/),
+      screen.getByText(/containing classification "first": 4/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/containing classification second: 3/),
+      screen.getByText(/containing classification "second": 3/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/containing classification third: 2/),
+      screen.getByText(/containing classification "third": 2/),
     ).toBeInTheDocument();
     expect(screen.getByText(/without classification: 11/)).toBeInTheDocument();
   });

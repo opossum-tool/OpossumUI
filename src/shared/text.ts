@@ -195,7 +195,6 @@ export const text = {
       },
       signalCountByClassificationPieChart: {
         title: 'Signals by Classification',
-        noClassification: 'No classification',
       },
       incompleteAttributionsPieChart: {
         title: 'Incomplete Attributions',
@@ -411,17 +410,31 @@ export const text = {
     report: 'Report',
     switchableProgressBar: {
       selectAriaLabel: 'ProgressBar Switcher',
-      criticalSignalsBar: {
-        selectLabel: 'Criticalities',
-        ariaLabel: 'Progress bar for to be handled critical signals',
-      },
-      attributionProgressBar: {
+      attributionBar: {
+        intro: 'Number of resources',
         selectLabel: 'Attributions',
         ariaLabel: 'Progress bar for attribution progress',
+        filesWithManualAttribution: 'with attributions',
+        filesWithOnlyPreSelectedAttribution:
+          'with only pre-selected attributions',
+        filesWithOnlyExternalAttribution: 'with only signals',
+        filesWithNeitherAttributionsOrSignals:
+          'with neither attributions or signals',
       },
-      classificationProgressBar: {
+      criticalityBar: {
+        intro: 'Number of resources with signals and no attributions',
+        selectLabel: 'Criticalities',
+        ariaLabel: 'Progress bar for to be handled critical signals',
+        filesWithHighlyCriticalSignals: 'containing highly critical signals',
+        filesWithMediumCriticalSignals: 'containing medium critical signals',
+        filesWithOnlyNonCriticalSignals: 'containing only non-critical signals',
+      },
+      classificationBar: {
+        intro: 'Number of resources with signals and no attributions',
         selectLabel: 'Classifications',
         ariaLabel: 'Progress bar for to be handled classifications',
+        containingClassification: 'containing classification',
+        withoutClassification: 'without classification',
       },
     },
   },

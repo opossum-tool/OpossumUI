@@ -2,15 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
 import { sum } from 'lodash';
 
 import { Criticality } from '../../../shared/shared-types';
-import {
-  classificationUnknownColor,
-  criticalityColor,
-  OpossumColors,
-} from '../../shared-styles';
+import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -19,6 +14,8 @@ import {
 } from '../../state/selectors/resource-selectors';
 import { ProgressBarData } from '../../types/types';
 import { moveElementsToEnd } from '../../util/lodash-extension-utils';
+
+export const classificationUnknownColor = OpossumColors.lightestBlue;
 
 export function useOnProgressBarClick(resourceIds: Array<string>) {
   const dispatch = useAppDispatch();
@@ -42,93 +39,7 @@ export function useOnProgressBarClick(resourceIds: Array<string>) {
   };
 }
 
-export function getProgressBarTooltipText(
-  progressBarData: ProgressBarData,
-): React.ReactNode {
-  return (
-    <MuiBox>
-      Number of resources…
-      <br />
-      …with attributions:{' '}
-      {new Intl.NumberFormat().format(
-        progressBarData.filesWithManualAttributionCount,
-      )}
-      <br />
-      …with only pre-selected attributions:{' '}
-      {new Intl.NumberFormat().format(
-        progressBarData.filesWithOnlyPreSelectedAttributionCount,
-      )}
-      <br />
-      …with only signals:{' '}
-      {new Intl.NumberFormat().format(
-        progressBarData.filesWithOnlyExternalAttributionCount,
-      )}
-    </MuiBox>
-  );
-}
-
-export function getCriticalityBarTooltipText(
-  progressBarData: ProgressBarData,
-): React.ReactNode {
-  const filesWithNonCriticalExternalAttributions =
-    progressBarData.filesWithOnlyExternalAttributionCount -
-    progressBarData.filesWithHighlyCriticalExternalAttributionsCount -
-    progressBarData.filesWithMediumCriticalExternalAttributionsCount;
-  return (
-    <MuiBox>
-      Number of resources with signals and no attributions…
-      <br />
-      …containing highly critical signals:{' '}
-      {new Intl.NumberFormat().format(
-        progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
-      )}{' '}
-      <br />
-      …containing medium critical signals:{' '}
-      {new Intl.NumberFormat().format(
-        progressBarData.filesWithMediumCriticalExternalAttributionsCount,
-      )}{' '}
-      <br />
-      …containing only non-critical signals:{' '}
-      {new Intl.NumberFormat().format(filesWithNonCriticalExternalAttributions)}
-    </MuiBox>
-  );
-}
-
-export function getClassificationBarTooltipText(
-  progressBarData: ProgressBarData,
-): React.ReactNode {
-  const numberOfResourcesWithSignalsAndNoAttributionAndClassification = sum(
-    Object.values(progressBarData.classificationStatistics).map(
-      (entry) => entry.correspondingFiles.length,
-    ),
-  );
-
-  const numberOfResourcesWithSignalsAndNoAttributionAndNoClassification =
-    progressBarData.filesWithOnlyExternalAttributionCount -
-    numberOfResourcesWithSignalsAndNoAttributionAndClassification;
-  return (
-    <MuiBox>
-      Number of resources with signals and no attributions…
-      {Object.values(progressBarData.classificationStatistics)
-        .toReversed()
-        .map((classificationStatisticsEntry) => (
-          <div key={classificationStatisticsEntry.description}>
-            ...containing classification{' '}
-            {classificationStatisticsEntry.description}:{' '}
-            {classificationStatisticsEntry.correspondingFiles.length}
-          </div>
-        ))}
-      {numberOfResourcesWithSignalsAndNoAttributionAndNoClassification && (
-        <div>
-          ...without classification:{' '}
-          {numberOfResourcesWithSignalsAndNoAttributionAndNoClassification}
-        </div>
-      )}
-    </MuiBox>
-  );
-}
-
-export function getProgressBarBackground(
+export function getAttributionBarBackground(
   progressBarData: ProgressBarData,
 ): string {
   let filesWithManualAttributions: number =

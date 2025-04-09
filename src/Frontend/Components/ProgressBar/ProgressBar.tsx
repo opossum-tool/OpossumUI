@@ -5,17 +5,15 @@
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
+import { sum } from 'lodash';
 
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { ProgressBarData, SelectedProgressBar } from '../../types/types';
 import {
+  getAttributionBarBackground,
   getClassificationBarBackground,
-  getClassificationBarTooltipText,
   getCriticalityBarBackground,
-  getCriticalityBarTooltipText,
-  getProgressBarBackground,
-  getProgressBarTooltipText,
   useOnProgressBarClick,
 } from './ProgressBar.util';
 
@@ -32,13 +30,6 @@ const classes = {
   },
 };
 
-interface ProgressBarInternals {
-  tooltipText: React.ReactNode;
-  ariaLabel: string;
-  background: string;
-  onClickHandler: () => void;
-}
-
 interface ProgressBarProps {
   sx?: SxProps;
   progressBarData: ProgressBarData;
@@ -46,7 +37,7 @@ interface ProgressBarProps {
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
-  const onProgressBarClick = useOnProgressBarClick(
+  const onAttributionBarClick = useOnProgressBarClick(
     props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
   );
   const resourcesWithCriticalExternalAttributions =
@@ -74,50 +65,181 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     filesToForwardToForCriticality,
   );
 
-  const progressBarConfiguration: Record<
+  const progressBarConfigurations: Record<
     SelectedProgressBar,
-    ProgressBarInternals
+    {
+      Title: React.FC<ProgressBarData>;
+      ariaLabel: string;
+      background: string;
+      onClickHandler: () => void;
+    }
   > = {
     attribution: {
-      tooltipText: getProgressBarTooltipText(props.progressBarData),
-      ariaLabel:
-        text.topBar.switchableProgressBar.attributionProgressBar.ariaLabel,
-      background: getProgressBarBackground(props.progressBarData),
-      onClickHandler: onProgressBarClick,
+      Title: AttributionBarTooltipTitle,
+      ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
+      background: getAttributionBarBackground(props.progressBarData),
+      onClickHandler: onAttributionBarClick,
     },
     criticality: {
-      tooltipText: getCriticalityBarTooltipText(props.progressBarData),
-      ariaLabel: text.topBar.switchableProgressBar.criticalSignalsBar.ariaLabel,
+      Title: CriticalityBarTooltipTitle,
+      ariaLabel: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
       background: getCriticalityBarBackground(props.progressBarData),
       onClickHandler: onCriticalityBarClick,
     },
     classification: {
-      tooltipText: getClassificationBarTooltipText(props.progressBarData),
-      ariaLabel:
-        text.topBar.switchableProgressBar.classificationProgressBar.ariaLabel,
+      Title: ClassificationBarTooltipTitle,
+      ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
       background: getClassificationBarBackground(props.progressBarData),
       onClickHandler: onClassificationBarClick,
     },
   };
 
-  const currentProgressBarConfiguration =
-    progressBarConfiguration[props.selectedProgressBar];
+  const { ariaLabel, background, onClickHandler, Title } =
+    progressBarConfigurations[props.selectedProgressBar];
 
   return (
     <MuiBox sx={props.sx}>
-      <MuiTooltip
-        title={currentProgressBarConfiguration.tooltipText}
-        followCursor
-      >
+      <MuiTooltip title={<Title {...props.progressBarData} />} followCursor>
         <MuiBox
-          aria-label={currentProgressBarConfiguration.ariaLabel}
-          sx={{
-            ...classes.bar,
-            background: currentProgressBarConfiguration.background,
-          }}
-          onClick={currentProgressBarConfiguration.onClickHandler}
+          aria-label={ariaLabel}
+          sx={{ ...classes.bar, background }}
+          onClick={onClickHandler}
         />
       </MuiTooltip>
     </MuiBox>
+  );
+};
+
+const ProgressBarTooltipTitle: React.FC<{
+  intro: string;
+  rows: Array<{ description: string; count: number }>;
+}> = ({ intro, rows }) => {
+  return (
+    <MuiBox>
+      {`${intro}…`}
+      {rows
+        .filter((entry) => !!entry.count)
+        .map((entry) => (
+          <div key={entry.description}>
+            …{entry.description}: {new Intl.NumberFormat().format(entry.count)}
+          </div>
+        ))}
+    </MuiBox>
+  );
+};
+
+const AttributionBarTooltipTitle: React.FC<ProgressBarData> = (
+  progressBarData,
+) => {
+  return (
+    <ProgressBarTooltipTitle
+      intro={text.topBar.switchableProgressBar.attributionBar.intro}
+      rows={[
+        {
+          description:
+            text.topBar.switchableProgressBar.attributionBar
+              .filesWithManualAttribution,
+          count: progressBarData.filesWithManualAttributionCount,
+        },
+        {
+          description:
+            text.topBar.switchableProgressBar.attributionBar
+              .filesWithOnlyPreSelectedAttribution,
+          count: progressBarData.filesWithOnlyPreSelectedAttributionCount,
+        },
+        {
+          description:
+            text.topBar.switchableProgressBar.attributionBar
+              .filesWithOnlyExternalAttribution,
+          count: progressBarData.filesWithOnlyExternalAttributionCount,
+        },
+        {
+          description:
+            text.topBar.switchableProgressBar.attributionBar
+              .filesWithNeitherAttributionsOrSignals,
+          count:
+            progressBarData.fileCount -
+            progressBarData.filesWithManualAttributionCount -
+            progressBarData.filesWithOnlyPreSelectedAttributionCount -
+            progressBarData.filesWithOnlyExternalAttributionCount,
+        },
+      ]}
+    />
+  );
+};
+
+const CriticalityBarTooltipTitle: React.FC<ProgressBarData> = (
+  progressBarData,
+) => {
+  return (
+    <ProgressBarTooltipTitle
+      intro={text.topBar.switchableProgressBar.criticalityBar.intro}
+      rows={[
+        {
+          description:
+            text.topBar.switchableProgressBar.criticalityBar
+              .filesWithHighlyCriticalSignals,
+          count:
+            progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
+        },
+        {
+          description:
+            text.topBar.switchableProgressBar.criticalityBar
+              .filesWithMediumCriticalSignals,
+          count:
+            progressBarData.filesWithMediumCriticalExternalAttributionsCount,
+        },
+        {
+          description:
+            text.topBar.switchableProgressBar.criticalityBar
+              .filesWithOnlyNonCriticalSignals,
+          count:
+            progressBarData.filesWithOnlyExternalAttributionCount -
+            progressBarData.filesWithHighlyCriticalExternalAttributionsCount -
+            progressBarData.filesWithMediumCriticalExternalAttributionsCount,
+        },
+      ]}
+    />
+  );
+};
+
+const ClassificationBarTooltipTitle: React.FC<ProgressBarData> = (
+  progressBarData,
+) => {
+  const numberOfResourcesWithSignalsAndNoAttributionAndClassification = sum(
+    Object.values(progressBarData.classificationStatistics).map(
+      (entry) => entry.correspondingFiles.length,
+    ),
+  );
+  const numberOfResourcesWithSignalsAndNoAttributionAndNoClassification =
+    progressBarData.filesWithOnlyExternalAttributionCount -
+    numberOfResourcesWithSignalsAndNoAttributionAndClassification;
+
+  return (
+    <ProgressBarTooltipTitle
+      intro={text.topBar.switchableProgressBar.classificationBar.intro}
+      rows={[
+        ...Object.values(progressBarData.classificationStatistics)
+          .toReversed()
+          .map((classificationStatisticsEntry) => ({
+            description: `${
+              text.topBar.switchableProgressBar.classificationBar
+                .containingClassification
+            } "${classificationStatisticsEntry.description.toLowerCase()}"`,
+            count: classificationStatisticsEntry.correspondingFiles.length,
+          })),
+        ...(numberOfResourcesWithSignalsAndNoAttributionAndNoClassification
+          ? [
+              {
+                description:
+                  text.topBar.switchableProgressBar.classificationBar
+                    .withoutClassification,
+                count:
+                  numberOfResourcesWithSignalsAndNoAttributionAndNoClassification,
+              },
+            ]
+          : []),
+      ]}
+    />
   );
 };
