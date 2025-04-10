@@ -99,7 +99,7 @@
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.4",
     "prettier": "^3.5.3",
-    "prettier-plugin-sh": "^0.17.0",
+    "prettier-plugin-sh": "^0.17.1",
     "run-script-os": "^1.1.6",
     "start-server-and-test": "^2.0.11",
     "typescript": "^5.8.3",
