@@ -124,14 +124,6 @@ As mentioned above, the end-to-end tests can be run using `yarn test:e2e`. This 
 
 If you use VSCode, we recommend you install the [Playwright Test for VSCode extension](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright). This will allow you running individual tests from within VSCode, either by clicking the green play button next to a test, or by going to the "testing" tab in the sidebar.
 
-Note that the extension can only run the tests against a built version of the app, so you must have a valid release for your OS in your local `release` folder. In addition, you have to add the following environment variable to your `settings.json`:
-
-```json
-"playwright.env": {
-   "RELEASE": true
-}
-```
-
 If you use IntelliJ Ultimate, you can install the [Test Automation Plugin](https://plugins.jetbrains.com/plugin/20175-test-automation). This provides green play buttons next to the tests, and the possibility to run tests via the "Run" menu or tab. As for VSCode, please note, that you need to run the test against a built version of the app. Your test configuration should look similar to the one below.
 
 ![intellij playwright](./docs/intellij_playwright_plugin_test_config.png)
