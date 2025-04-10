@@ -101,14 +101,15 @@ export class MenuBar {
       await this.assertMenuItemDisabled(
         text.menu.editSubmenu.searchResourcesAll,
       );
-      await Promise.all(
-        importFileFormats.map((fileFormat) =>
-          this.assertSubMenuItemDisabled(
-            text.menu.fileSubmenu.merge,
-            text.menu.fileSubmenu.mergeSubmenu(fileFormat),
-          ),
-        ),
-      );
+
+      //need to call the asserts sequentially here, doing that in
+      //parallel via promise all somehow breaks the app object
+      for (const fileFormat of importFileFormats) {
+        await this.assertSubMenuItemDisabled(
+          text.menu.fileSubmenu.merge,
+          text.menu.fileSubmenu.mergeSubmenu(fileFormat),
+        );
+      }
     },
     initiallyDisableEntriesAreEnabled: async (): Promise<void> => {
       await this.assertMenuItemEnabled(text.menu.fileSubmenu.projectStatistics);
@@ -125,14 +126,15 @@ export class MenuBar {
       await this.assertMenuItemEnabled(
         text.menu.editSubmenu.searchResourcesAll,
       );
-      await Promise.all(
-        importFileFormats.map((fileFormat) =>
-          this.assertSubMenuItemEnabled(
-            text.menu.fileSubmenu.merge,
-            text.menu.fileSubmenu.mergeSubmenu(fileFormat),
-          ),
-        ),
-      );
+
+      //need to call the asserts sequentially here, doing that in
+      //parallel via promise all somehow breaks the app object
+      for (const fileFormat of importFileFormats) {
+        await this.assertSubMenuItemEnabled(
+          text.menu.fileSubmenu.merge,
+          text.menu.fileSubmenu.mergeSubmenu(fileFormat),
+        );
+      }
     },
 
     hasRecentlyOpenedProject: async (projectName: string): Promise<void> => {
