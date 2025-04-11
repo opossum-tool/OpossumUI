@@ -7,7 +7,9 @@
 const config = {
   testEnvironment: 'jsdom',
   resetMocks: false,
-  transformIgnorePatterns: ['/node_modules/(?!d3-*|internmap|axios)'],
+  transformIgnorePatterns: [
+    '/node_modules/(?!d3-*|internmap|axios|react-hotkeys-hook)',
+  ],
   setupFilesAfterEnv: ['./src/testing/setup-tests.ts'],
   watchAll: false,
   clearMocks: true,
