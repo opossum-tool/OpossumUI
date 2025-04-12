@@ -5578,10 +5578,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.4.4, dotenv@npm:^16.4.5, dotenv@npm:^16.4.7":
+"dotenv@npm:^16.4.4, dotenv@npm:^16.4.5":
   version: 16.4.7
   resolution: "dotenv@npm:16.4.7"
   checksum: 10/f13bfe97db88f0df4ec505eeffb8925ec51f2d56a3d0b6d916964d8b4af494e6fb1633ba5d09089b552e77ab2a25de58d70259b2c5ed45ec148221835fc99a0c
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^16.5.0":
+  version: 16.5.0
+  resolution: "dotenv@npm:16.5.0"
+  checksum: 10/e68a16834f1a41cc2dfb01563bc150668ad675e6cd09191211467b5c0806b6ecd6ec438e021aa8e01cd0e72d2b70ef4302bec7cc0fe15b6955f85230b62dc8a9
   languageName: node
   linkType: hard
 
@@ -9560,7 +9567,7 @@ __metadata:
     compare-versions: "npm:^6.1.1"
     cross-env: "npm:^7.0.3"
     dayjs: "npm:^1.11.13"
-    dotenv: "npm:^16.4.7"
+    dotenv: "npm:^16.5.0"
     dpdm: "npm:^3.14.0"
     electron: "npm:35.1.5"
     electron-builder: "npm:^26.0.12"
