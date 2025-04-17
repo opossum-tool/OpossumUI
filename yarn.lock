@@ -2820,10 +2820,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reduxjs/toolkit@npm:^2.6.1":
-  version: 2.6.1
-  resolution: "@reduxjs/toolkit@npm:2.6.1"
+"@reduxjs/toolkit@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "@reduxjs/toolkit@npm:2.7.0"
   dependencies:
+    "@standard-schema/spec": "npm:^1.0.0"
+    "@standard-schema/utils": "npm:^0.3.0"
     immer: "npm:^10.0.3"
     redux: "npm:^5.0.1"
     redux-thunk: "npm:^3.1.0"
@@ -2836,7 +2838,7 @@ __metadata:
       optional: true
     react-redux:
       optional: true
-  checksum: 10/62ad00b875115eb2fb5b776665d2dbe71b1ad98f4342f409c67dfb27bd0cd7a13dffd7343bee6f232d0498429361f95541993bb2ecd747ad09a55069bc43303e
+  checksum: 10/cc264efc95f9ebeafa469bf1040d106a33768a802e6f46aa678bf9f26822d049c18b5f10864aa8badb2e62febe58e242860256174528e62b09e8f897d32cd182
   languageName: node
   linkType: hard
 
@@ -3032,6 +3034,20 @@ __metadata:
   dependencies:
     "@sinonjs/commons": "npm:^3.0.0"
   checksum: 10/78155c7bd866a85df85e22028e046b8d46cf3e840f72260954f5e3ed5bd97d66c595524305a6841ffb3f681a08f6e5cef572a2cce5442a8a232dc29fb409b83e
+  languageName: node
+  linkType: hard
+
+"@standard-schema/spec@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@standard-schema/spec@npm:1.0.0"
+  checksum: 10/aee780cc1431888ca4b9aba9b24ffc8f3073fc083acc105e3951481478a2f4dc957796931b2da9e2d8329584cf211e4542275f188296c1cdff3ed44fd93a8bc8
+  languageName: node
+  linkType: hard
+
+"@standard-schema/utils@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@standard-schema/utils@npm:0.3.0"
+  checksum: 10/7084f875d322792f2e0a5904009434c8374b9345b09ba89828b68fd56fa3c2b366d35bf340d9e8c72736ef01793c2f70d350c372ed79845dc3566c58d34b4b51
   languageName: node
   linkType: hard
 
@@ -9637,7 +9653,7 @@ __metadata:
     "@mui/system": "npm:^7.0.2"
     "@mui/utils": "npm:^7.0.2"
     "@playwright/test": "npm:^1.51.1"
-    "@reduxjs/toolkit": "npm:^2.6.1"
+    "@reduxjs/toolkit": "npm:^2.7.0"
     "@tanstack/eslint-plugin-query": "npm:^5.73.3"
     "@tanstack/react-query": "npm:^5.74.3"
     "@testing-library/dom": "npm:^10.4.0"
