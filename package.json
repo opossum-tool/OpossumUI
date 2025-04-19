@@ -19,7 +19,7 @@
     "chroma-js": "^3.1.2",
     "compare-versions": "^6.1.1",
     "dayjs": "^1.11.13",
-    "electron-log": "^5.3.3",
+    "electron-log": "^5.3.4",
     "electron-settings": "^4.0.4",
     "fast-csv": "^5.0.2",
     "fflate": "^0.8.2",
