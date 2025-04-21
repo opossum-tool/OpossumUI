@@ -3,10 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { fixupPluginRules } from '@eslint/compat';
-import {
-  convertIgnorePatternToMinimatch,
-  includeIgnoreFile,
-} from '@eslint/compat';
+import { includeIgnoreFile } from '@eslint/compat';
 import eslint from '@eslint/js';
 import eslintPluginQuery from '@tanstack/eslint-plugin-query';
 import eslintConfigFilenames from 'eslint-plugin-filenames-simple';
