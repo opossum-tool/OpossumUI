@@ -5726,19 +5726,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"easy-table@npm:1.2.0":
-  version: 1.2.0
-  resolution: "easy-table@npm:1.2.0"
-  dependencies:
-    ansi-regex: "npm:^5.0.1"
-    wcwidth: "npm:^1.0.1"
-  dependenciesMeta:
-    wcwidth:
-      optional: true
-  checksum: 10/0d1be7cd9419cd1b56ca5a978646b3cff241ccd8cf95bdb2742f36854084b3aef2e9af6ec14142855aa80e4cab1f4baad0f610a99c77509f23676b8330730177
-  languageName: node
-  linkType: hard
-
 "ejs@npm:^3.1.8":
   version: 3.1.9
   resolution: "ejs@npm:3.1.9"
@@ -8651,12 +8638,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knip@npm:^5.51.0":
-  version: 5.51.0
-  resolution: "knip@npm:5.51.0"
+"knip@npm:^5.51.1":
+  version: 5.52.0
+  resolution: "knip@npm:5.52.0"
   dependencies:
     "@nodelib/fs.walk": "npm:^1.2.3"
-    easy-table: "npm:1.2.0"
     enhanced-resolve: "npm:^5.18.1"
     fast-glob: "npm:^3.3.3"
     jiti: "npm:^2.4.2"
@@ -8675,7 +8661,7 @@ __metadata:
   bin:
     knip: bin/knip.js
     knip-bun: bin/knip-bun.js
-  checksum: 10/00034e028e4381ba5b541a9768839963f9745364a01504e4d5dbd8d45d1d0137fbb60423b4efea7caeba35bffcb8c93ed4f6989aaebf01f2085c861b044583ce
+  checksum: 10/c651e854d886043b00901d6e104444608ed3762421e6e4ab15cca40ebee4c68e4e0e19acc3909e8b4b5042769487d3ad043069fa8f8c55da6a84e6e5a364e3e5
   languageName: node
   linkType: hard
 
@@ -9702,7 +9688,7 @@ __metadata:
     jest-watch-typeahead: "npm:^2.2.2"
     js-yaml: "npm:^4.1.0"
     jsonschema: "npm:^1.5.0"
-    knip: "npm:^5.51.0"
+    knip: "npm:^5.51.1"
     lint-staged: "npm:^15.5.1"
     lodash: "npm:^4.17.21"
     mkdirp: "npm:^3.0.1"
