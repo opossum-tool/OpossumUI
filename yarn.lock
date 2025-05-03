@@ -9924,7 +9924,7 @@ __metadata:
     react-hot-toast: "npm:^2.5.2"
     react-hotkeys-hook: "npm:^5.0.1"
     react-redux: "npm:^9.2.0"
-    react-virtuoso: "npm:4.12.6"
+    react-virtuoso: "npm:4.12.7"
     recharts: "npm:^2.15.3"
     run-script-os: "npm:^1.1.6"
     spdx-license-ids: "npm:^3.0.21"
@@ -10603,13 +10603,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-virtuoso@npm:4.12.6":
-  version: 4.12.6
-  resolution: "react-virtuoso@npm:4.12.6"
+"react-virtuoso@npm:4.12.7":
+  version: 4.12.7
+  resolution: "react-virtuoso@npm:4.12.7"
   peerDependencies:
     react: ">=16 || >=17 || >= 18 || >= 19"
     react-dom: ">=16 || >=17 || >= 18 || >=19"
-  checksum: 10/97e388f0a5df90a8e5410e6c9e37458bec322a9b3b84a4bdf08154584b47e8ef72699aca40cb45568cf7243958dd00e8687b755eadb1f7989fd1899c6dc2d823
+  checksum: 10/9c6eeaa351d2ec2b489764065d47a0cc92867ed77f354c9364cabcb74001b13528fdf5dd4efa41ef94157cc8a13b924ed04d2626b90e819dbd3301e65758faee
   languageName: node
   linkType: hard
 
