@@ -69,7 +69,6 @@ export function DiffPopup({
   return (
     <NotificationPopup
       header={text.diffPopup.title}
-      content={renderDiffView()}
       leftButtonConfig={{
         disabled: isEqual(
           getComparableAttributes(bufferPackageInfo),
@@ -108,7 +107,9 @@ export function DiffPopup({
       background={'lightestBlue'}
       fullWidth={true}
       aria-label={'diff popup'}
-    />
+    >
+      {renderDiffView()}
+    </NotificationPopup>
   );
 
   function renderDiffView() {
