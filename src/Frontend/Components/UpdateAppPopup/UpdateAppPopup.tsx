@@ -26,7 +26,6 @@ export function UpdateAppPopup() {
 
   return (
     <NotificationPopup
-      content={renderContent()}
       header={text.updateAppPopup.title}
       isOpen
       width={600}
@@ -36,7 +35,9 @@ export function UpdateAppPopup() {
       }}
       onBackdropClick={handleClose}
       onEscapeKeyDown={handleClose}
-    />
+    >
+      {renderContent()}
+    </NotificationPopup>
   );
 
   function renderContent() {

@@ -88,7 +88,6 @@ export const ConfirmSavePopup: React.FC<Props> = ({
 
   return (
     <StyledNotificationPopup
-      content={renderContent()}
       header={
         areAllAttributionsPreselected
           ? text.saveAttributionsPopup.titleConfirm
@@ -124,7 +123,9 @@ export const ConfirmSavePopup: React.FC<Props> = ({
       isOpen={open}
       aria-label={'confirm save popup'}
       width={580}
-    />
+    >
+      {renderContent()}
+    </StyledNotificationPopup>
   );
 
   function renderContent() {

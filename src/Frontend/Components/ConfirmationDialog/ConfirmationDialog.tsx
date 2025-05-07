@@ -112,7 +112,6 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 
   return (
     <NotificationPopup
-      content={message}
       header={title}
       isOpen={open}
       rightButtonConfig={{
@@ -125,6 +124,8 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         onClick: () => resolveRef.current?.(true),
       }}
       aria-label={'confirmation dialog'}
-    />
+    >
+      {message}
+    </NotificationPopup>
   );
 };

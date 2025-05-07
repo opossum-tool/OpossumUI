@@ -15,7 +15,6 @@ describe('NotificationPopup', () => {
 
     render(
       <NotificationPopup
-        content={'content text'}
         header={'header text'}
         leftButtonConfig={{
           onClick: onLeftButtonClick,
@@ -34,7 +33,9 @@ describe('NotificationPopup', () => {
           buttonText: 'centerRightButtonText',
         }}
         isOpen={true}
-      />,
+      >
+        content text
+      </NotificationPopup>,
     );
 
     expect(screen.getByText('header text')).toBeInTheDocument();
@@ -52,11 +53,9 @@ describe('NotificationPopup', () => {
 
   it('renders open popup with component', () => {
     render(
-      <NotificationPopup
-        content={<div>{'test component'}</div>}
-        header={'header text'}
-        isOpen={true}
-      />,
+      <NotificationPopup header={'header text'} isOpen={true}>
+        <div>test component</div>
+      </NotificationPopup>,
     );
 
     expect(screen.getByText('header text')).toBeInTheDocument();
@@ -67,11 +66,12 @@ describe('NotificationPopup', () => {
     const onEscapeKeyDown = jest.fn();
     render(
       <NotificationPopup
-        content={<div>{'test component'}</div>}
         header={'header text'}
         isOpen={true}
         onEscapeKeyDown={onEscapeKeyDown}
-      />,
+      >
+        <div>{'test component'}</div>
+      </NotificationPopup>,
     );
 
     fireEvent.keyDown(screen.getByText('test component'), {
