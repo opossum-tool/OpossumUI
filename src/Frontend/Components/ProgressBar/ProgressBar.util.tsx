@@ -15,6 +15,13 @@ import {
 import { ProgressBarData } from '../../types/types';
 import { moveElementsToEnd } from '../../util/lodash-extension-utils';
 
+type Color = string;
+
+export interface ProgressBarStep {
+  widthInPercent: number;
+  color: Color;
+}
+
 export const classificationUnknownColor = OpossumColors.lightestBlue;
 
 export function useOnProgressBarClick(resourceIds: Array<string>) {
@@ -39,9 +46,9 @@ export function useOnProgressBarClick(resourceIds: Array<string>) {
   };
 }
 
-export function getAttributionBarBackground(
+export function calculateAttributionBarSteps(
   progressBarData: ProgressBarData,
-): string {
+): Array<ProgressBarStep> {
   let filesWithManualAttributions: number =
     (progressBarData.filesWithManualAttributionCount /
       progressBarData.fileCount) *
@@ -72,28 +79,30 @@ export function getAttributionBarBackground(
     filesWithNothing,
   ]);
 
-  const filesWithPreselectedOrManualAttributions: number =
-    filesWithManualAttributions + filesWithOnlyPreselectedAttributions;
-  const allFilesWithAttributions: number =
-    filesWithPreselectedOrManualAttributions +
-    filesWithOnlyExternalAttributions;
-
-  return (
-    'linear-gradient(to right,' +
-    ` ${OpossumColors.pastelDarkGreen} ${filesWithManualAttributions}%,` +
-    ` ${OpossumColors.pastelLightGreen} ${filesWithManualAttributions}%,` +
-    ` ${OpossumColors.pastelMiddleGreen} ${filesWithPreselectedOrManualAttributions}%,` +
-    ` ${OpossumColors.pastelRed} ${filesWithPreselectedOrManualAttributions}% ${allFilesWithAttributions}%,` +
-    ` ${OpossumColors.lightestBlue} ${allFilesWithAttributions}%)`
-  );
+  return [
+    {
+      widthInPercent: filesWithManualAttributions,
+      color: OpossumColors.pastelDarkGreen,
+    },
+    {
+      widthInPercent: filesWithOnlyPreselectedAttributions,
+      color: OpossumColors.pastelMiddleGreen,
+    },
+    {
+      widthInPercent: filesWithOnlyExternalAttributions,
+      color: OpossumColors.pastelRed,
+    },
+    { widthInPercent: filesWithNothing, color: OpossumColors.lightestBlue },
+  ];
 }
 
-export function getCriticalityBarBackground(
+export function calculateCriticalityBarSteps(
   progressBarData: ProgressBarData,
-): string {
+): Array<ProgressBarStep> {
   if (progressBarData.filesWithOnlyExternalAttributionCount === 0) {
-    return `linear-gradient(to right, ${OpossumColors.pastelDarkGreen} 0% 100%)`;
+    return [{ widthInPercent: 100, color: OpossumColors.pastelDarkGreen }];
   }
+
   let filesWithHighlyCriticalExternalAttributions =
     (progressBarData.filesWithHighlyCriticalExternalAttributionsCount /
       progressBarData.filesWithOnlyExternalAttributionCount) *
@@ -116,42 +125,30 @@ export function getCriticalityBarBackground(
     filesWithMediumCriticalExternalAttributions,
     filesWithNonCriticalAttributions,
   ]);
-  const filesWithHighOrMediumCriticalExternalAttributions: number =
-    filesWithHighlyCriticalExternalAttributions +
-    filesWithMediumCriticalExternalAttributions;
 
-  return (
-    'linear-gradient(to right,' +
-    ` ${criticalityColor[Criticality.High]} ${filesWithHighlyCriticalExternalAttributions}%,` +
-    ` ${criticalityColor[Criticality.Medium]} ${filesWithHighlyCriticalExternalAttributions}% ${filesWithHighOrMediumCriticalExternalAttributions}%,` +
-    ` ${OpossumColors.lightestBlue} ${filesWithHighOrMediumCriticalExternalAttributions}%)`
-  );
+  return [
+    {
+      widthInPercent: filesWithHighlyCriticalExternalAttributions,
+      color: criticalityColor[Criticality.High],
+    },
+    {
+      widthInPercent: filesWithMediumCriticalExternalAttributions,
+      color: criticalityColor[Criticality.Medium],
+    },
+    {
+      widthInPercent: filesWithNonCriticalAttributions,
+      color: OpossumColors.lightestBlue,
+    },
+  ];
 }
 
-type Color = string;
-
-interface ProgressBarStep {
-  widthInPercent: number;
-  color: Color;
-}
-
-function roundPercentagesToAtLeastOnePercentAndNormalize(
-  progressBarSteps: Array<ProgressBarStep>,
-): Array<ProgressBarStep> {
-  const percentages = roundToAtLeastOnePercentAndNormalize(
-    progressBarSteps.map((step) => step.widthInPercent),
-  );
-  return progressBarSteps.map((progressBarStep, index) => {
-    return {
-      color: progressBarStep.color,
-      widthInPercent: percentages[index],
-    };
-  });
-}
-
-function calculateProgressBarSteps(
+export function calculateClassificationBarSteps(
   progressBarData: ProgressBarData,
 ): Array<ProgressBarStep> {
+  if (progressBarData.filesWithOnlyExternalAttributionCount === 0) {
+    return [{ widthInPercent: 100, color: OpossumColors.pastelDarkGreen }];
+  }
+
   const classificationStatistics = progressBarData.classificationStatistics;
   const progressBarSteps = Object.values(classificationStatistics)
     .reverse()
@@ -175,9 +172,13 @@ function calculateProgressBarSteps(
   return roundPercentagesToAtLeastOnePercentAndNormalize(progressBarSteps);
 }
 
-function createBackgroundFromProgressBarSteps(
+export function createBackgroundFromProgressBarSteps(
   progressBarSteps: Array<ProgressBarStep>,
 ) {
+  if (progressBarSteps.length === 1) {
+    return progressBarSteps[0].color;
+  }
+
   let backgroundColor = 'linear-gradient(to right, ';
   let currentPercentage = 0;
   const backgroundSteps: Array<string> = [];
@@ -190,16 +191,6 @@ function createBackgroundFromProgressBarSteps(
   backgroundColor += backgroundSteps.join(' , ');
   backgroundColor += ' )';
   return backgroundColor;
-}
-
-export function getClassificationBarBackground(
-  progressBarData: ProgressBarData,
-) {
-  if (progressBarData.filesWithOnlyExternalAttributionCount === 0) {
-    return `${OpossumColors.pastelDarkGreen}`;
-  }
-  const progressBarSteps = calculateProgressBarSteps(progressBarData);
-  return createBackgroundFromProgressBarSteps(progressBarSteps);
 }
 
 // We want to round everything > 0 to at least one percent so all possible segments of
@@ -219,4 +210,15 @@ export function roundToAtLeastOnePercentAndNormalize(
     roundedNumbers[maxIdx] -= differenceToExpectedSum;
   }
   return roundedNumbers;
+}
+
+function roundPercentagesToAtLeastOnePercentAndNormalize(
+  progressBarSteps: Array<ProgressBarStep>,
+): Array<ProgressBarStep> {
+  const percentages = roundToAtLeastOnePercentAndNormalize(
+    progressBarSteps.map((step) => step.widthInPercent),
+  );
+  return progressBarSteps.map((progressBarStep, index) => {
+    return { color: progressBarStep.color, widthInPercent: percentages[index] };
+  });
 }
