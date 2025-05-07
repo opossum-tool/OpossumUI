@@ -11,12 +11,8 @@ const [resourceName] = faker.opossum.resourceName();
 test.use({
   data: {
     inputData: faker.opossum.inputData({
-      resources: faker.opossum.resources({
-        [resourceName]: 1,
-      }),
-      metadata: faker.opossum.metadata({
-        projectId: 'test_project',
-      }),
+      resources: faker.opossum.resources({ [resourceName]: 1 }),
+      metadata: faker.opossum.metadata({ projectId: 'test_project' }),
     }),
     outputData: faker.opossum.outputData({}),
   },
