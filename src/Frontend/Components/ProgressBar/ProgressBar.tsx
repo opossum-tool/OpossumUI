@@ -11,9 +11,11 @@ import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { ProgressBarData, SelectedProgressBar } from '../../types/types';
 import {
-  getAttributionBarBackground,
-  getClassificationBarBackground,
-  getCriticalityBarBackground,
+  calculateAttributionBarSteps,
+  calculateClassificationBarSteps,
+  calculateCriticalityBarSteps,
+  createBackgroundFromProgressBarSteps,
+  ProgressBarStep,
   useOnProgressBarClick,
 } from './ProgressBar.util';
 
@@ -23,10 +25,7 @@ const classes = {
     border: `2px solid ${OpossumColors.white}`,
     marginTop: '2px',
     height: '20px',
-    '&:hover': {
-      cursor: 'pointer',
-      opacity: 0.75,
-    },
+    '&:hover': { cursor: 'pointer', opacity: 0.75 },
   },
 };
 
@@ -70,31 +69,31 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     {
       Title: React.FC<ProgressBarData>;
       ariaLabel: string;
-      background: string;
+      steps: Array<ProgressBarStep>;
       onClickHandler: () => void;
     }
   > = {
     attribution: {
       Title: AttributionBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
-      background: getAttributionBarBackground(props.progressBarData),
+      steps: calculateAttributionBarSteps(props.progressBarData),
       onClickHandler: onAttributionBarClick,
     },
     criticality: {
       Title: CriticalityBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
-      background: getCriticalityBarBackground(props.progressBarData),
+      steps: calculateCriticalityBarSteps(props.progressBarData),
       onClickHandler: onCriticalityBarClick,
     },
     classification: {
       Title: ClassificationBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
-      background: getClassificationBarBackground(props.progressBarData),
+      steps: calculateClassificationBarSteps(props.progressBarData),
       onClickHandler: onClassificationBarClick,
     },
   };
 
-  const { ariaLabel, background, onClickHandler, Title } =
+  const { ariaLabel, steps, onClickHandler, Title } =
     progressBarConfigurations[props.selectedProgressBar];
 
   return (
@@ -102,7 +101,10 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       <MuiTooltip title={<Title {...props.progressBarData} />} followCursor>
         <MuiBox
           aria-label={ariaLabel}
-          sx={{ ...classes.bar, background }}
+          sx={{
+            ...classes.bar,
+            background: createBackgroundFromProgressBarSteps(steps),
+          }}
           onClick={onClickHandler}
         />
       </MuiTooltip>
