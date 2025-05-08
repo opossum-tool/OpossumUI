@@ -84,30 +84,6 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       width={'80vw'}
       minWidth={'300px'}
       maxWidth={'700px'}
-      content={
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <MuiTypography>{text.importDialog.explanationText[0]}</MuiTypography>
-          <MuiTypography sx={{ marginBottom: '10px' }}>
-            {text.importDialog.explanationText[1]}
-          </MuiTypography>
-          <FilePathInput
-            label={text.importDialog.inputFilePath.textFieldLabel(
-              fileFormat,
-              !!inputFilePath,
-            )}
-            text={inputFilePath}
-            onClick={selectInputFilePath}
-            tooltipProps={{ placement: 'top' }}
-          />
-          <FilePathInput
-            label={text.importDialog.opossumFilePath.textFieldLabel(
-              !!opossumFilePath,
-            )}
-            text={opossumFilePath}
-            onClick={selectOpossumFilePath}
-          />
-        </div>
-      }
       isOpen={true}
       customAction={
         processingStatusUpdatedEvents.length ? (
@@ -120,9 +96,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
             isInProgress={processing}
             showDate={false}
             useEllipsis={true}
-            sx={{
-              marginLeft: '10px',
-            }}
+            sx={{ marginLeft: '10px' }}
           />
         ) : undefined
       }
@@ -138,6 +112,29 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         disabled: processing,
       }}
       aria-label={'import dialog'}
-    />
+    >
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <MuiTypography>{text.importDialog.explanationText[0]}</MuiTypography>
+        <MuiTypography sx={{ marginBottom: '10px' }}>
+          {text.importDialog.explanationText[1]}
+        </MuiTypography>
+        <FilePathInput
+          label={text.importDialog.inputFilePath.textFieldLabel(
+            fileFormat,
+            !!inputFilePath,
+          )}
+          text={inputFilePath}
+          onClick={selectInputFilePath}
+          tooltipProps={{ placement: 'top' }}
+        />
+        <FilePathInput
+          label={text.importDialog.opossumFilePath.textFieldLabel(
+            !!opossumFilePath,
+          )}
+          text={opossumFilePath}
+          onClick={selectOpossumFilePath}
+        />
+      </div>
+    </NotificationPopup>
   );
 };

@@ -57,7 +57,6 @@ export const ConfirmReplacePopup = ({
 
   return (
     <StyledNotificationPopup
-      content={renderContent()}
       header={text.replaceAttributionsPopup.title}
       leftButtonConfig={{
         onClick: handleReplace,
@@ -72,7 +71,9 @@ export const ConfirmReplacePopup = ({
       isOpen={open}
       aria-label={'confirm replace popup'}
       width={500}
-    />
+    >
+      {renderContent()}
+    </StyledNotificationPopup>
   );
 
   function renderContent() {

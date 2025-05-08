@@ -59,20 +59,6 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
       width={'80vw'}
       minWidth={'300px'}
       maxWidth={'730px'}
-      content={
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <MuiTypography>{text.mergeDialog.explanationText}</MuiTypography>
-          <MuiTypography>{text.mergeDialog.warningText}</MuiTypography>
-          <FilePathInput
-            label={text.mergeDialog.inputFilePath.textFieldLabel(
-              fileFormat,
-              !!inputFilePath,
-            )}
-            text={inputFilePath}
-            onClick={selectInputFilePath}
-          />
-        </div>
-      }
       isOpen={true}
       customAction={
         processingStatusUpdatedEvents.length ? (
@@ -85,9 +71,7 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
             isInProgress={processing}
             showDate={false}
             useEllipsis={true}
-            sx={{
-              marginLeft: '10px',
-            }}
+            sx={{ marginLeft: '10px' }}
           />
         ) : undefined
       }
@@ -103,6 +87,19 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
         disabled: processing,
       }}
       aria-label={'merge dialog'}
-    />
+    >
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <MuiTypography>{text.mergeDialog.explanationText}</MuiTypography>
+        <MuiTypography>{text.mergeDialog.warningText}</MuiTypography>
+        <FilePathInput
+          label={text.mergeDialog.inputFilePath.textFieldLabel(
+            fileFormat,
+            !!inputFilePath,
+          )}
+          text={inputFilePath}
+          onClick={selectInputFilePath}
+        />
+      </div>
+    </NotificationPopup>
   );
 };

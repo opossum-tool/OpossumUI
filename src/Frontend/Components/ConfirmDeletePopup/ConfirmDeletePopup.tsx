@@ -70,7 +70,6 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
 
   return (
     <StyledNotificationPopup
-      content={renderContent()}
       header={text.deleteAttributionsPopup.title}
       centerLeftButtonConfig={{
         onClick: handleDelete,
@@ -97,7 +96,9 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       isOpen={open}
       aria-label={'confirm delete popup'}
       width={580}
-    />
+    >
+      {renderContent()}
+    </StyledNotificationPopup>
   );
 
   function renderContent() {
