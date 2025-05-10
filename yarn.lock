@@ -3117,10 +3117,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reteps/dockerfmt@npm:^0.3.2":
-  version: 0.3.5
-  resolution: "@reteps/dockerfmt@npm:0.3.5"
-  checksum: 10/3d0fc2616158560c0c89447b709a1b0d9f5f67bedbe98620dec3064d2e370e8962113c7c787288596ce5bf810d88121bdbf8f3b7b5d16254301647977d8b5d25
+"@reteps/dockerfmt@npm:^0.3.5":
+  version: 0.3.6
+  resolution: "@reteps/dockerfmt@npm:0.3.6"
+  checksum: 10/2664c830f0c0c577ef37f9fe6f722d4e0086bf065f51dd4cd992d6df96aba859c0e6cf46e1ddb9853d6969e8cc03eafa4265d4e3bfe44338b7266843c7da41b7
   languageName: node
   linkType: hard
 
@@ -10264,7 +10264,7 @@ __metadata:
     object-hash: "npm:^3.0.0"
     packageurl-js: "npm:^2.0.1"
     prettier: "npm:^3.5.3"
-    prettier-plugin-sh: "npm:^0.17.2"
+    prettier-plugin-sh: "npm:^0.17.3"
     proxy-memoize: "npm:^3.0.1"
     re-resizable: "npm:^6.11.2"
     react: "npm:^19.1.0"
@@ -10649,15 +10649,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-sh@npm:^0.17.2":
-  version: 0.17.2
-  resolution: "prettier-plugin-sh@npm:0.17.2"
+"prettier-plugin-sh@npm:^0.17.3":
+  version: 0.17.4
+  resolution: "prettier-plugin-sh@npm:0.17.4"
   dependencies:
-    "@reteps/dockerfmt": "npm:^0.3.2"
+    "@reteps/dockerfmt": "npm:^0.3.5"
     sh-syntax: "npm:^0.5.6"
   peerDependencies:
     prettier: ^3.0.3
-  checksum: 10/cb836f6321118470b15881d21e8f3cd4b122fd5f6d965a399a2e3ab98b166f965943ca0e215db5d4f5896c0c79d456f0eee9c20538289c38782586321f2435e8
+  checksum: 10/cc2790544241837b1665b29c0a59c15d3615b2509b6afe9d6f692138da8af6910972bd762c1399a4f493501454486887f40a1c27e21ec1e5a0c20a5672eafb7a
   languageName: node
   linkType: hard
 
