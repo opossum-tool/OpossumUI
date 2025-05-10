@@ -48,5 +48,11 @@ export class ImportDialog {
     showsError: async (): Promise<void> => {
       await expect(this.errorIcon).toBeVisible();
     },
+    inputFileSelectionIsDisabled: async (): Promise<void> => {
+      await expect(this.inputFileSelection).toBeDisabled();
+    },
+    opossumFileSelectionIsDisabled: async (): Promise<void> => {
+      await expect(this.opossumFileSelection).toBeDisabled();
+    },
   };
 }
