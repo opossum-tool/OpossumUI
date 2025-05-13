@@ -10,74 +10,82 @@ import {
   ProgressBarData,
 } from '../../../types/types';
 import {
+  calculateAttributionBarSteps,
+  calculateClassificationBarSteps,
+  calculateCriticalityBarSteps,
   classificationUnknownColor,
-  getAttributionBarBackground,
-  getClassificationBarBackground,
-  getCriticalityBarBackground,
+  createBackgroundFromProgressBarSteps,
   roundToAtLeastOnePercentAndNormalize,
 } from '../ProgressBar.util';
 
 describe('ProgressBar helpers', () => {
-  it('getProgressBarBackground returns correct distribution', () => {
-    const testProgressBarData: ProgressBarData = {
-      fileCount: 9,
-      filesWithManualAttributionCount: 3,
-      filesWithOnlyPreSelectedAttributionCount: 3,
-      filesWithOnlyExternalAttributionCount: 3,
-      resourcesWithNonInheritedExternalAttributionOnly: [
-        'file1',
-        'file2',
-        'file3',
-      ],
-      filesWithHighlyCriticalExternalAttributionsCount: 1,
-      filesWithMediumCriticalExternalAttributionsCount: 2,
-      resourcesWithHighlyCriticalExternalAttributions: ['file1'],
-      resourcesWithMediumCriticalExternalAttributions: ['file2', 'file3'],
-      classificationStatistics: {},
-    };
-    const expectedProgressBarBackground: string =
-      'linear-gradient(to right,' +
-      ` ${OpossumColors.pastelDarkGreen} 33%,` +
-      ` ${OpossumColors.pastelLightGreen} 33%,` +
-      ` ${OpossumColors.pastelMiddleGreen} 66%,` +
-      ` ${OpossumColors.pastelRed} 66% 99%,` +
-      ` ${OpossumColors.lightestBlue} 99%)`;
-    const actualProgressBarBackground =
-      getAttributionBarBackground(testProgressBarData);
-    expect(actualProgressBarBackground).toEqual(expectedProgressBarBackground);
-  });
+  describe('createBackgroundFromProgressBarSteps', () => {
+    it('gets correct background for attribution bar', () => {
+      const testProgressBarData: ProgressBarData = {
+        fileCount: 9,
+        filesWithManualAttributionCount: 3,
+        filesWithOnlyPreSelectedAttributionCount: 3,
+        filesWithOnlyExternalAttributionCount: 3,
+        resourcesWithNonInheritedExternalAttributionOnly: [
+          'file1',
+          'file2',
+          'file3',
+        ],
+        filesWithHighlyCriticalExternalAttributionsCount: 1,
+        filesWithMediumCriticalExternalAttributionsCount: 2,
+        resourcesWithHighlyCriticalExternalAttributions: ['file1'],
+        resourcesWithMediumCriticalExternalAttributions: ['file2', 'file3'],
+        classificationStatistics: {},
+      };
+      const expectedProgressBarBackground: string =
+        'linear-gradient(to right,' +
+        ` ${OpossumColors.pastelDarkGreen} 0% 33% ,` +
+        ` ${OpossumColors.pastelMiddleGreen} 33% 66% ,` +
+        ` ${OpossumColors.pastelRed} 66% 99% ,` +
+        ` ${OpossumColors.lightestBlue} 99% 100% )`;
 
-  it('getCriticalityBarBackground returns correct distribution', () => {
-    const testProgressBarData: ProgressBarData = {
-      fileCount: 9,
-      filesWithManualAttributionCount: 3,
-      filesWithOnlyPreSelectedAttributionCount: 3,
-      filesWithOnlyExternalAttributionCount: 3,
-      resourcesWithNonInheritedExternalAttributionOnly: [
-        'file1',
-        'file2',
-        'file3',
-      ],
-      filesWithHighlyCriticalExternalAttributionsCount: 1,
-      filesWithMediumCriticalExternalAttributionsCount: 1,
-      resourcesWithHighlyCriticalExternalAttributions: ['file1'],
-      resourcesWithMediumCriticalExternalAttributions: ['file2'],
-      classificationStatistics: {},
-    };
-    const expectedCriticalityBarBackground: string =
-      'linear-gradient(to right,' +
-      ` ${criticalityColor[Criticality.High]} 34%,` +
-      ` ${criticalityColor[Criticality.Medium]} 34% 67%,` +
-      ` ${OpossumColors.lightestBlue} 67%)`;
-    const actualCriticalityBarBackground =
-      getCriticalityBarBackground(testProgressBarData);
-    expect(actualCriticalityBarBackground).toEqual(
-      expectedCriticalityBarBackground,
-    );
-  });
+      const attributionBarSteps =
+        calculateAttributionBarSteps(testProgressBarData);
+      const actualProgressBarBackground =
+        createBackgroundFromProgressBarSteps(attributionBarSteps);
+      expect(actualProgressBarBackground).toEqual(
+        expectedProgressBarBackground,
+      );
+    });
 
-  describe('getClassificationBarBackground', () => {
-    it('returns correct background color fur multiple classifications', () => {
+    it('gets correct background for criticality bar', () => {
+      const testProgressBarData: ProgressBarData = {
+        fileCount: 9,
+        filesWithManualAttributionCount: 3,
+        filesWithOnlyPreSelectedAttributionCount: 3,
+        filesWithOnlyExternalAttributionCount: 3,
+        resourcesWithNonInheritedExternalAttributionOnly: [
+          'file1',
+          'file2',
+          'file3',
+        ],
+        filesWithHighlyCriticalExternalAttributionsCount: 1,
+        filesWithMediumCriticalExternalAttributionsCount: 1,
+        resourcesWithHighlyCriticalExternalAttributions: ['file1'],
+        resourcesWithMediumCriticalExternalAttributions: ['file2'],
+        classificationStatistics: {},
+      };
+      const expectedCriticalityBarBackground: string =
+        'linear-gradient(to right,' +
+        ` ${criticalityColor[Criticality.High]} 0% 34% ,` +
+        ` ${criticalityColor[Criticality.Medium]} 34% 67% ,` +
+        ` ${OpossumColors.lightestBlue} 67% 100% )`;
+
+      const criticalityBarSteps =
+        calculateCriticalityBarSteps(testProgressBarData);
+      const actualCriticalityBarBackground =
+        createBackgroundFromProgressBarSteps(criticalityBarSteps);
+      expect(actualCriticalityBarBackground).toEqual(
+        expectedCriticalityBarBackground,
+      );
+    });
+
+    it('returns correct background color for multiple classifications', () => {
       const classificationStatistics: ClassificationStatistics = {
         0: faker.progressBar.classificationStatisticsEntry({}, 5),
         1: faker.progressBar.classificationStatisticsEntry({}, 3),
@@ -97,7 +105,11 @@ describe('ProgressBar helpers', () => {
         classificationStatistics,
       };
 
-      const background = getClassificationBarBackground(testProgressBarData);
+      const classificationBarSteps =
+        calculateClassificationBarSteps(testProgressBarData);
+      const background = createBackgroundFromProgressBarSteps(
+        classificationBarSteps,
+      );
 
       const expectedBackground = `linear-gradient(to right, ${classificationStatistics[3].color} 0% 5% , ${classificationStatistics[2].color} 5% 25% , ${classificationStatistics[1].color} 25% 40% , ${classificationStatistics[0].color} 40% 65% , ${classificationUnknownColor} 65% 100% )`;
       expect(background).toEqual(expectedBackground);
@@ -124,7 +136,11 @@ describe('ProgressBar helpers', () => {
         classificationStatistics,
       };
 
-      const background = getClassificationBarBackground(testProgressBarData);
+      const classificationBarSteps =
+        calculateClassificationBarSteps(testProgressBarData);
+      const background = createBackgroundFromProgressBarSteps(
+        classificationBarSteps,
+      );
 
       const expectedBackground = `linear-gradient(to right, ${classificationStatistics[11].color} 0% 5% , ${classificationStatistics[2].color} 5% 25% , ${classificationStatistics[1].color} 25% 40% , ${classificationStatistics[0].color} 40% 65% , ${classificationUnknownColor} 65% 100% )`;
       expect(background).toEqual(expectedBackground);
@@ -144,7 +160,11 @@ describe('ProgressBar helpers', () => {
         classificationStatistics: {},
       };
 
-      const background = getClassificationBarBackground(testProgressBarData);
+      const classificationBarSteps =
+        calculateClassificationBarSteps(testProgressBarData);
+      const background = createBackgroundFromProgressBarSteps(
+        classificationBarSteps,
+      );
 
       expect(background).toBe('hsl(146, 50%, 55%)');
     });
@@ -162,12 +182,14 @@ describe('ProgressBar helpers', () => {
         filesWithMediumCriticalExternalAttributionsCount: 1,
         resourcesWithHighlyCriticalExternalAttributions: [],
         resourcesWithMediumCriticalExternalAttributions: [],
-        classificationStatistics: {
-          0: classificationStatisticsEntry,
-        },
+        classificationStatistics: { 0: classificationStatisticsEntry },
       };
 
-      const background = getClassificationBarBackground(testProgressBarData);
+      const classificationBarSteps =
+        calculateClassificationBarSteps(testProgressBarData);
+      const background = createBackgroundFromProgressBarSteps(
+        classificationBarSteps,
+      );
 
       const expectedBackground = `linear-gradient(to right, ${classificationStatisticsEntry.color} 0% 25% , ${classificationUnknownColor} 25% 100% )`;
       expect(background).toBe(expectedBackground);
