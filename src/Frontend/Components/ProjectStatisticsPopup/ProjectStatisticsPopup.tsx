@@ -98,110 +98,11 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   return (
     <NotificationPopup
-      content={
-        <MuiBox
-          sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-        >
-          <MuiTabs
-            value={selectedTab}
-            onChange={(_, tab) => setSelectedTab(tab)}
-            sx={{
-              marginBottom: '12px',
-              borderBottom: 1,
-              borderColor: 'divider',
-            }}
-          >
-            <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
-            <MuiTab label={text.projectStatisticsPopup.tabs.details} />
-          </MuiTabs>
-          <TabPanel tabIndex={0} selectedTab={selectedTab}>
-            <ChartGrid>
-              <ChartGridItem testId={'attributionBarChart'}>
-                <MuiTypography variant="subtitle1">
-                  {
-                    text.projectStatisticsPopup.charts.attributionProperties
-                      .title
-                  }
-                </MuiTypography>
-                <BarChart data={attributionBarChartData} />
-              </ChartGridItem>
-              <ChartGridItem
-                shouldRender={mostFrequentLicenseCountData.length > 0}
-                testId={'mostFrequentLicenseCountPieChart'}
-              >
-                <MuiTypography variant="subtitle1">
-                  {
-                    text.projectStatisticsPopup.charts
-                      .mostFrequentLicenseCountPieChart
-                  }
-                </MuiTypography>
-                <PieChart segments={mostFrequentLicenseCountData} />
-              </ChartGridItem>
-              <ChartGridItem
-                shouldRender={
-                  criticalSignalsCount.length > 0 && showCriticality
-                }
-                testId={'criticalSignalsCountPieChart'}
-              >
-                <MuiTypography variant="subtitle1">
-                  {
-                    text.projectStatisticsPopup.charts
-                      .criticalSignalsCountPieChart.title
-                  }
-                </MuiTypography>
-                <PieChart
-                  segments={criticalSignalsCount}
-                  colorMap={CRITICALITY_COLORS}
-                />
-              </ChartGridItem>
-              <ChartGridItem
-                shouldRender={
-                  signalCountByClassification.length > 0 && showClassifications
-                }
-                testId={'signalCountByClassificationPieChart'}
-              >
-                <MuiTypography variant="subtitle1">
-                  {
-                    text.projectStatisticsPopup.charts
-                      .signalCountByClassificationPieChart.title
-                  }
-                </MuiTypography>
-                <PieChart
-                  segments={signalCountByClassification}
-                  colorMap={classificationColorMap}
-                />
-              </ChartGridItem>
-              <ChartGridItem
-                shouldRender={incompleteAttributionsData.length > 0}
-                testId={'incompleteAttributionsPieChart'}
-              >
-                <MuiTypography variant="subtitle1">
-                  {
-                    text.projectStatisticsPopup.charts
-                      .incompleteAttributionsPieChart.title
-                  }
-                </MuiTypography>
-                <PieChart segments={incompleteAttributionsData} />
-              </ChartGridItem>
-            </ChartGrid>
-          </TabPanel>
-          <TabPanel tabIndex={1} selectedTab={selectedTab}>
-            <AttributionCountPerSourcePerLicenseTable
-              licenseCounts={licenseCounts}
-              licenseNamesWithCriticality={licenseNamesWithCriticality}
-              licenseNamesWithClassification={licenseNamesWithClassification}
-            />
-          </TabPanel>
-        </MuiBox>
-      }
       header={text.projectStatisticsPopup.title}
       isOpen={true}
       width={'min(95vw, max(550px, 85vw))'}
       height={'min(95vh, max(550px, 75vh))'}
-      rightButtonConfig={{
-        onClick: close,
-        buttonText: text.buttons.close,
-      }}
+      rightButtonConfig={{ onClick: close, buttonText: text.buttons.close }}
       onBackdropClick={close}
       onEscapeKeyDown={close}
       aria-label={'project statistics'}
@@ -209,14 +110,96 @@ export const ProjectStatisticsPopup: React.FC = () => {
         <Checkbox
           checked={showProjectStatistics}
           onChange={(event) =>
-            updateUserSettings({
-              showProjectStatistics: event.target.checked,
-            })
+            updateUserSettings({ showProjectStatistics: event.target.checked })
           }
           label={text.projectStatisticsPopup.toggleStartupCheckbox}
         />
       }
-    />
+    >
+      <MuiBox sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <MuiTabs
+          value={selectedTab}
+          onChange={(_, tab) => setSelectedTab(tab)}
+          sx={{ marginBottom: '12px', borderBottom: 1, borderColor: 'divider' }}
+        >
+          <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
+          <MuiTab label={text.projectStatisticsPopup.tabs.details} />
+        </MuiTabs>
+        <TabPanel tabIndex={0} selectedTab={selectedTab}>
+          <ChartGrid>
+            <ChartGridItem testId={'attributionBarChart'}>
+              <MuiTypography variant="subtitle1">
+                {text.projectStatisticsPopup.charts.attributionProperties.title}
+              </MuiTypography>
+              <BarChart data={attributionBarChartData} />
+            </ChartGridItem>
+            <ChartGridItem
+              shouldRender={mostFrequentLicenseCountData.length > 0}
+              testId={'mostFrequentLicenseCountPieChart'}
+            >
+              <MuiTypography variant="subtitle1">
+                {
+                  text.projectStatisticsPopup.charts
+                    .mostFrequentLicenseCountPieChart
+                }
+              </MuiTypography>
+              <PieChart segments={mostFrequentLicenseCountData} />
+            </ChartGridItem>
+            <ChartGridItem
+              shouldRender={criticalSignalsCount.length > 0 && showCriticality}
+              testId={'criticalSignalsCountPieChart'}
+            >
+              <MuiTypography variant="subtitle1">
+                {
+                  text.projectStatisticsPopup.charts
+                    .criticalSignalsCountPieChart.title
+                }
+              </MuiTypography>
+              <PieChart
+                segments={criticalSignalsCount}
+                colorMap={CRITICALITY_COLORS}
+              />
+            </ChartGridItem>
+            <ChartGridItem
+              shouldRender={
+                signalCountByClassification.length > 0 && showClassifications
+              }
+              testId={'signalCountByClassificationPieChart'}
+            >
+              <MuiTypography variant="subtitle1">
+                {
+                  text.projectStatisticsPopup.charts
+                    .signalCountByClassificationPieChart.title
+                }
+              </MuiTypography>
+              <PieChart
+                segments={signalCountByClassification}
+                colorMap={classificationColorMap}
+              />
+            </ChartGridItem>
+            <ChartGridItem
+              shouldRender={incompleteAttributionsData.length > 0}
+              testId={'incompleteAttributionsPieChart'}
+            >
+              <MuiTypography variant="subtitle1">
+                {
+                  text.projectStatisticsPopup.charts
+                    .incompleteAttributionsPieChart.title
+                }
+              </MuiTypography>
+              <PieChart segments={incompleteAttributionsData} />
+            </ChartGridItem>
+          </ChartGrid>
+        </TabPanel>
+        <TabPanel tabIndex={1} selectedTab={selectedTab}>
+          <AttributionCountPerSourcePerLicenseTable
+            licenseCounts={licenseCounts}
+            licenseNamesWithCriticality={licenseNamesWithCriticality}
+            licenseNamesWithClassification={licenseNamesWithClassification}
+          />
+        </TabPanel>
+      </MuiBox>
+    </NotificationPopup>
   );
 };
 
@@ -231,14 +214,7 @@ const TabPanel: React.FC<TabPanelProps> = (props) => {
     return null;
   }
   return (
-    <MuiBox
-      sx={{
-        flexGrow: 1,
-        overflowY: 'auto',
-      }}
-    >
-      {props.children}
-    </MuiBox>
+    <MuiBox sx={{ flexGrow: 1, overflowY: 'auto' }}>{props.children}</MuiBox>
   );
 };
 
@@ -247,15 +223,7 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
     <ThemeProvider
       theme={createTheme({
         ...useTheme(),
-        breakpoints: {
-          values: {
-            xs: 0,
-            sm: 0,
-            md: 1200,
-            lg: 1725,
-            xl: 2000,
-          },
-        },
+        breakpoints: { values: { xs: 0, sm: 0, md: 1200, lg: 1725, xl: 2000 } },
       })}
     >
       <MuiGrid

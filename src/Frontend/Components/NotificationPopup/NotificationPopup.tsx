@@ -16,7 +16,6 @@ import { OpossumColors } from '../../shared-styles';
 
 interface NotificationPopupProps {
   header: string;
-  content: React.ReactNode;
   leftButtonConfig?: ButtonProps & { buttonText: string };
   rightButtonConfig?: ButtonProps & { buttonText: string };
   centerLeftButtonConfig?: ButtonProps & { buttonText: string };
@@ -36,7 +35,9 @@ interface NotificationPopupProps {
   className?: string;
 }
 
-export function NotificationPopup(props: NotificationPopupProps) {
+export function NotificationPopup(
+  props: React.PropsWithChildren<NotificationPopupProps>,
+) {
   useHotkeys('esc', props.onEscapeKeyDown || noop, [props.onEscapeKeyDown]);
 
   return (
@@ -65,10 +66,10 @@ export function NotificationPopup(props: NotificationPopupProps) {
     >
       <MuiDialogTitle>{props.header}</MuiDialogTitle>
       <MuiDialogContent className={props.className} sx={props.sx}>
-        {typeof props.content === 'string' ? (
-          <MuiDialogContentText>{props.content}</MuiDialogContentText>
+        {typeof props.children === 'string' ? (
+          <MuiDialogContentText>{props.children}</MuiDialogContentText>
         ) : (
-          props.content
+          props.children
         )}
       </MuiDialogContent>
       <MuiDialogActions>

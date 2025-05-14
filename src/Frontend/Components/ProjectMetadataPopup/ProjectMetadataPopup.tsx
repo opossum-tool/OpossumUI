@@ -17,17 +17,15 @@ export const ProjectMetadataPopup: React.FC = () => {
 
   return (
     <NotificationPopup
-      content={<ProjectMetadataTable />}
       header={'Project Metadata'}
       isOpen={true}
       fullWidth={false}
-      rightButtonConfig={{
-        onClick: close,
-        buttonText: text.buttons.close,
-      }}
+      rightButtonConfig={{ onClick: close, buttonText: text.buttons.close }}
       onBackdropClick={close}
       onEscapeKeyDown={close}
       aria-label={'project metadata'}
-    />
+    >
+      <ProjectMetadataTable />
+    </NotificationPopup>
   );
 };
