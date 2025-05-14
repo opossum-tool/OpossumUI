@@ -2,10 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import CircleIcon from '@mui/icons-material/Circle';
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
-import { sum } from 'lodash';
+import Box from '@mui/system/Box';
 
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
@@ -33,6 +34,10 @@ interface ProgressBarProps {
   sx?: SxProps;
   progressBarData: ProgressBarData;
   selectedProgressBar: SelectedProgressBar;
+}
+
+interface ProgressBarTooltipProps {
+  steps: Array<ProgressBarStep>;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
@@ -67,7 +72,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const progressBarConfigurations: Record<
     SelectedProgressBar,
     {
-      Title: React.FC<ProgressBarData>;
+      Title: React.FC<ProgressBarTooltipProps>;
       ariaLabel: string;
       steps: Array<ProgressBarStep>;
       onClickHandler: () => void;
@@ -98,7 +103,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
 
   return (
     <MuiBox sx={props.sx}>
-      <MuiTooltip title={<Title {...props.progressBarData} />} followCursor>
+      <MuiTooltip title={<Title steps={steps} />} followCursor>
         <MuiBox
           aria-label={ariaLabel}
           sx={{
@@ -114,134 +119,62 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
 
 const ProgressBarTooltipTitle: React.FC<{
   intro: string;
-  rows: Array<{ description: string; count: number }>;
-}> = ({ intro, rows }) => {
+  steps: Array<ProgressBarStep>;
+}> = ({ intro, steps }) => {
   return (
     <MuiBox>
       {`${intro}…`}
-      {rows
-        .filter((entry) => !!entry.count)
+      {steps
+        .filter((entry) => !!entry.count && !!entry.description)
         .map((entry) => (
-          <div key={entry.description}>
-            …{entry.description}: {new Intl.NumberFormat().format(entry.count)}
-          </div>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              whiteSpace: 'nowrap',
+            }}
+            key={entry.description}
+          >
+            <>
+              <CircleIcon fontSize={'inherit'} sx={{ color: entry.color }} />
+              {`…${entry.description}: ${new Intl.NumberFormat().format(entry.count ?? 0)}`}
+            </>
+          </Box>
         ))}
     </MuiBox>
   );
 };
 
-const AttributionBarTooltipTitle: React.FC<ProgressBarData> = (
-  progressBarData,
-) => {
+const AttributionBarTooltipTitle: React.FC<ProgressBarTooltipProps> = ({
+  steps,
+}) => {
   return (
     <ProgressBarTooltipTitle
       intro={text.topBar.switchableProgressBar.attributionBar.intro}
-      rows={[
-        {
-          description:
-            text.topBar.switchableProgressBar.attributionBar
-              .filesWithManualAttribution,
-          count: progressBarData.filesWithManualAttributionCount,
-        },
-        {
-          description:
-            text.topBar.switchableProgressBar.attributionBar
-              .filesWithOnlyPreSelectedAttribution,
-          count: progressBarData.filesWithOnlyPreSelectedAttributionCount,
-        },
-        {
-          description:
-            text.topBar.switchableProgressBar.attributionBar
-              .filesWithOnlyExternalAttribution,
-          count: progressBarData.filesWithOnlyExternalAttributionCount,
-        },
-        {
-          description:
-            text.topBar.switchableProgressBar.attributionBar
-              .filesWithNeitherAttributionsOrSignals,
-          count:
-            progressBarData.fileCount -
-            progressBarData.filesWithManualAttributionCount -
-            progressBarData.filesWithOnlyPreSelectedAttributionCount -
-            progressBarData.filesWithOnlyExternalAttributionCount,
-        },
-      ]}
+      steps={steps}
     />
   );
 };
 
-const CriticalityBarTooltipTitle: React.FC<ProgressBarData> = (
-  progressBarData,
-) => {
+const CriticalityBarTooltipTitle: React.FC<ProgressBarTooltipProps> = ({
+  steps,
+}) => {
   return (
     <ProgressBarTooltipTitle
       intro={text.topBar.switchableProgressBar.criticalityBar.intro}
-      rows={[
-        {
-          description:
-            text.topBar.switchableProgressBar.criticalityBar
-              .filesWithHighlyCriticalSignals,
-          count:
-            progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
-        },
-        {
-          description:
-            text.topBar.switchableProgressBar.criticalityBar
-              .filesWithMediumCriticalSignals,
-          count:
-            progressBarData.filesWithMediumCriticalExternalAttributionsCount,
-        },
-        {
-          description:
-            text.topBar.switchableProgressBar.criticalityBar
-              .filesWithOnlyNonCriticalSignals,
-          count:
-            progressBarData.filesWithOnlyExternalAttributionCount -
-            progressBarData.filesWithHighlyCriticalExternalAttributionsCount -
-            progressBarData.filesWithMediumCriticalExternalAttributionsCount,
-        },
-      ]}
+      steps={steps}
     />
   );
 };
 
-const ClassificationBarTooltipTitle: React.FC<ProgressBarData> = (
-  progressBarData,
-) => {
-  const numberOfResourcesWithSignalsAndNoAttributionAndClassification = sum(
-    Object.values(progressBarData.classificationStatistics).map(
-      (entry) => entry.correspondingFiles.length,
-    ),
-  );
-  const numberOfResourcesWithSignalsAndNoAttributionAndNoClassification =
-    progressBarData.filesWithOnlyExternalAttributionCount -
-    numberOfResourcesWithSignalsAndNoAttributionAndClassification;
-
+const ClassificationBarTooltipTitle: React.FC<ProgressBarTooltipProps> = ({
+  steps,
+}) => {
   return (
     <ProgressBarTooltipTitle
       intro={text.topBar.switchableProgressBar.classificationBar.intro}
-      rows={[
-        ...Object.values(progressBarData.classificationStatistics)
-          .toReversed()
-          .map((classificationStatisticsEntry) => ({
-            description: `${
-              text.topBar.switchableProgressBar.classificationBar
-                .containingClassification
-            } "${classificationStatisticsEntry.description.toLowerCase()}"`,
-            count: classificationStatisticsEntry.correspondingFiles.length,
-          })),
-        ...(numberOfResourcesWithSignalsAndNoAttributionAndNoClassification
-          ? [
-              {
-                description:
-                  text.topBar.switchableProgressBar.classificationBar
-                    .withoutClassification,
-                count:
-                  numberOfResourcesWithSignalsAndNoAttributionAndNoClassification,
-              },
-            ]
-          : []),
-      ]}
+      steps={steps}
     />
   );
 };

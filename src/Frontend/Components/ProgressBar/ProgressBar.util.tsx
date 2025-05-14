@@ -5,6 +5,7 @@
 import { sum } from 'lodash';
 
 import { Criticality } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -18,6 +19,8 @@ import { moveElementsToEnd } from '../../util/lodash-extension-utils';
 type Color = string;
 
 export interface ProgressBarStep {
+  description?: string;
+  count?: number;
   widthInPercent: number;
   color: Color;
 }
@@ -49,50 +52,73 @@ export function useOnProgressBarClick(resourceIds: Array<string>) {
 export function calculateAttributionBarSteps(
   progressBarData: ProgressBarData,
 ): Array<ProgressBarStep> {
-  let filesWithManualAttributions: number =
+  let filesWithManualAttributionsPercent: number =
     (progressBarData.filesWithManualAttributionCount /
       progressBarData.fileCount) *
     100;
-  let filesWithOnlyPreselectedAttributions: number =
+  let filesWithOnlyPreselectedAttributionsPercent: number =
     (progressBarData.filesWithOnlyPreSelectedAttributionCount /
       progressBarData.fileCount) *
     100;
-  let filesWithOnlyExternalAttributions: number =
+  let filesWithOnlyExternalAttributionsPercent: number =
     (progressBarData.filesWithOnlyExternalAttributionCount /
       progressBarData.fileCount) *
     100;
-  let filesWithNothing: number =
+  let filesWithNothingPercent: number =
     100 -
-    filesWithManualAttributions -
-    filesWithOnlyPreselectedAttributions -
-    filesWithOnlyExternalAttributions;
+    filesWithManualAttributionsPercent -
+    filesWithOnlyPreselectedAttributionsPercent -
+    filesWithOnlyExternalAttributionsPercent;
 
   [
-    filesWithManualAttributions,
-    filesWithOnlyPreselectedAttributions,
-    filesWithOnlyExternalAttributions,
-    filesWithNothing,
+    filesWithManualAttributionsPercent,
+    filesWithOnlyPreselectedAttributionsPercent,
+    filesWithOnlyExternalAttributionsPercent,
+    filesWithNothingPercent,
   ] = roundToAtLeastOnePercentAndNormalize([
-    filesWithManualAttributions,
-    filesWithOnlyPreselectedAttributions,
-    filesWithOnlyExternalAttributions,
-    filesWithNothing,
+    filesWithManualAttributionsPercent,
+    filesWithOnlyPreselectedAttributionsPercent,
+    filesWithOnlyExternalAttributionsPercent,
+    filesWithNothingPercent,
   ]);
 
   return [
     {
-      widthInPercent: filesWithManualAttributions,
+      description:
+        text.topBar.switchableProgressBar.attributionBar
+          .filesWithManualAttribution,
+      count: progressBarData.filesWithManualAttributionCount,
+      widthInPercent: filesWithManualAttributionsPercent,
       color: OpossumColors.pastelDarkGreen,
     },
     {
-      widthInPercent: filesWithOnlyPreselectedAttributions,
+      description:
+        text.topBar.switchableProgressBar.attributionBar
+          .filesWithOnlyPreSelectedAttribution,
+      count: progressBarData.filesWithOnlyPreSelectedAttributionCount,
+      widthInPercent: filesWithOnlyPreselectedAttributionsPercent,
       color: OpossumColors.pastelMiddleGreen,
     },
     {
-      widthInPercent: filesWithOnlyExternalAttributions,
+      description:
+        text.topBar.switchableProgressBar.attributionBar
+          .filesWithOnlyExternalAttribution,
+      count: progressBarData.filesWithOnlyExternalAttributionCount,
+      widthInPercent: filesWithOnlyExternalAttributionsPercent,
       color: OpossumColors.pastelRed,
     },
-    { widthInPercent: filesWithNothing, color: OpossumColors.lightestBlue },
+    {
+      description:
+        text.topBar.switchableProgressBar.attributionBar
+          .filesWithNeitherAttributionsOrSignals,
+      count:
+        progressBarData.fileCount -
+        progressBarData.filesWithManualAttributionCount -
+        progressBarData.filesWithOnlyPreSelectedAttributionCount -
+        progressBarData.filesWithOnlyExternalAttributionCount,
+      widthInPercent: filesWithNothingPercent,
+      color: OpossumColors.lightestBlue,
+    },
   ];
 }
 
@@ -103,40 +129,55 @@ export function calculateCriticalityBarSteps(
     return [{ widthInPercent: 100, color: OpossumColors.pastelDarkGreen }];
   }
 
-  let filesWithHighlyCriticalExternalAttributions =
+  let filesWithHighlyCriticalExternalAttributionsPercent =
     (progressBarData.filesWithHighlyCriticalExternalAttributionsCount /
       progressBarData.filesWithOnlyExternalAttributionCount) *
     100;
-  let filesWithMediumCriticalExternalAttributions =
+  let filesWithMediumCriticalExternalAttributionsPercent =
     (progressBarData.filesWithMediumCriticalExternalAttributionsCount /
       progressBarData.filesWithOnlyExternalAttributionCount) *
     100;
-  let filesWithNonCriticalAttributions =
+  let filesWithNonCriticalAttributionsPercent =
     100 -
-    filesWithHighlyCriticalExternalAttributions -
-    filesWithMediumCriticalExternalAttributions;
+    filesWithHighlyCriticalExternalAttributionsPercent -
+    filesWithMediumCriticalExternalAttributionsPercent;
 
   [
-    filesWithHighlyCriticalExternalAttributions,
-    filesWithMediumCriticalExternalAttributions,
-    filesWithNonCriticalAttributions,
+    filesWithHighlyCriticalExternalAttributionsPercent,
+    filesWithMediumCriticalExternalAttributionsPercent,
+    filesWithNonCriticalAttributionsPercent,
   ] = roundToAtLeastOnePercentAndNormalize([
-    filesWithHighlyCriticalExternalAttributions,
-    filesWithMediumCriticalExternalAttributions,
-    filesWithNonCriticalAttributions,
+    filesWithHighlyCriticalExternalAttributionsPercent,
+    filesWithMediumCriticalExternalAttributionsPercent,
+    filesWithNonCriticalAttributionsPercent,
   ]);
 
   return [
     {
-      widthInPercent: filesWithHighlyCriticalExternalAttributions,
+      description:
+        text.topBar.switchableProgressBar.criticalityBar
+          .filesWithHighlyCriticalSignals,
+      count: progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
+      widthInPercent: filesWithHighlyCriticalExternalAttributionsPercent,
       color: criticalityColor[Criticality.High],
     },
     {
-      widthInPercent: filesWithMediumCriticalExternalAttributions,
+      description:
+        text.topBar.switchableProgressBar.criticalityBar
+          .filesWithMediumCriticalSignals,
+      count: progressBarData.filesWithMediumCriticalExternalAttributionsCount,
+      widthInPercent: filesWithMediumCriticalExternalAttributionsPercent,
       color: criticalityColor[Criticality.Medium],
     },
     {
-      widthInPercent: filesWithNonCriticalAttributions,
+      description:
+        text.topBar.switchableProgressBar.criticalityBar
+          .filesWithOnlyNonCriticalSignals,
+      count:
+        progressBarData.filesWithOnlyExternalAttributionCount -
+        progressBarData.filesWithHighlyCriticalExternalAttributionsCount -
+        progressBarData.filesWithMediumCriticalExternalAttributionsCount,
+      widthInPercent: filesWithNonCriticalAttributionsPercent,
       color: OpossumColors.lightestBlue,
     },
   ];
@@ -154,20 +195,41 @@ export function calculateClassificationBarSteps(
     .reverse()
     .map<ProgressBarStep>((statisticsEntry) => {
       return {
+        description: `${
+          text.topBar.switchableProgressBar.classificationBar
+            .containingClassification
+        } "${statisticsEntry.description.toLowerCase()}"`,
+        count: statisticsEntry.correspondingFiles.length,
         widthInPercent:
           (statisticsEntry.correspondingFiles.length * 100) /
           progressBarData.filesWithOnlyExternalAttributionCount,
         color: statisticsEntry.color,
       };
     });
+
   //add files without classifications
-  const totalPercentage = sum(
-    progressBarSteps.map((step) => step.widthInPercent),
+  const numberOfResourcesWithSignalsAndNoAttributionAndClassification = sum(
+    Object.values(progressBarData.classificationStatistics).map(
+      (entry) => entry.correspondingFiles.length,
+    ),
   );
-  progressBarSteps.push({
-    widthInPercent: 100 - totalPercentage,
-    color: classificationUnknownColor,
-  });
+  const numberOfResourcesWithSignalsAndNoAttributionAndNoClassification =
+    progressBarData.filesWithOnlyExternalAttributionCount -
+    numberOfResourcesWithSignalsAndNoAttributionAndClassification;
+  if (numberOfResourcesWithSignalsAndNoAttributionAndNoClassification > 0) {
+    const totalPercentage = sum(
+      progressBarSteps.map((step) => step.widthInPercent),
+    );
+
+    progressBarSteps.push({
+      description:
+        text.topBar.switchableProgressBar.classificationBar
+          .withoutClassification,
+      count: numberOfResourcesWithSignalsAndNoAttributionAndNoClassification,
+      widthInPercent: 100 - totalPercentage,
+      color: classificationUnknownColor,
+    });
+  }
 
   return roundPercentagesToAtLeastOnePercentAndNormalize(progressBarSteps);
 }
@@ -219,6 +281,6 @@ function roundPercentagesToAtLeastOnePercentAndNormalize(
     progressBarSteps.map((step) => step.widthInPercent),
   );
   return progressBarSteps.map((progressBarStep, index) => {
-    return { color: progressBarStep.color, widthInPercent: percentages[index] };
+    return { ...progressBarStep, widthInPercent: percentages[index] };
   });
 }
