@@ -3480,14 +3480,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.76.0":
-  version: 5.76.0
-  resolution: "@tanstack/react-query@npm:5.76.0"
+"@tanstack/react-query@npm:^5.76.1":
+  version: 5.76.1
+  resolution: "@tanstack/react-query@npm:5.76.1"
   dependencies:
     "@tanstack/query-core": "npm:5.76.0"
   peerDependencies:
     react: ^18 || ^19
-  checksum: 10/02c96377e0e3edd6be10fc5852052b518452c2c9dde5094b8abb071a0040dbf2b522ad101b25f3801b9e55954ca55bdbbe7fd46889db93c7baa5b35f73256af0
+  checksum: 10/d2d1acea76fa0d6265679061eb5eb983fe50dcf40a6d9de34261686e2354c3c46dd9974751da4e56aa676070e2edb35249b2674fb2923dd54a992e55748ee4ad
   languageName: node
   linkType: hard
 
@@ -10159,7 +10159,7 @@ __metadata:
     "@playwright/test": "npm:^1.52.0"
     "@reduxjs/toolkit": "npm:^2.8.1"
     "@tanstack/eslint-plugin-query": "npm:^5.74.7"
-    "@tanstack/react-query": "npm:^5.76.0"
+    "@tanstack/react-query": "npm:^5.76.1"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/jest-dom": "npm:^6.6.3"
     "@testing-library/react": "npm:^16.3.0"
