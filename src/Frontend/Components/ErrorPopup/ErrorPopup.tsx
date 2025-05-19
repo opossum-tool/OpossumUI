@@ -23,12 +23,13 @@ export const ErrorPopup: React.FC<ErrorPopupProps> = (props) => {
 
   return (
     <NotificationPopup
-      content={props.content}
       header={'Error'}
       onBackdropClick={close}
       isOpen={true}
       onEscapeKeyDown={close}
       aria-label={'error popup'}
-    />
+    >
+      {props.content}
+    </NotificationPopup>
   );
 };

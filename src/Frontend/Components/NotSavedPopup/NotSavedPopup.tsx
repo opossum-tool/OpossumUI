@@ -15,7 +15,6 @@ export function NotSavedPopup() {
 
   return (
     <NotificationPopup
-      content={text.unsavedChangesPopup.message}
       header={text.unsavedChangesPopup.title}
       leftButtonConfig={{
         onClick: () => dispatch(proceedFromUnsavedPopup()),
@@ -28,6 +27,8 @@ export function NotSavedPopup() {
       }}
       isOpen
       aria-label={'unsaved changes popup'}
-    />
+    >
+      {text.unsavedChangesPopup.message}
+    </NotificationPopup>
   );
 }
