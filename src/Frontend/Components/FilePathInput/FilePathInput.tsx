@@ -25,6 +25,7 @@ interface FilePathInputProps {
   text: string;
   onClick: () => void;
   tooltipProps?: Partial<TooltipProps>;
+  disabled: boolean;
 }
 
 export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
@@ -41,6 +42,7 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       // behavior (e.g. horizontal text scrolling) that we don't want here
       inputComponent={CustomInput}
       sx={{ marginTop: '20px' }}
+      disabled={props.disabled}
     />
   );
 };

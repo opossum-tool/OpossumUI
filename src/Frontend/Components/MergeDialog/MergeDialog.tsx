@@ -22,6 +22,7 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
   const dispatch = useAppDispatch();
 
   const [inputFilePath, setInputFilePath] = useState<string>('');
+  const [mergeInProgress, setMergeInProgress] = useState<boolean>(false);
 
   const {
     processingStatusUpdatedEvents,
@@ -30,6 +31,10 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
   } = useProcessingStatusUpdated();
 
   async function selectInputFilePath(): Promise<void> {
+    if (mergeInProgress) {
+      return;
+    }
+
     const filePath = await window.electronAPI.selectFile(fileFormat);
 
     if (filePath) {
@@ -43,6 +48,7 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
   }
 
   async function onConfirm(): Promise<void> {
+    setMergeInProgress(true);
     const success = await window.electronAPI.mergeFileAndLoad(
       inputFilePath,
       fileFormat.fileType,
@@ -51,6 +57,7 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
     if (success) {
       dispatch(closePopup());
     }
+    setMergeInProgress(false);
   }
 
   return (
@@ -98,6 +105,7 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
           )}
           text={inputFilePath}
           onClick={selectInputFilePath}
+          disabled={mergeInProgress}
         />
       </div>
     </NotificationPopup>

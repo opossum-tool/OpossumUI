@@ -24,6 +24,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
+  const [importInProgress, setImportInProgress] = useState<boolean>(false);
 
   const {
     processingStatusUpdatedEvents,
@@ -32,6 +33,10 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   } = useProcessingStatusUpdated();
 
   async function selectInputFilePath(): Promise<void> {
+    if (importInProgress) {
+      return;
+    }
+
     const filePath = await window.electronAPI.selectFile(fileFormat);
 
     if (filePath) {
@@ -41,6 +46,10 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   }
 
   async function selectOpossumFilePath(): Promise<void> {
+    if (importInProgress) {
+      return;
+    }
+
     let defaultPath = 'imported.opossum';
     const derivedPath = getDotOpossumFilePath(
       inputFilePath,
@@ -67,6 +76,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
   }
 
   async function onConfirm(): Promise<void> {
+    setImportInProgress(true);
     const success = await window.electronAPI.importFileConvertAndLoad(
       inputFilePath,
       fileFormat.fileType,
@@ -76,6 +86,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
     if (success) {
       dispatch(closePopup());
     }
+    setImportInProgress(false);
   }
 
   return (
@@ -126,6 +137,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           text={inputFilePath}
           onClick={selectInputFilePath}
           tooltipProps={{ placement: 'top' }}
+          disabled={importInProgress}
         />
         <FilePathInput
           label={text.importDialog.opossumFilePath.textFieldLabel(
@@ -133,6 +145,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           )}
           text={opossumFilePath}
           onClick={selectOpossumFilePath}
+          disabled={importInProgress}
         />
       </div>
     </NotificationPopup>
