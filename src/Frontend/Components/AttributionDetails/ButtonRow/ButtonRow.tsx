@@ -12,7 +12,7 @@ import UndoIcon from '@mui/icons-material/Undo';
 import MuiButton from '@mui/material/Button';
 import MuiFab from '@mui/material/Fab';
 import MuiTooltip from '@mui/material/Tooltip';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { PackageInfo } from '../../../../shared/shared-types';
@@ -36,6 +36,7 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
+import { isPackageInvalid } from '../../../util/input-validation';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
@@ -51,6 +52,7 @@ interface Props {
 export function ButtonRow({ packageInfo, isEditable }: Props) {
   const dispatch = useAppDispatch();
   const isPackageInfoModified = useAppSelector(getIsPackageInfoModified);
+  const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
   const initialPackageInfo = useAppSelector(
     getPackageInfoOfSelectedAttribution,
   );
@@ -163,7 +165,10 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
               size={'small'}
               color={'secondary'}
               onClick={handleSave}
-              disabled={!packageInfo.preSelected && !isPackageInfoModified}
+              disabled={
+                isInvalid ||
+                (!packageInfo.preSelected && !isPackageInfoModified)
+              }
             >
               {isConfirming ? <CheckIcon /> : <SaveIcon />}
             </MuiFab>

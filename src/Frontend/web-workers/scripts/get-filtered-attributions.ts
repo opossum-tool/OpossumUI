@@ -18,7 +18,7 @@ import { getContainedAttributionCount } from '../../util/get-contained-attributi
 import {
   arePackageCoordinatesIncomplete,
   isLegalInformationIncomplete,
-} from '../../util/is-important-attribution-information-missing';
+} from '../../util/input-validation';
 import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
 import { sortAttributions } from '../../util/sort-attributions';
 
