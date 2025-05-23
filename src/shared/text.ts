@@ -249,6 +249,8 @@ export const text = {
   generic: {
     unknown: 'unknown',
     noResults: 'No Results',
+    invalid: 'This expression contains invalid characters',
+    incomplete: 'This expression is incomplete',
   },
   updateAppPopup: {
     fetchFailed: (message: string) =>

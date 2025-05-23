@@ -18,9 +18,9 @@ import { navigateToView } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesTexts } from '../../state/selectors/resource-selectors';
 import {
-  isImportantAttributionInformationMissing,
-  isPackageInfoIncomplete,
-} from '../../util/is-important-attribution-information-missing';
+  isPackageAttributeIncomplete,
+  isPackageIncomplete,
+} from '../../util/input-validation';
 import { openUrl } from '../../util/open-url';
 import { IconButton } from '../IconButton/IconButton';
 import {
@@ -151,11 +151,11 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
           ...(config.attributionProperty === 'id'
             ? {
                 ...classes.iconsCell,
-                ...(isPackageInfoIncomplete(packageInfo) &&
+                ...(isPackageIncomplete(packageInfo) &&
                   classes.markedTableCell),
               }
             : {
-                ...(isImportantAttributionInformationMissing(
+                ...(isPackageAttributeIncomplete(
                   config.attributionProperty,
                   packageInfo,
                 ) && classes.markedTableCell),

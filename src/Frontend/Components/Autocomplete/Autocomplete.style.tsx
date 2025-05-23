@@ -13,46 +13,56 @@ export const Container = styled('div')({
 
 export const Input = styled(MuiTextField, {
   shouldForwardProp: (name: string) =>
-    !['error', 'numberOfEndAdornments', 'background'].includes(name),
+    !['color', 'numberOfEndAdornments', 'background'].includes(name),
 })<{
   background?: string;
-  error?: boolean;
+  color?: 'error' | 'warning';
   numberOfEndAdornments: number;
-}>(({ background, error, numberOfEndAdornments }) => ({
-  '& .MuiInputLabel-root': {
-    backgroundColor:
-      background || (error ? OpossumColors.lightOrange : OpossumColors.white),
-    padding: '0px 3px',
-    fontSize: '13px',
-    top: '1px',
-  },
-  '& .MuiInputBase-root': {
-    backgroundColor:
-      background || (error ? OpossumColors.lightOrange : OpossumColors.white),
-    borderRadius: '0px',
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: '8px',
-    minHeight: '36.67px',
-    paddingTop: '6px',
-    paddingBottom: '6px',
-    paddingLeft: '12px',
-    paddingRight: `calc(12px + ${numberOfEndAdornments} * 28px)`,
-  },
-  '& .MuiInputBase-input': {
-    flex: 1,
-    padding: 0,
-  },
-  '& legend': {
-    '& span': {
-      display: 'none',
+}>(({ background, color, numberOfEndAdornments }) => {
+  const errorBackground = (() => {
+    switch (color) {
+      case 'error':
+        return OpossumColors.darkOrange;
+      case 'warning':
+        return OpossumColors.lightOrange;
+      default:
+        return OpossumColors.white;
+    }
+  })();
+  return {
+    '& .MuiInputLabel-root': {
+      backgroundColor: background || errorBackground,
+      padding: '0px 3px',
+      fontSize: '13px',
+      top: '1px',
     },
-  },
-  '& .Mui-readOnly:hover:not(.Mui-focused) fieldset': {
-    borderColor: 'rgba(0, 0, 0, 0.23)',
-  },
-}));
+    '& .MuiInputBase-root': {
+      backgroundColor: background || errorBackground,
+      borderRadius: '0px',
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: '8px',
+      minHeight: '36.67px',
+      paddingTop: '6px',
+      paddingBottom: '6px',
+      paddingLeft: '12px',
+      paddingRight: `calc(12px + ${numberOfEndAdornments} * 28px)`,
+    },
+    '& .MuiInputBase-input': {
+      flex: 1,
+      padding: 0,
+    },
+    '& legend': {
+      '& span': {
+        display: 'none',
+      },
+    },
+    '& .Mui-readOnly:hover:not(.Mui-focused) fieldset': {
+      borderColor: 'rgba(0, 0, 0, 0.23)',
+    },
+  };
+});
 
 export const StyledPopper = styled((props: PopperProps) => (
   <Popper

@@ -15,7 +15,7 @@ import {
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import { useFilteredAttributions } from '../../../state/variables/use-filtered-data';
-import { isPackageInfoIncomplete } from '../../../util/is-important-attribution-information-missing';
+import { isPackageIncomplete } from '../../../util/input-validation';
 import { Alert, PackagesPanel } from '../PackagesPanel/PackagesPanel';
 import { AttributionsList } from './AttributionsList/AttributionsList';
 import { ConfirmButton } from './ConfirmButton/ConfirmButton';
@@ -43,8 +43,7 @@ export function AttributionsPanel() {
     if (
       resourcesToManualAttributions[selectedResourceId]?.some(
         (id) =>
-          manualAttributions[id] &&
-          isPackageInfoIncomplete(manualAttributions[id]),
+          manualAttributions[id] && isPackageIncomplete(manualAttributions[id]),
       )
     ) {
       return {

@@ -21,6 +21,7 @@ import { compact } from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { VirtuosoHandle } from 'react-virtuoso';
 
+import { text } from '../../../shared/text';
 import { ensureArray } from '../../util/ensure-array';
 import {
   Container,
@@ -50,7 +51,7 @@ type AutocompleteProps<
     ['aria-label']?: string;
     background?: string;
     endAdornment?: React.ReactNode | Array<React.ReactNode>;
-    error?: boolean;
+    error?: 'error' | 'warning';
     inputProps?: MuiInputProps;
     onInputChange?: (
       event: React.SyntheticEvent | undefined,
@@ -167,53 +168,65 @@ export function Autocomplete<
 
   const { ref, color, ...inputProps } = getInputProps();
 
+  const tooltipTitle = (() => {
+    if (error === 'error') {
+      return text.generic.invalid;
+    }
+    if (error === 'warning') {
+      return text.generic.incomplete;
+    }
+    return '';
+  })();
+
   return (
     <>
       <Container {...getRootProps()} ref={setAnchorEl}>
-        <Input
-          {...inputProps}
-          {...customInputProps}
-          background={background}
-          variant={variant}
-          placeholder={placeholder}
-          disabled={disabled}
-          error={error}
-          label={title}
-          numberOfEndAdornments={
-            compact([
-              hasClearButton,
-              hasPopupIndicator,
-              ...ensureArray(endAdornment),
-            ]).length
-          }
-          size={'small'}
-          inputRef={ref}
-          slotProps={{
-            input: {
-              startAdornment: startAdornment || renderStartAdornment(),
-              endAdornment: renderEndAdornment(),
-              readOnly,
-              sx,
-              ...(variant === 'filled' && { disableUnderline: true }),
-            },
-            inputLabel: getInputLabelProps(),
-            htmlInput: {
-              'aria-label': props['aria-label'],
-              sx: {
-                overflowX: 'hidden',
-                textOverflow: 'ellipsis',
-                '&::placeholder': {
-                  opacity: 1,
+        <MuiTooltip title={tooltipTitle} placement="bottom" followCursor>
+          <Input
+            {...inputProps}
+            {...customInputProps}
+            background={background}
+            variant={variant}
+            placeholder={placeholder}
+            disabled={disabled}
+            color={error}
+            label={title}
+            numberOfEndAdornments={
+              compact([
+                hasClearButton,
+                hasPopupIndicator,
+                ...ensureArray(endAdornment),
+              ]).length
+            }
+            size={'small'}
+            inputRef={ref}
+            slotProps={{
+              input: {
+                startAdornment: startAdornment || renderStartAdornment(),
+                endAdornment: renderEndAdornment(),
+                readOnly,
+                sx,
+                ...(variant === 'filled' && { disableUnderline: true }),
+              },
+              inputLabel: getInputLabelProps(),
+              htmlInput: {
+                'aria-label': props['aria-label'],
+                sx: {
+                  overflowX: 'hidden',
+                  textOverflow: 'ellipsis',
+                  '&::placeholder': {
+                    opacity: 1,
+                  },
                 },
               },
-            },
-          }}
-          onKeyDown={(event) => {
-            // https://github.com/mui/material-ui/issues/21129
-            event.key === 'Backspace' && event.stopPropagation();
-          }}
-          fullWidth
-        />
+            }}
+            onKeyDown={(event) => {
+              // https://github.com/mui/material-ui/issues/21129
+              event.key === 'Backspace' && event.stopPropagation();
+            }}
+            fullWidth
+          />
+        </MuiTooltip>
       </Container>
       {renderPopper()}
     </>
