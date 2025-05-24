@@ -14,7 +14,6 @@ import { AttributionType } from '../../enums/enums';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { FormAttribute } from '../../util/get-comparable-attributes';
-import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { TextBoxProps } from '../TextBox/TextBox';
 import { AuditingOptions } from './AuditingOptions/AuditingOptions';
@@ -63,7 +62,7 @@ export function AttributionForm({
 }: AttributionFormProps) {
   const dispatch = useAppDispatch();
   const isDiff = variant === 'diff-original' || variant === 'diff-current';
-  const showHighlight = !!onEdit && isPackageInfoIncomplete(packageInfo);
+  const showHighlight = !!onEdit;
 
   return (
     <MuiBox sx={classes.formContainer} aria-label={label}>

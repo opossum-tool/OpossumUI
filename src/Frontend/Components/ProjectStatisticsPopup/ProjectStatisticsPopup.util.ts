@@ -20,7 +20,7 @@ import {
   LicenseNamesWithClassification,
   LicenseNamesWithCriticality,
 } from '../../types/types';
-import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
+import { isPackageIncomplete } from '../../util/input-validation';
 
 interface UniqueLicenseNameToAttributions {
   [strippedLicenseName: string]: Array<string>;
@@ -248,7 +248,7 @@ export function aggregateAttributionPropertiesFromAttributions(
     },
     {
       name: attributionPropertyText.incomplete,
-      count: countAttributionsWhere(isPackageInfoIncomplete),
+      count: countAttributionsWhere(isPackageIncomplete),
     },
     {
       name: attributionPropertyText.total,
@@ -385,9 +385,8 @@ export function getIncompleteAttributionsCount(
 ): Array<ChartDataItem> {
   const incompleteAttributionsData: Array<ChartDataItem> = [];
   const numberOfAttributions = Object.keys(attributions).length;
-  const numberOfIncompleteAttributions = Object.values(attributions).filter(
-    isPackageInfoIncomplete,
-  ).length;
+  const numberOfIncompleteAttributions =
+    Object.values(attributions).filter(isPackageIncomplete).length;
 
   if (numberOfAttributions - numberOfIncompleteAttributions !== 0) {
     incompleteAttributionsData.push({

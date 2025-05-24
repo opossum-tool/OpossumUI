@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality, PackageInfo } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { isImportantAttributionInformationMissing } from '../../../util/is-important-attribution-information-missing';
+import { isPackageAttributeIncomplete } from '../../../util/input-validation';
 import { TableConfig } from '../../ReportView/TableConfig';
 import { getFormattedCellData } from '../ReportTableItem.util';
 
@@ -106,7 +106,7 @@ describe('The table helpers', () => {
       };
 
       expect(
-        isImportantAttributionInformationMissing(
+        isPackageAttributeIncomplete(
           testTableConfig.attributionProperty,
           testAttributionInfo,
         ),
@@ -119,7 +119,7 @@ describe('The table helpers', () => {
       };
 
       expect(
-        isImportantAttributionInformationMissing(
+        isPackageAttributeIncomplete(
           testTableConfig.attributionProperty,
           testAttributionInfo,
         ),
@@ -133,7 +133,7 @@ describe('The table helpers', () => {
       };
 
       expect(
-        isImportantAttributionInformationMissing(
+        isPackageAttributeIncomplete(
           testTableConfig.attributionProperty,
           testAttributionInfo,
         ),
@@ -154,7 +154,7 @@ describe('The table helpers', () => {
       id: faker.string.uuid(),
     };
     expect(
-      isImportantAttributionInformationMissing(
+      isPackageAttributeIncomplete(
         testTableConfig.attributionProperty,
         testAttributionInfo,
       ),
@@ -167,7 +167,7 @@ describe('The table helpers', () => {
       id: faker.string.uuid(),
     };
     expect(
-      isImportantAttributionInformationMissing(
+      isPackageAttributeIncomplete(
         testTableConfig.attributionProperty,
         testAttributionInfo,
       ),
@@ -180,7 +180,7 @@ describe('The table helpers', () => {
       id: faker.string.uuid(),
     };
     expect(
-      isImportantAttributionInformationMissing(
+      isPackageAttributeIncomplete(
         testTableConfig.attributionProperty,
         testAttributionInfo,
       ),
@@ -194,7 +194,7 @@ describe('The table helpers', () => {
       id: faker.string.uuid(),
     };
     expect(
-      isImportantAttributionInformationMissing(
+      isPackageAttributeIncomplete(
         testTableConfig.attributionProperty,
         testAttributionInfo,
       ),
