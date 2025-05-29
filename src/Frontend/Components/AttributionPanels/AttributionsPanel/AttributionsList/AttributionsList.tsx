@@ -9,7 +9,7 @@ import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../../../state/hooks';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
-import { isPackageInfoIncomplete } from '../../../../util/is-important-attribution-information-missing';
+import { isPackageIncomplete } from '../../../../util/input-validation';
 import { List, ListItemContentProps } from '../../../List/List';
 import { PackageCard } from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
@@ -62,7 +62,7 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
             selected,
             focused,
             resolved: attributionIdsForReplacement.includes(attributionId),
-            incomplete: isPackageInfoIncomplete(attribution),
+            incomplete: isPackageIncomplete(attribution),
           }}
           packageInfo={attribution}
           checkbox={{

@@ -25,7 +25,10 @@ import {
   useFilteredSignals,
 } from '../../../state/variables/use-filtered-data';
 import { generatePurl } from '../../../util/handle-purl';
-import { isImportantAttributionInformationMissing } from '../../../util/is-important-attribution-information-missing';
+import {
+  isPackageAttributeIncomplete,
+  isPackageAttributeInvalid,
+} from '../../../util/input-validation';
 import { maybePluralize } from '../../../util/maybe-pluralize';
 import { openUrl } from '../../../util/open-url';
 import { PackageSearchHooks } from '../../../util/package-search-hooks';
@@ -144,6 +147,19 @@ export function PackageAutocomplete({
     }
   }, [attributeValue, inputValue]);
 
+  const highlighting = useMemo(() => {
+    if (!showHighlight) {
+      return undefined;
+    }
+    if (isPackageAttributeInvalid(attribute, packageInfo)) {
+      return 'error';
+    }
+    if (isPackageAttributeIncomplete(attribute, packageInfo)) {
+      return 'warning';
+    }
+    return undefined;
+  }, [attribute, packageInfo, showHighlight]);
+
   return (
     <Autocomplete<PackageInfo, false, true, true>
       title={title}
@@ -154,10 +170,7 @@ export function PackageAutocomplete({
       freeSolo
       inputValue={inputValue}
       inputProps={{ color, focused }}
-      error={
-        showHighlight &&
-        isImportantAttributionInformationMissing(attribute, packageInfo)
-      }
+      highlighting={highlighting}
       options={options}
       getOptionLabel={(option) =>
         typeof option === 'string' ? option : option[attribute] || ''

@@ -97,9 +97,9 @@ export function TextBox(props: TextBoxProps) {
   return (
     <MuiBox sx={props.sx}>
       <MuiTooltip
-        {...props.tooltipProps}
         title={props.showTooltip && props.text}
         disableInteractive={true}
+        {...props.tooltipProps}
       >
         <MuiTextField
           disabled={props.disabled}
