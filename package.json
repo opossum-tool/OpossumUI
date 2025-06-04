@@ -73,7 +73,7 @@
     "@types/stream-json": "^1.7.8",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.5.1",
-    "babel-plugin-transform-import-meta": "^2.3.2",
+    "babel-plugin-transform-import-meta": "^2.3.3",
     "cross-env": "^7.0.3",
     "dotenv": "^16.5.0",
     "dpdm": "^3.14.0",
