@@ -4386,12 +4386,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^19.1.7":
-  version: 19.1.7
-  resolution: "@types/react@npm:19.1.7"
+"@types/react@npm:^19.1.8":
+  version: 19.1.8
+  resolution: "@types/react@npm:19.1.8"
   dependencies:
     csstype: "npm:^3.0.2"
-  checksum: 10/a2bd9aea233e9b8b1eb27192ee5cefd5a236b03ef9fce2e5ea8ec612cf4735d38fa443a0a1d0abea61dd166aad205fb8d799055dacfd2f0759da6f59f046fc55
+  checksum: 10/a3e6fe0f60f22828ef887f30993aa147b71532d7b1219dd00d246277eb7a9ca01ec533096237fa21ca1bccb3653373b4e8e59e5ae59f9c793058384bbc1f4d5c
   languageName: node
   linkType: hard
 
@@ -10596,7 +10596,7 @@ __metadata:
     "@types/lodash": "npm:^4.17.17"
     "@types/node": "npm:^22.15.31"
     "@types/object-hash": "npm:^3.0.6"
-    "@types/react": "npm:^19.1.7"
+    "@types/react": "npm:^19.1.8"
     "@types/react-dom": "npm:^19.1.6"
     "@types/stream-json": "npm:^1.7.8"
     "@types/uuid": "npm:^10.0.0"
