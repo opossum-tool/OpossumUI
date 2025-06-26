@@ -4288,7 +4288,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.17.18":
+"@types/lodash@npm:^4.17.19":
   version: 4.17.19
   resolution: "@types/lodash@npm:4.17.19"
   checksum: 10/555e53da60dd9904ef4b6f4e663abb965cf45582079f2ea231a18b0b48df4808b60f36c978548fcf5e307bf12ccd563bd4551963039028ea120b1695c7146f7c
@@ -10649,7 +10649,7 @@ __metadata:
     "@types/chroma-js": "npm:^3.1.1"
     "@types/jest": "npm:^30.0.0"
     "@types/js-yaml": "npm:^4.0.9"
-    "@types/lodash": "npm:^4.17.18"
+    "@types/lodash": "npm:^4.17.19"
     "@types/node": "npm:^22.15.33"
     "@types/object-hash": "npm:^3.0.6"
     "@types/react": "npm:^19.1.8"
