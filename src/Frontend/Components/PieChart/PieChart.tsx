@@ -65,7 +65,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           minAngle={15}
           outerRadius={70}
           isAnimationActive={false}
-          blendStroke={true}
+          stroke="none"
         >
           {pieChartColors.map((record, index) => (
             <RcCell key={`cell-${index}`} fill={record} />
@@ -76,7 +76,16 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           itemStyle={chartTooltipTextStyle}
         />
         <RcLegend
-          content={renderLegend}
+          content={({ payload }) => (
+            <div>
+              {payload?.map((entry, index) => (
+                <div style={{ display: 'flex' }} key={`item-${index}`}>
+                  <div style={getLegendIconStyle(pieChartColors[index])} />
+                  <div style={legendTextStyle}>{entry.value}</div>
+                </div>
+              ))}
+            </div>
+          )}
           verticalAlign="middle"
           align="right"
           layout="vertical"
@@ -85,17 +94,4 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
       </RcPieChart>
     </RcResponsiveContainer>
   );
-
-  function renderLegend(props: { payload?: Array<{ value: string }> }) {
-    return (
-      <div>
-        {props.payload?.map((entry: { value: string }, index: number) => (
-          <div style={{ display: 'flex' }} key={`item-${index}`}>
-            <div style={getLegendIconStyle(pieChartColors[index])} />
-            <div style={legendTextStyle}>{entry.value}</div>
-          </div>
-        ))}
-      </div>
-    );
-  }
 };
