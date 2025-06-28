@@ -15,7 +15,7 @@
     "@mui/system": "^7.1.1",
     "@mui/utils": "^7.1.1",
     "@reduxjs/toolkit": "^2.8.2",
-    "@tanstack/react-query": "^5.81.2",
+    "@tanstack/react-query": "^5.81.4",
     "chroma-js": "^3.1.2",
     "compare-versions": "^6.1.1",
     "dayjs": "^1.11.13",
