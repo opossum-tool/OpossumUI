@@ -3614,7 +3614,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reteps/dockerfmt@npm:^0.3.5":
+"@reteps/dockerfmt@npm:^0.3.6":
   version: 0.3.6
   resolution: "@reteps/dockerfmt@npm:0.3.6"
   checksum: 10/2664c830f0c0c577ef37f9fe6f722d4e0086bf065f51dd4cd992d6df96aba859c0e6cf46e1ddb9853d6969e8cc03eafa4265d4e3bfe44338b7266843c7da41b7
@@ -10769,7 +10769,7 @@ __metadata:
     object-hash: "npm:^3.0.0"
     packageurl-js: "npm:^2.0.1"
     prettier: "npm:^3.6.2"
-    prettier-plugin-sh: "npm:^0.17.4"
+    prettier-plugin-sh: "npm:^0.18.0"
     proxy-memoize: "npm:^3.0.1"
     re-resizable: "npm:^6.11.2"
     react: "npm:^19.1.0"
@@ -11183,15 +11183,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-sh@npm:^0.17.4":
-  version: 0.17.4
-  resolution: "prettier-plugin-sh@npm:0.17.4"
+"prettier-plugin-sh@npm:^0.18.0":
+  version: 0.18.0
+  resolution: "prettier-plugin-sh@npm:0.18.0"
   dependencies:
-    "@reteps/dockerfmt": "npm:^0.3.5"
-    sh-syntax: "npm:^0.5.6"
+    "@reteps/dockerfmt": "npm:^0.3.6"
+    sh-syntax: "npm:^0.5.8"
   peerDependencies:
-    prettier: ^3.0.3
-  checksum: 10/cc2790544241837b1665b29c0a59c15d3615b2509b6afe9d6f692138da8af6910972bd762c1399a4f493501454486887f40a1c27e21ec1e5a0c20a5672eafb7a
+    prettier: ^3.6.0
+  checksum: 10/649d5823f3361695cf394d3302874b9219a3e00c075f19c79084ca97de5530019153733c4d6a8d041af0c930004fcff69b31d0a89338683dc9ae3122a12fa3df
   languageName: node
   linkType: hard
 
@@ -12117,12 +12117,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sh-syntax@npm:^0.5.6":
-  version: 0.5.6
-  resolution: "sh-syntax@npm:0.5.6"
+"sh-syntax@npm:^0.5.8":
+  version: 0.5.8
+  resolution: "sh-syntax@npm:0.5.8"
   dependencies:
     tslib: "npm:^2.8.1"
-  checksum: 10/c9eedeb5ddab589825f26c043c053a58c67a081ac15866ddfe71a9cb49a1ef7b20bf189abd5925bab5b5ba490b96ddd6af7bed3369c85c3afab56a8ea81fcd99
+  checksum: 10/cbc046244b81a997f988f7f2244f953756332720c82054c22d4680d4eee5dc3c5058c9bd84c13b3e9c320ba25970a99e24be465cf265f41ef7cb4c4030cab6d1
   languageName: node
   linkType: hard
 
