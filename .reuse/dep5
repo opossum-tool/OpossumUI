@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: https://github.com/opossum-tool/opossumUI
 
-Files: *.json *.json.gz *.prettierrc *.prettierignore **.gitignore **yarn.lock **.opossum *yarn-*.cjs *.yarnrc.yml *.nvmrc
+Files: *.json *.json.gz *.prettierrc *.prettierignore **.gitignore **yarn.lock **.opossum *yarn-*.cjs *.yarnrc.yml *.nvmrc .env.sample
 Copyright: Meta Platforms, Inc. and its affiliates
            TNG Technology Consulting GmbH <https://www.tngtech.com>
 License: Apache-2.0
