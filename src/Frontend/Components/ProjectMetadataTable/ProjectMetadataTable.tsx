@@ -42,7 +42,11 @@ const values: { [key: string]: { title: string; date: boolean } } = {
   fileCreationDate: { title: 'File Creation Date', date: true },
   projectId: { title: 'Project ID', date: false },
   projectTitle: { title: 'Project Title', date: false },
-  projectVersion: { title: 'Project Version', date: false },
+  releaseVersion: { title: 'Release Version', date: false },
+  appShortName: { title: 'App short name', date: false },
+  appFullName: { title: 'App full name', date: false },
+  projectShortName: { title: 'Project short name', date: false },
+  projectFullName: { title: 'Project full name', date: false },
 };
 
 export const ProjectMetadataTable: React.FC = () => {
