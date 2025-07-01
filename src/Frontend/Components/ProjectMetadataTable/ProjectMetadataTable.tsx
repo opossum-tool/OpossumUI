@@ -30,7 +30,6 @@ const projectMetadataTableClasses = {
     color: OpossumColors.black,
   },
   container: {
-    maxHeight: '500px',
     width: 'max-content',
     marginBottom: 3,
   },
@@ -42,7 +41,11 @@ const values: { [key: string]: { title: string; date: boolean } } = {
   fileCreationDate: { title: 'File Creation Date', date: true },
   projectId: { title: 'Project ID', date: false },
   projectTitle: { title: 'Project Title', date: false },
-  projectVersion: { title: 'Project Version', date: false },
+  releaseVersion: { title: 'Release Version', date: false },
+  appShortName: { title: 'App Short Name', date: false },
+  appFullName: { title: 'App Full Name', date: false },
+  projectShortName: { title: 'Project Short Name', date: false },
+  projectFullName: { title: 'Project Full Name', date: false },
 };
 
 export const ProjectMetadataTable: React.FC = () => {
@@ -51,7 +54,7 @@ export const ProjectMetadataTable: React.FC = () => {
   return (
     <MuiBox>
       <MuiTableContainer sx={projectMetadataTableClasses.container}>
-        <MuiTable>
+        <MuiTable size={'small'}>
           <MuiTableBody>{renderRows()}</MuiTableBody>
         </MuiTable>
       </MuiTableContainer>
