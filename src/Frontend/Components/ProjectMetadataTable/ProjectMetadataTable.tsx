@@ -30,7 +30,6 @@ const projectMetadataTableClasses = {
     color: OpossumColors.black,
   },
   container: {
-    maxHeight: '500px',
     width: 'max-content',
     marginBottom: 3,
   },
@@ -55,7 +54,7 @@ export const ProjectMetadataTable: React.FC = () => {
   return (
     <MuiBox>
       <MuiTableContainer sx={projectMetadataTableClasses.container}>
-        <MuiTable>
+        <MuiTable size={'small'}>
           <MuiTableBody>{renderRows()}</MuiTableBody>
         </MuiTable>
       </MuiTableContainer>
