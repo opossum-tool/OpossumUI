@@ -43,10 +43,10 @@ const values: { [key: string]: { title: string; date: boolean } } = {
   projectId: { title: 'Project ID', date: false },
   projectTitle: { title: 'Project Title', date: false },
   releaseVersion: { title: 'Release Version', date: false },
-  appShortName: { title: 'App short name', date: false },
-  appFullName: { title: 'App full name', date: false },
-  projectShortName: { title: 'Project short name', date: false },
-  projectFullName: { title: 'Project full name', date: false },
+  appShortName: { title: 'App Short Name', date: false },
+  appFullName: { title: 'App Full Name', date: false },
+  projectShortName: { title: 'Project Short Name', date: false },
+  projectFullName: { title: 'Project Full Name', date: false },
 };
 
 export const ProjectMetadataTable: React.FC = () => {
