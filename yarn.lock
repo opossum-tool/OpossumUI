@@ -3688,7 +3688,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.54.0":
+"@playwright/test@npm:^1.54.1":
   version: 1.54.1
   resolution: "@playwright/test@npm:1.54.1"
   dependencies:
@@ -10877,7 +10877,7 @@ __metadata:
     "@mui/material": "npm:^7.2.0"
     "@mui/system": "npm:^7.2.0"
     "@mui/utils": "npm:^7.2.0"
-    "@playwright/test": "npm:^1.54.0"
+    "@playwright/test": "npm:^1.54.1"
     "@reduxjs/toolkit": "npm:^2.8.2"
     "@tanstack/eslint-plugin-query": "npm:^5.81.2"
     "@tanstack/react-query": "npm:^5.82.0"
