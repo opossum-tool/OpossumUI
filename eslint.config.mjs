@@ -198,6 +198,7 @@ export default tseslint.config(
     rules: {
       'playwright/expect-expect': 'off',
       'testing-library/prefer-screen-queries': 'off',
+      'testing-library/no-node-access': 'off',
       'react-hooks/rules-of-hooks': 'off',
     },
   },
