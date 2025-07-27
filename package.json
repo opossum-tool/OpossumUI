@@ -74,7 +74,7 @@
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.7.0",
     "babel-plugin-transform-import-meta": "^2.3.3",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.0.0",
     "dotenv": "^17.2.1",
     "dpdm": "^3.14.0",
     "electron": "37.2.4",
