@@ -7369,14 +7369,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-playwright@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "eslint-plugin-playwright@npm:2.2.0"
+"eslint-plugin-playwright@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "eslint-plugin-playwright@npm:2.2.1"
   dependencies:
     globals: "npm:^13.23.0"
   peerDependencies:
     eslint: ">=8.40.0"
-  checksum: 10/f17255ab715a7b57b30080d3b279b4088041bcc4733c4727ba495052ce500a5bd020b4235287da48e4251281d39039e1d55ab37904cbc4522dcf0a1ae6775b39
+  checksum: 10/9196ae13506f5f088842886990d5850cadb0d47508de50b3927d387cefa70a70a53f7891e7a095d1813d880bf81fe4e0d183af703ef01c864d05a487dc20bc58
   languageName: node
   linkType: hard
 
@@ -10968,7 +10968,7 @@ __metadata:
     eslint-plugin-filenames-simple: "npm:^0.9.0"
     eslint-plugin-jest: "npm:^29.0.1"
     eslint-plugin-jest-dom: "npm:^5.5.0"
-    eslint-plugin-playwright: "npm:^2.2.0"
+    eslint-plugin-playwright: "npm:^2.2.1"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^5.2.0"
     eslint-plugin-testing-library: "npm:^7.6.1"
