@@ -349,6 +349,68 @@ describe('The updateManualAttribution function', () => {
       expectedManualAttributionsToResources,
     );
   });
+
+  it('sets a preferred flag to the manual attribution', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: { child: 1 },
+          resourcesToExternalAttributions: {
+            '/child': ['externalUuid'],
+          },
+          externalAttributions: {
+            externalUuid: {
+              source: { name: 'testSource', documentConfidence: 0 },
+              originIds: ['originId'],
+              criticality: Criticality.None,
+              id: 'externalUuid',
+            },
+          },
+          externalAttributionSources: {
+            testSource: {
+              name: 'Test source',
+              priority: 0,
+              isRelevantForPreferred: true,
+            },
+          },
+          manualAttributions: {
+            manualUuid1: {
+              criticality: Criticality.None,
+              id: 'manualUuid1',
+            },
+            manualUuid2: {
+              criticality: Criticality.None,
+              id: 'manualUuid2',
+            },
+          },
+          resourcesToManualAttributions: {
+            '/': ['manualUuid1'],
+            '/child/': ['manualUuid2'],
+          },
+        }),
+      ),
+    );
+    const resourceState = testStore.getState().resourceState;
+    const testManualData = getManualData(testStore.getState());
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
+      id: 'manualUuid2',
+      preferred: true,
+      criticality: Criticality.None,
+    };
+
+    const newManualData: AttributionData = updateManualAttribution(
+      'manualUuid1',
+      testManualData,
+      testTemporaryDisplayPackageInfo,
+      '/something.js',
+      getCalculatePreferredOverOriginIds(resourceState),
+    );
+
+    const changedAttribution = newManualData.attributions['manualUuid1'];
+    expect(changedAttribution.preferred).toBe(true);
+    expect(changedAttribution.preferredOverOriginIds).toEqual(['originId']);
+  });
 });
 
 describe('The linkToAttributionManualData function', () => {
