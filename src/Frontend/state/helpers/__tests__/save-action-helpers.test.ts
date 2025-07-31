@@ -335,6 +335,8 @@ describe('The updateManualAttribution function', () => {
       testUuid,
       testManualData,
       testTemporaryDisplayPackageInfo,
+      '/something.js',
+      getCalculatePreferredOverOriginIds(initialResourceState),
     );
 
     expect(newManualData.attributions).toEqual({
