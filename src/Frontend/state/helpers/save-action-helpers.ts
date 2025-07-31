@@ -90,8 +90,10 @@ export function updateManualAttribution(
   attributionIdToUpdate: string,
   manualData: AttributionData,
   packageInfo: PackageInfo,
+  selectedResource: string,
+  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
-  return {
+  const newManualData = {
     ...manualData,
     attributions: {
       ...manualData.attributions,
@@ -102,6 +104,13 @@ export function updateManualAttribution(
       },
     },
   };
+  recalculatePreferencesOfParents(
+    selectedResource,
+    newManualData,
+    calculatePreferredOverOriginIds,
+  );
+
+  return newManualData;
 }
 
 export function deleteManualAttribution(
