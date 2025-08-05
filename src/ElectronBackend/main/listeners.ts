@@ -96,7 +96,7 @@ async function writeOutputJsonToFile(
   if (fileLoadedType === LoadedFileFormat.Opossum) {
     await writeOpossumFile({
       path: globalBackendState.opossumFilePath as string,
-      input: getGlobalBackendState().inputFileRaw,
+      input: globalBackendState.inputFileRaw,
       output: outputFileContent,
     });
   } else {
