@@ -2763,22 +2763,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fast-csv/format@npm:5.0.2":
-  version: 5.0.2
-  resolution: "@fast-csv/format@npm:5.0.2"
+"@fast-csv/format@npm:5.0.5":
+  version: 5.0.5
+  resolution: "@fast-csv/format@npm:5.0.5"
   dependencies:
     lodash.escaperegexp: "npm:^4.1.2"
     lodash.isboolean: "npm:^3.0.3"
-    lodash.isequal: "npm:^4.5.0"
     lodash.isfunction: "npm:^3.0.9"
     lodash.isnil: "npm:^4.0.0"
-  checksum: 10/69e758e4756ac3bb66da35b45d15eccf7c0163f0ac3fb71d699e8c91fc1d8f74086de918b4f90f1afd8fc6cf25bec4ac180786f4ed5f9a8dfa842969b8dbb518
+  checksum: 10/0a715a9fcd12a52ccdcbb20835b9ace94901f19a59fde1f067bb6c98fef8d71860ea7027d0ed65628fe34c7b04cb9e70b2dc790c375747b58d0277976b5c82c9
   languageName: node
   linkType: hard
 
-"@fast-csv/parse@npm:5.0.2":
-  version: 5.0.2
-  resolution: "@fast-csv/parse@npm:5.0.2"
+"@fast-csv/parse@npm:5.0.5":
+  version: 5.0.5
+  resolution: "@fast-csv/parse@npm:5.0.5"
   dependencies:
     lodash.escaperegexp: "npm:^4.1.2"
     lodash.groupby: "npm:^4.6.0"
@@ -2786,7 +2785,7 @@ __metadata:
     lodash.isnil: "npm:^4.0.0"
     lodash.isundefined: "npm:^3.0.1"
     lodash.uniq: "npm:^4.5.0"
-  checksum: 10/700b59345d0c128793472ad810e1bd5b19b9ad35457afa8b6645701ae04c7abf4f795cfe08de1cbfeb5ebe6cfa5c51eb7e1f67feaf6df99dd8e0c82dbdb1fdaa
+  checksum: 10/6df1e526064a936140a37e5aa73bce6cc19e0495b0a6ff7514fa0ae1b98e302ae45c6f7757221b898ce0e49f4bd453fe73e176ce313f830958bb0a71109da6d9
   languageName: node
   linkType: hard
 
@@ -7671,13 +7670,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-csv@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "fast-csv@npm:5.0.2"
+"fast-csv@npm:^5.0.5":
+  version: 5.0.5
+  resolution: "fast-csv@npm:5.0.5"
   dependencies:
-    "@fast-csv/format": "npm:5.0.2"
-    "@fast-csv/parse": "npm:5.0.2"
-  checksum: 10/c3356a97b19df3f49b1bb8869c76a79dadba89032138dce8f27de802c171d30822c4ac50d519721a8273f9cdff6094bf3071aff11f0a57752c56f0fef8e90429
+    "@fast-csv/format": "npm:5.0.5"
+    "@fast-csv/parse": "npm:5.0.5"
+  checksum: 10/5a6df7174ed9f59181480bc428476dbe8a37f25b8d14166cd303ee275d7fd01772af22ad9a23e068d72b2bf4d755e54b8501aa03e8cebac88330c1f7ab105c6c
   languageName: node
   linkType: hard
 
@@ -10101,13 +10100,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.isequal@npm:^4.5.0":
-  version: 4.5.0
-  resolution: "lodash.isequal@npm:4.5.0"
-  checksum: 10/82fc58a83a1555f8df34ca9a2cd300995ff94018ac12cc47c349655f0ae1d4d92ba346db4c19bbfc90510764e0c00ddcc985a358bdcd4b3b965abf8f2a48a214
-  languageName: node
-  linkType: hard
-
 "lodash.isfunction@npm:^3.0.9":
   version: 3.0.9
   resolution: "lodash.isfunction@npm:3.0.9"
@@ -10972,7 +10964,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^5.2.0"
     eslint-plugin-testing-library: "npm:^7.6.3"
-    fast-csv: "npm:^5.0.2"
+    fast-csv: "npm:^5.0.5"
     fflate: "npm:^0.8.2"
     globals: "npm:^16.3.0"
     husky: "npm:9.1.7"
