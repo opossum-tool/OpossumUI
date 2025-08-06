@@ -6,8 +6,10 @@
 import { isEmpty, isEqual } from 'lodash';
 
 import { Criticality, PackageInfo } from '../../../../shared/shared-types';
+import { correctFilePathsInResourcesMapping } from '../../../util/can-resource-have-children';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
+  getFilesWithChildren,
   getManualAttributions,
   getManualAttributionsToResources,
   getResolvedExternalAttributions,
@@ -97,7 +99,10 @@ export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
   return (_, getState) => {
     window.electronAPI.saveFile({
       manualAttributions: getManualAttributions(getState()),
-      resourcesToAttributions: getResourcesToManualAttributions(getState()),
+      resourcesToAttributions: correctFilePathsInResourcesMapping(
+        getResourcesToManualAttributions(getState()),
+        getFilesWithChildren(getState()),
+      ),
       resolvedExternalAttributions: getResolvedExternalAttributions(getState()),
     });
   };
