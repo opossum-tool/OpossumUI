@@ -201,7 +201,7 @@ describe('The updateManualAttribution function', () => {
           },
           resourcesToExternalAttributions: {
             '/folder/folder2/child': ['externalUuid'],
-            '/folder/file1': ['externalUuid1'],
+            '/folder/file': ['externalUuid1'],
           },
           externalAttributions: {
             externalUuid: {
@@ -267,6 +267,11 @@ describe('The updateManualAttribution function', () => {
     expect(changedAttribution.preferred).toBe(true);
     expect(changedAttribution.preferredOverOriginIds).toBeFalsy();
     const unchangedAttribution = newManualData.attributions['manualUuid1'];
-    expect(unchangedAttribution.preferredOverOriginIds).toEqual(['originId']);
+    expect(unchangedAttribution.preferredOverOriginIds).toHaveLength(2);
+    expect(unchangedAttribution.preferredOverOriginIds).toEqual([
+      'originId1',
+      'originId',
+    ]);
+    expect(unchangedAttribution.preferred).toBe(true);
   });
 });
