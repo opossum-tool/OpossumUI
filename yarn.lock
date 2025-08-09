@@ -11084,7 +11084,7 @@ __metadata:
     typescript-eslint: "npm:^8.39.0"
     upath: "npm:^2.0.1"
     uuid: "npm:^11.1.0"
-    vite: "npm:^7.1.0"
+    vite: "npm:^7.1.1"
     vite-plugin-electron: "npm:^0.29.0"
     vite-plugin-svgr: "npm:^4.3.0"
     vite-tsconfig-paths: "npm:^5.1.4"
@@ -13728,7 +13728,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^7.1.0":
+"vite@npm:^7.1.1":
   version: 7.1.1
   resolution: "vite@npm:7.1.1"
   dependencies:
