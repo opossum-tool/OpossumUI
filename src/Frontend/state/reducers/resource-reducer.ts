@@ -219,12 +219,15 @@ export const resourceState = (
       };
     }
     case ACTION_UPDATE_ATTRIBUTION: {
+      const attributionIdToUpdate = action.payload.attributionId;
+      const selectedResourceId = state.selectedResourceId;
       const manualData = updateManualAttribution(
-        action.payload.attributionId,
+        attributionIdToUpdate,
         state.manualData,
         action.payload.packageInfo,
+        selectedResourceId,
+        getCalculatePreferredOverOriginIds(state),
       );
-
       return {
         ...state,
         manualData,
