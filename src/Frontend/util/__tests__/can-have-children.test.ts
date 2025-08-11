@@ -8,7 +8,7 @@ import {
 } from '../../../shared/shared-types';
 import {
   canResourceHaveChildren,
-  correctFilePathsInResourcesMapping,
+  correctFilePathsInResourcesMappingForOutput,
   isIdOfResourceWithChildren,
 } from '../can-resource-have-children';
 
@@ -40,7 +40,7 @@ describe('isIdOfResourceWithChildren', () => {
   });
 });
 
-describe('correctFilePathsInResourcesMapping', () => {
+describe('correctFilePathsInResourcesMappingForOutput', () => {
   const testResourcesToAttributions: ResourcesToAttributions = {
     '/file': ['id1'],
     '/folder/': ['id2'],
@@ -51,7 +51,7 @@ describe('correctFilePathsInResourcesMapping', () => {
   it('does nothing to paths not in files with children', () => {
     const filesWithChildren = new Set<string>();
     expect(
-      correctFilePathsInResourcesMapping(
+      correctFilePathsInResourcesMappingForOutput(
         testResourcesToAttributions,
         filesWithChildren,
       ),
@@ -59,10 +59,10 @@ describe('correctFilePathsInResourcesMapping', () => {
   });
 
   it('removes trailing slashes for files with children', () => {
-    const filesWithChildren = new Set(['/fileWithChildren']);
+    const filesWithChildren = new Set(['/fileWithChildren/']);
 
     expect(
-      correctFilePathsInResourcesMapping(
+      correctFilePathsInResourcesMappingForOutput(
         testResourcesToAttributions,
         filesWithChildren,
       ),

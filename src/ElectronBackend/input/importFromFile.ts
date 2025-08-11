@@ -34,6 +34,7 @@ import {
   parseOutputJsonFile,
 } from './parseFile';
 import {
+  addTrailingSlashIfAbsent,
   deserializeAttributions,
   getAttributionsToResources,
   mergeAttributions,
@@ -163,9 +164,20 @@ export async function loadInputAndOutputFromFilePath(
     }
   }
 
+  const filesWithChildrenSet = new Set(
+    parsedInputData.filesWithChildren?.map(addTrailingSlashIfAbsent),
+  );
+
+  processingStatusUpdater.info('Sanitizing map of resources to attributions');
+  const normalizedOutputResourcesToAttributions =
+    sanitizeResourcesToAttributions(
+      parsedInputData.resources,
+      parsedOutputData.resourcesToAttributions,
+    );
+
   processingStatusUpdater.info('Calculating attributions to resources');
   const manualAttributionsToResources = getAttributionsToResources(
-    parsedOutputData.resourcesToAttributions,
+    normalizedOutputResourcesToAttributions,
   );
 
   processingStatusUpdater.info('Deserializing attributions');
@@ -181,7 +193,7 @@ export async function loadInputAndOutputFromFilePath(
     config: configuration,
     manualAttributions: {
       attributions: manualAttributions,
-      resourcesToAttributions: parsedOutputData.resourcesToAttributions,
+      resourcesToAttributions: normalizedOutputResourcesToAttributions,
       attributionsToResources: manualAttributionsToResources,
     },
     externalAttributions: {
@@ -194,7 +206,7 @@ export async function loadInputAndOutputFromFilePath(
       parsedOutputData.resolvedExternalAttributions,
     ),
     attributionBreakpoints: new Set(parsedInputData.attributionBreakpoints),
-    filesWithChildren: new Set(parsedInputData.filesWithChildren),
+    filesWithChildren: filesWithChildrenSet,
     baseUrlsForSources: sanitizeRawBaseUrlsForSources(
       parsedInputData.baseUrlsForSources,
     ),

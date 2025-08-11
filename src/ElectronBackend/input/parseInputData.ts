@@ -22,7 +22,7 @@ import {
 } from '../../shared/shared-types';
 import { RawFrequentLicense } from '../types/types';
 
-function addTrailingSlashIfAbsent(resourcePath: string): string {
+export function addTrailingSlashIfAbsent(resourcePath: string): string {
   return resourcePath.endsWith('/') ? resourcePath : resourcePath.concat('/');
 }
 
@@ -63,12 +63,16 @@ export function sanitizeResourcesToAttributions(
         accumulatedResult: Array<[string, Array<string>]>,
         [path, attributions],
       ) => {
-        const pathWithSlashes = addTrailingSlashIfAbsent(path);
+        const pathWithSlash = addTrailingSlashIfAbsent(path);
+        const pathWithoutSlash = pathWithSlash.slice(
+          0,
+          pathWithSlash.length - 1,
+        );
 
-        if (allResourcePaths.has(path)) {
-          accumulatedResult.push([path, attributions]);
-        } else if (allResourcePaths.has(pathWithSlashes)) {
-          accumulatedResult.push([pathWithSlashes, attributions]);
+        if (allResourcePaths.has(pathWithSlash)) {
+          accumulatedResult.push([pathWithSlash, attributions]);
+        } else if (allResourcePaths.has(pathWithoutSlash)) {
+          accumulatedResult.push([pathWithoutSlash, attributions]);
         }
 
         return accumulatedResult;

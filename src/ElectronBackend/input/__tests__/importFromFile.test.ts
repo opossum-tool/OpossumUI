@@ -274,7 +274,7 @@ describe('Test of loading function', () => {
         },
       },
       resourcesToAttributions: {
-        '/path/1': [testUuid],
+        '/folder/': [testUuid],
       },
       resolvedExternalAttributions: [],
     };
@@ -409,7 +409,7 @@ describe('Test of loading function', () => {
         },
       },
       resourcesToAttributions: {
-        '/path/1': [testUuid],
+        '/folder': [testUuid], // this folder is missing the trailing slash intentionally - it gets sanitized during loading
       },
       resolvedExternalAttributions: [],
     };
@@ -710,10 +710,10 @@ function assertFileLoadedCorrectly(testUuid: string): void {
         },
       },
       resourcesToAttributions: {
-        '/path/1': [testUuid],
+        '/folder/': [testUuid],
       },
       attributionsToResources: {
-        [testUuid]: ['/path/1'],
+        [testUuid]: ['/folder/'],
       },
     },
   };
