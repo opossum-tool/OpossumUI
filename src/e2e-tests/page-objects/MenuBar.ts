@@ -170,7 +170,7 @@ export class MenuBar {
       submenu,
     );
     expect(menuItem?.enabled).toBe(true);
-    await clickMenuItemById(this.window.app, menuItem!.id);
+    await clickMenuItemById(this.window.app, menuItem!.id!);
   }
 
   async openProjectStatistics(): Promise<void> {
