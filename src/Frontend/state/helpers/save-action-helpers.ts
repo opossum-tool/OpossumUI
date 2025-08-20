@@ -93,7 +93,7 @@ export function updateManualAttribution(
   selectedResource: string,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
-  const newManualData = {
+  const newManualData: AttributionData = {
     ...manualData,
     attributions: {
       ...manualData.attributions,

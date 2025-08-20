@@ -9,19 +9,13 @@ import upath from 'upath';
 
 import { getIconPath } from './iconHelpers';
 
-const openDevTools = (mainWindow: BrowserWindow) => {
-  const devtools = new BrowserWindow();
-  mainWindow.webContents.setDevToolsWebContents(devtools.webContents);
-  mainWindow.webContents.openDevTools({ mode: 'detach' });
-};
-
 export async function loadWebApp(
   mainWindow: Electron.CrossProcessExports.BrowserWindow,
 ) {
   if (!app.isPackaged) {
     await mainWindow.loadURL('http://localhost:5173/');
 
-    openDevTools(mainWindow);
+    mainWindow.webContents.openDevTools();
   } else {
     await mainWindow.loadURL(
       `file://${path.join(upath.toUnix(__dirname), '../../index.html')}`,
