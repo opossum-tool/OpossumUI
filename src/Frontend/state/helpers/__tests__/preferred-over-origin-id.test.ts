@@ -129,7 +129,7 @@ describe('The updateManualAttribution function', () => {
     expect(changedAttribution.preferredOverOriginIds).toHaveLength(0);
   });
 
-  it('does not set preferred over origin ids if only the selected element has a manual attribution', () => {
+  it('sets preferred over origin ids over the manual attribution of the selected element', () => {
     const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -183,7 +183,7 @@ describe('The updateManualAttribution function', () => {
 
     const changedAttribution = newManualData.attributions['manualUuid2'];
     expect(changedAttribution.preferred).toBe(true);
-    expect(changedAttribution.preferredOverOriginIds).toBeFalsy();
+    expect(changedAttribution.preferredOverOriginIds).toEqual(['originId']);
   });
 
   it('takes the preferred over origin ids only from the higher manual attribution', () => {
@@ -265,7 +265,7 @@ describe('The updateManualAttribution function', () => {
 
     const changedAttribution = newManualData.attributions['manualUuid2'];
     expect(changedAttribution.preferred).toBe(true);
-    expect(changedAttribution.preferredOverOriginIds).toBeFalsy();
+    expect(changedAttribution.preferredOverOriginIds).toEqual(['originId']);
     const unchangedAttribution = newManualData.attributions['manualUuid1'];
     expect(unchangedAttribution.preferredOverOriginIds).toHaveLength(2);
     expect(unchangedAttribution.preferredOverOriginIds).toEqual([

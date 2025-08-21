@@ -30,12 +30,37 @@ export type CalculatePreferredOverOriginIds = (
   newManualAttributionToResources: AttributionsToResources,
 ) => Array<string>;
 
+function calculateNewPackageInfo(
+  packageInfo: PackageInfo,
+  newAttributionId: string,
+  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
+  selectedResourceId: string,
+  manualData: AttributionData,
+) {
+  console.log('calculateNewPackageInfo');
+  console.log(packageInfo);
+  const newAttribution: PackageInfo = {
+    ...getStrippedPackageInfo(packageInfo),
+    criticality: Criticality.None,
+    id: newAttributionId,
+  };
+  if (newAttribution.preferred) {
+    newAttribution.preferredOverOriginIds = calculatePreferredOverOriginIds(
+      selectedResourceId,
+      manualData.attributionsToResources,
+    ).filter((value) => !packageInfo.originIds?.includes(value));
+  }
+  console.log(newAttribution);
+  return newAttribution;
+}
+
 export function createManualAttribution(
   manualData: AttributionData,
   selectedResourceId: string,
   packageInfo: PackageInfo,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): { newManualData: AttributionData; newAttributionId: string } {
+  console.log('createManualAttribution');
   const newAttributionId = uuid4();
 
   const attributionIdsOfSelectedResource: Array<string> = manualData
@@ -47,11 +72,13 @@ export function createManualAttribution(
   const newManualData: AttributionData = {
     attributions: {
       ...manualData.attributions,
-      [newAttributionId]: {
-        ...getStrippedPackageInfo(packageInfo),
-        criticality: Criticality.None,
-        id: newAttributionId,
-      },
+      [newAttributionId]: calculateNewPackageInfo(
+        packageInfo,
+        newAttributionId,
+        calculatePreferredOverOriginIds,
+        selectedResourceId,
+        manualData,
+      ),
     },
     resourcesToAttributions: {
       ...manualData.resourcesToAttributions,
@@ -93,15 +120,18 @@ export function updateManualAttribution(
   selectedResource: string,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
+  console.log('updateManualAttribution');
   const newManualData: AttributionData = {
     ...manualData,
     attributions: {
       ...manualData.attributions,
-      [attributionIdToUpdate]: {
-        ...getStrippedPackageInfo(packageInfo),
-        criticality: Criticality.None,
-        id: attributionIdToUpdate,
-      },
+      [attributionIdToUpdate]: calculateNewPackageInfo(
+        packageInfo,
+        attributionIdToUpdate,
+        calculatePreferredOverOriginIds,
+        selectedResource,
+        manualData,
+      ),
     },
   };
   recalculatePreferencesOfParents(

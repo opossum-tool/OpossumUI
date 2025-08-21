@@ -111,6 +111,7 @@ export const resourceState = (
   state: ResourceState = initialResourceState,
   action: ResourceAction,
 ): ResourceState => {
+  console.log(action);
   switch (action.type) {
     case ACTION_RESET_RESOURCE_STATE:
       return initialResourceState;
