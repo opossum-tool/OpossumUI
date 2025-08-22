@@ -30,6 +30,27 @@ export type CalculatePreferredOverOriginIds = (
   newManualAttributionToResources: AttributionsToResources,
 ) => Array<string>;
 
+function calculateNewPackageInfo(
+  packageInfo: PackageInfo,
+  newAttributionId: string,
+  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
+  selectedResourceId: string,
+  manualData: AttributionData,
+) {
+  const newAttribution: PackageInfo = {
+    ...getStrippedPackageInfo(packageInfo),
+    criticality: Criticality.None,
+    id: newAttributionId,
+  };
+  if (newAttribution.preferred) {
+    newAttribution.preferredOverOriginIds = calculatePreferredOverOriginIds(
+      selectedResourceId,
+      manualData.attributionsToResources,
+    ).filter((value) => !packageInfo.originIds?.includes(value));
+  }
+  return newAttribution;
+}
+
 export function createManualAttribution(
   manualData: AttributionData,
   selectedResourceId: string,
@@ -47,11 +68,13 @@ export function createManualAttribution(
   const newManualData: AttributionData = {
     attributions: {
       ...manualData.attributions,
-      [newAttributionId]: {
-        ...getStrippedPackageInfo(packageInfo),
-        criticality: Criticality.None,
-        id: newAttributionId,
-      },
+      [newAttributionId]: calculateNewPackageInfo(
+        packageInfo,
+        newAttributionId,
+        calculatePreferredOverOriginIds,
+        selectedResourceId,
+        manualData,
+      ),
     },
     resourcesToAttributions: {
       ...manualData.resourcesToAttributions,
@@ -90,18 +113,29 @@ export function updateManualAttribution(
   attributionIdToUpdate: string,
   manualData: AttributionData,
   packageInfo: PackageInfo,
+  selectedResource: string,
+  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
-  return {
+  const newManualData: AttributionData = {
     ...manualData,
     attributions: {
       ...manualData.attributions,
-      [attributionIdToUpdate]: {
-        ...getStrippedPackageInfo(packageInfo),
-        criticality: Criticality.None,
-        id: attributionIdToUpdate,
-      },
+      [attributionIdToUpdate]: calculateNewPackageInfo(
+        packageInfo,
+        attributionIdToUpdate,
+        calculatePreferredOverOriginIds,
+        selectedResource,
+        manualData,
+      ),
     },
   };
+  recalculatePreferencesOfParents(
+    selectedResource,
+    newManualData,
+    calculatePreferredOverOriginIds,
+  );
+
+  return newManualData;
 }
 
 export function deleteManualAttribution(

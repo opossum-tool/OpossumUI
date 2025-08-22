@@ -223,8 +223,9 @@ export const resourceState = (
         action.payload.attributionId,
         state.manualData,
         action.payload.packageInfo,
+        state.selectedResourceId,
+        getCalculatePreferredOverOriginIds(state),
       );
-
       return {
         ...state,
         manualData,
