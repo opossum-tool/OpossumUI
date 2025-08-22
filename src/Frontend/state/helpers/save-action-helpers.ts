@@ -37,8 +37,6 @@ function calculateNewPackageInfo(
   selectedResourceId: string,
   manualData: AttributionData,
 ) {
-  console.log('calculateNewPackageInfo');
-  console.log(packageInfo);
   const newAttribution: PackageInfo = {
     ...getStrippedPackageInfo(packageInfo),
     criticality: Criticality.None,
@@ -50,7 +48,6 @@ function calculateNewPackageInfo(
       manualData.attributionsToResources,
     ).filter((value) => !packageInfo.originIds?.includes(value));
   }
-  console.log(newAttribution);
   return newAttribution;
 }
 
@@ -60,7 +57,6 @@ export function createManualAttribution(
   packageInfo: PackageInfo,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): { newManualData: AttributionData; newAttributionId: string } {
-  console.log('createManualAttribution');
   const newAttributionId = uuid4();
 
   const attributionIdsOfSelectedResource: Array<string> = manualData
@@ -120,7 +116,6 @@ export function updateManualAttribution(
   selectedResource: string,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
-  console.log('updateManualAttribution');
   const newManualData: AttributionData = {
     ...manualData,
     attributions: {
