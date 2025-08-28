@@ -18,7 +18,7 @@
     "@tanstack/react-query": "^5.85.5",
     "chroma-js": "^3.1.2",
     "compare-versions": "^6.1.1",
-    "dayjs": "^1.11.13",
+    "dayjs": "^1.11.14",
     "electron-log": "^5.4.3",
     "electron-settings": "^4.0.4",
     "fast-csv": "^5.0.5",
