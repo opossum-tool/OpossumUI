@@ -8,7 +8,7 @@ const config = {
   testEnvironment: 'jsdom',
   resetMocks: false,
   transformIgnorePatterns: [
-    '/node_modules/(?!d3-*|internmap|axios|react-hotkeys-hook|@faker-js/faker)',
+    '/node_modules/(?!d3-*|internmap|axios|react-hotkeys-hook|@faker-js/faker|uuid)',
   ],
   setupFilesAfterEnv: ['./src/testing/setup-tests.ts'],
   watchAll: false,

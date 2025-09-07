@@ -4888,13 +4888,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "@types/uuid@npm:10.0.0"
-  checksum: 10/e3958f8b0fe551c86c14431f5940c3470127293280830684154b91dc7eb3514aeb79fe3216968833cf79d4d1c67f580f054b5be2cd562bebf4f728913e73e944
-  languageName: node
-  linkType: hard
-
 "@types/verror@npm:^1.10.3":
   version: 1.10.8
   resolution: "@types/verror@npm:1.10.8"
@@ -11299,7 +11292,6 @@ __metadata:
     "@types/react": "npm:^19.1.12"
     "@types/react-dom": "npm:^19.1.9"
     "@types/stream-json": "npm:^1.7.8"
-    "@types/uuid": "npm:^10.0.0"
     "@vitejs/plugin-react": "npm:^5.0.2"
     babel-plugin-transform-import-meta: "npm:^2.3.3"
     chroma-js: "npm:^3.1.2"
@@ -11356,7 +11348,7 @@ __metadata:
     typescript: "npm:^5.9.2"
     typescript-eslint: "npm:^8.42.0"
     upath: "npm:^2.0.1"
-    uuid: "npm:^11.1.0"
+    uuid: "npm:^12.0.0"
     vite: "npm:^7.1.4"
     vite-plugin-electron: "npm:^0.29.0"
     vite-plugin-svgr: "npm:^4.5.0"
@@ -13926,12 +13918,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^11.1.0":
-  version: 11.1.0
-  resolution: "uuid@npm:11.1.0"
+"uuid@npm:^12.0.0":
+  version: 12.0.0
+  resolution: "uuid@npm:12.0.0"
   bin:
-    uuid: dist/esm/bin/uuid
-  checksum: 10/d2da43b49b154d154574891ced66d0c83fc70caaad87e043400cf644423b067542d6f3eb641b7c819224a7cd3b4c2f21906acbedd6ec9c6a05887aa9115a9cf5
+    uuid: dist/bin/uuid
+  checksum: 10/18079c61ec2ca899d8df034ed543dc4844ec14d3bddc3099149d4c076a28c76dfc7434bcc5fafae8799f894da6acaa055bd7e97eedb6cba2840994f02849b801
   languageName: node
   linkType: hard
 
