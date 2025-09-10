@@ -11347,7 +11347,7 @@ __metadata:
     typescript: "npm:^5.9.2"
     typescript-eslint: "npm:^8.43.0"
     upath: "npm:^2.0.1"
-    uuid: "npm:^12.0.0"
+    uuid: "npm:^13.0.0"
     vite: "npm:^7.1.5"
     vite-plugin-electron: "npm:^0.29.0"
     vite-plugin-svgr: "npm:^4.5.0"
@@ -13917,12 +13917,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^12.0.0":
-  version: 12.0.0
-  resolution: "uuid@npm:12.0.0"
+"uuid@npm:^13.0.0":
+  version: 13.0.0
+  resolution: "uuid@npm:13.0.0"
   bin:
-    uuid: dist/bin/uuid
-  checksum: 10/18079c61ec2ca899d8df034ed543dc4844ec14d3bddc3099149d4c076a28c76dfc7434bcc5fafae8799f894da6acaa055bd7e97eedb6cba2840994f02849b801
+    uuid: dist-node/bin/uuid
+  checksum: 10/2742b24d1e00257e60612572e4d28679423469998cafbaf1fe9f1482e3edf9c40754b31bfdb3d08d71b29239f227a304588f75210b3b48f2609f0673f1feccef
   languageName: node
   linkType: hard
 
