@@ -13,7 +13,11 @@
   "prConcurrentLimit": 5,
   "prCreation": "not-pending",
   "rangeStrategy": "bump",
-  "minimumReleaseAge": "1 day",
+  "minimumReleaseAge": "3 days",
+  "vulnerabilityAlerts": {
+    "enabled": true
+  },
+  "osvVulnerabilityAlerts": true,
   "nvm": {
     "enabled": false
   },
