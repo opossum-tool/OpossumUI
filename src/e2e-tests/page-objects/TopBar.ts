@@ -60,24 +60,36 @@ export class TopBar {
       await retry(async () => {
         await this.progressBar.hover();
         await Promise.all([
-          filesWithAttributions &&
-            (await expect(
-              this.tooltip.getByText(
-                `with attributions: ${filesWithAttributions}`,
-              ),
-            ).toBeVisible()),
-          filesWithOnlyPreSelectedAttributions &&
-            (await expect(
-              this.tooltip.getByText(
-                `with only pre-selected attributions: ${filesWithOnlyPreSelectedAttributions}`,
-              ),
-            ).toBeVisible()),
-          filesWithOnlySignals &&
-            (await expect(
-              this.tooltip.getByText(
-                `with only signals: ${filesWithOnlySignals}`,
-              ),
-            ).toBeVisible()),
+          ...(filesWithAttributions
+            ? [
+                // eslint-disable-next-line playwright/missing-playwright-await
+                expect(
+                  this.tooltip.getByText(
+                    `with attributions: ${filesWithAttributions}`,
+                  ),
+                ).toBeVisible(),
+              ]
+            : []),
+          ...(filesWithOnlyPreSelectedAttributions
+            ? [
+                // eslint-disable-next-line playwright/missing-playwright-await
+                expect(
+                  this.tooltip.getByText(
+                    `with only pre-selected attributions: ${filesWithOnlyPreSelectedAttributions}`,
+                  ),
+                ).toBeVisible(),
+              ]
+            : []),
+          ...(filesWithOnlySignals
+            ? [
+                // eslint-disable-next-line playwright/missing-playwright-await
+                expect(
+                  this.tooltip.getByText(
+                    `with only signals: ${filesWithOnlySignals}`,
+                  ),
+                ).toBeVisible(),
+              ]
+            : []),
         ]);
       });
     },
