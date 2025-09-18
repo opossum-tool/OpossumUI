@@ -56,7 +56,7 @@ export interface PopupInfo {
   fileFormat?: FileFormatInfo;
 }
 
-export interface ChartDataItem {
+export interface ChartDataItem extends Record<string, unknown> {
   name: string;
   count: number;
 }
