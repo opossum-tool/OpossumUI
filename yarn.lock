@@ -7726,15 +7726,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-testing-library@npm:^7.8.0":
-  version: 7.8.0
-  resolution: "eslint-plugin-testing-library@npm:7.8.0"
+"eslint-plugin-testing-library@npm:^7.8.1":
+  version: 7.9.2
+  resolution: "eslint-plugin-testing-library@npm:7.9.2"
   dependencies:
     "@typescript-eslint/scope-manager": "npm:^8.15.0"
     "@typescript-eslint/utils": "npm:^8.15.0"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0
-  checksum: 10/3fe3cbddde273220664aa55271ed94301bcfe3e38c97bf7f0859d7c41d010709fa8e2d4587a1b1bcfad6e4466e49b612e89a967f36fb98f512dd3745fe7ee6c4
+  checksum: 10/38c13ca42d983160e3653462a5cf189dfb2df6230eec8033cb6b6251615d55265f9aba944ea25de3cd3416da98a0404209a351bf33d2f5999b86b0dcf7a47caf
   languageName: node
   linkType: hard
 
@@ -11278,7 +11278,7 @@ __metadata:
     eslint-plugin-playwright: "npm:^2.2.2"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^5.2.0"
-    eslint-plugin-testing-library: "npm:^7.8.0"
+    eslint-plugin-testing-library: "npm:^7.8.1"
     fast-csv: "npm:^5.0.5"
     fflate: "npm:^0.8.2"
     globals: "npm:^16.4.0"
