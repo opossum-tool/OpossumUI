@@ -71,7 +71,7 @@
     "@types/react": "^19.1.14",
     "@types/react-dom": "^19.1.9",
     "@types/stream-json": "^1.7.8",
-    "@vitejs/plugin-react": "^5.0.3",
+    "@vitejs/plugin-react": "^5.0.4",
     "babel-plugin-transform-import-meta": "^2.3.3",
     "cross-env": "^10.0.0",
     "dotenv": "^17.2.2",
