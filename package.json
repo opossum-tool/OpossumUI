@@ -74,7 +74,7 @@
     "@vitejs/plugin-react": "^5.0.4",
     "babel-plugin-transform-import-meta": "^2.3.3",
     "cross-env": "^10.1.0",
-    "dotenv": "^17.2.2",
+    "dotenv": "^17.2.3",
     "dpdm": "^3.14.0",
     "electron": "38.2.0",
     "electron-builder": "^26.0.12",
