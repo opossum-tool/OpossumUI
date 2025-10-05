@@ -3531,7 +3531,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/icons-material@npm:^7.3.3":
+"@mui/icons-material@npm:^7.3.4":
   version: 7.3.4
   resolution: "@mui/icons-material@npm:7.3.4"
   dependencies:
@@ -3547,7 +3547,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/material@npm:^7.3.3":
+"@mui/material@npm:^7.3.4":
   version: 7.3.4
   resolution: "@mui/material@npm:7.3.4"
   dependencies:
@@ -11147,8 +11147,8 @@ __metadata:
     "@eslint/js": "npm:^9.36.0"
     "@faker-js/faker": "npm:^10.0.0"
     "@fontsource-variable/karla": "npm:^5.2.8"
-    "@mui/icons-material": "npm:^7.3.3"
-    "@mui/material": "npm:^7.3.3"
+    "@mui/icons-material": "npm:^7.3.4"
+    "@mui/material": "npm:^7.3.4"
     "@mui/system": "npm:^7.3.3"
     "@mui/utils": "npm:^7.3.3"
     "@playwright/test": "npm:^1.55.1"
