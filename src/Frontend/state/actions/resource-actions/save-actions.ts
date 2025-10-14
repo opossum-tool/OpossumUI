@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isEmpty, isEqual } from 'lodash';
 
-import { Criticality, PackageInfo } from '../../../../shared/shared-types';
+import { PackageInfo } from '../../../../shared/shared-types';
 import { correctFilePathsInResourcesMappingForOutput } from '../../../util/can-resource-have-children';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
@@ -153,21 +153,19 @@ export function addToSelectedResource(
   };
 }
 
-export function deleteAttributionAndSave(
-  attributionId: string,
-  selectedAttributionId?: string,
+export function deleteAttributionsAndSave(
+  attributionIds: Array<string>,
+  selectedAttributionId: string,
 ): AppThunkAction {
   return (dispatch) => {
-    dispatch(
-      savePackageInfo(
-        null,
-        attributionId,
-        { criticality: Criticality.None, id: attributionId },
-        selectedAttributionId
-          ? attributionId !== selectedAttributionId
-          : undefined,
-      ),
-    );
+    attributionIds.forEach((attributionId) => {
+      dispatch(deleteAttribution(attributionId));
+    });
+    if (attributionIds.includes(selectedAttributionId)) {
+      dispatch(setSelectedAttributionId(''));
+      dispatch(resetTemporaryDisplayPackageInfo());
+    }
+    dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
 

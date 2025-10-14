@@ -42,7 +42,7 @@ import {
 import { loadFromFile } from '../load-actions';
 import {
   addToSelectedResource,
-  deleteAttributionAndSave,
+  deleteAttributionsAndSave,
   saveManualAndResolvedAttributionsToFile,
   savePackageInfo,
   unlinkAttributionAndSave,
@@ -848,7 +848,7 @@ describe('The unlinkAttributionAndSave action', () => {
   });
 });
 
-describe('The deleteAttributionAndSave action', () => {
+describe('The deleteAttributionsAndSave action', () => {
   it('unlinks resource from attribution with single linked attribution', () => {
     const testResources: Resources = {
       file1: 1,
@@ -884,7 +884,7 @@ describe('The deleteAttributionAndSave action', () => {
       ),
     );
 
-    testStore.dispatch(deleteAttributionAndSave('toUnlink'));
+    testStore.dispatch(deleteAttributionsAndSave(['toUnlink'], 'someId'));
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
   });
 
@@ -945,12 +945,143 @@ describe('The deleteAttributionAndSave action', () => {
       ),
     );
 
-    testStore.dispatch(deleteAttributionAndSave('toUnlink'));
+    testStore.dispatch(
+      deleteAttributionsAndSave(['toUnlink'], 'someSelectedId'),
+    );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
   });
+
+  it('deletes multiple attributions and saves once', () => {
+    const testResourceSetup = createTestResources();
+
+    const testStore = createAppStore();
+    testStore.dispatch(
+      loadFromFile(getParsedInputFileEnrichedWithTestData(testResourceSetup)),
+    );
+    testStore.dispatch(setSelectedAttributionId('reactUuid'));
+
+    // Clear the mock to ensure we count saves correctly
+    jest.clearAllMocks();
+
+    testStore.dispatch(
+      deleteAttributionsAndSave(['reactUuid', 'vueUuid'], 'reactUuid'),
+    );
+
+    const expectedManualAttributions: Attributions = {
+      angularUuid: testResourceSetup.manualAttributions.angularUuid,
+    };
+    const expectedManualData: AttributionData = {
+      attributions: expectedManualAttributions,
+      resourcesToAttributions: {
+        '/anotherFile.js': ['angularUuid'],
+      },
+      attributionsToResources: {
+        angularUuid: ['/anotherFile.js'],
+      },
+      resourcesWithAttributedChildren: {
+        attributedChildren: {
+          '1': new Set<number>().add(0),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/anotherFile.js': 0,
+        },
+        paths: ['/anotherFile.js', '/'],
+      },
+    };
+
+    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
+      EMPTY_DISPLAY_PACKAGE_INFO,
+    );
+    expect(getSelectedAttributionId(testStore.getState())).toBe('');
+    // Verify file is saved only once
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+  });
+
+  it('deletes multiple attributions without clearing selected attribution or temp info if not in list', () => {
+    const testResourceSetup = createTestResources();
+
+    const testStore = createAppStore();
+    testStore.dispatch(
+      loadFromFile(getParsedInputFileEnrichedWithTestData(testResourceSetup)),
+    );
+
+    testStore.dispatch(setSelectedAttributionId('angularUuid'));
+
+    const testTemporaryPackageInfo: PackageInfo = {
+      packageName: 'Angular Modified',
+      criticality: Criticality.None,
+      id: 'angularUuid',
+    };
+
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(testTemporaryPackageInfo),
+    );
+
+    testStore.dispatch(
+      deleteAttributionsAndSave(['reactUuid', 'vueUuid'], 'angularUuid'),
+    );
+
+    // Angular should still be selected since it wasn't deleted
+    expect(getSelectedAttributionId(testStore.getState())).toBe('angularUuid');
+    expect(
+      getManualAttributions(testStore.getState()).angularUuid,
+    ).toBeDefined();
+    expect(
+      getManualAttributions(testStore.getState()).reactUuid,
+    ).toBeUndefined();
+    expect(getManualAttributions(testStore.getState()).vueUuid).toBeUndefined();
+    // Temporary display info should be preserved
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
+      testTemporaryPackageInfo,
+    );
+  });
+
+  function createTestResources() {
+    const testReact: PackageInfo = {
+      packageName: 'React',
+      attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
+      id: 'reactUuid',
+    };
+    const testVue: PackageInfo = {
+      packageName: 'Vue',
+      attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
+      id: 'vueUuid',
+    };
+    const testAngular: PackageInfo = {
+      packageName: 'Angular',
+      attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
+      id: 'angularUuid',
+    };
+    const testResources: Resources = {
+      'something.js': 1,
+      'somethingElse.js': 1,
+      'anotherFile.js': 1,
+    };
+    const testInitialManualAttributions: Attributions = {
+      reactUuid: testReact,
+      vueUuid: testVue,
+      angularUuid: testAngular,
+    };
+    const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
+      '/something.js': ['reactUuid'],
+      '/somethingElse.js': ['vueUuid'],
+      '/anotherFile.js': ['angularUuid'],
+    };
+
+    return {
+      resources: testResources,
+      manualAttributions: testInitialManualAttributions,
+      resourcesToManualAttributions: testInitialResourcesToManualAttributions,
+    };
+  }
 });
 
 describe('The deleteAttributionGloballyAndSave action', () => {
@@ -1015,7 +1146,7 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     );
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
 
-    testStore.dispatch(deleteAttributionAndSave('reactUuid'));
+    testStore.dispatch(deleteAttributionsAndSave(['reactUuid'], 'someOtherId'));
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO,

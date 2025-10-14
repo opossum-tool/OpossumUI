@@ -8,7 +8,7 @@ import { compact, uniq } from 'lodash';
 
 import { text } from '../../../shared/text';
 import {
-  deleteAttributionAndSave,
+  deleteAttributionsAndSave,
   unlinkAttributionAndSave,
 } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -55,9 +55,9 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
     );
 
   const handleDelete = () => {
-    attributionIdsToDelete.forEach((attributionId) => {
-      dispatch(deleteAttributionAndSave(attributionId, selectedAttributionId));
-    });
+    dispatch(
+      deleteAttributionsAndSave(attributionIdsToDelete, selectedAttributionId),
+    );
     onClose();
   };
 
