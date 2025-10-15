@@ -7,9 +7,12 @@ import { useEffect, useRef } from 'react';
 export function usePrevious<T>(value: T, fallback: T): T;
 export function usePrevious<T>(value: T, fallback?: T): T | undefined;
 export function usePrevious<T>(value: T, fallback?: T): T | undefined {
-  const ref = useRef<T>(undefined);
+  const ref = useRef<T | undefined>(undefined);
+
   useEffect(() => {
     ref.current = value;
   });
+
+  // eslint-disable-next-line
   return ref.current ?? fallback;
 }
