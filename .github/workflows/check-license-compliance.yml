@@ -22,4 +22,4 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: fsfe/reuse-action@v5
+      - uses: fsfe/reuse-action@v6
