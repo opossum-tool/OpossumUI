@@ -11,5 +11,6 @@ export function usePrevious<T>(value: T, fallback?: T): T | undefined {
   useEffect(() => {
     ref.current = value;
   });
+  // eslint-disable-next-line react-hooks/refs
   return ref.current ?? fallback;
 }
