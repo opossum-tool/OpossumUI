@@ -34,7 +34,7 @@
     "react-dom": "^19.2.0",
     "react-error-boundary": "^6.0.0",
     "react-hot-toast": "^2.6.0",
-    "react-hotkeys-hook": "^5.1.0",
+    "react-hotkeys-hook": "^5.2.0",
     "react-redux": "^9.2.0",
     "react-virtuoso": "4.14.1",
     "recharts": "^3.2.1",
