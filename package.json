@@ -69,7 +69,7 @@
     "@types/node": "^22.18.10",
     "@types/object-hash": "^3.0.6",
     "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.1",
+    "@types/react-dom": "^19.2.2",
     "@types/stream-json": "^1.7.8",
     "@vitejs/plugin-react": "^5.0.4",
     "babel-plugin-transform-import-meta": "^2.3.3",
