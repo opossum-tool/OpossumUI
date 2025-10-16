@@ -92,6 +92,7 @@ export function useSignalsWorker() {
 
   useEffect(() => {
     if (worker) {
+      // eslint-disable-next-line react-hooks/immutability
       worker.onmessage = ({ data }: MessageEvent<SignalsWorkerOutput>) => {
         switch (data.name) {
           case 'progressData':
