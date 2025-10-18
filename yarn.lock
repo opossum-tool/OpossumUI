@@ -11293,7 +11293,7 @@ __metadata:
     react-dom: "npm:^19.2.0"
     react-error-boundary: "npm:^6.0.0"
     react-hot-toast: "npm:^2.6.0"
-    react-hotkeys-hook: "npm:^5.2.0"
+    react-hotkeys-hook: "npm:^5.2.1"
     react-redux: "npm:^9.2.0"
     react-virtuoso: "npm:4.14.1"
     recharts: "npm:^3.2.1"
@@ -11946,7 +11946,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hotkeys-hook@npm:^5.2.0":
+"react-hotkeys-hook@npm:^5.2.1":
   version: 5.2.1
   resolution: "react-hotkeys-hook@npm:5.2.1"
   peerDependencies:
