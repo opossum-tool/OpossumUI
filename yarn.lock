@@ -11296,7 +11296,7 @@ __metadata:
     react-hotkeys-hook: "npm:^5.2.1"
     react-redux: "npm:^9.2.0"
     react-virtuoso: "npm:4.14.1"
-    recharts: "npm:^3.2.1"
+    recharts: "npm:^3.3.0"
     run-script-os: "npm:^1.1.6"
     spdx-license-ids: "npm:^3.0.22"
     stream-json: "npm:^1.9.1"
@@ -12064,9 +12064,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recharts@npm:^3.2.1":
-  version: 3.2.1
-  resolution: "recharts@npm:3.2.1"
+"recharts@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "recharts@npm:3.3.0"
   dependencies:
     "@reduxjs/toolkit": "npm:1.x.x || 2.x.x"
     clsx: "npm:^2.1.1"
@@ -12083,7 +12083,7 @@ __metadata:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-is: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10/9342f6ab07e57d9c079bf492afb533a0cdb1b41a50e2d0586a7daaaf10e76e24cd91cefa9e0906b487dd77ed234b729e4c3cd6fe6ccb6424a93769a1e675bb94
+  checksum: 10/9842fb31627343e461b468f4bbb80c1ca47c478f0cdf72e8ccad6f547bdfdc561580bf5b7530799a8676c08d33a88eb1ee5852c2e9beae461e7aa65c593ae7d6
   languageName: node
   linkType: hard
 
