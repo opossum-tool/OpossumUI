@@ -22,7 +22,6 @@ import {
   InvalidDotOpossumFileError,
   JsonParsingError,
   OpossumOutputFile,
-  ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
 } from '../types/types';
@@ -237,11 +236,7 @@ async function createOutputInOpossumFile(
     input: getGlobalBackendState().inputFileRaw,
     output: attributionJSON,
   });
-  processingStatusUpdater.info('Parsing output');
-  const parsingResult = (await parseOpossumFile(
-    filePath,
-  )) as ParsedOpossumInputAndOutput;
-  return parsingResult.output as ParsedOpossumOutputFile;
+  return attributionJSON as ParsedOpossumOutputFile;
 }
 
 async function parseOrCreateOutputJsonFile(
