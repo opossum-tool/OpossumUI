@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           cache: 'yarn'
-          node-version: 22.20.0
+          node-version: 22.21.0
 
       - run: yarn install --immutable
 
