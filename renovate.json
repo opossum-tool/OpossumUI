@@ -30,6 +30,12 @@
       "description": "Ignore engines field in package.json",
       "matchDepTypes": ["engines"],
       "enabled": false
+    },
+    {
+      "description": "Pin Node.js to v22.x (current LTS)",
+      "matchDatasources": ["node-version", "docker"],
+      "matchPackageNames": ["node", "@types/node"],
+      "allowedVersions": ">=22.0.0 <24.0.0"
     }
   ]
 }
