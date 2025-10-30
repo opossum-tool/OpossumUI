@@ -18,24 +18,26 @@
     "enabled": true
   },
   "osvVulnerabilityAlerts": true,
-  "nvm": {
-    "enabled": false
-  },
+  "postUpdateOptions": ["yarnDedupHighest"],
   "packageRules": [
     {
       "updateTypes": ["minor", "patch"],
       "automerge": true
     },
     {
-      "description": "Ignore engines field in package.json",
+      "description": "Only update engines field for major Node.js versions",
       "matchDepTypes": ["engines"],
+      "matchPackageNames": ["node"],
+      "matchUpdateTypes": ["minor", "patch"],
       "enabled": false
     },
     {
-      "description": "Pin Node.js to v22.x (current LTS)",
+      "description": "Group Node.js updates together (Dockerfiles, @types/node, .nvmrc) - LTS only",
       "matchDatasources": ["node-version", "docker"],
       "matchPackageNames": ["node", "@types/node"],
-      "allowedVersions": ">=22.0.0 <24.0.0"
+      "allowedVersions": "/^\\d*[02468]\\../",
+      "groupName": "Node.js",
+      "groupSlug": "node"
     }
   ]
 }
