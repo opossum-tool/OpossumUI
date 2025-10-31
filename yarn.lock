@@ -4668,10 +4668,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chroma-js@npm:^3.1.1":
-  version: 3.1.1
-  resolution: "@types/chroma-js@npm:3.1.1"
-  checksum: 10/24770bd645425a1d90e3651dbb18bc5977290a2d2fc6e9f32d3892d4c43c1e9f554fb324cd0f4e20a23b734ee652278330a0d331973a7da824e0c15192ba129b
+"@types/chroma-js@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "@types/chroma-js@npm:3.1.2"
+  checksum: 10/f94b9c398d026198c2840bd5dc7243cd0f6ace7f18843b8cdb91946be909b527455da23c1ed55a3fd46f42f57f8ec8b1f304620d3444389c5cc87fb5d3f6e3c2
   languageName: node
   linkType: hard
 
@@ -11365,7 +11365,7 @@ __metadata:
     "@testing-library/user-event": "npm:^14.6.1"
     "@trivago/prettier-plugin-sort-imports": "npm:^5.2.2"
     "@types/babel__core": "npm:^7.20.5"
-    "@types/chroma-js": "npm:^3.1.1"
+    "@types/chroma-js": "npm:^3.1.2"
     "@types/jest": "npm:^30.0.0"
     "@types/js-yaml": "npm:^4.0.9"
     "@types/lodash": "npm:^4.17.20"
