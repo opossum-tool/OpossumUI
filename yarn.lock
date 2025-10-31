@@ -10382,7 +10382,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knip@npm:^5.66.3":
+"knip@npm:^5.66.4":
   version: 5.66.4
   resolution: "knip@npm:5.66.4"
   dependencies:
@@ -11404,7 +11404,7 @@ __metadata:
     jest-watch-typeahead: "npm:^3.0.1"
     js-yaml: "npm:^4.1.0"
     jsonschema: "npm:^1.5.0"
-    knip: "npm:^5.66.3"
+    knip: "npm:^5.66.4"
     lint-staged: "npm:^16.2.6"
     lodash: "npm:^4.17.21"
     mkdirp: "npm:^3.0.1"
