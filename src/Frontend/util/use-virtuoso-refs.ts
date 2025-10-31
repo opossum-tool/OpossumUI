@@ -36,6 +36,7 @@ export function useVirtuosoRefs<T extends VirtuosoHandle>({
 
   useEffect(() => {
     if (isVirtuosoFocused) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFocusedId(selectedId);
     }
 
