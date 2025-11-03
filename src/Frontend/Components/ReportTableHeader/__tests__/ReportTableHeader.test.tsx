@@ -24,6 +24,6 @@ describe('The report view table header', () => {
     expect(screen.getByText('License Text')).toBeInTheDocument();
     expect(screen.getByText('Confidence')).toBeInTheDocument();
     expect(screen.getByText('Comment')).toBeInTheDocument();
-    expect(screen.getByText('URL')).toBeInTheDocument();
+    expect(screen.getByText('Upstream Address')).toBeInTheDocument();
   });
 });

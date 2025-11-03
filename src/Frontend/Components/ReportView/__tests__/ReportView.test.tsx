@@ -77,7 +77,7 @@ describe('ReportView', () => {
     expect(screen.getByText('Comment')).toBeInTheDocument();
     expect(screen.getByText('test comment')).toBeInTheDocument();
 
-    expect(screen.getByText('URL')).toBeInTheDocument();
+    expect(screen.getByText('Upstream Address')).toBeInTheDocument();
     expect(screen.getByText('packageWebsite')).toBeInTheDocument();
 
     expect(screen.getByText('Redux')).toBeInTheDocument();

@@ -262,7 +262,7 @@ The attributes are divided into three categories:
 
 These coordinates serve to uniquely identify the package. In particular, package name and package type are required information from which a PURL ("Package URL") is automatically generated. Some package types also require the presence of a namespace. For example, GitHub and Maven packages require a namespace, while NPM packages do not.
 
-Also try to fill the repository URL of the attribution as it often helps to automatically compute the correct license information from it.
+Also try to fill the upstream address of the attribution as it often helps to automatically compute the correct license information from it.
 
 Be aware that different package versions may result in different license information. Thus, providing a version whenever possible is also very helpful.
 

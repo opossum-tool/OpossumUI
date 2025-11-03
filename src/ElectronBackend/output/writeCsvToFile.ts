@@ -93,7 +93,7 @@ export function getHeadersFromColumns(columns: Array<keyof PackageInfo>): {
     resources: 'Resources',
     source: 'Source',
     suffix: 'Suffix',
-    url: 'URL',
+    url: 'Upstream Address',
     wasPreferred: 'was-preferred',
   };
 

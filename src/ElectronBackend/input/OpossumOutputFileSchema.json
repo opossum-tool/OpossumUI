@@ -50,7 +50,7 @@
           },
           "url": {
             "type": "string",
-            "description": "URL for the source website of the package"
+            "description": "The upstream address of the package"
           },
           "licenseName": {
             "type": "string",
