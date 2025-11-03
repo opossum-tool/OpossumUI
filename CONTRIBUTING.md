@@ -80,6 +80,11 @@ Clone the OpossumUI repo. E.g. run the following command in a terminal:
 git clone git@github.com:opossum-tool/OpossumUI.git
 ```
 
+In order to download opossum files for development, you will need to add a
+github token to you env. Copy `.env.sample` to a new file called `.env`.
+Generate a token from https://github.com/settings/tokens, with a lifetime no
+longer than 1 year, and add it to the `.env` file.
+
 To install dependencies and set up the working environment, go to the repository root directory and run:
 
 ```bash
