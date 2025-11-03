@@ -7005,10 +7005,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.11.18":
-  version: 1.11.18
-  resolution: "dayjs@npm:1.11.18"
-  checksum: 10/7d29a90834cf4da2feb437c2f34b8235c3f94493a06d2f1bf9f506f1fa49eadf796f26e1d685b9fe8cb5e75ce6ee067825115e196f1af3d07b3552ff857bfc39
+"dayjs@npm:^1.11.19":
+  version: 1.11.19
+  resolution: "dayjs@npm:1.11.19"
+  checksum: 10/185b820d68492b83a3ce2b8ddc7543034edc1dfd1423183f6ae4707b29929a3cc56503a81826309279f9084680c15966b99456e74cf41f7d1f6a2f98f9c7196f
   languageName: node
   linkType: hard
 
@@ -11398,7 +11398,7 @@ __metadata:
     chroma-js: "npm:^3.1.2"
     compare-versions: "npm:^6.1.1"
     cross-env: "npm:^10.1.0"
-    dayjs: "npm:^1.11.18"
+    dayjs: "npm:^1.11.19"
     dotenv: "npm:^17.2.3"
     dpdm: "npm:^3.14.0"
     electron: "npm:39.0.0"
