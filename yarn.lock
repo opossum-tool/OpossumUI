@@ -7803,14 +7803,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-playwright@npm:^2.2.2":
-  version: 2.2.2
-  resolution: "eslint-plugin-playwright@npm:2.2.2"
+"eslint-plugin-playwright@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "eslint-plugin-playwright@npm:2.3.0"
   dependencies:
-    globals: "npm:^13.23.0"
+    globals: "npm:^16.4.0"
   peerDependencies:
     eslint: ">=8.40.0"
-  checksum: 10/861bb486e30e607a3c38bf46b69b01e759a2e7db3d7e79eabb18aa006c505b632b6c6f24e8402b59b8a9b5f94a72ed454fd5a934265081028a1ca0dd4582019f
+  checksum: 10/eeed534fa66be9ff31cd262331e485661a8950bb97633ae95ad6c16b60e63ddb43011b33082403bc513dc7edf0819b4bc26e99ed2f7450af64d52845cdc7d8ba
   languageName: node
   linkType: hard
 
@@ -8659,15 +8659,6 @@ __metadata:
   version: 11.12.0
   resolution: "globals@npm:11.12.0"
   checksum: 10/9f054fa38ff8de8fa356502eb9d2dae0c928217b8b5c8de1f09f5c9b6c8a96d8b9bd3afc49acbcd384a98a81fea713c859e1b09e214c60509517bb8fc2bc13c2
-  languageName: node
-  linkType: hard
-
-"globals@npm:^13.23.0":
-  version: 13.24.0
-  resolution: "globals@npm:13.24.0"
-  dependencies:
-    type-fest: "npm:^0.20.2"
-  checksum: 10/62c5b1997d06674fc7191d3e01e324d3eda4d65ac9cc4e78329fa3b5c4fd42a0e1c8722822497a6964eee075255ce21ccf1eec2d83f92ef3f06653af4d0ee28e
   languageName: node
   linkType: hard
 
@@ -11401,7 +11392,7 @@ __metadata:
     eslint-plugin-filenames-simple: "npm:^0.9.0"
     eslint-plugin-jest: "npm:^29.0.1"
     eslint-plugin-jest-dom: "npm:^5.5.0"
-    eslint-plugin-playwright: "npm:^2.2.2"
+    eslint-plugin-playwright: "npm:^2.3.0"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^7.0.1"
     eslint-plugin-testing-library: "npm:^7.13.3"
@@ -13625,13 +13616,6 @@ __metadata:
   version: 0.13.1
   resolution: "type-fest@npm:0.13.1"
   checksum: 10/11e9476dc85bf97a71f6844fb67ba8e64a4c7e445724c0f3bd37eb2ddf4bc97c1dc9337bd880b28bce158de1c0cb275c2d03259815a5bf64986727197126ab56
-  languageName: node
-  linkType: hard
-
-"type-fest@npm:^0.20.2":
-  version: 0.20.2
-  resolution: "type-fest@npm:0.20.2"
-  checksum: 10/8907e16284b2d6cfa4f4817e93520121941baba36b39219ea36acfe64c86b9dbc10c9941af450bd60832c8f43464974d51c0957f9858bc66b952b66b6914cbb9
   languageName: node
   linkType: hard
 
