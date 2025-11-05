@@ -85,7 +85,58 @@ export function isPackageAttributeInvalid(
       const type = packageInfo[attribute];
       return !!type && !purlTypeRegex.test(type);
     }
+    case 'url': {
+      const url = packageInfo[attribute];
+      if (!url) {
+        return false;
+      }
+      return !isValidUpstreamAddress(url);
+    }
     default:
       return false;
   }
+}
+
+function isValidUpstreamAddress(urlString: string): boolean {
+  const trimmed = urlString.trim();
+
+  if (!trimmed) {
+    return false;
+  }
+
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    try {
+      url = new URL(`https://${trimmed}`);
+    } catch {
+      return false;
+    }
+  }
+
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return false;
+  }
+
+  if (!url.hostname || url.hostname.length === 0) {
+    return false;
+  }
+
+  // Reject IP addresses (IPv4 and IPv6) - upstream repos should use domain names
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(url.hostname)) {
+    return false;
+  }
+
+  // IPv6 addresses are wrapped in brackets in URLs
+  if (url.hostname.startsWith('[') && url.hostname.endsWith(']')) {
+    return false;
+  }
+
+  // Require hostname with TLD (e.g. rejects localhost)
+  if (!url.hostname.includes('.')) {
+    return false;
+  }
+
+  return true;
 }
