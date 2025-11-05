@@ -54,6 +54,13 @@ describe('isPackageInvalid', () => {
   });
 
   describe('URL validation', () => {
+    it('returns false for URLs with ports', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'http://example.com:8080/repo',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(false);
+    });
+
     it('returns false for valid URLs with https protocol', () => {
       const packageInfo = faker.opossum.packageInfo({
         url: 'https://github.com/example/repo',
@@ -113,6 +120,41 @@ describe('isPackageInvalid', () => {
     it('returns true for localhost URLs', () => {
       const packageInfo = faker.opossum.packageInfo({
         url: 'http://localhost:3000',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(true);
+    });
+
+    it('returns true for URLs with non-http/https protocols', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'ftp://example.com/repo',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(true);
+    });
+
+    it('returns true for git protocol URLs', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'git://example.com/repo.git',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(true);
+    });
+
+    it('returns true for file protocol URLs', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'file:///path/to/repo',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(true);
+    });
+
+    it('returns true for IP addresses', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'http://192.168.1.1/repo',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(true);
+    });
+
+    it('returns true for IPv6 addresses', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'http://[2001:db8::1]/repo',
       });
       expect(isPackageInvalid(packageInfo)).toBe(true);
     });

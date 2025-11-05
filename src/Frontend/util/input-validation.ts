@@ -90,37 +90,53 @@ export function isPackageAttributeInvalid(
       if (!url) {
         return false;
       }
-      return !isValidUrl(url);
+      return !isValidUpstreamAddress(url);
     }
     default:
       return false;
   }
 }
 
-function isValidUrl(urlString: string): boolean {
+function isValidUpstreamAddress(urlString: string): boolean {
   const trimmed = urlString.trim();
 
-  if (!trimmed || /[\s<>"]/.test(trimmed)) {
+  if (!trimmed) {
     return false;
   }
 
+  let url: URL;
   try {
-    const url = new URL(
-      trimmed.startsWith('http://') || trimmed.startsWith('https://')
-        ? trimmed
-        : `https://${trimmed}`,
-    );
-
-    if (!url.hostname || url.hostname.length === 0) {
-      return false;
-    }
-
-    if (!url.hostname.includes('.')) {
-      return false;
-    }
-
-    return true;
+    url = new URL(trimmed);
   } catch {
+    try {
+      url = new URL(`https://${trimmed}`);
+    } catch {
+      return false;
+    }
+  }
+
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
     return false;
   }
+
+  if (!url.hostname || url.hostname.length === 0) {
+    return false;
+  }
+
+  // Reject IP addresses (IPv4 and IPv6) - upstream repos should use domain names
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(url.hostname)) {
+    return false;
+  }
+
+  // IPv6 addresses are wrapped in brackets in URLs
+  if (url.hostname.startsWith('[') && url.hostname.endsWith(']')) {
+    return false;
+  }
+
+  // Require hostname with TLD (e.g. rejects localhost)
+  if (!url.hostname.includes('.')) {
+    return false;
+  }
+
+  return true;
 }
