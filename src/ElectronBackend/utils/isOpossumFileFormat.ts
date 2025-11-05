@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import path from 'path';
 
-import { OPOSSUM_FILE_EXTENSION } from '../../shared/write-file';
+import { OPOSSUM_FILE_EXTENSION } from '../../shared/write-file-utils';
 
 export function isOpossumFileFormat(filePath?: string): boolean {
   if (!filePath) {

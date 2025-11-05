@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 import { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { getDotOpossumFilePath } from '../../../shared/write-file';
+import { getDotOpossumFilePath } from '../../../shared/write-file-utils';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';

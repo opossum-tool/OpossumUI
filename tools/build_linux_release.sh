@@ -7,7 +7,7 @@
 
 set -e
 
-electron-builder --linux --x64 --publish never
+NODE_OPTIONS=--no-deprecation electron-builder --linux --x64 --publish never
 mkdir -p release/linux
 mv 'release/opossum-ui_0.1.0_amd64.snap' 'release/linux/OpossumUI-for-linux.snap'
 mv 'release/OpossumUI-0.1.0.AppImage' 'release/linux/OpossumUI-for-linux.AppImage'
