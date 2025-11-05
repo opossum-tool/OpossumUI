@@ -9,7 +9,10 @@ import { Parser, parser } from 'stream-json';
 import Asm from 'stream-json/Assembler';
 import zlib from 'zlib';
 
-import { INPUT_FILE_NAME, OUTPUT_FILE_NAME } from '../../shared/write-file';
+import {
+  INPUT_FILE_NAME,
+  OUTPUT_FILE_NAME,
+} from '../../shared/write-file-utils';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import {
   InvalidDotOpossumFileError,

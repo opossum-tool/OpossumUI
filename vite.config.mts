@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: 'build',
+    chunkSizeWarningLimit: 2000,
   },
   resolve: {
     conditions: ['mui-modern', 'module', 'browser', 'development|production'],

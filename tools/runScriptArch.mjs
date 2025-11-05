@@ -8,4 +8,4 @@ import * as os from 'os';
 const command = process.argv[2];
 const arch = os.arch();
 
-execSync(`yarn ${command}:${arch}`, { shell: true, stdio: 'inherit' });
+execSync(`yarn ${command}:${arch}`, { stdio: 'inherit' });
