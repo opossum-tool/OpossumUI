@@ -52,4 +52,90 @@ describe('isPackageInvalid', () => {
     });
     expect(isPackageInvalid(packageInfo)).toBe(false);
   });
+
+  describe('URL validation', () => {
+    it('returns false for valid URLs with https protocol', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'https://github.com/example/repo',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(false);
+    });
+
+    it('returns false for valid URLs with http protocol', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'http://example.com',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(false);
+    });
+
+    it('returns false for valid URLs without protocol', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'github.com/example/repo',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(false);
+    });
+
+    it('returns false for URLs with subdomains', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'https://api.github.com/repos',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(false);
+    });
+
+    it('returns false for URLs with paths and query params', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'https://example.com/path/to/resource?param=value',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(false);
+    });
+
+    it('returns false for empty URL', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: '',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(false);
+    });
+
+    it('returns true for URLs with spaces', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'https://example .com',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(true);
+    });
+
+    it('returns true for URLs with invalid characters', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'https://example<>.com',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(true);
+    });
+
+    it('returns true for localhost URLs', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'http://localhost:3000',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(true);
+    });
+
+    it('returns true for URLs without domain extension', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'https://example',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(true);
+    });
+
+    it('returns true for invalid URL format', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'not a url at all',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(true);
+    });
+
+    it('returns true for URLs with only protocol', () => {
+      const packageInfo = faker.opossum.packageInfo({
+        url: 'https://',
+      });
+      expect(isPackageInvalid(packageInfo)).toBe(true);
+    });
+  });
 });

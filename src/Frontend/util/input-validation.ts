@@ -85,7 +85,42 @@ export function isPackageAttributeInvalid(
       const type = packageInfo[attribute];
       return !!type && !purlTypeRegex.test(type);
     }
+    case 'url': {
+      const url = packageInfo[attribute];
+      if (!url) {
+        return false;
+      }
+      return !isValidUrl(url);
+    }
     default:
       return false;
+  }
+}
+
+function isValidUrl(urlString: string): boolean {
+  const trimmed = urlString.trim();
+
+  if (!trimmed || /[\s<>"]/.test(trimmed)) {
+    return false;
+  }
+
+  try {
+    const url = new URL(
+      trimmed.startsWith('http://') || trimmed.startsWith('https://')
+        ? trimmed
+        : `https://${trimmed}`,
+    );
+
+    if (!url.hostname || url.hostname.length === 0) {
+      return false;
+    }
+
+    if (!url.hostname.includes('.')) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
   }
 }
