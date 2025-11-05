@@ -16,7 +16,7 @@ import {
 
 describe('PackageSearchApi', () => {
   describe('getNames', () => {
-    it('serializes project with deterministic URL', async () => {
+    it('serializes project with deterministic upstream address', async () => {
       const packageInfo = faker.opossum.packageInfo();
       const name = faker.internet.domainWord();
       const namespace = faker.internet.domainWord();
@@ -426,7 +426,7 @@ describe('PackageSearchApi', () => {
   });
 
   describe('enrichPackageInfo', () => {
-    it('provides repo URL and license for a given package version', async () => {
+    it('provides upstream address and license for a given package version', async () => {
       const packageInfo = faker.opossum.packageInfo({
         packageType: faker.packageSearch.packageSystem(),
         packageNamespace: faker.internet.domainWord(),
@@ -482,7 +482,7 @@ describe('PackageSearchApi', () => {
       );
     });
 
-    it('provides repo URL, license, and copyright for a GitHub project', async () => {
+    it('provides upstream address, license, and copyright for a GitHub project', async () => {
       const name = faker.internet.domainWord();
       const namespace = faker.internet.domainWord();
       const packageInfo = faker.opossum.packageInfo({
@@ -516,7 +516,7 @@ describe('PackageSearchApi', () => {
       );
     });
 
-    it('provides repo URL, license, and copyright for a GitLab project', async () => {
+    it('provides upstream address, license, and copyright for a GitLab project', async () => {
       const name = faker.internet.domainWord();
       const namespace = faker.internet.domainWord();
       const packageInfo = faker.opossum.packageInfo({
@@ -552,7 +552,7 @@ describe('PackageSearchApi', () => {
       );
     });
 
-    it('does not enrich package info if URL, copyright, and license name are already known', async () => {
+    it('does not enrich package info if upstream address, copyright, and license name are already known', async () => {
       const packageInfo = faker.opossum.packageInfo({
         packageType: faker.packageSearch.packageSystem(),
         packageNamespace: faker.internet.domainWord(),

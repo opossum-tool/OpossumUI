@@ -129,7 +129,7 @@ option in the _File_ menu.
 
 These can be exported through the _Export_ ⟶ _Compact / Detailed component list_ option in the _File_ menu. Both
 component list files contain a list of all attributions that are present in the project, including package name,
-version, copyright, license name and URL. In addition, the detailed component list is more comprehensive and includes
+version, copyright, license name and upstream address. In addition, the detailed component list is more comprehensive and includes
 the PURL and its subcomponents, as well as the license texts.
 
 #### Exporting follow-up document

@@ -63,7 +63,7 @@ export const tableConfigs: Array<TableConfig> = [
   },
   {
     attributionProperty: 'url',
-    displayName: 'URL',
+    displayName: 'Upstream Address',
     width: COLUMN_WIDTHS.medium,
   },
   {

@@ -71,7 +71,7 @@ export class AttributionForm {
     this.purl = this.node.getByLabel(text.attributionColumn.purl, {
       exact: true,
     });
-    this.url = this.node.getByLabel(text.attributionColumn.repositoryUrl, {
+    this.url = this.node.getByLabel(text.attributionColumn.upstreamAddress, {
       exact: true,
     });
     this.comment = this.node.getByLabel('Comment', { exact: true });

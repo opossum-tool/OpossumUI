@@ -263,7 +263,7 @@ export function PackageSubPanel({
     return (
       <PackageAutocomplete
         attribute={'url'}
-        title={text.attributionColumn.repositoryUrl}
+        title={text.attributionColumn.upstreamAddress}
         packageInfo={packageInfo}
         readOnly={!onEdit}
         showHighlight={showHighlight}
