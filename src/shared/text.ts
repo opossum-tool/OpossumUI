@@ -148,6 +148,7 @@ export const text = {
     showDeleted: 'Show deleted',
     signal: 'signal',
     signalsPanelTitle: 'Signals',
+    moreActions: 'More actions',
   },
   buttons: {
     cancel: 'Cancel',

@@ -6,7 +6,7 @@ import { UserSettings } from './shared-types';
 
 export const DEFAULT_PANEL_SIZES: NonNullable<UserSettings['panelSizes']> = {
   resourceBrowserWidth: 340,
-  packageListsWidth: 340,
+  packageListsWidth: 360,
   linkedResourcesPanelHeight: null,
   signalsPanelHeight: null,
 };
