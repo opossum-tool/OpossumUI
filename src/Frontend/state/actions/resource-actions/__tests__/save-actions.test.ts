@@ -46,6 +46,7 @@ import {
   saveManualAndResolvedAttributionsToFile,
   savePackageInfo,
   unlinkAttributionAndSave,
+  updateAttributionsAndSave,
 } from '../save-actions';
 
 const testResources: Resources = {
@@ -1253,6 +1254,163 @@ describe('The addToSelectedResource action', () => {
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
       expectedSaveFileArgs,
+    );
+  });
+});
+
+describe('The updateAttributionsAndSave action', () => {
+  it('updates multiple attributions and saves', () => {
+    const testReact: PackageInfo = {
+      packageName: 'React',
+      packageVersion: '16.0.0',
+      attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
+      id: 'reactUuid',
+    };
+    const testVue: PackageInfo = {
+      packageName: 'Vue',
+      packageVersion: '2.0.0',
+      attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
+      id: 'vueUuid',
+    };
+    const testAngular: PackageInfo = {
+      packageName: 'Angular',
+      packageVersion: '10.0.0',
+      attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
+      id: 'angularUuid',
+    };
+    const testResources: Resources = {
+      'something.js': 1,
+      'somethingElse.js': 1,
+      'anotherFile.js': 1,
+    };
+    const testInitialManualAttributions: Attributions = {
+      reactUuid: testReact,
+      vueUuid: testVue,
+      angularUuid: testAngular,
+    };
+    const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
+      '/something.js': ['reactUuid'],
+      '/somethingElse.js': ['vueUuid'],
+      '/anotherFile.js': ['angularUuid'],
+    };
+
+    // Updated attributions with new versions
+    const updatedReact: PackageInfo = {
+      ...testReact,
+      packageVersion: '17.0.0',
+      attributionConfidence: DiscreteConfidence.High,
+    };
+    const updatedVue: PackageInfo = {
+      ...testVue,
+      packageVersion: '3.0.0',
+      attributionConfidence: DiscreteConfidence.High,
+    };
+    const updatedAttributions: Attributions = {
+      reactUuid: updatedReact,
+      vueUuid: updatedVue,
+    };
+
+    const testStore = createAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testInitialManualAttributions,
+          resourcesToManualAttributions:
+            testInitialResourcesToManualAttributions,
+        }),
+      ),
+    );
+
+    // Clear the mock to ensure we count saves correctly
+    jest.clearAllMocks();
+
+    testStore.dispatch(updateAttributionsAndSave(updatedAttributions));
+
+    // Verify the attributions were updated
+    const finalManualAttributions = getManualAttributions(testStore.getState());
+    expect(finalManualAttributions.reactUuid).toEqual(updatedReact);
+    expect(finalManualAttributions.vueUuid).toEqual(updatedVue);
+    expect(finalManualAttributions.angularUuid).toEqual(testAngular); // Should remain unchanged
+
+    // Verify file is saved only once
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+  });
+
+  it('reloads temporary display package info when selected attribution is updated', () => {
+    const testReact: PackageInfo = {
+      packageName: 'React',
+      packageVersion: '16.0.0',
+      attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
+      id: 'reactUuid',
+    };
+    const testVue: PackageInfo = {
+      packageName: 'Vue',
+      packageVersion: '2.0.0',
+      attributionConfidence: DiscreteConfidence.Low,
+      criticality: Criticality.None,
+      id: 'vueUuid',
+    };
+    const testResources: Resources = {
+      'something.js': 1,
+      'somethingElse.js': 1,
+    };
+    const testInitialManualAttributions: Attributions = {
+      reactUuid: testReact,
+      vueUuid: testVue,
+    };
+    const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
+      '/something.js': ['reactUuid'],
+      '/somethingElse.js': ['vueUuid'],
+    };
+
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
+      packageName: 'React Modified',
+      packageVersion: '16.1.0',
+      criticality: Criticality.None,
+      id: 'reactUuid',
+    };
+
+    const testStore = createAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testInitialManualAttributions,
+          resourcesToManualAttributions:
+            testInitialResourcesToManualAttributions,
+        }),
+      ),
+    );
+
+    testStore.dispatch(setSelectedAttributionId('reactUuid'));
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
+    );
+
+    // Verify temporary display package info is set
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
+      testTemporaryDisplayPackageInfo,
+    );
+
+    // Update the selected attribution
+    const updatedReact: PackageInfo = {
+      ...testReact,
+      packageVersion: '17.0.0',
+    };
+    const updatedAttributions: Attributions = {
+      reactUuid: updatedReact,
+    };
+
+    testStore.dispatch(updateAttributionsAndSave(updatedAttributions));
+
+    // Verify temporary display package info was reloaded
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
+      updatedReact,
     );
   });
 });

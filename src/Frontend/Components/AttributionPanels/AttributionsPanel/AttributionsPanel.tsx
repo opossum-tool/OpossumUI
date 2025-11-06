@@ -22,6 +22,7 @@ import { ConfirmButton } from './ConfirmButton/ConfirmButton';
 import { CreateButton } from './CreateButton/CreateButton';
 import { DeleteButton } from './DeleteButton/DeleteButton';
 import { LinkButton } from './LinkButton/LinkButton';
+import { MoreActionsButton } from './MoreActionsButton/MoreActionsButton';
 import { ReplaceButton } from './ReplaceButton/ReplaceButton';
 
 export function AttributionsPanel() {
@@ -73,6 +74,7 @@ export function AttributionsPanel() {
           <ConfirmButton {...props} />
           <ReplaceButton {...props} />
           <DeleteButton {...props} />
+          <MoreActionsButton {...props} />
         </>
       )}
       useFilteredData={useFilteredAttributions}
