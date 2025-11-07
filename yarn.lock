@@ -4095,7 +4095,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reduxjs/toolkit@npm:^2.10.0":
+"@reduxjs/toolkit@npm:^2.10.1":
   version: 2.10.1
   resolution: "@reduxjs/toolkit@npm:2.10.1"
   dependencies:
@@ -11371,7 +11371,7 @@ __metadata:
     "@mui/system": "npm:^7.3.5"
     "@mui/utils": "npm:^7.3.5"
     "@playwright/test": "npm:^1.56.1"
-    "@reduxjs/toolkit": "npm:^2.10.0"
+    "@reduxjs/toolkit": "npm:^2.10.1"
     "@tanstack/eslint-plugin-query": "npm:^5.91.2"
     "@tanstack/react-query": "npm:^5.90.6"
     "@testing-library/dom": "npm:^10.4.1"
