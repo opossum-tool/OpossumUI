@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isEmpty, isEqual } from 'lodash';
 
-import { PackageInfo } from '../../../../shared/shared-types';
+import { Attributions, PackageInfo } from '../../../../shared/shared-types';
 import { correctFilePathsInResourcesMappingForOutput } from '../../../util/can-resource-have-children';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
@@ -183,6 +183,27 @@ export function removeResolvedExternalAttributionAndSave(
 ): AppThunkAction {
   return (dispatch) => {
     dispatch(removeResolvedExternalAttributions(attributionIds));
+    dispatch(saveManualAndResolvedAttributionsToFile());
+  };
+}
+
+export function updateAttributionsAndSave(
+  updatedAttributions: Attributions,
+): AppThunkAction {
+  return (dispatch, getState) => {
+    const selectedAttributionId = getSelectedAttributionId(getState());
+
+    Object.entries(updatedAttributions).forEach(
+      ([attributionId, updatedPackageInfo]) => {
+        dispatch(updateAttribution(attributionId, updatedPackageInfo, false));
+      },
+    );
+
+    // Reset temporary display package info if the currently selected attribution was updated
+    if (Object.keys(updatedAttributions).includes(selectedAttributionId)) {
+      dispatch(resetTemporaryDisplayPackageInfo());
+    }
+
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
