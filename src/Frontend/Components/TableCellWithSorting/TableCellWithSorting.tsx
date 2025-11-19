@@ -44,7 +44,7 @@ export const TableCellWithSorting: React.FC<TableCellWithSortingProps> = (
       >
         {props.children}
         {props.isSortedColumn ? (
-          <MuiBox component="span" sx={visuallyHidden}>
+          <MuiBox component="span" sx={{ ...visuallyHidden }}>
             {`sorted ${props.order}ending`}
           </MuiBox>
         ) : null}
