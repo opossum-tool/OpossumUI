@@ -34,7 +34,7 @@ jobs:
             FILES: release/win/OpossumUI-for-win.exe
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
@@ -53,7 +53,7 @@ jobs:
   upload-docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
