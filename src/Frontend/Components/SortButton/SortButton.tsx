@@ -17,8 +17,10 @@ import {
 } from '../SelectMenu/SelectMenu';
 import { SortOption, useSortConfiguration } from './useSortingOptions';
 
-interface Props
-  extends Pick<SelectMenuProps, 'anchorArrow' | 'anchorPosition'> {
+interface Props extends Pick<
+  SelectMenuProps,
+  'anchorArrow' | 'anchorPosition'
+> {
   useFilteredData: UseFilteredData;
 }
 

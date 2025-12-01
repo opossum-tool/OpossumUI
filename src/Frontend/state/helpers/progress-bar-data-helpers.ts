@@ -74,16 +74,16 @@ function updateProgressBarDataForResources(
 
     const hasOnlyPreselectedAttributionFromParent = Boolean(
       hasParentOnlyPreselectedAttribution &&
-        !resourcesToManualAttributions[path],
+      !resourcesToManualAttributions[path],
     );
 
     const hasOnlyPreselectedAttribution = Boolean(
       hasOnlyPreselectedAttributionFromParent ||
-        resourceHasOnlyPreSelectedAttributions(
-          path,
-          resourcesToManualAttributions,
-          manualAttributions,
-        ),
+      resourceHasOnlyPreSelectedAttributions(
+        path,
+        resourcesToManualAttributions,
+        manualAttributions,
+      ),
     );
 
     const hasManualAttribution: boolean =
