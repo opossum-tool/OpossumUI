@@ -6465,10 +6465,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chroma-js@npm:^3.1.2":
-  version: 3.1.2
-  resolution: "chroma-js@npm:3.1.2"
-  checksum: 10/ea09b27d04b477a8fdc3314bfa6dc8de05feab47999ff1acdeba6cf3c32c76338baa5b4562d949d33d8adeca57754e5ea591c15b9985d65583c8771e7e07c2ef
+"chroma-js@npm:^3.1.4":
+  version: 3.2.0
+  resolution: "chroma-js@npm:3.2.0"
+  checksum: 10/8781f9e2469e1adbab40f74d9339023e5a327bc33024497fe1a02cfda8bc13dbc2ea212bbf8bae57e3bb3c81aa83ba51d52931016412092b3beb8c2f37048a60
   languageName: node
   linkType: hard
 
@@ -11427,7 +11427,7 @@ __metadata:
     "@types/stream-json": "npm:^1.7.8"
     "@vitejs/plugin-react": "npm:^5.1.1"
     babel-plugin-transform-import-meta: "npm:^2.3.3"
-    chroma-js: "npm:^3.1.2"
+    chroma-js: "npm:^3.1.4"
     compare-versions: "npm:^6.1.1"
     cross-env: "npm:^10.1.0"
     dayjs: "npm:^1.11.19"
