@@ -7849,15 +7849,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react-perf@npm:^3.3.3":
-  version: 3.3.3
-  resolution: "eslint-plugin-react-perf@npm:3.3.3"
-  peerDependencies:
-    eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10/fc3446aa785714a1d6d06a52c0e6a28ca41c498185f0d3d7154c312d3d8b74059cb5c6ece4b2babb5cc0b3ad350870c84c098122c30a4d70098b58b819da555f
-  languageName: node
-  linkType: hard
-
 "eslint-plugin-react@npm:^7.37.5":
   version: 7.37.5
   resolution: "eslint-plugin-react@npm:7.37.5"
@@ -11474,7 +11465,7 @@ __metadata:
     react-hotkeys-hook: "npm:^5.2.1"
     react-redux: "npm:^9.2.0"
     react-virtuoso: "npm:4.15.0"
-    recharts: "npm:^3.5.0"
+    recharts: "npm:^3.5.1"
     run-script-os: "npm:^1.1.6"
     spdx-license-ids: "npm:^3.0.22"
     stream-json: "npm:^1.9.1"
@@ -12257,15 +12248,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recharts@npm:^3.5.0":
-  version: 3.5.0
-  resolution: "recharts@npm:3.5.0"
+"recharts@npm:^3.5.1":
+  version: 3.5.1
+  resolution: "recharts@npm:3.5.1"
   dependencies:
     "@reduxjs/toolkit": "npm:1.x.x || 2.x.x"
     clsx: "npm:^2.1.1"
     decimal.js-light: "npm:^2.5.1"
     es-toolkit: "npm:^1.39.3"
-    eslint-plugin-react-perf: "npm:^3.3.3"
     eventemitter3: "npm:^5.0.1"
     immer: "npm:^10.1.1"
     react-redux: "npm:8.x.x || 9.x.x"
@@ -12277,7 +12267,7 @@ __metadata:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-is: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10/8561aa32e7a316093755123a934936db01fa72cd61deed5f819b526f1b158eb9ce4fec52d09a873266c0fed6fde0ffcbf2ff00f2c5fca671f8bbd9dcbed852c7
+  checksum: 10/91e06875198411f6392a618052a6bc484876c25476a6d0d1cb93e7bd09ee0879978f584b24ae6ae5d9bf9d3065d31b93561425db58e7ff4f3cac006b4dcb8163
   languageName: node
   linkType: hard
 
