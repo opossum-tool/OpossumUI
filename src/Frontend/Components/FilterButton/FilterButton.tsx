@@ -57,8 +57,10 @@ const FILTER_ICONS: Record<Filter, React.ReactElement<unknown>> = {
   [text.filters.modifiedPreferred]: <ModifiedPreferredIcon noTooltip />,
 };
 
-interface Props
-  extends Pick<SelectMenuProps, 'anchorArrow' | 'anchorPosition'> {
+interface Props extends Pick<
+  SelectMenuProps,
+  'anchorArrow' | 'anchorPosition'
+> {
   useFilteredData: UseFilteredData;
   availableFilters: Array<Filter>;
 }

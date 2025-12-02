@@ -86,11 +86,10 @@ export interface PackageInfo extends EphemeralPackageInfoProps {
   wasPreferred?: boolean;
 }
 
-export interface RawPackageInfo
-  extends Never<
-    Omit<Omit<PackageInfo, 'followUp'>, 'criticality'>,
-    keyof EphemeralPackageInfoProps
-  > {
+export interface RawPackageInfo extends Never<
+  Omit<Omit<PackageInfo, 'followUp'>, 'criticality'>,
+  keyof EphemeralPackageInfoProps
+> {
   originId?: string;
   criticality?: string;
   followUp?: 'FOLLOW_UP';
