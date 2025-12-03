@@ -28,24 +28,30 @@ import { AttributionFormConfig } from '../AttributionForm';
 import { attributionColumnClasses } from '../AttributionForm.style';
 import { PackageAutocomplete } from '../PackageAutocomplete/PackageAutocomplete';
 
-/** https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst */
+/** https://github.com/package-url/purl-spec/blob/main/purl-types-index.json */
 const COMMON_PACKAGE_TYPES = [
+  'alpm',
+  'apk',
+  'bazel',
   'bitbucket',
+  'bitnami',
   'cargo',
+  'cocoapods',
   'composer',
   'conan',
   'conda',
+  'cpan',
   'cran',
   'deb',
   'docker',
   'gem',
-  'generic',
   'github',
-  'gitlab',
   'golang',
   'hackage',
   'hex',
   'huggingface',
+  'julia',
+  'luarocks',
   'maven',
   'mlflow',
   'npm',
@@ -54,7 +60,6 @@ const COMMON_PACKAGE_TYPES = [
   'pub',
   'pypi',
   'qpkg',
-  'rpm',
   'rpm',
   'swid',
   'swift',
