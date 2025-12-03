@@ -200,6 +200,6 @@
   },
   "packageManager": "yarn@4.12.0",
   "resolutions": {
-    "dpdm/glob": "^10.5.0"
+    "dpdm/glob": "^13.0.0"
   }
 }
