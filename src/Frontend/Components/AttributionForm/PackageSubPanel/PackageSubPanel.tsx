@@ -45,6 +45,7 @@ const COMMON_PACKAGE_TYPES = [
   'deb',
   'docker',
   'gem',
+  'generic',
   'github',
   'golang',
   'hackage',
