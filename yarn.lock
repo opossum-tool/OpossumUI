@@ -11531,6 +11531,11 @@ __metadata:
     vite-plugin-svgr: "npm:^4.5.0"
     vite-tsconfig-paths: "npm:^5.1.4"
     whatwg-fetch: "npm:^3.6.20"
+  dependenciesMeta:
+    electron:
+      built: true
+    esbuild:
+      built: true
   languageName: unknown
   linkType: soft
 
