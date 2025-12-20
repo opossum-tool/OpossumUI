@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": ["src/index.tsx", "src/ElectronBackend/{app,preload}.ts"],
   "project": ["**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}!"],
-  "ignoreDependencies": ["cross-env", "dpdm"],
+  "ignoreDependencies": ["dpdm"],
   "ignoreBinaries": [
     "tools/*",
     "spdx",

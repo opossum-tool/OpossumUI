@@ -6,7 +6,7 @@ import { fixupPluginRules } from '@eslint/compat';
 import { includeIgnoreFile } from '@eslint/compat';
 import eslint from '@eslint/js';
 import eslintPluginQuery from '@tanstack/eslint-plugin-query';
-import eslintConfigFilenames from 'eslint-plugin-filenames-simple';
+import eslintPluginCheckFile from 'eslint-plugin-check-file';
 import eslintConfigJest from 'eslint-plugin-jest';
 import eslintConfigJestDom from 'eslint-plugin-jest-dom';
 import eslintConfigPlaywright from 'eslint-plugin-playwright';
@@ -39,7 +39,7 @@ export default tseslint.config(
   },
   {
     plugins: {
-      filenames: eslintConfigFilenames,
+      'check-file': eslintPluginCheckFile,
       jest: eslintConfigJest,
       '@tanstack/query': eslintPluginQuery,
       // @ts-ignore
@@ -130,11 +130,13 @@ export default tseslint.config(
       ],
       'jest/consistent-test-it': 'error',
       'jest/prefer-spy-on': 'error',
-      'filenames/naming-convention': [
+      'check-file/filename-naming-convention': [
         'error',
         {
-          rule: '^[a-zA-Z0-9\\-]+(.d|.test|.style|.util|.util.test)?$',
+          '**/*.{js,mjs,ts,tsx}':
+            '+([a-zA-Z0-9-])*(.(d|test|style|util|util.test))',
         },
+        { ignoreMiddleExtensions: true },
       ],
       'no-alert': 'error',
       'no-console': 'off',
