@@ -3,7 +3,7 @@
   "extends": [
     "config:recommended",
     ":dependencyDashboard",
-    ":pinGitHubActionDigests",
+    "helpers:pinGitHubActionDigests",
     ":automergeTypes",
     ":automergeLinters",
     ":automergeTesters",
