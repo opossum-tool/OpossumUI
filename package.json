@@ -67,7 +67,7 @@
     "@types/jest": "30.0.0",
     "@types/js-yaml": "4.0.9",
     "@types/lodash": "4.17.21",
-    "@types/node": "24.10.1",
+    "@types/node": "24.10.4",
     "@types/object-hash": "3.0.6",
     "@types/react": "19.2.5",
     "@types/react-dom": "19.2.3",
