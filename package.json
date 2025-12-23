@@ -79,7 +79,7 @@
     "dpdm": "3.14.0",
     "electron": "39.2.7",
     "electron-builder": "26.0.12",
-    "electron-playwright-helpers": "1.8.2",
+    "electron-playwright-helpers": "2.0.1",
     "eslint": "9.39.2",
     "eslint-plugin-check-file": "3.3.1",
     "eslint-plugin-jest": "29.5.0",
