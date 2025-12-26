@@ -6739,9 +6739,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest@npm:29.9.0":
-  version: 29.9.0
-  resolution: "eslint-plugin-jest@npm:29.9.0"
+"eslint-plugin-jest@npm:29.10.1":
+  version: 29.10.1
+  resolution: "eslint-plugin-jest@npm:29.10.1"
   dependencies:
     "@typescript-eslint/utils": "npm:^8.0.0"
   peerDependencies:
@@ -6753,7 +6753,7 @@ __metadata:
       optional: true
     jest:
       optional: true
-  checksum: 10/ac74fe6c0b0639a97fbe9035163684975d850f38f7e7b2b351861ffb9d939064b68e1204e35498d5a72868a9b92d9459add53be4f68d0520d124007ba19c3e44
+  checksum: 10/d21cc1fbd04f924776d60bd5476cea0b7f2046f86962f5c08d7d3c520120734596eb15dfb9437b8a915b148100f1e090a694b0633b076857d176c42d1dc5528d
   languageName: node
   linkType: hard
 
@@ -10127,7 +10127,7 @@ __metadata:
     electron-settings: "npm:4.0.4"
     eslint: "npm:9.39.2"
     eslint-plugin-check-file: "npm:3.3.1"
-    eslint-plugin-jest: "npm:29.9.0"
+    eslint-plugin-jest: "npm:29.10.1"
     eslint-plugin-jest-dom: "npm:5.5.0"
     eslint-plugin-playwright: "npm:2.4.0"
     eslint-plugin-react: "npm:7.37.5"
