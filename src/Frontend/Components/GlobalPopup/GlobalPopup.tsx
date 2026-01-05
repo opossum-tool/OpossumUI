@@ -7,6 +7,7 @@ import { PopupType } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
 import { PopupInfo } from '../../types/types';
+import { useFrontendPopupOpen } from '../../util/use-app-menu-disabled';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
 import { ImportDialog } from '../ImportDialog/ImportDialog';
 import { MergeDialog } from '../MergeDialog/MergeDialog';
@@ -46,5 +47,9 @@ function getPopupComponent(popupInfo: PopupInfo | null) {
  */
 export const GlobalPopup: React.FC = () => {
   const openPopupInfo = useAppSelector(getOpenPopup);
-  return getPopupComponent(openPopupInfo);
+  const popupComponent = getPopupComponent(openPopupInfo);
+
+  useFrontendPopupOpen(popupComponent !== null);
+
+  return popupComponent;
 };

@@ -7,6 +7,7 @@ import { app, MenuItemConstructorOptions, shell } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
+import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
 
 function getOpenLogFiles(): MenuItemConstructorOptions {
@@ -31,6 +32,7 @@ function getCheckForUpdates(
         showUpdateAppPopup: true,
       });
     },
+    enabled: !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
