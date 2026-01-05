@@ -19,6 +19,7 @@ const electronAPI: {
   events: Partial<Record<AllowedFrontendChannels, Listener>>;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
   send: (channel: AllowedFrontendChannels, ...args: Array<unknown>) => void;
+  setFrontendPopupOpen: () => void;
 } = {
   events: {},
   on(channel: AllowedFrontendChannels, listener: Listener): () => void {
@@ -28,6 +29,7 @@ const electronAPI: {
   send(channel: AllowedFrontendChannels, ...args: Array<unknown>): void {
     this.events[channel]?.({} as IpcRendererEvent, ...args);
   },
+  setFrontendPopupOpen: jest.fn(),
 };
 
 function simulateMessageFromBackend(message: string) {
@@ -67,6 +69,7 @@ describe('ProcessPopup', () => {
     renderComponent(<ProcessPopup />);
 
     expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
+    expect(electronAPI.setFrontendPopupOpen).not.toHaveBeenLastCalledWith(true);
   });
 
   it('renders dialog when loading is true', () => {
@@ -75,6 +78,7 @@ describe('ProcessPopup', () => {
     simulateBackendProcessingStarted();
 
     expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
+    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
   });
 
   it('shows messages during processing', () => {
@@ -85,6 +89,7 @@ describe('ProcessPopup', () => {
     simulateMessageFromBackend(message);
 
     expect(screen.getByText(message)).toBeInTheDocument();
+    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
   });
 
   it('shows multiple messages', () => {
@@ -100,6 +105,7 @@ describe('ProcessPopup', () => {
     simulateMessageFromBackend(secondMessage);
 
     expect(screen.getByText(secondMessage)).toBeInTheDocument();
+    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
   });
 
   it('clears previous log messages when loading begins another time', () => {
@@ -124,5 +130,6 @@ describe('ProcessPopup', () => {
     simulateBackendProcessingDone();
 
     expect(screen.queryByText(text.processPopup.title)).not.toBeVisible();
+    expect(electronAPI.setFrontendPopupOpen).not.toHaveBeenLastCalledWith(true);
   });
 });

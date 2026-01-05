@@ -54,17 +54,6 @@ export class MenuBar {
     ).toBe(true);
   }
 
-  private async assertSubMenuItemDisabled(
-    menuLabel: string,
-    itemLabel: string,
-  ) {
-    const submenuItem = await this.findSubmenuItem(menuLabel, itemLabel);
-    expect(
-      submenuItem!.enabled,
-      `Expected submenu item ${menuLabel}->${itemLabel}  to be disabled`,
-    ).toBe(false);
-  }
-
   private async assertSubMenuItemEnabled(menuLabel: string, itemLabel: string) {
     const submenuItem = await this.findSubmenuItem(menuLabel, itemLabel);
     expect(
@@ -101,15 +90,7 @@ export class MenuBar {
       await this.assertMenuItemDisabled(
         text.menu.editSubmenu.searchResourcesAll,
       );
-
-      //need to call the asserts sequentially here, doing that in
-      //parallel via promise all somehow breaks the app object
-      for (const fileFormat of importFileFormats) {
-        await this.assertSubMenuItemDisabled(
-          text.menu.fileSubmenu.merge,
-          text.menu.fileSubmenu.mergeSubmenu(fileFormat),
-        );
-      }
+      await this.assertMenuItemDisabled(text.menu.fileSubmenu.merge);
     },
     initiallyDisableEntriesAreEnabled: async (): Promise<void> => {
       await this.assertMenuItemEnabled(text.menu.fileSubmenu.projectStatistics);
@@ -126,6 +107,8 @@ export class MenuBar {
       await this.assertMenuItemEnabled(
         text.menu.editSubmenu.searchResourcesAll,
       );
+
+      await this.assertMenuItemEnabled(text.menu.fileSubmenu.merge);
 
       //need to call the asserts sequentially here, doing that in
       //parallel via promise all somehow breaks the app object

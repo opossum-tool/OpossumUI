@@ -8,6 +8,7 @@ import MuiDialogTitle from '@mui/material/DialogTitle';
 import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
+import { useFrontendPopupOpen } from '../../util/use-app-menu-disabled';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { DialogContent, GridLogDisplay } from './ProcessPopup.style';
 
@@ -16,8 +17,13 @@ export function ProcessPopup() {
 
   const { processingStatusUpdatedEvents, processing } =
     useProcessingStatusUpdated();
+
+  const showPopup = processing && !isOtherPopupOpen;
+
+  useFrontendPopupOpen(showPopup);
+
   return (
-    <MuiDialog open={processing && !isOtherPopupOpen} fullWidth>
+    <MuiDialog open={showPopup} fullWidth>
       <MuiDialogTitle>{text.processPopup.title}</MuiDialogTitle>
       {renderDialogContent()}
     </MuiDialog>

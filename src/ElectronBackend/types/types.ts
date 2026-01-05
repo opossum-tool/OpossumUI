@@ -50,6 +50,7 @@ export interface GlobalBackendState {
   projectId?: string;
   inputFileChecksum?: string;
   inputFileRaw?: Uint8Array;
+  frontendPopupOpen?: boolean;
 }
 
 export interface RawFrequentLicense {

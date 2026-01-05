@@ -293,6 +293,7 @@ export interface ElectronAPI {
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
   getUserSettings: () => Promise<UserSettings>;
   updateUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
+  setFrontendPopupOpen: (open: boolean) => Promise<void>;
 }
 
 declare global {

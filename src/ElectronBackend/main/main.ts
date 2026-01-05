@@ -9,6 +9,7 @@ import { IpcChannel } from '../../shared/ipc-channels';
 import { UserSettings } from '../../shared/shared-types';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow, loadWebApp } from './createWindow';
+import { getGlobalBackendState } from './globalBackendState';
 import {
   exportFileListener,
   importFileConvertAndLoadListener,
@@ -94,6 +95,13 @@ export async function main(): Promise<void> {
       IpcChannel.UpdateUserSettings,
       (_, userSettings: Partial<UserSettings>) =>
         UserSettingsService.update(userSettings, { skipNotification: true }),
+    );
+    ipcMain.handle(
+      IpcChannel.SetFrontendPopupOpen,
+      async (_, open: boolean) => {
+        getGlobalBackendState().frontendPopupOpen = open;
+        await updateMenu();
+      },
     );
 
     await loadWebApp(mainWindow);
