@@ -22,6 +22,26 @@ const initiallyDisabledMenuItems = [
   text.menu.editSubmenu.searchResourceLinked,
   text.menu.editSubmenu.searchResourcesAll,
   text.menu.fileSubmenu.merge,
+  text.menu.fileSubmenu.export,
+];
+
+const popupDisabledMenuItems = [
+  text.menu.fileSubmenu.open,
+  text.menu.fileSubmenu.openRecent,
+  text.menu.fileSubmenu.import,
+  text.menu.fileSubmenu.merge,
+  text.menu.fileSubmenu.save,
+  text.menu.fileSubmenu.export,
+  text.menu.fileSubmenu.projectMetadata,
+  text.menu.fileSubmenu.projectStatistics,
+  text.menu.fileSubmenu.setBaseURL,
+  text.menu.editSubmenu.undo,
+  text.menu.editSubmenu.redo,
+  text.menu.editSubmenu.searchAttributions,
+  text.menu.editSubmenu.searchSignals,
+  text.menu.editSubmenu.searchResourcesAll,
+  text.menu.editSubmenu.searchResourceLinked,
+  text.menu.helpSubmenu.checkForUpdates,
 ];
 
 export class MenuBar {
@@ -107,9 +127,24 @@ export class MenuBar {
           true,
         );
       }
+      for (const subMenuItem of Object.values(
+        text.menu.fileSubmenu.exportSubmenu,
+      )) {
+        await this.assertSubMenuItemEnabledState(
+          text.menu.fileSubmenu.export,
+          subMenuItem,
+          true,
+        );
+      }
     },
     initiallyDisabledEntriesAreDisabled: async (): Promise<void> => {
       await this.assertMenuItemsEnabledState(initiallyDisabledMenuItems, false);
+    },
+    popupDisabledEntriesAreEnabled: async (): Promise<void> => {
+      await this.assertMenuItemsEnabledState(popupDisabledMenuItems, true);
+    },
+    popupDisabledEntriesAreDisabled: async (): Promise<void> => {
+      await this.assertMenuItemsEnabledState(popupDisabledMenuItems, false);
     },
 
     hasRecentlyOpenedProject: async (projectName: string): Promise<void> => {
