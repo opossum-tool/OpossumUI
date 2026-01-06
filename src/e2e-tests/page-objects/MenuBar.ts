@@ -12,6 +12,18 @@ import {
 import { importFileFormats } from '../../ElectronBackend/main/menu/fileMenu';
 import { text } from '../../shared/text';
 
+const initiallyDisabledMenuItems = [
+  text.menu.fileSubmenu.projectStatistics,
+  text.menu.fileSubmenu.projectMetadata,
+  text.menu.fileSubmenu.save,
+  text.menu.editSubmenu.selectAll,
+  text.menu.editSubmenu.searchAttributions,
+  text.menu.editSubmenu.searchSignals,
+  text.menu.editSubmenu.searchResourceLinked,
+  text.menu.editSubmenu.searchResourcesAll,
+  text.menu.fileSubmenu.merge,
+];
+
 export class MenuBar {
   private readonly window: Page & { app: ElectronApplication };
 
@@ -38,28 +50,33 @@ export class MenuBar {
     return clickMenuItem(this.window.app, 'label', label);
   }
 
-  private async assertMenuItemDisabled(label: string) {
+  private async assertMenuItemEnabledState(label: string, enabled: boolean) {
     const menuItem = await this.findByLabel(label);
     expect(
       menuItem!.enabled,
-      `Expected menu item ${label}  to be disabled`,
-    ).toBe(false);
+      `Expected menu item ${label} to be ${enabled ? 'enabled' : 'disabled'}`,
+    ).toBe(enabled);
   }
 
-  private async assertMenuItemEnabled(label: string) {
-    const menuItem = await this.findByLabel(label);
-    expect(
-      menuItem!.enabled,
-      `Expected menu item ${label}  to be enabled`,
-    ).toBe(true);
+  private async assertMenuItemsEnabledState(
+    labels: Array<string>,
+    enabled: boolean,
+  ) {
+    for (const label of labels) {
+      await this.assertMenuItemEnabledState(label, enabled);
+    }
   }
 
-  private async assertSubMenuItemEnabled(menuLabel: string, itemLabel: string) {
+  private async assertSubMenuItemEnabledState(
+    menuLabel: string,
+    itemLabel: string,
+    enabled: boolean,
+  ) {
     const submenuItem = await this.findSubmenuItem(menuLabel, itemLabel);
     expect(
       submenuItem!.enabled,
-      `Expected submenu item ${menuLabel}->${itemLabel}  to be enabled`,
-    ).toBe(true);
+      `Expected submenu item ${menuLabel}->${itemLabel} to be ${enabled ? 'enabled' : 'disabled'}`,
+    ).toBe(enabled);
   }
 
   public assert = {
@@ -67,57 +84,32 @@ export class MenuBar {
       expect(await this.window.title()).toBe(title);
     },
     openRecentIsEnabled: async (): Promise<void> => {
-      await this.assertMenuItemEnabled(text.menu.fileSubmenu.openRecent);
+      await this.assertMenuItemEnabledState(
+        text.menu.fileSubmenu.openRecent,
+        true,
+      );
     },
     openRecentIsDisabled: async (): Promise<void> => {
-      await this.assertMenuItemDisabled(text.menu.fileSubmenu.openRecent);
+      await this.assertMenuItemEnabledState(
+        text.menu.fileSubmenu.openRecent,
+        false,
+      );
     },
-    initiallyDisableEntriesAreDisabled: async (): Promise<void> => {
-      await this.assertMenuItemDisabled(text.menu.fileSubmenu.openRecent);
-      await this.assertMenuItemDisabled(
-        text.menu.fileSubmenu.projectStatistics,
-      );
-      await this.assertMenuItemDisabled(text.menu.fileSubmenu.projectMetadata);
-      await this.assertMenuItemDisabled(text.menu.fileSubmenu.save);
-      await this.assertMenuItemDisabled(text.menu.editSubmenu.selectAll);
-      await this.assertMenuItemDisabled(
-        text.menu.editSubmenu.searchAttributions,
-      );
-      await this.assertMenuItemDisabled(text.menu.editSubmenu.searchSignals);
-      await this.assertMenuItemDisabled(
-        text.menu.editSubmenu.searchResourceLinked,
-      );
-      await this.assertMenuItemDisabled(
-        text.menu.editSubmenu.searchResourcesAll,
-      );
-      await this.assertMenuItemDisabled(text.menu.fileSubmenu.merge);
-    },
-    initiallyDisableEntriesAreEnabled: async (): Promise<void> => {
-      await this.assertMenuItemEnabled(text.menu.fileSubmenu.projectStatistics);
-      await this.assertMenuItemEnabled(text.menu.fileSubmenu.projectMetadata);
-      await this.assertMenuItemEnabled(text.menu.fileSubmenu.save);
-      await this.assertMenuItemEnabled(text.menu.editSubmenu.selectAll);
-      await this.assertMenuItemEnabled(
-        text.menu.editSubmenu.searchAttributions,
-      );
-      await this.assertMenuItemEnabled(text.menu.editSubmenu.searchSignals);
-      await this.assertMenuItemEnabled(
-        text.menu.editSubmenu.searchResourceLinked,
-      );
-      await this.assertMenuItemEnabled(
-        text.menu.editSubmenu.searchResourcesAll,
-      );
-
-      await this.assertMenuItemEnabled(text.menu.fileSubmenu.merge);
+    initiallyDisabledEntriesAreEnabled: async (): Promise<void> => {
+      await this.assertMenuItemsEnabledState(initiallyDisabledMenuItems, true);
 
       //need to call the asserts sequentially here, doing that in
       //parallel via promise all somehow breaks the app object
       for (const fileFormat of importFileFormats) {
-        await this.assertSubMenuItemEnabled(
+        await this.assertSubMenuItemEnabledState(
           text.menu.fileSubmenu.merge,
           text.menu.fileSubmenu.mergeSubmenu(fileFormat),
+          true,
         );
       }
+    },
+    initiallyDisabledEntriesAreDisabled: async (): Promise<void> => {
+      await this.assertMenuItemsEnabledState(initiallyDisabledMenuItems, false);
     },
 
     hasRecentlyOpenedProject: async (projectName: string): Promise<void> => {
