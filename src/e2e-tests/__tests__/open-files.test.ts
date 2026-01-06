@@ -49,11 +49,11 @@ test('opens file and activates initially disabled menu entries afterwards', asyn
   resourcesTree,
 }) => {
   await menuBar.assert.openRecentIsDisabled();
-  await menuBar.assert.initiallyDisableEntriesAreDisabled();
+  await menuBar.assert.initiallyDisabledEntriesAreDisabled();
 
   await stubDialog(window.app, 'showOpenDialogSync', [filePaths!.opossum]);
   await menuBar.openFile();
 
   await resourcesTree.assert.resourceIsVisible(resourceName);
-  await menuBar.assert.initiallyDisableEntriesAreEnabled();
+  await menuBar.assert.initiallyDisabledEntriesAreEnabled();
 });
