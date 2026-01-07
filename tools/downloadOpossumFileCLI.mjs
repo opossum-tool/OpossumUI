@@ -8,7 +8,7 @@ import { pipeline } from 'stream';
 
 const EXECUTE_PERMISSIONS = 0o755;
 
-function getResourceNameAndFilePath() {
+function getResourceName() {
   const osSuffix = process.argv[2];
   if (
     osSuffix !== 'mac-intel' &&
@@ -20,9 +20,7 @@ function getResourceNameAndFilePath() {
       'Please specify one of the following options: mac-intel, mac-arm64, linux, windows.exe',
     );
   }
-  const resourceName = `opossum-file-for-${osSuffix}`;
-  const filePath = `bin/opossum-file${osSuffix === 'windows.exe' ? '.exe' : ''}`;
-  return { resourceName, filePath };
+  return `opossum-file-for-${osSuffix}`;
 }
 
 function doesOpossumExecutableExist(filePath) {
@@ -53,21 +51,21 @@ async function downloadOpossumFileCLI() {
   const requestParams = githubToken
     ? { headers: { Authorization: `Bearer ${githubToken}` } }
     : undefined;
-  const { resourceName, filePath } = getResourceNameAndFilePath();
   const downloadResponse = await fetch(
-    `https://github.com/opossum-tool/opossum-file/releases/latest/download/${resourceName}`,
+    `https://github.com/opossum-tool/opossum-file/releases/latest/download/${getResourceName()}`,
     requestParams,
   );
 
-  if (doesOpossumExecutableExist(filePath)) {
+  const executablePath = 'bin/opossum-file';
+  if (doesOpossumExecutableExist(executablePath)) {
     if (!downloadResponse.ok) {
-      const { birthtime } = fs.statSync(filePath);
+      const { birthtime } = fs.statSync(executablePath);
       console.warn(
         `The opossum-file CLI download failed, however an executable from ${birthtime.toUTCString()} exists.`,
       );
       return;
     }
-    fs.rmSync(filePath);
+    fs.rmSync(executablePath);
   }
   if (!downloadResponse.ok) {
     throw new Error(
@@ -76,15 +74,19 @@ async function downloadOpossumFileCLI() {
     );
   }
   await new Promise((resolve, reject) => {
-    pipeline(downloadResponse.body, fs.createWriteStream(filePath), (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
+    pipeline(
+      downloadResponse.body,
+      fs.createWriteStream(executablePath),
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      },
+    );
   });
-  await fs.promises.chmod(filePath, EXECUTE_PERMISSIONS);
+  await fs.promises.chmod(executablePath, EXECUTE_PERMISSIONS);
 }
 
 await downloadOpossumFileCLI();
