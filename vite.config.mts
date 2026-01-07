@@ -17,6 +17,16 @@ export default defineConfig(({ mode }) => ({
       ? []
       : electron({
           entry: 'src/ElectronBackend/main/main.ts',
+          onstart(options) {
+            if (process.platform === 'linux') {
+              // See github.com/electron-vite/vite-plugin-electron/issues/264
+              options.startup(undefined, {
+                stdio: ['inherit', 'inherit', 'inherit', 'ignore', 'ipc'],
+              });
+            } else {
+              options.startup();
+            }
+          },
         })),
   ],
   define: {
