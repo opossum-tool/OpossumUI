@@ -332,7 +332,6 @@ export interface ProcessingStateUpdatedEvent {
 
 export interface UserSettings {
   qaMode: boolean;
-  showProjectStatistics: boolean;
   areHiddenSignalsVisible: boolean;
   showCriticality: boolean;
   showClassifications: boolean;

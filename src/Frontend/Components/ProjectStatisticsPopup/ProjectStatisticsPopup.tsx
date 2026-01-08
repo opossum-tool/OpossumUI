@@ -24,7 +24,6 @@ import {
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { BarChart } from '../BarChart/BarChart';
-import { Checkbox } from '../Checkbox/Checkbox';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { PieChart } from '../PieChart/PieChart';
 import { ChartCard } from './ProjectStatisticsPopup.style';
@@ -88,9 +87,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
     dispatch(closePopup());
   }
 
-  const [userSettings, updateUserSettings] = useUserSettings();
+  const [userSettings] = useUserSettings();
 
-  const showProjectStatistics = userSettings.showProjectStatistics;
   const showClassifications = userSettings.showClassifications;
   const showCriticality = userSettings.showCriticality;
 
@@ -106,15 +104,6 @@ export const ProjectStatisticsPopup: React.FC = () => {
       onBackdropClick={close}
       onEscapeKeyDown={close}
       aria-label={'project statistics'}
-      customAction={
-        <Checkbox
-          checked={showProjectStatistics}
-          onChange={(event) =>
-            updateUserSettings({ showProjectStatistics: event.target.checked })
-          }
-          label={text.projectStatisticsPopup.toggleStartupCheckbox}
-        />
-      }
     >
       <MuiBox sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <MuiTabs

@@ -175,7 +175,6 @@ export const text = {
       overview: 'Overview',
       details: 'Licenses',
     },
-    toggleStartupCheckbox: 'Show project statistics on startup',
     criticalLicensesSignalCountColumnName: 'Signals Count',
     charts: {
       attributionProperties: {

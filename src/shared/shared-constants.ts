@@ -13,7 +13,6 @@ export const DEFAULT_PANEL_SIZES: NonNullable<UserSettings['panelSizes']> = {
 
 export const DEFAULT_USER_SETTINGS: UserSettings = {
   qaMode: false,
-  showProjectStatistics: false,
   areHiddenSignalsVisible: false,
   showCriticality: true,
   showClassifications: true,
