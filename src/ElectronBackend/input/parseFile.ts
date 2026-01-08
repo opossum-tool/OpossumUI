@@ -41,7 +41,7 @@ export async function parseOpossumFile(
 
   if (!zip[INPUT_FILE_NAME]) {
     return {
-      filesInArchive: Object.keys(zip)
+      message: Object.keys(zip)
         .map((fileName) => `'${fileName}'`)
         .join(', '),
       type: 'invalidDotOpossumFileError',

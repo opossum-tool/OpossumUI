@@ -12,13 +12,16 @@ import {
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 
-export interface JsonParsingError {
+export interface ParsingError {
   message: string;
+  type: 'jsonParsingError' | 'invalidDotOpossumFileError';
+}
+
+export interface JsonParsingError extends ParsingError {
   type: 'jsonParsingError';
 }
 
-export interface InvalidDotOpossumFileError {
-  filesInArchive: string;
+export interface InvalidDotOpossumFileError extends ParsingError {
   type: 'invalidDotOpossumFileError';
 }
 
