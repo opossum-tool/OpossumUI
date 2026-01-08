@@ -56,7 +56,7 @@ async function downloadOpossumFileCLI() {
     requestParams,
   );
 
-  const executablePath = 'bin/opossum-file';
+  const executablePath = 'bin/opossum-file-cli';
   if (doesOpossumExecutableExist(executablePath)) {
     if (!downloadResponse.ok) {
       const { birthtime } = fs.statSync(executablePath);
