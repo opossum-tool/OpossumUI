@@ -97,7 +97,8 @@
           },
           "originId": {
             "type": "string",
-            "description": "Can be set to track a signal from the tooling that generated the input file. Copied from the input file"
+            "description": "Deprecated - Use originIds instead. Can be set to track a signal from the tooling that generated the input file. Copied from the input file",
+            "deprecated": true
           },
           "originIds": {
             "type": "array",
