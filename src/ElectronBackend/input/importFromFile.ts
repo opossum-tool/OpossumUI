@@ -60,6 +60,7 @@ async function handleParsingError(
 ) {
   processingStatusUpdater.info('Invalid input file');
   switch (parsingError.type) {
+    case 'unZippingError':
     case 'fileNotFoundError':
     case 'jsonParsingError':
       await getMessageBoxForParsingError(parsingError.message);

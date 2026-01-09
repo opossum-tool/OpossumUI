@@ -15,7 +15,8 @@ import {
 export type ParsingErrorType =
   | 'fileNotFoundError'
   | 'jsonParsingError'
-  | 'invalidDotOpossumFileError';
+  | 'invalidDotOpossumFileError'
+  | 'unZippingError';
 export interface ParsingError {
   message: string;
   type: ParsingErrorType;
@@ -23,6 +24,10 @@ export interface ParsingError {
 
 export interface FileNotFoundError extends ParsingError {
   type: 'fileNotFoundError';
+}
+
+export interface UnZipError extends ParsingError {
+  type: 'unZippingError';
 }
 
 export interface JsonParsingError extends ParsingError {
