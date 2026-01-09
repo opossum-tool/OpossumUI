@@ -26,6 +26,7 @@ import {
   getMergeListener,
   handleOpeningFile,
   importFileListener,
+  removeDeletedRecentlyOpenedPaths,
   selectBaseURLListener,
 } from '../listeners';
 import { ProcessingStatusUpdater } from '../ProcessingStatusUpdater';
@@ -85,7 +86,7 @@ function getOpenRecentSubmenu(
   if (!recentlyOpenedPaths?.length) {
     return undefined;
   }
-
+  void removeDeletedRecentlyOpenedPaths(updateMenu);
   return [
     ...recentlyOpenedPaths.map<MenuItemConstructorOptions>((recentPath) => ({
       label: path.basename(recentPath, path.extname(recentPath)),

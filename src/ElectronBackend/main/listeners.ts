@@ -383,6 +383,34 @@ async function updateRecentlyOpenedPaths(filePath: string): Promise<void> {
   );
 }
 
+export async function removeDeletedRecentlyOpenedPaths(
+  updateMenu: () => Promise<void>,
+) {
+  const filePaths = await UserSettingsService.get('recentlyOpenedPaths');
+  const invalidPathOrUndefinedArray: Array<string | undefined> =
+    await Promise.all(
+      filePaths.map((path) =>
+        fs.promises
+          .access(path)
+          .then(() => undefined)
+          .catch(() => path),
+      ),
+    );
+  const invalidPaths = invalidPathOrUndefinedArray.filter((path) => path);
+  if (invalidPaths.length) {
+    // We get the paths again, since they might have changed while checking all files
+    await UserSettingsService.update(
+      {
+        recentlyOpenedPaths: (
+          await UserSettingsService.get('recentlyOpenedPaths')
+        ).filter((path) => !invalidPaths.includes(path)),
+      },
+      { skipNotification: true },
+    );
+    await updateMenu();
+  }
+}
+
 function setTitle(mainWindow: BrowserWindow, filePath: string): void {
   const defaultTitle = 'OpossumUI';
 
