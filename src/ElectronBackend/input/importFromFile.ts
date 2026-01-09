@@ -19,6 +19,7 @@ import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import {
+  FileNotFoundError,
   OpossumOutputFile,
   ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
@@ -59,6 +60,7 @@ async function handleParsingError(
 ) {
   processingStatusUpdater.info('Invalid input file');
   switch (parsingError.type) {
+    case 'fileNotFoundError':
     case 'jsonParsingError':
       await getMessageBoxForParsingError(parsingError.message);
       return;
@@ -81,6 +83,17 @@ export async function loadInputAndOutputFromFilePath(
   );
   let parsedInputData: ParsedOpossumInputFile;
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
+
+  if (!fs.existsSync(filePath)) {
+    await handleParsingError(
+      {
+        message: `Error: ${filePath} does not exist.`,
+        type: 'fileNotFoundError',
+      } as FileNotFoundError,
+      processingStatusUpdater,
+    );
+    return;
+  }
 
   if (isOpossumFileFormat(filePath)) {
     processingStatusUpdater.info(`Reading file ${filePath}`);
