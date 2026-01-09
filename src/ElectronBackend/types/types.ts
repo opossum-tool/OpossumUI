@@ -12,13 +12,29 @@ import {
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 
-export interface JsonParsingError {
+export type ParsingErrorType =
+  | 'fileNotFoundError'
+  | 'jsonParsingError'
+  | 'invalidDotOpossumFileError'
+  | 'unZippingError';
+export interface ParsingError {
   message: string;
+  type: ParsingErrorType;
+}
+
+export interface FileNotFoundError extends ParsingError {
+  type: 'fileNotFoundError';
+}
+
+export interface UnZipError extends ParsingError {
+  type: 'unZippingError';
+}
+
+export interface JsonParsingError extends ParsingError {
   type: 'jsonParsingError';
 }
 
-export interface InvalidDotOpossumFileError {
-  filesInArchive: string;
+export interface InvalidDotOpossumFileError extends ParsingError {
   type: 'invalidDotOpossumFileError';
 }
 
