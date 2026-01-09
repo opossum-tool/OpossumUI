@@ -19,7 +19,7 @@ export abstract class FileConverter {
   protected readonly OPOSSUM_FILE_EXECUTABLE = join(
     app?.getAppPath?.() ?? './',
     process.env.NODE_ENV === 'e2e' ? '../..' : '',
-    'bin/opossum-file',
+    'bin/opossum-file-cli',
   );
 
   protected abstract preConvertFile(

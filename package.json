@@ -148,10 +148,10 @@
     "postinstall": "yarn install-deps && yarn update-commit-hash && husky",
     "pre-commit": "lint-staged",
     "install-deps": "run-script-os",
-    "install-deps:darwin:x64": "yarn node --env-file-if-exists=.env tools/downloadOpossumFile.mjs mac-intel",
-    "install-deps:darwin:arm64": "yarn node --env-file-if-exists=.env tools/downloadOpossumFile.mjs mac-arm64",
-    "install-deps:linux": "yarn node --env-file-if-exists=.env tools/downloadOpossumFile.mjs linux",
-    "install-deps:win32": "yarn node --env-file-if-exists=.env tools/downloadOpossumFile.mjs windows.exe"
+    "install-deps:darwin:arm64": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs mac-arm64",
+    "install-deps:darwin:x64": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs mac-intel",
+    "install-deps:linux": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs linux",
+    "install-deps:win32": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs windows.exe"
   },
   "main": "build/ElectronBackend/app.js",
   "build": {
