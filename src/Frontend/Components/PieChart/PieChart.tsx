@@ -55,6 +55,10 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
       defaultPieChartColors[i % defaultPieChartColors.length],
   );
 
+  const nameToIndex = Object.fromEntries(
+    props.segments.map((prop, index) => [prop.name, index]),
+  );
+
   return (
     <RcResponsiveContainer width={'100%'} height={'100%'}>
       <RcPieChart>
@@ -78,12 +82,20 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
         <RcLegend
           content={({ payload }) => (
             <div>
-              {payload?.map((entry, index) => (
-                <div style={{ display: 'flex' }} key={`item-${index}`}>
-                  <div style={getLegendIconStyle(pieChartColors[index])} />
-                  <div style={legendTextStyle}>{entry.value}</div>
-                </div>
-              ))}
+              {payload
+                ?.toSorted(
+                  (a, b) =>
+                    (a.value &&
+                      b.value &&
+                      nameToIndex[a.value] - nameToIndex[b.value]) ||
+                    0,
+                )
+                .map((entry, index) => (
+                  <div style={{ display: 'flex' }} key={`item-${index}`}>
+                    <div style={getLegendIconStyle(entry.color ?? '')} />
+                    <div style={legendTextStyle}>{entry.value}</div>
+                  </div>
+                ))}
             </div>
           )}
           verticalAlign="middle"
