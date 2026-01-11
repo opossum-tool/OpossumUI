@@ -293,6 +293,7 @@ export interface ElectronAPI {
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
   getUserSettings: () => Promise<UserSettings>;
   updateUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
+  setFrontendPopupOpen: (open: boolean) => Promise<void>;
 }
 
 declare global {
@@ -331,7 +332,6 @@ export interface ProcessingStateUpdatedEvent {
 
 export interface UserSettings {
   qaMode: boolean;
-  showProjectStatistics: boolean;
   areHiddenSignalsVisible: boolean;
   showCriticality: boolean;
   showClassifications: boolean;

@@ -17,6 +17,7 @@ function getUndo(): MenuItemConstructorOptions {
     label: text.menu.editSubmenu.undo,
     accelerator: 'CmdOrCtrl+Z',
     role: 'undo',
+    enabled: !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -26,6 +27,7 @@ function getRedo(): MenuItemConstructorOptions {
     label: text.menu.editSubmenu.redo,
     accelerator: 'Shift+CmdOrCtrl+Z',
     role: 'redo',
+    enabled: !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -84,7 +86,9 @@ function getSearchAttributions(
         webContents.send(AllowedFrontendChannels.SearchAttributions);
       }
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -103,7 +107,9 @@ function getSearchSignals(
         webContents.send(AllowedFrontendChannels.SearchSignals);
       }
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -122,7 +128,9 @@ function getSearchResources(
         webContents.send(AllowedFrontendChannels.SearchResources);
       }
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -141,7 +149,9 @@ function getSearchLinkedResources(
         webContents.send(AllowedFrontendChannels.SearchLinkedResources);
       }
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 

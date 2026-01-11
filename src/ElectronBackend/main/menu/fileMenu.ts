@@ -58,6 +58,7 @@ function getOpenFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
       mainWindow.webContents.send(
         AllowedFrontendChannels.OpenFileWithUnsavedCheck,
       ),
+    enabled: !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -73,7 +74,9 @@ async function getOpenRecent(
     icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
     label: text.menu.fileSubmenu.openRecent,
     submenu: getOpenRecentSubmenu(mainWindow, recentlyOpenedPaths, updateMenu),
-    enabled: !!recentlyOpenedPaths?.length,
+    enabled:
+      !!recentlyOpenedPaths?.length &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -119,6 +122,7 @@ function getImportFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
       click: importFileListener(mainWindow, fileFormat),
       id: `import ${fileFormat.name}`,
     })),
+    enabled: !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -129,9 +133,11 @@ function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
     submenu: importFileFormats.map((fileFormat) => ({
       label: text.menu.fileSubmenu.mergeSubmenu(fileFormat),
       click: getMergeListener(mainWindow, fileFormat),
-      enabled: isFileLoaded(getGlobalBackendState()),
       id: `id-${fileFormat.name}`,
     })),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -145,7 +151,9 @@ function getSaveFile(webContents: WebContents): MenuItemConstructorOptions {
         saveFile: true,
       });
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -162,7 +170,9 @@ function getProjectMetadata(
         });
       }
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -182,7 +192,9 @@ function getProjectStatistics(
         });
       }
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -194,6 +206,7 @@ function getSetBaseUrl(mainWindow: BrowserWindow): MenuItemConstructorOptions {
     ),
     label: text.menu.fileSubmenu.setBaseURL,
     click: selectBaseURLListener(mainWindow),
+    enabled: !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -226,7 +239,6 @@ function getExportFollowUp(
         ExportType.FollowUp,
       );
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -250,7 +262,6 @@ function getExportCompactBom(
         ExportType.CompactBom,
       );
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -274,7 +285,6 @@ function getExportDetailedBom(
         ExportType.DetailedBom,
       );
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -293,7 +303,6 @@ function getExportSpdxYaml(
         ExportType.SpdxDocumentYaml,
       );
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -312,7 +321,6 @@ function getExportSpdxJson(
         ExportType.SpdxDocumentJson,
       );
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -332,6 +340,9 @@ function getExportSubMenu(
       getExportSpdxYaml(webContents),
       getExportSpdxJson(webContents),
     ],
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
