@@ -85,6 +85,7 @@ function getOpenRecentSubmenu(
   if (!recentlyOpenedPaths?.length) {
     return undefined;
   }
+
   return [
     ...recentlyOpenedPaths.map<MenuItemConstructorOptions>((recentPath) => ({
       label: path.basename(recentPath, path.extname(recentPath)),
