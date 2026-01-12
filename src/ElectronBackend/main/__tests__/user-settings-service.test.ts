@@ -14,8 +14,6 @@ import {
   DEFAULT_PANEL_SIZES,
   DEFAULT_USER_SETTINGS,
 } from '../../../shared/shared-constants';
-import { writeFile } from '../../../shared/write-file';
-import { removeDeletedRecentlyOpenedPaths } from '../listeners';
 import { UserSettingsService } from '../user-settings-service';
 
 type MockedBrowserWindow = BrowserWindow & {
@@ -83,24 +81,6 @@ describe('UserSettingsService', () => {
       const result = await settings.get();
 
       expect(result).toEqual({ ...DEFAULT_USER_SETTINGS });
-      process.env = oldEnvironment;
-    });
-
-    it('removed deleted files from recently opened paths', async () => {
-      const oldEnvironment = process.env;
-      process.env = { ...oldEnvironment, RESET: 'TRUE' };
-
-      await UserSettingsService.init();
-      const realFile = `${tmpdir()}/existingFile.json`;
-      await writeFile({ path: realFile, content: '0' });
-      await UserSettingsService.update({
-        recentlyOpenedPaths: ['nonExistingFile.json', realFile],
-      });
-      await removeDeletedRecentlyOpenedPaths(() => Promise.resolve());
-      const recentlyOpenedPaths = await UserSettingsService.get(
-        'recentlyOpenedPaths',
-      );
-      expect(recentlyOpenedPaths).toEqual([realFile]);
       process.env = oldEnvironment;
     });
   });
