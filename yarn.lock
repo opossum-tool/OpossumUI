@@ -10097,7 +10097,7 @@ __metadata:
     re-resizable: "npm:6.11.2"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"
-    react-error-boundary: "npm:6.0.2"
+    react-error-boundary: "npm:6.0.3"
     react-hot-toast: "npm:2.6.0"
     react-hotkeys-hook: "npm:5.2.1"
     react-is: "npm:19.2.3"
@@ -10714,13 +10714,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-error-boundary@npm:6.0.2":
-  version: 6.0.2
-  resolution: "react-error-boundary@npm:6.0.2"
+"react-error-boundary@npm:6.0.3":
+  version: 6.0.3
+  resolution: "react-error-boundary@npm:6.0.3"
   peerDependencies:
     react: ^18.0.0 || ^19.0.0
-    react-dom: ^18.0.0 || ^19.0.0
-  checksum: 10/726b696885ecef594dcaa45d7d6cf70ee100594f9b317c829f294507a06a78c11ec3efb2e1466292035426955704e77d9f91a87cd0fee2f47192ddcc0d1866f4
+  checksum: 10/3370b08df88620084d18815c3d5c8e0400ddfcbbdfcafe2426b2d78e79252dd9a86aafee7c8939e944af2337290e2376dee298058cab05c92676921fa9cbdac3
   languageName: node
   linkType: hard
 
