@@ -52,22 +52,76 @@ export function LicenseSubPanel({
   const dispatch = useAppDispatch();
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
   const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
-  const defaultLicenses = useMemo(
-    () =>
-      sortBy(
+
+  const defaultSPDXSet = useMemo(
+    () => new Set(frequentLicensesNames.map((license) => license.shortName)),
+    [frequentLicensesNames],
+  );
+
+  type AutoCompleteMode = 'license' | 'exp' | 'unknown';
+  function isValidExpression(expression: string | undefined): {
+    isValid: boolean;
+    currentMode: AutoCompleteMode;
+    validPart: string;
+  } {
+    if (expression === undefined || expression === '') {
+      return { isValid: false, currentMode: 'license', validPart: '' };
+    }
+    const statements = expression.trim().split(/\s+/);
+
+    let currentMode: AutoCompleteMode = 'license';
+    for (const [index, statement] of statements.entries()) {
+      if (
+        (currentMode === 'license' && !defaultSPDXSet.has(statement)) ||
+        (currentMode === 'exp' && !(statement === 'OR' || statement === 'AND'))
+      ) {
+        return {
+          isValid: false,
+          currentMode:
+            index === statements.length - 1 ? currentMode : 'unknown',
+          validPart: statements.slice(0, -1).join(' '),
+        };
+      }
+      currentMode = currentMode === 'exp' ? 'license' : 'exp';
+    }
+    return {
+      isValid: true,
+      currentMode,
+      validPart: statements.join(' '),
+    };
+  }
+
+  const analyseLicenseExpression = isValidExpression(packageInfo.licenseName);
+
+  const defaultLicenses = useMemo(() => {
+    if (analyseLicenseExpression.currentMode === 'license') {
+      return sortBy(
         frequentLicensesNames.map<PackageInfo>(({ fullName, shortName }) => ({
           id: shortName,
           criticality: Criticality.None,
-          licenseName: fullName,
+          licenseName:
+            analyseLicenseExpression.validPart === ''
+              ? shortName
+              : `${analyseLicenseExpression.validPart} ${shortName}`,
           source: {
             name: text.attributionColumn.commonLicenses,
           },
-          suffix: `(${shortName})`,
+          suffix: `(${fullName})`,
         })),
         ({ licenseName }) => licenseName?.toLowerCase(),
-      ),
-    [frequentLicensesNames],
-  );
+      );
+    } else if (analyseLicenseExpression.currentMode === 'exp') {
+      return ['AND', 'OR'].map<PackageInfo>((exp) => ({
+        id: exp,
+        criticality: Criticality.None,
+        licenseName: `${analyseLicenseExpression.validPart} ${exp}`,
+        source: {
+          name: text.attributionColumn.commonLicenses,
+        },
+      }));
+    }
+    return [];
+  }, [frequentLicensesNames, analyseLicenseExpression]);
 
   const defaultLicenseText = packageInfo.licenseText
     ? undefined
