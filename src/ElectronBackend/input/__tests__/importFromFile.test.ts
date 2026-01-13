@@ -21,13 +21,17 @@ import {
   setGlobalBackendState,
 } from '../../main/globalBackendState';
 import {
+  FileNotFoundError,
   JsonParsingError,
   OpossumOutputFile,
   ParsedOpossumInputFile,
+  UnzipError,
 } from '../../types/types';
 import {
+  getMessageBoxForFileNotFoundError,
   getMessageBoxForInvalidDotOpossumFileError,
   getMessageBoxForParsingError,
+  getMessageBoxForUnzipError,
   loadInputAndOutputFromFilePath,
 } from '../importFromFile';
 
@@ -810,6 +814,46 @@ describe('getMessageBoxForParsingError', () => {
         type: 'error',
         message: 'Error parsing the input file.',
         detail: `parsingErrorMessage\n${text.errorBoundary.outdatedAppVersion}`,
+        buttons: ['OK'],
+      }),
+    );
+  });
+});
+
+describe('getMessageBoxForFileNotFoundError', () => {
+  it('returns a messageBox', async () => {
+    const fileNotFoundError: FileNotFoundError = {
+      message: 'fileNotFoundErrorMessage',
+      type: 'fileNotFoundError',
+    };
+
+    await getMessageBoxForFileNotFoundError(fileNotFoundError.message);
+
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'error',
+        message: 'An error occurred while trying to open the file.',
+        detail: 'fileNotFoundErrorMessage',
+        buttons: ['OK'],
+      }),
+    );
+  });
+});
+
+describe('getMessageBoxForUnzipError', () => {
+  it('returns a messageBox', async () => {
+    const unzipError: UnzipError = {
+      message: 'unzipErrorMessage',
+      type: 'unzipError',
+    };
+
+    await getMessageBoxForUnzipError(unzipError.message);
+
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'error',
+        message: 'An error occurred while trying to unzip the file.',
+        detail: 'unzipErrorMessage',
         buttons: ['OK'],
       }),
     );

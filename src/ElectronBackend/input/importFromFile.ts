@@ -60,8 +60,12 @@ async function handleParsingError(
 ) {
   processingStatusUpdater.info('Invalid input file');
   switch (parsingError.type) {
-    case 'unZippingError':
+    case 'unzipError':
+      await getMessageBoxForUnzipError(parsingError.message);
+      return;
     case 'fileNotFoundError':
+      await getMessageBoxForFileNotFoundError(parsingError.message);
+      return;
     case 'jsonParsingError':
       await getMessageBoxForParsingError(parsingError.message);
       return;
@@ -343,6 +347,32 @@ export async function getMessageBoxForParsingError(
     title: 'Parsing Error',
     message: 'Error parsing the input file.',
     detail: `${errorMessage}\n${text.errorBoundary.outdatedAppVersion}`,
+  });
+}
+
+export async function getMessageBoxForFileNotFoundError(
+  errorMessage: string,
+): Promise<void> {
+  await dialog.showMessageBox({
+    type: 'error',
+    buttons: ['OK'],
+    defaultId: 0,
+    title: 'File Not Found Error',
+    message: 'An error occurred while trying to open the file.',
+    detail: `${errorMessage}`,
+  });
+}
+
+export async function getMessageBoxForUnzipError(
+  errorMessage: string,
+): Promise<void> {
+  await dialog.showMessageBox({
+    type: 'error',
+    buttons: ['OK'],
+    defaultId: 0,
+    title: 'Unzipping Error',
+    message: 'An error occurred while trying to unzip the file.',
+    detail: `${errorMessage}`,
   });
 }
 

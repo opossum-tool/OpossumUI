@@ -20,7 +20,7 @@ import {
   ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
-  UnZipError,
+  UnzipError,
 } from '../types/types';
 import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
@@ -34,7 +34,7 @@ export async function parseOpossumFile(
   opossumFilePath: string,
 ): Promise<
   | ParsedOpossumInputAndOutput
-  | UnZipError
+  | UnzipError
   | JsonParsingError
   | InvalidDotOpossumFileError
 > {
@@ -47,8 +47,8 @@ export async function parseOpossumFile(
   } catch (err) {
     return {
       message: `Error: ${opossumFilePath} could not be unzipped.\n Original error message: ${err?.toString()}`,
-      type: 'unZippingError',
-    } satisfies UnZipError;
+      type: 'unzipError',
+    } satisfies UnzipError;
   }
 
   if (!zip[INPUT_FILE_NAME]) {

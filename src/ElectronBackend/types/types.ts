@@ -18,15 +18,15 @@ export interface ParsingError {
     | 'fileNotFoundError'
     | 'jsonParsingError'
     | 'invalidDotOpossumFileError'
-    | 'unZippingError';
+    | 'unzipError';
 }
 
 export interface FileNotFoundError extends ParsingError {
   type: 'fileNotFoundError';
 }
 
-export interface UnZipError extends ParsingError {
-  type: 'unZippingError';
+export interface UnzipError extends ParsingError {
+  type: 'unzipError';
 }
 
 export interface JsonParsingError extends ParsingError {
