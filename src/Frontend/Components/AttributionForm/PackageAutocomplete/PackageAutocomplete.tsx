@@ -5,7 +5,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { createFilterOptions, styled, TextFieldProps } from '@mui/material';
-import MuiChip from '@mui/material/Chip';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import { compact, groupBy, sortBy } from 'lodash';
@@ -29,10 +28,10 @@ import {
   isPackageAttributeIncomplete,
   isPackageAttributeInvalid,
 } from '../../../util/input-validation';
-import { maybePluralize } from '../../../util/maybe-pluralize';
 import { openUrl } from '../../../util/open-url';
 import { PackageSearchHooks } from '../../../util/package-search-hooks';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
+import { renderOccuranceCount } from '../../Autocomplete/AutocompleteUtil';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../../IconButton/IconButton';
 import { SourceIcon } from '../../Icons/Icons';
@@ -59,6 +58,7 @@ interface Props {
   onEdit?: Confirm;
   color?: TextFieldProps['color'];
   focused?: boolean;
+  disableCloseOnSelect?: boolean;
 }
 
 const AddIconButton = styled(MuiIconButton)({
@@ -122,6 +122,7 @@ export function PackageAutocomplete({
   onEdit,
   color,
   focused,
+  disableCloseOnSelect,
 }: Props) {
   const dispatch = useAppDispatch();
   const attributeValue = packageInfo[attribute] || '';
@@ -185,7 +186,7 @@ export function PackageAutocomplete({
               generatePurl(option),
             ]).join()
       }
-      renderOptionStartIcon={renderOptionStartIcon}
+      renderOptionStartIcon={(option) => renderOccuranceCount(option.count)}
       renderOptionEndIcon={renderOptionEndIcon}
       value={packageInfo}
       filterOptions={createFilterOptions({
@@ -258,32 +259,9 @@ export function PackageAutocomplete({
         })
       }
       endAdornment={endAdornment}
+      disableCloseOnSelect={disableCloseOnSelect}
     />
   );
-
-  function renderOptionStartIcon(option: PackageInfo) {
-    if (!option.count) {
-      return null;
-    }
-
-    return (
-      <MuiTooltip
-        title={maybePluralize(option.count, text.attributionColumn.occurrence, {
-          showOne: true,
-        })}
-        enterDelay={500}
-      >
-        <MuiChip
-          sx={{ minWidth: '24px' }}
-          label={new Intl.NumberFormat('en-US', {
-            notation: 'compact',
-            compactDisplay: 'short',
-          }).format(option.count)}
-          size={'small'}
-        />
-      </MuiTooltip>
-    );
-  }
 
   function renderOptionEndIcon(
     { id, ...option }: PackageInfo,

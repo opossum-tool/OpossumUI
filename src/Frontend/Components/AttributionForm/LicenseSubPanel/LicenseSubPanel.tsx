@@ -5,10 +5,10 @@
 import NotesIcon from '@mui/icons-material/Notes';
 import { Badge, ToggleButton } from '@mui/material';
 import MuiBox from '@mui/material/Box';
-import { sortBy } from 'lodash';
-import { useMemo, useState } from 'react';
+import { groupBy, sortBy } from 'lodash';
+import { useCallback, useMemo, useState } from 'react';
 
-import { Criticality, PackageInfo } from '../../../../shared/shared-types';
+import { Attributions, PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
@@ -16,10 +16,16 @@ import {
   getFrequentLicensesNameOrder,
   getFrequentLicensesTexts,
 } from '../../../state/selectors/resource-selectors';
+import {
+  useFilteredAttributions,
+  useFilteredSignals,
+} from '../../../state/variables/use-filtered-data';
+import { Autocomplete } from '../../Autocomplete/Autocomplete';
+import { renderOccuranceCount } from '../../Autocomplete/AutocompleteUtil';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import { SourceIcon } from '../../Icons/Icons';
 import { TextBox } from '../../TextBox/TextBox';
 import { AttributionFormConfig } from '../AttributionForm';
-import { PackageAutocomplete } from '../PackageAutocomplete/PackageAutocomplete';
 
 const classes = {
   licenseText: {
@@ -53,94 +59,178 @@ export function LicenseSubPanel({
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
   const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
 
-  const defaultSPDXSet = useMemo(
-    () => new Set(frequentLicensesNames.map((license) => license.shortName)),
-    [frequentLicensesNames],
-  );
-
-  type AutoCompleteMode = 'license' | 'exp' | 'unknown';
-  function isValidExpression(expression: string | undefined): {
-    isValid: boolean;
-    currentMode: AutoCompleteMode;
-    validPart: string;
-  } {
-    if (expression === undefined || expression === '') {
-      return { isValid: false, currentMode: 'license', validPart: '' };
-    }
-    const statements = expression.trim().split(/\s+/);
-
-    let currentMode: AutoCompleteMode = 'license';
-    for (const [index, statement] of statements.entries()) {
-      if (
-        (currentMode === 'license' && !defaultSPDXSet.has(statement)) ||
-        (currentMode === 'exp' && !(statement === 'OR' || statement === 'AND'))
-      ) {
-        return {
-          isValid: false,
-          currentMode:
-            index === statements.length - 1 ? currentMode : 'unknown',
-          validPart: statements.slice(0, -1).join(' '),
-        };
-      }
-      currentMode = currentMode === 'exp' ? 'license' : 'exp';
-    }
-    return {
-      isValid: true,
-      currentMode,
-      validPart: statements.join(' '),
-    };
+  function splitAtLastWord(expression: string): [string, string] {
+    return expression.match(/^(.*?)(\S*)$/)?.slice(1) as [string, string];
   }
 
-  const analyseLicenseExpression = isValidExpression(packageInfo.licenseName);
+  const [{ attributions }] = useFilteredAttributions();
+  const [{ attributions: signals }] = useFilteredSignals();
 
-  const defaultLicenses = useMemo(() => {
-    if (analyseLicenseExpression.currentMode === 'license') {
+  type LicenseOption = {
+    shortName: string;
+    fullName: string | undefined;
+    attributionCount?: number;
+    group: string;
+    replaceAll: boolean;
+  };
+
+  const attributionsToLicenseOptions = useCallback(
+    (
+      attributions: Attributions,
+      removeUnrelated: boolean,
+      group: string,
+    ): Array<LicenseOption> => {
       return sortBy(
-        frequentLicensesNames.map<PackageInfo>(({ fullName, shortName }) => ({
-          id: shortName,
-          criticality: Criticality.None,
-          licenseName:
-            analyseLicenseExpression.validPart === ''
-              ? shortName
-              : `${analyseLicenseExpression.validPart} ${shortName}`,
-          source: {
-            name: text.attributionColumn.commonLicenses,
-          },
-          suffix: `(${fullName})`,
-        })),
-        ({ licenseName }) => licenseName?.toLowerCase(),
+        Object.entries(
+          groupBy(attributions, (attribution) =>
+            removeUnrelated && attribution.relation === 'unrelated'
+              ? ''
+              : attribution.licenseName,
+          ),
+        )
+          .filter(
+            ([licenseName]) =>
+              !(licenseName === 'undefined' || licenseName === ''),
+          )
+          .map<LicenseOption>(([attributeValue, attributions]) => ({
+            shortName: attributeValue,
+            fullName: undefined,
+            attributionCount: attributions.length,
+            group,
+            replaceAll: true,
+          })),
+        ({ attributionCount }) => -(attributionCount ?? 0),
       );
-    } else if (analyseLicenseExpression.currentMode === 'exp') {
-      return ['AND', 'OR'].map<PackageInfo>((exp) => ({
-        id: exp,
-        criticality: Criticality.None,
-        licenseName: `${analyseLicenseExpression.validPart} ${exp}`,
-        source: {
-          name: text.attributionColumn.commonLicenses,
-        },
-      }));
-    }
-    return [];
-  }, [frequentLicensesNames, analyseLicenseExpression]);
+    },
+    [],
+  );
+
+  const licenseOptions = useMemo<Array<LicenseOption>>(
+    () => [
+      ...frequentLicensesNames.map((license) => ({
+        fullName: license.fullName,
+        shortName: license.shortName,
+        group: text.attributionColumn.commonLicenses,
+        searchString: `${license.shortName} ${license.fullName}`,
+        replaceAll: false,
+      })),
+      ...attributionsToLicenseOptions(
+        attributions ?? {},
+        true,
+        text.attributionColumn.fromAttributions,
+      ),
+      ...attributionsToLicenseOptions(
+        signals ?? {},
+        false,
+        text.attributionColumn.fromSignals,
+      ),
+    ],
+    [
+      frequentLicensesNames,
+      attributionsToLicenseOptions,
+      attributions,
+      signals,
+    ],
+  );
 
   const defaultLicenseText = packageInfo.licenseText
     ? undefined
     : frequentLicenseTexts[packageInfo.licenseName || ''];
 
+  function filterOptions(
+    options: Array<LicenseOption>,
+    inputValue: string,
+  ): Array<LicenseOption> {
+    const [beforeLast, lastWord] = splitAtLastWord(inputValue);
+    const hasExpressionBeforeLastWord = ['AND', 'OR'].includes(
+      splitAtLastWord(beforeLast.trim())[1],
+    );
+    return options.filter((option) =>
+      option.replaceAll
+        ? option.shortName.toUpperCase().includes(inputValue.toUpperCase())
+        : hasExpressionBeforeLastWord || beforeLast === ''
+          ? `${option.shortName} ${option.fullName}`
+              .toUpperCase()
+              .includes(lastWord.toUpperCase())
+          : false,
+    );
+  }
   return hidden ? null : (
     <MuiBox>
       <MuiBox display={'flex'} alignItems={'center'} gap={'8px'}>
-        <PackageAutocomplete
-          attribute={'licenseName'}
+        <Autocomplete<LicenseOption, false, true, true>
+          options={licenseOptions}
           title={text.attributionColumn.licenseExpression}
-          packageInfo={packageInfo}
           readOnly={!onEdit}
-          showHighlight={showHighlight}
-          onEdit={onEdit}
+          highlighting={
+            showHighlight && !packageInfo.licenseName ? 'warning' : undefined
+          }
+          inputValue={packageInfo.licenseName ?? ''}
+          getOptionLabel={(option) =>
+            typeof option === 'string'
+              ? option
+              : `${splitAtLastWord(packageInfo.licenseName ?? '')[0]}${option.shortName}`
+          }
+          getOptionKey={(option) =>
+            typeof option === 'string'
+              ? option
+              : option.group + option.shortName
+          }
+          renderOptionStartIcon={(option) =>
+            renderOccuranceCount(option.attributionCount)
+          }
+          filterOptions={(options, state) =>
+            filterOptions(options, state.inputValue)
+          }
+          groupBy={(option) => option.group}
+          groupProps={{ icon: () => <SourceIcon noTooltip /> }}
+          optionText={{
+            primary: (option) =>
+              typeof option === 'string'
+                ? option
+                : option.replaceAll ||
+                    splitAtLastWord(packageInfo.licenseName ?? '')[0] === ''
+                  ? option.shortName
+                  : `... ${option.shortName}`,
+            secondary: (option) =>
+              typeof option === 'string' ? null : option.fullName,
+          }}
+          onChange={(_, value) =>
+            typeof value !== 'string' &&
+            onEdit?.(() => {
+              dispatch(
+                setTemporaryDisplayPackageInfo({
+                  ...packageInfo,
+                  licenseName: value.replaceAll
+                    ? value.shortName
+                    : `${splitAtLastWord(packageInfo.licenseName ?? '')[0]}${value.shortName}`,
+                  licenseText: '',
+                  wasPreferred: undefined,
+                }),
+              );
+            })
+          }
+          onInputChange={(event, value) =>
+            event &&
+            value.startsWith(packageInfo.licenseText ?? '') &&
+            onEdit?.(() => {
+              dispatch(
+                setTemporaryDisplayPackageInfo({
+                  ...packageInfo,
+                  licenseName: value,
+                  wasPreferred: undefined,
+                }),
+              );
+            })
+          }
+          inputProps={{
+            color: config?.licenseName?.color,
+            focused: config?.licenseName?.focused,
+          }}
           endAdornment={config?.licenseName?.endIcon}
-          defaults={defaultLicenses}
-          color={config?.licenseName?.color}
-          focused={config?.licenseName?.focused}
+          autoHighlight
+          disableClearable
+          freeSolo
         />
         {!expanded && (
           <ToggleButton
