@@ -19,11 +19,12 @@ import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import {
-  InvalidDotOpossumFileError,
-  JsonParsingError,
+  FileNotFoundError,
   OpossumOutputFile,
+  ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
+  ParsingError,
 } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
@@ -44,16 +45,34 @@ import {
 } from './parseInputData';
 import { refineConfiguration } from './refineConfiguration';
 
-function isJsonParsingError(object: unknown): object is JsonParsingError {
-  return (object as JsonParsingError).type === 'jsonParsingError';
+function isParsingError(
+  parsingResult:
+    | ParsedOpossumInputFile
+    | ParsedOpossumInputAndOutput
+    | ParsingError,
+): parsingResult is ParsingError {
+  return 'type' in parsingResult;
 }
 
-function isInvalidDotOpossumFileError(
-  object: unknown,
-): object is InvalidDotOpossumFileError {
-  return (
-    (object as InvalidDotOpossumFileError).type === 'invalidDotOpossumFileError'
-  );
+async function handleParsingError(
+  parsingError: ParsingError,
+  processingStatusUpdater: ProcessingStatusUpdater,
+) {
+  processingStatusUpdater.info('Invalid input file');
+  switch (parsingError.type) {
+    case 'unzipError':
+      await getMessageBoxForUnzipError(parsingError.message);
+      return;
+    case 'fileNotFoundError':
+      await getMessageBoxForFileNotFoundError(parsingError.message);
+      return;
+    case 'jsonParsingError':
+      await getMessageBoxForParsingError(parsingError.message);
+      return;
+    case 'invalidDotOpossumFileError':
+      processingStatusUpdater.endProcessing();
+      await getMessageBoxForInvalidDotOpossumFileError(parsingError.message);
+  }
 }
 
 export async function loadInputAndOutputFromFilePath(
@@ -70,20 +89,22 @@ export async function loadInputAndOutputFromFilePath(
   let parsedInputData: ParsedOpossumInputFile;
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
 
+  if (!fs.existsSync(filePath)) {
+    await handleParsingError(
+      {
+        message: `Error: ${filePath} does not exist.`,
+        type: 'fileNotFoundError',
+      } as FileNotFoundError,
+      processingStatusUpdater,
+    );
+    return;
+  }
+
   if (isOpossumFileFormat(filePath)) {
     processingStatusUpdater.info(`Reading file ${filePath}`);
     const parsingResult = await parseOpossumFile(filePath);
-    if (isJsonParsingError(parsingResult)) {
-      processingStatusUpdater.info('Invalid input file');
-      await getMessageBoxForParsingError(parsingResult.message);
-      return;
-    }
-    if (isInvalidDotOpossumFileError(parsingResult)) {
-      processingStatusUpdater.info('Invalid input file');
-      processingStatusUpdater.endProcessing();
-      await getMessageBoxForInvalidDotOpossumFileError(
-        parsingResult.filesInArchive,
-      );
+    if (isParsingError(parsingResult)) {
+      await handleParsingError(parsingResult, processingStatusUpdater);
       return;
     }
     parsedInputData = parsingResult.input;
@@ -91,9 +112,8 @@ export async function loadInputAndOutputFromFilePath(
   } else {
     processingStatusUpdater.info('Parsing input file');
     const parsingResult = await parseInputJsonFile(filePath);
-    if (isJsonParsingError(parsingResult)) {
-      processingStatusUpdater.error('Invalid input file');
-      await getMessageBoxForParsingError(parsingResult.message);
+    if (isParsingError(parsingResult)) {
+      await handleParsingError(parsingResult, processingStatusUpdater);
       return;
     }
     parsedInputData = parsingResult;
@@ -327,6 +347,32 @@ export async function getMessageBoxForParsingError(
     title: 'Parsing Error',
     message: 'Error parsing the input file.',
     detail: `${errorMessage}\n${text.errorBoundary.outdatedAppVersion}`,
+  });
+}
+
+export async function getMessageBoxForFileNotFoundError(
+  errorMessage: string,
+): Promise<void> {
+  await dialog.showMessageBox({
+    type: 'error',
+    buttons: ['OK'],
+    defaultId: 0,
+    title: 'File Not Found Error',
+    message: 'An error occurred while trying to open the file.',
+    detail: `${errorMessage}`,
+  });
+}
+
+export async function getMessageBoxForUnzipError(
+  errorMessage: string,
+): Promise<void> {
+  await dialog.showMessageBox({
+    type: 'error',
+    buttons: ['OK'],
+    defaultId: 0,
+    title: 'Unzipping Error',
+    message: 'An error occurred while trying to unzip the file.',
+    detail: `${errorMessage}`,
   });
 }
 

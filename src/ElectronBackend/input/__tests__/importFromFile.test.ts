@@ -21,13 +21,17 @@ import {
   setGlobalBackendState,
 } from '../../main/globalBackendState';
 import {
+  FileNotFoundError,
   JsonParsingError,
   OpossumOutputFile,
   ParsedOpossumInputFile,
+  UnzipError,
 } from '../../types/types';
 import {
+  getMessageBoxForFileNotFoundError,
   getMessageBoxForInvalidDotOpossumFileError,
   getMessageBoxForParsingError,
+  getMessageBoxForUnzipError,
   loadInputAndOutputFromFilePath,
 } from '../importFromFile';
 
@@ -693,6 +697,74 @@ describe('Test of loading function', () => {
       ),
     ).toBe(1);
   });
+
+  it('handles non existing file correctly', async () => {
+    jest.spyOn(Date, 'now').mockReturnValue(1);
+
+    const dialogMock = dialog.showMessageBox as jest.Mock;
+    dialogMock.mockImplementationOnce(
+      jest.fn(() => {
+        return Promise.resolve({
+          response: 0,
+        });
+      }),
+    );
+
+    setGlobalBackendState({});
+    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
+    const expectedBackendState = getGlobalBackendState();
+    const webContents = mainWindow.webContents as unknown as MockWebContents;
+    expect(
+      webContents.numberOfCallsFromChannel(
+        AllowedFrontendChannels.ResetLoadedFile,
+      ),
+    ).toBe(1);
+    expect(
+      webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
+    ).toBe(0);
+    expect(dialogMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        detail: expect.stringContaining('does not exist.'),
+      }),
+    );
+    expect(getGlobalBackendState()).toEqual(expectedBackendState);
+  });
+
+  it('handles corrupt zip files correctly', async () => {
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+    await writeFile({ path: opossumPath, content: '0' });
+
+    jest.spyOn(Date, 'now').mockReturnValue(1);
+    const dialogMock = dialog.showMessageBox as jest.Mock;
+    dialogMock.mockImplementationOnce(
+      jest.fn(() => {
+        return Promise.resolve({
+          response: 0,
+        });
+      }),
+    );
+
+    setGlobalBackendState({});
+    await loadInputAndOutputFromFilePath(mainWindow, opossumPath);
+
+    const expectedBackendState = getGlobalBackendState();
+    const webContents = mainWindow.webContents as unknown as MockWebContents;
+    expect(
+      webContents.numberOfCallsFromChannel(
+        AllowedFrontendChannels.ResetLoadedFile,
+      ),
+    ).toBe(1);
+    expect(
+      webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
+    ).toBe(0);
+    expect(dialogMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        detail: expect.stringContaining('could not be unzipped'),
+      }),
+    );
+    expect(getGlobalBackendState()).toEqual(expectedBackendState);
+  });
 });
 
 function assertFileLoadedCorrectly(testUuid: string): void {
@@ -742,6 +814,46 @@ describe('getMessageBoxForParsingError', () => {
         type: 'error',
         message: 'Error parsing the input file.',
         detail: `parsingErrorMessage\n${text.errorBoundary.outdatedAppVersion}`,
+        buttons: ['OK'],
+      }),
+    );
+  });
+});
+
+describe('getMessageBoxForFileNotFoundError', () => {
+  it('returns a messageBox', async () => {
+    const fileNotFoundError: FileNotFoundError = {
+      message: 'fileNotFoundErrorMessage',
+      type: 'fileNotFoundError',
+    };
+
+    await getMessageBoxForFileNotFoundError(fileNotFoundError.message);
+
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'error',
+        message: 'An error occurred while trying to open the file.',
+        detail: 'fileNotFoundErrorMessage',
+        buttons: ['OK'],
+      }),
+    );
+  });
+});
+
+describe('getMessageBoxForUnzipError', () => {
+  it('returns a messageBox', async () => {
+    const unzipError: UnzipError = {
+      message: 'unzipErrorMessage',
+      type: 'unzipError',
+    };
+
+    await getMessageBoxForUnzipError(unzipError.message);
+
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'error',
+        message: 'An error occurred while trying to unzip the file.',
+        detail: 'unzipErrorMessage',
         buttons: ['OK'],
       }),
     );

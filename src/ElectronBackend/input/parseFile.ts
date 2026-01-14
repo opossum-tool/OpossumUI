@@ -20,6 +20,7 @@ import {
   ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
+  UnzipError,
 } from '../types/types';
 import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
@@ -32,16 +33,27 @@ const validationOptions: Options = {
 export async function parseOpossumFile(
   opossumFilePath: string,
 ): Promise<
-  ParsedOpossumInputAndOutput | JsonParsingError | InvalidDotOpossumFileError
+  | ParsedOpossumInputAndOutput
+  | UnzipError
+  | JsonParsingError
+  | InvalidDotOpossumFileError
 > {
   let parsedInputData: ParsedOpossumInputFile;
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
 
-  const zip: fflate.Unzipped = await readZipAsync(opossumFilePath);
+  let zip: fflate.Unzipped;
+  try {
+    zip = await readZipAsync(opossumFilePath);
+  } catch (err) {
+    return {
+      message: `Error: ${opossumFilePath} could not be unzipped.\n Original error message: ${err?.toString()}`,
+      type: 'unzipError',
+    } satisfies UnzipError;
+  }
 
   if (!zip[INPUT_FILE_NAME]) {
     return {
-      filesInArchive: Object.keys(zip)
+      message: Object.keys(zip)
         .map((fileName) => `'${fileName}'`)
         .join(', '),
       type: 'invalidDotOpossumFileError',
@@ -83,19 +95,12 @@ export async function parseOpossumFile(
 }
 
 async function readZipAsync(opossumFilePath: string): Promise<fflate.Unzipped> {
-  const originalZipBuffer: Buffer = await new Promise((resolve) => {
-    fs.readFile(opossumFilePath, (err, data) => {
-      if (err) {
-        throw err;
-      }
-      resolve(data);
-    });
-  });
+  const originalZipBuffer: Buffer = await fs.promises.readFile(opossumFilePath);
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     fflate.unzip(new Uint8Array(originalZipBuffer), (err, unzipData) => {
       if (err) {
-        throw err;
+        reject(err);
       }
       resolve(unzipData);
     });
