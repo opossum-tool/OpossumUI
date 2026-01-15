@@ -43,7 +43,7 @@ test('creates a new third-party attribution', async ({
 }) => {
   const newPackageInfo = faker.opossum.rawPackageInfo({
     attributionConfidence: undefined,
-    licenseName: license1.fullName,
+    licenseName: license1.shortName,
   });
   await resourcesTree.goto(resourceName1);
   await attributionsPanel.createButton.click();
@@ -62,6 +62,7 @@ test('creates a new third-party attribution', async ({
   await attributionDetails.attributionForm.copyright.fill(
     newPackageInfo.copyright!,
   );
+
   await attributionDetails.attributionForm.licenseExpression.click();
   await attributionDetails.attributionForm.selectLicense(license1);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
