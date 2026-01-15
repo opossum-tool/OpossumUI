@@ -39,8 +39,18 @@ export function LicenseSubPanelAutocomplete({
   const [{ attributions }] = useFilteredAttributions();
   const [{ attributions: signals }] = useFilteredSignals();
 
-  function splitAtLastWord(expression: string): [string, string] {
-    return expression.match(/^(.*?)(\S*)$/)?.slice(1) as [string, string];
+  function splitAtLastExpression(input: string | undefined): [string, string] {
+    if (input === undefined) {
+      return ['', ''];
+    }
+    return input.match(/(.*(?:AND |OR |^))(.*)$/i)?.slice(1) as [
+      string,
+      string,
+    ];
+  }
+
+  function capitalizeExpressions(input: string): string {
+    return input.replaceAll(/\bAND /gi, 'AND ').replaceAll(/\bOR /gi, 'OR ');
   }
 
   type LicenseOption = {
@@ -114,17 +124,15 @@ export function LicenseSubPanelAutocomplete({
     options: Array<LicenseOption>,
     inputValue: string,
   ): Array<LicenseOption> {
-    const [beforeLast, lastWord] = splitAtLastWord(inputValue);
-    const hasExpressionBeforeLastWord = ['AND', 'OR'].includes(
-      splitAtLastWord(beforeLast.trim())[1],
-    );
+    const [beforeLast, lastLicense] = splitAtLastExpression(inputValue);
+    const hasExpressionBeforeLastWord = beforeLast !== '';
     return options.filter((option) =>
       option.replaceAll
         ? option.shortName.toUpperCase().includes(inputValue.toUpperCase())
         : hasExpressionBeforeLastWord || beforeLast === ''
           ? `${option.shortName} ${option.fullName}`
               .toUpperCase()
-              .includes(lastWord.toUpperCase())
+              .includes(lastLicense.toUpperCase())
           : false,
     );
   }
@@ -158,7 +166,7 @@ export function LicenseSubPanelAutocomplete({
           typeof option === 'string'
             ? option
             : option.replaceAll ||
-                splitAtLastWord(packageInfo.licenseName ?? '')[0] === ''
+                splitAtLastExpression(packageInfo.licenseName)[0] === ''
               ? option.shortName
               : `... ${option.shortName}`,
         secondary: (option) =>
@@ -172,7 +180,7 @@ export function LicenseSubPanelAutocomplete({
               ...packageInfo,
               licenseName: value.replaceAll
                 ? value.shortName
-                : `${splitAtLastWord(packageInfo.licenseName ?? '')[0]}${value.shortName}`,
+                : `${capitalizeExpressions(splitAtLastExpression(packageInfo.licenseName)[0])}${value.shortName}`,
               licenseText: '',
               wasPreferred: undefined,
             }),
@@ -185,7 +193,7 @@ export function LicenseSubPanelAutocomplete({
           dispatch(
             setTemporaryDisplayPackageInfo({
               ...packageInfo,
-              licenseName: value,
+              licenseName: capitalizeExpressions(value),
               wasPreferred: undefined,
             }),
           );
