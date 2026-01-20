@@ -19,6 +19,7 @@ export enum IpcChannel {
   StopLoading = 'stop-loading',
   GetUserSettings = 'get-user-settings',
   UpdateUserSettings = 'update-user-settings',
+  SetFrontendPopupOpen = 'set-frontend-popup-open',
   Quit = 'quit',
   Relaunch = 'relaunch',
 }

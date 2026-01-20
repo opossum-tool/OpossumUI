@@ -17,6 +17,7 @@ export class ProjectStatisticsPopup {
   readonly signalsByCriticalityChart: Locator;
   readonly signalsByClassificationChart: Locator;
   readonly incompleteAttributionsChart: Locator;
+  readonly showOnStartupCheckbox: Locator;
 
   constructor(window: Page) {
     this.node = window.getByLabel('project statistics');
@@ -49,6 +50,9 @@ export class ProjectStatisticsPopup {
     );
     this.incompleteAttributionsChart = this.node.getByTestId(
       'incompleteAttributionsPieChart',
+    );
+    this.showOnStartupCheckbox = this.node.getByText(
+      text.projectStatisticsPopup.toggleStartupCheckbox,
     );
   }
 

@@ -54,7 +54,7 @@ test('imports legacy opossum file', async ({
 
   await importDialog.assert.titleIsHidden();
   await resourcesTree.assert.resourceIsVisible(resourceName);
-  await menuBar.assert.initiallyDisableEntriesAreEnabled();
+  await menuBar.assert.initiallyDisabledEntriesAreEnabled();
 });
 
 test('imports scancode file', async ({
@@ -81,7 +81,7 @@ test('imports scancode file', async ({
 
   await importDialog.assert.titleIsHidden();
   await resourcesTree.assert.resourceIsVisible('src');
-  await menuBar.assert.initiallyDisableEntriesAreEnabled();
+  await menuBar.assert.initiallyDisabledEntriesAreEnabled();
 });
 
 test('imports OWASP file', async ({
@@ -108,7 +108,7 @@ test('imports OWASP file', async ({
 
   await importDialog.assert.titleIsHidden();
   await resourcesTree.assert.resourceIsVisible('contrib');
-  await menuBar.assert.initiallyDisableEntriesAreEnabled();
+  await menuBar.assert.initiallyDisabledEntriesAreEnabled();
 });
 
 test('shows error when no file path is set', async ({

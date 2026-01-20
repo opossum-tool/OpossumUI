@@ -15,6 +15,9 @@ describe('The GlobalPopUp', () => {
     renderComponent(<GlobalPopup />);
 
     expect(screen.queryByText('Warning')).not.toBeInTheDocument();
+    expect(
+      global.window.electronAPI.setFrontendPopupOpen,
+    ).not.toHaveBeenCalledWith(true);
   });
 
   it('opens the NotSavedPopup', () => {
@@ -25,6 +28,9 @@ describe('The GlobalPopUp', () => {
     expect(
       screen.getByText(text.unsavedChangesPopup.title),
     ).toBeInTheDocument();
+    expect(
+      global.window.electronAPI.setFrontendPopupOpen,
+    ).toHaveBeenLastCalledWith(true);
   });
 
   it('opens the ProjectMetadataPopup', () => {
@@ -33,6 +39,9 @@ describe('The GlobalPopUp', () => {
     });
 
     expect(screen.getByText('Project Metadata')).toBeInTheDocument();
+    expect(
+      global.window.electronAPI.setFrontendPopupOpen,
+    ).toHaveBeenLastCalledWith(true);
   });
 
   it('opens the ProjectStatisticsPopup', () => {
@@ -41,6 +50,9 @@ describe('The GlobalPopUp', () => {
     });
 
     expect(screen.getByText('Project Statistics')).toBeInTheDocument();
+    expect(
+      global.window.electronAPI.setFrontendPopupOpen,
+    ).toHaveBeenLastCalledWith(true);
   });
 
   it('opens the UpdateAppPopup', () => {
@@ -49,5 +61,8 @@ describe('The GlobalPopUp', () => {
     });
 
     expect(screen.getByText(text.updateAppPopup.title)).toBeInTheDocument();
+    expect(
+      global.window.electronAPI.setFrontendPopupOpen,
+    ).toHaveBeenLastCalledWith(true);
   });
 });

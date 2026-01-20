@@ -58,6 +58,7 @@ function getOpenFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
       mainWindow.webContents.send(
         AllowedFrontendChannels.OpenFileWithUnsavedCheck,
       ),
+    enabled: !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -69,17 +70,26 @@ async function getOpenRecent(
     'recentlyOpenedPaths',
   );
 
+  const enabled =
+    !!recentlyOpenedPaths?.length && !getGlobalBackendState().frontendPopupOpen;
+
   return {
     icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
     label: text.menu.fileSubmenu.openRecent,
-    submenu: getOpenRecentSubmenu(mainWindow, recentlyOpenedPaths, updateMenu),
-    enabled: !!recentlyOpenedPaths?.length,
+    submenu: getOpenRecentSubmenu(
+      mainWindow,
+      recentlyOpenedPaths,
+      enabled,
+      updateMenu,
+    ),
+    enabled,
   };
 }
 
 function getOpenRecentSubmenu(
   mainWindow: BrowserWindow,
   recentlyOpenedPaths: Array<string> | null,
+  enabled: boolean,
   updateMenu: () => Promise<void>,
 ): MenuItemConstructorOptions['submenu'] {
   if (!recentlyOpenedPaths?.length) {
@@ -91,6 +101,7 @@ function getOpenRecentSubmenu(
       label: path.basename(recentPath, path.extname(recentPath)),
       click: ({ id }) => handleOpeningFile(mainWindow, id, updateMenu),
       id: recentPath,
+      enabled,
     })),
     { type: 'separator' },
     {
@@ -103,11 +114,13 @@ function getOpenRecentSubmenu(
         );
         await updateMenu();
       },
+      enabled,
     },
   ];
 }
 
 function getImportFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
+  const enabled = !getGlobalBackendState().frontendPopupOpen;
   return {
     icon: getIconBasedOnTheme(
       'icons/import-white.png',
@@ -118,20 +131,26 @@ function getImportFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
       label: text.menu.fileSubmenu.importSubmenu(fileFormat),
       click: importFileListener(mainWindow, fileFormat),
       id: `import ${fileFormat.name}`,
+      enabled,
     })),
+    enabled,
   };
 }
 
 function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
+  const enabled =
+    isFileLoaded(getGlobalBackendState()) &&
+    !getGlobalBackendState().frontendPopupOpen;
   return {
     icon: getIconBasedOnTheme('icons/merge-white.png', 'icons/merge-black.png'),
     label: text.menu.fileSubmenu.merge,
     submenu: importFileFormats.map((fileFormat) => ({
       label: text.menu.fileSubmenu.mergeSubmenu(fileFormat),
       click: getMergeListener(mainWindow, fileFormat),
-      enabled: isFileLoaded(getGlobalBackendState()),
       id: `id-${fileFormat.name}`,
+      enabled,
     })),
+    enabled,
   };
 }
 
@@ -145,7 +164,9 @@ function getSaveFile(webContents: WebContents): MenuItemConstructorOptions {
         saveFile: true,
       });
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -162,7 +183,9 @@ function getProjectMetadata(
         });
       }
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -182,7 +205,9 @@ function getProjectStatistics(
         });
       }
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -194,6 +219,7 @@ function getSetBaseUrl(mainWindow: BrowserWindow): MenuItemConstructorOptions {
     ),
     label: text.menu.fileSubmenu.setBaseURL,
     click: selectBaseURLListener(mainWindow),
+    enabled: !getGlobalBackendState().frontendPopupOpen,
   };
 }
 
@@ -226,7 +252,6 @@ function getExportFollowUp(
         ExportType.FollowUp,
       );
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -250,7 +275,6 @@ function getExportCompactBom(
         ExportType.CompactBom,
       );
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -274,7 +298,6 @@ function getExportDetailedBom(
         ExportType.DetailedBom,
       );
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -293,7 +316,6 @@ function getExportSpdxYaml(
         ExportType.SpdxDocumentYaml,
       );
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -312,13 +334,15 @@ function getExportSpdxJson(
         ExportType.SpdxDocumentJson,
       );
     },
-    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
 function getExportSubMenu(
   webContents: WebContents,
 ): MenuItemConstructorOptions {
+  const enabled =
+    isFileLoaded(getGlobalBackendState()) &&
+    !getGlobalBackendState().frontendPopupOpen;
   return {
     label: text.menu.fileSubmenu.export,
     icon: getIconBasedOnTheme(
@@ -331,7 +355,8 @@ function getExportSubMenu(
       getExportDetailedBom(webContents),
       getExportSpdxYaml(webContents),
       getExportSpdxJson(webContents),
-    ],
+    ].map((i) => ({ ...i, enabled })),
+    enabled,
   };
 }
 
