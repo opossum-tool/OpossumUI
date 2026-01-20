@@ -5,7 +5,7 @@
 import MuiButton from '@mui/material/Button';
 import MuiButtonGroup from '@mui/material/ButtonGroup';
 import MuiTypography from '@mui/material/Typography';
-import { FallbackProps } from 'react-error-boundary';
+import { FallbackProps, getErrorMessage } from 'react-error-boundary';
 
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
@@ -25,7 +25,7 @@ export const ErrorFallback: React.FC<FallbackProps> = ({
           sx={{ fontFamily: 'monospace' }}
           color={OpossumColors.red}
         >
-          {error.message}
+          {getErrorMessage(error)}
         </MuiTypography>
         <MuiButtonGroup fullWidth variant={'contained'}>
           <MuiButton
