@@ -43,7 +43,7 @@ export function LicenseSubPanelAutocomplete({
     if (input === undefined) {
       return ['', ''];
     }
-    return input.match(/(.*(?:AND |OR |^))(.*)$/i)?.slice(1) as [
+    return input.match(/(.*(?:AND \(*|OR \(*|^))(.*)$/i)?.slice(1) as [
       string,
       string,
     ];
@@ -98,7 +98,6 @@ export function LicenseSubPanelAutocomplete({
         fullName: license.fullName,
         shortName: license.shortName,
         group: text.attributionColumn.commonLicenses,
-        searchString: `${license.shortName} ${license.fullName}`,
         replaceAll: false,
       })),
       ...attributionsToLicenseOptions(
@@ -127,6 +126,7 @@ export function LicenseSubPanelAutocomplete({
     const [beforeLast, lastLicense] = splitAtLastExpression(inputValue);
     const hasExpressionBeforeLastWord = beforeLast !== '';
     return options.filter((option) =>
+      // Selecting signals or attributions replaces everything, so you have to filter on the full input and not just the last part.
       option.replaceAll
         ? option.shortName.toUpperCase().includes(inputValue.toUpperCase())
         : hasExpressionBeforeLastWord || beforeLast === ''
