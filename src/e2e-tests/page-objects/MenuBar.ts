@@ -76,6 +76,16 @@ export class MenuBar {
       menuItem!.enabled,
       `Expected menu item ${label} to be ${enabled ? 'enabled' : 'disabled'}`,
     ).toBe(enabled);
+
+    // If the menu item is disabled and has a sub menu, all the sub menu items should be disabled as well
+    if (!enabled && menuItem?.submenu) {
+      console.log(menuItem);
+      for (const item of menuItem.submenu) {
+        if (item.type !== 'separator') {
+          expect(item.enabled).toBe(false);
+        }
+      }
+    }
   }
 
   private async assertMenuItemsEnabledState(

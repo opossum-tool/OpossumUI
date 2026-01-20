@@ -70,19 +70,26 @@ async function getOpenRecent(
     'recentlyOpenedPaths',
   );
 
+  const enabled =
+    !!recentlyOpenedPaths?.length && !getGlobalBackendState().frontendPopupOpen;
+
   return {
     icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
     label: text.menu.fileSubmenu.openRecent,
-    submenu: getOpenRecentSubmenu(mainWindow, recentlyOpenedPaths, updateMenu),
-    enabled:
-      !!recentlyOpenedPaths?.length &&
-      !getGlobalBackendState().frontendPopupOpen,
+    submenu: getOpenRecentSubmenu(
+      mainWindow,
+      recentlyOpenedPaths,
+      enabled,
+      updateMenu,
+    ),
+    enabled,
   };
 }
 
 function getOpenRecentSubmenu(
   mainWindow: BrowserWindow,
   recentlyOpenedPaths: Array<string> | null,
+  enabled: boolean,
   updateMenu: () => Promise<void>,
 ): MenuItemConstructorOptions['submenu'] {
   if (!recentlyOpenedPaths?.length) {
@@ -94,6 +101,7 @@ function getOpenRecentSubmenu(
       label: path.basename(recentPath, path.extname(recentPath)),
       click: ({ id }) => handleOpeningFile(mainWindow, id, updateMenu),
       id: recentPath,
+      enabled,
     })),
     { type: 'separator' },
     {
@@ -106,11 +114,13 @@ function getOpenRecentSubmenu(
         );
         await updateMenu();
       },
+      enabled,
     },
   ];
 }
 
 function getImportFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
+  const enabled = !getGlobalBackendState().frontendPopupOpen;
   return {
     icon: getIconBasedOnTheme(
       'icons/import-white.png',
@@ -121,12 +131,16 @@ function getImportFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
       label: text.menu.fileSubmenu.importSubmenu(fileFormat),
       click: importFileListener(mainWindow, fileFormat),
       id: `import ${fileFormat.name}`,
+      enabled,
     })),
-    enabled: !getGlobalBackendState().frontendPopupOpen,
+    enabled,
   };
 }
 
 function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
+  const enabled =
+    isFileLoaded(getGlobalBackendState()) &&
+    !getGlobalBackendState().frontendPopupOpen;
   return {
     icon: getIconBasedOnTheme('icons/merge-white.png', 'icons/merge-black.png'),
     label: text.menu.fileSubmenu.merge,
@@ -134,10 +148,9 @@ function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
       label: text.menu.fileSubmenu.mergeSubmenu(fileFormat),
       click: getMergeListener(mainWindow, fileFormat),
       id: `id-${fileFormat.name}`,
+      enabled,
     })),
-    enabled:
-      isFileLoaded(getGlobalBackendState()) &&
-      !getGlobalBackendState().frontendPopupOpen,
+    enabled,
   };
 }
 
@@ -327,6 +340,9 @@ function getExportSpdxJson(
 function getExportSubMenu(
   webContents: WebContents,
 ): MenuItemConstructorOptions {
+  const enabled =
+    isFileLoaded(getGlobalBackendState()) &&
+    !getGlobalBackendState().frontendPopupOpen;
   return {
     label: text.menu.fileSubmenu.export,
     icon: getIconBasedOnTheme(
@@ -339,10 +355,8 @@ function getExportSubMenu(
       getExportDetailedBom(webContents),
       getExportSpdxYaml(webContents),
       getExportSpdxJson(webContents),
-    ],
-    enabled:
-      isFileLoaded(getGlobalBackendState()) &&
-      !getGlobalBackendState().frontendPopupOpen,
+    ].map((i) => ({ ...i, enabled })),
+    enabled,
   };
 }
 
