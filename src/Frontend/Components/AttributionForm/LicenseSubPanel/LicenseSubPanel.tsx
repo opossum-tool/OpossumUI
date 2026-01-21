@@ -5,21 +5,17 @@
 import NotesIcon from '@mui/icons-material/Notes';
 import { Badge, ToggleButton } from '@mui/material';
 import MuiBox from '@mui/material/Box';
-import { sortBy } from 'lodash';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
-import { Criticality, PackageInfo } from '../../../../shared/shared-types';
+import { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
-import {
-  getFrequentLicensesNameOrder,
-  getFrequentLicensesTexts,
-} from '../../../state/selectors/resource-selectors';
+import { getFrequentLicensesTexts } from '../../../state/selectors/resource-selectors';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
 import { AttributionFormConfig } from '../AttributionForm';
-import { PackageAutocomplete } from '../PackageAutocomplete/PackageAutocomplete';
+import { LicenseSubPanelAutocomplete } from './LicenseSubPanelAutocomplete';
 
 const classes = {
   licenseText: {
@@ -51,24 +47,6 @@ export function LicenseSubPanel({
   const [showLicenseText, setShowLicenseText] = useState(false);
   const dispatch = useAppDispatch();
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
-  const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
-  const defaultLicenses = useMemo(
-    () =>
-      sortBy(
-        frequentLicensesNames.map<PackageInfo>(({ fullName, shortName }) => ({
-          id: shortName,
-          criticality: Criticality.None,
-          licenseName: fullName,
-          source: {
-            name: text.attributionColumn.commonLicenses,
-          },
-          suffix: `(${shortName})`,
-        })),
-        ({ licenseName }) => licenseName?.toLowerCase(),
-      ),
-    [frequentLicensesNames],
-  );
-
   const defaultLicenseText = packageInfo.licenseText
     ? undefined
     : frequentLicenseTexts[packageInfo.licenseName || ''];
@@ -76,17 +54,11 @@ export function LicenseSubPanel({
   return hidden ? null : (
     <MuiBox>
       <MuiBox display={'flex'} alignItems={'center'} gap={'8px'}>
-        <PackageAutocomplete
-          attribute={'licenseName'}
-          title={text.attributionColumn.licenseExpression}
+        <LicenseSubPanelAutocomplete
           packageInfo={packageInfo}
-          readOnly={!onEdit}
           showHighlight={showHighlight}
           onEdit={onEdit}
-          endAdornment={config?.licenseName?.endIcon}
-          defaults={defaultLicenses}
-          color={config?.licenseName?.color}
-          focused={config?.licenseName?.focused}
+          config={config}
         />
         {!expanded && (
           <ToggleButton

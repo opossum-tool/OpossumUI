@@ -64,6 +64,7 @@ type AutocompleteProps<
     sx?: SxProps;
     title?: string;
     variant?: MuiTextFieldProps['variant'];
+    disableCloseOnSelect?: boolean;
   };
 
 export function Autocomplete<
@@ -95,6 +96,7 @@ export function Autocomplete<
   sx,
   title,
   variant = 'outlined',
+  disableCloseOnSelect,
   ...props
 }: AutocompleteProps<Value, Multiple, DisableClearable, FreeSolo>) {
   const [open, setOpen] = useState(false);
@@ -143,6 +145,7 @@ export function Autocomplete<
     setAnchorEl,
     value,
   } = useMuiAutocomplete<Value, Multiple, DisableClearable, FreeSolo>({
+    disableCloseOnSelect,
     disableClearable,
     disableListWrap,
     disabled,

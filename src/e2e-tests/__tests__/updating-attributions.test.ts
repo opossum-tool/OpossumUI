@@ -345,7 +345,40 @@ test('resets custom license text when user selects suggested license expression'
   await attributionDetails.attributionForm.licenseText.fill(licenseText);
   await attributionDetails.attributionForm.assert.licenseTextIs(licenseText);
 
+  await attributionDetails.attributionForm.licenseExpression.clear();
   await attributionDetails.attributionForm.licenseExpression.click();
   await attributionDetails.attributionForm.selectLicense(license1);
   await attributionDetails.attributionForm.assert.licenseTextIs('');
+});
+
+test('autocomplete fills in SPDX licenses instead of friendly', async ({
+  attributionDetails,
+  resourcesTree,
+}) => {
+  await resourcesTree.goto(resourceName1);
+
+  await attributionDetails.attributionForm.licenseExpression.clear();
+  await attributionDetails.attributionForm.licenseExpression.click();
+  await attributionDetails.attributionForm.selectLicense(license1);
+  await attributionDetails.attributionForm.assert.licenseNameIs(
+    license1.shortName,
+  );
+});
+
+test('autocomplete appears again after entering AND or OR', async ({
+  attributionDetails,
+  resourcesTree,
+}) => {
+  await resourcesTree.goto(resourceName1);
+
+  for (const exp of ['AND', 'OR']) {
+    await attributionDetails.attributionForm.licenseExpression.fill(
+      `${license1.shortName} ${exp} `,
+    );
+    await attributionDetails.attributionForm.licenseExpression.click();
+    await attributionDetails.attributionForm.selectLicense(license2);
+    await attributionDetails.attributionForm.assert.licenseNameIs(
+      `${license1.shortName} ${exp} ${license2.shortName}`,
+    );
+  }
 });
