@@ -11,7 +11,7 @@ import { v4 as uuid4 } from 'uuid';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
-  ParsedFileContent,
+  ParsedFileContentSerializable,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
@@ -183,10 +183,6 @@ export async function loadInputAndOutputFromFilePath(
     }
   }
 
-  const filesWithChildrenSet = new Set(
-    parsedInputData.filesWithChildren?.map(addTrailingSlashIfAbsent),
-  );
-
   processingStatusUpdater.info('Sanitizing map of resources to attributions');
   const normalizedOutputResourcesToAttributions =
     sanitizeResourcesToAttributions(
@@ -206,32 +202,35 @@ export async function loadInputAndOutputFromFilePath(
   );
 
   processingStatusUpdater.info('Sending data to user interface');
-  mainWindow.webContents.send(AllowedFrontendChannels.FileLoaded, {
-    metadata: parsedInputData.metadata,
-    resources: parsedInputData.resources,
-    config: configuration,
-    manualAttributions: {
-      attributions: manualAttributions,
-      resourcesToAttributions: normalizedOutputResourcesToAttributions,
-      attributionsToResources: manualAttributionsToResources,
-    },
-    externalAttributions: {
-      attributions: externalAttributions,
-      resourcesToAttributions: resourcesToExternalAttributions,
-      attributionsToResources: externalAttributionsToResources,
-    },
-    frequentLicenses,
-    resolvedExternalAttributions: new Set(
-      parsedOutputData.resolvedExternalAttributions,
-    ),
-    attributionBreakpoints: new Set(parsedInputData.attributionBreakpoints),
-    filesWithChildren: filesWithChildrenSet,
-    baseUrlsForSources: sanitizeRawBaseUrlsForSources(
-      parsedInputData.baseUrlsForSources,
-    ),
-    externalAttributionSources:
-      parsedInputData.externalAttributionSources ?? {},
-  } satisfies ParsedFileContent);
+  mainWindow.webContents.send(
+    AllowedFrontendChannels.FileLoaded,
+    JSON.stringify({
+      metadata: parsedInputData.metadata,
+      resources: parsedInputData.resources,
+      config: configuration,
+      manualAttributions: {
+        attributions: manualAttributions,
+        resourcesToAttributions: normalizedOutputResourcesToAttributions,
+        attributionsToResources: manualAttributionsToResources,
+      },
+      externalAttributions: {
+        attributions: externalAttributions,
+        resourcesToAttributions: resourcesToExternalAttributions,
+        attributionsToResources: externalAttributionsToResources,
+      },
+      frequentLicenses,
+      resolvedExternalAttributions:
+        parsedOutputData.resolvedExternalAttributions ?? [],
+      attributionBreakpoints: parsedInputData.attributionBreakpoints ?? [],
+      filesWithChildren:
+        parsedInputData.filesWithChildren?.map(addTrailingSlashIfAbsent) ?? [],
+      baseUrlsForSources: sanitizeRawBaseUrlsForSources(
+        parsedInputData.baseUrlsForSources,
+      ),
+      externalAttributionSources:
+        parsedInputData.externalAttributionSources ?? {},
+    } satisfies ParsedFileContentSerializable),
+  );
 
   processingStatusUpdater.info('Finalizing global state');
   getGlobalBackendState().projectTitle = parsedInputData.metadata.projectTitle;

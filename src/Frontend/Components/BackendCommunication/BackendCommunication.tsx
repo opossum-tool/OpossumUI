@@ -10,6 +10,7 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   BaseURLForRootArgs,
   ParsedFileContent,
+  ParsedFileContentSerializable,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
@@ -40,10 +41,24 @@ export const BackendCommunication: React.FC = () => {
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
   const dispatch = useAppDispatch();
 
-  function fileLoadedListener(
-    _: IpcRendererEvent,
-    parsedFileContent: ParsedFileContent,
-  ): void {
+  function fileLoadedListener(_: IpcRendererEvent, jsonData: string): void {
+    const parsedFileContentSerializable = JSON.parse(
+      jsonData,
+    ) as ParsedFileContentSerializable;
+
+    const parsedFileContent: ParsedFileContent = {
+      ...parsedFileContentSerializable,
+      resolvedExternalAttributions: new Set(
+        parsedFileContentSerializable.resolvedExternalAttributions,
+      ),
+      attributionBreakpoints: new Set(
+        parsedFileContentSerializable.attributionBreakpoints,
+      ),
+      filesWithChildren: new Set(
+        parsedFileContentSerializable.filesWithChildren,
+      ),
+    };
+
     dispatch(loadFromFile(parsedFileContent));
   }
 

@@ -180,6 +180,17 @@ export interface ParsedFileContent {
   externalAttributionSources: ExternalAttributionSources;
 }
 
+export interface ParsedFileContentSerializable extends Omit<
+  ParsedFileContent,
+  | 'resolvedExternalAttributions'
+  | 'attributionBreakpoints'
+  | 'filesWithChildren'
+> {
+  resolvedExternalAttributions: Array<string>;
+  attributionBreakpoints: Array<string>;
+  filesWithChildren: Array<string>;
+}
+
 export interface BaseUrlsForSources {
   [path: string]: string | null;
 }
