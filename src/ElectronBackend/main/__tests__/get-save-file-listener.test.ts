@@ -44,11 +44,11 @@ describe('getSaveFileListener', () => {
 
     await saveFileListener(mainWindow)(
       AllowedFrontendChannels.SaveFileRequest,
-      {
+      JSON.stringify({
         manualAttributions: {},
         resourcesToAttributions: {},
-        resolvedExternalAttributions: new Set(),
-      },
+        resolvedExternalAttributions: [],
+      }),
     );
 
     expect(dialog.showMessageBox).toHaveBeenCalledWith(
@@ -74,11 +74,11 @@ describe('getSaveFileListener', () => {
 
     await saveFileListener(mainWindow)(
       AllowedFrontendChannels.SaveFileRequest,
-      {
+      JSON.stringify({
         manualAttributions: {},
         resourcesToAttributions: {},
-        resolvedExternalAttributions: new Set(),
-      },
+        resolvedExternalAttributions: [],
+      }),
     );
 
     expect(dialog.showMessageBox).toHaveBeenCalledWith(
@@ -110,11 +110,14 @@ describe('getSaveFileListener', () => {
         projectId: 'uuid_1',
       });
 
-      await listener(AllowedFrontendChannels.SaveFileRequest, {
-        manualAttributions: {},
-        resourcesToAttributions: {},
-        resolvedExternalAttributions: new Set<string>().add('id_1').add('id_2'),
-      });
+      await listener(
+        AllowedFrontendChannels.SaveFileRequest,
+        JSON.stringify({
+          manualAttributions: {},
+          resourcesToAttributions: {},
+          resolvedExternalAttributions: ['id_1', 'id_2'],
+        }),
+      );
 
       expect(writeFile).toHaveBeenCalledWith({
         path: '/attributionFile.json',

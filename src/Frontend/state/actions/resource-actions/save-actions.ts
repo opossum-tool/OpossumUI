@@ -5,7 +5,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isEmpty, isEqual } from 'lodash';
 
-import { Attributions, PackageInfo } from '../../../../shared/shared-types';
+import {
+  Attributions,
+  PackageInfo,
+  SaveFileArgsSerializable,
+} from '../../../../shared/shared-types';
 import { correctFilePathsInResourcesMappingForOutput } from '../../../util/can-resource-have-children';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
@@ -97,14 +101,18 @@ export function savePackageInfo(
 
 export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
   return (_, getState) => {
-    window.electronAPI.saveFile({
-      manualAttributions: getManualAttributions(getState()),
-      resourcesToAttributions: correctFilePathsInResourcesMappingForOutput(
-        getResourcesToManualAttributions(getState()),
-        getFilesWithChildren(getState()),
-      ),
-      resolvedExternalAttributions: getResolvedExternalAttributions(getState()),
-    });
+    window.electronAPI.saveFile(
+      JSON.stringify({
+        manualAttributions: getManualAttributions(getState()),
+        resourcesToAttributions: correctFilePathsInResourcesMappingForOutput(
+          getResourcesToManualAttributions(getState()),
+          getFilesWithChildren(getState()),
+        ),
+        resolvedExternalAttributions: [
+          ...getResolvedExternalAttributions(getState()),
+        ],
+      } satisfies SaveFileArgsSerializable),
+    );
   };
 }
 

@@ -206,6 +206,13 @@ export interface SaveFileArgs {
   resolvedExternalAttributions: Set<string>;
 }
 
+export interface SaveFileArgsSerializable extends Omit<
+  SaveFileArgs,
+  'resolvedExternalAttributions'
+> {
+  resolvedExternalAttributions: Array<string>;
+}
+
 export enum ExportType {
   FollowUp = 'FollowUp',
   CompactBom = 'CompactBom',
@@ -296,7 +303,7 @@ export interface ElectronAPI {
     fileType: FileType,
   ) => Promise<boolean>;
   exportFile: (args: ExportArgsType) => void;
-  saveFile: (saveFileArgs: SaveFileArgs) => void;
+  saveFile: (saveFileJson: string) => void;
   /**
    * @deprecated see https://github.com/opossum-tool/OpossumUI/issues/2812
    */
