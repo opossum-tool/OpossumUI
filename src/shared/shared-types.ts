@@ -203,13 +203,6 @@ export interface SendErrorInformationArgs {
 export interface SaveFileArgs {
   manualAttributions: Attributions;
   resourcesToAttributions: ResourcesToAttributions;
-  resolvedExternalAttributions: Set<string>;
-}
-
-export interface SaveFileArgsSerializable extends Omit<
-  SaveFileArgs,
-  'resolvedExternalAttributions'
-> {
   resolvedExternalAttributions: Array<string>;
 }
 

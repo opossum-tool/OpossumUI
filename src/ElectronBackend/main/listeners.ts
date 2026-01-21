@@ -24,7 +24,6 @@ import {
   OpenLinkArgs,
   PackageInfo,
   SaveFileArgs,
-  SaveFileArgsSerializable,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
@@ -63,14 +62,7 @@ const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 export const saveFileListener =
   (mainWindow: BrowserWindow) =>
   async (_: unknown, argsJson: string): Promise<void> => {
-    const argsSerializable = JSON.parse(argsJson) as SaveFileArgsSerializable;
-
-    const args = {
-      ...argsSerializable,
-      resolvedExternalAttributions: new Set(
-        argsSerializable.resolvedExternalAttributions,
-      ),
-    } satisfies SaveFileArgs;
+    const args = JSON.parse(argsJson) as SaveFileArgs;
 
     try {
       const globalBackendState = getGlobalBackendState();
@@ -87,9 +79,7 @@ export const saveFileListener =
         },
         manualAttributions: serializeAttributions(args.manualAttributions),
         resourcesToAttributions: args.resourcesToAttributions,
-        resolvedExternalAttributions: Array.from(
-          args.resolvedExternalAttributions,
-        ),
+        resolvedExternalAttributions: args.resolvedExternalAttributions,
       };
 
       await writeOutputJsonToFile(outputFileContent);

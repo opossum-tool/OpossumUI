@@ -12,7 +12,7 @@ import {
   Resources,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
-  SaveFileArgsSerializable,
+  SaveFileArgs,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
@@ -1242,7 +1242,7 @@ describe('The addToSelectedResource action', () => {
     testStore.dispatch(
       addResolvedExternalAttributions(['TestExternalAttribution']),
     );
-    const expectedSaveFileArgs: SaveFileArgsSerializable = {
+    const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {},
       resourcesToAttributions: {},
       resolvedExternalAttributions: ['TestExternalAttribution'],

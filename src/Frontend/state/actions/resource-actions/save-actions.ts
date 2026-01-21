@@ -8,7 +8,7 @@ import { isEmpty, isEqual } from 'lodash';
 import {
   Attributions,
   PackageInfo,
-  SaveFileArgsSerializable,
+  SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { correctFilePathsInResourcesMappingForOutput } from '../../../util/can-resource-have-children';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
@@ -111,7 +111,7 @@ export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
         resolvedExternalAttributions: [
           ...getResolvedExternalAttributions(getState()),
         ],
-      } satisfies SaveFileArgsSerializable),
+      } satisfies SaveFileArgs),
     );
   };
 }
