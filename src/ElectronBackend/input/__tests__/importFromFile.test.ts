@@ -10,7 +10,7 @@ import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   Criticality,
-  ParsedFileContent,
+  ParsedFileContentSerializable,
   RawCriticality,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -151,7 +151,7 @@ const inputFileContent: ParsedOpossumInputFile = {
   },
 };
 
-const expectedFileContent: ParsedFileContent = {
+const expectedFileContent: ParsedFileContentSerializable = {
   metadata: {
     ...EMPTY_PROJECT_METADATA,
     projectTitle: 'Test Title',
@@ -175,20 +175,20 @@ const expectedFileContent: ParsedFileContent = {
         packageName: 'my app',
         packageVersion: '1.2.3',
         packageNamespace: 'org.apache.xmlgraphics',
+        packageType: 'maven',
         packagePURLAppendix:
           '?repository_url=repo.spring.io/release#everybody/loves/dogs',
-        packageType: 'maven',
         copyright: '(c) first party',
-        excludeFromNotice: true,
         firstParty: true,
-        criticality: Criticality.High,
+        excludeFromNotice: true,
         preferred: true,
         preferredOverOriginIds: ['test-id'],
         wasPreferred: true,
-        id: externalAttributionUuid,
-        originalAttributionSource: source,
+        criticality: Criticality.High,
         originalAttributionId: externalAttributionUuid,
+        originalAttributionSource: source,
         originalAttributionWasPreferred: true,
+        id: externalAttributionUuid,
       },
     },
     resourcesToAttributions: {
@@ -206,9 +206,9 @@ const expectedFileContent: ParsedFileContent = {
       'MIT license': 'MIT license text',
     },
   },
-  resolvedExternalAttributions: new Set(),
-  attributionBreakpoints: new Set(),
-  filesWithChildren: new Set(),
+  resolvedExternalAttributions: [],
+  attributionBreakpoints: [],
+  filesWithChildren: [],
   baseUrlsForSources: {},
   externalAttributionSources: {
     SC: { name: 'ScanCode', priority: 1000 },
@@ -322,7 +322,7 @@ describe('Test of loading function', () => {
     const webContents = mainWindow.webContents as unknown as MockWebContents;
     expect(
       webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-    ).toEqual(expectedFileContent);
+    ).toEqual(JSON.stringify(expectedFileContent));
     expect(
       webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
     ).toBe(1);
@@ -353,7 +353,7 @@ describe('Test of loading function', () => {
       ).toBe(1);
       expect(
         webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-      ).toEqual(expectedFileContent);
+      ).toEqual(JSON.stringify(expectedFileContent));
       expect(
         webContents.numberOfCallsFromChannel(
           AllowedFrontendChannels.ResetLoadedFile,
@@ -383,7 +383,7 @@ describe('Test of loading function', () => {
       ).toBe(1);
       expect(
         webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-      ).toEqual(expectedFileContent);
+      ).toEqual(JSON.stringify(expectedFileContent));
       expect(
         webContents.numberOfCallsFromChannel(
           AllowedFrontendChannels.ResetLoadedFile,
@@ -508,7 +508,7 @@ describe('Test of loading function', () => {
       setGlobalBackendState(globalBackendState);
 
       await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
-      const expectedLoadedFile: ParsedFileContent = {
+      const expectedLoadedFile: ParsedFileContentSerializable = {
         metadata: EMPTY_PROJECT_METADATA,
         resources: { a: 1 },
         config: {
@@ -522,12 +522,12 @@ describe('Test of loading function', () => {
             [manualAttributionUuid]: {
               packageName: 'my app',
               packageVersion: '1.2.3',
-              comment: 'some comment',
               copyright: '(c) first party',
               preSelected: true,
               attributionConfidence: 17,
-              id: manualAttributionUuid,
               criticality: Criticality.None,
+              comment: 'some comment',
+              id: manualAttributionUuid,
             },
           },
           resourcesToAttributions: {
@@ -546,14 +546,13 @@ describe('Test of loading function', () => {
               copyright: '(c) first party',
               preSelected: true,
               attributionConfidence: 17,
-              comment: 'some comment',
               preferred: true,
               preferredOverOriginIds: ['test-id'],
-              id: externalAttributionUuid,
-              originalAttributionSource: source,
-              originalAttributionId: externalAttributionUuid,
-              originalAttributionWasPreferred: undefined,
               criticality: Criticality.None,
+              originalAttributionId: externalAttributionUuid,
+              originalAttributionSource: source,
+              comment: 'some comment',
+              id: externalAttributionUuid,
             },
           },
           resourcesToAttributions: {
@@ -578,9 +577,9 @@ describe('Test of loading function', () => {
             'General Public License': 'GPL license text',
           },
         },
-        resolvedExternalAttributions: new Set(),
-        attributionBreakpoints: new Set(['/some/path/', '/another/path/']),
-        filesWithChildren: new Set(['/some/package.json/']),
+        resolvedExternalAttributions: [],
+        attributionBreakpoints: ['/some/path/', '/another/path/'],
+        filesWithChildren: ['/some/package.json/'],
         baseUrlsForSources: {
           '/': 'https://github.com/opossum-tool/opossumUI/',
         },
@@ -593,7 +592,7 @@ describe('Test of loading function', () => {
       const webContents = mainWindow.webContents as unknown as MockWebContents;
       expect(
         webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-      ).toEqual(expectedLoadedFile);
+      ).toEqual(JSON.stringify(expectedLoadedFile));
       expect(dialog.showMessageBox).not.toHaveBeenCalled();
     },
   );
@@ -624,7 +623,7 @@ describe('Test of loading function', () => {
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
 
-    const expectedLoadedFile: ParsedFileContent = {
+    const expectedLoadedFile: ParsedFileContentSerializable = {
       ...expectedFileContent,
       metadata: inputFileContentWithCustomMetadata.metadata,
     };
@@ -632,7 +631,7 @@ describe('Test of loading function', () => {
     const webContents = mainWindow.webContents as unknown as MockWebContents;
     expect(
       webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-    ).toEqual(expectedLoadedFile);
+    ).toEqual(JSON.stringify(expectedLoadedFile));
     expect(dialog.showMessageBox).not.toHaveBeenCalled();
   });
 
@@ -660,7 +659,7 @@ describe('Test of loading function', () => {
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
 
-    const expectedLoadedFile: ParsedFileContent = {
+    const expectedLoadedFile: ParsedFileContentSerializable = {
       ...expectedFileContent,
       externalAttributions: {
         attributions: {
@@ -668,11 +667,11 @@ describe('Test of loading function', () => {
             source,
             packageName: 'react',
             originIds: ['abc', 'def'],
-            id: 'uuid',
+            criticality: Criticality.None,
             originalAttributionId: 'uuid',
             originalAttributionSource: source,
             originalAttributionWasPreferred: undefined,
-            criticality: Criticality.None,
+            id: 'uuid',
           },
         },
         resourcesToAttributions: {
@@ -687,7 +686,7 @@ describe('Test of loading function', () => {
     const webContents = mainWindow.webContents as unknown as MockWebContents;
     expect(
       webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-    ).toEqual(expectedLoadedFile);
+    ).toEqual(JSON.stringify(expectedLoadedFile));
     expect(
       webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
     ).toBe(1);
@@ -768,7 +767,7 @@ describe('Test of loading function', () => {
 });
 
 function assertFileLoadedCorrectly(testUuid: string): void {
-  const expectedLoadedFile: ParsedFileContent = {
+  const expectedLoadedFile: ParsedFileContentSerializable = {
     ...expectedFileContent,
     manualAttributions: {
       attributions: {
@@ -777,8 +776,8 @@ function assertFileLoadedCorrectly(testUuid: string): void {
           packageVersion: '1.0',
           licenseText: 'MIT',
           followUp: true,
-          id: testUuid,
           criticality: Criticality.None,
+          id: testUuid,
         },
       },
       resourcesToAttributions: {
@@ -793,7 +792,7 @@ function assertFileLoadedCorrectly(testUuid: string): void {
   const webContents = mainWindow.webContents as unknown as MockWebContents;
   expect(
     webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-  ).toEqual(expectedLoadedFile);
+  ).toEqual(JSON.stringify(expectedLoadedFile));
   expect(
     webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
   ).toBe(1);

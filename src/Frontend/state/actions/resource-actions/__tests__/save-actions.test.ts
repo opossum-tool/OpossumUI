@@ -12,7 +12,7 @@ import {
   Resources,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
-  SaveFileArgs,
+  SaveFileArgsSerializable,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
@@ -1242,18 +1242,16 @@ describe('The addToSelectedResource action', () => {
     testStore.dispatch(
       addResolvedExternalAttributions(['TestExternalAttribution']),
     );
-    const expectedSaveFileArgs: SaveFileArgs = {
+    const expectedSaveFileArgs: SaveFileArgsSerializable = {
       manualAttributions: {},
-      resolvedExternalAttributions: new Set<string>().add(
-        'TestExternalAttribution',
-      ),
       resourcesToAttributions: {},
+      resolvedExternalAttributions: ['TestExternalAttribution'],
     };
 
     testStore.dispatch(saveManualAndResolvedAttributionsToFile());
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs,
+      JSON.stringify(expectedSaveFileArgs),
     );
   });
 });

@@ -141,13 +141,13 @@ class OpossumModule {
         max: DiscreteConfidence.High - 1,
       }),
       copyright: OpossumModule.copyright(),
-      criticality: Criticality.None,
-      id: faker.string.uuid(),
       licenseName: faker.commerce.productName(),
       packageName: faker.internet.domainWord(),
       packageType: faker.commerce.productMaterial().toLowerCase(),
       packageVersion: faker.system.semver(),
       url: faker.internet.url(),
+      criticality: Criticality.None,
+      id: faker.string.uuid(),
       ...props,
     };
   }

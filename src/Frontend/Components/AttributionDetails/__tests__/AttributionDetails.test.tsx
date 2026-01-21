@@ -127,13 +127,15 @@ describe('AttributionDetails', () => {
     );
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {
-        [packageInfo1.id]: packageInfo1,
-      },
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: { [resourceId]: [packageInfo1.id] },
-    });
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      JSON.stringify({
+        manualAttributions: {
+          [packageInfo1.id]: packageInfo1,
+        },
+        resourcesToAttributions: { [resourceId]: [packageInfo1.id] },
+        resolvedExternalAttributions: [],
+      }),
+    );
   });
 
   it('saves modified attribution', async () => {
@@ -174,19 +176,21 @@ describe('AttributionDetails', () => {
     );
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {
-        [packageInfo1.id]: {
-          ...packageInfo1,
-          packageName: newPackageName,
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      JSON.stringify({
+        manualAttributions: {
+          [packageInfo1.id]: {
+            ...packageInfo1,
+            packageName: newPackageName,
+          },
+          [packageInfo2.id]: packageInfo2,
         },
-        [packageInfo2.id]: packageInfo2,
-      },
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: {
-        [resourceId]: [packageInfo1.id, packageInfo2.id],
-      },
-    });
+        resourcesToAttributions: {
+          [resourceId]: [packageInfo1.id, packageInfo2.id],
+        },
+        resolvedExternalAttributions: [],
+      }),
+    );
   });
 
   it('confirms attribution', async () => {
@@ -223,16 +227,18 @@ describe('AttributionDetails', () => {
     );
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {
-        [packageInfo1.id]: { ...packageInfo1, preSelected: undefined },
-        [packageInfo2.id]: packageInfo2,
-      },
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: {
-        [resourceId]: [packageInfo1.id, packageInfo2.id],
-      },
-    });
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      JSON.stringify({
+        manualAttributions: {
+          [packageInfo1.id]: { ...packageInfo1, preSelected: undefined },
+          [packageInfo2.id]: packageInfo2,
+        },
+        resourcesToAttributions: {
+          [resourceId]: [packageInfo1.id, packageInfo2.id],
+        },
+        resolvedExternalAttributions: [],
+      }),
+    );
   });
 
   it('disables save button if package is neither pre-selected nor modified', () => {
@@ -304,16 +310,18 @@ describe('AttributionDetails', () => {
     );
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {
-        [packageInfo1.id]: packageInfo1,
-        [packageInfo2.id]: packageInfo2,
-      },
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: {
-        [resourceId]: [packageInfo1.id, packageInfo2.id],
-      },
-    });
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      JSON.stringify({
+        manualAttributions: {
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        },
+        resourcesToAttributions: {
+          [resourceId]: [packageInfo1.id, packageInfo2.id],
+        },
+        resolvedExternalAttributions: [],
+      }),
+    );
   });
 
   it('disables link button when package is modified', () => {
@@ -427,13 +435,15 @@ describe('AttributionDetails', () => {
     );
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {
-        [packageInfo2.id]: packageInfo2,
-      },
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: {},
-    });
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      JSON.stringify({
+        manualAttributions: {
+          [packageInfo2.id]: packageInfo2,
+        },
+        resourcesToAttributions: {},
+        resolvedExternalAttributions: [],
+      }),
+    );
   });
 
   it('reverts changes to a modified attribution', async () => {
@@ -538,11 +548,13 @@ describe('AttributionDetails', () => {
     );
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {},
-      resolvedExternalAttributions: new Set([packageInfo.id]),
-      resourcesToAttributions: {},
-    });
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      JSON.stringify({
+        manualAttributions: {},
+        resourcesToAttributions: {},
+        resolvedExternalAttributions: [packageInfo.id],
+      }),
+    );
   });
 
   it('restores deleted signal', async () => {
@@ -564,11 +576,13 @@ describe('AttributionDetails', () => {
     );
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {},
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: {},
-    });
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      JSON.stringify({
+        manualAttributions: {},
+        resourcesToAttributions: {},
+        resolvedExternalAttributions: [],
+      }),
+    );
   });
 
   it('compares attribution to original signal', async () => {

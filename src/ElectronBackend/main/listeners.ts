@@ -23,6 +23,7 @@ import {
   FileType,
   OpenLinkArgs,
   PackageInfo,
+  SaveFileArgs,
   SaveFileArgsSerializable,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
@@ -69,7 +70,7 @@ export const saveFileListener =
       resolvedExternalAttributions: new Set(
         argsSerializable.resolvedExternalAttributions,
       ),
-    };
+    } satisfies SaveFileArgs;
 
     try {
       const globalBackendState = getGlobalBackendState();
