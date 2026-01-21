@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import * as fflate from 'fflate';
+import { strFromU8, unzip, Unzipped } from 'fflate';
 import fs from 'fs';
 import { Options, Validator } from 'jsonschema';
 import { Parser, parser } from 'stream-json';
 import Asm from 'stream-json/Assembler';
-import zlib from 'zlib';
+import { createGunzip } from 'zlib';
 
 import {
   INPUT_FILE_NAME,
@@ -41,7 +41,7 @@ export async function parseOpossumFile(
   let parsedInputData: ParsedOpossumInputFile;
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
 
-  let zip: fflate.Unzipped;
+  let zip: Unzipped;
   try {
     zip = await readZipAsync(opossumFilePath);
   } catch (err) {
@@ -63,7 +63,7 @@ export async function parseOpossumFile(
   getGlobalBackendState().inputFileRaw = zip[INPUT_FILE_NAME];
 
   try {
-    parsedInputData = JSON.parse(fflate.strFromU8(zip[INPUT_FILE_NAME]));
+    parsedInputData = JSON.parse(strFromU8(zip[INPUT_FILE_NAME]));
     jsonSchemaValidator.validate(
       parsedInputData,
       OpossumInputFileSchema,
@@ -78,7 +78,7 @@ export async function parseOpossumFile(
 
   if (zip[OUTPUT_FILE_NAME]) {
     try {
-      const outputJson = fflate.strFromU8(zip[OUTPUT_FILE_NAME]);
+      const outputJson = strFromU8(zip[OUTPUT_FILE_NAME]);
       parsedOutputData = parseOutputJsonContent(outputJson, opossumFilePath);
     } catch (err) {
       return {
@@ -94,15 +94,12 @@ export async function parseOpossumFile(
   };
 }
 
-async function readZipAsync(opossumFilePath: string): Promise<fflate.Unzipped> {
+async function readZipAsync(opossumFilePath: string): Promise<Unzipped> {
   const originalZipBuffer: Buffer = await fs.promises.readFile(opossumFilePath);
 
   return new Promise((resolve, reject) => {
-    fflate.unzip(new Uint8Array(originalZipBuffer), (err, unzipData) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(unzipData);
+    unzip(new Uint8Array(originalZipBuffer), (unzipError, unzipData) => {
+      unzipError ? reject(unzipError) : resolve(unzipData);
     });
   });
 }
@@ -114,7 +111,7 @@ export function parseInputJsonFile(
   if (resourceFilePath.toString().endsWith('.json.gz')) {
     pipeline = fs
       .createReadStream(resourceFilePath)
-      .pipe(zlib.createGunzip())
+      .pipe(createGunzip())
       .pipe(parser());
   } else {
     pipeline = fs.createReadStream(resourceFilePath).pipe(parser());
