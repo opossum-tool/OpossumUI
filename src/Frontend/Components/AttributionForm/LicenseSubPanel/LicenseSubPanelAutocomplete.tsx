@@ -43,14 +43,16 @@ export function LicenseSubPanelAutocomplete({
     if (input === undefined) {
       return ['', ''];
     }
-    return input.match(/(.*(?:AND \(*|OR \(*|^))(.*)$/i)?.slice(1) as [
-      string,
-      string,
-    ];
+    return input
+      .match(/(.*(?:(?: AND | OR | WITH |^)\(*))(.*)$/i)
+      ?.slice(1) as [string, string];
   }
 
   function capitalizeExpressions(input: string): string {
-    return input.replaceAll(/\bAND /gi, 'AND ').replaceAll(/\bOR /gi, 'OR ');
+    return input
+      .replaceAll(/ AND /gi, ' AND ')
+      .replaceAll(/ OR /gi, ' OR ')
+      .replaceAll(/ WITH /gi, ' WITH ');
   }
 
   type LicenseOption = {
@@ -125,16 +127,22 @@ export function LicenseSubPanelAutocomplete({
   ): Array<LicenseOption> {
     const [beforeLast, lastLicense] = splitAtLastExpression(inputValue);
     const hasExpressionBeforeLastWord = beforeLast !== '';
-    return options.filter((option) =>
+    return options.filter((option) => {
+      if (option.shortName === lastLicense.trim()) {
+        return false;
+      }
       // Selecting signals or attributions replaces everything, so you have to filter on the full input and not just the last part.
-      option.replaceEntireSearch
-        ? option.shortName.toUpperCase().includes(inputValue.toUpperCase())
-        : hasExpressionBeforeLastWord || beforeLast === ''
-          ? `${option.shortName} ${option.fullName}`
-              .toUpperCase()
-              .includes(lastLicense.toUpperCase())
-          : false,
-    );
+      if (option.replaceEntireSearch) {
+        return option.shortName
+          .toUpperCase()
+          .includes(inputValue.toUpperCase());
+      } else if (hasExpressionBeforeLastWord || beforeLast === '') {
+        return `${option.shortName},${option.fullName}`
+          .toUpperCase()
+          .includes(lastLicense.toUpperCase());
+      }
+      return false;
+    });
   }
 
   return (
