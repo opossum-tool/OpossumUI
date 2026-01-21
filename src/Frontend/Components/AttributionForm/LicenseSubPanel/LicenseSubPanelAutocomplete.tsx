@@ -58,7 +58,7 @@ export function LicenseSubPanelAutocomplete({
     fullName: string | undefined;
     attributionCount?: number;
     group: string;
-    replaceAll: boolean;
+    replaceEntireSearch: boolean;
   };
 
   const attributionsToLicenseOptions = useCallback(
@@ -84,7 +84,7 @@ export function LicenseSubPanelAutocomplete({
             fullName: undefined,
             attributionCount: attributions.length,
             group,
-            replaceAll: true,
+            replaceEntireSearch: true,
           })),
         ({ attributionCount }) => -(attributionCount ?? 0),
       );
@@ -98,7 +98,7 @@ export function LicenseSubPanelAutocomplete({
         fullName: license.fullName,
         shortName: license.shortName,
         group: text.attributionColumn.commonLicenses,
-        replaceAll: false,
+        replaceEntireSearch: false,
       })),
       ...attributionsToLicenseOptions(
         attributions ?? {},
@@ -127,7 +127,7 @@ export function LicenseSubPanelAutocomplete({
     const hasExpressionBeforeLastWord = beforeLast !== '';
     return options.filter((option) =>
       // Selecting signals or attributions replaces everything, so you have to filter on the full input and not just the last part.
-      option.replaceAll
+      option.replaceEntireSearch
         ? option.shortName.toUpperCase().includes(inputValue.toUpperCase())
         : hasExpressionBeforeLastWord || beforeLast === ''
           ? `${option.shortName} ${option.fullName}`
@@ -165,7 +165,7 @@ export function LicenseSubPanelAutocomplete({
         primary: (option) =>
           typeof option === 'string'
             ? option
-            : option.replaceAll ||
+            : option.replaceEntireSearch ||
                 splitAtLastExpression(packageInfo.licenseName)[0] === ''
               ? option.shortName
               : `... ${option.shortName}`,
@@ -178,7 +178,7 @@ export function LicenseSubPanelAutocomplete({
           dispatch(
             setTemporaryDisplayPackageInfo({
               ...packageInfo,
-              licenseName: value.replaceAll
+              licenseName: value.replaceEntireSearch
                 ? value.shortName
                 : `${capitalizeExpressions(splitAtLastExpression(packageInfo.licenseName)[0])}${value.shortName}`,
               licenseText: '',
