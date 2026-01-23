@@ -10,7 +10,7 @@ import viteTsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig(({ mode }) => ({
   plugins: [
-    react(),
+    react({ babel: { plugins: ['babel-plugin-react-compiler'] } }),
     viteTsconfigPaths(),
     svgrPlugin(),
     ...(mode === 'e2e'

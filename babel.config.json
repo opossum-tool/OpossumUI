@@ -17,5 +17,8 @@
     ]
   ],
   // https://github.com/vitejs/vite/issues/1149
-  "plugins": ["babel-plugin-transform-import-meta"]
+  "plugins": [
+    "babel-plugin-react-compiler",
+    "babel-plugin-transform-import-meta"
+  ]
 }
