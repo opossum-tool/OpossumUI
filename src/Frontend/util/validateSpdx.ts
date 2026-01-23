@@ -22,7 +22,7 @@ export type SpdxExpressionValidationResult =
 const wordStart = String.raw`(?<=^|\(|\s)`;
 const wordEnd = String.raw`(?=$|\)|\s)`;
 
-export function validateSpdxEpression(
+export function validateSpdxExpression(
   spdxExpression: string,
   knownLicenseIds: Set<string>,
 ): SpdxExpressionValidationResult {

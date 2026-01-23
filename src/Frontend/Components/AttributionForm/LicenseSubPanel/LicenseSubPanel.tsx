@@ -15,7 +15,7 @@ import {
   getFrequentLicensesNameOrder,
   getFrequentLicensesTexts,
 } from '../../../state/selectors/resource-selectors';
-import { validateSpdxEpression } from '../../../util/validateSpdx';
+import { validateSpdxExpression } from '../../../util/validateSpdx';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
 import { AttributionFormConfig } from '../AttributionForm';
@@ -57,7 +57,7 @@ export function LicenseSubPanel({
     ? undefined
     : frequentLicenseTexts[packageInfo.licenseName || ''];
 
-  const validationResult = validateSpdxEpression(
+  const validationResult = validateSpdxExpression(
     packageInfo.licenseName ?? '',
     new Set(frequentLicensesNames.map((n) => n.shortName)),
   );

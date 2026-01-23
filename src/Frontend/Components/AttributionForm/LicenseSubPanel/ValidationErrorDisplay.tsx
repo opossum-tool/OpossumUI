@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { ExpandMore } from '@mui/icons-material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import MuiBox from '@mui/material/Box';
-import MuiChip from '@mui/material/Chip';
 import MuiCollapse from '@mui/material/Collapse';
 import MuiTypography from '@mui/material/Typography';
 import { ReactNode, useState } from 'react';
@@ -57,16 +57,15 @@ export function ValidationErrorDisplay({
         <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           <MuiBox sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
             {firstMessage}
-            {hiddenCount > 0 && !expanded && (
-              <MuiChip
-                label={`+${hiddenCount}`}
-                size="small"
-                variant="outlined"
-                onClick={() => setExpanded(true)}
+            {hiddenCount > 0 && (
+              <ExpandMore
+                onClick={() => setExpanded(!expanded)}
                 sx={{
-                  height: 18,
-                  fontSize: '0.7rem',
+                  rotate: expanded ? '180deg' : '0deg',
+                  transition: 'rotate 0.3s ease',
                   cursor: 'pointer',
+                  height: '18px',
+                  width: '18px',
                 }}
               />
             )}
@@ -74,20 +73,6 @@ export function ValidationErrorDisplay({
           <MuiCollapse in={expanded}>
             <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               {restMessages}
-              {restMessages.length > 0 && (
-                <MuiChip
-                  label="Show less"
-                  size="small"
-                  variant="outlined"
-                  onClick={() => setExpanded(false)}
-                  sx={{
-                    height: 18,
-                    fontSize: '0.7rem',
-                    cursor: 'pointer',
-                    alignSelf: 'start',
-                  }}
-                />
-              )}
             </MuiBox>
           </MuiCollapse>
         </MuiBox>
