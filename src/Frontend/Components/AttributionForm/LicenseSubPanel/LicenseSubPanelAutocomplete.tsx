@@ -3,10 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { groupBy, sortBy } from 'lodash';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Attributions, PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import { PACKAGE_INFO_DEBOUNCE_TIME } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import { getFrequentLicensesNameOrder } from '../../../state/selectors/resource-selectors';
@@ -14,6 +15,7 @@ import {
   useFilteredAttributions,
   useFilteredSignals,
 } from '../../../state/variables/use-filtered-data';
+import { useDebouncedInput } from '../../../util/use-debounced-input';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 import { renderOccuranceCount } from '../../Autocomplete/AutocompleteUtil';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
@@ -34,6 +36,27 @@ export function LicenseSubPanelAutocomplete({
   config,
 }: LicenseAutocompleteProps) {
   const dispatch = useAppDispatch();
+
+  const [licenseName, setLicenseName] = useState(packageInfo.licenseName);
+  const debouncedLicenseName = useDebouncedInput(
+    licenseName,
+    PACKAGE_INFO_DEBOUNCE_TIME,
+  );
+
+  useEffect(() => {
+    setLicenseName(packageInfo.licenseName);
+  }, [packageInfo.licenseName]);
+
+  useEffect(() => {
+    dispatch(
+      setTemporaryDisplayPackageInfo({
+        ...packageInfo,
+        licenseName: debouncedLicenseName,
+        wasPreferred: undefined,
+      }),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedLicenseName, dispatch]);
   const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
 
   const [{ attributions }] = useFilteredAttributions();
@@ -151,10 +174,8 @@ export function LicenseSubPanelAutocomplete({
       options={licenseOptions}
       title={text.attributionColumn.licenseExpression}
       readOnly={!onEdit}
-      highlighting={
-        showHighlight && !packageInfo.licenseName ? 'warning' : undefined
-      }
-      inputValue={packageInfo.licenseName ?? ''}
+      highlighting={showHighlight && !licenseName ? 'warning' : undefined}
+      inputValue={licenseName ?? ''}
       getOptionLabel={(option) =>
         typeof option === 'string' ? option : option.shortName
       }
@@ -174,7 +195,7 @@ export function LicenseSubPanelAutocomplete({
           typeof option === 'string'
             ? option
             : option.replaceEntireSearch ||
-                splitAtLastExpression(packageInfo.licenseName)[0] === ''
+                splitAtLastExpression(licenseName)[0] === ''
               ? option.shortName
               : `... ${option.shortName}`,
         secondary: (option) =>
@@ -183,29 +204,18 @@ export function LicenseSubPanelAutocomplete({
       onChange={(_, value) =>
         typeof value !== 'string' &&
         onEdit?.(() => {
+          setLicenseName(
+            value.replaceEntireSearch
+              ? value.shortName
+              : `${capitalizeExpressions(splitAtLastExpression(licenseName)[0])}${value.shortName}`,
+          );
           dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...packageInfo,
-              licenseName: value.replaceEntireSearch
-                ? value.shortName
-                : `${capitalizeExpressions(splitAtLastExpression(packageInfo.licenseName)[0])}${value.shortName}`,
-              licenseText: '',
-              wasPreferred: undefined,
-            }),
+            setTemporaryDisplayPackageInfo({ ...packageInfo, licenseText: '' }),
           );
         })
       }
       onInputChange={(event, value) =>
-        event &&
-        onEdit?.(() => {
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...packageInfo,
-              licenseName: capitalizeExpressions(value),
-              wasPreferred: undefined,
-            }),
-          );
-        })
+        event && onEdit?.(() => setLicenseName(capitalizeExpressions(value)))
       }
       inputProps={{
         color: config?.licenseName?.color,

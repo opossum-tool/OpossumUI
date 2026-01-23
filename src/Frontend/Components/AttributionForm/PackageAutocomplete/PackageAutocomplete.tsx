@@ -16,6 +16,7 @@ import {
   PackageInfo,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import { PACKAGE_INFO_DEBOUNCE_TIME } from '../../../shared-constants';
 import { clickableIcon, OpossumColors } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../../state/hooks';
@@ -30,6 +31,7 @@ import {
 } from '../../../util/input-validation';
 import { openUrl } from '../../../util/open-url';
 import { PackageSearchHooks } from '../../../util/package-search-hooks';
+import { useDebouncedInput } from '../../../util/use-debounced-input';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 import { renderOccuranceCount } from '../../Autocomplete/AutocompleteUtil';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
@@ -127,6 +129,10 @@ export function PackageAutocomplete({
   const dispatch = useAppDispatch();
   const attributeValue = packageInfo[attribute] || '';
   const [inputValue, setInputValue] = useState(attributeValue);
+  const debouncedInputValue = useDebouncedInput(
+    inputValue,
+    PACKAGE_INFO_DEBOUNCE_TIME,
+  );
 
   const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo();
 
@@ -143,10 +149,21 @@ export function PackageAutocomplete({
   );
 
   useEffect(() => {
-    if (attributeValue !== inputValue) {
-      setInputValue(attributeValue);
+    setInputValue(attributeValue);
+  }, [attributeValue]);
+
+  useEffect(() => {
+    if (debouncedInputValue !== attributeValue) {
+      dispatch(
+        setTemporaryDisplayPackageInfo({
+          ...packageInfo,
+          [attribute]: debouncedInputValue,
+          wasPreferred: undefined,
+        }),
+      );
     }
-  }, [attributeValue, inputValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedInputValue, dispatch]);
 
   const highlighting = useMemo(() => {
     if (!showHighlight) {
@@ -245,18 +262,7 @@ export function PackageAutocomplete({
         })
       }
       onInputChange={(event, value) =>
-        event &&
-        packageInfo[attribute] !== value &&
-        onEdit?.(() => {
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...packageInfo,
-              [attribute]: value,
-              wasPreferred: undefined,
-            }),
-          );
-          setInputValue(value);
-        })
+        event && onEdit?.(() => setInputValue(value))
       }
       endAdornment={endAdornment}
       disableCloseOnSelect={disableCloseOnSelect}

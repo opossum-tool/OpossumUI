@@ -84,3 +84,5 @@ export const thirdPartyKeys: Array<keyof PackageInfo> = [
 ];
 
 export const legacyOutputFileEnding = '_attributions.json';
+
+export const PACKAGE_INFO_DEBOUNCE_TIME = 250;
