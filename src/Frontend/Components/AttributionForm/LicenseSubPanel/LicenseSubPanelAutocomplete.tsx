@@ -48,13 +48,6 @@ export function LicenseSubPanelAutocomplete({
       ?.slice(1) as [string, string];
   }
 
-  function capitalizeExpressions(input: string): string {
-    return input
-      .replaceAll(/ AND /gi, ' AND ')
-      .replaceAll(/ OR /gi, ' OR ')
-      .replaceAll(/ WITH /gi, ' WITH ');
-  }
-
   type LicenseOption = {
     shortName: string;
     fullName: string | undefined;
@@ -188,7 +181,7 @@ export function LicenseSubPanelAutocomplete({
               ...packageInfo,
               licenseName: value.replaceEntireSearch
                 ? value.shortName
-                : `${capitalizeExpressions(splitAtLastExpression(packageInfo.licenseName)[0])}${value.shortName}`,
+                : `${splitAtLastExpression(packageInfo.licenseName)[0]}${value.shortName}`,
               licenseText: '',
               wasPreferred: undefined,
             }),
@@ -201,7 +194,7 @@ export function LicenseSubPanelAutocomplete({
           dispatch(
             setTemporaryDisplayPackageInfo({
               ...packageInfo,
-              licenseName: capitalizeExpressions(value),
+              licenseName: value,
               wasPreferred: undefined,
             }),
           );

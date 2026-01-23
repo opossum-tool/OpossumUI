@@ -11,11 +11,16 @@ import { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
-import { getFrequentLicensesTexts } from '../../../state/selectors/resource-selectors';
+import {
+  getFrequentLicensesNameOrder,
+  getFrequentLicensesTexts,
+} from '../../../state/selectors/resource-selectors';
+import { validateSpdxEpression } from '../../../util/validateSpdx';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
 import { AttributionFormConfig } from '../AttributionForm';
 import { LicenseSubPanelAutocomplete } from './LicenseSubPanelAutocomplete';
+import { ValidationErrorDisplay } from './ValidationErrorDisplay';
 
 const classes = {
   licenseText: {
@@ -47,9 +52,25 @@ export function LicenseSubPanel({
   const [showLicenseText, setShowLicenseText] = useState(false);
   const dispatch = useAppDispatch();
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
+  const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
   const defaultLicenseText = packageInfo.licenseText
     ? undefined
     : frequentLicenseTexts[packageInfo.licenseName || ''];
+
+  const validationResult = validateSpdxEpression(
+    packageInfo.licenseName ?? '',
+    new Set(frequentLicensesNames.map((n) => n.shortName)),
+  );
+
+  const handleApplyFix = (newExpression: string) => {
+    dispatch(
+      setTemporaryDisplayPackageInfo({
+        ...packageInfo,
+        licenseName: newExpression,
+        wasPreferred: undefined,
+      }),
+    );
+  };
 
   return hidden ? null : (
     <MuiBox>
@@ -79,6 +100,12 @@ export function LicenseSubPanel({
           </ToggleButton>
         )}
       </MuiBox>
+      {!!onEdit && (
+        <ValidationErrorDisplay
+          validationResult={validationResult}
+          onApplyFix={handleApplyFix}
+        />
+      )}
       {(showLicenseText || expanded) && (
         <TextBox
           readOnly={!onEdit}
