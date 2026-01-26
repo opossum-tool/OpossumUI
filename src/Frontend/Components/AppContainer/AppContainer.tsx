@@ -16,7 +16,7 @@ import { Toaster } from '../Toaster/Toaster';
 dayjs.extend(localizedFormat);
 
 const store = createAppStore();
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: false } },
 });
 
