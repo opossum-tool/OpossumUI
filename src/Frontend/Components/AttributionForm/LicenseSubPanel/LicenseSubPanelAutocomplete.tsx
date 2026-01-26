@@ -25,6 +25,7 @@ interface LicenseAutocompleteProps {
   showHighlight?: boolean;
   onEdit?: Confirm;
   config?: AttributionFormConfig;
+  forceTop?: boolean;
 }
 
 export function LicenseSubPanelAutocomplete({
@@ -32,6 +33,7 @@ export function LicenseSubPanelAutocomplete({
   showHighlight,
   onEdit,
   config,
+  forceTop,
 }: LicenseAutocompleteProps) {
   const dispatch = useAppDispatch();
   const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
@@ -162,6 +164,7 @@ export function LicenseSubPanelAutocomplete({
       }
       groupBy={(option) => option.group}
       groupProps={{ icon: () => <SourceIcon noTooltip /> }}
+      forceTop={forceTop}
       optionText={{
         primary: (option) =>
           typeof option === 'string'

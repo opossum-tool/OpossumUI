@@ -182,6 +182,7 @@ export function PackageAutocomplete({
         inputProps={{ color, focused }}
         highlighting={highlighting}
         options={options}
+        forceTop={!!errorMessage}
         getOptionLabel={(option) =>
           typeof option === 'string' ? option : option[attribute] || ''
         }

@@ -23,6 +23,7 @@ export type ListboxProps<
 > = React.HTMLAttributes<HTMLElement> & {
   ref?: React.RefObject<HTMLDivElement>;
   virtuosoRef: React.RefObject<VirtuosoHandle | null>;
+  maxHeight?: number;
   options: Array<Value>;
   groupProps?: {
     icon?: React.FC<{ name: string }>;
@@ -69,6 +70,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
   getOptionProps,
   groupBy,
   groupProps,
+  maxHeight,
   optionText,
   options,
   renderOptionEndIcon,
@@ -111,7 +113,13 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
     return (
       <GroupedVirtuoso
         ref={virtuosoRef}
-        style={{ ...styles.virtuoso, height }}
+        style={{
+          ...styles.virtuoso,
+          height,
+          ...(maxHeight && {
+            maxHeight: `min(${maxHeight}px, ${styles.virtuoso.maxHeight})`,
+          }),
+        }}
         increaseViewportBy={20}
         initialTopMostItemIndex={
           ~firstSelectedIndex && {
@@ -149,6 +157,9 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
         style={{
           ...styles.virtuoso,
           height,
+          ...(maxHeight && {
+            maxHeight: `min(${maxHeight}px, ${styles.virtuoso.maxHeight})`,
+          }),
         }}
         data={options}
         itemContent={(index, option) => renderOption({ option, index })}

@@ -80,6 +80,7 @@ export function LicenseSubPanel({
           showHighlight={showHighlight}
           onEdit={onEdit}
           config={config}
+          forceTop={true}
         />
         {!expanded && (
           <ToggleButton
