@@ -20,6 +20,10 @@ export interface ResourceTable {
   parent_id: number | null;
   is_attribution_breakpoint: SqliteBoolean;
   is_file: SqliteBoolean;
+  /**
+   * Is either a folder or included in the files-with-children list in the input
+   */
+  can_have_children: SqliteBoolean;
 }
 
 export interface ExternalAttributionSourceTable {
