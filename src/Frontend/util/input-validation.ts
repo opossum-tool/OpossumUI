@@ -71,29 +71,33 @@ export function arePackageCoordinatesIncomplete(
 }
 
 export function isPackageInvalid(packageInfo: PackageInfo): boolean {
-  return packageInfoKeys.some((attribute) =>
-    isPackageAttributeInvalid(attribute, packageInfo),
+  return packageInfoKeys.some(
+    (attribute) =>
+      getPackageAttributeInvalidError(attribute, packageInfo) !== undefined,
   );
 }
 
-export function isPackageAttributeInvalid(
+export function getPackageAttributeInvalidError(
   attribute: keyof PackageInfo,
   packageInfo: PackageInfo,
-): boolean {
+): undefined | string {
   switch (attribute) {
     case 'packageType': {
       const type = packageInfo[attribute];
-      return !!type && !purlTypeRegex.test(type);
+      if (!type || purlTypeRegex.test(type)) {
+        return undefined;
+      }
+      return 'The type can only contain a-z and 0-9.';
     }
     case 'url': {
       const url = packageInfo[attribute];
-      if (!url) {
-        return false;
+      if (!url || isValidUpstreamAddress(url)) {
+        return undefined;
       }
-      return !isValidUpstreamAddress(url);
+      return 'Invalid URL';
     }
     default:
-      return false;
+      return undefined;
   }
 }
 

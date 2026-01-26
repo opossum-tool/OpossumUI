@@ -19,8 +19,8 @@ import { validateSpdxExpression } from '../../../util/validateSpdx';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
 import { AttributionFormConfig } from '../AttributionForm';
+import { SpdxValidationErrorDisplay } from './LicenseExpressionErrorDisplay';
 import { LicenseSubPanelAutocomplete } from './LicenseSubPanelAutocomplete';
-import { ValidationErrorDisplay } from './ValidationErrorDisplay';
 
 const classes = {
   licenseText: {
@@ -101,7 +101,7 @@ export function LicenseSubPanel({
         )}
       </MuiBox>
       {!!onEdit && (
-        <ValidationErrorDisplay
+        <SpdxValidationErrorDisplay
           validationResult={validationResult}
           onApplyFix={handleApplyFix}
         />
