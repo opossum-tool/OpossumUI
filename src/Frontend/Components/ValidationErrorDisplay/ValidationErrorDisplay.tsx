@@ -67,7 +67,7 @@ export function ValidationErrorDisplay({
           <MuiCollapse in={expanded}>
             <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               {restMessages.map((message) => (
-                <ValidationMessage key={JSON.stringify(message)}>
+                <ValidationMessage key={message?.toString()}>
                   {message}
                 </ValidationMessage>
               ))}

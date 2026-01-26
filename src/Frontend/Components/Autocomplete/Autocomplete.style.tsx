@@ -70,26 +70,29 @@ export const Input = styled(MuiTextField, {
 });
 
 export const StyledPopper = styled(
-  (props: PopperProps & { forcePlacement?: PopperPlacementType }) => (
-    <Popper
-      placement={props.forcePlacement ?? 'auto'}
-      {...props}
-      modifiers={[
-        {
-          name: 'preventOverflow',
-          enabled: true,
-        },
-        {
-          name: 'flip',
-          enabled: !props.forcePlacement,
-          options: {
-            padding: 64,
-            allowedAutoPlacements: ['top', 'bottom'],
+  (props: PopperProps & { forcePlacement?: PopperPlacementType }) => {
+    const { forcePlacement, ...rest } = props;
+    return (
+      <Popper
+        placement={forcePlacement ?? 'auto'}
+        {...rest}
+        modifiers={[
+          {
+            name: 'preventOverflow',
+            enabled: true,
           },
-        },
-      ]}
-    />
-  ),
+          {
+            name: 'flip',
+            enabled: !forcePlacement,
+            options: {
+              padding: 64,
+              allowedAutoPlacements: ['top', 'bottom'],
+            },
+          },
+        ]}
+      />
+    );
+  },
 )(({ theme, anchorEl }) => ({
   width: (anchorEl as HTMLElement | null)?.clientWidth,
   zIndex: theme.zIndex.modal,
