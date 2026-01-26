@@ -162,6 +162,18 @@ export default tseslint.config(
               name: 'react-hot-toast',
               message: 'Please use toast from Toaster instead.',
             },
+            {
+              name: 'react',
+              importNames: ['default'],
+              message:
+                'React is automatically in scope with the new JSX transform. Remove the default React import.',
+            },
+            {
+              name: 'react',
+              importNames: ['*'],
+              message:
+                'Avoid namespace React imports. Import the needed hooks/components directly.',
+            },
           ],
         },
       ],

@@ -5,7 +5,7 @@
 import { MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/system';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { text as fullText } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';

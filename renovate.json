@@ -19,10 +19,10 @@
     "enabled": true
   },
   "osvVulnerabilityAlerts": true,
-  "postUpdateOptions": ["yarnDedupHighest"],
+  "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
     {
-      "updateTypes": ["minor", "patch"],
+      "matchUpdateTypes": ["minor", "patch"],
       "automerge": true
     },
     {
