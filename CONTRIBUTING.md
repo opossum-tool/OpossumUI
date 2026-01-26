@@ -118,6 +118,23 @@ The following software is required for working on the repository:
 - [reuse/tool](https://git.fsfe.org/reuse/tool#install) (to check that copyright information is provided, for more context see [here](https://reuse.software/)),
 - [wine](https://www.winehq.org/) (only to build the Windows version).
 
+### Native modules (better-sqlite3)
+
+This project uses `better-sqlite3`, a native Node.js module that requires compilation. Native modules compiled for Node.js don't work in Electron (and vice versa) due to different ABIs.
+
+To solve this, we install `better-sqlite3` twice:
+
+- `better-sqlite3` — compiled for Node.js, used by Jest tests and Node scripts
+- `better-sqlite3-electron` — compiled for Electron, used by the app at runtime
+
+The Vite config aliases `better-sqlite3` to `better-sqlite3-electron` when building the Electron main process, so source code always imports from `better-sqlite3`.
+
+The `postinstall` script automatically rebuilds `better-sqlite3-electron` for Electron. If you encounter ABI mismatch errors, run:
+
+```bash
+yarn rebuild:electron
+```
+
 ### Running the end-to-end tests
 
 As mentioned above, the end-to-end tests can be run using `yarn test:e2e`. This runs the tests against the dev server. To run the tests against a built version of the app, which is also what the CI/CD pipeline does, run `yarn test:e2e:ci`. See below for how to build the app for your OS.

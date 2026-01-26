@@ -117,7 +117,7 @@ export interface ResourcesWithAttributedChildren {
   attributedChildren: { [index: number]: Set<number> };
 }
 
-interface InputFileAttributionData {
+export interface InputFileAttributionData {
   attributions: Attributions;
   resourcesToAttributions: ResourcesToAttributions;
   attributionsToResources: AttributionsToResources;

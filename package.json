@@ -15,7 +15,9 @@
     "@mui/system": "7.3.7",
     "@mui/utils": "7.3.7",
     "@reduxjs/toolkit": "2.11.2",
-    "@tanstack/react-query": "5.90.20",
+    "@tanstack/react-query": "5.90.19",
+    "better-sqlite3": "12.6.2",
+    "better-sqlite3-electron": "npm:better-sqlite3@12.6.2",
     "chroma-js": "3.2.0",
     "compare-versions": "6.1.1",
     "dayjs": "1.11.19",
@@ -25,6 +27,7 @@
     "fflate": "0.8.2",
     "js-yaml": "4.1.1",
     "jsonschema": "1.5.0",
+    "kysely": "0.28.10",
     "lodash": "4.17.23",
     "object-hash": "3.0.0",
     "ohm-js": "17.3.0",
@@ -53,6 +56,7 @@
     "@commitlint/cli": "20.4.0",
     "@commitlint/config-conventional": "20.4.0",
     "@commitlint/types": "20.4.0",
+    "@electron/rebuild": "4.0.3",
     "@eslint/compat": "2.0.2",
     "@eslint/js": "9.39.2",
     "@faker-js/faker": "10.2.0",
@@ -64,6 +68,7 @@
     "@testing-library/user-event": "14.6.1",
     "@trivago/prettier-plugin-sort-imports": "6.0.2",
     "@types/babel__core": "7.20.5",
+    "@types/better-sqlite3": "7.6.13",
     "@types/chroma-js": "3.1.2",
     "@types/jest": "30.0.0",
     "@types/js-yaml": "4.0.9",
@@ -148,16 +153,18 @@
     "ship:auto:linux": "yarn ship-linux",
     "ship:auto:win32": "yarn ship-win",
     "clean": "rm -rf ./build/ ./release/",
-    "postinstall": "yarn install-deps && yarn update-commit-hash && husky",
+    "postinstall": "yarn install-deps && yarn rebuild:electron && yarn update-commit-hash && husky",
     "pre-commit": "lint-staged",
     "install-deps": "run-script-os",
     "install-deps:darwin:arm64": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs mac-arm64",
     "install-deps:darwin:x64": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs mac-intel",
     "install-deps:linux": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs linux",
-    "install-deps:win32": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs windows.exe"
+    "install-deps:win32": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs windows.exe",
+    "rebuild:electron": "electron-rebuild -o better-sqlite3-electron -f"
   },
   "main": "build/ElectronBackend/app.js",
   "build": {
+    "npmRebuild": false,
     "productName": "OpossumUI",
     "appId": "opossum_ui_electron",
     "electronLanguages": [
@@ -167,6 +174,9 @@
       "build/**/*",
       "bin/*",
       "!node_modules",
+      "node_modules/better-sqlite3-electron/**/*",
+      "node_modules/bindings/**/*",
+      "node_modules/file-uri-to-path/**/*",
       "!build/**/__tests__/**/*"
     ],
     "directories": {
@@ -217,6 +227,12 @@
   },
   "packageManager": "yarn@4.12.0",
   "dependenciesMeta": {
+    "better-sqlite3": {
+      "built": true
+    },
+    "better-sqlite3-electron": {
+      "built": true
+    },
     "electron": {
       "built": true
     },
