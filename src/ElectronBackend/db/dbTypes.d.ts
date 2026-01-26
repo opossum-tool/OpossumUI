@@ -13,6 +13,7 @@ export interface ResourceTable {
   parent_id: number | null;
   is_attribution_breakpoint: SqliteBoolean;
   is_file: SqliteBoolean;
+  can_have_children: SqliteBoolean;
 }
 
 export interface ExternalAttributionSourceTable {

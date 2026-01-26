@@ -47,6 +47,9 @@ export async function initializeDb(inputFile: ParsedFileContent) {
           col.notNull().defaultTo(0),
         )
         .addColumn('is_file', 'integer', (col) => col.notNull().defaultTo(0))
+        .addColumn('can_have_children', 'integer', (col) =>
+          col.notNull().defaultTo(0),
+        )
         .execute();
 
       const attributionBreakpointPaths = inputFile.attributionBreakpoints;
@@ -74,6 +77,7 @@ export async function initializeDb(inputFile: ParsedFileContent) {
               parent_id: parentId,
               is_attribution_breakpoint: Number(isAttributionBreakpoint),
               is_file: Number(isFile),
+              can_have_children: Number(!isLeaf),
             })
             .returning('id')
             .executeTakeFirstOrThrow();
@@ -101,7 +105,9 @@ export async function initializeDb(inputFile: ParsedFileContent) {
         .addColumn('uuid', 'text', (col) => col.notNull().unique())
         .addColumn('data', 'text', (col) => col.notNull())
         .addColumn('is_external', 'integer', (col) => col.notNull())
-        .addColumn('is_resolved', 'integer', (col) => col.notNull().defaultTo(0))
+        .addColumn('is_resolved', 'integer', (col) =>
+          col.notNull().defaultTo(0),
+        )
         .addColumn('external_attribution_source_id', 'text', (col) =>
           col.references('external_attribution_source.name'),
         )
@@ -182,7 +188,9 @@ export async function initializeDb(inputFile: ParsedFileContent) {
         .execute();
 
       for (const [resourcePath, attributionUuids] of [
-        ...Object.entries(inputFile.externalAttributions.resourcesToAttributions),
+        ...Object.entries(
+          inputFile.externalAttributions.resourcesToAttributions,
+        ),
         ...Object.entries(inputFile.manualAttributions.resourcesToAttributions),
       ]) {
         const normalizedPath = resourcePath.replace(/\/$/, '') || '/';

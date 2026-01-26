@@ -2,9 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { sql } from 'kysely';
+
 import { getDb } from '../db/db';
 
 const commands = {
+  async searchResources(props: { searchString: string }) {
+    const searchTerm = props.searchString.toLowerCase();
+    const result = await getDb()
+      .selectFrom('resource')
+      .select([sql<string>`path || IF(can_have_children, '/', '')`.as('path')])
+      .where(sql<boolean>`instr(LOWER(path), LOWER(${searchTerm})) > 0`)
+      .execute();
+    return result.map((r) => r.path);
+  },
   async numberOfRessources() {
     const result = await getDb()
       .selectFrom('resource')
