@@ -12,7 +12,6 @@ export function useFrontendPopupOpen(open: boolean) {
       wasEverDisabled.current = true;
     }
     if (wasEverDisabled.current) {
-      console.log('Setting app menu disabled to', open);
       void window.electronAPI.setFrontendPopupOpen(open);
     }
   }, [open]);

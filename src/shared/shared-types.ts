@@ -6,6 +6,11 @@
 import { IpcRendererEvent } from 'electron';
 import { ErrorInfo } from 'react';
 
+import {
+  Command,
+  CommandParams,
+  CommandReturn,
+} from '../ElectronBackend/api/commands';
 import { AllowedFrontendChannels } from './ipc-channels';
 
 export interface Resources {
@@ -294,6 +299,10 @@ export interface ElectronAPI {
   getUserSettings: () => Promise<UserSettings>;
   updateUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
   setFrontendPopupOpen: (open: boolean) => Promise<void>;
+  api: <C extends Command>(
+    command: C,
+    params: CommandParams<C>,
+  ) => Promise<Awaited<CommandReturn<C>>>;
 }
 
 declare global {

@@ -22,6 +22,7 @@ export enum IpcChannel {
   SetFrontendPopupOpen = 'set-frontend-popup-open',
   Quit = 'quit',
   Relaunch = 'relaunch',
+  Api = 'api',
 }
 
 export enum AllowedFrontendChannels {
