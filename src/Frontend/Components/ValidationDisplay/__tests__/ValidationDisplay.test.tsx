@@ -5,6 +5,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { OpossumColors } from '../../../shared-styles';
 import { ValidationDisplay } from '../ValidationDisplay';
 
 describe('ValidationDisplay', () => {
@@ -15,19 +16,15 @@ describe('ValidationDisplay', () => {
       );
 
       expect(container).toHaveTextContent('');
+      expect(screen.getByTestId('WarningAmberIcon')).not.toBeVisible();
     });
   });
 
   describe('when there is a single message', () => {
-    it('renders the message', () => {
+    it('renders the message but not the expand button', () => {
       render(<ValidationDisplay messages={['Test error']} severity="error" />);
 
       expect(screen.getByText('Test error')).toBeVisible();
-    });
-
-    it('does not render expand button', () => {
-      render(<ValidationDisplay messages={['Test error']} severity="error" />);
-
       expect(
         screen.queryByLabelText('expand messages'),
       ).not.toBeInTheDocument();
@@ -37,19 +34,13 @@ describe('ValidationDisplay', () => {
   describe('when there are multiple messages', () => {
     const messages = ['First message', 'Second message', 'Third message'];
 
-    it('renders only first message visibly', () => {
+    it('renders only first message and then the others upon expand', async () => {
       render(<ValidationDisplay messages={messages} severity="error" />);
 
       expect(screen.getByText('First message')).toBeVisible();
 
-      expect(screen.getByLabelText('expand messages')).toBeInTheDocument();
-
       expect(screen.getByText('Second message')).not.toBeVisible();
       expect(screen.getByText('Third message')).not.toBeVisible();
-    });
-
-    it('shows remaining messages when expand button is clicked', async () => {
-      render(<ValidationDisplay messages={messages} severity="error" />);
 
       await userEvent.click(screen.getByLabelText('expand messages'));
 
@@ -79,24 +70,27 @@ describe('ValidationDisplay', () => {
         );
 
         expect(screen.getByText('Test message')).toBeVisible();
-        expect(screen.getByTestId('WarningAmberIcon')).toBeInTheDocument();
+        expect(screen.getByTestId('WarningAmberIcon')).toHaveStyle({
+          color: severity === 'error' ? OpossumColors.red : OpossumColors.brown,
+        });
       },
     );
   });
 
   describe('with ReactNode messages', () => {
-    it('renders complex ReactNode messages', () => {
+    it('renders complex italic text', () => {
       const messages = [
-        <span key="1">
-          Message with <strong>bold text</strong>
-        </span>,
-        'Plain text message',
+        <>
+          Message with <em>italic text</em>
+        </>,
       ];
 
       render(<ValidationDisplay messages={messages} severity="warning" />);
 
-      expect(screen.getByText('bold text')).toBeVisible();
-      expect(screen.getByText('bold text')).toHaveStyle({ fontWeight: 'bold' });
+      expect(screen.getByText('italic text')).toBeVisible();
+      expect(screen.getByText('italic text')).toHaveStyle({
+        fontStyle: 'italic',
+      });
     });
   });
 });

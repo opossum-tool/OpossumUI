@@ -44,24 +44,7 @@ describe('SpdxValidationDisplay', () => {
   });
 
   describe('uncapitalized-conjunctions type', () => {
-    it('renders warning with fix suggestion', () => {
-      const validationResult: SpdxExpressionValidationResult = {
-        type: 'uncapitalized-conjunctions',
-        fix: 'MIT AND Apache-2.0',
-      };
-
-      render(
-        <SpdxValidationDisplay
-          validationResult={validationResult}
-          onApplyFix={jest.fn()}
-        />,
-      );
-
-      expect(screen.getByText(/AND, OR and WITH need to be/)).toBeVisible();
-      expect(screen.getByText('capitalized')).toBeVisible();
-    });
-
-    it('calls onApplyFix with fix when clicking suggestion link', async () => {
+    it('renders clickable warning with fix suggestion', async () => {
       const onApplyFix = jest.fn();
       const validationResult: SpdxExpressionValidationResult = {
         type: 'uncapitalized-conjunctions',
@@ -75,8 +58,10 @@ describe('SpdxValidationDisplay', () => {
         />,
       );
 
-      await userEvent.click(screen.getByText('capitalized'));
+      expect(screen.getByText(/AND, OR and WITH need to be/)).toBeVisible();
+      expect(screen.getByText('capitalized')).toBeVisible();
 
+      await userEvent.click(screen.getByText('capitalized'));
       expect(onApplyFix).toHaveBeenCalledWith('MIT AND Apache-2.0');
     });
   });
@@ -100,35 +85,14 @@ describe('SpdxValidationDisplay', () => {
       expect(screen.queryByText(/Did you mean/)).not.toBeInTheDocument();
     });
 
-    it('renders warning with suggestion for unknown license', () => {
+    it('renders warning with a clickable suggestion for unknown license', async () => {
       const validationResult: SpdxExpressionValidationResult = {
         type: 'unknown-licenses',
         unknownLicenseIds: [
           { unknownId: 'apache2', suggestion: 'Apache-2.0', fix: 'Apache-2.0' },
         ],
       };
-
-      render(
-        <SpdxValidationDisplay
-          validationResult={validationResult}
-          onApplyFix={jest.fn()}
-        />,
-      );
-
-      expect(screen.getByText('apache2')).toBeVisible();
-      expect(screen.getByText(/Did you mean/)).toBeVisible();
-      expect(screen.getByText('Apache-2.0')).toBeVisible();
-    });
-
-    it('calls onApplyFix with fix when clicking suggestion', async () => {
       const onApplyFix = jest.fn();
-      const validationResult: SpdxExpressionValidationResult = {
-        type: 'unknown-licenses',
-        unknownLicenseIds: [
-          { unknownId: 'apache2', suggestion: 'Apache-2.0', fix: 'Apache-2.0' },
-        ],
-      };
-
       render(
         <SpdxValidationDisplay
           validationResult={validationResult}
@@ -136,8 +100,11 @@ describe('SpdxValidationDisplay', () => {
         />,
       );
 
-      await userEvent.click(screen.getByText('Apache-2.0'));
+      expect(screen.getByText('apache2')).toBeVisible();
+      expect(screen.getByText(/Did you mean/)).toBeVisible();
+      expect(screen.getByText('Apache-2.0')).toBeVisible();
 
+      await userEvent.click(screen.getByText('Apache-2.0'));
       expect(onApplyFix).toHaveBeenCalledWith('Apache-2.0');
     });
 
