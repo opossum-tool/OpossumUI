@@ -19,8 +19,8 @@ import { validateSpdxExpression } from '../../../util/validateSpdx';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
 import { AttributionFormConfig } from '../AttributionForm';
-import { SpdxValidationErrorDisplay } from './LicenseExpressionErrorDisplay';
 import { LicenseSubPanelAutocomplete } from './LicenseSubPanelAutocomplete';
+import { SpdxValidationErrorDisplay } from './SpdxValidationErrorDisplay';
 
 const classes = {
   licenseText: {

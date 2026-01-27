@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import * as ohm from 'ohm-js';
+import { grammar } from 'ohm-js';
 import spdxCorrect from 'spdx-correct';
 
 export type SpdxExpressionValidationResult =
@@ -64,7 +64,7 @@ export function validateSpdxExpression(
   return { type: 'valid' };
 }
 
-const grammar = ohm.grammar(`
+const spdxGrammar = grammar(`
   SPDX {
     LicenseExpression
       = CompoundExpression
@@ -97,13 +97,13 @@ const grammar = ohm.grammar(`
 function parseSpdxExpression(
   expression: string,
 ): { result: 'failed' } | { result: 'success'; licenseIds: Array<string> } {
-  const match = grammar.match(expression);
+  const match = spdxGrammar.match(expression);
 
   if (match.failed()) {
     return { result: 'failed' };
   }
 
-  const semantics = grammar
+  const semantics = spdxGrammar
     .createSemantics()
     .addOperation<Array<string>>('licenseIds', {
       _nonterminal(...children) {
