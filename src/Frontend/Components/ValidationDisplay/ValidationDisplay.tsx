@@ -32,6 +32,7 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
   return (
     <MuiCollapse in={messages.length > 0}>
       <MuiBox
+        data-testid="validation-display"
         sx={{
           minHeight: 24,
           mt: 0.75,

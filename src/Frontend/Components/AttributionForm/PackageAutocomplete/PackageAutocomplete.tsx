@@ -164,6 +164,7 @@ export function PackageAutocomplete({
 
   return (
     <MuiBox
+      data-testid={`autocomplete-${attribute}`}
       sx={{
         display: 'flex',
         flexDirection: 'column',

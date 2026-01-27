@@ -286,6 +286,35 @@ export class AttributionForm {
     },
   };
 
+  public validation(fieldId: 'packageType' | 'url' | 'spdx') {
+    const container =
+      fieldId === 'spdx'
+        ? this.node.getByTestId('license-sub-panel')
+        : this.node.getByTestId(`autocomplete-${fieldId}`);
+    const validationDisplay = container.getByTestId('validation-display');
+
+    return {
+      messages: validationDisplay,
+      expandButton: validationDisplay.getByLabel('expand messages'),
+      assert: {
+        messageIsVisible: async (message: string): Promise<void> => {
+          await expect(validationDisplay.getByText(message)).toBeVisible();
+        },
+        messageIsHidden: async (message: string): Promise<void> => {
+          await expect(validationDisplay.getByText(message)).toBeHidden();
+        },
+        noMessages: async (): Promise<void> => {
+          await expect(validationDisplay).toBeHidden();
+        },
+      },
+      clickSuggestion: async (suggestionText: string): Promise<void> => {
+        await validationDisplay
+          .getByText(suggestionText, { exact: true })
+          .click();
+      },
+    };
+  }
+
   async openAuditingOptionsMenu(): Promise<void> {
     await this.addAuditingOptionButton.click();
   }

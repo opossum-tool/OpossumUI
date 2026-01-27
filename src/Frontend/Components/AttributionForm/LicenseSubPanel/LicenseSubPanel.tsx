@@ -76,7 +76,7 @@ export function LicenseSubPanel({
   };
 
   return hidden ? null : (
-    <MuiBox>
+    <MuiBox data-testid="license-sub-panel">
       <MuiBox display={'flex'} alignItems={'center'} gap={'8px'}>
         <LicenseSubPanelAutocomplete
           packageInfo={packageInfo}
