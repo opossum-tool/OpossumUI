@@ -52,6 +52,7 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
             <ValidationMessage>{firstMessage}</ValidationMessage>
             {remainingMessages.length > 0 && (
               <ExpandMore
+                aria-label="expand messages"
                 onClick={() => setExpanded(!expanded)}
                 sx={{
                   rotate: expanded ? '180deg' : '0deg',
@@ -65,10 +66,8 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
           </MuiBox>
           <MuiCollapse in={expanded}>
             <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-              {remainingMessages.map((message) => (
-                <ValidationMessage key={message?.toString()}>
-                  {message}
-                </ValidationMessage>
+              {remainingMessages.map((message, index) => (
+                <ValidationMessage key={index}>{message}</ValidationMessage>
               ))}
             </MuiBox>
           </MuiCollapse>
