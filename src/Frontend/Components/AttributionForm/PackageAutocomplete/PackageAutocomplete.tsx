@@ -36,7 +36,7 @@ import { renderOccuranceCount } from '../../Autocomplete/AutocompleteUtil';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../../IconButton/IconButton';
 import { SourceIcon } from '../../Icons/Icons';
-import { ValidationErrorDisplay } from '../../ValidationErrorDisplay/ValidationErrorDisplay';
+import { ValidationDisplay } from '../../ValidationDisplay/ValidationDisplay';
 
 type AutocompleteAttribute = Extract<
   keyof PackageInfo,
@@ -271,7 +271,7 @@ export function PackageAutocomplete({
         endAdornment={endAdornment}
         disableCloseOnSelect={disableCloseOnSelect}
       />
-      <ValidationErrorDisplay
+      <ValidationDisplay
         messages={errorMessage ? [errorMessage] : []}
         severity="error"
       />

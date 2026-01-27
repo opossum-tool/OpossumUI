@@ -3,51 +3,55 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiTypography from '@mui/material/Typography';
+import { Fragment } from 'react/jsx-runtime';
 
+import { OpossumColors } from '../../../shared-styles';
 import { SpdxExpressionValidationResult } from '../../../util/validateSpdx';
-import { ValidationErrorDisplay } from '../../ValidationErrorDisplay/ValidationErrorDisplay';
+import { ValidationDisplay } from '../../ValidationDisplay/ValidationDisplay';
 
-interface SpdxValidationErrorDisplayProps {
+interface SpdxValidationDisplayProps {
   validationResult: SpdxExpressionValidationResult;
   onApplyFix: (newExpression: string) => void;
 }
 
-export const SpdxValidationErrorDisplay: React.FC<
-  SpdxValidationErrorDisplayProps
-> = ({ validationResult, onApplyFix }) => {
+export const SpdxValidationDisplay: React.FC<SpdxValidationDisplayProps> = ({
+  validationResult,
+  onApplyFix,
+}) => {
   switch (validationResult.type) {
+    case 'valid':
+      return <ValidationDisplay messages={[]} severity={'warning'} />;
     case 'syntax-error':
       return (
-        <ValidationErrorDisplay
+        <ValidationDisplay
           messages={['Invalid SPDX expression.']}
           severity={'error'}
         />
       );
-
     case 'uncapitalized-conjunctions':
       return (
-        <ValidationErrorDisplay
+        <ValidationDisplay
           messages={[
-            <span key="uncapitalized-conjunctions">
+            <Fragment key="uncapitalized-conjunctions">
               AND, OR and WITH need to be{' '}
               <SuggestionLink onClick={() => onApplyFix(validationResult.fix)}>
                 capitalized
               </SuggestionLink>
               .
-            </span>,
+            </Fragment>,
           ]}
           severity={'warning'}
         />
       );
-
     case 'unknown-licenses':
       return (
-        <ValidationErrorDisplay
+        <ValidationDisplay
           messages={validationResult.unknownLicenseIds
             .toSorted((a, b) => (a.suggestion ? 0 : 1) - (b.suggestion ? 0 : 1))
             .map(({ unknownId, suggestion, fix }) => (
-              <span key={unknownId}>
-                <em>{unknownId}</em> is not a known license id.
+              <Fragment key={unknownId}>
+                <em style={{ wordBreak: 'break-all' }}>{unknownId}</em> is not a
+                known license id.
                 {suggestion && fix && (
                   <>
                     {' Did you mean '}
@@ -57,31 +61,25 @@ export const SpdxValidationErrorDisplay: React.FC<
                     ?
                   </>
                 )}
-              </span>
+              </Fragment>
             ))}
           severity={'warning'}
         />
       );
-
-    default:
-      return <ValidationErrorDisplay messages={[]} severity={'warning'} />;
   }
 };
 
-function SuggestionLink({
-  onClick,
-  children,
-}: {
+const SuggestionLink: React.FC<{
   onClick: () => void;
   children: React.ReactNode;
-}) {
+}> = ({ onClick, children }) => {
   return (
     <MuiTypography
       component="span"
       variant="body2"
       onClick={onClick}
       sx={{
-        color: 'primary.main',
+        color: OpossumColors.darkBlue,
         cursor: 'pointer',
         '&:hover': { textDecoration: 'underline' },
       }}
@@ -89,4 +87,4 @@ function SuggestionLink({
       {children}
     </MuiTypography>
   );
-}
+};

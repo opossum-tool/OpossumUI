@@ -5,27 +5,36 @@
 import { grammar } from 'ohm-js';
 import spdxCorrect from 'spdx-correct';
 
+type SpdxUnknownLicenseId = {
+  unknownId: string;
+  suggestion?: string;
+  fix?: string;
+};
+
 export type SpdxExpressionValidationResult =
   | { type: 'valid' }
   | { type: 'syntax-error' }
   | { type: 'uncapitalized-conjunctions'; fix: string }
   | {
       type: 'unknown-licenses';
-      unknownLicenseIds: Array<{
-        unknownId: string;
-        suggestion?: string;
-        fix?: string;
-      }>;
+      unknownLicenseIds: Array<SpdxUnknownLicenseId>;
     };
 
 // We can't just use \b because we see e.g. . and - as word characters.
 const wordStart = String.raw`(?<=^|\(|\s)`;
 const wordEnd = String.raw`(?=$|\)|\s)`;
 
-export function validateSpdxExpression(
-  spdxExpression: string,
-  knownLicenseIds: Set<string>,
-): SpdxExpressionValidationResult {
+function escapeRegex(input: string): string {
+  return input.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
+
+export function validateSpdxExpression({
+  spdxExpression,
+  knownLicenseIds,
+}: {
+  spdxExpression: string;
+  knownLicenseIds: Set<string>;
+}): SpdxExpressionValidationResult {
   if (spdxExpression === '') {
     return { type: 'valid' };
   }
@@ -48,11 +57,11 @@ export function validateSpdxExpression(
     };
   }
 
-  const unknownLicenseIds = getUnknownLicenseIdsWithSuggestions(
-    spdxExpression,
-    parsedExpression.licenseIds,
+  const unknownLicenseIds = getUnknownLicenseIdsWithSuggestions({
+    licenseIds: parsedExpression.licenseIds,
     knownLicenseIds,
-  );
+    fullExpression: spdxExpression,
+  });
 
   if (unknownLicenseIds.length > 0) {
     return {
@@ -64,6 +73,10 @@ export function validateSpdxExpression(
   return { type: 'valid' };
 }
 
+/**
+ * Ohm.js grammar for parsing SPDX license expressions. A grammar is a set of rules that defines how a language is structured and which rules it has to follow.
+ * We can use this grammar to parse SPDX expressions and return license ids.
+ */
 const spdxGrammar = grammar(`
   SPDX {
     LicenseExpression
@@ -83,7 +96,7 @@ const spdxGrammar = grammar(`
     LicenseId (a license id)
       = ~((andToken | orToken | withToken) #space) (~#and ~#or ~#with ~"(" ~")" any)+
 
-    // These start with lower-case letters so they are "lexcal rules" that don't skip whitespace
+    // These start with lower-case letters so they are "lexical rules" that don't skip whitespace
     and = space+ andToken (space+ | end)
     or = space+ orToken (space+ | end)
     with = space+ withToken (space+ | end)
@@ -94,6 +107,9 @@ const spdxGrammar = grammar(`
   }
 `);
 
+/**
+ * Parses an SPDX expression and returns the license ids if successful.
+ */
 function parseSpdxExpression(
   expression: string,
 ): { result: 'failed' } | { result: 'success'; licenseIds: Array<string> } {
@@ -103,13 +119,23 @@ function parseSpdxExpression(
     return { result: 'failed' };
   }
 
+  /**
+   * After successfully parsing a string with the Ohm grammar you get an abstract syntax tree.
+   * We want to iterate through the tree and get the license expressions.
+   *
+   * After visiting any node, we return a list of found license ids:
+   * - If the current node is a licenseId, we return the license id
+   * - Otherwise we return a list of all license ids found in its children
+   * - In our grammar, licenseIds don't appear as children of iterations, so if we get to one we can stop searching
+   * - Terminals are either AND, OR, WITH or they are children of a licenseId, so we will never see them
+   */
   const semantics = spdxGrammar
     .createSemantics()
     .addOperation<Array<string>>('licenseIds', {
+      LicenseId(_) {
+        return [this.sourceString];
+      },
       _nonterminal(...children) {
-        if (this.ctorName === 'LicenseId') {
-          return [this.sourceString];
-        }
         const childResults = children.map((child) => child.licenseIds());
         return childResults.flat();
       },
@@ -126,16 +152,19 @@ function parseSpdxExpression(
   return { result: 'success', licenseIds };
 }
 
-function getUnknownLicenseIdsWithSuggestions(
-  fullExpression: string,
-  licenseIds: Array<string>,
-  knownLicenseIds: Set<string>,
-) {
-  const unknownLicenseIds: Array<{
-    unknownId: string;
-    suggestion?: string;
-    fix?: string;
-  }> = [];
+/**
+ * From a list of license ids, filter out the ones we don't know and try to provide a suggestion.
+ */
+function getUnknownLicenseIdsWithSuggestions({
+  licenseIds,
+  knownLicenseIds,
+  fullExpression,
+}: {
+  licenseIds: Array<string>;
+  knownLicenseIds: Set<string>;
+  fullExpression: string;
+}): Array<SpdxUnknownLicenseId> {
+  const unknownLicenseIds: Array<SpdxUnknownLicenseId> = [];
 
   for (const id of new Set(
     licenseIds.filter((id) => !knownLicenseIds.has(id)),
@@ -155,18 +184,16 @@ function getUnknownLicenseIdsWithSuggestions(
       try {
         const spdxCorrection = spdxCorrect(id);
         if (spdxCorrection && knownLicenseIds.has(spdxCorrection)) {
-          suggestion = spdxCorrect(id) ?? undefined;
+          suggestion = spdxCorrection;
         }
       } catch {
         // If spxdCorrect fails, we have no suggestion
       }
     }
 
-    const idRegex = id.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-
     const fix = suggestion
       ? fullExpression.replaceAll(
-          new RegExp(`${wordStart}${idRegex}${wordEnd}`, 'g'),
+          new RegExp(`${wordStart}${escapeRegex(id)}${wordEnd}`, 'g'),
           suggestion,
         )
       : undefined;

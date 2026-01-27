@@ -7,19 +7,19 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import MuiBox from '@mui/material/Box';
 import MuiCollapse from '@mui/material/Collapse';
 import MuiTypography from '@mui/material/Typography';
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
 
 interface ValidationErrorDisplayProps {
-  messages: Array<ReactNode>;
+  messages: Array<React.ReactNode>;
   severity: 'error' | 'warning';
 }
 
-export function ValidationErrorDisplay({
+export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
   messages,
   severity,
-}: ValidationErrorDisplayProps) {
+}) => {
   const [expanded, setExpanded] = useState(false);
 
   if (expanded && messages.length <= 1) {
@@ -27,8 +27,7 @@ export function ValidationErrorDisplay({
   }
 
   const color = severity === 'error' ? OpossumColors.red : OpossumColors.brown;
-  const [firstMessage, ...restMessages] = messages;
-  const hiddenCount = restMessages.length;
+  const [firstMessage, ...remainingMessages] = messages;
 
   return (
     <MuiCollapse in={messages.length > 0}>
@@ -51,7 +50,7 @@ export function ValidationErrorDisplay({
         <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           <MuiBox sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
             <ValidationMessage>{firstMessage}</ValidationMessage>
-            {hiddenCount > 0 && (
+            {remainingMessages.length > 0 && (
               <ExpandMore
                 onClick={() => setExpanded(!expanded)}
                 sx={{
@@ -66,7 +65,7 @@ export function ValidationErrorDisplay({
           </MuiBox>
           <MuiCollapse in={expanded}>
             <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-              {restMessages.map((message) => (
+              {remainingMessages.map((message) => (
                 <ValidationMessage key={message?.toString()}>
                   {message}
                 </ValidationMessage>
@@ -77,15 +76,10 @@ export function ValidationErrorDisplay({
       </MuiBox>
     </MuiCollapse>
   );
-}
+};
 
-function ValidationMessage({ children }: { children: ReactNode }) {
-  return (
-    <MuiTypography
-      variant="body2"
-      sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
-    >
-      {children}
-    </MuiTypography>
-  );
-}
+const ValidationMessage: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  return <MuiTypography variant="body2">{children}</MuiTypography>;
+};

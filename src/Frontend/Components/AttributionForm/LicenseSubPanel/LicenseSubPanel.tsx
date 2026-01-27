@@ -20,7 +20,7 @@ import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
 import { AttributionFormConfig } from '../AttributionForm';
 import { LicenseSubPanelAutocomplete } from './LicenseSubPanelAutocomplete';
-import { SpdxValidationErrorDisplay } from './SpdxValidationErrorDisplay';
+import { SpdxValidationDisplay } from './SpdxValidationDisplay';
 
 const classes = {
   licenseText: {
@@ -52,15 +52,18 @@ export function LicenseSubPanel({
   const [showLicenseText, setShowLicenseText] = useState(false);
   const dispatch = useAppDispatch();
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
-  const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
   const defaultLicenseText = packageInfo.licenseText
     ? undefined
     : frequentLicenseTexts[packageInfo.licenseName || ''];
 
-  const validationResult = validateSpdxExpression(
-    packageInfo.licenseName ?? '',
-    new Set(frequentLicensesNames.map((n) => n.shortName)),
+  const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
+  const frequentLicenseNameSet = new Set(
+    frequentLicensesNames.map((n) => n.shortName),
   );
+  const validationResult = validateSpdxExpression({
+    spdxExpression: packageInfo.licenseName ?? '',
+    knownLicenseIds: frequentLicenseNameSet,
+  });
 
   const handleApplyFix = (newExpression: string) => {
     dispatch(
@@ -102,7 +105,7 @@ export function LicenseSubPanel({
         )}
       </MuiBox>
       {!!onEdit && (
-        <SpdxValidationErrorDisplay
+        <SpdxValidationDisplay
           validationResult={validationResult}
           onApplyFix={handleApplyFix}
         />

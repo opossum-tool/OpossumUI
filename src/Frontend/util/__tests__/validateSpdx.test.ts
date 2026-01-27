@@ -27,10 +27,12 @@ describe('validateSpdxExpression', () => {
     ['extra whitespace', 'MIT  AND  Apache-2.0'],
     ['LicenseRef', 'LicenseRef-MyLicense'],
     ['DocumentRef', 'DocumentRef-ext:LicenseRef-MyLicense'],
-  ])('returns valid for %s', (_, expression) => {
-    expect(validateSpdxExpression(expression, knownLicenseIds)).toEqual({
-      type: 'valid',
-    });
+  ])('returns valid for %s', (_, spdxExpression) => {
+    expect(validateSpdxExpression({ spdxExpression, knownLicenseIds })).toEqual(
+      {
+        type: 'valid',
+      },
+    );
   });
 
   it.each([
@@ -39,10 +41,12 @@ describe('validateSpdxExpression', () => {
     ['incomplete AND', 'MIT AND'],
     ['incomplete OR', 'MIT OR'],
     ['empty parentheses', '()'],
-  ])('returns syntax-error for %s', (_, expression) => {
-    expect(validateSpdxExpression(expression, knownLicenseIds)).toEqual({
-      type: 'syntax-error',
-    });
+  ])('returns syntax-error for %s', (_, spdxExpression) => {
+    expect(validateSpdxExpression({ spdxExpression, knownLicenseIds })).toEqual(
+      {
+        type: 'syntax-error',
+      },
+    );
   });
 
   it.each([
@@ -60,11 +64,13 @@ describe('validateSpdxExpression', () => {
       'MIT or Apache-2.0 and BSD-3-Clause',
       'MIT OR Apache-2.0 AND BSD-3-Clause',
     ],
-  ])('fixes %s', (_, input, expectedFix) => {
-    expect(validateSpdxExpression(input, knownLicenseIds)).toEqual({
-      type: 'uncapitalized-conjunctions',
-      fix: expectedFix,
-    });
+  ])('fixes %s', (_, spdxExpression, expectedFix) => {
+    expect(validateSpdxExpression({ spdxExpression, knownLicenseIds })).toEqual(
+      {
+        type: 'uncapitalized-conjunctions',
+        fix: expectedFix,
+      },
+    );
   });
 
   it.each([
@@ -114,18 +120,20 @@ describe('validateSpdxExpression', () => {
         fix: 'DocumentRef-ext',
       },
     ],
-  ])('detects %s', (_, input, expectedUnknown) => {
-    expect(validateSpdxExpression(input, knownLicenseIds)).toEqual({
-      type: 'unknown-licenses',
-      unknownLicenseIds: [expectedUnknown],
-    });
+  ])('detects %s', (_, spdxExpression, expectedUnknown) => {
+    expect(validateSpdxExpression({ spdxExpression, knownLicenseIds })).toEqual(
+      {
+        type: 'unknown-licenses',
+        unknownLicenseIds: [expectedUnknown],
+      },
+    );
   });
 
   it('detects multiple unknown licenses', () => {
-    const result = validateSpdxExpression(
-      'Unknown1 AND Unknown2',
+    const result = validateSpdxExpression({
+      spdxExpression: 'Unknown1 AND Unknown2',
       knownLicenseIds,
-    );
+    });
 
     expect(result).toEqual({
       type: 'unknown-licenses',
@@ -138,13 +146,21 @@ describe('validateSpdxExpression', () => {
 
   it('does not match conjunctions embedded in license names', () => {
     const extendedKnownIds = new Set([...knownLicenseIds, 'ANDERSON']);
-    expect(validateSpdxExpression('ANDERSON', extendedKnownIds)).toEqual({
+    expect(
+      validateSpdxExpression({
+        spdxExpression: 'ANDERSON',
+        knownLicenseIds: extendedKnownIds,
+      }),
+    ).toEqual({
       type: 'valid',
     });
   });
 
   it('prioritizes conjunction errors over unknown license errors', () => {
-    const result = validateSpdxExpression('mit and apache', knownLicenseIds);
+    const result = validateSpdxExpression({
+      spdxExpression: 'mit and apache',
+      knownLicenseIds,
+    });
     expect(result.type).toBe('uncapitalized-conjunctions');
   });
 });
