@@ -133,13 +133,23 @@ export async function handleOpeningFile(
   statusUpdater.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, true);
 
+  console.log("Opening file");
+
   await openFile(mainWindow, filePath, updateMenu);
+
+  console.log("Updating paths");
 
   await updateRecentlyOpenedPaths(filePath);
 
+  console.log("Updating menu");
+
   await updateMenu();
 
+  console.log("Ending processing");
+
   statusUpdater.endProcessing();
+
+  console.log("Processing ended");
 }
 
 export const importFileListener =
