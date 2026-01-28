@@ -5,7 +5,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { SpdxExpressionValidationResult } from '../../../../util/validateSpdx';
+import { SpdxExpressionValidationResult } from '../../../../util/validate-spdx';
 import { SpdxValidationDisplay } from '../SpdxValidationDisplay';
 
 describe('SpdxValidationDisplay', () => {

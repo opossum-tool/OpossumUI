@@ -6,7 +6,7 @@ import MuiTypography from '@mui/material/Typography';
 import { Fragment } from 'react/jsx-runtime';
 
 import { OpossumColors } from '../../../shared-styles';
-import { SpdxExpressionValidationResult } from '../../../util/validateSpdx';
+import { SpdxExpressionValidationResult } from '../../../util/validate-spdx';
 import { ValidationDisplay } from '../../ValidationDisplay/ValidationDisplay';
 
 interface SpdxValidationDisplayProps {
