@@ -133,23 +133,23 @@ export async function handleOpeningFile(
   statusUpdater.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, true);
 
-  console.log("Opening file");
+  console.log('Opening file');
 
   await openFile(mainWindow, filePath, updateMenu);
 
-  console.log("Updating paths");
+  console.log('Updating paths');
 
   await updateRecentlyOpenedPaths(filePath);
 
-  console.log("Updating menu");
+  console.log('Updating menu');
 
   await updateMenu();
 
-  console.log("Ending processing");
+  console.log('Ending processing');
 
   statusUpdater.endProcessing();
 
-  console.log("Processing ended");
+  console.log('Processing ended');
 }
 
 export const importFileListener =
@@ -379,18 +379,26 @@ async function openFile(
 }
 
 async function updateRecentlyOpenedPaths(filePath: string): Promise<void> {
-  const recentlyOpenedPaths = await UserSettingsService.get(
-    'recentlyOpenedPaths',
-  );
-  await UserSettingsService.update(
-    {
-      recentlyOpenedPaths: uniq([
-        filePath,
-        ...(recentlyOpenedPaths ?? []),
-      ]).slice(0, MAX_NUMBER_OF_RECENTLY_OPENED_PATHS),
-    },
-    { skipNotification: true },
-  );
+  try {
+    const recentlyOpenedPaths = await UserSettingsService.get(
+      'recentlyOpenedPaths',
+    );
+    await UserSettingsService.update(
+      {
+        recentlyOpenedPaths: uniq([
+          filePath,
+          ...(recentlyOpenedPaths ?? []),
+        ]).slice(0, MAX_NUMBER_OF_RECENTLY_OPENED_PATHS),
+      },
+      { skipNotification: true },
+    );
+  } catch (e) {
+    console.error(
+      `Error while updating recently opened paths: ${e}`,
+      JSON.stringify(e),
+    );
+    throw e;
+  }
 }
 
 function setTitle(mainWindow: BrowserWindow, filePath: string): void {
