@@ -9,6 +9,7 @@ import {
   Page,
 } from '@playwright/test';
 import { parseElectronApp } from 'electron-playwright-helpers';
+import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -116,6 +117,15 @@ export const test = base.extend<{
       executablePath,
     });
 
+    // Capture main process stdout/stderr for debugging
+    const mainProcessLogs: Array<string> = [];
+    app.process().stdout?.on('data', (data: Buffer) => {
+      mainProcessLogs.push(`[stdout] ${data.toString()}`);
+    });
+    app.process().stderr?.on('data', (data: Buffer) => {
+      mainProcessLogs.push(`[stderr] ${data.toString()}`);
+    });
+
     const window = await app.firstWindow();
     await window.setViewportSize({
       width: 1920,
@@ -129,6 +139,16 @@ export const test = base.extend<{
       .tracing.start({ screenshots: true, snapshots: true });
 
     await use(Object.assign(window, { app }));
+
+    // Write main process logs to artifacts
+    if (mainProcessLogs.length > 0) {
+      fs.writeFileSync(
+        info.outputPath(
+          `${data?.inputData.metadata.projectId || 'app'}.main-process.log`,
+        ),
+        mainProcessLogs.join(''),
+      );
+    }
 
     await window.context().tracing.stop({
       path: info.outputPath(
