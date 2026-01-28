@@ -8,18 +8,44 @@ import { RawFrequentLicense } from '../../ElectronBackend/types/types';
 import { RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 
+class ValidationDisplay {
+  readonly node: Locator;
+  readonly expandButton: Locator;
+  constructor(parentLocator: Locator) {
+    this.node = parentLocator.getByTestId('validation-display');
+    this.expandButton = this.node.getByLabel('expand messages');
+  }
+  public assert = {
+    messageIsVisible: async (message: string) => {
+      await expect(this.node.getByText(message)).toBeVisible();
+    },
+    messageIsHidden: async (message: string) => {
+      await expect(this.node.getByText(message)).toBeHidden();
+    },
+    noMessages: async () => {
+      await expect(this.node).toBeHidden();
+    },
+  };
+  public clickSuggestion = async (suggestionText: string): Promise<void> => {
+    await this.node.getByText(suggestionText, { exact: true }).click();
+  };
+}
+
 export class AttributionForm {
   private readonly window: Page;
   private readonly node: Locator;
   readonly type: Locator;
+  readonly typeValidationDisplay: ValidationDisplay;
   readonly namespace: Locator;
   readonly name: Locator;
   readonly version: Locator;
   readonly purl: Locator;
   readonly url: Locator;
+  readonly urlValidationDisplay: ValidationDisplay;
   readonly comment: Locator;
   readonly copyright: Locator;
   readonly licenseExpression: Locator;
+  readonly licenseExpressionValidationDisplay: ValidationDisplay;
   readonly licenseText: Locator;
   readonly licenseTextToggleButton: Locator;
   readonly attributionType: Locator;
@@ -129,6 +155,16 @@ export class AttributionForm {
     this.copyrightRedoButton = this.node.getByTestId('copyright-redo');
     this.attributionTypeUndoButton = this.node.getByTestId('firstParty-undo');
     this.attributionTypeRedoButton = this.node.getByTestId('firstParty-redo');
+
+    this.typeValidationDisplay = new ValidationDisplay(
+      this.node.getByTestId('autocomplete-packageType'),
+    );
+    this.urlValidationDisplay = new ValidationDisplay(
+      this.node.getByTestId('autocomplete-url'),
+    );
+    this.licenseExpressionValidationDisplay = new ValidationDisplay(
+      this.node.getByTestId('license-sub-panel'),
+    );
   }
 
   public assert = {
@@ -285,35 +321,6 @@ export class AttributionForm {
       await expect(this.attributionTypeRedoButton).toBeHidden();
     },
   };
-
-  public validation(fieldId: 'packageType' | 'url' | 'spdx') {
-    const container =
-      fieldId === 'spdx'
-        ? this.node.getByTestId('license-sub-panel')
-        : this.node.getByTestId(`autocomplete-${fieldId}`);
-    const validationDisplay = container.getByTestId('validation-display');
-
-    return {
-      messages: validationDisplay,
-      expandButton: validationDisplay.getByLabel('expand messages'),
-      assert: {
-        messageIsVisible: async (message: string): Promise<void> => {
-          await expect(validationDisplay.getByText(message)).toBeVisible();
-        },
-        messageIsHidden: async (message: string): Promise<void> => {
-          await expect(validationDisplay.getByText(message)).toBeHidden();
-        },
-        noMessages: async (): Promise<void> => {
-          await expect(validationDisplay).toBeHidden();
-        },
-      },
-      clickSuggestion: async (suggestionText: string): Promise<void> => {
-        await validationDisplay
-          .getByText(suggestionText, { exact: true })
-          .click();
-      },
-    };
-  }
 
   async openAuditingOptionsMenu(): Promise<void> {
     await this.addAuditingOptionButton.click();

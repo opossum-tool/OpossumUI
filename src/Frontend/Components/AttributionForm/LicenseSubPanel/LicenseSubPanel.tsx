@@ -11,26 +11,11 @@ import { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
-import {
-  getFrequentLicensesNameOrder,
-  getFrequentLicensesTexts,
-} from '../../../state/selectors/resource-selectors';
-import { validateSpdxExpression } from '../../../util/validateSpdx';
+import { getFrequentLicensesTexts } from '../../../state/selectors/resource-selectors';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
 import { AttributionFormConfig } from '../AttributionForm';
 import { LicenseSubPanelAutocomplete } from './LicenseSubPanelAutocomplete';
-import { SpdxValidationDisplay } from './SpdxValidationDisplay';
-
-const classes = {
-  licenseText: {
-    marginTop: '12px',
-  },
-  endAdornment: {
-    paddingRight: '6px',
-    paddingTop: '2px',
-  },
-};
 
 interface LicenseSubPanelProps {
   packageInfo: PackageInfo;
@@ -56,28 +41,9 @@ export function LicenseSubPanel({
     ? undefined
     : frequentLicenseTexts[packageInfo.licenseName || ''];
 
-  const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
-  const frequentLicenseNameSet = new Set(
-    frequentLicensesNames.map((n) => n.shortName),
-  );
-  const validationResult = validateSpdxExpression({
-    spdxExpression: packageInfo.licenseName ?? '',
-    knownLicenseIds: frequentLicenseNameSet,
-  });
-
-  const handleApplyFix = (newExpression: string) => {
-    dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...packageInfo,
-        licenseName: newExpression,
-        wasPreferred: undefined,
-      }),
-    );
-  };
-
   return hidden ? null : (
-    <MuiBox data-testid="license-sub-panel">
-      <MuiBox display={'flex'} alignItems={'center'} gap={'8px'}>
+    <>
+      <MuiBox display={'flex'} alignItems={'start'} gap={'8px'}>
         <LicenseSubPanelAutocomplete
           packageInfo={packageInfo}
           showHighlight={showHighlight}
@@ -104,17 +70,10 @@ export function LicenseSubPanel({
           </ToggleButton>
         )}
       </MuiBox>
-      {!!onEdit && (
-        <SpdxValidationDisplay
-          validationResult={validationResult}
-          onApplyFix={handleApplyFix}
-        />
-      )}
       {(showLicenseText || expanded) && (
         <TextBox
           readOnly={!onEdit}
           placeholder={defaultLicenseText}
-          sx={classes.licenseText}
           maxRows={8}
           minRows={3}
           color={config?.licenseText?.color}
@@ -141,6 +100,6 @@ export function LicenseSubPanel({
           endIcon={config?.licenseText?.endIcon}
         />
       )}
-    </MuiBox>
+    </>
   );
 }
