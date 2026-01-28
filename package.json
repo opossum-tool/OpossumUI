@@ -172,7 +172,8 @@
         "ext": "opossum",
         "name": "Opossum File",
         "description": "OpossumUI input file",
-        "role": "Editor"
+        "role": "Editor",
+        "mimeType": "application/x-opossum"
       }
     ],
     "mac": {
