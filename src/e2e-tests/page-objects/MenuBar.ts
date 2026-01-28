@@ -71,18 +71,20 @@ export class MenuBar {
   }
 
   private async assertMenuItemEnabledState(label: string, enabled: boolean) {
-    const menuItem = await this.findByLabel(label);
-    expect(
-      menuItem!.enabled,
-      `Expected menu item ${label} to be ${enabled ? 'enabled' : 'disabled'}`,
-    ).toBe(enabled);
+    await expect
+      .poll(() => this.findByLabel(label).then((item) => item?.enabled), {
+        message: `Expected menu item ${label} to be ${enabled ? 'enabled' : 'disabled'}`,
+      })
+      .toBe(enabled);
 
     // If the menu item is disabled and has a sub menu, all the sub menu items should be disabled as well
-    if (!enabled && menuItem?.submenu) {
-      console.log(menuItem);
-      for (const item of menuItem.submenu) {
-        if (item.type !== 'separator') {
-          expect(item.enabled).toBe(false);
+    if (!enabled) {
+      const menuItem = await this.findByLabel(label);
+      if (menuItem?.submenu) {
+        for (const item of menuItem.submenu) {
+          if (item.type !== 'separator' && item.label) {
+            await this.assertSubMenuItemEnabledState(label, item.label, false);
+          }
         }
       }
     }
@@ -102,11 +104,17 @@ export class MenuBar {
     itemLabel: string,
     enabled: boolean,
   ) {
-    const submenuItem = await this.findSubmenuItem(menuLabel, itemLabel);
-    expect(
-      submenuItem!.enabled,
-      `Expected submenu item ${menuLabel}->${itemLabel} to be ${enabled ? 'enabled' : 'disabled'}`,
-    ).toBe(enabled);
+    await expect
+      .poll(
+        () =>
+          this.findSubmenuItem(menuLabel, itemLabel).then(
+            (item) => item?.enabled,
+          ),
+        {
+          message: `Expected submenu item ${menuLabel}->${itemLabel} to be ${enabled ? 'enabled' : 'disabled'}`,
+        },
+      )
+      .toBe(enabled);
   }
 
   public assert = {
@@ -181,15 +189,8 @@ export class MenuBar {
     menuLabel: string,
     submenuLabel: string,
   ): Promise<void> {
-    const submenu = (await findMenuItem(this.window.app, 'label', menuLabel))!
-      .submenu;
-    const menuItem = await findMenuItem(
-      this.window.app,
-      'label',
-      submenuLabel,
-      submenu,
-    );
-    expect(menuItem?.enabled).toBe(true);
+    await this.assertSubMenuItemEnabledState(menuLabel, submenuLabel, true);
+    const menuItem = await this.findSubmenuItem(menuLabel, submenuLabel);
     await clickMenuItemById(this.window.app, menuItem!.id!);
   }
 
