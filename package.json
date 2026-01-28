@@ -167,6 +167,14 @@
     "directories": {
       "output": "release"
     },
+    "fileAssociations": [
+      {
+        "ext": "opossum",
+        "name": "Opossum File",
+        "description": "OpossumUI input file",
+        "role": "Editor"
+      }
+    ],
     "mac": {
       "target": "dmg",
       "icon": "public/icons/icon_512x512.png"
