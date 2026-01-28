@@ -65,6 +65,7 @@ type AutocompleteProps<
     title?: string;
     variant?: MuiTextFieldProps['variant'];
     disableCloseOnSelect?: boolean;
+    forceTop?: boolean;
   };
 
 export function Autocomplete<
@@ -299,14 +300,25 @@ export function Autocomplete<
   }
 
   function renderPopper() {
+    const padding = 16;
+    const availableTopHeight = anchorEl
+      ? anchorEl.getBoundingClientRect().top - padding
+      : undefined;
+
     return (
-      <StyledPopper anchorEl={anchorEl} open={isPopupOpen} transition>
+      <StyledPopper
+        anchorEl={anchorEl}
+        open={isPopupOpen}
+        forcePlacement={props.forceTop ? 'top' : undefined}
+        transition
+      >
         {({ TransitionProps }) => (
           <MuiFade {...TransitionProps} timeout={300}>
             <Listbox
               {...getListboxProps()}
               virtuosoRef={virtuosoRef}
               closePopper={closePopper}
+              maxHeight={props.forceTop ? availableTopHeight : undefined}
               optionText={optionText}
               options={groupedOptions}
               groupBy={groupBy}

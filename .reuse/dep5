@@ -11,7 +11,7 @@ Copyright: Meta Platforms, Inc. and its affiliates
            TNG Technology Consulting GmbH <https://www.tngtech.com>
 License: Apache-2.0
 
-Files: docs/* public/icons/* .github/pull_request_template.md .github/ISSUE_TEMPLATE/* public/assets/icons/*
+Files: docs/* public/icons/* .github/pull_request_template.md .github/ISSUE_TEMPLATE/* public/assets/icons/* tools/manual-notices.txt
 Copyright: Meta Platforms, Inc. and its affiliates
            TNG Technology Consulting GmbH <https://www.tngtech.com>
 License: CC0-1.0

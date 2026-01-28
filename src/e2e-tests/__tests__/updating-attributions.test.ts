@@ -13,6 +13,11 @@ const [
 ] = faker.opossum.resourceNames({ count: 5 });
 const license1 = faker.opossum.license();
 const license2 = faker.opossum.license();
+// Real SPDX license for testing suggestions
+const apacheLicense = faker.opossum.license({
+  shortName: 'Apache-2.0',
+  fullName: 'Apache License 2.0',
+});
 const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
   packageType: undefined,
 });
@@ -42,7 +47,7 @@ test.use({
         [resourceName4]: 1,
         [resourceName5]: 1,
       }),
-      frequentLicenses: [license1, license2],
+      frequentLicenses: [license1, license2, apacheLicense],
     }),
     outputData: faker.opossum.outputData({
       manualAttributions: faker.opossum.rawAttributions({
@@ -381,4 +386,116 @@ test('autocomplete appears again after entering AND or OR', async ({
       `${license1.shortName} ${exp} ${license2.shortName}`,
     );
   }
+});
+
+test('shows validation error for invalid package type', async ({
+  attributionDetails,
+  resourcesTree,
+}) => {
+  await resourcesTree.goto(resourceName1);
+
+  await attributionDetails.attributionForm.type.fill('NPM!');
+  await attributionDetails.attributionForm.typeValidationDisplay.assert.messageIsVisible(
+    'The type can only contain a-z and 0-9.',
+  );
+
+  await attributionDetails.attributionForm.type.fill('npm');
+  await attributionDetails.attributionForm.typeValidationDisplay.assert.noMessages();
+});
+
+test('shows validation error for invalid URL', async ({
+  attributionDetails,
+  resourcesTree,
+}) => {
+  await resourcesTree.goto(resourceName1);
+  await attributionDetails.attributionForm.urlValidationDisplay.assert.noMessages();
+
+  await attributionDetails.attributionForm.url.fill('not-a-valid-url');
+  await attributionDetails.attributionForm.urlValidationDisplay.assert.messageIsVisible(
+    'Invalid URL',
+  );
+
+  await attributionDetails.attributionForm.url.fill('https://example.com');
+  await attributionDetails.attributionForm.urlValidationDisplay.assert.noMessages();
+});
+
+test('shows error for invalid SPDX expression syntax', async ({
+  attributionDetails,
+  resourcesTree,
+}) => {
+  await resourcesTree.goto(resourceName1);
+
+  await attributionDetails.attributionForm.licenseExpression.fill(
+    `${license1.shortName} AND AND ${license2.shortName}`,
+  );
+  await attributionDetails.attributionForm.licenseExpressionValidationDisplay.assert.messageIsVisible(
+    'Invalid SPDX expression.',
+  );
+
+  await attributionDetails.attributionForm.licenseExpression.fill(
+    `${license1.shortName} AND ${license2.shortName}`,
+  );
+  await attributionDetails.attributionForm.licenseExpressionValidationDisplay.assert.noMessages();
+});
+
+test('suggests capitalizing SPDX conjunctions and applies fix on click', async ({
+  attributionDetails,
+  resourcesTree,
+}) => {
+  await resourcesTree.goto(resourceName1);
+
+  await attributionDetails.attributionForm.licenseExpression.fill(
+    `${license1.shortName} and ${license2.shortName}`,
+  );
+  await attributionDetails.attributionForm.licenseExpressionValidationDisplay.assert.messageIsVisible(
+    'AND, OR and WITH need to be',
+  );
+
+  await attributionDetails.attributionForm.licenseExpressionValidationDisplay.clickSuggestion(
+    'capitalized',
+  );
+  await attributionDetails.attributionForm.assert.licenseNameIs(
+    `${license1.shortName} AND ${license2.shortName}`,
+  );
+  await attributionDetails.attributionForm.licenseExpressionValidationDisplay.assert.noMessages();
+});
+
+test('shows warning for unknown license id', async ({
+  attributionDetails,
+  resourcesTree,
+}) => {
+  await resourcesTree.goto(resourceName1);
+
+  await attributionDetails.attributionForm.licenseExpression.fill(
+    'Unknown-License-12345',
+  );
+  await attributionDetails.attributionForm.licenseExpressionValidationDisplay.assert.messageIsVisible(
+    'is not a known license id.',
+  );
+
+  // Using a known license from the test data clears the warning
+  await attributionDetails.attributionForm.licenseExpression.clear();
+  await attributionDetails.attributionForm.selectLicense(license1);
+  await attributionDetails.attributionForm.licenseExpressionValidationDisplay.assert.noMessages();
+});
+
+test('shows suggestion for misspelled SPDX license and applies fix on click', async ({
+  attributionDetails,
+  resourcesTree,
+}) => {
+  await resourcesTree.goto(resourceName1);
+
+  await attributionDetails.attributionForm.licenseExpression.fill('Apache 2.0');
+  await attributionDetails.attributionForm.licenseExpressionValidationDisplay.assert.messageIsVisible(
+    'is not a known license id.',
+  );
+  await attributionDetails.attributionForm.licenseExpressionValidationDisplay.assert.messageIsVisible(
+    'Did you mean',
+  );
+
+  await attributionDetails.attributionForm.licenseExpressionValidationDisplay.clickSuggestion(
+    'Apache-2.0',
+  );
+  await attributionDetails.attributionForm.assert.licenseNameIs('Apache-2.0');
+  await attributionDetails.attributionForm.licenseExpressionValidationDisplay.assert.noMessages();
 });
