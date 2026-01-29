@@ -13,31 +13,47 @@ import {
   UserSettings,
 } from '../../shared/shared-types';
 
+let settingsLock: Promise<unknown> = Promise.resolve();
+
+/**
+ * To ensure that we don't try to update the settings concurrently. Otherwise, we get EPERM errors under Windows.
+ */
+async function withSettingsLock<T>(fn: () => Promise<T>): Promise<T> {
+  const execute = settingsLock.then(fn);
+  settingsLock = execute.catch((e) => {
+    console.error('Settings command failed with error', e);
+  });
+  return execute;
+}
+
 export class UserSettingsService {
   public static async init() {
-    if (process.argv.includes('--reset') || process.env.RESET) {
-      log.info('Resetting user settings');
-      await settings.set(DEFAULT_USER_SETTINGS as unknown as never);
-    } else {
-      const currentSettings = await settings.get();
-      await settings.set({
-        ...DEFAULT_USER_SETTINGS,
-        ...currentSettings,
-      });
-    }
+    return withSettingsLock(async () => {
+      if (process.argv.includes('--reset') || process.env.RESET) {
+        log.info('Resetting user settings');
+        await settings.set(DEFAULT_USER_SETTINGS as unknown as never);
+      } else {
+        const currentSettings = await settings.get();
+        await settings.set({
+          ...DEFAULT_USER_SETTINGS,
+          ...currentSettings,
+        });
+      }
+    });
   }
 
-  public static get<T extends keyof IUserSettings>(
+  public static async get<T extends keyof IUserSettings>(
     path: T,
   ): Promise<IUserSettings[T]>;
-  public static get(): Promise<IUserSettings>;
-  public static get<T extends keyof IUserSettings>(
+  public static async get(): Promise<IUserSettings>;
+  public static async get<T extends keyof IUserSettings>(
     path?: T,
-  ): Promise<IUserSettings[T]> | Promise<IUserSettings> {
-    if (path) {
-      return settings.get(path) as Promise<IUserSettings[T]>;
-    }
-    return settings.get() as unknown as Promise<IUserSettings>;
+  ): Promise<IUserSettings[T] | IUserSettings> {
+    return withSettingsLock(async () => {
+      return path
+        ? ((await settings.get(path)) as IUserSettings[T])
+        : ((await settings.get()) as unknown as IUserSettings);
+    });
   }
 
   public static async update(
@@ -46,19 +62,21 @@ export class UserSettingsService {
       skipNotification: false,
     },
   ): Promise<void> {
-    for (const key of Object.keys(userSettings)) {
-      const properKey = key as keyof UserSettings;
-      if (userSettings[properKey] !== undefined) {
-        await settings.set(properKey, userSettings[properKey]);
+    return withSettingsLock(async () => {
+      for (const key of Object.keys(userSettings)) {
+        const properKey = key as keyof UserSettings;
+        if (userSettings[properKey] !== undefined) {
+          await settings.set(properKey, userSettings[properKey]);
+        }
       }
-    }
-    if (!skipNotification) {
-      BrowserWindow.getAllWindows().forEach((window) => {
-        window.webContents.send(
-          AllowedFrontendChannels.UserSettingsChanged,
-          userSettings,
-        );
-      });
-    }
+      if (!skipNotification) {
+        BrowserWindow.getAllWindows().forEach((window) => {
+          window.webContents.send(
+            AllowedFrontendChannels.UserSettingsChanged,
+            userSettings,
+          );
+        });
+      }
+    });
   }
 }
