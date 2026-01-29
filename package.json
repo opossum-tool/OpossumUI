@@ -115,7 +115,7 @@
     "start": "run-script-os",
     "start:darwin:linux": "tools/start_linux_darwin.sh",
     "start:win32": "tools/start_windows.bat",
-    "build": "yarn generate-notice && vite build && tsc -p src/ElectronBackend",
+    "build": "yarn generate-notice && vite build",
     "circular-import-check": "find src/ | xargs dpdm --circular -T --tree false --warning false --exit-code circular:1",
     "typecheck": "tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test:unit": "jest",
@@ -124,7 +124,7 @@
     "test:e2e": "playwright test -c src/e2e-tests/playwright.config.ts",
     "test:e2e:ui": "playwright test -c src/e2e-tests/playwright.config.ts --ui",
     "test:e2e:ci": "yarn playwright test -c src/e2e-tests/playwright.config.ts",
-    "test:prepare": "NODE_ENV=e2e tsc -p src/ElectronBackend && vite -m e2e",
+    "test:prepare": "NODE_ENV=e2e vite -m e2e",
     "lint": "eslint --fix",
     "lint-check": "eslint",
     "lint-commits": "commitlint -f ${TARGET_BRANCH:-origin/main} --verbose",
@@ -161,7 +161,7 @@
     "files": [
       "build/**/*",
       "bin/*",
-      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!node_modules",
       "!build/**/__tests__/**/*"
     ],
     "directories": {

@@ -14,11 +14,10 @@ export async function loadWebApp(
 ) {
   if (!app.isPackaged) {
     await mainWindow.loadURL('http://localhost:5173/');
-
     mainWindow.webContents.openDevTools();
   } else {
-    await mainWindow.loadURL(
-      `file://${path.join(upath.toUnix(__dirname), '../../index.html')}`,
+    await mainWindow.loadFile(
+      path.join(upath.toUnix(__dirname), '..', 'index.html'),
     );
   }
 }
@@ -33,7 +32,7 @@ export function createWindow(): BrowserWindow {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
-      preload: path.join(upath.toUnix(__dirname), '../preload.js'),
+      preload: path.join(upath.toUnix(__dirname), 'preload.js'),
     },
     icon: getIconPath(),
   });
