@@ -158,6 +158,9 @@
   "build": {
     "productName": "OpossumUI",
     "appId": "opossum_ui_electron",
+    "electronLanguages": [
+      "en"
+    ],
     "files": [
       "build/**/*",
       "bin/*",
