@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { grammar } from 'ohm-js';
 
-import { spdxCorrect } from './spdxCorrect';
+import { spdxCorrect } from './spdx-correct';
 
 type SpdxUnknownLicenseId = {
   unknownId: string;

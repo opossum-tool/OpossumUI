@@ -25,19 +25,17 @@ function sortTranspositions(a: Transposition, b: Transposition): number {
   return a[0].toUpperCase().localeCompare(b[0].toUpperCase());
 }
 
-// Common transpositions of license identifier acronyms
+// Common transpositions of license identifier acronyms.
 const transpositions: Array<Transposition> = (
   [
     ['APGL', 'AGPL'],
-    ['Gpl', 'GPL'],
     ['GLP', 'GPL'],
     ['APL', 'Apache'],
     ['ISD', 'ISC'],
-    ['GLP', 'GPL'],
     ['IST', 'ISC'],
-    ['Claude', 'Clause'],
-    [' or later', '+'],
-    [' International', ''],
+    ['CLAUDE', 'Clause'],
+    [' OR LATER', '+'],
+    [' INTERNATIONAL', ''],
     ['GNU', 'GPL'],
     ['GUN', 'GPL'],
     ['+', ''],
@@ -46,23 +44,30 @@ const transpositions: Array<Transposition> = (
     ['GNU/GPL', 'GPL'],
     ['GNU GLP', 'GPL'],
     ['GNU LESSER GENERAL PUBLIC LICENSE', 'LGPL'],
-    ['GNU Lesser General Public License', 'LGPL'],
-    ['GNU LESSER GENERAL PUBLIC LICENSE', 'LGPL-2.1'],
-    ['GNU Lesser General Public License', 'LGPL-2.1'],
     ['LESSER GENERAL PUBLIC LICENSE', 'LGPL'],
-    ['Lesser General Public License', 'LGPL'],
-    ['LESSER GENERAL PUBLIC LICENSE', 'LGPL-2.1'],
-    ['Lesser General Public License', 'LGPL-2.1'],
-    ['GNU General Public License', 'GPL'],
-    ['Gnu public license', 'GPL'],
-    ['GNU Public License', 'GPL'],
     ['GNU GENERAL PUBLIC LICENSE', 'GPL'],
+    ['GNU PUBLIC LICENSE', 'GPL'],
     ['MTI', 'MIT'],
-    ['Mozilla Public License', 'MPL'],
-    ['Universal Permissive License', 'UPL'],
+    ['MOZILLA PUBLIC LICENSE', 'MPL'],
+    ['UNIVERSAL PERMISSIVE LICENSE', 'UPL'],
     ['WTH', 'WTF'],
     ['WTFGPL', 'WTFPL'],
-    ['-License', ''],
+    ['-LICENSE', ''],
+    // Modern license transpositions
+    ['BLUE OAK', 'BlueOak'],
+    ['BLUE-OAK', 'BlueOak'],
+    ['ELASTIC LICENSE', 'Elastic'],
+    ['ELV2', 'Elastic-2.0'],
+    ['BUSINESS SOURCE LICENSE', 'BUSL'],
+    ['HIPPOCRATIC LICENSE', 'Hippocratic'],
+    ['POLYFORM NONCOMMERCIAL', 'PolyForm-Noncommercial'],
+    ['POLYFORM NON-COMMERCIAL', 'PolyForm-Noncommercial'],
+    ['POLYFORM SMALL BUSINESS', 'PolyForm-Small-Business'],
+    ['ZERO BSD', '0BSD'],
+    ['ZERO-BSD', '0BSD'],
+    ['0-CLAUSE BSD', '0BSD'],
+    ['0 CLAUSE BSD', '0BSD'],
+    ['PYTHON SOFTWARE FOUNDATION', 'PSF'],
   ] as const
 ).toSorted(sortTranspositions);
 
@@ -198,12 +203,12 @@ const lastResorts: Array<readonly [string, string]> = (
     ['AGPL', 'AGPL-3.0-or-later'],
     ['APACHE', 'Apache-2.0'],
     ['ARTISTIC', 'Artistic-2.0'],
-    ['Affero', 'AGPL-3.0-or-later'],
     ['BEER', 'Beerware'],
     ['BOOST', 'BSL-1.0'],
     ['BSD', 'BSD-2-Clause'],
     ['CDDL', 'CDDL-1.1'],
-    ['ECLIPSE', 'EPL-1.0'],
+    ['ECLIPSE', 'EPL-2.0'],
+    ['EPL', 'EPL-2.0'],
     ['FUCK', 'WTFPL'],
     ['GNU', 'GPL-3.0-or-later'],
     ['LGPL', 'LGPL-3.0-or-later'],
@@ -217,6 +222,23 @@ const lastResorts: Array<readonly [string, string]> = (
     ['MPL', 'MPL-2.0'],
     ['X11', 'X11'],
     ['ZLIB', 'Zlib'],
+    // Modern licenses
+    ['0BSD', '0BSD'],
+    ['BLUEOAK', 'BlueOak-1.0.0'],
+    ['BLUE OAK', 'BlueOak-1.0.0'],
+    ['BUSL', 'BUSL-1.1'],
+    ['BUSINESS SOURCE', 'BUSL-1.1'],
+    ['ELASTIC', 'Elastic-2.0'],
+    ['HIPPOCRATIC', 'Hippocratic-2.1'],
+    ['POLYFORM', 'PolyForm-Noncommercial-1.0.0'],
+    ['PSF', 'PSF-2.0'],
+    ['PYTHON', 'PSF-2.0'],
+    ['MULAN', 'MulanPSL-2.0'],
+    ['EUPL', 'EUPL-1.2'],
+    ['OFL', 'OFL-1.1'],
+    ['OPEN FONT', 'OFL-1.1'],
+    ['SIL', 'OFL-1.1'],
+    ['CECILL', 'CECILL-2.1'],
   ] as Array<readonly [string, string]>
 )
   .concat(licensesWithOneVersion)
@@ -245,14 +267,19 @@ function validLastResort(identifier: string): string | null {
   return null;
 }
 
+function escapeRegExp(string: string): string {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function anyCorrection(
   identifier: string,
   check: (corrected: string) => string | null,
 ): string | null {
   for (const transposition of transpositions) {
     const transposed = transposition[TRANSPOSED];
-    if (identifier.includes(transposed)) {
-      const corrected = identifier.replace(transposed, transposition[CORRECT]);
+    const pattern = new RegExp(escapeRegExp(transposed), 'i');
+    if (pattern.test(identifier)) {
+      const corrected = identifier.replace(pattern, transposition[CORRECT]);
       const checked = check(corrected);
       if (checked !== null) {
         return checked;

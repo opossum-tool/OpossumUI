@@ -50,7 +50,7 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
         />
         <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           <MuiBox sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            <ValidationMessage>{firstMessage}</ValidationMessage>
+            <MuiTypography variant="body2">{firstMessage}</MuiTypography>
             {remainingMessages.length > 0 && (
               <ExpandMore
                 aria-label="expand messages"
@@ -68,7 +68,9 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
           <MuiCollapse in={expanded}>
             <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               {remainingMessages.map((message, index) => (
-                <ValidationMessage key={index}>{message}</ValidationMessage>
+                <MuiTypography variant="body2" key={index}>
+                  {message}
+                </MuiTypography>
               ))}
             </MuiBox>
           </MuiCollapse>
@@ -76,10 +78,4 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
       </MuiBox>
     </MuiCollapse>
   );
-};
-
-const ValidationMessage: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  return <MuiTypography variant="body2">{children}</MuiTypography>;
 };

@@ -15,7 +15,7 @@ import {
   useFilteredAttributions,
   useFilteredSignals,
 } from '../../../state/variables/use-filtered-data';
-import { validateSpdxExpression } from '../../../util/validate-spdx';
+import { validateSpdxExpression } from '../../../util/spdx/validate-spdx';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 import { renderOccuranceCount } from '../../Autocomplete/AutocompleteUtil';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
