@@ -16,7 +16,10 @@ export default defineConfig(({ mode }) => ({
     ...(mode === 'e2e'
       ? []
       : electron({
-          entry: 'src/ElectronBackend/main/main.ts',
+          entry: [
+            'src/ElectronBackend/app.ts',
+            'src/ElectronBackend/preload.ts',
+          ],
           onstart(options) {
             if (process.platform === 'linux') {
               // See github.com/electron-vite/vite-plugin-electron/issues/264
@@ -26,6 +29,15 @@ export default defineConfig(({ mode }) => ({
             } else {
               options.startup();
             }
+          },
+          vite: {
+            build: {
+              minify: true,
+              outDir: 'build/ElectronBackend',
+              rollupOptions: {
+                external: ['electron'],
+              },
+            },
           },
         })),
   ],

@@ -4,10 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { app } from 'electron';
 import path from 'path';
+import upath from 'upath';
 
 function getNoticesDirectory(): string {
   if (!app.isPackaged) {
-    return path.join(__dirname, '..', '..', '..', 'notices');
+    return path.join(upath.toUnix(__dirname), '..', '..', 'notices');
   }
 
   return path.join(process.resourcesPath, 'notices');

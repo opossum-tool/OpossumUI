@@ -6,8 +6,7 @@ import path from 'path';
 import upath from 'upath';
 
 export function getBasePathOfAssets(): string {
-  const basePath = app.isPackaged
-    ? path.join(upath.toUnix(__dirname), '../../assets')
-    : path.join(upath.toUnix(__dirname), '../../../public/assets');
-  return basePath;
+  return app.isPackaged
+    ? path.join(upath.toUnix(__dirname), '..', 'assets')
+    : path.join(upath.toUnix(__dirname), '..', '..', 'public', 'assets');
 }

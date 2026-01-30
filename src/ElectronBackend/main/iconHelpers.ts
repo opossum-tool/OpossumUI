@@ -10,9 +10,9 @@ import { getBasePathOfAssets } from './getPath';
 
 export function getIconPath(): string {
   const basePath = app.isPackaged
-    ? path.join(upath.toUnix(__dirname), '../..')
-    : path.join(upath.toUnix(__dirname), '../../../public');
-  return path.join(basePath, 'icons/icon_512x512.png');
+    ? path.join(upath.toUnix(__dirname), '..')
+    : path.join(upath.toUnix(__dirname), '..', '..', 'public');
+  return path.join(basePath, 'icons', 'icon_512x512.png');
 }
 
 export function getIconBasedOnTheme(

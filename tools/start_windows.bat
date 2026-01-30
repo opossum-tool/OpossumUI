@@ -14,4 +14,4 @@ if defined FILE_PATH (
 echo File path provided: %FILE_PATH%
 )
 
-yarn generate-notice && yarn tsc -p src/ElectronBackend && cross-env OPOSSUM_FILE=%FILE_PATH% yarn vite
+yarn generate-notice && cross-env OPOSSUM_FILE=%FILE_PATH% yarn vite
