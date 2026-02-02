@@ -2,7 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Popper, PopperProps, styled } from '@mui/material';
+import {
+  Popper,
+  PopperPlacementType,
+  PopperProps,
+  styled,
+} from '@mui/material';
 import MuiTextField from '@mui/material/TextField';
 
 import { OpossumColors } from '../../shared-styles';
@@ -64,25 +69,31 @@ export const Input = styled(MuiTextField, {
   };
 });
 
-export const StyledPopper = styled((props: PopperProps) => (
-  <Popper
-    {...props}
-    placement={'auto'}
-    modifiers={[
-      {
-        name: 'preventOverflow',
-        enabled: true,
-      },
-      {
-        name: 'flip',
-        options: {
-          padding: 64,
-          allowedAutoPlacements: ['top', 'bottom'],
-        },
-      },
-    ]}
-  />
-))(({ theme, anchorEl }) => ({
+export const StyledPopper = styled(
+  (props: PopperProps & { forcePlacement?: PopperPlacementType }) => {
+    const { forcePlacement, ...rest } = props;
+    return (
+      <Popper
+        placement={forcePlacement ?? 'auto'}
+        {...rest}
+        modifiers={[
+          {
+            name: 'preventOverflow',
+            enabled: true,
+          },
+          {
+            name: 'flip',
+            enabled: !forcePlacement,
+            options: {
+              padding: 64,
+              allowedAutoPlacements: ['top', 'bottom'],
+            },
+          },
+        ]}
+      />
+    );
+  },
+)(({ theme, anchorEl }) => ({
   width: (anchorEl as HTMLElement | null)?.clientWidth,
   zIndex: theme.zIndex.modal,
 }));

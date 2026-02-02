@@ -5,6 +5,7 @@
 import AddIcon from '@mui/icons-material/Add';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { createFilterOptions, styled, TextFieldProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import { compact, groupBy, sortBy } from 'lodash';
@@ -25,8 +26,8 @@ import {
 } from '../../../state/variables/use-filtered-data';
 import { generatePurl } from '../../../util/handle-purl';
 import {
+  getPackageAttributeInvalidError,
   isPackageAttributeIncomplete,
-  isPackageAttributeInvalid,
 } from '../../../util/input-validation';
 import { openUrl } from '../../../util/open-url';
 import { PackageSearchHooks } from '../../../util/package-search-hooks';
@@ -35,6 +36,7 @@ import { renderOccuranceCount } from '../../Autocomplete/AutocompleteUtil';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../../IconButton/IconButton';
 import { SourceIcon } from '../../Icons/Icons';
+import { ValidationDisplay } from '../../ValidationDisplay/ValidationDisplay';
 
 type AutocompleteAttribute = Extract<
   keyof PackageInfo,
@@ -152,115 +154,129 @@ export function PackageAutocomplete({
     if (!showHighlight) {
       return undefined;
     }
-    if (isPackageAttributeInvalid(attribute, packageInfo)) {
-      return 'error';
-    }
     if (isPackageAttributeIncomplete(attribute, packageInfo)) {
       return 'warning';
     }
     return undefined;
   }, [attribute, packageInfo, showHighlight]);
 
+  const errorMessage = getPackageAttributeInvalidError(attribute, packageInfo);
+
   return (
-    <Autocomplete<PackageInfo, false, true, true>
-      title={title}
-      disabled={disabled}
-      readOnly={readOnly}
-      autoHighlight
-      disableClearable
-      freeSolo
-      inputValue={inputValue}
-      inputProps={{ color, focused }}
-      highlighting={highlighting}
-      options={options}
-      getOptionLabel={(option) =>
-        typeof option === 'string' ? option : option[attribute] || ''
-      }
-      getOptionKey={(option) =>
-        typeof option === 'string'
-          ? option
-          : compact([
-              option.copyright,
-              option.licenseName,
-              option[attribute],
-              generatePurl(option),
-            ]).join()
-      }
-      renderOptionStartIcon={(option) => renderOccuranceCount(option.count)}
-      renderOptionEndIcon={renderOptionEndIcon}
-      value={packageInfo}
-      filterOptions={createFilterOptions({
-        stringify: (option) => {
-          switch (attribute) {
-            case 'packageName':
-              return `${option.packageName || ''}${option.packageNamespace || ''}`;
-            default:
-              return `${option[attribute] || ''} ${option.suffix || ''}`.trim();
-          }
-        },
-      })}
-      isOptionEqualToValue={(option, value) =>
-        option[attribute] === value[attribute]
-      }
-      groupBy={(option) => option.source?.name || text.generic.unknown}
-      groupProps={{
-        icon: () => <SourceIcon noTooltip />,
-        action: ({ name }) => (
-          <IconButton
-            hidden={name !== text.attributionColumn.openSourceInsights}
-            onClick={() => openUrl('https://www.deps.dev')}
-            icon={<OpenInNewIcon sx={clickableIcon} />}
-          />
-        ),
+    <MuiBox
+      data-testid={`autocomplete-${attribute}`}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        flexGrow: 1,
+        flexBasis: 0,
       }}
-      optionText={{
-        primary: (option) => {
-          if (typeof option === 'string') {
-            return option;
-          }
+    >
+      <Autocomplete<PackageInfo, false, true, true>
+        title={title}
+        disabled={disabled}
+        readOnly={readOnly}
+        autoHighlight
+        disableClearable
+        freeSolo
+        inputValue={inputValue}
+        inputProps={{ color, focused }}
+        highlighting={highlighting}
+        options={options}
+        forceTop={!!errorMessage}
+        getOptionLabel={(option) =>
+          typeof option === 'string' ? option : option[attribute] || ''
+        }
+        getOptionKey={(option) =>
+          typeof option === 'string'
+            ? option
+            : compact([
+                option.copyright,
+                option.licenseName,
+                option[attribute],
+                generatePurl(option),
+              ]).join()
+        }
+        renderOptionStartIcon={(option) => renderOccuranceCount(option.count)}
+        renderOptionEndIcon={renderOptionEndIcon}
+        value={packageInfo}
+        filterOptions={createFilterOptions({
+          stringify: (option) => {
+            switch (attribute) {
+              case 'packageName':
+                return `${option.packageName || ''}${option.packageNamespace || ''}`;
+              default:
+                return `${option[attribute] || ''} ${option.suffix || ''}`.trim();
+            }
+          },
+        })}
+        isOptionEqualToValue={(option, value) =>
+          option[attribute] === value[attribute]
+        }
+        groupBy={(option) => option.source?.name || text.generic.unknown}
+        groupProps={{
+          icon: () => <SourceIcon noTooltip />,
+          action: ({ name }) => (
+            <IconButton
+              hidden={name !== text.attributionColumn.openSourceInsights}
+              onClick={() => openUrl('https://www.deps.dev')}
+              icon={<OpenInNewIcon sx={clickableIcon} />}
+            />
+          ),
+        }}
+        optionText={{
+          primary: (option) => {
+            if (typeof option === 'string') {
+              return option;
+            }
 
-          const optionValue = option[attribute];
+            const optionValue = option[attribute];
 
-          if (!optionValue) {
-            return '';
-          }
+            if (!optionValue) {
+              return '';
+            }
 
-          return `${optionValue} ${option.suffix || ''}`.trim();
-        },
-        secondary: (option) =>
-          typeof option === 'string' ? option : generatePurl(option),
-      }}
-      onChange={(_, value) =>
-        typeof value !== 'string' &&
-        value[attribute] !== packageInfo[attribute] &&
-        onEdit?.(() => {
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...packageInfo,
-              [attribute]: value[attribute],
-              ...(attribute === 'licenseName' ? { licenseText: '' } : null),
-              wasPreferred: undefined,
-            }),
-          );
-        })
-      }
-      onInputChange={(event, value) =>
-        event &&
-        packageInfo[attribute] !== value &&
-        onEdit?.(() => {
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...packageInfo,
-              [attribute]: value,
-              wasPreferred: undefined,
-            }),
-          );
-          setInputValue(value);
-        })
-      }
-      endAdornment={endAdornment}
-      disableCloseOnSelect={disableCloseOnSelect}
-    />
+            return `${optionValue} ${option.suffix || ''}`.trim();
+          },
+          secondary: (option) =>
+            typeof option === 'string' ? option : generatePurl(option),
+        }}
+        onChange={(_, value) =>
+          typeof value !== 'string' &&
+          value[attribute] !== packageInfo[attribute] &&
+          onEdit?.(() => {
+            dispatch(
+              setTemporaryDisplayPackageInfo({
+                ...packageInfo,
+                [attribute]: value[attribute],
+                ...(attribute === 'licenseName' ? { licenseText: '' } : null),
+                wasPreferred: undefined,
+              }),
+            );
+          })
+        }
+        onInputChange={(event, value) =>
+          event &&
+          packageInfo[attribute] !== value &&
+          onEdit?.(() => {
+            dispatch(
+              setTemporaryDisplayPackageInfo({
+                ...packageInfo,
+                [attribute]: value,
+                wasPreferred: undefined,
+              }),
+            );
+            setInputValue(value);
+          })
+        }
+        endAdornment={endAdornment}
+        disableCloseOnSelect={disableCloseOnSelect}
+      />
+      <ValidationDisplay
+        messages={errorMessage ? [errorMessage] : []}
+        severity="error"
+      />
+    </MuiBox>
   );
 
   function renderOptionEndIcon(

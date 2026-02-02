@@ -17,16 +17,6 @@ import { TextBox } from '../../TextBox/TextBox';
 import { AttributionFormConfig } from '../AttributionForm';
 import { LicenseSubPanelAutocomplete } from './LicenseSubPanelAutocomplete';
 
-const classes = {
-  licenseText: {
-    marginTop: '12px',
-  },
-  endAdornment: {
-    paddingRight: '6px',
-    paddingTop: '2px',
-  },
-};
-
 interface LicenseSubPanelProps {
   packageInfo: PackageInfo;
   showHighlight?: boolean;
@@ -52,13 +42,14 @@ export function LicenseSubPanel({
     : frequentLicenseTexts[packageInfo.licenseName || ''];
 
   return hidden ? null : (
-    <MuiBox>
-      <MuiBox display={'flex'} alignItems={'center'} gap={'8px'}>
+    <>
+      <MuiBox display={'flex'} alignItems={'start'} gap={'8px'}>
         <LicenseSubPanelAutocomplete
           packageInfo={packageInfo}
           showHighlight={showHighlight}
           onEdit={onEdit}
           config={config}
+          forceTop={true}
         />
         {!expanded && (
           <ToggleButton
@@ -83,7 +74,6 @@ export function LicenseSubPanel({
         <TextBox
           readOnly={!onEdit}
           placeholder={defaultLicenseText}
-          sx={classes.licenseText}
           maxRows={8}
           minRows={3}
           color={config?.licenseText?.color}
@@ -110,6 +100,6 @@ export function LicenseSubPanel({
           endIcon={config?.licenseText?.endIcon}
         />
       )}
-    </MuiBox>
+    </>
   );
 }

@@ -9893,6 +9893,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ohm-js@npm:17.3.0":
+  version: 17.3.0
+  resolution: "ohm-js@npm:17.3.0"
+  checksum: 10/81ba36b2f4eb8a261ab1efb012f28f3e9876fb939302f16e1ab2f6bd1a92d7fcd83e307c29dfbf5d48081d84abdde38d600f8a74b6640c1d43222d3a54cc3e11
+  languageName: node
+  linkType: hard
+
 "once@npm:^1.3.0, once@npm:^1.3.1, once@npm:^1.4.0":
   version: 1.4.0
   resolution: "once@npm:1.4.0"
@@ -9998,6 +10005,7 @@ __metadata:
     mockdate: "npm:3.0.5"
     nunjucks: "npm:3.2.4"
     object-hash: "npm:3.0.0"
+    ohm-js: "npm:17.3.0"
     packageurl-js: "npm:2.0.1"
     prettier: "npm:3.8.1"
     prettier-plugin-sh: "npm:0.18.0"
