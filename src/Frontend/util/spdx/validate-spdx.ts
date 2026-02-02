@@ -75,8 +75,7 @@ export function validateSpdxExpression({
 }
 
 /**
- * Ohm.js grammar for parsing SPDX license expressions. A grammar is a set of rules that defines how a language is structured and which rules it has to follow.
- * We can use this grammar to parse SPDX expressions and return license ids.
+ * Ohm.js grammar for parsing SPDX license expressions. See https://ohmjs.org/docs/intro for more information.
  */
 const spdxGrammar = grammar(`
   SPDX {
