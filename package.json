@@ -133,6 +133,7 @@
     "format-check": "prettier --check --ignore-unknown .",
     "copyright-lint-check": "reuse lint",
     "knip": "knip",
+    "sync-node-version": "yarn node tools/syncNodeVersion.mjs",
     "update-commit-hash": "run-script-os",
     "update-commit-hash:darwin:linux": "COMMIT_INFO=$(git describe --exact-match --tags 2> /dev/null || git rev-parse --short HEAD); echo \"{\\\"commitInfo\\\" : \\\"$COMMIT_INFO\\\" }\" > \"src/commitInfo.json\"",
     "update-commit-hash:win32": "tools/get_app_version_for_windows.bat",
