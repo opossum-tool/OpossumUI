@@ -112,7 +112,7 @@
     "whatwg-fetch": "3.6.20"
   },
   "scripts": {
-    "preinstall": "node -e \"if(+process.versions.node.split('.')[0]<24){console.error('\\x1b[31m✖ Node 24+ required (you have '+process.version+')\\x1b[0m');process.exit(1)}\"",
+    "preinstall": "node -e \"if(+process.versions.node.split('.')[0]<24){console.error('\\x1b[31m✖ Node 24+ required (you have '+process.version+')\\x1b[0m');process.exit(1) }\"",
     "start": "run-script-os",
     "start:darwin:linux": "tools/start_linux_darwin.sh",
     "start:win32": "tools/start_windows.bat",
