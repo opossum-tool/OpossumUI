@@ -8,6 +8,9 @@ build
 dist
 CHANGELOG.md
 
+# Generated
+src/ElectronBackend/db/generated
+
 # IDEs
 .vscode
 **/.idea

@@ -12,11 +12,29 @@ import {
   Resources,
 } from '../../shared/shared-types';
 import { getDb, getRawDb, resetDb } from './db';
-import { Database } from './dbTypes';
+import { DB } from './generated/databaseTypes';
+
+/**
+ * Comments that will be added to the generated types and diagram
+ */
+export const comments: Record<string, Record<string, string>> = {
+  attribution: {
+    _table_:
+      "External attributions (UI: 'signals') and manual attributions (UI: 'attributions')",
+    data: 'All of the attribution as JSON',
+  },
+  resource: {
+    name: 'The name of the root resource is the empty string',
+    path: 'Without trailing slash.\nThe path of the root resource is the empty string',
+    can_have_children: 'Is a directory or in files_with_children',
+  },
+  source_for_attribution: {
+    external_attribution_source_name:
+      'Mainly contains names of external_attribution_source, but can also contain unknown names',
+  },
+};
 
 export async function initializeDb(inputFile: ParsedFileContent) {
-  // see dbTypes.ts for the database schema
-
   resetDb();
 
   await getDb()
@@ -58,12 +76,12 @@ export async function initializeDb(inputFile: ParsedFileContent) {
 }
 
 async function initializeExternalAttributionSourceTable(
-  trx: Transaction<Database>,
+  trx: Transaction<DB>,
   externalAttributionSources: ExternalAttributionSources,
 ) {
   await trx.schema
     .createTable('external_attribution_source')
-    .addColumn('name', 'text', (col) => col.primaryKey())
+    .addColumn('name', 'text', (col) => col.primaryKey().notNull())
     .addColumn('priority', 'integer', (col) => col.notNull())
     .addColumn('is_relevant_for_preferred', 'integer', (col) =>
       col.notNull().defaultTo(0),
@@ -85,14 +103,14 @@ async function initializeExternalAttributionSourceTable(
 }
 
 async function initializeResourceTable(
-  trx: Transaction<Database>,
+  trx: Transaction<DB>,
   resources: Resources,
   attributionBreakpoints: Set<string>,
   filesWithChildren: Set<string>,
 ) {
   await trx.schema
     .createTable('resource')
-    .addColumn('id', 'integer', (col) => col.primaryKey())
+    .addColumn('id', 'integer', (col) => col.primaryKey().notNull())
     .addColumn('path', 'text', (col) => col.notNull().unique())
     .addColumn('name', 'text', (col) => col.notNull())
     .addColumn('parent_id', 'integer', (col) => col.references('resource.id'))
@@ -167,14 +185,14 @@ async function initializeResourceTable(
 }
 
 async function initializeAttributionTable(
-  trx: Transaction<Database>,
+  trx: Transaction<DB>,
   externalAttributions: InputFileAttributionData,
   manualAttributions: InputFileAttributionData,
   resolvedExternalAttributions: Set<string>,
 ) {
   await trx.schema
     .createTable('attribution')
-    .addColumn('uuid', 'text', (col) => col.primaryKey())
+    .addColumn('uuid', 'text', (col) => col.primaryKey().notNull())
     .addColumn('data', 'text', (col) => col.notNull())
     .addColumn('is_external', 'integer', (col) => col.notNull())
     .addColumn('is_resolved', 'integer', (col) => col.notNull().defaultTo(0))
@@ -212,13 +230,13 @@ async function initializeAttributionTable(
 }
 
 async function initializeSourceForAttributionTable(
-  trx: Transaction<Database>,
+  trx: Transaction<DB>,
   externalAttributions: InputFileAttributionData,
 ) {
   await trx.schema
     .createTable('source_for_attribution')
     .addColumn('attribution_uuid', 'text', (col) =>
-      col.primaryKey().references('attribution.uuid'),
+      col.primaryKey().notNull().references('attribution.uuid'),
     )
     // Not a foreign key to external_attribution_source.name because we have some attributions that have a
     .addColumn('external_attribution_source_name', 'text', (col) =>
@@ -252,7 +270,7 @@ async function initializeSourceForAttributionTable(
 }
 
 async function initializeResourceToAttributionTable(
-  trx: Transaction<Database>,
+  trx: Transaction<DB>,
   externalAttributions: InputFileAttributionData,
   manualAttributions: InputFileAttributionData,
   resourcePathToId: Map<string, number>,
@@ -309,12 +327,12 @@ async function initializeResourceToAttributionTable(
 }
 
 async function initializeFrequentLicenseTable(
-  trx: Transaction<Database>,
+  trx: Transaction<DB>,
   frequentLicenses: FrequentLicenses,
 ) {
   await trx.schema
     .createTable('frequent_license')
-    .addColumn('id', 'integer', (col) => col.primaryKey())
+    .addColumn('id', 'integer', (col) => col.primaryKey().notNull())
     .addColumn('short_name', 'text', (col) => col.notNull())
     .addColumn('full_name', 'text', (col) => col.notNull())
     .addColumn('license_text', 'text')
