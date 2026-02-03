@@ -68,7 +68,7 @@
     "@types/jest": "30.0.0",
     "@types/js-yaml": "4.0.9",
     "@types/lodash": "4.17.23",
-    "@types/node": "24.10.9",
+    "@types/node": "^22",
     "@types/object-hash": "3.0.6",
     "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3",
@@ -213,7 +213,7 @@
     ]
   },
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=22.0.0"
   },
   "packageManager": "yarn@4.12.0",
   "dependenciesMeta": {
