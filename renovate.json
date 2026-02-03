@@ -26,19 +26,20 @@
       "automerge": true
     },
     {
-      "description": "Only update engines field for major Node.js versions",
-      "matchDepTypes": ["engines"],
-      "matchPackageNames": ["node"],
-      "matchUpdateTypes": ["minor", "patch"],
+      "description": "The .nvmrc node version is driven by Electron - synced via sync-node-version workflow",
+      "matchManagers": ["nvm"],
       "enabled": false
     },
     {
-      "description": "Group Node.js updates together (Dockerfiles, @types/node, .nvmrc) - LTS only",
-      "matchDatasources": ["node-version", "docker"],
-      "matchPackageNames": ["node", "@types/node"],
-      "allowedVersions": "/^\\d*[02468]\\../",
-      "groupName": "Node.js",
-      "groupSlug": "node"
+      "description": "The package.json engines node version is driven by Electron - synced via sync-node-version workflow",
+      "matchDepTypes": ["engines"],
+      "matchPackageNames": ["node"],
+      "enabled": false
+    },
+    {
+      "description": "The @types/node version is driven by Electron - synced via sync-node-version workflow",
+      "matchPackageNames": ["@types/node"],
+      "enabled": false
     }
   ]
 }
