@@ -35,24 +35,11 @@ jobs:
 
       - run: yarn sync-node-version
 
-      - name: Check for changes
-        id: changes
-        run: |
-          if git diff --quiet .nvmrc package.json yarn.lock; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Commit changes
-        if: steps.changes.outputs.changed == 'true'
-        uses: swinton/commit@v2.x
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: planetscale/ghcommit-action@25309d8005ac7c3bcd61d3fe19b69e0fe47dbdde # v0.2.20
         with:
-          files: |
-            .nvmrc
-            package.json
-            yarn.lock
-          commit-message: 'chore(sync-node-version): sync Node.js version with Electron'
-          ref: refs/heads/${{ github.ref_name }}
+          commit_message: 'chore(sync-node-version): sync Node.js version with Electron'
+          repo: ${{ github.repository }}
+          branch: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
