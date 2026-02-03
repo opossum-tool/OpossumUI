@@ -10,6 +10,7 @@ import type {
   CommandReturn,
 } from '../../ElectronBackend/api/commands';
 
+// Query options for Tanstack, see https://tanstack.com/query/v5/docs/framework/react/reference/useQuery
 type QueryOptions<C extends Command> = Omit<
   UseQueryOptions<Awaited<CommandReturn<C>>>,
   'queryKey' | 'queryFn'
@@ -27,11 +28,11 @@ type Params<C extends Command> =
 type BackendClient = {
   [C in Command]: {
     useQuery: (...args: Params<C>) => UseQueryReturn<C>;
-    invalidate: (params?: CommandParams<C>) => Promise<void>;
-    reset: (params?: CommandParams<C>) => Promise<void>;
   };
 };
 
+// Can be used as backend.commandName.useQuery(params) or backend.commandName.useQuery(params, options) if the command needs parameters,
+// and backend.commandName.useQuery() or backend.commandName.useQuery(undefined, options) otherwise
 export const backend = new Proxy({} as BackendClient, {
   get(_, command: Command) {
     const getQueryKey = (command: Command, params: unknown) => [
