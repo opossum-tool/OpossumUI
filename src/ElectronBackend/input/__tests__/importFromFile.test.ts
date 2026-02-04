@@ -25,6 +25,7 @@ import {
   FileNotFoundError,
   JsonParsingError,
   OpossumOutputFile,
+  ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
   UnzipError,
 } from '../../types/types';
@@ -35,6 +36,7 @@ import {
   getMessageBoxForUnzipError,
   loadInputAndOutputFromFilePath,
 } from '../importFromFile';
+import { parseOpossumFile } from '../parseFile';
 
 const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
 const manualAttributionUuid = 'ecd692d9-b154-4d4d-be8c-manual';
@@ -262,6 +264,26 @@ describe('Test of loading function', () => {
     ).toBe(1);
 
     expect(getGlobalBackendState()).toEqual(expectedBackendState);
+  });
+
+  it('write and read work as they should', async () => {
+    const filePath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+    const attributions: OpossumOutputFile = {
+      metadata: validMetadata,
+      manualAttributions: {},
+      resourcesToAttributions: {},
+      resolvedExternalAttributions: [],
+    };
+    await writeOpossumFile({
+      path: filePath,
+      input: inputFileContent,
+      output: attributions,
+    });
+    const content = (await parseOpossumFile(
+      filePath,
+    )) as ParsedOpossumInputAndOutput;
+    expect(content.input).toEqual(inputFileContent);
+    expect(content.output).toEqual(attributions);
   });
 
   it('loads .opossum file and parses jsons successfully', async () => {
