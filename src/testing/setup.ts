@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import '@testing-library/jest-dom/vitest';
 import { noop } from 'lodash';
-import { vi } from 'vitest';
 
 import { executeCommand } from '../ElectronBackend/api/commands';
 import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
@@ -14,7 +13,7 @@ import { faker } from './Faker';
 
 // We suppress the recharts warning that is due to our mocking in tests.
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN = [
-  'The width(0) and height(0) of chart should be greater than 0,',
+  'of chart should be greater than 0,',
 ];
 
 // this is a quick fix for #938
@@ -22,9 +21,30 @@ const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR = [
   'should be wrapped into act(...)',
 ];
 
+// Surpress more logs, so that the test output is more readable.
+vi.mock('../../ElectronBackend/main/ProcessingStatusUpdater.ts', () => ({
+  ProcessingStatusUpdater: vi.fn().mockImplementation(() => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    startProcessing: vi.fn(),
+    endProcessing: vi.fn(),
+  })),
+}));
+
+vi.mock('electron-log', () => ({
+  default: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
 vi.mock('../ElectronBackend/main/logger.ts', () => ({
   default: {
     info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
 

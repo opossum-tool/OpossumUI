@@ -55,7 +55,17 @@ describe('The GlobalPopUp', () => {
     ).toHaveBeenLastCalledWith(true);
   });
 
-  it('opens the UpdateAppPopup', async () => {
+  it('opens the UpdateAppPopup', () => {
+    vi.mock(
+      '../../../Components/UpdateAppPopup/UpdateAppPopup.util.ts',
+      () => ({
+        useLatestRelease: vi.fn().mockReturnValue({
+          latestRelease: undefined,
+          latestReleaseError: null,
+          latestReleaseLoading: false,
+        }),
+      }),
+    );
     await renderComponent(<GlobalPopup />, {
       actions: [openPopup(PopupType.UpdateAppPopup)],
     });
