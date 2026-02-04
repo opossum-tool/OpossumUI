@@ -74,5 +74,6 @@ export default defineConfig(({ mode }) => ({
     include: ['**/__tests__/**/*.test.{ts,tsx}'],
     exclude: ['node_modules', 'build', 'src/e2e-tests'],
     clearMocks: true,
+    unstubGlobals: true,
   },
 }));
