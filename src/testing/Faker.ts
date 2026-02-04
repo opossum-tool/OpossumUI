@@ -329,7 +329,7 @@ class OpossumModule {
 
 class PackageSearchModule {
   public static usePackageNames() {
-    jest.spyOn(PackageSearchHooks, 'usePackageNames').mockReturnValue({
+    vi.spyOn(PackageSearchHooks, 'usePackageNames').mockReturnValue({
       packageNames: [],
       packageNamesError: null,
       packageNamesLoading: false,
@@ -337,7 +337,7 @@ class PackageSearchModule {
   }
 
   public static usePackageNamespaces() {
-    jest.spyOn(PackageSearchHooks, 'usePackageNamespaces').mockReturnValue({
+    vi.spyOn(PackageSearchHooks, 'usePackageNamespaces').mockReturnValue({
       packageNamespaces: [],
       packageNamespacesError: null,
       packageNamespacesLoading: false,
@@ -345,7 +345,7 @@ class PackageSearchModule {
   }
 
   public static usePackageVersions() {
-    jest.spyOn(PackageSearchHooks, 'usePackageVersions').mockReturnValue({
+    vi.spyOn(PackageSearchHooks, 'usePackageVersions').mockReturnValue({
       packageVersions: [],
       packageVersionsError: null,
       packageVersionsLoading: false,
@@ -548,7 +548,7 @@ class Faker extends NativeFaker {
   }
 
   public httpClient(...body: Array<object>): HttpClient {
-    const request = jest.fn();
+    const request = vi.fn();
 
     body.forEach((item) =>
       request.mockResolvedValueOnce(new Response(JSON.stringify(item))),

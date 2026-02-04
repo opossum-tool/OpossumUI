@@ -3,8 +3,9 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { noop } from 'lodash';
+import { vi } from 'vitest';
 
 import { executeCommand } from '../ElectronBackend/api/commands';
 import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
@@ -21,11 +22,10 @@ const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR = [
   'should be wrapped into act(...)',
 ];
 
-jest.mock('../ElectronBackend/main/logger.ts');
-
-const originalConsoleError = console.error;
-const originalConsoleWarn = console.warn;
-const originalConsoleInfo = console.info;
+vi.mock('../ElectronBackend/main/logger.ts', () => ({
+  default: vi.fn(),
+  info: vi.fn(),
+}));
 
 class ResizeObserver {
   observe = noop;
@@ -33,26 +33,30 @@ class ResizeObserver {
   disconnect = noop;
 }
 
+window.ResizeObserver = ResizeObserver;
+
 global.window.electronAPI = {
-  quit: jest.fn(),
-  relaunch: jest.fn(),
-  openLink: jest.fn().mockReturnValue(Promise.resolve()),
-  openFile: jest.fn(),
-  selectFile: jest.fn(),
-  importFileSelectSaveLocation: jest.fn(),
-  importFileConvertAndLoad: jest.fn(),
-  mergeFileAndLoad: jest.fn(),
-  exportFile: jest.fn(),
-  saveFile: jest.fn(),
-  stopLoading: jest.fn(),
-  on: jest.fn().mockReturnValue(jest.fn()),
-  getUserSettings: jest.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
-  updateUserSettings: jest.fn(),
-  setFrontendPopupOpen: jest.fn(),
-  api: jest.fn().mockImplementation(executeCommand),
+  quit: vi.fn(),
+  relaunch: vi.fn(),
+  openLink: vi.fn().mockReturnValue(Promise.resolve()),
+  openFile: vi.fn(),
+  selectFile: vi.fn(),
+  importFileSelectSaveLocation: vi.fn(),
+  importFileConvertAndLoad: vi.fn(),
+  mergeFileAndLoad: vi.fn(),
+  exportFile: vi.fn(),
+  saveFile: vi.fn(),
+  stopLoading: vi.fn(),
+  on: vi.fn().mockReturnValue(vi.fn()),
+  getUserSettings: vi.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
+  updateUserSettings: vi.fn(),
+  setFrontendPopupOpen: vi.fn(),
+  api: vi.fn().mockImplementation(executeCommand),
 } satisfies ElectronAPI;
 
-window.ResizeObserver = ResizeObserver;
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+const originalConsoleInfo = console.info;
 
 console.warn = getMockConsoleImplementation(
   SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN,
