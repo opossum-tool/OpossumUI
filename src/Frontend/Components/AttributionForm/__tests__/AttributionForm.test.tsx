@@ -27,7 +27,9 @@ describe('AttributionForm', () => {
   describe('PURL handling', () => {
     it('copies PURL to clipboard', async () => {
       const writeText = vi.fn();
-      (navigator.clipboard as unknown) = { writeText };
+      vi.stubGlobal('navigator', {
+        clipboard: { writeText },
+      });
       const packageInfo = faker.opossum.packageInfo();
       await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
@@ -43,7 +45,10 @@ describe('AttributionForm', () => {
       const packageInfo = faker.opossum.packageInfo();
       const purl = generatePurl(packageInfo);
       const readText = vi.fn().mockReturnValue(purl.toString());
-      (navigator.clipboard as unknown) = { readText };
+      vi.stubGlobal('navigator', {
+        clipboard: { readText },
+      });
+
       await renderComponent(
         <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
       );
