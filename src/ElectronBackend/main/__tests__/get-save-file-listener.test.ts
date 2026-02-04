@@ -12,6 +12,9 @@ import { setGlobalBackendState } from '../globalBackendState';
 import { saveFileListener } from '../listeners';
 
 vi.mock('electron', () => ({
+  app: {
+    getAppPath: () => './',
+  },
   dialog: {
     showOpenDialogSync: vi.fn(),
     showMessageBox: vi.fn(() => {
