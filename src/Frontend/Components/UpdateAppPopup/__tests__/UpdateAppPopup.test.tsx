@@ -13,7 +13,7 @@ import * as util from '../UpdateAppPopup.util';
 
 describe('UpdateAppPopup', () => {
   it('shows message that a new release is available', async () => {
-    jest.spyOn(util, 'useLatestRelease').mockReturnValue({
+    vi.spyOn(util, 'useLatestRelease').mockReturnValue({
       latestRelease: {
         name: faker.system.semver(),
         url: faker.internet.url(),
@@ -29,7 +29,7 @@ describe('UpdateAppPopup', () => {
   });
 
   it('shows message that no newer release is available', async () => {
-    jest.spyOn(util, 'useLatestRelease').mockReturnValue({
+    vi.spyOn(util, 'useLatestRelease').mockReturnValue({
       latestRelease: {
         name: commitInfo.commitInfo,
         url: faker.internet.url(),
@@ -46,7 +46,7 @@ describe('UpdateAppPopup', () => {
 
   it('shows error message', async () => {
     const error = faker.lorem.sentence();
-    jest.spyOn(util, 'useLatestRelease').mockReturnValue({
+    vi.spyOn(util, 'useLatestRelease').mockReturnValue({
       latestRelease: undefined,
       latestReleaseError: Error(error),
       latestReleaseLoading: false,
@@ -59,7 +59,7 @@ describe('UpdateAppPopup', () => {
   });
 
   it('shows loading state', async () => {
-    jest.spyOn(util, 'useLatestRelease').mockReturnValue({
+    vi.spyOn(util, 'useLatestRelease').mockReturnValue({
       latestRelease: undefined,
       latestReleaseError: null,
       latestReleaseLoading: true,

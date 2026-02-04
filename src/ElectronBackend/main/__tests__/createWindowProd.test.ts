@@ -4,24 +4,24 @@
 // SPDX-License-Identifier: Apache-2.0
 import { createWindow } from '../createWindow';
 
-jest.mock('electron', () => ({
+vi.mock('electron', () => ({
   app: {
-    on: jest.fn(),
-    getPath: jest.fn(),
-    getName: jest.fn(),
-    getVersion: jest.fn(),
+    on: vi.fn(),
+    getPath: vi.fn(),
+    getName: vi.fn(),
+    getVersion: vi.fn(),
     whenReady: async (): Promise<unknown> => Promise.resolve(true),
     isPackaged: true,
   },
   BrowserWindow: class BrowserWindowMock {
     constructor() {
       return {
-        loadURL: jest.fn(),
+        loadURL: vi.fn(),
         webContents: {
-          openDevTools: jest.fn(),
+          openDevTools: vi.fn(),
           session: {
             webRequest: {
-              onHeadersReceived: jest.fn(),
+              onHeadersReceived: vi.fn(),
             },
           },
         },
@@ -29,13 +29,13 @@ jest.mock('electron', () => ({
     }
   },
   Menu: {
-    setApplicationMenu: jest.fn(),
-    buildFromTemplate: jest.fn(),
-    getApplicationMenu: jest.fn(),
+    setApplicationMenu: vi.fn(),
+    buildFromTemplate: vi.fn(),
+    getApplicationMenu: vi.fn(),
   },
 }));
 
-jest.mock('../iconHelpers', () => ({
+vi.mock('../iconHelpers', () => ({
   getIconPath: (): string => {
     return 'icon/path.png';
   },

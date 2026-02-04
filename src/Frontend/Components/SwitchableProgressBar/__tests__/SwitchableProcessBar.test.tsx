@@ -32,7 +32,7 @@ const attributionProgressBarLabel =
 
 function openSelect() {
   fireEvent.mouseDown(screen.getByRole('combobox'), {
-    advanceTimers: jest.runOnlyPendingTimersAsync,
+    advanceTimers: vi.runOnlyPendingTimersAsync,
   });
 }
 
@@ -46,7 +46,7 @@ function expectSelectToBeOpen() {
 
 async function selectEntry(selectLabel: string) {
   await userEvent.click(screen.getByText(selectLabel), {
-    advanceTimers: jest.runOnlyPendingTimersAsync,
+    advanceTimers: vi.runOnlyPendingTimersAsync,
   });
 }
 
@@ -64,12 +64,12 @@ function getAttributionProgressBar() {
 
 describe('SwitchableProcessBar', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
 
   it('does not display the progress bar when no progress data available', async () => {

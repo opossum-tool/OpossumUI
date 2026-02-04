@@ -21,7 +21,7 @@ function createOption(props: Partial<SelectMenuOption> = {}): SelectMenuOption {
 describe('SelectMenu', () => {
   it('displays selected option in single mode', async () => {
     const anchorEl = document.createElement('div');
-    const setAnchorEl = jest.fn();
+    const setAnchorEl = vi.fn();
     const option1 = createOption();
     const option2 = createOption({ selected: true });
     await renderComponent(
@@ -46,9 +46,9 @@ describe('SelectMenu', () => {
 
   it('selects new option in single mode', async () => {
     const anchorEl = document.createElement('div');
-    const setAnchorEl = jest.fn();
-    const onAdd = jest.fn();
-    const onDelete = jest.fn();
+    const setAnchorEl = vi.fn();
+    const onAdd = vi.fn();
+    const onDelete = vi.fn();
     const option1 = createOption({ onAdd });
     const option2 = createOption({ selected: true, onDelete });
     await renderComponent(
@@ -71,7 +71,7 @@ describe('SelectMenu', () => {
 
   it('displays selected options in multiple mode', async () => {
     const anchorEl = document.createElement('div');
-    const setAnchorEl = jest.fn();
+    const setAnchorEl = vi.fn();
     const option1 = createOption();
     const option2 = createOption({ selected: true });
     await renderComponent(
@@ -97,9 +97,9 @@ describe('SelectMenu', () => {
 
   it('selects new option in multiple mode', async () => {
     const anchorEl = document.createElement('div');
-    const setAnchorEl = jest.fn();
-    const onAdd = jest.fn();
-    const onDelete = jest.fn();
+    const setAnchorEl = vi.fn();
+    const onAdd = vi.fn();
+    const onDelete = vi.fn();
     const option1 = createOption({ onAdd });
     const option2 = createOption({ selected: true, onDelete });
     await renderComponent(
@@ -129,7 +129,7 @@ describe('SelectMenu', () => {
 
   it('does not display selected options in multiple mode when selected are hidden', async () => {
     const anchorEl = document.createElement('div');
-    const setAnchorEl = jest.fn();
+    const setAnchorEl = vi.fn();
     const option1 = createOption();
     const option2 = createOption({ selected: true });
     await renderComponent(
@@ -154,9 +154,9 @@ describe('SelectMenu', () => {
 
   it('selects new option in multiple mode when selected are hidden', async () => {
     const anchorEl = document.createElement('div');
-    const setAnchorEl = jest.fn();
-    const onAdd = jest.fn();
-    const onDelete = jest.fn();
+    const setAnchorEl = vi.fn();
+    const onAdd = vi.fn();
+    const onDelete = vi.fn();
     const option1 = createOption({ onAdd });
     const option2 = createOption({ selected: true, onDelete });
     await renderComponent(

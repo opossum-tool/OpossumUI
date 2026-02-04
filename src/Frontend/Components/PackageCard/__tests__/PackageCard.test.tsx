@@ -19,7 +19,7 @@ describe('The PackageCard', () => {
           wasPreferred: true,
           preferred: true,
         })}
-        onClick={jest.fn()}
+        onClick={vi.fn()}
       />,
     );
     expect(screen.getByTestId('preferred-icon')).toBeInTheDocument();
@@ -30,7 +30,7 @@ describe('The PackageCard', () => {
     await renderComponent(
       <PackageCard
         packageInfo={faker.opossum.packageInfo({ wasPreferred: true })}
-        onClick={jest.fn()}
+        onClick={vi.fn()}
       />,
     );
 
@@ -42,7 +42,7 @@ describe('The PackageCard', () => {
     const packageInfo = faker.opossum.packageInfo({ count: 13 });
 
     await renderComponent(
-      <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+      <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
     );
 
     expect(
@@ -60,8 +60,8 @@ describe('The PackageCard', () => {
     await renderComponent(
       <PackageCard
         packageInfo={packageInfo}
-        onClick={jest.fn()}
-        checkbox={{ checked: true, onChange: jest.fn() }}
+        onClick={vi.fn()}
+        checkbox={{ checked: true, onChange: vi.fn() }}
       />,
     );
 
@@ -79,7 +79,7 @@ describe('The PackageCard', () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 1 });
 
       await renderComponent(
-        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
         {
           actions: [
             setConfig({
@@ -99,7 +99,7 @@ describe('The PackageCard', () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 0 });
 
       await renderComponent(
-        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
         {
           actions: [
             setConfig({
@@ -119,7 +119,7 @@ describe('The PackageCard', () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 3 });
 
       await renderComponent(
-        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
         {
           actions: [
             setConfig({
@@ -139,7 +139,7 @@ describe('The PackageCard', () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 3 });
 
       await renderComponent(
-        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
         {
           actions: [
             setConfig({
@@ -165,7 +165,7 @@ describe('The PackageCard', () => {
         });
 
         await renderComponent(
-          <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+          <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
         );
 
         const criticalityIcon = screen.getByLabelText('Criticality icon');
@@ -179,7 +179,7 @@ describe('The PackageCard', () => {
       });
 
       await renderComponent(
-        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
       );
 
       const criticalityIcon = screen.queryByLabelText('Criticality icon');
@@ -192,7 +192,7 @@ describe('The PackageCard', () => {
       });
 
       await renderComponent(
-        <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
+        <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
         { actions: [setUserSetting({ showCriticality: false })] },
       );
 

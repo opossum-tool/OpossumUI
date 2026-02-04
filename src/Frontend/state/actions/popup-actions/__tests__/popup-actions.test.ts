@@ -373,7 +373,7 @@ describe('proceedFromUnsavedPopup', () => {
   });
 
   it('proceeds with open file request', () => {
-    jest.spyOn(window.electronAPI, 'openFile').mockResolvedValue({});
+    vi.spyOn(window.electronAPI, 'openFile').mockResolvedValue({});
 
     const testStore = createAppStore();
     testStore.dispatch(setOpenFileRequest(true));
@@ -404,7 +404,7 @@ describe('proceedFromUnsavedPopup', () => {
   });
 
   it('proceeds with export file request', () => {
-    jest.spyOn(exportActions, 'exportFile').mockReturnValue(() => {});
+    vi.spyOn(exportActions, 'exportFile').mockReturnValue(() => {});
 
     const testStore = createAppStore();
     testStore.dispatch(setExportFileRequest(ExportType.FollowUp));

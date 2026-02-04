@@ -15,7 +15,7 @@ import { convertToOpossum, mergeFileIntoOpossum } from '../opossum-file';
 
 const mockTmpdir = tmpdir();
 
-jest.mock('electron', () => ({
+vi.mock('electron', () => ({
   app: {
     getPath: () => mockTmpdir,
   },

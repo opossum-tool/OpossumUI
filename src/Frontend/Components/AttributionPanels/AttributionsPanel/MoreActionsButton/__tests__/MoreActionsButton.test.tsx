@@ -12,7 +12,7 @@ import { PackagesPanelChildrenProps } from '../../../PackagesPanel/PackagesPanel
 import { MoreActionsButton } from '../MoreActionsButton';
 
 describe('MoreActionsButton', () => {
-  const mockSetMultiSelectedAttributionIds = jest.fn();
+  const mockSetMultiSelectedAttributionIds = vi.fn();
 
   const defaultProps: PackagesPanelChildrenProps = {
     activeAttributionIds: ['attr1', 'attr2'],
@@ -41,7 +41,7 @@ describe('MoreActionsButton', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the more actions button', async () => {
