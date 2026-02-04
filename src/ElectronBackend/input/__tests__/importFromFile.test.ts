@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog } from 'electron';
+import { Mock } from 'vitest';
 import * as zlib from 'zlib';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
@@ -38,22 +39,22 @@ import {
 const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
 const manualAttributionUuid = 'ecd692d9-b154-4d4d-be8c-manual';
 
-jest.mock('electron', () => ({
+vi.mock('electron', () => ({
   dialog: {
-    showOpenDialogSync: jest.fn(),
-    showMessageBox: jest.fn(),
+    showOpenDialogSync: vi.fn(),
+    showMessageBox: vi.fn(),
   },
   BrowserWindow: {
-    getFocusedWindow: jest.fn(),
+    getFocusedWindow: vi.fn(),
   },
-  app: { exit: jest.fn(), getName: jest.fn(), getVersion: jest.fn() },
+  app: { exit: vi.fn(), getName: vi.fn(), getVersion: vi.fn() },
 }));
 
-jest.mock('../../errorHandling/errorHandling', () => ({
-  getMessageBoxForParsingError: jest.fn(),
+vi.mock('../../errorHandling/errorHandling', () => ({
+  getMessageBoxForParsingError: vi.fn(),
 }));
 
-jest.mock('uuid', () => ({
+vi.mock('uuid', () => ({
   v4: (): string => manualAttributionUuid,
 }));
 
@@ -97,7 +98,7 @@ class MockWebContents {
 
 const mainWindow = {
   webContents: new MockWebContents(),
-  setTitle: jest.fn(),
+  setTitle: vi.fn(),
 } as unknown as BrowserWindow;
 
 const source = faker.opossum.source();
@@ -223,7 +224,7 @@ const validMetadata = {
 
 describe('Test of loading function', () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     (mainWindow.webContents as unknown as MockWebContents).reset();
   });
 
@@ -231,10 +232,10 @@ describe('Test of loading function', () => {
     const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
     await writeFile({ path: jsonPath, content: inputFileContent });
 
-    jest.spyOn(Date, 'now').mockReturnValue(1);
+    vi.spyOn(Date, 'now').mockReturnValue(1);
 
-    (dialog.showMessageBox as jest.Mock).mockImplementationOnce(
-      jest.fn(() => {
+    (dialog.showMessageBox as Mock).mockImplementationOnce(
+      vi.fn(() => {
         return Promise.resolve({
           response: 0,
         });
@@ -288,7 +289,7 @@ describe('Test of loading function', () => {
       path: opossumPath,
     });
 
-    jest.spyOn(Date, 'now').mockReturnValue(1);
+    vi.spyOn(Date, 'now').mockReturnValue(1);
 
     const globalBackendState = {
       resourceFilePath: '/previous/file.opossum',
@@ -314,7 +315,7 @@ describe('Test of loading function', () => {
       path: opossumPath,
     });
 
-    jest.spyOn(Date, 'now').mockReturnValue(1691761892037);
+    vi.spyOn(Date, 'now').mockReturnValue(1691761892037);
 
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, opossumPath);
@@ -340,7 +341,7 @@ describe('Test of loading function', () => {
       const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
       await writeFile({ path: jsonPath, content: inputFileContent });
 
-      jest.spyOn(Date, 'now').mockReturnValue(1);
+      vi.spyOn(Date, 'now').mockReturnValue(1);
 
       setGlobalBackendState({});
       await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
@@ -370,7 +371,7 @@ describe('Test of loading function', () => {
         path: jsonPath,
       });
 
-      jest.spyOn(Date, 'now').mockReturnValue(1);
+      vi.spyOn(Date, 'now').mockReturnValue(1);
 
       setGlobalBackendState({});
       await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
@@ -419,7 +420,7 @@ describe('Test of loading function', () => {
     };
     await writeFile({ path: attributionJsonPath, content: attributions });
 
-    jest.spyOn(Date, 'now').mockReturnValue(1);
+    vi.spyOn(Date, 'now').mockReturnValue(1);
 
     const globalBackendState = {
       resourceFilePath: '/previous/file.json',
@@ -498,7 +499,7 @@ describe('Test of loading function', () => {
         content: inputFileContentWithPreselectedAttribution,
       });
 
-      jest.spyOn(Date, 'now').mockReturnValue(1);
+      vi.spyOn(Date, 'now').mockReturnValue(1);
 
       const globalBackendState = {
         resourceFilePath: '/previous/file.json',
@@ -619,7 +620,7 @@ describe('Test of loading function', () => {
       content: inputFileContentWithCustomMetadata,
     });
 
-    jest.spyOn(Date, 'now').mockReturnValue(1);
+    vi.spyOn(Date, 'now').mockReturnValue(1);
 
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
@@ -655,7 +656,7 @@ describe('Test of loading function', () => {
 
     await writeFile({ path: jsonPath, content: inputFileContentWithOriginIds });
 
-    jest.spyOn(Date, 'now').mockReturnValue(1);
+    vi.spyOn(Date, 'now').mockReturnValue(1);
 
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
@@ -699,11 +700,11 @@ describe('Test of loading function', () => {
   });
 
   it('handles non existing file correctly', async () => {
-    jest.spyOn(Date, 'now').mockReturnValue(1);
+    vi.spyOn(Date, 'now').mockReturnValue(1);
 
-    const dialogMock = dialog.showMessageBox as jest.Mock;
+    const dialogMock = dialog.showMessageBox as Mock;
     dialogMock.mockImplementationOnce(
-      jest.fn(() => {
+      vi.fn(() => {
         return Promise.resolve({
           response: 0,
         });
@@ -735,10 +736,10 @@ describe('Test of loading function', () => {
     const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
     await writeFile({ path: opossumPath, content: '0' });
 
-    jest.spyOn(Date, 'now').mockReturnValue(1);
-    const dialogMock = dialog.showMessageBox as jest.Mock;
+    vi.spyOn(Date, 'now').mockReturnValue(1);
+    const dialogMock = dialog.showMessageBox as Mock;
     dialogMock.mockImplementationOnce(
-      jest.fn(() => {
+      vi.fn(() => {
         return Promise.resolve({
           response: 0,
         });

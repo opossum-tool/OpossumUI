@@ -20,8 +20,8 @@ type MockedBrowserWindow = BrowserWindow & {
   sendFunction: (channel: string, ...args: Array<unknown>) => void;
 };
 
-jest.mock('electron', () => {
-  const sendFunction = jest.fn();
+vi.mock('electron', () => {
+  const sendFunction = vi.fn();
   return {
     BrowserWindow: {
       getAllWindows: () => {

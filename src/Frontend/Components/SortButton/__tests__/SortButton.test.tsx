@@ -21,7 +21,7 @@ describe('SortButton', () => {
   it('switches to selected sorting', async () => {
     let result: FilteredData;
     const prev: FilteredData = initialFilteredAttributions;
-    const setFilteredData = jest.fn((fn) => {
+    const setFilteredData = vi.fn((fn) => {
       result = fn(prev);
     });
     const sorting: SortOption = 'criticality';
@@ -48,7 +48,7 @@ describe('SortButton', () => {
         ...initialFilteredAttributions,
         attributions: {},
       },
-      jest.fn(),
+      vi.fn(),
     ];
     await renderComponent(<SortButton useFilteredData={useFilteredData} />);
 
@@ -56,13 +56,12 @@ describe('SortButton', () => {
   });
 
   it('shows all sort options', async () => {
-    const setFilteredData = jest.fn;
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
         attributions: faker.opossum.attributions(),
       },
-      setFilteredData,
+      vi.fn(),
     ];
     await renderComponent(<SortButton useFilteredData={useFilteredData} />);
 

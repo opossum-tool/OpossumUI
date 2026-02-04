@@ -11,10 +11,10 @@ import { writeFile } from '../../../shared/write-file';
 import { setGlobalBackendState } from '../globalBackendState';
 import { saveFileListener } from '../listeners';
 
-jest.mock('electron', () => ({
+vi.mock('electron', () => ({
   dialog: {
-    showOpenDialogSync: jest.fn(),
-    showMessageBox: jest.fn(() => {
+    showOpenDialogSync: vi.fn(),
+    showMessageBox: vi.fn(() => {
       return Promise.resolve({
         response: 0,
       });
@@ -22,13 +22,13 @@ jest.mock('electron', () => ({
   },
 }));
 
-jest.mock('../../input/importFromFile', () => ({
-  loadInputAndOutputFromFilePath: jest.fn(),
+vi.mock('../../input/importFromFile', () => ({
+  loadInputAndOutputFromFilePath: vi.fn(),
 }));
 
-jest.mock('../../../shared/write-file', () => ({
-  ...jest.requireActual('../../../shared/write-file'),
-  writeFile: jest.fn(),
+vi.mock('../../../shared/write-file', async () => ({
+  ...(await vi.importActual('../../../shared/write-file')),
+  writeFile: vi.fn(),
 }));
 
 const mockDate = 1603976726737;
@@ -36,7 +36,7 @@ MockDate.set(new Date(mockDate));
 
 describe('getSaveFileListener', () => {
   it('throws error when projectId is not set', async () => {
-    const mockCallback = jest.fn();
+    const mockCallback = vi.fn();
     const mainWindow = {
       webContents: { send: mockCallback as unknown } as WebContents,
     } as unknown as BrowserWindow;
@@ -62,7 +62,7 @@ describe('getSaveFileListener', () => {
   });
 
   it('throws error when attributionFilePath and opossumFilePath are not set', async () => {
-    const mockCallback = jest.fn();
+    const mockCallback = vi.fn();
     const mainWindow = {
       webContents: { send: mockCallback as unknown } as WebContents,
     } as unknown as BrowserWindow;
@@ -96,7 +96,7 @@ describe('getSaveFileListener', () => {
     'calls createListenerCallBackWithErrorHandling when ' +
       'resourceFilePath, attributionFilePath and projectId are set',
     async () => {
-      const mockCallback = jest.fn();
+      const mockCallback = vi.fn();
       const mainWindow = {
         webContents: { send: mockCallback as unknown } as WebContents,
       } as unknown as BrowserWindow;

@@ -19,7 +19,7 @@ import { PackagesPanel } from '../PackagesPanel';
 
 describe('PackagesPanel', () => {
   it('enables select-all checkbox when there are attribution IDs', async () => {
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -41,7 +41,7 @@ describe('PackagesPanel', () => {
   });
 
   it('disables select-all checkbox when there are no attribution IDs', async () => {
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -63,7 +63,7 @@ describe('PackagesPanel', () => {
   });
 
   it('disables select-all checkbox when there are attribution IDs but checkbox is externally disabled', async () => {
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -88,7 +88,7 @@ describe('PackagesPanel', () => {
   it('checkbox is indeterminate when some but not all attributions are selected', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -127,7 +127,7 @@ describe('PackagesPanel', () => {
   it('checkbox is not indeterminate when no attributions are selected', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -165,7 +165,7 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -209,7 +209,7 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -240,7 +240,7 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -276,7 +276,7 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -319,7 +319,7 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -395,7 +395,7 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -439,7 +439,7 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -477,7 +477,7 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -512,7 +512,7 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -565,7 +565,7 @@ describe('PackagesPanel', () => {
   });
 
   it('renders no tabs when there are no attributions', async () => {
-    const setFilteredData = jest.fn();
+    const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       { ...initialFilteredAttributions, attributions: {} },
       setFilteredData,

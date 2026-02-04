@@ -23,7 +23,7 @@ const TestComponent: React.FC<
   }
 > = ({
   onCancel,
-  onConfirm = jest.fn(),
+  onConfirm = vi.fn(),
   skip,
   buttonTitle = faker.string.sample(),
   message = faker.lorem.paragraph(),
@@ -51,8 +51,8 @@ describe('ConfirmationDialog', () => {
   });
 
   it('does not show confirmation dialog and calls confirm handler immediately when no confirmation is required', async () => {
-    const onConfirm = jest.fn();
-    const onCancel = jest.fn();
+    const onConfirm = vi.fn();
+    const onCancel = vi.fn();
     await renderComponent(
       <TestComponent skip={true} onConfirm={onConfirm} onCancel={onCancel} />,
     );
@@ -67,8 +67,8 @@ describe('ConfirmationDialog', () => {
   });
 
   it('closes confirmation dialog and calls confirm handler when user confirms confirmation dialog', async () => {
-    const onConfirm = jest.fn();
-    const onCancel = jest.fn();
+    const onConfirm = vi.fn();
+    const onCancel = vi.fn();
     await renderComponent(
       <TestComponent onConfirm={onConfirm} onCancel={onCancel} />,
     );
@@ -88,8 +88,8 @@ describe('ConfirmationDialog', () => {
   });
 
   it('closes confirmation dialog and calls cancel handler when user cancels out of confirmation dialog', async () => {
-    const onConfirm = jest.fn();
-    const onCancel = jest.fn();
+    const onConfirm = vi.fn();
+    const onCancel = vi.fn();
     await renderComponent(
       <TestComponent onConfirm={onConfirm} onCancel={onCancel} />,
     );

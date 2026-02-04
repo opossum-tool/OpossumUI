@@ -13,7 +13,7 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { renderComponent } from '../../../test-helpers/render';
 import { PathBar } from '../PathBar';
 
-const writeText = jest.fn();
+const writeText = vi.fn();
 
 describe('The PathBar', () => {
   beforeAll(() => {
