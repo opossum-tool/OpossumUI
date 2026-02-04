@@ -16,6 +16,7 @@ import {
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
+import { initializeDb } from '../db/initializeDb';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import {
@@ -205,8 +206,7 @@ export async function loadInputAndOutputFromFilePath(
     externalAttributions,
   );
 
-  processingStatusUpdater.info('Sending data to user interface');
-  mainWindow.webContents.send(AllowedFrontendChannels.FileLoaded, {
+  const parsedFileContent = {
     metadata: parsedInputData.metadata,
     resources: parsedInputData.resources,
     config: configuration,
@@ -231,7 +231,18 @@ export async function loadInputAndOutputFromFilePath(
     ),
     externalAttributionSources:
       parsedInputData.externalAttributionSources ?? {},
-  } satisfies ParsedFileContent);
+  } satisfies ParsedFileContent;
+
+  processingStatusUpdater.info('Loading into database');
+
+  await initializeDb(parsedFileContent);
+
+  processingStatusUpdater.info('Sending data to user interface');
+
+  mainWindow.webContents.send(
+    AllowedFrontendChannels.FileLoaded,
+    parsedFileContent,
+  );
 
   processingStatusUpdater.info('Finalizing global state');
   getGlobalBackendState().projectTitle = parsedInputData.metadata.projectTitle;

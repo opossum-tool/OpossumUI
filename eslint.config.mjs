@@ -35,6 +35,7 @@ export default tseslint.config(
       'notices.template.html',
       'vite.config.mts',
       '.yarn',
+      'src/ElectronBackend/db/generated',
     ],
   },
   {

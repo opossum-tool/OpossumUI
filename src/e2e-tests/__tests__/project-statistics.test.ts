@@ -9,6 +9,9 @@ const [resourceName1] = faker.opossum.resourceNames({ count: 1 });
 const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
   criticality: RawCriticality[Criticality.Medium],
 });
+const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
+  criticality: RawCriticality[Criticality.Medium],
+});
 const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
   criticality: RawCriticality[Criticality.Medium],
 });
@@ -31,7 +34,7 @@ test.use({
     }),
     outputData: faker.opossum.outputData({
       manualAttributions: faker.opossum.rawAttributions({
-        [attributionId1]: packageInfo1,
+        [attributionId2]: packageInfo2,
       }),
     }),
   },

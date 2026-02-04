@@ -2,18 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { keepPreviousData } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
-import {
-  getResourceIds,
-  getResourceIdsOfSelectedAttribution,
-} from '../../state/selectors/resource-selectors';
+import { getResourceIdsOfSelectedAttribution } from '../../state/selectors/resource-selectors';
 import { useIsSelectedAttributionVisible } from '../../state/variables/use-filtered-data';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
+import { backend } from '../../util/backendClient';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
@@ -26,7 +25,6 @@ export function ResourceBrowser() {
   const resourceIdsOfSelectedAttribution = useAppSelector(
     getResourceIdsOfSelectedAttribution,
   );
-  const resourceIds = useAppSelector(getResourceIds);
 
   const isSelectedAttributionVisible = useIsSelectedAttributionVisible();
 
@@ -39,13 +37,11 @@ export function ResourceBrowser() {
   const debouncedSearchLinked = useDebouncedInput(searchLinked);
   const { panelSizes, setPanelSizes } = usePanelSizes();
 
-  const allResourcesFiltered = useMemo(
-    () =>
-      resourceIds?.filter((path) =>
-        path.toLowerCase().includes(debouncedSearchAll),
-      ),
-    [resourceIds, debouncedSearchAll],
-  );
+  const allResourcesFiltered =
+    backend.searchResources.useQuery(
+      { searchString: debouncedSearchAll },
+      { placeholderData: keepPreviousData },
+    ).data ?? [];
   const linkedResourcesFiltered = useMemo(
     () =>
       isSelectedAttributionVisible

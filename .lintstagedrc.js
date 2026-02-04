@@ -11,6 +11,8 @@ module.exports = {
   ],
   '*.{ts,tsx}': 'eslint',
   '!(src/ElectronBackend/**/*)*.{ts,tsx}': () => 'tsc -p ./',
-  'src/ElectronBackend/**/*.{ts,tsx}': () =>
+  'src/ElectronBackend/**/*.{ts,tsx}': () => [
+    'yarn db:generate',
     'tsc --noEmit -p src/ElectronBackend',
+  ],
 };

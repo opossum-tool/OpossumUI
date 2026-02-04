@@ -6,6 +6,7 @@ import { BrowserWindow, ipcMain } from 'electron';
 
 import { IpcChannel } from '../../shared/ipc-channels';
 import { UserSettings } from '../../shared/shared-types';
+import { executeCommand } from '../api/commands';
 import { getGlobalBackendState } from './globalBackendState';
 import {
   exportFileListener,
@@ -60,4 +61,7 @@ export function setupIpcHandling(
     getGlobalBackendState().frontendPopupOpen = open;
     await updateMenu();
   });
+  ipcMain.handle(IpcChannel.Api, (_, command, params) =>
+    executeCommand(command, params),
+  );
 }
