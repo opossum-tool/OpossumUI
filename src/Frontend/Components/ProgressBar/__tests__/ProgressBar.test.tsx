@@ -80,7 +80,7 @@ async function clickOnClassificationProgressBar() {
 
 describe('ProgressBar', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
   afterEach(() => {
