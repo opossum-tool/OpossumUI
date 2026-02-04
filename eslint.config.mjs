@@ -3,12 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import eslintReact from '@eslint-react/eslint-plugin';
-import { fixupPluginRules } from '@eslint/compat';
-import { includeIgnoreFile } from '@eslint/compat';
+import { fixupPluginRules, includeIgnoreFile } from '@eslint/compat';
 import eslint from '@eslint/js';
 import eslintPluginQuery from '@tanstack/eslint-plugin-query';
+import vitest from '@vitest/eslint-plugin';
 import eslintPluginCheckFile from 'eslint-plugin-check-file';
-import eslintConfigJest from 'eslint-plugin-jest';
 import eslintConfigJestDom from 'eslint-plugin-jest-dom';
 import eslintConfigPlaywright from 'eslint-plugin-playwright';
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
@@ -31,7 +30,6 @@ export default tseslint.config(
       'commitlint.config.ts',
       'eslint.config.mjs',
       'index.html',
-      'jest.config.mjs',
       'notices.template.html',
       'vite.config.mts',
       '.yarn',
@@ -41,8 +39,7 @@ export default tseslint.config(
   {
     plugins: {
       'check-file': eslintPluginCheckFile,
-      jest: eslintConfigJest,
-      'jest-dom': fixupPluginRules(eslintConfigJestDom),
+      vitest: vitest,
       '@tanstack/query': eslintPluginQuery,
       // @ts-ignore
       'react-hooks': fixupPluginRules(eslintPluginReactHooks),
@@ -73,8 +70,7 @@ export default tseslint.config(
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
       eslintConfigTestingLibrary.configs['flat/react'],
-      eslintConfigJest.configs['flat/recommended'],
-      eslintConfigJest.configs['flat/style'],
+      eslintConfigJestDom.configs['flat/recommended'],
       eslintReact.configs['recommended-typescript'],
     ],
     settings: {
@@ -85,7 +81,7 @@ export default tseslint.config(
     rules: {
       ...eslintPluginQuery.configs.recommended.rules,
       ...eslintPluginReactHooks.configs.recommended.rules,
-      ...eslintConfigJestDom.configs['flat/recommended'].rules,
+      ...vitest.configs.recommended.rules,
       'react/display-name': 'off',
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
@@ -131,8 +127,8 @@ export default tseslint.config(
         'error',
         { considerDefaultExhaustiveForUnions: true },
       ],
-      'jest/consistent-test-it': 'error',
-      'jest/prefer-spy-on': 'error',
+      'vitest/consistent-test-it': 'error',
+      'vitest/prefer-spy-on': 'error',
       'check-file/filename-naming-convention': [
         'error',
         {
