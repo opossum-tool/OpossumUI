@@ -86,7 +86,7 @@ const spdxGrammar = grammar(`
     // The conjunctions contain spaces so we don't match MITANDAPACHE
     // We need the #'s here so we don't consume the spaces before trying to match them, which would fail
     CompoundExpression
-      = LicenseId #with LicenseId
+      = LicenseExpression #with LicenseExpression
       | LicenseExpression #and LicenseExpression
       | LicenseExpression #or LicenseExpression
       | "(" LicenseExpression ")"
