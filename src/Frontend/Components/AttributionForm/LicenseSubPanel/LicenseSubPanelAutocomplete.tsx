@@ -128,10 +128,7 @@ export function LicenseSubPanelAutocomplete({
   ): Array<LicenseOption> {
     const [beforeLast, lastLicense] = splitAtLastExpression(inputValue);
     const hasExpressionBeforeLastWord = beforeLast !== '';
-    return options.filter((option) => {
-      if (option.shortName === lastLicense.trim()) {
-        return false;
-      }
+    const autocompleteOptions = options.filter((option) => {
       // Selecting signals or attributions replaces everything, so you have to filter on the full input and not just the last part.
       if (option.replaceEntireSearch) {
         return option.shortName
@@ -144,6 +141,13 @@ export function LicenseSubPanelAutocomplete({
       }
       return false;
     });
+    if (
+      autocompleteOptions.length === 1 &&
+      autocompleteOptions[0].shortName === lastLicense.trim()
+    ) {
+      return [];
+    }
+    return autocompleteOptions;
   }
 
   const validationResult = validateSpdxExpression({

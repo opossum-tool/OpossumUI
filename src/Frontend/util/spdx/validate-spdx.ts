@@ -171,24 +171,13 @@ function getUnknownLicenseIdsWithSuggestions({
   )) {
     let suggestion: string | undefined = undefined;
 
-    if (id.match(/^LicenseRef/i) || id.match(/^DocumentRef/i)) {
-      suggestion = id
-        .replace(/^LicenseRef/i, 'LicenseRef')
-        .replace(/^DocumentRef/i, 'DocumentRef')
-        .replaceAll(' ', '-');
-
-      if (suggestion === id) {
-        continue;
+    try {
+      const spdxCorrection = spdxCorrect(id);
+      if (spdxCorrection && knownLicenseIds.has(spdxCorrection)) {
+        suggestion = spdxCorrection;
       }
-    } else {
-      try {
-        const spdxCorrection = spdxCorrect(id);
-        if (spdxCorrection && knownLicenseIds.has(spdxCorrection)) {
-          suggestion = spdxCorrection;
-        }
-      } catch {
-        // If spxdCorrect fails, we have no suggestion
-      }
+    } catch {
+      // If spxdCorrect fails, we have no suggestion
     }
 
     const fix = suggestion

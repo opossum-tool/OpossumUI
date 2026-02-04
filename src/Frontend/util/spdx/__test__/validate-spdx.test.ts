@@ -25,8 +25,6 @@ describe('validateSpdxExpression', () => {
     ['parentheses', '(MIT OR Apache-2.0) AND BSD-3-Clause'],
     ['nested parentheses', '((MIT OR Apache-2.0) AND BSD-3-Clause)'],
     ['extra whitespace', 'MIT  AND  Apache-2.0'],
-    ['LicenseRef', 'LicenseRef-MyLicense'],
-    ['DocumentRef', 'DocumentRef-ext:LicenseRef-MyLicense'],
   ])('returns valid for %s', (_, spdxExpression) => {
     expect(validateSpdxExpression({ spdxExpression, knownLicenseIds })).toEqual(
       {
@@ -92,33 +90,6 @@ describe('validateSpdxExpression', () => {
       'unknown in compound expression',
       'mit AND Apache-2.0',
       { unknownId: 'mit', suggestion: 'MIT', fix: 'MIT AND Apache-2.0' },
-    ],
-    [
-      'LicenseRef with incorrect casing',
-      'licenseref-MyLicense',
-      {
-        unknownId: 'licenseref-MyLicense',
-        suggestion: 'LicenseRef-MyLicense',
-        fix: 'LicenseRef-MyLicense',
-      },
-    ],
-    [
-      'LicenseRef with space',
-      'LicenseRef MyLicense',
-      {
-        unknownId: 'LicenseRef MyLicense',
-        suggestion: 'LicenseRef-MyLicense',
-        fix: 'LicenseRef-MyLicense',
-      },
-    ],
-    [
-      'DocumentRef with incorrect casing',
-      'documentref-ext',
-      {
-        unknownId: 'documentref-ext',
-        suggestion: 'DocumentRef-ext',
-        fix: 'DocumentRef-ext',
-      },
     ],
   ])('detects %s', (_, spdxExpression, expectedUnknown) => {
     expect(validateSpdxExpression({ spdxExpression, knownLicenseIds })).toEqual(
