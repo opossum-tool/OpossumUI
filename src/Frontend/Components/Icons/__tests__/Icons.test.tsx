@@ -28,7 +28,7 @@ async function hoverOverIcon(testid: string) {
 
 describe('The Icons', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
   afterEach(() => {
@@ -131,7 +131,7 @@ describe('The Icons', () => {
 });
 
 describe('The SignalIcon', () => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   it('renders high criticality SignalIcon', () => {
     render(<CriticalityIcon criticality={Criticality.High} />);
 
