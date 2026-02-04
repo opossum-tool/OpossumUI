@@ -28,7 +28,7 @@
     "fflate": "0.8.2",
     "js-yaml": "4.1.1",
     "jsonschema": "1.5.0",
-    "kysely": "0.28.10",
+    "kysely": "0.28.11",
     "lodash": "4.17.23",
     "object-hash": "3.0.0",
     "ohm-js": "17.3.0",
