@@ -8,16 +8,23 @@ import { Mock } from 'vitest';
 import { createMenu } from '../menu';
 import { UserSettingsService } from '../user-settings-service';
 
-vi.mock('electron', () => ({
-  BrowserWindow: class BrowserWindowMock {},
-  app: {
-    isPackaged: true,
-  },
-  Menu: {
-    buildFromTemplate: vi.fn(),
-    setApplicationMenu: vi.fn(),
-  },
-}));
+vi.mock('electron', () => {
+  const mockElectron = {
+    BrowserWindow: class BrowserWindowMock {},
+    app: {
+      isPackaged: true,
+    },
+    Menu: {
+      buildFromTemplate: vi.fn(),
+      setApplicationMenu: vi.fn(),
+    },
+    nativeTheme: {},
+  };
+  return {
+    default: mockElectron,
+    ...mockElectron,
+  };
+});
 
 vi.mock('electron-settings');
 

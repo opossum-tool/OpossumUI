@@ -23,8 +23,9 @@ const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR = [
 ];
 
 vi.mock('../ElectronBackend/main/logger.ts', () => ({
-  default: vi.fn(),
-  info: vi.fn(),
+  default: {
+    info: vi.fn(),
+  },
 }));
 
 class ResizeObserver {
