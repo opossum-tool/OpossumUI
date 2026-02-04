@@ -86,7 +86,7 @@ const spdxGrammar = grammar(`
     // The conjunctions contain spaces so we don't match MITANDAPACHE
     // We need the #'s here so we don't consume the spaces before trying to match them, which would fail
     CompoundExpression
-      = LicenseId #with LicenseId
+      = LicenseExpression #with LicenseExpression
       | LicenseExpression #and LicenseExpression
       | LicenseExpression #or LicenseExpression
       | "(" LicenseExpression ")"
@@ -171,24 +171,13 @@ function getUnknownLicenseIdsWithSuggestions({
   )) {
     let suggestion: string | undefined = undefined;
 
-    if (id.match(/^LicenseRef/i) || id.match(/^DocumentRef/i)) {
-      suggestion = id
-        .replace(/^LicenseRef/i, 'LicenseRef')
-        .replace(/^DocumentRef/i, 'DocumentRef')
-        .replaceAll(' ', '-');
-
-      if (suggestion === id) {
-        continue;
+    try {
+      const spdxCorrection = spdxCorrect(id);
+      if (spdxCorrection && knownLicenseIds.has(spdxCorrection)) {
+        suggestion = spdxCorrection;
       }
-    } else {
-      try {
-        const spdxCorrection = spdxCorrect(id);
-        if (spdxCorrection && knownLicenseIds.has(spdxCorrection)) {
-          suggestion = spdxCorrection;
-        }
-      } catch {
-        // If spxdCorrect fails, we have no suggestion
-      }
+    } catch {
+      // If spxdCorrect fails, we have no suggestion
     }
 
     const fix = suggestion
