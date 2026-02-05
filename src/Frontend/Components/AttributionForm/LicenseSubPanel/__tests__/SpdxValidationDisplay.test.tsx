@@ -18,7 +18,7 @@ describe('SpdxValidationDisplay', () => {
       const { container } = render(
         <SpdxValidationDisplay
           validationResult={validationResult}
-          onApplyFix={jest.fn()}
+          onApplyFix={vi.fn()}
         />,
       );
 
@@ -35,7 +35,7 @@ describe('SpdxValidationDisplay', () => {
       render(
         <SpdxValidationDisplay
           validationResult={validationResult}
-          onApplyFix={jest.fn()}
+          onApplyFix={vi.fn()}
         />,
       );
 
@@ -45,7 +45,7 @@ describe('SpdxValidationDisplay', () => {
 
   describe('uncapitalized-conjunctions type', () => {
     it('renders clickable warning with fix suggestion', async () => {
-      const onApplyFix = jest.fn();
+      const onApplyFix = vi.fn();
       const validationResult: SpdxExpressionValidationResult = {
         type: 'uncapitalized-conjunctions',
         fix: 'MIT AND Apache-2.0',
@@ -76,7 +76,7 @@ describe('SpdxValidationDisplay', () => {
       render(
         <SpdxValidationDisplay
           validationResult={validationResult}
-          onApplyFix={jest.fn()}
+          onApplyFix={vi.fn()}
         />,
       );
 
@@ -92,7 +92,7 @@ describe('SpdxValidationDisplay', () => {
           { unknownId: 'apache2', suggestion: 'Apache-2.0', fix: 'Apache-2.0' },
         ],
       };
-      const onApplyFix = jest.fn();
+      const onApplyFix = vi.fn();
       render(
         <SpdxValidationDisplay
           validationResult={validationResult}
@@ -120,7 +120,7 @@ describe('SpdxValidationDisplay', () => {
       render(
         <SpdxValidationDisplay
           validationResult={validationResult}
-          onApplyFix={jest.fn()}
+          onApplyFix={vi.fn()}
         />,
       );
 
@@ -145,7 +145,7 @@ describe('SpdxValidationDisplay', () => {
       render(
         <SpdxValidationDisplay
           validationResult={validationResult}
-          onApplyFix={jest.fn()}
+          onApplyFix={vi.fn()}
         />,
       );
 

@@ -56,6 +56,16 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the UpdateAppPopup', () => {
+    vi.mock(
+      '../../../Components/UpdateAppPopup/UpdateAppPopup.util.ts',
+      () => ({
+        useLatestRelease: vi.fn().mockReturnValue({
+          latestRelease: undefined,
+          latestReleaseError: null,
+          latestReleaseLoading: false,
+        }),
+      }),
+    );
     renderComponent(<GlobalPopup />, {
       actions: [openPopup(PopupType.UpdateAppPopup)],
     });

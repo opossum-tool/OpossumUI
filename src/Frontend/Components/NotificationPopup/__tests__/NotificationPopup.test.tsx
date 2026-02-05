@@ -8,10 +8,10 @@ import { NotificationPopup } from '../NotificationPopup';
 
 describe('NotificationPopup', () => {
   it('renders open popup with text', () => {
-    const onLeftButtonClick = jest.fn();
-    const onRightButtonClick = jest.fn();
-    const onCenterLeftButtonClick = jest.fn();
-    const onCenterRightButtonClick = jest.fn();
+    const onLeftButtonClick = vi.fn();
+    const onRightButtonClick = vi.fn();
+    const onCenterLeftButtonClick = vi.fn();
+    const onCenterRightButtonClick = vi.fn();
 
     render(
       <NotificationPopup
@@ -63,7 +63,7 @@ describe('NotificationPopup', () => {
   });
 
   it('executes function on escape key', () => {
-    const onEscapeKeyDown = jest.fn();
+    const onEscapeKeyDown = vi.fn();
     render(
       <NotificationPopup
         header={'header text'}

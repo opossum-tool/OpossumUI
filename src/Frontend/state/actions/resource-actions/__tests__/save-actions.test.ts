@@ -965,7 +965,7 @@ describe('The deleteAttributionsAndSave action', () => {
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
 
     // Clear the mock to ensure we count saves correctly
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     testStore.dispatch(
       deleteAttributionsAndSave(['reactUuid', 'vueUuid'], 'reactUuid'),
@@ -1326,7 +1326,7 @@ describe('The updateAttributionsAndSave action', () => {
     );
 
     // Clear the mock to ensure we count saves correctly
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     testStore.dispatch(updateAttributionsAndSave(updatedAttributions));
 

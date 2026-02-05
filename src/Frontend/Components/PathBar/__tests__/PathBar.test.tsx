@@ -13,15 +13,7 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { renderComponent } from '../../../test-helpers/render';
 import { PathBar } from '../PathBar';
 
-const writeText = jest.fn();
-
 describe('The PathBar', () => {
-  beforeAll(() => {
-    Object.assign(navigator, {
-      clipboard: { writeText },
-    });
-  });
-
   it('renders a path', () => {
     const testPath = '/test/path/foo/bar/';
     const pathElements = compact(testPath.split('/'));
@@ -37,6 +29,11 @@ describe('The PathBar', () => {
   });
 
   it('copies path to clipboard', () => {
+    const writeText = vi.fn();
+    vi.stubGlobal('navigator', {
+      clipboard: { writeText },
+      platform: 'MacIntel',
+    });
     const testPath = '/test_path/';
 
     const { store } = renderComponent(<PathBar />);

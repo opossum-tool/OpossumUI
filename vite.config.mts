@@ -65,4 +65,17 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     conditions: ['mui-modern', 'module', 'browser', 'development|production'],
   },
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+    setupFiles: './src/testing/setup.ts',
+    globalSetup: './src/testing/globalSetup.ts',
+    include: [
+      '**/__test__/**/*.test.{ts,tsx}',
+      '**/__tests__/**/*.test.{ts,tsx}',
+    ],
+    exclude: ['node_modules', 'build', 'src/e2e-tests'],
+    clearMocks: true,
+    unstubGlobals: true,
+  },
 }));
