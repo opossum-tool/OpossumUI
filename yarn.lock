@@ -1437,12 +1437,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/cli@npm:20.4.0":
-  version: 20.4.0
-  resolution: "@commitlint/cli@npm:20.4.0"
+"@commitlint/cli@npm:20.4.1":
+  version: 20.4.1
+  resolution: "@commitlint/cli@npm:20.4.1"
   dependencies:
     "@commitlint/format": "npm:^20.4.0"
-    "@commitlint/lint": "npm:^20.4.0"
+    "@commitlint/lint": "npm:^20.4.1"
     "@commitlint/load": "npm:^20.4.0"
     "@commitlint/read": "npm:^20.4.0"
     "@commitlint/types": "npm:^20.4.0"
@@ -1450,17 +1450,17 @@ __metadata:
     yargs: "npm:^17.0.0"
   bin:
     commitlint: ./cli.js
-  checksum: 10/2269ab6a7a5c5e7efb3f64b1c809e5d82cba8d72fc4ee3b9b5d3c3359705b619df8bc208b55c1ab0e26300b1ba1ffbb04fd2926eb5da4aa4c7c73e0985a00dd5
+  checksum: 10/1779ec9f7ee4dd867d62ba972737fcc4ec9c86678906cede08310609bbeff372c2a355d9293eedf8fd125a07ef46515a3fb260c6e70c2f82698debb67cac6ee1
   languageName: node
   linkType: hard
 
-"@commitlint/config-conventional@npm:20.4.0":
-  version: 20.4.0
-  resolution: "@commitlint/config-conventional@npm:20.4.0"
+"@commitlint/config-conventional@npm:20.4.1":
+  version: 20.4.1
+  resolution: "@commitlint/config-conventional@npm:20.4.1"
   dependencies:
     "@commitlint/types": "npm:^20.4.0"
     conventional-changelog-conventionalcommits: "npm:^9.1.0"
-  checksum: 10/5e32209f78f29275cccc1b149ecb087252d66815b0cc2ed3232f9dd50e4f5ec2eea5d107c6a45d66e91ddbd85fe64b8a098117e63da57890c66af6fe5162fe2a
+  checksum: 10/fbef5f0858a0ee99a092cb8a61e011f6e8f1335825d17c81302b3ce96d4e3d79c0e97f11e2e56fe765baa7770956e99f50820278747ba9c5affa2c1394a8d34d
   languageName: node
   linkType: hard
 
@@ -1515,7 +1515,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/lint@npm:^20.4.0":
+"@commitlint/lint@npm:^20.4.1":
   version: 20.4.1
   resolution: "@commitlint/lint@npm:20.4.1"
   dependencies:
@@ -10195,8 +10195,8 @@ __metadata:
     "@babel/preset-env": "npm:7.29.0"
     "@babel/preset-react": "npm:7.28.5"
     "@babel/preset-typescript": "npm:7.28.5"
-    "@commitlint/cli": "npm:20.4.0"
-    "@commitlint/config-conventional": "npm:20.4.0"
+    "@commitlint/cli": "npm:20.4.1"
+    "@commitlint/config-conventional": "npm:20.4.1"
     "@commitlint/types": "npm:20.4.0"
     "@electron/rebuild": "npm:4.0.3"
     "@emotion/react": "npm:11.14.0"
