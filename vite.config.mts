@@ -67,11 +67,13 @@ export default defineConfig(({ mode }) => ({
   },
   test: {
     globals: true,
-    watchAll: false,
     environment: 'happy-dom',
     setupFiles: './src/testing/setup.ts',
     globalSetup: './src/testing/globalSetup.ts',
-    include: ['**/__tests__/**/*.test.{ts,tsx}'],
+    include: [
+      '**/__test__/**/*.test.{ts,tsx}',
+      '**/__tests__/**/*.test.{ts,tsx}',
+    ],
     exclude: ['node_modules', 'build', 'src/e2e-tests'],
     clearMocks: true,
     unstubGlobals: true,
