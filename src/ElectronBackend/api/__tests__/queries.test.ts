@@ -36,12 +36,12 @@ describe('searchResources', () => {
   it('finds resources matching search string case-insensitively', async () => {
     const results = await queries.searchResources({ searchString: 'APP' });
 
-    expect(results).toEqual(['/src/App.tsx']);
+    expect(results.result).toEqual(['/src/App.tsx']);
   });
 
   it('appends trailing slash to directories', async () => {
     const results = await queries.searchResources({ searchString: 'src' });
 
-    expect(results).toContain('/src/');
+    expect(results.result).toContain('/src/');
   });
 });

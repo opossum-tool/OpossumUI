@@ -2,32 +2,52 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { queries } from './queries';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type CommandFunction = (param?: any) => unknown;
+import {
+  MutationName,
+  MutationParams,
+  MutationResult,
+  MutationReturn,
+  mutations,
+} from './mutations';
+import {
+  queries,
+  QueryName,
+  QueryParams,
+  QueryResult,
+  QueryReturn,
+} from './queries';
 
 const commands = {
   ...queries,
-  // mutations will be added in the future
-} satisfies Record<string, CommandFunction>;
+  ...mutations,
+};
 
-type Commands = typeof commands;
+export type CommandName = QueryName | MutationName;
 
-export type Command = keyof Commands;
+export type CommandParams<C extends CommandName> = C extends QueryName
+  ? QueryParams<C>
+  : C extends MutationName
+    ? MutationParams<C>
+    : never;
 
-export type CommandParams<C extends Command> =
-  Parameters<Commands[C]> extends [infer P] ? P : void;
-export type CommandReturn<C extends Command> = ReturnType<Commands[C]>;
+export type CommandReturn<C extends CommandName> = C extends QueryName
+  ? QueryReturn<C>
+  : C extends MutationName
+    ? MutationReturn<C>
+    : never;
 
-export function executeCommand<C extends Command>(
+export type CommandResult<C extends CommandName> = C extends QueryName
+  ? QueryResult<C>
+  : C extends MutationName
+    ? MutationResult<C>
+    : never;
+
+export function executeCommand<C extends CommandName>(
   command: C,
   params: CommandParams<C>,
 ): CommandReturn<C> {
   const fn = commands[command] as unknown as (
     args: CommandParams<C>,
   ) => CommandReturn<C>;
-  const result = fn(params);
-
-  return result;
+  return fn(params);
 }

@@ -5,7 +5,11 @@
 import { sql } from 'kysely';
 
 import { getDb } from '../db/db';
-import { CommandFunction } from './commands';
+
+type QueryFunction = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  param?: any,
+) => Promise<{ result: NonNullable<unknown> | null }>; // Tanstack doesn't allow functions to return undefined
 
 export const queries = {
   /**
@@ -20,6 +24,27 @@ export const queries = {
       .select([sql<string>`path || IF(can_have_children, '/', '')`.as('path')])
       .where(sql<boolean>`instr(LOWER(path), LOWER(${props.searchString})) > 0`)
       .execute();
-    return result.map((r) => r.path);
+    return { result: result.map((r) => r.path) };
   },
-} satisfies Record<string, CommandFunction>;
+
+  async getAttributionData(props: { attributionUuid: string }) {
+    const result = await getDb()
+      .selectFrom('attribution')
+      .select('data')
+      .where('uuid', '=', props.attributionUuid)
+      .executeTakeFirst();
+
+    return { result: result?.data ?? null };
+  },
+} satisfies Record<string, QueryFunction>;
+
+export type Queries = typeof queries;
+export type QueryName = keyof Queries;
+
+// Queries have either one parameter P (QueryParams = P) or none (QueryParams = void)
+export type QueryParams<C extends QueryName> =
+  Parameters<Queries[C]> extends [infer P] ? P : void;
+export type QueryReturn<C extends QueryName> = ReturnType<Queries[C]>;
+export type QueryResult<C extends QueryName> = Awaited<
+  QueryReturn<C>
+>['result'];

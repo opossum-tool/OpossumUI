@@ -7,7 +7,7 @@ import { IpcRendererEvent } from 'electron';
 import { ErrorInfo } from 'react';
 
 import {
-  Command,
+  CommandName,
   CommandParams,
   CommandReturn,
 } from '../ElectronBackend/api/commands';
@@ -299,7 +299,7 @@ export interface ElectronAPI {
   getUserSettings: () => Promise<UserSettings>;
   updateUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
   setFrontendPopupOpen: (open: boolean) => Promise<void>;
-  api: <C extends Command>(
+  api: <C extends CommandName>(
     command: C,
     params: CommandParams<C>,
   ) => Promise<Awaited<CommandReturn<C>>>;

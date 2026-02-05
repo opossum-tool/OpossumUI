@@ -281,7 +281,7 @@ async function initializeResourceToAttributionTable(
       col.notNull().references('resource.id'),
     )
     .addColumn('attribution_uuid', 'text', (col) =>
-      col.notNull().references('attribution.uuid'),
+      col.notNull().references('attribution.uuid').onDelete('cascade'),
     )
     .addPrimaryKeyConstraint('resource_to_attribution_pk', [
       'resource_id',

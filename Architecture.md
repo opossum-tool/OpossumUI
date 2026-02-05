@@ -46,8 +46,10 @@ All database access (with exception for bulk writes) should happen through [Kyse
 
 Commands for querying and mutating data are specified in the backend and made accessible via [`backendClient`](src/Frontend/util/backendClient.ts) to the frontend. This is dynamic, typesafe and without added boilerplate.
 
-The queries are made using [Tanstack Query](https://tanstack.com/query/latest), which handles caching and reactivity.  
-The goal is for mutations to automatically invalidate the corresponding queries, but this is TBD.
+Queries and Mutations are handled with Tanstack query.
+
+Queries are automatically cached.
+Mutations return a list of names and parameters of queries that are invalidated by them. This is handled transparently, so the frontend code can always rely on the queries being up-to-date.
 
 ### Migration strategy
 
