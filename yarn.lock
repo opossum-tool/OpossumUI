@@ -10282,7 +10282,7 @@ __metadata:
     react-dom: "npm:19.2.4"
     react-error-boundary: "npm:6.1.0"
     react-hot-toast: "npm:2.6.0"
-    react-hotkeys-hook: "npm:5.2.3"
+    react-hotkeys-hook: "npm:5.2.4"
     react-is: "npm:19.2.4"
     react-redux: "npm:9.2.0"
     react-virtuoso: "npm:4.18.1"
@@ -10969,13 +10969,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hotkeys-hook@npm:5.2.3":
-  version: 5.2.3
-  resolution: "react-hotkeys-hook@npm:5.2.3"
+"react-hotkeys-hook@npm:5.2.4":
+  version: 5.2.4
+  resolution: "react-hotkeys-hook@npm:5.2.4"
   peerDependencies:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: 10/5fd391679f0fe2d5f3f5b42986d7ff18db9fe260fdd06c61d65d72c9ca9d5bea8b7c72fb4490e1c8f706ce092ed7be97dbc6d2db50e5b76f88d00ff4fc98267a
+  checksum: 10/118ffdc15e8932e0c67d2f0479d088ba50d759b4f5974e2394bc720286918530291bbde317b39cbde7ee1239813038ae7b90f6eb24794783036944b3fa2a1ba2
   languageName: node
   linkType: hard
 
