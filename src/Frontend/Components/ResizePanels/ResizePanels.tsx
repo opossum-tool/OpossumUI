@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import SearchIcon from '@mui/icons-material/Search';
 import { Resizable } from 're-resizable';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { TRANSITION } from '../../shared-styles';
@@ -71,14 +71,20 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
   const effectiveHeight = height ?? 0;
   const fraction = FRACTIONS[main];
   const [isResizing, setIsResizing] = useState(true);
+  const [containerHeight, setContainerHeight] = useState(0);
   const containerRef = useRef<Resizable>(null);
   const upperSearchRef = useRef<HTMLInputElement>(null);
   const lowerSearchRef = useRef<HTMLInputElement>(null);
 
   const isLowerCollapsed = effectiveHeight <= HEADER_HEIGHT;
   const isUpperCollapsed =
-    effectiveHeight >=
-    (containerRef.current?.size.height ?? 0) - HEADER_HEIGHT - 1;
+    effectiveHeight >= containerHeight - HEADER_HEIGHT - 1;
+
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      setContainerHeight(containerRef.current.size.height);
+    }
+  }, [containerRef.current?.size.height]);
 
   useEffect(() => {
     const applyGoldenRatio = () =>
@@ -166,9 +172,7 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
         size={{ height: height || '50%', width: 'auto' }}
         minHeight={HEADER_HEIGHT}
         maxHeight={
-          containerRef.current
-            ? containerRef.current.size.height - HEADER_HEIGHT
-            : undefined
+          containerHeight ? containerHeight - HEADER_HEIGHT : undefined
         }
         onResizeStart={() => setIsResizing(true)}
         onResizeStop={(_event, _direction, _ref, delta) => {
