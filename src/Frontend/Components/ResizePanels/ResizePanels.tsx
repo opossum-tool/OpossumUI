@@ -71,13 +71,16 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
   const effectiveHeight = height ?? 0;
   const fraction = FRACTIONS[main];
   const [isResizing, setIsResizing] = useState(true);
-  const [containerHeight, setContainerHeight] = useState(0);
+  const [containerHeight, setContainerHeight] = useState<number | undefined>(
+    undefined,
+  );
   const containerRef = useRef<Resizable>(null);
   const upperSearchRef = useRef<HTMLInputElement>(null);
   const lowerSearchRef = useRef<HTMLInputElement>(null);
 
   const isLowerCollapsed = effectiveHeight <= HEADER_HEIGHT;
   const isUpperCollapsed =
+    containerHeight !== undefined &&
     effectiveHeight >= containerHeight - HEADER_HEIGHT - 1;
 
   useLayoutEffect(() => {
@@ -88,8 +91,7 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
 
   useEffect(() => {
     const applyGoldenRatio = () =>
-      containerRef.current &&
-      setHeight(containerRef.current.size.height / fraction);
+      containerHeight !== undefined && setHeight(containerHeight / fraction);
 
     heightIsNull && applyGoldenRatio();
     window.addEventListener('resize', applyGoldenRatio);
@@ -97,7 +99,7 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
     return () => {
       window.removeEventListener('resize', applyGoldenRatio);
     };
-  }, [fraction, heightIsNull, setHeight]);
+  }, [fraction, heightIsNull, setHeight, containerHeight]);
 
   useIpcRenderer(
     upperPanel.search.channel,
@@ -260,10 +262,10 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
         disabled={isLowerCollapsed}
         onClick={() => {
           setIsResizing(true);
-          if (containerRef.current) {
-            effectiveHeight <= containerRef.current.size.height / fraction
+          if (containerHeight !== undefined) {
+            effectiveHeight <= containerHeight / fraction
               ? setHeight(HEADER_HEIGHT)
-              : setHeight(containerRef.current.size.height / fraction);
+              : setHeight(containerHeight / fraction);
           }
           setIsResizing(false);
         }}
@@ -278,10 +280,10 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
         disabled={isUpperCollapsed}
         onClick={() => {
           setIsResizing(true);
-          if (containerRef.current) {
-            effectiveHeight < containerRef.current.size.height / fraction
-              ? setHeight(containerRef.current.size.height / fraction)
-              : setHeight(containerRef.current.size.height - HEADER_HEIGHT);
+          if (containerHeight !== undefined) {
+            effectiveHeight < containerHeight / fraction
+              ? setHeight(containerHeight / fraction)
+              : setHeight(containerHeight - HEADER_HEIGHT);
           }
           setIsResizing(false);
         }}
