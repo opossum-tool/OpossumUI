@@ -118,7 +118,7 @@ export const backend = new Proxy({} as BackendClient, {
               'params' in invalidation
                 ? getQueryKey(invalidation.queryName, invalidation.params)
                 : ['backend', invalidation.queryName];
-            return queryClient.resetQueries({
+            return queryClient.invalidateQueries({
               queryKey,
             });
           }),

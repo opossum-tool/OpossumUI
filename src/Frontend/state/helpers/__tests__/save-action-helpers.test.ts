@@ -45,9 +45,11 @@ describe('The createManualAttribution function', () => {
       id: expect.any(String),
     };
 
+    const testAttributionId = faker.string.uuid();
     const { newManualData, newAttributionId } = createManualAttribution(
       testManualData,
       testSelectedResourceId,
+      testAttributionId,
       testTemporaryDisplayPackageInfo,
       getCalculatePreferredOverOriginIds(initialResourceState),
     );
@@ -107,9 +109,11 @@ describe('The createManualAttribution function', () => {
     const resourceState = testStore.getState().resourceState;
     const testManualData = getManualData(testStore.getState());
 
+    const testAttributionId = faker.string.uuid();
     const { newManualData } = createManualAttribution(
       testManualData,
       testSelectedResourceId,
+      testAttributionId,
       testTemporaryDisplayPackageInfo,
       getCalculatePreferredOverOriginIds(resourceState),
     );

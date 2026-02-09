@@ -3,12 +3,16 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { executeCommand } from '../../../../../ElectronBackend/api/commands';
+import { getDb } from '../../../../../ElectronBackend/db/db';
+import { initializeDb } from '../../../../../ElectronBackend/db/initializeDb';
 import {
   AttributionData,
   Attributions,
   Criticality,
   DiscreteConfidence,
   PackageInfo,
+  ParsedFileContent,
   Resources,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
@@ -48,6 +52,22 @@ import {
   unlinkAttributionAndSave,
   updateAttributionsAndSave,
 } from '../save-actions';
+
+/**
+ * The database mutations are fired-and-forgotten.
+ * We need to wait for them to clear before checking the changes.
+ */
+async function flushPendingMutations() {
+  await new Promise(process.nextTick);
+}
+
+async function setupWithData(data: ParsedFileContent) {
+  jest.mocked(window.electronAPI.api).mockImplementation(executeCommand);
+  const testStore = createAppStore();
+  testStore.dispatch(loadFromFile(data));
+  await initializeDb(data);
+  return { testStore, db: getDb() };
+}
 
 const testResources: Resources = {
   thirdParty: {
@@ -99,7 +119,7 @@ const testResourcesToExternalAttributions: ResourcesToAttributions = {
 };
 
 describe('The savePackageInfo action', () => {
-  it('creates a new attribution', () => {
+  it('creates a new attribution', async () => {
     const expectedTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '1.0',
       packageName: 'test Package',
@@ -109,15 +129,12 @@ describe('The savePackageInfo action', () => {
       id: expect.any(String),
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        }),
-      ),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        externalAttributions: testExternalAttributions,
+        resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      }),
     );
 
     testStore.dispatch(setSelectedResourceId('/root/src/'));
@@ -152,10 +169,28 @@ describe('The savePackageInfo action', () => {
       paths: ['/root/src/', '/', '/root/'],
     });
     expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
+
+    await flushPendingMutations();
+
+    // Verify DB: new attribution was created and linked
+    const newAttributionId = getSelectedAttributionId(testStore.getState());
+    const dbAttribution = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', newAttributionId)
+      .executeTakeFirst();
+    expect(dbAttribution).toBeDefined();
+    expect(dbAttribution!.is_external).toBe(0);
+
+    const dbLink = await db
+      .selectFrom('resource_to_attribution')
+      .selectAll()
+      .where('attribution_uuid', '=', newAttributionId)
+      .executeTakeFirst();
+    expect(dbLink).toBeDefined();
   });
 
-  it('updates an attribution', () => {
-    const testStore = createAppStore();
+  it('updates an attribution', async () => {
     const testPackageInfo: PackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
@@ -165,14 +200,12 @@ describe('The savePackageInfo action', () => {
       id: testManualAttributionUuid_1,
     };
 
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      }),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
@@ -224,9 +257,21 @@ describe('The savePackageInfo action', () => {
       paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
     });
     expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
+
+    await flushPendingMutations();
+
+    // Verify DB: attribution data was updated
+    const dbAttribution = await db
+      .selectFrom('attribution')
+      .select('data')
+      .where('uuid', '=', testManualAttributionUuid_1)
+      .executeTakeFirstOrThrow();
+    expect(JSON.parse(dbAttribution.data)).toEqual(
+      getManualAttributions(testStore.getState())[testManualAttributionUuid_1],
+    );
   });
 
-  it('removes an attribution', () => {
+  it('removes an attribution', async () => {
     const testUuidA = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
     const testUuidB = 'd8ff89ae-34d0-4899-9519-7f736e7fd7da';
     const testResources: Resources = {
@@ -286,17 +331,14 @@ describe('The savePackageInfo action', () => {
         paths: ['/root/somethingElse.js', '/', '/root/'],
       };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-          externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        }),
-      ),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+        externalAttributions: testExternalAttributions,
+        resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      }),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(setSelectedAttributionId(testUuidA));
@@ -328,9 +370,19 @@ describe('The savePackageInfo action', () => {
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual(expectedResourcesWithManualAttributedChildren2);
     expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
+
+    await flushPendingMutations();
+
+    // Verify DB: attribution was deleted
+    const dbAttribution = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', testUuidA)
+      .executeTakeFirst();
+    expect(dbAttribution).toBeUndefined();
   });
 
-  it('removes an attribution from child and removes all remaining attributions if parent has identical ones', () => {
+  it('removes an attribution from child and removes all remaining attributions if parent has identical ones', async () => {
     const testResources: Resources = {
       parent: {
         'child.js': 1,
@@ -353,15 +405,12 @@ describe('The savePackageInfo action', () => {
       '/parent/child.js': ['uuid2', 'uuid1'],
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      }),
     );
 
     testStore.dispatch(
@@ -373,9 +422,19 @@ describe('The savePackageInfo action', () => {
     expect(getResourcesToManualAttributions(testStore.getState())).toEqual({
       '/parent/': ['uuid1'],
     });
+
+    await flushPendingMutations();
+
+    // Verify DB: uuid2 was deleted
+    const dbAttribution = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', 'uuid2')
+      .executeTakeFirst();
+    expect(dbAttribution).toBeUndefined();
   });
 
-  it('removes an attribution from parent and removes all remaining attributions from child if has now same of parent', () => {
+  it('removes an attribution from parent and removes all remaining attributions from child if has now same of parent', async () => {
     const testResources: Resources = {
       parent: {
         'child.js': 1,
@@ -398,15 +457,12 @@ describe('The savePackageInfo action', () => {
       '/parent/child.js': ['uuid1'],
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      }),
     );
 
     testStore.dispatch(
@@ -418,9 +474,19 @@ describe('The savePackageInfo action', () => {
     expect(getResourcesToManualAttributions(testStore.getState())).toEqual({
       '/parent/': ['uuid1'],
     });
+
+    await flushPendingMutations();
+
+    // Verify DB: uuid2 was deleted
+    const dbAttribution = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', 'uuid2')
+      .executeTakeFirst();
+    expect(dbAttribution).toBeUndefined();
   });
 
-  it('replaces an attribution with an existing one', () => {
+  it('replaces an attribution with an existing one', async () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.High,
@@ -467,24 +533,20 @@ describe('The savePackageInfo action', () => {
       },
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testInitialManualAttributions,
-          resourcesToManualAttributions:
-            testInitialResourcesToManualAttributions,
-          externalAttributions: {
-            uuid_1: {
-              copyright: 'copyright',
-              criticality: Criticality.None,
-              id: 'uuid_1',
-            },
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testInitialManualAttributions,
+        resourcesToManualAttributions: testInitialResourcesToManualAttributions,
+        externalAttributions: {
+          uuid_1: {
+            copyright: 'copyright',
+            criticality: Criticality.None,
+            id: 'uuid_1',
           },
-          resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
-        }),
-      ),
+        },
+        resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
+      }),
     );
 
     testStore.dispatch(setSelectedAttributionId('uuid1'));
@@ -498,9 +560,26 @@ describe('The savePackageInfo action', () => {
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getSelectedAttributionId(testStore.getState())).toBe('uuid1');
+
+    await flushPendingMutations();
+
+    // Verify DB: old attribution deleted, links reassigned
+    const dbOldAttribution = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', 'toReplaceUuid')
+      .executeTakeFirst();
+    expect(dbOldAttribution).toBeUndefined();
+
+    const dbLinks = await db
+      .selectFrom('resource_to_attribution')
+      .selectAll()
+      .where('attribution_uuid', '=', 'uuid1')
+      .execute();
+    expect(dbLinks).toHaveLength(2);
   });
 
-  it('links to an attribution when the attribution already exists', () => {
+  it('links to an attribution when the attribution already exists', async () => {
     const testUuid = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
@@ -545,26 +624,33 @@ describe('The savePackageInfo action', () => {
       },
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-          externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        }),
-      ),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+        externalAttributions: testExternalAttributions,
+        resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      }),
     );
 
     testStore.dispatch(
       savePackageInfo('/folder/somethingElse.js', null, testPackageInfo),
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
+
+    await flushPendingMutations();
+
+    // Verify DB: attribution is now linked to both resources
+    const dbLinks = await db
+      .selectFrom('resource_to_attribution')
+      .selectAll()
+      .where('attribution_uuid', '=', testUuid)
+      .execute();
+    expect(dbLinks).toHaveLength(2);
   });
 
-  it('removes an attribution and keeps temporary package info for selected attribution', () => {
+  it('removes an attribution and keeps temporary package info for selected attribution', async () => {
     const testUuidA = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
     const testUuidB = 'd8ff89ae-34d0-4899-9519-7f736e7fd7da';
     const testResources: Resources = {
@@ -597,17 +683,14 @@ describe('The savePackageInfo action', () => {
       id: testUuidA,
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-          externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        }),
-      ),
+    const { testStore } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+        externalAttributions: testExternalAttributions,
+        resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      }),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(setSelectedAttributionId(testUuidA));
@@ -627,7 +710,7 @@ describe('The savePackageInfo action', () => {
     );
   });
 
-  it('replaces an attribution with an existing one, keeps temporary package info for selected attribution and stay at selected attribution', () => {
+  it('replaces an attribution with an existing one, keeps temporary package info for selected attribution and stay at selected attribution', async () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.High,
@@ -664,24 +747,20 @@ describe('The savePackageInfo action', () => {
       id: 'uuid2',
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testInitialManualAttributions,
-          resourcesToManualAttributions:
-            testInitialResourcesToManualAttributions,
-          externalAttributions: {
-            uuid_1: {
-              copyright: 'copyright',
-              criticality: Criticality.None,
-              id: 'uuid_1',
-            },
+    const { testStore } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testInitialManualAttributions,
+        resourcesToManualAttributions: testInitialResourcesToManualAttributions,
+        externalAttributions: {
+          uuid_1: {
+            copyright: 'copyright',
+            criticality: Criticality.None,
+            id: 'uuid_1',
           },
-          resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
-        }),
-      ),
+        },
+        resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
+      }),
     );
     testStore.dispatch(setSelectedAttributionId('uuid2'));
     testStore.dispatch(
@@ -701,7 +780,7 @@ describe('The savePackageInfo action', () => {
     expect(getSelectedAttributionId(testStore.getState())).toBe('uuid2');
   });
 
-  it('creates a new attribution, keeps temporary package info for selected attribution and stay at selected attribution', () => {
+  it('creates a new attribution, keeps temporary package info for selected attribution and stay at selected attribution', async () => {
     const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
@@ -726,18 +805,14 @@ describe('The savePackageInfo action', () => {
       '/something.js': ['uuid1'],
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testInitialManualAttributions,
-          resourcesToManualAttributions:
-            testInitialResourcesToManualAttributions,
-          externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        }),
-      ),
+    const { testStore } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testInitialManualAttributions,
+        resourcesToManualAttributions: testInitialResourcesToManualAttributions,
+        externalAttributions: testExternalAttributions,
+        resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      }),
     );
 
     testStore.dispatch(setSelectedResourceId('/something.js'));
@@ -757,8 +832,7 @@ describe('The savePackageInfo action', () => {
     );
   });
 
-  it('updates an attribution and keeps temporary package info for selected attribution', () => {
-    const testStore = createAppStore();
+  it('updates an attribution and keeps temporary package info for selected attribution', async () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'test Package modified',
       criticality: Criticality.None,
@@ -768,14 +842,12 @@ describe('The savePackageInfo action', () => {
       ...secondTestPackageInfo,
       preSelected: false,
     };
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
+    const { testStore } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      }),
     );
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
     testStore.dispatch(setTemporaryDisplayPackageInfo(testPackageInfo));
@@ -796,7 +868,7 @@ describe('The savePackageInfo action', () => {
 });
 
 describe('The unlinkAttributionAndSave action', () => {
-  it('saves attribution updates for a single resource', () => {
+  it('saves attribution updates for a single resource', async () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.Low,
@@ -815,16 +887,12 @@ describe('The unlinkAttributionAndSave action', () => {
       '/somethingElse.js': ['reactUuid'],
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testInitialManualAttributions,
-          resourcesToManualAttributions:
-            testInitialResourcesToManualAttributions,
-        }),
-      ),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testInitialManualAttributions,
+        resourcesToManualAttributions: testInitialResourcesToManualAttributions,
+      }),
     );
     const startingManualAttributions = getManualAttributions(
       testStore.getState(),
@@ -846,11 +914,21 @@ describe('The unlinkAttributionAndSave action', () => {
     expect(finalManualAttributionsToResources.reactUuid).toEqual([
       '/somethingElse.js',
     ]);
+
+    await flushPendingMutations();
+
+    // Verify DB: link was removed
+    const dbLinks = await db
+      .selectFrom('resource_to_attribution')
+      .selectAll()
+      .where('attribution_uuid', '=', 'reactUuid')
+      .execute();
+    expect(dbLinks).toHaveLength(1);
   });
 });
 
 describe('The deleteAttributionsAndSave action', () => {
-  it('unlinks resource from attribution with single linked attribution', () => {
+  it('unlinks resource from attribution with single linked attribution', async () => {
     const testResources: Resources = {
       file1: 1,
     };
@@ -874,22 +952,29 @@ describe('The deleteAttributionsAndSave action', () => {
         paths: [],
       },
     };
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      }),
     );
 
     testStore.dispatch(deleteAttributionsAndSave(['toUnlink'], 'someId'));
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
+
+    await flushPendingMutations();
+
+    // Verify DB: attribution was deleted
+    const dbAttribution = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', 'toUnlink')
+      .executeTakeFirst();
+    expect(dbAttribution).toBeUndefined();
   });
 
-  it('unlinks resource from attribution multiple linked attribution', () => {
+  it('unlinks resource from attribution multiple linked attribution', async () => {
     const testResources: Resources = {
       file1: 1,
     };
@@ -935,15 +1020,12 @@ describe('The deleteAttributionsAndSave action', () => {
       },
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      }),
     );
 
     testStore.dispatch(
@@ -953,19 +1035,36 @@ describe('The deleteAttributionsAndSave action', () => {
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
+
+    await flushPendingMutations();
+
+    // Verify DB: toUnlink deleted, uuid1 still exists
+    const dbDeleted = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', 'toUnlink')
+      .executeTakeFirst();
+    expect(dbDeleted).toBeUndefined();
+
+    const dbRemaining = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', 'uuid1')
+      .executeTakeFirst();
+    expect(dbRemaining).toBeDefined();
   });
 
-  it('deletes multiple attributions and saves once', () => {
+  it('deletes multiple attributions and saves once', async () => {
     const testResourceSetup = createTestResources();
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(getParsedInputFileEnrichedWithTestData(testResourceSetup)),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData(testResourceSetup),
     );
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
 
     // Clear the mock to ensure we count saves correctly
     jest.clearAllMocks();
+    jest.mocked(window.electronAPI.api).mockImplementation(executeCommand);
 
     testStore.dispatch(
       deleteAttributionsAndSave(['reactUuid', 'vueUuid'], 'reactUuid'),
@@ -1001,14 +1100,23 @@ describe('The deleteAttributionsAndSave action', () => {
     expect(getSelectedAttributionId(testStore.getState())).toBe('');
     // Verify file is saved only once
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+
+    await flushPendingMutations();
+
+    // Verify DB: both attributions deleted
+    const dbAttributions = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', 'in', ['reactUuid', 'vueUuid'])
+      .execute();
+    expect(dbAttributions).toHaveLength(0);
   });
 
-  it('deletes multiple attributions without clearing selected attribution or temp info if not in list', () => {
+  it('deletes multiple attributions without clearing selected attribution or temp info if not in list', async () => {
     const testResourceSetup = createTestResources();
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(getParsedInputFileEnrichedWithTestData(testResourceSetup)),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData(testResourceSetup),
     );
 
     testStore.dispatch(setSelectedAttributionId('angularUuid'));
@@ -1040,6 +1148,16 @@ describe('The deleteAttributionsAndSave action', () => {
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       testTemporaryPackageInfo,
     );
+
+    await flushPendingMutations();
+
+    // Verify DB: angular still exists, others deleted
+    const dbAngular = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', 'angularUuid')
+      .executeTakeFirst();
+    expect(dbAngular).toBeDefined();
   });
 
   function createTestResources() {
@@ -1086,7 +1204,7 @@ describe('The deleteAttributionsAndSave action', () => {
 });
 
 describe('The deleteAttributionGloballyAndSave action', () => {
-  it('deletes attribution', () => {
+  it('deletes attribution', async () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.Low,
@@ -1134,16 +1252,12 @@ describe('The deleteAttributionGloballyAndSave action', () => {
       },
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testInitialManualAttributions,
-          resourcesToManualAttributions:
-            testInitialResourcesToManualAttributions,
-        }),
-      ),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testInitialManualAttributions,
+        resourcesToManualAttributions: testInitialResourcesToManualAttributions,
+      }),
     );
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
 
@@ -1153,20 +1267,27 @@ describe('The deleteAttributionGloballyAndSave action', () => {
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
     expect(getSelectedAttributionId(testStore.getState())).toBe('');
+
+    await flushPendingMutations();
+
+    // Verify DB: reactUuid deleted
+    const dbAttribution = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', 'reactUuid')
+      .executeTakeFirst();
+    expect(dbAttribution).toBeUndefined();
   });
 });
 
 describe('The addToSelectedResource action', () => {
-  it('links an already existing manual attribution to the selected resource', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
+  it('links an already existing manual attribution to the selected resource', async () => {
+    const { testStore } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      }),
     );
     testStore.dispatch(setSelectedResourceId('/root/'));
     testStore.dispatch(setSelectedAttributionId(testPackageInfo.id));
@@ -1190,16 +1311,13 @@ describe('The addToSelectedResource action', () => {
     expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 
-  it('adds an external attribution to the selected resource', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
+  it('adds an external attribution to the selected resource', async () => {
+    const { testStore } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      }),
     );
     testStore.dispatch(setSelectedResourceId('/root/'));
 
@@ -1259,7 +1377,7 @@ describe('The addToSelectedResource action', () => {
 });
 
 describe('The updateAttributionsAndSave action', () => {
-  it('updates multiple attributions and saves', () => {
+  it('updates multiple attributions and saves', async () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       packageVersion: '16.0.0',
@@ -1313,20 +1431,17 @@ describe('The updateAttributionsAndSave action', () => {
       vueUuid: updatedVue,
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testInitialManualAttributions,
-          resourcesToManualAttributions:
-            testInitialResourcesToManualAttributions,
-        }),
-      ),
+    const { testStore, db } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testInitialManualAttributions,
+        resourcesToManualAttributions: testInitialResourcesToManualAttributions,
+      }),
     );
 
     // Clear the mock to ensure we count saves correctly
     jest.clearAllMocks();
+    jest.mocked(window.electronAPI.api).mockImplementation(executeCommand);
 
     testStore.dispatch(updateAttributionsAndSave(updatedAttributions));
 
@@ -1338,9 +1453,34 @@ describe('The updateAttributionsAndSave action', () => {
 
     // Verify file is saved only once
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+
+    await flushPendingMutations();
+
+    // Verify DB: attributions were updated
+    const dbReact = await db
+      .selectFrom('attribution')
+      .select('data')
+      .where('uuid', '=', 'reactUuid')
+      .executeTakeFirstOrThrow();
+    expect(JSON.parse(dbReact.data)).toEqual(updatedReact);
+
+    const dbVue = await db
+      .selectFrom('attribution')
+      .select('data')
+      .where('uuid', '=', 'vueUuid')
+      .executeTakeFirstOrThrow();
+    expect(JSON.parse(dbVue.data)).toEqual(updatedVue);
+
+    // Angular should remain unchanged in DB
+    const dbAngular = await db
+      .selectFrom('attribution')
+      .select('data')
+      .where('uuid', '=', 'angularUuid')
+      .executeTakeFirstOrThrow();
+    expect(JSON.parse(dbAngular.data)).toEqual(testAngular);
   });
 
-  it('reloads temporary display package info when selected attribution is updated', () => {
+  it('reloads temporary display package info when selected attribution is updated', async () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       packageVersion: '16.0.0',
@@ -1375,16 +1515,12 @@ describe('The updateAttributionsAndSave action', () => {
       id: 'reactUuid',
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testInitialManualAttributions,
-          resourcesToManualAttributions:
-            testInitialResourcesToManualAttributions,
-        }),
-      ),
+    const { testStore } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testInitialManualAttributions,
+        resourcesToManualAttributions: testInitialResourcesToManualAttributions,
+      }),
     );
 
     testStore.dispatch(setSelectedAttributionId('reactUuid'));

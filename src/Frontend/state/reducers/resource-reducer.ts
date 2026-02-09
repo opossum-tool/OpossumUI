@@ -208,7 +208,8 @@ export const resourceState = (
       const { newManualData, newAttributionId } = createManualAttribution(
         state.manualData,
         selectedResourceId,
-        action.payload,
+        action.payload.attributionId,
+        action.payload.packageInfo,
         getCalculatePreferredOverOriginIds(state),
       );
 
