@@ -7,6 +7,7 @@ import { sql } from 'kysely';
 import { Attributions, PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { QueryName, QueryParams } from './queries';
+import { removeRedundantAttributions } from './utils';
 
 type QueryInvalidation<Q extends QueryName> = {
   queryName: Q;
@@ -39,6 +40,7 @@ export const mutations = {
     await getDb()
       .transaction()
       .execute(async (trx) => {
+        const impactedResources = new Set<number>();
         for (const attributionUuid of params.attributionUuids) {
           const existingAttribution = await trx
             .selectFrom('attribution')
@@ -56,10 +58,24 @@ export const mutations = {
             );
           }
 
+          const connectedResources = await trx
+            .selectFrom('resource_to_attribution')
+            .select('resource_id')
+            .where('attribution_uuid', '=', attributionUuid)
+            .execute();
+
+          connectedResources.forEach((r) =>
+            impactedResources.add(r.resource_id),
+          );
+
           await trx
             .deleteFrom('attribution')
             .where('uuid', '=', attributionUuid)
             .execute();
+        }
+
+        for (const resource of impactedResources) {
+          await removeRedundantAttributions(trx, resource);
         }
       });
 
@@ -106,6 +122,12 @@ export const mutations = {
           throw new Error("External attributions can't be replaced");
         }
 
+        const connectedResources = await trx
+          .selectFrom('resource_to_attribution')
+          .select('resource_id')
+          .where('attribution_uuid', '=', params.attributionIdToReplace)
+          .execute();
+
         // Reassign resource links to the replacement attribution, skipping conflicts
         // (conflicting links will be cascade deleted when the old attribution is removed)
         await sql`
@@ -118,6 +140,10 @@ export const mutations = {
           .deleteFrom('attribution')
           .where('uuid', '=', params.attributionIdToReplace)
           .execute();
+
+        for (const r of connectedResources) {
+          await removeRedundantAttributions(trx, r.resource_id);
+        }
       });
 
     return {
@@ -173,6 +199,8 @@ export const mutations = {
           })
           .onConflict((oc) => oc.doNothing())
           .execute();
+
+        await removeRedundantAttributions(trx, resource.id);
       });
 
     return {
@@ -362,13 +390,13 @@ export const mutations = {
       .execute(async (trx) => {
         const resourcePath = removeTrailingSlash(params.resourcePath);
 
-        const existingResource = await trx
+        const resource = await trx
           .selectFrom('resource')
           .select('id')
           .where('path', '=', resourcePath)
           .executeTakeFirst();
 
-        if (!existingResource) {
+        if (!resource) {
           throw new Error(`Resource with path ${resourcePath} does not exist`);
         }
 
@@ -391,10 +419,12 @@ export const mutations = {
 
           await trx
             .deleteFrom('resource_to_attribution')
-            .where('resource_id', '=', existingResource.id)
+            .where('resource_id', '=', resource.id)
             .where('attribution_uuid', '=', attributionUuid)
             .execute();
         }
+
+        await removeRedundantAttributions(trx, resource.id);
       });
 
     return {

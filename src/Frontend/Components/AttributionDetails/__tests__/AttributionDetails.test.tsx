@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { pathsToResources } from '../../../../testing/global-test-helpers';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
@@ -28,10 +29,7 @@ import {
   expectResolvedExternalAttributions,
   expectResourcesToManualAttributions,
 } from '../../../test-helpers/expectations';
-import {
-  getParsedInputFileEnrichedWithTestData,
-  pathsToResources,
-} from '../../../test-helpers/general-test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { AttributionDetails } from '../AttributionDetails';
 

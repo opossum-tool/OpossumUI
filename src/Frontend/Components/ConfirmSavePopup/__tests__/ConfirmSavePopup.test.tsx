@@ -9,6 +9,7 @@ import { noop } from 'lodash';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { pathsToResources } from '../../../../testing/global-test-helpers';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   setSelectedAttributionId,
@@ -19,10 +20,7 @@ import {
   expectManualAttributions,
   expectResourcesToManualAttributions,
 } from '../../../test-helpers/expectations';
-import {
-  getParsedInputFileEnrichedWithTestData,
-  pathsToResources,
-} from '../../../test-helpers/general-test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmSavePopup } from '../ConfirmSavePopup';
 

@@ -9,6 +9,7 @@ import { noop } from 'lodash';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { pathsToResources } from '../../../../testing/global-test-helpers';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../state/selectors/resource-selectors';
 import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-ids-for-replacement';
@@ -16,10 +17,7 @@ import {
   expectManualAttributions,
   expectResourcesToManualAttributions,
 } from '../../../test-helpers/expectations';
-import {
-  getParsedInputFileEnrichedWithTestData,
-  pathsToResources,
-} from '../../../test-helpers/general-test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmReplacePopup } from '../ConfirmReplacePopup';
 
