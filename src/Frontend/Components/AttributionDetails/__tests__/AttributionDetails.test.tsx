@@ -23,7 +23,10 @@ import {
   FilteredData,
   initialFilteredAttributions,
 } from '../../../state/variables/use-filtered-data';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  getParsedInputFileEnrichedWithTestData,
+  pathsToResources,
+} from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { AttributionDetails } from '../AttributionDetails';
 
@@ -273,6 +276,7 @@ describe('AttributionDetails', () => {
         resourcesToManualAttributions: {
           [resourceId]: [packageInfo1.id],
         },
+        resources: pathsToResources([resourceId]),
       }),
       actions: [
         setSelectedResourceId(resourceId),
@@ -502,6 +506,9 @@ describe('AttributionDetails', () => {
   it('deletes signal', async () => {
     const packageInfo = faker.opossum.packageInfo();
     await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: { [packageInfo.id]: packageInfo },
+      }),
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
@@ -527,6 +534,9 @@ describe('AttributionDetails', () => {
   it('restores deleted signal', async () => {
     const packageInfo = faker.opossum.packageInfo();
     await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: { [packageInfo.id]: packageInfo },
+      }),
       actions: [
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setTemporaryDisplayPackageInfo(packageInfo),

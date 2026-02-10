@@ -42,14 +42,14 @@ const testExternalAttributions: Attributions = {
     criticality: Criticality.None,
     id: 'uuid_3',
   },
-  uuid_2: {
+  uuid_4: {
     source: {
       name: 'reuser',
       documentConfidence: 90,
     },
     licenseName: 'The MIT License (MIT)',
     criticality: Criticality.None,
-    id: 'uuid_2',
+    id: 'uuid_4',
   },
 };
 

@@ -105,6 +105,30 @@ function getResourceIdOfRoot(resources: Resources): string {
   }`;
 }
 
+export function pathsToResources(paths: Array<string>) {
+  const result: Resources = {};
+  for (const path of paths) {
+    let current = result;
+    const names = path.split('/');
+
+    // Ignore empty first string (because all paths start with /)
+    // and last name, which is empty for directories
+    for (const name of names.slice(1, -1)) {
+      if (!(name in current)) {
+        current[name] = {};
+      }
+      current = current[name] as Resources;
+    }
+
+    const lastName = names.at(-1);
+    if (lastName && lastName !== '') {
+      current[lastName] = 1;
+    }
+  }
+
+  return result;
+}
+
 function getResourcesToAttributions(
   attributions: Attributions | undefined,
   resourcesToAttributions: ResourcesToAttributions | undefined,

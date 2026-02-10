@@ -10,7 +10,10 @@ import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setManualData } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getManualAttributions } from '../../../state/selectors/resource-selectors';
-import { getAttributionsToResources } from '../../../test-helpers/general-test-helpers';
+import {
+  getAttributionsToResources,
+  getParsedInputFileEnrichedWithTestData,
+} from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmDeletePopup } from '../ConfirmDeletePopup';
 
@@ -76,13 +79,10 @@ describe('ConfirmDeletePopup', () => {
         attributionIdsToDelete={[attribution1.id, attribution2.id]}
       />,
       {
-        actions: [
-          setManualData(
-            attributions,
-            resourcesToAttributions,
-            getAttributionsToResources(resourcesToAttributions),
-          ),
-        ],
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: attributions,
+          resourcesToManualAttributions: resourcesToAttributions,
+        }),
       },
     );
 

@@ -23,7 +23,10 @@ import {
   getManualAttributions,
   getResourcesToManualAttributions,
 } from '../../../state/selectors/resource-selectors';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  getParsedInputFileEnrichedWithTestData,
+  pathsToResources,
+} from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmSavePopup } from '../ConfirmSavePopup';
 
@@ -118,8 +121,8 @@ describe('ConfirmSavePopup', () => {
   it('saves attribution linked to multiple resources only on selected resource', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo({ id: packageInfo1.id });
-    const resourceName1 = faker.opossum.resourceName();
-    const resourceName2 = faker.opossum.resourceName();
+    const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
+    const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
     const { store } = await renderComponent(
       <ConfirmSavePopup
         open
@@ -132,14 +135,15 @@ describe('ConfirmSavePopup', () => {
             [packageInfo1.id]: packageInfo1,
           }),
           resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-            [faker.opossum.filePath(resourceName1)]: [packageInfo1.id],
-            [faker.opossum.filePath(resourceName2)]: [packageInfo1.id],
+            [resource1]: [packageInfo1.id],
+            [resource2]: [packageInfo1.id],
           }),
+          resources: pathsToResources([resource1, resource2]),
         }),
         actions: [
           setTemporaryDisplayPackageInfo(packageInfo2),
           setSelectedAttributionId(packageInfo1.id),
-          setSelectedResourceId(faker.opossum.filePath(resourceName1)),
+          setSelectedResourceId(resource1),
         ],
       },
     );
@@ -157,14 +161,10 @@ describe('ConfirmSavePopup', () => {
       getManualAttributions(store.getState())[packageInfo1.id],
     ).toEqual<PackageInfo>(packageInfo1);
     expect(
-      getResourcesToManualAttributions(store.getState())[
-        faker.opossum.filePath(resourceName1)
-      ],
+      getResourcesToManualAttributions(store.getState())[resource1],
     ).not.toEqual<Array<string>>([packageInfo1.id]);
     expect(
-      getResourcesToManualAttributions(store.getState())[
-        faker.opossum.filePath(resourceName2)
-      ],
+      getResourcesToManualAttributions(store.getState())[resource2],
     ).toEqual<Array<string>>([packageInfo1.id]);
   });
 
@@ -228,6 +228,7 @@ describe('ConfirmSavePopup', () => {
             [faker.opossum.filePath(resourceName1)]: [packageInfo.id],
             [faker.opossum.filePath(resourceName2)]: [packageInfo.id],
           }),
+          resources: pathsToResources([resourceName1, resourceName2]),
         }),
         actions: [
           setTemporaryDisplayPackageInfo(packageInfo),
@@ -255,8 +256,8 @@ describe('ConfirmSavePopup', () => {
 
   it('confirms attribution linked to multiple resources only on selected resource', async () => {
     const packageInfo = faker.opossum.packageInfo({ preSelected: true });
-    const resourceName1 = faker.opossum.resourceName();
-    const resourceName2 = faker.opossum.resourceName();
+    const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
+    const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
     const { store } = await renderComponent(
       <ConfirmSavePopup
         open
@@ -269,14 +270,15 @@ describe('ConfirmSavePopup', () => {
             [packageInfo.id]: packageInfo,
           }),
           resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-            [faker.opossum.filePath(resourceName1)]: [packageInfo.id],
-            [faker.opossum.filePath(resourceName2)]: [packageInfo.id],
+            [resource1]: [packageInfo.id],
+            [resource2]: [packageInfo.id],
           }),
+          resources: pathsToResources([resource1, resource2]),
         }),
         actions: [
           setTemporaryDisplayPackageInfo(packageInfo),
           setSelectedAttributionId(packageInfo.id),
-          setSelectedResourceId(faker.opossum.filePath(resourceName1)),
+          setSelectedResourceId(resource1),
         ],
       },
     );
@@ -294,14 +296,10 @@ describe('ConfirmSavePopup', () => {
       getManualAttributions(store.getState())[packageInfo.id],
     ).toEqual<PackageInfo>(packageInfo);
     expect(
-      getResourcesToManualAttributions(store.getState())[
-        faker.opossum.filePath(resourceName1)
-      ],
+      getResourcesToManualAttributions(store.getState())[resource1],
     ).not.toEqual<Array<string>>([packageInfo.id]);
     expect(
-      getResourcesToManualAttributions(store.getState())[
-        faker.opossum.filePath(resourceName2)
-      ],
+      getResourcesToManualAttributions(store.getState())[resource2],
     ).toEqual<Array<string>>([packageInfo.id]);
   });
 });

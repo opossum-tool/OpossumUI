@@ -152,13 +152,19 @@ describe('The actions checking for unsaved changes', () => {
         selectedResource: 1,
         newSelectedResource: 1,
       };
-      const attribution: PackageInfo = {
+      const attributionToSelect: PackageInfo = {
         packageName: 'React',
         criticality: Criticality.None,
         id: 'uuid_1',
       };
+      const selectedAttribution: PackageInfo = {
+        packageName: 'React',
+        criticality: Criticality.None,
+        id: 'uuid_2',
+      };
       const testManualAttributions: Attributions = {
-        uuid_1: attribution,
+        uuid_1: attributionToSelect,
+        uuid_2: selectedAttribution,
       };
       const testStore = await createTestStore(
         getParsedInputFileEnrichedWithTestData({
@@ -168,7 +174,7 @@ describe('The actions checking for unsaved changes', () => {
       );
 
       testStore.dispatch(setSelectedResourceId('selectedResource'));
-      testStore.dispatch(setSelectedAttributionId('selectedAttributionId'));
+      testStore.dispatch(setSelectedAttributionId('uuid_2'));
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
@@ -178,7 +184,7 @@ describe('The actions checking for unsaved changes', () => {
         }),
       );
       testStore.dispatch(
-        savePackageInfo('selectedResource', 'selectedAttributionId', {
+        savePackageInfo('selectedResource', 'uuid_2', {
           packageName: 'Test',
           criticality: Criticality.None,
           id: faker.string.uuid(),
@@ -186,7 +192,7 @@ describe('The actions checking for unsaved changes', () => {
       );
 
       testStore.dispatch(
-        changeSelectedAttributionOrOpenUnsavedPopup(attribution),
+        changeSelectedAttributionOrOpenUnsavedPopup(attributionToSelect),
       );
 
       expect(getSelectedView(testStore.getState())).toBe(View.Audit);
