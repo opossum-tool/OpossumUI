@@ -9,7 +9,7 @@ import { noop } from 'lodash';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setManualData } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { getManualAttributions } from '../../../state/selectors/resource-selectors';
+import { expectManualAttributions } from '../../../test-helpers/expectations';
 import {
   getAttributionsToResources,
   getParsedInputFileEnrichedWithTestData,
@@ -90,6 +90,6 @@ describe('ConfirmDeletePopup', () => {
       screen.getByText(text.deleteAttributionsPopup.deleteGlobally),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual({});
+    await expectManualAttributions(store.getState(), {});
   });
 });

@@ -7,11 +7,6 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash';
 
-import {
-  Attributions,
-  PackageInfo,
-  ResourcesToAttributions,
-} from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
@@ -19,10 +14,11 @@ import {
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { getSelectedAttributionId } from '../../../state/selectors/resource-selectors';
 import {
-  getManualAttributions,
-  getResourcesToManualAttributions,
-} from '../../../state/selectors/resource-selectors';
+  expectManualAttributions,
+  expectResourcesToManualAttributions,
+} from '../../../test-helpers/expectations';
 import {
   getParsedInputFileEnrichedWithTestData,
   pathsToResources,
@@ -34,7 +30,7 @@ describe('ConfirmSavePopup', () => {
   it('saves attribution linked to a single resource', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo({ id: packageInfo1.id });
-    const resourceName = faker.opossum.resourceName();
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
     const { store } = await renderComponent(
       <ConfirmSavePopup
         open
@@ -47,8 +43,9 @@ describe('ConfirmSavePopup', () => {
             [packageInfo1.id]: packageInfo1,
           }),
           resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-            [faker.opossum.filePath(resourceName)]: [packageInfo1.id],
+            [resource]: [packageInfo1.id],
           }),
+          resources: pathsToResources([resource]),
         }),
         actions: [
           setTemporaryDisplayPackageInfo(packageInfo2),
@@ -63,21 +60,19 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual<Attributions>({
+    await expectManualAttributions(store.getState(), {
       [packageInfo1.id]: packageInfo2,
     });
-    expect(
-      getResourcesToManualAttributions(store.getState()),
-    ).toEqual<ResourcesToAttributions>({
-      [faker.opossum.filePath(resourceName)]: [packageInfo1.id],
+    await expectResourcesToManualAttributions(store.getState(), {
+      [resource]: [packageInfo1.id],
     });
   });
 
   it('saves attribution linked to multiple resources on all resources', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo({ id: packageInfo1.id });
-    const resourceName1 = faker.opossum.resourceName();
-    const resourceName2 = faker.opossum.resourceName();
+    const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
+    const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
     const { store } = await renderComponent(
       <ConfirmSavePopup
         open
@@ -90,9 +85,10 @@ describe('ConfirmSavePopup', () => {
             [packageInfo1.id]: packageInfo1,
           }),
           resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-            [faker.opossum.filePath(resourceName1)]: [packageInfo1.id],
-            [faker.opossum.filePath(resourceName2)]: [packageInfo1.id],
+            [resource1]: [packageInfo1.id],
+            [resource2]: [packageInfo1.id],
           }),
+          resources: pathsToResources([resource1, resource2]),
         }),
         actions: [
           setTemporaryDisplayPackageInfo(packageInfo2),
@@ -107,14 +103,12 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual<Attributions>({
+    await expectManualAttributions(store.getState(), {
       [packageInfo1.id]: packageInfo2,
     });
-    expect(
-      getResourcesToManualAttributions(store.getState()),
-    ).toEqual<ResourcesToAttributions>({
-      [faker.opossum.filePath(resourceName1)]: [packageInfo1.id],
-      [faker.opossum.filePath(resourceName2)]: [packageInfo1.id],
+    await expectResourcesToManualAttributions(store.getState(), {
+      [resource1]: [packageInfo1.id],
+      [resource2]: [packageInfo1.id],
     });
   });
 
@@ -154,23 +148,21 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    expect(Object.keys(getManualAttributions(store.getState()))).toHaveLength(
-      2,
-    );
-    expect(
-      getManualAttributions(store.getState())[packageInfo1.id],
-    ).toEqual<PackageInfo>(packageInfo1);
-    expect(
-      getResourcesToManualAttributions(store.getState())[resource1],
-    ).not.toEqual<Array<string>>([packageInfo1.id]);
-    expect(
-      getResourcesToManualAttributions(store.getState())[resource2],
-    ).toEqual<Array<string>>([packageInfo1.id]);
+    const newId = getSelectedAttributionId(store.getState());
+
+    await expectManualAttributions(store.getState(), {
+      [packageInfo1.id]: packageInfo1,
+      [newId]: { ...packageInfo2, id: newId },
+    });
+    await expectResourcesToManualAttributions(store.getState(), {
+      [resource1]: [newId],
+      [resource2]: [packageInfo1.id],
+    });
   });
 
   it('confirms attribution linked to a single resource', async () => {
     const packageInfo = faker.opossum.packageInfo({ preSelected: true });
-    const resourceName = faker.opossum.resourceName();
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
     const { store } = await renderComponent(
       <ConfirmSavePopup
         open
@@ -183,8 +175,9 @@ describe('ConfirmSavePopup', () => {
             [packageInfo.id]: packageInfo,
           }),
           resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-            [faker.opossum.filePath(resourceName)]: [packageInfo.id],
+            [resource]: [packageInfo.id],
           }),
+          resources: pathsToResources([resource]),
         }),
         actions: [
           setTemporaryDisplayPackageInfo(packageInfo),
@@ -199,13 +192,11 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual<Attributions>({
+    await expectManualAttributions(store.getState(), {
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
-    expect(
-      getResourcesToManualAttributions(store.getState()),
-    ).toEqual<ResourcesToAttributions>({
-      [faker.opossum.filePath(resourceName)]: [packageInfo.id],
+    await expectResourcesToManualAttributions(store.getState(), {
+      [resource]: [packageInfo.id],
     });
   });
 
@@ -243,12 +234,10 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual<Attributions>({
+    await expectManualAttributions(store.getState(), {
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
-    expect(
-      getResourcesToManualAttributions(store.getState()),
-    ).toEqual<ResourcesToAttributions>({
+    await expectResourcesToManualAttributions(store.getState(), {
       [faker.opossum.filePath(resourceName1)]: [packageInfo.id],
       [faker.opossum.filePath(resourceName2)]: [packageInfo.id],
     });
@@ -289,17 +278,15 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    expect(Object.keys(getManualAttributions(store.getState()))).toHaveLength(
-      2,
-    );
-    expect(
-      getManualAttributions(store.getState())[packageInfo.id],
-    ).toEqual<PackageInfo>(packageInfo);
-    expect(
-      getResourcesToManualAttributions(store.getState())[resource1],
-    ).not.toEqual<Array<string>>([packageInfo.id]);
-    expect(
-      getResourcesToManualAttributions(store.getState())[resource2],
-    ).toEqual<Array<string>>([packageInfo.id]);
+    const newId = getSelectedAttributionId(store.getState());
+
+    await expectManualAttributions(store.getState(), {
+      [packageInfo.id]: packageInfo,
+      [newId]: { ...packageInfo, id: newId, preSelected: undefined },
+    });
+    await expectResourcesToManualAttributions(store.getState(), {
+      [resource1]: [newId],
+      [resource2]: [packageInfo.id],
+    });
   });
 });

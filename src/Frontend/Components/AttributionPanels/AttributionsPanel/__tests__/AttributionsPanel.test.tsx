@@ -5,10 +5,6 @@
 import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import {
-  Attributions,
-  ResourcesToAttributions,
-} from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { ROOT_PATH } from '../../../../shared-constants';
@@ -21,16 +17,16 @@ import {
   setSelectedResourceId,
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
-import {
-  getManualAttributions,
-  getResourcesToManualAttributions,
-  getSelectedAttributionId,
-} from '../../../../state/selectors/resource-selectors';
+import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
 import {
   FILTERED_ATTRIBUTIONS_AUDIT,
   FilteredData,
   initialFilteredAttributions,
 } from '../../../../state/variables/use-filtered-data';
+import {
+  expectManualAttributions,
+  expectResourcesToManualAttributions,
+} from '../../../../test-helpers/expectations';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
 import { AttributionsPanel } from '../AttributionsPanel';
@@ -189,7 +185,7 @@ describe('AttributionsPanel', () => {
       screen.getByRole('button', { name: text.deleteAttributionsPopup.delete }),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual({});
+    await expectManualAttributions(store.getState(), {});
   });
 
   it('links selected attribution', async () => {
@@ -225,9 +221,7 @@ describe('AttributionsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
     );
 
-    expect(
-      getResourcesToManualAttributions(store.getState()),
-    ).toEqual<ResourcesToAttributions>({
+    await expectResourcesToManualAttributions(store.getState(), {
       [ROOT_PATH]: [packageInfo.id],
     });
   });
@@ -381,7 +375,7 @@ describe('AttributionsPanel', () => {
       screen.getByRole('button', { name: text.saveAttributionsPopup.confirm }),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual<Attributions>({
+    await expectManualAttributions(store.getState(), {
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
   });

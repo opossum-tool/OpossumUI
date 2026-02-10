@@ -7,20 +7,19 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash';
 
-import {
-  Attributions,
-  ResourcesToAttributions,
-} from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
-import {
-  getManualAttributions,
-  getResourcesToManualAttributions,
-  getSelectedAttributionId,
-} from '../../../state/selectors/resource-selectors';
+import { getSelectedAttributionId } from '../../../state/selectors/resource-selectors';
 import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-ids-for-replacement';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  expectManualAttributions,
+  expectResourcesToManualAttributions,
+} from '../../../test-helpers/expectations';
+import {
+  getParsedInputFileEnrichedWithTestData,
+  pathsToResources,
+} from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmReplacePopup } from '../ConfirmReplacePopup';
 
@@ -28,7 +27,7 @@ describe('ConfirmReplacePopup', () => {
   it('replaces selected attribution with non-pre-selected one', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
-    const resourceName = faker.opossum.resourceName();
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
     const { store } = await renderComponent(
       <ConfirmReplacePopup
         open
@@ -42,11 +41,9 @@ describe('ConfirmReplacePopup', () => {
             [packageInfo2.id]: packageInfo2,
           }),
           resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-            [faker.opossum.filePath(resourceName)]: [
-              packageInfo1.id,
-              packageInfo2.id,
-            ],
+            [resource]: [packageInfo1.id, packageInfo2.id],
           }),
+          resources: pathsToResources([resource]),
         }),
         actions: [
           setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
@@ -62,13 +59,11 @@ describe('ConfirmReplacePopup', () => {
       }),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual<Attributions>({
+    await expectManualAttributions(store.getState(), {
       [packageInfo2.id]: packageInfo2,
     });
-    expect(
-      getResourcesToManualAttributions(store.getState()),
-    ).toEqual<ResourcesToAttributions>({
-      [faker.opossum.filePath(resourceName)]: [packageInfo2.id],
+    await expectResourcesToManualAttributions(store.getState(), {
+      [resource]: [packageInfo2.id],
     });
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo2.id);
   });
@@ -78,7 +73,7 @@ describe('ConfirmReplacePopup', () => {
     const packageInfo2 = faker.opossum.packageInfo({
       preSelected: true,
     });
-    const resourceName = faker.opossum.resourceName();
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
     const { store } = await renderComponent(
       <ConfirmReplacePopup
         open
@@ -92,11 +87,9 @@ describe('ConfirmReplacePopup', () => {
             [packageInfo2.id]: packageInfo2,
           }),
           resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-            [faker.opossum.filePath(resourceName)]: [
-              packageInfo1.id,
-              packageInfo2.id,
-            ],
+            [resource]: [packageInfo1.id, packageInfo2.id],
           }),
+          resources: pathsToResources([resource]),
         }),
         actions: [
           setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
@@ -112,13 +105,11 @@ describe('ConfirmReplacePopup', () => {
       }),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual<Attributions>({
+    await expectManualAttributions(store.getState(), {
       [packageInfo2.id]: { ...packageInfo2, preSelected: undefined },
     });
-    expect(
-      getResourcesToManualAttributions(store.getState()),
-    ).toEqual<ResourcesToAttributions>({
-      [faker.opossum.filePath(resourceName)]: [packageInfo2.id],
+    await expectResourcesToManualAttributions(store.getState(), {
+      [resource]: [packageInfo2.id],
     });
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo2.id);
   });

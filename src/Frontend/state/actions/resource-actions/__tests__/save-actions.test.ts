@@ -4,9 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { executeCommand } from '../../../../../ElectronBackend/api/commands';
-import { getDb } from '../../../../../ElectronBackend/db/db';
 import {
-  AttributionData,
   Attributions,
   Criticality,
   DiscreteConfidence,
@@ -19,6 +17,10 @@ import {
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
+import {
+  expectManualAttributions,
+  expectResourcesToManualAttributions,
+} from '../../../../test-helpers/expectations';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { createTestStore } from '../../../../test-helpers/render';
 import { createAppStore } from '../../../configure-store';
@@ -52,17 +54,9 @@ import {
   updateAttributionsAndSave,
 } from '../save-actions';
 
-/**
- * The database mutations are fired-and-forgotten.
- * We need to wait for them to clear before checking the changes.
- */
-async function flushPendingMutations() {
-  await new Promise(process.nextTick);
-}
-
 async function setupWithData(data: ParsedFileContent) {
   const testStore = await createTestStore(data);
-  return { testStore, db: getDb() };
+  return { testStore };
 }
 
 const testResources: Resources = {
@@ -125,7 +119,7 @@ describe('The savePackageInfo action', () => {
       id: expect.any(String),
     };
 
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         externalAttributions: testExternalAttributions,
@@ -166,24 +160,13 @@ describe('The savePackageInfo action', () => {
     });
     expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
 
-    await flushPendingMutations();
-
-    // Verify DB: new attribution was created and linked
     const newAttributionId = getSelectedAttributionId(testStore.getState());
-    const dbAttribution = await db
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', '=', newAttributionId)
-      .executeTakeFirst();
-    expect(dbAttribution).toBeDefined();
-    expect(dbAttribution!.is_external).toBe(0);
-
-    const dbLink = await db
-      .selectFrom('resource_to_attribution')
-      .selectAll()
-      .where('attribution_uuid', '=', newAttributionId)
-      .executeTakeFirst();
-    expect(dbLink).toBeDefined();
+    await expectManualAttributions(testStore.getState(), {
+      [newAttributionId]: expectedTemporaryDisplayPackageInfo,
+    });
+    await expectResourcesToManualAttributions(testStore.getState(), {
+      '/root/src/': [newAttributionId],
+    });
   });
 
   it('updates an attribution', async () => {
@@ -196,7 +179,7 @@ describe('The savePackageInfo action', () => {
       id: testManualAttributionUuid_1,
     };
 
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -254,17 +237,10 @@ describe('The savePackageInfo action', () => {
     });
     expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
 
-    await flushPendingMutations();
-
-    // Verify DB: attribution data was updated
-    const dbAttribution = await db
-      .selectFrom('attribution')
-      .select('data')
-      .where('uuid', '=', testManualAttributionUuid_1)
-      .executeTakeFirstOrThrow();
-    expect(JSON.parse(dbAttribution.data)).toEqual(
-      getManualAttributions(testStore.getState())[testManualAttributionUuid_1],
-    );
+    await expectManualAttributions(testStore.getState(), {
+      [testManualAttributionUuid_1]: testPackageInfo,
+      [testManualAttributionUuid_2]: secondTestPackageInfo,
+    });
   });
 
   it('removes an attribution', async () => {
@@ -327,7 +303,7 @@ describe('The savePackageInfo action', () => {
         paths: ['/root/somethingElse.js', '/', '/root/'],
       };
 
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -353,29 +329,18 @@ describe('The savePackageInfo action', () => {
         id: testUuidA,
       }),
     );
-    expect(
-      getManualAttributions(testStore.getState())?.[testUuidA],
-    ).toBeUndefined();
-    expect(
-      getResourcesToManualAttributions(testStore.getState())[
-        '/root/src/something.js'
-      ],
-    ).toBeUndefined();
     expect(getSelectedAttributionId(testStore.getState())).toBe('');
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual(expectedResourcesWithManualAttributedChildren2);
     expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
 
-    await flushPendingMutations();
-
-    // Verify DB: attribution was deleted
-    const dbAttribution = await db
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', '=', testUuidA)
-      .executeTakeFirst();
-    expect(dbAttribution).toBeUndefined();
+    await expectManualAttributions(testStore.getState(), {
+      [testUuidB]: testManualAttributions[testUuidB],
+    });
+    await expectResourcesToManualAttributions(testStore.getState(), {
+      '/root/somethingElse.js': [testUuidB],
+    });
   });
 
   it('removes an attribution from child and removes all remaining attributions if parent has identical ones', async () => {
@@ -401,7 +366,7 @@ describe('The savePackageInfo action', () => {
       '/parent/child.js': ['uuid2', 'uuid1'],
     };
 
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -415,19 +380,13 @@ describe('The savePackageInfo action', () => {
         id: 'uuid2',
       }),
     );
-    expect(getResourcesToManualAttributions(testStore.getState())).toEqual({
+
+    await expectManualAttributions(testStore.getState(), {
+      uuid1: testManualAttributions.uuid1,
+    });
+    await expectResourcesToManualAttributions(testStore.getState(), {
       '/parent/': ['uuid1'],
     });
-
-    await flushPendingMutations();
-
-    // Verify DB: uuid2 was deleted
-    const dbAttribution = await db
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', '=', 'uuid2')
-      .executeTakeFirst();
-    expect(dbAttribution).toBeUndefined();
   });
 
   it('removes an attribution from parent and removes all remaining attributions from child if has now same of parent', async () => {
@@ -453,7 +412,7 @@ describe('The savePackageInfo action', () => {
       '/parent/child.js': ['uuid1'],
     };
 
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -467,19 +426,13 @@ describe('The savePackageInfo action', () => {
         id: 'uuid2',
       }),
     );
-    expect(getResourcesToManualAttributions(testStore.getState())).toEqual({
+
+    await expectManualAttributions(testStore.getState(), {
+      uuid1: testManualAttributions.uuid1,
+    });
+    await expectResourcesToManualAttributions(testStore.getState(), {
       '/parent/': ['uuid1'],
     });
-
-    await flushPendingMutations();
-
-    // Verify DB: uuid2 was deleted
-    const dbAttribution = await db
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', '=', 'uuid2')
-      .executeTakeFirst();
-    expect(dbAttribution).toBeUndefined();
   });
 
   it('replaces an attribution with an existing one', async () => {
@@ -505,31 +458,7 @@ describe('The savePackageInfo action', () => {
       '/something.js': ['uuid1'],
       '/somethingElse.js': ['toReplaceUuid'],
     };
-    const expectedManualData: AttributionData = {
-      attributions: {
-        uuid1: testPackageInfo,
-      },
-      resourcesToAttributions: {
-        '/something.js': ['uuid1'],
-        '/somethingElse.js': ['uuid1'],
-      },
-      attributionsToResources: {
-        uuid1: ['/something.js', '/somethingElse.js'],
-      },
-      resourcesWithAttributedChildren: {
-        attributedChildren: {
-          '1': new Set<number>().add(0).add(2),
-        },
-        pathsToIndices: {
-          '/': 1,
-          '/something.js': 0,
-          '/somethingElse.js': 2,
-        },
-        paths: ['/something.js', '/', '/somethingElse.js'],
-      },
-    };
-
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testInitialManualAttributions,
@@ -554,25 +483,15 @@ describe('The savePackageInfo action', () => {
         false,
       ),
     );
-    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getSelectedAttributionId(testStore.getState())).toBe('uuid1');
 
-    await flushPendingMutations();
-
-    // Verify DB: old attribution deleted, links reassigned
-    const dbOldAttribution = await db
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', '=', 'toReplaceUuid')
-      .executeTakeFirst();
-    expect(dbOldAttribution).toBeUndefined();
-
-    const dbLinks = await db
-      .selectFrom('resource_to_attribution')
-      .selectAll()
-      .where('attribution_uuid', '=', 'uuid1')
-      .execute();
-    expect(dbLinks).toHaveLength(2);
+    await expectManualAttributions(testStore.getState(), {
+      uuid1: testPackageInfo,
+    });
+    await expectResourcesToManualAttributions(testStore.getState(), {
+      '/something.js': ['uuid1'],
+      '/somethingElse.js': ['uuid1'],
+    });
   });
 
   it('links to an attribution when the attribution already exists', async () => {
@@ -596,31 +515,7 @@ describe('The savePackageInfo action', () => {
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
       '/folder/somethingElse.js': ['uuid_1'],
     };
-    const expectedManualData: AttributionData = {
-      attributions: testManualAttributions,
-      resourcesToAttributions: {
-        '/something.js': [testUuid],
-        '/folder/somethingElse.js': [testUuid],
-      },
-      attributionsToResources: {
-        [testUuid]: ['/something.js', '/folder/somethingElse.js'],
-      },
-      resourcesWithAttributedChildren: {
-        attributedChildren: {
-          '1': new Set<number>().add(0).add(2),
-          '3': new Set<number>().add(2),
-        },
-        pathsToIndices: {
-          '/': 1,
-          '/folder/': 3,
-          '/folder/somethingElse.js': 2,
-          '/something.js': 0,
-        },
-        paths: ['/something.js', '/', '/folder/somethingElse.js', '/folder/'],
-      },
-    };
-
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -633,17 +528,15 @@ describe('The savePackageInfo action', () => {
     testStore.dispatch(
       savePackageInfo('/folder/somethingElse.js', null, testPackageInfo),
     );
-    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
 
-    await flushPendingMutations();
-
-    // Verify DB: attribution is now linked to both resources
-    const dbLinks = await db
-      .selectFrom('resource_to_attribution')
-      .selectAll()
-      .where('attribution_uuid', '=', testUuid)
-      .execute();
-    expect(dbLinks).toHaveLength(2);
+    await expectManualAttributions(
+      testStore.getState(),
+      testManualAttributions,
+    );
+    await expectResourcesToManualAttributions(testStore.getState(), {
+      '/something.js': [testUuid],
+      '/folder/somethingElse.js': [testUuid],
+    });
   });
 
   it('removes an attribution and keeps temporary package info for selected attribution', async () => {
@@ -883,7 +776,7 @@ describe('The unlinkAttributionAndSave action', () => {
       '/somethingElse.js': ['reactUuid'],
     };
 
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testInitialManualAttributions,
@@ -904,22 +797,13 @@ describe('The unlinkAttributionAndSave action', () => {
     testStore.dispatch(
       unlinkAttributionAndSave('/something.js', ['reactUuid']),
     );
-    const finalManualAttributionsToResources = getManualAttributionsToResources(
-      testStore.getState(),
-    );
-    expect(finalManualAttributionsToResources.reactUuid).toEqual([
-      '/somethingElse.js',
-    ]);
 
-    await flushPendingMutations();
-
-    // Verify DB: link was removed
-    const dbLinks = await db
-      .selectFrom('resource_to_attribution')
-      .selectAll()
-      .where('attribution_uuid', '=', 'reactUuid')
-      .execute();
-    expect(dbLinks).toHaveLength(1);
+    await expectManualAttributions(testStore.getState(), {
+      reactUuid: testReact,
+    });
+    await expectResourcesToManualAttributions(testStore.getState(), {
+      '/somethingElse.js': ['reactUuid'],
+    });
   });
 });
 
@@ -938,17 +822,7 @@ describe('The deleteAttributionsAndSave action', () => {
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       '/file1': ['toUnlink'],
     };
-    const expectedManualData: AttributionData = {
-      attributions: {},
-      resourcesToAttributions: {},
-      attributionsToResources: {},
-      resourcesWithAttributedChildren: {
-        attributedChildren: {},
-        pathsToIndices: {},
-        paths: [],
-      },
-    };
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testAttributions,
@@ -957,17 +831,9 @@ describe('The deleteAttributionsAndSave action', () => {
     );
 
     testStore.dispatch(deleteAttributionsAndSave(['toUnlink'], 'someId'));
-    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
 
-    await flushPendingMutations();
-
-    // Verify DB: attribution was deleted
-    const dbAttribution = await db
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', '=', 'toUnlink')
-      .executeTakeFirst();
-    expect(dbAttribution).toBeUndefined();
+    await expectManualAttributions(testStore.getState(), {});
+    await expectResourcesToManualAttributions(testStore.getState(), {});
   });
 
   it('unlinks resource from attribution multiple linked attribution', async () => {
@@ -989,34 +855,7 @@ describe('The deleteAttributionsAndSave action', () => {
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       '/file1': ['uuid1', 'toUnlink'],
     };
-    const expectedManualAttributions: Attributions = {
-      uuid1: {
-        packageName: 'React',
-        criticality: Criticality.None,
-        id: 'uuid1',
-      },
-    };
-    const expectedManualData: AttributionData = {
-      attributions: expectedManualAttributions,
-      resourcesToAttributions: {
-        '/file1': ['uuid1'],
-      },
-      attributionsToResources: {
-        uuid1: ['/file1'],
-      },
-      resourcesWithAttributedChildren: {
-        attributedChildren: {
-          '1': new Set<number>().add(0),
-        },
-        pathsToIndices: {
-          '/': 1,
-          '/file1': 0,
-        },
-        paths: ['/file1', '/'],
-      },
-    };
-
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testAttributions,
@@ -1027,33 +866,22 @@ describe('The deleteAttributionsAndSave action', () => {
     testStore.dispatch(
       deleteAttributionsAndSave(['toUnlink'], 'someSelectedId'),
     );
-    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
 
-    await flushPendingMutations();
-
-    // Verify DB: toUnlink deleted, uuid1 still exists
-    const dbDeleted = await db
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', '=', 'toUnlink')
-      .executeTakeFirst();
-    expect(dbDeleted).toBeUndefined();
-
-    const dbRemaining = await db
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', '=', 'uuid1')
-      .executeTakeFirst();
-    expect(dbRemaining).toBeDefined();
+    await expectManualAttributions(testStore.getState(), {
+      uuid1: testAttributions.uuid1,
+    });
+    await expectResourcesToManualAttributions(testStore.getState(), {
+      '/file1': ['uuid1'],
+    });
   });
 
   it('deletes multiple attributions and saves once', async () => {
     const testResourceSetup = createTestResources();
 
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData(testResourceSetup),
     );
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
@@ -1066,30 +894,6 @@ describe('The deleteAttributionsAndSave action', () => {
       deleteAttributionsAndSave(['reactUuid', 'vueUuid'], 'reactUuid'),
     );
 
-    const expectedManualAttributions: Attributions = {
-      angularUuid: testResourceSetup.manualAttributions.angularUuid,
-    };
-    const expectedManualData: AttributionData = {
-      attributions: expectedManualAttributions,
-      resourcesToAttributions: {
-        '/anotherFile.js': ['angularUuid'],
-      },
-      attributionsToResources: {
-        angularUuid: ['/anotherFile.js'],
-      },
-      resourcesWithAttributedChildren: {
-        attributedChildren: {
-          '1': new Set<number>().add(0),
-        },
-        pathsToIndices: {
-          '/': 1,
-          '/anotherFile.js': 0,
-        },
-        paths: ['/anotherFile.js', '/'],
-      },
-    };
-
-    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
@@ -1097,21 +901,18 @@ describe('The deleteAttributionsAndSave action', () => {
     // Verify file is saved only once
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
 
-    await flushPendingMutations();
-
-    // Verify DB: both attributions deleted
-    const dbAttributions = await db
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', 'in', ['reactUuid', 'vueUuid'])
-      .execute();
-    expect(dbAttributions).toHaveLength(0);
+    await expectManualAttributions(testStore.getState(), {
+      angularUuid: testResourceSetup.manualAttributions.angularUuid,
+    });
+    await expectResourcesToManualAttributions(testStore.getState(), {
+      '/anotherFile.js': ['angularUuid'],
+    });
   });
 
   it('deletes multiple attributions without clearing selected attribution or temp info if not in list', async () => {
     const testResourceSetup = createTestResources();
 
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData(testResourceSetup),
     );
 
@@ -1133,27 +934,14 @@ describe('The deleteAttributionsAndSave action', () => {
 
     // Angular should still be selected since it wasn't deleted
     expect(getSelectedAttributionId(testStore.getState())).toBe('angularUuid');
-    expect(
-      getManualAttributions(testStore.getState()).angularUuid,
-    ).toBeDefined();
-    expect(
-      getManualAttributions(testStore.getState()).reactUuid,
-    ).toBeUndefined();
-    expect(getManualAttributions(testStore.getState()).vueUuid).toBeUndefined();
     // Temporary display info should be preserved
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       testTemporaryPackageInfo,
     );
 
-    await flushPendingMutations();
-
-    // Verify DB: angular still exists, others deleted
-    const dbAngular = await db
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', '=', 'angularUuid')
-      .executeTakeFirst();
-    expect(dbAngular).toBeDefined();
+    await expectManualAttributions(testStore.getState(), {
+      angularUuid: testResourceSetup.manualAttributions.angularUuid,
+    });
   });
 
   function createTestResources() {
@@ -1225,30 +1013,7 @@ describe('The deleteAttributionGloballyAndSave action', () => {
       '/something.js': ['reactUuid'],
       '/somethingElse.js': ['reactUuid', 'vueUuid'],
     };
-    const expectedManualAttributions: Attributions = {
-      vueUuid: testVue,
-    };
-    const expectedManualData: AttributionData = {
-      attributions: expectedManualAttributions,
-      resourcesToAttributions: {
-        '/somethingElse.js': ['vueUuid'],
-      },
-      attributionsToResources: {
-        vueUuid: ['/somethingElse.js'],
-      },
-      resourcesWithAttributedChildren: {
-        attributedChildren: {
-          '1': new Set<number>().add(0),
-        },
-        pathsToIndices: {
-          '/': 1,
-          '/somethingElse.js': 0,
-        },
-        paths: ['/somethingElse.js', '/'],
-      },
-    };
-
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testInitialManualAttributions,
@@ -1258,21 +1023,17 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
 
     testStore.dispatch(deleteAttributionsAndSave(['reactUuid'], 'someOtherId'));
-    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
     expect(getSelectedAttributionId(testStore.getState())).toBe('');
 
-    await flushPendingMutations();
-
-    // Verify DB: reactUuid deleted
-    const dbAttribution = await db
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', '=', 'reactUuid')
-      .executeTakeFirst();
-    expect(dbAttribution).toBeUndefined();
+    await expectManualAttributions(testStore.getState(), {
+      vueUuid: testVue,
+    });
+    await expectResourcesToManualAttributions(testStore.getState(), {
+      '/somethingElse.js': ['vueUuid'],
+    });
   });
 });
 
@@ -1427,7 +1188,7 @@ describe('The updateAttributionsAndSave action', () => {
       vueUuid: updatedVue,
     };
 
-    const { testStore, db } = await setupWithData(
+    const { testStore } = await setupWithData(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testInitialManualAttributions,
@@ -1441,39 +1202,14 @@ describe('The updateAttributionsAndSave action', () => {
 
     testStore.dispatch(updateAttributionsAndSave(updatedAttributions));
 
-    // Verify the attributions were updated
-    const finalManualAttributions = getManualAttributions(testStore.getState());
-    expect(finalManualAttributions.reactUuid).toEqual(updatedReact);
-    expect(finalManualAttributions.vueUuid).toEqual(updatedVue);
-    expect(finalManualAttributions.angularUuid).toEqual(testAngular); // Should remain unchanged
-
     // Verify file is saved only once
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
 
-    await flushPendingMutations();
-
-    // Verify DB: attributions were updated
-    const dbReact = await db
-      .selectFrom('attribution')
-      .select('data')
-      .where('uuid', '=', 'reactUuid')
-      .executeTakeFirstOrThrow();
-    expect(JSON.parse(dbReact.data)).toEqual(updatedReact);
-
-    const dbVue = await db
-      .selectFrom('attribution')
-      .select('data')
-      .where('uuid', '=', 'vueUuid')
-      .executeTakeFirstOrThrow();
-    expect(JSON.parse(dbVue.data)).toEqual(updatedVue);
-
-    // Angular should remain unchanged in DB
-    const dbAngular = await db
-      .selectFrom('attribution')
-      .select('data')
-      .where('uuid', '=', 'angularUuid')
-      .executeTakeFirstOrThrow();
-    expect(JSON.parse(dbAngular.data)).toEqual(testAngular);
+    await expectManualAttributions(testStore.getState(), {
+      reactUuid: updatedReact,
+      vueUuid: updatedVue,
+      angularUuid: testAngular,
+    });
   });
 
   it('reloads temporary display package info when selected attribution is updated', async () => {
