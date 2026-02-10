@@ -6,6 +6,7 @@
 import '@testing-library/jest-dom';
 import { noop } from 'lodash';
 
+import { executeCommand } from '../ElectronBackend/api/commands';
 import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
 import { ElectronAPI } from '../shared/shared-types';
 import { faker } from './Faker';
@@ -48,7 +49,7 @@ global.window.electronAPI = {
   getUserSettings: jest.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
   updateUserSettings: jest.fn(),
   setFrontendPopupOpen: jest.fn(),
-  api: jest.fn(),
+  api: jest.fn().mockImplementation(executeCommand),
 } satisfies ElectronAPI;
 
 window.ResizeObserver = ResizeObserver;
