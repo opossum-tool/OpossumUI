@@ -44,21 +44,21 @@ describe('MoreActionsButton', () => {
     jest.clearAllMocks();
   });
 
-  it('renders the more actions button', () => {
-    renderComponent(<MoreActionsButton {...defaultProps} />);
+  it('renders the more actions button', async () => {
+    await renderComponent(<MoreActionsButton {...defaultProps} />);
 
     expect(
       screen.getByRole('button', { name: text.packageLists.moreActions }),
     ).toBeInTheDocument();
   });
 
-  it('is disabled when no attributions are selected', () => {
+  it('is disabled when no attributions are selected', async () => {
     const props = {
       ...defaultProps,
       selectedAttributionIds: [],
     };
 
-    renderComponent(<MoreActionsButton {...props} />);
+    await renderComponent(<MoreActionsButton {...props} />);
 
     expect(
       screen.getByRole('button', { name: text.packageLists.moreActions }),
@@ -67,7 +67,7 @@ describe('MoreActionsButton', () => {
 
   it('opens menu when clicked', async () => {
     const user = userEvent.setup();
-    renderComponent(<MoreActionsButton {...defaultProps} />);
+    await renderComponent(<MoreActionsButton {...defaultProps} />);
 
     const button = screen.getByRole('button', {
       name: text.packageLists.moreActions,
@@ -97,7 +97,7 @@ describe('MoreActionsButton', () => {
       },
     };
 
-    renderComponent(<MoreActionsButton {...props} />);
+    await renderComponent(<MoreActionsButton {...props} />);
 
     const button = screen.getByRole('button', {
       name: text.packageLists.moreActions,

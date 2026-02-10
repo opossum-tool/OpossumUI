@@ -14,7 +14,6 @@ import {
   setResolvedExternalAttributions,
   setSelectedResourceId,
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../../../state/actions/resource-actions/load-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import {
   getResolvedExternalAttributions,
@@ -36,13 +35,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<SignalsPanel />, {
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
           ...initialFilteredAttributions,
@@ -67,13 +64,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<SignalsPanel />, {
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
           ...initialFilteredAttributions,
@@ -100,13 +95,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<SignalsPanel />, {
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
           ...initialFilteredAttributions,
@@ -136,13 +129,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    renderComponent(<SignalsPanel />, {
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
@@ -170,13 +161,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<SignalsPanel />, {
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
@@ -210,13 +199,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    renderComponent(<SignalsPanel />, {
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
           ...initialFilteredAttributions,
@@ -247,16 +234,14 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<SignalsPanel />, {
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+        resourcesToExternalAttributions: {
+          [filePath]: [packageInfo.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-            resourcesToExternalAttributions: {
-              [filePath]: [packageInfo.id],
-            },
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
           ...initialFilteredAttributions,
@@ -293,17 +278,15 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    renderComponent(<SignalsPanel />, {
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+        attributionBreakpoints: new Set([filePath]),
+        resourcesToExternalAttributions: {
+          [filePath]: [packageInfo.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-            attributionBreakpoints: new Set([filePath]),
-            resourcesToExternalAttributions: {
-              [filePath]: [packageInfo.id],
-            },
-          }),
-        ),
         setSelectedResourceId(filePath),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {

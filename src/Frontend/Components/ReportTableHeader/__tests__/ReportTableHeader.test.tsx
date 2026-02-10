@@ -8,8 +8,8 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ReportTableHeader } from '../ReportTableHeader';
 
 describe('The report view table header', () => {
-  it('renders', () => {
-    renderComponent(
+  it('renders', async () => {
+    await renderComponent(
       <table>
         <thead>
           <ReportTableHeader />

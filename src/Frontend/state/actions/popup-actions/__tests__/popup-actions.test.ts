@@ -16,6 +16,7 @@ import {
 import { faker } from '../../../../../testing/Faker';
 import { PopupType, View } from '../../../../enums/enums';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
+import { createTestStore } from '../../../../test-helpers/render';
 import { State } from '../../../../types/types';
 import { createAppStore } from '../../../configure-store';
 import {
@@ -46,7 +47,6 @@ import {
   setTargetSelectedResourceId,
 } from '../../resource-actions/audit-view-simple-actions';
 import * as exportActions from '../../resource-actions/export-actions';
-import { loadFromFile } from '../../resource-actions/load-actions';
 import { savePackageInfo } from '../../resource-actions/save-actions';
 import {
   navigateToView,
@@ -90,7 +90,7 @@ describe('The actions checking for unsaved changes', () => {
     it(
       'setsTargetSelectedAttributionId and temporaryDisplayPackageInfo' +
         ' and opens popup if packageInfo were modified',
-      () => {
+      async () => {
         const testResources: Resources = {
           selectedResource: 1,
           newSelectedResource: 1,
@@ -103,14 +103,11 @@ describe('The actions checking for unsaved changes', () => {
         const testManualAttributions: Attributions = {
           uuid_1: attribution,
         };
-        const testStore = createAppStore();
-        testStore.dispatch(
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              resources: testResources,
-              manualAttributions: testManualAttributions,
-            }),
-          ),
+        const testStore = await createTestStore(
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testManualAttributions,
+          }),
         );
 
         testStore.dispatch(setSelectedResourceId('selectedResource'));
@@ -150,7 +147,7 @@ describe('The actions checking for unsaved changes', () => {
       },
     );
 
-    it('setSelectedAttributionId and temporaryDisplayPackageInfo if packageInfo were not modified', () => {
+    it('setSelectedAttributionId and temporaryDisplayPackageInfo if packageInfo were not modified', async () => {
       const testResources: Resources = {
         selectedResource: 1,
         newSelectedResource: 1,
@@ -163,14 +160,11 @@ describe('The actions checking for unsaved changes', () => {
       const testManualAttributions: Attributions = {
         uuid_1: attribution,
       };
-      const testStore = createAppStore();
-      testStore.dispatch(
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            resources: testResources,
-            manualAttributions: testManualAttributions,
-          }),
-        ),
+      const testStore = await createTestStore(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+        }),
       );
 
       testStore.dispatch(setSelectedResourceId('selectedResource'));
@@ -278,16 +272,13 @@ describe('The actions checking for unsaved changes', () => {
       '/root/src/something.js': [testManualAttributionUuid_1],
     };
 
-    it('set selected resource id', () => {
-      const testStore = createAppStore();
-      testStore.dispatch(
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            resources: testResources,
-            manualAttributions: testManualAttributions,
-            resourcesToManualAttributions: testResourcesToManualAttributions,
-          }),
-        ),
+    it('set selected resource id', async () => {
+      const testStore = await createTestStore(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        }),
       );
       testStore.dispatch(setSelectedResourceId('/root/'));
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
@@ -297,16 +288,13 @@ describe('The actions checking for unsaved changes', () => {
       expect(getSelectedResourceId(testStore.getState())).toBe('/thirdParty/');
     });
 
-    it('open unsaved-popup', () => {
-      const testStore = createAppStore();
-      testStore.dispatch(
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            resources: testResources,
-            manualAttributions: testManualAttributions,
-            resourcesToManualAttributions: testResourcesToManualAttributions,
-          }),
-        ),
+    it('open unsaved-popup', async () => {
+      const testStore = await createTestStore(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        }),
       );
       testStore.dispatch(setSelectedResourceId('/root/'));
       testStore.dispatch(

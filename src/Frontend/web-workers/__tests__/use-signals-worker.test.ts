@@ -30,18 +30,18 @@ describe('useSignalsWorker', () => {
     });
   });
 
-  it('does not re-initialize worker when project ID is stable', () => {
+  it('does not re-initialize worker when project ID is stable', async () => {
     const metadata = faker.opossum.metadata();
-    renderHook(useSignalsWorker, {
+    await renderHook(useSignalsWorker, {
       actions: [setProjectMetadata(metadata)],
     });
 
     expect(mockTerminate).not.toHaveBeenCalled();
   });
 
-  it('re-initializes worker when project ID changes', () => {
+  it('re-initializes worker when project ID changes', async () => {
     const metadata = faker.opossum.metadata();
-    const { store } = renderHook(useSignalsWorker, {
+    const { store } = await renderHook(useSignalsWorker, {
       actions: [setProjectMetadata(metadata)],
     });
 

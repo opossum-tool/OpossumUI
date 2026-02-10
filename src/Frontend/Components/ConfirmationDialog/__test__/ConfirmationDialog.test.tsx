@@ -43,7 +43,7 @@ const TestComponent: React.FC<
 
 describe('ConfirmationDialog', () => {
   it('shows confirmation dialog when confirmation is required', async () => {
-    renderComponent(<TestComponent />);
+    await renderComponent(<TestComponent />);
 
     await userEvent.click(screen.getByRole('button'));
 
@@ -53,7 +53,7 @@ describe('ConfirmationDialog', () => {
   it('does not show confirmation dialog and calls confirm handler immediately when no confirmation is required', async () => {
     const onConfirm = jest.fn();
     const onCancel = jest.fn();
-    renderComponent(
+    await renderComponent(
       <TestComponent skip={true} onConfirm={onConfirm} onCancel={onCancel} />,
     );
 
@@ -69,7 +69,7 @@ describe('ConfirmationDialog', () => {
   it('closes confirmation dialog and calls confirm handler when user confirms confirmation dialog', async () => {
     const onConfirm = jest.fn();
     const onCancel = jest.fn();
-    renderComponent(
+    await renderComponent(
       <TestComponent onConfirm={onConfirm} onCancel={onCancel} />,
     );
 
@@ -90,7 +90,7 @@ describe('ConfirmationDialog', () => {
   it('closes confirmation dialog and calls cancel handler when user cancels out of confirmation dialog', async () => {
     const onConfirm = jest.fn();
     const onCancel = jest.fn();
-    renderComponent(
+    await renderComponent(
       <TestComponent onConfirm={onConfirm} onCancel={onCancel} />,
     );
 

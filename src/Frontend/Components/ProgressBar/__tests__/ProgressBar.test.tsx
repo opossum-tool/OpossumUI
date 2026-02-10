@@ -93,7 +93,7 @@ describe('ProgressBar', () => {
     const resourceId1 = faker.opossum.filePath(resourceName1);
     const resourceName2 = faker.opossum.resourceName();
     const resourceId2 = faker.opossum.filePath(resourceName2);
-    const { store } = renderComponent(
+    const { store } = await renderComponent(
       <ProgressBar
         selectedProgressBar={'attribution'}
         progressBarData={{
@@ -128,7 +128,7 @@ describe('ProgressBar', () => {
   });
 
   it('renders regular progress bar', async () => {
-    renderComponent(
+    await renderComponent(
       <ProgressBar
         selectedProgressBar={'attribution'}
         progressBarData={{
@@ -156,7 +156,7 @@ describe('ProgressBar', () => {
   });
 
   it('renders criticality progress bar', async () => {
-    renderComponent(
+    await renderComponent(
       <ProgressBar
         selectedProgressBar={'criticality'}
         progressBarData={{
@@ -194,7 +194,7 @@ describe('ProgressBar', () => {
     const resourceId1 = faker.opossum.filePath(resourceName1);
     const resourceName2 = faker.opossum.resourceName();
     const resourceId2 = faker.opossum.filePath(resourceName2);
-    const { store } = renderComponent(
+    const { store } = await renderComponent(
       <ProgressBar
         selectedProgressBar={'criticality'}
         progressBarData={{
@@ -226,7 +226,7 @@ describe('ProgressBar', () => {
   });
 
   it('renders classification progress bar', async () => {
-    renderComponent(
+    await renderComponent(
       <ProgressBar
         selectedProgressBar={'classification'}
         progressBarData={{
@@ -278,7 +278,7 @@ describe('ProgressBar', () => {
     const resourceId1 = faker.opossum.filePath(resourceName1);
     const resourceName2 = faker.opossum.resourceName();
     const resourceId2 = faker.opossum.filePath(resourceName2);
-    const { store } = renderComponent(
+    const { store } = await renderComponent(
       <ProgressBar
         selectedProgressBar={'classification'}
         progressBarData={{
@@ -320,7 +320,7 @@ describe('ProgressBar', () => {
     const resourceId1 = faker.opossum.filePath(resourceName1);
     const resourceName2 = faker.opossum.resourceName();
     const resourceId2 = faker.opossum.filePath(resourceName2);
-    const { store } = renderComponent(
+    const { store } = await renderComponent(
       <ProgressBar
         selectedProgressBar={'classification'}
         progressBarData={{
@@ -362,7 +362,7 @@ describe('ProgressBar', () => {
     const resourceId1 = faker.opossum.filePath(resourceName1);
     const resourceName2 = faker.opossum.resourceName();
     const resourceId2 = faker.opossum.filePath(resourceName2);
-    const { store } = renderComponent(
+    const { store } = await renderComponent(
       <ProgressBar
         selectedProgressBar={'classification'}
         progressBarData={{

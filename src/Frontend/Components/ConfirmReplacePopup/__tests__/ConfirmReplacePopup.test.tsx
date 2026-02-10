@@ -13,7 +13,6 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import {
   getManualAttributions,
@@ -30,29 +29,26 @@ describe('ConfirmReplacePopup', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceName = faker.opossum.resourceName();
-    const { store } = renderComponent(
+    const { store } = await renderComponent(
       <ConfirmReplacePopup
         open
         onClose={noop}
         selectedAttribution={packageInfo2}
       />,
       {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [packageInfo1.id]: packageInfo1,
+            [packageInfo2.id]: packageInfo2,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [faker.opossum.filePath(resourceName)]: [
+              packageInfo1.id,
+              packageInfo2.id,
+            ],
+          }),
+        }),
         actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              manualAttributions: faker.opossum.attributions({
-                [packageInfo1.id]: packageInfo1,
-                [packageInfo2.id]: packageInfo2,
-              }),
-              resourcesToManualAttributions:
-                faker.opossum.resourcesToAttributions({
-                  [faker.opossum.filePath(resourceName)]: [
-                    packageInfo1.id,
-                    packageInfo2.id,
-                  ],
-                }),
-            }),
-          ),
           setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
             packageInfo1.id,
           ]),
@@ -83,29 +79,26 @@ describe('ConfirmReplacePopup', () => {
       preSelected: true,
     });
     const resourceName = faker.opossum.resourceName();
-    const { store } = renderComponent(
+    const { store } = await renderComponent(
       <ConfirmReplacePopup
         open
         onClose={noop}
         selectedAttribution={packageInfo2}
       />,
       {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [packageInfo1.id]: packageInfo1,
+            [packageInfo2.id]: packageInfo2,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [faker.opossum.filePath(resourceName)]: [
+              packageInfo1.id,
+              packageInfo2.id,
+            ],
+          }),
+        }),
         actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              manualAttributions: faker.opossum.attributions({
-                [packageInfo1.id]: packageInfo1,
-                [packageInfo2.id]: packageInfo2,
-              }),
-              resourcesToManualAttributions:
-                faker.opossum.resourcesToAttributions({
-                  [faker.opossum.filePath(resourceName)]: [
-                    packageInfo1.id,
-                    packageInfo2.id,
-                  ],
-                }),
-            }),
-          ),
           setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
             packageInfo1.id,
           ]),

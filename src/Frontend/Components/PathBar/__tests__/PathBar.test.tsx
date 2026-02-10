@@ -22,11 +22,11 @@ describe('The PathBar', () => {
     });
   });
 
-  it('renders a path', () => {
+  it('renders a path', async () => {
     const testPath = '/test/path/foo/bar/';
     const pathElements = compact(testPath.split('/'));
 
-    const { store } = renderComponent(<PathBar />);
+    const { store } = await renderComponent(<PathBar />);
     act(() => {
       store.dispatch(setSelectedResourceId(testPath));
     });
@@ -36,10 +36,10 @@ describe('The PathBar', () => {
     });
   });
 
-  it('copies path to clipboard', () => {
+  it('copies path to clipboard', async () => {
     const testPath = '/test_path/';
 
-    const { store } = renderComponent(<PathBar />);
+    const { store } = await renderComponent(<PathBar />);
     act(() => {
       store.dispatch(setSelectedResourceId(testPath));
       store.dispatch(setFilesWithChildren(new Set<string>().add(testPath)));
@@ -51,10 +51,10 @@ describe('The PathBar', () => {
     expect(writeText).toHaveBeenCalledWith('test_path');
   });
 
-  it('opens path URL in browser', () => {
+  it('opens path URL in browser', async () => {
     const testPath = '/test_path/';
 
-    const { store } = renderComponent(<PathBar />);
+    const { store } = await renderComponent(<PathBar />);
     act(() => {
       store.dispatch(setSelectedResourceId(testPath));
       store.dispatch(setFilesWithChildren(new Set<string>().add(testPath)));

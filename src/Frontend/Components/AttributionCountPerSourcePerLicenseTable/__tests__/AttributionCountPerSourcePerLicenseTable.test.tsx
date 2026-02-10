@@ -58,8 +58,10 @@ function getHeaderTexts(screen: Screen): Array<string> {
 }
 
 describe('Attribution count per source per license table', () => {
-  it('shows by default criticality and classification columns', () => {
-    renderComponent(<AttributionCountPerSourcePerLicenseTable {...props} />);
+  it('shows by default criticality and classification columns', async () => {
+    await renderComponent(
+      <AttributionCountPerSourcePerLicenseTable {...props} />,
+    );
 
     expect(getHeaderTexts(screen)).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
@@ -71,10 +73,13 @@ describe('Attribution count per source per license table', () => {
     ]);
   });
 
-  it('does not show criticality if disabled', () => {
-    renderComponent(<AttributionCountPerSourcePerLicenseTable {...props} />, {
-      actions: [setUserSetting({ showCriticality: false })],
-    });
+  it('does not show criticality if disabled', async () => {
+    await renderComponent(
+      <AttributionCountPerSourcePerLicenseTable {...props} />,
+      {
+        actions: [setUserSetting({ showCriticality: false })],
+      },
+    );
 
     expect(getHeaderTexts(screen)).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
@@ -85,10 +90,13 @@ describe('Attribution count per source per license table', () => {
     ]);
   });
 
-  it('does not show classification if disabled', () => {
-    renderComponent(<AttributionCountPerSourcePerLicenseTable {...props} />, {
-      actions: [setUserSetting({ showClassifications: false })],
-    });
+  it('does not show classification if disabled', async () => {
+    await renderComponent(
+      <AttributionCountPerSourcePerLicenseTable {...props} />,
+      {
+        actions: [setUserSetting({ showClassifications: false })],
+      },
+    );
 
     expect(getHeaderTexts(screen)).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
@@ -99,8 +107,8 @@ describe('Attribution count per source per license table', () => {
     ]);
   });
 
-  it('switches back to default sorting if the sorted by column is dropped', () => {
-    const { store } = renderComponent(
+  it('switches back to default sorting if the sorted by column is dropped', async () => {
+    const { store } = await renderComponent(
       <AttributionCountPerSourcePerLicenseTable {...props} />,
     );
     expect(getHeaderTexts(screen)).toEqual([

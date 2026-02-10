@@ -65,15 +65,15 @@ describe('ProcessPopup', () => {
     global.window.electronAPI = electronAPI as unknown as ElectronAPI;
   });
 
-  it('renders no dialog when loading is false', () => {
-    renderComponent(<ProcessPopup />);
+  it('renders no dialog when loading is false', async () => {
+    await renderComponent(<ProcessPopup />);
 
     expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
     expect(electronAPI.setFrontendPopupOpen).not.toHaveBeenLastCalledWith(true);
   });
 
-  it('renders dialog when loading is true', () => {
-    renderComponent(<ProcessPopup />);
+  it('renders dialog when loading is true', async () => {
+    await renderComponent(<ProcessPopup />);
 
     simulateBackendProcessingStarted();
 
@@ -81,10 +81,10 @@ describe('ProcessPopup', () => {
     expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
   });
 
-  it('shows messages during processing', () => {
+  it('shows messages during processing', async () => {
     const message = faker.lorem.sentence();
 
-    renderComponent(<ProcessPopup />);
+    await renderComponent(<ProcessPopup />);
     simulateBackendProcessingStarted();
     simulateMessageFromBackend(message);
 
@@ -92,9 +92,9 @@ describe('ProcessPopup', () => {
     expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
   });
 
-  it('shows multiple messages', () => {
+  it('shows multiple messages', async () => {
     const message = faker.lorem.sentence();
-    renderComponent(<ProcessPopup />);
+    await renderComponent(<ProcessPopup />);
 
     simulateBackendProcessingStarted();
     simulateMessageFromBackend(message);
@@ -108,9 +108,9 @@ describe('ProcessPopup', () => {
     expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
   });
 
-  it('clears previous log messages when loading begins another time', () => {
+  it('clears previous log messages when loading begins another time', async () => {
     const message = faker.lorem.sentence();
-    renderComponent(<ProcessPopup />);
+    await renderComponent(<ProcessPopup />);
 
     simulateBackendProcessingStarted();
     simulateMessageFromBackend(message);
@@ -120,9 +120,9 @@ describe('ProcessPopup', () => {
     expect(screen.queryByText(message)).not.toBeInTheDocument();
   });
 
-  it('does not render a dialog after processing is done', () => {
+  it('does not render a dialog after processing is done', async () => {
     const message = faker.lorem.sentence();
-    renderComponent(<ProcessPopup />);
+    await renderComponent(<ProcessPopup />);
 
     simulateBackendProcessingStarted();
     simulateMessageFromBackend(message);

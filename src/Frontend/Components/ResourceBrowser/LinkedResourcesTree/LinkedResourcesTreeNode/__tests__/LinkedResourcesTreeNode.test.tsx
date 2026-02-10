@@ -10,8 +10,8 @@ import { renderComponent } from '../../../../../test-helpers/render';
 import { LinkedResourcesTreeNode } from '../LinkedResourcesTreeNode';
 
 describe('LinkedResourcesTreeNode', () => {
-  it('renders a file without information', () => {
-    renderComponent(
+  it('renders a file without information', async () => {
+    await renderComponent(
       <LinkedResourcesTreeNode
         nodeName={'Test label'}
         node={1}
@@ -26,8 +26,8 @@ describe('LinkedResourcesTreeNode', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders a folder without information', () => {
-    renderComponent(
+  it('renders a folder without information', async () => {
+    await renderComponent(
       <LinkedResourcesTreeNode
         nodeName={'Test label'}
         node={faker.opossum.resources()}
@@ -41,9 +41,9 @@ describe('LinkedResourcesTreeNode', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders a breakpoint', () => {
+  it('renders a breakpoint', async () => {
     const nodeId = faker.system.filePath();
-    renderComponent(
+    await renderComponent(
       <LinkedResourcesTreeNode
         nodeName={'Test label'}
         node={faker.opossum.resources()}

@@ -19,12 +19,12 @@ function createOption(props: Partial<SelectMenuOption> = {}): SelectMenuOption {
 }
 
 describe('SelectMenu', () => {
-  it('displays selected option in single mode', () => {
+  it('displays selected option in single mode', async () => {
     const anchorEl = document.createElement('div');
     const setAnchorEl = jest.fn();
     const option1 = createOption();
     const option2 = createOption({ selected: true });
-    renderComponent(
+    await renderComponent(
       <SelectMenu
         anchorEl={anchorEl}
         setAnchorEl={setAnchorEl}
@@ -51,7 +51,7 @@ describe('SelectMenu', () => {
     const onDelete = jest.fn();
     const option1 = createOption({ onAdd });
     const option2 = createOption({ selected: true, onDelete });
-    renderComponent(
+    await renderComponent(
       <SelectMenu
         anchorEl={anchorEl}
         setAnchorEl={setAnchorEl}
@@ -69,12 +69,12 @@ describe('SelectMenu', () => {
     expect(onDelete).toHaveBeenCalledTimes(1);
   });
 
-  it('displays selected options in multiple mode', () => {
+  it('displays selected options in multiple mode', async () => {
     const anchorEl = document.createElement('div');
     const setAnchorEl = jest.fn();
     const option1 = createOption();
     const option2 = createOption({ selected: true });
-    renderComponent(
+    await renderComponent(
       <SelectMenu
         anchorEl={anchorEl}
         setAnchorEl={setAnchorEl}
@@ -102,7 +102,7 @@ describe('SelectMenu', () => {
     const onDelete = jest.fn();
     const option1 = createOption({ onAdd });
     const option2 = createOption({ selected: true, onDelete });
-    renderComponent(
+    await renderComponent(
       <SelectMenu
         anchorEl={anchorEl}
         setAnchorEl={setAnchorEl}
@@ -127,12 +127,12 @@ describe('SelectMenu', () => {
     expect(onDelete).toHaveBeenCalledTimes(1);
   });
 
-  it('does not display selected options in multiple mode when selected are hidden', () => {
+  it('does not display selected options in multiple mode when selected are hidden', async () => {
     const anchorEl = document.createElement('div');
     const setAnchorEl = jest.fn();
     const option1 = createOption();
     const option2 = createOption({ selected: true });
-    renderComponent(
+    await renderComponent(
       <SelectMenu
         anchorEl={anchorEl}
         setAnchorEl={setAnchorEl}
@@ -159,7 +159,7 @@ describe('SelectMenu', () => {
     const onDelete = jest.fn();
     const option1 = createOption({ onAdd });
     const option2 = createOption({ selected: true, onDelete });
-    renderComponent(
+    await renderComponent(
       <SelectMenu
         anchorEl={anchorEl}
         setAnchorEl={setAnchorEl}

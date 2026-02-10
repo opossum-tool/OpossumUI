@@ -12,8 +12,8 @@ import { renderComponent } from '../../../test-helpers/render';
 import { PackageCard } from '../PackageCard';
 
 describe('The PackageCard', () => {
-  it('renders with preferred icon', () => {
-    renderComponent(
+  it('renders with preferred icon', async () => {
+    await renderComponent(
       <PackageCard
         packageInfo={faker.opossum.packageInfo({
           wasPreferred: true,
@@ -26,8 +26,8 @@ describe('The PackageCard', () => {
     expect(screen.queryByTestId('was-preferred-icon')).not.toBeInTheDocument();
   });
 
-  it('renders with was-preferred icon', () => {
-    renderComponent(
+  it('renders with was-preferred icon', async () => {
+    await renderComponent(
       <PackageCard
         packageInfo={faker.opossum.packageInfo({ wasPreferred: true })}
         onClick={jest.fn()}
@@ -38,10 +38,10 @@ describe('The PackageCard', () => {
     expect(screen.getByTestId('was-preferred-icon')).toBeInTheDocument();
   });
 
-  it('renders package card with count', () => {
+  it('renders package card with count', async () => {
     const packageInfo = faker.opossum.packageInfo({ count: 13 });
 
-    renderComponent(
+    await renderComponent(
       <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
     );
 
@@ -54,10 +54,10 @@ describe('The PackageCard', () => {
     expect(screen.getByText('13')).toBeInTheDocument();
   });
 
-  it('renders package card with checkbox', () => {
+  it('renders package card with checkbox', async () => {
     const packageInfo = faker.opossum.packageInfo();
 
-    renderComponent(
+    await renderComponent(
       <PackageCard
         packageInfo={packageInfo}
         onClick={jest.fn()}
@@ -75,10 +75,10 @@ describe('The PackageCard', () => {
   });
 
   describe('classification icon', () => {
-    it('renders the classification icon for classification > 0', () => {
+    it('renders the classification icon for classification > 0', async () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 1 });
 
-      renderComponent(
+      await renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
         {
           actions: [
@@ -95,10 +95,10 @@ describe('The PackageCard', () => {
       expect(classificationIcon).toBeVisible();
     });
 
-    it('does not render the classification icon for classification 0', () => {
+    it('does not render the classification icon for classification 0', async () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 0 });
 
-      renderComponent(
+      await renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
         {
           actions: [
@@ -115,10 +115,10 @@ describe('The PackageCard', () => {
       expect(classificationIcon).not.toBeInTheDocument();
     });
 
-    it('does render the classification icon for un-configured classifications', () => {
+    it('does render the classification icon for un-configured classifications', async () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 3 });
 
-      renderComponent(
+      await renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
         {
           actions: [
@@ -135,10 +135,10 @@ describe('The PackageCard', () => {
       expect(classificationIcon).toBeVisible();
     });
 
-    it('does not render the classification icon if classification display is disabled', () => {
+    it('does not render the classification icon if classification display is disabled', async () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 3 });
 
-      renderComponent(
+      await renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
         {
           actions: [
@@ -159,12 +159,12 @@ describe('The PackageCard', () => {
 
   describe('criticality icon', () => {
     [Criticality.Medium, Criticality.High].forEach((criticality) => {
-      it(`renders the criticality icon for criticality ${RawCriticality[criticality]}`, () => {
+      it(`renders the criticality icon for criticality ${RawCriticality[criticality]}`, async () => {
         const packageInfo = faker.opossum.packageInfo({
           criticality,
         });
 
-        renderComponent(
+        await renderComponent(
           <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
         );
 
@@ -173,12 +173,12 @@ describe('The PackageCard', () => {
       });
     });
 
-    it('does not render the criticality icon for criticality none', () => {
+    it('does not render the criticality icon for criticality none', async () => {
       const packageInfo = faker.opossum.packageInfo({
         criticality: Criticality.None,
       });
 
-      renderComponent(
+      await renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
       );
 
@@ -186,12 +186,12 @@ describe('The PackageCard', () => {
       expect(criticalityIcon).not.toBeInTheDocument();
     });
 
-    it('does not render the criticality icon if disabled', () => {
+    it('does not render the criticality icon if disabled', async () => {
       const packageInfo = faker.opossum.packageInfo({
         criticality: Criticality.High,
       });
 
-      renderComponent(
+      await renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={jest.fn()} />,
         { actions: [setUserSetting({ showCriticality: false })] },
       );

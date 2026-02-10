@@ -15,7 +15,7 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmDeletePopup } from '../ConfirmDeletePopup';
 
 describe('ConfirmDeletePopup', () => {
-  it('displays to-be-deleted attributions and counts the affected resources', () => {
+  it('displays to-be-deleted attributions and counts the affected resources', async () => {
     const attribution1 = faker.opossum.packageInfo();
     const attribution2 = faker.opossum.packageInfo();
     const attributions = faker.opossum.attributions({
@@ -27,7 +27,7 @@ describe('ConfirmDeletePopup', () => {
       resource2: [attribution2.id],
     });
 
-    renderComponent(
+    await renderComponent(
       <ConfirmDeletePopup
         open
         onClose={noop}
@@ -69,7 +69,7 @@ describe('ConfirmDeletePopup', () => {
       resource2: [attribution2.id],
     });
 
-    const { store } = renderComponent(
+    const { store } = await renderComponent(
       <ConfirmDeletePopup
         open
         onClose={noop}

@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { executeCommand } from '../../../../../ElectronBackend/api/commands';
 import { getDb } from '../../../../../ElectronBackend/db/db';
-import { initializeDb } from '../../../../../ElectronBackend/db/initializeDb';
 import {
   AttributionData,
   Attributions,
@@ -21,6 +20,7 @@ import {
 import { faker } from '../../../../../testing/Faker';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
+import { createTestStore } from '../../../../test-helpers/render';
 import { createAppStore } from '../../../configure-store';
 import {
   getIsPackageInfoModified,
@@ -43,7 +43,6 @@ import {
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../audit-view-simple-actions';
-import { loadFromFile } from '../load-actions';
 import {
   addToSelectedResource,
   deleteAttributionsAndSave,
@@ -62,10 +61,7 @@ async function flushPendingMutations() {
 }
 
 async function setupWithData(data: ParsedFileContent) {
-  jest.mocked(window.electronAPI.api).mockImplementation(executeCommand);
-  const testStore = createAppStore();
-  testStore.dispatch(loadFromFile(data));
-  await initializeDb(data);
+  const testStore = await createTestStore(data);
   return { testStore, db: getDb() };
 }
 

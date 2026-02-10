@@ -11,8 +11,8 @@ import { renderComponent } from '../../../test-helpers/render';
 import { GlobalPopup } from '../GlobalPopup';
 
 describe('The GlobalPopUp', () => {
-  it('does not open by default', () => {
-    renderComponent(<GlobalPopup />);
+  it('does not open by default', async () => {
+    await renderComponent(<GlobalPopup />);
 
     expect(screen.queryByText('Warning')).not.toBeInTheDocument();
     expect(
@@ -20,8 +20,8 @@ describe('The GlobalPopUp', () => {
     ).not.toHaveBeenCalledWith(true);
   });
 
-  it('opens the NotSavedPopup', () => {
-    renderComponent(<GlobalPopup />, {
+  it('opens the NotSavedPopup', async () => {
+    await renderComponent(<GlobalPopup />, {
       actions: [openPopup(PopupType.NotSavedPopup)],
     });
 
@@ -33,8 +33,8 @@ describe('The GlobalPopUp', () => {
     ).toHaveBeenLastCalledWith(true);
   });
 
-  it('opens the ProjectMetadataPopup', () => {
-    renderComponent(<GlobalPopup />, {
+  it('opens the ProjectMetadataPopup', async () => {
+    await renderComponent(<GlobalPopup />, {
       actions: [openPopup(PopupType.ProjectMetadataPopup)],
     });
 
@@ -44,8 +44,8 @@ describe('The GlobalPopUp', () => {
     ).toHaveBeenLastCalledWith(true);
   });
 
-  it('opens the ProjectStatisticsPopup', () => {
-    renderComponent(<GlobalPopup />, {
+  it('opens the ProjectStatisticsPopup', async () => {
+    await renderComponent(<GlobalPopup />, {
       actions: [openPopup(PopupType.ProjectStatisticsPopup)],
     });
 
@@ -55,8 +55,8 @@ describe('The GlobalPopUp', () => {
     ).toHaveBeenLastCalledWith(true);
   });
 
-  it('opens the UpdateAppPopup', () => {
-    renderComponent(<GlobalPopup />, {
+  it('opens the UpdateAppPopup', async () => {
+    await renderComponent(<GlobalPopup />, {
       actions: [openPopup(PopupType.UpdateAppPopup)],
     });
 

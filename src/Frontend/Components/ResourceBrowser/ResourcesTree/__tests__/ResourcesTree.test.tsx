@@ -16,7 +16,6 @@ import { faker } from '../../../../../testing/Faker';
 import { ROOT_PATH } from '../../../../shared-constants';
 import { setFilesWithChildren } from '../../../../state/actions/resource-actions/all-views-simple-actions';
 import { addResolvedExternalAttributions } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../../../state/actions/resource-actions/load-actions';
 import { getResourceIdsFromResources } from '../../../../state/helpers/resources-helpers';
 import { getSelectedResourceId } from '../../../../state/selectors/resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
@@ -24,7 +23,7 @@ import { renderComponent } from '../../../../test-helpers/render';
 import { ResourcesTree } from '../ResourcesTree';
 
 describe('ResourcesTree', () => {
-  it('renders working tree', () => {
+  it('renders working tree', async () => {
     const resources: Resources = {
       thirdParty: {
         'package_1.tr.gz': 1,
@@ -38,16 +37,12 @@ describe('ResourcesTree', () => {
       },
     };
 
-    const { store } = renderComponent(
+    const { store } = await renderComponent(
       <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
       {
-        actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              resources,
-            }),
-          ),
-        ],
+        data: getParsedInputFileEnrichedWithTestData({
+          resources,
+        }),
       },
     );
 
@@ -88,7 +83,7 @@ describe('ResourcesTree', () => {
     expect(screen.getByText('src')).toBeInTheDocument();
   });
 
-  it('opens folders recursively', () => {
+  it('opens folders recursively', async () => {
     const resources: Resources = {
       parentDirectory: {
         childDirectory: {
@@ -100,16 +95,12 @@ describe('ResourcesTree', () => {
       },
     };
 
-    renderComponent(
+    await renderComponent(
       <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
       {
-        actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              resources,
-            }),
-          ),
-        ],
+        data: getParsedInputFileEnrichedWithTestData({
+          resources,
+        }),
       },
     );
 
@@ -129,7 +120,7 @@ describe('ResourcesTree', () => {
     expect(screen.getByText('package_2.tr.gz')).toBeInTheDocument();
   });
 
-  it('Resource browser renders icons', () => {
+  it('Resource browser renders icons', async () => {
     const resources: Resources = {
       thirdParty: {
         'package_1.tr.gz': 1,
@@ -156,21 +147,16 @@ describe('ResourcesTree', () => {
       '/root/src/': [testUuid],
     };
 
-    const { store } = renderComponent(
+    const { store } = await renderComponent(
       <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
       {
-        actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              resources,
-              manualAttributions: testManualAttributions,
-              resourcesToManualAttributions: testResourcesToManualAttributions,
-              externalAttributions: testExternalAttributions,
-              resourcesToExternalAttributions:
-                testResourcesToExternalAttributions,
-            }),
-          ),
-        ],
+        data: getParsedInputFileEnrichedWithTestData({
+          resources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        }),
       },
     );
 
@@ -214,7 +200,7 @@ describe('ResourcesTree', () => {
     );
   });
 
-  it('Resources are sorted in alphabetical order', () => {
+  it('Resources are sorted in alphabetical order', async () => {
     const resources: Resources = {
       'd_package.exe': 1,
       'c_package.exe': 1,
@@ -222,16 +208,12 @@ describe('ResourcesTree', () => {
       'a_package.exe': 1,
     };
 
-    renderComponent(
+    await renderComponent(
       <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
       {
-        actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              resources,
-            }),
-          ),
-        ],
+        data: getParsedInputFileEnrichedWithTestData({
+          resources,
+        }),
       },
     );
 
@@ -254,7 +236,7 @@ describe('ResourcesTree', () => {
     expect(isEqual(actualSequence, expectedSequence)).toBeTruthy();
   });
 
-  it('Resource folders are sorted before files', () => {
+  it('Resource folders are sorted before files', async () => {
     const resources: Resources = {
       'a_package.exe': 1,
       'b_package.exe': 1,
@@ -262,16 +244,12 @@ describe('ResourcesTree', () => {
       d_package_folder: {},
     };
 
-    renderComponent(
+    await renderComponent(
       <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
       {
-        actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              resources,
-            }),
-          ),
-        ],
+        data: getParsedInputFileEnrichedWithTestData({
+          resources,
+        }),
       },
     );
 
@@ -295,7 +273,7 @@ describe('ResourcesTree', () => {
     expect(isEqual(actualSequence, expectedSequence)).toBeTruthy();
   });
 
-  it('FileWithChildren are sorted with files', () => {
+  it('FileWithChildren are sorted with files', async () => {
     const resources: Resources = {
       'a_package.exe': 1,
       'z_package.exe': 1,
@@ -304,17 +282,13 @@ describe('ResourcesTree', () => {
       'package.json': {},
     };
 
-    renderComponent(
+    await renderComponent(
       <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
       {
-        actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              resources,
-            }),
-          ),
-          setFilesWithChildren(new Set(['/package.json/'])),
-        ],
+        data: getParsedInputFileEnrichedWithTestData({
+          resources,
+        }),
+        actions: [setFilesWithChildren(new Set(['/package.json/']))],
       },
     );
 

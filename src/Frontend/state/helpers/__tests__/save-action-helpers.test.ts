@@ -15,9 +15,8 @@ import {
 import { faker } from '../../../../testing/Faker';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { loadFromFile } from '../../actions/resource-actions/load-actions';
+import { createTestStore } from '../../../test-helpers/render';
 import { getCalculatePreferredOverOriginIds } from '../../actions/resource-actions/preference-actions';
-import { createAppStore } from '../../configure-store';
 import { initialResourceState } from '../../reducers/resource-reducer';
 import { getManualData } from '../../selectors/resource-selectors';
 import {
@@ -61,7 +60,7 @@ describe('The createManualAttribution function', () => {
     ]);
   });
 
-  it('correctly updates preferences', () => {
+  it('correctly updates preferences', async () => {
     const testSelectedResourceId = '/child';
     const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
@@ -69,42 +68,39 @@ describe('The createManualAttribution function', () => {
       id: faker.string.uuid(),
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: { child: 1 },
-          resourcesToExternalAttributions: {
-            '/child': ['externalUuid'],
+    const testStore = await createTestStore(
+      getParsedInputFileEnrichedWithTestData({
+        resources: { child: 1 },
+        resourcesToExternalAttributions: {
+          '/child': ['externalUuid'],
+        },
+        externalAttributions: {
+          externalUuid: {
+            source: { name: 'testSource', documentConfidence: 0 },
+            originIds: ['originId'],
+            criticality: Criticality.None,
+            id: 'externalUuid',
           },
-          externalAttributions: {
-            externalUuid: {
-              source: { name: 'testSource', documentConfidence: 0 },
-              originIds: ['originId'],
-              criticality: Criticality.None,
-              id: 'externalUuid',
-            },
+        },
+        externalAttributionSources: {
+          testSource: {
+            name: 'Test source',
+            priority: 0,
+            isRelevantForPreferred: true,
           },
-          externalAttributionSources: {
-            testSource: {
-              name: 'Test source',
-              priority: 0,
-              isRelevantForPreferred: true,
-            },
+        },
+        manualAttributions: {
+          manualUuid1: {
+            preferred: true,
+            preferredOverOriginIds: ['originId'],
+            criticality: Criticality.None,
+            id: 'manualUuid1',
           },
-          manualAttributions: {
-            manualUuid1: {
-              preferred: true,
-              preferredOverOriginIds: ['originId'],
-              criticality: Criticality.None,
-              id: 'manualUuid1',
-            },
-          },
-          resourcesToManualAttributions: {
-            '/': ['manualUuid1'],
-          },
-        }),
-      ),
+        },
+        resourcesToManualAttributions: {
+          '/': ['manualUuid1'],
+        },
+      }),
     );
     const resourceState = testStore.getState().resourceState;
     const testManualData = getManualData(testStore.getState());
@@ -240,48 +236,45 @@ describe('The deleteManualAttribution function', () => {
     });
   });
 
-  it('correctly updates preferences', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: { child: 1 },
-          resourcesToExternalAttributions: {
-            '/child': ['externalUuid'],
+  it('correctly updates preferences', async () => {
+    const testStore = await createTestStore(
+      getParsedInputFileEnrichedWithTestData({
+        resources: { child: 1 },
+        resourcesToExternalAttributions: {
+          '/child': ['externalUuid'],
+        },
+        externalAttributions: {
+          externalUuid: {
+            source: { name: 'testSource', documentConfidence: 0 },
+            originIds: ['originId'],
+            criticality: Criticality.None,
+            id: 'externalUuid',
           },
-          externalAttributions: {
-            externalUuid: {
-              source: { name: 'testSource', documentConfidence: 0 },
-              originIds: ['originId'],
-              criticality: Criticality.None,
-              id: 'externalUuid',
-            },
+        },
+        externalAttributionSources: {
+          testSource: {
+            name: 'Test source',
+            priority: 0,
+            isRelevantForPreferred: true,
           },
-          externalAttributionSources: {
-            testSource: {
-              name: 'Test source',
-              priority: 0,
-              isRelevantForPreferred: true,
-            },
+        },
+        manualAttributions: {
+          manualUuid1: {
+            preferred: true,
+            preferredOverOriginIds: [],
+            criticality: Criticality.None,
+            id: 'manualUuid1',
           },
-          manualAttributions: {
-            manualUuid1: {
-              preferred: true,
-              preferredOverOriginIds: [],
-              criticality: Criticality.None,
-              id: 'manualUuid1',
-            },
-            manualUuid2: {
-              criticality: Criticality.None,
-              id: 'manualUuid2',
-            },
+          manualUuid2: {
+            criticality: Criticality.None,
+            id: 'manualUuid2',
           },
-          resourcesToManualAttributions: {
-            '/': ['manualUuid1'],
-            '/child/': ['manualUuid2'],
-          },
-        }),
-      ),
+        },
+        resourcesToManualAttributions: {
+          '/': ['manualUuid1'],
+          '/child/': ['manualUuid2'],
+        },
+      }),
     );
     const resourceState = testStore.getState().resourceState;
     const testManualData = getManualData(testStore.getState());
@@ -406,51 +399,48 @@ describe('The linkToAttributionManualData function', () => {
     });
   });
 
-  it('correctly updates preferences', () => {
+  it('correctly updates preferences', async () => {
     const testSelectedResourceId = '/child';
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: { child: 1 },
-          resourcesToExternalAttributions: {
-            '/child': ['externalUuid'],
+    const testStore = await createTestStore(
+      getParsedInputFileEnrichedWithTestData({
+        resources: { child: 1 },
+        resourcesToExternalAttributions: {
+          '/child': ['externalUuid'],
+        },
+        externalAttributions: {
+          externalUuid: {
+            source: { name: 'testSource', documentConfidence: 0 },
+            originIds: ['originId'],
+            criticality: Criticality.None,
+            id: 'externalUuid',
           },
-          externalAttributions: {
-            externalUuid: {
-              source: { name: 'testSource', documentConfidence: 0 },
-              originIds: ['originId'],
-              criticality: Criticality.None,
-              id: 'externalUuid',
-            },
+        },
+        externalAttributionSources: {
+          testSource: {
+            name: 'Test source',
+            priority: 0,
+            isRelevantForPreferred: true,
           },
-          externalAttributionSources: {
-            testSource: {
-              name: 'Test source',
-              priority: 0,
-              isRelevantForPreferred: true,
-            },
+        },
+        manualAttributions: {
+          parentAttriubtionUuid: {
+            preferred: true,
+            preferredOverOriginIds: [],
+            criticality: Criticality.None,
+            id: 'parentAttriubtionUuid',
           },
-          manualAttributions: {
-            parentAttriubtionUuid: {
-              preferred: true,
-              preferredOverOriginIds: [],
-              criticality: Criticality.None,
-              id: 'parentAttriubtionUuid',
-            },
-            childAttributionUuid: {
-              preferred: false,
-              criticality: Criticality.None,
-              id: 'childAttributionUuid',
-            },
+          childAttributionUuid: {
+            preferred: false,
+            criticality: Criticality.None,
+            id: 'childAttributionUuid',
           },
-          resourcesToManualAttributions: {
-            '/': ['parentAttriubtionUuid'],
-            '/child': ['childAttributionUuid'],
-          },
-        }),
-      ),
+        },
+        resourcesToManualAttributions: {
+          '/': ['parentAttriubtionUuid'],
+          '/child': ['childAttributionUuid'],
+        },
+      }),
     );
     const resourceState = testStore.getState().resourceState;
     const testManualData = getManualData(testStore.getState());
@@ -522,51 +512,48 @@ describe('The unlinkResourceFromAttributionId function', () => {
     });
   });
 
-  it('correctly updates preferences', () => {
+  it('correctly updates preferences', async () => {
     const testSelectedResourceId = '/child';
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: { child: 1 },
-          resourcesToExternalAttributions: {
-            '/child': ['externalUuid'],
+    const testStore = await createTestStore(
+      getParsedInputFileEnrichedWithTestData({
+        resources: { child: 1 },
+        resourcesToExternalAttributions: {
+          '/child': ['externalUuid'],
+        },
+        externalAttributions: {
+          externalUuid: {
+            source: { name: 'testSource', documentConfidence: 0 },
+            originIds: ['originId'],
+            criticality: Criticality.None,
+            id: 'externalUuid',
           },
-          externalAttributions: {
-            externalUuid: {
-              source: { name: 'testSource', documentConfidence: 0 },
-              originIds: ['originId'],
-              criticality: Criticality.None,
-              id: 'externalUuid',
-            },
+        },
+        externalAttributionSources: {
+          testSource: {
+            name: 'Test source',
+            priority: 0,
+            isRelevantForPreferred: true,
           },
-          externalAttributionSources: {
-            testSource: {
-              name: 'Test source',
-              priority: 0,
-              isRelevantForPreferred: true,
-            },
+        },
+        manualAttributions: {
+          parentAttriubtionUuid: {
+            preferred: true,
+            preferredOverOriginIds: [],
+            criticality: Criticality.None,
+            id: 'parentAttriubtionUuid',
           },
-          manualAttributions: {
-            parentAttriubtionUuid: {
-              preferred: true,
-              preferredOverOriginIds: [],
-              criticality: Criticality.None,
-              id: 'parentAttriubtionUuid',
-            },
-            childAttributionUuid: {
-              preferred: false,
-              criticality: Criticality.None,
-              id: 'childAttributionUuid',
-            },
+          childAttributionUuid: {
+            preferred: false,
+            criticality: Criticality.None,
+            id: 'childAttributionUuid',
           },
-          resourcesToManualAttributions: {
-            '/': ['parentAttriubtionUuid'],
-            '/child': ['childAttributionUuid'],
-          },
-        }),
-      ),
+        },
+        resourcesToManualAttributions: {
+          '/': ['parentAttriubtionUuid'],
+          '/child': ['childAttributionUuid'],
+        },
+      }),
     );
     const resourceState = testStore.getState().resourceState;
     const testManualData = getManualData(testStore.getState());

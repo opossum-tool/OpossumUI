@@ -13,7 +13,7 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ReportTableItem } from '../ReportTableItem';
 
 describe('The ReportTableItem', () => {
-  it('renders', () => {
+  it('renders', async () => {
     const testAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
@@ -30,7 +30,7 @@ describe('The ReportTableItem', () => {
         id: 'uuid1',
       },
     };
-    renderComponent(
+    await renderComponent(
       <table>
         <tbody>
           <tr>
@@ -52,7 +52,7 @@ describe('The ReportTableItem', () => {
     expect(screen.getByText('packageWebsite')).toBeInTheDocument();
   });
 
-  it('renders icons correctly', () => {
+  it('renders icons correctly', async () => {
     const testAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
@@ -79,7 +79,7 @@ describe('The ReportTableItem', () => {
         id: 'uuid2',
       },
     };
-    renderComponent(
+    await renderComponent(
       <table>
         <tbody>
           <tr>

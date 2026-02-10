@@ -32,7 +32,7 @@ describe('FilterButton', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <FilterButton
         useFilteredData={useFilteredData}
         availableFilters={[filter]}
@@ -62,7 +62,7 @@ describe('FilterButton', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <FilterButton
         useFilteredData={useFilteredData}
         availableFilters={[filter]}
@@ -93,7 +93,7 @@ describe('FilterButton', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <FilterButton useFilteredData={useFilteredData} availableFilters={[]} />,
     );
 
@@ -124,7 +124,7 @@ describe('FilterButton', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <FilterButton useFilteredData={useFilteredData} availableFilters={[]} />,
     );
 
@@ -155,7 +155,7 @@ describe('FilterButton', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <FilterButton useFilteredData={useFilteredData} availableFilters={[]} />,
     );
 
@@ -185,7 +185,7 @@ describe('FilterButton', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <FilterButton useFilteredData={useFilteredData} availableFilters={[]} />,
     );
 
@@ -216,7 +216,7 @@ describe('FilterButton', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <FilterButton
         useFilteredData={useFilteredData}
         availableFilters={[filter]}
@@ -234,7 +234,7 @@ describe('FilterButton', () => {
     expect(result!.selectedLicense).toBe('');
   });
 
-  it('filter button is disabled when there are no attributions', () => {
+  it('filter button is disabled when there are no attributions', async () => {
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -242,7 +242,7 @@ describe('FilterButton', () => {
       },
       jest.fn(),
     ];
-    renderComponent(
+    await renderComponent(
       <FilterButton useFilteredData={useFilteredData} availableFilters={[]} />,
     );
 

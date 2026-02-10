@@ -9,8 +9,8 @@ import { renderComponent } from '../../../test-helpers/render';
 import { VirtualizedTree } from '../VirtualizedTree';
 
 describe('The VirtualizedTree', () => {
-  it('renders VirtualizedTree', () => {
-    renderComponent(
+  it('renders VirtualizedTree', async () => {
+    await renderComponent(
       <VirtualizedTree
         expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', '/docs/']}
         onSelect={jest.fn()}

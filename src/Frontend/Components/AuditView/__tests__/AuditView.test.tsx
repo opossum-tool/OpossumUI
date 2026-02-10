@@ -9,7 +9,6 @@ import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { View } from '../../../enums/enums';
 import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import {
@@ -28,20 +27,17 @@ describe('AuditView', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    renderComponent(<AuditView />, {
+    await renderComponent(<AuditView />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: faker.opossum.resources({
+          [resourceName]: 1,
+        }),
+        manualAttributions,
+        resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+          [faker.opossum.filePath(resourceName)]: [packageInfo.id],
+        }),
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            resources: faker.opossum.resources({
-              [resourceName]: 1,
-            }),
-            manualAttributions,
-            resourcesToManualAttributions:
-              faker.opossum.resourcesToAttributions({
-                [faker.opossum.filePath(resourceName)]: [packageInfo.id],
-              }),
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,

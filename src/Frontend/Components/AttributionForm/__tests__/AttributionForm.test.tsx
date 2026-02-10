@@ -29,7 +29,7 @@ describe('AttributionForm', () => {
       const writeText = jest.fn();
       (navigator.clipboard as unknown) = { writeText };
       const packageInfo = faker.opossum.packageInfo();
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       await userEvent.click(
         screen.getByLabelText(text.attributionColumn.copyToClipboard),
@@ -44,7 +44,7 @@ describe('AttributionForm', () => {
       const purl = generatePurl(packageInfo);
       const readText = jest.fn().mockReturnValue(purl.toString());
       (navigator.clipboard as unknown) = { readText };
-      renderComponent(
+      await renderComponent(
         <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
       );
 
@@ -66,18 +66,18 @@ describe('AttributionForm', () => {
   });
 
   describe('chips at the top of the attribution form', () => {
-    it('renders a source name, if it is defined', () => {
+    it('renders a source name, if it is defined', async () => {
       const packageInfo: PackageInfo = {
         source: faker.opossum.source(),
         criticality: Criticality.None,
         id: faker.string.uuid(),
       };
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(screen.getByText(packageInfo.source!.name)).toBeInTheDocument();
     });
 
-    it('renders the name of the original source for external attributions', () => {
+    it('renders the name of the original source for external attributions', async () => {
       const source = faker.opossum.source({
         additionalName: faker.company.name(),
       });
@@ -85,18 +85,18 @@ describe('AttributionForm', () => {
         source,
       });
 
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(screen.getByText(source.additionalName!)).toBeInTheDocument();
     });
 
-    it('renders original signal source for manual attributions', () => {
+    it('renders original signal source for manual attributions', async () => {
       const source = faker.opossum.source();
       const packageInfo = faker.opossum.packageInfo({
         originalAttributionSource: source,
       });
 
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(
         screen.getByText(text.attributionColumn.originallyFrom + source.name),
@@ -105,7 +105,7 @@ describe('AttributionForm', () => {
 
     it('renders a chip for follow-up', async () => {
       const packageInfo = faker.opossum.packageInfo();
-      const { store } = renderComponent(
+      const { store } = await renderComponent(
         <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
       );
 
@@ -124,7 +124,7 @@ describe('AttributionForm', () => {
 
     it('renders a chip for exclude from notice', async () => {
       const packageInfo = faker.opossum.packageInfo();
-      const { store } = renderComponent(
+      const { store } = await renderComponent(
         <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
       );
 
@@ -144,7 +144,7 @@ describe('AttributionForm', () => {
 
     it('renders a chip for needs review', async () => {
       const packageInfo = faker.opossum.packageInfo();
-      const { store } = renderComponent(
+      const { store } = await renderComponent(
         <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
       );
 
@@ -161,50 +161,50 @@ describe('AttributionForm', () => {
       );
     });
 
-    it('renders a chip for preferred', () => {
+    it('renders a chip for preferred', async () => {
       const packageInfo = faker.opossum.packageInfo({ preferred: true });
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(
         screen.getByTestId('auditing-option-preferred'),
       ).toBeInTheDocument();
     });
 
-    it('renders a chip for was-preferred', () => {
+    it('renders a chip for was-preferred', async () => {
       const packageInfo = faker.opossum.packageInfo({ wasPreferred: true });
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(
         screen.getByTestId('auditing-option-was-preferred'),
       ).toBeInTheDocument();
     });
 
-    it('renders a chip for pre-selected signals', () => {
+    it('renders a chip for pre-selected signals', async () => {
       const packageInfo = faker.opossum.packageInfo({ preSelected: true });
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(
         screen.getByTestId('auditing-option-pre-selected'),
       ).toBeInTheDocument();
     });
 
-    it('renders a chip showing the confidence', () => {
+    it('renders a chip showing the confidence', async () => {
       const packageInfo = faker.opossum.packageInfo({});
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(
         screen.getByTestId('auditing-option-confidence'),
       ).toBeInTheDocument();
     });
 
-    it('renders a chip for modified preferred', () => {
+    it('renders a chip for modified preferred', async () => {
       const packageInfo = faker.opossum.packageInfo({
         packageName: faker.lorem.word(),
         originalAttributionWasPreferred: true,
         wasPreferred: false,
       });
 
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(
         screen.getByText(text.auditingOptions.modifiedPreferred),
@@ -213,12 +213,12 @@ describe('AttributionForm', () => {
 
     describe('criticality chip', () => {
       [Criticality.Medium, Criticality.High].forEach((criticality) => {
-        it(`renders a chip for ${RawCriticality[criticality]} criticality`, () => {
+        it(`renders a chip for ${RawCriticality[criticality]} criticality`, async () => {
           const packageInfo = faker.opossum.packageInfo({
             criticality,
           });
 
-          renderComponent(<AttributionForm packageInfo={packageInfo} />);
+          await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
           const criticalityChip = screen.queryByTestId(
             'auditing-option-criticality',
@@ -234,12 +234,12 @@ describe('AttributionForm', () => {
         });
       });
 
-      it('does not render a criticality chip if showing criticality is disabled', () => {
+      it('does not render a criticality chip if showing criticality is disabled', async () => {
         const packageInfo = faker.opossum.packageInfo({
           criticality: Criticality.Medium,
         });
 
-        renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
           actions: [setUserSetting({ showCriticality: false })],
         });
 
@@ -251,12 +251,12 @@ describe('AttributionForm', () => {
     });
 
     describe('classification chip', () => {
-      it('renders a chip for items with classification', () => {
+      it('renders a chip for items with classification', async () => {
         const packageInfo = faker.opossum.packageInfo({
           classification: 1,
         });
 
-        renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
           actions: [setUserSetting({ showClassifications: true })],
         });
 
@@ -266,12 +266,12 @@ describe('AttributionForm', () => {
         expect(classificationChip).toBeInTheDocument();
       });
 
-      it('does not render a chip for if showing of classification items is disabled', () => {
+      it('does not render a chip for if showing of classification items is disabled', async () => {
         const packageInfo = faker.opossum.packageInfo({
           classification: 1,
         });
 
-        renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
           actions: [setUserSetting({ showClassifications: false })],
         });
 
@@ -281,12 +281,12 @@ describe('AttributionForm', () => {
         expect(classificationChip).not.toBeInTheDocument();
       });
 
-      it('Does not render a chip for items with classification 0', () => {
+      it('Does not render a chip for items with classification 0', async () => {
         const packageInfo = faker.opossum.packageInfo({
           classification: 0,
         });
 
-        renderComponent(<AttributionForm packageInfo={packageInfo} />);
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
         const classificationChip = screen.queryByTestId(
           'auditing-option-classification',
@@ -294,13 +294,13 @@ describe('AttributionForm', () => {
         expect(classificationChip).not.toBeInTheDocument();
       });
 
-      it('shows the correct text if configured', () => {
+      it('shows the correct text if configured', async () => {
         const packageInfo = faker.opossum.packageInfo({
           classification: 1,
         });
         const classificationText = faker.word.words();
 
-        renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
           actions: [
             setConfig({
               classifications: {
@@ -319,11 +319,11 @@ describe('AttributionForm', () => {
         expect(classificationChip).toHaveTextContent(classificationText);
       });
 
-      it('shows empty text if no configuration', () => {
+      it('shows empty text if no configuration', async () => {
         const packageInfo = faker.opossum.packageInfo({
           classification: 1,
         });
-        renderComponent(<AttributionForm packageInfo={packageInfo} />);
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
         const classificationChip = screen.getByTestId(
           'auditing-option-classification',
@@ -335,13 +335,13 @@ describe('AttributionForm', () => {
   });
 
   describe('url handling', () => {
-    it('renders a URL icon and opens a link in browser', () => {
+    it('renders a URL icon and opens a link in browser', async () => {
       const packageInfo: PackageInfo = {
         url: 'https://www.testurl.com/',
         criticality: Criticality.None,
         id: faker.string.uuid(),
       };
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(screen.getByLabelText('Url icon')).toBeInTheDocument();
       fireEvent.click(screen.getByLabelText('Url icon'));
@@ -350,13 +350,13 @@ describe('AttributionForm', () => {
       );
     });
 
-    it('opens a link without protocol', () => {
+    it('opens a link without protocol', async () => {
       const packageInfo: PackageInfo = {
         url: 'www.testurl.com',
         criticality: Criticality.None,
         id: faker.string.uuid(),
       };
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       fireEvent.click(screen.getByLabelText('Url icon'));
       expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
@@ -364,13 +364,13 @@ describe('AttributionForm', () => {
       );
     });
 
-    it('hides url icon if empty url', () => {
+    it('hides url icon if empty url', async () => {
       const packageInfo: PackageInfo = {
         url: '',
         criticality: Criticality.None,
         id: faker.string.uuid(),
       };
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(screen.queryByLabelText('Url icon')).not.toBeInTheDocument();
     });
@@ -380,7 +380,7 @@ describe('AttributionForm', () => {
     it('shows default license text placeholder when frequent license name selected and no custom license text entered', async () => {
       const defaultLicenseText = faker.lorem.paragraphs();
       const packageInfo = faker.opossum.packageInfo();
-      renderComponent(
+      await renderComponent(
         <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
         {
           actions: [
@@ -414,7 +414,7 @@ describe('AttributionForm', () => {
       const packageInfo = faker.opossum.packageInfo({
         licenseText: faker.lorem.paragraphs(),
       });
-      renderComponent(
+      await renderComponent(
         <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
         {
           actions: [
@@ -443,9 +443,9 @@ describe('AttributionForm', () => {
       ).toBeInTheDocument();
     });
 
-    it('does not show copyright or license name fields when attribution is first party', () => {
+    it('does not show copyright or license name fields when attribution is first party', async () => {
       const packageInfo = faker.opossum.packageInfo({ firstParty: true });
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(screen.queryByLabelText('Copyright')).not.toBeInTheDocument();
       expect(
@@ -453,9 +453,9 @@ describe('AttributionForm', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('does show copyright or license name fields when attribution is third party', () => {
+    it('does show copyright or license name fields when attribution is third party', async () => {
       const packageInfo = faker.opossum.packageInfo({ firstParty: false });
-      renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
       expect(screen.getByLabelText('Copyright')).toBeInTheDocument();
       expect(screen.getByLabelText('License Expression')).toBeInTheDocument();

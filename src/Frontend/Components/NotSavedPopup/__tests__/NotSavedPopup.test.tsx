@@ -43,7 +43,7 @@ describe('NotSavedPopup', () => {
     const currentAttributionId = faker.string.uuid();
     const targetAttributionId = faker.string.uuid();
     const packageInfo = faker.opossum.packageInfo();
-    const { store } = renderComponent(<NotSavedPopup />, {
+    const { store } = await renderComponent(<NotSavedPopup />, {
       actions: [
         openPopup(PopupType.NotSavedPopup),
         setSelectedAttributionId(currentAttributionId),
@@ -77,7 +77,7 @@ describe('NotSavedPopup', () => {
     const currentAttributionId = faker.string.uuid();
     const targetAttributionId = faker.string.uuid();
     const packageInfo = faker.opossum.packageInfo();
-    const { store } = renderComponent(<NotSavedPopup />, {
+    const { store } = await renderComponent(<NotSavedPopup />, {
       actions: [
         openPopup(PopupType.NotSavedPopup),
         setSelectedAttributionId(currentAttributionId),
@@ -104,7 +104,7 @@ describe('NotSavedPopup', () => {
   });
 
   it('handles request to open a file', async () => {
-    renderComponent(<NotSavedPopup />, {
+    await renderComponent(<NotSavedPopup />, {
       actions: [openPopup(PopupType.NotSavedPopup), setOpenFileRequest(true)],
     });
 

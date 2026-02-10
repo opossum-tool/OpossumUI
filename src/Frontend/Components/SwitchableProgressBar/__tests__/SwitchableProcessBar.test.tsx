@@ -72,13 +72,13 @@ describe('SwitchableProcessBar', () => {
     jest.useRealTimers();
   });
 
-  it('does not display the progress bar when no progress data available', () => {
-    renderComponent(<SwitchableProgressBar />);
+  it('does not display the progress bar when no progress data available', async () => {
+    await renderComponent(<SwitchableProgressBar />);
     expect(screen.queryByLabelText(/Progress bar .*/)).not.toBeInTheDocument();
   });
 
-  it('displays the progress bar when progress data available', () => {
-    renderComponent(<SwitchableProgressBar />, {
+  it('displays the progress bar when progress data available', async () => {
+    await renderComponent(<SwitchableProgressBar />, {
       actions: [setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA)],
     });
 
@@ -88,7 +88,7 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('switches the progress bar via the select', async () => {
-    renderComponent(<SwitchableProgressBar />, {
+    await renderComponent(<SwitchableProgressBar />, {
       actions: [setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA)],
     });
 
@@ -106,7 +106,7 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('offers all three possible progress bars by default', async () => {
-    renderComponent(<SwitchableProgressBar />, {
+    await renderComponent(<SwitchableProgressBar />, {
       actions: [setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA)],
     });
 
@@ -125,7 +125,7 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('does not offer classifications if disabled', async () => {
-    renderComponent(<SwitchableProgressBar />, {
+    await renderComponent(<SwitchableProgressBar />, {
       actions: [
         setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
         setUserSetting({ showClassifications: false }),
@@ -143,7 +143,7 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('does not offer criticality if disabled', async () => {
-    renderComponent(<SwitchableProgressBar />, {
+    await renderComponent(<SwitchableProgressBar />, {
       actions: [
         setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
         setUserSetting({ showCriticality: false }),
@@ -160,8 +160,8 @@ describe('SwitchableProcessBar', () => {
     expect(menuEntries).toEqual(['Attributions', 'Classifications']);
   });
 
-  it('does not show select if only one option to select', () => {
-    renderComponent(<SwitchableProgressBar />, {
+  it('does not show select if only one option to select', async () => {
+    await renderComponent(<SwitchableProgressBar />, {
       actions: [
         setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
         setUserSetting({ showCriticality: false, showClassifications: false }),

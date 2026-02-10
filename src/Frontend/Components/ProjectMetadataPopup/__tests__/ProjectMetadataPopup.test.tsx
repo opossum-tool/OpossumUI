@@ -10,26 +10,26 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup';
 
 describe('The ProjectMetadataPopup', () => {
-  it('displays metadata', () => {
+  it('displays metadata', async () => {
     const testMetadata: ProjectMetadata = {
       projectId: 'test-id',
       fileCreationDate: 'test-date',
     };
 
-    renderComponent(<ProjectMetadataPopup />, {
+    await renderComponent(<ProjectMetadataPopup />, {
       actions: [setProjectMetadata(testMetadata)],
     });
     expect(screen.getByText('test-id')).toBeInTheDocument();
   });
 
-  it('formats projectId, projectTitle and fileCreationDate', () => {
+  it('formats projectId, projectTitle and fileCreationDate', async () => {
     const testMetadata: ProjectMetadata = {
       projectTitle: 'Title',
       projectId: 'test-id',
       fileCreationDate: 'test-date',
     };
 
-    renderComponent(<ProjectMetadataPopup />, {
+    await renderComponent(<ProjectMetadataPopup />, {
       actions: [setProjectMetadata(testMetadata)],
     });
     expect(screen.getByText('Project Title')).toBeInTheDocument();
@@ -37,7 +37,7 @@ describe('The ProjectMetadataPopup', () => {
     expect(screen.getByText('File Creation Date')).toBeInTheDocument();
   });
 
-  it('displays custom user metadata', () => {
+  it('displays custom user metadata', async () => {
     const testMetadata: ProjectMetadata = {
       projectId: 'test-id',
       fileCreationDate: 'test-date',
@@ -46,7 +46,7 @@ describe('The ProjectMetadataPopup', () => {
       },
     };
 
-    renderComponent(<ProjectMetadataPopup />, {
+    await renderComponent(<ProjectMetadataPopup />, {
       actions: [setProjectMetadata(testMetadata)],
     });
     expect(screen.getByText('foo', { exact: false })).toBeInTheDocument();

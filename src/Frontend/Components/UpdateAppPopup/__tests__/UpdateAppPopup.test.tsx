@@ -12,7 +12,7 @@ import { UpdateAppPopup } from '../UpdateAppPopup';
 import * as util from '../UpdateAppPopup.util';
 
 describe('UpdateAppPopup', () => {
-  it('shows message that a new release is available', () => {
+  it('shows message that a new release is available', async () => {
     jest.spyOn(util, 'useLatestRelease').mockReturnValue({
       latestRelease: {
         name: faker.system.semver(),
@@ -21,14 +21,14 @@ describe('UpdateAppPopup', () => {
       latestReleaseError: null,
       latestReleaseLoading: false,
     });
-    renderComponent(<UpdateAppPopup />);
+    await renderComponent(<UpdateAppPopup />);
 
     expect(
       screen.getByText(text.updateAppPopup.updateAvailable),
     ).toBeInTheDocument();
   });
 
-  it('shows message that no newer release is available', () => {
+  it('shows message that no newer release is available', async () => {
     jest.spyOn(util, 'useLatestRelease').mockReturnValue({
       latestRelease: {
         name: commitInfo.commitInfo,
@@ -37,34 +37,34 @@ describe('UpdateAppPopup', () => {
       latestReleaseError: null,
       latestReleaseLoading: false,
     });
-    renderComponent(<UpdateAppPopup />);
+    await renderComponent(<UpdateAppPopup />);
 
     expect(
       screen.getByText(text.updateAppPopup.noUpdateAvailable),
     ).toBeInTheDocument();
   });
 
-  it('shows error message', () => {
+  it('shows error message', async () => {
     const error = faker.lorem.sentence();
     jest.spyOn(util, 'useLatestRelease').mockReturnValue({
       latestRelease: undefined,
       latestReleaseError: Error(error),
       latestReleaseLoading: false,
     });
-    renderComponent(<UpdateAppPopup />);
+    await renderComponent(<UpdateAppPopup />);
 
     expect(
       screen.getByText(text.updateAppPopup.fetchFailed(error)),
     ).toBeInTheDocument();
   });
 
-  it('shows loading state', () => {
+  it('shows loading state', async () => {
     jest.spyOn(util, 'useLatestRelease').mockReturnValue({
       latestRelease: undefined,
       latestReleaseError: null,
       latestReleaseLoading: true,
     });
-    renderComponent(<UpdateAppPopup />);
+    await renderComponent(<UpdateAppPopup />);
 
     expect(screen.getByTestId('spinner')).toBeInTheDocument();
   });
