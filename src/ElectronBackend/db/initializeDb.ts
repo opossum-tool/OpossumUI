@@ -187,32 +187,32 @@ async function initializeResourceTable(
   return resourcePathToId;
 }
 
+export const generatedColumnsFromJsonData = [
+  ['preSelected', 'boolean'],
+  ['criticality', 'integer'],
+  ['classification', 'integer'],
+  ['firstParty', 'boolean'],
+  ['excludeFromNotice', 'boolean'],
+  ['wasPreferred', 'boolean'],
+  ['copyright', 'text'],
+  ['licenseName', 'text'],
+  ['url', 'text'],
+  ['packageName', 'text'],
+  ['packageNamespace', 'text'],
+  ['packageType', 'text'],
+  ['attributionConfidence', 'integer'],
+  ['followUp', 'boolean'],
+  ['needsReview', 'boolean'],
+  ['preferred', 'boolean'],
+  ['originalAttributionWasPreferred', 'boolean'],
+] as const satisfies Array<[keyof PackageInfo, DataTypeExpression]>;
+
 async function initializeAttributionTable(
   trx: Transaction<DB>,
   externalAttributions: InputFileAttributionData,
   manualAttributions: InputFileAttributionData,
   resolvedExternalAttributions: Set<string>,
 ) {
-  const columnsFromJson: Array<[keyof PackageInfo, DataTypeExpression]> = [
-    ['preSelected', 'boolean'],
-    ['criticality', 'integer'],
-    ['classification', 'integer'],
-    ['firstParty', 'boolean'],
-    ['excludeFromNotice', 'boolean'],
-    ['wasPreferred', 'boolean'],
-    ['copyright', 'text'],
-    ['licenseName', 'text'],
-    ['url', 'text'],
-    ['packageName', 'text'],
-    ['packageNamespace', 'text'],
-    ['packageType', 'text'],
-    ['attributionConfidence', 'integer'],
-    ['followUp', 'boolean'],
-    ['needsReview', 'boolean'],
-    ['preferred', 'boolean'],
-    ['originalAttributionWasPreferred', 'boolean'],
-  ];
-
   let schema = trx.schema
     .createTable('attribution')
     .addColumn('uuid', 'text', (col) => col.primaryKey().notNull())
@@ -220,7 +220,7 @@ async function initializeAttributionTable(
     .addColumn('is_external', 'integer', (col) => col.notNull())
     .addColumn('is_resolved', 'integer', (col) => col.notNull().defaultTo(0));
 
-  for (const [name, datatype] of columnsFromJson) {
+  for (const [name, datatype] of generatedColumnsFromJsonData) {
     if (datatype === 'boolean') {
       schema = schema.addColumn(snakeCase(name), 'integer', (col) =>
         col
@@ -267,7 +267,7 @@ async function initializeAttributionTable(
       .execute();
   }
 
-  for (const [name, _] of columnsFromJson) {
+  for (const [name, _] of generatedColumnsFromJsonData) {
     await trx.schema
       .createIndex(`attribution_${snakeCase(name)}_idx`)
       .on('attribution')

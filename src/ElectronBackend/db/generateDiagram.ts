@@ -29,21 +29,22 @@ export async function generateDiagram(
           type: string;
           pk: number; // primary key? 0 or 1
           notnull: number; // 0 or 1
-        }>(`pragma table_info(${table})`)
+          hidden: number; // 0 if normal, 2 if virtual generated, 3 if stored generated,
+        }>(`pragma table_xinfo(${table})`)
         .execute(db)
     ).rows;
 
     const graphvizRows = rows.map((r) => {
       const rowComment =
         table in comments ? comments[table][r.name] : undefined;
-      const keyIcon = r.pk ? '🔑 ' : '';
+      const icon = r.pk ? '🔑 ' : r.hidden !== 0 ? '🔧 ' : '';
       const titleAttr = rowComment ? `TITLE="${rowComment}"` : '';
       const rowCommentIcon = rowComment ? ' 📝' : '';
       const nullable = r.notnull ? '' : '?';
 
       return (
         '<TR>' +
-        `<TD PORT="${r.name}_in">${keyIcon}</TD>` +
+        `<TD PORT="${r.name}_in">${icon}</TD>` +
         `<TD ALIGN="LEFT" ${titleAttr}>${r.name}${rowCommentIcon}</TD>` +
         `<TD PORT="${r.name}_out" ALIGN="LEFT">${r.type}${nullable}</TD>` +
         '</TR>'
@@ -89,7 +90,7 @@ export async function generateDiagram(
   );
 
   const graphvizSource = `digraph g {
-  graph[label="Open the SVG in a browser to see tooltips on comments 📝", fontsize=10];
+  graph[label="Open the SVG in a browser to see tooltips on comments 📝\n🔑: Primary key\n🔧: Generated column", fontsize=10];
   rankdir="LR";
   node [shape=plaintext];
 
