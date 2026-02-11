@@ -25,6 +25,23 @@ export interface Attribution {
   is_external: number;
   is_resolved: Generated<number>;
   uuid: string;
+  pre_selected: Generated<number>;
+  criticality: Generated<number | null>;
+  classification: Generated<number | null>;
+  first_party: Generated<number>;
+  exclude_from_notice: Generated<number>;
+  was_preferred: Generated<number>;
+  copyright: Generated<string | null>;
+  license_name: Generated<string | null>;
+  url: Generated<string | null>;
+  package_name: Generated<string | null>;
+  package_namespace: Generated<string | null>;
+  package_type: Generated<string | null>;
+  attribution_confidence: Generated<number | null>;
+  follow_up: Generated<number>;
+  needs_review: Generated<number>;
+  preferred: Generated<number>;
+  original_attribution_was_preferred: Generated<number>;
 }
 
 export interface ExternalAttributionSource {
