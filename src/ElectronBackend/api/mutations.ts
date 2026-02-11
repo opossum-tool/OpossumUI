@@ -7,7 +7,11 @@ import { sql } from 'kysely';
 import { Attributions, PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { QueryName, QueryParams } from './queries';
-import { removeRedundantAttributions } from './utils';
+import {
+  getAttributionOrThrow,
+  getResourceOrThrow,
+  removeRedundantAttributions,
+} from './utils';
 
 type QueryInvalidation<Q extends QueryName> = {
   queryName: Q;
@@ -25,10 +29,6 @@ type MutationFunction = (params?: any) => Promise<{
   invalidates?: Array<QueryInvalidationUnion>;
 }>;
 
-function removeTrailingSlash(path: string) {
-  return path.replace(/\/$/, '');
-}
-
 export const mutations = {
   invalidateGetAttributionData() {
     // to avoid typescript errors in backendClient, we need at least one mutation with no parameters, and an invalidation without parameters
@@ -42,15 +42,10 @@ export const mutations = {
       .execute(async (trx) => {
         const impactedResources = new Set<number>();
         for (const attributionUuid of params.attributionUuids) {
-          const existingAttribution = await trx
-            .selectFrom('attribution')
-            .select('is_external')
-            .where('uuid', '=', attributionUuid)
-            .executeTakeFirst();
-
-          if (!existingAttribution) {
-            throw new Error(`Attribution ${attributionUuid} does not exist.`);
-          }
+          const existingAttribution = await getAttributionOrThrow(
+            trx,
+            attributionUuid,
+          );
 
           if (existingAttribution.is_external) {
             throw new Error(
@@ -94,32 +89,26 @@ export const mutations = {
     await getDb()
       .transaction()
       .execute(async (trx) => {
-        const toReplace = await trx
-          .selectFrom('attribution')
-          .select('is_external')
-          .where('uuid', '=', params.attributionIdToReplace)
-          .executeTakeFirst();
-
-        const toReplaceWith = await trx
-          .selectFrom('attribution')
-          .select('uuid')
-          .where('uuid', '=', params.attributionIdToReplaceWith)
-          .executeTakeFirst();
-
-        if (!toReplace) {
-          throw new Error(
-            `Attribution to replace ${params.attributionIdToReplace} does not exist.`,
-          );
-        }
-
-        if (!toReplaceWith) {
-          throw new Error(
-            `Replacement attribution ${params.attributionIdToReplaceWith} does not exist`,
-          );
-        }
+        const toReplace = await getAttributionOrThrow(
+          trx,
+          params.attributionIdToReplace,
+        );
 
         if (toReplace.is_external) {
-          throw new Error("External attributions can't be replaced");
+          throw new Error(
+            `External attribution ${params.attributionIdToReplace} can't be replaced`,
+          );
+        }
+
+        const toReplaceWith = await getAttributionOrThrow(
+          trx,
+          params.attributionIdToReplaceWith,
+        );
+
+        if (toReplaceWith.is_external) {
+          throw new Error(
+            `External attribution ${params.attributionIdToReplace} can't replace manual attribution`,
+          );
         }
 
         const connectedResources = await trx
@@ -167,29 +156,10 @@ export const mutations = {
     await getDb()
       .transaction()
       .execute(async (trx) => {
-        const resourcePath = removeTrailingSlash(params.resourcePath);
+        const resource = await getResourceOrThrow(trx, params.resourcePath);
 
-        const resource = await trx
-          .selectFrom('resource')
-          .select('id')
-          .where('path', '=', resourcePath)
-          .executeTakeFirst();
-
-        if (!resource) {
-          throw new Error(`Resource ${resourcePath} does not exist.`);
-        }
-
-        const attribution = await trx
-          .selectFrom('attribution')
-          .select('uuid')
-          .where('uuid', '=', params.attributionUuid)
-          .executeTakeFirst();
-
-        if (!attribution) {
-          throw new Error(
-            `Attribution ${params.attributionUuid} does not exist.`,
-          );
-        }
+        // Ensure attribution exists
+        await getAttributionOrThrow(trx, params.attributionUuid);
 
         await trx
           .insertInto('resource_to_attribution')
@@ -221,17 +191,7 @@ export const mutations = {
     await getDb()
       .transaction()
       .execute(async (trx) => {
-        const resourcePath = removeTrailingSlash(params.resourcePath);
-
-        const resource = await trx
-          .selectFrom('resource')
-          .select('id')
-          .where('path', '=', resourcePath)
-          .executeTakeFirst();
-
-        if (!resource) {
-          throw new Error(`Resource ${resourcePath} does not exist.`);
-        }
+        const resource = await getResourceOrThrow(trx, params.resourcePath);
 
         const existingAttribution = await trx
           .selectFrom('attribution')
@@ -280,15 +240,10 @@ export const mutations = {
         for (const [attributionUuid, attributionData] of Object.entries(
           params.attributions,
         )) {
-          const existingAttribution = await trx
-            .selectFrom('attribution')
-            .select('is_external')
-            .where('uuid', '=', attributionUuid)
-            .executeTakeFirst();
-
-          if (!existingAttribution) {
-            throw new Error(`Attribution ${attributionUuid} does not exist.`);
-          }
+          const existingAttribution = await getAttributionOrThrow(
+            trx,
+            attributionUuid,
+          );
 
           if (existingAttribution.is_external) {
             throw new Error("External attributions can't be updated");
@@ -313,72 +268,10 @@ export const mutations = {
   },
 
   async resolveAttributions(params: { attributionUuids: Array<string> }) {
-    await getDb()
-      .transaction()
-      .execute(async (trx) => {
-        for (const attributionUuid of params.attributionUuids) {
-          const existingAttribution = await trx
-            .selectFrom('attribution')
-            .select('is_external')
-            .where('uuid', '=', attributionUuid)
-            .executeTakeFirst();
-
-          if (!existingAttribution) {
-            throw new Error(`Attribution ${attributionUuid} does not exist`);
-          }
-
-          if (!existingAttribution.is_external) {
-            throw new Error('Only external attributions can be resolved');
-          }
-
-          await trx
-            .updateTable('attribution')
-            .set({ is_resolved: Number(true) })
-            .where('uuid', '=', attributionUuid)
-            .execute();
-        }
-      });
-
-    return {
-      invalidates: params.attributionUuids.map((attributionUuid) => ({
-        queryName: 'getAttributionData',
-        params: { attributionUuid },
-      })),
-    };
+    return setAttributionsResolvedStatus(params.attributionUuids, true);
   },
   async unresolveAttributions(params: { attributionUuids: Array<string> }) {
-    await getDb()
-      .transaction()
-      .execute(async (trx) => {
-        for (const attributionUuid of params.attributionUuids) {
-          const existingAttribution = await trx
-            .selectFrom('attribution')
-            .select('is_external')
-            .where('uuid', '=', attributionUuid)
-            .executeTakeFirst();
-
-          if (!existingAttribution) {
-            throw new Error(`Attribution ${attributionUuid} does not exist`);
-          }
-
-          if (!existingAttribution.is_external) {
-            throw new Error('Only external attributions can be unresolved');
-          }
-
-          await trx
-            .updateTable('attribution')
-            .set({ is_resolved: Number(false) })
-            .where('uuid', '=', attributionUuid)
-            .execute();
-        }
-      });
-
-    return {
-      invalidates: params.attributionUuids.map((attributionUuid) => ({
-        queryName: 'getAttributionData',
-        params: { attributionUuid },
-      })),
-    };
+    return setAttributionsResolvedStatus(params.attributionUuids, false);
   },
 
   async unlinkResourceFromAttributions(params: {
@@ -388,28 +281,13 @@ export const mutations = {
     await getDb()
       .transaction()
       .execute(async (trx) => {
-        const resourcePath = removeTrailingSlash(params.resourcePath);
-
-        const resource = await trx
-          .selectFrom('resource')
-          .select('id')
-          .where('path', '=', resourcePath)
-          .executeTakeFirst();
-
-        if (!resource) {
-          throw new Error(`Resource with path ${resourcePath} does not exist`);
-        }
+        const resource = await getResourceOrThrow(trx, params.resourcePath);
 
         for (const attributionUuid of params.attributionUuids) {
-          const existingAttribution = await trx
-            .selectFrom('attribution')
-            .select('is_external')
-            .where('uuid', '=', attributionUuid)
-            .executeTakeFirst();
-
-          if (!existingAttribution) {
-            throw new Error(`Attribution ${attributionUuid} does not exist`);
-          }
+          const existingAttribution = await getAttributionOrThrow(
+            trx,
+            attributionUuid,
+          );
 
           if (existingAttribution.is_external) {
             throw new Error(
@@ -435,6 +313,41 @@ export const mutations = {
     };
   },
 } satisfies Record<string, MutationFunction>;
+
+async function setAttributionsResolvedStatus(
+  attributionUuids: Array<string>,
+  resolvedStatus: boolean,
+) {
+  await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      for (const attributionUuid of attributionUuids) {
+        const existingAttribution = await getAttributionOrThrow(
+          trx,
+          attributionUuid,
+        );
+
+        if (!existingAttribution.is_external) {
+          throw new Error(
+            `Only external attributions can be ${resolvedStatus ? 'resolved' : 'unresolved'}`,
+          );
+        }
+
+        await trx
+          .updateTable('attribution')
+          .set({ is_resolved: Number(resolvedStatus) })
+          .where('uuid', '=', attributionUuid)
+          .execute();
+      }
+    });
+
+  return {
+    invalidates: attributionUuids.map((attributionUuid) => ({
+      queryName: 'getAttributionData' as const,
+      params: { attributionUuid },
+    })),
+  };
+}
 
 export type Mutations = typeof mutations;
 export type MutationName = keyof Mutations;

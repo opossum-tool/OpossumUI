@@ -27,7 +27,7 @@ import {
 import { queryClient } from '../Components/AppContainer/queryClient';
 
 // We use the same options as tanstack query, with the exception that the
-// the consumer can't set mutationKey and mutationFn, which are set by us
+// consumer can't set mutationKey and mutationFn, which are set by us
 type ClientMutationOptions<M extends MutationName> = Omit<
   UseMutationOptions<Awaited<MutationResult<M>>, unknown, MutationParams<M>>, // Result type, Error Type, Parameter Type
   'mutationKey' | 'mutationFn'
@@ -38,7 +38,7 @@ type ClientMutationReturn<M extends MutationName> = ReturnType<
 >;
 
 // We use the same options as tanstack query, with the exception that the
-// the consumer can't set queryKey and queryFn, which are set by us
+// consumer can't set queryKey and queryFn, which are set by us
 type ClientQueryOptions<Q extends QueryName> = Omit<
   UseQueryOptions<Awaited<CommandResult<Q>>>,
   'queryKey' | 'queryFn'
@@ -55,11 +55,24 @@ type ClientQueryReturn<Q extends QueryName> = ReturnType<
 
 type BackendClient = {
   [Q in QueryName]: {
+    /**
+     * Tanstack Query hook for querying the backend.
+     * Automatically handles caching and invalidation.
+     */
     useQuery: (...args: ClientQueryParams<Q>) => ClientQueryReturn<Q>;
   };
 } & {
   [M in MutationName]: {
+    /**
+     * Asynchronous call to mutate data in the backend, for use outside of React components.
+     * Automatically invalidates affected queries.
+     */
     mutate: (params: MutationParams<M>) => Promise<MutationResult<M>>;
+
+    /**
+     * Tanstack Query hook to mutate data in the backend, for use in React components.
+     * Automatically invalidates affected queries.
+     */
     useMutation: (
       options?: ClientMutationOptions<M>,
     ) => ClientMutationReturn<M>;
@@ -94,7 +107,6 @@ type BackendClient = {
  *
  * ```
  * const mutation = backend.mutationName.useMutation();
- *
  * mutation.mutate(params);
  * ```
  */
@@ -141,6 +153,7 @@ export const backend = new Proxy({} as BackendClient, {
           },
           ...options,
         }),
+
       // For commands specified in src/ElectronBackend/api/mutations.ts
       mutate,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
