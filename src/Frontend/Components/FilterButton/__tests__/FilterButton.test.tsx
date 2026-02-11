@@ -21,7 +21,7 @@ describe('FilterButton', () => {
   it('adds selected filter', async () => {
     let result: FilteredData;
     const prev: FilteredData = initialFilteredAttributions;
-    const setFilteredData = jest.fn((fn) => {
+    const setFilteredData = vi.fn((fn) => {
       result = fn(prev);
     });
     const filter: Filter = 'Currently Preferred';
@@ -50,7 +50,7 @@ describe('FilterButton', () => {
   it('removes selected filter', async () => {
     let result: FilteredData;
     const prev: FilteredData = initialFilteredAttributions;
-    const setFilteredData = jest.fn((fn) => {
+    const setFilteredData = vi.fn((fn) => {
       result = fn(prev);
     });
     const filter: Filter = 'Currently Preferred';
@@ -80,7 +80,7 @@ describe('FilterButton', () => {
   it('filters by license name via keyboard selection', async () => {
     let result: FilteredData;
     const prev: FilteredData = initialFilteredAttributions;
-    const setFilteredData = jest.fn((fn) => {
+    const setFilteredData = vi.fn((fn) => {
       result = fn(prev);
     });
     const packageInfo = faker.opossum.packageInfo();
@@ -110,7 +110,7 @@ describe('FilterButton', () => {
   it('filters by license name via search', async () => {
     let result: FilteredData;
     const prev: FilteredData = initialFilteredAttributions;
-    const setFilteredData = jest.fn((fn) => {
+    const setFilteredData = vi.fn((fn) => {
       result = fn(prev);
     });
     const licenseName = faker.commerce.productName();
@@ -142,7 +142,7 @@ describe('FilterButton', () => {
   it('filters by license name via mouse click', async () => {
     let result: FilteredData;
     const prev: FilteredData = initialFilteredAttributions;
-    const setFilteredData = jest.fn((fn) => {
+    const setFilteredData = vi.fn((fn) => {
       result = fn(prev);
     });
     const packageInfo = faker.opossum.packageInfo();
@@ -171,7 +171,7 @@ describe('FilterButton', () => {
   it('removes filter by license name', async () => {
     let result: FilteredData;
     const prev: FilteredData = initialFilteredAttributions;
-    const setFilteredData = jest.fn((fn) => {
+    const setFilteredData = vi.fn((fn) => {
       result = fn(prev);
     });
     const packageInfo = faker.opossum.packageInfo();
@@ -200,7 +200,7 @@ describe('FilterButton', () => {
   it('removes all selected filters via clear button', async () => {
     let result: FilteredData;
     const prev: FilteredData = initialFilteredAttributions;
-    const setFilteredData = jest.fn((fn) => {
+    const setFilteredData = vi.fn((fn) => {
       result = fn(prev);
     });
     const packageInfo = faker.opossum.packageInfo();
@@ -240,7 +240,7 @@ describe('FilterButton', () => {
         ...initialFilteredAttributions,
         attributions: {},
       },
-      jest.fn(),
+      vi.fn(),
     ];
     await renderComponent(
       <FilterButton useFilteredData={useFilteredData} availableFilters={[]} />,

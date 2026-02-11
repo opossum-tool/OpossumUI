@@ -6,15 +6,15 @@ import { dialog, ipcMain } from 'electron';
 
 import { main } from '../main';
 
-jest.mock('electron', () => ({
+vi.mock('electron', () => ({
   ipcMain: {
-    handle: jest.fn(),
+    handle: vi.fn(),
   },
   app: {
-    on: jest.fn(),
-    getPath: jest.fn(),
-    getName: jest.fn(),
-    getVersion: jest.fn(),
+    on: vi.fn(),
+    getPath: vi.fn(),
+    getName: vi.fn(),
+    getVersion: vi.fn(),
     whenReady: (): Promise<boolean> => Promise.resolve(true),
     isPackaged: true,
   },
@@ -25,18 +25,18 @@ jest.mock('electron', () => ({
           throw Error('TEST_ERROR');
         },
         webContents: {
-          openDevTools: jest.fn(),
+          openDevTools: vi.fn(),
         },
       };
     }
   },
   Menu: {
-    setApplicationMenu: jest.fn(),
-    buildFromTemplate: jest.fn(),
-    getApplicationMenu: jest.fn(),
+    setApplicationMenu: vi.fn(),
+    buildFromTemplate: vi.fn(),
+    getApplicationMenu: vi.fn(),
   },
   dialog: {
-    showMessageBox: jest.fn(),
+    showMessageBox: vi.fn(),
   },
 }));
 describe('The App backend', () => {

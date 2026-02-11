@@ -13,8 +13,8 @@ describe('The VirtualizedTree', () => {
     await renderComponent(
       <VirtualizedTree
         expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', '/docs/']}
-        onSelect={jest.fn()}
-        onToggle={jest.fn()}
+        onSelect={vi.fn()}
+        onToggle={vi.fn()}
         resourceIds={[
           '/thirdParty/package_1.tr.gz',
           '/thirdParty/package_2.tr.gz',

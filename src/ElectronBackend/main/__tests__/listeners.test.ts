@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
+import { Mock } from 'vitest';
 
 import {
   AllowedFrontendChannels,
@@ -38,83 +39,83 @@ import {
 } from '../listeners';
 import { importFileFormats } from '../menu/fileMenu';
 
-jest.mock('electron', () => ({
+vi.mock('electron', () => ({
   app: {
-    on: jest.fn(),
-    getPath: jest.fn(),
-    getName: jest.fn(),
-    getVersion: jest.fn(),
+    on: vi.fn(),
+    getPath: vi.fn(),
+    getName: vi.fn(),
+    getVersion: vi.fn(),
     whenReady: async (): Promise<unknown> => Promise.resolve(true),
   },
   BrowserWindow: class BrowserWindowMock {
     constructor() {
       return {
-        loadURL: jest.fn(() => {
+        loadURL: vi.fn(() => {
           return Promise.resolve(null);
         }),
-        setTitle: jest.fn(),
-        getFocusedWindow: jest.fn(),
+        setTitle: vi.fn(),
+        getFocusedWindow: vi.fn(),
         webContents: {
-          openDevTools: jest.fn(),
-          send: jest.fn(),
-          close: jest.fn(),
+          openDevTools: vi.fn(),
+          send: vi.fn(),
+          close: vi.fn(),
           session: {
             webRequest: {
-              onHeadersReceived: jest.fn(),
+              onHeadersReceived: vi.fn(),
             },
           },
         },
-        close: jest.fn(() => {
+        close: vi.fn(() => {
           return Promise.resolve(null);
         }),
       };
     }
   },
   Menu: {
-    setApplicationMenu: jest.fn(),
-    buildFromTemplate: jest.fn(),
-    getApplicationMenu: jest.fn(),
+    setApplicationMenu: vi.fn(),
+    buildFromTemplate: vi.fn(),
+    getApplicationMenu: vi.fn(),
   },
   dialog: {
-    showOpenDialogSync: jest.fn(),
-    showMessageBox: jest.fn(() => {
+    showOpenDialogSync: vi.fn(),
+    showMessageBox: vi.fn(() => {
       return Promise.resolve({
         response: 0,
       });
     }),
   },
-  shell: { showItemInFolder: jest.fn(), openExternal: jest.fn() },
+  shell: { showItemInFolder: vi.fn(), openExternal: vi.fn() },
 }));
 
-jest.mock('../../output/writeCsvToFile', () => ({
-  writeCsvToFile: jest.fn(),
+vi.mock('../../output/writeCsvToFile', () => ({
+  writeCsvToFile: vi.fn(),
 }));
 
-jest.mock('../../output/writeSpdxFile', () => ({
-  writeSpdxFile: jest.fn(),
+vi.mock('../../output/writeSpdxFile', () => ({
+  writeSpdxFile: vi.fn(),
 }));
 
-jest.mock('../../input/importFromFile', () => ({
-  loadInputAndOutputFromFilePath: jest.fn(),
+vi.mock('../../input/importFromFile', () => ({
+  loadInputAndOutputFromFilePath: vi.fn(),
 }));
 
-jest.mock('../dialogs', () => ({
-  openOpossumFileDialog: jest.fn(),
-  openNonOpossumFileDialog: jest.fn(),
-  saveFileDialog: jest.fn(),
-  selectBaseURLDialog: jest.fn(),
+vi.mock('../dialogs', () => ({
+  openOpossumFileDialog: vi.fn(),
+  openNonOpossumFileDialog: vi.fn(),
+  saveFileDialog: vi.fn(),
+  selectBaseURLDialog: vi.fn(),
 }));
 
 describe('getSelectBaseURLListener', () => {
   it('opens base url dialog and sends selected path to frontend', async () => {
-    const mockCallback = jest.fn();
+    const mockCallback = vi.fn();
     const mainWindow = {
       webContents: { send: mockCallback as unknown } as WebContents,
     } as unknown as BrowserWindow;
     const baseURL = '/Users/path/to/sources';
     const expectedFormattedBaseURL = 'file:///Users/path/to/sources/{path}';
 
-    (selectBaseURLDialog as jest.Mock).mockReturnValueOnce([baseURL]);
+    (selectBaseURLDialog as Mock).mockReturnValueOnce([baseURL]);
 
     await selectBaseURLListener(mainWindow)();
 
@@ -393,9 +394,9 @@ describe('_exportFileAndOpenFolder', () => {
       spdxAttributions: {},
     };
 
-    jest
-      .spyOn(errorHandling, 'showListenerErrorInMessageBox')
-      .mockImplementation(jest.fn());
+    vi.spyOn(errorHandling, 'showListenerErrorInMessageBox').mockImplementation(
+      vi.fn(),
+    );
 
     await exportFileListener(mainWindow)(undefined, testArgs);
 
@@ -433,7 +434,7 @@ describe('getImportFileSelectInputListener', () => {
 
     const listener = selectFileListener(mainWindow);
 
-    jest.mocked(openNonOpossumFileDialog).mockReturnValue([selectedFilePath]);
+    vi.mocked(openNonOpossumFileDialog).mockReturnValue([selectedFilePath]);
 
     const returnedFilePath = await listener(
       {} as Electron.IpcMainInvokeEvent,
@@ -449,8 +450,7 @@ describe('getImportFileSelectInputListener', () => {
 
     const listener = selectFileListener(mainWindow);
 
-    jest
-      .mocked(openNonOpossumFileDialog)
+    vi.mocked(openNonOpossumFileDialog)
       .mockReturnValueOnce([])
       .mockReturnValueOnce(undefined);
 
@@ -476,7 +476,7 @@ describe('getImportFileSelectSaveLocationListener', () => {
 
     const listener = importFileSelectSaveLocationListener(mainWindow);
 
-    jest.mocked(saveFileDialog).mockReturnValue(selectedFilePath);
+    vi.mocked(saveFileDialog).mockReturnValue(selectedFilePath);
 
     const returnedFilePath = await listener(
       {} as Electron.IpcMainInvokeEvent,
@@ -492,7 +492,7 @@ describe('getImportFileSelectSaveLocationListener', () => {
 
     const listener = importFileSelectSaveLocationListener(mainWindow);
 
-    jest.mocked(saveFileDialog).mockReturnValue(undefined);
+    vi.mocked(saveFileDialog).mockReturnValue(undefined);
 
     const returnedFilePath = await listener(
       {} as Electron.IpcMainInvokeEvent,
@@ -504,7 +504,7 @@ describe('getImportFileSelectSaveLocationListener', () => {
 });
 
 function initWindowAndBackendState(): BrowserWindow {
-  (writeCsvToFile as jest.Mock).mockReset();
+  (writeCsvToFile as Mock).mockReset();
   setGlobalBackendState({});
 
   return createWindow();

@@ -22,18 +22,18 @@ import {
 
 async function hoverOverIcon(testid: string) {
   await userEvent.hover(screen.getByTestId(testid), {
-    advanceTimers: jest.runOnlyPendingTimersAsync,
+    advanceTimers: vi.runOnlyPendingTimersAsync,
   });
 }
 
 describe('The Icons', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
   it('renders ExcludeFromNoticeIcon', () => {
     render(<ExcludeFromNoticeIcon />);
@@ -131,7 +131,7 @@ describe('The Icons', () => {
 });
 
 describe('The SignalIcon', () => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   it('renders high criticality SignalIcon', () => {
     render(<CriticalityIcon criticality={Criticality.High} />);
 

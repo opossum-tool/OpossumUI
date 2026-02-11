@@ -887,8 +887,8 @@ describe('The deleteAttributionsAndSave action', () => {
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
 
     // Clear the mock to ensure we count saves correctly
-    jest.clearAllMocks();
-    jest.mocked(window.electronAPI.api).mockImplementation(executeCommand);
+    vi.clearAllMocks();
+    vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
 
     testStore.dispatch(
       deleteAttributionsAndSave(['reactUuid', 'vueUuid'], 'reactUuid'),
@@ -1197,8 +1197,8 @@ describe('The updateAttributionsAndSave action', () => {
     );
 
     // Clear the mock to ensure we count saves correctly
-    jest.clearAllMocks();
-    jest.mocked(window.electronAPI.api).mockImplementation(executeCommand);
+    vi.clearAllMocks();
+    vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
 
     testStore.dispatch(updateAttributionsAndSave(updatedAttributions));
 

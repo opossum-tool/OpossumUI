@@ -26,8 +26,10 @@ import { AttributionForm } from '../AttributionForm';
 describe('AttributionForm', () => {
   describe('PURL handling', () => {
     it('copies PURL to clipboard', async () => {
-      const writeText = jest.fn();
-      (navigator.clipboard as unknown) = { writeText };
+      const writeText = vi.fn();
+      vi.stubGlobal('navigator', {
+        clipboard: { writeText },
+      });
       const packageInfo = faker.opossum.packageInfo();
       await renderComponent(<AttributionForm packageInfo={packageInfo} />);
 
@@ -42,10 +44,13 @@ describe('AttributionForm', () => {
     it('pastes PURL from clipboard', async () => {
       const packageInfo = faker.opossum.packageInfo();
       const purl = generatePurl(packageInfo);
-      const readText = jest.fn().mockReturnValue(purl.toString());
-      (navigator.clipboard as unknown) = { readText };
+      const readText = vi.fn().mockReturnValue(purl.toString());
+      vi.stubGlobal('navigator', {
+        clipboard: { readText },
+      });
+
       await renderComponent(
-        <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
+        <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
       );
 
       await userEvent.click(
@@ -106,7 +111,7 @@ describe('AttributionForm', () => {
     it('renders a chip for follow-up', async () => {
       const packageInfo = faker.opossum.packageInfo();
       const { store } = await renderComponent(
-        <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
+        <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
       );
 
       expect(
@@ -125,7 +130,7 @@ describe('AttributionForm', () => {
     it('renders a chip for exclude from notice', async () => {
       const packageInfo = faker.opossum.packageInfo();
       const { store } = await renderComponent(
-        <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
+        <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
       );
 
       expect(
@@ -145,7 +150,7 @@ describe('AttributionForm', () => {
     it('renders a chip for needs review', async () => {
       const packageInfo = faker.opossum.packageInfo();
       const { store } = await renderComponent(
-        <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
+        <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
       );
 
       expect(
@@ -381,7 +386,7 @@ describe('AttributionForm', () => {
       const defaultLicenseText = faker.lorem.paragraphs();
       const packageInfo = faker.opossum.packageInfo();
       await renderComponent(
-        <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
+        <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
         {
           actions: [
             setFrequentLicenses({
@@ -415,7 +420,7 @@ describe('AttributionForm', () => {
         licenseText: faker.lorem.paragraphs(),
       });
       await renderComponent(
-        <AttributionForm packageInfo={packageInfo} onEdit={jest.fn()} />,
+        <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
         {
           actions: [
             setFrequentLicenses({

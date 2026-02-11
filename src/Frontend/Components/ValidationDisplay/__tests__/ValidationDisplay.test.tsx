@@ -87,10 +87,9 @@ describe('ValidationDisplay', () => {
 
       render(<ValidationDisplay messages={messages} severity="warning" />);
 
-      expect(screen.getByText('italic text')).toBeVisible();
-      expect(screen.getByText('italic text')).toHaveStyle({
-        fontStyle: 'italic',
-      });
+      const italicText = screen.getByText('italic text');
+      expect(italicText).toBeVisible();
+      expect(italicText.tagName).toBe('EM');
     });
   });
 });
