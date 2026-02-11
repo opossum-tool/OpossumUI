@@ -56,7 +56,7 @@ describe('useAttributionFormConfigs', () => {
         [attribute]: faker.internet.domainWord(),
       });
 
-      const { result } = renderHook(() =>
+      const { result } = await renderHook(() =>
         useAttributionFormConfigs({
           original: originalPackageInfo,
           current: currentPackageInfo,
@@ -126,7 +126,7 @@ describe('useAttributionFormConfigs', () => {
         ...{ firstParty: currentFirstParty },
       });
 
-      const { result } = renderHook(() =>
+      const { result } = await renderHook(() =>
         useAttributionFormConfigs({
           original: originalPackageInfo,
           current: bufferPackageInfo,

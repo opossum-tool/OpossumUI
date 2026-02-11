@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { pathsToResources } from '../../../../testing/global-test-helpers';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
@@ -15,7 +16,6 @@ import {
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-ids-for-replacement';
@@ -24,14 +24,19 @@ import {
   FilteredData,
   initialFilteredAttributions,
 } from '../../../state/variables/use-filtered-data';
+import {
+  expectManualAttributions,
+  expectResolvedExternalAttributions,
+  expectResourcesToManualAttributions,
+} from '../../../test-helpers/expectations';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { AttributionDetails } from '../AttributionDetails';
 
 describe('AttributionDetails', () => {
-  it('renders nothing when the selected attribution ID is not visible', () => {
+  it('renders nothing when the selected attribution ID is not visible', async () => {
     const packageInfo = faker.opossum.packageInfo();
-    const { container } = renderComponent(<AttributionDetails />, {
+    const { container } = await renderComponent(<AttributionDetails />, {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
@@ -41,9 +46,9 @@ describe('AttributionDetails', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders no buttons when the selected attribution is marked for replacement', () => {
+  it('renders no buttons when the selected attribution is marked for replacement', async () => {
     const packageInfo = faker.opossum.packageInfo();
-    renderComponent(<AttributionDetails />, {
+    await renderComponent(<AttributionDetails />, {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
@@ -89,19 +94,18 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id, packageInfo2.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [packageInfo1.id]: packageInfo1,
-              [packageInfo2.id]: packageInfo2,
-            }),
-            resourcesToManualAttributions: {
-              [resourceId]: [packageInfo1.id, packageInfo2.id],
-            },
-          }),
-        ),
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
@@ -126,14 +130,13 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {
-        [packageInfo1.id]: packageInfo1,
-      },
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: { [resourceId]: [packageInfo1.id] },
+    await expectManualAttributions(store.getState(), {
+      [packageInfo1.id]: packageInfo1,
     });
+    await expectResourcesToManualAttributions(store.getState(), {
+      [resourceId]: [packageInfo1.id],
+    });
+    await expectResolvedExternalAttributions(store.getState(), new Set());
   });
 
   it('saves modified attribution', async () => {
@@ -141,19 +144,18 @@ describe('AttributionDetails', () => {
     const packageInfo2 = faker.opossum.packageInfo();
     const newPackageName = faker.company.name();
     const resourceId = faker.system.filePath();
-    renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id, packageInfo2.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [packageInfo1.id]: packageInfo1,
-              [packageInfo2.id]: packageInfo2,
-            }),
-            resourcesToManualAttributions: {
-              [resourceId]: [packageInfo1.id, packageInfo2.id],
-            },
-          }),
-        ),
         setTemporaryDisplayPackageInfo({
           ...packageInfo1,
           packageName: newPackageName,
@@ -173,39 +175,35 @@ describe('AttributionDetails', () => {
       screen.getByRole('button', { name: text.attributionColumn.save }),
     );
 
-    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {
-        [packageInfo1.id]: {
-          ...packageInfo1,
-          packageName: newPackageName,
-        },
-        [packageInfo2.id]: packageInfo2,
+    await expectManualAttributions(store.getState(), {
+      [packageInfo1.id]: {
+        ...packageInfo1,
+        packageName: newPackageName,
       },
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: {
-        [resourceId]: [packageInfo1.id, packageInfo2.id],
-      },
+      [packageInfo2.id]: packageInfo2,
     });
+    await expectResourcesToManualAttributions(store.getState(), {
+      [resourceId]: [packageInfo1.id, packageInfo2.id],
+    });
+    await expectResolvedExternalAttributions(store.getState(), new Set());
   });
 
   it('confirms attribution', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ preSelected: true });
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id, packageInfo2.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [packageInfo1.id]: packageInfo1,
-              [packageInfo2.id]: packageInfo2,
-            }),
-            resourcesToManualAttributions: {
-              [resourceId]: [packageInfo1.id, packageInfo2.id],
-            },
-          }),
-        ),
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
@@ -222,36 +220,31 @@ describe('AttributionDetails', () => {
       screen.getByRole('button', { name: text.attributionColumn.confirm }),
     );
 
-    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {
-        [packageInfo1.id]: { ...packageInfo1, preSelected: undefined },
-        [packageInfo2.id]: packageInfo2,
-      },
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: {
-        [resourceId]: [packageInfo1.id, packageInfo2.id],
-      },
+    await expectManualAttributions(store.getState(), {
+      [packageInfo1.id]: { ...packageInfo1, preSelected: undefined },
+      [packageInfo2.id]: packageInfo2,
     });
+    await expectResourcesToManualAttributions(store.getState(), {
+      [resourceId]: [packageInfo1.id, packageInfo2.id],
+    });
+    await expectResolvedExternalAttributions(store.getState(), new Set());
   });
 
-  it('disables save button if package is neither pre-selected nor modified', () => {
+  it('disables save button if package is neither pre-selected nor modified', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    renderComponent(<AttributionDetails />, {
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id, packageInfo2.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [packageInfo1.id]: packageInfo1,
-              [packageInfo2.id]: packageInfo2,
-            }),
-            resourcesToManualAttributions: {
-              [resourceId]: [packageInfo1.id, packageInfo2.id],
-            },
-          }),
-        ),
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
@@ -273,19 +266,18 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [packageInfo1.id]: packageInfo1,
-              [packageInfo2.id]: packageInfo2,
-            }),
-            resourcesToManualAttributions: {
-              [resourceId]: [packageInfo1.id],
-            },
-          }),
-        ),
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(packageInfo2),
         setSelectedAttributionId(packageInfo2.id),
@@ -303,36 +295,31 @@ describe('AttributionDetails', () => {
       screen.getByRole('button', { name: text.attributionColumn.link }),
     );
 
-    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {
-        [packageInfo1.id]: packageInfo1,
-        [packageInfo2.id]: packageInfo2,
-      },
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: {
-        [resourceId]: [packageInfo1.id, packageInfo2.id],
-      },
+    await expectManualAttributions(store.getState(), {
+      [packageInfo1.id]: packageInfo1,
+      [packageInfo2.id]: packageInfo2,
     });
+    await expectResourcesToManualAttributions(store.getState(), {
+      [resourceId]: [packageInfo1.id, packageInfo2.id],
+    });
+    await expectResolvedExternalAttributions(store.getState(), new Set());
   });
 
-  it('disables link button when package is modified', () => {
+  it('disables link button when package is modified', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    renderComponent(<AttributionDetails />, {
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [packageInfo1.id]: packageInfo1,
-              [packageInfo2.id]: packageInfo2,
-            }),
-            resourcesToManualAttributions: {
-              [resourceId]: [packageInfo1.id],
-            },
-          }),
-        ),
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo({
           ...packageInfo2,
@@ -354,23 +341,21 @@ describe('AttributionDetails', () => {
     ).toBeDisabled();
   });
 
-  it('hides link button when package is already linked', () => {
+  it('hides link button when package is already linked', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    renderComponent(<AttributionDetails />, {
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [packageInfo1.id]: packageInfo1,
-              [packageInfo2.id]: packageInfo2,
-            }),
-            resourcesToManualAttributions: {
-              [resourceId]: [packageInfo1.id],
-            },
-          }),
-        ),
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
@@ -393,19 +378,17 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [packageInfo1.id]: packageInfo1,
-              [packageInfo2.id]: packageInfo2,
-            }),
-            resourcesToManualAttributions: {
-              [resourceId]: [packageInfo1.id],
-            },
-          }),
-        ),
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
@@ -426,33 +409,28 @@ describe('AttributionDetails', () => {
       screen.getByRole('button', { name: text.deleteAttributionsPopup.delete }),
     );
 
-    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {
-        [packageInfo2.id]: packageInfo2,
-      },
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: {},
+    await expectManualAttributions(store.getState(), {
+      [packageInfo2.id]: packageInfo2,
     });
+    await expectResourcesToManualAttributions(store.getState(), {});
+    await expectResolvedExternalAttributions(store.getState(), new Set());
   });
 
   it('reverts changes to a modified attribution', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    const { store } = renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [packageInfo1.id]: packageInfo1,
-              [packageInfo2.id]: packageInfo2,
-            }),
-            resourcesToManualAttributions: {
-              [resourceId]: [packageInfo1.id],
-            },
-          }),
-        ),
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo({
           ...packageInfo1,
@@ -482,19 +460,18 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    const { store } = renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [packageInfo1.id]: packageInfo1,
-              [packageInfo2.id]: packageInfo2,
-            }),
-            resourcesToManualAttributions: {
-              [resourceId]: [packageInfo1.id],
-            },
-          }),
-        ),
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo({
           ...EMPTY_DISPLAY_PACKAGE_INFO,
@@ -522,7 +499,10 @@ describe('AttributionDetails', () => {
 
   it('deletes signal', async () => {
     const packageInfo = faker.opossum.packageInfo();
-    renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: { [packageInfo.id]: packageInfo },
+      }),
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
@@ -537,17 +517,20 @@ describe('AttributionDetails', () => {
       screen.getByRole('button', { name: text.attributionColumn.delete }),
     );
 
-    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {},
-      resolvedExternalAttributions: new Set([packageInfo.id]),
-      resourcesToAttributions: {},
-    });
+    await expectManualAttributions(store.getState(), {});
+    await expectResourcesToManualAttributions(store.getState(), {});
+    await expectResolvedExternalAttributions(
+      store.getState(),
+      new Set([packageInfo.id]),
+    );
   });
 
   it('restores deleted signal', async () => {
     const packageInfo = faker.opossum.packageInfo();
-    renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: { [packageInfo.id]: packageInfo },
+      }),
       actions: [
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setTemporaryDisplayPackageInfo(packageInfo),
@@ -563,12 +546,9 @@ describe('AttributionDetails', () => {
       screen.getByRole('button', { name: text.attributionColumn.restore }),
     );
 
-    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
-      manualAttributions: {},
-      resolvedExternalAttributions: new Set(),
-      resourcesToAttributions: {},
-    });
+    await expectManualAttributions(store.getState(), {});
+    await expectResourcesToManualAttributions(store.getState(), {});
+    await expectResolvedExternalAttributions(store.getState(), new Set());
   });
 
   it('compares attribution to original signal', async () => {
@@ -577,21 +557,19 @@ describe('AttributionDetails', () => {
       originalAttributionId: signal.id,
     });
     const resourceId = faker.system.filePath();
-    renderComponent(<AttributionDetails />, {
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [attribution.id]: attribution,
+        }),
+        externalAttributions: faker.opossum.attributions({
+          [signal.id]: signal,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [attribution.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.attributions({
-              [attribution.id]: attribution,
-            }),
-            externalAttributions: faker.opossum.attributions({
-              [signal.id]: signal,
-            }),
-            resourcesToManualAttributions: {
-              [resourceId]: [attribution.id],
-            },
-          }),
-        ),
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(attribution),
         setSelectedAttributionId(attribution.id),

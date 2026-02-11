@@ -5,7 +5,6 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { ResourcesToAttributions } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { ROOT_PATH } from '../../../../shared-constants';
@@ -14,18 +13,17 @@ import {
   setResolvedExternalAttributions,
   setSelectedResourceId,
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../../../state/actions/resource-actions/load-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
-import {
-  getResolvedExternalAttributions,
-  getResourcesToManualAttributions,
-  getSelectedAttributionId,
-} from '../../../../state/selectors/resource-selectors';
+import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
 import {
   FILTERED_SIGNALS,
   FilteredData,
   initialFilteredAttributions,
 } from '../../../../state/variables/use-filtered-data';
+import {
+  expectResolvedExternalAttributions,
+  expectResourcesToManualAttributions,
+} from '../../../../test-helpers/expectations';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
 import { SignalsPanel } from '../SignalsPanel';
@@ -36,13 +34,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<SignalsPanel />, {
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
           ...initialFilteredAttributions,
@@ -67,13 +63,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<SignalsPanel />, {
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
           ...initialFilteredAttributions,
@@ -100,13 +94,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<SignalsPanel />, {
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
           ...initialFilteredAttributions,
@@ -126,9 +118,10 @@ describe('SignalsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.delete }),
     );
 
-    expect(
-      getResolvedExternalAttributions(store.getState()).has(packageInfo.id),
-    ).toBe(true);
+    await expectResolvedExternalAttributions(
+      store.getState(),
+      new Set([packageInfo.id]),
+    );
   });
 
   it('disables delete button when selected signal is already deleted', async () => {
@@ -136,13 +129,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    renderComponent(<SignalsPanel />, {
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
@@ -170,13 +161,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<SignalsPanel />, {
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
@@ -200,9 +189,7 @@ describe('SignalsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.restore }),
     );
 
-    expect(
-      getResolvedExternalAttributions(store.getState()).has(packageInfo.id),
-    ).toBe(false);
+    await expectResolvedExternalAttributions(store.getState(), new Set());
   });
 
   it('disables restore button when selected signal is not deleted', async () => {
@@ -210,13 +197,11 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    renderComponent(<SignalsPanel />, {
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
           ...initialFilteredAttributions,
@@ -247,16 +232,14 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<SignalsPanel />, {
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+        resourcesToExternalAttributions: {
+          [filePath]: [packageInfo.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-            resourcesToExternalAttributions: {
-              [filePath]: [packageInfo.id],
-            },
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {
           ...initialFilteredAttributions,
@@ -267,9 +250,7 @@ describe('SignalsPanel', () => {
       ],
     });
 
-    expect(
-      getResourcesToManualAttributions(store.getState()),
-    ).toEqual<ResourcesToAttributions>({});
+    await expectResourcesToManualAttributions(store.getState(), {});
 
     await userEvent.click(
       screen.getByText(
@@ -280,9 +261,7 @@ describe('SignalsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
     );
 
-    expect(
-      getResourcesToManualAttributions(store.getState()),
-    ).toEqual<ResourcesToAttributions>({
+    await expectResourcesToManualAttributions(store.getState(), {
       [ROOT_PATH]: [expect.any(String)],
     });
   });
@@ -293,17 +272,15 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    renderComponent(<SignalsPanel />, {
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+        attributionBreakpoints: new Set([filePath]),
+        resourcesToExternalAttributions: {
+          [filePath]: [packageInfo.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions,
-            attributionBreakpoints: new Set([filePath]),
-            resourcesToExternalAttributions: {
-              [filePath]: [packageInfo.id],
-            },
-          }),
-        ),
         setSelectedResourceId(filePath),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_SIGNALS, {

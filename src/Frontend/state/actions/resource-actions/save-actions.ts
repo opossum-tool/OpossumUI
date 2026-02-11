@@ -4,8 +4,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { isEmpty, isEqual } from 'lodash';
+import { v4 as uuid4 } from 'uuid';
 
 import { Attributions, PackageInfo } from '../../../../shared/shared-types';
+import { backend } from '../../../util/backendClient';
 import { correctFilePathsInResourcesMappingForOutput } from '../../../util/can-resource-have-children';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
@@ -39,6 +41,15 @@ import {
   UpdateAttribution,
 } from './types';
 
+// The thunks are not asynchronous, so we sadly can't await the mutations there.
+// We fire-and-forget them, using this function to output an error if they fail.
+function syncToDb(mutation: Promise<unknown>): void {
+  mutation.catch((e) => {
+    console.error(e);
+    throw e;
+  });
+}
+
 export function savePackageInfo(
   resourceId: string | null,
   attributionId: string | null,
@@ -59,6 +70,11 @@ export function savePackageInfo(
     if (attributionId && isEmpty(strippedPackageInfo)) {
       // DELETE
       dispatch(deleteAttribution(attributionId));
+      syncToDb(
+        backend.deleteAttributions.mutate({
+          attributionUuids: [attributionId],
+        }),
+      );
     } else if (matchedPackageInfo && attributionId) {
       // REPLACE
       dispatch(
@@ -67,6 +83,12 @@ export function savePackageInfo(
           matchedPackageInfo.id,
           !isSavedPackageInactive,
         ),
+      );
+      syncToDb(
+        backend.replaceAttribution.mutate({
+          attributionIdToReplace: attributionId,
+          attributionIdToReplaceWith: matchedPackageInfo.id,
+        }),
       );
     } else if (matchedPackageInfo && resourceId) {
       // LINK
@@ -77,13 +99,39 @@ export function savePackageInfo(
           !isSavedPackageInactive,
         ),
       );
+      syncToDb(
+        backend.linkAttribution.mutate({
+          resourcePath: resourceId,
+          attributionUuid: matchedPackageInfo.id,
+        }),
+      );
     } else if (resourceId && !attributionId) {
       // CREATE
-      dispatch(createAttributionForSelectedResource(packageInfo));
+      const newAttributionId = uuid4();
+      dispatch(
+        createAttributionForSelectedResource(newAttributionId, packageInfo),
+      );
+      const newAttribution =
+        getManualAttributions(getState())[newAttributionId];
+
+      syncToDb(
+        backend.createAttribution.mutate({
+          attributionUuid: newAttributionId,
+          packageInfo: newAttribution,
+          resourcePath: resourceId,
+        }),
+      );
     } else if (attributionId) {
       // UPDATE
       dispatch(
         updateAttribution(attributionId, packageInfo, !isSavedPackageInactive),
+      );
+      const updatedAttribution =
+        getManualAttributions(getState())[attributionId];
+      syncToDb(
+        backend.updateAttributions.mutate({
+          attributions: { [attributionId]: updatedAttribution },
+        }),
       );
     }
 
@@ -116,6 +164,12 @@ export function unlinkAttributionAndSave(
     attributionIds.forEach((attributionId) => {
       dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
     });
+    syncToDb(
+      backend.unlinkResourceFromAttributions.mutate({
+        resourcePath: resourceId,
+        attributionUuids: attributionIds,
+      }),
+    );
     dispatch(setSelectedAttributionId(''));
     dispatch(resetTemporaryDisplayPackageInfo());
     dispatch(saveManualAndResolvedAttributionsToFile());
@@ -131,6 +185,13 @@ export function unlinkAttributionAndCreateNew(
       getManualAttributionsToResources(getState());
 
     if (attributionsToResources[packageInfo.id]?.length > 1) {
+      syncToDb(
+        backend.unlinkResourceFromAttributions.mutate({
+          resourcePath: resourceId,
+          attributionUuids: [packageInfo.id],
+        }),
+      );
+
       dispatch(unlinkResourceFromAttribution(resourceId, packageInfo.id));
       dispatch(savePackageInfo(resourceId, null, packageInfo));
     }
@@ -161,6 +222,9 @@ export function deleteAttributionsAndSave(
     attributionIds.forEach((attributionId) => {
       dispatch(deleteAttribution(attributionId));
     });
+    syncToDb(
+      backend.deleteAttributions.mutate({ attributionUuids: attributionIds }),
+    );
     if (attributionIds.includes(selectedAttributionId)) {
       dispatch(setSelectedAttributionId(''));
       dispatch(resetTemporaryDisplayPackageInfo());
@@ -174,6 +238,9 @@ export function addResolvedExternalAttributionAndSave(
 ): AppThunkAction {
   return (dispatch) => {
     dispatch(addResolvedExternalAttributions(attributionIds));
+    syncToDb(
+      backend.resolveAttributions.mutate({ attributionUuids: attributionIds }),
+    );
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
@@ -183,6 +250,11 @@ export function removeResolvedExternalAttributionAndSave(
 ): AppThunkAction {
   return (dispatch) => {
     dispatch(removeResolvedExternalAttributions(attributionIds));
+    syncToDb(
+      backend.unresolveAttributions.mutate({
+        attributionUuids: attributionIds,
+      }),
+    );
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
@@ -199,6 +271,10 @@ export function updateAttributionsAndSave(
       },
     );
 
+    syncToDb(
+      backend.updateAttributions.mutate({ attributions: updatedAttributions }),
+    );
+
     // Reset temporary display package info if the currently selected attribution was updated
     if (Object.keys(updatedAttributions).includes(selectedAttributionId)) {
       dispatch(resetTemporaryDisplayPackageInfo());
@@ -209,11 +285,12 @@ export function updateAttributionsAndSave(
 }
 
 function createAttributionForSelectedResource(
+  attributionId: string,
   packageInfo: PackageInfo,
 ): CreateAttributionForSelectedResource {
   return {
     type: ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
-    payload: packageInfo,
+    payload: { attributionId, packageInfo },
   };
 }
 

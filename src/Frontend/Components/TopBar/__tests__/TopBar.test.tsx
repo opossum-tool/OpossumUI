@@ -15,8 +15,8 @@ import { renderComponent } from '../../../test-helpers/render';
 import { TopBar } from '../TopBar';
 
 describe('TopBar', () => {
-  it('renders an open file icon', () => {
-    const { store } = renderComponent(<TopBar />);
+  it('renders an open file icon', async () => {
+    const { store } = await renderComponent(<TopBar />);
 
     fireEvent.click(screen.getByLabelText('open file'));
 
@@ -24,8 +24,8 @@ describe('TopBar', () => {
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
   });
 
-  it('switches between views', () => {
-    const { store } = renderComponent(<TopBar />);
+  it('switches between views', async () => {
+    const { store } = await renderComponent(<TopBar />);
 
     fireEvent.click(screen.getByText(View.Audit));
     expect(isAuditViewSelected(store.getState())).toBe(true);

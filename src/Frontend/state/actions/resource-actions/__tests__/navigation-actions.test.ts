@@ -10,6 +10,7 @@ import {
 import { faker } from '../../../../../testing/Faker';
 import { View } from '../../../../enums/enums';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
+import { createTestStore } from '../../../../test-helpers/render';
 import { createAppStore } from '../../../configure-store';
 import {
   getExpandedIds,
@@ -28,7 +29,6 @@ import {
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../audit-view-simple-actions';
-import { loadFromFile } from '../load-actions';
 import {
   openResourceInResourceBrowser,
   resetTemporaryDisplayPackageInfo,
@@ -36,7 +36,7 @@ import {
 } from '../navigation-actions';
 
 describe('resetTemporaryDisplayPackageInfo', () => {
-  it('works correctly', () => {
+  it('works correctly', async () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       criticality: Criticality.None,
@@ -51,13 +51,10 @@ describe('resetTemporaryDisplayPackageInfo', () => {
       id: faker.string.uuid(),
     };
 
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          manualAttributions: testManualAttributions,
-        }),
-      ),
+    const testStore = await createTestStore(
+      getParsedInputFileEnrichedWithTestData({
+        manualAttributions: testManualAttributions,
+      }),
     );
     testStore.dispatch(navigateToView(View.Audit));
     testStore.dispatch(setSelectedAttributionId('uuid1'));

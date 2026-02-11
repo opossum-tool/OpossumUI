@@ -11,12 +11,12 @@ import { renderComponent } from '../../../test-helpers/render';
 import { Autocomplete } from '../Autocomplete';
 
 describe('Autocomplete', () => {
-  it('renders label and value', () => {
+  it('renders label and value', async () => {
     const title = faker.string.alpha({ length: 8 });
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -32,12 +32,12 @@ describe('Autocomplete', () => {
     });
   });
 
-  it('renders popup indicator when not free solo', () => {
+  it('renders popup indicator when not free solo', async () => {
     const title = faker.string.alpha({ length: 8 });
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -49,12 +49,12 @@ describe('Autocomplete', () => {
     expect(screen.getByLabelText('popup indicator')).toBeInTheDocument();
   });
 
-  it('does not render popup indicator when free solo', () => {
+  it('does not render popup indicator when free solo', async () => {
     const title = faker.string.alpha({ length: 8 });
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -67,13 +67,13 @@ describe('Autocomplete', () => {
     expect(screen.queryByLabelText('popup indicator')).not.toBeInTheDocument();
   });
 
-  it('renders custom end adornment even when free solo and not clearable', () => {
+  it('renders custom end adornment even when free solo and not clearable', async () => {
     const title = faker.string.alpha({ length: 8 });
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
     const testId = faker.string.sample();
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -91,7 +91,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -113,7 +113,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={[...options, option]}
@@ -135,7 +135,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -159,7 +159,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -179,12 +179,12 @@ describe('Autocomplete', () => {
       );
   });
 
-  it('renders clear button when a value is selected', () => {
+  it('renders clear button when a value is selected', async () => {
     const title = faker.string.alpha({ length: 8 });
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -196,12 +196,12 @@ describe('Autocomplete', () => {
     expect(screen.getByLabelText('clear button')).toBeInTheDocument();
   });
 
-  it('does not render clear button when no value is selected', () => {
+  it('does not render clear button when no value is selected', async () => {
     const title = faker.string.alpha({ length: 8 });
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -212,12 +212,12 @@ describe('Autocomplete', () => {
     expect(screen.queryByLabelText('clear button')).not.toBeInTheDocument();
   });
 
-  it('does not render clear button when value is selected but clearing is disabled', () => {
+  it('does not render clear button when value is selected but clearing is disabled', async () => {
     const title = faker.string.alpha({ length: 8 });
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -230,12 +230,12 @@ describe('Autocomplete', () => {
     expect(screen.queryByLabelText('clear button')).not.toBeInTheDocument();
   });
 
-  it('does not render clear button when value is selected but autocomplete is disabled', () => {
+  it('does not render clear button when value is selected but autocomplete is disabled', async () => {
     const title = faker.string.alpha({ length: 8 });
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -248,12 +248,12 @@ describe('Autocomplete', () => {
     expect(screen.queryByLabelText('clear button')).not.toBeInTheDocument();
   });
 
-  it('renders multiple values', () => {
+  it('renders multiple values', async () => {
     const title = faker.string.alpha({ length: 8 });
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -273,7 +273,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -293,7 +293,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -317,7 +317,7 @@ describe('Autocomplete', () => {
       faker.string.alpha({ length: 8 }),
     );
     const testId = faker.string.sample();
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -343,7 +343,7 @@ describe('Autocomplete', () => {
       faker.string.alpha({ length: 8 }),
     );
     const testId = faker.string.sample();
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -363,13 +363,13 @@ describe('Autocomplete', () => {
     expect(screen.queryByText(options[0])).not.toBeInTheDocument();
   });
 
-  it('renders in grouped mode', () => {
+  it('renders in grouped mode', async () => {
     const title = faker.string.alpha({ length: 8 });
     const options = faker.helpers.multiple(() => ({
       group: faker.string.alpha({ length: 8 }),
       value: faker.string.alpha({ length: 8 }),
     }));
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -398,7 +398,7 @@ describe('Autocomplete', () => {
       group: faker.string.alpha({ length: 8 }),
       value: faker.string.alpha({ length: 8 }),
     }));
-    renderComponent(
+    await renderComponent(
       <Autocomplete
         title={title}
         options={options}

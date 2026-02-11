@@ -9,13 +9,16 @@ import { noop } from 'lodash';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setManualData } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { getManualAttributions } from '../../../state/selectors/resource-selectors';
-import { getAttributionsToResources } from '../../../test-helpers/general-test-helpers';
+import { expectManualAttributions } from '../../../test-helpers/expectations';
+import {
+  getAttributionsToResources,
+  getParsedInputFileEnrichedWithTestData,
+} from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmDeletePopup } from '../ConfirmDeletePopup';
 
 describe('ConfirmDeletePopup', () => {
-  it('displays to-be-deleted attributions and counts the affected resources', () => {
+  it('displays to-be-deleted attributions and counts the affected resources', async () => {
     const attribution1 = faker.opossum.packageInfo();
     const attribution2 = faker.opossum.packageInfo();
     const attributions = faker.opossum.attributions({
@@ -27,7 +30,7 @@ describe('ConfirmDeletePopup', () => {
       resource2: [attribution2.id],
     });
 
-    renderComponent(
+    await renderComponent(
       <ConfirmDeletePopup
         open
         onClose={noop}
@@ -69,20 +72,17 @@ describe('ConfirmDeletePopup', () => {
       resource2: [attribution2.id],
     });
 
-    const { store } = renderComponent(
+    const { store } = await renderComponent(
       <ConfirmDeletePopup
         open
         onClose={noop}
         attributionIdsToDelete={[attribution1.id, attribution2.id]}
       />,
       {
-        actions: [
-          setManualData(
-            attributions,
-            resourcesToAttributions,
-            getAttributionsToResources(resourcesToAttributions),
-          ),
-        ],
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: attributions,
+          resourcesToManualAttributions: resourcesToAttributions,
+        }),
       },
     );
 
@@ -90,6 +90,6 @@ describe('ConfirmDeletePopup', () => {
       screen.getByText(text.deleteAttributionsPopup.deleteGlobally),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual({});
+    await expectManualAttributions(store.getState(), {});
   });
 });

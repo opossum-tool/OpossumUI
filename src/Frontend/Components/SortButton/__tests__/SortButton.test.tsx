@@ -32,7 +32,7 @@ describe('SortButton', () => {
       },
       setFilteredData,
     ];
-    renderComponent(<SortButton useFilteredData={useFilteredData} />);
+    await renderComponent(<SortButton useFilteredData={useFilteredData} />);
 
     await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
     await userEvent.click(
@@ -42,7 +42,7 @@ describe('SortButton', () => {
     expect(result!.sorting).toEqual(sorting);
   });
 
-  it('sort button is disabled when there are no attributions', () => {
+  it('sort button is disabled when there are no attributions', async () => {
     const useFilteredData: UseFilteredData = () => [
       {
         ...initialFilteredAttributions,
@@ -50,7 +50,7 @@ describe('SortButton', () => {
       },
       jest.fn(),
     ];
-    renderComponent(<SortButton useFilteredData={useFilteredData} />);
+    await renderComponent(<SortButton useFilteredData={useFilteredData} />);
 
     expect(screen.getByRole('button', { name: 'sort button' })).toBeDisabled();
   });
@@ -64,7 +64,7 @@ describe('SortButton', () => {
       },
       setFilteredData,
     ];
-    renderComponent(<SortButton useFilteredData={useFilteredData} />);
+    await renderComponent(<SortButton useFilteredData={useFilteredData} />);
 
     await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
     Object.values(text.sortings).forEach((menuItemText) => {

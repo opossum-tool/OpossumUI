@@ -6,7 +6,6 @@ import {
   useMutation,
   UseMutationOptions,
   useQuery,
-  useQueryClient,
   type UseQueryOptions,
 } from '@tanstack/react-query';
 
@@ -25,9 +24,10 @@ import {
   QueryParams,
   QueryResult,
 } from '../../ElectronBackend/api/queries';
+import { queryClient } from '../Components/AppContainer/queryClient';
 
 // We use the same options as tanstack query, with the exception that the
-// the consumer can't set mutationKey and mutationFn, which are set by us
+// consumer can't set mutationKey and mutationFn, which are set by us
 type ClientMutationOptions<M extends MutationName> = Omit<
   UseMutationOptions<Awaited<MutationResult<M>>, unknown, MutationParams<M>>, // Result type, Error Type, Parameter Type
   'mutationKey' | 'mutationFn'
@@ -38,7 +38,7 @@ type ClientMutationReturn<M extends MutationName> = ReturnType<
 >;
 
 // We use the same options as tanstack query, with the exception that the
-// the consumer can't set queryKey and queryFn, which are set by us
+// consumer can't set queryKey and queryFn, which are set by us
 type ClientQueryOptions<Q extends QueryName> = Omit<
   UseQueryOptions<Awaited<CommandResult<Q>>>,
   'queryKey' | 'queryFn'
@@ -55,10 +55,24 @@ type ClientQueryReturn<Q extends QueryName> = ReturnType<
 
 type BackendClient = {
   [Q in QueryName]: {
+    /**
+     * Tanstack Query hook for querying the backend.
+     * Automatically handles caching and invalidation.
+     */
     useQuery: (...args: ClientQueryParams<Q>) => ClientQueryReturn<Q>;
   };
 } & {
   [M in MutationName]: {
+    /**
+     * Asynchronous call to mutate data in the backend, for use outside of React components.
+     * Automatically invalidates affected queries.
+     */
+    mutate: (params: MutationParams<M>) => Promise<MutationResult<M>>;
+
+    /**
+     * Tanstack Query hook to mutate data in the backend, for use in React components.
+     * Automatically invalidates affected queries.
+     */
     useMutation: (
       options?: ClientMutationOptions<M>,
     ) => ClientMutationReturn<M>;
@@ -93,7 +107,6 @@ type BackendClient = {
  *
  * ```
  * const mutation = backend.mutationName.useMutation();
- *
  * mutation.mutate(params);
  * ```
  */
@@ -101,6 +114,30 @@ export const backend = new Proxy({} as BackendClient, {
   get(_, command: CommandName) {
     const getQueryKey = (command: CommandName, params: unknown) =>
       ['backend', command, params] as const;
+
+    async function mutate(params: MutationParams<MutationName>) {
+      const response = await window.electronAPI.api(
+        command,
+        params as CommandParams<typeof command>,
+      );
+
+      // Invalidate queries affected by the mutation
+      if ('invalidates' in response && response.invalidates) {
+        const invalidates = response.invalidates;
+        await Promise.all(
+          invalidates.map((invalidation) => {
+            const queryKey =
+              'params' in invalidation
+                ? getQueryKey(invalidation.queryName, invalidation.params)
+                : ['backend', invalidation.queryName];
+            return queryClient.invalidateQueries({
+              queryKey,
+            });
+          }),
+        );
+      }
+      return 'result' in response ? response.result : undefined;
+    }
 
     return {
       // For commands specified in src/ElectronBackend/api/queries.ts
@@ -116,34 +153,14 @@ export const backend = new Proxy({} as BackendClient, {
           },
           ...options,
         }),
+
       // For commands specified in src/ElectronBackend/api/mutations.ts
+      mutate,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       useMutation: (options?: ClientMutationOptions<any>) => {
-        const queryClient = useQueryClient();
         return useMutation({
           mutationKey: ['backend', command],
-          mutationFn: async (params) => {
-            const response = await window.electronAPI.api(
-              command,
-              params as CommandParams<typeof command>,
-            );
-
-            // Invalidate queries affected by the mutation
-            if ('invalidates' in response) {
-              await Promise.all(
-                response.invalidates.map((invalidation) => {
-                  const queryKey =
-                    'params' in invalidation
-                      ? getQueryKey(invalidation.queryName, invalidation.params)
-                      : ['backend', invalidation.queryName];
-                  return queryClient.resetQueries({
-                    queryKey,
-                  });
-                }),
-              );
-            }
-            return 'result' in response ? response.result : undefined;
-          },
+          mutationFn: mutate,
           ...options,
         });
       },

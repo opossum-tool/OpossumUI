@@ -18,7 +18,7 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ReportView } from '../ReportView';
 
 describe('ReportView', () => {
-  it('renders', () => {
+  it('renders', async () => {
     const attributions: Attributions = {
       uuid1: {
         packageName: 'React',
@@ -41,7 +41,7 @@ describe('ReportView', () => {
         id: 'uuid2',
       },
     };
-    renderComponent(<ReportView />, {
+    await renderComponent(<ReportView />, {
       actions: [
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_REPORT, {
           attributions,

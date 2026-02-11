@@ -5,10 +5,6 @@
 import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import {
-  Attributions,
-  ResourcesToAttributions,
-} from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { ROOT_PATH } from '../../../../shared-constants';
@@ -20,18 +16,17 @@ import {
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../../../state/actions/resource-actions/load-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
-import {
-  getManualAttributions,
-  getResourcesToManualAttributions,
-  getSelectedAttributionId,
-} from '../../../../state/selectors/resource-selectors';
+import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
 import {
   FILTERED_ATTRIBUTIONS_AUDIT,
   FilteredData,
   initialFilteredAttributions,
 } from '../../../../state/variables/use-filtered-data';
+import {
+  expectManualAttributions,
+  expectResourcesToManualAttributions,
+} from '../../../../test-helpers/expectations';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
 import { AttributionsPanel } from '../AttributionsPanel';
@@ -42,13 +37,11 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<AttributionsPanel />, {
+    const { store } = await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -76,13 +69,11 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<AttributionsPanel />, {
+    const { store } = await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -104,7 +95,7 @@ describe('AttributionsPanel', () => {
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
   });
 
-  it('shows alert when some attribution on current resource is incomplete', () => {
+  it('shows alert when some attribution on current resource is incomplete', async () => {
     const resourceId = faker.system.filePath();
     const packageInfo1 = faker.opossum.packageInfo({ packageName: undefined });
     const packageInfo2 = faker.opossum.packageInfo();
@@ -112,18 +103,14 @@ describe('AttributionsPanel', () => {
       [packageInfo1.id]: packageInfo1,
       [packageInfo2.id]: packageInfo2,
     });
-    renderComponent(<AttributionsPanel />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-            resourcesToManualAttributions: {
-              [resourceId]: [packageInfo1.id, packageInfo2.id],
-            },
-          }),
-        ),
-        setSelectedResourceId(resourceId),
-      ],
+    await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id, packageInfo2.id],
+        },
+      }),
+      actions: [setSelectedResourceId(resourceId)],
     });
 
     expect(
@@ -136,13 +123,11 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<AttributionsPanel />, {
+    const { store } = await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -173,13 +158,11 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<AttributionsPanel />, {
+    const { store } = await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -202,7 +185,7 @@ describe('AttributionsPanel', () => {
       screen.getByRole('button', { name: text.deleteAttributionsPopup.delete }),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual({});
+    await expectManualAttributions(store.getState(), {});
   });
 
   it('links selected attribution', async () => {
@@ -211,16 +194,14 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<AttributionsPanel />, {
+    const { store } = await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+        resourcesToManualAttributions: {
+          [filePath]: [packageInfo.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-            resourcesToManualAttributions: {
-              [filePath]: [packageInfo.id],
-            },
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -240,9 +221,7 @@ describe('AttributionsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
     );
 
-    expect(
-      getResourcesToManualAttributions(store.getState()),
-    ).toEqual<ResourcesToAttributions>({
+    await expectResourcesToManualAttributions(store.getState(), {
       [ROOT_PATH]: [packageInfo.id],
     });
   });
@@ -253,16 +232,14 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<AttributionsPanel />, {
+    const { store } = await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+        resourcesToManualAttributions: {
+          [filePath]: [packageInfo.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-            resourcesToManualAttributions: {
-              [filePath]: [packageInfo.id],
-            },
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -298,16 +275,14 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    renderComponent(<AttributionsPanel />, {
+    await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+        resourcesToManualAttributions: {
+          [filePath]: [packageInfo.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-            resourcesToManualAttributions: {
-              [filePath]: [packageInfo.id],
-            },
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -335,17 +310,15 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    renderComponent(<AttributionsPanel />, {
+    await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+        attributionBreakpoints: new Set([filePath]),
+        resourcesToExternalAttributions: {
+          [filePath]: [packageInfo.id],
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-            attributionBreakpoints: new Set([filePath]),
-            resourcesToExternalAttributions: {
-              [filePath]: [packageInfo.id],
-            },
-          }),
-        ),
         setSelectedResourceId(filePath),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
@@ -375,13 +348,11 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = renderComponent(<AttributionsPanel />, {
+    const { store } = await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -404,7 +375,7 @@ describe('AttributionsPanel', () => {
       screen.getByRole('button', { name: text.saveAttributionsPopup.confirm }),
     );
 
-    expect(getManualAttributions(store.getState())).toEqual<Attributions>({
+    await expectManualAttributions(store.getState(), {
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
   });
@@ -416,13 +387,11 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    renderComponent(<AttributionsPanel />, {
+    await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -451,13 +420,11 @@ describe('AttributionsPanel', () => {
       [packageInfo1.id]: packageInfo1,
       [packageInfo2.id]: packageInfo2,
     });
-    renderComponent(<AttributionsPanel />, {
+    await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -488,13 +455,11 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    renderComponent(<AttributionsPanel />, {
+    await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -523,13 +488,11 @@ describe('AttributionsPanel', () => {
       [packageInfo1.id]: packageInfo1,
       [packageInfo2.id]: packageInfo2,
     });
-    renderComponent(<AttributionsPanel />, {
+    await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,
@@ -572,16 +535,14 @@ describe('AttributionsPanel', () => {
       [packageInfo1.id]: packageInfo1,
       [packageInfo2.id]: packageInfo2,
     });
-    const { store } = renderComponent(<AttributionsPanel />, {
+    const { store } = await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+        externalAttributions: {
+          [packageInfo3.id]: packageInfo3,
+        },
+      }),
       actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-            externalAttributions: {
-              [packageInfo3.id]: packageInfo3,
-            },
-          }),
-        ),
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
           ...initialFilteredAttributions,

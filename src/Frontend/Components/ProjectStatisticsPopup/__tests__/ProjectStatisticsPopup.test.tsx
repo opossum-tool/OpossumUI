@@ -7,7 +7,6 @@ import userEvent from '@testing-library/user-event';
 
 import { Attributions, Criticality } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -43,14 +42,14 @@ const testExternalAttributions: Attributions = {
     criticality: Criticality.None,
     id: 'uuid_3',
   },
-  uuid_2: {
+  uuid_4: {
     source: {
       name: 'reuser',
       documentConfidence: 90,
     },
     licenseName: 'The MIT License (MIT)',
     criticality: Criticality.None,
-    id: 'uuid_2',
+    id: 'uuid_4',
   },
 };
 
@@ -83,14 +82,10 @@ describe('The ProjectStatisticsPopup', () => {
       },
     };
 
-    renderComponent(<ProjectStatisticsPopup />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions: testExternalAttributions,
-          }),
-        ),
-      ],
+    await renderComponent(<ProjectStatisticsPopup />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: testExternalAttributions,
+      }),
     });
 
     await userEvent.click(screen.getByText('Licenses'));
@@ -101,11 +96,9 @@ describe('The ProjectStatisticsPopup', () => {
     expect(screen.getByText('Reuser')).toBeVisible();
   });
 
-  it('renders expected pie charts when there are signals and attributions', () => {
-    renderComponent(<ProjectStatisticsPopup />, {
-      actions: [
-        loadFromFile(getParsedInputFileEnrichedWithTestData(fileSetup)),
-      ],
+  it('renders expected pie charts when there are signals and attributions', async () => {
+    await renderComponent(<ProjectStatisticsPopup />, {
+      data: getParsedInputFileEnrichedWithTestData(fileSetup),
     });
 
     expect(
@@ -131,17 +124,13 @@ describe('The ProjectStatisticsPopup', () => {
     ).toBeVisible();
   });
 
-  it('does not render pie charts when there are no signals and no attributions', () => {
+  it('does not render pie charts when there are no signals and no attributions', async () => {
     const testExternalAttributions: Attributions = {};
-    renderComponent(<ProjectStatisticsPopup />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
-            externalAttributions: testExternalAttributions,
-          }),
-        ),
-      ],
+    await renderComponent(<ProjectStatisticsPopup />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
+        externalAttributions: testExternalAttributions,
+      }),
     });
     expect(
       screen.queryByText(
@@ -166,7 +155,7 @@ describe('The ProjectStatisticsPopup', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders expected pie charts related to signals even if there are no attributions', () => {
+  it('renders expected pie charts related to signals even if there are no attributions', async () => {
     const testManualAttributions: Attributions = {};
     const testExternalAttributions: Attributions = {
       uuid_1: {
@@ -188,16 +177,12 @@ describe('The ProjectStatisticsPopup', () => {
         id: 'uuid_2',
       },
     };
-    renderComponent(<ProjectStatisticsPopup />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
-            manualAttributions: testManualAttributions,
-            externalAttributions: testExternalAttributions,
-          }),
-        ),
-      ],
+    await renderComponent(<ProjectStatisticsPopup />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
+        manualAttributions: testManualAttributions,
+        externalAttributions: testExternalAttributions,
+      }),
     });
     expect(
       screen.getByText(
@@ -219,14 +204,10 @@ describe('The ProjectStatisticsPopup', () => {
 
   it('renders attribution bar chart and signals per sources table even when there are no attributions and no signals', async () => {
     const testExternalAttributions: Attributions = {};
-    renderComponent(<ProjectStatisticsPopup />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions: testExternalAttributions,
-          }),
-        ),
-      ],
+    await renderComponent(<ProjectStatisticsPopup />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: testExternalAttributions,
+      }),
     });
 
     expect(
@@ -267,14 +248,10 @@ describe('The ProjectStatisticsPopup', () => {
         id: 'uuid_2',
       },
     };
-    renderComponent(<ProjectStatisticsPopup />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            externalAttributions: testExternalAttributions,
-          }),
-        ),
-      ],
+    await renderComponent(<ProjectStatisticsPopup />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: testExternalAttributions,
+      }),
     });
 
     await userEvent.click(screen.getByText('Licenses'));
@@ -307,12 +284,10 @@ describe('The ProjectStatisticsPopup', () => {
     ]);
   });
 
-  it('does not show the classification statistics if it has been disabled', () => {
-    renderComponent(<ProjectStatisticsPopup />, {
-      actions: [
-        setUserSetting({ showClassifications: false }),
-        loadFromFile(getParsedInputFileEnrichedWithTestData(fileSetup)),
-      ],
+  it('does not show the classification statistics if it has been disabled', async () => {
+    await renderComponent(<ProjectStatisticsPopup />, {
+      data: getParsedInputFileEnrichedWithTestData(fileSetup),
+      actions: [setUserSetting({ showClassifications: false })],
     });
 
     expect(
@@ -323,12 +298,10 @@ describe('The ProjectStatisticsPopup', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('does not show the criticality statistics if it has been disabled', () => {
-    renderComponent(<ProjectStatisticsPopup />, {
-      actions: [
-        setUserSetting({ showCriticality: false }),
-        loadFromFile(getParsedInputFileEnrichedWithTestData(fileSetup)),
-      ],
+  it('does not show the criticality statistics if it has been disabled', async () => {
+    await renderComponent(<ProjectStatisticsPopup />, {
+      data: getParsedInputFileEnrichedWithTestData(fileSetup),
+      actions: [setUserSetting({ showCriticality: false })],
     });
 
     expect(
@@ -339,7 +312,7 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('allows toggling of show-on-startup checkbox', async () => {
-    renderComponent(<ProjectStatisticsPopup />, {
+    await renderComponent(<ProjectStatisticsPopup />, {
       actions: [setUserSetting({ showProjectStatistics: true })],
     });
 

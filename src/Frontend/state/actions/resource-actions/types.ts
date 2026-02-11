@@ -160,7 +160,10 @@ export interface SetFilesWithChildren {
 
 export interface CreateAttributionForSelectedResource {
   type: typeof ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE;
-  payload: PackageInfo;
+  payload: {
+    attributionId: string;
+    packageInfo: PackageInfo;
+  };
 }
 
 export interface UpdateAttribution {

@@ -23,13 +23,13 @@ describe('The GoToLinkButton', () => {
     ],
   ])(
     'navigates to correct link for %s',
-    (path: string, expected_link: string) => {
+    async (path: string, expected_link: string) => {
       const testBaseUrlsForSources: BaseUrlsForSources = {
         '/parent_directory/': 'https://www.othertesturl.com/code/{path}',
         '/parent_directory/child_directory/':
           'https://www.testurl.com/code/{path}?base=123456789',
       };
-      const { store } = renderComponent(<GoToLinkButton />);
+      const { store } = await renderComponent(<GoToLinkButton />);
       act(() => {
         store.dispatch(setSelectedResourceId(path));
         store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
@@ -46,12 +46,12 @@ describe('The GoToLinkButton', () => {
     },
   );
 
-  it('does not show link if base url of parent is null', () => {
+  it('does not show link if base url of parent is null', async () => {
     const parentPath = '/parent_directory/';
     const testBaseUrlsForSources: BaseUrlsForSources = {
       [parentPath]: null,
     };
-    const { store } = renderComponent(<GoToLinkButton />);
+    const { store } = await renderComponent(<GoToLinkButton />);
     store.dispatch(setSelectedResourceId(parentPath));
     store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
 

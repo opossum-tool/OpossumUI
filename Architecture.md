@@ -55,8 +55,8 @@ Mutations return a list of names and parameters of queries that are invalidated 
 
 To avoid a big-bang migration, we migrate step-by-step:
 
-1.  Fill the database with data from the loaded file _<- we are here_
-2.  Reflect all file changes in the database by syncing mutations on save
+1.  Fill the database with data from the loaded file
+2.  Reflect all file changes in the database by syncing mutations on save _<- we are here_
 3.  Migrate the source of data in the frontend from Redux/the `signals-worker` to backend api queries
 4.  Migrate data mutations from Redux to backend api calls
 5.  Remove the now unused code, including the `signals-worker` and most of the Redux code

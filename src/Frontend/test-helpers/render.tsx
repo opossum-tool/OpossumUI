@@ -7,6 +7,9 @@ import { renderHook as nativeRenderHook, render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
+import { initializeDb } from '../../ElectronBackend/db/initializeDb';
+import { ParsedFileContent } from '../../shared/shared-types';
+import { loadFromFile } from '../state/actions/resource-actions/load-actions';
 import { Action, createAppStore } from '../state/configure-store';
 
 function makeReactQueryClient() {
@@ -19,15 +22,28 @@ function makeReactQueryClient() {
   });
 }
 
-export function renderComponent(
+export async function createTestStore(data?: ParsedFileContent) {
+  if (data) {
+    await initializeDb(data);
+  }
+  const store = createAppStore();
+  if (data) {
+    store.dispatch(loadFromFile(data));
+  }
+  return store;
+}
+
+export async function renderComponent(
   component: React.ReactElement<unknown>,
   {
     actions,
+    data,
   }: {
     actions?: Array<Action>;
+    data?: ParsedFileContent;
   } = {},
 ) {
-  const store = createAppStore();
+  const store = await createTestStore(data);
   actions?.forEach(store.dispatch);
 
   return {
@@ -48,17 +64,19 @@ export function renderComponent(
   };
 }
 
-export function renderHook<P, R>(
+export async function renderHook<P, R>(
   callback: (props: P) => R,
   {
     actions,
     initialProps,
+    data,
   }: {
     initialProps?: P;
     actions?: Array<Action>;
+    data?: ParsedFileContent;
   } = {},
 ) {
-  const store = createAppStore();
+  const store = await createTestStore(data);
   actions?.forEach(store.dispatch);
 
   return {

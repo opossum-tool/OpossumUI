@@ -9,19 +9,19 @@ import { renderHook } from '../../../test-helpers/render';
 import { useVariable } from '../use-variable';
 
 describe('useVariable', () => {
-  it('returns initial value', () => {
+  it('returns initial value', async () => {
     const key = faker.string.sample();
     const initialValue = faker.string.sample();
-    const { result } = renderHook(() => useVariable(key, initialValue));
+    const { result } = await renderHook(() => useVariable(key, initialValue));
 
     expect(result.current[0]).toBe(initialValue);
   });
 
-  it('updates variable and persists it in store', () => {
+  it('updates variable and persists it in store', async () => {
     const key = faker.string.sample();
     const initialValue = faker.string.sample();
     const newValue = faker.string.sample();
-    const { result } = renderHook(() => useVariable(key, initialValue));
+    const { result } = await renderHook(() => useVariable(key, initialValue));
 
     act(() => {
       result.current[1](newValue);

@@ -23,14 +23,14 @@ describe('LinkedResourcesTree', () => {
     '/folder1/folder2/resource_1',
   ];
 
-  it('expands all folders', () => {
-    renderComponent(<LinkedResourcesTree resourceIds={resourceIds} />);
+  it('expands all folders', async () => {
+    await renderComponent(<LinkedResourcesTree resourceIds={resourceIds} />);
     expect(screen.getByText('resource_1')).toBeInTheDocument();
     expect(screen.getByText('resource_2')).toBeInTheDocument();
   });
 
-  it('changes the view, selectedResourceId and expandedResources when a resource is clicked', () => {
-    const { store } = renderComponent(
+  it('changes the view, selectedResourceId and expandedResources when a resource is clicked', async () => {
+    const { store } = await renderComponent(
       <LinkedResourcesTree resourceIds={resourceIds} />,
     );
     fireEvent.click(screen.getByText('resource_1'));
@@ -41,8 +41,8 @@ describe('LinkedResourcesTree', () => {
     expect(getExpandedIds(store.getState())).toMatchObject(expectedExpandedIds);
   });
 
-  it('collapses and expands folders', () => {
-    renderComponent(<LinkedResourcesTree resourceIds={resourceIds} />, {
+  it('collapses and expands folders', async () => {
+    await renderComponent(<LinkedResourcesTree resourceIds={resourceIds} />, {
       actions: [
         setResources(
           faker.opossum.resources({

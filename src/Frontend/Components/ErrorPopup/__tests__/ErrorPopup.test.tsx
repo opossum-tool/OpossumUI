@@ -8,8 +8,8 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ErrorPopup } from '../ErrorPopup';
 
 describe('Error popup', () => {
-  it('renders', () => {
-    renderComponent(<ErrorPopup content="Invalid link." />);
+  it('renders', async () => {
+    await renderComponent(<ErrorPopup content="Invalid link." />);
 
     expect(screen.getByText('Error')).toBeInTheDocument();
   });

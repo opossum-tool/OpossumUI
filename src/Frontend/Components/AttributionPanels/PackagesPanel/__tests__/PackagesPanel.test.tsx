@@ -18,7 +18,7 @@ import { renderComponent } from '../../../../test-helpers/render';
 import { PackagesPanel } from '../PackagesPanel';
 
 describe('PackagesPanel', () => {
-  it('enables select-all checkbox when there are attribution IDs', () => {
+  it('enables select-all checkbox when there are attribution IDs', async () => {
     const setFilteredData = jest.fn();
     const useFilteredData: UseFilteredData = () => [
       {
@@ -27,7 +27,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -40,7 +40,7 @@ describe('PackagesPanel', () => {
     expect(screen.getByRole('checkbox')).toBeEnabled();
   });
 
-  it('disables select-all checkbox when there are no attribution IDs', () => {
+  it('disables select-all checkbox when there are no attribution IDs', async () => {
     const setFilteredData = jest.fn();
     const useFilteredData: UseFilteredData = () => [
       {
@@ -49,7 +49,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -62,7 +62,7 @@ describe('PackagesPanel', () => {
     expect(screen.getByRole('checkbox')).toBeDisabled();
   });
 
-  it('disables select-all checkbox when there are attribution IDs but checkbox is externally disabled', () => {
+  it('disables select-all checkbox when there are attribution IDs but checkbox is externally disabled', async () => {
     const setFilteredData = jest.fn();
     const useFilteredData: UseFilteredData = () => [
       {
@@ -71,7 +71,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -99,7 +99,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -124,7 +124,7 @@ describe('PackagesPanel', () => {
     ).toHaveAttribute('data-indeterminate', 'true');
   });
 
-  it('checkbox is not indeterminate when no attributions are selected', () => {
+  it('checkbox is not indeterminate when no attributions are selected', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const setFilteredData = jest.fn();
@@ -138,7 +138,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -177,7 +177,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -221,7 +221,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -252,7 +252,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -288,7 +288,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -331,7 +331,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    const { rerender } = renderComponent(
+    const { rerender } = await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -391,7 +391,7 @@ describe('PackagesPanel', () => {
     ).toHaveAttribute('data-indeterminate', 'false');
   });
 
-  it('shows tabs corresponding to available attributions', () => {
+  it('shows tabs corresponding to available attributions', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
@@ -407,7 +407,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -451,7 +451,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -473,7 +473,7 @@ describe('PackagesPanel', () => {
     ).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('sets active tab to the one containing the selected attribution', () => {
+  it('sets active tab to the one containing the selected attribution', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
@@ -489,7 +489,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -508,7 +508,7 @@ describe('PackagesPanel', () => {
     ).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('resets active tab when active relation no longer available', () => {
+  it('resets active tab when active relation no longer available', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
@@ -524,7 +524,7 @@ describe('PackagesPanel', () => {
       },
       setFilteredData,
     ];
-    const { rerender } = renderComponent(
+    const { rerender } = await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}
@@ -564,13 +564,13 @@ describe('PackagesPanel', () => {
     ).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('renders no tabs when there are no attributions', () => {
+  it('renders no tabs when there are no attributions', async () => {
     const setFilteredData = jest.fn();
     const useFilteredData: UseFilteredData = () => [
       { ...initialFilteredAttributions, attributions: {} },
       setFilteredData,
     ];
-    renderComponent(
+    await renderComponent(
       <PackagesPanel
         availableFilters={[]}
         renderActions={() => null}

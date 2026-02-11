@@ -10,9 +10,9 @@ import { renderComponent } from '../../../test-helpers/render';
 import { List } from '../List';
 
 describe('List', () => {
-  it('renders list items', () => {
+  it('renders list items', async () => {
     const data = faker.helpers.multiple(faker.string.uuid);
-    renderComponent(
+    await renderComponent(
       <List data={data} renderItemContent={(id) => <div>{id}</div>} />,
     );
 
@@ -23,9 +23,9 @@ describe('List', () => {
     expect(screen.queryByText(text.generic.noResults)).not.toBeInTheDocument();
   });
 
-  it('renders loading state', () => {
+  it('renders loading state', async () => {
     const data = faker.helpers.multiple(faker.string.uuid);
-    renderComponent(
+    await renderComponent(
       <List loading data={data} renderItemContent={(id) => <div>{id}</div>} />,
     );
 
@@ -33,8 +33,8 @@ describe('List', () => {
     expect(screen.queryByText(text.generic.noResults)).not.toBeInTheDocument();
   });
 
-  it('renders empty placeholder when no results', () => {
-    renderComponent(
+  it('renders empty placeholder when no results', async () => {
+    await renderComponent(
       <List data={[]} renderItemContent={(id) => <div>{id}</div>} />,
     );
 

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { remove } from 'lodash';
 import isEqual from 'lodash/isEqual';
-import { v4 as uuid4 } from 'uuid';
 
 import {
   AttributionData,
@@ -54,11 +53,10 @@ function calculateNewPackageInfo(
 export function createManualAttribution(
   manualData: AttributionData,
   selectedResourceId: string,
+  newAttributionId: string,
   packageInfo: PackageInfo,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): { newManualData: AttributionData; newAttributionId: string } {
-  const newAttributionId = uuid4();
-
   const attributionIdsOfSelectedResource: Array<string> = manualData
     .resourcesToAttributions[selectedResourceId]
     ? [...manualData.resourcesToAttributions[selectedResourceId]]
