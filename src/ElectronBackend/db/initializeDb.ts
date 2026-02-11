@@ -2,12 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Transaction } from 'kysely';
+import { sql, Transaction } from 'kysely';
+import { DataTypeExpression } from 'kysely/dist/cjs/parser/data-type-parser';
+import { snakeCase } from 'lodash';
 
 import {
   ExternalAttributionSources,
   FrequentLicenses,
   InputFileAttributionData,
+  PackageInfo,
   ParsedFileContent,
   Resources,
 } from '../../shared/shared-types';
@@ -190,13 +193,49 @@ async function initializeAttributionTable(
   manualAttributions: InputFileAttributionData,
   resolvedExternalAttributions: Set<string>,
 ) {
-  await trx.schema
+  const columnsFromJson: Array<[keyof PackageInfo, DataTypeExpression]> = [
+    ['preSelected', 'boolean'],
+    ['criticality', 'integer'],
+    ['classification', 'integer'],
+    ['firstParty', 'boolean'],
+    ['excludeFromNotice', 'boolean'],
+    ['wasPreferred', 'boolean'],
+    ['copyright', 'text'],
+    ['licenseName', 'text'],
+    ['url', 'text'],
+    ['packageName', 'text'],
+    ['packageNamespace', 'text'],
+    ['packageType', 'text'],
+    ['attributionConfidence', 'integer'],
+    ['followUp', 'boolean'],
+    ['needsReview', 'boolean'],
+    ['preferred', 'boolean'],
+    ['originalAttributionWasPreferred', 'boolean'],
+  ];
+
+  let schema = trx.schema
     .createTable('attribution')
     .addColumn('uuid', 'text', (col) => col.primaryKey().notNull())
     .addColumn('data', 'text', (col) => col.notNull())
     .addColumn('is_external', 'integer', (col) => col.notNull())
-    .addColumn('is_resolved', 'integer', (col) => col.notNull().defaultTo(0))
-    .execute();
+    .addColumn('is_resolved', 'integer', (col) => col.notNull().defaultTo(0));
+
+  for (const [name, datatype] of columnsFromJson) {
+    if (datatype === 'boolean') {
+      schema = schema.addColumn(snakeCase(name), 'integer', (col) =>
+        col
+          .generatedAlwaysAs(sql.raw(`COALESCE(data ->> '${name}', 0)`))
+          .stored()
+          .notNull(),
+      );
+    } else {
+      schema = schema.addColumn(snakeCase(name), datatype, (col) =>
+        col.generatedAlwaysAs(sql.raw(`data ->> '${name}'`)).stored(),
+      );
+    }
+  }
+
+  await schema.execute();
 
   for (const [uuid, attribution] of Object.entries(
     externalAttributions.attributions,
@@ -225,6 +264,15 @@ async function initializeAttributionTable(
         is_external: Number(false),
         is_resolved: Number(false),
       })
+      .execute();
+  }
+
+  for (const [name, _] of columnsFromJson) {
+    await trx.schema
+      .createIndex(`attribution_${snakeCase(name)}_idx`)
+      .on('attribution')
+      .column('is_external')
+      .column(snakeCase(name))
       .execute();
   }
 }
