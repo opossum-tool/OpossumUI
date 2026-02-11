@@ -9,7 +9,6 @@ import { noop } from 'lodash';
 import { executeCommand } from '../ElectronBackend/api/commands';
 import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
 import { ElectronAPI } from '../shared/shared-types';
-import { faker } from './Faker';
 
 class ResizeObserver {
   observe = noop;
@@ -17,30 +16,28 @@ class ResizeObserver {
   disconnect = noop;
 }
 
-window.ResizeObserver = ResizeObserver;
+if (typeof window !== 'undefined') {
+  global.window.electronAPI = {
+    quit: vi.fn(),
+    relaunch: vi.fn(),
+    openLink: vi.fn().mockReturnValue(Promise.resolve()),
+    openFile: vi.fn(),
+    selectFile: vi.fn(),
+    importFileSelectSaveLocation: vi.fn(),
+    importFileConvertAndLoad: vi.fn(),
+    mergeFileAndLoad: vi.fn(),
+    exportFile: vi.fn(),
+    saveFile: vi.fn(),
+    stopLoading: vi.fn(),
+    on: vi.fn().mockReturnValue(vi.fn()),
+    getUserSettings: vi.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
+    updateUserSettings: vi.fn(),
+    setFrontendPopupOpen: vi.fn(),
+    api: vi.fn().mockImplementation(executeCommand),
+  } satisfies ElectronAPI;
 
-global.window.electronAPI = {
-  quit: vi.fn(),
-  relaunch: vi.fn(),
-  openLink: vi.fn().mockReturnValue(Promise.resolve()),
-  openFile: vi.fn(),
-  selectFile: vi.fn(),
-  importFileSelectSaveLocation: vi.fn(),
-  importFileConvertAndLoad: vi.fn(),
-  mergeFileAndLoad: vi.fn(),
-  exportFile: vi.fn(),
-  saveFile: vi.fn(),
-  stopLoading: vi.fn(),
-  on: vi.fn().mockReturnValue(vi.fn()),
-  getUserSettings: vi.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
-  updateUserSettings: vi.fn(),
-  setFrontendPopupOpen: vi.fn(),
-  api: vi.fn().mockImplementation(executeCommand),
-} satisfies ElectronAPI;
-
-faker.packageSearch.usePackageNames();
-faker.packageSearch.usePackageNamespaces();
-faker.packageSearch.usePackageVersions();
+  window.ResizeObserver = ResizeObserver;
+}
 
 // Suppress specific console logs to make the tests cleaner.
 interface ConsoleType {
