@@ -55,7 +55,7 @@ describe('The GlobalPopUp', () => {
     ).toHaveBeenLastCalledWith(true);
   });
 
-  it('opens the UpdateAppPopup', () => {
+  it('opens the UpdateAppPopup', async () => {
     vi.mock(
       '../../../Components/UpdateAppPopup/UpdateAppPopup.util.ts',
       () => ({
