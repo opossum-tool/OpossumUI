@@ -224,6 +224,18 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-magic-numbers': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      'vitest/expect-expect': [
+        'error',
+        {
+          assertFunctionNames: [
+            'expect',
+            'expectManualAttributions',
+            'expectResourcesToManualAttributions',
+            'expectResolvedExternalAttributions',
+            'expectDbContent',
+          ],
+        },
+      ],
     },
   },
 );
