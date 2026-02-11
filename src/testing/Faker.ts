@@ -558,4 +558,10 @@ class Faker extends NativeFaker {
   }
 }
 
-export const faker = new Faker({ locale: [en, base] });
+const faker = new Faker({ locale: [en, base] });
+if (typeof vi !== 'undefined') {
+  faker.packageSearch.usePackageNames();
+  faker.packageSearch.usePackageNamespaces();
+  faker.packageSearch.usePackageVersions();
+}
+export { faker };

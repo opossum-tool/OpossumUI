@@ -10,10 +10,14 @@ import viteTsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig(({ mode }) => ({
   plugins: [
-    react({ babel: { plugins: ['babel-plugin-react-compiler'] } }),
+    react(
+      mode === 'test'
+        ? {}
+        : { babel: { plugins: ['babel-plugin-react-compiler'] } },
+    ),
     viteTsconfigPaths(),
     svgrPlugin(),
-    ...(mode === 'e2e'
+    ...(mode === 'e2e' || mode === 'test'
       ? []
       : electron({
           entry: [
@@ -67,15 +71,44 @@ export default defineConfig(({ mode }) => ({
   },
   test: {
     globals: true,
-    environment: 'happy-dom',
+    projects: [
+      {
+        extends: true,
+        test: {
+          environment: 'happy-dom',
+          include: [
+            'src/Frontend/Components/ProjectStatisticsPopup/__tests__/ProjectStatisticsPopup.test.tsx',
+            'src/Frontend/Components/GlobalPopup/__tests__/GlobalPopup.test.tsx',
+          ],
+          pool: 'threads',
+        },
+      },
+      {
+        extends: true,
+        test: {
+          environment: 'happy-dom',
+          include: ['src/Frontend/**/__test{s,}__/**/*.test.{ts,tsx}'],
+          exclude: [
+            'src/Frontend/Components/ProjectStatisticsPopup/__tests__/ProjectStatisticsPopup.test.tsx',
+            'src/Frontend/Components/GlobalPopup/__tests__/GlobalPopup.test.tsx',
+          ],
+          name: { label: 'FE', color: 'green' },
+        },
+      },
+      {
+        extends: true,
+        test: {
+          environment: 'node',
+          include: ['src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}'],
+          name: { label: 'BE', color: 'blue' },
+        },
+      },
+    ],
     setupFiles: './src/testing/setup.ts',
     globalSetup: './src/testing/globalSetup.ts',
-    include: [
-      '**/__test__/**/*.test.{ts,tsx}',
-      '**/__tests__/**/*.test.{ts,tsx}',
-    ],
-    exclude: ['node_modules', 'build', 'src/e2e-tests'],
     clearMocks: true,
     unstubGlobals: true,
+    pool: 'vmThreads',
+    maxWorkers: '100%',
   },
 }));
