@@ -76,22 +76,7 @@ export default defineConfig(({ mode }) => ({
         extends: true,
         test: {
           environment: 'happy-dom',
-          include: [
-            'src/Frontend/Components/ProjectStatisticsPopup/__tests__/ProjectStatisticsPopup.test.tsx',
-            'src/Frontend/Components/GlobalPopup/__tests__/GlobalPopup.test.tsx',
-          ],
-          pool: 'threads',
-        },
-      },
-      {
-        extends: true,
-        test: {
-          environment: 'happy-dom',
           include: ['src/Frontend/**/__test{s,}__/**/*.test.{ts,tsx}'],
-          exclude: [
-            'src/Frontend/Components/ProjectStatisticsPopup/__tests__/ProjectStatisticsPopup.test.tsx',
-            'src/Frontend/Components/GlobalPopup/__tests__/GlobalPopup.test.tsx',
-          ],
           name: { label: 'FE', color: 'green' },
         },
       },
@@ -108,7 +93,7 @@ export default defineConfig(({ mode }) => ({
     globalSetup: './src/testing/globalSetup.ts',
     clearMocks: true,
     unstubGlobals: true,
-    pool: 'vmThreads',
+    pool: 'threads',
     maxWorkers: '100%',
   },
 }));
