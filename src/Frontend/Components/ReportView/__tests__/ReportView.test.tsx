@@ -45,7 +45,6 @@ describe('ReportView', () => {
       actions: [
         setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_REPORT, {
           attributions,
-          counts: {},
           filters: [],
           loading: false,
           search: '',

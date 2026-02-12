@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Attributions } from '../../../shared/shared-types';
 import { SortOption } from '../../Components/SortButton/useSortingOptions';
-import { Filter, FilterCounts } from '../../shared-constants';
+import { Filter } from '../../shared-constants';
 import { useAppSelector } from '../hooks';
 import { getSelectedAttributionId } from '../selectors/resource-selectors';
 import { useVariable } from './use-variable';
@@ -15,7 +15,6 @@ export const FILTERED_SIGNALS = 'filtered-signals';
 
 export interface FilteredData {
   attributions: Attributions | null;
-  counts: FilterCounts | null;
   filters: Array<Filter>;
   loading: boolean;
   search: string;
@@ -27,7 +26,6 @@ export interface FilteredData {
 export const initialFilteredAttributions: FilteredData = {
   filters: [],
   attributions: null,
-  counts: null,
   loading: false,
   search: '',
   selectedLicense: '',
@@ -37,7 +35,6 @@ export const initialFilteredAttributions: FilteredData = {
 const initialFilteredSignals: FilteredData = {
   filters: [],
   attributions: null,
-  counts: null,
   loading: false,
   search: '',
   selectedLicense: '',
