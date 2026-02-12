@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import BetterSqlite3 from 'better-sqlite3';
+import fs from 'fs';
 import { Kysely, SqliteDialect } from 'kysely';
 
 import { DB } from './generated/databaseTypes';
@@ -20,12 +21,22 @@ let db: Kysely<DB> | undefined = undefined;
 
 function openDb() {
   // Empty filename for temporary (not in-memory) db: https://www.sqlite.org/inmemorydb.html#temp_db
-  rawDb = new BetterSqlite3('');
+  const filename = process.env.DEBUG ? 'dev.db' : '';
+
+  if (filename !== '' && fs.existsSync(filename)) {
+    console.log('DEBUG: Deleting previous db file');
+    fs.unlinkSync(filename);
+  }
+
+  rawDb = new BetterSqlite3(filename);
 
   rawDb.pragma('foreign_keys = ON');
 
   const dialect = new SqliteDialect({ database: rawDb });
-  return new Kysely<DB>({ dialect });
+  return new Kysely<DB>({
+    dialect,
+    log: process.env.DEBUG ? ['query', 'error'] : [],
+  });
 }
 
 export function resetDb() {
