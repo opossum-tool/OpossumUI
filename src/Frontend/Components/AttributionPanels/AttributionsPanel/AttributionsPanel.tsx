@@ -15,6 +15,7 @@ import {
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import { useFilteredAttributions } from '../../../state/variables/use-filtered-data';
+import { backend } from '../../../util/backendClient';
 import { isPackageIncomplete } from '../../../util/input-validation';
 import { Alert, PackagesPanel } from '../PackagesPanel/PackagesPanel';
 import { AttributionsList } from './AttributionsList/AttributionsList';
@@ -62,8 +63,19 @@ export function AttributionsPanel() {
     selectedResourceId,
   ]);
 
+  const [{ filters, search, selectedLicense }] = useFilteredAttributions();
+
+  const counts = backend.filterCounts.useQuery({
+    external: false,
+    filters,
+    search,
+    license: selectedLicense,
+    resourcePathForRelationships: selectedResourceId,
+  });
+
   return (
     <PackagesPanel
+      filterCounts={counts.data?.all}
       alert={alert}
       availableFilters={ATTRIBUTION_FILTERS}
       disableSelectAll={!!attributionIdsForReplacement.length}
