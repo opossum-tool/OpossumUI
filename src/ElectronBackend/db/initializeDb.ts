@@ -117,6 +117,9 @@ async function initializeResourceTable(
   attributionBreakpoints: Set<string>,
   filesWithChildren: Set<string>,
 ) {
+  const trimmedAttributionBreakpoints = new Set(
+    [...attributionBreakpoints].map((path) => path.replace(/\/$/, '')),
+  );
   await trx.schema
     .createTable('resource')
     .addColumn('id', 'integer', (col) => col.primaryKey().notNull())
@@ -161,7 +164,8 @@ async function initializeResourceTable(
 
     const isLeaf = children === 1;
     const isFile = isLeaf || filesWithChildren.has(currentPath);
-    const isAttributionBreakpoint = attributionBreakpoints.has(currentPath);
+    const isAttributionBreakpoint =
+      trimmedAttributionBreakpoints.has(currentPath);
 
     const resourceId = nextId++;
     insertStmt.run({
