@@ -30,6 +30,8 @@ export const comments: Record<string, Record<string, string>> = {
     name: 'The name of the root resource is the empty string',
     path: 'Without trailing slash.\nThe path of the root resource is the empty string',
     can_have_children: 'Is a directory or in files_with_children',
+    max_descendant_id:
+      'The highest id of a descendant of this resource. As the resources are numbered depth-first, this enables us to identify the children of resource R by checking if child.id is between R.id and R.max_descendant_id, which is very fast. See https://en.wikipedia.org/wiki/Nested_set_model',
   },
   source_for_attribution: {
     external_attribution_source_name:
@@ -124,6 +126,9 @@ async function initializeResourceTable(
     .addColumn('can_have_children', 'integer', (col) =>
       col.notNull().defaultTo(0),
     )
+    .addColumn('max_descendant_id', 'integer', (col) =>
+      col.notNull().defaultTo(0),
+    )
     .execute();
 
   const resourcePathToId = new Map<string, number>();
@@ -137,6 +142,10 @@ async function initializeResourceTable(
     VALUES
       ($id, $path, $name, $parent_id, $is_attribution_breakpoint, $is_file, $can_have_children)
   `);
+
+  const updateMaxDescendantIdStmt = rawDb.prepare(`
+    UPDATE resource SET max_descendant_id = $max_descendant_id WHERE id = $resource_id
+    `);
 
   function recursivelyInsertResource(
     name: string,
@@ -163,9 +172,11 @@ async function initializeResourceTable(
 
     resourcePathToId.set(currentPath, resourceId);
 
+    let last_inserted_id = resourceId;
+
     if (!isLeaf) {
       for (const [childName, childChildren] of Object.entries(children)) {
-        recursivelyInsertResource(
+        last_inserted_id = recursivelyInsertResource(
           childName,
           childChildren,
           resourceId,
@@ -173,6 +184,13 @@ async function initializeResourceTable(
         );
       }
     }
+
+    updateMaxDescendantIdStmt.run({
+      resource_id: resourceId,
+      max_descendant_id: last_inserted_id,
+    });
+
+    return last_inserted_id;
   }
 
   // The root resource has "" as name and path
@@ -362,15 +380,17 @@ async function initializeResourceToAttributionTable(
   }
 
   await trx.schema
-    .createIndex('resource_to_attribution_resource_id_idx')
+    .createIndex('resource_to_attribution_resource_id_attribution_uuid_idx')
     .on('resource_to_attribution')
     .column('resource_id')
+    .column('attribution_uuid')
     .execute();
 
   await trx.schema
-    .createIndex('resource_to_attribution_attribution_uuid_idx')
+    .createIndex('resource_to_attribution_attribution_uuid_resource_id_idx')
     .on('resource_to_attribution')
     .column('attribution_uuid')
+    .column('resource_id')
     .execute();
 }
 
