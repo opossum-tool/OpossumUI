@@ -36,12 +36,14 @@ export interface Attribution {
   url: Generated<string | null>;
   package_name: Generated<string | null>;
   package_namespace: Generated<string | null>;
+  package_version: Generated<string | null>;
   package_type: Generated<string | null>;
   attribution_confidence: Generated<number | null>;
   follow_up: Generated<number>;
   needs_review: Generated<number>;
   preferred: Generated<number>;
   original_attribution_was_preferred: Generated<number>;
+  comment: Generated<string | null>;
 }
 
 export interface ExternalAttributionSource {

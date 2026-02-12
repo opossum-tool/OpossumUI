@@ -2,9 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ExpressionBuilder, expressionBuilder, sql, Transaction } from 'kysely';
+import {
+  CaseWhenBuilder,
+  ExpressionBuilder,
+  expressionBuilder,
+  sql,
+  Transaction,
+} from 'kysely';
 
+import { FILTERS } from '../../Frontend/shared-constants';
 import { DB } from '../db/generated/databaseTypes';
+import { CountsWithTotal, ResourceRelationship } from './queries';
 
 /**
  * If a resource (R) has the same attributions as its closest ancestor that has attributions (A), we want to delete R's attributions.
@@ -217,7 +225,7 @@ async function getClosestBreakpointAncestor(
   return result?.ancestor_id;
 }
 
-export function isAncestorOf(
+function isAncestorOf(
   eb: ExpressionBuilder<DB, 'resource'>,
   resourceId: number,
 ) {
@@ -227,15 +235,83 @@ export function isAncestorOf(
   ]);
 }
 
-export function isDescendantOf(
-  eb: ExpressionBuilder<DB, 'resource'>,
+function isDescendantResourceToAttribution(
+  eb: ExpressionBuilder<DB, 'resource_to_attribution'>,
   resource: {
     id: number;
     max_descendant_id: number;
   },
 ) {
   return eb.and([
-    eb('id', '>', resource.id),
-    eb('id', '<=', resource.max_descendant_id),
+    eb('resource_id', '>', resource.id),
+    eb('resource_id', '<=', resource.max_descendant_id),
   ]);
+}
+
+export function attributionToResourceRelationship(props: {
+  resource: { id: number; max_descendant_id: number };
+  ancestorId: number | undefined;
+}) {
+  const eb = expressionBuilder<DB, 'attribution'>();
+  let expression: CaseWhenBuilder<
+    DB,
+    'attribution',
+    unknown,
+    ResourceRelationship
+  > = eb
+    .case()
+    .when(
+      eb.exists(
+        eb
+          .selectFrom('resource_to_attribution')
+          .selectAll()
+          .whereRef('attribution_uuid', '=', 'attribution.uuid')
+          .where('resource_id', '=', props.resource.id),
+      ),
+    )
+    .then('same');
+
+  if (props.ancestorId) {
+    expression = expression
+      .when(
+        eb.exists(
+          eb
+            .selectFrom('resource_to_attribution')
+            .selectAll()
+            .whereRef('attribution_uuid', '=', 'attribution.uuid')
+            .where('resource_id', '=', props.ancestorId),
+        ),
+      )
+      .then('ancestor');
+  }
+
+  expression = expression
+    .when(
+      eb.exists(
+        eb
+          .selectFrom('resource_to_attribution')
+          .select(eb.val(1).as('1'))
+          .whereRef('attribution_uuid', '=', 'attribution.uuid')
+          .where((eb) => isDescendantResourceToAttribution(eb, props.resource)),
+      ),
+    )
+    .then('descendant');
+
+  return expression.else('unrelated').end().as('relationship');
+}
+
+export function addFilterCounts(
+  counts: Array<CountsWithTotal | undefined>,
+): CountsWithTotal {
+  const result = Object.fromEntries(
+    ['total', ...FILTERS].map((f) => [f, 0]),
+  ) as CountsWithTotal;
+
+  for (const sum of counts.filter((s) => s !== undefined)) {
+    for (const [k, v] of Object.entries(sum)) {
+      result[k as keyof CountsWithTotal] += v;
+    }
+  }
+
+  return result;
 }

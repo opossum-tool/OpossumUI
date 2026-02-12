@@ -217,12 +217,14 @@ export const generatedColumnsFromJsonData = [
   ['url', 'text'],
   ['packageName', 'text'],
   ['packageNamespace', 'text'],
+  ['packageVersion', 'text'],
   ['packageType', 'text'],
   ['attributionConfidence', 'integer'],
   ['followUp', 'boolean'],
   ['needsReview', 'boolean'],
   ['preferred', 'boolean'],
   ['originalAttributionWasPreferred', 'boolean'],
+  ['comment', 'text'],
 ] as const satisfies Array<[keyof PackageInfo, DataTypeExpression]>;
 
 async function initializeAttributionTable(
