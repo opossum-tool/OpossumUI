@@ -9,12 +9,9 @@ import {
   Resources,
 } from '../../shared/shared-types';
 import { SortOption } from '../Components/SortButton/useSortingOptions';
-import { Filter, FilterCounts, ROOT_PATH } from '../shared-constants';
+import { Filter, ROOT_PATH } from '../shared-constants';
 import { ProgressBarData } from '../types/types';
-import {
-  getFilteredAttributionCounts,
-  getFilteredAttributions,
-} from './scripts/get-filtered-attributions';
+import { getFilteredAttributions } from './scripts/get-filtered-attributions';
 import { getProgressData } from './scripts/get-progress-data';
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
@@ -30,20 +27,12 @@ export type SignalsWorkerOutput =
       data: ProgressBarData;
     }
   | {
-      name: 'filteredAttributionCounts';
-      data: FilterCounts;
-    }
-  | {
       name: 'filteredAttributions';
       data: Attributions;
     }
   | {
       name: 'filteredAttributionsInReportView';
       data: Attributions;
-    }
-  | {
-      name: 'filteredSignalCounts';
-      data: FilterCounts;
     }
   | {
       name: 'filteredSignals';
@@ -60,10 +49,6 @@ export type SignalsWorkerOutput =
   | {
       name: 'filteredAttributionsInReportViewLoading';
       data: boolean;
-    }
-  | {
-      name: 'reportViewFilteredAttributionCounts';
-      data: FilterCounts;
     };
 
 interface State {
@@ -137,33 +122,7 @@ export class SignalsWorker {
       ],
       loading: undefined,
     },
-    filteredAttributionCounts: {
-      dependencies: [
-        'attributionFilters',
-        'attributionSearch',
-        'attributionSelectedLicense',
-        'manualData',
-        'resourceId',
-      ],
-      loading: undefined,
-    },
-    filteredSignalCounts: {
-      dependencies: [
-        'areHiddenSignalsVisible',
-        'externalData',
-        'resolvedExternalAttributions',
-        'resourceId',
-        'signalFilters',
-        'signalSearch',
-        'signalSelectedLicense',
-      ],
-      loading: undefined,
-    },
     filteredAttributionsLoading: { dependencies: [], loading: undefined },
-    reportViewFilteredAttributionCounts: {
-      dependencies: ['reportViewAttributionFilters', 'manualData'],
-      loading: undefined,
-    },
     filteredAttributionsInReportViewLoading: {
       dependencies: [],
       loading: undefined,
@@ -188,9 +147,6 @@ export class SignalsWorker {
     this.dispatchFilteredAttributionsInReportView(input);
     this.dispatchFilteredSignals(input);
     this.dispatchProgressData(input);
-    this.dispatchFilteredAttributionCounts(input);
-    this.dispatchFilteredSignalCounts(input);
-    this.dispatchReportViewFilteredAttributionCounts(input);
   }
 
   private setData(input: SignalsWorkerInput) {
@@ -226,28 +182,6 @@ export class SignalsWorker {
     }
   }
 
-  private dispatchFilteredAttributionCounts(input: SignalsWorkerInput) {
-    if (
-      this.isHydrated(
-        this.state,
-        input,
-        this.config.filteredAttributionCounts.dependencies,
-      )
-    ) {
-      this.dispatch({
-        name: 'filteredAttributionCounts',
-        data: getFilteredAttributionCounts({
-          data: this.state.manualData,
-          filters: this.state.attributionFilters,
-          includeGlobal: true,
-          resourceId: this.state.resourceId,
-          search: this.state.attributionSearch,
-          selectedLicense: this.state.attributionSelectedLicense,
-        }),
-      });
-    }
-  }
-
   private dispatchFilteredAttributions(input: SignalsWorkerInput) {
     if (
       this.isHydrated(
@@ -272,29 +206,6 @@ export class SignalsWorker {
     }
   }
 
-  private dispatchReportViewFilteredAttributionCounts(
-    input: SignalsWorkerInput,
-  ) {
-    if (
-      this.isHydrated(
-        this.state,
-        input,
-        this.config.reportViewFilteredAttributionCounts.dependencies,
-      )
-    ) {
-      this.dispatch({
-        name: 'reportViewFilteredAttributionCounts',
-        data: getFilteredAttributionCounts({
-          data: this.state.manualData,
-          filters: this.state.reportViewAttributionFilters,
-          resourceId: ROOT_PATH,
-          search: '',
-          selectedLicense: '',
-        }),
-      });
-    }
-  }
-
   private dispatchFilteredAttributionsInReportView(input: SignalsWorkerInput) {
     if (
       this.isHydrated(
@@ -312,30 +223,6 @@ export class SignalsWorker {
           search: '',
           selectedLicense: this.state.reportViewAttributionSelectedLicense,
           sorting: 'alphabetically',
-        }),
-      });
-    }
-  }
-
-  private dispatchFilteredSignalCounts(input: SignalsWorkerInput) {
-    if (
-      this.isHydrated(
-        this.state,
-        input,
-        this.config.filteredSignalCounts.dependencies,
-      )
-    ) {
-      this.dispatch({
-        name: 'filteredSignalCounts',
-        data: getFilteredAttributionCounts({
-          data: this.state.externalData,
-          resolvedExternalAttributions: this.state.areHiddenSignalsVisible
-            ? undefined
-            : this.state.resolvedExternalAttributions,
-          resourceId: this.state.resourceId,
-          filters: this.state.signalFilters,
-          search: this.state.signalSearch,
-          selectedLicense: this.state.signalSelectedLicense,
         }),
       });
     }
