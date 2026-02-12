@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql, Transaction } from 'kysely';
+import { ExpressionBuilder, expressionBuilder, sql, Transaction } from 'kysely';
 
 import { DB } from '../db/generated/databaseTypes';
 
@@ -20,48 +20,35 @@ export async function removeRedundantAttributions(
   trx: Transaction<DB>,
   resourceId: number,
 ) {
-  // Starting at R, we go upwards in the tree until we arrive at an ancestor that has attributions or is a breakpoint
-  // We include that ancestor if it is a breakpoint
-  const closestAncestorAttributionsResult = await sql<{
-    attributions: string;
-  }>`
-    WITH RECURSIVE parents_up_to_breakpoint_or_with_attribution(parent_id, is_attribution_breakpoint, attributions) AS (
-            SELECT parent_id, is_attribution_breakpoint, NULL  -- don't consider attributions of first resource
-            FROM resource
-            WHERE id = ${resourceId}
-        UNION
-            SELECT parent.parent_id, parent.is_attribution_breakpoint, (SELECT group_concat(attribution_uuid) FROM resource_to_attribution WHERE resource_id = parent.id)
-            FROM resource AS parent
-            JOIN parents_up_to_breakpoint_or_with_attribution AS child ON parent.id = child.parent_id
-            WHERE child.is_attribution_breakpoint = FALSE AND child.attributions IS NULL
-    )
-    SELECT attributions FROM parents_up_to_breakpoint_or_with_attribution WHERE attributions IS NOT NULL
-    `.execute(trx);
+  const closestAncestorId =
+    await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+      trx,
+      resourceId,
+    );
 
   // Starting at R, we go downwards in the tree until we arrive at a descendant that has attributions or is a breakpoint
   // We do not include that descendant if it is a breakpoint
-  const closestDescendantsWithAttributionsResult = await sql<{
+  const closestDescendantsWithManualAttributionsResult = await sql<{
     id: number;
     attributions: string;
   }>`
-    WITH RECURSIVE descendants_down_to_breakpoint_or_with_attribution(id, attributions) AS (
+    WITH RECURSIVE descendants_down_to_breakpoint_or_with_manual_attribution(id, attributions) AS (
             SELECT id, NULL  -- don't consider attributions of first resource
             FROM resource
             WHERE id = ${resourceId}
         UNION
-            SELECT child.id, (SELECT group_concat(attribution_uuid) FROM resource_to_attribution WHERE resource_id = child.id)
+            SELECT child.id, (SELECT group_concat(attribution_uuid) FROM resource_to_attribution rta JOIN attribution a ON rta.attribution_uuid = a.uuid WHERE resource_id = child.id AND a.is_external = 0)
             FROM resource AS child
-            JOIN descendants_down_to_breakpoint_or_with_attribution AS parent ON child.parent_id = parent.id
+            JOIN descendants_down_to_breakpoint_or_with_manual_attribution AS parent ON child.parent_id = parent.id
             WHERE child.is_attribution_breakpoint = FALSE AND parent.attributions IS NULL
     )
-    SELECT id, attributions FROM descendants_down_to_breakpoint_or_with_attribution WHERE attributions IS NOT NULL
+    SELECT id, attributions FROM descendants_down_to_breakpoint_or_with_manual_attribution WHERE attributions IS NOT NULL
   `.execute(trx);
 
-  const resourceAttributionsResult = await trx
-    .selectFrom('resource_to_attribution')
-    .select('attribution_uuid')
-    .where('resource_id', '=', resourceId)
-    .execute();
+  const resourceAttributionsResult = await getManualAttributions(
+    trx,
+    resourceId,
+  );
 
   const resourceAttributions = new Set(
     resourceAttributionsResult.map((row) => row.attribution_uuid),
@@ -72,9 +59,14 @@ export async function removeRedundantAttributions(
   let attributionsToCompareWithDescendants = resourceAttributions;
 
   // Delete R's attributions if they are equal to A's
-  if (closestAncestorAttributionsResult.rows.length === 1) {
+  if (closestAncestorId) {
+    const closestAncestorAttributionsResult = await getManualAttributions(
+      trx,
+      closestAncestorId,
+    );
+
     const ancestorAttributions = new Set(
-      closestAncestorAttributionsResult.rows[0].attributions.split(','),
+      closestAncestorAttributionsResult.map((r) => r.attribution_uuid),
     );
 
     if (
@@ -94,7 +86,7 @@ export async function removeRedundantAttributions(
 
   // Delete the attributions of R's closest descendants with attributions if they are equal to R's
   // or, if R has no attributions, to A's
-  for (const descendantRow of closestDescendantsWithAttributionsResult.rows) {
+  for (const descendantRow of closestDescendantsWithManualAttributionsResult.rows) {
     const descendantAttributions = new Set(
       descendantRow.attributions.split(','),
     );
@@ -141,7 +133,7 @@ export async function getResourceOrThrow(
 
   const resource = await trx
     .selectFrom('resource')
-    .select('id')
+    .select(['id', 'max_descendant_id'])
     .where('path', '=', strippedResourcePath)
     .executeTakeFirst();
 
@@ -150,4 +142,100 @@ export async function getResourceOrThrow(
   }
 
   return resource;
+}
+
+function getManualAttributions(trx: Transaction<DB>, resourceId: number) {
+  return trx
+    .selectFrom('resource_to_attribution')
+    .innerJoin('attribution', 'attribution.uuid', 'attribution_uuid')
+    .select('attribution_uuid')
+    .where('resource_id', '=', resourceId)
+    .where('attribution.is_external', '=', 0)
+    .execute();
+}
+
+export async function getClosestAncestorWithManualAttributionsBelowBreakpoint(
+  trx: Transaction<DB>,
+  resourceId: number,
+) {
+  const ancestorWithAttributions =
+    await getClosestAncestorWithManualAttributions(trx, resourceId);
+
+  if (!ancestorWithAttributions) {
+    return undefined;
+  }
+
+  const ancestorWithBreakpoint = await getClosestBreakpointAncestor(
+    trx,
+    resourceId,
+  );
+
+  if (
+    !ancestorWithBreakpoint ||
+    ancestorWithBreakpoint <= ancestorWithAttributions
+  ) {
+    return ancestorWithAttributions;
+  }
+
+  return undefined;
+}
+
+async function getClosestAncestorWithManualAttributions(
+  trx: Transaction<DB>,
+  resourceId: number,
+): Promise<number | undefined> {
+  const result = await trx
+    .selectFrom('resource')
+    .select((eb) => eb.fn.max<number>('id').as('ancestor_id'))
+    .where((eb) => isAncestorOf(eb, resourceId))
+    .where((eb) =>
+      eb.exists(
+        eb
+          .selectFrom('resource_to_attribution as rta')
+          .innerJoin('attribution as a', 'rta.attribution_uuid', 'a.uuid')
+          .selectAll()
+          .whereRef('resource.id', '=', 'rta.resource_id')
+          .where('a.is_external', '=', 0),
+      ),
+    )
+    .executeTakeFirst();
+
+  return result?.ancestor_id;
+}
+
+async function getClosestBreakpointAncestor(
+  trx: Transaction<DB>,
+  resourceId: number,
+): Promise<number | undefined> {
+  const result = await trx
+    .selectFrom('resource')
+    .select((eb) => eb.fn.max<number>('id').as('ancestor_id'))
+    .where((eb) => isAncestorOf(eb, resourceId))
+    .where('is_attribution_breakpoint', '=', 1)
+    .executeTakeFirst();
+
+  return result?.ancestor_id;
+}
+
+export function isAncestorOf(
+  eb: ExpressionBuilder<DB, 'resource'>,
+  resourceId: number,
+) {
+  return eb.and([
+    eb('id', '<', resourceId),
+    eb('max_descendant_id', '>=', resourceId),
+  ]);
+}
+
+export function isDescendantOf(
+  eb: ExpressionBuilder<DB, 'resource'>,
+  resource: {
+    id: number;
+    max_descendant_id: number;
+  },
+) {
+  return eb.and([
+    eb('id', '>', resource.id),
+    eb('id', '<=', resource.max_descendant_id),
+  ]);
 }

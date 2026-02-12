@@ -66,6 +66,10 @@ export interface Resource {
   is_attribution_breakpoint: Generated<number>;
   is_file: Generated<number>;
   /**
+   * The highest id of a descendant of this resource. As the resources are numbered depth-first, this enables us to identify the children of resource R by checking if child.id is between R.id and R.max_descendant_id, which is very fast. See https://en.wikipedia.org/wiki/Nested_set_model
+   */
+  max_descendant_id: Generated<number>;
+  /**
    * The name of the root resource is the empty string
    */
   name: string;
