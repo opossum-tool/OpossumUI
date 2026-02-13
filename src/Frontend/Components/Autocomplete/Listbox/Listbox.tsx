@@ -180,10 +180,10 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
 
     return (
       <MuiListItemButton
+        key={getOptionKey?.(option) ?? key}
         {...optionProps}
         selected={optionProps['aria-selected'] as boolean}
         disabled={optionProps['aria-disabled'] as boolean}
-        key={getOptionKey?.(option) ?? key}
         sx={{ gap: '12px', ...optionText.sx }}
         dense
       >

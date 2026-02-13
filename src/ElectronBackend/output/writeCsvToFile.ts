@@ -45,6 +45,7 @@ export async function writeCsvToFile(
   } catch (error) {
     throw new Error(
       `Error while writing the file ${filePath}. \n${error?.toString()}`,
+      { cause: error },
     );
   }
 }

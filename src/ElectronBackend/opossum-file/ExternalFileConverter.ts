@@ -23,7 +23,9 @@ export abstract class ExternalFileConverter extends FileConverter {
         toBeConvertedFilePath,
       ]);
     } catch (error) {
-      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName));
+      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName), {
+        cause: error,
+      });
     }
   }
 }

@@ -83,7 +83,9 @@ export class LegacyFileConverter extends FileConverter {
         output: this.readOutputJson(pathToInputJson),
       });
     } catch (error) {
-      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName));
+      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName), {
+        cause: error,
+      });
     }
   }
 

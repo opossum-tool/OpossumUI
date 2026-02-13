@@ -32,6 +32,7 @@ export function useProcessingStatusUpdated(): ProcessingStatusUpdatedResult {
     AllowedFrontendChannels.ProcessingStateChanged,
     (_, processingStateChangedEvent) => {
       if (processingStateChangedEvent.type === 'ProcessingStateUpdated') {
+        // eslint-disable-next-line @eslint-react/dom/no-flush-sync
         flushSync(() =>
           setProcessingStatusUpdatedEvents((processingStateChangedEvents) => {
             return [

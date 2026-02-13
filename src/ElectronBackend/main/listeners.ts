@@ -213,7 +213,9 @@ export const importFileConvertAndLoadListener =
       try {
         fs.accessSync(resourceFilePath, fs.constants.R_OK);
       } catch (error) {
-        throw new Error(text.backendError.inputFilePermissionError);
+        throw new Error(text.backendError.inputFilePermissionError, {
+          cause: error,
+        });
       }
 
       if (!opossumFilePath.trim()) {
@@ -231,7 +233,9 @@ export const importFileConvertAndLoadListener =
       try {
         fs.accessSync(path.dirname(opossumFilePath), fs.constants.W_OK);
       } catch (error) {
-        throw new Error(text.backendError.opossumFilePermissionError);
+        throw new Error(text.backendError.opossumFilePermissionError, {
+          cause: error,
+        });
       }
 
       processingStatusUpdater.info('Converting input file to .opossum format');
@@ -271,7 +275,9 @@ export const mergeFileAndLoadListener =
       try {
         fs.accessSync(inputFilePath, fs.constants.R_OK);
       } catch (error) {
-        throw new Error(text.backendError.inputFilePermissionError);
+        throw new Error(text.backendError.inputFilePermissionError, {
+          cause: error,
+        });
       }
 
       const currentOpossumFilePath = getGlobalBackendState().opossumFilePath;
@@ -286,7 +292,7 @@ export const mergeFileAndLoadListener =
           `${currentOpossumFilePath}.backup`,
         );
       } catch (error) {
-        throw new Error(text.backendError.cantCreateBackup);
+        throw new Error(text.backendError.cantCreateBackup, { cause: error });
       }
 
       processingStatusUpdater.info(

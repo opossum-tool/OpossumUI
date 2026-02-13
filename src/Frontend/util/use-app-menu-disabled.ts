@@ -5,13 +5,13 @@
 import { useEffect, useRef } from 'react';
 
 export function useFrontendPopupOpen(open: boolean) {
-  const wasEverDisabled = useRef(false);
+  const wasEverDisabledRef = useRef(false);
 
   useEffect(() => {
     if (open) {
-      wasEverDisabled.current = true;
+      wasEverDisabledRef.current = true;
     }
-    if (wasEverDisabled.current) {
+    if (wasEverDisabledRef.current) {
       void window.electronAPI.setFrontendPopupOpen(open);
     }
   }, [open]);

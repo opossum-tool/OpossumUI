@@ -179,6 +179,7 @@ function parseOutputJsonContent(
   } catch (err) {
     throw new Error(
       `Error: ${filePath.toString()} contains an invalid output file.\n Original error message: ${err?.toString()}`,
+      { cause: err },
     );
   }
 }

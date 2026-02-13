@@ -89,6 +89,8 @@ export default tseslint.config(
       'react/display-name': 'off',
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
+      '@eslint-react/no-array-index-key': 'off',
+      '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
       '@typescript-eslint/array-type': ['error', { default: 'generic' }],
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/ban-ts-comment': 'error',
@@ -227,6 +229,9 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-magic-numbers': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      '@eslint-react/no-unnecessary-use-prefix': 'off',
+      'jest/expect-expect': ['error', { assertFunctionNames: ['expect*'] }],
+      '@eslint-react/no-missing-key': 'off',
     },
   },
 );
