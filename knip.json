@@ -1,11 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "entry": [
-    "src/index.tsx",
-    "src/ElectronBackend/{app,preload}.ts",
-    "src/ElectronBackend/db/generate.ts"
-  ],
-  "project": ["**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}!"],
+  "entry": ["src/ElectronBackend/{app,preload}.ts"],
+  "project": ["**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}!", "!.yarn/**"],
   "ignore": ["src/ElectronBackend/db/generated/*"],
   "ignoreDependencies": ["dpdm", "better-sqlite3-electron"],
   "ignoreBinaries": [
