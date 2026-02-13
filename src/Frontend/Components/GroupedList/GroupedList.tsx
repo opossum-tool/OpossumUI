@@ -57,6 +57,7 @@ export function GroupedList({
   components,
   ...props
 }: GroupedListProps & Omit<GroupedVirtuosoProps<string, unknown>, 'selected'>) {
+  // eslint-disable-next-line @eslint-react/naming-convention/use-state
   const [{ startIndex, endIndex }, setRange] = useState<{
     startIndex: number;
     endIndex: number;

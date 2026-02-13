@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { createContext, useContext } from 'react';
+import { createContext, use } from 'react';
 
 export const VirtuosoComponentContext = createContext<{
   isVirtuosoFocused: boolean;
@@ -13,5 +13,5 @@ export const VirtuosoComponentContext = createContext<{
 });
 
 export const useVirtuosoComponent = () => {
-  return useContext(VirtuosoComponentContext);
+  return use(VirtuosoComponentContext);
 };

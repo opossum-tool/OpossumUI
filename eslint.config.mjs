@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import eslintReact from '@eslint-react/eslint-plugin';
 import { fixupPluginRules } from '@eslint/compat';
 import { includeIgnoreFile } from '@eslint/compat';
 import eslint from '@eslint/js';
@@ -10,7 +11,6 @@ import eslintPluginCheckFile from 'eslint-plugin-check-file';
 import eslintConfigJest from 'eslint-plugin-jest';
 import eslintConfigJestDom from 'eslint-plugin-jest-dom';
 import eslintConfigPlaywright from 'eslint-plugin-playwright';
-import eslintConfigReact from 'eslint-plugin-react';
 import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
 import eslintConfigTestingLibrary from 'eslint-plugin-testing-library';
 import globals from 'globals';
@@ -42,6 +42,7 @@ export default tseslint.config(
     plugins: {
       'check-file': eslintPluginCheckFile,
       jest: eslintConfigJest,
+      'jest-dom': fixupPluginRules(eslintConfigJestDom),
       '@tanstack/query': eslintPluginQuery,
       // @ts-ignore
       'react-hooks': fixupPluginRules(eslintPluginReactHooks),
@@ -62,21 +63,19 @@ export default tseslint.config(
         },
         ecmaVersion: 2018,
         sourceType: 'module',
-        project: [
-          'tsconfig.json',
-          'tsconfig.eslint.json',
-          'src/ElectronBackend/tsconfig.json',
-        ],
+        projectService: {
+          allowDefaultProject: ['tools/*.mjs'],
+        },
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
-      eslintConfigReact.configs.flat?.recommended,
       eslintConfigTestingLibrary.configs['flat/react'],
       eslintConfigJest.configs['flat/recommended'],
       eslintConfigJest.configs['flat/style'],
-      eslintConfigJestDom.configs['flat/recommended'],
+      eslintReact.configs['recommended-typescript'],
     ],
     settings: {
       react: {
@@ -86,9 +85,12 @@ export default tseslint.config(
     rules: {
       ...eslintPluginQuery.configs.recommended.rules,
       ...eslintPluginReactHooks.configs.recommended.rules,
+      ...eslintConfigJestDom.configs['flat/recommended'].rules,
       'react/display-name': 'off',
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
+      '@eslint-react/no-array-index-key': 'off',
+      '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
       '@typescript-eslint/array-type': ['error', { default: 'generic' }],
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/ban-ts-comment': 'error',
@@ -227,6 +229,9 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-magic-numbers': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      '@eslint-react/no-unnecessary-use-prefix': 'off',
+      'jest/expect-expect': ['error', { assertFunctionNames: ['expect*'] }],
+      '@eslint-react/no-missing-key': 'off',
     },
   },
 );

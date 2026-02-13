@@ -50,7 +50,9 @@ export abstract class FileConverter {
         opossumFilePath,
       ]);
     } catch (error) {
-      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName));
+      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName), {
+        cause: error,
+      });
     }
 
     if (preConvertedFilePath) {
