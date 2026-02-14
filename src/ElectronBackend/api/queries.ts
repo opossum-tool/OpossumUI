@@ -3,8 +3,28 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { sql } from 'kysely';
+import { omit } from 'lodash';
 
+import { Filter, FilterCounts, FILTERS } from '../../Frontend/shared-constants';
 import { getDb } from '../db/db';
+import { getFilterExpression, getSearchExpression } from './filters';
+import {
+  addFilterCounts,
+  attributionToResourceRelationship,
+  getClosestAncestorWithManualAttributionsBelowBreakpoint,
+  getResourceOrThrow,
+} from './utils';
+
+export type CountsWithTotal = FilterCounts & { total: number };
+export type ResourceRelationship =
+  | 'same'
+  | 'ancestor'
+  | 'descendant'
+  | 'unrelated';
+type AttributionCounts = Partial<
+  Record<ResourceRelationship, CountsWithTotal>
+> &
+  Record<'all' | 'sameOrDescendant', CountsWithTotal>;
 
 type QueryFunction = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,6 +55,96 @@ export const queries = {
       .executeTakeFirst();
 
     return { result: result?.data ?? null };
+  },
+
+  async filterCounts(props: {
+    external: boolean;
+    filters: Array<Filter>;
+    resourcePathForRelationships: string;
+    license?: string;
+    search?: string;
+    showResolved?: boolean;
+  }): Promise<{
+    result: AttributionCounts;
+  }> {
+    const byRelationship = await getDb()
+      .transaction()
+      .execute(async (trx) => {
+        const resource = await getResourceOrThrow(
+          trx,
+          props.resourcePathForRelationships,
+        );
+
+        const closestAncestor =
+          await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+            trx,
+            resource.id,
+          );
+
+        let query = trx
+          .selectFrom('attribution')
+          .select(
+            attributionToResourceRelationship({
+              resource,
+              ancestorId: closestAncestor,
+            }),
+          )
+          .select((eb) => eb.fn.countAll<number>().as('total'))
+          .select((eb) =>
+            FILTERS.map((f) =>
+              eb.fn
+                .sum<number>(
+                  eb
+                    .case()
+                    .when(getFilterExpression(eb, f))
+                    .then(1)
+                    .else(0)
+                    .end(),
+                )
+                .as(f),
+            ),
+          )
+          .groupBy('relationship');
+
+        query = query.where('is_external', '=', Number(props.external));
+
+        for (const filter of props.filters) {
+          query = query.where((eb) => getFilterExpression(eb, filter));
+        }
+
+        if (props.license) {
+          query = query.where(
+            sql<string>`trim(license_name)`,
+            '=',
+            props.license,
+          );
+        }
+
+        if (props.search) {
+          const search = props.search;
+          query = query.where((eb) => getSearchExpression(eb, search));
+        }
+
+        if (!props.showResolved) {
+          query = query.where('is_resolved', '=', 0);
+        }
+
+        const sums = await query.execute();
+
+        const sumsPerRelationship = Object.fromEntries(
+          sums.map((s) => [s.relationship, omit(s, 'relationship')]),
+        ) as Omit<AttributionCounts, 'all' | 'sameOrDescendant'>;
+
+        const all = addFilterCounts(Object.values(sumsPerRelationship));
+        const sameOrDescendant = addFilterCounts([
+          sumsPerRelationship.same,
+          sumsPerRelationship.descendant,
+        ]);
+
+        return { ...sumsPerRelationship, all, sameOrDescendant };
+      });
+
+    return { result: byRelationship };
   },
 } satisfies Record<string, QueryFunction>;
 

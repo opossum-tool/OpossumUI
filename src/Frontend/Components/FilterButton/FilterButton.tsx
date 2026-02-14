@@ -11,7 +11,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
-import { Filter } from '../../shared-constants';
+import { Filter, FilterCounts } from '../../shared-constants';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import { UseFilteredData } from '../../state/variables/use-filtered-data';
 import {
@@ -63,6 +63,7 @@ interface Props extends Pick<
 > {
   useFilteredData: UseFilteredData;
   availableFilters: Array<Filter>;
+  counts?: FilterCounts;
 }
 
 export const FilterButton: React.FC<Props> = ({
@@ -70,13 +71,12 @@ export const FilterButton: React.FC<Props> = ({
   anchorPosition,
   availableFilters,
   useFilteredData,
+  counts,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const [isClearHovered, setIsClearHovered] = useState(false);
-  const [
-    { attributions, filters, counts, selectedLicense },
-    setFilteredAttributions,
-  ] = useFilteredData();
+  const [{ attributions, filters, selectedLicense }, setFilteredAttributions] =
+    useFilteredData();
   const isSomeFilterActive = !!filters.length || !!selectedLicense;
 
   const filterOptions = useMemo(

@@ -36,12 +36,14 @@ export interface Attribution {
   url: Generated<string | null>;
   package_name: Generated<string | null>;
   package_namespace: Generated<string | null>;
+  package_version: Generated<string | null>;
   package_type: Generated<string | null>;
   attribution_confidence: Generated<number | null>;
   follow_up: Generated<number>;
   needs_review: Generated<number>;
   preferred: Generated<number>;
   original_attribution_was_preferred: Generated<number>;
+  comment: Generated<string | null>;
 }
 
 export interface ExternalAttributionSource {
@@ -65,6 +67,10 @@ export interface Resource {
   id: Generated<number>;
   is_attribution_breakpoint: Generated<number>;
   is_file: Generated<number>;
+  /**
+   * The highest id of a descendant of this resource. As the resources are numbered depth-first, this enables us to identify the children of resource R by checking if child.id is between R.id and R.max_descendant_id, which is very fast. See https://en.wikipedia.org/wiki/Nested_set_model
+   */
+  max_descendant_id: Generated<number>;
   /**
    * The name of the root resource is the empty string
    */
