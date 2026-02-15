@@ -31,7 +31,7 @@
     "kysely": "0.28.11",
     "lodash": "4.17.23",
     "object-hash": "3.0.0",
-    "ohm-js": "17.3.0",
+    "ohm-js": "17.4.0",
     "packageurl-js": "2.0.1",
     "proxy-memoize": "3.0.1",
     "re-resizable": "6.11.2",
