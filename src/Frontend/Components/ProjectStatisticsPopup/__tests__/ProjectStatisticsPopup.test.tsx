@@ -118,9 +118,9 @@ describe('The ProjectStatisticsPopup', () => {
       ),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByText(
+      screen.getAllByText(
         text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
-      ),
+      )[0],
     ).toBeVisible();
   });
 

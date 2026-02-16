@@ -37,6 +37,34 @@ if (typeof window !== 'undefined') {
   } satisfies ElectronAPI;
 
   window.ResizeObserver = ResizeObserver;
+
+  // Mock DOM layout APIs for MUI Popover/Popper positioning
+  // This prevents "anchorEl is invalid" warnings in tests
+  const mockDOMRect: DOMRect = {
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+    top: 0,
+    right: 100,
+    bottom: 100,
+    left: 0,
+    toJSON: () => ({}),
+  };
+
+  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(
+    mockDOMRect,
+  );
+  vi.spyOn(Element.prototype, 'getClientRects').mockReturnValue([
+    mockDOMRect,
+  ] as unknown as DOMRectList);
+  vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(noop);
+  vi.spyOn(Range.prototype, 'getBoundingClientRect').mockReturnValue(
+    mockDOMRect,
+  );
+  vi.spyOn(Range.prototype, 'getClientRects').mockReturnValue([
+    mockDOMRect,
+  ] as unknown as DOMRectList);
 }
 
 // Suppress specific console logs to make the tests cleaner.
