@@ -13,23 +13,23 @@ import {
   getMessageBoxForErrors,
 } from '../errorHandling';
 
-jest.mock('electron', () => ({
+vi.mock('electron', () => ({
   dialog: {
-    showMessageBox: jest.fn(() => {
+    showMessageBox: vi.fn(() => {
       return Promise.resolve({
         response: 0,
       });
     }),
   },
-  app: { exit: jest.fn(), getName: jest.fn(), getVersion: jest.fn() },
+  app: { exit: vi.fn(), getName: vi.fn(), getVersion: vi.fn() },
 }));
 
-jest.mock('../../input/importFromFile', () => ({
-  loadInputAndOutputFromFilePath: jest.fn(),
+vi.mock('../../input/importFromFile', () => ({
+  loadInputAndOutputFromFilePath: vi.fn(),
 }));
 
-jest.mock('../../main/listeners', () => ({
-  getOpenFileListener: jest.fn(() => jest.fn()),
+vi.mock('../../main/listeners', () => ({
+  getOpenFileListener: vi.fn(() => vi.fn()),
 }));
 
 describe('error handling', () => {
@@ -72,7 +72,7 @@ describe('error handling', () => {
         errorInfo: { componentStack: 'componentStack' },
       };
 
-      const mockCallback = jest.fn();
+      const mockCallback = vi.fn();
       const mainWindow = {
         webContents: { send: mockCallback as unknown } as WebContents,
       } as unknown as BrowserWindow;

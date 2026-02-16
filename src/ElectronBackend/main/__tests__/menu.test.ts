@@ -3,22 +3,30 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import electron, { BrowserWindow, MenuItemConstructorOptions } from 'electron';
+import { Mock } from 'vitest';
 
 import { createMenu } from '../menu';
 import { UserSettingsService } from '../user-settings-service';
 
-jest.mock('electron', () => ({
-  BrowserWindow: class BrowserWindowMock {},
-  app: {
-    isPackaged: true,
-  },
-  Menu: {
-    buildFromTemplate: jest.fn(),
-    setApplicationMenu: jest.fn(),
-  },
-}));
+vi.mock('electron', () => {
+  const mockElectron = {
+    BrowserWindow: class BrowserWindowMock {},
+    app: {
+      isPackaged: true,
+    },
+    Menu: {
+      buildFromTemplate: vi.fn(),
+      setApplicationMenu: vi.fn(),
+    },
+    nativeTheme: {},
+  };
+  return {
+    default: mockElectron,
+    ...mockElectron,
+  };
+});
 
-jest.mock('electron-settings');
+vi.mock('electron-settings');
 
 const getUsedIcons = (
   menuInput: Array<MenuItemConstructorOptions>,
@@ -60,7 +68,7 @@ describe('create menu', () => {
 
       expect(electron.Menu.buildFromTemplate).toHaveBeenCalled();
       const menuInput: Array<MenuItemConstructorOptions> = (
-        electron.Menu.buildFromTemplate as jest.Mock
+        electron.Menu.buildFromTemplate as Mock
       ).mock.calls[0][0];
 
       const usedIcons = getUsedIcons(menuInput);

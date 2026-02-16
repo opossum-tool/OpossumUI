@@ -7,8 +7,8 @@ import { cloneDeep } from 'lodash';
 
 import { openFileFromCliOrEnvVariableIfProvided } from '../openFileFromCliOrEnvVariableIfProvided';
 
-const mockHandleOpeningFile = jest.fn();
-jest.mock('../listeners', () => ({
+const mockHandleOpeningFile = vi.fn();
+vi.mock('../listeners', () => ({
   handleOpeningFile: (...args: never): void => mockHandleOpeningFile(args),
 }));
 
@@ -37,7 +37,7 @@ describe('openFileFromCli', () => {
       }
       process.argv.push(inputFileName);
 
-      const updateMenu = jest.fn();
+      const updateMenu = vi.fn();
       await openFileFromCliOrEnvVariableIfProvided(
         'mockBrowserWindow' as unknown as BrowserWindow,
         updateMenu,
@@ -65,7 +65,7 @@ describe('openFileFromCli', () => {
         process.argv.push(inputFileName);
       }
 
-      const updateMenu = jest.fn();
+      const updateMenu = vi.fn();
       await openFileFromCliOrEnvVariableIfProvided(
         'mockBrowserWindow' as unknown as BrowserWindow,
         updateMenu,
@@ -94,7 +94,7 @@ describe('openFileFromEnvVariable', () => {
   it('opens a file if env variable provided', async () => {
     const inputFileName = '/path/inputFile.opossum';
     process.env.OPOSSUM_FILE = inputFileName;
-    const updateMenu = jest.fn();
+    const updateMenu = vi.fn();
     await openFileFromCliOrEnvVariableIfProvided(
       'mockBrowserWindow' as unknown as BrowserWindow,
       updateMenu,
@@ -109,7 +109,7 @@ describe('openFileFromEnvVariable', () => {
   it('does not call openFile if env is not set', async () => {
     await openFileFromCliOrEnvVariableIfProvided(
       'mockBrowserWindow' as unknown as BrowserWindow,
-      jest.fn(),
+      vi.fn(),
     );
     expect(mockHandleOpeningFile).not.toHaveBeenCalledWith([
       'mockBrowserWindow',
@@ -122,7 +122,7 @@ describe('openFileFromEnvVariable', () => {
     process.argv = ['app'];
     process.argv.push(inputFileName);
 
-    const updateMenu = jest.fn();
+    const updateMenu = vi.fn();
     await openFileFromCliOrEnvVariableIfProvided(
       'mockBrowserWindow' as unknown as BrowserWindow,
       updateMenu,

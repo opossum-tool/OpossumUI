@@ -10,10 +10,14 @@ import viteTsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig(({ mode }) => ({
   plugins: [
-    react({ babel: { plugins: ['babel-plugin-react-compiler'] } }),
+    react(
+      mode === 'test'
+        ? {}
+        : { babel: { plugins: ['babel-plugin-react-compiler'] } },
+    ),
     viteTsconfigPaths(),
     svgrPlugin(),
-    ...(mode === 'e2e'
+    ...(mode === 'e2e' || mode === 'test'
       ? []
       : electron({
           entry: [
@@ -64,5 +68,32 @@ export default defineConfig(({ mode }) => ({
   },
   resolve: {
     conditions: ['mui-modern', 'module', 'browser', 'development|production'],
+  },
+  test: {
+    globals: true,
+    projects: [
+      {
+        extends: true,
+        test: {
+          environment: 'happy-dom',
+          include: ['src/Frontend/**/__test{s,}__/**/*.test.{ts,tsx}'],
+          name: { label: 'FE', color: 'green' },
+        },
+      },
+      {
+        extends: true,
+        test: {
+          environment: 'node',
+          include: ['src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}'],
+          name: { label: 'BE', color: 'blue' },
+        },
+      },
+    ],
+    setupFiles: './src/testing/setup.ts',
+    globalSetup: './src/testing/globalSetup.ts',
+    clearMocks: true,
+    unstubGlobals: true,
+    pool: 'threads',
+    maxWorkers: '100%',
   },
 }));

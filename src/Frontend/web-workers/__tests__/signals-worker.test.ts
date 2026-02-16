@@ -7,7 +7,7 @@ import { SignalsWorker, SignalsWorkerOutput } from '../signals-worker';
 
 describe('SignalsWorker', () => {
   it('dispatches filtered attributions when dependencies are met', () => {
-    const dispatch = jest.fn();
+    const dispatch = vi.fn();
     const worker = new SignalsWorker(dispatch, {
       attributionBreakpoints: faker.opossum.attributionBreakpoints(),
       attributionFilters: [],
@@ -29,7 +29,7 @@ describe('SignalsWorker', () => {
   });
 
   it('does not dispatch filtered attributions when dependencies are missing', () => {
-    const dispatch = jest.fn();
+    const dispatch = vi.fn();
     const worker = new SignalsWorker(dispatch, {
       attributionBreakpoints: faker.opossum.attributionBreakpoints(),
       attributionFilters: [],
@@ -50,7 +50,7 @@ describe('SignalsWorker', () => {
   });
 
   it('dispatches filtered signals when dependencies are met', () => {
-    const dispatch = jest.fn();
+    const dispatch = vi.fn();
     const worker = new SignalsWorker(dispatch, {
       areHiddenSignalsVisible: false,
       externalData: faker.opossum.attributionData(),
@@ -73,7 +73,7 @@ describe('SignalsWorker', () => {
   });
 
   it('does not dispatch filtered signals when dependencies are missing', () => {
-    const dispatch = jest.fn();
+    const dispatch = vi.fn();
     const worker = new SignalsWorker(dispatch, {
       areHiddenSignalsVisible: false,
       externalData: faker.opossum.attributionData(),
@@ -95,7 +95,7 @@ describe('SignalsWorker', () => {
   });
 
   it('dispatches progress data when dependencies are met', () => {
-    const dispatch = jest.fn();
+    const dispatch = vi.fn();
     const worker = new SignalsWorker(dispatch, {
       attributionBreakpoints: new Set<string>(),
       externalData: faker.opossum.attributionData(),
@@ -117,7 +117,7 @@ describe('SignalsWorker', () => {
   });
 
   it('does not dispatch progress data when dependencies are missing', () => {
-    const dispatch = jest.fn();
+    const dispatch = vi.fn();
     const worker = new SignalsWorker(dispatch, {
       attributionBreakpoints: new Set<string>(),
       externalData: faker.opossum.attributionData(),

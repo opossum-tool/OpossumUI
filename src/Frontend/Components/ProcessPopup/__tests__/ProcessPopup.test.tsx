@@ -29,7 +29,7 @@ const electronAPI: {
   send(channel: AllowedFrontendChannels, ...args: Array<unknown>): void {
     this.events[channel]?.({} as IpcRendererEvent, ...args);
   },
-  setFrontendPopupOpen: jest.fn(),
+  setFrontendPopupOpen: vi.fn(),
 };
 
 function simulateMessageFromBackend(message: string) {

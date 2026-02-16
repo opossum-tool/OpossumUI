@@ -18,7 +18,7 @@ async function clickOnAttributionProgressBar() {
       text.topBar.switchableProgressBar.attributionBar.ariaLabel,
     ),
     {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
+      advanceTimers: vi.runOnlyPendingTimersAsync,
     },
   );
 }
@@ -29,7 +29,7 @@ async function hoverOverAttributionProgressBar() {
       text.topBar.switchableProgressBar.attributionBar.ariaLabel,
     ),
     {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
+      advanceTimers: vi.runOnlyPendingTimersAsync,
     },
   );
 }
@@ -40,7 +40,7 @@ async function hoverOverCriticalityProgressBar() {
       text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
     ),
     {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
+      advanceTimers: vi.runOnlyPendingTimersAsync,
     },
   );
 }
@@ -51,7 +51,7 @@ async function hoverOverClassificationProgressBar() {
       text.topBar.switchableProgressBar.classificationBar.ariaLabel,
     ),
     {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
+      advanceTimers: vi.runOnlyPendingTimersAsync,
     },
   );
 }
@@ -62,7 +62,7 @@ async function clickOnCriticalityProgressBar() {
       text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
     ),
     {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
+      advanceTimers: vi.runOnlyPendingTimersAsync,
     },
   );
 }
@@ -73,19 +73,19 @@ async function clickOnClassificationProgressBar() {
       text.topBar.switchableProgressBar.classificationBar.ariaLabel,
     ),
     {
-      advanceTimers: jest.runOnlyPendingTimersAsync,
+      advanceTimers: vi.runOnlyPendingTimersAsync,
     },
   );
 }
 
 describe('ProgressBar', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
 
   it('click on regular progress bar goes to next resource with non-inherited external attributions only', async () => {

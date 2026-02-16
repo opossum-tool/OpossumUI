@@ -9,8 +9,8 @@ import { setProjectMetadata } from '../../state/actions/resource-actions/all-vie
 import { renderHook } from '../../test-helpers/render';
 import { useSignalsWorker } from '../use-signals-worker';
 
-const mockPostMessage = jest.fn();
-const mockTerminate = jest.fn();
+const mockPostMessage = vi.fn();
+const mockTerminate = vi.fn();
 
 class Worker {
   url: string;
