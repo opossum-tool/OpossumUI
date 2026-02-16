@@ -94,6 +94,22 @@ export default defineConfig(({ mode }) => ({
     clearMocks: true,
     unstubGlobals: true,
     pool: 'threads',
-    maxWorkers: '100%',
+    maxWorkers: '80%',
+    deps: {
+      optimizer: {
+        client: {
+          enabled: true,
+          include: [
+            '@testing-library/react',
+            '@testing-library/user-event',
+            '@reduxjs/toolkit',
+            'react-redux',
+            '@mui/material',
+            '@mui/icons-material',
+            '@emotion/react',
+          ],
+        },
+      },
+    },
   },
 }));

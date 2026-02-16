@@ -6,15 +6,24 @@ import { dialog, ipcMain } from 'electron';
 
 import { main } from '../main';
 
+// Mock electron-settings before electron to prevent initialization errors
+vi.mock('electron-settings', () => ({
+  default: {
+    get: vi.fn().mockResolvedValue({}),
+    set: vi.fn().mockResolvedValue(undefined),
+    configure: vi.fn(),
+  },
+}));
+
 vi.mock('electron', () => ({
   ipcMain: {
     handle: vi.fn(),
   },
   app: {
     on: vi.fn(),
-    getPath: vi.fn(),
-    getName: vi.fn(),
-    getVersion: vi.fn(),
+    getPath: vi.fn(() => '/tmp'),
+    getName: vi.fn(() => 'OpossumUI'),
+    getVersion: vi.fn(() => '1.0.0'),
     whenReady: (): Promise<boolean> => Promise.resolve(true),
     isPackaged: true,
   },

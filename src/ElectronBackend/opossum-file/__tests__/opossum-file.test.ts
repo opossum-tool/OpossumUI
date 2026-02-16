@@ -21,7 +21,7 @@ vi.mock('electron', () => ({
   },
 }));
 
-describe.concurrent('conversion to opossum', () => {
+describe('conversion to opossum', () => {
   const SCANCODE_TEST_FILE = join(__dirname, 'scancode.json');
   const OWASP_TEST_FILE = join(__dirname, 'owasp-dependency-check-report.json');
   const LEGACY_OPOSSUM_TEST_FILE = join(__dirname, 'legacy.json');
