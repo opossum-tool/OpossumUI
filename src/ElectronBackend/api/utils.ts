@@ -12,7 +12,7 @@ import {
 } from 'kysely';
 
 import { FILTERS } from '../../Frontend/shared-constants';
-import { DB } from '../db/generated/databaseTypes';
+import { DB, Resource } from '../db/generated/databaseTypes';
 import { CountsWithTotal, ResourceRelationship } from './queries';
 
 /**
@@ -315,4 +315,84 @@ export function addFilterCounts(
   }
 
   return result;
+}
+
+type TreeNodeQueryType = DB & {
+  r: Resource;
+};
+export function getTreeNodeProps(
+  eb: ExpressionBuilder<TreeNodeQueryType, 'r'>,
+) {
+  return [
+    eb
+      .case()
+      .when('r.name', '=', '')
+      .then('/')
+      .else(eb.ref('r.name'))
+      .end()
+      .as('name'),
+
+    eb.ref('r.can_have_children').as('can_have_children'),
+
+    eb
+      .exists(
+        eb
+          .selectFrom('resource_to_attribution')
+          .selectAll()
+          .whereRef('r.id', '=', 'resource_id')
+          .where('attribution_is_external', '=', 0),
+      )
+      .as('has_manual_attribution'),
+
+    eb
+      .exists(
+        eb
+          .selectFrom('resource_to_attribution')
+          .selectAll()
+          .whereRef('r.id', '=', 'resource_id')
+          .where('attribution_is_external', '=', 1),
+      )
+      .as('has_external_attribution'),
+
+    eb
+      .exists(
+        eb
+          .selectFrom('resource_to_attribution')
+          .selectAll()
+          .whereRef('r.id', '=', 'resource_id')
+          .where('attribution_is_external', '=', 1)
+          .where(
+            eb.exists(
+              eb
+                .selectFrom('attribution')
+                .selectAll()
+                .where('uuid', '=', 'attribution_uuid')
+                .where('is_resolved', '=', 0),
+            ),
+          ),
+      )
+      .as('has_unresolved_external_attribution'),
+
+    eb
+      .exists(
+        eb
+          .selectFrom('resource_to_attribution')
+          .selectAll()
+          .whereRef('r.id', '<', 'resource_id')
+          .whereRef('resource_id', '<=', 'r.max_descendant_id')
+          .where('attribution_is_external', '=', 1),
+      )
+      .as('contains_external_attribution'),
+
+    eb
+      .exists(
+        eb
+          .selectFrom('resource_to_attribution')
+          .selectAll()
+          .whereRef('r.id', '<', 'resource_id')
+          .whereRef('resource_id', '<=', 'r.max_descendant_id')
+          .where('attribution_is_external', '=', 0),
+      )
+      .as('contains_manual_attribution'),
+  ];
 }

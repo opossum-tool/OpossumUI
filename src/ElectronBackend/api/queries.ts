@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql } from 'kysely';
+import { sql, SqlBool } from 'kysely';
 import { omit } from 'lodash';
 
 import { Filter, FilterCounts, FILTERS } from '../../Frontend/shared-constants';
@@ -13,6 +13,8 @@ import {
   attributionToResourceRelationship,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
+  getTreeNodeProps,
+  removeTrailingSlash,
 } from './utils';
 
 export type CountsWithTotal = FilterCounts & { total: number };
@@ -176,6 +178,74 @@ export const queries = {
       });
 
     return { result: byRelationship };
+  },
+
+  async getResourceTree({
+    search,
+    expandedNodes,
+  }: {
+    search?: string;
+    expandedNodes: Array<string>;
+    limit?: number;
+  }) {
+    console.log('Expanded nodes:', expandedNodes);
+    let query = getDb()
+      .withRecursive('shown_resources', (eb) =>
+        eb
+          .selectFrom('resource as r')
+          .select((sb) => [
+            'id',
+            'path',
+            'max_descendant_id',
+            sb.val(0).as('level'),
+            sb.val(0).as('has_parent_with_manual_attribution'),
+          ])
+          .select((eb) => getTreeNodeProps(eb))
+          .where('path', '=', '')
+          .unionAll(
+            eb
+              .selectFrom('resource as r')
+              .innerJoin(
+                'shown_resources as parent',
+                'parent.id',
+                'r.parent_id',
+              )
+              .select(['r.id', 'r.path', 'r.max_descendant_id'])
+              .select(sql<number>`parent.level + 1`.as('level'))
+              .select(
+                sql<number>`r.is_attribution_breakpoint = 0 AND (parent.has_manual_attribution OR parent.has_parent_with_manual_attribution)`.as(
+                  'has_parent_with_manual_attribution',
+                ),
+              )
+              .select((eb) => getTreeNodeProps(eb))
+              .where(
+                'parent.path',
+                'in',
+                expandedNodes.map((e) => removeTrailingSlash(e)),
+              ),
+          ),
+      )
+      .selectFrom('shown_resources')
+      .selectAll();
+
+    if (search) {
+      // This is the slowest part of the query and could be sped up using fts5: https://www.sqlite.org/fts5.html
+      // But it's still <50ms for large files, so it's probably fine
+      query = query.where((eb) =>
+        eb.exists(
+          eb
+            .selectFrom('resource')
+            .selectAll()
+            .where(sql<SqlBool>`path LIKE '%' || ${search} || '%'`)
+            .whereRef('id', '>=', 'shown_resources.id')
+            .whereRef('id', '<=', 'shown_resources.max_descendant_id'),
+        ),
+      );
+    }
+
+    const treeNodes = await query.orderBy('id').execute();
+
+    return { result: treeNodes };
   },
 } satisfies Record<string, QueryFunction>;
 
