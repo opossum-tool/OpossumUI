@@ -115,9 +115,9 @@ export function VirtualizedTreeNode({
 
   const handleClick = readOnly
     ? undefined
-    : () => {
+    : async () => {
         if (isExpandable && !isExpandedNode) {
-          onToggle(getNodeIdsToExpand(nodeId, node));
+          onToggle(await getNodeIdsToExpand(nodeId));
         }
         onSelect(nodeId);
       };
@@ -128,10 +128,10 @@ export function VirtualizedTreeNode({
       onClick={handleClick}
       tabIndex={0}
       ref={ref}
-      onKeyDown={(event) => {
+      onKeyDown={async (event) => {
         if (['Enter'].includes(event.code)) {
           event.preventDefault();
-          handleClick?.();
+          await handleClick?.();
         } else if (event.code === 'ArrowRight' && !isExpandedNode) {
           event.preventDefault();
           onToggle?.([nodeId]);
@@ -172,9 +172,9 @@ export function VirtualizedTreeNode({
 
     return (
       <MuiBox
-        onClick={(event) => {
+        onClick={async (event) => {
           event.stopPropagation();
-          onToggle(getNodeIdsToExpand(nodeId, node));
+          onToggle(await getNodeIdsToExpand(nodeId));
         }}
         aria-label={isExpandedNode ? `collapse ${nodeId}` : `expand ${nodeId}`}
       >

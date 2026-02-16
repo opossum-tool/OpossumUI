@@ -180,6 +180,45 @@ export const queries = {
     return { result: byRelationship };
   },
 
+  async getNodePathsToExpand({ fromNodePath }: { fromNodePath: string }) {
+    const nodesToExpand = await getDb()
+      .withRecursive('nodes', (eb) =>
+        eb
+          .selectFrom('resource')
+          .select([
+            'id',
+            sql<string>`path || IF(can_have_children, '/', '')`.as('path'),
+          ])
+          .where('path', '=', removeTrailingSlash(fromNodePath))
+          .union(
+            eb
+              .selectFrom('resource')
+              .innerJoin('nodes', 'resource.parent_id', 'nodes.id')
+              .select([
+                'resource.id',
+                sql<string>`resource.path || IF(can_have_children, '/', '')`.as(
+                  'path',
+                ),
+              ])
+              .where((eb) =>
+                eb.and([
+                  eb('resource.can_have_children', '=', 1),
+                  eb(
+                    sql<number>`(select count(*) from resource where parent_id = nodes.id)`,
+                    '=',
+                    1,
+                  ),
+                ]),
+              ),
+          ),
+      )
+      .selectFrom('nodes')
+      .select('path')
+      .execute();
+
+    return { result: nodesToExpand.map((n) => n.path) };
+  },
+
   async getResourceTree({
     search,
     expandedNodes,
