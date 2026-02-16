@@ -40,6 +40,7 @@ export default tseslint.config(
     plugins: {
       'check-file': eslintPluginCheckFile,
       vitest: vitest,
+      'jest-dom': fixupPluginRules(eslintConfigJestDom),
       '@tanstack/query': eslintPluginQuery,
       // @ts-ignore
       'react-hooks': fixupPluginRules(eslintPluginReactHooks),
@@ -70,7 +71,6 @@ export default tseslint.config(
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
       eslintConfigTestingLibrary.configs['flat/react'],
-      eslintConfigJestDom.configs['flat/recommended'],
       eslintReact.configs['recommended-typescript'],
     ],
     settings: {
