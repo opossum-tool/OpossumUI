@@ -8110,10 +8110,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ohm-js@npm:17.4.0":
-  version: 17.4.0
-  resolution: "ohm-js@npm:17.4.0"
-  checksum: 10/8cc0dc17e83e2f2666be1bdf75e0e513b9b0c2433e9c5d66d589a2b62a4b713e6a17542d1be2b62a7491c889496fbd17f1d70c99663c3a3b3de98f82f2f4ce7e
+"ohm-js@npm:17.5.0":
+  version: 17.5.0
+  resolution: "ohm-js@npm:17.5.0"
+  checksum: 10/4f91a81f53aec7d9ec2f76761a432802d4fe858c44c44bed4e8f3f6b235e9a134295241a59fd9fde627428a26528c34873bb8bd14867a18c962a1298112a86fe
   languageName: node
   linkType: hard
 
@@ -8226,7 +8226,7 @@ __metadata:
     mockdate: "npm:3.0.5"
     nunjucks: "npm:3.2.4"
     object-hash: "npm:3.0.0"
-    ohm-js: "npm:17.4.0"
+    ohm-js: "npm:17.5.0"
     packageurl-js: "npm:2.0.1"
     prettier: "npm:3.8.1"
     prettier-plugin-sh: "npm:0.18.0"
