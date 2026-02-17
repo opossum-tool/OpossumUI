@@ -6,6 +6,11 @@ import { sql } from 'kysely';
 import { omit } from 'lodash';
 
 import { Filter, FilterCounts, FILTERS } from '../../Frontend/shared-constants';
+import {
+  ClassificationStatistics,
+  ProgressBarData,
+} from '../../Frontend/types/types';
+import { ClassificationsConfig } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { getResourceTree } from './resourceTree';
@@ -244,6 +249,141 @@ export const queries = {
   },
 
   getResourceTree,
+  async getProgressBarData(props: { classifications: ClassificationsConfig }) {
+    const result = await getDb()
+      .transaction()
+      .execute((trx) =>
+        sql<{
+          file_count: number;
+          only_preselected: number;
+          only_manual: number;
+          only_external: number;
+          medium_critical: number;
+          highly_critical: number;
+          criticality_paths: string | null;
+          classification_paths: string | null;
+        }>`
+          WITH RECURSIVE
+        -- Pre-compute flags for each resource
+        resource_flags AS (
+            SELECT 
+                resource_id,
+                MAX(NOT attribution.is_external) AND MIN(attribution.is_external OR attribution.pre_selected) as has_only_preselected,
+                MAX(NOT attribution.is_external) as has_manual,
+                MAX(attribution.is_external) as has_external,
+                MAX(attribution.criticality) as highest_criticality,
+                MAX(attribution.classification) as highest_classification
+            FROM resource_to_attribution
+            JOIN attribution ON resource_to_attribution.attribution_uuid = attribution.uuid
+            GROUP BY resource_id
+        ),
+        resource_tree(id, has_only_preselected, has_manual, has_external, has_non_inherited_external, highest_criticality, highest_classification) AS (
+            SELECT 
+                r.id, 
+                COALESCE(rf.has_only_preselected, 0), 
+                COALESCE(rf.has_manual, 0), 
+                COALESCE(rf.has_external, 0), 
+                COALESCE(rf.has_external, 0), 
+                COALESCE(rf.highest_criticality, 0),
+                rf.highest_classification
+            FROM resource r
+            LEFT JOIN resource_flags rf ON r.id = rf.resource_id
+            WHERE r.path = ''
+            UNION ALL
+            SELECT 
+                child.id, 
+                ((parent.has_only_preselected AND NOT child.is_attribution_breakpoint) AND NOT COALESCE(rf.has_manual, 0)) OR COALESCE(rf.has_only_preselected, 0),
+                (parent.has_manual AND NOT child.is_attribution_breakpoint) OR COALESCE(rf.has_manual, 0),
+                (parent.has_external AND NOT child.is_attribution_breakpoint) OR COALESCE(rf.has_external, 0),
+                COALESCE(rf.has_external, 0),
+                COALESCE(rf.highest_criticality, 0),
+                COALESCE(rf.highest_classification, parent.highest_classification)
+            FROM resource_tree as parent
+            JOIN resource AS child ON child.parent_id = parent.id
+            LEFT JOIN resource_flags rf ON child.id = rf.resource_id
+        ),
+        criticality_paths(hc, paths) AS (
+        SELECT highest_criticality, json_group_array(resource.path)
+        FROM resource_tree
+        JOIN resource ON resource.id=resource_tree.id 
+        WHERE has_non_inherited_external AND NOT has_only_preselected AND NOT has_manual 
+        GROUP BY highest_criticality
+        ),
+        classification_paths(hc, paths) AS (
+        SELECT highest_classification, json_group_array(resource.path)
+        FROM resource_tree
+        JOIN resource ON resource.id=resource_tree.id 
+        WHERE resource.is_file AND has_external AND NOT has_only_preselected AND NOT has_manual 
+        GROUP BY highest_classification
+        )
+        SELECT 
+            SUM(resource.is_file) as file_count,
+            SUM(resource.is_file AND has_only_preselected) as only_preselected,
+            SUM(resource.is_file AND has_manual AND NOT has_only_preselected) as only_manual,
+            SUM(resource.is_file AND has_external AND NOT has_only_preselected AND NOT has_manual) as only_external,
+            SUM(resource.is_file AND has_external AND NOT has_only_preselected AND NOT has_manual AND highest_criticality is 1) as medium_critical,
+            SUM(resource.is_file AND has_external AND NOT has_only_preselected AND NOT has_manual AND highest_criticality is 2) as highly_critical,
+            (SELECT json_group_object(criticality_paths.hc, criticality_paths.paths) FROM criticality_paths) as criticality_paths,
+            (SELECT json_group_object(classification_paths.hc, classification_paths.paths) FROM classification_paths) as classification_paths
+        FROM resource_tree
+        JOIN resource ON resource.id=resource_tree.id
+      `.execute(trx),
+      );
+
+    const criticalityStatistics = result.rows[0].criticality_paths
+      ? (JSON.parse(result.rows[0].criticality_paths) as Record<number, string>)
+      : undefined;
+    const resourcesWithMediumCriticalExternalAttributions =
+      criticalityStatistics ? JSON.parse(criticalityStatistics[1] ?? '[]') : [];
+    const resourcesWithHighlyCriticalExternalAttributions =
+      criticalityStatistics ? JSON.parse(criticalityStatistics[2] ?? '[]') : [];
+    const resourcesWithNonInheritedExternalAttributionOnly = [
+      ...resourcesWithHighlyCriticalExternalAttributions,
+      ...resourcesWithMediumCriticalExternalAttributions,
+      ...(criticalityStatistics
+        ? JSON.parse(criticalityStatistics[0] ?? '[]')
+        : []),
+    ];
+
+    const parsedClassifications = result.rows[0].classification_paths
+      ? (JSON.parse(result.rows[0].classification_paths) as Record<
+          number,
+          string
+        >)
+      : undefined;
+    const classificationStatistics: ClassificationStatistics = {};
+    Object.entries(props.classifications).forEach(
+      ([classificationId, classificationEntry]) => {
+        classificationStatistics[Number(classificationId)] = {
+          description: classificationEntry.description,
+          correspondingFiles: parsedClassifications
+            ? JSON.parse(
+                parsedClassifications[Number(classificationId)] ?? '[]',
+              )
+            : [],
+          color: classificationEntry.color,
+        };
+      },
+    );
+
+    return {
+      result: {
+        fileCount: result.rows[0].file_count,
+        filesWithManualAttributionCount: result.rows[0].only_manual,
+        filesWithOnlyPreSelectedAttributionCount:
+          result.rows[0].only_preselected,
+        filesWithOnlyExternalAttributionCount: result.rows[0].only_external,
+        filesWithHighlyCriticalExternalAttributionsCount:
+          result.rows[0].highly_critical,
+        filesWithMediumCriticalExternalAttributionsCount:
+          result.rows[0].medium_critical,
+        resourcesWithNonInheritedExternalAttributionOnly,
+        resourcesWithHighlyCriticalExternalAttributions,
+        resourcesWithMediumCriticalExternalAttributions,
+        classificationStatistics,
+      } as ProgressBarData,
+    };
+  },
 } satisfies Record<string, QueryFunction>;
 
 export type Queries = typeof queries;

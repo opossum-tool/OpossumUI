@@ -9,9 +9,14 @@ import { useState } from 'react';
 
 import { text as fullText } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
-import { useProgressData } from '../../state/variables/use-progress-data';
+import { useAppSelector } from '../../state/hooks';
+import {
+  getClassifications,
+  getProjectMetadata,
+} from '../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { SelectedProgressBar } from '../../types/types';
+import { backend } from '../../util/backendClient';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 
 const classes = {
@@ -66,7 +71,15 @@ export const SwitchableProgressBar: React.FC = () => {
 
   const [currentProgressBar, setCurrentProgressBar] =
     useState<SelectedProgressBar>('attribution');
-  const [progressData] = useProgressData();
+
+  const projectMetadata = useAppSelector(getProjectMetadata);
+  const classifications = useAppSelector(getClassifications);
+  const progressBarData = backend.getProgressBarData.useQuery(
+    { classifications },
+    {
+      enabled: !!projectMetadata.projectId,
+    },
+  );
 
   const handleProgressBarChange = (
     event: SelectChangeEvent<SelectedProgressBar>,
@@ -89,7 +102,7 @@ export const SwitchableProgressBar: React.FC = () => {
   const hasMoreThanOneActiveProgressBar =
     Object.keys(activeProgressBarConfigurations).length > 1;
 
-  if (!progressData) {
+  if (!progressBarData.data) {
     return <MuiBox flex={1} />;
   }
 
@@ -97,7 +110,7 @@ export const SwitchableProgressBar: React.FC = () => {
     <MuiBox sx={classes.container}>
       <ProgressBar
         sx={classes.progressBar}
-        progressBarData={progressData}
+        progressBarData={progressBarData.data}
         selectedProgressBar={effectiveCurrentProgressBar}
       />
       {hasMoreThanOneActiveProgressBar && (

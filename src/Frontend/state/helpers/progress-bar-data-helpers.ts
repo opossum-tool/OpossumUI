@@ -72,26 +72,24 @@ function updateProgressBarDataForResources(
       canResourceHaveChildren(resource) ? '/' : ''
     }`;
 
-    const hasOnlyPreselectedAttributionFromParent = Boolean(
+    const hasOnlyPreselectedAttributionFromParent =
       hasParentOnlyPreselectedAttribution &&
-      !resourcesToManualAttributions[path],
-    );
+      (resourcesToManualAttributions[path] ?? []).length === 0;
 
-    const hasOnlyPreselectedAttribution = Boolean(
+    const hasOnlyPreselectedAttribution =
       hasOnlyPreselectedAttributionFromParent ||
       resourceHasOnlyPreSelectedAttributions(
         path,
         resourcesToManualAttributions,
         manualAttributions,
-      ),
-    );
+      );
 
     const hasManualAttribution: boolean =
       hasParentManualAttribution ||
-      Boolean(resourcesToManualAttributions[path]);
-    const hasNonInheritedExternalAttributions = Boolean(
-      resourcesToExternalAttributions[path],
-    );
+      (resourcesToManualAttributions[path] ?? []).length > 0;
+
+    const hasNonInheritedExternalAttributions =
+      (resourcesToExternalAttributions[path] ?? []).length > 0;
     const resourceCanHaveChildren = canResourceHaveChildren(resource);
 
     const highestCriticality = getHighestCriticalityOfExternalAttributions(
@@ -249,9 +247,15 @@ export function resourceHasOnlyPreSelectedAttributions(
   resourcesToManualAttributions: ResourcesToAttributions,
   manualAttributions: Attributions,
 ): boolean {
-  return resourcesToManualAttributions[path]?.every(
+  if (
+    resourcesToManualAttributions[path] === undefined ||
+    resourcesToManualAttributions[path].length === 0
+  ) {
+    return false;
+  }
+  return resourcesToManualAttributions[path].every(
     (attributionId: string): boolean => {
-      return Boolean(manualAttributions[attributionId]?.preSelected);
+      return manualAttributions[attributionId]?.preSelected ?? false;
     },
   );
 }
