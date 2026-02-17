@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
-import { compact, uniq } from 'lodash';
+import { keepPreviousData } from '@tanstack/react-query';
 
 import { text } from '../../../shared/text';
 import {
@@ -14,11 +14,11 @@ import {
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getManualAttributions,
-  getManualAttributionsToResources,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
+import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { CardList } from '../CardList/CardList';
 import { PackageCard } from '../PackageCard/PackageCard';
@@ -38,20 +38,33 @@ export const ConfirmSavePopup: React.FC<Props> = ({
 }) => {
   const dispatch = useAppDispatch();
   const attributions = useAppSelector(getManualAttributions);
-  const attributionsToResources = useAppSelector(
-    getManualAttributionsToResources,
-  );
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
 
-  const resourceIds = uniq(
-    compact(attributionIdsToSave.flatMap((id) => attributionsToResources[id])),
+  const linkedResourceCount = backend.getResourceCountOnAttributions.useQuery(
+    {
+      attributionUuids: attributionIdsToSave,
+    },
+    { placeholderData: keepPreviousData },
   );
+
+  const isResourceLinkedOnAllAttributions =
+    backend.isResourceLinkedOnAllAttributions.useQuery(
+      {
+        resourcePath: selectedResourceId,
+        attributionUuids: attributionIdsToSave,
+      },
+      { enabled: !!selectedResourceId && !!attributionIdsToSave },
+    );
+
   const hasMultipleResourcesWhichContainSelected =
-    resourceIds.length > 1 && resourceIds.includes(selectedResourceId);
+    linkedResourceCount.data &&
+    isResourceLinkedOnAllAttributions.data &&
+    linkedResourceCount.data > 1 &&
+    isResourceLinkedOnAllAttributions.data;
   const areAllAttributionsPreselected = attributionIdsToSave.every(
     (id) => attributions[id]?.preSelected,
   );
@@ -97,7 +110,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         onClick: handleSave,
         color: 'error',
         buttonText:
-          resourceIds.length > 1
+          linkedResourceCount.data && linkedResourceCount.data > 1
             ? areAllAttributionsPreselected
               ? text.saveAttributionsPopup.confirmGlobally
               : text.saveAttributionsPopup.saveGlobally
@@ -140,22 +153,20 @@ export const ConfirmSavePopup: React.FC<Props> = ({
               text.packageLists.attribution,
             ),
             resources: maybePluralize(
-              resourceIds.length,
+              linkedResourceCount.data ?? 1,
               text.saveAttributionsPopup.resource,
               { showOne: true },
             ),
           })}
         </MuiTypography>
         <CardList
-          data={attributionIdsToSave.filter((id) => id in attributions)}
-          renderItemContent={(attributionId, { index }) => {
-            if (!attributions[attributionId]) {
-              return null;
-            }
-
+          data={attributionIdsToSave
+            .filter((id) => id in attributions)
+            .map((id) => ({ ...attributions[id], id }))}
+          renderItemContent={(attribution, { index }) => {
             return (
               <>
-                <PackageCard packageInfo={attributions[attributionId]} />
+                <PackageCard packageInfo={attribution} />
                 {index + 1 !== attributionIdsToSave.length && <MuiDivider />}
               </>
             );
@@ -164,7 +175,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         <LinkedResourcesTree
           readOnly
           disableHighlightSelected={!hasMultipleResourcesWhichContainSelected}
-          resourceIds={resourceIds}
+          attributionUuids={attributionIdsToSave}
           sx={{ minHeight: '100px' }}
         />
       </>

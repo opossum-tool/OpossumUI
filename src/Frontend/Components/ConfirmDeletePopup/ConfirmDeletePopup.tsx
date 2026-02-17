@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
-import { compact, uniq } from 'lodash';
+import { keepPreviousData } from '@tanstack/react-query';
 
 import { text } from '../../../shared/text';
 import {
@@ -14,10 +14,10 @@ import {
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getManualAttributions,
-  getManualAttributionsToResources,
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
+import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { CardList } from '../CardList/CardList';
 import { PackageCard } from '../PackageCard/PackageCard';
@@ -37,22 +37,30 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
 }) => {
   const dispatch = useAppDispatch();
   const attributions = useAppSelector(getManualAttributions);
-  const attributionsToResources = useAppSelector(
-    getManualAttributionsToResources,
-  );
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
-  const resourceIds = uniq(
-    compact(
-      attributionIdsToDelete.flatMap((id) => attributionsToResources[id]),
-    ),
+  const linkedResourceCount = backend.getResourceCountOnAttributions.useQuery(
+    {
+      attributionUuids: [selectedAttributionId],
+    },
+    { placeholderData: keepPreviousData },
   );
-  const isOptionToDeleteOnSelectedResourceOnlyAvailable =
-    resourceIds.length > 1 &&
-    attributionIdsToDelete.every((id) =>
-      attributionsToResources[id]?.includes(selectedResourceId),
+
+  const isResourceLinkedOnAllAttributions =
+    backend.isResourceLinkedOnAllAttributions.useQuery(
+      {
+        resourcePath: selectedResourceId,
+        attributionUuids: attributionIdsToDelete,
+      },
+      { enabled: !!selectedResourceId && !!attributionIdsToDelete },
     );
+
+  const isOptionToDeleteOnSelectedResourceOnlyAvailable =
+    linkedResourceCount.data &&
+    isResourceLinkedOnAllAttributions.data &&
+    linkedResourceCount.data > 1 &&
+    isResourceLinkedOnAllAttributions.data;
 
   const handleDelete = () => {
     dispatch(
@@ -74,7 +82,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       centerLeftButtonConfig={{
         onClick: handleDelete,
         buttonText:
-          resourceIds.length > 1
+          linkedResourceCount.data && linkedResourceCount.data > 1
             ? text.deleteAttributionsPopup.deleteGlobally
             : text.deleteAttributionsPopup.delete,
         color: 'error',
@@ -111,22 +119,20 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
               text.packageLists.attribution,
             ),
             resources: maybePluralize(
-              resourceIds.length,
+              linkedResourceCount.data ?? 1,
               text.deleteAttributionsPopup.resource,
               { showOne: true },
             ),
           })}
         </MuiTypography>
         <CardList
-          data={attributionIdsToDelete.filter((id) => id in attributions)}
-          renderItemContent={(attributionId, { index }) => {
-            if (!attributions[attributionId]) {
-              return null;
-            }
-
+          data={attributionIdsToDelete
+            .filter((id) => id in attributions)
+            .map((id) => ({ ...attributions[id], id }))}
+          renderItemContent={(attribution, { index }) => {
             return (
               <>
-                <PackageCard packageInfo={attributions[attributionId]} />
+                <PackageCard packageInfo={attribution} />
                 {index + 1 !== attributionIdsToDelete.length && <MuiDivider />}
               </>
             );
@@ -137,7 +143,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
           disableHighlightSelected={
             !isOptionToDeleteOnSelectedResourceOnlyAvailable
           }
-          resourceIds={resourceIds}
+          attributionUuids={attributionIdsToDelete}
           sx={{ minHeight: '100px' }}
         />
       </>

@@ -3,17 +3,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { keepPreviousData } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
 import {
-  getResourceIdsOfSelectedAttribution,
+  getExpandedIds,
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
-import { useIsSelectedAttributionVisible } from '../../state/variables/use-filtered-data';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
 import { backend } from '../../util/backendClient';
@@ -26,12 +25,6 @@ const ALL_RESOURCES_SEARCH = 'all-resources-search';
 const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
 
 export function ResourceBrowser() {
-  const resourceIdsOfSelectedAttribution = useAppSelector(
-    getResourceIdsOfSelectedAttribution,
-  );
-
-  const isSelectedAttributionVisible = useIsSelectedAttributionVisible();
-
   const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
   const [searchLinked, setSearchLinked] = useVariable(
     LINKED_RESOURCES_SEARCH,
@@ -39,13 +32,8 @@ export function ResourceBrowser() {
   );
   const debouncedSearchAll = useDebouncedInput(searchAll);
   const debouncedSearchLinked = useDebouncedInput(searchLinked);
-  const { panelSizes, setPanelSizes } = usePanelSizes();
 
-  const allResourcesFiltered =
-    backend.searchResources.useQuery(
-      { searchString: debouncedSearchAll },
-      { placeholderData: keepPreviousData },
-    ).data ?? [];
+
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const selectedCount: number =
     backend.resourceDescendantCount.useQuery(
@@ -53,19 +41,7 @@ export function ResourceBrowser() {
       { placeholderData: keepPreviousData },
     ).data ?? 0;
 
-  const linkedResourcesFiltered = useMemo(
-    () =>
-      isSelectedAttributionVisible
-        ? resourceIdsOfSelectedAttribution.filter((path) =>
-            path.toLowerCase().includes(debouncedSearchLinked),
-          )
-        : [],
-    [
-      isSelectedAttributionVisible,
-      resourceIdsOfSelectedAttribution,
-      debouncedSearchLinked,
-    ],
-  );
+  const { panelSizes, setPanelSizes } = usePanelSizes();
 
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedLinkedCount: number =
@@ -92,9 +68,23 @@ export function ResourceBrowser() {
     [setPanelSizes],
   );
 
-  if (!allResourcesFiltered) {
-    return null;
-  }
+  const expandedIds = useAppSelector(getExpandedIds);
+
+  const resourceTree = backend.getResourceTree.useQuery(
+    {
+      expandedNodes: expandedIds,
+      search: debouncedSearchAll,
+    },
+    { placeholderData: keepPreviousData },
+  );
+
+
+  const linkedResourceCount = backend.getResourceCountOnAttributions.useQuery(
+    {
+      attributionUuids: [selectedAttributionId],
+    },
+    { enabled: !!selectedAttributionId, placeholderData: keepPreviousData },
+  );
 
   return (
     <ResizePanels
@@ -106,29 +96,34 @@ export function ResourceBrowser() {
       upperPanel={{
         title: text.resourceBrowser.allResources(
           selectedCount,
-          allResourcesFiltered.length,
+          resourceTree.data?.count ?? 0,
         ),
         search: {
           value: searchAll,
           setValue: setSearchAll,
           channel: AllowedFrontendChannels.SearchResources,
         },
-        component: <ResourcesTree resourceIds={allResourcesFiltered} />,
+        component: (
+          <ResourcesTree resources={resourceTree.data?.treeNodes ?? []} />
+        ),
         headerTestId: 'resources-tree-header',
       }}
       lowerPanel={{
         title: text.resourceBrowser.linkedResources(
           selectedLinkedCount,
-          linkedResourcesFiltered.length,
+          linkedResourceCount.data ?? 0,
         ),
         search: {
           value: searchLinked,
           setValue: setSearchLinked,
           channel: AllowedFrontendChannels.SearchLinkedResources,
         },
-        hidden: !resourceIdsOfSelectedAttribution.length,
+        hidden: !selectedAttributionId || linkedResourceCount.data === 0,
         component: (
-          <LinkedResourcesTree resourceIds={linkedResourcesFiltered} />
+          <LinkedResourcesTree
+            attributionUuids={[selectedAttributionId]}
+            search={debouncedSearchLinked}
+          />
         ),
         headerTestId: 'linked-resources-tree-header',
       }}

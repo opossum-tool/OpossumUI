@@ -7,12 +7,11 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
 import { useEffect, useRef } from 'react';
 
-import { Resources } from '../../../../shared/shared-types';
+import { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import { OpossumColors } from '../../../shared-styles';
 import { getNodeIdsToExpand } from './VirtualizedTreeNode.util';
 
 const INDENT_PER_DEPTH_LEVEL = 12;
-const SIMPLE_NODE_EXTRA_INDENT = 28;
 const SIMPLE_FOLDER_EXTRA_INDENT = 16;
 
 const classes = {
@@ -69,14 +68,11 @@ const classes = {
 };
 
 export interface TreeNode {
-  nodeName: string;
-  node: Resources | 1;
-  nodeId: string;
+  resource: ResourceTreeNodeData;
 }
 
 interface VirtualizedTreeNodeProps extends TreeNode {
   TreeNodeLabel: React.FC<TreeNode>;
-  isExpandedNode: boolean;
   onSelect: (nodeId: string) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   readOnly?: boolean;
@@ -86,24 +82,16 @@ interface VirtualizedTreeNodeProps extends TreeNode {
 
 export function VirtualizedTreeNode({
   TreeNodeLabel,
-  isExpandedNode,
-  node,
-  nodeId,
-  nodeName,
+  resource,
   onSelect,
   onToggle,
   readOnly,
   selected,
   focused,
 }: VirtualizedTreeNodeProps) {
-  const isExpandable = node !== 1 && Object.keys(node).length !== 0;
   const marginRight =
-    ((nodeId.match(/\//g) || []).length - 1) * INDENT_PER_DEPTH_LEVEL +
-    (isExpandable
-      ? 0
-      : nodeId.endsWith('/')
-        ? SIMPLE_FOLDER_EXTRA_INDENT
-        : SIMPLE_NODE_EXTRA_INDENT);
+    resource.level * INDENT_PER_DEPTH_LEVEL +
+    (resource.isExpandable ? 0 : SIMPLE_FOLDER_EXTRA_INDENT);
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -116,10 +104,10 @@ export function VirtualizedTreeNode({
   const handleClick = readOnly
     ? undefined
     : async () => {
-        if (isExpandable && !isExpandedNode) {
-          onToggle(await getNodeIdsToExpand(nodeId));
+        if (resource.isExpandable && !resource.isExpanded) {
+          onToggle(await getNodeIdsToExpand(resource.id));
         }
-        onSelect(nodeId);
+        onSelect(resource.id);
       };
 
   return (
@@ -132,12 +120,12 @@ export function VirtualizedTreeNode({
         if (['Enter'].includes(event.code)) {
           event.preventDefault();
           await handleClick?.();
-        } else if (event.code === 'ArrowRight' && !isExpandedNode) {
+        } else if (event.code === 'ArrowRight' && !resource.isExpanded) {
           event.preventDefault();
-          onToggle?.([nodeId]);
-        } else if (event.code === 'ArrowLeft' && isExpandedNode) {
+          onToggle?.([resource.id]);
+        } else if (event.code === 'ArrowLeft' && resource.isExpanded) {
           event.preventDefault();
-          onToggle?.([nodeId]);
+          onToggle?.([resource.id]);
         }
       }}
     >
@@ -149,7 +137,7 @@ export function VirtualizedTreeNode({
           cursor: handleClick ? 'pointer' : 'default',
         }}
       >
-        <TreeNodeLabel nodeName={nodeName} node={node} nodeId={nodeId} />
+        <TreeNodeLabel resource={resource} />
       </MuiBox>
       <MuiBox />
       <MuiBox
@@ -166,7 +154,7 @@ export function VirtualizedTreeNode({
   );
 
   function renderExpandableNodeIcon() {
-    if (!isExpandable) {
+    if (!resource.isExpandable) {
       return null;
     }
 
@@ -174,11 +162,15 @@ export function VirtualizedTreeNode({
       <MuiBox
         onClick={async (event) => {
           event.stopPropagation();
-          onToggle(await getNodeIdsToExpand(nodeId));
+          onToggle(await getNodeIdsToExpand(resource.id));
         }}
-        aria-label={isExpandedNode ? `collapse ${nodeId}` : `expand ${nodeId}`}
+        aria-label={
+          resource.isExpanded
+            ? `collapse ${resource.id}`
+            : `expand ${resource.id}`
+        }
       >
-        {isExpandedNode ? (
+        {resource.isExpanded ? (
           <ExpandMoreIcon sx={classes.treeExpandIcon} />
         ) : (
           <ChevronRightIcon sx={classes.treeExpandIcon} />

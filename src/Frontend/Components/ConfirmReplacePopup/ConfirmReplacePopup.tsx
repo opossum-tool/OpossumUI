@@ -97,16 +97,14 @@ export const ConfirmReplacePopup = ({
           )}
         </MuiTypography>
         <CardList
-          data={attributionIdsForReplacement.filter((id) => id in attributions)}
+          data={attributionIdsForReplacement
+            .filter((id) => id in attributions)
+            .map((id) => ({ ...attributions[id], id }))}
           data-testid={'removed-attributions'}
-          renderItemContent={(attributionId, { index }) => {
-            if (!attributions[attributionId]) {
-              return null;
-            }
-
+          renderItemContent={(attribution, { index }) => {
             return (
               <>
-                <PackageCard packageInfo={attributions[attributionId]} />
+                <PackageCard packageInfo={attribution} />
                 {index + 1 !== attributionIdsForReplacement.length && (
                   <MuiDivider />
                 )}
@@ -126,10 +124,10 @@ export const ConfirmReplacePopup = ({
           {text.replaceAttributionsPopup.replacement}
         </MuiTypography>
         <CardList
-          data={[selectedAttribution.id]}
+          data={[attributionWithoutCount]}
           data-testid={'added attributions'}
-          renderItemContent={() => (
-            <PackageCard packageInfo={attributionWithoutCount} />
+          renderItemContent={(attribution) => (
+            <PackageCard packageInfo={attribution} />
           )}
         />
       </>

@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { SxProps } from '@mui/system';
+import { keepPreviousData } from '@tanstack/react-query';
 import { remove } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -11,20 +12,23 @@ import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../../state/actions
 import { getInitialExpandedIds } from '../../../state/helpers/resources-helpers';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
+import { backend } from '../../../util/backendClient';
 import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
 import { LinkedResourcesTreeNode } from './LinkedResourcesTreeNode/LinkedResourcesTreeNode';
 
 interface Props {
   disableHighlightSelected?: boolean;
   readOnly?: boolean;
-  resourceIds: Array<string>;
+  attributionUuids: Array<string>;
+  search?: string;
   sx?: SxProps;
 }
 
 export function LinkedResourcesTree({
   readOnly,
   disableHighlightSelected,
-  resourceIds,
+  attributionUuids,
+  search,
   sx,
 }: Props) {
   const dispatch = useAppDispatch();
@@ -33,8 +37,24 @@ export function LinkedResourcesTree({
   const [expandedIds, setExpandedIds] = useState<Array<string>>([]);
 
   useEffect(() => {
-    setExpandedIds(getInitialExpandedIds(resourceIds, selectedResourceId));
-  }, [resourceIds, selectedResourceId]);
+    async function fetchExpandedIds() {
+      const ids = await getInitialExpandedIds(
+        attributionUuids,
+        selectedResourceId,
+      );
+      setExpandedIds(ids);
+    }
+    void fetchExpandedIds();
+  }, [attributionUuids, selectedResourceId]);
+
+  const resources = backend.getResourceTree.useQuery(
+    {
+      expandedNodes: expandedIds,
+      search,
+      onAttributionUuids: attributionUuids,
+    },
+    { placeholderData: keepPreviousData },
+  );
 
   const handleToggle = useCallback(
     (nodeIdsToExpand: Array<string>) => {
@@ -57,9 +77,13 @@ export function LinkedResourcesTree({
     [dispatch],
   );
 
+  if (!resources.data) {
+    return null;
+  }
+
   return (
     <VirtualizedTree
-      expandedIds={expandedIds}
+      resources={resources.data.treeNodes}
       onSelect={handleSelect}
       onToggle={handleToggle}
       sx={{
@@ -70,7 +94,6 @@ export function LinkedResourcesTree({
         }),
         ...sx,
       }}
-      resourceIds={resourceIds}
       selectedNodeId={disableHighlightSelected ? '' : selectedResourceId}
       readOnly={readOnly}
       TreeNodeLabel={LinkedResourcesTreeNode}

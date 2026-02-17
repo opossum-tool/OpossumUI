@@ -2,18 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql, SqlBool } from 'kysely';
+import { sql } from 'kysely';
 import { omit } from 'lodash';
 
 import { Filter, FilterCounts, FILTERS } from '../../Frontend/shared-constants';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
+import { getResourceTree } from './resourceTree';
 import {
   addFilterCounts,
   attributionToResourceRelationship,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
-  getTreeNodeProps,
   removeTrailingSlash,
 } from './utils';
 
@@ -34,21 +34,6 @@ type QueryFunction = (
 ) => Promise<{ result: NonNullable<unknown> | null }>; // Tanstack doesn't allow functions to return undefined
 
 export const queries = {
-  /**
-   * Returns the paths of resources that contain the given search string (case insensitive)
-   *
-   * For backwards compatibility, an / is appended to the path
-   * if the resource can have children (i.e. is a directory or is included in files_with_children)
-   */
-  async searchResources(props: { searchString: string }) {
-    const result = await getDb()
-      .selectFrom('resource')
-      .select([sql<string>`path || IF(can_have_children, '/', '')`.as('path')])
-      .where(sql<boolean>`instr(LOWER(path), LOWER(${props.searchString})) > 0`)
-      .execute();
-    return { result: result.map((r) => r.path) };
-  },
-
   async resourceDescendantCount(props: {
     searchString: string;
     resourcePath: string;
@@ -100,82 +85,70 @@ export const queries = {
   }): Promise<{
     result: AttributionCounts;
   }> {
-    const byRelationship = await getDb()
-      .transaction()
-      .execute(async (trx) => {
-        const resource = await getResourceOrThrow(
-          trx,
-          props.resourcePathForRelationships,
-        );
+    const db = getDb();
+    const resource = await getResourceOrThrow(
+      db,
+      props.resourcePathForRelationships,
+    );
 
-        const closestAncestor =
-          await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-            trx,
-            resource.id,
-          );
+    const closestAncestor =
+      await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+        db,
+        resource.id,
+      );
 
-        let query = trx
-          .selectFrom('attribution')
-          .select(
-            attributionToResourceRelationship({
-              resource,
-              ancestorId: closestAncestor,
-            }),
-          )
-          .select((eb) => eb.fn.countAll<number>().as('total'))
-          .select((eb) =>
-            FILTERS.map((f) =>
-              eb.fn
-                .sum<number>(
-                  eb
-                    .case()
-                    .when(getFilterExpression(eb, f))
-                    .then(1)
-                    .else(0)
-                    .end(),
-                )
-                .as(f),
-            ),
-          )
-          .groupBy('relationship');
+    let query = db
+      .selectFrom('attribution')
+      .select(
+        attributionToResourceRelationship({
+          resource,
+          ancestorId: closestAncestor,
+        }),
+      )
+      .select((eb) => eb.fn.countAll<number>().as('total'))
+      .select((eb) =>
+        FILTERS.map((f) =>
+          eb.fn
+            .sum<number>(
+              eb.case().when(getFilterExpression(eb, f)).then(1).else(0).end(),
+            )
+            .as(f),
+        ),
+      )
+      .groupBy('relationship');
 
-        query = query.where('is_external', '=', Number(props.external));
+    query = query.where('is_external', '=', Number(props.external));
 
-        for (const filter of props.filters) {
-          query = query.where((eb) => getFilterExpression(eb, filter));
-        }
+    for (const filter of props.filters) {
+      query = query.where((eb) => getFilterExpression(eb, filter));
+    }
 
-        if (props.license) {
-          query = query.where(
-            sql<string>`trim(license_name)`,
-            '=',
-            props.license,
-          );
-        }
+    if (props.license) {
+      query = query.where(sql<string>`trim(license_name)`, '=', props.license);
+    }
 
-        if (props.search) {
-          const search = props.search;
-          query = query.where((eb) => getSearchExpression(eb, search));
-        }
+    if (props.search) {
+      const search = props.search;
+      query = query.where((eb) => getSearchExpression(eb, search));
+    }
 
-        if (!props.showResolved) {
-          query = query.where('is_resolved', '=', 0);
-        }
+    if (!props.showResolved) {
+      query = query.where('is_resolved', '=', 0);
+    }
 
-        const sums = await query.execute();
+    const sums = await query.execute();
 
-        const sumsPerRelationship = Object.fromEntries(
-          sums.map((s) => [s.relationship, omit(s, 'relationship')]),
-        ) as Omit<AttributionCounts, 'all' | 'sameOrDescendant'>;
+    const sumsPerRelationship = Object.fromEntries(
+      sums.map((s) => [s.relationship, omit(s, 'relationship')]),
+    ) as Omit<AttributionCounts, 'all' | 'sameOrDescendant'>;
 
-        const all = addFilterCounts(Object.values(sumsPerRelationship));
-        const sameOrDescendant = addFilterCounts([
-          sumsPerRelationship.same,
-          sumsPerRelationship.descendant,
-        ]);
+    const all = addFilterCounts(Object.values(sumsPerRelationship));
+    const sameOrDescendant = addFilterCounts([
+      sumsPerRelationship.same,
+      sumsPerRelationship.descendant,
+    ]);
 
-        return { ...sumsPerRelationship, all, sameOrDescendant };
-      });
+    const byRelationship = { ...sumsPerRelationship, all, sameOrDescendant };
 
     return { result: byRelationship };
   },
@@ -219,73 +192,103 @@ export const queries = {
     return { result: nodesToExpand.map((n) => n.path) };
   },
 
-  async getResourceTree({
-    search,
-    expandedNodes,
+  /**
+   * If prioritizeResourcePath is given, it will always be included in the list
+   * except if its level is deeper than `limit`.
+   */
+  async getResourcePathsAndParentsForAttributions({
+    attributionUuids,
+    limit,
+    prioritizedResourcePath,
   }: {
-    search?: string;
-    expandedNodes: Array<string>;
+    attributionUuids: Array<string>;
     limit?: number;
+    prioritizedResourcePath?: string;
   }) {
-    console.log('Expanded nodes:', expandedNodes);
-    let query = getDb()
-      .withRecursive('shown_resources', (eb) =>
-        eb
-          .selectFrom('resource as r')
-          .select((sb) => [
-            'id',
-            'path',
-            'max_descendant_id',
-            sb.val(0).as('level'),
-            sb.val(0).as('has_parent_with_manual_attribution'),
-          ])
-          .select((eb) => getTreeNodeProps(eb))
-          .where('path', '=', '')
-          .unionAll(
-            eb
-              .selectFrom('resource as r')
-              .innerJoin(
-                'shown_resources as parent',
-                'parent.id',
-                'r.parent_id',
-              )
-              .select(['r.id', 'r.path', 'r.max_descendant_id'])
-              .select(sql<number>`parent.level + 1`.as('level'))
-              .select(
-                sql<number>`r.is_attribution_breakpoint = 0 AND (parent.has_manual_attribution OR parent.has_parent_with_manual_attribution)`.as(
-                  'has_parent_with_manual_attribution',
-                ),
-              )
-              .select((eb) => getTreeNodeProps(eb))
-              .where(
-                'parent.path',
-                'in',
-                expandedNodes.map((e) => removeTrailingSlash(e)),
-              ),
-          ),
-      )
-      .selectFrom('shown_resources')
-      .selectAll();
+    const prioritizedResource = prioritizedResourcePath
+      ? await getResourceOrThrow(getDb(), prioritizedResourcePath)
+      : undefined;
 
-    if (search) {
-      // This is the slowest part of the query and could be sped up using fts5: https://www.sqlite.org/fts5.html
-      // But it's still <50ms for large files, so it's probably fine
-      query = query.where((eb) =>
+    let query = getDb()
+      .selectFrom('resource')
+      .select(sql<string>`path || IF(can_have_children, '/', '')`.as('path'))
+      .where((eb) =>
         eb.exists(
           eb
-            .selectFrom('resource')
+            .selectFrom('resource_to_attribution as rta')
             .selectAll()
-            .where(sql<SqlBool>`path LIKE '%' || ${search} || '%'`)
-            .whereRef('id', '>=', 'shown_resources.id')
-            .whereRef('id', '<=', 'shown_resources.max_descendant_id'),
+            .whereRef('resource.id', '<=', 'rta.resource_id')
+            .whereRef('rta.resource_id', '<=', 'resource.max_descendant_id')
+            .where('attribution_uuid', 'in', attributionUuids),
         ),
+      );
+
+    if (prioritizedResource) {
+      // Order prioritized resource and parents first
+      query = query.orderBy(
+        (eb) =>
+          eb.and([
+            eb('resource.id', '<=', prioritizedResource.id),
+            eb('resource.max_descendant_id', '>=', prioritizedResource.id),
+          ]),
+        'desc',
       );
     }
 
-    const treeNodes = await query.orderBy('id').execute();
+    if (limit) {
+      query = query.limit(limit);
+    }
 
-    return { result: treeNodes };
+    const result = await query.execute();
+
+    return { result: result.map((r) => r.path) };
   },
+
+  async getResourceCountOnAttributions({
+    attributionUuids,
+  }: {
+    attributionUuids: Array<string>;
+  }) {
+    const result = await getDb()
+      .selectFrom('resource_to_attribution')
+      .select((eb) =>
+        eb.fn.count<number>('resource_id').distinct().as('resource_count'),
+      )
+      .where('attribution_uuid', 'in', attributionUuids)
+      .executeTakeFirstOrThrow();
+
+    return { result: result.resource_count };
+  },
+
+  async isResourceLinkedOnAllAttributions({
+    resourcePath,
+    attributionUuids,
+  }: {
+    resourcePath: string;
+    attributionUuids: Array<string>;
+  }) {
+    const resource = await getResourceOrThrow(getDb(), resourcePath);
+
+    const linkedAttributionCount = await getDb()
+      .selectFrom('resource_to_attribution')
+      .select((eb) =>
+        eb.fn
+          .count<number>('attribution_uuid')
+          .distinct()
+          .as('linked_attribution_count'),
+      )
+      .where('attribution_uuid', 'in', attributionUuids)
+      .where('resource_id', '=', resource.id)
+      .executeTakeFirstOrThrow();
+
+    return {
+      result:
+        linkedAttributionCount.linked_attribution_count ===
+        attributionUuids.length,
+    };
+  },
+
+  getResourceTree,
 } satisfies Record<string, QueryFunction>;
 
 export type Queries = typeof queries;

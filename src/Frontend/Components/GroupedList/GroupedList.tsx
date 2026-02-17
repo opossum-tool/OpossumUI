@@ -84,8 +84,8 @@ export function GroupedList({
     setIsVirtuosoFocused,
     selectedIndex,
     isVirtuosoFocused,
-  } = useVirtuosoRefs<GroupedVirtuosoHandle>({
-    data: groups?.ids,
+  } = useVirtuosoRefs<{ id: string }, GroupedVirtuosoHandle>({
+    data: groups?.ids.map((g) => ({ id: g })),
     selectedId,
   });
 

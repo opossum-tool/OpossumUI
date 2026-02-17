@@ -6,6 +6,7 @@ import { SxProps } from '@mui/system';
 import { remove } from 'lodash';
 import { useCallback, useEffect } from 'react';
 
+import { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import { ROOT_PATH } from '../../../shared-constants';
 import { setSelectedResourceIdOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
 import {
@@ -22,11 +23,11 @@ import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
 import { ResourcesTreeNode } from './ResourcesTreeNode/ResourcesTreeNode';
 
 interface Props {
-  resourceIds: Array<string>;
+  resources: Array<ResourceTreeNodeData>;
   sx?: SxProps;
 }
 
-export const ResourcesTree = ({ resourceIds, sx }: Props) => {
+export const ResourcesTree = ({ resources, sx }: Props) => {
   const dispatch = useAppDispatch();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const expandedIds = useAppSelector(getExpandedIds);
@@ -67,10 +68,9 @@ export const ResourcesTree = ({ resourceIds, sx }: Props) => {
 
   return (
     <VirtualizedTree
-      expandedIds={expandedIds}
       onSelect={handleSelect}
       onToggle={handleToggle}
-      resourceIds={resourceIds}
+      resources={resources}
       selectedNodeId={selectedResourceId}
       TreeNodeLabel={ResourcesTreeNode}
       sx={sx}
