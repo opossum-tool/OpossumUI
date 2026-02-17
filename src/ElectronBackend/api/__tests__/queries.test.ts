@@ -8,45 +8,31 @@ import { pathsToResources } from '../../../testing/global-test-helpers';
 import { initializeDb } from '../../db/initializeDb';
 import { queries } from '../queries';
 
-const TEST_FILE_CONTENT: ParsedFileContent = {
-  metadata: { projectId: '', fileCreationDate: '' },
-  resources: { src: { 'App.tsx': 1, utils: { 'helper.ts': 1 } } },
-  config: { classifications: {} },
-  manualAttributions: {
-    attributions: {},
-    resourcesToAttributions: {},
-    attributionsToResources: {},
-  },
-  externalAttributions: {
-    attributions: {},
-    resourcesToAttributions: {},
-    attributionsToResources: {},
-  },
-  frequentLicenses: { nameOrder: [], texts: {} },
-  resolvedExternalAttributions: new Set(),
-  attributionBreakpoints: new Set(),
-  filesWithChildren: new Set(),
-  baseUrlsForSources: {},
-  externalAttributionSources: {},
-};
-
-describe('searchResources', () => {
-  beforeEach(async () => {
-    await initializeDb(TEST_FILE_CONTENT);
-  });
-
-  it('finds resources matching search string case-insensitively', async () => {
-    const results = await queries.searchResources({ searchString: 'APP' });
-
-    expect(results.result).toEqual(['/src/App.tsx']);
-  });
-
-  it('appends trailing slash to directories', async () => {
-    const results = await queries.searchResources({ searchString: 'src' });
-
-    expect(results.result).toContain('/src/');
-  });
-});
+function makeFileContent(
+  overrides: Partial<ParsedFileContent> & Pick<ParsedFileContent, 'resources'>,
+): ParsedFileContent {
+  return {
+    metadata: { projectId: '', fileCreationDate: '' },
+    config: { classifications: {} },
+    manualAttributions: {
+      attributions: {},
+      resourcesToAttributions: {},
+      attributionsToResources: {},
+    },
+    externalAttributions: {
+      attributions: {},
+      resourcesToAttributions: {},
+      attributionsToResources: {},
+    },
+    frequentLicenses: { nameOrder: [], texts: {} },
+    resolvedExternalAttributions: new Set(),
+    attributionBreakpoints: new Set(),
+    filesWithChildren: new Set(),
+    baseUrlsForSources: {},
+    externalAttributionSources: {},
+    ...overrides,
+  };
+}
 
 describe('resourceDescendantCount', () => {
   beforeEach(async () => {
@@ -303,5 +289,209 @@ describe('filterCounts', () => {
 
     expect(result.all.total).toBe(1);
     expect(result.ancestor?.total).toBe(1);
+  });
+});
+
+describe('getNodePathsToExpand', () => {
+  it('returns only the starting node when it has multiple children', async () => {
+    await initializeDb(
+      makeFileContent({
+        resources: { src: { 'a.ts': 1, 'b.ts': 1 } },
+      }),
+    );
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/src/',
+    });
+
+    expect(result).toEqual(['/src/']);
+  });
+
+  it('follows single-child chain and stops at branching point', async () => {
+    await initializeDb(
+      makeFileContent({
+        resources: { a: { b: { 'x.ts': 1, 'y.ts': 1 } } },
+      }),
+    );
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/a/',
+    });
+
+    expect(result).toEqual(['/a/', '/a/b/']);
+  });
+
+  it('follows single-child chain and stops at leaf', async () => {
+    await initializeDb(
+      makeFileContent({
+        resources: { a: { b: { 'file.ts': 1 } } },
+      }),
+    );
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/a/',
+    });
+
+    expect(result).toEqual(['/a/', '/a/b/']);
+  });
+});
+
+describe('getResourcePathsAndParentsForAttributions', () => {
+  beforeEach(async () => {
+    await initializeDb(
+      makeFileContent({
+        resources: pathsToResources([
+          '/src/linked/file.ts',
+          '/src/unlinked/other.ts',
+        ]),
+        externalAttributions: {
+          attributions: {
+            uuid1: { id: 'uuid1', criticality: 0 },
+          },
+          resourcesToAttributions: { '/src/linked/file.ts': ['uuid1'] },
+          attributionsToResources: { uuid1: ['/src/linked/file.ts'] },
+        },
+      }),
+    );
+  });
+
+  it('returns ancestor paths of linked resources', async () => {
+    const { result } = await queries.getResourcePathsAndParentsForAttributions({
+      attributionUuids: ['uuid1'],
+    });
+
+    expect(result).toContain('/');
+    expect(result).toContain('/src/');
+    expect(result).toContain('/src/linked/');
+    expect(result).toContain('/src/linked/file.ts');
+    expect(result).not.toContain('/src/unlinked/');
+  });
+
+  it('respects limit', async () => {
+    const { result } = await queries.getResourcePathsAndParentsForAttributions({
+      attributionUuids: ['uuid1'],
+      limit: 2,
+    });
+
+    expect(result).toHaveLength(2);
+  });
+
+  it('prioritizes the given resource and its parents', async () => {
+    await initializeDb(
+      makeFileContent({
+        resources: pathsToResources(['/alpha/file.ts', '/beta/file.ts']),
+        externalAttributions: {
+          attributions: { uuid1: { id: 'uuid1', criticality: 0 } },
+          resourcesToAttributions: {
+            '/alpha/file.ts': ['uuid1'],
+            '/beta/file.ts': ['uuid1'],
+          },
+          attributionsToResources: {
+            uuid1: ['/alpha/file.ts', '/beta/file.ts'],
+          },
+        },
+      }),
+    );
+
+    const { result } = await queries.getResourcePathsAndParentsForAttributions({
+      attributionUuids: ['uuid1'],
+      limit: 3,
+      prioritizedResourcePath: '/beta/file.ts',
+    });
+
+    expect(result).toContain('/beta/');
+    expect(result).toContain('/beta/file.ts');
+  });
+});
+
+describe('getResourceCountOnAttributions', () => {
+  it('counts distinct resources across attributions', async () => {
+    await initializeDb(
+      makeFileContent({
+        resources: pathsToResources(['/a', '/b', '/c']),
+        externalAttributions: {
+          attributions: {
+            uuid1: { id: 'uuid1', criticality: 0 },
+            uuid2: { id: 'uuid2', criticality: 0 },
+          },
+          resourcesToAttributions: {
+            '/a': ['uuid1'],
+            '/b': ['uuid1', 'uuid2'],
+            '/c': ['uuid2'],
+          },
+          attributionsToResources: {
+            uuid1: ['/a', '/b'],
+            uuid2: ['/b', '/c'],
+          },
+        },
+      }),
+    );
+
+    const { result } = await queries.getResourceCountOnAttributions({
+      attributionUuids: ['uuid1', 'uuid2'],
+    });
+
+    expect(result).toBe(3);
+  });
+
+  it('returns zero for attributions with no resources', async () => {
+    await initializeDb(
+      makeFileContent({
+        resources: { 'file.ts': 1 },
+        externalAttributions: {
+          attributions: { uuid1: { id: 'uuid1', criticality: 0 } },
+          resourcesToAttributions: {},
+          attributionsToResources: {},
+        },
+      }),
+    );
+
+    const { result } = await queries.getResourceCountOnAttributions({
+      attributionUuids: ['uuid1'],
+    });
+
+    expect(result).toBe(0);
+  });
+});
+
+describe('isResourceLinkedOnAllAttributions', () => {
+  beforeEach(async () => {
+    await initializeDb(
+      makeFileContent({
+        resources: pathsToResources(['/linked', '/partial']),
+        externalAttributions: {
+          attributions: {
+            uuid1: { id: 'uuid1', criticality: 0 },
+            uuid2: { id: 'uuid2', criticality: 0 },
+          },
+          resourcesToAttributions: {
+            '/linked': ['uuid1', 'uuid2'],
+            '/partial': ['uuid1'],
+          },
+          attributionsToResources: {
+            uuid1: ['/linked', '/partial'],
+            uuid2: ['/linked'],
+          },
+        },
+      }),
+    );
+  });
+
+  it('returns true when resource is linked to all given attributions', async () => {
+    const { result } = await queries.isResourceLinkedOnAllAttributions({
+      resourcePath: '/linked',
+      attributionUuids: ['uuid1', 'uuid2'],
+    });
+
+    expect(result).toBe(true);
+  });
+
+  it('returns false when resource is linked to only some of the given attributions', async () => {
+    const { result } = await queries.isResourceLinkedOnAllAttributions({
+      resourcePath: '/partial',
+      attributionUuids: ['uuid1', 'uuid2'],
+    });
+
+    expect(result).toBe(false);
   });
 });

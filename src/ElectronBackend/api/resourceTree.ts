@@ -162,9 +162,7 @@ export async function getResourceTree({
 type TreeNodeQueryType = DB & {
   r: Resource;
 };
-export function getTreeNodeProps(
-  eb: ExpressionBuilder<TreeNodeQueryType, 'r'>,
-) {
+function getTreeNodeProps(eb: ExpressionBuilder<TreeNodeQueryType, 'r'>) {
   return [
     eb.ref('r.name').as('name'),
 
