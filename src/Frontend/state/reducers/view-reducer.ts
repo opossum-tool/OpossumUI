@@ -6,6 +6,7 @@
 import { ExportType, FileFormatInfo } from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
 import { PopupInfo } from '../../types/types';
+import { invalidateAllQueries } from '../../util/backendClient';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -71,6 +72,7 @@ export function viewState(
           : state.popupInfo.concat(action.payload),
       };
     case ACTION_SET_OPEN_FILE_REQUEST:
+      invalidateAllQueries();
       return {
         ...state,
         openFileRequest: action.payload,
