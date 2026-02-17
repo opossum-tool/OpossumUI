@@ -93,46 +93,4 @@ describe('SignalsWorker', () => {
       data: expect.any(Object),
     });
   });
-
-  it('dispatches progress data when dependencies are met', () => {
-    const dispatch = vi.fn();
-    const worker = new SignalsWorker(dispatch, {
-      attributionBreakpoints: new Set<string>(),
-      externalData: faker.opossum.attributionData(),
-      filesWithChildren: new Set<string>(),
-      manualData: faker.opossum.attributionData(),
-      resolvedExternalAttributions: new Set<string>(),
-      classifications: {},
-    });
-
-    worker.processInput({
-      name: 'resources',
-      data: faker.opossum.resources(),
-    });
-
-    expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'progressData',
-      data: expect.any(Object),
-    });
-  });
-
-  it('does not dispatch progress data when dependencies are missing', () => {
-    const dispatch = vi.fn();
-    const worker = new SignalsWorker(dispatch, {
-      attributionBreakpoints: new Set<string>(),
-      externalData: faker.opossum.attributionData(),
-      filesWithChildren: new Set<string>(),
-      manualData: faker.opossum.attributionData(),
-    });
-
-    worker.processInput({
-      name: 'resources',
-      data: faker.opossum.resources(),
-    });
-
-    expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
-      name: 'progressData',
-      data: expect.any(Object),
-    });
-  });
 });

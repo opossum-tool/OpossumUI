@@ -9,13 +9,10 @@ import { changeSelectedAttributionOrOpenUnsavedPopup } from '../state/actions/po
 import { useAppDispatch, useAppSelector } from '../state/hooks';
 import {
   getAttributionBreakpoints,
-  getClassifications,
   getExternalData,
-  getFilesWithChildren,
   getManualData,
   getProjectMetadata,
   getResolvedExternalAttributions,
-  getResources,
   getSelectedResourceId,
 } from '../state/selectors/resource-selectors';
 import {
@@ -23,7 +20,6 @@ import {
   useFilteredAttributionsInReportView,
   useFilteredSignals,
 } from '../state/variables/use-filtered-data';
-import { useProgressData } from '../state/variables/use-progress-data';
 import { useUserSettings } from '../state/variables/use-user-setting';
 import { useDebouncedInput } from '../util/use-debounced-input';
 import { SignalsWorkerInput, SignalsWorkerOutput } from './signals-worker';
@@ -36,11 +32,8 @@ export function useSignalsWorker() {
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions,
   );
-  const resources = useAppSelector(getResources);
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
-  const filesWithChildren = useAppSelector(getFilesWithChildren);
   const { projectId } = useAppSelector(getProjectMetadata);
-  const classifications = useAppSelector(getClassifications);
   const [worker, setWorker] = useState<Worker>();
 
   const [
@@ -72,7 +65,6 @@ export function useSignalsWorker() {
   const debouncedAttributionSearch = useDebouncedInput(attributionSearch);
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
-  const [, setProgressData] = useProgressData();
 
   useEffect(() => {
     if (!projectId) {
@@ -95,9 +87,6 @@ export function useSignalsWorker() {
       // eslint-disable-next-line react-hooks/immutability
       worker.onmessage = ({ data }: MessageEvent<SignalsWorkerOutput>) => {
         switch (data.name) {
-          case 'progressData':
-            setProgressData(data.data);
-            break;
           case 'filteredAttributions':
             setFilteredAttributions((prev) => {
               if (prev.selectFirstAttribution) {
@@ -158,7 +147,6 @@ export function useSignalsWorker() {
     setFilteredAttributions,
     setFilteredAttributionsInReportView,
     setFilteredSignals,
-    setProgressData,
     worker,
   ]);
 
@@ -202,22 +190,6 @@ export function useSignalsWorker() {
       data: attributionBreakpoints,
     } satisfies SignalsWorkerInput);
   }, [attributionBreakpoints, worker]);
-
-  useEffect(() => {
-    worker?.postMessage({
-      name: 'filesWithChildren',
-      data: filesWithChildren,
-    } satisfies SignalsWorkerInput);
-  }, [filesWithChildren, worker]);
-
-  useEffect(() => {
-    if (resources) {
-      worker?.postMessage({
-        name: 'resources',
-        data: resources,
-      } satisfies SignalsWorkerInput);
-    }
-  }, [resources, worker]);
 
   useEffect(() => {
     worker?.postMessage({
@@ -295,11 +267,4 @@ export function useSignalsWorker() {
       data: signalSelectedLicense,
     } satisfies SignalsWorkerInput);
   }, [worker, signalSelectedLicense]);
-
-  useEffect(() => {
-    worker?.postMessage({
-      name: 'classifications',
-      data: classifications,
-    } satisfies SignalsWorkerInput);
-  }, [worker, classifications]);
 }
