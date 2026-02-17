@@ -75,10 +75,13 @@ export const mutations = {
       });
 
     return {
-      invalidates: params.attributionUuids.map((attributionUuid) => ({
-        queryName: 'getAttributionData',
-        params: { attributionUuid },
-      })),
+      invalidates: [
+        ...params.attributionUuids.map((attributionUuid) => ({
+          queryName: 'getAttributionData' as const,
+          params: { attributionUuid },
+        })),
+        { queryName: 'filterCounts' },
+      ],
     };
   },
 
@@ -145,6 +148,7 @@ export const mutations = {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionIdToReplaceWith },
         },
+        { queryName: 'filterCounts' },
       ],
     };
   },
@@ -179,6 +183,7 @@ export const mutations = {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionUuid },
         },
+        { queryName: 'filterCounts' },
       ],
     };
   },
@@ -229,6 +234,7 @@ export const mutations = {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionUuid },
         },
+        { queryName: 'filterCounts' },
       ],
     };
   },
@@ -260,10 +266,13 @@ export const mutations = {
       });
 
     return {
-      invalidates: Object.keys(params.attributions).map((attributionUuid) => ({
-        queryName: 'getAttributionData',
-        params: { attributionUuid },
-      })),
+      invalidates: [
+        ...Object.keys(params.attributions).map((attributionUuid) => ({
+          queryName: 'getAttributionData' as const,
+          params: { attributionUuid },
+        })),
+        { queryName: 'filterCounts' },
+      ],
     };
   },
 
@@ -306,10 +315,13 @@ export const mutations = {
       });
 
     return {
-      invalidates: params.attributionUuids.map((attributionUuid) => ({
-        queryName: 'getAttributionData',
-        params: { attributionUuid },
-      })),
+      invalidates: [
+        ...params.attributionUuids.map((attributionUuid) => ({
+          queryName: 'getAttributionData' as const,
+          params: { attributionUuid },
+        })),
+        { queryName: 'filterCounts' },
+      ],
     };
   },
 } satisfies Record<string, MutationFunction>;
@@ -342,10 +354,13 @@ async function setAttributionsResolvedStatus(
     });
 
   return {
-    invalidates: attributionUuids.map((attributionUuid) => ({
-      queryName: 'getAttributionData' as const,
-      params: { attributionUuid },
-    })),
+    invalidates: [
+      ...attributionUuids.map((attributionUuid) => ({
+        queryName: 'getAttributionData' as const,
+        params: { attributionUuid },
+      })),
+      { queryName: 'filterCounts' as const },
+    ],
   };
 }
 

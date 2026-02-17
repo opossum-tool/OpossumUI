@@ -9,12 +9,16 @@ import MuiTooltip from '@mui/material/Tooltip';
 import MuiBox from '@mui/system/Box';
 
 import { text } from '../../../../../shared/text';
-import { useUserSettings } from '../../../../state/variables/use-user-setting';
 
-export const IncludeExcludeButton: React.FC = () => {
-  const [userSettings, updateUserSettings] = useUserSettings();
-  const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
-  const label = areHiddenSignalsVisible
+type ToggleHiddenSignalsButtonProps = {
+  showHiddenSignals: boolean;
+  setShowHiddenSignals: (showHiddenSignals: boolean) => void;
+};
+
+export const ToggleHiddenSignalsButton: React.FC<
+  ToggleHiddenSignalsButtonProps
+> = ({ showHiddenSignals, setShowHiddenSignals }) => {
+  const label = showHiddenSignals
     ? text.packageLists.hideDeleted
     : text.packageLists.showDeleted;
 
@@ -22,15 +26,11 @@ export const IncludeExcludeButton: React.FC = () => {
     <MuiIconButton
       aria-label={label}
       size={'small'}
-      onClick={() => {
-        updateUserSettings((currentSettings) => ({
-          areHiddenSignalsVisible: !currentSettings.areHiddenSignalsVisible,
-        }));
-      }}
+      onClick={() => setShowHiddenSignals(!showHiddenSignals)}
     >
       <MuiTooltip title={label} disableInteractive placement={'top'}>
         <MuiBox sx={{ height: '24px' }}>
-          {areHiddenSignalsVisible ? <VisibilityIcon /> : <VisibilityOffIcon />}
+          {showHiddenSignals ? <VisibilityIcon /> : <VisibilityOffIcon />}
         </MuiBox>
       </MuiTooltip>
     </MuiIconButton>

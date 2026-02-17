@@ -98,12 +98,6 @@ export function useSignalsWorker() {
           case 'progressData':
             setProgressData(data.data);
             break;
-          case 'filteredAttributionCounts':
-            setFilteredAttributions((prev) => ({
-              ...prev,
-              counts: data.data,
-            }));
-            break;
           case 'filteredAttributions':
             setFilteredAttributions((prev) => {
               if (prev.selectFirstAttribution) {
@@ -124,23 +118,11 @@ export function useSignalsWorker() {
               };
             });
             break;
-          case 'reportViewFilteredAttributionCounts':
-            setFilteredAttributionsInReportView((prev) => ({
-              ...prev,
-              counts: data.data,
-            }));
-            break;
           case 'filteredAttributionsInReportView':
             setFilteredAttributionsInReportView((prev) => ({
               ...prev,
               loading: false,
               attributions: data.data,
-            }));
-            break;
-          case 'filteredSignalCounts':
-            setFilteredSignals((prev) => ({
-              ...prev,
-              counts: data.data,
             }));
             break;
           case 'filteredSignals':

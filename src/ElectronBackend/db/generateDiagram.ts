@@ -106,7 +106,7 @@ export async function generateDiagram(
 
   if (renderResult.status !== 'success') {
     throw Error(
-      `Error rendering svg diagram: ${renderResult.errors.join('; ')}`,
+      `Error rendering svg diagram: ${JSON.stringify(renderResult.errors)}`,
     );
   }
 

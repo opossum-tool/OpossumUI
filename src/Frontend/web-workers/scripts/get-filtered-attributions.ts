@@ -12,7 +12,7 @@ import {
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { SortOption } from '../../Components/SortButton/useSortingOptions';
-import { Filter, FilterCounts, FILTERS } from '../../shared-constants';
+import { Filter } from '../../shared-constants';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getContainedAttributionCount } from '../../util/get-contained-attribution-count';
 import {
@@ -76,52 +76,6 @@ function getVisiblePackages({
         ? attribution.licenseName?.trim() === selectedLicense
         : true),
   );
-}
-
-export function getFilteredAttributionCounts({
-  data,
-  filters,
-  includeGlobal,
-  resolvedExternalAttributions,
-  resourceId,
-  search,
-  selectedLicense,
-}: {
-  data: AttributionData;
-  filters: Array<Filter>;
-  includeGlobal?: boolean;
-  resolvedExternalAttributions?: Set<string>;
-  resourceId: string;
-  search: string;
-  selectedLicense: string;
-}): FilterCounts {
-  const attributionCount = getContainedAttributionCount({
-    resourceId,
-    resourcesToAttributions: data.resourcesToAttributions,
-    resourcesWithAttributedChildren: data.resourcesWithAttributedChildren,
-  });
-  const attributions = includeGlobal
-    ? data.attributions
-    : pick(data.attributions, [
-        ...(data.resourcesToAttributions[resourceId] ?? []),
-        ...Object.keys(attributionCount),
-      ]);
-
-  const visiblePackages = getVisiblePackages({
-    packages: Object.values(attributions),
-    filters,
-    search,
-    selectedLicense,
-    resolvedExternalAttributions,
-  });
-  return FILTERS.reduce<FilterCounts>((acc, filter) => {
-    return {
-      ...acc,
-      [filter]: visiblePackages.filter((attribution) =>
-        FILTER_FUNCTIONS[filter](attribution),
-      ).length,
-    };
-  }, {});
 }
 
 export function getFilteredAttributions({
