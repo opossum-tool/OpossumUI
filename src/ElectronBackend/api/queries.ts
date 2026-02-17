@@ -275,6 +275,7 @@ export const queries = {
                 MAX(attribution.classification) as highest_classification
             FROM resource_to_attribution
             JOIN attribution ON resource_to_attribution.attribution_uuid = attribution.uuid
+            WHERE NOT attribution.is_resolved
             GROUP BY resource_id
         ),
         resource_tree(id, has_only_preselected, has_manual, has_external, has_non_inherited_external, highest_criticality, highest_classification) AS (

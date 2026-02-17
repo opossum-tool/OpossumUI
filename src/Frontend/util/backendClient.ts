@@ -177,3 +177,7 @@ export const backend = new Proxy({} as BackendClient, {
     };
   },
 });
+
+export function invalidateAllQueries() {
+  void queryClient.resetQueries();
+}
