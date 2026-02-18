@@ -48,6 +48,99 @@ describe('searchResources', () => {
   });
 });
 
+describe('resourceDescendantCount', () => {
+  beforeEach(async () => {
+    await initializeDb({
+      metadata: { projectId: '', fileCreationDate: '' },
+      resources: pathsToResources(['/parent/target/child', '/parent/sibling']),
+      config: { classifications: {} },
+      manualAttributions: {
+        attributions: {},
+        resourcesToAttributions: {},
+        attributionsToResources: {},
+      },
+      externalAttributions: {
+        attributions: {
+          'attr-target': { id: 'attr-target', criticality: 0 },
+          'attr-child': { id: 'attr-child', criticality: 0 },
+        },
+        resourcesToAttributions: {
+          '/parent/target': ['attr-target'],
+          '/parent/target/child': ['attr-child'],
+        },
+        attributionsToResources: {
+          'attr-target': ['/parent/target'],
+          'attr-child': ['/parent/target/child'],
+        },
+      },
+      frequentLicenses: { nameOrder: [], texts: {} },
+      resolvedExternalAttributions: new Set(),
+      attributionBreakpoints: new Set(),
+      filesWithChildren: new Set(),
+      baseUrlsForSources: {},
+      externalAttributionSources: {},
+    });
+  });
+
+  it('counts the resource itself and all its descendants', async () => {
+    const { result } = await queries.resourceDescendantCount({
+      searchString: '',
+      resourcePath: '/parent/target',
+    });
+
+    expect(result).toBe(2);
+  });
+
+  it('filters descendants by search string', async () => {
+    const { result } = await queries.resourceDescendantCount({
+      searchString: 'child',
+      resourcePath: '/parent/target',
+    });
+
+    expect(result).toBe(1);
+  });
+
+  it('filters descendants to those with a given attribution', async () => {
+    const { result } = await queries.resourceDescendantCount({
+      searchString: '',
+      resourcePath: '/parent/target',
+      onAttributions: ['attr-target'],
+    });
+
+    expect(result).toBe(1);
+  });
+
+  it('counts all resources matching any of the given attributions', async () => {
+    const { result } = await queries.resourceDescendantCount({
+      searchString: '',
+      resourcePath: '/parent/target',
+      onAttributions: ['attr-target', 'attr-child'],
+    });
+
+    expect(result).toBe(2);
+  });
+
+  it('returns 0 when no descendants match the given attributions', async () => {
+    const { result } = await queries.resourceDescendantCount({
+      searchString: '',
+      resourcePath: '/parent/target',
+      onAttributions: ['non-existent'],
+    });
+
+    expect(result).toBe(0);
+  });
+
+  it('applies searchString and onAttributions as a combined filter', async () => {
+    const { result } = await queries.resourceDescendantCount({
+      searchString: 'child',
+      resourcePath: '/parent/target',
+      onAttributions: ['attr-target'],
+    });
+
+    expect(result).toBe(0);
+  });
+});
+
 describe('filterCounts', () => {
   async function setupDb(options?: { resolved?: Array<string> }) {
     await initializeDb({

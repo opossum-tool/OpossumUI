@@ -8,7 +8,11 @@ import { useCallback, useMemo } from 'react';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
-import { getResourceIdsOfSelectedAttribution } from '../../state/selectors/resource-selectors';
+import {
+  getResourceIdsOfSelectedAttribution,
+  getSelectedAttributionId,
+  getSelectedResourceId,
+} from '../../state/selectors/resource-selectors';
 import { useIsSelectedAttributionVisible } from '../../state/variables/use-filtered-data';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
@@ -42,6 +46,13 @@ export function ResourceBrowser() {
       { searchString: debouncedSearchAll },
       { placeholderData: keepPreviousData },
     ).data ?? [];
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const selectedCount: number =
+    backend.resourceDescendantCount.useQuery(
+      { searchString: debouncedSearchAll, resourcePath: selectedResourceId },
+      { placeholderData: keepPreviousData },
+    ).data ?? 0;
+
   const linkedResourcesFiltered = useMemo(
     () =>
       isSelectedAttributionVisible
@@ -55,6 +66,17 @@ export function ResourceBrowser() {
       debouncedSearchLinked,
     ],
   );
+
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const selectedLinkedCount: number =
+    backend.resourceDescendantCount.useQuery(
+      {
+        searchString: debouncedSearchLinked,
+        resourcePath: selectedResourceId,
+        onAttributions: [selectedAttributionId],
+      },
+      { placeholderData: keepPreviousData },
+    ).data ?? 0;
 
   const setWidth = useCallback(
     (width: number) => setPanelSizes({ resourceBrowserWidth: width }),
@@ -82,7 +104,10 @@ export function ResourceBrowser() {
       setWidth={setWidth}
       setHeight={setHeight}
       upperPanel={{
-        title: text.resourceBrowser.allResources(allResourcesFiltered.length),
+        title: text.resourceBrowser.allResources(
+          selectedCount,
+          allResourcesFiltered.length,
+        ),
         search: {
           value: searchAll,
           setValue: setSearchAll,
@@ -93,6 +118,7 @@ export function ResourceBrowser() {
       }}
       lowerPanel={{
         title: text.resourceBrowser.linkedResources(
+          selectedLinkedCount,
           linkedResourcesFiltered.length,
         ),
         search: {
