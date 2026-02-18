@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ExpressionBuilder, sql, SqlBool } from 'kysely';
+import { Expression, expressionBuilder, ExpressionBuilder, sql } from 'kysely';
 
 import { getDb } from '../db/db';
 import { DB, Resource } from '../db/generated/databaseTypes';
@@ -12,7 +12,10 @@ export type ResourceTreeNodeData = Awaited<
   ReturnType<typeof getResourceTree>
 >['result']['treeNodes'][number];
 
-export async function getResourceTree({
+const FILTERED_RESOURCE_TEMP_TABLE = 'filtered_resources';
+type FilteredTable = { filtered_resources: { id: number } };
+
+export function getResourceTree({
   search,
   expandedNodes,
   onAttributionUuids,
@@ -21,142 +24,206 @@ export async function getResourceTree({
   expandedNodes: Array<string> | 'expandAll';
   onAttributionUuids?: Array<string>;
 }) {
-  let query = getDb()
-    .withRecursive('shown_resources', (eb) =>
-      eb
-        .selectFrom('resource as r')
-        .select((sb) => [
-          'id',
-          'path',
-          'max_descendant_id',
-          'is_attribution_breakpoint',
-          'is_file',
-          'parent_id',
-          sb.val(0).as('level'),
-          sb.val('').as('sort_key'),
-          sb.val(0).as('has_parent_with_manual_attribution'),
-        ])
-        .select((eb) => getTreeNodeProps(eb))
-        .where('path', '=', '')
-        .unionAll((eb) => {
-          let query = eb
+  return getDb()
+    .transaction()
+    .execute(async (trx) => {
+      /*
+       * FILTERED_RESOURCE_TEMP_TABLE contains the name of the table that contains all the resources included by the filter on search and onAttributionUuids.
+       * If both are undefined, that is just a view on `resource` with no runtime overhead
+       */
+
+      let dropTempTable;
+      if (search || onAttributionUuids) {
+        let filterQuery;
+        if (search && onAttributionUuids) {
+          filterQuery = trx
             .selectFrom('resource as r')
-            .innerJoin('shown_resources as parent', 'parent.id', 'r.parent_id')
-            .select([
+            .innerJoin(
+              'resource_to_attribution as rta',
               'r.id',
-              'r.path',
-              'r.max_descendant_id',
-              'r.is_attribution_breakpoint',
-              'r.is_file',
-              'r.parent_id',
-            ])
-            .select(sql<number>`parent.level + 1`.as('level'))
-            .select(
-              sql<string>`parent.sort_key || '/' || r.is_file || r.name`.as(
-                'sort_key',
-              ),
+              'rta.resource_id',
             )
-            .select(
-              sql<number>`r.is_attribution_breakpoint = 0 AND (parent.has_manual_attribution OR parent.has_parent_with_manual_attribution)`.as(
-                'has_parent_with_manual_attribution',
-              ),
-            )
-            .select((eb) => getTreeNodeProps(eb));
+            .select('id')
+            .where('r.path', 'like', `%${search}%`)
+            .where('rta.attribution_uuid', 'in', onAttributionUuids);
+        } else if (search) {
+          filterQuery = trx
+            .selectFrom('resource as r')
+            .select('id')
+            .where('r.path', 'like', `%${search}%`);
+        } else {
+          filterQuery = trx
+            .selectFrom('resource_to_attribution as rta')
+            .select('resource_id as id')
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            .where('rta.attribution_uuid', 'in', onAttributionUuids!);
+        }
 
-          if (expandedNodes !== 'expandAll') {
-            query = query.where(
-              'parent.path',
-              'in',
-              expandedNodes.map((e) => removeTrailingSlash(e)),
-            );
-          }
+        await trx.schema
+          .createTable(FILTERED_RESOURCE_TEMP_TABLE)
+          .temporary()
+          .as(filterQuery)
+          .execute();
 
-          if (onAttributionUuids) {
-            query = query.where((eb) =>
-              eb.exists(
-                eb
-                  .selectFrom('resource_to_attribution as rta')
-                  .selectAll()
-                  .whereRef('r.id', '<=', 'rta.resource_id')
-                  .whereRef('r.max_descendant_id', '>=', 'rta.resource_id')
-                  .where('attribution_uuid', 'in', onAttributionUuids),
-              ),
-            );
-          }
-          return query;
-        }),
-    )
-    .selectFrom('shown_resources')
-    .selectAll()
-    .select((eb) =>
-      eb
-        .exists(
+        await trx.schema
+          .createIndex('temp.filtered_resources_id_idx')
+          .on('filtered_resources')
+          .column('id')
+          .execute();
+
+        dropTempTable = () =>
+          trx.schema.dropTable(FILTERED_RESOURCE_TEMP_TABLE).execute();
+      } else {
+        await trx.schema
+          .createView(FILTERED_RESOURCE_TEMP_TABLE)
+          .temporary()
+          .as(trx.selectFrom('resource').select('id'))
+          .execute();
+
+        dropTempTable = () =>
+          trx.schema.dropView(FILTERED_RESOURCE_TEMP_TABLE).execute();
+      }
+
+      function filteredResourcesContainIdBetween(
+        a: Expression<number>,
+        b: Expression<number>,
+      ) {
+        const eb = expressionBuilder<DB & FilteredTable>();
+
+        return eb.exists((eb) =>
           eb
-            .selectFrom('resource as child')
+            .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
             .selectAll()
-            .whereRef('shown_resources.id', '=', 'child.parent_id'),
+            .where('id', '>=', a)
+            .where('id', '<=', b),
+        );
+      }
+
+      const total = (
+        await trx
+          .withTables<FilteredTable>()
+          .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
+          .select((eb) => eb.fn.countAll<number>().as('count'))
+          .executeTakeFirstOrThrow()
+      ).count;
+
+      if (total === 0) {
+        return { result: { treeNodes: [], count: 0 } };
+      }
+
+      let query = trx
+        .withRecursive('shown_resources', (eb) =>
+          eb
+            // Base case: Include /
+            .selectFrom('resource as r')
+            .select((sb) => [
+              'id',
+              'path',
+              'max_descendant_id',
+              'is_attribution_breakpoint',
+              'is_file',
+              'parent_id',
+              sb.val(0).as('level'),
+              sb.val('').as('sort_key'),
+              sb.val(0).as('has_parent_with_manual_attribution'),
+            ])
+            .select((eb) => getTreeNodeProps(eb))
+            .where('path', '=', '')
+
+            // Recursion: If parent is in shown resource, then include its children
+            .unionAll((eb) => {
+              let query = eb
+                .selectFrom('resource as r')
+                .innerJoin(
+                  'shown_resources as parent',
+                  'parent.id',
+                  'r.parent_id',
+                )
+                .select([
+                  'r.id',
+                  'r.path',
+                  'r.max_descendant_id',
+                  'r.is_attribution_breakpoint',
+                  'r.is_file',
+                  'r.parent_id',
+                  sql<number>`parent.level + 1`.as('level'),
+                  sql<string>`parent.sort_key || '/' || r.is_file || r.name`.as(
+                    'sort_key',
+                  ),
+                  sql<number>`r.is_attribution_breakpoint = 0 AND (parent.has_manual_attribution OR parent.has_parent_with_manual_attribution)`.as(
+                    'has_parent_with_manual_attribution',
+                  ),
+                ])
+                .select((eb) => getTreeNodeProps(eb));
+
+              if (expandedNodes !== 'expandAll') {
+                query = query.where(
+                  'parent.path',
+                  'in',
+                  expandedNodes.map((e) => removeTrailingSlash(e)),
+                );
+              }
+
+              if (search || onAttributionUuids) {
+                query = query.where((eb) =>
+                  filteredResourcesContainIdBetween(
+                    eb.ref('r.id'),
+                    eb.ref('r.max_descendant_id'),
+                  ),
+                );
+              }
+
+              return query;
+            }),
         )
-        .as('is_expandable'),
-    );
+        .selectFrom('shown_resources')
+        .selectAll()
+        .select((eb) =>
+          filteredResourcesContainIdBetween(
+            sql<number>`shown_resources.id + 1`,
+            eb.ref('shown_resources.max_descendant_id'),
+          ).as('is_expandable'),
+        );
 
-  if (search) {
-    // This is the slowest part of the query and could be sped up using fts5: https://www.sqlite.org/fts5.html
-    // But it's still <50ms for large files, so it's probably fine
-    query = query.where((eb) =>
-      eb.exists(
-        eb
-          .selectFrom('resource')
-          .selectAll()
-          .where(sql<SqlBool>`path LIKE '%' || ${search} || '%'`)
-          .whereRef('id', '>=', 'shown_resources.id')
-          .whereRef('id', '<=', 'shown_resources.max_descendant_id'),
-      ),
-    );
-  }
+      query = query.orderBy('sort_key');
 
-  query = query.orderBy('sort_key');
+      const treeNodes = (await query.execute()).map((node) => ({
+        id: node.path + (node.can_have_children ? '/' : ''), // For compatibility with legacy code
+        labelText: node.name || '/',
+        level: node.level,
+        isExpandable: Boolean(node.is_expandable),
+        isExpanded:
+          expandedNodes === 'expandAll' ||
+          expandedNodes.includes(
+            node.path + (node.can_have_children ? '/' : ''),
+          ),
+        hasManualAttribution: Boolean(node.has_manual_attribution),
+        hasExternalAttribution: Boolean(node.has_external_attribution),
+        hasUnresolvedExternalAttribution: Boolean(
+          node.has_unresolved_external_attribution,
+        ),
+        hasParentWithManualAttribution: Boolean(
+          node.has_parent_with_manual_attribution,
+        ),
+        containsExternalAttribution: Boolean(
+          node.contains_external_attribution,
+        ),
+        containsManualAttribution: Boolean(node.contains_manual_attribution),
+        containsResourcesWithOnlyExternalAttribution: Boolean(
+          node.contains_resource_with_only_external_attribution,
+        ),
+        canHaveChildren: Boolean(node.can_have_children),
+        isAttributionBreakpoint: Boolean(node.is_attribution_breakpoint),
+        isFile: Boolean(node.is_file),
+        criticality: node.max_criticality_on_unresolved_external_attribution,
+        classification:
+          node.max_classification_on_unresolved_external_attribution,
+      }));
 
-  const treeNodes = (await query.execute()).map((node) => ({
-    id: node.path + (node.can_have_children ? '/' : ''), // For compatibility with legacy code
-    labelText: node.name || '/',
-    level: node.level,
-    isExpandable: Boolean(node.is_expandable),
-    isExpanded:
-      expandedNodes === 'expandAll' ||
-      expandedNodes.includes(node.path + (node.can_have_children ? '/' : '')),
-    hasManualAttribution: Boolean(node.has_manual_attribution),
-    hasExternalAttribution: Boolean(node.has_external_attribution),
-    hasUnresolvedExternalAttribution: Boolean(
-      node.has_unresolved_external_attribution,
-    ),
-    hasParentWithManualAttribution: Boolean(
-      node.has_parent_with_manual_attribution,
-    ),
-    containsExternalAttribution: Boolean(node.contains_external_attribution),
-    containsManualAttribution: Boolean(node.contains_manual_attribution),
-    containsResourcesWithOnlyExternalAttribution: Boolean(
-      node.contains_resource_with_only_external_attribution,
-    ),
-    canHaveChildren: Boolean(node.can_have_children),
-    isAttributionBreakpoint: Boolean(node.is_attribution_breakpoint),
-    isFile: Boolean(node.is_file),
-    criticality: node.max_criticality_on_unresolved_external_attribution,
-    classification: node.max_classification_on_unresolved_external_attribution,
-  }));
+      await dropTempTable();
 
-  let totalCountQuery = getDb()
-    .selectFrom('resource')
-    .select((eb) => eb.fn.countAll<number>().as('count'));
-
-  if (search) {
-    totalCountQuery = totalCountQuery.where(
-      sql<SqlBool>`path LIKE '%' || ${search} || '%'`,
-    );
-  }
-
-  const totalCount = await totalCountQuery.executeTakeFirstOrThrow();
-
-  return { result: { treeNodes, count: totalCount.count } };
+      return { result: { treeNodes, count: total } };
+    });
 }
 
 type TreeNodeQueryType = DB & {
