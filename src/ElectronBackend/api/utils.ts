@@ -6,6 +6,7 @@ import {
   CaseWhenBuilder,
   ExpressionBuilder,
   expressionBuilder,
+  Kysely,
   sql,
   Transaction,
 } from 'kysely';
@@ -134,7 +135,7 @@ export function removeTrailingSlash(path: string) {
 }
 
 export async function getResourceOrThrow(
-  trx: Transaction<DB>,
+  trx: Kysely<DB>,
   resourcePath: string,
 ) {
   const strippedResourcePath = removeTrailingSlash(resourcePath);

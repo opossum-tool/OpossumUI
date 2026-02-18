@@ -227,10 +227,10 @@ export const text = {
     discard: 'Discard and Proceed',
   },
   resourceBrowser: {
-    allResources: (count: number) =>
-      `All Resources (${new Intl.NumberFormat().format(count)})`,
-    linkedResources: (count: number) =>
-      `Linked Resources (${new Intl.NumberFormat().format(count)})`,
+    allResources: (selectedResources: number, totalCount: number) =>
+      `Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,
+    linkedResources: (selectedResources: number, totalCount: number) =>
+      `Linked Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,
     hasHighlyCriticalSignals: 'Has highly critical signals',
     hasMediumCriticalSignals: 'Has medium critical signals',
     hasSignals: 'Has signals',
