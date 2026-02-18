@@ -149,7 +149,7 @@ export const mutations = {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionIdToReplaceWith },
         },
-        { queryName: 'filterCounts'  },
+        { queryName: 'filterCounts' },
         { queryName: 'getProgressBarData' },
       ],
     };
@@ -181,12 +181,12 @@ export const mutations = {
 
     return {
       invalidates: [
+        { queryName: 'getProgressBarData' },
         {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionUuid },
         },
         { queryName: 'filterCounts' },
-        { queryName: 'getProgressBarData' },
       ],
     };
   },
