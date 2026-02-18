@@ -208,9 +208,9 @@ async function initializeResourceTable(
   recursivelyInsertResource('', resources, null, null);
 
   await trx.schema
-    .createIndex('resource_parent_id_idx')
+    .createIndex('resource_parent_id_covering_idx')
     .on('resource')
-    .column('parent_id')
+    .columns(['parent_id', 'id', 'is_file', 'is_attribution_breakpoint'])
     .execute();
 
   return resourcePathToId;
@@ -306,6 +306,21 @@ async function initializeAttributionTable(
       .column(snakeCase(name))
       .execute();
   }
+
+  // Index needed for the progress bar data query
+  await trx.schema
+    .createIndex('attribution_is_resolved_covering_idx')
+    .on('attribution')
+    .columns([
+      'uuid',
+      'is_resolved',
+      'is_external',
+      'pre_selected',
+      'criticality',
+      'classification',
+    ])
+    .where('is_resolved', '=', 0)
+    .execute();
 }
 
 async function initializeSourceForAttributionTable(
@@ -392,13 +407,6 @@ async function initializeResourceToAttributionTable(
       insertStmt.run({ resource_id: resourceId, attribution_uuid: uuid });
     }
   }
-
-  await trx.schema
-    .createIndex('resource_to_attribution_resource_id_attribution_uuid_idx')
-    .on('resource_to_attribution')
-    .column('resource_id')
-    .column('attribution_uuid')
-    .execute();
 
   await trx.schema
     .createIndex('resource_to_attribution_attribution_uuid_resource_id_idx')

@@ -192,6 +192,7 @@ export const mutations = {
 
     return {
       invalidates: [
+        { queryName: 'getProgressBarData' },
         {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionUuid },
