@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { keepPreviousData } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
@@ -11,7 +11,6 @@ import { useAppSelector } from '../../state/hooks';
 import {
   getExpandedIds,
   getSelectedAttributionId,
-  getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
@@ -19,40 +18,14 @@ import { backend } from '../../util/backendClient';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
+import { useLinkedResourcesTreeState } from './LinkedResourcesTree/useLinkedResourcesTreeState';
 import { ResourcesTree } from './ResourcesTree/ResourcesTree';
 
 const ALL_RESOURCES_SEARCH = 'all-resources-search';
 const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
 
 export function ResourceBrowser() {
-  const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
-  const [searchLinked, setSearchLinked] = useVariable(
-    LINKED_RESOURCES_SEARCH,
-    '',
-  );
-  const debouncedSearchAll = useDebouncedInput(searchAll);
-  const debouncedSearchLinked = useDebouncedInput(searchLinked);
-
-
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const selectedCount: number =
-    backend.resourceDescendantCount.useQuery(
-      { searchString: debouncedSearchAll, resourcePath: selectedResourceId },
-      { placeholderData: keepPreviousData },
-    ).data ?? 0;
-
   const { panelSizes, setPanelSizes } = usePanelSizes();
-
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const selectedLinkedCount: number =
-    backend.resourceDescendantCount.useQuery(
-      {
-        searchString: debouncedSearchLinked,
-        resourcePath: selectedResourceId,
-        onAttributions: [selectedAttributionId],
-      },
-      { placeholderData: keepPreviousData },
-    ).data ?? 0;
 
   const setWidth = useCallback(
     (width: number) => setPanelSizes({ resourceBrowserWidth: width }),
@@ -68,23 +41,34 @@ export function ResourceBrowser() {
     [setPanelSizes],
   );
 
-  const expandedIds = useAppSelector(getExpandedIds);
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
-  const resourceTree = backend.getResourceTree.useQuery(
+  // All resources
+  const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
+  const debouncedSearchAll = useDebouncedInput(searchAll);
+  const expandedIdsAll = useAppSelector(getExpandedIds);
+  const resourceTreeAll = backend.getResourceTree.useQuery(
     {
-      expandedNodes: expandedIds,
+      expandedNodes: expandedIdsAll,
       search: debouncedSearchAll,
     },
     { placeholderData: keepPreviousData },
   );
 
-
-  const linkedResourceCount = backend.getResourceCountOnAttributions.useQuery(
-    {
-      attributionUuids: [selectedAttributionId],
-    },
-    { enabled: !!selectedAttributionId, placeholderData: keepPreviousData },
+  // Linked resources
+  const [searchLinked, setSearchLinked] = useVariable(
+    LINKED_RESOURCES_SEARCH,
+    '',
   );
+  const debouncedSearchLinked = useDebouncedInput(searchLinked);
+  const onAttributionUuids = useMemo(
+    () => [selectedAttributionId],
+    [selectedAttributionId],
+  );
+  const linkedResourcesTreeState = useLinkedResourcesTreeState({
+    onAttributionUuids,
+    search: debouncedSearchLinked,
+  });
 
   return (
     <ResizePanels
@@ -94,37 +78,36 @@ export function ResourceBrowser() {
       setWidth={setWidth}
       setHeight={setHeight}
       upperPanel={{
-        title: text.resourceBrowser.allResources(
-          selectedCount,
-          resourceTree.data?.count ?? 0,
-        ),
+        title: resourceTreeAll.data
+          ? text.resourceBrowser.allResources(
+              resourceTreeAll.data.belowSelectedResource ?? 0,
+              resourceTreeAll.data.count,
+            )
+          : '',
         search: {
           value: searchAll,
           setValue: setSearchAll,
           channel: AllowedFrontendChannels.SearchResources,
         },
         component: (
-          <ResourcesTree resources={resourceTree.data?.treeNodes ?? []} />
+          <ResourcesTree resources={resourceTreeAll.data?.treeNodes ?? []} />
         ),
         headerTestId: 'resources-tree-header',
       }}
       lowerPanel={{
-        title: text.resourceBrowser.linkedResources(
-          selectedLinkedCount,
-          linkedResourceCount.data ?? 0,
-        ),
+        title: linkedResourcesTreeState
+          ? text.resourceBrowser.linkedResources(
+              linkedResourcesTreeState.belowSelectedResource ?? 0,
+              linkedResourcesTreeState.count,
+            )
+          : '',
         search: {
           value: searchLinked,
           setValue: setSearchLinked,
           channel: AllowedFrontendChannels.SearchLinkedResources,
         },
-        hidden: !selectedAttributionId || linkedResourceCount.data === 0,
-        component: (
-          <LinkedResourcesTree
-            attributionUuids={[selectedAttributionId]}
-            search={debouncedSearchLinked}
-          />
-        ),
+        hidden: !linkedResourcesTreeState,
+        component: <LinkedResourcesTree state={linkedResourcesTreeState} />,
         headerTestId: 'linked-resources-tree-header',
       }}
     />

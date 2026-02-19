@@ -6,7 +6,7 @@ import { Expression, expressionBuilder, ExpressionBuilder, sql } from 'kysely';
 
 import { getDb } from '../db/db';
 import { DB, Resource } from '../db/generated/databaseTypes';
-import { removeTrailingSlash } from './utils';
+import { getResourceOrThrow, removeTrailingSlash } from './utils';
 
 export type ResourceTreeNodeData = Awaited<
   ReturnType<typeof getResourceTree>
@@ -19,10 +19,12 @@ export function getResourceTree({
   search,
   expandedNodes,
   onAttributionUuids,
+  selectedResourcePath,
 }: {
   search?: string;
   expandedNodes: Array<string> | 'expandAll';
   onAttributionUuids?: Array<string>;
+  selectedResourcePath?: string;
 }) {
   return getDb()
     .transaction()
@@ -107,7 +109,26 @@ export function getResourceTree({
           .executeTakeFirstOrThrow()
       ).count;
 
+      let belowSelectedResourceTotal = undefined;
+      if (selectedResourcePath) {
+        const selectedResource = await getResourceOrThrow(
+          trx,
+          selectedResourcePath,
+        );
+
+        belowSelectedResourceTotal = (
+          await trx
+            .withTables<FilteredTable>()
+            .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
+            .select((eb) => eb.fn.countAll<number>().as('count'))
+            .where('id', '>=', selectedResource.id)
+            .where('id', '<=', selectedResource.max_descendant_id)
+            .executeTakeFirstOrThrow()
+        ).count;
+      }
+
       if (total === 0) {
+        await dropTempTable();
         return { result: { treeNodes: [], count: 0 } };
       }
 
@@ -222,7 +243,13 @@ export function getResourceTree({
 
       await dropTempTable();
 
-      return { result: { treeNodes, count: total } };
+      return {
+        result: {
+          treeNodes,
+          count: total,
+          belowSelectedResource: belowSelectedResourceTotal,
+        },
+      };
     });
 }
 

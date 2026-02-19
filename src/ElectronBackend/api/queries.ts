@@ -34,37 +34,6 @@ type QueryFunction = (
 ) => Promise<{ result: NonNullable<unknown> | null }>; // Tanstack doesn't allow functions to return undefined
 
 export const queries = {
-  async resourceDescendantCount(props: {
-    searchString: string;
-    resourcePath: string;
-    onAttributions?: Array<string>;
-  }) {
-    const db = getDb();
-    const resource = await getResourceOrThrow(db, props.resourcePath);
-    let query = getDb()
-      .selectFrom('resource')
-      .select((eb) => eb.fn.countAll<number>().as('total'))
-      .where('id', '>=', resource.id)
-      .where('id', '<=', resource.max_descendant_id)
-      .where('path', 'like', `%${props.searchString}%`);
-    if (props.onAttributions !== undefined) {
-      const onAttributions = props.onAttributions;
-      query = query.where((eb) =>
-        eb(
-          'id',
-          'in',
-          eb
-            .selectFrom('resource_to_attribution')
-            .select('resource_id')
-            .where('attribution_uuid', 'in', onAttributions),
-        ),
-      );
-    }
-    const result = await query.executeTakeFirstOrThrow();
-
-    return { result: result.total };
-  },
-
   async getAttributionData(props: { attributionUuid: string }) {
     const result = await getDb()
       .selectFrom('attribution')
@@ -242,22 +211,6 @@ export const queries = {
     const result = await query.execute();
 
     return { result: result.map((r) => r.path) };
-  },
-
-  async getResourceCountOnAttributions({
-    attributionUuids,
-  }: {
-    attributionUuids: Array<string>;
-  }) {
-    const result = await getDb()
-      .selectFrom('resource_to_attribution')
-      .select((eb) =>
-        eb.fn.count<number>('resource_id').distinct().as('resource_count'),
-      )
-      .where('attribution_uuid', 'in', attributionUuids)
-      .executeTakeFirstOrThrow();
-
-    return { result: result.resource_count };
   },
 
   async isResourceLinkedOnAllAttributions({

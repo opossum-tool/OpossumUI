@@ -99,7 +99,7 @@ export const ConfirmReplacePopup = ({
         <CardList
           data={attributionIdsForReplacement
             .filter((id) => id in attributions)
-            .map((id) => ({ ...attributions[id], id }))}
+            .map((id) => attributions[id])}
           data-testid={'removed-attributions'}
           renderItemContent={(attribution, { index }) => {
             return (

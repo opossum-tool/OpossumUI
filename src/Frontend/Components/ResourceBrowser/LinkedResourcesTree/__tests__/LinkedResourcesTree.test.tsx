@@ -9,6 +9,7 @@ import { getSelectedResourceId } from '../../../../state/selectors/resource-sele
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
 import { LinkedResourcesTree } from '../LinkedResourcesTree';
+import { useLinkedResourcesTreeState } from '../useLinkedResourcesTreeState';
 
 const testUuid = 'test-attribution-uuid';
 
@@ -34,10 +35,19 @@ const testData = getParsedInputFileEnrichedWithTestData({
   },
 });
 
+function TestLinkedResourcesTree({
+  onAttributionUuids,
+}: {
+  onAttributionUuids: Array<string>;
+}) {
+  const state = useLinkedResourcesTreeState({ onAttributionUuids });
+  return <LinkedResourcesTree state={state} />;
+}
+
 describe('LinkedResourcesTree', () => {
   it('renders linked resources for given attribution', async () => {
     await renderComponent(
-      <LinkedResourcesTree attributionUuids={[testUuid]} />,
+      <TestLinkedResourcesTree onAttributionUuids={[testUuid]} />,
       { data: testData },
     );
 
@@ -49,7 +59,7 @@ describe('LinkedResourcesTree', () => {
 
   it('dispatches selectedResourceId when a resource is clicked', async () => {
     const { store } = await renderComponent(
-      <LinkedResourcesTree attributionUuids={[testUuid]} />,
+      <TestLinkedResourcesTree onAttributionUuids={[testUuid]} />,
       { data: testData },
     );
 
@@ -66,7 +76,7 @@ describe('LinkedResourcesTree', () => {
 
   it('collapses and expands folders', async () => {
     await renderComponent(
-      <LinkedResourcesTree attributionUuids={[testUuid]} />,
+      <TestLinkedResourcesTree onAttributionUuids={[testUuid]} />,
       { data: testData },
     );
 

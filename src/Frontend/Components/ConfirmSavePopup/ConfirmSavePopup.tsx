@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
-import { keepPreviousData } from '@tanstack/react-query';
 
 import { text } from '../../../shared/text';
 import {
@@ -23,6 +22,7 @@ import { maybePluralize } from '../../util/maybe-pluralize';
 import { CardList } from '../CardList/CardList';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
+import { useLinkedResourcesTreeState } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
 import { StyledNotificationPopup } from './ConfirmSavePopup.style';
 
 interface Props {
@@ -44,12 +44,12 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     getTemporaryDisplayPackageInfo,
   );
 
-  const linkedResourceCount = backend.getResourceCountOnAttributions.useQuery(
-    {
-      attributionUuids: attributionIdsToSave,
-    },
-    { placeholderData: keepPreviousData },
-  );
+  const linkedResourcesTreeState = useLinkedResourcesTreeState({
+    onAttributionUuids: attributionIdsToSave,
+    enabled: open,
+  });
+
+  const linkedResourceCount = linkedResourcesTreeState?.count;
 
   const isResourceLinkedOnAllAttributions =
     backend.isResourceLinkedOnAllAttributions.useQuery(
@@ -57,13 +57,13 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         resourcePath: selectedResourceId,
         attributionUuids: attributionIdsToSave,
       },
-      { enabled: !!selectedResourceId && !!attributionIdsToSave },
+      { enabled: !!selectedResourceId && attributionIdsToSave.length > 0 },
     );
 
   const hasMultipleResourcesWhichContainSelected =
-    linkedResourceCount.data &&
+    linkedResourceCount &&
     isResourceLinkedOnAllAttributions.data &&
-    linkedResourceCount.data > 1 &&
+    linkedResourceCount > 1 &&
     isResourceLinkedOnAllAttributions.data;
   const areAllAttributionsPreselected = attributionIdsToSave.every(
     (id) => attributions[id]?.preSelected,
@@ -110,7 +110,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         onClick: handleSave,
         color: 'error',
         buttonText:
-          linkedResourceCount.data && linkedResourceCount.data > 1
+          linkedResourceCount && linkedResourceCount > 1
             ? areAllAttributionsPreselected
               ? text.saveAttributionsPopup.confirmGlobally
               : text.saveAttributionsPopup.saveGlobally
@@ -153,7 +153,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
               text.packageLists.attribution,
             ),
             resources: maybePluralize(
-              linkedResourceCount.data ?? 1,
+              linkedResourceCount ?? 1,
               text.saveAttributionsPopup.resource,
               { showOne: true },
             ),
@@ -162,7 +162,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         <CardList
           data={attributionIdsToSave
             .filter((id) => id in attributions)
-            .map((id) => ({ ...attributions[id], id }))}
+            .map((id) => attributions[id])}
           renderItemContent={(attribution, { index }) => {
             return (
               <>
@@ -175,7 +175,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         <LinkedResourcesTree
           readOnly
           disableHighlightSelected={!hasMultipleResourcesWhichContainSelected}
-          attributionUuids={attributionIdsToSave}
+          state={linkedResourcesTreeState}
           sx={{ minHeight: '100px' }}
         />
       </>
