@@ -4,8 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import { faker } from '../../../../../../testing/Faker';
-import { setAttributionBreakpoints } from '../../../../../state/actions/resource-actions/all-views-simple-actions';
+import { makeResourceTreeNode } from '../../../../../../testing/global-test-helpers';
 import { renderComponent } from '../../../../../test-helpers/render';
 import { LinkedResourcesTreeNode } from '../LinkedResourcesTreeNode';
 
@@ -13,9 +12,10 @@ describe('LinkedResourcesTreeNode', () => {
   it('renders a file without information', async () => {
     await renderComponent(
       <LinkedResourcesTreeNode
-        nodeName={'Test label'}
-        node={1}
-        nodeId={faker.system.filePath()}
+        resource={makeResourceTreeNode({
+          id: '/test',
+          labelText: 'Test label',
+        })}
       />,
     );
 
@@ -29,9 +29,12 @@ describe('LinkedResourcesTreeNode', () => {
   it('renders a folder without information', async () => {
     await renderComponent(
       <LinkedResourcesTreeNode
-        nodeName={'Test label'}
-        node={faker.opossum.resources()}
-        nodeId={faker.system.filePath()}
+        resource={makeResourceTreeNode({
+          id: '/test/',
+          labelText: 'Test label',
+          isFile: false,
+          canHaveChildren: true,
+        })}
       />,
     );
 
@@ -42,14 +45,16 @@ describe('LinkedResourcesTreeNode', () => {
   });
 
   it('renders a breakpoint', async () => {
-    const nodeId = faker.system.filePath();
     await renderComponent(
       <LinkedResourcesTreeNode
-        nodeName={'Test label'}
-        node={faker.opossum.resources()}
-        nodeId={nodeId}
+        resource={makeResourceTreeNode({
+          id: '/test/',
+          labelText: 'Test label',
+          isFile: false,
+          canHaveChildren: true,
+          isAttributionBreakpoint: true,
+        })}
       />,
-      { actions: [setAttributionBreakpoints(new Set([nodeId]))] },
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();

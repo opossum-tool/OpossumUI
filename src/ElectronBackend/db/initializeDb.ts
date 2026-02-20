@@ -37,6 +37,10 @@ export const comments: Record<string, Record<string, string>> = {
     external_attribution_source_name:
       'Mainly contains names of external_attribution_source, but can also contain unknown names',
   },
+  resource_to_attribution: {
+    attribution_is_external:
+      'Denormalized data for faster checking if a resource has manual/external attribution',
+  },
 };
 
 export async function initializeDb(inputFile: ParsedFileContent) {
@@ -351,6 +355,7 @@ async function initializeResourceToAttributionTable(
     .addColumn('attribution_uuid', 'text', (col) =>
       col.notNull().references('attribution.uuid').onDelete('cascade'),
     )
+    .addColumn('attribution_is_external', 'integer', (col) => col.notNull()) // Denormalization for faster lookups
     .addPrimaryKeyConstraint('resource_to_attribution_pk', [
       'resource_id',
       'attribution_uuid',
@@ -361,9 +366,9 @@ async function initializeResourceToAttributionTable(
   const rawDb = getRawDb();
   const insertStmt = rawDb.prepare(`
     INSERT OR IGNORE INTO resource_to_attribution
-      (resource_id, attribution_uuid)
+      (resource_id, attribution_uuid, attribution_is_external)
     VALUES
-      ($resource_id, $attribution_uuid)
+      ($resource_id, $attribution_uuid, (select is_external from attribution where uuid = $attribution_uuid))
   `);
 
   for (const [resourcePath, attributionUuids] of [
@@ -392,6 +397,15 @@ async function initializeResourceToAttributionTable(
     .createIndex('resource_to_attribution_attribution_uuid_resource_id_idx')
     .on('resource_to_attribution')
     .column('attribution_uuid')
+    .column('resource_id')
+    .execute();
+
+  await trx.schema
+    .createIndex(
+      'resource_to_attribution_attribution_is_external_resource_id_idx',
+    )
+    .on('resource_to_attribution')
+    .column('attribution_is_external')
     .column('resource_id')
     .execute();
 }

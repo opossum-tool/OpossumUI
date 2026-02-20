@@ -6,24 +6,27 @@ import { defer } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { VirtuosoHandle } from 'react-virtuoso';
 
-export function useVirtuosoRefs<T extends VirtuosoHandle>({
+export function useVirtuosoRefs<
+  ItemType extends { id: unknown },
+  T extends VirtuosoHandle,
+>({
   data,
   selectedId,
 }: {
-  data: ReadonlyArray<string> | null | undefined;
-  selectedId: string | undefined;
+  data: ReadonlyArray<ItemType> | null | undefined;
+  selectedId: ItemType['id'] | undefined;
 }) {
   const ref = useRef<T>(null);
   const listRef = useRef<Window | HTMLElement>(undefined);
   const [isVirtuosoFocused, setIsVirtuosoFocused] = useState(false);
-  const [focusedId, setFocusedId] = useState<string>();
+  const [focusedId, setFocusedId] = useState<ItemType['id']>();
 
   const selectedIndex = useMemo(() => {
     if (!data) {
       return undefined;
     }
 
-    return data.findIndex((datum) => datum === selectedId);
+    return data.findIndex((datum) => datum.id === selectedId);
   }, [data, selectedId]);
 
   const focusedIndex = useMemo(() => {
@@ -31,7 +34,7 @@ export function useVirtuosoRefs<T extends VirtuosoHandle>({
       return undefined;
     }
 
-    return data.findIndex((datum) => datum === focusedId);
+    return data.findIndex((datum) => datum.id === focusedId);
   }, [data, focusedId]);
 
   useEffect(() => {
@@ -77,7 +80,7 @@ export function useVirtuosoRefs<T extends VirtuosoHandle>({
             index,
             behavior: 'auto',
           });
-          setFocusedId(data[index]);
+          setFocusedId(data[index].id);
           event.preventDefault();
         }
       }

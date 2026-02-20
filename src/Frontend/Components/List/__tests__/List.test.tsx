@@ -11,22 +11,26 @@ import { List } from '../List';
 
 describe('List', () => {
   it('renders list items', async () => {
-    const data = faker.helpers.multiple(faker.string.uuid);
+    const data = faker.helpers.multiple(() => ({ id: faker.string.uuid() }));
     await renderComponent(
-      <List data={data} renderItemContent={(id) => <div>{id}</div>} />,
+      <List data={data} renderItemContent={(item) => <div>{item.id}</div>} />,
     );
 
-    data.forEach((id) => {
-      expect(screen.getByText(id)).toBeInTheDocument();
+    data.forEach((item) => {
+      expect(screen.getByText(item.id)).toBeInTheDocument();
     });
     expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
     expect(screen.queryByText(text.generic.noResults)).not.toBeInTheDocument();
   });
 
   it('renders loading state', async () => {
-    const data = faker.helpers.multiple(faker.string.uuid);
+    const data = faker.helpers.multiple(() => ({ id: faker.string.uuid() }));
     await renderComponent(
-      <List loading data={data} renderItemContent={(id) => <div>{id}</div>} />,
+      <List
+        loading
+        data={data}
+        renderItemContent={(item) => <div>{item.id}</div>}
+      />,
     );
 
     expect(screen.getByTestId('loading')).toBeInTheDocument();
@@ -35,7 +39,10 @@ describe('List', () => {
 
   it('renders empty placeholder when no results', async () => {
     await renderComponent(
-      <List data={[]} renderItemContent={(id) => <div>{id}</div>} />,
+      <List
+        data={[] as Array<{ id: string }>}
+        renderItemContent={(item) => <div>{item.id}</div>}
+      />,
     );
 
     expect(screen.getByText(text.generic.noResults)).toBeInTheDocument();

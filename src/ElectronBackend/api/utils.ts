@@ -114,10 +114,10 @@ export async function removeRedundantAttributions(
 }
 
 export async function getAttributionOrThrow(
-  trx: Transaction<DB>,
+  dbOrTrx: Kysely<DB>,
   attributionUuid: string,
 ) {
-  const attribution = await trx
+  const attribution = await dbOrTrx
     .selectFrom('attribution')
     .select('is_external')
     .where('uuid', '=', attributionUuid)
@@ -135,12 +135,12 @@ export function removeTrailingSlash(path: string) {
 }
 
 export async function getResourceOrThrow(
-  trx: Kysely<DB>,
+  dbOrTrx: Kysely<DB>,
   resourcePath: string,
 ) {
   const strippedResourcePath = removeTrailingSlash(resourcePath);
 
-  const resource = await trx
+  const resource = await dbOrTrx
     .selectFrom('resource')
     .select(['id', 'max_descendant_id'])
     .where('path', '=', strippedResourcePath)
@@ -153,8 +153,8 @@ export async function getResourceOrThrow(
   return resource;
 }
 
-function getManualAttributions(trx: Transaction<DB>, resourceId: number) {
-  return trx
+function getManualAttributions(dbOrTrx: Kysely<DB>, resourceId: number) {
+  return dbOrTrx
     .selectFrom('resource_to_attribution')
     .innerJoin('attribution', 'attribution.uuid', 'attribution_uuid')
     .select('attribution_uuid')
@@ -164,18 +164,18 @@ function getManualAttributions(trx: Transaction<DB>, resourceId: number) {
 }
 
 export async function getClosestAncestorWithManualAttributionsBelowBreakpoint(
-  trx: Transaction<DB>,
+  dbOrTrx: Kysely<DB>,
   resourceId: number,
 ) {
   const ancestorWithAttributions =
-    await getClosestAncestorWithManualAttributions(trx, resourceId);
+    await getClosestAncestorWithManualAttributions(dbOrTrx, resourceId);
 
   if (!ancestorWithAttributions) {
     return undefined;
   }
 
   const ancestorWithBreakpoint = await getClosestBreakpointAncestor(
-    trx,
+    dbOrTrx,
     resourceId,
   );
 
@@ -190,10 +190,10 @@ export async function getClosestAncestorWithManualAttributionsBelowBreakpoint(
 }
 
 async function getClosestAncestorWithManualAttributions(
-  trx: Transaction<DB>,
+  dbOrTrx: Kysely<DB>,
   resourceId: number,
 ): Promise<number | undefined> {
-  const result = await trx
+  const result = await dbOrTrx
     .selectFrom('resource')
     .select((eb) => eb.fn.max<number>('id').as('ancestor_id'))
     .where((eb) => isAncestorOf(eb, resourceId))
@@ -213,10 +213,10 @@ async function getClosestAncestorWithManualAttributions(
 }
 
 async function getClosestBreakpointAncestor(
-  trx: Transaction<DB>,
+  dbOrTrx: Kysely<DB>,
   resourceId: number,
 ): Promise<number | undefined> {
-  const result = await trx
+  const result = await dbOrTrx
     .selectFrom('resource')
     .select((eb) => eb.fn.max<number>('id').as('ancestor_id'))
     .where((eb) => isAncestorOf(eb, resourceId))

@@ -5,29 +5,16 @@
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
-import { ROOT_PATH } from '../../../../shared-constants';
 import { treeItemClasses } from '../../../../shared-styles';
-import { useAppSelector } from '../../../../state/hooks';
-import {
-  getAttributionBreakpoints,
-  getFilesWithChildren,
-} from '../../../../state/selectors/resource-selectors';
 import { BreakpointIcon, DirectoryIcon, FileIcon } from '../../../Icons/Icons';
 import { TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode';
 
 const labelDetail = 'without information';
 
-export const LinkedResourcesTreeNode: React.FC<TreeNode> = ({
-  node,
-  nodeId,
-  nodeName,
-}) => {
-  const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
-  const filesWithChildren = useAppSelector(getFilesWithChildren);
-
-  const isAttributionBreakpoint = attributionBreakpoints.has(nodeId);
-  const showFolderIcon = node !== 1 && !filesWithChildren.has(nodeId);
-  const labelText = nodeName || ROOT_PATH;
+export const LinkedResourcesTreeNode: React.FC<TreeNode> = ({ resource }) => {
+  const isAttributionBreakpoint = resource.isAttributionBreakpoint;
+  const showFolderIcon = !resource.isFile;
+  const labelText = resource.labelText;
 
   return (
     <MuiBox sx={treeItemClasses.labelRoot}>

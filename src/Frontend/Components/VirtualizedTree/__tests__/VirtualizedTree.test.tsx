@@ -4,31 +4,65 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import { ROOT_PATH } from '../../../shared-constants';
+import { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import {
+  makeResourceTreeNode,
+  ROOT_TREE_NODE,
+} from '../../../../testing/global-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { VirtualizedTree } from '../VirtualizedTree';
 
 describe('The VirtualizedTree', () => {
   it('renders VirtualizedTree', async () => {
+    const resources: Array<ResourceTreeNodeData> = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/thirdParty/',
+        isExpandable: true,
+        isExpanded: true,
+        canHaveChildren: true,
+        isFile: false,
+      }),
+      makeResourceTreeNode({ id: '/thirdParty/package_1.tr.gz' }),
+      makeResourceTreeNode({ id: '/thirdParty/package_2.tr.gz' }),
+      makeResourceTreeNode({
+        id: '/root/',
+        isExpandable: true,
+        isExpanded: true,
+        canHaveChildren: true,
+        isFile: false,
+      }),
+      makeResourceTreeNode({
+        id: '/root/src/',
+        isExpandable: true,
+        isExpanded: true,
+        canHaveChildren: true,
+        isFile: false,
+      }),
+      makeResourceTreeNode({ id: '/root/src/something.js' }),
+      makeResourceTreeNode({ id: '/root/package.json' }),
+      makeResourceTreeNode({
+        id: '/docs/',
+        isExpandable: true,
+        isExpanded: true,
+        canHaveChildren: true,
+        isFile: false,
+      }),
+      makeResourceTreeNode({ id: '/docs/readme.md' }),
+    ];
+
     await renderComponent(
       <VirtualizedTree
-        expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', '/docs/']}
+        resources={resources}
         onSelect={vi.fn()}
         onToggle={vi.fn()}
-        resourceIds={[
-          '/thirdParty/package_1.tr.gz',
-          '/thirdParty/package_2.tr.gz',
-          '/root/src/something.js',
-          '/root/package.json',
-          '/docs/readme.md',
-        ]}
         selectedNodeId={'/thirdParty/'}
-        TreeNodeLabel={({ nodeName }) => <div>{nodeName || '/'}</div>}
+        TreeNodeLabel={({ resource }) => <div>{resource.labelText}</div>}
       />,
     );
 
     for (const label of [
-      ROOT_PATH,
+      '/',
       'thirdParty',
       'package_1.tr.gz',
       'package_2.tr.gz',

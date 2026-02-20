@@ -81,6 +81,7 @@ export const mutations = {
           params: { attributionUuid },
         })),
         { queryName: 'filterCounts' },
+        { queryName: 'getResourceTree' },
       ],
     };
   },
@@ -149,6 +150,7 @@ export const mutations = {
           params: { attributionUuid: params.attributionIdToReplaceWith },
         },
         { queryName: 'filterCounts' },
+        { queryName: 'getResourceTree' },
       ],
     };
   },
@@ -162,14 +164,17 @@ export const mutations = {
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
 
-        // Ensure attribution exists
-        await getAttributionOrThrow(trx, params.attributionUuid);
+        const attribution = await getAttributionOrThrow(
+          trx,
+          params.attributionUuid,
+        );
 
         await trx
           .insertInto('resource_to_attribution')
           .values({
             resource_id: resource.id,
             attribution_uuid: params.attributionUuid,
+            attribution_is_external: attribution.is_external,
           })
           .onConflict((oc) => oc.doNothing())
           .execute();
@@ -184,6 +189,7 @@ export const mutations = {
           params: { attributionUuid: params.attributionUuid },
         },
         { queryName: 'filterCounts' },
+        { queryName: 'getResourceTree' },
       ],
     };
   },
@@ -200,7 +206,7 @@ export const mutations = {
 
         const existingAttribution = await trx
           .selectFrom('attribution')
-          .select('uuid')
+          .select(['uuid', 'is_external'])
           .where('uuid', '=', params.attributionUuid)
           .executeTakeFirst();
 
@@ -224,6 +230,7 @@ export const mutations = {
           .values({
             resource_id: resource.id,
             attribution_uuid: params.attributionUuid,
+            attribution_is_external: 0,
           })
           .execute();
       });
@@ -235,6 +242,7 @@ export const mutations = {
           params: { attributionUuid: params.attributionUuid },
         },
         { queryName: 'filterCounts' },
+        { queryName: 'getResourceTree' },
       ],
     };
   },
@@ -321,6 +329,7 @@ export const mutations = {
           params: { attributionUuid },
         })),
         { queryName: 'filterCounts' },
+        { queryName: 'getResourceTree' },
       ],
     };
   },
@@ -360,6 +369,7 @@ async function setAttributionsResolvedStatus(
         params: { attributionUuid },
       })),
       { queryName: 'filterCounts' as const },
+      { queryName: 'getResourceTree' as const },
     ],
   };
 }

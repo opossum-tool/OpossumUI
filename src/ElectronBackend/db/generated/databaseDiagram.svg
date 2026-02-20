@@ -42,20 +42,28 @@
 <!-- resource_to_attribution -->
 <g id="node2" class="node">
 <title>resource_to_attribution</title>
-<polygon fill="none" stroke="black" points="70.38,-816 70.38,-838.8 255.97,-838.8 255.97,-816 70.38,-816"/>
-<text xml:space="preserve" text-anchor="start" x="92.02" y="-824.2" font-family="Times,serif" font-weight="bold" font-size="14.00">resource_to_attribution</text>
-<polygon fill="none" stroke="black" points="70.38,-793.2 70.38,-816 93.88,-816 93.88,-793.2 70.38,-793.2"/>
-<text xml:space="preserve" text-anchor="start" x="73.38" y="-800.4" font-family="Times,serif" font-size="14.00">🔑 </text>
-<polygon fill="none" stroke="black" points="93.88,-793.2 93.88,-816 190.1,-816 190.1,-793.2 93.88,-793.2"/>
-<text xml:space="preserve" text-anchor="start" x="96.88" y="-800.4" font-family="Times,serif" font-size="14.00">resource_id</text>
-<polygon fill="none" stroke="black" points="190.1,-793.2 190.1,-816 255.97,-816 255.97,-793.2 190.1,-793.2"/>
-<text xml:space="preserve" text-anchor="start" x="193.1" y="-800.4" font-family="Times,serif" font-size="14.00">INTEGER</text>
-<polygon fill="none" stroke="black" points="70.38,-770.4 70.38,-793.2 93.88,-793.2 93.88,-770.4 70.38,-770.4"/>
-<text xml:space="preserve" text-anchor="start" x="73.38" y="-777.6" font-family="Times,serif" font-size="14.00">🔑 </text>
-<polygon fill="none" stroke="black" points="93.88,-770.4 93.88,-793.2 190.1,-793.2 190.1,-770.4 93.88,-770.4"/>
-<text xml:space="preserve" text-anchor="start" x="96.88" y="-777.6" font-family="Times,serif" font-size="14.00">attribution_uuid</text>
-<polygon fill="none" stroke="black" points="190.1,-770.4 190.1,-793.2 255.97,-793.2 255.97,-770.4 190.1,-770.4"/>
-<text xml:space="preserve" text-anchor="start" x="193.1" y="-777.6" font-family="Times,serif" font-size="14.00">TEXT</text>
+<polygon fill="none" stroke="black" points="43.37,-815.4 43.37,-838.2 282.99,-838.2 282.99,-815.4 43.37,-815.4"/>
+<text xml:space="preserve" text-anchor="start" x="92.02" y="-823.6" font-family="Times,serif" font-weight="bold" font-size="14.00">resource_to_attribution</text>
+<polygon fill="none" stroke="black" points="43.37,-792.6 43.37,-815.4 66.87,-815.4 66.87,-792.6 43.37,-792.6"/>
+<text xml:space="preserve" text-anchor="start" x="46.37" y="-799.8" font-family="Times,serif" font-size="14.00">🔑 </text>
+<polygon fill="none" stroke="black" points="66.87,-792.6 66.87,-815.4 217.11,-815.4 217.11,-792.6 66.87,-792.6"/>
+<text xml:space="preserve" text-anchor="start" x="69.87" y="-799.8" font-family="Times,serif" font-size="14.00">resource_id</text>
+<polygon fill="none" stroke="black" points="217.11,-792.6 217.11,-815.4 282.99,-815.4 282.99,-792.6 217.11,-792.6"/>
+<text xml:space="preserve" text-anchor="start" x="220.11" y="-799.8" font-family="Times,serif" font-size="14.00">INTEGER</text>
+<polygon fill="none" stroke="black" points="43.37,-769.8 43.37,-792.6 66.87,-792.6 66.87,-769.8 43.37,-769.8"/>
+<text xml:space="preserve" text-anchor="start" x="46.37" y="-777" font-family="Times,serif" font-size="14.00">🔑 </text>
+<polygon fill="none" stroke="black" points="66.87,-769.8 66.87,-792.6 217.11,-792.6 217.11,-769.8 66.87,-769.8"/>
+<text xml:space="preserve" text-anchor="start" x="69.87" y="-777" font-family="Times,serif" font-size="14.00">attribution_uuid</text>
+<polygon fill="none" stroke="black" points="217.11,-769.8 217.11,-792.6 282.99,-792.6 282.99,-769.8 217.11,-769.8"/>
+<text xml:space="preserve" text-anchor="start" x="220.11" y="-777" font-family="Times,serif" font-size="14.00">TEXT</text>
+<polygon fill="none" stroke="black" points="43.37,-747 43.37,-769.8 66.87,-769.8 66.87,-747 43.37,-747"/>
+<g id="a_node2_0"><a xlink:title="Denormalized data for faster checking if a resource has manual/external attribution">
+<polygon fill="none" stroke="black" points="66.87,-747 66.87,-769.8 217.11,-769.8 217.11,-747 66.87,-747"/>
+<text xml:space="preserve" text-anchor="start" x="69.87" y="-754.2" font-family="Times,serif" font-size="14.00">attribution_is_external 📝</text>
+</a>
+</g>
+<polygon fill="none" stroke="black" points="217.11,-747 217.11,-769.8 282.99,-769.8 282.99,-747 217.11,-747"/>
+<text xml:space="preserve" text-anchor="start" x="220.11" y="-754.2" font-family="Times,serif" font-size="14.00">INTEGER</text>
 </g>
 <!-- resource -->
 <g id="node5" class="node">
@@ -69,7 +77,7 @@
 <polygon fill="none" stroke="black" points="568.58,-897.6 568.58,-920.4 640.67,-920.4 640.67,-897.6 568.58,-897.6"/>
 <text xml:space="preserve" text-anchor="start" x="571.58" y="-904.8" font-family="Times,serif" font-size="14.00">INTEGER</text>
 <polygon fill="none" stroke="black" points="397.55,-874.8 397.55,-897.6 421.05,-897.6 421.05,-874.8 397.55,-874.8"/>
-<g id="a_node5_0"><a xlink:title="Without trailing slash. The path of the root resource is the empty string">
+<g id="a_node5_1"><a xlink:title="Without trailing slash. The path of the root resource is the empty string">
 <polygon fill="none" stroke="black" points="421.05,-874.8 421.05,-897.6 568.58,-897.6 568.58,-874.8 421.05,-874.8"/>
 <text xml:space="preserve" text-anchor="start" x="424.05" y="-882" font-family="Times,serif" font-size="14.00">path 📝</text>
 </a>
@@ -77,7 +85,7 @@
 <polygon fill="none" stroke="black" points="568.58,-874.8 568.58,-897.6 640.67,-897.6 640.67,-874.8 568.58,-874.8"/>
 <text xml:space="preserve" text-anchor="start" x="571.58" y="-882" font-family="Times,serif" font-size="14.00">TEXT</text>
 <polygon fill="none" stroke="black" points="397.55,-852 397.55,-874.8 421.05,-874.8 421.05,-852 397.55,-852"/>
-<g id="a_node5_1"><a xlink:title="The name of the root resource is the empty string">
+<g id="a_node5_2"><a xlink:title="The name of the root resource is the empty string">
 <polygon fill="none" stroke="black" points="421.05,-852 421.05,-874.8 568.58,-874.8 568.58,-852 421.05,-852"/>
 <text xml:space="preserve" text-anchor="start" x="424.05" y="-859.2" font-family="Times,serif" font-size="14.00">name 📝</text>
 </a>
@@ -100,7 +108,7 @@
 <polygon fill="none" stroke="black" points="568.58,-783.6 568.58,-806.4 640.67,-806.4 640.67,-783.6 568.58,-783.6"/>
 <text xml:space="preserve" text-anchor="start" x="571.58" y="-790.8" font-family="Times,serif" font-size="14.00">INTEGER</text>
 <polygon fill="none" stroke="black" points="397.55,-760.8 397.55,-783.6 421.05,-783.6 421.05,-760.8 397.55,-760.8"/>
-<g id="a_node5_2"><a xlink:title="Is a directory or in files_with_children">
+<g id="a_node5_3"><a xlink:title="Is a directory or in files_with_children">
 <polygon fill="none" stroke="black" points="421.05,-760.8 421.05,-783.6 568.58,-783.6 568.58,-760.8 421.05,-760.8"/>
 <text xml:space="preserve" text-anchor="start" x="424.05" y="-768" font-family="Times,serif" font-size="14.00">can_have_children 📝</text>
 </a>
@@ -108,7 +116,7 @@
 <polygon fill="none" stroke="black" points="568.58,-760.8 568.58,-783.6 640.67,-783.6 640.67,-760.8 568.58,-760.8"/>
 <text xml:space="preserve" text-anchor="start" x="571.58" y="-768" font-family="Times,serif" font-size="14.00">INTEGER</text>
 <polygon fill="none" stroke="black" points="397.55,-738 397.55,-760.8 421.05,-760.8 421.05,-738 397.55,-738"/>
-<g id="a_node5_3"><a xlink:title="The highest id of a descendant of this resource. As the resources are numbered depth&#45;first, this enables us to identify the children of resource R by checking if child.id is between R.id and R.max_descendant_id, which is very fast. See https://en.wikipedia.org/wiki/Nested_set_model">
+<g id="a_node5_4"><a xlink:title="The highest id of a descendant of this resource. As the resources are numbered depth&#45;first, this enables us to identify the children of resource R by checking if child.id is between R.id and R.max_descendant_id, which is very fast. See https://en.wikipedia.org/wiki/Nested_set_model">
 <polygon fill="none" stroke="black" points="421.05,-738 421.05,-760.8 568.58,-760.8 568.58,-738 421.05,-738"/>
 <text xml:space="preserve" text-anchor="start" x="424.05" y="-745.2" font-family="Times,serif" font-size="14.00">max_descendant_id 📝</text>
 </a>
@@ -119,13 +127,13 @@
 <!-- resource_to_attribution&#45;&gt;resource -->
 <g id="edge2" class="edge">
 <title>resource_to_attribution:e&#45;&gt;resource:w</title>
-<path fill="none" stroke="black" d="M256.97,-804.6C330.51,-804.6 320.4,-898.67 385.44,-908.22"/>
-<polygon fill="black" stroke="black" points="384.82,-911.68 395.04,-908.89 385.31,-904.7 384.82,-911.68"/>
+<path fill="none" stroke="black" d="M283.99,-804C348.26,-804 330.74,-896.67 385.1,-907.89"/>
+<polygon fill="black" stroke="black" points="384.76,-911.37 395.05,-908.85 385.43,-904.41 384.76,-911.37"/>
 </g>
 <!-- attribution -->
 <g id="node6" class="node">
 <title>attribution</title>
-<g id="a_node6_4"><a xlink:title="External attributions (UI: &#39;signals&#39;) and manual attributions (UI: &#39;attributions&#39;)">
+<g id="a_node6_5"><a xlink:title="External attributions (UI: &#39;signals&#39;) and manual attributions (UI: &#39;attributions&#39;)">
 <polygon fill="none" stroke="black" points="370.35,-689.4 370.35,-712.2 667.87,-712.2 667.87,-689.4 370.35,-689.4"/>
 <text xml:space="preserve" text-anchor="start" x="477.69" y="-697.6" font-family="Times,serif" font-weight="bold" font-size="14.00">attribution 📝</text>
 </a>
@@ -137,7 +145,7 @@
 <polygon fill="none" stroke="black" points="595.78,-666.6 595.78,-689.4 667.87,-689.4 667.87,-666.6 595.78,-666.6"/>
 <text xml:space="preserve" text-anchor="start" x="598.78" y="-673.8" font-family="Times,serif" font-size="14.00">TEXT</text>
 <polygon fill="none" stroke="black" points="370.35,-643.8 370.35,-666.6 393.85,-666.6 393.85,-643.8 370.35,-643.8"/>
-<g id="a_node6_5"><a xlink:title="All of the attribution as JSON">
+<g id="a_node6_6"><a xlink:title="All of the attribution as JSON">
 <polygon fill="none" stroke="black" points="393.85,-643.8 393.85,-666.6 595.78,-666.6 595.78,-643.8 393.85,-643.8"/>
 <text xml:space="preserve" text-anchor="start" x="396.85" y="-651" font-family="Times,serif" font-size="14.00">data 📝</text>
 </a>
@@ -272,8 +280,8 @@
 <!-- resource_to_attribution&#45;&gt;attribution -->
 <g id="edge1" class="edge">
 <title>resource_to_attribution:e&#45;&gt;attribution:w</title>
-<path fill="none" stroke="black" d="M256.97,-781.8C320.85,-781.8 303.88,-690.19 357.97,-679.1"/>
-<polygon fill="black" stroke="black" points="358.23,-682.59 367.85,-678.14 357.56,-675.62 358.23,-682.59"/>
+<path fill="none" stroke="black" d="M283.99,-781.2C339.33,-781.2 314.1,-692 358.11,-679.46"/>
+<polygon fill="black" stroke="black" points="358.39,-682.95 367.85,-678.19 357.48,-676.01 358.39,-682.95"/>
 </g>
 <!-- source_for_attribution -->
 <g id="node3" class="node">
@@ -287,7 +295,7 @@
 <polygon fill="none" stroke="black" points="246.26,-391 246.26,-413.8 318.35,-413.8 318.35,-391 246.26,-391"/>
 <text xml:space="preserve" text-anchor="start" x="249.26" y="-398.2" font-family="Times,serif" font-size="14.00">TEXT</text>
 <polygon fill="none" stroke="black" points="8,-368.2 8,-391 31.5,-391 31.5,-368.2 8,-368.2"/>
-<g id="a_node3_6"><a xlink:title="Mainly contains names of external_attribution_source, but can also contain unknown names">
+<g id="a_node3_7"><a xlink:title="Mainly contains names of external_attribution_source, but can also contain unknown names">
 <polygon fill="none" stroke="black" points="31.5,-368.2 31.5,-391 246.26,-391 246.26,-368.2 31.5,-368.2"/>
 <text xml:space="preserve" text-anchor="start" x="34.5" y="-375.4" font-family="Times,serif" font-size="14.00">external_attribution_source_name 📝</text>
 </a>

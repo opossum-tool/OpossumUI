@@ -96,7 +96,7 @@ describe('ConfirmSavePopup', () => {
     );
 
     await userEvent.click(
-      screen.getByRole('button', {
+      await screen.findByRole('button', {
         name: text.saveAttributionsPopup.saveGlobally,
       }),
     );
@@ -141,7 +141,7 @@ describe('ConfirmSavePopup', () => {
     );
 
     await userEvent.click(
-      screen.getByRole('button', {
+      await screen.findByRole('button', {
         name: text.saveAttributionsPopup.saveLocally,
       }),
     );
@@ -200,8 +200,8 @@ describe('ConfirmSavePopup', () => {
 
   it('confirms attribution linked to multiple resources on all resources', async () => {
     const packageInfo = faker.opossum.packageInfo({ preSelected: true });
-    const resourceName1 = faker.opossum.resourceName();
-    const resourceName2 = faker.opossum.resourceName();
+    const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
+    const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
     const { store } = await renderComponent(
       <ConfirmSavePopup
         open
@@ -214,10 +214,10 @@ describe('ConfirmSavePopup', () => {
             [packageInfo.id]: packageInfo,
           }),
           resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-            [faker.opossum.filePath(resourceName1)]: [packageInfo.id],
-            [faker.opossum.filePath(resourceName2)]: [packageInfo.id],
+            [resource1]: [packageInfo.id],
+            [resource2]: [packageInfo.id],
           }),
-          resources: pathsToResources([resourceName1, resourceName2]),
+          resources: pathsToResources([resource1, resource2]),
         }),
         actions: [
           setTemporaryDisplayPackageInfo(packageInfo),
@@ -227,7 +227,7 @@ describe('ConfirmSavePopup', () => {
     );
 
     await userEvent.click(
-      screen.getByRole('button', {
+      await screen.findByRole('button', {
         name: text.saveAttributionsPopup.confirmGlobally,
       }),
     );
@@ -236,8 +236,8 @@ describe('ConfirmSavePopup', () => {
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
     await expectResourcesToManualAttributions(store.getState(), {
-      [faker.opossum.filePath(resourceName1)]: [packageInfo.id],
-      [faker.opossum.filePath(resourceName2)]: [packageInfo.id],
+      [resource1]: [packageInfo.id],
+      [resource2]: [packageInfo.id],
     });
   });
 
@@ -271,7 +271,7 @@ describe('ConfirmSavePopup', () => {
     );
 
     await userEvent.click(
-      screen.getByRole('button', {
+      await screen.findByRole('button', {
         name: text.saveAttributionsPopup.confirmLocally,
       }),
     );

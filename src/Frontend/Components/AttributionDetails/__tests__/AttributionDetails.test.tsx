@@ -387,6 +387,7 @@ describe('AttributionDetails', () => {
         resourcesToManualAttributions: {
           [resourceId]: [packageInfo1.id],
         },
+        resources: pathsToResources([resourceId]),
       }),
       actions: [
         setSelectedResourceId(resourceId),

@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Resources } from '../../../shared/shared-types';
 import { ROOT_PATH } from '../../shared-constants';
+import { backend } from '../../util/backendClient';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 
 const EXPANSION_THRESHOLD = 1000;
@@ -50,21 +51,13 @@ export function getResourcesFromIds(resourceIds: Array<string>): Resources {
   return resources;
 }
 
-export function getInitialExpandedIds(
-  resourceIds: Array<string>,
+export async function getInitialExpandedIds(
+  attributionUuids: Array<string>,
   selectedResourceId: string,
-): Array<string> {
-  const initialExpandedIdsSet = new Set<string>().add('/');
-  for (const resourceId of [selectedResourceId, ...resourceIds].slice(
-    0,
-    EXPANSION_THRESHOLD,
-  )) {
-    const resourceIdParents = resourceId.split('/').slice(1, -1);
-    for (let i = 0; i < resourceIdParents.length; i++) {
-      initialExpandedIdsSet.add(
-        `/${resourceIdParents.slice(0, i + 1).join('/')}/`,
-      );
-    }
-  }
-  return Array.from(initialExpandedIdsSet);
+): Promise<Array<string>> {
+  return backend.getResourcePathsAndParentsForAttributions.query({
+    attributionUuids,
+    limit: EXPANSION_THRESHOLD,
+    prioritizedResourcePath: selectedResourceId,
+  });
 }
