@@ -34,7 +34,7 @@ function makeFileContent(
   };
 }
 
-describe('filterCounts', () => {
+describe('filterProperties', () => {
   async function setupDb(options?: { resolved?: Array<string> }) {
     await initializeDb({
       metadata: { projectId: '', fileCreationDate: '' },
@@ -60,9 +60,14 @@ describe('filterCounts', () => {
             criticality: 0,
             followUp: true,
             packageName: 'search-me',
+            licenseName: 'Apache-2.0',
           },
           'ext-ancestor': { id: 'ext-ancestor', criticality: 0 },
-          'ext-unrelated': { id: 'ext-unrelated', criticality: 0 },
+          'ext-unrelated': {
+            id: 'ext-unrelated',
+            criticality: 0,
+            licenseName: 'MIT',
+          },
         },
         resourcesToAttributions: {
           '/parent/target': ['ext-same'],
@@ -89,7 +94,7 @@ describe('filterCounts', () => {
   it('classifies attributions by relationship to selected resource', async () => {
     await setupDb();
 
-    const { result } = await queries.filterCounts({
+    const { result } = await queries.filterProperties({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -101,12 +106,25 @@ describe('filterCounts', () => {
     expect(result.unrelated?.total).toBe(1);
     expect(result.all.total).toBe(4);
     expect(result.sameOrDescendant.total).toBe(2);
+
+    expect(result.same?.licenses).toEqual(['MIT']);
+    expect(result.descendant?.licenses).toEqual(['Apache-2.0']);
+    expect(result.ancestor?.licenses).toEqual([]);
+    expect(result.unrelated?.licenses).toEqual(['MIT']);
+    expect(result.all.licenses).toEqual(
+      expect.arrayContaining(['MIT', 'Apache-2.0']),
+    );
+    expect(result.all.licenses).toHaveLength(2);
+    expect(result.sameOrDescendant.licenses).toEqual(
+      expect.arrayContaining(['MIT', 'Apache-2.0']),
+    );
+    expect(result.sameOrDescendant.licenses).toHaveLength(2);
   });
 
   it('counts filter matches correctly', async () => {
     await setupDb();
 
-    const { result } = await queries.filterCounts({
+    const { result } = await queries.filterProperties({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -120,7 +138,7 @@ describe('filterCounts', () => {
   it('applies active filters to narrow results', async () => {
     await setupDb();
 
-    const { result } = await queries.filterCounts({
+    const { result } = await queries.filterProperties({
       external: true,
       filters: [text.filters.firstParty],
       resourcePathForRelationships: '/parent/target',
@@ -128,26 +146,29 @@ describe('filterCounts', () => {
 
     expect(result.all.total).toBe(1);
     expect(result.same?.total).toBe(1);
+    expect(result.all.licenses).toEqual(['MIT']);
   });
 
   it('filters by license name', async () => {
     await setupDb();
 
-    const { result } = await queries.filterCounts({
+    const { result } = await queries.filterProperties({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
       license: 'MIT',
     });
 
-    expect(result.all.total).toBe(1);
+    expect(result.all.total).toBe(2);
     expect(result.same?.total).toBe(1);
+    expect(result.unrelated?.total).toBe(1);
+    expect(result.all.licenses).toEqual(['MIT']);
   });
 
   it('filters by search term in package name', async () => {
     await setupDb();
 
-    const { result } = await queries.filterCounts({
+    const { result } = await queries.filterProperties({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -156,12 +177,13 @@ describe('filterCounts', () => {
 
     expect(result.all.total).toBe(1);
     expect(result.descendant?.total).toBe(1);
+    expect(result.all.licenses).toEqual(['Apache-2.0']);
   });
 
   it('excludes resolved attributions by default', async () => {
     await setupDb({ resolved: ['ext-unrelated'] });
 
-    const { result } = await queries.filterCounts({
+    const { result } = await queries.filterProperties({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -169,12 +191,16 @@ describe('filterCounts', () => {
 
     expect(result.all.total).toBe(3);
     expect(result.unrelated).toBeUndefined();
+    expect(result.all.licenses).toEqual(
+      expect.arrayContaining(['MIT', 'Apache-2.0']),
+    );
+    expect(result.all.licenses).toHaveLength(2);
   });
 
   it('includes resolved attributions when showResolved is true', async () => {
     await setupDb({ resolved: ['ext-unrelated'] });
 
-    const { result } = await queries.filterCounts({
+    const { result } = await queries.filterProperties({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -183,12 +209,16 @@ describe('filterCounts', () => {
 
     expect(result.all.total).toBe(4);
     expect(result.unrelated?.total).toBe(1);
+    expect(result.all.licenses).toEqual(
+      expect.arrayContaining(['MIT', 'Apache-2.0']),
+    );
+    expect(result.all.licenses).toHaveLength(2);
   });
 
   it('only counts attributions matching the external flag', async () => {
     await setupDb();
 
-    const { result } = await queries.filterCounts({
+    const { result } = await queries.filterProperties({
       external: false,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -196,6 +226,7 @@ describe('filterCounts', () => {
 
     expect(result.all.total).toBe(1);
     expect(result.ancestor?.total).toBe(1);
+    expect(result.all.licenses).toEqual([]);
   });
 });
 

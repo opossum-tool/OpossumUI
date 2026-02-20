@@ -94,7 +94,11 @@ describe('FilterButton', () => {
       setFilteredData,
     ];
     await renderComponent(
-      <FilterButton useFilteredData={useFilteredData} availableFilters={[]} />,
+      <FilterButton
+        useFilteredData={useFilteredData}
+        availableFilters={[]}
+        filterProps={{ total: 0, licenses: [packageInfo.licenseName!] }}
+      />,
     );
 
     await userEvent.click(
@@ -125,7 +129,11 @@ describe('FilterButton', () => {
       setFilteredData,
     ];
     await renderComponent(
-      <FilterButton useFilteredData={useFilteredData} availableFilters={[]} />,
+      <FilterButton
+        useFilteredData={useFilteredData}
+        availableFilters={[]}
+        filterProps={{ total: 0, licenses: [packageInfo.licenseName!] }}
+      />,
     );
 
     await userEvent.click(
@@ -156,7 +164,11 @@ describe('FilterButton', () => {
       setFilteredData,
     ];
     await renderComponent(
-      <FilterButton useFilteredData={useFilteredData} availableFilters={[]} />,
+      <FilterButton
+        useFilteredData={useFilteredData}
+        availableFilters={[]}
+        filterProps={{ total: 0, licenses: [packageInfo.licenseName!] }}
+      />,
     );
 
     await userEvent.click(
