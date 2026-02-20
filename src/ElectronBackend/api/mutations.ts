@@ -82,6 +82,7 @@ export const mutations = {
         })),
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -151,6 +152,7 @@ export const mutations = {
         },
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -190,6 +192,7 @@ export const mutations = {
         },
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -243,6 +246,7 @@ export const mutations = {
         },
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -280,6 +284,7 @@ export const mutations = {
           params: { attributionUuid },
         })),
         { queryName: 'filterCounts' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -330,6 +335,7 @@ export const mutations = {
         })),
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -370,6 +376,7 @@ async function setAttributionsResolvedStatus(
       })),
       { queryName: 'filterCounts' as const },
       { queryName: 'getResourceTree' as const },
+      { queryName: 'autoCompleteOptions' as const },
     ],
   };
 }
