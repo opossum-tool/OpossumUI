@@ -10,7 +10,7 @@ import { FilterButton } from '../FilterButton/FilterButton';
 export const TableFilterButton: React.FC = () => {
   const [{ filters }] = useFilteredAttributionsInReportView();
 
-  const counts = backend.filterCounts.useQuery({
+  const filterProps = backend.filterProperties.useQuery({
     external: false,
     filters,
     resourcePathForRelationships: ROOT_PATH,
@@ -18,7 +18,7 @@ export const TableFilterButton: React.FC = () => {
 
   return (
     <FilterButton
-      counts={counts.data?.descendant}
+      filterProps={filterProps.data?.descendant}
       availableFilters={ATTRIBUTION_FILTERS}
       anchorPosition={'left'}
       useFilteredData={useFilteredAttributionsInReportView}

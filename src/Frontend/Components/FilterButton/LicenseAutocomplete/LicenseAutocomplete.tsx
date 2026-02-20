@@ -3,40 +3,22 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import CopyrightIcon from '@mui/icons-material/Copyright';
-import { compact, sortBy, uniq } from 'lodash';
-import { useMemo } from 'react';
 
-import { Attributions } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { baseIcon, OpossumColors } from '../../../shared-styles';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 
 interface Props {
-  attributions: Attributions | null;
+  licenses: Array<string>;
   selectedLicense: string;
   setSelectedLicense: (license: string | null) => void;
 }
 
 export const LicenseAutocomplete: React.FC<Props> = ({
-  attributions,
+  licenses,
   selectedLicense,
   setSelectedLicense,
 }) => {
-  const licenses = useMemo(
-    () =>
-      sortBy(
-        uniq(
-          compact(
-            Object.values(attributions || {}).map(({ licenseName }) =>
-              licenseName?.trim(),
-            ),
-          ),
-        ),
-        (licenseName) => licenseName.toLowerCase(),
-      ),
-    [attributions],
-  );
-
   return (
     <Autocomplete<string, false, false, true>
       sx={{ height: '38px' }}

@@ -80,8 +80,9 @@ export const mutations = {
           queryName: 'getAttributionData' as const,
           params: { attributionUuid },
         })),
-        { queryName: 'filterCounts' },
+        { queryName: 'filterProperties' },
         { queryName: 'getResourceTree' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -149,8 +150,9 @@ export const mutations = {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionIdToReplaceWith },
         },
-        { queryName: 'filterCounts' },
+        { queryName: 'filterProperties' },
         { queryName: 'getResourceTree' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -188,8 +190,9 @@ export const mutations = {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionUuid },
         },
-        { queryName: 'filterCounts' },
+        { queryName: 'filterProperties' },
         { queryName: 'getResourceTree' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -241,8 +244,9 @@ export const mutations = {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionUuid },
         },
-        { queryName: 'filterCounts' },
+        { queryName: 'filterProperties' },
         { queryName: 'getResourceTree' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -279,7 +283,8 @@ export const mutations = {
           queryName: 'getAttributionData' as const,
           params: { attributionUuid },
         })),
-        { queryName: 'filterCounts' },
+        { queryName: 'filterProperties' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -328,8 +333,9 @@ export const mutations = {
           queryName: 'getAttributionData' as const,
           params: { attributionUuid },
         })),
-        { queryName: 'filterCounts' },
+        { queryName: 'filterProperties' },
         { queryName: 'getResourceTree' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -368,8 +374,9 @@ async function setAttributionsResolvedStatus(
         queryName: 'getAttributionData' as const,
         params: { attributionUuid },
       })),
-      { queryName: 'filterCounts' as const },
+      { queryName: 'filterProperties' as const },
       { queryName: 'getResourceTree' as const },
+      { queryName: 'autoCompleteOptions' as const },
     ],
   };
 }

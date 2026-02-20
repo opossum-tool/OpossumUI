@@ -10,10 +10,11 @@ import {
   sql,
   Transaction,
 } from 'kysely';
+import { snakeCase } from 'lodash';
 
 import { FILTERS } from '../../Frontend/shared-constants';
 import { DB } from '../db/generated/databaseTypes';
-import { CountsWithTotal, ResourceRelationship } from './queries';
+import { FilterProperties, ResourceRelationship } from './queries';
 
 /**
  * If a resource (R) has the same attributions as its closest ancestor that has attributions (A), we want to delete R's attributions.
@@ -301,18 +302,32 @@ export function attributionToResourceRelationship(props: {
   return expression.else('unrelated').end().as('relationship');
 }
 
-export function addFilterCounts(
-  counts: Array<CountsWithTotal | undefined>,
-): CountsWithTotal {
-  const result = Object.fromEntries(
-    ['total', ...FILTERS].map((f) => [f, 0]),
-  ) as CountsWithTotal;
+export function mergeFilterProperties(
+  counts: Array<FilterProperties | undefined>,
+): FilterProperties {
+  const result = {
+    ...Object.fromEntries(['total', ...FILTERS].map((f) => [f, 0])),
+    licenses: [] as Array<string>,
+  } as FilterProperties;
 
   for (const sum of counts.filter((s) => s !== undefined)) {
     for (const [k, v] of Object.entries(sum)) {
-      result[k as keyof CountsWithTotal] += v;
+      if (k === 'licenses') {
+        result.licenses = [
+          ...new Set([...result.licenses, ...(v as Array<string>)]),
+        ].toSorted();
+      } else {
+        result[k as keyof Omit<FilterProperties, 'licenses'>] += v as number;
+      }
     }
   }
 
   return result;
+}
+
+type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`
+  ? `${T extends Capitalize<T> ? '_' : ''}${Lowercase<T>}${CamelToSnakeCase<U>}`
+  : S;
+export function toSnakeCase<S extends string>(s: S): CamelToSnakeCase<S> {
+  return snakeCase(s) as CamelToSnakeCase<S>;
 }
