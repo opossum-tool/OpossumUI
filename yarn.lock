@@ -3679,7 +3679,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/scope-manager@npm:8.56.0, @typescript-eslint/scope-manager@npm:^8.51.0, @typescript-eslint/scope-manager@npm:^8.55.0":
+"@typescript-eslint/scope-manager@npm:8.56.0, @typescript-eslint/scope-manager@npm:^8.55.0, @typescript-eslint/scope-manager@npm:^8.56.0":
   version: 8.56.0
   resolution: "@typescript-eslint/scope-manager@npm:8.56.0"
   dependencies:
@@ -3740,7 +3740,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:8.56.0, @typescript-eslint/utils@npm:^8.48.0, @typescript-eslint/utils@npm:^8.51.0, @typescript-eslint/utils@npm:^8.55.0":
+"@typescript-eslint/utils@npm:8.56.0, @typescript-eslint/utils@npm:^8.48.0, @typescript-eslint/utils@npm:^8.55.0, @typescript-eslint/utils@npm:^8.56.0":
   version: 8.56.0
   resolution: "@typescript-eslint/utils@npm:8.56.0"
   dependencies:
@@ -5803,15 +5803,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-testing-library@npm:7.15.4":
-  version: 7.15.4
-  resolution: "eslint-plugin-testing-library@npm:7.15.4"
+"eslint-plugin-testing-library@npm:7.16.0":
+  version: 7.16.0
+  resolution: "eslint-plugin-testing-library@npm:7.16.0"
   dependencies:
-    "@typescript-eslint/scope-manager": "npm:^8.51.0"
-    "@typescript-eslint/utils": "npm:^8.51.0"
+    "@typescript-eslint/scope-manager": "npm:^8.56.0"
+    "@typescript-eslint/utils": "npm:^8.56.0"
   peerDependencies:
-    eslint: ^8.57.0 || ^9.0.0
-  checksum: 10/be717d041ce6d368f7dd422813f620f455aff6c7c61a9364287af32fe18d31ca88467c2bf50e742bf470820db5f7bea617aac232c8e0a61daadcee8b76428786
+    eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
+  checksum: 10/6581b41d25838c61b818f6b80e998ff2d72a646531c1c017023842fe5523a9ea3e9e75e7ce0d84abee9d73309602d64911985cbaace8dfbb0a94415da1b213a8
   languageName: node
   linkType: hard
 
@@ -8125,7 +8125,7 @@ __metadata:
     eslint-plugin-jest-dom: "npm:5.5.0"
     eslint-plugin-playwright: "npm:2.5.1"
     eslint-plugin-react-hooks: "npm:7.0.1"
-    eslint-plugin-testing-library: "npm:7.15.4"
+    eslint-plugin-testing-library: "npm:7.16.0"
     fast-csv: "npm:5.0.5"
     fflate: "npm:0.8.2"
     globals: "npm:17.3.0"
