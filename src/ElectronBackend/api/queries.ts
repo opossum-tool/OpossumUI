@@ -15,10 +15,10 @@ import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { getResourceTree } from './resourceTree';
 import {
-  addFilterCounts,
   attributionToResourceRelationship,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
+  mergeFilterProperties,
   removeTrailingSlash,
   toSnakeCase,
 } from './utils';
@@ -31,16 +31,19 @@ type AutocompletableAttribute =
   | 'url'
   | 'licenseName';
 
-export type CountsWithTotal = FilterCounts & { total: number };
+export type FilterProperties = FilterCounts & {
+  total: number;
+  licenses: Array<string>;
+};
 export type ResourceRelationship =
   | 'same'
   | 'ancestor'
   | 'descendant'
   | 'unrelated';
 type AttributionCounts = Partial<
-  Record<ResourceRelationship, CountsWithTotal>
+  Record<ResourceRelationship, FilterProperties>
 > &
-  Record<'all' | 'sameOrDescendant', CountsWithTotal>;
+  Record<'all' | 'sameOrDescendant', FilterProperties>;
 
 type QueryFunction = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -123,7 +126,7 @@ export const queries = {
     };
   },
 
-  async filterCounts(props: {
+  async filterProperties(props: {
     external: boolean;
     filters: Array<Filter>;
     resourcePathForRelationships: string;
@@ -163,6 +166,9 @@ export const queries = {
             .as(f),
         ),
       )
+      .select(
+        sql<string>`GROUP_CONCAT(DISTINCT trim(license_name))`.as('licenses'),
+      )
       .groupBy('relationship');
 
     query = query.where('is_external', '=', Number(props.external));
@@ -187,11 +193,17 @@ export const queries = {
     const sums = await query.execute();
 
     const sumsPerRelationship = Object.fromEntries(
-      sums.map((s) => [s.relationship, omit(s, 'relationship')]),
+      sums.map((s) => [
+        s.relationship,
+        {
+          ...omit(s, 'relationship', 'licenses'),
+          licenses: s.licenses?.split(',').filter(Boolean).toSorted() ?? [],
+        },
+      ]),
     ) as Omit<AttributionCounts, 'all' | 'sameOrDescendant'>;
 
-    const all = addFilterCounts(Object.values(sumsPerRelationship));
-    const sameOrDescendant = addFilterCounts([
+    const all = mergeFilterProperties(Object.values(sumsPerRelationship));
+    const sameOrDescendant = mergeFilterProperties([
       sumsPerRelationship.same,
       sumsPerRelationship.descendant,
     ]);

@@ -65,7 +65,7 @@ export function AttributionsPanel() {
 
   const [{ filters, search, selectedLicense }] = useFilteredAttributions();
 
-  const counts = backend.filterCounts.useQuery({
+  const filterProps = backend.filterProperties.useQuery({
     external: false,
     filters,
     search,
@@ -75,7 +75,7 @@ export function AttributionsPanel() {
 
   return (
     <PackagesPanel
-      filterCounts={counts.data?.all}
+      filterProperties={filterProps.data?.all}
       alert={alert}
       availableFilters={ATTRIBUTION_FILTERS}
       disableSelectAll={!!attributionIdsForReplacement.length}

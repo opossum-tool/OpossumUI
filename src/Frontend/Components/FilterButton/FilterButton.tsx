@@ -10,8 +10,9 @@ import MuiBadge from '@mui/material/Badge';
 import MuiTooltip from '@mui/material/Tooltip';
 import { useMemo, useState } from 'react';
 
+import { FilterProperties } from '../../../ElectronBackend/api/queries';
 import { text } from '../../../shared/text';
-import { Filter, FilterCounts } from '../../shared-constants';
+import { Filter } from '../../shared-constants';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import { UseFilteredData } from '../../state/variables/use-filtered-data';
 import {
@@ -63,7 +64,7 @@ interface Props extends Pick<
 > {
   useFilteredData: UseFilteredData;
   availableFilters: Array<Filter>;
-  counts?: FilterCounts;
+  filterProps?: FilterProperties;
 }
 
 export const FilterButton: React.FC<Props> = ({
@@ -71,7 +72,7 @@ export const FilterButton: React.FC<Props> = ({
   anchorPosition,
   availableFilters,
   useFilteredData,
-  counts,
+  filterProps,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const [isClearHovered, setIsClearHovered] = useState(false);
@@ -84,11 +85,11 @@ export const FilterButton: React.FC<Props> = ({
       availableFilters
         .map<SelectMenuOption>((option) => ({
           selected: filters.includes(option),
-          faded: !counts?.[option],
+          faded: !filterProps?.[option],
           id: option,
           label:
-            counts?.[option] !== undefined
-              ? `${option} (${new Intl.NumberFormat().format(counts[option] ?? 0)})`
+            filterProps?.[option] !== undefined
+              ? `${option} (${new Intl.NumberFormat().format(filterProps[option] ?? 0)})`
               : option,
           icon: FILTER_ICONS[option],
           onAdd: () =>
@@ -107,7 +108,7 @@ export const FilterButton: React.FC<Props> = ({
           id: 'license',
           label: (
             <LicenseAutocomplete
-              attributions={attributions}
+              licenses={filterProps?.licenses ?? []}
               selectedLicense={selectedLicense}
               setSelectedLicense={(license) =>
                 setFilteredAttributions((prev) => ({
@@ -120,10 +121,9 @@ export const FilterButton: React.FC<Props> = ({
         }),
     [
       availableFilters,
-      attributions,
       selectedLicense,
       filters,
-      counts,
+      filterProps,
       setFilteredAttributions,
     ],
   );
