@@ -8,22 +8,16 @@ import { createFilterOptions, styled, TextFieldProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
-import { compact, groupBy, sortBy } from 'lodash';
+import { compact, sortBy } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
-import {
-  Attributions,
-  Criticality,
-  PackageInfo,
-} from '../../../../shared/shared-types';
+import { Criticality, PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { clickableIcon, OpossumColors } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch } from '../../../state/hooks';
-import {
-  useFilteredAttributions,
-  useFilteredSignals,
-} from '../../../state/variables/use-filtered-data';
+import { useAppDispatch, useAppSelector } from '../../../state/hooks';
+import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
+import { backend } from '../../../util/backendClient';
 import { generatePurl } from '../../../util/handle-purl';
 import {
   getPackageAttributeInvalidError,
@@ -68,50 +62,6 @@ const AddIconButton = styled(MuiIconButton)({
   '&:hover': { backgroundColor: OpossumColors.lightGrey },
 });
 
-function getSortedAttributions(
-  attributions: Attributions | null,
-  attribute: AutocompleteAttribute,
-) {
-  return sortBy(
-    Object.entries(
-      groupBy(attributions, (attribution) =>
-        attribution.relation === 'unrelated' ? '' : attribution[attribute],
-      ),
-    )
-      .filter(([attributeValue]) => !['', 'undefined'].includes(attributeValue))
-      .map<PackageInfo>(([attributeValue, attributions]) => ({
-        [attribute]: attributeValue,
-        count: attributions.length,
-        source: {
-          name: text.attributionColumn.fromAttributions,
-        },
-        criticality: Criticality.None,
-        id: attributions[0].id,
-      })),
-    ({ count }) => -(count ?? 0),
-  );
-}
-
-function getSortedSignals(
-  signals: Attributions | null,
-  attribute: AutocompleteAttribute,
-) {
-  return sortBy(
-    Object.entries(groupBy(signals, (signal) => signal[attribute]))
-      .filter(([attributeValue]) => !['', 'undefined'].includes(attributeValue))
-      .map<PackageInfo>(([attributeValue, signals]) => ({
-        [attribute]: attributeValue,
-        count: signals.length,
-        source: {
-          name: text.attributionColumn.fromSignals,
-        },
-        criticality: Criticality.None,
-        id: signals[0].id,
-      })),
-    ({ count }) => -(count ?? 0),
-  );
-}
-
 export function PackageAutocomplete({
   attribute,
   title,
@@ -132,17 +82,30 @@ export function PackageAutocomplete({
 
   const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo();
 
-  const [{ attributions }] = useFilteredAttributions();
-  const [{ attributions: signals }] = useFilteredSignals();
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const autoCompleteResult = backend.autoCompleteOptions.useQuery({
+    attributeName: attribute,
+    onlyRelatedToResourcePath: selectedResourceId,
+  });
 
-  const options = useMemo(
-    () => [
-      ...defaults,
-      ...getSortedAttributions(attributions, attribute),
-      ...getSortedSignals(signals, attribute),
-    ],
-    [attribute, attributions, defaults, signals],
-  );
+  const options = useMemo(() => {
+    const manual = autoCompleteResult.data
+      ? toPackageInfoOptions(
+          attribute,
+          autoCompleteResult.data.manual,
+          text.attributionColumn.fromAttributions,
+        )
+      : [];
+    const external = autoCompleteResult.data
+      ? toPackageInfoOptions(
+          attribute,
+          autoCompleteResult.data.external,
+          text.attributionColumn.fromSignals,
+        )
+      : [];
+
+    return [...defaults, ...manual, ...external];
+  }, [attribute, autoCompleteResult.data, defaults]);
 
   useEffect(() => {
     if (attributeValue !== inputValue) {
@@ -311,4 +274,25 @@ export function PackageAutocomplete({
       </MuiTooltip>
     );
   }
+}
+
+function toPackageInfoOptions<A extends string>(
+  attributeName: A,
+  items: Array<{
+    contained_uuid: string;
+    value: string;
+    count: number;
+  }>,
+  sourceName: string,
+): Array<PackageInfo> {
+  return sortBy(
+    items.map<PackageInfo>((item) => ({
+      [attributeName]: item.value,
+      count: item.count,
+      source: { name: sourceName },
+      criticality: Criticality.None,
+      id: item.contained_uuid,
+    })),
+    ({ count }) => -(count ?? 0),
+  );
 }
