@@ -20,7 +20,16 @@ import {
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
   removeTrailingSlash,
+  toSnakeCase,
 } from './utils';
+
+type AutocompletableAttribute =
+  | 'packageType'
+  | 'packageNamespace'
+  | 'packageName'
+  | 'packageVersion'
+  | 'url'
+  | 'licenseName';
 
 export type CountsWithTotal = FilterCounts & { total: number };
 export type ResourceRelationship =
@@ -47,6 +56,71 @@ export const queries = {
       .executeTakeFirst();
 
     return { result: result?.data ?? null };
+  },
+
+  async autoCompleteOptions({
+    attributeName,
+    onlyRelatedToResourcePath,
+  }: {
+    attributeName: AutocompletableAttribute;
+    onlyRelatedToResourcePath?: string;
+  }) {
+    let query = getDb()
+      .selectFrom('attribution')
+      .select((eb) => [
+        'uuid as contained_uuid',
+        eb.ref(toSnakeCase(attributeName)).$notNull().as('value'),
+        'is_external',
+        eb.fn.countAll<number>().as('count'),
+      ])
+      .where('is_resolved', '=', 0)
+      .where(toSnakeCase(attributeName), 'is not', null)
+      .where(toSnakeCase(attributeName), '!=', '');
+
+    if (onlyRelatedToResourcePath) {
+      const onlyRelatedToResource = await getResourceOrThrow(
+        getDb(),
+        onlyRelatedToResourcePath,
+      );
+
+      const closestAncestorToResource =
+        await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+          getDb(),
+          onlyRelatedToResource.id,
+        );
+
+      query = query.where((eb) =>
+        eb.exists(
+          eb
+            .selectFrom('resource_to_attribution')
+            .selectAll()
+            .whereRef('attribution_uuid', '=', 'attribution.uuid')
+            .where((eb) =>
+              eb.or([
+                eb.between(
+                  'resource_id',
+                  onlyRelatedToResource.id,
+                  onlyRelatedToResource.max_descendant_id,
+                ),
+                ...(closestAncestorToResource
+                  ? [eb('resource_id', '=', closestAncestorToResource)]
+                  : []),
+              ]),
+            ),
+        ),
+      );
+    }
+
+    query = query.groupBy(['value', 'is_external']);
+
+    const result = await query.execute();
+
+    return {
+      result: {
+        external: result.filter((r) => r.is_external === 1),
+        manual: result.filter((r) => r.is_external === 0),
+      },
+    };
   },
 
   async filterCounts(props: {

@@ -10,6 +10,7 @@ import {
   sql,
   Transaction,
 } from 'kysely';
+import { snakeCase } from 'lodash';
 
 import { FILTERS } from '../../Frontend/shared-constants';
 import { DB } from '../db/generated/databaseTypes';
@@ -315,4 +316,11 @@ export function addFilterCounts(
   }
 
   return result;
+}
+
+type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`
+  ? `${T extends Capitalize<T> ? '_' : ''}${Lowercase<T>}${CamelToSnakeCase<U>}`
+  : S;
+export function toSnakeCase<S extends string>(s: S): CamelToSnakeCase<S> {
+  return snakeCase(s) as CamelToSnakeCase<S>;
 }

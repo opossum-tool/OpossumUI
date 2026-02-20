@@ -83,6 +83,7 @@ export const mutations = {
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
         { queryName: 'getProgressBarData' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -153,6 +154,7 @@ export const mutations = {
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
         { queryName: 'getProgressBarData' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -200,6 +202,7 @@ export const mutations = {
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
         { queryName: 'getProgressBarData' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -254,6 +257,7 @@ export const mutations = {
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
         { queryName: 'getProgressBarData' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -292,6 +296,7 @@ export const mutations = {
         })),
         { queryName: 'filterCounts' },
         { queryName: 'getProgressBarData' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -343,6 +348,7 @@ export const mutations = {
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
         { queryName: 'getProgressBarData' },
+        { queryName: 'autoCompleteOptions' },
       ],
     };
   },
@@ -384,6 +390,7 @@ async function setAttributionsResolvedStatus(
       { queryName: 'filterCounts' as const },
       { queryName: 'getResourceTree' as const },
       { queryName: 'getProgressBarData' as const },
+      { queryName: 'autoCompleteOptions' as const },
     ],
   };
 }
