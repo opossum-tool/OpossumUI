@@ -11,7 +11,6 @@ import {
   FILTERED_ATTRIBUTIONS_REPORT,
   FILTERED_SIGNALS,
 } from '../variables/use-filtered-data';
-import { PROGRESS_DATA } from '../variables/use-progress-data';
 
 export type VariablesState = Record<string, unknown>;
 
@@ -25,7 +24,6 @@ export function variablesState(
         FILTERED_ATTRIBUTIONS_AUDIT,
         FILTERED_ATTRIBUTIONS_REPORT,
         FILTERED_SIGNALS,
-        PROGRESS_DATA,
       ]);
     case SET_VARIABLE:
       return {

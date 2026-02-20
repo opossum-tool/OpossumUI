@@ -81,6 +81,7 @@ export const mutations = {
           params: { attributionUuid },
         })),
         { queryName: 'filterCounts' },
+        { queryName: 'getProgressBarData' },
       ],
     };
   },
@@ -149,6 +150,7 @@ export const mutations = {
           params: { attributionUuid: params.attributionIdToReplaceWith },
         },
         { queryName: 'filterCounts' },
+        { queryName: 'getProgressBarData' },
       ],
     };
   },
@@ -179,6 +181,7 @@ export const mutations = {
 
     return {
       invalidates: [
+        { queryName: 'getProgressBarData' },
         {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionUuid },
@@ -235,6 +238,7 @@ export const mutations = {
           params: { attributionUuid: params.attributionUuid },
         },
         { queryName: 'filterCounts' },
+        { queryName: 'getProgressBarData' },
       ],
     };
   },
@@ -272,6 +276,7 @@ export const mutations = {
           params: { attributionUuid },
         })),
         { queryName: 'filterCounts' },
+        { queryName: 'getProgressBarData' },
       ],
     };
   },
@@ -321,6 +326,7 @@ export const mutations = {
           params: { attributionUuid },
         })),
         { queryName: 'filterCounts' },
+        { queryName: 'getProgressBarData' },
       ],
     };
   },
@@ -360,6 +366,7 @@ async function setAttributionsResolvedStatus(
         params: { attributionUuid },
       })),
       { queryName: 'filterCounts' as const },
+      { queryName: 'getProgressBarData' as const },
     ],
   };
 }
