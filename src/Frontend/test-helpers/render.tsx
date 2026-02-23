@@ -11,6 +11,7 @@ import { initializeDb } from '../../ElectronBackend/db/initializeDb';
 import { ParsedFileContent } from '../../shared/shared-types';
 import { loadFromFile } from '../state/actions/resource-actions/load-actions';
 import { Action, createAppStore } from '../state/configure-store';
+import { setDatabaseInitialized } from '../util/backendClient';
 
 function makeReactQueryClient() {
   return new QueryClient({
@@ -25,6 +26,7 @@ function makeReactQueryClient() {
 export async function createTestStore(data?: ParsedFileContent) {
   if (data) {
     await initializeDb(data);
+    setDatabaseInitialized({ databaseInitialized: true });
   }
   const store = createAppStore();
   if (data) {

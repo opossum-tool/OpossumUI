@@ -83,6 +83,10 @@ export async function loadInputAndOutputFromFilePath(
   mainWindow.webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
     resetState: true,
   });
+  mainWindow.webContents.send(
+    AllowedFrontendChannels.SetDatabaseInitialized,
+    false,
+  );
 
   const processingStatusUpdater = new ProcessingStatusUpdater(
     mainWindow.webContents,
@@ -236,6 +240,10 @@ export async function loadInputAndOutputFromFilePath(
   processingStatusUpdater.info('Loading into database');
 
   await initializeDb(parsedFileContent);
+  mainWindow.webContents.send(
+    AllowedFrontendChannels.SetDatabaseInitialized,
+    true,
+  );
 
   processingStatusUpdater.info('Sending data to user interface');
 

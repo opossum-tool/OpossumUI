@@ -85,6 +85,18 @@ type BackendClient = {
 };
 
 /**
+ * A boolean flag that prevents queries from being executed before the database is initialized.
+ * This also invalidates all queries when flipped, otherwise old data could be shown.
+ */
+let databaseInitialized = false;
+export function setDatabaseInitialized(props: {
+  databaseInitialized: boolean;
+}) {
+  databaseInitialized = props.databaseInitialized;
+  void queryClient.resetQueries();
+}
+
+/**
  * Access the backend api commands as queries and mutations.
  * Mutations automatically invalidate the appropriate queries.
  *
@@ -161,6 +173,7 @@ export const backend = new Proxy({} as BackendClient, {
           queryFn: () => {
             return query(params);
           },
+          enabled: () => databaseInitialized,
           ...options,
         }),
 
@@ -177,7 +190,3 @@ export const backend = new Proxy({} as BackendClient, {
     };
   },
 });
-
-export function invalidateAllQueries() {
-  void queryClient.resetQueries();
-}

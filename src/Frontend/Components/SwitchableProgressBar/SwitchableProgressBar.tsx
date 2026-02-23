@@ -10,10 +10,7 @@ import { useState } from 'react';
 import { text as fullText } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
-import {
-  getClassifications,
-  getProjectMetadata,
-} from '../../state/selectors/resource-selectors';
+import { getClassifications } from '../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { SelectedProgressBar } from '../../types/types';
 import { backend } from '../../util/backendClient';
@@ -72,13 +69,10 @@ export const SwitchableProgressBar: React.FC = () => {
   const [currentProgressBar, setCurrentProgressBar] =
     useState<SelectedProgressBar>('attribution');
 
-  const projectMetadata = useAppSelector(getProjectMetadata);
   const classifications = useAppSelector(getClassifications);
-  // Only get the progress bar, once the project has been initialized. Otherwise we get a DB not initialized error.
-  const progressBarData = backend.getProgressBarData.useQuery(
-    { classifications },
-    { enabled: !!projectMetadata.projectId },
-  );
+  const progressBarData = backend.getProgressBarData.useQuery({
+    classifications,
+  });
 
   const handleProgressBarChange = (
     event: SelectChangeEvent<SelectedProgressBar>,
