@@ -57,7 +57,10 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         resourcePath: selectedResourceId,
         attributionUuids: attributionIdsToSave,
       },
-      { enabled: !!selectedResourceId && attributionIdsToSave.length > 0 },
+      {
+        enabled:
+          open && !!selectedResourceId && attributionIdsToSave.length > 0,
+      },
     );
 
   const hasMultipleResourcesWhichContainSelected =

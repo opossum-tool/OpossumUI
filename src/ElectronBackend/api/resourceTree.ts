@@ -69,7 +69,7 @@ export function getResourceTree({
 
         await trx.schema
           .createIndex('temp.filtered_resources_id_idx')
-          .on('filtered_resources')
+          .on(FILTERED_RESOURCE_TEMP_TABLE)
           .column('id')
           .execute();
 
@@ -96,8 +96,7 @@ export function getResourceTree({
           eb
             .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
             .selectAll()
-            .where('id', '>=', a)
-            .where('id', '<=', b),
+            .where((eb) => eb.between('id', a, b)),
         );
       }
 
@@ -121,8 +120,13 @@ export function getResourceTree({
             .withTables<FilteredTable>()
             .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
             .select((eb) => eb.fn.countAll<number>().as('count'))
-            .where('id', '>=', selectedResource.id)
-            .where('id', '<=', selectedResource.max_descendant_id)
+            .where((eb) =>
+              eb.between(
+                'id',
+                selectedResource.id,
+                selectedResource.max_descendant_id,
+              ),
+            )
             .executeTakeFirstOrThrow()
         ).count;
       }

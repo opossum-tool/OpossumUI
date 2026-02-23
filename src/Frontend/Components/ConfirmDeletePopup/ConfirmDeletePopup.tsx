@@ -52,7 +52,10 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
         resourcePath: selectedResourceId,
         attributionUuids: attributionIdsToDelete,
       },
-      { enabled: !!selectedResourceId && attributionIdsToDelete.length > 0 },
+      {
+        enabled:
+          open && !!selectedResourceId && attributionIdsToDelete.length > 0,
+      },
     );
 
   const isOptionToDeleteOnSelectedResourceOnlyAvailable =

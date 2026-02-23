@@ -11,6 +11,7 @@ import { useAppSelector } from '../../state/hooks';
 import {
   getExpandedIds,
   getSelectedAttributionId,
+  getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
@@ -42,6 +43,7 @@ export function ResourceBrowser() {
   );
 
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
 
   // All resources
   const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
@@ -51,6 +53,7 @@ export function ResourceBrowser() {
     {
       expandedNodes: expandedIdsAll,
       search: debouncedSearchAll,
+      selectedResourcePath: selectedResourceId,
     },
     { placeholderData: keepPreviousData },
   );

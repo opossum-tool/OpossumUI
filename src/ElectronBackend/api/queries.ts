@@ -132,7 +132,7 @@ export const queries = {
             sql<string>`path || IF(can_have_children, '/', '')`.as('path'),
           ])
           .where('path', '=', removeTrailingSlash(fromNodePath))
-          .union(
+          .unionAll(
             eb
               .selectFrom('resource')
               .innerJoin('nodes', 'resource.parent_id', 'nodes.id')
@@ -142,15 +142,11 @@ export const queries = {
                   'path',
                 ),
               ])
-              .where((eb) =>
-                eb.and([
-                  eb('resource.can_have_children', '=', 1),
-                  eb(
-                    sql<number>`(select count(*) from resource where parent_id = nodes.id)`,
-                    '=',
-                    1,
-                  ),
-                ]),
+              .where('resource.can_have_children', '=', 1)
+              .where(
+                sql<number>`(select count(*) from resource where parent_id = nodes.id)`,
+                '=',
+                1,
               ),
           ),
       )
@@ -186,8 +182,13 @@ export const queries = {
           eb
             .selectFrom('resource_to_attribution as rta')
             .selectAll()
-            .whereRef('resource.id', '<=', 'rta.resource_id')
-            .whereRef('rta.resource_id', '<=', 'resource.max_descendant_id')
+            .where((eb) =>
+              eb.between(
+                'rta.resource_id',
+                eb.ref('resource.id'),
+                eb.ref('resource.max_descendant_id'),
+              ),
+            )
             .where('attribution_uuid', 'in', attributionUuids),
         ),
       );
@@ -196,10 +197,11 @@ export const queries = {
       // Order prioritized resource and parents first
       query = query.orderBy(
         (eb) =>
-          eb.and([
-            eb('resource.id', '<=', prioritizedResource.id),
-            eb('resource.max_descendant_id', '>=', prioritizedResource.id),
-          ]),
+          eb.between(
+            eb.val(prioritizedResource.id),
+            eb.ref('resource.id'),
+            eb.ref('resource.max_descendant_id'),
+          ),
         'desc',
       );
     }

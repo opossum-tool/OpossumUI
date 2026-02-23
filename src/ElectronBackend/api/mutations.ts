@@ -169,6 +169,12 @@ export const mutations = {
           params.attributionUuid,
         );
 
+        if (attribution.is_external) {
+          throw new Error(
+            'Only manual attributions can be linked to resources',
+          );
+        }
+
         await trx
           .insertInto('resource_to_attribution')
           .values({
