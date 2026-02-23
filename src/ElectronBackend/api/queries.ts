@@ -264,7 +264,6 @@ export const queries = {
           classification_paths: string | null;
         }>`
         WITH RECURSIVE
-        -- Pre-compute flags for each resource
         resource_flags AS (
             SELECT 
                 resource_id,
@@ -275,7 +274,8 @@ export const queries = {
                 MAX(attribution.classification) as highest_classification
             FROM resource_to_attribution
             JOIN attribution ON resource_to_attribution.attribution_uuid = attribution.uuid
-            WHERE attribution.is_resolved=0
+            -- Important to keep this as = 0, otherwise the covering index is not used
+            WHERE attribution.is_resolved = 0
             GROUP BY resource_id
         ),
         resource_tree(id, is_file, has_only_preselected, has_manual, has_external, has_non_inherited_external, highest_criticality, highest_classification) AS (
@@ -295,9 +295,9 @@ export const queries = {
             SELECT 
                 child.id,
                 child.is_file,
-                COALESCE(rf.has_only_preselected, 0) OR ((parent.has_only_preselected=1 AND child.is_attribution_breakpoint=0) AND NOT COALESCE(rf.has_manual, 0)),
-                (parent.has_manual=1 AND child.is_attribution_breakpoint=0) OR COALESCE(rf.has_manual, 0),
-                (parent.has_external=1 AND child.is_attribution_breakpoint=0) OR COALESCE(rf.has_external, 0),
+                COALESCE(rf.has_only_preselected, 0) OR ((parent.has_only_preselected AND NOT child.is_attribution_breakpoint) AND NOT COALESCE(rf.has_manual, 0)),
+                (parent.has_manual AND NOT child.is_attribution_breakpoint) OR COALESCE(rf.has_manual, 0),
+                (parent.has_external AND NOT child.is_attribution_breakpoint) OR COALESCE(rf.has_external, 0),
                 COALESCE(rf.has_external, 0),
                 COALESCE(rf.highest_criticality, 0),
                 COALESCE(rf.highest_classification, parent.highest_classification)
@@ -309,14 +309,14 @@ export const queries = {
         SELECT highest_criticality, json_group_array(resource.path ORDER BY resource.path)
         FROM resource_tree
         JOIN resource ON resource.id = resource_tree.id
-        WHERE has_non_inherited_external=1 AND has_only_preselected=0 AND has_manual=0 
+        WHERE has_non_inherited_external AND NOT has_only_preselected AND NOT has_manual
         GROUP BY highest_criticality
         ),
         classification_paths(hc, paths) AS (
         SELECT highest_classification, json_group_array(resource.path ORDER BY resource.path)
         FROM resource_tree
         JOIN resource ON resource.id = resource_tree.id
-        WHERE resource_tree.is_file=1 AND has_external=1 AND has_only_preselected=0 AND has_manual=0 
+        WHERE resource_tree.is_file AND has_external AND NOT has_only_preselected AND NOT has_manual
         GROUP BY highest_classification
         )
         SELECT 
@@ -329,7 +329,7 @@ export const queries = {
             (SELECT json_group_object(criticality_paths.hc, criticality_paths.paths) FROM criticality_paths) as criticality_paths,
             (SELECT json_group_object(classification_paths.hc, classification_paths.paths) FROM classification_paths) as classification_paths
         FROM resource_tree
-        WHERE is_file=1
+        WHERE is_file
       `.execute(trx),
       );
 

@@ -14,6 +14,7 @@ import {
   ParsedFileContent,
   Resources,
 } from '../../shared/shared-types';
+import { removeTrailingSlash } from '../api/utils';
 import { getDb, getRawDb, resetDb } from './db';
 import { DB } from './generated/databaseTypes';
 
@@ -118,10 +119,10 @@ async function initializeResourceTable(
   filesWithChildren: Set<string>,
 ) {
   const trimmedAttributionBreakpoints = new Set(
-    [...attributionBreakpoints].map((path) => path.replace(/\/$/, '')),
+    [...attributionBreakpoints].map(removeTrailingSlash),
   );
   const trimmedFilesWithChildren = new Set(
-    [...filesWithChildren].map((path) => path.replace(/\/$/, '')),
+    [...filesWithChildren].map(removeTrailingSlash),
   );
   await trx.schema
     .createTable('resource')

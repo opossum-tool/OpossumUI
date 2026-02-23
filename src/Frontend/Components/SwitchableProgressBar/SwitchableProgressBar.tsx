@@ -74,11 +74,10 @@ export const SwitchableProgressBar: React.FC = () => {
 
   const projectMetadata = useAppSelector(getProjectMetadata);
   const classifications = useAppSelector(getClassifications);
+  // Only get the progress bar, once the project has been initialized. Otherwise we get a DB not initialized error.
   const progressBarData = backend.getProgressBarData.useQuery(
     { classifications },
-    {
-      enabled: !!projectMetadata.projectId,
-    },
+    { enabled: !!projectMetadata.projectId },
   );
 
   const handleProgressBarChange = (
