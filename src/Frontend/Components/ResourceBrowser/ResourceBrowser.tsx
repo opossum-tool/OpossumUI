@@ -9,74 +9,24 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
 import {
-  getResourceIdsOfSelectedAttribution,
+  getExpandedIds,
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
-import { useIsSelectedAttributionVisible } from '../../state/variables/use-filtered-data';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
 import { backend } from '../../util/backendClient';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
+import { useLinkedResourcesTreeState } from './LinkedResourcesTree/useLinkedResourcesTreeState';
 import { ResourcesTree } from './ResourcesTree/ResourcesTree';
 
 const ALL_RESOURCES_SEARCH = 'all-resources-search';
 const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
 
 export function ResourceBrowser() {
-  const resourceIdsOfSelectedAttribution = useAppSelector(
-    getResourceIdsOfSelectedAttribution,
-  );
-
-  const isSelectedAttributionVisible = useIsSelectedAttributionVisible();
-
-  const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
-  const [searchLinked, setSearchLinked] = useVariable(
-    LINKED_RESOURCES_SEARCH,
-    '',
-  );
-  const debouncedSearchAll = useDebouncedInput(searchAll);
-  const debouncedSearchLinked = useDebouncedInput(searchLinked);
   const { panelSizes, setPanelSizes } = usePanelSizes();
-
-  const allResourcesFiltered =
-    backend.searchResources.useQuery(
-      { searchString: debouncedSearchAll },
-      { placeholderData: keepPreviousData },
-    ).data ?? [];
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const selectedCount: number =
-    backend.resourceDescendantCount.useQuery(
-      { searchString: debouncedSearchAll, resourcePath: selectedResourceId },
-      { placeholderData: keepPreviousData },
-    ).data ?? 0;
-
-  const linkedResourcesFiltered = useMemo(
-    () =>
-      isSelectedAttributionVisible
-        ? resourceIdsOfSelectedAttribution.filter((path) =>
-            path.toLowerCase().includes(debouncedSearchLinked),
-          )
-        : [],
-    [
-      isSelectedAttributionVisible,
-      resourceIdsOfSelectedAttribution,
-      debouncedSearchLinked,
-    ],
-  );
-
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const selectedLinkedCount: number =
-    backend.resourceDescendantCount.useQuery(
-      {
-        searchString: debouncedSearchLinked,
-        resourcePath: selectedResourceId,
-        onAttributions: [selectedAttributionId],
-      },
-      { placeholderData: keepPreviousData },
-    ).data ?? 0;
 
   const setWidth = useCallback(
     (width: number) => setPanelSizes({ resourceBrowserWidth: width }),
@@ -92,9 +42,36 @@ export function ResourceBrowser() {
     [setPanelSizes],
   );
 
-  if (!allResourcesFiltered) {
-    return null;
-  }
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+
+  // All resources
+  const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
+  const debouncedSearchAll = useDebouncedInput(searchAll);
+  const expandedIdsAll = useAppSelector(getExpandedIds);
+  const resourceTreeAll = backend.getResourceTree.useQuery(
+    {
+      expandedNodes: expandedIdsAll,
+      search: debouncedSearchAll,
+      selectedResourcePath: selectedResourceId,
+    },
+    { placeholderData: keepPreviousData },
+  );
+
+  // Linked resources
+  const [searchLinked, setSearchLinked] = useVariable(
+    LINKED_RESOURCES_SEARCH,
+    '',
+  );
+  const debouncedSearchLinked = useDebouncedInput(searchLinked);
+  const onAttributionUuids = useMemo(
+    () => [selectedAttributionId],
+    [selectedAttributionId],
+  );
+  const linkedResourcesTreeState = useLinkedResourcesTreeState({
+    onAttributionUuids,
+    search: debouncedSearchLinked,
+  });
 
   return (
     <ResizePanels
@@ -104,32 +81,36 @@ export function ResourceBrowser() {
       setWidth={setWidth}
       setHeight={setHeight}
       upperPanel={{
-        title: text.resourceBrowser.allResources(
-          selectedCount,
-          allResourcesFiltered.length,
-        ),
+        title: resourceTreeAll.data
+          ? text.resourceBrowser.allResources(
+              resourceTreeAll.data.belowSelectedResource ?? 0,
+              resourceTreeAll.data.count,
+            )
+          : '',
         search: {
           value: searchAll,
           setValue: setSearchAll,
           channel: AllowedFrontendChannels.SearchResources,
         },
-        component: <ResourcesTree resourceIds={allResourcesFiltered} />,
+        component: (
+          <ResourcesTree resources={resourceTreeAll.data?.treeNodes ?? []} />
+        ),
         headerTestId: 'resources-tree-header',
       }}
       lowerPanel={{
-        title: text.resourceBrowser.linkedResources(
-          selectedLinkedCount,
-          linkedResourcesFiltered.length,
-        ),
+        title: linkedResourcesTreeState
+          ? text.resourceBrowser.linkedResources(
+              linkedResourcesTreeState.belowSelectedResource ?? 0,
+              linkedResourcesTreeState.count,
+            )
+          : '',
         search: {
           value: searchLinked,
           setValue: setSearchLinked,
           channel: AllowedFrontendChannels.SearchLinkedResources,
         },
-        hidden: !resourceIdsOfSelectedAttribution.length,
-        component: (
-          <LinkedResourcesTree resourceIds={linkedResourcesFiltered} />
-        ),
+        hidden: !linkedResourcesTreeState,
+        component: <LinkedResourcesTree state={linkedResourcesTreeState} />,
         headerTestId: 'linked-resources-tree-header',
       }}
     />

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
-import { compact, uniq } from 'lodash';
 
 import { text } from '../../../shared/text';
 import {
@@ -14,14 +13,15 @@ import {
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getManualAttributions,
-  getManualAttributionsToResources,
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
+import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { CardList } from '../CardList/CardList';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
+import { useLinkedResourcesTreeState } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
 import { StyledNotificationPopup } from './ConfirmDeletePopup.style';
 
 interface Props {
@@ -37,22 +37,31 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
 }) => {
   const dispatch = useAppDispatch();
   const attributions = useAppSelector(getManualAttributions);
-  const attributionsToResources = useAppSelector(
-    getManualAttributionsToResources,
-  );
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
-  const resourceIds = uniq(
-    compact(
-      attributionIdsToDelete.flatMap((id) => attributionsToResources[id]),
-    ),
-  );
-  const isOptionToDeleteOnSelectedResourceOnlyAvailable =
-    resourceIds.length > 1 &&
-    attributionIdsToDelete.every((id) =>
-      attributionsToResources[id]?.includes(selectedResourceId),
+  const linkedResourcesTreeState = useLinkedResourcesTreeState({
+    onAttributionUuids: attributionIdsToDelete,
+    enabled: open,
+  });
+  const linkedResourceCount = linkedResourcesTreeState?.count;
+
+  const isResourceLinkedOnAllAttributions =
+    backend.isResourceLinkedOnAllAttributions.useQuery(
+      {
+        resourcePath: selectedResourceId,
+        attributionUuids: attributionIdsToDelete,
+      },
+      {
+        enabled:
+          open && !!selectedResourceId && attributionIdsToDelete.length > 0,
+      },
     );
+
+  const isOptionToDeleteOnSelectedResourceOnlyAvailable =
+    linkedResourceCount &&
+    linkedResourceCount > 1 &&
+    isResourceLinkedOnAllAttributions.data;
 
   const handleDelete = () => {
     dispatch(
@@ -74,7 +83,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       centerLeftButtonConfig={{
         onClick: handleDelete,
         buttonText:
-          resourceIds.length > 1
+          linkedResourceCount && linkedResourceCount > 1
             ? text.deleteAttributionsPopup.deleteGlobally
             : text.deleteAttributionsPopup.delete,
         color: 'error',
@@ -111,22 +120,20 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
               text.packageLists.attribution,
             ),
             resources: maybePluralize(
-              resourceIds.length,
+              linkedResourceCount ?? 1,
               text.deleteAttributionsPopup.resource,
               { showOne: true },
             ),
           })}
         </MuiTypography>
         <CardList
-          data={attributionIdsToDelete.filter((id) => id in attributions)}
-          renderItemContent={(attributionId, { index }) => {
-            if (!attributions[attributionId]) {
-              return null;
-            }
-
+          data={attributionIdsToDelete
+            .filter((id) => id in attributions)
+            .map((id) => attributions[id])}
+          renderItemContent={(attribution, { index }) => {
             return (
               <>
-                <PackageCard packageInfo={attributions[attributionId]} />
+                <PackageCard packageInfo={attribution} />
                 {index + 1 !== attributionIdsToDelete.length && <MuiDivider />}
               </>
             );
@@ -137,7 +144,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
           disableHighlightSelected={
             !isOptionToDeleteOnSelectedResourceOnlyAvailable
           }
-          resourceIds={resourceIds}
+          state={linkedResourcesTreeState}
           sx={{ minHeight: '100px' }}
         />
       </>

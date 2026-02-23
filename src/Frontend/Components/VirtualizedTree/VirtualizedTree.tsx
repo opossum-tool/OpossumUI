@@ -3,15 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { SxProps } from '@mui/system';
-import { useMemo } from 'react';
 
-import { TREE_ROOT_FOLDER_LABEL } from '../../shared-styles';
-import { getResourcesFromIds } from '../../state/helpers/resources-helpers';
-import { useAppSelector } from '../../state/hooks';
-import { getFilesWithChildren } from '../../state/selectors/resource-selectors';
+import { QueryResult } from '../../../ElectronBackend/api/queries';
 import { List } from '../List/List';
 import { SearchList } from '../SearchList/SearchList';
-import { getTreeNodes } from './VirtualizedTree.util';
 import {
   TreeNode,
   VirtualizedTreeNode,
@@ -19,8 +14,7 @@ import {
 
 interface VirtualizedTreeProps {
   TreeNodeLabel: React.FC<TreeNode>;
-  expandedIds: Array<string>;
-  resourceIds: Array<string>;
+  resources: QueryResult<'getResourceTree'>['treeNodes'];
   onSelect: (nodeId: string) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   readOnly?: boolean;
@@ -31,44 +25,27 @@ interface VirtualizedTreeProps {
 
 export function VirtualizedTree({
   TreeNodeLabel,
-  expandedIds,
   onSelect,
   onToggle,
   readOnly,
-  resourceIds,
+  resources,
   selectedNodeId,
   sx,
   testId,
 }: VirtualizedTreeProps) {
-  const filesWithChildren = useAppSelector(getFilesWithChildren);
-  const resources = useMemo(
-    () => getResourcesFromIds(resourceIds),
-    [resourceIds],
-  );
-  const treeNodes = useMemo(
-    () =>
-      getTreeNodes(
-        { [TREE_ROOT_FOLDER_LABEL]: resources },
-        expandedIds,
-        filesWithChildren,
-      ),
-    [expandedIds, filesWithChildren, resources],
-  );
-
   return (
     <List
-      data={resourceIds.length ? Object.keys(treeNodes) : []}
+      data={resources}
       components={{ List: SearchList }}
-      renderItemContent={(nodeId, { selected, focused }) => (
+      renderItemContent={(resource, { selected, focused }) => (
         <VirtualizedTreeNode
           TreeNodeLabel={TreeNodeLabel}
-          isExpandedNode={expandedIds.includes(nodeId)}
           onToggle={onToggle}
           onSelect={onSelect}
           readOnly={readOnly}
           selected={selected}
           focused={focused}
-          {...treeNodes[nodeId]}
+          resource={resource}
         />
       )}
       selectedId={selectedNodeId}

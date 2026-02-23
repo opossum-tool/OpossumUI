@@ -230,13 +230,7 @@ export default tseslint.config(
       'vitest/expect-expect': [
         'error',
         {
-          assertFunctionNames: [
-            'expect',
-            'expectManualAttributions',
-            'expectResourcesToManualAttributions',
-            'expectResolvedExternalAttributions',
-            'expectDbContent',
-          ],
+          assertFunctionNames: ['expect*'],
         },
       ],
     },

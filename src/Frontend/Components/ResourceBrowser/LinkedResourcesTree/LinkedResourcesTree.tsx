@@ -4,51 +4,50 @@
 // SPDX-License-Identifier: Apache-2.0
 import { SxProps } from '@mui/system';
 import { remove } from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 
 import { OpossumColors } from '../../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
-import { getInitialExpandedIds } from '../../../state/helpers/resources-helpers';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
 import { LinkedResourcesTreeNode } from './LinkedResourcesTreeNode/LinkedResourcesTreeNode';
+import { LinkedResourcesTreeState } from './useLinkedResourcesTreeState';
 
 interface Props {
   disableHighlightSelected?: boolean;
   readOnly?: boolean;
-  resourceIds: Array<string>;
+  state: LinkedResourcesTreeState;
   sx?: SxProps;
 }
 
 export function LinkedResourcesTree({
   readOnly,
   disableHighlightSelected,
-  resourceIds,
+  state,
   sx,
 }: Props) {
   const dispatch = useAppDispatch();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
-  const [expandedIds, setExpandedIds] = useState<Array<string>>([]);
-
-  useEffect(() => {
-    setExpandedIds(getInitialExpandedIds(resourceIds, selectedResourceId));
-  }, [resourceIds, selectedResourceId]);
+  const expandedIds = state?.expandedIds;
+  const setExpandedIds = state?.setExpandedIds;
 
   const handleToggle = useCallback(
     (nodeIdsToExpand: Array<string>) => {
-      let newExpandedNodeIds = [...expandedIds];
-      if (expandedIds.includes(nodeIdsToExpand[0])) {
-        remove(newExpandedNodeIds, (nodeId) =>
-          nodeId.startsWith(nodeIdsToExpand[0]),
-        );
-      } else {
-        newExpandedNodeIds = newExpandedNodeIds.concat(nodeIdsToExpand);
+      if (expandedIds && setExpandedIds) {
+        let newExpandedNodeIds = [...expandedIds];
+        if (expandedIds.includes(nodeIdsToExpand[0])) {
+          remove(newExpandedNodeIds, (nodeId) =>
+            nodeId.startsWith(nodeIdsToExpand[0]),
+          );
+        } else {
+          newExpandedNodeIds = newExpandedNodeIds.concat(nodeIdsToExpand);
+        }
+        setExpandedIds(newExpandedNodeIds);
       }
-      setExpandedIds(newExpandedNodeIds);
     },
-    [expandedIds],
+    [expandedIds, setExpandedIds],
   );
 
   const handleSelect = useCallback(
@@ -57,9 +56,13 @@ export function LinkedResourcesTree({
     [dispatch],
   );
 
+  if (!state) {
+    return null;
+  }
+
   return (
     <VirtualizedTree
-      expandedIds={expandedIds}
+      resources={state.treeNodes}
       onSelect={handleSelect}
       onToggle={handleToggle}
       sx={{
@@ -70,7 +73,6 @@ export function LinkedResourcesTree({
         }),
         ...sx,
       }}
-      resourceIds={resourceIds}
       selectedNodeId={disableHighlightSelected ? '' : selectedResourceId}
       readOnly={readOnly}
       TreeNodeLabel={LinkedResourcesTreeNode}

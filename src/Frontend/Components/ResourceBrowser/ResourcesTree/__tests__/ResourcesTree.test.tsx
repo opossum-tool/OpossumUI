@@ -3,314 +3,425 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, fireEvent, Screen, screen, within } from '@testing-library/react';
-import { isEqual } from 'lodash';
+import { fireEvent, Screen, screen, within } from '@testing-library/react';
 
-import {
-  Attributions,
-  Criticality,
-  Resources,
-  ResourcesToAttributions,
-} from '../../../../../shared/shared-types';
+import { Criticality } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
+import {
+  makeResourceTreeNode,
+  ROOT_TREE_NODE,
+} from '../../../../../testing/global-test-helpers';
 import { ROOT_PATH } from '../../../../shared-constants';
-import { setFilesWithChildren } from '../../../../state/actions/resource-actions/all-views-simple-actions';
-import { addResolvedExternalAttributions } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
-import { getResourceIdsFromResources } from '../../../../state/helpers/resources-helpers';
+import { setConfig } from '../../../../state/actions/resource-actions/all-views-simple-actions';
+import { setUserSetting } from '../../../../state/actions/user-settings-actions/user-settings-actions';
 import { getSelectedResourceId } from '../../../../state/selectors/resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
 import { ResourcesTree } from '../ResourcesTree';
 
-describe('ResourcesTree', () => {
-  it('renders working tree', async () => {
-    const resources: Resources = {
-      thirdParty: {
-        'package_1.tr.gz': 1,
-        'package_2.tr.gz': 1,
-      },
-      root: {
-        src: {
-          'something.js': 1,
-        },
-        'readme.md': 1,
-      },
-    };
+const defaultData = getParsedInputFileEnrichedWithTestData({});
 
-    const { store } = await renderComponent(
-      <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
-      {
-        data: getParsedInputFileEnrichedWithTestData({
-          resources,
-        }),
-      },
-    );
+describe('ResourcesTree', () => {
+  it('renders tree nodes from provided resources', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/root/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+      }),
+      makeResourceTreeNode({
+        id: '/thirdParty/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+    });
 
     expect(screen.getByText(ROOT_PATH)).toBeInTheDocument();
     expect(screen.getByText('root')).toBeInTheDocument();
     expect(screen.getByText('thirdParty')).toBeInTheDocument();
-    expect(screen.queryByText('src')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByText('root'));
-
-    expect(screen.getByText('root')).toBeInTheDocument();
-    expect(screen.getByText('readme.md')).toBeInTheDocument();
-    expect(screen.queryByText('something.js')).not.toBeInTheDocument();
-    expect(getSelectedResourceId(store.getState())).toBe('/root/');
-
-    fireEvent.click(screen.getByText('src'));
-    expect(screen.getByText('something.js')).toBeInTheDocument();
-    expect(getSelectedResourceId(store.getState())).toBe('/root/src/');
-
-    fireEvent.click(screen.getByText('src'));
-    expect(screen.getByText('something.js')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByLabelText('collapse /root/src/'));
-    expect(screen.queryByText('something.js')).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByText('src'));
-    expect(screen.getByText('something.js')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText('root'));
-    expect(screen.getByText('something.js')).toBeInTheDocument();
-    expect(screen.getByText('src')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByLabelText('collapse /root/'));
-    expect(screen.queryByText('something.js')).not.toBeInTheDocument();
-    expect(screen.queryByText('src')).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByText('root'));
-    expect(screen.queryByText('something.js')).not.toBeInTheDocument();
-    expect(screen.getByText('src')).toBeInTheDocument();
   });
 
-  it('opens folders recursively', async () => {
-    const resources: Resources = {
-      parentDirectory: {
-        childDirectory: {
-          GrandchildDirectory: {
-            'package_1.tr.gz': 1,
-            'package_2.tr.gz': 1,
-          },
-        },
-      },
-    };
-
-    await renderComponent(
-      <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
-      {
-        data: getParsedInputFileEnrichedWithTestData({
-          resources,
-        }),
-      },
-    );
-
-    expect(screen.getByText(ROOT_PATH)).toBeInTheDocument();
-    expect(screen.getByText('parentDirectory')).toBeInTheDocument();
-    expect(screen.queryByText('childDirectory')).not.toBeInTheDocument();
-    expect(screen.queryByText('GrandchildDirectory')).not.toBeInTheDocument();
-    expect(screen.queryByText('package_1.tr.gz')).not.toBeInTheDocument();
-    expect(screen.queryByText('package_2.tr.gz')).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByText('parentDirectory'));
-    expect(screen.getByText(ROOT_PATH)).toBeInTheDocument();
-    expect(screen.getByText('parentDirectory')).toBeInTheDocument();
-    expect(screen.getByText('childDirectory')).toBeInTheDocument();
-    expect(screen.getByText('GrandchildDirectory')).toBeInTheDocument();
-    expect(screen.getByText('package_1.tr.gz')).toBeInTheDocument();
-    expect(screen.getByText('package_2.tr.gz')).toBeInTheDocument();
-  });
-
-  it('Resource browser renders icons', async () => {
-    const resources: Resources = {
-      thirdParty: {
-        'package_1.tr.gz': 1,
-        'package_2.tr.gz': 1,
-      },
-      root: {
-        src: {
-          'something.js': 1,
-        },
-        'readme.md': 1,
-      },
-    };
-    const testUuid: string = faker.string.uuid();
-    const testManualAttributions: Attributions = {};
-    const testResourcesToManualAttributions: ResourcesToAttributions = {};
-    const testExternalAttributions: Attributions = {
-      [testUuid]: {
-        packageName: 'jquery',
-        criticality: Criticality.High,
-        id: testUuid,
-      },
-    };
-    const testResourcesToExternalAttributions: ResourcesToAttributions = {
-      '/root/src/': [testUuid],
-    };
+  it('dispatches setSelectedResourceId on click', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/root/',
+        isExpandable: true,
+        isExpanded: true,
+        canHaveChildren: true,
+        isFile: false,
+      }),
+    ];
 
     const { store } = await renderComponent(
-      <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
-      {
-        data: getParsedInputFileEnrichedWithTestData({
-          resources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-          externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        }),
-      },
+      <ResourcesTree resources={resources} />,
+      { data: defaultData },
     );
 
-    expect(screen.getByText(ROOT_PATH)).toBeInTheDocument();
-    expect(screen.getByText('root')).toBeInTheDocument();
-    expectIconToExist(screen, 'Criticality icon', 'root', false);
+    fireEvent.click(screen.getByText('root'));
+    expect(getSelectedResourceId(store.getState())).toBe('/root/');
+  });
+
+  it('renders correct icon for directory containing signals', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/root/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+        containsExternalAttribution: true,
+        containsResourcesWithOnlyExternalAttribution: true,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+    });
+
     expectResourceIconLabelToBe(
       screen,
       'root',
       'Directory icon containing signals',
     );
-    expect(screen.queryByText('src')).not.toBeInTheDocument();
+  });
 
-    fireEvent.click(screen.getByText('root'));
-    expect(screen.getByText('src')).toBeInTheDocument();
-    expectIconToExist(screen, 'Criticality icon', 'src', true);
+  it('renders correct icon for directory with signal and criticality icon', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/src/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+        hasExternalAttribution: true,
+        hasUnresolvedExternalAttribution: true,
+        criticality: Criticality.High,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+    });
+
     expectResourceIconLabelToBe(screen, 'src', 'Directory icon with signal');
+    expectIconToExist(screen, 'Criticality icon', 'src', true);
+  });
 
-    fireEvent.click(screen.getByText('src'));
-    expect(screen.getByText('something.js')).toBeInTheDocument();
-    expectIconToExist(screen, 'Criticality icon', 'something.js', false);
+  it('renders correct icon for file without information', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({ id: '/something.js' }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+    });
+
     expectResourceIconLabelToBe(
       screen,
       'something.js',
       'File icon without information',
     );
-    act(() => {
-      store.dispatch(addResolvedExternalAttributions([testUuid]));
+    expectIconToExist(screen, 'Criticality icon', 'something.js', false);
+  });
+
+  it('renders correct icon for directory with attribution', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/root/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+        hasManualAttribution: true,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
     });
-    expectIconToExist(screen, 'Criticality icon', 'src', false);
-    expectResourceIconLabelToBe(
-      screen,
-      'src',
-      'Directory icon without information',
-    );
 
     expectResourceIconLabelToBe(
       screen,
       'root',
+      'Directory icon with attribution',
+    );
+  });
+
+  it('renders correct icon for directory without information', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/empty/',
+        isExpandable: false,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+    });
+
+    expectResourceIconLabelToBe(
+      screen,
+      'empty',
       'Directory icon without information',
     );
   });
 
-  it('Resources are sorted in alphabetical order', async () => {
-    const resources: Resources = {
-      'd_package.exe': 1,
-      'c_package.exe': 1,
-      'b_package.exe': 1,
-      'a_package.exe': 1,
-    };
-
-    await renderComponent(
-      <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
-      {
-        data: getParsedInputFileEnrichedWithTestData({
-          resources,
-        }),
-      },
-    );
-
-    expect(screen.getByText(ROOT_PATH)).toBeInTheDocument();
-    expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
-
-    const expectedSequence: Array<string> = [
-      'a_package.exe',
-      'b_package.exe',
-      'c_package.exe',
-      'd_package.exe',
+  it('renders correct icon for file with attribution', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/file.ts',
+        hasManualAttribution: true,
+      }),
     ];
-    const allPackages = screen.queryAllByText(/package/);
-    const actualSequence = allPackages.map((p) => {
-      if (p.firstChild) {
-        return p.firstChild.textContent;
-      }
-      return null;
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
     });
-    expect(isEqual(actualSequence, expectedSequence)).toBeTruthy();
+
+    expectResourceIconLabelToBe(
+      screen,
+      'file.ts',
+      'File icon with attribution',
+    );
   });
 
-  it('Resource folders are sorted before files', async () => {
-    const resources: Resources = {
-      'a_package.exe': 1,
-      'b_package.exe': 1,
-      c_package_folder: {},
-      d_package_folder: {},
-    };
-
-    await renderComponent(
-      <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
-      {
-        data: getParsedInputFileEnrichedWithTestData({
-          resources,
-        }),
-      },
-    );
-
-    expect(screen.getByText(ROOT_PATH)).toBeInTheDocument();
-    expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
-
-    const expectedSequence: Array<string> = [
-      'c_package_folder',
-      'd_package_folder',
-      'a_package.exe',
-      'b_package.exe',
+  it('renders correct icon for file with signal and criticality', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/file.ts',
+        hasManualAttribution: true,
+        hasExternalAttribution: true,
+        hasUnresolvedExternalAttribution: true,
+        criticality: Criticality.High,
+      }),
     ];
 
-    const allPackages = screen.queryAllByText(/package/);
-    const actualSequence = allPackages.map((p) => {
-      if (p.firstChild) {
-        return p.firstChild.textContent;
-      }
-      return null;
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
     });
-    expect(isEqual(actualSequence, expectedSequence)).toBeTruthy();
+
+    expectResourceIconLabelToBe(
+      screen,
+      'file.ts',
+      'File icon with attribution',
+    );
+    expectIconToExist(screen, 'Criticality icon', 'file.ts', true);
   });
 
-  it('FileWithChildren are sorted with files', async () => {
-    const resources: Resources = {
-      'a_package.exe': 1,
-      'z_package.exe': 1,
-      a_package_folder: {},
-      z_package_folder: {},
-      'package.json': {},
-    };
-
-    await renderComponent(
-      <ResourcesTree resourceIds={getResourceIdsFromResources(resources)} />,
-      {
-        data: getParsedInputFileEnrichedWithTestData({
-          resources,
-        }),
-        actions: [setFilesWithChildren(new Set(['/package.json/']))],
-      },
-    );
-
-    expect(screen.getByText(ROOT_PATH)).toBeInTheDocument();
-    expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
-
-    const expectedSequence: Array<string> = [
-      'a_package_folder',
-      'z_package_folder',
-      'a_package.exe',
-      'package.json',
-      'z_package.exe',
+  it('renders correct icon for directory containing attributions', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/root/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+        containsManualAttribution: true,
+      }),
     ];
 
-    const allPackages = screen.queryAllByText(/package/);
-    const actualSequence = allPackages.map((p) => {
-      if (p.firstChild) {
-        return p.firstChild.textContent;
-      }
-      return null;
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
     });
-    expect(isEqual(actualSequence, expectedSequence)).toBeTruthy();
+
+    expectResourceIconLabelToBe(
+      screen,
+      'root',
+      'Directory icon containing attributions',
+    );
+  });
+
+  it('renders correct icon for directory with parent attribution', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/root/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+        hasParentWithManualAttribution: true,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+    });
+
+    expectResourceIconLabelToBe(
+      screen,
+      'root',
+      'Directory icon with parent attribution',
+    );
+  });
+
+  it('renders correct icon for directory with all children containing signal also containing attributions', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/root/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+        containsExternalAttribution: true,
+        containsResourcesWithOnlyExternalAttribution: false,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+    });
+
+    expectResourceIconLabelToBe(
+      screen,
+      'root',
+      'Directory icon with all children containing signal also containing attributions',
+    );
+  });
+
+  it('renders breakpoint icon', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/root/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+        isAttributionBreakpoint: true,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+    });
+
+    expectIconToExist(screen, 'Breakpoint icon', 'root', true);
+  });
+
+  it('hides criticality icon when showCriticality is disabled', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/src/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+        hasExternalAttribution: true,
+        hasUnresolvedExternalAttribution: true,
+        criticality: Criticality.High,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+      actions: [setUserSetting({ showCriticality: false })],
+    });
+
+    expectResourceIconLabelToBe(screen, 'src', 'Directory icon with signal');
+    expectIconToExist(screen, 'Criticality icon', 'src', false);
+    expectIconToExist(screen, 'Signal icon', 'src', true);
+  });
+
+  it('renders classification icon when showClassifications is enabled', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/src/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+        hasExternalAttribution: true,
+        hasUnresolvedExternalAttribution: true,
+        classification: 1,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+      actions: [
+        setConfig({
+          classifications: { 1: faker.opossum.classificationEntry() },
+        }),
+        setUserSetting({ showClassifications: true }),
+      ],
+    });
+
+    expectIconToExist(screen, 'Classification icon', 'src', true);
+  });
+
+  it('hides classification icon when showClassifications is disabled', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/src/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+        hasExternalAttribution: true,
+        hasUnresolvedExternalAttribution: true,
+        classification: 1,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+      actions: [
+        setConfig({
+          classifications: { 1: faker.opossum.classificationEntry() },
+        }),
+        setUserSetting({ showClassifications: false }),
+      ],
+    });
+
+    expectIconToExist(screen, 'Classification icon', 'src', false);
+  });
+
+  it('renders correct icon for directory containing both signals and attributions', async () => {
+    const resources = [
+      ROOT_TREE_NODE,
+      makeResourceTreeNode({
+        id: '/root/',
+        isExpandable: true,
+        isExpanded: false,
+        canHaveChildren: true,
+        isFile: false,
+        containsExternalAttribution: true,
+        containsManualAttribution: true,
+        containsResourcesWithOnlyExternalAttribution: true,
+      }),
+    ];
+
+    await renderComponent(<ResourcesTree resources={resources} />, {
+      data: defaultData,
+    });
+
+    expectResourceIconLabelToBe(screen, 'root', 'Directory icon');
   });
 });
 

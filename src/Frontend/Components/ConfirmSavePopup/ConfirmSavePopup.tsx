@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
-import { compact, uniq } from 'lodash';
 
 import { text } from '../../../shared/text';
 import {
@@ -14,15 +13,16 @@ import {
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getManualAttributions,
-  getManualAttributionsToResources,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
+import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { CardList } from '../CardList/CardList';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
+import { useLinkedResourcesTreeState } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
 import { StyledNotificationPopup } from './ConfirmSavePopup.style';
 
 interface Props {
@@ -38,20 +38,36 @@ export const ConfirmSavePopup: React.FC<Props> = ({
 }) => {
   const dispatch = useAppDispatch();
   const attributions = useAppSelector(getManualAttributions);
-  const attributionsToResources = useAppSelector(
-    getManualAttributionsToResources,
-  );
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
 
-  const resourceIds = uniq(
-    compact(attributionIdsToSave.flatMap((id) => attributionsToResources[id])),
-  );
+  const linkedResourcesTreeState = useLinkedResourcesTreeState({
+    onAttributionUuids: attributionIdsToSave,
+    enabled: open,
+  });
+
+  const linkedResourceCount = linkedResourcesTreeState?.count;
+
+  const isResourceLinkedOnAllAttributions =
+    backend.isResourceLinkedOnAllAttributions.useQuery(
+      {
+        resourcePath: selectedResourceId,
+        attributionUuids: attributionIdsToSave,
+      },
+      {
+        enabled:
+          open && !!selectedResourceId && attributionIdsToSave.length > 0,
+      },
+    );
+
   const hasMultipleResourcesWhichContainSelected =
-    resourceIds.length > 1 && resourceIds.includes(selectedResourceId);
+    linkedResourceCount &&
+    isResourceLinkedOnAllAttributions.data &&
+    linkedResourceCount > 1 &&
+    isResourceLinkedOnAllAttributions.data;
   const areAllAttributionsPreselected = attributionIdsToSave.every(
     (id) => attributions[id]?.preSelected,
   );
@@ -97,7 +113,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         onClick: handleSave,
         color: 'error',
         buttonText:
-          resourceIds.length > 1
+          linkedResourceCount && linkedResourceCount > 1
             ? areAllAttributionsPreselected
               ? text.saveAttributionsPopup.confirmGlobally
               : text.saveAttributionsPopup.saveGlobally
@@ -140,22 +156,20 @@ export const ConfirmSavePopup: React.FC<Props> = ({
               text.packageLists.attribution,
             ),
             resources: maybePluralize(
-              resourceIds.length,
+              linkedResourceCount ?? 1,
               text.saveAttributionsPopup.resource,
               { showOne: true },
             ),
           })}
         </MuiTypography>
         <CardList
-          data={attributionIdsToSave.filter((id) => id in attributions)}
-          renderItemContent={(attributionId, { index }) => {
-            if (!attributions[attributionId]) {
-              return null;
-            }
-
+          data={attributionIdsToSave
+            .filter((id) => id in attributions)
+            .map((id) => attributions[id])}
+          renderItemContent={(attribution, { index }) => {
             return (
               <>
-                <PackageCard packageInfo={attributions[attributionId]} />
+                <PackageCard packageInfo={attribution} />
                 {index + 1 !== attributionIdsToSave.length && <MuiDivider />}
               </>
             );
@@ -164,7 +178,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         <LinkedResourcesTree
           readOnly
           disableHighlightSelected={!hasMultipleResourcesWhichContainSelected}
-          resourceIds={resourceIds}
+          state={linkedResourcesTreeState}
           sx={{ minHeight: '100px' }}
         />
       </>

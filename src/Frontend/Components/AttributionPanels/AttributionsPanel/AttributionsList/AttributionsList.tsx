@@ -31,7 +31,11 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   return (
     <List
       renderItemContent={renderAttributionCard}
-      data={activeAttributionIds}
+      data={
+        activeAttributionIds?.map((id) => ({
+          id,
+        })) ?? null
+      }
       components={{ List: SearchList }}
       selectedId={selectedAttributionId}
       loading={loading}
@@ -40,7 +44,7 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   );
 
   function renderAttributionCard(
-    attributionId: string,
+    { id: attributionId }: { id: string },
     { selected, focused }: ListItemContentProps,
   ) {
     const attribution = attributions?.[attributionId];

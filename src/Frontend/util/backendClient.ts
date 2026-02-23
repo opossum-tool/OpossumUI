@@ -56,6 +56,11 @@ type ClientQueryReturn<Q extends QueryName> = ReturnType<
 type BackendClient = {
   [Q in QueryName]: {
     /**
+     * Asynchronous one-time call to query data from the backend, for use outside of React components.
+     * Not affected by invaldation.
+     */
+    query: (params: QueryParams<Q>) => Promise<QueryResult<Q>>;
+    /**
      * Tanstack Query hook for querying the backend.
      * Automatically handles caching and invalidation.
      */
@@ -139,17 +144,22 @@ export const backend = new Proxy({} as BackendClient, {
       return 'result' in response ? response.result : undefined;
     }
 
+    async function query(params?: QueryParams<QueryName>) {
+      const response = await window.electronAPI.api<QueryName>(
+        command as QueryName,
+        params as QueryParams<QueryName>,
+      );
+      return response.result;
+    }
+
     return {
       // For commands specified in src/ElectronBackend/api/queries.ts
+      query,
       useQuery: (params?: QueryParams<QueryName>, options?: object) =>
         useQuery({
           queryKey: getQueryKey(command, params),
-          queryFn: async () => {
-            const response = await window.electronAPI.api<QueryName>(
-              command as QueryName,
-              params as QueryParams<QueryName>,
-            );
-            return response.result;
+          queryFn: () => {
+            return query(params);
           },
           ...options,
         }),

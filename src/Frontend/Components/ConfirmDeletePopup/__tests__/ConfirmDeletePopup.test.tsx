@@ -8,12 +8,10 @@ import { noop } from 'lodash';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import { setManualData } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { pathsToResources } from '../../../../testing/global-test-helpers';
+import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { expectManualAttributions } from '../../../test-helpers/expectations';
-import {
-  getAttributionsToResources,
-  getParsedInputFileEnrichedWithTestData,
-} from '../../../test-helpers/general-test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmDeletePopup } from '../ConfirmDeletePopup';
 
@@ -21,14 +19,8 @@ describe('ConfirmDeletePopup', () => {
   it('displays to-be-deleted attributions and counts the affected resources', async () => {
     const attribution1 = faker.opossum.packageInfo();
     const attribution2 = faker.opossum.packageInfo();
-    const attributions = faker.opossum.attributions({
-      [attribution1.id]: attribution1,
-      [attribution2.id]: attribution2,
-    });
-    const resourcesToAttributions = faker.opossum.resourcesToAttributions({
-      resource1: [attribution1.id],
-      resource2: [attribution2.id],
-    });
+    const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
+    const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
 
     await renderComponent(
       <ConfirmDeletePopup
@@ -37,18 +29,23 @@ describe('ConfirmDeletePopup', () => {
         attributionIdsToDelete={[attribution1.id, attribution2.id]}
       />,
       {
-        actions: [
-          setManualData(
-            attributions,
-            resourcesToAttributions,
-            getAttributionsToResources(resourcesToAttributions),
-          ),
-        ],
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attribution1.id]: attribution1,
+            [attribution2.id]: attribution2,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource1]: [attribution1.id],
+            [resource2]: [attribution1.id],
+          }),
+          resources: pathsToResources([resource1, resource2]),
+        }),
+        actions: [setSelectedAttributionId(attribution1.id)],
       },
     );
 
     expect(
-      screen.getByText(
+      await screen.findByText(
         text.deleteAttributionsPopup.deleteAttributions({
           attributions: '2 attributions',
           resources: '2 resources',
@@ -63,14 +60,8 @@ describe('ConfirmDeletePopup', () => {
   it('deletes attributions', async () => {
     const attribution1 = faker.opossum.packageInfo();
     const attribution2 = faker.opossum.packageInfo();
-    const attributions = faker.opossum.attributions({
-      [attribution1.id]: attribution1,
-      [attribution2.id]: attribution2,
-    });
-    const resourcesToAttributions = faker.opossum.resourcesToAttributions({
-      resource1: [attribution1.id],
-      resource2: [attribution2.id],
-    });
+    const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
+    const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
 
     const { store } = await renderComponent(
       <ConfirmDeletePopup
@@ -80,14 +71,22 @@ describe('ConfirmDeletePopup', () => {
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({
-          manualAttributions: attributions,
-          resourcesToManualAttributions: resourcesToAttributions,
+          manualAttributions: faker.opossum.attributions({
+            [attribution1.id]: attribution1,
+            [attribution2.id]: attribution2,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource1]: [attribution1.id],
+            [resource2]: [attribution1.id],
+          }),
+          resources: pathsToResources([resource1, resource2]),
         }),
+        actions: [setSelectedAttributionId(attribution1.id)],
       },
     );
 
     await userEvent.click(
-      screen.getByText(text.deleteAttributionsPopup.deleteGlobally),
+      await screen.findByText(text.deleteAttributionsPopup.deleteGlobally),
     );
 
     await expectManualAttributions(store.getState(), {});

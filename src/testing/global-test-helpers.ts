@@ -2,7 +2,43 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { ResourceTreeNodeData } from '../ElectronBackend/api/resourceTree';
 import { Resources } from '../shared/shared-types';
+
+export function makeResourceTreeNode(
+  overrides: Partial<ResourceTreeNodeData> &
+    Pick<ResourceTreeNodeData, 'id'> = { id: '/' },
+): ResourceTreeNodeData {
+  const pathParts = overrides.id.split('/').filter(Boolean);
+  return {
+    labelText: overrides.id === '/' ? '/' : pathParts[pathParts.length - 1],
+    level: pathParts.length,
+    isExpandable: false,
+    isExpanded: false,
+    hasManualAttribution: false,
+    hasExternalAttribution: false,
+    hasUnresolvedExternalAttribution: false,
+    hasParentWithManualAttribution: false,
+    containsExternalAttribution: false,
+    containsManualAttribution: false,
+    containsResourcesWithOnlyExternalAttribution: false,
+    canHaveChildren: false,
+    isAttributionBreakpoint: false,
+    isFile: true,
+    criticality: null,
+    classification: null,
+    ...overrides,
+  };
+}
+
+export const ROOT_TREE_NODE: ResourceTreeNodeData = makeResourceTreeNode({
+  id: '/',
+  level: 0,
+  isExpandable: true,
+  isExpanded: true,
+  canHaveChildren: true,
+  isFile: false,
+});
 
 export function pathsToResources(paths: Array<string>) {
   const result: Resources = {};

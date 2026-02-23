@@ -17,12 +17,14 @@ export interface ListItemContentProps {
   focused: boolean;
 }
 
-interface ListProps {
+export type BaseItem = { id: unknown };
+
+interface ListProps<ItemType extends BaseItem> {
   className?: string;
-  data: ReadonlyArray<string> | null;
+  data: ReadonlyArray<ItemType> | null;
   loading?: boolean;
   renderItemContent: (
-    datum: string,
+    datum: ItemType,
     props: ListItemContentProps,
   ) => React.ReactNode;
   selectedId?: string;
@@ -30,7 +32,7 @@ interface ListProps {
   testId?: string;
 }
 
-export function List({
+export function List<ItemType extends BaseItem>({
   className,
   data,
   loading,
@@ -40,7 +42,8 @@ export function List({
   testId,
   components,
   ...props
-}: ListProps & Omit<VirtuosoProps<string, unknown>, 'data' | 'selected'>) {
+}: ListProps<ItemType> &
+  Omit<VirtuosoProps<ItemType, unknown>, 'data' | 'selected'>) {
   const {
     focusedIndex,
     ref,
@@ -48,7 +51,7 @@ export function List({
     setIsVirtuosoFocused,
     selectedIndex,
     isVirtuosoFocused,
-  } = useVirtuosoRefs<VirtuosoHandle>({
+  } = useVirtuosoRefs<ItemType, VirtuosoHandle>({
     data,
     selectedId,
   });
