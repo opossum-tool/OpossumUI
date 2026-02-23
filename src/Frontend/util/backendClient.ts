@@ -93,6 +93,7 @@ export function setDatabaseInitialized(props: {
   databaseInitialized: boolean;
 }) {
   databaseInitialized = props.databaseInitialized;
+  queryClient.clear();
   void queryClient.resetQueries();
 }
 
@@ -173,8 +174,20 @@ export const backend = new Proxy({} as BackendClient, {
           queryFn: () => {
             return query(params);
           },
-          enabled: () => databaseInitialized,
           ...options,
+          enabled: () => {
+            if (!databaseInitialized) {
+              return false;
+            }
+            if (typeof options === 'object' && 'enabled' in options) {
+              return Boolean(
+                typeof options.enabled === 'function'
+                  ? options.enabled()
+                  : options.enabled,
+              );
+            }
+            return true;
+          },
         }),
 
       // For commands specified in src/ElectronBackend/api/mutations.ts

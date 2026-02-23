@@ -350,6 +350,9 @@ describe('isResourceLinkedOnAllAttributions', () => {
     });
 
     expect(result).toBe(false);
+  });
+});
+
 describe('getProgressBarData', () => {
   const emptyAttributions = {
     attributions: {},
