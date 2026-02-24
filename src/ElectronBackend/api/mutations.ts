@@ -82,6 +82,7 @@ export const mutations = {
         })),
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
+        { queryName: 'getProgressBarData' },
       ],
     };
   },
@@ -151,6 +152,7 @@ export const mutations = {
         },
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
+        { queryName: 'getProgressBarData' },
       ],
     };
   },
@@ -190,12 +192,14 @@ export const mutations = {
 
     return {
       invalidates: [
+        { queryName: 'getProgressBarData' },
         {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionUuid },
         },
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
+        { queryName: 'getProgressBarData' },
       ],
     };
   },
@@ -249,6 +253,7 @@ export const mutations = {
         },
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
+        { queryName: 'getProgressBarData' },
       ],
     };
   },
@@ -286,6 +291,7 @@ export const mutations = {
           params: { attributionUuid },
         })),
         { queryName: 'filterCounts' },
+        { queryName: 'getProgressBarData' },
       ],
     };
   },
@@ -336,6 +342,7 @@ export const mutations = {
         })),
         { queryName: 'filterCounts' },
         { queryName: 'getResourceTree' },
+        { queryName: 'getProgressBarData' },
       ],
     };
   },
@@ -376,6 +383,7 @@ async function setAttributionsResolvedStatus(
       })),
       { queryName: 'filterCounts' as const },
       { queryName: 'getResourceTree' as const },
+      { queryName: 'getProgressBarData' as const },
     ],
   };
 }

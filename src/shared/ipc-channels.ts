@@ -45,4 +45,5 @@ export enum AllowedFrontendChannels {
   ShowUpdateAppPopup = 'show-update-app-pop-up',
   UserSettingsChanged = 'user-settings-changed',
   ProcessingStateChanged = 'processing-state-changed',
+  SetDatabaseInitialized = 'set-database-initialized',
 }

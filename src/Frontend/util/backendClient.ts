@@ -85,6 +85,17 @@ type BackendClient = {
 };
 
 /**
+ * A boolean flag that prevents queries from being executed before the database is initialized.
+ * This also invalidates all queries when flipped, otherwise old data could be shown.
+ */
+let databaseInitialized = false;
+export function setDatabaseInitialized(initialized: boolean) {
+  databaseInitialized = initialized;
+  queryClient.clear();
+  void queryClient.resetQueries();
+}
+
+/**
  * Access the backend api commands as queries and mutations.
  * Mutations automatically invalidate the appropriate queries.
  *
@@ -155,13 +166,29 @@ export const backend = new Proxy({} as BackendClient, {
     return {
       // For commands specified in src/ElectronBackend/api/queries.ts
       query,
-      useQuery: (params?: QueryParams<QueryName>, options?: object) =>
+      useQuery: (
+        params?: QueryParams<QueryName>,
+        options?: ClientQueryOptions<QueryName>,
+      ) =>
         useQuery({
           queryKey: getQueryKey(command, params),
           queryFn: () => {
             return query(params);
           },
           ...options,
+          enabled: (query) => {
+            if (!databaseInitialized) {
+              return false;
+            }
+            if (options !== undefined && 'enabled' in options) {
+              return Boolean(
+                typeof options.enabled === 'function'
+                  ? options.enabled(query)
+                  : options.enabled,
+              );
+            }
+            return true;
+          },
         }),
 
       // For commands specified in src/ElectronBackend/api/mutations.ts

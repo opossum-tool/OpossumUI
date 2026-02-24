@@ -27,9 +27,11 @@ import { loadFromFile } from '../../state/actions/resource-actions/load-actions'
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getBaseUrlsForSources } from '../../state/selectors/resource-selectors';
+import { setDatabaseInitialized } from '../../util/backendClient';
 import {
   ExportFileRequestListener,
   LoggingListener,
+  SetDatabaseInitializedListener,
   ShowImportDialogListener,
   ShowMergeDialogListener,
   useIpcRenderer,
@@ -154,6 +156,11 @@ export const BackendCommunication: React.FC = () => {
     AllowedFrontendChannels.ShowMergeDialog,
     (_, fileFormat) => dispatch(showMergeDialogOrOpenUnsavedPopup(fileFormat)),
     [dispatch],
+  );
+  useIpcRenderer<SetDatabaseInitializedListener>(
+    AllowedFrontendChannels.SetDatabaseInitialized,
+    (_, databaseInitialized) => setDatabaseInitialized(databaseInitialized),
+    [],
   );
 
   return null;

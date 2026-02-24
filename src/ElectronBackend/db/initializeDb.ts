@@ -14,6 +14,7 @@ import {
   ParsedFileContent,
   Resources,
 } from '../../shared/shared-types';
+import { removeTrailingSlash } from '../api/utils';
 import { getDb, getRawDb, resetDb } from './db';
 import { DB } from './generated/databaseTypes';
 
@@ -117,6 +118,12 @@ async function initializeResourceTable(
   attributionBreakpoints: Set<string>,
   filesWithChildren: Set<string>,
 ) {
+  const trimmedAttributionBreakpoints = new Set(
+    [...attributionBreakpoints].map(removeTrailingSlash),
+  );
+  const trimmedFilesWithChildren = new Set(
+    [...filesWithChildren].map(removeTrailingSlash),
+  );
   await trx.schema
     .createTable('resource')
     .addColumn('id', 'integer', (col) => col.primaryKey().notNull())
@@ -160,8 +167,9 @@ async function initializeResourceTable(
     const currentPath = parentPath === null ? '' : `${parentPath}/${name}`;
 
     const isLeaf = children === 1;
-    const isFile = isLeaf || filesWithChildren.has(currentPath);
-    const isAttributionBreakpoint = attributionBreakpoints.has(currentPath);
+    const isFile = isLeaf || trimmedFilesWithChildren.has(currentPath);
+    const isAttributionBreakpoint =
+      trimmedAttributionBreakpoints.has(currentPath);
 
     const resourceId = nextId++;
     insertStmt.run({
@@ -201,9 +209,9 @@ async function initializeResourceTable(
   recursivelyInsertResource('', resources, null, null);
 
   await trx.schema
-    .createIndex('resource_parent_id_idx')
+    .createIndex('resource_parent_id_covering_idx')
     .on('resource')
-    .column('parent_id')
+    .columns(['parent_id', 'id', 'is_file', 'is_attribution_breakpoint'])
     .execute();
 
   return resourcePathToId;
@@ -299,6 +307,21 @@ async function initializeAttributionTable(
       .column(snakeCase(name))
       .execute();
   }
+
+  // Index needed for the progress bar data query
+  await trx.schema
+    .createIndex('attribution_is_resolved_covering_idx')
+    .on('attribution')
+    .columns([
+      'uuid',
+      'is_resolved',
+      'is_external',
+      'pre_selected',
+      'criticality',
+      'classification',
+    ])
+    .where('is_resolved', '=', 0)
+    .execute();
 }
 
 async function initializeSourceForAttributionTable(
@@ -385,13 +408,6 @@ async function initializeResourceToAttributionTable(
       insertStmt.run({ resource_id: resourceId, attribution_uuid: uuid });
     }
   }
-
-  await trx.schema
-    .createIndex('resource_to_attribution_resource_id_attribution_uuid_idx')
-    .on('resource_to_attribution')
-    .column('resource_id')
-    .column('attribution_uuid')
-    .execute();
 
   await trx.schema
     .createIndex('resource_to_attribution_attribution_uuid_resource_id_idx')

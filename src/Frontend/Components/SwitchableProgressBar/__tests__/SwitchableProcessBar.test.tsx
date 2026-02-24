@@ -5,33 +5,56 @@
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { Criticality } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import { faker } from '../../../../testing/Faker';
+import { pathsToResources } from '../../../../testing/global-test-helpers';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
-import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
-import { PROGRESS_DATA } from '../../../state/variables/use-progress-data';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { ProgressBarData } from '../../../types/types';
 import { SwitchableProgressBar } from '../SwitchableProgressBar';
 
-const PROGRESS_BAR_DATA: ProgressBarData = {
-  fileCount: 6,
-  filesWithHighlyCriticalExternalAttributionsCount: 1,
-  filesWithMediumCriticalExternalAttributionsCount: 1,
-  filesWithManualAttributionCount: 3,
-  filesWithOnlyExternalAttributionCount: 1,
-  filesWithOnlyPreSelectedAttributionCount: 1,
-  resourcesWithMediumCriticalExternalAttributions: [],
-  resourcesWithNonInheritedExternalAttributionOnly: [],
-  resourcesWithHighlyCriticalExternalAttributions: [],
-  classificationStatistics: {},
+const preSelectedPackage = faker.opossum.packageInfo({
+  preSelected: true,
+  criticality: Criticality.High,
+});
+const manualPackage = faker.opossum.packageInfo();
+const externalPackage = faker.opossum.packageInfo({
+  criticality: Criticality.Medium,
+});
+const data = {
+  ...getParsedInputFileEnrichedWithTestData({
+    externalAttributions: faker.opossum.attributions({
+      [externalPackage.id]: externalPackage,
+      [preSelectedPackage.id]: preSelectedPackage,
+    }),
+    manualAttributions: faker.opossum.attributions({
+      [manualPackage.id]: manualPackage,
+    }),
+    resourcesToManualAttributions: {
+      '/a': [manualPackage.id],
+      '/a/b/a': [preSelectedPackage.id],
+      '/a/b/b': [externalPackage.id],
+    },
+    attributionBreakpoints: new Set(['/a/b']),
+    resources: pathsToResources([
+      'a/a/a',
+      'a/a/b',
+      'a/a/c',
+      'a/b/a',
+      'a/b/b',
+      'a/b/c',
+    ]),
+  }),
+  metadata: { projectId: faker.string.uuid(), fileCreationDate: '' },
 };
 
 const switchableProgressBarText = text.topBar.switchableProgressBar;
 const attributionProgressBarLabel =
   switchableProgressBarText.attributionBar.ariaLabel;
 
-function openSelect() {
-  fireEvent.mouseDown(screen.getByRole('combobox'), {
+async function openSelect() {
+  fireEvent.mouseDown(await screen.findByRole('combobox'), {
     advanceTimers: vi.runOnlyPendingTimersAsync,
   });
 }
@@ -78,27 +101,23 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('displays the progress bar when progress data available', async () => {
-    await renderComponent(<SwitchableProgressBar />, {
-      actions: [setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA)],
-    });
+    await renderComponent(<SwitchableProgressBar />, { data });
 
     expect(
-      screen.getByLabelText(attributionProgressBarLabel),
+      await screen.findByLabelText(attributionProgressBarLabel),
     ).toBeInTheDocument();
   });
 
   it('switches the progress bar via the select', async () => {
-    await renderComponent(<SwitchableProgressBar />, {
-      actions: [setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA)],
-    });
+    await renderComponent(<SwitchableProgressBar />, { data });
 
-    openSelect();
+    await openSelect();
     expectSelectToBeOpen();
     await selectEntry(switchableProgressBarText.criticalityBar.selectLabel);
 
     expect(getCriticalSignalsProgressBar()).toBeInTheDocument();
 
-    openSelect();
+    await openSelect();
     expectSelectToBeOpen();
     await selectEntry(switchableProgressBarText.attributionBar.selectLabel);
 
@@ -106,11 +125,9 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('offers all three possible progress bars by default', async () => {
-    await renderComponent(<SwitchableProgressBar />, {
-      actions: [setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA)],
-    });
+    await renderComponent(<SwitchableProgressBar />, { data });
 
-    openSelect();
+    await openSelect();
     expectSelectToBeOpen();
 
     const menuEntries = (await screen.findAllByRole('option')).map(
@@ -126,13 +143,11 @@ describe('SwitchableProcessBar', () => {
 
   it('does not offer classifications if disabled', async () => {
     await renderComponent(<SwitchableProgressBar />, {
-      actions: [
-        setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
-        setUserSetting({ showClassifications: false }),
-      ],
+      data,
+      actions: [setUserSetting({ showClassifications: false })],
     });
 
-    openSelect();
+    await openSelect();
     expectSelectToBeOpen();
 
     const menuEntries = (await screen.findAllByRole('option')).map(
@@ -144,13 +159,11 @@ describe('SwitchableProcessBar', () => {
 
   it('does not offer criticality if disabled', async () => {
     await renderComponent(<SwitchableProgressBar />, {
-      actions: [
-        setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
-        setUserSetting({ showCriticality: false }),
-      ],
+      data,
+      actions: [setUserSetting({ showCriticality: false })],
     });
 
-    openSelect();
+    await openSelect();
     expectSelectToBeOpen();
 
     const menuEntries = (await screen.findAllByRole('option')).map(
@@ -161,12 +174,7 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('does not show select if only one option to select', async () => {
-    await renderComponent(<SwitchableProgressBar />, {
-      actions: [
-        setVariable<ProgressBarData>(PROGRESS_DATA, PROGRESS_BAR_DATA),
-        setUserSetting({ showCriticality: false, showClassifications: false }),
-      ],
-    });
+    await renderComponent(<SwitchableProgressBar />, { data });
 
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });

@@ -89,8 +89,6 @@ export const tableClasses = {
   },
 };
 
-export const TREE_ROOT_FOLDER_LABEL = '';
-
 export const treeItemClasses = {
   labelRoot: {
     display: 'flex',

@@ -59,6 +59,11 @@ export type UserSettingsChangedListener = (
   payload: Partial<UserSettings>,
 ) => void;
 
+export type SetDatabaseInitializedListener = (
+  event: IpcRendererEvent,
+  databaseInitialized: boolean,
+) => void;
+
 type Listener =
   | ResetStateListener
   | SetStateListener
@@ -68,7 +73,8 @@ type Listener =
   | ShowImportDialogListener
   | ProcessingStateChangedListener
   | ShowMergeDialogListener
-  | UserSettingsChangedListener;
+  | UserSettingsChangedListener
+  | SetDatabaseInitializedListener;
 
 export function useIpcRenderer<T extends Listener>(
   channel: AllowedFrontendChannels,

@@ -2,17 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  AttributionData,
-  Attributions,
-  ClassificationsConfig,
-  Resources,
-} from '../../shared/shared-types';
+import { AttributionData, Attributions } from '../../shared/shared-types';
 import { SortOption } from '../Components/SortButton/useSortingOptions';
 import { Filter, ROOT_PATH } from '../shared-constants';
-import { ProgressBarData } from '../types/types';
 import { getFilteredAttributions } from './scripts/get-filtered-attributions';
-import { getProgressData } from './scripts/get-progress-data';
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 type Unionize<T extends object> = NonNullable<
@@ -22,10 +15,6 @@ type Unionize<T extends object> = NonNullable<
 >;
 
 export type SignalsWorkerOutput =
-  | {
-      name: 'progressData';
-      data: ProgressBarData;
-    }
   | {
       name: 'filteredAttributions';
       data: Attributions;
@@ -59,18 +48,15 @@ interface State {
   attributionSelectedLicense?: string;
   attributionSorting?: SortOption;
   externalData?: AttributionData;
-  filesWithChildren?: Set<string>;
   manualData?: AttributionData;
   reportViewAttributionFilters?: Array<Filter>;
   reportViewAttributionSelectedLicense?: string;
   resolvedExternalAttributions?: Set<string>;
   resourceId?: string;
-  resources?: Resources;
   signalFilters?: Array<Filter>;
   signalSearch?: string;
   signalSelectedLicense?: string;
   signalSorting?: SortOption;
-  classifications?: ClassificationsConfig;
 }
 
 export type SignalsWorkerInput = Unionize<State>;
@@ -110,18 +96,6 @@ export class SignalsWorker {
       ],
       loading: 'filteredSignalsLoading',
     },
-    progressData: {
-      dependencies: [
-        'attributionBreakpoints',
-        'externalData',
-        'filesWithChildren',
-        'manualData',
-        'resolvedExternalAttributions',
-        'resources',
-        'classifications',
-      ],
-      loading: undefined,
-    },
     filteredAttributionsLoading: { dependencies: [], loading: undefined },
     filteredAttributionsInReportViewLoading: {
       dependencies: [],
@@ -146,7 +120,6 @@ export class SignalsWorker {
     this.dispatchFilteredAttributions(input);
     this.dispatchFilteredAttributionsInReportView(input);
     this.dispatchFilteredSignals(input);
-    this.dispatchProgressData(input);
   }
 
   private setData(input: SignalsWorkerInput) {
@@ -161,25 +134,6 @@ export class SignalsWorker {
         this.dispatch({ name: loading, data: true });
       }
     });
-  }
-
-  private dispatchProgressData(input: SignalsWorkerInput) {
-    if (
-      this.isHydrated(this.state, input, this.config.progressData.dependencies)
-    ) {
-      this.dispatch({
-        name: 'progressData',
-        data: getProgressData({
-          attributionBreakpoints: this.state.attributionBreakpoints,
-          externalData: this.state.externalData,
-          filesWithChildren: this.state.filesWithChildren,
-          manualData: this.state.manualData,
-          resolvedExternalAttributions: this.state.resolvedExternalAttributions,
-          resources: this.state.resources,
-          classifications: this.state.classifications,
-        }),
-      });
-    }
   }
 
   private dispatchFilteredAttributions(input: SignalsWorkerInput) {
