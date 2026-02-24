@@ -159,7 +159,7 @@ export const BackendCommunication: React.FC = () => {
   );
   useIpcRenderer<SetDatabaseInitializedListener>(
     AllowedFrontendChannels.SetDatabaseInitialized,
-    (_, databaseInitialized) => setDatabaseInitialized({ databaseInitialized }),
+    (_, databaseInitialized) => setDatabaseInitialized(databaseInitialized),
     [],
   );
 

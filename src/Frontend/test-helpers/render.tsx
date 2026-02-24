@@ -26,7 +26,7 @@ function makeReactQueryClient() {
 export async function createTestStore(data?: ParsedFileContent) {
   if (data) {
     await initializeDb(data);
-    setDatabaseInitialized({ databaseInitialized: true });
+    setDatabaseInitialized(true);
   }
   const store = createAppStore();
   if (data) {

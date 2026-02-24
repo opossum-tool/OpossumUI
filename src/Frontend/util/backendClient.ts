@@ -89,10 +89,8 @@ type BackendClient = {
  * This also invalidates all queries when flipped, otherwise old data could be shown.
  */
 let databaseInitialized = false;
-export function setDatabaseInitialized(props: {
-  databaseInitialized: boolean;
-}) {
-  databaseInitialized = props.databaseInitialized;
+export function setDatabaseInitialized(initialized: boolean) {
+  databaseInitialized = initialized;
   queryClient.clear();
   void queryClient.resetQueries();
 }
@@ -168,21 +166,24 @@ export const backend = new Proxy({} as BackendClient, {
     return {
       // For commands specified in src/ElectronBackend/api/queries.ts
       query,
-      useQuery: (params?: QueryParams<QueryName>, options?: object) =>
+      useQuery: (
+        params?: QueryParams<QueryName>,
+        options?: ClientQueryOptions<QueryName>,
+      ) =>
         useQuery({
           queryKey: getQueryKey(command, params),
           queryFn: () => {
             return query(params);
           },
           ...options,
-          enabled: () => {
+          enabled: (query) => {
             if (!databaseInitialized) {
               return false;
             }
-            if (typeof options === 'object' && 'enabled' in options) {
+            if (options !== undefined && 'enabled' in options) {
               return Boolean(
                 typeof options.enabled === 'function'
-                  ? options.enabled()
+                  ? options.enabled(query)
                   : options.enabled,
               );
             }
