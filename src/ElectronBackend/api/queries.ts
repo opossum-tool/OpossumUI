@@ -10,7 +10,11 @@ import {
   ClassificationStatistics,
   ProgressBarData,
 } from '../../Frontend/types/types';
-import { ClassificationsConfig } from '../../shared/shared-types';
+import {
+  Attributions,
+  ClassificationsConfig,
+  PackageInfo,
+} from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { getResourceTree } from './resourceTree';
@@ -130,6 +134,97 @@ export const queries = {
     };
   },
 
+  async listAttributions(props: {
+    external: boolean;
+    filters: Array<Filter>;
+    resourcePathForRelationships: string;
+    license?: string;
+    search?: string;
+    showResolved?: boolean;
+    excludeUnrelated?: boolean;
+  }): Promise<{ result: Attributions }> {
+    console.log('Starting listAttributions');
+    console.time(`ListAttributions ${JSON.stringify(props)}`);
+    const db = getDb();
+    const resource = await getResourceOrThrow(
+      db,
+      props.resourcePathForRelationships,
+    );
+
+    const closestAncestor =
+      await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+        db,
+        resource.id,
+      );
+
+    let query = db
+      .selectFrom('attribution')
+      .select('uuid')
+      .select('data')
+      .select(
+        attributionToResourceRelationship({
+          resource,
+          ancestorId: closestAncestor,
+        })
+          .$castTo<ResourceRelationship>()
+          .as('relationship'),
+      )
+      .where('is_external', '=', Number(props.external));
+
+    if (props.excludeUnrelated) {
+      query = query.where(
+        attributionToResourceRelationship({
+          resource,
+          ancestorId: closestAncestor,
+        }),
+        '!=',
+        'unrelated',
+      );
+    }
+
+    for (const filter of props.filters) {
+      query = query.where((eb) => getFilterExpression(eb, filter));
+    }
+
+    if (props.license) {
+      query = query.where(sql<string>`trim(license_name)`, '=', props.license);
+    }
+
+    if (props.search) {
+      const search = props.search;
+      query = query.where((eb) => getSearchExpression(eb, search));
+    }
+
+    if (!props.showResolved) {
+      query = query.where('is_resolved', '=', 0);
+    }
+
+    //query = query.limit(5)
+
+    const attributions = await query.execute();
+
+    console.timeEnd(`ListAttributions ${JSON.stringify(props)}`);
+
+    const backendToFrontendRelationship = {
+      same: 'resource',
+      descendant: 'children',
+      ancestor: 'parents',
+      unrelated: 'unrelated',
+    } as const;
+
+    return {
+      result: Object.fromEntries(
+        attributions.map((a) => [
+          a.uuid,
+          {
+            ...(JSON.parse(a.data) as PackageInfo),
+            relation: backendToFrontendRelationship[a.relationship],
+          },
+        ]),
+      ),
+    };
+  },
+
   async filterProperties(props: {
     external: boolean;
     filters: Array<Filter>;
@@ -158,7 +253,7 @@ export const queries = {
         attributionToResourceRelationship({
           resource,
           ancestorId: closestAncestor,
-        }),
+        }).as('relationship'),
       )
       .select((eb) => eb.fn.countAll<number>().as('total'))
       .select((eb) =>

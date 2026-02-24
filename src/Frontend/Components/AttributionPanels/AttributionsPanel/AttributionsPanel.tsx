@@ -75,6 +75,7 @@ export function AttributionsPanel() {
 
   return (
     <PackagesPanel
+      external={false}
       filterProperties={filterProps.data?.all}
       alert={alert}
       availableFilters={ATTRIBUTION_FILTERS}

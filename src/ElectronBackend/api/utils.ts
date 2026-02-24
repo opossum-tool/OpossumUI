@@ -299,7 +299,7 @@ export function attributionToResourceRelationship(props: {
     )
     .then('descendant');
 
-  return expression.else('unrelated').end().as('relationship');
+  return expression.else('unrelated').end();
 }
 
 export function mergeFilterProperties(

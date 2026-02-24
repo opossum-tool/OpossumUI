@@ -38,6 +38,7 @@ export function SignalsPanel() {
 
   return (
     <PackagesPanel
+      external={true}
       filterProperties={filterProps.data?.sameOrDescendant}
       availableFilters={SIGNAL_FILTERS}
       disableSelectAll={!!attributionIdsForReplacement.length}

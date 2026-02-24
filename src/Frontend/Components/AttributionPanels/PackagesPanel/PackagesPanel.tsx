@@ -13,7 +13,9 @@ import {
 } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
-import { FilterProperties } from '../../../../ElectronBackend/api/queries';
+import {
+  FilterProperties,
+} from '../../../../ElectronBackend/api/queries';
 import { Attributions, Relation } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { Filter } from '../../../shared-constants';
@@ -25,6 +27,8 @@ import {
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import { UseFilteredData } from '../../../state/variables/use-filtered-data';
+import { useUserSettings } from '../../../state/variables/use-user-setting';
+import { backend } from '../../../util/backendClient';
 import { getRelationPriority } from '../../../util/sort-attributions';
 import { usePrevious } from '../../../util/use-previous';
 import { Checkbox } from '../../Checkbox/Checkbox';
@@ -64,6 +68,7 @@ export interface Alert {
 }
 
 interface Props {
+  external: boolean;
   alert?: Alert;
   availableFilters: Array<Filter>;
   children: (props: PackagesPanelChildrenProps) => React.ReactNode;
@@ -75,6 +80,7 @@ interface Props {
 }
 
 export const PackagesPanel = ({
+  external,
   alert,
   availableFilters,
   children,
@@ -89,12 +95,29 @@ export const PackagesPanel = ({
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const previousSelectedResourceId = usePrevious(selectedResourceId);
 
+  const [userSettings] = useUserSettings();
+  const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
+
   const [multiSelectedAttributionIds, setMultiSelectedAttributionIds] =
     useState<Array<string>>([]);
   const [activeRelation, setActiveRelation] = useState<Relation>('children');
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
 
-  const [{ attributions, loading }] = useFilteredData();
+  const [{ filters, search, selectedLicense }] = useFilteredData();
+
+  const attributionQuery = backend.listAttributions.useQuery({
+    external,
+    filters,
+    search,
+    license: selectedLicense,
+    resourcePathForRelationships: selectedResourceId,
+    showResolved: areHiddenSignalsVisible,
+    excludeUnrelated: external,
+  });
+
+  const attributions = attributionQuery.data ?? null;
+  const loading = attributionQuery.isLoading;
+
   const attributionIds = attributions && Object.keys(attributions);
 
   const groupedIds = useMemo(
