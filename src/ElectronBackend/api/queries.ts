@@ -31,6 +31,11 @@ type AutocompletableAttribute =
   | 'url'
   | 'licenseName';
 
+type AutocompleteOptions = Record<
+  'manual' | 'external',
+  Array<{ contained_uuid: string; value: string; count: number }>
+>;
+
 export type FilterProperties = FilterCounts & {
   total: number;
   licenses: Array<string>;
@@ -66,8 +71,21 @@ export const queries = {
     onlyRelatedToResourcePath,
   }: {
     attributeName: AutocompletableAttribute;
-    onlyRelatedToResourcePath?: string;
-  }) {
+    onlyRelatedToResourcePath: string;
+  }): Promise<{
+    result: AutocompleteOptions;
+  }> {
+    const onlyRelatedToResource = await getResourceOrThrow(
+      getDb(),
+      onlyRelatedToResourcePath,
+    );
+
+    const closestAncestorToResource =
+      await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+        getDb(),
+        onlyRelatedToResource.id,
+      );
+
     let query = getDb()
       .selectFrom('attribution')
       .select((eb) => [
@@ -78,21 +96,8 @@ export const queries = {
       ])
       .where('is_resolved', '=', 0)
       .where(toSnakeCase(attributeName), 'is not', null)
-      .where(toSnakeCase(attributeName), '!=', '');
-
-    if (onlyRelatedToResourcePath) {
-      const onlyRelatedToResource = await getResourceOrThrow(
-        getDb(),
-        onlyRelatedToResourcePath,
-      );
-
-      const closestAncestorToResource =
-        await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-          getDb(),
-          onlyRelatedToResource.id,
-        );
-
-      query = query.where((eb) =>
+      .where(toSnakeCase(attributeName), '!=', '')
+      .where((eb) =>
         eb.exists(
           eb
             .selectFrom('resource_to_attribution')
@@ -112,7 +117,6 @@ export const queries = {
             ),
         ),
       );
-    }
 
     query = query.groupBy(['value', 'is_external']);
 
@@ -167,7 +171,9 @@ export const queries = {
         ),
       )
       .select(
-        sql<string>`GROUP_CONCAT(DISTINCT trim(license_name))`.as('licenses'),
+        sql<string>`json_group_array(DISTINCT trim(license_name))`.as(
+          'licenses',
+        ),
       )
       .groupBy('relationship');
 
@@ -197,7 +203,7 @@ export const queries = {
         s.relationship,
         {
           ...omit(s, 'relationship', 'licenses'),
-          licenses: s.licenses?.split(',').filter(Boolean).toSorted() ?? [],
+          licenses: JSON.parse(s.licenses).filter(Boolean).toSorted() ?? [],
         },
       ]),
     ) as Omit<AttributionCounts, 'all' | 'sameOrDescendant'>;
