@@ -3,18 +3,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { groupBy, sortBy } from 'lodash';
-import { useCallback, useMemo } from 'react';
+import { sortBy } from 'lodash';
+import { useMemo } from 'react';
 
-import { Attributions, PackageInfo } from '../../../../shared/shared-types';
+import { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
-import { getFrequentLicensesNameOrder } from '../../../state/selectors/resource-selectors';
 import {
-  useFilteredAttributions,
-  useFilteredSignals,
-} from '../../../state/variables/use-filtered-data';
+  getFrequentLicensesNameOrder,
+  getSelectedResourceId,
+} from '../../../state/selectors/resource-selectors';
+import { backend } from '../../../util/backendClient';
 import { validateSpdxExpression } from '../../../util/spdx/validate-spdx';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 import { renderOccuranceCount } from '../../Autocomplete/AutocompleteUtil';
@@ -44,8 +44,11 @@ export function LicenseSubPanelAutocomplete({
     frequentLicensesNames.map((n) => n.shortName),
   );
 
-  const [{ attributions }] = useFilteredAttributions();
-  const [{ attributions: signals }] = useFilteredSignals();
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const autoCompleteResult = backend.autoCompleteOptions.useQuery({
+    attributeName: 'licenseName',
+    onlyRelatedToResourcePath: selectedResourceId,
+  });
 
   function splitAtLastExpression(input: string | undefined): [string, string] {
     if (input === undefined) {
@@ -56,71 +59,31 @@ export function LicenseSubPanelAutocomplete({
       ?.slice(1) as [string, string];
   }
 
-  type LicenseOption = {
-    shortName: string;
-    fullName: string | undefined;
-    attributionCount?: number;
-    group: string;
-    replaceEntireSearch: boolean;
-  };
-
-  const attributionsToLicenseOptions = useCallback(
-    (
-      attributions: Attributions,
-      removeUnrelated: boolean,
-      group: string,
-    ): Array<LicenseOption> => {
-      return sortBy(
-        Object.entries(
-          groupBy(attributions, (attribution) =>
-            removeUnrelated && attribution.relation === 'unrelated'
-              ? ''
-              : attribution.licenseName,
-          ),
+  const licenseOptions = useMemo<Array<LicenseOption>>(() => {
+    const manual = autoCompleteResult.data
+      ? toLicenseOptions(
+          autoCompleteResult.data.manual,
+          text.attributionColumn.fromAttributions,
         )
-          .filter(
-            ([licenseName]) =>
-              !(licenseName === 'undefined' || licenseName === ''),
-          )
-          .map<LicenseOption>(([attributeValue, attributions]) => ({
-            shortName: attributeValue,
-            fullName: undefined,
-            attributionCount: attributions.length,
-            group,
-            replaceEntireSearch: true,
-          })),
-        ({ attributionCount }) => -(attributionCount ?? 0),
-      );
-    },
-    [],
-  );
+      : [];
+    const external = autoCompleteResult.data
+      ? toLicenseOptions(
+          autoCompleteResult.data.external,
+          text.attributionColumn.fromSignals,
+        )
+      : [];
 
-  const licenseOptions = useMemo<Array<LicenseOption>>(
-    () => [
+    return [
       ...frequentLicensesNames.map((license) => ({
         fullName: license.fullName,
         shortName: license.shortName,
         group: text.attributionColumn.commonLicenses,
         replaceEntireSearch: false,
       })),
-      ...attributionsToLicenseOptions(
-        attributions ?? {},
-        true,
-        text.attributionColumn.fromAttributions,
-      ),
-      ...attributionsToLicenseOptions(
-        signals ?? {},
-        false,
-        text.attributionColumn.fromSignals,
-      ),
-    ],
-    [
-      frequentLicensesNames,
-      attributionsToLicenseOptions,
-      attributions,
-      signals,
-    ],
-  );
+      ...manual,
+      ...external,
+    ];
+  }, [frequentLicensesNames, autoCompleteResult.data]);
 
   function filterOptions(
     options: Array<LicenseOption>,
@@ -253,5 +216,29 @@ export function LicenseSubPanelAutocomplete({
         />
       )}
     </MuiBox>
+  );
+}
+
+type LicenseOption = {
+  shortName: string;
+  fullName: string | undefined;
+  attributionCount?: number;
+  group: string;
+  replaceEntireSearch: boolean;
+};
+
+function toLicenseOptions(
+  items: Array<{ value: string; count: number }>,
+  group: string,
+): Array<LicenseOption> {
+  return sortBy(
+    items.map<LicenseOption>((item) => ({
+      shortName: item.value,
+      fullName: undefined,
+      attributionCount: item.count,
+      group,
+      replaceEntireSearch: true,
+    })),
+    ({ attributionCount }) => -(attributionCount ?? 0),
   );
 }

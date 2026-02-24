@@ -15,23 +15,40 @@ import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { getResourceTree } from './resourceTree';
 import {
-  addFilterCounts,
   attributionToResourceRelationship,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
+  mergeFilterProperties,
   removeTrailingSlash,
+  toSnakeCase,
 } from './utils';
 
-export type CountsWithTotal = FilterCounts & { total: number };
+type AutocompletableAttribute =
+  | 'packageType'
+  | 'packageNamespace'
+  | 'packageName'
+  | 'packageVersion'
+  | 'url'
+  | 'licenseName';
+
+type AutocompleteOptions = Record<
+  'manual' | 'external',
+  Array<{ contained_uuid: string; value: string; count: number }>
+>;
+
+export type FilterProperties = FilterCounts & {
+  total: number;
+  licenses: Array<string>;
+};
 export type ResourceRelationship =
   | 'same'
   | 'ancestor'
   | 'descendant'
   | 'unrelated';
 type AttributionCounts = Partial<
-  Record<ResourceRelationship, CountsWithTotal>
+  Record<ResourceRelationship, FilterProperties>
 > &
-  Record<'all' | 'sameOrDescendant', CountsWithTotal>;
+  Record<'all' | 'sameOrDescendant', FilterProperties>;
 
 type QueryFunction = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,7 +66,71 @@ export const queries = {
     return { result: result?.data ?? null };
   },
 
-  async filterCounts(props: {
+  async autoCompleteOptions({
+    attributeName,
+    onlyRelatedToResourcePath,
+  }: {
+    attributeName: AutocompletableAttribute;
+    onlyRelatedToResourcePath: string;
+  }): Promise<{
+    result: AutocompleteOptions;
+  }> {
+    const onlyRelatedToResource = await getResourceOrThrow(
+      getDb(),
+      onlyRelatedToResourcePath,
+    );
+
+    const closestAncestorToResource =
+      await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+        getDb(),
+        onlyRelatedToResource.id,
+      );
+
+    let query = getDb()
+      .selectFrom('attribution')
+      .select((eb) => [
+        'uuid as contained_uuid',
+        eb.ref(toSnakeCase(attributeName)).$notNull().as('value'),
+        'is_external',
+        eb.fn.countAll<number>().as('count'),
+      ])
+      .where('is_resolved', '=', 0)
+      .where(toSnakeCase(attributeName), 'is not', null)
+      .where(toSnakeCase(attributeName), '!=', '')
+      .where((eb) =>
+        eb.exists(
+          eb
+            .selectFrom('resource_to_attribution')
+            .selectAll()
+            .whereRef('attribution_uuid', '=', 'attribution.uuid')
+            .where((eb) =>
+              eb.or([
+                eb.between(
+                  'resource_id',
+                  onlyRelatedToResource.id,
+                  onlyRelatedToResource.max_descendant_id,
+                ),
+                ...(closestAncestorToResource
+                  ? [eb('resource_id', '=', closestAncestorToResource)]
+                  : []),
+              ]),
+            ),
+        ),
+      );
+
+    query = query.groupBy(['value', 'is_external']);
+
+    const result = await query.execute();
+
+    return {
+      result: {
+        external: result.filter((r) => r.is_external === 1),
+        manual: result.filter((r) => r.is_external === 0),
+      },
+    };
+  },
+
+  async filterProperties(props: {
     external: boolean;
     filters: Array<Filter>;
     resourcePathForRelationships: string;
@@ -89,6 +170,11 @@ export const queries = {
             .as(f),
         ),
       )
+      .select(
+        sql<string>`json_group_array(DISTINCT trim(license_name))`.as(
+          'licenses',
+        ),
+      )
       .groupBy('relationship');
 
     query = query.where('is_external', '=', Number(props.external));
@@ -113,11 +199,17 @@ export const queries = {
     const sums = await query.execute();
 
     const sumsPerRelationship = Object.fromEntries(
-      sums.map((s) => [s.relationship, omit(s, 'relationship')]),
+      sums.map((s) => [
+        s.relationship,
+        {
+          ...omit(s, 'relationship', 'licenses'),
+          licenses: JSON.parse(s.licenses).filter(Boolean).toSorted() ?? [],
+        },
+      ]),
     ) as Omit<AttributionCounts, 'all' | 'sameOrDescendant'>;
 
-    const all = addFilterCounts(Object.values(sumsPerRelationship));
-    const sameOrDescendant = addFilterCounts([
+    const all = mergeFilterProperties(Object.values(sumsPerRelationship));
+    const sameOrDescendant = mergeFilterProperties([
       sumsPerRelationship.same,
       sumsPerRelationship.descendant,
     ]);

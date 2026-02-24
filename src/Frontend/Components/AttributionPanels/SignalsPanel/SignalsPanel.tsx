@@ -27,7 +27,7 @@ export function SignalsPanel() {
 
   const [{ filters, search, selectedLicense }] = useFilteredSignals();
 
-  const counts = backend.filterCounts.useQuery({
+  const filterProps = backend.filterProperties.useQuery({
     external: true,
     filters,
     search,
@@ -38,7 +38,7 @@ export function SignalsPanel() {
 
   return (
     <PackagesPanel
-      filterCounts={counts.data?.sameOrDescendant}
+      filterProperties={filterProps.data?.sameOrDescendant}
       availableFilters={SIGNAL_FILTERS}
       disableSelectAll={!!attributionIdsForReplacement.length}
       renderActions={(props) => (

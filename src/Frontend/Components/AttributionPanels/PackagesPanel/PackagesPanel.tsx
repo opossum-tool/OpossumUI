@@ -13,9 +13,10 @@ import {
 } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
+import { FilterProperties } from '../../../../ElectronBackend/api/queries';
 import { Attributions, Relation } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { Filter, FilterCounts } from '../../../shared-constants';
+import { Filter } from '../../../shared-constants';
 import { OpossumColors } from '../../../shared-styles';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
@@ -70,7 +71,7 @@ interface Props {
   useFilteredData: UseFilteredData;
   renderActions: (props: PackagesPanelChildrenProps) => React.ReactNode;
   testId?: string;
-  filterCounts?: FilterCounts;
+  filterProperties?: FilterProperties;
 }
 
 export const PackagesPanel = ({
@@ -81,7 +82,7 @@ export const PackagesPanel = ({
   renderActions,
   useFilteredData,
   testId,
-  filterCounts,
+  filterProperties,
 }: Props) => {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
@@ -229,7 +230,7 @@ export const PackagesPanel = ({
               useFilteredData={useFilteredData}
             />
             <FilterButton
-              counts={filterCounts}
+              filterProps={filterProperties}
               availableFilters={availableFilters}
               anchorPosition={'right'}
               useFilteredData={useFilteredData}
