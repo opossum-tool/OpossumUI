@@ -4,8 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useState } from 'react';
 
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../shared-constants';
-import { changeSelectedAttributionOrOpenUnsavedPopup } from '../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -88,24 +86,11 @@ export function useSignalsWorker() {
       worker.onmessage = ({ data }: MessageEvent<SignalsWorkerOutput>) => {
         switch (data.name) {
           case 'filteredAttributions':
-            setFilteredAttributions((prev) => {
-              if (prev.selectFirstAttribution) {
-                dispatch(
-                  changeSelectedAttributionOrOpenUnsavedPopup(
-                    Object.values(data.data).find(
-                      ({ relation }) =>
-                        relation === 'resource' || relation === 'parents',
-                    ) || EMPTY_DISPLAY_PACKAGE_INFO,
-                  ),
-                );
-              }
-              return {
-                ...prev,
-                loading: false,
-                attributions: data.data,
-                selectFirstAttribution: false,
-              };
-            });
+            setFilteredAttributions((prev) => ({
+              ...prev,
+              loading: false,
+              attributions: data.data,
+            }));
             break;
           case 'filteredAttributionsInReportView':
             setFilteredAttributionsInReportView((prev) => ({

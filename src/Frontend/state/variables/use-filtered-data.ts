@@ -18,7 +18,6 @@ export interface FilteredData {
   filters: Array<Filter>;
   loading: boolean;
   search: string;
-  selectFirstAttribution?: boolean;
   selectedLicense: string;
   sorting: SortOption;
 }

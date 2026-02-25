@@ -11,13 +11,18 @@ import {
   intersection,
   isEqual,
 } from 'lodash';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { FilterProperties } from '../../../../ElectronBackend/api/queries';
-import { Attributions, Relation } from '../../../../shared/shared-types';
+import {
+  Attributions,
+  PackageInfo,
+  Relation,
+} from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { Filter } from '../../../shared-constants';
+import { EMPTY_DISPLAY_PACKAGE_INFO, Filter } from '../../../shared-constants';
 import { OpossumColors } from '../../../shared-styles';
+import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -68,6 +73,7 @@ export interface Alert {
 interface Props {
   external: boolean;
   alert?: Alert;
+  autoselectAttribution?: boolean;
   availableFilters: Array<Filter>;
   children: (props: PackagesPanelChildrenProps) => React.ReactNode;
   disableSelectAll?: boolean;
@@ -80,6 +86,7 @@ interface Props {
 export const PackagesPanel = ({
   external,
   alert,
+  autoselectAttribution,
   availableFilters,
   children,
   disableSelectAll,
@@ -100,6 +107,8 @@ export const PackagesPanel = ({
     useState<Array<string>>([]);
   const [activeRelation, setActiveRelation] = useState<Relation>('children');
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
+
+  const previousAutoselectResourceId = useRef(selectedResourceId);
 
   const [{ filters, search, selectedLicense, sorting }] = useFilteredData();
 
@@ -185,6 +194,26 @@ export const PackagesPanel = ({
     previousSelectedResourceId,
     selectedResourceId,
   ]);
+
+  useEffect(() => {
+    if (
+      autoselectAttribution &&
+      attributions &&
+      selectedResourceId !== previousAutoselectResourceId.current
+    ) {
+      previousAutoselectResourceId.current = selectedResourceId;
+      const firstAttribution: PackageInfo | undefined = Object.values(
+        attributions,
+      ).find(
+        ({ relation }) => relation === 'resource' || relation === 'parents',
+      );
+      dispatch(
+        changeSelectedAttributionOrOpenUnsavedPopup(
+          firstAttribution || EMPTY_DISPLAY_PACKAGE_INFO,
+        ),
+      );
+    }
+  }, [autoselectAttribution, attributions, dispatch, selectedResourceId]);
 
   // adjust multi-selected IDs when previously visible attributions become invisible
   useEffect(() => {

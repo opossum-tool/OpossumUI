@@ -18,7 +18,6 @@ import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
-import { useFilteredAttributions } from '../../../state/variables/use-filtered-data';
 import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
 import { ResourcesTreeNode } from './ResourcesTreeNode/ResourcesTreeNode';
 
@@ -31,8 +30,6 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
   const dispatch = useAppDispatch();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const expandedIds = useAppSelector(getExpandedIds);
-
-  const [_, setFilteredAttributions] = useFilteredAttributions();
 
   useEffect(() => {
     if (!selectedResourceId) {
@@ -57,13 +54,9 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
 
   const handleSelect = useCallback(
     (nodeId: string) => {
-      setFilteredAttributions((prev) => ({
-        ...prev,
-        selectFirstAttribution: true,
-      }));
       dispatch(setSelectedResourceIdOrOpenUnsavedPopup(nodeId));
     },
-    [dispatch, setFilteredAttributions],
+    [dispatch],
   );
 
   return (
