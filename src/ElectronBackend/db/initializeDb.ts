@@ -398,12 +398,11 @@ async function initializeResourceToAttributionTable(
     ...Object.entries(externalAttributions.resourcesToAttributions),
     ...Object.entries(manualAttributions.resourcesToAttributions),
   ]) {
-    const normalizedPath = resourcePath.replace(/\/$/, '') || '/';
+    const normalizedPath = removeTrailingSlash(resourcePath);
     const resourceId = resourcePathToId.get(normalizedPath);
     if (resourceId === undefined) {
       continue;
     }
-
     for (const uuid of attributionUuids) {
       insertStmt.run({ resource_id: resourceId, attribution_uuid: uuid });
     }
