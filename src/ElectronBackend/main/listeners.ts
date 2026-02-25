@@ -63,7 +63,7 @@ import { UserSettingsService } from './user-settings-service';
 
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
-async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
+export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
   const getManualAttributions = await getDb()
     .selectFrom('attribution')
     .select(['uuid', 'data'])

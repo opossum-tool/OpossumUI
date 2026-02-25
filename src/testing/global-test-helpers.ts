@@ -3,7 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { ResourceTreeNodeData } from '../ElectronBackend/api/resourceTree';
-import { Resources } from '../shared/shared-types';
+import { initializeDb } from '../ElectronBackend/db/initializeDb';
+import { ParsedFileContent, Resources } from '../shared/shared-types';
 
 export function makeResourceTreeNode(
   overrides: Partial<ResourceTreeNodeData> &
@@ -62,4 +63,35 @@ export function pathsToResources(paths: Array<string>) {
   }
 
   return result;
+}
+
+export async function initializeDbWithTestData(
+  overrides?: Partial<ParsedFileContent>,
+) {
+  const emptyFileContent = {
+    metadata: { projectId: '', fileCreationDate: '' },
+    config: { classifications: {} },
+    resources: {},
+    manualAttributions: {
+      attributions: {},
+      resourcesToAttributions: {},
+      attributionsToResources: {},
+    },
+    externalAttributions: {
+      attributions: {},
+      resourcesToAttributions: {},
+      attributionsToResources: {},
+    },
+    frequentLicenses: { nameOrder: [], texts: {} },
+    resolvedExternalAttributions: new Set<string>(),
+    attributionBreakpoints: new Set<string>(),
+    filesWithChildren: new Set<string>(),
+    baseUrlsForSources: {},
+    externalAttributionSources: {},
+  } satisfies ParsedFileContent;
+
+  await initializeDb({
+    ...emptyFileContent,
+    ...overrides,
+  });
 }

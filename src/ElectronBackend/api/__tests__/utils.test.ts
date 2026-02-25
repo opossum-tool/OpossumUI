@@ -7,9 +7,11 @@ import {
   AttributionsToResources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import { pathsToResources } from '../../../testing/global-test-helpers';
+import {
+  initializeDbWithTestData,
+  pathsToResources,
+} from '../../../testing/global-test-helpers';
 import { getDb } from '../../db/db';
-import { initializeDb } from '../../db/initializeDb';
 import { removeRedundantAttributions, removeTrailingSlash } from '../utils';
 
 describe('removeRedundantAttributions', () => {
@@ -255,26 +257,14 @@ async function setupDb(props: {
     }
   }
 
-  await initializeDb({
-    metadata: { projectId: '', fileCreationDate: '' },
+  await initializeDbWithTestData({
     resources,
-    config: { classifications: {} },
     manualAttributions: {
       attributions,
       resourcesToAttributions,
       attributionsToResources,
     },
-    externalAttributions: {
-      attributions: {},
-      resourcesToAttributions: {},
-      attributionsToResources: {},
-    },
-    frequentLicenses: { nameOrder: [], texts: {} },
-    resolvedExternalAttributions: new Set(),
     attributionBreakpoints: new Set(props.attributionBreakpoints ?? []),
-    filesWithChildren: new Set(),
-    baseUrlsForSources: {},
-    externalAttributionSources: {},
   });
 }
 
