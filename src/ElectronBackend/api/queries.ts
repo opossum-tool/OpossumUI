@@ -5,6 +5,7 @@
 import { sql } from 'kysely';
 import { omit } from 'lodash';
 
+import { SortOption } from '../../Frontend/Components/SortButton/useSortingOptions';
 import { Filter, FilterCounts, FILTERS } from '../../Frontend/shared-constants';
 import {
   ClassificationStatistics,
@@ -138,6 +139,7 @@ export const queries = {
     external: boolean;
     filters: Array<Filter>;
     resourcePathForRelationships: string;
+    sort?: SortOption;
     license?: string;
     search?: string;
     showResolved?: boolean;
@@ -169,6 +171,13 @@ export const queries = {
           .$castTo<ResourceRelationship>()
           .as('relationship'),
       )
+      .select((eb) =>
+        eb
+          .selectFrom('resource_to_attribution')
+          .select(eb.fn.countAll<number>().as('count'))
+          .whereRef('attribution_uuid', '=', 'uuid')
+          .as('resource_count'),
+      )
       .where('is_external', '=', Number(props.external));
 
     if (props.excludeUnrelated) {
@@ -199,6 +208,33 @@ export const queries = {
       query = query.where('is_resolved', '=', 0);
     }
 
+    if (props.sort === 'classification') {
+      query = query.orderBy('classification', 'desc');
+    } else if (props.sort === 'criticality') {
+      query = query.orderBy('criticality', 'desc');
+    } else if (props.sort === 'occurrence') {
+      query = query.orderBy('resource_count', 'desc');
+    }
+
+    // Alphabetically by label. The label calculation is more complicated, so this is an approximation (but good enough)
+    query = query.orderBy((eb) =>
+      eb
+        .case()
+        .when('first_party', '=', 1)
+        .then(eb.fn<string>('concat', [eb.val('First Party'), 'comment']))
+        .else(
+          eb.fn<string>('concat', [
+            'package_name',
+            'license_name',
+            'copyright',
+            sql`data->>'licenseText'`,
+            'comment',
+            'url',
+          ]),
+        )
+        .end(),
+    );
+
     //query = query.limit(5)
 
     const attributions = await query.execute();
@@ -219,6 +255,7 @@ export const queries = {
           {
             ...(JSON.parse(a.data) as PackageInfo),
             relation: backendToFrontendRelationship[a.relationship],
+            count: a.resource_count ?? 0,
           },
         ]),
       ),

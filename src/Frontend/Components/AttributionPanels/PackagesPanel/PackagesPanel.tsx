@@ -13,9 +13,7 @@ import {
 } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
-import {
-  FilterProperties,
-} from '../../../../ElectronBackend/api/queries';
+import { FilterProperties } from '../../../../ElectronBackend/api/queries';
 import { Attributions, Relation } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { Filter } from '../../../shared-constants';
@@ -103,12 +101,13 @@ export const PackagesPanel = ({
   const [activeRelation, setActiveRelation] = useState<Relation>('children');
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
 
-  const [{ filters, search, selectedLicense }] = useFilteredData();
+  const [{ filters, search, selectedLicense, sorting }] = useFilteredData();
 
   const attributionQuery = backend.listAttributions.useQuery({
     external,
     filters,
     search,
+    sort: sorting,
     license: selectedLicense,
     resourcePathForRelationships: selectedResourceId,
     showResolved: areHiddenSignalsVisible,
@@ -249,6 +248,9 @@ export const PackagesPanel = ({
           <ButtonGroup>{renderActions(childrenProps)}</ButtonGroup>
           <ButtonGroup>
             <SortButton
+              disabled={
+                loading || !attributionIds || attributionIds.length === 0
+              }
               anchorPosition={'right'}
               useFilteredData={useFilteredData}
             />
@@ -257,6 +259,10 @@ export const PackagesPanel = ({
               availableFilters={availableFilters}
               anchorPosition={'right'}
               useFilteredData={useFilteredData}
+              disabled={loading}
+              emptyAttributions={
+                attributionIds !== null && attributionIds.length === 0
+              }
             />
           </ButtonGroup>
         </ActionBar>
