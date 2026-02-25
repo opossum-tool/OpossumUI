@@ -8,14 +8,10 @@ import { v4 as uuid4 } from 'uuid';
 
 import { Attributions, PackageInfo } from '../../../../shared/shared-types';
 import { backend } from '../../../util/backendClient';
-import { correctFilePathsInResourcesMappingForOutput } from '../../../util/can-resource-have-children';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
-  getFilesWithChildren,
   getManualAttributions,
   getManualAttributionsToResources,
-  getResolvedExternalAttributions,
-  getResourcesToManualAttributions,
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../selectors/resource-selectors';
@@ -144,15 +140,8 @@ export function savePackageInfo(
 }
 
 export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
-  return (_, getState) => {
-    window.electronAPI.saveFile({
-      manualAttributions: getManualAttributions(getState()),
-      resourcesToAttributions: correctFilePathsInResourcesMappingForOutput(
-        getResourcesToManualAttributions(getState()),
-        getFilesWithChildren(getState()),
-      ),
-      resolvedExternalAttributions: getResolvedExternalAttributions(getState()),
-    });
+  return (_) => {
+    window.electronAPI.saveFile();
   };
 }
 
