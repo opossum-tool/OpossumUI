@@ -5,8 +5,6 @@
 import { Attributions } from '../../../shared/shared-types';
 import { SortOption } from '../../Components/SortButton/useSortingOptions';
 import { Filter } from '../../shared-constants';
-import { useAppSelector } from '../hooks';
-import { getSelectedAttributionId } from '../selectors/resource-selectors';
 import { useVariable } from './use-variable';
 
 export const FILTERED_ATTRIBUTIONS_AUDIT = 'filtered-attributions-audit';
@@ -58,15 +56,4 @@ export function useFilteredAttributionsInReportView() {
 
 export function useFilteredSignals() {
   return useVariable<FilteredData>(FILTERED_SIGNALS, initialFilteredSignals);
-}
-
-export function useIsSelectedAttributionVisible() {
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const [{ attributions }] = useFilteredAttributions();
-  const [{ attributions: signals }] = useFilteredSignals();
-
-  return (
-    !!attributions?.[selectedAttributionId] ||
-    !!signals?.[selectedAttributionId]
-  );
 }

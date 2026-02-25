@@ -30,9 +30,8 @@ import {
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import { UseFilteredData } from '../../../state/variables/use-filtered-data';
-import { useUserSettings } from '../../../state/variables/use-user-setting';
-import { backend } from '../../../util/backendClient';
 import { getRelationPriority } from '../../../util/sort-attributions';
+import { useFilteredAttributionsList } from '../../../util/use-attribution-lists';
 import { usePrevious } from '../../../util/use-previous';
 import { Checkbox } from '../../Checkbox/Checkbox';
 import { FilterButton } from '../../FilterButton/FilterButton';
@@ -100,9 +99,6 @@ export const PackagesPanel = ({
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const previousSelectedResourceId = usePrevious(selectedResourceId);
 
-  const [userSettings] = useUserSettings();
-  const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
-
   const [multiSelectedAttributionIds, setMultiSelectedAttributionIds] =
     useState<Array<string>>([]);
   const [activeRelation, setActiveRelation] = useState<Relation>('children');
@@ -110,21 +106,7 @@ export const PackagesPanel = ({
 
   const previousAutoselectResourceId = useRef(selectedResourceId);
 
-  const [{ filters, search, selectedLicense, sorting }] = useFilteredData();
-
-  const attributionQuery = backend.listAttributions.useQuery({
-    external,
-    filters,
-    search,
-    sort: sorting,
-    license: selectedLicense,
-    resourcePathForRelationships: selectedResourceId,
-    showResolved: areHiddenSignalsVisible,
-    excludeUnrelated: external,
-  });
-
-  const attributions = attributionQuery.data ?? null;
-  const loading = attributionQuery.isLoading;
+  const {attributions, loading} = useFilteredAttributionsList({ external });
 
   const attributionIds = attributions && Object.keys(attributions);
 

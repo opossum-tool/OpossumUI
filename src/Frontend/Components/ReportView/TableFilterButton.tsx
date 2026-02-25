@@ -5,6 +5,7 @@
 import { ATTRIBUTION_FILTERS, ROOT_PATH } from '../../shared-constants';
 import { useFilteredAttributionsInReportView } from '../../state/variables/use-filtered-data';
 import { backend } from '../../util/backendClient';
+import { useFilteredReportsAttributionsList } from '../../util/use-attribution-lists';
 import { FilterButton } from '../FilterButton/FilterButton';
 
 export const TableFilterButton: React.FC = () => {
@@ -16,11 +17,7 @@ export const TableFilterButton: React.FC = () => {
     resourcePathForRelationships: ROOT_PATH,
   });
 
-  const attributionQuery = backend.listAttributions.useQuery({
-    external: false,
-    filters,
-    resourcePathForRelationships: ROOT_PATH,
-  });
+  const { attributions, loading } = useFilteredReportsAttributionsList();
 
   return (
     <FilterButton
@@ -28,10 +25,9 @@ export const TableFilterButton: React.FC = () => {
       availableFilters={ATTRIBUTION_FILTERS}
       anchorPosition={'left'}
       useFilteredData={useFilteredAttributionsInReportView}
-      disabled={attributionQuery.isLoading}
+      disabled={loading}
       emptyAttributions={
-        attributionQuery.data !== undefined &&
-        Object.keys(attributionQuery.data).length === 0
+        !!attributions && Object.keys(attributions).length === 0
       }
     />
   );

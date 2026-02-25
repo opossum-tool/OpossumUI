@@ -6,11 +6,9 @@ import { defer } from 'lodash';
 import { useEffect, useMemo, useRef } from 'react';
 import { TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 
-import { ROOT_PATH } from '../../shared-constants';
 import { useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
-import { useFilteredAttributionsInReportView } from '../../state/variables/use-filtered-data';
-import { backend } from '../../util/backendClient';
+import { useFilteredReportsAttributionsList } from '../../util/use-attribution-lists';
 import { ReportTableHeader } from '../ReportTableHeader/ReportTableHeader';
 import {
   REPORT_VIEW_ROW_HEIGHT,
@@ -23,15 +21,7 @@ export const ReportView: React.FC = () => {
 
   const ref = useRef<TableVirtuosoHandle>(null);
 
-  const [{ filters }] = useFilteredAttributionsInReportView();
-
-  const attributionQuery = backend.listAttributions.useQuery({
-    external: false,
-    filters,
-    resourcePathForRelationships: ROOT_PATH,
-  });
-
-  const attributions = attributionQuery.data;
+  const { attributions } = useFilteredReportsAttributionsList();
 
   const packageInfos = attributions && Object.values(attributions);
 
