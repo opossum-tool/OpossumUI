@@ -1136,6 +1136,25 @@ describe('The addToSelectedResource action', () => {
     const saveFileArgs = await getSaveFileArgs();
     expect(saveFileArgs.result).toEqual(expectedSaveFileArgs);
   });
+
+  it('saves resourcesToAttributions with path strings not numeric database ids', async () => {
+    const expectedSaveFileArgs: SaveFileArgs = {
+      manualAttributions: testManualAttributions,
+      resolvedExternalAttributions: new Set(),
+      resourcesToAttributions: testResourcesToManualAttributions,
+    };
+    const { testStore } = await setupWithData(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      }),
+    );
+
+    testStore.dispatch(saveManualAndResolvedAttributionsToFile());
+    const saveFileArgs = await getSaveFileArgs();
+    expect(saveFileArgs.result).toEqual(expectedSaveFileArgs);
+  });
 });
 
 describe('The updateAttributionsAndSave action', () => {
