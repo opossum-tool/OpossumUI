@@ -16,12 +16,23 @@ export const TableFilterButton: React.FC = () => {
     resourcePathForRelationships: ROOT_PATH,
   });
 
+  const attributionQuery = backend.listAttributions.useQuery({
+    external: false,
+    filters,
+    resourcePathForRelationships: ROOT_PATH,
+  });
+
   return (
     <FilterButton
       filterProps={filterProps.data?.descendant}
       availableFilters={ATTRIBUTION_FILTERS}
       anchorPosition={'left'}
       useFilteredData={useFilteredAttributionsInReportView}
+      disabled={attributionQuery.isLoading}
+      emptyAttributions={
+        attributionQuery.data !== undefined &&
+        Object.keys(attributionQuery.data).length === 0
+      }
     />
   );
 };

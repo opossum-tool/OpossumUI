@@ -22,16 +22,17 @@ interface Props extends Pick<
   'anchorArrow' | 'anchorPosition'
 > {
   useFilteredData: UseFilteredData;
+  disabled?: boolean;
 }
 
 export const SortButton: React.FC<Props> = ({
   useFilteredData,
   anchorArrow,
   anchorPosition,
+  disabled,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
-  const [{ sorting, attributions }, setFilteredAttributions] =
-    useFilteredData();
+  const [{ sorting }, setFilteredAttributions] = useFilteredData();
 
   const sortConfiguration = useSortConfiguration();
 
@@ -71,7 +72,6 @@ export const SortButton: React.FC<Props> = ({
     [sorting, sortConfiguration, setSorting],
   );
 
-  const disabled = !attributions || !Object.keys(attributions).length;
   const BadgeContent = sortConfiguration[sorting].icon;
 
   return (
