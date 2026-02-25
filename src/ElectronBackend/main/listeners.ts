@@ -80,7 +80,9 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
     .selectFrom('resource_to_attribution')
     .innerJoin('resource', 'resource.id', 'resource_to_attribution.resource_id')
     .select([
-      'resource.path',
+      sql<string>`resource.path || IF(resource.can_have_children, '/', '')`.as(
+        'path',
+      ),
       sql<string>`GROUP_CONCAT(resource_to_attribution.attribution_uuid)`.as(
         'attribution_uuids',
       ),
