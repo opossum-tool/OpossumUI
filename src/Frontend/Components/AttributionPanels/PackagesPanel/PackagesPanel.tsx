@@ -29,7 +29,7 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
-import { UseFilteredData } from '../../../state/variables/use-filtered-data';
+import { UseAttributionFilters } from '../../../state/variables/use-filters';
 import { getRelationPriority } from '../../../util/sort-attributions';
 import { useFilteredAttributionsList } from '../../../util/use-attribution-lists';
 import { usePrevious } from '../../../util/use-previous';
@@ -76,7 +76,7 @@ interface Props {
   availableFilters: Array<Filter>;
   children: (props: PackagesPanelChildrenProps) => React.ReactNode;
   disableSelectAll?: boolean;
-  useFilteredData: UseFilteredData;
+  useAttributionFilters: UseAttributionFilters;
   renderActions: (props: PackagesPanelChildrenProps) => React.ReactNode;
   testId?: string;
   filterProperties?: FilterProperties;
@@ -90,7 +90,7 @@ export const PackagesPanel = ({
   children,
   disableSelectAll,
   renderActions,
-  useFilteredData,
+  useAttributionFilters: useFilteredData,
   testId,
   filterProperties,
 }: Props) => {
@@ -106,7 +106,7 @@ export const PackagesPanel = ({
 
   const previousAutoselectResourceId = useRef(selectedResourceId);
 
-  const {attributions, loading} = useFilteredAttributionsList({ external });
+  const { attributions, loading } = useFilteredAttributionsList({ external });
 
   const attributionIds = attributions && Object.keys(attributions);
 

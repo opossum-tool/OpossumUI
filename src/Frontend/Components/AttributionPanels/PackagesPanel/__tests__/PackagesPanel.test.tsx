@@ -11,9 +11,9 @@ import { setSelectedAttributionId } from '../../../../state/actions/resource-act
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import {
-  initialFilteredAttributions,
+  initialFilters,
   UseFilteredData,
-} from '../../../../state/variables/use-filtered-data';
+} from '../../../../state/variables/use-filters';
 import { renderComponent } from '../../../../test-helpers/render';
 import { PackagesPanel } from '../PackagesPanel';
 
@@ -22,7 +22,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions(),
       },
       setFilteredData,
@@ -44,7 +44,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: {},
       },
       setFilteredData,
@@ -66,7 +66,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions(),
       },
       setFilteredData,
@@ -91,7 +91,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -130,7 +130,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -168,7 +168,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -212,7 +212,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -243,7 +243,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -279,7 +279,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -322,7 +322,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -364,7 +364,7 @@ describe('PackagesPanel', () => {
 
     const updatedUseFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo2.id]: packageInfo2,
           [packageInfo3.id]: packageInfo3,
@@ -398,7 +398,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -442,7 +442,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -480,7 +480,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -515,7 +515,7 @@ describe('PackagesPanel', () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -541,7 +541,7 @@ describe('PackagesPanel', () => {
 
     const updatedUseFilteredData: UseFilteredData = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -567,7 +567,7 @@ describe('PackagesPanel', () => {
   it('renders no tabs when there are no attributions', async () => {
     const setFilteredData = vi.fn();
     const useFilteredData: UseFilteredData = () => [
-      { ...initialFilteredAttributions, attributions: {} },
+      { ...initialFilters, attributions: {} },
       setFilteredData,
     ];
     await renderComponent(

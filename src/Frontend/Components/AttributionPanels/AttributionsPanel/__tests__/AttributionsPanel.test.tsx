@@ -19,10 +19,10 @@ import {
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
 import {
-  FILTERED_ATTRIBUTIONS_AUDIT,
-  FilteredData,
-  initialFilteredAttributions,
-} from '../../../../state/variables/use-filtered-data';
+  AttributionFilters,
+  initialFilters,
+  MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+} from '../../../../state/variables/use-filters';
 import {
   expectManualAttributions,
   expectResourcesToManualAttributions,
@@ -43,8 +43,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -75,8 +75,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -129,8 +129,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -164,8 +164,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -203,8 +203,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -241,8 +241,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -284,8 +284,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -321,8 +321,8 @@ describe('AttributionsPanel', () => {
       actions: [
         setSelectedResourceId(filePath),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -354,8 +354,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -393,8 +393,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -426,8 +426,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -461,8 +461,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -494,8 +494,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -544,8 +544,8 @@ describe('AttributionsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,

@@ -20,10 +20,10 @@ import { setVariable } from '../../../state/actions/variables-actions/variables-
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-ids-for-replacement';
 import {
-  FILTERED_SIGNALS,
-  FilteredData,
-  initialFilteredAttributions,
-} from '../../../state/variables/use-filtered-data';
+  AttributionFilters,
+  EXTERNAL_ATTRIBUTION_FILTERS,
+  initialFilters,
+} from '../../../state/variables/use-filters';
 import {
   expectManualAttributions,
   expectResolvedExternalAttributions,
@@ -52,8 +52,8 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: { [packageInfo.id]: packageInfo },
         }),
         setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
@@ -108,8 +108,8 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -161,8 +161,8 @@ describe('AttributionDetails', () => {
           packageName: newPackageName,
         }),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -206,8 +206,8 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -247,8 +247,8 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -281,8 +281,8 @@ describe('AttributionDetails', () => {
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(packageInfo2),
         setSelectedAttributionId(packageInfo2.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -326,8 +326,8 @@ describe('AttributionDetails', () => {
           packageName: faker.company.name(),
         }),
         setSelectedAttributionId(packageInfo2.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -359,8 +359,8 @@ describe('AttributionDetails', () => {
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -393,8 +393,8 @@ describe('AttributionDetails', () => {
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -438,8 +438,8 @@ describe('AttributionDetails', () => {
           packageName: faker.company.name(),
         }),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -479,8 +479,8 @@ describe('AttributionDetails', () => {
           packageName: faker.company.name(),
         }),
         setSelectedAttributionId(''),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo1.id]: packageInfo1,
             [packageInfo2.id]: packageInfo2,
@@ -507,8 +507,8 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: { [packageInfo.id]: packageInfo },
         }),
       ],
@@ -536,8 +536,8 @@ describe('AttributionDetails', () => {
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: { [packageInfo.id]: packageInfo },
         }),
       ],
@@ -574,8 +574,8 @@ describe('AttributionDetails', () => {
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(attribution),
         setSelectedAttributionId(attribution.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [attribution.id]: attribution,
           },

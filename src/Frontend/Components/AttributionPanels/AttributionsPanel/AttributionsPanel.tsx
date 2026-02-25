@@ -14,7 +14,7 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
-import { useFilteredAttributions } from '../../../state/variables/use-filtered-data';
+import { useExternalAttributionFilters, useManualAttributionFilters } from '../../../state/variables/use-filters';
 import { backend } from '../../../util/backendClient';
 import { isPackageIncomplete } from '../../../util/input-validation';
 import { Alert, PackagesPanel } from '../PackagesPanel/PackagesPanel';
@@ -63,7 +63,8 @@ export function AttributionsPanel() {
     selectedResourceId,
   ]);
 
-  const [{ filters, search, selectedLicense }] = useFilteredAttributions();
+  const [{ filters, search, selectedLicense }] =
+    useManualAttributionFilters();
 
   const filterProps = backend.filterProperties.useQuery({
     external: false,
@@ -91,7 +92,7 @@ export function AttributionsPanel() {
           <MoreActionsButton {...props} />
         </>
       )}
-      useFilteredData={useFilteredAttributions}
+      useAttributionFilters={useManualAttributionFilters}
       testId={'attributions-panel'}
     >
       {(props) => <AttributionsList {...props} />}

@@ -11,9 +11,9 @@ import {
 } from '../../../../shared/shared-types';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import {
-  FILTERED_ATTRIBUTIONS_REPORT,
-  FilteredData,
-} from '../../../state/variables/use-filtered-data';
+  AttributionFilters,
+  MANUAL_ATTRIBUTION_FILTERS_REPORT,
+} from '../../../state/variables/use-filters';
 import { renderComponent } from '../../../test-helpers/render';
 import { ReportView } from '../ReportView';
 
@@ -43,7 +43,7 @@ describe('ReportView', () => {
     };
     await renderComponent(<ReportView />, {
       actions: [
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_REPORT, {
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_REPORT, {
           attributions,
           filters: [],
           loading: false,

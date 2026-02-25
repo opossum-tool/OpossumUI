@@ -9,10 +9,10 @@ import {
   getSelectedResourceId,
 } from '../state/selectors/resource-selectors';
 import {
-  useFilteredAttributions,
-  useFilteredAttributionsInReportView,
-  useFilteredSignals,
-} from '../state/variables/use-filtered-data';
+  useAttributionFiltersInReportView,
+  useExternalAttributionFilters,
+  useManualAttributionFilters,
+} from '../state/variables/use-filters';
 import { useUserSettings } from '../state/variables/use-user-setting';
 import { backend } from './backendClient';
 
@@ -21,11 +21,11 @@ export function useFilteredAttributionsList({
 }: {
   external: boolean;
 }) {
-  const useFilteredData = external
-    ? useFilteredSignals
-    : useFilteredAttributions;
+  const useFilters = external
+    ? useExternalAttributionFilters
+    : useManualAttributionFilters;
 
-  const [{ filters, search, selectedLicense, sorting }] = useFilteredData();
+  const [{ filters, search, selectedLicense, sorting }] = useFilters();
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
@@ -63,7 +63,7 @@ export function useIsSelectedAttributionVisible() {
 }
 
 export function useFilteredReportsAttributionsList() {
-  const [{ filters }] = useFilteredAttributionsInReportView();
+  const [{ filters }] = useAttributionFiltersInReportView();
 
   const attributionQuery = backend.listAttributions.useQuery({
     external: false,

@@ -14,7 +14,7 @@ import { FilterProperties } from '../../../ElectronBackend/api/queries';
 import { text } from '../../../shared/text';
 import { Filter } from '../../shared-constants';
 import { baseIcon, OpossumColors } from '../../shared-styles';
-import { UseFilteredData } from '../../state/variables/use-filtered-data';
+import { UseAttributionFilters } from '../../state/variables/use-filters';
 import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
@@ -62,7 +62,7 @@ interface Props extends Pick<
   SelectMenuProps,
   'anchorArrow' | 'anchorPosition'
 > {
-  useFilteredData: UseFilteredData;
+  useFilteredData: UseAttributionFilters;
   availableFilters: Array<Filter>;
   filterProps?: FilterProperties;
   disabled?: boolean;

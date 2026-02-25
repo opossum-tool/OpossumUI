@@ -9,25 +9,25 @@ import userEvent from '@testing-library/user-event';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import {
-  FilteredData,
-  initialFilteredAttributions,
-  UseFilteredData,
-} from '../../../state/variables/use-filtered-data';
+  AttributionFilters,
+  initialFilters,
+  UseAttributionFilters,
+} from '../../../state/variables/use-filters';
 import { renderComponent } from '../../../test-helpers/render';
 import { SortButton } from '../SortButton';
 import { SortOption } from '../useSortingOptions';
 
 describe('SortButton', () => {
   it('switches to selected sorting', async () => {
-    let result: FilteredData;
-    const prev: FilteredData = initialFilteredAttributions;
+    let result: AttributionFilters;
+    const prev: AttributionFilters = initialFilters;
     const setFilteredData = vi.fn((fn) => {
       result = fn(prev);
     });
     const sorting: SortOption = 'criticality';
-    const useFilteredData: UseFilteredData = () => [
+    const useFilteredData: UseAttributionFilters = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions(),
       },
       setFilteredData,
@@ -43,9 +43,9 @@ describe('SortButton', () => {
   });
 
   it('sort button is disabled when there are no attributions', async () => {
-    const useFilteredData: UseFilteredData = () => [
+    const useFilteredData: UseAttributionFilters = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: {},
       },
       vi.fn(),
@@ -56,9 +56,9 @@ describe('SortButton', () => {
   });
 
   it('shows all sort options', async () => {
-    const useFilteredData: UseFilteredData = () => [
+    const useFilteredData: UseAttributionFilters = () => [
       {
-        ...initialFilteredAttributions,
+        ...initialFilters,
         attributions: faker.opossum.attributions(),
       },
       vi.fn(),

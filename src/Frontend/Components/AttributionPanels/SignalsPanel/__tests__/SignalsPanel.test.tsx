@@ -16,10 +16,10 @@ import {
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
 import {
-  FILTERED_SIGNALS,
-  FilteredData,
-  initialFilteredAttributions,
-} from '../../../../state/variables/use-filtered-data';
+  AttributionFilters,
+  EXTERNAL_ATTRIBUTION_FILTERS,
+  initialFilters,
+} from '../../../../state/variables/use-filters';
 import {
   expectResolvedExternalAttributions,
   expectResourcesToManualAttributions,
@@ -40,8 +40,8 @@ describe('SignalsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -69,8 +69,8 @@ describe('SignalsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -100,8 +100,8 @@ describe('SignalsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -136,8 +136,8 @@ describe('SignalsPanel', () => {
       actions: [
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -168,8 +168,8 @@ describe('SignalsPanel', () => {
       actions: [
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -203,8 +203,8 @@ describe('SignalsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -241,8 +241,8 @@ describe('SignalsPanel', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },
@@ -283,8 +283,8 @@ describe('SignalsPanel', () => {
       actions: [
         setSelectedResourceId(filePath),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(EXTERNAL_ATTRIBUTION_FILTERS, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },

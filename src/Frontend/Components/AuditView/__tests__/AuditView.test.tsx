@@ -12,10 +12,10 @@ import { setProjectMetadata } from '../../../state/actions/resource-actions/all-
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import {
-  FILTERED_ATTRIBUTIONS_AUDIT,
-  FilteredData,
-  initialFilteredAttributions,
-} from '../../../state/variables/use-filtered-data';
+  AttributionFilters,
+  initialFilters,
+  MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+} from '../../../state/variables/use-filters';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { AuditView } from '../AuditView';
@@ -39,8 +39,8 @@ describe('AuditView', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
+        setVariable<AttributionFilters>(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialFilters,
           attributions: {
             [packageInfo.id]: packageInfo,
           },

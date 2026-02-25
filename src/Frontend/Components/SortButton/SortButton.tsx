@@ -9,7 +9,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
-import { UseFilteredData } from '../../state/variables/use-filtered-data';
+import { UseAttributionFilters } from '../../state/variables/use-filters';
 import {
   SelectMenu,
   SelectMenuOption,
@@ -21,7 +21,7 @@ interface Props extends Pick<
   SelectMenuProps,
   'anchorArrow' | 'anchorPosition'
 > {
-  useFilteredData: UseFilteredData;
+  useFilteredData: UseAttributionFilters;
   disabled?: boolean;
 }
 
