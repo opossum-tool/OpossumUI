@@ -403,7 +403,6 @@ async function initializeResourceToAttributionTable(
     if (resourceId === undefined) {
       continue;
     }
-
     for (const uuid of attributionUuids) {
       insertStmt.run({ resource_id: resourceId, attribution_uuid: uuid });
     }
