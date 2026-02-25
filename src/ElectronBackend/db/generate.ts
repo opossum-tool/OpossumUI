@@ -6,11 +6,10 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
-import type { ParsedFileContent } from '../../shared/shared-types';
+import { initializeDbWithTestData } from '../../testing/global-test-helpers';
 import { getDb } from './db';
 import { generateDiagram } from './generateDiagram';
 import { generateTypes } from './generateTypes';
-import { initializeDb } from './initializeDb';
 
 const directory = path.join(
   // @ts-expect-error Executed using tsx
@@ -18,31 +17,9 @@ const directory = path.join(
   'generated',
 );
 
-const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
-  metadata: { projectId: '', fileCreationDate: '' },
-  resources: {},
-  config: { classifications: {} },
-  manualAttributions: {
-    attributions: {},
-    resourcesToAttributions: {},
-    attributionsToResources: {},
-  },
-  externalAttributions: {
-    attributions: {},
-    resourcesToAttributions: {},
-    attributionsToResources: {},
-  },
-  frequentLicenses: { nameOrder: [], texts: {} },
-  resolvedExternalAttributions: new Set(),
-  attributionBreakpoints: new Set(),
-  filesWithChildren: new Set(),
-  baseUrlsForSources: {},
-  externalAttributionSources: {},
-};
-
 async function main() {
   await fs.mkdir(directory, { recursive: true });
-  await initializeDb(EMPTY_PARSED_FILE_CONTENT);
+  await initializeDbWithTestData();
   const db = getDb();
 
   await generateTypes(db, path.join(directory, 'databaseTypes.ts'));

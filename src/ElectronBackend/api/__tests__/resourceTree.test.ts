@@ -6,38 +6,11 @@ import {
   Attributions,
   AttributionsToResources,
   Criticality,
-  ParsedFileContent,
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import { initializeDb } from '../../db/initializeDb';
+import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
 import { getResourceTree } from '../resourceTree';
-
-function makeFileContent(
-  overrides: Partial<ParsedFileContent> & Pick<ParsedFileContent, 'resources'>,
-): ParsedFileContent {
-  return {
-    metadata: { projectId: '', fileCreationDate: '' },
-    config: { classifications: {} },
-    manualAttributions: {
-      attributions: {},
-      resourcesToAttributions: {},
-      attributionsToResources: {},
-    },
-    externalAttributions: {
-      attributions: {},
-      resourcesToAttributions: {},
-      attributionsToResources: {},
-    },
-    frequentLicenses: { nameOrder: [], texts: {} },
-    resolvedExternalAttributions: new Set(),
-    attributionBreakpoints: new Set(),
-    filesWithChildren: new Set(),
-    baseUrlsForSources: {},
-    externalAttributionSources: {},
-    ...overrides,
-  };
-}
 
 function makeAttributionData(
   attributions: Attributions,
@@ -63,7 +36,7 @@ describe('getResourceTree', () => {
     };
 
     beforeEach(async () => {
-      await initializeDb(makeFileContent({ resources }));
+      await initializeDbWithTestData({ resources });
     });
 
     it('returns only root when nothing is expanded', async () => {
@@ -122,16 +95,14 @@ describe('getResourceTree', () => {
 
   describe('sorting', () => {
     it('sorts folders before files, then alphabetically', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: {
-            'z_file.txt': 1,
-            'a_file.txt': 1,
-            b_folder: {},
-            a_folder: {},
-          },
-        }),
-      );
+      await initializeDbWithTestData({
+        resources: {
+          'z_file.txt': 1,
+          'a_file.txt': 1,
+          b_folder: {},
+          a_folder: {},
+        },
+      });
 
       const { result } = await getResourceTree({ expandedNodes: ['/'] });
 
@@ -147,17 +118,15 @@ describe('getResourceTree', () => {
     });
 
     it('sorts files_with_children with files', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: {
-            'a_file.txt': 1,
-            'z_file.txt': 1,
-            a_folder: {},
-            'package.json': {},
-          },
-          filesWithChildren: new Set(['/package.json']),
-        }),
-      );
+      await initializeDbWithTestData({
+        resources: {
+          'a_file.txt': 1,
+          'z_file.txt': 1,
+          a_folder: {},
+          'package.json': {},
+        },
+        filesWithChildren: new Set(['/package.json']),
+      });
 
       const { result } = await getResourceTree({ expandedNodes: ['/'] });
 
@@ -175,11 +144,9 @@ describe('getResourceTree', () => {
 
   describe('search filtering', () => {
     beforeEach(async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { 'App.tsx': 1, utils: { 'helper.ts': 1 } } },
-        }),
-      );
+      await initializeDbWithTestData({
+        resources: { src: { 'App.tsx': 1, utils: { 'helper.ts': 1 } } },
+      });
     });
 
     it('filters tree to show only nodes with matching descendants', async () => {
@@ -221,21 +188,19 @@ describe('getResourceTree', () => {
     const manualUuid = 'manual-uuid';
 
     it('detects hasExternalAttribution and hasUnresolvedExternalAttribution', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { 'file.ts': 1 } },
-          externalAttributions: makeAttributionData(
-            {
-              [externalUuid]: {
-                packageName: 'pkg',
-                criticality: Criticality.None,
-                id: externalUuid,
-              },
+      await initializeDbWithTestData({
+        resources: { src: { 'file.ts': 1 } },
+        externalAttributions: makeAttributionData(
+          {
+            [externalUuid]: {
+              packageName: 'pkg',
+              criticality: Criticality.None,
+              id: externalUuid,
             },
-            { '/src/file.ts': [externalUuid] },
-          ),
-        }),
-      );
+          },
+          { '/src/file.ts': [externalUuid] },
+        ),
+      });
 
       const { result } = await getResourceTree({
         expandedNodes: ['/', '/src/'],
@@ -248,22 +213,20 @@ describe('getResourceTree', () => {
     });
 
     it('resolved external attribution is not unresolved', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { 'file.ts': 1 } },
-          externalAttributions: makeAttributionData(
-            {
-              [externalUuid]: {
-                packageName: 'pkg',
-                criticality: Criticality.None,
-                id: externalUuid,
-              },
+      await initializeDbWithTestData({
+        resources: { src: { 'file.ts': 1 } },
+        externalAttributions: makeAttributionData(
+          {
+            [externalUuid]: {
+              packageName: 'pkg',
+              criticality: Criticality.None,
+              id: externalUuid,
             },
-            { '/src/file.ts': [externalUuid] },
-          ),
-          resolvedExternalAttributions: new Set([externalUuid]),
-        }),
-      );
+          },
+          { '/src/file.ts': [externalUuid] },
+        ),
+        resolvedExternalAttributions: new Set([externalUuid]),
+      });
 
       const { result } = await getResourceTree({
         expandedNodes: ['/', '/src/'],
@@ -275,21 +238,19 @@ describe('getResourceTree', () => {
     });
 
     it('detects hasManualAttribution', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { 'file.ts': 1 } },
-          manualAttributions: makeAttributionData(
-            {
-              [manualUuid]: {
-                packageName: 'pkg',
-                criticality: Criticality.None,
-                id: manualUuid,
-              },
+      await initializeDbWithTestData({
+        resources: { src: { 'file.ts': 1 } },
+        manualAttributions: makeAttributionData(
+          {
+            [manualUuid]: {
+              packageName: 'pkg',
+              criticality: Criticality.None,
+              id: manualUuid,
             },
-            { '/src/file.ts': [manualUuid] },
-          ),
-        }),
-      );
+          },
+          { '/src/file.ts': [manualUuid] },
+        ),
+      });
 
       const { result } = await getResourceTree({
         expandedNodes: ['/', '/src/'],
@@ -300,21 +261,19 @@ describe('getResourceTree', () => {
     });
 
     it('detects containsExternalAttribution on parent', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { 'file.ts': 1 } },
-          externalAttributions: makeAttributionData(
-            {
-              [externalUuid]: {
-                packageName: 'pkg',
-                criticality: Criticality.None,
-                id: externalUuid,
-              },
+      await initializeDbWithTestData({
+        resources: { src: { 'file.ts': 1 } },
+        externalAttributions: makeAttributionData(
+          {
+            [externalUuid]: {
+              packageName: 'pkg',
+              criticality: Criticality.None,
+              id: externalUuid,
             },
-            { '/src/file.ts': [externalUuid] },
-          ),
-        }),
-      );
+          },
+          { '/src/file.ts': [externalUuid] },
+        ),
+      });
 
       const { result } = await getResourceTree({ expandedNodes: ['/'] });
 
@@ -324,21 +283,19 @@ describe('getResourceTree', () => {
     });
 
     it('detects containsManualAttribution on parent', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { 'file.ts': 1 } },
-          manualAttributions: makeAttributionData(
-            {
-              [manualUuid]: {
-                packageName: 'pkg',
-                criticality: Criticality.None,
-                id: manualUuid,
-              },
+      await initializeDbWithTestData({
+        resources: { src: { 'file.ts': 1 } },
+        manualAttributions: makeAttributionData(
+          {
+            [manualUuid]: {
+              packageName: 'pkg',
+              criticality: Criticality.None,
+              id: manualUuid,
             },
-            { '/src/file.ts': [manualUuid] },
-          ),
-        }),
-      );
+          },
+          { '/src/file.ts': [manualUuid] },
+        ),
+      });
 
       const { result } = await getResourceTree({ expandedNodes: ['/'] });
 
@@ -347,21 +304,19 @@ describe('getResourceTree', () => {
     });
 
     it('detects hasParentWithManualAttribution', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { 'file.ts': 1 } },
-          manualAttributions: makeAttributionData(
-            {
-              [manualUuid]: {
-                packageName: 'pkg',
-                criticality: Criticality.None,
-                id: manualUuid,
-              },
+      await initializeDbWithTestData({
+        resources: { src: { 'file.ts': 1 } },
+        manualAttributions: makeAttributionData(
+          {
+            [manualUuid]: {
+              packageName: 'pkg',
+              criticality: Criticality.None,
+              id: manualUuid,
             },
-            { '/src/': [manualUuid] },
-          ),
-        }),
-      );
+          },
+          { '/src/': [manualUuid] },
+        ),
+      });
 
       const { result } = await getResourceTree({
         expandedNodes: ['/', '/src/'],
@@ -372,22 +327,20 @@ describe('getResourceTree', () => {
     });
 
     it('breakpoint resets hasParentWithManualAttribution', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { inner: { 'file.ts': 1 } } },
-          manualAttributions: makeAttributionData(
-            {
-              [manualUuid]: {
-                packageName: 'pkg',
-                criticality: Criticality.None,
-                id: manualUuid,
-              },
+      await initializeDbWithTestData({
+        resources: { src: { inner: { 'file.ts': 1 } } },
+        manualAttributions: makeAttributionData(
+          {
+            [manualUuid]: {
+              packageName: 'pkg',
+              criticality: Criticality.None,
+              id: manualUuid,
             },
-            { '/src/': [manualUuid] },
-          ),
-          attributionBreakpoints: new Set(['/src/inner']),
-        }),
-      );
+          },
+          { '/src/': [manualUuid] },
+        ),
+        attributionBreakpoints: new Set(['/src/inner']),
+      });
 
       const { result } = await getResourceTree({
         expandedNodes: ['/', '/src/', '/src/inner/'],
@@ -409,26 +362,24 @@ describe('getResourceTree', () => {
       const highUuid = 'high-uuid';
       const mediumUuid = 'medium-uuid';
 
-      await initializeDb(
-        makeFileContent({
-          resources: { 'file.ts': 1 },
-          externalAttributions: makeAttributionData(
-            {
-              [highUuid]: {
-                packageName: 'high',
-                criticality: Criticality.High,
-                id: highUuid,
-              },
-              [mediumUuid]: {
-                packageName: 'medium',
-                criticality: Criticality.Medium,
-                id: mediumUuid,
-              },
+      await initializeDbWithTestData({
+        resources: { 'file.ts': 1 },
+        externalAttributions: makeAttributionData(
+          {
+            [highUuid]: {
+              packageName: 'high',
+              criticality: Criticality.High,
+              id: highUuid,
             },
-            { '/file.ts': [highUuid, mediumUuid] },
-          ),
-        }),
-      );
+            [mediumUuid]: {
+              packageName: 'medium',
+              criticality: Criticality.Medium,
+              id: mediumUuid,
+            },
+          },
+          { '/file.ts': [highUuid, mediumUuid] },
+        ),
+      });
 
       const { result } = await getResourceTree({ expandedNodes: ['/'] });
 
@@ -439,22 +390,20 @@ describe('getResourceTree', () => {
     it('returns null criticality when all external attributions are resolved', async () => {
       const uuid = 'ext-uuid';
 
-      await initializeDb(
-        makeFileContent({
-          resources: { 'file.ts': 1 },
-          externalAttributions: makeAttributionData(
-            {
-              [uuid]: {
-                packageName: 'pkg',
-                criticality: Criticality.High,
-                id: uuid,
-              },
+      await initializeDbWithTestData({
+        resources: { 'file.ts': 1 },
+        externalAttributions: makeAttributionData(
+          {
+            [uuid]: {
+              packageName: 'pkg',
+              criticality: Criticality.High,
+              id: uuid,
             },
-            { '/file.ts': [uuid] },
-          ),
-          resolvedExternalAttributions: new Set([uuid]),
-        }),
-      );
+          },
+          { '/file.ts': [uuid] },
+        ),
+        resolvedExternalAttributions: new Set([uuid]),
+      });
 
       const { result } = await getResourceTree({ expandedNodes: ['/'] });
 
@@ -466,28 +415,26 @@ describe('getResourceTree', () => {
       const uuid1 = 'cls-uuid-1';
       const uuid2 = 'cls-uuid-2';
 
-      await initializeDb(
-        makeFileContent({
-          resources: { 'file.ts': 1 },
-          externalAttributions: makeAttributionData(
-            {
-              [uuid1]: {
-                packageName: 'pkg1',
-                criticality: Criticality.None,
-                classification: 1,
-                id: uuid1,
-              },
-              [uuid2]: {
-                packageName: 'pkg2',
-                criticality: Criticality.None,
-                classification: 3,
-                id: uuid2,
-              },
+      await initializeDbWithTestData({
+        resources: { 'file.ts': 1 },
+        externalAttributions: makeAttributionData(
+          {
+            [uuid1]: {
+              packageName: 'pkg1',
+              criticality: Criticality.None,
+              classification: 1,
+              id: uuid1,
             },
-            { '/file.ts': [uuid1, uuid2] },
-          ),
-        }),
-      );
+            [uuid2]: {
+              packageName: 'pkg2',
+              criticality: Criticality.None,
+              classification: 3,
+              id: uuid2,
+            },
+          },
+          { '/file.ts': [uuid1, uuid2] },
+        ),
+      });
 
       const { result } = await getResourceTree({ expandedNodes: ['/'] });
 
@@ -500,21 +447,19 @@ describe('getResourceTree', () => {
     it('is true when a descendant has external but no manual attribution', async () => {
       const extUuid = 'ext-uuid';
 
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { 'file.ts': 1 } },
-          externalAttributions: makeAttributionData(
-            {
-              [extUuid]: {
-                packageName: 'pkg',
-                criticality: Criticality.None,
-                id: extUuid,
-              },
+      await initializeDbWithTestData({
+        resources: { src: { 'file.ts': 1 } },
+        externalAttributions: makeAttributionData(
+          {
+            [extUuid]: {
+              packageName: 'pkg',
+              criticality: Criticality.None,
+              id: extUuid,
             },
-            { '/src/file.ts': [extUuid] },
-          ),
-        }),
-      );
+          },
+          { '/src/file.ts': [extUuid] },
+        ),
+      });
 
       const { result } = await getResourceTree({ expandedNodes: ['/'] });
 
@@ -526,31 +471,29 @@ describe('getResourceTree', () => {
       const extUuid = 'ext-uuid';
       const manualUuid = 'manual-uuid';
 
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { 'file.ts': 1 } },
-          externalAttributions: makeAttributionData(
-            {
-              [extUuid]: {
-                packageName: 'ext-pkg',
-                criticality: Criticality.None,
-                id: extUuid,
-              },
+      await initializeDbWithTestData({
+        resources: { src: { 'file.ts': 1 } },
+        externalAttributions: makeAttributionData(
+          {
+            [extUuid]: {
+              packageName: 'ext-pkg',
+              criticality: Criticality.None,
+              id: extUuid,
             },
-            { '/src/file.ts': [extUuid] },
-          ),
-          manualAttributions: makeAttributionData(
-            {
-              [manualUuid]: {
-                packageName: 'manual-pkg',
-                criticality: Criticality.None,
-                id: manualUuid,
-              },
+          },
+          { '/src/file.ts': [extUuid] },
+        ),
+        manualAttributions: makeAttributionData(
+          {
+            [manualUuid]: {
+              packageName: 'manual-pkg',
+              criticality: Criticality.None,
+              id: manualUuid,
             },
-            { '/src/file.ts': [manualUuid] },
-          ),
-        }),
-      );
+          },
+          { '/src/file.ts': [manualUuid] },
+        ),
+      });
 
       const { result } = await getResourceTree({ expandedNodes: ['/'] });
 
@@ -564,32 +507,30 @@ describe('getResourceTree', () => {
       const uuid = 'target-uuid';
       const otherUuid = 'other-uuid';
 
-      await initializeDb(
-        makeFileContent({
-          resources: {
-            linked: { 'file.ts': 1 },
-            unlinked: { 'other.ts': 1 },
+      await initializeDbWithTestData({
+        resources: {
+          linked: { 'file.ts': 1 },
+          unlinked: { 'other.ts': 1 },
+        },
+        externalAttributions: makeAttributionData(
+          {
+            [uuid]: {
+              packageName: 'target',
+              criticality: Criticality.None,
+              id: uuid,
+            },
+            [otherUuid]: {
+              packageName: 'other',
+              criticality: Criticality.None,
+              id: otherUuid,
+            },
           },
-          externalAttributions: makeAttributionData(
-            {
-              [uuid]: {
-                packageName: 'target',
-                criticality: Criticality.None,
-                id: uuid,
-              },
-              [otherUuid]: {
-                packageName: 'other',
-                criticality: Criticality.None,
-                id: otherUuid,
-              },
-            },
-            {
-              '/linked/file.ts': [uuid],
-              '/unlinked/other.ts': [otherUuid],
-            },
-          ),
-        }),
-      );
+          {
+            '/linked/file.ts': [uuid],
+            '/unlinked/other.ts': [otherUuid],
+          },
+        ),
+      });
 
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',
@@ -606,11 +547,9 @@ describe('getResourceTree', () => {
 
   describe('node properties', () => {
     it('correctly marks files vs directories', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { 'file.ts': 1 } },
-        }),
-      );
+      await initializeDbWithTestData({
+        resources: { src: { 'file.ts': 1 } },
+      });
 
       const { result } = await getResourceTree({
         expandedNodes: ['/', '/src/'],
@@ -626,11 +565,9 @@ describe('getResourceTree', () => {
     });
 
     it('marks nodes as expandable when they have children', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: { src: { 'file.ts': 1 }, empty: {} },
-        }),
-      );
+      await initializeDbWithTestData({
+        resources: { src: { 'file.ts': 1 }, empty: {} },
+      });
 
       const { result } = await getResourceTree({ expandedNodes: ['/'] });
 
@@ -642,11 +579,9 @@ describe('getResourceTree', () => {
     });
 
     it('sets correct levels for nested nodes', async () => {
-      await initializeDb(
-        makeFileContent({
-          resources: { a: { b: { 'c.ts': 1 } } },
-        }),
-      );
+      await initializeDbWithTestData({
+        resources: { a: { b: { 'c.ts': 1 } } },
+      });
 
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',

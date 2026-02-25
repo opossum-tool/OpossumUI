@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { executeCommand } from '../../../../../ElectronBackend/api/commands';
+import { getSaveFileArgs } from '../../../../../ElectronBackend/main/listeners';
 import {
   Attributions,
   Criticality,
@@ -36,12 +37,8 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/resource-selectors';
 import { getOpenPopup } from '../../../selectors/view-selector';
+import { setTemporaryDisplayPackageInfo } from '../all-views-simple-actions';
 import {
-  setResources,
-  setTemporaryDisplayPackageInfo,
-} from '../all-views-simple-actions';
-import {
-  addResolvedExternalAttributions,
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../audit-view-simple-actions';
@@ -1111,12 +1108,8 @@ describe('The addToSelectedResource action', () => {
     expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 
-  it('saves resolved external attributions', () => {
+  it('saves resolved external attributions', async () => {
     const testStore = createAppStore();
-    testStore.dispatch(setResources({}));
-    testStore.dispatch(
-      addResolvedExternalAttributions(['TestExternalAttribution']),
-    );
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {},
       resolvedExternalAttributions: new Set<string>().add(
@@ -1124,12 +1117,24 @@ describe('The addToSelectedResource action', () => {
       ),
       resourcesToAttributions: {},
     };
+    await setupWithData({
+      ...getParsedInputFileEnrichedWithTestData({
+        externalAttributions: {
+          TestExternalAttribution: {
+            id: 'TestExternalAttribution',
+            criticality: Criticality.None,
+          },
+        },
+      }),
+      resolvedExternalAttributions:
+        expectedSaveFileArgs.resolvedExternalAttributions,
+    });
 
     testStore.dispatch(saveManualAndResolvedAttributionsToFile());
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs,
-    );
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith();
+    const saveFileArgs = await getSaveFileArgs();
+    expect(saveFileArgs.result).toEqual(expectedSaveFileArgs);
   });
 });
 
