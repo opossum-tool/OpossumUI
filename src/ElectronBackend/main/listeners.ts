@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, shell } from 'electron';
 import fs from 'fs';
+import { sql } from 'kysely';
 import { uniq } from 'lodash';
 import path from 'path';
 import upath from 'upath';
@@ -12,6 +13,7 @@ import upath from 'upath';
 import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
+  Attributions,
   ExportArgsType,
   ExportCompactBomArgs,
   ExportDetailedBomArgs,
@@ -23,10 +25,12 @@ import {
   FileType,
   OpenLinkArgs,
   PackageInfo,
+  ResourcesToAttributions,
   SaveFileArgs,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
+import { getDb } from '../db/db';
 import { LoadedFileFormat } from '../enums/enums';
 import {
   sendListenerErrorToFrontend,
@@ -59,26 +63,78 @@ import { UserSettingsService } from './user-settings-service';
 
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
+async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
+  const getManualAttributions = await getDb()
+    .selectFrom('attribution')
+    .select(['uuid', 'data'])
+    .where('is_external', '=', 0)
+    .execute();
+  const manualAttributions: Attributions = Object.fromEntries(
+    getManualAttributions.map(({ uuid, data }) => [
+      uuid,
+      { ...(JSON.parse(data) as PackageInfo), id: uuid },
+    ]),
+  );
+
+  const getResourceToManualAttributions = await getDb()
+    .selectFrom('resource_to_attribution')
+    .innerJoin('resource', 'resource.id', 'resource_to_attribution.resource_id')
+    .select([
+      'resource.path',
+      sql<string>`GROUP_CONCAT(resource_to_attribution.attribution_uuid)`.as(
+        'attribution_uuids',
+      ),
+    ])
+    .where('resource_to_attribution.attribution_is_external', '=', 0)
+    .groupBy('resource_to_attribution.resource_id')
+    .execute();
+  const resourcesToAttributions: ResourcesToAttributions = Object.fromEntries(
+    getResourceToManualAttributions.map((val) => [
+      val.path,
+      val.attribution_uuids.split(','),
+    ]),
+  );
+
+  const getResolvedExternalAttributions = await getDb()
+    .selectFrom('attribution')
+    .select(sql<string>`GROUP_CONCAT(uuid)`.as('attribution_uuids'))
+    .where('is_resolved', '=', 1)
+    .where('is_external', '=', 1)
+    .executeTakeFirst();
+  const resolvedExternalAttributions = new Set(
+    getResolvedExternalAttributions?.attribution_uuids?.split(',') ?? [],
+  );
+  return {
+    result: {
+      manualAttributions,
+      resourcesToAttributions,
+      resolvedExternalAttributions,
+    },
+  };
+}
+
 export const saveFileListener =
   (mainWindow: BrowserWindow) =>
-  async (_: unknown, args: SaveFileArgs): Promise<void> => {
+  async (_: unknown): Promise<void> => {
     try {
       const globalBackendState = getGlobalBackendState();
-
       if (!globalBackendState.projectId) {
         throw new Error('Project ID not found');
       }
 
+      const saveFileArgs = await getSaveFileArgs();
       const outputFileContent: OpossumOutputFile = {
         metadata: {
           projectId: globalBackendState.projectId,
           fileCreationDate: String(Date.now()),
           inputFileMD5Checksum: globalBackendState.inputFileChecksum,
         },
-        manualAttributions: serializeAttributions(args.manualAttributions),
-        resourcesToAttributions: args.resourcesToAttributions,
+        manualAttributions: serializeAttributions(
+          saveFileArgs.result.manualAttributions,
+        ),
+        resourcesToAttributions: saveFileArgs.result.resourcesToAttributions,
         resolvedExternalAttributions: Array.from(
-          args.resolvedExternalAttributions,
+          saveFileArgs.result.resolvedExternalAttributions,
         ),
       };
 

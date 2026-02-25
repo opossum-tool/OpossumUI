@@ -27,8 +27,7 @@ const electronAPI: ElectronAPI = {
   mergeFileAndLoad: (inputFilePath, fileType) =>
     ipcRenderer.invoke(IpcChannel.MergeFileAndLoad, inputFilePath, fileType),
   exportFile: (args) => ipcRenderer.invoke(IpcChannel.ExportFile, args),
-  saveFile: (saveFileArgs) =>
-    ipcRenderer.invoke(IpcChannel.SaveFile, saveFileArgs),
+  saveFile: () => ipcRenderer.invoke(IpcChannel.SaveFile),
   stopLoading: () => ipcRenderer.invoke(IpcChannel.StopLoading),
   on: (channel, listener) => {
     ipcRenderer.on(channel, listener);
