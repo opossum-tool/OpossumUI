@@ -71,6 +71,54 @@ export const queries = {
     return { result: result?.data ?? null };
   },
 
+  async getManualAttributionOnResourceOrAncestor(props: {
+    resourcePath: string;
+  }) {
+    const resource = await getResourceOrThrow(getDb(), props.resourcePath);
+
+    const manualAttributionOnResource = await getDb()
+      .selectFrom('attribution')
+      .innerJoin(
+        'resource_to_attribution',
+        'attribution.uuid',
+        'resource_to_attribution.attribution_uuid',
+      )
+      .select('data')
+      .where('resource_id', '=', resource.id)
+      .where('attribution_is_external', '=', 0)
+      .limit(1)
+      .executeTakeFirst();
+
+    if (manualAttributionOnResource) {
+      return { result: JSON.parse(manualAttributionOnResource.data) as PackageInfo };
+    }
+
+    const ancestor =
+      await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+        getDb(),
+        resource.id,
+      );
+
+    if (ancestor) {
+      const manualAttributionOnAncestor = await getDb()
+        .selectFrom('attribution')
+        .innerJoin(
+          'resource_to_attribution',
+          'attribution.uuid',
+          'resource_to_attribution.attribution_uuid',
+        )
+        .select('data')
+        .where('resource_id', '=', ancestor)
+        .where('attribution_is_external', '=', 0)
+        .limit(1)
+        .executeTakeFirstOrThrow();
+
+      return { result: JSON.parse(manualAttributionOnAncestor.data) as PackageInfo };
+    }
+
+    return { result: null };
+  },
+
   async autoCompleteOptions({
     attributeName,
     onlyRelatedToResourcePath,

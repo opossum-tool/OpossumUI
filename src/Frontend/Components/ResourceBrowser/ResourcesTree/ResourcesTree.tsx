@@ -7,8 +7,14 @@ import { remove } from 'lodash';
 import { useCallback, useEffect } from 'react';
 
 import { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
-import { ROOT_PATH } from '../../../shared-constants';
-import { setSelectedResourceIdOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
+import {
+  EMPTY_DISPLAY_PACKAGE_INFO,
+  ROOT_PATH,
+} from '../../../shared-constants';
+import {
+  changeSelectedAttributionOrOpenUnsavedPopup,
+  setSelectedResourceIdOrOpenUnsavedPopup,
+} from '../../../state/actions/popup-actions/popup-actions';
 import {
   setExpandedIds,
   setSelectedResourceId,
@@ -18,6 +24,7 @@ import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
+import { backend } from '../../../util/backendClient';
 import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
 import { ResourcesTreeNode } from './ResourcesTreeNode/ResourcesTreeNode';
 
@@ -53,8 +60,17 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
   );
 
   const handleSelect = useCallback(
-    (nodeId: string) => {
+    async (nodeId: string) => {
       dispatch(setSelectedResourceIdOrOpenUnsavedPopup(nodeId));
+      const attributionToAutoselect =
+        await backend.getManualAttributionOnResourceOrAncestor.query({
+          resourcePath: nodeId,
+        });
+      dispatch(
+        changeSelectedAttributionOrOpenUnsavedPopup(
+          attributionToAutoselect || EMPTY_DISPLAY_PACKAGE_INFO,
+        ),
+      );
     },
     [dispatch],
   );
