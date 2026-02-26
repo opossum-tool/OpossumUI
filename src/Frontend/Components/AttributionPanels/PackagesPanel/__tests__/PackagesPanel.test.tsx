@@ -5,82 +5,90 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { Attributions } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { setSelectedAttributionId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
+import { Action } from '../../../../state/configure-store';
 import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-ids-for-replacement';
-import {
-  initialFilters,
-  UseFilteredData,
-} from '../../../../state/variables/use-filters';
+import { initialFilters } from '../../../../state/variables/use-filters';
 import { renderComponent } from '../../../../test-helpers/render';
-import { PackagesPanel } from '../PackagesPanel';
+import { useFilteredAttributionsList } from '../../../../util/use-attribution-lists';
+import { PackagesPanel, PackagesPanelChildrenProps } from '../PackagesPanel';
+
+vi.mock('../../../../util/use-attribution-lists', () => ({
+  useFilteredAttributionsList: vi.fn(),
+}));
+
+function mockAttributions(attributions: Attributions) {
+  vi.mocked(useFilteredAttributionsList).mockReturnValue({
+    attributions,
+    loading: false,
+  });
+}
+
+function renderPackagesPanel({
+  attributions,
+  children,
+  disableSelectAll,
+  actions,
+}: {
+  attributions: Attributions;
+  children?: (props: PackagesPanelChildrenProps) => React.ReactNode;
+  disableSelectAll?: boolean;
+  actions?: Array<Action>;
+}) {
+  mockAttributions(attributions);
+  return renderComponent(
+    <PackagesPanel
+      external={false}
+      availableFilters={[]}
+      renderActions={() => null}
+      useAttributionFilters={() => [initialFilters, vi.fn()]}
+      disableSelectAll={disableSelectAll}
+    >
+      {children ?? (() => null)}
+    </PackagesPanel>,
+    { actions },
+  );
+}
+
+function rerenderPackagesPanel(
+  rerender: (ui: React.ReactElement) => void,
+  attributions: Attributions,
+) {
+  mockAttributions(attributions);
+  rerender(
+    <PackagesPanel
+      external={false}
+      availableFilters={[]}
+      renderActions={() => null}
+      useAttributionFilters={() => [initialFilters, vi.fn()]}
+    >
+      {() => null}
+    </PackagesPanel>,
+  );
+}
 
 describe('PackagesPanel', () => {
   it('enables select-all checkbox when there are attribution IDs', async () => {
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions(),
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
-    );
+    await renderPackagesPanel({ attributions: faker.opossum.attributions() });
 
     expect(screen.getByRole('checkbox')).toBeEnabled();
   });
 
   it('disables select-all checkbox when there are no attribution IDs', async () => {
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: {},
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
-    );
+    await renderPackagesPanel({ attributions: {} });
 
     expect(screen.getByRole('checkbox')).toBeDisabled();
   });
 
   it('disables select-all checkbox when there are attribution IDs but checkbox is externally disabled', async () => {
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions(),
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-        disableSelectAll
-      >
-        {() => null}
-      </PackagesPanel>,
-    );
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions(),
+      disableSelectAll: true,
+    });
 
     expect(screen.getByRole('checkbox')).toBeDisabled();
   });
@@ -88,34 +96,21 @@ describe('PackagesPanel', () => {
   it('checkbox is indeterminate when some but not all attributions are selected', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-        }),
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {(props) => (
-          <button
-            onClick={() =>
-              props.setMultiSelectedAttributionIds([packageInfo1.id])
-            }
-          >
-            {'click me'}
-          </button>
-        )}
-      </PackagesPanel>,
-    );
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+      }),
+      children: (props) => (
+        <button
+          onClick={() =>
+            props.setMultiSelectedAttributionIds([packageInfo1.id])
+          }
+        >
+          {'click me'}
+        </button>
+      ),
+    });
 
     await userEvent.click(screen.getByRole('button', { name: 'click me' }));
 
@@ -127,34 +122,12 @@ describe('PackagesPanel', () => {
   it('checkbox is not indeterminate when no attributions are selected', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-        }),
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {(props) => (
-          <button
-            onClick={() =>
-              props.setMultiSelectedAttributionIds([packageInfo1.id])
-            }
-          >
-            {'click me'}
-          </button>
-        )}
-      </PackagesPanel>,
-    );
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+      }),
+    });
 
     expect(
       screen.getByRole('checkbox', { name: 'select all' }),
@@ -165,38 +138,25 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-          [packageInfo3.id]: packageInfo3,
-        }),
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {(props) => (
-          <button
-            onClick={() =>
-              props.setMultiSelectedAttributionIds([
-                packageInfo1.id,
-                packageInfo2.id,
-              ])
-            }
-          >
-            {'click me'}
-          </button>
-        )}
-      </PackagesPanel>,
-    );
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+        [packageInfo3.id]: packageInfo3,
+      }),
+      children: (props) => (
+        <button
+          onClick={() =>
+            props.setMultiSelectedAttributionIds([
+              packageInfo1.id,
+              packageInfo2.id,
+            ])
+          }
+        >
+          {'click me'}
+        </button>
+      ),
+    });
 
     await userEvent.click(screen.getByRole('button', { name: 'click me' }));
 
@@ -209,27 +169,13 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-          [packageInfo3.id]: packageInfo3,
-        }),
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
-    );
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+        [packageInfo3.id]: packageInfo3,
+      }),
+    });
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
 
@@ -240,27 +186,13 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-          [packageInfo3.id]: packageInfo3,
-        }),
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
-    );
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+        [packageInfo3.id]: packageInfo3,
+      }),
+    });
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
     await userEvent.click(
@@ -276,34 +208,18 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-          [packageInfo3.id]: packageInfo3,
-        }),
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
-      {
-        actions: [
-          setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-            packageInfo1.id,
-          ]),
-        ],
-      },
-    );
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+        [packageInfo3.id]: packageInfo3,
+      }),
+      actions: [
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          packageInfo1.id,
+        ]),
+      ],
+    });
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
     await userEvent.click(
@@ -319,42 +235,27 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-          [packageInfo3.id]: packageInfo3,
-        }),
-      },
-      setFilteredData,
-    ];
-    const { rerender } = await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {(props) => (
-          <button
-            onClick={() =>
-              props.setMultiSelectedAttributionIds([packageInfo1.id])
-            }
-          >
-            {'click me'}
-          </button>
-        )}
-      </PackagesPanel>,
-      {
-        actions: [
-          setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-            packageInfo1.id,
-          ]),
-        ],
-      },
-    );
+    const { rerender } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+        [packageInfo3.id]: packageInfo3,
+      }),
+      children: (props) => (
+        <button
+          onClick={() =>
+            props.setMultiSelectedAttributionIds([packageInfo1.id])
+          }
+        >
+          {'click me'}
+        </button>
+      ),
+      actions: [
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          packageInfo1.id,
+        ]),
+      ],
+    });
 
     await userEvent.click(screen.getByRole('button', { name: 'click me' }));
 
@@ -362,25 +263,12 @@ describe('PackagesPanel', () => {
       screen.getByRole('checkbox', { name: 'select all' }),
     ).toHaveAttribute('data-indeterminate', 'true');
 
-    const updatedUseFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo2.id]: packageInfo2,
-          [packageInfo3.id]: packageInfo3,
-        }),
-      },
-      setFilteredData,
-    ];
-
-    rerender(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={updatedUseFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
+    rerenderPackagesPanel(
+      rerender,
+      faker.opossum.attributions({
+        [packageInfo2.id]: packageInfo2,
+        [packageInfo3.id]: packageInfo3,
+      }),
     );
 
     expect(
@@ -395,27 +283,13 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-          [packageInfo3.id]: packageInfo3,
-        }),
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
-    );
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+        [packageInfo3.id]: packageInfo3,
+      }),
+    });
 
     expect(
       screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
@@ -439,27 +313,13 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-          [packageInfo3.id]: packageInfo3,
-        }),
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
-    );
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+        [packageInfo3.id]: packageInfo3,
+      }),
+    });
 
     await userEvent.click(
       screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
@@ -477,28 +337,14 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-          [packageInfo3.id]: packageInfo3,
-        }),
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
-      { actions: [setSelectedAttributionId(packageInfo3.id)] },
-    );
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+        [packageInfo3.id]: packageInfo3,
+      }),
+      actions: [setSelectedAttributionId(packageInfo3.id)],
+    });
 
     expect(
       screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
@@ -512,51 +358,25 @@ describe('PackagesPanel', () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo3 = faker.opossum.packageInfo({ relation: 'unrelated' });
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-          [packageInfo3.id]: packageInfo3,
-        }),
-      },
-      setFilteredData,
-    ];
-    const { rerender } = await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
-      { actions: [setSelectedAttributionId(packageInfo3.id)] },
-    );
+    const { rerender } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+        [packageInfo3.id]: packageInfo3,
+      }),
+      actions: [setSelectedAttributionId(packageInfo3.id)],
+    });
 
     expect(
       screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
     ).toHaveAttribute('aria-selected', 'false');
 
-    const updatedUseFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo1.id]: packageInfo1,
-          [packageInfo2.id]: packageInfo2,
-        }),
-      },
-      setFilteredData,
-    ];
-    rerender(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={updatedUseFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
+    rerenderPackagesPanel(
+      rerender,
+      faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+      }),
     );
 
     expect(
@@ -565,20 +385,7 @@ describe('PackagesPanel', () => {
   });
 
   it('renders no tabs when there are no attributions', async () => {
-    const setFilteredData = vi.fn();
-    const useFilteredData: UseFilteredData = () => [
-      { ...initialFilters, attributions: {} },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <PackagesPanel
-        availableFilters={[]}
-        renderActions={() => null}
-        useFilteredData={useFilteredData}
-      >
-        {() => null}
-      </PackagesPanel>,
-    );
+    await renderPackagesPanel({ attributions: {} });
 
     expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });

@@ -7,7 +7,6 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
-import { faker } from '../../../../testing/Faker';
 import {
   AttributionFilters,
   initialFilters,
@@ -26,10 +25,7 @@ describe('SortButton', () => {
     });
     const sorting: SortOption = 'criticality';
     const useFilteredData: UseAttributionFilters = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions(),
-      },
+      initialFilters,
       setFilteredData,
     ];
     await renderComponent(<SortButton useFilteredData={useFilteredData} />);
@@ -44,23 +40,19 @@ describe('SortButton', () => {
 
   it('sort button is disabled when there are no attributions', async () => {
     const useFilteredData: UseAttributionFilters = () => [
-      {
-        ...initialFilters,
-        attributions: {},
-      },
+      initialFilters,
       vi.fn(),
     ];
-    await renderComponent(<SortButton useFilteredData={useFilteredData} />);
+    await renderComponent(
+      <SortButton useFilteredData={useFilteredData} disabled />,
+    );
 
     expect(screen.getByRole('button', { name: 'sort button' })).toBeDisabled();
   });
 
   it('shows all sort options', async () => {
     const useFilteredData: UseAttributionFilters = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions(),
-      },
+      initialFilters,
       vi.fn(),
     ];
     await renderComponent(<SortButton useFilteredData={useFilteredData} />);

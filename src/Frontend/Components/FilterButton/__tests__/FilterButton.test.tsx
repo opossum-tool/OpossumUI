@@ -26,10 +26,7 @@ describe('FilterButton', () => {
     });
     const filter: Filter = 'Currently Preferred';
     const useFilteredData: UseAttributionFilters = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions(),
-      },
+      initialFilters,
       setFilteredData,
     ];
     await renderComponent(
@@ -58,7 +55,6 @@ describe('FilterButton', () => {
       {
         ...initialFilters,
         filters: [filter],
-        attributions: faker.opossum.attributions(),
       },
       setFilteredData,
     ];
@@ -85,12 +81,7 @@ describe('FilterButton', () => {
     });
     const packageInfo = faker.opossum.packageInfo();
     const useFilteredData: UseAttributionFilters = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo.id]: packageInfo,
-        }),
-      },
+      initialFilters,
       setFilteredData,
     ];
     await renderComponent(
@@ -120,12 +111,7 @@ describe('FilterButton', () => {
     const licenseName = faker.commerce.productName();
     const packageInfo = faker.opossum.packageInfo({ licenseName });
     const useFilteredData: UseAttributionFilters = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo.id]: packageInfo,
-        }),
-      },
+      initialFilters,
       setFilteredData,
     ];
     await renderComponent(
@@ -155,12 +141,7 @@ describe('FilterButton', () => {
     });
     const packageInfo = faker.opossum.packageInfo();
     const useFilteredData: UseAttributionFilters = () => [
-      {
-        ...initialFilters,
-        attributions: faker.opossum.attributions({
-          [packageInfo.id]: packageInfo,
-        }),
-      },
+      initialFilters,
       setFilteredData,
     ];
     await renderComponent(
@@ -191,9 +172,6 @@ describe('FilterButton', () => {
       {
         ...initialFilters,
         selectedLicense: packageInfo.licenseName!,
-        attributions: faker.opossum.attributions({
-          [packageInfo.id]: packageInfo,
-        }),
       },
       setFilteredData,
     ];
@@ -222,9 +200,6 @@ describe('FilterButton', () => {
         ...initialFilters,
         filters: [filter],
         selectedLicense: packageInfo.licenseName!,
-        attributions: faker.opossum.attributions({
-          [packageInfo.id]: packageInfo,
-        }),
       },
       setFilteredData,
     ];
@@ -248,14 +223,15 @@ describe('FilterButton', () => {
 
   it('filter button is disabled when there are no attributions', async () => {
     const useFilteredData: UseAttributionFilters = () => [
-      {
-        ...initialFilters,
-        attributions: {},
-      },
+      initialFilters,
       vi.fn(),
     ];
     await renderComponent(
-      <FilterButton useFilteredData={useFilteredData} availableFilters={[]} />,
+      <FilterButton
+        useFilteredData={useFilteredData}
+        availableFilters={[]}
+        emptyAttributions
+      />,
     );
 
     expect(
