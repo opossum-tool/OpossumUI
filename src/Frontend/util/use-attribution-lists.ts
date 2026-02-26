@@ -63,12 +63,13 @@ export function useIsSelectedAttributionVisible() {
 }
 
 export function useFilteredReportsAttributionsList() {
-  const [{ filters }] = useAttributionFiltersInReportView();
+  const [{ filters, selectedLicense }] = useAttributionFiltersInReportView();
 
   const attributionQuery = backend.listAttributions.useQuery({
     external: false,
     filters,
     resourcePathForRelationships: ROOT_PATH,
+    license: selectedLicense,
   });
 
   const attributions = attributionQuery.data ?? null;

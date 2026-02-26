@@ -197,7 +197,7 @@ async function getClosestAncestorWithManualAttributions(
   const result = await dbOrTrx
     .selectFrom('resource')
     .select((eb) => eb.fn.max<number>('id').as('ancestor_id'))
-    .where((eb) => isAncestorOf(eb, resourceId))
+    .where((eb) => isAncestorOrSameAs(eb, resourceId))
     .where((eb) =>
       eb.exists(
         eb
@@ -220,19 +220,19 @@ async function getClosestBreakpointAncestor(
   const result = await dbOrTrx
     .selectFrom('resource')
     .select((eb) => eb.fn.max<number>('id').as('ancestor_id'))
-    .where((eb) => isAncestorOf(eb, resourceId))
+    .where((eb) => isAncestorOrSameAs(eb, resourceId))
     .where('is_attribution_breakpoint', '=', 1)
     .executeTakeFirst();
 
   return result?.ancestor_id;
 }
 
-function isAncestorOf(
+function isAncestorOrSameAs(
   eb: ExpressionBuilder<DB, 'resource'>,
   resourceId: number,
 ) {
   return eb.and([
-    eb('id', '<', resourceId),
+    eb('id', '<=', resourceId),
     eb('max_descendant_id', '>=', resourceId),
   ]);
 }
