@@ -41,8 +41,8 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
       aria-label={text.packageLists.restore}
       disabled={!someSelectedAttributionsAreHidden}
       size={'small'}
-      onClick={() => {
-        dispatch(
+      onClick={async () => {
+        await dispatch(
           removeResolvedExternalAttributionAndSave(selectedAttributionIds),
         );
       }}

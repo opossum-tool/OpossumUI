@@ -86,11 +86,11 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     manualAttributionsToResources[packageInfo.id]?.includes(selectedResourceId);
   const isCreatingNewAttribution = !packageInfo.id;
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (packageInfo.preSelected || isPackageInfoModified) {
       hasMultipleResources
         ? setIsConfirmSavePopupOpen(true)
-        : dispatch(
+        : await dispatch(
             savePackageInfo(selectedResourceId, packageInfo.id, packageInfo),
           );
     }
@@ -281,8 +281,8 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             aria-label={label}
             size={'small'}
             color={'secondary'}
-            onClick={() => {
-              dispatch(
+            onClick={async () => {
+              await dispatch(
                 selectedSignalIsResolved
                   ? removeResolvedExternalAttributionAndSave([packageInfo.id])
                   : addResolvedExternalAttributionAndSave([packageInfo.id]),
