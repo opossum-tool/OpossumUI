@@ -73,8 +73,8 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   );
 
   const handleSave = () => {
-    attributionIdsToSave.forEach((attributionId) => {
-      dispatch(
+    attributionIdsToSave.forEach(async (attributionId) => {
+      await dispatch(
         savePackageInfo(
           null,
           attributionId,
@@ -89,8 +89,8 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   };
 
   const handleSaveOnResource = () => {
-    attributionIdsToSave.forEach((attributionId) => {
-      dispatch(
+    attributionIdsToSave.forEach(async (attributionId) => {
+      await dispatch(
         unlinkAttributionAndCreateNew(
           selectedResourceId,
           attributionId === selectedAttributionId

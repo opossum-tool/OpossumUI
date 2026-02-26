@@ -137,7 +137,9 @@ describe('The savePackageInfo action', () => {
     });
     expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
 
-    testStore.dispatch(savePackageInfo('/root/src/', null, testPackageInfo));
+    await testStore.dispatch(
+      savePackageInfo('/root/src/', null, testPackageInfo),
+    );
     expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
       expectedTemporaryDisplayPackageInfo,
     );
@@ -205,7 +207,7 @@ describe('The savePackageInfo action', () => {
 
     expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
 
-    testStore.dispatch(
+    await testStore.dispatch(
       savePackageInfo(
         '/root/src/something.js',
         testManualAttributionUuid_1,
@@ -320,7 +322,7 @@ describe('The savePackageInfo action', () => {
     );
     expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
 
-    testStore.dispatch(
+    await testStore.dispatch(
       savePackageInfo('/root/src/something.js', testUuidA, {
         criticality: Criticality.None,
         id: testUuidA,
@@ -371,7 +373,7 @@ describe('The savePackageInfo action', () => {
       }),
     );
 
-    testStore.dispatch(
+    await testStore.dispatch(
       savePackageInfo('/parent/child.js', 'uuid2', {
         criticality: Criticality.None,
         id: 'uuid2',
@@ -417,7 +419,7 @@ describe('The savePackageInfo action', () => {
       }),
     );
 
-    testStore.dispatch(
+    await testStore.dispatch(
       savePackageInfo('/parent/', 'uuid2', {
         criticality: Criticality.None,
         id: 'uuid2',
@@ -472,7 +474,7 @@ describe('The savePackageInfo action', () => {
     );
 
     testStore.dispatch(setSelectedAttributionId('uuid1'));
-    testStore.dispatch(
+    await testStore.dispatch(
       savePackageInfo(
         '/somethingElse.js',
         'toReplaceUuid',
@@ -522,7 +524,7 @@ describe('The savePackageInfo action', () => {
       }),
     );
 
-    testStore.dispatch(
+    await testStore.dispatch(
       savePackageInfo('/folder/somethingElse.js', null, testPackageInfo),
     );
 
@@ -583,7 +585,7 @@ describe('The savePackageInfo action', () => {
 
     testStore.dispatch(setTemporaryDisplayPackageInfo(testPackageInfo));
 
-    testStore.dispatch(
+    await testStore.dispatch(
       savePackageInfo(
         '/root/src/something.js',
         testUuidB,
@@ -652,7 +654,7 @@ describe('The savePackageInfo action', () => {
     testStore.dispatch(
       setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
-    testStore.dispatch(
+    await testStore.dispatch(
       savePackageInfo(
         '/somethingElse.js',
         'toReplaceUuid',
@@ -705,7 +707,7 @@ describe('The savePackageInfo action', () => {
     testStore.dispatch(
       setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
-    testStore.dispatch(
+    await testStore.dispatch(
       savePackageInfo(
         '/something.js',
         null,
@@ -738,7 +740,7 @@ describe('The savePackageInfo action', () => {
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
     testStore.dispatch(setTemporaryDisplayPackageInfo(testPackageInfo));
 
-    testStore.dispatch(
+    await testStore.dispatch(
       savePackageInfo(
         null,
         testManualAttributionUuid_2,
@@ -791,7 +793,7 @@ describe('The unlinkAttributionAndSave action', () => {
       '/somethingElse.js',
     ]);
 
-    testStore.dispatch(
+    await testStore.dispatch(
       unlinkAttributionAndSave('/something.js', ['reactUuid']),
     );
 
@@ -827,7 +829,7 @@ describe('The deleteAttributionsAndSave action', () => {
       }),
     );
 
-    testStore.dispatch(deleteAttributionsAndSave(['toUnlink'], 'someId'));
+    await testStore.dispatch(deleteAttributionsAndSave(['toUnlink'], 'someId'));
 
     await expectManualAttributions(testStore.getState(), {});
     await expectResourcesToManualAttributions(testStore.getState(), {});
@@ -860,7 +862,7 @@ describe('The deleteAttributionsAndSave action', () => {
       }),
     );
 
-    testStore.dispatch(
+    await testStore.dispatch(
       deleteAttributionsAndSave(['toUnlink'], 'someSelectedId'),
     );
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
@@ -887,7 +889,7 @@ describe('The deleteAttributionsAndSave action', () => {
     vi.clearAllMocks();
     vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
 
-    testStore.dispatch(
+    await testStore.dispatch(
       deleteAttributionsAndSave(['reactUuid', 'vueUuid'], 'reactUuid'),
     );
 
@@ -925,7 +927,7 @@ describe('The deleteAttributionsAndSave action', () => {
       setTemporaryDisplayPackageInfo(testTemporaryPackageInfo),
     );
 
-    testStore.dispatch(
+    await testStore.dispatch(
       deleteAttributionsAndSave(['reactUuid', 'vueUuid'], 'angularUuid'),
     );
 
@@ -1019,7 +1021,9 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     );
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
 
-    testStore.dispatch(deleteAttributionsAndSave(['reactUuid'], 'someOtherId'));
+    await testStore.dispatch(
+      deleteAttributionsAndSave(['reactUuid'], 'someOtherId'),
+    );
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
@@ -1051,7 +1055,7 @@ describe('The addToSelectedResource action', () => {
       ],
     ).toEqual(['/root/src/something.js']);
 
-    testStore.dispatch(addToSelectedResource(testPackageInfo));
+    await testStore.dispatch(addToSelectedResource(testPackageInfo));
     const manualData = getManualData(testStore.getState());
     expect(manualData.resourcesToAttributions['/root/']).toEqual([
       testManualAttributionUuid_1,
@@ -1087,7 +1091,7 @@ describe('The addToSelectedResource action', () => {
       criticality: Criticality.None,
       id: testManualAttributionUuid_1,
     };
-    testStore.dispatch(addToSelectedResource(testPackageInfo));
+    await testStore.dispatch(addToSelectedResource(testPackageInfo));
 
     const manualData = getManualData(testStore.getState());
     expect(manualData.resourcesToAttributions['/root/']).toHaveLength(1);
@@ -1224,7 +1228,7 @@ describe('The updateAttributionsAndSave action', () => {
     vi.clearAllMocks();
     vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
 
-    testStore.dispatch(updateAttributionsAndSave(updatedAttributions));
+    await testStore.dispatch(updateAttributionsAndSave(updatedAttributions));
 
     // Verify file is saved only once
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
@@ -1298,7 +1302,7 @@ describe('The updateAttributionsAndSave action', () => {
       reactUuid: updatedReact,
     };
 
-    testStore.dispatch(updateAttributionsAndSave(updatedAttributions));
+    await testStore.dispatch(updateAttributionsAndSave(updatedAttributions));
 
     // Verify temporary display package info was reloaded
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(

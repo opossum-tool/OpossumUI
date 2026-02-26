@@ -15,7 +15,7 @@ import {
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../selectors/resource-selectors';
-import { AppThunkAction } from '../../types';
+import { AppThunkAction, AsyncAppThunkAction } from '../../types';
 import {
   addResolvedExternalAttributions,
   removeResolvedExternalAttributions,
@@ -37,23 +37,14 @@ import {
   UpdateAttribution,
 } from './types';
 
-// The thunks are not asynchronous, so we sadly can't await the mutations there.
-// We fire-and-forget them, using this function to output an error if they fail.
-function syncToDb(mutation: Promise<unknown>): void {
-  mutation.catch((e) => {
-    console.error(e);
-    throw e;
-  });
-}
-
 export function savePackageInfo(
   resourceId: string | null,
   attributionId: string | null,
   packageInfo: PackageInfo,
   isSavedPackageInactive?: boolean,
   ignorePreSelected?: boolean,
-): AppThunkAction {
-  return (dispatch, getState) => {
+): AsyncAppThunkAction {
+  return async (dispatch, getState) => {
     const strippedPackageInfo = getStrippedPackageInfo(packageInfo);
     const matchedPackageInfo = Object.values(
       getManualAttributions(getState()),
@@ -66,11 +57,9 @@ export function savePackageInfo(
     if (attributionId && isEmpty(strippedPackageInfo)) {
       // DELETE
       dispatch(deleteAttribution(attributionId));
-      syncToDb(
-        backend.deleteAttributions.mutate({
-          attributionUuids: [attributionId],
-        }),
-      );
+      await backend.deleteAttributions.mutate({
+        attributionUuids: [attributionId],
+      });
     } else if (matchedPackageInfo && attributionId) {
       // REPLACE
       dispatch(
@@ -80,12 +69,10 @@ export function savePackageInfo(
           !isSavedPackageInactive,
         ),
       );
-      syncToDb(
-        backend.replaceAttribution.mutate({
-          attributionIdToReplace: attributionId,
-          attributionIdToReplaceWith: matchedPackageInfo.id,
-        }),
-      );
+      await backend.replaceAttribution.mutate({
+        attributionIdToReplace: attributionId,
+        attributionIdToReplaceWith: matchedPackageInfo.id,
+      });
     } else if (matchedPackageInfo && resourceId) {
       // LINK
       dispatch(
@@ -95,12 +82,10 @@ export function savePackageInfo(
           !isSavedPackageInactive,
         ),
       );
-      syncToDb(
-        backend.linkAttribution.mutate({
-          resourcePath: resourceId,
-          attributionUuid: matchedPackageInfo.id,
-        }),
-      );
+      await backend.linkAttribution.mutate({
+        resourcePath: resourceId,
+        attributionUuid: matchedPackageInfo.id,
+      });
     } else if (resourceId && !attributionId) {
       // CREATE
       const newAttributionId = uuid4();
@@ -110,13 +95,11 @@ export function savePackageInfo(
       const newAttribution =
         getManualAttributions(getState())[newAttributionId];
 
-      syncToDb(
-        backend.createAttribution.mutate({
-          attributionUuid: newAttributionId,
-          packageInfo: newAttribution,
-          resourcePath: resourceId,
-        }),
-      );
+      await backend.createAttribution.mutate({
+        attributionUuid: newAttributionId,
+        packageInfo: newAttribution,
+        resourcePath: resourceId,
+      });
     } else if (attributionId) {
       // UPDATE
       dispatch(
@@ -124,11 +107,9 @@ export function savePackageInfo(
       );
       const updatedAttribution =
         getManualAttributions(getState())[attributionId];
-      syncToDb(
-        backend.updateAttributions.mutate({
-          attributions: { [attributionId]: updatedAttribution },
-        }),
-      );
+      await backend.updateAttributions.mutate({
+        attributions: { [attributionId]: updatedAttribution },
+      });
     }
 
     if (!isSavedPackageInactive) {
@@ -148,17 +129,15 @@ export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
 export function unlinkAttributionAndSave(
   resourceId: string,
   attributionIds: Array<string>,
-): AppThunkAction {
-  return (dispatch) => {
+): AsyncAppThunkAction {
+  return async (dispatch) => {
     attributionIds.forEach((attributionId) => {
       dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
     });
-    syncToDb(
-      backend.unlinkResourceFromAttributions.mutate({
-        resourcePath: resourceId,
-        attributionUuids: attributionIds,
-      }),
-    );
+    await backend.unlinkResourceFromAttributions.mutate({
+      resourcePath: resourceId,
+      attributionUuids: attributionIds,
+    });
     dispatch(setSelectedAttributionId(''));
     dispatch(resetTemporaryDisplayPackageInfo());
     dispatch(saveManualAndResolvedAttributionsToFile());
@@ -168,30 +147,27 @@ export function unlinkAttributionAndSave(
 export function unlinkAttributionAndCreateNew(
   resourceId: string,
   packageInfo: PackageInfo,
-): AppThunkAction {
-  return (dispatch, getState) => {
+): AsyncAppThunkAction {
+  return async (dispatch, getState) => {
     const attributionsToResources =
       getManualAttributionsToResources(getState());
 
     if (attributionsToResources[packageInfo.id]?.length > 1) {
-      syncToDb(
-        backend.unlinkResourceFromAttributions.mutate({
-          resourcePath: resourceId,
-          attributionUuids: [packageInfo.id],
-        }),
-      );
-
+      await backend.unlinkResourceFromAttributions.mutate({
+        resourcePath: resourceId,
+        attributionUuids: [packageInfo.id],
+      });
       dispatch(unlinkResourceFromAttribution(resourceId, packageInfo.id));
-      dispatch(savePackageInfo(resourceId, null, packageInfo));
+      await dispatch(savePackageInfo(resourceId, null, packageInfo));
     }
   };
 }
 
 export function addToSelectedResource(
   packageInfo: PackageInfo,
-): AppThunkAction {
-  return (dispatch, getState) => {
-    dispatch(
+): AsyncAppThunkAction {
+  return async (dispatch, getState) => {
+    await dispatch(
       savePackageInfo(
         getSelectedResourceId(getState()),
         null,
@@ -206,14 +182,14 @@ export function addToSelectedResource(
 export function deleteAttributionsAndSave(
   attributionIds: Array<string>,
   selectedAttributionId: string,
-): AppThunkAction {
-  return (dispatch) => {
+): AsyncAppThunkAction {
+  return async (dispatch) => {
     attributionIds.forEach((attributionId) => {
       dispatch(deleteAttribution(attributionId));
     });
-    syncToDb(
-      backend.deleteAttributions.mutate({ attributionUuids: attributionIds }),
-    );
+    await backend.deleteAttributions.mutate({
+      attributionUuids: attributionIds,
+    });
     if (attributionIds.includes(selectedAttributionId)) {
       dispatch(setSelectedAttributionId(''));
       dispatch(resetTemporaryDisplayPackageInfo());
@@ -224,34 +200,32 @@ export function deleteAttributionsAndSave(
 
 export function addResolvedExternalAttributionAndSave(
   attributionIds: Array<string>,
-): AppThunkAction {
-  return (dispatch) => {
+): AsyncAppThunkAction {
+  return async (dispatch) => {
     dispatch(addResolvedExternalAttributions(attributionIds));
-    syncToDb(
-      backend.resolveAttributions.mutate({ attributionUuids: attributionIds }),
-    );
+    await backend.resolveAttributions.mutate({
+      attributionUuids: attributionIds,
+    });
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
 
 export function removeResolvedExternalAttributionAndSave(
   attributionIds: Array<string>,
-): AppThunkAction {
-  return (dispatch) => {
+): AsyncAppThunkAction {
+  return async (dispatch) => {
     dispatch(removeResolvedExternalAttributions(attributionIds));
-    syncToDb(
-      backend.unresolveAttributions.mutate({
-        attributionUuids: attributionIds,
-      }),
-    );
+    await backend.unresolveAttributions.mutate({
+      attributionUuids: attributionIds,
+    });
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
 
 export function updateAttributionsAndSave(
   updatedAttributions: Attributions,
-): AppThunkAction {
-  return (dispatch, getState) => {
+): AsyncAppThunkAction {
+  return async (dispatch, getState) => {
     const selectedAttributionId = getSelectedAttributionId(getState());
 
     Object.entries(updatedAttributions).forEach(
@@ -259,11 +233,9 @@ export function updateAttributionsAndSave(
         dispatch(updateAttribution(attributionId, updatedPackageInfo, false));
       },
     );
-
-    syncToDb(
-      backend.updateAttributions.mutate({ attributions: updatedAttributions }),
-    );
-
+    await backend.updateAttributions.mutate({
+      attributions: updatedAttributions,
+    });
     // Reset temporary display package info if the currently selected attribution was updated
     if (Object.keys(updatedAttributions).includes(selectedAttributionId)) {
       dispatch(resetTemporaryDisplayPackageInfo());
