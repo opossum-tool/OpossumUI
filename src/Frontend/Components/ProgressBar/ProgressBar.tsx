@@ -10,7 +10,10 @@ import Box from '@mui/system/Box';
 
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
+import { getClassifications } from '../../state/selectors/resource-selectors';
 import { ProgressBarData, SelectedProgressBar } from '../../types/types';
+import { backend } from '../../util/backendClient';
 import {
   calculateAttributionBarSteps,
   calculateClassificationBarSteps,
@@ -69,52 +72,63 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     filesToForwardToForCriticality,
   );
 
-  const renamedProgressBarData = {
-    allFiles: props.progressBarData.fileCount,
-    withNonPreSelectedManual:
-      props.progressBarData.filesWithManualAttributionCount,
-    withOnlyPreSelectedManual:
-      props.progressBarData.filesWithOnlyPreSelectedAttributionCount,
-    withOnlyExternal:
-      props.progressBarData.filesWithOnlyExternalAttributionCount,
-    withHighlyCritical:
-      props.progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
-    withMediumCritical:
-      props.progressBarData.filesWithMediumCriticalExternalAttributionsCount,
-    classificationStatistics: props.progressBarData.classificationStatistics,
-  };
+  const fileWithAttributionsCounts =
+    backend.getFileWithAttributionsCounts.useQuery(undefined, {
+      enabled: props.selectedProgressBar === 'attribution',
+    });
 
-  const progressBarConfigurations: Record<
-    SelectedProgressBar,
+  const fileWithCriticalAttributionsCounts =
+    backend.getFileWithCriticalAttributionsCounts.useQuery(undefined, {
+      enabled: props.selectedProgressBar === 'criticality',
+    });
+
+  const classifications = useAppSelector(getClassifications);
+  const fileWithClassifications = backend.getFileClassifications.useQuery(
     {
-      Title: React.FC<ProgressBarTooltipProps>;
-      ariaLabel: string;
-      steps: Array<ProgressBarStep>;
-      onClickHandler: () => void;
-    }
-  > = {
-    attribution: {
-      Title: AttributionBarTooltipTitle,
-      ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
-      steps: calculateAttributionBarSteps(renamedProgressBarData),
-      onClickHandler: onAttributionBarClick,
+      classifications,
     },
-    criticality: {
-      Title: CriticalityBarTooltipTitle,
-      ariaLabel: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
-      steps: calculateCriticalityBarSteps(renamedProgressBarData),
-      onClickHandler: onCriticalityBarClick,
-    },
-    classification: {
-      Title: ClassificationBarTooltipTitle,
-      ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
-      steps: calculateClassificationBarSteps(renamedProgressBarData),
-      onClickHandler: onClassificationBarClick,
-    },
-  };
+    { enabled: props.selectedProgressBar === 'classification' },
+  );
 
-  const { ariaLabel, steps, onClickHandler, Title } =
-    progressBarConfigurations[props.selectedProgressBar];
+  interface ProgressBarConfiguration {
+    Title: React.FC<ProgressBarTooltipProps>;
+    ariaLabel: string;
+    steps: Array<ProgressBarStep>;
+    onClickHandler: () => void;
+  }
+  function getProgressBarConfiguration(
+    selectedProgressBar: SelectedProgressBar,
+  ): ProgressBarConfiguration {
+    switch (selectedProgressBar) {
+      case 'attribution':
+        return {
+          Title: AttributionBarTooltipTitle,
+          ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
+          steps: calculateAttributionBarSteps(fileWithAttributionsCounts.data),
+          onClickHandler: onAttributionBarClick,
+        };
+      case 'criticality':
+        return {
+          Title: CriticalityBarTooltipTitle,
+          ariaLabel: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
+          steps: calculateCriticalityBarSteps(
+            fileWithCriticalAttributionsCounts.data,
+          ),
+          onClickHandler: onCriticalityBarClick,
+        };
+      case 'classification':
+        return {
+          Title: ClassificationBarTooltipTitle,
+          ariaLabel:
+            text.topBar.switchableProgressBar.classificationBar.ariaLabel,
+          steps: calculateClassificationBarSteps(fileWithClassifications.data),
+          onClickHandler: onClassificationBarClick,
+        };
+    }
+  }
+
+  const { Title, ariaLabel, steps, onClickHandler } =
+    getProgressBarConfiguration(props.selectedProgressBar);
 
   return (
     <MuiBox sx={props.sx}>

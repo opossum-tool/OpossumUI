@@ -8,6 +8,9 @@ import { omit } from 'lodash';
 import { Filter, FilterCounts, FILTERS } from '../../Frontend/shared-constants';
 import {
   ClassificationStatistics,
+  FileClassifications,
+  FileWithAttributionsCounts,
+  FileWithCriticalAttributionsCounts,
   ProgressBarData,
 } from '../../Frontend/types/types';
 import { ClassificationsConfig } from '../../shared/shared-types';
@@ -341,6 +344,224 @@ export const queries = {
   },
 
   getResourceTree,
+
+  async getFileWithAttributionsCounts(): Promise<{
+    result: FileWithAttributionsCounts;
+  }> {
+    const result = await getDb()
+      .transaction()
+      .execute((trx) =>
+        sql<{
+          allFiles: number;
+          withNonPreSelectedManual: number;
+          withOnlyPreSelectedManual: number;
+          withOnlyExternal: number;
+        }>`
+        WITH RECURSIVE
+        resource_flags AS (
+            SELECT 
+                resource_id,
+                MAX(NOT attribution.is_external AND NOT attribution.pre_selected) as has_non_pre_selected,
+                MAX(NOT attribution.is_external AND attribution.pre_selected) as has_pre_selected,
+                MAX(attribution.is_external) as has_external
+            FROM resource_to_attribution
+            JOIN attribution ON resource_to_attribution.attribution_uuid = attribution.uuid
+            -- Important to keep this as = 0, otherwise the covering index is not used
+            WHERE attribution.is_resolved = 0
+            GROUP BY resource_id
+        ),
+        resource_tree(id, is_file, has_non_pre_selected, has_only_pre_selected, has_external) AS (
+            SELECT
+                r.id,
+                r.is_file,
+                COALESCE(rf.has_non_pre_selected, 0),
+                COALESCE(rf.has_pre_selected, 0) AND NOT COALESCE(rf.has_non_pre_selected, 0), 
+                COALESCE(rf.has_external, 0)
+            FROM resource r
+            LEFT JOIN resource_flags rf ON r.id = rf.resource_id
+            WHERE r.path = ''
+            UNION ALL
+            SELECT 
+                child.id,
+                child.is_file,
+                (parent.has_non_pre_selected AND NOT child.is_attribution_breakpoint) OR COALESCE(rf.has_non_pre_selected, 0),
+                NOT COALESCE(rf.has_non_pre_selected, 0) AND ((parent.has_only_pre_selected AND NOT child.is_attribution_breakpoint) OR COALESCE(rf.has_pre_selected, 0)),
+                (parent.has_external AND NOT child.is_attribution_breakpoint) OR COALESCE(rf.has_external, 0)
+            FROM resource_tree as parent
+            JOIN resource AS child ON child.parent_id = parent.id
+            LEFT JOIN resource_flags rf ON child.id = rf.resource_id
+        )
+        SELECT 
+            COUNT(*) as allFiles,
+            SUM(has_non_pre_selected) as withNonPreSelectedManual,
+            SUM(has_only_pre_selected) as withOnlyPreSelectedManual,
+            SUM(has_external AND NOT (has_non_pre_selected OR has_only_pre_selected)) as withOnlyExternal
+        FROM resource_tree
+        WHERE is_file
+      `.execute(trx),
+      );
+
+    return {
+      result: {
+        allFiles: result.rows[0].allFiles,
+        withNonPreSelectedManual: result.rows[0].withNonPreSelectedManual,
+        withOnlyPreSelectedManual: result.rows[0].withOnlyPreSelectedManual,
+        withOnlyExternal: result.rows[0].withOnlyExternal,
+      },
+    };
+  },
+
+  async getFileWithCriticalAttributionsCounts(): Promise<{
+    result: FileWithCriticalAttributionsCounts;
+  }> {
+    const result = await getDb()
+      .transaction()
+      .execute((trx) =>
+        sql<{
+          withOnlyExternal: number;
+          withMediumCritical: number;
+          withHighlyCritical: number;
+        }>`
+        WITH RECURSIVE
+        resource_flags AS (
+            SELECT 
+                resource_id,
+                MAX(NOT attribution.is_external) as has_manual,
+                MAX(attribution.is_external) as has_external,
+                MAX(attribution.criticality) as highest_criticality
+            FROM resource_to_attribution
+            JOIN attribution ON resource_to_attribution.attribution_uuid = attribution.uuid
+            -- Important to keep this as = 0, otherwise the covering index is not used
+            WHERE attribution.is_resolved = 0
+            GROUP BY resource_id
+        ),
+        resource_tree(id, is_file, has_manual, has_external, highest_criticality) AS (
+            SELECT 
+                r.id,
+                r.is_file,
+                COALESCE(rf.has_manual, 0), 
+                COALESCE(rf.has_external, 0),
+                COALESCE(rf.highest_criticality, 0)
+            FROM resource r
+            LEFT JOIN resource_flags rf ON r.id = rf.resource_id
+            WHERE r.path = ''
+            UNION ALL
+            SELECT 
+                child.id,
+                child.is_file,
+                (parent.has_manual AND NOT child.is_attribution_breakpoint) OR COALESCE(rf.has_manual, 0),
+                (parent.has_external AND NOT child.is_attribution_breakpoint) OR COALESCE(rf.has_external, 0),
+                COALESCE(rf.highest_criticality, 0)
+            FROM resource_tree as parent
+            JOIN resource AS child ON child.parent_id = parent.id
+            LEFT JOIN resource_flags rf ON child.id = rf.resource_id
+        )
+        SELECT
+            SUM(has_external AND NOT has_manual) as withOnlyExternal,
+            SUM(has_external AND NOT has_manual AND highest_criticality is 1) as withMediumCritical,
+            SUM(has_external AND NOT has_manual AND highest_criticality is 2) as withHighlyCritical
+        FROM resource_tree
+        WHERE is_file
+      `.execute(trx),
+      );
+
+    return {
+      result: {
+        withOnlyExternal: result.rows[0].withOnlyExternal,
+        withMediumCritical: result.rows[0].withMediumCritical,
+        withHighlyCritical: result.rows[0].withHighlyCritical,
+      },
+    };
+  },
+
+  async getFileClassifications(props: {
+    classifications: ClassificationsConfig;
+  }): Promise<{
+    result: FileClassifications;
+  }> {
+    const result = await getDb()
+      .transaction()
+      .execute((trx) =>
+        sql<{
+          withOnlyExternal: number;
+          classification_paths: string | null;
+        }>`
+        WITH RECURSIVE
+        resource_flags AS (
+            SELECT 
+                resource_id,
+                MAX(NOT attribution.is_external) as has_manual,
+                MAX(attribution.is_external) as has_external,
+                MAX(attribution.classification) as highest_classification
+            FROM resource_to_attribution
+            JOIN attribution ON resource_to_attribution.attribution_uuid = attribution.uuid
+            -- Important to keep this as = 0, otherwise the covering index is not used
+            WHERE attribution.is_resolved = 0
+            GROUP BY resource_id
+        ),
+        resource_tree(id, is_file, has_manual, has_external, highest_classification) AS (
+            SELECT 
+                r.id,
+                r.is_file,
+                COALESCE(rf.has_manual, 0), 
+                COALESCE(rf.has_external, 0),
+                rf.highest_classification
+            FROM resource r
+            LEFT JOIN resource_flags rf ON r.id = rf.resource_id
+            WHERE r.path = ''
+            UNION ALL
+            SELECT 
+                child.id,
+                child.is_file,
+                (parent.has_manual AND NOT child.is_attribution_breakpoint) OR COALESCE(rf.has_manual, 0),
+                (parent.has_external AND NOT child.is_attribution_breakpoint) OR COALESCE(rf.has_external, 0),
+                COALESCE(rf.highest_classification, parent.highest_classification)
+            FROM resource_tree as parent
+            JOIN resource AS child ON child.parent_id = parent.id
+            LEFT JOIN resource_flags rf ON child.id = rf.resource_id
+        ),
+        classification_paths(hc, paths) AS (
+          SELECT highest_classification, json_group_array(path ORDER BY path)
+          FROM resource_tree as rt
+          JOIN resource ON resource.id = rt.id
+          WHERE resource_tree.is_file AND has_external AND NOT has_manual
+          GROUP BY highest_classification
+        )
+        SELECT
+            SUM(has_external AND NOT has_manual) as withOnlyExternal,
+            (SELECT json_group_object(classification_paths.hc, classification_paths.paths) FROM classification_paths) as classification_paths
+        FROM resource_tree
+        WHERE is_file
+      `.execute(trx),
+      );
+    const parsedClassifications = result.rows[0].classification_paths
+      ? (JSON.parse(result.rows[0].classification_paths) as Record<
+          number,
+          string
+        >)
+      : undefined;
+    const classificationStatistics: ClassificationStatistics = {};
+    Object.entries(props.classifications).forEach(
+      ([classificationId, classificationEntry]) => {
+        classificationStatistics[Number(classificationId)] = {
+          description: classificationEntry.description,
+          correspondingFiles: parsedClassifications
+            ? JSON.parse(
+                parsedClassifications[Number(classificationId)] ?? '[]',
+              )
+            : [],
+          color: classificationEntry.color,
+        };
+      },
+    );
+    return {
+      result: {
+        withOnlyExternal: result.rows[0].withOnlyExternal,
+        classificationStatistics,
+      },
+    };
+  },
+
   async getProgressBarData(props: { classifications: ClassificationsConfig }) {
     const result = await getDb()
       .transaction()
@@ -460,7 +681,6 @@ export const queries = {
         };
       },
     );
-
     return {
       result: {
         fileCount: result.rows[0].file_count,

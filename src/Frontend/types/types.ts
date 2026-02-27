@@ -46,8 +46,8 @@ export interface FileWithAttributionsCounts {
 
 export interface FileWithCriticalAttributionsCounts {
   withOnlyExternal: number;
-  withHighlyCritical: number;
   withMediumCritical: number;
+  withHighlyCritical: number;
 }
 
 export interface FileClassifications {

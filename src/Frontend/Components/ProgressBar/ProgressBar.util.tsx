@@ -54,8 +54,11 @@ export function useOnProgressBarClick(resourceIds: Array<string>) {
 }
 
 export function calculateAttributionBarSteps(
-  count: FileWithAttributionsCounts,
+  count: FileWithAttributionsCounts | undefined,
 ): Array<ProgressBarStep> {
+  if (!count) {
+    return [];
+  }
   const uncategorizedFiles =
     count.allFiles -
     count.withNonPreSelectedManual -
@@ -110,8 +113,11 @@ export function calculateAttributionBarSteps(
 }
 
 export function calculateCriticalityBarSteps(
-  count: FileWithCriticalAttributionsCounts,
+  count: FileWithCriticalAttributionsCounts | undefined,
 ): Array<ProgressBarStep> {
+  if (!count) {
+    return [];
+  }
   if (count.withOnlyExternal === 0) {
     return [{ widthInPercent: 100, color: OpossumColors.pastelDarkGreen }];
   }
@@ -158,8 +164,11 @@ export function calculateCriticalityBarSteps(
 }
 
 export function calculateClassificationBarSteps(
-  count: FileClassifications,
+  count: FileClassifications | undefined,
 ): Array<ProgressBarStep> {
+  if (!count) {
+    return [];
+  }
   if (count.withOnlyExternal === 0) {
     return [{ widthInPercent: 100, color: OpossumColors.pastelDarkGreen }];
   }
