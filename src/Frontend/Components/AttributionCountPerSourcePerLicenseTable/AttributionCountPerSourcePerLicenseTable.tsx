@@ -9,6 +9,8 @@ import MuiTableContainer from '@mui/material/TableContainer';
 import { orderBy, upperFirst } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 
+import { DEFAULT_USER_SETTINGS } from '../../../shared/shared-constants';
+import { Order, TableOrdering } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import {
@@ -16,13 +18,11 @@ import {
   LicenseNamesWithClassification,
   LicenseNamesWithCriticality,
 } from '../../types/types';
-import { Order } from '../TableCellWithSorting/TableCellWithSorting';
 import {
   Column,
   ColumnConfig,
   orderLicenseNames,
   SingleColumn,
-  TableOrdering,
 } from './AttributionCountPerSourcePerLicenseTable.util';
 import { AttributionCountPerSourcePerLicenseTableFooter } from './AttributionCountPerSourcePerLicenseTableFooter/AttributionCountPerSourcePerLicenseTableFooter';
 import { AttributionCountPerSourcePerLicenseTableHead } from './AttributionCountPerSourcePerLicenseTableHead/AttributionCountPerSourcePerLicenseTableHead';
@@ -40,10 +40,6 @@ export interface AttributionCountPerSourcePerLicenseTableProps {
   licenseNamesWithClassification: LicenseNamesWithClassification;
 }
 
-const defaultOrdering: TableOrdering = {
-  orderDirection: 'asc',
-  orderedColumn: SingleColumn.NAME,
-};
 export const AttributionCountPerSourcePerLicenseTable: React.FC<
   AttributionCountPerSourcePerLicenseTableProps
 > = (props) => {
@@ -136,11 +132,11 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
   );
 
   const [ordering, setOrdering] = useState<TableOrdering>(
-    userSettings.attributionTableSorting || defaultOrdering,
+    userSettings.attributionTableOrdering,
   );
   const effectiveOrdering = columnConfig.getColumnById(ordering.orderedColumn)
     ? ordering
-    : defaultOrdering;
+    : DEFAULT_USER_SETTINGS.attributionTableOrdering;
 
   const handleRequestSort = (columnId: string, defaultOrder: Order) => {
     let newOrdering: TableOrdering;
@@ -165,7 +161,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
       };
     }
     setOrdering(newOrdering);
-    updateUserSettings({ attributionTableSorting: newOrdering });
+    updateUserSettings({ attributionTableOrdering: newOrdering });
   };
 
   const orderedLicenseNames = useMemo(() => {
