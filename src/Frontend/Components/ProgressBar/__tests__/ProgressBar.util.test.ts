@@ -7,7 +7,9 @@ import { faker } from '../../../../testing/Faker';
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
 import {
   ClassificationStatistics,
-  ProgressBarData,
+  FileClassifications,
+  FileWithAttributionsCounts,
+  FileWithCriticalAttributionsCounts,
 } from '../../../types/types';
 import {
   calculateAttributionBarSteps,
@@ -21,28 +23,18 @@ import {
 describe('ProgressBar helpers', () => {
   describe('createBackgroundFromProgressBarSteps', () => {
     it('gets correct background for attribution bar', () => {
-      const testProgressBarData: ProgressBarData = {
-        fileCount: 9,
-        filesWithManualAttributionCount: 3,
-        filesWithOnlyPreSelectedAttributionCount: 3,
-        filesWithOnlyExternalAttributionCount: 3,
-        resourcesWithNonInheritedExternalAttributionOnly: [
-          'file1',
-          'file2',
-          'file3',
-        ],
-        filesWithHighlyCriticalExternalAttributionsCount: 1,
-        filesWithMediumCriticalExternalAttributionsCount: 2,
-        resourcesWithHighlyCriticalExternalAttributions: ['file1'],
-        resourcesWithMediumCriticalExternalAttributions: ['file2', 'file3'],
-        classificationStatistics: {},
+      const testProgressBarData: FileWithAttributionsCounts = {
+        allFiles: 9,
+        withNonPreSelectedManual: 3,
+        withOnlyPreSelectedManual: 3,
+        withOnlyExternal: 3,
       };
       const expectedProgressBarBackground: string =
         'linear-gradient(to right,' +
-        ` ${OpossumColors.pastelDarkGreen} 0% 33% ,` +
-        ` ${OpossumColors.pastelMiddleGreen} 33% 66% ,` +
-        ` ${OpossumColors.pastelRed} 66% 99% ,` +
-        ` ${OpossumColors.lightestBlue} 99% 100% )`;
+        ` ${OpossumColors.pastelDarkGreen} 0% 34% ,` +
+        ` ${OpossumColors.pastelMiddleGreen} 34% 67% ,` +
+        ` ${OpossumColors.pastelRed} 67% 100% ,` +
+        ` ${OpossumColors.lightestBlue} 100% 100% )`;
 
       const attributionBarSteps =
         calculateAttributionBarSteps(testProgressBarData);
@@ -54,21 +46,10 @@ describe('ProgressBar helpers', () => {
     });
 
     it('gets correct background for criticality bar', () => {
-      const testProgressBarData: ProgressBarData = {
-        fileCount: 9,
-        filesWithManualAttributionCount: 3,
-        filesWithOnlyPreSelectedAttributionCount: 3,
-        filesWithOnlyExternalAttributionCount: 3,
-        resourcesWithNonInheritedExternalAttributionOnly: [
-          'file1',
-          'file2',
-          'file3',
-        ],
-        filesWithHighlyCriticalExternalAttributionsCount: 1,
-        filesWithMediumCriticalExternalAttributionsCount: 1,
-        resourcesWithHighlyCriticalExternalAttributions: ['file1'],
-        resourcesWithMediumCriticalExternalAttributions: ['file2'],
-        classificationStatistics: {},
+      const testProgressBarData: FileWithCriticalAttributionsCounts = {
+        withOnlyExternal: 3,
+        withHighlyCritical: 1,
+        withMediumCritical: 1,
       };
       const expectedCriticalityBarBackground: string =
         'linear-gradient(to right,' +
@@ -92,16 +73,8 @@ describe('ProgressBar helpers', () => {
         2: faker.progressBar.classificationStatisticsEntry({}, 4),
         3: faker.progressBar.classificationStatisticsEntry({}, 1),
       };
-      const testProgressBarData: ProgressBarData = {
-        fileCount: 30,
-        filesWithManualAttributionCount: 3,
-        filesWithOnlyPreSelectedAttributionCount: 3,
-        filesWithOnlyExternalAttributionCount: 20,
-        resourcesWithNonInheritedExternalAttributionOnly: [],
-        filesWithHighlyCriticalExternalAttributionsCount: 1,
-        filesWithMediumCriticalExternalAttributionsCount: 1,
-        resourcesWithHighlyCriticalExternalAttributions: [],
-        resourcesWithMediumCriticalExternalAttributions: [],
+      const testProgressBarData: FileClassifications = {
+        withOnlyExternal: 20,
         classificationStatistics,
       };
 
@@ -123,16 +96,8 @@ describe('ProgressBar helpers', () => {
         0: faker.progressBar.classificationStatisticsEntry({}, 5),
       };
 
-      const testProgressBarData: ProgressBarData = {
-        fileCount: 30,
-        filesWithManualAttributionCount: 3,
-        filesWithOnlyPreSelectedAttributionCount: 3,
-        filesWithOnlyExternalAttributionCount: 20,
-        resourcesWithNonInheritedExternalAttributionOnly: [],
-        filesWithHighlyCriticalExternalAttributionsCount: 1,
-        filesWithMediumCriticalExternalAttributionsCount: 1,
-        resourcesWithHighlyCriticalExternalAttributions: [],
-        resourcesWithMediumCriticalExternalAttributions: [],
+      const testProgressBarData: FileClassifications = {
+        withOnlyExternal: 20,
         classificationStatistics,
       };
 
@@ -147,16 +112,8 @@ describe('ProgressBar helpers', () => {
     });
 
     it('returns constant background color for zero files affected', () => {
-      const testProgressBarData: ProgressBarData = {
-        fileCount: 30,
-        filesWithManualAttributionCount: 3,
-        filesWithOnlyPreSelectedAttributionCount: 3,
-        filesWithOnlyExternalAttributionCount: 0,
-        resourcesWithNonInheritedExternalAttributionOnly: [],
-        filesWithHighlyCriticalExternalAttributionsCount: 1,
-        filesWithMediumCriticalExternalAttributionsCount: 1,
-        resourcesWithHighlyCriticalExternalAttributions: [],
-        resourcesWithMediumCriticalExternalAttributions: [],
+      const testProgressBarData: FileClassifications = {
+        withOnlyExternal: 0,
         classificationStatistics: {},
       };
 
@@ -172,16 +129,8 @@ describe('ProgressBar helpers', () => {
     it('works for only one classification level configured', () => {
       const classificationStatisticsEntry =
         faker.progressBar.classificationStatisticsEntry({}, 5);
-      const testProgressBarData: ProgressBarData = {
-        fileCount: 30,
-        filesWithManualAttributionCount: 3,
-        filesWithOnlyPreSelectedAttributionCount: 3,
-        filesWithOnlyExternalAttributionCount: 20,
-        resourcesWithNonInheritedExternalAttributionOnly: [],
-        filesWithHighlyCriticalExternalAttributionsCount: 1,
-        filesWithMediumCriticalExternalAttributionsCount: 1,
-        resourcesWithHighlyCriticalExternalAttributions: [],
-        resourcesWithMediumCriticalExternalAttributions: [],
+      const testProgressBarData: FileClassifications = {
+        withOnlyExternal: 20,
         classificationStatistics: { 0: classificationStatisticsEntry },
       };
 

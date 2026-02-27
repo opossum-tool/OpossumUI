@@ -37,6 +37,24 @@ export type ClassificationStatistics = Record<
   ClassificationStatisticsEntry
 >;
 
+export interface FileWithAttributionsCounts {
+  allFiles: number;
+  withNonPreSelectedManual: number;
+  withOnlyPreSelectedManual: number;
+  withOnlyExternal: number;
+}
+
+export interface FileWithCriticalAttributionsCounts {
+  withOnlyExternal: number;
+  withHighlyCritical: number;
+  withMediumCritical: number;
+}
+
+export interface FileClassifications {
+  withOnlyExternal: number;
+  classificationStatistics: ClassificationStatistics;
+}
+
 export interface ProgressBarData {
   fileCount: number;
   filesWithManualAttributionCount: number;

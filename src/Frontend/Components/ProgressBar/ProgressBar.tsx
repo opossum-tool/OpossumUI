@@ -69,6 +69,21 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     filesToForwardToForCriticality,
   );
 
+  const renamedProgressBarData = {
+    allFiles: props.progressBarData.fileCount,
+    withNonPreSelectedManual:
+      props.progressBarData.filesWithManualAttributionCount,
+    withOnlyPreSelectedManual:
+      props.progressBarData.filesWithOnlyPreSelectedAttributionCount,
+    withOnlyExternal:
+      props.progressBarData.filesWithOnlyExternalAttributionCount,
+    withHighlyCritical:
+      props.progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
+    withMediumCritical:
+      props.progressBarData.filesWithMediumCriticalExternalAttributionsCount,
+    classificationStatistics: props.progressBarData.classificationStatistics,
+  };
+
   const progressBarConfigurations: Record<
     SelectedProgressBar,
     {
@@ -81,19 +96,19 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     attribution: {
       Title: AttributionBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
-      steps: calculateAttributionBarSteps(props.progressBarData),
+      steps: calculateAttributionBarSteps(renamedProgressBarData),
       onClickHandler: onAttributionBarClick,
     },
     criticality: {
       Title: CriticalityBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
-      steps: calculateCriticalityBarSteps(props.progressBarData),
+      steps: calculateCriticalityBarSteps(renamedProgressBarData),
       onClickHandler: onCriticalityBarClick,
     },
     classification: {
       Title: ClassificationBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
-      steps: calculateClassificationBarSteps(props.progressBarData),
+      steps: calculateClassificationBarSteps(renamedProgressBarData),
       onClickHandler: onClassificationBarClick,
     },
   };
