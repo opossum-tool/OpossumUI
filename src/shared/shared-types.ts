@@ -339,6 +339,13 @@ export interface ProcessingStateUpdatedEvent {
   level: ProcessingStateUpdatedEventLevel;
 }
 
+export type Order = 'asc' | 'desc';
+
+export type TableOrdering = {
+  orderDirection: Order;
+  orderedColumn: string;
+};
+
 export interface UserSettings {
   qaMode: boolean;
   showProjectStatistics: boolean;
@@ -352,6 +359,7 @@ export interface UserSettings {
     signalsPanelHeight: number | null;
   };
   recentlyOpenedPaths: Array<string>;
+  attributionTableOrdering: TableOrdering;
 }
 
 export type PanelSizes = UserSettings['panelSizes'];

@@ -19,4 +19,8 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   showClassifications: true,
   panelSizes: DEFAULT_PANEL_SIZES,
   recentlyOpenedPaths: [],
+  attributionTableOrdering: {
+    orderDirection: 'asc',
+    orderedColumn: 'NAME',
+  },
 };
