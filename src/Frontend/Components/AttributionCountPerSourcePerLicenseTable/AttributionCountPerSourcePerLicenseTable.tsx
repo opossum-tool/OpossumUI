@@ -53,7 +53,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     props.licenseCounts.totalAttributionsPerSource,
   );
 
-  const [userSettings] = useUserSettings();
+  const [userSettings, updateUserSettings] = useUserSettings();
   const showCriticality = userSettings.showCriticality;
   const showClassifications = userSettings.showClassifications;
 
@@ -135,33 +135,37 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     ],
   );
 
-  const [ordering, setOrdering] = useState<TableOrdering>(defaultOrdering);
+  const [ordering, setOrdering] = useState<TableOrdering>(
+    userSettings.attributionTableSorting || defaultOrdering,
+  );
   const effectiveOrdering = columnConfig.getColumnById(ordering.orderedColumn)
     ? ordering
     : defaultOrdering;
 
   const handleRequestSort = (columnId: string, defaultOrder: Order) => {
+    let newOrdering: TableOrdering;
     if (
       effectiveOrdering !== ordering &&
       effectiveOrdering.orderedColumn === columnId
     ) {
-      setOrdering({
+      newOrdering = {
         ...effectiveOrdering,
         orderDirection:
           effectiveOrdering.orderDirection === 'asc' ? 'desc' : 'asc',
-      });
+      };
     } else if (ordering.orderedColumn === columnId) {
-      setOrdering((currentOrdering) => ({
-        ...currentOrdering,
-        orderDirection:
-          currentOrdering.orderDirection === 'asc' ? 'desc' : 'asc',
-      }));
+      newOrdering = {
+        ...ordering,
+        orderDirection: ordering.orderDirection === 'asc' ? 'desc' : 'asc',
+      };
     } else {
-      setOrdering({
+      newOrdering = {
         orderDirection: defaultOrder,
         orderedColumn: columnId,
-      });
+      };
     }
+    setOrdering(newOrdering);
+    updateUserSettings({ attributionTableSorting: newOrdering });
   };
 
   const orderedLicenseNames = useMemo(() => {

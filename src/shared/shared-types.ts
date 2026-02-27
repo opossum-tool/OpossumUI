@@ -11,6 +11,7 @@ import {
   CommandParams,
   CommandReturn,
 } from '../ElectronBackend/api/commands';
+import { TableOrdering } from '../Frontend/Components/AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable.util';
 import { AllowedFrontendChannels } from './ipc-channels';
 
 export interface Resources {
@@ -352,6 +353,7 @@ export interface UserSettings {
     signalsPanelHeight: number | null;
   };
   recentlyOpenedPaths: Array<string>;
+  attributionTableSorting: TableOrdering;
 }
 
 export type PanelSizes = UserSettings['panelSizes'];
