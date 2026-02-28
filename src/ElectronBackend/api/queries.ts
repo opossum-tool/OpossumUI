@@ -90,7 +90,9 @@ export const queries = {
       .executeTakeFirst();
 
     if (manualAttributionOnResource) {
-      return { result: JSON.parse(manualAttributionOnResource.data) as PackageInfo };
+      return {
+        result: JSON.parse(manualAttributionOnResource.data) as PackageInfo,
+      };
     }
 
     const ancestor =
@@ -113,7 +115,9 @@ export const queries = {
         .limit(1)
         .executeTakeFirstOrThrow();
 
-      return { result: JSON.parse(manualAttributionOnAncestor.data) as PackageInfo };
+      return {
+        result: JSON.parse(manualAttributionOnAncestor.data) as PackageInfo,
+      };
     }
 
     return { result: null };

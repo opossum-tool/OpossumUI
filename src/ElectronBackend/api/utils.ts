@@ -34,6 +34,7 @@ export async function removeRedundantAttributions(
     await getClosestAncestorWithManualAttributionsBelowBreakpoint(
       trx,
       resourceId,
+      { ignoreOwnAttributions: true },
     );
 
   // Starting at R, we go downwards in the tree until we arrive at a descendant that has attributions or is a breakpoint
@@ -69,7 +70,7 @@ export async function removeRedundantAttributions(
   let attributionsToCompareWithDescendants = resourceAttributions;
 
   // Delete R's attributions if they are equal to A's
-  if (closestAncestorId) {
+  if (closestAncestorId && closestAncestorId !== resourceId) {
     const closestAncestorAttributionsResult = await getManualAttributions(
       trx,
       closestAncestorId,
@@ -167,9 +168,14 @@ function getManualAttributions(dbOrTrx: Kysely<DB>, resourceId: number) {
 export async function getClosestAncestorWithManualAttributionsBelowBreakpoint(
   dbOrTrx: Kysely<DB>,
   resourceId: number,
+  options?: { ignoreOwnAttributions: boolean },
 ) {
   const ancestorWithAttributions =
-    await getClosestAncestorWithManualAttributions(dbOrTrx, resourceId);
+    await getClosestAncestorWithManualAttributions(
+      dbOrTrx,
+      resourceId,
+      options,
+    );
 
   if (!ancestorWithAttributions) {
     return undefined;
@@ -193,11 +199,16 @@ export async function getClosestAncestorWithManualAttributionsBelowBreakpoint(
 async function getClosestAncestorWithManualAttributions(
   dbOrTrx: Kysely<DB>,
   resourceId: number,
+  options?: { ignoreOwnAttributions: boolean },
 ): Promise<number | undefined> {
   const result = await dbOrTrx
     .selectFrom('resource')
     .select((eb) => eb.fn.max<number>('id').as('ancestor_id'))
-    .where((eb) => isAncestorOrSameAs(eb, resourceId))
+    .where((eb) =>
+      options?.ignoreOwnAttributions
+        ? isAncestorOf(eb, resourceId)
+        : isAncestorOrSameAs(eb, resourceId),
+    )
     .where((eb) =>
       eb.exists(
         eb
@@ -225,6 +236,16 @@ async function getClosestBreakpointAncestor(
     .executeTakeFirst();
 
   return result?.ancestor_id;
+}
+
+function isAncestorOf(
+  eb: ExpressionBuilder<DB, 'resource'>,
+  resourceId: number,
+) {
+  return eb.and([
+    eb('id', '<', resourceId),
+    eb('max_descendant_id', '>=', resourceId),
+  ]);
 }
 
 function isAncestorOrSameAs(
