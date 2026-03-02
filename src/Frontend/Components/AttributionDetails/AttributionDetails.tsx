@@ -14,7 +14,7 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
-import { useIsSelectedAttributionVisible } from '../../state/variables/use-filtered-data';
+import { useIsSelectedAttributionVisible } from '../../util/use-attribution-lists';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
 import {
   ConfirmationDialog,

@@ -7,29 +7,25 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
-import { faker } from '../../../../testing/Faker';
 import {
-  FilteredData,
-  initialFilteredAttributions,
-  UseFilteredData,
-} from '../../../state/variables/use-filtered-data';
+  AttributionFilters,
+  initialFilters,
+  UseAttributionFilters,
+} from '../../../state/variables/use-filters';
 import { renderComponent } from '../../../test-helpers/render';
 import { SortButton } from '../SortButton';
 import { SortOption } from '../useSortingOptions';
 
 describe('SortButton', () => {
   it('switches to selected sorting', async () => {
-    let result: FilteredData;
-    const prev: FilteredData = initialFilteredAttributions;
+    let result: AttributionFilters;
+    const prev: AttributionFilters = initialFilters;
     const setFilteredData = vi.fn((fn) => {
       result = fn(prev);
     });
     const sorting: SortOption = 'criticality';
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilteredAttributions,
-        attributions: faker.opossum.attributions(),
-      },
+    const useFilteredData: UseAttributionFilters = () => [
+      initialFilters,
       setFilteredData,
     ];
     await renderComponent(<SortButton useFilteredData={useFilteredData} />);
@@ -43,24 +39,20 @@ describe('SortButton', () => {
   });
 
   it('sort button is disabled when there are no attributions', async () => {
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilteredAttributions,
-        attributions: {},
-      },
+    const useFilteredData: UseAttributionFilters = () => [
+      initialFilters,
       vi.fn(),
     ];
-    await renderComponent(<SortButton useFilteredData={useFilteredData} />);
+    await renderComponent(
+      <SortButton useFilteredData={useFilteredData} disabled />,
+    );
 
     expect(screen.getByRole('button', { name: 'sort button' })).toBeDisabled();
   });
 
   it('shows all sort options', async () => {
-    const useFilteredData: UseFilteredData = () => [
-      {
-        ...initialFilteredAttributions,
-        attributions: faker.opossum.attributions(),
-      },
+    const useFilteredData: UseAttributionFilters = () => [
+      initialFilters,
       vi.fn(),
     ];
     await renderComponent(<SortButton useFilteredData={useFilteredData} />);

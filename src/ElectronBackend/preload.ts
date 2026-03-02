@@ -39,8 +39,10 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IpcChannel.UpdateUserSettings, userSettings),
   setFrontendPopupOpen: (open: boolean) =>
     ipcRenderer.invoke(IpcChannel.SetFrontendPopupOpen, open),
-  api: async (command, params) =>
-    ipcRenderer.invoke(IpcChannel.Api, command, params),
+  api: async (command, params) => {
+    console.log('Calling', command, params);
+    return ipcRenderer.invoke(IpcChannel.Api, command, params);
+  },
 };
 
 // This exposes an API to communicate from the window in the frontend with the backend

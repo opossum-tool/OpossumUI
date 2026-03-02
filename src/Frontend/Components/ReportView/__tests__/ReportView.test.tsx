@@ -9,11 +9,7 @@ import {
   Criticality,
   DiscreteConfidence,
 } from '../../../../shared/shared-types';
-import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
-import {
-  FILTERED_ATTRIBUTIONS_REPORT,
-  FilteredData,
-} from '../../../state/variables/use-filtered-data';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ReportView } from '../ReportView';
 
@@ -42,19 +38,12 @@ describe('ReportView', () => {
       },
     };
     await renderComponent(<ReportView />, {
-      actions: [
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_REPORT, {
-          attributions,
-          filters: [],
-          loading: false,
-          search: '',
-          selectedLicense: '',
-          sorting: 'alphabetically',
-        }),
-      ],
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: attributions,
+      }),
     });
 
-    expect(screen.getByText('Name')).toBeInTheDocument();
+    expect(await screen.findByText('Name')).toBeInTheDocument();
     expect(screen.getByText('License')).toBeInTheDocument();
 
     expect(screen.getByText('Version')).toBeInTheDocument();

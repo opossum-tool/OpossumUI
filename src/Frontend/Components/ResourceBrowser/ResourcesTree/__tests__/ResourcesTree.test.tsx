@@ -3,7 +3,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, Screen, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  Screen,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 
 import { Criticality } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
@@ -19,7 +25,16 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers
 import { renderComponent } from '../../../../test-helpers/render';
 import { ResourcesTree } from '../ResourcesTree';
 
-const defaultData = getParsedInputFileEnrichedWithTestData({});
+const defaultData = getParsedInputFileEnrichedWithTestData({
+  resources: {
+    root: { 'child.js': 1 },
+    thirdParty: {
+      'package_1.tr.gz': 1,
+      'package_2.tr.gz': 1,
+      'jQuery.js': 1,
+    },
+  },
+});
 
 describe('ResourcesTree', () => {
   it('renders tree nodes from provided resources', async () => {
@@ -68,7 +83,9 @@ describe('ResourcesTree', () => {
     );
 
     fireEvent.click(screen.getByText('root'));
-    expect(getSelectedResourceId(store.getState())).toBe('/root/');
+    await waitFor(() => {
+      expect(getSelectedResourceId(store.getState())).toBe('/root/');
+    });
   });
 
   it('renders correct icon for directory containing signals', async () => {

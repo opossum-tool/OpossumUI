@@ -24,8 +24,9 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
-import { UseFilteredData } from '../../../state/variables/use-filtered-data';
+import { UseAttributionFilters } from '../../../state/variables/use-filters';
 import { getRelationPriority } from '../../../util/sort-attributions';
+import { useFilteredAttributionsList } from '../../../util/use-attribution-lists';
 import { usePrevious } from '../../../util/use-previous';
 import { Checkbox } from '../../Checkbox/Checkbox';
 import { FilterButton } from '../../FilterButton/FilterButton';
@@ -64,23 +65,25 @@ export interface Alert {
 }
 
 interface Props {
+  external: boolean;
   alert?: Alert;
   availableFilters: Array<Filter>;
   children: (props: PackagesPanelChildrenProps) => React.ReactNode;
   disableSelectAll?: boolean;
-  useFilteredData: UseFilteredData;
+  useAttributionFilters: UseAttributionFilters;
   renderActions: (props: PackagesPanelChildrenProps) => React.ReactNode;
   testId?: string;
   filterProperties?: FilterProperties;
 }
 
 export const PackagesPanel = ({
+  external,
   alert,
   availableFilters,
   children,
   disableSelectAll,
   renderActions,
-  useFilteredData,
+  useAttributionFilters: useFilteredData,
   testId,
   filterProperties,
 }: Props) => {
@@ -94,7 +97,8 @@ export const PackagesPanel = ({
   const [activeRelation, setActiveRelation] = useState<Relation>('children');
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
 
-  const [{ attributions, loading }] = useFilteredData();
+  const { attributions, loading } = useFilteredAttributionsList({ external });
+
   const attributionIds = attributions && Object.keys(attributions);
 
   const groupedIds = useMemo(
@@ -226,6 +230,9 @@ export const PackagesPanel = ({
           <ButtonGroup>{renderActions(childrenProps)}</ButtonGroup>
           <ButtonGroup>
             <SortButton
+              disabled={
+                loading || !attributionIds || attributionIds.length === 0
+              }
               anchorPosition={'right'}
               useFilteredData={useFilteredData}
             />
@@ -234,6 +241,10 @@ export const PackagesPanel = ({
               availableFilters={availableFilters}
               anchorPosition={'right'}
               useFilteredData={useFilteredData}
+              disabled={loading}
+              emptyAttributions={
+                attributionIds !== null && attributionIds.length === 0
+              }
             />
           </ButtonGroup>
         </ActionBar>

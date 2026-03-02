@@ -10,9 +10,10 @@ import {
   ClassificationStatistics,
   ProgressBarData,
 } from '../../Frontend/types/types';
-import { ClassificationsConfig } from '../../shared/shared-types';
+import { ClassificationsConfig, PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
+import { listAttributions } from './listAttributions';
 import { getResourceTree } from './resourceTree';
 import {
   attributionToResourceRelationship,
@@ -20,6 +21,7 @@ import {
   getResourceOrThrow,
   mergeFilterProperties,
   removeTrailingSlash,
+  type ResourceRelationship,
   toSnakeCase,
 } from './utils';
 
@@ -40,11 +42,6 @@ export type FilterProperties = FilterCounts & {
   total: number;
   licenses: Array<string>;
 };
-export type ResourceRelationship =
-  | 'same'
-  | 'ancestor'
-  | 'descendant'
-  | 'unrelated';
 type AttributionCounts = Partial<
   Record<ResourceRelationship, FilterProperties>
 > &
@@ -64,6 +61,58 @@ export const queries = {
       .executeTakeFirst();
 
     return { result: result?.data ?? null };
+  },
+
+  async getManualAttributionOnResourceOrAncestor(props: {
+    resourcePath: string;
+  }) {
+    const resource = await getResourceOrThrow(getDb(), props.resourcePath);
+
+    const manualAttributionOnResource = await getDb()
+      .selectFrom('attribution')
+      .innerJoin(
+        'resource_to_attribution',
+        'attribution.uuid',
+        'resource_to_attribution.attribution_uuid',
+      )
+      .select('data')
+      .where('resource_id', '=', resource.id)
+      .where('attribution_is_external', '=', 0)
+      .limit(1)
+      .executeTakeFirst();
+
+    if (manualAttributionOnResource) {
+      return {
+        result: JSON.parse(manualAttributionOnResource.data) as PackageInfo,
+      };
+    }
+
+    const ancestor =
+      await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+        getDb(),
+        resource.id,
+      );
+
+    if (ancestor) {
+      const manualAttributionOnAncestor = await getDb()
+        .selectFrom('attribution')
+        .innerJoin(
+          'resource_to_attribution',
+          'attribution.uuid',
+          'resource_to_attribution.attribution_uuid',
+        )
+        .select('data')
+        .where('resource_id', '=', ancestor)
+        .where('attribution_is_external', '=', 0)
+        .limit(1)
+        .executeTakeFirstOrThrow();
+
+      return {
+        result: JSON.parse(manualAttributionOnAncestor.data) as PackageInfo,
+      };
+    }
+
+    return { result: null };
   },
 
   async autoCompleteOptions({
@@ -130,6 +179,8 @@ export const queries = {
     };
   },
 
+  listAttributions,
+
   async filterProperties(props: {
     external: boolean;
     filters: Array<Filter>;
@@ -158,7 +209,7 @@ export const queries = {
         attributionToResourceRelationship({
           resource,
           ancestorId: closestAncestor,
-        }),
+        }).as('relationship'),
       )
       .select((eb) => eb.fn.countAll<number>().as('total'))
       .select((eb) =>

@@ -8,7 +8,7 @@ import { TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 
 import { useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
-import { useFilteredAttributionsInReportView } from '../../state/variables/use-filtered-data';
+import { useFilteredReportsAttributionsList } from '../../util/use-attribution-lists';
 import { ReportTableHeader } from '../ReportTableHeader/ReportTableHeader';
 import {
   REPORT_VIEW_ROW_HEIGHT,
@@ -21,7 +21,8 @@ export const ReportView: React.FC = () => {
 
   const ref = useRef<TableVirtuosoHandle>(null);
 
-  const [{ attributions }] = useFilteredAttributionsInReportView();
+  const { attributions } = useFilteredReportsAttributionsList();
+
   const packageInfos = attributions && Object.values(attributions);
 
   const selectedIndex = useMemo(

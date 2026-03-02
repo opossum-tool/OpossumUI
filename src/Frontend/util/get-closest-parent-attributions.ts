@@ -5,24 +5,6 @@
 import { ResourcesToAttributions } from '../../shared/shared-types';
 import { getParentsUpToNextAttributionBreakpoint } from '../state/helpers/get-parents';
 
-export function getClosestParentAttributionIds(
-  path: string,
-  resourcesToManualAttributions: ResourcesToAttributions,
-  attributionBreakpoints: Set<string>,
-): Array<string> {
-  const parentResourceId = getClosestParentWithAttributions(
-    path,
-    resourcesToManualAttributions,
-    attributionBreakpoints,
-  );
-
-  if (parentResourceId) {
-    return resourcesToManualAttributions[parentResourceId];
-  }
-
-  return [];
-}
-
 export function getClosestParentWithAttributions(
   childId: string,
   resourcesToAttributions: ResourcesToAttributions,

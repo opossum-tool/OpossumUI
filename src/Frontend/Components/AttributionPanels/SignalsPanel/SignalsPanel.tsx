@@ -8,7 +8,7 @@ import { SIGNAL_FILTERS } from '../../../shared-constants';
 import { useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
-import { useFilteredSignals } from '../../../state/variables/use-filtered-data';
+import { useExternalAttributionFilters } from '../../../state/variables/use-filters';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { backend } from '../../../util/backendClient';
 import { PackagesPanel } from '../PackagesPanel/PackagesPanel';
@@ -25,7 +25,8 @@ export function SignalsPanel() {
   const [userSettings, updateUserSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
 
-  const [{ filters, search, selectedLicense }] = useFilteredSignals();
+  const [{ filters, search, selectedLicense }] =
+    useExternalAttributionFilters();
 
   const filterProps = backend.filterProperties.useQuery({
     external: true,
@@ -38,6 +39,7 @@ export function SignalsPanel() {
 
   return (
     <PackagesPanel
+      external={true}
       filterProperties={filterProps.data?.sameOrDescendant}
       availableFilters={SIGNAL_FILTERS}
       disableSelectAll={!!attributionIdsForReplacement.length}
@@ -57,7 +59,7 @@ export function SignalsPanel() {
           />
         </>
       )}
-      useFilteredData={useFilteredSignals}
+      useAttributionFilters={useExternalAttributionFilters}
       testId={'signals-panel'}
     >
       {(props) => <SignalsList {...props} />}

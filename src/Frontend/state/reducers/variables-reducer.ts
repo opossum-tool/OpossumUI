@@ -7,10 +7,10 @@ import { ACTION_RESET_RESOURCE_STATE } from '../actions/resource-actions/types';
 import { SET_VARIABLE } from '../actions/variables-actions/types';
 import { VariablesAction } from '../actions/variables-actions/variables-actions';
 import {
-  FILTERED_ATTRIBUTIONS_AUDIT,
-  FILTERED_ATTRIBUTIONS_REPORT,
-  FILTERED_SIGNALS,
-} from '../variables/use-filtered-data';
+  EXTERNAL_ATTRIBUTION_FILTERS,
+  MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+  MANUAL_ATTRIBUTION_FILTERS_REPORT,
+} from '../variables/use-filters';
 
 export type VariablesState = Record<string, unknown>;
 
@@ -21,9 +21,9 @@ export function variablesState(
   switch (action.type) {
     case ACTION_RESET_RESOURCE_STATE:
       return omit(state, [
-        FILTERED_ATTRIBUTIONS_AUDIT,
-        FILTERED_ATTRIBUTIONS_REPORT,
-        FILTERED_SIGNALS,
+        MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+        MANUAL_ATTRIBUTION_FILTERS_REPORT,
+        EXTERNAL_ATTRIBUTION_FILTERS,
       ]);
     case SET_VARIABLE:
       return {

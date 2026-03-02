@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
+import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { ROOT_PATH } from '../../../../shared-constants';
 import {
   setProjectMetadata,
@@ -16,13 +17,7 @@ import {
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
-import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
-import {
-  FILTERED_ATTRIBUTIONS_AUDIT,
-  FilteredData,
-  initialFilteredAttributions,
-} from '../../../../state/variables/use-filtered-data';
 import {
   expectManualAttributions,
   expectResourcesToManualAttributions,
@@ -41,19 +36,11 @@ describe('AttributionsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -73,20 +60,12 @@ describe('AttributionsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
       within(
-        screen.getByLabelText(
+        await screen.findByLabelText(
           `package card ${packageInfo.packageName}, ${packageInfo.packageVersion}`,
         ),
       ).getByRole('checkbox'),
@@ -127,19 +106,11 @@ describe('AttributionsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -162,19 +133,11 @@ describe('AttributionsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -201,19 +164,11 @@ describe('AttributionsPanel', () => {
           [filePath]: [packageInfo.id],
         },
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -239,19 +194,11 @@ describe('AttributionsPanel', () => {
           [filePath]: [packageInfo.id],
         },
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -271,30 +218,26 @@ describe('AttributionsPanel', () => {
 
   it('disables link button when only resource related attributions available', async () => {
     const filePath = faker.system.filePath();
-    const packageInfo = faker.opossum.packageInfo({ relation: 'resource' });
+    const packageInfo = faker.opossum.packageInfo();
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
     await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([filePath]),
         manualAttributions,
         resourcesToManualAttributions: {
           [filePath]: [packageInfo.id],
         },
       }),
       actions: [
+        setSelectedResourceId(filePath),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -312,26 +255,21 @@ describe('AttributionsPanel', () => {
     });
     await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([filePath]),
         manualAttributions,
-        attributionBreakpoints: new Set([filePath]),
-        resourcesToExternalAttributions: {
+        resourcesToManualAttributions: {
           [filePath]: [packageInfo.id],
         },
+        attributionBreakpoints: new Set([filePath]),
       }),
       actions: [
         setSelectedResourceId(filePath),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -352,19 +290,11 @@ describe('AttributionsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -391,19 +321,11 @@ describe('AttributionsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -424,20 +346,11 @@ describe('AttributionsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
       ),
     );
@@ -459,19 +372,11 @@ describe('AttributionsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -492,20 +397,11 @@ describe('AttributionsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
       ),
     );
@@ -542,20 +438,11 @@ describe('AttributionsPanel', () => {
           [packageInfo3.id]: packageInfo3,
         },
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
       ),
     );

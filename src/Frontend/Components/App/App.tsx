@@ -11,7 +11,6 @@ import { useAppSelector } from '../../state/hooks';
 import { getResources } from '../../state/selectors/resource-selectors';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { useInitUserSettings } from '../../state/variables/use-user-setting';
-import { useSignalsWorker } from '../../web-workers/use-signals-worker';
 import { AuditView } from '../AuditView/AuditView';
 import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
 import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
@@ -29,7 +28,6 @@ export function App() {
   const resources = useAppSelector(getResources);
   const selectedView = useAppSelector(getSelectedView);
 
-  useSignalsWorker();
   //pre-hydrate values
   useInitUserSettings();
 

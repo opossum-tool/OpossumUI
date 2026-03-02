@@ -9,7 +9,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
-import { UseFilteredData } from '../../state/variables/use-filtered-data';
+import { UseAttributionFilters } from '../../state/variables/use-filters';
 import {
   SelectMenu,
   SelectMenuOption,
@@ -21,17 +21,18 @@ interface Props extends Pick<
   SelectMenuProps,
   'anchorArrow' | 'anchorPosition'
 > {
-  useFilteredData: UseFilteredData;
+  useFilteredData: UseAttributionFilters;
+  disabled?: boolean;
 }
 
 export const SortButton: React.FC<Props> = ({
   useFilteredData,
   anchorArrow,
   anchorPosition,
+  disabled,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
-  const [{ sorting, attributions }, setFilteredAttributions] =
-    useFilteredData();
+  const [{ sorting }, setFilteredAttributions] = useFilteredData();
 
   const sortConfiguration = useSortConfiguration();
 
@@ -71,7 +72,6 @@ export const SortButton: React.FC<Props> = ({
     [sorting, sortConfiguration, setSorting],
   );
 
-  const disabled = !attributions || !Object.keys(attributions).length;
   const BadgeContent = sortConfiguration[sorting].icon;
 
   return (

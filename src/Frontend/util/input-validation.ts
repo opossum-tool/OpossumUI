@@ -47,29 +47,6 @@ export function isPackageAttributeIncomplete(
   }
 }
 
-export function isLegalInformationIncomplete(
-  packageInfo: PackageInfo,
-): boolean {
-  const keys = ['copyright', 'licenseName'] satisfies Array<keyof PackageInfo>;
-  return keys.some((attribute) =>
-    isPackageAttributeIncomplete(attribute, packageInfo),
-  );
-}
-
-export function arePackageCoordinatesIncomplete(
-  packageInfo: PackageInfo,
-): boolean {
-  const keys = [
-    'url',
-    'packageName',
-    'packageNamespace',
-    'packageType',
-  ] satisfies Array<keyof PackageInfo>;
-  return keys.some((attribute) =>
-    isPackageAttributeIncomplete(attribute, packageInfo),
-  );
-}
-
 export function isPackageInvalid(packageInfo: PackageInfo): boolean {
   return packageInfoKeys.some(
     (attribute) =>
