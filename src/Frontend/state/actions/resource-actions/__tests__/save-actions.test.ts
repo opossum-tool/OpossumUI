@@ -1141,7 +1141,7 @@ describe('The addToSelectedResource action', () => {
     expect(saveFileArgs.result).toEqual(expectedSaveFileArgs);
   });
 
-  it('saves resourcesToAttributions with path strings not numeric database ids', async () => {
+  it('saves resource to atrributions map correctly', async () => {
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: testManualAttributions,
       resolvedExternalAttributions: new Set(),

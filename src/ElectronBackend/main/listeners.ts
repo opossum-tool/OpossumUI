@@ -64,55 +64,65 @@ import { UserSettingsService } from './user-settings-service';
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
 export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
-  const getManualAttributions = await getDb()
-    .selectFrom('attribution')
-    .select(['uuid', 'data'])
-    .where('is_external', '=', 0)
-    .execute();
-  const manualAttributions: Attributions = Object.fromEntries(
-    getManualAttributions.map(({ uuid, data }) => [
-      uuid,
-      { ...(JSON.parse(data) as PackageInfo), id: uuid },
-    ]),
-  );
+  const transactionResult = await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      const manualAttributionsResult = await trx
+        .selectFrom('attribution')
+        .select(['uuid', 'data'])
+        .where('is_external', '=', 0)
+        .execute();
+      const manualAttributions: Attributions = Object.fromEntries(
+        manualAttributionsResult.map(({ uuid, data }) => [
+          uuid,
+          { ...(JSON.parse(data) as PackageInfo), id: uuid },
+        ]),
+      );
 
-  const getResourceToManualAttributions = await getDb()
-    .selectFrom('resource_to_attribution')
-    .innerJoin('resource', 'resource.id', 'resource_to_attribution.resource_id')
-    .select([
-      sql<string>`resource.path || IF(resource.can_have_children, '/', '')`.as(
-        'path',
-      ),
-      sql<string>`GROUP_CONCAT(resource_to_attribution.attribution_uuid)`.as(
-        'attribution_uuids',
-      ),
-    ])
-    .where('resource_to_attribution.attribution_is_external', '=', 0)
-    .groupBy('resource_to_attribution.resource_id')
-    .execute();
-  const resourcesToAttributions: ResourcesToAttributions = Object.fromEntries(
-    getResourceToManualAttributions.map((val) => [
-      val.path,
-      val.attribution_uuids.split(','),
-    ]),
-  );
+      const resourceToManualAttributionsResult = await trx
+        .selectFrom('resource_to_attribution')
+        .innerJoin(
+          'resource',
+          'resource.id',
+          'resource_to_attribution.resource_id',
+        )
+        .select([
+          sql<string>`IF(resource.is_file, resource.path, resource.path || '/')`.as(
+            'path',
+          ),
+          sql<string>`GROUP_CONCAT(resource_to_attribution.attribution_uuid)`.as(
+            'attribution_uuids',
+          ),
+        ])
+        .where('resource_to_attribution.attribution_is_external', '=', 0)
+        .groupBy('resource_to_attribution.resource_id')
+        .execute();
+      const resourcesToAttributions: ResourcesToAttributions =
+        Object.fromEntries(
+          resourceToManualAttributionsResult.map((val) => [
+            val.path,
+            val.attribution_uuids.split(','),
+          ]),
+        );
 
-  const getResolvedExternalAttributions = await getDb()
-    .selectFrom('attribution')
-    .select(sql<string>`GROUP_CONCAT(uuid)`.as('attribution_uuids'))
-    .where('is_resolved', '=', 1)
-    .where('is_external', '=', 1)
-    .executeTakeFirst();
-  const resolvedExternalAttributions = new Set(
-    getResolvedExternalAttributions?.attribution_uuids?.split(',') ?? [],
-  );
-  return {
-    result: {
-      manualAttributions,
-      resourcesToAttributions,
-      resolvedExternalAttributions,
-    },
-  };
+      const resolvedExternalAttributionsResult = await trx
+        .selectFrom('attribution')
+        .select('uuid')
+        .where('is_resolved', '=', 1)
+        .where('is_external', '=', 1)
+        .execute();
+      const resolvedExternalAttributions = new Set(
+        resolvedExternalAttributionsResult.map(({ uuid }) => uuid),
+      );
+
+      return {
+        manualAttributions,
+        resourcesToAttributions,
+        resolvedExternalAttributions,
+      };
+    });
+
+  return { result: transactionResult };
 }
 
 export const saveFileListener =
