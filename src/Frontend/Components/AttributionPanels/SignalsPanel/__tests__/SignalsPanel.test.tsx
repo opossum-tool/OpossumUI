@@ -7,19 +7,14 @@ import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
+import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { ROOT_PATH } from '../../../../shared-constants';
 import { setProjectMetadata } from '../../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   setResolvedExternalAttributions,
   setSelectedResourceId,
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
-import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
-import {
-  FILTERED_SIGNALS,
-  FilteredData,
-  initialFilteredAttributions,
-} from '../../../../state/variables/use-filtered-data';
 import {
   expectResolvedExternalAttributions,
   expectResourcesToManualAttributions,
@@ -38,19 +33,11 @@ describe('SignalsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -67,20 +54,12 @@ describe('SignalsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
       within(
-        screen.getByLabelText(
+        await screen.findByLabelText(
           `package card ${packageInfo.packageName}, ${packageInfo.packageVersion}`,
         ),
       ).getByRole('checkbox'),
@@ -98,19 +77,11 @@ describe('SignalsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -136,17 +107,11 @@ describe('SignalsPanel', () => {
       actions: [
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -168,12 +133,6 @@ describe('SignalsPanel', () => {
       actions: [
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
       ],
     });
 
@@ -181,7 +140,7 @@ describe('SignalsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.showDeleted }),
     );
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -201,22 +160,14 @@ describe('SignalsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.showDeleted }),
     );
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -238,22 +189,15 @@ describe('SignalsPanel', () => {
         resourcesToExternalAttributions: {
           [filePath]: [packageInfo.id],
         },
+        resources: pathsToResources([filePath]),
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await expectResourcesToManualAttributions(store.getState(), {});
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
@@ -279,21 +223,16 @@ describe('SignalsPanel', () => {
         resourcesToExternalAttributions: {
           [filePath]: [packageInfo.id],
         },
+        resources: pathsToResources([filePath]),
       }),
       actions: [
         setSelectedResourceId(filePath),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );

@@ -14,7 +14,7 @@ import { FilterProperties } from '../../../ElectronBackend/api/queries';
 import { text } from '../../../shared/text';
 import { Filter } from '../../shared-constants';
 import { baseIcon, OpossumColors } from '../../shared-styles';
-import { UseFilteredData } from '../../state/variables/use-filtered-data';
+import { UseAttributionFilters } from '../../state/variables/use-filters';
 import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
@@ -62,9 +62,11 @@ interface Props extends Pick<
   SelectMenuProps,
   'anchorArrow' | 'anchorPosition'
 > {
-  useFilteredData: UseFilteredData;
+  useFilteredData: UseAttributionFilters;
   availableFilters: Array<Filter>;
   filterProps?: FilterProperties;
+  disabled?: boolean;
+  emptyAttributions?: boolean;
 }
 
 export const FilterButton: React.FC<Props> = ({
@@ -73,10 +75,12 @@ export const FilterButton: React.FC<Props> = ({
   availableFilters,
   useFilteredData,
   filterProps,
+  disabled,
+  emptyAttributions,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const [isClearHovered, setIsClearHovered] = useState(false);
-  const [{ attributions, filters, selectedLicense }, setFilteredAttributions] =
+  const [{ filters, selectedLicense }, setFilteredAttributions] =
     useFilteredData();
   const isSomeFilterActive = !!filters.length || !!selectedLicense;
 
@@ -133,10 +137,7 @@ export const FilterButton: React.FC<Props> = ({
       <IconButton
         aria-label={'filter button'}
         onClick={(event) => setAnchorEl(event.currentTarget)}
-        disabled={
-          !attributions ||
-          (!Object.keys(attributions).length && !isSomeFilterActive)
-        }
+        disabled={disabled || (emptyAttributions && !isSomeFilterActive)}
         isClearHovered={isClearHovered}
         size={'small'}
         color={isSomeFilterActive ? 'primary' : undefined}

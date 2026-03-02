@@ -9,13 +9,7 @@ import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { View } from '../../../enums/enums';
 import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
-import {
-  FILTERED_ATTRIBUTIONS_AUDIT,
-  FilteredData,
-  initialFilteredAttributions,
-} from '../../../state/variables/use-filtered-data';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { AuditView } from '../AuditView';
@@ -39,18 +33,12 @@ describe('AuditView', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredData>(FILTERED_ATTRIBUTIONS_AUDIT, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-        }),
         navigateToView(View.Audit),
       ],
     });
 
     await userEvent.click(
-      screen.getByText(
+      await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
@@ -19,11 +19,6 @@ import {
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-ids-for-replacement';
-import {
-  FILTERED_SIGNALS,
-  FilteredData,
-  initialFilteredAttributions,
-} from '../../../state/variables/use-filtered-data';
 import {
   expectManualAttributions,
   expectResolvedExternalAttributions,
@@ -48,19 +43,20 @@ describe('AttributionDetails', () => {
 
   it('renders no buttons when the selected attribution is marked for replacement', async () => {
     const packageInfo = faker.opossum.packageInfo();
-    await renderComponent(<AttributionDetails />, {
+    const { container } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: { [packageInfo.id]: packageInfo },
+      }),
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: { [packageInfo.id]: packageInfo },
-        }),
         setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
           packageInfo.id,
         ]),
       ],
     });
+
+    await waitFor(() => expect(container).not.toBeEmptyDOMElement());
 
     expect(
       screen.queryByRole('button', { name: text.attributionColumn.replace }),
@@ -108,13 +104,6 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
         setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
           packageInfo2.id,
         ]),
@@ -122,7 +111,9 @@ describe('AttributionDetails', () => {
     });
 
     await userEvent.click(
-      screen.getByRole('button', { name: text.attributionColumn.replace }),
+      await screen.findByRole('button', {
+        name: text.attributionColumn.replace,
+      }),
     );
     await userEvent.click(
       screen.getByRole('button', {
@@ -161,18 +152,13 @@ describe('AttributionDetails', () => {
           packageName: newPackageName,
         }),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByRole('button', { name: text.attributionColumn.save }),
+      await screen.findByRole('button', {
+        name: text.attributionColumn.save,
+      }),
     );
 
     await expectManualAttributions(store.getState(), {
@@ -206,18 +192,13 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByRole('button', { name: text.attributionColumn.confirm }),
+      await screen.findByRole('button', {
+        name: text.attributionColumn.confirm,
+      }),
     );
 
     await expectManualAttributions(store.getState(), {
@@ -247,18 +228,13 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
       ],
     });
 
     expect(
-      screen.getByRole('button', { name: text.attributionColumn.save }),
+      await screen.findByRole('button', {
+        name: text.attributionColumn.save,
+      }),
     ).toBeDisabled();
   });
 
@@ -281,18 +257,13 @@ describe('AttributionDetails', () => {
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(packageInfo2),
         setSelectedAttributionId(packageInfo2.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByRole('button', { name: text.attributionColumn.link }),
+      await screen.findByRole('button', {
+        name: text.attributionColumn.link,
+      }),
     );
 
     await expectManualAttributions(store.getState(), {
@@ -318,6 +289,7 @@ describe('AttributionDetails', () => {
         resourcesToManualAttributions: {
           [resourceId]: [packageInfo1.id],
         },
+        resources: pathsToResources([resourceId]),
       }),
       actions: [
         setSelectedResourceId(resourceId),
@@ -326,18 +298,13 @@ describe('AttributionDetails', () => {
           packageName: faker.company.name(),
         }),
         setSelectedAttributionId(packageInfo2.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
       ],
     });
 
     expect(
-      screen.getByRole('button', { name: text.attributionColumn.link }),
+      await screen.findByRole('button', {
+        name: text.attributionColumn.link,
+      }),
     ).toBeDisabled();
   });
 
@@ -354,20 +321,16 @@ describe('AttributionDetails', () => {
         resourcesToManualAttributions: {
           [resourceId]: [packageInfo1.id],
         },
+        resources: pathsToResources([resourceId]),
       }),
       actions: [
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
       ],
     });
+
+    await screen.findByRole('button', { name: text.attributionColumn.save });
 
     expect(
       screen.queryByRole('button', { name: text.attributionColumn.link }),
@@ -393,18 +356,13 @@ describe('AttributionDetails', () => {
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByRole('button', { name: text.attributionColumn.delete }),
+      await screen.findByRole('button', {
+        name: text.attributionColumn.delete,
+      }),
     );
     await userEvent.click(
       screen.getByRole('button', { name: text.deleteAttributionsPopup.delete }),
@@ -430,6 +388,7 @@ describe('AttributionDetails', () => {
         resourcesToManualAttributions: {
           [resourceId]: [packageInfo1.id],
         },
+        resources: pathsToResources([resourceId]),
       }),
       actions: [
         setSelectedResourceId(resourceId),
@@ -438,18 +397,13 @@ describe('AttributionDetails', () => {
           packageName: faker.company.name(),
         }),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByRole('button', { name: text.attributionColumn.revert }),
+      await screen.findByRole('button', {
+        name: text.attributionColumn.revert,
+      }),
     );
 
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
@@ -479,18 +433,13 @@ describe('AttributionDetails', () => {
           packageName: faker.company.name(),
         }),
         setSelectedAttributionId(''),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [packageInfo1.id]: packageInfo1,
-            [packageInfo2.id]: packageInfo2,
-          },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByRole('button', { name: text.attributionColumn.revert }),
+      await screen.findByRole('button', {
+        name: text.attributionColumn.revert,
+      }),
     );
 
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
@@ -507,15 +456,13 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: { [packageInfo.id]: packageInfo },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByRole('button', { name: text.attributionColumn.delete }),
+      await screen.findByRole('button', {
+        name: text.attributionColumn.delete,
+      }),
     );
 
     await expectManualAttributions(store.getState(), {});
@@ -536,15 +483,13 @@ describe('AttributionDetails', () => {
         setResolvedExternalAttributions(new Set([packageInfo.id])),
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: { [packageInfo.id]: packageInfo },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByRole('button', { name: text.attributionColumn.restore }),
+      await screen.findByRole('button', {
+        name: text.attributionColumn.restore,
+      }),
     );
 
     await expectManualAttributions(store.getState(), {});
@@ -569,22 +514,17 @@ describe('AttributionDetails', () => {
         resourcesToManualAttributions: {
           [resourceId]: [attribution.id],
         },
+        resources: pathsToResources([resourceId]),
       }),
       actions: [
         setSelectedResourceId(resourceId),
         setTemporaryDisplayPackageInfo(attribution),
         setSelectedAttributionId(attribution.id),
-        setVariable<FilteredData>(FILTERED_SIGNALS, {
-          ...initialFilteredAttributions,
-          attributions: {
-            [attribution.id]: attribution,
-          },
-        }),
       ],
     });
 
     await userEvent.click(
-      screen.getByRole('button', {
+      await screen.findByRole('button', {
         name: text.attributionColumn.compareToOriginal,
       }),
     );
