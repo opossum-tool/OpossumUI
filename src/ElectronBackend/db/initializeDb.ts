@@ -398,7 +398,7 @@ async function initializeResourceToAttributionTable(
     ...Object.entries(externalAttributions.resourcesToAttributions),
     ...Object.entries(manualAttributions.resourcesToAttributions),
   ]) {
-    const normalizedPath = resourcePath.replace(/\/$/, '') || '/';
+    const normalizedPath = removeTrailingSlash(resourcePath);
     const resourceId = resourcePathToId.get(normalizedPath);
     if (resourceId === undefined) {
       continue;
