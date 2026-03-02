@@ -2,44 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Criticality, ParsedFileContent } from '../../../shared/shared-types';
+import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { pathsToResources } from '../../../testing/global-test-helpers';
-import { initializeDb } from '../../db/initializeDb';
+import {
+  initializeDbWithTestData,
+  pathsToResources,
+} from '../../../testing/global-test-helpers';
 import { queries } from '../queries';
-
-function makeFileContent(
-  overrides: Partial<ParsedFileContent> & Pick<ParsedFileContent, 'resources'>,
-): ParsedFileContent {
-  return {
-    metadata: { projectId: '', fileCreationDate: '' },
-    config: { classifications: {} },
-    manualAttributions: {
-      attributions: {},
-      resourcesToAttributions: {},
-      attributionsToResources: {},
-    },
-    externalAttributions: {
-      attributions: {},
-      resourcesToAttributions: {},
-      attributionsToResources: {},
-    },
-    frequentLicenses: { nameOrder: [], texts: {} },
-    resolvedExternalAttributions: new Set(),
-    attributionBreakpoints: new Set(),
-    filesWithChildren: new Set(),
-    baseUrlsForSources: {},
-    externalAttributionSources: {},
-    ...overrides,
-  };
-}
 
 describe('filterProperties', () => {
   async function setupDb(options?: { resolved?: Array<string> }) {
-    await initializeDb({
-      metadata: { projectId: '', fileCreationDate: '' },
+    await initializeDbWithTestData({
       resources: pathsToResources(['/parent/target/child', '/parent/sibling']),
-      config: { classifications: {} },
       manualAttributions: {
         attributions: {
           'manual-parent': { id: 'manual-parent', criticality: 0 },
@@ -82,12 +56,7 @@ describe('filterProperties', () => {
           'ext-unrelated': ['/parent/sibling'],
         },
       },
-      frequentLicenses: { nameOrder: [], texts: {} },
       resolvedExternalAttributions: new Set(options?.resolved ?? []),
-      attributionBreakpoints: new Set(),
-      filesWithChildren: new Set(),
-      baseUrlsForSources: {},
-      externalAttributionSources: {},
     });
   }
 
@@ -232,11 +201,9 @@ describe('filterProperties', () => {
 
 describe('getNodePathsToExpand', () => {
   it('returns only the starting node when it has multiple children', async () => {
-    await initializeDb(
-      makeFileContent({
-        resources: { src: { 'a.ts': 1, 'b.ts': 1 } },
-      }),
-    );
+    await initializeDbWithTestData({
+      resources: { src: { 'a.ts': 1, 'b.ts': 1 } },
+    });
 
     const { result } = await queries.getNodePathsToExpand({
       fromNodePath: '/src/',
@@ -246,11 +213,9 @@ describe('getNodePathsToExpand', () => {
   });
 
   it('follows single-child chain and stops at branching point', async () => {
-    await initializeDb(
-      makeFileContent({
-        resources: { a: { b: { 'x.ts': 1, 'y.ts': 1 } } },
-      }),
-    );
+    await initializeDbWithTestData({
+      resources: { a: { b: { 'x.ts': 1, 'y.ts': 1 } } },
+    });
 
     const { result } = await queries.getNodePathsToExpand({
       fromNodePath: '/a/',
@@ -260,11 +225,9 @@ describe('getNodePathsToExpand', () => {
   });
 
   it('follows single-child chain and stops at leaf', async () => {
-    await initializeDb(
-      makeFileContent({
-        resources: { a: { b: { 'file.ts': 1 } } },
-      }),
-    );
+    await initializeDbWithTestData({
+      resources: { a: { b: { 'file.ts': 1 } } },
+    });
 
     const { result } = await queries.getNodePathsToExpand({
       fromNodePath: '/a/',
@@ -276,21 +239,19 @@ describe('getNodePathsToExpand', () => {
 
 describe('getResourcePathsAndParentsForAttributions', () => {
   beforeEach(async () => {
-    await initializeDb(
-      makeFileContent({
-        resources: pathsToResources([
-          '/src/linked/file.ts',
-          '/src/unlinked/other.ts',
-        ]),
-        externalAttributions: {
-          attributions: {
-            uuid1: { id: 'uuid1', criticality: 0 },
-          },
-          resourcesToAttributions: { '/src/linked/file.ts': ['uuid1'] },
-          attributionsToResources: { uuid1: ['/src/linked/file.ts'] },
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/src/linked/file.ts',
+        '/src/unlinked/other.ts',
+      ]),
+      externalAttributions: {
+        attributions: {
+          uuid1: { id: 'uuid1', criticality: 0 },
         },
-      }),
-    );
+        resourcesToAttributions: { '/src/linked/file.ts': ['uuid1'] },
+        attributionsToResources: { uuid1: ['/src/linked/file.ts'] },
+      },
+    });
   });
 
   it('returns ancestor paths of linked resources', async () => {
@@ -315,21 +276,19 @@ describe('getResourcePathsAndParentsForAttributions', () => {
   });
 
   it('prioritizes the given resource and its parents', async () => {
-    await initializeDb(
-      makeFileContent({
-        resources: pathsToResources(['/alpha/file.ts', '/beta/file.ts']),
-        externalAttributions: {
-          attributions: { uuid1: { id: 'uuid1', criticality: 0 } },
-          resourcesToAttributions: {
-            '/alpha/file.ts': ['uuid1'],
-            '/beta/file.ts': ['uuid1'],
-          },
-          attributionsToResources: {
-            uuid1: ['/alpha/file.ts', '/beta/file.ts'],
-          },
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/alpha/file.ts', '/beta/file.ts']),
+      externalAttributions: {
+        attributions: { uuid1: { id: 'uuid1', criticality: 0 } },
+        resourcesToAttributions: {
+          '/alpha/file.ts': ['uuid1'],
+          '/beta/file.ts': ['uuid1'],
         },
-      }),
-    );
+        attributionsToResources: {
+          uuid1: ['/alpha/file.ts', '/beta/file.ts'],
+        },
+      },
+    });
 
     const { result } = await queries.getResourcePathsAndParentsForAttributions({
       attributionUuids: ['uuid1'],
@@ -344,25 +303,23 @@ describe('getResourcePathsAndParentsForAttributions', () => {
 
 describe('isResourceLinkedOnAllAttributions', () => {
   beforeEach(async () => {
-    await initializeDb(
-      makeFileContent({
-        resources: pathsToResources(['/linked', '/partial']),
-        externalAttributions: {
-          attributions: {
-            uuid1: { id: 'uuid1', criticality: 0 },
-            uuid2: { id: 'uuid2', criticality: 0 },
-          },
-          resourcesToAttributions: {
-            '/linked': ['uuid1', 'uuid2'],
-            '/partial': ['uuid1'],
-          },
-          attributionsToResources: {
-            uuid1: ['/linked', '/partial'],
-            uuid2: ['/linked'],
-          },
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/linked', '/partial']),
+      externalAttributions: {
+        attributions: {
+          uuid1: { id: 'uuid1', criticality: 0 },
+          uuid2: { id: 'uuid2', criticality: 0 },
         },
-      }),
-    );
+        resourcesToAttributions: {
+          '/linked': ['uuid1', 'uuid2'],
+          '/partial': ['uuid1'],
+        },
+        attributionsToResources: {
+          uuid1: ['/linked', '/partial'],
+          uuid2: ['/linked'],
+        },
+      },
+    });
   });
 
   it('returns true when resource is linked to all given attributions', async () => {
@@ -385,29 +342,8 @@ describe('isResourceLinkedOnAllAttributions', () => {
 });
 
 describe('getProgressBarData', () => {
-  const emptyAttributions = {
-    attributions: {},
-    resourcesToAttributions: {},
-    attributionsToResources: {},
-  };
-
-  const baseFileContent: ParsedFileContent = {
-    metadata: { projectId: '', fileCreationDate: '' },
-    resources: {},
-    config: { classifications: {} },
-    manualAttributions: emptyAttributions,
-    externalAttributions: emptyAttributions,
-    frequentLicenses: { nameOrder: [], texts: {} },
-    resolvedExternalAttributions: new Set(),
-    attributionBreakpoints: new Set(),
-    filesWithChildren: new Set(),
-    baseUrlsForSources: {},
-    externalAttributionSources: {},
-  };
-
   it('returns zero counts when there are no attributions', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/src/file.ts']),
     });
 
@@ -425,8 +361,7 @@ describe('getProgressBarData', () => {
   });
 
   it('counts only files in fileCount, not directories', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/dir', '/dir/file1.ts', '/dir/file2.ts']),
     });
 
@@ -438,8 +373,7 @@ describe('getProgressBarData', () => {
   });
 
   it('counts files with manual attributions', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/attributed.ts', '/unattributed.ts']),
       manualAttributions: {
         attributions: {
@@ -461,8 +395,7 @@ describe('getProgressBarData', () => {
   });
 
   it('counts files with only preselected attributions separately from manual', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/preselected.ts', '/manual.ts']),
       manualAttributions: {
         attributions: {
@@ -493,8 +426,7 @@ describe('getProgressBarData', () => {
   });
 
   it('does not count a file as only-preselected when it also has a real manual attribution', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/mixed.ts']),
       manualAttributions: {
         attributions: {
@@ -524,8 +456,7 @@ describe('getProgressBarData', () => {
   });
 
   it('counts files with only external attributions', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/external.ts', '/clean.ts']),
       externalAttributions: {
         attributions: {
@@ -545,8 +476,7 @@ describe('getProgressBarData', () => {
   });
 
   it('inherits manual attributions from parent to descendant files', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/parent/child.ts']),
       manualAttributions: {
         attributions: {
@@ -569,8 +499,7 @@ describe('getProgressBarData', () => {
   });
 
   it('attribution breakpoints prevent manual attribution inheritance', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources([
         '/parent/breakpoint/child.ts',
         '/parent/sibling.ts',
@@ -598,8 +527,7 @@ describe('getProgressBarData', () => {
   });
 
   it('inherits preselected attributions from parent to descendant files', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/parent/child.ts']),
       manualAttributions: {
         attributions: {
@@ -623,8 +551,7 @@ describe('getProgressBarData', () => {
   });
 
   it('attribution breakpoints prevent preselected attribution inheritance', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/parent/breakpoint/child.ts']),
       manualAttributions: {
         attributions: {
@@ -650,8 +577,7 @@ describe('getProgressBarData', () => {
   });
 
   it('counts medium critical external attributions', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/medium.ts', '/high.ts', '/none.ts']),
       externalAttributions: {
         attributions: {
@@ -685,8 +611,7 @@ describe('getProgressBarData', () => {
   });
 
   it('populates path lists for resources with non-inherited critical external attributions', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/medium.ts', '/high.ts']),
       externalAttributions: {
         attributions: {
@@ -726,8 +651,7 @@ describe('getProgressBarData', () => {
   });
 
   it('does not include resources with manual attributions in non-inherited external attribution lists', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/file.ts']),
       externalAttributions: {
         attributions: {
@@ -756,8 +680,7 @@ describe('getProgressBarData', () => {
   });
 
   it('excludes resolved external attributions from all counts', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/file.ts']),
       externalAttributions: {
         attributions: {
@@ -782,8 +705,7 @@ describe('getProgressBarData', () => {
   });
 
   it('returns classification statistics with corresponding file paths', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/classified.ts', '/unclassified.ts']),
       externalAttributions: {
         attributions: {
@@ -822,7 +744,7 @@ describe('getProgressBarData', () => {
   });
 
   it('returns empty corresponding files for classifications with no matches', async () => {
-    await initializeDb({ ...baseFileContent });
+    await initializeDbWithTestData();
 
     const { result } = await queries.getProgressBarData({
       classifications: {
@@ -834,8 +756,7 @@ describe('getProgressBarData', () => {
   });
 
   it('does not include files with manual attributions in classification statistics', async () => {
-    await initializeDb({
-      ...baseFileContent,
+    await initializeDbWithTestData({
       resources: pathsToResources(['/file.ts']),
       externalAttributions: {
         attributions: {

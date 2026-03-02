@@ -7,7 +7,9 @@ import { BrowserWindow, dialog, WebContents } from 'electron';
 import * as MockDate from 'mockdate';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import { Criticality } from '../../../shared/shared-types';
 import { writeFile } from '../../../shared/write-file';
+import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
 import { setGlobalBackendState } from '../globalBackendState';
 import { saveFileListener } from '../listeners';
 
@@ -45,14 +47,7 @@ describe('getSaveFileListener', () => {
     } as unknown as BrowserWindow;
     setGlobalBackendState({});
 
-    await saveFileListener(mainWindow)(
-      AllowedFrontendChannels.SaveFileRequest,
-      {
-        manualAttributions: {},
-        resourcesToAttributions: {},
-        resolvedExternalAttributions: new Set(),
-      },
-    );
+    await saveFileListener(mainWindow)(AllowedFrontendChannels.SaveFileRequest);
 
     expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -71,18 +66,13 @@ describe('getSaveFileListener', () => {
     } as unknown as BrowserWindow;
     setGlobalBackendState({});
 
+    await initializeDbWithTestData();
+
     setGlobalBackendState({
       projectId: 'uuid_1',
     });
 
-    await saveFileListener(mainWindow)(
-      AllowedFrontendChannels.SaveFileRequest,
-      {
-        manualAttributions: {},
-        resourcesToAttributions: {},
-        resolvedExternalAttributions: new Set(),
-      },
-    );
+    await saveFileListener(mainWindow)(AllowedFrontendChannels.SaveFileRequest);
 
     expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -107,17 +97,25 @@ describe('getSaveFileListener', () => {
 
       const listener = saveFileListener(mainWindow);
 
+      await initializeDbWithTestData({
+        externalAttributions: {
+          attributions: {
+            id_1: { id: 'id_1', criticality: Criticality.None },
+            id_2: { id: 'id_2', criticality: Criticality.None },
+          },
+          resourcesToAttributions: {},
+          attributionsToResources: {},
+        },
+        resolvedExternalAttributions: new Set(['id_1', 'id_2']),
+      });
+
       setGlobalBackendState({
         resourceFilePath: '/resourceFile.json',
         attributionFilePath: '/attributionFile.json',
         projectId: 'uuid_1',
       });
 
-      await listener(AllowedFrontendChannels.SaveFileRequest, {
-        manualAttributions: {},
-        resourcesToAttributions: {},
-        resolvedExternalAttributions: new Set<string>().add('id_1').add('id_2'),
-      });
+      await listener(AllowedFrontendChannels.SaveFileRequest);
 
       expect(writeFile).toHaveBeenCalledWith({
         path: '/attributionFile.json',

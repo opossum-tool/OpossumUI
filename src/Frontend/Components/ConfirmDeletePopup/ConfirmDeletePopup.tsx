@@ -63,15 +63,15 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
     linkedResourceCount > 1 &&
     isResourceLinkedOnAllAttributions.data;
 
-  const handleDelete = () => {
-    dispatch(
+  const handleDelete = async () => {
+    await dispatch(
       deleteAttributionsAndSave(attributionIdsToDelete, selectedAttributionId),
     );
     onClose();
   };
 
-  const handleDeleteOnResource = () => {
-    dispatch(
+  const handleDeleteOnResource = async () => {
+    await dispatch(
       unlinkAttributionAndSave(selectedResourceId, attributionIdsToDelete),
     );
     onClose();

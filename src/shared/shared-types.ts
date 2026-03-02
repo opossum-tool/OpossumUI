@@ -290,7 +290,7 @@ export interface ElectronAPI {
     fileType: FileType,
   ) => Promise<boolean>;
   exportFile: (args: ExportArgsType) => void;
-  saveFile: (saveFileArgs: SaveFileArgs) => void;
+  saveFile: () => void;
   /**
    * @deprecated see https://github.com/opossum-tool/OpossumUI/issues/2812
    */

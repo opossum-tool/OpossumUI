@@ -34,17 +34,17 @@ export const ConfirmReplacePopup = ({
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
 
-  const handleReplace = () => {
+  const handleReplace = async () => {
     setAttributionIdsForReplacement([]);
     onClose();
     dispatch(changeSelectedAttributionOrOpenUnsavedPopup(selectedAttribution));
     if (selectedAttribution.preSelected) {
-      dispatch(
+      await dispatch(
         savePackageInfo(null, selectedAttribution.id, selectedAttribution),
       );
     }
-    attributionIdsForReplacement.forEach((attributionId) => {
-      dispatch(
+    attributionIdsForReplacement.forEach(async (attributionId) => {
+      await dispatch(
         savePackageInfo(
           null,
           attributionId,
