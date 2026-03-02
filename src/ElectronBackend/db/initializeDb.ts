@@ -379,6 +379,7 @@ async function initializeResourceToAttributionTable(
       col.notNull().references('attribution.uuid').onDelete('cascade'),
     )
     .addColumn('attribution_is_external', 'integer', (col) => col.notNull()) // Denormalization for faster lookups
+    .addColumn('attribution_pre_selected', 'integer', (col) => col.notNull())
     .addPrimaryKeyConstraint('resource_to_attribution_pk', [
       'resource_id',
       'attribution_uuid',
@@ -389,9 +390,9 @@ async function initializeResourceToAttributionTable(
   const rawDb = getRawDb();
   const insertStmt = rawDb.prepare(`
     INSERT OR IGNORE INTO resource_to_attribution
-      (resource_id, attribution_uuid, attribution_is_external)
+      (resource_id, attribution_uuid, attribution_is_external, attribution_pre_selected)
     VALUES
-      ($resource_id, $attribution_uuid, (select is_external from attribution where uuid = $attribution_uuid))
+      ($resource_id, $attribution_uuid, (select is_external from attribution where uuid = $attribution_uuid), (select pre_selected from attribution where uuid = $attribution_uuid))
   `);
 
   for (const [resourcePath, attributionUuids] of [
@@ -422,6 +423,7 @@ async function initializeResourceToAttributionTable(
     )
     .on('resource_to_attribution')
     .column('attribution_is_external')
+    .column('attribution_pre_selected')
     .column('resource_id')
     .execute();
 }

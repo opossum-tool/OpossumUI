@@ -88,6 +88,7 @@ export interface ResourceToAttribution {
    * Denormalized data for faster checking if a resource has manual/external attribution
    */
   attribution_is_external: number;
+  attribution_pre_selected: number;
   attribution_uuid: string;
   resource_id: number;
 }

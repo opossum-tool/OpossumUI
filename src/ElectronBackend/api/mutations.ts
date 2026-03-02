@@ -185,6 +185,7 @@ export const mutations = {
             resource_id: resource.id,
             attribution_uuid: params.attributionUuid,
             attribution_is_external: attribution.is_external,
+            attribution_pre_selected: attribution.pre_selected,
           })
           .onConflict((oc) => oc.doNothing())
           .execute();
@@ -244,6 +245,7 @@ export const mutations = {
             resource_id: resource.id,
             attribution_uuid: params.attributionUuid,
             attribution_is_external: 0,
+            attribution_pre_selected: params.packageInfo.preSelected ? 1 : 0,
           })
           .execute();
       });

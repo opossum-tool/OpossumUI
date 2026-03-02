@@ -120,7 +120,7 @@ export async function getAttributionOrThrow(
 ) {
   const attribution = await dbOrTrx
     .selectFrom('attribution')
-    .select('is_external')
+    .select(['is_external', 'pre_selected'])
     .where('uuid', '=', attributionUuid)
     .executeTakeFirst();
 
