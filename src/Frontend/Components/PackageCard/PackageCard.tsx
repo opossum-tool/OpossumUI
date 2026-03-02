@@ -186,7 +186,7 @@ export const PackageCard = memo(
           />
         )}
         <MuiBox sx={classes.innerRoot} onClick={onClick}>
-          {packageInfo.count && (
+          {packageInfo.count !== undefined && (
             <MuiTooltip
               title={maybePluralize(
                 packageInfo.count,

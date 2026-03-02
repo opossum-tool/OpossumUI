@@ -197,8 +197,6 @@ export const queries = {
     showResolved?: boolean;
     excludeUnrelated?: boolean;
   }): Promise<{ result: Attributions }> {
-    console.log('Starting listAttributions');
-    console.time(`ListAttributions ${JSON.stringify(props)}`);
     const db = getDb();
     const resource = await getResourceOrThrow(
       db,
@@ -287,11 +285,7 @@ export const queries = {
         .end(),
     );
 
-    //query = query.limit(5)
-
     const attributions = await query.execute();
-
-    console.timeEnd(`ListAttributions ${JSON.stringify(props)}`);
 
     const backendToFrontendRelationship = {
       same: 'resource',
