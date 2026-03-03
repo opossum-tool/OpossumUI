@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { expect } from '@playwright/test';
+
 import { Criticality, RawCriticality } from '../../shared/shared-types';
 import { faker, test } from '../utils';
 
@@ -96,4 +98,46 @@ test('hidden signals are ignored for project statistics', async ({
   await projectStatisticsPopup.detailsTab.click();
 
   await projectStatisticsPopup.assert.totalSignalCount(1);
+});
+
+test('table sorting is persisted across app restarts', async ({
+  menuBar,
+  projectStatisticsPopup,
+}) => {
+  const openDetailsTab = async () => {
+    await menuBar.openProjectStatistics();
+    await projectStatisticsPopup.assert.titleIsVisible();
+    await projectStatisticsPopup.detailsTab.click();
+  };
+
+  await openDetailsTab();
+
+  const criticalityColumnHeader = projectStatisticsPopup.table.getByRole(
+    'button',
+    { name: 'Criticality' },
+  );
+  await criticalityColumnHeader.click();
+
+  const sortedCriticalityColumn = criticalityColumnHeader.locator('..');
+  await expect(sortedCriticalityColumn).toHaveAttribute(
+    'aria-sort',
+    'descending',
+  );
+
+  await criticalityColumnHeader.click();
+  await expect(sortedCriticalityColumn).toHaveAttribute(
+    'aria-sort',
+    'ascending',
+  );
+
+  await projectStatisticsPopup.closeButton.click();
+  await openDetailsTab();
+
+  const reopenedCriticalityColumn = projectStatisticsPopup.table
+    .getByRole('button', { name: 'Criticality' })
+    .locator('..');
+  await expect(reopenedCriticalityColumn).toHaveAttribute(
+    'aria-sort',
+    'ascending',
+  );
 });
