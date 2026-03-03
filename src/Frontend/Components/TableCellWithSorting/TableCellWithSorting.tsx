@@ -9,7 +9,7 @@ import { SxProps } from '@mui/system';
 import { visuallyHidden } from '@mui/utils';
 import { PropsWithChildren } from 'react';
 
-export type Order = 'asc' | 'desc';
+import { Order } from '../../../shared/shared-types';
 
 interface TableCellWithSortingProps extends PropsWithChildren {
   order: Order;

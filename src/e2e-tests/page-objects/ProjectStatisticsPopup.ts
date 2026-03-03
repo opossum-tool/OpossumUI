@@ -11,6 +11,7 @@ export class ProjectStatisticsPopup {
   readonly title: Locator;
   readonly closeButton: Locator;
   readonly detailsTab: Locator;
+  readonly table: Locator;
   readonly totalSignalCount: Locator;
   readonly attributionsOverviewChart: Locator;
   readonly mostFrequentLicensesChart: Locator;
@@ -26,6 +27,7 @@ export class ProjectStatisticsPopup {
     this.detailsTab = this.node.getByRole('tab', {
       name: text.projectStatisticsPopup.tabs.details,
     });
+    this.table = this.node.getByRole('table');
     this.totalSignalCount = this.node
       .getByRole('table')
       .filter({

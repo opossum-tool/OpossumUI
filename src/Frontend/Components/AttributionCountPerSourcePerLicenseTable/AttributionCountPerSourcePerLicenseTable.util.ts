@@ -5,13 +5,12 @@
 import { TableCellProps } from '@mui/material';
 import { orderBy } from 'lodash';
 
-import { Criticality } from '../../../shared/shared-types';
+import { Criticality, Order } from '../../../shared/shared-types';
 import {
   LicenseCounts,
   LicenseNamesWithClassification,
   LicenseNamesWithCriticality,
 } from '../../types/types';
-import { Order } from '../TableCellWithSorting/TableCellWithSorting';
 
 export enum SingleColumn {
   NAME = 'NAME',
@@ -54,11 +53,6 @@ export class ColumnConfig {
     return this.getColumns().find((column) => column.columnId === id);
   }
 }
-
-export type TableOrdering = {
-  orderDirection: Order;
-  orderedColumn: string;
-};
 
 export function orderLicenseNames(
   licenseNamesWithCriticality: LicenseNamesWithCriticality,

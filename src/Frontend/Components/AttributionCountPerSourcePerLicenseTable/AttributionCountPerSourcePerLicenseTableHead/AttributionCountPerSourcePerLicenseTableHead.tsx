@@ -7,15 +7,10 @@ import MuiTableHead from '@mui/material/TableHead';
 import MuiTableRow from '@mui/material/TableRow';
 import { SxProps } from '@mui/system';
 
+import { Order, TableOrdering } from '../../../../shared/shared-types';
 import { tableClasses } from '../../../shared-styles';
-import {
-  Order,
-  TableCellWithSorting,
-} from '../../TableCellWithSorting/TableCellWithSorting';
-import {
-  ColumnConfig,
-  TableOrdering,
-} from '../AttributionCountPerSourcePerLicenseTable.util';
+import { TableCellWithSorting } from '../../TableCellWithSorting/TableCellWithSorting';
+import { ColumnConfig } from '../AttributionCountPerSourcePerLicenseTable.util';
 
 const classes = {
   headerCellWithVerticalSeparator: {
