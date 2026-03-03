@@ -29,8 +29,8 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
       size={'small'}
       onClick={() => {
         attributions &&
-          selectedAttributionIds.forEach((attributionId) => {
-            dispatch(addToSelectedResource(attributions[attributionId]));
+          selectedAttributionIds.forEach(async (attributionId) => {
+            await dispatch(addToSelectedResource(attributions[attributionId]));
           });
         setMultiSelectedAttributionIds([]);
       }}

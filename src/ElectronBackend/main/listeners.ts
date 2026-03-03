@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, shell } from 'electron';
 import fs from 'fs';
+import { sql } from 'kysely';
 import { uniq } from 'lodash';
 import path from 'path';
 import upath from 'upath';
@@ -12,6 +13,7 @@ import upath from 'upath';
 import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
+  Attributions,
   ExportArgsType,
   ExportCompactBomArgs,
   ExportDetailedBomArgs,
@@ -23,10 +25,12 @@ import {
   FileType,
   OpenLinkArgs,
   PackageInfo,
+  ResourcesToAttributions,
   SaveFileArgs,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
+import { getDb } from '../db/db';
 import { LoadedFileFormat } from '../enums/enums';
 import {
   sendListenerErrorToFrontend,
@@ -59,26 +63,90 @@ import { UserSettingsService } from './user-settings-service';
 
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
+export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
+  const queryResults = await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      const manualAttributionsResult = await trx
+        .selectFrom('attribution')
+        .select(['uuid', 'data'])
+        .where('is_external', '=', 0)
+        .execute();
+
+      const resourcesToAttributionsResult = await trx
+        .selectFrom('resource_to_attribution')
+        .innerJoin('resource', 'id', 'resource_id')
+        .select([
+          sql<string>`path || IF(is_file, '', '/')`.as('path'),
+          sql<string>`json_group_array(attribution_uuid)`.as(
+            'attribution_uuids',
+          ),
+        ])
+        .where('attribution_is_external', '=', 0)
+        .groupBy('resource_id')
+        .execute();
+
+      const resolvedExternalAttributionsResult = await trx
+        .selectFrom('attribution')
+        .select('uuid')
+        .where('is_resolved', '=', 1)
+        .where('is_external', '=', 1)
+        .execute();
+
+      return {
+        manualAttributionsResult,
+        resourcesToAttributionsResult,
+        resolvedExternalAttributionsResult,
+      };
+    });
+
+  const manualAttributions: Attributions = Object.fromEntries(
+    queryResults.manualAttributionsResult.map(({ uuid, data }) => [
+      uuid,
+      { ...(JSON.parse(data) as PackageInfo), id: uuid },
+    ]),
+  );
+  const resourcesToAttributions: ResourcesToAttributions = Object.fromEntries(
+    queryResults.resourcesToAttributionsResult.map((val) => [
+      val.path,
+      JSON.parse(val.attribution_uuids) as Array<string>,
+    ]),
+  );
+  const resolvedExternalAttributions = new Set(
+    queryResults.resolvedExternalAttributionsResult.map(({ uuid }) => uuid),
+  );
+
+  return {
+    result: {
+      manualAttributions,
+      resourcesToAttributions,
+      resolvedExternalAttributions,
+    },
+  };
+}
+
 export const saveFileListener =
   (mainWindow: BrowserWindow) =>
-  async (_: unknown, args: SaveFileArgs): Promise<void> => {
+  async (_: unknown): Promise<void> => {
     try {
       const globalBackendState = getGlobalBackendState();
-
       if (!globalBackendState.projectId) {
         throw new Error('Project ID not found');
       }
 
+      const saveFileArgs = await getSaveFileArgs();
       const outputFileContent: OpossumOutputFile = {
         metadata: {
           projectId: globalBackendState.projectId,
           fileCreationDate: String(Date.now()),
           inputFileMD5Checksum: globalBackendState.inputFileChecksum,
         },
-        manualAttributions: serializeAttributions(args.manualAttributions),
-        resourcesToAttributions: args.resourcesToAttributions,
+        manualAttributions: serializeAttributions(
+          saveFileArgs.result.manualAttributions,
+        ),
+        resourcesToAttributions: saveFileArgs.result.resourcesToAttributions,
         resolvedExternalAttributions: Array.from(
-          args.resolvedExternalAttributions,
+          saveFileArgs.result.resolvedExternalAttributions,
         ),
       };
 

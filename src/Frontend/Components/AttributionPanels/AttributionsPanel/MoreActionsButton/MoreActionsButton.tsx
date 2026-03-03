@@ -97,7 +97,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   );
 
   const handlePropertyToggle = useCallback(
-    (property: UpdatablePropertyType) => {
+    async (property: UpdatablePropertyType) => {
       if (!attributions) {
         return;
       }
@@ -116,7 +116,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
         {} as Attributions,
       );
 
-      dispatch(updateAttributionsAndSave(updatedAttributions));
+      await dispatch(updateAttributionsAndSave(updatedAttributions));
 
       handleClose();
     },

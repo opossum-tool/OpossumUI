@@ -112,7 +112,7 @@ describe('The actions checking for unsaved changes', () => {
 
         testStore.dispatch(setSelectedResourceId('selectedResource'));
         testStore.dispatch(navigateToView(View.Audit));
-        testStore.dispatch(
+        await testStore.dispatch(
           savePackageInfo(null, null, {
             packageName: 'Test',
             criticality: Criticality.None,
@@ -183,7 +183,7 @@ describe('The actions checking for unsaved changes', () => {
           id: faker.string.uuid(),
         }),
       );
-      testStore.dispatch(
+      await testStore.dispatch(
         savePackageInfo('selectedResource', 'uuid_2', {
           packageName: 'Test',
           criticality: Criticality.None,

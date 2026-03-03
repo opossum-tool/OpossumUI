@@ -34,8 +34,10 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
       aria-label={text.packageLists.delete}
       disabled={!someSelectedAttributionsAreVisible}
       size={'small'}
-      onClick={() => {
-        dispatch(addResolvedExternalAttributionAndSave(selectedAttributionIds));
+      onClick={async () => {
+        await dispatch(
+          addResolvedExternalAttributionAndSave(selectedAttributionIds),
+        );
       }}
     >
       <MuiTooltip
