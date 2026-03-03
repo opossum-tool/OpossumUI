@@ -17,7 +17,7 @@ import {
   calculateCriticalityBarSteps,
   classificationUnknownColor,
   createBackgroundFromProgressBarSteps,
-  roundToAtLeastOnePercentAndNormalize,
+  getNormalizedPercentages,
 } from '../ProgressBar.util';
 
 describe('ProgressBar helpers', () => {
@@ -169,9 +169,7 @@ describe('ProgressBar helpers', () => {
   ])(
     'roundToAtLeastOnePercentAndNormalize rounds and subtracts difference from the maximum',
     (input: Array<number>, expectedOutput: Array<number>) => {
-      expect(roundToAtLeastOnePercentAndNormalize(input)).toEqual(
-        expectedOutput,
-      );
+      expect(getNormalizedPercentages(input)).toEqual(expectedOutput);
     },
   );
 });

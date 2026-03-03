@@ -65,12 +65,12 @@ export function calculateAttributionBarSteps(
     withNonPreSelectedManualPercent,
     withOnlyPreSelectedPercent,
     withOnlyExternalPercent,
-    leftoverPercent,
-  ] = roundToAtLeastOnePercentAndNormalize([
-    (count.withNonPreSelectedManual / count.allFiles) * 100,
-    (count.withOnlyPreSelectedManual / count.allFiles) * 100,
-    (count.withOnlyExternal / count.allFiles) * 100,
-    (uncategorizedFiles / count.allFiles) * 100,
+    uncategorizedPercent,
+  ] = getNormalizedPercentages([
+    count.withNonPreSelectedManual,
+    count.withOnlyPreSelectedManual,
+    count.withOnlyExternal,
+    uncategorizedFiles,
   ]);
 
   return [
@@ -103,7 +103,7 @@ export function calculateAttributionBarSteps(
         text.topBar.switchableProgressBar.attributionBar
           .filesWithNeitherAttributionsOrSignals,
       count: uncategorizedFiles,
-      widthInPercent: leftoverPercent,
+      widthInPercent: uncategorizedPercent,
       color: OpossumColors.lightestBlue,
     },
   ];
@@ -123,10 +123,10 @@ export function calculateCriticalityBarSteps(
     withHighlyCriticalPercent,
     withMediumCriticalPercent,
     onlyNonCriticalPercent,
-  ] = roundToAtLeastOnePercentAndNormalize([
-    (count.withHighlyCritical / count.withOnlyExternal) * 100,
-    (count.withMediumCritical / count.withOnlyExternal) * 100,
-    (onlyNonCritical / count.withOnlyExternal) * 100,
+  ] = getNormalizedPercentages([
+    count.withHighlyCritical,
+    count.withMediumCritical,
+    onlyNonCritical,
   ]);
 
   return [
@@ -172,14 +172,11 @@ export function calculateClassificationBarSteps(
       ),
     );
   const [unclassifiedPercentage, ...classificationPercentages] =
-    roundToAtLeastOnePercentAndNormalize([
-      (unclassifiedFiles / count.withOnlyExternal) * 100,
+    getNormalizedPercentages([
+      unclassifiedFiles,
       ...Object.values(count.classificationStatistics)
         .reverse()
-        .map(
-          (entry) =>
-            (entry.correspondingFiles.length / count.withOnlyExternal) * 100,
-        ),
+        .map((entry) => entry.correspondingFiles.length),
     ]);
   const progressBarSteps = Object.values(count.classificationStatistics)
     .reverse()
@@ -207,7 +204,7 @@ export function calculateClassificationBarSteps(
     });
   }
 
-  return roundPercentagesToAtLeastOnePercentAndNormalize(progressBarSteps);
+  return progressBarSteps;
 }
 
 export function createBackgroundFromProgressBarSteps(
@@ -236,27 +233,19 @@ export function createBackgroundFromProgressBarSteps(
 // only signal left, we still want the user to see it even if there are 100,000
 // other files.
 // Only segments with 0 files should not be there.
-export function roundToAtLeastOnePercentAndNormalize(
-  numbers: Array<number>,
-): Array<number> {
-  const roundedNumbers = numbers.map((n) =>
-    n > 0 && n < 1 ? 1 : Math.round(n),
-  );
-  const differenceToExpectedSum = sum(roundedNumbers) - 100;
-  if (differenceToExpectedSum !== 0) {
-    const maxIdx = roundedNumbers.indexOf(Math.max(...roundedNumbers));
-    roundedNumbers[maxIdx] -= differenceToExpectedSum;
+export function getNormalizedPercentages(values: Array<number>): Array<number> {
+  const total = sum(values);
+  if (total === 0) {
+    return values.map(() => 0);
   }
-  return roundedNumbers;
-}
-
-function roundPercentagesToAtLeastOnePercentAndNormalize(
-  progressBarSteps: Array<ProgressBarStep>,
-): Array<ProgressBarStep> {
-  const percentages = roundToAtLeastOnePercentAndNormalize(
-    progressBarSteps.map((step) => step.widthInPercent),
-  );
-  return progressBarSteps.map((progressBarStep, index) => {
-    return { ...progressBarStep, widthInPercent: percentages[index] };
+  const percentages = values.map((value) => {
+    const percentage = (value / total) * 100;
+    return percentage > 0 && percentage < 1 ? 1 : Math.round(percentage);
   });
+  const differenceToExpectedSum = sum(percentages) - 100;
+  if (differenceToExpectedSum !== 0) {
+    const maxIdx = percentages.indexOf(Math.max(...percentages));
+    percentages[maxIdx] -= differenceToExpectedSum;
+  }
+  return percentages;
 }
