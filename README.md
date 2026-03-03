@@ -86,6 +86,9 @@ Note that for ubuntu versions 22.04+ you will run into a sandboxing issue with a
 ./OpossumUI-for-linux.AppImage --no-sandbox
 ```
 
+Alternatively, you can install [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher) and use it to install the _OpossumUI-for-linux.AppImage_ by double-clicking on it.
+Then you can open OpossumUI via the start menu of your distribution, or by double-clicking on an _.opossum_ file.
+
 #### snap
 
 Install the snap file locally using
