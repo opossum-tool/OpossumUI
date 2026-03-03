@@ -1141,7 +1141,7 @@ describe('The addToSelectedResource action', () => {
     expect(saveFileArgs.result).toEqual(expectedSaveFileArgs);
   });
 
-  it('saves resource to atrributions map correctly', async () => {
+  it('saves resource to attributions map correctly', async () => {
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: testManualAttributions,
       resolvedExternalAttributions: new Set(),
