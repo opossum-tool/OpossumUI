@@ -262,7 +262,6 @@ describe('getResourcePathsAndParentsForAttributions', () => {
     expect(result).toContain('/');
     expect(result).toContain('/src/');
     expect(result).toContain('/src/linked/');
-    expect(result).toContain('/src/linked/file.ts');
     expect(result).not.toContain('/src/unlinked/');
   });
 
@@ -297,7 +296,6 @@ describe('getResourcePathsAndParentsForAttributions', () => {
     });
 
     expect(result).toContain('/beta/');
-    expect(result).toContain('/beta/file.ts');
   });
 });
 

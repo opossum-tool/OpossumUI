@@ -244,6 +244,77 @@ async function getClosestBreakpointAncestor(
   return result?.ancestor_id;
 }
 
+export async function resourcesToExpand(
+  dbOrTrx: Kysely<DB>,
+  props: {
+    aboveAttributionUuids?: Array<string>;
+    aboveResourceId?: number;
+    limit?: number;
+  },
+) {
+  // Recursively descend the resource tree, expanding all nodes that fit the filters
+  const result = await dbOrTrx
+    .withRecursive('expanded_resources', (eb) =>
+      eb
+        // Start at the root node
+        .selectFrom('resource')
+        .select('id')
+        .where('path', '=', '')
+        .unionAll((eb) => {
+          // Expand all children of already expanded resources if they fit the criteria
+          let query = eb
+            .selectFrom('resource as child')
+            .innerJoin(
+              'expanded_resources as parent',
+              'child.parent_id',
+              'parent.id',
+            )
+            .select('child.id')
+            .where('child.can_have_children', '=', 1);
+
+          if (props.aboveResourceId !== undefined) {
+            query = query.where((eb) =>
+              eb.between(
+                eb.val(props.aboveResourceId),
+                eb.ref('child.id'),
+                eb.ref('child.max_descendant_id'),
+              ),
+            );
+          }
+
+          if (props.aboveAttributionUuids) {
+            query = query.where((eb) =>
+              eb.exists(
+                eb
+                  .selectFrom('resource_to_attribution as rta')
+                  .selectAll()
+                  .where((eb) =>
+                    eb.between(
+                      'rta.resource_id',
+                      eb.ref('child.id'),
+                      eb.ref('child.max_descendant_id'),
+                    ),
+                  )
+                  .where('attribution_uuid', 'in', props.aboveAttributionUuids),
+              ),
+            );
+          }
+
+          if (props.limit) {
+            query = query.limit(props.limit);
+          }
+
+          return query;
+        }),
+    )
+    .selectFrom('resource')
+    .select(sql<string>`path || '/'`.as('path'))
+    .where('id', 'in', (eb) => eb.selectFrom('expanded_resources').select('id'))
+    .execute();
+
+  return result.map((r) => r.path);
+}
+
 function isAncestorOf(
   eb: ExpressionBuilder<DB, 'resource'>,
   resourceId: number,

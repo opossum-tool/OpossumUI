@@ -22,6 +22,7 @@ import {
   mergeFilterProperties,
   removeTrailingSlash,
   type ResourceRelationship,
+  resourcesToExpand,
   toSnakeCase,
 } from './utils';
 
@@ -318,49 +319,40 @@ export const queries = {
     limit?: number;
     prioritizedResourcePath?: string;
   }) {
-    const prioritizedResource = prioritizedResourcePath
-      ? await getResourceOrThrow(getDb(), prioritizedResourcePath)
-      : undefined;
+    const results: Array<string> = [];
 
-    let query = getDb()
-      .selectFrom('resource')
-      .select(sql<string>`path || IF(can_have_children, '/', '')`.as('path'))
-      .where((eb) =>
-        eb.exists(
-          eb
-            .selectFrom('resource_to_attribution as rta')
-            .selectAll()
-            .where((eb) =>
-              eb.between(
-                'rta.resource_id',
-                eb.ref('resource.id'),
-                eb.ref('resource.max_descendant_id'),
-              ),
-            )
-            .where('attribution_uuid', 'in', attributionUuids),
-        ),
+    if (prioritizedResourcePath) {
+      const prioritizedResource = await getResourceOrThrow(
+        getDb(),
+        prioritizedResourcePath,
       );
 
-    if (prioritizedResource) {
-      // Order prioritized resource and parents first
-      query = query.orderBy(
-        (eb) =>
-          eb.between(
-            eb.val(prioritizedResource.id),
-            eb.ref('resource.id'),
-            eb.ref('resource.max_descendant_id'),
-          ),
-        'desc',
+      results.push(
+        ...(await resourcesToExpand(getDb(), {
+          aboveAttributionUuids: attributionUuids,
+          aboveResourceId: prioritizedResource.id,
+          limit,
+        })),
       );
     }
 
-    if (limit) {
-      query = query.limit(limit);
+    results.push(
+      ...(await resourcesToExpand(getDb(), {
+        aboveAttributionUuids: attributionUuids,
+        limit,
+      })),
+    );
+
+    const deduplicatedLimitedResults = new Set<string>();
+
+    for (const r of results) {
+      deduplicatedLimitedResults.add(r);
+      if (limit && deduplicatedLimitedResults.size === limit) {
+        break;
+      }
     }
 
-    const result = await query.execute();
-
-    return { result: result.map((r) => r.path) };
+    return { result: Array.from(deduplicatedLimitedResults) };
   },
 
   async isResourceLinkedOnAllAttributions({
