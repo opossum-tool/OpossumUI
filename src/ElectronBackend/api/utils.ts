@@ -13,6 +13,7 @@ import {
 import { snakeCase } from 'lodash';
 
 import { FILTERS } from '../../Frontend/shared-constants';
+import { Criticality } from '../../shared/shared-types';
 import { DB } from '../db/generated/databaseTypes';
 import { FilterProperties } from './queries';
 
@@ -240,7 +241,6 @@ async function getClosestBreakpointAncestor(
     .where((eb) => isAncestorOrSameAs(eb, resourceId))
     .where('is_attribution_breakpoint', '=', 1)
     .executeTakeFirst();
-
   return result?.ancestor_id;
 }
 
@@ -313,6 +313,31 @@ export async function resourcesToExpand(
     .execute();
 
   return result.map((r) => r.path);
+}
+
+export async function getHigherThanCriticalityExternalCount(
+  dbOrTrx: Kysely<DB>,
+  criticality: Criticality,
+) {
+  return await dbOrTrx
+    .selectFrom('cwa')
+    .select((eb) => eb.fn.countAll<number>().as('critical_count'))
+    // We want to find resources that do not have manual attributions and have critical ones
+    .where('manual', 'is', null)
+    .where('resource_id', 'in', (eb) =>
+      eb
+        .selectFrom('resource_to_attribution')
+        .select('resource_id')
+        .where('attribution_uuid', 'in', (eb) =>
+          eb
+            .selectFrom('attribution')
+            .select('uuid')
+            .where('is_external', '=', 1)
+            .where('is_resolved', '=', 0)
+            .where('criticality', '>=', criticality),
+        ),
+    )
+    .executeTakeFirstOrThrow();
 }
 
 function isAncestorOf(

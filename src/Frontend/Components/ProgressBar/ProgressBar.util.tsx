@@ -16,7 +16,7 @@ import {
 import {
   FileClassifications,
   FileWithAttributionsCounts,
-  FileWithCriticalAttributionsCounts,
+  ResourceCriticalityCounts,
 } from '../../types/types';
 import { moveElementsToEnd } from '../../util/lodash-extension-utils';
 
@@ -110,23 +110,16 @@ export function calculateAttributionBarSteps(
 }
 
 export function calculateCriticalityBarSteps(
-  count: FileWithCriticalAttributionsCounts,
+  data: ResourceCriticalityCounts,
 ): Array<ProgressBarStep> {
-  if (count.withOnlyExternal === 0) {
-    return [{ widthInPercent: 100, color: OpossumColors.pastelDarkGreen }];
-  }
-  const onlyNonCritical =
-    count.withOnlyExternal -
-    count.withHighlyCritical -
-    count.withMediumCritical;
   const [
     withHighlyCriticalPercent,
     withMediumCriticalPercent,
-    onlyNonCriticalPercent,
+    withNonCriticalPercent,
   ] = getNormalizedPercentages([
-    count.withHighlyCritical,
-    count.withMediumCritical,
-    onlyNonCritical,
+    data.highlyCriticalResourceCount,
+    data.mediumCriticalResourceCount,
+    data.nonCriticalResourceCount,
   ]);
 
   return [
@@ -134,7 +127,7 @@ export function calculateCriticalityBarSteps(
       description:
         text.topBar.switchableProgressBar.criticalityBar
           .filesWithHighlyCriticalSignals,
-      count: count.withHighlyCritical,
+      count: data.highlyCriticalResourceCount,
       widthInPercent: withHighlyCriticalPercent,
       color: criticalityColor[Criticality.High],
     },
@@ -142,7 +135,7 @@ export function calculateCriticalityBarSteps(
       description:
         text.topBar.switchableProgressBar.criticalityBar
           .filesWithMediumCriticalSignals,
-      count: count.withMediumCritical,
+      count: data.mediumCriticalResourceCount,
       widthInPercent: withMediumCriticalPercent,
       color: criticalityColor[Criticality.Medium],
     },
@@ -150,8 +143,8 @@ export function calculateCriticalityBarSteps(
       description:
         text.topBar.switchableProgressBar.criticalityBar
           .filesWithOnlyNonCriticalSignals,
-      count: onlyNonCritical,
-      widthInPercent: onlyNonCriticalPercent,
+      count: data.nonCriticalResourceCount,
+      widthInPercent: withNonCriticalPercent,
       color: OpossumColors.lightestBlue,
     },
   ];

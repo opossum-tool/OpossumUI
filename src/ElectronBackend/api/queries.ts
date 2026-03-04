@@ -6,8 +6,12 @@ import { sql } from 'kysely';
 import { omit } from 'lodash';
 
 import { Filter, FilterCounts, FILTERS } from '../../Frontend/shared-constants';
-import { FileWithAttributionsCounts } from '../../Frontend/types/types';
 import { PackageInfo } from '../../shared/shared-types';
+import {
+  FileWithAttributionsCounts,
+  ResourceCriticalityCounts,
+} from '../../Frontend/types/types';
+import { Criticality } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { listAttributions } from './listAttributions';
@@ -436,6 +440,32 @@ export const queries = {
           manualPreSelectedFileCount:
             manual_count - manual_non_pre_selected_count,
           onlyExternalFileCount: only_external_count,
+        };
+      });
+    return { result };
+  },
+
+  async getCriticalityProgressBarData(): Promise<{
+    result: ResourceCriticalityCounts;
+  }> {
+    const result = await getDb()
+      .transaction()
+      .execute(async (trx) => {
+        const highlyCritical = (
+          await getHigherThanCriticalityExternalCount(trx, Criticality.High)
+        ).critical_count;
+        const mediumCritical =
+          (await getHigherThanCriticalityExternalCount(trx, Criticality.Medium))
+            .critical_count - highlyCritical;
+        const nonCritical =
+          (await getHigherThanCriticalityExternalCount(trx, Criticality.None))
+            .critical_count -
+          highlyCritical -
+          mediumCritical;
+        return {
+          highlyCriticalResourceCount: highlyCritical,
+          mediumCriticalResourceCount: mediumCritical,
+          nonCriticalResourceCount: nonCritical,
         };
       });
     return { result };

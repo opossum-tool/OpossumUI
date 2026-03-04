@@ -44,10 +44,10 @@ export interface FileWithAttributionsCounts {
   onlyExternalFileCount: number;
 }
 
-export interface FileWithCriticalAttributionsCounts {
-  withOnlyExternal: number;
-  withHighlyCritical: number;
-  withMediumCritical: number;
+export interface ResourceCriticalityCounts {
+  highlyCriticalResourceCount: number;
+  mediumCriticalResourceCount: number;
+  nonCriticalResourceCount: number;
 }
 
 export interface FileClassifications {
