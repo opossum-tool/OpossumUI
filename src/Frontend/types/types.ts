@@ -33,10 +33,10 @@ export type ClassificationStatistics = Record<
 >;
 
 export interface FileWithAttributionsCounts {
-  allFiles: number;
-  withNonPreSelectedManual: number;
-  withOnlyPreSelectedManual: number;
-  withOnlyExternal: number;
+  fileCount: number;
+  manualNonPreSelectedFileCount: number;
+  manualPreSelectedFileCount: number;
+  onlyExternalFileCount: number;
 }
 
 export interface FileWithCriticalAttributionsCounts {

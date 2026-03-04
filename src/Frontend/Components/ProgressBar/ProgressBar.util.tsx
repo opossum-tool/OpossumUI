@@ -54,22 +54,22 @@ export function useOnProgressBarClick(resourceIds: Array<string>) {
 }
 
 export function calculateAttributionBarSteps(
-  count: FileWithAttributionsCounts,
+  data: FileWithAttributionsCounts,
 ): Array<ProgressBarStep> {
   const uncategorizedFiles =
-    count.allFiles -
-    count.withNonPreSelectedManual -
-    count.withOnlyPreSelectedManual -
-    count.withOnlyExternal;
+    data.fileCount -
+    data.manualNonPreSelectedFileCount -
+    data.manualPreSelectedFileCount -
+    data.onlyExternalFileCount;
   const [
-    withNonPreSelectedManualPercent,
-    withOnlyPreSelectedPercent,
-    withOnlyExternalPercent,
-    uncategorizedPercent,
+    nonPreSelectedManualFilePercent,
+    onlyPreSelectedManualFilePercent,
+    onlyExternalFilePercent,
+    uncategorizedFilePercent,
   ] = getNormalizedPercentages([
-    count.withNonPreSelectedManual,
-    count.withOnlyPreSelectedManual,
-    count.withOnlyExternal,
+    data.manualNonPreSelectedFileCount,
+    data.manualPreSelectedFileCount,
+    data.onlyExternalFileCount,
     uncategorizedFiles,
   ]);
 
@@ -78,24 +78,24 @@ export function calculateAttributionBarSteps(
       description:
         text.topBar.switchableProgressBar.attributionBar
           .filesWithManualAttribution,
-      count: count.withNonPreSelectedManual,
-      widthInPercent: withNonPreSelectedManualPercent,
+      count: data.manualNonPreSelectedFileCount,
+      widthInPercent: nonPreSelectedManualFilePercent,
       color: OpossumColors.pastelDarkGreen,
     },
     {
       description:
         text.topBar.switchableProgressBar.attributionBar
           .filesWithOnlyPreSelectedAttribution,
-      count: count.withOnlyPreSelectedManual,
-      widthInPercent: withOnlyPreSelectedPercent,
+      count: data.manualPreSelectedFileCount,
+      widthInPercent: onlyPreSelectedManualFilePercent,
       color: OpossumColors.pastelMiddleGreen,
     },
     {
       description:
         text.topBar.switchableProgressBar.attributionBar
           .filesWithOnlyExternalAttribution,
-      count: count.withOnlyExternal,
-      widthInPercent: withOnlyExternalPercent,
+      count: data.onlyExternalFileCount,
+      widthInPercent: onlyExternalFilePercent,
       color: OpossumColors.pastelRed,
     },
     {
@@ -103,7 +103,7 @@ export function calculateAttributionBarSteps(
         text.topBar.switchableProgressBar.attributionBar
           .filesWithNeitherAttributionsOrSignals,
       count: uncategorizedFiles,
-      widthInPercent: uncategorizedPercent,
+      widthInPercent: uncategorizedFilePercent,
       color: OpossumColors.lightestBlue,
     },
   ];
