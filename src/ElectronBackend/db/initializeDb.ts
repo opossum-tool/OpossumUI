@@ -95,8 +95,9 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
     .addColumn('manual', 'integer')
     .addColumn('external', 'integer')
     .execute();
-    
+
   await sql`
+  -- closest with ancestor table
   insert into cwa
     with recursive
     has_unresolved_external_attribution as (
