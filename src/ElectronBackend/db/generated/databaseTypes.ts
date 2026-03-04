@@ -46,6 +46,13 @@ export interface Attribution {
   comment: Generated<string | null>;
 }
 
+export interface Cwa {
+  external: number | null;
+  is_file: number;
+  manual: number | null;
+  resource_id: Generated<number>;
+}
+
 export interface ExternalAttributionSource {
   is_relevant_for_preferred: Generated<number>;
   name: string;
@@ -105,6 +112,7 @@ export interface SourceForAttribution {
 
 export interface DB {
   attribution: Attribution;
+  cwa: Cwa;
   external_attribution_source: ExternalAttributionSource;
   frequent_license: FrequentLicense;
   resource: Resource;
