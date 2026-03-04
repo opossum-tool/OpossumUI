@@ -82,7 +82,73 @@ export async function initializeDb(inputFile: ParsedFileContent) {
       );
 
       await initializeFrequentLicenseTable(trx, inputFile.frequentLicenses);
+
+      await initializeProgressBarTable(trx);
     });
+}
+
+async function initializeProgressBarTable(trx: Transaction<DB>) {
+  await trx.schema
+    .createTable('cwa')
+    .addColumn('resource_id', 'integer', (col) => col.primaryKey().notNull())
+    .addColumn('is_file', 'integer', (col) => col.notNull())
+    .addColumn('manual', 'integer')
+    .addColumn('external', 'integer')
+    .execute();
+    
+  await sql`
+  insert into cwa
+    with recursive
+    has_unresolved_external_attribution as (
+        select distinct resource_id 
+        from resource_to_attribution 
+        where attribution_uuid in (select uuid from attribution where is_external = 1 and is_resolved = 0)
+    ),
+    closest_ancestor_with_external_attributions(resource_id, ancestor) as (
+            select distinct resource_id, resource_id
+            from has_unresolved_external_attribution
+        union all
+            select id, parent.ancestor
+            from resource
+            join closest_ancestor_with_external_attributions as parent on resource.parent_id = parent.resource_id
+            where resource.id not in has_unresolved_external_attribution and is_attribution_breakpoint = 0
+    ),
+    closest_ancestor_with_manual_attributions(resource_id, ancestor) as (
+            select distinct resource_id, resource_id
+            from resource_to_attribution
+            where attribution_is_external = 0
+        union all
+            select id, parent.ancestor
+            from resource
+            join closest_ancestor_with_manual_attributions as parent on resource.parent_id = parent.resource_id
+            where resource.id not in (select resource_id from resource_to_attribution where attribution_is_external = 0) and is_attribution_breakpoint = 0
+    )
+    select id, is_file, closest_ancestor_with_manual_attributions.ancestor, closest_ancestor_with_external_attributions.ancestor
+    from resource
+    left join closest_ancestor_with_manual_attributions on resource.id = closest_ancestor_with_manual_attributions.resource_id
+    left join closest_ancestor_with_external_attributions on resource.id = closest_ancestor_with_external_attributions.resource_id
+    `.execute(trx);
+
+  await trx.schema
+    .createIndex('cwa_manual_idx')
+    .on('cwa')
+    .columns(['manual', 'is_file', 'resource_id'])
+    .execute();
+  await trx.schema
+    .createIndex('cwa_external')
+    .on('cwa')
+    .columns(['external', 'is_file', 'resource_id'])
+    .execute();
+  await trx.schema
+    .createIndex('cwa_manual_and_external')
+    .on('cwa')
+    .columns(['manual', 'external', 'is_file', 'resource_id'])
+    .execute();
+  await trx.schema
+    .createIndex('cwa_resource')
+    .on('cwa')
+    .columns(['resource_id', 'manual'])
+    .execute();
 }
 
 async function initializeExternalAttributionSourceTable(
