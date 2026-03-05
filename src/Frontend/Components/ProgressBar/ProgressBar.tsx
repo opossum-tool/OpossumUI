@@ -10,14 +10,18 @@ import Box from '@mui/system/Box';
 
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
-import { ProgressBarData, SelectedProgressBar } from '../../types/types';
+import {
+  ClassificationStatistics,
+  FileWithAttributionsCounts,
+  ResourceCriticalityCounts,
+  SelectedProgressBar,
+} from '../../types/types';
 import {
   calculateAttributionBarSteps,
   calculateClassificationBarSteps,
   calculateCriticalityBarSteps,
   createBackgroundFromProgressBarSteps,
   ProgressBarStep,
-  useOnProgressBarClick,
 } from './ProgressBar.util';
 
 const classes = {
@@ -32,7 +36,9 @@ const classes = {
 
 interface ProgressBarProps {
   sx?: SxProps;
-  progressBarData: ProgressBarData;
+  progressBarData: FileWithAttributionsCounts &
+    ResourceCriticalityCounts &
+    ClassificationStatistics;
   selectedProgressBar: SelectedProgressBar;
 }
 
@@ -41,49 +47,6 @@ interface ProgressBarTooltipProps {
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
-  const onAttributionBarClick = useOnProgressBarClick(
-    props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
-  );
-  const resourcesWithCriticalExternalAttributions =
-    props.progressBarData.resourcesWithHighlyCriticalExternalAttributions.concat(
-      props.progressBarData.resourcesWithMediumCriticalExternalAttributions,
-    );
-  const onCriticalityBarClick = useOnProgressBarClick(
-    resourcesWithCriticalExternalAttributions.length > 0
-      ? resourcesWithCriticalExternalAttributions
-      : props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
-  );
-
-  let filesToForwardToForCriticality =
-    props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly;
-  const recordWithHighestClassification = Object.values(
-    props.progressBarData.classificationStatistics,
-  )
-    .reverse()
-    .filter((entry) => entry.correspondingFiles.length > 0)[0];
-  if (recordWithHighestClassification) {
-    filesToForwardToForCriticality =
-      recordWithHighestClassification.correspondingFiles;
-  }
-  const onClassificationBarClick = useOnProgressBarClick(
-    filesToForwardToForCriticality,
-  );
-
-  const renamedProgressBarData = {
-    allFiles: props.progressBarData.fileCount,
-    withNonPreSelectedManual:
-      props.progressBarData.filesWithManualAttributionCount,
-    withOnlyPreSelectedManual:
-      props.progressBarData.filesWithOnlyPreSelectedAttributionCount,
-    withOnlyExternal:
-      props.progressBarData.filesWithOnlyExternalAttributionCount,
-    withHighlyCritical:
-      props.progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
-    withMediumCritical:
-      props.progressBarData.filesWithMediumCriticalExternalAttributionsCount,
-    classificationStatistics: props.progressBarData.classificationStatistics,
-  };
-
   const progressBarConfigurations: Record<
     SelectedProgressBar,
     {
@@ -96,20 +59,20 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     attribution: {
       Title: AttributionBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
-      steps: calculateAttributionBarSteps(renamedProgressBarData),
-      onClickHandler: onAttributionBarClick,
+      steps: calculateAttributionBarSteps(props.progressBarData),
+      onClickHandler: () => {},
     },
     criticality: {
       Title: CriticalityBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
-      steps: calculateCriticalityBarSteps(renamedProgressBarData),
-      onClickHandler: onCriticalityBarClick,
+      steps: calculateCriticalityBarSteps(props.progressBarData),
+      onClickHandler: () => {},
     },
     classification: {
       Title: ClassificationBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
-      steps: calculateClassificationBarSteps(renamedProgressBarData),
-      onClickHandler: onClassificationBarClick,
+      steps: calculateClassificationBarSteps(props.progressBarData),
+      onClickHandler: () => {},
     },
   };
 

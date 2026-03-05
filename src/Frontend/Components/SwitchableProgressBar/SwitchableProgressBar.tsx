@@ -69,11 +69,6 @@ export const SwitchableProgressBar: React.FC = () => {
   const [currentProgressBar, setCurrentProgressBar] =
     useState<SelectedProgressBar>('attribution');
 
-  const classifications = useAppSelector(getClassifications);
-  const progressBarData = backend.getProgressBarData.useQuery({
-    classifications,
-  });
-
   const handleProgressBarChange = (
     event: SelectChangeEvent<SelectedProgressBar>,
   ): void => {
@@ -95,7 +90,21 @@ export const SwitchableProgressBar: React.FC = () => {
   const hasMoreThanOneActiveProgressBar =
     Object.keys(activeProgressBarConfigurations).length > 1;
 
-  if (!progressBarData.data) {
+  const attributionsProgressBarData =
+    backend.getAttributionProgressBarData.useQuery();
+  const criticalityProgressBarData =
+    backend.getCriticalityProgressBarData.useQuery();
+  const classifications = useAppSelector(getClassifications);
+  const classificationProgressBarData =
+    backend.getClassificationProgressBarData.useQuery({
+      classifications,
+    });
+
+  if (
+    !attributionsProgressBarData.data ||
+    !criticalityProgressBarData.data ||
+    !classificationProgressBarData.data
+  ) {
     return <MuiBox flex={1} />;
   }
 
@@ -103,7 +112,11 @@ export const SwitchableProgressBar: React.FC = () => {
     <MuiBox sx={classes.container}>
       <ProgressBar
         sx={classes.progressBar}
-        progressBarData={progressBarData.data}
+        progressBarData={{
+          ...attributionsProgressBarData.data,
+          ...criticalityProgressBarData.data,
+          ...classificationProgressBarData.data,
+        }}
         selectedProgressBar={effectiveCurrentProgressBar}
       />
       {hasMoreThanOneActiveProgressBar && (
