@@ -149,7 +149,6 @@ export function getResourceTree({
               'is_file',
               'parent_id',
               sb.val(0).as('level'),
-              sb.val('').as('sort_key'),
               sb.val(0).as('has_parent_with_manual_attribution'),
             ])
             .select((eb) => getTreeNodeProps(eb))
@@ -172,9 +171,6 @@ export function getResourceTree({
                   'r.is_file',
                   'r.parent_id',
                   sql<number>`parent.level + 1`.as('level'),
-                  sql<string>`parent.sort_key || '/' || r.is_file || r.name`.as(
-                    'sort_key',
-                  ),
                   sql<number>`r.is_attribution_breakpoint = 0 AND (parent.has_manual_attribution OR parent.has_parent_with_manual_attribution)`.as(
                     'has_parent_with_manual_attribution',
                   ),
@@ -265,6 +261,8 @@ function getTreeNodeProps(eb: ExpressionBuilder<TreeNodeQueryType, 'r'>) {
     eb.ref('r.name').as('name'),
 
     eb.ref('r.can_have_children').as('can_have_children'),
+
+    eb.ref('r.sort_key').as('sort_key'),
 
     eb
       .exists(

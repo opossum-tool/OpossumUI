@@ -140,6 +140,14 @@ async function initializeResourceTable(
     .addColumn('max_descendant_id', 'integer', (col) =>
       col.notNull().defaultTo(0),
     )
+    .addColumn('sort_key', 'text', (col) =>
+      col
+        .generatedAlwaysAs(
+          sql`IIF(path = '', '', replace(substr(path, 1, length(path) - length(name) - 1), '/', '/0') || '/' || is_file || name)`,
+        )
+        .stored()
+        .notNull(),
+    )
     .execute();
 
   const resourcePathToId = new Map<string, number>();
