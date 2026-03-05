@@ -27,61 +27,9 @@ import { createAppStore } from '../../configure-store';
 import {
   getAttributionBreakpoints,
   getFilesWithChildren,
-  getPackageInfoOfSelectedAttribution,
   getProjectMetadata,
   getResourceIdsOfSelectedAttribution,
 } from '../resource-selectors';
-
-describe('getPackageInfoOfSelectedAttribution', () => {
-  const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
-  const testTemporaryDisplayPackageInfo: PackageInfo = {
-    attributionConfidence: DiscreteConfidence.High,
-    packageVersion: '1.0',
-    packageName: 'test Package',
-    licenseText: ' test License text',
-    criticality: Criticality.None,
-    id: testManualAttributionUuid_1,
-  };
-  const testManualAttributions: Attributions = {
-    [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
-  };
-  const testResourcesToManualAttributions: ResourcesToAttributions = {
-    '/root/src/something.js': [testManualAttributionUuid_1],
-  };
-  const testAttributionsToResources = getAttributionsToResources(
-    testResourcesToManualAttributions,
-  );
-
-  it('returns temporary package info of selected attribution', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(
-      setManualData(
-        testManualAttributions,
-        testResourcesToManualAttributions,
-        testAttributionsToResources,
-      ),
-    );
-    testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
-    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
-      testTemporaryDisplayPackageInfo,
-    );
-  });
-
-  it('returns empty temporary package info if no selected attribution', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(
-      setManualData(
-        testManualAttributions,
-        testResourcesToManualAttributions,
-        testAttributionsToResources,
-      ),
-    );
-
-    expect(
-      getPackageInfoOfSelectedAttribution(testStore.getState()),
-    ).toBeNull();
-  });
-});
 
 describe('Attribution breakpoints', () => {
   const testAttributionBreakpoints: Set<string> = new Set([

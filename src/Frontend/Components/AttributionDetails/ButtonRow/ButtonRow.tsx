@@ -31,13 +31,13 @@ import {
   getIsPackageInfoDirty,
   getIsSelectedResourceBreakpoint,
   getManualAttributionsToResources,
-  getPackageInfoOfSelectedAttribution,
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import { isPackageInvalid } from '../../../util/input-validation';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
+import { useSelectedAttribution } from '../../../util/use-selected-attribution';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
 import { ConfirmSavePopup } from '../../ConfirmSavePopup/ConfirmSavePopup';
@@ -53,9 +53,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const dispatch = useAppDispatch();
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
-  const initialPackageInfo = useAppSelector(
-    getPackageInfoOfSelectedAttribution,
-  );
+  const initialPackageInfo = useSelectedAttribution();
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions,
   );

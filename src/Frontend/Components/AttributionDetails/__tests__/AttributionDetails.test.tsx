@@ -153,6 +153,12 @@ describe('AttributionDetails', () => {
       actions: [setSelectedAttributionId(packageInfo1.id)],
     });
 
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+        packageInfo1,
+      ),
+    );
+
     act(() => {
       store.dispatch(
         setTemporaryDisplayPackageInfo({
@@ -304,6 +310,12 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+        packageInfo2,
+      ),
+    );
+
     act(() => {
       store.dispatch(
         setTemporaryDisplayPackageInfo({
@@ -407,6 +419,12 @@ describe('AttributionDetails', () => {
         setSelectedAttributionId(packageInfo1.id),
       ],
     });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+        packageInfo1,
+      ),
+    );
 
     act(() => {
       store.dispatch(

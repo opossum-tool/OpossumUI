@@ -17,13 +17,13 @@ import {
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getManualAttributions,
-  getPackageInfoOfSelectedAttribution,
   getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
 import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 import { useIsSelectedAttributionVisible } from '../../util/use-attribution-lists';
+import { useSelectedAttribution } from '../../util/use-selected-attribution';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
 import {
   ConfirmationDialog,
@@ -48,9 +48,7 @@ export function AttributionDetails() {
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
-  const selectedAttribution = useAppSelector(
-    getPackageInfoOfSelectedAttribution,
-  );
+  const selectedAttribution = useSelectedAttribution();
 
   useLayoutEffect(() => {
     dispatch(

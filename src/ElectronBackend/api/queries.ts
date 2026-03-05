@@ -59,9 +59,9 @@ export const queries = {
       .selectFrom('attribution')
       .select('data')
       .where('uuid', '=', props.attributionUuid)
-      .executeTakeFirst();
+      .executeTakeFirstOrThrow();
 
-    return { result: result?.data ?? null };
+    return { result: (JSON.parse(result.data) as PackageInfo) ?? null };
   },
 
   async getManualAttributionOnResourceOrAncestor(props: {

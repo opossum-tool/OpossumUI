@@ -29,7 +29,6 @@ import {
   getManualAttributions,
   getManualAttributionsToResources,
   getManualData,
-  getPackageInfoOfSelectedAttribution,
   getResourcesToManualAttributions,
   getResourcesWithManualAttributedChildren,
   getSelectedAttributionId,
@@ -137,9 +136,11 @@ describe('The savePackageInfo action', () => {
     await testStore.dispatch(
       savePackageInfo('/root/src/', null, testPackageInfo),
     );
-    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
-      expectedTemporaryDisplayPackageInfo,
-    );
+    expect(
+      getManualAttributions(testStore.getState())[
+        getSelectedAttributionId(testStore.getState())
+      ] ?? null,
+    ).toEqual(expectedTemporaryDisplayPackageInfo);
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual({
@@ -209,9 +210,11 @@ describe('The savePackageInfo action', () => {
       ),
     );
 
-    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
-      testPackageInfo,
-    );
+    expect(
+      getManualAttributions(testStore.getState())[
+        getSelectedAttributionId(testStore.getState())
+      ] ?? null,
+    ).toEqual(testPackageInfo);
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual({
@@ -1054,9 +1057,11 @@ describe('The addToSelectedResource action', () => {
     expect(
       manualData.attributionsToResources[testManualAttributionUuid_1],
     ).toEqual(['/root/']);
-    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
-      testPackageInfo,
-    );
+    expect(
+      getManualAttributions(testStore.getState())[
+        getSelectedAttributionId(testStore.getState())
+      ] ?? null,
+    ).toEqual(testPackageInfo);
     expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 
@@ -1097,9 +1102,11 @@ describe('The addToSelectedResource action', () => {
     expect(manualData.attributions[uuidNewAttribution]).toEqual(
       expectedModifiedPackageInfo,
     );
-    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
-      expectedModifiedPackageInfo,
-    );
+    expect(
+      getManualAttributions(testStore.getState())[
+        getSelectedAttributionId(testStore.getState())
+      ] ?? null,
+    ).toEqual(expectedModifiedPackageInfo);
     expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 

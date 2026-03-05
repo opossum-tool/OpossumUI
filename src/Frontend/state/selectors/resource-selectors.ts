@@ -142,24 +142,6 @@ export function getClassifications(state: State): ClassificationsConfig {
   return state.resourceState.config.classifications;
 }
 
-export function getPackageInfoOfSelectedAttribution(
-  state: State,
-): PackageInfo | null {
-  const selectedAttributionId = getSelectedAttributionId(state);
-
-  if (!selectedAttributionId) {
-    return null;
-  }
-  const attributions = getManualAttributions(state);
-  const signals = getExternalAttributions(state);
-
-  return (
-    attributions[selectedAttributionId] ||
-    signals[selectedAttributionId] ||
-    null
-  );
-}
-
 export function getIsPackageInfoDirty(state: State): boolean {
   return state.resourceState.isPackageInfoDirty;
 }
