@@ -27,7 +27,6 @@ import {
 } from '../../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
-  getExternalAttributions,
   getIsPackageInfoDirty,
   getIsSelectedResourceBreakpoint,
   getManualAttributionsToResources,
@@ -35,6 +34,7 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
+import { backend } from '../../../util/backendClient';
 import { isPackageInvalid } from '../../../util/input-validation';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import { useSelectedAttribution } from '../../../util/use-selected-attribution';
@@ -57,7 +57,6 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions,
   );
-  const externalAttributions = useAppSelector(getExternalAttributions);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const manualAttributionsToResources = useAppSelector(
     getManualAttributionsToResources,
@@ -65,6 +64,17 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const isSelectedResourceBreakpoint = useAppSelector(
     getIsSelectedResourceBreakpoint,
   );
+
+  const originalAttributionQuery = backend.getAttributionData.useQuery(
+    {
+      attributionUuid: packageInfo.originalAttributionId ?? '',
+    },
+    { enabled: !!packageInfo.originalAttributionId },
+  );
+
+  const originalAttribution = packageInfo.originalAttributionId
+    ? originalAttributionQuery.data
+    : undefined;
 
   const [isDiffPopupOpen, setIsDiffPopupOpen] = useState(false);
 
@@ -299,7 +309,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   }
 
   function renderCompareButton() {
-    if (!isEditable || !packageInfo.originalAttributionId) {
+    if (!isEditable || !originalAttribution) {
       return null;
     }
 
@@ -321,7 +331,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
           </span>
         </MuiTooltip>
         <DiffPopup
-          original={externalAttributions[packageInfo.originalAttributionId]}
+          original={originalAttribution}
           current={packageInfo}
           isOpen={isDiffPopupOpen}
           setOpen={setIsDiffPopupOpen}
