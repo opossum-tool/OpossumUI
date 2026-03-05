@@ -13,7 +13,11 @@ import {
   getResourceIds,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
-import { ProgressBarData } from '../../types/types';
+import {
+  FileClassifications,
+  FileWithAttributionsCounts,
+  FileWithCriticalAttributionsCounts,
+} from '../../types/types';
 import { moveElementsToEnd } from '../../util/lodash-extension-utils';
 
 type Color = string;
@@ -50,36 +54,23 @@ export function useOnProgressBarClick(resourceIds: Array<string>) {
 }
 
 export function calculateAttributionBarSteps(
-  progressBarData: ProgressBarData,
+  count: FileWithAttributionsCounts,
 ): Array<ProgressBarStep> {
-  let filesWithManualAttributionsPercent: number =
-    (progressBarData.filesWithManualAttributionCount /
-      progressBarData.fileCount) *
-    100;
-  let filesWithOnlyPreselectedAttributionsPercent: number =
-    (progressBarData.filesWithOnlyPreSelectedAttributionCount /
-      progressBarData.fileCount) *
-    100;
-  let filesWithOnlyExternalAttributionsPercent: number =
-    (progressBarData.filesWithOnlyExternalAttributionCount /
-      progressBarData.fileCount) *
-    100;
-  let filesWithNothingPercent: number =
-    100 -
-    filesWithManualAttributionsPercent -
-    filesWithOnlyPreselectedAttributionsPercent -
-    filesWithOnlyExternalAttributionsPercent;
-
-  [
-    filesWithManualAttributionsPercent,
-    filesWithOnlyPreselectedAttributionsPercent,
-    filesWithOnlyExternalAttributionsPercent,
-    filesWithNothingPercent,
-  ] = roundToAtLeastOnePercentAndNormalize([
-    filesWithManualAttributionsPercent,
-    filesWithOnlyPreselectedAttributionsPercent,
-    filesWithOnlyExternalAttributionsPercent,
-    filesWithNothingPercent,
+  const uncategorizedFiles =
+    count.allFiles -
+    count.withNonPreSelectedManual -
+    count.withOnlyPreSelectedManual -
+    count.withOnlyExternal;
+  const [
+    withNonPreSelectedManualPercent,
+    withOnlyPreSelectedPercent,
+    withOnlyExternalPercent,
+    uncategorizedPercent,
+  ] = getNormalizedPercentages([
+    count.withNonPreSelectedManual,
+    count.withOnlyPreSelectedManual,
+    count.withOnlyExternal,
+    uncategorizedFiles,
   ]);
 
   return [
@@ -87,69 +78,55 @@ export function calculateAttributionBarSteps(
       description:
         text.topBar.switchableProgressBar.attributionBar
           .filesWithManualAttribution,
-      count: progressBarData.filesWithManualAttributionCount,
-      widthInPercent: filesWithManualAttributionsPercent,
+      count: count.withNonPreSelectedManual,
+      widthInPercent: withNonPreSelectedManualPercent,
       color: OpossumColors.pastelDarkGreen,
     },
     {
       description:
         text.topBar.switchableProgressBar.attributionBar
           .filesWithOnlyPreSelectedAttribution,
-      count: progressBarData.filesWithOnlyPreSelectedAttributionCount,
-      widthInPercent: filesWithOnlyPreselectedAttributionsPercent,
+      count: count.withOnlyPreSelectedManual,
+      widthInPercent: withOnlyPreSelectedPercent,
       color: OpossumColors.pastelMiddleGreen,
     },
     {
       description:
         text.topBar.switchableProgressBar.attributionBar
           .filesWithOnlyExternalAttribution,
-      count: progressBarData.filesWithOnlyExternalAttributionCount,
-      widthInPercent: filesWithOnlyExternalAttributionsPercent,
+      count: count.withOnlyExternal,
+      widthInPercent: withOnlyExternalPercent,
       color: OpossumColors.pastelRed,
     },
     {
       description:
         text.topBar.switchableProgressBar.attributionBar
           .filesWithNeitherAttributionsOrSignals,
-      count:
-        progressBarData.fileCount -
-        progressBarData.filesWithManualAttributionCount -
-        progressBarData.filesWithOnlyPreSelectedAttributionCount -
-        progressBarData.filesWithOnlyExternalAttributionCount,
-      widthInPercent: filesWithNothingPercent,
+      count: uncategorizedFiles,
+      widthInPercent: uncategorizedPercent,
       color: OpossumColors.lightestBlue,
     },
   ];
 }
 
 export function calculateCriticalityBarSteps(
-  progressBarData: ProgressBarData,
+  count: FileWithCriticalAttributionsCounts,
 ): Array<ProgressBarStep> {
-  if (progressBarData.filesWithOnlyExternalAttributionCount === 0) {
+  if (count.withOnlyExternal === 0) {
     return [{ widthInPercent: 100, color: OpossumColors.pastelDarkGreen }];
   }
-
-  let filesWithHighlyCriticalExternalAttributionsPercent =
-    (progressBarData.filesWithHighlyCriticalExternalAttributionsCount /
-      progressBarData.filesWithOnlyExternalAttributionCount) *
-    100;
-  let filesWithMediumCriticalExternalAttributionsPercent =
-    (progressBarData.filesWithMediumCriticalExternalAttributionsCount /
-      progressBarData.filesWithOnlyExternalAttributionCount) *
-    100;
-  let filesWithNonCriticalAttributionsPercent =
-    100 -
-    filesWithHighlyCriticalExternalAttributionsPercent -
-    filesWithMediumCriticalExternalAttributionsPercent;
-
-  [
-    filesWithHighlyCriticalExternalAttributionsPercent,
-    filesWithMediumCriticalExternalAttributionsPercent,
-    filesWithNonCriticalAttributionsPercent,
-  ] = roundToAtLeastOnePercentAndNormalize([
-    filesWithHighlyCriticalExternalAttributionsPercent,
-    filesWithMediumCriticalExternalAttributionsPercent,
-    filesWithNonCriticalAttributionsPercent,
+  const onlyNonCritical =
+    count.withOnlyExternal -
+    count.withHighlyCritical -
+    count.withMediumCritical;
+  const [
+    withHighlyCriticalPercent,
+    withMediumCriticalPercent,
+    onlyNonCriticalPercent,
+  ] = getNormalizedPercentages([
+    count.withHighlyCritical,
+    count.withMediumCritical,
+    onlyNonCritical,
   ]);
 
   return [
@@ -157,81 +134,77 @@ export function calculateCriticalityBarSteps(
       description:
         text.topBar.switchableProgressBar.criticalityBar
           .filesWithHighlyCriticalSignals,
-      count: progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
-      widthInPercent: filesWithHighlyCriticalExternalAttributionsPercent,
+      count: count.withHighlyCritical,
+      widthInPercent: withHighlyCriticalPercent,
       color: criticalityColor[Criticality.High],
     },
     {
       description:
         text.topBar.switchableProgressBar.criticalityBar
           .filesWithMediumCriticalSignals,
-      count: progressBarData.filesWithMediumCriticalExternalAttributionsCount,
-      widthInPercent: filesWithMediumCriticalExternalAttributionsPercent,
+      count: count.withMediumCritical,
+      widthInPercent: withMediumCriticalPercent,
       color: criticalityColor[Criticality.Medium],
     },
     {
       description:
         text.topBar.switchableProgressBar.criticalityBar
           .filesWithOnlyNonCriticalSignals,
-      count:
-        progressBarData.filesWithOnlyExternalAttributionCount -
-        progressBarData.filesWithHighlyCriticalExternalAttributionsCount -
-        progressBarData.filesWithMediumCriticalExternalAttributionsCount,
-      widthInPercent: filesWithNonCriticalAttributionsPercent,
+      count: onlyNonCritical,
+      widthInPercent: onlyNonCriticalPercent,
       color: OpossumColors.lightestBlue,
     },
   ];
 }
 
 export function calculateClassificationBarSteps(
-  progressBarData: ProgressBarData,
+  count: FileClassifications,
 ): Array<ProgressBarStep> {
-  if (progressBarData.filesWithOnlyExternalAttributionCount === 0) {
+  if (count.withOnlyExternal === 0) {
     return [{ widthInPercent: 100, color: OpossumColors.pastelDarkGreen }];
   }
 
-  const classificationStatistics = progressBarData.classificationStatistics;
-  const progressBarSteps = Object.values(classificationStatistics)
+  const unclassifiedFiles =
+    count.withOnlyExternal -
+    sum(
+      Object.values(count.classificationStatistics).map(
+        (entry) => entry.correspondingFiles.length,
+      ),
+    );
+  const [unclassifiedPercentage, ...classificationPercentages] =
+    getNormalizedPercentages([
+      unclassifiedFiles,
+      ...Object.values(count.classificationStatistics)
+        .reverse()
+        .map((entry) => entry.correspondingFiles.length),
+    ]);
+  const progressBarSteps = Object.values(count.classificationStatistics)
     .reverse()
-    .map<ProgressBarStep>((statisticsEntry) => {
+    .map<ProgressBarStep>((statisticsEntry, index) => {
       return {
         description: `${
           text.topBar.switchableProgressBar.classificationBar
             .containingClassification
         } "${statisticsEntry.description.toLowerCase()}"`,
         count: statisticsEntry.correspondingFiles.length,
-        widthInPercent:
-          (statisticsEntry.correspondingFiles.length * 100) /
-          progressBarData.filesWithOnlyExternalAttributionCount,
+        widthInPercent: classificationPercentages[index],
         color: statisticsEntry.color,
       };
     });
 
   //add files without classifications
-  const numberOfResourcesWithSignalsAndNoAttributionAndClassification = sum(
-    Object.values(progressBarData.classificationStatistics).map(
-      (entry) => entry.correspondingFiles.length,
-    ),
-  );
-  const numberOfResourcesWithSignalsAndNoAttributionAndNoClassification =
-    progressBarData.filesWithOnlyExternalAttributionCount -
-    numberOfResourcesWithSignalsAndNoAttributionAndClassification;
-  if (numberOfResourcesWithSignalsAndNoAttributionAndNoClassification > 0) {
-    const totalPercentage = sum(
-      progressBarSteps.map((step) => step.widthInPercent),
-    );
-
+  if (unclassifiedFiles > 0) {
     progressBarSteps.push({
       description:
         text.topBar.switchableProgressBar.classificationBar
           .withoutClassification,
-      count: numberOfResourcesWithSignalsAndNoAttributionAndNoClassification,
-      widthInPercent: 100 - totalPercentage,
+      count: unclassifiedFiles,
+      widthInPercent: unclassifiedPercentage,
       color: classificationUnknownColor,
     });
   }
 
-  return roundPercentagesToAtLeastOnePercentAndNormalize(progressBarSteps);
+  return progressBarSteps;
 }
 
 export function createBackgroundFromProgressBarSteps(
@@ -260,27 +233,19 @@ export function createBackgroundFromProgressBarSteps(
 // only signal left, we still want the user to see it even if there are 100,000
 // other files.
 // Only segments with 0 files should not be there.
-export function roundToAtLeastOnePercentAndNormalize(
-  numbers: Array<number>,
-): Array<number> {
-  const roundedNumbers = numbers.map((n) =>
-    n > 0 && n < 1 ? 1 : Math.round(n),
-  );
-  const differenceToExpectedSum = sum(roundedNumbers) - 100;
-  if (differenceToExpectedSum !== 0) {
-    const maxIdx = roundedNumbers.indexOf(Math.max(...roundedNumbers));
-    roundedNumbers[maxIdx] -= differenceToExpectedSum;
+export function getNormalizedPercentages(values: Array<number>): Array<number> {
+  const total = sum(values);
+  if (total === 0) {
+    return values.map(() => 0);
   }
-  return roundedNumbers;
-}
-
-function roundPercentagesToAtLeastOnePercentAndNormalize(
-  progressBarSteps: Array<ProgressBarStep>,
-): Array<ProgressBarStep> {
-  const percentages = roundToAtLeastOnePercentAndNormalize(
-    progressBarSteps.map((step) => step.widthInPercent),
-  );
-  return progressBarSteps.map((progressBarStep, index) => {
-    return { ...progressBarStep, widthInPercent: percentages[index] };
+  const percentages = values.map((value) => {
+    const percentage = (value / total) * 100;
+    return percentage > 0 && percentage < 1 ? 1 : Math.round(percentage);
   });
+  const differenceToExpectedSum = sum(percentages) - 100;
+  if (differenceToExpectedSum !== 0) {
+    const maxIdx = percentages.indexOf(Math.max(...percentages));
+    percentages[maxIdx] -= differenceToExpectedSum;
+  }
+  return percentages;
 }
