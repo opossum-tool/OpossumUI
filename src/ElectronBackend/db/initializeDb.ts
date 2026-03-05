@@ -140,10 +140,12 @@ async function initializeResourceTable(
     .addColumn('max_descendant_id', 'integer', (col) =>
       col.notNull().defaultTo(0),
     )
+    // We add a generated sort_key so that the resource tree can order by it.
+    // E.g. path:/a/b/c.txt -> sort_key:/0a/0b/1c.txt
     .addColumn('sort_key', 'text', (col) =>
       col
         .generatedAlwaysAs(
-          sql`IIF(path = '', '', replace(substr(path, 1, length(path) - length(name) - 1), '/', '/0') || '/' || is_file || name)`,
+          sql`CASE WHEN path = '' THEN '' ELSE REPLACE(SUBSTR(path, 1, LENGTH(path) - LENGTH(name) - 1), '/', '/0') || '/' || is_file || name END`,
         )
         .stored()
         .notNull(),
