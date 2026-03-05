@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { isEqual } from 'lodash';
-
 import {
   AttributionData,
   Attributions,
@@ -19,9 +17,7 @@ import {
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { State } from '../../types/types';
-import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 
 export function getResources(state: State): Resources | null {
   return state.resourceState.resources;
@@ -146,33 +142,8 @@ export function getClassifications(state: State): ClassificationsConfig {
   return state.resourceState.config.classifications;
 }
 
-export function getPackageInfoOfSelectedAttribution(
-  state: State,
-): PackageInfo | null {
-  const selectedAttributionId = getSelectedAttributionId(state);
-
-  if (!selectedAttributionId) {
-    return null;
-  }
-  const attributions = getManualAttributions(state);
-  const signals = getExternalAttributions(state);
-
-  return (
-    attributions[selectedAttributionId] ||
-    signals[selectedAttributionId] ||
-    null
-  );
-}
-
-export function getIsPackageInfoModified(state: State): boolean {
-  const temporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(state);
-  const displayPackageInfoOfSelected =
-    getPackageInfoOfSelectedAttribution(state) || EMPTY_DISPLAY_PACKAGE_INFO;
-
-  return !isEqual(
-    getStrippedPackageInfo(temporaryDisplayPackageInfo),
-    getStrippedPackageInfo(displayPackageInfoOfSelected),
-  );
+export function getIsPackageInfoDirty(state: State): boolean {
+  return state.resourceState.isPackageInfoDirty;
 }
 
 export function getBaseUrlsForSources(state: State): BaseUrlsForSources {

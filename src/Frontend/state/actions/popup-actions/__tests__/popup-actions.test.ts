@@ -37,6 +37,7 @@ import {
   getTargetView,
 } from '../../../selectors/view-selector';
 import {
+  setIsPackageInfoDirty,
   setResources,
   setTemporaryDisplayPackageInfo,
 } from '../../resource-actions/all-views-simple-actions';
@@ -126,6 +127,7 @@ describe('The actions checking for unsaved changes', () => {
             id: faker.string.uuid(),
           }),
         );
+        testStore.dispatch(setIsPackageInfoDirty(true));
 
         testStore.dispatch(
           changeSelectedAttributionOrOpenUnsavedPopup(attribution),
@@ -198,13 +200,6 @@ describe('The actions checking for unsaved changes', () => {
       expect(getSelectedView(testStore.getState())).toBe(View.Audit);
       expect(getOpenPopup(testStore.getState())).toBeFalsy();
       expect(getSelectedAttributionId(testStore.getState())).toBe('uuid_1');
-      expect(
-        getTemporaryDisplayPackageInfo(testStore.getState()),
-      ).toEqual<PackageInfo>({
-        packageName: 'React',
-        criticality: Criticality.None,
-        id: 'uuid_1',
-      });
     });
   });
 
@@ -227,6 +222,7 @@ describe('The actions checking for unsaved changes', () => {
           id: faker.string.uuid(),
         }),
       );
+      testStore.dispatch(setIsPackageInfoDirty(true));
       testStore.dispatch(setViewOrOpenUnsavedPopup(View.Audit));
       expect(getSelectedView(testStore.getState())).toBe(View.Report);
       expect(getTargetView(testStore.getState())).toBe(View.Audit);
@@ -310,6 +306,7 @@ describe('The actions checking for unsaved changes', () => {
           id: faker.string.uuid(),
         }),
       );
+      testStore.dispatch(setIsPackageInfoDirty(true));
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       testStore.dispatch(
         setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/'),

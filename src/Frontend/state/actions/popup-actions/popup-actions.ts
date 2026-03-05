@@ -9,10 +9,8 @@ import {
   PackageInfo,
 } from '../../../../shared/shared-types';
 import { PopupType, View } from '../../../enums/enums';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import {
-  getIsPackageInfoModified,
-  getPackageInfoOfSelectedAttribution,
+  getIsPackageInfoDirty,
   getSelectedResourceId,
 } from '../../selectors/resource-selectors';
 import {
@@ -23,7 +21,6 @@ import {
   getTargetView,
 } from '../../selectors/view-selector';
 import { AppThunkAction } from '../../types';
-import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
 import {
   setSelectedAttributionId,
   setSelectedResourceId,
@@ -54,7 +51,7 @@ function withUnsavedCheck({
   requestContinuation: AppThunkAction;
 }): AppThunkAction {
   return (dispatch, getState) => {
-    if (getIsPackageInfoModified(getState())) {
+    if (getIsPackageInfoDirty(getState())) {
       dispatch(requestContinuation);
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
@@ -80,11 +77,6 @@ export function changeSelectedAttributionOrOpenUnsavedPopup(
   return withUnsavedCheck({
     executeImmediately: (dispatch) => {
       dispatch(setSelectedAttributionId(packageInfo?.id ?? ''));
-      dispatch(
-        setTemporaryDisplayPackageInfo(
-          packageInfo || EMPTY_DISPLAY_PACKAGE_INFO,
-        ),
-      );
     },
     requestContinuation: (dispatch) =>
       dispatch(setTargetSelectedAttributionId(packageInfo?.id || '')),
@@ -184,13 +176,6 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     if (targetView) {
       dispatch(navigateToView(targetView));
     }
-
-    dispatch(
-      setTemporaryDisplayPackageInfo(
-        getPackageInfoOfSelectedAttribution(getState()) ||
-          EMPTY_DISPLAY_PACKAGE_INFO,
-      ),
-    );
   };
 }
 

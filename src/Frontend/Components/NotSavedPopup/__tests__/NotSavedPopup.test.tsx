@@ -8,7 +8,6 @@ import userEvent from '@testing-library/user-event';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { PopupType, View } from '../../../enums/enums';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   setSelectedAttributionId,
@@ -97,9 +96,6 @@ describe('NotSavedPopup', () => {
     expect(getSelectedResourceId(store.getState())).toBe(targetResourceId);
     expect(getSelectedAttributionId(store.getState())).toBe(
       targetAttributionId,
-    );
-    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
-      EMPTY_DISPLAY_PACKAGE_INFO,
     );
   });
 

@@ -2,15 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { getParents } from '../../helpers/get-parents';
 import {
-  getPackageInfoOfSelectedAttribution,
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
 } from '../../selectors/resource-selectors';
 import { AppThunkAction } from '../../types';
-import { setTemporaryDisplayPackageInfo } from './all-views-simple-actions';
 import {
   setExpandedIds,
   setSelectedAttributionId,
@@ -18,17 +15,6 @@ import {
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from './audit-view-simple-actions';
-
-export function resetTemporaryDisplayPackageInfo(): AppThunkAction {
-  return (dispatch, getState) => {
-    dispatch(
-      setTemporaryDisplayPackageInfo(
-        getPackageInfoOfSelectedAttribution(getState()) ||
-          EMPTY_DISPLAY_PACKAGE_INFO,
-      ),
-    );
-  };
-}
 
 export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkAction {
   return (dispatch, getState) => {

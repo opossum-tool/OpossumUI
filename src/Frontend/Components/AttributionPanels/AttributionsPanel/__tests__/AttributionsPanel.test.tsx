@@ -10,6 +10,7 @@ import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { ROOT_PATH } from '../../../../shared-constants';
 import {
+  setIsPackageInfoDirty,
   setProjectMetadata,
   setTemporaryDisplayPackageInfo,
 } from '../../../../state/actions/resource-actions/all-views-simple-actions';
@@ -203,12 +204,7 @@ describe('AttributionsPanel', () => {
       ),
     );
     act(() => {
-      store.dispatch(
-        setTemporaryDisplayPackageInfo({
-          ...packageInfo,
-          packageName: faker.string.sample(),
-        }),
-      );
+      store.dispatch(setIsPackageInfoDirty(true));
     });
 
     expect(
@@ -298,6 +294,9 @@ describe('AttributionsPanel', () => {
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
+    act(() => {
+      store.dispatch(setTemporaryDisplayPackageInfo(packageInfo));
+    });
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.confirm }),
     );

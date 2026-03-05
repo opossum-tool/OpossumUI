@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
@@ -16,8 +16,12 @@ import {
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { savePackageInfo } from '../../../state/actions/resource-actions/save-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
-import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
+import {
+  getIsPackageInfoDirty,
+  getTemporaryDisplayPackageInfo,
+} from '../../../state/selectors/resource-selectors';
 import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-ids-for-replacement';
 import {
   expectManualAttributions,
@@ -146,13 +150,22 @@ describe('AttributionDetails', () => {
         },
         resources: pathsToResources([resourceId]),
       }),
-      actions: [
+      actions: [setSelectedAttributionId(packageInfo1.id)],
+    });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+        packageInfo1,
+      ),
+    );
+
+    act(() => {
+      store.dispatch(
         setTemporaryDisplayPackageInfo({
           ...packageInfo1,
           packageName: newPackageName,
         }),
-        setSelectedAttributionId(packageInfo1.id),
-      ],
+      );
     });
 
     await userEvent.click(
@@ -280,7 +293,7 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    await renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
@@ -293,12 +306,23 @@ describe('AttributionDetails', () => {
       }),
       actions: [
         setSelectedResourceId(resourceId),
+        setSelectedAttributionId(packageInfo2.id),
+      ],
+    });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+        packageInfo2,
+      ),
+    );
+
+    act(() => {
+      store.dispatch(
         setTemporaryDisplayPackageInfo({
           ...packageInfo2,
           packageName: faker.company.name(),
         }),
-        setSelectedAttributionId(packageInfo2.id),
-      ],
+      );
     });
 
     expect(
@@ -392,12 +416,23 @@ describe('AttributionDetails', () => {
       }),
       actions: [
         setSelectedResourceId(resourceId),
+        setSelectedAttributionId(packageInfo1.id),
+      ],
+    });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+        packageInfo1,
+      ),
+    );
+
+    act(() => {
+      store.dispatch(
         setTemporaryDisplayPackageInfo({
           ...packageInfo1,
           packageName: faker.company.name(),
         }),
-        setSelectedAttributionId(packageInfo1.id),
-      ],
+      );
     });
 
     await userEvent.click(
@@ -428,12 +463,17 @@ describe('AttributionDetails', () => {
       }),
       actions: [
         setSelectedResourceId(resourceId),
+        setSelectedAttributionId(''),
+      ],
+    });
+
+    act(() => {
+      store.dispatch(
         setTemporaryDisplayPackageInfo({
           ...EMPTY_DISPLAY_PACKAGE_INFO,
           packageName: faker.company.name(),
         }),
-        setSelectedAttributionId(''),
-      ],
+      );
     });
 
     await userEvent.click(
@@ -530,5 +570,177 @@ describe('AttributionDetails', () => {
     );
 
     expect(screen.getByText(text.diffPopup.title)).toBeInTheDocument();
+  });
+
+  it('resets temporaryDisplayPackageInfo when selected attribution changes', async () => {
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id, packageInfo2.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setSelectedAttributionId(packageInfo1.id),
+      ],
+    });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+        packageInfo1,
+      ),
+    );
+
+    act(() => {
+      store.dispatch(setSelectedAttributionId(packageInfo2.id));
+    });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+        packageInfo2,
+      ),
+    );
+  });
+
+  it('resets temporaryDisplayPackageInfo to empty when selection is cleared', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo.id]: packageInfo,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+        packageInfo,
+      ),
+    );
+
+    act(() => {
+      store.dispatch(setSelectedAttributionId(''));
+    });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+        EMPTY_DISPLAY_PACKAGE_INFO,
+      ),
+    );
+  });
+
+  it('resets temporaryDisplayPackageInfo after saving an attribution', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const modifiedName = faker.company.name();
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo.id]: packageInfo,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setSelectedAttributionId(packageInfo.id),
+        setTemporaryDisplayPackageInfo({
+          ...packageInfo,
+          packageName: modifiedName,
+        }),
+      ],
+    });
+
+    await act(async () => {
+      await store.dispatch(
+        savePackageInfo(resourceId, packageInfo.id, {
+          ...packageInfo,
+          packageName: modifiedName,
+        }),
+      );
+    });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual({
+        ...packageInfo,
+        packageName: modifiedName,
+      }),
+    );
+  });
+
+  it('sets isPackageInfoDirty to true when temp differs from stored', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo.id]: packageInfo,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    act(() => {
+      store.dispatch(
+        setTemporaryDisplayPackageInfo({
+          ...packageInfo,
+          packageName: faker.company.name(),
+        }),
+      );
+    });
+
+    await waitFor(() =>
+      expect(getIsPackageInfoDirty(store.getState())).toBe(true),
+    );
+  });
+
+  it('sets isPackageInfoDirty to false when temp matches stored', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo.id]: packageInfo,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    await waitFor(() =>
+      expect(getIsPackageInfoDirty(store.getState())).toBe(false),
+    );
   });
 });

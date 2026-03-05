@@ -4,13 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { ExportType, FileFormatInfo } from '../../../../shared/shared-types';
 import { PopupType, View } from '../../../enums/enums';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';
-import { getPackageInfoOfSelectedAttribution } from '../../selectors/resource-selectors';
 import { getUserSettings } from '../../selectors/user-settings-selector';
 import { getSelectedView } from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
-import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -44,13 +41,6 @@ export function navigateToView(view: View): AppThunkAction {
 
     dispatch(setTargetView(null));
     dispatch(setView(view));
-
-    const updatedTemporaryDisplayPackageInfo =
-      getPackageInfoOfSelectedAttribution(getState()) ||
-      EMPTY_DISPLAY_PACKAGE_INFO;
-    dispatch(
-      setTemporaryDisplayPackageInfo(updatedTemporaryDisplayPackageInfo),
-    );
   };
 }
 
