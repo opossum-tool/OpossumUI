@@ -26,7 +26,6 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers
 import { createTestStore } from '../../../../test-helpers/render';
 import { createAppStore } from '../../../configure-store';
 import {
-  getIsPackageInfoModified,
   getManualAttributions,
   getManualAttributionsToResources,
   getManualData,
@@ -135,8 +134,6 @@ describe('The savePackageInfo action', () => {
       pathsToIndices: {},
       paths: [],
     });
-    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
-
     await testStore.dispatch(
       savePackageInfo('/root/src/', null, testPackageInfo),
     );
@@ -157,7 +154,6 @@ describe('The savePackageInfo action', () => {
       },
       paths: ['/root/src/', '/', '/root/'],
     });
-    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
 
     const newAttributionId = getSelectedAttributionId(testStore.getState());
     await expectManualAttributions(testStore.getState(), {
@@ -205,8 +201,6 @@ describe('The savePackageInfo action', () => {
       paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
     });
 
-    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
-
     await testStore.dispatch(
       savePackageInfo(
         '/root/src/something.js',
@@ -234,7 +228,6 @@ describe('The savePackageInfo action', () => {
       },
       paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
     });
-    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
 
     await expectManualAttributions(testStore.getState(), {
       [testManualAttributionUuid_1]: testPackageInfo,
@@ -320,7 +313,6 @@ describe('The savePackageInfo action', () => {
     testStore.dispatch(
       setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
     );
-    expect(getIsPackageInfoModified(testStore.getState())).toBe(true);
 
     await testStore.dispatch(
       savePackageInfo('/root/src/something.js', testUuidA, {
@@ -332,7 +324,6 @@ describe('The savePackageInfo action', () => {
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual(expectedResourcesWithManualAttributedChildren2);
-    expect(getIsPackageInfoModified(testStore.getState())).toBe(false);
 
     await expectManualAttributions(testStore.getState(), {
       [testUuidB]: testManualAttributions[testUuidB],
@@ -1238,75 +1229,5 @@ describe('The updateAttributionsAndSave action', () => {
       vueUuid: updatedVue,
       angularUuid: testAngular,
     });
-  });
-
-  it('reloads temporary display package info when selected attribution is updated', async () => {
-    const testReact: PackageInfo = {
-      packageName: 'React',
-      packageVersion: '16.0.0',
-      attributionConfidence: DiscreteConfidence.Low,
-      criticality: Criticality.None,
-      id: 'reactUuid',
-    };
-    const testVue: PackageInfo = {
-      packageName: 'Vue',
-      packageVersion: '2.0.0',
-      attributionConfidence: DiscreteConfidence.Low,
-      criticality: Criticality.None,
-      id: 'vueUuid',
-    };
-    const testResources: Resources = {
-      'something.js': 1,
-      'somethingElse.js': 1,
-    };
-    const testInitialManualAttributions: Attributions = {
-      reactUuid: testReact,
-      vueUuid: testVue,
-    };
-    const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
-      '/something.js': ['reactUuid'],
-      '/somethingElse.js': ['vueUuid'],
-    };
-
-    const testTemporaryDisplayPackageInfo: PackageInfo = {
-      packageName: 'React Modified',
-      packageVersion: '16.1.0',
-      criticality: Criticality.None,
-      id: 'reactUuid',
-    };
-
-    const { testStore } = await setupWithData(
-      getParsedInputFileEnrichedWithTestData({
-        resources: testResources,
-        manualAttributions: testInitialManualAttributions,
-        resourcesToManualAttributions: testInitialResourcesToManualAttributions,
-      }),
-    );
-
-    testStore.dispatch(setSelectedAttributionId('reactUuid'));
-    testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-    );
-
-    // Verify temporary display package info is set
-    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      testTemporaryDisplayPackageInfo,
-    );
-
-    // Update the selected attribution
-    const updatedReact: PackageInfo = {
-      ...testReact,
-      packageVersion: '17.0.0',
-    };
-    const updatedAttributions: Attributions = {
-      reactUuid: updatedReact,
-    };
-
-    await testStore.dispatch(updateAttributionsAndSave(updatedAttributions));
-
-    // Verify temporary display package info was reloaded
-    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      updatedReact,
-    );
   });
 });

@@ -24,6 +24,7 @@ import {
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
+  ACTION_SET_IS_PACKAGE_INFO_DIRTY,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_PROJECT_CONFIG,
   ACTION_SET_PROJECT_METADATA,
@@ -36,6 +37,7 @@ import {
   SetExternalDataAction,
   SetFilesWithChildren,
   SetFrequentLicensesAction,
+  SetIsPackageInfoDirtyAction,
   SetIsPreferenceFeatureEnabled,
   SetManualDataAction,
   SetProjectConfigAction,
@@ -157,5 +159,14 @@ export function setIsPreferenceFeatureEnabled(
   return {
     type: ACTION_SET_ENABLE_PREFERENCE_FEATURE,
     payload: isPreferenceFeatureEnabled,
+  };
+}
+
+export function setIsPackageInfoDirty(
+  isDirty: boolean,
+): SetIsPackageInfoDirtyAction {
+  return {
+    type: ACTION_SET_IS_PACKAGE_INFO_DIRTY,
+    payload: isDirty,
   };
 }

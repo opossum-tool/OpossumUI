@@ -10,7 +10,7 @@ import { text } from '../../../../../shared/text';
 import { addToSelectedResource } from '../../../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import {
-  getIsPackageInfoModified,
+  getIsPackageInfoDirty,
   getIsSelectedResourceBreakpoint,
 } from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
@@ -24,7 +24,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
-  const isPackageInfoModified = useAppSelector(getIsPackageInfoModified);
+  const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isSelectedResourceBreakpoint = useAppSelector(
     getIsSelectedResourceBreakpoint,
   );

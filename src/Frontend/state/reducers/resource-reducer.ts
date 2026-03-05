@@ -37,6 +37,7 @@ import {
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
+  ACTION_SET_IS_PACKAGE_INFO_DIRTY,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_PROJECT_CONFIG,
   ACTION_SET_PROJECT_METADATA,
@@ -71,6 +72,7 @@ export const initialResourceState: ResourceState = {
   externalData: EMPTY_ATTRIBUTION_DATA,
   filesWithChildren: new Set(),
   frequentLicenses: EMPTY_FREQUENT_LICENSES,
+  isPackageInfoDirty: false,
   isPreferenceFeatureEnabled: false,
   manualData: EMPTY_ATTRIBUTION_DATA,
   metadata: EMPTY_PROJECT_METADATA,
@@ -93,6 +95,7 @@ export type ResourceState = {
   externalData: AttributionData;
   filesWithChildren: Set<string>;
   frequentLicenses: FrequentLicenses;
+  isPackageInfoDirty: boolean;
   isPreferenceFeatureEnabled: boolean;
   manualData: AttributionData;
   metadata: ProjectMetadata;
@@ -230,10 +233,6 @@ export const resourceState = (
       return {
         ...state,
         manualData,
-        ...(action.payload.jumpToUpdatedAttribution && {
-          temporaryDisplayPackageInfo:
-            manualData.attributions[action.payload.packageInfo.id],
-        }),
       };
     }
     case ACTION_DELETE_ATTRIBUTION: {
@@ -267,8 +266,6 @@ export const resourceState = (
         manualData,
         ...(action.payload.jumpToMatchingAttribution && {
           selectedAttributionId: action.payload.attributionIdToReplaceWith,
-          temporaryDisplayPackageInfo:
-            manualData.attributions[action.payload.attributionIdToReplaceWith],
         }),
       };
     }
@@ -286,8 +283,6 @@ export const resourceState = (
         manualData,
         ...(action.payload.jumpToMatchingAttribution && {
           selectedAttributionId: action.payload.attributionId,
-          temporaryDisplayPackageInfo:
-            manualData.attributions[action.payload.attributionId],
         }),
       };
     }
@@ -354,6 +349,11 @@ export const resourceState = (
       return {
         ...state,
         isPreferenceFeatureEnabled: action.payload,
+      };
+    case ACTION_SET_IS_PACKAGE_INFO_DIRTY:
+      return {
+        ...state,
+        isPackageInfoDirty: action.payload,
       };
     default:
       return state;

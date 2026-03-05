@@ -59,6 +59,8 @@ export const ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES =
   'ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES';
 export const ACTION_SET_ENABLE_PREFERENCE_FEATURE =
   'ACTION_SET_ENABLE_PREFERENCE_FEATURE';
+export const ACTION_SET_IS_PACKAGE_INFO_DIRTY =
+  'ACTION_SET_IS_PACKAGE_INFO_DIRTY';
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -87,7 +89,8 @@ export type ResourceAction =
   | SetProjectMetadata
   | SetBaseUrlsForSources
   | SetExternalAttributionSources
-  | SetIsPreferenceFeatureEnabled;
+  | SetIsPreferenceFeatureEnabled
+  | SetIsPackageInfoDirtyAction;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -235,5 +238,10 @@ export interface SetExternalAttributionSources {
 
 export interface SetIsPreferenceFeatureEnabled {
   type: typeof ACTION_SET_ENABLE_PREFERENCE_FEATURE;
+  payload: boolean;
+}
+
+export interface SetIsPackageInfoDirtyAction {
+  type: typeof ACTION_SET_IS_PACKAGE_INFO_DIRTY;
   payload: boolean;
 }

@@ -21,7 +21,6 @@ import {
   removeResolvedExternalAttributions,
   setSelectedAttributionId,
 } from './audit-view-simple-actions';
-import { resetTemporaryDisplayPackageInfo } from './navigation-actions';
 import {
   ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
   ACTION_DELETE_ATTRIBUTION,
@@ -112,10 +111,6 @@ export function savePackageInfo(
       });
     }
 
-    if (!isSavedPackageInactive) {
-      dispatch(resetTemporaryDisplayPackageInfo());
-    }
-
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
@@ -139,7 +134,6 @@ export function unlinkAttributionAndSave(
       attributionUuids: attributionIds,
     });
     dispatch(setSelectedAttributionId(''));
-    dispatch(resetTemporaryDisplayPackageInfo());
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
@@ -192,7 +186,6 @@ export function deleteAttributionsAndSave(
     });
     if (attributionIds.includes(selectedAttributionId)) {
       dispatch(setSelectedAttributionId(''));
-      dispatch(resetTemporaryDisplayPackageInfo());
     }
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
@@ -225,9 +218,7 @@ export function removeResolvedExternalAttributionAndSave(
 export function updateAttributionsAndSave(
   updatedAttributions: Attributions,
 ): AsyncAppThunkAction {
-  return async (dispatch, getState) => {
-    const selectedAttributionId = getSelectedAttributionId(getState());
-
+  return async (dispatch) => {
     Object.entries(updatedAttributions).forEach(
       ([attributionId, updatedPackageInfo]) => {
         dispatch(updateAttribution(attributionId, updatedPackageInfo, false));
@@ -236,11 +227,6 @@ export function updateAttributionsAndSave(
     await backend.updateAttributions.mutate({
       attributions: updatedAttributions,
     });
-    // Reset temporary display package info if the currently selected attribution was updated
-    if (Object.keys(updatedAttributions).includes(selectedAttributionId)) {
-      dispatch(resetTemporaryDisplayPackageInfo());
-    }
-
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }

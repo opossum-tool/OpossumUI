@@ -28,7 +28,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getExternalAttributions,
-  getIsPackageInfoModified,
+  getIsPackageInfoDirty,
   getIsSelectedResourceBreakpoint,
   getManualAttributionsToResources,
   getPackageInfoOfSelectedAttribution,
@@ -51,7 +51,7 @@ interface Props {
 
 export function ButtonRow({ packageInfo, isEditable }: Props) {
   const dispatch = useAppDispatch();
-  const isPackageInfoModified = useAppSelector(getIsPackageInfoModified);
+  const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
   const initialPackageInfo = useAppSelector(
     getPackageInfoOfSelectedAttribution,
