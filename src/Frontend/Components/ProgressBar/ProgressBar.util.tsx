@@ -14,7 +14,7 @@ import {
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
 import {
-  FileClassifications,
+  ClassificationStatistics,
   FileWithAttributionsCounts,
   ResourceCriticalityCounts,
 } from '../../types/types';
@@ -151,27 +151,14 @@ export function calculateCriticalityBarSteps(
 }
 
 export function calculateClassificationBarSteps(
-  count: FileClassifications,
+  data: ClassificationStatistics,
 ): Array<ProgressBarStep> {
-  if (count.withOnlyExternal === 0) {
-    return [{ widthInPercent: 100, color: OpossumColors.pastelDarkGreen }];
-  }
-
-  const unclassifiedFiles =
-    count.withOnlyExternal -
-    sum(
-      Object.values(count.classificationStatistics).map(
-        (entry) => entry.correspondingFiles.length,
-      ),
-    );
-  const [unclassifiedPercentage, ...classificationPercentages] =
-    getNormalizedPercentages([
-      unclassifiedFiles,
-      ...Object.values(count.classificationStatistics)
-        .reverse()
-        .map((entry) => entry.correspondingFiles.length),
-    ]);
-  const progressBarSteps = Object.values(count.classificationStatistics)
+  const classificationPercentages = getNormalizedPercentages(
+    Object.values(data)
+      .reverse()
+      .map((entry) => entry.resourceCount),
+  );
+  const progressBarSteps = Object.values(data)
     .reverse()
     .map<ProgressBarStep>((statisticsEntry, index) => {
       return {
@@ -179,24 +166,11 @@ export function calculateClassificationBarSteps(
           text.topBar.switchableProgressBar.classificationBar
             .containingClassification
         } "${statisticsEntry.description.toLowerCase()}"`,
-        count: statisticsEntry.correspondingFiles.length,
+        count: statisticsEntry.resourceCount,
         widthInPercent: classificationPercentages[index],
         color: statisticsEntry.color,
       };
     });
-
-  //add files without classifications
-  if (unclassifiedFiles > 0) {
-    progressBarSteps.push({
-      description:
-        text.topBar.switchableProgressBar.classificationBar
-          .withoutClassification,
-      count: unclassifiedFiles,
-      widthInPercent: unclassifiedPercentage,
-      color: classificationUnknownColor,
-    });
-  }
-
   return progressBarSteps;
 }
 

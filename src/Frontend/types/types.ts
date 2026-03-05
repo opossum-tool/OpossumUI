@@ -23,7 +23,7 @@ export type SelectedProgressBar =
 
 export interface ClassificationStatisticsEntry {
   description: string;
-  correspondingFiles: Array<string>;
+  resourceCount: number;
   color: string;
 }
 
@@ -43,11 +43,6 @@ export interface ResourceCriticalityCounts {
   highlyCriticalResourceCount: number;
   mediumCriticalResourceCount: number;
   nonCriticalResourceCount: number;
-}
-
-export interface FileClassifications {
-  withOnlyExternal: number;
-  classificationStatistics: ClassificationStatistics;
 }
 
 export interface ProgressBarData {

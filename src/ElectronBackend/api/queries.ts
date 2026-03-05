@@ -6,12 +6,16 @@ import { sql } from 'kysely';
 import { omit } from 'lodash';
 
 import { Filter, FilterCounts, FILTERS } from '../../Frontend/shared-constants';
-import { PackageInfo } from '../../shared/shared-types';
 import {
+  ClassificationStatistics,
   FileWithAttributionsCounts,
   ResourceCriticalityCounts,
 } from '../../Frontend/types/types';
-import { Criticality } from '../../shared/shared-types';
+import {
+  ClassificationsConfig,
+  Criticality,
+  PackageInfo,
+} from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { listAttributions } from './listAttributions';
@@ -24,6 +28,8 @@ import {
 import {
   attributionToResourceRelationship,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
+  getExternalClassificationCount,
+  getHigherThanExternalCriticalityCount,
   getResourceOrThrow,
   mergeFilterProperties,
   removeTrailingSlash,
@@ -459,13 +465,13 @@ export const queries = {
       .transaction()
       .execute(async (trx) => {
         const highlyCritical = (
-          await getHigherThanCriticalityExternalCount(trx, Criticality.High)
+          await getHigherThanExternalCriticalityCount(trx, Criticality.High)
         ).critical_count;
         const mediumCritical =
-          (await getHigherThanCriticalityExternalCount(trx, Criticality.Medium))
+          (await getHigherThanExternalCriticalityCount(trx, Criticality.Medium))
             .critical_count - highlyCritical;
         const nonCritical =
-          (await getHigherThanCriticalityExternalCount(trx, Criticality.None))
+          (await getHigherThanExternalCriticalityCount(trx, Criticality.None))
             .critical_count -
           highlyCritical -
           mediumCritical;
@@ -473,6 +479,34 @@ export const queries = {
           highlyCriticalResourceCount: highlyCritical,
           mediumCriticalResourceCount: mediumCritical,
           nonCriticalResourceCount: nonCritical,
+        };
+      });
+    return { result };
+  },
+
+  async getClassificationProgressBarData(props: {
+    classifications: ClassificationsConfig;
+  }): Promise<{
+    result: ClassificationStatistics;
+  }> {
+    const result = await getDb()
+      .transaction()
+      .execute(async (trx) => {
+        const classificationStatistics: ClassificationStatistics = {};
+        for (const [key, classification] of Object.entries(
+          props.classifications,
+        )) {
+          const classificationCount = (
+            await getExternalClassificationCount(trx, Number(key))
+          ).classification_count;
+          classificationStatistics[Number(key)] = {
+            description: classification.description,
+            color: classification.color,
+            resourceCount: classificationCount,
+          };
+        }
+        return {
+          statistics: classificationStatistics,
         };
       });
     return { result };

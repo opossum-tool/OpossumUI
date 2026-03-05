@@ -316,7 +316,7 @@ export async function resourcesToExpand(
   return result.map((r) => r.path);
 }
 
-export async function getHigherThanCriticalityExternalCount(
+export async function getHigherThanExternalCriticalityCount(
   dbOrTrx: Kysely<DB>,
   criticality: Criticality,
 ) {
@@ -336,6 +336,43 @@ export async function getHigherThanCriticalityExternalCount(
             .where('is_external', '=', 1)
             .where('is_resolved', '=', 0)
             .where('criticality', '>=', criticality),
+        ),
+    )
+    .executeTakeFirstOrThrow();
+}
+
+export async function getExternalClassificationCount(
+  dbOrTrx: Kysely<DB>,
+  classification: number,
+) {
+  return await dbOrTrx
+    .selectFrom('cwa')
+    .select((eb) => eb.fn.countAll<number>().as('classification_count'))
+    .where('manual', 'is', null)
+    .where('resource_id', 'in', (eb) =>
+      eb
+        .selectFrom('resource_to_attribution')
+        .select('resource_id')
+        .where('attribution_uuid', 'in', (eb) =>
+          eb
+            .selectFrom('attribution')
+            .select('uuid')
+            .where('is_external', '=', 1)
+            .where('is_resolved', '=', 0)
+            .where('classification', '=', classification),
+        ),
+    )
+    .where('resource_id', 'not in', (eb) =>
+      eb
+        .selectFrom('resource_to_attribution')
+        .select('resource_id')
+        .where('attribution_uuid', 'in', (eb) =>
+          eb
+            .selectFrom('attribution')
+            .select('uuid')
+            .where('is_external', '=', 1)
+            .where('is_resolved', '=', 0)
+            .where('classification', '!=', classification),
         ),
     )
     .executeTakeFirstOrThrow();
