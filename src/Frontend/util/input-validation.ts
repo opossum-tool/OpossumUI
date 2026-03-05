@@ -31,11 +31,13 @@ export function isPackageAttributeIncomplete(
   }
   switch (attribute) {
     case 'copyright':
-    case 'licenseName':
     case 'packageName':
     case 'packageType':
     case 'url':
       return !packageInfo[attribute];
+    case 'licenseName':
+    case 'licenseText':
+      return !(packageInfo['licenseName'] || packageInfo['licenseText']);
     case 'packageNamespace':
       return (
         !!packageInfo.packageType &&
