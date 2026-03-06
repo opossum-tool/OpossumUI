@@ -7,6 +7,7 @@ import { screen } from '@testing-library/react';
 import { text } from '../../../../shared/text';
 import { PopupType } from '../../../enums/enums';
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { GlobalPopup } from '../GlobalPopup';
 
@@ -46,10 +47,11 @@ describe('The GlobalPopUp', () => {
 
   it('opens the ProjectStatisticsPopup', async () => {
     await renderComponent(<GlobalPopup />, {
+      data: getParsedInputFileEnrichedWithTestData({}),
       actions: [openPopup(PopupType.ProjectStatisticsPopup)],
     });
 
-    expect(screen.getByText('Project Statistics')).toBeInTheDocument();
+    expect(await screen.findByText('Project Statistics')).toBeInTheDocument();
     expect(
       global.window.electronAPI.setFrontendPopupOpen,
     ).toHaveBeenLastCalledWith(true);

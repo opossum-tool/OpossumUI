@@ -104,7 +104,8 @@ export async function statistics() {
           eb.fn.sum<number>('count').as('count'),
         ]),
     )
-    .execute();
+    .execute()
+    .then((rows) => rows.filter((row) => row.count !== null));
 
   const signalsByCriticality = await getDb()
     .selectFrom('attribution')
