@@ -87,6 +87,7 @@ describe('The table helpers', () => {
     property
     ${'copyright'}
     ${'licenseName'}
+    ${'licenseText'}
     ${'packageName'}
     ${'url'}
   `(
@@ -127,6 +128,81 @@ describe('The table helpers', () => {
 
       testAttributionInfo = {
         [property]: 'test',
+        resources: ['1'],
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      };
+
+      expect(
+        isPackageAttributeIncomplete(
+          testTableConfig.attributionProperty,
+          testAttributionInfo,
+        ),
+      ).toBe(false);
+    },
+  );
+
+  it.each`
+    property
+    ${'licenseName'}
+    ${'licenseText'}
+  `(
+    'isImportantAttributionInformationMissing handles attributions with only license name or license text properly',
+    ({ property }) => {
+      const testTableConfig: TableConfig = {
+        attributionProperty: property,
+        displayName: 'Follow-up',
+        width: '100px',
+      };
+
+      let testAttributionInfo: PackageInfo = {
+        licenseName: '',
+        licenseText: '',
+        resources: ['1'],
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      };
+
+      expect(
+        isPackageAttributeIncomplete(
+          testTableConfig.attributionProperty,
+          testAttributionInfo,
+        ),
+      ).toBe(true);
+
+      testAttributionInfo = {
+        licenseName: '',
+        licenseText: 'something',
+        resources: ['1'],
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      };
+
+      expect(
+        isPackageAttributeIncomplete(
+          testTableConfig.attributionProperty,
+          testAttributionInfo,
+        ),
+      ).toBe(false);
+
+      testAttributionInfo = {
+        licenseName: 'something',
+        licenseText: '',
+        resources: ['1'],
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      };
+
+      expect(
+        isPackageAttributeIncomplete(
+          testTableConfig.attributionProperty,
+          testAttributionInfo,
+        ),
+      ).toBe(false);
+
+      testAttributionInfo = {
+        licenseName: 'something',
+        licenseText: 'something',
         resources: ['1'],
         criticality: Criticality.None,
         id: faker.string.uuid(),

@@ -91,7 +91,7 @@ export const text = {
     homepage: 'Homepage',
     invalidPurl: 'INVALID PURL',
     legalInformation: 'Legal Information',
-    licenseExpression: 'License Expression',
+    licenseExpression: 'License Expression / Name',
     licenseText: 'License Text',
     licenseTextDefault: 'License Text (inferred from license name)',
     link: 'Link as attribution on selected resource',
