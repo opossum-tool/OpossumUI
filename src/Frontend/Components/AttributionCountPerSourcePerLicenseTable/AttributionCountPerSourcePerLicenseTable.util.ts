@@ -5,12 +5,8 @@
 import { TableCellProps } from '@mui/material';
 import { orderBy } from 'lodash';
 
-import { Criticality, Order } from '../../../shared/shared-types';
-import {
-  LicenseCounts,
-  LicenseNamesWithClassification,
-  LicenseNamesWithCriticality,
-} from '../../types/types';
+import { LicenseTableRow } from '../../../ElectronBackend/api/queries';
+import { Order } from '../../../shared/shared-types';
 
 export enum SingleColumn {
   NAME = 'NAME',
@@ -54,41 +50,31 @@ export class ColumnConfig {
   }
 }
 
-export function orderLicenseNames(
-  licenseNamesWithCriticality: LicenseNamesWithCriticality,
-  licenseNamesWithClassification: LicenseNamesWithClassification,
-  licenseCounts: LicenseCounts,
+export function orderLicenseTableRows(
+  rows: Array<LicenseTableRow>,
   orderDirection: Order,
-  orderedColumnType: ColumnType,
-): Array<string> {
+  orderedColumnType: ColumnType | undefined,
+): Array<LicenseTableRow> {
   return orderBy(
-    Object.keys(licenseNamesWithCriticality),
+    rows,
     [
-      (licenseName) => {
-        if (orderedColumnType === SingleColumn.NAME) {
-          return licenseName.toLowerCase();
+      (row) => {
+        if (
+          orderedColumnType === undefined ||
+          orderedColumnType === SingleColumn.NAME
+        ) {
+          return row.licenseName?.toLowerCase();
         } else if (orderedColumnType === SingleColumn.CRITICALITY) {
-          switch (licenseNamesWithCriticality[licenseName]) {
-            case Criticality.High:
-              return 2;
-            case Criticality.Medium:
-              return 1;
-            default:
-              return 0;
-          }
+          return row.criticality;
         } else if (orderedColumnType === SingleColumn.CLASSIFICATION) {
-          return licenseNamesWithClassification[licenseName];
+          return row.classification;
         } else if (orderedColumnType === SingleColumn.TOTAL) {
-          return licenseCounts.totalAttributionsPerLicense[licenseName];
+          return row.total;
         }
 
-        return (
-          licenseCounts.attributionCountPerSourcePerLicense[licenseName][
-            orderedColumnType.sourceName
-          ] ?? 0
-        );
+        return row.perSource[orderedColumnType.sourceName] ?? 0;
       },
-      (licenseName) => licenseName.toLowerCase(),
+      (row) => row.licenseName?.toLowerCase(),
     ],
     [orderDirection, 'asc'],
   );

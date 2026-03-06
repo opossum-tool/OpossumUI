@@ -18,18 +18,14 @@ import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getBaseUrlsForSources,
-  getExternalAttributions,
   getExternalAttributionSources,
-  getExternalAttributionsToResources,
   getFrequentLicensesNameOrder,
   getFrequentLicensesTexts,
   getIsPreferenceFeatureEnabled,
   getManualAttributions,
   getManualAttributionsToResources,
   getResources,
-  getResourcesToExternalAttributions,
   getResourcesToManualAttributions,
-  getResourcesWithExternalAttributedChildren,
   getResourcesWithManualAttributedChildren,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/resource-selectors';
@@ -37,7 +33,6 @@ import {
   resetResourceState,
   setBaseUrlsForSources,
   setExternalAttributionSources,
-  setExternalData,
   setFrequentLicenses,
   setIsPreferenceFeatureEnabled,
   setManualData,
@@ -184,79 +179,6 @@ describe('The load and navigation simple actions', () => {
     );
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
-    ).toEqual(expectedResourcesWithAttributedChildren);
-  });
-
-  it('sets and gets external attribution data', () => {
-    const testAttributions: Attributions = {
-      uuid1: {
-        packageName: 'React',
-        criticality: Criticality.None,
-        id: 'uuid1',
-      },
-      uuid2: {
-        packageName: 'Redux',
-        criticality: Criticality.None,
-        id: 'uuid2',
-      },
-    };
-    const testResourcesToAttributions: ResourcesToAttributions = {
-      '/some/path1': ['uuid1', 'uuid2'],
-      '/some/path2': ['uuid1'],
-    };
-    const testAttributionsToResources = getAttributionsToResources(
-      testResourcesToAttributions,
-    );
-    const expectedResourcesWithAttributedChildren: ResourcesWithAttributedChildren =
-      {
-        attributedChildren: {
-          '1': new Set<number>().add(0).add(3),
-          '2': new Set<number>().add(0).add(3),
-        },
-        pathsToIndices: {
-          '/': 1,
-          '/some/': 2,
-          '/some/path1': 0,
-          '/some/path2': 3,
-        },
-        paths: ['/some/path1', '/', '/some/', '/some/path2'],
-      };
-
-    const testStore = createAppStore();
-    expect(getExternalAttributions(testStore.getState())).toEqual({});
-    expect(getResourcesToExternalAttributions(testStore.getState())).toEqual(
-      {},
-    );
-    expect(getExternalAttributionsToResources(testStore.getState())).toEqual(
-      {},
-    );
-    expect(
-      getResourcesWithExternalAttributedChildren(testStore.getState()),
-    ).toEqual({
-      attributedChildren: {},
-      pathsToIndices: {},
-      paths: [],
-    });
-
-    testStore.dispatch(
-      setExternalData(
-        testAttributions,
-        testResourcesToAttributions,
-        testAttributionsToResources,
-        new Set(),
-      ),
-    );
-    expect(getExternalAttributions(testStore.getState())).toEqual(
-      testAttributions,
-    );
-    expect(getResourcesToExternalAttributions(testStore.getState())).toEqual(
-      testResourcesToAttributions,
-    );
-    expect(getExternalAttributionsToResources(testStore.getState())).toEqual(
-      testAttributionsToResources,
-    );
-    expect(
-      getResourcesWithExternalAttributedChildren(testStore.getState()),
     ).toEqual(expectedResourcesWithAttributedChildren);
   });
 

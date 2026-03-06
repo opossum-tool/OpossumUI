@@ -27,7 +27,6 @@ import {
   getBaseUrlsForSources,
   getClassifications,
   getExternalAttributionSources,
-  getExternalData,
   getFilesWithChildren,
   getFrequentLicensesNameOrder,
   getFrequentLicensesTexts,
@@ -201,40 +200,6 @@ describe('loadFromFile', () => {
         paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
       },
     };
-    const expectedExternalData: AttributionData = {
-      attributions: testExternalAttributions,
-      resourcesToAttributions: testResourcesToExternalAttributions,
-      attributionsToResources: {
-        uuid: ['/root/src/something.js'],
-        test_id: ['/thirdParty/package_1.tr.gz'],
-        doNotChangeMe1: ['/thirdParty/package_1.tr.gz'],
-        doNotChangeMe2: ['/thirdParty/package_1.tr.gz'],
-      },
-      resourcesWithAttributedChildren: {
-        attributedChildren: {
-          '1': new Set<number>().add(0).add(4),
-          '2': new Set<number>().add(0),
-          '3': new Set<number>().add(0),
-          '5': new Set<number>().add(4),
-        },
-        pathsToIndices: {
-          '/': 1,
-          '/root/': 2,
-          '/root/src/': 3,
-          '/root/src/something.js': 0,
-          '/thirdParty/': 5,
-          '/thirdParty/package_1.tr.gz': 4,
-        },
-        paths: [
-          '/root/src/something.js',
-          '/',
-          '/root/',
-          '/root/src/',
-          '/thirdParty/package_1.tr.gz',
-          '/thirdParty/',
-        ],
-      },
-    };
 
     const testStore = createAppStore();
     expect(testStore.getState().resourceState).toMatchObject(
@@ -247,7 +212,6 @@ describe('loadFromFile', () => {
       expectedConfig.classifications,
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
-    expect(getExternalData(testStore.getState())).toEqual(expectedExternalData);
     expect(getFrequentLicensesNameOrder(testStore.getState())).toEqual(
       testFrequentLicenses.nameOrder,
     );
