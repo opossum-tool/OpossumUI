@@ -35,8 +35,8 @@ export const comments: Record<string, Record<string, string>> = {
       'The highest id of a descendant of this resource. As the resources are numbered depth-first, this enables us to identify the children of resource R by checking if child.id is between R.id and R.max_descendant_id, which is very fast. See https://en.wikipedia.org/wiki/Nested_set_model',
   },
   source_for_attribution: {
-    external_attribution_source_name:
-      'Mainly contains names of external_attribution_source, but can also contain unknown names',
+    external_attribution_source_key:
+      'Mainly contains keys of external_attribution_source, but can also contain unknown values',
   },
   resource_to_attribution: {
     attribution_is_external:
@@ -91,7 +91,8 @@ async function initializeExternalAttributionSourceTable(
 ) {
   await trx.schema
     .createTable('external_attribution_source')
-    .addColumn('name', 'text', (col) => col.primaryKey().notNull())
+    .addColumn('key', 'text', (col) => col.primaryKey().notNull())
+    .addColumn('name', 'text', (col) => col.notNull())
     .addColumn('priority', 'integer', (col) => col.notNull())
     .addColumn('is_relevant_for_preferred', 'integer', (col) =>
       col.notNull().defaultTo(0),
@@ -102,7 +103,8 @@ async function initializeExternalAttributionSourceTable(
     await trx
       .insertInto('external_attribution_source')
       .values({
-        name: key,
+        key,
+        name: source.name,
         priority: source.priority,
         is_relevant_for_preferred: Number(
           source.isRelevantForPreferred ?? false,
@@ -343,8 +345,8 @@ async function initializeSourceForAttributionTable(
     .addColumn('attribution_uuid', 'text', (col) =>
       col.primaryKey().notNull().references('attribution.uuid'),
     )
-    // Not a foreign key to external_attribution_source.name because we have some attributions that have a
-    .addColumn('external_attribution_source_name', 'text', (col) =>
+    // Not a foreign key to external_attribution_source.key because we have some attributions that have an unknown key
+    .addColumn('external_attribution_source_key', 'text', (col) =>
       col.notNull(),
     )
     .addColumn('document_confidence', 'integer')
@@ -359,7 +361,7 @@ async function initializeSourceForAttributionTable(
         .insertInto('source_for_attribution')
         .values({
           attribution_uuid: uuid,
-          external_attribution_source_name: attribution.source.name,
+          external_attribution_source_key: attribution.source.name,
           document_confidence: attribution.source.documentConfidence,
           additional_name: attribution.source.additionalName,
         })
@@ -368,9 +370,9 @@ async function initializeSourceForAttributionTable(
   }
 
   await trx.schema
-    .createIndex('source_for_attribution_source_name_idx')
+    .createIndex('source_for_attribution_source_key_idx')
     .on('source_for_attribution')
-    .column('external_attribution_source_name')
+    .column('external_attribution_source_key')
     .execute();
 }
 
