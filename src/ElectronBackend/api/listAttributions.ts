@@ -71,7 +71,7 @@ export async function listAttributions(props: {
   }
 
   for (const filter of props.filters) {
-    query = query.where((eb) => getFilterExpression(eb, filter));
+    query = query.where(getFilterExpression(filter));
   }
 
   if (props.license) {
@@ -80,7 +80,7 @@ export async function listAttributions(props: {
 
   if (props.search) {
     const search = props.search;
-    query = query.where((eb) => getSearchExpression(eb, search));
+    query = query.where(getSearchExpression(search));
   }
 
   if (!props.showResolved) {
