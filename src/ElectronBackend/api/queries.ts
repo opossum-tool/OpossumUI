@@ -217,7 +217,7 @@ export const queries = {
         FILTERS.map((f) =>
           eb.fn
             .sum<number>(
-              eb.case().when(getFilterExpression(eb, f)).then(1).else(0).end(),
+              eb.case().when(getFilterExpression(f)).then(1).else(0).end(),
             )
             .as(f),
         ),
@@ -232,7 +232,7 @@ export const queries = {
     query = query.where('is_external', '=', Number(props.external));
 
     for (const filter of props.filters) {
-      query = query.where((eb) => getFilterExpression(eb, filter));
+      query = query.where(getFilterExpression(filter));
     }
 
     if (props.license) {
@@ -241,7 +241,7 @@ export const queries = {
 
     if (props.search) {
       const search = props.search;
-      query = query.where((eb) => getSearchExpression(eb, search));
+      query = query.where(getSearchExpression(search));
     }
 
     if (!props.showResolved) {
