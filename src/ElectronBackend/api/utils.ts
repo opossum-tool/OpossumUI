@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   CaseWhenBuilder,
+  Expression,
   ExpressionBuilder,
   expressionBuilder,
   Kysely,
@@ -421,6 +422,10 @@ export function mergeFilterProperties(
   }
 
   return result;
+}
+
+export function canonicalLicenseName(licenseName: Expression<string | null>) {
+  return sql<string>`lower(replace(replace(${licenseName}, '-', ''), ' ', ''))`;
 }
 
 type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`
