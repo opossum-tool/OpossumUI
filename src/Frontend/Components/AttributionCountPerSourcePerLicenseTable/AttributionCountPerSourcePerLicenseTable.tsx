@@ -6,22 +6,18 @@ import MuiBox from '@mui/material/Box';
 import MuiTable from '@mui/material/Table';
 import MuiTableBody from '@mui/material/TableBody';
 import MuiTableContainer from '@mui/material/TableContainer';
-import { orderBy, upperFirst } from 'lodash';
+import { upperFirst } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 
+import { QueryResult } from '../../../ElectronBackend/api/queries';
 import { DEFAULT_USER_SETTINGS } from '../../../shared/shared-constants';
 import { Order, TableOrdering } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import {
-  LicenseCounts,
-  LicenseNamesWithClassification,
-  LicenseNamesWithCriticality,
-} from '../../types/types';
-import {
   Column,
   ColumnConfig,
-  orderLicenseNames,
+  orderLicenseTableRows,
   SingleColumn,
 } from './AttributionCountPerSourcePerLicenseTable.util';
 import { AttributionCountPerSourcePerLicenseTableFooter } from './AttributionCountPerSourcePerLicenseTableFooter/AttributionCountPerSourcePerLicenseTableFooter';
@@ -35,18 +31,17 @@ const classes = {
 };
 
 export interface AttributionCountPerSourcePerLicenseTableProps {
-  licenseCounts: LicenseCounts;
-  licenseNamesWithCriticality: LicenseNamesWithCriticality;
-  licenseNamesWithClassification: LicenseNamesWithClassification;
+  tableData: QueryResult<'licenseTable'>;
 }
 
 export const AttributionCountPerSourcePerLicenseTable: React.FC<
   AttributionCountPerSourcePerLicenseTableProps
-> = (props) => {
+> = ({ tableData }) => {
   const componentText = text.attributionCountPerSourcePerLicenseTable;
 
-  const sourceNames = Object.keys(
-    props.licenseCounts.totalAttributionsPerSource,
+  // Sort no source last
+  const sourceNames = Object.keys(tableData.totals.perSource).toSorted(
+    (a, b) => (a === '-' ? 1 : b === '-' ? -1 : a.localeCompare(b)),
   );
 
   const [userSettings, updateUserSettings] = useUserSettings();
@@ -164,23 +159,13 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     updateUserSettings({ attributionTableOrdering: newOrdering });
   };
 
-  const orderedLicenseNames = useMemo(() => {
+  const orderedRows = useMemo(() => {
     const orderedColumnType = columnConfig.getColumnById(
       effectiveOrdering.orderedColumn,
     )?.columnType;
 
-    if (orderedColumnType === undefined) {
-      return orderBy(
-        Object.keys(props.licenseNamesWithCriticality),
-        (licenseName) => licenseName.toLowerCase(),
-        effectiveOrdering.orderDirection,
-      );
-    }
-
-    return orderLicenseNames(
-      props.licenseNamesWithCriticality,
-      props.licenseNamesWithClassification,
-      props.licenseCounts,
+    return orderLicenseTableRows(
+      tableData.perLicense,
       effectiveOrdering.orderDirection,
       orderedColumnType,
     );
@@ -188,9 +173,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
     columnConfig,
     effectiveOrdering.orderedColumn,
     effectiveOrdering.orderDirection,
-    props.licenseNamesWithCriticality,
-    props.licenseNamesWithClassification,
-    props.licenseCounts,
+    tableData.perLicense,
   ]);
 
   return (
@@ -203,34 +186,26 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
             onRequestSort={handleRequestSort}
           />
           <MuiTableBody>
-            {orderedLicenseNames.map((licenseName, rowIndex) => (
+            {orderedRows.map((row, rowIndex) => (
               <AttributionCountPerSourcePerLicenseTableRow
                 columnConfig={columnConfig}
-                signalCountsPerSource={
-                  props.licenseCounts.attributionCountPerSourcePerLicense[
-                    licenseName
-                  ]
-                }
-                licenseName={licenseName}
-                licenseCriticality={
-                  props.licenseNamesWithCriticality[licenseName]
-                }
-                licenseClassification={
-                  props.licenseNamesWithClassification[licenseName]
-                }
-                totalSignalCount={
-                  props.licenseCounts.totalAttributionsPerLicense[licenseName]
-                }
-                key={rowIndex}
+                signalCountsPerSource={row.perSource}
+                licenseName={row.licenseName ?? '-'}
+                licenseCriticality={row.criticality}
+                licenseClassification={row.classification}
+                totalSignalCount={row.total}
+                key={JSON.stringify([
+                  row.licenseName,
+                  row.criticality,
+                  row.classification,
+                ])}
                 rowIndex={rowIndex}
               />
             ))}
           </MuiTableBody>
           <AttributionCountPerSourcePerLicenseTableFooter
             columnConfig={columnConfig}
-            totalAttributionsPerSource={
-              props.licenseCounts.totalAttributionsPerSource
-            }
+            totalAttributionsPerSource={tableData.totals.perSource}
           />
         </MuiTable>
       </MuiTableContainer>
