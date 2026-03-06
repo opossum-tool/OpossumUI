@@ -84,11 +84,12 @@ describe('The ProjectStatisticsPopup', () => {
 
     await renderComponent(<ProjectStatisticsPopup />, {
       data: getParsedInputFileEnrichedWithTestData({
+        config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
         externalAttributions: testExternalAttributions,
       }),
     });
 
-    await userEvent.click(screen.getByText('Licenses'));
+    await userEvent.click(await screen.findByText('Licenses'));
 
     expect(screen.getByText('Apache License Version 2.0')).toBeVisible();
     expect(screen.getByText('The MIT License (MIT)')).toBeVisible();
@@ -102,7 +103,7 @@ describe('The ProjectStatisticsPopup', () => {
     });
 
     expect(
-      screen.getByText(
+      await screen.findByText(
         text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
       ),
     ).toBeVisible();
@@ -112,11 +113,11 @@ describe('The ProjectStatisticsPopup', () => {
       ),
     ).toBeVisible();
     expect(
-      screen.queryByText(
+      screen.getByText(
         text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
           .title,
       ),
-    ).not.toBeInTheDocument();
+    ).toBeVisible();
     expect(
       screen.getAllByText(
         text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
@@ -132,6 +133,9 @@ describe('The ProjectStatisticsPopup', () => {
         externalAttributions: testExternalAttributions,
       }),
     });
+    await screen.findByText(
+      text.projectStatisticsPopup.charts.attributionProperties.title,
+    );
     expect(
       screen.queryByText(
         text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
@@ -185,7 +189,7 @@ describe('The ProjectStatisticsPopup', () => {
       }),
     });
     expect(
-      screen.getByText(
+      await screen.findByText(
         text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
       ),
     ).toBeVisible();
@@ -195,11 +199,11 @@ describe('The ProjectStatisticsPopup', () => {
       ),
     ).toBeVisible();
     expect(
-      screen.queryByText(
+      screen.getByText(
         text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
           .title,
       ),
-    ).not.toBeInTheDocument();
+    ).toBeVisible();
   });
 
   it('renders attribution bar chart and signals per sources table even when there are no attributions and no signals', async () => {
@@ -211,7 +215,7 @@ describe('The ProjectStatisticsPopup', () => {
     });
 
     expect(
-      screen.getByText(
+      await screen.findByText(
         text.projectStatisticsPopup.charts.attributionProperties.title,
       ),
     ).toBeVisible();
@@ -250,11 +254,12 @@ describe('The ProjectStatisticsPopup', () => {
     };
     await renderComponent(<ProjectStatisticsPopup />, {
       data: getParsedInputFileEnrichedWithTestData({
+        config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
         externalAttributions: testExternalAttributions,
       }),
     });
 
-    await userEvent.click(screen.getByText('Licenses'));
+    await userEvent.click(await screen.findByText('Licenses'));
 
     const getLicenseNames = () =>
       screen
@@ -290,6 +295,9 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [setUserSetting({ showClassifications: false })],
     });
 
+    await screen.findByText(
+      text.projectStatisticsPopup.charts.attributionProperties.title,
+    );
     expect(
       screen.queryByText(
         text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
@@ -304,6 +312,9 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [setUserSetting({ showCriticality: false })],
     });
 
+    await screen.findByText(
+      text.projectStatisticsPopup.charts.attributionProperties.title,
+    );
     expect(
       screen.queryByText(
         text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
@@ -313,11 +324,14 @@ describe('The ProjectStatisticsPopup', () => {
 
   it('allows toggling of show-on-startup checkbox', async () => {
     await renderComponent(<ProjectStatisticsPopup />, {
+      data: getParsedInputFileEnrichedWithTestData({}),
       actions: [setUserSetting({ showProjectStatistics: true })],
     });
 
     expect(
-      screen.getByLabelText(text.projectStatisticsPopup.toggleStartupCheckbox),
+      await screen.findByLabelText(
+        text.projectStatisticsPopup.toggleStartupCheckbox,
+      ),
     ).toBeChecked();
 
     await userEvent.click(

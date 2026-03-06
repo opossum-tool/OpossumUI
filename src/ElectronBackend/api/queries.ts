@@ -556,6 +556,8 @@ export const queries = {
           .as('source_name'),
         eb.fn.countAll<number>().as('attribution_count'),
       ])
+      .where('attribution.is_external', '=', 1)
+      .where('attribution.is_resolved', '=', 0)
       .groupBy((eb) => [
         canonicalLicenseName(eb.ref('license_name')),
         'criticality',
