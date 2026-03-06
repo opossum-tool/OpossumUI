@@ -15,8 +15,10 @@ import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { listAttributions } from './listAttributions';
 import { getResourceTree } from './resourceTree';
+import { statistics } from './statistics';
 import {
   attributionToResourceRelationship,
+  canonicalLicenseName,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
   mergeFilterProperties,
@@ -48,12 +50,24 @@ type AttributionCounts = Partial<
 > &
   Record<'all' | 'sameOrDescendant', FilterProperties>;
 
+export type LicenseTableRow = {
+  licenseName: string | null;
+  criticality: number;
+  classification: number;
+  perSource: { [key: string]: number };
+  total: number;
+};
+
 type QueryFunction = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   param?: any,
 ) => Promise<{ result: NonNullable<unknown> | null }>; // Tanstack doesn't allow functions to return undefined
 
 export const queries = {
+  listAttributions,
+  getResourceTree,
+  statistics,
+
   async getAttributionData(props: { attributionUuid: string }) {
     const result = await getDb()
       .selectFrom('attribution')
@@ -180,8 +194,6 @@ export const queries = {
     };
   },
 
-  listAttributions,
-
   async filterProperties(props: {
     external: boolean;
     filters: Array<Filter>;
@@ -217,7 +229,7 @@ export const queries = {
         FILTERS.map((f) =>
           eb.fn
             .sum<number>(
-              eb.case().when(getFilterExpression(eb, f)).then(1).else(0).end(),
+              eb.case().when(getFilterExpression(f)).then(1).else(0).end(),
             )
             .as(f),
         ),
@@ -232,7 +244,7 @@ export const queries = {
     query = query.where('is_external', '=', Number(props.external));
 
     for (const filter of props.filters) {
-      query = query.where((eb) => getFilterExpression(eb, filter));
+      query = query.where(getFilterExpression(filter));
     }
 
     if (props.license) {
@@ -241,7 +253,7 @@ export const queries = {
 
     if (props.search) {
       const search = props.search;
-      query = query.where((eb) => getSearchExpression(eb, search));
+      query = query.where(getSearchExpression(search));
     }
 
     if (!props.showResolved) {
@@ -383,7 +395,6 @@ export const queries = {
     };
   },
 
-  getResourceTree,
   async getProgressBarData(props: { classifications: ClassificationsConfig }) {
     const result = await getDb()
       .transaction()
@@ -521,6 +532,82 @@ export const queries = {
         classificationStatistics,
       } as ProgressBarData,
     };
+  },
+
+  async licenseTable() {
+    const queryResult = await getDb()
+      .selectFrom('attribution')
+      .leftJoin(
+        'source_for_attribution as sfa',
+        'attribution.uuid',
+        'sfa.attribution_uuid',
+      )
+      .leftJoin(
+        'external_attribution_source as eas',
+        'sfa.external_attribution_source_key',
+        'eas.key',
+      )
+      .select((eb) => [
+        'license_name',
+        'criticality',
+        'classification',
+        eb.fn
+          .coalesce('eas.name', 'sfa.external_attribution_source_key')
+          .as('source_name'),
+        eb.fn.countAll<number>().as('attribution_count'),
+      ])
+      .where('attribution.is_external', '=', 1)
+      .where('attribution.is_resolved', '=', 0)
+      .groupBy((eb) => [
+        canonicalLicenseName(eb.ref('license_name')),
+        'criticality',
+        'classification',
+        'source_name',
+      ])
+      .orderBy('license_name', (ob) => ob.asc().nullsLast())
+      .orderBy('criticality', (ob) => ob.asc().nullsLast())
+      .orderBy('classification', (ob) => ob.asc().nullsLast())
+      .execute();
+
+    const licenseTableRows: Array<LicenseTableRow> = [];
+    const totals: Pick<LicenseTableRow, 'perSource' | 'total'> = {
+      perSource: {},
+      total: 0,
+    };
+
+    for (const queryRow of queryResult) {
+      const licenseName = queryRow.license_name;
+      const criticality = queryRow.criticality ?? 0;
+      const classification = queryRow.classification ?? 0;
+      const sourceName = queryRow.source_name ?? '-';
+
+      let currentRow = licenseTableRows.at(-1);
+      if (
+        licenseName !== currentRow?.licenseName ||
+        criticality !== currentRow.criticality ||
+        classification !== currentRow.classification
+      ) {
+        currentRow = {
+          licenseName,
+          criticality,
+          classification,
+          perSource: {},
+          total: 0,
+        };
+        licenseTableRows.push(currentRow);
+      }
+
+      currentRow.perSource[sourceName] = queryRow.attribution_count;
+      currentRow.total += queryRow.attribution_count;
+
+      if (!(sourceName in totals.perSource)) {
+        totals.perSource[sourceName] = 0;
+      }
+      totals.perSource[sourceName] += queryRow.attribution_count;
+      totals.total += queryRow.attribution_count;
+    }
+
+    return { result: { perLicense: licenseTableRows, totals } };
   },
 } satisfies Record<string, QueryFunction>;
 

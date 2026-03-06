@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ExpressionBuilder, OperandExpression, SqlBool } from 'kysely';
+import { expressionBuilder, OperandExpression, SqlBool } from 'kysely';
 
 import { Filter } from '../../Frontend/shared-constants';
 import { text } from '../../shared/text';
@@ -24,9 +24,9 @@ const TYPES_REQUIRING_NAMESPACE = [
  * matches the expression, 0 else
  */
 export function getFilterExpression(
-  eb: ExpressionBuilder<DB, 'attribution'>,
   filter: Filter,
 ): OperandExpression<SqlBool> {
+  const eb = expressionBuilder<DB, 'attribution'>();
   const filters = {
     [text.filters.currentlyPreferred]: eb('preferred', '=', 1),
     [text.filters.excludedFromNotice]: eb('exclude_from_notice', '=', 1),
@@ -87,9 +87,9 @@ export function getFilterExpression(
 }
 
 export function getSearchExpression(
-  eb: ExpressionBuilder<DB, 'attribution'>,
   search: string,
 ): OperandExpression<SqlBool> {
+  const eb = expressionBuilder<DB, 'attribution'>();
   return eb.or(
     (
       [
