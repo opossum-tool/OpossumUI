@@ -15,6 +15,7 @@ import {
 } from '../../state/selectors/resource-selectors';
 import {
   ClassificationStatistics,
+  ClassificationStatisticsEntry,
   FileWithAttributionsCounts,
   ResourceCriticalityCounts,
 } from '../../types/types';
@@ -153,25 +154,24 @@ export function calculateCriticalityBarSteps(
 export function calculateClassificationBarSteps(
   data: ClassificationStatistics,
 ): Array<ProgressBarStep> {
+  const entries = Object.values(data)
+    .filter(
+      (entry): entry is ClassificationStatisticsEntry =>
+        typeof entry === 'object' && entry !== null && 'description' in entry,
+    )
+    .reverse();
   const classificationPercentages = getNormalizedPercentages(
-    Object.values(data)
-      .reverse()
-      .map((entry) => entry.resourceCount),
+    entries.map((entry) => entry.resourceCount),
   );
-  const progressBarSteps = Object.values(data)
-    .reverse()
-    .map<ProgressBarStep>((statisticsEntry, index) => {
-      return {
-        description: `${
-          text.topBar.switchableProgressBar.classificationBar
-            .containingClassification
-        } "${statisticsEntry.description.toLowerCase()}"`,
-        count: statisticsEntry.resourceCount,
-        widthInPercent: classificationPercentages[index],
-        color: statisticsEntry.color,
-      };
-    });
-  return progressBarSteps;
+  return entries.map<ProgressBarStep>((statisticsEntry, index) => ({
+    description: `${
+      text.topBar.switchableProgressBar.classificationBar
+        .containingClassification
+    } "${statisticsEntry.description.toLowerCase()}"`,
+    count: statisticsEntry.resourceCount,
+    widthInPercent: classificationPercentages[index],
+    color: statisticsEntry.color,
+  }));
 }
 
 export function createBackgroundFromProgressBarSteps(

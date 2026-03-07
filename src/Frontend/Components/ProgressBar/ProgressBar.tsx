@@ -10,12 +10,16 @@ import Box from '@mui/system/Box';
 
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
+import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getSelectedResourceId } from '../../state/selectors/resource-selectors';
 import {
   ClassificationStatistics,
   FileWithAttributionsCounts,
   ResourceCriticalityCounts,
   SelectedProgressBar,
 } from '../../types/types';
+import { backend } from '../../util/backendClient';
 import {
   calculateAttributionBarSteps,
   calculateClassificationBarSteps,
@@ -47,6 +51,14 @@ interface ProgressBarTooltipProps {
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
+  const dispatch = useAppDispatch();
+  const selectedResourcePath = useAppSelector(getSelectedResourceId);
+  const getNextAttributionResource =
+    backend.getNextFileToReviewForAttribution.useQuery({
+      selectedResourcePath: selectedResourcePath,
+      data: props.progressBarData,
+    });
+
   const progressBarConfigurations: Record<
     SelectedProgressBar,
     {
@@ -60,7 +72,14 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       Title: AttributionBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
       steps: calculateAttributionBarSteps(props.progressBarData),
-      onClickHandler: () => {},
+      onClickHandler: () =>
+        getNextAttributionResource.data
+          ? dispatch(
+              navigateToSelectedPathOrOpenUnsavedPopup(
+                getNextAttributionResource.data,
+              ),
+            )
+          : null,
     },
     criticality: {
       Title: CriticalityBarTooltipTitle,

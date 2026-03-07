@@ -19,6 +19,14 @@ import {
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { listAttributions } from './listAttributions';
+import {
+  getExternalClassificationCount,
+  getManualFilesQuery,
+  getNonPreSelectedManualFilesQuery,
+  getOnlyExternalFilesQuery,
+  getPreSelectedManualFilesQuery,
+  getResourceCriticalityCount,
+} from './progressBar';
 import { getResourceTree } from './resourceTree';
 import {
   externalAttributionStatistics,
@@ -28,8 +36,6 @@ import {
 import {
   attributionToResourceRelationship,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
-  getExternalClassificationCount,
-  getHigherThanExternalCriticalityCount,
   getResourceOrThrow,
   mergeFilterProperties,
   removeTrailingSlash,
@@ -411,40 +417,21 @@ export const queries = {
           .where('is_file', '=', 1)
           .executeTakeFirstOrThrow();
 
+        const { manual_count } = await trx
+          .selectFrom((eb) => getManualFilesQuery(eb).as('cwa'))
+          .select((eb) => eb.fn.countAll<number>().as('manual_count'))
+          .executeTakeFirstOrThrow();
+
         const { manual_non_pre_selected_count } = await trx
-          .selectFrom('cwa')
+          .selectFrom((eb) => getNonPreSelectedManualFilesQuery(eb).as('cwa'))
           .select((eb) =>
             eb.fn.countAll<number>().as('manual_non_pre_selected_count'),
           )
-          .where('is_file', '=', 1)
-          .where('manual', 'is not', null)
-          .where('manual', 'in', (eb) =>
-            eb
-              .selectFrom('resource_to_attribution')
-              .select('resource_id')
-              .where('attribution_uuid', 'in', (eb) =>
-                eb
-                  .selectFrom('attribution')
-                  .select('uuid')
-                  .where('pre_selected', '=', 0)
-                  .where('is_external', '=', 0),
-              ),
-          )
-          .executeTakeFirstOrThrow();
-
-        const { manual_count } = await trx
-          .selectFrom('cwa')
-          .select((eb) => eb.fn.countAll<number>().as('manual_count'))
-          .where('is_file', '=', 1)
-          .where('manual', 'is not', null)
           .executeTakeFirstOrThrow();
 
         const { only_external_count } = await trx
-          .selectFrom('cwa')
+          .selectFrom((eb) => getOnlyExternalFilesQuery(eb).as('cwa'))
           .select((eb) => eb.fn.countAll<number>().as('only_external_count'))
-          .where('is_file', '=', 1)
-          .where('manual', 'is', null)
-          .where('external', 'is not', null)
           .executeTakeFirstOrThrow();
 
         return {
@@ -464,21 +451,16 @@ export const queries = {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
-        const highlyCritical = (
-          await getHigherThanExternalCriticalityCount(trx, Criticality.High)
-        ).critical_count;
-        const mediumCritical =
-          (await getHigherThanExternalCriticalityCount(trx, Criticality.Medium))
-            .critical_count - highlyCritical;
-        const nonCritical =
-          (await getHigherThanExternalCriticalityCount(trx, Criticality.None))
-            .critical_count -
-          highlyCritical -
-          mediumCritical;
         return {
-          highlyCriticalResourceCount: highlyCritical,
-          mediumCriticalResourceCount: mediumCritical,
-          nonCriticalResourceCount: nonCritical,
+          highlyCriticalResourceCount: (
+            await getResourceCriticalityCount(trx, Criticality.High)
+          ).critical_count,
+          mediumCriticalResourceCount: (
+            await getResourceCriticalityCount(trx, Criticality.Medium)
+          ).critical_count,
+          nonCriticalResourceCount: (
+            await getResourceCriticalityCount(trx, Criticality.None)
+          ).critical_count,
         };
       });
     return { result };
@@ -505,12 +487,53 @@ export const queries = {
             resourceCount: classificationCount,
           };
         }
-        return {
-          statistics: classificationStatistics,
-        };
+        return classificationStatistics;
       });
     return { result };
   },
+
+  async getNextFileToReviewForAttribution(props: {
+    selectedResourcePath: string;
+    data: FileWithAttributionsCounts;
+  }): Promise<{ result: string | null }> {
+    if (props.data.fileCount === props.data.manualNonPreSelectedFileCount) {
+      return { result: null };
+    }
+    return await getDb()
+      .transaction()
+      .execute(async (trx) => {
+        const selectedResourceId = await getResourceOrThrow(
+          trx,
+          props.selectedResourcePath,
+          { includeSortKey: true },
+        );
+        const resource = await trx
+          .selectFrom((eb) => {
+            if (props.data.onlyExternalFileCount > 0) {
+              return getOnlyExternalFilesQuery(eb).as('filtered');
+            }
+            if (props.data.manualPreSelectedFileCount > 0) {
+              return getPreSelectedManualFilesQuery(eb).as('filtered');
+            }
+            return eb
+              .selectFrom('cwa')
+              .select('resource_id')
+              .where('is_file', '=', 1)
+              .where('manual', 'is', null)
+              .where('external', 'is', null)
+              .as('filtered');
+          })
+          .innerJoin('resource', 'resource_id', 'resource.id')
+          .select(['resource_id', 'resource.path', 'sort_key'])
+          .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
+          .orderBy('sort_key')
+          .limit(1)
+          .executeTakeFirst();
+        return { result: resource?.path ?? null };
+      });
+  },
+
+  
 } satisfies Record<string, QueryFunction>;
 
 export type Queries = typeof queries;

@@ -14,7 +14,6 @@ import {
 import { snakeCase } from 'lodash';
 
 import { FILTERS } from '../../Frontend/shared-constants';
-import { Criticality } from '../../shared/shared-types';
 import { DB } from '../db/generated/databaseTypes';
 import { FilterProperties } from './queries';
 
@@ -147,12 +146,17 @@ export function removeTrailingSlash(path: string) {
 export async function getResourceOrThrow(
   dbOrTrx: Kysely<DB>,
   resourcePath: string,
+  options?: { includeSortKey?: boolean },
 ) {
   const strippedResourcePath = removeTrailingSlash(resourcePath);
 
   const resource = await dbOrTrx
     .selectFrom('resource')
-    .select(['id', 'max_descendant_id'])
+    .select(
+      options?.includeSortKey
+        ? ['id', 'max_descendant_id', 'sort_key']
+        : ['id', 'max_descendant_id'],
+    )
     .where('path', '=', strippedResourcePath)
     .executeTakeFirst();
 
@@ -314,68 +318,6 @@ export async function resourcesToExpand(
     .execute();
 
   return result.map((r) => r.path);
-}
-
-export async function getHigherThanExternalCriticalityCount(
-  dbOrTrx: Kysely<DB>,
-  criticality: Criticality,
-) {
-  return await dbOrTrx
-    .selectFrom('cwa')
-    .select((eb) => eb.fn.countAll<number>().as('critical_count'))
-    // We want to find resources that do not have manual attributions and have critical ones
-    .where('manual', 'is', null)
-    .where('resource_id', 'in', (eb) =>
-      eb
-        .selectFrom('resource_to_attribution')
-        .select('resource_id')
-        .where('attribution_uuid', 'in', (eb) =>
-          eb
-            .selectFrom('attribution')
-            .select('uuid')
-            .where('is_external', '=', 1)
-            .where('is_resolved', '=', 0)
-            .where('criticality', '>=', criticality),
-        ),
-    )
-    .executeTakeFirstOrThrow();
-}
-
-export async function getExternalClassificationCount(
-  dbOrTrx: Kysely<DB>,
-  classification: number,
-) {
-  return await dbOrTrx
-    .selectFrom('cwa')
-    .select((eb) => eb.fn.countAll<number>().as('classification_count'))
-    .where('manual', 'is', null)
-    .where('resource_id', 'in', (eb) =>
-      eb
-        .selectFrom('resource_to_attribution')
-        .select('resource_id')
-        .where('attribution_uuid', 'in', (eb) =>
-          eb
-            .selectFrom('attribution')
-            .select('uuid')
-            .where('is_external', '=', 1)
-            .where('is_resolved', '=', 0)
-            .where('classification', '=', classification),
-        ),
-    )
-    .where('resource_id', 'not in', (eb) =>
-      eb
-        .selectFrom('resource_to_attribution')
-        .select('resource_id')
-        .where('attribution_uuid', 'in', (eb) =>
-          eb
-            .selectFrom('attribution')
-            .select('uuid')
-            .where('is_external', '=', 1)
-            .where('is_resolved', '=', 0)
-            .where('classification', '!=', classification),
-        ),
-    )
-    .executeTakeFirstOrThrow();
 }
 
 function isAncestorOf(
