@@ -73,13 +73,13 @@ function attributionsPreSelectedQuery(
     .where('pre_selected', '=', options.isPreSelected);
 }
 
-export async function getResourceCriticalityCount(
-  dbOrTrx: Kysely<DB>,
+export function getCriticalResourceQuery(
+  eb: ExpressionBuilder<DB, 'cwa'>,
   criticality: Criticality,
 ) {
-  return await dbOrTrx
+  return eb
     .selectFrom('cwa')
-    .select((eb) => eb.fn.countAll<number>().as('critical_count'))
+    .select('resource_id')
     // We want to find resources that do not have manual attributions and have critical ones
     .where('manual', 'is', null)
     .where('resource_id', 'in', (eb) =>
@@ -88,7 +88,6 @@ export async function getResourceCriticalityCount(
     .where('resource_id', 'not in', (eb) =>
       resourceCriticalityQuery(eb, { operator: '>', criticality }),
     )
-    .executeTakeFirstOrThrow();
 }
 
 function resourceCriticalityQuery(

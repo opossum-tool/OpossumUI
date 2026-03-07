@@ -52,9 +52,23 @@ interface ProgressBarTooltipProps {
 
 export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const dispatch = useAppDispatch();
+
+  function goToNextResource(resourcePath: string | null | undefined) {
+    if (!resourcePath) {
+      return;
+    }
+    dispatch(navigateToSelectedPathOrOpenUnsavedPopup(resourcePath));
+  }
+
   const selectedResourcePath = useAppSelector(getSelectedResourceId);
   const getNextAttributionResource =
     backend.getNextFileToReviewForAttribution.useQuery({
+      selectedResourcePath: selectedResourcePath,
+      data: props.progressBarData,
+    });
+
+  const getNextCriticalityResource =
+    backend.getNextFileToReviewForCriticality.useQuery({
       selectedResourcePath: selectedResourcePath,
       data: props.progressBarData,
     });
@@ -72,20 +86,13 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       Title: AttributionBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
       steps: calculateAttributionBarSteps(props.progressBarData),
-      onClickHandler: () =>
-        getNextAttributionResource.data
-          ? dispatch(
-              navigateToSelectedPathOrOpenUnsavedPopup(
-                getNextAttributionResource.data,
-              ),
-            )
-          : null,
+      onClickHandler: () => goToNextResource(getNextAttributionResource.data),
     },
     criticality: {
       Title: CriticalityBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
       steps: calculateCriticalityBarSteps(props.progressBarData),
-      onClickHandler: () => {},
+      onClickHandler: () => goToNextResource(getNextCriticalityResource.data),
     },
     classification: {
       Title: ClassificationBarTooltipTitle,

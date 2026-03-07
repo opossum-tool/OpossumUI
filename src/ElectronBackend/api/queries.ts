@@ -20,12 +20,12 @@ import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { listAttributions } from './listAttributions';
 import {
+  getCriticalResourceQuery,
   getExternalClassificationCount,
   getManualFilesQuery,
   getNonPreSelectedManualFilesQuery,
   getOnlyExternalFilesQuery,
   getPreSelectedManualFilesQuery,
-  getResourceCriticalityCount,
 } from './progressBar';
 import { getResourceTree } from './resourceTree';
 import {
@@ -451,16 +451,28 @@ export const queries = {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
+        const { highly_critical_count } = await trx
+          .selectFrom((eb) =>
+            getCriticalResourceQuery(eb, Criticality.High).as('cwa'),
+          )
+          .select((eb) => eb.fn.countAll<number>().as('highly_critical_count'))
+          .executeTakeFirstOrThrow();
+        const { medium_critical_count } = await trx
+          .selectFrom((eb) =>
+            getCriticalResourceQuery(eb, Criticality.Medium).as('cwa'),
+          )
+          .select((eb) => eb.fn.countAll<number>().as('medium_critical_count'))
+          .executeTakeFirstOrThrow();
+        const { non_critical_count } = await trx
+          .selectFrom((eb) =>
+            getCriticalResourceQuery(eb, Criticality.None).as('cwa'),
+          )
+          .select((eb) => eb.fn.countAll<number>().as('non_critical_count'))
+          .executeTakeFirstOrThrow();
         return {
-          highlyCriticalResourceCount: (
-            await getResourceCriticalityCount(trx, Criticality.High)
-          ).critical_count,
-          mediumCriticalResourceCount: (
-            await getResourceCriticalityCount(trx, Criticality.Medium)
-          ).critical_count,
-          nonCriticalResourceCount: (
-            await getResourceCriticalityCount(trx, Criticality.None)
-          ).critical_count,
+          highlyCriticalResourceCount: highly_critical_count,
+          mediumCriticalResourceCount: medium_critical_count,
+          nonCriticalResourceCount: non_critical_count,
         };
       });
     return { result };
@@ -533,7 +545,51 @@ export const queries = {
       });
   },
 
-  
+  async getNextFileToReviewForCriticality(props: {
+    selectedResourcePath: string;
+    data: ResourceCriticalityCounts;
+  }): Promise<{ result: string | null }> {
+    if (
+      props.data.highlyCriticalResourceCount +
+        props.data.mediumCriticalResourceCount +
+        props.data.nonCriticalResourceCount ===
+      0
+    ) {
+      return { result: null };
+    }
+    return await getDb()
+      .transaction()
+      .execute(async (trx) => {
+        const selectedResourceId = await getResourceOrThrow(
+          trx,
+          props.selectedResourcePath,
+          { includeSortKey: true },
+        );
+        const resource = await trx
+          .selectFrom((eb) => {
+            if (props.data.highlyCriticalResourceCount > 0) {
+              return getCriticalResourceQuery(eb, Criticality.High).as(
+                'filtered',
+              );
+            } else if (props.data.mediumCriticalResourceCount > 0) {
+              return getCriticalResourceQuery(eb, Criticality.Medium).as(
+                'filtered',
+              );
+            } else {
+              return getCriticalResourceQuery(eb, Criticality.None).as(
+                'filtered',
+              );
+            }
+          })
+          .innerJoin('resource', 'resource_id', 'resource.id')
+          .select(['resource_id', 'resource.path', 'sort_key'])
+          .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
+          .orderBy('sort_key')
+          .limit(1)
+          .executeTakeFirst();
+        return { result: resource?.path ?? null };
+      });
+  },
 } satisfies Record<string, QueryFunction>;
 
 export type Queries = typeof queries;
