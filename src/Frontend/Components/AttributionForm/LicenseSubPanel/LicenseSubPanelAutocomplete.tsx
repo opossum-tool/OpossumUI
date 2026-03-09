@@ -144,7 +144,9 @@ export function LicenseSubPanelAutocomplete({
         title={text.attributionColumn.licenseExpression}
         readOnly={!onEdit}
         highlighting={
-          showHighlight && !packageInfo.licenseName ? 'warning' : undefined
+          showHighlight && !packageInfo.licenseName && !packageInfo.licenseText
+            ? 'warning'
+            : undefined
         }
         inputValue={packageInfo.licenseName ?? ''}
         getOptionLabel={(option) =>

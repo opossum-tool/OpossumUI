@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ExpressionBuilder, OperandExpression, SqlBool } from 'kysely';
+import { ExpressionBuilder, OperandExpression, sql, SqlBool } from 'kysely';
 
 import { Filter } from '../../Frontend/shared-constants';
 import { text } from '../../shared/text';
@@ -61,8 +61,13 @@ export function getFilterExpression(
       eb.or([
         eb('copyright', 'is', null),
         eb('copyright', '=', ''),
-        eb('license_name', 'is', null),
-        eb('license_name', '=', ''),
+        eb.and([
+          eb.or([eb('license_name', 'is', null), eb('license_name', '=', '')]),
+          eb.or([
+            eb(sql`data->>'licenseText'`, 'is', null),
+            eb(sql`data->>'licenseText'`, '=', ''),
+          ]),
+        ]),
       ]),
     ]),
     [text.filters.lowConfidence]: eb(

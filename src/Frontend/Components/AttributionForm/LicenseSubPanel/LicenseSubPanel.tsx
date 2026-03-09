@@ -77,6 +77,11 @@ export function LicenseSubPanel({
           maxRows={8}
           minRows={3}
           color={config?.licenseText?.color}
+          error={
+            showHighlight &&
+            !packageInfo.licenseName &&
+            !packageInfo.licenseText
+          }
           focused={config?.licenseText?.focused}
           multiline
           expanded={expanded}
