@@ -378,6 +378,14 @@ async function initializeAttributionTable(
     }
   }
 
+  schema = schema.addColumn('canonical_license_name', 'text', (col) =>
+    col
+      .generatedAlwaysAs(
+        sql`lower(replace(replace(license_name, '-', ''), ' ', ''))`,
+      )
+      .stored(),
+  );
+
   await schema.execute();
 
   for (const [uuid, attribution] of Object.entries(
@@ -410,7 +418,10 @@ async function initializeAttributionTable(
       .execute();
   }
 
-  for (const [name, _] of generatedColumnsFromJsonData) {
+  for (const [name, _] of [
+    ...generatedColumnsFromJsonData,
+    ['canonicalLicenseName', 'text'],
+  ]) {
     await trx.schema
       .createIndex(`attribution_${snakeCase(name)}_idx`)
       .on('attribution')
