@@ -238,7 +238,7 @@ describe('listAttributions', () => {
     const { result } = await listAttributions({
       external: false,
       filters: [],
-      license: 'MIT',
+      canonical_license: 'mit',
       resourcePathForRelationships: '/resource',
     });
 
