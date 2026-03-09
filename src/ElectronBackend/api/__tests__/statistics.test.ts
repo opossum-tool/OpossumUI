@@ -388,10 +388,11 @@ describe('statistics', () => {
       await initializeDbWithTestData({
         externalAttributions: {
           attributions: {
-            a: { id: 'a', criticality: Criticality.High },
-            b: { id: 'b', criticality: Criticality.High },
-            c: { id: 'c', criticality: Criticality.Medium },
-            d: { id: 'd', criticality: Criticality.None },
+            a: { id: 'a', criticality: Criticality.High, licenseName: 'MIT' },
+            b: { id: 'b', criticality: Criticality.High, licenseName: 'MIT' },
+            c: { id: 'c', criticality: Criticality.Medium, licenseName: 'MIT' },
+            d: { id: 'd', criticality: Criticality.None, licenseName: 'MIT' },
+            e: { id: 'd', criticality: Criticality.None },
           },
           resourcesToAttributions: {},
           attributionsToResources: {},
@@ -404,6 +405,7 @@ describe('statistics', () => {
         { name: Criticality.High, count: 2 },
         { name: Criticality.Medium, count: 1 },
         { name: Criticality.None, count: 1 },
+        { name: null, count: 1 },
       ]);
     });
 
@@ -411,13 +413,14 @@ describe('statistics', () => {
       await initializeDbWithTestData({
         externalAttributions: {
           attributions: {
-            a: { id: 'a', criticality: Criticality.High },
-            b: { id: 'b', criticality: Criticality.High },
+            a: { id: 'a', criticality: Criticality.High, licenseName: 'MIT' },
+            b: { id: 'b', criticality: Criticality.High, licenseName: 'MIT' },
+            c: { id: 'c', criticality: Criticality.High },
           },
           resourcesToAttributions: {},
           attributionsToResources: {},
         },
-        resolvedExternalAttributions: new Set(['b']),
+        resolvedExternalAttributions: new Set(['b', 'c']),
       });
 
       const { result } = await statistics();
@@ -431,7 +434,8 @@ describe('statistics', () => {
       await initializeDbWithTestData({
         manualAttributions: {
           attributions: {
-            a: { id: 'a', criticality: Criticality.High },
+            a: { id: 'a', criticality: Criticality.High, licenseName: 'MIT' },
+            b: { id: 'b', criticality: Criticality.High },
           },
           resourcesToAttributions: {},
           attributionsToResources: {},
@@ -449,10 +453,32 @@ describe('statistics', () => {
       await initializeDbWithTestData({
         externalAttributions: {
           attributions: {
-            a: { id: 'a', criticality: Criticality.None, classification: 1 },
-            b: { id: 'b', criticality: Criticality.None, classification: 1 },
-            c: { id: 'c', criticality: Criticality.None, classification: 2 },
-            d: { id: 'd', criticality: Criticality.None },
+            a: {
+              id: 'a',
+              criticality: Criticality.None,
+              classification: 1,
+              licenseName: 'MIT',
+            },
+            b: {
+              id: 'b',
+              criticality: Criticality.None,
+              classification: 1,
+              licenseName: 'MIT',
+            },
+            c: {
+              id: 'c',
+              criticality: Criticality.None,
+              classification: 2,
+              licenseName: 'MIT',
+            },
+            d: {
+              id: 'd',
+              criticality: Criticality.None,
+              classification: 0,
+              licenseName: 'MIT',
+            },
+            e: { id: 'e', criticality: Criticality.None, classification: 2 },
+            f: { id: 'f', criticality: Criticality.None },
           },
           resourcesToAttributions: {},
           attributionsToResources: {},
@@ -465,6 +491,7 @@ describe('statistics', () => {
         { name: 2, count: 1 },
         { name: 1, count: 2 },
         { name: 0, count: 1 },
+        { name: null, count: 2 },
       ]);
     });
 
@@ -472,18 +499,33 @@ describe('statistics', () => {
       await initializeDbWithTestData({
         externalAttributions: {
           attributions: {
-            a: { id: 'a', criticality: Criticality.None, classification: 1 },
+            a: {
+              id: 'a',
+              criticality: Criticality.None,
+              classification: 1,
+              licenseName: 'MIT',
+            },
             b: { id: 'b', criticality: Criticality.None, classification: 1 },
+            c: {
+              id: 'c',
+              criticality: Criticality.None,
+              classification: 1,
+              licenseName: 'MIT',
+            },
+            d: { id: 'd', criticality: Criticality.None, classification: 1 },
           },
           resourcesToAttributions: {},
           attributionsToResources: {},
         },
-        resolvedExternalAttributions: new Set(['b']),
+        resolvedExternalAttributions: new Set(['c', 'd']),
       });
 
       const { result } = await statistics();
 
-      expect(result.signalsByClassification).toEqual([{ name: 1, count: 1 }]);
+      expect(result.signalsByClassification).toEqual([
+        { name: 1, count: 1 },
+        { name: null, count: 1 },
+      ]);
     });
   });
 });

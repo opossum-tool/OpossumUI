@@ -203,6 +203,7 @@ export const text = {
         completeAttributions: 'Complete Attributions',
         incompleteAttributions: 'Incomplete Attributions',
       },
+      noLicense: 'No License',
     },
   },
   attributionCountPerSourcePerLicenseTable: {

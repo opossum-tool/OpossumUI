@@ -12,7 +12,7 @@ import { PropsWithChildren, useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { criticalityColor } from '../../shared-styles';
+import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getClassifications } from '../../state/selectors/resource-selectors';
@@ -135,9 +135,16 @@ export const ProjectStatisticsPopup: React.FC = () => {
               <PieChart
                 segments={transformName(
                   statistics.data.signalsByCriticality,
-                  (k) => CRITICALITY_LABEL[k as Criticality],
+                  (k) =>
+                    k === null
+                      ? text.projectStatisticsPopup.charts.noLicense
+                      : CRITICALITY_LABEL[k as Criticality],
                 )}
-                colorMap={CRITICALITY_COLORS}
+                colorMap={{
+                  ...CRITICALITY_COLORS,
+                  [text.projectStatisticsPopup.charts.noLicense]:
+                    OpossumColors.lightGrey,
+                }}
               />
             </ChartGridItem>
             <ChartGridItem
@@ -157,14 +164,21 @@ export const ProjectStatisticsPopup: React.FC = () => {
               <PieChart
                 segments={transformName(
                   statistics.data.signalsByClassification,
-                  (s) => classifications[s].description,
+                  (s) =>
+                    s === null
+                      ? text.projectStatisticsPopup.charts.noLicense
+                      : classifications[s].description,
                 )}
-                colorMap={Object.fromEntries(
-                  Object.values(classifications).map((c) => [
-                    c.description,
-                    c.color,
-                  ]),
-                )}
+                colorMap={{
+                  ...Object.fromEntries(
+                    Object.values(classifications).map((c) => [
+                      c.description,
+                      c.color,
+                    ]),
+                  ),
+                  [text.projectStatisticsPopup.charts.noLicense]:
+                    OpossumColors.lightGrey,
+                }}
               />
             </ChartGridItem>
             <ChartGridItem

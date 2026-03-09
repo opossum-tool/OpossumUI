@@ -110,7 +110,18 @@ export async function statistics() {
   const signalsByCriticality = await getDb()
     .selectFrom('attribution')
     .select((eb) => [
-      eb.fn.coalesce('criticality', eb.lit(0)).as('name'),
+      eb
+        .case()
+        .when(
+          eb.and([
+            eb('license_name', 'is', null),
+            eb(sql`data->>'licenseText'`, 'is', null),
+          ]),
+        )
+        .then(null)
+        .else(eb.ref('criticality'))
+        .end()
+        .as('name'), // null = no license
       eb.fn.countAll<number>().as('count'),
     ])
     .where('is_external', '=', 1)
@@ -122,7 +133,18 @@ export async function statistics() {
   const signalsByClassification = await getDb()
     .selectFrom('attribution')
     .select((eb) => [
-      eb.fn.coalesce('classification', eb.lit(0)).as('name'),
+      eb
+        .case()
+        .when(
+          eb.and([
+            eb('license_name', 'is', null),
+            eb(sql`data->>'licenseText'`, 'is', null),
+          ]),
+        )
+        .then(null)
+        .else(eb.ref('classification'))
+        .end()
+        .as('name'), // null = no license
       eb.fn.countAll<number>().as('count'),
     ])
     .where('is_external', '=', 1)

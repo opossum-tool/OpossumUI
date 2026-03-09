@@ -17,7 +17,7 @@ export const CRITICALITY_LABEL: Record<Criticality, string> = {
 };
 
 export function transformName<
-  NameType extends string | number,
+  NameType extends string | number | null,
   ResultType extends string,
 >(
   entries: Array<{ name: NameType; count: number }>,
