@@ -71,6 +71,14 @@ export async function expectResourcesToManualAttributions(
     dbResourcesToManualAttributions[row.path].push(row.attribution_uuid);
   }
 
+  // Sort arrays to make comparison order-independent
+  for (const path in dbResourcesToManualAttributions) {
+    dbResourcesToManualAttributions[path].sort();
+  }
+  for (const path in resourcesToAttributions) {
+    resourcesToAttributions[path].sort();
+  }
+
   expect(dbResourcesToManualAttributions).toEqual(resourcesToAttributions);
 }
 
