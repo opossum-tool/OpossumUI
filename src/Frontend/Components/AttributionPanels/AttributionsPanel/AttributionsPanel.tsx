@@ -69,7 +69,7 @@ export function AttributionsPanel() {
     external: false,
     filters,
     search,
-    license: selectedLicense,
+    canonical_license: selectedLicense,
     resourcePathForRelationships: selectedResourceId,
   });
 

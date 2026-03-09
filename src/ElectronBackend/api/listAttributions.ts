@@ -21,7 +21,7 @@ export async function listAttributions(props: {
   filters: Array<Filter>;
   resourcePathForRelationships: string;
   sort?: SortOption;
-  license?: string;
+  canonical_license?: string;
   search?: string;
   showResolved?: boolean;
   excludeUnrelated?: boolean;
@@ -74,8 +74,12 @@ export async function listAttributions(props: {
     query = query.where((eb) => getFilterExpression(eb, filter));
   }
 
-  if (props.license) {
-    query = query.where(sql<string>`trim(license_name)`, '=', props.license);
+  if (props.canonical_license) {
+    query = query.where(
+      sql<string>`trim(canonical_license_name)`,
+      '=',
+      props.canonical_license,
+    );
   }
 
   if (props.search) {

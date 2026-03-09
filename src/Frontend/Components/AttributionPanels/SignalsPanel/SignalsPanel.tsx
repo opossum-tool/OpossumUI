@@ -32,7 +32,7 @@ export function SignalsPanel() {
     external: true,
     filters,
     search,
-    license: selectedLicense,
+    canonical_license: selectedLicense,
     resourcePathForRelationships: selectedResourceId,
     showResolved: areHiddenSignalsVisible,
   });
