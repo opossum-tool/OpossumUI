@@ -7,6 +7,7 @@ import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
 import Box from '@mui/system/Box';
+import { useEffect } from 'react';
 
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
@@ -73,6 +74,16 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       data: props.progressBarData,
     });
 
+  const getNextClassificationResource =
+    backend.getNextFileToReviewForClassification.useQuery({
+      selectedResourcePath: selectedResourcePath,
+      data: props.progressBarData,
+    });
+
+  useEffect(() => {
+    console.log(getNextClassificationResource.data);
+  }, [getNextClassificationResource.data]);
+
   const progressBarConfigurations: Record<
     SelectedProgressBar,
     {
@@ -98,7 +109,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       Title: ClassificationBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
       steps: calculateClassificationBarSteps(props.progressBarData),
-      onClickHandler: () => {},
+      onClickHandler: () =>
+        goToNextResource(getNextClassificationResource.data),
     },
   };
 

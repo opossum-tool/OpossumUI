@@ -20,8 +20,8 @@ import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { listAttributions } from './listAttributions';
 import {
+  getClassificationResourceQuery,
   getCriticalResourceQuery,
-  getExternalClassificationCount,
   getManualFilesQuery,
   getNonPreSelectedManualFilesQuery,
   getOnlyExternalFilesQuery,
@@ -490,13 +490,16 @@ export const queries = {
         for (const [key, classification] of Object.entries(
           props.classifications,
         )) {
-          const classificationCount = (
-            await getExternalClassificationCount(trx, Number(key))
-          ).classification_count;
+          const { classification_count } = await trx
+            .selectFrom((eb) =>
+              getClassificationResourceQuery(eb, Number(key)).as('cwa'),
+            )
+            .select((eb) => eb.fn.countAll<number>().as('classification_count'))
+            .executeTakeFirstOrThrow();
           classificationStatistics[Number(key)] = {
             description: classification.description,
             color: classification.color,
-            resourceCount: classificationCount,
+            resourceCount: classification_count,
           };
         }
         return classificationStatistics;
@@ -566,21 +569,50 @@ export const queries = {
           { includeSortKey: true },
         );
         const resource = await trx
-          .selectFrom((eb) => {
-            if (props.data.highlyCriticalResourceCount > 0) {
-              return getCriticalResourceQuery(eb, Criticality.High).as(
-                'filtered',
-              );
-            } else if (props.data.mediumCriticalResourceCount > 0) {
-              return getCriticalResourceQuery(eb, Criticality.Medium).as(
-                'filtered',
-              );
-            } else {
-              return getCriticalResourceQuery(eb, Criticality.None).as(
-                'filtered',
-              );
-            }
-          })
+          .selectFrom((eb) =>
+            getCriticalResourceQuery(
+              eb,
+              props.data.highlyCriticalResourceCount > 0
+                ? Criticality.High
+                : props.data.mediumCriticalResourceCount > 0
+                  ? Criticality.Medium
+                  : Criticality.None,
+            ).as('cwa'),
+          )
+          .innerJoin('resource', 'resource_id', 'resource.id')
+          .select(['resource_id', 'resource.path', 'sort_key'])
+          .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
+          .orderBy('sort_key')
+          .limit(1)
+          .executeTakeFirst();
+        return { result: resource?.path ?? null };
+      });
+  },
+
+  async getNextFileToReviewForClassification(props: {
+    selectedResourcePath: string;
+    data: ClassificationStatistics;
+  }): Promise<{ result: string | null }> {
+    const highestClassification = Math.max(
+      ...Object.entries(props.data).map(([key, value]) =>
+        value.resourceCount > 0 ? Number(key) : -1,
+      ),
+    );
+    if (highestClassification === -1) {
+      return { result: null };
+    }
+    return await getDb()
+      .transaction()
+      .execute(async (trx) => {
+        const selectedResourceId = await getResourceOrThrow(
+          trx,
+          props.selectedResourcePath,
+          { includeSortKey: true },
+        );
+        const resource = await trx
+          .selectFrom((eb) =>
+            getClassificationResourceQuery(eb, highestClassification).as('cwa'),
+          )
           .innerJoin('resource', 'resource_id', 'resource.id')
           .select(['resource_id', 'resource.path', 'sort_key'])
           .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)

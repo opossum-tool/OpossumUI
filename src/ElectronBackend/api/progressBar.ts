@@ -1,8 +1,4 @@
-import {
-  ComparisonOperatorExpression,
-  ExpressionBuilder,
-  Kysely,
-} from 'kysely';
+import { ComparisonOperatorExpression, ExpressionBuilder } from 'kysely';
 
 import { Criticality } from '../../shared/shared-types';
 import { DB } from '../db/generated/databaseTypes';
@@ -77,17 +73,19 @@ export function getCriticalResourceQuery(
   eb: ExpressionBuilder<DB, 'cwa'>,
   criticality: Criticality,
 ) {
-  return eb
-    .selectFrom('cwa')
-    .select('resource_id')
-    // We want to find resources that do not have manual attributions and have critical ones
-    .where('manual', 'is', null)
-    .where('resource_id', 'in', (eb) =>
-      resourceCriticalityQuery(eb, { operator: '=', criticality }),
-    )
-    .where('resource_id', 'not in', (eb) =>
-      resourceCriticalityQuery(eb, { operator: '>', criticality }),
-    )
+  return (
+    eb
+      .selectFrom('cwa')
+      .select('resource_id')
+      // We want to find resources that do not have manual attributions and have critical ones
+      .where('manual', 'is', null)
+      .where('resource_id', 'in', (eb) =>
+        resourceCriticalityQuery(eb, { operator: '=', criticality }),
+      )
+      .where('resource_id', 'not in', (eb) =>
+        resourceCriticalityQuery(eb, { operator: '>', criticality }),
+      )
+  );
 }
 
 function resourceCriticalityQuery(
@@ -114,13 +112,13 @@ function attributionCriticalityQuery(
     .where('criticality', options.operator, options.criticality);
 }
 
-export async function getExternalClassificationCount(
-  dbOrTrx: Kysely<DB>,
+export function getClassificationResourceQuery(
+  eb: ExpressionBuilder<DB, 'cwa'>,
   classification: number,
 ) {
-  return await dbOrTrx
+  return eb
     .selectFrom('cwa')
-    .select((eb) => eb.fn.countAll<number>().as('classification_count'))
+    .select('resource_id')
     .where('manual', 'is', null)
     .where('resource_id', 'in', (eb) =>
       resourceClassificationQuery(eb, {
@@ -133,8 +131,7 @@ export async function getExternalClassificationCount(
         operator: '>',
         classification,
       }),
-    )
-    .executeTakeFirstOrThrow();
+    );
 }
 
 function resourceClassificationQuery(
