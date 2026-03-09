@@ -204,7 +204,7 @@ export const queries = {
     external: boolean;
     filters: Array<Filter>;
     resourcePathForRelationships: string;
-    license?: string;
+    canonical_license?: string;
     search?: string;
     showResolved?: boolean;
   }): Promise<{
@@ -241,7 +241,7 @@ export const queries = {
         ),
       )
       .select(
-        sql<string>`json_group_array(DISTINCT trim(license_name))`.as(
+        sql<string>`json_group_array(DISTINCT trim(canonical_license_name))`.as(
           'licenses',
         ),
       )
@@ -253,8 +253,12 @@ export const queries = {
       query = query.where(getFilterExpression(filter));
     }
 
-    if (props.license) {
-      query = query.where(sql<string>`trim(license_name)`, '=', props.license);
+    if (props.canonical_license) {
+      query = query.where(
+        sql<string>`trim(canonical_license_name)`,
+        '=',
+        props.canonical_license,
+      );
     }
 
     if (props.search) {
