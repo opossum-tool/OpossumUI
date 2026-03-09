@@ -93,12 +93,6 @@ describe('The table helpers', () => {
   `(
     'isImportantAttributionInformationMissing handles $property correctly',
     ({ property }) => {
-      const testTableConfig: TableConfig = {
-        attributionProperty: property,
-        displayName: 'Follow-up',
-        width: '100px',
-      };
-
       let testAttributionInfo: PackageInfo = {
         [property]: '',
         resources: ['1'],
@@ -106,12 +100,9 @@ describe('The table helpers', () => {
         id: faker.string.uuid(),
       };
 
-      expect(
-        isPackageAttributeIncomplete(
-          testTableConfig.attributionProperty,
-          testAttributionInfo,
-        ),
-      ).toBe(true);
+      expect(isPackageAttributeIncomplete(property, testAttributionInfo)).toBe(
+        true,
+      );
 
       testAttributionInfo = {
         resources: ['1'],
@@ -119,12 +110,9 @@ describe('The table helpers', () => {
         id: faker.string.uuid(),
       };
 
-      expect(
-        isPackageAttributeIncomplete(
-          testTableConfig.attributionProperty,
-          testAttributionInfo,
-        ),
-      ).toBe(true);
+      expect(isPackageAttributeIncomplete(property, testAttributionInfo)).toBe(
+        true,
+      );
 
       testAttributionInfo = {
         [property]: 'test',
@@ -133,12 +121,9 @@ describe('The table helpers', () => {
         id: faker.string.uuid(),
       };
 
-      expect(
-        isPackageAttributeIncomplete(
-          testTableConfig.attributionProperty,
-          testAttributionInfo,
-        ),
-      ).toBe(false);
+      expect(isPackageAttributeIncomplete(property, testAttributionInfo)).toBe(
+        false,
+      );
     },
   );
 
@@ -149,12 +134,6 @@ describe('The table helpers', () => {
   `(
     'isImportantAttributionInformationMissing handles attributions with only license name or license text properly',
     ({ property }) => {
-      const testTableConfig: TableConfig = {
-        attributionProperty: property,
-        displayName: 'Follow-up',
-        width: '100px',
-      };
-
       let testAttributionInfo: PackageInfo = {
         licenseName: '',
         licenseText: '',
@@ -163,12 +142,9 @@ describe('The table helpers', () => {
         id: faker.string.uuid(),
       };
 
-      expect(
-        isPackageAttributeIncomplete(
-          testTableConfig.attributionProperty,
-          testAttributionInfo,
-        ),
-      ).toBe(true);
+      expect(isPackageAttributeIncomplete(property, testAttributionInfo)).toBe(
+        true,
+      );
 
       testAttributionInfo = {
         licenseName: '',
@@ -178,12 +154,9 @@ describe('The table helpers', () => {
         id: faker.string.uuid(),
       };
 
-      expect(
-        isPackageAttributeIncomplete(
-          testTableConfig.attributionProperty,
-          testAttributionInfo,
-        ),
-      ).toBe(false);
+      expect(isPackageAttributeIncomplete(property, testAttributionInfo)).toBe(
+        false,
+      );
 
       testAttributionInfo = {
         licenseName: 'something',
@@ -193,12 +166,9 @@ describe('The table helpers', () => {
         id: faker.string.uuid(),
       };
 
-      expect(
-        isPackageAttributeIncomplete(
-          testTableConfig.attributionProperty,
-          testAttributionInfo,
-        ),
-      ).toBe(false);
+      expect(isPackageAttributeIncomplete(property, testAttributionInfo)).toBe(
+        false,
+      );
 
       testAttributionInfo = {
         licenseName: 'something',
@@ -208,33 +178,23 @@ describe('The table helpers', () => {
         id: faker.string.uuid(),
       };
 
-      expect(
-        isPackageAttributeIncomplete(
-          testTableConfig.attributionProperty,
-          testAttributionInfo,
-        ),
-      ).toBe(false);
+      expect(isPackageAttributeIncomplete(property, testAttributionInfo)).toBe(
+        false,
+      );
     },
   );
 
   it('isImportantAttributionInformationMissing does not mark first party or excluded attributions', () => {
-    const testTableConfig: TableConfig = {
-      attributionProperty: 'licenseName',
-      displayName: 'Unimportant',
-      width: '100px',
-    };
+    const property: keyof PackageInfo = 'licenseName';
 
     let testAttributionInfo: PackageInfo = {
       resources: ['1'],
       criticality: Criticality.None,
       id: faker.string.uuid(),
     };
-    expect(
-      isPackageAttributeIncomplete(
-        testTableConfig.attributionProperty,
-        testAttributionInfo,
-      ),
-    ).toBe(true);
+    expect(isPackageAttributeIncomplete(property, testAttributionInfo)).toBe(
+      true,
+    );
 
     testAttributionInfo = {
       resources: ['1'],
@@ -242,12 +202,9 @@ describe('The table helpers', () => {
       criticality: Criticality.None,
       id: faker.string.uuid(),
     };
-    expect(
-      isPackageAttributeIncomplete(
-        testTableConfig.attributionProperty,
-        testAttributionInfo,
-      ),
-    ).toBe(false);
+    expect(isPackageAttributeIncomplete(property, testAttributionInfo)).toBe(
+      false,
+    );
 
     testAttributionInfo = {
       resources: ['1'],
@@ -255,12 +212,9 @@ describe('The table helpers', () => {
       criticality: Criticality.None,
       id: faker.string.uuid(),
     };
-    expect(
-      isPackageAttributeIncomplete(
-        testTableConfig.attributionProperty,
-        testAttributionInfo,
-      ),
-    ).toBe(false);
+    expect(isPackageAttributeIncomplete(property, testAttributionInfo)).toBe(
+      false,
+    );
 
     testAttributionInfo = {
       resources: ['1'],
@@ -269,11 +223,8 @@ describe('The table helpers', () => {
       criticality: Criticality.None,
       id: faker.string.uuid(),
     };
-    expect(
-      isPackageAttributeIncomplete(
-        testTableConfig.attributionProperty,
-        testAttributionInfo,
-      ),
-    ).toBe(true);
+    expect(isPackageAttributeIncomplete(property, testAttributionInfo)).toBe(
+      true,
+    );
   });
 });

@@ -454,7 +454,7 @@ describe('AttributionForm', () => {
 
       expect(screen.queryByLabelText('Copyright')).not.toBeInTheDocument();
       expect(
-        screen.queryByLabelText('License Expression / Name'),
+        screen.queryByLabelText(text.attributionColumn.licenseExpression),
       ).not.toBeInTheDocument();
     });
 
@@ -464,7 +464,7 @@ describe('AttributionForm', () => {
 
       expect(screen.getByLabelText('Copyright')).toBeInTheDocument();
       expect(
-        screen.getByLabelText('License Expression / Name'),
+        screen.getByLabelText(text.attributionColumn.licenseExpression),
       ).toBeInTheDocument();
     });
   });
