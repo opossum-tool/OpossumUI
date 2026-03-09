@@ -55,8 +55,11 @@ export function useOnProgressBarClick(resourceIds: Array<string>) {
 }
 
 export function calculateAttributionBarSteps(
-  data: FileWithAttributionsCounts,
+  data: FileWithAttributionsCounts | undefined,
 ): Array<ProgressBarStep> {
+  if (!data) {
+    return [];
+  }
   const uncategorizedFiles =
     data.fileCount -
     data.manualNonPreSelectedFileCount -
@@ -111,8 +114,11 @@ export function calculateAttributionBarSteps(
 }
 
 export function calculateCriticalityBarSteps(
-  data: ResourceCriticalityCounts,
+  data: ResourceCriticalityCounts | undefined,
 ): Array<ProgressBarStep> {
+  if (!data) {
+    return [];
+  }
   const [
     withHighlyCriticalPercent,
     withMediumCriticalPercent,
@@ -152,8 +158,11 @@ export function calculateCriticalityBarSteps(
 }
 
 export function calculateClassificationBarSteps(
-  data: ClassificationStatistics,
+  data: ClassificationStatistics | undefined,
 ): Array<ProgressBarStep> {
+  if (!data) {
+    return [];
+  }
   const entries = Object.values(data)
     .filter(
       (entry): entry is ClassificationStatisticsEntry =>

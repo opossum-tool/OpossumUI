@@ -13,7 +13,7 @@ import { useAppSelector } from '../../state/hooks';
 import { getClassifications } from '../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { SelectedProgressBar } from '../../types/types';
-import { backend } from '../../util/backendClient';
+import { backend, databaseInitialized } from '../../util/backendClient';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 
 const classes = {
@@ -101,9 +101,7 @@ export const SwitchableProgressBar: React.FC = () => {
     });
 
   if (
-    !attributionsProgressBarData.data ||
-    !criticalityProgressBarData.data ||
-    !classificationProgressBarData.data
+    !databaseInitialized
   ) {
     return <MuiBox flex={1} />;
   }
@@ -112,11 +110,6 @@ export const SwitchableProgressBar: React.FC = () => {
     <MuiBox sx={classes.container}>
       <ProgressBar
         sx={classes.progressBar}
-        progressBarData={{
-          ...attributionsProgressBarData.data,
-          ...criticalityProgressBarData.data,
-          ...classificationProgressBarData.data,
-        }}
         selectedProgressBar={effectiveCurrentProgressBar}
       />
       {hasMoreThanOneActiveProgressBar && (
