@@ -122,6 +122,11 @@ export async function removeRedundantAttributions(
   }
 }
 
+export const GET_LEGACY_RESOURCE_PATH =
+  sql<string>`resource.path || IF(resource.can_have_children, '/', '')`.as(
+    'path',
+  );
+
 export async function getAttributionOrThrow(
   dbOrTrx: Kysely<DB>,
   attributionUuid: string,

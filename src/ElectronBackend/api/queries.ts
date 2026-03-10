@@ -35,6 +35,7 @@ import {
 } from './statistics';
 import {
   attributionToResourceRelationship,
+  GET_LEGACY_RESOURCE_PATH,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
   mergeFilterProperties,
@@ -298,21 +299,13 @@ export const queries = {
       .withRecursive('nodes', (eb) =>
         eb
           .selectFrom('resource')
-          .select([
-            'id',
-            sql<string>`path || IF(can_have_children, '/', '')`.as('path'),
-          ])
+          .select(['id', GET_LEGACY_RESOURCE_PATH])
           .where('path', '=', removeTrailingSlash(fromNodePath))
           .unionAll(
             eb
               .selectFrom('resource')
               .innerJoin('nodes', 'resource.parent_id', 'nodes.id')
-              .select([
-                'resource.id',
-                sql<string>`resource.path || IF(can_have_children, '/', '')`.as(
-                  'path',
-                ),
-              ])
+              .select(['resource.id', GET_LEGACY_RESOURCE_PATH])
               .where('resource.can_have_children', '=', 1)
               .where(
                 sql<number>`(select count(*) from resource where parent_id = nodes.id)`,
@@ -539,7 +532,7 @@ export const queries = {
               .as('filtered');
           })
           .innerJoin('resource', 'resource_id', 'resource.id')
-          .select(['resource_id', 'resource.path', 'sort_key'])
+          .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
           .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
           .orderBy('sort_key')
           .limit(1)
@@ -580,7 +573,7 @@ export const queries = {
             ).as('cwa'),
           )
           .innerJoin('resource', 'resource_id', 'resource.id')
-          .select(['resource_id', 'resource.path', 'sort_key'])
+          .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
           .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
           .orderBy('sort_key')
           .limit(1)
@@ -614,7 +607,7 @@ export const queries = {
             getClassificationResourceQuery(eb, highestClassification).as('cwa'),
           )
           .innerJoin('resource', 'resource_id', 'resource.id')
-          .select(['resource_id', 'resource.path', 'sort_key'])
+          .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
           .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
           .orderBy('sort_key')
           .limit(1)
