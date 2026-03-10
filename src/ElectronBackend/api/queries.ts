@@ -242,7 +242,7 @@ export const queries = {
         ),
       )
       .select(
-        sql<string>`json_group_array(DISTINCT trim(canonical_license_name))`.as(
+        sql<string>`json_group_array(DISTINCT trim(license_name))`.as(
           'licenses',
         ),
       )
