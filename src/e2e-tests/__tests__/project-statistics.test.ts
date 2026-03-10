@@ -142,3 +142,22 @@ test('table sorting is persisted across app restarts', async ({
     'ascending',
   );
 });
+
+test('filter signals for a specific license', async ({
+  menuBar,
+  projectStatisticsPopup,
+  signalsPanel,
+}) => {
+  await menuBar.openProjectStatistics();
+  await projectStatisticsPopup.assert.titleIsVisible();
+  await projectStatisticsPopup.detailsTab.click();
+
+  const licenseName = packageInfo1.licenseName!;
+  await projectStatisticsPopup.table.getByText(licenseName).click();
+
+  await projectStatisticsPopup.assert.titleIsHidden();
+
+  await signalsPanel.packageCard.assert.isVisible(packageInfo1);
+  await signalsPanel.packageCard.assert.isHidden(packageInfo2);
+  await signalsPanel.packageCard.assert.isHidden(packageInfo3);
+});
