@@ -57,7 +57,7 @@ export function useOnProgressBarClick(resourceIds: Array<string>) {
 export function calculateAttributionBarSteps(
   data: FileWithAttributionsCounts | undefined,
 ): Array<ProgressBarStep> {
-  if (!data) {
+  if (!data || data.fileCount === 0) {
     return [];
   }
   const uncategorizedFiles =
@@ -116,7 +116,13 @@ export function calculateAttributionBarSteps(
 export function calculateCriticalityBarSteps(
   data: ResourceCriticalityCounts | undefined,
 ): Array<ProgressBarStep> {
-  if (!data) {
+  if (
+    !data ||
+    data.highlyCriticalResourceCount +
+      data.mediumCriticalResourceCount +
+      data.nonCriticalResourceCount ===
+      0
+  ) {
     return [];
   }
   const [
@@ -160,7 +166,7 @@ export function calculateCriticalityBarSteps(
 export function calculateClassificationBarSteps(
   data: ClassificationStatistics | undefined,
 ): Array<ProgressBarStep> {
-  if (!data) {
+  if (!data || Object.keys(data).length === 0) {
     return [];
   }
   const entries = Object.values(data)
@@ -188,6 +194,8 @@ export function createBackgroundFromProgressBarSteps(
 ) {
   if (progressBarSteps.length === 1) {
     return progressBarSteps[0].color;
+  } else if (progressBarSteps.length === 0) {
+    return OpossumColors.pastelDarkGreen;
   }
 
   let backgroundColor = 'linear-gradient(to right, ';

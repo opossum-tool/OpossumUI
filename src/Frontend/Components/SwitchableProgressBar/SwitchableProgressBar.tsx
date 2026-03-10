@@ -9,11 +9,9 @@ import { useState } from 'react';
 
 import { text as fullText } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
-import { useAppSelector } from '../../state/hooks';
-import { getClassifications } from '../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { SelectedProgressBar } from '../../types/types';
-import { backend, databaseInitialized } from '../../util/backendClient';
+import { useDatabaseInitialized } from '../../util/backendClient';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 
 const classes = {
@@ -44,6 +42,7 @@ interface ProgressBarSwitchConfiguration {
 }
 
 export const SwitchableProgressBar: React.FC = () => {
+  const databaseInitialized = useDatabaseInitialized();
   const [userSettings] = useUserSettings();
   const showClassifications = userSettings.showClassifications;
   const showCriticality = userSettings.showCriticality;
@@ -90,19 +89,7 @@ export const SwitchableProgressBar: React.FC = () => {
   const hasMoreThanOneActiveProgressBar =
     Object.keys(activeProgressBarConfigurations).length > 1;
 
-  const attributionsProgressBarData =
-    backend.getAttributionProgressBarData.useQuery();
-  const criticalityProgressBarData =
-    backend.getCriticalityProgressBarData.useQuery();
-  const classifications = useAppSelector(getClassifications);
-  const classificationProgressBarData =
-    backend.getClassificationProgressBarData.useQuery({
-      classifications,
-    });
-
-  if (
-    !databaseInitialized
-  ) {
+  if (!databaseInitialized) {
     return <MuiBox flex={1} />;
   }
 

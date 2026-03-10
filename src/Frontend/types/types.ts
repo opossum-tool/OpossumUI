@@ -45,19 +45,6 @@ export interface ResourceCriticalityCounts {
   nonCriticalResourceCount: number;
 }
 
-export interface ProgressBarData {
-  fileCount: number;
-  filesWithManualAttributionCount: number;
-  filesWithOnlyPreSelectedAttributionCount: number;
-  filesWithOnlyExternalAttributionCount: number;
-  resourcesWithNonInheritedExternalAttributionOnly: Array<string>;
-  filesWithHighlyCriticalExternalAttributionsCount: number;
-  filesWithMediumCriticalExternalAttributionsCount: number;
-  resourcesWithHighlyCriticalExternalAttributions: Array<string>;
-  resourcesWithMediumCriticalExternalAttributions: Array<string>;
-  classificationStatistics: ClassificationStatistics;
-}
-
 export interface PopupInfo {
   popup: PopupType;
   attributionId?: string;

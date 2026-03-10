@@ -7,15 +7,13 @@ import { faker } from '../../../../testing/Faker';
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
 import {
   ClassificationStatistics,
-  FileClassifications,
   FileWithAttributionsCounts,
-  FileWithCriticalAttributionsCounts,
+  ResourceCriticalityCounts,
 } from '../../../types/types';
 import {
   calculateAttributionBarSteps,
   calculateClassificationBarSteps,
   calculateCriticalityBarSteps,
-  classificationUnknownColor,
   createBackgroundFromProgressBarSteps,
   getNormalizedPercentages,
 } from '../ProgressBar.util';
@@ -24,10 +22,10 @@ describe('ProgressBar helpers', () => {
   describe('createBackgroundFromProgressBarSteps', () => {
     it('gets correct background for attribution bar', () => {
       const testProgressBarData: FileWithAttributionsCounts = {
-        allFiles: 9,
-        withNonPreSelectedManual: 3,
-        withOnlyPreSelectedManual: 3,
-        withOnlyExternal: 3,
+        fileCount: 9,
+        manualNonPreSelectedFileCount: 3,
+        manualPreSelectedFileCount: 3,
+        onlyExternalFileCount: 3,
       };
       const expectedProgressBarBackground: string =
         'linear-gradient(to right,' +
@@ -46,10 +44,10 @@ describe('ProgressBar helpers', () => {
     });
 
     it('gets correct background for criticality bar', () => {
-      const testProgressBarData: FileWithCriticalAttributionsCounts = {
-        withOnlyExternal: 3,
-        withHighlyCritical: 1,
-        withMediumCritical: 1,
+      const testProgressBarData: ResourceCriticalityCounts = {
+        highlyCriticalResourceCount: 1,
+        mediumCriticalResourceCount: 1,
+        nonCriticalResourceCount: 1,
       };
       const expectedCriticalityBarBackground: string =
         'linear-gradient(to right,' +
@@ -73,18 +71,15 @@ describe('ProgressBar helpers', () => {
         2: faker.progressBar.classificationStatisticsEntry({}, 4),
         3: faker.progressBar.classificationStatisticsEntry({}, 1),
       };
-      const testProgressBarData: FileClassifications = {
-        withOnlyExternal: 20,
-        classificationStatistics,
-      };
 
-      const classificationBarSteps =
-        calculateClassificationBarSteps(testProgressBarData);
+      const classificationBarSteps = calculateClassificationBarSteps(
+        classificationStatistics,
+      );
       const background = createBackgroundFromProgressBarSteps(
         classificationBarSteps,
       );
 
-      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[3].color} 0% 5% , ${classificationStatistics[2].color} 5% 25% , ${classificationStatistics[1].color} 25% 40% , ${classificationStatistics[0].color} 40% 65% , ${classificationUnknownColor} 65% 100% )`;
+      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[3].color} 0% 8% , ${classificationStatistics[2].color} 8% 39% , ${classificationStatistics[1].color} 39% 62% , ${classificationStatistics[0].color} 62% 100% )`;
       expect(background).toEqual(expectedBackground);
     });
 
@@ -96,29 +91,19 @@ describe('ProgressBar helpers', () => {
         0: faker.progressBar.classificationStatisticsEntry({}, 5),
       };
 
-      const testProgressBarData: FileClassifications = {
-        withOnlyExternal: 20,
+      const classificationBarSteps = calculateClassificationBarSteps(
         classificationStatistics,
-      };
-
-      const classificationBarSteps =
-        calculateClassificationBarSteps(testProgressBarData);
+      );
       const background = createBackgroundFromProgressBarSteps(
         classificationBarSteps,
       );
 
-      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[11].color} 0% 5% , ${classificationStatistics[2].color} 5% 25% , ${classificationStatistics[1].color} 25% 40% , ${classificationStatistics[0].color} 40% 65% , ${classificationUnknownColor} 65% 100% )`;
+      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[11].color} 0% 8% , ${classificationStatistics[2].color} 8% 39% , ${classificationStatistics[1].color} 39% 62% , ${classificationStatistics[0].color} 62% 100% )`;
       expect(background).toEqual(expectedBackground);
     });
 
     it('returns constant background color for zero files affected', () => {
-      const testProgressBarData: FileClassifications = {
-        withOnlyExternal: 0,
-        classificationStatistics: {},
-      };
-
-      const classificationBarSteps =
-        calculateClassificationBarSteps(testProgressBarData);
+      const classificationBarSteps = calculateClassificationBarSteps({});
       const background = createBackgroundFromProgressBarSteps(
         classificationBarSteps,
       );
@@ -129,18 +114,15 @@ describe('ProgressBar helpers', () => {
     it('works for only one classification level configured', () => {
       const classificationStatisticsEntry =
         faker.progressBar.classificationStatisticsEntry({}, 5);
-      const testProgressBarData: FileClassifications = {
-        withOnlyExternal: 20,
-        classificationStatistics: { 0: classificationStatisticsEntry },
-      };
 
-      const classificationBarSteps =
-        calculateClassificationBarSteps(testProgressBarData);
+      const classificationBarSteps = calculateClassificationBarSteps({
+        0: classificationStatisticsEntry,
+      });
       const background = createBackgroundFromProgressBarSteps(
         classificationBarSteps,
       );
 
-      const expectedBackground = `linear-gradient(to right, ${classificationStatisticsEntry.color} 0% 25% , ${classificationUnknownColor} 25% 100% )`;
+      const expectedBackground = classificationStatisticsEntry.color;
       expect(background).toBe(expectedBackground);
     });
   });

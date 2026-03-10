@@ -525,14 +525,10 @@ class ProgressBarModule {
     if (numberOfFiles === undefined) {
       numberOfFiles = faker.number.int({ min: 0, max: 20 });
     }
-    const correspondingFiles = faker.helpers.uniqueArray(
-      faker.word.noun,
-      numberOfFiles,
-    );
     return {
       description: faker.word.noun(),
       color: faker.helpers.arrayElement(Object.values(OpossumColors)),
-      correspondingFiles,
+      resourceCount: numberOfFiles,
       ...overwrites,
     };
   }
