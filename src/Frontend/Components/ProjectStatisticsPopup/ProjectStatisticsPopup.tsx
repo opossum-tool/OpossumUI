@@ -12,10 +12,12 @@ import { type PropsWithChildren, useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import { getStrippedLicenseName } from '../../Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getClassifications } from '../../state/selectors/resource-selectors';
+import { useExternalAttributionFilters } from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { backend } from '../../util/backendClient';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
@@ -45,6 +47,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
   const externalAttributionStatistics =
     backend.externalAttributionStatistics.useQuery();
 
+  const [_, setFilteredAttributions] = useExternalAttributionFilters();
+
   const statistics =
     manualAttributionStatistics.data && externalAttributionStatistics.data
       ? {
@@ -57,6 +61,14 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   function close(): void {
     dispatch(closePopup());
+  }
+
+  function handleLicenseClick(licenseName: string): void {
+    setFilteredAttributions((prev) => ({
+      ...prev,
+      selectedLicense: getStrippedLicenseName(licenseName),
+    }));
+    close();
   }
 
   const [userSettings, updateUserSettings] = useUserSettings();
@@ -218,6 +230,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
         <TabPanel tabIndex={1} selectedTab={selectedTab}>
           <AttributionCountPerSourcePerLicenseTable
             tableData={licenseTable.data}
+            setSelectedLicense={handleLicenseClick}
           />
         </TabPanel>
       </MuiBox>

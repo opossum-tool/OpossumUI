@@ -32,11 +32,12 @@ const classes = {
 
 export interface AttributionCountPerSourcePerLicenseTableProps {
   tableData: QueryResult<'licenseTable'>;
+  setSelectedLicense?: (license: string) => void;
 }
 
 export const AttributionCountPerSourcePerLicenseTable: React.FC<
   AttributionCountPerSourcePerLicenseTableProps
-> = ({ tableData }) => {
+> = ({ tableData, setSelectedLicense }) => {
   const componentText = text.attributionCountPerSourcePerLicenseTable;
 
   // Sort no source last
@@ -194,6 +195,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
                 licenseCriticality={row.criticality}
                 licenseClassification={row.classification}
                 totalSignalCount={row.total}
+                setSelectedLicense={setSelectedLicense}
                 key={JSON.stringify([
                   row.licenseName,
                   row.criticality,

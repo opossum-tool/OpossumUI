@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiLink from '@mui/material/Link';
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableRow from '@mui/material/TableRow';
 
@@ -28,6 +29,7 @@ interface AttributionCountPerSourcePerLicenseTableRowProps {
   licenseClassification: Classification | undefined;
   totalSignalCount: number;
   rowIndex: number;
+  setSelectedLicense?: (license: string) => void;
 }
 
 export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
@@ -58,6 +60,7 @@ export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
               licenseClassification={props.licenseClassification}
               totalSignalCount={props.totalSignalCount}
               column={column}
+              setSelectedLicense={props.setSelectedLicense}
             />
           </MuiTableCell>
         );
@@ -73,6 +76,7 @@ interface RowCellContentProps {
   licenseClassification: Classification | undefined;
   totalSignalCount: number;
   column: Column;
+  setSelectedLicense?: (license: string) => void;
 }
 
 const RowCellContent: React.FC<RowCellContentProps> = (props) => {
@@ -81,7 +85,17 @@ const RowCellContent: React.FC<RowCellContentProps> = (props) => {
   const classifications = useAppSelector(getClassifications);
 
   if (props.column.columnType === SingleColumn.NAME) {
-    return props.licenseName;
+    return (
+      <MuiLink
+        underline="hover"
+        onClick={() => {
+          props.setSelectedLicense?.(props.licenseName);
+        }}
+        sx={{ cursor: 'pointer' }}
+      >
+        {props.licenseName}
+      </MuiLink>
+    );
   } else if (props.column.columnType === SingleColumn.CRITICALITY) {
     return props.licenseCriticality === Criticality.None ? (
       componentText.none
