@@ -5,6 +5,7 @@
 import { sql } from 'kysely';
 import { omit } from 'lodash';
 
+import { getStrippedLicenseName } from '../../Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { Filter, FilterCounts, FILTERS } from '../../Frontend/shared-constants';
 import {
   ClassificationStatistics,
@@ -186,7 +187,7 @@ export const queries = {
     external: boolean;
     filters: Array<Filter>;
     resourcePathForRelationships: string;
-    canonical_license?: string;
+    license?: string;
     search?: string;
     showResolved?: boolean;
   }): Promise<{
@@ -235,11 +236,11 @@ export const queries = {
       query = query.where((eb) => getFilterExpression(eb, filter));
     }
 
-    if (props.canonical_license) {
+    if (props.license) {
       query = query.where(
         sql<string>`trim(canonical_license_name)`,
         '=',
-        props.canonical_license,
+        getStrippedLicenseName(props.license),
       );
     }
 

@@ -12,7 +12,6 @@ import { PropsWithChildren, useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { getStrippedLicenseName } from '../../Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { criticalityColor } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -95,7 +94,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
   function handleLicenseClick(licenseName: string): void {
     setFilteredAttributions((prev) => ({
       ...prev,
-      selectedLicense: getStrippedLicenseName(licenseName),
+      selectedLicense: licenseName,
     }));
     close();
   }

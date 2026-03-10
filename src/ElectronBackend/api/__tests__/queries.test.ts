@@ -76,16 +76,16 @@ describe('filterProperties', () => {
     expect(result.all.total).toBe(4);
     expect(result.sameOrDescendant.total).toBe(2);
 
-    expect(result.same?.licenses).toEqual(['mit']);
-    expect(result.descendant?.licenses).toEqual(['apache2.0']);
+    expect(result.same?.licenses).toEqual(['MIT']);
+    expect(result.descendant?.licenses).toEqual(['Apache-2.0']);
     expect(result.ancestor?.licenses).toEqual([]);
-    expect(result.unrelated?.licenses).toEqual(['mit']);
+    expect(result.unrelated?.licenses).toEqual(['MIT']);
     expect(result.all.licenses).toEqual(
-      expect.arrayContaining(['mit', 'apache2.0']),
+      expect.arrayContaining(['MIT', 'Apache-2.0']),
     );
     expect(result.all.licenses).toHaveLength(2);
     expect(result.sameOrDescendant.licenses).toEqual(
-      expect.arrayContaining(['mit', 'apache2.0']),
+      expect.arrayContaining(['MIT', 'Apache-2.0']),
     );
     expect(result.sameOrDescendant.licenses).toHaveLength(2);
   });
@@ -115,7 +115,7 @@ describe('filterProperties', () => {
 
     expect(result.all.total).toBe(1);
     expect(result.same?.total).toBe(1);
-    expect(result.all.licenses).toEqual(['mit']);
+    expect(result.all.licenses).toEqual(['MIT']);
   });
 
   it('filters by license name', async () => {
@@ -125,13 +125,13 @@ describe('filterProperties', () => {
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
-      canonical_license: 'mit',
+      license: 'MIT',
     });
 
     expect(result.all.total).toBe(2);
     expect(result.same?.total).toBe(1);
     expect(result.unrelated?.total).toBe(1);
-    expect(result.all.licenses).toEqual(['mit']);
+    expect(result.all.licenses).toEqual(['MIT']);
   });
 
   it('filters by search term in package name', async () => {
@@ -146,7 +146,7 @@ describe('filterProperties', () => {
 
     expect(result.all.total).toBe(1);
     expect(result.descendant?.total).toBe(1);
-    expect(result.all.licenses).toEqual(['apache2.0']);
+    expect(result.all.licenses).toEqual(['Apache-2.0']);
   });
 
   it('excludes resolved attributions by default', async () => {
@@ -161,7 +161,7 @@ describe('filterProperties', () => {
     expect(result.all.total).toBe(3);
     expect(result.unrelated).toBeUndefined();
     expect(result.all.licenses).toEqual(
-      expect.arrayContaining(['mit', 'apache2.0']),
+      expect.arrayContaining(['MIT', 'Apache-2.0']),
     );
     expect(result.all.licenses).toHaveLength(2);
   });
@@ -179,7 +179,7 @@ describe('filterProperties', () => {
     expect(result.all.total).toBe(4);
     expect(result.unrelated?.total).toBe(1);
     expect(result.all.licenses).toEqual(
-      expect.arrayContaining(['mit', 'apache2.0']),
+      expect.arrayContaining(['MIT', 'Apache-2.0']),
     );
     expect(result.all.licenses).toHaveLength(2);
   });
