@@ -12,6 +12,7 @@ import {
 } from 'kysely';
 import { snakeCase } from 'lodash';
 
+import { getStrippedLicenseName } from '../../Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { FILTERS } from '../../Frontend/shared-constants';
 import { DB } from '../db/generated/databaseTypes';
 import { FilterProperties } from './queries';
@@ -408,17 +409,25 @@ export function mergeFilterProperties(
     licenses: [] as Array<string>,
   } as FilterProperties;
 
+  // Use a Map to track which license name to use for each canonical license name.
+  const licenseMap = new Map<string, string>();
+
   for (const sum of counts.filter((s) => s !== undefined)) {
     for (const [k, v] of Object.entries(sum)) {
       if (k === 'licenses') {
-        result.licenses = [
-          ...new Set([...result.licenses, ...(v as Array<string>)]),
-        ].toSorted();
+        for (const license of v as Array<string>) {
+          const normalized = getStrippedLicenseName(license);
+          if (!licenseMap.has(normalized)) {
+            licenseMap.set(normalized, license);
+          }
+        }
       } else {
         result[k as keyof Omit<FilterProperties, 'licenses'>] += v as number;
       }
     }
   }
+
+  result.licenses = Array.from(licenseMap.values()).toSorted();
 
   return result;
 }
