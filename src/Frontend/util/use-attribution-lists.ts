@@ -37,7 +37,7 @@ export function useFilteredAttributionsList({
     filters,
     search,
     sort: sorting,
-    canonical_license: selectedLicense,
+    license: selectedLicense,
     resourcePathForRelationships: selectedResourceId,
     showResolved: areHiddenSignalsVisible,
     excludeUnrelated: external,
@@ -69,7 +69,7 @@ export function useFilteredReportsAttributionsList() {
     external: false,
     filters,
     resourcePathForRelationships: ROOT_PATH,
-    canonical_license: selectedLicense,
+    license: selectedLicense,
   });
 
   const attributions = attributionQuery.data ?? null;
