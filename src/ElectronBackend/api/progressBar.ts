@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: Apache-2.0
 import {
   ComparisonOperatorExpression,
   ExpressionBuilder,
@@ -163,8 +167,8 @@ function attributionClassificationQuery(
 export async function removeManualOrExternalCwaFromResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
   type: 'manual' | 'external',
-  attributionUuids: string[],
-  resourceIds?: number[],
+  attributionUuids: Array<string>,
+  resourceIds?: Array<number>,
 ) {
   let finished = false;
   while (!finished) {
@@ -223,6 +227,7 @@ export async function removeManualOrExternalCwaFromResources(
       .whereRef(type, '=', 'impacted_resources.resource_id')
       .execute();
 
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     if (result[0].numUpdatedRows === 0n) {
       finished = true;
     }
@@ -232,10 +237,10 @@ export async function removeManualOrExternalCwaFromResources(
 export async function addManualOrExternalCwaToResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
   type: 'manual' | 'external',
-  attributionUuids: string[],
-  resourceIds?: number[],
+  attributionUuids: Array<string>,
+  resourceIds?: Array<number>,
 ) {
-  const result = await trxOrDB
+  return trxOrDB
     .with('newly_attributed_resources', (db) =>
       db
         .selectFrom('resource_to_attribution as rta')
@@ -254,11 +259,7 @@ export async function addManualOrExternalCwaToResources(
           eb
             .selectFrom('resource_to_attribution')
             .select('resource_id')
-            .where(
-              'attribution_is_external',
-              '=',
-              Number(type === 'external'),
-            )
+            .where('attribution_is_external', '=', Number(type === 'external'))
             .where('attribution_uuid', 'not in', attributionUuids)
             .$if(type === 'external', (eb) =>
               eb.where((eb) =>
@@ -297,9 +298,7 @@ export async function addManualOrExternalCwaToResources(
         .select([
           'cwa.resource_id',
           (eb) =>
-            eb.fn
-              .max('newly_attributed_resources.resource_id')
-              .as('new_id'),
+            eb.fn.max('newly_attributed_resources.resource_id').as('new_id'),
         ])
         .groupBy('cwa.resource_id'),
     )
@@ -310,6 +309,4 @@ export async function addManualOrExternalCwaToResources(
     }))
     .whereRef('cwa.resource_id', '=', 'impacted_resources.resource_id')
     .execute();
-
-  console.log('result', result);
 }

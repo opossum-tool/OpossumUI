@@ -69,7 +69,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const getNextAttributionResource =
     backend.getNextFileToReviewForAttribution.useQuery(
       {
-        selectedResourcePath: selectedResourcePath,
+        selectedResourcePath,
         data: attributionsProgressBarData.data as FileWithAttributionsCounts,
       },
       {
@@ -86,7 +86,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const getNextCriticalityResource =
     backend.getNextFileToReviewForCriticality.useQuery(
       {
-        selectedResourcePath: selectedResourcePath,
+        selectedResourcePath,
         data: criticalityProgressBarData.data as ResourceCriticalityCounts,
       },
       {
@@ -109,7 +109,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const getNextClassificationResource =
     backend.getNextFileToReviewForClassification.useQuery(
       {
-        selectedResourcePath: selectedResourcePath,
+        selectedResourcePath,
         data: classificationProgressBarData.data as ClassificationStatistics,
       },
       {
@@ -143,7 +143,9 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     classification: {
       Title: ClassificationBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
-      steps: calculateClassificationBarSteps(classificationProgressBarData.data),
+      steps: calculateClassificationBarSteps(
+        classificationProgressBarData.data,
+      ),
       onClickHandler: () =>
         goToNextResource(getNextClassificationResource.data),
     },

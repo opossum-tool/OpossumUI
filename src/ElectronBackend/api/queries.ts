@@ -507,7 +507,7 @@ export const queries = {
     if (props.data.fileCount === props.data.manualNonPreSelectedFileCount) {
       return { result: null };
     }
-    return await getDb()
+    return getDb()
       .transaction()
       .execute(async (trx) => {
         const selectedResourceId = await getResourceOrThrow(
@@ -553,7 +553,7 @@ export const queries = {
     ) {
       return { result: null };
     }
-    return await getDb()
+    return getDb()
       .transaction()
       .execute(async (trx) => {
         const selectedResourceId = await getResourceOrThrow(
@@ -594,7 +594,7 @@ export const queries = {
     if (highestClassification === -1) {
       return { result: null };
     }
-    return await getDb()
+    return getDb()
       .transaction()
       .execute(async (trx) => {
         const selectedResourceId = await getResourceOrThrow(

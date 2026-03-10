@@ -7,19 +7,12 @@ import { sum } from 'lodash';
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
-import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getResourceIds,
-  getSelectedResourceId,
-} from '../../state/selectors/resource-selectors';
 import {
   ClassificationStatistics,
   ClassificationStatisticsEntry,
   FileWithAttributionsCounts,
   ResourceCriticalityCounts,
 } from '../../types/types';
-import { moveElementsToEnd } from '../../util/lodash-extension-utils';
 
 type Color = string;
 
@@ -28,30 +21,6 @@ export interface ProgressBarStep {
   count?: number;
   widthInPercent: number;
   color: Color;
-}
-
-export const classificationUnknownColor = OpossumColors.lightestBlue;
-
-export function useOnProgressBarClick(resourceIds: Array<string>) {
-  const dispatch = useAppDispatch();
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const allResourceIds = useAppSelector(getResourceIds);
-
-  return () => {
-    if (!resourceIds?.length || !allResourceIds?.length) {
-      return;
-    }
-
-    dispatch(
-      navigateToSelectedPathOrOpenUnsavedPopup(
-        moveElementsToEnd(
-          allResourceIds,
-          allResourceIds.indexOf(selectedResourceId) + 1,
-        ).find((resourceId) => resourceIds.includes(resourceId)) ||
-          resourceIds[0],
-      ),
-    );
-  };
 }
 
 export function calculateAttributionBarSteps(

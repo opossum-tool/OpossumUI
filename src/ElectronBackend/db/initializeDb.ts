@@ -135,16 +135,16 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
     .on('cwa')
     .columns(['manual', 'is_file', 'resource_id'])
     .execute();
-    await trx.schema
-      .createIndex('cwa_external')
-      .on('cwa')
-      .columns(['external', 'resource_id'])
-      .execute();
-    await trx.schema
-      .createIndex('cwa_external_per_file')
-      .on('cwa')
-      .columns(['external', 'is_file', 'resource_id'])
-      .execute();
+  await trx.schema
+    .createIndex('cwa_external')
+    .on('cwa')
+    .columns(['external', 'resource_id'])
+    .execute();
+  await trx.schema
+    .createIndex('cwa_external_per_file')
+    .on('cwa')
+    .columns(['external', 'is_file', 'resource_id'])
+    .execute();
   await trx.schema
     .createIndex('cwa_manual_and_external')
     .on('cwa')

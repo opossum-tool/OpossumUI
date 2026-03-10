@@ -477,7 +477,7 @@ async function setAttributionsResolvedStatus(
         .where('is_external', '=', 1)
         .executeTakeFirstOrThrow();
 
-      if (existingAttributions.count != attributionUuids.length) {
+      if (existingAttributions.count !== attributionUuids.length) {
         throw new Error(
           `Expected to set ${attributionUuids.length} to ${resolvedStatus ? 'resolved' : 'unresolved'}, but only ${existingAttributions.count} were found`,
         );

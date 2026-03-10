@@ -89,7 +89,7 @@ type BackendClient = {
  * A boolean flag that prevents queries from being executed before the database is initialized.
  * This also invalidates all queries when flipped, otherwise old data could be shown.
  */
-export let databaseInitialized = false;
+let databaseInitialized = false;
 const databaseInitializedSubscribers = new Set<() => void>();
 export function setDatabaseInitialized(initialized: boolean) {
   databaseInitialized = initialized;
