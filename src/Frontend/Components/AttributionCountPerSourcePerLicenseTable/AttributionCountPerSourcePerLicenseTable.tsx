@@ -38,6 +38,7 @@ export interface AttributionCountPerSourcePerLicenseTableProps {
   licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
   licenseNamesWithClassification: LicenseNamesWithClassification;
+  setSelectedLicense?: (license: string) => void;
 }
 
 export const AttributionCountPerSourcePerLicenseTable: React.FC<
@@ -221,6 +222,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
                 totalSignalCount={
                   props.licenseCounts.totalAttributionsPerLicense[licenseName]
                 }
+                setSelectedLicense={props.setSelectedLicense}
                 key={rowIndex}
                 rowIndex={rowIndex}
               />

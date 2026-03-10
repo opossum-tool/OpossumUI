@@ -12,6 +12,7 @@ import { PropsWithChildren, useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import { getStrippedLicenseName } from '../../Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { criticalityColor } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -21,6 +22,7 @@ import {
   getManualAttributions,
   getUnresolvedExternalAttributions,
 } from '../../state/selectors/resource-selectors';
+import { useExternalAttributionFilters } from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { BarChart } from '../BarChart/BarChart';
@@ -55,6 +57,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
     getUnresolvedExternalAttributions,
   );
 
+  const [_, setFilteredAttributions] = useExternalAttributionFilters();
+
   const {
     licenseCounts,
     licenseNamesWithCriticality,
@@ -86,6 +90,14 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   function close(): void {
     dispatch(closePopup());
+  }
+
+  function handleLicenseClick(licenseName: string): void {
+    setFilteredAttributions((prev) => ({
+      ...prev,
+      selectedLicense: getStrippedLicenseName(licenseName),
+    }));
+    close();
   }
 
   const [userSettings, updateUserSettings] = useUserSettings();
@@ -196,6 +208,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
             licenseCounts={licenseCounts}
             licenseNamesWithCriticality={licenseNamesWithCriticality}
             licenseNamesWithClassification={licenseNamesWithClassification}
+            setSelectedLicense={handleLicenseClick}
           />
         </TabPanel>
       </MuiBox>
