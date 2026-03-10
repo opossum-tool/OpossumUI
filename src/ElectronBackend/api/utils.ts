@@ -416,9 +416,9 @@ export function mergeFilterProperties(
     for (const [k, v] of Object.entries(sum)) {
       if (k === 'licenses') {
         for (const license of v as Array<string>) {
-          const normalized = getStrippedLicenseName(license);
-          if (!licenseMap.has(normalized)) {
-            licenseMap.set(normalized, license);
+          const canonicalLicenseName = getStrippedLicenseName(license);
+          if (!licenseMap.has(canonicalLicenseName)) {
+            licenseMap.set(canonicalLicenseName, license);
           }
         }
       } else {
