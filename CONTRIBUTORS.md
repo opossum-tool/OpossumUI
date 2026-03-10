@@ -17,12 +17,15 @@ SPDX-License-Identifier: CC0-1.0
 - **[David Mundelius](https://github.com/davidmundelius)** (<david.mundelius@tngtech.com>)
 - **[Dominikus Hellgartner](https://github.com/Hellgartner)** (<dominikus.hellgartner@tngtech.com>)
 - **[Florian Schepers](https://github.com/FlorianSchepers)** (<florian.schepers@tngtech.com>)
-- **[Indira Bhatt](https://github.com/indirabhatt)** (<Indira.bhatt@gmail.com>)
+- **[Helena Drüeke](https://github.com/hecadr)** (<helena.drueeke@tngtech.com>)
+- **[Indira Bhatt](https://github.com/indirabhatt)** (<indira.bhatt@gmail.com>)
 - **[Jakob Schubert](https://github.com/JakobSchubert)**
 - **[Jonas Tai](https://github.com/jonas-tai)**
 - **[Lennart Holstein](https://github.com/lennartclaas)** (<lennart.holstein@tngtech.com>)
+- **[Leon May](https://github.com/LMayTNG)** (<leon.may@tngtech.com>)
 - **[Leslie Lazzarino](https://github.com/leslielazzarino)** (<leslie.lazzarino@tngtech.com>)
 - **[Markus Obendrauf](https://github.com/MarkusObendrauf)** (<markus.obendrauf@tngtech.com>)
+- **[Marius Asadauskas](https://github.com/mariusAsaTNG)** (<marius.asadauskas@tngtech.com>)
 - **[Maxim Stykow](https://github.com/mstykow)**
 - **[Maximilian Huber](https://github.com/maxhbr)** (<maximilian.huber@tngtech.com>)
 - **[Meret Behrens](https://github.com/meretp)**
