@@ -15,7 +15,11 @@ import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { listAttributions } from './listAttributions';
 import { getResourceTree } from './resourceTree';
-import { licenseTable, statistics } from './statistics';
+import {
+  externalAttributionStatistics,
+  licenseTable,
+  manualAttributionStatistics,
+} from './statistics';
 import {
   attributionToResourceRelationship,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
@@ -57,7 +61,8 @@ type QueryFunction = (
 export const queries = {
   listAttributions,
   getResourceTree,
-  statistics,
+  manualAttributionStatistics,
+  externalAttributionStatistics,
   licenseTable,
 
   async getAttributionData(props: { attributionUuid: string }) {

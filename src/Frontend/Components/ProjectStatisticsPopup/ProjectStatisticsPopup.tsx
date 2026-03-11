@@ -40,7 +40,18 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   const classifications = useAppSelector(getClassifications);
 
-  const statistics = backend.statistics.useQuery();
+  const manualAttributionStatistics =
+    backend.manualAttributionStatistics.useQuery();
+  const externalAttributionStatistics =
+    backend.externalAttributionStatistics.useQuery();
+
+  const statistics =
+    manualAttributionStatistics.data && externalAttributionStatistics.data
+      ? {
+          ...manualAttributionStatistics.data,
+          ...externalAttributionStatistics.data,
+        }
+      : undefined;
 
   const licenseTable = backend.licenseTable.useQuery();
 
@@ -56,7 +67,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   const [selectedTab, setSelectedTab] = useState(0);
 
-  if (!statistics.data || !licenseTable.data) {
+  if (!statistics || !licenseTable.data) {
     return null;
   }
 
@@ -97,7 +108,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
               </MuiTypography>
               <BarChart
                 data={transformName(
-                  statistics.data.attributionsOverview,
+                  statistics.attributionsOverview,
                   (key) =>
                     text.projectStatisticsPopup.charts.attributionProperties[
                       key
@@ -106,7 +117,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
               />
             </ChartGridItem>
             <ChartGridItem
-              shouldRender={statistics.data.mostFrequentLicenses.some(
+              shouldRender={statistics.mostFrequentLicenses.some(
                 (l) => l.count > 0,
               )}
               testId={'mostFrequentLicenseCountPieChart'}
@@ -117,11 +128,11 @@ export const ProjectStatisticsPopup: React.FC = () => {
                     .mostFrequentLicenseCountPieChart
                 }
               </MuiTypography>
-              <PieChart segments={statistics.data.mostFrequentLicenses} />
+              <PieChart segments={statistics.mostFrequentLicenses} />
             </ChartGridItem>
             <ChartGridItem
               shouldRender={
-                statistics.data.signalsByCriticality.some((s) => s.count > 0) &&
+                statistics.signalsByCriticality.some((s) => s.count > 0) &&
                 showCriticality
               }
               testId={'criticalSignalsCountPieChart'}
@@ -133,12 +144,10 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 }
               </MuiTypography>
               <PieChart
-                segments={transformName(
-                  statistics.data.signalsByCriticality,
-                  (k) =>
-                    k === null
-                      ? text.projectStatisticsPopup.charts.noLicense
-                      : CRITICALITY_LABEL[k as Criticality],
+                segments={transformName(statistics.signalsByCriticality, (k) =>
+                  k === null
+                    ? text.projectStatisticsPopup.charts.noLicense
+                    : CRITICALITY_LABEL[k as Criticality],
                 )}
                 colorMap={{
                   ...CRITICALITY_COLORS,
@@ -149,9 +158,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
             </ChartGridItem>
             <ChartGridItem
               shouldRender={
-                statistics.data.signalsByClassification.some(
-                  (s) => s.count > 0,
-                ) && showClassifications
+                statistics.signalsByClassification.some((s) => s.count > 0) &&
+                showClassifications
               }
               testId={'signalCountByClassificationPieChart'}
             >
@@ -163,7 +171,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
               </MuiTypography>
               <PieChart
                 segments={transformName(
-                  statistics.data.signalsByClassification,
+                  statistics.signalsByClassification,
                   (s) =>
                     s === null
                       ? text.projectStatisticsPopup.charts.noLicense
@@ -182,7 +190,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
               />
             </ChartGridItem>
             <ChartGridItem
-              shouldRender={statistics.data.incompleteAttributions.some(
+              shouldRender={statistics.incompleteAttributions.some(
                 (a) => a.count > 0,
               )}
               testId={'incompleteAttributionsPieChart'}
@@ -195,7 +203,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
               </MuiTypography>
               <PieChart
                 segments={transformName(
-                  statistics.data.incompleteAttributions,
+                  statistics.incompleteAttributions,
                   (k) =>
                     k === 'incomplete'
                       ? text.projectStatisticsPopup.charts

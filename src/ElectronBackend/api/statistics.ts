@@ -10,7 +10,7 @@ import { DB } from '../db/generated/databaseTypes';
 import { getFilterExpression } from './filters';
 import { canonicalLicenseName } from './utils';
 
-export async function statistics() {
+export async function manualAttributionStatistics() {
   const db = getDb();
 
   async function attributionStats(e: OperandExpression<SqlBool>) {
@@ -60,6 +60,23 @@ export async function statistics() {
     { name: 'total' as const, count: totalManualAttributions },
   ];
 
+  const incompleteAttributions = [
+    {
+      name: 'complete',
+      count: totalManualAttributions - incompleteManualAttributions,
+    },
+    { name: 'incomplete', count: incompleteManualAttributions },
+  ];
+
+  return {
+    result: {
+      attributionsOverview,
+      incompleteAttributions,
+    },
+  };
+}
+
+export async function externalAttributionStatistics() {
   const LICENSE_LIMIT = 5;
 
   const mostFrequentLicenses = await getDb()
@@ -153,21 +170,11 @@ export async function statistics() {
     .orderBy('name', 'desc')
     .execute();
 
-  const incompleteAttributions = [
-    {
-      name: 'complete',
-      count: totalManualAttributions - incompleteManualAttributions,
-    },
-    { name: 'incomplete', count: incompleteManualAttributions },
-  ];
-
   return {
     result: {
-      attributionsOverview,
       mostFrequentLicenses,
       signalsByCriticality,
       signalsByClassification,
-      incompleteAttributions,
     },
   };
 }

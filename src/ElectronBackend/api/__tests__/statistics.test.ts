@@ -4,9 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../shared/shared-types';
 import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
-import { licenseTable, statistics } from '../statistics';
+import {
+  externalAttributionStatistics,
+  licenseTable,
+  manualAttributionStatistics,
+} from '../statistics';
 
-describe('statistics', () => {
+describe('manualAttributionStatistics', () => {
   describe('attributionsOverview', () => {
     it('counts manual attributions needing review', async () => {
       await initializeDbWithTestData({
@@ -24,7 +28,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await manualAttributionStatistics();
 
       expect(result.attributionsOverview).toEqual(
         expect.arrayContaining([
@@ -50,7 +54,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await manualAttributionStatistics();
 
       expect(result.attributionsOverview).toEqual(
         expect.arrayContaining([{ name: 'followUp', count: 1 }]),
@@ -73,7 +77,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await manualAttributionStatistics();
 
       expect(result.attributionsOverview).toEqual(
         expect.arrayContaining([{ name: 'firstParty', count: 1 }]),
@@ -100,7 +104,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await manualAttributionStatistics();
 
       expect(result.attributionsOverview).toEqual(
         expect.arrayContaining([
@@ -128,7 +132,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await manualAttributionStatistics();
 
       expect(result.attributionsOverview).toEqual(
         expect.arrayContaining([{ name: 'total', count: 1 }]),
@@ -138,7 +142,7 @@ describe('statistics', () => {
     it('returns zero counts when there are no manual attributions', async () => {
       await initializeDbWithTestData({});
 
-      const { result } = await statistics();
+      const { result } = await manualAttributionStatistics();
 
       expect(result.attributionsOverview).toEqual([
         { name: 'needsReview', count: 0 },
@@ -178,7 +182,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await manualAttributionStatistics();
 
       expect(result.incompleteAttributions).toEqual([
         { name: 'complete', count: 1 },
@@ -186,7 +190,9 @@ describe('statistics', () => {
       ]);
     });
   });
+});
 
+describe('externalAttributionStatistics', () => {
   describe('mostFrequentLicenses', () => {
     it('returns top 5 licenses from unresolved external attributions', async () => {
       await initializeDbWithTestData({
@@ -216,7 +222,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await externalAttributionStatistics();
 
       expect(result.mostFrequentLicenses).toEqual([
         { name: 'Apache-2.0', count: 3 },
@@ -247,7 +253,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await externalAttributionStatistics();
 
       expect(result.mostFrequentLicenses).toEqual(
         expect.arrayContaining([
@@ -275,7 +281,7 @@ describe('statistics', () => {
         resolvedExternalAttributions: new Set(['b']),
       });
 
-      const { result } = await statistics();
+      const { result } = await externalAttributionStatistics();
 
       expect(result.mostFrequentLicenses).toEqual([{ name: 'MIT', count: 1 }]);
     });
@@ -297,7 +303,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await externalAttributionStatistics();
 
       expect(result.mostFrequentLicenses).toEqual([{ name: 'MIT', count: 1 }]);
     });
@@ -313,7 +319,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await externalAttributionStatistics();
 
       expect(result.mostFrequentLicenses).toEqual([]);
     });
@@ -373,7 +379,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await externalAttributionStatistics();
 
       expect(result.mostFrequentLicenses).toHaveLength(6);
       expect(result.mostFrequentLicenses.at(-1)).toEqual({
@@ -399,7 +405,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await externalAttributionStatistics();
 
       expect(result.signalsByCriticality).toEqual([
         { name: Criticality.High, count: 2 },
@@ -423,7 +429,7 @@ describe('statistics', () => {
         resolvedExternalAttributions: new Set(['b', 'c']),
       });
 
-      const { result } = await statistics();
+      const { result } = await externalAttributionStatistics();
 
       expect(result.signalsByCriticality).toEqual([
         { name: Criticality.High, count: 1 },
@@ -442,7 +448,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await externalAttributionStatistics();
 
       expect(result.signalsByCriticality).toEqual([]);
     });
@@ -485,7 +491,7 @@ describe('statistics', () => {
         },
       });
 
-      const { result } = await statistics();
+      const { result } = await externalAttributionStatistics();
 
       expect(result.signalsByClassification).toEqual([
         { name: 2, count: 1 },
@@ -520,7 +526,7 @@ describe('statistics', () => {
         resolvedExternalAttributions: new Set(['c', 'd']),
       });
 
-      const { result } = await statistics();
+      const { result } = await externalAttributionStatistics();
 
       expect(result.signalsByClassification).toEqual([
         { name: 1, count: 1 },
