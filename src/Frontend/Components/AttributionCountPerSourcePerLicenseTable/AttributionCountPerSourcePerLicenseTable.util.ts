@@ -5,7 +5,7 @@
 import { TableCellProps } from '@mui/material';
 import { orderBy } from 'lodash';
 
-import { LicenseTableRow } from '../../../ElectronBackend/api/queries';
+import { LicenseTableRow } from '../../../ElectronBackend/api/statistics';
 import { Order } from '../../../shared/shared-types';
 
 export enum SingleColumn {

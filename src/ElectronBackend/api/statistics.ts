@@ -171,3 +171,87 @@ export async function statistics() {
     },
   };
 }
+
+export type LicenseTableRow = {
+  licenseName: string | null;
+  criticality: number;
+  classification: number;
+  perSource: { [key: string]: number };
+  total: number;
+};
+
+export async function licenseTable() {
+  const queryResult = await getDb()
+    .selectFrom('attribution')
+    .leftJoin(
+      'source_for_attribution as sfa',
+      'attribution.uuid',
+      'sfa.attribution_uuid',
+    )
+    .leftJoin(
+      'external_attribution_source as eas',
+      'sfa.external_attribution_source_key',
+      'eas.key',
+    )
+    .select((eb) => [
+      'license_name',
+      'criticality',
+      'classification',
+      eb.fn
+        .coalesce('eas.name', 'sfa.external_attribution_source_key')
+        .as('source_name'),
+      eb.fn.countAll<number>().as('attribution_count'),
+    ])
+    .where('attribution.is_external', '=', 1)
+    .where('attribution.is_resolved', '=', 0)
+    .groupBy((eb) => [
+      canonicalLicenseName(eb.ref('license_name')),
+      'criticality',
+      'classification',
+      'source_name',
+    ])
+    .orderBy('license_name', (ob) => ob.asc().nullsLast())
+    .orderBy('criticality', (ob) => ob.asc().nullsLast())
+    .orderBy('classification', (ob) => ob.asc().nullsLast())
+    .execute();
+
+  const licenseTableRows: Array<LicenseTableRow> = [];
+  const totals: Pick<LicenseTableRow, 'perSource' | 'total'> = {
+    perSource: {},
+    total: 0,
+  };
+
+  for (const queryRow of queryResult) {
+    const licenseName = queryRow.license_name;
+    const criticality = queryRow.criticality ?? 0;
+    const classification = queryRow.classification ?? 0;
+    const sourceName = queryRow.source_name ?? '-';
+
+    let currentRow = licenseTableRows.at(-1);
+    if (
+      licenseName !== currentRow?.licenseName ||
+      criticality !== currentRow.criticality ||
+      classification !== currentRow.classification
+    ) {
+      currentRow = {
+        licenseName,
+        criticality,
+        classification,
+        perSource: {},
+        total: 0,
+      };
+      licenseTableRows.push(currentRow);
+    }
+
+    currentRow.perSource[sourceName] = queryRow.attribution_count;
+    currentRow.total += queryRow.attribution_count;
+
+    if (!(sourceName in totals.perSource)) {
+      totals.perSource[sourceName] = 0;
+    }
+    totals.perSource[sourceName] += queryRow.attribution_count;
+    totals.total += queryRow.attribution_count;
+  }
+
+  return { result: { perLicense: licenseTableRows, totals } };
+}
