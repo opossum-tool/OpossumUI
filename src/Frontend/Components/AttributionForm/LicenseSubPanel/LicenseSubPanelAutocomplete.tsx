@@ -103,8 +103,8 @@ export function LicenseSubPanelAutocomplete({
       shortName: license.shortName,
       group: text.attributionColumn.commonLicenses,
       attributionCount: [
-        externalCountMap.get(license.shortName.toLowerCase()) ?? 0,
         manualCountMap.get(license.shortName.toLowerCase()) ?? 0,
+        externalCountMap.get(license.shortName.toLowerCase()) ?? 0,
       ] as [number, number],
       replaceEntireSearch: false,
     }));
