@@ -8,7 +8,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { text } from '../../../shared/text';
 import { maybePluralize } from '../../util/maybe-pluralize';
 
-export function renderOccuranceCount(count: number | undefined) {
+export function renderOccurrenceCount(count: number | undefined) {
   if (count === undefined) {
     return null;
   }
