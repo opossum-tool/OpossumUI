@@ -50,7 +50,7 @@ ${result}`;
   }
 
   result = insertGeneratedColumnsFromJsonData(result);
-  result = insertGeneratedSortKey(result);
+  result = insertGeneratedColumns(result);
 
   await fs.writeFile(filename, result, 'utf8');
 }
@@ -103,12 +103,17 @@ function insertGeneratedColumnsFromJsonData(fileContent: string) {
 }
 
 /**
- * In the resource table, we automatically generate a sort_key.
- * Kysely-codegen doesn't pick it up yet (https://github.com/kysely-org/kysely/issues/1397)
+ * In the database, we automatically generate some columns.
+ * Kysely-codegen doesn't pick them up yet (https://github.com/kysely-org/kysely/issues/1397)
  */
-function insertGeneratedSortKey(fileContent: string) {
-  return fileContent.replace(
-    /(export interface Resource {[^}]*)}/,
-    '$1  sort_key: Generated<string>;\n}',
-  );
+function insertGeneratedColumns(fileContent: string) {
+  return fileContent
+    .replace(
+      /(export interface Resource {[^}]*)}/,
+      '$1  sort_key: Generated<string>;\n}',
+    )
+    .replace(
+      /(export interface Attribution {[^}]*)}/,
+      '$1  canonical_license_name: Generated<string | null>;\n}',
+    );
 }

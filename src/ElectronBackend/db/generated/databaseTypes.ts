@@ -44,6 +44,7 @@ export interface Attribution {
   preferred: Generated<number>;
   original_attribution_was_preferred: Generated<number>;
   comment: Generated<string | null>;
+  canonical_license_name: Generated<string | null>;
 }
 
 export interface ExternalAttributionSource {

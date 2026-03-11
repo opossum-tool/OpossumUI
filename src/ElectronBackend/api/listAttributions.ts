@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { sql } from 'kysely';
 
+import { getStrippedLicenseName } from '../../Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { SortOption } from '../../Frontend/Components/SortButton/useSortingOptions';
 import { Filter } from '../../Frontend/shared-constants';
 import { Attributions, PackageInfo } from '../../shared/shared-types';
@@ -75,7 +76,11 @@ export async function listAttributions(props: {
   }
 
   if (props.license) {
-    query = query.where(sql<string>`trim(license_name)`, '=', props.license);
+    query = query.where(
+      sql<string>`trim(canonical_license_name)`,
+      '=',
+      getStrippedLicenseName(props.license),
+    );
   }
 
   if (props.search) {

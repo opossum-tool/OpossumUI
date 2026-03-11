@@ -5,6 +5,7 @@
 import { sql } from 'kysely';
 import { omit } from 'lodash';
 
+import { getStrippedLicenseName } from '../../Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { Filter, FilterCounts, FILTERS } from '../../Frontend/shared-constants';
 import {
   ClassificationStatistics,
@@ -236,7 +237,11 @@ export const queries = {
     }
 
     if (props.license) {
-      query = query.where(sql<string>`trim(license_name)`, '=', props.license);
+      query = query.where(
+        sql<string>`trim(canonical_license_name)`,
+        '=',
+        getStrippedLicenseName(props.license),
+      );
     }
 
     if (props.search) {
