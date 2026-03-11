@@ -85,11 +85,28 @@ export function LicenseSubPanelAutocomplete({
         !frequentLicenseNameSetLowercase.has(license.shortName.toLowerCase()),
     );
 
+    const manualCountMap = new Map(
+      manual.map((license) => [
+        license.shortName.toLowerCase(),
+        license.attributionCount as number,
+      ]),
+    );
+    const externalCountMap = new Map(
+      external.map((license) => [
+        license.shortName.toLowerCase(),
+        license.attributionCount as number,
+      ]),
+    );
+
     return [
       ...frequentLicensesNames.map((license) => ({
         fullName: license.fullName,
         shortName: license.shortName,
         group: text.attributionColumn.commonLicenses,
+        attributionCount: [
+          externalCountMap.get(license.shortName.toLowerCase()) ?? 0,
+          manualCountMap.get(license.shortName.toLowerCase()) ?? 0,
+        ] as [number, number],
         replaceEntireSearch: false,
       })),
       ...manualFiltered,
@@ -237,7 +254,7 @@ export function LicenseSubPanelAutocomplete({
 type LicenseOption = {
   shortName: string;
   fullName: string | undefined;
-  attributionCount?: number;
+  attributionCount?: number | [number, number];
   group: string;
   replaceEntireSearch: boolean;
 };
