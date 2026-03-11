@@ -88,6 +88,8 @@ export const mutations = {
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'getResourcePathsAndParentsForAttributions' },
         { queryName: 'isResourceLinkedOnAllAttributions' },
+        { queryName: 'manualAttributionStatistics' },
+        { queryName: 'licenseTable' },
       ],
     };
   },
@@ -163,6 +165,8 @@ export const mutations = {
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'getResourcePathsAndParentsForAttributions' },
         { queryName: 'isResourceLinkedOnAllAttributions' },
+        { queryName: 'manualAttributionStatistics' },
+        { queryName: 'licenseTable' },
       ],
     };
   },
@@ -214,6 +218,8 @@ export const mutations = {
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'getResourcePathsAndParentsForAttributions' },
         { queryName: 'isResourceLinkedOnAllAttributions' },
+        { queryName: 'manualAttributionStatistics' },
+        { queryName: 'licenseTable' },
       ],
     };
   },
@@ -273,6 +279,8 @@ export const mutations = {
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'getResourcePathsAndParentsForAttributions' },
         { queryName: 'isResourceLinkedOnAllAttributions' },
+        { queryName: 'manualAttributionStatistics' },
+        { queryName: 'licenseTable' },
       ],
     };
   },
@@ -314,6 +322,8 @@ export const mutations = {
         { queryName: 'getProgressBarData' },
         { queryName: 'autoCompleteOptions' },
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
+        { queryName: 'manualAttributionStatistics' },
+        { queryName: 'licenseTable' },
       ],
     };
   },
@@ -370,6 +380,8 @@ export const mutations = {
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'getResourcePathsAndParentsForAttributions' },
         { queryName: 'isResourceLinkedOnAllAttributions' },
+        { queryName: 'manualAttributionStatistics' },
+        { queryName: 'licenseTable' },
       ],
     };
   },
@@ -413,6 +425,8 @@ async function setAttributionsResolvedStatus(
       { queryName: 'getResourceTree' as const },
       { queryName: 'getProgressBarData' as const },
       { queryName: 'autoCompleteOptions' as const },
+      { queryName: 'externalAttributionStatistics' as const },
+      { queryName: 'licenseTable' as const },
     ],
   };
 }

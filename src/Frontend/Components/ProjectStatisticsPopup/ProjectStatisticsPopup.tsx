@@ -12,16 +12,12 @@ import { PropsWithChildren, useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { criticalityColor } from '../../shared-styles';
+import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getClassifications,
-  getExternalAttributionSources,
-  getManualAttributions,
-  getUnresolvedExternalAttributions,
-} from '../../state/selectors/resource-selectors';
+import { getClassifications } from '../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../state/variables/use-user-setting';
+import { backend } from '../../util/backendClient';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { BarChart } from '../BarChart/BarChart';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -29,13 +25,8 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { PieChart } from '../PieChart/PieChart';
 import { ChartCard } from './ProjectStatisticsPopup.style';
 import {
-  aggregateAttributionPropertiesFromAttributions,
-  aggregateLicensesAndSourcesFromAttributions,
   CRITICALITY_LABEL,
-  getCriticalSignalsCount,
-  getIncompleteAttributionsCount,
-  getMostFrequentLicenses,
-  getSignalCountByClassification,
+  transformName,
 } from './ProjectStatisticsPopup.util';
 
 const CRITICALITY_COLORS = {
@@ -47,42 +38,22 @@ const CRITICALITY_COLORS = {
 export const ProjectStatisticsPopup: React.FC = () => {
   const dispatch = useAppDispatch();
 
-  const manualAttributions = useAppSelector(getManualAttributions);
-  const attributionSources = useAppSelector(getExternalAttributionSources);
   const classifications = useAppSelector(getClassifications);
 
-  const unresolvedExternalAttribution = useAppSelector(
-    getUnresolvedExternalAttributions,
-  );
+  const manualAttributionStatistics =
+    backend.manualAttributionStatistics.useQuery();
+  const externalAttributionStatistics =
+    backend.externalAttributionStatistics.useQuery();
 
-  const {
-    licenseCounts,
-    licenseNamesWithCriticality,
-    licenseNamesWithClassification,
-  } = aggregateLicensesAndSourcesFromAttributions(
-    unresolvedExternalAttribution,
-    attributionSources,
-  );
+  const statistics =
+    manualAttributionStatistics.data && externalAttributionStatistics.data
+      ? {
+          ...manualAttributionStatistics.data,
+          ...externalAttributionStatistics.data,
+        }
+      : undefined;
 
-  const mostFrequentLicenseCountData = getMostFrequentLicenses(licenseCounts);
-
-  const criticalSignalsCount = getCriticalSignalsCount(
-    licenseCounts,
-    licenseNamesWithCriticality,
-  );
-
-  const [signalCountByClassification, classificationColorMap] =
-    getSignalCountByClassification(
-      licenseCounts,
-      licenseNamesWithClassification,
-      classifications,
-    );
-
-  const attributionBarChartData =
-    aggregateAttributionPropertiesFromAttributions(manualAttributions);
-
-  const incompleteAttributionsData =
-    getIncompleteAttributionsCount(manualAttributions);
+  const licenseTable = backend.licenseTable.useQuery();
 
   function close(): void {
     dispatch(closePopup());
@@ -95,6 +66,10 @@ export const ProjectStatisticsPopup: React.FC = () => {
   const showCriticality = userSettings.showCriticality;
 
   const [selectedTab, setSelectedTab] = useState(0);
+
+  if (!statistics || !licenseTable.data) {
+    return null;
+  }
 
   return (
     <NotificationPopup
@@ -131,10 +106,20 @@ export const ProjectStatisticsPopup: React.FC = () => {
               <MuiTypography variant="subtitle1">
                 {text.projectStatisticsPopup.charts.attributionProperties.title}
               </MuiTypography>
-              <BarChart data={attributionBarChartData} />
+              <BarChart
+                data={transformName(
+                  statistics.attributionsOverview,
+                  (key) =>
+                    text.projectStatisticsPopup.charts.attributionProperties[
+                      key
+                    ],
+                )}
+              />
             </ChartGridItem>
             <ChartGridItem
-              shouldRender={mostFrequentLicenseCountData.length > 0}
+              shouldRender={statistics.mostFrequentLicenses.some(
+                (l) => l.count > 0,
+              )}
               testId={'mostFrequentLicenseCountPieChart'}
             >
               <MuiTypography variant="subtitle1">
@@ -143,10 +128,13 @@ export const ProjectStatisticsPopup: React.FC = () => {
                     .mostFrequentLicenseCountPieChart
                 }
               </MuiTypography>
-              <PieChart segments={mostFrequentLicenseCountData} />
+              <PieChart segments={statistics.mostFrequentLicenses} />
             </ChartGridItem>
             <ChartGridItem
-              shouldRender={criticalSignalsCount.length > 0 && showCriticality}
+              shouldRender={
+                statistics.signalsByCriticality.some((s) => s.count > 0) &&
+                showCriticality
+              }
               testId={'criticalSignalsCountPieChart'}
             >
               <MuiTypography variant="subtitle1">
@@ -156,13 +144,22 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 }
               </MuiTypography>
               <PieChart
-                segments={criticalSignalsCount}
-                colorMap={CRITICALITY_COLORS}
+                segments={transformName(statistics.signalsByCriticality, (k) =>
+                  k === null
+                    ? text.projectStatisticsPopup.charts.noLicense
+                    : CRITICALITY_LABEL[k as Criticality],
+                )}
+                colorMap={{
+                  ...CRITICALITY_COLORS,
+                  [text.projectStatisticsPopup.charts.noLicense]:
+                    OpossumColors.lightGrey,
+                }}
               />
             </ChartGridItem>
             <ChartGridItem
               shouldRender={
-                signalCountByClassification.length > 0 && showClassifications
+                statistics.signalsByClassification.some((s) => s.count > 0) &&
+                showClassifications
               }
               testId={'signalCountByClassificationPieChart'}
             >
@@ -173,12 +170,29 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 }
               </MuiTypography>
               <PieChart
-                segments={signalCountByClassification}
-                colorMap={classificationColorMap}
+                segments={transformName(
+                  statistics.signalsByClassification,
+                  (s) =>
+                    s === null
+                      ? text.projectStatisticsPopup.charts.noLicense
+                      : classifications[s].description,
+                )}
+                colorMap={{
+                  ...Object.fromEntries(
+                    Object.values(classifications).map((c) => [
+                      c.description,
+                      c.color,
+                    ]),
+                  ),
+                  [text.projectStatisticsPopup.charts.noLicense]:
+                    OpossumColors.lightGrey,
+                }}
               />
             </ChartGridItem>
             <ChartGridItem
-              shouldRender={incompleteAttributionsData.length > 0}
+              shouldRender={statistics.incompleteAttributions.some(
+                (a) => a.count > 0,
+              )}
               testId={'incompleteAttributionsPieChart'}
             >
               <MuiTypography variant="subtitle1">
@@ -187,15 +201,23 @@ export const ProjectStatisticsPopup: React.FC = () => {
                     .incompleteAttributionsPieChart.title
                 }
               </MuiTypography>
-              <PieChart segments={incompleteAttributionsData} />
+              <PieChart
+                segments={transformName(
+                  statistics.incompleteAttributions,
+                  (k) =>
+                    k === 'incomplete'
+                      ? text.projectStatisticsPopup.charts
+                          .incompleteAttributionsPieChart.incompleteAttributions
+                      : text.projectStatisticsPopup.charts
+                          .incompleteAttributionsPieChart.completeAttributions,
+                )}
+              />
             </ChartGridItem>
           </ChartGrid>
         </TabPanel>
         <TabPanel tabIndex={1} selectedTab={selectedTab}>
           <AttributionCountPerSourcePerLicenseTable
-            licenseCounts={licenseCounts}
-            licenseNamesWithCriticality={licenseNamesWithCriticality}
-            licenseNamesWithClassification={licenseNamesWithClassification}
+            tableData={licenseTable.data}
           />
         </TabPanel>
       </MuiBox>

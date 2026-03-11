@@ -3,12 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  Classification,
-  Criticality,
-  FileFormatInfo,
-  UserSettings,
-} from '../../shared/shared-types';
+import { FileFormatInfo, UserSettings } from '../../shared/shared-types';
 import { PopupType } from '../enums/enums';
 import { ResourceState } from '../state/reducers/resource-reducer';
 import { VariablesState } from '../state/reducers/variables-reducer';
@@ -78,20 +73,3 @@ export interface ChartDataItem extends Record<string, unknown> {
   name: string;
   count: number;
 }
-
-export interface LicenseCounts {
-  attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
-  totalAttributionsPerLicense: { [licenseName: string]: number };
-  totalAttributionsPerSource: { [sourceName: string]: number };
-}
-
-export interface AttributionCountPerSourcePerLicense {
-  [licenseName: string]: { [sourceName: string]: number };
-}
-
-export type LicenseNamesWithCriticality = Record<string, Criticality>;
-
-export type LicenseNamesWithClassification = Record<
-  string,
-  Classification | undefined
->;

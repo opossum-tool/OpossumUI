@@ -8,40 +8,33 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import { Criticality } from '../../../../shared/shared-types';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { renderComponent } from '../../../test-helpers/render';
-import { LicenseCounts } from '../../../types/types';
 import {
   AttributionCountPerSourcePerLicenseTable,
   AttributionCountPerSourcePerLicenseTableProps,
 } from '../AttributionCountPerSourcePerLicenseTable';
 
-const licenseCounts: LicenseCounts = {
-  attributionCountPerSourcePerLicense: {
-    licenseA: {
-      sourceA: 1,
-      sourceB: 3,
-    },
-    licenseB: {
-      sourceB: 2,
-    },
-  },
-  totalAttributionsPerLicense: {
-    licenseA: 4,
-    licenseB: 2,
-  },
-  totalAttributionsPerSource: {
-    sourceA: 1,
-    sourceB: 5,
-  },
-};
 const props: AttributionCountPerSourcePerLicenseTableProps = {
-  licenseCounts,
-  licenseNamesWithCriticality: {
-    licenseA: Criticality.High,
-    licenseB: Criticality.Medium,
-  },
-  licenseNamesWithClassification: {
-    licenseA: 2,
-    licenseB: 3,
+  tableData: {
+    perLicense: [
+      {
+        licenseName: 'licenseA',
+        criticality: Criticality.High,
+        classification: 2,
+        perSource: { sourceA: 1, sourceB: 3 },
+        total: 4,
+      },
+      {
+        licenseName: 'licenseB',
+        criticality: Criticality.Medium,
+        classification: 3,
+        perSource: { sourceB: 2 },
+        total: 2,
+      },
+    ],
+    totals: {
+      perSource: { sourceA: 1, sourceB: 5 },
+      total: 6,
+    },
   },
 };
 

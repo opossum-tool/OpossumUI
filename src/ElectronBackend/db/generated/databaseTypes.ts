@@ -48,6 +48,7 @@ export interface Attribution {
 
 export interface ExternalAttributionSource {
   is_relevant_for_preferred: Generated<number>;
+  key: string;
   name: string;
   priority: number;
 }
@@ -98,9 +99,9 @@ export interface SourceForAttribution {
   attribution_uuid: string;
   document_confidence: number | null;
   /**
-   * Mainly contains names of external_attribution_source, but can also contain unknown names
+   * Mainly contains keys of external_attribution_source, but can also contain unknown values
    */
-  external_attribution_source_name: string;
+  external_attribution_source_key: string;
 }
 
 export interface DB {
