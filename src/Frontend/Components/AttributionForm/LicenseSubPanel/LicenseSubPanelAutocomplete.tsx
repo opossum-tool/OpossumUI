@@ -17,7 +17,7 @@ import {
 import { backend } from '../../../util/backendClient';
 import { validateSpdxExpression } from '../../../util/spdx/validate-spdx';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
-import { renderOccuranceCount } from '../../Autocomplete/AutocompleteUtil';
+import { renderOccurrenceCount } from '../../Autocomplete/AutocompleteUtil';
 import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { SourceIcon } from '../../Icons/Icons';
 import { AttributionFormConfig } from '../AttributionForm';
@@ -172,7 +172,7 @@ export function LicenseSubPanelAutocomplete({
           typeof option === 'string' ? option : option.group + option.shortName
         }
         renderOptionStartIcon={(option) =>
-          renderOccuranceCount(option.attributionCount)
+          renderOccurrenceCount(option.attributionCount)
         }
         filterOptions={(options, state) =>
           filterOptions(options, state.inputValue)
