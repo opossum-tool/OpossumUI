@@ -98,17 +98,24 @@ export function LicenseSubPanelAutocomplete({
       ]),
     );
 
+    const frequentLicenseOptions = frequentLicensesNames.map((license) => ({
+      fullName: license.fullName,
+      shortName: license.shortName,
+      group: text.attributionColumn.commonLicenses,
+      attributionCount: [
+        externalCountMap.get(license.shortName.toLowerCase()) ?? 0,
+        manualCountMap.get(license.shortName.toLowerCase()) ?? 0,
+      ] as [number, number],
+      replaceEntireSearch: false,
+    }));
+
+    const sortedFrequentLicenseOptions = sortBy(
+      frequentLicenseOptions,
+      (license) => -(license.attributionCount[0] + license.attributionCount[1]),
+    );
+
     return [
-      ...frequentLicensesNames.map((license) => ({
-        fullName: license.fullName,
-        shortName: license.shortName,
-        group: text.attributionColumn.commonLicenses,
-        attributionCount: [
-          externalCountMap.get(license.shortName.toLowerCase()) ?? 0,
-          manualCountMap.get(license.shortName.toLowerCase()) ?? 0,
-        ] as [number, number],
-        replaceEntireSearch: false,
-      })),
+      ...sortedFrequentLicenseOptions,
       ...manualFiltered,
       ...externalFiltered,
     ];
