@@ -40,7 +40,7 @@ export function getNonPreSelectedManualFilesQuery(
     );
 }
 
-export function getPreSelectedManualFilesQuery(
+export function getOnlyPreSelectedManualFilesQuery(
   eb: ExpressionBuilder<DB, 'cwa'>,
 ) {
   return eb
@@ -62,11 +62,11 @@ function resourcePreSelectedQuery(
     .selectFrom('resource_to_attribution')
     .select('resource_id')
     .where('attribution_uuid', 'in', (eb) =>
-      attributionsPreSelectedQuery(eb, options),
+      attributionPreSelectedQuery(eb, options),
     );
 }
 
-function attributionsPreSelectedQuery(
+function attributionPreSelectedQuery(
   eb: ExpressionBuilder<DB, 'resource_to_attribution'>,
   options: { isPreSelected: 0 | 1 },
 ) {
@@ -164,6 +164,12 @@ function attributionClassificationQuery(
     .where('classification', options.operator, options.classification);
 }
 
+/**
+ * Used to update the cwa table, which is a cache for getting the closest ancestor with manual or external attributions.
+ * It takes attributionUuids as an input and checks for resources that will have no more manual or external attributions once they are removed.
+ * Then it updates the resources that point to the removed resources with their parent's closest ancestor with manual or external attributions.
+ * Run multiple times, since the parent might have different manual or external attributions after the update.
+ */
 export async function removeManualOrExternalCwaFromResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
   type: 'manual' | 'external',
@@ -234,6 +240,11 @@ export async function removeManualOrExternalCwaFromResources(
   }
 }
 
+/**
+ * Used to update the cwa table, which is a cache for getting the closest ancestor with manual or external attributions.
+ * It takes attributionUuids as an input and checks for resources that gained manual or external attributions after they were added.
+ * It then ensures that the resource itself and its children without manual or external attributions point to the resource.
+ */
 export async function addManualOrExternalCwaToResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
   type: 'manual' | 'external',

@@ -151,17 +151,12 @@ export function removeTrailingSlash(path: string) {
 export async function getResourceOrThrow(
   dbOrTrx: Kysely<DB>,
   resourcePath: string,
-  options?: { includeSortKey?: boolean },
 ) {
   const strippedResourcePath = removeTrailingSlash(resourcePath);
 
   const resource = await dbOrTrx
     .selectFrom('resource')
-    .select(
-      options?.includeSortKey
-        ? ['id', 'max_descendant_id', 'sort_key']
-        : ['id', 'max_descendant_id'],
-    )
+    .select(['id', 'max_descendant_id', 'sort_key'])
     .where('path', '=', strippedResourcePath)
     .executeTakeFirst();
 

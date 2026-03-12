@@ -25,7 +25,7 @@ import {
   getManualFilesQuery,
   getNonPreSelectedManualFilesQuery,
   getOnlyExternalFilesQuery,
-  getPreSelectedManualFilesQuery,
+  getOnlyPreSelectedManualFilesQuery,
 } from './progressBar';
 import { getResourceTree } from './resourceTree';
 import {
@@ -513,7 +513,6 @@ export const queries = {
         const selectedResourceId = await getResourceOrThrow(
           trx,
           props.selectedResourcePath,
-          { includeSortKey: true },
         );
         const resource = await trx
           .selectFrom((eb) => {
@@ -521,7 +520,7 @@ export const queries = {
               return getOnlyExternalFilesQuery(eb).as('filtered');
             }
             if (props.data.manualPreSelectedFileCount > 0) {
-              return getPreSelectedManualFilesQuery(eb).as('filtered');
+              return getOnlyPreSelectedManualFilesQuery(eb).as('filtered');
             }
             return eb
               .selectFrom('cwa')
@@ -559,7 +558,6 @@ export const queries = {
         const selectedResourceId = await getResourceOrThrow(
           trx,
           props.selectedResourcePath,
-          { includeSortKey: true },
         );
         const resource = await trx
           .selectFrom((eb) =>
@@ -600,7 +598,6 @@ export const queries = {
         const selectedResourceId = await getResourceOrThrow(
           trx,
           props.selectedResourcePath,
-          { includeSortKey: true },
         );
         const resource = await trx
           .selectFrom((eb) =>
