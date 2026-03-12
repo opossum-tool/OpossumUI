@@ -35,16 +35,16 @@ export async function getAttributionProgressBarData(): Promise<{
         .where('is_file', '=', 1)
         .executeTakeFirstOrThrow();
 
-      const manual_count = await getCount(trx, (eb) =>
-        getManualFilesQuery(eb).as('cwa'),
+      const manual_count = await getCount(trx, getManualFilesQuery);
+
+      const manual_non_pre_selected_count = await getCount(
+        trx,
+        getNonPreSelectedManualFilesQuery,
       );
 
-      const manual_non_pre_selected_count = await getCount(trx, (eb) =>
-        getNonPreSelectedManualFilesQuery(eb).as('cwa'),
-      );
-
-      const only_external_count = await getCount(trx, (eb) =>
-        getOnlyExternalFilesQuery(eb).as('cwa'),
+      const only_external_count = await getCount(
+        trx,
+        getOnlyExternalFilesQuery,
       );
 
       return {
@@ -65,13 +65,13 @@ export async function getCriticalityProgressBarData(): Promise<{
     .transaction()
     .execute(async (trx) => {
       const highly_critical_count = await getCount(trx, (eb) =>
-        getCriticalResourceQuery(eb, Criticality.High).as('cwa'),
+        getCriticalResourceQuery(eb, Criticality.High),
       );
       const medium_critical_count = await getCount(trx, (eb) =>
-        getCriticalResourceQuery(eb, Criticality.Medium).as('cwa'),
+        getCriticalResourceQuery(eb, Criticality.Medium),
       );
       const non_critical_count = await getCount(trx, (eb) =>
-        getCriticalResourceQuery(eb, Criticality.None).as('cwa'),
+        getCriticalResourceQuery(eb, Criticality.None),
       );
       return {
         highlyCriticalResourceCount: highly_critical_count,
@@ -95,7 +95,7 @@ export async function getClassificationProgressBarData(props: {
         props.classifications,
       )) {
         const classification_count = await getCount(trx, (eb) =>
-          getClassificationResourceQuery(eb, Number(key)).as('cwa'),
+          getClassificationResourceQuery(eb, Number(key)),
         );
         classificationStatistics[Number(key)] = {
           description: classification.description,

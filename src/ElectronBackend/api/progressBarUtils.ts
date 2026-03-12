@@ -3,10 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  AliasedExpression,
   ComparisonOperatorExpression,
   ExpressionBuilder,
   Kysely,
+  SelectQueryBuilder,
   Transaction,
 } from 'kysely';
 
@@ -325,11 +325,12 @@ export async function addManualOrExternalCwaToResources(
 
 export async function getCount(
   trxOrDb: Transaction<DB> | Kysely<DB>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  from: (eb: ExpressionBuilder<DB, never>) => AliasedExpression<any, any>,
+  from: (
+    eb: ExpressionBuilder<DB, 'cwa'>,
+  ) => SelectQueryBuilder<DB, never, unknown>,
 ): Promise<number> {
   const { count } = await trxOrDb
-    .selectFrom(from)
+    .selectFrom((eb) => from(eb).as('table_to_count'))
     .select((eb) => eb.fn.countAll<number>().as('count'))
     .executeTakeFirstOrThrow();
   return count;
