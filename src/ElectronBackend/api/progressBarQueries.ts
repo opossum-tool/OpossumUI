@@ -13,6 +13,7 @@ import { ClassificationsConfig, Criticality } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import {
   getClassificationResourceQuery,
+  getCount,
   getCriticalResourceQuery,
   getManualFilesQuery,
   getNonPreSelectedManualFilesQuery,
@@ -33,22 +34,17 @@ export async function getAttributionProgressBarData(): Promise<{
         .where('is_file', '=', 1)
         .executeTakeFirstOrThrow();
 
-      const { manual_count } = await trx
-        .selectFrom((eb) => getManualFilesQuery(eb).as('cwa'))
-        .select((eb) => eb.fn.countAll<number>().as('manual_count'))
-        .executeTakeFirstOrThrow();
+      const manual_count = await getCount(trx, (eb) =>
+        getManualFilesQuery(eb).as('cwa'),
+      );
 
-      const { manual_non_pre_selected_count } = await trx
-        .selectFrom((eb) => getNonPreSelectedManualFilesQuery(eb).as('cwa'))
-        .select((eb) =>
-          eb.fn.countAll<number>().as('manual_non_pre_selected_count'),
-        )
-        .executeTakeFirstOrThrow();
+      const manual_non_pre_selected_count = await getCount(trx, (eb) =>
+        getNonPreSelectedManualFilesQuery(eb).as('cwa'),
+      );
 
-      const { only_external_count } = await trx
-        .selectFrom((eb) => getOnlyExternalFilesQuery(eb).as('cwa'))
-        .select((eb) => eb.fn.countAll<number>().as('only_external_count'))
-        .executeTakeFirstOrThrow();
+      const only_external_count = await getCount(trx, (eb) =>
+        getOnlyExternalFilesQuery(eb).as('cwa'),
+      );
 
       return {
         fileCount: file_count,
@@ -67,24 +63,15 @@ export async function getCriticalityProgressBarData(): Promise<{
   const result = await getDb()
     .transaction()
     .execute(async (trx) => {
-      const { highly_critical_count } = await trx
-        .selectFrom((eb) =>
-          getCriticalResourceQuery(eb, Criticality.High).as('cwa'),
-        )
-        .select((eb) => eb.fn.countAll<number>().as('highly_critical_count'))
-        .executeTakeFirstOrThrow();
-      const { medium_critical_count } = await trx
-        .selectFrom((eb) =>
-          getCriticalResourceQuery(eb, Criticality.Medium).as('cwa'),
-        )
-        .select((eb) => eb.fn.countAll<number>().as('medium_critical_count'))
-        .executeTakeFirstOrThrow();
-      const { non_critical_count } = await trx
-        .selectFrom((eb) =>
-          getCriticalResourceQuery(eb, Criticality.None).as('cwa'),
-        )
-        .select((eb) => eb.fn.countAll<number>().as('non_critical_count'))
-        .executeTakeFirstOrThrow();
+      const highly_critical_count = await getCount(trx, (eb) =>
+        getCriticalResourceQuery(eb, Criticality.High).as('cwa'),
+      );
+      const medium_critical_count = await getCount(trx, (eb) =>
+        getCriticalResourceQuery(eb, Criticality.Medium).as('cwa'),
+      );
+      const non_critical_count = await getCount(trx, (eb) =>
+        getCriticalResourceQuery(eb, Criticality.None).as('cwa'),
+      );
       return {
         highlyCriticalResourceCount: highly_critical_count,
         mediumCriticalResourceCount: medium_critical_count,
@@ -106,12 +93,9 @@ export async function getClassificationProgressBarData(props: {
       for (const [key, classification] of Object.entries(
         props.classifications,
       )) {
-        const { classification_count } = await trx
-          .selectFrom((eb) =>
-            getClassificationResourceQuery(eb, Number(key)).as('cwa'),
-          )
-          .select((eb) => eb.fn.countAll<number>().as('classification_count'))
-          .executeTakeFirstOrThrow();
+        const classification_count = await getCount(trx, (eb) =>
+          getClassificationResourceQuery(eb, Number(key)).as('cwa'),
+        );
         classificationStatistics[Number(key)] = {
           description: classification.description,
           color: classification.color,

@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  AliasedExpression,
   ComparisonOperatorExpression,
   ExpressionBuilder,
   Kysely,
@@ -320,4 +321,16 @@ export async function addManualOrExternalCwaToResources(
     }))
     .whereRef('cwa.resource_id', '=', 'impacted_resources.resource_id')
     .execute();
+}
+
+export async function getCount(
+  trxOrDb: Transaction<DB> | Kysely<DB>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  from: (eb: ExpressionBuilder<DB, never>) => AliasedExpression<any, any>,
+): Promise<number> {
+  const { count } = await trxOrDb
+    .selectFrom(from)
+    .select((eb) => eb.fn.countAll<number>().as('count'))
+    .executeTakeFirstOrThrow();
+  return count;
 }
