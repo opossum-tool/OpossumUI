@@ -62,7 +62,6 @@ export class TopBar {
         await Promise.all([
           ...(filesWithAttributions
             ? [
-                // eslint-disable-next-line playwright/missing-playwright-await
                 expect(
                   this.tooltip.getByText(
                     `with attributions: ${filesWithAttributions}`,
@@ -72,7 +71,6 @@ export class TopBar {
             : []),
           ...(filesWithOnlyPreSelectedAttributions
             ? [
-                // eslint-disable-next-line playwright/missing-playwright-await
                 expect(
                   this.tooltip.getByText(
                     `with only pre-selected attributions: ${filesWithOnlyPreSelectedAttributions}`,
@@ -82,7 +80,6 @@ export class TopBar {
             : []),
           ...(filesWithOnlySignals
             ? [
-                // eslint-disable-next-line playwright/missing-playwright-await
                 expect(
                   this.tooltip.getByText(
                     `with only signals: ${filesWithOnlySignals}`,

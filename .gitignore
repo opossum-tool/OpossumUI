@@ -44,6 +44,7 @@ yarn-error.log*
 /notices
 
 /.vscode
+/.cursor
 /.run
 
 .env

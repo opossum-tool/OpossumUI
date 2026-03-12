@@ -174,7 +174,13 @@ describe('SwitchableProcessBar', () => {
   });
 
   it('does not show select if only one option to select', async () => {
-    await renderComponent(<SwitchableProgressBar />, { data });
+    await renderComponent(<SwitchableProgressBar />, {
+      data,
+      actions: [
+        setUserSetting({ showCriticality: false }),
+        setUserSetting({ showClassifications: false }),
+      ],
+    });
 
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });

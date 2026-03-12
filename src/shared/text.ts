@@ -416,7 +416,7 @@ export const text = {
     switchableProgressBar: {
       selectAriaLabel: 'ProgressBar Switcher',
       attributionBar: {
-        intro: 'Number of resources',
+        intro: 'Number of files',
         selectLabel: 'Attributions',
         ariaLabel: 'Progress bar for attribution progress',
         filesWithManualAttribution: 'with attributions',

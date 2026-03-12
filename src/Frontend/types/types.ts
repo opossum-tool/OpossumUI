@@ -23,7 +23,7 @@ export type SelectedProgressBar =
 
 export interface ClassificationStatisticsEntry {
   description: string;
-  correspondingFiles: Array<string>;
+  resourceCount: number;
   color: string;
 }
 
@@ -33,34 +33,16 @@ export type ClassificationStatistics = Record<
 >;
 
 export interface FileWithAttributionsCounts {
-  allFiles: number;
-  withNonPreSelectedManual: number;
-  withOnlyPreSelectedManual: number;
-  withOnlyExternal: number;
-}
-
-export interface FileWithCriticalAttributionsCounts {
-  withOnlyExternal: number;
-  withHighlyCritical: number;
-  withMediumCritical: number;
-}
-
-export interface FileClassifications {
-  withOnlyExternal: number;
-  classificationStatistics: ClassificationStatistics;
-}
-
-export interface ProgressBarData {
   fileCount: number;
-  filesWithManualAttributionCount: number;
-  filesWithOnlyPreSelectedAttributionCount: number;
-  filesWithOnlyExternalAttributionCount: number;
-  resourcesWithNonInheritedExternalAttributionOnly: Array<string>;
-  filesWithHighlyCriticalExternalAttributionsCount: number;
-  filesWithMediumCriticalExternalAttributionsCount: number;
-  resourcesWithHighlyCriticalExternalAttributions: Array<string>;
-  resourcesWithMediumCriticalExternalAttributions: Array<string>;
-  classificationStatistics: ClassificationStatistics;
+  manualNonPreSelectedFileCount: number;
+  manualPreSelectedFileCount: number;
+  onlyExternalFileCount: number;
+}
+
+export interface ResourceCriticalityCounts {
+  highlyCriticalResourceCount: number;
+  mediumCriticalResourceCount: number;
+  nonCriticalResourceCount: number;
 }
 
 export interface PopupInfo {

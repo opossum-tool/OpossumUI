@@ -6,6 +6,10 @@ import { sql } from 'kysely';
 
 import { Attributions, PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
+import {
+  addManualOrExternalCwaToResources,
+  removeManualOrExternalCwaFromResources,
+} from './progressBarUtils';
 import { QueryName, QueryParams } from './queries';
 import {
   getAttributionOrThrow,
@@ -40,6 +44,11 @@ export const mutations = {
     await getDb()
       .transaction()
       .execute(async (trx) => {
+        await removeManualOrExternalCwaFromResources(
+          trx,
+          'manual',
+          params.attributionUuids,
+        );
         const impactedResources = new Set<number>();
         for (const attributionUuid of params.attributionUuids) {
           const existingAttribution = await getAttributionOrThrow(
@@ -83,7 +92,12 @@ export const mutations = {
         { queryName: 'listAttributions' },
         { queryName: 'filterProperties' },
         { queryName: 'getResourceTree' },
-        { queryName: 'getProgressBarData' },
+        { queryName: 'getAttributionProgressBarData' },
+        { queryName: 'getNextFileToReviewForAttribution' },
+        { queryName: 'getCriticalityProgressBarData' },
+        { queryName: 'getNextFileToReviewForCriticality' },
+        { queryName: 'getClassificationProgressBarData' },
+        { queryName: 'getNextFileToReviewForClassification' },
         { queryName: 'autoCompleteOptions' },
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'getResourcePathsAndParentsForAttributions' },
@@ -160,7 +174,12 @@ export const mutations = {
         { queryName: 'listAttributions' },
         { queryName: 'filterProperties' },
         { queryName: 'getResourceTree' },
-        { queryName: 'getProgressBarData' },
+        { queryName: 'getAttributionProgressBarData' },
+        { queryName: 'getNextFileToReviewForAttribution' },
+        { queryName: 'getCriticalityProgressBarData' },
+        { queryName: 'getNextFileToReviewForCriticality' },
+        { queryName: 'getClassificationProgressBarData' },
+        { queryName: 'getNextFileToReviewForClassification' },
         { queryName: 'autoCompleteOptions' },
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'getResourcePathsAndParentsForAttributions' },
@@ -202,10 +221,20 @@ export const mutations = {
           .execute();
 
         await removeRedundantAttributions(trx, resource.id);
+
+        await addManualOrExternalCwaToResources(
+          trx,
+          'manual',
+          [params.attributionUuid],
+          [resource.id],
+        );
       });
 
     return {
       invalidates: [
+        { queryName: 'getAttributionProgressBarData' },
+        { queryName: 'getCriticalityProgressBarData' },
+        { queryName: 'getClassificationProgressBarData' },
         {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionUuid },
@@ -213,7 +242,12 @@ export const mutations = {
         { queryName: 'listAttributions' },
         { queryName: 'filterProperties' },
         { queryName: 'getResourceTree' },
-        { queryName: 'getProgressBarData' },
+        { queryName: 'getAttributionProgressBarData' },
+        { queryName: 'getNextFileToReviewForAttribution' },
+        { queryName: 'getCriticalityProgressBarData' },
+        { queryName: 'getNextFileToReviewForCriticality' },
+        { queryName: 'getClassificationProgressBarData' },
+        { queryName: 'getNextFileToReviewForClassification' },
         { queryName: 'autoCompleteOptions' },
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'getResourcePathsAndParentsForAttributions' },
@@ -263,6 +297,13 @@ export const mutations = {
             attribution_is_external: 0,
           })
           .execute();
+
+        await addManualOrExternalCwaToResources(
+          trx,
+          'manual',
+          [params.attributionUuid],
+          [resource.id],
+        );
       });
 
     return {
@@ -274,7 +315,12 @@ export const mutations = {
         { queryName: 'listAttributions' },
         { queryName: 'filterProperties' },
         { queryName: 'getResourceTree' },
-        { queryName: 'getProgressBarData' },
+        { queryName: 'getAttributionProgressBarData' },
+        { queryName: 'getNextFileToReviewForAttribution' },
+        { queryName: 'getCriticalityProgressBarData' },
+        { queryName: 'getNextFileToReviewForCriticality' },
+        { queryName: 'getClassificationProgressBarData' },
+        { queryName: 'getNextFileToReviewForClassification' },
         { queryName: 'autoCompleteOptions' },
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'getResourcePathsAndParentsForAttributions' },
@@ -318,8 +364,13 @@ export const mutations = {
           params: { attributionUuid },
         })),
         { queryName: 'listAttributions' },
+        { queryName: 'getAttributionProgressBarData' },
+        { queryName: 'getNextFileToReviewForAttribution' },
+        { queryName: 'getCriticalityProgressBarData' },
+        { queryName: 'getNextFileToReviewForCriticality' },
+        { queryName: 'getClassificationProgressBarData' },
+        { queryName: 'getNextFileToReviewForClassification' },
         { queryName: 'filterProperties' },
-        { queryName: 'getProgressBarData' },
         { queryName: 'autoCompleteOptions' },
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'manualAttributionStatistics' },
@@ -343,6 +394,12 @@ export const mutations = {
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
+        await removeManualOrExternalCwaFromResources(
+          trx,
+          'manual',
+          params.attributionUuids,
+          [resource.id],
+        );
 
         for (const attributionUuid of params.attributionUuids) {
           const existingAttribution = await getAttributionOrThrow(
@@ -375,7 +432,12 @@ export const mutations = {
         { queryName: 'listAttributions' },
         { queryName: 'filterProperties' },
         { queryName: 'getResourceTree' },
-        { queryName: 'getProgressBarData' },
+        { queryName: 'getAttributionProgressBarData' },
+        { queryName: 'getNextFileToReviewForAttribution' },
+        { queryName: 'getCriticalityProgressBarData' },
+        { queryName: 'getNextFileToReviewForCriticality' },
+        { queryName: 'getClassificationProgressBarData' },
+        { queryName: 'getNextFileToReviewForClassification' },
         { queryName: 'autoCompleteOptions' },
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'getResourcePathsAndParentsForAttributions' },
@@ -394,24 +456,38 @@ async function setAttributionsResolvedStatus(
   await getDb()
     .transaction()
     .execute(async (trx) => {
-      for (const attributionUuid of attributionUuids) {
-        const existingAttribution = await getAttributionOrThrow(
+      if (resolvedStatus) {
+        await removeManualOrExternalCwaFromResources(
           trx,
-          attributionUuid,
+          'external',
+          attributionUuids,
         );
-
-        if (!existingAttribution.is_external) {
-          throw new Error(
-            `Only external attributions can be ${resolvedStatus ? 'resolved' : 'unresolved'}`,
-          );
-        }
-
-        await trx
-          .updateTable('attribution')
-          .set({ is_resolved: Number(resolvedStatus) })
-          .where('uuid', '=', attributionUuid)
-          .execute();
+      } else {
+        await addManualOrExternalCwaToResources(
+          trx,
+          'external',
+          attributionUuids,
+        );
       }
+
+      const existingAttributions = await trx
+        .selectFrom('attribution')
+        .select((eb) => eb.fn.countAll<number>().as('count'))
+        .where('uuid', 'in', attributionUuids)
+        .where('is_external', '=', 1)
+        .executeTakeFirstOrThrow();
+
+      if (existingAttributions.count !== attributionUuids.length) {
+        throw new Error(
+          `Expected to set ${attributionUuids.length} to ${resolvedStatus ? 'resolved' : 'unresolved'}, but only ${existingAttributions.count} were found`,
+        );
+      }
+
+      await trx
+        .updateTable('attribution')
+        .set({ is_resolved: Number(resolvedStatus) })
+        .where('uuid', 'in', attributionUuids)
+        .execute();
     });
 
   return {
@@ -423,7 +499,12 @@ async function setAttributionsResolvedStatus(
       { queryName: 'listAttributions' as const },
       { queryName: 'filterProperties' as const },
       { queryName: 'getResourceTree' as const },
-      { queryName: 'getProgressBarData' as const },
+      { queryName: 'getAttributionProgressBarData' as const },
+      { queryName: 'getNextFileToReviewForAttribution' as const },
+      { queryName: 'getCriticalityProgressBarData' as const },
+      { queryName: 'getNextFileToReviewForCriticality' as const },
+      { queryName: 'getClassificationProgressBarData' as const },
+      { queryName: 'getNextFileToReviewForClassification' as const },
       { queryName: 'autoCompleteOptions' as const },
       { queryName: 'externalAttributionStatistics' as const },
       { queryName: 'licenseTable' as const },

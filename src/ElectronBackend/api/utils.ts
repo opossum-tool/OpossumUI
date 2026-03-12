@@ -122,6 +122,11 @@ export async function removeRedundantAttributions(
   }
 }
 
+export const GET_LEGACY_RESOURCE_PATH =
+  sql<string>`resource.path || IF(resource.can_have_children, '/', '')`.as(
+    'path',
+  );
+
 export async function getAttributionOrThrow(
   dbOrTrx: Kysely<DB>,
   attributionUuid: string,
@@ -151,7 +156,7 @@ export async function getResourceOrThrow(
 
   const resource = await dbOrTrx
     .selectFrom('resource')
-    .select(['id', 'max_descendant_id'])
+    .select(['id', 'max_descendant_id', 'sort_key'])
     .where('path', '=', strippedResourcePath)
     .executeTakeFirst();
 
@@ -241,7 +246,6 @@ async function getClosestBreakpointAncestor(
     .where((eb) => isAncestorOrSameAs(eb, resourceId))
     .where('is_attribution_breakpoint', '=', 1)
     .executeTakeFirst();
-
   return result?.ancestor_id;
 }
 

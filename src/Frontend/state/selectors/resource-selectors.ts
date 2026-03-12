@@ -23,10 +23,6 @@ export function getResources(state: State): Resources | null {
   return state.resourceState.resources;
 }
 
-export function getResourceIds(state: State): Array<string> | null {
-  return state.resourceState.resourceIds;
-}
-
 export function getManualData(state: State): AttributionData {
   return state.resourceState.manualData;
 }

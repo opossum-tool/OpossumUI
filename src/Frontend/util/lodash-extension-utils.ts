@@ -79,13 +79,3 @@ export function omit<T extends object, K extends keyof T>(
 ): Omit<T, K> {
   return _omit(object, keys);
 }
-
-/** Moves the first n elements of an array to the end */
-export function moveElementsToEnd<T>(arr: Array<T>, n: number): Array<T> {
-  if (n > arr.length) {
-    throw new Error('n is larger than the array length');
-  }
-  const elementsToMove = arr.slice(0, n);
-  const remainingElements = arr.slice(n);
-  return [...remainingElements, ...elementsToMove];
-}

@@ -243,8 +243,7 @@ export class AttributionForm {
         ...(copyright
           ? [
               firstParty
-                ? // eslint-disable-next-line playwright/missing-playwright-await
-                  expect(this.copyright).toBeHidden()
+                ? expect(this.copyright).toBeHidden()
                 : this.assert.copyrightIs(copyright),
             ]
           : []),
@@ -252,8 +251,7 @@ export class AttributionForm {
         ...(licenseName
           ? [
               firstParty
-                ? // eslint-disable-next-line playwright/missing-playwright-await
-                  expect(this.licenseExpression).toBeHidden()
+                ? expect(this.licenseExpression).toBeHidden()
                 : this.assert.licenseNameIs(licenseName),
             ]
           : []),

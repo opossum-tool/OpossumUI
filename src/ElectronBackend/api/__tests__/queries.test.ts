@@ -345,17 +345,12 @@ describe('getProgressBarData', () => {
       resources: pathsToResources(['/src/file.ts']),
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getAttributionProgressBarData();
 
     expect(result.fileCount).toBe(1);
-    expect(result.filesWithManualAttributionCount).toBe(0);
-    expect(result.filesWithOnlyPreSelectedAttributionCount).toBe(0);
-    expect(result.filesWithOnlyExternalAttributionCount).toBe(0);
-    expect(result.filesWithMediumCriticalExternalAttributionsCount).toBe(0);
-    expect(result.filesWithHighlyCriticalExternalAttributionsCount).toBe(0);
-    expect(result.resourcesWithNonInheritedExternalAttributionOnly).toEqual([]);
+    expect(result.manualNonPreSelectedFileCount).toBe(0);
+    expect(result.manualPreSelectedFileCount).toBe(0);
+    expect(result.onlyExternalFileCount).toBe(0);
   });
 
   it('counts only files in fileCount, not directories', async () => {
@@ -363,9 +358,7 @@ describe('getProgressBarData', () => {
       resources: pathsToResources(['/dir', '/dir/file1.ts', '/dir/file2.ts']),
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getAttributionProgressBarData();
 
     expect(result.fileCount).toBe(2);
   });
@@ -382,14 +375,12 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getAttributionProgressBarData();
 
     expect(result.fileCount).toBe(2);
-    expect(result.filesWithManualAttributionCount).toBe(1);
-    expect(result.filesWithOnlyPreSelectedAttributionCount).toBe(0);
-    expect(result.filesWithOnlyExternalAttributionCount).toBe(0);
+    expect(result.manualNonPreSelectedFileCount).toBe(1);
+    expect(result.manualPreSelectedFileCount).toBe(0);
+    expect(result.onlyExternalFileCount).toBe(0);
   });
 
   it('counts files with only preselected attributions separately from manual', async () => {
@@ -415,12 +406,11 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getAttributionProgressBarData();
 
-    expect(result.filesWithOnlyPreSelectedAttributionCount).toBe(1);
-    expect(result.filesWithManualAttributionCount).toBe(1);
+    expect(result.manualPreSelectedFileCount).toBe(1);
+    expect(result.manualNonPreSelectedFileCount).toBe(1);
+    expect(result.onlyExternalFileCount).toBe(0);
   });
 
   it('does not count a file as only-preselected when it also has a real manual attribution', async () => {
@@ -445,12 +435,11 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getAttributionProgressBarData();
 
-    expect(result.filesWithOnlyPreSelectedAttributionCount).toBe(0);
-    expect(result.filesWithManualAttributionCount).toBe(1);
+    expect(result.manualNonPreSelectedFileCount).toBe(1);
+    expect(result.manualPreSelectedFileCount).toBe(0);
+    expect(result.onlyExternalFileCount).toBe(0);
   });
 
   it('counts files with only external attributions', async () => {
@@ -465,12 +454,11 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getAttributionProgressBarData();
 
-    expect(result.filesWithOnlyExternalAttributionCount).toBe(1);
-    expect(result.filesWithManualAttributionCount).toBe(0);
+    expect(result.onlyExternalFileCount).toBe(1);
+    expect(result.manualNonPreSelectedFileCount).toBe(0);
+    expect(result.manualPreSelectedFileCount).toBe(0);
   });
 
   it('inherits manual attributions from parent to descendant files', async () => {
@@ -488,12 +476,9 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getAttributionProgressBarData();
 
-    expect(result.filesWithManualAttributionCount).toBe(1);
-    expect(result.filesWithOnlyExternalAttributionCount).toBe(0);
+    expect(result.manualNonPreSelectedFileCount).toBe(1);
   });
 
   it('attribution breakpoints prevent manual attribution inheritance', async () => {
@@ -515,13 +500,12 @@ describe('getProgressBarData', () => {
       attributionBreakpoints: new Set(['/parent/breakpoint/']),
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getAttributionProgressBarData();
 
-    expect(result.filesWithManualAttributionCount).toBe(1);
-    expect(result.filesWithOnlyExternalAttributionCount).toBe(0);
     expect(result.fileCount).toBe(2);
+    expect(result.manualNonPreSelectedFileCount).toBe(1);
+    expect(result.manualPreSelectedFileCount).toBe(0);
+    expect(result.onlyExternalFileCount).toBe(0);
   });
 
   it('inherits preselected attributions from parent to descendant files', async () => {
@@ -540,12 +524,11 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getAttributionProgressBarData();
 
-    expect(result.filesWithOnlyPreSelectedAttributionCount).toBe(1);
-    expect(result.filesWithManualAttributionCount).toBe(0);
+    expect(result.manualPreSelectedFileCount).toBe(1);
+    expect(result.manualNonPreSelectedFileCount).toBe(0);
+    expect(result.onlyExternalFileCount).toBe(0);
   });
 
   it('attribution breakpoints prevent preselected attribution inheritance', async () => {
@@ -565,13 +548,11 @@ describe('getProgressBarData', () => {
       attributionBreakpoints: new Set(['/parent/breakpoint/']),
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getAttributionProgressBarData();
 
-    expect(result.filesWithOnlyPreSelectedAttributionCount).toBe(0);
-    expect(result.filesWithOnlyExternalAttributionCount).toBe(0);
-    expect(result.filesWithManualAttributionCount).toBe(0);
+    expect(result.manualPreSelectedFileCount).toBe(0);
+    expect(result.manualNonPreSelectedFileCount).toBe(0);
+    expect(result.onlyExternalFileCount).toBe(0);
   });
 
   it('counts medium critical external attributions', async () => {
@@ -599,13 +580,12 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getAttributionProgressBarData();
 
-    expect(result.filesWithMediumCriticalExternalAttributionsCount).toBe(1);
-    expect(result.filesWithHighlyCriticalExternalAttributionsCount).toBe(1);
-    expect(result.filesWithOnlyExternalAttributionCount).toBe(3);
+    expect(result.fileCount).toBe(3);
+    expect(result.onlyExternalFileCount).toBe(3);
+    expect(result.manualNonPreSelectedFileCount).toBe(0);
+    expect(result.manualPreSelectedFileCount).toBe(0);
   });
 
   it('populates path lists for resources with non-inherited critical external attributions', async () => {
@@ -630,22 +610,11 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getCriticalityProgressBarData();
 
-    expect(result.resourcesWithMediumCriticalExternalAttributions).toEqual([
-      '/medium.ts',
-    ]);
-    expect(result.resourcesWithHighlyCriticalExternalAttributions).toEqual([
-      '/high.ts',
-    ]);
-    expect(result.resourcesWithNonInheritedExternalAttributionOnly).toContain(
-      '/medium.ts',
-    );
-    expect(result.resourcesWithNonInheritedExternalAttributionOnly).toContain(
-      '/high.ts',
-    );
+    expect(result.mediumCriticalResourceCount).toBe(1);
+    expect(result.highlyCriticalResourceCount).toBe(1);
+    expect(result.nonCriticalResourceCount).toBe(0);
   });
 
   it('does not include resources with manual attributions in non-inherited external attribution lists', async () => {
@@ -667,14 +636,11 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getCriticalityProgressBarData();
 
-    expect(result.filesWithHighlyCriticalExternalAttributionsCount).toBe(0);
-    expect(result.resourcesWithHighlyCriticalExternalAttributions).toEqual([]);
-    expect(result.resourcesWithNonInheritedExternalAttributionOnly).toEqual([]);
-    expect(result.filesWithManualAttributionCount).toBe(1);
+    expect(result.highlyCriticalResourceCount).toBe(0);
+    expect(result.mediumCriticalResourceCount).toBe(0);
+    expect(result.nonCriticalResourceCount).toBe(0);
   });
 
   it('excludes resolved external attributions from all counts', async () => {
@@ -693,13 +659,11 @@ describe('getProgressBarData', () => {
       resolvedExternalAttributions: new Set(['ext-resolved']),
     });
 
-    const { result } = await queries.getProgressBarData({
-      classifications: {},
-    });
+    const { result } = await queries.getCriticalityProgressBarData();
 
-    expect(result.filesWithOnlyExternalAttributionCount).toBe(0);
-    expect(result.filesWithHighlyCriticalExternalAttributionsCount).toBe(0);
-    expect(result.resourcesWithNonInheritedExternalAttributionOnly).toEqual([]);
+    expect(result.highlyCriticalResourceCount).toBe(0);
+    expect(result.mediumCriticalResourceCount).toBe(0);
+    expect(result.nonCriticalResourceCount).toBe(0);
   });
 
   it('returns classification statistics with corresponding file paths', async () => {
@@ -728,29 +692,25 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getProgressBarData({
+    const { result } = await queries.getClassificationProgressBarData({
       classifications: {
         2: { description: 'Copyleft', color: '#ff0000' },
       },
     });
 
-    expect(result.classificationStatistics[2]).toEqual({
-      description: 'Copyleft',
-      color: '#ff0000',
-      correspondingFiles: ['/classified.ts'],
-    });
+    expect(result[2].resourceCount).toBe(1);
   });
 
   it('returns empty corresponding files for classifications with no matches', async () => {
     await initializeDbWithTestData();
 
-    const { result } = await queries.getProgressBarData({
+    const { result } = await queries.getClassificationProgressBarData({
       classifications: {
         1: { description: 'Permissive', color: '#00ff00' },
       },
     });
 
-    expect(result.classificationStatistics[1]?.correspondingFiles).toEqual([]);
+    expect(result[1]?.resourceCount).toBe(0);
   });
 
   it('does not include files with manual attributions in classification statistics', async () => {
@@ -776,12 +736,12 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getProgressBarData({
+    const { result } = await queries.getClassificationProgressBarData({
       classifications: {
         1: { description: 'Permissive', color: '#00ff00' },
       },
     });
 
-    expect(result.classificationStatistics[1].correspondingFiles).toEqual([]);
+    expect(result[1]?.resourceCount).toBe(0);
   });
 });

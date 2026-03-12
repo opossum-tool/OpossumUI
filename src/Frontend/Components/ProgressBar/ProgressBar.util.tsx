@@ -7,18 +7,12 @@ import { sum } from 'lodash';
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
-import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getResourceIds,
-  getSelectedResourceId,
-} from '../../state/selectors/resource-selectors';
-import {
-  FileClassifications,
+  ClassificationStatistics,
+  ClassificationStatisticsEntry,
   FileWithAttributionsCounts,
-  FileWithCriticalAttributionsCounts,
+  ResourceCriticalityCounts,
 } from '../../types/types';
-import { moveElementsToEnd } from '../../util/lodash-extension-utils';
 
 type Color = string;
 
@@ -29,47 +23,26 @@ export interface ProgressBarStep {
   color: Color;
 }
 
-export const classificationUnknownColor = OpossumColors.lightestBlue;
-
-export function useOnProgressBarClick(resourceIds: Array<string>) {
-  const dispatch = useAppDispatch();
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const allResourceIds = useAppSelector(getResourceIds);
-
-  return () => {
-    if (!resourceIds?.length || !allResourceIds?.length) {
-      return;
-    }
-
-    dispatch(
-      navigateToSelectedPathOrOpenUnsavedPopup(
-        moveElementsToEnd(
-          allResourceIds,
-          allResourceIds.indexOf(selectedResourceId) + 1,
-        ).find((resourceId) => resourceIds.includes(resourceId)) ||
-          resourceIds[0],
-      ),
-    );
-  };
-}
-
 export function calculateAttributionBarSteps(
-  count: FileWithAttributionsCounts,
+  data: FileWithAttributionsCounts | undefined,
 ): Array<ProgressBarStep> {
+  if (!data || data.fileCount === 0) {
+    return [];
+  }
   const uncategorizedFiles =
-    count.allFiles -
-    count.withNonPreSelectedManual -
-    count.withOnlyPreSelectedManual -
-    count.withOnlyExternal;
+    data.fileCount -
+    data.manualNonPreSelectedFileCount -
+    data.manualPreSelectedFileCount -
+    data.onlyExternalFileCount;
   const [
-    withNonPreSelectedManualPercent,
-    withOnlyPreSelectedPercent,
-    withOnlyExternalPercent,
-    uncategorizedPercent,
+    nonPreSelectedManualFilePercent,
+    onlyPreSelectedManualFilePercent,
+    onlyExternalFilePercent,
+    uncategorizedFilePercent,
   ] = getNormalizedPercentages([
-    count.withNonPreSelectedManual,
-    count.withOnlyPreSelectedManual,
-    count.withOnlyExternal,
+    data.manualNonPreSelectedFileCount,
+    data.manualPreSelectedFileCount,
+    data.onlyExternalFileCount,
     uncategorizedFiles,
   ]);
 
@@ -78,24 +51,24 @@ export function calculateAttributionBarSteps(
       description:
         text.topBar.switchableProgressBar.attributionBar
           .filesWithManualAttribution,
-      count: count.withNonPreSelectedManual,
-      widthInPercent: withNonPreSelectedManualPercent,
+      count: data.manualNonPreSelectedFileCount,
+      widthInPercent: nonPreSelectedManualFilePercent,
       color: OpossumColors.pastelDarkGreen,
     },
     {
       description:
         text.topBar.switchableProgressBar.attributionBar
           .filesWithOnlyPreSelectedAttribution,
-      count: count.withOnlyPreSelectedManual,
-      widthInPercent: withOnlyPreSelectedPercent,
+      count: data.manualPreSelectedFileCount,
+      widthInPercent: onlyPreSelectedManualFilePercent,
       color: OpossumColors.pastelMiddleGreen,
     },
     {
       description:
         text.topBar.switchableProgressBar.attributionBar
           .filesWithOnlyExternalAttribution,
-      count: count.withOnlyExternal,
-      widthInPercent: withOnlyExternalPercent,
+      count: data.onlyExternalFileCount,
+      widthInPercent: onlyExternalFilePercent,
       color: OpossumColors.pastelRed,
     },
     {
@@ -103,30 +76,32 @@ export function calculateAttributionBarSteps(
         text.topBar.switchableProgressBar.attributionBar
           .filesWithNeitherAttributionsOrSignals,
       count: uncategorizedFiles,
-      widthInPercent: uncategorizedPercent,
+      widthInPercent: uncategorizedFilePercent,
       color: OpossumColors.lightestBlue,
     },
   ];
 }
 
 export function calculateCriticalityBarSteps(
-  count: FileWithCriticalAttributionsCounts,
+  data: ResourceCriticalityCounts | undefined,
 ): Array<ProgressBarStep> {
-  if (count.withOnlyExternal === 0) {
-    return [{ widthInPercent: 100, color: OpossumColors.pastelDarkGreen }];
+  if (
+    !data ||
+    data.highlyCriticalResourceCount +
+      data.mediumCriticalResourceCount +
+      data.nonCriticalResourceCount ===
+      0
+  ) {
+    return [];
   }
-  const onlyNonCritical =
-    count.withOnlyExternal -
-    count.withHighlyCritical -
-    count.withMediumCritical;
   const [
     withHighlyCriticalPercent,
     withMediumCriticalPercent,
-    onlyNonCriticalPercent,
+    withNonCriticalPercent,
   ] = getNormalizedPercentages([
-    count.withHighlyCritical,
-    count.withMediumCritical,
-    onlyNonCritical,
+    data.highlyCriticalResourceCount,
+    data.mediumCriticalResourceCount,
+    data.nonCriticalResourceCount,
   ]);
 
   return [
@@ -134,7 +109,7 @@ export function calculateCriticalityBarSteps(
       description:
         text.topBar.switchableProgressBar.criticalityBar
           .filesWithHighlyCriticalSignals,
-      count: count.withHighlyCritical,
+      count: data.highlyCriticalResourceCount,
       widthInPercent: withHighlyCriticalPercent,
       color: criticalityColor[Criticality.High],
     },
@@ -142,7 +117,7 @@ export function calculateCriticalityBarSteps(
       description:
         text.topBar.switchableProgressBar.criticalityBar
           .filesWithMediumCriticalSignals,
-      count: count.withMediumCritical,
+      count: data.mediumCriticalResourceCount,
       widthInPercent: withMediumCriticalPercent,
       color: criticalityColor[Criticality.Medium],
     },
@@ -150,61 +125,37 @@ export function calculateCriticalityBarSteps(
       description:
         text.topBar.switchableProgressBar.criticalityBar
           .filesWithOnlyNonCriticalSignals,
-      count: onlyNonCritical,
-      widthInPercent: onlyNonCriticalPercent,
+      count: data.nonCriticalResourceCount,
+      widthInPercent: withNonCriticalPercent,
       color: OpossumColors.lightestBlue,
     },
   ];
 }
 
 export function calculateClassificationBarSteps(
-  count: FileClassifications,
+  data: ClassificationStatistics | undefined,
 ): Array<ProgressBarStep> {
-  if (count.withOnlyExternal === 0) {
-    return [{ widthInPercent: 100, color: OpossumColors.pastelDarkGreen }];
+  if (!data || Object.keys(data).length === 0) {
+    return [];
   }
-
-  const unclassifiedFiles =
-    count.withOnlyExternal -
-    sum(
-      Object.values(count.classificationStatistics).map(
-        (entry) => entry.correspondingFiles.length,
-      ),
-    );
-  const [unclassifiedPercentage, ...classificationPercentages] =
-    getNormalizedPercentages([
-      unclassifiedFiles,
-      ...Object.values(count.classificationStatistics)
-        .reverse()
-        .map((entry) => entry.correspondingFiles.length),
-    ]);
-  const progressBarSteps = Object.values(count.classificationStatistics)
-    .reverse()
-    .map<ProgressBarStep>((statisticsEntry, index) => {
-      return {
-        description: `${
-          text.topBar.switchableProgressBar.classificationBar
-            .containingClassification
-        } "${statisticsEntry.description.toLowerCase()}"`,
-        count: statisticsEntry.correspondingFiles.length,
-        widthInPercent: classificationPercentages[index],
-        color: statisticsEntry.color,
-      };
-    });
-
-  //add files without classifications
-  if (unclassifiedFiles > 0) {
-    progressBarSteps.push({
-      description:
-        text.topBar.switchableProgressBar.classificationBar
-          .withoutClassification,
-      count: unclassifiedFiles,
-      widthInPercent: unclassifiedPercentage,
-      color: classificationUnknownColor,
-    });
-  }
-
-  return progressBarSteps;
+  const entries = Object.values(data)
+    .filter(
+      (entry): entry is ClassificationStatisticsEntry =>
+        typeof entry === 'object' && entry !== null && 'description' in entry,
+    )
+    .reverse();
+  const classificationPercentages = getNormalizedPercentages(
+    entries.map((entry) => entry.resourceCount),
+  );
+  return entries.map<ProgressBarStep>((statisticsEntry, index) => ({
+    description: `${
+      text.topBar.switchableProgressBar.classificationBar
+        .containingClassification
+    } "${statisticsEntry.description.toLowerCase()}"`,
+    count: statisticsEntry.resourceCount,
+    widthInPercent: classificationPercentages[index],
+    color: statisticsEntry.color,
+  }));
 }
 
 export function createBackgroundFromProgressBarSteps(
@@ -212,6 +163,8 @@ export function createBackgroundFromProgressBarSteps(
 ) {
   if (progressBarSteps.length === 1) {
     return progressBarSteps[0].color;
+  } else if (progressBarSteps.length === 0) {
+    return OpossumColors.pastelDarkGreen;
   }
 
   let backgroundColor = 'linear-gradient(to right, ';

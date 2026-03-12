@@ -10,14 +10,20 @@ import Box from '@mui/system/Box';
 
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
-import { ProgressBarData, SelectedProgressBar } from '../../types/types';
+import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import {
+  getClassifications,
+  getSelectedResourceId,
+} from '../../state/selectors/resource-selectors';
+import { SelectedProgressBar } from '../../types/types';
+import { backend } from '../../util/backendClient';
 import {
   calculateAttributionBarSteps,
   calculateClassificationBarSteps,
   calculateCriticalityBarSteps,
   createBackgroundFromProgressBarSteps,
   ProgressBarStep,
-  useOnProgressBarClick,
 } from './ProgressBar.util';
 
 const classes = {
@@ -32,7 +38,6 @@ const classes = {
 
 interface ProgressBarProps {
   sx?: SxProps;
-  progressBarData: ProgressBarData;
   selectedProgressBar: SelectedProgressBar;
 }
 
@@ -41,80 +46,95 @@ interface ProgressBarTooltipProps {
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
-  const onAttributionBarClick = useOnProgressBarClick(
-    props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
-  );
-  const resourcesWithCriticalExternalAttributions =
-    props.progressBarData.resourcesWithHighlyCriticalExternalAttributions.concat(
-      props.progressBarData.resourcesWithMediumCriticalExternalAttributions,
-    );
-  const onCriticalityBarClick = useOnProgressBarClick(
-    resourcesWithCriticalExternalAttributions.length > 0
-      ? resourcesWithCriticalExternalAttributions
-      : props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
-  );
+  const dispatch = useAppDispatch();
 
-  let filesToForwardToForCriticality =
-    props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly;
-  const recordWithHighestClassification = Object.values(
-    props.progressBarData.classificationStatistics,
-  )
-    .reverse()
-    .filter((entry) => entry.correspondingFiles.length > 0)[0];
-  if (recordWithHighestClassification) {
-    filesToForwardToForCriticality =
-      recordWithHighestClassification.correspondingFiles;
+  function goToResource(resourcePath: string | null | undefined) {
+    if (!resourcePath) {
+      return;
+    }
+    dispatch(navigateToSelectedPathOrOpenUnsavedPopup(resourcePath));
   }
-  const onClassificationBarClick = useOnProgressBarClick(
-    filesToForwardToForCriticality,
-  );
 
-  const renamedProgressBarData = {
-    allFiles: props.progressBarData.fileCount,
-    withNonPreSelectedManual:
-      props.progressBarData.filesWithManualAttributionCount,
-    withOnlyPreSelectedManual:
-      props.progressBarData.filesWithOnlyPreSelectedAttributionCount,
-    withOnlyExternal:
-      props.progressBarData.filesWithOnlyExternalAttributionCount,
-    withHighlyCritical:
-      props.progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
-    withMediumCritical:
-      props.progressBarData.filesWithMediumCriticalExternalAttributionsCount,
-    classificationStatistics: props.progressBarData.classificationStatistics,
-  };
+  const selectedResourcePath = useAppSelector(getSelectedResourceId);
+
+  const attributionsProgressBarData =
+    backend.getAttributionProgressBarData.useQuery(undefined, {
+      enabled: props.selectedProgressBar === 'attribution',
+    });
+  const getNextAttributionResource =
+    backend.getNextFileToReviewForAttribution.useQuery(
+      { selectedResourcePath },
+      { enabled: props.selectedProgressBar === 'attribution' },
+    );
+
+  const criticalityProgressBarData =
+    backend.getCriticalityProgressBarData.useQuery(undefined, {
+      enabled: props.selectedProgressBar === 'criticality',
+    });
+  const getNextCriticalityResource =
+    backend.getNextFileToReviewForCriticality.useQuery(
+      { selectedResourcePath },
+      { enabled: props.selectedProgressBar === 'criticality' },
+    );
+
+  const classifications = useAppSelector(getClassifications);
+  const classificationProgressBarData =
+    backend.getClassificationProgressBarData.useQuery(
+      { classifications },
+      {
+        enabled: props.selectedProgressBar === 'classification',
+      },
+    );
+  const getNextClassificationResource =
+    backend.getNextFileToReviewForClassification.useQuery(
+      {
+        selectedResourcePath,
+        classifications,
+      },
+      { enabled: props.selectedProgressBar === 'classification' },
+    );
 
   const progressBarConfigurations: Record<
     SelectedProgressBar,
     {
       Title: React.FC<ProgressBarTooltipProps>;
       ariaLabel: string;
-      steps: Array<ProgressBarStep>;
+      steps: Array<ProgressBarStep> | undefined;
       onClickHandler: () => void;
     }
   > = {
     attribution: {
       Title: AttributionBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
-      steps: calculateAttributionBarSteps(renamedProgressBarData),
-      onClickHandler: onAttributionBarClick,
+      steps: attributionsProgressBarData.data
+        ? calculateAttributionBarSteps(attributionsProgressBarData.data)
+        : undefined,
+      onClickHandler: () => goToResource(getNextAttributionResource.data),
     },
     criticality: {
       Title: CriticalityBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
-      steps: calculateCriticalityBarSteps(renamedProgressBarData),
-      onClickHandler: onCriticalityBarClick,
+      steps: criticalityProgressBarData.data
+        ? calculateCriticalityBarSteps(criticalityProgressBarData.data)
+        : undefined,
+      onClickHandler: () => goToResource(getNextCriticalityResource.data),
     },
     classification: {
       Title: ClassificationBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
-      steps: calculateClassificationBarSteps(renamedProgressBarData),
-      onClickHandler: onClassificationBarClick,
+      steps: classificationProgressBarData.data
+        ? calculateClassificationBarSteps(classificationProgressBarData.data)
+        : undefined,
+      onClickHandler: () => goToResource(getNextClassificationResource.data),
     },
   };
 
   const { ariaLabel, steps, onClickHandler, Title } =
     progressBarConfigurations[props.selectedProgressBar];
+
+  if (!steps) {
+    return <MuiBox flex={1} />;
+  }
 
   return (
     <MuiBox sx={props.sx}>

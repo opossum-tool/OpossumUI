@@ -8,6 +8,7 @@ import {
   useQuery,
   type UseQueryOptions,
 } from '@tanstack/react-query';
+import { useSyncExternalStore } from 'react';
 
 import type {
   CommandName,
@@ -89,10 +90,21 @@ type BackendClient = {
  * This also invalidates all queries when flipped, otherwise old data could be shown.
  */
 let databaseInitialized = false;
+const databaseInitializedSubscribers = new Set<() => void>();
 export function setDatabaseInitialized(initialized: boolean) {
   databaseInitialized = initialized;
+  databaseInitializedSubscribers.forEach((cb) => cb());
   queryClient.clear();
   void queryClient.resetQueries();
+}
+export function useDatabaseInitialized(): boolean {
+  return useSyncExternalStore(
+    (cb) => {
+      databaseInitializedSubscribers.add(cb);
+      return () => databaseInitializedSubscribers.delete(cb);
+    },
+    () => databaseInitialized,
+  );
 }
 
 /**
