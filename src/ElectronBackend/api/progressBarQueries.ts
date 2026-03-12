@@ -2,7 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql } from 'kysely';
+import { ExpressionBuilder, sql } from 'kysely';
+import { DB } from 'kysely-codegen';
 
 import {
   ClassificationStatistics,
@@ -109,11 +110,7 @@ export async function getClassificationProgressBarData(props: {
 
 export async function getNextFileToReviewForAttribution(props: {
   selectedResourcePath: string;
-  data: FileWithAttributionsCounts;
 }): Promise<{ result: string | null }> {
-  if (props.data.fileCount === props.data.manualNonPreSelectedFileCount) {
-    return { result: null };
-  }
   return getDb()
     .transaction()
     .execute(async (trx) => {
@@ -121,44 +118,37 @@ export async function getNextFileToReviewForAttribution(props: {
         trx,
         props.selectedResourcePath,
       );
-      const resource = await trx
-        .selectFrom((eb) => {
-          if (props.data.onlyExternalFileCount > 0) {
-            return getOnlyExternalFilesQuery(eb).as('filtered');
-          }
-          if (props.data.manualPreSelectedFileCount > 0) {
-            return getOnlyPreSelectedManualFilesQuery(eb).as('filtered');
-          }
-          return eb
+      for (const option of [
+        getOnlyExternalFilesQuery,
+        getOnlyPreSelectedManualFilesQuery,
+        (eb: ExpressionBuilder<DB, never>) =>
+          eb
             .selectFrom('cwa')
             .select('resource_id')
             .where('is_file', '=', 1)
             .where('manual', 'is', null)
-            .where('external', 'is', null)
-            .as('filtered');
-        })
-        .innerJoin('resource', 'resource_id', 'resource.id')
-        .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
-        .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
-        .orderBy('sort_key')
-        .limit(1)
-        .executeTakeFirst();
-      return { result: resource?.path ?? null };
+            .where('external', 'is', null),
+      ]) {
+        const resource = await trx
+          .selectFrom((eb) => option(eb).as('filtered'))
+          .innerJoin('resource', 'resource_id', 'resource.id')
+          .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
+          .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
+          .orderBy('sort_key')
+          .limit(1)
+          .executeTakeFirst();
+
+        if (resource) {
+          return { result: resource.path };
+        }
+      }
+      return { result: null };
     });
 }
 
 export async function getNextFileToReviewForCriticality(props: {
   selectedResourcePath: string;
-  data: ResourceCriticalityCounts;
 }): Promise<{ result: string | null }> {
-  if (
-    props.data.highlyCriticalResourceCount +
-      props.data.mediumCriticalResourceCount +
-      props.data.nonCriticalResourceCount ===
-    0
-  ) {
-    return { result: null };
-  }
   return getDb()
     .transaction()
     .execute(async (trx) => {
@@ -166,39 +156,34 @@ export async function getNextFileToReviewForCriticality(props: {
         trx,
         props.selectedResourcePath,
       );
-      const resource = await trx
-        .selectFrom((eb) =>
-          getCriticalResourceQuery(
-            eb,
-            props.data.highlyCriticalResourceCount > 0
-              ? Criticality.High
-              : props.data.mediumCriticalResourceCount > 0
-                ? Criticality.Medium
-                : Criticality.None,
-          ).as('cwa'),
-        )
-        .innerJoin('resource', 'resource_id', 'resource.id')
-        .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
-        .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
-        .orderBy('sort_key')
-        .limit(1)
-        .executeTakeFirst();
-      return { result: resource?.path ?? null };
+      for (const criticality of [
+        Criticality.High,
+        Criticality.Medium,
+        Criticality.None,
+      ]) {
+        const resource = await trx
+          .selectFrom((eb) =>
+            getCriticalResourceQuery(eb, criticality).as('cwa'),
+          )
+          .innerJoin('resource', 'resource_id', 'resource.id')
+          .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
+          .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
+          .orderBy('sort_key')
+          .limit(1)
+          .executeTakeFirst();
+
+        if (resource) {
+          return { result: resource.path };
+        }
+      }
+      return { result: null };
     });
 }
 
 export async function getNextFileToReviewForClassification(props: {
   selectedResourcePath: string;
-  data: ClassificationStatistics;
+  classifications: ClassificationsConfig;
 }): Promise<{ result: string | null }> {
-  const highestClassification = Math.max(
-    ...Object.entries(props.data).map(([key, value]) =>
-      value.resourceCount > 0 ? Number(key) : -1,
-    ),
-  );
-  if (highestClassification === -1) {
-    return { result: null };
-  }
   return getDb()
     .transaction()
     .execute(async (trx) => {
@@ -206,16 +191,27 @@ export async function getNextFileToReviewForClassification(props: {
         trx,
         props.selectedResourcePath,
       );
-      const resource = await trx
-        .selectFrom((eb) =>
-          getClassificationResourceQuery(eb, highestClassification).as('cwa'),
-        )
-        .innerJoin('resource', 'resource_id', 'resource.id')
-        .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
-        .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
-        .orderBy('sort_key')
-        .limit(1)
-        .executeTakeFirst();
-      return { result: resource?.path ?? null };
+      const classifications = Object.keys(props.classifications)
+        .toSorted()
+        .reverse();
+      for (const classification of classifications) {
+        const resource = await trx
+          .selectFrom((eb) =>
+            getClassificationResourceQuery(eb, Number(classification)).as(
+              'cwa',
+            ),
+          )
+          .innerJoin('resource', 'resource_id', 'resource.id')
+          .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
+          .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
+          .orderBy('sort_key')
+          .limit(1)
+          .executeTakeFirst();
+
+        if (resource) {
+          return { result: resource.path };
+        }
+      }
+      return { result: null };
     });
 }

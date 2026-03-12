@@ -16,12 +16,7 @@ import {
   getClassifications,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
-import {
-  ClassificationStatistics,
-  FileWithAttributionsCounts,
-  ResourceCriticalityCounts,
-  SelectedProgressBar,
-} from '../../types/types';
+import { SelectedProgressBar } from '../../types/types';
 import { backend } from '../../util/backendClient';
 import {
   calculateAttributionBarSteps,
@@ -53,7 +48,7 @@ interface ProgressBarTooltipProps {
 export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const dispatch = useAppDispatch();
 
-  function goToNextResource(resourcePath: string | null | undefined) {
+  function goToResource(resourcePath: string | null | undefined) {
     if (!resourcePath) {
       return;
     }
@@ -68,15 +63,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     });
   const getNextAttributionResource =
     backend.getNextFileToReviewForAttribution.useQuery(
-      {
-        selectedResourcePath,
-        data: attributionsProgressBarData.data as FileWithAttributionsCounts,
-      },
-      {
-        enabled:
-          !!attributionsProgressBarData.data &&
-          props.selectedProgressBar === 'attribution',
-      },
+      { selectedResourcePath },
+      { enabled: props.selectedProgressBar === 'attribution' },
     );
 
   const criticalityProgressBarData =
@@ -85,23 +73,14 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     });
   const getNextCriticalityResource =
     backend.getNextFileToReviewForCriticality.useQuery(
-      {
-        selectedResourcePath,
-        data: criticalityProgressBarData.data as ResourceCriticalityCounts,
-      },
-      {
-        enabled:
-          !!criticalityProgressBarData.data &&
-          props.selectedProgressBar === 'criticality',
-      },
+      { selectedResourcePath },
+      { enabled: props.selectedProgressBar === 'criticality' },
     );
 
   const classifications = useAppSelector(getClassifications);
   const classificationProgressBarData =
     backend.getClassificationProgressBarData.useQuery(
-      {
-        classifications,
-      },
+      { classifications },
       {
         enabled: props.selectedProgressBar === 'classification',
       },
@@ -110,13 +89,9 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     backend.getNextFileToReviewForClassification.useQuery(
       {
         selectedResourcePath,
-        data: classificationProgressBarData.data as ClassificationStatistics,
+        classifications,
       },
-      {
-        enabled:
-          !!classificationProgressBarData.data &&
-          props.selectedProgressBar === 'classification',
-      },
+      { enabled: props.selectedProgressBar === 'classification' },
     );
 
   const progressBarConfigurations: Record<
@@ -132,13 +107,13 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       Title: AttributionBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
       steps: calculateAttributionBarSteps(attributionsProgressBarData.data),
-      onClickHandler: () => goToNextResource(getNextAttributionResource.data),
+      onClickHandler: () => goToResource(getNextAttributionResource.data),
     },
     criticality: {
       Title: CriticalityBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
       steps: calculateCriticalityBarSteps(criticalityProgressBarData.data),
-      onClickHandler: () => goToNextResource(getNextCriticalityResource.data),
+      onClickHandler: () => goToResource(getNextCriticalityResource.data),
     },
     classification: {
       Title: ClassificationBarTooltipTitle,
@@ -146,8 +121,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       steps: calculateClassificationBarSteps(
         classificationProgressBarData.data,
       ),
-      onClickHandler: () =>
-        goToNextResource(getNextClassificationResource.data),
+      onClickHandler: () => goToResource(getNextClassificationResource.data),
     },
   };
 
