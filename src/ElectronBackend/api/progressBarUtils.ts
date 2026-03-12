@@ -6,6 +6,7 @@ import {
   ComparisonOperatorExpression,
   ExpressionBuilder,
   Kysely,
+  OperandExpression,
   SelectQueryBuilder,
   Transaction,
 } from 'kysely';
@@ -173,8 +174,13 @@ function attributionClassificationQuery(
 export async function removeManualOrExternalCwaFromResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
   type: 'manual' | 'external',
-  attributionUuids: Array<string>,
-  resourceIds?: Array<number>,
+  {
+    attributionUuids,
+    resourceIds,
+  }: {
+    attributionUuids?: Array<string>;
+    resourceIds?: Array<number> | OperandExpression<number>;
+  },
 ) {
   // Run multiple times, since the parent might have different manual/external attributions after the update
   let finished = false;
@@ -182,11 +188,11 @@ export async function removeManualOrExternalCwaFromResources(
     const result = await trxOrDB
       .with('impacted_resources', (db) =>
         db
-          .selectFrom('resource_to_attribution as rta')
-          .innerJoin('resource as r', 'rta.resource_id', 'r.id')
+          .selectFrom('resource as r')
+          .leftJoin('resource_to_attribution as rta', 'rta.resource_id', 'r.id')
           // Replace_with is the closest ancestor with manual/external attributions to the parent, if the resource is not a breakpoint
           .select([
-            'rta.resource_id',
+            'r.id as resource_id',
             (eb) =>
               eb
                 .case()
@@ -200,12 +206,18 @@ export async function removeManualOrExternalCwaFromResources(
                 .end()
                 .as('replace_with'),
           ])
-          .where('rta.attribution_uuid', 'in', attributionUuids)
+          .$if(attributionUuids !== undefined, (eb) =>
+            eb.where(
+              'rta.attribution_uuid',
+              'in',
+              attributionUuids as Array<string>,
+            ),
+          )
           .$if(resourceIds !== undefined, (eb) =>
-            eb.where('rta.resource_id', 'in', resourceIds as Array<number>),
+            eb.where('r.id', 'in', resourceIds!),
           )
           // Don't change resources that still have manual/external attributions after the removal
-          .where('rta.resource_id', 'not in', (eb) =>
+          .where('r.id', 'not in', (eb) =>
             eb
               .selectFrom('resource_to_attribution')
               .select('resource_id')
@@ -214,7 +226,13 @@ export async function removeManualOrExternalCwaFromResources(
                 '=',
                 Number(type === 'external'),
               )
-              .where('attribution_uuid', 'not in', attributionUuids)
+              .$if(attributionUuids !== undefined, (eb) =>
+                eb.where(
+                  'attribution_uuid',
+                  'not in',
+                  attributionUuids as Array<string>,
+                ),
+              )
               .$if(type === 'external', (eb) =>
                 eb.where((eb) =>
                   eb.exists(
@@ -251,8 +269,10 @@ export async function removeManualOrExternalCwaFromResources(
 export async function addManualOrExternalCwaToResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
   type: 'manual' | 'external',
-  attributionUuids: Array<string>,
-  resourceIds?: Array<number>,
+  {
+    attributionUuids,
+    resourceIds,
+  }: { attributionUuids: Array<string>; resourceIds?: Array<number> },
 ) {
   return (
     trxOrDB

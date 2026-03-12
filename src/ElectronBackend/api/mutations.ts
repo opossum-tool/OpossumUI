@@ -44,11 +44,9 @@ export const mutations = {
     await getDb()
       .transaction()
       .execute(async (trx) => {
-        await removeManualOrExternalCwaFromResources(
-          trx,
-          'manual',
-          params.attributionUuids,
-        );
+        await removeManualOrExternalCwaFromResources(trx, 'manual', {
+          attributionUuids: params.attributionUuids,
+        });
         const impactedResources = new Set<number>();
         for (const attributionUuid of params.attributionUuids) {
           const existingAttribution = await getAttributionOrThrow(
@@ -78,9 +76,9 @@ export const mutations = {
             .execute();
         }
 
-        for (const resource of impactedResources) {
-          await removeRedundantAttributions(trx, resource);
-        }
+        await removeRedundantAttributions(trx, {
+          resourceIds: Array.from(impactedResources),
+        });
       });
 
     return {
@@ -156,9 +154,9 @@ export const mutations = {
           .where('uuid', '=', params.attributionIdToReplace)
           .execute();
 
-        for (const r of connectedResources) {
-          await removeRedundantAttributions(trx, r.resource_id);
-        }
+        await removeRedundantAttributions(trx, {
+          resourceIds: connectedResources.map((r) => r.resource_id),
+        });
       });
 
     return {
@@ -220,14 +218,15 @@ export const mutations = {
           .onConflict((oc) => oc.doNothing())
           .execute();
 
-        await removeRedundantAttributions(trx, resource.id);
+        await addManualOrExternalCwaToResources(trx, 'manual', {
+          attributionUuids: [params.attributionUuid],
+          resourceIds: [resource.id],
+        });
 
-        await addManualOrExternalCwaToResources(
-          trx,
-          'manual',
-          [params.attributionUuid],
-          [resource.id],
-        );
+        await removeRedundantAttributions(trx, {
+          attributionUuids: [params.attributionUuid],
+          resourceIds: [resource.id],
+        });
       });
 
     return {
@@ -298,12 +297,10 @@ export const mutations = {
           })
           .execute();
 
-        await addManualOrExternalCwaToResources(
-          trx,
-          'manual',
-          [params.attributionUuid],
-          [resource.id],
-        );
+        await addManualOrExternalCwaToResources(trx, 'manual', {
+          attributionUuids: [params.attributionUuid],
+          resourceIds: [resource.id],
+        });
       });
 
     return {
@@ -394,12 +391,10 @@ export const mutations = {
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
-        await removeManualOrExternalCwaFromResources(
-          trx,
-          'manual',
-          params.attributionUuids,
-          [resource.id],
-        );
+        await removeManualOrExternalCwaFromResources(trx, 'manual', {
+          attributionUuids: params.attributionUuids,
+          resourceIds: [resource.id],
+        });
 
         for (const attributionUuid of params.attributionUuids) {
           const existingAttribution = await getAttributionOrThrow(
@@ -420,7 +415,7 @@ export const mutations = {
             .execute();
         }
 
-        await removeRedundantAttributions(trx, resource.id);
+        await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
       });
 
     return {
@@ -457,17 +452,13 @@ async function setAttributionsResolvedStatus(
     .transaction()
     .execute(async (trx) => {
       if (resolvedStatus) {
-        await removeManualOrExternalCwaFromResources(
-          trx,
-          'external',
+        await removeManualOrExternalCwaFromResources(trx, 'external', {
           attributionUuids,
-        );
+        });
       } else {
-        await addManualOrExternalCwaToResources(
-          trx,
-          'external',
+        await addManualOrExternalCwaToResources(trx, 'external', {
           attributionUuids,
-        );
+        });
       }
 
       const existingAttributions = await trx

@@ -87,7 +87,6 @@ export default tseslint.config(
       'react/react-in-jsx-scope': 'off',
       '@eslint-react/no-array-index-key': 'off',
       '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
-      '@typescript-eslint/array-type': ['error', { default: 'generic' }],
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/ban-ts-comment': 'error',
       '@typescript-eslint/explicit-function-return-type': 'off',
@@ -107,7 +106,6 @@ export default tseslint.config(
         { checksVoidReturn: false },
       ],
       '@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
-      '@typescript-eslint/no-non-null-assertion': 'error',
       '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
       '@typescript-eslint/no-unnecessary-type-assertion': 'error',
       '@typescript-eslint/no-unused-expressions': [
