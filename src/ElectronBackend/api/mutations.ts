@@ -9,7 +9,7 @@ import { getDb } from '../db/db';
 import {
   addManualOrExternalCwaToResources,
   removeManualOrExternalCwaFromResources,
-} from './progressBar';
+} from './progressBarUtils';
 import { QueryName, QueryParams } from './queries';
 import {
   getAttributionOrThrow,
