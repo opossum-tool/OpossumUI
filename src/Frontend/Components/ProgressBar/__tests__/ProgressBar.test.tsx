@@ -19,7 +19,7 @@ import { ProgressBar } from '../ProgressBar';
 
 async function clickOnAttributionProgressBar() {
   await userEvent.click(
-    screen.getByLabelText(
+    await screen.findByLabelText(
       text.topBar.switchableProgressBar.attributionBar.ariaLabel,
     ),
     {
@@ -30,7 +30,7 @@ async function clickOnAttributionProgressBar() {
 
 async function hoverOverAttributionProgressBar() {
   await userEvent.hover(
-    screen.getByLabelText(
+    await screen.findByLabelText(
       text.topBar.switchableProgressBar.attributionBar.ariaLabel,
     ),
     {
@@ -41,7 +41,7 @@ async function hoverOverAttributionProgressBar() {
 
 async function hoverOverCriticalityProgressBar() {
   await userEvent.hover(
-    screen.getByLabelText(
+    await screen.findByLabelText(
       text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
     ),
     {
@@ -52,7 +52,7 @@ async function hoverOverCriticalityProgressBar() {
 
 async function hoverOverClassificationProgressBar() {
   await userEvent.hover(
-    screen.getByLabelText(
+    await screen.findByLabelText(
       text.topBar.switchableProgressBar.classificationBar.ariaLabel,
     ),
     {
@@ -63,7 +63,7 @@ async function hoverOverClassificationProgressBar() {
 
 async function clickOnCriticalityProgressBar() {
   await userEvent.click(
-    screen.getByLabelText(
+    await screen.findByLabelText(
       text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
     ),
     {
@@ -74,7 +74,7 @@ async function clickOnCriticalityProgressBar() {
 
 async function clickOnClassificationProgressBar() {
   await userEvent.click(
-    screen.getByLabelText(
+    await screen.findByLabelText(
       text.topBar.switchableProgressBar.classificationBar.ariaLabel,
     ),
     {

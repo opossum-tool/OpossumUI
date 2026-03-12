@@ -99,34 +99,42 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     {
       Title: React.FC<ProgressBarTooltipProps>;
       ariaLabel: string;
-      steps: Array<ProgressBarStep>;
+      steps: Array<ProgressBarStep> | undefined;
       onClickHandler: () => void;
     }
   > = {
     attribution: {
       Title: AttributionBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
-      steps: calculateAttributionBarSteps(attributionsProgressBarData.data),
+      steps: attributionsProgressBarData.data
+        ? calculateAttributionBarSteps(attributionsProgressBarData.data)
+        : undefined,
       onClickHandler: () => goToResource(getNextAttributionResource.data),
     },
     criticality: {
       Title: CriticalityBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
-      steps: calculateCriticalityBarSteps(criticalityProgressBarData.data),
+      steps: criticalityProgressBarData.data
+        ? calculateCriticalityBarSteps(criticalityProgressBarData.data)
+        : undefined,
       onClickHandler: () => goToResource(getNextCriticalityResource.data),
     },
     classification: {
       Title: ClassificationBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
-      steps: calculateClassificationBarSteps(
-        classificationProgressBarData.data,
-      ),
+      steps: classificationProgressBarData.data
+        ? calculateClassificationBarSteps(classificationProgressBarData.data)
+        : undefined,
       onClickHandler: () => goToResource(getNextClassificationResource.data),
     },
   };
 
   const { ariaLabel, steps, onClickHandler, Title } =
     progressBarConfigurations[props.selectedProgressBar];
+
+  if (!steps) {
+    return <MuiBox flex={1} />;
+  }
 
   return (
     <MuiBox sx={props.sx}>
