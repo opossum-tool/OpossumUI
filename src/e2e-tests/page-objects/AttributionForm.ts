@@ -347,4 +347,8 @@ export class AttributionForm {
       .getByRole('button', { name: type, exact: true })
       .click();
   }
+
+  async getLicenseAutocompleteOptions(): Promise<Array<Locator>> {
+    return this.window.getByRole('listbox').all();
+  }
 }
