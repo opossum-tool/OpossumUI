@@ -3772,9 +3772,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/eslint-plugin@npm:1.6.9":
-  version: 1.6.9
-  resolution: "@vitest/eslint-plugin@npm:1.6.9"
+"@vitest/eslint-plugin@npm:1.6.10":
+  version: 1.6.10
+  resolution: "@vitest/eslint-plugin@npm:1.6.10"
   dependencies:
     "@typescript-eslint/scope-manager": "npm:^8.55.0"
     "@typescript-eslint/utils": "npm:^8.55.0"
@@ -3787,7 +3787,7 @@ __metadata:
       optional: true
     vitest:
       optional: true
-  checksum: 10/b718dc25635bdd997b37302db7e1184f26dd872e99d139684b754e960acc2f2fdce9a48015a473bb7e9724e93cd6aa67939a6183e4dfa26417cb8c5b35dea2df
+  checksum: 10/22f2d9353d931eaaaa76eceb3d66e030e7f7552f44ed5263eb0a5caef8427d8c82eeeb4be0340bb8296c80733a5ead8bc18da9babf93ba6b997b8f34d6d8d9c4
   languageName: node
   linkType: hard
 
@@ -8097,7 +8097,7 @@ __metadata:
     "@types/react-dom": "npm:19.2.3"
     "@types/stream-json": "npm:1.7.8"
     "@vitejs/plugin-react": "npm:5.1.4"
-    "@vitest/eslint-plugin": "npm:1.6.9"
+    "@vitest/eslint-plugin": "npm:1.6.10"
     "@viz-js/viz": "npm:3.25.0"
     babel-plugin-react-compiler: "npm:1.0.0"
     babel-plugin-transform-import-meta: "npm:2.3.3"
