@@ -166,10 +166,9 @@ function attributionClassificationQuery(
 }
 
 /**
- * Used to update the cwa table, which is a cache for getting the closest ancestor with manual or external attributions.
- * It takes attributionUuids as an input and checks for resources that will have no more manual or external attributions once they are removed.
- * Then it updates the resources that point to the removed resources with their parent's closest ancestor with manual or external attributions.
- * Run multiple times, since the parent might have different manual or external attributions after the update.
+ * Used to keep the cwa table up to date when removing attributions.
+ * Takes attributionUuids as an input and checks for resources that will have no more manual/external attributions once they are removed.
+ * Call BEFORE removing attributions.
  */
 export async function removeManualOrExternalCwaFromResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
@@ -177,6 +176,7 @@ export async function removeManualOrExternalCwaFromResources(
   attributionUuids: Array<string>,
   resourceIds?: Array<number>,
 ) {
+  // Run multiple times, since the parent might have different manual/external attributions after the update
   let finished = false;
   while (!finished) {
     const result = await trxOrDB
@@ -184,6 +184,7 @@ export async function removeManualOrExternalCwaFromResources(
         db
           .selectFrom('resource_to_attribution as rta')
           .innerJoin('resource as r', 'rta.resource_id', 'r.id')
+          // Replace_with is the closest ancestor with manual/external attributions to the parent, if the resource is not a breakpoint
           .select([
             'rta.resource_id',
             (eb) =>
@@ -203,6 +204,7 @@ export async function removeManualOrExternalCwaFromResources(
           .$if(resourceIds !== undefined, (eb) =>
             eb.where('rta.resource_id', 'in', resourceIds as Array<number>),
           )
+          // Don't change resources that still have manual/external attributions after the removal
           .where('rta.resource_id', 'not in', (eb) =>
             eb
               .selectFrom('resource_to_attribution')
@@ -242,9 +244,9 @@ export async function removeManualOrExternalCwaFromResources(
 }
 
 /**
- * Used to update the cwa table, which is a cache for getting the closest ancestor with manual or external attributions.
- * It takes attributionUuids as an input and checks for resources that gained manual or external attributions after they were added.
- * It then ensures that the resource itself and its children without manual or external attributions point to the resource.
+ * Used to keep the cwa table up to date when adding attributions.
+ * Takes attributionUuids as an input and checks for resources that now have manual/external attributions.
+ * Call AFTER adding attributions.
  */
 export async function addManualOrExternalCwaToResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
@@ -252,75 +254,83 @@ export async function addManualOrExternalCwaToResources(
   attributionUuids: Array<string>,
   resourceIds?: Array<number>,
 ) {
-  return trxOrDB
-    .with('newly_attributed_resources', (db) =>
-      db
-        .selectFrom('resource_to_attribution as rta')
-        .innerJoin('resource as r', 'rta.resource_id', 'r.id')
-        .innerJoin('cwa as previous_cwa', 'previous_cwa.resource_id', 'r.id')
-        .select([
-          'rta.resource_id',
-          'r.max_descendant_id',
-          (eb) => eb.ref(`previous_cwa.${type}`).as('previous_value'),
-        ])
-        .where('rta.attribution_uuid', 'in', attributionUuids)
-        .$if(resourceIds !== undefined, (eb) =>
-          eb.where('rta.resource_id', 'in', resourceIds as Array<number>),
-        )
-        .where('rta.resource_id', 'not in', (eb) =>
-          eb
-            .selectFrom('resource_to_attribution')
-            .select('resource_id')
-            .where('attribution_is_external', '=', Number(type === 'external'))
-            .where('attribution_uuid', 'not in', attributionUuids)
-            .$if(type === 'external', (eb) =>
-              eb.where((eb) =>
-                eb.exists(
-                  eb
-                    .selectFrom('attribution')
-                    .selectAll()
-                    .where('is_resolved', '=', 0)
-                    .whereRef('uuid', '=', 'attribution_uuid'),
+  return (
+    trxOrDB
+      .with('newly_attributed_resources', (db) =>
+        db
+          .selectFrom('resource_to_attribution as rta')
+          .innerJoin('resource as r', 'rta.resource_id', 'r.id')
+          .innerJoin('cwa as previous_cwa', 'previous_cwa.resource_id', 'r.id')
+          .select([
+            'rta.resource_id',
+            'r.max_descendant_id',
+            (eb) => eb.ref(`previous_cwa.${type}`).as('previous_value'),
+          ])
+          .where('rta.attribution_uuid', 'in', attributionUuids)
+          .$if(resourceIds !== undefined, (eb) =>
+            eb.where('rta.resource_id', 'in', resourceIds as Array<number>),
+          )
+          .where('rta.resource_id', 'not in', (eb) =>
+            eb
+              .selectFrom('resource_to_attribution')
+              .select('resource_id')
+              .where(
+                'attribution_is_external',
+                '=',
+                Number(type === 'external'),
+              )
+              .where('attribution_uuid', 'not in', attributionUuids)
+              .$if(type === 'external', (eb) =>
+                eb.where((eb) =>
+                  eb.exists(
+                    eb
+                      .selectFrom('attribution')
+                      .selectAll()
+                      .where('is_resolved', '=', 0)
+                      .whereRef('uuid', '=', 'attribution_uuid'),
+                  ),
                 ),
               ),
-            ),
-        ),
-    )
-    .with('impacted_resources', (db) =>
-      db
-        .selectFrom('cwa')
-        .innerJoin('newly_attributed_resources', (join) =>
-          join
-            .onRef(
-              'cwa.resource_id',
-              '>=',
-              'newly_attributed_resources.resource_id',
-            )
-            .onRef(
-              'cwa.resource_id',
-              '<=',
-              'newly_attributed_resources.max_descendant_id',
-            )
-            .onRef(
-              'newly_attributed_resources.previous_value',
-              'is',
-              `cwa.${type}`,
-            ),
-        )
-        .select([
-          'cwa.resource_id',
-          (eb) =>
-            eb.fn.max('newly_attributed_resources.resource_id').as('new_id'),
-        ])
-        .groupBy('cwa.resource_id'),
-    )
-    .updateTable('cwa')
-    .from('impacted_resources')
-    .set((eb) => ({
-      [type]: eb.ref('impacted_resources.new_id'),
-    }))
-    .whereRef('cwa.resource_id', '=', 'impacted_resources.resource_id')
-    .execute();
+          ),
+      )
+      // Get all children that point to the same resource as the newly added attributions
+      .with('impacted_resources', (db) =>
+        db
+          .selectFrom('cwa')
+          .innerJoin('newly_attributed_resources', (join) =>
+            join
+              .onRef(
+                'cwa.resource_id',
+                '>=',
+                'newly_attributed_resources.resource_id',
+              )
+              .onRef(
+                'cwa.resource_id',
+                '<=',
+                'newly_attributed_resources.max_descendant_id',
+              )
+              .onRef(
+                'newly_attributed_resources.previous_value',
+                'is',
+                `cwa.${type}`,
+              ),
+          )
+          .select([
+            'cwa.resource_id',
+            // Get the closest parent with manual/external attributions
+            (eb) =>
+              eb.fn.max('newly_attributed_resources.resource_id').as('new_id'),
+          ])
+          .groupBy('cwa.resource_id'),
+      )
+      .updateTable('cwa')
+      .from('impacted_resources')
+      .set((eb) => ({
+        [type]: eb.ref('impacted_resources.new_id'),
+      }))
+      .whereRef('cwa.resource_id', '=', 'impacted_resources.resource_id')
+      .execute()
+  );
 }
 
 export async function getCount(
