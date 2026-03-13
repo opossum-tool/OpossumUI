@@ -7,46 +7,33 @@ import { expect } from '@playwright/test';
 import type { RawPackageInfo } from '../../shared/shared-types';
 import { faker, test } from '../utils';
 
-const [resourceName] = faker.opossum.resourceNames({
-  count: 1,
-});
-const license1 = faker.opossum.license({
-  shortName: 'Apache-2.0',
-  fullName: 'Apache License 2.0',
-});
-const license2 = faker.opossum.license({
-  shortName: 'MIT',
-  fullName: 'MIT License',
-});
-const license3 = faker.opossum.license({
-  shortName: 'GPL-3.0',
-  fullName: 'GNU General Public License v3.0',
-});
-const license4 = faker.opossum.license({
-  shortName: 'BSD-3-Clause',
-  fullName: 'BSD 3-Clause License',
-});
-const licenses = [license1, license2, license3, license4];
-const attributionIds: Array<string> = [];
-const packageInfos: Array<RawPackageInfo> = [];
+const resourceName = faker.opossum.resourceName();
+const licenses = faker.opossum.licenses({ count: 4 });
+const occurrenceCounts = [
+  { attributions: 4, signals: 5 },
+  { attributions: 3, signals: 2 },
+  { attributions: 2, signals: 0 },
+  { attributions: 0, signals: 1 },
+]; // sum of occurences per license must be decreasing, otherwise the test fails
 
-// Generate attributions for each license (1 for license1, 2 for license2, 3 for license3, 4 for license4)
-for (let i = 0; i < 10; i++) {
-  let license;
-  if (i < 1) {
-    license = licenses[0];
-  } else if (i < 3) {
-    license = licenses[1];
-  } else if (i < 6) {
-    license = licenses[2];
-  } else {
-    license = licenses[3];
+const attributionItems: Array<{ id: string; packageInfo: RawPackageInfo }> = [];
+
+const signalItems: Array<{ id: string; packageInfo: RawPackageInfo }> = [];
+
+for (const [licenseIndex, occurrenceCount] of occurrenceCounts.entries()) {
+  const license = licenses[licenseIndex];
+  for (let i = 0; i < occurrenceCount.attributions; i++) {
+    const [Id, packageInfo] = faker.opossum.rawAttribution({
+      licenseName: license.shortName,
+    });
+    attributionItems.push({ id: Id, packageInfo });
   }
-  const [attributionId, packageInfo] = faker.opossum.rawAttribution({
-    licenseName: license.shortName,
-  });
-  attributionIds.push(attributionId);
-  packageInfos.push(packageInfo);
+  for (let i = 0; i < occurrenceCount.signals; i++) {
+    const [Id, packageInfo] = faker.opossum.rawAttribution({
+      licenseName: license.shortName,
+    });
+    signalItems.push({ id: Id, packageInfo });
+  }
 }
 
 test.use({
@@ -56,15 +43,25 @@ test.use({
         [resourceName]: 1,
       }),
       frequentLicenses: licenses,
+      externalAttributions: faker.opossum.rawAttributions(
+        Object.fromEntries(
+          signalItems.map(({ id, packageInfo }) => [id, packageInfo]),
+        ),
+      ),
+      resourcesToAttributions: faker.opossum.resourcesToAttributions({
+        [faker.opossum.filePath(resourceName)]: signalItems.map(({ id }) => id),
+      }),
     }),
     outputData: faker.opossum.outputData({
-      manualAttributions: faker.opossum.rawAttributions({
-        ...Object.fromEntries(
-          attributionIds.map((id, index) => [id, packageInfos[index]]),
+      manualAttributions: faker.opossum.rawAttributions(
+        Object.fromEntries(
+          attributionItems.map(({ id, packageInfo }) => [id, packageInfo]),
         ),
-      }),
+      ),
       resourcesToAttributions: faker.opossum.resourcesToAttributions({
-        [faker.opossum.filePath(resourceName)]: attributionIds,
+        [faker.opossum.filePath(resourceName)]: attributionItems.map(
+          ({ id }) => id,
+        ),
       }),
     }),
   },
@@ -75,41 +72,32 @@ test('license autocomplete sorts common licenses by number of occurrences', asyn
   resourcesTree,
   attributionsPanel,
 }) => {
-  const newPackageInfo = faker.opossum.rawPackageInfo({
-    attributionConfidence: undefined,
-    licenseName: license1.shortName,
-  });
   await resourcesTree.goto(resourceName);
   await attributionsPanel.createButton.click();
   await attributionDetails.attributionForm.assert.isEmpty();
 
-  await attributionDetails.attributionForm.name.fill(
-    newPackageInfo.packageName!,
-  );
-  await attributionDetails.attributionForm.type.fill(
-    newPackageInfo.packageType!,
-  );
-  await attributionDetails.attributionForm.version.fill(
-    newPackageInfo.packageVersion!,
-  );
-  await attributionDetails.attributionForm.url.fill(newPackageInfo.url!);
-  await attributionDetails.attributionForm.copyright.fill(
-    newPackageInfo.copyright!,
-  );
-
   await attributionDetails.attributionForm.licenseExpression.click();
 
-  const autocompleteOptions =
-    await attributionDetails.attributionForm.getLicenseAutocompleteOptions();
-  const optionTexts = await Promise.all(
-    autocompleteOptions.map((option) => option.textContent()),
-  );
-  expect(optionTexts[1]).toEqual(
-    'Common Licenses4BSD-3-ClauseBSD 3-Clause License3GPL-3.0GNU General Public License v3.02MITMIT License1Apache-2.0Apache License 2.0',
-  );
+  for (let i = 0; i < licenses.length; i++) {
+    const autocompleteOption =
+      attributionDetails.attributionForm.getNthLicenseAutocompleteOption(i);
+    await expect(autocompleteOption).toContainText(licenses[i].shortName);
+    await expect(autocompleteOption).toContainText(licenses[i].fullName);
 
-  await attributionDetails.attributionForm.selectLicense(license1);
-  await attributionDetails.attributionForm.assert.matchesPackageInfo(
-    newPackageInfo,
+    const { attributions: attributionCount, signals: signalCount } =
+      occurrenceCounts[i];
+    const occurrenceText = autocompleteOption.getByText(
+      String(attributionCount + signalCount),
+    );
+    await occurrenceText.first().hover();
+    await attributionDetails.attributionForm.ensureLicenseOccurenceTooltipIsCorrect(
+      attributionCount,
+      signalCount,
+    );
+  }
+
+  await attributionDetails.attributionForm.selectLicense(licenses[0]);
+  await attributionDetails.attributionForm.assert.licenseNameIs(
+    licenses[0].shortName,
   );
 });
