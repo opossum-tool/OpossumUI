@@ -293,10 +293,7 @@ export function PackageSubPanel({
               }
               onClick={() =>
                 onEdit?.(async () => {
-                  const enriched = await enrichPackageInfo({
-                    ...packageInfo,
-                    wasPreferred: undefined,
-                  });
+                  const enriched = await enrichPackageInfo(packageInfo);
                   if (enriched) {
                     dispatch(setTemporaryDisplayPackageInfo(enriched));
                   }

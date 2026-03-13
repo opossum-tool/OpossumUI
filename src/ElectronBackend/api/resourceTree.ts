@@ -57,7 +57,7 @@ export function getResourceTree({
           filterQuery = trx
             .selectFrom('resource_to_attribution as rta')
             .select('resource_id as id')
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
             .where('rta.attribution_uuid', 'in', onAttributionUuids!);
         }
 

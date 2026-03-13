@@ -19,7 +19,6 @@ import {
   setBaseUrlsForSources,
   setConfig,
   setExternalAttributionSources,
-  setExternalData,
   setFilesWithChildren,
   setFrequentLicenses,
   setIsPreferenceFeatureEnabled,
@@ -92,15 +91,6 @@ export function loadFromFile(
         parsedFileContent.manualAttributions.attributions,
         parsedFileContent.manualAttributions.resourcesToAttributions,
         parsedFileContent.manualAttributions.attributionsToResources,
-      ),
-    );
-
-    dispatch(
-      setExternalData(
-        parsedFileContent.externalAttributions.attributions,
-        parsedFileContent.externalAttributions.resourcesToAttributions,
-        parsedFileContent.externalAttributions.attributionsToResources,
-        parsedFileContent.resolvedExternalAttributions,
       ),
     );
 

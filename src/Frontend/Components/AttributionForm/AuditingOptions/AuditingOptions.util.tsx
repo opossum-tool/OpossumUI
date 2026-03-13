@@ -28,6 +28,7 @@ import {
 } from '../../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { prettifySource } from '../../../util/prettify-source';
+import { useEqualToOriginal } from '../../../util/use-equal-to-original';
 import {
   ClassificationIcon,
   CriticalityIcon,
@@ -60,6 +61,7 @@ export function useAuditingOptions({
     getIsPreferenceFeatureEnabled,
   );
   const classifications = useAppSelector(getClassifications);
+  const equalToOriginal = useEqualToOriginal(packageInfo);
   const [userSettings] = useUserSettings();
   const qaMode = userSettings.qaMode;
   const showClassifications = userSettings.showClassifications;
@@ -116,7 +118,7 @@ export function useAuditingOptions({
         id: 'was-preferred',
         label: text.auditingOptions.previouslyPreferred,
         icon: <WasPreferredIcon noTooltip />,
-        selected: !!packageInfo.wasPreferred,
+        selected: !!packageInfo.wasPreferred && equalToOriginal !== false,
         interactive: false,
       },
       {
@@ -124,8 +126,9 @@ export function useAuditingOptions({
         label: text.auditingOptions.modifiedPreferred,
         icon: <ModifiedPreferredIcon noTooltip />,
         selected:
-          !packageInfo.wasPreferred &&
-          !!packageInfo.originalAttributionWasPreferred,
+          (!!packageInfo.wasPreferred && equalToOriginal === false) ||
+          (!!packageInfo.originalAttributionWasPreferred &&
+            !packageInfo.wasPreferred),
         interactive: false,
       },
       {
@@ -280,6 +283,7 @@ export function useAuditingOptions({
       attributionSources,
       classifications,
       dispatch,
+      equalToOriginal,
       isEditable,
       isPreferenceFeatureEnabled,
       packageInfo.attributionConfidence,
