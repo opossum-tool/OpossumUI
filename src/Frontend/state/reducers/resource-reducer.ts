@@ -32,7 +32,6 @@ import {
   ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_ENABLE_PREFERENCE_FEATURE,
   ACTION_SET_EXPANDED_IDS,
-  ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
@@ -53,7 +52,6 @@ import {
 } from '../actions/resource-actions/types';
 import { getResourceIdsFromResources } from '../helpers/resources-helpers';
 import {
-  computeChildrenWithAttributions,
   createManualAttribution,
   deleteManualAttribution,
   linkToAttributionManualData,
@@ -67,7 +65,6 @@ export const initialResourceState: ResourceState = {
   baseUrlsForSources: {},
   expandedIds: [ROOT_PATH],
   externalAttributionSources: {},
-  externalData: EMPTY_ATTRIBUTION_DATA,
   filesWithChildren: new Set(),
   frequentLicenses: EMPTY_FREQUENT_LICENSES,
   isPackageInfoDirty: false,
@@ -90,7 +87,6 @@ export type ResourceState = {
   baseUrlsForSources: BaseUrlsForSources;
   expandedIds: Array<string>;
   externalAttributionSources: ExternalAttributionSources;
-  externalData: AttributionData;
   filesWithChildren: Set<string>;
   frequentLicenses: FrequentLicenses;
   isPackageInfoDirty: boolean;
@@ -132,11 +128,6 @@ export const resourceState = (
       return {
         ...state,
         manualData: action.payload,
-      };
-    case ACTION_SET_EXTERNAL_ATTRIBUTION_DATA:
-      return {
-        ...state,
-        externalData: action.payload,
       };
     case ACTION_SET_FREQUENT_LICENSES:
       return {
@@ -302,13 +293,6 @@ export const resourceState = (
       return {
         ...state,
         resolvedExternalAttributions,
-        externalData: {
-          ...state.externalData,
-          resourcesWithAttributedChildren: computeChildrenWithAttributions(
-            state.externalData.attributionsToResources,
-            resolvedExternalAttributions,
-          ),
-        },
       };
     }
     case ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTIONS: {
@@ -322,13 +306,6 @@ export const resourceState = (
       return {
         ...state,
         resolvedExternalAttributions,
-        externalData: {
-          ...state.externalData,
-          resourcesWithAttributedChildren: computeChildrenWithAttributions(
-            state.externalData.attributionsToResources,
-            resolvedExternalAttributions,
-          ),
-        },
       };
     }
     case ACTION_SET_ENABLE_PREFERENCE_FEATURE:
