@@ -19,6 +19,7 @@ import {
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { generatePurl } from '../../../util/handle-purl';
 import { AttributionForm } from '../AttributionForm';
@@ -203,16 +204,30 @@ describe('AttributionForm', () => {
     });
 
     it('renders a chip for modified preferred', async () => {
-      const packageInfo = faker.opossum.packageInfo({
-        packageName: faker.lorem.word(),
+      const originalPackageInfo = faker.opossum.packageInfo({
+        packageName: 'original',
+        wasPreferred: true,
         originalAttributionWasPreferred: true,
+      });
+      const packageInfo = faker.opossum.packageInfo({
+        ...originalPackageInfo,
+        id: 'newId',
+        originalAttributionId: originalPackageInfo.id,
+        packageName: 'changed',
         wasPreferred: false,
       });
 
-      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+        data: getParsedInputFileEnrichedWithTestData({
+          externalAttributions: {
+            [originalPackageInfo.id]: originalPackageInfo,
+            [packageInfo.id]: packageInfo,
+          },
+        }),
+      });
 
       expect(
-        screen.getByText(text.auditingOptions.modifiedPreferred),
+        await screen.findByText(text.auditingOptions.modifiedPreferred),
       ).toBeInTheDocument();
     });
 

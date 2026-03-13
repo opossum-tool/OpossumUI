@@ -8,12 +8,12 @@ import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
 
+import { type FormAttribute } from '../../../shared/attribution-comparison';
 import { type PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { AttributionType } from '../../enums/enums';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { type FormAttribute } from '../../util/get-comparable-attributes';
 import { type Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { type TextBoxProps } from '../TextBox/TextBox';
 import { AuditingOptions } from './AuditingOptions/AuditingOptions';
@@ -132,7 +132,6 @@ export function AttributionForm({
                 setTemporaryDisplayPackageInfo({
                   ...packageInfo,
                   firstParty: newValue,
-                  wasPreferred: undefined,
                 }),
               );
             })

@@ -59,7 +59,6 @@ export function CopyrightSubPanel({
               setTemporaryDisplayPackageInfo({
                 ...packageInfo,
                 copyright: value,
-                wasPreferred: undefined,
               }),
             ),
           )

@@ -14,6 +14,8 @@ import {
 import { snakeCase } from 'lodash';
 
 import { FILTERS } from '../../Frontend/shared-constants';
+import { areAttributionsEqual } from '../../shared/attribution-comparison';
+import { type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
 import { removeManualOrExternalCwaFromResources } from './progressBarUtils';
 import { type FilterProperties } from './queries';
@@ -534,4 +536,27 @@ type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`
   : S;
 export function toSnakeCase<S extends string>(s: S): CamelToSnakeCase<S> {
   return snakeCase(s) as CamelToSnakeCase<S>;
+}
+
+export async function computeWasPreferred(
+  trx: Transaction<DB>,
+  packageInfo: PackageInfo,
+): Promise<boolean | undefined> {
+  const originalAttributionId = packageInfo.originalAttributionId;
+  if (!originalAttributionId) {
+    return packageInfo.wasPreferred;
+  }
+
+  const original = await trx
+    .selectFrom('attribution')
+    .select('data')
+    .where('uuid', '=', originalAttributionId)
+    .executeTakeFirstOrThrow();
+
+  const originalData = JSON.parse(original.data) as PackageInfo;
+  return (
+    (areAttributionsEqual(packageInfo, originalData) &&
+      originalData.wasPreferred) ||
+    undefined
+  );
 }

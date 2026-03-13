@@ -77,10 +77,4 @@ export const ATTRIBUTION_FILTERS = [
   text.filters.modifiedPreferred,
 ] satisfies Array<Filter>;
 
-export const thirdPartyKeys: Array<keyof PackageInfo> = [
-  'copyright',
-  'licenseName',
-  'licenseText',
-];
-
 export const legacyOutputFileEnding = '_attributions.json';
