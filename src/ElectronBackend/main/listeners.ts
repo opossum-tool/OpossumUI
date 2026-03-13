@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, shell } from 'electron';
 import fs from 'fs';
-import { sql } from 'kysely';
+import { Kysely, sql } from 'kysely';
 import { uniq } from 'lodash';
 import path from 'path';
 import upath from 'upath';
@@ -31,6 +31,7 @@ import {
 import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { getDb } from '../db/db';
+import { DB } from '../db/generated/databaseTypes';
 import { LoadedFileFormat } from '../enums/enums';
 import {
   sendListenerErrorToFrontend,
@@ -63,6 +64,73 @@ import { UserSettingsService } from './user-settings-service';
 
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
+export async function getPreferredOverOriginIds(trxOrDb: Kysely<DB>) {
+  // Preferred manual attribution -> resource -> manual descendants -> overridden external attribution -> source with relevant_for_preferred
+  const preferredOverResult = await trxOrDb
+    .with(
+      (cte) => cte('overridden_resources').materialized(),
+      (db) =>
+        db
+          .selectFrom('attribution as preferred')
+          .innerJoin(
+            'resource_to_attribution as has_preferred',
+            'preferred.uuid',
+            'has_preferred.attribution_uuid',
+          )
+          .innerJoin('cwa', 'cwa.manual', 'has_preferred.resource_id')
+          .select(['preferred.uuid as attribution_uuid', 'cwa.resource_id'])
+          .where('is_external', '=', 0)
+          .where('preferred', '=', 1),
+    )
+    .selectFrom('overridden_resources')
+    .select([
+      'overridden_resources.attribution_uuid',
+      sql<string>`overridden.data->'originIds'`.as('overridden_origin_ids'),
+    ])
+    .innerJoin(
+      'resource_to_attribution as has_overridden',
+      'overridden_resources.resource_id',
+      'has_overridden.resource_id',
+    )
+    .innerJoin(
+      'attribution as overridden',
+      'overridden.uuid',
+      'has_overridden.attribution_uuid',
+    )
+    .innerJoin(
+      'source_for_attribution as overridden_source_assoc',
+      'overridden.uuid',
+      'overridden_source_assoc.attribution_uuid',
+    )
+    .innerJoin(
+      'external_attribution_source as overridden_source',
+      'overridden_source_assoc.external_attribution_source_key',
+      'overridden_source.key',
+    )
+    .where('overridden.is_external', '=', 1)
+    .where('overridden_source.is_relevant_for_preferred', '=', 1)
+    .execute();
+
+  const preferredOver: Record<string, Set<string>> = {};
+
+  for (const row of preferredOverResult) {
+    if (!(row.attribution_uuid in preferredOver)) {
+      preferredOver[row.attribution_uuid] = new Set();
+    }
+
+    (JSON.parse(row.overridden_origin_ids) as string[]).forEach((i) =>
+      preferredOver[row.attribution_uuid].add(i),
+    );
+  }
+
+  return Object.fromEntries(
+    Object.entries(preferredOver).map(([key, value]) => [
+      key,
+      Array.from(value),
+    ]),
+  );
+}
+
 export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
   const queryResults = await getDb()
     .transaction()
@@ -72,6 +140,8 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
         .select(['uuid', 'data'])
         .where('is_external', '=', 0)
         .execute();
+
+      const preferredOver = await getPreferredOverOriginIds(trx);
 
       const resourcesToAttributionsResult = await trx
         .selectFrom('resource_to_attribution')
@@ -95,6 +165,7 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
 
       return {
         manualAttributionsResult,
+        preferredOver,
         resourcesToAttributionsResult,
         resolvedExternalAttributionsResult,
       };
@@ -106,6 +177,11 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
       { ...(JSON.parse(data) as PackageInfo), id: uuid },
     ]),
   );
+
+  for (const id of Object.keys(manualAttributions)) {
+    manualAttributions[id].preferredOverOriginIds =queryResults.preferredOver[id];
+  }
+
   const resourcesToAttributions: ResourcesToAttributions = Object.fromEntries(
     queryResults.resourcesToAttributionsResult.map((val) => [
       val.path,
