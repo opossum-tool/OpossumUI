@@ -8,16 +8,44 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { text } from '../../../shared/text';
 import { maybePluralize } from '../../util/maybe-pluralize';
 
-export function renderOccuranceCount(count: number | undefined) {
+export function renderOccurrenceCount(
+  count: number | [number, number] | undefined,
+) {
   if (count === undefined) {
     return null;
   }
+  if (typeof count === 'number') {
+    return (
+      <MuiTooltip
+        title={maybePluralize(count, text.attributionColumn.occurrence, {
+          showOne: true,
+        })}
+        enterDelay={500}
+      >
+        <MuiChip
+          sx={{ minWidth: '24px' }}
+          label={new Intl.NumberFormat('en-US', {
+            notation: 'compact',
+            compactDisplay: 'short',
+          }).format(count)}
+          size={'small'}
+        />
+      </MuiTooltip>
+    );
+  }
 
+  const [attributionCount, signalCount] = count;
   return (
     <MuiTooltip
-      title={maybePluralize(count, text.attributionColumn.occurrence, {
+      title={`${maybePluralize(
+        attributionCount,
+        text.packageLists.attribution,
+        {
+          showOne: true,
+        },
+      )}, ${maybePluralize(signalCount, text.packageLists.signal, {
         showOne: true,
-      })}
+      })}`}
       enterDelay={500}
     >
       <MuiChip
@@ -25,7 +53,7 @@ export function renderOccuranceCount(count: number | undefined) {
         label={new Intl.NumberFormat('en-US', {
           notation: 'compact',
           compactDisplay: 'short',
-        }).format(count)}
+        }).format(attributionCount + signalCount)}
         size={'small'}
       />
     </MuiTooltip>

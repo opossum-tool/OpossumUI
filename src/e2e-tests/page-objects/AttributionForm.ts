@@ -5,6 +5,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 
 import { RawFrequentLicense } from '../../ElectronBackend/types/types';
+import { maybePluralize } from '../../Frontend/util/maybe-pluralize';
 import { RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 
@@ -344,5 +345,24 @@ export class AttributionForm {
     await this.attributionType
       .getByRole('button', { name: type, exact: true })
       .click();
+  }
+
+  getNthLicenseAutocompleteOption(n: number): Locator {
+    return this.window.getByTestId(`option-${n}`);
+  }
+
+  async ensureLicenseOccurenceTooltipIsCorrect(
+    attributionCount: number,
+    signalCount: number,
+  ): Promise<void> {
+    await expect(
+      this.window.getByText(
+        `${maybePluralize(attributionCount, 'attribution', {
+          showOne: true,
+        })}, ${maybePluralize(signalCount, 'signal', {
+          showOne: true,
+        })}`,
+      ),
+    ).toBeVisible();
   }
 }

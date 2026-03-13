@@ -186,6 +186,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
         disabled={optionProps['aria-disabled'] as boolean}
         sx={{ gap: '12px', ...optionText.sx }}
         dense
+        data-testid={`option-${index}`}
       >
         {renderOptionStartIcon?.(option, { closePopper })}
         <MuiListItemText
