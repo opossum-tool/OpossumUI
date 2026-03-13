@@ -24,29 +24,16 @@ import {
 } from '../../util/lodash-extension-utils';
 import { getParents } from './get-parents';
 
-export type CalculatePreferredOverOriginIds = (
-  pathToResource: string,
-  newManualAttributionToResources: AttributionsToResources,
-) => Array<string>;
-
 function calculateNewPackageInfo(
   packageInfo: PackageInfo,
   newAttributionId: string,
-  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
-  selectedResourceId: string,
-  manualData: AttributionData,
 ) {
   const newAttribution: PackageInfo = {
     ...getStrippedPackageInfo(packageInfo),
     criticality: Criticality.None,
     id: newAttributionId,
   };
-  if (newAttribution.preferred) {
-    newAttribution.preferredOverOriginIds = calculatePreferredOverOriginIds(
-      selectedResourceId,
-      manualData.attributionsToResources,
-    ).filter((value) => !packageInfo.originIds?.includes(value));
-  }
+
   return newAttribution;
 }
 
@@ -55,7 +42,6 @@ export function createManualAttribution(
   selectedResourceId: string,
   newAttributionId: string,
   packageInfo: PackageInfo,
-  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): { newManualData: AttributionData; newAttributionId: string } {
   const attributionIdsOfSelectedResource: Array<string> = manualData
     .resourcesToAttributions[selectedResourceId]
@@ -69,9 +55,6 @@ export function createManualAttribution(
       [newAttributionId]: calculateNewPackageInfo(
         packageInfo,
         newAttributionId,
-        calculatePreferredOverOriginIds,
-        selectedResourceId,
-        manualData,
       ),
     },
     resourcesToAttributions: {
@@ -98,12 +81,6 @@ export function createManualAttribution(
     newManualData.resourcesWithAttributedChildren,
   );
 
-  recalculatePreferencesOfParents(
-    selectedResourceId,
-    newManualData,
-    calculatePreferredOverOriginIds,
-  );
-
   return { newManualData, newAttributionId };
 }
 
@@ -111,8 +88,6 @@ export function updateManualAttribution(
   attributionIdToUpdate: string,
   manualData: AttributionData,
   packageInfo: PackageInfo,
-  selectedResource: string,
-  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
   const newManualData: AttributionData = {
     ...manualData,
@@ -121,17 +96,9 @@ export function updateManualAttribution(
       [attributionIdToUpdate]: calculateNewPackageInfo(
         packageInfo,
         attributionIdToUpdate,
-        calculatePreferredOverOriginIds,
-        selectedResource,
-        manualData,
       ),
     },
   };
-  recalculatePreferencesOfParents(
-    selectedResource,
-    newManualData,
-    calculatePreferredOverOriginIds,
-  );
 
   return newManualData;
 }
@@ -141,7 +108,6 @@ export function deleteManualAttribution(
   attributionId: string,
   attributionBreakpoints: Set<string>,
   resolvedExternalAttributions: Set<string>,
-  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
   const newManualData = getAttributionDataShallowCopy(manualData);
 
@@ -174,14 +140,6 @@ export function deleteManualAttribution(
     attributionBreakpoints,
   );
 
-  resourceIds.forEach((resourceId) => {
-    recalculatePreferencesOfParents(
-      resourceId,
-      newManualData,
-      calculatePreferredOverOriginIds,
-    );
-  });
-
   return newManualData;
 }
 
@@ -210,7 +168,6 @@ export function unlinkResourceFromAttributionId(
   resourceId: string,
   attributionId: string,
   resolvedExternalAttributions: Set<string>,
-  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
   const newManualData: AttributionData =
     getAttributionDataShallowCopy(manualData);
@@ -233,12 +190,6 @@ export function unlinkResourceFromAttributionId(
         resolvedExternalAttributions,
       );
   }
-
-  recalculatePreferencesOfParents(
-    resourceId,
-    newManualData,
-    calculatePreferredOverOriginIds,
-  );
 
   return newManualData;
 }
@@ -314,7 +265,6 @@ export function linkToAttributionManualData(
   selectedResourceId: string,
   matchingAttributionId: string,
   attributionBreakpoints: Set<string>,
-  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
   const newManualData: AttributionData =
     getAttributionDataShallowCopy(manualData);
@@ -335,12 +285,6 @@ export function linkToAttributionManualData(
       matchingAttributionId,
     ),
     attributionBreakpoints,
-  );
-
-  recalculatePreferencesOfParents(
-    selectedResourceId,
-    newManualData,
-    calculatePreferredOverOriginIds,
   );
 
   return newManualData;
@@ -376,34 +320,6 @@ function linkAttributionAndResource(
       resourceId,
       newManualData.resourcesWithAttributedChildren,
     );
-  }
-}
-
-function recalculatePreferencesOfParents(
-  pathToChangedResource: string,
-  newManualData: AttributionData,
-  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
-): void {
-  for (const pathToParent of getParents(pathToChangedResource)) {
-    let wasPreferredParentFound = false;
-
-    const manualAttributionsIds =
-      newManualData.resourcesToAttributions[pathToParent] ?? [];
-
-    manualAttributionsIds.forEach((manualAttributionId) => {
-      const packageInfo = newManualData.attributions[manualAttributionId];
-      if (packageInfo.preferred) {
-        wasPreferredParentFound = true;
-        packageInfo.preferredOverOriginIds = calculatePreferredOverOriginIds(
-          pathToParent,
-          newManualData.resourcesToAttributions,
-        );
-      }
-    });
-
-    if (wasPreferredParentFound) {
-      break;
-    }
   }
 }
 

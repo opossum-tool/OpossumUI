@@ -85,6 +85,7 @@ export interface PackageInfo extends EphemeralPackageInfoProps {
   packageVersion?: string;
   preSelected?: boolean;
   preferred?: boolean;
+  /** @deprecated Not maintained in the frontend anymore, only calculated on save */
   preferredOverOriginIds?: Array<string>;
   source?: Source;
   url?: string;

@@ -118,7 +118,7 @@ export async function getPreferredOverOriginIds(trxOrDb: Kysely<DB>) {
       preferredOver[row.attribution_uuid] = new Set();
     }
 
-    (JSON.parse(row.overridden_origin_ids) as string[]).forEach((i) =>
+    (JSON.parse(row.overridden_origin_ids) as Array<string>).forEach((i) =>
       preferredOver[row.attribution_uuid].add(i),
     );
   }
@@ -179,7 +179,8 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
   );
 
   for (const id of Object.keys(manualAttributions)) {
-    manualAttributions[id].preferredOverOriginIds =queryResults.preferredOver[id];
+    manualAttributions[id].preferredOverOriginIds =
+      queryResults.preferredOver[id];
   }
 
   const resourcesToAttributions: ResourcesToAttributions = Object.fromEntries(

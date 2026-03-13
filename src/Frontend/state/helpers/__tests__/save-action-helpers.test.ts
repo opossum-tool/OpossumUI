@@ -14,11 +14,6 @@ import {
 } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { createTestStore } from '../../../test-helpers/render';
-import { getCalculatePreferredOverOriginIds } from '../../actions/resource-actions/preference-actions';
-import { initialResourceState } from '../../reducers/resource-reducer';
-import { getManualData } from '../../selectors/resource-selectors';
 import {
   _getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions,
   _removeAttributionsFromChildrenAndParents,
@@ -50,7 +45,6 @@ describe('The createManualAttribution function', () => {
       testSelectedResourceId,
       testAttributionId,
       testTemporaryDisplayPackageInfo,
-      getCalculatePreferredOverOriginIds(initialResourceState),
     );
     expect(newManualData.attributions[newAttributionId]).toEqual(
       testTemporaryDisplayPackageInfo,
@@ -58,68 +52,6 @@ describe('The createManualAttribution function', () => {
     expect(newManualData.attributionsToResources[newAttributionId]).toEqual([
       '/something.js',
     ]);
-  });
-
-  it('correctly updates preferences', async () => {
-    const testSelectedResourceId = '/child';
-    const testTemporaryDisplayPackageInfo: PackageInfo = {
-      packageName: 'React',
-      criticality: Criticality.None,
-      id: faker.string.uuid(),
-    };
-
-    const testStore = await createTestStore(
-      getParsedInputFileEnrichedWithTestData({
-        resources: { child: 1 },
-        resourcesToExternalAttributions: {
-          '/child': ['externalUuid'],
-        },
-        externalAttributions: {
-          externalUuid: {
-            source: { name: 'testSource', documentConfidence: 0 },
-            originIds: ['originId'],
-            criticality: Criticality.None,
-            id: 'externalUuid',
-          },
-        },
-        externalAttributionSources: {
-          testSource: {
-            name: 'Test source',
-            priority: 0,
-            isRelevantForPreferred: true,
-          },
-        },
-        manualAttributions: {
-          manualUuid1: {
-            preferred: true,
-            preferredOverOriginIds: ['originId'],
-            criticality: Criticality.None,
-            id: 'manualUuid1',
-          },
-        },
-        resourcesToManualAttributions: {
-          '/': ['manualUuid1'],
-        },
-      }),
-    );
-    const resourceState = testStore.getState().resourceState;
-    const testManualData = getManualData(testStore.getState());
-
-    const testAttributionId = faker.string.uuid();
-    const { newManualData } = createManualAttribution(
-      testManualData,
-      testSelectedResourceId,
-      testAttributionId,
-      testTemporaryDisplayPackageInfo,
-      getCalculatePreferredOverOriginIds(resourceState),
-    );
-
-    expect(newManualData.attributions['manualUuid1']).toEqual<PackageInfo>({
-      id: 'manualUuid1',
-      criticality: Criticality.None,
-      preferred: true,
-      preferredOverOriginIds: [],
-    });
   });
 });
 
@@ -157,7 +89,6 @@ describe('The deleteManualAttribution function', () => {
       testUuid,
       new Set(),
       new Set(),
-      getCalculatePreferredOverOriginIds(initialResourceState),
     );
     expect(isEmpty(newManualData.attributions)).toBe(true);
     expect(isEmpty(newManualData.resourcesToAttributions)).toBe(true);
@@ -209,7 +140,6 @@ describe('The deleteManualAttribution function', () => {
       testUuid,
       new Set(),
       new Set(),
-      getCalculatePreferredOverOriginIds(initialResourceState),
     );
     expect(newManualData.attributions).toEqual<Attributions>({
       '000': {
@@ -233,65 +163,6 @@ describe('The deleteManualAttribution function', () => {
         '/first/': 1,
       },
       paths: ['/', '/first/'],
-    });
-  });
-
-  it('correctly updates preferences', async () => {
-    const testStore = await createTestStore(
-      getParsedInputFileEnrichedWithTestData({
-        resources: { child: 1 },
-        resourcesToExternalAttributions: {
-          '/child': ['externalUuid'],
-        },
-        externalAttributions: {
-          externalUuid: {
-            source: { name: 'testSource', documentConfidence: 0 },
-            originIds: ['originId'],
-            criticality: Criticality.None,
-            id: 'externalUuid',
-          },
-        },
-        externalAttributionSources: {
-          testSource: {
-            name: 'Test source',
-            priority: 0,
-            isRelevantForPreferred: true,
-          },
-        },
-        manualAttributions: {
-          manualUuid1: {
-            preferred: true,
-            preferredOverOriginIds: [],
-            criticality: Criticality.None,
-            id: 'manualUuid1',
-          },
-          manualUuid2: {
-            criticality: Criticality.None,
-            id: 'manualUuid2',
-          },
-        },
-        resourcesToManualAttributions: {
-          '/': ['manualUuid1'],
-          '/child/': ['manualUuid2'],
-        },
-      }),
-    );
-    const resourceState = testStore.getState().resourceState;
-    const testManualData = getManualData(testStore.getState());
-
-    const newManualData: AttributionData = deleteManualAttribution(
-      testManualData,
-      'manualUuid2',
-      new Set(),
-      new Set(),
-      getCalculatePreferredOverOriginIds(resourceState),
-    );
-
-    expect(newManualData.attributions['manualUuid1']).toEqual<PackageInfo>({
-      id: 'manualUuid1',
-      criticality: Criticality.None,
-      preferred: true,
-      preferredOverOriginIds: ['originId'],
     });
   });
 });
@@ -332,8 +203,6 @@ describe('The updateManualAttribution function', () => {
       testUuid,
       testManualData,
       testTemporaryDisplayPackageInfo,
-      '/something.js',
-      getCalculatePreferredOverOriginIds(initialResourceState),
     );
 
     expect(newManualData.attributions).toEqual({
@@ -377,7 +246,6 @@ describe('The linkToAttributionManualData function', () => {
       '/first/',
       testUuid,
       new Set(),
-      getCalculatePreferredOverOriginIds(initialResourceState),
     );
 
     expect(newManualData.attributions).toEqual(testManualData.attributions);
@@ -396,70 +264,6 @@ describe('The linkToAttributionManualData function', () => {
         '/first/': 1,
       },
       paths: ['/', '/first/'],
-    });
-  });
-
-  it('correctly updates preferences', async () => {
-    const testSelectedResourceId = '/child';
-
-    const testStore = await createTestStore(
-      getParsedInputFileEnrichedWithTestData({
-        resources: { child: 1 },
-        resourcesToExternalAttributions: {
-          '/child': ['externalUuid'],
-        },
-        externalAttributions: {
-          externalUuid: {
-            source: { name: 'testSource', documentConfidence: 0 },
-            originIds: ['originId'],
-            criticality: Criticality.None,
-            id: 'externalUuid',
-          },
-        },
-        externalAttributionSources: {
-          testSource: {
-            name: 'Test source',
-            priority: 0,
-            isRelevantForPreferred: true,
-          },
-        },
-        manualAttributions: {
-          parentAttriubtionUuid: {
-            preferred: true,
-            preferredOverOriginIds: [],
-            criticality: Criticality.None,
-            id: 'parentAttriubtionUuid',
-          },
-          childAttributionUuid: {
-            preferred: false,
-            criticality: Criticality.None,
-            id: 'childAttributionUuid',
-          },
-        },
-        resourcesToManualAttributions: {
-          '/': ['parentAttriubtionUuid'],
-          '/child': ['childAttributionUuid'],
-        },
-      }),
-    );
-    const resourceState = testStore.getState().resourceState;
-    const testManualData = getManualData(testStore.getState());
-
-    const newManualData = linkToAttributionManualData(
-      testManualData,
-      testSelectedResourceId,
-      'childAttributionUuid',
-      new Set(),
-      getCalculatePreferredOverOriginIds(resourceState),
-    );
-
-    expect(
-      newManualData.attributions['parentAttriubtionUuid'],
-    ).toEqual<PackageInfo>({
-      id: 'parentAttriubtionUuid',
-      criticality: Criticality.None,
-      preferred: true,
-      preferredOverOriginIds: [],
     });
   });
 });
@@ -499,7 +303,6 @@ describe('The unlinkResourceFromAttributionId function', () => {
       '/first/',
       testUuid,
       new Set(),
-      getCalculatePreferredOverOriginIds(initialResourceState),
     );
 
     expect(newManualData.attributions).toEqual(testManualData.attributions);
@@ -509,70 +312,6 @@ describe('The unlinkResourceFromAttributionId function', () => {
       attributedChildren: {},
       pathsToIndices: {},
       paths: [],
-    });
-  });
-
-  it('correctly updates preferences', async () => {
-    const testSelectedResourceId = '/child';
-
-    const testStore = await createTestStore(
-      getParsedInputFileEnrichedWithTestData({
-        resources: { child: 1 },
-        resourcesToExternalAttributions: {
-          '/child': ['externalUuid'],
-        },
-        externalAttributions: {
-          externalUuid: {
-            source: { name: 'testSource', documentConfidence: 0 },
-            originIds: ['originId'],
-            criticality: Criticality.None,
-            id: 'externalUuid',
-          },
-        },
-        externalAttributionSources: {
-          testSource: {
-            name: 'Test source',
-            priority: 0,
-            isRelevantForPreferred: true,
-          },
-        },
-        manualAttributions: {
-          parentAttriubtionUuid: {
-            preferred: true,
-            preferredOverOriginIds: [],
-            criticality: Criticality.None,
-            id: 'parentAttriubtionUuid',
-          },
-          childAttributionUuid: {
-            preferred: false,
-            criticality: Criticality.None,
-            id: 'childAttributionUuid',
-          },
-        },
-        resourcesToManualAttributions: {
-          '/': ['parentAttriubtionUuid'],
-          '/child': ['childAttributionUuid'],
-        },
-      }),
-    );
-    const resourceState = testStore.getState().resourceState;
-    const testManualData = getManualData(testStore.getState());
-
-    const newManualData = unlinkResourceFromAttributionId(
-      testManualData,
-      testSelectedResourceId,
-      'childAttributionUuid',
-      new Set(),
-      getCalculatePreferredOverOriginIds(resourceState),
-    );
-
-    expect(
-      newManualData.attributions['parentAttriubtionUuid'],
-    ).toEqual<PackageInfo>({
-      id: 'parentAttriubtionUuid',
-      criticality: Criticality.None,
-      preferred: true,
-      preferredOverOriginIds: ['originId'],
     });
   });
 });
