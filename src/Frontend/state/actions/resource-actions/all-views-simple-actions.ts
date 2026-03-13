@@ -20,7 +20,6 @@ import {
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
   ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_ENABLE_PREFERENCE_FEATURE,
-  ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
@@ -34,7 +33,6 @@ import {
   type SetAttributionBreakpoints,
   type SetBaseUrlsForSources,
   type SetExternalAttributionSources,
-  type SetExternalDataAction,
   type SetFilesWithChildren,
   type SetFrequentLicensesAction,
   type SetIsPackageInfoDirtyAction,
@@ -71,26 +69,6 @@ export function setManualData(
       attributionsToResources,
       resourcesWithAttributedChildren: computeChildrenWithAttributions(
         attributionsToResources,
-      ),
-    },
-  };
-}
-
-export function setExternalData(
-  attributions: Attributions,
-  resourcesToAttributions: ResourcesToAttributions,
-  attributionsToResources: AttributionsToResources,
-  resolvedAttributions: Set<string>,
-): SetExternalDataAction {
-  return {
-    type: ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
-    payload: {
-      attributions,
-      resourcesToAttributions,
-      attributionsToResources,
-      resourcesWithAttributedChildren: computeChildrenWithAttributions(
-        attributionsToResources,
-        resolvedAttributions,
       ),
     },
   };

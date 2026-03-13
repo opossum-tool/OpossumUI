@@ -20,8 +20,6 @@ export const ACTION_SET_RESOURCES = 'ACTION_SET_RESOURCES';
 export const ACTION_SET_PROJECT_CONFIG = 'ACTION_SET_PROJECT_CONFIG';
 export const ACTION_SET_MANUAL_ATTRIBUTION_DATA =
   'ACTION_SET_MANUAL_ATTRIBUTION_DATA';
-export const ACTION_SET_EXTERNAL_ATTRIBUTION_DATA =
-  'ACTION_SET_EXTERNAL_ATTRIBUTION_DATA';
 export const ACTION_SET_FREQUENT_LICENSES = 'ACTION_SET_FREQUENT_LICENSES';
 export const ACTION_SET_TEMPORARY_PACKAGE_INFO =
   'ACTION_SET_TEMPORARY_PACKAGE_INFO';
@@ -67,7 +65,6 @@ export type ResourceAction =
   | SetResourcesAction
   | SetProjectConfigAction
   | SetManualDataAction
-  | SetExternalDataAction
   | SetFrequentLicensesAction
   | SetTemporaryDisplayPackageInfoAction
   | SetSelectedResourceIdAction
@@ -108,11 +105,6 @@ export interface SetProjectConfigAction {
 
 export interface SetManualDataAction {
   type: typeof ACTION_SET_MANUAL_ATTRIBUTION_DATA;
-  payload: AttributionData;
-}
-
-export interface SetExternalDataAction {
-  type: typeof ACTION_SET_EXTERNAL_ATTRIBUTION_DATA;
   payload: AttributionData;
 }
 
