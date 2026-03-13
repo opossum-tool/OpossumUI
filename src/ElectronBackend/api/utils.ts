@@ -15,6 +15,7 @@ import { snakeCase } from 'lodash';
 
 import { FILTERS } from '../../Frontend/shared-constants';
 import { DB } from '../db/generated/databaseTypes';
+import { removeManualOrExternalCwaFromResources } from './progressBarUtils';
 import { FilterProperties } from './queries';
 
 export type ResourceRelationship =
@@ -35,91 +36,171 @@ export type ResourceRelationship =
  */
 export async function removeRedundantAttributions(
   trx: Transaction<DB>,
-  resourceId: number,
+  {
+    attributionUuids,
+    resourceIds,
+  }: { attributionUuids?: Array<string>; resourceIds?: Array<number> },
 ) {
-  const closestAncestorId =
-    await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-      trx,
-      resourceId,
-      { ignoreOwnAttributions: true },
-    );
+  await withBatching(resourceIds, async (batchedResourceIds) => {
+    await trx.schema
+      .createTable('duplicate_resources')
+      .temporary()
+      .as(
+        trx
+          // The resources given by props, with their max_descendant_id and closest manual ancestor
+          .with('changed_resources', (db) =>
+            db
+              .selectFrom('resource')
+              .leftJoin(
+                'resource_to_attribution as rta',
+                'resource.id',
+                'rta.resource_id',
+              )
+              .leftJoin('cwa', 'resource.id', 'cwa.resource_id')
+              .select([
+                'resource.id as resource_id',
+                'resource.max_descendant_id',
+                'cwa.manual',
+              ])
+              .distinct()
+              .$if(attributionUuids !== undefined, (eb) =>
+                eb.where('rta.attribution_uuid', 'in', attributionUuids!),
+              )
+              .$if(batchedResourceIds !== undefined, (eb) =>
+                eb.where('resource.id', 'in', batchedResourceIds!),
+              ),
+          )
+          // Get the closest ancestor with manual attribution ABOVE each resource
+          .with('closest_ancestor_above', (db) =>
+            db
+              .selectFrom('resource')
+              .innerJoin('cwa', 'resource.parent_id', 'cwa.resource_id')
+              .select([
+                'resource.id as resource_id',
+                'cwa.manual as ancestor_id',
+              ])
+              .where('is_attribution_breakpoint', '=', 0),
+          )
+          // We need to check a resource C if
+          .with('resources_to_check', (db) =>
+            // - C's attributions were changed
+            db
+              .selectFrom('changed_resources')
+              .select('resource_id')
+              .union(
+                // - C's closest ancestor was changed
+                db
+                  .selectFrom('closest_ancestor_above')
+                  .select('resource_id')
+                  .where('ancestor_id', 'in', (eb) =>
+                    eb.selectFrom('changed_resources').select('resource_id'),
+                  ),
+              )
+              .union(
+                // - A changed resource R that now has no attributions is between C and C's closest ancestor (excluding itself)
+                db
+                  .selectFrom('closest_ancestor_above')
+                  .select('resource_id')
+                  .where((eb) =>
+                    eb.exists(
+                      // R has no own attributions
+                      eb
+                        .selectFrom('changed_resources')
+                        .selectAll()
+                        .whereRef(
+                          'changed_resources.resource_id',
+                          '!=',
+                          'changed_resources.manual',
+                        )
+                        // R has the same ancestor as C
+                        .whereRef(
+                          'changed_resources.manual',
+                          '=',
+                          'closest_ancestor_above.ancestor_id',
+                        )
+                        // C is a descendant of R
+                        .where((eb) =>
+                          eb.between(
+                            'closest_ancestor_above.resource_id',
+                            eb.ref('changed_resources.resource_id'),
+                            eb.ref('changed_resources.max_descendant_id'),
+                          ),
+                        ),
+                    ),
+                  ),
+              ),
+          )
+          // Get a list of all manual attributions per resource
+          .with('attributions_for_resource', (db) =>
+            db
+              .selectFrom((eb) =>
+                eb
+                  .selectFrom('resource_to_attribution')
+                  .select(['resource_id', 'attribution_uuid'])
+                  .where('attribution_is_external', '=', 0)
+                  .orderBy('attribution_uuid')
+                  .as('ordered_rta'),
+              )
+              .select([
+                'resource_id',
+                sql<string>`group_concat(attribution_uuid)`.as('attributions'),
+              ])
+              .groupBy('resource_id'),
+          )
+          // Finally check all resources_to_check
+          // This would also work if we did this on all resources, it would just be slower
+          .selectFrom('closest_ancestor_above')
+          .select('resource_id')
+          .where('resource_id', 'in', (eb) =>
+            eb.selectFrom('resources_to_check').selectAll(),
+          )
+          .where(
+            (eb) =>
+              eb
+                .selectFrom('attributions_for_resource')
+                .select('attributions')
+                .whereRef(
+                  'attributions_for_resource.resource_id',
+                  '=',
+                  'closest_ancestor_above.resource_id',
+                ),
+            '=',
+            (eb) =>
+              eb
+                .selectFrom('attributions_for_resource')
+                .select('attributions')
+                .whereRef(
+                  'attributions_for_resource.resource_id',
+                  '=',
+                  'closest_ancestor_above.ancestor_id',
+                ),
+          ),
+      )
+      .execute();
 
-  // Starting at R, we go downwards in the tree until we arrive at a descendant that has attributions or is a breakpoint
-  // We do not include that descendant if it is a breakpoint
-  const closestDescendantsWithManualAttributionsResult = await sql<{
-    id: number;
-    attributions: string;
-  }>`
-    WITH RECURSIVE descendants_down_to_breakpoint_or_with_manual_attribution(id, attributions) AS (
-            SELECT id, NULL  -- don't consider attributions of first resource
-            FROM resource
-            WHERE id = ${resourceId}
-        UNION
-            SELECT child.id, (SELECT group_concat(attribution_uuid) FROM resource_to_attribution rta JOIN attribution a ON rta.attribution_uuid = a.uuid WHERE resource_id = child.id AND a.is_external = 0)
-            FROM resource AS child
-            JOIN descendants_down_to_breakpoint_or_with_manual_attribution AS parent ON child.parent_id = parent.id
-            WHERE child.is_attribution_breakpoint = FALSE AND parent.attributions IS NULL
-    )
-    SELECT id, attributions FROM descendants_down_to_breakpoint_or_with_manual_attribution WHERE attributions IS NOT NULL
-  `.execute(trx);
+    await trx
+      .withTables<{ duplicate_resources: { resource_id: number } }>()
+      .deleteFrom('resource_to_attribution')
+      .where('attribution_is_external', '=', 0)
+      .where('resource_id', 'in', (eb) =>
+        eb
+          .selectFrom('duplicate_resources')
+          .select('duplicate_resources.resource_id'),
+      )
+      .execute();
 
-  const resourceAttributionsResult = await getManualAttributions(
-    trx,
-    resourceId,
-  );
+    // In this case, we need to call this function after removing the attribution-resource-connection, because
+    // we don't know which attributionUuid will be affected. That means we can't pass the uuids to this function,
+    // so they can't be ignored when checking for remaining attributions on the resources.
+    await removeManualOrExternalCwaFromResources(trx, 'manual', {
+      resourceIds: trx
+        .withTables<{ duplicate_resources: { resource_id: number } }>()
+        .selectFrom('duplicate_resources')
+        .select('resource_id'),
+    });
 
-  const resourceAttributions = new Set(
-    resourceAttributionsResult.map((row) => row.attribution_uuid),
-  );
-
-  // We want to delete the descendant's attributions if they are equal to THEIR closest ancestor with attributions
-  // That is R, except when R has no attributions
-  let attributionsToCompareWithDescendants = resourceAttributions;
-
-  // Delete R's attributions if they are equal to A's
-  if (closestAncestorId && closestAncestorId !== resourceId) {
-    const closestAncestorAttributionsResult = await getManualAttributions(
-      trx,
-      closestAncestorId,
-    );
-
-    const ancestorAttributions = new Set(
-      closestAncestorAttributionsResult.map((r) => r.attribution_uuid),
-    );
-
-    if (
-      resourceAttributions.symmetricDifference(ancestorAttributions).size === 0
-    ) {
-      await trx
-        .deleteFrom('resource_to_attribution')
-        .where('resource_id', '=', resourceId)
-        .execute();
-      attributionsToCompareWithDescendants = ancestorAttributions;
-    }
-
-    if (resourceAttributions.size === 0) {
-      attributionsToCompareWithDescendants = ancestorAttributions;
-    }
-  }
-
-  // Delete the attributions of R's closest descendants with attributions if they are equal to R's
-  // or, if R has no attributions, to A's
-  for (const descendantRow of closestDescendantsWithManualAttributionsResult.rows) {
-    const descendantAttributions = new Set(
-      descendantRow.attributions.split(','),
-    );
-
-    if (
-      attributionsToCompareWithDescendants.symmetricDifference(
-        descendantAttributions,
-      ).size === 0
-    ) {
-      await trx
-        .deleteFrom('resource_to_attribution')
-        .where('resource_id', '=', descendantRow.id)
-        .execute();
-    }
-  }
+    await trx.schema.dropTable('duplicate_resources').execute();
+  });
 }
 
 export const GET_LEGACY_RESOURCE_PATH =
@@ -165,16 +246,6 @@ export async function getResourceOrThrow(
   }
 
   return resource;
-}
-
-function getManualAttributions(dbOrTrx: Kysely<DB>, resourceId: number) {
-  return dbOrTrx
-    .selectFrom('resource_to_attribution')
-    .innerJoin('attribution', 'attribution.uuid', 'attribution_uuid')
-    .select('attribution_uuid')
-    .where('resource_id', '=', resourceId)
-    .where('attribution.is_external', '=', 0)
-    .execute();
 }
 
 export async function getClosestAncestorWithManualAttributionsBelowBreakpoint(
@@ -430,6 +501,32 @@ export function mergeFilterProperties(
 
 export function canonicalLicenseName(licenseName: Expression<string | null>) {
   return sql<string>`lower(replace(replace(${licenseName}, '-', ''), ' ', ''))`;
+}
+
+const DEFAULT_BATCH_SIZE = 30000;
+
+export async function withBatching<P, R>(
+  input: Array<P> | undefined,
+  f: (arg: Array<P> | undefined) => Promise<R>,
+  props?: { batchSize: number },
+): Promise<Array<R>> {
+  const batchSize = props?.batchSize ?? DEFAULT_BATCH_SIZE;
+
+  if (input === undefined) {
+    return [await f(input)];
+  }
+
+  const results: Array<R> = [];
+
+  const numBatches = Math.ceil(input.length / batchSize);
+  for (let i = 0; i < numBatches; i += 1) {
+    const batch = input.slice(i * batchSize, (i + 1) * batchSize);
+
+    const result = await f(batch);
+    results.push(result);
+  }
+
+  return results;
 }
 
 type CamelToSnakeCase<S extends string> = S extends `${infer T}${infer U}`

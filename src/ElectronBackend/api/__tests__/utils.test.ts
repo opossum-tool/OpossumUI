@@ -12,7 +12,58 @@ import {
   pathsToResources,
 } from '../../../testing/global-test-helpers';
 import { getDb } from '../../db/db';
-import { removeRedundantAttributions, removeTrailingSlash } from '../utils';
+import {
+  removeRedundantAttributions,
+  removeTrailingSlash,
+  withBatching,
+} from '../utils';
+
+describe('withBatching', () => {
+  it('calls f with undefined and wraps result when input is undefined', async () => {
+    const f = vi.fn().mockResolvedValue('result');
+
+    const results = await withBatching(undefined, f);
+
+    expect(f).toHaveBeenCalledExactlyOnceWith(undefined);
+    expect(results).toEqual(['result']);
+  });
+
+  it('processes all items in a single batch when input fits', async () => {
+    const input = [1, 2, 3];
+    const f = vi.fn().mockResolvedValue('ok');
+
+    const results = await withBatching(input, f);
+
+    expect(f).toHaveBeenCalledExactlyOnceWith([1, 2, 3]);
+    expect(results).toEqual(['ok']);
+  });
+
+  it('splits input into multiple batches according to batchSize', async () => {
+    const input = [1, 2, 3, 4, 5];
+    const f = vi
+      .fn()
+      .mockImplementation((batch: number[]) =>
+        Promise.resolve(batch.reduce((a, b) => a + b, 0)),
+      );
+
+    const results = await withBatching(input, f, { batchSize: 2 });
+
+    expect(f).toHaveBeenCalledTimes(3);
+    expect(f).toHaveBeenNthCalledWith(1, [1, 2]);
+    expect(f).toHaveBeenNthCalledWith(2, [3, 4]);
+    expect(f).toHaveBeenNthCalledWith(3, [5]);
+    expect(results).toEqual([3, 7, 5]);
+  });
+
+  it('returns an empty array for empty input', async () => {
+    const f = vi.fn();
+
+    const results = await withBatching([], f);
+
+    expect(f).not.toHaveBeenCalled();
+    expect(results).toEqual([]);
+  });
+});
 
 describe('removeRedundantAttributions', () => {
   it.each([
@@ -212,10 +263,11 @@ describe('removeRedundantAttributions', () => {
     await getDb()
       .transaction()
       .execute(async (trx) => {
-        await removeRedundantAttributions(trx, resourceId);
+        await removeRedundantAttributions(trx, { resourceIds: [resourceId] });
       });
 
     await expectDbContent(props.expectedResourcesToAttributions);
+    await expectCwaConsistency();
   });
 });
 
@@ -287,5 +339,56 @@ async function expectDbContent(
     const dbAttributions = rows.map((r) => r.attribution_uuid).toSorted();
 
     expect(dbAttributions).toEqual(attributionUuids.toSorted());
+  }
+}
+
+async function expectCwaConsistency() {
+  const resources = await getDb()
+    .selectFrom('resource')
+    .innerJoin('cwa', 'cwa.resource_id', 'resource.id')
+    .select([
+      'resource.id',
+      'resource.path',
+      'resource.parent_id',
+      'resource.is_attribution_breakpoint',
+      'cwa.manual',
+    ])
+    .execute();
+
+  const resourcesWithManualAttributions = new Set(
+    (
+      await getDb()
+        .selectFrom('resource_to_attribution')
+        .select('resource_id')
+        .distinct()
+        .where('attribution_is_external', '=', 0)
+        .execute()
+    ).map((r) => r.resource_id),
+  );
+
+  const cwaManualByResourceId = new Map(resources.map((r) => [r.id, r.manual]));
+
+  for (const resource of resources) {
+    if (resourcesWithManualAttributions.has(resource.id)) {
+      expect(
+        resource.manual,
+        `CWA manual for '${resource.path}' should point to itself`,
+      ).toBe(resource.id);
+    } else if (
+      resource.is_attribution_breakpoint === 0 &&
+      resource.parent_id !== null
+    ) {
+      const parentManual =
+        cwaManualByResourceId.get(resource.parent_id) ?? null;
+      expect(
+        resource.manual,
+        `CWA manual for '${resource.path}' should match its parent's CWA`,
+      ).toBe(parentManual);
+    } else {
+      expect(
+        resource.manual,
+        `CWA manual for '${resource.path}' should be null`,
+      ).toBeNull();
+    }
   }
 }
