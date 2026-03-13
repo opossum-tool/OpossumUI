@@ -285,6 +285,7 @@ export async function addManualOrExternalCwaToResources(
             'rta.resource_id',
             'r.max_descendant_id',
             (eb) => eb.ref(`previous_cwa.${type}`).as('previous_value'),
+            'previous_cwa.breakpoint as closest_breakpoint',
           ])
           .where('rta.attribution_uuid', 'in', attributionUuids)
           .$if(resourceIds !== undefined, (eb) =>
@@ -313,7 +314,7 @@ export async function addManualOrExternalCwaToResources(
               ),
           ),
       )
-      // Get all children that point to the same resource as the newly added attributions
+      // Get all children in the same breakpoint-subtree that point to the same resource as the newly added attributions
       .with('impacted_resources', (db) =>
         db
           .selectFrom('cwa')
@@ -333,6 +334,11 @@ export async function addManualOrExternalCwaToResources(
                 'newly_attributed_resources.previous_value',
                 'is',
                 `cwa.${type}`,
+              )
+              .onRef(
+                'newly_attributed_resources.closest_breakpoint',
+                '=',
+                'cwa.breakpoint',
               ),
           )
           .select([

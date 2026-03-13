@@ -90,10 +90,15 @@ export async function initializeDb(inputFile: ParsedFileContent) {
 async function initializeProgressBarTable(trx: Transaction<DB>) {
   await trx.schema
     .createTable('cwa')
-    .addColumn('resource_id', 'integer', (col) => col.primaryKey().notNull())
+    .addColumn('resource_id', 'integer', (col) =>
+      col.primaryKey().notNull().references('resource.id'),
+    )
     .addColumn('is_file', 'integer', (col) => col.notNull())
-    .addColumn('manual', 'integer')
-    .addColumn('external', 'integer')
+    .addColumn('manual', 'integer', (col) => col.references('resource.id'))
+    .addColumn('external', 'integer', (col) => col.references('resource.id'))
+    .addColumn('breakpoint', 'integer', (col) =>
+      col.notNull().references('resource.id'),
+    )
     .execute();
 
   await sql`
@@ -123,11 +128,27 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
             from resource
             join closest_ancestor_with_manual_attributions as parent on resource.parent_id = parent.resource_id
             where resource.id not in (select resource_id from resource_to_attribution where attribution_is_external = 0) and is_attribution_breakpoint = 0
+    ),
+    closest_ancestor_with_breakpoint(resource_id, ancestor) as (
+            select id, id
+            from resource
+            where is_attribution_breakpoint = 1 or path = ''
+        union all
+            select id, parent.ancestor
+            from resource
+            join closest_ancestor_with_breakpoint as parent on resource.parent_id = parent.resource_id
+            where is_attribution_breakpoint = 0
     )
-    select id, is_file, closest_ancestor_with_manual_attributions.ancestor, closest_ancestor_with_external_attributions.ancestor
+    select 
+      id,
+      is_file,
+      closest_ancestor_with_manual_attributions.ancestor,
+      closest_ancestor_with_external_attributions.ancestor,
+      closest_ancestor_with_breakpoint.ancestor
     from resource
     left join closest_ancestor_with_manual_attributions on resource.id = closest_ancestor_with_manual_attributions.resource_id
     left join closest_ancestor_with_external_attributions on resource.id = closest_ancestor_with_external_attributions.resource_id
+    left join closest_ancestor_with_breakpoint on resource.id = closest_ancestor_with_breakpoint.resource_id
     `.execute(trx);
 
   await trx.schema
@@ -154,6 +175,12 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
     .createIndex('cwa_resource')
     .on('cwa')
     .columns(['resource_id', 'manual'])
+    .execute();
+
+  await trx.schema
+    .createIndex('cwa_breakpoint')
+    .on('cwa')
+    .columns(['breakpoint', 'manual', 'resource_id'])
     .execute();
 }
 
@@ -212,7 +239,7 @@ async function initializeResourceTable(
       col.notNull().defaultTo(0),
     )
     .addColumn('max_descendant_id', 'integer', (col) =>
-      col.notNull().defaultTo(0),
+      col.notNull().defaultTo(1).references('resource.id'),
     )
     // We add a generated sort_key so that the resource tree can order by it.
     // E.g. path:/a/b/c.txt -> sort_key:/0a/0b/1c.txt

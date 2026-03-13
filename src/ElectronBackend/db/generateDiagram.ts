@@ -83,10 +83,10 @@ export async function generateDiagram(
     }
   }
 
-  // Not a foreign key, because in some exceptions, external_attribution_source_name contains undefined source names
+  // Not a foreign key, because in some exceptions, external_attribution_source_key contains undefined source names
   // But we still want a nice arrow in the diagram
   graphvizForeignKeys.push(
-    'source_for_attribution:external_attribution_source_name_out:e -> external_attribution_source:name_in:w [style=dashed];',
+    'source_for_attribution:external_attribution_source_key_out:e -> external_attribution_source:key_in:w [style=dashed];',
   );
 
   const graphvizSource = `digraph g {

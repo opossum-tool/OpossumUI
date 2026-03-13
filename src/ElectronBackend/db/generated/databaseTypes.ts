@@ -47,6 +47,7 @@ export interface Attribution {
 }
 
 export interface Cwa {
+  breakpoint: number;
   external: number | null;
   is_file: number;
   manual: number | null;
