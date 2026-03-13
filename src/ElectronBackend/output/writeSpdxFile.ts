@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { shell } from 'electron';
 import fs from 'fs';
 import path from 'path';
 
@@ -34,6 +35,7 @@ export function writeSpdxFile(
   } else if (args.type === ExportType.SpdxDocumentJson) {
     fs.writeFileSync(filePath, createSpdxJson(spdxDocument));
   }
+  shell.showItemInFolder(filePath);
 }
 
 function getSpdxDocument(
