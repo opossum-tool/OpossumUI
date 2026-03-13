@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isEqual, pickBy } from 'lodash';
 
+import { thirdPartyKeys } from '../../shared/attribution-comparison';
 import { PackageInfo } from '../../shared/shared-types';
-import { thirdPartyKeys } from '../shared-constants';
 
 export function getStrippedPackageInfo(packageInfo: PackageInfo) {
   return pickBy(

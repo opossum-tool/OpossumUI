@@ -3,16 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
-import { isEqual } from 'lodash';
 
+import {
+  areAttributionsEqual,
+  FORM_ATTRIBUTES,
+} from '../../../shared/attribution-comparison';
 import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
-import {
-  FORM_ATTRIBUTES,
-  getComparableAttributes,
-} from '../../util/get-comparable-attributes';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { DiffPopupContainer } from './DiffPopup.style';
@@ -70,20 +69,14 @@ export function DiffPopup({
     <NotificationPopup
       header={text.diffPopup.title}
       leftButtonConfig={{
-        disabled: isEqual(
-          getComparableAttributes(bufferPackageInfo),
-          getComparableAttributes(current),
-        ),
+        disabled: areAttributionsEqual(bufferPackageInfo, current),
         buttonText: text.diffPopup.applyChanges,
         onClick: () => {
           handleApplyChanges({ current, buffer: bufferPackageInfo });
         },
       }}
       centerRightButtonConfig={{
-        disabled: isEqual(
-          getComparableAttributes(bufferPackageInfo),
-          getComparableAttributes(original),
-        ),
+        disabled: areAttributionsEqual(bufferPackageInfo, original),
         buttonText: text.diffPopup.revertAll,
         onClick: () => {
           setBufferPackageInfo({

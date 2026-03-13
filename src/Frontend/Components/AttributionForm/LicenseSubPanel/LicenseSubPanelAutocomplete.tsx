@@ -123,7 +123,6 @@ export function LicenseSubPanelAutocomplete({
       setTemporaryDisplayPackageInfo({
         ...packageInfo,
         licenseName: newExpression,
-        wasPreferred: undefined,
       }),
     );
   };
@@ -185,7 +184,6 @@ export function LicenseSubPanelAutocomplete({
                   ? value.shortName
                   : `${splitAtLastExpression(packageInfo.licenseName)[0]}${value.shortName}`,
                 licenseText: '',
-                wasPreferred: undefined,
               }),
             );
           })
@@ -197,7 +195,6 @@ export function LicenseSubPanelAutocomplete({
               setTemporaryDisplayPackageInfo({
                 ...packageInfo,
                 licenseName: value,
-                wasPreferred: undefined,
               }),
             );
           })

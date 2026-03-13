@@ -40,7 +40,6 @@ export function Comment({ packageInfo, onEdit, config, expanded }: Props) {
               setTemporaryDisplayPackageInfo({
                 ...packageInfo,
                 comment: value,
-                wasPreferred: undefined,
               }),
             ),
           )
