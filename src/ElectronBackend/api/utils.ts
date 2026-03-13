@@ -44,6 +44,7 @@ export async function removeRedundantAttributions(
   await withBatching(resourceIds, async (batchedResourceIds) => {
     await trx.schema
       .createTable('duplicate_resources')
+      .temporary()
       .as(
         trx
           // The resources given by props, with their max_descendant_id and closest manual ancestor
@@ -188,6 +189,9 @@ export async function removeRedundantAttributions(
       )
       .execute();
 
+    // In this case, we need to call this function after removing the attribution-resource-connection, because
+    // we don't know which attributionUuid will be affected. That means we can't pass the uuids to this function,
+    // so they can't be ignored when checking for remaining attributions on the resources.
     await removeManualOrExternalCwaFromResources(trx, 'manual', {
       resourceIds: trx
         .withTables<{ duplicate_resources: { resource_id: number } }>()
@@ -516,7 +520,6 @@ export async function withBatching<P, R>(
 
   const numBatches = Math.ceil(input.length / batchSize);
   for (let i = 0; i < numBatches; i += 1) {
-    console.log(`Batch ${i}/${numBatches}`);
     const batch = input.slice(i * batchSize, (i + 1) * batchSize);
 
     const result = await f(batch);
