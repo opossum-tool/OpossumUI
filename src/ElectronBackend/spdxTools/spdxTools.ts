@@ -231,8 +231,12 @@ function getExternalRefs(pkg: Package): Array<SpdxExternalRef> {
 }
 
 function generatePurlFromPackage(pkg: Package): string {
-  return pkg.type && pkg.name
-    ? new PackageURL(
+  if (!pkg.type || !pkg.name) {
+    return '';
+  }
+  try {
+    return (
+      new PackageURL(
         pkg.type,
         pkg.namespace,
         pkg.name,
@@ -240,7 +244,10 @@ function generatePurlFromPackage(pkg: Package): string {
         undefined,
         undefined,
       ).toString() + (pkg.appendix || '')
-    : '';
+    );
+  } catch {
+    return '';
+  }
 }
 
 function isPackageEmpty(pkg: Package): boolean {
