@@ -21,7 +21,7 @@
     "better-sqlite3-electron": "npm:better-sqlite3@12.6.2",
     "chroma-js": "3.2.0",
     "compare-versions": "6.1.1",
-    "dayjs": "1.11.19",
+    "dayjs": "1.11.20",
     "electron-log": "5.4.3",
     "electron-settings": "4.0.4",
     "fast-csv": "5.0.5",
