@@ -6,13 +6,13 @@
 import isEmpty from 'lodash/isEmpty';
 
 import {
-  Attributions,
-  AttributionsToResources,
-  ExternalAttributionSources,
-  ParsedFileContent,
-  RawProjectConfig,
-  Resources,
-  ResourcesToAttributions,
+  type Attributions,
+  type AttributionsToResources,
+  type ExternalAttributionSources,
+  type ParsedFileContent,
+  type RawProjectConfig,
+  type Resources,
+  type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import {
   EMPTY_FREQUENT_LICENSES,

@@ -5,7 +5,7 @@
 import fs from 'fs';
 
 import {
-  Attributions,
+  type Attributions,
   Criticality,
   ExportType,
 } from '../../../shared/shared-types';

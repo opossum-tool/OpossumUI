@@ -3,9 +3,12 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ExportType, FileFormatInfo } from '../../../shared/shared-types';
+import {
+  type ExportType,
+  type FileFormatInfo,
+} from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
-import { PopupInfo, State } from '../../types/types';
+import { type PopupInfo, type State } from '../../types/types';
 
 export function isAuditViewSelected(state: State): boolean {
   return state.viewState.view === View.Audit;

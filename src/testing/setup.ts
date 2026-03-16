@@ -8,7 +8,7 @@ import { noop } from 'lodash';
 
 import { executeCommand } from '../ElectronBackend/api/commands';
 import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
-import { ElectronAPI } from '../shared/shared-types';
+import { type ElectronAPI } from '../shared/shared-types';
 
 class ResizeObserver {
   observe = noop;

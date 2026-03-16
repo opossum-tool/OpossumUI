@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { UserSettings } from '../../../../shared/shared-types';
-import { AppThunkAction } from '../../types';
-import { ACTION_SET_USER_SETTING, SetUserSetting } from './types';
+import { type UserSettings } from '../../../../shared/shared-types';
+import { type AppThunkAction } from '../../types';
+import { ACTION_SET_USER_SETTING, type SetUserSetting } from './types';
 
 export function setUserSetting(setting: Partial<UserSettings>): SetUserSetting {
   return {

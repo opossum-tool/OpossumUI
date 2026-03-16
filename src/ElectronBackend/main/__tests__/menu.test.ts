@@ -2,8 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import electron, { BrowserWindow, MenuItemConstructorOptions } from 'electron';
-import { Mock } from 'vitest';
+import electron, {
+  BrowserWindow,
+  type MenuItemConstructorOptions,
+} from 'electron';
+import { type Mock } from 'vitest';
 
 import { createMenu } from '../menu';
 import { UserSettingsService } from '../user-settings-service';

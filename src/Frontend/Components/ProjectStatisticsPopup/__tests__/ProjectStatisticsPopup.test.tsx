@@ -5,7 +5,10 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { Attributions, Criticality } from '../../../../shared/shared-types';
+import {
+  type Attributions,
+  Criticality,
+} from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';

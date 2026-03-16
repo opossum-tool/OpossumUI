@@ -5,8 +5,12 @@
 import { sql } from 'kysely';
 import { omit } from 'lodash';
 
-import { Filter, FilterCounts, FILTERS } from '../../Frontend/shared-constants';
-import { PackageInfo } from '../../shared/shared-types';
+import {
+  type Filter,
+  type FilterCounts,
+  FILTERS,
+} from '../../Frontend/shared-constants';
+import { type PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { listAttributions } from './listAttributions';

@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { TableCellProps } from '@mui/material';
+import { type TableCellProps } from '@mui/material';
 import { orderBy } from 'lodash';
 
-import { LicenseTableRow } from '../../../ElectronBackend/api/statistics';
-import { Order } from '../../../shared/shared-types';
+import { type LicenseTableRow } from '../../../ElectronBackend/api/statistics';
+import { type Order } from '../../../shared/shared-types';
 
 export enum SingleColumn {
   NAME = 'NAME',

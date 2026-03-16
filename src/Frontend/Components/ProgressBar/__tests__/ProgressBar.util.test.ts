@@ -6,9 +6,9 @@ import { Criticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
 import {
-  ClassificationStatistics,
-  FileWithAttributionsCounts,
-  ResourceCriticalityCounts,
+  type ClassificationStatistics,
+  type FileWithAttributionsCounts,
+  type ResourceCriticalityCounts,
 } from '../../../types/types';
 import {
   calculateAttributionBarSteps,

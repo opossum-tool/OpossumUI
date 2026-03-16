@@ -2,10 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { keyBy, ListIterator, orderBy } from 'lodash';
+import { keyBy, type ListIterator, orderBy } from 'lodash';
 
-import { Attributions, PackageInfo, Relation } from '../../shared/shared-types';
-import { SortOption } from '../Components/SortButton/useSortingOptions';
+import {
+  type Attributions,
+  type PackageInfo,
+  type Relation,
+} from '../../shared/shared-types';
+import { type SortOption } from '../Components/SortButton/useSortingOptions';
 import { getCardLabels } from './get-card-labels';
 
 export function sortAttributions({

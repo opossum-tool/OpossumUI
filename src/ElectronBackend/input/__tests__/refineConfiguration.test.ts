@@ -4,13 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import { EMPTY_PROJECT_CONFIG } from '../../../Frontend/shared-constants';
 import {
-  Attributions,
-  PackageInfo,
-  RawClassificationsConfig,
-  RawProjectConfig,
+  type Attributions,
+  type PackageInfo,
+  type RawClassificationsConfig,
+  type RawProjectConfig,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
-import { ProcessingStatusUpdater } from '../../main/ProcessingStatusUpdater';
+import { type ProcessingStatusUpdater } from '../../main/ProcessingStatusUpdater';
 import { refineConfiguration } from '../refineConfiguration';
 
 function fakePackagesWithClassifications(

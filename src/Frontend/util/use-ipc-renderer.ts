@@ -3,18 +3,18 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { IpcRendererEvent } from 'electron';
+import { type IpcRendererEvent } from 'electron';
 import { useEffect } from 'react';
 
-import { AllowedFrontendChannels } from '../../shared/ipc-channels';
+import { type AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
-  BaseURLForRootArgs,
-  ExportType,
-  FileFormatInfo,
-  Log,
-  ParsedFileContent,
-  ProcessingStateChangedEvent,
-  UserSettings,
+  type BaseURLForRootArgs,
+  type ExportType,
+  type FileFormatInfo,
+  type Log,
+  type ParsedFileContent,
+  type ProcessingStateChangedEvent,
+  type UserSettings,
 } from '../../shared/shared-types';
 
 type ResetStateListener = (

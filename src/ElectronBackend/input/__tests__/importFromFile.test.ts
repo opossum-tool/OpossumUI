@@ -3,15 +3,15 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, dialog } from 'electron';
-import { Mock } from 'vitest';
+import { type BrowserWindow, dialog } from 'electron';
+import { type Mock } from 'vitest';
 import * as zlib from 'zlib';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   Criticality,
-  ParsedFileContent,
+  type ParsedFileContent,
   RawCriticality,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -22,12 +22,12 @@ import {
   setGlobalBackendState,
 } from '../../main/globalBackendState';
 import {
-  FileNotFoundError,
-  JsonParsingError,
-  OpossumOutputFile,
-  ParsedOpossumInputAndOutput,
-  ParsedOpossumInputFile,
-  UnzipError,
+  type FileNotFoundError,
+  type JsonParsingError,
+  type OpossumOutputFile,
+  type ParsedOpossumInputAndOutput,
+  type ParsedOpossumInputFile,
+  type UnzipError,
 } from '../../types/types';
 import {
   getMessageBoxForFileNotFoundError,

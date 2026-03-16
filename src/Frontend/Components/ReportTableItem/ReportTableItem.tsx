@@ -3,13 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import EditorIcon from '@mui/icons-material/Edit';
-import { SxProps, TableCell } from '@mui/material';
+import { type SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiLink from '@mui/material/Link';
 import MuiTypography from '@mui/material/Typography';
 import { Fragment } from 'react';
 
-import { PackageInfo } from '../../../shared/shared-types';
+import { type PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
 import { clickableIcon, OpossumColors } from '../../shared-styles';
@@ -31,7 +31,7 @@ import {
   PreferredIcon,
   PreSelectedIcon,
 } from '../Icons/Icons';
-import { TableConfig, tableConfigs } from '../ReportView/TableConfig';
+import { type TableConfig, tableConfigs } from '../ReportView/TableConfig';
 import { getFormattedCellData } from './ReportTableItem.util';
 
 export const REPORT_VIEW_ROW_HEIGHT = 150;

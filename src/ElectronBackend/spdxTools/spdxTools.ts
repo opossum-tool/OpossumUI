@@ -9,13 +9,13 @@ import { default as spdxLicenseJson } from 'spdx-license-ids/index.json';
 import { v4 as uuid4 } from 'uuid';
 
 import {
-  Package,
-  SpdxAttributions,
-  SpdxDocument,
-  SpdxExternalRef,
-  SpdxExternalRelationship,
-  SpdxLicenseInfo,
-  SpdxPackage,
+  type Package,
+  type SpdxAttributions,
+  type SpdxDocument,
+  type SpdxExternalRef,
+  type SpdxExternalRelationship,
+  type SpdxLicenseInfo,
+  type SpdxPackage,
 } from './types';
 
 const DEFAULT_PACKAGE_RELATION = 'DEPENDENCY_OF';

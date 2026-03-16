@@ -9,13 +9,13 @@ import MuiTableContainer from '@mui/material/TableContainer';
 import { upperFirst } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 
-import { QueryResult } from '../../../ElectronBackend/api/queries';
+import { type QueryResult } from '../../../ElectronBackend/api/queries';
 import { DEFAULT_USER_SETTINGS } from '../../../shared/shared-constants';
-import { Order, TableOrdering } from '../../../shared/shared-types';
+import { type Order, type TableOrdering } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import {
-  Column,
+  type Column,
   ColumnConfig,
   orderLicenseTableRows,
   SingleColumn,

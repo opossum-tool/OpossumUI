@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { FileType } from '../../shared/shared-types';
 import { ExternalFileConverter } from './ExternalFileConverter';
-import { FileConverter } from './FileConverter';
+import { type FileConverter } from './FileConverter';
 import { LegacyFileConverter } from './LegacyFileConverter';
 
 const fileTypeToConverter: Record<FileType, FileConverter> = {

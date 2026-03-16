@@ -11,14 +11,14 @@ import {
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
-  AddResolvedExternalAttributions,
-  RemoveResolvedExternalAttributions,
-  SetExpandedIdsAction,
-  SetResolvedExternalAttributions,
-  SetSelectedAttributionId,
-  SetSelectedResourceIdAction,
-  SetTargetSelectedAttributionIdAction,
-  SetTargetSelectedResourceId,
+  type AddResolvedExternalAttributions,
+  type RemoveResolvedExternalAttributions,
+  type SetExpandedIdsAction,
+  type SetResolvedExternalAttributions,
+  type SetSelectedAttributionId,
+  type SetSelectedResourceIdAction,
+  type SetTargetSelectedAttributionIdAction,
+  type SetTargetSelectedResourceId,
 } from './types';
 
 export function setSelectedResourceId(

@@ -3,10 +3,10 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, dialog, WebContents } from 'electron';
+import { type BrowserWindow, dialog, type WebContents } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { SendErrorInformationArgs } from '../../../shared/shared-types';
+import { type SendErrorInformationArgs } from '../../../shared/shared-types';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import {
   getMessageBoxContentForErrorsWrapper,

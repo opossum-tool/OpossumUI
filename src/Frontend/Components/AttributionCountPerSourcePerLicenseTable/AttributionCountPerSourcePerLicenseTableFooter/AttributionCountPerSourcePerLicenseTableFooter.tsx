@@ -10,8 +10,8 @@ import { sum } from 'lodash';
 import { text } from '../../../../shared/text';
 import { tableClasses } from '../../../shared-styles';
 import {
-  Column,
-  ColumnConfig,
+  type Column,
+  type ColumnConfig,
   SingleColumn,
 } from '../AttributionCountPerSourcePerLicenseTable.util';
 

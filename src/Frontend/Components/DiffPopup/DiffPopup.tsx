@@ -5,7 +5,7 @@
 import MuiDivider from '@mui/material/Divider';
 import { isEqual } from 'lodash';
 
-import { PackageInfo } from '../../../shared/shared-types';
+import { type PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';

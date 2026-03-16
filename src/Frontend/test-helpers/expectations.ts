@@ -6,15 +6,15 @@ import { sql } from 'kysely';
 
 import { getDb } from '../../ElectronBackend/db/db';
 import {
-  Attributions,
-  ResourcesToAttributions,
+  type Attributions,
+  type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import {
   getManualAttributions,
   getResolvedExternalAttributions,
   getResourcesToManualAttributions,
 } from '../state/selectors/resource-selectors';
-import { State } from '../types/types';
+import { type State } from '../types/types';
 import { flushPendingMutations } from './general-test-helpers';
 
 export async function expectManualAttributions(

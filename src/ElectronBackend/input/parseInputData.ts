@@ -8,19 +8,19 @@ import objectHash from 'object-hash';
 
 import { canResourceHaveChildren } from '../../Frontend/util/can-resource-have-children';
 import {
-  Attributions,
-  AttributionsToResources,
-  BaseUrlsForSources,
+  type Attributions,
+  type AttributionsToResources,
+  type BaseUrlsForSources,
   Criticality,
   DiscreteConfidence,
-  FrequentLicenses,
-  PackageInfo,
-  RawAttributions,
+  type FrequentLicenses,
+  type PackageInfo,
+  type RawAttributions,
   RawCriticality,
-  Resources,
-  ResourcesToAttributions,
+  type Resources,
+  type ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { RawFrequentLicense } from '../types/types';
+import { type RawFrequentLicense } from '../types/types';
 
 export function addTrailingSlashIfAbsent(resourcePath: string): string {
   return resourcePath.endsWith('/') ? resourcePath : resourcePath.concat('/');

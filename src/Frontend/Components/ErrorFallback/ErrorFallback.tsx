@@ -5,7 +5,7 @@
 import MuiButton from '@mui/material/Button';
 import MuiButtonGroup from '@mui/material/ButtonGroup';
 import MuiTypography from '@mui/material/Typography';
-import { FallbackProps, getErrorMessage } from 'react-error-boundary';
+import { type FallbackProps, getErrorMessage } from 'react-error-boundary';
 
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';

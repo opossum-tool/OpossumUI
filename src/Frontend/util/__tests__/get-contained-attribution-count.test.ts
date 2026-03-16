@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  ResourcesToAttributions,
-  ResourcesWithAttributedChildren,
+  type ResourcesToAttributions,
+  type ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { getContainedAttributionCount } from '../get-contained-attribution-count';
 

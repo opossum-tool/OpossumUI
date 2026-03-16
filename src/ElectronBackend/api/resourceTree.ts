@@ -2,10 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Expression, expressionBuilder, ExpressionBuilder, sql } from 'kysely';
+import {
+  type Expression,
+  expressionBuilder,
+  type ExpressionBuilder,
+  sql,
+} from 'kysely';
 
 import { getDb } from '../db/db';
-import { DB, Resource } from '../db/generated/databaseTypes';
+import { type DB, type Resource } from '../db/generated/databaseTypes';
 import { getResourceOrThrow, removeTrailingSlash } from './utils';
 
 export type ResourceTreeNodeData = Awaited<
@@ -57,7 +62,7 @@ export function getResourceTree({
           filterQuery = trx
             .selectFrom('resource_to_attribution as rta')
             .select('resource_id as id')
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
             .where('rta.attribution_uuid', 'in', onAttributionUuids!);
         }
 

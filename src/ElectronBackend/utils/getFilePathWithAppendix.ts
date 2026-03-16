@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import fs from 'fs';
+import type fs from 'fs';
 import path from 'path';
 import upath from 'upath';
 

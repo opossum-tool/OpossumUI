@@ -7,7 +7,10 @@ import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import { useCallback, useMemo, useState } from 'react';
 
-import { Attributions, PackageInfo } from '../../../../../shared/shared-types';
+import {
+  type Attributions,
+  type PackageInfo,
+} from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { updateAttributionsAndSave } from '../../../../state/actions/resource-actions/save-actions';
 import { useAppDispatch } from '../../../../state/hooks';
@@ -17,8 +20,11 @@ import {
   FollowUpIcon,
   NeedsReviewIcon,
 } from '../../../Icons/Icons';
-import { SelectMenu, SelectMenuOption } from '../../../SelectMenu/SelectMenu';
-import { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import {
+  SelectMenu,
+  type SelectMenuOption,
+} from '../../../SelectMenu/SelectMenu';
+import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 type UpdatablePropertyType = keyof Pick<
   PackageInfo,

@@ -7,13 +7,13 @@ import MuiListItemText from '@mui/material/ListItemText';
 import MuiPaper from '@mui/material/Paper';
 import MuiTypography from '@mui/material/Typography';
 import {
-  AutocompleteFreeSoloValueMapping,
-  UseAutocompleteRenderedOption,
+  type AutocompleteFreeSoloValueMapping,
+  type UseAutocompleteRenderedOption,
 } from '@mui/material/useAutocomplete';
-import { SxProps } from '@mui/system';
+import { type SxProps } from '@mui/system';
 import { groupBy as _groupBy } from 'lodash';
 import { useMemo, useState } from 'react';
-import { GroupedVirtuoso, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { GroupedVirtuoso, Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 
 import { GroupContainer, styles } from './Listbox.style';
 

@@ -3,13 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  BaseUrlsForSources,
-  ExternalAttributionSources,
-  ProjectMetadata,
-  RawAttributions,
-  RawProjectConfig,
-  Resources,
-  ResourcesToAttributions,
+  type BaseUrlsForSources,
+  type ExternalAttributionSources,
+  type ProjectMetadata,
+  type RawAttributions,
+  type RawProjectConfig,
+  type Resources,
+  type ResourcesToAttributions,
 } from '../../shared/shared-types';
 
 export interface ParsingError {

@@ -2,11 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { expressionBuilder, OperandExpression, sql, SqlBool } from 'kysely';
+import {
+  expressionBuilder,
+  type OperandExpression,
+  sql,
+  type SqlBool,
+} from 'kysely';
 
 import { text } from '../../shared/text';
 import { getDb } from '../db/db';
-import { DB } from '../db/generated/databaseTypes';
+import { type DB } from '../db/generated/databaseTypes';
 import { getFilterExpression } from './filters';
 import { canonicalLicenseName } from './utils';
 

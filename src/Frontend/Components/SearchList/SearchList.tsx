@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { useHotkeys } from 'react-hotkeys-hook';
-import { ListProps } from 'react-virtuoso';
+import { type ListProps } from 'react-virtuoso';
 
 import { useSearchRef } from '../SearchRefContext/SearchRefContext';
 import { useVirtuosoComponent } from '../VirtuosoComponentContext/VirtuosoComponentContext';

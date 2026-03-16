@@ -11,7 +11,7 @@ import MuiBox from '@mui/material/Box';
 import { styled } from '@mui/system';
 import { useMemo } from 'react';
 
-import { Criticality, PackageInfo } from '../../../../shared/shared-types';
+import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { clickableIcon } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
@@ -20,11 +20,11 @@ import { generatePurl, parsePurl } from '../../../util/handle-purl';
 import { openUrl } from '../../../util/open-url';
 import { PackageSearchHooks } from '../../../util/package-search-hooks';
 import { useDebouncedInput } from '../../../util/use-debounced-input';
-import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import { type Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../../IconButton/IconButton';
 import { TextBox } from '../../TextBox/TextBox';
 import { toast } from '../../Toaster';
-import { AttributionFormConfig } from '../AttributionForm';
+import { type AttributionFormConfig } from '../AttributionForm';
 import { attributionColumnClasses } from '../AttributionForm.style';
 import { PackageAutocomplete } from '../PackageAutocomplete/PackageAutocomplete';
 

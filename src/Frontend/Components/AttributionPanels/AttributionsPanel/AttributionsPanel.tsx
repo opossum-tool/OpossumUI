@@ -17,7 +17,7 @@ import { useAttributionIdsForReplacement } from '../../../state/variables/use-at
 import { useManualAttributionFilters } from '../../../state/variables/use-filters';
 import { backend } from '../../../util/backendClient';
 import { isPackageIncomplete } from '../../../util/input-validation';
-import { Alert, PackagesPanel } from '../PackagesPanel/PackagesPanel';
+import { type Alert, PackagesPanel } from '../PackagesPanel/PackagesPanel';
 import { AttributionsList } from './AttributionsList/AttributionsList';
 import { ConfirmButton } from './ConfirmButton/ConfirmButton';
 import { CreateButton } from './CreateButton/CreateButton';

@@ -9,7 +9,7 @@ import { join } from 'path';
 
 import { FileType } from '../../../shared/shared-types';
 import { parseOpossumFile } from '../../input/parseFile';
-import { ParsedOpossumInputAndOutput } from '../../types/types';
+import { type ParsedOpossumInputAndOutput } from '../../types/types';
 import { isOpossumFileFormat } from '../../utils/isOpossumFileFormat';
 import { convertToOpossum, mergeFileIntoOpossum } from '../opossum-file';
 

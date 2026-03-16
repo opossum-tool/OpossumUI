@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiButtonBase from '@mui/material/ButtonBase';
-import MuiTooltip, { TooltipProps } from '@mui/material/Tooltip';
+import MuiTooltip, { type TooltipProps } from '@mui/material/Tooltip';
 
 import { OpossumColors } from '../../shared-styles';
 

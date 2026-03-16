@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { TableCellProps, TableSortLabel } from '@mui/material';
+import { type TableCellProps, TableSortLabel } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTableCell from '@mui/material/TableCell';
-import { SxProps } from '@mui/system';
+import { type SxProps } from '@mui/system';
 import { visuallyHidden } from '@mui/utils';
-import { PropsWithChildren } from 'react';
+import { type PropsWithChildren } from 'react';
 
-import { Order } from '../../../shared/shared-types';
+import { type Order } from '../../../shared/shared-types';
 
 interface TableCellWithSortingProps extends PropsWithChildren {
   order: Order;

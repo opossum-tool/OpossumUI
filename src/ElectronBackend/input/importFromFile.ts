@@ -3,16 +3,16 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, dialog } from 'electron';
+import { type BrowserWindow, dialog } from 'electron';
 import fs from 'fs';
 import { cloneDeep } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
-  Attributions,
-  ParsedFileContent,
-  ResourcesToAttributions,
+  type Attributions,
+  type ParsedFileContent,
+  type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
@@ -20,12 +20,12 @@ import { initializeDb } from '../db/initializeDb';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import {
-  FileNotFoundError,
-  OpossumOutputFile,
-  ParsedOpossumInputAndOutput,
-  ParsedOpossumInputFile,
-  ParsedOpossumOutputFile,
-  ParsingError,
+  type FileNotFoundError,
+  type OpossumOutputFile,
+  type ParsedOpossumInputAndOutput,
+  type ParsedOpossumInputFile,
+  type ParsedOpossumOutputFile,
+  type ParsingError,
 } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';

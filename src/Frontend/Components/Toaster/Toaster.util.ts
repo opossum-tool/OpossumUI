@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 /* eslint-disable no-restricted-imports */
-import toaster, { ToastOptions } from 'react-hot-toast';
+import toaster, { type ToastOptions } from 'react-hot-toast';
 
 class Toast {
   public success(message: string, options?: ToastOptions) {

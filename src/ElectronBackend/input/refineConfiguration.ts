@@ -4,12 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { EMPTY_RAW_PROJECT_CONFIG } from '../../Frontend/shared-constants';
 import {
-  Attributions,
-  PackageInfo,
-  RawClassificationsConfig,
-  RawProjectConfig,
+  type Attributions,
+  type PackageInfo,
+  type RawClassificationsConfig,
+  type RawProjectConfig,
 } from '../../shared/shared-types';
-import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
+import { type ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 
 function addUnconfiguredClassifications(
   classifications: RawClassificationsConfig,

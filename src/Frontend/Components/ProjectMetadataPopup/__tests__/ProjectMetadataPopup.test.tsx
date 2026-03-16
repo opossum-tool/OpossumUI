@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import { ProjectMetadata } from '../../../../shared/shared-types';
+import { type ProjectMetadata } from '../../../../shared/shared-types';
 import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup';

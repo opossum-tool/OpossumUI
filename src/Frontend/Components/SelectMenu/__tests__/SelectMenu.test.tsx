@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 
 import { faker } from '../../../../testing/Faker';
 import { renderComponent } from '../../../test-helpers/render';
-import { SelectMenu, SelectMenuOption } from '../SelectMenu';
+import { SelectMenu, type SelectMenuOption } from '../SelectMenu';
 
 function createOption(props: Partial<SelectMenuOption> = {}): SelectMenuOption {
   return {

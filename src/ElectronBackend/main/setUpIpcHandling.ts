@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, ipcMain } from 'electron';
+import { type BrowserWindow, ipcMain } from 'electron';
 
 import { IpcChannel } from '../../shared/ipc-channels';
-import { UserSettings } from '../../shared/shared-types';
+import { type UserSettings } from '../../shared/shared-types';
 import { executeCommand } from '../api/commands';
 import { getGlobalBackendState } from './globalBackendState';
 import {

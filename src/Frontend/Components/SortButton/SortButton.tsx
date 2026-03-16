@@ -9,13 +9,13 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
-import { UseAttributionFilters } from '../../state/variables/use-filters';
+import { type UseAttributionFilters } from '../../state/variables/use-filters';
 import {
   SelectMenu,
-  SelectMenuOption,
-  SelectMenuProps,
+  type SelectMenuOption,
+  type SelectMenuProps,
 } from '../SelectMenu/SelectMenu';
-import { SortOption, useSortConfiguration } from './useSortingOptions';
+import { type SortOption, useSortConfiguration } from './useSortingOptions';
 
 interface Props extends Pick<
   SelectMenuProps,

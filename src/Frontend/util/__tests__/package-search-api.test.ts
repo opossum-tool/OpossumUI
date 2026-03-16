@@ -4,10 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { difference } from 'lodash';
 
-import { PackageInfo } from '../../../shared/shared-types';
+import { type PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { faker } from '../../../testing/Faker';
-import { RequestProps } from '../http-client';
+import { type RequestProps } from '../http-client';
 import {
   PackageSearchApi,
   packageSystems,

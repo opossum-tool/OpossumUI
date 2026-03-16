@@ -6,11 +6,11 @@
 import pick from 'lodash/pick';
 
 import {
-  ExportSpdxDocumentJsonArgs,
-  ExportSpdxDocumentYamlArgs,
+  type ExportSpdxDocumentJsonArgs,
+  type ExportSpdxDocumentYamlArgs,
   ExportType,
 } from '../../../../shared/shared-types';
-import { State } from '../../../types/types';
+import { type State } from '../../../types/types';
 import {
   getAttributionsWithAllChildResourcesWithoutFolders,
   getAttributionsWithResources,
@@ -24,7 +24,7 @@ import {
   getManualData,
   getResources,
 } from '../../selectors/resource-selectors';
-import { AppThunkAction } from '../../types';
+import { type AppThunkAction } from '../../types';
 
 export function exportFile(exportType: ExportType): AppThunkAction {
   return async (_, getState) => {

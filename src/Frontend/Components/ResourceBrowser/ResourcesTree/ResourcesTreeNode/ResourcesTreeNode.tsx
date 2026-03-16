@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { SxProps } from '@mui/material';
+import { type SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
@@ -20,7 +20,7 @@ import {
   FileIcon,
   SignalIcon,
 } from '../../../Icons/Icons';
-import { TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode';
+import { type TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode';
 
 export function ResourcesTreeNode({ resource }: TreeNode) {
   const classification_mapping = useAppSelector(getClassifications);

@@ -9,9 +9,9 @@ import { faker } from '../../../../testing/Faker';
 import { renderHook } from '../../../test-helpers/render';
 import {
   FORM_ATTRIBUTES,
-  FormAttribute,
+  type FormAttribute,
 } from '../../../util/get-comparable-attributes';
-import { AttributionFormConfig } from '../../AttributionForm/AttributionForm';
+import { type AttributionFormConfig } from '../../AttributionForm/AttributionForm';
 import { useAttributionFormConfigs } from '../DiffPopup.util';
 
 describe('useAttributionFormConfigs', () => {

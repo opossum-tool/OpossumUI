@@ -11,7 +11,7 @@ import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfi
 import MuiRating from '@mui/material/Rating';
 import { useMemo } from 'react';
 
-import { Criticality, PackageInfo } from '../../../../shared/shared-types';
+import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { OpossumColors } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
@@ -40,7 +40,7 @@ import {
   SourceIcon,
   WasPreferredIcon,
 } from '../../Icons/Icons';
-import { SelectMenuOption } from '../../SelectMenu/SelectMenu';
+import { type SelectMenuOption } from '../../SelectMenu/SelectMenu';
 
 interface AuditingOption extends SelectMenuOption {
   interactive: boolean;

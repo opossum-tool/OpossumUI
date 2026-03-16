@@ -3,19 +3,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  AttributionData,
-  Attributions,
-  AttributionsToResources,
-  BaseUrlsForSources,
+  type AttributionData,
+  type Attributions,
+  type AttributionsToResources,
+  type BaseUrlsForSources,
   Criticality,
   DiscreteConfidence,
-  FrequentLicenses,
-  PackageInfo,
-  ParsedFileContent,
-  ProjectConfig,
-  RawProjectConfig,
-  Resources,
-  ResourcesToAttributions,
+  type FrequentLicenses,
+  type PackageInfo,
+  type ParsedFileContent,
+  type ProjectConfig,
+  type RawProjectConfig,
+  type Resources,
+  type ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
 import { EMPTY_PROJECT_METADATA } from '../../../../shared-constants';

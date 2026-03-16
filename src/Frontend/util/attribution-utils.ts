@@ -6,11 +6,11 @@ import get from 'lodash/get';
 import pick from 'lodash/pick';
 
 import {
-  Attributions,
-  AttributionsToResources,
+  type Attributions,
+  type AttributionsToResources,
   ExportType,
-  Resources,
-  ResourcesToAttributions,
+  type Resources,
+  type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { ROOT_PATH } from '../shared-constants';
 import {

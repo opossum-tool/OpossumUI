@@ -4,12 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 
-import { PackageInfo } from '../../../../shared/shared-types';
+import { type PackageInfo } from '../../../../shared/shared-types';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../../state/hooks';
-import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import { type Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
-import { AttributeConfig } from '../AttributionForm';
+import { type AttributeConfig } from '../AttributionForm';
 import { attributionColumnClasses } from '../AttributionForm.style';
 
 interface Props {

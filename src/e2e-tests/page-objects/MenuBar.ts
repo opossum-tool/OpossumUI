@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ElectronApplication, expect, Page } from '@playwright/test';
+import { type ElectronApplication, expect, type Page } from '@playwright/test';
 import {
   clickMenuItem,
   clickMenuItemById,

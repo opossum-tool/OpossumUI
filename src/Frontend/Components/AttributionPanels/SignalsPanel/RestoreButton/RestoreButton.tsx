@@ -12,7 +12,7 @@ import { removeResolvedExternalAttributionAndSave } from '../../../../state/acti
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import { getResolvedExternalAttributions } from '../../../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../../../state/variables/use-user-setting';
-import { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,

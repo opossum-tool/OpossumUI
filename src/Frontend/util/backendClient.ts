@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   useMutation,
-  UseMutationOptions,
+  type UseMutationOptions,
   useQuery,
   type UseQueryOptions,
 } from '@tanstack/react-query';
@@ -16,14 +16,14 @@ import type {
   CommandResult,
 } from '../../ElectronBackend/api/commands';
 import {
-  MutationName,
-  MutationParams,
-  MutationResult,
+  type MutationName,
+  type MutationParams,
+  type MutationResult,
 } from '../../ElectronBackend/api/mutations';
 import {
-  QueryName,
-  QueryParams,
-  QueryResult,
+  type QueryName,
+  type QueryParams,
+  type QueryResult,
 } from '../../ElectronBackend/api/queries';
 import { queryClient } from '../Components/AppContainer/queryClient';
 

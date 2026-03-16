@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ComponentProps } from 'react';
+import { type ComponentProps } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
-import { BaseItem, List } from '../List/List';
+import { type BaseItem, List } from '../List/List';
 import { PACKAGE_CARD_HEIGHT } from '../PackageCard/PackageCard';
 
 const MAX_NUMBER_OF_CARDS = 4;

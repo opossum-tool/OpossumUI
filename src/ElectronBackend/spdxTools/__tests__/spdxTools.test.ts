@@ -8,10 +8,10 @@ import {
   createSpdxYaml,
 } from '../spdxTools';
 import {
-  Package,
-  SpdxDocument,
-  SpdxExternalRelationship,
-  SpdxPackage,
+  type Package,
+  type SpdxDocument,
+  type SpdxExternalRelationship,
+  type SpdxPackage,
 } from '../types';
 
 vi.mock('uuid', () => ({

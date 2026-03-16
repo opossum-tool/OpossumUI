@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ResetResourceStateAction } from '../resource-actions/types';
+import { type ResetResourceStateAction } from '../resource-actions/types';
 import { SET_VARIABLE } from './types';
 
 export type VariablesAction = SetVariable | ResetResourceStateAction;

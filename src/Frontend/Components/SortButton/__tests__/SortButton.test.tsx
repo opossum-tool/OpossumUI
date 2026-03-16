@@ -8,13 +8,13 @@ import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
 import {
-  AttributionFilters,
+  type AttributionFilters,
   initialFilters,
-  UseAttributionFilters,
+  type UseAttributionFilters,
 } from '../../../state/variables/use-filters';
 import { renderComponent } from '../../../test-helpers/render';
 import { SortButton } from '../SortButton';
-import { SortOption } from '../useSortingOptions';
+import { type SortOption } from '../useSortingOptions';
 
 describe('SortButton', () => {
   it('switches to selected sorting', async () => {

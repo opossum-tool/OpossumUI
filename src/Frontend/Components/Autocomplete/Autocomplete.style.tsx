@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Popper,
-  PopperPlacementType,
-  PopperProps,
+  type PopperPlacementType,
+  type PopperProps,
   styled,
 } from '@mui/material';
 import MuiTextField from '@mui/material/TextField';

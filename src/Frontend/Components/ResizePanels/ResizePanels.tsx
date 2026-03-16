@@ -3,10 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import SearchIcon from '@mui/icons-material/Search';
-import { Resizable } from 're-resizable';
+import { type Resizable } from 're-resizable';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import { type AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { TRANSITION } from '../../shared-styles';
 import { useIpcRenderer } from '../../util/use-ipc-renderer';
 import { ResizableBox } from '../ResizableBox/ResizableBox';

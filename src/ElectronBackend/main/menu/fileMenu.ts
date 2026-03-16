@@ -5,9 +5,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   app,
-  BrowserWindow,
-  MenuItemConstructorOptions,
-  WebContents,
+  type BrowserWindow,
+  type MenuItemConstructorOptions,
+  type WebContents,
 } from 'electron';
 import os from 'os';
 import path from 'path';
@@ -15,7 +15,7 @@ import path from 'path';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   ExportType,
-  FileFormatInfo,
+  type FileFormatInfo,
   FileType,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';

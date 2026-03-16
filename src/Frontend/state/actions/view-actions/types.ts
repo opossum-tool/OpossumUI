@@ -2,9 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ExportType, FileFormatInfo } from '../../../../shared/shared-types';
-import { View } from '../../../enums/enums';
-import { PopupInfo } from '../../../types/types';
+import {
+  type ExportType,
+  type FileFormatInfo,
+} from '../../../../shared/shared-types';
+import { type View } from '../../../enums/enums';
+import { type PopupInfo } from '../../../types/types';
 
 export const ACTION_SET_TARGET_VIEW = 'ACTION_SET_TARGET_VIEW';
 export const ACTION_SET_VIEW = 'ACTION_SET_VIEW';

@@ -6,7 +6,10 @@
 import { isEmpty, isEqual } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
-import { Attributions, PackageInfo } from '../../../../shared/shared-types';
+import {
+  type Attributions,
+  type PackageInfo,
+} from '../../../../shared/shared-types';
 import { backend } from '../../../util/backendClient';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
@@ -15,7 +18,7 @@ import {
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../selectors/resource-selectors';
-import { AppThunkAction, AsyncAppThunkAction } from '../../types';
+import { type AppThunkAction, type AsyncAppThunkAction } from '../../types';
 import {
   addResolvedExternalAttributions,
   removeResolvedExternalAttributions,
@@ -28,12 +31,12 @@ import {
   ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
   ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
   ACTION_UPDATE_ATTRIBUTION,
-  CreateAttributionForSelectedResource,
-  DeleteAttribution,
-  LinkToAttributionAction,
-  ReplaceAttributionWithMatchingAttributionAction,
-  UnlinkResourceFromAttributionAction,
-  UpdateAttribution,
+  type CreateAttributionForSelectedResource,
+  type DeleteAttribution,
+  type LinkToAttributionAction,
+  type ReplaceAttributionWithMatchingAttributionAction,
+  type UnlinkResourceFromAttributionAction,
+  type UpdateAttribution,
 } from './types';
 
 export function savePackageInfo(

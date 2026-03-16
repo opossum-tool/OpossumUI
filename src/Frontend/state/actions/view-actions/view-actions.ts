@@ -2,12 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ExportType, FileFormatInfo } from '../../../../shared/shared-types';
-import { PopupType, View } from '../../../enums/enums';
-import { State } from '../../../types/types';
+import {
+  type ExportType,
+  type FileFormatInfo,
+} from '../../../../shared/shared-types';
+import { PopupType, type View } from '../../../enums/enums';
+import { type State } from '../../../types/types';
 import { getUserSettings } from '../../selectors/user-settings-selector';
 import { getSelectedView } from '../../selectors/view-selector';
-import { AppThunkAction, AppThunkDispatch } from '../../types';
+import { type AppThunkAction, type AppThunkDispatch } from '../../types';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -18,15 +21,15 @@ import {
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
-  ClosePopupAction,
-  OpenPopupAction,
-  ResetViewStateAction,
-  SetExportFileRequestAction,
-  SetImportFileRequestAction,
-  SetMergeRequestAction,
-  SetOpenFileRequestAction,
-  SetTargetView,
-  SetView,
+  type ClosePopupAction,
+  type OpenPopupAction,
+  type ResetViewStateAction,
+  type SetExportFileRequestAction,
+  type SetImportFileRequestAction,
+  type SetMergeRequestAction,
+  type SetOpenFileRequestAction,
+  type SetTargetView,
+  type SetView,
 } from './types';
 
 export function resetViewState(): ResetViewStateAction {

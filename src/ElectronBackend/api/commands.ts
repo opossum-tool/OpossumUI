@@ -3,18 +3,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  MutationName,
-  MutationParams,
-  MutationResult,
-  MutationReturn,
+  type MutationName,
+  type MutationParams,
+  type MutationResult,
+  type MutationReturn,
   mutations,
 } from './mutations';
 import {
   queries,
-  QueryName,
-  QueryParams,
-  QueryResult,
-  QueryReturn,
+  type QueryName,
+  type QueryParams,
+  type QueryResult,
+  type QueryReturn,
 } from './queries';
 
 const commands = {

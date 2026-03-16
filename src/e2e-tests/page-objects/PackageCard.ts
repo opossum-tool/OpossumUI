@@ -5,7 +5,7 @@
 import { expect, type Locator } from '@playwright/test';
 import { compact } from 'lodash';
 
-import { RawPackageInfo } from '../../shared/shared-types';
+import { type RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 
 export class PackageCard {

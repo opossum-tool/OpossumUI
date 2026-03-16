@@ -5,15 +5,18 @@
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableRow from '@mui/material/TableRow';
 
-import { Classification, Criticality } from '../../../../shared/shared-types';
+import {
+  type Classification,
+  Criticality,
+} from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { OpossumColors, tableClasses } from '../../../shared-styles';
 import { useAppSelector } from '../../../state/hooks';
 import { getClassifications } from '../../../state/selectors/resource-selectors';
 import { CriticalityIcon } from '../../Icons/Icons';
 import {
-  Column,
-  ColumnConfig,
+  type Column,
+  type ColumnConfig,
   SingleColumn,
 } from '../AttributionCountPerSourcePerLicenseTable.util';
 

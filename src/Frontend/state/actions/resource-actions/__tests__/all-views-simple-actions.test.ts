@@ -3,14 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  Attributions,
+  type Attributions,
   Criticality,
   DiscreteConfidence,
-  FrequentLicenses,
-  PackageInfo,
-  Resources,
-  ResourcesToAttributions,
-  ResourcesWithAttributedChildren,
+  type FrequentLicenses,
+  type PackageInfo,
+  type Resources,
+  type ResourcesToAttributions,
+  type ResourcesWithAttributedChildren,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
 import { getAttributionsToResources } from '../../../../test-helpers/general-test-helpers';

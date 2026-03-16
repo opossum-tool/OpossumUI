@@ -5,15 +5,15 @@
 import chroma from 'chroma-js';
 
 import {
-  ClassificationEntry,
-  ClassificationsConfig,
-  ParsedFileContent,
-  ProjectConfig,
-  RawClassificationsConfig,
-  RawProjectConfig,
+  type ClassificationEntry,
+  type ClassificationsConfig,
+  type ParsedFileContent,
+  type ProjectConfig,
+  type RawClassificationsConfig,
+  type RawProjectConfig,
 } from '../../../../shared/shared-types';
 import { OpossumColors } from '../../../shared-styles';
-import { AppThunkAction } from '../../types';
+import { type AppThunkAction } from '../../types';
 import {
   setAttributionBreakpoints,
   setBaseUrlsForSources,

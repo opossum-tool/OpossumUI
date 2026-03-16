@@ -17,11 +17,11 @@ import StarIcon from '@mui/icons-material/Star';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import WidgetsIcon from '@mui/icons-material/Widgets';
-import { createSvgIcon, SxProps } from '@mui/material';
+import { createSvgIcon, type SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 
 import {
-  ClassificationsConfig,
+  type ClassificationsConfig,
   Criticality,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';

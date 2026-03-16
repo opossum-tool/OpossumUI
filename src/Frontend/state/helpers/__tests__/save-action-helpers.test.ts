@@ -5,12 +5,12 @@
 import { isEmpty } from 'lodash';
 
 import {
-  AttributionData,
-  Attributions,
-  AttributionsToResources,
+  type AttributionData,
+  type Attributions,
+  type AttributionsToResources,
   Criticality,
-  PackageInfo,
-  ResourcesToAttributions,
+  type PackageInfo,
+  type ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';

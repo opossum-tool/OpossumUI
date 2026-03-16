@@ -10,10 +10,10 @@ import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/a
 import { useAppDispatch } from '../../../../state/hooks';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { isPackageIncomplete } from '../../../../util/input-validation';
-import { List, ListItemContentProps } from '../../../List/List';
+import { List, type ListItemContentProps } from '../../../List/List';
 import { PackageCard } from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
-import { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   attributions,

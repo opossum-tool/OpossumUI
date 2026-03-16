@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ResourceTreeNodeData } from '../ElectronBackend/api/resourceTree';
+import { type ResourceTreeNodeData } from '../ElectronBackend/api/resourceTree';
 import { initializeDb } from '../ElectronBackend/db/initializeDb';
-import { ParsedFileContent, Resources } from '../shared/shared-types';
+import { type ParsedFileContent, type Resources } from '../shared/shared-types';
 
 export function makeResourceTreeNode(
   overrides: Partial<ResourceTreeNodeData> &

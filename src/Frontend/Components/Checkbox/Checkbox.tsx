@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   FormControlLabel,
-  FormControlLabelProps,
-  SxProps,
+  type FormControlLabelProps,
+  type SxProps,
 } from '@mui/material';
 import MuiCheckbox from '@mui/material/Checkbox';
 

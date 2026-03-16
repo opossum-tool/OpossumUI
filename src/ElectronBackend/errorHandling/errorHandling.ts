@@ -5,17 +5,17 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   app,
-  BrowserWindow,
+  type BrowserWindow,
   dialog,
-  MessageBoxOptions,
-  MessageBoxReturnValue,
+  type MessageBoxOptions,
+  type MessageBoxReturnValue,
 } from 'electron';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import logger from '../main/logger';
-import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
+import { type ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import { getLoadedFilePath } from '../utils/getLoadedFile';
 
 export async function showListenerErrorInMessageBox(

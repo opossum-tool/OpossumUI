@@ -4,9 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import * as Viz from '@viz-js/viz';
 import { promises as fs } from 'fs';
-import { Kysely, sql } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 
-import { DB } from './generated/databaseTypes';
+import { type DB } from './generated/databaseTypes';
 import { comments } from './initializeDb';
 
 export async function generateDiagram(

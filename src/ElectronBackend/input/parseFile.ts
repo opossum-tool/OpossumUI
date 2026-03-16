@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import * as fflate from 'fflate';
 import fs from 'fs';
-import { Options, Validator } from 'jsonschema';
-import { Parser, parser } from 'stream-json';
+import { type Options, Validator } from 'jsonschema';
+import { type Parser, parser } from 'stream-json';
 import Asm from 'stream-json/Assembler';
 import zlib from 'zlib';
 
@@ -15,12 +15,12 @@ import {
 } from '../../shared/write-file-utils';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import {
-  InvalidDotOpossumFileError,
-  JsonParsingError,
-  ParsedOpossumInputAndOutput,
-  ParsedOpossumInputFile,
-  ParsedOpossumOutputFile,
-  UnzipError,
+  type InvalidDotOpossumFileError,
+  type JsonParsingError,
+  type ParsedOpossumInputAndOutput,
+  type ParsedOpossumInputFile,
+  type ParsedOpossumOutputFile,
+  type UnzipError,
 } from '../types/types';
 import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';

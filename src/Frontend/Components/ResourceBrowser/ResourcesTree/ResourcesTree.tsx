@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { SxProps } from '@mui/system';
+import { type SxProps } from '@mui/system';
 import { remove } from 'lodash';
 import { useCallback, useEffect } from 'react';
 
-import { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import { type ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import {
   EMPTY_DISPLAY_PACKAGE_INFO,
   ROOT_PATH,

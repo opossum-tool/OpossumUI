@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { TooltipProps } from '@mui/material/Tooltip';
+import { type TooltipProps } from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
 
 import { baseIcon } from '../../shared-styles';
-import { TextBox, TextBoxCustomInputProps } from '../TextBox/TextBox';
+import { TextBox, type TextBoxCustomInputProps } from '../TextBox/TextBox';
 
 const CustomInput: React.FC<TextBoxCustomInputProps> = (props) => {
   return (

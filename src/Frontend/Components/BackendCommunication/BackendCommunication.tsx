@@ -4,12 +4,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import dayjs from 'dayjs';
-import { IpcRendererEvent } from 'electron';
+import { type IpcRendererEvent } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
-  BaseURLForRootArgs,
-  ParsedFileContent,
+  type BaseURLForRootArgs,
+  type ParsedFileContent,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
@@ -29,11 +29,11 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getBaseUrlsForSources } from '../../state/selectors/resource-selectors';
 import { setDatabaseInitialized } from '../../util/backendClient';
 import {
-  ExportFileRequestListener,
-  LoggingListener,
-  SetDatabaseInitializedListener,
-  ShowImportDialogListener,
-  ShowMergeDialogListener,
+  type ExportFileRequestListener,
+  type LoggingListener,
+  type SetDatabaseInitializedListener,
+  type ShowImportDialogListener,
+  type ShowMergeDialogListener,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
 import { useSyncProcessingStatusUpdatesToFrontendLogs } from '../../util/use-processing-status-updated';

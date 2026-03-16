@@ -6,8 +6,8 @@ import { memoize } from 'proxy-memoize';
 import { useCallback } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 
-import { State } from '../types/types';
-import { AppThunkDispatch } from './types';
+import { type State } from '../types/types';
+import { type AppThunkDispatch } from './types';
 
 export const useAppDispatch = useDispatch<AppThunkDispatch>;
 

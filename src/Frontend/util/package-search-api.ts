@@ -6,7 +6,11 @@ import { compareVersions, validate } from 'compare-versions';
 import { compact, mapValues, partition } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
-import { Criticality, PackageInfo, Source } from '../../shared/shared-types';
+import {
+  Criticality,
+  type PackageInfo,
+  type Source,
+} from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { HttpClient } from './http-client';
 import { pick } from './lodash-extension-utils';

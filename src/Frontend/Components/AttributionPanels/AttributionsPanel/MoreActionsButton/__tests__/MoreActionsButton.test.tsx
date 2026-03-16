@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { text } from '../../../../../../shared/text';
 import { faker } from '../../../../../../testing/Faker';
 import { renderComponent } from '../../../../../test-helpers/render';
-import { PackagesPanelChildrenProps } from '../../../PackagesPanel/PackagesPanel';
+import { type PackagesPanelChildrenProps } from '../../../PackagesPanel/PackagesPanel';
 import { MoreActionsButton } from '../MoreActionsButton';
 
 describe('MoreActionsButton', () => {

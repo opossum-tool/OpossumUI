@@ -5,18 +5,18 @@
 import { pickBy } from 'lodash';
 
 import {
-  Attributions,
-  AttributionsToResources,
-  BaseUrlsForSources,
+  type Attributions,
+  type AttributionsToResources,
+  type BaseUrlsForSources,
   Criticality,
-  FrequentLicenses,
-  RawAttributions,
+  type FrequentLicenses,
+  type RawAttributions,
   RawCriticality,
-  Resources,
-  ResourcesToAttributions,
+  type Resources,
+  type ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
-import { RawFrequentLicense } from '../../types/types';
+import { type RawFrequentLicense } from '../../types/types';
 import {
   deserializeAttributions,
   getAllResourcePaths,

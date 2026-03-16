@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { styled, SxProps } from '@mui/material';
+import { styled, type SxProps } from '@mui/material';
 
 import { OpossumColors } from '../../../shared-styles';
 

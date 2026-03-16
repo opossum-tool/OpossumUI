@@ -3,9 +3,9 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, shell } from 'electron';
+import { type BrowserWindow, shell } from 'electron';
 import fs from 'fs';
-import { Kysely, sql } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 import { uniq } from 'lodash';
 import path from 'path';
 import upath from 'upath';
@@ -13,25 +13,25 @@ import upath from 'upath';
 import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
-  Attributions,
-  ExportArgsType,
-  ExportCompactBomArgs,
-  ExportDetailedBomArgs,
-  ExportFollowUpArgs,
-  ExportSpdxDocumentJsonArgs,
-  ExportSpdxDocumentYamlArgs,
+  type Attributions,
+  type ExportArgsType,
+  type ExportCompactBomArgs,
+  type ExportDetailedBomArgs,
+  type ExportFollowUpArgs,
+  type ExportSpdxDocumentJsonArgs,
+  type ExportSpdxDocumentYamlArgs,
   ExportType,
-  FileFormatInfo,
-  FileType,
-  OpenLinkArgs,
-  PackageInfo,
-  ResourcesToAttributions,
-  SaveFileArgs,
+  type FileFormatInfo,
+  type FileType,
+  type OpenLinkArgs,
+  type PackageInfo,
+  type ResourcesToAttributions,
+  type SaveFileArgs,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { getDb } from '../db/db';
-import { DB } from '../db/generated/databaseTypes';
+import { type DB } from '../db/generated/databaseTypes';
 import { LoadedFileFormat } from '../enums/enums';
 import {
   sendListenerErrorToFrontend,
@@ -45,7 +45,10 @@ import {
 } from '../opossum-file/opossum-file';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
-import { GlobalBackendState, OpossumOutputFile } from '../types/types';
+import {
+  type GlobalBackendState,
+  type OpossumOutputFile,
+} from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { getLoadedFileType } from '../utils/getLoadedFile';
 import {

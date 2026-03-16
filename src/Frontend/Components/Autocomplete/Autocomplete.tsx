@@ -4,22 +4,25 @@
 // SPDX-License-Identifier: Apache-2.0
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClearIcon from '@mui/icons-material/Clear';
-import { TextFieldProps as MuiTextFieldProps, SxProps } from '@mui/material';
+import {
+  type TextFieldProps as MuiTextFieldProps,
+  type SxProps,
+} from '@mui/material';
 import MuiChip from '@mui/material/Chip';
 import MuiFade from '@mui/material/Fade';
 import MuiIconButton, {
-  IconButtonProps as MuiIconButtonProps,
+  type IconButtonProps as MuiIconButtonProps,
 } from '@mui/material/IconButton';
-import { TextFieldProps as MuiInputProps } from '@mui/material/TextField';
+import { type TextFieldProps as MuiInputProps } from '@mui/material/TextField';
 import MuiTooltip from '@mui/material/Tooltip';
 import useMuiAutocomplete, {
-  AutocompleteHighlightChangeReason,
-  AutocompleteInputChangeReason,
-  UseAutocompleteProps as MuiUseAutocompleteProps,
+  type AutocompleteHighlightChangeReason,
+  type AutocompleteInputChangeReason,
+  type UseAutocompleteProps as MuiUseAutocompleteProps,
 } from '@mui/material/useAutocomplete';
 import { compact } from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { VirtuosoHandle } from 'react-virtuoso';
+import { type VirtuosoHandle } from 'react-virtuoso';
 
 import { text } from '../../../shared/text';
 import { ensureArray } from '../../util/ensure-array';
@@ -29,7 +32,7 @@ import {
   Input,
   StyledPopper,
 } from './Autocomplete.style';
-import { Listbox, ListboxProps } from './Listbox/Listbox';
+import { Listbox, type ListboxProps } from './Listbox/Listbox';
 
 type AutocompleteProps<
   Value,

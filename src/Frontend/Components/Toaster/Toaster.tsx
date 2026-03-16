@@ -7,7 +7,11 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import InfoIcon from '@mui/icons-material/Info';
 import { styled, Typography } from '@mui/material';
-import { Toaster as RHTToaster, ToastBar, ToastType } from 'react-hot-toast';
+import {
+  Toaster as RHTToaster,
+  ToastBar,
+  type ToastType,
+} from 'react-hot-toast';
 
 const icons: Record<ToastType, React.ReactNode> = {
   error: <ErrorIcon color={'error'} />,

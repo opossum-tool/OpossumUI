@@ -11,7 +11,7 @@ import { text } from '../../../../../shared/text';
 import { useAppSelector } from '../../../../state/hooks';
 import { getManualAttributions } from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
-import { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
   attributionIds,

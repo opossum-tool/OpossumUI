@@ -5,7 +5,7 @@
 import { screen } from '@testing-library/react';
 
 import {
-  Attributions,
+  type Attributions,
   Criticality,
   DiscreteConfidence,
 } from '../../../../shared/shared-types';

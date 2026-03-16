@@ -3,20 +3,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  CaseWhenBuilder,
-  Expression,
-  ExpressionBuilder,
+  type CaseWhenBuilder,
+  type Expression,
+  type ExpressionBuilder,
   expressionBuilder,
-  Kysely,
+  type Kysely,
   sql,
-  Transaction,
+  type Transaction,
 } from 'kysely';
 import { snakeCase } from 'lodash';
 
 import { FILTERS } from '../../Frontend/shared-constants';
-import { DB } from '../db/generated/databaseTypes';
+import { type DB } from '../db/generated/databaseTypes';
 import { removeManualOrExternalCwaFromResources } from './progressBarUtils';
-import { FilterProperties } from './queries';
+import { type FilterProperties } from './queries';
 
 export type ResourceRelationship =
   | 'same'

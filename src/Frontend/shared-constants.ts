@@ -3,13 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  AttributionData,
+  type AttributionData,
   Criticality,
-  FrequentLicenses,
-  PackageInfo,
-  ProjectConfig,
-  ProjectMetadata,
-  RawProjectConfig,
+  type FrequentLicenses,
+  type PackageInfo,
+  type ProjectConfig,
+  type ProjectMetadata,
+  type RawProjectConfig,
 } from '../shared/shared-types';
 import { text } from '../shared/text';
 

@@ -4,20 +4,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  Attributions,
+  type Attributions,
   Criticality,
   DiscreteConfidence,
   ExportType,
   FileType,
-  PackageInfo,
-  Resources,
-  ResourcesToAttributions,
+  type PackageInfo,
+  type Resources,
+  type ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
 import { PopupType, View } from '../../../../enums/enums';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { createTestStore } from '../../../../test-helpers/render';
-import { State } from '../../../../types/types';
+import { type State } from '../../../../types/types';
 import { createAppStore } from '../../../configure-store';
 import {
   getExpandedIds,

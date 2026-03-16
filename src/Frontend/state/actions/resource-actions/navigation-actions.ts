@@ -7,7 +7,7 @@ import {
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
 } from '../../selectors/resource-selectors';
-import { AppThunkAction } from '../../types';
+import { type AppThunkAction } from '../../types';
 import {
   setExpandedIds,
   setSelectedAttributionId,

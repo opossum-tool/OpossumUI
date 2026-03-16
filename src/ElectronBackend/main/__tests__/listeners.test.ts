@@ -3,18 +3,18 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, dialog, shell, WebContents } from 'electron';
-import { Mock } from 'vitest';
+import { type BrowserWindow, dialog, shell, type WebContents } from 'electron';
+import { type Mock } from 'vitest';
 
 import {
   AllowedFrontendChannels,
   IpcChannel,
 } from '../../../shared/ipc-channels';
 import {
-  Attributions,
+  type Attributions,
   Criticality,
-  ExportSpdxDocumentJsonArgs,
-  ExportSpdxDocumentYamlArgs,
+  type ExportSpdxDocumentJsonArgs,
+  type ExportSpdxDocumentYamlArgs,
   ExportType,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';

@@ -5,8 +5,8 @@
 import {
   test as base,
   _electron as electron,
-  ElectronApplication,
-  Page,
+  type ElectronApplication,
+  type Page,
 } from '@playwright/test';
 import { parseElectronApp } from 'electron-playwright-helpers';
 import * as fs from 'fs';
@@ -14,8 +14,8 @@ import * as os from 'os';
 import * as path from 'path';
 
 import {
-  ParsedOpossumInputFile,
-  ParsedOpossumOutputFile,
+  type ParsedOpossumInputFile,
+  type ParsedOpossumOutputFile,
 } from '../../ElectronBackend/types/types';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { AttributionDetails } from '../page-objects/AttributionDetails';

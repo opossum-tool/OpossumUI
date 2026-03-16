@@ -3,14 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  AttributionData,
-  BaseUrlsForSources,
-  ExternalAttributionSources,
-  FrequentLicenses,
-  PackageInfo,
-  ProjectConfig,
-  ProjectMetadata,
-  Resources,
+  type AttributionData,
+  type BaseUrlsForSources,
+  type ExternalAttributionSources,
+  type FrequentLicenses,
+  type PackageInfo,
+  type ProjectConfig,
+  type ProjectMetadata,
+  type Resources,
 } from '../../../../shared/shared-types';
 
 export const ACTION_SET_SELECTED_ATTRIBUTION_ID =

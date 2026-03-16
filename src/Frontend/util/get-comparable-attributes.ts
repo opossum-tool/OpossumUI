@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { pickBy } from 'lodash';
 
-import { PackageInfo } from '../../shared/shared-types';
+import { type PackageInfo } from '../../shared/shared-types';
 import { thirdPartyKeys } from '../shared-constants';
 
 export const FORM_ATTRIBUTES = [

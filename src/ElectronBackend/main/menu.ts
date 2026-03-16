@@ -3,7 +3,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
+import {
+  type BrowserWindow,
+  Menu,
+  type MenuItemConstructorOptions,
+} from 'electron';
 import os from 'os';
 
 import { getAboutMenu } from './menu/aboutMenu';

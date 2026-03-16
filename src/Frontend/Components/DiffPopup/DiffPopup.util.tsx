@@ -4,12 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useCallback, useMemo, useState } from 'react';
 
-import { PackageInfo } from '../../../shared/shared-types';
+import { type PackageInfo } from '../../../shared/shared-types';
 import {
   FORM_ATTRIBUTES,
-  FormAttribute,
+  type FormAttribute,
 } from '../../util/get-comparable-attributes';
-import { AttributionFormConfig } from '../AttributionForm/AttributionForm';
+import { type AttributionFormConfig } from '../AttributionForm/AttributionForm';
 import { DiffEndIcon } from '../DiffEndIcon/DiffEndIcon';
 
 export function useAttributionFormConfigs({

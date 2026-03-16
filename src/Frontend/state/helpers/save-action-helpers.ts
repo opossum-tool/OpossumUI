@@ -6,12 +6,12 @@ import { remove } from 'lodash';
 import isEqual from 'lodash/isEqual';
 
 import {
-  AttributionData,
-  Attributions,
-  AttributionsToResources,
+  type AttributionData,
+  type Attributions,
+  type AttributionsToResources,
   Criticality,
-  PackageInfo,
-  ResourcesWithAttributedChildren,
+  type PackageInfo,
+  type ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { getClosestParentWithAttributions } from '../../util/get-closest-parent-attributions';

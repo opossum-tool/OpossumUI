@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { expect, Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
-import { RawFrequentLicense } from '../../ElectronBackend/types/types';
-import { RawPackageInfo } from '../../shared/shared-types';
+import { type RawFrequentLicense } from '../../ElectronBackend/types/types';
+import { type RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 
 class ValidationDisplay {

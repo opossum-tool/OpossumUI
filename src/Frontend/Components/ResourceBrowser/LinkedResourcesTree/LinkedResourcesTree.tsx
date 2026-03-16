@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { SxProps } from '@mui/system';
+import { type SxProps } from '@mui/system';
 import { remove } from 'lodash';
 import { useCallback } from 'react';
 
@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
 import { LinkedResourcesTreeNode } from './LinkedResourcesTreeNode/LinkedResourcesTreeNode';
-import { LinkedResourcesTreeState } from './useLinkedResourcesTreeState';
+import { type LinkedResourcesTreeState } from './useLinkedResourcesTreeState';
 
 interface Props {
   disableHighlightSelected?: boolean;

@@ -3,21 +3,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  AttributionData,
-  Attributions,
-  AttributionsToResources,
-  BaseUrlsForSources,
-  ClassificationsConfig,
-  ExternalAttributionSources,
-  FrequentLicenseName,
-  LicenseTexts,
-  PackageInfo,
-  ProjectMetadata,
-  Resources,
-  ResourcesToAttributions,
-  ResourcesWithAttributedChildren,
+  type AttributionData,
+  type Attributions,
+  type AttributionsToResources,
+  type BaseUrlsForSources,
+  type ClassificationsConfig,
+  type ExternalAttributionSources,
+  type FrequentLicenseName,
+  type LicenseTexts,
+  type PackageInfo,
+  type ProjectMetadata,
+  type Resources,
+  type ResourcesToAttributions,
+  type ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
-import { State } from '../../types/types';
+import { type State } from '../../types/types';
 
 export function getResources(state: State): Resources | null {
   return state.resourceState.resources;

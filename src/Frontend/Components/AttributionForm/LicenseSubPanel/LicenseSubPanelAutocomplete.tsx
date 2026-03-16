@@ -6,7 +6,7 @@ import MuiBox from '@mui/material/Box';
 import { sortBy } from 'lodash';
 import { useMemo } from 'react';
 
-import { PackageInfo } from '../../../../shared/shared-types';
+import { type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
@@ -18,9 +18,9 @@ import { backend } from '../../../util/backendClient';
 import { validateSpdxExpression } from '../../../util/spdx/validate-spdx';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 import { renderOccuranceCount } from '../../Autocomplete/AutocompleteUtil';
-import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import { type Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { SourceIcon } from '../../Icons/Icons';
-import { AttributionFormConfig } from '../AttributionForm';
+import { type AttributionFormConfig } from '../AttributionForm';
 import { SpdxValidationDisplay } from './SpdxValidationDisplay';
 
 interface LicenseAutocompleteProps {

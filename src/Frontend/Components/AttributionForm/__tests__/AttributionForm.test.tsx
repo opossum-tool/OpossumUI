@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 
 import {
   Criticality,
-  PackageInfo,
+  type PackageInfo,
   RawCriticality,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';

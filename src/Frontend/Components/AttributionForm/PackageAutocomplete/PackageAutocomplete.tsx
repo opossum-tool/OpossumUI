@@ -4,14 +4,18 @@
 // SPDX-License-Identifier: Apache-2.0
 import AddIcon from '@mui/icons-material/Add';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { createFilterOptions, styled, TextFieldProps } from '@mui/material';
+import {
+  createFilterOptions,
+  styled,
+  type TextFieldProps,
+} from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import { compact, sortBy } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Criticality, PackageInfo } from '../../../../shared/shared-types';
+import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { clickableIcon, OpossumColors } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
@@ -27,7 +31,7 @@ import { openUrl } from '../../../util/open-url';
 import { PackageSearchHooks } from '../../../util/package-search-hooks';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 import { renderOccuranceCount } from '../../Autocomplete/AutocompleteUtil';
-import { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import { type Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../../IconButton/IconButton';
 import { SourceIcon } from '../../Icons/Icons';
 import { ValidationDisplay } from '../../ValidationDisplay/ValidationDisplay';

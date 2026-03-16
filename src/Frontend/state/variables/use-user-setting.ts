@@ -5,11 +5,11 @@
 import { useEffect } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { UserSettings } from '../../../shared/shared-types';
-import { State } from '../../types/types';
+import { type UserSettings } from '../../../shared/shared-types';
+import { type State } from '../../types/types';
 import {
   useIpcRenderer,
-  UserSettingsChangedListener,
+  type UserSettingsChangedListener,
 } from '../../util/use-ipc-renderer';
 import {
   fetchUserSettings,

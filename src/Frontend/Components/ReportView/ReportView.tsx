@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { defer } from 'lodash';
 import { useEffect, useMemo, useRef } from 'react';
-import { TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
+import { TableVirtuoso, type TableVirtuosoHandle } from 'react-virtuoso';
 
 import { useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';

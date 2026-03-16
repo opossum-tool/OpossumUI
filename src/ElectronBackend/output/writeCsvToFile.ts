@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import * as csv from 'fast-csv';
-import { CsvFormatterStream } from 'fast-csv';
+import { type CsvFormatterStream } from 'fast-csv';
 import * as fs from 'fs';
 import { pick } from 'lodash';
 
-import { Attributions, PackageInfo } from '../../shared/shared-types';
+import { type Attributions, type PackageInfo } from '../../shared/shared-types';
 
 export const CUT_OFF_LENGTH = 30000;
 

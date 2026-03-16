@@ -7,11 +7,11 @@ import ErrorIcon from '@mui/icons-material/Error';
 import WarningIcon from '@mui/icons-material/Warning';
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
-import { SxProps } from '@mui/system';
+import { type SxProps } from '@mui/system';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 
-import { Log } from '../../../shared/shared-types';
+import { type Log } from '../../../shared/shared-types';
 import { baseIcon } from '../../shared-styles';
 import { Spinner } from '../Spinner/Spinner';
 import { BreakableTypography, EllipsisTypography } from './LogDisplay.style';

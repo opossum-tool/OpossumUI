@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { compact } from 'lodash';
 
-import { PackageInfo } from '../../../shared/shared-types';
-import { TableConfig } from '../ReportView/TableConfig';
+import { type PackageInfo } from '../../../shared/shared-types';
+import { type TableConfig } from '../ReportView/TableConfig';
 
 export function getFormattedCellData(
   config: TableConfig,

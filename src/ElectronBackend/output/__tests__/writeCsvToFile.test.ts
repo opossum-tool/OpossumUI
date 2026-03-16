@@ -5,9 +5,9 @@
 import * as fs from 'fs';
 
 import {
-  Attributions,
+  type Attributions,
   Criticality,
-  PackageInfo,
+  type PackageInfo,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
 import {

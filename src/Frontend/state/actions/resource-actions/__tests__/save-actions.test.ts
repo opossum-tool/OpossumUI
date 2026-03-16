@@ -6,15 +6,15 @@
 import { executeCommand } from '../../../../../ElectronBackend/api/commands';
 import { getSaveFileArgs } from '../../../../../ElectronBackend/main/listeners';
 import {
-  Attributions,
+  type Attributions,
   Criticality,
   DiscreteConfidence,
-  PackageInfo,
-  ParsedFileContent,
-  Resources,
-  ResourcesToAttributions,
-  ResourcesWithAttributedChildren,
-  SaveFileArgs,
+  type PackageInfo,
+  type ParsedFileContent,
+  type Resources,
+  type ResourcesToAttributions,
+  type ResourcesWithAttributedChildren,
+  type SaveFileArgs,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';

@@ -10,7 +10,7 @@ import { faker } from '../../../../testing/Faker';
 import { renderComponent } from '../../../test-helpers/render';
 import {
   ConfirmationDialog,
-  ConfirmOptions,
+  type ConfirmOptions,
   useConfirmationDialog,
 } from '../ConfirmationDialog';
 

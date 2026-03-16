@@ -2,15 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ExpressionBuilder, sql } from 'kysely';
-import { DB } from 'kysely-codegen';
+import { type ExpressionBuilder, sql } from 'kysely';
+import { type DB } from 'kysely-codegen';
 
 import {
-  ClassificationStatistics,
-  FileWithAttributionsCounts,
-  ResourceCriticalityCounts,
+  type ClassificationStatistics,
+  type FileWithAttributionsCounts,
+  type ResourceCriticalityCounts,
 } from '../../Frontend/types/types';
-import { ClassificationsConfig, Criticality } from '../../shared/shared-types';
+import {
+  type ClassificationsConfig,
+  Criticality,
+} from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import {
   getClassificationResourceQuery,

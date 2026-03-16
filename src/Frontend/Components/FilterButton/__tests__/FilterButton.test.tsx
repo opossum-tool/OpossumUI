@@ -8,11 +8,11 @@ import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import { Filter } from '../../../shared-constants';
+import { type Filter } from '../../../shared-constants';
 import {
-  AttributionFilters,
+  type AttributionFilters,
   initialFilters,
-  UseAttributionFilters,
+  type UseAttributionFilters,
 } from '../../../state/variables/use-filters';
 import { renderComponent } from '../../../test-helpers/render';
 import { FilterButton } from '../FilterButton';

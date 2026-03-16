@@ -6,7 +6,7 @@ import { isFunction } from 'lodash';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
-import { State } from '../../types/types';
+import { type State } from '../../types/types';
 import { setVariable } from '../actions/variables-actions/variables-actions';
 import { useAppDispatch, useAppStore } from '../hooks';
 

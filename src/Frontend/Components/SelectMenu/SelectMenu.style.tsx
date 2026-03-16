@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import CheckIcon from '@mui/icons-material/Check';
 import MuiBox from '@mui/material/Box';
-import MuiMenu, { MenuProps as MuiMenuProps } from '@mui/material/Menu';
+import MuiMenu, { type MenuProps as MuiMenuProps } from '@mui/material/Menu';
 import MuiMenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/material/styles';
 

@@ -3,16 +3,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  ComparisonOperatorExpression,
-  ExpressionBuilder,
-  Kysely,
-  OperandExpression,
-  SelectQueryBuilder,
-  Transaction,
+  type ComparisonOperatorExpression,
+  type ExpressionBuilder,
+  type Kysely,
+  type OperandExpression,
+  type SelectQueryBuilder,
+  type Transaction,
 } from 'kysely';
 
-import { Criticality } from '../../shared/shared-types';
-import { DB } from '../db/generated/databaseTypes';
+import { type Criticality } from '../../shared/shared-types';
+import { type DB } from '../db/generated/databaseTypes';
 
 export function getOnlyExternalFilesQuery(eb: ExpressionBuilder<DB, 'cwa'>) {
   return eb

@@ -6,10 +6,10 @@ import fs from 'fs';
 import path from 'path';
 
 import {
-  ExportSpdxDocumentJsonArgs,
-  ExportSpdxDocumentYamlArgs,
+  type ExportSpdxDocumentJsonArgs,
+  type ExportSpdxDocumentYamlArgs,
   ExportType,
-  PackageInfo,
+  type PackageInfo,
 } from '../../shared/shared-types';
 import {
   createSpdxDocument,
@@ -17,7 +17,7 @@ import {
   createSpdxPackage,
   createSpdxYaml,
 } from '../spdxTools/spdxTools';
-import { SpdxDocument } from '../spdxTools/types';
+import { type SpdxDocument } from '../spdxTools/types';
 
 const CREATOR_TOOL = 'Opossum';
 

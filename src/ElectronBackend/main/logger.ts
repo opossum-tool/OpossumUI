@@ -6,7 +6,7 @@ import { BrowserWindow } from 'electron';
 import log from 'electron-log';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import { Log } from '../../shared/shared-types';
+import { type Log } from '../../shared/shared-types';
 
 class Logger {
   private sendLogToRenderer(

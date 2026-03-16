@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  Attributions,
-  AttributionsToResources,
+  type Attributions,
+  type AttributionsToResources,
   Criticality,
-  Resources,
-  ResourcesToAttributions,
+  type Resources,
+  type ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
 import { getResourceTree } from '../resourceTree';

@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { compact } from 'lodash';
 
-import { PackageInfo } from '../../shared/shared-types';
+import { type PackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 
 const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES = [

@@ -2,8 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { SxProps } from '@mui/system';
-import { Virtuoso, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
+import { type SxProps } from '@mui/system';
+import {
+  Virtuoso,
+  type VirtuosoHandle,
+  type VirtuosoProps,
+} from 'react-virtuoso';
 
 import { useVirtuosoRefs } from '../../util/use-virtuoso-refs';
 import { EmptyPlaceholder } from '../EmptyPlaceholder/EmptyPlaceholder';

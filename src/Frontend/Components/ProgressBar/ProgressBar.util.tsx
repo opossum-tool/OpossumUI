@@ -8,10 +8,10 @@ import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
 import {
-  ClassificationStatistics,
-  ClassificationStatisticsEntry,
-  FileWithAttributionsCounts,
-  ResourceCriticalityCounts,
+  type ClassificationStatistics,
+  type ClassificationStatisticsEntry,
+  type FileWithAttributionsCounts,
+  type ResourceCriticalityCounts,
 } from '../../types/types';
 
 type Color = string;

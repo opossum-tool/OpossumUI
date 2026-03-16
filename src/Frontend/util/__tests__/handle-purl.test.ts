@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Criticality, PackageInfo } from '../../../shared/shared-types';
+import { Criticality, type PackageInfo } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
 import { generatePurl } from '../handle-purl';
 

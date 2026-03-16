@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Screen } from '@testing-library/dom/types/screen';
+import { type Screen } from '@testing-library/dom/types/screen';
 import { act, fireEvent, screen } from '@testing-library/react';
 
 import { Criticality } from '../../../../shared/shared-types';
@@ -10,7 +10,7 @@ import { setUserSetting } from '../../../state/actions/user-settings-actions/use
 import { renderComponent } from '../../../test-helpers/render';
 import {
   AttributionCountPerSourcePerLicenseTable,
-  AttributionCountPerSourcePerLicenseTableProps,
+  type AttributionCountPerSourcePerLicenseTableProps,
 } from '../AttributionCountPerSourcePerLicenseTable';
 
 const props: AttributionCountPerSourcePerLicenseTableProps = {

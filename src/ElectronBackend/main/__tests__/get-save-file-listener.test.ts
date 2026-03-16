@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, dialog, WebContents } from 'electron';
+import { type BrowserWindow, dialog, type WebContents } from 'electron';
 import * as MockDate from 'mockdate';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';

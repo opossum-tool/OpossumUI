@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog } from 'electron';
 
-import { FileFormatInfo } from '../../shared/shared-types';
+import { type FileFormatInfo } from '../../shared/shared-types';
 
 function openFileDialog(
   filters: Array<Electron.FileFilter>,

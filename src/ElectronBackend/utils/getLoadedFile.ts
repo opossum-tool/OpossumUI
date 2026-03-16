@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { LoadedFileFormat } from '../enums/enums';
-import { GlobalBackendState } from '../types/types';
+import { type GlobalBackendState } from '../types/types';
 
 export function getLoadedFilePath(
   globalBackendState: GlobalBackendState,

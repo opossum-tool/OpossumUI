@@ -4,9 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { sql } from 'kysely';
 
-import { SortOption } from '../../Frontend/Components/SortButton/useSortingOptions';
-import { Filter } from '../../Frontend/shared-constants';
-import { Attributions, PackageInfo } from '../../shared/shared-types';
+import { type SortOption } from '../../Frontend/Components/SortButton/useSortingOptions';
+import { type Filter } from '../../Frontend/shared-constants';
+import { type Attributions, type PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import {

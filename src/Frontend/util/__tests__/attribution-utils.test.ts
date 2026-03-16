@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  Attributions,
-  AttributionsToResources,
+  type Attributions,
+  type AttributionsToResources,
   Criticality,
   ExportType,
-  Resources,
+  type Resources,
 } from '../../../shared/shared-types';
 import {
   getAttributionsWithAllChildResourcesWithoutFolders,

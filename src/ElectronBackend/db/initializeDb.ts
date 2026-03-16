@@ -2,21 +2,21 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql, Transaction } from 'kysely';
-import { DataTypeExpression } from 'kysely/dist/cjs/parser/data-type-parser';
+import { sql, type Transaction } from 'kysely';
+import { type DataTypeExpression } from 'kysely/dist/cjs/parser/data-type-parser';
 import { snakeCase } from 'lodash';
 
 import {
-  ExternalAttributionSources,
-  FrequentLicenses,
-  InputFileAttributionData,
-  PackageInfo,
-  ParsedFileContent,
-  Resources,
+  type ExternalAttributionSources,
+  type FrequentLicenses,
+  type InputFileAttributionData,
+  type PackageInfo,
+  type ParsedFileContent,
+  type Resources,
 } from '../../shared/shared-types';
 import { removeTrailingSlash } from '../api/utils';
 import { getDb, getRawDb, resetDb } from './db';
-import { DB } from './generated/databaseTypes';
+import { type DB } from './generated/databaseTypes';
 
 /**
  * Comments that will be added to the generated types and diagram

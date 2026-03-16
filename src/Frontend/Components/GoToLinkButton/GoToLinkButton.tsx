@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
-import { OpenLinkArgs } from '../../../shared/shared-types';
+import { type OpenLinkArgs } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
 import { openPopup } from '../../state/actions/view-actions/view-actions';

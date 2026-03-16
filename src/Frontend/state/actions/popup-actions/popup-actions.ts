@@ -4,11 +4,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  ExportType,
-  FileFormatInfo,
-  PackageInfo,
+  type ExportType,
+  type FileFormatInfo,
+  type PackageInfo,
 } from '../../../../shared/shared-types';
-import { PopupType, View } from '../../../enums/enums';
+import { PopupType, type View } from '../../../enums/enums';
 import {
   getIsPackageInfoDirty,
   getSelectedResourceId,
@@ -20,7 +20,7 @@ import {
   getOpenFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
-import { AppThunkAction } from '../../types';
+import { type AppThunkAction } from '../../types';
 import {
   setSelectedAttributionId,
   setSelectedResourceId,
