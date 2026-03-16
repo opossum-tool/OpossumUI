@@ -15,6 +15,7 @@ import {
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
   type ResourceRelationship,
+  toCanonicalLicenseName,
 } from './utils';
 
 export async function listAttributions(props: {
@@ -77,9 +78,9 @@ export async function listAttributions(props: {
 
   if (props.license) {
     query = query.where(
-      sql<string>`trim(canonical_license_name)`,
+      'canonical_license_name',
       '=',
-      getStrippedLicenseName(props.license),
+      toCanonicalLicenseName(props.license),
     );
   }
 

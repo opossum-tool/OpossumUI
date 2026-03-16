@@ -8,18 +8,21 @@ import {
   type ExpressionBuilder,
   expressionBuilder,
   type Kysely,
+  RawBuilder,
   sql,
   type Transaction,
 } from 'kysely';
 import { snakeCase } from 'lodash';
 
-import { getStrippedLicenseName } from '../../Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { FILTERS } from '../../Frontend/shared-constants';
 import { areAttributionsEqual } from '../../shared/attribution-comparison';
 import { type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
 import { removeManualOrExternalCwaFromResources } from './progressBarUtils';
-import { type FilterProperties } from './queries';
+import {
+  type FilterProperties,
+  type FilterPropertiesWithCanonicalLicenseNames,
+} from './queries';
 
 export type ResourceRelationship =
   | 'same'
@@ -479,33 +482,34 @@ export function attributionToResourceRelationship(props: {
   return expression.else('unrelated').end();
 }
 
+export function toCanonicalLicenseName(
+  s: Expression<string> | string,
+): RawBuilder<string> {
+  return sql<string>`lower(replace(replace(${s}, '-', ''), ' ', ''))`;
+}
+
 export function mergeFilterProperties(
-  counts: Array<FilterProperties | undefined>,
-): FilterProperties {
+  counts: Array<FilterPropertiesWithCanonicalLicenseNames | undefined>,
+): FilterPropertiesWithCanonicalLicenseNames {
   const result = {
     ...Object.fromEntries(['total', ...FILTERS].map((f) => [f, 0])),
-    licenses: [] as Array<string>,
-  } as FilterProperties;
-
-  // Use a Map to track which license name to use for each canonical license name.
-  const licenseMap = new Map<string, string>();
+    licenses: [] as Array<{ name: string; canonical_name: string }>,
+  } as FilterPropertiesWithCanonicalLicenseNames;
 
   for (const sum of counts.filter((s) => s !== undefined)) {
     for (const [k, v] of Object.entries(sum)) {
       if (k === 'licenses') {
-        for (const license of v as Array<string>) {
-          const canonicalLicenseName = getStrippedLicenseName(license);
-          if (!licenseMap.has(canonicalLicenseName)) {
-            licenseMap.set(canonicalLicenseName, license);
-          }
-        }
+        result.licenses = [
+          ...new Set([
+            ...result.licenses,
+            ...(v as Array<{ name: string; canonical_name: string }>),
+          ]),
+        ];
       } else {
         result[k as keyof Omit<FilterProperties, 'licenses'>] += v as number;
       }
     }
   }
-
-  result.licenses = Array.from(licenseMap.values()).toSorted();
 
   return result;
 }

@@ -14,7 +14,7 @@ import {
   type ParsedFileContent,
   type Resources,
 } from '../../shared/shared-types';
-import { removeTrailingSlash } from '../api/utils';
+import { removeTrailingSlash, toCanonicalLicenseName } from '../api/utils';
 import { getDb, getRawDb, resetDb } from './db';
 import { type DB } from './generated/databaseTypes';
 
@@ -379,11 +379,7 @@ async function initializeAttributionTable(
   }
 
   schema = schema.addColumn('canonical_license_name', 'text', (col) =>
-    col
-      .generatedAlwaysAs(
-        sql`lower(replace(replace(license_name, '-', ''), ' ', ''))`,
-      )
-      .stored(),
+    col.generatedAlwaysAs(toCanonicalLicenseName(sql`license_name`)).stored(),
   );
 
   await schema.execute();

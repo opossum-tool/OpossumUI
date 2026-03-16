@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { sql } from 'kysely';
-import { omit } from 'lodash';
+import { omit, uniqBy } from 'lodash';
 
 import { getStrippedLicenseName } from '../../Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import {
@@ -38,6 +38,7 @@ import {
   removeTrailingSlash,
   type ResourceRelationship,
   resourcesToExpand,
+  toCanonicalLicenseName,
   toSnakeCase,
 } from './utils';
 
@@ -58,6 +59,12 @@ export type FilterProperties = FilterCounts & {
   total: number;
   licenses: Array<string>;
 };
+
+export type FilterPropertiesWithCanonicalLicenseNames = Omit<
+  FilterProperties,
+  'licenses'
+> & { licenses: Array<{ name: string; canonical_name: string }> };
+
 type AttributionCounts = Partial<
   Record<ResourceRelationship, FilterProperties>
 > &
@@ -242,9 +249,11 @@ export const queries = {
         ),
       )
       .select(
-        sql<string>`json_group_array(DISTINCT trim(license_name))`.as(
-          'licenses',
-        ),
+        sql<string>`
+          json_group_array(distinct json_object(
+            'name', trim(license_name),
+            'canonical_name', canonical_license_name
+          ))`.as('licenses'),
       )
       .groupBy('relationship');
 
@@ -256,9 +265,9 @@ export const queries = {
 
     if (props.license) {
       query = query.where(
-        sql<string>`trim(canonical_license_name)`,
+        'canonical_license_name',
         '=',
-        getStrippedLicenseName(props.license),
+        toCanonicalLicenseName(props.license),
       );
     }
 
@@ -278,11 +287,13 @@ export const queries = {
         s.relationship,
         {
           ...omit(s, 'relationship', 'licenses'),
-          licenses: JSON.parse(s.licenses).filter(Boolean).toSorted() ?? [],
+          licenses: JSON.parse(s.licenses) ?? [],
         },
       ]),
-    ) as Omit<AttributionCounts, 'all' | 'sameOrDescendant'>;
-
+    ) as Record<
+      ResourceRelationship,
+      FilterPropertiesWithCanonicalLicenseNames
+    >;
     const all = mergeFilterProperties(Object.values(sumsPerRelationship));
     const sameOrDescendant = mergeFilterProperties([
       sumsPerRelationship.same,
@@ -291,7 +302,30 @@ export const queries = {
 
     const byRelationship = { ...sumsPerRelationship, all, sameOrDescendant };
 
-    return { result: byRelationship };
+    const deduplicatedByRelationship: AttributionCounts =
+      {} as AttributionCounts;
+
+    for (const relationship of Object.keys(byRelationship) as Array<
+      keyof typeof byRelationship
+    >) {
+      const count = byRelationship[relationship];
+      if (count === undefined) {
+        continue;
+      }
+      const deduplicatedLicenses = uniqBy(
+        count.licenses,
+        (l) => l.canonical_name,
+      )
+        .map((l) => l.name)
+        .filter(Boolean)
+        .toSorted();
+      deduplicatedByRelationship[relationship] = {
+        ...count,
+        licenses: deduplicatedLicenses,
+      };
+    }
+
+    return { result: deduplicatedByRelationship };
   },
 
   async getNodePathsToExpand({ fromNodePath }: { fromNodePath: string }) {
