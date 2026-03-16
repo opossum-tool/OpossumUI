@@ -6,7 +6,6 @@
 import '@testing-library/jest-dom/vitest';
 import { noop } from 'lodash';
 
-import { executeCommand } from '../ElectronBackend/api/commands';
 import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
 import { type ElectronAPI } from '../shared/shared-types';
 
@@ -17,6 +16,8 @@ class ResizeObserver {
 }
 
 if (typeof window !== 'undefined') {
+  // We do not need nor want to mock the queries in the backend, so we import them here
+  const { executeCommand } = await import('../ElectronBackend/api/commands');
   global.window.electronAPI = {
     quit: vi.fn(),
     relaunch: vi.fn(),
