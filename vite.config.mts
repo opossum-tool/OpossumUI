@@ -3,10 +3,35 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import react from '@vitejs/plugin-react';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, InlineConfig, loadEnv } from 'vite';
 import electron from 'vite-plugin-electron';
 import svgrPlugin from 'vite-plugin-svgr';
-import viteTsconfigPaths from 'vite-tsconfig-paths';
+
+function getElectronProcessViteConfig(): InlineConfig {
+  return {
+    build: {
+      minify: true,
+      outDir: 'build/ElectronBackend',
+      rollupOptions: {
+        external: [
+          'electron',
+          'better-sqlite3-electron',
+          'bindings',
+          'file-uri-to-path',
+        ],
+      },
+    },
+    resolve: {
+      alias: {
+        // Electron needs its dependencies to be rebuilt to fit its packaged node version: https://www.electronjs.org/docs/latest/tutorial/using-native-node-modules
+        // Our local node can't work with the rebuilt binaries
+        // So we install better-sqlite3 twice, once with the `-electron` suffix, and then we rebuild only that one
+        // Then we make electron use the rebuilt one using this alias
+        'better-sqlite3': 'better-sqlite3-electron',
+      },
+    },
+  };
+}
 
 export default defineConfig(({ mode }) => ({
   plugins: [
@@ -15,49 +40,19 @@ export default defineConfig(({ mode }) => ({
         ? {}
         : { babel: { plugins: ['babel-plugin-react-compiler'] } },
     ),
-    viteTsconfigPaths(),
     svgrPlugin(),
     ...(mode === 'e2e' || mode === 'test'
       ? []
-      : electron({
-          entry: [
-            'src/ElectronBackend/app.ts',
-            'src/ElectronBackend/preload.ts',
-          ],
-          onstart(options) {
-            if (process.platform === 'linux') {
-              // See github.com/electron-vite/vite-plugin-electron/issues/264
-              options.startup(undefined, {
-                stdio: ['inherit', 'inherit', 'inherit', 'ignore', 'ipc'],
-              });
-            } else {
-              options.startup();
-            }
+      : electron([
+          {
+            entry: 'src/ElectronBackend/preload.ts',
+            vite: getElectronProcessViteConfig(),
           },
-          vite: {
-            build: {
-              minify: true,
-              outDir: 'build/ElectronBackend',
-              rollupOptions: {
-                external: [
-                  'electron',
-                  'better-sqlite3-electron',
-                  'bindings',
-                  'file-uri-to-path',
-                ],
-              },
-            },
-            resolve: {
-              alias: {
-                // Electron needs its dependencies to be rebuilt to fit its packaged node version: https://www.electronjs.org/docs/latest/tutorial/using-native-node-modules
-                // Our local node can't work with the rebuilt binaries
-                // So we install better-sqlite3 twice, once with the `-electron` suffix, and then we rebuild only that one
-                // Then we make electron use the rebuilt one using this alias
-                'better-sqlite3': 'better-sqlite3-electron',
-              },
-            },
+          {
+            entry: 'src/ElectronBackend/app.ts',
+            vite: getElectronProcessViteConfig(),
           },
-        })),
+        ])),
   ],
   define: {
     'process.env.CI': loadEnv(mode, process.cwd()).CI,
