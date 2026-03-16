@@ -20,7 +20,6 @@ import {
   EMPTY_PROJECT_METADATA,
   ROOT_PATH,
 } from '../../shared-constants';
-import { getCalculatePreferredOverOriginIds } from '../actions/resource-actions/preference-actions';
 import {
   ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
@@ -213,7 +212,6 @@ export const resourceState = (
         selectedResourceId,
         action.payload.attributionId,
         action.payload.packageInfo,
-        getCalculatePreferredOverOriginIds(state),
       );
 
       return {
@@ -227,8 +225,6 @@ export const resourceState = (
         action.payload.attributionId,
         state.manualData,
         action.payload.packageInfo,
-        state.selectedResourceId,
-        getCalculatePreferredOverOriginIds(state),
       );
       return {
         ...state,
@@ -241,7 +237,6 @@ export const resourceState = (
         action.payload,
         state.attributionBreakpoints,
         state.resolvedExternalAttributions,
-        getCalculatePreferredOverOriginIds(state),
       );
 
       return {
@@ -275,7 +270,6 @@ export const resourceState = (
         action.payload.resourceId,
         action.payload.attributionId,
         state.attributionBreakpoints,
-        getCalculatePreferredOverOriginIds(state),
       );
 
       return {
@@ -292,7 +286,6 @@ export const resourceState = (
         action.payload.resourceId,
         action.payload.attributionId,
         state.resolvedExternalAttributions,
-        getCalculatePreferredOverOriginIds(state),
       );
 
       return {
