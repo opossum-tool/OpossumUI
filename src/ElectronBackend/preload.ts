@@ -6,7 +6,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 import { IpcChannel } from '../shared/ipc-channels';
-import { ElectronAPI, UserSettings } from '../shared/shared-types';
+import type { ElectronAPI, UserSettings } from '../shared/shared-types';
 
 const electronAPI: ElectronAPI = {
   quit: () => ipcRenderer.invoke(IpcChannel.Quit),
