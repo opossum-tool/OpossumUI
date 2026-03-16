@@ -14,6 +14,10 @@ import {
   type SpdxPackage,
 } from '../types';
 
+vi.mock('uuid', () => ({
+  v4: (): string => 'testUUID',
+}));
+
 vi.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime());
 
 const emptySpdxPackage: SpdxPackage = {
@@ -56,10 +60,7 @@ const expectedBaseSpdxDocument: SpdxDocument = {
 describe('createSpdxDocument', () => {
   it('creates an SPDX document given minimal data', () => {
     const spdxDocument = createSpdxDocument('Opossum', { dependencies: [] });
-    expect(spdxDocument).toStrictEqual({
-      ...expectedBaseSpdxDocument,
-      documentNamespace: expect.any(String),
-    });
+    expect(spdxDocument).toStrictEqual(expectedBaseSpdxDocument);
   });
 
   it('creates an SPDX document without documentName', () => {
@@ -76,7 +77,6 @@ describe('createSpdxDocument', () => {
     );
     expect(spdxDocument).toStrictEqual({
       ...expectedBaseSpdxDocument,
-      documentNamespace: expect.any(String),
       name: 'document.yaml',
       dataLicense: 'data license',
     });
@@ -89,7 +89,6 @@ describe('createSpdxDocument', () => {
     });
     expect(spdxDocument).toStrictEqual({
       ...expectedBaseSpdxDocument,
-      documentNamespace: expect.any(String),
       hasExtractedLicensingInfos: [],
       packages: [expectedRootPackage],
       relationships: [expectedRootRelationship],
@@ -139,7 +138,6 @@ describe('createSpdxDocument', () => {
     });
     expect(spdxDocument).toStrictEqual({
       ...expectedBaseSpdxDocument,
-      documentNamespace: expect.any(String),
       hasExtractedLicensingInfos: [
         {
           extractedText: 'license text 1',
