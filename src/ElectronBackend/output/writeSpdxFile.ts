@@ -6,8 +6,7 @@ import fs from 'fs';
 import path from 'path';
 
 import {
-  type ExportSpdxDocumentJsonArgs,
-  type ExportSpdxDocumentYamlArgs,
+  type Attributions,
   ExportType,
   type PackageInfo,
 } from '../../shared/shared-types';
@@ -21,18 +20,19 @@ import { type SpdxDocument } from '../spdxTools/types';
 
 const CREATOR_TOOL = 'Opossum';
 
-export function writeSpdxFile(
-  filePath: string,
-  args: ExportSpdxDocumentYamlArgs | ExportSpdxDocumentJsonArgs,
-): void {
-  const fileName = path.basename(filePath);
-  const packageInfos = Object.values(args.spdxAttributions);
+export function writeSpdxFile(args: {
+  path: string;
+  type: ExportType.SpdxDocumentYaml | ExportType.SpdxDocumentJson;
+  attributionsToWrite: Attributions;
+}): void {
+  const fileName = path.basename(args.path);
+  const packageInfos = Object.values(args.attributionsToWrite);
   const spdxDocument = getSpdxDocument(packageInfos, fileName);
 
   if (args.type === ExportType.SpdxDocumentYaml) {
-    fs.writeFileSync(filePath, createSpdxYaml(spdxDocument));
+    fs.writeFileSync(args.path, createSpdxYaml(spdxDocument));
   } else if (args.type === ExportType.SpdxDocumentJson) {
-    fs.writeFileSync(filePath, createSpdxJson(spdxDocument));
+    fs.writeFileSync(args.path, createSpdxJson(spdxDocument));
   }
 }
 

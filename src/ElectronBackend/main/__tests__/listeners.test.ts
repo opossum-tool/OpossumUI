@@ -3,33 +3,20 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type BrowserWindow, dialog, shell, type WebContents } from 'electron';
+import { type BrowserWindow, shell, type WebContents } from 'electron';
 import { type Mock } from 'vitest';
 
 import {
   AllowedFrontendChannels,
   IpcChannel,
 } from '../../../shared/ipc-channels';
-import {
-  type Attributions,
-  Criticality,
-  type ExportSpdxDocumentJsonArgs,
-  type ExportSpdxDocumentYamlArgs,
-  ExportType,
-} from '../../../shared/shared-types';
-import { faker } from '../../../testing/Faker';
-import * as errorHandling from '../../errorHandling/errorHandling';
-import { writeCsvToFile } from '../../output/writeCsvToFile';
-import { writeSpdxFile } from '../../output/writeSpdxFile';
 import { createWindow } from '../createWindow';
 import {
   openNonOpossumFileDialog,
   saveFileDialog,
   selectBaseURLDialog,
 } from '../dialogs';
-import { setGlobalBackendState } from '../globalBackendState';
 import {
-  exportFileListener,
   importFileListener,
   importFileSelectSaveLocationListener,
   linkHasHttpSchema,
@@ -87,14 +74,6 @@ vi.mock('electron', () => ({
   shell: { showItemInFolder: vi.fn(), openExternal: vi.fn() },
 }));
 
-vi.mock('../../output/writeCsvToFile', () => ({
-  writeCsvToFile: vi.fn(),
-}));
-
-vi.mock('../../output/writeSpdxFile', () => ({
-  writeSpdxFile: vi.fn(),
-}));
-
 vi.mock('../../input/importFromFile', () => ({
   loadInputAndOutputFromFilePath: vi.fn(),
 }));
@@ -129,230 +108,6 @@ describe('getSelectBaseURLListener', () => {
   });
 });
 
-describe('getExportFollowUpListener', () => {
-  it('throws error when followUpFilePath is not set', async () => {
-    const mainWindow = initWindowAndBackendState();
-
-    await exportFileListener(mainWindow)(IpcChannel.ExportFile, {
-      type: ExportType.FollowUp,
-      followUpAttributionsWithResources: {},
-    });
-
-    expect(dialog.showMessageBox).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'error',
-        message: 'Error in app backend: Failed to create export',
-        buttons: ['Reload File', 'Quit'],
-      }),
-    );
-    expect(writeCsvToFile).not.toHaveBeenCalled();
-  });
-
-  it('calls getExportFollowUpListener', async () => {
-    const mainWindow = initWindowAndBackendState();
-    setGlobalBackendState({
-      followUpFilePath: '/somefile.csv',
-    });
-
-    const listener = exportFileListener(mainWindow);
-
-    const followUpAttributionsWithResources: Attributions = {
-      key1: {
-        followUp: undefined,
-        licenseText: 'license text',
-        firstParty: true,
-        resources: ['/'],
-        criticality: Criticality.None,
-        id: faker.string.uuid(),
-      },
-      key2: {
-        packageName: 'license text',
-        resources: ['/a', '/b'],
-        criticality: Criticality.None,
-        id: faker.string.uuid(),
-      },
-    };
-
-    await listener(IpcChannel.ExportFile, {
-      type: ExportType.FollowUp,
-      followUpAttributionsWithResources,
-    });
-
-    expect(writeCsvToFile).toHaveBeenCalledWith(
-      '/somefile.csv',
-      followUpAttributionsWithResources,
-      [
-        'packageName',
-        'packageVersion',
-        'url',
-        'copyright',
-        'licenseName',
-        'resources',
-      ],
-      true,
-    );
-  });
-});
-
-describe('getExportBomListener', () => {
-  it('throws error when bomFilePath is not set', async () => {
-    const mainWindow = initWindowAndBackendState();
-
-    await exportFileListener(mainWindow)(IpcChannel.ExportFile, {
-      type: ExportType.CompactBom,
-      bomAttributions: {},
-    });
-
-    expect(dialog.showMessageBox).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'error',
-        message: 'Error in app backend: Failed to create export',
-        buttons: ['Reload File', 'Quit'],
-      }),
-    );
-    expect(writeCsvToFile).not.toHaveBeenCalled();
-  });
-
-  it('calls getExportBomListener for compact bom', async () => {
-    const mainWindow = initWindowAndBackendState();
-
-    const listener = exportFileListener(mainWindow);
-
-    setGlobalBackendState({
-      compactBomFilePath: '/somefile.csv',
-    });
-
-    const attributionsWithResources: Attributions = {
-      key1: {
-        followUp: undefined,
-        licenseText: 'license text',
-        firstParty: true,
-        criticality: Criticality.None,
-        id: faker.string.uuid(),
-      },
-      key2: {
-        packageName: 'license text',
-        criticality: Criticality.None,
-        id: faker.string.uuid(),
-      },
-    };
-
-    await listener(IpcChannel.ExportFile, {
-      type: ExportType.CompactBom,
-      bomAttributions: attributionsWithResources,
-    });
-
-    expect(writeCsvToFile).toHaveBeenNthCalledWith(
-      1,
-      '/somefile.csv',
-      attributionsWithResources,
-      ['packageName', 'packageVersion', 'licenseName', 'copyright', 'url'],
-    );
-  });
-
-  it('calls getExportBomListener for detailed bom', async () => {
-    const mainWindow = initWindowAndBackendState();
-
-    const listener = exportFileListener(mainWindow);
-
-    setGlobalBackendState({
-      detailedBomFilePath: '/somefile.csv',
-    });
-
-    const attributionsWithResources: Attributions = {
-      key1: {
-        followUp: undefined,
-        licenseText: 'license text',
-        firstParty: true,
-        resources: ['/somefile.csv'],
-        criticality: Criticality.None,
-        id: faker.string.uuid(),
-      },
-      key2: {
-        packageName: 'license text',
-        resources: ['/a', '/b'],
-        criticality: Criticality.None,
-        id: faker.string.uuid(),
-      },
-    };
-
-    await listener(IpcChannel.ExportFile, {
-      type: ExportType.DetailedBom,
-      bomAttributionsWithResources: attributionsWithResources,
-    });
-
-    expect(writeCsvToFile).toHaveBeenNthCalledWith(
-      1,
-      '/somefile.csv',
-      attributionsWithResources,
-      [
-        'packageName',
-        'packageVersion',
-        'packageNamespace',
-        'packageType',
-        'packagePURLAppendix',
-        'url',
-        'copyright',
-        'licenseName',
-        'licenseText',
-        'resources',
-      ],
-    );
-  });
-});
-
-describe('getExportSpdxDocumentListener', () => {
-  it('throws if path is not set', async () => {
-    const mainWindow = initWindowAndBackendState();
-
-    await exportFileListener(mainWindow)(IpcChannel.ExportFile, {
-      type: ExportType.SpdxDocumentYaml,
-      spdxAttributions: {},
-    });
-
-    expect(dialog.showMessageBox).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'error',
-        buttons: ['Reload File', 'Quit'],
-      }),
-    );
-
-    expect(writeSpdxFile).not.toHaveBeenCalled();
-  });
-
-  it('calls getExportSpdxDocumentListener for yaml', async () => {
-    const mainWindow = initWindowAndBackendState();
-    const testArgs: ExportSpdxDocumentYamlArgs = {
-      type: ExportType.SpdxDocumentYaml,
-      spdxAttributions: {},
-    };
-
-    const listener = exportFileListener(mainWindow);
-
-    setGlobalBackendState({ spdxYamlFilePath: '/test.yaml' });
-
-    await listener(IpcChannel.ExportFile, testArgs);
-
-    expect(writeSpdxFile).toHaveBeenNthCalledWith(1, '/test.yaml', testArgs);
-  });
-
-  it('calls getExportSpdxDocumentListener for json', async () => {
-    const mainWindow = initWindowAndBackendState();
-    const testArgs: ExportSpdxDocumentJsonArgs = {
-      type: ExportType.SpdxDocumentJson,
-      spdxAttributions: {},
-    };
-
-    const listener = exportFileListener(mainWindow);
-
-    setGlobalBackendState({ spdxJsonFilePath: '/test.json' });
-
-    await listener(IpcChannel.ExportFile, testArgs);
-
-    expect(writeSpdxFile).toHaveBeenNthCalledWith(1, '/test.json', testArgs);
-  });
-});
-
 describe('getOpenLinkListener', () => {
   it('opens link', async () => {
     const testLink = 'https://www.test.de/link';
@@ -361,51 +116,6 @@ describe('getOpenLinkListener', () => {
     });
 
     expect(shell.openExternal).toHaveBeenCalledWith(testLink);
-  });
-});
-
-describe('_exportFileAndOpenFolder', () => {
-  it('calls the createFile function', async () => {
-    const mainWindow = initWindowAndBackendState();
-    const testSpdxDocumentYamlFilePath = '/some/path.json';
-    setGlobalBackendState({ spdxYamlFilePath: testSpdxDocumentYamlFilePath });
-    const testArgs: ExportSpdxDocumentYamlArgs = {
-      type: ExportType.SpdxDocumentYaml,
-      spdxAttributions: {},
-    };
-
-    await exportFileListener(mainWindow)(undefined, testArgs);
-
-    expect(writeSpdxFile).toHaveBeenNthCalledWith(
-      1,
-      testSpdxDocumentYamlFilePath,
-      testArgs,
-    );
-    expect(shell.showItemInFolder).toHaveBeenCalledWith(
-      testSpdxDocumentYamlFilePath,
-    );
-  });
-
-  it('throws if outputFilePath is not set', async () => {
-    const mainWindow = initWindowAndBackendState();
-    setGlobalBackendState({ spdxYamlFilePath: undefined });
-    const testArgs: ExportSpdxDocumentYamlArgs = {
-      type: ExportType.SpdxDocumentYaml,
-      spdxAttributions: {},
-    };
-
-    vi.spyOn(errorHandling, 'showListenerErrorInMessageBox').mockImplementation(
-      vi.fn(),
-    );
-
-    await exportFileListener(mainWindow)(undefined, testArgs);
-
-    expect(errorHandling.showListenerErrorInMessageBox).toHaveBeenCalledWith(
-      expect.anything(),
-      new Error('Failed to create export'),
-    );
-    expect(writeSpdxFile).not.toHaveBeenCalled();
-    expect(shell.showItemInFolder).not.toHaveBeenCalled();
   });
 });
 
@@ -504,9 +214,6 @@ describe('getImportFileSelectSaveLocationListener', () => {
 });
 
 function initWindowAndBackendState(): BrowserWindow {
-  (writeCsvToFile as Mock).mockReset();
-  setGlobalBackendState({});
-
   return createWindow();
 }
 

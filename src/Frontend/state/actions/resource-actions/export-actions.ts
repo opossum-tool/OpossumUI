@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { ExportType } from '../../../../shared/shared-types';
 import { backend } from '../../../util/backendClient';
-import { AppThunkAction } from '../../types';
+import { type AppThunkAction } from '../../types';
 
 export function exportFile(exportType: ExportType): AppThunkAction {
   return async () => {

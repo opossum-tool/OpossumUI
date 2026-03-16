@@ -6,9 +6,9 @@ import { shell } from 'electron';
 import { sql } from 'kysely';
 
 import {
-  Attributions,
+  type Attributions,
   ExportType,
-  PackageInfo,
+  type PackageInfo,
 } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { getGlobalBackendState } from '../main/globalBackendState';
@@ -114,8 +114,11 @@ export async function exportSpdxDocument(params: {
       packageInfo.licenseText ?? row.frequent_license_text ?? '';
     spdxAttributions[row.uuid] = { ...packageInfo, licenseText };
   }
-
-  writeSpdxFile(filePath, { type: params.type, spdxAttributions });
+  writeSpdxFile({
+    path: filePath,
+    type: params.type,
+    attributionsToWrite: spdxAttributions,
+  });
   shell.showItemInFolder(filePath);
   return { result: null };
 }

@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export enum IpcChannel {
-  ExportFile = 'export-file',
   OpenFile = 'open-file',
   SelectFile = 'select-file',
   ImportFileSelectSaveLocation = 'import-file-select-save-location',
