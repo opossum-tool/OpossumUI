@@ -16,7 +16,8 @@ export async function generateDiagram(
   const schema = await sql<{ name: string }>`pragma table_list`.execute(db);
   const tables = schema.rows
     .map((r) => r.name)
-    .filter((n) => !n.startsWith('sqlite_'));
+    .filter((n) => !n.startsWith('sqlite_'))
+    .sort((left, right) => left.localeCompare(right));
 
   const graphvizTables: Array<string> = [];
   const graphvizForeignKeys: Array<string> = [];
@@ -74,7 +75,12 @@ export async function generateDiagram(
           to: string;
         }>(`pragma foreign_key_list(${table})`)
         .execute(db)
-    ).rows;
+    ).rows.sort(
+      (left, right) =>
+        left.table.localeCompare(right.table) ||
+        left.from.localeCompare(right.from) ||
+        left.to.localeCompare(right.to),
+    );
 
     for (const fk of foreignKeys) {
       graphvizForeignKeys.push(
@@ -88,6 +94,7 @@ export async function generateDiagram(
   graphvizForeignKeys.push(
     'source_for_attribution:external_attribution_source_key_out:e -> external_attribution_source:key_in:w [style=dashed];',
   );
+  graphvizForeignKeys.sort((left, right) => left.localeCompare(right));
 
   const graphvizSource = `digraph g {
   graph[label="Open the SVG in a browser to see tooltips on comments 📝\n🔑: Primary key\n🔧: Generated column", fontsize=10];
