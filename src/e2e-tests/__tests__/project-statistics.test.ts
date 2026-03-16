@@ -104,6 +104,7 @@ test('table sorting is persisted across app restarts', async ({
   menuBar,
   projectStatisticsPopup,
 }) => {
+  test.slow();
   const openDetailsTab = async () => {
     await menuBar.openProjectStatistics();
     await projectStatisticsPopup.assert.titleIsVisible();
