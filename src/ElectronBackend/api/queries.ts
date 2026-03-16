@@ -12,12 +12,6 @@ import {
 } from '../../Frontend/shared-constants';
 import { type PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
-import {
-  exportCompactBom,
-  exportDetailedBom,
-  exportFollowUp,
-  exportSpdxDocument,
-} from './exportQueries';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { listAttributions } from './listAttributions';
 import {
@@ -405,11 +399,6 @@ export const queries = {
   getNextFileToReviewForAttribution,
   getNextFileToReviewForCriticality,
   getNextFileToReviewForClassification,
-
-  exportFollowUp,
-  exportSpdxDocument,
-  exportCompactBom,
-  exportDetailedBom,
 } satisfies Record<string, QueryFunction>;
 
 export type Queries = typeof queries;

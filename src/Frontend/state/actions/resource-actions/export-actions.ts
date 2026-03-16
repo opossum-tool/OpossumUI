@@ -12,16 +12,16 @@ export function exportFile(exportType: ExportType): AppThunkAction {
     switch (exportType) {
       case ExportType.SpdxDocumentJson:
       case ExportType.SpdxDocumentYaml:
-        await backend.exportSpdxDocument.query({ type: exportType });
+        await backend.exportSpdxDocument.mutate({ type: exportType });
         return;
       case ExportType.FollowUp:
-        await backend.exportFollowUp.query();
+        await backend.exportFollowUp.mutate();
         return;
       case ExportType.CompactBom:
-        await backend.exportCompactBom.query();
+        await backend.exportCompactBom.mutate();
         return;
       case ExportType.DetailedBom:
-        await backend.exportDetailedBom.query();
+        await backend.exportDetailedBom.mutate();
     }
   };
 }

@@ -109,7 +109,6 @@ export async function exportSpdxDocument(params: {
   const spdxAttributions: Attributions = {};
   for (const row of rows) {
     const packageInfo = JSON.parse(row.data) as PackageInfo;
-    // Previously the code was only getting the frequent license text because of a bug, now we default to packageInfo.licenseText
     const licenseText =
       packageInfo.licenseText ?? row.frequent_license_text ?? '';
     spdxAttributions[row.uuid] = { ...packageInfo, licenseText };
