@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { shell } from 'electron';
 import { sql } from 'kysely';
 
 import {
@@ -15,13 +16,11 @@ import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 
 export async function exportFollowUp() {
-  const db = getDb();
   const globalState = getGlobalBackendState();
   if (!globalState.followUpFilePath) {
     throw new Error('Follow-up file path is not set');
   }
-
-  const all = await db
+  const followUpAndFilePathsResult = await getDb()
     .selectFrom('attribution')
     .select([
       'uuid',
@@ -50,7 +49,7 @@ export async function exportFollowUp() {
     .execute();
 
   const followUpAttributions: Attributions = Object.fromEntries(
-    all.map((row) => [
+    followUpAndFilePathsResult.map((row) => [
       row.uuid,
       {
         ...(JSON.parse(row.data) as PackageInfo),
@@ -72,6 +71,7 @@ export async function exportFollowUp() {
     ],
     true,
   );
+  shell.showItemInFolder(globalState.followUpFilePath);
   return { result: null };
 }
 
@@ -116,18 +116,16 @@ export async function exportSpdxDocument(params: {
   }
 
   writeSpdxFile(filePath, { type: params.type, spdxAttributions });
-
+  shell.showItemInFolder(filePath);
   return { result: null };
 }
 
 export async function exportCompactBom() {
-  const db = getDb();
   const globalState = getGlobalBackendState();
   if (!globalState.compactBomFilePath) {
     throw new Error('Compact BOM file path is not set');
   }
-
-  const rows = await db
+  const rows = await getDb()
     .selectFrom('attribution')
     .select(['uuid', 'data'])
     .where('is_external', '=', 0)
@@ -147,18 +145,16 @@ export async function exportCompactBom() {
     'copyright',
     'url',
   ]);
-
+  shell.showItemInFolder(globalState.compactBomFilePath);
   return { result: null };
 }
 
 export async function exportDetailedBom() {
-  const db = getDb();
   const globalState = getGlobalBackendState();
   if (!globalState.detailedBomFilePath) {
     throw new Error('Detailed BOM file path is not set');
   }
-
-  const all = await db
+  const manualAttributionsAndResourcesResult = await getDb()
     .selectFrom('attribution')
     .select([
       'uuid',
@@ -186,7 +182,7 @@ export async function exportDetailedBom() {
     .execute();
 
   const bomAttributions: Attributions = Object.fromEntries(
-    all.map((row) => [
+    manualAttributionsAndResourcesResult.map((row) => [
       row.uuid,
       {
         ...(JSON.parse(row.data) as PackageInfo),
@@ -207,6 +203,6 @@ export async function exportDetailedBom() {
     'licenseText',
     'resources',
   ]);
-
+  shell.showItemInFolder(globalState.detailedBomFilePath);
   return { result: null };
 }

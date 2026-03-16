@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { shell } from 'electron';
 import * as csv from 'fast-csv';
 import { type CsvFormatterStream } from 'fast-csv';
 import * as fs from 'fs';
@@ -39,7 +38,7 @@ export async function writeCsvToFile(
     );
 
     csvStream.end();
-    shell.showItemInFolder(filePath);
+
     return new Promise((resolve, reject) => {
       writeStream.on('finish', resolve);
       writeStream.on('error', reject);
