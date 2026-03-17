@@ -10,13 +10,11 @@ import {
   type PackageInfo,
   type ProjectConfig,
   type ProjectMetadata,
-  type Resources,
 } from '../../../../shared/shared-types';
 
 export const ACTION_SET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_SELECTED_ATTRIBUTION_ID';
 export const ACTION_RESET_RESOURCE_STATE = 'ACTION_RESET_RESOURCE_STATE';
-export const ACTION_SET_RESOURCES = 'ACTION_SET_RESOURCES';
 export const ACTION_SET_PROJECT_CONFIG = 'ACTION_SET_PROJECT_CONFIG';
 export const ACTION_SET_MANUAL_ATTRIBUTION_DATA =
   'ACTION_SET_MANUAL_ATTRIBUTION_DATA';
@@ -62,7 +60,6 @@ export const ACTION_SET_IS_PACKAGE_INFO_DIRTY =
 
 export type ResourceAction =
   | ResetResourceStateAction
-  | SetResourcesAction
   | SetProjectConfigAction
   | SetManualDataAction
   | SetFrequentLicensesAction
@@ -91,11 +88,6 @@ export type ResourceAction =
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
-}
-
-export interface SetResourcesAction {
-  type: typeof ACTION_SET_RESOURCES;
-  payload: Resources | null;
 }
 
 export interface SetProjectConfigAction {

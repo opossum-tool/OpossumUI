@@ -9,7 +9,7 @@ import { type IpcRendererEvent } from 'electron';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   type BaseURLForRootArgs,
-  type ParsedFileContent,
+  type ParsedFrontendFileContent,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
@@ -44,7 +44,7 @@ export const BackendCommunication: React.FC = () => {
 
   function fileLoadedListener(
     _: IpcRendererEvent,
-    parsedFileContent: ParsedFileContent,
+    parsedFileContent: ParsedFrontendFileContent,
   ): void {
     dispatch(loadFromFile(parsedFileContent));
   }

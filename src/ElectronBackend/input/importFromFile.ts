@@ -5,13 +5,15 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type BrowserWindow, dialog } from 'electron';
 import fs from 'fs';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, omit } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   type Attributions,
+  EXCLUDED_FROM_FRONTEND_FILE_CONTENT,
   type ParsedFileContent,
+  type ParsedFrontendFileContent,
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
@@ -247,10 +249,12 @@ export async function loadInputAndOutputFromFilePath(
 
   processingStatusUpdater.info('Sending data to user interface');
 
-  mainWindow.webContents.send(
-    AllowedFrontendChannels.FileLoaded,
+  const frontendData: ParsedFrontendFileContent = omit(
     parsedFileContent,
+    EXCLUDED_FROM_FRONTEND_FILE_CONTENT,
   );
+
+  mainWindow.webContents.send(AllowedFrontendChannels.FileLoaded, frontendData);
 
   processingStatusUpdater.info('Finalizing global state');
   getGlobalBackendState().projectTitle = parsedInputData.metadata.projectTitle;

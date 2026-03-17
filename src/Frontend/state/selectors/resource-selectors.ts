@@ -13,15 +13,10 @@ import {
   type LicenseTexts,
   type PackageInfo,
   type ProjectMetadata,
-  type Resources,
   type ResourcesToAttributions,
   type ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { type State } from '../../types/types';
-
-export function getResources(state: State): Resources | null {
-  return state.resourceState.resources;
-}
 
 export function getManualData(state: State): AttributionData {
   return state.resourceState.manualData;
