@@ -11,7 +11,7 @@ import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   Criticality,
-  type ParsedFileContent,
+  type ParsedFrontendFileContent,
   RawCriticality,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -153,12 +153,11 @@ const inputFileContent: ParsedOpossumInputFile = {
   },
 };
 
-const expectedFileContent: ParsedFileContent = {
+const expectedFileContent: ParsedFrontendFileContent = {
   metadata: {
     ...EMPTY_PROJECT_METADATA,
     projectTitle: 'Test Title',
   },
-  resources: { a: 1, folder: {} },
   config: {
     classifications: {
       0: 'GOOD',
@@ -169,36 +168,6 @@ const expectedFileContent: ParsedFileContent = {
     attributions: {},
     resourcesToAttributions: {},
     attributionsToResources: {},
-  },
-  externalAttributions: {
-    attributions: {
-      [externalAttributionUuid]: {
-        source,
-        packageName: 'my app',
-        packageVersion: '1.2.3',
-        packageNamespace: 'org.apache.xmlgraphics',
-        packagePURLAppendix:
-          '?repository_url=repo.spring.io/release#everybody/loves/dogs',
-        packageType: 'maven',
-        copyright: '(c) first party',
-        excludeFromNotice: true,
-        firstParty: true,
-        criticality: Criticality.High,
-        preferred: true,
-        wasPreferred: true,
-        id: externalAttributionUuid,
-        originalAttributionSource: source,
-        originalAttributionId: externalAttributionUuid,
-        originalAttributionWasPreferred: true,
-      },
-    },
-    resourcesToAttributions: {
-      '/a': [externalAttributionUuid],
-      '/folder/': [externalAttributionUuid],
-    },
-    attributionsToResources: {
-      [externalAttributionUuid]: ['/a', '/folder/'],
-    },
   },
   frequentLicenses: {
     nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
@@ -528,9 +497,8 @@ describe('Test of loading function', () => {
       setGlobalBackendState(globalBackendState);
 
       await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
-      const expectedLoadedFile: ParsedFileContent = {
+      const expectedLoadedFile: ParsedFrontendFileContent = {
         metadata: EMPTY_PROJECT_METADATA,
-        resources: { a: 1 },
         config: {
           classifications: {
             0: 'GOOD',
@@ -555,31 +523,6 @@ describe('Test of loading function', () => {
           },
           attributionsToResources: {
             [manualAttributionUuid]: ['/a'],
-          },
-        },
-        externalAttributions: {
-          attributions: {
-            [externalAttributionUuid]: {
-              source,
-              packageName: 'my app',
-              packageVersion: '1.2.3',
-              copyright: '(c) first party',
-              preSelected: true,
-              attributionConfidence: 17,
-              comment: 'some comment',
-              preferred: true,
-              id: externalAttributionUuid,
-              originalAttributionSource: source,
-              originalAttributionId: externalAttributionUuid,
-              originalAttributionWasPreferred: undefined,
-              criticality: Criticality.None,
-            },
-          },
-          resourcesToAttributions: {
-            '/a': [externalAttributionUuid],
-          },
-          attributionsToResources: {
-            [externalAttributionUuid]: ['/a'],
           },
         },
         frequentLicenses: {
@@ -643,7 +586,7 @@ describe('Test of loading function', () => {
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
 
-    const expectedLoadedFile: ParsedFileContent = {
+    const expectedLoadedFile: ParsedFrontendFileContent = {
       ...expectedFileContent,
       metadata: inputFileContentWithCustomMetadata.metadata,
     };
@@ -679,28 +622,8 @@ describe('Test of loading function', () => {
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
 
-    const expectedLoadedFile: ParsedFileContent = {
+    const expectedLoadedFile: ParsedFrontendFileContent = {
       ...expectedFileContent,
-      externalAttributions: {
-        attributions: {
-          uuid: {
-            source,
-            packageName: 'react',
-            originIds: ['abc', 'def'],
-            id: 'uuid',
-            originalAttributionId: 'uuid',
-            originalAttributionSource: source,
-            originalAttributionWasPreferred: undefined,
-            criticality: Criticality.None,
-          },
-        },
-        resourcesToAttributions: {
-          '/a': ['uuid'],
-        },
-        attributionsToResources: {
-          uuid: ['/a'],
-        },
-      },
     };
 
     const webContents = mainWindow.webContents as unknown as MockWebContents;
@@ -787,7 +710,7 @@ describe('Test of loading function', () => {
 });
 
 function assertFileLoadedCorrectly(testUuid: string): void {
-  const expectedLoadedFile: ParsedFileContent = {
+  const expectedLoadedFile: ParsedFrontendFileContent = {
     ...expectedFileContent,
     manualAttributions: {
       attributions: {
