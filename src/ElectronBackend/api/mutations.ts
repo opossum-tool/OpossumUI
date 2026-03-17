@@ -11,7 +11,7 @@ import {
   exportDetailedBom,
   exportFollowUp,
   exportSpdxDocument,
-} from './exportQueries';
+} from './exportCommands';
 import {
   addManualOrExternalCwaToResources,
   removeManualOrExternalCwaFromResources,

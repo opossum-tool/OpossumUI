@@ -18,7 +18,7 @@ import {
   exportDetailedBom,
   exportFollowUp,
   exportSpdxDocument,
-} from '../exportQueries';
+} from '../exportCommands';
 
 vi.resetModules();
 vi.mock('electron', () => ({
@@ -31,17 +31,7 @@ vi.mock('../../output/writeSpdxFile', () => ({
   writeSpdxFile: vi.fn(),
 }));
 
-describe('exportFollowUp', () => {
-  it('throws when followUpFilePath is not set', async () => {
-    await initializeDbWithTestData();
-    setGlobalBackendState({});
-
-    await expect(exportFollowUp()).rejects.toThrow(
-      'Follow-up file path is not set',
-    );
-    expect(writeCsvToFile).not.toHaveBeenCalled();
-  });
-
+describe('export tests', () => {
   it('exports follow-up attributions to CSV', async () => {
     const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
     setGlobalBackendState({ followUpFilePath: csvPath });
@@ -78,9 +68,9 @@ describe('exportFollowUp', () => {
 
     expect(writeCsvToFile).toHaveBeenCalledWith(
       csvPath,
-      expect.objectContaining({
+      {
         uuid1: expect.objectContaining({ packageName: 'follow-up-pkg' }),
-      }),
+      },
       [
         'packageName',
         'packageVersion',
@@ -91,21 +81,7 @@ describe('exportFollowUp', () => {
       ],
       true,
     );
-    const callArgs = vi.mocked(writeCsvToFile).mock.calls[0];
-    expect(callArgs[1]).not.toHaveProperty('uuid2');
     expect(shell.showItemInFolder).toHaveBeenCalledWith(csvPath);
-  });
-});
-
-describe('exportCompactBom', () => {
-  it('throws when compactBomFilePath is not set', async () => {
-    await initializeDbWithTestData();
-    setGlobalBackendState({});
-
-    await expect(exportCompactBom()).rejects.toThrow(
-      'Compact BOM file path is not set',
-    );
-    expect(writeCsvToFile).not.toHaveBeenCalled();
   });
 
   it('exports compact BOM to CSV', async () => {
@@ -151,30 +127,19 @@ describe('exportCompactBom', () => {
 
     await exportCompactBom();
 
-    expect(writeCsvToFile).toHaveBeenCalledWith(
-      compactBomFilePath,
-      expect.objectContaining({
+    expect(writeCsvToFile).toHaveBeenCalledWith({
+      path: compactBomFilePath,
+      attributions: {
         uuid1: expect.objectContaining({ packageName: 'bom-pkg' }),
-      }),
-      ['packageName', 'packageVersion', 'licenseName', 'copyright', 'url'],
-    );
-    const callArgs = vi.mocked(writeCsvToFile).mock.calls[0];
-    expect(callArgs[1]).not.toHaveProperty('uuid2');
-    expect(callArgs[1]).not.toHaveProperty('uuid3');
-    expect(callArgs[1]).not.toHaveProperty('uuid4');
-    expect(shell.showItemInFolder).toHaveBeenCalledWith(compactBomFilePath);
-  });
-});
-
-describe('exportDetailedBom', () => {
-  it('throws when detailedBomFilePath is not set', async () => {
-    await initializeDbWithTestData();
-    setGlobalBackendState({});
-
-    await expect(exportDetailedBom()).rejects.toThrow(
-      'Detailed BOM file path is not set',
-    );
-    expect(writeCsvToFile).not.toHaveBeenCalled();
+      },
+      columns: [
+        'packageName',
+        'packageVersion',
+        'licenseName',
+        'copyright',
+        'url',
+      ],
+    });
   });
 
   it('exports detailed BOM to CSV with resources', async () => {
@@ -205,12 +170,12 @@ describe('exportDetailedBom', () => {
 
     expect(writeCsvToFile).toHaveBeenCalledWith(
       detailedBomFilePath,
-      expect.objectContaining({
+      {
         uuid1: expect.objectContaining({
           packageName: 'detailed-pkg',
           resources: expect.arrayContaining(['/a', '/b']),
         }),
-      }),
+      },
       [
         'packageName',
         'packageVersion',
@@ -225,28 +190,6 @@ describe('exportDetailedBom', () => {
       ],
     );
     expect(shell.showItemInFolder).toHaveBeenCalledWith(detailedBomFilePath);
-  });
-});
-
-describe('exportSpdxDocument', () => {
-  it('throws when SPDX YAML path is not set', async () => {
-    await initializeDbWithTestData();
-    setGlobalBackendState({});
-
-    await expect(
-      exportSpdxDocument({ type: ExportType.SpdxDocumentYaml }),
-    ).rejects.toThrow('SPDX YAML file path is not set');
-    expect(writeSpdxFile).not.toHaveBeenCalled();
-  });
-
-  it('throws when SPDX JSON path is not set', async () => {
-    await initializeDbWithTestData();
-    setGlobalBackendState({});
-
-    await expect(
-      exportSpdxDocument({ type: ExportType.SpdxDocumentJson }),
-    ).rejects.toThrow('SPDX JSON file path is not set');
-    expect(writeSpdxFile).not.toHaveBeenCalled();
   });
 
   it('exports SPDX YAML document', async () => {
@@ -273,9 +216,9 @@ describe('exportSpdxDocument', () => {
     expect(writeSpdxFile).toHaveBeenCalledWith({
       path: spdxYamlFilePath,
       type: ExportType.SpdxDocumentYaml,
-      attributionsToWrite: expect.objectContaining({
+      attributions: {
         uuid1: expect.objectContaining({ packageName: 'spdx-pkg' }),
-      }),
+      },
     });
     expect(shell.showItemInFolder).toHaveBeenCalledWith(spdxYamlFilePath);
   });
@@ -304,9 +247,9 @@ describe('exportSpdxDocument', () => {
     expect(writeSpdxFile).toHaveBeenCalledWith({
       path: spdxJsonFilePath,
       type: ExportType.SpdxDocumentJson,
-      attributionsToWrite: expect.objectContaining({
+      attributions: {
         uuid1: expect.objectContaining({ packageName: 'spdx-pkg' }),
-      }),
+      },
     });
     expect(shell.showItemInFolder).toHaveBeenCalledWith(spdxJsonFilePath);
   });

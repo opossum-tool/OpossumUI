@@ -72,7 +72,6 @@ export async function exportFollowUp() {
     true,
   );
   shell.showItemInFolder(globalState.followUpFilePath);
-  return { result: null };
 }
 
 export async function exportSpdxDocument(params: {
@@ -119,7 +118,6 @@ export async function exportSpdxDocument(params: {
     attributionsToWrite: spdxAttributions,
   });
   shell.showItemInFolder(filePath);
-  return { result: null };
 }
 
 export async function exportCompactBom() {
@@ -148,7 +146,6 @@ export async function exportCompactBom() {
     'url',
   ]);
   shell.showItemInFolder(globalState.compactBomFilePath);
-  return { result: null };
 }
 
 export async function exportDetailedBom() {
@@ -206,5 +203,4 @@ export async function exportDetailedBom() {
     'resources',
   ]);
   shell.showItemInFolder(globalState.detailedBomFilePath);
-  return { result: null };
 }
