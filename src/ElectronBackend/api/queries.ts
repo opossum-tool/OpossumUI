@@ -431,6 +431,31 @@ export const queries = {
     };
   },
 
+  async getFrequentLicenseNames() {
+    const result = await getDb()
+      .selectFrom('frequent_license')
+      .select(['short_name as shortName', 'full_name as fullName'])
+      .orderBy('id')
+      .execute();
+
+    return { result };
+  },
+
+  async getFrequentLicenseText(props: { licenseName: string }) {
+    const result = await getDb()
+      .selectFrom('frequent_license')
+      .select('license_text')
+      .where((eb) =>
+        eb.or([
+          eb('short_name', '=', props.licenseName),
+          eb('full_name', '=', props.licenseName),
+        ]),
+      )
+      .executeTakeFirst();
+
+    return { result: result?.license_text ?? null };
+  },
+
   getAttributionProgressBarData,
   getCriticalityProgressBarData,
   getClassificationProgressBarData,
