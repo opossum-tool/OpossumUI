@@ -2,7 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import react from '@vitejs/plugin-react';
+import babel from '@rolldown/plugin-babel';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { defineConfig, InlineConfig, loadEnv } from 'vite';
 import electron from 'vite-plugin-electron';
 import svgrPlugin from 'vite-plugin-svgr';
@@ -35,11 +36,12 @@ function getElectronProcessViteConfig(): InlineConfig {
 
 export default defineConfig(({ mode }) => ({
   plugins: [
-    react(
-      mode === 'test'
-        ? {}
-        : { babel: { plugins: ['babel-plugin-react-compiler'] } },
-    ),
+    react(),
+    mode === 'test'
+      ? undefined
+      : babel({
+          presets: [reactCompilerPreset()],
+        }),
     svgrPlugin(),
     ...(mode === 'e2e' || mode === 'test'
       ? []
