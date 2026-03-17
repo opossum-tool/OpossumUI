@@ -23,10 +23,10 @@ const CREATOR_TOOL = 'Opossum';
 export function writeSpdxFile(args: {
   path: string;
   type: ExportType.SpdxDocumentYaml | ExportType.SpdxDocumentJson;
-  attributionsToWrite: Attributions;
+  attributions: Attributions;
 }): void {
   const fileName = path.basename(args.path);
-  const packageInfos = Object.values(args.attributionsToWrite);
+  const packageInfos = Object.values(args.attributions);
   const spdxDocument = getSpdxDocument(packageInfos, fileName);
 
   if (args.type === ExportType.SpdxDocumentYaml) {

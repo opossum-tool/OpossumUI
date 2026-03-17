@@ -66,12 +66,12 @@ describe('export tests', () => {
 
     await exportFollowUp();
 
-    expect(writeCsvToFile).toHaveBeenCalledWith(
-      csvPath,
-      {
+    expect(writeCsvToFile).toHaveBeenCalledWith({
+      path: csvPath,
+      attributions: {
         uuid1: expect.objectContaining({ packageName: 'follow-up-pkg' }),
       },
-      [
+      columns: [
         'packageName',
         'packageVersion',
         'url',
@@ -79,8 +79,8 @@ describe('export tests', () => {
         'licenseName',
         'resources',
       ],
-      true,
-    );
+      shortenResources: true,
+    });
     expect(shell.showItemInFolder).toHaveBeenCalledWith(csvPath);
   });
 
@@ -168,15 +168,15 @@ describe('export tests', () => {
 
     await exportDetailedBom();
 
-    expect(writeCsvToFile).toHaveBeenCalledWith(
-      detailedBomFilePath,
-      {
+    expect(writeCsvToFile).toHaveBeenCalledWith({
+      path: detailedBomFilePath,
+      attributions: {
         uuid1: expect.objectContaining({
           packageName: 'detailed-pkg',
           resources: expect.arrayContaining(['/a', '/b']),
         }),
       },
-      [
+      columns: [
         'packageName',
         'packageVersion',
         'packageNamespace',
@@ -188,7 +188,7 @@ describe('export tests', () => {
         'licenseText',
         'resources',
       ],
-    );
+    });
     expect(shell.showItemInFolder).toHaveBeenCalledWith(detailedBomFilePath);
   });
 

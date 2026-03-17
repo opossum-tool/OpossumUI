@@ -18,7 +18,7 @@ describe('writeSpdxFile', () => {
     writeSpdxFile({
       path: yamlPath,
       type: ExportType.SpdxDocumentYaml,
-      attributionsToWrite: {},
+      attributions: {},
     });
 
     expect(fs.existsSync(yamlPath)).toBe(true);
@@ -31,7 +31,7 @@ describe('writeSpdxFile', () => {
     writeSpdxFile({
       path: jsonPath,
       type: ExportType.SpdxDocumentJson,
-      attributionsToWrite: {},
+      attributions: {},
     });
 
     expect(fs.existsSync(jsonPath)).toBe(true);
@@ -62,7 +62,7 @@ describe('writeSpdxFile', () => {
     writeSpdxFile({
       path: yamlPath,
       type: ExportType.SpdxDocumentYaml,
-      attributionsToWrite: testAttributions,
+      attributions: testAttributions,
     });
 
     expect(fs.existsSync(yamlPath)).toBe(true);

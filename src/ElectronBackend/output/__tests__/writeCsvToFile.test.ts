@@ -39,13 +39,17 @@ describe('writeCsvToFile', () => {
     };
 
     const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
-    await writeCsvToFile(csvPath, testFollowUpAttributionsWithResources, [
-      'packageName',
-      'followUp',
-      'licenseText',
-      'firstParty',
-      'resources',
-    ]);
+    await writeCsvToFile({
+      path: csvPath,
+      attributions: testFollowUpAttributionsWithResources,
+      columns: [
+        'packageName',
+        'followUp',
+        'licenseText',
+        'firstParty',
+        'resources',
+      ],
+    });
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
@@ -75,11 +79,11 @@ describe('writeCsvToFile', () => {
     };
     const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
     const columns: Array<keyof PackageInfo> = ['packageName', 'licenseText'];
-    await writeCsvToFile(
-      csvPath,
-      testFollowUpAttributionsWithResources,
+    await writeCsvToFile({
+      path: csvPath,
+      attributions: testFollowUpAttributionsWithResources,
       columns,
-    );
+    });
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(
@@ -108,12 +112,18 @@ describe('writeCsvToFile', () => {
     };
 
     const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
-    await writeCsvToFile(
-      csvPath,
-      testFollowUpAttributionsWithResources,
-      ['packageName', 'followUp', 'licenseText', 'firstParty', 'resources'],
-      true,
-    );
+    await writeCsvToFile({
+      path: csvPath,
+      attributions: testFollowUpAttributionsWithResources,
+      columns: [
+        'packageName',
+        'followUp',
+        'licenseText',
+        'firstParty',
+        'resources',
+      ],
+      shortenResources: true,
+    });
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
@@ -154,12 +164,18 @@ describe('writeCsvToFile', () => {
       .join('\n')} ... (resources shortened, 25 paths are not displayed)`;
 
     const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
-    await writeCsvToFile(
-      csvPath,
-      testFollowUpAttributionsWithResources,
-      ['packageName', 'followUp', 'licenseText', 'firstParty', 'resources'],
-      true,
-    );
+    await writeCsvToFile({
+      path: csvPath,
+      attributions: testFollowUpAttributionsWithResources,
+      columns: [
+        'packageName',
+        'followUp',
+        'licenseText',
+        'firstParty',
+        'resources',
+      ],
+      shortenResources: true,
+    });
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
@@ -189,7 +205,12 @@ describe('writeCsvToFile', () => {
     };
 
     const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
-    await writeCsvToFile(csvPath, testFollowUpAttributions, columns, false);
+    await writeCsvToFile({
+      path: csvPath,
+      attributions: testFollowUpAttributions,
+      columns,
+      shortenResources: false,
+    });
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(
@@ -232,13 +253,17 @@ describe('writeCsvToFile', () => {
     )}... (text shortened)`;
 
     const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
-    await writeCsvToFile(csvPath, testFollowUpAttributionsWithResources, [
-      'packageName',
-      'followUp',
-      'licenseText',
-      'firstParty',
-      'resources',
-    ]);
+    await writeCsvToFile({
+      path: csvPath,
+      attributions: testFollowUpAttributionsWithResources,
+      columns: [
+        'packageName',
+        'followUp',
+        'licenseText',
+        'firstParty',
+        'resources',
+      ],
+    });
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);

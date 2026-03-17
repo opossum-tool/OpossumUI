@@ -58,10 +58,10 @@ export async function exportFollowUp() {
     ]),
   );
 
-  await writeCsvToFile(
-    globalState.followUpFilePath,
-    followUpAttributions,
-    [
+  await writeCsvToFile({
+    path: globalState.followUpFilePath,
+    attributions: followUpAttributions,
+    columns: [
       'packageName',
       'packageVersion',
       'url',
@@ -69,9 +69,10 @@ export async function exportFollowUp() {
       'licenseName',
       'resources',
     ],
-    true,
-  );
+    shortenResources: true,
+  });
   shell.showItemInFolder(globalState.followUpFilePath);
+  return {};
 }
 
 export async function exportSpdxDocument(params: {
@@ -115,9 +116,10 @@ export async function exportSpdxDocument(params: {
   writeSpdxFile({
     path: filePath,
     type: params.type,
-    attributionsToWrite: spdxAttributions,
+    attributions: spdxAttributions,
   });
   shell.showItemInFolder(filePath);
+  return {};
 }
 
 export async function exportCompactBom() {
@@ -138,14 +140,19 @@ export async function exportCompactBom() {
     rows.map((row) => [row.uuid, JSON.parse(row.data) as PackageInfo]),
   );
 
-  await writeCsvToFile(globalState.compactBomFilePath, bomAttributions, [
-    'packageName',
-    'packageVersion',
-    'licenseName',
-    'copyright',
-    'url',
-  ]);
+  await writeCsvToFile({
+    path: globalState.compactBomFilePath,
+    attributions: bomAttributions,
+    columns: [
+      'packageName',
+      'packageVersion',
+      'licenseName',
+      'copyright',
+      'url',
+    ],
+  });
   shell.showItemInFolder(globalState.compactBomFilePath);
+  return {};
 }
 
 export async function exportDetailedBom() {
@@ -190,17 +197,22 @@ export async function exportDetailedBom() {
     ]),
   );
 
-  await writeCsvToFile(globalState.detailedBomFilePath, bomAttributions, [
-    'packageName',
-    'packageVersion',
-    'packageNamespace',
-    'packageType',
-    'packagePURLAppendix',
-    'url',
-    'copyright',
-    'licenseName',
-    'licenseText',
-    'resources',
-  ]);
+  await writeCsvToFile({
+    path: globalState.detailedBomFilePath,
+    attributions: bomAttributions,
+    columns: [
+      'packageName',
+      'packageVersion',
+      'packageNamespace',
+      'packageType',
+      'packagePURLAppendix',
+      'url',
+      'copyright',
+      'licenseName',
+      'licenseText',
+      'resources',
+    ],
+  });
   shell.showItemInFolder(globalState.detailedBomFilePath);
+  return {};
 }
