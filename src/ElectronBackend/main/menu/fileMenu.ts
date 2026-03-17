@@ -28,7 +28,6 @@ import {
   importFileListener,
   selectBaseURLListener,
 } from '../listeners';
-import { ProcessingStatusUpdater } from '../ProcessingStatusUpdater';
 import { UserSettingsService } from '../user-settings-service';
 
 export const importFileFormats: Array<FileFormatInfo> = [
@@ -243,15 +242,11 @@ function getExportFollowUp(
       'icons/follow-up-white.png',
       'icons/follow-up-black.png',
     ),
-    click: () => {
-      const processingStatusUpdater = new ProcessingStatusUpdater(webContents);
-      processingStatusUpdater.startProcessing();
-      processingStatusUpdater.info('Preparing data for follow-up export');
+    click: () =>
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.FollowUp,
-      );
-    },
+      ),
   };
 }
 
@@ -264,17 +259,11 @@ function getExportCompactBom(
       'icons/com-list-black.png',
     ),
     label: text.menu.fileSubmenu.exportSubmenu.compactComponentList,
-    click: () => {
-      const processingStatusUpdater = new ProcessingStatusUpdater(webContents);
-      processingStatusUpdater.startProcessing();
-      processingStatusUpdater.info(
-        'Preparing data for compact component list export',
-      );
+    click: () =>
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.CompactBom,
-      );
-    },
+      ),
   };
 }
 
@@ -287,17 +276,11 @@ function getExportDetailedBom(
       'icons/det-list-black.png',
     ),
     label: text.menu.fileSubmenu.exportSubmenu.detailedComponentList,
-    click: () => {
-      const processingStatusUpdater = new ProcessingStatusUpdater(webContents);
-      processingStatusUpdater.startProcessing();
-      processingStatusUpdater.info(
-        'Preparing data for detailed component list export',
-      );
+    click: () =>
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.DetailedBom,
-      );
-    },
+      ),
   };
 }
 
@@ -307,15 +290,11 @@ function getExportSpdxYaml(
   return {
     icon: getIconBasedOnTheme('icons/yaml-white.png', 'icons/yaml-black.png'),
     label: text.menu.fileSubmenu.exportSubmenu.spdxYAML,
-    click: () => {
-      const processingStatusUpdater = new ProcessingStatusUpdater(webContents);
-      processingStatusUpdater.startProcessing();
-      processingStatusUpdater.info('Preparing data for SPDX (yaml) export');
+    click: () =>
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.SpdxDocumentYaml,
-      );
-    },
+      ),
   };
 }
 
@@ -325,15 +304,11 @@ function getExportSpdxJson(
   return {
     icon: getIconBasedOnTheme('icons/json-white.png', 'icons/json-black.png'),
     label: text.menu.fileSubmenu.exportSubmenu.spdxJSON,
-    click: () => {
-      const processingStatusUpdater = new ProcessingStatusUpdater(webContents);
-      processingStatusUpdater.startProcessing();
-      processingStatusUpdater.info('Preparing data for SPDX (json) export');
+    click: () =>
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
         ExportType.SpdxDocumentJson,
-      );
-    },
+      ),
   };
 }
 

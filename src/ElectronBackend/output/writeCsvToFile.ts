@@ -11,16 +11,16 @@ import { type Attributions, type PackageInfo } from '../../shared/shared-types';
 
 export const CUT_OFF_LENGTH = 30000;
 
-export async function writeCsvToFile(
-  filePath: string,
-  attributionsToWrite: Attributions,
-  columns: Array<keyof PackageInfo>,
-  shortenResources = false,
-): Promise<void> {
+export async function writeCsvToFile(args: {
+  path: string;
+  attributions: Attributions;
+  columns: Array<keyof PackageInfo>;
+  shortenResources?: boolean;
+}): Promise<void> {
   try {
-    const writeStream = fs.createWriteStream(filePath);
+    const writeStream = fs.createWriteStream(args.path);
     const csvStream = csv.format({
-      headers: ['attributionNumber'].concat(columns),
+      headers: ['attributionNumber'].concat(args.columns),
       writeHeaders: false,
       delimiter: ';',
       quoteColumns: true,
@@ -28,23 +28,24 @@ export async function writeCsvToFile(
 
     csvStream.pipe(writeStream).on('end', () => process.exit());
 
-    writeHeaders(columns, csvStream);
+    writeHeaders(args.columns, csvStream);
 
     writeAttributionsWithResourceToCsv(
-      attributionsToWrite,
-      columns,
-      shortenResources,
+      args.attributions,
+      args.columns,
+      args.shortenResources ?? false,
       csvStream,
     );
 
     csvStream.end();
+
     return new Promise((resolve, reject) => {
       writeStream.on('finish', resolve);
       writeStream.on('error', reject);
     });
   } catch (error) {
     throw new Error(
-      `Error while writing the file ${filePath}. \n${error?.toString()}`,
+      `Error while writing the file ${args.path}. \n${error?.toString()}`,
       { cause: error },
     );
   }
@@ -102,7 +103,7 @@ export function getHeadersFromColumns(columns: Array<keyof PackageInfo>): {
 }
 
 function writeAttributionsWithResourceToCsv(
-  attributionsToWrite: Attributions,
+  attributions: Attributions,
   columns: Array<string>,
   shortenResources = false,
   csvStream: CsvFormatterStream<
@@ -111,18 +112,18 @@ function writeAttributionsWithResourceToCsv(
   >,
 ): void {
   let attributionNumber = 0;
-  Object.values(attributionsToWrite).forEach((attributionToWrite) => {
+  Object.values(attributions).forEach((attribution) => {
     attributionNumber = attributionNumber + 1;
 
     if (columns.includes('resources')) {
       writeAttributionWithResources(
-        attributionToWrite,
+        attribution,
         attributionNumber,
         shortenResources,
         csvStream,
       );
     } else {
-      writeAttribution(attributionToWrite, attributionNumber, csvStream);
+      writeAttribution(attribution, attributionNumber, csvStream);
     }
   });
 }

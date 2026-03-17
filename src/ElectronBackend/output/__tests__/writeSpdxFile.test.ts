@@ -15,9 +15,10 @@ import { writeSpdxFile } from '../writeSpdxFile';
 describe('writeSpdxFile', () => {
   it('writes a yaml for empty attributions', () => {
     const yamlPath = faker.outputPath(`${faker.string.uuid()}.yaml`);
-    writeSpdxFile(yamlPath, {
+    writeSpdxFile({
+      path: yamlPath,
       type: ExportType.SpdxDocumentYaml,
-      spdxAttributions: {},
+      attributions: {},
     });
 
     expect(fs.existsSync(yamlPath)).toBe(true);
@@ -26,14 +27,15 @@ describe('writeSpdxFile', () => {
   });
 
   it('writes a json for empty attributions', () => {
-    const yamlPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    writeSpdxFile(yamlPath, {
+    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    writeSpdxFile({
+      path: jsonPath,
       type: ExportType.SpdxDocumentJson,
-      spdxAttributions: {},
+      attributions: {},
     });
 
-    expect(fs.existsSync(yamlPath)).toBe(true);
-    const fileContent = fs.readFileSync(yamlPath, 'utf-8');
+    expect(fs.existsSync(jsonPath)).toBe(true);
+    const fileContent = fs.readFileSync(jsonPath, 'utf-8');
     expect(fileContent).toContain('SPDX-2.2');
   });
 
@@ -57,9 +59,10 @@ describe('writeSpdxFile', () => {
     };
 
     const yamlPath = faker.outputPath(`${faker.string.uuid()}.yaml`);
-    writeSpdxFile(yamlPath, {
+    writeSpdxFile({
+      path: yamlPath,
       type: ExportType.SpdxDocumentYaml,
-      spdxAttributions: testAttributions,
+      attributions: testAttributions,
     });
 
     expect(fs.existsSync(yamlPath)).toBe(true);

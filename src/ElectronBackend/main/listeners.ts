@@ -14,13 +14,6 @@ import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   type Attributions,
-  type ExportArgsType,
-  type ExportCompactBomArgs,
-  type ExportDetailedBomArgs,
-  type ExportFollowUpArgs,
-  type ExportSpdxDocumentJsonArgs,
-  type ExportSpdxDocumentYamlArgs,
-  ExportType,
   type FileFormatInfo,
   type FileType,
   type OpenLinkArgs,
@@ -43,8 +36,6 @@ import {
   convertToOpossum,
   mergeFileIntoOpossum,
 } from '../opossum-file/opossum-file';
-import { writeCsvToFile } from '../output/writeCsvToFile';
-import { writeSpdxFile } from '../output/writeSpdxFile';
 import {
   type GlobalBackendState,
   type OpossumOutputFile,
@@ -573,148 +564,4 @@ export async function openLinkListener(
     logger.info(`Cannot open link ${args.link}`);
     return new Error('Cannot open link');
   }
-}
-
-interface FileExporterAndExportedFilePath<T> {
-  exportedFilePath: string | undefined;
-  fileExporter: (filePath: string, args: T) => Promise<void> | void;
-}
-
-function getExportedFilePathAndFileExporter(
-  exportType: ExportType,
-): FileExporterAndExportedFilePath<
-  | ExportFollowUpArgs
-  | ExportCompactBomArgs
-  | ExportDetailedBomArgs
-  | ExportSpdxDocumentYamlArgs
-  | ExportSpdxDocumentJsonArgs
->;
-function getExportedFilePathAndFileExporter(
-  exportType: ExportType,
-):
-  | FileExporterAndExportedFilePath<ExportFollowUpArgs>
-  | FileExporterAndExportedFilePath<ExportCompactBomArgs>
-  | FileExporterAndExportedFilePath<ExportDetailedBomArgs>
-  | FileExporterAndExportedFilePath<ExportSpdxDocumentYamlArgs>
-  | FileExporterAndExportedFilePath<ExportSpdxDocumentJsonArgs> {
-  const globalBackendState = getGlobalBackendState();
-
-  switch (exportType) {
-    case ExportType.FollowUp:
-      return {
-        exportedFilePath: globalBackendState.followUpFilePath,
-        fileExporter: createFollowUp,
-      };
-    case ExportType.CompactBom:
-      return {
-        exportedFilePath: globalBackendState.compactBomFilePath,
-        fileExporter: createCompactBom,
-      };
-    case ExportType.DetailedBom:
-      return {
-        exportedFilePath: globalBackendState.detailedBomFilePath,
-        fileExporter: createDetailedBom,
-      };
-    case ExportType.SpdxDocumentYaml:
-      return {
-        exportedFilePath: globalBackendState.spdxYamlFilePath,
-        fileExporter: writeSpdxFile,
-      };
-    case ExportType.SpdxDocumentJson:
-      return {
-        exportedFilePath: globalBackendState.spdxJsonFilePath,
-        fileExporter: writeSpdxFile,
-      };
-  }
-}
-
-export const exportFileListener =
-  (mainWindow: BrowserWindow) =>
-  async (_: unknown, exportArgs: ExportArgsType): Promise<void> => {
-    const { exportedFilePath, fileExporter } =
-      getExportedFilePathAndFileExporter(exportArgs.type);
-
-    const processingStatusUpdater = new ProcessingStatusUpdater(
-      mainWindow.webContents,
-    );
-    try {
-      if (exportedFilePath) {
-        processingStatusUpdater.info(`Writing to ${exportedFilePath}`);
-        await fileExporter(exportedFilePath, exportArgs);
-      } else {
-        processingStatusUpdater.error('Failed to create export');
-        throw new Error('Failed to create export');
-      }
-    } catch (error) {
-      await showListenerErrorInMessageBox(mainWindow, error);
-    } finally {
-      processingStatusUpdater.endProcessing();
-      if (exportedFilePath) {
-        shell.showItemInFolder(exportedFilePath);
-      }
-    }
-  };
-
-async function createFollowUp(
-  followUpFilePath: string,
-  args: ExportFollowUpArgs,
-): Promise<void> {
-  const followUpColumnOrder: Array<keyof PackageInfo> = [
-    'packageName',
-    'packageVersion',
-    'url',
-    'copyright',
-    'licenseName',
-    'resources',
-  ];
-
-  await writeCsvToFile(
-    followUpFilePath,
-    args.followUpAttributionsWithResources,
-    followUpColumnOrder,
-    true,
-  );
-}
-
-async function createCompactBom(
-  compactBomFilePath: string,
-  args: ExportCompactBomArgs,
-): Promise<void> {
-  const miniBomColumnOrder: Array<keyof PackageInfo> = [
-    'packageName',
-    'packageVersion',
-    'licenseName',
-    'copyright',
-    'url',
-  ];
-
-  await writeCsvToFile(
-    compactBomFilePath,
-    args.bomAttributions,
-    miniBomColumnOrder,
-  );
-}
-
-async function createDetailedBom(
-  detailedBomFilePath: string,
-  args: ExportDetailedBomArgs,
-): Promise<void> {
-  const detailedBomColumnOrder: Array<keyof PackageInfo> = [
-    'packageName',
-    'packageVersion',
-    'packageNamespace',
-    'packageType',
-    'packagePURLAppendix',
-    'url',
-    'copyright',
-    'licenseName',
-    'licenseText',
-    'resources',
-  ];
-
-  await writeCsvToFile(
-    detailedBomFilePath,
-    args.bomAttributionsWithResources,
-    detailedBomColumnOrder,
-  );
 }

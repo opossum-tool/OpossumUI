@@ -209,38 +209,6 @@ export enum ExportType {
   SpdxDocumentJson = 'SpdxDocumentJson',
 }
 
-export interface ExportFollowUpArgs {
-  type: ExportType.FollowUp;
-  followUpAttributionsWithResources: Attributions;
-}
-
-export interface ExportCompactBomArgs {
-  type: ExportType.CompactBom;
-  bomAttributions: Attributions;
-}
-
-export interface ExportDetailedBomArgs {
-  type: ExportType.DetailedBom;
-  bomAttributionsWithResources: Attributions;
-}
-
-export interface ExportSpdxDocumentYamlArgs {
-  type: ExportType.SpdxDocumentYaml;
-  spdxAttributions: Attributions;
-}
-
-export interface ExportSpdxDocumentJsonArgs {
-  type: ExportType.SpdxDocumentJson;
-  spdxAttributions: Attributions;
-}
-
-export type ExportArgsType =
-  | ExportFollowUpArgs
-  | ExportCompactBomArgs
-  | ExportDetailedBomArgs
-  | ExportSpdxDocumentYamlArgs
-  | ExportSpdxDocumentJsonArgs;
-
 export interface OpenLinkArgs {
   link: string;
 }
@@ -290,7 +258,6 @@ export interface ElectronAPI {
     inputFilePath: string,
     fileType: FileType,
   ) => Promise<boolean>;
-  exportFile: (args: ExportArgsType) => void;
   saveFile: () => void;
   /**
    * @deprecated see https://github.com/opossum-tool/OpossumUI/issues/2812

@@ -7,6 +7,12 @@ import { sql } from 'kysely';
 import { type Attributions, type PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import {
+  exportCompactBom,
+  exportDetailedBom,
+  exportFollowUp,
+  exportSpdxDocument,
+} from './exportCommands';
+import {
   addManualOrExternalCwaToResources,
   removeManualOrExternalCwaFromResources,
 } from './progressBarUtils';
@@ -35,6 +41,10 @@ type MutationFunction = (params?: any) => Promise<{
 }>;
 
 export const mutations = {
+  exportFollowUp,
+  exportSpdxDocument,
+  exportCompactBom,
+  exportDetailedBom,
   invalidateGetAttributionData() {
     // to avoid typescript errors in backendClient, we need at least one mutation with no parameters, and an invalidation without parameters
     return Promise.resolve({
