@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sum } from 'lodash';
+import { sum } from 'lodash-es';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
-import {
-  type ClassificationStatistics,
-  type ClassificationStatisticsEntry,
-  type FileWithAttributionsCounts,
-  type ResourceCriticalityCounts,
+import type {
+  ClassificationStatistics,
+  ClassificationStatisticsEntry,
+  FileWithAttributionsCounts,
+  ResourceCriticalityCounts,
 } from '../../types/types';
 
 type Color = string;

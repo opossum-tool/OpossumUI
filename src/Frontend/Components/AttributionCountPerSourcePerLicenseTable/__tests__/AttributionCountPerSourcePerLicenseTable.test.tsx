@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type Screen } from '@testing-library/dom/types/screen';
 import { act, fireEvent, screen } from '@testing-library/react';
 
 import { Criticality } from '../../../../shared/shared-types';
@@ -38,7 +37,7 @@ const props: AttributionCountPerSourcePerLicenseTableProps = {
   },
 };
 
-function getHeaderTexts(screen: Screen): Array<string> {
+function getHeaderTexts(): Array<string> {
   const isHtmlElement = (
     node: HTMLElement | undefined,
   ): node is HTMLElement => {
@@ -56,7 +55,7 @@ describe('Attribution count per source per license table', () => {
       <AttributionCountPerSourcePerLicenseTable {...props} />,
     );
 
-    expect(getHeaderTexts(screen)).toEqual([
+    expect(getHeaderTexts()).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Criticality',
       'Classification',
@@ -74,7 +73,7 @@ describe('Attribution count per source per license table', () => {
       },
     );
 
-    expect(getHeaderTexts(screen)).toEqual([
+    expect(getHeaderTexts()).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Classification',
       'SourceA',
@@ -91,7 +90,7 @@ describe('Attribution count per source per license table', () => {
       },
     );
 
-    expect(getHeaderTexts(screen)).toEqual([
+    expect(getHeaderTexts()).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Criticality',
       'SourceA',
@@ -104,7 +103,7 @@ describe('Attribution count per source per license table', () => {
     const { store } = await renderComponent(
       <AttributionCountPerSourcePerLicenseTable {...props} />,
     );
-    expect(getHeaderTexts(screen)).toEqual([
+    expect(getHeaderTexts()).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Criticality',
       'Classification',
@@ -115,7 +114,7 @@ describe('Attribution count per source per license table', () => {
 
     fireEvent.click(screen.getByText('Criticality'));
 
-    expect(getHeaderTexts(screen)).toEqual([
+    expect(getHeaderTexts()).toEqual([
       'Name',
       'Criticalitysorted descending', //correct, the sorted, descending is for a11y
       'Classification',
@@ -128,7 +127,7 @@ describe('Attribution count per source per license table', () => {
       store.dispatch(setUserSetting({ showCriticality: false }));
     });
 
-    expect(getHeaderTexts(screen)).toEqual([
+    expect(getHeaderTexts()).toEqual([
       'Namesorted ascending', //correct, the sorted, ascending is for a11y
       'Classification',
       'SourceA',
@@ -138,7 +137,7 @@ describe('Attribution count per source per license table', () => {
 
     fireEvent.click(screen.getByText('Name'));
 
-    expect(getHeaderTexts(screen)).toEqual([
+    expect(getHeaderTexts()).toEqual([
       'Namesorted descending', //correct, the sorted, descending is for a11y
       'Classification',
       'SourceA',

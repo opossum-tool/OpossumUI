@@ -9,7 +9,7 @@ import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp
 import { styled } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
-import { type SxProps } from '@mui/system';
+import type { SxProps } from '@mui/system';
 import { useMemo, useState } from 'react';
 import {
   GroupedVirtuoso,

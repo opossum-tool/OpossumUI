@@ -12,16 +12,16 @@ import {
   sql,
   type Transaction,
 } from 'kysely';
-import { snakeCase } from 'lodash';
+import { snakeCase } from 'lodash-es';
 
 import { FILTERS } from '../../Frontend/shared-constants';
 import { areAttributionsEqual } from '../../shared/attribution-comparison';
-import { type PackageInfo } from '../../shared/shared-types';
-import { type DB } from '../db/generated/databaseTypes';
+import type { PackageInfo } from '../../shared/shared-types';
+import type { DB } from '../db/generated/databaseTypes';
 import { removeManualOrExternalCwaFromResources } from './progressBarUtils';
-import {
-  type FilterProperties,
-  type FilterPropertiesWithCanonicalLicenseNames,
+import type {
+  FilterProperties,
+  FilterPropertiesWithCanonicalLicenseNames,
 } from './queries';
 
 export type ResourceRelationship =

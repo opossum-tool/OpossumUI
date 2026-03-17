@@ -13,9 +13,9 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import {
-  type ParsedOpossumInputFile,
-  type ParsedOpossumOutputFile,
+import type {
+  ParsedOpossumInputFile,
+  ParsedOpossumOutputFile,
 } from '../../ElectronBackend/types/types';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { AttributionDetails } from '../page-objects/AttributionDetails';
@@ -41,6 +41,7 @@ import { SignalsPanel } from '../page-objects/SignalsPanel';
 import { TopBar } from '../page-objects/TopBar';
 
 const LOAD_TIMEOUT = 15000;
+const currentDirectory = import.meta.dirname;
 
 interface OpossumData {
   inputData: ParsedOpossumInputFile;
@@ -115,6 +116,10 @@ export const test = base.extend<{
           : args.concat([opossumFilePath])),
       ],
       executablePath,
+      env: {
+        ...process.env,
+        RESET: '1',
+      },
     });
 
     // Capture main process stdout/stderr for debugging
@@ -237,19 +242,40 @@ function getLaunchProps(): [executablePath: string | undefined, main: string] {
     return [appInfo.executable, appInfo.main];
   }
 
-  return [undefined, 'build/ElectronBackend/app.js'];
+  return [undefined, 'build/ElectronBackend/app.mjs'];
 }
 
 function getReleasePath(): string {
   if (os.platform() === 'win32') {
-    return path.join(__dirname, '..', '..', '..', 'release', 'win-unpacked');
+    return path.join(
+      currentDirectory,
+      '..',
+      '..',
+      '..',
+      'release',
+      'win-unpacked',
+    );
   } else if (os.platform() === 'darwin') {
     if (os.arch() === 'arm64') {
-      return path.join(__dirname, '..', '..', '..', 'release', 'mac-arm64');
+      return path.join(
+        currentDirectory,
+        '..',
+        '..',
+        '..',
+        'release',
+        'mac-arm64',
+      );
     }
-    return path.join(__dirname, '..', '..', '..', 'release', 'mac');
+    return path.join(currentDirectory, '..', '..', '..', 'release', 'mac');
   } else if (os.platform() === 'linux') {
-    return path.join(__dirname, '..', '..', '..', 'release', 'linux-unpacked');
+    return path.join(
+      currentDirectory,
+      '..',
+      '..',
+      '..',
+      'release',
+      'linux-unpacked',
+    );
   }
 
   throw new Error('Unsupported platform');

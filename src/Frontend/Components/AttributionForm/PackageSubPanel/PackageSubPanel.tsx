@@ -20,11 +20,11 @@ import { generatePurl, parsePurl } from '../../../util/handle-purl';
 import { openUrl } from '../../../util/open-url';
 import { PackageSearchHooks } from '../../../util/package-search-hooks';
 import { useDebouncedInput } from '../../../util/use-debounced-input';
-import { type Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../../IconButton/IconButton';
 import { TextBox } from '../../TextBox/TextBox';
 import { toast } from '../../Toaster';
-import { type AttributionFormConfig } from '../AttributionForm';
+import type { AttributionFormConfig } from '../AttributionForm';
 import { attributionColumnClasses } from '../AttributionForm.style';
 import { PackageAutocomplete } from '../PackageAutocomplete/PackageAutocomplete';
 

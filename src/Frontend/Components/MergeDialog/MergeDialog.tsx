@@ -5,7 +5,7 @@
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
-import { type FileFormatInfo } from '../../../shared/shared-types';
+import type { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
@@ -105,6 +105,7 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
           )}
           text={inputFilePath}
           onClick={selectInputFilePath}
+          testId={'merge-input-file-path'}
           disabled={mergeInProgress}
         />
       </div>

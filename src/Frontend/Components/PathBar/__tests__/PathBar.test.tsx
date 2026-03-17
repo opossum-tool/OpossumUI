@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { act, fireEvent, screen } from '@testing-library/react';
-import { compact } from 'lodash';
+import { compact } from 'lodash-es';
 
 import {
   setBaseUrlsForSources,

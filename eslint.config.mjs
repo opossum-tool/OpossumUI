@@ -14,19 +14,16 @@ import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
 import eslintConfigTestingLibrary from 'eslint-plugin-testing-library';
 import globals from 'globals';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import tseslint from 'typescript-eslint';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const gitignorePath = path.resolve(__dirname, '.gitignore');
+const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
 
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   {
     name: 'Global ignore patterns',
     ignores: [
-      '.lintstagedrc.js',
+      '.lintstagedrc.mjs',
       'commitlint.config.ts',
       'eslint.config.mjs',
       'index.html',
@@ -99,6 +96,7 @@ export default tseslint.config(
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-import-type-side-effects': 'error',
       '@typescript-eslint/no-magic-numbers': [
         'error',
         {
@@ -143,7 +141,7 @@ export default tseslint.config(
       ],
       'no-alert': 'error',
       'no-console': 'off',
-      'no-duplicate-imports': 'error',
+      'no-duplicate-imports': ['error'],
       'no-else-return': 'error',
       'no-eval': 'error',
       'no-extend-native': 'error',

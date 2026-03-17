@@ -3,12 +3,12 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { isEmpty, isEqual } from 'lodash';
+import { isEmpty, isEqual } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
-import {
-  type Attributions,
-  type PackageInfo,
+import type {
+  Attributions,
+  PackageInfo,
 } from '../../../../shared/shared-types';
 import { backend } from '../../../util/backendClient';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
@@ -18,7 +18,7 @@ import {
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../selectors/resource-selectors';
-import { type AppThunkAction, type AsyncAppThunkAction } from '../../types';
+import type { AppThunkAction, AsyncAppThunkAction } from '../../types';
 import {
   addResolvedExternalAttributions,
   removeResolvedExternalAttributions,

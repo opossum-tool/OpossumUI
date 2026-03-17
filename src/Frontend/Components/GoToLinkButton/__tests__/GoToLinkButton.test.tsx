@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { act, fireEvent, screen } from '@testing-library/react';
 
-import { type BaseUrlsForSources } from '../../../../shared/shared-types';
+import type { BaseUrlsForSources } from '../../../../shared/shared-types';
 import { setBaseUrlsForSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { renderComponent } from '../../../test-helpers/render';

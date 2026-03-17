@@ -2,21 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql, type Transaction } from 'kysely';
-import { type DataTypeExpression } from 'kysely/dist/cjs/parser/data-type-parser';
-import { snakeCase } from 'lodash';
+import { type CreateTableBuilder, sql, type Transaction } from 'kysely';
+import { snakeCase } from 'lodash-es';
 
-import {
-  type ExternalAttributionSources,
-  type FrequentLicenses,
-  type InputFileAttributionData,
-  type PackageInfo,
-  type ParsedFileContent,
-  type Resources,
+import type {
+  ExternalAttributionSources,
+  FrequentLicenses,
+  InputFileAttributionData,
+  PackageInfo,
+  ParsedFileContent,
+  Resources,
 } from '../../shared/shared-types';
 import { removeTrailingSlash, toCanonicalLicenseName } from '../api/utils';
 import { getDb, getRawDb, resetDb } from './db';
-import { type DB } from './generated/databaseTypes';
+import type { DB } from './generated/databaseTypes';
 
 /**
  * Comments that will be added to the generated types and diagram
@@ -43,6 +42,10 @@ export const comments: Record<string, Record<string, string>> = {
       'Denormalized data for faster checking if a resource has manual/external attribution',
   },
 };
+
+type DataTypeExpression = Parameters<
+  CreateTableBuilder<'attribution', never>['addColumn']
+>[1];
 
 export async function initializeDb(inputFile: ParsedFileContent) {
   resetDb();

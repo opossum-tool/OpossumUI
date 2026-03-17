@@ -4,13 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import { MenuItem, Select, type SelectChangeEvent } from '@mui/material';
 import MuiBox from '@mui/material/Box';
-import { type SxProps } from '@mui/system';
+import type { SxProps } from '@mui/system';
 import { useState } from 'react';
 
 import { text as fullText } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useUserSettings } from '../../state/variables/use-user-setting';
-import { type SelectedProgressBar } from '../../types/types';
+import type { SelectedProgressBar } from '../../types/types';
 import { useDatabaseInitialized } from '../../util/backendClient';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 

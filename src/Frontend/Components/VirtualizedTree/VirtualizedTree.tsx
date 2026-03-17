@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type SxProps } from '@mui/system';
+import type { SxProps } from '@mui/system';
 
-import { type QueryResult } from '../../../ElectronBackend/api/queries';
+import type { QueryResult } from '../../../ElectronBackend/api/queries';
 import { List } from '../List/List';
 import { SearchList } from '../SearchList/SearchList';
 import {

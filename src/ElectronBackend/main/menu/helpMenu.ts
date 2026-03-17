@@ -3,10 +3,13 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { app, type MenuItemConstructorOptions, shell } from 'electron';
-
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
+import {
+  app,
+  type MenuItemConstructorOptions,
+  shell,
+} from '../../electronInterop';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
 

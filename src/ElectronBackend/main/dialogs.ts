@@ -2,9 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, dialog } from 'electron';
-
-import { type FileFormatInfo } from '../../shared/shared-types';
+import type { FileFormatInfo } from '../../shared/shared-types';
+import { BrowserWindow, dialog } from '../electronInterop';
 
 function openFileDialog(
   filters: Array<Electron.FileFilter>,

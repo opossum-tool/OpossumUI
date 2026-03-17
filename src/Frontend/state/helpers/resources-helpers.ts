@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type Resources } from '../../../shared/shared-types';
+import type { Resources } from '../../../shared/shared-types';
 import { ROOT_PATH } from '../../shared-constants';
 import { backend } from '../../util/backendClient';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';

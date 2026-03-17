@@ -4,19 +4,16 @@
 // SPDX-License-Identifier: Apache-2.0
 import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'fs';
 import nunjucks from 'nunjucks';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import { join } from 'path';
 
 function generateNotices() {
-  const noticeDocumentFolder = join(__dirname, '..', 'notices');
+  const noticeDocumentFolder = join(import.meta.dirname, '..', 'notices');
   const generatedNoticeContent = readFileSync(
     join(noticeDocumentFolder, 'notices.txt'),
     'utf8',
   );
   const manualNoticesContent = readFileSync(
-    join(__dirname, 'manual-notices.txt'),
+    join(import.meta.dirname, 'manual-notices.txt'),
     'utf8',
   );
 
@@ -24,7 +21,7 @@ function generateNotices() {
 
   copyFileSync(
     join(
-      __dirname,
+      import.meta.dirname,
       '..',
       'node_modules',
       'electron',
@@ -35,7 +32,7 @@ function generateNotices() {
   );
   writeFileSync(
     join(noticeDocumentFolder, 'notices.html'),
-    nunjucks.render(join(__dirname, 'notices.template.html'), {
+    nunjucks.render(join(import.meta.dirname, 'notices.template.html'), {
       noticeContent,
     }),
   );

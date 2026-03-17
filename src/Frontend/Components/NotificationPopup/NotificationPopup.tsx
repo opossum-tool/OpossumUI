@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type SxProps } from '@mui/material';
+import type { SxProps } from '@mui/material';
 import MuiButton, { type ButtonProps } from '@mui/material/Button';
 import MuiDialog from '@mui/material/Dialog';
 import MuiDialogActions from '@mui/material/DialogActions';
 import MuiDialogContent from '@mui/material/DialogContent';
 import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiDialogTitle from '@mui/material/DialogTitle';
-import { noop } from 'lodash';
+import { noop } from 'lodash-es';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 import { OpossumColors } from '../../shared-styles';

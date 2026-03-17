@@ -4,16 +4,16 @@
 // SPDX-License-Identifier: Apache-2.0
 import chroma from 'chroma-js';
 
-import {
-  type ClassificationEntry,
-  type ClassificationsConfig,
-  type ParsedFrontendFileContent,
-  type ProjectConfig,
-  type RawClassificationsConfig,
-  type RawProjectConfig,
+import type {
+  ClassificationEntry,
+  ClassificationsConfig,
+  ParsedFrontendFileContent,
+  ProjectConfig,
+  RawClassificationsConfig,
+  RawProjectConfig,
 } from '../../../../shared/shared-types';
 import { OpossumColors } from '../../../shared-styles';
-import { type AppThunkAction } from '../../types';
+import type { AppThunkAction } from '../../types';
 import {
   setAttributionBreakpoints,
   setBaseUrlsForSources,

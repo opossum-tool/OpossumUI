@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type PanelSizes } from '../../../shared/shared-types';
+import type { PanelSizes } from '../../../shared/shared-types';
 import { useUserSettings } from './use-user-setting';
 
 export const usePanelSizes = (): {

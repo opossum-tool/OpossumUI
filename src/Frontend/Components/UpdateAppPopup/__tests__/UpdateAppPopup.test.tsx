@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import commitInfo from '../../../../commitInfo.json';
+import commitInfo from '../../../../commitInfo.json' with { type: 'json' };
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { renderComponent } from '../../../test-helpers/render';

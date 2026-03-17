@@ -5,10 +5,10 @@
 import { Criticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
-import {
-  type ClassificationStatistics,
-  type FileWithAttributionsCounts,
-  type ResourceCriticalityCounts,
+import type {
+  ClassificationStatistics,
+  FileWithAttributionsCounts,
+  ResourceCriticalityCounts,
 } from '../../../types/types';
 import {
   calculateAttributionBarSteps,

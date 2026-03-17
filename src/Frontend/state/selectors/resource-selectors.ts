@@ -2,21 +2,21 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type AttributionData,
-  type Attributions,
-  type AttributionsToResources,
-  type BaseUrlsForSources,
-  type ClassificationsConfig,
-  type ExternalAttributionSources,
-  type FrequentLicenseName,
-  type LicenseTexts,
-  type PackageInfo,
-  type ProjectMetadata,
-  type ResourcesToAttributions,
-  type ResourcesWithAttributedChildren,
+import type {
+  AttributionData,
+  Attributions,
+  AttributionsToResources,
+  BaseUrlsForSources,
+  ClassificationsConfig,
+  ExternalAttributionSources,
+  FrequentLicenseName,
+  LicenseTexts,
+  PackageInfo,
+  ProjectMetadata,
+  ResourcesToAttributions,
+  ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
-import { type State } from '../../types/types';
+import type { State } from '../../types/types';
 
 export function getManualData(state: State): AttributionData {
   return state.resourceState.manualData;

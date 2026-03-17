@@ -6,13 +6,13 @@ import MuiBox from '@mui/material/Box';
 import MuiChip from '@mui/material/Chip';
 import MuiTooltip from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
-import { type SxProps } from '@mui/system';
+import type { SxProps } from '@mui/system';
 import { memo, useEffect, useMemo, useRef } from 'react';
 
-import {
-  type ClassificationsConfig,
-  type Criticality,
-  type PackageInfo,
+import type {
+  ClassificationsConfig,
+  Criticality,
+  PackageInfo,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';

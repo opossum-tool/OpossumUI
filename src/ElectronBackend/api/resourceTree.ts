@@ -10,7 +10,7 @@ import {
 } from 'kysely';
 
 import { getDb } from '../db/db';
-import { type DB, type Resource } from '../db/generated/databaseTypes';
+import type { DB, Resource } from '../db/generated/databaseTypes';
 import { getResourceOrThrow, removeTrailingSlash } from './utils';
 
 export type ResourceTreeNodeData = Awaited<

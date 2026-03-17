@@ -11,7 +11,24 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { renderComponent } from '../../../test-helpers/render';
 import { GlobalPopup } from '../GlobalPopup';
 
+const { useLatestReleaseMock } = vi.hoisted(() => ({
+  useLatestReleaseMock: vi.fn(),
+}));
+
+vi.mock('../../../Components/UpdateAppPopup/UpdateAppPopup.util.ts', () => ({
+  useLatestRelease: useLatestReleaseMock,
+}));
+
 describe('The GlobalPopUp', () => {
+  beforeEach(() => {
+    useLatestReleaseMock.mockReset();
+    useLatestReleaseMock.mockReturnValue({
+      latestRelease: undefined,
+      latestReleaseError: null,
+      latestReleaseLoading: false,
+    });
+  });
+
   it('does not open by default', async () => {
     await renderComponent(<GlobalPopup />);
 
@@ -58,16 +75,6 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the UpdateAppPopup', async () => {
-    vi.mock(
-      '../../../Components/UpdateAppPopup/UpdateAppPopup.util.ts',
-      () => ({
-        useLatestRelease: vi.fn().mockReturnValue({
-          latestRelease: undefined,
-          latestReleaseError: null,
-          latestReleaseLoading: false,
-        }),
-      }),
-    );
     await renderComponent(<GlobalPopup />, {
       actions: [openPopup(PopupType.UpdateAppPopup)],
     });

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import spdxLicenseIds from 'spdx-license-ids/index.json';
+import spdxLicenseIds from 'spdx-license-ids/index.json' with { type: 'json' };
 
 function valid(string: string): boolean {
   return spdxLicenseIds.includes(string);

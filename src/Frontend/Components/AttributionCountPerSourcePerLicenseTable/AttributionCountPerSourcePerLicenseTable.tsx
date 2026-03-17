@@ -6,12 +6,12 @@ import MuiBox from '@mui/material/Box';
 import MuiTable from '@mui/material/Table';
 import MuiTableBody from '@mui/material/TableBody';
 import MuiTableContainer from '@mui/material/TableContainer';
-import { upperFirst } from 'lodash';
+import { upperFirst } from 'lodash-es';
 import { useCallback, useMemo, useState } from 'react';
 
-import { type QueryResult } from '../../../ElectronBackend/api/queries';
+import type { QueryResult } from '../../../ElectronBackend/api/queries';
 import { DEFAULT_USER_SETTINGS } from '../../../shared/shared-constants';
-import { type Order, type TableOrdering } from '../../../shared/shared-types';
+import type { Order, TableOrdering } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import {

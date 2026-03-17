@@ -6,7 +6,7 @@
 import { PopupType } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
-import { type PopupInfo } from '../../types/types';
+import type { PopupInfo } from '../../types/types';
 import { useFrontendPopupOpen } from '../../util/use-app-menu-disabled';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
 import { ImportDialog } from '../ImportDialog/ImportDialog';

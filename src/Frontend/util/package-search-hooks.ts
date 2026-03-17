@@ -3,9 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 
-import { type PackageInfo } from '../../shared/shared-types';
+import type { PackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { toast } from '../Components/Toaster';
 import PackageSearchApi from './package-search-api';

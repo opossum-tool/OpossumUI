@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { text } from '../../../../../shared/text';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { ConfirmDeletePopup } from '../../../ConfirmDeletePopup/ConfirmDeletePopup';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,

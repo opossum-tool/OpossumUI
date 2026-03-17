@@ -2,17 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type ComparisonOperatorExpression,
-  type ExpressionBuilder,
-  type Kysely,
-  type OperandExpression,
-  type SelectQueryBuilder,
-  type Transaction,
+import type {
+  ComparisonOperatorExpression,
+  ExpressionBuilder,
+  Kysely,
+  OperandExpression,
+  SelectQueryBuilder,
+  Transaction,
 } from 'kysely';
 
-import { type Criticality } from '../../shared/shared-types';
-import { type DB } from '../db/generated/databaseTypes';
+import type { Criticality } from '../../shared/shared-types';
+import type { DB } from '../db/generated/databaseTypes';
 
 export function getOnlyExternalFilesQuery(eb: ExpressionBuilder<DB, 'cwa'>) {
   return eb

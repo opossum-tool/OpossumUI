@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
-import { without } from 'lodash';
+import { without } from 'lodash-es';
 
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
@@ -13,7 +13,7 @@ import { isPackageIncomplete } from '../../../../util/input-validation';
 import { List, type ListItemContentProps } from '../../../List/List';
 import { PackageCard } from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   attributions,

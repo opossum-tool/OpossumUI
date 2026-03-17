@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type WebContents } from 'electron';
+import type { WebContents } from 'electron';
 import log from 'electron-log';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import {
-  type ProcessingDoneEvent,
-  type ProcessingStartedEvent,
-  type ProcessingStateUpdatedEvent,
-  type ProcessingStateUpdatedEventLevel,
+import type {
+  ProcessingDoneEvent,
+  ProcessingStartedEvent,
+  ProcessingStateUpdatedEvent,
+  ProcessingStateUpdatedEventLevel,
 } from '../../shared/shared-types';
 
 export class ProcessingStatusUpdater {

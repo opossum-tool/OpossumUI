@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type MenuItemConstructorOptions } from 'electron';
+import type { MenuItemConstructorOptions } from 'electron';
 
-import { type UserSettings as IUserSettings } from '../../../shared/shared-types';
+import type { UserSettings as IUserSettings } from '../../../shared/shared-types';
 import { getCheckboxBasedOnThemeAndCheckState } from '../iconHelpers';
 import { UserSettingsService } from '../user-settings-service';
 

@@ -4,12 +4,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import dayjs from 'dayjs';
-import { type IpcRendererEvent } from 'electron';
+import type { IpcRendererEvent } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import {
-  type BaseURLForRootArgs,
-  type ParsedFrontendFileContent,
+import type {
+  BaseURLForRootArgs,
+  ParsedFrontendFileContent,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';

@@ -3,10 +3,10 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { app, BrowserWindow } from 'electron';
+import type { BrowserWindow as ElectronBrowserWindow } from 'electron';
 import path from 'path';
-import upath from 'upath';
 
+import { app, BrowserWindow } from '../electronInterop';
 import { getIconPath } from './iconHelpers';
 
 export async function loadWebApp(
@@ -17,12 +17,12 @@ export async function loadWebApp(
     mainWindow.webContents.openDevTools();
   } else {
     await mainWindow.loadFile(
-      path.join(upath.toUnix(__dirname), '..', 'index.html'),
+      path.join(import.meta.dirname, '..', 'index.html'),
     );
   }
 }
 
-export function createWindow(): BrowserWindow {
+export function createWindow(): ElectronBrowserWindow {
   return new BrowserWindow({
     width: 1920,
     height: 1080,
@@ -32,7 +32,7 @@ export function createWindow(): BrowserWindow {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
-      preload: path.join(upath.toUnix(__dirname), 'preload.js'),
+      preload: path.join(import.meta.dirname, 'preload.mjs'),
     },
     icon: getIconPath(),
   });

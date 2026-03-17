@@ -5,7 +5,7 @@
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { isPackageAttributeIncomplete } from '../../../util/input-validation';
-import { type TableConfig } from '../../ReportView/TableConfig';
+import type { TableConfig } from '../../ReportView/TableConfig';
 import { getFormattedCellData } from '../ReportTableItem.util';
 
 describe('The table helpers', () => {

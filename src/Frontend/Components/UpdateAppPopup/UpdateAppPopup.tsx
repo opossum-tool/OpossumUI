@@ -6,7 +6,7 @@ import MuiAlert from '@mui/material/Alert';
 import MuiLink from '@mui/material/Link';
 import MuiTypography from '@mui/material/Typography';
 
-import commitInfo from '../../../commitInfo.json';
+import commitInfo from '../../../commitInfo.json' with { type: 'json' };
 import { text } from '../../../shared/text';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';

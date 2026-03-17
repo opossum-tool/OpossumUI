@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { cloneDeep, set } from 'lodash';
+import { cloneDeep, set } from 'lodash-es';
 import zlib from 'zlib';
 
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
-import {
-  type OpossumOutputFile,
-  type ParsedOpossumInputAndOutput,
-  type ParsedOpossumInputFile,
-  type ParsedOpossumOutputFile,
+import type {
+  OpossumOutputFile,
+  ParsedOpossumInputAndOutput,
+  ParsedOpossumInputFile,
+  ParsedOpossumOutputFile,
 } from '../../types/types';
 import {
   parseInputJsonFile,

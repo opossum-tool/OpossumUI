@@ -17,6 +17,10 @@ vi.mock('electron', () => ({
   app: {
     getAppPath: () => './',
   },
+  BrowserWindow: {
+    getFocusedWindow: vi.fn(),
+  },
+  contextBridge: { exposeInMainWorld: vi.fn() },
   dialog: {
     showOpenDialogSync: vi.fn(),
     showMessageBox: vi.fn(() => {
@@ -25,6 +29,11 @@ vi.mock('electron', () => ({
       });
     }),
   },
+  ipcMain: { handle: vi.fn(), on: vi.fn() },
+  ipcRenderer: { invoke: vi.fn(), on: vi.fn(), send: vi.fn() },
+  Menu: { buildFromTemplate: vi.fn(), setApplicationMenu: vi.fn() },
+  shell: { showItemInFolder: vi.fn(), openExternal: vi.fn() },
+  systemPreferences: { getUserDefault: vi.fn() },
 }));
 
 vi.mock('../../input/importFromFile', () => ({

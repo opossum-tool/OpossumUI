@@ -41,7 +41,7 @@ import {
   SourceIcon,
   WasPreferredIcon,
 } from '../../Icons/Icons';
-import { type SelectMenuOption } from '../../SelectMenu/SelectMenu';
+import type { SelectMenuOption } from '../../SelectMenu/SelectMenu';
 
 interface AuditingOption extends SelectMenuOption {
   interactive: boolean;

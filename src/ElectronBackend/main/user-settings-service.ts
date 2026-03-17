@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow } from 'electron';
 import log from 'electron-log';
 import settings from 'electron-settings';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { DEFAULT_USER_SETTINGS } from '../../shared/shared-constants';
-import {
-  type UserSettings as IUserSettings,
-  type UserSettings,
+import type {
+  UserSettings as IUserSettings,
+  UserSettings,
 } from '../../shared/shared-types';
+import { BrowserWindow } from '../electronInterop';
 
 let settingsLock: Promise<unknown> = Promise.resolve();
 

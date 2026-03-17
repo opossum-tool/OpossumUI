@@ -10,11 +10,11 @@ import MuiBadge from '@mui/material/Badge';
 import MuiTooltip from '@mui/material/Tooltip';
 import { useMemo, useState } from 'react';
 
-import { type FilterProperties } from '../../../ElectronBackend/api/queries';
+import type { FilterProperties } from '../../../ElectronBackend/api/queries';
 import { text } from '../../../shared/text';
-import { type Filter } from '../../shared-constants';
+import type { Filter } from '../../shared-constants';
 import { baseIcon, OpossumColors } from '../../shared-styles';
-import { type UseAttributionFilters } from '../../state/variables/use-filters';
+import type { UseAttributionFilters } from '../../state/variables/use-filters';
 import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,

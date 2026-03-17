@@ -27,7 +27,6 @@ const initiallyDisabledMenuItems = [
 
 const popupDisabledMenuItems = [
   text.menu.fileSubmenu.open,
-  text.menu.fileSubmenu.openRecent,
   text.menu.fileSubmenu.import,
   text.menu.fileSubmenu.merge,
   text.menu.fileSubmenu.save,

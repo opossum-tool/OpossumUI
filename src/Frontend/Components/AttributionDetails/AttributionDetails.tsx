@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiDialogContentText from '@mui/material/DialogContentText';
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 import { useEffect, useLayoutEffect, useMemo } from 'react';
 
 import { text } from '../../../shared/text';

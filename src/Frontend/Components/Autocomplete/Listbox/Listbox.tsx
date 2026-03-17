@@ -6,12 +6,12 @@ import MuiListItemButton from '@mui/material/ListItemButton';
 import MuiListItemText from '@mui/material/ListItemText';
 import MuiPaper from '@mui/material/Paper';
 import MuiTypography from '@mui/material/Typography';
-import {
-  type AutocompleteFreeSoloValueMapping,
-  type UseAutocompleteRenderedOption,
+import type {
+  AutocompleteFreeSoloValueMapping,
+  UseAutocompleteRenderedOption,
 } from '@mui/material/useAutocomplete';
-import { type SxProps } from '@mui/system';
-import { groupBy as _groupBy } from 'lodash';
+import type { SxProps } from '@mui/system';
+import { groupBy as _groupBy } from 'lodash-es';
 import { useMemo, useState } from 'react';
 import { GroupedVirtuoso, Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 

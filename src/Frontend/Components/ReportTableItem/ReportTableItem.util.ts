@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { compact } from 'lodash';
+import { compact } from 'lodash-es';
 
-import { type PackageInfo } from '../../../shared/shared-types';
-import { type TableConfig } from '../ReportView/TableConfig';
+import type { PackageInfo } from '../../../shared/shared-types';
+import type { TableConfig } from '../ReportView/TableConfig';
 
 export function getFormattedCellData(
   config: TableConfig,

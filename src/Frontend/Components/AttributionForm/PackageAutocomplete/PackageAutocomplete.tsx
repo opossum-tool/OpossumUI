@@ -12,7 +12,7 @@ import {
 import MuiBox from '@mui/material/Box';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
-import { compact, sortBy } from 'lodash';
+import { compact, sortBy } from 'lodash-es';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
@@ -31,7 +31,7 @@ import { openUrl } from '../../../util/open-url';
 import { PackageSearchHooks } from '../../../util/package-search-hooks';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 import { renderOccurrenceCount } from '../../Autocomplete/AutocompleteUtil';
-import { type Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../../IconButton/IconButton';
 import { SourceIcon } from '../../Icons/Icons';
 import { ValidationDisplay } from '../../ValidationDisplay/ValidationDisplay';

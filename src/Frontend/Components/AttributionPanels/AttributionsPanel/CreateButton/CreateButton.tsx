@@ -11,7 +11,7 @@ import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/a
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import { getIsSelectedResourceBreakpoint } from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const CreateButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionId,

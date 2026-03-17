@@ -3,12 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { execFile as execFileCallback } from 'child_process';
-import { app } from 'electron';
 import fs from 'fs';
 import { join } from 'path';
 import { promisify } from 'util';
 
 import { text } from '../../shared/text';
+import { app } from '../electronInterop';
 
 export abstract class FileConverter {
   protected abstract readonly fileTypeSwitch: string;
@@ -16,11 +16,33 @@ export abstract class FileConverter {
 
   protected readonly execFile = promisify(execFileCallback);
 
-  protected readonly OPOSSUM_FILE_EXECUTABLE = join(
-    app?.getAppPath?.() ?? './',
-    process.env.NODE_ENV === 'e2e' ? '../..' : '',
-    'bin/opossum-file-cli',
-  );
+  protected readonly OPOSSUM_FILE_EXECUTABLE = this.getOpossumFileExecutable();
+
+  private getExecutableNames(): Array<string> {
+    return process.platform === 'win32'
+      ? ['opossum-file-cli.exe', 'opossum-file-cli']
+      : ['opossum-file-cli'];
+  }
+
+  private getOpossumFileExecutable(): string {
+    const executableNames = this.getExecutableNames();
+    const candidateDirectories =
+      app?.isPackaged && process.resourcesPath
+        ? [join(process.resourcesPath, 'bin')]
+        : [
+            join(app?.getAppPath?.() ?? process.cwd(), 'bin'),
+            join(app?.getAppPath?.() ?? process.cwd(), '..', '..', 'bin'),
+            join(process.cwd(), 'bin'),
+          ];
+
+    const candidates = candidateDirectories.flatMap((directory) =>
+      executableNames.map((executableName) => join(directory, executableName)),
+    );
+
+    return (
+      candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates[0]
+    );
+  }
 
   protected abstract preConvertFile(
     toBeConvertedFilePath: string,
@@ -42,11 +64,11 @@ export abstract class FileConverter {
     try {
       await this.execFile(this.OPOSSUM_FILE_EXECUTABLE, [
         'generate',
-        '-o',
-        opossumFilePath,
         this.fileTypeSwitch,
         preConvertedFilePath || toBeConvertedFilePath,
         '--opossum',
+        opossumFilePath,
+        '-o',
         opossumFilePath,
       ]);
     } catch (error) {

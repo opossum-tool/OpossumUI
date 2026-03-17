@@ -8,8 +8,8 @@ import {
   FORM_ATTRIBUTES,
   type FormAttribute,
 } from '../../../shared/attribution-comparison';
-import { type PackageInfo } from '../../../shared/shared-types';
-import { type AttributionFormConfig } from '../AttributionForm/AttributionForm';
+import type { PackageInfo } from '../../../shared/shared-types';
+import type { AttributionFormConfig } from '../AttributionForm/AttributionForm';
 import { DiffEndIcon } from '../DiffEndIcon/DiffEndIcon';
 
 export function useAttributionFormConfigs({

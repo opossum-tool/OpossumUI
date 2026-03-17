@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { sql } from 'kysely';
 
-import { type Attributions, type PackageInfo } from '../../shared/shared-types';
+import type { Attributions, PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import {
   exportCompactBom,
@@ -16,7 +16,7 @@ import {
   addManualOrExternalCwaToResources,
   removeManualOrExternalCwaFromResources,
 } from './progressBarUtils';
-import { type QueryName, type QueryParams } from './queries';
+import type { QueryName, QueryParams } from './queries';
 import {
   computeWasPreferred,
   getAttributionOrThrow,

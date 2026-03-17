@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { defer } from 'lodash';
+import { defer } from 'lodash-es';
 import { useEffect, useMemo, useRef } from 'react';
 import { TableVirtuoso, type TableVirtuosoHandle } from 'react-virtuoso';
 

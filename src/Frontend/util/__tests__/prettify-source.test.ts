@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type ExternalAttributionSources } from '../../../shared/shared-types';
+import type { ExternalAttributionSources } from '../../../shared/shared-types';
 import { prettifySource } from '../prettify-source';
 
 const testAttributionSources: ExternalAttributionSources = {

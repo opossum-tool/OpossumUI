@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import { type ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import {
   makeResourceTreeNode,
   ROOT_TREE_NODE,

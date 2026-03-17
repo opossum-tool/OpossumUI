@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { app } from 'electron';
 import path from 'path';
-import upath from 'upath';
+
+import { app } from '../electronInterop';
 
 function getNoticesDirectory(): string {
   if (!app.isPackaged) {
-    return path.join(upath.toUnix(__dirname), '..', '..', 'notices');
+    return path.join(import.meta.dirname, '..', '..', 'notices');
   }
 
   return path.join(process.resourcesPath, 'notices');

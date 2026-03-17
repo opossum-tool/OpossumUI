@@ -3,19 +3,19 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { BrowserWindow } from 'electron';
+
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   app,
-  type BrowserWindow,
   dialog,
   type MessageBoxOptions,
   type MessageBoxReturnValue,
-} from 'electron';
-
-import { AllowedFrontendChannels } from '../../shared/ipc-channels';
+} from '../electronInterop';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import logger from '../main/logger';
-import { type ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
+import type { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import { getLoadedFilePath } from '../utils/getLoadedFile';
 
 export async function showListenerErrorInMessageBox(

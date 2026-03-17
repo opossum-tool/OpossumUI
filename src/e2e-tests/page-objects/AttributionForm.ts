@@ -4,9 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
-import { type RawFrequentLicense } from '../../ElectronBackend/types/types';
+import type { RawFrequentLicense } from '../../ElectronBackend/types/types';
 import { maybePluralize } from '../../Frontend/util/maybe-pluralize';
-import { type RawPackageInfo } from '../../shared/shared-types';
+import type { RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 
 class ValidationDisplay {

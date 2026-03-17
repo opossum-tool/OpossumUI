@@ -3,10 +3,9 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { contextBridge, ipcRenderer } from 'electron';
-
 import { IpcChannel } from '../shared/ipc-channels';
 import type { ElectronAPI, UserSettings } from '../shared/shared-types';
+import { contextBridge, ipcRenderer } from './electronInterop';
 
 const electronAPI: ElectronAPI = {
   quit: () => ipcRenderer.invoke(IpcChannel.Quit),

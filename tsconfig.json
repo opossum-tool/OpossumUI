@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
@@ -21,6 +20,7 @@
     "sourceMap": true,
     "strict": true,
     "target": "ESNext",
+    "verbatimModuleSyntax": true,
     "types": [
       "vite/client",
       "vite-plugin-svgr/client",

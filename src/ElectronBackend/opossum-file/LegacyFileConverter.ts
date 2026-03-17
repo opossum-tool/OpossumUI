@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
@@ -10,6 +9,7 @@ import zlib from 'zlib';
 import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import { text } from '../../shared/text';
 import { writeOpossumFile } from '../../shared/write-file';
+import { app } from '../electronInterop';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { FileConverter } from './FileConverter';
 
