@@ -7,7 +7,7 @@ import chroma from 'chroma-js';
 import {
   type ClassificationEntry,
   type ClassificationsConfig,
-  type ParsedFileContent,
+  type ParsedFrontendFileContent,
   type ProjectConfig,
   type RawClassificationsConfig,
   type RawProjectConfig,
@@ -78,7 +78,7 @@ function addColorsToClassifications(
 }
 
 export function loadFromFile(
-  parsedFileContent: ParsedFileContent,
+  parsedFileContent: ParsedFrontendFileContent,
 ): AppThunkAction {
   return (dispatch) => {
     dispatch(setConfig(addColorsToClassifications(parsedFileContent.config)));
