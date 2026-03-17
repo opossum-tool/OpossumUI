@@ -8,9 +8,11 @@ import { areAttributionsEqual } from '../../shared/attribution-comparison';
 import { type PackageInfo } from '../../shared/shared-types';
 import { backend } from './backendClient';
 
-export function useEqualToOriginal(
+export function useCompareToOriginal(
   packageInfo: PackageInfo,
-): boolean | undefined {
+):
+  | { hasOriginal: false }
+  | { hasOriginal: true; isEqualToOriginal: boolean | undefined } {
   const originalAttributionId = packageInfo.originalAttributionId;
 
   const { data: originalAttribution } = backend.getAttributionData.useQuery(
@@ -19,10 +21,20 @@ export function useEqualToOriginal(
   );
 
   return useMemo(() => {
-    if (!originalAttributionId || !originalAttribution) {
-      return undefined;
+    if (!originalAttributionId) {
+      return { hasOriginal: false };
     }
 
-    return areAttributionsEqual(packageInfo, originalAttribution);
+    if (originalAttribution === undefined) {
+      return {
+        hasOriginal: true,
+        isEqualToOriginal: undefined,
+      };
+    }
+
+    return {
+      hasOriginal: true,
+      isEqualToOriginal: areAttributionsEqual(packageInfo, originalAttribution),
+    };
   }, [originalAttributionId, originalAttribution, packageInfo]);
 }

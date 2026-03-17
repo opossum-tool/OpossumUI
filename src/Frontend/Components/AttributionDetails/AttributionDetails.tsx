@@ -23,7 +23,7 @@ import {
 import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
 import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 import { useIsSelectedAttributionVisible } from '../../util/use-attribution-lists';
-import { useEqualToOriginal } from '../../util/use-equal-to-original';
+import { useCompareToOriginal } from '../../util/use-compare-to-original';
 import { useSelectedAttribution } from '../../util/use-selected-attribution';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
 import {
@@ -75,10 +75,12 @@ export function AttributionDetails() {
   }, [dispatch, isDirty]);
 
   const isSelectedAttributionVisible = useIsSelectedAttributionVisible();
-  const equalToOriginal = useEqualToOriginal(temporaryDisplayPackageInfo);
+  const compareToOriginal = useCompareToOriginal(temporaryDisplayPackageInfo);
 
   const wasPreferred =
-    !!temporaryDisplayPackageInfo.wasPreferred && equalToOriginal !== false;
+    compareToOriginal.hasOriginal &&
+    compareToOriginal.isEqualToOriginal === true &&
+    temporaryDisplayPackageInfo.originalAttributionWasPreferred;
   const [confirmEditWasPreferredRef, confirmEditWasPreferred] =
     useConfirmationDialog({
       skip: !wasPreferred,

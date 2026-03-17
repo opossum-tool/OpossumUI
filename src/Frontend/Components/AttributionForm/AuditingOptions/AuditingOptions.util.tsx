@@ -28,7 +28,7 @@ import {
 } from '../../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { prettifySource } from '../../../util/prettify-source';
-import { useEqualToOriginal } from '../../../util/use-equal-to-original';
+import { useCompareToOriginal } from '../../../util/use-compare-to-original';
 import {
   ClassificationIcon,
   CriticalityIcon,
@@ -61,7 +61,7 @@ export function useAuditingOptions({
     getIsPreferenceFeatureEnabled,
   );
   const classifications = useAppSelector(getClassifications);
-  const equalToOriginal = useEqualToOriginal(packageInfo);
+  const compareToOriginal = useCompareToOriginal(packageInfo);
   const [userSettings] = useUserSettings();
   const qaMode = userSettings.qaMode;
   const showClassifications = userSettings.showClassifications;
@@ -119,8 +119,10 @@ export function useAuditingOptions({
         label: text.auditingOptions.previouslyPreferred,
         icon: <WasPreferredIcon noTooltip />,
         selected:
-          (equalToOriginal === undefined && !!packageInfo.wasPreferred) || // external attributions
-          (!!equalToOriginal && !!packageInfo.originalAttributionWasPreferred), // manual attributions
+          (!compareToOriginal.hasOriginal && !!packageInfo.wasPreferred) || // preferred external attribution
+          (compareToOriginal.hasOriginal &&
+            compareToOriginal.isEqualToOriginal === true &&
+            !!packageInfo.originalAttributionWasPreferred), // manual attribution that was created from a preferred external attribution and not modified
         interactive: false,
       },
       {
@@ -128,8 +130,9 @@ export function useAuditingOptions({
         label: text.auditingOptions.modifiedPreferred,
         icon: <ModifiedPreferredIcon noTooltip />,
         selected:
-          equalToOriginal === false &&
-          !!packageInfo.originalAttributionWasPreferred,
+          compareToOriginal.hasOriginal &&
+          compareToOriginal.isEqualToOriginal === false &&
+          !!packageInfo.originalAttributionWasPreferred, // manual attribution that was created from a preferred external attribution and modified
         interactive: false,
       },
       {
@@ -284,7 +287,7 @@ export function useAuditingOptions({
       attributionSources,
       classifications,
       dispatch,
-      equalToOriginal,
+      compareToOriginal,
       isEditable,
       isPreferenceFeatureEnabled,
       packageInfo.attributionConfidence,
