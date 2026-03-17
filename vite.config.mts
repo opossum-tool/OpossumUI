@@ -37,6 +37,7 @@ function getElectronProcessViteConfig(): InlineConfig {
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
+    // The React compiler offers little benefit in component/unit tests, so we only use it in E2E tests and production
     mode === 'test'
       ? undefined
       : babel({
