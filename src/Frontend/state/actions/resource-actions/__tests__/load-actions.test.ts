@@ -33,7 +33,6 @@ import {
   getIsPreferenceFeatureEnabled,
   getManualData,
   getResolvedExternalAttributions,
-  getResources,
 } from '../../../selectors/resource-selectors';
 import { loadFromFile } from '../load-actions';
 
@@ -166,7 +165,6 @@ describe('loadFromFile', () => {
         SC: { name: 'ScanCode', priority: 1, isRelevantForPreferred: true },
       },
     };
-    const expectedResources: Resources = testResources;
     const expectedConfig: ProjectConfig = {
       classifications: {
         0: {
@@ -207,7 +205,6 @@ describe('loadFromFile', () => {
     );
 
     testStore.dispatch(loadFromFile(testParsedFileContent));
-    expect(getResources(testStore.getState())).toEqual(expectedResources);
     expect(getClassifications(testStore.getState())).toEqual(
       expectedConfig.classifications,
     );

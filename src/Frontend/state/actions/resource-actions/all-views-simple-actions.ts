@@ -11,7 +11,6 @@ import {
   type PackageInfo,
   type ProjectConfig,
   type ProjectMetadata,
-  type Resources,
   type ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { computeChildrenWithAttributions } from '../../helpers/save-action-helpers';
@@ -27,7 +26,6 @@ import {
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_PROJECT_CONFIG,
   ACTION_SET_PROJECT_METADATA,
-  ACTION_SET_RESOURCES,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
   type ResetResourceStateAction,
   type SetAttributionBreakpoints,
@@ -40,16 +38,11 @@ import {
   type SetManualDataAction,
   type SetProjectConfigAction,
   type SetProjectMetadata,
-  type SetResourcesAction,
   type SetTemporaryDisplayPackageInfoAction,
 } from './types';
 
 export function resetResourceState(): ResetResourceStateAction {
   return { type: ACTION_RESET_RESOURCE_STATE };
-}
-
-export function setResources(resources: Resources | null): SetResourcesAction {
-  return { type: ACTION_SET_RESOURCES, payload: resources };
 }
 
 export function setConfig(config: ProjectConfig): SetProjectConfigAction {

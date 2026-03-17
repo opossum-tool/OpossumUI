@@ -38,7 +38,6 @@ import {
 } from '../../../selectors/view-selector';
 import {
   setIsPackageInfoDirty,
-  setResources,
   setTemporaryDisplayPackageInfo,
 } from '../../resource-actions/all-views-simple-actions';
 import {
@@ -325,9 +324,6 @@ describe('The actions checking for unsaved changes', () => {
 describe('proceedFromUnsavedPopup', () => {
   function prepareTestState(): State {
     const testStore = createAppStore();
-    testStore.dispatch(
-      setResources({ selectedResource: 1, newSelectedResource: 1 }),
-    );
     testStore.dispatch(setSelectedResourceId('selectedResource'));
     testStore.dispatch(
       setTemporaryDisplayPackageInfo({

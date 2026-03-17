@@ -8,9 +8,9 @@ import { ErrorBoundary } from 'react-error-boundary';
 
 import { View } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
-import { getResources } from '../../state/selectors/resource-selectors';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { useInitUserSettings } from '../../state/variables/use-user-setting';
+import { useDatabaseInitialized } from '../../util/backendClient';
 import { AuditView } from '../AuditView/AuditView';
 import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
 import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
@@ -25,9 +25,6 @@ import {
 } from './App.style';
 
 export function App() {
-  const resources = useAppSelector(getResources);
-  const selectedView = useAppSelector(getSelectedView);
-
   //pre-hydrate values
   useInitUserSettings();
 
@@ -39,26 +36,28 @@ export function App() {
             <GlobalPopup />
             <ProcessPopup />
             <TopBar />
-            {renderView()}
+            <AppView />
           </ErrorBoundary>
         </ViewContainer>
       </ThemeProvider>
     </StyledEngineProvider>
   );
+}
 
-  function renderView() {
-    if (!resources) {
-      return (
-        <TitleContainer>
-          <TitleTypography variant={'h1'}>{'OpossumUI'}</TitleTypography>
-        </TitleContainer>
-      );
-    }
-
-    if (selectedView === View.Audit) {
-      return <AuditView />;
-    }
-
-    return <ReportView />;
+function AppView(): React.ReactNode {
+  const selectedView = useAppSelector(getSelectedView);
+  const databaseInitialized = useDatabaseInitialized();
+  if (!databaseInitialized) {
+    return (
+      <TitleContainer>
+        <TitleTypography variant={'h1'}>{'OpossumUI'}</TitleTypography>
+      </TitleContainer>
+    );
   }
+
+  if (selectedView === View.Audit) {
+    return <AuditView />;
+  }
+
+  return <ReportView />;
 }

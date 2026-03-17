@@ -8,7 +8,6 @@ import {
   DiscreteConfidence,
   type FrequentLicenses,
   type PackageInfo,
-  type Resources,
   type ResourcesToAttributions,
   type ResourcesWithAttributedChildren,
 } from '../../../../../shared/shared-types';
@@ -24,7 +23,6 @@ import {
   getIsPreferenceFeatureEnabled,
   getManualAttributions,
   getManualAttributionsToResources,
-  getResources,
   getResourcesToManualAttributions,
   getResourcesWithManualAttributedChildren,
   getTemporaryDisplayPackageInfo,
@@ -36,23 +34,9 @@ import {
   setFrequentLicenses,
   setIsPreferenceFeatureEnabled,
   setManualData,
-  setResources,
   setTemporaryDisplayPackageInfo,
 } from '../all-views-simple-actions';
 import { setSelectedResourceId } from '../audit-view-simple-actions';
-
-const testResources: Resources = {
-  thirdParty: {
-    'package_1.tr.gz': 1,
-    'package_2.tr.gz': 1,
-  },
-  root: {
-    src: {
-      'something.js': 1,
-    },
-    'readme.md': 1,
-  },
-};
 
 const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
 const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
@@ -109,12 +93,6 @@ describe('The load and navigation simple actions', () => {
     expect(testStore.getState().resourceState).toMatchObject(
       initialResourceState,
     );
-  });
-
-  it('sets and gets resources', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(setResources(testResources));
-    expect(getResources(testStore.getState())).toMatchObject(testResources);
   });
 
   it('sets and gets manual attribution data', () => {

@@ -10,7 +10,6 @@ import {
   type PackageInfo,
   type ProjectConfig,
   type ProjectMetadata,
-  type Resources,
 } from '../../../shared/shared-types';
 import {
   EMPTY_ATTRIBUTION_DATA,
@@ -40,7 +39,6 @@ import {
   ACTION_SET_PROJECT_CONFIG,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
-  ACTION_SET_RESOURCES,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
@@ -50,7 +48,6 @@ import {
   ACTION_UPDATE_ATTRIBUTION,
   type ResourceAction,
 } from '../actions/resource-actions/types';
-import { getResourceIdsFromResources } from '../helpers/resources-helpers';
 import {
   createManualAttribution,
   deleteManualAttribution,
@@ -73,7 +70,6 @@ export const initialResourceState: ResourceState = {
   metadata: EMPTY_PROJECT_METADATA,
   config: EMPTY_PROJECT_CONFIG,
   resolvedExternalAttributions: new Set(),
-  resources: null,
   resourceIds: null,
   selectedAttributionId: '',
   selectedResourceId: ROOT_PATH,
@@ -95,7 +91,6 @@ export type ResourceState = {
   metadata: ProjectMetadata;
   config: ProjectConfig;
   resolvedExternalAttributions: Set<string>;
-  resources: Resources | null;
   resourceIds: Array<string> | null;
   selectedAttributionId: string;
   selectedResourceId: string;
@@ -111,14 +106,6 @@ export const resourceState = (
   switch (action.type) {
     case ACTION_RESET_RESOURCE_STATE:
       return initialResourceState;
-    case ACTION_SET_RESOURCES:
-      return {
-        ...state,
-        resources: action.payload,
-        resourceIds: action.payload
-          ? getResourceIdsFromResources(action.payload)
-          : null,
-      };
     case ACTION_SET_PROJECT_CONFIG:
       return {
         ...state,

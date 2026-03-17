@@ -24,7 +24,6 @@ import {
   setIsPreferenceFeatureEnabled,
   setManualData,
   setProjectMetadata,
-  setResources,
 } from './all-views-simple-actions';
 import { setResolvedExternalAttributions } from './audit-view-simple-actions';
 
@@ -82,8 +81,6 @@ export function loadFromFile(
   parsedFileContent: ParsedFileContent,
 ): AppThunkAction {
   return (dispatch) => {
-    dispatch(setResources(parsedFileContent.resources));
-
     dispatch(setConfig(addColorsToClassifications(parsedFileContent.config)));
 
     dispatch(
