@@ -97,7 +97,6 @@ export function LicenseSubPanel({
                 setTemporaryDisplayPackageInfo({
                   ...packageInfo,
                   licenseText: value,
-                  wasPreferred: undefined,
                 }),
               ),
             )

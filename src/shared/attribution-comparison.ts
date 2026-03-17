@@ -2,10 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { pickBy } from 'lodash';
+import { isEqual, pickBy } from 'lodash';
 
-import { type PackageInfo } from '../../shared/shared-types';
-import { thirdPartyKeys } from '../shared-constants';
+import { type PackageInfo } from './shared-types';
+
+export const thirdPartyKeys: Array<keyof PackageInfo> = [
+  'copyright',
+  'licenseName',
+  'licenseText',
+];
 
 export const FORM_ATTRIBUTES = [
   'packageName',
@@ -22,7 +27,7 @@ export const FORM_ATTRIBUTES = [
 
 export type FormAttribute = (typeof FORM_ATTRIBUTES)[number];
 
-export function getComparableAttributes(packageInfo: PackageInfo) {
+function getComparableAttributes(packageInfo: PackageInfo) {
   return pickBy(
     packageInfo,
     (value, key) =>
@@ -32,4 +37,8 @@ export function getComparableAttributes(packageInfo: PackageInfo) {
         : true) &&
       !!value,
   );
+}
+
+export function areAttributionsEqual(a: PackageInfo, b: PackageInfo): boolean {
+  return isEqual(getComparableAttributes(a), getComparableAttributes(b));
 }

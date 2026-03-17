@@ -12,6 +12,7 @@ import {
 } from './progressBarUtils';
 import { type QueryName, type QueryParams } from './queries';
 import {
+  computeWasPreferred,
   getAttributionOrThrow,
   getResourceOrThrow,
   removeRedundantAttributions,
@@ -279,11 +280,13 @@ export const mutations = {
           );
         }
 
+        const wasPreferred = await computeWasPreferred(trx, params.packageInfo);
+
         await trx
           .insertInto('attribution')
           .values({
             uuid: params.attributionUuid,
-            data: JSON.stringify(params.packageInfo),
+            data: JSON.stringify({ ...params.packageInfo, wasPreferred }),
             is_external: 0,
           })
           .execute();
@@ -344,10 +347,12 @@ export const mutations = {
             throw new Error("External attributions can't be updated");
           }
 
+          const wasPreferred = await computeWasPreferred(trx, attributionData);
+
           await trx
             .updateTable('attribution')
             .set({
-              data: JSON.stringify(attributionData),
+              data: JSON.stringify({ ...attributionData, wasPreferred }),
             })
             .where('uuid', '=', attributionUuid)
             .execute();

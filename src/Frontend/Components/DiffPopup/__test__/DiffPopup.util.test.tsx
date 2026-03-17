@@ -5,12 +5,12 @@
 import { waitFor } from '@testing-library/react';
 import { without } from 'lodash';
 
-import { faker } from '../../../../testing/Faker';
-import { renderHook } from '../../../test-helpers/render';
 import {
   FORM_ATTRIBUTES,
   type FormAttribute,
-} from '../../../util/get-comparable-attributes';
+} from '../../../../shared/attribution-comparison';
+import { faker } from '../../../../testing/Faker';
+import { renderHook } from '../../../test-helpers/render';
 import { type AttributionFormConfig } from '../../AttributionForm/AttributionForm';
 import { useAttributionFormConfigs } from '../DiffPopup.util';
 

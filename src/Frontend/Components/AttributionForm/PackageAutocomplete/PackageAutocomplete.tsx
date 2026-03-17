@@ -217,7 +217,6 @@ export function PackageAutocomplete({
                 ...packageInfo,
                 [attribute]: value[attribute],
                 ...(attribute === 'licenseName' ? { licenseText: '' } : null),
-                wasPreferred: undefined,
               }),
             );
           })
@@ -230,7 +229,6 @@ export function PackageAutocomplete({
               setTemporaryDisplayPackageInfo({
                 ...packageInfo,
                 [attribute]: value,
-                wasPreferred: undefined,
               }),
             );
             setInputValue(value);
