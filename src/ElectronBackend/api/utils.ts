@@ -483,9 +483,9 @@ export function attributionToResourceRelationship(props: {
 }
 
 export function toCanonicalLicenseName(
-  s: Expression<string> | string,
-): RawBuilder<string> {
-  return sql<string>`lower(replace(replace(${s}, '-', ''), ' ', ''))`;
+  s: Expression<string | null> | string | null,
+): RawBuilder<string | null> {
+  return sql<string | null>`lower(replace(replace(${s}, '-', ''), ' ', ''))`;
 }
 
 export function mergeFilterProperties(
@@ -512,10 +512,6 @@ export function mergeFilterProperties(
   }
 
   return result;
-}
-
-export function canonicalLicenseName(licenseName: Expression<string | null>) {
-  return sql<string>`lower(replace(replace(${licenseName}, '-', ''), ' ', ''))`;
 }
 
 const DEFAULT_BATCH_SIZE = 30000;

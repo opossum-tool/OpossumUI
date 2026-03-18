@@ -16,7 +16,10 @@ import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getClassifications } from '../../state/selectors/resource-selectors';
-import { useExternalAttributionFilters } from '../../state/variables/use-filters';
+import {
+  initialFilters,
+  useExternalAttributionFilters,
+} from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { backend } from '../../util/backendClient';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
@@ -63,8 +66,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
   }
 
   function handleLicenseClick(licenseName: string): void {
-    setFilteredAttributions((prev) => ({
-      ...prev,
+    setFilteredAttributions(() => ({
+      ...initialFilters,
       selectedLicense: licenseName,
     }));
     close();
