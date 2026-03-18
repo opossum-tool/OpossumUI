@@ -17,10 +17,10 @@ export abstract class ExternalFileConverter extends FileConverter {
     try {
       await this.execFile(this.OPOSSUM_FILE_EXECUTABLE, [
         'generate',
-        '-o',
-        opossumSaveLocation,
         this.fileTypeSwitch,
         toBeConvertedFilePath,
+        '-o',
+        opossumSaveLocation,
       ]);
     } catch (error) {
       throw new Error(text.backendError.inputFileInvalid(this.fileTypeName), {

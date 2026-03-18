@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type BaseUrlsForSources,
-  type ExternalAttributionSources,
-  type ProjectMetadata,
-  type RawAttributions,
-  type RawProjectConfig,
-  type Resources,
-  type ResourcesToAttributions,
+import type {
+  BaseUrlsForSources,
+  ExternalAttributionSources,
+  ProjectMetadata,
+  RawAttributions,
+  RawProjectConfig,
+  Resources,
+  ResourcesToAttributions,
 } from '../../shared/shared-types';
 
 export interface ParsingError {

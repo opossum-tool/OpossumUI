@@ -4,36 +4,43 @@
 // SPDX-License-Identifier: Apache-2.0
 import { createWindow } from '../createWindow';
 
-vi.mock('electron', () => ({
-  app: {
-    on: vi.fn(),
-    getPath: vi.fn(),
-    getName: vi.fn(),
-    getVersion: vi.fn(),
-    whenReady: async (): Promise<unknown> => Promise.resolve(true),
-    isPackaged: true,
-  },
-  BrowserWindow: class BrowserWindowMock {
-    constructor() {
-      return {
-        loadURL: vi.fn(),
-        webContents: {
-          openDevTools: vi.fn(),
-          session: {
-            webRequest: {
-              onHeadersReceived: vi.fn(),
+vi.mock('electron', () => {
+  const mockElectron = {
+    app: {
+      on: vi.fn(),
+      getPath: vi.fn(),
+      getName: vi.fn(),
+      getVersion: vi.fn(),
+      whenReady: async (): Promise<unknown> => Promise.resolve(true),
+      isPackaged: true,
+    },
+    BrowserWindow: class BrowserWindowMock {
+      constructor() {
+        return {
+          loadURL: vi.fn(),
+          webContents: {
+            openDevTools: vi.fn(),
+            session: {
+              webRequest: {
+                onHeadersReceived: vi.fn(),
+              },
             },
           },
-        },
-      };
-    }
-  },
-  Menu: {
-    setApplicationMenu: vi.fn(),
-    buildFromTemplate: vi.fn(),
-    getApplicationMenu: vi.fn(),
-  },
-}));
+        };
+      }
+    },
+    Menu: {
+      setApplicationMenu: vi.fn(),
+      buildFromTemplate: vi.fn(),
+      getApplicationMenu: vi.fn(),
+    },
+  };
+
+  return {
+    default: mockElectron,
+    ...mockElectron,
+  };
+});
 
 vi.mock('../iconHelpers', () => ({
   getIconPath: (): string => {

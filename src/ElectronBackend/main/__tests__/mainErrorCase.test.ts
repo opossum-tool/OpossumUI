@@ -18,6 +18,7 @@ vi.mock('electron-settings', () => ({
 vi.mock('electron', () => ({
   ipcMain: {
     handle: vi.fn(),
+    on: vi.fn(),
   },
   app: {
     on: vi.fn(),
@@ -39,6 +40,7 @@ vi.mock('electron', () => ({
       };
     }
   },
+  contextBridge: { exposeInMainWorld: vi.fn() },
   Menu: {
     setApplicationMenu: vi.fn(),
     buildFromTemplate: vi.fn(),
@@ -47,6 +49,9 @@ vi.mock('electron', () => ({
   dialog: {
     showMessageBox: vi.fn(),
   },
+  ipcRenderer: { invoke: vi.fn(), on: vi.fn(), send: vi.fn() },
+  shell: { showItemInFolder: vi.fn(), openExternal: vi.fn() },
+  systemPreferences: { getUserDefault: vi.fn() },
 }));
 describe('The App backend', () => {
   it('handles errors', async () => {

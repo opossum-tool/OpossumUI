@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow } from 'electron';
 import log from 'electron-log';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import { type Log } from '../../shared/shared-types';
+import type { Log } from '../../shared/shared-types';
+import { BrowserWindow } from '../electronInterop';
 
 class Logger {
   private sendLogToRenderer(

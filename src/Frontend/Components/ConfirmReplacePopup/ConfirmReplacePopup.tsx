@@ -5,7 +5,7 @@
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
 
-import { type PackageInfo } from '../../../shared/shared-types';
+import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';

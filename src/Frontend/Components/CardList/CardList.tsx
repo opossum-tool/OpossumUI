@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
 import { type BaseItem, List } from '../List/List';

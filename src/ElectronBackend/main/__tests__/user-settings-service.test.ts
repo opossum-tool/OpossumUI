@@ -23,6 +23,11 @@ type MockedBrowserWindow = BrowserWindow & {
 vi.mock('electron', () => {
   const sendFunction = vi.fn();
   return {
+    app: {
+      getPath: vi.fn(),
+      getName: vi.fn(),
+      getVersion: vi.fn(),
+    },
     BrowserWindow: {
       getAllWindows: () => {
         return [
@@ -35,6 +40,14 @@ vi.mock('electron', () => {
       },
       sendFunction,
     },
+    contextBridge: { exposeInMainWorld: vi.fn() },
+    dialog: { showMessageBox: vi.fn(), showOpenDialogSync: vi.fn() },
+    ipcMain: { handle: vi.fn(), on: vi.fn() },
+    ipcRenderer: { invoke: vi.fn(), on: vi.fn(), send: vi.fn() },
+    Menu: { buildFromTemplate: vi.fn(), setApplicationMenu: vi.fn() },
+    nativeTheme: { shouldUseDarkColors: false },
+    shell: { showItemInFolder: vi.fn(), openExternal: vi.fn() },
+    systemPreferences: { getUserDefault: vi.fn() },
   };
 });
 

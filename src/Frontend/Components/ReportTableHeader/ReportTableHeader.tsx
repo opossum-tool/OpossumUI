@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { TableCell, TableRow } from '@mui/material';
 import MuiTypography from '@mui/material/Typography';
-import { type SxProps } from '@mui/system';
+import type { SxProps } from '@mui/system';
 
 import { OpossumColors } from '../../shared-styles';
 import { tableConfigs } from '../ReportView/TableConfig';

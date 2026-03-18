@@ -3,12 +3,5 @@
   "entry": ["src/ElectronBackend/{app,preload}.ts"],
   "project": ["**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}!", "!.yarn/**"],
   "ignoreDependencies": ["dpdm", "better-sqlite3-electron"],
-  "ignoreBinaries": [
-    "tools/*",
-    "spdx",
-    "reuse",
-    "licenses",
-    "codesign",
-    "ship-mac"
-  ]
+  "ignoreBinaries": ["tools/*", "spdx", "reuse", "licenses", "codesign"]
 }

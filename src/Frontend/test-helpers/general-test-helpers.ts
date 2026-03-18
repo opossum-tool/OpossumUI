@@ -3,16 +3,16 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import isEmpty from 'lodash/isEmpty';
+import { isEmpty } from 'lodash-es';
 
-import {
-  type Attributions,
-  type AttributionsToResources,
-  type ExternalAttributionSources,
-  type ParsedFileContent,
-  type RawProjectConfig,
-  type Resources,
-  type ResourcesToAttributions,
+import type {
+  Attributions,
+  AttributionsToResources,
+  ExternalAttributionSources,
+  ParsedFileContent,
+  RawProjectConfig,
+  Resources,
+  ResourcesToAttributions,
 } from '../../shared/shared-types';
 import {
   EMPTY_FREQUENT_LICENSES,

@@ -5,6 +5,8 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import path from 'path';
 
+const currentDirectory = import.meta.dirname;
+
 export class MergeDialog {
   private readonly node: Locator;
   readonly title: Locator;
@@ -19,16 +21,26 @@ export class MergeDialog {
   constructor(window: Page) {
     this.node = window.getByLabel('merge dialog');
     this.title = this.node.getByRole('heading').getByText('Merge');
-    this.inputFileSelection = this.node
-      .getByLabel('Select file to merge')
-      .locator('..');
-    this.mergeButton = this.node.getByRole('button', { name: 'Merge' });
-    this.cancelButton = this.node.getByRole('button', { name: 'Cancel' });
+    this.inputFileSelection = window.locator(
+      '[data-testid="merge-input-file-path"]',
+    );
+    this.mergeButton = this.node.getByRole('button', {
+      name: 'Merge',
+      exact: true,
+    });
+    this.cancelButton = this.node.getByRole('button', {
+      name: 'Cancel',
+      exact: true,
+    });
     this.errorIcon = this.node.getByTestId('ErrorIcon').locator('path');
 
-    this.scancodeFilePath = path.resolve(__dirname, '..', 'scancode.json');
+    this.scancodeFilePath = path.resolve(
+      currentDirectory,
+      '..',
+      'scancode.json',
+    );
     this.owaspFilePath = path.resolve(
-      __dirname,
+      currentDirectory,
       '..',
       'owasp-dependency-check-report.json',
     );

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type ProjectMetadata } from '../../../../shared/shared-types';
+import type { ProjectMetadata } from '../../../../shared/shared-types';
 import { EMPTY_PROJECT_METADATA } from '../../../shared-constants';
 import {
   setAttributionBreakpoints,

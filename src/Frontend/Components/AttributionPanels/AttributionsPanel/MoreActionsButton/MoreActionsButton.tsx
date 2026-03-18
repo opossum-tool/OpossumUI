@@ -7,9 +7,9 @@ import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import { useCallback, useMemo, useState } from 'react';
 
-import {
-  type Attributions,
-  type PackageInfo,
+import type {
+  Attributions,
+  PackageInfo,
 } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { updateAttributionsAndSave } from '../../../../state/actions/resource-actions/save-actions';
@@ -24,7 +24,7 @@ import {
   SelectMenu,
   type SelectMenuOption,
 } from '../../../SelectMenu/SelectMenu';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 type UpdatablePropertyType = keyof Pick<
   PackageInfo,

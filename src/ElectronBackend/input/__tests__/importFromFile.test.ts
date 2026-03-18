@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { type BrowserWindow, dialog } from 'electron';
-import { type Mock } from 'vitest';
+import type { Mock } from 'vitest';
 import * as zlib from 'zlib';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
@@ -21,13 +21,13 @@ import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from '../../main/globalBackendState';
-import {
-  type FileNotFoundError,
-  type JsonParsingError,
-  type OpossumOutputFile,
-  type ParsedOpossumInputAndOutput,
-  type ParsedOpossumInputFile,
-  type UnzipError,
+import type {
+  FileNotFoundError,
+  JsonParsingError,
+  OpossumOutputFile,
+  ParsedOpossumInputAndOutput,
+  ParsedOpossumInputFile,
+  UnzipError,
 } from '../../types/types';
 import {
   getMessageBoxForFileNotFoundError,
@@ -41,16 +41,23 @@ import { parseOpossumFile } from '../parseFile';
 const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
 const manualAttributionUuid = 'ecd692d9-b154-4d4d-be8c-manual';
 
-vi.mock('electron', () => ({
-  dialog: {
-    showOpenDialogSync: vi.fn(),
-    showMessageBox: vi.fn(),
-  },
-  BrowserWindow: {
-    getFocusedWindow: vi.fn(),
-  },
-  app: { exit: vi.fn(), getName: vi.fn(), getVersion: vi.fn() },
-}));
+vi.mock('electron', () => {
+  const mockElectron = {
+    dialog: {
+      showOpenDialogSync: vi.fn(),
+      showMessageBox: vi.fn(),
+    },
+    BrowserWindow: {
+      getFocusedWindow: vi.fn(),
+    },
+    app: { exit: vi.fn(), getName: vi.fn(), getVersion: vi.fn() },
+  };
+
+  return {
+    default: mockElectron,
+    ...mockElectron,
+  };
+});
 
 vi.mock('../../errorHandling/errorHandling', () => ({
   getMessageBoxForParsingError: vi.fn(),

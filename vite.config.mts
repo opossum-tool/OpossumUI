@@ -5,21 +5,42 @@
 import babel from '@rolldown/plugin-babel';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { defineConfig, InlineConfig, loadEnv } from 'vite';
-import electron from 'vite-plugin-electron';
+import electron, { withExternalBuiltins } from 'vite-plugin-electron';
 import svgrPlugin from 'vite-plugin-svgr';
 
-function getElectronProcessViteConfig(): InlineConfig {
-  return {
+import packageJson from './package.json' with { type: 'json' };
+
+const externalizedElectronDependencies = new Set([
+  ...Object.keys(packageJson.dependencies).filter(
+    (dependency) =>
+      dependency !== 'better-sqlite3' && dependency !== 'spdx-license-ids',
+  ),
+  'bindings',
+  'file-uri-to-path',
+]);
+
+function isExternalElectronDependency(id: string): boolean {
+  for (const dependency of externalizedElectronDependencies) {
+    if (id === dependency || id.startsWith(`${dependency}/`)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function getElectronProcessViteConfig(entryFileName: string): InlineConfig {
+  return withExternalBuiltins({
     build: {
       minify: true,
       outDir: 'build/ElectronBackend',
       rollupOptions: {
-        external: [
-          'electron',
-          'better-sqlite3-electron',
-          'bindings',
-          'file-uri-to-path',
-        ],
+        external: isExternalElectronDependency,
+        output: {
+          format: 'es',
+          entryFileNames: entryFileName,
+          chunkFileNames: 'chunks/[name]-[hash].mjs',
+        },
       },
     },
     resolve: {
@@ -31,7 +52,7 @@ function getElectronProcessViteConfig(): InlineConfig {
         'better-sqlite3': 'better-sqlite3-electron',
       },
     },
-  };
+  });
 }
 
 export default defineConfig(({ mode }) => ({
@@ -49,11 +70,11 @@ export default defineConfig(({ mode }) => ({
       : electron([
           {
             entry: 'src/ElectronBackend/preload.ts',
-            vite: getElectronProcessViteConfig(),
+            vite: getElectronProcessViteConfig('preload.mjs'),
           },
           {
             entry: 'src/ElectronBackend/app.ts',
-            vite: getElectronProcessViteConfig(),
+            vite: getElectronProcessViteConfig('app.mjs'),
           },
         ])),
   ],

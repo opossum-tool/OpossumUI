@@ -3,12 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  app,
-  type BrowserWindow,
-  type MenuItemConstructorOptions,
-  type WebContents,
-} from 'electron';
+import type { BrowserWindow } from 'electron';
 import os from 'os';
 import path from 'path';
 
@@ -19,6 +14,11 @@ import {
   FileType,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import {
+  app,
+  type MenuItemConstructorOptions,
+  type WebContents,
+} from '../../electronInterop';
 import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';

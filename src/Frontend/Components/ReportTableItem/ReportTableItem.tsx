@@ -9,7 +9,7 @@ import MuiLink from '@mui/material/Link';
 import MuiTypography from '@mui/material/Typography';
 import { Fragment } from 'react';
 
-import { type PackageInfo } from '../../../shared/shared-types';
+import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
 import { clickableIcon, OpossumColors } from '../../shared-styles';

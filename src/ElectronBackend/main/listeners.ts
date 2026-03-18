@@ -3,28 +3,28 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type BrowserWindow, shell } from 'electron';
+import type { BrowserWindow } from 'electron';
 import fs from 'fs';
 import { type Kysely, sql } from 'kysely';
-import { uniq } from 'lodash';
+import { uniq } from 'lodash-es';
 import path from 'path';
-import upath from 'upath';
 
 import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import {
-  type Attributions,
-  type FileFormatInfo,
-  type FileType,
-  type OpenLinkArgs,
-  type PackageInfo,
-  type ResourcesToAttributions,
-  type SaveFileArgs,
+import type {
+  Attributions,
+  FileFormatInfo,
+  FileType,
+  OpenLinkArgs,
+  PackageInfo,
+  ResourcesToAttributions,
+  SaveFileArgs,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { getDb } from '../db/db';
-import { type DB } from '../db/generated/databaseTypes';
+import type { DB } from '../db/generated/databaseTypes';
+import { shell } from '../electronInterop';
 import { LoadedFileFormat } from '../enums/enums';
 import {
   sendListenerErrorToFrontend,
@@ -36,10 +36,7 @@ import {
   convertToOpossum,
   mergeFileIntoOpossum,
 } from '../opossum-file/opossum-file';
-import {
-  type GlobalBackendState,
-  type OpossumOutputFile,
-} from '../types/types';
+import type { GlobalBackendState, OpossumOutputFile } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { getLoadedFileType } from '../utils/getLoadedFile';
 import {
@@ -533,9 +530,7 @@ function setTitle(mainWindow: BrowserWindow, filePath: string): void {
 
   mainWindow.setTitle(
     getGlobalBackendState().projectTitle ||
-      decodeURIComponent(
-        upath.toUnix(filePath).split('/').pop() || defaultTitle,
-      ),
+      decodeURIComponent(path.basename(filePath) || defaultTitle),
   );
 }
 

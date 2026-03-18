@@ -6,7 +6,7 @@ import BetterSqlite3 from 'better-sqlite3';
 import fs from 'fs';
 import { Kysely, SqliteDialect } from 'kysely';
 
-import { type DB } from './generated/databaseTypes';
+import type { DB } from './generated/databaseTypes';
 
 /**
  * Direct DB access for faster bulk imports

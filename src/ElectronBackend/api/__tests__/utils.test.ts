@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type Attributions,
-  type AttributionsToResources,
-  type ResourcesToAttributions,
+import type {
+  Attributions,
+  AttributionsToResources,
+  ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import {
   initializeDbWithTestData,

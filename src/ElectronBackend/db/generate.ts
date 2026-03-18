@@ -4,18 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
 
 import { initializeDbWithTestData } from '../../testing/global-test-helpers';
 import { getDb } from './db';
 import { generateDiagram } from './generateDiagram';
 import { generateTypes } from './generateTypes';
 
-const directory = path.join(
-  // @ts-expect-error Executed using tsx
-  path.dirname(fileURLToPath(import.meta.url)),
-  'generated',
-);
+const directory = path.join(import.meta.dirname, 'generated');
 
 async function main() {
   await fs.mkdir(directory, { recursive: true });

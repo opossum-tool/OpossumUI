@@ -14,7 +14,7 @@ import {
   getIsSelectedResourceBreakpoint,
 } from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   activeRelation,

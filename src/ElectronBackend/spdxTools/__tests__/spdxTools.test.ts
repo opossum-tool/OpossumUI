@@ -7,11 +7,11 @@ import {
   createSpdxJson,
   createSpdxYaml,
 } from '../spdxTools';
-import {
-  type Package,
-  type SpdxDocument,
-  type SpdxExternalRelationship,
-  type SpdxPackage,
+import type {
+  Package,
+  SpdxDocument,
+  SpdxExternalRelationship,
+  SpdxPackage,
 } from '../types';
 
 vi.mock('uuid', () => ({

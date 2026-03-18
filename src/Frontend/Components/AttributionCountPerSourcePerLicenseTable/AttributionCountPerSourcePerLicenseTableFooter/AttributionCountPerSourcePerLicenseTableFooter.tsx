@@ -5,7 +5,7 @@
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableFooter from '@mui/material/TableFooter';
 import MuiTableRow from '@mui/material/TableRow';
-import { sum } from 'lodash';
+import { sum } from 'lodash-es';
 
 import { text } from '../../../../shared/text';
 import { tableClasses } from '../../../shared-styles';

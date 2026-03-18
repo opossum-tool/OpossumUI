@@ -3,9 +3,9 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type BrowserWindow, dialog } from 'electron';
+import type { BrowserWindow } from 'electron';
 import fs from 'fs';
-import { cloneDeep, omit } from 'lodash';
+import { cloneDeep, omit } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
@@ -19,15 +19,16 @@ import {
 import { text } from '../../shared/text';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { initializeDb } from '../db/initializeDb';
+import { dialog } from '../electronInterop';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
-import {
-  type FileNotFoundError,
-  type OpossumOutputFile,
-  type ParsedOpossumInputAndOutput,
-  type ParsedOpossumInputFile,
-  type ParsedOpossumOutputFile,
-  type ParsingError,
+import type {
+  FileNotFoundError,
+  OpossumOutputFile,
+  ParsedOpossumInputAndOutput,
+  ParsedOpossumInputFile,
+  ParsedOpossumOutputFile,
+  ParsingError,
 } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';

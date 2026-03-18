@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import type fs from 'fs';
 import path from 'path';
-import upath from 'upath';
 
 export function getFilePathWithAppendix(
   resourceFilePath: fs.PathLike,
@@ -25,8 +24,8 @@ function getBasePaths(resourceFilePath: fs.PathLike): {
     resourceFilePath.toString(),
     getFileExtension(resourceFilePath),
   );
-  const parent_folder = path.dirname(resourceFilePath.toString());
-  const basePath = path.join(upath.toUnix(parent_folder), '/');
+  const parentFolder = path.dirname(resourceFilePath.toString());
+  const basePath = path.join(parentFolder, path.sep);
   return { baseFileName, basePath };
 }
 

@@ -2,8 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { app } from 'electron';
-
+import { app } from './electronInterop';
 import { main } from './main/main';
 
 // allow opening a file when double-clicking it in mac-os. Has to be called before the ready event is emitted

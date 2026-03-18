@@ -3,10 +3,10 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type ExportType,
-  type FileFormatInfo,
-  type PackageInfo,
+import type {
+  ExportType,
+  FileFormatInfo,
+  PackageInfo,
 } from '../../../../shared/shared-types';
 import { PopupType, type View } from '../../../enums/enums';
 import {
@@ -20,7 +20,7 @@ import {
   getOpenFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
-import { type AppThunkAction } from '../../types';
+import type { AppThunkAction } from '../../types';
 import {
   setSelectedAttributionId,
   setSelectedResourceId,

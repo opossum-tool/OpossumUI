@@ -3,14 +3,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type FileFormatInfo,
-  type UserSettings,
-} from '../../shared/shared-types';
-import { type PopupType } from '../enums/enums';
-import { type ResourceState } from '../state/reducers/resource-reducer';
-import { type VariablesState } from '../state/reducers/variables-reducer';
-import { type ViewState } from '../state/reducers/view-reducer';
+import type { FileFormatInfo, UserSettings } from '../../shared/shared-types';
+import type { PopupType } from '../enums/enums';
+import type { ResourceState } from '../state/reducers/resource-reducer';
+import type { VariablesState } from '../state/reducers/variables-reducer';
+import type { ViewState } from '../state/reducers/view-reducer';
 
 export type State = {
   resourceState: ResourceState;

@@ -94,7 +94,7 @@ updates after changes to the frontend, execute:
 yarn start
 ```
 
-Unit tests are provided for all features. The testing framework is jest + react testing library. They can be run by executing:
+Unit tests are provided for all features. The testing framework is Vitest + Testing Library. They can be run by executing:
 
 ```bash
 yarn test:unit
@@ -124,12 +124,12 @@ This project uses `better-sqlite3`, a native Node.js module that requires compil
 
 To solve this, we install `better-sqlite3` twice:
 
-- `better-sqlite3` — compiled for Node.js, used by Jest tests and Node scripts
+- `better-sqlite3` — compiled for Node.js, used by Vitest tests and Node scripts
 - `better-sqlite3-electron` — compiled for Electron, used by the app at runtime
 
 The Vite config aliases `better-sqlite3` to `better-sqlite3-electron` when building the Electron main process, so source code always imports from `better-sqlite3`.
 
-The `postinstall` script automatically rebuilds `better-sqlite3-electron` for Electron. If you encounter ABI mismatch errors, run:
+The `postinstall` script automatically rebuilds only `better-sqlite3-electron` for the Electron runtime, while leaving the plain Node.js build of `better-sqlite3` untouched for Node-based tooling. If you encounter ABI mismatch errors, run:
 
 ```bash
 yarn rebuild:electron
@@ -178,8 +178,9 @@ test('updates progress bar and confidence when user confirms preselected attribu
 
 ### Building the app
 
-To build for a single OS run either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`. To build for all three
-systems run `yarn ship`. The built release(s) can be found under _/release_.
+To build for a single OS run either `yarn ship-linux`, `yarn ship-win`, `yarn ship-mac:x64`, or `yarn ship-mac:arm64`.
+On macOS, `yarn ship:auto` selects the matching macOS target automatically. The built release(s) can be found under
+_/release_.
 
 **Important:** [wine](https://www.winehq.org/) might be required to build a Windows installer on Linux.
 

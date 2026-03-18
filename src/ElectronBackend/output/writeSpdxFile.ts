@@ -16,7 +16,7 @@ import {
   createSpdxPackage,
   createSpdxYaml,
 } from '../spdxTools/spdxTools';
-import { type SpdxDocument } from '../spdxTools/types';
+import type { SpdxDocument } from '../spdxTools/types';
 
 const CREATOR_TOOL = 'Opossum';
 
@@ -28,6 +28,8 @@ export function writeSpdxFile(args: {
   const fileName = path.basename(args.path);
   const packageInfos = Object.values(args.attributions);
   const spdxDocument = getSpdxDocument(packageInfos, fileName);
+
+  fs.mkdirSync(path.dirname(args.path), { recursive: true });
 
   if (args.type === ExportType.SpdxDocumentYaml) {
     fs.writeFileSync(args.path, createSpdxYaml(spdxDocument));

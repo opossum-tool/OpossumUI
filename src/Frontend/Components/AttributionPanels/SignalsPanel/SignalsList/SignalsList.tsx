@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
-import { groupBy as _groupBy, orderBy as _orderBy, without } from 'lodash';
+import { groupBy as _groupBy, orderBy as _orderBy, without } from 'lodash-es';
 import { useMemo } from 'react';
 
 import { TRANSITION } from '../../../../shared-styles';
@@ -21,7 +21,7 @@ import {
 import { SourceIcon } from '../../../Icons/Icons';
 import { PackageCard } from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 import { GroupName } from './SignalsList.style';
 
 export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({

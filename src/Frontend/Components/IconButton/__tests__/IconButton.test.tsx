@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { render, screen } from '@testing-library/react';
-import { noop } from 'lodash';
+import { noop } from 'lodash-es';
 
 import { IconButton } from '../IconButton';
 

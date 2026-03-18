@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type Attributions,
-  type AttributionsToResources,
-  type BaseUrlsForSources,
-  type ExternalAttributionSources,
-  type FrequentLicenses,
-  type PackageInfo,
-  type ProjectConfig,
-  type ProjectMetadata,
-  type ResourcesToAttributions,
+import type {
+  Attributions,
+  AttributionsToResources,
+  BaseUrlsForSources,
+  ExternalAttributionSources,
+  FrequentLicenses,
+  PackageInfo,
+  ProjectConfig,
+  ProjectMetadata,
+  ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { computeChildrenWithAttributions } from '../../helpers/save-action-helpers';
 import {

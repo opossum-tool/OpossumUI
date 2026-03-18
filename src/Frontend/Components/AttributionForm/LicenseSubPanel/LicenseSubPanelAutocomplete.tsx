@@ -3,10 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { sortBy } from 'lodash';
+import { sortBy } from 'lodash-es';
 import { useMemo } from 'react';
 
-import { type PackageInfo } from '../../../../shared/shared-types';
+import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
@@ -18,9 +18,9 @@ import { backend } from '../../../util/backendClient';
 import { validateSpdxExpression } from '../../../util/spdx/validate-spdx';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 import { renderOccurrenceCount } from '../../Autocomplete/AutocompleteUtil';
-import { type Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { SourceIcon } from '../../Icons/Icons';
-import { type AttributionFormConfig } from '../AttributionForm';
+import type { AttributionFormConfig } from '../AttributionForm';
 import { SpdxValidationDisplay } from './SpdxValidationDisplay';
 
 interface LicenseAutocompleteProps {
@@ -40,11 +40,13 @@ export function LicenseSubPanelAutocomplete({
 }: LicenseAutocompleteProps) {
   const dispatch = useAppDispatch();
   const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
-  const frequentLicenseNameSet = new Set(
-    frequentLicensesNames.map((n) => n.shortName),
+  const frequentLicenseNameSet = useMemo(
+    () => new Set(frequentLicensesNames.map((n) => n.shortName)),
+    [frequentLicensesNames],
   );
-  const frequentLicenseNameSetLowercase = new Set(
-    frequentLicensesNames.map((n) => n.shortName.toLowerCase()),
+  const frequentLicenseNameSetLowercase = useMemo(
+    () => new Set(frequentLicensesNames.map((n) => n.shortName.toLowerCase())),
+    [frequentLicensesNames],
   );
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);

@@ -9,7 +9,7 @@ import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
 
-import commitInfo from '../../../commitInfo.json';
+import commitInfo from '../../../commitInfo.json' with { type: 'json' };
 import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';

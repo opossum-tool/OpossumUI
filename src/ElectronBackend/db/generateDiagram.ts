@@ -6,7 +6,7 @@ import * as Viz from '@viz-js/viz';
 import { promises as fs } from 'fs';
 import { type Kysely, sql } from 'kysely';
 
-import { type DB } from './generated/databaseTypes';
+import type { DB } from './generated/databaseTypes';
 import { comments } from './initializeDb';
 
 export async function generateDiagram(

@@ -3,9 +3,8 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type MenuItemConstructorOptions, shell } from 'electron';
-
 import { text } from '../../../shared/text';
+import { type MenuItemConstructorOptions, shell } from '../../electronInterop';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import {
   getPathOfChromiumNoticeDocument,

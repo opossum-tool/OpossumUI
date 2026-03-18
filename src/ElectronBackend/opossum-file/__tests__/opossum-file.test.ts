@@ -3,29 +3,40 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
-import { uniqueId } from 'lodash';
+import { uniqueId } from 'lodash-es';
 import { tmpdir } from 'os';
 import { join } from 'path';
 
 import { FileType } from '../../../shared/shared-types';
 import { parseOpossumFile } from '../../input/parseFile';
-import { type ParsedOpossumInputAndOutput } from '../../types/types';
+import type { ParsedOpossumInputAndOutput } from '../../types/types';
 import { isOpossumFileFormat } from '../../utils/isOpossumFileFormat';
 import { convertToOpossum, mergeFileIntoOpossum } from '../opossum-file';
 
 const mockTmpdir = tmpdir();
+const currentDirectory = import.meta.dirname;
 
-vi.mock('electron', () => ({
-  app: {
-    getPath: () => mockTmpdir,
-  },
-}));
+vi.mock('electron', () => {
+  const mockElectron = {
+    app: {
+      getPath: () => mockTmpdir,
+    },
+  };
+
+  return {
+    default: mockElectron,
+    ...mockElectron,
+  };
+});
 
 describe('conversion to opossum', () => {
-  const SCANCODE_TEST_FILE = join(__dirname, 'scancode.json');
-  const OWASP_TEST_FILE = join(__dirname, 'owasp-dependency-check-report.json');
-  const LEGACY_OPOSSUM_TEST_FILE = join(__dirname, 'legacy.json');
-  const OPOSSUM_TEST_FILE = join(__dirname, 'merge_base.opossum');
+  const SCANCODE_TEST_FILE = join(currentDirectory, 'scancode.json');
+  const OWASP_TEST_FILE = join(
+    currentDirectory,
+    'owasp-dependency-check-report.json',
+  );
+  const LEGACY_OPOSSUM_TEST_FILE = join(currentDirectory, 'legacy.json');
+  const OPOSSUM_TEST_FILE = join(currentDirectory, 'merge_base.opossum');
   const LEGACY_OPOSSUM_TEST_FILE_COPY = join(
     mockTmpdir,
     'test_legacy_merge.opossum',

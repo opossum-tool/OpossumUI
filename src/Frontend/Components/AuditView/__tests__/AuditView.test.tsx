@@ -9,6 +9,7 @@ import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { View } from '../../../enums/enums';
 import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -33,6 +34,7 @@ describe('AuditView', () => {
       }),
       actions: [
         setProjectMetadata(faker.opossum.metadata()),
+        setSelectedResourceId(`/${resourceName}/`),
         navigateToView(View.Audit),
       ],
     });

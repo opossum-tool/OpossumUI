@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { isFunction } from 'lodash';
+import { isFunction } from 'lodash-es';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
-import { type State } from '../../types/types';
+import type { State } from '../../types/types';
 import { setVariable } from '../actions/variables-actions/variables-actions';
 import { useAppDispatch, useAppStore } from '../hooks';
 

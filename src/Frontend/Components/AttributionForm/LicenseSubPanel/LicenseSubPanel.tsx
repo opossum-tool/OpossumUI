@@ -7,14 +7,14 @@ import { Badge, ToggleButton } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import { useState } from 'react';
 
-import { type PackageInfo } from '../../../../shared/shared-types';
+import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import { getFrequentLicensesTexts } from '../../../state/selectors/resource-selectors';
-import { type Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
-import { type AttributionFormConfig } from '../AttributionForm';
+import type { AttributionFormConfig } from '../AttributionForm';
 import { LicenseSubPanelAutocomplete } from './LicenseSubPanelAutocomplete';
 
 interface LicenseSubPanelProps {

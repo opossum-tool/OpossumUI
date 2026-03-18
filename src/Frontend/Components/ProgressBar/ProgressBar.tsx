@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import CircleIcon from '@mui/icons-material/Circle';
-import { type SxProps } from '@mui/material';
+import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
 import Box from '@mui/system/Box';
@@ -16,7 +16,7 @@ import {
   getClassifications,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
-import { type SelectedProgressBar } from '../../types/types';
+import type { SelectedProgressBar } from '../../types/types';
 import { backend } from '../../util/backendClient';
 import {
   calculateAttributionBarSteps,

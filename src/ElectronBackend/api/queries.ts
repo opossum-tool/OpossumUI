@@ -3,14 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { sql } from 'kysely';
-import { omit, uniqBy } from 'lodash';
+import { omit, uniqBy } from 'lodash-es';
 
 import {
   type Filter,
   type FilterCounts,
   FILTERS,
 } from '../../Frontend/shared-constants';
-import { type PackageInfo } from '../../shared/shared-types';
+import type { PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { listAttributions } from './listAttributions';

@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { type BrowserWindow, shell, type WebContents } from 'electron';
-import { type Mock } from 'vitest';
+import type { Mock } from 'vitest';
 
 import {
   AllowedFrontendChannels,
@@ -26,53 +26,60 @@ import {
 } from '../listeners';
 import { importFileFormats } from '../menu/fileMenu';
 
-vi.mock('electron', () => ({
-  app: {
-    on: vi.fn(),
-    getPath: vi.fn(),
-    getName: vi.fn(),
-    getVersion: vi.fn(),
-    whenReady: async (): Promise<unknown> => Promise.resolve(true),
-  },
-  BrowserWindow: class BrowserWindowMock {
-    constructor() {
-      return {
-        loadURL: vi.fn(() => {
-          return Promise.resolve(null);
-        }),
-        setTitle: vi.fn(),
-        getFocusedWindow: vi.fn(),
-        webContents: {
-          openDevTools: vi.fn(),
-          send: vi.fn(),
-          close: vi.fn(),
-          session: {
-            webRequest: {
-              onHeadersReceived: vi.fn(),
+vi.mock('electron', () => {
+  const mockElectron = {
+    app: {
+      on: vi.fn(),
+      getPath: vi.fn(),
+      getName: vi.fn(),
+      getVersion: vi.fn(),
+      whenReady: async (): Promise<unknown> => Promise.resolve(true),
+    },
+    BrowserWindow: class BrowserWindowMock {
+      constructor() {
+        return {
+          loadURL: vi.fn(() => {
+            return Promise.resolve(null);
+          }),
+          setTitle: vi.fn(),
+          getFocusedWindow: vi.fn(),
+          webContents: {
+            openDevTools: vi.fn(),
+            send: vi.fn(),
+            close: vi.fn(),
+            session: {
+              webRequest: {
+                onHeadersReceived: vi.fn(),
+              },
             },
           },
-        },
-        close: vi.fn(() => {
-          return Promise.resolve(null);
-        }),
-      };
-    }
-  },
-  Menu: {
-    setApplicationMenu: vi.fn(),
-    buildFromTemplate: vi.fn(),
-    getApplicationMenu: vi.fn(),
-  },
-  dialog: {
-    showOpenDialogSync: vi.fn(),
-    showMessageBox: vi.fn(() => {
-      return Promise.resolve({
-        response: 0,
-      });
-    }),
-  },
-  shell: { showItemInFolder: vi.fn(), openExternal: vi.fn() },
-}));
+          close: vi.fn(() => {
+            return Promise.resolve(null);
+          }),
+        };
+      }
+    },
+    Menu: {
+      setApplicationMenu: vi.fn(),
+      buildFromTemplate: vi.fn(),
+      getApplicationMenu: vi.fn(),
+    },
+    dialog: {
+      showOpenDialogSync: vi.fn(),
+      showMessageBox: vi.fn(() => {
+        return Promise.resolve({
+          response: 0,
+        });
+      }),
+    },
+    shell: { showItemInFolder: vi.fn(), openExternal: vi.fn() },
+  };
+
+  return {
+    default: mockElectron,
+    ...mockElectron,
+  };
+});
 
 vi.mock('../../input/importFromFile', () => ({
   loadInputAndOutputFromFilePath: vi.fn(),

@@ -11,7 +11,7 @@ import {
 
 import { text } from '../../shared/text';
 import { getDb } from '../db/db';
-import { type DB } from '../db/generated/databaseTypes';
+import type { DB } from '../db/generated/databaseTypes';
 import { getFilterExpression } from './filters';
 import { toCanonicalLicenseName } from './utils';
 

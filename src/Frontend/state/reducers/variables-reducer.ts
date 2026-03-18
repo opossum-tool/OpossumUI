@@ -5,7 +5,7 @@
 import { omit } from '../../util/lodash-extension-utils';
 import { ACTION_RESET_RESOURCE_STATE } from '../actions/resource-actions/types';
 import { SET_VARIABLE } from '../actions/variables-actions/types';
-import { type VariablesAction } from '../actions/variables-actions/variables-actions';
+import type { VariablesAction } from '../actions/variables-actions/variables-actions';
 import {
   EXTERNAL_ATTRIBUTION_FILTERS,
   MANUAL_ATTRIBUTION_FILTERS_AUDIT,

@@ -14,7 +14,7 @@ import {
 } from '../../../state/variables/use-filters';
 import { renderComponent } from '../../../test-helpers/render';
 import { SortButton } from '../SortButton';
-import { type SortOption } from '../useSortingOptions';
+import type { SortOption } from '../useSortingOptions';
 
 describe('SortButton', () => {
   it('switches to selected sorting', async () => {

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { compareVersions, validate } from 'compare-versions';
-import { compact, mapValues, partition } from 'lodash';
+import { compact, mapValues, partition } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
 import {

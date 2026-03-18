@@ -12,8 +12,8 @@ import type {
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
 import { OpossumColors } from '../Frontend/shared-styles';
-import { type ClassificationStatisticsEntry } from '../Frontend/types/types';
-import { type HttpClient } from '../Frontend/util/http-client';
+import type { ClassificationStatisticsEntry } from '../Frontend/types/types';
+import type { HttpClient } from '../Frontend/util/http-client';
 import {
   type AdvisorySuggestion,
   type DefaultVersionResponse,

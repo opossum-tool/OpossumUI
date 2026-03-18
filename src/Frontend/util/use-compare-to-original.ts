@@ -5,7 +5,7 @@
 import { useMemo } from 'react';
 
 import { areAttributionsEqual } from '../../shared/attribution-comparison';
-import { type PackageInfo } from '../../shared/shared-types';
+import type { PackageInfo } from '../../shared/shared-types';
 import { backend } from './backendClient';
 
 export function useCompareToOriginal(

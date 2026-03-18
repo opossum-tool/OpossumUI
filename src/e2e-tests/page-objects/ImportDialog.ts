@@ -5,6 +5,8 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import * as path from 'path';
 
+const currentDirectory = import.meta.dirname;
+
 export class ImportDialog {
   private readonly node: Locator;
   readonly title: Locator;
@@ -20,19 +22,29 @@ export class ImportDialog {
   constructor(window: Page) {
     this.node = window.getByLabel('import dialog');
     this.title = this.node.getByRole('heading').getByText('Import');
-    this.inputFileSelection = this.node
-      .getByLabel('Select file to import')
-      .locator('..');
-    this.opossumFileSelection = this.node
-      .getByLabel('Select opossum file save location')
-      .locator('..');
-    this.importButton = this.node.getByRole('button', { name: 'Import' });
-    this.cancelButton = this.node.getByRole('button', { name: 'Cancel' });
+    this.inputFileSelection = window.locator(
+      '[data-testid="import-input-file-path"]',
+    );
+    this.opossumFileSelection = window.locator(
+      '[data-testid="import-opossum-file-path"]',
+    );
+    this.importButton = this.node.getByRole('button', {
+      name: 'Import',
+      exact: true,
+    });
+    this.cancelButton = this.node.getByRole('button', {
+      name: 'Cancel',
+      exact: true,
+    });
     this.errorIcon = this.node.getByTestId('ErrorIcon').locator('path');
 
-    this.scancodeFilePath = path.resolve(__dirname, '..', 'scancode.json');
+    this.scancodeFilePath = path.resolve(
+      currentDirectory,
+      '..',
+      'scancode.json',
+    );
     this.owaspFilePath = path.resolve(
-      __dirname,
+      currentDirectory,
       '..',
       'owasp-dependency-check-report.json',
     );

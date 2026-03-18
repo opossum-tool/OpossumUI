@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { keyBy, type ListIterator, orderBy } from 'lodash';
+import { orderBy } from 'lodash-es';
 
-import {
-  type Attributions,
-  type PackageInfo,
-  type Relation,
+import type {
+  Attributions,
+  PackageInfo,
+  Relation,
 } from '../../shared/shared-types';
-import { type SortOption } from '../Components/SortButton/useSortingOptions';
+import type { SortOption } from '../Components/SortButton/useSortingOptions';
 import { getCardLabels } from './get-card-labels';
 
 export function sortAttributions({
@@ -19,7 +19,7 @@ export function sortAttributions({
   attributions: Array<PackageInfo> | Attributions;
   sorting: SortOption;
 }): Attributions {
-  const iteratees: Array<ListIterator<PackageInfo, unknown>> = [
+  const iteratees: Array<(packageInfo: PackageInfo) => string | number> = [
     (packageInfo) => getCardLabels(packageInfo).join('').toLowerCase(),
   ];
   const orders: Array<'asc' | 'desc'> = ['asc'];
@@ -41,7 +41,10 @@ export function sortAttributions({
     orders,
   );
 
-  return keyBy(orderedAttributions, ({ id }) => id);
+  return orderedAttributions.reduce<Attributions>((result, attribution) => {
+    result[attribution.id] = attribution;
+    return result;
+  }, {});
 }
 
 export function getRelationPriority(relation: Relation | undefined): 2 | 1 | 0 {

@@ -10,7 +10,7 @@ import { text } from '../../../../../shared/text';
 import { addToSelectedResource } from '../../../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import { getIsSelectedResourceBreakpoint } from '../../../../state/selectors/resource-selectors';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,

@@ -9,9 +9,9 @@ import {
   type SqlBool,
 } from 'kysely';
 
-import { type Filter } from '../../Frontend/shared-constants';
+import type { Filter } from '../../Frontend/shared-constants';
 import { text } from '../../shared/text';
-import { type DB } from '../db/generated/databaseTypes';
+import type { DB } from '../db/generated/databaseTypes';
 
 const LOW_CONFIDENCE_THRESHOLD = 60;
 

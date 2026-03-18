@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { pickBy } from 'lodash';
+import { pickBy } from 'lodash-es';
 
 import {
   type Attributions,
@@ -16,7 +16,7 @@ import {
   type ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
-import { type RawFrequentLicense } from '../../types/types';
+import type { RawFrequentLicense } from '../../types/types';
 import {
   deserializeAttributions,
   getAllResourcePaths,

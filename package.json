@@ -2,9 +2,11 @@
   "name": "opossum-ui",
   "productName": "OpossumUI",
   "description": "The OpossumUI enables the editing of attribution information that is assigned to a resource tree.",
+  "author": "Meta Platforms, Inc.",
   "license": "Apache-2.0",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "homepage": "./",
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -29,7 +31,7 @@
     "js-yaml": "4.1.1",
     "jsonschema": "1.5.0",
     "kysely": "0.28.12",
-    "lodash": "4.17.23",
+    "lodash-es": "4.17.23",
     "object-hash": "3.0.0",
     "ohm-js": "17.5.0",
     "packageurl-js": "2.0.1",
@@ -46,14 +48,10 @@
     "recharts": "3.8.0",
     "spdx-license-ids": "3.0.23",
     "stream-json": "1.9.1",
-    "upath": "2.0.1",
     "uuid": "13.0.0"
   },
   "devDependencies": {
     "@babel/core": "7.29.0",
-    "@babel/preset-env": "7.29.0",
-    "@babel/preset-react": "7.28.5",
-    "@babel/preset-typescript": "7.28.5",
     "@commitlint/cli": "20.5.0",
     "@commitlint/config-conventional": "20.5.0",
     "@commitlint/types": "20.5.0",
@@ -74,7 +72,7 @@
     "@types/better-sqlite3": "7.6.13",
     "@types/chroma-js": "3.1.2",
     "@types/js-yaml": "4.0.9",
-    "@types/lodash": "4.17.24",
+    "@types/lodash-es": "4.17.12",
     "@types/node": "24.10.9",
     "@types/object-hash": "3.0.6",
     "@types/react": "19.2.14",
@@ -83,7 +81,6 @@
     "@vitejs/plugin-react": "6.0.1",
     "@vitest/eslint-plugin": "1.6.12",
     "babel-plugin-react-compiler": "1.0.0",
-    "babel-plugin-transform-import-meta": "2.3.3",
     "cross-env": "10.1.0",
     "dotenv": "17.3.1",
     "dpdm": "4.0.1",
@@ -147,12 +144,20 @@
     "ship-linux": "yarn install-deps:linux && yarn build && tools/build_linux_release.sh",
     "ship-win": "yarn install-deps:win32 && yarn build && NODE_OPTIONS=--no-deprecation electron-builder --win --x64 --publish never && mkdirp release/win && mv \"release/OpossumUI Setup 0.1.0.exe\" \"release/win/OpossumUI-for-win.exe\"",
     "ship-mac:x64": "yarn install-deps:darwin:x64 && yarn build && NODE_OPTIONS=--no-deprecation electron-builder --mac --x64 --publish never && cd release/mac && zip -r -y -q 'OpossumUI-for-mac-intel.zip' 'OpossumUI.app'",
-    "ship-mac:arm64": "yarn install-deps:darwin:arm64 && yarn build && NODE_OPTIONS=--no-deprecation electron-builder --mac --arm64 --publish never && codesign --force --deep -s - release/mac-arm64/OpossumUI.app && cd release/mac-arm64 && zip -r -y -q 'OpossumUI-for-mac-arm64.zip' 'OpossumUI.app'",
-    "ship": "yarn ship-linux && yarn ship-win && yarn ship-mac",
+    "ship-mac:arm64": "yarn install-deps:darwin:arm64 && yarn build && NODE_OPTIONS=--no-deprecation electron-builder --mac --arm64 --publish never && cd release/mac-arm64 && zip -r -y -q 'OpossumUI-for-mac-arm64.zip' 'OpossumUI.app'",
+    "ship": "yarn ship-linux && yarn ship-win && yarn node tools/runScriptArch.mjs ship-mac",
     "ship:auto": "cross-env NODE_OPTIONS=--no-deprecation run-script-os",
     "ship:auto:darwin": "yarn node tools/runScriptArch.mjs ship-mac",
     "ship:auto:linux": "yarn ship-linux",
     "ship:auto:win32": "yarn ship-win",
+    "ship:e2e:auto": "cross-env NODE_OPTIONS=--no-deprecation run-script-os",
+    "ship:e2e:auto:darwin": "yarn node tools/runScriptArch.mjs ship:e2e:mac",
+    "ship:e2e:auto:linux": "yarn ship:e2e:linux",
+    "ship:e2e:auto:win32": "yarn ship:e2e:win32",
+    "ship:e2e:linux": "yarn install-deps:linux && yarn build && NODE_OPTIONS=--no-deprecation electron-builder --linux --x64 --publish never --dir",
+    "ship:e2e:mac:x64": "yarn install-deps:darwin:x64 && yarn build && NODE_OPTIONS=--no-deprecation electron-builder --mac --x64 --publish never --dir",
+    "ship:e2e:mac:arm64": "yarn install-deps:darwin:arm64 && yarn build && NODE_OPTIONS=--no-deprecation electron-builder --mac --arm64 --publish never --dir",
+    "ship:e2e:win32": "yarn install-deps:win32 && yarn build && NODE_OPTIONS=--no-deprecation electron-builder --win --x64 --publish never --dir",
     "clean": "rm -rf ./build/ ./release/",
     "postinstall": "yarn install-deps && yarn rebuild:electron && yarn update-commit-hash && husky",
     "pre-commit": "lint-staged",
@@ -163,7 +168,7 @@
     "install-deps:win32": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs windows.exe",
     "rebuild:electron": "electron-rebuild -o better-sqlite3-electron -f"
   },
-  "main": "build/ElectronBackend/app.js",
+  "main": "build/ElectronBackend/app.mjs",
   "build": {
     "npmRebuild": false,
     "productName": "OpossumUI",
@@ -173,8 +178,6 @@
     ],
     "files": [
       "build/**/*",
-      "bin/*",
-      "!node_modules",
       "node_modules/better-sqlite3-electron/**/*",
       "node_modules/bindings/**/*",
       "node_modules/file-uri-to-path/**/*",
@@ -194,6 +197,7 @@
     ],
     "mac": {
       "target": "dmg",
+      "identity": "-",
       "icon": "public/icons/icon_512x512.png"
     },
     "win": {
@@ -209,9 +213,10 @@
       "category": "Development"
     },
     "extraMetadata": {
-      "main": "build/ElectronBackend/app.js"
+      "main": "build/ElectronBackend/app.mjs"
     },
     "extraResources": [
+      "./bin/opossum-file-cli*",
       "./notices/**"
     ]
   },

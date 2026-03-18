@@ -5,8 +5,8 @@
 import * as fflate from 'fflate';
 import fs from 'fs';
 import { type Options, Validator } from 'jsonschema';
-import { type Parser, parser } from 'stream-json';
-import Asm from 'stream-json/Assembler';
+import streamJson from 'stream-json';
+import Asm from 'stream-json/Assembler.js';
 import zlib from 'zlib';
 
 import {
@@ -14,17 +14,18 @@ import {
   OUTPUT_FILE_NAME,
 } from '../../shared/write-file-utils';
 import { getGlobalBackendState } from '../main/globalBackendState';
-import {
-  type InvalidDotOpossumFileError,
-  type JsonParsingError,
-  type ParsedOpossumInputAndOutput,
-  type ParsedOpossumInputFile,
-  type ParsedOpossumOutputFile,
-  type UnzipError,
+import type {
+  InvalidDotOpossumFileError,
+  JsonParsingError,
+  ParsedOpossumInputAndOutput,
+  ParsedOpossumInputFile,
+  ParsedOpossumOutputFile,
+  UnzipError,
 } from '../types/types';
-import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
-import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
+import OpossumInputFileSchema from './OpossumInputFileSchema.json' with { type: 'json' };
+import OpossumOutputFileSchema from './OpossumOutputFileSchema.json' with { type: 'json' };
 
+const { parser } = streamJson;
 const jsonSchemaValidator = new Validator();
 const validationOptions: Options = {
   throwError: true,
@@ -110,7 +111,7 @@ async function readZipAsync(opossumFilePath: string): Promise<fflate.Unzipped> {
 export function parseInputJsonFile(
   resourceFilePath: fs.PathLike,
 ): Promise<ParsedOpossumInputFile | JsonParsingError> {
-  let pipeline: Parser;
+  let pipeline: ReturnType<typeof parser>;
   if (resourceFilePath.toString().endsWith('.json.gz')) {
     pipeline = fs
       .createReadStream(resourceFilePath)

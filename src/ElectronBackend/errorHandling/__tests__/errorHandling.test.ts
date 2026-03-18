@@ -6,7 +6,7 @@
 import { type BrowserWindow, dialog, type WebContents } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { type SendErrorInformationArgs } from '../../../shared/shared-types';
+import type { SendErrorInformationArgs } from '../../../shared/shared-types';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import {
   getMessageBoxContentForErrorsWrapper,
@@ -21,6 +21,16 @@ vi.mock('electron', () => ({
       });
     }),
   },
+  BrowserWindow: {
+    getFocusedWindow: vi.fn(),
+  },
+  contextBridge: { exposeInMainWorld: vi.fn() },
+  ipcMain: { handle: vi.fn(), on: vi.fn() },
+  ipcRenderer: { invoke: vi.fn(), on: vi.fn(), send: vi.fn() },
+  Menu: { buildFromTemplate: vi.fn(), setApplicationMenu: vi.fn() },
+  nativeTheme: { shouldUseDarkColors: false },
+  shell: { showItemInFolder: vi.fn(), openExternal: vi.fn() },
+  systemPreferences: { getUserDefault: vi.fn() },
   app: { exit: vi.fn(), getName: vi.fn(), getVersion: vi.fn() },
 }));
 
