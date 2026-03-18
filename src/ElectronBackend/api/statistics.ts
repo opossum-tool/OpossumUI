@@ -13,7 +13,7 @@ import { text } from '../../shared/text';
 import { getDb } from '../db/db';
 import { type DB } from '../db/generated/databaseTypes';
 import { getFilterExpression } from './filters';
-import { canonicalLicenseName } from './utils';
+import { toCanonicalLicenseName } from './utils';
 
 export async function manualAttributionStatistics() {
   const db = getDb();
@@ -91,7 +91,7 @@ export async function externalAttributionStatistics() {
         .selectFrom('attribution')
         .select((eb) => [
           eb.ref('license_name').$notNull().as('license_name'),
-          canonicalLicenseName(eb.ref('license_name')).as('stripped'),
+          toCanonicalLicenseName(eb.ref('license_name')).as('stripped'),
           eb.fn.countAll<number>().as('count'),
         ])
         .where('is_external', '=', 1)
@@ -217,7 +217,7 @@ export async function licenseTable() {
     .where('attribution.is_external', '=', 1)
     .where('attribution.is_resolved', '=', 0)
     .groupBy((eb) => [
-      canonicalLicenseName(eb.ref('license_name')),
+      toCanonicalLicenseName(eb.ref('license_name')),
       'criticality',
       'classification',
       'source_name',

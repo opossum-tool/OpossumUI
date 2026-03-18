@@ -14,7 +14,7 @@ import {
   type ParsedFileContent,
   type Resources,
 } from '../../shared/shared-types';
-import { removeTrailingSlash } from '../api/utils';
+import { removeTrailingSlash, toCanonicalLicenseName } from '../api/utils';
 import { getDb, getRawDb, resetDb } from './db';
 import { type DB } from './generated/databaseTypes';
 
@@ -378,6 +378,10 @@ async function initializeAttributionTable(
     }
   }
 
+  schema = schema.addColumn('canonical_license_name', 'text', (col) =>
+    col.generatedAlwaysAs(toCanonicalLicenseName(sql`license_name`)).stored(),
+  );
+
   await schema.execute();
 
   for (const [uuid, attribution] of Object.entries(
@@ -410,7 +414,10 @@ async function initializeAttributionTable(
       .execute();
   }
 
-  for (const [name, _] of generatedColumnsFromJsonData) {
+  for (const [name, _] of [
+    ...generatedColumnsFromJsonData,
+    ['canonicalLicenseName', 'text'],
+  ]) {
     await trx.schema
       .createIndex(`attribution_${snakeCase(name)}_idx`)
       .on('attribution')

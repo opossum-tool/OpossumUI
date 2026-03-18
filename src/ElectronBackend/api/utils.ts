@@ -8,6 +8,7 @@ import {
   type ExpressionBuilder,
   expressionBuilder,
   type Kysely,
+  type RawBuilder,
   sql,
   type Transaction,
 } from 'kysely';
@@ -18,7 +19,10 @@ import { areAttributionsEqual } from '../../shared/attribution-comparison';
 import { type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
 import { removeManualOrExternalCwaFromResources } from './progressBarUtils';
-import { type FilterProperties } from './queries';
+import {
+  type FilterProperties,
+  type FilterPropertiesWithCanonicalLicenseNames,
+} from './queries';
 
 export type ResourceRelationship =
   | 'same'
@@ -478,20 +482,29 @@ export function attributionToResourceRelationship(props: {
   return expression.else('unrelated').end();
 }
 
+export function toCanonicalLicenseName(
+  s: Expression<string | null> | string | null,
+): RawBuilder<string | null> {
+  return sql<string | null>`lower(replace(replace(${s}, '-', ''), ' ', ''))`;
+}
+
 export function mergeFilterProperties(
-  counts: Array<FilterProperties | undefined>,
-): FilterProperties {
+  counts: Array<FilterPropertiesWithCanonicalLicenseNames | undefined>,
+): FilterPropertiesWithCanonicalLicenseNames {
   const result = {
     ...Object.fromEntries(['total', ...FILTERS].map((f) => [f, 0])),
-    licenses: [] as Array<string>,
-  } as FilterProperties;
+    licenses: [] as Array<{ name: string; canonical_name: string }>,
+  } as FilterPropertiesWithCanonicalLicenseNames;
 
   for (const sum of counts.filter((s) => s !== undefined)) {
     for (const [k, v] of Object.entries(sum)) {
       if (k === 'licenses') {
         result.licenses = [
-          ...new Set([...result.licenses, ...(v as Array<string>)]),
-        ].toSorted();
+          ...new Set([
+            ...result.licenses,
+            ...(v as Array<{ name: string; canonical_name: string }>),
+          ]),
+        ];
       } else {
         result[k as keyof Omit<FilterProperties, 'licenses'>] += v as number;
       }
@@ -499,10 +512,6 @@ export function mergeFilterProperties(
   }
 
   return result;
-}
-
-export function canonicalLicenseName(licenseName: Expression<string | null>) {
-  return sql<string>`lower(replace(replace(${licenseName}, '-', ''), ' ', ''))`;
 }
 
 const DEFAULT_BATCH_SIZE = 30000;
