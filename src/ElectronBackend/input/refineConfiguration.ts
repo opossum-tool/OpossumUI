@@ -9,12 +9,15 @@ import {
   type RawClassificationsConfig,
   type RawProjectConfig,
 } from '../../shared/shared-types';
-import { type ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
+
+interface Logger {
+  warn: (message: string) => void;
+}
 
 function addUnconfiguredClassifications(
   classifications: RawClassificationsConfig,
   externalAttributions: Attributions,
-  processingStatusUpdater: ProcessingStatusUpdater,
+  processingStatusUpdater: Logger,
 ) {
   const configuredAttributionKeys = Object.keys(classifications).map(Number);
   const getUnconfiguredClassification = (packageInfo: PackageInfo) =>
@@ -42,7 +45,7 @@ function addUnconfiguredClassifications(
 export function refineConfiguration(
   rawConfig: RawProjectConfig = EMPTY_RAW_PROJECT_CONFIG,
   externalAttributions: Attributions,
-  processingStatusUpdater: ProcessingStatusUpdater,
+  processingStatusUpdater: Logger,
 ): RawProjectConfig {
   rawConfig.classifications = addUnconfiguredClassifications(
     rawConfig.classifications,

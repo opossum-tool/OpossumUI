@@ -2,30 +2,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { shell } from 'electron';
 import { sql } from 'kysely';
 
 import {
   type Attributions,
-  ExportType,
+  type ExportType,
   type PackageInfo,
 } from '../../shared/shared-types';
 import { getDb } from '../db/db';
-import { getGlobalBackendState } from '../main/globalBackendState';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 
-export async function exportFollowUp() {
-  const globalState = getGlobalBackendState();
-  if (!globalState.followUpFilePath) {
-    throw new Error('Follow-up file path is not set');
-  }
+export async function exportFollowUp(params: { filePath: string }) {
   const followUpAndFilePathsResult = await getDb()
     .selectFrom('attribution')
     .select([
       'uuid',
       'data',
-      // get paths of files that have inherited manual attributions that need follow-up
       (eb) =>
         eb
           .selectFrom('resource')
@@ -59,7 +52,7 @@ export async function exportFollowUp() {
   );
 
   await writeCsvToFile({
-    path: globalState.followUpFilePath,
+    path: params.filePath,
     attributions: followUpAttributions,
     columns: [
       'packageName',
@@ -71,24 +64,12 @@ export async function exportFollowUp() {
     ],
     shortenResources: true,
   });
-  shell.showItemInFolder(globalState.followUpFilePath);
-  return {};
 }
 
 export async function exportSpdxDocument(params: {
   type: ExportType.SpdxDocumentJson | ExportType.SpdxDocumentYaml;
+  filePath: string;
 }) {
-  const globalState = getGlobalBackendState();
-  const filePath =
-    params.type === ExportType.SpdxDocumentJson
-      ? globalState.spdxJsonFilePath
-      : globalState.spdxYamlFilePath;
-  if (!filePath) {
-    throw new Error(
-      `SPDX ${params.type === ExportType.SpdxDocumentJson ? 'JSON' : 'YAML'} file path is not set`,
-    );
-  }
-
   const rows = await getDb()
     .selectFrom('attribution')
     .leftJoin(
@@ -114,19 +95,13 @@ export async function exportSpdxDocument(params: {
     spdxAttributions[row.uuid] = { ...packageInfo, licenseText };
   }
   writeSpdxFile({
-    path: filePath,
+    path: params.filePath,
     type: params.type,
     attributions: spdxAttributions,
   });
-  shell.showItemInFolder(filePath);
-  return {};
 }
 
-export async function exportCompactBom() {
-  const globalState = getGlobalBackendState();
-  if (!globalState.compactBomFilePath) {
-    throw new Error('Compact BOM file path is not set');
-  }
+export async function exportCompactBom(params: { filePath: string }) {
   const rows = await getDb()
     .selectFrom('attribution')
     .select(['uuid', 'data'])
@@ -141,7 +116,7 @@ export async function exportCompactBom() {
   );
 
   await writeCsvToFile({
-    path: globalState.compactBomFilePath,
+    path: params.filePath,
     attributions: bomAttributions,
     columns: [
       'packageName',
@@ -151,21 +126,14 @@ export async function exportCompactBom() {
       'url',
     ],
   });
-  shell.showItemInFolder(globalState.compactBomFilePath);
-  return {};
 }
 
-export async function exportDetailedBom() {
-  const globalState = getGlobalBackendState();
-  if (!globalState.detailedBomFilePath) {
-    throw new Error('Detailed BOM file path is not set');
-  }
+export async function exportDetailedBom(params: { filePath: string }) {
   const manualAttributionsAndResourcesResult = await getDb()
     .selectFrom('attribution')
     .select([
       'uuid',
       'data',
-      // get paths of resources directly associated with bom attributions
       (eb) =>
         eb
           .selectFrom('resource')
@@ -198,7 +166,7 @@ export async function exportDetailedBom() {
   );
 
   await writeCsvToFile({
-    path: globalState.detailedBomFilePath,
+    path: params.filePath,
     attributions: bomAttributions,
     columns: [
       'packageName',
@@ -213,6 +181,4 @@ export async function exportDetailedBom() {
       'resources',
     ],
   });
-  shell.showItemInFolder(globalState.detailedBomFilePath);
-  return {};
 }

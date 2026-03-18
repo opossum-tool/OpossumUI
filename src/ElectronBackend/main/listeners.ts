@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type BrowserWindow, shell } from 'electron';
 import fs from 'fs';
-import { type Kysely, sql } from 'kysely';
 import { uniq } from 'lodash';
 import path from 'path';
 import upath from 'upath';
@@ -13,35 +12,27 @@ import upath from 'upath';
 import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
-  type Attributions,
+  ExportType,
   type FileFormatInfo,
   type FileType,
   type OpenLinkArgs,
-  type PackageInfo,
-  type ResourcesToAttributions,
-  type SaveFileArgs,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
-import { writeFile, writeOpossumFile } from '../../shared/write-file';
-import { getDb } from '../db/db';
-import { type DB } from '../db/generated/databaseTypes';
-import { LoadedFileFormat } from '../enums/enums';
 import {
   sendListenerErrorToFrontend,
   showListenerErrorInMessageBox,
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
-import { serializeAttributions } from '../input/parseInputData';
 import {
   convertToOpossum,
   mergeFileIntoOpossum,
 } from '../opossum-file/opossum-file';
+import { type GlobalBackendState } from '../types/types';
 import {
-  type GlobalBackendState,
-  type OpossumOutputFile,
-} from '../types/types';
+  exportFileInUtilityProcess,
+  saveFileInUtilityProcess,
+} from '../utilityProcessClient';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
-import { getLoadedFileType } from '../utils/getLoadedFile';
 import {
   openNonOpossumFileDialog,
   openOpossumFileDialog,
@@ -58,144 +49,6 @@ import { UserSettingsService } from './user-settings-service';
 
 const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
-export async function getPreferredOverOriginIds(trxOrDb: Kysely<DB>) {
-  // Preferred manual attribution -> resource -> manual descendants -> overridden external attribution -> source with relevant_for_preferred
-  const preferredOverResult = await trxOrDb
-    .with(
-      (cte) => cte('overridden_resources').materialized(),
-      (db) =>
-        db
-          .selectFrom('attribution as preferred')
-          .innerJoin(
-            'resource_to_attribution as has_preferred',
-            'preferred.uuid',
-            'has_preferred.attribution_uuid',
-          )
-          .innerJoin('cwa', 'cwa.manual', 'has_preferred.resource_id')
-          .select(['preferred.uuid as attribution_uuid', 'cwa.resource_id'])
-          .where('is_external', '=', 0)
-          .where('preferred', '=', 1),
-    )
-    .selectFrom('overridden_resources')
-    .select([
-      'overridden_resources.attribution_uuid',
-      sql<string>`overridden.data->'originIds'`.as('overridden_origin_ids'),
-    ])
-    .innerJoin(
-      'resource_to_attribution as has_overridden',
-      'overridden_resources.resource_id',
-      'has_overridden.resource_id',
-    )
-    .innerJoin(
-      'attribution as overridden',
-      'overridden.uuid',
-      'has_overridden.attribution_uuid',
-    )
-    .innerJoin(
-      'source_for_attribution as overridden_source_assoc',
-      'overridden.uuid',
-      'overridden_source_assoc.attribution_uuid',
-    )
-    .innerJoin(
-      'external_attribution_source as overridden_source',
-      'overridden_source_assoc.external_attribution_source_key',
-      'overridden_source.key',
-    )
-    .where('overridden.is_external', '=', 1)
-    .where('overridden_source.is_relevant_for_preferred', '=', 1)
-    .execute();
-
-  const preferredOver: Record<string, Set<string>> = {};
-
-  for (const row of preferredOverResult) {
-    if (!(row.attribution_uuid in preferredOver)) {
-      preferredOver[row.attribution_uuid] = new Set();
-    }
-
-    (JSON.parse(row.overridden_origin_ids) as Array<string>).forEach((i) =>
-      preferredOver[row.attribution_uuid].add(i),
-    );
-  }
-
-  return Object.fromEntries(
-    Object.entries(preferredOver).map(([key, value]) => [
-      key,
-      Array.from(value),
-    ]),
-  );
-}
-
-export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
-  const queryResults = await getDb()
-    .transaction()
-    .execute(async (trx) => {
-      const manualAttributionsResult = await trx
-        .selectFrom('attribution')
-        .select(['uuid', 'data'])
-        .where('is_external', '=', 0)
-        .execute();
-
-      const preferredOver = await getPreferredOverOriginIds(trx);
-
-      const resourcesToAttributionsResult = await trx
-        .selectFrom('resource_to_attribution')
-        .innerJoin('resource', 'id', 'resource_id')
-        .select([
-          sql<string>`path || IF(is_file, '', '/')`.as('path'),
-          sql<string>`json_group_array(attribution_uuid)`.as(
-            'attribution_uuids',
-          ),
-        ])
-        .where('attribution_is_external', '=', 0)
-        .groupBy('resource_id')
-        .execute();
-
-      const resolvedExternalAttributionsResult = await trx
-        .selectFrom('attribution')
-        .select('uuid')
-        .where('is_resolved', '=', 1)
-        .where('is_external', '=', 1)
-        .execute();
-
-      return {
-        manualAttributionsResult,
-        preferredOver,
-        resourcesToAttributionsResult,
-        resolvedExternalAttributionsResult,
-      };
-    });
-
-  const manualAttributions: Attributions = Object.fromEntries(
-    queryResults.manualAttributionsResult.map(({ uuid, data }) => [
-      uuid,
-      { ...(JSON.parse(data) as PackageInfo), id: uuid },
-    ]),
-  );
-
-  for (const id of Object.keys(manualAttributions)) {
-    manualAttributions[id].preferredOverOriginIds =
-      queryResults.preferredOver[id];
-  }
-
-  const resourcesToAttributions: ResourcesToAttributions = Object.fromEntries(
-    queryResults.resourcesToAttributionsResult.map((val) => [
-      val.path,
-      JSON.parse(val.attribution_uuids) as Array<string>,
-    ]),
-  );
-  const resolvedExternalAttributions = new Set(
-    queryResults.resolvedExternalAttributionsResult.map(({ uuid }) => uuid),
-  );
-
-  return {
-    result: {
-      manualAttributions,
-      resourcesToAttributions,
-      resolvedExternalAttributions,
-    },
-  };
-}
-
 export const saveFileListener =
   (mainWindow: BrowserWindow) =>
   async (_: unknown): Promise<void> => {
@@ -205,46 +58,47 @@ export const saveFileListener =
         throw new Error('Project ID not found');
       }
 
-      const saveFileArgs = await getSaveFileArgs();
-      const outputFileContent: OpossumOutputFile = {
-        metadata: {
-          projectId: globalBackendState.projectId,
-          fileCreationDate: String(Date.now()),
-          inputFileMD5Checksum: globalBackendState.inputFileChecksum,
-        },
-        manualAttributions: serializeAttributions(
-          saveFileArgs.result.manualAttributions,
-        ),
-        resourcesToAttributions: saveFileArgs.result.resourcesToAttributions,
-        resolvedExternalAttributions: Array.from(
-          saveFileArgs.result.resolvedExternalAttributions,
-        ),
-      };
-
-      await writeOutputJsonToFile(outputFileContent);
+      await saveFileInUtilityProcess({
+        projectId: globalBackendState.projectId,
+        inputFileChecksum: globalBackendState.inputFileChecksum,
+        opossumFilePath: globalBackendState.opossumFilePath,
+        attributionFilePath: globalBackendState.attributionFilePath,
+      });
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
     }
   };
 
-async function writeOutputJsonToFile(
-  outputFileContent: OpossumOutputFile,
-): Promise<void> {
-  const globalBackendState = getGlobalBackendState();
-  const fileLoadedType = getLoadedFileType(globalBackendState);
-  if (fileLoadedType === LoadedFileFormat.Opossum) {
-    await writeOpossumFile({
-      path: globalBackendState.opossumFilePath as string,
-      input: globalBackendState.inputFileRaw,
-      output: outputFileContent,
-    });
-  } else {
-    await writeFile({
-      path: globalBackendState.attributionFilePath as string,
-      content: outputFileContent,
-    });
+function getExportFilePath(exportType: ExportType): string {
+  const globalState = getGlobalBackendState();
+  const pathMap: Record<ExportType, string | undefined> = {
+    [ExportType.FollowUp]: globalState.followUpFilePath,
+    [ExportType.CompactBom]: globalState.compactBomFilePath,
+    [ExportType.DetailedBom]: globalState.detailedBomFilePath,
+    [ExportType.SpdxDocumentYaml]: globalState.spdxYamlFilePath,
+    [ExportType.SpdxDocumentJson]: globalState.spdxJsonFilePath,
+  };
+  const filePath = pathMap[exportType];
+  if (!filePath) {
+    throw new Error(`Export file path for ${exportType} is not set`);
   }
+  return filePath;
 }
+
+export const exportFileListener =
+  (mainWindow: BrowserWindow) =>
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    exportType: ExportType,
+  ): Promise<void> => {
+    try {
+      const filePath = getExportFilePath(exportType);
+      await exportFileInUtilityProcess(exportType, filePath);
+      shell.showItemInFolder(filePath);
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
+    }
+  };
 
 export const openFileListener =
   (mainWindow: BrowserWindow, updateMenu: () => Promise<void>) =>

@@ -3,25 +3,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ExportType } from '../../../../shared/shared-types';
-import { backend } from '../../../util/backendClient';
+import { type ExportType } from '../../../../shared/shared-types';
 import { type AppThunkAction } from '../../types';
 
 export function exportFile(exportType: ExportType): AppThunkAction {
   return async () => {
-    switch (exportType) {
-      case ExportType.SpdxDocumentJson:
-      case ExportType.SpdxDocumentYaml:
-        await backend.exportSpdxDocument.mutate({ type: exportType });
-        return;
-      case ExportType.FollowUp:
-        await backend.exportFollowUp.mutate();
-        return;
-      case ExportType.CompactBom:
-        await backend.exportCompactBom.mutate();
-        return;
-      case ExportType.DetailedBom:
-        await backend.exportDetailedBom.mutate();
-    }
+    await window.electronAPI.exportFile(exportType);
   };
 }

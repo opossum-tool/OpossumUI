@@ -49,7 +49,6 @@ export interface GlobalBackendState {
   spdxJsonFilePath?: string;
   projectId?: string;
   inputFileChecksum?: string;
-  inputFileRaw?: Uint8Array;
   frontendPopupOpen?: boolean;
 }
 
@@ -86,6 +85,7 @@ export interface ParsedOpossumOutputFile {
 export interface ParsedOpossumInputAndOutput {
   input: ParsedOpossumInputFile;
   output: ParsedOpossumOutputFile | null;
+  inputFileRaw: Uint8Array;
 }
 
 export interface OpossumOutputFile {

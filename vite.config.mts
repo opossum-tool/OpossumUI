@@ -55,6 +55,10 @@ export default defineConfig(({ mode }) => ({
             entry: 'src/ElectronBackend/app.ts',
             vite: getElectronProcessViteConfig(),
           },
+          {
+            entry: 'src/ElectronBackend/dbProcess.ts',
+            vite: getElectronProcessViteConfig(),
+          },
         ])),
   ],
   define: {

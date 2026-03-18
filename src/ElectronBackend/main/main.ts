@@ -6,6 +6,7 @@ import { dialog, systemPreferences } from 'electron';
 import os from 'os';
 
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
+import { connectRenderer, startUtilityProcess } from '../utilityProcessClient';
 import { createWindow, loadWebApp } from './createWindow';
 import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
@@ -21,6 +22,8 @@ export async function main(): Promise<void> {
         'Always',
       );
     }
+
+    startUtilityProcess();
 
     const mainWindow = createWindow();
 
@@ -49,6 +52,10 @@ export async function main(): Promise<void> {
     );
 
     setupIpcHandling(mainWindow, updateMenu);
+
+    mainWindow.webContents.on('did-finish-load', () => {
+      connectRenderer(mainWindow);
+    });
 
     await loadWebApp(mainWindow);
 

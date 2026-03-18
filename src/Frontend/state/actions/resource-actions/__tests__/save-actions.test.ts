@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { executeCommand } from '../../../../../ElectronBackend/api/commands';
-import { getSaveFileArgs } from '../../../../../ElectronBackend/main/listeners';
+import { getSaveFileArgs } from '../../../../../ElectronBackend/api/getSaveFileArgs';
 import {
   type Attributions,
   Criticality,

@@ -28,6 +28,7 @@ if (typeof window !== 'undefined') {
     importFileConvertAndLoad: vi.fn(),
     mergeFileAndLoad: vi.fn(),
     saveFile: vi.fn(),
+    exportFile: vi.fn(),
     stopLoading: vi.fn(),
     on: vi.fn().mockReturnValue(vi.fn()),
     getUserSettings: vi.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
@@ -117,3 +118,14 @@ vi.mock('../ElectronBackend/main/logger.ts', () => ({
     error: vi.fn(),
   },
 }));
+
+vi.mock('../ElectronBackend/utilityProcessClient', async () => {
+  const { loadFile } = await import('../ElectronBackend/input/loadFile');
+  return {
+    startUtilityProcess: vi.fn(),
+    connectRenderer: vi.fn(),
+    loadFileInUtilityProcess: loadFile,
+    saveFileInUtilityProcess: vi.fn(),
+    exportFileInUtilityProcess: vi.fn(),
+  };
+});
