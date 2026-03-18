@@ -26,7 +26,6 @@ export function renderOccurrenceCount(
           sx={{ minWidth: '24px' }}
           label={new Intl.NumberFormat('en-US', {
             notation: 'compact',
-            compactDisplay: 'short',
           }).format(count)}
           size={'small'}
         />
@@ -52,7 +51,6 @@ export function renderOccurrenceCount(
         sx={{ minWidth: '24px' }}
         label={new Intl.NumberFormat('en-US', {
           notation: 'compact',
-          compactDisplay: 'short',
         }).format(attributionCount + signalCount)}
         size={'small'}
       />
