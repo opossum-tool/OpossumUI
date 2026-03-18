@@ -263,6 +263,18 @@ class OpossumModule {
     };
   }
 
+  public static licenses<N extends number>({
+    count,
+  }: {
+    count: N;
+  }): Tuple<N, RawFrequentLicense> {
+    return faker.helpers
+      .multiple(() => OpossumModule.license(), {
+        count,
+      })
+      .sort() as Tuple<N, RawFrequentLicense>;
+  }
+
   public static inputData(
     props: Partial<ParsedOpossumInputFile> = {},
   ): ParsedOpossumInputFile {

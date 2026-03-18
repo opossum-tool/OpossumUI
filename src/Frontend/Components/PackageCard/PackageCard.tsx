@@ -201,7 +201,6 @@ export const PackageCard = memo(
                 sx={{ minWidth: '24px', userSelect: 'none' }}
                 label={new Intl.NumberFormat('en-US', {
                   notation: 'compact',
-                  compactDisplay: 'short',
                 }).format(packageInfo.count)}
                 size={'small'}
               />
