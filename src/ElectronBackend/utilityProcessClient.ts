@@ -52,9 +52,6 @@ let child: Electron.UtilityProcess | null = null;
 let nextId = 0;
 const pending = new Map<number, PendingRequest>();
 
-// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000;
-
 function handleMessage(msg: ProcessResponse) {
   const p = pending.get(msg.id);
   if (!p) {
@@ -105,53 +102,18 @@ function request(
   msg: Record<string, unknown>,
   options?: {
     onProgress?: ProgressCallback;
-    timeoutMs?: number;
   },
 ): Promise<unknown> {
   if (!child) {
     throw new Error('Utility process not started');
   }
   const id = nextId++;
-  const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
 
   return new Promise((resolve, reject) => {
-    let timer: ReturnType<typeof setTimeout> | undefined;
-
-    const resetTimer = () => {
-      if (timer !== undefined) {
-        clearTimeout(timer);
-      }
-      if (timeoutMs > 0) {
-        timer = setTimeout(() => {
-          pending.delete(id);
-          reject(
-            new Error(`Utility process request timed out after ${timeoutMs}ms`),
-          );
-        }, timeoutMs);
-      }
-    };
-
-    const clearTimer = () => {
-      if (timer !== undefined) {
-        clearTimeout(timer);
-      }
-    };
-
-    resetTimer();
-
     pending.set(id, {
-      resolve: (value) => {
-        clearTimer();
-        resolve(value);
-      },
-      reject: (reason) => {
-        clearTimer();
-        reject(reason);
-      },
-      onProgress: (message, level) => {
-        resetTimer();
-        options?.onProgress?.(message, level);
-      },
+      resolve,
+      reject,
+      onProgress: options?.onProgress,
     });
     child!.postMessage({ ...msg, id });
   });
