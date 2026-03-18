@@ -12,7 +12,6 @@ import { type PropsWithChildren, useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { getStrippedLicenseName } from '../../Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { sql } from 'kysely';
 
-import { getStrippedLicenseName } from '../../Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { type SortOption } from '../../Frontend/Components/SortButton/useSortingOptions';
 import { type Filter } from '../../Frontend/shared-constants';
 import { type Attributions, type PackageInfo } from '../../shared/shared-types';

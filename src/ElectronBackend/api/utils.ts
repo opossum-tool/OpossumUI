@@ -8,7 +8,7 @@ import {
   type ExpressionBuilder,
   expressionBuilder,
   type Kysely,
-  RawBuilder,
+  type RawBuilder,
   sql,
   type Transaction,
 } from 'kysely';

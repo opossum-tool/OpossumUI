@@ -5,7 +5,6 @@
 import { sql } from 'kysely';
 import { omit, uniqBy } from 'lodash';
 
-import { getStrippedLicenseName } from '../../Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import {
   type Filter,
   type FilterCounts,
