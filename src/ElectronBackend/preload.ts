@@ -8,61 +8,30 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { IpcChannel } from '../shared/ipc-channels';
 import type { ElectronAPI, UserSettings } from '../shared/shared-types';
 import type { CommandName, CommandParams, CommandReturn } from './api/commands';
-import { type DbProcessApiResponse } from './dbProcess';
-import { FRONTEND_TO_DB_PROCESS_PORT } from './dbProcessClient';
+import {
+  DbProcessClient,
+  FRONTEND_TO_DB_PROCESS_PORT,
+} from './dbProcessClient';
 
-// Direct MessagePort to the utility process for API commands.
-// The main process transfers this port after the page starts loading.
-let apiPort: MessagePort | null = null;
-let resolvePortReady: () => void;
-const portReady = new Promise<void>((resolve) => {
-  resolvePortReady = resolve;
+let client: DbProcessClient | null = null;
+let resolveClientReady: () => void;
+const clientReady = new Promise<void>((resolve) => {
+  resolveClientReady = resolve;
 });
-
-let nextApiId = 0;
-const apiPending = new Map<
-  number,
-  { resolve: (value: unknown) => void; reject: (reason: unknown) => void }
->();
 
 ipcRenderer.on(FRONTEND_TO_DB_PROCESS_PORT, (event) => {
-  apiPort = event.ports[0];
-  apiPort.onmessage = (e: MessageEvent) => {
-    const msg = e.data as DbProcessApiResponse;
-    const p = apiPending.get(msg.id);
-    if (!p) {
-      return;
-    }
-    apiPending.delete(msg.id);
-    if (msg.type === 'error') {
-      const err = new Error(msg.error);
-      if (msg.stack) {
-        err.stack = msg.stack;
-      }
-      p.reject(err);
-    } else {
-      p.resolve(msg.result);
-    }
-  };
-  resolvePortReady();
+  client = new DbProcessClient(event.ports[0]);
+  resolveClientReady();
 });
 
-async function api<C extends CommandName>(
-  command: C,
-  params: CommandParams<C>,
-): Promise<Awaited<CommandReturn<C>>> {
-  await portReady;
-  const id = nextApiId++;
-  return new Promise<Awaited<CommandReturn<C>>>((resolve, reject) => {
-    apiPending.set(id, {
-      resolve: resolve as (value: unknown) => void,
-      reject,
-    });
-    apiPort!.postMessage({ id, type: 'executeCommand', command, params });
-  });
-}
-
 const electronAPI: ElectronAPI = {
+  api: async <C extends CommandName>(
+    command: C,
+    params: CommandParams<C>,
+  ): Promise<Awaited<CommandReturn<C>>> => {
+    await clientReady;
+    return client!.api(command, params);
+  },
   quit: () => ipcRenderer.invoke(IpcChannel.Quit),
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
@@ -93,7 +62,6 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IpcChannel.UpdateUserSettings, userSettings),
   setFrontendPopupOpen: (open: boolean) =>
     ipcRenderer.invoke(IpcChannel.SetFrontendPopupOpen, open),
-  api,
 };
 
 // This exposes an API to communicate from the window in the frontend with the backend

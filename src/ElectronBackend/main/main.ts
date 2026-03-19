@@ -5,7 +5,10 @@
 import { dialog, systemPreferences } from 'electron';
 import os from 'os';
 
-import { connectRenderer, startUtilityProcess } from '../dbProcessClient';
+import {
+  FRONTEND_TO_DB_PROCESS_PORT,
+  getDbProcessPort,
+} from '../dbProcessClient';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow, loadWebApp } from './createWindow';
 import { createMenu } from './menu';
@@ -22,8 +25,6 @@ export async function main(): Promise<void> {
         'Always',
       );
     }
-
-    startUtilityProcess();
 
     const mainWindow = createWindow();
 
@@ -54,7 +55,10 @@ export async function main(): Promise<void> {
     setupIpcHandling(mainWindow, updateMenu);
 
     mainWindow.webContents.on('did-finish-load', () => {
-      connectRenderer(mainWindow);
+      const rendererPort = getDbProcessPort();
+      mainWindow.webContents.postMessage(FRONTEND_TO_DB_PROCESS_PORT, null, [
+        rendererPort,
+      ]);
     });
 
     await loadWebApp(mainWindow);

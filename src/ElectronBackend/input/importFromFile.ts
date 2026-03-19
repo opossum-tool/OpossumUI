@@ -7,7 +7,7 @@ import { type BrowserWindow, dialog } from 'electron';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { text } from '../../shared/text';
-import { loadFileInUtilityProcess } from '../dbProcessClient';
+import { getMainDbClient } from '../dbProcessClient';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import { type ParsingError } from '../types/types';
@@ -50,7 +50,7 @@ export async function loadInputAndOutputFromFilePath(
   );
 
   const globalState = getGlobalBackendState();
-  const result = await loadFileInUtilityProcess(
+  const result = await getMainDbClient().loadFile(
     filePath,
     { inputFileChecksum: globalState.inputFileChecksum },
     (message, level) => {

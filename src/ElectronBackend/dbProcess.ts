@@ -3,9 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // Electron utility process entry point.
-// Two communication channels:
-//   1. process.parentPort — messages from the main process (loadFile, saveFile, exportFile)
-//   2. rendererPort       — direct MessagePort to the renderer (executeCommand)
+// Receives MessagePorts from the main process via process.parentPort.
+// Each port can send any type of work message (loadFile, saveFile,
+// exportFile, executeCommand) and receives its response on the same port.
 import { ExportType } from '../shared/shared-types';
 import {
   type CommandName,
@@ -44,16 +44,6 @@ interface ExportFileMessage {
   filePath: string;
 }
 
-interface RendererPortMessage {
-  type: 'rendererPort';
-}
-
-type MainMessage =
-  | LoadFileMessage
-  | SaveFileMessage
-  | ExportFileMessage
-  | RendererPortMessage;
-
 interface ExecuteCommandMessage {
   id: number;
   type: 'executeCommand';
@@ -61,20 +51,19 @@ interface ExecuteCommandMessage {
   params: CommandParams<CommandName>;
 }
 
-export type DbProcessApiResponse =
-  | { id: number; type: 'success'; result: unknown }
-  | { id: number; type: 'error'; error: string; stack?: string };
+type WorkMessage =
+  | LoadFileMessage
+  | SaveFileMessage
+  | ExportFileMessage
+  | ExecuteCommandMessage;
 
-type DbApiResponsePort = {
-  postMessage(message: DbProcessApiResponse): unknown;
+type ResponsePort = {
+  postMessage(message: unknown): void;
 };
 
 let storedInputFileRaw: Uint8Array | undefined;
-let currentRendererPort:
-  | (Omit<Electron.MessagePortMain, 'postMessage'> & DbApiResponsePort)
-  | null = null;
 
-function sendError(port: DbApiResponsePort, id: number, err: unknown) {
+function sendError(port: ResponsePort, id: number, err: unknown) {
   port.postMessage({
     id,
     type: 'error',
@@ -83,34 +72,10 @@ function sendError(port: DbApiResponsePort, id: number, err: unknown) {
   });
 }
 
-function handleRendererMessage(port: DbApiResponsePort) {
-  return async (event: { data: ExecuteCommandMessage }) => {
-    const msg = event.data;
-    try {
-      const result = await executeCommand(msg.command, msg.params);
-      port.postMessage({ id: msg.id, type: 'success', result });
-    } catch (err) {
-      sendError(port, msg.id, err);
-    }
-  };
-}
-
-process.parentPort.on('message', async (event) => {
-  const msg = event.data as MainMessage;
-
-  if (msg.type === 'rendererPort') {
-    if (currentRendererPort) {
-      currentRendererPort.close();
-    }
-    currentRendererPort = event.ports[0];
-    currentRendererPort.on(
-      'message',
-      handleRendererMessage(currentRendererPort),
-    );
-    currentRendererPort.start();
-    return;
-  }
-
+async function handleWorkMessage(
+  port: ResponsePort,
+  msg: WorkMessage,
+): Promise<void> {
   try {
     let result: unknown;
     switch (msg.type) {
@@ -120,7 +85,7 @@ process.parentPort.on('message', async (event) => {
           msg.filePath,
           msg.globalState,
           (message, level) => {
-            process.parentPort.postMessage({
+            port.postMessage({
               id: msg.id,
               type: 'progress',
               message,
@@ -165,9 +130,25 @@ process.parentPort.on('message', async (event) => {
         result = undefined;
         break;
       }
+      case 'executeCommand': {
+        result = await executeCommand(msg.command, msg.params);
+        break;
+      }
     }
-    process.parentPort.postMessage({ id: msg.id, type: 'success', result });
+    port.postMessage({ id: msg.id, type: 'success', result });
   } catch (err) {
-    sendError(process.parentPort, msg.id, err);
+    sendError(port, msg.id, err);
+  }
+}
+
+process.parentPort.on('message', (event) => {
+  const msg = event.data as { type: string };
+
+  if (msg.type === 'port') {
+    const port = event.ports[0];
+    port.on('message', (portEvent: Electron.MessageEvent) => {
+      void handleWorkMessage(port, portEvent.data as WorkMessage);
+    });
+    port.start();
   }
 });

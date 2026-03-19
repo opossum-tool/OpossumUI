@@ -18,10 +18,7 @@ import {
   type OpenLinkArgs,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
-import {
-  exportFileInUtilityProcess,
-  saveFileInUtilityProcess,
-} from '../dbProcessClient';
+import { getMainDbClient } from '../dbProcessClient';
 import {
   sendListenerErrorToFrontend,
   showListenerErrorInMessageBox,
@@ -58,7 +55,7 @@ export const saveFileListener =
         throw new Error('Project ID not found');
       }
 
-      await saveFileInUtilityProcess({
+      await getMainDbClient().saveFile({
         projectId: globalBackendState.projectId,
         inputFileChecksum: globalBackendState.inputFileChecksum,
         opossumFilePath: globalBackendState.opossumFilePath,
@@ -93,7 +90,7 @@ export const exportFileListener =
   ): Promise<void> => {
     try {
       const filePath = getExportFilePath(exportType);
-      await exportFileInUtilityProcess(exportType, filePath);
+      await getMainDbClient().exportFile(exportType, filePath);
       shell.showItemInFolder(filePath);
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);

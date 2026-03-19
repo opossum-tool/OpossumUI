@@ -2,19 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-// Main-process client for the DB utility process.
-// Manages the utility process lifecycle and provides async wrappers for
-// main→utility communication (loadFile, saveFile, exportFile).
-// Renderer↔utility communication is handled via a direct MessagePort
-// (set up through connectRenderer).
-import {
-  type BrowserWindow,
-  MessageChannelMain,
-  utilityProcess,
-} from 'electron';
+import { MessageChannelMain, utilityProcess } from 'electron';
 import path from 'path';
 
 import type { ExportType } from '../shared/shared-types';
+import type { CommandName, CommandParams, CommandReturn } from './api/commands';
 import type { SaveFileParams } from './api/saveFile';
 import type { LoadFileGlobalState, LoadFileIpcResult } from './input/loadFile';
 
@@ -48,101 +40,135 @@ interface PendingRequest {
   onProgress?: ProgressCallback;
 }
 
-let child: Electron.UtilityProcess | null = null;
-let nextId = 0;
-const pending = new Map<number, PendingRequest>();
-
-function handleMessage(msg: ProcessResponse) {
-  const p = pending.get(msg.id);
-  if (!p) {
-    return;
-  }
-  if (msg.type === 'progress') {
-    p.onProgress?.(msg.message, msg.level);
-    return;
-  }
-  pending.delete(msg.id);
-  if (msg.type === 'error') {
-    const err = new Error(msg.error);
-    if (msg.stack) {
-      err.stack = msg.stack;
-    }
-    p.reject(err);
-  } else {
-    p.resolve(msg.result);
-  }
+// MessagePortMain (Electron main/utility process)
+interface ElectronPort {
+  postMessage(data: unknown): void;
+  on(event: 'message', handler: (event: { data: unknown }) => void): void;
+  start(): void;
 }
 
-export function startUtilityProcess(): void {
-  if (child) {
-    return;
-  }
-  child = utilityProcess.fork(path.join(__dirname, 'dbProcess.js'));
-  child.on('message', handleMessage);
-  child.on('exit', (code) => {
-    console.error(`DB utility process exited with code ${code}`);
-    for (const [id, p] of pending) {
-      p.reject(new Error(`Utility process exited with code ${code}`));
-      pending.delete(id);
+// MessagePort (Web API, used in preload/renderer)
+interface WebPort {
+  postMessage(data: unknown): void;
+  onmessage: ((event: MessageEvent) => void) | null;
+}
+
+type ClientPort = ElectronPort | WebPort;
+
+export class DbProcessClient {
+  private nextId = 0;
+  private readonly pending = new Map<number, PendingRequest>();
+  private readonly port: { postMessage(data: unknown): void };
+
+  constructor(port: ClientPort) {
+    this.port = port;
+    if ('on' in port) {
+      port.on('message', (e) => this.handleMessage(e.data));
+      port.start();
+    } else {
+      port.onmessage = (e) => this.handleMessage(e.data);
     }
-    child = null;
-  });
+  }
+
+  private handleMessage(data: unknown): void {
+    const msg = data as ProcessResponse;
+    const p = this.pending.get(msg.id);
+    if (!p) {
+      return;
+    }
+    if (msg.type === 'progress') {
+      p.onProgress?.(msg.message, msg.level);
+      return;
+    }
+    this.pending.delete(msg.id);
+    if (msg.type === 'error') {
+      const err = new Error(msg.error);
+      if (msg.stack) {
+        err.stack = msg.stack;
+      }
+      p.reject(err);
+    } else {
+      p.resolve(msg.result);
+    }
+  }
+
+  private request(
+    msg: Record<string, unknown>,
+    options?: { onProgress?: ProgressCallback },
+  ): Promise<unknown> {
+    const id = this.nextId++;
+    return new Promise((resolve, reject) => {
+      this.pending.set(id, {
+        resolve,
+        reject,
+        onProgress: options?.onProgress,
+      });
+      this.port.postMessage({ ...msg, id });
+    });
+  }
+
+  api<C extends CommandName>(
+    command: C,
+    params: CommandParams<C>,
+  ): Promise<Awaited<CommandReturn<C>>> {
+    return this.request({
+      type: 'executeCommand',
+      command,
+      params,
+    }) as Promise<Awaited<CommandReturn<C>>>;
+  }
+
+  loadFile(
+    filePath: string,
+    globalState: LoadFileGlobalState,
+    onProgress?: ProgressCallback,
+  ): Promise<LoadFileIpcResult> {
+    return this.request(
+      { type: 'loadFile', filePath, globalState },
+      { onProgress },
+    ) as Promise<LoadFileIpcResult>;
+  }
+
+  saveFile(params: SaveFileParams): Promise<void> {
+    return this.request({ type: 'saveFile', ...params }) as Promise<void>;
+  }
+
+  exportFile(exportType: ExportType, filePath: string): Promise<void> {
+    return this.request({
+      type: 'exportFile',
+      exportType,
+      filePath,
+    }) as Promise<void>;
+  }
 }
 
 export const FRONTEND_TO_DB_PROCESS_PORT = 'frontend-to-db-process-port';
 
-export function connectRenderer(mainWindow: BrowserWindow): void {
-  if (!child) {
-    throw new Error('Utility process not started');
-  }
-  const { port1, port2 } = new MessageChannelMain();
-  child.postMessage({ type: 'rendererPort' }, [port1]);
-  mainWindow.webContents.postMessage(FRONTEND_TO_DB_PROCESS_PORT, null, [
-    port2,
-  ]);
-}
+let child: Electron.UtilityProcess | null = null;
 
-function request(
-  msg: Record<string, unknown>,
-  options?: {
-    onProgress?: ProgressCallback;
-  },
-): Promise<unknown> {
+function ensureUtilityProcess(): Electron.UtilityProcess {
   if (!child) {
-    throw new Error('Utility process not started');
-  }
-  const id = nextId++;
-
-  return new Promise((resolve, reject) => {
-    pending.set(id, {
-      resolve,
-      reject,
-      onProgress: options?.onProgress,
+    child = utilityProcess.fork(path.join(__dirname, 'dbProcess.js'));
+    child.on('exit', (code) => {
+      console.error(`DB utility process exited with code ${code}`);
+      child = null;
     });
-    child!.postMessage({ ...msg, id });
-  });
+  }
+  return child;
 }
 
-export function loadFileInUtilityProcess(
-  filePath: string,
-  globalState: LoadFileGlobalState,
-  onProgress?: ProgressCallback,
-): Promise<LoadFileIpcResult> {
-  return request(
-    { type: 'loadFile', filePath, globalState },
-    { onProgress },
-  ) as Promise<LoadFileIpcResult>;
+export function getDbProcessPort(): Electron.MessagePortMain {
+  const proc = ensureUtilityProcess();
+  const { port1, port2 } = new MessageChannelMain();
+  proc.postMessage({ type: 'port' }, [port1]);
+  return port2;
 }
 
-export function saveFileInUtilityProcess(
-  params: SaveFileParams,
-): Promise<void> {
-  return request({ type: 'saveFile', ...params }) as Promise<void>;
-}
+let mainClient: DbProcessClient | null = null;
 
-export function exportFileInUtilityProcess(
-  exportType: ExportType,
-  filePath: string,
-): Promise<void> {
-  return request({ type: 'exportFile', exportType, filePath }) as Promise<void>;
+export function getMainDbClient(): DbProcessClient {
+  if (!mainClient) {
+    mainClient = new DbProcessClient(getDbProcessPort());
+  }
+  return mainClient;
 }
