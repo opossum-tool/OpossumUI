@@ -63,7 +63,7 @@ describe('ConfirmDeletePopup', () => {
     const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
     const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
 
-    const { store } = await renderComponent(
+    await renderComponent(
       <ConfirmDeletePopup
         open
         onClose={noop}
@@ -89,6 +89,6 @@ describe('ConfirmDeletePopup', () => {
       await screen.findByText(text.deleteAttributionsPopup.deleteGlobally),
     );
 
-    await expectManualAttributions(store.getState(), {});
+    await expectManualAttributions({});
   });
 });

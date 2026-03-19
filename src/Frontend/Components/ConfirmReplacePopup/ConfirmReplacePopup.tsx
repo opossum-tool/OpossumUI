@@ -9,9 +9,9 @@ import { type PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getManualAttributions } from '../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../state/hooks';
 import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
+import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { CardList } from '../CardList/CardList';
 import { PackageCard } from '../PackageCard/PackageCard';
@@ -29,7 +29,11 @@ export const ConfirmReplacePopup = ({
   open,
 }: Props) => {
   const dispatch = useAppDispatch();
-  const attributions = useAppSelector(getManualAttributions);
+  const { data: attributions } = backend.listAttributions.useQuery({
+    external: false,
+    filters: [],
+    resourcePathForRelationships: '/',
+  });
 
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
@@ -96,22 +100,24 @@ export const ConfirmReplacePopup = ({
             ),
           )}
         </MuiTypography>
-        <CardList
-          data={attributionIdsForReplacement
-            .filter((id) => id in attributions)
-            .map((id) => attributions[id])}
-          data-testid={'removed-attributions'}
-          renderItemContent={(attribution, { index }) => {
-            return (
-              <>
-                <PackageCard packageInfo={attribution} />
-                {index + 1 !== attributionIdsForReplacement.length && (
-                  <MuiDivider />
-                )}
-              </>
-            );
-          }}
-        />
+        {attributions ? (
+          <CardList
+            data={attributionIdsForReplacement
+              .filter((id) => id in attributions)
+              .map((id) => attributions[id])}
+            data-testid={'removed-attributions'}
+            renderItemContent={(attribution, { index }) => {
+              return (
+                <>
+                  <PackageCard packageInfo={attribution} />
+                  {index + 1 !== attributionIdsForReplacement.length && (
+                    <MuiDivider />
+                  )}
+                </>
+              );
+            }}
+          />
+        ) : null}
       </>
     );
   }
