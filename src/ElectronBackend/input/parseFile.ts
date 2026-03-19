@@ -13,7 +13,6 @@ import {
   INPUT_FILE_NAME,
   OUTPUT_FILE_NAME,
 } from '../../shared/write-file-utils';
-import { getGlobalBackendState } from '../main/globalBackendState';
 import {
   type InvalidDotOpossumFileError,
   type JsonParsingError,
@@ -60,7 +59,7 @@ export async function parseOpossumFile(
     } satisfies InvalidDotOpossumFileError;
   }
 
-  getGlobalBackendState().inputFileRaw = zip[INPUT_FILE_NAME];
+  const inputFileRaw = zip[INPUT_FILE_NAME];
 
   try {
     parsedInputData = JSON.parse(fflate.strFromU8(zip[INPUT_FILE_NAME]));
@@ -91,6 +90,7 @@ export async function parseOpossumFile(
   return {
     input: parsedInputData,
     output: parsedOutputData,
+    inputFileRaw,
   };
 }
 

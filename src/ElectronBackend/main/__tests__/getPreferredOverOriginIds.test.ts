@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../shared/shared-types';
 import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
+import { getPreferredOverOriginIds } from '../../api/getSaveFileArgs';
 import { getDb } from '../../db/db';
-import { getPreferredOverOriginIds } from '../listeners';
 
 describe('getPreferredOverOriginIds', () => {
   it('collects origin IDs from external attributions with relevant source', async () => {

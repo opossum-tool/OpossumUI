@@ -6,9 +6,9 @@ import { type BrowserWindow, ipcMain } from 'electron';
 
 import { IpcChannel } from '../../shared/ipc-channels';
 import { type UserSettings } from '../../shared/shared-types';
-import { executeCommand } from '../api/commands';
 import { getGlobalBackendState } from './globalBackendState';
 import {
+  exportFileListener,
   importFileConvertAndLoadListener,
   importFileSelectSaveLocationListener,
   mergeFileAndLoadListener,
@@ -45,6 +45,7 @@ export function setupIpcHandling(
     mergeFileAndLoadListener(window, updateMenu),
   );
   ipcMain.handle(IpcChannel.SaveFile, saveFileListener(window));
+  ipcMain.handle(IpcChannel.ExportFile, exportFileListener(window));
   ipcMain.handle(IpcChannel.StopLoading, () =>
     new ProcessingStatusUpdater(window.webContents).endProcessing(),
   );
@@ -59,7 +60,4 @@ export function setupIpcHandling(
     getGlobalBackendState().frontendPopupOpen = open;
     await updateMenu();
   });
-  ipcMain.handle(IpcChannel.Api, (_, command, params) =>
-    executeCommand(command, params),
-  );
 }

@@ -12,6 +12,7 @@ export enum IpcChannel {
   MergeFileAndLoad = 'merge-file-and-load',
   OpenLink = 'open-link',
   SaveFile = 'save-file',
+  ExportFile = 'export-file',
   /**
    * @deprecated see https://github.com/opossum-tool/OpossumUI/issues/2812
    */
@@ -21,7 +22,6 @@ export enum IpcChannel {
   SetFrontendPopupOpen = 'set-frontend-popup-open',
   Quit = 'quit',
   Relaunch = 'relaunch',
-  Api = 'api',
 }
 
 export enum AllowedFrontendChannels {

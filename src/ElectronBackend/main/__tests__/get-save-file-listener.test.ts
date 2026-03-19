@@ -4,12 +4,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { type BrowserWindow, dialog, type WebContents } from 'electron';
-import * as MockDate from 'mockdate';
+import { type Mock } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { Criticality } from '../../../shared/shared-types';
-import { writeFile } from '../../../shared/write-file';
-import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
+import { getMainDbClient } from '../../dbProcess/dbProcessClient';
 import { setGlobalBackendState } from '../globalBackendState';
 import { saveFileListener } from '../listeners';
 
@@ -31,16 +29,25 @@ vi.mock('../../input/importFromFile', () => ({
   loadInputAndOutputFromFilePath: vi.fn(),
 }));
 
-vi.mock('../../../shared/write-file', async () => ({
-  ...(await vi.importActual('../../../shared/write-file')),
-  writeFile: vi.fn(),
+vi.mock('../../dbProcess/dbProcessClient', () => ({
+  getMainDbClient: vi.fn(),
 }));
 
-const mockDate = 1603976726737;
-MockDate.set(new Date(mockDate));
+const mockSaveFile = vi.fn();
 
-describe('getSaveFileListener', () => {
-  it('throws error when projectId is not set', async () => {
+(getMainDbClient as Mock).mockReturnValue({
+  saveFile: mockSaveFile,
+});
+
+describe('saveFileListener', () => {
+  afterEach(() => {
+    vi.resetAllMocks();
+    (getMainDbClient as Mock).mockReturnValue({
+      saveFile: mockSaveFile,
+    });
+  });
+
+  it('shows error when projectId is not set', async () => {
     const mockCallback = vi.fn();
     const mainWindow = {
       webContents: { send: mockCallback as unknown } as WebContents,
@@ -56,20 +63,45 @@ describe('getSaveFileListener', () => {
         buttons: ['Reload File', 'Quit'],
       }),
     );
-    expect(writeFile).not.toHaveBeenCalled();
+    expect(mockSaveFile).not.toHaveBeenCalled();
   });
 
-  it('throws error when attributionFilePath and opossumFilePath are not set', async () => {
+  it('forwards global state to getMainDbClient().saveFile()', async () => {
+    mockSaveFile.mockResolvedValue(undefined);
+
     const mockCallback = vi.fn();
     const mainWindow = {
       webContents: { send: mockCallback as unknown } as WebContents,
     } as unknown as BrowserWindow;
-    setGlobalBackendState({});
 
-    await initializeDbWithTestData();
+    setGlobalBackendState({
+      opossumFilePath: '/my/file.opossum',
+      projectId: 'uuid_1',
+      inputFileChecksum: 'checksum_abc',
+    });
+
+    await saveFileListener(mainWindow)(AllowedFrontendChannels.SaveFileRequest);
+
+    expect(mockSaveFile).toHaveBeenCalledWith({
+      projectId: 'uuid_1',
+      inputFileChecksum: 'checksum_abc',
+      opossumFilePath: '/my/file.opossum',
+      attributionFilePath: undefined,
+    });
+    expect(dialog.showMessageBox).not.toHaveBeenCalled();
+  });
+
+  it('shows error dialog when saveFile rejects', async () => {
+    mockSaveFile.mockRejectedValue(new Error('Save failed'));
+
+    const mockCallback = vi.fn();
+    const mainWindow = {
+      webContents: { send: mockCallback as unknown } as WebContents,
+    } as unknown as BrowserWindow;
 
     setGlobalBackendState({
       projectId: 'uuid_1',
+      opossumFilePath: '/my/file.opossum',
     });
 
     await saveFileListener(mainWindow)(AllowedFrontendChannels.SaveFileRequest);
@@ -77,58 +109,9 @@ describe('getSaveFileListener', () => {
     expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
-        message:
-          'Error in app backend: Tried to get file type when no file is loaded',
+        message: 'Error in app backend: Save failed',
         buttons: ['Reload File', 'Quit'],
       }),
     );
-    expect(writeFile).not.toHaveBeenCalled();
   });
-
-  it(
-    'calls createListenerCallBackWithErrorHandling when ' +
-      'resourceFilePath, attributionFilePath and projectId are set',
-    async () => {
-      const mockCallback = vi.fn();
-      const mainWindow = {
-        webContents: { send: mockCallback as unknown } as WebContents,
-      } as unknown as BrowserWindow;
-      setGlobalBackendState({});
-
-      const listener = saveFileListener(mainWindow);
-
-      await initializeDbWithTestData({
-        externalAttributions: {
-          attributions: {
-            id_1: { id: 'id_1', criticality: Criticality.None },
-            id_2: { id: 'id_2', criticality: Criticality.None },
-          },
-          resourcesToAttributions: {},
-          attributionsToResources: {},
-        },
-        resolvedExternalAttributions: new Set(['id_1', 'id_2']),
-      });
-
-      setGlobalBackendState({
-        resourceFilePath: '/resourceFile.json',
-        attributionFilePath: '/attributionFile.json',
-        projectId: 'uuid_1',
-      });
-
-      await listener(AllowedFrontendChannels.SaveFileRequest);
-
-      expect(writeFile).toHaveBeenCalledWith({
-        path: '/attributionFile.json',
-        content: {
-          manualAttributions: {},
-          metadata: {
-            projectId: 'uuid_1',
-            fileCreationDate: `${mockDate}`,
-          },
-          resourcesToAttributions: {},
-          resolvedExternalAttributions: ['id_1', 'id_2'],
-        },
-      });
-    },
-  );
 });

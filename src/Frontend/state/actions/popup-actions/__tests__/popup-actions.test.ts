@@ -46,7 +46,6 @@ import {
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../../resource-actions/audit-view-simple-actions';
-import * as exportActions from '../../resource-actions/export-actions';
 import { savePackageInfo } from '../../resource-actions/save-actions';
 import {
   navigateToView,
@@ -397,14 +396,16 @@ describe('proceedFromUnsavedPopup', () => {
   });
 
   it('proceeds with export file request', () => {
-    vi.spyOn(exportActions, 'exportFile').mockReturnValue(() => {});
+    vi.spyOn(window.electronAPI, 'exportFile').mockResolvedValue(undefined);
 
     const testStore = createAppStore();
     testStore.dispatch(setExportFileRequest(ExportType.FollowUp));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(proceedFromUnsavedPopup());
 
-    expect(exportActions.exportFile).toHaveBeenCalledWith(ExportType.FollowUp);
+    expect(window.electronAPI.exportFile).toHaveBeenCalledWith(
+      ExportType.FollowUp,
+    );
     expect(getExportFileRequest(testStore.getState())).toBeNull();
   });
 });

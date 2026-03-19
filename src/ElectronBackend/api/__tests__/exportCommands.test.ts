@@ -2,28 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { shell } from 'electron';
-
 import { Criticality, ExportType } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
 import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
-import { setGlobalBackendState } from '../../main/globalBackendState';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
-import {
-  exportCompactBom,
-  exportDetailedBom,
-  exportFollowUp,
-  exportSpdxDocument,
-} from '../exportCommands';
+import { exportFile } from '../exportCommands';
 
-vi.resetModules();
-vi.mock('electron', () => ({
-  shell: { showItemInFolder: vi.fn() },
-}));
 vi.mock('../../output/writeCsvToFile', () => ({
   writeCsvToFile: vi.fn(),
 }));
@@ -34,7 +22,6 @@ vi.mock('../../output/writeSpdxFile', () => ({
 describe('export tests', () => {
   it('exports follow-up attributions to CSV', async () => {
     const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
-    setGlobalBackendState({ followUpFilePath: csvPath });
 
     await initializeDbWithTestData({
       resources: pathsToResources(['/resource1', '/resource2']),
@@ -64,7 +51,7 @@ describe('export tests', () => {
       },
     });
 
-    await exportFollowUp();
+    await exportFile(ExportType.FollowUp, csvPath);
 
     expect(writeCsvToFile).toHaveBeenCalledWith({
       path: csvPath,
@@ -81,12 +68,10 @@ describe('export tests', () => {
       ],
       shortenResources: true,
     });
-    expect(shell.showItemInFolder).toHaveBeenCalledWith(csvPath);
   });
 
   it('exports compact BOM to CSV', async () => {
     const compactBomFilePath = '/some/compact_bom.csv';
-    setGlobalBackendState({ compactBomFilePath });
 
     await initializeDbWithTestData({
       resources: pathsToResources(['/resource']),
@@ -125,7 +110,7 @@ describe('export tests', () => {
       },
     });
 
-    await exportCompactBom();
+    await exportFile(ExportType.CompactBom, compactBomFilePath);
 
     expect(writeCsvToFile).toHaveBeenCalledWith({
       path: compactBomFilePath,
@@ -144,7 +129,6 @@ describe('export tests', () => {
 
   it('exports detailed BOM to CSV with resources', async () => {
     const detailedBomFilePath = '/some/detailed_bom.csv';
-    setGlobalBackendState({ detailedBomFilePath });
 
     await initializeDbWithTestData({
       resources: pathsToResources(['/a', '/b']),
@@ -166,7 +150,7 @@ describe('export tests', () => {
       },
     });
 
-    await exportDetailedBom();
+    await exportFile(ExportType.DetailedBom, detailedBomFilePath);
 
     expect(writeCsvToFile).toHaveBeenCalledWith({
       path: detailedBomFilePath,
@@ -189,12 +173,10 @@ describe('export tests', () => {
         'resources',
       ],
     });
-    expect(shell.showItemInFolder).toHaveBeenCalledWith(detailedBomFilePath);
   });
 
   it('exports SPDX YAML document', async () => {
     const spdxYamlFilePath = '/test.yaml';
-    setGlobalBackendState({ spdxYamlFilePath });
 
     await initializeDbWithTestData({
       resources: pathsToResources(['/resource']),
@@ -211,7 +193,7 @@ describe('export tests', () => {
       },
     });
 
-    await exportSpdxDocument({ type: ExportType.SpdxDocumentYaml });
+    await exportFile(ExportType.SpdxDocumentYaml, spdxYamlFilePath);
 
     expect(writeSpdxFile).toHaveBeenCalledWith({
       path: spdxYamlFilePath,
@@ -220,12 +202,10 @@ describe('export tests', () => {
         uuid1: expect.objectContaining({ packageName: 'spdx-pkg' }),
       },
     });
-    expect(shell.showItemInFolder).toHaveBeenCalledWith(spdxYamlFilePath);
   });
 
   it('exports SPDX JSON document', async () => {
     const spdxJsonFilePath = '/test.json';
-    setGlobalBackendState({ spdxJsonFilePath });
 
     await initializeDbWithTestData({
       resources: pathsToResources(['/resource']),
@@ -242,7 +222,7 @@ describe('export tests', () => {
       },
     });
 
-    await exportSpdxDocument({ type: ExportType.SpdxDocumentJson });
+    await exportFile(ExportType.SpdxDocumentJson, spdxJsonFilePath);
 
     expect(writeSpdxFile).toHaveBeenCalledWith({
       path: spdxJsonFilePath,
@@ -251,6 +231,5 @@ describe('export tests', () => {
         uuid1: expect.objectContaining({ packageName: 'spdx-pkg' }),
       },
     });
-    expect(shell.showItemInFolder).toHaveBeenCalledWith(spdxJsonFilePath);
   });
 });

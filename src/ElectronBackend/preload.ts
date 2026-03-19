@@ -7,8 +7,31 @@ import { contextBridge, ipcRenderer } from 'electron';
 
 import { IpcChannel } from '../shared/ipc-channels';
 import type { ElectronAPI, UserSettings } from '../shared/shared-types';
+import type { CommandName, CommandParams, CommandReturn } from './api/commands';
+import {
+  DbProcessClient,
+  FRONTEND_TO_DB_PROCESS_PORT,
+} from './dbProcess/dbProcessClient';
+
+let client: DbProcessClient | null = null;
+let resolveClientReady: () => void;
+const clientReady = new Promise<void>((resolve) => {
+  resolveClientReady = resolve;
+});
+
+ipcRenderer.on(FRONTEND_TO_DB_PROCESS_PORT, (event) => {
+  client = new DbProcessClient(event.ports[0]);
+  resolveClientReady();
+});
 
 const electronAPI: ElectronAPI = {
+  api: async <C extends CommandName>(
+    command: C,
+    params: CommandParams<C>,
+  ): Promise<Awaited<CommandReturn<C>>> => {
+    await clientReady;
+    return client!.api(command, params);
+  },
   quit: () => ipcRenderer.invoke(IpcChannel.Quit),
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
@@ -27,6 +50,8 @@ const electronAPI: ElectronAPI = {
   mergeFileAndLoad: (inputFilePath, fileType) =>
     ipcRenderer.invoke(IpcChannel.MergeFileAndLoad, inputFilePath, fileType),
   saveFile: () => ipcRenderer.invoke(IpcChannel.SaveFile),
+  exportFile: (exportType) =>
+    ipcRenderer.invoke(IpcChannel.ExportFile, exportType),
   stopLoading: () => ipcRenderer.invoke(IpcChannel.StopLoading),
   on: (channel, listener) => {
     ipcRenderer.on(channel, listener);
@@ -37,8 +62,6 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IpcChannel.UpdateUserSettings, userSettings),
   setFrontendPopupOpen: (open: boolean) =>
     ipcRenderer.invoke(IpcChannel.SetFrontendPopupOpen, open),
-  api: async (command, params) =>
-    ipcRenderer.invoke(IpcChannel.Api, command, params),
 };
 
 // This exposes an API to communicate from the window in the frontend with the backend

@@ -27,7 +27,6 @@ import {
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../resource-actions/audit-view-simple-actions';
-import { exportFile } from '../resource-actions/export-actions';
 import {
   openResourceInResourceBrowser,
   setSelectedResourceOrAttributionIdToTargetValue,
@@ -136,7 +135,8 @@ export function exportFileOrOpenUnsavedPopup(
   exportType: ExportType,
 ): AppThunkAction {
   return withUnsavedCheck({
-    executeImmediately: (dispatch) => dispatch(exportFile(exportType)),
+    executeImmediately: (dispatch) =>
+      dispatch(() => void window.electronAPI.exportFile(exportType)),
     requestContinuation: (dispatch) =>
       dispatch(setExportFileRequest(exportType)),
   });
@@ -168,7 +168,7 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     }
 
     if (exportFileRequest) {
-      dispatch(exportFile(exportFileRequest));
+      dispatch(() => void window.electronAPI.exportFile(exportFileRequest));
       dispatch(setExportFileRequest(null));
     }
 
