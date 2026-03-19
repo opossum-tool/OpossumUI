@@ -6,14 +6,35 @@ import { sql } from 'kysely';
 
 import {
   type Attributions,
-  type ExportType,
+  ExportType,
   type PackageInfo,
 } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 
-export async function exportFollowUp(params: { filePath: string }) {
+export async function exportFile(exportType: ExportType, filePath: string) {
+  switch (exportType) {
+    case ExportType.FollowUp:
+      await exportFollowUp({ filePath });
+      break;
+    case ExportType.CompactBom:
+      await exportCompactBom({ filePath });
+      break;
+    case ExportType.DetailedBom:
+      await exportDetailedBom({ filePath });
+      break;
+    case ExportType.SpdxDocumentJson:
+    case ExportType.SpdxDocumentYaml:
+      await exportSpdxDocument({
+        type: exportType,
+        filePath,
+      });
+      break;
+  }
+}
+
+async function exportFollowUp(params: { filePath: string }) {
   const followUpAndFilePathsResult = await getDb()
     .selectFrom('attribution')
     .select([
@@ -66,7 +87,7 @@ export async function exportFollowUp(params: { filePath: string }) {
   });
 }
 
-export async function exportSpdxDocument(params: {
+async function exportSpdxDocument(params: {
   type: ExportType.SpdxDocumentJson | ExportType.SpdxDocumentYaml;
   filePath: string;
 }) {
@@ -101,7 +122,7 @@ export async function exportSpdxDocument(params: {
   });
 }
 
-export async function exportCompactBom(params: { filePath: string }) {
+async function exportCompactBom(params: { filePath: string }) {
   const rows = await getDb()
     .selectFrom('attribution')
     .select(['uuid', 'data'])
@@ -128,7 +149,7 @@ export async function exportCompactBom(params: { filePath: string }) {
   });
 }
 
-export async function exportDetailedBom(params: { filePath: string }) {
+async function exportDetailedBom(params: { filePath: string }) {
   const manualAttributionsAndResourcesResult = await getDb()
     .selectFrom('attribution')
     .select([

@@ -8,6 +8,7 @@ import path from 'path';
 import type { ExportType } from '../shared/shared-types';
 import type { CommandName, CommandParams, CommandReturn } from './api/commands';
 import type { SaveFileParams } from './api/saveFile';
+import type { DbProcessMessage, DbProcessPayload } from './dbProcess';
 import type { LoadFileGlobalState, LoadFileIpcResult } from './input/loadFile';
 
 interface SuccessResponse {
@@ -42,14 +43,14 @@ interface PendingRequest {
 
 // MessagePortMain (Electron main/utility process)
 interface ElectronPort {
-  postMessage(data: unknown): void;
+  postMessage(data: DbProcessMessage): void;
   on(event: 'message', handler: (event: { data: unknown }) => void): void;
   start(): void;
 }
 
 // MessagePort (Web API, used in preload/renderer)
 interface WebPort {
-  postMessage(data: unknown): void;
+  postMessage(data: DbProcessMessage): void;
   onmessage: ((event: MessageEvent) => void) | null;
 }
 
@@ -58,7 +59,7 @@ type ClientPort = ElectronPort | WebPort;
 export class DbProcessClient {
   private nextId = 0;
   private readonly pending = new Map<number, PendingRequest>();
-  private readonly port: { postMessage(data: unknown): void };
+  private readonly port: { postMessage(data: DbProcessMessage): void };
 
   constructor(port: ClientPort) {
     this.port = port;
@@ -93,7 +94,7 @@ export class DbProcessClient {
   }
 
   private request(
-    msg: Record<string, unknown>,
+    msg: DbProcessPayload,
     options?: { onProgress?: ProgressCallback },
   ): Promise<unknown> {
     const id = this.nextId++;

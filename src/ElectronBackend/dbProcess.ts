@@ -6,30 +6,23 @@
 // Receives MessagePorts from the main process via process.parentPort.
 // Each port can send any type of work message (loadFile, saveFile,
 // exportFile, executeCommand) and receives its response on the same port.
-import { ExportType } from '../shared/shared-types';
+import type { ExportType } from '../shared/shared-types';
 import {
   type CommandName,
   type CommandParams,
   executeCommand,
 } from './api/commands';
-import {
-  exportCompactBom,
-  exportDetailedBom,
-  exportFollowUp,
-  exportSpdxDocument,
-} from './api/exportCommands';
+import { exportFile } from './api/exportCommands';
 import { saveFile, type SaveFileParams } from './api/saveFile';
 import { loadFile, type LoadFileGlobalState } from './input/loadFile';
 
 interface LoadFileMessage {
-  id: number;
   type: 'loadFile';
   filePath: string;
   globalState: LoadFileGlobalState;
 }
 
 interface SaveFileMessage {
-  id: number;
   type: 'saveFile';
   projectId: string;
   inputFileChecksum?: string;
@@ -38,24 +31,24 @@ interface SaveFileMessage {
 }
 
 interface ExportFileMessage {
-  id: number;
   type: 'exportFile';
   exportType: ExportType;
   filePath: string;
 }
 
 interface ExecuteCommandMessage {
-  id: number;
   type: 'executeCommand';
   command: CommandName;
   params: CommandParams<CommandName>;
 }
 
-type WorkMessage =
+export type DbProcessPayload =
   | LoadFileMessage
   | SaveFileMessage
   | ExportFileMessage
   | ExecuteCommandMessage;
+
+export type DbProcessMessage = DbProcessPayload & { id: number };
 
 type ResponsePort = {
   postMessage(message: unknown): void;
@@ -72,9 +65,9 @@ function sendError(port: ResponsePort, id: number, err: unknown) {
   });
 }
 
-async function handleWorkMessage(
+async function handleDbProcessMessage(
   port: ResponsePort,
-  msg: WorkMessage,
+  msg: DbProcessMessage,
 ): Promise<void> {
   try {
     let result: unknown;
@@ -109,24 +102,7 @@ async function handleWorkMessage(
         break;
       }
       case 'exportFile': {
-        switch (msg.exportType) {
-          case ExportType.FollowUp:
-            await exportFollowUp({ filePath: msg.filePath });
-            break;
-          case ExportType.CompactBom:
-            await exportCompactBom({ filePath: msg.filePath });
-            break;
-          case ExportType.DetailedBom:
-            await exportDetailedBom({ filePath: msg.filePath });
-            break;
-          case ExportType.SpdxDocumentJson:
-          case ExportType.SpdxDocumentYaml:
-            await exportSpdxDocument({
-              type: msg.exportType,
-              filePath: msg.filePath,
-            });
-            break;
-        }
+        await exportFile(msg.exportType, msg.filePath);
         result = undefined;
         break;
       }
@@ -147,7 +123,7 @@ process.parentPort.on('message', (event) => {
   if (msg.type === 'port') {
     const port = event.ports[0];
     port.on('message', (portEvent: Electron.MessageEvent) => {
-      void handleWorkMessage(port, portEvent.data as WorkMessage);
+      void handleDbProcessMessage(port, portEvent.data as DbProcessMessage);
     });
     port.start();
   }

@@ -10,12 +10,7 @@ import {
 } from '../../../testing/global-test-helpers';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
-import {
-  exportCompactBom,
-  exportDetailedBom,
-  exportFollowUp,
-  exportSpdxDocument,
-} from '../exportCommands';
+import { exportFile } from '../exportCommands';
 
 vi.mock('../../output/writeCsvToFile', () => ({
   writeCsvToFile: vi.fn(),
@@ -56,7 +51,7 @@ describe('export tests', () => {
       },
     });
 
-    await exportFollowUp({ filePath: csvPath });
+    await exportFile(ExportType.FollowUp, csvPath);
 
     expect(writeCsvToFile).toHaveBeenCalledWith({
       path: csvPath,
@@ -115,7 +110,7 @@ describe('export tests', () => {
       },
     });
 
-    await exportCompactBom({ filePath: compactBomFilePath });
+    await exportFile(ExportType.CompactBom, compactBomFilePath);
 
     expect(writeCsvToFile).toHaveBeenCalledWith({
       path: compactBomFilePath,
@@ -155,7 +150,7 @@ describe('export tests', () => {
       },
     });
 
-    await exportDetailedBom({ filePath: detailedBomFilePath });
+    await exportFile(ExportType.DetailedBom, detailedBomFilePath);
 
     expect(writeCsvToFile).toHaveBeenCalledWith({
       path: detailedBomFilePath,
@@ -198,10 +193,7 @@ describe('export tests', () => {
       },
     });
 
-    await exportSpdxDocument({
-      type: ExportType.SpdxDocumentYaml,
-      filePath: spdxYamlFilePath,
-    });
+    await exportFile(ExportType.SpdxDocumentYaml, spdxYamlFilePath);
 
     expect(writeSpdxFile).toHaveBeenCalledWith({
       path: spdxYamlFilePath,
@@ -230,10 +222,7 @@ describe('export tests', () => {
       },
     });
 
-    await exportSpdxDocument({
-      type: ExportType.SpdxDocumentJson,
-      filePath: spdxJsonFilePath,
-    });
+    await exportFile(ExportType.SpdxDocumentJson, spdxJsonFilePath);
 
     expect(writeSpdxFile).toHaveBeenCalledWith({
       path: spdxJsonFilePath,
