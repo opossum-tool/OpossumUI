@@ -49,6 +49,7 @@ export function AttributionDetails() {
     external: false,
     filters: [],
     resourcePathForRelationships: '/',
+    uuid: selectedAttributionId,
   });
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
@@ -91,11 +92,12 @@ export function AttributionDetails() {
     });
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
 
-  const isEditable =
-    (!attributionIdsForReplacement.length &&
-      (!selectedAttributionId ||
-        (manualAttributions && selectedAttributionId in manualAttributions))) ??
-    true;
+  const isEditable = (!attributionIdsForReplacement.length &&
+    (!selectedAttributionId ||
+      (manualAttributions &&
+        Object.keys(manualAttributions).includes(
+          selectedAttributionId,
+        )))) as boolean;
   if (!!selectedAttributionId && !isSelectedAttributionVisible) {
     return null;
   }
