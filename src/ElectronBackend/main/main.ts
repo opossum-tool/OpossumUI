@@ -5,8 +5,8 @@
 import { dialog, systemPreferences } from 'electron';
 import os from 'os';
 
+import { connectRenderer, startUtilityProcess } from '../dbProcessClient';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
-import { connectRenderer, startUtilityProcess } from '../utilityProcessClient';
 import { createWindow, loadWebApp } from './createWindow';
 import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';

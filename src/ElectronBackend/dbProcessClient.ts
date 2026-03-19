@@ -89,13 +89,17 @@ export function startUtilityProcess(): void {
   });
 }
 
+export const FRONTEND_TO_DB_PROCESS_PORT = 'frontend-to-db-process-port';
+
 export function connectRenderer(mainWindow: BrowserWindow): void {
   if (!child) {
     throw new Error('Utility process not started');
   }
   const { port1, port2 } = new MessageChannelMain();
   child.postMessage({ type: 'rendererPort' }, [port1]);
-  mainWindow.webContents.postMessage('utility-port', null, [port2]);
+  mainWindow.webContents.postMessage(FRONTEND_TO_DB_PROCESS_PORT, null, [
+    port2,
+  ]);
 }
 
 function request(

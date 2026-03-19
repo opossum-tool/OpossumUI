@@ -7,10 +7,10 @@ import { type BrowserWindow, dialog } from 'electron';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { text } from '../../shared/text';
+import { loadFileInUtilityProcess } from '../dbProcessClient';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import { type ParsingError } from '../types/types';
-import { loadFileInUtilityProcess } from '../utilityProcessClient';
 
 async function handleParsingError(
   parsingError: ParsingError,

@@ -61,14 +61,20 @@ interface ExecuteCommandMessage {
   params: CommandParams<CommandName>;
 }
 
-let storedInputFileRaw: Uint8Array | undefined;
-let currentRendererPort: Electron.MessagePortMain | null = null;
+export type DbProcessApiResponse =
+  | { id: number; type: 'success'; result: unknown }
+  | { id: number; type: 'error'; error: string; stack?: string };
 
-function sendError(
-  port: { postMessage(value: unknown): void },
-  id: number,
-  err: unknown,
-) {
+type DbApiResponsePort = {
+  postMessage(message: DbProcessApiResponse): unknown;
+};
+
+let storedInputFileRaw: Uint8Array | undefined;
+let currentRendererPort:
+  | (Omit<Electron.MessagePortMain, 'postMessage'> & DbApiResponsePort)
+  | null = null;
+
+function sendError(port: DbApiResponsePort, id: number, err: unknown) {
   port.postMessage({
     id,
     type: 'error',
@@ -77,7 +83,7 @@ function sendError(
   });
 }
 
-function handleRendererMessage(port: { postMessage(value: unknown): void }) {
+function handleRendererMessage(port: DbApiResponsePort) {
   return async (event: { data: ExecuteCommandMessage }) => {
     const msg = event.data;
     try {

@@ -19,6 +19,10 @@ import {
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import {
+  exportFileInUtilityProcess,
+  saveFileInUtilityProcess,
+} from '../dbProcessClient';
+import {
   sendListenerErrorToFrontend,
   showListenerErrorInMessageBox,
 } from '../errorHandling/errorHandling';
@@ -28,10 +32,6 @@ import {
   mergeFileIntoOpossum,
 } from '../opossum-file/opossum-file';
 import { type GlobalBackendState } from '../types/types';
-import {
-  exportFileInUtilityProcess,
-  saveFileInUtilityProcess,
-} from '../utilityProcessClient';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import {
   openNonOpossumFileDialog,

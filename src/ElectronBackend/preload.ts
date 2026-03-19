@@ -8,6 +8,8 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { IpcChannel } from '../shared/ipc-channels';
 import type { ElectronAPI, UserSettings } from '../shared/shared-types';
 import type { CommandName, CommandParams, CommandReturn } from './api/commands';
+import { type DbProcessApiResponse } from './dbProcess';
+import { FRONTEND_TO_DB_PROCESS_PORT } from './dbProcessClient';
 
 // Direct MessagePort to the utility process for API commands.
 // The main process transfers this port after the page starts loading.
@@ -23,16 +25,10 @@ const apiPending = new Map<
   { resolve: (value: unknown) => void; reject: (reason: unknown) => void }
 >();
 
-ipcRenderer.on('utility-port', (event) => {
+ipcRenderer.on(FRONTEND_TO_DB_PROCESS_PORT, (event) => {
   apiPort = event.ports[0];
   apiPort.onmessage = (e: MessageEvent) => {
-    const msg = e.data as {
-      id: number;
-      type: 'success' | 'error';
-      result?: unknown;
-      error?: string;
-      stack?: string;
-    };
+    const msg = e.data as DbProcessApiResponse;
     const p = apiPending.get(msg.id);
     if (!p) {
       return;
