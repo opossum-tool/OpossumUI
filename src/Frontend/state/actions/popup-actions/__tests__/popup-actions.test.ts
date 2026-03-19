@@ -3,6 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { getDb } from '../../../../../ElectronBackend/db/db';
 import {
   type Attributions,
   Criticality,
@@ -21,7 +22,6 @@ import { type State } from '../../../../types/types';
 import { createAppStore } from '../../../configure-store';
 import {
   getExpandedIds,
-  getManualAttributions,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTargetSelectedAttributionId,
@@ -359,9 +359,13 @@ describe('proceedFromUnsavedPopup', () => {
     expect(getTemporaryDisplayPackageInfo(state)).toMatchObject({});
   });
 
-  it('does not save temporaryDisplayPackageInfo', () => {
-    const state = prepareTestState();
-    expect(getManualAttributions(state)).toMatchObject({});
+  it('does not save temporaryDisplayPackageInfo', async () => {
+    const dbResult = await getDb()
+      .selectFrom('attribution')
+      .select(['uuid', 'data'])
+      .where('is_external', '=', Number(false))
+      .execute();
+    expect(dbResult).toEqual([]);
   });
 
   it('proceeds with open file request', () => {

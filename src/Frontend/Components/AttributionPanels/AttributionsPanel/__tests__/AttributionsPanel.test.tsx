@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../../shared/text';
@@ -131,7 +131,7 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = await renderComponent(<AttributionsPanel />, {
+    await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
       }),
@@ -150,7 +150,7 @@ describe('AttributionsPanel', () => {
       screen.getByRole('button', { name: text.deleteAttributionsPopup.delete }),
     );
 
-    await expectManualAttributions(store.getState(), {});
+    await expectManualAttributions({});
   });
 
   it('links selected attribution', async () => {
@@ -305,7 +305,7 @@ describe('AttributionsPanel', () => {
       screen.getByRole('button', { name: text.saveAttributionsPopup.confirm }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
   });

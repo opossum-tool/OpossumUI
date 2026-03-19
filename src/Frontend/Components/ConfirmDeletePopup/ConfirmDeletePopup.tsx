@@ -13,7 +13,6 @@ import {
 } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getManualAttributions,
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
@@ -37,9 +36,18 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   onClose,
 }) => {
   const dispatch = useAppDispatch();
-  const attributions = useAppSelector(getManualAttributions);
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const { data: attributions, isLoading } = backend.listAttributions.useQuery(
+    {
+      external: false,
+      filters: [],
+      resourcePathForRelationships: selectedResourceId,
+    },
+    {
+      enabled: open && !!selectedResourceId,
+    },
+  );
 
   const linkedResourcesTreeState = useLinkedResourcesTreeState({
     onAttributionUuids: attributionIdsToDelete,
@@ -125,19 +133,25 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
             ),
           })}
         </MuiTypography>
-        <CardList
-          data={attributionIdsToDelete
-            .filter((id) => id in attributions)
-            .map((id) => attributions[id])}
-          renderItemContent={(attribution, { index }) => {
-            return (
-              <>
-                <PackageCard packageInfo={attribution} />
-                {index + 1 !== attributionIdsToDelete.length && <MuiDivider />}
-              </>
-            );
-          }}
-        />
+        {isLoading ? (
+          <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
+        ) : attributions ? (
+          <CardList
+            data={attributionIdsToDelete
+              .filter((id) => id in attributions)
+              .map((id) => attributions[id])}
+            renderItemContent={(attribution, { index }) => {
+              return (
+                <>
+                  <PackageCard packageInfo={attribution} />
+                  {index + 1 !== attributionIdsToDelete.length && (
+                    <MuiDivider />
+                  )}
+                </>
+              );
+            }}
+          />
+        ) : null}
         <LinkedResourcesTree
           readOnly
           disableHighlightSelected={

@@ -16,11 +16,11 @@ import {
 } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getManualAttributions,
   getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
+import { backend } from '../../util/backendClient';
 import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 import { useIsSelectedAttributionVisible } from '../../util/use-attribution-lists';
 import { useCompareToOriginal } from '../../util/use-compare-to-original';
@@ -45,7 +45,11 @@ const classes = {
 export function AttributionDetails() {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const manualAttributions = useAppSelector(getManualAttributions);
+  const { data: manualAttributions } = backend.listAttributions.useQuery({
+    external: false,
+    filters: [],
+    resourcePathForRelationships: '/',
+  });
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
@@ -88,10 +92,10 @@ export function AttributionDetails() {
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
 
   const isEditable =
-    !attributionIdsForReplacement.length &&
-    (!selectedAttributionId ||
-      Object.keys(manualAttributions).includes(selectedAttributionId));
-
+    (!attributionIdsForReplacement.length &&
+      (!selectedAttributionId ||
+        (manualAttributions && selectedAttributionId in manualAttributions))) ??
+    true;
   if (!!selectedAttributionId && !isSelectedAttributionVisible) {
     return null;
   }

@@ -58,7 +58,7 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo1.id]: packageInfo2,
     });
     await expectResourcesToManualAttributions({
@@ -101,7 +101,7 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo1.id]: packageInfo2,
     });
     await expectResourcesToManualAttributions({
@@ -148,7 +148,7 @@ describe('ConfirmSavePopup', () => {
 
     const newId = getSelectedAttributionId(store.getState());
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo1.id]: packageInfo1,
       [newId]: { ...packageInfo2, id: newId },
     });
@@ -190,7 +190,7 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
     await expectResourcesToManualAttributions({
@@ -232,7 +232,7 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
     await expectResourcesToManualAttributions({
@@ -278,7 +278,7 @@ describe('ConfirmSavePopup', () => {
 
     const newId = getSelectedAttributionId(store.getState());
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo.id]: packageInfo,
       [newId]: { ...packageInfo, id: newId, preSelected: undefined },
     });
