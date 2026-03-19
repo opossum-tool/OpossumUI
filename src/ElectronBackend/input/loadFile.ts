@@ -63,7 +63,10 @@ export interface LoadFileGlobalState {
   inputFileChecksum?: string;
 }
 
-type ProgressCallback = (message: string, level?: 'info' | 'warn') => void;
+export type LoadFileProgressCallback = (
+  message: string,
+  level?: 'info' | 'warn',
+) => void;
 
 const PARSING_ERROR_TYPES: ReadonlySet<string> = new Set<ParsingError['type']>([
   'fileNotFoundError',
@@ -84,7 +87,7 @@ function isParsingError(parsingResult: unknown): parsingResult is ParsingError {
 export async function loadFile(
   filePath: string,
   globalState: LoadFileGlobalState,
-  reportProgress: ProgressCallback = () => {},
+  reportProgress: LoadFileProgressCallback = () => {},
 ): Promise<LoadFileResult> {
   if (!fs.existsSync(filePath)) {
     return {

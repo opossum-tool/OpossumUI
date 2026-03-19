@@ -10,11 +10,17 @@ import type { ExportType } from '../../shared/shared-types';
 import {
   type CommandName,
   type CommandParams,
+  type CommandReturn,
   executeCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
 import { saveFile, type SaveFileParams } from '../api/saveFile';
-import { loadFile, type LoadFileGlobalState } from '../input/loadFile';
+import {
+  loadFile,
+  type LoadFileGlobalState,
+  type LoadFileIpcResult,
+  type LoadFileProgressCallback,
+} from '../input/loadFile';
 
 interface LoadFileMessage {
   type: 'loadFile';
@@ -48,72 +54,100 @@ export type DbProcessPayload =
   | ExportFileMessage
   | ExecuteCommandMessage;
 
-export type DbProcessMessage = DbProcessPayload & { id: number };
+export type DbProcessRequest = DbProcessPayload & { id: number };
+
+type SuccessPayload =
+  | LoadFileIpcResult
+  | Awaited<CommandReturn<CommandName>>
+  | undefined;
+
+interface SuccessResponse {
+  id: number;
+  type: 'success';
+  result: SuccessPayload;
+}
+
+interface ErrorResponse {
+  id: number;
+  type: 'error';
+  error: string;
+  stack?: string;
+}
+
+interface ProgressResponse {
+  id: number;
+  type: 'progress';
+  message: string;
+  level?: 'info' | 'warn';
+}
+
+export type DbProcessResponse =
+  | SuccessResponse
+  | ErrorResponse
+  | ProgressResponse;
 
 type ResponsePort = {
-  postMessage(message: unknown): void;
+  postMessage(message: DbProcessResponse): void;
 };
 
 let storedInputFileRaw: Uint8Array | undefined;
 
-function sendError(port: ResponsePort, id: number, err: unknown) {
-  port.postMessage({
-    id,
-    type: 'error',
-    error: err instanceof Error ? err.message : String(err),
-    stack: err instanceof Error ? err.stack : undefined,
-  });
+async function executeDbProcessMessage(
+  msg: DbProcessRequest,
+  onProgress?: LoadFileProgressCallback,
+): Promise<SuccessPayload> {
+  switch (msg.type) {
+    case 'loadFile': {
+      storedInputFileRaw = undefined;
+      const loadResult = await loadFile(
+        msg.filePath,
+        msg.globalState,
+        onProgress,
+      );
+      if (loadResult.ok) {
+        storedInputFileRaw = loadResult.inputFileRaw;
+        const { inputFileRaw: _, ...rest } = loadResult;
+        return rest;
+      }
+      return loadResult;
+    }
+    case 'saveFile': {
+      const { id: _, type: __, ...params } = msg;
+      await saveFile(params as SaveFileParams, storedInputFileRaw);
+      return undefined;
+    }
+    case 'exportFile': {
+      await exportFile(msg.exportType, msg.filePath);
+      return undefined;
+    }
+    case 'executeCommand': {
+      return executeCommand(msg.command, msg.params);
+    }
+  }
 }
 
 async function handleDbProcessMessage(
   port: ResponsePort,
-  msg: DbProcessMessage,
+  msg: DbProcessRequest,
 ): Promise<void> {
   try {
-    let result: unknown;
-    switch (msg.type) {
-      case 'loadFile': {
-        storedInputFileRaw = undefined;
-        const loadResult = await loadFile(
-          msg.filePath,
-          msg.globalState,
-          (message, level) => {
-            port.postMessage({
-              id: msg.id,
-              type: 'progress',
-              message,
-              level,
-            });
-          },
-        );
-        if (loadResult.ok) {
-          storedInputFileRaw = loadResult.inputFileRaw;
-          const { inputFileRaw: _, ...rest } = loadResult;
-          result = rest;
-        } else {
-          result = loadResult;
-        }
-        break;
-      }
-      case 'saveFile': {
-        const { id: _, type: __, ...params } = msg;
-        await saveFile(params as SaveFileParams, storedInputFileRaw);
-        result = undefined;
-        break;
-      }
-      case 'exportFile': {
-        await exportFile(msg.exportType, msg.filePath);
-        result = undefined;
-        break;
-      }
-      case 'executeCommand': {
-        result = await executeCommand(msg.command, msg.params);
-        break;
-      }
-    }
+    const result = await executeDbProcessMessage(msg, (message, level) => {
+      port.postMessage({
+        id: msg.id,
+        type: 'progress',
+        message,
+        level,
+      });
+    });
+
     port.postMessage({ id: msg.id, type: 'success', result });
   } catch (err) {
-    sendError(port, msg.id, err);
+    port.postMessage({
+      id: msg.id,
+      type: 'error',
+      error: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+    });
   }
 }
 
@@ -123,7 +157,7 @@ process.parentPort.on('message', (event) => {
   if (msg.type === 'port') {
     const port = event.ports[0];
     port.on('message', (portEvent: Electron.MessageEvent) => {
-      void handleDbProcessMessage(port, portEvent.data as DbProcessMessage);
+      void handleDbProcessMessage(port, portEvent.data as DbProcessRequest);
     });
     port.start();
   }

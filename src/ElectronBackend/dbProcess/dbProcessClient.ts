@@ -13,29 +13,11 @@ import type {
 } from '../api/commands';
 import type { SaveFileParams } from '../api/saveFile';
 import type { LoadFileGlobalState, LoadFileIpcResult } from '../input/loadFile';
-import type { DbProcessMessage, DbProcessPayload } from './dbProcess';
-
-interface SuccessResponse {
-  id: number;
-  type: 'success';
-  result: unknown;
-}
-
-interface ErrorResponse {
-  id: number;
-  type: 'error';
-  error: string;
-  stack?: string;
-}
-
-interface ProgressResponse {
-  id: number;
-  type: 'progress';
-  message: string;
-  level?: 'info' | 'warn';
-}
-
-type ProcessResponse = SuccessResponse | ErrorResponse | ProgressResponse;
+import type {
+  DbProcessPayload,
+  DbProcessRequest,
+  DbProcessResponse,
+} from './dbProcess';
 
 type ProgressCallback = (message: string, level?: 'info' | 'warn') => void;
 
@@ -47,14 +29,14 @@ interface PendingRequest {
 
 // MessagePortMain (Electron main/utility process)
 interface ElectronPort {
-  postMessage(data: DbProcessMessage): void;
+  postMessage(data: DbProcessRequest): void;
   on(event: 'message', handler: (event: { data: unknown }) => void): void;
   start(): void;
 }
 
 // MessagePort (Web API, used in preload/renderer)
 interface WebPort {
-  postMessage(data: DbProcessMessage): void;
+  postMessage(data: DbProcessRequest): void;
   onmessage: ((event: MessageEvent) => void) | null;
 }
 
@@ -63,20 +45,21 @@ type ClientPort = ElectronPort | WebPort;
 export class DbProcessClient {
   private nextId = 0;
   private readonly pending = new Map<number, PendingRequest>();
-  private readonly port: { postMessage(data: DbProcessMessage): void };
+  private readonly port: { postMessage(data: DbProcessRequest): void };
 
   constructor(port: ClientPort) {
     this.port = port;
     if ('on' in port) {
-      port.on('message', (e) => this.handleMessage(e.data));
+      port.on('message', (e) =>
+        this.handleMessage(e.data as DbProcessResponse),
+      );
       port.start();
     } else {
       port.onmessage = (e) => this.handleMessage(e.data);
     }
   }
 
-  private handleMessage(data: unknown): void {
-    const msg = data as ProcessResponse;
+  private handleMessage(msg: DbProcessResponse): void {
     const p = this.pending.get(msg.id);
     if (!p) {
       return;
