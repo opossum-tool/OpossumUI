@@ -3,7 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { getDb } from '../../../../../ElectronBackend/db/db';
 import {
   type Attributions,
   Criticality,
@@ -359,13 +358,10 @@ describe('proceedFromUnsavedPopup', () => {
     expect(getTemporaryDisplayPackageInfo(state)).toMatchObject({});
   });
 
-  it('does not save temporaryDisplayPackageInfo', async () => {
-    const dbResult = await getDb()
-      .selectFrom('attribution')
-      .select(['uuid', 'data'])
-      .where('is_external', '=', Number(false))
-      .execute();
-    expect(dbResult).toEqual([]);
+  it('does not save temporaryDisplayPackageInfo', () => {
+    vi.spyOn(window.electronAPI, 'saveFile').mockResolvedValue();
+    prepareTestState();
+    expect(window.electronAPI.saveFile).not.toHaveBeenCalled();
   });
 
   it('proceeds with open file request', () => {
