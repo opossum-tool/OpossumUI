@@ -7,7 +7,7 @@ import { type BrowserWindow, dialog } from 'electron';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { text } from '../../shared/text';
-import { getMainDbClient } from '../dbProcessClient';
+import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import { type ParsingError } from '../types/types';

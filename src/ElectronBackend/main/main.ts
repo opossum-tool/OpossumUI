@@ -8,7 +8,7 @@ import os from 'os';
 import {
   FRONTEND_TO_DB_PROCESS_PORT,
   getDbProcessPort,
-} from '../dbProcessClient';
+} from '../dbProcess/dbProcessClient';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow, loadWebApp } from './createWindow';
 import { createMenu } from './menu';

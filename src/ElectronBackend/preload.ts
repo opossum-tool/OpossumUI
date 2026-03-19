@@ -11,7 +11,7 @@ import type { CommandName, CommandParams, CommandReturn } from './api/commands';
 import {
   DbProcessClient,
   FRONTEND_TO_DB_PROCESS_PORT,
-} from './dbProcessClient';
+} from './dbProcess/dbProcessClient';
 
 let client: DbProcessClient | null = null;
 let resolveClientReady: () => void;

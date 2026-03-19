@@ -18,7 +18,7 @@ import {
   type OpenLinkArgs,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
-import { getMainDbClient } from '../dbProcessClient';
+import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import {
   sendListenerErrorToFrontend,
   showListenerErrorInMessageBox,

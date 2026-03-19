@@ -5,11 +5,15 @@
 import { MessageChannelMain, utilityProcess } from 'electron';
 import path from 'path';
 
-import type { ExportType } from '../shared/shared-types';
-import type { CommandName, CommandParams, CommandReturn } from './api/commands';
-import type { SaveFileParams } from './api/saveFile';
+import type { ExportType } from '../../shared/shared-types';
+import type {
+  CommandName,
+  CommandParams,
+  CommandReturn,
+} from '../api/commands';
+import type { SaveFileParams } from '../api/saveFile';
+import type { LoadFileGlobalState, LoadFileIpcResult } from '../input/loadFile';
 import type { DbProcessMessage, DbProcessPayload } from './dbProcess';
-import type { LoadFileGlobalState, LoadFileIpcResult } from './input/loadFile';
 
 interface SuccessResponse {
   id: number;

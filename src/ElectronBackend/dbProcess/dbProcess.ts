@@ -6,15 +6,15 @@
 // Receives MessagePorts from the main process via process.parentPort.
 // Each port can send any type of work message (loadFile, saveFile,
 // exportFile, executeCommand) and receives its response on the same port.
-import type { ExportType } from '../shared/shared-types';
+import type { ExportType } from '../../shared/shared-types';
 import {
   type CommandName,
   type CommandParams,
   executeCommand,
-} from './api/commands';
-import { exportFile } from './api/exportCommands';
-import { saveFile, type SaveFileParams } from './api/saveFile';
-import { loadFile, type LoadFileGlobalState } from './input/loadFile';
+} from '../api/commands';
+import { exportFile } from '../api/exportCommands';
+import { saveFile, type SaveFileParams } from '../api/saveFile';
+import { loadFile, type LoadFileGlobalState } from '../input/loadFile';
 
 interface LoadFileMessage {
   type: 'loadFile';
