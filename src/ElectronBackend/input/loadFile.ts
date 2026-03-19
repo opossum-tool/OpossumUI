@@ -15,11 +15,12 @@ import {
 } from '../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { initializeDb } from '../db/initializeDb';
-import {
-  type OpossumOutputFile,
-  type ParsedOpossumInputFile,
-  type ParsedOpossumOutputFile,
-  type ParsingError,
+import type {
+  FileNotFoundError,
+  OpossumOutputFile,
+  ParsedOpossumInputFile,
+  ParsedOpossumOutputFile,
+  ParsingError,
 } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
@@ -95,7 +96,7 @@ export async function loadFile(
       error: {
         message: `Error: ${filePath} does not exist.`,
         type: 'fileNotFoundError',
-      },
+      } satisfies FileNotFoundError,
     };
   }
 

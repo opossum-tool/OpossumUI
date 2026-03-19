@@ -118,14 +118,3 @@ vi.mock('../ElectronBackend/main/logger.ts', () => ({
     error: vi.fn(),
   },
 }));
-
-vi.mock('../ElectronBackend/utilityProcessClient', async () => {
-  const { loadFile } = await import('../ElectronBackend/input/loadFile');
-  return {
-    startUtilityProcess: vi.fn(),
-    connectRenderer: vi.fn(),
-    loadFileInUtilityProcess: loadFile,
-    saveFileInUtilityProcess: vi.fn(),
-    exportFileInUtilityProcess: vi.fn(),
-  };
-});

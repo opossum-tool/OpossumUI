@@ -5,41 +5,17 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type BrowserWindow, dialog } from 'electron';
 import { type Mock } from 'vitest';
-import * as zlib from 'zlib';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import {
-  Criticality,
-  type ParsedFrontendFileContent,
-  RawCriticality,
-} from '../../../shared/shared-types';
-import { text } from '../../../shared/text';
-import { writeFile, writeOpossumFile } from '../../../shared/write-file';
-import { faker } from '../../../testing/Faker';
+import { type ParsedFrontendFileContent } from '../../../shared/shared-types';
+import { getMainDbClient } from '../../dbProcess/dbProcessClient';
 import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from '../../main/globalBackendState';
-import {
-  type FileNotFoundError,
-  type JsonParsingError,
-  type OpossumOutputFile,
-  type ParsedOpossumInputAndOutput,
-  type ParsedOpossumInputFile,
-  type UnzipError,
-} from '../../types/types';
-import {
-  getMessageBoxForFileNotFoundError,
-  getMessageBoxForInvalidDotOpossumFileError,
-  getMessageBoxForParsingError,
-  getMessageBoxForUnzipError,
-  loadInputAndOutputFromFilePath,
-} from '../importFromFile';
-import { parseOpossumFile } from '../parseFile';
-
-const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
-const manualAttributionUuid = 'ecd692d9-b154-4d4d-be8c-manual';
+import { loadInputAndOutputFromFilePath } from '../importFromFile';
+import type { LoadFileIpcResult } from '../loadFile';
 
 vi.mock('electron', () => ({
   dialog: {
@@ -52,13 +28,15 @@ vi.mock('electron', () => ({
   app: { exit: vi.fn(), getName: vi.fn(), getVersion: vi.fn() },
 }));
 
-vi.mock('../../errorHandling/errorHandling', () => ({
-  getMessageBoxForParsingError: vi.fn(),
+vi.mock('../../dbProcess/dbProcessClient', () => ({
+  getMainDbClient: vi.fn(),
 }));
 
-vi.mock('uuid', () => ({
-  v4: (): string => manualAttributionUuid,
-}));
+const mockLoadFile = vi.fn();
+
+(getMainDbClient as Mock).mockReturnValue({
+  loadFile: mockLoadFile,
+});
 
 type SendCall = {
   channel: string;
@@ -103,720 +81,111 @@ const mainWindow = {
   setTitle: vi.fn(),
 } as unknown as BrowserWindow;
 
-const source = faker.opossum.source();
-const inputFileContent: ParsedOpossumInputFile = {
-  metadata: {
-    ...EMPTY_PROJECT_METADATA,
-    projectTitle: 'Test Title',
-  },
-  resources: {
-    a: 1,
-    folder: {},
-  },
-  config: {
-    classifications: {
-      0: 'GOOD',
-      1: 'BAD',
-    },
-  },
-  externalAttributions: {
-    [externalAttributionUuid]: {
-      source,
-      packageName: 'my app',
-      packageVersion: '1.2.3',
-      packageNamespace: 'org.apache.xmlgraphics',
-      packageType: 'maven',
-      packagePURLAppendix:
-        '?repository_url=repo.spring.io/release#everybody/loves/dogs',
-      copyright: '(c) first party',
-      firstParty: true,
-      excludeFromNotice: true,
-      criticality: RawCriticality[Criticality.High],
-      preferred: true,
-      wasPreferred: true,
-    },
-  },
-  frequentLicenses: [
-    {
-      shortName: 'MIT',
-      fullName: 'MIT license',
-      defaultText: 'MIT license text',
-    },
-  ],
-  resourcesToAttributions: {
-    '/a': [externalAttributionUuid],
-    '/folder': [externalAttributionUuid],
-  },
-  externalAttributionSources: {
-    SC: { name: 'ScanCode', priority: 1000 },
-    OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
-  },
-};
-
-const expectedFileContent: ParsedFrontendFileContent = {
-  metadata: {
-    ...EMPTY_PROJECT_METADATA,
-    projectTitle: 'Test Title',
-  },
-  config: {
-    classifications: {
-      0: 'GOOD',
-      1: 'BAD',
-    },
-  },
+const testFrontendData: ParsedFrontendFileContent = {
+  metadata: EMPTY_PROJECT_METADATA,
+  config: { classifications: {} },
   manualAttributions: {
     attributions: {},
     resourcesToAttributions: {},
     attributionsToResources: {},
   },
-  frequentLicenses: {
-    nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
-    texts: {
-      MIT: 'MIT license text',
-      'MIT license': 'MIT license text',
-    },
-  },
+  frequentLicenses: { nameOrder: [], texts: {} },
   resolvedExternalAttributions: new Set(),
   attributionBreakpoints: new Set(),
   filesWithChildren: new Set(),
   baseUrlsForSources: {},
-  externalAttributionSources: {
-    SC: { name: 'ScanCode', priority: 1000 },
-    OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
-  },
+  externalAttributionSources: {},
 };
 
-const validMetadata = {
-  projectId: inputFileContent.metadata.projectId,
-  fileCreationDate: '1',
-};
-
-describe('Test of loading function', () => {
+describe('loadInputAndOutputFromFilePath', () => {
   afterEach(() => {
     vi.resetAllMocks();
+    (getMainDbClient as Mock).mockReturnValue({
+      loadFile: mockLoadFile,
+    });
     (mainWindow.webContents as unknown as MockWebContents).reset();
   });
 
-  it('handles Parsing error correctly', async () => {
-    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    await writeFile({ path: jsonPath, content: inputFileContent });
-
-    vi.spyOn(Date, 'now').mockReturnValue(1);
-
-    (dialog.showMessageBox as Mock).mockImplementationOnce(
-      vi.fn(() => {
-        return Promise.resolve({
-          response: 0,
-        });
-      }),
-    );
+  it('sends IPC messages and updates global state on success', async () => {
+    mockLoadFile.mockResolvedValue({
+      ok: true,
+      frontendData: testFrontendData,
+      projectTitle: 'My Project',
+      projectId: 'project-123',
+    } satisfies LoadFileIpcResult);
 
     setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
-    const expectedBackendState = getGlobalBackendState();
-
-    const corruptJsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    await writeFile({ path: corruptJsonPath, content: '{"name": 3' });
-
-    await loadInputAndOutputFromFilePath(mainWindow, corruptJsonPath);
+    await loadInputAndOutputFromFilePath(mainWindow, '/some/file.opossum');
 
     const webContents = mainWindow.webContents as unknown as MockWebContents;
     expect(
       webContents.numberOfCallsFromChannel(
         AllowedFrontendChannels.ResetLoadedFile,
       ),
-    ).toBe(2);
-    expect(
-      webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
     ).toBe(1);
-
-    expect(getGlobalBackendState()).toEqual(expectedBackendState);
-  });
-
-  it('write and read work as they should', async () => {
-    const filePath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-    const attributions: OpossumOutputFile = {
-      metadata: validMetadata,
-      manualAttributions: {},
-      resourcesToAttributions: {},
-      resolvedExternalAttributions: [],
-    };
-    await writeOpossumFile({
-      path: filePath,
-      input: inputFileContent,
-      output: attributions,
-    });
-    const content = (await parseOpossumFile(
-      filePath,
-    )) as ParsedOpossumInputAndOutput;
-    expect(content.input).toEqual(inputFileContent);
-    expect(content.output).toEqual(attributions);
-  });
-
-  it('loads .opossum file and parses jsons successfully', async () => {
-    const testUuid = 'test_uuid';
-    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-
-    const attributions: OpossumOutputFile = {
-      metadata: validMetadata,
-      manualAttributions: {
-        [testUuid]: {
-          packageName: 'Package',
-          packageVersion: '1.0',
-          licenseText: 'MIT',
-          followUp: 'FOLLOW_UP',
-        },
-      },
-      resourcesToAttributions: {
-        '/folder/': [testUuid],
-      },
-      resolvedExternalAttributions: [],
-    };
-    await writeOpossumFile({
-      input: inputFileContent,
-      output: attributions,
-      path: opossumPath,
-    });
-
-    vi.spyOn(Date, 'now').mockReturnValue(1);
-
-    const globalBackendState = {
-      resourceFilePath: '/previous/file.opossum',
-    };
-
-    setGlobalBackendState(globalBackendState);
-    await loadInputAndOutputFromFilePath(mainWindow, opossumPath);
-
-    assertFileLoadedCorrectly(testUuid);
-    expect(getGlobalBackendState().projectTitle).toBe(
-      inputFileContent.metadata.projectTitle,
-    );
-    expect(getGlobalBackendState().projectId).toBe(
-      inputFileContent.metadata.projectId,
-    );
-  });
-
-  it('loads .opossum file, no output.json', async () => {
-    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-
-    await writeOpossumFile({
-      input: inputFileContent,
-      path: opossumPath,
-    });
-
-    vi.spyOn(Date, 'now').mockReturnValue(1691761892037);
-
-    setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow, opossumPath);
-
-    const webContents = mainWindow.webContents as unknown as MockWebContents;
-    expect(
-      webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-    ).toEqual(expectedFileContent);
     expect(
       webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
     ).toBe(1);
     expect(
-      webContents.numberOfCallsFromChannel(
-        AllowedFrontendChannels.ResetLoadedFile,
-      ),
-    ).toBe(1);
-
-    expect(dialog.showMessageBox).not.toHaveBeenCalled();
-  });
-
-  describe('Load file and parse file successfully, no attribution file', () => {
-    it('for json file', async () => {
-      const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-      await writeFile({ path: jsonPath, content: inputFileContent });
-
-      vi.spyOn(Date, 'now').mockReturnValue(1);
-
-      setGlobalBackendState({});
-      await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
-
-      const webContents = mainWindow.webContents as unknown as MockWebContents;
-      expect(
-        webContents.numberOfCallsFromChannel(
-          AllowedFrontendChannels.FileLoaded,
-        ),
-      ).toBe(1);
-      expect(
-        webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-      ).toEqual(expectedFileContent);
-      expect(
-        webContents.numberOfCallsFromChannel(
-          AllowedFrontendChannels.ResetLoadedFile,
-        ),
-      ).toBe(1);
-
-      expect(dialog.showMessageBox).not.toHaveBeenCalled();
-    });
-
-    it('for json.gz file', async () => {
-      const jsonPath = faker.outputPath(`${faker.string.uuid()}.json.gz`);
-      await writeFile({
-        content: zlib.gzipSync(JSON.stringify(inputFileContent)),
-        path: jsonPath,
-      });
-
-      vi.spyOn(Date, 'now').mockReturnValue(1);
-
-      setGlobalBackendState({});
-      await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
-
-      const webContents = mainWindow.webContents as unknown as MockWebContents;
-      expect(
-        webContents.numberOfCallsFromChannel(
-          AllowedFrontendChannels.FileLoaded,
-        ),
-      ).toBe(1);
-      expect(
-        webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-      ).toEqual(expectedFileContent);
-      expect(
-        webContents.numberOfCallsFromChannel(
-          AllowedFrontendChannels.ResetLoadedFile,
-        ),
-      ).toBe(1);
-      expect(dialog.showMessageBox).not.toHaveBeenCalled();
-    });
-  });
-
-  it('loads file and parses json successfully, attribution file', async () => {
-    const testUuid = 'test_uuid';
-    const fileName = faker.string.uuid();
-    const jsonPath = faker.outputPath(`${fileName}.json`);
-    const attributionJsonPath = faker.outputPath(
-      `${fileName}_attributions.json`,
-    );
-
-    await writeFile({ path: jsonPath, content: inputFileContent });
-    const attributions: OpossumOutputFile = {
-      metadata: validMetadata,
-      manualAttributions: {
-        [testUuid]: {
-          packageName: 'Package',
-          packageVersion: '1.0',
-          licenseText: 'MIT',
-          followUp: 'FOLLOW_UP',
-        },
-      },
-      resourcesToAttributions: {
-        '/folder': [testUuid], // this folder is missing the trailing slash intentionally - it gets sanitized during loading
-      },
-      resolvedExternalAttributions: [],
-    };
-    await writeFile({ path: attributionJsonPath, content: attributions });
-
-    vi.spyOn(Date, 'now').mockReturnValue(1);
-
-    const globalBackendState = {
-      resourceFilePath: '/previous/file.json',
-      attributionFilePath: '/previous/file.json',
-    };
-
-    setGlobalBackendState(globalBackendState);
-    await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
-
-    assertFileLoadedCorrectly(testUuid);
-    expect(getGlobalBackendState().projectTitle).toBe(
-      inputFileContent.metadata.projectTitle,
-    );
-    expect(getGlobalBackendState().projectId).toBe(
-      inputFileContent.metadata.projectId,
-    );
-  });
-
-  it(
-    'loads file and parses json successfully, ' +
-      'attribution file and preSelected attributions',
-    async () => {
-      const source = faker.opossum.source();
-      const inputFileContentWithPreselectedAttribution: ParsedOpossumInputFile =
-        {
-          metadata: EMPTY_PROJECT_METADATA,
-          resources: {
-            a: 1,
-          },
-          config: {
-            classifications: {
-              0: 'GOOD',
-              1: 'BAD',
-            },
-          },
-          externalAttributions: {
-            [externalAttributionUuid]: {
-              source,
-              packageName: 'my app',
-              packageVersion: '1.2.3',
-              copyright: '(c) first party',
-              preSelected: true,
-              attributionConfidence: 17,
-              comment: 'some comment',
-              preferred: true,
-            },
-          },
-          frequentLicenses: [
-            {
-              shortName: 'MIT',
-              fullName: 'MIT license',
-              defaultText: 'MIT license text',
-            },
-            {
-              shortName: 'GPL',
-              fullName: 'General Public License',
-              defaultText: 'GPL license text',
-            },
-          ],
-          resourcesToAttributions: { '/a': [externalAttributionUuid] },
-          attributionBreakpoints: ['/some/path/', '/another/path/'],
-          filesWithChildren: ['/some/package.json/'],
-          baseUrlsForSources: {
-            '/': 'https://github.com/opossum-tool/opossumUI/',
-          },
-          externalAttributionSources: {
-            SC: { name: 'ScanCode', priority: 1000 },
-            OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
-          },
-        };
-      const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-
-      await writeFile({
-        path: jsonPath,
-        content: inputFileContentWithPreselectedAttribution,
-      });
-
-      vi.spyOn(Date, 'now').mockReturnValue(1);
-
-      const globalBackendState = {
-        resourceFilePath: '/previous/file.json',
-        attributionFilePath: '/previous/file.json',
-      };
-
-      setGlobalBackendState(globalBackendState);
-
-      await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
-      const expectedLoadedFile: ParsedFrontendFileContent = {
-        metadata: EMPTY_PROJECT_METADATA,
-        config: {
-          classifications: {
-            0: 'GOOD',
-            1: 'BAD',
-          },
-        },
-        manualAttributions: {
-          attributions: {
-            [manualAttributionUuid]: {
-              packageName: 'my app',
-              packageVersion: '1.2.3',
-              comment: 'some comment',
-              copyright: '(c) first party',
-              preSelected: true,
-              attributionConfidence: 17,
-              id: manualAttributionUuid,
-              criticality: Criticality.None,
-            },
-          },
-          resourcesToAttributions: {
-            '/a': [manualAttributionUuid],
-          },
-          attributionsToResources: {
-            [manualAttributionUuid]: ['/a'],
-          },
-        },
-        frequentLicenses: {
-          nameOrder: [
-            { shortName: 'MIT', fullName: 'MIT license' },
-            {
-              shortName: 'GPL',
-              fullName: 'General Public License',
-            },
-          ],
-          texts: {
-            MIT: 'MIT license text',
-            'MIT license': 'MIT license text',
-            GPL: 'GPL license text',
-            'General Public License': 'GPL license text',
-          },
-        },
-        resolvedExternalAttributions: new Set(),
-        attributionBreakpoints: new Set(['/some/path/', '/another/path/']),
-        filesWithChildren: new Set(['/some/package.json/']),
-        baseUrlsForSources: {
-          '/': 'https://github.com/opossum-tool/opossumUI/',
-        },
-        externalAttributionSources: {
-          SC: { name: 'ScanCode', priority: 1000 },
-          OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
-        },
-      };
-
-      const webContents = mainWindow.webContents as unknown as MockWebContents;
-      expect(
-        webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-      ).toEqual(expectedLoadedFile);
-      expect(dialog.showMessageBox).not.toHaveBeenCalled();
-    },
-  );
-
-  it('loads file and parses json successfully, custom metadata', async () => {
-    const inputFileContentWithCustomMetadata: ParsedOpossumInputFile = {
-      ...inputFileContent,
-      metadata: {
-        projectId: '2a58a469-738e-4508-98d3-a27bce6e71f7',
-        fileCreationDate: '2020-07-23 11:47:13.764544',
-        customObject: {
-          foo: 'bar',
-          nested: {
-            object: 'value',
-          },
-        },
-      },
-    };
-    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-
-    await writeFile({
-      path: jsonPath,
-      content: inputFileContentWithCustomMetadata,
-    });
-
-    vi.spyOn(Date, 'now').mockReturnValue(1);
-
-    setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
-
-    const expectedLoadedFile: ParsedFrontendFileContent = {
-      ...expectedFileContent,
-      metadata: inputFileContentWithCustomMetadata.metadata,
-    };
-
-    const webContents = mainWindow.webContents as unknown as MockWebContents;
-    expect(
       webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-    ).toEqual(expectedLoadedFile);
-    expect(dialog.showMessageBox).not.toHaveBeenCalled();
+    ).toEqual(testFrontendData);
+    expect(getGlobalBackendState().projectTitle).toBe('My Project');
+    expect(getGlobalBackendState().projectId).toBe('project-123');
   });
 
-  it('loads file and parses json successfully, origin Ids and original source', async () => {
-    const source = faker.opossum.source();
-    const inputFileContentWithOriginIds: ParsedOpossumInputFile = {
-      ...inputFileContent,
-      externalAttributions: {
-        uuid: {
-          source,
-          packageName: 'react',
-          originIds: ['abc', 'def'],
-        },
-      },
-      resourcesToAttributions: {
-        '/a': ['uuid'],
-      },
-    };
-    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-
-    await writeFile({ path: jsonPath, content: inputFileContentWithOriginIds });
-
-    vi.spyOn(Date, 'now').mockReturnValue(1);
+  it('shows error dialog and does not send FileLoaded on error', async () => {
+    mockLoadFile.mockResolvedValue({
+      ok: false,
+      error: { type: 'fileNotFoundError', message: 'File not found' },
+    } satisfies LoadFileIpcResult);
 
     setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
+    await loadInputAndOutputFromFilePath(mainWindow, '/missing/file.json');
 
-    const expectedLoadedFile: ParsedFrontendFileContent = {
-      ...expectedFileContent,
-    };
-
+    expect(dialog.showMessageBox).toHaveBeenCalled();
     const webContents = mainWindow.webContents as unknown as MockWebContents;
-    expect(
-      webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-    ).toEqual(expectedLoadedFile);
-    expect(
-      webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
-    ).toBe(1);
-    expect(
-      webContents.numberOfCallsFromChannel(
-        AllowedFrontendChannels.ResetLoadedFile,
-      ),
-    ).toBe(1);
-  });
-
-  it('handles non existing file correctly', async () => {
-    vi.spyOn(Date, 'now').mockReturnValue(1);
-
-    const dialogMock = dialog.showMessageBox as Mock;
-    dialogMock.mockImplementationOnce(
-      vi.fn(() => {
-        return Promise.resolve({
-          response: 0,
-        });
-      }),
-    );
-
-    setGlobalBackendState({});
-    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
-    const expectedBackendState = getGlobalBackendState();
-    const webContents = mainWindow.webContents as unknown as MockWebContents;
-    expect(
-      webContents.numberOfCallsFromChannel(
-        AllowedFrontendChannels.ResetLoadedFile,
-      ),
-    ).toBe(1);
     expect(
       webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
     ).toBe(0);
-    expect(dialogMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        detail: expect.stringContaining('does not exist.'),
-      }),
-    );
-    expect(getGlobalBackendState()).toEqual(expectedBackendState);
   });
 
-  it('handles corrupt zip files correctly', async () => {
-    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-    await writeFile({ path: opossumPath, content: '0' });
-
-    vi.spyOn(Date, 'now').mockReturnValue(1);
-    const dialogMock = dialog.showMessageBox as Mock;
-    dialogMock.mockImplementationOnce(
-      vi.fn(() => {
-        return Promise.resolve({
-          response: 0,
-        });
-      }),
-    );
-
-    setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow, opossumPath);
-
-    const expectedBackendState = getGlobalBackendState();
-    const webContents = mainWindow.webContents as unknown as MockWebContents;
-    expect(
-      webContents.numberOfCallsFromChannel(
-        AllowedFrontendChannels.ResetLoadedFile,
-      ),
-    ).toBe(1);
-    expect(
-      webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
-    ).toBe(0);
-    expect(dialogMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        detail: expect.stringContaining('could not be unzipped'),
-      }),
-    );
-    expect(getGlobalBackendState()).toEqual(expectedBackendState);
-  });
-});
-
-function assertFileLoadedCorrectly(testUuid: string): void {
-  const expectedLoadedFile: ParsedFrontendFileContent = {
-    ...expectedFileContent,
-    manualAttributions: {
-      attributions: {
-        [testUuid]: {
-          packageName: 'Package',
-          packageVersion: '1.0',
-          licenseText: 'MIT',
-          followUp: true,
-          id: testUuid,
-          criticality: Criticality.None,
-        },
+  it('routes each error type to the correct dialog', async () => {
+    const errorTypes = [
+      { type: 'fileNotFoundError' as const, expectedMessage: 'open the file' },
+      {
+        type: 'jsonParsingError' as const,
+        expectedMessage: 'parsing the input',
       },
-      resourcesToAttributions: {
-        '/folder/': [testUuid],
+      {
+        type: 'unzipError' as const,
+        expectedMessage: 'unzip the file',
       },
-      attributionsToResources: {
-        [testUuid]: ['/folder/'],
+      {
+        type: 'invalidDotOpossumFileError' as const,
+        expectedMessage: "'.opossum' file",
       },
-    },
-  };
+    ];
 
-  const webContents = mainWindow.webContents as unknown as MockWebContents;
-  expect(
-    webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-  ).toEqual(expectedLoadedFile);
-  expect(
-    webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
-  ).toBe(1);
-  expect(dialog.showMessageBox).not.toHaveBeenCalled();
-}
+    for (const { type, expectedMessage } of errorTypes) {
+      vi.resetAllMocks();
+      (getMainDbClient as Mock).mockReturnValue({
+        loadFile: mockLoadFile,
+      });
+      (mainWindow.webContents as unknown as MockWebContents).reset();
 
-describe('getMessageBoxForParsingError', () => {
-  it('returns a messageBox', async () => {
-    const parsingError: JsonParsingError = {
-      message: 'parsingErrorMessage',
-      type: 'jsonParsingError',
-    };
+      mockLoadFile.mockResolvedValue({
+        ok: false,
+        error: { type, message: 'test error' },
+      } satisfies LoadFileIpcResult);
 
-    await getMessageBoxForParsingError(parsingError.message);
+      setGlobalBackendState({});
+      await loadInputAndOutputFromFilePath(mainWindow, '/file');
 
-    expect(dialog.showMessageBox).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'error',
-        message: 'Error parsing the input file.',
-        detail: `parsingErrorMessage\n${text.errorBoundary.outdatedAppVersion}`,
-        buttons: ['OK'],
-      }),
-    );
-  });
-});
-
-describe('getMessageBoxForFileNotFoundError', () => {
-  it('returns a messageBox', async () => {
-    const fileNotFoundError: FileNotFoundError = {
-      message: 'fileNotFoundErrorMessage',
-      type: 'fileNotFoundError',
-    };
-
-    await getMessageBoxForFileNotFoundError(fileNotFoundError.message);
-
-    expect(dialog.showMessageBox).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'error',
-        message: 'An error occurred while trying to open the file.',
-        detail: 'fileNotFoundErrorMessage',
-        buttons: ['OK'],
-      }),
-    );
-  });
-});
-
-describe('getMessageBoxForUnzipError', () => {
-  it('returns a messageBox', async () => {
-    const unzipError: UnzipError = {
-      message: 'unzipErrorMessage',
-      type: 'unzipError',
-    };
-
-    await getMessageBoxForUnzipError(unzipError.message);
-
-    expect(dialog.showMessageBox).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'error',
-        message: 'An error occurred while trying to unzip the file.',
-        detail: 'unzipErrorMessage',
-        buttons: ['OK'],
-      }),
-    );
-  });
-});
-
-describe('getMessageBoxForInvalidDotOpossumFileError', () => {
-  it('returns a message box with correct content', async () => {
-    const testFilesInArchive = 'inpt.json, output.json';
-
-    await getMessageBoxForInvalidDotOpossumFileError(testFilesInArchive);
-
-    expect(dialog.showMessageBox).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'error',
-        message: "Error loading '.opossum' file.",
-        detail:
-          "The '.opossum' file is invalid as it does not contain an 'input.json'. " +
-          `Actual files in the archive: ${testFilesInArchive}.`,
-        buttons: ['OK'],
-      }),
-    );
+      expect(dialog.showMessageBox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining(expectedMessage),
+        }),
+      );
+    }
   });
 });

@@ -83,7 +83,7 @@ export async function loadInputAndOutputFromFilePath(
   globalState.projectId = result.projectId;
 }
 
-export async function getMessageBoxForParsingError(
+async function getMessageBoxForParsingError(
   errorMessage: string,
 ): Promise<void> {
   await dialog.showMessageBox({
@@ -96,7 +96,7 @@ export async function getMessageBoxForParsingError(
   });
 }
 
-export async function getMessageBoxForFileNotFoundError(
+async function getMessageBoxForFileNotFoundError(
   errorMessage: string,
 ): Promise<void> {
   await dialog.showMessageBox({
@@ -109,9 +109,7 @@ export async function getMessageBoxForFileNotFoundError(
   });
 }
 
-export async function getMessageBoxForUnzipError(
-  errorMessage: string,
-): Promise<void> {
+async function getMessageBoxForUnzipError(errorMessage: string): Promise<void> {
   await dialog.showMessageBox({
     type: 'error',
     buttons: ['OK'],
@@ -122,7 +120,7 @@ export async function getMessageBoxForUnzipError(
   });
 }
 
-export async function getMessageBoxForInvalidDotOpossumFileError(
+async function getMessageBoxForInvalidDotOpossumFileError(
   filesInArchive: string,
 ): Promise<void> {
   await dialog.showMessageBox({

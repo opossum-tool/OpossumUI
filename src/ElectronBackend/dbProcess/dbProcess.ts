@@ -96,7 +96,6 @@ async function executeDbProcessMessage(
   msg: DbProcessRequest,
   onProgress?: LoadFileProgressCallback,
 ): Promise<SuccessPayload> {
-  console.log('Executing command', msg.type);
   switch (msg.type) {
     case 'loadFile': {
       storedInputFileRaw = undefined;
