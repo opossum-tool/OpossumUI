@@ -16,7 +16,7 @@ export interface SaveFileParams {
 
 export async function saveFile(
   params: SaveFileParams,
-  inputFileRaw?: Uint8Array,
+  inputFileRaw: Uint8Array,
 ): Promise<void> {
   const { result } = await getSaveFileArgs();
 

@@ -14,7 +14,7 @@ import {
   executeCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
-import { saveFile, type SaveFileParams } from '../api/saveFile';
+import { saveFile } from '../api/saveFile';
 import {
   loadFile,
   type LoadFileGlobalState,
@@ -96,6 +96,7 @@ async function executeDbProcessMessage(
   msg: DbProcessRequest,
   onProgress?: LoadFileProgressCallback,
 ): Promise<SuccessPayload> {
+  console.log('Executing command', msg.type);
   switch (msg.type) {
     case 'loadFile': {
       storedInputFileRaw = undefined;
@@ -105,15 +106,18 @@ async function executeDbProcessMessage(
         onProgress,
       );
       if (loadResult.ok) {
-        storedInputFileRaw = loadResult.inputFileRaw;
-        const { inputFileRaw: _, ...rest } = loadResult;
+        const { inputFileRaw, ...rest } = loadResult;
+        storedInputFileRaw = inputFileRaw;
         return rest;
       }
       return loadResult;
     }
     case 'saveFile': {
+      if (!storedInputFileRaw) {
+        throw new Error('Cannot save: no input file loaded');
+      }
       const { id: _, type: __, ...params } = msg;
-      await saveFile(params as SaveFileParams, storedInputFileRaw);
+      await saveFile(params, storedInputFileRaw);
       return undefined;
     }
     case 'exportFile': {
@@ -126,7 +130,7 @@ async function executeDbProcessMessage(
   }
 }
 
-async function handleDbProcessMessage(
+export async function handleDbProcessMessage(
   port: ResponsePort,
   msg: DbProcessRequest,
 ): Promise<void> {
