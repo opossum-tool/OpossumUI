@@ -26,6 +26,7 @@ export async function listAttributions(props: {
   search?: string;
   showResolved?: boolean;
   excludeUnrelated?: boolean;
+  uuid?: string;
 }): Promise<{ result: Attributions }> {
   const db = getDb();
   const resource = await getResourceOrThrow(
@@ -90,6 +91,10 @@ export async function listAttributions(props: {
 
   if (!props.showResolved) {
     query = query.where('is_resolved', '=', 0);
+  }
+
+  if (props.uuid) {
+    query = query.where('uuid', '=', props.uuid);
   }
 
   if (props.sort === 'classification') {
