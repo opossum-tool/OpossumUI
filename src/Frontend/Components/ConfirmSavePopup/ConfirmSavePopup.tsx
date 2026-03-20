@@ -13,7 +13,6 @@ import {
 } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getManualAttributions,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
@@ -38,7 +37,17 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   onClose,
 }) => {
   const dispatch = useAppDispatch();
-  const attributions = useAppSelector(getManualAttributions);
+  const { data: manualAttributions, isLoading } =
+    backend.listAttributions.useQuery(
+      {
+        external: false,
+        filters: [],
+        resourcePathForRelationships: '/',
+      },
+      {
+        enabled: open,
+      },
+    );
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const temporaryDisplayPackageInfo = useAppSelector(
@@ -67,6 +76,11 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     isResourceLinkedOnAllAttributions.data &&
     linkedResourceCount > 1 &&
     isResourceLinkedOnAllAttributions.data;
+
+  // Wait for isLoading to be false, so attributions is not undefined anymore
+
+  const attributions = manualAttributions ?? {};
+
   const areAllAttributionsPreselected = attributionIdsToSave.every(
     (id) => attributions[id]?.preSelected,
   );
@@ -161,19 +175,23 @@ export const ConfirmSavePopup: React.FC<Props> = ({
             ),
           })}
         </MuiTypography>
-        <CardList
-          data={attributionIdsToSave
-            .filter((id) => id in attributions)
-            .map((id) => attributions[id])}
-          renderItemContent={(attribution, { index }) => {
-            return (
-              <>
-                <PackageCard packageInfo={attribution} />
-                {index + 1 !== attributionIdsToSave.length && <MuiDivider />}
-              </>
-            );
-          }}
-        />
+        {isLoading ? (
+          <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
+        ) : (
+          <CardList
+            data={attributionIdsToSave
+              .filter((id) => id in attributions)
+              .map((id) => attributions[id])}
+            renderItemContent={(attribution, { index }) => {
+              return (
+                <>
+                  <PackageCard packageInfo={attribution} />
+                  {index + 1 !== attributionIdsToSave.length && <MuiDivider />}
+                </>
+              );
+            }}
+          />
+        )}
         <LinkedResourcesTree
           readOnly
           disableHighlightSelected={!hasMultipleResourcesWhichContainSelected}
