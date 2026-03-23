@@ -178,6 +178,7 @@ export const backend = new Proxy({} as BackendClient, {
     return {
       // For commands specified in src/ElectronBackend/api/queries.ts
       query,
+      // eslint-disable-next-line @eslint-react/component-hook-factories
       useQuery: (
         params?: QueryParams<QueryName>,
         options?: ClientQueryOptions<QueryName>,
@@ -205,7 +206,7 @@ export const backend = new Proxy({} as BackendClient, {
 
       // For commands specified in src/ElectronBackend/api/mutations.ts
       mutate,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @eslint-react/component-hook-factories, @typescript-eslint/no-explicit-any
       useMutation: (options?: ClientMutationOptions<any>) => {
         return useMutation({
           mutationKey: ['backend', command],

@@ -39,7 +39,7 @@ export function useVirtuosoRefs<
 
   useEffect(() => {
     if (isVirtuosoFocused) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setFocusedId(selectedId);
     }
 

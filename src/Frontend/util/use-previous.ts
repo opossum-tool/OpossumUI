@@ -13,6 +13,5 @@ export function usePrevious<T>(value: T, fallback?: T): T | undefined {
     ref.current = value;
   });
 
-  // eslint-disable-next-line
   return ref.current ?? fallback;
 }

@@ -15,7 +15,7 @@ export const useAppSelector = <T>(
   fn: (state: State) => T,
   deps: Array<unknown> = [],
 ): T =>
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line @eslint-react/exhaustive-deps
   useSelector<State, T>(useCallback(memoize(fn), deps));
 
 export const useAppStore = useStore<State>;
