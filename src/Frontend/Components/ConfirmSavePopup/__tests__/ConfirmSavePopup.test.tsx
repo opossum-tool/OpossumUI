@@ -58,7 +58,7 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo1.id]: packageInfo2,
     });
     await expectResourcesToManualAttributions(store.getState(), {
@@ -101,7 +101,7 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo1.id]: packageInfo2,
     });
     await expectResourcesToManualAttributions(store.getState(), {
@@ -148,7 +148,7 @@ describe('ConfirmSavePopup', () => {
 
     const newId = getSelectedAttributionId(store.getState());
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo1.id]: packageInfo1,
       [newId]: { ...packageInfo2, id: newId },
     });
@@ -161,6 +161,18 @@ describe('ConfirmSavePopup', () => {
   it('confirms attribution linked to a single resource', async () => {
     const packageInfo = faker.opossum.packageInfo({ preSelected: true });
     const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    const parsedInputFileEnrichedWithTestData =
+      getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo.id]: packageInfo,
+        }),
+        resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+          [resource]: [packageInfo.id],
+          [resource]: [packageInfo.id],
+        }),
+        resources: pathsToResources([resource, resource]),
+      });
+    // const store = await createTestStore(parsedInputFileEnrichedWithTestData);
     const { store } = await renderComponent(
       <ConfirmSavePopup
         open
@@ -168,15 +180,7 @@ describe('ConfirmSavePopup', () => {
         attributionIdsToSave={[packageInfo.id]}
       />,
       {
-        data: getParsedInputFileEnrichedWithTestData({
-          manualAttributions: faker.opossum.attributions({
-            [packageInfo.id]: packageInfo,
-          }),
-          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-            [resource]: [packageInfo.id],
-          }),
-          resources: pathsToResources([resource]),
-        }),
+        data: parsedInputFileEnrichedWithTestData,
         actions: [
           setTemporaryDisplayPackageInfo(packageInfo),
           setSelectedAttributionId(packageInfo.id),
@@ -190,7 +194,7 @@ describe('ConfirmSavePopup', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
     await expectResourcesToManualAttributions(store.getState(), {
@@ -231,8 +235,7 @@ describe('ConfirmSavePopup', () => {
         name: text.saveAttributionsPopup.confirmGlobally,
       }),
     );
-
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
     await expectResourcesToManualAttributions(store.getState(), {
@@ -278,7 +281,7 @@ describe('ConfirmSavePopup', () => {
 
     const newId = getSelectedAttributionId(store.getState());
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo.id]: packageInfo,
       [newId]: { ...packageInfo, id: newId, preSelected: undefined },
     });

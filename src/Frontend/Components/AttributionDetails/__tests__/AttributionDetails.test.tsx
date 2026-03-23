@@ -125,7 +125,7 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo1.id]: packageInfo1,
     });
     await expectResourcesToManualAttributions(store.getState(), {
@@ -174,7 +174,7 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo1.id]: {
         ...packageInfo1,
         packageName: newPackageName,
@@ -214,7 +214,7 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo1.id]: { ...packageInfo1, preSelected: undefined },
       [packageInfo2.id]: packageInfo2,
     });
@@ -279,7 +279,7 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo1.id]: packageInfo1,
       [packageInfo2.id]: packageInfo2,
     });
@@ -392,7 +392,7 @@ describe('AttributionDetails', () => {
       screen.getByRole('button', { name: text.deleteAttributionsPopup.delete }),
     );
 
-    await expectManualAttributions(store.getState(), {
+    await expectManualAttributions({
       [packageInfo2.id]: packageInfo2,
     });
     await expectResourcesToManualAttributions(store.getState(), {});
@@ -505,7 +505,7 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {});
+    await expectManualAttributions({});
     await expectResourcesToManualAttributions(store.getState(), {});
     await expectResolvedExternalAttributions(
       store.getState(),
@@ -532,7 +532,7 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    await expectManualAttributions(store.getState(), {});
+    await expectManualAttributions({});
     await expectResourcesToManualAttributions(store.getState(), {});
     await expectResolvedExternalAttributions(store.getState(), new Set());
   });

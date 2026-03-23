@@ -21,7 +21,6 @@ import { type State } from '../../../../types/types';
 import { createAppStore } from '../../../configure-store';
 import {
   getExpandedIds,
-  getManualAttributions,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTargetSelectedAttributionId,
@@ -360,8 +359,9 @@ describe('proceedFromUnsavedPopup', () => {
   });
 
   it('does not save temporaryDisplayPackageInfo', () => {
-    const state = prepareTestState();
-    expect(getManualAttributions(state)).toMatchObject({});
+    vi.spyOn(window.electronAPI, 'saveFile').mockResolvedValue();
+    prepareTestState();
+    expect(window.electronAPI.saveFile).not.toHaveBeenCalled();
   });
 
   it('proceeds with open file request', () => {

@@ -8,9 +8,8 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useEffect } from 'react';
 
 import { text } from '../../../../../shared/text';
-import { useAppSelector } from '../../../../state/hooks';
-import { getManualAttributions } from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { backend } from '../../../../util/backendClient';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
@@ -20,7 +19,11 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
   setMultiSelectedAttributionIds,
   selectedAttributionId,
 }) => {
-  const manualAttributions = useAppSelector(getManualAttributions);
+  const { data: manualAttributions } = backend.listAttributions.useQuery({
+    external: false,
+    filters: [],
+    resourcePathForRelationships: '/',
+  });
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
   const label = attributionIdsForReplacement.length
@@ -31,6 +34,7 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
     if (
       attributionIdsForReplacement.length &&
       selectedAttributionId &&
+      manualAttributions &&
       !(selectedAttributionId in manualAttributions)
     ) {
       setAttributionIdsForReplacement([]);

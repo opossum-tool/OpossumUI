@@ -9,7 +9,6 @@ import { ATTRIBUTION_FILTERS } from '../../../shared-constants';
 import { OpossumColors } from '../../../shared-styles';
 import { useAppSelector } from '../../../state/hooks';
 import {
-  getManualAttributions,
   getResourcesToManualAttributions,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
@@ -31,7 +30,11 @@ export function AttributionsPanel() {
   const resourcesToManualAttributions = useAppSelector(
     getResourcesToManualAttributions,
   );
-  const manualAttributions = useAppSelector(getManualAttributions);
+  const { data: manualAttributions } = backend.listAttributions.useQuery({
+    external: false,
+    filters: [],
+    resourcePathForRelationships: '/',
+  });
 
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
 
@@ -45,7 +48,8 @@ export function AttributionsPanel() {
     if (
       resourcesToManualAttributions[selectedResourceId]?.some(
         (id) =>
-          manualAttributions[id] && isPackageIncomplete(manualAttributions[id]),
+          manualAttributions?.[id] &&
+          isPackageIncomplete(manualAttributions[id]),
       )
     ) {
       return {
