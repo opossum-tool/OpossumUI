@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { skipToken } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { areAttributionsEqual } from '../../shared/attribution-comparison';
@@ -16,8 +17,9 @@ export function useCompareToOriginal(
   const originalAttributionId = packageInfo.originalAttributionId;
 
   const { data: originalAttribution } = backend.getAttributionData.useQuery(
-    { attributionUuid: originalAttributionId! },
-    { enabled: !!originalAttributionId },
+    originalAttributionId
+      ? { attributionUuid: originalAttributionId }
+      : skipToken,
   );
 
   return useMemo(() => {

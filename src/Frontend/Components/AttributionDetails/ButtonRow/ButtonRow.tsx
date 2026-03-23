@@ -12,6 +12,7 @@ import UndoIcon from '@mui/icons-material/Undo';
 import MuiButton from '@mui/material/Button';
 import MuiFab from '@mui/material/Fab';
 import MuiTooltip from '@mui/material/Tooltip';
+import { skipToken } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
@@ -66,10 +67,11 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   );
 
   const originalAttributionQuery = backend.getAttributionData.useQuery(
-    {
-      attributionUuid: packageInfo.originalAttributionId as string,
-    },
-    { enabled: !!packageInfo.originalAttributionId },
+    packageInfo.originalAttributionId !== undefined
+      ? {
+          attributionUuid: packageInfo.originalAttributionId,
+        }
+      : skipToken,
   );
 
   const originalAttribution = packageInfo.originalAttributionId

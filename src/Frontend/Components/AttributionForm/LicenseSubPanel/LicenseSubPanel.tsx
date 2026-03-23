@@ -5,6 +5,7 @@
 import NotesIcon from '@mui/icons-material/Notes';
 import { Badge, ToggleButton } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import { skipToken } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { type PackageInfo } from '../../../../shared/shared-types';
@@ -37,8 +38,9 @@ export function LicenseSubPanel({
   const [showLicenseText, setShowLicenseText] = useState(false);
   const dispatch = useAppDispatch();
   const frequentLicenseTextResult = backend.getFrequentLicenseText.useQuery(
-    { licenseName: packageInfo.licenseName || '' },
-    { enabled: !!packageInfo.licenseName && !packageInfo.licenseText },
+    packageInfo.licenseName && !packageInfo.licenseText
+      ? { licenseName: packageInfo.licenseName }
+      : skipToken,
   );
   const defaultLicenseText =
     packageInfo.licenseText || !packageInfo.licenseName

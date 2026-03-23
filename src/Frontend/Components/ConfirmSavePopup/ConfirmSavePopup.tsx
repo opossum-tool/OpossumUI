@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
+import { skipToken } from '@tanstack/react-query';
 
 import { text } from '../../../shared/text';
 import {
@@ -53,14 +54,12 @@ export const ConfirmSavePopup: React.FC<Props> = ({
 
   const isResourceLinkedOnAllAttributions =
     backend.isResourceLinkedOnAllAttributions.useQuery(
-      {
-        resourcePath: selectedResourceId,
-        attributionUuids: attributionIdsToSave,
-      },
-      {
-        enabled:
-          open && !!selectedResourceId && attributionIdsToSave.length > 0,
-      },
+      open && selectedResourceId && attributionIdsToSave.length > 0
+        ? {
+            resourcePath: selectedResourceId,
+            attributionUuids: attributionIdsToSave,
+          }
+        : skipToken,
     );
 
   const hasMultipleResourcesWhichContainSelected =
