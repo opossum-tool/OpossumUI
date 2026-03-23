@@ -29,7 +29,6 @@ import {
   getManualAttributions,
   getManualAttributionsToResources,
   getManualData,
-  getResourcesToManualAttributions,
   getResourcesWithManualAttributedChildren,
   getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
@@ -125,7 +124,6 @@ describe('The savePackageInfo action', () => {
     testStore.dispatch(setSelectedResourceId('/root/src/'));
     testStore.dispatch(setTemporaryDisplayPackageInfo(testPackageInfo));
     expect(getManualAttributions(testStore.getState())).toEqual({});
-    expect(getResourcesToManualAttributions(testStore.getState())).toEqual({});
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual({

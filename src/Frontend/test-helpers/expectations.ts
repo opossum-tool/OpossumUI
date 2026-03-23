@@ -12,7 +12,6 @@ import {
 import {
   getManualAttributions,
   getResolvedExternalAttributions,
-  getResourcesToManualAttributions,
 } from '../state/selectors/resource-selectors';
 import { type State } from '../types/types';
 import { flushPendingMutations } from './general-test-helpers';
@@ -39,14 +38,9 @@ export async function expectManualAttributions(
 }
 
 export async function expectResourcesToManualAttributions(
-  state: State,
   resourcesToAttributions: ResourcesToAttributions,
 ) {
   await flushPendingMutations();
-
-  expect(getResourcesToManualAttributions(state)).toEqual(
-    resourcesToAttributions,
-  );
 
   const dbResult = await getDb()
     .selectFrom('resource_to_attribution')

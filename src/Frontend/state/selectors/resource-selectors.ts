@@ -50,12 +50,6 @@ export function getSelectedResourceId(state: State): string {
   return state.resourceState.selectedResourceId;
 }
 
-export function getResourcesToManualAttributions(
-  state: State,
-): ResourcesToAttributions {
-  return state.resourceState.manualData.resourcesToAttributions;
-}
-
 export function getManualAttributionsToResources(
   state: State,
 ): AttributionsToResources {

@@ -23,7 +23,6 @@ import {
   getIsPreferenceFeatureEnabled,
   getManualAttributions,
   getManualAttributionsToResources,
-  getResourcesToManualAttributions,
   getResourcesWithManualAttributedChildren,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/resource-selectors';
@@ -132,7 +131,6 @@ describe('The load and navigation simple actions', () => {
 
     const testStore = createAppStore();
     expect(getManualAttributions(testStore.getState())).toEqual({});
-    expect(getResourcesToManualAttributions(testStore.getState())).toEqual({});
     expect(getManualAttributionsToResources(testStore.getState())).toEqual({});
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
