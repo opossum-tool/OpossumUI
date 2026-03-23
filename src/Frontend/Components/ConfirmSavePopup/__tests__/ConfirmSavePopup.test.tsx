@@ -61,7 +61,7 @@ describe('ConfirmSavePopup', () => {
     await expectManualAttributions(store.getState(), {
       [packageInfo1.id]: packageInfo2,
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resource]: [packageInfo1.id],
     });
   });
@@ -104,7 +104,7 @@ describe('ConfirmSavePopup', () => {
     await expectManualAttributions(store.getState(), {
       [packageInfo1.id]: packageInfo2,
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resource1]: [packageInfo1.id],
       [resource2]: [packageInfo1.id],
     });
@@ -152,7 +152,7 @@ describe('ConfirmSavePopup', () => {
       [packageInfo1.id]: packageInfo1,
       [newId]: { ...packageInfo2, id: newId },
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resource1]: [newId],
       [resource2]: [packageInfo1.id],
     });
@@ -193,7 +193,7 @@ describe('ConfirmSavePopup', () => {
     await expectManualAttributions(store.getState(), {
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resource]: [packageInfo.id],
     });
   });
@@ -235,7 +235,7 @@ describe('ConfirmSavePopup', () => {
     await expectManualAttributions(store.getState(), {
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resource1]: [packageInfo.id],
       [resource2]: [packageInfo.id],
     });
@@ -282,7 +282,7 @@ describe('ConfirmSavePopup', () => {
       [packageInfo.id]: packageInfo,
       [newId]: { ...packageInfo, id: newId, preSelected: undefined },
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resource1]: [newId],
       [resource2]: [packageInfo.id],
     });

@@ -13,7 +13,6 @@ import {
   type LicenseTexts,
   type PackageInfo,
   type ProjectMetadata,
-  type ResourcesToAttributions,
   type ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { type State } from '../../types/types';

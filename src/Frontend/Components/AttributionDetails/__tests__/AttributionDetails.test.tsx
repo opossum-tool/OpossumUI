@@ -128,7 +128,7 @@ describe('AttributionDetails', () => {
     await expectManualAttributions(store.getState(), {
       [packageInfo1.id]: packageInfo1,
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resourceId]: [packageInfo1.id],
     });
     await expectResolvedExternalAttributions(store.getState(), new Set());
@@ -181,7 +181,7 @@ describe('AttributionDetails', () => {
       },
       [packageInfo2.id]: packageInfo2,
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resourceId]: [packageInfo1.id, packageInfo2.id],
     });
     await expectResolvedExternalAttributions(store.getState(), new Set());
@@ -218,7 +218,7 @@ describe('AttributionDetails', () => {
       [packageInfo1.id]: { ...packageInfo1, preSelected: undefined },
       [packageInfo2.id]: packageInfo2,
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resourceId]: [packageInfo1.id, packageInfo2.id],
     });
     await expectResolvedExternalAttributions(store.getState(), new Set());
@@ -283,7 +283,7 @@ describe('AttributionDetails', () => {
       [packageInfo1.id]: packageInfo1,
       [packageInfo2.id]: packageInfo2,
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resourceId]: [packageInfo1.id, packageInfo2.id],
     });
     await expectResolvedExternalAttributions(store.getState(), new Set());
@@ -395,7 +395,7 @@ describe('AttributionDetails', () => {
     await expectManualAttributions(store.getState(), {
       [packageInfo2.id]: packageInfo2,
     });
-    await expectResourcesToManualAttributions(store.getState(), {});
+    await expectResourcesToManualAttributions({});
     await expectResolvedExternalAttributions(store.getState(), new Set());
   });
 
@@ -506,7 +506,7 @@ describe('AttributionDetails', () => {
     );
 
     await expectManualAttributions(store.getState(), {});
-    await expectResourcesToManualAttributions(store.getState(), {});
+    await expectResourcesToManualAttributions({});
     await expectResolvedExternalAttributions(
       store.getState(),
       new Set([packageInfo.id]),
@@ -533,7 +533,7 @@ describe('AttributionDetails', () => {
     );
 
     await expectManualAttributions(store.getState(), {});
-    await expectResourcesToManualAttributions(store.getState(), {});
+    await expectResourcesToManualAttributions({});
     await expectResolvedExternalAttributions(store.getState(), new Set());
   });
 

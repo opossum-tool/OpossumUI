@@ -158,7 +158,7 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = await renderComponent(<AttributionsPanel />, {
+    await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
         resourcesToManualAttributions: {
@@ -177,7 +177,7 @@ describe('AttributionsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
     );
 
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [ROOT_PATH]: [packageInfo.id],
     });
   });
