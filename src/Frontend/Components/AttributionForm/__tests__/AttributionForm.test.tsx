@@ -13,10 +13,7 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import {
-  setConfig,
-  setFrequentLicenses,
-} from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setConfig } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
@@ -403,12 +400,17 @@ describe('AttributionForm', () => {
       await renderComponent(
         <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
         {
-          actions: [
-            setFrequentLicenses({
-              nameOrder: [],
+          data: getParsedInputFileEnrichedWithTestData({
+            frequentLicenses: {
+              nameOrder: [
+                {
+                  shortName: packageInfo.licenseName!,
+                  fullName: packageInfo.licenseName!,
+                },
+              ],
               texts: { [packageInfo.licenseName!]: defaultLicenseText },
-            }),
-          ],
+            },
+          }),
         },
       );
 
@@ -437,12 +439,17 @@ describe('AttributionForm', () => {
       await renderComponent(
         <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
         {
-          actions: [
-            setFrequentLicenses({
-              nameOrder: [],
+          data: getParsedInputFileEnrichedWithTestData({
+            frequentLicenses: {
+              nameOrder: [
+                {
+                  shortName: packageInfo.licenseName!,
+                  fullName: packageInfo.licenseName!,
+                },
+              ],
               texts: { [packageInfo.licenseName!]: defaultLicenseText },
-            }),
-          ],
+            },
+          }),
         },
       );
 

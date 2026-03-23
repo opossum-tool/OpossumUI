@@ -9,13 +9,13 @@ import {
   type Attributions,
   type AttributionsToResources,
   type ExternalAttributionSources,
+  type FrequentLicenses,
   type ParsedFileContent,
   type RawProjectConfig,
   type Resources,
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import {
-  EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_METADATA,
   EMPTY_RAW_PROJECT_CONFIG,
 } from '../shared-constants';
@@ -35,7 +35,7 @@ const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
     resourcesToAttributions: {},
     attributionsToResources: {},
   },
-  frequentLicenses: EMPTY_FREQUENT_LICENSES,
+  frequentLicenses: { nameOrder: [], texts: {} },
   resolvedExternalAttributions: new Set(),
   attributionBreakpoints: new Set(),
   filesWithChildren: new Set(),
@@ -53,6 +53,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
   attributionBreakpoints?: Set<string>;
   filesWithChildren?: Set<string>;
   externalAttributionSources?: ExternalAttributionSources;
+  frequentLicenses?: FrequentLicenses;
 }): ParsedFileContent {
   const defaultTestResources: Resources = {
     thirdParty: {
@@ -96,6 +97,9 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
     attributionBreakpoints: testData.attributionBreakpoints || new Set(),
     filesWithChildren: testData.filesWithChildren || new Set(),
     externalAttributionSources: testData.externalAttributionSources || {},
+    ...(testData.frequentLicenses && {
+      frequentLicenses: testData.frequentLicenses,
+    }),
   };
 }
 

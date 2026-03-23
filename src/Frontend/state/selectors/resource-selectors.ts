@@ -9,8 +9,6 @@ import {
   type BaseUrlsForSources,
   type ClassificationsConfig,
   type ExternalAttributionSources,
-  type FrequentLicenseName,
-  type LicenseTexts,
   type PackageInfo,
   type ProjectMetadata,
   type ResourcesToAttributions,
@@ -66,16 +64,6 @@ export function getResourcesWithManualAttributedChildren(
   state: State,
 ): ResourcesWithAttributedChildren {
   return state.resourceState.manualData.resourcesWithAttributedChildren;
-}
-
-export function getFrequentLicensesNameOrder(
-  state: State,
-): Array<FrequentLicenseName> {
-  return state.resourceState.frequentLicenses.nameOrder;
-}
-
-export function getFrequentLicensesTexts(state: State): LicenseTexts {
-  return state.resourceState.frequentLicenses.texts;
 }
 
 export function getTemporaryDisplayPackageInfo(state: State): PackageInfo {

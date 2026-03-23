@@ -5,7 +5,6 @@
 import {
   type AttributionData,
   Criticality,
-  type FrequentLicenses,
   type PackageInfo,
   type ProjectConfig,
   type ProjectMetadata,
@@ -24,11 +23,6 @@ export const EMPTY_ATTRIBUTION_DATA: AttributionData = {
     pathsToIndices: {},
     attributedChildren: {},
   },
-};
-
-export const EMPTY_FREQUENT_LICENSES: FrequentLicenses = {
-  nameOrder: [],
-  texts: {},
 };
 
 export const EMPTY_PROJECT_METADATA: ProjectMetadata = {

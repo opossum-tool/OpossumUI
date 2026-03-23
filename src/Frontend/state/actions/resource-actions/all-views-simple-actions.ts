@@ -7,7 +7,6 @@ import {
   type AttributionsToResources,
   type BaseUrlsForSources,
   type ExternalAttributionSources,
-  type FrequentLicenses,
   type PackageInfo,
   type ProjectConfig,
   type ProjectMetadata,
@@ -21,7 +20,6 @@ import {
   ACTION_SET_ENABLE_PREFERENCE_FEATURE,
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
   ACTION_SET_FILES_WITH_CHILDREN,
-  ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_PROJECT_CONFIG,
@@ -32,7 +30,6 @@ import {
   type SetBaseUrlsForSources,
   type SetExternalAttributionSources,
   type SetFilesWithChildren,
-  type SetFrequentLicensesAction,
   type SetIsPackageInfoDirtyAction,
   type SetIsPreferenceFeatureEnabled,
   type SetManualDataAction,
@@ -65,12 +62,6 @@ export function setManualData(
       ),
     },
   };
-}
-
-export function setFrequentLicenses(
-  licenses: FrequentLicenses,
-): SetFrequentLicensesAction {
-  return { type: ACTION_SET_FREQUENT_LICENSES, payload: licenses };
 }
 
 export function setTemporaryDisplayPackageInfo(

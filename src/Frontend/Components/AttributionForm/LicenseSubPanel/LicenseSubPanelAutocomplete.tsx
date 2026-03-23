@@ -96,16 +96,18 @@ export function LicenseSubPanelAutocomplete({
       ]),
     );
 
-    const frequentLicenseOptions = frequentLicenseNames.data?.map((license) => ({
-      fullName: license.fullName,
-      shortName: license.shortName,
-      group: text.attributionColumn.commonLicenses,
-      attributionCount: [
-        manualCountMap.get(license.shortName.toLowerCase()) ?? 0,
-        externalCountMap.get(license.shortName.toLowerCase()) ?? 0,
-      ] as [number, number],
-      replaceEntireSearch: false,
-    }));
+    const frequentLicenseOptions = frequentLicenseNames.data?.map(
+      (license) => ({
+        fullName: license.fullName,
+        shortName: license.shortName,
+        group: text.attributionColumn.commonLicenses,
+        attributionCount: [
+          manualCountMap.get(license.shortName.toLowerCase()) ?? 0,
+          externalCountMap.get(license.shortName.toLowerCase()) ?? 0,
+        ] as [number, number],
+        replaceEntireSearch: false,
+      }),
+    );
 
     const sortedFrequentLicenseOptions = sortBy(
       frequentLicenseOptions,
