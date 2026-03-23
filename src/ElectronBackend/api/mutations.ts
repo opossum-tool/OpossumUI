@@ -103,6 +103,7 @@ export const mutations = {
         { queryName: 'isResourceLinkedOnAllAttributions' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
+        { queryName: 'manualAttributionsAreIncompleteOnResource' },
       ],
     };
   },
@@ -185,6 +186,7 @@ export const mutations = {
         { queryName: 'isResourceLinkedOnAllAttributions' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
+        { queryName: 'manualAttributionsAreIncompleteOnResource' },
       ],
     };
   },
@@ -254,6 +256,7 @@ export const mutations = {
         { queryName: 'isResourceLinkedOnAllAttributions' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
+        { queryName: 'manualAttributionsAreIncompleteOnResource' },
       ],
     };
   },
@@ -327,6 +330,7 @@ export const mutations = {
         { queryName: 'isResourceLinkedOnAllAttributions' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
+        { queryName: 'manualAttributionsAreIncompleteOnResource' },
       ],
     };
   },
@@ -377,6 +381,7 @@ export const mutations = {
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
+        { queryName: 'manualAttributionsAreIncompleteOnResource' },
       ],
     };
   },
@@ -444,6 +449,7 @@ export const mutations = {
         { queryName: 'isResourceLinkedOnAllAttributions' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
+        { queryName: 'manualAttributionsAreIncompleteOnResource' },
       ],
     };
   },
