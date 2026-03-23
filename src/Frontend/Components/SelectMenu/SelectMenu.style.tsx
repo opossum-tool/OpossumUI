@@ -50,16 +50,11 @@ export const StyledMenu = styled(
                 display: 'block',
                 position: 'absolute',
                 top: 0,
-                left: (() => {
-                  switch (anchorPosition) {
-                    case 'left':
-                      return '24px';
-                    case 'right':
-                      return 'calc(100% - 24px)';
-                    case 'center':
-                      return '50%';
-                  }
-                })(),
+                left: {
+                  left: '24px',
+                  right: 'calc(100% - 24px)',
+                  center: '50%',
+                }[anchorPosition],
                 width: 10,
                 height: 10,
                 bgcolor: 'background.paper',

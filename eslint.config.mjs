@@ -10,7 +10,6 @@ import vitest from '@vitest/eslint-plugin';
 import eslintPluginCheckFile from 'eslint-plugin-check-file';
 import eslintConfigJestDom from 'eslint-plugin-jest-dom';
 import eslintConfigPlaywright from 'eslint-plugin-playwright';
-import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
 import eslintConfigTestingLibrary from 'eslint-plugin-testing-library';
 import globals from 'globals';
 import path from 'node:path';
@@ -42,8 +41,6 @@ export default tseslint.config(
       vitest: vitest,
       'jest-dom': fixupPluginRules(eslintConfigJestDom),
       '@tanstack/query': eslintPluginQuery,
-      // @ts-ignore
-      'react-hooks': fixupPluginRules(eslintPluginReactHooks),
     },
     linterOptions: {
       reportUnusedDisableDirectives: true,
@@ -80,12 +77,12 @@ export default tseslint.config(
     },
     rules: {
       ...eslintPluginQuery.configs.recommended.rules,
-      ...eslintPluginReactHooks.configs.recommended.rules,
       ...vitest.configs.recommended.rules,
       'react/display-name': 'off',
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
       '@eslint-react/no-array-index-key': 'off',
+      '@eslint-react/purity': 'off',
       '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/ban-ts-comment': 'error',
@@ -216,7 +213,6 @@ export default tseslint.config(
       'playwright/expect-expect': 'off',
       'testing-library/prefer-screen-queries': 'off',
       'testing-library/no-node-access': 'off',
-      'react-hooks/rules-of-hooks': 'off',
     },
   },
   {
@@ -231,6 +227,8 @@ export default tseslint.config(
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@eslint-react/no-unnecessary-use-prefix': 'off',
       '@eslint-react/no-missing-key': 'off',
+      '@eslint-react/component-hook-factories': 'off',
+      '@eslint-react/rules-of-hooks': 'off',
       'vitest/expect-expect': [
         'error',
         {

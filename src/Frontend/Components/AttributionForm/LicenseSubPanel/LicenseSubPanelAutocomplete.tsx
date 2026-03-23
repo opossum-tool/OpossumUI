@@ -43,9 +43,6 @@ export function LicenseSubPanelAutocomplete({
   const frequentLicenseNameSet = new Set(
     frequentLicensesNames.map((n) => n.shortName),
   );
-  const frequentLicenseNameSetLowercase = new Set(
-    frequentLicensesNames.map((n) => n.shortName.toLowerCase()),
-  );
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const autoCompleteResult = backend.autoCompleteOptions.useQuery({
@@ -75,6 +72,10 @@ export function LicenseSubPanelAutocomplete({
           text.attributionColumn.fromSignals,
         )
       : [];
+
+    const frequentLicenseNameSetLowercase = new Set(
+      frequentLicensesNames.map((n) => n.shortName.toLowerCase()),
+    );
 
     const manualFiltered = manual.filter(
       (license) =>
@@ -119,11 +120,7 @@ export function LicenseSubPanelAutocomplete({
       ...manualFiltered,
       ...externalFiltered,
     ];
-  }, [
-    frequentLicensesNames,
-    frequentLicenseNameSetLowercase,
-    autoCompleteResult.data,
-  ]);
+  }, [frequentLicensesNames, autoCompleteResult.data]);
 
   function filterOptions(
     options: Array<LicenseOption>,

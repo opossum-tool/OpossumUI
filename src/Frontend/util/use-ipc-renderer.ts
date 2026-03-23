@@ -87,6 +87,6 @@ export function useIpcRenderer<T extends Listener>(
     return () => {
       removeListener();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, dependencies);
 }
