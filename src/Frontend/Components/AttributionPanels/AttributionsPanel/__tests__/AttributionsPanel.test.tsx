@@ -85,6 +85,7 @@ describe('AttributionsPanel', () => {
     });
     await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([resourceId]),
         manualAttributions,
         resourcesToManualAttributions: {
           [resourceId]: [packageInfo1.id, packageInfo2.id],
@@ -94,7 +95,7 @@ describe('AttributionsPanel', () => {
     });
 
     expect(
-      screen.getByText(text.packageLists.incompleteAttributions),
+      await screen.findByText(text.packageLists.incompleteAttributions),
     ).toBeInTheDocument();
   });
 

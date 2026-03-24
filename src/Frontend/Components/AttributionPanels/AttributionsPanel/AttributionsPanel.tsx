@@ -56,7 +56,6 @@ export function AttributionsPanel() {
     hasIncompleteAttributions.data,
     selectedResourceId,
   ]);
-
   const [{ filters, search, selectedLicense }] = useManualAttributionFilters();
 
   const filterProps = backend.filterProperties.useQuery({
