@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
+import path from 'path';
 
 import {
   type Attributions,
@@ -75,5 +76,19 @@ describe('writeSpdxFile', () => {
     expect(fileContent).toContain(
       'referenceLocator: pkg:npm/second-test-package@2.1',
     );
+  });
+
+  it('creates parent directories before writing SPDX output', () => {
+    const yamlPath = faker.outputPath(
+      path.join(faker.string.uuid(), 'nested', `${faker.string.uuid()}.yaml`),
+    );
+
+    writeSpdxFile({
+      path: yamlPath,
+      type: ExportType.SpdxDocumentYaml,
+      attributions: {},
+    });
+
+    expect(fs.existsSync(yamlPath)).toBe(true);
   });
 });

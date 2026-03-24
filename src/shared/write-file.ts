@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { strToU8, zip } from 'fflate';
 import fs from 'fs';
+import nodePath from 'path';
 
 import { INPUT_FILE_NAME, OUTPUT_FILE_NAME } from './write-file-utils';
 
@@ -15,6 +16,7 @@ export async function writeFile({
   content: string | object;
 }): Promise<string> {
   try {
+    await fs.promises.mkdir(nodePath.dirname(path), { recursive: true });
     await fs.promises.writeFile(
       path,
       typeof content === 'string' || Buffer.isBuffer(content)
@@ -70,6 +72,7 @@ export function writeOpossumFile({
         if (err) {
           reject(err);
         } else {
+          await fs.promises.mkdir(nodePath.dirname(path), { recursive: true });
           await fs.promises.writeFile(path, data);
 
           resolve(path);

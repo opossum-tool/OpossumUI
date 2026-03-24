@@ -16,11 +16,33 @@ export abstract class FileConverter {
 
   protected readonly execFile = promisify(execFileCallback);
 
-  protected readonly OPOSSUM_FILE_EXECUTABLE = join(
-    app?.getAppPath?.() ?? './',
-    process.env.NODE_ENV === 'e2e' ? '../..' : '',
-    'bin/opossum-file-cli',
-  );
+  protected readonly OPOSSUM_FILE_EXECUTABLE = this.getOpossumFileExecutable();
+
+  private getExecutableNames(): Array<string> {
+    return process.platform === 'win32'
+      ? ['opossum-file-cli.exe', 'opossum-file-cli']
+      : ['opossum-file-cli'];
+  }
+
+  private getOpossumFileExecutable(): string {
+    const executableNames = this.getExecutableNames();
+    const candidateDirectories =
+      app.isPackaged && process.resourcesPath
+        ? [join(process.resourcesPath, 'bin')]
+        : [
+            join(app?.getAppPath?.() ?? process.cwd(), 'bin'),
+            join(app?.getAppPath?.() ?? process.cwd(), '..', '..', 'bin'),
+            join(process.cwd(), 'bin'),
+          ];
+
+    const candidates = candidateDirectories.flatMap((directory) =>
+      executableNames.map((executableName) => join(directory, executableName)),
+    );
+
+    return (
+      candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates[0]
+    );
+  }
 
   protected abstract preConvertFile(
     toBeConvertedFilePath: string,
