@@ -7,6 +7,7 @@ import { type SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiLink from '@mui/material/Link';
 import MuiTypography from '@mui/material/Typography';
+import { skipToken } from '@tanstack/react-query';
 import { Fragment } from 'react';
 
 import { type PackageInfo } from '../../../shared/shared-types';
@@ -109,8 +110,9 @@ interface ReportTableItemProps {
 export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
   const dispatch = useAppDispatch();
   const frequentLicenseTextResult = backend.getFrequentLicenseText.useQuery(
-    { licenseName: packageInfo.licenseName! },
-    { enabled: !!packageInfo.licenseName },
+    packageInfo.licenseName
+      ? { licenseName: packageInfo.licenseName }
+      : skipToken,
   );
 
   return (

@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  skipToken,
+  type SkipToken,
   useMutation,
   type UseMutationOptions,
   useQuery,
@@ -48,7 +50,7 @@ type ClientQueryOptions<Q extends QueryName> = Omit<
 type ClientQueryParams<Q extends QueryName> =
   QueryParams<Q> extends void // So params is optional when the query function has no parameters
     ? [params?: undefined, options?: ClientQueryOptions<Q>]
-    : [params: QueryParams<Q>, options?: ClientQueryOptions<Q>];
+    : [params: QueryParams<Q> | SkipToken, options?: ClientQueryOptions<Q>];
 
 type ClientQueryReturn<Q extends QueryName> = ReturnType<
   typeof useQuery<Awaited<QueryResult<Q>>>
@@ -180,27 +182,19 @@ export const backend = new Proxy({} as BackendClient, {
       query,
       // eslint-disable-next-line @eslint-react/component-hook-factories
       useQuery: (
-        params?: QueryParams<QueryName>,
+        params?: QueryParams<QueryName> | SkipToken,
         options?: ClientQueryOptions<QueryName>,
       ) =>
         useQuery({
           // eslint-disable-next-line @tanstack/query/exhaustive-deps
           queryKey: getQueryKey(command, params),
-          queryFn: () => query(params),
+          queryFn:
+            databaseInitialized && params !== skipToken
+              ? () => {
+                  return query(params);
+                }
+              : skipToken,
           ...options,
-          enabled: (query) => {
-            if (!databaseInitialized) {
-              return false;
-            }
-            if (options !== undefined && 'enabled' in options) {
-              return Boolean(
-                typeof options.enabled === 'function'
-                  ? options.enabled(query)
-                  : options.enabled,
-              );
-            }
-            return true;
-          },
         }),
 
       // For commands specified in src/ElectronBackend/api/mutations.ts
