@@ -6450,12 +6450,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"get-tsconfig@npm:4.13.6, get-tsconfig@npm:^4.7.5":
-  version: 4.13.6
-  resolution: "get-tsconfig@npm:4.13.6"
+"get-tsconfig@npm:4.13.7, get-tsconfig@npm:^4.7.5":
+  version: 4.13.7
+  resolution: "get-tsconfig@npm:4.13.7"
   dependencies:
     resolve-pkg-maps: "npm:^1.0.0"
-  checksum: 10/5cd1c1f273e9f1cd9f1ebeaaea281a3b7b71562fc9614ee0cf0575463b0435de68831354434a5a1a564e1049062d597d0dae8ef33f489a6d12afccee032f6784
+  checksum: 10/e23622bd3c5766a2fe43a28cb7a490ebb175eb7f429e4ec53688e3b7a40882fb0ec6f3b753f237757d63861ccd8033232d1d76f8960a683af8e09099e7c897fe
   languageName: node
   linkType: hard
 
@@ -7161,14 +7161,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knip@npm:6.0.1":
-  version: 6.0.1
-  resolution: "knip@npm:6.0.1"
+"knip@npm:6.0.2":
+  version: 6.0.2
+  resolution: "knip@npm:6.0.2"
   dependencies:
     "@nodelib/fs.walk": "npm:^1.2.3"
     fast-glob: "npm:^3.3.3"
     formatly: "npm:^0.3.0"
-    get-tsconfig: "npm:4.13.6"
+    get-tsconfig: "npm:4.13.7"
     jiti: "npm:^2.6.0"
     minimist: "npm:^1.2.8"
     oxc-parser: "npm:^0.120.0"
@@ -7183,7 +7183,7 @@ __metadata:
   bin:
     knip: bin/knip.js
     knip-bun: bin/knip-bun.js
-  checksum: 10/1aa47e9976bfaa10505666aa1c2d45c93319a1074bb03ff930b2cdfb9a88a979b11a896a63138a8d08ac9877ca8ea0fa75e78bfeecaf90f8bd47ccdfc49eff4f
+  checksum: 10/4c00c67b3d5e703a795f22e9b62f682ffc9821d0a6d8ce477036b6e917879ea4ee7ab901dcb4721cac193166347e541962e899e5b53df53b2b206535eb5071b8
   languageName: node
   linkType: hard
 
@@ -8266,7 +8266,7 @@ __metadata:
     husky: "npm:9.1.7"
     js-yaml: "npm:4.1.1"
     jsonschema: "npm:1.5.0"
-    knip: "npm:6.0.1"
+    knip: "npm:6.0.2"
     kysely: "npm:0.28.14"
     kysely-codegen: "npm:0.20.0"
     lint-staged: "npm:16.4.0"
