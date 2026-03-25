@@ -6,7 +6,6 @@ import {
   type Attributions,
   Criticality,
   DiscreteConfidence,
-  type FrequentLicenses,
   type PackageInfo,
   type ResourcesToAttributions,
   type ResourcesWithAttributedChildren,
@@ -18,8 +17,6 @@ import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getBaseUrlsForSources,
   getExternalAttributionSources,
-  getFrequentLicensesNameOrder,
-  getFrequentLicensesTexts,
   getIsPreferenceFeatureEnabled,
   getManualAttributions,
   getManualAttributionsToResources,
@@ -31,7 +28,6 @@ import {
   resetResourceState,
   setBaseUrlsForSources,
   setExternalAttributionSources,
-  setFrequentLicenses,
   setIsPreferenceFeatureEnabled,
   setManualData,
   setTemporaryDisplayPackageInfo,
@@ -158,27 +154,6 @@ describe('The load and navigation simple actions', () => {
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual(expectedResourcesWithAttributedChildren);
-  });
-
-  it('sets and gets frequentLicenses', () => {
-    const testFrequentLicenses: FrequentLicenses = {
-      nameOrder: [
-        { shortName: 'MIT', fullName: 'MIT license' },
-        {
-          shortName: 'GPL',
-          fullName: 'General Public License',
-        },
-      ],
-      texts: { MIT: 'MIT text', GPL: 'GPL text' },
-    };
-    const testStore = createAppStore();
-    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
-    expect(getFrequentLicensesNameOrder(testStore.getState())).toMatchObject(
-      testFrequentLicenses.nameOrder,
-    );
-    expect(getFrequentLicensesTexts(testStore.getState())).toMatchObject(
-      testFrequentLicenses.texts,
-    );
   });
 
   it('sets and gets temporaryDisplayPackageInfo', () => {

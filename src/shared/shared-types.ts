@@ -189,6 +189,7 @@ export interface ParsedFileContent {
 export const EXCLUDED_FROM_FRONTEND_FILE_CONTENT = [
   'resources',
   'externalAttributions',
+  'frequentLicenses',
 ] as const;
 export type ParsedFrontendFileContent = Omit<
   ParsedFileContent,

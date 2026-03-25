@@ -10,8 +10,8 @@ import { useState } from 'react';
 import { type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch, useAppSelector } from '../../../state/hooks';
-import { getFrequentLicensesTexts } from '../../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../../state/hooks';
+import { backend } from '../../../util/backendClient';
 import { type Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
 import { type AttributionFormConfig } from '../AttributionForm';
@@ -36,10 +36,14 @@ export function LicenseSubPanel({
 }: LicenseSubPanelProps) {
   const [showLicenseText, setShowLicenseText] = useState(false);
   const dispatch = useAppDispatch();
-  const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
-  const defaultLicenseText = packageInfo.licenseText
-    ? undefined
-    : frequentLicenseTexts[packageInfo.licenseName || ''];
+  const frequentLicenseTextResult = backend.getFrequentLicenseText.useQuery(
+    { licenseName: packageInfo.licenseName || '' },
+    { enabled: !!packageInfo.licenseName && !packageInfo.licenseText },
+  );
+  const defaultLicenseText =
+    packageInfo.licenseText || !packageInfo.licenseName
+      ? undefined
+      : (frequentLicenseTextResult.data ?? undefined);
 
   return hidden ? null : (
     <>

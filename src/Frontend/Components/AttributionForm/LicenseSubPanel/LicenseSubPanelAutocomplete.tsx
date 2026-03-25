@@ -10,10 +10,7 @@ import { type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
-import {
-  getFrequentLicensesNameOrder,
-  getSelectedResourceId,
-} from '../../../state/selectors/resource-selectors';
+import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { backend } from '../../../util/backendClient';
 import { validateSpdxExpression } from '../../../util/spdx/validate-spdx';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
@@ -39,9 +36,9 @@ export function LicenseSubPanelAutocomplete({
   forceTop,
 }: LicenseAutocompleteProps) {
   const dispatch = useAppDispatch();
-  const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
+  const frequentLicenseNames = backend.getFrequentLicenseNames.useQuery();
   const frequentLicenseNameSet = new Set(
-    frequentLicensesNames.map((n) => n.shortName),
+    frequentLicenseNames.data?.map((n) => n.shortName),
   );
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
@@ -74,7 +71,7 @@ export function LicenseSubPanelAutocomplete({
       : [];
 
     const frequentLicenseNameSetLowercase = new Set(
-      frequentLicensesNames.map((n) => n.shortName.toLowerCase()),
+      frequentLicenseNames.data?.map((n) => n.shortName.toLowerCase()),
     );
 
     const manualFiltered = manual.filter(
@@ -99,16 +96,18 @@ export function LicenseSubPanelAutocomplete({
       ]),
     );
 
-    const frequentLicenseOptions = frequentLicensesNames.map((license) => ({
-      fullName: license.fullName,
-      shortName: license.shortName,
-      group: text.attributionColumn.commonLicenses,
-      attributionCount: [
-        manualCountMap.get(license.shortName.toLowerCase()) ?? 0,
-        externalCountMap.get(license.shortName.toLowerCase()) ?? 0,
-      ] as [number, number],
-      replaceEntireSearch: false,
-    }));
+    const frequentLicenseOptions = frequentLicenseNames.data?.map(
+      (license) => ({
+        fullName: license.fullName,
+        shortName: license.shortName,
+        group: text.attributionColumn.commonLicenses,
+        attributionCount: [
+          manualCountMap.get(license.shortName.toLowerCase()) ?? 0,
+          externalCountMap.get(license.shortName.toLowerCase()) ?? 0,
+        ] as [number, number],
+        replaceEntireSearch: false,
+      }),
+    );
 
     const sortedFrequentLicenseOptions = sortBy(
       frequentLicenseOptions,
@@ -120,7 +119,7 @@ export function LicenseSubPanelAutocomplete({
       ...manualFiltered,
       ...externalFiltered,
     ];
-  }, [frequentLicensesNames, autoCompleteResult.data]);
+  }, [frequentLicenseNames.data, autoCompleteResult.data]);
 
   function filterOptions(
     options: Array<LicenseOption>,

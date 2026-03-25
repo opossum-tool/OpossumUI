@@ -6,7 +6,6 @@ import {
   type AttributionData,
   type BaseUrlsForSources,
   type ExternalAttributionSources,
-  type FrequentLicenses,
   type PackageInfo,
   type ProjectConfig,
   type ProjectMetadata,
@@ -18,7 +17,6 @@ export const ACTION_RESET_RESOURCE_STATE = 'ACTION_RESET_RESOURCE_STATE';
 export const ACTION_SET_PROJECT_CONFIG = 'ACTION_SET_PROJECT_CONFIG';
 export const ACTION_SET_MANUAL_ATTRIBUTION_DATA =
   'ACTION_SET_MANUAL_ATTRIBUTION_DATA';
-export const ACTION_SET_FREQUENT_LICENSES = 'ACTION_SET_FREQUENT_LICENSES';
 export const ACTION_SET_TEMPORARY_PACKAGE_INFO =
   'ACTION_SET_TEMPORARY_PACKAGE_INFO';
 export const ACTION_SET_SELECTED_RESOURCE_ID =
@@ -62,7 +60,6 @@ export type ResourceAction =
   | ResetResourceStateAction
   | SetProjectConfigAction
   | SetManualDataAction
-  | SetFrequentLicensesAction
   | SetTemporaryDisplayPackageInfoAction
   | SetSelectedResourceIdAction
   | SetExpandedIdsAction
@@ -98,11 +95,6 @@ export interface SetProjectConfigAction {
 export interface SetManualDataAction {
   type: typeof ACTION_SET_MANUAL_ATTRIBUTION_DATA;
   payload: AttributionData;
-}
-
-export interface SetFrequentLicensesAction {
-  type: typeof ACTION_SET_FREQUENT_LICENSES;
-  payload: FrequentLicenses;
 }
 
 export interface SetTemporaryDisplayPackageInfoAction {

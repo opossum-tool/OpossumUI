@@ -20,7 +20,6 @@ import {
   setConfig,
   setExternalAttributionSources,
   setFilesWithChildren,
-  setFrequentLicenses,
   setIsPreferenceFeatureEnabled,
   setManualData,
   setProjectMetadata,
@@ -96,8 +95,6 @@ export function loadFromFile(
         parsedFileContent.resolvedExternalAttributions,
       ),
     );
-
-    dispatch(setFrequentLicenses(parsedFileContent.frequentLicenses));
 
     dispatch(
       setAttributionBreakpoints(parsedFileContent.attributionBreakpoints),

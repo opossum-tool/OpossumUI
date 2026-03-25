@@ -94,13 +94,6 @@ const expectedFrontendData: ParsedFrontendFileContent = {
     resourcesToAttributions: {},
     attributionsToResources: {},
   },
-  frequentLicenses: {
-    nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
-    texts: {
-      MIT: 'MIT license text',
-      'MIT license': 'MIT license text',
-    },
-  },
   resolvedExternalAttributions: new Set(),
   attributionBreakpoints: new Set(),
   filesWithChildren: new Set(),

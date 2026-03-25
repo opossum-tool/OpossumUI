@@ -15,8 +15,8 @@ import { View } from '../../enums/enums';
 import { clickableIcon, OpossumColors } from '../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { navigateToView } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getFrequentLicensesTexts } from '../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../state/hooks';
+import { backend } from '../../util/backendClient';
 import {
   isPackageAttributeIncomplete,
   isPackageIncomplete,
@@ -108,7 +108,10 @@ interface ReportTableItemProps {
 
 export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
   const dispatch = useAppDispatch();
-  const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
+  const frequentLicenseTextResult = backend.getFrequentLicenseText.useQuery(
+    { licenseName: packageInfo.licenseName! },
+    { enabled: !!packageInfo.licenseName },
+  );
 
   return (
     <Fragment key={`table-row-${packageInfo.id}`}>
@@ -123,16 +126,16 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
     config: TableConfig,
     index: number,
   ) {
+    const frequentLicenseText = frequentLicenseTextResult.data;
     const hasFrequentLicenseName =
-      packageInfo.licenseName &&
-      Object.keys(frequentLicenseTexts).includes(packageInfo.licenseName);
+      !!packageInfo.licenseName && !!frequentLicenseText;
     const isFrequentLicenseAndHasNoText =
       hasFrequentLicenseName && !packageInfo.licenseText;
     const displayAttributionInfo =
       packageInfo.licenseName && isFrequentLicenseAndHasNoText
         ? {
             ...packageInfo,
-            licenseText: frequentLicenseTexts[packageInfo.licenseName],
+            licenseText: frequentLicenseText,
           }
         : packageInfo;
 

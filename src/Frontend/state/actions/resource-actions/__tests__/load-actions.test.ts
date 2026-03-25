@@ -9,12 +9,10 @@ import {
   type BaseUrlsForSources,
   Criticality,
   DiscreteConfidence,
-  type FrequentLicenses,
   type PackageInfo,
-  type ParsedFileContent,
+  type ParsedFrontendFileContent,
   type ProjectConfig,
   type RawProjectConfig,
-  type Resources,
   type ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
@@ -28,26 +26,11 @@ import {
   getClassifications,
   getExternalAttributionSources,
   getFilesWithChildren,
-  getFrequentLicensesNameOrder,
-  getFrequentLicensesTexts,
   getIsPreferenceFeatureEnabled,
   getManualData,
   getResolvedExternalAttributions,
 } from '../../../selectors/resource-selectors';
 import { loadFromFile } from '../load-actions';
-
-const testResources: Resources = {
-  thirdParty: {
-    'package_1.tr.gz': 1,
-    'package_2.tr.gz': 1,
-  },
-  root: {
-    src: {
-      'something.js': 1,
-    },
-    'readme.md': 1,
-  },
-};
 
 const testConfig: RawProjectConfig = {
   classifications: {
@@ -86,77 +69,18 @@ const testManualAttributionsToResources: AttributionsToResources = {
 
 describe('loadFromFile', () => {
   it('loads from file into state', () => {
-    const testExternalAttributions: Attributions = {
-      [testManualAttributionUuid_1]: {
-        packageVersion: '1.0',
-        packageName: 'test Package',
-        licenseText: ' test License text',
-        source: {
-          name: 'Test document',
-          documentConfidence: 99,
-        },
-        criticality: Criticality.None,
-        id: testManualAttributionUuid_1,
-      },
-      doNotChangeMe1: {
-        packageName: 'name',
-        comment: 'comment1',
-        originIds: ['abc'],
-        preSelected: true,
-        attributionConfidence: 1,
-        criticality: Criticality.None,
-        id: 'doNotChangeMe1',
-      },
-      doNotChangeMe2: {
-        packageName: 'name',
-        comment: 'comment2',
-        originIds: ['def'],
-        preSelected: false,
-        attributionConfidence: 2,
-        criticality: Criticality.None,
-        id: 'doNotChangeMe2',
-      },
-    };
-    const testResourcesToExternalAttributions: ResourcesToAttributions = {
-      '/root/src/something.js': ['uuid'],
-      '/thirdParty/package_1.tr.gz': [
-        'test_id',
-        'doNotChangeMe1',
-        'doNotChangeMe2',
-      ],
-    };
-    const testExternalAttributionsToResources: AttributionsToResources = {
-      uuid: ['/root/src/something.js'],
-      test_id: ['/thirdParty/package_1.tr.gz'],
-      doNotChangeMe1: ['/thirdParty/package_1.tr.gz'],
-      doNotChangeMe2: ['/thirdParty/package_1.tr.gz'],
-    };
-    const testFrequentLicenses: FrequentLicenses = {
-      nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
-      texts: {
-        MIT: 'MIT license text',
-        'MIT license': 'MIT license text',
-      },
-    };
     const testBaseUrlsForSources: BaseUrlsForSources = {
       '/': 'https://github.com/opossum-tool/opossumUI/',
     };
 
-    const testParsedFileContent: ParsedFileContent = {
+    const testParsedFileContent: ParsedFrontendFileContent = {
       metadata: EMPTY_PROJECT_METADATA,
-      resources: testResources,
       config: testConfig,
       manualAttributions: {
         attributions: testManualAttributions,
         resourcesToAttributions: testResourcesToManualAttributions,
         attributionsToResources: testManualAttributionsToResources,
       },
-      externalAttributions: {
-        attributions: testExternalAttributions,
-        resourcesToAttributions: testResourcesToExternalAttributions,
-        attributionsToResources: testExternalAttributionsToResources,
-      },
-      frequentLicenses: testFrequentLicenses,
       resolvedExternalAttributions: new Set(['test_id']),
       attributionBreakpoints: new Set(['/third-party/package/']),
       filesWithChildren: new Set(['/third-party/package.json/']),
@@ -209,12 +133,6 @@ describe('loadFromFile', () => {
       expectedConfig.classifications,
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
-    expect(getFrequentLicensesNameOrder(testStore.getState())).toEqual(
-      testFrequentLicenses.nameOrder,
-    );
-    expect(getFrequentLicensesTexts(testStore.getState())).toEqual(
-      testFrequentLicenses.texts,
-    );
     expect(getResolvedExternalAttributions(testStore.getState())).toEqual(
       new Set(['test_id']),
     );
@@ -235,26 +153,14 @@ describe('loadFromFile', () => {
   });
 
   it('disables the preference feature if no external source is relevant', () => {
-    const testFrequentLicenses: FrequentLicenses = {
-      nameOrder: [],
-      texts: {},
-    };
-
-    const testParsedFileContent: ParsedFileContent = {
+    const testParsedFileContent: ParsedFrontendFileContent = {
       metadata: EMPTY_PROJECT_METADATA,
-      resources: testResources,
       config: testConfig,
       manualAttributions: {
         attributions: testManualAttributions,
         resourcesToAttributions: testResourcesToManualAttributions,
         attributionsToResources: testManualAttributionsToResources,
       },
-      externalAttributions: {
-        attributions: {},
-        resourcesToAttributions: {},
-        attributionsToResources: {},
-      },
-      frequentLicenses: testFrequentLicenses,
       resolvedExternalAttributions: new Set(),
       attributionBreakpoints: new Set(),
       filesWithChildren: new Set(),

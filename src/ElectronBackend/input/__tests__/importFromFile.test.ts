@@ -89,7 +89,6 @@ const testFrontendData: ParsedFrontendFileContent = {
     resourcesToAttributions: {},
     attributionsToResources: {},
   },
-  frequentLicenses: { nameOrder: [], texts: {} },
   resolvedExternalAttributions: new Set(),
   attributionBreakpoints: new Set(),
   filesWithChildren: new Set(),

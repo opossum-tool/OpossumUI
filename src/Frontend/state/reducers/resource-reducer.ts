@@ -6,7 +6,6 @@ import {
   type AttributionData,
   type BaseUrlsForSources,
   type ExternalAttributionSources,
-  type FrequentLicenses,
   type PackageInfo,
   type ProjectConfig,
   type ProjectMetadata,
@@ -14,7 +13,6 @@ import {
 import {
   EMPTY_ATTRIBUTION_DATA,
   EMPTY_DISPLAY_PACKAGE_INFO,
-  EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_CONFIG,
   EMPTY_PROJECT_METADATA,
   ROOT_PATH,
@@ -33,7 +31,6 @@ import {
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
   ACTION_SET_FILES_WITH_CHILDREN,
-  ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_PROJECT_CONFIG,
@@ -63,7 +60,6 @@ export const initialResourceState: ResourceState = {
   expandedIds: [ROOT_PATH],
   externalAttributionSources: {},
   filesWithChildren: new Set(),
-  frequentLicenses: EMPTY_FREQUENT_LICENSES,
   isPackageInfoDirty: false,
   isPreferenceFeatureEnabled: false,
   manualData: EMPTY_ATTRIBUTION_DATA,
@@ -84,7 +80,6 @@ export type ResourceState = {
   expandedIds: Array<string>;
   externalAttributionSources: ExternalAttributionSources;
   filesWithChildren: Set<string>;
-  frequentLicenses: FrequentLicenses;
   isPackageInfoDirty: boolean;
   isPreferenceFeatureEnabled: boolean;
   manualData: AttributionData;
@@ -115,11 +110,6 @@ export const resourceState = (
       return {
         ...state,
         manualData: action.payload,
-      };
-    case ACTION_SET_FREQUENT_LICENSES:
-      return {
-        ...state,
-        frequentLicenses: action.payload,
       };
     case ACTION_SET_BASE_URLS_FOR_SOURCES:
       return {
