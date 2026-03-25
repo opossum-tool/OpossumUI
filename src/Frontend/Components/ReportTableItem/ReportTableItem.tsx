@@ -109,7 +109,7 @@ interface ReportTableItemProps {
 export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
   const dispatch = useAppDispatch();
   const frequentLicenseTextResult = backend.getFrequentLicenseText.useQuery(
-    { licenseName: packageInfo.licenseName || '' },
+    { licenseName: packageInfo.licenseName! },
     { enabled: !!packageInfo.licenseName },
   );
 
@@ -128,7 +128,7 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
   ) {
     const frequentLicenseText = frequentLicenseTextResult.data;
     const hasFrequentLicenseName =
-      !!packageInfo.licenseName && frequentLicenseText !== null;
+      !!packageInfo.licenseName && !!frequentLicenseText;
     const isFrequentLicenseAndHasNoText =
       hasFrequentLicenseName && !packageInfo.licenseText;
     const displayAttributionInfo =

@@ -435,7 +435,6 @@ export const queries = {
     const result = await getDb()
       .selectFrom('frequent_license')
       .select(['short_name as shortName', 'full_name as fullName'])
-      .orderBy('id')
       .execute();
 
     return { result };
