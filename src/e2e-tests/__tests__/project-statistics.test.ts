@@ -2,9 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { expect } from '@playwright/test';
-
 import { Criticality, RawCriticality } from '../../shared/shared-types';
+import { text } from '../../shared/text';
 import { faker, test } from '../utils';
 
 const [resourceName1] = faker.opossum.resourceNames({ count: 1 });
@@ -100,45 +99,41 @@ test('hidden signals are ignored for project statistics', async ({
   await projectStatisticsPopup.assert.totalSignalCount(1);
 });
 
-test('table sorting is persisted across app restarts', async ({
+test('table sorting is persisted across closing of statistics popup', async ({
   menuBar,
   projectStatisticsPopup,
 }) => {
-  test.slow();
+  const criticalityColumnLabel =
+    text.attributionCountPerSourcePerLicenseTable.columns.criticality.title;
   const openDetailsTab = async () => {
     await menuBar.openProjectStatistics();
-    await projectStatisticsPopup.assert.titleIsVisible();
-    await projectStatisticsPopup.detailsTab.click();
+    await projectStatisticsPopup.openLicensesTab();
   };
 
   await openDetailsTab();
 
-  const criticalityColumnHeader = projectStatisticsPopup.table.getByRole(
-    'button',
-    { name: 'Criticality' },
+  await projectStatisticsPopup.licenseTable.clickColumnHader(
+    criticalityColumnLabel,
   );
-  await criticalityColumnHeader.click();
 
-  const sortedCriticalityColumn = criticalityColumnHeader.locator('..');
-  await expect(sortedCriticalityColumn).toHaveAttribute(
-    'aria-sort',
+  await projectStatisticsPopup.licenseTable.assert.columnHasSorting(
+    criticalityColumnLabel,
     'descending',
   );
 
-  await criticalityColumnHeader.click();
-  await expect(sortedCriticalityColumn).toHaveAttribute(
-    'aria-sort',
+  await projectStatisticsPopup.licenseTable.clickColumnHader(
+    criticalityColumnLabel,
+  );
+  await projectStatisticsPopup.licenseTable.assert.columnHasSorting(
+    criticalityColumnLabel,
     'ascending',
   );
 
   await projectStatisticsPopup.closeButton.click();
   await openDetailsTab();
 
-  const reopenedCriticalityColumn = projectStatisticsPopup.table
-    .getByRole('button', { name: 'Criticality' })
-    .locator('..');
-  await expect(reopenedCriticalityColumn).toHaveAttribute(
-    'aria-sort',
+  await projectStatisticsPopup.licenseTable.assert.columnHasSorting(
+    criticalityColumnLabel,
     'ascending',
   );
 });
@@ -153,7 +148,7 @@ test('filter signals for a specific license', async ({
   await projectStatisticsPopup.detailsTab.click();
 
   const licenseName = packageInfo1.licenseName!;
-  await projectStatisticsPopup.table.getByText(licenseName).click();
+  await projectStatisticsPopup.licenseTable.clickTableCell(licenseName);
 
   await projectStatisticsPopup.assert.titleIsHidden();
 

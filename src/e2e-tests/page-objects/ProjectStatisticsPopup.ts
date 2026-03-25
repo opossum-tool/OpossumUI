@@ -11,7 +11,6 @@ export class ProjectStatisticsPopup {
   readonly title: Locator;
   readonly closeButton: Locator;
   readonly detailsTab: Locator;
-  readonly table: Locator;
   readonly totalSignalCount: Locator;
   readonly attributionsOverviewChart: Locator;
   readonly mostFrequentLicensesChart: Locator;
@@ -19,6 +18,7 @@ export class ProjectStatisticsPopup {
   readonly signalsByClassificationChart: Locator;
   readonly incompleteAttributionsChart: Locator;
   readonly showOnStartupCheckbox: Locator;
+  readonly licenseTable: ProjectStatisticsPopupLicenseTable;
 
   constructor(window: Page) {
     this.node = window.getByLabel('project statistics');
@@ -27,7 +27,6 @@ export class ProjectStatisticsPopup {
     this.detailsTab = this.node.getByRole('tab', {
       name: text.projectStatisticsPopup.tabs.details,
     });
-    this.table = this.node.getByRole('table');
     this.totalSignalCount = this.node
       .getByRole('table')
       .filter({
@@ -56,6 +55,7 @@ export class ProjectStatisticsPopup {
     this.showOnStartupCheckbox = this.node.getByText(
       text.projectStatisticsPopup.toggleStartupCheckbox,
     );
+    this.licenseTable = new ProjectStatisticsPopupLicenseTable(window);
   }
 
   public assert = {
@@ -104,4 +104,45 @@ export class ProjectStatisticsPopup {
       );
     },
   };
+  async openLicensesTab(): Promise<void> {
+    await this.assert.titleIsVisible();
+    await this.detailsTab.click();
+    await this.licenseTable.assert.isVisible();
+  }
+}
+
+class ProjectStatisticsPopupLicenseTable {
+  private readonly node: Locator;
+  readonly table: Locator;
+
+  constructor(window: Page) {
+    this.node = window.getByTestId('license-table');
+    this.table = this.node.getByRole('table');
+  }
+
+  public assert = {
+    isVisible: async (): Promise<void> => {
+      await expect(this.node).toBeVisible();
+    },
+    columnHasSorting: async (
+      columnLabel: string,
+      sorting: 'descending' | 'ascending',
+    ): Promise<void> => {
+      const column = this.node
+        .getByTestId('table-cell-with-sorting')
+        .filter({ hasText: columnLabel });
+      await expect(column).toHaveAttribute('aria-sort', sorting);
+    },
+  };
+
+  public async clickTableCell(cellContent: string): Promise<void> {
+    await this.node.getByText(cellContent).click();
+  }
+  public async clickColumnHader(headerLabel: string): Promise<void> {
+    await this.table
+      .getByRole('button', {
+        name: headerLabel,
+      })
+      .click();
+  }
 }

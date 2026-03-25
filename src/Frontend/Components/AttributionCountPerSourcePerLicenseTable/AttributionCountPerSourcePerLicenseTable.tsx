@@ -179,7 +179,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
 
   return (
     <MuiBox sx={{ display: 'flex', height: '100%' }}>
-      <MuiTableContainer sx={classes.container}>
+      <MuiTableContainer sx={classes.container} data-testid="license-table">
         <MuiTable size="small" stickyHeader>
           <AttributionCountPerSourcePerLicenseTableHead
             columnConfig={columnConfig}
