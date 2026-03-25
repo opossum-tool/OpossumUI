@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
-import { skipToken } from '@tanstack/react-query';
 
 import { text } from '../../../shared/text';
 import {
@@ -37,19 +36,20 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   onClose,
 }) => {
   const dispatch = useAppDispatch();
-  const { data: manualAttributions, isLoading } =
-    backend.listAttributions.useQuery(
-      {
-        external: false,
-        filters: [],
-        resourcePathForRelationships: '/',
-      },
-      {
-        enabled: open,
-      },
-    );
+
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+
+  const { data: attributionsToSave } = backend.listAttributions.useQuery(
+    {
+      resourcePathForRelationships: selectedResourceId,
+      uuids: attributionIdsToSave,
+    },
+    {
+      enabled: open,
+    },
+  );
+
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
@@ -61,57 +61,53 @@ export const ConfirmSavePopup: React.FC<Props> = ({
 
   const linkedResourceCount = linkedResourcesTreeState?.count;
 
-  const isResourceLinkedOnAllAttributions =
-    backend.isResourceLinkedOnAllAttributions.useQuery(
-      open && selectedResourceId && attributionIdsToSave.length > 0
-        ? {
-            resourcePath: selectedResourceId,
-            attributionUuids: attributionIdsToSave,
-          }
-        : skipToken,
-    );
+  const isResourceLinkedOnAllAttributions = attributionsToSave
+    ? Object.values(attributionsToSave).every((a) => a.relation === 'resource')
+    : undefined;
 
   const hasMultipleResourcesWhichContainSelected =
     linkedResourceCount &&
-    isResourceLinkedOnAllAttributions.data &&
     linkedResourceCount > 1 &&
-    isResourceLinkedOnAllAttributions.data;
+    isResourceLinkedOnAllAttributions;
 
-  // Wait for isLoading to be false, so attributions is not undefined anymore
-
-  const attributions = manualAttributions ?? {};
-
-  const areAllAttributionsPreselected = attributionIdsToSave.every(
-    (id) => attributions[id]?.preSelected,
-  );
+  const areAllAttributionsPreselected = attributionsToSave
+    ? Object.values(attributionsToSave).every((a) => a.preSelected)
+    : undefined;
 
   const handleSave = () => {
-    attributionIdsToSave.forEach(async (attributionId) => {
-      await dispatch(
-        savePackageInfo(
-          null,
-          attributionId,
-          attributionId === selectedAttributionId
-            ? temporaryDisplayPackageInfo
-            : attributions[attributionId],
-          attributionId !== selectedAttributionId,
-        ),
+    attributionsToSave &&
+      Object.entries(attributionsToSave).forEach(
+        async ([attributionId, attributionData]) => {
+          await dispatch(
+            savePackageInfo(
+              null,
+              attributionId,
+              attributionId === selectedAttributionId
+                ? temporaryDisplayPackageInfo
+                : attributionData,
+              attributionId !== selectedAttributionId,
+            ),
+          );
+        },
       );
-    });
+
     onClose();
   };
 
   const handleSaveOnResource = () => {
-    attributionIdsToSave.forEach(async (attributionId) => {
-      await dispatch(
-        unlinkAttributionAndCreateNew(
-          selectedResourceId,
-          attributionId === selectedAttributionId
-            ? temporaryDisplayPackageInfo
-            : attributions[attributionId],
-        ),
+    attributionsToSave &&
+      Object.entries(attributionsToSave).forEach(
+        async ([attributionId, attributionData]) => {
+          await dispatch(
+            unlinkAttributionAndCreateNew(
+              selectedResourceId,
+              attributionId === selectedAttributionId
+                ? temporaryDisplayPackageInfo
+                : attributionData,
+            ),
+          );
+        },
       );
-    });
     onClose();
   };
 
@@ -175,13 +171,9 @@ export const ConfirmSavePopup: React.FC<Props> = ({
             ),
           })}
         </MuiTypography>
-        {isLoading ? (
-          <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
-        ) : (
+        {attributionsToSave ? (
           <CardList
-            data={attributionIdsToSave
-              .filter((id) => id in attributions)
-              .map((id) => attributions[id])}
+            data={Object.values(attributionsToSave)}
             renderItemContent={(attribution, { index }) => {
               return (
                 <>
@@ -191,6 +183,8 @@ export const ConfirmSavePopup: React.FC<Props> = ({
               );
             }}
           />
+        ) : (
+          <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
         )}
         <LinkedResourcesTree
           readOnly

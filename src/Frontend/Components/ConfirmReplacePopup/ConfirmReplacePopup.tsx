@@ -29,14 +29,14 @@ export const ConfirmReplacePopup = ({
   open,
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { data: attributions } = backend.listAttributions.useQuery({
-    external: false,
-    filters: [],
-    resourcePathForRelationships: '/',
-  });
 
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
+
+  const { data: attributionsForReplacement } =
+    backend.listAttributions.useQuery({
+      uuids: attributionIdsForReplacement,
+    });
 
   const handleReplace = async () => {
     setAttributionIdsForReplacement([]);
@@ -100,11 +100,9 @@ export const ConfirmReplacePopup = ({
             ),
           )}
         </MuiTypography>
-        {attributions ? (
+        {attributionsForReplacement ? (
           <CardList
-            data={attributionIdsForReplacement
-              .filter((id) => id in attributions)
-              .map((id) => attributions[id])}
+            data={Object.values(attributionsForReplacement)}
             data-testid={'removed-attributions'}
             renderItemContent={(attribution, { index }) => {
               return (

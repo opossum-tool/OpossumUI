@@ -430,11 +430,19 @@ function isDescendantResourceToAttribution(
   ]);
 }
 
-export function attributionToResourceRelationship(props: {
-  resource: { id: number; max_descendant_id: number };
+export function attributionToResourceRelationship({
+  resource,
+  ancestorId,
+}: {
+  resource: { id: number; max_descendant_id: number } | undefined;
   ancestorId: number | undefined;
 }) {
   const eb = expressionBuilder<DB, 'attribution'>();
+
+  if (resource === undefined) {
+    return eb.val('unrelated');
+  }
+
   let expression: CaseWhenBuilder<
     DB,
     'attribution',
@@ -448,12 +456,12 @@ export function attributionToResourceRelationship(props: {
           .selectFrom('resource_to_attribution')
           .selectAll()
           .whereRef('attribution_uuid', '=', 'attribution.uuid')
-          .where('resource_id', '=', props.resource.id),
+          .where('resource_id', '=', resource.id),
       ),
     )
     .then('same');
 
-  if (props.ancestorId) {
+  if (ancestorId) {
     expression = expression
       .when(
         eb.exists(
@@ -461,7 +469,7 @@ export function attributionToResourceRelationship(props: {
             .selectFrom('resource_to_attribution')
             .selectAll()
             .whereRef('attribution_uuid', '=', 'attribution.uuid')
-            .where('resource_id', '=', props.ancestorId),
+            .where('resource_id', '=', ancestorId),
         ),
       )
       .then('ancestor');
@@ -474,7 +482,7 @@ export function attributionToResourceRelationship(props: {
           .selectFrom('resource_to_attribution')
           .select(eb.val(1).as('1'))
           .whereRef('attribution_uuid', '=', 'attribution.uuid')
-          .where((eb) => isDescendantResourceToAttribution(eb, props.resource)),
+          .where((eb) => isDescendantResourceToAttribution(eb, resource)),
       ),
     )
     .then('descendant');

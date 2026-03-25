@@ -299,46 +299,6 @@ describe('getResourcePathsAndParentsForAttributions', () => {
   });
 });
 
-describe('isResourceLinkedOnAllAttributions', () => {
-  beforeEach(async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/linked', '/partial']),
-      externalAttributions: {
-        attributions: {
-          uuid1: { id: 'uuid1', criticality: 0 },
-          uuid2: { id: 'uuid2', criticality: 0 },
-        },
-        resourcesToAttributions: {
-          '/linked': ['uuid1', 'uuid2'],
-          '/partial': ['uuid1'],
-        },
-        attributionsToResources: {
-          uuid1: ['/linked', '/partial'],
-          uuid2: ['/linked'],
-        },
-      },
-    });
-  });
-
-  it('returns true when resource is linked to all given attributions', async () => {
-    const { result } = await queries.isResourceLinkedOnAllAttributions({
-      resourcePath: '/linked',
-      attributionUuids: ['uuid1', 'uuid2'],
-    });
-
-    expect(result).toBe(true);
-  });
-
-  it('returns false when resource is linked to only some of the given attributions', async () => {
-    const { result } = await queries.isResourceLinkedOnAllAttributions({
-      resourcePath: '/partial',
-      attributionUuids: ['uuid1', 'uuid2'],
-    });
-
-    expect(result).toBe(false);
-  });
-});
-
 describe('getProgressBarData', () => {
   it('returns zero counts when there are no attributions', async () => {
     await initializeDbWithTestData({

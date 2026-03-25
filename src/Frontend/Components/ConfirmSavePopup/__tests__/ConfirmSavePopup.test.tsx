@@ -29,7 +29,7 @@ describe('ConfirmSavePopup', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo({ id: packageInfo1.id });
     const resource = faker.opossum.filePath(faker.opossum.resourceName());
-    const { store } = await renderComponent(
+    await renderComponent(
       <ConfirmSavePopup
         open
         onClose={noop}
@@ -71,7 +71,7 @@ describe('ConfirmSavePopup', () => {
     const packageInfo2 = faker.opossum.packageInfo({ id: packageInfo1.id });
     const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
     const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
-    const { store } = await renderComponent(
+    await renderComponent(
       <ConfirmSavePopup
         open
         onClose={noop}
@@ -172,8 +172,8 @@ describe('ConfirmSavePopup', () => {
         }),
         resources: pathsToResources([resource, resource]),
       });
-    // const store = await createTestStore(parsedInputFileEnrichedWithTestData);
-    const { store } = await renderComponent(
+
+    await renderComponent(
       <ConfirmSavePopup
         open
         onClose={noop}
@@ -189,7 +189,7 @@ describe('ConfirmSavePopup', () => {
     );
 
     await userEvent.click(
-      screen.getByRole('button', {
+      await screen.findByRole('button', {
         name: text.saveAttributionsPopup.confirm,
       }),
     );
@@ -206,7 +206,7 @@ describe('ConfirmSavePopup', () => {
     const packageInfo = faker.opossum.packageInfo({ preSelected: true });
     const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
     const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
-    const { store } = await renderComponent(
+    await renderComponent(
       <ConfirmSavePopup
         open
         onClose={noop}

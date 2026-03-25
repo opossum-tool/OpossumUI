@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
-import { skipToken } from '@tanstack/react-query';
 
 import { text } from '../../../shared/text';
 import {
@@ -38,11 +37,10 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const { data: attributions, isLoading } = backend.listAttributions.useQuery(
+  const { data: attributionsToDelete } = backend.listAttributions.useQuery(
     {
-      external: false,
-      filters: [],
       resourcePathForRelationships: selectedResourceId,
+      uuids: attributionIdsToDelete,
     },
     {
       enabled: open && !!selectedResourceId,
@@ -55,20 +53,16 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   });
   const linkedResourceCount = linkedResourcesTreeState?.count;
 
-  const isResourceLinkedOnAllAttributions =
-    backend.isResourceLinkedOnAllAttributions.useQuery(
-      open && selectedResourceId && attributionIdsToDelete.length > 0
-        ? {
-            resourcePath: selectedResourceId,
-            attributionUuids: attributionIdsToDelete,
-          }
-        : skipToken,
-    );
+  const isResourceLinkedOnAllAttributions = attributionsToDelete
+    ? Object.values(attributionsToDelete).every(
+        (a) => a.relation === 'resource',
+      )
+    : undefined;
 
   const isOptionToDeleteOnSelectedResourceOnlyAvailable =
     linkedResourceCount &&
     linkedResourceCount > 1 &&
-    isResourceLinkedOnAllAttributions.data;
+    isResourceLinkedOnAllAttributions;
 
   const handleDelete = async () => {
     await dispatch(
@@ -133,13 +127,9 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
             ),
           })}
         </MuiTypography>
-        {isLoading ? (
-          <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
-        ) : attributions ? (
+        {attributionsToDelete ? (
           <CardList
-            data={attributionIdsToDelete
-              .filter((id) => id in attributions)
-              .map((id) => attributions[id])}
+            data={Object.values(attributionsToDelete)}
             renderItemContent={(attribution, { index }) => {
               return (
                 <>
@@ -151,7 +141,9 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
               );
             }}
           />
-        ) : null}
+        ) : (
+          <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
+        )}
         <LinkedResourcesTree
           readOnly
           disableHighlightSelected={

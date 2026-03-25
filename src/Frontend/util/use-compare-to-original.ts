@@ -36,7 +36,10 @@ export function useCompareToOriginal(
 
     return {
       hasOriginal: true,
-      isEqualToOriginal: areAttributionsEqual(packageInfo, originalAttribution),
+      isEqualToOriginal: areAttributionsEqual(
+        packageInfo,
+        originalAttribution.packageInfo,
+      ),
     };
   }, [originalAttributionId, originalAttribution, packageInfo]);
 }

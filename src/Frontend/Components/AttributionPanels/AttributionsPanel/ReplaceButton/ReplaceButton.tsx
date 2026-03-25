@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 
 import { text } from '../../../../../shared/text';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
-import { backend } from '../../../../util/backendClient';
+import { useSelectedAttributionIsExternal } from '../../../../util/use-selected-attribution';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
@@ -17,32 +17,22 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
   multiSelectedAttributionIds,
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
-  selectedAttributionId,
 }) => {
-  const { data: manualAttributions } = backend.listAttributions.useQuery({
-    external: false,
-    filters: [],
-    resourcePathForRelationships: '/',
-  });
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
   const label = attributionIdsForReplacement.length
     ? text.packageLists.cancelReplace
     : text.packageLists.replace;
 
+  const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
+
   useEffect(() => {
-    if (
-      attributionIdsForReplacement.length &&
-      selectedAttributionId &&
-      manualAttributions &&
-      !(selectedAttributionId in manualAttributions)
-    ) {
+    if (attributionIdsForReplacement.length && selectedAttributionIsExternal) {
       setAttributionIdsForReplacement([]);
     }
   }, [
     attributionIdsForReplacement.length,
-    manualAttributions,
-    selectedAttributionId,
+    selectedAttributionIsExternal,
     setAttributionIdsForReplacement,
   ]);
 

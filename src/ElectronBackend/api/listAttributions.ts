@@ -18,27 +18,31 @@ import {
 } from './utils';
 
 export async function listAttributions(props: {
-  external: boolean;
-  filters: Array<Filter>;
-  resourcePathForRelationships: string;
+  external?: boolean;
+  filters?: Array<Filter>;
+  resourcePathForRelationships?: string;
   sort?: SortOption;
   license?: string;
   search?: string;
   showResolved?: boolean;
   excludeUnrelated?: boolean;
-  uuid?: string;
+  uuids?: Array<string>;
 }): Promise<{ result: Attributions }> {
-  const db = getDb();
-  const resource = await getResourceOrThrow(
-    db,
-    props.resourcePathForRelationships,
-  );
+  if (props.uuids?.length === 0) {
+    return { result: {} };
+  }
 
-  const closestAncestor =
-    await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-      db,
-      resource.id,
-    );
+  const db = getDb();
+  const resourceForRelationships = props.resourcePathForRelationships
+    ? await getResourceOrThrow(db, props.resourcePathForRelationships)
+    : undefined;
+
+  const closestAncestor = resourceForRelationships
+    ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+        db,
+        resourceForRelationships.id,
+      )
+    : undefined;
 
   let query = db
     .selectFrom('attribution')
@@ -46,7 +50,7 @@ export async function listAttributions(props: {
     .select('data')
     .select(
       attributionToResourceRelationship({
-        resource,
+        resource: resourceForRelationships,
         ancestorId: closestAncestor,
       })
         .$castTo<ResourceRelationship>()
@@ -58,13 +62,16 @@ export async function listAttributions(props: {
         .select(eb.fn.countAll<number>().as('count'))
         .whereRef('attribution_uuid', '=', 'uuid')
         .as('resource_count'),
-    )
-    .where('is_external', '=', Number(props.external));
+    );
+
+  if (props.external !== undefined) {
+    query = query.where('is_external', '=', Number(props.external));
+  }
 
   if (props.excludeUnrelated) {
     query = query.where(
       attributionToResourceRelationship({
-        resource,
+        resource: resourceForRelationships,
         ancestorId: closestAncestor,
       }),
       '!=',
@@ -72,8 +79,10 @@ export async function listAttributions(props: {
     );
   }
 
-  for (const filter of props.filters) {
-    query = query.where(getFilterExpression(filter));
+  if (props.filters) {
+    for (const filter of props.filters) {
+      query = query.where(getFilterExpression(filter));
+    }
   }
 
   if (props.license) {
@@ -93,8 +102,8 @@ export async function listAttributions(props: {
     query = query.where('is_resolved', '=', 0);
   }
 
-  if (props.uuid) {
-    query = query.where('uuid', '=', props.uuid);
+  if (props.uuids) {
+    query = query.where('uuid', 'in', props.uuids);
   }
 
   if (props.sort === 'classification') {

@@ -2,7 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen, waitFor, within } from '@testing-library/react';
+import {
+  act,
+  screen,
+  waitForElementToBeRemoved,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../../shared/text';
@@ -423,6 +428,7 @@ describe('AttributionsPanel', () => {
     ).toBeDisabled();
   });
 
+  // eslint-disable-next-line vitest/expect-expect
   it('exits replacement mode when an external attribution is selected', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
@@ -453,8 +459,8 @@ describe('AttributionsPanel', () => {
       store.dispatch(setSelectedAttributionId(packageInfo3.id));
     });
 
-    expect(
+    await waitForElementToBeRemoved(() =>
       screen.queryByText(text.packageLists.selectReplacement),
-    ).not.toBeInTheDocument();
+    );
   });
 });
