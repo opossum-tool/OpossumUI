@@ -30,8 +30,8 @@ export abstract class FileConverter {
       app.isPackaged && process.resourcesPath
         ? [join(process.resourcesPath, 'bin')]
         : [
-            join(app?.getAppPath?.() ?? process.cwd(), 'bin'),
-            join(app?.getAppPath?.() ?? process.cwd(), '..', '..', 'bin'),
+            join(app.getAppPath(), 'bin'),
+            join(app.getAppPath(), '..', '..', 'bin'),
             join(process.cwd(), 'bin'),
           ];
 
