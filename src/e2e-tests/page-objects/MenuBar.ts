@@ -195,6 +195,10 @@ export class MenuBar {
   }
 
   async openProjectStatistics(): Promise<void> {
+    await this.assertMenuItemEnabledState(
+      text.menu.fileSubmenu.projectStatistics,
+      true,
+    );
     await this.clickMenuItem(text.menu.fileSubmenu.projectStatistics);
   }
 
