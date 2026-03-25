@@ -67,7 +67,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   );
 
   const originalAttributionQuery = backend.getAttributionData.useQuery(
-    packageInfo.originalAttributionId !== undefined
+    packageInfo.originalAttributionId
       ? {
           attributionUuid: packageInfo.originalAttributionId,
         }

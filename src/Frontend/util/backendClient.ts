@@ -189,25 +189,12 @@ export const backend = new Proxy({} as BackendClient, {
           // eslint-disable-next-line @tanstack/query/exhaustive-deps
           queryKey: getQueryKey(command, params),
           queryFn:
-            params !== skipToken
+            databaseInitialized && params !== skipToken
               ? () => {
                   return query(params);
                 }
               : skipToken,
           ...options,
-          enabled: (query) => {
-            if (!databaseInitialized) {
-              return false;
-            }
-            if (options !== undefined && 'enabled' in options) {
-              return Boolean(
-                typeof options.enabled === 'function'
-                  ? options.enabled(query)
-                  : options.enabled,
-              );
-            }
-            return true;
-          },
         }),
 
       // For commands specified in src/ElectronBackend/api/mutations.ts
