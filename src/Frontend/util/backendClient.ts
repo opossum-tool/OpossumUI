@@ -185,8 +185,8 @@ export const backend = new Proxy({} as BackendClient, {
         params?: QueryParams<QueryName> | SkipToken,
         options?: ClientQueryOptions<QueryName>,
       ) =>
+        // eslint-disable-next-line @tanstack/query/exhaustive-deps
         useQuery({
-          // eslint-disable-next-line @tanstack/query/exhaustive-deps
           queryKey: getQueryKey(command, params),
           queryFn:
             databaseInitialized && params !== skipToken
