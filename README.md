@@ -109,6 +109,8 @@ from the command line
 
 Run _OpossumUI_ in _OpossumUI-for-mac.zip_.
 
+Note: As this app is not officially signed, you need to explicitly allow execution of this app via the `System Settings`.
+
 #### Windows
 
 Run _OpossumUI-for-win.exe_ to install the OpossumUI. Then open _OpossumUI_ from the start menu.
