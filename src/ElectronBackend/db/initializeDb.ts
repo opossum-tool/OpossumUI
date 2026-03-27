@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { sql, type Transaction } from 'kysely';
-import { type DataTypeExpression } from 'kysely/dist/cjs/parser/data-type-parser';
 import { snakeCase } from 'lodash';
 
 import {
@@ -348,7 +347,7 @@ export const generatedColumnsFromJsonData = [
   ['preferred', 'boolean'],
   ['originalAttributionWasPreferred', 'boolean'],
   ['comment', 'text'],
-] as const satisfies Array<[keyof PackageInfo, DataTypeExpression]>;
+] as const satisfies Array<[keyof PackageInfo, string]>;
 
 async function initializeAttributionTable(
   trx: Transaction<DB>,
