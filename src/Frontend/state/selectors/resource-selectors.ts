@@ -31,10 +31,6 @@ export function getTargetSelectedAttributionId(state: State): string | null {
   return state.resourceState.targetSelectedAttributionId;
 }
 
-export function getResolvedExternalAttributions(state: State): Set<string> {
-  return state.resourceState.resolvedExternalAttributions;
-}
-
 export function getExpandedIds(state: State): Array<string> {
   return state.resourceState.expandedIds;
 }

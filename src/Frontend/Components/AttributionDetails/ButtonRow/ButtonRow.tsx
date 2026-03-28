@@ -31,7 +31,6 @@ import {
   getIsPackageInfoDirty,
   getIsSelectedResourceBreakpoint,
   getManualAttributionsToResources,
-  getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
@@ -55,8 +54,11 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
   const initialPackageInfo = useSelectedAttribution();
-  const resolvedExternalAttributions = useAppSelector(
-    getResolvedExternalAttributions,
+  const { data: resolvedAttributionUuids } =
+    backend.resolvedAttributionUuids.useQuery();
+  const resolvedExternalAttributions = useMemo(
+    () => new Set(resolvedAttributionUuids),
+    [resolvedAttributionUuids],
   );
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const manualAttributionsToResources = useAppSelector(

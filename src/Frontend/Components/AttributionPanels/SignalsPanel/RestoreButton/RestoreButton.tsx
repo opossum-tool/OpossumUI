@@ -9,17 +9,20 @@ import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
 import { removeResolvedExternalAttributionAndSave } from '../../../../state/actions/resource-actions/save-actions';
-import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
-import { getResolvedExternalAttributions } from '../../../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../../../state/hooks';
 import { useUserSettings } from '../../../../state/variables/use-user-setting';
+import { backend } from '../../../../util/backendClient';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
-  const resolvedExternalAttributionIds = useAppSelector(
-    getResolvedExternalAttributions,
+  const { data: resolvedAttributionUuids } =
+    backend.resolvedAttributionUuids.useQuery();
+  const resolvedExternalAttributionIds = useMemo(
+    () => new Set(resolvedAttributionUuids),
+    [resolvedAttributionUuids],
   );
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;

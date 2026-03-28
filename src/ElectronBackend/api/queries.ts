@@ -328,6 +328,16 @@ export const queries = {
     return { result: deduplicatedByRelationship };
   },
 
+  async resolvedAttributionUuids() {
+    const result = await getDb()
+      .selectFrom('attribution')
+      .select('uuid')
+      .where('is_resolved', '=', 1)
+      .execute();
+
+    return { result: result.map((r) => r.uuid) };
+  },
+
   async getNodePathsToExpand({ fromNodePath }: { fromNodePath: string }) {
     const nodesToExpand = await getDb()
       .withRecursive('nodes', (eb) =>

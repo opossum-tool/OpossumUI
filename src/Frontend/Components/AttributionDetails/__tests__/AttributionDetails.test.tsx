@@ -12,11 +12,11 @@ import { pathsToResources } from '../../../../testing/global-test-helpers';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
-  setResolvedExternalAttributions,
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { savePackageInfo } from '../../../state/actions/resource-actions/save-actions';
+import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import {
   getIsPackageInfoDirty,
@@ -131,7 +131,7 @@ describe('AttributionDetails', () => {
     await expectResourcesToManualAttributions({
       [resourceId]: [packageInfo1.id],
     });
-    await expectResolvedExternalAttributions(store.getState(), new Set());
+    await expectResolvedExternalAttributions(new Set());
   });
 
   it('saves modified attribution', async () => {
@@ -184,7 +184,7 @@ describe('AttributionDetails', () => {
     await expectResourcesToManualAttributions({
       [resourceId]: [packageInfo1.id, packageInfo2.id],
     });
-    await expectResolvedExternalAttributions(store.getState(), new Set());
+    await expectResolvedExternalAttributions(new Set());
   });
 
   it('confirms attribution', async () => {
@@ -221,7 +221,7 @@ describe('AttributionDetails', () => {
     await expectResourcesToManualAttributions({
       [resourceId]: [packageInfo1.id, packageInfo2.id],
     });
-    await expectResolvedExternalAttributions(store.getState(), new Set());
+    await expectResolvedExternalAttributions(new Set());
   });
 
   it('disables save button if package is neither pre-selected nor modified', async () => {
@@ -286,7 +286,7 @@ describe('AttributionDetails', () => {
     await expectResourcesToManualAttributions({
       [resourceId]: [packageInfo1.id, packageInfo2.id],
     });
-    await expectResolvedExternalAttributions(store.getState(), new Set());
+    await expectResolvedExternalAttributions(new Set());
   });
 
   it('disables link button when package is modified', async () => {
@@ -396,7 +396,7 @@ describe('AttributionDetails', () => {
       [packageInfo2.id]: packageInfo2,
     });
     await expectResourcesToManualAttributions({});
-    await expectResolvedExternalAttributions(store.getState(), new Set());
+    await expectResolvedExternalAttributions(new Set());
   });
 
   it('reverts changes to a modified attribution', async () => {
@@ -507,10 +507,7 @@ describe('AttributionDetails', () => {
 
     await expectManualAttributions(store.getState(), {});
     await expectResourcesToManualAttributions({});
-    await expectResolvedExternalAttributions(
-      store.getState(),
-      new Set([packageInfo.id]),
-    );
+    await expectResolvedExternalAttributions(new Set([packageInfo.id]));
   });
 
   it('restores deleted signal', async () => {
@@ -518,9 +515,10 @@ describe('AttributionDetails', () => {
     const { store } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions: { [packageInfo.id]: packageInfo },
+        resolvedExternalAttributions: new Set([packageInfo.id]),
       }),
       actions: [
-        setResolvedExternalAttributions(new Set([packageInfo.id])),
+        setUserSetting({ areHiddenSignalsVisible: true }),
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
       ],
@@ -534,7 +532,7 @@ describe('AttributionDetails', () => {
 
     await expectManualAttributions(store.getState(), {});
     await expectResourcesToManualAttributions({});
-    await expectResolvedExternalAttributions(store.getState(), new Set());
+    await expectResolvedExternalAttributions(new Set());
   });
 
   it('compares attribution to original signal', async () => {
