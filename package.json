@@ -108,7 +108,7 @@
     "prettier-plugin-sh": "0.18.0",
     "run-script-os": "1.1.6",
     "tsx": "4.21.0",
-    "typescript": "5.9.3",
+    "typescript": "6.0.2",
     "typescript-eslint": "8.57.2",
     "vite": "8.0.2",
     "vite-plugin-electron": "0.29.1",
