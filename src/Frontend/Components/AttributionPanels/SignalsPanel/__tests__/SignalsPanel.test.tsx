@@ -183,7 +183,7 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = await renderComponent(<SignalsPanel />, {
+    await renderComponent(<SignalsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
         resourcesToExternalAttributions: {
@@ -194,7 +194,7 @@ describe('SignalsPanel', () => {
       actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
-    await expectResourcesToManualAttributions(store.getState(), {});
+    await expectResourcesToManualAttributions({});
 
     await userEvent.click(
       await screen.findByText(
@@ -205,7 +205,7 @@ describe('SignalsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
     );
 
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [ROOT_PATH]: [expect.any(String)],
     });
   });

@@ -29,7 +29,6 @@ import {
   getManualAttributions,
   getManualAttributionsToResources,
   getManualData,
-  getResourcesToManualAttributions,
   getResourcesWithManualAttributedChildren,
   getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
@@ -125,7 +124,6 @@ describe('The savePackageInfo action', () => {
     testStore.dispatch(setSelectedResourceId('/root/src/'));
     testStore.dispatch(setTemporaryDisplayPackageInfo(testPackageInfo));
     expect(getManualAttributions(testStore.getState())).toEqual({});
-    expect(getResourcesToManualAttributions(testStore.getState())).toEqual({});
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual({
@@ -160,7 +158,7 @@ describe('The savePackageInfo action', () => {
     await expectManualAttributions(testStore.getState(), {
       [newAttributionId]: expectedTemporaryDisplayPackageInfo,
     });
-    await expectResourcesToManualAttributions(testStore.getState(), {
+    await expectResourcesToManualAttributions({
       '/root/src/': [newAttributionId],
     });
   });
@@ -331,7 +329,7 @@ describe('The savePackageInfo action', () => {
     await expectManualAttributions(testStore.getState(), {
       [testUuidB]: testManualAttributions[testUuidB],
     });
-    await expectResourcesToManualAttributions(testStore.getState(), {
+    await expectResourcesToManualAttributions({
       '/root/somethingElse.js': [testUuidB],
     });
   });
@@ -377,7 +375,7 @@ describe('The savePackageInfo action', () => {
     await expectManualAttributions(testStore.getState(), {
       uuid1: testManualAttributions.uuid1,
     });
-    await expectResourcesToManualAttributions(testStore.getState(), {
+    await expectResourcesToManualAttributions({
       '/parent/': ['uuid1'],
     });
   });
@@ -423,7 +421,7 @@ describe('The savePackageInfo action', () => {
     await expectManualAttributions(testStore.getState(), {
       uuid1: testManualAttributions.uuid1,
     });
-    await expectResourcesToManualAttributions(testStore.getState(), {
+    await expectResourcesToManualAttributions({
       '/parent/': ['uuid1'],
     });
   });
@@ -481,7 +479,7 @@ describe('The savePackageInfo action', () => {
     await expectManualAttributions(testStore.getState(), {
       uuid1: testPackageInfo,
     });
-    await expectResourcesToManualAttributions(testStore.getState(), {
+    await expectResourcesToManualAttributions({
       '/something.js': ['uuid1'],
       '/somethingElse.js': ['uuid1'],
     });
@@ -526,7 +524,7 @@ describe('The savePackageInfo action', () => {
       testStore.getState(),
       testManualAttributions,
     );
-    await expectResourcesToManualAttributions(testStore.getState(), {
+    await expectResourcesToManualAttributions({
       '/something.js': [testUuid],
       '/folder/somethingElse.js': [testUuid],
     });
@@ -794,7 +792,7 @@ describe('The unlinkAttributionAndSave action', () => {
     await expectManualAttributions(testStore.getState(), {
       reactUuid: testReact,
     });
-    await expectResourcesToManualAttributions(testStore.getState(), {
+    await expectResourcesToManualAttributions({
       '/somethingElse.js': ['reactUuid'],
     });
   });
@@ -826,7 +824,7 @@ describe('The deleteAttributionsAndSave action', () => {
     await testStore.dispatch(deleteAttributionsAndSave(['toUnlink'], 'someId'));
 
     await expectManualAttributions(testStore.getState(), {});
-    await expectResourcesToManualAttributions(testStore.getState(), {});
+    await expectResourcesToManualAttributions({});
   });
 
   it('unlinks resource from attribution multiple linked attribution', async () => {
@@ -866,7 +864,7 @@ describe('The deleteAttributionsAndSave action', () => {
     await expectManualAttributions(testStore.getState(), {
       uuid1: testAttributions.uuid1,
     });
-    await expectResourcesToManualAttributions(testStore.getState(), {
+    await expectResourcesToManualAttributions({
       '/file1': ['uuid1'],
     });
   });
@@ -897,7 +895,7 @@ describe('The deleteAttributionsAndSave action', () => {
     await expectManualAttributions(testStore.getState(), {
       angularUuid: testResourceSetup.manualAttributions.angularUuid,
     });
-    await expectResourcesToManualAttributions(testStore.getState(), {
+    await expectResourcesToManualAttributions({
       '/anotherFile.js': ['angularUuid'],
     });
   });
@@ -1026,7 +1024,7 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     await expectManualAttributions(testStore.getState(), {
       vueUuid: testVue,
     });
-    await expectResourcesToManualAttributions(testStore.getState(), {
+    await expectResourcesToManualAttributions({
       '/somethingElse.js': ['vueUuid'],
     });
   });

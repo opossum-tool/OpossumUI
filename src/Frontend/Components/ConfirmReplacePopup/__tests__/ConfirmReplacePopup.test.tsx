@@ -60,7 +60,7 @@ describe('ConfirmReplacePopup', () => {
     await expectManualAttributions(store.getState(), {
       [packageInfo2.id]: packageInfo2,
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resource]: [packageInfo2.id],
     });
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo2.id);
@@ -106,7 +106,7 @@ describe('ConfirmReplacePopup', () => {
     await expectManualAttributions(store.getState(), {
       [packageInfo2.id]: { ...packageInfo2, preSelected: undefined },
     });
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [resource]: [packageInfo2.id],
     });
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo2.id);

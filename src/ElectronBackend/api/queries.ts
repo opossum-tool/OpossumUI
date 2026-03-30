@@ -11,6 +11,7 @@ import {
   FILTERS,
 } from '../../Frontend/shared-constants';
 import { type PackageInfo } from '../../shared/shared-types';
+import { text } from '../../shared/text';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
 import { listAttributions } from './listAttributions';
@@ -461,6 +462,34 @@ export const queries = {
   getNextFileToReviewForAttribution,
   getNextFileToReviewForCriticality,
   getNextFileToReviewForClassification,
+
+  async resourceHasIncompleteManualAttributions({
+    resourcePath,
+  }: {
+    resourcePath: string;
+  }) {
+    const result = await getDb()
+      .transaction()
+      .execute(async (trx) => {
+        const resource = await getResourceOrThrow(trx, resourcePath);
+        const attributions = await trx
+          .selectFrom('resource_to_attribution')
+          .innerJoin('attribution', 'uuid', 'attribution_uuid')
+          .select('attribution.data')
+          .where('resource_id', '=', resource.id)
+          .where('attribution.is_external', '=', 0)
+          .where((eb) =>
+            eb.or([
+              getFilterExpression(text.filters.incompleteCoordinates),
+              getFilterExpression(text.filters.incompleteLegal),
+            ]),
+          )
+          .limit(1)
+          .executeTakeFirst();
+        return !!attributions;
+      });
+    return { result };
+  },
 } satisfies Record<string, QueryFunction>;
 
 export type Queries = typeof queries;

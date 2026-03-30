@@ -11,7 +11,6 @@ import {
   type ExternalAttributionSources,
   type PackageInfo,
   type ProjectMetadata,
-  type ResourcesToAttributions,
   type ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { type State } from '../../types/types';
@@ -46,12 +45,6 @@ export function getTargetSelectedResourceId(state: State): string | null {
 
 export function getSelectedResourceId(state: State): string {
   return state.resourceState.selectedResourceId;
-}
-
-export function getResourcesToManualAttributions(
-  state: State,
-): ResourcesToAttributions {
-  return state.resourceState.manualData.resourcesToAttributions;
 }
 
 export function getManualAttributionsToResources(

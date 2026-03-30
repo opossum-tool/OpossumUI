@@ -85,6 +85,7 @@ describe('AttributionsPanel', () => {
     });
     await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([resourceId]),
         manualAttributions,
         resourcesToManualAttributions: {
           [resourceId]: [packageInfo1.id, packageInfo2.id],
@@ -94,7 +95,7 @@ describe('AttributionsPanel', () => {
     });
 
     expect(
-      screen.getByText(text.packageLists.incompleteAttributions),
+      await screen.findByText(text.packageLists.incompleteAttributions),
     ).toBeInTheDocument();
   });
 
@@ -158,7 +159,7 @@ describe('AttributionsPanel', () => {
     const manualAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = await renderComponent(<AttributionsPanel />, {
+    await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
         resourcesToManualAttributions: {
@@ -177,7 +178,7 @@ describe('AttributionsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
     );
 
-    await expectResourcesToManualAttributions(store.getState(), {
+    await expectResourcesToManualAttributions({
       [ROOT_PATH]: [packageInfo.id],
     });
   });
