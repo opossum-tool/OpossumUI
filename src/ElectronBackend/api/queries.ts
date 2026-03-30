@@ -439,7 +439,7 @@ export const queries = {
   getNextFileToReviewForCriticality,
   getNextFileToReviewForClassification,
 
-  async manualAttributionsAreIncompleteOnResource({
+  async resourceHasIncompleteManualAttributions({
     resourcePath,
   }: {
     resourcePath: string;

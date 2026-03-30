@@ -24,7 +24,7 @@ import { ReplaceButton } from './ReplaceButton/ReplaceButton';
 export function AttributionsPanel() {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const hasIncompleteAttributions =
-    backend.manualAttributionsAreIncompleteOnResource.useQuery({
+    backend.resourceHasIncompleteManualAttributions.useQuery({
       resourcePath: selectedResourceId,
     });
 

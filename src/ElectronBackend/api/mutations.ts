@@ -103,7 +103,7 @@ export const mutations = {
         { queryName: 'isResourceLinkedOnAllAttributions' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
-        { queryName: 'manualAttributionsAreIncompleteOnResource' },
+        { queryName: 'resourceHasIncompleteManualAttributions' },
       ],
     };
   },
@@ -186,7 +186,7 @@ export const mutations = {
         { queryName: 'isResourceLinkedOnAllAttributions' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
-        { queryName: 'manualAttributionsAreIncompleteOnResource' },
+        { queryName: 'resourceHasIncompleteManualAttributions' },
       ],
     };
   },
@@ -256,7 +256,7 @@ export const mutations = {
         { queryName: 'isResourceLinkedOnAllAttributions' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
-        { queryName: 'manualAttributionsAreIncompleteOnResource' },
+        { queryName: 'resourceHasIncompleteManualAttributions' },
       ],
     };
   },
@@ -330,7 +330,7 @@ export const mutations = {
         { queryName: 'isResourceLinkedOnAllAttributions' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
-        { queryName: 'manualAttributionsAreIncompleteOnResource' },
+        { queryName: 'resourceHasIncompleteManualAttributions' },
       ],
     };
   },
@@ -381,7 +381,7 @@ export const mutations = {
         { queryName: 'getManualAttributionOnResourceOrAncestor' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
-        { queryName: 'manualAttributionsAreIncompleteOnResource' },
+        { queryName: 'resourceHasIncompleteManualAttributions' },
       ],
     };
   },
@@ -449,7 +449,7 @@ export const mutations = {
         { queryName: 'isResourceLinkedOnAllAttributions' },
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
-        { queryName: 'manualAttributionsAreIncompleteOnResource' },
+        { queryName: 'resourceHasIncompleteManualAttributions' },
       ],
     };
   },
