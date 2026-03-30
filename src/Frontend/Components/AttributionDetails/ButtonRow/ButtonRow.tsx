@@ -31,7 +31,6 @@ import {
   getIsPackageInfoDirty,
   getIsSelectedResourceBreakpoint,
   getManualAttributionsToResources,
-  getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
@@ -55,9 +54,8 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
   const initialPackageInfo = useSelectedAttribution();
-  const resolvedExternalAttributions = useAppSelector(
-    getResolvedExternalAttributions,
-  );
+  const { data: resolvedExternalAttributions } =
+    backend.resolvedAttributionUuids.useQuery();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const manualAttributionsToResources = useAppSelector(
     getManualAttributionsToResources,
@@ -87,7 +85,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     useState(false);
   const [isConfirmSavePopupOpen, setIsConfirmSavePopupOpen] = useState(false);
 
-  const selectedSignalIsResolved = resolvedExternalAttributions.has(
+  const selectedSignalIsResolved = resolvedExternalAttributions?.has(
     packageInfo.id,
   );
   const hasMultipleResources =

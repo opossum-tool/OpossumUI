@@ -50,6 +50,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
   resourcesToManualAttributions?: ResourcesToAttributions;
   externalAttributions?: Attributions;
   resourcesToExternalAttributions?: ResourcesToAttributions;
+  resolvedExternalAttributions?: Set<string>;
   attributionBreakpoints?: Set<string>;
   filesWithChildren?: Set<string>;
   externalAttributionSources?: ExternalAttributionSources;
@@ -94,6 +95,8 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
         testResourcesToExternalAttributions,
       ),
     },
+    resolvedExternalAttributions:
+      testData.resolvedExternalAttributions || new Set(),
     attributionBreakpoints: testData.attributionBreakpoints || new Set(),
     filesWithChildren: testData.filesWithChildren || new Set(),
     externalAttributionSources: testData.externalAttributionSources || {},

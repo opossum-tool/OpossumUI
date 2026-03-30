@@ -9,11 +9,9 @@ import { useMemo } from 'react';
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
-import {
-  getExternalAttributionSources,
-  getResolvedExternalAttributions,
-} from '../../../../state/selectors/resource-selectors';
+import { getExternalAttributionSources } from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { backend } from '../../../../util/backendClient';
 import {
   GroupedList,
   type GroupedListItemContentProps,
@@ -34,9 +32,8 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   multiSelectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
-  const resolvedExternalAttributionIds = useAppSelector(
-    getResolvedExternalAttributions,
-  );
+  const { data: resolvedExternalAttributionIds } =
+    backend.resolvedAttributionUuids.useQuery();
   const sources = useAppSelector(getExternalAttributionSources);
 
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
@@ -106,7 +103,7 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
           cardConfig={{
             selected,
             focused,
-            resolved: resolvedExternalAttributionIds.has(attributionId),
+            resolved: resolvedExternalAttributionIds?.has(attributionId),
           }}
           packageInfo={attribution}
           checkbox={{

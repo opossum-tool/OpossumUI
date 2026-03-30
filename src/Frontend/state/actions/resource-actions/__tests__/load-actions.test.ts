@@ -28,7 +28,6 @@ import {
   getFilesWithChildren,
   getIsPreferenceFeatureEnabled,
   getManualData,
-  getResolvedExternalAttributions,
 } from '../../../selectors/resource-selectors';
 import { loadFromFile } from '../load-actions';
 
@@ -133,9 +132,6 @@ describe('loadFromFile', () => {
       expectedConfig.classifications,
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
-    expect(getResolvedExternalAttributions(testStore.getState())).toEqual(
-      new Set(['test_id']),
-    );
     expect(getAttributionBreakpoints(testStore.getState())).toEqual(
       new Set(['/third-party/package/']),
     );

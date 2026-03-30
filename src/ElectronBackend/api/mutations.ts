@@ -510,6 +510,7 @@ async function setAttributionsResolvedStatus(
       { queryName: 'autoCompleteOptions' as const },
       { queryName: 'externalAttributionStatistics' as const },
       { queryName: 'licenseTable' as const },
+      { queryName: 'resolvedAttributionUuids' as const },
     ],
   };
 }

@@ -39,7 +39,7 @@ export function useFilteredAttributionsList({
     sort: sorting,
     license: selectedLicense,
     resourcePathForRelationships: selectedResourceId,
-    showResolved: areHiddenSignalsVisible,
+    showResolved: areHiddenSignalsVisible && external,
     excludeUnrelated: external,
   });
 

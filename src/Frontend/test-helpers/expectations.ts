@@ -9,11 +9,9 @@ import {
   type Attributions,
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
-import {
-  getManualAttributions,
-  getResolvedExternalAttributions,
-} from '../state/selectors/resource-selectors';
+import { getManualAttributions } from '../state/selectors/resource-selectors';
 import { type State } from '../types/types';
+import { backend } from '../util/backendClient';
 import { flushPendingMutations } from './general-test-helpers';
 
 export async function expectManualAttributions(
@@ -77,14 +75,12 @@ export async function expectResourcesToManualAttributions(
 }
 
 export async function expectResolvedExternalAttributions(
-  state: State,
   resolvedExternalAttributions: Set<string>,
 ) {
   await flushPendingMutations();
 
-  expect(getResolvedExternalAttributions(state)).toEqual(
-    resolvedExternalAttributions,
-  );
+  const queryResult = await backend.resolvedAttributionUuids.query();
+  expect(queryResult).toEqual(resolvedExternalAttributions);
 
   const dbResult = await getDb()
     .selectFrom('attribution')

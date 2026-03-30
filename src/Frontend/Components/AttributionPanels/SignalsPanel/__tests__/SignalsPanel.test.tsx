@@ -10,10 +10,7 @@ import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { ROOT_PATH } from '../../../../shared-constants';
 import { setProjectMetadata } from '../../../../state/actions/resource-actions/all-views-simple-actions';
-import {
-  setResolvedExternalAttributions,
-  setSelectedResourceId,
-} from '../../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setSelectedResourceId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
 import {
   expectResolvedExternalAttributions,
@@ -73,7 +70,7 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = await renderComponent(<SignalsPanel />, {
+    await renderComponent(<SignalsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
       }),
@@ -89,10 +86,7 @@ describe('SignalsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.delete }),
     );
 
-    await expectResolvedExternalAttributions(
-      store.getState(),
-      new Set([packageInfo.id]),
-    );
+    await expectResolvedExternalAttributions(new Set([packageInfo.id]));
   });
 
   it('disables delete button when selected signal is already deleted', async () => {
@@ -103,13 +97,14 @@ describe('SignalsPanel', () => {
     await renderComponent(<SignalsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
+        resolvedExternalAttributions: new Set([packageInfo.id]),
       }),
-      actions: [
-        setResolvedExternalAttributions(new Set([packageInfo.id])),
-        setProjectMetadata(faker.opossum.metadata()),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.showDeleted }),
+    );
     await userEvent.click(
       await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
@@ -126,14 +121,12 @@ describe('SignalsPanel', () => {
     const externalAttributions = faker.opossum.attributions({
       [packageInfo.id]: packageInfo,
     });
-    const { store } = await renderComponent(<SignalsPanel />, {
+    await renderComponent(<SignalsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
+        resolvedExternalAttributions: new Set([packageInfo.id]),
       }),
-      actions: [
-        setResolvedExternalAttributions(new Set([packageInfo.id])),
-        setProjectMetadata(faker.opossum.metadata()),
-      ],
+      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -148,7 +141,7 @@ describe('SignalsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.restore }),
     );
 
-    await expectResolvedExternalAttributions(store.getState(), new Set());
+    await expectResolvedExternalAttributions(new Set());
   });
 
   it('disables restore button when selected signal is not deleted', async () => {

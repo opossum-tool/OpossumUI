@@ -9,22 +9,21 @@ import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
 import { addResolvedExternalAttributionAndSave } from '../../../../state/actions/resource-actions/save-actions';
-import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
-import { getResolvedExternalAttributions } from '../../../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../../../state/hooks';
+import { backend } from '../../../../util/backendClient';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
-  const resolvedExternalAttributionIds = useAppSelector(
-    getResolvedExternalAttributions,
-  );
+  const { data: resolvedExternalAttributionIds } =
+    backend.resolvedAttributionUuids.useQuery();
   const someSelectedAttributionsAreVisible = useMemo(
     () =>
       !!selectedAttributionIds.length &&
       selectedAttributionIds.some(
-        (id) => !resolvedExternalAttributionIds.has(id),
+        (id) => !resolvedExternalAttributionIds?.has(id),
       ),
     [resolvedExternalAttributionIds, selectedAttributionIds],
   );
