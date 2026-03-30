@@ -8,10 +8,7 @@ import { text } from '../../../../shared/text';
 import { ATTRIBUTION_FILTERS } from '../../../shared-constants';
 import { OpossumColors } from '../../../shared-styles';
 import { useAppSelector } from '../../../state/hooks';
-import {
-  getManualAttributions,
-  getSelectedResourceId,
-} from '../../../state/selectors/resource-selectors';
+import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import { useManualAttributionFilters } from '../../../state/variables/use-filters';
 import { backend } from '../../../util/backendClient';
@@ -30,7 +27,6 @@ export function AttributionsPanel() {
     backend.manualAttributionsAreIncompleteOnResource.useQuery({
       resourcePath: selectedResourceId,
     });
-  const manualAttributions = useAppSelector(getManualAttributions);
 
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
 
@@ -50,12 +46,7 @@ export function AttributionsPanel() {
     }
 
     return undefined;
-  }, [
-    attributionIdsForReplacement.length,
-    manualAttributions,
-    hasIncompleteAttributions.data,
-    selectedResourceId,
-  ]);
+  }, [attributionIdsForReplacement.length, hasIncompleteAttributions.data]);
   const [{ filters, search, selectedLicense }] = useManualAttributionFilters();
 
   const filterProps = backend.filterProperties.useQuery({

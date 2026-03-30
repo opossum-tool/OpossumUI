@@ -453,7 +453,7 @@ export const queries = {
           .innerJoin('attribution', 'uuid', 'attribution_uuid')
           .select('attribution.data')
           .where('resource_id', '=', resource.id)
-          .where('resource_to_attribution.attribution_is_external', '=', 0)
+          .where('attribution.is_external', '=', 0)
           .where((eb) =>
             eb.or([
               getFilterExpression(text.filters.incompleteCoordinates),
