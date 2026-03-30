@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
-import { skipToken } from '@tanstack/react-query';
 
 import { text } from '../../../shared/text';
 import {
@@ -13,7 +12,6 @@ import {
 } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getManualAttributions,
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
@@ -37,9 +35,17 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   onClose,
 }) => {
   const dispatch = useAppDispatch();
-  const attributions = useAppSelector(getManualAttributions);
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const { data: attributionsToDelete } = backend.listAttributions.useQuery(
+    {
+      resourcePathForRelationships: selectedResourceId,
+      uuids: attributionIdsToDelete,
+    },
+    {
+      enabled: open && !!selectedResourceId,
+    },
+  );
 
   const linkedResourcesTreeState = useLinkedResourcesTreeState({
     onAttributionUuids: attributionIdsToDelete,
@@ -47,20 +53,16 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   });
   const linkedResourceCount = linkedResourcesTreeState?.count;
 
-  const isResourceLinkedOnAllAttributions =
-    backend.isResourceLinkedOnAllAttributions.useQuery(
-      open && selectedResourceId && attributionIdsToDelete.length > 0
-        ? {
-            resourcePath: selectedResourceId,
-            attributionUuids: attributionIdsToDelete,
-          }
-        : skipToken,
-    );
+  const isResourceLinkedOnAllAttributions = attributionsToDelete
+    ? Object.values(attributionsToDelete).every(
+        (a) => a.relation === 'resource',
+      )
+    : undefined;
 
   const isOptionToDeleteOnSelectedResourceOnlyAvailable =
     linkedResourceCount &&
     linkedResourceCount > 1 &&
-    isResourceLinkedOnAllAttributions.data;
+    isResourceLinkedOnAllAttributions;
 
   const handleDelete = async () => {
     await dispatch(
@@ -125,19 +127,23 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
             ),
           })}
         </MuiTypography>
-        <CardList
-          data={attributionIdsToDelete
-            .filter((id) => id in attributions)
-            .map((id) => attributions[id])}
-          renderItemContent={(attribution, { index }) => {
-            return (
-              <>
-                <PackageCard packageInfo={attribution} />
-                {index + 1 !== attributionIdsToDelete.length && <MuiDivider />}
-              </>
-            );
-          }}
-        />
+        {attributionsToDelete ? (
+          <CardList
+            data={Object.values(attributionsToDelete)}
+            renderItemContent={(attribution, { index }) => {
+              return (
+                <>
+                  <PackageCard packageInfo={attribution} />
+                  {index + 1 !== attributionIdsToDelete.length && (
+                    <MuiDivider />
+                  )}
+                </>
+              );
+            }}
+          />
+        ) : (
+          <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
+        )}
         <LinkedResourcesTree
           readOnly
           disableHighlightSelected={

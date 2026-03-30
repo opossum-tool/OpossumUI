@@ -9,18 +9,13 @@ import {
   type Attributions,
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { getManualAttributions } from '../state/selectors/resource-selectors';
-import { type State } from '../types/types';
 import { backend } from '../util/backendClient';
 import { flushPendingMutations } from './general-test-helpers';
 
 export async function expectManualAttributions(
-  state: State,
   manualAttributions: Attributions,
 ) {
   await flushPendingMutations();
-
-  expect(getManualAttributions(state)).toEqual(manualAttributions);
 
   const dbResult = await getDb()
     .selectFrom('attribution')

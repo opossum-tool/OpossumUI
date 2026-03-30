@@ -8,9 +8,8 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useEffect } from 'react';
 
 import { text } from '../../../../../shared/text';
-import { useAppSelector } from '../../../../state/hooks';
-import { getManualAttributions } from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { useSelectedAttributionIsExternal } from '../../../../util/use-selected-attribution';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
@@ -18,27 +17,22 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
   multiSelectedAttributionIds,
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
-  selectedAttributionId,
 }) => {
-  const manualAttributions = useAppSelector(getManualAttributions);
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
   const label = attributionIdsForReplacement.length
     ? text.packageLists.cancelReplace
     : text.packageLists.replace;
 
+  const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
+
   useEffect(() => {
-    if (
-      attributionIdsForReplacement.length &&
-      selectedAttributionId &&
-      !(selectedAttributionId in manualAttributions)
-    ) {
+    if (attributionIdsForReplacement.length && selectedAttributionIsExternal) {
       setAttributionIdsForReplacement([]);
     }
   }, [
     attributionIdsForReplacement.length,
-    manualAttributions,
-    selectedAttributionId,
+    selectedAttributionIsExternal,
     setAttributionIdsForReplacement,
   ]);
 

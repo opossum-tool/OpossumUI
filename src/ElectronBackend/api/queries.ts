@@ -85,11 +85,16 @@ export const queries = {
   async getAttributionData(props: { attributionUuid: string }) {
     const result = await getDb()
       .selectFrom('attribution')
-      .select('data')
+      .select(['data', 'is_external'])
       .where('uuid', '=', props.attributionUuid)
       .executeTakeFirstOrThrow();
 
-    return { result: JSON.parse(result.data) as PackageInfo };
+    return {
+      result: {
+        packageInfo: JSON.parse(result.data) as PackageInfo,
+        isExternal: Boolean(result.is_external),
+      },
+    };
   },
 
   async getManualAttributionOnResourceOrAncestor(props: {
@@ -412,34 +417,6 @@ export const queries = {
     }
 
     return { result: Array.from(deduplicatedLimitedResults) };
-  },
-
-  async isResourceLinkedOnAllAttributions({
-    resourcePath,
-    attributionUuids,
-  }: {
-    resourcePath: string;
-    attributionUuids: Array<string>;
-  }) {
-    const resource = await getResourceOrThrow(getDb(), resourcePath);
-
-    const linkedAttributionCount = await getDb()
-      .selectFrom('resource_to_attribution')
-      .select((eb) =>
-        eb.fn
-          .count<number>('attribution_uuid')
-          .distinct()
-          .as('linked_attribution_count'),
-      )
-      .where('attribution_uuid', 'in', attributionUuids)
-      .where('resource_id', '=', resource.id)
-      .executeTakeFirstOrThrow();
-
-    return {
-      result:
-        linkedAttributionCount.linked_attribution_count ===
-        attributionUuids.length,
-    };
   },
 
   async getFrequentLicenseNames() {

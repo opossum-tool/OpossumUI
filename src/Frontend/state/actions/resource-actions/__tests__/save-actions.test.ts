@@ -155,7 +155,7 @@ describe('The savePackageInfo action', () => {
     });
 
     const newAttributionId = getSelectedAttributionId(testStore.getState());
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       [newAttributionId]: expectedTemporaryDisplayPackageInfo,
     });
     await expectResourcesToManualAttributions({
@@ -230,7 +230,7 @@ describe('The savePackageInfo action', () => {
       paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
     });
 
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       [testManualAttributionUuid_1]: testPackageInfo,
       [testManualAttributionUuid_2]: secondTestPackageInfo,
     });
@@ -326,7 +326,7 @@ describe('The savePackageInfo action', () => {
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual(expectedResourcesWithManualAttributedChildren2);
 
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       [testUuidB]: testManualAttributions[testUuidB],
     });
     await expectResourcesToManualAttributions({
@@ -372,7 +372,7 @@ describe('The savePackageInfo action', () => {
       }),
     );
 
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       uuid1: testManualAttributions.uuid1,
     });
     await expectResourcesToManualAttributions({
@@ -418,7 +418,7 @@ describe('The savePackageInfo action', () => {
       }),
     );
 
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       uuid1: testManualAttributions.uuid1,
     });
     await expectResourcesToManualAttributions({
@@ -476,7 +476,7 @@ describe('The savePackageInfo action', () => {
     );
     expect(getSelectedAttributionId(testStore.getState())).toBe('uuid1');
 
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       uuid1: testPackageInfo,
     });
     await expectResourcesToManualAttributions({
@@ -520,10 +520,7 @@ describe('The savePackageInfo action', () => {
       savePackageInfo('/folder/somethingElse.js', null, testPackageInfo),
     );
 
-    await expectManualAttributions(
-      testStore.getState(),
-      testManualAttributions,
-    );
+    await expectManualAttributions(testManualAttributions);
     await expectResourcesToManualAttributions({
       '/something.js': [testUuid],
       '/folder/somethingElse.js': [testUuid],
@@ -789,7 +786,7 @@ describe('The unlinkAttributionAndSave action', () => {
       unlinkAttributionAndSave('/something.js', ['reactUuid']),
     );
 
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       reactUuid: testReact,
     });
     await expectResourcesToManualAttributions({
@@ -823,7 +820,7 @@ describe('The deleteAttributionsAndSave action', () => {
 
     await testStore.dispatch(deleteAttributionsAndSave(['toUnlink'], 'someId'));
 
-    await expectManualAttributions(testStore.getState(), {});
+    await expectManualAttributions({});
     await expectResourcesToManualAttributions({});
   });
 
@@ -861,7 +858,7 @@ describe('The deleteAttributionsAndSave action', () => {
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
 
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       uuid1: testAttributions.uuid1,
     });
     await expectResourcesToManualAttributions({
@@ -892,7 +889,7 @@ describe('The deleteAttributionsAndSave action', () => {
     // Verify file is saved only once
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
 
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       angularUuid: testResourceSetup.manualAttributions.angularUuid,
     });
     await expectResourcesToManualAttributions({
@@ -930,7 +927,7 @@ describe('The deleteAttributionsAndSave action', () => {
       testTemporaryPackageInfo,
     );
 
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       angularUuid: testResourceSetup.manualAttributions.angularUuid,
     });
   });
@@ -1021,7 +1018,7 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     );
     expect(getSelectedAttributionId(testStore.getState())).toBe('');
 
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       vueUuid: testVue,
     });
     await expectResourcesToManualAttributions({
@@ -1229,7 +1226,7 @@ describe('The updateAttributionsAndSave action', () => {
     // Verify file is saved only once
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
 
-    await expectManualAttributions(testStore.getState(), {
+    await expectManualAttributions({
       reactUuid: updatedReact,
       vueUuid: updatedVue,
       angularUuid: testAngular,
