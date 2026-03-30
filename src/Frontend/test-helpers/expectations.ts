@@ -79,8 +79,8 @@ export async function expectResolvedExternalAttributions(
 ) {
   await flushPendingMutations();
 
-  const queryResult = await backend.resolvedAttributionUuids.query(undefined);
-  expect(new Set(queryResult)).toEqual(resolvedExternalAttributions);
+  const queryResult = await backend.resolvedAttributionUuids.query();
+  expect(queryResult).toEqual(resolvedExternalAttributions);
 
   const dbResult = await getDb()
     .selectFrom('attribution')

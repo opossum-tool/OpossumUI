@@ -18,19 +18,15 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
-  const { data: resolvedAttributionUuids } =
+  const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
-  const resolvedExternalAttributionIds = useMemo(
-    () => new Set(resolvedAttributionUuids),
-    [resolvedAttributionUuids],
-  );
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
   const someSelectedAttributionsAreHidden = useMemo(
     () =>
       !!selectedAttributionIds.length &&
       selectedAttributionIds.some((id) =>
-        resolvedExternalAttributionIds.has(id),
+        resolvedExternalAttributionIds?.has(id),
       ),
     [resolvedExternalAttributionIds, selectedAttributionIds],
   );

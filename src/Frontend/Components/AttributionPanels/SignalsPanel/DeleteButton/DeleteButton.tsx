@@ -17,17 +17,13 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
-  const { data: resolvedAttributionUuids } =
+  const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
-  const resolvedExternalAttributionIds = useMemo(
-    () => new Set(resolvedAttributionUuids),
-    [resolvedAttributionUuids],
-  );
   const someSelectedAttributionsAreVisible = useMemo(
     () =>
       !!selectedAttributionIds.length &&
       selectedAttributionIds.some(
-        (id) => !resolvedExternalAttributionIds.has(id),
+        (id) => !resolvedExternalAttributionIds?.has(id),
       ),
     [resolvedExternalAttributionIds, selectedAttributionIds],
   );

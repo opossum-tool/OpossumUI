@@ -54,12 +54,8 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
   const initialPackageInfo = useSelectedAttribution();
-  const { data: resolvedAttributionUuids } =
+  const { data: resolvedExternalAttributions } =
     backend.resolvedAttributionUuids.useQuery();
-  const resolvedExternalAttributions = useMemo(
-    () => new Set(resolvedAttributionUuids),
-    [resolvedAttributionUuids],
-  );
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const manualAttributionsToResources = useAppSelector(
     getManualAttributionsToResources,
@@ -89,7 +85,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     useState(false);
   const [isConfirmSavePopupOpen, setIsConfirmSavePopupOpen] = useState(false);
 
-  const selectedSignalIsResolved = resolvedExternalAttributions.has(
+  const selectedSignalIsResolved = resolvedExternalAttributions?.has(
     packageInfo.id,
   );
   const hasMultipleResources =

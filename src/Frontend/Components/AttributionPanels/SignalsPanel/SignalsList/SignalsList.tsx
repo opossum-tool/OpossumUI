@@ -32,12 +32,8 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   multiSelectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
-  const { data: resolvedAttributionUuids } =
+  const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
-  const resolvedExternalAttributionIds = useMemo(
-    () => new Set(resolvedAttributionUuids),
-    [resolvedAttributionUuids],
-  );
   const sources = useAppSelector(getExternalAttributionSources);
 
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
@@ -107,7 +103,7 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
           cardConfig={{
             selected,
             focused,
-            resolved: resolvedExternalAttributionIds.has(attributionId),
+            resolved: resolvedExternalAttributionIds?.has(attributionId),
           }}
           packageInfo={attribution}
           checkbox={{

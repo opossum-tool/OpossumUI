@@ -335,7 +335,7 @@ export const queries = {
       .where('is_resolved', '=', 1)
       .execute();
 
-    return { result: result.map((r) => r.uuid) };
+    return { result: new Set(result.map((r) => r.uuid)) };
   },
 
   async getNodePathsToExpand({ fromNodePath }: { fromNodePath: string }) {
