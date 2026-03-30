@@ -185,6 +185,7 @@ export const mutations = {
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
         { queryName: 'resourceHasIncompleteManualAttributions' },
+        { queryName: 'getResourceCountOnAttribution' },
       ],
     };
   },
@@ -254,6 +255,7 @@ export const mutations = {
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
         { queryName: 'resourceHasIncompleteManualAttributions' },
+        { queryName: 'getResourceCountOnAttribution' },
       ],
     };
   },
@@ -445,6 +447,7 @@ export const mutations = {
         { queryName: 'manualAttributionStatistics' },
         { queryName: 'licenseTable' },
         { queryName: 'resourceHasIncompleteManualAttributions' },
+        { queryName: 'getResourceCountOnAttribution' },
       ],
     };
   },

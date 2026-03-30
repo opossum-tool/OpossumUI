@@ -14,7 +14,6 @@ import { backend } from '../../../util/backendClient';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
   getManualAttributions,
-  getManualAttributionsToResources,
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../selectors/resource-selectors';
@@ -149,11 +148,12 @@ export function unlinkAttributionAndCreateNew(
   resourceId: string,
   packageInfo: PackageInfo,
 ): AsyncAppThunkAction {
-  return async (dispatch, getState) => {
-    const attributionsToResources =
-      getManualAttributionsToResources(getState());
+  return async (dispatch) => {
+    const result = await backend.getResourceCountOnAttribution.query({
+      attributionUuid: packageInfo.id,
+    });
 
-    if (attributionsToResources[packageInfo.id]?.length > 1) {
+    if (result?.isManual && result.resourceCount > 1) {
       await backend.unlinkResourceFromAttributions.mutate({
         resourcePath: resourceId,
         attributionUuids: [packageInfo.id],
