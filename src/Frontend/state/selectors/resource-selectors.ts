@@ -5,7 +5,6 @@
 import {
   type AttributionData,
   type Attributions,
-  type AttributionsToResources,
   type ClassificationsConfig,
   type PackageInfo,
   type ProjectMetadata,
@@ -39,12 +38,6 @@ export function getTargetSelectedResourceId(state: State): string | null {
 
 export function getSelectedResourceId(state: State): string {
   return state.resourceState.selectedResourceId;
-}
-
-export function getManualAttributionsToResources(
-  state: State,
-): AttributionsToResources {
-  return state.resourceState.manualData.attributionsToResources;
 }
 
 export function getResourcesWithManualAttributedChildren(
