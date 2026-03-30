@@ -6,6 +6,7 @@ import * as csv from 'fast-csv';
 import { type CsvFormatterStream } from 'fast-csv';
 import * as fs from 'fs';
 import { pick } from 'lodash';
+import path from 'path';
 
 import { type Attributions, type PackageInfo } from '../../shared/shared-types';
 
@@ -18,6 +19,7 @@ export async function writeCsvToFile(args: {
   shortenResources?: boolean;
 }): Promise<void> {
   try {
+    fs.mkdirSync(path.dirname(args.path), { recursive: true });
     const writeStream = fs.createWriteStream(args.path);
     const csvStream = csv.format({
       headers: ['attributionNumber'].concat(args.columns),
