@@ -94,7 +94,7 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    const { store } = await renderComponent(<AttributionDetails />, {
+    await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
@@ -191,7 +191,7 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo({ preSelected: true });
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    const { store } = await renderComponent(<AttributionDetails />, {
+    await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
@@ -255,7 +255,7 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    const { store } = await renderComponent(<AttributionDetails />, {
+    await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
@@ -365,7 +365,7 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    const { store } = await renderComponent(<AttributionDetails />, {
+    await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
@@ -489,7 +489,7 @@ describe('AttributionDetails', () => {
 
   it('deletes signal', async () => {
     const packageInfo = faker.opossum.packageInfo();
-    const { store } = await renderComponent(<AttributionDetails />, {
+    await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions: { [packageInfo.id]: packageInfo },
       }),
@@ -512,7 +512,7 @@ describe('AttributionDetails', () => {
 
   it('restores deleted signal', async () => {
     const packageInfo = faker.opossum.packageInfo();
-    const { store } = await renderComponent(<AttributionDetails />, {
+    await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions: { [packageInfo.id]: packageInfo },
         resolvedExternalAttributions: new Set([packageInfo.id]),

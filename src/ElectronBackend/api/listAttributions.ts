@@ -32,108 +32,111 @@ export async function listAttributions(props: {
     return { result: {} };
   }
 
-  const db = getDb();
-  const resourceForRelationships = props.resourcePathForRelationships
-    ? await getResourceOrThrow(db, props.resourcePathForRelationships)
-    : undefined;
+  const attributions = await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      const resourceForRelationships = props.resourcePathForRelationships
+        ? await getResourceOrThrow(trx, props.resourcePathForRelationships)
+        : undefined;
 
-  const closestAncestor = resourceForRelationships
-    ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-        db,
-        resourceForRelationships.id,
-      )
-    : undefined;
+      const closestAncestor = resourceForRelationships
+        ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+            trx,
+            resourceForRelationships.id,
+          )
+        : undefined;
 
-  let query = db
-    .selectFrom('attribution')
-    .select('uuid')
-    .select('data')
-    .select(
-      attributionToResourceRelationship({
-        resource: resourceForRelationships,
-        ancestorId: closestAncestor,
-      })
-        .$castTo<ResourceRelationship>()
-        .as('relationship'),
-    )
-    .select((eb) =>
-      eb
-        .selectFrom('resource_to_attribution')
-        .select(eb.fn.countAll<number>().as('count'))
-        .whereRef('attribution_uuid', '=', 'uuid')
-        .as('resource_count'),
-    );
+      let query = trx
+        .selectFrom('attribution')
+        .select('uuid')
+        .select('data')
+        .select(
+          attributionToResourceRelationship({
+            resource: resourceForRelationships,
+            ancestorId: closestAncestor,
+          })
+            .$castTo<ResourceRelationship>()
+            .as('relationship'),
+        )
+        .select((eb) =>
+          eb
+            .selectFrom('resource_to_attribution')
+            .select(eb.fn.countAll<number>().as('count'))
+            .whereRef('attribution_uuid', '=', 'uuid')
+            .as('resource_count'),
+        );
 
-  if (props.external !== undefined) {
-    query = query.where('is_external', '=', Number(props.external));
-  }
+      if (props.external !== undefined) {
+        query = query.where('is_external', '=', Number(props.external));
+      }
 
-  if (props.excludeUnrelated) {
-    query = query.where(
-      attributionToResourceRelationship({
-        resource: resourceForRelationships,
-        ancestorId: closestAncestor,
-      }),
-      '!=',
-      'unrelated',
-    );
-  }
+      if (props.excludeUnrelated) {
+        query = query.where(
+          attributionToResourceRelationship({
+            resource: resourceForRelationships,
+            ancestorId: closestAncestor,
+          }),
+          '!=',
+          'unrelated',
+        );
+      }
 
-  if (props.filters) {
-    for (const filter of props.filters) {
-      query = query.where(getFilterExpression(filter));
-    }
-  }
+      if (props.filters) {
+        for (const filter of props.filters) {
+          query = query.where(getFilterExpression(filter));
+        }
+      }
 
-  if (props.license) {
-    query = query.where(
-      'canonical_license_name',
-      '=',
-      toCanonicalLicenseName(props.license),
-    );
-  }
+      if (props.license) {
+        query = query.where(
+          'canonical_license_name',
+          '=',
+          toCanonicalLicenseName(props.license),
+        );
+      }
 
-  if (props.search) {
-    const search = props.search;
-    query = query.where(getSearchExpression(search));
-  }
+      if (props.search) {
+        const search = props.search;
+        query = query.where(getSearchExpression(search));
+      }
 
-  if (!props.showResolved) {
-    query = query.where('is_resolved', '=', 0);
-  }
+      if (!props.showResolved) {
+        query = query.where('is_resolved', '=', 0);
+      }
 
-  if (props.uuids) {
-    query = query.where('uuid', 'in', props.uuids);
-  }
+      if (props.uuids) {
+        query = query.where('uuid', 'in', props.uuids);
+      }
 
-  if (props.sort === 'classification') {
-    query = query.orderBy('classification', 'desc');
-  } else if (props.sort === 'criticality') {
-    query = query.orderBy('criticality', 'desc');
-  } else if (props.sort === 'occurrence') {
-    query = query.orderBy('resource_count', 'desc');
-  }
+      if (props.sort === 'classification') {
+        query = query.orderBy('classification', 'desc');
+      } else if (props.sort === 'criticality') {
+        query = query.orderBy('criticality', 'desc');
+      } else if (props.sort === 'occurrence') {
+        query = query.orderBy('resource_count', 'desc');
+      }
 
-  // Alphabetically by label. The label calculation is more complicated, so this is an approximation (but good enough)
-  query = query.orderBy((eb) =>
-    eb
-      .case()
-      .when('first_party', '=', 1)
-      .then(eb.fn<string>('concat', [eb.val('First Party'), 'comment']))
-      .else(
-        eb.fn<string>('concat', [
-          'package_name',
-          'license_name',
-          'copyright',
-          sql`data->>'licenseText'`,
-          'comment',
-          'url',
-        ]),
-      )
-      .end(),
-  );
+      // Alphabetically by label. The label calculation is more complicated, so this is an approximation (but good enough)
+      query = query.orderBy((eb) =>
+        eb
+          .case()
+          .when('first_party', '=', 1)
+          .then(eb.fn<string>('concat', [eb.val('First Party'), 'comment']))
+          .else(
+            eb.fn<string>('concat', [
+              'package_name',
+              'license_name',
+              'copyright',
+              sql`data->>'licenseText'`,
+              'comment',
+              'url',
+            ]),
+          )
+          .end(),
+      );
 
-  const attributions = await query.execute();
+      return query.execute();
+    });
 
   const backendToFrontendRelationship = {
     same: 'resource',

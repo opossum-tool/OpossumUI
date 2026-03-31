@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
+import { skipToken } from '@tanstack/react-query';
 
 import { text } from '../../../shared/text';
 import {
@@ -38,13 +39,12 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const { data: attributionsToDelete } = backend.listAttributions.useQuery(
-    {
-      resourcePathForRelationships: selectedResourceId,
-      uuids: attributionIdsToDelete,
-    },
-    {
-      enabled: open && !!selectedResourceId,
-    },
+    open && selectedResourceId
+      ? {
+          resourcePathForRelationships: selectedResourceId,
+          uuids: attributionIdsToDelete,
+        }
+      : skipToken,
   );
 
   const linkedResourcesTreeState = useLinkedResourcesTreeState({
