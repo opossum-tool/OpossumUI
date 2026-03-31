@@ -5,7 +5,6 @@
 import {
   type Attributions,
   type AttributionsToResources,
-  type BaseUrlsForSources,
   type PackageInfo,
   type ProjectConfig,
   type ProjectMetadata,
@@ -15,7 +14,6 @@ import { computeChildrenWithAttributions } from '../../helpers/save-action-helpe
 import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
-  ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
@@ -24,7 +22,6 @@ import {
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
   type ResetResourceStateAction,
   type SetAttributionBreakpoints,
-  type SetBaseUrlsForSources,
   type SetFilesWithChildren,
   type SetIsPackageInfoDirtyAction,
   type SetManualDataAction,
@@ -89,15 +86,6 @@ export function setProjectMetadata(
   return {
     type: ACTION_SET_PROJECT_METADATA,
     payload: metadata,
-  };
-}
-
-export function setBaseUrlsForSources(
-  baseUrlsForSources: BaseUrlsForSources,
-): SetBaseUrlsForSources {
-  return {
-    type: ACTION_SET_BASE_URLS_FOR_SOURCES,
-    payload: baseUrlsForSources,
   };
 }
 

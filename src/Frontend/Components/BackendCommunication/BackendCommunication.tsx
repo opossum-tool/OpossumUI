@@ -7,26 +7,18 @@ import dayjs from 'dayjs';
 import { type IpcRendererEvent } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import {
-  type BaseURLForRootArgs,
-  type ParsedFrontendFileContent,
-} from '../../../shared/shared-types';
+import { type ParsedFrontendFileContent } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
-import { ROOT_PATH } from '../../shared-constants';
 import {
   exportFileOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
   showImportDialogOrOpenUnsavedPopup,
   showMergeDialogOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
-import {
-  resetResourceState,
-  setBaseUrlsForSources,
-} from '../../state/actions/resource-actions/all-views-simple-actions';
+import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../state/actions/resource-actions/load-actions';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getBaseUrlsForSources } from '../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../state/hooks';
 import { setDatabaseInitialized } from '../../util/backendClient';
 import {
   type ExportFileRequestListener,
@@ -39,7 +31,6 @@ import {
 import { useSyncProcessingStatusUpdatesToFrontendLogs } from '../../util/use-processing-status-updated';
 
 export const BackendCommunication: React.FC = () => {
-  const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
   const dispatch = useAppDispatch();
 
   function fileLoadedListener(
@@ -85,20 +76,6 @@ export const BackendCommunication: React.FC = () => {
     }
   }
 
-  function setBaseURLForRootListener(
-    _: IpcRendererEvent,
-    baseURLForRootArgs: BaseURLForRootArgs,
-  ): void {
-    if (baseURLForRootArgs?.baseURLForRoot) {
-      dispatch(
-        setBaseUrlsForSources({
-          ...baseUrlsForSources,
-          [ROOT_PATH]: baseURLForRootArgs.baseURLForRoot,
-        }),
-      );
-    }
-  }
-
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
     dispatch,
   ]);
@@ -126,11 +103,6 @@ export const BackendCommunication: React.FC = () => {
     AllowedFrontendChannels.ShowProjectStatisticsPopup,
     showProjectStatisticsPopupListener,
     [dispatch],
-  );
-  useIpcRenderer(
-    AllowedFrontendChannels.SetBaseURLForRoot,
-    setBaseURLForRootListener,
-    [dispatch, baseUrlsForSources],
   );
   useIpcRenderer<ExportFileRequestListener>(
     AllowedFrontendChannels.ExportFileRequest,

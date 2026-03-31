@@ -8,7 +8,6 @@ import { useEffect } from 'react';
 
 import { type AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
-  type BaseURLForRootArgs,
   type ExportType,
   type FileFormatInfo,
   type Log,
@@ -39,11 +38,6 @@ export type ProcessingStateChangedListener = (
   processingStateChangedEvent: ProcessingStateChangedEvent,
 ) => void;
 
-type SetBaseURLForRootListener = (
-  event: IpcRendererEvent,
-  baseURLForRootArgs: BaseURLForRootArgs,
-) => void;
-
 export type ShowImportDialogListener = (
   event: IpcRendererEvent,
   fileFormat: FileFormatInfo,
@@ -69,7 +63,6 @@ type Listener =
   | SetStateListener
   | LoggingListener
   | ExportFileRequestListener
-  | SetBaseURLForRootListener
   | ShowImportDialogListener
   | ProcessingStateChangedListener
   | ShowMergeDialogListener

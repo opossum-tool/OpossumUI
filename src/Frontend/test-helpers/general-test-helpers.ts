@@ -8,6 +8,7 @@ import isEmpty from 'lodash/isEmpty';
 import {
   type Attributions,
   type AttributionsToResources,
+  type BaseUrlsForSources,
   type ExternalAttributionSources,
   type FrequentLicenses,
   type ParsedFileContent,
@@ -55,6 +56,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
   filesWithChildren?: Set<string>;
   externalAttributionSources?: ExternalAttributionSources;
   frequentLicenses?: FrequentLicenses;
+  baseUrlsForSources?: BaseUrlsForSources;
 }): ParsedFileContent {
   const defaultTestResources: Resources = {
     thirdParty: {
@@ -103,6 +105,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
     ...(testData.frequentLicenses && {
       frequentLicenses: testData.frequentLicenses,
     }),
+    baseUrlsForSources: testData.baseUrlsForSources || {},
   };
 }
 

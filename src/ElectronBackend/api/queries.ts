@@ -513,7 +513,7 @@ export const queries = {
       .executeTakeFirst();
     return { result: !!result };
   },
-  
+
   async getBaseUrlForSource(props: { sourcePath: string }) {
     const trimmedSourcePath = removeTrailingSlash(props.sourcePath);
     const baseUrlResult = await getDb()

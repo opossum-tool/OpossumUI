@@ -16,7 +16,6 @@ import { OpossumColors } from '../../../shared-styles';
 import { type AppThunkAction } from '../../types';
 import {
   setAttributionBreakpoints,
-  setBaseUrlsForSources,
   setConfig,
   setFilesWithChildren,
   setManualData,
@@ -101,7 +100,5 @@ export function loadFromFile(
     dispatch(setFilesWithChildren(parsedFileContent.filesWithChildren));
 
     dispatch(setProjectMetadata(parsedFileContent.metadata));
-
-    dispatch(setBaseUrlsForSources(parsedFileContent.baseUrlsForSources));
   };
 }

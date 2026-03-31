@@ -97,7 +97,6 @@ const expectedFrontendData: ParsedFrontendFileContent = {
   resolvedExternalAttributions: new Set(),
   attributionBreakpoints: new Set(),
   filesWithChildren: new Set(),
-  baseUrlsForSources: {},
 };
 
 const validMetadata = {
@@ -214,9 +213,6 @@ describe('loadFile', () => {
       resourcesToAttributions: { '/a': [externalAttributionUuid] },
       attributionBreakpoints: ['/some/path/', '/another/path/'],
       filesWithChildren: ['/some/package.json/'],
-      baseUrlsForSources: {
-        '/': 'https://github.com/opossum-tool/opossumUI/',
-      },
       externalAttributionSources: {
         SC: { name: 'ScanCode', priority: 1000 },
         OTHERSOURCE: { name: 'Crystal ball', priority: 2 },

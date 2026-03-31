@@ -191,6 +191,7 @@ export const EXCLUDED_FROM_FRONTEND_FILE_CONTENT = [
   'externalAttributions',
   'frequentLicenses',
   'externalAttributionSources',
+  'baseUrlsForSources',
 ] as const;
 export type ParsedFrontendFileContent = Omit<
   ParsedFileContent,
@@ -222,10 +223,6 @@ export enum ExportType {
 
 export interface OpenLinkArgs {
   link: string;
-}
-
-export interface BaseURLForRootArgs {
-  baseURLForRoot: string;
 }
 
 export interface ExternalAttributionSource {

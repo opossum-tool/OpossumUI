@@ -10,6 +10,8 @@ import {
   AllowedFrontendChannels,
   IpcChannel,
 } from '../../../shared/ipc-channels';
+import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
+import { getDb } from '../../db/db';
 import { createWindow } from '../createWindow';
 import {
   openNonOpossumFileDialog,
@@ -91,6 +93,11 @@ describe('getSelectBaseURLListener', () => {
     const mainWindow = {
       webContents: { send: mockCallback as unknown } as WebContents,
     } as unknown as BrowserWindow;
+    await initializeDbWithTestData({
+      resources: {
+        '': 1,
+      },
+    });
     const baseURL = '/Users/path/to/sources';
     const expectedFormattedBaseURL = 'file:///Users/path/to/sources/{path}';
 
@@ -99,12 +106,11 @@ describe('getSelectBaseURLListener', () => {
     await selectBaseURLListener(mainWindow)();
 
     expect(selectBaseURLDialog).toHaveBeenCalled();
-    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.SetBaseURLForRoot,
-      {
-        baseURLForRoot: expectedFormattedBaseURL,
-      },
-    );
+    const baseUrl = await getDb()
+      .selectFrom('resource')
+      .select('base_url')
+      .executeTakeFirst();
+    expect(baseUrl?.base_url).toBe(expectedFormattedBaseURL);
   });
 });
 
