@@ -6,6 +6,7 @@ import { sql, type Transaction } from 'kysely';
 import { snakeCase } from 'lodash';
 
 import {
+  type BaseUrlsForSources,
   type ExternalAttributionSources,
   type FrequentLicenses,
   type InputFileAttributionData,
@@ -59,6 +60,7 @@ export async function initializeDb(inputFile: ParsedFileContent) {
         inputFile.resources,
         inputFile.attributionBreakpoints,
         inputFile.filesWithChildren,
+        inputFile.baseUrlsForSources,
       );
 
       await initializeAttributionTable(
@@ -217,12 +219,19 @@ async function initializeResourceTable(
   resources: Resources,
   attributionBreakpoints: Set<string>,
   filesWithChildren: Set<string>,
+  baseUrlsForSources: BaseUrlsForSources,
 ) {
   const trimmedAttributionBreakpoints = new Set(
     [...attributionBreakpoints].map(removeTrailingSlash),
   );
   const trimmedFilesWithChildren = new Set(
     [...filesWithChildren].map(removeTrailingSlash),
+  );
+  const trimmedBaseUrlsForSources: BaseUrlsForSources = Object.fromEntries(
+    Object.entries(baseUrlsForSources).map(([path, url]) => [
+      removeTrailingSlash(path),
+      url,
+    ]),
   );
   await trx.schema
     .createTable('resource')
@@ -240,6 +249,7 @@ async function initializeResourceTable(
     .addColumn('max_descendant_id', 'integer', (col) =>
       col.notNull().defaultTo(1).references('resource.id'),
     )
+    .addColumn('base_url', 'text')
     // We add a generated sort_key so that the resource tree can order by it.
     // E.g. path:/a/b/c.txt -> sort_key:/0a/0b/1c.txt
     .addColumn('sort_key', 'text', (col) =>
@@ -259,9 +269,9 @@ async function initializeResourceTable(
   const rawDb = getRawDb();
   const insertStmt = rawDb.prepare(`
     INSERT INTO resource
-      (id, path, name, parent_id, is_attribution_breakpoint, is_file, can_have_children)
+      (id, path, name, parent_id, is_attribution_breakpoint, is_file, can_have_children, base_url)
     VALUES
-      ($id, $path, $name, $parent_id, $is_attribution_breakpoint, $is_file, $can_have_children)
+      ($id, $path, $name, $parent_id, $is_attribution_breakpoint, $is_file, $can_have_children, $base_url)
   `);
 
   const updateMaxDescendantIdStmt = rawDb.prepare(`
@@ -290,6 +300,7 @@ async function initializeResourceTable(
       is_attribution_breakpoint: Number(isAttributionBreakpoint),
       is_file: Number(isFile),
       can_have_children: Number(!isLeaf),
+      base_url: trimmedBaseUrlsForSources[currentPath],
     });
 
     resourcePathToId.set(currentPath, resourceId);

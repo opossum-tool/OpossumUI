@@ -70,6 +70,7 @@ export interface FrequentLicense {
 }
 
 export interface Resource {
+  base_url: string | null;
   /**
    * Is a directory or in files_with_children
    */
