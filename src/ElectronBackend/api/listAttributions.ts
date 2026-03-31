@@ -18,108 +18,125 @@ import {
 } from './utils';
 
 export async function listAttributions(props: {
-  external: boolean;
-  filters: Array<Filter>;
-  resourcePathForRelationships: string;
+  external?: boolean;
+  filters?: Array<Filter>;
+  resourcePathForRelationships?: string;
   sort?: SortOption;
   license?: string;
   search?: string;
   showResolved?: boolean;
   excludeUnrelated?: boolean;
+  uuids?: Array<string>;
 }): Promise<{ result: Attributions }> {
-  const db = getDb();
-  const resource = await getResourceOrThrow(
-    db,
-    props.resourcePathForRelationships,
-  );
-
-  const closestAncestor =
-    await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-      db,
-      resource.id,
-    );
-
-  let query = db
-    .selectFrom('attribution')
-    .select('uuid')
-    .select('data')
-    .select(
-      attributionToResourceRelationship({
-        resource,
-        ancestorId: closestAncestor,
-      })
-        .$castTo<ResourceRelationship>()
-        .as('relationship'),
-    )
-    .select((eb) =>
-      eb
-        .selectFrom('resource_to_attribution')
-        .select(eb.fn.countAll<number>().as('count'))
-        .whereRef('attribution_uuid', '=', 'uuid')
-        .as('resource_count'),
-    )
-    .where('is_external', '=', Number(props.external));
-
-  if (props.excludeUnrelated) {
-    query = query.where(
-      attributionToResourceRelationship({
-        resource,
-        ancestorId: closestAncestor,
-      }),
-      '!=',
-      'unrelated',
-    );
+  if (props.uuids?.length === 0) {
+    return { result: {} };
   }
 
-  for (const filter of props.filters) {
-    query = query.where(getFilterExpression(filter));
-  }
+  const attributions = await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      const resourceForRelationships = props.resourcePathForRelationships
+        ? await getResourceOrThrow(trx, props.resourcePathForRelationships)
+        : undefined;
 
-  if (props.license) {
-    query = query.where(
-      'canonical_license_name',
-      '=',
-      toCanonicalLicenseName(props.license),
-    );
-  }
+      const closestAncestor = resourceForRelationships
+        ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+            trx,
+            resourceForRelationships.id,
+          )
+        : undefined;
 
-  if (props.search) {
-    const search = props.search;
-    query = query.where(getSearchExpression(search));
-  }
+      let query = trx
+        .selectFrom('attribution')
+        .select('uuid')
+        .select('data')
+        .select(
+          attributionToResourceRelationship({
+            resource: resourceForRelationships,
+            ancestorId: closestAncestor,
+          })
+            .$castTo<ResourceRelationship>()
+            .as('relationship'),
+        )
+        .select((eb) =>
+          eb
+            .selectFrom('resource_to_attribution')
+            .select(eb.fn.countAll<number>().as('count'))
+            .whereRef('attribution_uuid', '=', 'uuid')
+            .as('resource_count'),
+        );
 
-  if (!props.showResolved) {
-    query = query.where('is_resolved', '=', 0);
-  }
+      if (props.external !== undefined) {
+        query = query.where('is_external', '=', Number(props.external));
+      }
 
-  if (props.sort === 'classification') {
-    query = query.orderBy('classification', 'desc');
-  } else if (props.sort === 'criticality') {
-    query = query.orderBy('criticality', 'desc');
-  } else if (props.sort === 'occurrence') {
-    query = query.orderBy('resource_count', 'desc');
-  }
+      if (props.excludeUnrelated) {
+        query = query.where(
+          attributionToResourceRelationship({
+            resource: resourceForRelationships,
+            ancestorId: closestAncestor,
+          }),
+          '!=',
+          'unrelated',
+        );
+      }
 
-  // Alphabetically by label. The label calculation is more complicated, so this is an approximation (but good enough)
-  query = query.orderBy((eb) =>
-    eb
-      .case()
-      .when('first_party', '=', 1)
-      .then(eb.fn<string>('concat', [eb.val('First Party'), 'comment']))
-      .else(
-        eb.fn<string>('concat', [
-          'package_name',
-          'license_name',
-          'copyright',
-          sql`data->>'licenseText'`,
-          'comment',
-          'url',
-        ]),
-      )
-      .end(),
-  );
+      if (props.filters) {
+        for (const filter of props.filters) {
+          query = query.where(getFilterExpression(filter));
+        }
+      }
 
-  const attributions = await query.execute();
+      if (props.license) {
+        query = query.where(
+          'canonical_license_name',
+          '=',
+          toCanonicalLicenseName(props.license),
+        );
+      }
+
+      if (props.search) {
+        const search = props.search;
+        query = query.where(getSearchExpression(search));
+      }
+
+      if (!props.showResolved) {
+        query = query.where('is_resolved', '=', 0);
+      }
+
+      if (props.uuids) {
+        query = query.where('uuid', 'in', props.uuids);
+      }
+
+      if (props.sort === 'classification') {
+        query = query.orderBy('classification', 'desc');
+      } else if (props.sort === 'criticality') {
+        query = query.orderBy('criticality', 'desc');
+      } else if (props.sort === 'occurrence') {
+        query = query.orderBy('resource_count', 'desc');
+      }
+
+      // Alphabetically by label. The label calculation is more complicated, so this is an approximation (but good enough)
+      query = query.orderBy((eb) =>
+        eb
+          .case()
+          .when('first_party', '=', 1)
+          .then(eb.fn<string>('concat', [eb.val('First Party'), 'comment']))
+          .else(
+            eb.fn<string>('concat', [
+              'package_name',
+              'license_name',
+              'copyright',
+              sql`data->>'licenseText'`,
+              'comment',
+              'url',
+            ]),
+          )
+          .end(),
+      );
+
+      return query.execute();
+    });
 
   const backendToFrontendRelationship = {
     same: 'resource',

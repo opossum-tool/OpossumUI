@@ -8,7 +8,7 @@ import { useAppSelector } from '../state/hooks';
 import { getSelectedAttributionId } from '../state/selectors/resource-selectors';
 import { backend } from './backendClient';
 
-export function useSelectedAttribution() {
+export function useSelectedAttributionPackageInfo() {
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
   const selectedAttributionData = backend.getAttributionData.useQuery(
@@ -23,5 +23,23 @@ export function useSelectedAttribution() {
     return null;
   }
 
-  return selectedAttributionData.data;
+  return selectedAttributionData.data?.packageInfo;
+}
+
+export function useSelectedAttributionIsExternal() {
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+
+  const selectedAttributionData = backend.getAttributionData.useQuery(
+    selectedAttributionId
+      ? {
+          attributionUuid: selectedAttributionId,
+        }
+      : skipToken,
+  );
+
+  if (!selectedAttributionId) {
+    return null;
+  }
+
+  return selectedAttributionData.data?.isExternal;
 }

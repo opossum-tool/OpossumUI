@@ -8,17 +8,20 @@ import { faker } from '../../../testing/Faker';
 import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../test-helpers/general-test-helpers';
 import { renderHook } from '../../test-helpers/render';
-import { useSelectedAttribution } from '../use-selected-attribution';
+import { useSelectedAttributionPackageInfo } from '../use-selected-attribution';
 
-describe('useSelectedAttribution', () => {
+describe('useSelectedAttributionPackageInfo', () => {
   it('returns attribution data when selected and null when deselected', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const manualAttributions = { [packageInfo.id]: packageInfo };
 
-    const { result, store } = await renderHook(() => useSelectedAttribution(), {
-      data: getParsedInputFileEnrichedWithTestData({ manualAttributions }),
-      actions: [setSelectedAttributionId(packageInfo.id)],
-    });
+    const { result, store } = await renderHook(
+      () => useSelectedAttributionPackageInfo(),
+      {
+        data: getParsedInputFileEnrichedWithTestData({ manualAttributions }),
+        actions: [setSelectedAttributionId(packageInfo.id)],
+      },
+    );
 
     await waitFor(() => {
       expect(result.current).toEqual(packageInfo);

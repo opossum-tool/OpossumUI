@@ -37,7 +37,7 @@ import { useAttributionIdsForReplacement } from '../../../state/variables/use-at
 import { backend } from '../../../util/backendClient';
 import { isPackageInvalid } from '../../../util/input-validation';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
-import { useSelectedAttribution } from '../../../util/use-selected-attribution';
+import { useSelectedAttributionPackageInfo } from '../../../util/use-selected-attribution';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
 import { ConfirmSavePopup } from '../../ConfirmSavePopup/ConfirmSavePopup';
@@ -53,7 +53,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const dispatch = useAppDispatch();
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
-  const initialPackageInfo = useSelectedAttribution();
+  const initialPackageInfo = useSelectedAttributionPackageInfo();
   const { data: resolvedExternalAttributions } =
     backend.resolvedAttributionUuids.useQuery();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
@@ -73,7 +73,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   );
 
   const originalAttribution = packageInfo.originalAttributionId
-    ? originalAttributionQuery.data
+    ? originalAttributionQuery.data?.packageInfo
     : undefined;
 
   const [isDiffPopupOpen, setIsDiffPopupOpen] = useState(false);
