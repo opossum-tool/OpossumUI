@@ -577,3 +577,14 @@ export async function computeWasPreferred(
     undefined
   );
 }
+
+export function removeParentFromPath(parentPath: string, path: string) {
+  let resultingPath = path;
+  if (resultingPath.startsWith(parentPath)) {
+    resultingPath = resultingPath.substring(parentPath.length);
+  }
+  if (resultingPath.startsWith('/')) {
+    resultingPath = resultingPath.substring(1);
+  }
+  return resultingPath;
+}
