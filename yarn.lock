@@ -7245,10 +7245,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kysely@npm:0.28.14":
-  version: 0.28.14
-  resolution: "kysely@npm:0.28.14"
-  checksum: 10/d76ff120c4c295091e0c8ecf9f2fb920547247d0cf6f0cf0098cb6d85fd77f18da09ddd18345477a527b82eddc087a145783772fc0e09e9280239fb87df83be9
+"kysely@npm:0.28.15":
+  version: 0.28.15
+  resolution: "kysely@npm:0.28.15"
+  checksum: 10/03d464d963ad46e4446004ca85df471871f66bb9be3072ae10efaf0faca8e9513639db09108a12ea012b5c2820a831b97122a03895223324362619e8a0f2ead0
   languageName: node
   linkType: hard
 
@@ -8274,7 +8274,7 @@ __metadata:
     js-yaml: "npm:4.1.1"
     jsonschema: "npm:1.5.0"
     knip: "npm:6.1.0"
-    kysely: "npm:0.28.14"
+    kysely: "npm:0.28.15"
     kysely-codegen: "npm:0.20.0"
     lint-staged: "npm:16.4.0"
     lodash: "npm:4.18.1"
