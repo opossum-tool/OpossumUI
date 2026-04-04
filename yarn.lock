@@ -2839,14 +2839,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:1.59.0":
-  version: 1.59.0
-  resolution: "@playwright/test@npm:1.59.0"
+"@playwright/test@npm:1.59.1":
+  version: 1.59.1
+  resolution: "@playwright/test@npm:1.59.1"
   dependencies:
-    playwright: "npm:1.59.0"
+    playwright: "npm:1.59.1"
   bin:
     playwright: cli.js
-  checksum: 10/4a756c257fa9c0edec4ba202edf10e2fab8cf69cd7b5255229977c616390d7cadb03fedf586281693f9886b0e56b197f3810526aca0acbeccb58c1dc1d767dde
+  checksum: 10/27a894c4d4216b51cddc96e18fd0638a9e2e0a3f0b7ee32a56121fb61df395ec43529f5dcdca32578af8a34a04722ee3767f99f0ae4d39fa8edceda89a96014c
   languageName: node
   linkType: hard
 
@@ -8223,7 +8223,7 @@ __metadata:
     "@mui/material": "npm:7.3.9"
     "@mui/system": "npm:7.3.9"
     "@mui/utils": "npm:7.3.9"
-    "@playwright/test": "npm:1.59.0"
+    "@playwright/test": "npm:1.59.1"
     "@reduxjs/toolkit": "npm:2.11.2"
     "@rolldown/plugin-babel": "npm:0.2.2"
     "@tanstack/eslint-plugin-query": "npm:5.96.0"
@@ -8689,27 +8689,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.59.0":
-  version: 1.59.0
-  resolution: "playwright-core@npm:1.59.0"
+"playwright-core@npm:1.59.1":
+  version: 1.59.1
+  resolution: "playwright-core@npm:1.59.1"
   bin:
     playwright-core: cli.js
-  checksum: 10/6df95346fc9512915e75fba3752c67e5acb18832801b9496d6cfea32500d3a6dab1056c75789e9a26cabfbefceb21241ca45351af5ad3f02b45afb2af91698d7
+  checksum: 10/d27857a6701587c2a9bfa26fed9a5d8c617a392299b99b187f2ddc198d012a1e296449806bc907220debea938152677e8b4d91d304ed00645f762f778de3abec
   languageName: node
   linkType: hard
 
-"playwright@npm:1.59.0":
-  version: 1.59.0
-  resolution: "playwright@npm:1.59.0"
+"playwright@npm:1.59.1":
+  version: 1.59.1
+  resolution: "playwright@npm:1.59.1"
   dependencies:
     fsevents: "npm:2.3.2"
-    playwright-core: "npm:1.59.0"
+    playwright-core: "npm:1.59.1"
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: 10/2415646868de2f1e20be5c52d17738f4347c3d9fda4b166034d790897dde42374eb715fdd94e60536c6b19bd17f6361c213093e70158d602fd496eb81cd01888
+  checksum: 10/17b2df42effa362adc6aa3192b625bd80f26b91a0c253a2375ac89ace68407b746dd87b4081629c50c58c3cb031c5b837a32fef43a3c98c60ea504e0b001e5fa
   languageName: node
   linkType: hard
 

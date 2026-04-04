@@ -62,7 +62,7 @@
     "@eslint/compat": "2.0.3",
     "@eslint/js": "10.0.1",
     "@faker-js/faker": "10.4.0",
-    "@playwright/test": "1.59.0",
+    "@playwright/test": "1.59.1",
     "@rolldown/plugin-babel": "0.2.2",
     "@tanstack/eslint-plugin-query": "5.96.0",
     "@testing-library/dom": "10.4.1",
