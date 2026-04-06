@@ -7168,9 +7168,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knip@npm:6.2.0":
-  version: 6.2.0
-  resolution: "knip@npm:6.2.0"
+"knip@npm:6.3.0":
+  version: 6.3.0
+  resolution: "knip@npm:6.3.0"
   dependencies:
     "@nodelib/fs.walk": "npm:^1.2.3"
     fast-glob: "npm:^3.3.3"
@@ -7190,7 +7190,7 @@ __metadata:
   bin:
     knip: bin/knip.js
     knip-bun: bin/knip-bun.js
-  checksum: 10/a8e624437209d3011697b45f30ee3643ff756565b2434cdc07cc6d58850a5a06f85d3a6586912b39fded7c56eb8f1e3298c4008df2ef396617d0e38cccc0b35b
+  checksum: 10/545a2730d2f00e52b78a85f73b5a4d1c8eeaaea85feac614dd2196d8313c6f9800b416f3c8a3df3676857e855f22133d2b3e472a118c17fe7851b5dd2da12cd2
   languageName: node
   linkType: hard
 
@@ -8273,7 +8273,7 @@ __metadata:
     husky: "npm:9.1.7"
     js-yaml: "npm:4.1.1"
     jsonschema: "npm:1.5.0"
-    knip: "npm:6.2.0"
+    knip: "npm:6.3.0"
     kysely: "npm:0.28.15"
     kysely-codegen: "npm:0.20.0"
     lint-staged: "npm:16.4.0"
