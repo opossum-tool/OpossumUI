@@ -8,8 +8,7 @@ import { useMemo } from 'react';
 
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
-import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
-import { getExternalAttributionSources } from '../../../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../../../state/hooks';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { backend } from '../../../../util/backendClient';
 import {
@@ -34,13 +33,14 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   const dispatch = useAppDispatch();
   const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
-  const sources = useAppSelector(getExternalAttributionSources);
+  const { data: sources } = backend.getExternalAttributionSources.useQuery();
 
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const groupedIds = useMemo(
     () =>
       attributions &&
       activeAttributionIds &&
+      sources &&
       _groupBy(
         _orderBy(
           activeAttributionIds,
@@ -57,7 +57,7 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
           const attribution = attributions[id];
           return (
             attribution?.source &&
-            (sources[attribution.source.name]?.name || attribution.source.name)
+            (sources[attribution.source.name]?.name ?? attribution.source.name)
           );
         },
       ),

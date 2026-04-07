@@ -24,7 +24,6 @@ import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
   getClassifications,
-  getExternalAttributionSources,
   getFilesWithChildren,
   getIsPreferenceFeatureEnabled,
   getManualData,
@@ -142,9 +141,6 @@ describe('loadFromFile', () => {
     expect(getBaseUrlsForSources(testStore.getState())).toEqual(
       testBaseUrlsForSources,
     );
-    expect(getExternalAttributionSources(testStore.getState())).toEqual({
-      SC: { name: 'ScanCode', priority: 1, isRelevantForPreferred: true },
-    });
     expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(true);
   });
 

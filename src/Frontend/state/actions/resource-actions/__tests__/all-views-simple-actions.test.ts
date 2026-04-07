@@ -16,7 +16,6 @@ import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getBaseUrlsForSources,
-  getExternalAttributionSources,
   getIsPreferenceFeatureEnabled,
   getManualAttributions,
   getManualAttributionsToResources,
@@ -26,7 +25,6 @@ import {
 import {
   resetResourceState,
   setBaseUrlsForSources,
-  setExternalAttributionSources,
   setIsPreferenceFeatureEnabled,
   setManualData,
   setTemporaryDisplayPackageInfo,
@@ -175,19 +173,6 @@ describe('The load and navigation simple actions', () => {
     testStore.dispatch(setBaseUrlsForSources({ '/': 'github.com' }));
     expect(getBaseUrlsForSources(testStore.getState())).toEqual({
       '/': 'github.com',
-    });
-  });
-
-  it('sets and gets externalAttributionSources', () => {
-    const testStore = createAppStore();
-    expect(getExternalAttributionSources(testStore.getState())).toEqual({});
-    testStore.dispatch(
-      setExternalAttributionSources({
-        SC: { name: 'Scancode', priority: 1 },
-      }),
-    );
-    expect(getExternalAttributionSources(testStore.getState())).toEqual({
-      SC: { name: 'Scancode', priority: 1 },
     });
   });
 
