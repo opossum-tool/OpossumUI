@@ -5,7 +5,6 @@
 import {
   type AttributionData,
   type BaseUrlsForSources,
-  type ExternalAttributionSources,
   type PackageInfo,
   type ProjectConfig,
   type ProjectMetadata,
@@ -49,10 +48,6 @@ export const ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTIONS =
 export const ACTION_SET_PROJECT_METADATA = 'ACTION_SET_PROJECT_METADATA';
 export const ACTION_SET_BASE_URLS_FOR_SOURCES =
   'ACTION_SET_BASE_URLS_FOR_SOURCES';
-export const ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES =
-  'ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES';
-export const ACTION_SET_ENABLE_PREFERENCE_FEATURE =
-  'ACTION_SET_ENABLE_PREFERENCE_FEATURE';
 export const ACTION_SET_IS_PACKAGE_INFO_DIRTY =
   'ACTION_SET_IS_PACKAGE_INFO_DIRTY';
 
@@ -79,8 +74,6 @@ export type ResourceAction =
   | RemoveResolvedExternalAttributions
   | SetProjectMetadata
   | SetBaseUrlsForSources
-  | SetExternalAttributionSources
-  | SetIsPreferenceFeatureEnabled
   | SetIsPackageInfoDirtyAction;
 
 export interface ResetResourceStateAction {
@@ -205,16 +198,6 @@ export interface SetProjectMetadata {
 export interface SetBaseUrlsForSources {
   type: typeof ACTION_SET_BASE_URLS_FOR_SOURCES;
   payload: BaseUrlsForSources;
-}
-
-export interface SetExternalAttributionSources {
-  type: typeof ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES;
-  payload: ExternalAttributionSources;
-}
-
-export interface SetIsPreferenceFeatureEnabled {
-  type: typeof ACTION_SET_ENABLE_PREFERENCE_FEATURE;
-  payload: boolean;
 }
 
 export interface SetIsPackageInfoDirtyAction {

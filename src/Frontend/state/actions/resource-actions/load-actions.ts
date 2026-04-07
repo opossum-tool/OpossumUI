@@ -18,9 +18,7 @@ import {
   setAttributionBreakpoints,
   setBaseUrlsForSources,
   setConfig,
-  setExternalAttributionSources,
   setFilesWithChildren,
-  setIsPreferenceFeatureEnabled,
   setManualData,
   setProjectMetadata,
 } from './all-views-simple-actions';
@@ -105,19 +103,5 @@ export function loadFromFile(
     dispatch(setProjectMetadata(parsedFileContent.metadata));
 
     dispatch(setBaseUrlsForSources(parsedFileContent.baseUrlsForSources));
-
-    dispatch(
-      setExternalAttributionSources(
-        parsedFileContent.externalAttributionSources,
-      ),
-    );
-
-    dispatch(
-      setIsPreferenceFeatureEnabled(
-        Object.values(parsedFileContent.externalAttributionSources).some(
-          (source) => source.isRelevantForPreferred,
-        ),
-      ),
-    );
   };
 }

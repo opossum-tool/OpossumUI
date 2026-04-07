@@ -82,9 +82,6 @@ describe('loadFromFile', () => {
       attributionBreakpoints: new Set(['/third-party/package/']),
       filesWithChildren: new Set(['/third-party/package.json/']),
       baseUrlsForSources: testBaseUrlsForSources,
-      externalAttributionSources: {
-        SC: { name: 'ScanCode', priority: 1, isRelevantForPreferred: true },
-      },
     };
     const expectedConfig: ProjectConfig = {
       classifications: {

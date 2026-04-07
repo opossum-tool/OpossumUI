@@ -6,7 +6,6 @@ import {
   type Attributions,
   type AttributionsToResources,
   type BaseUrlsForSources,
-  type ExternalAttributionSources,
   type PackageInfo,
   type ProjectConfig,
   type ProjectMetadata,
@@ -17,8 +16,6 @@ import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
   ACTION_SET_BASE_URLS_FOR_SOURCES,
-  ACTION_SET_ENABLE_PREFERENCE_FEATURE,
-  ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
@@ -28,10 +25,8 @@ import {
   type ResetResourceStateAction,
   type SetAttributionBreakpoints,
   type SetBaseUrlsForSources,
-  type SetExternalAttributionSources,
   type SetFilesWithChildren,
   type SetIsPackageInfoDirtyAction,
-  type SetIsPreferenceFeatureEnabled,
   type SetManualDataAction,
   type SetProjectConfigAction,
   type SetProjectMetadata,
@@ -103,24 +98,6 @@ export function setBaseUrlsForSources(
   return {
     type: ACTION_SET_BASE_URLS_FOR_SOURCES,
     payload: baseUrlsForSources,
-  };
-}
-
-export function setExternalAttributionSources(
-  externalAttributionSources: ExternalAttributionSources,
-): SetExternalAttributionSources {
-  return {
-    type: ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
-    payload: externalAttributionSources,
-  };
-}
-
-export function setIsPreferenceFeatureEnabled(
-  isPreferenceFeatureEnabled: boolean,
-): SetIsPreferenceFeatureEnabled {
-  return {
-    type: ACTION_SET_ENABLE_PREFERENCE_FEATURE,
-    payload: isPreferenceFeatureEnabled,
   };
 }
 
