@@ -25,7 +25,6 @@ import {
   getBaseUrlsForSources,
   getClassifications,
   getFilesWithChildren,
-  getIsPreferenceFeatureEnabled,
   getManualData,
 } from '../../../selectors/resource-selectors';
 import { loadFromFile } from '../load-actions';
@@ -141,30 +140,5 @@ describe('loadFromFile', () => {
     expect(getBaseUrlsForSources(testStore.getState())).toEqual(
       testBaseUrlsForSources,
     );
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(true);
-  });
-
-  it('disables the preference feature if no external source is relevant', () => {
-    const testParsedFileContent: ParsedFrontendFileContent = {
-      metadata: EMPTY_PROJECT_METADATA,
-      config: testConfig,
-      manualAttributions: {
-        attributions: testManualAttributions,
-        resourcesToAttributions: testResourcesToManualAttributions,
-        attributionsToResources: testManualAttributionsToResources,
-      },
-      resolvedExternalAttributions: new Set(),
-      attributionBreakpoints: new Set(),
-      filesWithChildren: new Set(),
-      baseUrlsForSources: {},
-      externalAttributionSources: {
-        SC: { name: 'ScanCode', priority: 1, isRelevantForPreferred: false },
-      },
-    };
-
-    const testStore = createAppStore();
-    testStore.dispatch(loadFromFile(testParsedFileContent));
-
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(false);
   });
 });

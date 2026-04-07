@@ -501,6 +501,17 @@ export const queries = {
       ),
     };
   },
+
+  async isPreferenceFeatureEnabled(): Promise<{
+    result: boolean;
+  }> {
+    const result = await getDb()
+      .selectFrom('external_attribution_source')
+      .select('is_relevant_for_preferred')
+      .where('is_relevant_for_preferred', '=', 1)
+      .executeTakeFirst();
+    return { result: !!result };
+  },
 } satisfies Record<string, QueryFunction>;
 
 export type Queries = typeof queries;

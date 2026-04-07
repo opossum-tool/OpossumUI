@@ -16,7 +16,6 @@ import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getBaseUrlsForSources,
-  getIsPreferenceFeatureEnabled,
   getManualAttributions,
   getManualAttributionsToResources,
   getResourcesWithManualAttributedChildren,
@@ -25,7 +24,6 @@ import {
 import {
   resetResourceState,
   setBaseUrlsForSources,
-  setIsPreferenceFeatureEnabled,
   setManualData,
   setTemporaryDisplayPackageInfo,
 } from '../all-views-simple-actions';
@@ -174,12 +172,5 @@ describe('The load and navigation simple actions', () => {
     expect(getBaseUrlsForSources(testStore.getState())).toEqual({
       '/': 'github.com',
     });
-  });
-
-  it('sets and gets isPreferenceFeatureEnabled', () => {
-    const testStore = createAppStore();
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(false);
-    testStore.dispatch(setIsPreferenceFeatureEnabled(true));
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(true);
   });
 });

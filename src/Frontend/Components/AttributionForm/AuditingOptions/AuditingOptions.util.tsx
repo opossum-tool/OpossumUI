@@ -22,7 +22,6 @@ import {
 } from '../../../state/hooks';
 import {
   getClassifications,
-  getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
@@ -56,9 +55,8 @@ export function useAuditingOptions({
 }) {
   const dispatch = useAppDispatch();
   const store = useAppStore();
-  const isPreferenceFeatureEnabled = useAppSelector(
-    getIsPreferenceFeatureEnabled,
-  );
+  const { data: isPreferenceFeatureEnabled } =
+    backend.isPreferenceFeatureEnabled.useQuery();
   const classifications = useAppSelector(getClassifications);
   const compareToOriginal = useCompareToOriginal(packageInfo);
   const [userSettings] = useUserSettings();
@@ -116,7 +114,7 @@ export function useAuditingOptions({
               preferred: false,
             }),
           ),
-        interactive: isPreferenceFeatureEnabled && qaMode && isEditable,
+        interactive: !!isPreferenceFeatureEnabled && qaMode && isEditable,
       },
       {
         id: 'was-preferred',

@@ -82,10 +82,6 @@ export function getBaseUrlsForSources(state: State): BaseUrlsForSources {
   return state.resourceState.baseUrlsForSources;
 }
 
-export function getIsPreferenceFeatureEnabled(state: State): boolean {
-  return state.resourceState.isPreferenceFeatureEnabled;
-}
-
 export function getIsSelectedResourceBreakpoint(state: State) {
   const breakpoints = getAttributionBreakpoints(state);
   const selectedResourceId = getSelectedResourceId(state);
