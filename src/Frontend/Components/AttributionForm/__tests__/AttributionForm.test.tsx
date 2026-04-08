@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 
 import {
   Criticality,
+  type ExternalAttributionSources,
   type PackageInfo,
   RawCriticality,
 } from '../../../../shared/shared-types';
@@ -99,6 +100,25 @@ describe('AttributionForm', () => {
       expect(
         await screen.findByText(source.additionalName!),
       ).toBeInTheDocument();
+    });
+
+    it('renders from the DB if external attribution source is defined there', async () => {
+      const source = faker.opossum.source({
+        additionalName: faker.company.name(),
+      });
+      const packageInfo = faker.opossum.packageInfo({
+        source,
+      });
+
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+        data: getParsedInputFileEnrichedWithTestData({
+          externalAttributionSources: {
+            [source.additionalName!]: { name: 'pretty name', priority: 1 },
+          } as ExternalAttributionSources,
+        }),
+      });
+
+      expect(await screen.findByText('pretty name')).toBeInTheDocument();
     });
 
     it('renders original signal source for manual attributions', async () => {
