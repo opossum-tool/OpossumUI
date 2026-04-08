@@ -33,7 +33,7 @@ export interface GroupedListItemContentProps {
 
 interface GroupedListProps {
   className?: string;
-  grouped: Record<string, ReadonlyArray<string>> | null | undefined;
+  grouped: Record<string, ReadonlyArray<string>> | null;
   loading?: boolean;
   renderGroupName?: (key: string) => React.ReactNode;
   renderItemContent: (

@@ -40,7 +40,6 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
     () =>
       attributions &&
       activeAttributionIds &&
-      sources &&
       _groupBy(
         _orderBy(
           activeAttributionIds,
@@ -48,7 +47,8 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
             const attribution = attributions[id];
             return (
               attribution &&
-              (attribution.source && sources[attribution.source.name])?.priority
+              (attribution.source && sources?.[attribution.source.name])
+                ?.priority
             );
           },
           'desc',
@@ -57,7 +57,8 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
           const attribution = attributions[id];
           return (
             attribution?.source &&
-            (sources[attribution.source.name]?.name ?? attribution.source.name)
+            (sources?.[attribution.source.name]?.name ||
+              attribution.source.name)
           );
         },
       ),
