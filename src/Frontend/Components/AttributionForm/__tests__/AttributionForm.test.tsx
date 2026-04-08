@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 
 import {
   Criticality,
+  type ExternalAttributionSources,
   type PackageInfo,
   RawCriticality,
 } from '../../../../shared/shared-types';
@@ -75,9 +76,13 @@ describe('AttributionForm', () => {
         criticality: Criticality.None,
         id: faker.string.uuid(),
       };
-      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+        data: getParsedInputFileEnrichedWithTestData({}),
+      });
 
-      expect(screen.getByText(packageInfo.source!.name)).toBeInTheDocument();
+      expect(
+        await screen.findByText(packageInfo.source!.name),
+      ).toBeInTheDocument();
     });
 
     it('renders the name of the original source for external attributions', async () => {
@@ -88,9 +93,32 @@ describe('AttributionForm', () => {
         source,
       });
 
-      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+        data: getParsedInputFileEnrichedWithTestData({}),
+      });
 
-      expect(screen.getByText(source.additionalName!)).toBeInTheDocument();
+      expect(
+        await screen.findByText(source.additionalName!),
+      ).toBeInTheDocument();
+    });
+
+    it('renders from the DB if external attribution source is defined there', async () => {
+      const source = faker.opossum.source({
+        additionalName: faker.company.name(),
+      });
+      const packageInfo = faker.opossum.packageInfo({
+        source,
+      });
+
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+        data: getParsedInputFileEnrichedWithTestData({
+          externalAttributionSources: {
+            [source.additionalName!]: { name: 'pretty name', priority: 1 },
+          } as ExternalAttributionSources,
+        }),
+      });
+
+      expect(await screen.findByText('pretty name')).toBeInTheDocument();
     });
 
     it('renders original signal source for manual attributions', async () => {
@@ -99,10 +127,14 @@ describe('AttributionForm', () => {
         originalAttributionSource: source,
       });
 
-      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+        data: getParsedInputFileEnrichedWithTestData({}),
+      });
 
       expect(
-        screen.getByText(text.attributionColumn.originallyFrom + source.name),
+        await screen.findByText(
+          text.attributionColumn.originallyFrom + source.name,
+        ),
       ).toBeInTheDocument();
     });
 

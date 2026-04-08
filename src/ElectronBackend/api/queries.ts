@@ -10,7 +10,10 @@ import {
   type FilterCounts,
   FILTERS,
 } from '../../Frontend/shared-constants';
-import { type PackageInfo } from '../../shared/shared-types';
+import {
+  type ExternalAttributionSources,
+  type PackageInfo,
+} from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
@@ -476,6 +479,38 @@ export const queries = {
         return !!attributions;
       });
     return { result };
+  },
+
+  async getExternalAttributionSources(): Promise<{
+    result: ExternalAttributionSources;
+  }> {
+    const result = await getDb()
+      .selectFrom('external_attribution_source')
+      .selectAll()
+      .execute();
+    return {
+      result: Object.fromEntries(
+        result.map((r) => [
+          r.key,
+          {
+            name: r.name,
+            priority: r.priority,
+            isRelevantForPreferred: r.is_relevant_for_preferred === 1,
+          },
+        ]),
+      ),
+    };
+  },
+
+  async isPreferenceFeatureEnabled(): Promise<{
+    result: boolean;
+  }> {
+    const result = await getDb()
+      .selectFrom('external_attribution_source')
+      .select('is_relevant_for_preferred')
+      .where('is_relevant_for_preferred', '=', 1)
+      .executeTakeFirst();
+    return { result: !!result };
   },
 } satisfies Record<string, QueryFunction>;
 

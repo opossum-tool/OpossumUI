@@ -22,11 +22,10 @@ import {
 } from '../../../state/hooks';
 import {
   getClassifications,
-  getExternalAttributionSources,
-  getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
+import { backend } from '../../../util/backendClient';
 import { prettifySource } from '../../../util/prettify-source';
 import { useCompareToOriginal } from '../../../util/use-compare-to-original';
 import {
@@ -56,10 +55,8 @@ export function useAuditingOptions({
 }) {
   const dispatch = useAppDispatch();
   const store = useAppStore();
-  const attributionSources = useAppSelector(getExternalAttributionSources);
-  const isPreferenceFeatureEnabled = useAppSelector(
-    getIsPreferenceFeatureEnabled,
-  );
+  const { data: isPreferenceFeatureEnabled } =
+    backend.isPreferenceFeatureEnabled.useQuery();
   const classifications = useAppSelector(getClassifications);
   const compareToOriginal = useCompareToOriginal(packageInfo);
   const [userSettings] = useUserSettings();
@@ -90,6 +87,11 @@ export function useAuditingOptions({
     packageInfo.source?.additionalName,
     packageInfo.source?.name,
   ]);
+  const { data: sources } = backend.getExternalAttributionSources.useQuery();
+  const prettySources = useMemo(
+    () => (sources ? prettifySource(source.sourceName, sources) : ''),
+    [sources, source.sourceName],
+  );
 
   return useMemo<Array<AuditingOption>>(
     () => [
@@ -112,7 +114,7 @@ export function useAuditingOptions({
               preferred: false,
             }),
           ),
-        interactive: isPreferenceFeatureEnabled && qaMode && isEditable,
+        interactive: !!isPreferenceFeatureEnabled && qaMode && isEditable,
       },
       {
         id: 'was-preferred',
@@ -207,9 +209,7 @@ export function useAuditingOptions({
       },
       {
         id: 'source',
-        label: `${
-          source.fromOrigin ? text.attributionColumn.originallyFrom : ''
-        }${prettifySource(source.sourceName, attributionSources)}`,
+        label: `${source.fromOrigin ? text.attributionColumn.originallyFrom : ''}${prettySources}`,
         icon: <SourceIcon noTooltip />,
         selected: !!source.sourceName,
         interactive: false,
@@ -284,7 +284,7 @@ export function useAuditingOptions({
       },
     ],
     [
-      attributionSources,
+      prettySources,
       classifications,
       dispatch,
       compareToOriginal,

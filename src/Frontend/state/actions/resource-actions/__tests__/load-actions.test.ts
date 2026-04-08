@@ -24,9 +24,7 @@ import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
   getClassifications,
-  getExternalAttributionSources,
   getFilesWithChildren,
-  getIsPreferenceFeatureEnabled,
   getManualData,
 } from '../../../selectors/resource-selectors';
 import { loadFromFile } from '../load-actions';
@@ -84,9 +82,6 @@ describe('loadFromFile', () => {
       attributionBreakpoints: new Set(['/third-party/package/']),
       filesWithChildren: new Set(['/third-party/package.json/']),
       baseUrlsForSources: testBaseUrlsForSources,
-      externalAttributionSources: {
-        SC: { name: 'ScanCode', priority: 1, isRelevantForPreferred: true },
-      },
     };
     const expectedConfig: ProjectConfig = {
       classifications: {
@@ -142,33 +137,5 @@ describe('loadFromFile', () => {
     expect(getBaseUrlsForSources(testStore.getState())).toEqual(
       testBaseUrlsForSources,
     );
-    expect(getExternalAttributionSources(testStore.getState())).toEqual({
-      SC: { name: 'ScanCode', priority: 1, isRelevantForPreferred: true },
-    });
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(true);
-  });
-
-  it('disables the preference feature if no external source is relevant', () => {
-    const testParsedFileContent: ParsedFrontendFileContent = {
-      metadata: EMPTY_PROJECT_METADATA,
-      config: testConfig,
-      manualAttributions: {
-        attributions: testManualAttributions,
-        resourcesToAttributions: testResourcesToManualAttributions,
-        attributionsToResources: testManualAttributionsToResources,
-      },
-      resolvedExternalAttributions: new Set(),
-      attributionBreakpoints: new Set(),
-      filesWithChildren: new Set(),
-      baseUrlsForSources: {},
-      externalAttributionSources: {
-        SC: { name: 'ScanCode', priority: 1, isRelevantForPreferred: false },
-      },
-    };
-
-    const testStore = createAppStore();
-    testStore.dispatch(loadFromFile(testParsedFileContent));
-
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(false);
   });
 });

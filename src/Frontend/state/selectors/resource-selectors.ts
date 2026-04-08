@@ -8,7 +8,6 @@ import {
   type AttributionsToResources,
   type BaseUrlsForSources,
   type ClassificationsConfig,
-  type ExternalAttributionSources,
   type PackageInfo,
   type ProjectMetadata,
   type ResourcesWithAttributedChildren,
@@ -81,16 +80,6 @@ export function getIsPackageInfoDirty(state: State): boolean {
 
 export function getBaseUrlsForSources(state: State): BaseUrlsForSources {
   return state.resourceState.baseUrlsForSources;
-}
-
-export function getExternalAttributionSources(
-  state: State,
-): ExternalAttributionSources {
-  return state.resourceState.externalAttributionSources;
-}
-
-export function getIsPreferenceFeatureEnabled(state: State): boolean {
-  return state.resourceState.isPreferenceFeatureEnabled;
 }
 
 export function getIsSelectedResourceBreakpoint(state: State) {

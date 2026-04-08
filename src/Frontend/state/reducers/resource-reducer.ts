@@ -5,7 +5,6 @@
 import {
   type AttributionData,
   type BaseUrlsForSources,
-  type ExternalAttributionSources,
   type PackageInfo,
   type ProjectConfig,
   type ProjectMetadata,
@@ -27,9 +26,7 @@ import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
   ACTION_SET_BASE_URLS_FOR_SOURCES,
-  ACTION_SET_ENABLE_PREFERENCE_FEATURE,
   ACTION_SET_EXPANDED_IDS,
-  ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
@@ -58,10 +55,8 @@ export const initialResourceState: ResourceState = {
   attributionBreakpoints: new Set(),
   baseUrlsForSources: {},
   expandedIds: [ROOT_PATH],
-  externalAttributionSources: {},
   filesWithChildren: new Set(),
   isPackageInfoDirty: false,
-  isPreferenceFeatureEnabled: false,
   manualData: EMPTY_ATTRIBUTION_DATA,
   metadata: EMPTY_PROJECT_METADATA,
   config: EMPTY_PROJECT_CONFIG,
@@ -78,10 +73,8 @@ export type ResourceState = {
   attributionBreakpoints: Set<string>;
   baseUrlsForSources: BaseUrlsForSources;
   expandedIds: Array<string>;
-  externalAttributionSources: ExternalAttributionSources;
   filesWithChildren: Set<string>;
   isPackageInfoDirty: boolean;
-  isPreferenceFeatureEnabled: boolean;
   manualData: AttributionData;
   metadata: ProjectMetadata;
   config: ProjectConfig;
@@ -115,11 +108,6 @@ export const resourceState = (
       return {
         ...state,
         baseUrlsForSources: action.payload,
-      };
-    case ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES:
-      return {
-        ...state,
-        externalAttributionSources: action.payload,
       };
     case ACTION_SET_TEMPORARY_PACKAGE_INFO:
       return {
@@ -285,11 +273,6 @@ export const resourceState = (
         resolvedExternalAttributions,
       };
     }
-    case ACTION_SET_ENABLE_PREFERENCE_FEATURE:
-      return {
-        ...state,
-        isPreferenceFeatureEnabled: action.payload,
-      };
     case ACTION_SET_IS_PACKAGE_INFO_DIRTY:
       return {
         ...state,

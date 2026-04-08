@@ -16,8 +16,6 @@ import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getBaseUrlsForSources,
-  getExternalAttributionSources,
-  getIsPreferenceFeatureEnabled,
   getManualAttributions,
   getManualAttributionsToResources,
   getResourcesWithManualAttributedChildren,
@@ -26,8 +24,6 @@ import {
 import {
   resetResourceState,
   setBaseUrlsForSources,
-  setExternalAttributionSources,
-  setIsPreferenceFeatureEnabled,
   setManualData,
   setTemporaryDisplayPackageInfo,
 } from '../all-views-simple-actions';
@@ -176,25 +172,5 @@ describe('The load and navigation simple actions', () => {
     expect(getBaseUrlsForSources(testStore.getState())).toEqual({
       '/': 'github.com',
     });
-  });
-
-  it('sets and gets externalAttributionSources', () => {
-    const testStore = createAppStore();
-    expect(getExternalAttributionSources(testStore.getState())).toEqual({});
-    testStore.dispatch(
-      setExternalAttributionSources({
-        SC: { name: 'Scancode', priority: 1 },
-      }),
-    );
-    expect(getExternalAttributionSources(testStore.getState())).toEqual({
-      SC: { name: 'Scancode', priority: 1 },
-    });
-  });
-
-  it('sets and gets isPreferenceFeatureEnabled', () => {
-    const testStore = createAppStore();
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(false);
-    testStore.dispatch(setIsPreferenceFeatureEnabled(true));
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(true);
   });
 });

@@ -98,10 +98,6 @@ const expectedFrontendData: ParsedFrontendFileContent = {
   attributionBreakpoints: new Set(),
   filesWithChildren: new Set(),
   baseUrlsForSources: {},
-  externalAttributionSources: {
-    SC: { name: 'ScanCode', priority: 1000 },
-    OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
-  },
 };
 
 const validMetadata = {
