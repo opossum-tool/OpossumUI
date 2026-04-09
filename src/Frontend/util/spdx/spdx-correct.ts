@@ -3,6 +3,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { escapeRegExp } from 'lodash';
 import spdxLicenseIds from 'spdx-license-ids/index.json';
 
 function valid(string: string): boolean {
@@ -263,10 +264,6 @@ function validLastResort(identifier: string): string | null {
     }
   }
   return null;
-}
-
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function anyCorrection(
