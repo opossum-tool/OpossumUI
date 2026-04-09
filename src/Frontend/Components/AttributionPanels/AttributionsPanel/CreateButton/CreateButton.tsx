@@ -8,9 +8,9 @@ import MuiTooltip from '@mui/material/Tooltip';
 
 import { text } from '../../../../../shared/text';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
-import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
-import { getIsSelectedResourceBreakpoint } from '../../../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../../../state/hooks';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { useIsSelectedResourceBreakpoint } from '../../../../util/use-selected-resource';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const CreateButton: React.FC<PackagesPanelChildrenProps> = ({
@@ -18,9 +18,7 @@ export const CreateButton: React.FC<PackagesPanelChildrenProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
-  const isSelectedResourceBreakpoint = useAppSelector(
-    getIsSelectedResourceBreakpoint,
-  );
+  const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
 
   return (
     <MuiIconButton

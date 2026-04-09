@@ -57,10 +57,6 @@ export function getTemporaryDisplayPackageInfo(state: State): PackageInfo {
   return state.resourceState.temporaryDisplayPackageInfo;
 }
 
-export function getAttributionBreakpoints(state: State): Set<string> {
-  return state.resourceState.attributionBreakpoints;
-}
-
 export function getFilesWithChildren(state: State): Set<string> {
   return state.resourceState.filesWithChildren;
 }
@@ -75,11 +71,4 @@ export function getClassifications(state: State): ClassificationsConfig {
 
 export function getIsPackageInfoDirty(state: State): boolean {
   return state.resourceState.isPackageInfoDirty;
-}
-
-export function getIsSelectedResourceBreakpoint(state: State) {
-  const breakpoints = getAttributionBreakpoints(state);
-  const selectedResourceId = getSelectedResourceId(state);
-
-  return breakpoints.has(selectedResourceId);
 }
