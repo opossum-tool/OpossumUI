@@ -72,7 +72,6 @@ describe('loadFromFile', () => {
         attributionsToResources: testManualAttributionsToResources,
       },
       resolvedExternalAttributions: new Set(['test_id']),
-      attributionBreakpoints: new Set(['/third-party/package/']),
       filesWithChildren: new Set(['/third-party/package.json/']),
     };
     const expectedConfig: ProjectConfig = {

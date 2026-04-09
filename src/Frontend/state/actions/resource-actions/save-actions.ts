@@ -55,10 +55,12 @@ export function savePackageInfo(
         (ignorePreSelected || !attribution.preSelected) &&
         isEqual(getStrippedPackageInfo(attribution), strippedPackageInfo),
     );
+    const attributionBreakpoints =
+      await backend.getAttributionBreakpoints.query();
 
     if (attributionId && isEmpty(strippedPackageInfo)) {
       // DELETE
-      dispatch(deleteAttribution(attributionId));
+      dispatch(deleteAttribution(attributionId, attributionBreakpoints));
       await backend.deleteAttributions.mutate({
         attributionUuids: [attributionId],
       });
@@ -69,6 +71,7 @@ export function savePackageInfo(
           attributionId,
           matchedPackageInfo.id,
           !isSavedPackageInactive,
+          attributionBreakpoints,
         ),
       );
       await backend.replaceAttribution.mutate({
@@ -82,6 +85,7 @@ export function savePackageInfo(
           resourceId,
           matchedPackageInfo.id,
           !isSavedPackageInactive,
+          attributionBreakpoints,
         ),
       );
       await backend.linkAttribution.mutate({
@@ -181,8 +185,10 @@ export function deleteAttributionsAndSave(
   selectedAttributionId: string,
 ): AsyncAppThunkAction {
   return async (dispatch) => {
+    const attributionBreakpoints =
+      await backend.getAttributionBreakpoints.query();
     attributionIds.forEach((attributionId) => {
-      dispatch(deleteAttribution(attributionId));
+      dispatch(deleteAttribution(attributionId, attributionBreakpoints));
     });
     await backend.deleteAttributions.mutate({
       attributionUuids: attributionIds,
@@ -259,10 +265,13 @@ function updateAttribution(
   };
 }
 
-function deleteAttribution(attributionIdToDelete: string): DeleteAttribution {
+function deleteAttribution(
+  attributionIdToDelete: string,
+  attributionBreakpoints: Set<string>,
+): DeleteAttribution {
   return {
     type: ACTION_DELETE_ATTRIBUTION,
-    payload: attributionIdToDelete,
+    payload: { attributionId: attributionIdToDelete, attributionBreakpoints },
   };
 }
 
@@ -270,6 +279,7 @@ function replaceAttributionWithMatchingAttribution(
   attributionIdToReplace: string,
   attributionIdToReplaceWith: string,
   jumpToMatchingAttribution = true,
+  attributionBreakpoints: Set<string>,
 ): ReplaceAttributionWithMatchingAttributionAction {
   return {
     type: ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
@@ -277,6 +287,7 @@ function replaceAttributionWithMatchingAttribution(
       attributionIdToReplace,
       attributionIdToReplaceWith,
       jumpToMatchingAttribution,
+      attributionBreakpoints,
     },
   };
 }
@@ -285,10 +296,16 @@ function linkToAttribution(
   resourceId: string,
   attributionId: string,
   jumpToMatchingAttribution = true,
+  attributionBreakpoints: Set<string>,
 ): LinkToAttributionAction {
   return {
     type: ACTION_LINK_TO_ATTRIBUTION,
-    payload: { resourceId, attributionId, jumpToMatchingAttribution },
+    payload: {
+      resourceId,
+      attributionId,
+      jumpToMatchingAttribution,
+      attributionBreakpoints,
+    },
   };
 }
 
