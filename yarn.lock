@@ -8345,7 +8345,7 @@ __metadata:
     tsx: "npm:4.21.0"
     typescript: "npm:6.0.2"
     typescript-eslint: "npm:8.58.0"
-    upath: "npm:2.0.1"
+    upath: "npm:3.0.5"
     uuid: "npm:13.0.0"
     vite: "npm:8.0.5"
     vite-plugin-electron: "npm:0.29.1"
@@ -10259,10 +10259,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"upath@npm:2.0.1":
-  version: 2.0.1
-  resolution: "upath@npm:2.0.1"
-  checksum: 10/7b98a83559a295d59f87f7a8d615c7549d19e4aec4dd9d52be2bf1ba93e1d6ee7d8f2188cdecbf303a22cea3768abff4268b960350152a0264125f577d9ed79e
+"upath@npm:3.0.5":
+  version: 3.0.5
+  resolution: "upath@npm:3.0.5"
+  checksum: 10/cbf75bc2b65c471bd7cba6e84e0d46e15e8dd963d9501826afdae2d2985de8f59f0ef958a11073402ee3ddab34198aa359217adcfefd621dc27563abe3c7850e
   languageName: node
   linkType: hard
 
