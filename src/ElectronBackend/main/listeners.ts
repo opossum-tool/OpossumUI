@@ -18,7 +18,6 @@ import {
   type OpenLinkArgs,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
-import { getDb } from '../db/db';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import {
   sendListenerErrorToFrontend,
@@ -333,23 +332,21 @@ function initializeGlobalBackendState(
   setGlobalBackendState(newGlobalBackendState);
 }
 
-async function updateBaseURLInDb(baseURL: string) {
-  await getDb()
-    .updateTable('resource')
-    .set('base_url', baseURL)
-    .where('path', '=', '')
-    .execute();
-}
-
 export const selectBaseURLListener =
   (mainWindow: BrowserWindow) => async (): Promise<void> => {
     try {
+      if (!getGlobalBackendState().projectId) {
+        throw new Error('No file currently open');
+      }
       const baseURLs = selectBaseURLDialog();
       if (!baseURLs || baseURLs.length < 1) {
         return;
       }
       const baseURL = baseURLs[0];
-      await updateBaseURLInDb(formatBaseURL(baseURL));
+      mainWindow.webContents.send(
+        AllowedFrontendChannels.SetBaseURLForRoot,
+        formatBaseURL(baseURL),
+      );
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
     }

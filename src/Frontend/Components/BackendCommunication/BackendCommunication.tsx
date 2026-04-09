@@ -19,10 +19,11 @@ import { resetResourceState } from '../../state/actions/resource-actions/all-vie
 import { loadFromFile } from '../../state/actions/resource-actions/load-actions';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { setDatabaseInitialized } from '../../util/backendClient';
+import { backend, setDatabaseInitialized } from '../../util/backendClient';
 import {
   type ExportFileRequestListener,
   type LoggingListener,
+  type SetBaseURLForRootListener,
   type SetDatabaseInitializedListener,
   type ShowImportDialogListener,
   type ShowMergeDialogListener,
@@ -103,6 +104,11 @@ export const BackendCommunication: React.FC = () => {
     AllowedFrontendChannels.ShowProjectStatisticsPopup,
     showProjectStatisticsPopupListener,
     [dispatch],
+  );
+  useIpcRenderer<SetBaseURLForRootListener>(
+    AllowedFrontendChannels.SetBaseURLForRoot,
+    (_, baseURL) => backend.updateBaseURL.mutate({ baseURL }),
+    [],
   );
   useIpcRenderer<ExportFileRequestListener>(
     AllowedFrontendChannels.ExportFileRequest,

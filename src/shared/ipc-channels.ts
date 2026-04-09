@@ -35,6 +35,7 @@ export enum AllowedFrontendChannels {
   SearchLinkedResources = 'search-linked-resources',
   SearchResources = 'search-resources',
   SearchSignals = 'search-signals',
+  SetBaseURLForRoot = 'set-base-url-for-root',
   OpenFileWithUnsavedCheck = 'open-file-with-unsaved-check',
   ShowImportDialog = 'show-import-dialog',
   ShowMergeDialog = 'show-merge-dialog',

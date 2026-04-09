@@ -38,6 +38,11 @@ export type ProcessingStateChangedListener = (
   processingStateChangedEvent: ProcessingStateChangedEvent,
 ) => void;
 
+export type SetBaseURLForRootListener = (
+  event: IpcRendererEvent,
+  baseURL: string,
+) => void;
+
 export type ShowImportDialogListener = (
   event: IpcRendererEvent,
   fileFormat: FileFormatInfo,
@@ -63,6 +68,7 @@ type Listener =
   | SetStateListener
   | LoggingListener
   | ExportFileRequestListener
+  | SetBaseURLForRootListener
   | ShowImportDialogListener
   | ProcessingStateChangedListener
   | ShowMergeDialogListener
