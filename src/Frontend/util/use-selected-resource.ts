@@ -8,7 +8,8 @@ import { backend } from './backendClient';
 
 export function useIsSelectedResourceBreakpoint(): boolean {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const trimmedSelectedResourceId = selectedResourceId.replace(/\/$/, '');
   const { data: attributionBreakpoints } =
     backend.getAttributionBreakpoints.useQuery();
-  return attributionBreakpoints?.has(selectedResourceId) ?? false;
+  return attributionBreakpoints?.has(trimmedSelectedResourceId) ?? false;
 }
