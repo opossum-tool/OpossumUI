@@ -595,5 +595,18 @@ describe('getResourceTree', () => {
         ['c.ts', 3],
       ]);
     });
+
+    it('prefers files over directories with same prefixes', async () => {
+      await initializeDbWithTestData({
+        resources: { a: { b: 1 }, 'a-': {} },
+      });
+
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+      });
+
+      const levels = result.treeNodes.map((n) => n.id);
+      expect(levels).toEqual(['/', '/a/', '/a/b', '/a-/']);
+    });
   });
 });
