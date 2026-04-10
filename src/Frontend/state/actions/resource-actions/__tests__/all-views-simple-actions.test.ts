@@ -15,7 +15,6 @@ import { getAttributionsToResources } from '../../../../test-helpers/general-tes
 import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
-  getBaseUrlsForSources,
   getManualAttributions,
   getManualAttributionsToResources,
   getResourcesWithManualAttributedChildren,
@@ -23,7 +22,6 @@ import {
 } from '../../../selectors/resource-selectors';
 import {
   resetResourceState,
-  setBaseUrlsForSources,
   setManualData,
   setTemporaryDisplayPackageInfo,
 } from '../all-views-simple-actions';
@@ -163,14 +161,5 @@ describe('The load and navigation simple actions', () => {
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toMatchObject(
       testDisplayPackageInfo,
     );
-  });
-
-  it('sets and gets baseUrlsForSources', () => {
-    const testStore = createAppStore();
-    expect(getBaseUrlsForSources(testStore.getState())).toEqual({});
-    testStore.dispatch(setBaseUrlsForSources({ '/': 'github.com' }));
-    expect(getBaseUrlsForSources(testStore.getState())).toEqual({
-      '/': 'github.com',
-    });
   });
 });

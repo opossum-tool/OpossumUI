@@ -6,7 +6,6 @@ import {
   type AttributionData,
   type Attributions,
   type AttributionsToResources,
-  type BaseUrlsForSources,
   type ClassificationsConfig,
   type PackageInfo,
   type ProjectMetadata,
@@ -76,10 +75,6 @@ export function getClassifications(state: State): ClassificationsConfig {
 
 export function getIsPackageInfoDirty(state: State): boolean {
   return state.resourceState.isPackageInfoDirty;
-}
-
-export function getBaseUrlsForSources(state: State): BaseUrlsForSources {
-  return state.resourceState.baseUrlsForSources;
 }
 
 export function getIsSelectedResourceBreakpoint(state: State) {

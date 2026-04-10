@@ -335,16 +335,18 @@ function initializeGlobalBackendState(
 export const selectBaseURLListener =
   (mainWindow: BrowserWindow) => async (): Promise<void> => {
     try {
+      if (!getGlobalBackendState().projectId) {
+        throw new Error('No file currently open');
+      }
       const baseURLs = selectBaseURLDialog();
       if (!baseURLs || baseURLs.length < 1) {
         return;
       }
       const baseURL = baseURLs[0];
-      const formattedBaseURL = formatBaseURL(baseURL);
-
-      mainWindow.webContents.send(AllowedFrontendChannels.SetBaseURLForRoot, {
-        baseURLForRoot: formattedBaseURL,
-      });
+      mainWindow.webContents.send(
+        AllowedFrontendChannels.SetBaseURLForRoot,
+        formatBaseURL(baseURL),
+      );
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
     }

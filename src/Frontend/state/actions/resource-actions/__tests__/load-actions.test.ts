@@ -6,7 +6,6 @@ import {
   type AttributionData,
   type Attributions,
   type AttributionsToResources,
-  type BaseUrlsForSources,
   Criticality,
   DiscreteConfidence,
   type PackageInfo,
@@ -22,7 +21,6 @@ import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getAttributionBreakpoints,
-  getBaseUrlsForSources,
   getClassifications,
   getFilesWithChildren,
   getManualData,
@@ -66,10 +64,6 @@ const testManualAttributionsToResources: AttributionsToResources = {
 
 describe('loadFromFile', () => {
   it('loads from file into state', () => {
-    const testBaseUrlsForSources: BaseUrlsForSources = {
-      '/': 'https://github.com/opossum-tool/opossumUI/',
-    };
-
     const testParsedFileContent: ParsedFrontendFileContent = {
       metadata: EMPTY_PROJECT_METADATA,
       config: testConfig,
@@ -81,7 +75,6 @@ describe('loadFromFile', () => {
       resolvedExternalAttributions: new Set(['test_id']),
       attributionBreakpoints: new Set(['/third-party/package/']),
       filesWithChildren: new Set(['/third-party/package.json/']),
-      baseUrlsForSources: testBaseUrlsForSources,
     };
     const expectedConfig: ProjectConfig = {
       classifications: {
@@ -132,10 +125,6 @@ describe('loadFromFile', () => {
     );
     expect(getFilesWithChildren(testStore.getState())).toEqual(
       new Set(['/third-party/package.json/']),
-    );
-
-    expect(getBaseUrlsForSources(testStore.getState())).toEqual(
-      testBaseUrlsForSources,
     );
   });
 });

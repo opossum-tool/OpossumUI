@@ -38,6 +38,7 @@ import {
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
   mergeFilterProperties,
+  removeParentFromPath,
   removeTrailingSlash,
   type ResourceRelationship,
   resourcesToExpand,
@@ -511,6 +512,50 @@ export const queries = {
       .where('is_relevant_for_preferred', '=', 1)
       .executeTakeFirst();
     return { result: !!result };
+  },
+
+  async getBaseUrlForSource(props: { sourcePath: string }) {
+    const trimmedSourcePath = removeTrailingSlash(props.sourcePath);
+    const baseUrlResult = await getDb()
+      .withRecursive('link', (eb) =>
+        eb
+          .selectFrom('resource')
+          .select([
+            'parent_id',
+            'is_attribution_breakpoint',
+            'path',
+            'base_url',
+          ])
+          .where('path', '=', trimmedSourcePath)
+          .unionAll(
+            eb
+              .selectFrom('resource as parent')
+              .innerJoin('link', 'parent.id', 'link.parent_id')
+              .select([
+                'parent.parent_id',
+                'parent.is_attribution_breakpoint',
+                'parent.path',
+                'parent.base_url',
+              ])
+              .where('link.base_url', 'is', null)
+              .where('link.is_attribution_breakpoint', '=', 0),
+          ),
+      )
+      .selectFrom('link')
+      .select((eb) => ['path', eb.ref('base_url').$notNull().as('base_url')])
+      .where('base_url', 'is not', null)
+      .executeTakeFirst();
+
+    if (!baseUrlResult) {
+      return { result: null };
+    }
+    const pathToReplaceWith = removeParentFromPath(
+      baseUrlResult.path,
+      trimmedSourcePath,
+    );
+    return {
+      result: baseUrlResult.base_url.replace('{path}', pathToReplaceWith),
+    };
   },
 } satisfies Record<string, QueryFunction>;
 

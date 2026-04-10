@@ -92,7 +92,6 @@ const testFrontendData: ParsedFrontendFileContent = {
   resolvedExternalAttributions: new Set(),
   attributionBreakpoints: new Set(),
   filesWithChildren: new Set(),
-  baseUrlsForSources: {},
 };
 
 describe('loadInputAndOutputFromFilePath', () => {

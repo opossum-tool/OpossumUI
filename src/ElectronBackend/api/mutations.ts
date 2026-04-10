@@ -448,6 +448,17 @@ export const mutations = {
       ],
     };
   },
+  async updateRootBaseURL(params: { baseURL: string }) {
+    await getDb()
+      .updateTable('resource')
+      .set('base_url', params.baseURL)
+      .where('path', '=', '')
+      .execute();
+
+    return {
+      invalidates: [{ queryName: 'getBaseUrlForSource' as const }],
+    };
+  },
 } satisfies Record<string, MutationFunction>;
 
 async function setAttributionsResolvedStatus(

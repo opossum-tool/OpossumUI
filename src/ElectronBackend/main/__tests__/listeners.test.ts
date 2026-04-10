@@ -16,6 +16,7 @@ import {
   saveFileDialog,
   selectBaseURLDialog,
 } from '../dialogs';
+import { setGlobalBackendState } from '../globalBackendState';
 import {
   importFileListener,
   importFileSelectSaveLocationListener,
@@ -91,6 +92,7 @@ describe('getSelectBaseURLListener', () => {
     const mainWindow = {
       webContents: { send: mockCallback as unknown } as WebContents,
     } as unknown as BrowserWindow;
+    setGlobalBackendState({ projectId: 'test-project' });
     const baseURL = '/Users/path/to/sources';
     const expectedFormattedBaseURL = 'file:///Users/path/to/sources/{path}';
 
@@ -101,9 +103,7 @@ describe('getSelectBaseURLListener', () => {
     expect(selectBaseURLDialog).toHaveBeenCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.SetBaseURLForRoot,
-      {
-        baseURLForRoot: expectedFormattedBaseURL,
-      },
+      expectedFormattedBaseURL,
     );
   });
 });

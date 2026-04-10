@@ -704,4 +704,42 @@ describe('getProgressBarData', () => {
 
     expect(result[1]?.resourceCount).toBe(0);
   });
+
+  describe('getBaseUrlForSource', () => {
+    it('finds the base url for a source path', async () => {
+      const sourcePath = '/file.ts';
+      await initializeDbWithTestData({
+        resources: pathsToResources([sourcePath]),
+        baseUrlsForSources: {
+          '': 'https://github.com/opossum-tool/opossumUI/{path}',
+        },
+      });
+
+      const { result } = await queries.getBaseUrlForSource({ sourcePath });
+      expect(result).toBe(
+        `https://github.com/opossum-tool/opossumUI${sourcePath}`,
+      );
+    });
+
+    it('works with absolute paths and does not substitute path', async () => {
+      const sourcePath = '/file.ts';
+      await initializeDbWithTestData({
+        resources: pathsToResources([sourcePath]),
+        baseUrlsForSources: { '': 'https://github.com/opossum-tool/opossumUI' },
+      });
+
+      const { result } = await queries.getBaseUrlForSource({ sourcePath });
+      expect(result).toBe('https://github.com/opossum-tool/opossumUI');
+    });
+
+    it('returns null if no base url is set', async () => {
+      const sourcePath = '/file.ts';
+      await initializeDbWithTestData({
+        resources: pathsToResources([sourcePath]),
+      });
+
+      const { result } = await queries.getBaseUrlForSource({ sourcePath });
+      expect(result).toBe(null);
+    });
+  });
 });

@@ -12,7 +12,7 @@ import {
   sql,
   type Transaction,
 } from 'kysely';
-import { snakeCase } from 'lodash';
+import { escapeRegExp, snakeCase } from 'lodash';
 
 import { FILTERS } from '../../Frontend/shared-constants';
 import { areAttributionsEqual } from '../../shared/attribution-comparison';
@@ -576,4 +576,8 @@ export async function computeWasPreferred(
       originalData.wasPreferred) ||
     undefined
   );
+}
+
+export function removeParentFromPath(parentPath: string, path: string) {
+  return path.replace(new RegExp(`^${escapeRegExp(parentPath)}/?`), '');
 }

@@ -3,15 +3,22 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { type BaseUrlsForSources } from '../../../../shared/shared-types';
-import { setBaseUrlsForSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { GoToLinkButton } from '../GoToLinkButton';
 
 describe('The GoToLinkButton', () => {
+  const testBaseUrlsForSources: BaseUrlsForSources = {
+    '/parent_directory/': 'https://www.othertesturl.com/code/{path}',
+    '/parent_directory/child_directory/':
+      'https://www.testurl.com/code/{path}?base=123456789',
+  };
+
   it.each([
     [
       '/parent_directory/child_directory/directory_in_source_tree/file',
@@ -24,22 +31,25 @@ describe('The GoToLinkButton', () => {
   ])(
     'navigates to correct link for %s',
     async (path: string, expected_link: string) => {
-      const testBaseUrlsForSources: BaseUrlsForSources = {
-        '/parent_directory/': 'https://www.othertesturl.com/code/{path}',
-        '/parent_directory/child_directory/':
-          'https://www.testurl.com/code/{path}?base=123456789',
-      };
-      const { store } = await renderComponent(<GoToLinkButton />);
-      act(() => {
-        store.dispatch(setSelectedResourceId(path));
-        store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
+      await renderComponent(<GoToLinkButton />, {
+        actions: [setSelectedResourceId(path)],
+        data: getParsedInputFileEnrichedWithTestData({
+          resources: {
+            parent_directory: {
+              child_directory: {
+                directory_in_source_tree: { file: 1 },
+              },
+            },
+          },
+          baseUrlsForSources: testBaseUrlsForSources,
+        }),
       });
 
       expect(window.electronAPI.openLink).toHaveBeenCalledTimes(0);
-      expect(
-        screen.getByLabelText('Open resource in browser'),
-      ).toBeInTheDocument();
-      fireEvent.click(screen.getByLabelText('link to open'));
+      const linkButton = await screen.findByRole('button', {
+        name: 'Open resource in browser',
+      });
+      await userEvent.click(linkButton);
 
       expect(window.electronAPI.openLink).toHaveBeenCalledTimes(1);
       expect(window.electronAPI.openLink).toHaveBeenCalledWith(expected_link);
@@ -48,12 +58,13 @@ describe('The GoToLinkButton', () => {
 
   it('does not show link if base url of parent is null', async () => {
     const parentPath = '/parent_directory/';
-    const testBaseUrlsForSources: BaseUrlsForSources = {
-      [parentPath]: null,
-    };
-    const { store } = await renderComponent(<GoToLinkButton />);
-    store.dispatch(setSelectedResourceId(parentPath));
-    store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
+    await renderComponent(<GoToLinkButton />, {
+      actions: [setSelectedResourceId(parentPath)],
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: { parent_directory: 1 },
+        baseUrlsForSources: { [parentPath]: null },
+      }),
+    });
 
     expect(screen.getByLabelText('No link available')).toBeInTheDocument();
   });
