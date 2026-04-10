@@ -268,6 +268,11 @@ async function initializeResourceTable(
     UPDATE resource SET max_descendant_id = $max_descendant_id WHERE id = $resource_id
     `);
 
+  const resourceNameCollator = new Intl.Collator('en', {
+    sensitivity: 'variant',
+    caseFirst: 'lower',
+  });
+
   function sortChildren(
     aIsLeaf: boolean,
     aName: string,
@@ -281,7 +286,11 @@ async function initializeResourceTable(
       return -1;
     }
     // If both resources are files or both are directories, we sort them alphabetically
-    return aName.localeCompare(bName);
+    const result = resourceNameCollator.compare(aName, bName);
+    if (result !== 0) {
+      return result;
+    }
+    return aName < bName ? -1 : aName > bName ? 1 : 0;
   }
 
   function recursivelyInsertResource(
