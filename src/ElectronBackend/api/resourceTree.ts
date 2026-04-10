@@ -153,7 +153,6 @@ export function getResourceTree({
               'is_attribution_breakpoint',
               'is_file',
               'parent_id',
-              'sort_key',
               sb.val(0).as('level'),
               sb.val(0).as('has_parent_with_manual_attribution'),
             ])
@@ -176,7 +175,6 @@ export function getResourceTree({
                   'r.is_attribution_breakpoint',
                   'r.is_file',
                   'r.parent_id',
-                  'r.sort_key',
                   sql<number>`parent.level + 1`.as('level'),
                   sql<number>`r.is_attribution_breakpoint = 0 AND (parent.has_manual_attribution OR parent.has_parent_with_manual_attribution)`.as(
                     'has_parent_with_manual_attribution',
@@ -213,7 +211,7 @@ export function getResourceTree({
           ).as('is_expandable'),
         );
 
-      query = query.orderBy('sort_key');
+      query = query.orderBy('id');
 
       const treeNodes = (await query.execute()).map((node) => ({
         id: node.path + (node.can_have_children ? '/' : ''), // For compatibility with legacy code

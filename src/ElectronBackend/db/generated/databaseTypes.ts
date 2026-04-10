@@ -92,7 +92,6 @@ export interface Resource {
    * The path of the root resource is the empty string
    */
   path: string;
-  sort_key: Generated<string>;
 }
 
 export interface ResourceToAttribution {
