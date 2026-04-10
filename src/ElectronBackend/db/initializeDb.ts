@@ -95,62 +95,48 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
       col.primaryKey().notNull().references('resource.id'),
     )
     .addColumn('is_file', 'integer', (col) => col.notNull())
-    .addColumn('manual', 'integer', (col) => col.references('resource.id'))
-    .addColumn('external', 'integer', (col) => col.references('resource.id'))
     .addColumn('breakpoint', 'integer', (col) =>
       col.notNull().references('resource.id'),
     )
+    .addColumn('manual', 'integer', (col) => col.references('resource.id'))
+    .addColumn('external', 'integer', (col) => col.references('resource.id'))
     .execute();
 
   await sql`
   -- closest with ancestor table
-  insert into cwa
-    with recursive
-    has_unresolved_external_attribution as (
-        select distinct resource_id 
-        from resource_to_attribution 
-        where attribution_uuid in (select uuid from attribution where is_external = 1 and is_resolved = 0)
+  INSERT INTO cwa WITH RECURSIVE 
+  has_manual_attribution AS MATERIALIZED (
+    SELECT DISTINCT resource_id
+    FROM resource_to_attribution
+    WHERE attribution_is_external = 0
+  ),
+  has_unresolved_external_attribution AS MATERIALIZED (
+    SELECT DISTINCT resource_id
+    FROM resource_to_attribution
+    WHERE attribution_uuid IN (SELECT uuid FROM attribution WHERE is_external = 1 AND is_resolved = 0)
+  ),
+  cwa(resource_id, parent_id, is_file, breakpoint, manual, external) AS (
+    SELECT r.id, r.parent_id, r.is_file, r.id,
+    IIF(r.id IN has_manual_attribution, r.id, NULL),
+    IIF(r.id IN has_unresolved_external_attribution, r.id, NULL)
+    FROM resource as r
+    WHERE path = ''
+
+    UNION ALL
+    
+    SELECT child.id, child.parent_id, child.is_file,
+    IIF(child.is_attribution_breakpoint, child.id, parent.breakpoint),
+    IIF(child.id IN has_manual_attribution, child.id, 
+        IIF(child.is_attribution_breakpoint, NULL, parent.manual)
     ),
-    closest_ancestor_with_external_attributions(resource_id, ancestor) as (
-            select distinct resource_id, resource_id
-            from has_unresolved_external_attribution
-        union all
-            select id, parent.ancestor
-            from resource
-            join closest_ancestor_with_external_attributions as parent on resource.parent_id = parent.resource_id
-            where resource.id not in has_unresolved_external_attribution and is_attribution_breakpoint = 0
-    ),
-    closest_ancestor_with_manual_attributions(resource_id, ancestor) as (
-            select distinct resource_id, resource_id
-            from resource_to_attribution
-            where attribution_is_external = 0
-        union all
-            select id, parent.ancestor
-            from resource
-            join closest_ancestor_with_manual_attributions as parent on resource.parent_id = parent.resource_id
-            where resource.id not in (select resource_id from resource_to_attribution where attribution_is_external = 0) and is_attribution_breakpoint = 0
-    ),
-    closest_ancestor_with_breakpoint(resource_id, ancestor) as (
-            select id, id
-            from resource
-            where is_attribution_breakpoint = 1 or path = ''
-        union all
-            select id, parent.ancestor
-            from resource
-            join closest_ancestor_with_breakpoint as parent on resource.parent_id = parent.resource_id
-            where is_attribution_breakpoint = 0
+    IIF(child.id IN has_unresolved_external_attribution, child.id, 
+        IIF(child.is_attribution_breakpoint, NULL, parent.external)
     )
-    select 
-      id,
-      is_file,
-      closest_ancestor_with_manual_attributions.ancestor,
-      closest_ancestor_with_external_attributions.ancestor,
-      closest_ancestor_with_breakpoint.ancestor
-    from resource
-    left join closest_ancestor_with_manual_attributions on resource.id = closest_ancestor_with_manual_attributions.resource_id
-    left join closest_ancestor_with_external_attributions on resource.id = closest_ancestor_with_external_attributions.resource_id
-    left join closest_ancestor_with_breakpoint on resource.id = closest_ancestor_with_breakpoint.resource_id
-    `.execute(trx);
+    FROM resource as child
+    JOIN cwa as parent ON child.parent_id = parent.resource_id
+  )
+  SELECT resource_id, is_file, breakpoint, manual, external FROM cwa
+  `.execute(trx);
 
   await trx.schema
     .createIndex('cwa_manual_idx')
@@ -266,7 +252,7 @@ async function initializeResourceTable(
 
   const updateMaxDescendantIdStmt = rawDb.prepare(`
     UPDATE resource SET max_descendant_id = $max_descendant_id WHERE id = $resource_id
-    `);
+  `);
 
   const resourceNameCollator = new Intl.Collator('en', {
     sensitivity: 'variant',
@@ -472,6 +458,14 @@ async function initializeAttributionTable(
       'criticality',
       'classification',
     ])
+    .where('is_resolved', '=', 0)
+    .execute();
+
+  await trx.schema
+    .createIndex('attribution_is_external_covering_idx')
+    .on('attribution')
+    .columns(['is_external', 'is_resolved'])
+    .where('is_external', '=', 1)
     .where('is_resolved', '=', 0)
     .execute();
 }
