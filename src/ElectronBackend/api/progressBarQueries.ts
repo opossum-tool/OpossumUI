@@ -135,9 +135,9 @@ export async function getNextFileToReviewForAttribution(props: {
         const resource = await trx
           .selectFrom((eb) => option(eb).as('filtered'))
           .innerJoin('resource', 'resource_id', 'resource.id')
-          .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
-          .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
-          .orderBy('sort_key')
+          .select(['resource_id', GET_LEGACY_RESOURCE_PATH])
+          .orderBy(sql`resource_id <= ${selectedResourceId.id}`)
+          .orderBy('resource_id')
           .limit(1)
           .executeTakeFirst();
 
@@ -169,9 +169,9 @@ export async function getNextFileToReviewForCriticality(props: {
             getCriticalResourceQuery(eb, criticality).as('cwa'),
           )
           .innerJoin('resource', 'resource_id', 'resource.id')
-          .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
-          .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
-          .orderBy('sort_key')
+          .select(['resource_id', GET_LEGACY_RESOURCE_PATH])
+          .orderBy(sql`resource_id <= ${selectedResourceId.id}`)
+          .orderBy('resource_id')
           .limit(1)
           .executeTakeFirst();
 
@@ -205,9 +205,9 @@ export async function getNextFileToReviewForClassification(props: {
             ),
           )
           .innerJoin('resource', 'resource_id', 'resource.id')
-          .select(['resource_id', GET_LEGACY_RESOURCE_PATH, 'sort_key'])
-          .orderBy(sql`sort_key <= ${selectedResourceId.sort_key}`)
-          .orderBy('sort_key')
+          .select(['resource_id', GET_LEGACY_RESOURCE_PATH])
+          .orderBy(sql`resource_id <= ${selectedResourceId.id}`)
+          .orderBy('resource_id')
           .limit(1)
           .executeTakeFirst();
 

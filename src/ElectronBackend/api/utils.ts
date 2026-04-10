@@ -243,7 +243,7 @@ export async function getResourceOrThrow(
 
   const resource = await dbOrTrx
     .selectFrom('resource')
-    .select(['id', 'max_descendant_id', 'sort_key'])
+    .select(['id', 'max_descendant_id'])
     .where('path', '=', strippedResourcePath)
     .executeTakeFirst();
 

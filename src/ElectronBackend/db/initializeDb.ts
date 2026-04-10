@@ -250,16 +250,6 @@ async function initializeResourceTable(
       col.notNull().defaultTo(1).references('resource.id'),
     )
     .addColumn('base_url', 'text')
-    // We add a generated sort_key so that the resource tree can order by it.
-    // E.g. path:/a/b/c.txt -> sort_key:/0a/0b/1c.txt
-    .addColumn('sort_key', 'text', (col) =>
-      col
-        .generatedAlwaysAs(
-          sql`CASE WHEN path = '' THEN '' ELSE REPLACE(SUBSTR(path, 1, LENGTH(path) - LENGTH(name) - 1), '/', '/0') || '/' || is_file || name END`,
-        )
-        .stored()
-        .notNull(),
-    )
     .execute();
 
   const resourcePathToId = new Map<string, number>();
@@ -277,6 +267,22 @@ async function initializeResourceTable(
   const updateMaxDescendantIdStmt = rawDb.prepare(`
     UPDATE resource SET max_descendant_id = $max_descendant_id WHERE id = $resource_id
     `);
+
+  function sortChildren(
+    aIsLeaf: boolean,
+    aName: string,
+    bIsLeaf: boolean,
+    bName: string,
+  ) {
+    if (aIsLeaf && !bIsLeaf) {
+      return 1;
+    }
+    if (!aIsLeaf && bIsLeaf) {
+      return -1;
+    }
+    // If both resources are files or both are directories, we sort them alphabetically
+    return aName.localeCompare(bName);
+  }
 
   function recursivelyInsertResource(
     name: string,
@@ -308,7 +314,16 @@ async function initializeResourceTable(
     let last_inserted_id = resourceId;
 
     if (!isLeaf) {
-      for (const [childName, childChildren] of Object.entries(children)) {
+      for (const [childName, childChildren] of Object.entries(
+        children,
+      ).toSorted((a, b) =>
+        sortChildren(
+          a[1] === 1 || trimmedFilesWithChildren.has(`${currentPath}/${a[0]}`),
+          a[0],
+          b[1] === 1 || trimmedFilesWithChildren.has(`${currentPath}/${b[0]}`),
+          b[0],
+        ),
+      )) {
         last_inserted_id = recursivelyInsertResource(
           childName,
           childChildren,

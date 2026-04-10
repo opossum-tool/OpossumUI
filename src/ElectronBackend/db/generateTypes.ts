@@ -107,13 +107,8 @@ function insertGeneratedColumnsFromJsonData(fileContent: string) {
  * Kysely-codegen doesn't pick them up yet (https://github.com/kysely-org/kysely/issues/1397)
  */
 function insertGeneratedColumns(fileContent: string) {
-  return fileContent
-    .replace(
-      /(export interface Resource {[^}]*)}/,
-      '$1  sort_key: Generated<string>;\n}',
-    )
-    .replace(
-      /(export interface Attribution {[^}]*)}/,
-      '$1  canonical_license_name: Generated<string | null>;\n}',
-    );
+  return fileContent.replace(
+    /(export interface Attribution {[^}]*)}/,
+    '$1  canonical_license_name: Generated<string | null>;\n}',
+  );
 }

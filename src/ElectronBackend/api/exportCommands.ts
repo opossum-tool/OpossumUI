@@ -50,7 +50,7 @@ async function exportFollowUp(params: { filePath: string }) {
             'cwa.manual',
           )
           .select(
-            sql<string>`json_group_array(resource.path ORDER BY resource.sort_key)`.as(
+            sql<string>`json_group_array(resource.path ORDER BY resource.id)`.as(
               'paths',
             ),
           )
@@ -164,7 +164,7 @@ async function exportDetailedBom(params: { filePath: string }) {
             'resource.id',
           )
           .select(
-            sql<string>`json_group_array(resource.path ORDER BY resource.sort_key)`.as(
+            sql<string>`json_group_array(resource.path ORDER BY resource.id)`.as(
               'paths',
             ),
           )
