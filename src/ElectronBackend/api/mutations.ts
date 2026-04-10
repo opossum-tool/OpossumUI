@@ -448,7 +448,7 @@ export const mutations = {
       ],
     };
   },
-  async updateBaseURL(params: { baseURL: string }) {
+  async updateRootBaseURL(params: { baseURL: string }) {
     await getDb()
       .updateTable('resource')
       .set('base_url', params.baseURL)

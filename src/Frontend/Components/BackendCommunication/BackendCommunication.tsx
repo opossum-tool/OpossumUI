@@ -107,7 +107,7 @@ export const BackendCommunication: React.FC = () => {
   );
   useIpcRenderer<SetBaseURLForRootListener>(
     AllowedFrontendChannels.SetBaseURLForRoot,
-    (_, baseURL) => backend.updateBaseURL.mutate({ baseURL }),
+    (_, baseURL) => backend.updateRootBaseURL.mutate({ baseURL }),
     [],
   );
   useIpcRenderer<ExportFileRequestListener>(
