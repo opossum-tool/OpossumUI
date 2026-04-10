@@ -742,4 +742,33 @@ describe('getProgressBarData', () => {
       expect(result).toBe(null);
     });
   });
+
+  it('returns the next criticality review target in deterministic resource order', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/a', '/B', '/c']),
+      externalAttributions: {
+        attributions: {
+          uuid1: { id: 'uuid1', criticality: Criticality.High },
+        },
+        resourcesToAttributions: {
+          '/a': ['uuid1'],
+          '/B': ['uuid1'],
+          '/c': ['uuid1'],
+        },
+        attributionsToResources: {
+          uuid1: ['/a', '/B', '/c'],
+        },
+      },
+    });
+
+    for (const [selectedResourcePath, result] of [
+      ['/a', '/B'],
+      ['/B', '/c'],
+      ['/c', '/a'],
+    ]) {
+      await expect(
+        queries.getNextFileToReviewForCriticality({ selectedResourcePath }),
+      ).resolves.toEqual({ result });
+    }
+  });
 });
