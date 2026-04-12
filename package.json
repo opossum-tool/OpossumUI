@@ -81,7 +81,7 @@
     "@types/react-dom": "19.2.3",
     "@types/stream-json": "1.7.8",
     "@vitejs/plugin-react": "6.0.1",
-    "@vitest/eslint-plugin": "1.6.14",
+    "@vitest/eslint-plugin": "1.6.15",
     "babel-plugin-react-compiler": "1.0.0",
     "babel-plugin-transform-import-meta": "2.3.3",
     "cross-env": "10.1.0",
