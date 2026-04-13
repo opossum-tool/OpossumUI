@@ -262,19 +262,28 @@ export function useAuditingOptions({
                 }),
               )
             }
-            IconContainerComponent={({ value, ...rest }) => (
-              <span
-                aria-disabled={
-                  Math.round(
-                    ((packageInfo.attributionConfidence || 0) / 100) * 5,
-                  ) !== value
-                }
-                aria-label={`confidence of ${value}`}
-                {...rest}
-              >
-                {getSatisfaction(value)}
-              </span>
-            )}
+            slotProps={{
+              icon: {
+                component: ({
+                  value,
+                  ...rest
+                }: {
+                  value: number;
+                } & React.HTMLAttributes<HTMLSpanElement>) => (
+                  <span
+                    aria-disabled={
+                      Math.round(
+                        ((packageInfo.attributionConfidence || 0) / 100) * 5,
+                      ) !== value
+                    }
+                    aria-label={`confidence of ${value}`}
+                    {...rest}
+                  >
+                    {getSatisfaction(value)}
+                  </span>
+                ),
+              },
+            }}
             readOnly={!isEditable}
             highlightSelectedOnly
           />
