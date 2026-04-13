@@ -86,6 +86,7 @@ export async function initializeDb(inputFile: ParsedFileContent) {
 
       await initializeProgressBarTable(trx);
     });
+  getRawDb().exec('VACUUM');
 }
 
 async function initializeProgressBarTable(trx: Transaction<DB>) {

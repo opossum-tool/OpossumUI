@@ -31,6 +31,8 @@ function openDb() {
   rawDb = new BetterSqlite3(filename);
 
   rawDb.pragma('foreign_keys = ON');
+  rawDb.pragma('page_size = 8192');
+  rawDb.pragma('cache_size = 8192');
 
   const dialect = new SqliteDialect({ database: rawDb });
   return new Kysely<DB>({
