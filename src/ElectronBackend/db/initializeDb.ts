@@ -540,14 +540,31 @@ async function initializeResourceToAttributionTable(
     ])
     .execute();
 
-  // Prepared statement for fast bulk insert
   const rawDb = getRawDb();
-  const insertStmt = rawDb.prepare(`
-    INSERT OR IGNORE INTO resource_to_attribution
+  function insertRows(
+    rows: {
+      resource_id: number;
+      attribution_uuid: string;
+    }[],
+    attribution_is_external: 0 | 1,
+  ) {
+    const singleValuesSql = attribution_is_external ? '(?, ?, 1)' : '(?, ?, 0)';
+    const multipleValuesSql =
+      `${singleValuesSql}, `.repeat(rows.length - 1) + singleValuesSql;
+    const stmt = rawDb.prepare(`
+      INSERT OR IGNORE INTO resource_to_attribution 
       (resource_id, attribution_uuid, attribution_is_external)
-    VALUES
-      ($resource_id, $attribution_uuid, $attribution_is_external)
-  `);
+      VALUES ${multipleValuesSql}
+      `);
+    const params = rows.flatMap((row) => [
+      row.resource_id,
+      row.attribution_uuid,
+    ]);
+    stmt.run(...params);
+  }
+
+  // SQLite cannot handle more than 30000 parameters, and since we insert an id and a uuid, we can only insert 15000 rows at a time
+  const BATCH_SIZE = 15_000;
   const insertMany = rawDb.transaction(
     (resourcesToAttributions: ResourcesToAttributions, is_external: 0 | 1) => {
       const rows = Object.entries(resourcesToAttributions).flatMap(
@@ -560,12 +577,12 @@ async function initializeResourceToAttributionTable(
             : attributionUuids.map((uuid) => ({
                 resource_id: resourceId,
                 attribution_uuid: uuid,
-                attribution_is_external: is_external,
               }));
         },
       );
-      for (const row of rows) {
-        insertStmt.run(row);
+
+      for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+        insertRows(rows.slice(i, i + BATCH_SIZE), is_external);
       }
     },
   );
