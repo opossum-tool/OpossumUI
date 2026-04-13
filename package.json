@@ -46,7 +46,7 @@
     "recharts": "3.8.1",
     "spdx-license-ids": "3.0.23",
     "stream-json": "1.9.1",
-    "upath": "3.0.5",
+    "upath": "3.0.6",
     "uuid": "13.0.0"
   },
   "devDependencies": {
