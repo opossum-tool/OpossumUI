@@ -46,7 +46,6 @@ export const comments: Record<string, Record<string, string>> = {
 
 export async function initializeDb(inputFile: ParsedFileContent) {
   resetDb();
-
   await getDb()
     .transaction()
     .execute(async (trx) => {
@@ -232,9 +231,7 @@ async function initializeResourceTable(
     .addColumn('can_have_children', 'integer', (col) =>
       col.notNull().defaultTo(0),
     )
-    .addColumn('max_descendant_id', 'integer', (col) =>
-      col.notNull().defaultTo(1).references('resource.id'),
-    )
+    .addColumn('max_descendant_id', 'integer', (col) => col.notNull())
     .addColumn('base_url', 'text')
     .execute();
 
@@ -245,14 +242,27 @@ async function initializeResourceTable(
   const rawDb = getRawDb();
   const insertStmt = rawDb.prepare(`
     INSERT INTO resource
-      (id, path, name, parent_id, is_attribution_breakpoint, is_file, can_have_children, base_url)
+      (id, path, name, parent_id, is_attribution_breakpoint, is_file, can_have_children, base_url, max_descendant_id)
     VALUES
-      ($id, $path, $name, $parent_id, $is_attribution_breakpoint, $is_file, $can_have_children, $base_url)
+      ($id, $path, $name, $parent_id, $is_attribution_breakpoint, $is_file, $can_have_children, $base_url, $max_descendant_id)
   `);
-
-  const updateMaxDescendantIdStmt = rawDb.prepare(`
-    UPDATE resource SET max_descendant_id = $max_descendant_id WHERE id = $resource_id
-  `);
+  type ResourceRow = {
+    id: number;
+    path: string;
+    name: string;
+    parent_id: number | null;
+    is_attribution_breakpoint: number;
+    is_file: number;
+    can_have_children: number;
+    base_url: string | null;
+    max_descendant_id: number;
+  };
+  // Inserting many rows in a single transaction increases the speed slightly
+  const insertMany = rawDb.transaction((resources: Array<ResourceRow>) => {
+    for (const resource of resources) {
+      insertStmt.run(resource);
+    }
+  });
 
   const resourceNameCollator = new Intl.Collator('en', {
     sensitivity: 'variant',
@@ -279,21 +289,45 @@ async function initializeResourceTable(
     return aName < bName ? -1 : aName > bName ? 1 : 0;
   }
 
-  function recursivelyInsertResource(
+  function recursivelyCollectResource(
     name: string,
     children: Resources | 1,
     parentId: number | null,
     parentPath: string | null,
-  ) {
+    result: Array<ResourceRow>,
+  ): number {
+    const resourceId = nextId++;
     const currentPath = parentPath === null ? '' : `${parentPath}/${name}`;
-
     const isLeaf = children === 1;
     const isFile = isLeaf || trimmedFilesWithChildren.has(currentPath);
     const isAttributionBreakpoint =
       trimmedAttributionBreakpoints.has(currentPath);
 
-    const resourceId = nextId++;
-    insertStmt.run({
+    resourcePathToId.set(currentPath, resourceId);
+
+    let lastDescendantId = resourceId;
+    if (!isLeaf) {
+      const entries = Object.entries(children).map(
+        ([childName, childChildren]) => ({
+          name: childName,
+          children: childChildren,
+          isLeaf:
+            childChildren === 1 ||
+            trimmedFilesWithChildren.has(`${currentPath}/${childName}`),
+        }),
+      );
+      entries.sort((a, b) => sortChildren(a.isLeaf, a.name, b.isLeaf, b.name));
+      for (const { name, children } of entries) {
+        lastDescendantId = recursivelyCollectResource(
+          name,
+          children,
+          resourceId,
+          currentPath,
+          result,
+        );
+      }
+    }
+    result[resourceId - 1] = {
       id: resourceId,
       path: currentPath,
       name,
@@ -302,43 +336,16 @@ async function initializeResourceTable(
       is_file: Number(isFile),
       can_have_children: Number(!isLeaf),
       base_url: trimmedBaseUrlsForSources[currentPath],
-    });
-
-    resourcePathToId.set(currentPath, resourceId);
-
-    let last_inserted_id = resourceId;
-
-    if (!isLeaf) {
-      for (const [childName, childChildren] of Object.entries(
-        children,
-      ).toSorted((a, b) =>
-        sortChildren(
-          a[1] === 1 || trimmedFilesWithChildren.has(`${currentPath}/${a[0]}`),
-          a[0],
-          b[1] === 1 || trimmedFilesWithChildren.has(`${currentPath}/${b[0]}`),
-          b[0],
-        ),
-      )) {
-        last_inserted_id = recursivelyInsertResource(
-          childName,
-          childChildren,
-          resourceId,
-          currentPath,
-        );
-      }
-    }
-
-    updateMaxDescendantIdStmt.run({
-      resource_id: resourceId,
-      max_descendant_id: last_inserted_id,
-    });
-
-    return last_inserted_id;
+      max_descendant_id: lastDescendantId,
+    };
+    return lastDescendantId;
   }
 
   // The root resource has "" as name and path
-  recursivelyInsertResource('', resources, null, null);
-
+  console.time('collectResources');
+  const resourcesToInsert: Array<ResourceRow> = [];
+  recursivelyCollectResource('', resources, null, null, resourcesToInsert);
+  insertMany(resourcesToInsert);
   await trx.schema
     .createIndex('resource_parent_id_covering_idx')
     .on('resource')
