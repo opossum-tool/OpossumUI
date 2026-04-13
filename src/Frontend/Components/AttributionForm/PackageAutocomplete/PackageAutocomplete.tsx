@@ -178,7 +178,9 @@ export function PackageAutocomplete({
           },
         })}
         isOptionEqualToValue={(option, value) =>
-          option[attribute] === value[attribute]
+          typeof value === 'string'
+            ? false
+            : option[attribute] === value[attribute]
         }
         groupBy={(option) => option.source?.name || text.generic.unknown}
         groupProps={{
