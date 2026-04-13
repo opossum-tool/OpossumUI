@@ -13,6 +13,7 @@ import {
   type PackageInfo,
   type ParsedFileContent,
   type Resources,
+  type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { removeTrailingSlash, toCanonicalLicenseName } from '../api/utils';
 import { getDb, getRawDb, resetDb } from './db';
@@ -544,22 +545,32 @@ async function initializeResourceToAttributionTable(
     INSERT OR IGNORE INTO resource_to_attribution
       (resource_id, attribution_uuid, attribution_is_external)
     VALUES
-      ($resource_id, $attribution_uuid, (select is_external from attribution where uuid = $attribution_uuid))
+      ($resource_id, $attribution_uuid, $attribution_is_external)
   `);
+  const insertMany = rawDb.transaction(
+    (resourcesToAttributions: ResourcesToAttributions, is_external: 0 | 1) => {
+      const rows = Object.entries(resourcesToAttributions).flatMap(
+        ([resourcePath, attributionUuids]) => {
+          const resourceId = resourcePathToId.get(
+            removeTrailingSlash(resourcePath),
+          );
+          return resourceId === undefined
+            ? []
+            : attributionUuids.map((uuid) => ({
+                resource_id: resourceId,
+                attribution_uuid: uuid,
+                attribution_is_external: is_external,
+              }));
+        },
+      );
+      for (const row of rows) {
+        insertStmt.run(row);
+      }
+    },
+  );
 
-  for (const [resourcePath, attributionUuids] of [
-    ...Object.entries(externalAttributions.resourcesToAttributions),
-    ...Object.entries(manualAttributions.resourcesToAttributions),
-  ]) {
-    const normalizedPath = removeTrailingSlash(resourcePath);
-    const resourceId = resourcePathToId.get(normalizedPath);
-    if (resourceId === undefined) {
-      continue;
-    }
-    for (const uuid of attributionUuids) {
-      insertStmt.run({ resource_id: resourceId, attribution_uuid: uuid });
-    }
-  }
+  insertMany(externalAttributions.resourcesToAttributions, 1);
+  insertMany(manualAttributions.resourcesToAttributions, 0);
 
   await trx.schema
     .createIndex('resource_to_attribution_attribution_uuid_resource_id_idx')
