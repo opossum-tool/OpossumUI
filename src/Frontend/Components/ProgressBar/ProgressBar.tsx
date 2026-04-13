@@ -133,7 +133,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     progressBarConfigurations[props.selectedProgressBar];
 
   if (!steps) {
-    return <MuiBox flex={1} />;
+    return <MuiBox sx={{ flex: 1 }} />;
   }
 
   return (

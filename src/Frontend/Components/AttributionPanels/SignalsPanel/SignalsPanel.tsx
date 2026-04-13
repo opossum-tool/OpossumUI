@@ -48,7 +48,7 @@ export function SignalsPanel() {
           <LinkButton {...props} />
           <DeleteButton {...props} />
           <RestoreButton {...props} />
-          <MuiBox flex={1} />
+          <MuiBox sx={{ flex: 1 }} />
           <ToggleHiddenSignalsButton
             showHiddenSignals={areHiddenSignalsVisible}
             setShowHiddenSignals={(showHiddenSignals) =>

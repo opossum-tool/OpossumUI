@@ -264,14 +264,16 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
       })}
     >
       <MuiGrid
-        height={'100%'}
-        minHeight={'fit-content'}
         container
         columns={{ sm: 1, md: 2, lg: 3 }}
         spacing={3}
-        padding={'12px'}
-        paddingTop={'0px'}
-        alignContent={'flex-start'}
+        sx={{
+          height: '100%',
+          minHeight: 'fit-content',
+          padding: '12px',
+          paddingTop: '0px',
+          alignContent: 'flex-start',
+        }}
       >
         {props.children}
       </MuiGrid>
@@ -288,11 +290,13 @@ const ChartGridItem: React.FC<ChartGridItemProps> = (props) => {
   return (props.shouldRender ?? true) ? (
     <MuiGrid
       size={1}
-      minHeight={'220px'}
-      minWidth={'440px'}
-      height={'47%'}
-      display={'flex'}
       data-testid={props.testId}
+      sx={{
+        minHeight: '220px',
+        minWidth: '440px',
+        height: '47%',
+        display: 'flex',
+      }}
     >
       <ChartCard>{props.children}</ChartCard>
     </MuiGrid>

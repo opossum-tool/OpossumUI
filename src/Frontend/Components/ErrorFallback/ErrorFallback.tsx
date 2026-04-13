@@ -18,7 +18,7 @@ export const ErrorFallback: React.FC<FallbackProps> = ({
   return (
     <Container>
       <TextContainer role="alert">
-        <MuiTypography textAlign={'center'} variant={'h6'}>
+        <MuiTypography sx={{ textAlign: 'center' }} variant={'h6'}>
           {text.errorBoundary.unexpectedError}
         </MuiTypography>
         <MuiTypography
