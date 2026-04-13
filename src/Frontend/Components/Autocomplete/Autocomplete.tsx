@@ -143,7 +143,7 @@ export function Autocomplete<
     getOptionProps,
     getPopupIndicatorProps,
     getRootProps,
-    getTagProps,
+    getItemProps,
     groupedOptions,
     popupOpen,
     setAnchorEl,
@@ -245,16 +245,18 @@ export function Autocomplete<
     }
 
     return value.map((option, index) => {
-      const { key, ...tagProps } = getTagProps({ index });
+      const { key, ...tagProps } = getItemProps({ index }) as ReturnType<
+        typeof getItemProps
+      > & { key?: React.Key };
       const label = getOptionLabel?.(option) ?? option;
 
       return (
-        <MuiTooltip title={label} key={key}>
+        <MuiTooltip title={label} key={key ?? index}>
           <MuiChip
             size={'small'}
             label={label}
             {...tagProps}
-            onMouseDown={(event) => event.stopPropagation()}
+            onMouseDown={(event: React.MouseEvent) => event.stopPropagation()}
             data-testid={`tag-${label}`}
             sx={{ cursor: 'default' }}
           />

@@ -215,7 +215,7 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
   }) {
     return (
       <Header data-testid={headerTestId} square>
-        <HeaderText color={'ghostwhite'}>{title}</HeaderText>
+        <HeaderText>{title}</HeaderText>
         {showSearch && renderSearchButton({ search, searchRef })}
         {showResizeButtons && renderDownResizeButton()}
         {showResizeButtons && renderUpResizeButton()}

@@ -69,7 +69,7 @@ export const ProjectMetadataTable: React.FC = () => {
         </MuiTableCell>
         <MuiTableCell sx={projectMetadataTableClasses.secondColumn}>
           <pre>
-            <MuiTypography fontFamily="default">
+            <MuiTypography sx={{ fontFamily: 'default' }}>
               {typeof value === 'string'
                 ? values[key]?.date
                   ? dayjs(value).format('lll')

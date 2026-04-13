@@ -22,7 +22,6 @@ export const StyledMenu = styled(
     | 'transformOrigin'
     | 'elevation'
     | 'slotProps'
-    | 'MenuListProps'
   > & {
     anchorArrow?: boolean;
     anchorPosition: 'left' | 'right' | 'center';
@@ -32,11 +31,11 @@ export const StyledMenu = styled(
       elevation={0}
       transformOrigin={{ horizontal: anchorPosition, vertical: 'top' }}
       anchorOrigin={{ horizontal: anchorPosition, vertical: 'bottom' }}
-      MenuListProps={{
-        variant: 'menu',
-        sx: { padding: 0, overflow: 'hidden' },
-      }}
       slotProps={{
+        list: {
+          variant: 'menu' as const,
+          sx: { padding: 0, overflow: 'hidden' },
+        },
         paper: {
           elevation: 2,
           sx: {

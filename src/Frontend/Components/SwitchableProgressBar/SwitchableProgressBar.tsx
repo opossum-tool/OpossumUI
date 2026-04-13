@@ -90,7 +90,7 @@ export const SwitchableProgressBar: React.FC = () => {
     Object.keys(activeProgressBarConfigurations).length > 1;
 
   if (!databaseInitialized) {
-    return <MuiBox flex={1} />;
+    return <MuiBox sx={{ flex: 1 }} />;
   }
 
   return (

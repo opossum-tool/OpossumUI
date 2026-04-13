@@ -9,8 +9,6 @@ import MuiDialogActions from '@mui/material/DialogActions';
 import MuiDialogContent from '@mui/material/DialogContent';
 import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiDialogTitle from '@mui/material/DialogTitle';
-import { noop } from 'lodash';
-import { useHotkeys } from 'react-hotkeys-hook';
 
 import { OpossumColors } from '../../shared-styles';
 
@@ -38,17 +36,18 @@ interface NotificationPopupProps {
 export function NotificationPopup(
   props: React.PropsWithChildren<NotificationPopupProps>,
 ) {
-  useHotkeys('esc', props.onEscapeKeyDown || noop, [props.onEscapeKeyDown]);
-
   return (
     <MuiDialog
       fullWidth={props.fullWidth}
       maxWidth={'xl'}
       open={props.isOpen}
-      disableEscapeKeyDown={true}
-      onClose={(_, reason) =>
-        reason === 'backdropClick' && props.onBackdropClick?.()
-      }
+      onClose={(_, reason) => {
+        if (reason === 'escapeKeyDown') {
+          props.onEscapeKeyDown?.();
+        } else if (reason === 'backdropClick') {
+          props.onBackdropClick?.();
+        }
+      }}
       slotProps={{
         paper: {
           sx: {

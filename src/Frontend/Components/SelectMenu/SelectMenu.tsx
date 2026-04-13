@@ -107,7 +107,7 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
                 </MuiListItemIcon>
                 <MuiListItemText
                   primary={label}
-                  primaryTypographyProps={{ marginTop: '2px' }}
+                  slotProps={{ primary: { sx: { marginTop: '2px' } } }}
                 />
                 <StyledCheckIcon visible={selectedOptionIds.includes(id)} />
               </MenuItemContainer>

@@ -49,7 +49,7 @@ export function LicenseSubPanel({
 
   return hidden ? null : (
     <>
-      <MuiBox display={'flex'} alignItems={'start'} gap={'8px'}>
+      <MuiBox sx={{ display: 'flex', alignItems: 'start', gap: '8px' }}>
         <LicenseSubPanelAutocomplete
           packageInfo={packageInfo}
           showHighlight={showHighlight}

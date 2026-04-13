@@ -145,7 +145,7 @@ export const FilterButton: React.FC<Props> = ({
         <MuiBadge
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           invisible={!isSomeFilterActive}
-          componentsProps={{
+          slotProps={{
             badge: {
               style: {
                 padding: 0,

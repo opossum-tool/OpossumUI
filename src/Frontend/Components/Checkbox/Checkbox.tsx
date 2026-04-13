@@ -50,8 +50,10 @@ export const Checkbox: React.FC<CheckboxProps> = ({
           indeterminate={indeterminate}
           checked={checked}
           onChange={onChange}
-          inputProps={{
-            style: { zIndex: 'unset' },
+          slotProps={{
+            input: {
+              style: { zIndex: 'unset' },
+            },
           }}
           disableRipple={disableRipple}
           size={'small'}

@@ -33,6 +33,7 @@ export const HeaderText = styled(MuiTypography)({
   marginTop: '2px',
   userSelect: 'none',
   flex: 1,
+  color: 'ghostwhite',
 });
 
 export const Search = styled('div')<{ hasValue: boolean }>(

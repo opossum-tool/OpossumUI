@@ -191,13 +191,15 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
         {renderOptionStartIcon?.(option, { closePopper })}
         <MuiListItemText
           primary={optionText.primary(option)}
-          primaryTypographyProps={{
-            sx: { ...styles.overflowEllipsis },
-          }}
           secondary={optionText.secondary?.(option)}
-          secondaryTypographyProps={{
-            variant: 'caption',
-            sx: styles.overflowEllipsis,
+          slotProps={{
+            primary: {
+              sx: { ...styles.overflowEllipsis },
+            },
+            secondary: {
+              variant: 'caption',
+              sx: styles.overflowEllipsis,
+            },
           }}
         />
         {renderOptionEndIcon?.(option, { closePopper })}
