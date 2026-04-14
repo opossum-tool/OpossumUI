@@ -8,7 +8,6 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
-import { removeResolvedExternalAttributionAndSave } from '../../../../state/actions/resource-actions/save-actions';
 import { useAppDispatch } from '../../../../state/hooks';
 import { useUserSettings } from '../../../../state/variables/use-user-setting';
 import { backend } from '../../../../util/backendClient';
@@ -41,9 +40,10 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
       disabled={!someSelectedAttributionsAreHidden}
       size={'small'}
       onClick={async () => {
-        await dispatch(
-          removeResolvedExternalAttributionAndSave(selectedAttributionIds),
-        );
+        await backend.unresolveAttributions.mutate({
+          attributionUuids: selectedAttributionIds,
+        });
+        window.electronAPI.saveFile();
       }}
     >
       <MuiTooltip

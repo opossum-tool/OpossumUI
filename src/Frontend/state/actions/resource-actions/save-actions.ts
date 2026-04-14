@@ -19,11 +19,6 @@ import {
 } from '../../selectors/resource-selectors';
 import { type AppThunkAction, type AsyncAppThunkAction } from '../../types';
 import {
-  addResolvedExternalAttributions,
-  removeResolvedExternalAttributions,
-  setSelectedAttributionId,
-} from './audit-view-simple-actions';
-import {
   ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
   ACTION_DELETE_ATTRIBUTION,
   ACTION_LINK_TO_ATTRIBUTION,
@@ -127,23 +122,6 @@ export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
   };
 }
 
-export function unlinkAttributionAndSave(
-  resourceId: string,
-  attributionIds: Array<string>,
-): AsyncAppThunkAction {
-  return async (dispatch) => {
-    attributionIds.forEach((attributionId) => {
-      dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
-    });
-    await backend.unlinkResourceFromAttributions.mutate({
-      resourcePath: resourceId,
-      attributionUuids: attributionIds,
-    });
-    dispatch(setSelectedAttributionId(''));
-    dispatch(saveManualAndResolvedAttributionsToFile());
-  };
-}
-
 export function unlinkAttributionAndCreateNew(
   resourceId: string,
   packageInfo: PackageInfo,
@@ -177,66 +155,6 @@ export function addToSelectedResource(
         true,
       ),
     );
-  };
-}
-
-export function deleteAttributionsAndSave(
-  attributionIds: Array<string>,
-  selectedAttributionId: string,
-): AsyncAppThunkAction {
-  return async (dispatch) => {
-    const attributionBreakpoints =
-      await backend.getAttributionBreakpoints.query();
-    attributionIds.forEach((attributionId) => {
-      dispatch(deleteAttribution(attributionId, attributionBreakpoints));
-    });
-    await backend.deleteAttributions.mutate({
-      attributionUuids: attributionIds,
-    });
-    if (attributionIds.includes(selectedAttributionId)) {
-      dispatch(setSelectedAttributionId(''));
-    }
-    dispatch(saveManualAndResolvedAttributionsToFile());
-  };
-}
-
-export function addResolvedExternalAttributionAndSave(
-  attributionIds: Array<string>,
-): AsyncAppThunkAction {
-  return async (dispatch) => {
-    dispatch(addResolvedExternalAttributions(attributionIds));
-    await backend.resolveAttributions.mutate({
-      attributionUuids: attributionIds,
-    });
-    dispatch(saveManualAndResolvedAttributionsToFile());
-  };
-}
-
-export function removeResolvedExternalAttributionAndSave(
-  attributionIds: Array<string>,
-): AsyncAppThunkAction {
-  return async (dispatch) => {
-    dispatch(removeResolvedExternalAttributions(attributionIds));
-    await backend.unresolveAttributions.mutate({
-      attributionUuids: attributionIds,
-    });
-    dispatch(saveManualAndResolvedAttributionsToFile());
-  };
-}
-
-export function updateAttributionsAndSave(
-  updatedAttributions: Attributions,
-): AsyncAppThunkAction {
-  return async (dispatch) => {
-    Object.entries(updatedAttributions).forEach(
-      ([attributionId, updatedPackageInfo]) => {
-        dispatch(updateAttribution(attributionId, updatedPackageInfo, false));
-      },
-    );
-    await backend.updateAttributions.mutate({
-      attributions: updatedAttributions,
-    });
-    dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
 

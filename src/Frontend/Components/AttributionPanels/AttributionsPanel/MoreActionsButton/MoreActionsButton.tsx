@@ -12,9 +12,9 @@ import {
   type PackageInfo,
 } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
-import { updateAttributionsAndSave } from '../../../../state/actions/resource-actions/save-actions';
 import { useAppDispatch } from '../../../../state/hooks';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { backend } from '../../../../util/backendClient';
 import {
   ExcludeFromNoticeIcon,
   FollowUpIcon,
@@ -122,7 +122,11 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
         {} as Attributions,
       );
 
-      await dispatch(updateAttributionsAndSave(updatedAttributions));
+      await backend.updateAttributions.mutate({
+        attributions: updatedAttributions,
+      });
+
+      window.electronAPI.saveFile();
 
       handleClose();
     },

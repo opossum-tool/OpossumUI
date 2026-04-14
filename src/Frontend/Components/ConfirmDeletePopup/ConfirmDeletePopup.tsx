@@ -7,10 +7,7 @@ import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
 
 import { text } from '../../../shared/text';
-import {
-  deleteAttributionsAndSave,
-  unlinkAttributionAndSave,
-} from '../../state/actions/resource-actions/save-actions';
+import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -65,16 +62,22 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
     isResourceLinkedOnAllAttributions;
 
   const handleDelete = async () => {
-    await dispatch(
-      deleteAttributionsAndSave(attributionIdsToDelete, selectedAttributionId),
-    );
+    await backend.deleteAttributions.mutate({
+      attributionUuids: attributionIdsToDelete,
+    });
+    if (attributionIdsToDelete.includes(selectedAttributionId)) {
+      dispatch(setSelectedAttributionId(''));
+    }
+    window.electronAPI.saveFile();
     onClose();
   };
 
   const handleDeleteOnResource = async () => {
-    await dispatch(
-      unlinkAttributionAndSave(selectedResourceId, attributionIdsToDelete),
-    );
+    await backend.unlinkResourceFromAttributions.mutate({
+      resourcePath: selectedResourceId,
+      attributionUuids: attributionIdsToDelete,
+    });
+    window.electronAPI.saveFile();
     onClose();
   };
 
