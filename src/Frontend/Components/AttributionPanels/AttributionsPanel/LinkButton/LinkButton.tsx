@@ -7,10 +7,14 @@ import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 
 import { text } from '../../../../../shared/text';
-import { addToSelectedResource } from '../../../../state/actions/resource-actions/save-actions';
+import { setSelectedAttributionId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
-import { getIsPackageInfoDirty } from '../../../../state/selectors/resource-selectors';
+import {
+  getIsPackageInfoDirty,
+  getSelectedResourceId,
+} from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { addAttributionToSelectedResource } from '../../../../util/attribution-actions';
 import { useIsSelectedResourceBreakpoint } from '../../../../util/use-selected-resource';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
@@ -21,6 +25,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   setMultiSelectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
@@ -36,12 +41,20 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
         !!attributionIdsForReplacement.length
       }
       size={'small'}
-      onClick={() => {
-        attributions &&
-          selectedAttributionIds.forEach(async (attributionId) => {
-            await dispatch(addToSelectedResource(attributions[attributionId]));
-          });
+      onClick={async () => {
+        let newestAttributionId: string | undefined = undefined;
+        if (attributions) {
+          for (const attributionId of selectedAttributionIds) {
+            newestAttributionId = await addAttributionToSelectedResource(
+              selectedResourceId,
+              attributions[attributionId],
+            );
+          }
+        }
         setMultiSelectedAttributionIds([]);
+        if (newestAttributionId !== undefined) {
+          dispatch(setSelectedAttributionId(newestAttributionId));
+        }
       }}
     >
       <MuiTooltip

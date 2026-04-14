@@ -6,30 +6,21 @@
 import { isEmpty, isEqual } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
-import {
-  type Attributions,
-  type PackageInfo,
-} from '../../../../shared/shared-types';
+import { type PackageInfo } from '../../../../shared/shared-types';
 import { backend } from '../../../util/backendClient';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
-import {
-  getManualAttributions,
-  getSelectedAttributionId,
-  getSelectedResourceId,
-} from '../../selectors/resource-selectors';
-import { type AppThunkAction, type AsyncAppThunkAction } from '../../types';
+import { getManualAttributions } from '../../selectors/resource-selectors';
+import { type AsyncAppThunkAction } from '../../types';
 import {
   ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
   ACTION_DELETE_ATTRIBUTION,
   ACTION_LINK_TO_ATTRIBUTION,
   ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
-  ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
   ACTION_UPDATE_ATTRIBUTION,
   type CreateAttributionForSelectedResource,
   type DeleteAttribution,
   type LinkToAttributionAction,
   type ReplaceAttributionWithMatchingAttributionAction,
-  type UnlinkResourceFromAttributionAction,
   type UpdateAttribution,
 } from './types';
 
@@ -54,6 +45,7 @@ export function savePackageInfo(
 
     if (attributionId && isEmpty(strippedPackageInfo)) {
       // DELETE
+      console.log('DELETE', attributionId);
       dispatch(deleteAttribution(attributionId, attributionBreakpoints));
       await backend.deleteAttributions.mutate({
         attributionUuids: [attributionId],
@@ -111,50 +103,6 @@ export function savePackageInfo(
         attributions: { [attributionId]: updatedAttribution },
       });
     }
-
-    dispatch(saveManualAndResolvedAttributionsToFile());
-  };
-}
-
-export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
-  return (_) => {
-    window.electronAPI.saveFile();
-  };
-}
-
-export function unlinkAttributionAndCreateNew(
-  resourceId: string,
-  packageInfo: PackageInfo,
-): AsyncAppThunkAction {
-  return async (dispatch) => {
-    const result = await backend.getResourceCountOnAttribution.query({
-      attributionUuid: packageInfo.id,
-    });
-
-    if (result?.isManual && result.resourceCount > 1) {
-      await backend.unlinkResourceFromAttributions.mutate({
-        resourcePath: resourceId,
-        attributionUuids: [packageInfo.id],
-      });
-      dispatch(unlinkResourceFromAttribution(resourceId, packageInfo.id));
-      await dispatch(savePackageInfo(resourceId, null, packageInfo));
-    }
-  };
-}
-
-export function addToSelectedResource(
-  packageInfo: PackageInfo,
-): AsyncAppThunkAction {
-  return async (dispatch, getState) => {
-    await dispatch(
-      savePackageInfo(
-        getSelectedResourceId(getState()),
-        null,
-        packageInfo,
-        packageInfo.id !== getSelectedAttributionId(getState()),
-        true,
-      ),
-    );
   };
 }
 
@@ -224,15 +172,5 @@ function linkToAttribution(
       jumpToMatchingAttribution,
       attributionBreakpoints,
     },
-  };
-}
-
-function unlinkResourceFromAttribution(
-  resourceId: string,
-  attributionId: string,
-): UnlinkResourceFromAttributionAction {
-  return {
-    type: ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
-    payload: { resourceId, attributionId },
   };
 }

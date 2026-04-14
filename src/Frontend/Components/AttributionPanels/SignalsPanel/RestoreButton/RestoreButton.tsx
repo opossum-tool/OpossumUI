@@ -8,7 +8,6 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
-import { useAppDispatch } from '../../../../state/hooks';
 import { useUserSettings } from '../../../../state/variables/use-user-setting';
 import { backend } from '../../../../util/backendClient';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
@@ -16,7 +15,6 @@ import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
 }) => {
-  const dispatch = useAppDispatch();
   const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
   const [userSettings] = useUserSettings();

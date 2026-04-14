@@ -10,6 +10,7 @@ import {
   type FilterCounts,
   FILTERS,
 } from '../../Frontend/shared-constants';
+import { getStrippedPackageInfo } from '../../Frontend/util/get-stripped-package-info';
 import {
   type ExternalAttributionSources,
   type PackageInfo,
@@ -581,6 +582,23 @@ export const queries = {
         isManual: resourceCount.attribution_is_external === 0,
       },
     };
+  },
+
+  async matchPackageInfoToAttribution(props: {
+    packageInfo: PackageInfo;
+    ignorePreSelected: boolean;
+  }) {
+    const strippedPackageInfo = getStrippedPackageInfo(props.packageInfo);
+    const strippedJson = JSON.stringify(strippedPackageInfo);
+    const result = await getDb()
+      .selectFrom('attribution')
+      .select('uuid')
+      .where('is_external', '=', 0)
+      .$if(!props.ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0))
+      // json_patch fills in the missing fields for strippedJson and we then compare it to data
+      .whereRef('data', '=', sql`json_patch(data, ${strippedJson})`)
+      .executeTakeFirst();
+    return { result: result?.uuid ?? null };
   },
 } satisfies Record<string, QueryFunction>;
 

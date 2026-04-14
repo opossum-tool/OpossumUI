@@ -6,16 +6,14 @@ import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
 
 import { text } from '../../../shared/text';
-import {
-  savePackageInfo,
-  unlinkAttributionAndCreateNew,
-} from '../../state/actions/resource-actions/save-actions';
+import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
   getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
+import { unlinkAndCreateAttribution } from '../../util/attribution-actions';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { CardList } from '../CardList/CardList';
@@ -98,13 +96,11 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     attributionsToSave &&
       Object.entries(attributionsToSave).forEach(
         async ([attributionId, attributionData]) => {
-          await dispatch(
-            unlinkAttributionAndCreateNew(
-              selectedResourceId,
-              attributionId === selectedAttributionId
-                ? temporaryDisplayPackageInfo
-                : attributionData,
-            ),
+          await unlinkAndCreateAttribution(
+            selectedResourceId,
+            attributionId === selectedAttributionId
+              ? temporaryDisplayPackageInfo
+              : attributionData,
           );
         },
       );
