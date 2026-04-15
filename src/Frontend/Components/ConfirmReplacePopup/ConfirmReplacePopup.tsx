@@ -8,9 +8,9 @@ import MuiTypography from '@mui/material/Typography';
 import { type PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
+import { saveAttribution } from '../../util/attribution-actions';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { CardList } from '../CardList/CardList';
@@ -43,19 +43,10 @@ export const ConfirmReplacePopup = ({
     onClose();
     dispatch(changeSelectedAttributionOrOpenUnsavedPopup(selectedAttribution));
     if (selectedAttribution.preSelected) {
-      await dispatch(
-        savePackageInfo(null, selectedAttribution.id, selectedAttribution),
-      );
+      await saveAttribution(selectedAttribution.id, selectedAttribution);
     }
     attributionIdsForReplacement.forEach(async (attributionId) => {
-      await dispatch(
-        savePackageInfo(
-          null,
-          attributionId,
-          selectedAttribution,
-          attributionId !== selectedAttribution.id,
-        ),
-      );
+      await saveAttribution(attributionId, selectedAttribution);
     });
   };
 

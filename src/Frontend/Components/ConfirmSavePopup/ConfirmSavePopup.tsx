@@ -6,14 +6,16 @@ import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
 
 import { text } from '../../../shared/text';
-import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
   getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
-import { unlinkAndCreateAttribution } from '../../util/attribution-actions';
+import {
+  saveAttribution,
+  unlinkAndCreateAttribution,
+} from '../../util/attribution-actions';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { CardList } from '../CardList/CardList';
@@ -33,8 +35,6 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   open,
   onClose,
 }) => {
-  const dispatch = useAppDispatch();
-
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
@@ -76,15 +76,11 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     attributionsToSave &&
       Object.entries(attributionsToSave).forEach(
         async ([attributionId, attributionData]) => {
-          await dispatch(
-            savePackageInfo(
-              null,
-              attributionId,
-              attributionId === selectedAttributionId
-                ? temporaryDisplayPackageInfo
-                : attributionData,
-              attributionId !== selectedAttributionId,
-            ),
+          await saveAttribution(
+            attributionId,
+            attributionId === selectedAttributionId
+              ? temporaryDisplayPackageInfo
+              : attributionData,
           );
         },
       );

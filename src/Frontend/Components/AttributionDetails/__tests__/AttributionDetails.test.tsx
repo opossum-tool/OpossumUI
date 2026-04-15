@@ -15,7 +15,6 @@ import {
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { savePackageInfo } from '../../../state/actions/resource-actions/save-actions';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import {
@@ -30,6 +29,7 @@ import {
 } from '../../../test-helpers/expectations';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
+import { saveAttribution } from '../../../util/attribution-actions';
 import { AttributionDetails } from '../AttributionDetails';
 
 describe('AttributionDetails', () => {
@@ -669,12 +669,10 @@ describe('AttributionDetails', () => {
     });
 
     await act(async () => {
-      await store.dispatch(
-        savePackageInfo(resourceId, packageInfo.id, {
-          ...packageInfo,
-          packageName: modifiedName,
-        }),
-      );
+      await saveAttribution(packageInfo.id, {
+        ...packageInfo,
+        packageName: modifiedName,
+      });
     });
 
     await waitFor(() =>

@@ -21,14 +21,16 @@ import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { savePackageInfo } from '../../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getIsPackageInfoDirty,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
-import { addAttributionToSelectedResource } from '../../../util/attribution-actions';
+import {
+  addAttributionToSelectedResource,
+  saveAttribution,
+} from '../../../util/attribution-actions';
 import { backend } from '../../../util/backendClient';
 import { isPackageInvalid } from '../../../util/input-validation';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
@@ -101,17 +103,9 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     if (packageInfo.preSelected || isPackageInfoModified) {
       hasMultipleResources
         ? setIsConfirmSavePopupOpen(true)
-        : await dispatch(
-            savePackageInfo(selectedResourceId, packageInfo.id, packageInfo),
-          );
+        : await saveAttribution(packageInfo.id, packageInfo);
     }
-  }, [
-    packageInfo,
-    isPackageInfoModified,
-    hasMultipleResources,
-    dispatch,
-    selectedResourceId,
-  ]);
+  }, [packageInfo, isPackageInfoModified, hasMultipleResources]);
 
   useIpcRenderer(AllowedFrontendChannels.SaveFileRequest, () => handleSave(), [
     handleSave,

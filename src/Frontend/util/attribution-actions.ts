@@ -2,10 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { v4 as uuid4 } from 'uuid';
+import { isEmpty } from 'lodash';
+import { validate as isValidUUID, v4 as uuid4 } from 'uuid';
 
 import { type PackageInfo } from '../../shared/shared-types';
 import { backend } from './backendClient';
+import { getStrippedPackageInfo } from './get-stripped-package-info';
 
 async function matchOrCreateAttribution(
   resourceId: string,
@@ -47,11 +49,50 @@ export async function unlinkAndCreateAttribution(
     });
     await matchOrCreateAttribution(resourceId, packageInfo, false);
   }
+  window.electronAPI.saveFile();
 }
 
-export function addAttributionToSelectedResource(
+export async function addAttributionToSelectedResource(
   resourceId: string,
   packageInfo: PackageInfo,
 ) {
-  return matchOrCreateAttribution(resourceId, packageInfo, true);
+  const result = await matchOrCreateAttribution(resourceId, packageInfo, true);
+  window.electronAPI.saveFile();
+  return result;
+}
+
+export async function saveAttribution(
+  attributionId: string,
+  packageInfo: PackageInfo,
+) {
+  if (!isValidUUID(attributionId)) {
+    console.error('Attribution UUID is not a valid UUID');
+    return;
+  }
+  // If you want to save an empty attribution, delete it instead, to keep the DB clean
+  if (isEmpty(getStrippedPackageInfo(packageInfo))) {
+    await backend.deleteAttributions.mutate({
+      attributionUuids: [attributionId],
+    });
+  } else {
+    const matchedAttributionUuid =
+      await backend.matchPackageInfoToAttribution.query({
+        packageInfo,
+        ignorePreSelected: false,
+      });
+    if (matchedAttributionUuid) {
+      await backend.replaceAttribution.mutate({
+        attributionIdToReplace: attributionId,
+        attributionIdToReplaceWith: matchedAttributionUuid,
+      });
+    } else {
+      const { preSelected, ...cleanedPackageInfo } = packageInfo;
+      await backend.updateAttributions.mutate({
+        attributions: {
+          [attributionId]: cleanedPackageInfo as PackageInfo,
+        },
+      });
+    }
+  }
+  window.electronAPI.saveFile();
 }
