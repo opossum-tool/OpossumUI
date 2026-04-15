@@ -14,22 +14,25 @@ async function matchOrCreateAttribution(
   packageInfo: PackageInfo,
   ignorePreSelected: boolean,
 ): Promise<string> {
+  const strippedPackageInfo = getStrippedPackageInfo(packageInfo);
   const matchedAttributionUuid =
     await backend.matchPackageInfoToAttribution.query({
-      packageInfo,
+      strippedPackageInfo,
       ignorePreSelected,
     });
   if (matchedAttributionUuid) {
+    console.log('matched', strippedPackageInfo);
     await backend.linkAttribution.mutate({
       resourcePath: resourceId,
       attributionUuid: matchedAttributionUuid,
     });
     return matchedAttributionUuid;
   }
+  console.log('not matched', strippedPackageInfo);
   const newAttributionUuid = uuid4();
   await backend.createAttribution.mutate({
     attributionUuid: newAttributionUuid,
-    packageInfo,
+    packageInfo: { ...packageInfo, id: newAttributionUuid },
     resourcePath: resourceId,
   });
   return newAttributionUuid;
@@ -49,16 +52,13 @@ export async function unlinkAndCreateAttribution(
     });
     await matchOrCreateAttribution(resourceId, packageInfo, false);
   }
-  window.electronAPI.saveFile();
 }
 
 export async function addAttributionToSelectedResource(
   resourceId: string,
   packageInfo: PackageInfo,
 ) {
-  const result = await matchOrCreateAttribution(resourceId, packageInfo, true);
-  window.electronAPI.saveFile();
-  return result;
+  return matchOrCreateAttribution(resourceId, packageInfo, true);
 }
 
 export async function saveAttribution(
@@ -70,14 +70,15 @@ export async function saveAttribution(
     return;
   }
   // If you want to save an empty attribution, delete it instead, to keep the DB clean
-  if (isEmpty(getStrippedPackageInfo(packageInfo))) {
+  const strippedPackageInfo = getStrippedPackageInfo(packageInfo);
+  if (isEmpty(strippedPackageInfo)) {
     await backend.deleteAttributions.mutate({
       attributionUuids: [attributionId],
     });
   } else {
     const matchedAttributionUuid =
       await backend.matchPackageInfoToAttribution.query({
-        packageInfo,
+        strippedPackageInfo,
         ignorePreSelected: false,
       });
     if (matchedAttributionUuid) {
@@ -94,5 +95,4 @@ export async function saveAttribution(
       });
     }
   }
-  window.electronAPI.saveFile();
 }

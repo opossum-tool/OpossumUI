@@ -10,7 +10,6 @@ import {
   type FilterCounts,
   FILTERS,
 } from '../../Frontend/shared-constants';
-import { getStrippedPackageInfo } from '../../Frontend/util/get-stripped-package-info';
 import {
   type ExternalAttributionSources,
   type PackageInfo,
@@ -585,11 +584,10 @@ export const queries = {
   },
 
   async matchPackageInfoToAttribution(props: {
-    packageInfo: PackageInfo;
+    strippedPackageInfo: Partial<PackageInfo>;
     ignorePreSelected: boolean;
   }) {
-    const strippedPackageInfo = getStrippedPackageInfo(props.packageInfo);
-    const strippedJson = JSON.stringify(strippedPackageInfo);
+    const strippedJson = JSON.stringify(props.strippedPackageInfo);
     const result = await getDb()
       .selectFrom('attribution')
       .select('uuid')

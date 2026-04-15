@@ -12,12 +12,12 @@ export function getStrippedPackageInfo(packageInfo: PackageInfo) {
     packageInfo,
     (value, key) =>
       key in strippedPackageInfoTemplate &&
+      strippedPackageInfoTemplate[key as keyof PackageInfo] &&
+      (!!value || value === '') &&
+      !isEqual(value, []) &&
       (packageInfo.firstParty
         ? !thirdPartyKeys.includes(key as keyof PackageInfo)
-        : true) &&
-      strippedPackageInfoTemplate[key as keyof PackageInfo] &&
-      !!value &&
-      !isEqual(value, []),
+        : true),
   );
 }
 
