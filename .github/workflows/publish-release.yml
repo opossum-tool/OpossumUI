@@ -46,7 +46,7 @@ jobs:
       - run: ${{ matrix.build-command }}
 
       - name: Upload release asset
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         with:
           files: ${{ matrix.FILES }}
 
@@ -66,7 +66,7 @@ jobs:
         run: yarn spdx
 
       - name: Upload user guide and SPDX document
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         with:
           files: |
             USER_GUIDE.md
