@@ -89,13 +89,6 @@ const expectedFrontendData: ParsedFrontendFileContent = {
       1: 'BAD',
     },
   },
-  manualAttributions: {
-    attributions: {},
-    resourcesToAttributions: {},
-    attributionsToResources: {},
-  },
-  resolvedExternalAttributions: new Set(),
-  filesWithChildren: new Set(),
 };
 
 const validMetadata = {
@@ -157,73 +150,6 @@ describe('loadFile', () => {
 
     expect(result.ok).toBe(true);
     expect(result.frontendData).toEqual(expectedFrontendData);
-  });
-
-  it('converts preSelected external attributions to manual attributions', async () => {
-    const source = faker.opossum.source();
-    const inputWithPreselected: ParsedOpossumInputFile = {
-      metadata: EMPTY_PROJECT_METADATA,
-      resources: { a: 1 },
-      config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
-      externalAttributions: {
-        [externalAttributionUuid]: {
-          source,
-          packageName: 'my app',
-          packageVersion: '1.2.3',
-          copyright: '(c) first party',
-          preSelected: true,
-          attributionConfidence: 17,
-          comment: 'some comment',
-          preferred: true,
-        },
-      },
-      frequentLicenses: [
-        {
-          shortName: 'MIT',
-          fullName: 'MIT license',
-          defaultText: 'MIT license text',
-        },
-        {
-          shortName: 'GPL',
-          fullName: 'General Public License',
-          defaultText: 'GPL license text',
-        },
-      ],
-      resourcesToAttributions: { '/a': [externalAttributionUuid] },
-      attributionBreakpoints: ['/some/path/', '/another/path/'],
-      filesWithChildren: ['/some/package.json/'],
-      externalAttributionSources: {
-        SC: { name: 'ScanCode', priority: 1000 },
-        OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
-      },
-    };
-    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    await writeFile({ path: jsonPath, content: inputWithPreselected });
-
-    vi.spyOn(Date, 'now').mockReturnValue(1);
-
-    const result = (await loadFile(jsonPath, {})) as LoadFileSuccess;
-
-    expect(result.ok).toBe(true);
-    expect(result.frontendData.manualAttributions).toEqual({
-      attributions: {
-        [manualAttributionUuid]: {
-          packageName: 'my app',
-          packageVersion: '1.2.3',
-          comment: 'some comment',
-          copyright: '(c) first party',
-          preSelected: true,
-          attributionConfidence: 17,
-          id: manualAttributionUuid,
-          criticality: Criticality.None,
-        },
-      },
-      resourcesToAttributions: { '/a': [manualAttributionUuid] },
-      attributionsToResources: { [manualAttributionUuid]: ['/a'] },
-    });
-    expect(result.frontendData.filesWithChildren).toEqual(
-      new Set(['/some/package.json/']),
-    );
   });
 
   it('returns fileNotFoundError for non-existing file', async () => {

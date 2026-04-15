@@ -193,6 +193,9 @@ export const EXCLUDED_FROM_FRONTEND_FILE_CONTENT = [
   'externalAttributionSources',
   'baseUrlsForSources',
   'attributionBreakpoints',
+  'resolvedExternalAttributions',
+  'filesWithChildren',
+  'manualAttributions',
 ] as const;
 export type ParsedFrontendFileContent = Omit<
   ParsedFileContent,

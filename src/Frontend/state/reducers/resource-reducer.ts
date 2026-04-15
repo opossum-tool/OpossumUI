@@ -17,38 +17,19 @@ import {
   ROOT_PATH,
 } from '../../shared-constants';
 import {
-  ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTIONS,
-  ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
-  ACTION_DELETE_ATTRIBUTION,
-  ACTION_LINK_TO_ATTRIBUTION,
-  ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTIONS,
-  ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_EXPANDED_IDS,
-  ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,
-  ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_PROJECT_CONFIG,
   ACTION_SET_PROJECT_METADATA,
-  ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
-  ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
-  ACTION_UPDATE_ATTRIBUTION,
   type ResourceAction,
 } from '../actions/resource-actions/types';
-import {
-  createManualAttribution,
-  deleteManualAttribution,
-  linkToAttributionManualData,
-  replaceAttributionWithMatchingAttributionId,
-  unlinkResourceFromAttributionId,
-  updateManualAttribution,
-} from '../helpers/save-action-helpers';
 
 export const initialResourceState: ResourceState = {
   baseUrlsForSources: {},
@@ -96,11 +77,6 @@ export const resourceState = (
         ...state,
         config: action.payload,
       };
-    case ACTION_SET_MANUAL_ATTRIBUTION_DATA:
-      return {
-        ...state,
-        manualData: action.payload,
-      };
     case ACTION_SET_BASE_URLS_FOR_SOURCES:
       return {
         ...state,
@@ -136,135 +112,11 @@ export const resourceState = (
         ...state,
         targetSelectedAttributionId: action.payload,
       };
-    case ACTION_SET_FILES_WITH_CHILDREN:
-      return {
-        ...state,
-        filesWithChildren: action.payload,
-      };
     case ACTION_SET_PROJECT_METADATA:
       return {
         ...state,
         metadata: action.payload,
       };
-    case ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE: {
-      const selectedResourceId = state.selectedResourceId;
-      const { newManualData, newAttributionId } = createManualAttribution(
-        state.manualData,
-        selectedResourceId,
-        action.payload.attributionId,
-        action.payload.packageInfo,
-      );
-
-      return {
-        ...state,
-        selectedAttributionId: newAttributionId,
-        manualData: newManualData,
-      };
-    }
-    case ACTION_UPDATE_ATTRIBUTION: {
-      const manualData = updateManualAttribution(
-        action.payload.attributionId,
-        state.manualData,
-        action.payload.packageInfo,
-      );
-      return {
-        ...state,
-        manualData,
-      };
-    }
-    case ACTION_DELETE_ATTRIBUTION: {
-      const manualData = deleteManualAttribution(
-        state.manualData,
-        action.payload.attributionId,
-        action.payload.attributionBreakpoints,
-        state.resolvedExternalAttributions,
-      );
-
-      return {
-        ...state,
-        manualData,
-        selectedAttributionId:
-          state.selectedAttributionId === action.payload.attributionId
-            ? ''
-            : state.selectedAttributionId,
-      };
-    }
-    case ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING: {
-      const manualData = replaceAttributionWithMatchingAttributionId(
-        state.manualData,
-        action.payload.attributionIdToReplaceWith,
-        action.payload.attributionIdToReplace,
-        action.payload.attributionBreakpoints,
-      );
-
-      return {
-        ...state,
-        manualData,
-        ...(action.payload.jumpToMatchingAttribution && {
-          selectedAttributionId: action.payload.attributionIdToReplaceWith,
-        }),
-      };
-    }
-    case ACTION_LINK_TO_ATTRIBUTION: {
-      const manualData = linkToAttributionManualData(
-        state.manualData,
-        action.payload.resourceId,
-        action.payload.attributionId,
-        action.payload.attributionBreakpoints,
-      );
-
-      return {
-        ...state,
-        manualData,
-        ...(action.payload.jumpToMatchingAttribution && {
-          selectedAttributionId: action.payload.attributionId,
-        }),
-      };
-    }
-    case ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION: {
-      const manualData = unlinkResourceFromAttributionId(
-        state.manualData,
-        action.payload.resourceId,
-        action.payload.attributionId,
-        state.resolvedExternalAttributions,
-      );
-
-      return {
-        ...state,
-        manualData,
-      };
-    }
-    case ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS:
-      return {
-        ...state,
-        resolvedExternalAttributions: action.payload,
-      };
-    case ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTIONS: {
-      const resolvedExternalAttributions = new Set(
-        state.resolvedExternalAttributions,
-      );
-      action.payload.forEach((attributionId) => {
-        resolvedExternalAttributions.add(attributionId);
-      });
-
-      return {
-        ...state,
-        resolvedExternalAttributions,
-      };
-    }
-    case ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTIONS: {
-      const resolvedExternalAttributions = new Set(
-        state.resolvedExternalAttributions,
-      );
-      action.payload.forEach((attributionId) => {
-        resolvedExternalAttributions.delete(attributionId);
-      });
-
-      return {
-        ...state,
-        resolvedExternalAttributions,
-      };
-    }
     case ACTION_SET_IS_PACKAGE_INFO_DIRTY:
       return {
         ...state,

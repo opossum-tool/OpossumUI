@@ -84,13 +84,6 @@ const mainWindow = {
 const testFrontendData: ParsedFrontendFileContent = {
   metadata: EMPTY_PROJECT_METADATA,
   config: { classifications: {} },
-  manualAttributions: {
-    attributions: {},
-    resourcesToAttributions: {},
-    attributionsToResources: {},
-  },
-  resolvedExternalAttributions: new Set(),
-  filesWithChildren: new Set(),
 };
 
 describe('loadInputAndOutputFromFilePath', () => {

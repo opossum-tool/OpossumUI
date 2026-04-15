@@ -3,57 +3,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  type Attributions,
   Criticality,
-  DiscreteConfidence,
   type PackageInfo,
-  type ResourcesToAttributions,
-  type ResourcesWithAttributedChildren,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
-import { getAttributionsToResources } from '../../../../test-helpers/general-test-helpers';
 import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
-import {
-  getManualAttributions,
-  getManualData,
-  getResourcesWithManualAttributedChildren,
-  getTemporaryDisplayPackageInfo,
-} from '../../../selectors/resource-selectors';
+import { getTemporaryDisplayPackageInfo } from '../../../selectors/resource-selectors';
 import {
   resetResourceState,
-  setManualData,
   setTemporaryDisplayPackageInfo,
 } from '../all-views-simple-actions';
 import { setSelectedResourceId } from '../audit-view-simple-actions';
 
 const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
-const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-const testTemporaryDisplayPackageInfo: PackageInfo = {
-  attributionConfidence: DiscreteConfidence.High,
-  packageVersion: '1.0',
-  packageName: 'test Package',
-  licenseText: ' test License text',
-  criticality: Criticality.None,
-  id: testManualAttributionUuid_1,
-};
-const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
-  packageVersion: '2.0',
-  packageName: 'not assigned test Package',
-  licenseText: ' test not assigned License text',
-  criticality: Criticality.None,
-  id: testManualAttributionUuid_2,
-};
-const testManualAttributions: Attributions = {
-  [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
-  [testManualAttributionUuid_2]: secondTestTemporaryDisplayPackageInfo,
-};
-const testResourcesToManualAttributions: ResourcesToAttributions = {
-  '/root/src/something.js': [testManualAttributionUuid_1],
-};
-const testManualAttributionsToResources = getAttributionsToResources(
-  testResourcesToManualAttributions,
-);
 
 describe('The load and navigation simple actions', () => {
   it('resets the state', () => {
@@ -65,13 +28,6 @@ describe('The load and navigation simple actions', () => {
       criticality: Criticality.None,
       id: testManualAttributionUuid_1,
     };
-    testStore.dispatch(
-      setManualData(
-        testManualAttributions,
-        testResourcesToManualAttributions,
-        testManualAttributionsToResources,
-      ),
-    );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(
       setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
@@ -82,72 +38,6 @@ describe('The load and navigation simple actions', () => {
     expect(testStore.getState().resourceState).toMatchObject(
       initialResourceState,
     );
-  });
-
-  it('sets and gets manual attribution data', () => {
-    const testAttributions: Attributions = {
-      uuid1: {
-        packageName: 'React',
-        criticality: Criticality.None,
-        id: 'uuid1',
-      },
-      uuid2: {
-        packageName: 'Redux',
-        criticality: Criticality.None,
-        id: 'uuid2',
-      },
-    };
-    const testResourcesToAttributions: ResourcesToAttributions = {
-      '/some/path1': ['uuid1', 'uuid2'],
-      '/some/path2': ['uuid1'],
-    };
-    const testAttributionsToResources = getAttributionsToResources(
-      testResourcesToAttributions,
-    );
-    const expectedResourcesWithAttributedChildren: ResourcesWithAttributedChildren =
-      {
-        attributedChildren: {
-          '1': new Set<number>().add(0).add(3),
-          '2': new Set<number>().add(0).add(3),
-        },
-        pathsToIndices: {
-          '/': 1,
-          '/some/': 2,
-          '/some/path1': 0,
-          '/some/path2': 3,
-        },
-        paths: ['/some/path1', '/', '/some/', '/some/path2'],
-      };
-
-    const testStore = createAppStore();
-    expect(getManualAttributions(testStore.getState())).toEqual({});
-    expect(getManualData(testStore.getState()).attributionsToResources).toEqual(
-      {},
-    );
-    expect(
-      getResourcesWithManualAttributedChildren(testStore.getState()),
-    ).toEqual({
-      attributedChildren: {},
-      pathsToIndices: {},
-      paths: [],
-    });
-
-    testStore.dispatch(
-      setManualData(
-        testAttributions,
-        testResourcesToAttributions,
-        testAttributionsToResources,
-      ),
-    );
-    expect(getManualAttributions(testStore.getState())).toEqual(
-      testAttributions,
-    );
-    expect(getManualData(testStore.getState()).attributionsToResources).toEqual(
-      testAttributionsToResources,
-    );
-    expect(
-      getResourcesWithManualAttributedChildren(testStore.getState()),
-    ).toEqual(expectedResourcesWithAttributedChildren);
   });
 
   it('sets and gets temporaryDisplayPackageInfo', () => {

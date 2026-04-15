@@ -131,7 +131,7 @@ function getResourcesToAttributions(
   return testResourcesToExternalAttributions;
 }
 
-export function getAttributionsToResources(
+function getAttributionsToResources(
   resourcesToAttributions: ResourcesToAttributions | undefined,
 ): AttributionsToResources {
   if (!resourcesToAttributions) {
