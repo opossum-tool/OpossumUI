@@ -23,7 +23,7 @@ jobs:
             FILES: |
               release/linux/OpossumUI-for-linux.AppImage
               release/linux/OpossumUI-for-linux.snap
-          - os: macos-latest
+          - os: macos-15-intel
             build-command: yarn ship-mac:x64
             FILES: release/mac/OpossumUI-for-mac-intel.zip
           - os: macos-latest
