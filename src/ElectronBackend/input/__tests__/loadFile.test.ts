@@ -95,7 +95,6 @@ const expectedFrontendData: ParsedFrontendFileContent = {
     attributionsToResources: {},
   },
   resolvedExternalAttributions: new Set(),
-  attributionBreakpoints: new Set(),
   filesWithChildren: new Set(),
 };
 
@@ -242,9 +241,6 @@ describe('loadFile', () => {
       resourcesToAttributions: { '/a': [manualAttributionUuid] },
       attributionsToResources: { [manualAttributionUuid]: ['/a'] },
     });
-    expect(result.frontendData.attributionBreakpoints).toEqual(
-      new Set(['/some/path/', '/another/path/']),
-    );
     expect(result.frontendData.filesWithChildren).toEqual(
       new Set(['/some/package.json/']),
     );

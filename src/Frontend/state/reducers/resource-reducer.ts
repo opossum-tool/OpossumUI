@@ -24,7 +24,6 @@ import {
   ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
   ACTION_RESET_RESOURCE_STATE,
-  ACTION_SET_ATTRIBUTION_BREAKPOINTS,
   ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_FILES_WITH_CHILDREN,
@@ -52,7 +51,6 @@ import {
 } from '../helpers/save-action-helpers';
 
 export const initialResourceState: ResourceState = {
-  attributionBreakpoints: new Set(),
   baseUrlsForSources: {},
   expandedIds: [ROOT_PATH],
   filesWithChildren: new Set(),
@@ -70,7 +68,6 @@ export const initialResourceState: ResourceState = {
 };
 
 export type ResourceState = {
-  attributionBreakpoints: Set<string>;
   baseUrlsForSources: BaseUrlsForSources;
   expandedIds: Array<string>;
   filesWithChildren: Set<string>;
@@ -139,11 +136,6 @@ export const resourceState = (
         ...state,
         targetSelectedAttributionId: action.payload,
       };
-    case ACTION_SET_ATTRIBUTION_BREAKPOINTS:
-      return {
-        ...state,
-        attributionBreakpoints: action.payload,
-      };
     case ACTION_SET_FILES_WITH_CHILDREN:
       return {
         ...state,
@@ -183,8 +175,8 @@ export const resourceState = (
     case ACTION_DELETE_ATTRIBUTION: {
       const manualData = deleteManualAttribution(
         state.manualData,
-        action.payload,
-        state.attributionBreakpoints,
+        action.payload.attributionId,
+        action.payload.attributionBreakpoints,
         state.resolvedExternalAttributions,
       );
 
@@ -192,7 +184,7 @@ export const resourceState = (
         ...state,
         manualData,
         selectedAttributionId:
-          state.selectedAttributionId === action.payload
+          state.selectedAttributionId === action.payload.attributionId
             ? ''
             : state.selectedAttributionId,
       };
@@ -202,7 +194,7 @@ export const resourceState = (
         state.manualData,
         action.payload.attributionIdToReplaceWith,
         action.payload.attributionIdToReplace,
-        state.attributionBreakpoints,
+        action.payload.attributionBreakpoints,
       );
 
       return {
@@ -218,7 +210,7 @@ export const resourceState = (
         state.manualData,
         action.payload.resourceId,
         action.payload.attributionId,
-        state.attributionBreakpoints,
+        action.payload.attributionBreakpoints,
       );
 
       return {

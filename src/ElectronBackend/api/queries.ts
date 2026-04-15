@@ -557,6 +557,15 @@ export const queries = {
       result: baseUrlResult.base_url.replace('{path}', pathToReplaceWith),
     };
   },
+
+  async getAttributionBreakpoints() {
+    const result = await getDb()
+      .selectFrom('resource')
+      .select('path')
+      .where('is_attribution_breakpoint', '=', 1)
+      .execute();
+    return { result: new Set(result.map((r) => r.path)) };
+  },
 } satisfies Record<string, QueryFunction>;
 
 export type Queries = typeof queries;

@@ -29,7 +29,6 @@ import {
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getIsPackageInfoDirty,
-  getIsSelectedResourceBreakpoint,
   getManualAttributionsToResources,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
@@ -38,6 +37,7 @@ import { backend } from '../../../util/backendClient';
 import { isPackageInvalid } from '../../../util/input-validation';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import { useSelectedAttributionPackageInfo } from '../../../util/use-selected-attribution';
+import { useIsSelectedResourceBreakpoint } from '../../../util/use-selected-resource';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
 import { ConfirmSavePopup } from '../../ConfirmSavePopup/ConfirmSavePopup';
@@ -60,9 +60,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const manualAttributionsToResources = useAppSelector(
     getManualAttributionsToResources,
   );
-  const isSelectedResourceBreakpoint = useAppSelector(
-    getIsSelectedResourceBreakpoint,
-  );
+  const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
 
   const originalAttributionQuery = backend.getAttributionData.useQuery(
     packageInfo.originalAttributionId

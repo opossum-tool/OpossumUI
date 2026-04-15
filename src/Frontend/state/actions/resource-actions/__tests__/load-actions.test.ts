@@ -20,7 +20,6 @@ import { OpossumColors } from '../../../../shared-styles';
 import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
-  getAttributionBreakpoints,
   getClassifications,
   getFilesWithChildren,
   getManualData,
@@ -73,7 +72,6 @@ describe('loadFromFile', () => {
         attributionsToResources: testManualAttributionsToResources,
       },
       resolvedExternalAttributions: new Set(['test_id']),
-      attributionBreakpoints: new Set(['/third-party/package/']),
       filesWithChildren: new Set(['/third-party/package.json/']),
     };
     const expectedConfig: ProjectConfig = {
@@ -120,9 +118,6 @@ describe('loadFromFile', () => {
       expectedConfig.classifications,
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
-    expect(getAttributionBreakpoints(testStore.getState())).toEqual(
-      new Set(['/third-party/package/']),
-    );
     expect(getFilesWithChildren(testStore.getState())).toEqual(
       new Set(['/third-party/package.json/']),
     );

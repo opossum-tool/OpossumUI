@@ -192,6 +192,7 @@ export const EXCLUDED_FROM_FRONTEND_FILE_CONTENT = [
   'frequentLicenses',
   'externalAttributionSources',
   'baseUrlsForSources',
+  'attributionBreakpoints',
 ] as const;
 export type ParsedFrontendFileContent = Omit<
   ParsedFileContent,

@@ -13,7 +13,6 @@ import {
 import { computeChildrenWithAttributions } from '../../helpers/save-action-helpers';
 import {
   ACTION_RESET_RESOURCE_STATE,
-  ACTION_SET_ATTRIBUTION_BREAKPOINTS,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
@@ -21,7 +20,6 @@ import {
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
   type ResetResourceStateAction,
-  type SetAttributionBreakpoints,
   type SetFilesWithChildren,
   type SetIsPackageInfoDirtyAction,
   type SetManualDataAction,
@@ -60,15 +58,6 @@ export function setTemporaryDisplayPackageInfo(
   packageInfo: PackageInfo,
 ): SetTemporaryDisplayPackageInfoAction {
   return { type: ACTION_SET_TEMPORARY_PACKAGE_INFO, payload: packageInfo };
-}
-
-export function setAttributionBreakpoints(
-  attributionBreakpoints: Set<string>,
-): SetAttributionBreakpoints {
-  return {
-    type: ACTION_SET_ATTRIBUTION_BREAKPOINTS,
-    payload: attributionBreakpoints,
-  };
 }
 
 export function setFilesWithChildren(

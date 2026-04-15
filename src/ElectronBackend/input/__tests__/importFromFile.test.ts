@@ -90,7 +90,6 @@ const testFrontendData: ParsedFrontendFileContent = {
     attributionsToResources: {},
   },
   resolvedExternalAttributions: new Set(),
-  attributionBreakpoints: new Set(),
   filesWithChildren: new Set(),
 };
 

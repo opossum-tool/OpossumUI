@@ -23,8 +23,6 @@ export const ACTION_SET_SELECTED_RESOURCE_ID =
 export const ACTION_SET_EXPANDED_IDS = 'ACTION_SET_EXPANDED_IDS';
 export const ACTION_SET_TARGET_SELECTED_RESOURCE_ID =
   'ACTION_SET_TARGET_SELECTED_RESOURCE_ID';
-export const ACTION_SET_ATTRIBUTION_BREAKPOINTS =
-  'ACTION_SET_ATTRIBUTION_BREAKPOINTS';
 export const ACTION_SET_FILES_WITH_CHILDREN = 'ACTION_SET_FILES_WITH_CHILDREN';
 export const ACTION_UPDATE_ATTRIBUTION =
   'ACTION_UPDATE_ATTRIBUTION_FOR_SELECTED';
@@ -60,7 +58,6 @@ export type ResourceAction =
   | SetExpandedIdsAction
   | SetTargetSelectedResourceId
   | SetSelectedAttributionId
-  | SetAttributionBreakpoints
   | SetFilesWithChildren
   | UpdateAttribution
   | DeleteAttribution
@@ -120,11 +117,6 @@ export interface SetTargetSelectedAttributionIdAction {
   payload: string | null;
 }
 
-export interface SetAttributionBreakpoints {
-  type: typeof ACTION_SET_ATTRIBUTION_BREAKPOINTS;
-  payload: Set<string>;
-}
-
 export interface SetFilesWithChildren {
   type: typeof ACTION_SET_FILES_WITH_CHILDREN;
   payload: Set<string>;
@@ -149,7 +141,10 @@ export interface UpdateAttribution {
 
 export interface DeleteAttribution {
   type: typeof ACTION_DELETE_ATTRIBUTION;
-  payload: string;
+  payload: {
+    attributionId: string;
+    attributionBreakpoints: Set<string>;
+  };
 }
 
 export interface ReplaceAttributionWithMatchingAttributionAction {
@@ -158,6 +153,7 @@ export interface ReplaceAttributionWithMatchingAttributionAction {
     attributionIdToReplace: string;
     attributionIdToReplaceWith: string;
     jumpToMatchingAttribution: boolean;
+    attributionBreakpoints: Set<string>;
   };
 }
 
@@ -167,6 +163,7 @@ export interface LinkToAttributionAction {
     resourceId: string;
     attributionId: string;
     jumpToMatchingAttribution: boolean;
+    attributionBreakpoints: Set<string>;
   };
 }
 
