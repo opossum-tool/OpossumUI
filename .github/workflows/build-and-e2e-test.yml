@@ -29,8 +29,9 @@ jobs:
             E2E: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e:ci
           - os: macos-latest
             E2E: yarn test:e2e:ci
+            # We only want to run a single smoketest on macOS-Intel to avoid long pipeline durations
           - os: macos-15-intel
-            E2E: yarn test:e2e:ci
+            E2E: yarn test:e2e:ci --grep "opens Opossum file and shows project as recently opened"
           - os: windows-latest
             E2E: yarn test:e2e:ci
     env:
