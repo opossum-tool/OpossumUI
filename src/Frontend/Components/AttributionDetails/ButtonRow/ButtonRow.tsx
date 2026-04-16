@@ -28,8 +28,8 @@ import {
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import {
-  addAttributionToSelectedResource,
-  saveAttribution,
+  addAttributionsToSelectedResource,
+  saveAttributions,
 } from '../../../util/attribution-actions';
 import { backend } from '../../../util/backendClient';
 import { isPackageInvalid } from '../../../util/input-validation';
@@ -101,11 +101,30 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
 
   const handleSave = useCallback(async () => {
     if (packageInfo.preSelected || isPackageInfoModified) {
-      hasMultipleResources
-        ? setIsConfirmSavePopupOpen(true)
-        : await saveAttribution(packageInfo.id, packageInfo);
+      if (hasMultipleResources) {
+        setIsConfirmSavePopupOpen(true);
+      } else {
+        if (packageInfo.id) {
+          const newId = await saveAttributions({
+            [packageInfo.id]: packageInfo,
+          });
+          dispatch(setSelectedAttributionId(newId));
+          return;
+        }
+        const newId = await addAttributionsToSelectedResource(
+          selectedResourceId,
+          { [packageInfo.id]: packageInfo },
+        );
+        dispatch(setSelectedAttributionId(newId));
+      }
     }
-  }, [packageInfo, isPackageInfoModified, hasMultipleResources]);
+  }, [
+    packageInfo,
+    isPackageInfoModified,
+    hasMultipleResources,
+    dispatch,
+    selectedResourceId,
+  ]);
 
   useIpcRenderer(AllowedFrontendChannels.SaveFileRequest, () => handleSave(), [
     handleSave,
@@ -206,11 +225,11 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             color={'secondary'}
             disabled={isPackageInfoModified}
             onClick={async () => {
-              const newAttributionId = await addAttributionToSelectedResource(
+              const newId = await addAttributionsToSelectedResource(
                 selectedResourceId,
-                packageInfo,
+                { [packageInfo.id]: packageInfo },
               );
-              dispatch(setSelectedAttributionId(newAttributionId));
+              dispatch(setSelectedAttributionId(newId));
             }}
           >
             <CallMergeIcon />

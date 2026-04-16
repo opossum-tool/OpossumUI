@@ -4,17 +4,20 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
+import { useMemo } from 'react';
 
+import { type Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { useAppSelector } from '../../state/hooks';
+import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
   getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
 import {
-  saveAttribution,
-  unlinkAndCreateAttribution,
+  saveAttributions,
+  unlinkAndCreateAttributions,
 } from '../../util/attribution-actions';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
@@ -35,6 +38,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   open,
   onClose,
 }) => {
+  const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
@@ -51,6 +55,27 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
+
+  const attributionsWithTemporaryDisplayPackageInfo: Attributions | undefined =
+    useMemo(() => {
+      if (!attributionsToSave) {
+        return undefined;
+      }
+      return Object.fromEntries(
+        Object.entries(attributionsToSave).map(
+          ([attributionId, attribution]) => [
+            attributionId,
+            attribution.id === selectedAttributionId
+              ? temporaryDisplayPackageInfo
+              : attribution,
+          ],
+        ),
+      );
+    }, [
+      attributionsToSave,
+      selectedAttributionId,
+      temporaryDisplayPackageInfo,
+    ]);
 
   const linkedResourcesTreeState = useLinkedResourcesTreeState({
     onAttributionUuids: attributionIdsToSave,
@@ -72,35 +97,29 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     ? Object.values(attributionsToSave).every((a) => a.preSelected)
     : undefined;
 
-  const handleSave = () => {
-    attributionsToSave &&
-      Object.entries(attributionsToSave).forEach(
-        async ([attributionId, attributionData]) => {
-          await saveAttribution(
-            attributionId,
-            attributionId === selectedAttributionId
-              ? temporaryDisplayPackageInfo
-              : attributionData,
-          );
-        },
-      );
-
+  const saveOnAllResources = async () => {
+    if (!attributionsWithTemporaryDisplayPackageInfo) {
+      onClose();
+      return;
+    }
+    const newAttributionId = saveAttributions(
+      attributionsWithTemporaryDisplayPackageInfo,
+    );
     onClose();
+    dispatch(setSelectedAttributionId(await newAttributionId));
   };
 
-  const handleSaveOnResource = () => {
-    attributionsToSave &&
-      Object.entries(attributionsToSave).forEach(
-        async ([attributionId, attributionData]) => {
-          await unlinkAndCreateAttribution(
-            selectedResourceId,
-            attributionId === selectedAttributionId
-              ? temporaryDisplayPackageInfo
-              : attributionData,
-          );
-        },
-      );
+  const onlySaveOnSelectedResource = async () => {
+    if (!attributionsWithTemporaryDisplayPackageInfo) {
+      onClose();
+      return;
+    }
+    const newAttributionId = await unlinkAndCreateAttributions(
+      selectedResourceId,
+      attributionsWithTemporaryDisplayPackageInfo,
+    );
     onClose();
+    dispatch(setSelectedAttributionId(newAttributionId));
   };
 
   return (
@@ -110,8 +129,18 @@ export const ConfirmSavePopup: React.FC<Props> = ({
           ? text.saveAttributionsPopup.titleConfirm
           : text.saveAttributionsPopup.titleSave
       }
+      leftButtonConfig={
+        hasMultipleResourcesWhichContainSelected
+          ? {
+              onClick: onlySaveOnSelectedResource,
+              buttonText: areAllAttributionsPreselected
+                ? text.saveAttributionsPopup.confirmLocally
+                : text.saveAttributionsPopup.saveLocally,
+            }
+          : undefined
+      }
       centerLeftButtonConfig={{
-        onClick: handleSave,
+        onClick: saveOnAllResources,
         color: 'error',
         buttonText:
           linkedResourceCount && linkedResourceCount > 1
@@ -122,16 +151,6 @@ export const ConfirmSavePopup: React.FC<Props> = ({
               ? text.saveAttributionsPopup.confirm
               : text.saveAttributionsPopup.save,
       }}
-      leftButtonConfig={
-        hasMultipleResourcesWhichContainSelected
-          ? {
-              onClick: handleSaveOnResource,
-              buttonText: areAllAttributionsPreselected
-                ? text.saveAttributionsPopup.confirmLocally
-                : text.saveAttributionsPopup.saveLocally,
-            }
-          : undefined
-      }
       rightButtonConfig={{
         onClick: onClose,
         buttonText: text.buttons.cancel,

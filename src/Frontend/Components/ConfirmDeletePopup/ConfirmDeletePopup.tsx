@@ -77,6 +77,9 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       resourcePath: selectedResourceId,
       attributionUuids: attributionIdsToDelete,
     });
+    if (attributionIdsToDelete.includes(selectedAttributionId)) {
+      dispatch(setSelectedAttributionId(''));
+    }
     window.electronAPI.saveFile();
     onClose();
   };

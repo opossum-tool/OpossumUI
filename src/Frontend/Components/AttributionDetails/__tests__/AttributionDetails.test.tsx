@@ -29,7 +29,7 @@ import {
 } from '../../../test-helpers/expectations';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { saveAttribution } from '../../../util/attribution-actions';
+import { saveAttributions } from '../../../util/attribution-actions';
 import { AttributionDetails } from '../AttributionDetails';
 
 describe('AttributionDetails', () => {
@@ -669,10 +669,13 @@ describe('AttributionDetails', () => {
     });
 
     await act(async () => {
-      await saveAttribution(packageInfo.id, {
-        ...packageInfo,
-        packageName: modifiedName,
+      const newAttributionId = await saveAttributions({
+        [packageInfo.id]: {
+          ...packageInfo,
+          packageName: modifiedName,
+        },
       });
+      store.dispatch(setSelectedAttributionId(newAttributionId));
     });
 
     await waitFor(() =>

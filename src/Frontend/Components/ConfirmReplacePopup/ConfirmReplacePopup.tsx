@@ -8,9 +8,10 @@ import MuiTypography from '@mui/material/Typography';
 import { type PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
-import { saveAttribution } from '../../util/attribution-actions';
+import { saveAttributions } from '../../util/attribution-actions';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { CardList } from '../CardList/CardList';
@@ -43,11 +44,18 @@ export const ConfirmReplacePopup = ({
     onClose();
     dispatch(changeSelectedAttributionOrOpenUnsavedPopup(selectedAttribution));
     if (selectedAttribution.preSelected) {
-      await saveAttribution(selectedAttribution.id, selectedAttribution);
+      await saveAttributions({
+        [selectedAttribution.id]: selectedAttribution,
+      });
     }
-    attributionIdsForReplacement.forEach(async (attributionId) => {
-      await saveAttribution(attributionId, selectedAttribution);
-    });
+    const attributionsToSave = Object.fromEntries(
+      attributionIdsForReplacement.map((attributionId) => [
+        attributionId,
+        selectedAttribution,
+      ]),
+    );
+    const newAttributionId = await saveAttributions(attributionsToSave);
+    dispatch(setSelectedAttributionId(newAttributionId));
   };
 
   return (

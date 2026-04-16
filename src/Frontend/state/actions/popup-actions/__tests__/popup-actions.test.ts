@@ -18,7 +18,7 @@ import { PopupType, View } from '../../../../enums/enums';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { createTestStore } from '../../../../test-helpers/render';
 import { type State } from '../../../../types/types';
-import { saveAttribution } from '../../../../util/attribution-actions';
+import { saveAttributions } from '../../../../util/attribution-actions';
 import { createAppStore } from '../../../configure-store';
 import {
   getExpandedIds,
@@ -175,10 +175,12 @@ describe('The actions checking for unsaved changes', () => {
           id: faker.string.uuid(),
         }),
       );
-      await saveAttribution('uuid_2', {
-        packageName: 'Test',
-        criticality: Criticality.None,
-        id: faker.string.uuid(),
+      await saveAttributions({
+        uuid_2: {
+          packageName: 'Test',
+          criticality: Criticality.None,
+          id: 'uuid_2',
+        },
       });
 
       testStore.dispatch(

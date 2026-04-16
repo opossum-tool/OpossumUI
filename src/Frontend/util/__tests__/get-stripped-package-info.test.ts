@@ -19,6 +19,7 @@ describe('getStrippedPackageInfo', () => {
       Partial<PackageInfo>
     >({
       packageName: 'React',
+      packageVersion: '',
     });
   });
 

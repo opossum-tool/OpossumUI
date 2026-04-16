@@ -138,27 +138,7 @@ describe('loadFile', () => {
     const result = (await loadFile(opossumPath, {})) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
-    expect(result.frontendData).toEqual({
-      ...expectedFrontendData,
-      manualAttributions: {
-        attributions: {
-          [testUuid]: {
-            packageName: 'Package',
-            packageVersion: '1.0',
-            licenseText: 'MIT',
-            followUp: true,
-            id: testUuid,
-            criticality: Criticality.None,
-          },
-        },
-        resourcesToAttributions: {
-          '/folder/': [testUuid],
-        },
-        attributionsToResources: {
-          [testUuid]: ['/folder/'],
-        },
-      },
-    });
+    expect(result.frontendData).toEqual(expectedFrontendData);
     expect(result.projectTitle).toBe(inputFileContent.metadata.projectTitle);
     expect(result.projectId).toBe(inputFileContent.metadata.projectId);
   });

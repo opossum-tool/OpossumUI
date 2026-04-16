@@ -10,7 +10,7 @@ import { text } from '../../../../../shared/text';
 import { setSelectedAttributionId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import { getSelectedResourceId } from '../../../../state/selectors/resource-selectors';
-import { addAttributionToSelectedResource } from '../../../../util/attribution-actions';
+import { addAttributionsToSelectedResource } from '../../../../util/attribution-actions';
 import { useIsSelectedResourceBreakpoint } from '../../../../util/use-selected-resource';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
@@ -29,19 +29,19 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
       disabled={isSelectedResourceBreakpoint || !selectedAttributionIds.length}
       size={'small'}
       onClick={async () => {
-        let newestAttributionId: string | undefined;
         if (attributions) {
-          for (const attributionId of selectedAttributionIds) {
-            newestAttributionId = await addAttributionToSelectedResource(
-              resourceId,
-              attributions[attributionId],
-            );
-          }
+          const selected = Object.fromEntries(
+            selectedAttributionIds
+              .filter((id) => id in attributions)
+              .map((id) => [id, attributions[id]]),
+          );
+          const newId = await addAttributionsToSelectedResource(
+            resourceId,
+            selected,
+          );
+          dispatch(setSelectedAttributionId(newId));
         }
         setMultiSelectedAttributionIds([]);
-        if (newestAttributionId !== undefined) {
-          dispatch(setSelectedAttributionId(newestAttributionId));
-        }
       }}
     >
       <MuiTooltip
