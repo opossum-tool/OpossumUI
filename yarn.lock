@@ -3015,11 +3015,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rolldown/plugin-babel@npm:0.2.2":
-  version: 0.2.2
-  resolution: "@rolldown/plugin-babel@npm:0.2.2"
+"@rolldown/plugin-babel@npm:0.2.3":
+  version: 0.2.3
+  resolution: "@rolldown/plugin-babel@npm:0.2.3"
   dependencies:
-    picomatch: "npm:^4.0.3"
+    picomatch: "npm:^4.0.4"
   peerDependencies:
     "@babel/core": ^7.29.0 || ^8.0.0-rc.1
     "@babel/plugin-transform-runtime": ^7.29.0 || ^8.0.0-rc.1
@@ -3033,7 +3033,7 @@ __metadata:
       optional: true
     vite:
       optional: true
-  checksum: 10/e1ead63b8dc081075a9eae003ccf802b0bc0017204715ddd181d36aeaf40814a9bf8466326c10c9534e1b5abda20188b1fd5d2b61312f525d2046ad599902e0f
+  checksum: 10/dd40e5605dc6e0482a54545ee7ac9cdc9a7d29db7e75ac9be1999eafec30618a574f6a1356ad6e4337d220eb38ac980dc4d8c5f552eaa985ea331a7c0e07375a
   languageName: node
   linkType: hard
 
@@ -8270,7 +8270,7 @@ __metadata:
     "@mui/utils": "npm:9.0.0"
     "@playwright/test": "npm:1.59.1"
     "@reduxjs/toolkit": "npm:2.11.2"
-    "@rolldown/plugin-babel": "npm:0.2.2"
+    "@rolldown/plugin-babel": "npm:0.2.3"
     "@tanstack/eslint-plugin-query": "npm:5.99.0"
     "@tanstack/react-query": "npm:5.99.0"
     "@testing-library/dom": "npm:10.4.1"
