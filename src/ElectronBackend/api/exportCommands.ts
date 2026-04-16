@@ -43,11 +43,15 @@ async function exportFollowUp(params: { filePath: string }) {
       (eb) =>
         eb
           .selectFrom('resource')
-          .innerJoin('cwa', 'cwa.resource_id', 'resource.id')
+          .innerJoin(
+            'closest_attributed_ancestors',
+            'closest_attributed_ancestors.resource_id',
+            'resource.id',
+          )
           .innerJoin(
             'resource_to_attribution',
             'resource_to_attribution.resource_id',
-            'cwa.manual',
+            'closest_attributed_ancestors.manual',
           )
           .select(
             sql<string>`json_group_array(resource.path ORDER BY resource.id)`.as(

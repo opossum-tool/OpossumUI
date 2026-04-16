@@ -47,7 +47,7 @@ export interface Attribution {
   canonical_license_name: Generated<string | null>;
 }
 
-export interface Cwa {
+export interface ClosestAttributedAncestors {
   breakpoint: number;
   external: number | null;
   is_file: number;
@@ -115,7 +115,7 @@ export interface SourceForAttribution {
 
 export interface DB {
   attribution: Attribution;
-  cwa: Cwa;
+  closest_attributed_ancestors: ClosestAttributedAncestors;
   external_attribution_source: ExternalAttributionSource;
   frequent_license: FrequentLicense;
   resource: Resource;

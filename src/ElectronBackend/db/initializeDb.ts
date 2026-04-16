@@ -91,7 +91,7 @@ export async function initializeDb(inputFile: ParsedFileContent) {
 
 async function initializeProgressBarTable(trx: Transaction<DB>) {
   await trx.schema
-    .createTable('cwa')
+    .createTable('closest_attributed_ancestors')
     .addColumn('resource_id', 'integer', (col) =>
       col.primaryKey().notNull().references('resource.id'),
     )
@@ -104,8 +104,7 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
     .execute();
 
   await sql`
-  -- closest with ancestor table
-  INSERT INTO cwa WITH RECURSIVE 
+  INSERT INTO closest_attributed_ancestors WITH RECURSIVE 
   has_manual_attribution AS MATERIALIZED (
     SELECT DISTINCT resource_id
     FROM resource_to_attribution
@@ -116,7 +115,7 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
     FROM resource_to_attribution
     WHERE attribution_uuid IN (SELECT uuid FROM attribution WHERE is_external = 1 AND is_resolved = 0)
   ),
-  cwa(resource_id, parent_id, is_file, breakpoint, manual, external) AS (
+  closest_attributed_ancestors(resource_id, parent_id, is_file, breakpoint, manual, external) AS (
     SELECT r.id, r.parent_id, r.is_file, r.id,
     IIF(r.id IN has_manual_attribution, r.id, NULL),
     IIF(r.id IN has_unresolved_external_attribution, r.id, NULL)
@@ -134,40 +133,40 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
         IIF(child.is_attribution_breakpoint, NULL, parent.external)
     )
     FROM resource as child
-    JOIN cwa as parent ON child.parent_id = parent.resource_id
+    JOIN closest_attributed_ancestors as parent ON child.parent_id = parent.resource_id
   )
-  SELECT resource_id, is_file, breakpoint, manual, external FROM cwa
+  SELECT resource_id, is_file, breakpoint, manual, external FROM closest_attributed_ancestors
   `.execute(trx);
 
   await trx.schema
-    .createIndex('cwa_manual_idx')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_manual_idx')
+    .on('closest_attributed_ancestors')
     .columns(['manual', 'is_file', 'resource_id'])
     .execute();
   await trx.schema
-    .createIndex('cwa_external')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_external')
+    .on('closest_attributed_ancestors')
     .columns(['external', 'resource_id'])
     .execute();
   await trx.schema
-    .createIndex('cwa_external_per_file')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_external_per_file')
+    .on('closest_attributed_ancestors')
     .columns(['external', 'is_file', 'resource_id'])
     .execute();
   await trx.schema
-    .createIndex('cwa_manual_and_external')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_manual_and_external')
+    .on('closest_attributed_ancestors')
     .columns(['manual', 'external', 'is_file', 'resource_id'])
     .execute();
   await trx.schema
-    .createIndex('cwa_resource')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_resource')
+    .on('closest_attributed_ancestors')
     .columns(['resource_id', 'manual'])
     .execute();
 
   await trx.schema
-    .createIndex('cwa_breakpoint')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_breakpoint')
+    .on('closest_attributed_ancestors')
     .columns(['breakpoint', 'manual', 'resource_id'])
     .execute();
 }
