@@ -86,7 +86,6 @@ export async function initializeDb(inputFile: ParsedFileContent) {
 
       await initializeProgressBarTable(trx);
     });
-  getRawDb().exec('VACUUM');
 }
 
 async function initializeProgressBarTable(trx: Transaction<DB>) {
@@ -271,15 +270,15 @@ async function initializeResourceTable(
   });
 
   function sortChildren(
-    aIsLeaf: boolean,
+    aIsFile: boolean,
     aName: string,
-    bIsLeaf: boolean,
+    bIsFile: boolean,
     bName: string,
   ) {
-    if (aIsLeaf && !bIsLeaf) {
+    if (aIsFile && !bIsFile) {
       return 1;
     }
-    if (!aIsLeaf && bIsLeaf) {
+    if (!aIsFile && bIsFile) {
       return -1;
     }
     // If both resources are files or both are directories, we sort them alphabetically
@@ -312,12 +311,12 @@ async function initializeResourceTable(
         ([childName, childChildren]) => ({
           name: childName,
           children: childChildren,
-          isLeaf:
+          isFile:
             childChildren === 1 ||
             trimmedFilesWithChildren.has(`${currentPath}/${childName}`),
         }),
       );
-      entries.sort((a, b) => sortChildren(a.isLeaf, a.name, b.isLeaf, b.name));
+      entries.sort((a, b) => sortChildren(a.isFile, a.name, b.isFile, b.name));
       for (const { name, children } of entries) {
         lastDescendantId = recursivelyCollectResource(
           name,
@@ -342,11 +341,11 @@ async function initializeResourceTable(
     return lastDescendantId;
   }
 
-  // The root resource has "" as name and path
-  console.time('collectResources');
   const resourcesToInsert: Array<ResourceRow> = [];
+  // The root resource has '' as name and path
   recursivelyCollectResource('', resources, null, null, resourcesToInsert);
   insertMany(resourcesToInsert);
+
   await trx.schema
     .createIndex('resource_parent_id_covering_idx')
     .on('resource')
