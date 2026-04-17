@@ -16,7 +16,7 @@
     "@mui/utils": "9.0.0",
     "@reduxjs/toolkit": "2.11.2",
     "@tanstack/react-query": "5.99.0",
-    "@viz-js/viz": "3.25.0",
+    "@viz-js/viz": "3.26.0",
     "better-sqlite3": "12.8.0",
     "better-sqlite3-electron": "npm:better-sqlite3@12.8.0",
     "chroma-js": "3.2.0",
