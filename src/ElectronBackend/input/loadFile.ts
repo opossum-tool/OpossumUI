@@ -3,12 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
-import { cloneDeep, omit } from 'lodash';
+import { cloneDeep, pick } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
 import {
   type Attributions,
-  EXCLUDED_FROM_FRONTEND_FILE_CONTENT,
+  INCLUDE_IN_FRONTEND_FILE_CONTENT,
   type ParsedFileContent,
   type ParsedFrontendFileContent,
   type ResourcesToAttributions,
@@ -236,9 +236,9 @@ export async function loadFile(
   reportProgress('Loading into database');
   await initializeDb(parsedFileContent);
 
-  const frontendData: ParsedFrontendFileContent = omit(
+  const frontendData: ParsedFrontendFileContent = pick(
     parsedFileContent,
-    EXCLUDED_FROM_FRONTEND_FILE_CONTENT,
+    INCLUDE_IN_FRONTEND_FILE_CONTENT,
   );
 
   return {

@@ -186,20 +186,10 @@ export interface ParsedFileContent {
   externalAttributionSources: ExternalAttributionSources;
 }
 
-export const EXCLUDED_FROM_FRONTEND_FILE_CONTENT = [
-  'resources',
-  'externalAttributions',
-  'frequentLicenses',
-  'externalAttributionSources',
-  'baseUrlsForSources',
-  'attributionBreakpoints',
-  'resolvedExternalAttributions',
-  'filesWithChildren',
-  'manualAttributions',
-] as const;
-export type ParsedFrontendFileContent = Omit<
+export const INCLUDE_IN_FRONTEND_FILE_CONTENT = ['metadata', 'config'] as const;
+export type ParsedFrontendFileContent = Pick<
   ParsedFileContent,
-  (typeof EXCLUDED_FROM_FRONTEND_FILE_CONTENT)[number]
+  (typeof INCLUDE_IN_FRONTEND_FILE_CONTENT)[number]
 >;
 
 export interface BaseUrlsForSources {
