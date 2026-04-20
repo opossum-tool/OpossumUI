@@ -97,7 +97,7 @@ export function VirtualizedTreeNode({
 
   useEffect(() => {
     if (focused) {
-      ref.current?.focus();
+      ref.current?.focus({ preventScroll: true });
     }
   }, [focused]);
 
