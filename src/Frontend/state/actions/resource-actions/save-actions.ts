@@ -119,26 +119,6 @@ export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
   };
 }
 
-export function unlinkAttributionAndCreateNew(
-  resourceId: string,
-  packageInfo: PackageInfo,
-): AsyncAppThunkAction {
-  return async (dispatch) => {
-    const result = await backend.getResourceCountOnAttribution.query({
-      attributionUuid: packageInfo.id,
-    });
-
-    if (result?.isManual && result.resourceCount > 1) {
-      await backend.unlinkResourceFromAttributions.mutate({
-        resourcePath: resourceId,
-        attributionUuids: [packageInfo.id],
-      });
-      dispatch(unlinkResourceFromAttribution(resourceId, packageInfo.id));
-      await dispatch(savePackageInfo(resourceId, null, packageInfo));
-    }
-  };
-}
-
 export function addToSelectedResource(
   packageInfo: PackageInfo,
 ): AsyncAppThunkAction {

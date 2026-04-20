@@ -13,9 +13,13 @@ import {
   type Transaction,
 } from 'kysely';
 import { escapeRegExp, snakeCase } from 'lodash';
+import { v4 as uuid4 } from 'uuid';
 
 import { FILTERS } from '../../Frontend/shared-constants';
-import { areAttributionsEqual } from '../../shared/attribution-comparison';
+import {
+  areAttributionsEqual,
+  getComparableAttributes,
+} from '../../shared/attribution-comparison';
 import { type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
 import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
@@ -225,15 +229,41 @@ export const GET_LEGACY_RESOURCE_PATH =
 export async function getAttributionOrThrow(
   dbOrTrx: Kysely<DB>,
   attributionUuid: string,
+  options?: {
+    preconditions?: { minimumResources?: number; isExternal?: boolean };
+  },
 ) {
   const attribution = await dbOrTrx
     .selectFrom('attribution')
-    .select('is_external')
+    .select(['is_external'])
     .where('uuid', '=', attributionUuid)
     .executeTakeFirst();
 
   if (!attribution) {
     throw new Error(`Attribution ${attributionUuid} does not exist.`);
+  }
+
+  if (
+    options?.preconditions?.isExternal !== undefined &&
+    attribution.is_external !== Number(options.preconditions.isExternal)
+  ) {
+    throw new Error(
+      `Attribution ${attributionUuid} is not ${options.preconditions.isExternal ? 'external' : 'manual'}.`,
+    );
+  }
+
+  if (options?.preconditions?.minimumResources) {
+    const resourceCount = await dbOrTrx
+      .selectFrom('resource_to_attribution')
+      .select((eb) => eb.fn.countAll<number>().as('count'))
+      .where('attribution_uuid', '=', attributionUuid)
+      .executeTakeFirstOrThrow();
+
+    if (resourceCount.count < options.preconditions.minimumResources) {
+      throw new Error(
+        `Attribution ${attributionUuid} has less than ${options.preconditions.minimumResources} resources linked`,
+      );
+    }
   }
 
   return attribution;
@@ -588,4 +618,33 @@ export async function computeWasPreferred(
 
 export function removeParentFromPath(parentPath: string, path: string) {
   return path.replace(new RegExp(`^${escapeRegExp(parentPath)}/?`), '');
+}
+
+export async function matchOrCreateAttribution(
+  trx: Transaction<DB>,
+  packageInfo: PackageInfo,
+  ignorePreSelected: boolean,
+) {
+  const strippedPackageInfo = getComparableAttributes(packageInfo);
+  const strippedJson = JSON.stringify(strippedPackageInfo);
+  const matchedAttribution = await trx
+    .selectFrom('attribution')
+    .select('uuid')
+    .where('is_external', '=', 0)
+    .$if(!ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0))
+    .whereRef('data', '=', sql`json_patch(data, ${strippedJson})`)
+    .executeTakeFirst();
+  if (matchedAttribution?.uuid) {
+    return matchedAttribution.uuid;
+  }
+  const newUuid = uuid4();
+  await trx
+    .insertInto('attribution')
+    .values({
+      uuid: newUuid,
+      data: JSON.stringify({ ...packageInfo, id: newUuid }),
+      is_external: 0,
+    })
+    .execute();
+  return newUuid;
 }

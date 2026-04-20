@@ -6,10 +6,7 @@ import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
 
 import { text } from '../../../shared/text';
-import {
-  savePackageInfo,
-  unlinkAttributionAndCreateNew,
-} from '../../state/actions/resource-actions/save-actions';
+import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -97,16 +94,14 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   const handleSaveOnResource = () => {
     attributionsToSave &&
       Object.entries(attributionsToSave).forEach(
-        async ([attributionId, attributionData]) => {
-          await dispatch(
-            unlinkAttributionAndCreateNew(
-              selectedResourceId,
+        ([attributionId, attributionData]) =>
+          backend.modifyOnlyOnOneResource.mutate({
+            resourceId: selectedResourceId,
+            packageInfo:
               attributionId === selectedAttributionId
                 ? temporaryDisplayPackageInfo
                 : attributionData,
-            ),
-          );
-        },
+          }),
       );
     onClose();
   };

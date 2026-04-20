@@ -15,6 +15,7 @@ import {
   computeWasPreferred,
   getAttributionOrThrow,
   getResourceOrThrow,
+  matchOrCreateAttribution,
   removeRedundantAttributions,
 } from './utils';
 
@@ -419,6 +420,60 @@ export const mutations = {
 
     return {
       invalidates: [{ queryName: 'getBaseUrlForSource' as const }],
+    };
+  },
+
+  async modifyOnlyOnOneResource(params: {
+    resourceId: string;
+    packageInfo: PackageInfo;
+  }) {
+    await getDb()
+      .transaction()
+      .execute(async (trx) => {
+        const resource = await getResourceOrThrow(trx, params.resourceId);
+        await getAttributionOrThrow(trx, params.packageInfo.id, {
+          preconditions: { isExternal: false, minimumResources: 2 },
+        });
+
+        await removeManualOrExternalCwaFromResources(trx, 'manual', {
+          attributionUuids: [params.packageInfo.id],
+          resourceIds: [resource.id],
+        });
+
+        await trx
+          .deleteFrom('resource_to_attribution')
+          .where('resource_id', '=', resource.id)
+          .where('attribution_uuid', '=', params.packageInfo.id)
+          .execute();
+
+        const attributionToLink = await matchOrCreateAttribution(
+          trx,
+          params.packageInfo,
+          false,
+        );
+
+        await trx
+          .insertInto('resource_to_attribution')
+          .values({
+            resource_id: resource.id,
+            attribution_uuid: attributionToLink,
+            attribution_is_external: 0,
+          })
+          .execute();
+
+        await addManualOrExternalCwaToResources(trx, 'manual', {
+          attributionUuids: [attributionToLink],
+          resourceIds: [resource.id],
+        });
+
+        await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
+      });
+    return {
+      invalidates: [
+        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
+        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
+        ...RESOURCE_TREE_INVALIDATIONS,
+      ],
     };
   },
 } satisfies Record<string, MutationFunction>;
