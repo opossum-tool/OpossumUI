@@ -179,7 +179,7 @@ function attributionClassificationQuery(
  * Takes attributionUuids as an input and checks for resources that will have no more manual/external attributions once they are removed.
  * Call BEFORE removing attributions.
  */
-export async function removeManualOrExternalCAAFromResources(
+export async function removeManualOrExternalCaaFromResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
   type: 'manual' | 'external',
   {
@@ -278,7 +278,7 @@ export async function removeManualOrExternalCAAFromResources(
  * Takes attributionUuids as an input and checks for resources that now have manual/external attributions.
  * Call AFTER adding attributions.
  */
-export async function addManualOrExternalCAAToResources(
+export async function addManualOrExternalCaaToResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
   type: 'manual' | 'external',
   {

@@ -267,7 +267,7 @@ describe('removeRedundantAttributions', () => {
       });
 
     await expectDbContent(props.expectedResourcesToAttributions);
-    await expectCAAConsistency();
+    await expectCaaConsistency();
   });
 });
 
@@ -342,7 +342,7 @@ async function expectDbContent(
   }
 }
 
-async function expectCAAConsistency() {
+async function expectCaaConsistency() {
   const resources = await getDb()
     .selectFrom('resource')
     .innerJoin(
@@ -370,7 +370,7 @@ async function expectCAAConsistency() {
     ).map((r) => r.resource_id),
   );
 
-  const cAAManualByResourceId = new Map(resources.map((r) => [r.id, r.manual]));
+  const caaManualByResourceId = new Map(resources.map((r) => [r.id, r.manual]));
 
   for (const resource of resources) {
     if (resourcesWithManualAttributions.has(resource.id)) {
@@ -383,7 +383,7 @@ async function expectCAAConsistency() {
       resource.parent_id !== null
     ) {
       const parentManual =
-        cAAManualByResourceId.get(resource.parent_id) ?? null;
+        caaManualByResourceId.get(resource.parent_id) ?? null;
       expect(
         resource.manual,
         `Closest ancestors with manual attributions for '${resource.path}' should match its parent's`,

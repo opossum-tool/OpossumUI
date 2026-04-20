@@ -546,7 +546,7 @@ async function initializeResourceToAttributionTable(
     }[],
     attribution_is_external: 0 | 1,
   ) {
-    const singleValuesSql = attribution_is_external ? '(?, ?, 1)' : '(?, ?, 0)';
+    const singleValuesSql = `(?, ?, ${attribution_is_external})`;
     const multipleValuesSql =
       `${singleValuesSql}, `.repeat(rows.length - 1) + singleValuesSql;
     const stmt = rawDb.prepare(`

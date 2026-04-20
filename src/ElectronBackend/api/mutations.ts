@@ -7,8 +7,8 @@ import { sql } from 'kysely';
 import { type Attributions, type PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import {
-  addManualOrExternalCAAToResources,
-  removeManualOrExternalCAAFromResources,
+  addManualOrExternalCaaToResources,
+  removeManualOrExternalCaaFromResources,
 } from './progressBarUtils';
 import { type QueryName, type QueryParams } from './queries';
 import {
@@ -45,7 +45,7 @@ export const mutations = {
     await getDb()
       .transaction()
       .execute(async (trx) => {
-        await removeManualOrExternalCAAFromResources(trx, 'manual', {
+        await removeManualOrExternalCaaFromResources(trx, 'manual', {
           attributionUuids: params.attributionUuids,
         });
         const impactedResources = new Set<number>();
@@ -219,7 +219,7 @@ export const mutations = {
           .onConflict((oc) => oc.doNothing())
           .execute();
 
-        await addManualOrExternalCAAToResources(trx, 'manual', {
+        await addManualOrExternalCaaToResources(trx, 'manual', {
           attributionUuids: [params.attributionUuid],
           resourceIds: [resource.id],
         });
@@ -300,7 +300,7 @@ export const mutations = {
           })
           .execute();
 
-        await addManualOrExternalCAAToResources(trx, 'manual', {
+        await addManualOrExternalCaaToResources(trx, 'manual', {
           attributionUuids: [params.attributionUuid],
           resourceIds: [resource.id],
         });
@@ -397,7 +397,7 @@ export const mutations = {
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
-        await removeManualOrExternalCAAFromResources(trx, 'manual', {
+        await removeManualOrExternalCaaFromResources(trx, 'manual', {
           attributionUuids: params.attributionUuids,
           resourceIds: [resource.id],
         });
@@ -469,11 +469,11 @@ async function setAttributionsResolvedStatus(
     .transaction()
     .execute(async (trx) => {
       if (resolvedStatus) {
-        await removeManualOrExternalCAAFromResources(trx, 'external', {
+        await removeManualOrExternalCaaFromResources(trx, 'external', {
           attributionUuids,
         });
       } else {
-        await addManualOrExternalCAAToResources(trx, 'external', {
+        await addManualOrExternalCaaToResources(trx, 'external', {
           attributionUuids,
         });
       }

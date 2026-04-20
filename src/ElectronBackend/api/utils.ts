@@ -18,7 +18,7 @@ import { FILTERS } from '../../Frontend/shared-constants';
 import { areAttributionsEqual } from '../../shared/attribution-comparison';
 import { type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
-import { removeManualOrExternalCAAFromResources } from './progressBarUtils';
+import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
 import {
   type FilterProperties,
   type FilterPropertiesWithCanonicalLicenseNames,
@@ -206,7 +206,7 @@ export async function removeRedundantAttributions(
     // In this case, we need to call this function after removing the attribution-resource-connection, because
     // we don't know which attributionUuid will be affected. That means we can't pass the uuids to this function,
     // so they can't be ignored when checking for remaining attributions on the resources.
-    await removeManualOrExternalCAAFromResources(trx, 'manual', {
+    await removeManualOrExternalCaaFromResources(trx, 'manual', {
       resourceIds: trx
         .withTables<{ duplicate_resources: { resource_id: number } }>()
         .selectFrom('duplicate_resources')
