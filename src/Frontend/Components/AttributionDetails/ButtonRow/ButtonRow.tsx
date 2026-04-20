@@ -21,9 +21,7 @@ import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
-  addResolvedExternalAttributionAndSave,
   addToSelectedResource,
-  removeResolvedExternalAttributionAndSave,
   savePackageInfo,
 } from '../../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
@@ -296,11 +294,13 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             size={'small'}
             color={'secondary'}
             onClick={async () => {
-              await dispatch(
-                selectedSignalIsResolved
-                  ? removeResolvedExternalAttributionAndSave([packageInfo.id])
-                  : addResolvedExternalAttributionAndSave([packageInfo.id]),
-              );
+              selectedSignalIsResolved
+                ? await backend.unresolveAttributions.mutate({
+                    attributionUuids: [packageInfo.id],
+                  })
+                : await backend.resolveAttributions.mutate({
+                    attributionUuids: [packageInfo.id],
+                  });
             }}
           >
             {selectedSignalIsResolved ? (

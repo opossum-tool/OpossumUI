@@ -8,15 +8,12 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
-import { addResolvedExternalAttributionAndSave } from '../../../../state/actions/resource-actions/save-actions';
-import { useAppDispatch } from '../../../../state/hooks';
 import { backend } from '../../../../util/backendClient';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
 }) => {
-  const dispatch = useAppDispatch();
   const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
   const someSelectedAttributionsAreVisible = useMemo(
@@ -33,11 +30,11 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
       aria-label={text.packageLists.delete}
       disabled={!someSelectedAttributionsAreVisible}
       size={'small'}
-      onClick={async () => {
-        await dispatch(
-          addResolvedExternalAttributionAndSave(selectedAttributionIds),
-        );
-      }}
+      onClick={() =>
+        backend.resolveAttributions.mutate({
+          attributionUuids: selectedAttributionIds,
+        })
+      }
     >
       <MuiTooltip
         title={text.packageLists.delete}
