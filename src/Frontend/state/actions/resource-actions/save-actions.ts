@@ -119,22 +119,6 @@ export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
   };
 }
 
-export function addToSelectedResource(
-  packageInfo: PackageInfo,
-): AsyncAppThunkAction {
-  return async (dispatch, getState) => {
-    await dispatch(
-      savePackageInfo(
-        getSelectedResourceId(getState()),
-        null,
-        packageInfo,
-        packageInfo.id !== getSelectedAttributionId(getState()),
-        true,
-      ),
-    );
-  };
-}
-
 function createAttributionForSelectedResource(
   attributionId: string,
   packageInfo: PackageInfo,

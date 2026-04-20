@@ -7,10 +7,13 @@ import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 
 import { text } from '../../../../../shared/text';
-import { addToSelectedResource } from '../../../../state/actions/resource-actions/save-actions';
-import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
-import { getIsPackageInfoDirty } from '../../../../state/selectors/resource-selectors';
+import { useAppSelector } from '../../../../state/hooks';
+import {
+  getIsPackageInfoDirty,
+  getSelectedResourceId,
+} from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { backend } from '../../../../util/backendClient';
 import { useIsSelectedResourceBreakpoint } from '../../../../util/use-selected-resource';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
@@ -20,10 +23,10 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
 }) => {
-  const dispatch = useAppDispatch();
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
 
   return (
     <MuiIconButton
@@ -39,7 +42,10 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
       onClick={() => {
         attributions &&
           selectedAttributionIds.forEach(async (attributionId) => {
-            await dispatch(addToSelectedResource(attributions[attributionId]));
+            await backend.addToSelectedResource.mutate({
+              resourceId: selectedResourceId,
+              packageInfo: attributions[attributionId],
+            });
           });
         setMultiSelectedAttributionIds([]);
       }}

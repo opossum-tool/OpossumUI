@@ -20,10 +20,7 @@ import { type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import {
-  addToSelectedResource,
-  savePackageInfo,
-} from '../../../state/actions/resource-actions/save-actions';
+import { savePackageInfo } from '../../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getIsPackageInfoDirty,
@@ -212,7 +209,12 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             size={'small'}
             color={'secondary'}
             disabled={isPackageInfoModified}
-            onClick={() => dispatch(addToSelectedResource(packageInfo))}
+            onClick={() =>
+              backend.addToSelectedResource.mutate({
+                resourceId: selectedResourceId,
+                packageInfo,
+              })
+            }
           >
             <CallMergeIcon />
           </MuiFab>

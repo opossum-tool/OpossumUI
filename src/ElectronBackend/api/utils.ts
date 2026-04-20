@@ -620,6 +620,21 @@ export function removeParentFromPath(parentPath: string, path: string) {
   return path.replace(new RegExp(`^${escapeRegExp(parentPath)}/?`), '');
 }
 
+export function linkAttribution(
+  trx: Transaction<DB>,
+  resourceId: number,
+  attributionUuid: string,
+) {
+  return trx
+    .insertInto('resource_to_attribution')
+    .values({
+      resource_id: resourceId,
+      attribution_uuid: attributionUuid,
+      attribution_is_external: 0,
+    })
+    .execute();
+}
+
 export async function matchOrCreateAttribution(
   trx: Transaction<DB>,
   packageInfo: PackageInfo,
