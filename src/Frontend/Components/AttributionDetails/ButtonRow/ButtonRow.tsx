@@ -29,7 +29,6 @@ import {
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getIsPackageInfoDirty,
-  getManualAttributionsToResources,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
@@ -57,9 +56,6 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const { data: resolvedExternalAttributions } =
     backend.resolvedAttributionUuids.useQuery();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const manualAttributionsToResources = useAppSelector(
-    getManualAttributionsToResources,
-  );
   const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
 
   const originalAttributionQuery = backend.getAttributionData.useQuery(
@@ -86,10 +82,22 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const selectedSignalIsResolved = resolvedExternalAttributions?.has(
     packageInfo.id,
   );
+
+  const { data: attributionData } =
+    backend.getResourceCountOnAttribution.useQuery({
+      attributionUuid: packageInfo.id,
+    });
   const hasMultipleResources =
-    (manualAttributionsToResources[packageInfo.id]?.length ?? 0) > 1;
+    attributionData?.isManual && attributionData?.resourceCount > 1;
+
+  const { data: attributions } = backend.listAttributions.useQuery({
+    resourcePathForRelationships: selectedResourceId,
+    uuids: [packageInfo.id],
+  });
   const isSelectedResourceOnSelectedAttribution =
-    manualAttributionsToResources[packageInfo.id]?.includes(selectedResourceId);
+    attributionData?.isManual &&
+    attributions?.[packageInfo.id]?.relation === 'resource';
+
   const isCreatingNewAttribution = !packageInfo.id;
 
   const handleSave = useCallback(async () => {
@@ -193,7 +201,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     if (
       isSelectedResourceBreakpoint ||
       isCreatingNewAttribution ||
-      (isEditable && isSelectedResourceOnSelectedAttribution)
+      (isEditable && isSelectedResourceOnSelectedAttribution !== false)
     ) {
       return null;
     }

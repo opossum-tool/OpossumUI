@@ -16,7 +16,7 @@ import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getManualAttributions,
-  getManualAttributionsToResources,
+  getManualData,
   getResourcesWithManualAttributedChildren,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/resource-selectors';
@@ -121,7 +121,9 @@ describe('The load and navigation simple actions', () => {
 
     const testStore = createAppStore();
     expect(getManualAttributions(testStore.getState())).toEqual({});
-    expect(getManualAttributionsToResources(testStore.getState())).toEqual({});
+    expect(getManualData(testStore.getState()).attributionsToResources).toEqual(
+      {},
+    );
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual({
@@ -140,7 +142,7 @@ describe('The load and navigation simple actions', () => {
     expect(getManualAttributions(testStore.getState())).toEqual(
       testAttributions,
     );
-    expect(getManualAttributionsToResources(testStore.getState())).toEqual(
+    expect(getManualData(testStore.getState()).attributionsToResources).toEqual(
       testAttributionsToResources,
     );
     expect(

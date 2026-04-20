@@ -566,6 +566,22 @@ export const queries = {
       .execute();
     return { result: new Set(result.map((r) => r.path)) };
   },
+  async getResourceCountOnAttribution(props: { attributionUuid: string }) {
+    const resourceCount = await getDb()
+      .selectFrom('resource_to_attribution')
+      .select((eb) => [
+        eb.fn.countAll<number>().as('count'),
+        'attribution_is_external',
+      ])
+      .where('attribution_uuid', '=', props.attributionUuid)
+      .executeTakeFirstOrThrow();
+    return {
+      result: {
+        resourceCount: resourceCount.count,
+        isManual: resourceCount.attribution_is_external === 0,
+      },
+    };
+  },
 } satisfies Record<string, QueryFunction>;
 
 export type Queries = typeof queries;

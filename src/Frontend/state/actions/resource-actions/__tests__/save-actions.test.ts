@@ -27,7 +27,6 @@ import { createTestStore } from '../../../../test-helpers/render';
 import { createAppStore } from '../../../configure-store';
 import {
   getManualAttributions,
-  getManualAttributionsToResources,
   getManualData,
   getResourcesWithManualAttributedChildren,
   getSelectedAttributionId,
@@ -775,8 +774,9 @@ describe('The unlinkAttributionAndSave action', () => {
       testStore.getState(),
     );
     expect(Object.keys(startingManualAttributions)).toHaveLength(1);
-    const startingManualAttributionsToResources =
-      getManualAttributionsToResources(testStore.getState());
+    const startingManualAttributionsToResources = getManualData(
+      testStore.getState(),
+    ).attributionsToResources;
     expect(startingManualAttributionsToResources.reactUuid).toEqual([
       '/something.js',
       '/somethingElse.js',
@@ -1039,7 +1039,7 @@ describe('The addToSelectedResource action', () => {
     testStore.dispatch(setSelectedResourceId('/root/'));
     testStore.dispatch(setSelectedAttributionId(testPackageInfo.id));
     expect(
-      getManualAttributionsToResources(testStore.getState())[
+      getManualData(testStore.getState()).attributionsToResources[
         testManualAttributionUuid_1
       ],
     ).toEqual(['/root/src/something.js']);
