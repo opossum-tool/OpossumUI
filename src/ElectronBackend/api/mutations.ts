@@ -34,6 +34,39 @@ type MutationFunction = (params?: any) => Promise<{
   invalidates?: Array<QueryInvalidationUnion>;
 }>;
 
+const PROGRESS_BAR_INVALIDATIONS: Array<QueryInvalidationUnion> = [
+  { queryName: 'getAttributionProgressBarData' },
+  { queryName: 'getNextFileToReviewForAttribution' },
+  { queryName: 'getCriticalityProgressBarData' },
+  { queryName: 'getNextFileToReviewForCriticality' },
+  { queryName: 'getClassificationProgressBarData' },
+  { queryName: 'getNextFileToReviewForClassification' },
+];
+
+const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<QueryInvalidationUnion> = [
+  ...PROGRESS_BAR_INVALIDATIONS,
+  { queryName: 'listAttributions' },
+  { queryName: 'filterProperties' },
+  { queryName: 'licenseTable' },
+  { queryName: 'autoCompleteOptions' },
+];
+
+const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<QueryInvalidationUnion> = [
+  { queryName: 'manualAttributionStatistics' },
+  { queryName: 'getManualAttributionOnResourceOrAncestor' },
+  { queryName: 'resourceHasIncompleteManualAttributions' },
+];
+
+const EXTERNAL_ATTRIBUTION_INVALIDATIONS: Array<QueryInvalidationUnion> = [
+  { queryName: 'externalAttributionStatistics' },
+  { queryName: 'resolvedAttributionUuids' },
+];
+
+const RESOURCE_TREE_INVALIDATIONS: Array<QueryInvalidationUnion> = [
+  { queryName: 'getResourceTree' },
+  { queryName: 'getResourcePathsAndParentsForAttributions' },
+];
+
 export const mutations = {
   invalidateGetAttributionData() {
     // to avoid typescript errors in backendClient, we need at least one mutation with no parameters, and an invalidation without parameters
@@ -88,21 +121,9 @@ export const mutations = {
           queryName: 'getAttributionData' as const,
           params: { attributionUuid },
         })),
-        { queryName: 'listAttributions' },
-        { queryName: 'filterProperties' },
-        { queryName: 'getResourceTree' },
-        { queryName: 'getAttributionProgressBarData' },
-        { queryName: 'getNextFileToReviewForAttribution' },
-        { queryName: 'getCriticalityProgressBarData' },
-        { queryName: 'getNextFileToReviewForCriticality' },
-        { queryName: 'getClassificationProgressBarData' },
-        { queryName: 'getNextFileToReviewForClassification' },
-        { queryName: 'autoCompleteOptions' },
-        { queryName: 'getManualAttributionOnResourceOrAncestor' },
-        { queryName: 'getResourcePathsAndParentsForAttributions' },
-        { queryName: 'manualAttributionStatistics' },
-        { queryName: 'licenseTable' },
-        { queryName: 'resourceHasIncompleteManualAttributions' },
+        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
+        ...RESOURCE_TREE_INVALIDATIONS,
+        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
       ],
     };
   },
@@ -170,21 +191,9 @@ export const mutations = {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionIdToReplaceWith },
         },
-        { queryName: 'listAttributions' },
-        { queryName: 'filterProperties' },
-        { queryName: 'getResourceTree' },
-        { queryName: 'getAttributionProgressBarData' },
-        { queryName: 'getNextFileToReviewForAttribution' },
-        { queryName: 'getCriticalityProgressBarData' },
-        { queryName: 'getNextFileToReviewForCriticality' },
-        { queryName: 'getClassificationProgressBarData' },
-        { queryName: 'getNextFileToReviewForClassification' },
-        { queryName: 'autoCompleteOptions' },
-        { queryName: 'getManualAttributionOnResourceOrAncestor' },
-        { queryName: 'getResourcePathsAndParentsForAttributions' },
-        { queryName: 'manualAttributionStatistics' },
-        { queryName: 'licenseTable' },
-        { queryName: 'resourceHasIncompleteManualAttributions' },
+        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
+        ...RESOURCE_TREE_INVALIDATIONS,
+        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         { queryName: 'getResourceCountOnAttribution' },
       ],
     };
@@ -233,28 +242,13 @@ export const mutations = {
 
     return {
       invalidates: [
-        { queryName: 'getAttributionProgressBarData' },
-        { queryName: 'getCriticalityProgressBarData' },
-        { queryName: 'getClassificationProgressBarData' },
         {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionUuid },
         },
-        { queryName: 'listAttributions' },
-        { queryName: 'filterProperties' },
-        { queryName: 'getResourceTree' },
-        { queryName: 'getAttributionProgressBarData' },
-        { queryName: 'getNextFileToReviewForAttribution' },
-        { queryName: 'getCriticalityProgressBarData' },
-        { queryName: 'getNextFileToReviewForCriticality' },
-        { queryName: 'getClassificationProgressBarData' },
-        { queryName: 'getNextFileToReviewForClassification' },
-        { queryName: 'autoCompleteOptions' },
-        { queryName: 'getManualAttributionOnResourceOrAncestor' },
-        { queryName: 'getResourcePathsAndParentsForAttributions' },
-        { queryName: 'manualAttributionStatistics' },
-        { queryName: 'licenseTable' },
-        { queryName: 'resourceHasIncompleteManualAttributions' },
+        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
+        ...RESOURCE_TREE_INVALIDATIONS,
+        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         { queryName: 'getResourceCountOnAttribution' },
       ],
     };
@@ -314,21 +308,9 @@ export const mutations = {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.attributionUuid },
         },
-        { queryName: 'listAttributions' },
-        { queryName: 'filterProperties' },
-        { queryName: 'getResourceTree' },
-        { queryName: 'getAttributionProgressBarData' },
-        { queryName: 'getNextFileToReviewForAttribution' },
-        { queryName: 'getCriticalityProgressBarData' },
-        { queryName: 'getNextFileToReviewForCriticality' },
-        { queryName: 'getClassificationProgressBarData' },
-        { queryName: 'getNextFileToReviewForClassification' },
-        { queryName: 'autoCompleteOptions' },
-        { queryName: 'getManualAttributionOnResourceOrAncestor' },
-        { queryName: 'getResourcePathsAndParentsForAttributions' },
-        { queryName: 'manualAttributionStatistics' },
-        { queryName: 'licenseTable' },
-        { queryName: 'resourceHasIncompleteManualAttributions' },
+        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
+        ...RESOURCE_TREE_INVALIDATIONS,
+        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
       ],
     };
   },
@@ -363,23 +345,12 @@ export const mutations = {
 
     return {
       invalidates: [
+        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
+        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         ...Object.keys(params.attributions).map((attributionUuid) => ({
           queryName: 'getAttributionData' as const,
           params: { attributionUuid },
         })),
-        { queryName: 'listAttributions' },
-        { queryName: 'getAttributionProgressBarData' },
-        { queryName: 'getNextFileToReviewForAttribution' },
-        { queryName: 'getCriticalityProgressBarData' },
-        { queryName: 'getNextFileToReviewForCriticality' },
-        { queryName: 'getClassificationProgressBarData' },
-        { queryName: 'getNextFileToReviewForClassification' },
-        { queryName: 'filterProperties' },
-        { queryName: 'autoCompleteOptions' },
-        { queryName: 'getManualAttributionOnResourceOrAncestor' },
-        { queryName: 'manualAttributionStatistics' },
-        { queryName: 'licenseTable' },
-        { queryName: 'resourceHasIncompleteManualAttributions' },
       ],
     };
   },
@@ -432,22 +403,10 @@ export const mutations = {
           queryName: 'getAttributionData' as const,
           params: { attributionUuid },
         })),
-        { queryName: 'listAttributions' },
-        { queryName: 'filterProperties' },
-        { queryName: 'getResourceTree' },
-        { queryName: 'getAttributionProgressBarData' },
-        { queryName: 'getNextFileToReviewForAttribution' },
-        { queryName: 'getCriticalityProgressBarData' },
-        { queryName: 'getNextFileToReviewForCriticality' },
-        { queryName: 'getClassificationProgressBarData' },
-        { queryName: 'getNextFileToReviewForClassification' },
-        { queryName: 'autoCompleteOptions' },
-        { queryName: 'getManualAttributionOnResourceOrAncestor' },
-        { queryName: 'getResourcePathsAndParentsForAttributions' },
-        { queryName: 'manualAttributionStatistics' },
-        { queryName: 'licenseTable' },
-        { queryName: 'resourceHasIncompleteManualAttributions' },
-        { queryName: 'getResourceCountOnAttribution' },
+        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
+        ...RESOURCE_TREE_INVALIDATIONS,
+        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
+        { queryName: 'getResourceCountOnAttribution' } as const,
       ],
     };
   },
@@ -503,23 +462,13 @@ async function setAttributionsResolvedStatus(
 
   return {
     invalidates: [
+      ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
+      ...EXTERNAL_ATTRIBUTION_INVALIDATIONS,
       ...attributionUuids.map((attributionUuid) => ({
         queryName: 'getAttributionData' as const,
         params: { attributionUuid },
       })),
-      { queryName: 'listAttributions' as const },
-      { queryName: 'filterProperties' as const },
-      { queryName: 'getResourceTree' as const },
-      { queryName: 'getAttributionProgressBarData' as const },
-      { queryName: 'getNextFileToReviewForAttribution' as const },
-      { queryName: 'getCriticalityProgressBarData' as const },
-      { queryName: 'getNextFileToReviewForCriticality' as const },
-      { queryName: 'getClassificationProgressBarData' as const },
-      { queryName: 'getNextFileToReviewForClassification' as const },
-      { queryName: 'autoCompleteOptions' as const },
-      { queryName: 'externalAttributionStatistics' as const },
-      { queryName: 'licenseTable' as const },
-      { queryName: 'resolvedAttributionUuids' as const },
+      { queryName: 'getResourceTree' } as const,
     ],
   };
 }
