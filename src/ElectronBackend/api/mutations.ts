@@ -383,7 +383,7 @@ export const mutations = {
           preconditions: { isExternal: false, minimumResources: 2 },
         });
 
-        await removeManualOrExternalCwaFromResources(trx, 'manual', {
+        await removeManualOrExternalCaaFromResources(trx, 'manual', {
           attributionUuids: [params.packageInfo.id],
           resourceIds: [resource.id],
         });
@@ -403,7 +403,7 @@ export const mutations = {
           ignoreExisting: true,
         });
 
-        await addManualOrExternalCwaToResources(trx, 'manual', {
+        await addManualOrExternalCaaToResources(trx, 'manual', {
           attributionUuids: [attributionToLink],
           resourceIds: [resource.id],
         });
@@ -445,7 +445,7 @@ export const mutations = {
           ignoreExisting: true,
         });
 
-        await addManualOrExternalCwaToResources(trx, 'manual', {
+        await addManualOrExternalCaaToResources(trx, 'manual', {
           attributionUuids: [attributionUuidToLink],
           resourceIds: [resource.id],
         });
