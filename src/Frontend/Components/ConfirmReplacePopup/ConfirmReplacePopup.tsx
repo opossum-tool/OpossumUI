@@ -8,7 +8,6 @@ import MuiTypography from '@mui/material/Typography';
 import { type PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
 import { backend } from '../../util/backendClient';
@@ -43,19 +42,20 @@ export const ConfirmReplacePopup = ({
     onClose();
     dispatch(changeSelectedAttributionOrOpenUnsavedPopup(selectedAttribution));
     if (selectedAttribution.preSelected) {
-      await dispatch(
-        savePackageInfo(null, selectedAttribution.id, selectedAttribution),
-      );
+      await backend.updateAttributions.mutate({
+        attributions: {
+          [selectedAttribution.id]: {
+            ...selectedAttribution,
+            preSelected: false,
+          },
+        },
+      });
     }
     attributionIdsForReplacement.forEach(async (attributionId) => {
-      await dispatch(
-        savePackageInfo(
-          null,
-          attributionId,
-          selectedAttribution,
-          attributionId !== selectedAttribution.id,
-        ),
-      );
+      await backend.replaceAttribution.mutate({
+        attributionIdToReplace: attributionId,
+        attributionIdToReplaceWith: selectedAttribution.id,
+      });
     });
   };
 

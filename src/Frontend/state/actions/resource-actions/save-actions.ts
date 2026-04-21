@@ -9,11 +9,7 @@ import { v4 as uuid4 } from 'uuid';
 import { type PackageInfo } from '../../../../shared/shared-types';
 import { backend } from '../../../util/backendClient';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
-import {
-  getManualAttributions,
-  getSelectedAttributionId,
-  getSelectedResourceId,
-} from '../../selectors/resource-selectors';
+import { getManualAttributions } from '../../selectors/resource-selectors';
 import { type AppThunkAction, type AsyncAppThunkAction } from '../../types';
 import {
   ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
