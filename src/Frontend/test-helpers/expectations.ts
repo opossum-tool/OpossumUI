@@ -10,13 +10,10 @@ import {
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { backend } from '../util/backendClient';
-import { flushPendingMutations } from './general-test-helpers';
 
 export async function expectManualAttributions(
   manualAttributions: Attributions,
 ) {
-  await flushPendingMutations();
-
   const dbResult = await getDb()
     .selectFrom('attribution')
     .select(['uuid', 'data'])
@@ -33,8 +30,6 @@ export async function expectManualAttributions(
 export async function expectResourcesToManualAttributions(
   resourcesToAttributions: ResourcesToAttributions,
 ) {
-  await flushPendingMutations();
-
   const dbResult = await getDb()
     .selectFrom('resource_to_attribution')
     .innerJoin('resource', 'resource.id', 'resource_to_attribution.resource_id')
@@ -72,8 +67,6 @@ export async function expectResourcesToManualAttributions(
 export async function expectResolvedExternalAttributions(
   resolvedExternalAttributions: Set<string>,
 ) {
-  await flushPendingMutations();
-
   const queryResult = await backend.resolvedAttributionUuids.query();
   expect(queryResult).toEqual(resolvedExternalAttributions);
 

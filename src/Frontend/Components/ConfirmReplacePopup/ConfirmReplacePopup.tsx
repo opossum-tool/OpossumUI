@@ -46,7 +46,7 @@ export const ConfirmReplacePopup = ({
         attributions: {
           [selectedAttribution.id]: {
             ...selectedAttribution,
-            preSelected: false,
+            preSelected: undefined,
           },
         },
       });

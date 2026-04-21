@@ -711,7 +711,6 @@ export async function updateAttribution(
 
   const wasPreferred = await computeWasPreferred(trx, packageInfo);
 
-  console.log('Updating attribution', attributionUuid);
   await trx
     .updateTable('attribution')
     .set({

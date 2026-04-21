@@ -396,7 +396,7 @@ export const mutations = {
 
         const attributionToLink = await matchOrCreateAttribution(trx, {
           ...params.packageInfo,
-          preSelected: false,
+          preSelected: undefined,
         });
 
         await linkAttribution(trx, resource.id, attributionToLink, {
@@ -469,7 +469,6 @@ export const mutations = {
   },
 
   async updateOrMatchAttribution(params: { packageInfo: PackageInfo }) {
-    console.log('Mutating', params.packageInfo);
     // Updating an attribution always removes preselected
     const newPackageInfo = omit(params.packageInfo, 'preSelected');
 
@@ -488,7 +487,6 @@ export const mutations = {
           });
           return matchingAttributionUuid;
         } else {
-          console.log('No match, pdating');
           await updateAttribution(trx, newPackageInfo.id, newPackageInfo);
           return undefined;
         }
