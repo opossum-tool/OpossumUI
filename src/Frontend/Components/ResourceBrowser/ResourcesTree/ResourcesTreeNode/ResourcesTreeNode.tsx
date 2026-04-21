@@ -9,9 +9,8 @@ import MuiTypography from '@mui/material/Typography';
 import { Criticality } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { treeItemClasses } from '../../../../shared-styles';
-import { useAppSelector } from '../../../../state/hooks';
-import { getClassifications } from '../../../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../../../state/variables/use-user-setting';
+import { useClassifications } from '../../../../util/use-classifications';
 import {
   BreakpointIcon,
   ClassificationIcon,
@@ -23,7 +22,7 @@ import {
 import { type TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode';
 
 export function ResourcesTreeNode({ resource }: TreeNode) {
-  const classification_mapping = useAppSelector(getClassifications);
+  const classification_mapping = useClassifications();
   const [userSettings] = useUserSettings();
   const showClassifications = userSettings.showClassifications;
   const showCriticality = userSettings.showCriticality;

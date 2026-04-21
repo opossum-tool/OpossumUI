@@ -13,6 +13,7 @@ import {
 import {
   type ExternalAttributionSources,
   type PackageInfo,
+  type RawClassificationsConfig,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { getDb } from '../db/db';
@@ -580,6 +581,17 @@ export const queries = {
         resourceCount: resourceCount.count,
         isManual: resourceCount.attribution_is_external === 0,
       },
+    };
+  },
+
+  async classifications(): Promise<{ result: RawClassificationsConfig }> {
+    const result = await getDb()
+      .selectFrom('classification')
+      .selectAll()
+      .execute();
+
+    return {
+      result: Object.fromEntries(result.map((r) => [r.number, r.description])),
     };
   },
 } satisfies Record<string, QueryFunction>;

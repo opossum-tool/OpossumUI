@@ -15,18 +15,12 @@ import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { OpossumColors } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import {
-  useAppDispatch,
-  useAppSelector,
-  useAppStore,
-} from '../../../state/hooks';
-import {
-  getClassifications,
-  getTemporaryDisplayPackageInfo,
-} from '../../../state/selectors/resource-selectors';
+import { useAppDispatch, useAppStore } from '../../../state/hooks';
+import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { backend } from '../../../util/backendClient';
 import { prettifySource } from '../../../util/prettify-source';
+import { useClassifications } from '../../../util/use-classifications';
 import { useCompareToOriginal } from '../../../util/use-compare-to-original';
 import {
   ClassificationIcon,
@@ -57,7 +51,7 @@ export function useAuditingOptions({
   const store = useAppStore();
   const { data: isPreferenceFeatureEnabled } =
     backend.isPreferenceFeatureEnabled.useQuery();
-  const classifications = useAppSelector(getClassifications);
+  const classifications = useClassifications();
   const compareToOriginal = useCompareToOriginal(packageInfo);
   const [userSettings] = useUserSettings();
   const qaMode = userSettings.qaMode;

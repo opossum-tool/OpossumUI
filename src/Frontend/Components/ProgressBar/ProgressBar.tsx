@@ -12,12 +12,10 @@ import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getClassifications,
-  getSelectedResourceId,
-} from '../../state/selectors/resource-selectors';
+import { getSelectedResourceId } from '../../state/selectors/resource-selectors';
 import { type SelectedProgressBar } from '../../types/types';
 import { backend } from '../../util/backendClient';
+import { useClassifications } from '../../util/use-classifications';
 import {
   calculateAttributionBarSteps,
   calculateClassificationBarSteps,
@@ -77,7 +75,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       { enabled: props.selectedProgressBar === 'criticality' },
     );
 
-  const classifications = useAppSelector(getClassifications);
+  const classifications = useClassifications();
   const classificationProgressBarData =
     backend.getClassificationProgressBarData.useQuery(
       { classifications },

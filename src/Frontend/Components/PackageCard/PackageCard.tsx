@@ -16,11 +16,10 @@ import {
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
-import { useAppSelector } from '../../state/hooks';
-import { getClassifications } from '../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { getCardLabels } from '../../util/get-card-labels';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { useClassifications } from '../../util/use-classifications';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { getRightIcons } from './PackageCard.util';
 
@@ -124,7 +123,7 @@ export const PackageCard = memo(
       () => getCardLabels(packageInfo),
       [packageInfo],
     );
-    const classification_mapping = useAppSelector(getClassifications);
+    const classification_mapping = useClassifications();
     const effectiveCardConfig = useMemo<PackageCardConfig>(
       () => ({
         criticality: packageInfo.criticality,

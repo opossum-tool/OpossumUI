@@ -18,7 +18,6 @@ import {
   ROOT_TREE_NODE,
 } from '../../../../../testing/global-test-helpers';
 import { ROOT_PATH } from '../../../../shared-constants';
-import { setConfig } from '../../../../state/actions/resource-actions/all-views-simple-actions';
 import { setUserSetting } from '../../../../state/actions/user-settings-actions/user-settings-actions';
 import { getSelectedResourceId } from '../../../../state/selectors/resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
@@ -33,6 +32,9 @@ const defaultData = getParsedInputFileEnrichedWithTestData({
       'package_2.tr.gz': 1,
       'jQuery.js': 1,
     },
+  },
+  config: {
+    classifications: { 1: faker.word.words() },
   },
 });
 
@@ -380,12 +382,7 @@ describe('ResourcesTree', () => {
 
     await renderComponent(<ResourcesTree resources={resources} />, {
       data: defaultData,
-      actions: [
-        setConfig({
-          classifications: { 1: faker.opossum.classificationEntry() },
-        }),
-        setUserSetting({ showClassifications: true }),
-      ],
+      actions: [setUserSetting({ showClassifications: true })],
     });
 
     expectIconToExist(screen, 'Classification icon', 'src', true);
@@ -408,12 +405,7 @@ describe('ResourcesTree', () => {
 
     await renderComponent(<ResourcesTree resources={resources} />, {
       data: defaultData,
-      actions: [
-        setConfig({
-          classifications: { 1: faker.opossum.classificationEntry() },
-        }),
-        setUserSetting({ showClassifications: false }),
-      ],
+      actions: [setUserSetting({ showClassifications: false })],
     });
 
     expectIconToExist(screen, 'Classification icon', 'src', false);

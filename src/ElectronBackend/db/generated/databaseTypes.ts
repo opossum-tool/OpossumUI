@@ -47,6 +47,11 @@ export interface Attribution {
   canonical_license_name: Generated<string | null>;
 }
 
+export interface Classification {
+  description: string;
+  number: Generated<number>;
+}
+
 export interface ClosestAttributedAncestors {
   breakpoint: number;
   external: number | null;
@@ -115,6 +120,7 @@ export interface SourceForAttribution {
 
 export interface DB {
   attribution: Attribution;
+  classification: Classification;
   closest_attributed_ancestors: ClosestAttributedAncestors;
   external_attribution_source: ExternalAttributionSource;
   frequent_license: FrequentLicense;

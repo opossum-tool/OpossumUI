@@ -12,8 +12,7 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { OpossumColors, tableClasses } from '../../../shared-styles';
-import { useAppSelector } from '../../../state/hooks';
-import { getClassifications } from '../../../state/selectors/resource-selectors';
+import { useClassifications } from '../../../util/use-classifications';
 import { CriticalityIcon } from '../../Icons/Icons';
 import {
   type Column,
@@ -82,7 +81,7 @@ interface RowCellContentProps {
 const RowCellContent: React.FC<RowCellContentProps> = (props) => {
   const componentText = text.attributionCountPerSourcePerLicenseTable;
 
-  const classifications = useAppSelector(getClassifications);
+  const classifications = useClassifications();
 
   if (props.column.columnType === SingleColumn.NAME) {
     return (
