@@ -47,7 +47,7 @@ export interface Attribution {
   canonical_license_name: Generated<string | null>;
 }
 
-export interface Cwa {
+export interface ClosestAttributedAncestors {
   breakpoint: number;
   external: number | null;
   is_file: number;
@@ -81,7 +81,7 @@ export interface Resource {
   /**
    * The highest id of a descendant of this resource. As the resources are numbered depth-first, this enables us to identify the children of resource R by checking if child.id is between R.id and R.max_descendant_id, which is very fast. See https://en.wikipedia.org/wiki/Nested_set_model
    */
-  max_descendant_id: Generated<number>;
+  max_descendant_id: number;
   /**
    * The name of the root resource is the empty string
    */
@@ -115,7 +115,7 @@ export interface SourceForAttribution {
 
 export interface DB {
   attribution: Attribution;
-  cwa: Cwa;
+  closest_attributed_ancestors: ClosestAttributedAncestors;
   external_attribution_source: ExternalAttributionSource;
   frequent_license: FrequentLicense;
   resource: Resource;

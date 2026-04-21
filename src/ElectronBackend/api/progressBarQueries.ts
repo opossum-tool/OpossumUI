@@ -126,7 +126,7 @@ export async function getNextFileToReviewForAttribution(props: {
         getOnlyPreSelectedManualFilesQuery,
         (eb: ExpressionBuilder<DB, never>) =>
           eb
-            .selectFrom('cwa')
+            .selectFrom('closest_attributed_ancestors')
             .select('resource_id')
             .where('is_file', '=', 1)
             .where('manual', 'is', null)
@@ -166,7 +166,9 @@ export async function getNextFileToReviewForCriticality(props: {
       ]) {
         const resource = await trx
           .selectFrom((eb) =>
-            getCriticalResourceQuery(eb, criticality).as('cwa'),
+            getCriticalResourceQuery(eb, criticality).as(
+              'closest_attributed_ancestors',
+            ),
           )
           .innerJoin('resource', 'resource_id', 'resource.id')
           .select(['resource_id', GET_LEGACY_RESOURCE_PATH])
@@ -201,7 +203,7 @@ export async function getNextFileToReviewForClassification(props: {
         const resource = await trx
           .selectFrom((eb) =>
             getClassificationResourceQuery(eb, Number(classification)).as(
-              'cwa',
+              'closest_attributed_ancestors',
             ),
           )
           .innerJoin('resource', 'resource_id', 'resource.id')

@@ -13,6 +13,7 @@ import {
   type PackageInfo,
   type ParsedFileContent,
   type Resources,
+  type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { removeTrailingSlash, toCanonicalLicenseName } from '../api/utils';
 import { getDb, getRawDb, resetDb } from './db';
@@ -46,7 +47,6 @@ export const comments: Record<string, Record<string, string>> = {
 
 export async function initializeDb(inputFile: ParsedFileContent) {
   resetDb();
-
   await getDb()
     .transaction()
     .execute(async (trx) => {
@@ -90,97 +90,82 @@ export async function initializeDb(inputFile: ParsedFileContent) {
 
 async function initializeProgressBarTable(trx: Transaction<DB>) {
   await trx.schema
-    .createTable('cwa')
+    .createTable('closest_attributed_ancestors')
     .addColumn('resource_id', 'integer', (col) =>
       col.primaryKey().notNull().references('resource.id'),
     )
     .addColumn('is_file', 'integer', (col) => col.notNull())
-    .addColumn('manual', 'integer', (col) => col.references('resource.id'))
-    .addColumn('external', 'integer', (col) => col.references('resource.id'))
     .addColumn('breakpoint', 'integer', (col) =>
       col.notNull().references('resource.id'),
     )
+    .addColumn('manual', 'integer', (col) => col.references('resource.id'))
+    .addColumn('external', 'integer', (col) => col.references('resource.id'))
     .execute();
 
   await sql`
-  -- closest with ancestor table
-  insert into cwa
-    with recursive
-    has_unresolved_external_attribution as (
-        select distinct resource_id 
-        from resource_to_attribution 
-        where attribution_uuid in (select uuid from attribution where is_external = 1 and is_resolved = 0)
+  INSERT INTO closest_attributed_ancestors WITH RECURSIVE 
+  has_manual_attribution AS MATERIALIZED (
+    SELECT DISTINCT resource_id
+    FROM resource_to_attribution
+    WHERE attribution_is_external = 0
+  ),
+  has_unresolved_external_attribution AS MATERIALIZED (
+    SELECT DISTINCT resource_id
+    FROM resource_to_attribution
+    WHERE attribution_uuid IN (SELECT uuid FROM attribution WHERE is_external = 1 AND is_resolved = 0)
+  ),
+  closest_attributed_ancestors(resource_id, parent_id, is_file, breakpoint, manual, external) AS (
+    SELECT r.id, r.parent_id, r.is_file, r.id,
+    IIF(r.id IN has_manual_attribution, r.id, NULL),
+    IIF(r.id IN has_unresolved_external_attribution, r.id, NULL)
+    FROM resource as r
+    WHERE path = ''
+
+    UNION ALL
+    
+    SELECT child.id, child.parent_id, child.is_file,
+    IIF(child.is_attribution_breakpoint, child.id, parent.breakpoint),
+    IIF(child.id IN has_manual_attribution, child.id, 
+        IIF(child.is_attribution_breakpoint, NULL, parent.manual)
     ),
-    closest_ancestor_with_external_attributions(resource_id, ancestor) as (
-            select distinct resource_id, resource_id
-            from has_unresolved_external_attribution
-        union all
-            select id, parent.ancestor
-            from resource
-            join closest_ancestor_with_external_attributions as parent on resource.parent_id = parent.resource_id
-            where resource.id not in has_unresolved_external_attribution and is_attribution_breakpoint = 0
-    ),
-    closest_ancestor_with_manual_attributions(resource_id, ancestor) as (
-            select distinct resource_id, resource_id
-            from resource_to_attribution
-            where attribution_is_external = 0
-        union all
-            select id, parent.ancestor
-            from resource
-            join closest_ancestor_with_manual_attributions as parent on resource.parent_id = parent.resource_id
-            where resource.id not in (select resource_id from resource_to_attribution where attribution_is_external = 0) and is_attribution_breakpoint = 0
-    ),
-    closest_ancestor_with_breakpoint(resource_id, ancestor) as (
-            select id, id
-            from resource
-            where is_attribution_breakpoint = 1 or path = ''
-        union all
-            select id, parent.ancestor
-            from resource
-            join closest_ancestor_with_breakpoint as parent on resource.parent_id = parent.resource_id
-            where is_attribution_breakpoint = 0
+    IIF(child.id IN has_unresolved_external_attribution, child.id, 
+        IIF(child.is_attribution_breakpoint, NULL, parent.external)
     )
-    select 
-      id,
-      is_file,
-      closest_ancestor_with_manual_attributions.ancestor,
-      closest_ancestor_with_external_attributions.ancestor,
-      closest_ancestor_with_breakpoint.ancestor
-    from resource
-    left join closest_ancestor_with_manual_attributions on resource.id = closest_ancestor_with_manual_attributions.resource_id
-    left join closest_ancestor_with_external_attributions on resource.id = closest_ancestor_with_external_attributions.resource_id
-    left join closest_ancestor_with_breakpoint on resource.id = closest_ancestor_with_breakpoint.resource_id
-    `.execute(trx);
+    FROM resource as child
+    JOIN closest_attributed_ancestors as parent ON child.parent_id = parent.resource_id
+  )
+  SELECT resource_id, is_file, breakpoint, manual, external FROM closest_attributed_ancestors
+  `.execute(trx);
 
   await trx.schema
-    .createIndex('cwa_manual_idx')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_manual_idx')
+    .on('closest_attributed_ancestors')
     .columns(['manual', 'is_file', 'resource_id'])
     .execute();
   await trx.schema
-    .createIndex('cwa_external')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_external')
+    .on('closest_attributed_ancestors')
     .columns(['external', 'resource_id'])
     .execute();
   await trx.schema
-    .createIndex('cwa_external_per_file')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_external_per_file')
+    .on('closest_attributed_ancestors')
     .columns(['external', 'is_file', 'resource_id'])
     .execute();
   await trx.schema
-    .createIndex('cwa_manual_and_external')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_manual_and_external')
+    .on('closest_attributed_ancestors')
     .columns(['manual', 'external', 'is_file', 'resource_id'])
     .execute();
   await trx.schema
-    .createIndex('cwa_resource')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_resource')
+    .on('closest_attributed_ancestors')
     .columns(['resource_id', 'manual'])
     .execute();
 
   await trx.schema
-    .createIndex('cwa_breakpoint')
-    .on('cwa')
+    .createIndex('closest_attributed_ancestors_breakpoint')
+    .on('closest_attributed_ancestors')
     .columns(['breakpoint', 'manual', 'resource_id'])
     .execute();
 }
@@ -246,9 +231,7 @@ async function initializeResourceTable(
     .addColumn('can_have_children', 'integer', (col) =>
       col.notNull().defaultTo(0),
     )
-    .addColumn('max_descendant_id', 'integer', (col) =>
-      col.notNull().defaultTo(1).references('resource.id'),
-    )
+    .addColumn('max_descendant_id', 'integer', (col) => col.notNull())
     .addColumn('base_url', 'text')
     .execute();
 
@@ -259,14 +242,27 @@ async function initializeResourceTable(
   const rawDb = getRawDb();
   const insertStmt = rawDb.prepare(`
     INSERT INTO resource
-      (id, path, name, parent_id, is_attribution_breakpoint, is_file, can_have_children, base_url)
+      (id, path, name, parent_id, is_attribution_breakpoint, is_file, can_have_children, base_url, max_descendant_id)
     VALUES
-      ($id, $path, $name, $parent_id, $is_attribution_breakpoint, $is_file, $can_have_children, $base_url)
+      ($id, $path, $name, $parent_id, $is_attribution_breakpoint, $is_file, $can_have_children, $base_url, $max_descendant_id)
   `);
-
-  const updateMaxDescendantIdStmt = rawDb.prepare(`
-    UPDATE resource SET max_descendant_id = $max_descendant_id WHERE id = $resource_id
-    `);
+  type ResourceRow = {
+    id: number;
+    path: string;
+    name: string;
+    parent_id: number | null;
+    is_attribution_breakpoint: number;
+    is_file: number;
+    can_have_children: number;
+    base_url: string | null;
+    max_descendant_id: number;
+  };
+  // Inserting many rows in a single transaction increases the speed slightly
+  const insertMany = rawDb.transaction((resources: Array<ResourceRow>) => {
+    for (const resource of resources) {
+      insertStmt.run(resource);
+    }
+  });
 
   const resourceNameCollator = new Intl.Collator('en', {
     sensitivity: 'variant',
@@ -274,15 +270,15 @@ async function initializeResourceTable(
   });
 
   function sortChildren(
-    aIsLeaf: boolean,
+    aIsFile: boolean,
     aName: string,
-    bIsLeaf: boolean,
+    bIsFile: boolean,
     bName: string,
   ) {
-    if (aIsLeaf && !bIsLeaf) {
+    if (aIsFile && !bIsFile) {
       return 1;
     }
-    if (!aIsLeaf && bIsLeaf) {
+    if (!aIsFile && bIsFile) {
       return -1;
     }
     // If both resources are files or both are directories, we sort them alphabetically
@@ -293,21 +289,45 @@ async function initializeResourceTable(
     return aName < bName ? -1 : aName > bName ? 1 : 0;
   }
 
-  function recursivelyInsertResource(
+  function recursivelyCollectResource(
     name: string,
     children: Resources | 1,
     parentId: number | null,
     parentPath: string | null,
-  ) {
+    result: Array<ResourceRow>,
+  ): number {
+    const resourceId = nextId++;
     const currentPath = parentPath === null ? '' : `${parentPath}/${name}`;
-
     const isLeaf = children === 1;
     const isFile = isLeaf || trimmedFilesWithChildren.has(currentPath);
     const isAttributionBreakpoint =
       trimmedAttributionBreakpoints.has(currentPath);
 
-    const resourceId = nextId++;
-    insertStmt.run({
+    resourcePathToId.set(currentPath, resourceId);
+
+    let lastDescendantId = resourceId;
+    if (!isLeaf) {
+      const entries = Object.entries(children).map(
+        ([childName, childChildren]) => ({
+          name: childName,
+          children: childChildren,
+          isFile:
+            childChildren === 1 ||
+            trimmedFilesWithChildren.has(`${currentPath}/${childName}`),
+        }),
+      );
+      entries.sort((a, b) => sortChildren(a.isFile, a.name, b.isFile, b.name));
+      for (const { name, children } of entries) {
+        lastDescendantId = recursivelyCollectResource(
+          name,
+          children,
+          resourceId,
+          currentPath,
+          result,
+        );
+      }
+    }
+    result[resourceId - 1] = {
       id: resourceId,
       path: currentPath,
       name,
@@ -316,42 +336,15 @@ async function initializeResourceTable(
       is_file: Number(isFile),
       can_have_children: Number(!isLeaf),
       base_url: trimmedBaseUrlsForSources[currentPath],
-    });
-
-    resourcePathToId.set(currentPath, resourceId);
-
-    let last_inserted_id = resourceId;
-
-    if (!isLeaf) {
-      for (const [childName, childChildren] of Object.entries(
-        children,
-      ).toSorted((a, b) =>
-        sortChildren(
-          a[1] === 1 || trimmedFilesWithChildren.has(`${currentPath}/${a[0]}`),
-          a[0],
-          b[1] === 1 || trimmedFilesWithChildren.has(`${currentPath}/${b[0]}`),
-          b[0],
-        ),
-      )) {
-        last_inserted_id = recursivelyInsertResource(
-          childName,
-          childChildren,
-          resourceId,
-          currentPath,
-        );
-      }
-    }
-
-    updateMaxDescendantIdStmt.run({
-      resource_id: resourceId,
-      max_descendant_id: last_inserted_id,
-    });
-
-    return last_inserted_id;
+      max_descendant_id: lastDescendantId,
+    };
+    return lastDescendantId;
   }
 
-  // The root resource has "" as name and path
-  recursivelyInsertResource('', resources, null, null);
+  const resourcesToInsert: Array<ResourceRow> = [];
+  // The root resource has '' as name and path
+  recursivelyCollectResource('', resources, null, null, resourcesToInsert);
+  insertMany(resourcesToInsert);
 
   await trx.schema
     .createIndex('resource_parent_id_covering_idx')
@@ -474,6 +467,14 @@ async function initializeAttributionTable(
     ])
     .where('is_resolved', '=', 0)
     .execute();
+
+  await trx.schema
+    .createIndex('attribution_is_external_covering_idx')
+    .on('attribution')
+    .columns(['is_external', 'is_resolved'])
+    .where('is_external', '=', 1)
+    .where('is_resolved', '=', 0)
+    .execute();
 }
 
 async function initializeSourceForAttributionTable(
@@ -537,28 +538,55 @@ async function initializeResourceToAttributionTable(
     ])
     .execute();
 
-  // Prepared statement for fast bulk insert
   const rawDb = getRawDb();
-  const insertStmt = rawDb.prepare(`
-    INSERT OR IGNORE INTO resource_to_attribution
+  function insertRows(
+    rows: {
+      resource_id: number;
+      attribution_uuid: string;
+    }[],
+    attribution_is_external: 0 | 1,
+  ) {
+    const singleValuesSql = `(?, ?, ${attribution_is_external})`;
+    const multipleValuesSql =
+      `${singleValuesSql}, `.repeat(rows.length - 1) + singleValuesSql;
+    const stmt = rawDb.prepare(`
+      INSERT OR IGNORE INTO resource_to_attribution 
       (resource_id, attribution_uuid, attribution_is_external)
-    VALUES
-      ($resource_id, $attribution_uuid, (select is_external from attribution where uuid = $attribution_uuid))
-  `);
-
-  for (const [resourcePath, attributionUuids] of [
-    ...Object.entries(externalAttributions.resourcesToAttributions),
-    ...Object.entries(manualAttributions.resourcesToAttributions),
-  ]) {
-    const normalizedPath = removeTrailingSlash(resourcePath);
-    const resourceId = resourcePathToId.get(normalizedPath);
-    if (resourceId === undefined) {
-      continue;
-    }
-    for (const uuid of attributionUuids) {
-      insertStmt.run({ resource_id: resourceId, attribution_uuid: uuid });
-    }
+      VALUES ${multipleValuesSql}
+      `);
+    const params = rows.flatMap((row) => [
+      row.resource_id,
+      row.attribution_uuid,
+    ]);
+    stmt.run(...params);
   }
+
+  // SQLite cannot handle more than 30000 parameters, and since we insert an id and a uuid, we can only insert 15000 rows at a time
+  const BATCH_SIZE = 15_000;
+  const insertMany = rawDb.transaction(
+    (resourcesToAttributions: ResourcesToAttributions, is_external: 0 | 1) => {
+      const rows = Object.entries(resourcesToAttributions).flatMap(
+        ([resourcePath, attributionUuids]) => {
+          const resourceId = resourcePathToId.get(
+            removeTrailingSlash(resourcePath),
+          );
+          return resourceId === undefined
+            ? []
+            : attributionUuids.map((uuid) => ({
+                resource_id: resourceId,
+                attribution_uuid: uuid,
+              }));
+        },
+      );
+
+      for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+        insertRows(rows.slice(i, i + BATCH_SIZE), is_external);
+      }
+    },
+  );
+
+  insertMany(externalAttributions.resourcesToAttributions, 1);
+  insertMany(manualAttributions.resourcesToAttributions, 0);
 
   await trx.schema
     .createIndex('resource_to_attribution_attribution_uuid_resource_id_idx')

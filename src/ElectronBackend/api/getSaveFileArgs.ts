@@ -25,8 +25,15 @@ export async function getPreferredOverOriginIds(trxOrDb: Kysely<DB>) {
             'preferred.uuid',
             'has_preferred.attribution_uuid',
           )
-          .innerJoin('cwa', 'cwa.manual', 'has_preferred.resource_id')
-          .select(['preferred.uuid as attribution_uuid', 'cwa.resource_id'])
+          .innerJoin(
+            'closest_attributed_ancestors',
+            'closest_attributed_ancestors.manual',
+            'has_preferred.resource_id',
+          )
+          .select([
+            'preferred.uuid as attribution_uuid',
+            'closest_attributed_ancestors.resource_id',
+          ])
           .where('is_external', '=', 0)
           .where('preferred', '=', 1),
     )

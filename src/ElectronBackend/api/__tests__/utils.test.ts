@@ -267,7 +267,7 @@ describe('removeRedundantAttributions', () => {
       });
 
     await expectDbContent(props.expectedResourcesToAttributions);
-    await expectCwaConsistency();
+    await expectCaaConsistency();
   });
 });
 
@@ -342,16 +342,20 @@ async function expectDbContent(
   }
 }
 
-async function expectCwaConsistency() {
+async function expectCaaConsistency() {
   const resources = await getDb()
     .selectFrom('resource')
-    .innerJoin('cwa', 'cwa.resource_id', 'resource.id')
+    .innerJoin(
+      'closest_attributed_ancestors',
+      'closest_attributed_ancestors.resource_id',
+      'resource.id',
+    )
     .select([
       'resource.id',
       'resource.path',
       'resource.parent_id',
       'resource.is_attribution_breakpoint',
-      'cwa.manual',
+      'closest_attributed_ancestors.manual',
     ])
     .execute();
 
@@ -366,28 +370,28 @@ async function expectCwaConsistency() {
     ).map((r) => r.resource_id),
   );
 
-  const cwaManualByResourceId = new Map(resources.map((r) => [r.id, r.manual]));
+  const caaManualByResourceId = new Map(resources.map((r) => [r.id, r.manual]));
 
   for (const resource of resources) {
     if (resourcesWithManualAttributions.has(resource.id)) {
       expect(
         resource.manual,
-        `CWA manual for '${resource.path}' should point to itself`,
+        `Closest ancestors with manual attributions for '${resource.path}' should point to itself`,
       ).toBe(resource.id);
     } else if (
       resource.is_attribution_breakpoint === 0 &&
       resource.parent_id !== null
     ) {
       const parentManual =
-        cwaManualByResourceId.get(resource.parent_id) ?? null;
+        caaManualByResourceId.get(resource.parent_id) ?? null;
       expect(
         resource.manual,
-        `CWA manual for '${resource.path}' should match its parent's CWA`,
+        `Closest ancestors with manual attributions for '${resource.path}' should match its parent's`,
       ).toBe(parentManual);
     } else {
       expect(
         resource.manual,
-        `CWA manual for '${resource.path}' should be null`,
+        `Closest_attributed_ancestors manual for '${resource.path}' should be null`,
       ).toBeNull();
     }
   }

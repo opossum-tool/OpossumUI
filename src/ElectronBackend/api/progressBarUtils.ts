@@ -14,28 +14,34 @@ import {
 import { type Criticality } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
 
-export function getOnlyExternalFilesQuery(eb: ExpressionBuilder<DB, 'cwa'>) {
+export function getOnlyExternalFilesQuery(
+  eb: ExpressionBuilder<DB, 'closest_attributed_ancestors'>,
+) {
   return eb
-    .selectFrom('cwa')
+    .selectFrom('closest_attributed_ancestors')
     .select('resource_id')
-    .where('cwa.is_file', '=', 1)
-    .where('cwa.manual', 'is', null)
-    .where('cwa.external', 'is not', null);
+    .where('closest_attributed_ancestors.is_file', '=', 1)
+    .where('closest_attributed_ancestors.manual', 'is', null)
+    .where('closest_attributed_ancestors.external', 'is not', null);
 }
 
-export function getManualFilesQuery(eb: ExpressionBuilder<DB, 'cwa'>) {
+export function getManualFilesQuery(
+  eb: ExpressionBuilder<DB, 'closest_attributed_ancestors'>,
+) {
   return eb
-    .selectFrom('cwa')
+    .selectFrom('closest_attributed_ancestors')
     .select(['resource_id', 'manual'])
-    .where('cwa.is_file', '=', 1)
-    .where('cwa.manual', 'is not', null);
+    .where('closest_attributed_ancestors.is_file', '=', 1)
+    .where('closest_attributed_ancestors.manual', 'is not', null);
 }
 
 export function getNonPreSelectedManualFilesQuery(
-  eb: ExpressionBuilder<DB, 'cwa'>,
+  eb: ExpressionBuilder<DB, 'closest_attributed_ancestors'>,
 ) {
   return eb
-    .selectFrom((eb) => getManualFilesQuery(eb).as('cwa'))
+    .selectFrom((eb) =>
+      getManualFilesQuery(eb).as('closest_attributed_ancestors'),
+    )
     .select('resource_id')
     .where('manual', 'in', (eb) =>
       resourcePreSelectedQuery(eb, { isPreSelected: 0 }),
@@ -43,10 +49,12 @@ export function getNonPreSelectedManualFilesQuery(
 }
 
 export function getOnlyPreSelectedManualFilesQuery(
-  eb: ExpressionBuilder<DB, 'cwa'>,
+  eb: ExpressionBuilder<DB, 'closest_attributed_ancestors'>,
 ) {
   return eb
-    .selectFrom((eb) => getManualFilesQuery(eb).as('cwa'))
+    .selectFrom((eb) =>
+      getManualFilesQuery(eb).as('closest_attributed_ancestors'),
+    )
     .select('resource_id')
     .where('manual', 'in', (eb) =>
       resourcePreSelectedQuery(eb, { isPreSelected: 1 }),
@@ -57,7 +65,7 @@ export function getOnlyPreSelectedManualFilesQuery(
 }
 
 function resourcePreSelectedQuery(
-  eb: ExpressionBuilder<DB, 'cwa'>,
+  eb: ExpressionBuilder<DB, 'closest_attributed_ancestors'>,
   options: { isPreSelected: 0 | 1 },
 ) {
   return eb
@@ -81,11 +89,11 @@ function attributionPreSelectedQuery(
 }
 
 export function getCriticalResourceQuery(
-  eb: ExpressionBuilder<DB, 'cwa'>,
+  eb: ExpressionBuilder<DB, 'closest_attributed_ancestors'>,
   criticality: Criticality,
 ) {
   return eb
-    .selectFrom('cwa')
+    .selectFrom('closest_attributed_ancestors')
     .select('resource_id')
     .where('manual', 'is', null)
     .where('resource_id', 'in', (eb) =>
@@ -97,7 +105,7 @@ export function getCriticalResourceQuery(
 }
 
 function resourceCriticalityQuery(
-  eb: ExpressionBuilder<DB, 'cwa'>,
+  eb: ExpressionBuilder<DB, 'closest_attributed_ancestors'>,
   options: { operator: ComparisonOperatorExpression; criticality: Criticality },
 ) {
   return eb
@@ -121,11 +129,11 @@ function attributionCriticalityQuery(
 }
 
 export function getClassificationResourceQuery(
-  eb: ExpressionBuilder<DB, 'cwa'>,
+  eb: ExpressionBuilder<DB, 'closest_attributed_ancestors'>,
   classification: number,
 ) {
   return eb
-    .selectFrom('cwa')
+    .selectFrom('closest_attributed_ancestors')
     .select('resource_id')
     .where('manual', 'is', null)
     .where('resource_id', 'in', (eb) =>
@@ -143,7 +151,7 @@ export function getClassificationResourceQuery(
 }
 
 function resourceClassificationQuery(
-  eb: ExpressionBuilder<DB, 'cwa'>,
+  eb: ExpressionBuilder<DB, 'closest_attributed_ancestors'>,
   options: { operator: ComparisonOperatorExpression; classification: number },
 ) {
   return eb
@@ -167,11 +175,11 @@ function attributionClassificationQuery(
 }
 
 /**
- * Used to keep the cwa table up to date when removing attributions.
+ * Used to keep the closest_attributed_ancestors table up to date when removing attributions.
  * Takes attributionUuids as an input and checks for resources that will have no more manual/external attributions once they are removed.
  * Call BEFORE removing attributions.
  */
-export async function removeManualOrExternalCwaFromResources(
+export async function removeManualOrExternalCaaFromResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
   type: 'manual' | 'external',
   {
@@ -199,9 +207,13 @@ export async function removeManualOrExternalCwaFromResources(
                 .when('r.is_attribution_breakpoint', '=', 0)
                 .then(
                   eb
-                    .selectFrom('cwa')
+                    .selectFrom('closest_attributed_ancestors')
                     .select(type)
-                    .whereRef('cwa.resource_id', '=', 'r.parent_id'),
+                    .whereRef(
+                      'closest_attributed_ancestors.resource_id',
+                      '=',
+                      'r.parent_id',
+                    ),
                 )
                 .end()
                 .as('replace_with'),
@@ -246,7 +258,7 @@ export async function removeManualOrExternalCwaFromResources(
               ),
           ),
       )
-      .updateTable('cwa')
+      .updateTable('closest_attributed_ancestors')
       .from('impacted_resources')
       .set((eb) => ({
         [type]: eb.ref('impacted_resources.replace_with'),
@@ -262,11 +274,11 @@ export async function removeManualOrExternalCwaFromResources(
 }
 
 /**
- * Used to keep the cwa table up to date when adding attributions.
+ * Used to keep the closest_attributed_ancestors table up to date when adding attributions.
  * Takes attributionUuids as an input and checks for resources that now have manual/external attributions.
  * Call AFTER adding attributions.
  */
-export async function addManualOrExternalCwaToResources(
+export async function addManualOrExternalCaaToResources(
   trxOrDB: Transaction<DB> | Kysely<DB>,
   type: 'manual' | 'external',
   {
@@ -280,12 +292,16 @@ export async function addManualOrExternalCwaToResources(
         db
           .selectFrom('resource_to_attribution as rta')
           .innerJoin('resource as r', 'rta.resource_id', 'r.id')
-          .innerJoin('cwa as previous_cwa', 'previous_cwa.resource_id', 'r.id')
+          .innerJoin(
+            'closest_attributed_ancestors as previous_caa',
+            'previous_caa.resource_id',
+            'r.id',
+          )
           .select([
             'rta.resource_id',
             'r.max_descendant_id',
-            (eb) => eb.ref(`previous_cwa.${type}`).as('previous_value'),
-            'previous_cwa.breakpoint as closest_breakpoint',
+            (eb) => eb.ref(`previous_caa.${type}`).as('previous_value'),
+            'previous_caa.breakpoint as closest_breakpoint',
           ])
           .where('rta.attribution_uuid', 'in', attributionUuids)
           .$if(resourceIds !== undefined, (eb) =>
@@ -317,44 +333,48 @@ export async function addManualOrExternalCwaToResources(
       // Get all children in the same breakpoint-subtree that point to the same resource as the newly added attributions
       .with('impacted_resources', (db) =>
         db
-          .selectFrom('cwa')
+          .selectFrom('closest_attributed_ancestors')
           .innerJoin('newly_attributed_resources', (join) =>
             join
               .onRef(
-                'cwa.resource_id',
+                'closest_attributed_ancestors.resource_id',
                 '>=',
                 'newly_attributed_resources.resource_id',
               )
               .onRef(
-                'cwa.resource_id',
+                'closest_attributed_ancestors.resource_id',
                 '<=',
                 'newly_attributed_resources.max_descendant_id',
               )
               .onRef(
                 'newly_attributed_resources.previous_value',
                 'is',
-                `cwa.${type}`,
+                `closest_attributed_ancestors.${type}`,
               )
               .onRef(
                 'newly_attributed_resources.closest_breakpoint',
                 '=',
-                'cwa.breakpoint',
+                'closest_attributed_ancestors.breakpoint',
               ),
           )
           .select([
-            'cwa.resource_id',
+            'closest_attributed_ancestors.resource_id',
             // Get the closest parent with manual/external attributions
             (eb) =>
               eb.fn.max('newly_attributed_resources.resource_id').as('new_id'),
           ])
-          .groupBy('cwa.resource_id'),
+          .groupBy('closest_attributed_ancestors.resource_id'),
       )
-      .updateTable('cwa')
+      .updateTable('closest_attributed_ancestors')
       .from('impacted_resources')
       .set((eb) => ({
         [type]: eb.ref('impacted_resources.new_id'),
       }))
-      .whereRef('cwa.resource_id', '=', 'impacted_resources.resource_id')
+      .whereRef(
+        'closest_attributed_ancestors.resource_id',
+        '=',
+        'impacted_resources.resource_id',
+      )
       .execute()
   );
 }
@@ -362,7 +382,7 @@ export async function addManualOrExternalCwaToResources(
 export async function getCount(
   trxOrDb: Transaction<DB> | Kysely<DB>,
   from: (
-    eb: ExpressionBuilder<DB, 'cwa'>,
+    eb: ExpressionBuilder<DB, 'closest_attributed_ancestors'>,
   ) => SelectQueryBuilder<DB, never, unknown>,
 ): Promise<number> {
   const { count } = await trxOrDb
