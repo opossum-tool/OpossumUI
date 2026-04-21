@@ -3,18 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTIONS,
-  ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_EXPANDED_IDS,
-  ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
-  type AddResolvedExternalAttributions,
-  type RemoveResolvedExternalAttributions,
   type SetExpandedIdsAction,
-  type SetResolvedExternalAttributions,
   type SetSelectedAttributionId,
   type SetSelectedResourceIdAction,
   type SetTargetSelectedAttributionIdAction,
@@ -40,33 +34,6 @@ export function setExpandedIds(
   expandedIds: Array<string>,
 ): SetExpandedIdsAction {
   return { type: ACTION_SET_EXPANDED_IDS, payload: expandedIds };
-}
-
-export function setResolvedExternalAttributions(
-  resolvedExternalAttributions: Set<string>,
-): SetResolvedExternalAttributions {
-  return {
-    type: ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
-    payload: resolvedExternalAttributions,
-  };
-}
-
-export function addResolvedExternalAttributions(
-  attributionIds: Array<string>,
-): AddResolvedExternalAttributions {
-  return {
-    type: ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTIONS,
-    payload: attributionIds,
-  };
-}
-
-export function removeResolvedExternalAttributions(
-  attributionIds: Array<string>,
-): RemoveResolvedExternalAttributions {
-  return {
-    type: ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTIONS,
-    payload: attributionIds,
-  };
 }
 
 export function setSelectedAttributionId(

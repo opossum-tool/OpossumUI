@@ -11,10 +11,8 @@ import {
 } from '../../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
-import {
-  type OpossumOutputFile,
-  type ParsedOpossumInputFile,
-} from '../../types/types';
+import { getDb } from '../../db/db';
+import { type ParsedOpossumInputFile } from '../../types/types';
 import {
   loadFile,
   type LoadFileError,
@@ -89,78 +87,11 @@ const expectedFrontendData: ParsedFrontendFileContent = {
       1: 'BAD',
     },
   },
-  manualAttributions: {
-    attributions: {},
-    resourcesToAttributions: {},
-    attributionsToResources: {},
-  },
-  resolvedExternalAttributions: new Set(),
-  filesWithChildren: new Set(),
-};
-
-const validMetadata = {
-  projectId: inputFileContent.metadata.projectId,
-  fileCreationDate: '1',
 };
 
 describe('loadFile', () => {
   afterEach(() => {
     vi.restoreAllMocks();
-  });
-
-  it('loads .opossum file with output successfully', async () => {
-    const testUuid = 'test_uuid';
-    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-
-    const attributions: OpossumOutputFile = {
-      metadata: validMetadata,
-      manualAttributions: {
-        [testUuid]: {
-          packageName: 'Package',
-          packageVersion: '1.0',
-          licenseText: 'MIT',
-          followUp: 'FOLLOW_UP',
-        },
-      },
-      resourcesToAttributions: {
-        '/folder/': [testUuid],
-      },
-      resolvedExternalAttributions: [],
-    };
-    await writeOpossumFile({
-      input: inputFileContent,
-      output: attributions,
-      path: opossumPath,
-    });
-
-    vi.spyOn(Date, 'now').mockReturnValue(1);
-
-    const result = (await loadFile(opossumPath, {})) as LoadFileSuccess;
-
-    expect(result.ok).toBe(true);
-    expect(result.frontendData).toEqual({
-      ...expectedFrontendData,
-      manualAttributions: {
-        attributions: {
-          [testUuid]: {
-            packageName: 'Package',
-            packageVersion: '1.0',
-            licenseText: 'MIT',
-            followUp: true,
-            id: testUuid,
-            criticality: Criticality.None,
-          },
-        },
-        resourcesToAttributions: {
-          '/folder/': [testUuid],
-        },
-        attributionsToResources: {
-          [testUuid]: ['/folder/'],
-        },
-      },
-    });
-    expect(result.projectTitle).toBe(inputFileContent.metadata.projectTitle);
-    expect(result.projectId).toBe(inputFileContent.metadata.projectId);
   });
 
   it('loads .opossum file without output and creates one', async () => {
@@ -225,25 +156,36 @@ describe('loadFile', () => {
     const result = (await loadFile(jsonPath, {})) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
-    expect(result.frontendData.manualAttributions).toEqual({
-      attributions: {
-        [manualAttributionUuid]: {
-          packageName: 'my app',
-          packageVersion: '1.2.3',
-          comment: 'some comment',
-          copyright: '(c) first party',
-          preSelected: true,
-          attributionConfidence: 17,
-          id: manualAttributionUuid,
-          criticality: Criticality.None,
-        },
+
+    const manualAttributions = await getDb()
+      .selectFrom('attribution')
+      .select('data')
+      .where('is_external', '=', 0)
+      .execute();
+
+    expect(manualAttributions.map((a) => JSON.parse(a.data))).toEqual([
+      {
+        packageName: 'my app',
+        packageVersion: '1.2.3',
+        comment: 'some comment',
+        copyright: '(c) first party',
+        preSelected: true,
+        attributionConfidence: 17,
+        id: manualAttributionUuid,
+        criticality: Criticality.None,
       },
-      resourcesToAttributions: { '/a': [manualAttributionUuid] },
-      attributionsToResources: { [manualAttributionUuid]: ['/a'] },
-    });
-    expect(result.frontendData.filesWithChildren).toEqual(
-      new Set(['/some/package.json/']),
-    );
+    ]);
+
+    const resourceToManualAttribution = await getDb()
+      .selectFrom('resource_to_attribution as rta')
+      .innerJoin('resource as r', 'r.id', 'rta.resource_id')
+      .select(['r.path', 'attribution_uuid'])
+      .where('attribution_is_external', '=', 0)
+      .execute();
+
+    expect(resourceToManualAttribution).toEqual([
+      { attribution_uuid: manualAttributionUuid, path: '/a' },
+    ]);
   });
 
   it('returns fileNotFoundError for non-existing file', async () => {

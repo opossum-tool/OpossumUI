@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  type AttributionData,
   Criticality,
   type PackageInfo,
   type ProjectConfig,
@@ -13,17 +12,6 @@ import {
 import { text } from '../shared/text';
 
 export const ROOT_PATH = '/';
-
-export const EMPTY_ATTRIBUTION_DATA: AttributionData = {
-  attributions: {},
-  resourcesToAttributions: {},
-  attributionsToResources: {},
-  resourcesWithAttributedChildren: {
-    paths: [],
-    pathsToIndices: {},
-    attributedChildren: {},
-  },
-};
 
 export const EMPTY_PROJECT_METADATA: ProjectMetadata = {
   projectId: '',

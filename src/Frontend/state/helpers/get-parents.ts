@@ -16,21 +16,3 @@ export function getParents(pathToBeSplit: string): Array<string> {
   }
   return parents;
 }
-
-export function getParentsUpToNextAttributionBreakpoint(
-  path: string,
-  attributionBreakpoints: Set<string>,
-): Array<string> {
-  // A breakpoint has no parents.
-  if (attributionBreakpoints.has(path)) {
-    return [];
-  }
-
-  const allParents = getParents(path);
-  for (let idx = allParents.length - 1; idx >= 0; --idx) {
-    if (attributionBreakpoints.has(allParents[idx])) {
-      return allParents.slice(idx + 1);
-    }
-  }
-  return allParents;
-}

@@ -372,13 +372,13 @@ export const mutations = {
   },
 
   async modifyOrMatchOnlyOnOneResource(params: {
-    resourceId: string;
+    resourcePath: string;
     packageInfo: PackageInfo;
   }) {
     const newOrMatchedAttributionUuid = await getDb()
       .transaction()
       .execute(async (trx) => {
-        const resource = await getResourceOrThrow(trx, params.resourceId);
+        const resource = await getResourceOrThrow(trx, params.resourcePath);
         await getAttributionOrThrow(trx, params.packageInfo.id, {
           preconditions: { isExternal: false, minimumResources: 2 },
         });
@@ -428,12 +428,12 @@ export const mutations = {
 
   async createOrMatchAttribution(params: {
     packageInfo: PackageInfo;
-    resourceId: string;
+    resourcePath: string;
   }) {
     const resultAttributionUuid = await getDb()
       .transaction()
       .execute(async (trx) => {
-        const resource = await getResourceOrThrow(trx, params.resourceId);
+        const resource = await getResourceOrThrow(trx, params.resourcePath);
 
         const attributionUuidToLink = await matchOrCreateAttribution(
           trx,
@@ -486,10 +486,9 @@ export const mutations = {
             attributionIdToReplaceWith: matchingAttributionUuid,
           });
           return matchingAttributionUuid;
-        } else {
-          await updateAttribution(trx, newPackageInfo.id, newPackageInfo);
-          return undefined;
         }
+        await updateAttribution(trx, newPackageInfo.id, newPackageInfo);
+        return undefined;
       });
     return {
       invalidates: [

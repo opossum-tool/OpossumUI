@@ -98,7 +98,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
       Object.entries(attributionsToSave).forEach(
         async ([attributionId, attributionData]) => {
           const result = await backend.modifyOrMatchOnlyOnOneResource.mutate({
-            resourceId: selectedResourceId,
+            resourcePath: selectedResourceId,
             packageInfo:
               attributionId === selectedAttributionId
                 ? temporaryDisplayPackageInfo

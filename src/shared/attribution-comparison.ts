@@ -27,7 +27,7 @@ export const FORM_ATTRIBUTES = [
 
 export type FormAttribute = (typeof FORM_ATTRIBUTES)[number];
 
-export function getComparableAttributes(packageInfo: PackageInfo) {
+function getComparableAttributes(packageInfo: PackageInfo) {
   return pickBy(
     packageInfo,
     (value, key) =>

@@ -4,34 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type ProjectMetadata } from '../../../../shared/shared-types';
 import { EMPTY_PROJECT_METADATA } from '../../../shared-constants';
-import {
-  setFilesWithChildren,
-  setProjectMetadata,
-} from '../../actions/resource-actions/all-views-simple-actions';
+import { setProjectMetadata } from '../../actions/resource-actions/all-views-simple-actions';
 import { createAppStore } from '../../configure-store';
-import {
-  getFilesWithChildren,
-  getProjectMetadata,
-} from '../resource-selectors';
-
-describe('Files with children', () => {
-  const testFileWithChildren = '/package.json/';
-  const testFilesWithChildren: Set<string> = new Set<string>().add(
-    testFileWithChildren,
-  );
-
-  it('can be created, listed and checked.', () => {
-    const testStore = createAppStore();
-
-    expect(getFilesWithChildren(testStore.getState())).toEqual(new Set());
-
-    testStore.dispatch(setFilesWithChildren(testFilesWithChildren));
-
-    expect(getFilesWithChildren(testStore.getState())).toEqual(
-      testFilesWithChildren,
-    );
-  });
-});
+import { getProjectMetadata } from '../resource-selectors';
 
 describe('ProjectMetadata', () => {
   const testMetadata: ProjectMetadata = {

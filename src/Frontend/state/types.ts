@@ -11,11 +11,5 @@ import {
 import { type State } from '../types/types';
 
 export type AppThunkAction = ThunkAction<void, State, unknown, Action<string>>;
-export type AsyncAppThunkAction = ThunkAction<
-  Promise<void>,
-  State,
-  unknown,
-  Action<string>
->;
 
 export type AppThunkDispatch = ThunkDispatch<State, unknown, Action>;

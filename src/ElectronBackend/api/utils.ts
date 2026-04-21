@@ -647,7 +647,7 @@ export async function findMatchingAttributionUuid(
 ) {
   const strippedPackageInfo = removeEmptyStrings(packageInfo);
 
-  let query = await trx
+  let query = trx
     .selectFrom('attribution')
     .select('uuid')
     .where('is_external', '=', 0)

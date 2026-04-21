@@ -110,7 +110,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
       } else {
         const result = await backend.createOrMatchAttribution.mutate({
           packageInfo,
-          resourceId: selectedResourceId,
+          resourcePath: selectedResourceId,
         });
 
         dispatch(setSelectedAttributionId(result.attribution));
@@ -224,7 +224,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             disabled={isPackageInfoModified}
             onClick={async () => {
               const result = await backend.createOrMatchAttribution.mutate({
-                resourceId: selectedResourceId,
+                resourcePath: selectedResourceId,
                 packageInfo,
               });
               dispatch(setSelectedAttributionId(result.attribution));

@@ -5,7 +5,6 @@
 import { keepPreviousData } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
-import { getInitialExpandedIds } from '../../../state/helpers/resources-helpers';
 import { useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { backend } from '../../../util/backendClient';
@@ -41,9 +40,12 @@ export function useLinkedResourcesTreeState({
       return;
     }
     async function fetchExpandedIds() {
-      const ids = await getInitialExpandedIds(
-        onAttributionUuids,
-        selectedResourcePath,
+      const ids = await backend.getResourcePathsAndParentsForAttributions.query(
+        {
+          attributionUuids: onAttributionUuids,
+          limit: 1000,
+          prioritizedResourcePath: selectedResourcePath,
+        },
       );
       setExpandedIds(ids);
     }

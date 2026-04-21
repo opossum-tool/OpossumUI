@@ -37,7 +37,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
         attributions &&
           selectedAttributionIds.forEach(async (attributionId) => {
             const result = await backend.createOrMatchAttribution.mutate({
-              resourceId: selectedResourceId,
+              resourcePath: selectedResourceId,
               packageInfo: attributions[attributionId],
             });
             if (attributionId === selectedAttributionId) {
