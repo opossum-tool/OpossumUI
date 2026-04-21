@@ -131,7 +131,7 @@ function getResourcesToAttributions(
   return testResourcesToExternalAttributions;
 }
 
-export function getAttributionsToResources(
+function getAttributionsToResources(
   resourcesToAttributions: ResourcesToAttributions | undefined,
 ): AttributionsToResources {
   if (!resourcesToAttributions) {
@@ -150,12 +150,4 @@ export function getAttributionsToResources(
     });
     return acc;
   }, {});
-}
-
-/**
- * The database mutations are fired-and-forgotten.
- * We need to wait for them to clear before checking the changes.
- */
-export async function flushPendingMutations() {
-  await new Promise(process.nextTick);
 }

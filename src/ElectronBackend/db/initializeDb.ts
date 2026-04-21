@@ -15,7 +15,11 @@ import {
   type Resources,
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { removeTrailingSlash, toCanonicalLicenseName } from '../api/utils';
+import {
+  removeEmptyStrings,
+  removeTrailingSlash,
+  toCanonicalLicenseName,
+} from '../api/utils';
 import { getDb, getRawDb, resetDb } from './db';
 import { type DB } from './generated/databaseTypes';
 
@@ -420,7 +424,7 @@ async function initializeAttributionTable(
       .insertInto('attribution')
       .values({
         uuid,
-        data: JSON.stringify(attribution),
+        data: JSON.stringify(removeEmptyStrings(attribution)),
         is_external: Number(true),
         is_resolved: Number(isResolved),
       })
@@ -434,7 +438,7 @@ async function initializeAttributionTable(
       .insertInto('attribution')
       .values({
         uuid,
-        data: JSON.stringify(attribution),
+        data: JSON.stringify(removeEmptyStrings(attribution)),
         is_external: Number(false),
         is_resolved: Number(false),
       })

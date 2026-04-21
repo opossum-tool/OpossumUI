@@ -6,7 +6,6 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { compact } from 'lodash';
 
-import { setFilesWithChildren } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -38,7 +37,6 @@ describe('The PathBar', () => {
     const { store } = await renderComponent(<PathBar />);
     act(() => {
       store.dispatch(setSelectedResourceId(testPath));
-      store.dispatch(setFilesWithChildren(new Set<string>().add(testPath)));
     });
 
     fireEvent.click(screen.getByLabelText('copy path'));

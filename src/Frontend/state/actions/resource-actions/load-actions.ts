@@ -14,13 +14,7 @@ import {
 } from '../../../../shared/shared-types';
 import { OpossumColors } from '../../../shared-styles';
 import { type AppThunkAction } from '../../types';
-import {
-  setConfig,
-  setFilesWithChildren,
-  setManualData,
-  setProjectMetadata,
-} from './all-views-simple-actions';
-import { setResolvedExternalAttributions } from './audit-view-simple-actions';
+import { setConfig, setProjectMetadata } from './all-views-simple-actions';
 
 function interpolateBetweenRedAndWhite(
   numberOfClassifications: number,
@@ -77,22 +71,6 @@ export function loadFromFile(
 ): AppThunkAction {
   return (dispatch) => {
     dispatch(setConfig(addColorsToClassifications(parsedFileContent.config)));
-
-    dispatch(
-      setManualData(
-        parsedFileContent.manualAttributions.attributions,
-        parsedFileContent.manualAttributions.resourcesToAttributions,
-        parsedFileContent.manualAttributions.attributionsToResources,
-      ),
-    );
-
-    dispatch(
-      setResolvedExternalAttributions(
-        parsedFileContent.resolvedExternalAttributions,
-      ),
-    );
-
-    dispatch(setFilesWithChildren(parsedFileContent.filesWithChildren));
 
     dispatch(setProjectMetadata(parsedFileContent.metadata));
   };

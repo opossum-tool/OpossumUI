@@ -3,22 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  type AttributionData,
-  type Attributions,
   type ClassificationsConfig,
   type PackageInfo,
   type ProjectMetadata,
-  type ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { type State } from '../../types/types';
-
-export function getManualData(state: State): AttributionData {
-  return state.resourceState.manualData;
-}
-
-export function getManualAttributions(state: State): Attributions {
-  return state.resourceState.manualData.attributions;
-}
 
 export function getSelectedAttributionId(state: State): string {
   return state.resourceState.selectedAttributionId;
@@ -40,18 +29,8 @@ export function getSelectedResourceId(state: State): string {
   return state.resourceState.selectedResourceId;
 }
 
-export function getResourcesWithManualAttributedChildren(
-  state: State,
-): ResourcesWithAttributedChildren {
-  return state.resourceState.manualData.resourcesWithAttributedChildren;
-}
-
 export function getTemporaryDisplayPackageInfo(state: State): PackageInfo {
   return state.resourceState.temporaryDisplayPackageInfo;
-}
-
-export function getFilesWithChildren(state: State): Set<string> {
-  return state.resourceState.filesWithChildren;
 }
 
 export function getProjectMetadata(state: State): ProjectMetadata {

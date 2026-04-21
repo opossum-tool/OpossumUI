@@ -18,6 +18,7 @@ import { PopupType, View } from '../../../../enums/enums';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { createTestStore } from '../../../../test-helpers/render';
 import { type State } from '../../../../types/types';
+import { backend } from '../../../../util/backendClient';
 import { createAppStore } from '../../../configure-store';
 import {
   getExpandedIds,
@@ -45,7 +46,6 @@ import {
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../../resource-actions/audit-view-simple-actions';
-import { savePackageInfo } from '../../resource-actions/save-actions';
 import {
   navigateToView,
   openPopup,
@@ -110,13 +110,16 @@ describe('The actions checking for unsaved changes', () => {
 
         testStore.dispatch(setSelectedResourceId('selectedResource'));
         testStore.dispatch(navigateToView(View.Audit));
-        await testStore.dispatch(
-          savePackageInfo(null, null, {
+
+        await backend.createOrMatchAttribution.mutate({
+          packageInfo: {
             packageName: 'Test',
             criticality: Criticality.None,
-            id: faker.string.uuid(),
-          }),
-        );
+            id: '',
+          },
+          resourcePath: '/selectedResource',
+        });
+
         testStore.dispatch(
           setTemporaryDisplayPackageInfo({
             packageName: 'Test 2',
@@ -182,13 +185,14 @@ describe('The actions checking for unsaved changes', () => {
           id: faker.string.uuid(),
         }),
       );
-      await testStore.dispatch(
-        savePackageInfo('selectedResource', 'uuid_2', {
+
+      await backend.updateOrMatchAttribution.mutate({
+        packageInfo: {
           packageName: 'Test',
           criticality: Criticality.None,
-          id: faker.string.uuid(),
-        }),
-      );
+          id: 'uuid_2',
+        },
+      });
 
       testStore.dispatch(
         changeSelectedAttributionOrOpenUnsavedPopup(attributionToSelect),

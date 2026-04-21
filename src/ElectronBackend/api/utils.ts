@@ -12,10 +12,15 @@ import {
   sql,
   type Transaction,
 } from 'kysely';
-import { escapeRegExp, snakeCase } from 'lodash';
+import { escapeRegExp, pickBy, snakeCase } from 'lodash';
+import { v4 as uuid4 } from 'uuid';
 
 import { FILTERS } from '../../Frontend/shared-constants';
-import { areAttributionsEqual } from '../../shared/attribution-comparison';
+import {
+  areAttributionsEqual,
+  FORM_ATTRIBUTES,
+  thirdPartyKeys,
+} from '../../shared/attribution-comparison';
 import { type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
 import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
@@ -225,15 +230,41 @@ export const GET_LEGACY_RESOURCE_PATH =
 export async function getAttributionOrThrow(
   dbOrTrx: Kysely<DB>,
   attributionUuid: string,
+  options?: {
+    preconditions?: { minimumResources?: number; isExternal?: boolean };
+  },
 ) {
   const attribution = await dbOrTrx
     .selectFrom('attribution')
-    .select('is_external')
+    .select(['is_external'])
     .where('uuid', '=', attributionUuid)
     .executeTakeFirst();
 
   if (!attribution) {
     throw new Error(`Attribution ${attributionUuid} does not exist.`);
+  }
+
+  if (
+    options?.preconditions?.isExternal !== undefined &&
+    attribution.is_external !== Number(options.preconditions.isExternal)
+  ) {
+    throw new Error(
+      `Attribution ${attributionUuid} is not ${options.preconditions.isExternal ? 'external' : 'manual'}.`,
+    );
+  }
+
+  if (options?.preconditions?.minimumResources) {
+    const resourceCount = await dbOrTrx
+      .selectFrom('resource_to_attribution')
+      .select((eb) => eb.fn.countAll<number>().as('count'))
+      .where('attribution_uuid', '=', attributionUuid)
+      .executeTakeFirstOrThrow();
+
+    if (resourceCount.count < options.preconditions.minimumResources) {
+      throw new Error(
+        `Attribution ${attributionUuid} has less than ${options.preconditions.minimumResources} resources linked`,
+      );
+    }
   }
 
   return attribution;
@@ -588,4 +619,166 @@ export async function computeWasPreferred(
 
 export function removeParentFromPath(parentPath: string, path: string) {
   return path.replace(new RegExp(`^${escapeRegExp(parentPath)}/?`), '');
+}
+
+export function linkAttribution(
+  trx: Transaction<DB>,
+  resourceId: number,
+  attributionUuid: string,
+  options?: { ignoreExisting?: boolean },
+) {
+  return trx
+    .insertInto('resource_to_attribution')
+    .values({
+      resource_id: resourceId,
+      attribution_uuid: attributionUuid,
+      attribution_is_external: 0,
+    })
+    .$if(options?.ignoreExisting ?? false, (eb) =>
+      eb.onConflict((oc) => oc.doNothing()),
+    )
+    .execute();
+}
+
+export async function findMatchingAttributionUuid(
+  trx: Transaction<DB>,
+  packageInfo: PackageInfo,
+  options?: { ignorePreSelected?: boolean },
+) {
+  const strippedPackageInfo = removeEmptyStrings(packageInfo);
+
+  let query = trx
+    .selectFrom('attribution')
+    .select('uuid')
+    .where('is_external', '=', 0)
+    .$if(!options?.ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0));
+
+  const attributesToCompare = [
+    ...FORM_ATTRIBUTES,
+    ...(!strippedPackageInfo.firstParty ? thirdPartyKeys : []),
+  ];
+
+  for (const attribute of attributesToCompare) {
+    query = query.where(
+      strippedPackageInfo[attribute] === undefined
+        ? sql<boolean>`data->${attribute} IS NULL`
+        : sql<boolean>`data->${attribute} = ${JSON.stringify(strippedPackageInfo[attribute])}`,
+    );
+  }
+
+  const matchedAttribution = await query.executeTakeFirst();
+
+  return matchedAttribution?.uuid;
+}
+
+export async function matchOrCreateAttribution(
+  trx: Transaction<DB>,
+  packageInfo: PackageInfo,
+  options?: { ignorePreSelected?: boolean },
+) {
+  const matchedAttributionUuid = await findMatchingAttributionUuid(
+    trx,
+    packageInfo,
+    options,
+  );
+
+  if (matchedAttributionUuid) {
+    return matchedAttributionUuid;
+  }
+
+  const newUuid = uuid4();
+  await trx
+    .insertInto('attribution')
+    .values({
+      uuid: newUuid,
+      data: JSON.stringify({ ...removeEmptyStrings(packageInfo), id: newUuid }),
+      is_external: 0,
+    })
+    .execute();
+  return newUuid;
+}
+
+export async function updateAttribution(
+  trx: Transaction<DB>,
+  attributionUuid: string,
+  packageInfo: PackageInfo,
+) {
+  const existingAttribution = await getAttributionOrThrow(trx, attributionUuid);
+
+  if (existingAttribution.is_external) {
+    throw new Error("External attributions can't be updated");
+  }
+
+  const wasPreferred = await computeWasPreferred(trx, packageInfo);
+
+  await trx
+    .updateTable('attribution')
+    .set({
+      data: JSON.stringify({
+        ...removeEmptyStrings(packageInfo),
+        wasPreferred,
+      }),
+    })
+    .where('uuid', '=', attributionUuid)
+    .execute();
+}
+
+export async function replaceAttribution(
+  trx: Transaction<DB>,
+  params: {
+    attributionIdToReplace: string;
+    attributionIdToReplaceWith: string;
+  },
+) {
+  const toReplace = await getAttributionOrThrow(
+    trx,
+    params.attributionIdToReplace,
+  );
+
+  if (toReplace.is_external) {
+    throw new Error(
+      `External attribution ${params.attributionIdToReplace} can't be replaced`,
+    );
+  }
+
+  const toReplaceWith = await getAttributionOrThrow(
+    trx,
+    params.attributionIdToReplaceWith,
+  );
+
+  if (toReplaceWith.is_external) {
+    throw new Error(
+      `External attribution ${params.attributionIdToReplace} can't replace manual attribution`,
+    );
+  }
+
+  const connectedResources = await trx
+    .selectFrom('resource_to_attribution')
+    .select('resource_id')
+    .where('attribution_uuid', '=', params.attributionIdToReplace)
+    .execute();
+
+  // Reassign resource links to the replacement attribution, skipping conflicts
+  // (conflicting links will be cascade deleted when the old attribution is removed)
+  await sql`
+  UPDATE OR IGNORE resource_to_attribution
+  SET attribution_uuid = ${params.attributionIdToReplaceWith}
+  WHERE attribution_uuid = ${params.attributionIdToReplace}
+`.execute(trx);
+
+  await trx
+    .deleteFrom('attribution')
+    .where('uuid', '=', params.attributionIdToReplace)
+    .execute();
+
+  await removeRedundantAttributions(trx, {
+    resourceIds: connectedResources.map((r) => r.resource_id),
+  });
+}
+
+export function removeEmptyStrings(packageInfo: PackageInfo): PackageInfo {
+  return pickBy(
+    packageInfo,
+    (value, key) => value !== '' || key === 'id',
+  ) as PackageInfo;
 }
