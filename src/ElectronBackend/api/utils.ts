@@ -12,13 +12,14 @@ import {
   sql,
   type Transaction,
 } from 'kysely';
-import { escapeRegExp, snakeCase } from 'lodash';
+import { escapeRegExp, pickBy, snakeCase } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
 import { FILTERS } from '../../Frontend/shared-constants';
 import {
   areAttributionsEqual,
-  getComparableAttributes,
+  FORM_ATTRIBUTES,
+  thirdPartyKeys,
 } from '../../shared/attribution-comparison';
 import { type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
@@ -644,15 +645,28 @@ export async function findMatchingAttributionUuid(
   packageInfo: PackageInfo,
   options?: { ignorePreSelected?: boolean },
 ) {
-  const strippedPackageInfo = getComparableAttributes(packageInfo);
-  const strippedJson = JSON.stringify(strippedPackageInfo);
-  const matchedAttribution = await trx
+  const strippedPackageInfo = removeEmptyStrings(packageInfo);
+
+  let query = await trx
     .selectFrom('attribution')
     .select('uuid')
     .where('is_external', '=', 0)
-    .$if(!options?.ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0))
-    .whereRef('data', '=', sql`json_patch(data, ${strippedJson})`)
-    .executeTakeFirst();
+    .$if(!options?.ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0));
+
+  const attributesToCompare = [
+    ...FORM_ATTRIBUTES,
+    ...(!strippedPackageInfo.firstParty ? thirdPartyKeys : []),
+  ];
+
+  for (const attribute of attributesToCompare) {
+    query = query.where(
+      strippedPackageInfo[attribute] === undefined
+        ? sql<boolean>`data->${attribute} IS NULL`
+        : sql<boolean>`data->${attribute} = ${JSON.stringify(strippedPackageInfo[attribute])}`,
+    );
+  }
+
+  const matchedAttribution = await query.executeTakeFirst();
 
   return matchedAttribution?.uuid;
 }
@@ -677,7 +691,7 @@ export async function matchOrCreateAttribution(
     .insertInto('attribution')
     .values({
       uuid: newUuid,
-      data: JSON.stringify({ ...packageInfo, id: newUuid }),
+      data: JSON.stringify({ ...removeEmptyStrings(packageInfo), id: newUuid }),
       is_external: 0,
     })
     .execute();
@@ -701,7 +715,10 @@ export async function updateAttribution(
   await trx
     .updateTable('attribution')
     .set({
-      data: JSON.stringify({ ...packageInfo, wasPreferred }),
+      data: JSON.stringify({
+        ...removeEmptyStrings(packageInfo),
+        wasPreferred,
+      }),
     })
     .where('uuid', '=', attributionUuid)
     .execute();
@@ -758,4 +775,11 @@ export async function replaceAttribution(
   await removeRedundantAttributions(trx, {
     resourceIds: connectedResources.map((r) => r.resource_id),
   });
+}
+
+export function removeEmptyStrings(packageInfo: PackageInfo): PackageInfo {
+  return pickBy(
+    packageInfo,
+    (value, key) => value !== '' || key === 'id',
+  ) as PackageInfo;
 }

@@ -18,6 +18,7 @@ import {
   getResourceOrThrow,
   linkAttribution,
   matchOrCreateAttribution,
+  removeEmptyStrings,
   removeRedundantAttributions,
   replaceAttribution,
   updateAttribution,
@@ -244,7 +245,10 @@ export const mutations = {
           .insertInto('attribution')
           .values({
             uuid: params.attributionUuid,
-            data: JSON.stringify({ ...params.packageInfo, wasPreferred }),
+            data: JSON.stringify({
+              ...removeEmptyStrings(params.packageInfo),
+              wasPreferred,
+            }),
             is_external: 0,
           })
           .execute();
@@ -484,7 +488,7 @@ export const mutations = {
           });
           return matchingAttributionUuid;
         } else {
-          console.log("No match, pdating")
+          console.log('No match, pdating');
           await updateAttribution(trx, newPackageInfo.id, newPackageInfo);
           return undefined;
         }

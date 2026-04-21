@@ -7,8 +7,12 @@ import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 
 import { text } from '../../../../../shared/text';
-import { useAppSelector } from '../../../../state/hooks';
-import { getSelectedResourceId } from '../../../../state/selectors/resource-selectors';
+import { setSelectedAttributionId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
+import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
+import {
+  getSelectedAttributionId,
+  getSelectedResourceId,
+} from '../../../../state/selectors/resource-selectors';
 import { backend } from '../../../../util/backendClient';
 import { useIsSelectedResourceBreakpoint } from '../../../../util/use-selected-resource';
 import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
@@ -18,8 +22,11 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
 }) => {
+  const dispatch = useAppDispatch();
+
   const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
   return (
     <MuiIconButton
@@ -29,10 +36,13 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
       onClick={() => {
         attributions &&
           selectedAttributionIds.forEach(async (attributionId) => {
-            await backend.createOrMatchAttribution.mutate({
+            const result = await backend.createOrMatchAttribution.mutate({
               resourceId: selectedResourceId,
               packageInfo: attributions[attributionId],
             });
+            if (attributionId === selectedAttributionId) {
+              dispatch(setSelectedAttributionId(result.attribution));
+            }
           });
         setMultiSelectedAttributionIds([]);
       }}

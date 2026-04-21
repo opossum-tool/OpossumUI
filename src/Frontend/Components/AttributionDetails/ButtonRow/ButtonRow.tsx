@@ -222,12 +222,13 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             size={'small'}
             color={'secondary'}
             disabled={isPackageInfoModified}
-            onClick={() =>
-              backend.createOrMatchAttribution.mutate({
+            onClick={async () => {
+              const result = await backend.createOrMatchAttribution.mutate({
                 resourceId: selectedResourceId,
                 packageInfo,
-              })
-            }
+              });
+              dispatch(setSelectedAttributionId(result.attribution));
+            }}
           >
             <CallMergeIcon />
           </MuiFab>

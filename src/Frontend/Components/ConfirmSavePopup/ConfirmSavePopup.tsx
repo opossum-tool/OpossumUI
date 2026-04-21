@@ -7,7 +7,6 @@ import MuiTypography from '@mui/material/Typography';
 
 import { text } from '../../../shared/text';
 import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
-import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
