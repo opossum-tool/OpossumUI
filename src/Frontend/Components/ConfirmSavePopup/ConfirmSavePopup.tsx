@@ -6,6 +6,7 @@ import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
 
 import { text } from '../../../shared/text';
+import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -71,20 +72,22 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     ? Object.values(attributionsToSave).every((a) => a.preSelected)
     : undefined;
 
-  const handleSave = () => {
+  const handleSaveGlobally = () => {
     attributionsToSave &&
       Object.entries(attributionsToSave).forEach(
         async ([attributionId, attributionData]) => {
-          await dispatch(
-            savePackageInfo(
-              null,
-              attributionId,
+          const result = await backend.updateOrMatchAttribution.mutate({
+            packageInfo:
               attributionId === selectedAttributionId
                 ? temporaryDisplayPackageInfo
                 : attributionData,
-              attributionId !== selectedAttributionId,
-            ),
-          );
+          });
+          if (
+            attributionId === selectedAttributionId &&
+            result.matchedAttribution
+          ) {
+            dispatch(setSelectedAttributionId(result.matchedAttribution));
+          }
         },
       );
 
@@ -94,14 +97,19 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   const handleSaveOnResource = () => {
     attributionsToSave &&
       Object.entries(attributionsToSave).forEach(
-        ([attributionId, attributionData]) =>
-          backend.modifyOnlyOnOneResource.mutate({
+        async ([attributionId, attributionData]) => {
+          const result = await backend.modifyOrMatchOnlyOnOneResource.mutate({
             resourceId: selectedResourceId,
             packageInfo:
               attributionId === selectedAttributionId
                 ? temporaryDisplayPackageInfo
                 : attributionData,
-          }),
+          });
+
+          if (attributionId === selectedAttributionId) {
+            dispatch(setSelectedAttributionId(result.attribution));
+          }
+        },
       );
     onClose();
   };
@@ -114,7 +122,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
           : text.saveAttributionsPopup.titleSave
       }
       centerLeftButtonConfig={{
-        onClick: handleSave,
+        onClick: handleSaveGlobally,
         color: 'error',
         buttonText:
           linkedResourceCount && linkedResourceCount > 1

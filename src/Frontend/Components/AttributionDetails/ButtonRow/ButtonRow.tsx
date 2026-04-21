@@ -20,7 +20,7 @@ import { type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { savePackageInfo } from '../../../state/actions/resource-actions/save-actions';
+import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getIsPackageInfoDirty,
@@ -97,11 +97,24 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
 
   const handleSave = useCallback(async () => {
     if (packageInfo.preSelected || isPackageInfoModified) {
-      hasMultipleResources
-        ? setIsConfirmSavePopupOpen(true)
-        : await dispatch(
-            savePackageInfo(selectedResourceId, packageInfo.id, packageInfo),
-          );
+      if (hasMultipleResources) {
+        setIsConfirmSavePopupOpen(true);
+      } else if (packageInfo.id) {
+        const { matchedAttribution } =
+          await backend.updateOrMatchAttribution.mutate({
+            packageInfo,
+          });
+        if (matchedAttribution) {
+          dispatch(setSelectedAttributionId(matchedAttribution));
+        }
+      } else {
+        const result = await backend.createOrMatchAttribution.mutate({
+          packageInfo,
+          resourceId: selectedResourceId,
+        });
+
+        dispatch(setSelectedAttributionId(result.attribution));
+      }
     }
   }, [
     packageInfo,
@@ -210,7 +223,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             color={'secondary'}
             disabled={isPackageInfoModified}
             onClick={() =>
-              backend.addToSelectedResource.mutate({
+              backend.createOrMatchAttribution.mutate({
                 resourceId: selectedResourceId,
                 packageInfo,
               })
