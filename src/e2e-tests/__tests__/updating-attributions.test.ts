@@ -47,6 +47,11 @@ test.use({
         [resourceName4]: 1,
         [resourceName5]: 1,
       }),
+      resourcesToAttributions: {
+        [faker.opossum.filePath(resourceName1)]: [
+          wasPreferredOriginalAttributionId,
+        ],
+      },
       frequentLicenses: [license1, license2, apacheLicense],
     }),
     outputData: faker.opossum.outputData({
