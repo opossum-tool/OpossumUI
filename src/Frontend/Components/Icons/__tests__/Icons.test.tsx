@@ -6,7 +6,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Criticality } from '../../../../shared/shared-types';
-import { faker } from '../../../../testing/Faker';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { renderComponent } from '../../../test-helpers/render';
 import {
   BreakpointIcon,
   ClassificationIcon,
@@ -79,8 +80,12 @@ describe('The Icons', () => {
     expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
   });
   describe('classification icon', () => {
-    it('does not render CriticalClassificationIcon for classification 0', () => {
-      render(<ClassificationIcon classification={0} />);
+    it('does not render CriticalClassificationIcon for classification 0', async () => {
+      await renderComponent(<ClassificationIcon classification={0} />, {
+        data: getParsedInputFileEnrichedWithTestData({
+          config: { classifications: { 1: 'GOOD' } },
+        }),
+      });
 
       expect(
         screen.queryByLabelText('Classification icon'),
@@ -88,16 +93,15 @@ describe('The Icons', () => {
     });
 
     it('renders CriticalClassificationIcon for larger classifications', async () => {
-      render(
-        <ClassificationIcon
-          classification={1}
-          classificationsConfig={{
-            1: faker.opossum.classificationEntry({ description: 'Test' }),
-          }}
-        />,
-      );
+      await renderComponent(<ClassificationIcon classification={1} />, {
+        data: getParsedInputFileEnrichedWithTestData({
+          config: { classifications: { 1: 'Test' } },
+        }),
+      });
 
-      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
+      expect(
+        await screen.findByLabelText('Classification icon'),
+      ).toBeInTheDocument();
 
       await hoverOverIcon('classification-tooltip');
 
@@ -106,9 +110,18 @@ describe('The Icons', () => {
     });
 
     it('does not show tooltip if deactivated', async () => {
-      render(<ClassificationIcon classification={1} noTooltip />);
+      await renderComponent(
+        <ClassificationIcon classification={1} noTooltip />,
+        {
+          data: getParsedInputFileEnrichedWithTestData({
+            config: { classifications: { 1: 'Test' } },
+          }),
+        },
+      );
 
-      expect(screen.getByLabelText('Classification icon')).toBeInTheDocument();
+      expect(
+        await screen.findByLabelText('Classification icon'),
+      ).toBeInTheDocument();
 
       await hoverOverIcon('classification-tooltip');
 
