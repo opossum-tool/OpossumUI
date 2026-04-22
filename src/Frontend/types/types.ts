@@ -24,16 +24,7 @@ export type SelectedProgressBar =
   | 'criticality'
   | 'classification';
 
-export interface ClassificationStatisticsEntry {
-  description: string;
-  resourceCount: number;
-  color: string;
-}
-
-export type ClassificationStatistics = Record<
-  number,
-  ClassificationStatisticsEntry
->;
+export type ClassificationStatistics = Record<number, number>;
 
 export interface FileWithAttributionsCounts {
   fileCount: number;

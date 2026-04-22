@@ -4,12 +4,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import { sum } from 'lodash';
 
-import { Criticality } from '../../../shared/shared-types';
+import {
+  type ClassificationsConfig,
+  Criticality,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
 import {
   type ClassificationStatistics,
-  type ClassificationStatisticsEntry,
   type FileWithAttributionsCounts,
   type ResourceCriticalityCounts,
 } from '../../types/types';
@@ -133,29 +135,32 @@ export function calculateCriticalityBarSteps(
 }
 
 export function calculateClassificationBarSteps(
-  data: ClassificationStatistics | undefined,
+  statistics: ClassificationStatistics | undefined,
+  classifications: ClassificationsConfig,
 ): Array<ProgressBarStep> {
-  if (!data || Object.keys(data).length === 0) {
+  if (!statistics || Object.keys(statistics).length === 0) {
     return [];
   }
-  const entries = Object.values(data)
-    .filter(
-      (entry): entry is ClassificationStatisticsEntry =>
-        typeof entry === 'object' && entry !== null && 'description' in entry,
-    )
-    .reverse();
-  const classificationPercentages = getNormalizedPercentages(
-    entries.map((entry) => entry.resourceCount),
+  const orderedClassificationCounts = Object.entries(statistics).toSorted(
+    ([a], [b]) => Number(b) - Number(a),
   );
-  return entries.map<ProgressBarStep>((statisticsEntry, index) => ({
-    description: `${
-      text.topBar.switchableProgressBar.classificationBar
-        .containingClassification
-    } "${statisticsEntry.description.toLowerCase()}"`,
-    count: statisticsEntry.resourceCount,
-    widthInPercent: classificationPercentages[index],
-    color: statisticsEntry.color,
-  }));
+  const classificationPercentages = getNormalizedPercentages(
+    orderedClassificationCounts.map(([, count]) => count),
+  );
+  return orderedClassificationCounts.map<ProgressBarStep>(
+    ([classificationKey, count], index) => {
+      const classification = Number(classificationKey);
+      return {
+        count,
+        widthInPercent: classificationPercentages[index],
+        description: `${
+          text.topBar.switchableProgressBar.classificationBar
+            .containingClassification
+        } "${classifications[classification].description.toLowerCase()}"`,
+        color: classifications[classification].color,
+      };
+    },
+  );
 }
 
 export function createBackgroundFromProgressBarSteps(

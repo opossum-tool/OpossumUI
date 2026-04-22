@@ -20,12 +20,10 @@ import WidgetsIcon from '@mui/icons-material/Widgets';
 import { createSvgIcon, type SxProps } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 
-import {
-  type ClassificationsConfig,
-  Criticality,
-} from '../../../shared/shared-types';
+import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, criticalityColor, OpossumColors } from '../../shared-styles';
+import { useClassifications } from '../../util/use-classifications';
 
 const classes = {
   resourceIcon: {
@@ -213,18 +211,17 @@ export function CriticalityIcon({
 export function ClassificationIcon(
   props: IconProps & {
     classification?: number;
-    classificationsConfig?: ClassificationsConfig;
   },
 ) {
+  const classificationsConfig = useClassifications();
+
   if (!props.classification) {
     return null;
   }
 
-  const tooltip =
-    props.classificationsConfig?.[props.classification]?.description;
+  const tooltip = classificationsConfig?.[props.classification]?.description;
   const color =
-    props.classificationsConfig?.[props.classification]?.color ??
-    OpossumColors.red;
+    classificationsConfig?.[props.classification]?.color ?? OpossumColors.red;
 
   return (
     <MuiTooltip

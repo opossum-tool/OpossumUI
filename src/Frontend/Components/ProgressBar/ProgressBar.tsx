@@ -12,12 +12,10 @@ import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getClassifications,
-  getSelectedResourceId,
-} from '../../state/selectors/resource-selectors';
+import { getSelectedResourceId } from '../../state/selectors/resource-selectors';
 import { type SelectedProgressBar } from '../../types/types';
 import { backend } from '../../util/backendClient';
+import { useClassifications } from '../../util/use-classifications';
 import {
   calculateAttributionBarSteps,
   calculateClassificationBarSteps,
@@ -77,22 +75,16 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       { enabled: props.selectedProgressBar === 'criticality' },
     );
 
-  const classifications = useAppSelector(getClassifications);
   const classificationProgressBarData =
-    backend.getClassificationProgressBarData.useQuery(
-      { classifications },
-      {
-        enabled: props.selectedProgressBar === 'classification',
-      },
-    );
+    backend.getClassificationProgressBarData.useQuery(undefined, {
+      enabled: props.selectedProgressBar === 'classification',
+    });
   const getNextClassificationResource =
     backend.getNextFileToReviewForClassification.useQuery(
-      {
-        selectedResourcePath,
-        classifications,
-      },
+      { selectedResourcePath },
       { enabled: props.selectedProgressBar === 'classification' },
     );
+  const classifications = useClassifications();
 
   const progressBarConfigurations: Record<
     SelectedProgressBar,
@@ -123,7 +115,10 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       Title: ClassificationBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
       steps: classificationProgressBarData.data
-        ? calculateClassificationBarSteps(classificationProgressBarData.data)
+        ? calculateClassificationBarSteps(
+            classificationProgressBarData.data,
+            classifications,
+          )
         : undefined,
       onClickHandler: () => goToResource(getNextClassificationResource.data),
     },

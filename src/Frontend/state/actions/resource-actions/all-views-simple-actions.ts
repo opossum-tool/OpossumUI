@@ -4,28 +4,21 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   type PackageInfo,
-  type ProjectConfig,
   type ProjectMetadata,
 } from '../../../../shared/shared-types';
 import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,
-  ACTION_SET_PROJECT_CONFIG,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
   type ResetResourceStateAction,
   type SetIsPackageInfoDirtyAction,
-  type SetProjectConfigAction,
   type SetProjectMetadata,
   type SetTemporaryDisplayPackageInfoAction,
 } from './types';
 
 export function resetResourceState(): ResetResourceStateAction {
   return { type: ACTION_RESET_RESOURCE_STATE };
-}
-
-export function setConfig(config: ProjectConfig): SetProjectConfigAction {
-  return { type: ACTION_SET_PROJECT_CONFIG, payload: config };
 }
 
 export function setTemporaryDisplayPackageInfo(

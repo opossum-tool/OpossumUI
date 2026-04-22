@@ -12,7 +12,6 @@ import type {
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
 import { OpossumColors } from '../Frontend/shared-styles';
-import { type ClassificationStatisticsEntry } from '../Frontend/types/types';
 import { type HttpClient } from '../Frontend/util/http-client';
 import {
   type AdvisorySuggestion,
@@ -530,17 +529,12 @@ class PackageSearchModule {
 class ProgressBarModule {
   constructor(protected readonly faker: NativeFaker) {}
 
-  classificationStatisticsEntry(
-    overwrites: Partial<ClassificationStatisticsEntry> = {},
-    numberOfFiles?: number,
-  ): ClassificationStatisticsEntry {
-    if (numberOfFiles === undefined) {
-      numberOfFiles = faker.number.int({ min: 0, max: 20 });
-    }
+  classificationEntry(
+    overwrites: Partial<ClassificationEntry> = {},
+  ): ClassificationEntry {
     return {
       description: faker.word.noun(),
       color: faker.helpers.arrayElement(Object.values(OpossumColors)),
-      resourceCount: numberOfFiles,
       ...overwrites,
     };
   }

@@ -10,14 +10,11 @@ import { type SxProps } from '@mui/system';
 import { memo, useEffect, useMemo, useRef } from 'react';
 
 import {
-  type ClassificationsConfig,
   type Criticality,
   type PackageInfo,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
-import { useAppSelector } from '../../state/hooks';
-import { getClassifications } from '../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { getCardLabels } from '../../util/get-card-labels';
 import { maybePluralize } from '../../util/maybe-pluralize';
@@ -91,7 +88,6 @@ const classes = {
 export interface PackageCardConfig {
   criticality: Criticality;
   classification?: number;
-  classificationsConfig?: ClassificationsConfig;
   excludeFromNotice?: boolean;
   firstParty?: boolean;
   focused?: boolean;
@@ -124,7 +120,6 @@ export const PackageCard = memo(
       () => getCardLabels(packageInfo),
       [packageInfo],
     );
-    const classification_mapping = useAppSelector(getClassifications);
     const effectiveCardConfig = useMemo<PackageCardConfig>(
       () => ({
         criticality: packageInfo.criticality,
@@ -137,10 +132,9 @@ export const PackageCard = memo(
         needsReview: packageInfo.needsReview,
         originalWasPreferred: packageInfo.originalAttributionWasPreferred,
         wasPreferred: packageInfo.wasPreferred,
-        classificationsConfig: classification_mapping,
         ...cardConfig,
       }),
-      [cardConfig, packageInfo, classification_mapping],
+      [cardConfig, packageInfo],
     );
     const [userSettings] = useUserSettings();
     const showClassifications = userSettings.showClassifications;

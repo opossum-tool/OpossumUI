@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  type ClassificationsConfig,
   type PackageInfo,
   type ProjectMetadata,
 } from '../../../shared/shared-types';
@@ -35,10 +34,6 @@ export function getTemporaryDisplayPackageInfo(state: State): PackageInfo {
 
 export function getProjectMetadata(state: State): ProjectMetadata {
   return state.resourceState.metadata;
-}
-
-export function getClassifications(state: State): ClassificationsConfig {
-  return state.resourceState.config.classifications;
 }
 
 export function getIsPackageInfoDirty(state: State): boolean {

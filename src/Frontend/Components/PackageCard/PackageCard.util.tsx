@@ -42,16 +42,11 @@ export function getRightIcons(
       />,
     );
   }
-  if (
-    showClassifications &&
-    cardConfig.classification &&
-    cardConfig.classificationsConfig
-  ) {
+  if (showClassifications && cardConfig.classification) {
     rightIcons.push(
       <ClassificationIcon
         key={'classification-icon'}
         classification={cardConfig.classification}
-        classificationsConfig={cardConfig.classificationsConfig}
       />,
     );
   }

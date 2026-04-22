@@ -14,14 +14,14 @@ import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getClassifications } from '../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../state/hooks';
 import {
   initialFilters,
   useExternalAttributionFilters,
 } from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { backend } from '../../util/backendClient';
+import { useClassifications } from '../../util/use-classifications';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { BarChart } from '../BarChart/BarChart';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -42,7 +42,7 @@ const CRITICALITY_COLORS = {
 export const ProjectStatisticsPopup: React.FC = () => {
   const dispatch = useAppDispatch();
 
-  const classifications = useAppSelector(getClassifications);
+  const classifications = useClassifications();
 
   const manualAttributionStatistics =
     backend.manualAttributionStatistics.useQuery();

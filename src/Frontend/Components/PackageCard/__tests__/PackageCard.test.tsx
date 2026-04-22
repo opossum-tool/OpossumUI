@@ -6,8 +6,8 @@ import { screen } from '@testing-library/react';
 
 import { Criticality, RawCriticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { setConfig } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { PackageCard } from '../PackageCard';
 
@@ -81,13 +81,13 @@ describe('The PackageCard', () => {
       await renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
         {
-          actions: [
-            setConfig({
+          data: getParsedInputFileEnrichedWithTestData({
+            config: {
               classifications: {
-                1: faker.opossum.classificationEntry(),
+                1: faker.word.words(),
               },
-            }),
-          ],
+            },
+          }),
         },
       );
 
@@ -101,13 +101,13 @@ describe('The PackageCard', () => {
       await renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
         {
-          actions: [
-            setConfig({
+          data: getParsedInputFileEnrichedWithTestData({
+            config: {
               classifications: {
-                1: faker.opossum.classificationEntry(),
+                1: faker.word.words(),
               },
-            }),
-          ],
+            },
+          }),
         },
       );
 
@@ -121,13 +121,13 @@ describe('The PackageCard', () => {
       await renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
         {
-          actions: [
-            setConfig({
+          data: getParsedInputFileEnrichedWithTestData({
+            config: {
               classifications: {
-                1: faker.opossum.classificationEntry(),
+                1: faker.word.words(),
               },
-            }),
-          ],
+            },
+          }),
         },
       );
 
@@ -141,14 +141,14 @@ describe('The PackageCard', () => {
       await renderComponent(
         <PackageCard packageInfo={packageInfo} onClick={vi.fn()} />,
         {
-          actions: [
-            setConfig({
+          data: getParsedInputFileEnrichedWithTestData({
+            config: {
               classifications: {
-                1: faker.opossum.classificationEntry(),
+                1: faker.word.words(),
               },
-            }),
-            setUserSetting({ showClassifications: false }),
-          ],
+            },
+          }),
+          actions: [setUserSetting({ showClassifications: false })],
         },
       );
 

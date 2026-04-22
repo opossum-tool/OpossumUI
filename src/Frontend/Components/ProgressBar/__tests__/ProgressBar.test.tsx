@@ -11,7 +11,6 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../../testing/global-test-helpers';
-import { setConfig } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { renderComponent } from '../../../test-helpers/render';
 import { setDatabaseInitialized } from '../../../util/backendClient';
@@ -165,16 +164,6 @@ describe('ProgressBar', () => {
   it('click on classification progress bar goes to highest classified resource', async () => {
     const { store } = await renderComponent(
       <ProgressBar selectedProgressBar={'classification'} />,
-      {
-        actions: [
-          setConfig({
-            classifications: {
-              1: { description: 'Low', color: '#aaffaa' },
-              2: { description: 'High', color: '#ffaaaa' },
-            },
-          }),
-        ],
-      },
     );
     // check that the text is right when hovering over the progress bar
     await hoverOverClassificationProgressBar();
@@ -182,7 +171,7 @@ describe('ProgressBar', () => {
       await screen.findByText(/containing classification "high": 1/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/containing classification "low": 1/),
+      await screen.findByText(/containing classification "low": 1/),
     ).toBeInTheDocument();
 
     // check that the clicks work

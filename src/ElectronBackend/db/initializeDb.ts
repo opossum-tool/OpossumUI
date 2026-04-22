@@ -12,6 +12,7 @@ import {
   type InputFileAttributionData,
   type PackageInfo,
   type ParsedFileContent,
+  type RawClassificationsConfig,
   type Resources,
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -57,6 +58,11 @@ export async function initializeDb(inputFile: ParsedFileContent) {
       await initializeExternalAttributionSourceTable(
         trx,
         inputFile.externalAttributionSources,
+      );
+
+      await initializeClassificationTable(
+        trx,
+        inputFile.config.classifications,
       );
 
       const resourcePathToId = await initializeResourceTable(
@@ -198,6 +204,27 @@ async function initializeExternalAttributionSourceTable(
         is_relevant_for_preferred: Number(
           source.isRelevantForPreferred ?? false,
         ),
+      })
+      .execute();
+  }
+}
+
+async function initializeClassificationTable(
+  trx: Transaction<DB>,
+  classificationConfig: RawClassificationsConfig,
+) {
+  await trx.schema
+    .createTable('classification')
+    .addColumn('classification', 'integer', (col) => col.primaryKey().notNull())
+    .addColumn('description', 'text', (col) => col.notNull())
+    .execute();
+
+  for (const [number, description] of Object.entries(classificationConfig)) {
+    await trx
+      .insertInto('classification')
+      .values({
+        classification: parseInt(number),
+        description,
       })
       .execute();
   }

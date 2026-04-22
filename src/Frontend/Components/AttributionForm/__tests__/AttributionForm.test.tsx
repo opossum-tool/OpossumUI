@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {
@@ -14,7 +14,6 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import { setConfig } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
@@ -350,22 +349,22 @@ describe('AttributionForm', () => {
         const classificationText = faker.word.words();
 
         await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
-          actions: [
-            setConfig({
+          data: getParsedInputFileEnrichedWithTestData({
+            config: {
               classifications: {
-                1: faker.opossum.classificationEntry({
-                  description: classificationText,
-                }),
+                1: classificationText,
               },
-            }),
-          ],
+            },
+          }),
         });
 
         const classificationChip = screen.getByTestId(
           'auditing-option-classification',
         );
         expect(classificationChip).toBeInTheDocument();
-        expect(classificationChip).toHaveTextContent(classificationText);
+        expect(
+          await within(classificationChip).findByText(classificationText),
+        ).toBeInTheDocument();
       });
 
       it('shows empty text if no configuration', async () => {
