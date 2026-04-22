@@ -5,6 +5,7 @@
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
+import { useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
 import { setSelectedAttributionId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -28,24 +29,39 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
+  const createOrMatch = backend.createOrMatchAttribution.useMutation({
+    scope: { id: 'signalsPanel' },
+  });
+  const mutationsPending = useIsMutating() > 0;
+
+  const handleLink = async () => {
+    if (attributions) {
+      await Promise.all(
+        selectedAttributionIds.map(async (attributionId) => {
+          const result = await createOrMatch.mutateAsync({
+            resourcePath: selectedResourceId,
+            packageInfo: attributions[attributionId],
+          });
+          if (attributionId === selectedAttributionId) {
+            dispatch(setSelectedAttributionId(result.attribution));
+          }
+        }),
+      );
+    }
+    setMultiSelectedAttributionIds([]);
+  };
+
   return (
     <MuiIconButton
       aria-label={text.packageLists.linkAsAttribution}
-      disabled={isSelectedResourceBreakpoint || !selectedAttributionIds.length}
+      disabled={
+        isSelectedResourceBreakpoint ||
+        !selectedAttributionIds.length ||
+        mutationsPending
+      }
+      loading={createOrMatch.isPending}
       size={'small'}
-      onClick={() => {
-        attributions &&
-          selectedAttributionIds.forEach(async (attributionId) => {
-            const result = await backend.createOrMatchAttribution.mutate({
-              resourcePath: selectedResourceId,
-              packageInfo: attributions[attributionId],
-            });
-            if (attributionId === selectedAttributionId) {
-              dispatch(setSelectedAttributionId(result.attribution));
-            }
-          });
-        setMultiSelectedAttributionIds([]);
-      }}
+      onClick={handleLink}
     >
       <MuiTooltip
         title={text.packageLists.linkAsAttribution}

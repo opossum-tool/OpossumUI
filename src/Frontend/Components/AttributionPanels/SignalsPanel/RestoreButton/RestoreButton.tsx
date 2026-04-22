@@ -5,6 +5,7 @@
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
+import { useIsMutating } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
@@ -15,6 +16,10 @@ import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
 }) => {
+  const unresolveAttributions = backend.unresolveAttributions.useMutation({
+    scope: { id: 'signalsPanel' },
+  });
+  const mutationsPending = useIsMutating() > 0;
   const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
   const [userSettings] = useUserSettings();
@@ -35,13 +40,14 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   return (
     <MuiIconButton
       aria-label={text.packageLists.restore}
-      disabled={!someSelectedAttributionsAreHidden}
+      disabled={!someSelectedAttributionsAreHidden || mutationsPending}
       size={'small'}
       onClick={async () => {
-        await backend.unresolveAttributions.mutate({
+        await unresolveAttributions.mutateAsync({
           attributionUuids: selectedAttributionIds,
         });
       }}
+      loading={unresolveAttributions.isPending}
     >
       <MuiTooltip
         title={text.packageLists.restore}

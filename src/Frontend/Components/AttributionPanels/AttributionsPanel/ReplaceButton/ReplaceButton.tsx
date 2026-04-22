@@ -5,6 +5,7 @@
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
+import { useIsMutating } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import { text } from '../../../../../shared/text';
@@ -23,6 +24,8 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
   const label = attributionIdsForReplacement.length
     ? text.packageLists.cancelReplace
     : text.packageLists.replace;
+
+  const mutationsPending = useIsMutating() > 0;
 
   const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
 
@@ -43,7 +46,8 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
         !attributionIds ||
         !selectedAttributionIds.length ||
         !(attributionIds.length - multiSelectedAttributionIds.length) ||
-        attributionIds.length < 2
+        attributionIds.length < 2 ||
+        mutationsPending
       }
       size={'small'}
       onClick={() => {

@@ -5,6 +5,7 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
+import { useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
 import {
@@ -58,6 +59,8 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   const dispatch = useAppDispatch();
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
+
+  const mutationsPending = useIsMutating() > 0;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -149,7 +152,8 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
         aria-label={text.packageLists.moreActions}
         disabled={
           !selectedAttributionIds.length ||
-          !!attributionIdsForReplacement.length
+          !!attributionIdsForReplacement.length ||
+          mutationsPending
         }
         onClick={handleClick}
         size={'small'}

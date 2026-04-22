@@ -5,6 +5,7 @@
 import CheckIcon from '@mui/icons-material/Check';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
+import { useIsMutating } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { text } from '../../../../../shared/text';
@@ -21,6 +22,7 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
   const preSelectedAttributionIds = selectedAttributionIds.filter(
     (id) => attributions?.[id]?.preSelected,
   );
+  const mutationsPending = useIsMutating() > 0;
 
   return (
     <>
@@ -28,7 +30,8 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
         aria-label={text.packageLists.confirm}
         disabled={
           !preSelectedAttributionIds.length ||
-          !!attributionIdsForReplacement.length
+          !!attributionIdsForReplacement.length ||
+          mutationsPending
         }
         onClick={() => setIsConfirmSavePopupOpen(true)}
         size={'small'}
