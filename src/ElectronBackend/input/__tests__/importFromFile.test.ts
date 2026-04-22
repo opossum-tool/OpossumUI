@@ -83,7 +83,6 @@ const mainWindow = {
 
 const testFrontendData: ParsedFrontendFileContent = {
   metadata: EMPTY_PROJECT_METADATA,
-  config: { classifications: {} },
 };
 
 describe('loadInputAndOutputFromFilePath', () => {

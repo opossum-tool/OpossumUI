@@ -81,12 +81,6 @@ const expectedFrontendData: ParsedFrontendFileContent = {
     ...EMPTY_PROJECT_METADATA,
     projectTitle: 'Test Title',
   },
-  config: {
-    classifications: {
-      0: 'GOOD',
-      1: 'BAD',
-    },
-  },
 };
 
 describe('loadFile', () => {
