@@ -48,8 +48,8 @@ export interface Attribution {
 }
 
 export interface Classification {
+  classification: Generated<number>;
   description: string;
-  number: Generated<number>;
 }
 
 export interface ClosestAttributedAncestors {

@@ -591,7 +591,9 @@ export const queries = {
       .execute();
 
     return {
-      result: Object.fromEntries(result.map((r) => [r.number, r.description])),
+      result: Object.fromEntries(
+        result.map((r) => [r.classification, r.description]),
+      ),
     };
   },
 } satisfies Record<string, QueryFunction>;

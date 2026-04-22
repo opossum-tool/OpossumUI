@@ -215,7 +215,7 @@ async function initializeClassificationTable(
 ) {
   await trx.schema
     .createTable('classification')
-    .addColumn('number', 'integer', (col) => col.primaryKey().notNull())
+    .addColumn('classification', 'integer', (col) => col.primaryKey().notNull())
     .addColumn('description', 'text', (col) => col.notNull())
     .execute();
 
@@ -223,7 +223,7 @@ async function initializeClassificationTable(
     await trx
       .insertInto('classification')
       .values({
-        number: parseInt(number),
+        classification: parseInt(number),
         description,
       })
       .execute();

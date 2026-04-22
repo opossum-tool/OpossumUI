@@ -168,19 +168,19 @@
 <!-- classification -->
 <g id="node2" class="node">
 <title>classification</title>
-<polygon fill="none" stroke="black" points="79.33,-1140.4 79.33,-1163.2 236.92,-1163.2 236.92,-1140.4 79.33,-1140.4"/>
+<polygon fill="none" stroke="black" points="73.51,-1140.4 73.51,-1163.2 242.74,-1163.2 242.74,-1140.4 73.51,-1140.4"/>
 <text xml:space="preserve" text-anchor="start" x="119.63" y="-1148.6" font-family="Times,serif" font-weight="bold" font-size="14.00">classification</text>
-<polygon fill="none" stroke="black" points="79.33,-1117.6 79.33,-1140.4 102.83,-1140.4 102.83,-1117.6 79.33,-1117.6"/>
-<text xml:space="preserve" text-anchor="start" x="82.33" y="-1123.4" font-family="Times,serif" font-size="14.00">🔑 </text>
-<polygon fill="none" stroke="black" points="102.83,-1117.6 102.83,-1140.4 171.04,-1140.4 171.04,-1117.6 102.83,-1117.6"/>
-<text xml:space="preserve" text-anchor="start" x="105.83" y="-1123.4" font-family="Times,serif" font-size="14.00">number</text>
-<polygon fill="none" stroke="black" points="171.04,-1117.6 171.04,-1140.4 236.92,-1140.4 236.92,-1117.6 171.04,-1117.6"/>
-<text xml:space="preserve" text-anchor="start" x="174.04" y="-1123.4" font-family="Times,serif" font-size="14.00">INTEGER</text>
-<polygon fill="none" stroke="black" points="79.33,-1094.8 79.33,-1117.6 102.83,-1117.6 102.83,-1094.8 79.33,-1094.8"/>
-<polygon fill="none" stroke="black" points="102.83,-1094.8 102.83,-1117.6 171.04,-1117.6 171.04,-1094.8 102.83,-1094.8"/>
-<text xml:space="preserve" text-anchor="start" x="105.83" y="-1100.6" font-family="Times,serif" font-size="14.00">description</text>
-<polygon fill="none" stroke="black" points="171.04,-1094.8 171.04,-1117.6 236.92,-1117.6 236.92,-1094.8 171.04,-1094.8"/>
-<text xml:space="preserve" text-anchor="start" x="174.04" y="-1100.6" font-family="Times,serif" font-size="14.00">TEXT</text>
+<polygon fill="none" stroke="black" points="73.51,-1117.6 73.51,-1140.4 97.01,-1140.4 97.01,-1117.6 73.51,-1117.6"/>
+<text xml:space="preserve" text-anchor="start" x="76.51" y="-1123.4" font-family="Times,serif" font-size="14.00">🔑 </text>
+<polygon fill="none" stroke="black" points="97.01,-1117.6 97.01,-1140.4 176.87,-1140.4 176.87,-1117.6 97.01,-1117.6"/>
+<text xml:space="preserve" text-anchor="start" x="100.01" y="-1123.4" font-family="Times,serif" font-size="14.00">classification</text>
+<polygon fill="none" stroke="black" points="176.87,-1117.6 176.87,-1140.4 242.74,-1140.4 242.74,-1117.6 176.87,-1117.6"/>
+<text xml:space="preserve" text-anchor="start" x="179.87" y="-1123.4" font-family="Times,serif" font-size="14.00">INTEGER</text>
+<polygon fill="none" stroke="black" points="73.51,-1094.8 73.51,-1117.6 97.01,-1117.6 97.01,-1094.8 73.51,-1094.8"/>
+<polygon fill="none" stroke="black" points="97.01,-1094.8 97.01,-1117.6 176.87,-1117.6 176.87,-1094.8 97.01,-1094.8"/>
+<text xml:space="preserve" text-anchor="start" x="100.01" y="-1100.6" font-family="Times,serif" font-size="14.00">description</text>
+<polygon fill="none" stroke="black" points="176.87,-1094.8 176.87,-1117.6 242.74,-1117.6 242.74,-1094.8 176.87,-1094.8"/>
+<text xml:space="preserve" text-anchor="start" x="179.87" y="-1100.6" font-family="Times,serif" font-size="14.00">TEXT</text>
 </g>
 <!-- closest_attributed_ancestors -->
 <g id="node3" class="node">
