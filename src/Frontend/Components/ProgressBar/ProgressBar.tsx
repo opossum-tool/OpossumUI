@@ -75,19 +75,16 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       { enabled: props.selectedProgressBar === 'criticality' },
     );
 
-  const classifications = useClassifications();
   const classificationProgressBarData =
     backend.getClassificationProgressBarData.useQuery(undefined, {
       enabled: props.selectedProgressBar === 'classification',
     });
   const getNextClassificationResource =
     backend.getNextFileToReviewForClassification.useQuery(
-      {
-        selectedResourcePath,
-        classifications,
-      },
+      { selectedResourcePath },
       { enabled: props.selectedProgressBar === 'classification' },
     );
+  const classifications = useClassifications();
 
   const progressBarConfigurations: Record<
     SelectedProgressBar,

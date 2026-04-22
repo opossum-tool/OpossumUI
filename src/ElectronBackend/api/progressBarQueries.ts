@@ -10,10 +10,7 @@ import {
   type FileWithAttributionsCounts,
   type ResourceCriticalityCounts,
 } from '../../Frontend/types/types';
-import {
-  type ClassificationsConfig,
-  Criticality,
-} from '../../shared/shared-types';
+import { Criticality } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import {
   getClassificationResourceQuery,
@@ -185,7 +182,6 @@ export async function getNextFileToReviewForCriticality(props: {
 
 export async function getNextFileToReviewForClassification(props: {
   selectedResourcePath: string;
-  classifications: ClassificationsConfig;
 }): Promise<{ result: string | null }> {
   return getDb()
     .transaction()
@@ -194,9 +190,15 @@ export async function getNextFileToReviewForClassification(props: {
         trx,
         props.selectedResourcePath,
       );
-      const classifications = Object.keys(props.classifications)
-        .toSorted()
-        .reverse();
+
+      const classifications = (
+        await trx
+          .selectFrom('classification')
+          .select('classification')
+          .orderBy('classification', 'desc')
+          .execute()
+      ).map((c) => c.classification);
+
       for (const classification of classifications) {
         const resource = await trx
           .selectFrom((eb) =>
