@@ -204,6 +204,15 @@ export default tseslint.config(
         { avoidEscape: true, allowTemplateLiterals: false },
       ],
       yoda: 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            ':function VariableDeclarator[init.callee.callee.name="styled"]',
+          message:
+            'Do not call styled() inside functions. It creates a new component type on every render, causing React to remount DOM elements and break event handlers. Move styled() calls to module scope or a .style.ts file, or use the sx prop.',
+        },
+      ],
     },
   },
   {
