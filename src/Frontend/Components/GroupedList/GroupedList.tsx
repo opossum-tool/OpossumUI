@@ -6,7 +6,6 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
-import { styled } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
 import { type SxProps } from '@mui/system';
@@ -146,18 +145,8 @@ export function GroupedList({
     const isFirstItemVisible = startIndex === 0;
     const isFirstItemInGroupVisible =
       startIndex <= groups.counts.slice(0, index).reduce((a, b) => a + b, 0);
-    const Icon = styled(
-      isFirstGroup ? KeyboardDoubleArrowUpIcon : KeyboardArrowUpIcon,
-    )({
-      cursor: isFirstGroup && isFirstItemVisible ? undefined : 'pointer',
-      borderRadius: '50%',
-      '&:hover': {
-        background:
-          isFirstGroup && isFirstItemVisible
-            ? undefined
-            : OpossumColors.lightGrey,
-      },
-    });
+    const Icon = isFirstGroup ? KeyboardDoubleArrowUpIcon : KeyboardArrowUpIcon;
+    const disabled = isFirstGroup && isFirstItemVisible;
 
     return (
       <MuiTooltip
@@ -173,8 +162,15 @@ export function GroupedList({
         enterDelay={500}
       >
         <Icon
+          sx={{
+            cursor: disabled ? undefined : 'pointer',
+            borderRadius: '50%',
+            '&:hover': {
+              background: disabled ? undefined : OpossumColors.lightGrey,
+            },
+          }}
           fontSize={'inherit'}
-          color={isFirstGroup && isFirstItemVisible ? 'disabled' : undefined}
+          color={disabled ? 'disabled' : undefined}
           onClick={
             isFirstGroup
               ? isFirstItemVisible
@@ -197,18 +193,10 @@ export function GroupedList({
 
     const isLastGroup = index === groups.counts.length - 1;
     const isLastItemVisible = endIndex === groups.ids.length - 1;
-    const Icon = styled(
-      isLastGroup ? KeyboardDoubleArrowDownIcon : KeyboardArrowDownIcon,
-    )({
-      cursor: isLastGroup && isLastItemVisible ? undefined : 'pointer',
-      borderRadius: '50%',
-      '&:hover': {
-        background:
-          isLastGroup && isLastItemVisible
-            ? undefined
-            : OpossumColors.lightGrey,
-      },
-    });
+    const Icon = isLastGroup
+      ? KeyboardDoubleArrowDownIcon
+      : KeyboardArrowDownIcon;
+    const disabled = isLastGroup && isLastItemVisible;
 
     return (
       <MuiTooltip
@@ -222,8 +210,15 @@ export function GroupedList({
         enterDelay={500}
       >
         <Icon
+          sx={{
+            cursor: disabled ? undefined : 'pointer',
+            borderRadius: '50%',
+            '&:hover': {
+              background: disabled ? undefined : OpossumColors.lightGrey,
+            },
+          }}
           fontSize={'inherit'}
-          color={isLastGroup && isLastItemVisible ? 'disabled' : undefined}
+          color={disabled ? 'disabled' : undefined}
           onClick={
             isLastGroup
               ? isLastItemVisible
