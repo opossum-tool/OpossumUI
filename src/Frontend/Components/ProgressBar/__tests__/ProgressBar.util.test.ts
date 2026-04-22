@@ -2,7 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Criticality } from '../../../../shared/shared-types';
+import {
+  type ClassificationsConfig,
+  Criticality,
+} from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
 import {
@@ -65,45 +68,59 @@ describe('ProgressBar helpers', () => {
     });
 
     it('returns correct background color for multiple classifications', () => {
+      const classifications: ClassificationsConfig = {
+        0: faker.progressBar.classificationEntry(),
+        1: faker.progressBar.classificationEntry(),
+        2: faker.progressBar.classificationEntry(),
+        3: faker.progressBar.classificationEntry(),
+      };
       const classificationStatistics: ClassificationStatistics = {
-        0: faker.progressBar.classificationStatisticsEntry({}, 5),
-        1: faker.progressBar.classificationStatisticsEntry({}, 3),
-        2: faker.progressBar.classificationStatisticsEntry({}, 4),
-        3: faker.progressBar.classificationStatisticsEntry({}, 1),
+        0: 5,
+        1: 3,
+        2: 4,
+        3: 1,
       };
 
       const classificationBarSteps = calculateClassificationBarSteps(
         classificationStatistics,
+        classifications,
       );
       const background = createBackgroundFromProgressBarSteps(
         classificationBarSteps,
       );
 
-      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[3].color} 0% 8% , ${classificationStatistics[2].color} 8% 39% , ${classificationStatistics[1].color} 39% 62% , ${classificationStatistics[0].color} 62% 100% )`;
+      const expectedBackground = `linear-gradient(to right, ${classifications[3].color} 0% 8% , ${classifications[2].color} 8% 39% , ${classifications[1].color} 39% 62% , ${classifications[0].color} 62% 100% )`;
       expect(background).toEqual(expectedBackground);
     });
 
     it('is independent of the ordering of the classification statistics', () => {
+      const classifications: ClassificationsConfig = {
+        0: faker.progressBar.classificationEntry(),
+        1: faker.progressBar.classificationEntry(),
+        2: faker.progressBar.classificationEntry(),
+        11: faker.progressBar.classificationEntry(),
+      };
       const classificationStatistics: ClassificationStatistics = {
-        11: faker.progressBar.classificationStatisticsEntry({}, 1),
-        1: faker.progressBar.classificationStatisticsEntry({}, 3),
-        2: faker.progressBar.classificationStatisticsEntry({}, 4),
-        0: faker.progressBar.classificationStatisticsEntry({}, 5),
+        11: 1,
+        1: 3,
+        2: 4,
+        0: 5,
       };
 
       const classificationBarSteps = calculateClassificationBarSteps(
         classificationStatistics,
+        classifications,
       );
       const background = createBackgroundFromProgressBarSteps(
         classificationBarSteps,
       );
 
-      const expectedBackground = `linear-gradient(to right, ${classificationStatistics[11].color} 0% 8% , ${classificationStatistics[2].color} 8% 39% , ${classificationStatistics[1].color} 39% 62% , ${classificationStatistics[0].color} 62% 100% )`;
+      const expectedBackground = `linear-gradient(to right, ${classifications[11].color} 0% 8% , ${classifications[2].color} 8% 39% , ${classifications[1].color} 39% 62% , ${classifications[0].color} 62% 100% )`;
       expect(background).toEqual(expectedBackground);
     });
 
     it('returns constant background color for zero files affected', () => {
-      const classificationBarSteps = calculateClassificationBarSteps({});
+      const classificationBarSteps = calculateClassificationBarSteps({}, {});
       const background = createBackgroundFromProgressBarSteps(
         classificationBarSteps,
       );
@@ -112,17 +129,17 @@ describe('ProgressBar helpers', () => {
     });
 
     it('works for only one classification level configured', () => {
-      const classificationStatisticsEntry =
-        faker.progressBar.classificationStatisticsEntry({}, 5);
+      const classificationEntry = faker.progressBar.classificationEntry();
 
-      const classificationBarSteps = calculateClassificationBarSteps({
-        0: classificationStatisticsEntry,
-      });
+      const classificationBarSteps = calculateClassificationBarSteps(
+        { 0: 5 },
+        { 0: classificationEntry },
+      );
       const background = createBackgroundFromProgressBarSteps(
         classificationBarSteps,
       );
 
-      const expectedBackground = classificationStatisticsEntry.color;
+      const expectedBackground = classificationEntry.color;
       expect(background).toBe(expectedBackground);
     });
   });

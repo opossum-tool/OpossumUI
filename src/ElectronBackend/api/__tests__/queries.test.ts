@@ -629,6 +629,7 @@ describe('getProgressBarData', () => {
   it('returns classification statistics with corresponding file paths', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/classified.ts', '/unclassified.ts']),
+      config: { classifications: { 2: 'Copyleft' } },
       externalAttributions: {
         attributions: {
           'ext-copyleft': {
@@ -652,30 +653,25 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getClassificationProgressBarData({
-      classifications: {
-        2: { description: 'Copyleft', color: '#ff0000' },
-      },
-    });
+    const { result } = await queries.getClassificationProgressBarData();
 
-    expect(result[2].resourceCount).toBe(1);
+    expect(result[2]).toBe(1);
   });
 
-  it('returns empty corresponding files for classifications with no matches', async () => {
-    await initializeDbWithTestData();
-
-    const { result } = await queries.getClassificationProgressBarData({
-      classifications: {
-        1: { description: 'Permissive', color: '#00ff00' },
-      },
+  it('returns zero count for configured classifications with no matches', async () => {
+    await initializeDbWithTestData({
+      config: { classifications: { 1: 'Permissive' } },
     });
 
-    expect(result[1]?.resourceCount).toBe(0);
+    const { result } = await queries.getClassificationProgressBarData();
+
+    expect(result[1]).toBe(0);
   });
 
   it('does not include files with manual attributions in classification statistics', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/file.ts']),
+      config: { classifications: { 1: 'Permissive' } },
       externalAttributions: {
         attributions: {
           'ext-1': {
@@ -696,13 +692,9 @@ describe('getProgressBarData', () => {
       },
     });
 
-    const { result } = await queries.getClassificationProgressBarData({
-      classifications: {
-        1: { description: 'Permissive', color: '#00ff00' },
-      },
-    });
+    const { result } = await queries.getClassificationProgressBarData();
 
-    expect(result[1]?.resourceCount).toBe(0);
+    expect(result[1]).toBe(0);
   });
 
   describe('getBaseUrlForSource', () => {

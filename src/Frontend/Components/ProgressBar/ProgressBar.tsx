@@ -77,12 +77,9 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
 
   const classifications = useClassifications();
   const classificationProgressBarData =
-    backend.getClassificationProgressBarData.useQuery(
-      { classifications },
-      {
-        enabled: props.selectedProgressBar === 'classification',
-      },
-    );
+    backend.getClassificationProgressBarData.useQuery(undefined, {
+      enabled: props.selectedProgressBar === 'classification',
+    });
   const getNextClassificationResource =
     backend.getNextFileToReviewForClassification.useQuery(
       {
@@ -121,7 +118,10 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       Title: ClassificationBarTooltipTitle,
       ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
       steps: classificationProgressBarData.data
-        ? calculateClassificationBarSteps(classificationProgressBarData.data)
+        ? calculateClassificationBarSteps(
+            classificationProgressBarData.data,
+            classifications,
+          )
         : undefined,
       onClickHandler: () => goToResource(getNextClassificationResource.data),
     },

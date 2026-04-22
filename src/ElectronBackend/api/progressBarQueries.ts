@@ -85,26 +85,24 @@ export async function getCriticalityProgressBarData(): Promise<{
   return { result };
 }
 
-export async function getClassificationProgressBarData(props: {
-  classifications: ClassificationsConfig;
-}): Promise<{
+export async function getClassificationProgressBarData(): Promise<{
   result: ClassificationStatistics;
 }> {
   const result = await getDb()
     .transaction()
     .execute(async (trx) => {
       const classificationStatistics: ClassificationStatistics = {};
-      for (const [key, classification] of Object.entries(
-        props.classifications,
-      )) {
+
+      const classifications = await trx
+        .selectFrom('classification')
+        .select('classification')
+        .execute();
+
+      for (const { classification } of classifications) {
         const classification_count = await getCount(trx, (eb) =>
-          getClassificationResourceQuery(eb, Number(key)),
+          getClassificationResourceQuery(eb, classification),
         );
-        classificationStatistics[Number(key)] = {
-          description: classification.description,
-          color: classification.color,
-          resourceCount: classification_count,
-        };
+        classificationStatistics[classification] = classification_count;
       }
       return classificationStatistics;
     });
