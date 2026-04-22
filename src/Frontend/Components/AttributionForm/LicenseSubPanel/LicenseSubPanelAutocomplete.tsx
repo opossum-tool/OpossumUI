@@ -9,8 +9,7 @@ import { useMemo } from 'react';
 import { type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch, useAppSelector } from '../../../state/hooks';
-import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../../state/hooks';
 import { backend } from '../../../util/backendClient';
 import { validateSpdxExpression } from '../../../util/spdx/validate-spdx';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
@@ -41,10 +40,8 @@ export function LicenseSubPanelAutocomplete({
     frequentLicenseNames.data?.map((n) => n.shortName),
   );
 
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
   const autoCompleteResult = backend.autoCompleteOptions.useQuery({
     attributeName: 'licenseName',
-    onlyRelatedToResourcePath: selectedResourceId,
   });
 
   function splitAtLastExpression(input: string | undefined): [string, string] {
