@@ -6,6 +6,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { type FilterProperties } from '../../../../ElectronBackend/api/queries';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { type Filter } from '../../../shared-constants';
@@ -15,9 +16,25 @@ import {
   type UseAttributionFilters,
 } from '../../../state/variables/use-filters';
 import { renderComponent } from '../../../test-helpers/render';
+import { useFilterProperties } from '../../../util/use-filter-properties';
 import { FilterButton } from '../FilterButton';
 
+vi.mock('../../../util/use-filter-properties', () => ({
+  useFilterProperties: vi.fn(),
+}));
+
+function mockFilterProperties(filterProps: FilterProperties | null = null) {
+  vi.mocked(useFilterProperties).mockReturnValue({
+    filterProps,
+    loading: false,
+  });
+}
+
 describe('FilterButton', () => {
+  beforeEach(() => {
+    mockFilterProperties();
+  });
+
   it('adds selected filter', async () => {
     let result: AttributionFilters;
     const prev: AttributionFilters = initialFilters;
@@ -31,6 +48,7 @@ describe('FilterButton', () => {
     ];
     await renderComponent(
       <FilterButton
+        mode={'manual'}
         useFilteredData={useFilteredData}
         availableFilters={[filter]}
       />,
@@ -60,6 +78,7 @@ describe('FilterButton', () => {
     ];
     await renderComponent(
       <FilterButton
+        mode={'manual'}
         useFilteredData={useFilteredData}
         availableFilters={[filter]}
       />,
@@ -80,15 +99,16 @@ describe('FilterButton', () => {
       result = fn(prev);
     });
     const packageInfo = faker.opossum.packageInfo();
+    mockFilterProperties({ total: 0, licenses: [packageInfo.licenseName!] });
     const useFilteredData: UseAttributionFilters = () => [
       initialFilters,
       setFilteredData,
     ];
     await renderComponent(
       <FilterButton
+        mode={'manual'}
         useFilteredData={useFilteredData}
         availableFilters={[]}
-        filterProps={{ total: 0, licenses: [packageInfo.licenseName!] }}
       />,
     );
 
@@ -110,15 +130,16 @@ describe('FilterButton', () => {
     });
     const licenseName = faker.commerce.productName();
     const packageInfo = faker.opossum.packageInfo({ licenseName });
+    mockFilterProperties({ total: 0, licenses: [packageInfo.licenseName!] });
     const useFilteredData: UseAttributionFilters = () => [
       initialFilters,
       setFilteredData,
     ];
     await renderComponent(
       <FilterButton
+        mode={'manual'}
         useFilteredData={useFilteredData}
         availableFilters={[]}
-        filterProps={{ total: 0, licenses: [packageInfo.licenseName!] }}
       />,
     );
 
@@ -140,15 +161,16 @@ describe('FilterButton', () => {
       result = fn(prev);
     });
     const packageInfo = faker.opossum.packageInfo();
+    mockFilterProperties({ total: 0, licenses: [packageInfo.licenseName!] });
     const useFilteredData: UseAttributionFilters = () => [
       initialFilters,
       setFilteredData,
     ];
     await renderComponent(
       <FilterButton
+        mode={'manual'}
         useFilteredData={useFilteredData}
         availableFilters={[]}
-        filterProps={{ total: 0, licenses: [packageInfo.licenseName!] }}
       />,
     );
 
@@ -176,7 +198,11 @@ describe('FilterButton', () => {
       setFilteredData,
     ];
     await renderComponent(
-      <FilterButton useFilteredData={useFilteredData} availableFilters={[]} />,
+      <FilterButton
+        mode={'manual'}
+        useFilteredData={useFilteredData}
+        availableFilters={[]}
+      />,
     );
 
     await userEvent.click(
@@ -205,6 +231,7 @@ describe('FilterButton', () => {
     ];
     await renderComponent(
       <FilterButton
+        mode={'manual'}
         useFilteredData={useFilteredData}
         availableFilters={[filter]}
       />,
@@ -228,6 +255,7 @@ describe('FilterButton', () => {
     ];
     await renderComponent(
       <FilterButton
+        mode={'manual'}
         useFilteredData={useFilteredData}
         availableFilters={[]}
         emptyAttributions

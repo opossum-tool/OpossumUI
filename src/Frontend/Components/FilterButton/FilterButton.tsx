@@ -10,11 +10,14 @@ import MuiBadge from '@mui/material/Badge';
 import MuiTooltip from '@mui/material/Tooltip';
 import { useMemo, useState } from 'react';
 
-import { type FilterProperties } from '../../../ElectronBackend/api/queries';
 import { text } from '../../../shared/text';
 import { type Filter } from '../../shared-constants';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import { type UseAttributionFilters } from '../../state/variables/use-filters';
+import {
+  type FilterPropsMode,
+  useFilterProperties,
+} from '../../util/use-filter-properties';
 import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
@@ -64,9 +67,9 @@ interface Props extends Pick<
 > {
   useFilteredData: UseAttributionFilters;
   availableFilters: Array<Filter>;
-  filterProps?: FilterProperties;
   disabled?: boolean;
   emptyAttributions?: boolean;
+  mode: FilterPropsMode;
 }
 
 export const FilterButton: React.FC<Props> = ({
@@ -74,15 +77,17 @@ export const FilterButton: React.FC<Props> = ({
   anchorPosition,
   availableFilters,
   useFilteredData,
-  filterProps,
   disabled,
   emptyAttributions,
+  mode,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const [isClearHovered, setIsClearHovered] = useState(false);
   const [{ filters, selectedLicense }, setFilteredAttributions] =
     useFilteredData();
   const isSomeFilterActive = !!filters.length || !!selectedLicense;
+
+  const { filterProps } = useFilterProperties({ mode, enabled: !!anchorEl });
 
   const filterOptions = useMemo(
     () =>

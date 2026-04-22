@@ -47,20 +47,10 @@ export function AttributionsPanel() {
 
     return undefined;
   }, [attributionIdsForReplacement.length, hasIncompleteAttributions.data]);
-  const [{ filters, search, selectedLicense }] = useManualAttributionFilters();
-
-  const filterProps = backend.filterProperties.useQuery({
-    external: false,
-    filters,
-    search,
-    license: selectedLicense,
-    resourcePathForRelationships: selectedResourceId,
-  });
 
   return (
     <PackagesPanel
       external={false}
-      filterProperties={filterProps.data?.all}
       alert={alert}
       availableFilters={ATTRIBUTION_FILTERS}
       disableSelectAll={!!attributionIdsForReplacement.length}
