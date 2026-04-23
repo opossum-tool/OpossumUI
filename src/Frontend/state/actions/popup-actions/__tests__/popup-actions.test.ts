@@ -188,11 +188,13 @@ describe('The actions checking for unsaved changes', () => {
         }),
       );
 
-      await backend.updateOrMatchAttribution.mutate({
-        packageInfo: {
-          packageName: 'Test',
-          criticality: Criticality.None,
-          id: 'uuid_2',
+      await backend.updateOrMatchAttributions.mutate({
+        attributions: {
+          uuid_2: {
+            packageName: 'Test',
+            criticality: Criticality.None,
+            id: 'uuid_2',
+          },
         },
       });
 

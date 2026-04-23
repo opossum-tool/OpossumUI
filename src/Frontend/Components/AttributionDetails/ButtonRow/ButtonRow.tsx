@@ -53,7 +53,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
   const linkAttribution = backend.createOrMatchAttributions.useMutation();
-  const updateOrMatch = backend.updateOrMatchAttribution.useMutation();
+  const updateOrMatch = backend.updateOrMatchAttributions.useMutation();
   const createOrMatch = backend.createOrMatchAttributions.useMutation();
   const mutationPending = useIsMutating() > 0;
 
@@ -111,7 +111,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
         setIsConfirmSavePopupOpen(true);
       } else if (packageInfo.id) {
         const { matchedAttribution } = await updateOrMatch.mutateAsync({
-          packageInfo,
+          attributions: { [packageInfo.id]: packageInfo },
         });
         if (matchedAttribution) {
           dispatch(setSelectedAttributionId(matchedAttribution));

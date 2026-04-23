@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { omit } from 'lodash';
 
-import { type Attributions, type PackageInfo } from '../../shared/shared-types';
+import { type Attributions } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import {
   addManualOrExternalCaaToResources,
@@ -357,42 +357,44 @@ export const mutations = {
     };
   },
 
-  async updateOrMatchAttribution(params: { packageInfo: PackageInfo }) {
-    // Updating an attribution always removes preselected
-    const newPackageInfo = omit(params.packageInfo, 'preSelected');
-
-    const matchedAttributionUuid = await getDb()
+  async updateOrMatchAttributions(params: { attributions: Attributions }) {
+    const oldUuidsToNewUuids: Record<string, string> = await getDb()
       .transaction()
-      .execute(async (trx) => {
-        const matchingAttributionUuid = await findMatchingAttributionUuid(
-          trx,
-          newPackageInfo,
-        );
-
-        if (matchingAttributionUuid) {
-          await replaceAttributions(trx, {
-            attributionUuidsToReplace: [newPackageInfo.id],
-            attributionUuidToReplaceWith: matchingAttributionUuid,
-          });
-          return matchingAttributionUuid;
-        }
-        await updateAttribution(trx, newPackageInfo.id, newPackageInfo);
-        return undefined;
-      });
+      .execute(async (trx) =>
+        Object.fromEntries(
+          await Promise.all(
+            Object.entries(params.attributions).map(
+              async ([attributionUuid, attributionData]) => {
+                // Updating an attribution always removes preselected
+                const newPackageInfo = omit(attributionData, 'preSelected');
+                const matchingAttributionUuid =
+                  await findMatchingAttributionUuid(trx, newPackageInfo);
+                if (matchingAttributionUuid) {
+                  await replaceAttributions(trx, {
+                    attributionUuidsToReplace: [attributionUuid],
+                    attributionUuidToReplaceWith: matchingAttributionUuid,
+                  });
+                  return [attributionUuid, matchingAttributionUuid];
+                }
+                await updateAttribution(trx, attributionUuid, newPackageInfo);
+                return [attributionUuid, attributionUuid];
+              },
+            ),
+          ),
+        ),
+      );
     return {
       invalidates: [
-        {
-          queryName: 'getAttributionData',
-          params: { attributionUuid: newPackageInfo.id },
-        },
+        ...Object.keys(params.attributions).map((attributionUuid) => ({
+          queryName: 'getAttributionData' as const,
+          params: { attributionUuid },
+        })),
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
         { queryName: 'getResourceCountOnAttribution' },
       ],
-      result: matchedAttributionUuid
-        ? { matchedAttribution: matchedAttributionUuid }
-        : {},
+      result: oldUuidsToNewUuids,
     };
   },
 } satisfies Record<string, MutationFunction>;

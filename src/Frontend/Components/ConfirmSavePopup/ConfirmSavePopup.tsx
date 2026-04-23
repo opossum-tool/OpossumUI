@@ -39,7 +39,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
-  const updateOrMatch = backend.updateOrMatchAttribution.useMutation();
+  const updateOrMatch = backend.updateOrMatchAttributions.useMutation();
   const modifyOrMatchOnlyOnOneResource =
     backend.modifyOrMatchOnlyOnOneResource.useMutation();
   const isSaving =
@@ -90,25 +90,15 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     : undefined;
 
   const handleSaveGlobally = async () => {
-    if (attributionsToSave) {
-      await Promise.all(
-        Object.entries(attributionsToSave).map(
-          async ([attributionId, attributionData]) => {
-            const result = await updateOrMatch.mutateAsync({
-              packageInfo:
-                attributionId === selectedAttributionId
-                  ? temporaryDisplayPackageInfo
-                  : attributionData,
-            });
-            if (
-              attributionId === selectedAttributionId &&
-              result.matchedAttribution
-            ) {
-              dispatch(setSelectedAttributionId(result.matchedAttribution));
-            }
-          },
-        ),
-      );
+    if (modifiedAttributionsToSave) {
+      const oldUuidsToNewUuids = await updateOrMatch.mutateAsync({
+        attributions: modifiedAttributionsToSave,
+      });
+      if (oldUuidsToNewUuids[selectedAttributionId]) {
+        dispatch(
+          setSelectedAttributionId(oldUuidsToNewUuids[selectedAttributionId]),
+        );
+      }
     }
     onClose();
   };
