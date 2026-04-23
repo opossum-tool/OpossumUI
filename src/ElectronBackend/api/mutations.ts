@@ -198,7 +198,6 @@ export const mutations = {
         });
 
         await removeRedundantAttributions(trx, {
-          attributionUuids: [params.attributionUuid],
           resourceIds: [resource.id],
         });
       });
