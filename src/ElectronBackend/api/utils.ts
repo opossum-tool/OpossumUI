@@ -10,6 +10,7 @@ import {
   type Kysely,
   type RawBuilder,
   sql,
+  type SqlBool,
   type Transaction,
 } from 'kysely';
 import { escapeRegExp, pickBy, snakeCase } from 'lodash';
@@ -47,179 +48,103 @@ export type ResourceRelationship =
  */
 export async function removeRedundantAttributions(
   trx: Transaction<DB>,
-  {
-    attributionUuids,
-    resourceIds,
-  }: { attributionUuids?: Array<string>; resourceIds?: Array<number> },
+  { resourceIds }: { resourceIds?: Array<number> },
 ) {
-  await withBatching(resourceIds, async (batchedResourceIds) => {
-    await trx.schema
-      .createTable('duplicate_resources')
-      .temporary()
-      .as(
-        trx
-          // The resources given by props, with their max_descendant_id and closest manual ancestor
-          .with('changed_resources', (db) =>
-            db
-              .selectFrom('resource')
-              .leftJoin(
-                'resource_to_attribution as rta',
-                'resource.id',
-                'rta.resource_id',
-              )
-              .leftJoin(
-                'closest_attributed_ancestors',
-                'resource.id',
-                'closest_attributed_ancestors.resource_id',
-              )
-              .select([
-                'resource.id as resource_id',
-                'resource.max_descendant_id',
-                'closest_attributed_ancestors.manual',
-              ])
-              .distinct()
-              .$if(attributionUuids !== undefined, (eb) =>
-                eb.where('rta.attribution_uuid', 'in', attributionUuids!),
-              )
-              .$if(batchedResourceIds !== undefined, (eb) =>
-                eb.where('resource.id', 'in', batchedResourceIds!),
-              ),
-          )
-          // Get the closest ancestor with manual attribution ABOVE each resource
-          .with('closest_ancestor_above', (db) =>
-            db
-              .selectFrom('resource')
-              .innerJoin(
-                'closest_attributed_ancestors',
-                'resource.parent_id',
-                'closest_attributed_ancestors.resource_id',
-              )
-              .select([
-                'resource.id as resource_id',
-                'closest_attributed_ancestors.manual as ancestor_id',
-              ])
-              .where('is_attribution_breakpoint', '=', 0),
-          )
-          // We need to check a resource C if
-          .with('resources_to_check', (db) =>
-            // - C's attributions were changed
-            db
-              .selectFrom('changed_resources')
-              .select('resource_id')
-              .union(
-                // - C's closest ancestor was changed
-                db
-                  .selectFrom('closest_ancestor_above')
-                  .select('resource_id')
-                  .where('ancestor_id', 'in', (eb) =>
-                    eb.selectFrom('changed_resources').select('resource_id'),
-                  ),
-              )
-              .union(
-                // - A changed resource R that now has no attributions is between C and C's closest ancestor (excluding itself)
-                db
-                  .selectFrom('closest_ancestor_above')
-                  .select('resource_id')
-                  .where((eb) =>
-                    eb.exists(
-                      // R has no own attributions
-                      eb
-                        .selectFrom('changed_resources')
-                        .selectAll()
-                        .whereRef(
-                          'changed_resources.resource_id',
-                          '!=',
-                          'changed_resources.manual',
-                        )
-                        // R has the same ancestor as C
-                        .whereRef(
-                          'changed_resources.manual',
-                          '=',
-                          'closest_ancestor_above.ancestor_id',
-                        )
-                        // C is a descendant of R
-                        .where((eb) =>
-                          eb.between(
-                            'closest_ancestor_above.resource_id',
-                            eb.ref('changed_resources.resource_id'),
-                            eb.ref('changed_resources.max_descendant_id'),
-                          ),
-                        ),
-                    ),
-                  ),
-              ),
-          )
-          // Get a list of all manual attributions per resource
-          .with('attributions_for_resource', (db) =>
-            db
-              .selectFrom((eb) =>
-                eb
-                  .selectFrom('resource_to_attribution')
-                  .select(['resource_id', 'attribution_uuid'])
-                  .where('attribution_is_external', '=', 0)
-                  .orderBy('attribution_uuid')
-                  .as('ordered_rta'),
-              )
-              .select([
-                'resource_id',
-                sql<string>`group_concat(attribution_uuid)`.as('attributions'),
-              ])
-              .groupBy('resource_id'),
-          )
-          // Finally check all resources_to_check
-          // This would also work if we did this on all resources, it would just be slower
-          .selectFrom('closest_ancestor_above')
-          .select('resource_id')
-          .where('resource_id', 'in', (eb) =>
-            eb.selectFrom('resources_to_check').selectAll(),
-          )
-          .where(
-            (eb) =>
-              eb
-                .selectFrom('attributions_for_resource')
-                .select('attributions')
-                .whereRef(
-                  'attributions_for_resource.resource_id',
-                  '=',
-                  'closest_ancestor_above.resource_id',
-                ),
-            '=',
-            (eb) =>
-              eb
-                .selectFrom('attributions_for_resource')
-                .select('attributions')
-                .whereRef(
-                  'attributions_for_resource.resource_id',
-                  '=',
-                  'closest_ancestor_above.ancestor_id',
-                ),
-          ),
-      )
-      .execute();
+  let additional_selection: Expression<SqlBool> = sql<SqlBool>`TRUE`;
+  if (resourceIds?.length === 1) {
+    // Simplest case: Only one resource was changed,
+    // we only look at resources that have the same attributions as the changed one (or its parent, if it's empty)
+    // Otherwise, we just deduplicate everything
 
-    await trx
-      .withTables<{ duplicate_resources: { resource_id: number } }>()
-      .deleteFrom('resource_to_attribution')
-      .where('attribution_is_external', '=', 0)
-      .where('resource_id', 'in', (eb) =>
+    const attributions = await trx
+      .selectFrom('resource_to_attribution')
+      .select('attribution_uuid')
+      .where('resource_id', '=', (eb) =>
         eb
-          .selectFrom('duplicate_resources')
-          .select('duplicate_resources.resource_id'),
+          .selectFrom('closest_attributed_ancestors')
+          .select('manual')
+          .where('resource_id', '=', resourceIds[0]),
       )
       .execute();
 
-    // In this case, we need to call this function after removing the attribution-resource-connection, because
-    // we don't know which attributionUuid will be affected. That means we can't pass the uuids to this function,
-    // so they can't be ignored when checking for remaining attributions on the resources.
-    await removeManualOrExternalCaaFromResources(trx, 'manual', {
-      resourceIds: trx
-        .withTables<{ duplicate_resources: { resource_id: number } }>()
-        .selectFrom('duplicate_resources')
-        .select('resource_id'),
-    });
+    if (attributions.length === 0) {
+      // No attributions to deduplicate
+      return;
+    }
 
-    await trx.schema.dropTable('duplicate_resources').execute();
+    const eb = expressionBuilder<DB, 'resource'>();
+
+    additional_selection = eb.and(
+      attributions.map((a) =>
+        eb(
+          'resource.id',
+          'in',
+          eb
+            .selectFrom('resource_to_attribution')
+            .select('resource_id')
+            .where('attribution_uuid', '=', a.attribution_uuid),
+        ),
+      ),
+    );
+  }
+
+  await trx.schema
+    .createTable('duplicate_resources')
+    .temporary()
+    .as(
+      trx
+        .selectFrom('resource')
+        .select('resource.id as resource_id')
+        .innerJoin(
+          'closest_attributed_ancestors',
+          'resource.parent_id',
+          'closest_attributed_ancestors.resource_id',
+        )
+        .where('is_attribution_breakpoint', '=', 0)
+        .where(additional_selection)
+        .where(
+          sql<boolean>`
+            (
+              select attribution_uuid
+              from resource_to_attribution rta
+              where 
+                rta.resource_id = resource.id
+                and attribution_is_external = 0
+            )
+            = 
+            (
+              select attribution_uuid
+              from resource_to_attribution rta
+              where 
+                rta.resource_id = closest_attributed_ancestors.manual
+                and attribution_is_external = 0
+            )`,
+        ),
+    )
+    .execute();
+
+  await trx
+    .withTables<{ duplicate_resources: { resource_id: number } }>()
+    .deleteFrom('resource_to_attribution')
+    .where('attribution_is_external', '=', 0)
+    .where('resource_id', 'in', (eb) =>
+      eb
+        .selectFrom('duplicate_resources')
+        .select('duplicate_resources.resource_id'),
+    )
+    .execute();
+
+  // In this case, we need to call this function after removing the attribution-resource-connection, because
+  // we don't know which attributionUuid will be affected. That means we can't pass the uuids to this function,
+  // so they can't be ignored when checking for remaining attributions on the resources.
+  await removeManualOrExternalCaaFromResources(trx, 'manual', {
+    resourceIds: trx
+      .withTables<{ duplicate_resources: { resource_id: number } }>()
+      .selectFrom('duplicate_resources')
+      .select('resource_id'),
   });
+
+  await trx.schema.dropTable('duplicate_resources').execute();
 }
 
 export const GET_LEGACY_RESOURCE_PATH =
