@@ -519,7 +519,7 @@ export function toSnakeCase<S extends string>(s: S): CamelToSnakeCase<S> {
   return snakeCase(s) as CamelToSnakeCase<S>;
 }
 
-export async function computeWasPreferred(
+async function computeWasPreferred(
   trx: Transaction<DB>,
   packageInfo: PackageInfo,
 ): Promise<boolean | undefined> {
@@ -611,12 +611,18 @@ export async function matchOrCreateAttribution(
     return matchedAttributionUuid;
   }
 
+  const wasPreferred = await computeWasPreferred(trx, packageInfo);
+
   const newUuid = uuid4();
   await trx
     .insertInto('attribution')
     .values({
       uuid: newUuid,
-      data: JSON.stringify({ ...removeEmptyStrings(packageInfo), id: newUuid }),
+      data: JSON.stringify({
+        ...removeEmptyStrings(packageInfo),
+        id: newUuid,
+        wasPreferred,
+      }),
       is_external: 0,
     })
     .execute();

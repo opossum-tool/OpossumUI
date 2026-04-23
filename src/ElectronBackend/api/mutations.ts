@@ -12,13 +12,11 @@ import {
 } from './progressBarUtils';
 import { type QueryName, type QueryParams } from './queries';
 import {
-  computeWasPreferred,
   findMatchingAttributionUuid,
   getAttributionOrThrow,
   getResourceOrThrow,
   linkAttribution,
   matchOrCreateAttribution,
-  removeEmptyStrings,
   removeRedundantAttributions,
   replaceAttribution,
   updateAttribution,
@@ -162,124 +160,6 @@ export const mutations = {
     };
   },
 
-  async linkAttribution(params: {
-    resourcePath: string;
-    attributionUuid: string;
-  }) {
-    await getDb()
-      .transaction()
-      .execute(async (trx) => {
-        const resource = await getResourceOrThrow(trx, params.resourcePath);
-
-        const attribution = await getAttributionOrThrow(
-          trx,
-          params.attributionUuid,
-        );
-
-        if (attribution.is_external) {
-          throw new Error(
-            'Only manual attributions can be linked to resources',
-          );
-        }
-
-        await trx
-          .insertInto('resource_to_attribution')
-          .values({
-            resource_id: resource.id,
-            attribution_uuid: params.attributionUuid,
-            attribution_is_external: attribution.is_external,
-          })
-          .onConflict((oc) => oc.doNothing())
-          .execute();
-
-        await addManualOrExternalCaaToResources(trx, 'manual', {
-          attributionUuids: [params.attributionUuid],
-          resourceIds: [resource.id],
-        });
-
-        await removeRedundantAttributions(trx, {
-          resourceIds: [resource.id],
-        });
-      });
-
-    return {
-      invalidates: [
-        {
-          queryName: 'getAttributionData',
-          params: { attributionUuid: params.attributionUuid },
-        },
-        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
-        ...RESOURCE_TREE_INVALIDATIONS,
-        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        { queryName: 'getResourceCountOnAttribution' },
-      ],
-    };
-  },
-
-  async createAttribution(params: {
-    attributionUuid: string;
-    packageInfo: PackageInfo;
-    resourcePath: string;
-  }) {
-    await getDb()
-      .transaction()
-      .execute(async (trx) => {
-        const resource = await getResourceOrThrow(trx, params.resourcePath);
-
-        const existingAttribution = await trx
-          .selectFrom('attribution')
-          .select(['uuid', 'is_external'])
-          .where('uuid', '=', params.attributionUuid)
-          .executeTakeFirst();
-
-        if (existingAttribution) {
-          throw new Error(
-            `Attribution ${params.attributionUuid} already exists.`,
-          );
-        }
-
-        const wasPreferred = await computeWasPreferred(trx, params.packageInfo);
-
-        await trx
-          .insertInto('attribution')
-          .values({
-            uuid: params.attributionUuid,
-            data: JSON.stringify({
-              ...removeEmptyStrings(params.packageInfo),
-              wasPreferred,
-            }),
-            is_external: 0,
-          })
-          .execute();
-
-        await trx
-          .insertInto('resource_to_attribution')
-          .values({
-            resource_id: resource.id,
-            attribution_uuid: params.attributionUuid,
-            attribution_is_external: 0,
-          })
-          .execute();
-
-        await addManualOrExternalCaaToResources(trx, 'manual', {
-          attributionUuids: [params.attributionUuid],
-          resourceIds: [resource.id],
-        });
-      });
-
-    return {
-      invalidates: [
-        {
-          queryName: 'getAttributionData',
-          params: { attributionUuid: params.attributionUuid },
-        },
-        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
-        ...RESOURCE_TREE_INVALIDATIONS,
-        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-      ],
-    };
-  },
-
   async updateAttributions(params: { attributions: Attributions }) {
     await getDb()
       .transaction()
@@ -358,6 +238,7 @@ export const mutations = {
       ],
     };
   },
+
   async updateRootBaseURL(params: { baseURL: string }) {
     await getDb()
       .updateTable('resource')
