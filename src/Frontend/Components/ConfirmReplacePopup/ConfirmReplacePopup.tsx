@@ -34,9 +34,9 @@ export const ConfirmReplacePopup = ({
     useAttributionIdsForReplacement();
 
   const updateAttributions = backend.updateAttributions.useMutation();
-  const replaceAttribution = backend.replaceAttribution.useMutation();
+  const replaceAttributions = backend.replaceAttributions.useMutation();
   const isReplacing =
-    updateAttributions.isPending || replaceAttribution.isPending;
+    updateAttributions.isPending || replaceAttributions.isPending;
 
   const { data: attributionsForReplacement } =
     backend.listAttributions.useQuery(
@@ -58,14 +58,10 @@ export const ConfirmReplacePopup = ({
         },
       });
     }
-    await Promise.all(
-      attributionIdsForReplacement.map(async (attributionId) => {
-        await replaceAttribution.mutateAsync({
-          attributionIdToReplace: attributionId,
-          attributionIdToReplaceWith: selectedAttribution.id,
-        });
-      }),
-    );
+    await replaceAttributions.mutateAsync({
+      attributionUuidsToReplace: attributionIdsForReplacement,
+      attributionUuidToReplaceWith: selectedAttribution.id,
+    });
     setAttributionIdsForReplacement([]);
     dispatch(changeSelectedAttributionOrOpenUnsavedPopup(selectedAttribution));
     onClose();

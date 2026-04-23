@@ -18,7 +18,7 @@ import {
   linkAttribution,
   matchOrCreateAttribution,
   removeRedundantAttributions,
-  replaceAttribution,
+  replaceAttributions,
   updateAttribution,
 } from './utils';
 
@@ -132,26 +132,22 @@ export const mutations = {
     };
   },
 
-  async replaceAttribution(params: {
-    attributionIdToReplace: string;
-    attributionIdToReplaceWith: string;
+  async replaceAttributions(params: {
+    attributionUuidsToReplace: Array<string>;
+    attributionUuidToReplaceWith: string;
   }) {
     await getDb()
       .transaction()
       .execute(async (trx) => {
-        await replaceAttribution(trx, params);
+        await replaceAttributions(trx, params);
       });
 
     return {
       invalidates: [
-        {
-          queryName: 'getAttributionData',
-          params: { attributionUuid: params.attributionIdToReplace },
-        },
-        {
-          queryName: 'getAttributionData',
-          params: { attributionUuid: params.attributionIdToReplaceWith },
-        },
+        ...params.attributionUuidsToReplace.map((attributionUuid) => ({
+          queryName: 'getAttributionData' as const,
+          params: { attributionUuid },
+        })),
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
@@ -351,9 +347,9 @@ export const mutations = {
         );
 
         if (matchingAttributionUuid) {
-          await replaceAttribution(trx, {
-            attributionIdToReplace: newPackageInfo.id,
-            attributionIdToReplaceWith: matchingAttributionUuid,
+          await replaceAttributions(trx, {
+            attributionUuidsToReplace: [newPackageInfo.id],
+            attributionUuidToReplaceWith: matchingAttributionUuid,
           });
           return matchingAttributionUuid;
         }

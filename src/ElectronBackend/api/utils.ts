@@ -654,56 +654,63 @@ export async function updateAttribution(
     .execute();
 }
 
-export async function replaceAttribution(
+export async function replaceAttributions(
   trx: Transaction<DB>,
   params: {
-    attributionIdToReplace: string;
-    attributionIdToReplaceWith: string;
+    attributionUuidsToReplace: Array<string>;
+    attributionUuidToReplaceWith: string;
   },
 ) {
-  const toReplace = await getAttributionOrThrow(
-    trx,
-    params.attributionIdToReplace,
-  );
+  const externalAttributions = (
+    await trx
+      .selectFrom('attribution')
+      .select('uuid')
+      .where('uuid', 'in', params.attributionUuidsToReplace)
+      .where('is_external', '=', 1)
+      .execute()
+  ).map((a) => a.uuid);
 
-  if (toReplace.is_external) {
+  if (externalAttributions.length > 0) {
     throw new Error(
-      `External attribution ${params.attributionIdToReplace} can't be replaced`,
+      `External attributions ${externalAttributions.join(', ')} can't be replaced`,
     );
   }
 
   const toReplaceWith = await getAttributionOrThrow(
     trx,
-    params.attributionIdToReplaceWith,
+    params.attributionUuidToReplaceWith,
   );
 
   if (toReplaceWith.is_external) {
     throw new Error(
-      `External attribution ${params.attributionIdToReplace} can't replace manual attribution`,
+      `External attribution ${params.attributionUuidToReplaceWith} can't replace manual attribution`,
     );
   }
 
-  const connectedResources = await trx
-    .selectFrom('resource_to_attribution')
-    .select('resource_id')
-    .where('attribution_uuid', '=', params.attributionIdToReplace)
-    .execute();
+  const connectedResources = (
+    await trx
+      .selectFrom('resource_to_attribution')
+      .select('resource_id')
+      .distinct()
+      .where('attribution_uuid', 'in', params.attributionUuidsToReplace)
+      .execute()
+  ).map((r) => r.resource_id);
 
   // Reassign resource links to the replacement attribution, skipping conflicts
-  // (conflicting links will be cascade deleted when the old attribution is removed)
+  // (conflicting links will be cascade deleted when the old attribution is removed);
   await sql`
   UPDATE OR IGNORE resource_to_attribution
-  SET attribution_uuid = ${params.attributionIdToReplaceWith}
-  WHERE attribution_uuid = ${params.attributionIdToReplace}
-`.execute(trx);
+  SET attribution_uuid = ${params.attributionUuidToReplaceWith}
+  WHERE attribution_uuid in (${sql.join(params.attributionUuidsToReplace)})
+  `.execute(trx);
 
   await trx
     .deleteFrom('attribution')
-    .where('uuid', '=', params.attributionIdToReplace)
+    .where('uuid', 'in', params.attributionUuidsToReplace)
     .execute();
 
   await removeRedundantAttributions(trx, {
-    resourceIds: connectedResources.map((r) => r.resource_id),
+    resourceIds: connectedResources,
   });
 }
 
