@@ -5,6 +5,7 @@
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 import { text } from '../../../shared/text';
 import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
@@ -57,6 +58,17 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     getTemporaryDisplayPackageInfo,
   );
 
+  const modifiedAttributionsToSave = useMemo(
+    () =>
+      attributionsToSave?.[selectedAttributionId]
+        ? {
+            ...attributionsToSave,
+            [selectedAttributionId]: temporaryDisplayPackageInfo,
+          }
+        : attributionsToSave,
+    [attributionsToSave, selectedAttributionId, temporaryDisplayPackageInfo],
+  );
+
   const linkedResourcesTreeState = useLinkedResourcesTreeState({
     onAttributionUuids: attributionIdsToSave,
     enabled: open,
@@ -102,24 +114,19 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   };
 
   const handleSaveOnResource = async () => {
-    if (attributionsToSave) {
-      await Promise.all(
-        Object.entries(attributionsToSave).map(
-          async ([attributionId, attributionData]) => {
-            const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
-              resourcePath: selectedResourceId,
-              packageInfo:
-                attributionId === selectedAttributionId
-                  ? temporaryDisplayPackageInfo
-                  : attributionData,
-            });
-
-            if (attributionId === selectedAttributionId) {
-              dispatch(setSelectedAttributionId(result.attribution));
-            }
-          },
-        ),
-      );
+    if (modifiedAttributionsToSave) {
+      const oldUuidsToNewUuids =
+        await modifyOrMatchOnlyOnOneResource.mutateAsync({
+          resourcePath: selectedResourceId,
+          attributions: modifiedAttributionsToSave,
+        });
+      if (oldUuidsToNewUuids.attribution[selectedAttributionId]) {
+        dispatch(
+          setSelectedAttributionId(
+            oldUuidsToNewUuids.attribution[selectedAttributionId],
+          ),
+        );
+      }
     }
     onClose();
   };

@@ -12,14 +12,15 @@ import {
 } from './progressBarUtils';
 import { type QueryName, type QueryParams } from './queries';
 import {
+  ensureAttributionsAreNotExternal,
   findMatchingAttributionUuid,
   getAttributionOrThrow,
   getResourceOrThrow,
-  linkAttribution,
+  linkAttributions,
   matchOrCreateAttribution,
   removeRedundantAttributions,
   replaceAttributions,
-  unlinkAttribution,
+  unlinkAttributions,
   updateAttribution,
 } from './utils';
 
@@ -250,41 +251,72 @@ export const mutations = {
 
   async modifyOrMatchOnlyOnOneResource(params: {
     resourcePath: string;
-    packageInfo: PackageInfo;
+    attributions: Attributions;
   }) {
     const resultAttributionUuid = await getDb()
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
 
-        await getAttributionOrThrow(trx, params.packageInfo.id, {
-          preconditions: { isExternal: false, minimumResources: 2 },
-        });
+        await ensureAttributionsAreNotExternal(
+          trx,
+          Object.keys(params.attributions),
+        );
 
-        await unlinkAttribution(trx, resource.id, params.packageInfo.id);
+        const attributionsLinkedOnSingleResource = (
+          await trx
+            .selectFrom('resource_to_attribution')
+            .select('attribution_uuid')
+            .where('attribution_uuid', 'in', Object.keys(params.attributions))
+            .groupBy('attribution_uuid')
+            .having((eb) => eb.fn.countAll(), '<=', 1)
+            .execute()
+        ).map((attribution) => attribution.attribution_uuid);
 
-        const attributionUuidToLink = await matchOrCreateAttribution(trx, {
-          ...params.packageInfo,
-          preSelected: undefined,
-        });
+        if (attributionsLinkedOnSingleResource.length > 0) {
+          throw new Error(
+            `Cannot modify attributions with uuids: ${attributionsLinkedOnSingleResource.join(', ')}, if they only link to a single resource`,
+          );
+        }
 
-        await linkAttribution(trx, resource.id, attributionUuidToLink, {
-          ignoreExisting: true,
-        });
+        await unlinkAttributions(
+          trx,
+          resource.id,
+          Object.keys(params.attributions),
+        );
+
+        const oldUuidToNewUuid: Record<string, string> = {};
+        for (const [oldUuid, packageInfo] of Object.entries(
+          params.attributions,
+        )) {
+          oldUuidToNewUuid[oldUuid] = await matchOrCreateAttribution(trx, {
+            ...packageInfo,
+            preSelected: undefined,
+          });
+        }
+
+        await linkAttributions(
+          trx,
+          resource.id,
+          Object.values(oldUuidToNewUuid),
+          {
+            ignoreExisting: true,
+          },
+        );
 
         await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
 
-        return attributionUuidToLink;
+        return oldUuidToNewUuid;
       });
     return {
       invalidates: [
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
-        {
-          queryName: 'getAttributionData',
-          params: { attributionUuid: params.packageInfo.id },
-        },
+        ...Object.keys(params.attributions).map((attributionUuid) => ({
+          queryName: 'getAttributionData' as const,
+          params: { attributionUuid },
+        })),
         { queryName: 'getResourceCountOnAttribution' },
       ],
       result: { attribution: resultAttributionUuid },
@@ -306,7 +338,7 @@ export const mutations = {
           { ignorePreSelected: true },
         );
 
-        await linkAttribution(trx, resource.id, attributionUuidToLink, {
+        await linkAttributions(trx, resource.id, [attributionUuidToLink], {
           ignoreExisting: true,
         });
 

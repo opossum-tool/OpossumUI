@@ -549,44 +549,48 @@ export function removeParentFromPath(parentPath: string, path: string) {
   return path.replace(new RegExp(`^${escapeRegExp(parentPath)}/?`), '');
 }
 
-export async function unlinkAttribution(
+export async function unlinkAttributions(
   trx: Transaction<DB>,
   resourceId: number,
-  attributionUuid: string,
+  attributionUuids: Array<string>,
 ) {
   await removeManualOrExternalCaaFromResources(trx, 'manual', {
     resourceIds: [resourceId],
-    attributionUuids: [attributionUuid],
+    attributionUuids,
   });
 
-  await trx
-    .deleteFrom('resource_to_attribution')
-    .where('resource_id', '=', resourceId)
-    .where('attribution_uuid', '=', attributionUuid)
-    .execute();
+  for (const attributionUuid of attributionUuids) {
+    await trx
+      .deleteFrom('resource_to_attribution')
+      .where('resource_id', '=', resourceId)
+      .where('attribution_uuid', '=', attributionUuid)
+      .execute();
+  }
 }
 
-export async function linkAttribution(
+export async function linkAttributions(
   trx: Transaction<DB>,
   resourceId: number,
-  attributionUuid: string,
+  attributionUuids: Array<string>,
   options?: { ignoreExisting?: boolean },
 ) {
-  await trx
-    .insertInto('resource_to_attribution')
-    .values({
-      resource_id: resourceId,
-      attribution_uuid: attributionUuid,
-      attribution_is_external: 0,
-    })
-    .$if(options?.ignoreExisting ?? false, (eb) =>
-      eb.onConflict((oc) => oc.doNothing()),
-    )
-    .execute();
+  for (const attributionUuid of attributionUuids) {
+    await trx
+      .insertInto('resource_to_attribution')
+      .values({
+        resource_id: resourceId,
+        attribution_uuid: attributionUuid,
+        attribution_is_external: 0,
+      })
+      .$if(options?.ignoreExisting ?? false, (eb) =>
+        eb.onConflict((oc) => oc.doNothing()),
+      )
+      .execute();
+  }
 
   await addManualOrExternalCaaToResources(trx, 'manual', {
     resourceIds: [resourceId],
-    attributionUuids: [attributionUuid],
+    attributionUuids,
   });
 
   await removeRedundantAttributions(trx, { resourceIds: [resourceId] });
@@ -681,6 +685,26 @@ export async function updateAttribution(
     .execute();
 }
 
+export async function ensureAttributionsAreNotExternal(
+  trx: Transaction<DB>,
+  attributionUuids: Array<string>,
+) {
+  const externalAttributions = (
+    await trx
+      .selectFrom('attribution')
+      .select('uuid')
+      .where('uuid', 'in', attributionUuids)
+      .where('is_external', '=', 1)
+      .execute()
+  ).map((a) => a.uuid);
+
+  if (externalAttributions.length > 0) {
+    throw new Error(
+      `attributions with uuids ${attributionUuids.join(', ')} are external`,
+    );
+  }
+}
+
 export async function replaceAttributions(
   trx: Transaction<DB>,
   params: {
@@ -688,20 +712,7 @@ export async function replaceAttributions(
     attributionUuidToReplaceWith: string;
   },
 ) {
-  const externalAttributions = (
-    await trx
-      .selectFrom('attribution')
-      .select('uuid')
-      .where('uuid', 'in', params.attributionUuidsToReplace)
-      .where('is_external', '=', 1)
-      .execute()
-  ).map((a) => a.uuid);
-
-  if (externalAttributions.length > 0) {
-    throw new Error(
-      `External attributions ${externalAttributions.join(', ')} can't be replaced`,
-    );
-  }
+  await ensureAttributionsAreNotExternal(trx, params.attributionUuidsToReplace);
 
   const toReplaceWith = await getAttributionOrThrow(
     trx,
