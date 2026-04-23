@@ -52,7 +52,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
 
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
-  const LinkAttribution = backend.createOrMatchAttribution.useMutation();
+  const linkAttribution = backend.createOrMatchAttribution.useMutation();
   const updateOrMatch = backend.updateOrMatchAttribution.useMutation();
   const createOrMatch = backend.createOrMatchAttribution.useMutation();
   const mutationPending = useIsMutating() > 0;
@@ -242,14 +242,14 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             color={'secondary'}
             disabled={isPackageInfoModified || mutationPending}
             onClick={async () => {
-              const result = await LinkAttribution.mutateAsync({
+              const result = await linkAttribution.mutateAsync({
                 resourcePath: selectedResourceId,
                 packageInfo,
               });
               dispatch(setSelectedAttributionId(result.attribution));
             }}
           >
-            {LinkAttribution.isPending ? (
+            {linkAttribution.isPending ? (
               <MuiCircularProgress size={16} color={'inherit'} />
             ) : (
               <CallMergeIcon />
