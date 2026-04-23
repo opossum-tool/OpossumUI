@@ -150,7 +150,6 @@ export const backend = new Proxy({} as BackendClient, {
         command,
         params as CommandParams<typeof command>,
       );
-      window.electronAPI.saveFile();
       // Invalidate queries affected by the mutation
       if ('invalidates' in response && response.invalidates) {
         const invalidates = response.invalidates;
@@ -166,6 +165,7 @@ export const backend = new Proxy({} as BackendClient, {
           }),
         );
       }
+      window.electronAPI.saveFile();
       return 'result' in response ? response.result : undefined;
     }
 
