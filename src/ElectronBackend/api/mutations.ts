@@ -17,7 +17,7 @@ import {
   getAttributionOrThrow,
   getResourceOrThrow,
   linkAttributions,
-  matchOrCreateAttribution,
+  matchOrCreateAttributions,
   removeRedundantAttributions,
   replaceAttributions,
   unlinkAttributions,
@@ -285,28 +285,22 @@ export const mutations = {
           Object.keys(params.attributions),
         );
 
-        const oldUuidToNewUuid: Record<string, string> = {};
-        for (const [oldUuid, packageInfo] of Object.entries(
-          params.attributions,
-        )) {
-          oldUuidToNewUuid[oldUuid] = await matchOrCreateAttribution(trx, {
-            ...packageInfo,
-            preSelected: undefined,
-          });
-        }
-
-        await linkAttributions(
+        const newUuids = await matchOrCreateAttributions(
           trx,
-          resource.id,
-          Object.values(oldUuidToNewUuid),
-          {
-            ignoreExisting: true,
-          },
+          params.attributions,
         );
 
-        await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
+        await linkAttributions(trx, resource.id, newUuids, {
+          ignoreExisting: true,
+        });
 
-        return oldUuidToNewUuid;
+        await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
+        return Object.fromEntries(
+          Object.keys(params.attributions).map((attributionUuid, index) => [
+            attributionUuid,
+            newUuids[index],
+          ]),
+        );
       });
     return {
       invalidates: [
@@ -323,26 +317,31 @@ export const mutations = {
     };
   },
 
-  async createOrMatchAttribution(params: {
+  async createOrMatchAttributions(params: {
     resourcePath: string;
-    packageInfo: PackageInfo;
+    attributions: Attributions;
   }) {
     const resultAttributionUuid = await getDb()
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
 
-        const attributionUuidToLink = await matchOrCreateAttribution(
+        const newUuids = await matchOrCreateAttributions(
           trx,
-          params.packageInfo,
+          params.attributions,
           { ignorePreSelected: true },
         );
 
-        await linkAttributions(trx, resource.id, [attributionUuidToLink], {
+        await linkAttributions(trx, resource.id, newUuids, {
           ignoreExisting: true,
         });
 
-        return attributionUuidToLink;
+        return Object.fromEntries(
+          Object.keys(params.attributions).map((attributionUuid, index) => [
+            attributionUuid,
+            newUuids[index],
+          ]),
+        );
       });
 
     return {

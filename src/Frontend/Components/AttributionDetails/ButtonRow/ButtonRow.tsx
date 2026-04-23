@@ -52,9 +52,9 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
 
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
-  const linkAttribution = backend.createOrMatchAttribution.useMutation();
+  const linkAttribution = backend.createOrMatchAttributions.useMutation();
   const updateOrMatch = backend.updateOrMatchAttribution.useMutation();
-  const createOrMatch = backend.createOrMatchAttribution.useMutation();
+  const createOrMatch = backend.createOrMatchAttributions.useMutation();
   const mutationPending = useIsMutating() > 0;
 
   const { data: resolvedExternalAttributions } =
@@ -118,11 +118,14 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
         }
       } else {
         const result = await createOrMatch.mutateAsync({
-          packageInfo,
           resourcePath: selectedResourceId,
+          attributions: { [packageInfo.id]: packageInfo },
         });
-
-        dispatch(setSelectedAttributionId(result.attribution));
+        if (result.attribution[packageInfo.id]) {
+          dispatch(
+            setSelectedAttributionId(result.attribution[packageInfo.id]),
+          );
+        }
       }
     }
   }, [
@@ -244,9 +247,13 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             onClick={async () => {
               const result = await linkAttribution.mutateAsync({
                 resourcePath: selectedResourceId,
-                packageInfo,
+                attributions: { [packageInfo.id]: packageInfo },
               });
-              dispatch(setSelectedAttributionId(result.attribution));
+              if (result.attribution[packageInfo.id]) {
+                dispatch(
+                  setSelectedAttributionId(result.attribution[packageInfo.id]),
+                );
+              }
             }}
           >
             {linkAttribution.isPending ? (

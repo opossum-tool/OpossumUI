@@ -22,7 +22,7 @@ import {
   FORM_ATTRIBUTES,
   thirdPartyKeys,
 } from '../../shared/attribution-comparison';
-import { type PackageInfo } from '../../shared/shared-types';
+import { type Attributions, type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
 import {
   addManualOrExternalCaaToResources,
@@ -627,7 +627,7 @@ export async function findMatchingAttributionUuid(
   return matchedAttribution?.uuid;
 }
 
-export async function matchOrCreateAttribution(
+async function matchOrCreateAttribution(
   trx: Transaction<DB>,
   packageInfo: PackageInfo,
   options?: { ignorePreSelected?: boolean },
@@ -658,6 +658,27 @@ export async function matchOrCreateAttribution(
     })
     .execute();
   return newUuid;
+}
+
+export async function matchOrCreateAttributions(
+  trx: Transaction<DB>,
+  attributions: Attributions,
+  options?: { ignorePreSelected?: boolean },
+) {
+  const newUuids: Array<string> = [];
+  for (const packageInfo of Object.values(attributions)) {
+    newUuids.push(
+      await matchOrCreateAttribution(
+        trx,
+        {
+          ...packageInfo,
+          preSelected: undefined,
+        },
+        options,
+      ),
+    );
+  }
+  return newUuids;
 }
 
 export async function updateAttribution(

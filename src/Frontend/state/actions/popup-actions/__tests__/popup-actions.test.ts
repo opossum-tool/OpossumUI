@@ -111,11 +111,13 @@ describe('The actions checking for unsaved changes', () => {
         testStore.dispatch(setSelectedResourceId('selectedResource'));
         testStore.dispatch(navigateToView(View.Audit));
 
-        await backend.createOrMatchAttribution.mutate({
-          packageInfo: {
-            packageName: 'Test',
-            criticality: Criticality.None,
-            id: '',
+        await backend.createOrMatchAttributions.mutate({
+          attributions: {
+            uuid_1: {
+              packageName: 'Test',
+              criticality: Criticality.None,
+              id: '',
+            },
           },
           resourcePath: '/selectedResource',
         });

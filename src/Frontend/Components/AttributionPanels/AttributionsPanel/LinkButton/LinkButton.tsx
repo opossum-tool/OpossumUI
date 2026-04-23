@@ -29,19 +29,20 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
-  const createOrMatch = backend.createOrMatchAttribution.useMutation();
+  const createOrMatch = backend.createOrMatchAttributions.useMutation();
   const mutationsPending = useIsMutating() > 0;
 
   const handleLink = async () => {
     if (attributions) {
-      await Promise.all(
-        selectedAttributionIds.map(async (attributionId) => {
-          await createOrMatch.mutateAsync({
-            resourcePath: selectedResourceId,
-            packageInfo: attributions[attributionId],
-          });
-        }),
+      const attributionsToLink = Object.fromEntries(
+        Object.entries(attributions).filter(([attributionId]) =>
+          selectedAttributionIds.includes(attributionId),
+        ),
       );
+      await createOrMatch.mutateAsync({
+        resourcePath: selectedResourceId,
+        attributions: attributionsToLink,
+      });
     }
     setMultiSelectedAttributionIds([]);
   };
