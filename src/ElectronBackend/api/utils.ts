@@ -24,7 +24,10 @@ import {
 } from '../../shared/attribution-comparison';
 import { type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
-import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
+import {
+  addManualOrExternalCaaToResources,
+  removeManualOrExternalCaaFromResources,
+} from './progressBarUtils';
 import {
   type FilterProperties,
   type FilterPropertiesWithCanonicalLicenseNames,
@@ -546,13 +549,30 @@ export function removeParentFromPath(parentPath: string, path: string) {
   return path.replace(new RegExp(`^${escapeRegExp(parentPath)}/?`), '');
 }
 
-export function linkAttribution(
+export async function unlinkAttribution(
+  trx: Transaction<DB>,
+  resourceId: number,
+  attributionUuid: string,
+) {
+  await removeManualOrExternalCaaFromResources(trx, 'manual', {
+    resourceIds: [resourceId],
+    attributionUuids: [attributionUuid],
+  });
+
+  await trx
+    .deleteFrom('resource_to_attribution')
+    .where('resource_id', '=', resourceId)
+    .where('attribution_uuid', '=', attributionUuid)
+    .execute();
+}
+
+export async function linkAttribution(
   trx: Transaction<DB>,
   resourceId: number,
   attributionUuid: string,
   options?: { ignoreExisting?: boolean },
 ) {
-  return trx
+  await trx
     .insertInto('resource_to_attribution')
     .values({
       resource_id: resourceId,
@@ -563,6 +583,13 @@ export function linkAttribution(
       eb.onConflict((oc) => oc.doNothing()),
     )
     .execute();
+
+  await addManualOrExternalCaaToResources(trx, 'manual', {
+    resourceIds: [resourceId],
+    attributionUuids: [attributionUuid],
+  });
+
+  await removeRedundantAttributions(trx, { resourceIds: [resourceId] });
 }
 
 export async function findMatchingAttributionUuid(

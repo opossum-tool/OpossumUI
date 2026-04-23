@@ -19,6 +19,7 @@ import {
   matchOrCreateAttribution,
   removeRedundantAttributions,
   replaceAttributions,
+  unlinkAttribution,
   updateAttribution,
 } from './utils';
 
@@ -251,50 +252,48 @@ export const mutations = {
     resourcePath: string;
     packageInfo: PackageInfo;
   }) {
-    const newOrMatchedAttributionUuid = await getDb()
+    const resultAttributionUuid = await getDb()
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
+
         await getAttributionOrThrow(trx, params.packageInfo.id, {
           preconditions: { isExternal: false, minimumResources: 2 },
         });
 
-        await trx
-          .deleteFrom('resource_to_attribution')
-          .where('resource_id', '=', resource.id)
-          .where('attribution_uuid', '=', params.packageInfo.id)
-          .execute();
+        await unlinkAttribution(trx, resource.id, params.packageInfo.id);
 
-        const attributionToLink = await matchOrCreateAttribution(trx, {
+        const attributionUuidToLink = await matchOrCreateAttribution(trx, {
           ...params.packageInfo,
           preSelected: undefined,
         });
 
-        await linkAttribution(trx, resource.id, attributionToLink, {
+        await linkAttribution(trx, resource.id, attributionUuidToLink, {
           ignoreExisting: true,
         });
 
         await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
 
-        return attributionToLink;
+        return attributionUuidToLink;
       });
     return {
       invalidates: [
+        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
+        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
+        ...RESOURCE_TREE_INVALIDATIONS,
         {
           queryName: 'getAttributionData',
           params: { attributionUuid: params.packageInfo.id },
         },
-        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
-        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        ...RESOURCE_TREE_INVALIDATIONS,
+        { queryName: 'getResourceCountOnAttribution' },
       ],
-      result: { attribution: newOrMatchedAttributionUuid },
+      result: { attribution: resultAttributionUuid },
     };
   },
 
   async createOrMatchAttribution(params: {
-    packageInfo: PackageInfo;
     resourcePath: string;
+    packageInfo: PackageInfo;
   }) {
     const resultAttributionUuid = await getDb()
       .transaction()
@@ -310,13 +309,6 @@ export const mutations = {
         await linkAttribution(trx, resource.id, attributionUuidToLink, {
           ignoreExisting: true,
         });
-
-        await addManualOrExternalCaaToResources(trx, 'manual', {
-          attributionUuids: [attributionUuidToLink],
-          resourceIds: [resource.id],
-        });
-
-        await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
 
         return attributionUuidToLink;
       });
