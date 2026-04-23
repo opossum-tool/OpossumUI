@@ -14,6 +14,7 @@ import {
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
+import { resetDb } from '../db/db';
 import { initializeDb } from '../db/initializeDb';
 import type {
   FileNotFoundError,
@@ -28,6 +29,7 @@ import {
   parseInputJsonFile,
   parseOpossumFile,
   parseOutputJsonFile,
+  readZipAsync,
 } from './parseFile';
 import {
   addTrailingSlashIfAbsent,
@@ -40,6 +42,7 @@ import {
   serializeAttributions,
 } from './parseInputData';
 import { refineConfiguration } from './refineConfiguration';
+import { INPUT_FILE_NAME } from '../../shared/write-file-utils';
 
 export interface LoadFileSuccess {
   ok: true;
@@ -90,6 +93,18 @@ export async function loadFile(
   globalState: LoadFileGlobalState,
   reportProgress: LoadFileProgressCallback = () => {},
 ): Promise<LoadFileResult> {
+  if (process.env.DEBUG_USE_PREVIOUS_DB) {
+    resetDb();
+    const zip = await readZipAsync(filePath);
+    const inputFileRaw = zip[INPUT_FILE_NAME];
+    return {
+      ok: true,
+      frontendData: { metadata: { fileCreationDate: '', projectId: 'abc' } },
+      inputFileRaw,
+      projectId: 'abc',
+    };
+  }
+
   if (!fs.existsSync(filePath)) {
     return {
       ok: false,

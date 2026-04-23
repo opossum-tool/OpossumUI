@@ -94,7 +94,9 @@ export async function parseOpossumFile(
   };
 }
 
-async function readZipAsync(opossumFilePath: string): Promise<fflate.Unzipped> {
+export async function readZipAsync(
+  opossumFilePath: string,
+): Promise<fflate.Unzipped> {
   const originalZipBuffer: Buffer = await fs.promises.readFile(opossumFilePath);
 
   return new Promise((resolve, reject) => {

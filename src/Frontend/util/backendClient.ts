@@ -140,16 +140,41 @@ export function useDatabaseInitialized(): boolean {
  * mutation.mutate(params);
  * ```
  */
+const commandStats: Record<
+  string,
+  { executionCount: number; totalDuration: number }
+> = {};
+
+function recordStat(key: string, duration: number) {
+  const stat = commandStats[key] ?? { executionCount: 0, totalDuration: 0 };
+  commandStats[key] = {
+    executionCount: stat.executionCount + 1,
+    totalDuration: stat.totalDuration + duration,
+  };
+
+  const maxLength = Math.max(...Object.keys(commandStats).map((k) => k.length));
+  for (const [commandName, commandStatistics] of Object.entries(commandStats)) {
+    console.log(
+      `${commandStatistics.executionCount.toString().padStart(3)} ${(`${commandName  }:`).padEnd(maxLength + 2)} ${commandStatistics.totalDuration.toString().padStart(6)} ms (avg ${(commandStatistics.totalDuration / commandStatistics.executionCount).toFixed(0).padStart(5)} ms)`,
+    );
+  }
+}
+
 export const backend = new Proxy({} as BackendClient, {
   get(_, command: CommandName) {
     const getQueryKey = (command: CommandName, params: unknown) =>
       ['backend', command, params] as const;
 
     async function mutate(params: MutationParams<MutationName>) {
+      console.log(`${command}`);
+      const before = Date.now();
       const response = await window.electronAPI.api(
         command,
         params as CommandParams<typeof command>,
       );
+      const after = Date.now();
+      console.log(`${command}`, after - before);
+      recordStat(`${command}`, after - before);
       window.electronAPI.saveFile();
       // Invalidate queries affected by the mutation
       if ('invalidates' in response && response.invalidates) {
@@ -170,10 +195,15 @@ export const backend = new Proxy({} as BackendClient, {
     }
 
     async function query(params?: QueryParams<QueryName>) {
+      console.log(`${command}`);
+      const before = Date.now();
       const response = await window.electronAPI.api<QueryName>(
         command as QueryName,
         params as QueryParams<QueryName>,
       );
+      const after = Date.now();
+      console.log(`${command}`, after - before);
+      recordStat(`${command}`, after - before);
       return response.result;
     }
 

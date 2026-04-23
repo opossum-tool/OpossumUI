@@ -42,6 +42,9 @@ interface WebPort {
 
 type ClientPort = ElectronPort | WebPort;
 
+let savingTime = 0;
+let savingCount = 0;
+
 export class DbProcessClient {
   private nextId = 0;
   private readonly pending = new Map<number, PendingRequest>();
@@ -117,8 +120,21 @@ export class DbProcessClient {
     ) as Promise<LoadFileIpcResult>;
   }
 
-  saveFile(params: SaveFileParams): Promise<void> {
-    return this.request({ type: 'saveFile', ...params }) as Promise<void>;
+  async saveFile(params: SaveFileParams): Promise<void> {
+    const begin = Date.now();
+    const result = (await this.request({
+      type: 'saveFile',
+      ...params,
+    })) as Promise<void>;
+    const end = Date.now();
+
+    savingCount += 1;
+    savingTime += end - begin;
+    console.log(
+      `Saving ${savingCount}x ${savingTime} ms (avg ${savingTime / savingCount} ms)`,
+    );
+
+    return result;
   }
 
   exportFile(exportType: ExportType, filePath: string): Promise<void> {

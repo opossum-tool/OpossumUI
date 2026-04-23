@@ -23,7 +23,11 @@ function openDb() {
   // Empty filename for temporary (not in-memory) db: https://www.sqlite.org/inmemorydb.html#temp_db
   const filename = process.env.DEBUG ? 'dev.db' : '';
 
-  if (filename !== '' && fs.existsSync(filename)) {
+  if (
+    filename !== '' &&
+    fs.existsSync(filename) &&
+    !process.env.DEBUG_USE_PREVIOUS_DB
+  ) {
     console.log('DEBUG: Deleting previous db file');
     fs.unlinkSync(filename);
   }
