@@ -24,10 +24,7 @@ import {
 } from '../../shared/attribution-comparison';
 import { type Attributions, type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
-import {
-  addManualOrExternalCaaToResources,
-  removeManualOrExternalCaaFromResources,
-} from './progressBarUtils';
+import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
 import {
   type FilterProperties,
   type FilterPropertiesWithCanonicalLicenseNames,
@@ -554,11 +551,6 @@ export async function unlinkAttributions(
   resourceId: number,
   attributionUuids: Array<string>,
 ) {
-  await removeManualOrExternalCaaFromResources(trx, 'manual', {
-    resourceIds: [resourceId],
-    attributionUuids,
-  });
-
   for (const attributionUuid of attributionUuids) {
     await trx
       .deleteFrom('resource_to_attribution')
@@ -587,13 +579,6 @@ export async function linkAttributions(
       )
       .execute();
   }
-
-  await addManualOrExternalCaaToResources(trx, 'manual', {
-    resourceIds: [resourceId],
-    attributionUuids,
-  });
-
-  await removeRedundantAttributions(trx, { resourceIds: [resourceId] });
 }
 
 export async function findMatchingAttributionUuid(

@@ -295,6 +295,7 @@ export const mutations = {
         });
 
         await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
+
         return Object.fromEntries(
           Object.keys(params.attributions).map((attributionUuid, index) => [
             attributionUuid,
@@ -335,6 +336,13 @@ export const mutations = {
         await linkAttributions(trx, resource.id, newUuids, {
           ignoreExisting: true,
         });
+
+        await addManualOrExternalCaaToResources(trx, 'manual', {
+          resourceIds: [resource.id],
+          attributionUuids: newUuids,
+        });
+
+        await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
 
         return Object.fromEntries(
           Object.keys(params.attributions).map((attributionUuid, index) => [
