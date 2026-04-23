@@ -382,11 +382,6 @@ export const mutations = {
           preconditions: { isExternal: false, minimumResources: 2 },
         });
 
-        await removeManualOrExternalCaaFromResources(trx, 'manual', {
-          attributionUuids: [params.packageInfo.id],
-          resourceIds: [resource.id],
-        });
-
         await trx
           .deleteFrom('resource_to_attribution')
           .where('resource_id', '=', resource.id)
@@ -400,11 +395,6 @@ export const mutations = {
 
         await linkAttribution(trx, resource.id, attributionToLink, {
           ignoreExisting: true,
-        });
-
-        await addManualOrExternalCaaToResources(trx, 'manual', {
-          attributionUuids: [attributionToLink],
-          resourceIds: [resource.id],
         });
 
         await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
