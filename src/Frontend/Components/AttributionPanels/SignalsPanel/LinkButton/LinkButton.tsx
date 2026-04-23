@@ -45,9 +45,11 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
         resourcePath: selectedResourceId,
         attributions: attributionsToLink,
       });
-      if (result.attribution[selectedAttributionId]) {
+      if (result.oldUuidsToNewUuids[selectedAttributionId]) {
         dispatch(
-          setSelectedAttributionId(result.attribution[selectedAttributionId]),
+          setSelectedAttributionId(
+            result.oldUuidsToNewUuids[selectedAttributionId],
+          ),
         );
       }
     }

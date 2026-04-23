@@ -253,7 +253,7 @@ export const mutations = {
     resourcePath: string;
     attributions: Attributions;
   }) {
-    const resultAttributionUuid = await getDb()
+    const oldUuidsToNewUuids: Record<string, string> = await getDb()
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
@@ -313,7 +313,7 @@ export const mutations = {
         })),
         { queryName: 'getResourceCountOnAttribution' },
       ],
-      result: { attribution: resultAttributionUuid },
+      result: { oldUuidsToNewUuids },
     };
   },
 
@@ -321,7 +321,7 @@ export const mutations = {
     resourcePath: string;
     attributions: Attributions;
   }) {
-    const resultAttributionUuid = await getDb()
+    const oldUuidsToNewUuids = await getDb()
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
@@ -352,7 +352,7 @@ export const mutations = {
         { queryName: 'getResourceCountOnAttribution' },
       ],
       result: {
-        attribution: resultAttributionUuid,
+        oldUuidsToNewUuids,
       },
     };
   },
@@ -394,7 +394,7 @@ export const mutations = {
         ...RESOURCE_TREE_INVALIDATIONS,
         { queryName: 'getResourceCountOnAttribution' },
       ],
-      result: oldUuidsToNewUuids,
+      result: { oldUuidsToNewUuids },
     };
   },
 } satisfies Record<string, MutationFunction>;

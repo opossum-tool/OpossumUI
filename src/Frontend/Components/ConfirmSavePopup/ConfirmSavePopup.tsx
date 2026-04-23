@@ -91,12 +91,14 @@ export const ConfirmSavePopup: React.FC<Props> = ({
 
   const handleSaveGlobally = async () => {
     if (modifiedAttributionsToSave) {
-      const oldUuidsToNewUuids = await updateOrMatch.mutateAsync({
+      const result = await updateOrMatch.mutateAsync({
         attributions: modifiedAttributionsToSave,
       });
-      if (oldUuidsToNewUuids[selectedAttributionId]) {
+      if (result.oldUuidsToNewUuids[selectedAttributionId]) {
         dispatch(
-          setSelectedAttributionId(oldUuidsToNewUuids[selectedAttributionId]),
+          setSelectedAttributionId(
+            result.oldUuidsToNewUuids[selectedAttributionId],
+          ),
         );
       }
     }
@@ -105,15 +107,14 @@ export const ConfirmSavePopup: React.FC<Props> = ({
 
   const handleSaveOnResource = async () => {
     if (modifiedAttributionsToSave) {
-      const oldUuidsToNewUuids =
-        await modifyOrMatchOnlyOnOneResource.mutateAsync({
-          resourcePath: selectedResourceId,
-          attributions: modifiedAttributionsToSave,
-        });
-      if (oldUuidsToNewUuids.attribution[selectedAttributionId]) {
+      const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
+        resourcePath: selectedResourceId,
+        attributions: modifiedAttributionsToSave,
+      });
+      if (result.oldUuidsToNewUuids[selectedAttributionId]) {
         dispatch(
           setSelectedAttributionId(
-            oldUuidsToNewUuids.attribution[selectedAttributionId],
+            result.oldUuidsToNewUuids[selectedAttributionId],
           ),
         );
       }

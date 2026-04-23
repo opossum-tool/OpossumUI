@@ -110,20 +110,22 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
       if (hasMultipleResources) {
         setIsConfirmSavePopupOpen(true);
       } else if (packageInfo.id) {
-        const { matchedAttribution } = await updateOrMatch.mutateAsync({
+        const result = await updateOrMatch.mutateAsync({
           attributions: { [packageInfo.id]: packageInfo },
         });
-        if (matchedAttribution) {
-          dispatch(setSelectedAttributionId(matchedAttribution));
+        if (result.oldUuidsToNewUuids[packageInfo.id]) {
+          dispatch(
+            setSelectedAttributionId(result.oldUuidsToNewUuids[packageInfo.id]),
+          );
         }
       } else {
         const result = await createOrMatch.mutateAsync({
           resourcePath: selectedResourceId,
           attributions: { [packageInfo.id]: packageInfo },
         });
-        if (result.attribution[packageInfo.id]) {
+        if (result.oldUuidsToNewUuids[packageInfo.id]) {
           dispatch(
-            setSelectedAttributionId(result.attribution[packageInfo.id]),
+            setSelectedAttributionId(result.oldUuidsToNewUuids[packageInfo.id]),
           );
         }
       }
@@ -249,9 +251,11 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
                 resourcePath: selectedResourceId,
                 attributions: { [packageInfo.id]: packageInfo },
               });
-              if (result.attribution[packageInfo.id]) {
+              if (result.oldUuidsToNewUuids[packageInfo.id]) {
                 dispatch(
-                  setSelectedAttributionId(result.attribution[packageInfo.id]),
+                  setSelectedAttributionId(
+                    result.oldUuidsToNewUuids[packageInfo.id],
+                  ),
                 );
               }
             }}
