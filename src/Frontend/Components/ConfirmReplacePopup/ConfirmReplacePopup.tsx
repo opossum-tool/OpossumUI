@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
+import { skipToken } from '@tanstack/react-query';
 
 import { type PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -32,17 +33,23 @@ export const ConfirmReplacePopup = ({
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
 
+  const updateAttributions = backend.updateAttributions.useMutation();
+  const replaceAttribution = backend.replaceAttribution.useMutation();
+  const isReplacing =
+    updateAttributions.isPending || replaceAttribution.isPending;
+
   const { data: attributionsForReplacement } =
-    backend.listAttributions.useQuery({
-      uuids: attributionIdsForReplacement,
-    });
+    backend.listAttributions.useQuery(
+      open && !isReplacing
+        ? {
+            uuids: attributionIdsForReplacement,
+          }
+        : skipToken,
+    );
 
   const handleReplace = async () => {
-    setAttributionIdsForReplacement([]);
-    onClose();
-    dispatch(changeSelectedAttributionOrOpenUnsavedPopup(selectedAttribution));
     if (selectedAttribution.preSelected) {
-      await backend.updateAttributions.mutate({
+      await updateAttributions.mutateAsync({
         attributions: {
           [selectedAttribution.id]: {
             ...selectedAttribution,
@@ -51,23 +58,30 @@ export const ConfirmReplacePopup = ({
         },
       });
     }
-    attributionIdsForReplacement.forEach(async (attributionId) => {
-      await backend.replaceAttribution.mutate({
-        attributionIdToReplace: attributionId,
-        attributionIdToReplaceWith: selectedAttribution.id,
-      });
-    });
+    await Promise.all(
+      attributionIdsForReplacement.map(async (attributionId) => {
+        await replaceAttribution.mutateAsync({
+          attributionIdToReplace: attributionId,
+          attributionIdToReplaceWith: selectedAttribution.id,
+        });
+      }),
+    );
+    setAttributionIdsForReplacement([]);
+    dispatch(changeSelectedAttributionOrOpenUnsavedPopup(selectedAttribution));
+    onClose();
   };
 
   return (
     <StyledNotificationPopup
       header={text.replaceAttributionsPopup.title}
       leftButtonConfig={{
+        loading: isReplacing,
         onClick: handleReplace,
         buttonText: text.replaceAttributionsPopup.replace,
         color: 'error',
       }}
       rightButtonConfig={{
+        disabled: isReplacing,
         onClick: () => onClose(),
         buttonText: text.buttons.cancel,
         color: 'secondary',

@@ -10,9 +10,10 @@ import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import SaveIcon from '@mui/icons-material/Save';
 import UndoIcon from '@mui/icons-material/Undo';
 import MuiButton from '@mui/material/Button';
+import MuiCircularProgress from '@mui/material/CircularProgress';
 import MuiFab from '@mui/material/Fab';
 import MuiTooltip from '@mui/material/Tooltip';
-import { skipToken } from '@tanstack/react-query';
+import { skipToken, useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
@@ -48,6 +49,14 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
   const initialPackageInfo = useSelectedAttributionPackageInfo();
+
+  const resolveAttributions = backend.resolveAttributions.useMutation();
+  const unresolveAttributions = backend.unresolveAttributions.useMutation();
+  const linkAttribution = backend.createOrMatchAttribution.useMutation();
+  const updateOrMatch = backend.updateOrMatchAttribution.useMutation();
+  const createOrMatch = backend.createOrMatchAttribution.useMutation();
+  const mutationPending = useIsMutating() > 0;
+
   const { data: resolvedExternalAttributions } =
     backend.resolvedAttributionUuids.useQuery();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
@@ -101,15 +110,14 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
       if (hasMultipleResources) {
         setIsConfirmSavePopupOpen(true);
       } else if (packageInfo.id) {
-        const { matchedAttribution } =
-          await backend.updateOrMatchAttribution.mutate({
-            packageInfo,
-          });
+        const { matchedAttribution } = await updateOrMatch.mutateAsync({
+          packageInfo,
+        });
         if (matchedAttribution) {
           dispatch(setSelectedAttributionId(matchedAttribution));
         }
       } else {
-        const result = await backend.createOrMatchAttribution.mutate({
+        const result = await createOrMatch.mutateAsync({
           packageInfo,
           resourcePath: selectedResourceId,
         });
@@ -119,10 +127,12 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     }
   }, [
     packageInfo,
+    updateOrMatch,
+    createOrMatch,
     isPackageInfoModified,
     hasMultipleResources,
-    dispatch,
     selectedResourceId,
+    dispatch,
   ]);
 
   useIpcRenderer(AllowedFrontendChannels.SaveFileRequest, () => handleSave(), [
@@ -156,6 +166,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
         <MuiButton
           variant={'contained'}
           color={'success'}
+          loading={mutationPending}
           onClick={() => setIsReplaceAttributionsPopupOpen(true)}
         >
           {text.attributionColumn.replace}
@@ -190,10 +201,17 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
               onClick={handleSave}
               disabled={
                 isInvalid ||
-                (!packageInfo.preSelected && !isPackageInfoModified)
+                (!packageInfo.preSelected && !isPackageInfoModified) ||
+                mutationPending
               }
             >
-              {isConfirming ? <CheckIcon /> : <SaveIcon />}
+              {updateOrMatch.isPending || createOrMatch.isPending ? (
+                <MuiCircularProgress size={16} color={'inherit'} />
+              ) : isConfirming ? (
+                <CheckIcon />
+              ) : (
+                <SaveIcon />
+              )}
             </MuiFab>
           </span>
         </MuiTooltip>
@@ -222,16 +240,20 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             aria-label={text.attributionColumn.link}
             size={'small'}
             color={'secondary'}
-            disabled={isPackageInfoModified}
+            disabled={isPackageInfoModified || mutationPending}
             onClick={async () => {
-              const result = await backend.createOrMatchAttribution.mutate({
+              const result = await linkAttribution.mutateAsync({
                 resourcePath: selectedResourceId,
                 packageInfo,
               });
               dispatch(setSelectedAttributionId(result.attribution));
             }}
           >
-            <CallMergeIcon />
+            {linkAttribution.isPending ? (
+              <MuiCircularProgress size={16} color={'inherit'} />
+            ) : (
+              <CallMergeIcon />
+            )}
           </MuiFab>
         </span>
       </MuiTooltip>
@@ -251,6 +273,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
               aria-label={text.attributionColumn.delete}
               size={'small'}
               color={'secondary'}
+              disabled={mutationPending}
               onClick={() => setIsConfirmDeletionPopupOpen(true)}
             >
               <DeleteIcon />
@@ -278,7 +301,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             aria-label={text.attributionColumn.revert}
             size={'small'}
             color={'secondary'}
-            disabled={!isPackageInfoModified}
+            disabled={!isPackageInfoModified || mutationPending}
             onClick={() => {
               dispatch(
                 setTemporaryDisplayPackageInfo(
@@ -310,17 +333,21 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             aria-label={label}
             size={'small'}
             color={'secondary'}
+            disabled={mutationPending}
             onClick={async () => {
               selectedSignalIsResolved
-                ? await backend.unresolveAttributions.mutate({
+                ? await unresolveAttributions.mutateAsync({
                     attributionUuids: [packageInfo.id],
                   })
-                : await backend.resolveAttributions.mutate({
+                : await resolveAttributions.mutateAsync({
                     attributionUuids: [packageInfo.id],
                   });
             }}
           >
-            {selectedSignalIsResolved ? (
+            {unresolveAttributions.isPending ||
+            resolveAttributions.isPending ? (
+              <MuiCircularProgress size={16} color={'inherit'} />
+            ) : selectedSignalIsResolved ? (
               <RestoreFromTrashIcon />
             ) : (
               <DeleteIcon />
@@ -348,6 +375,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
               size={'small'}
               color={'secondary'}
               onClick={() => setIsDiffPopupOpen(true)}
+              disabled={mutationPending}
             >
               <CompareIcon />
             </MuiFab>

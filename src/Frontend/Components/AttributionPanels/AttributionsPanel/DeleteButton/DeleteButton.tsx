@@ -5,6 +5,7 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
+import { useIsMutating } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { text } from '../../../../../shared/text';
@@ -19,13 +20,16 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
     useState(false);
 
+  const mutationsPending = useIsMutating() > 0;
+
   return (
     <>
       <MuiIconButton
         aria-label={text.packageLists.delete}
         disabled={
           !selectedAttributionIds.length ||
-          !!attributionIdsForReplacement.length
+          !!attributionIdsForReplacement.length ||
+          mutationsPending
         }
         onClick={() => setIsConfirmDeletionPopupOpen(true)}
         size={'small'}

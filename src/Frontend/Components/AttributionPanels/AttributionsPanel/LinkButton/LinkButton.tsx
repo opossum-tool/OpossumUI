@@ -5,6 +5,7 @@
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
+import { useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
 import { useAppSelector } from '../../../../state/hooks';
@@ -28,6 +29,23 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
+  const createOrMatch = backend.createOrMatchAttribution.useMutation();
+  const mutationsPending = useIsMutating() > 0;
+
+  const handleLink = async () => {
+    if (attributions) {
+      await Promise.all(
+        selectedAttributionIds.map(async (attributionId) => {
+          await createOrMatch.mutateAsync({
+            resourcePath: selectedResourceId,
+            packageInfo: attributions[attributionId],
+          });
+        }),
+      );
+    }
+    setMultiSelectedAttributionIds([]);
+  };
+
   return (
     <MuiIconButton
       aria-label={text.packageLists.linkAsAttribution}
@@ -36,19 +54,12 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
         !selectedAttributionIds.length ||
         isPackageInfoModified ||
         activeRelation === 'resource' ||
-        !!attributionIdsForReplacement.length
+        !!attributionIdsForReplacement.length ||
+        mutationsPending
       }
+      loading={createOrMatch.isPending}
       size={'small'}
-      onClick={() => {
-        attributions &&
-          selectedAttributionIds.forEach(async (attributionId) => {
-            await backend.createOrMatchAttribution.mutate({
-              resourcePath: selectedResourceId,
-              packageInfo: attributions[attributionId],
-            });
-          });
-        setMultiSelectedAttributionIds([]);
-      }}
+      onClick={handleLink}
     >
       <MuiTooltip
         title={text.packageLists.linkAsAttribution}

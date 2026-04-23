@@ -5,6 +5,7 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
+import { useIsMutating } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
@@ -14,6 +15,8 @@ import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
 }) => {
+  const resolveAttributions = backend.resolveAttributions.useMutation();
+  const mutationsPending = useIsMutating() > 0;
   const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
   const someSelectedAttributionsAreVisible = useMemo(
@@ -28,13 +31,14 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   return (
     <MuiIconButton
       aria-label={text.packageLists.delete}
-      disabled={!someSelectedAttributionsAreVisible}
+      disabled={!someSelectedAttributionsAreVisible || mutationsPending}
       size={'small'}
       onClick={() =>
-        backend.resolveAttributions.mutate({
+        resolveAttributions.mutateAsync({
           attributionUuids: selectedAttributionIds,
         })
       }
+      loading={resolveAttributions.isPending}
     >
       <MuiTooltip
         title={text.packageLists.delete}

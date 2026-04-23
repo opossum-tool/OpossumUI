@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
+import { skipToken } from '@tanstack/react-query';
 
 import { text } from '../../../shared/text';
 import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
@@ -37,14 +38,19 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
+  const updateOrMatch = backend.updateOrMatchAttribution.useMutation();
+  const modifyOrMatchOnlyOnOneResource =
+    backend.modifyOrMatchOnlyOnOneResource.useMutation();
+  const isSaving =
+    updateOrMatch.isPending || modifyOrMatchOnlyOnOneResource.isPending;
+
   const { data: attributionsToSave } = backend.listAttributions.useQuery(
-    {
-      resourcePathForRelationships: selectedResourceId,
-      uuids: attributionIdsToSave,
-    },
-    {
-      enabled: open,
-    },
+    open && !isSaving
+      ? {
+          resourcePathForRelationships: selectedResourceId,
+          uuids: attributionIdsToSave,
+        }
+      : skipToken,
   );
 
   const temporaryDisplayPackageInfo = useAppSelector(
@@ -71,45 +77,50 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     ? Object.values(attributionsToSave).every((a) => a.preSelected)
     : undefined;
 
-  const handleSaveGlobally = () => {
-    attributionsToSave &&
-      Object.entries(attributionsToSave).forEach(
-        async ([attributionId, attributionData]) => {
-          const result = await backend.updateOrMatchAttribution.mutate({
-            packageInfo:
-              attributionId === selectedAttributionId
-                ? temporaryDisplayPackageInfo
-                : attributionData,
-          });
-          if (
-            attributionId === selectedAttributionId &&
-            result.matchedAttribution
-          ) {
-            dispatch(setSelectedAttributionId(result.matchedAttribution));
-          }
-        },
+  const handleSaveGlobally = async () => {
+    if (attributionsToSave) {
+      await Promise.all(
+        Object.entries(attributionsToSave).map(
+          async ([attributionId, attributionData]) => {
+            const result = await updateOrMatch.mutateAsync({
+              packageInfo:
+                attributionId === selectedAttributionId
+                  ? temporaryDisplayPackageInfo
+                  : attributionData,
+            });
+            if (
+              attributionId === selectedAttributionId &&
+              result.matchedAttribution
+            ) {
+              dispatch(setSelectedAttributionId(result.matchedAttribution));
+            }
+          },
+        ),
       );
-
+    }
     onClose();
   };
 
-  const handleSaveOnResource = () => {
-    attributionsToSave &&
-      Object.entries(attributionsToSave).forEach(
-        async ([attributionId, attributionData]) => {
-          const result = await backend.modifyOrMatchOnlyOnOneResource.mutate({
-            resourcePath: selectedResourceId,
-            packageInfo:
-              attributionId === selectedAttributionId
-                ? temporaryDisplayPackageInfo
-                : attributionData,
-          });
+  const handleSaveOnResource = async () => {
+    if (attributionsToSave) {
+      await Promise.all(
+        Object.entries(attributionsToSave).map(
+          async ([attributionId, attributionData]) => {
+            const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
+              resourcePath: selectedResourceId,
+              packageInfo:
+                attributionId === selectedAttributionId
+                  ? temporaryDisplayPackageInfo
+                  : attributionData,
+            });
 
-          if (attributionId === selectedAttributionId) {
-            dispatch(setSelectedAttributionId(result.attribution));
-          }
-        },
+            if (attributionId === selectedAttributionId) {
+              dispatch(setSelectedAttributionId(result.attribution));
+            }
+          },
+        ),
       );
+    }
     onClose();
   };
 
@@ -120,7 +131,22 @@ export const ConfirmSavePopup: React.FC<Props> = ({
           ? text.saveAttributionsPopup.titleConfirm
           : text.saveAttributionsPopup.titleSave
       }
+      leftButtonConfig={
+        hasMultipleResourcesWhichContainSelected ||
+        modifyOrMatchOnlyOnOneResource.isPending
+          ? {
+              disabled: isSaving,
+              loading: modifyOrMatchOnlyOnOneResource.isPending,
+              onClick: handleSaveOnResource,
+              buttonText: areAllAttributionsPreselected
+                ? text.saveAttributionsPopup.confirmLocally
+                : text.saveAttributionsPopup.saveLocally,
+            }
+          : undefined
+      }
       centerLeftButtonConfig={{
+        disabled: isSaving,
+        loading: updateOrMatch.isPending,
         onClick: handleSaveGlobally,
         color: 'error',
         buttonText:
@@ -132,17 +158,8 @@ export const ConfirmSavePopup: React.FC<Props> = ({
               ? text.saveAttributionsPopup.confirm
               : text.saveAttributionsPopup.save,
       }}
-      leftButtonConfig={
-        hasMultipleResourcesWhichContainSelected
-          ? {
-              onClick: handleSaveOnResource,
-              buttonText: areAllAttributionsPreselected
-                ? text.saveAttributionsPopup.confirmLocally
-                : text.saveAttributionsPopup.saveLocally,
-            }
-          : undefined
-      }
       rightButtonConfig={{
+        disabled: isSaving,
         onClick: onClose,
         buttonText: text.buttons.cancel,
         color: 'secondary',

@@ -35,8 +35,16 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+
+  const deleteAttributions = backend.deleteAttributions.useMutation();
+  const unlinkResourceFromAttributions =
+    backend.unlinkResourceFromAttributions.useMutation();
+
+  const isDeleting =
+    deleteAttributions.isPending || unlinkResourceFromAttributions.isPending;
+
   const { data: attributionsToDelete } = backend.listAttributions.useQuery(
-    open && selectedResourceId
+    open && !isDeleting && selectedResourceId
       ? {
           resourcePathForRelationships: selectedResourceId,
           uuids: attributionIdsToDelete,
@@ -48,7 +56,6 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
     onAttributionUuids: attributionIdsToDelete,
     enabled: open,
   });
-  const linkedResourceCount = linkedResourcesTreeState?.count;
 
   const isResourceLinkedOnAllAttributions = attributionsToDelete
     ? Object.values(attributionsToDelete).every(
@@ -56,13 +63,14 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       )
     : undefined;
 
+  const linkedResourceCount = linkedResourcesTreeState?.count;
   const isOptionToDeleteOnSelectedResourceOnlyAvailable =
     linkedResourceCount &&
     linkedResourceCount > 1 &&
     isResourceLinkedOnAllAttributions;
 
   const handleDelete = async () => {
-    await backend.deleteAttributions.mutate({
+    await deleteAttributions.mutateAsync({
       attributionUuids: attributionIdsToDelete,
     });
     if (attributionIdsToDelete.includes(selectedAttributionId)) {
@@ -72,7 +80,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   };
 
   const handleDeleteOnResource = async () => {
-    await backend.unlinkResourceFromAttributions.mutate({
+    await unlinkResourceFromAttributions.mutateAsync({
       resourcePath: selectedResourceId,
       attributionUuids: attributionIdsToDelete,
     });
@@ -85,7 +93,21 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   return (
     <StyledNotificationPopup
       header={text.deleteAttributionsPopup.title}
+      leftButtonConfig={
+        isOptionToDeleteOnSelectedResourceOnlyAvailable ||
+        unlinkResourceFromAttributions.isPending
+          ? {
+              disabled: isDeleting,
+              loading: unlinkResourceFromAttributions.isPending,
+              onClick: handleDeleteOnResource,
+              buttonText: text.deleteAttributionsPopup.deleteLocally,
+              color: 'primary',
+            }
+          : undefined
+      }
       centerLeftButtonConfig={{
+        disabled: isDeleting,
+        loading: deleteAttributions.isPending,
         onClick: handleDelete,
         buttonText:
           linkedResourceCount && linkedResourceCount > 1
@@ -93,16 +115,8 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
             : text.deleteAttributionsPopup.delete,
         color: 'error',
       }}
-      leftButtonConfig={
-        isOptionToDeleteOnSelectedResourceOnlyAvailable
-          ? {
-              onClick: handleDeleteOnResource,
-              buttonText: text.deleteAttributionsPopup.deleteLocally,
-              color: 'primary',
-            }
-          : undefined
-      }
       rightButtonConfig={{
+        disabled: isDeleting,
         onClick: onClose,
         buttonText: text.buttons.cancel,
         color: 'secondary',
