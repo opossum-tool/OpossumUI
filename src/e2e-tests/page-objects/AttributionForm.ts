@@ -330,7 +330,7 @@ export class AttributionForm {
   }
 
   async selectLicense(license: RawFrequentLicense): Promise<void> {
-    await this.window.getByText(license.fullName).click();
+    await this.window.getByText(license.fullName).first().click();
   }
 
   async removeAuditingLabel(

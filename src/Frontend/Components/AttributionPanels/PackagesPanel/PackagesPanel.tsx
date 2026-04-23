@@ -13,7 +13,6 @@ import {
 } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
-import { type FilterProperties } from '../../../../ElectronBackend/api/queries';
 import {
   type Attributions,
   type Relation,
@@ -76,7 +75,6 @@ interface Props {
   useAttributionFilters: UseAttributionFilters;
   renderActions: (props: PackagesPanelChildrenProps) => React.ReactNode;
   testId?: string;
-  filterProperties?: FilterProperties;
 }
 
 export const PackagesPanel = ({
@@ -88,7 +86,6 @@ export const PackagesPanel = ({
   renderActions,
   useAttributionFilters: useFilteredData,
   testId,
-  filterProperties,
 }: Props) => {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
@@ -240,7 +237,7 @@ export const PackagesPanel = ({
               useFilteredData={useFilteredData}
             />
             <FilterButton
-              filterProps={filterProperties}
+              mode={external ? 'external' : 'manual'}
               availableFilters={availableFilters}
               anchorPosition={'right'}
               useFilteredData={useFilteredData}

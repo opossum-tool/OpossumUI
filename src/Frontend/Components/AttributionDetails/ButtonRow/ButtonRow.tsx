@@ -85,13 +85,14 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const hasMultipleResources =
     attributionData?.isManual && attributionData?.resourceCount > 1;
 
-  const { data: attributions } = backend.listAttributions.useQuery({
-    resourcePathForRelationships: selectedResourceId,
-    uuids: [packageInfo.id],
-  });
+  const { data: resourceAndAttributionAreLinked } =
+    backend.resourceAndAttributionAreLinked.useQuery({
+      resourcePath: selectedResourceId,
+      attributionUuid: packageInfo.id,
+    });
+
   const isSelectedResourceOnSelectedAttribution =
-    attributionData?.isManual &&
-    attributions?.[packageInfo.id]?.relation === 'resource';
+    attributionData?.isManual && resourceAndAttributionAreLinked;
 
   const isCreatingNewAttribution = !packageInfo.id;
 

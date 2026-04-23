@@ -19,8 +19,7 @@ import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { clickableIcon, OpossumColors } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch, useAppSelector } from '../../../state/hooks';
-import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../../state/hooks';
 import { backend } from '../../../util/backendClient';
 import { generatePurl } from '../../../util/handle-purl';
 import {
@@ -86,10 +85,8 @@ export function PackageAutocomplete({
 
   const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo();
 
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
   const autoCompleteResult = backend.autoCompleteOptions.useQuery({
     attributeName: attribute,
-    onlyRelatedToResourcePath: selectedResourceId,
   });
 
   const options = useMemo(() => {

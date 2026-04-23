@@ -383,6 +383,13 @@ async function initializeResourceTable(
     .columns(['parent_id', 'id', 'is_file', 'is_attribution_breakpoint'])
     .execute();
 
+  await trx.schema
+    .createIndex('resource_attribution_breakpoint_idx')
+    .on('resource')
+    .column('is_attribution_breakpoint')
+    .where('is_attribution_breakpoint', '=', 1)
+    .execute();
+
   return resourcePathToId;
 }
 

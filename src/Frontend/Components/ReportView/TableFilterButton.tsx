@@ -2,26 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ATTRIBUTION_FILTERS, ROOT_PATH } from '../../shared-constants';
+import { ATTRIBUTION_FILTERS } from '../../shared-constants';
 import { useAttributionFiltersInReportView } from '../../state/variables/use-filters';
-import { backend } from '../../util/backendClient';
 import { useFilteredReportsAttributionsList } from '../../util/use-attribution-lists';
 import { FilterButton } from '../FilterButton/FilterButton';
 
 export const TableFilterButton: React.FC = () => {
-  const [{ filters }] = useAttributionFiltersInReportView();
-
-  const filterProps = backend.filterProperties.useQuery({
-    external: false,
-    filters,
-    resourcePathForRelationships: ROOT_PATH,
-  });
-
   const { attributions, loading } = useFilteredReportsAttributionsList();
 
   return (
     <FilterButton
-      filterProps={filterProps.data?.descendant}
+      mode="reportTable"
       availableFilters={ATTRIBUTION_FILTERS}
       anchorPosition={'left'}
       useFilteredData={useAttributionFiltersInReportView}

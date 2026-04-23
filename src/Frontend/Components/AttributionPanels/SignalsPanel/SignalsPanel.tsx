@@ -5,12 +5,9 @@
 import MuiBox from '@mui/material/Box';
 
 import { SIGNAL_FILTERS } from '../../../shared-constants';
-import { useAppSelector } from '../../../state/hooks';
-import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import { useExternalAttributionFilters } from '../../../state/variables/use-filters';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
-import { backend } from '../../../util/backendClient';
 import { PackagesPanel } from '../PackagesPanel/PackagesPanel';
 import { DeleteButton } from './DeleteButton/DeleteButton';
 import { LinkButton } from './LinkButton/LinkButton';
@@ -20,27 +17,13 @@ import { ToggleHiddenSignalsButton } from './ToggleHiddenSignalsButton/ToggleHid
 
 export function SignalsPanel() {
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
 
   const [userSettings, updateUserSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
 
-  const [{ filters, search, selectedLicense }] =
-    useExternalAttributionFilters();
-
-  const filterProps = backend.filterProperties.useQuery({
-    external: true,
-    filters,
-    search,
-    license: selectedLicense,
-    resourcePathForRelationships: selectedResourceId,
-    showResolved: areHiddenSignalsVisible,
-  });
-
   return (
     <PackagesPanel
       external={true}
-      filterProperties={filterProps.data?.sameOrDescendant}
       availableFilters={SIGNAL_FILTERS}
       disableSelectAll={!!attributionIdsForReplacement.length}
       renderActions={(props) => (

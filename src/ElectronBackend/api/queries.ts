@@ -107,47 +107,29 @@ export const queries = {
   }) {
     const resource = await getResourceOrThrow(getDb(), props.resourcePath);
 
-    const manualAttributionOnResource = await getDb()
+    const manualAttributionOnResourceOrAncestor = await getDb()
       .selectFrom('attribution')
       .innerJoin(
-        'resource_to_attribution',
+        'resource_to_attribution as rta',
         'attribution.uuid',
-        'resource_to_attribution.attribution_uuid',
+        'rta.attribution_uuid',
+      )
+      .innerJoin(
+        'closest_attributed_ancestors as caa',
+        'caa.manual',
+        'rta.resource_id',
       )
       .select('data')
-      .where('resource_id', '=', resource.id)
+      .where('caa.resource_id', '=', resource.id)
       .where('attribution_is_external', '=', 0)
       .limit(1)
       .executeTakeFirst();
 
-    if (manualAttributionOnResource) {
+    if (manualAttributionOnResourceOrAncestor) {
       return {
-        result: JSON.parse(manualAttributionOnResource.data) as PackageInfo,
-      };
-    }
-
-    const ancestor =
-      await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-        getDb(),
-        resource.id,
-      );
-
-    if (ancestor) {
-      const manualAttributionOnAncestor = await getDb()
-        .selectFrom('attribution')
-        .innerJoin(
-          'resource_to_attribution',
-          'attribution.uuid',
-          'resource_to_attribution.attribution_uuid',
-        )
-        .select('data')
-        .where('resource_id', '=', ancestor)
-        .where('attribution_is_external', '=', 0)
-        .limit(1)
-        .executeTakeFirstOrThrow();
-
-      return {
-        result: JSON.parse(manualAttributionOnAncestor.data) as PackageInfo,
+        result: JSON.parse(
+          manualAttributionOnResourceOrAncestor.data,
+        ) as PackageInfo,
       };
     }
 
@@ -156,25 +138,12 @@ export const queries = {
 
   async autoCompleteOptions({
     attributeName,
-    onlyRelatedToResourcePath,
   }: {
     attributeName: AutocompletableAttribute;
-    onlyRelatedToResourcePath: string;
   }): Promise<{
     result: AutocompleteOptions;
   }> {
-    const onlyRelatedToResource = await getResourceOrThrow(
-      getDb(),
-      onlyRelatedToResourcePath,
-    );
-
-    const closestAncestorToResource =
-      await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-        getDb(),
-        onlyRelatedToResource.id,
-      );
-
-    let query = getDb()
+    const query = getDb()
       .selectFrom('attribution')
       .select((eb) => [
         'uuid as contained_uuid',
@@ -185,28 +154,7 @@ export const queries = {
       .where('is_resolved', '=', 0)
       .where(toSnakeCase(attributeName), 'is not', null)
       .where(toSnakeCase(attributeName), '!=', '')
-      .where((eb) =>
-        eb.exists(
-          eb
-            .selectFrom('resource_to_attribution')
-            .selectAll()
-            .whereRef('attribution_uuid', '=', 'attribution.uuid')
-            .where((eb) =>
-              eb.or([
-                eb.between(
-                  'resource_id',
-                  onlyRelatedToResource.id,
-                  onlyRelatedToResource.max_descendant_id,
-                ),
-                ...(closestAncestorToResource
-                  ? [eb('resource_id', '=', closestAncestorToResource)]
-                  : []),
-              ]),
-            ),
-        ),
-      );
-
-    query = query.groupBy(['value', 'is_external']);
+      .groupBy(['value', 'is_external']);
 
     const result = await query.execute();
 
@@ -595,6 +543,21 @@ export const queries = {
         result.map((r) => [r.classification, r.description]),
       ),
     };
+  },
+
+  async resourceAndAttributionAreLinked(props: {
+    resourcePath: string;
+    attributionUuid: string;
+  }) {
+    const resource = await getResourceOrThrow(getDb(), props.resourcePath);
+    const result = await getDb()
+      .selectFrom('resource_to_attribution')
+      .select((eb) => eb.val(1).as('one'))
+      .where('resource_id', '=', resource.id)
+      .where('attribution_uuid', '=', props.attributionUuid)
+      .executeTakeFirst();
+
+    return { result: result !== undefined };
   },
 } satisfies Record<string, QueryFunction>;
 
