@@ -64,6 +64,22 @@ export async function listAttributions(props: {
             .select(eb.fn.countAll<number>().as('count'))
             .whereRef('attribution_uuid', '=', 'uuid')
             .as('resource_count'),
+        )
+        .$if(resourceForRelationships !== undefined, (qb) =>
+          qb.select((eb) =>
+            eb
+              .selectFrom('resource_to_attribution')
+              .select(eb.fn.countAll<number>().as('count'))
+              .whereRef('attribution_uuid', '=', 'uuid')
+              .where((eb) =>
+                eb.between(
+                  'resource_id',
+                  resourceForRelationships!.id,
+                  resourceForRelationships!.max_descendant_id,
+                ),
+              )
+              .as('resource_count_below'),
+          ),
         );
 
       if (props.external !== undefined) {
@@ -152,7 +168,10 @@ export async function listAttributions(props: {
         {
           ...(JSON.parse(a.data) as PackageInfo),
           relation: backendToFrontendRelationship[a.relationship],
-          count: a.resource_count ?? 0,
+          count:
+            a.relationship !== 'unrelated' && 'resource_count_below' in a
+              ? (a.resource_count_below ?? 0)
+              : (a.resource_count ?? 0),
         },
       ]),
     ),
