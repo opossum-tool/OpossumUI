@@ -65,7 +65,6 @@ describe('listAttributions', () => {
 
     expect(result['on-parent']).toMatchObject({
       relation: 'resource',
-      count: 1,
     });
     expect(result['on-child']).toMatchObject({
       relation: 'children',

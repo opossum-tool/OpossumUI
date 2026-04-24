@@ -161,6 +161,21 @@ export async function listAttributions(props: {
     unrelated: 'unrelated',
   } as const;
 
+  function getCount(attribution: (typeof attributions)[number]) {
+    if (
+      attribution.relationship === 'same' ||
+      attribution.relationship === 'ancestor'
+    ) {
+      return undefined;
+    }
+
+    if (attribution.relationship === 'descendant') {
+      return attribution.resource_count_below ?? 0;
+    }
+
+    return attribution.resource_count ?? 0;
+  }
+
   return {
     result: Object.fromEntries(
       attributions.map((a) => [
@@ -168,10 +183,7 @@ export async function listAttributions(props: {
         {
           ...(JSON.parse(a.data) as PackageInfo),
           relation: backendToFrontendRelationship[a.relationship],
-          count:
-            a.relationship !== 'unrelated' && 'resource_count_below' in a
-              ? (a.resource_count_below ?? 0)
-              : (a.resource_count ?? 0),
+          count: getCount(a),
         },
       ]),
     ),
