@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { type PackageInfo } from '../../shared/shared-types';
-import { packageInfoKeys } from './get-stripped-package-info';
 
 const TYPES_REQUIRING_NAMESPACE = [
   'bitbucket',
@@ -16,8 +15,18 @@ const TYPES_REQUIRING_NAMESPACE = [
 
 const purlTypeRegex = /^[a-z0-9]+$/;
 
+const COMPLETENESS_RELEVANT_ATTRIBUTES: Array<keyof PackageInfo> = [
+  'copyright',
+  'packageName',
+  'packageType',
+  'url',
+  'licenseName',
+  'licenseText',
+  'packageNamespace',
+];
+
 export function isPackageIncomplete(packageInfo: PackageInfo): boolean {
-  return packageInfoKeys.some((attribute) =>
+  return COMPLETENESS_RELEVANT_ATTRIBUTES.some((attribute) =>
     isPackageAttributeIncomplete(attribute, packageInfo),
   );
 }
@@ -50,7 +59,7 @@ export function isPackageAttributeIncomplete(
 }
 
 export function isPackageInvalid(packageInfo: PackageInfo): boolean {
-  return packageInfoKeys.some(
+  return COMPLETENESS_RELEVANT_ATTRIBUTES.some(
     (attribute) =>
       getPackageAttributeInvalidError(attribute, packageInfo) !== undefined,
   );
