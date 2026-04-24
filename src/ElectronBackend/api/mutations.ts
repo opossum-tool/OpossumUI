@@ -202,24 +202,9 @@ export const mutations = {
           resourceIds: [resource.id],
         });
 
-        for (const attributionUuid of params.attributionUuids) {
-          const existingAttribution = await getAttributionOrThrow(
-            trx,
-            attributionUuid,
-          );
+        await ensureAttributionsAreNotExternal(trx, params.attributionUuids);
 
-          if (existingAttribution.is_external) {
-            throw new Error(
-              'Only manual attributions can be unlinked from resources',
-            );
-          }
-
-          await trx
-            .deleteFrom('resource_to_attribution')
-            .where('resource_id', '=', resource.id)
-            .where('attribution_uuid', '=', attributionUuid)
-            .execute();
-        }
+        await unlinkAttributions(trx, resource.id, params.attributionUuids);
 
         await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
       });

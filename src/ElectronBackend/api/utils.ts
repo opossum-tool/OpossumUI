@@ -556,6 +556,18 @@ export async function unlinkAttributions(
     .where('resource_id', '=', resourceId)
     .where('attribution_uuid', 'in', attributionUuids)
     .execute();
+
+  // delete any of the just-unlinked attributions that no longer link to any resource
+  await trx
+    .deleteFrom('attribution')
+    .where('uuid', 'in', attributionUuids)
+    .where('uuid', 'not in', (eb) =>
+      eb
+        .selectFrom('resource_to_attribution')
+        .select('attribution_uuid')
+        .where('attribution_is_external', '=', 0),
+    )
+    .execute();
 }
 
 export async function linkAttributions(
