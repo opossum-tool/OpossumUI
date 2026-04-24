@@ -21,7 +21,7 @@ import { type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setSelectedAttributionIdIfRemapped } from '../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getIsPackageInfoDirty,
@@ -113,21 +113,23 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
         const result = await updateOrMatch.mutateAsync({
           attributions: { [packageInfo.id]: packageInfo },
         });
-        if (result.oldUuidsToNewUuids[packageInfo.id]) {
-          dispatch(
-            setSelectedAttributionId(result.oldUuidsToNewUuids[packageInfo.id]),
-          );
-        }
+        dispatch(
+          setSelectedAttributionIdIfRemapped(
+            result.oldUuidsToNewUuids,
+            packageInfo.id,
+          ),
+        );
       } else {
         const result = await createOrMatch.mutateAsync({
           resourcePath: selectedResourceId,
           attributions: { [packageInfo.id]: packageInfo },
         });
-        if (result.oldUuidsToNewUuids[packageInfo.id]) {
-          dispatch(
-            setSelectedAttributionId(result.oldUuidsToNewUuids[packageInfo.id]),
-          );
-        }
+        dispatch(
+          setSelectedAttributionIdIfRemapped(
+            result.inputKeysToNewUuids,
+            packageInfo.id,
+          ),
+        );
       }
     }
   }, [
@@ -251,13 +253,12 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
                 resourcePath: selectedResourceId,
                 attributions: { [packageInfo.id]: packageInfo },
               });
-              if (result.oldUuidsToNewUuids[packageInfo.id]) {
-                dispatch(
-                  setSelectedAttributionId(
-                    result.oldUuidsToNewUuids[packageInfo.id],
-                  ),
-                );
-              }
+              dispatch(
+                setSelectedAttributionIdIfRemapped(
+                  result.inputKeysToNewUuids,
+                  packageInfo.id,
+                ),
+              );
             }}
           >
             {linkAttribution.isPending ? (

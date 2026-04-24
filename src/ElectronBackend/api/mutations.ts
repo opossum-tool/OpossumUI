@@ -12,6 +12,7 @@ import {
 } from './progressBarUtils';
 import { type QueryName, type QueryParams } from './queries';
 import {
+  ensureAttributionsAreLinkedOnMultipleResources,
   ensureAttributionsAreNotExternal,
   findMatchingAttributionUuid,
   getAttributionOrThrow,
@@ -253,55 +254,33 @@ export const mutations = {
     resourcePath: string;
     attributions: Attributions;
   }) {
-    const oldUuidsToNewUuids: Record<string, string> = await getDb()
+    const result = await getDb()
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
+        const inputUuids = Object.keys(params.attributions);
+        await ensureAttributionsAreNotExternal(trx, inputUuids);
+        await ensureAttributionsAreLinkedOnMultipleResources(trx, inputUuids);
 
-        await ensureAttributionsAreNotExternal(
-          trx,
-          Object.keys(params.attributions),
-        );
+        await unlinkAttributions(trx, resource.id, inputUuids);
 
-        const attributionsLinkedOnSingleResource = (
-          await trx
-            .selectFrom('resource_to_attribution')
-            .select('attribution_uuid')
-            .where('attribution_uuid', 'in', Object.keys(params.attributions))
-            .groupBy('attribution_uuid')
-            .having((eb) => eb.fn.countAll(), '<=', 1)
-            .execute()
-        ).map((attribution) => attribution.attribution_uuid);
-
-        if (attributionsLinkedOnSingleResource.length > 0) {
-          throw new Error(
-            `Cannot modify attributions with uuids: ${attributionsLinkedOnSingleResource.join(', ')}, if they only link to a single resource`,
-          );
-        }
-
-        await unlinkAttributions(
-          trx,
-          resource.id,
-          Object.keys(params.attributions),
-        );
-
-        const newUuids = await matchOrCreateAttributions(
+        const oldUuidsToNewUuids = await matchOrCreateAttributions(
           trx,
           params.attributions,
         );
 
-        await linkAttributions(trx, resource.id, newUuids, {
-          ignoreExisting: true,
-        });
+        await linkAttributions(
+          trx,
+          resource.id,
+          Object.values(oldUuidsToNewUuids),
+          {
+            ignoreExisting: true,
+          },
+        );
 
         await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
 
-        return Object.fromEntries(
-          Object.keys(params.attributions).map((attributionUuid, index) => [
-            attributionUuid,
-            newUuids[index],
-          ]),
-        );
+        return { oldUuidsToNewUuids };
       });
     return {
       invalidates: [
@@ -314,7 +293,7 @@ export const mutations = {
         })),
         { queryName: 'getResourceCountOnAttribution' },
       ],
-      result: { oldUuidsToNewUuids },
+      result,
     };
   },
 
@@ -322,34 +301,32 @@ export const mutations = {
     resourcePath: string;
     attributions: Attributions;
   }) {
-    const oldUuidsToNewUuids = await getDb()
+    const result = await getDb()
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
 
-        const newUuids = await matchOrCreateAttributions(
+        const inputKeysToNewUuids = await matchOrCreateAttributions(
           trx,
           params.attributions,
           { ignorePreSelected: true },
         );
 
-        await linkAttributions(trx, resource.id, newUuids, {
-          ignoreExisting: true,
-        });
+        await linkAttributions(
+          trx,
+          resource.id,
+          Object.values(inputKeysToNewUuids),
+          { ignoreExisting: true },
+        );
 
         await addManualOrExternalCaaToResources(trx, 'manual', {
           resourceIds: [resource.id],
-          attributionUuids: newUuids,
+          attributionUuids: Object.values(inputKeysToNewUuids),
         });
 
         await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
 
-        return Object.fromEntries(
-          Object.keys(params.attributions).map((attributionUuid, index) => [
-            attributionUuid,
-            newUuids[index],
-          ]),
-        );
+        return { inputKeysToNewUuids };
       });
 
     return {
@@ -359,38 +336,37 @@ export const mutations = {
         ...RESOURCE_TREE_INVALIDATIONS,
         { queryName: 'getResourceCountOnAttribution' },
       ],
-      result: {
-        oldUuidsToNewUuids,
-      },
+      result,
     };
   },
 
   async updateOrMatchAttributions(params: { attributions: Attributions }) {
-    const oldUuidsToNewUuids: Record<string, string> = await getDb()
+    const result = await getDb()
       .transaction()
-      .execute(async (trx) =>
-        Object.fromEntries(
-          await Promise.all(
-            Object.entries(params.attributions).map(
-              async ([attributionUuid, attributionData]) => {
-                // Updating an attribution always removes preselected
-                const newPackageInfo = omit(attributionData, 'preSelected');
-                const matchingAttributionUuid =
-                  await findMatchingAttributionUuid(trx, newPackageInfo);
-                if (matchingAttributionUuid) {
-                  await replaceAttributions(trx, {
-                    attributionUuidsToReplace: [attributionUuid],
-                    attributionUuidToReplaceWith: matchingAttributionUuid,
-                  });
-                  return [attributionUuid, matchingAttributionUuid];
-                }
-                await updateAttribution(trx, attributionUuid, newPackageInfo);
-                return [attributionUuid, attributionUuid];
-              },
-            ),
-          ),
-        ),
-      );
+      .execute(async (trx) => {
+        const oldUuidsToNewUuids: Record<string, string> = {};
+        for (const [attributionUuid, attributionData] of Object.entries(
+          params.attributions,
+        )) {
+          // Updating an attribution always removes preselected
+          const newPackageInfo = omit(attributionData, 'preSelected');
+          const matchingAttributionUuid = await findMatchingAttributionUuid(
+            trx,
+            newPackageInfo,
+          );
+          if (matchingAttributionUuid) {
+            await replaceAttributions(trx, {
+              attributionUuidsToReplace: [attributionUuid],
+              attributionUuidToReplaceWith: matchingAttributionUuid,
+            });
+            oldUuidsToNewUuids[attributionUuid] = matchingAttributionUuid;
+          } else {
+            await updateAttribution(trx, attributionUuid, newPackageInfo);
+            oldUuidsToNewUuids[attributionUuid] = attributionUuid;
+          }
+        }
+        return { oldUuidsToNewUuids };
+      });
     return {
       invalidates: [
         ...Object.keys(params.attributions).map((attributionUuid) => ({
@@ -402,7 +378,7 @@ export const mutations = {
         ...RESOURCE_TREE_INVALIDATIONS,
         { queryName: 'getResourceCountOnAttribution' },
       ],
-      result: { oldUuidsToNewUuids },
+      result,
     };
   },
 } satisfies Record<string, MutationFunction>;

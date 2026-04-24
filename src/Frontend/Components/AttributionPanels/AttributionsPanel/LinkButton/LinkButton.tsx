@@ -8,9 +8,11 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
-import { useAppSelector } from '../../../../state/hooks';
+import { setSelectedAttributionIdIfRemapped } from '../../../../state/actions/resource-actions/navigation-actions';
+import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import {
   getIsPackageInfoDirty,
+  getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
@@ -24,10 +26,12 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
 }) => {
+  const dispatch = useAppDispatch();
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
   const createOrMatch = backend.createOrMatchAttributions.useMutation();
   const mutationsPending = useIsMutating() > 0;
@@ -35,14 +39,21 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   const handleLink = async () => {
     if (attributions) {
       const attributionsToLink = Object.fromEntries(
-        Object.entries(attributions).filter(([attributionId]) =>
-          selectedAttributionIds.includes(attributionId),
-        ),
+        selectedAttributionIds.map((attributionId) => [
+          attributionId,
+          attributions[attributionId],
+        ]),
       );
-      await createOrMatch.mutateAsync({
+      const result = await createOrMatch.mutateAsync({
         resourcePath: selectedResourceId,
         attributions: attributionsToLink,
       });
+      dispatch(
+        setSelectedAttributionIdIfRemapped(
+          result.inputKeysToNewUuids,
+          selectedAttributionId,
+        ),
+      );
     }
     setMultiSelectedAttributionIds([]);
   };

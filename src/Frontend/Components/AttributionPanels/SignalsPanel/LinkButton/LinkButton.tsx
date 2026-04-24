@@ -8,7 +8,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
-import { setSelectedAttributionId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setSelectedAttributionIdIfRemapped } from '../../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -37,21 +37,21 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   const handleLink = async () => {
     if (attributions) {
       const attributionsToLink = Object.fromEntries(
-        Object.entries(attributions).filter(([attributionId]) =>
-          selectedAttributionIds.includes(attributionId),
-        ),
+        selectedAttributionIds.map((attributionId) => [
+          attributionId,
+          attributions[attributionId],
+        ]),
       );
       const result = await createOrMatch.mutateAsync({
         resourcePath: selectedResourceId,
         attributions: attributionsToLink,
       });
-      if (result.oldUuidsToNewUuids[selectedAttributionId]) {
-        dispatch(
-          setSelectedAttributionId(
-            result.oldUuidsToNewUuids[selectedAttributionId],
-          ),
-        );
-      }
+      dispatch(
+        setSelectedAttributionIdIfRemapped(
+          result.inputKeysToNewUuids,
+          selectedAttributionId,
+        ),
+      );
     }
     setMultiSelectedAttributionIds([]);
   };

@@ -8,7 +8,7 @@ import { skipToken } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { text } from '../../../shared/text';
-import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import { setSelectedAttributionIdIfRemapped } from '../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -94,13 +94,12 @@ export const ConfirmSavePopup: React.FC<Props> = ({
       const result = await updateOrMatch.mutateAsync({
         attributions: modifiedAttributionsToSave,
       });
-      if (result.oldUuidsToNewUuids[selectedAttributionId]) {
-        dispatch(
-          setSelectedAttributionId(
-            result.oldUuidsToNewUuids[selectedAttributionId],
-          ),
-        );
-      }
+      dispatch(
+        setSelectedAttributionIdIfRemapped(
+          result.oldUuidsToNewUuids,
+          selectedAttributionId,
+        ),
+      );
     }
     onClose();
   };
@@ -111,13 +110,12 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         resourcePath: selectedResourceId,
         attributions: modifiedAttributionsToSave,
       });
-      if (result.oldUuidsToNewUuids[selectedAttributionId]) {
-        dispatch(
-          setSelectedAttributionId(
-            result.oldUuidsToNewUuids[selectedAttributionId],
-          ),
-        );
-      }
+      dispatch(
+        setSelectedAttributionIdIfRemapped(
+          result.oldUuidsToNewUuids,
+          selectedAttributionId,
+        ),
+      );
     }
     onClose();
   };

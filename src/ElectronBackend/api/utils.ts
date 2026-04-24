@@ -649,21 +649,19 @@ export async function matchOrCreateAttributions(
   trx: Transaction<DB>,
   attributions: Attributions,
   options?: { ignorePreSelected?: boolean },
-) {
-  const newUuids: Array<string> = [];
-  for (const packageInfo of Object.values(attributions)) {
-    newUuids.push(
-      await matchOrCreateAttribution(
-        trx,
-        {
-          ...packageInfo,
-          preSelected: undefined,
-        },
-        options,
-      ),
+): Promise<Record<string, string>> {
+  const inputKeysToNewUuids: Record<string, string> = {};
+  for (const [attributionKey, packageInfo] of Object.entries(attributions)) {
+    inputKeysToNewUuids[attributionKey] = await matchOrCreateAttribution(
+      trx,
+      {
+        ...packageInfo,
+        preSelected: undefined,
+      },
+      options,
     );
   }
-  return newUuids;
+  return inputKeysToNewUuids;
 }
 
 export async function updateAttribution(
@@ -706,7 +704,28 @@ export async function ensureAttributionsAreNotExternal(
 
   if (externalAttributions.length > 0) {
     throw new Error(
-      `attributions with uuids ${attributionUuids.join(', ')} are external`,
+      `Attributions with uuids ${attributionUuids.join(', ')} are external`,
+    );
+  }
+}
+
+export async function ensureAttributionsAreLinkedOnMultipleResources(
+  trx: Transaction<DB>,
+  attributionUuids: Array<string>,
+) {
+  const attributionsLinkedOnSingleResource = (
+    await trx
+      .selectFrom('resource_to_attribution')
+      .select('attribution_uuid')
+      .where('attribution_uuid', 'in', attributionUuids)
+      .groupBy('attribution_uuid')
+      .having((eb) => eb.fn.countAll(), '<=', 1)
+      .execute()
+  ).map((attribution) => attribution.attribution_uuid);
+
+  if (attributionsLinkedOnSingleResource.length > 0) {
+    throw new Error(
+      `Cannot modify attributions with uuids: ${attributionsLinkedOnSingleResource.join(', ')}, if they only link to a single resource`,
     );
   }
 }
@@ -741,7 +760,7 @@ export async function replaceAttributions(
   ).map((r) => r.resource_id);
 
   // Reassign resource links to the replacement attribution, skipping conflicts
-  // (conflicting links will be cascade deleted when the old attribution is removed);
+  // (conflicting links will be cascade deleted when the old attribution is removed)
   await sql`
   UPDATE OR IGNORE resource_to_attribution
   SET attribution_uuid = ${params.attributionUuidToReplaceWith}
