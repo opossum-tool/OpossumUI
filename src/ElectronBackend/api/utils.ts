@@ -551,13 +551,11 @@ export async function unlinkAttributions(
   resourceId: number,
   attributionUuids: Array<string>,
 ) {
-  for (const attributionUuid of attributionUuids) {
-    await trx
-      .deleteFrom('resource_to_attribution')
-      .where('resource_id', '=', resourceId)
-      .where('attribution_uuid', '=', attributionUuid)
-      .execute();
-  }
+  await trx
+    .deleteFrom('resource_to_attribution')
+    .where('resource_id', '=', resourceId)
+    .where('attribution_uuid', 'in', attributionUuids)
+    .execute();
 }
 
 export async function linkAttributions(
@@ -566,19 +564,19 @@ export async function linkAttributions(
   attributionUuids: Array<string>,
   options?: { ignoreExisting?: boolean },
 ) {
-  for (const attributionUuid of attributionUuids) {
-    await trx
-      .insertInto('resource_to_attribution')
-      .values({
+  await trx
+    .insertInto('resource_to_attribution')
+    .values(
+      attributionUuids.map((attributionUuid) => ({
         resource_id: resourceId,
         attribution_uuid: attributionUuid,
         attribution_is_external: 0,
-      })
-      .$if(options?.ignoreExisting ?? false, (eb) =>
-        eb.onConflict((oc) => oc.doNothing()),
-      )
-      .execute();
-  }
+      })),
+    )
+    .$if(options?.ignoreExisting ?? false, (eb) =>
+      eb.onConflict((oc) => oc.doNothing()),
+    )
+    .execute();
 }
 
 export async function findMatchingAttributionUuid(
