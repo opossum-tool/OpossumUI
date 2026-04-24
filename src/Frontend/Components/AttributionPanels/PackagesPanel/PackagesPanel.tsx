@@ -255,7 +255,7 @@ export const PackagesPanel = ({
 
   function renderTabs() {
     if (!availableRelations?.length) {
-      return null;
+      return <Tabs centered variant={'fullWidth'} value={-1}></Tabs>;
     }
 
     const activeTabIndex = availableRelations.findIndex(
