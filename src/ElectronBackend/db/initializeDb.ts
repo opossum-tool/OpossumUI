@@ -122,7 +122,7 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
   has_unresolved_external_attribution AS MATERIALIZED (
     SELECT DISTINCT resource_id
     FROM resource_to_attribution
-    WHERE attribution_uuid IN (SELECT uuid FROM attribution WHERE is_external = 1 AND is_resolved = 0)
+    WHERE attribution_is_external = 1 AND attribution_uuid NOT IN (SELECT uuid FROM attribution WHERE is_external = 1 AND is_resolved = 1)
   ),
   closest_attributed_ancestors(resource_id, parent_id, is_file, breakpoint, manual, external) AS (
     SELECT r.id, r.parent_id, r.is_file, r.id,
@@ -509,7 +509,7 @@ async function initializeAttributionTable(
   await trx.schema
     .createIndex('attribution_is_external_covering_idx')
     .on('attribution')
-    .columns(['is_external', 'is_resolved'])
+    .columns(['is_external', 'is_resolved', 'uuid'])
     .where('is_external', '=', 1)
     .where('is_resolved', '=', 0)
     .execute();
@@ -640,6 +640,7 @@ async function initializeResourceToAttributionTable(
     .on('resource_to_attribution')
     .column('attribution_is_external')
     .column('resource_id')
+    .column('attribution_uuid')
     .execute();
 }
 
