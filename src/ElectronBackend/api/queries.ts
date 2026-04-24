@@ -13,6 +13,7 @@ import {
 import {
   type ExternalAttributionSources,
   type PackageInfo,
+  type ProjectMetadata,
   type RawClassificationsConfig,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
@@ -542,6 +543,19 @@ export const queries = {
       result: Object.fromEntries(
         result.map((r) => [r.classification, r.description]),
       ),
+    };
+  },
+
+  async metadata(): Promise<{ result: ProjectMetadata }> {
+    const result = await getDb().selectFrom('metadata').selectAll().execute();
+
+    return {
+      result: Object.fromEntries(
+        result.map((r) => [
+          r.key,
+          r.value_json ? JSON.parse(r.value_json) : undefined,
+        ]),
+      ) as ProjectMetadata,
     };
   },
 
