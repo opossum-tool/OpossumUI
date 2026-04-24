@@ -23,6 +23,7 @@ import {
   replaceAttributions,
   unlinkAttributions,
   updateAttribution,
+  withBatching,
 } from './utils';
 
 type QueryInvalidation<Q extends QueryName> = {
@@ -180,13 +181,6 @@ export const mutations = {
         })),
       ],
     };
-  },
-
-  async resolveAttributions(params: { attributionUuids: Array<string> }) {
-    return setAttributionsResolvedStatus(params.attributionUuids, true);
-  },
-  async unresolveAttributions(params: { attributionUuids: Array<string> }) {
-    return setAttributionsResolvedStatus(params.attributionUuids, false);
   },
 
   async unlinkResourceFromAttributions(params: {
@@ -366,6 +360,14 @@ export const mutations = {
       result,
     };
   },
+
+  async resolveAttributions(params: { attributionUuids: Array<string> }) {
+    return setAttributionsResolvedStatus(params.attributionUuids, true);
+  },
+
+  async unresolveAttributions(params: { attributionUuids: Array<string> }) {
+    return setAttributionsResolvedStatus(params.attributionUuids, false);
+  },
 } satisfies Record<string, MutationFunction>;
 
 async function setAttributionsResolvedStatus(
@@ -375,36 +377,45 @@ async function setAttributionsResolvedStatus(
   await getDb()
     .transaction()
     .execute(async (trx) => {
-      if (resolvedStatus) {
-        await removeManualOrExternalCaaFromResources(trx, 'external', {
-          attributionUuids,
-        });
-      } else {
-        await addManualOrExternalCaaToResources(trx, 'external', {
-          attributionUuids,
-        });
-      }
+      await withBatching(
+        attributionUuids,
+        async (batch) => {
+          if (batch === undefined) {
+            return;
+          }
+          if (resolvedStatus) {
+            await removeManualOrExternalCaaFromResources(trx, 'external', {
+              attributionUuids: batch,
+            });
+          } else {
+            await addManualOrExternalCaaToResources(trx, 'external', {
+              attributionUuids: batch,
+            });
+          }
 
-      const existingAttributions = await trx
-        .selectFrom('attribution')
-        .select((eb) => eb.fn.countAll<number>().as('count'))
-        .where('uuid', 'in', attributionUuids)
-        .where('is_external', '=', 1)
-        .executeTakeFirstOrThrow();
+          const existingAttributions = await trx
+            .selectFrom('attribution')
+            .select((eb) => eb.fn.countAll<number>().as('count'))
+            .where('uuid', 'in', batch)
+            .where('is_external', '=', 1)
+            .executeTakeFirstOrThrow();
 
-      if (existingAttributions.count !== attributionUuids.length) {
-        throw new Error(
-          `Expected to set ${attributionUuids.length} to ${resolvedStatus ? 'resolved' : 'unresolved'}, but only ${existingAttributions.count} were found`,
-        );
-      }
+          if (existingAttributions.count !== batch.length) {
+            throw new Error(
+              `Expected to set ${batch.length} to ${resolvedStatus ? 'resolved' : 'unresolved'}, but only ${existingAttributions.count} were found`,
+            );
+          }
 
-      await trx
-        .updateTable('attribution')
-        .set({ is_resolved: Number(resolvedStatus) })
-        .where('uuid', 'in', attributionUuids)
-        .execute();
+          await trx
+            .updateTable('attribution')
+            .set({ is_resolved: Number(resolvedStatus) })
+            .where('uuid', 'in', batch)
+            .execute();
+        },
+        // The main problem is updating the caa table, which can only take 15_000 attributionUuids
+        { batchSize: 15_000 },
+      );
     });
-
   return {
     invalidates: [
       ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
