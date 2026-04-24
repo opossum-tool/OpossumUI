@@ -8,7 +8,6 @@ import userEvent from '@testing-library/user-event';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { View } from '../../../enums/enums';
-import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -30,11 +29,9 @@ describe('AuditView', () => {
         resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
           [faker.opossum.filePath(resourceName)]: [packageInfo.id],
         }),
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [
-        setProjectMetadata(faker.opossum.metadata()),
-        navigateToView(View.Audit),
-      ],
+      actions: [navigateToView(View.Audit)],
     });
 
     await userEvent.click(

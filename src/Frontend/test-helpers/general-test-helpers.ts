@@ -5,16 +5,17 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isEmpty } from 'lodash-es';
 
-import type {
-  Attributions,
-  AttributionsToResources,
-  BaseUrlsForSources,
-  ExternalAttributionSources,
-  FrequentLicenses,
-  ParsedFileContent,
-  RawProjectConfig,
-  Resources,
-  ResourcesToAttributions,
+import {
+  type Attributions,
+  type AttributionsToResources,
+  type BaseUrlsForSources,
+  type ExternalAttributionSources,
+  type FrequentLicenses,
+  type ParsedFileContent,
+  type ProjectMetadata,
+  type RawProjectConfig,
+  type Resources,
+  type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import {
   EMPTY_PROJECT_METADATA,
@@ -57,6 +58,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
   externalAttributionSources?: ExternalAttributionSources;
   frequentLicenses?: FrequentLicenses;
   baseUrlsForSources?: BaseUrlsForSources;
+  metadata?: ProjectMetadata;
 }): ParsedFileContent {
   const defaultTestResources: Resources = {
     thirdParty: {
@@ -83,6 +85,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
     ...EMPTY_PARSED_FILE_CONTENT,
     resources,
     ...(testData.config ? { config: testData.config } : {}),
+    ...(testData.metadata ? { metadata: testData.metadata } : {}),
     manualAttributions: {
       attributions: testData.manualAttributions || {},
       resourcesToAttributions: testResourcesToManualAttributions,

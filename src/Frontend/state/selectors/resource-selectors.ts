@@ -2,11 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type {
-  PackageInfo,
-  ProjectMetadata,
-} from '../../../shared/shared-types';
-import type { State } from '../../types/types';
+import { type PackageInfo } from '../../../shared/shared-types';
+import { type State } from '../../types/types';
 
 export function getSelectedAttributionId(state: State): string {
   return state.resourceState.selectedAttributionId;
@@ -30,10 +27,6 @@ export function getSelectedResourceId(state: State): string {
 
 export function getTemporaryDisplayPackageInfo(state: State): PackageInfo {
   return state.resourceState.temporaryDisplayPackageInfo;
-}
-
-export function getProjectMetadata(state: State): ProjectMetadata {
-  return state.resourceState.metadata;
 }
 
 export function getIsPackageInfoDirty(state: State): boolean {

@@ -9,7 +9,6 @@ import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { ROOT_PATH } from '../../../../shared-constants';
-import { setProjectMetadata } from '../../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
 import {
@@ -29,8 +28,8 @@ describe('SignalsPanel', () => {
     const { store } = await renderComponent(<SignalsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -50,8 +49,8 @@ describe('SignalsPanel', () => {
     const { store } = await renderComponent(<SignalsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -73,8 +72,8 @@ describe('SignalsPanel', () => {
     await renderComponent(<SignalsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -98,8 +97,8 @@ describe('SignalsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
         resolvedExternalAttributions: new Set([packageInfo.id]),
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -125,8 +124,8 @@ describe('SignalsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
         resolvedExternalAttributions: new Set([packageInfo.id]),
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -152,8 +151,8 @@ describe('SignalsPanel', () => {
     await renderComponent(<SignalsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -183,8 +182,8 @@ describe('SignalsPanel', () => {
           [filePath]: [packageInfo.id],
         },
         resources: pathsToResources([filePath]),
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await expectResourcesToManualAttributions({});
@@ -217,11 +216,9 @@ describe('SignalsPanel', () => {
           [filePath]: [packageInfo.id],
         },
         resources: pathsToResources([filePath]),
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [
-        setSelectedResourceId(filePath),
-        setProjectMetadata(faker.opossum.metadata()),
-      ],
+      actions: [setSelectedResourceId(filePath)],
     });
 
     await userEvent.click(
