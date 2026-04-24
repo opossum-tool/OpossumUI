@@ -22,7 +22,7 @@ const classes = {
       backgroundColor: OpossumColors.white,
       borderRadius: '0px',
     },
-    '& label': {
+    '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.white,
       padding: '1px 3px',
       fontSize: '13px',
@@ -47,7 +47,7 @@ const classes = {
       backgroundColor: OpossumColors.lightOrange,
       borderRadius: '0px',
     },
-    '& label': {
+    '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.lightOrange,
       padding: '1px 3px',
     },
