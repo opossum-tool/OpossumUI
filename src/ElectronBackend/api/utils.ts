@@ -614,9 +614,16 @@ async function matchOrCreateAttribution(
   packageInfo: PackageInfo,
   options?: { ignorePreSelected?: boolean },
 ) {
+  const wasPreferred = await computeWasPreferred(trx, packageInfo);
+
+  const dataToInsert = {
+    ...removeEmptyStrings(packageInfo),
+    wasPreferred,
+  };
+
   const matchedAttributionUuid = await findMatchingAttributionUuid(
     trx,
-    packageInfo,
+    dataToInsert,
     options,
   );
 
@@ -624,17 +631,14 @@ async function matchOrCreateAttribution(
     return matchedAttributionUuid;
   }
 
-  const wasPreferred = await computeWasPreferred(trx, packageInfo);
-
   const newUuid = uuid4();
   await trx
     .insertInto('attribution')
     .values({
       uuid: newUuid,
       data: JSON.stringify({
-        ...removeEmptyStrings(packageInfo),
+        ...dataToInsert,
         id: newUuid,
-        wasPreferred,
       }),
       is_external: 0,
     })

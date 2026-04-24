@@ -65,9 +65,6 @@ function filterManualComparableAttributes(packageInfo: PackageInfo) {
   );
 }
 
-/**
- * E.g. for comparing an attribution to its original signal
- */
 function filterExternalComparableAttributes(packageInfo: PackageInfo) {
   return filterComparableAttributes(packageInfo, FORM_ATTRIBUTES);
 }
