@@ -72,12 +72,6 @@ export async function loadInputAndOutputFromFilePath(
     true,
   );
 
-  processingStatusUpdater.info('Sending data to user interface');
-  mainWindow.webContents.send(
-    AllowedFrontendChannels.FileLoaded,
-    result.frontendData,
-  );
-
   processingStatusUpdater.info('Finalizing global state');
   globalState.projectTitle = result.projectTitle;
   globalState.projectId = result.projectId;

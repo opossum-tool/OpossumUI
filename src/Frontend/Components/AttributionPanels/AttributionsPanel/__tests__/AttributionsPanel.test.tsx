@@ -16,7 +16,6 @@ import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { ROOT_PATH } from '../../../../shared-constants';
 import {
   setIsPackageInfoDirty,
-  setProjectMetadata,
   setTemporaryDisplayPackageInfo,
 } from '../../../../state/actions/resource-actions/all-views-simple-actions';
 import {
@@ -41,8 +40,8 @@ describe('AttributionsPanel', () => {
     const { store } = await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -65,8 +64,8 @@ describe('AttributionsPanel', () => {
     const { store } = await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -112,8 +111,8 @@ describe('AttributionsPanel', () => {
     const { store } = await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -139,8 +138,8 @@ describe('AttributionsPanel', () => {
     await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -170,8 +169,8 @@ describe('AttributionsPanel', () => {
         resourcesToManualAttributions: {
           [filePath]: [packageInfo.id],
         },
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -200,8 +199,8 @@ describe('AttributionsPanel', () => {
         resourcesToManualAttributions: {
           [filePath]: [packageInfo.id],
         },
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -231,11 +230,9 @@ describe('AttributionsPanel', () => {
         resourcesToManualAttributions: {
           [filePath]: [packageInfo.id],
         },
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [
-        setSelectedResourceId(filePath),
-        setProjectMetadata(faker.opossum.metadata()),
-      ],
+      actions: [setSelectedResourceId(filePath)],
     });
 
     await userEvent.click(
@@ -263,11 +260,9 @@ describe('AttributionsPanel', () => {
           [filePath]: [packageInfo.id],
         },
         attributionBreakpoints: new Set([filePath]),
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [
-        setSelectedResourceId(filePath),
-        setProjectMetadata(faker.opossum.metadata()),
-      ],
+      actions: [setSelectedResourceId(filePath)],
     });
 
     await userEvent.click(
@@ -291,8 +286,8 @@ describe('AttributionsPanel', () => {
     const { store } = await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -325,8 +320,8 @@ describe('AttributionsPanel', () => {
     await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -350,8 +345,8 @@ describe('AttributionsPanel', () => {
     await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -376,8 +371,8 @@ describe('AttributionsPanel', () => {
     await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -401,8 +396,8 @@ describe('AttributionsPanel', () => {
     await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(
@@ -443,8 +438,8 @@ describe('AttributionsPanel', () => {
         externalAttributions: {
           [packageInfo3.id]: packageInfo3,
         },
+        metadata: faker.opossum.metadata(),
       }),
-      actions: [setProjectMetadata(faker.opossum.metadata())],
     });
 
     await userEvent.click(

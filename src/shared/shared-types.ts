@@ -186,24 +186,6 @@ export interface ParsedFileContent {
   externalAttributionSources: ExternalAttributionSources;
 }
 
-export const EXCLUDED_FROM_FRONTEND_FILE_CONTENT = [
-  'resources',
-  'externalAttributions',
-  'frequentLicenses',
-  'externalAttributionSources',
-  'baseUrlsForSources',
-  'attributionBreakpoints',
-  'manualAttributions',
-  'resolvedExternalAttributions',
-  'filesWithChildren',
-  'config',
-] as const;
-
-export type ParsedFrontendFileContent = Omit<
-  ParsedFileContent,
-  (typeof EXCLUDED_FROM_FRONTEND_FILE_CONTENT)[number]
->;
-
 export interface BaseUrlsForSources {
   [path: string]: string | null;
 }

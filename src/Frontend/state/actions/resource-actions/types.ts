@@ -2,10 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type PackageInfo,
-  type ProjectMetadata,
-} from '../../../../shared/shared-types';
+import { type PackageInfo } from '../../../../shared/shared-types';
 
 export const ACTION_SET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_SELECTED_ATTRIBUTION_ID';
@@ -19,7 +16,6 @@ export const ACTION_SET_TARGET_SELECTED_RESOURCE_ID =
   'ACTION_SET_TARGET_SELECTED_RESOURCE_ID';
 export const ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID';
-export const ACTION_SET_PROJECT_METADATA = 'ACTION_SET_PROJECT_METADATA';
 export const ACTION_SET_IS_PACKAGE_INFO_DIRTY =
   'ACTION_SET_IS_PACKAGE_INFO_DIRTY';
 
@@ -31,7 +27,6 @@ export type ResourceAction =
   | SetTargetSelectedResourceId
   | SetSelectedAttributionId
   | SetTargetSelectedAttributionIdAction
-  | SetProjectMetadata
   | SetIsPackageInfoDirtyAction;
 
 export interface ResetResourceStateAction {
@@ -66,11 +61,6 @@ export interface SetSelectedAttributionId {
 export interface SetTargetSelectedAttributionIdAction {
   type: typeof ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID;
   payload: string | null;
-}
-
-export interface SetProjectMetadata {
-  type: typeof ACTION_SET_PROJECT_METADATA;
-  payload: ProjectMetadata;
 }
 
 export interface SetIsPackageInfoDirtyAction {

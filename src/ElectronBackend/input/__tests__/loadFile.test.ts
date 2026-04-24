@@ -4,11 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
-import {
-  Criticality,
-  type ParsedFrontendFileContent,
-  RawCriticality,
-} from '../../../shared/shared-types';
+import { Criticality, RawCriticality } from '../../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
 import { getDb } from '../../db/db';
@@ -76,13 +72,6 @@ const inputFileContent: ParsedOpossumInputFile = {
   },
 };
 
-const expectedFrontendData: ParsedFrontendFileContent = {
-  metadata: {
-    ...EMPTY_PROJECT_METADATA,
-    projectTitle: 'Test Title',
-  },
-};
-
 describe('loadFile', () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -101,7 +90,6 @@ describe('loadFile', () => {
     const result = (await loadFile(opossumPath, {})) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
-    expect(result.frontendData).toEqual(expectedFrontendData);
   });
 
   it('converts preSelected external attributions to manual attributions', async () => {
