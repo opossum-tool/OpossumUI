@@ -6,7 +6,7 @@ import { isEqual, pickBy } from 'lodash';
 
 import { type PackageInfo } from './shared-types';
 
-export const thirdPartyKeys: Array<keyof PackageInfo> = [
+export const THIRD_PARTY_KEYS: Array<keyof PackageInfo> = [
   'copyright',
   'licenseName',
   'licenseText',
@@ -25,20 +25,69 @@ export const FORM_ATTRIBUTES = [
   'comment',
 ] satisfies Array<keyof PackageInfo>;
 
+export const COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES = [
+  ...FORM_ATTRIBUTES,
+  'attributionConfidence',
+  'excludeFromNotice',
+  'followUp',
+  'needsReview',
+  'originIds',
+  'packagePURLAppendix',
+  'preferred',
+  'originalAttributionId',
+  'originalAttributionSource',
+  'originalAttributionWasPreferred',
+  'preferredOverOriginIds',
+  'wasPreferred',
+] satisfies Array<keyof PackageInfo>;
+
 export type FormAttribute = (typeof FORM_ATTRIBUTES)[number];
 
-function getComparableAttributes(packageInfo: PackageInfo) {
+function filterComparableAttributes(
+  packageInfo: PackageInfo,
+  attributeList: Array<keyof PackageInfo>,
+) {
   return pickBy(
     packageInfo,
     (value, key) =>
-      FORM_ATTRIBUTES.some((attribute) => attribute === key) &&
+      attributeList.some((attribute) => attribute === key) &&
       (packageInfo.firstParty
-        ? !thirdPartyKeys.includes(key as keyof PackageInfo)
+        ? !THIRD_PARTY_KEYS.includes(key as keyof PackageInfo)
         : true) &&
       !!value,
   );
 }
 
-export function areAttributionsEqual(a: PackageInfo, b: PackageInfo): boolean {
-  return isEqual(getComparableAttributes(a), getComparableAttributes(b));
+function filterManualComparableAttributes(packageInfo: PackageInfo) {
+  return filterComparableAttributes(
+    packageInfo,
+    COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES,
+  );
+}
+
+/**
+ * E.g. for comparing an attribution to its original signal
+ */
+function filterExternalComparableAttributes(packageInfo: PackageInfo) {
+  return filterComparableAttributes(packageInfo, FORM_ATTRIBUTES);
+}
+
+export function isEqualToManualAttribution(
+  a: PackageInfo,
+  b: PackageInfo,
+): boolean {
+  return isEqual(
+    filterManualComparableAttributes(a),
+    filterManualComparableAttributes(b),
+  );
+}
+
+export function isEqualToExternalAttribution(
+  a: PackageInfo,
+  b: PackageInfo,
+): boolean {
+  return isEqual(
+    filterExternalComparableAttributes(a),
+    filterExternalComparableAttributes(b),
+  );
 }

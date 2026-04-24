@@ -5,8 +5,8 @@
 import MuiDivider from '@mui/material/Divider';
 
 import {
-  areAttributionsEqual,
   FORM_ATTRIBUTES,
+  isEqualToExternalAttribution,
 } from '../../../shared/attribution-comparison';
 import { type PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -69,14 +69,14 @@ export function DiffPopup({
     <NotificationPopup
       header={text.diffPopup.title}
       leftButtonConfig={{
-        disabled: areAttributionsEqual(bufferPackageInfo, current),
+        disabled: isEqualToExternalAttribution(bufferPackageInfo, current),
         buttonText: text.diffPopup.applyChanges,
         onClick: () => {
           handleApplyChanges({ current, buffer: bufferPackageInfo });
         },
       }}
       centerRightButtonConfig={{
-        disabled: areAttributionsEqual(bufferPackageInfo, original),
+        disabled: isEqualToExternalAttribution(bufferPackageInfo, original),
         buttonText: text.diffPopup.revertAll,
         onClick: () => {
           setBufferPackageInfo({

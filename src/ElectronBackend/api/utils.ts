@@ -18,9 +18,9 @@ import { v4 as uuid4 } from 'uuid';
 
 import { FILTERS } from '../../Frontend/shared-constants';
 import {
-  areAttributionsEqual,
-  FORM_ATTRIBUTES,
-  thirdPartyKeys,
+  COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES,
+  isEqualToExternalAttribution,
+  THIRD_PARTY_KEYS,
 } from '../../shared/attribution-comparison';
 import { type Attributions, type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
@@ -536,7 +536,7 @@ async function computeWasPreferred(
 
   const originalData = JSON.parse(original.data) as PackageInfo;
   return (
-    (areAttributionsEqual(packageInfo, originalData) &&
+    (isEqualToExternalAttribution(packageInfo, originalData) &&
       originalData.wasPreferred) ||
     undefined
   );
@@ -592,10 +592,9 @@ export async function findMatchingAttributionUuid(
     .where('is_external', '=', 0)
     .$if(!options?.ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0));
 
-  const attributesToCompare = [
-    ...FORM_ATTRIBUTES,
-    ...(!strippedPackageInfo.firstParty ? thirdPartyKeys : []),
-  ];
+  const attributesToCompare = COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES.filter(
+    (a) => !(strippedPackageInfo.firstParty && THIRD_PARTY_KEYS.includes(a)),
+  );
 
   for (const attribute of attributesToCompare) {
     query = query.where(

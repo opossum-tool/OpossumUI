@@ -90,6 +90,14 @@ export default defineConfig(({ mode }) => ({
           name: { label: 'BE', color: 'blue' },
         },
       },
+      {
+        extends: true,
+        test: {
+          environment: 'node',
+          include: ['src/shared/**/__test{s,}__/**/*.test.{ts,tsx}'],
+          name: { label: 'SH', color: 'yellow' },
+        },
+      },
     ],
     setupFiles: './src/testing/setup.ts',
     globalSetup: './src/testing/globalSetup.ts',

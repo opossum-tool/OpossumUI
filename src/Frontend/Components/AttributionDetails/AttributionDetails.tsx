@@ -5,9 +5,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiDialogContentText from '@mui/material/DialogContentText';
-import { isEqual } from 'lodash';
 import { useEffect, useLayoutEffect, useMemo } from 'react';
 
+import { isEqualToManualAttribution } from '../../../shared/attribution-comparison';
 import { text } from '../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import {
@@ -20,7 +20,6 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
-import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 import { useIsSelectedAttributionVisible } from '../../util/use-attribution-lists';
 import { useCompareToOriginal } from '../../util/use-compare-to-original';
 import {
@@ -64,11 +63,9 @@ export function AttributionDetails() {
 
   const isDirty = useMemo(
     () =>
-      !isEqual(
-        getStrippedPackageInfo(temporaryDisplayPackageInfo),
-        getStrippedPackageInfo(
-          selectedAttribution || EMPTY_DISPLAY_PACKAGE_INFO,
-        ),
+      !isEqualToManualAttribution(
+        temporaryDisplayPackageInfo,
+        selectedAttribution || EMPTY_DISPLAY_PACKAGE_INFO,
       ),
     [temporaryDisplayPackageInfo, selectedAttribution],
   );
