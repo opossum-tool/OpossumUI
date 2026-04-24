@@ -8,7 +8,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
-import { setSelectedAttributionId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setSelectedAttributionIdIfRemapped } from '../../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -29,23 +29,28 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
-  const createOrMatch = backend.createOrMatchAttribution.useMutation({
+  const createOrMatch = backend.createOrMatchAttributions.useMutation({
     scope: { id: 'signalsPanel' },
   });
   const mutationsPending = useIsMutating() > 0;
 
   const handleLink = async () => {
     if (attributions) {
-      await Promise.all(
-        selectedAttributionIds.map(async (attributionId) => {
-          const result = await createOrMatch.mutateAsync({
-            resourcePath: selectedResourceId,
-            packageInfo: attributions[attributionId],
-          });
-          if (attributionId === selectedAttributionId) {
-            dispatch(setSelectedAttributionId(result.attribution));
-          }
-        }),
+      const attributionsToLink = Object.fromEntries(
+        selectedAttributionIds.map((attributionId) => [
+          attributionId,
+          attributions[attributionId],
+        ]),
+      );
+      const result = await createOrMatch.mutateAsync({
+        resourcePath: selectedResourceId,
+        attributions: attributionsToLink,
+      });
+      dispatch(
+        setSelectedAttributionIdIfRemapped(
+          result.inputKeysToNewUuids,
+          selectedAttributionId,
+        ),
       );
     }
     setMultiSelectedAttributionIds([]);

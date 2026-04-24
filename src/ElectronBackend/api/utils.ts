@@ -22,7 +22,7 @@ import {
   FORM_ATTRIBUTES,
   thirdPartyKeys,
 } from '../../shared/attribution-comparison';
-import { type PackageInfo } from '../../shared/shared-types';
+import { type Attributions, type PackageInfo } from '../../shared/shared-types';
 import { type DB } from '../db/generated/databaseTypes';
 import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
 import {
@@ -519,7 +519,7 @@ export function toSnakeCase<S extends string>(s: S): CamelToSnakeCase<S> {
   return snakeCase(s) as CamelToSnakeCase<S>;
 }
 
-export async function computeWasPreferred(
+async function computeWasPreferred(
   trx: Transaction<DB>,
   packageInfo: PackageInfo,
 ): Promise<boolean | undefined> {
@@ -546,19 +546,33 @@ export function removeParentFromPath(parentPath: string, path: string) {
   return path.replace(new RegExp(`^${escapeRegExp(parentPath)}/?`), '');
 }
 
-export function linkAttribution(
+export async function unlinkAttributions(
   trx: Transaction<DB>,
   resourceId: number,
-  attributionUuid: string,
+  attributionUuids: Array<string>,
+) {
+  await trx
+    .deleteFrom('resource_to_attribution')
+    .where('resource_id', '=', resourceId)
+    .where('attribution_uuid', 'in', attributionUuids)
+    .execute();
+}
+
+export async function linkAttributions(
+  trx: Transaction<DB>,
+  resourceId: number,
+  attributionUuids: Array<string>,
   options?: { ignoreExisting?: boolean },
 ) {
-  return trx
+  await trx
     .insertInto('resource_to_attribution')
-    .values({
-      resource_id: resourceId,
-      attribution_uuid: attributionUuid,
-      attribution_is_external: 0,
-    })
+    .values(
+      attributionUuids.map((attributionUuid) => ({
+        resource_id: resourceId,
+        attribution_uuid: attributionUuid,
+        attribution_is_external: 0,
+      })),
+    )
     .$if(options?.ignoreExisting ?? false, (eb) =>
       eb.onConflict((oc) => oc.doNothing()),
     )
@@ -596,7 +610,7 @@ export async function findMatchingAttributionUuid(
   return matchedAttribution?.uuid;
 }
 
-export async function matchOrCreateAttribution(
+async function matchOrCreateAttribution(
   trx: Transaction<DB>,
   packageInfo: PackageInfo,
   options?: { ignorePreSelected?: boolean },
@@ -611,16 +625,41 @@ export async function matchOrCreateAttribution(
     return matchedAttributionUuid;
   }
 
+  const wasPreferred = await computeWasPreferred(trx, packageInfo);
+
   const newUuid = uuid4();
   await trx
     .insertInto('attribution')
     .values({
       uuid: newUuid,
-      data: JSON.stringify({ ...removeEmptyStrings(packageInfo), id: newUuid }),
+      data: JSON.stringify({
+        ...removeEmptyStrings(packageInfo),
+        id: newUuid,
+        wasPreferred,
+      }),
       is_external: 0,
     })
     .execute();
   return newUuid;
+}
+
+export async function matchOrCreateAttributions(
+  trx: Transaction<DB>,
+  attributions: Attributions,
+  options?: { ignorePreSelected?: boolean },
+): Promise<Record<string, string>> {
+  const inputKeysToNewUuids: Record<string, string> = {};
+  for (const [attributionKey, packageInfo] of Object.entries(attributions)) {
+    inputKeysToNewUuids[attributionKey] = await matchOrCreateAttribution(
+      trx,
+      {
+        ...packageInfo,
+        preSelected: undefined,
+      },
+      options,
+    );
+  }
+  return inputKeysToNewUuids;
 }
 
 export async function updateAttribution(
@@ -648,56 +687,91 @@ export async function updateAttribution(
     .execute();
 }
 
-export async function replaceAttribution(
+export async function ensureAttributionsAreNotExternal(
   trx: Transaction<DB>,
-  params: {
-    attributionIdToReplace: string;
-    attributionIdToReplaceWith: string;
-  },
+  attributionUuids: Array<string>,
 ) {
-  const toReplace = await getAttributionOrThrow(
-    trx,
-    params.attributionIdToReplace,
-  );
+  const externalAttributions = (
+    await trx
+      .selectFrom('attribution')
+      .select('uuid')
+      .where('uuid', 'in', attributionUuids)
+      .where('is_external', '=', 1)
+      .execute()
+  ).map((a) => a.uuid);
 
-  if (toReplace.is_external) {
+  if (externalAttributions.length > 0) {
     throw new Error(
-      `External attribution ${params.attributionIdToReplace} can't be replaced`,
+      `Attributions with uuids ${attributionUuids.join(', ')} are external`,
     );
   }
+}
+
+export async function ensureAttributionsAreLinkedOnMultipleResources(
+  trx: Transaction<DB>,
+  attributionUuids: Array<string>,
+) {
+  const attributionsLinkedOnSingleResource = (
+    await trx
+      .selectFrom('resource_to_attribution')
+      .select('attribution_uuid')
+      .where('attribution_uuid', 'in', attributionUuids)
+      .groupBy('attribution_uuid')
+      .having((eb) => eb.fn.countAll(), '<=', 1)
+      .execute()
+  ).map((attribution) => attribution.attribution_uuid);
+
+  if (attributionsLinkedOnSingleResource.length > 0) {
+    throw new Error(
+      `Cannot modify attributions with uuids: ${attributionsLinkedOnSingleResource.join(', ')}, if they only link to a single resource`,
+    );
+  }
+}
+
+export async function replaceAttributions(
+  trx: Transaction<DB>,
+  params: {
+    attributionUuidsToReplace: Array<string>;
+    attributionUuidToReplaceWith: string;
+  },
+) {
+  await ensureAttributionsAreNotExternal(trx, params.attributionUuidsToReplace);
 
   const toReplaceWith = await getAttributionOrThrow(
     trx,
-    params.attributionIdToReplaceWith,
+    params.attributionUuidToReplaceWith,
   );
 
   if (toReplaceWith.is_external) {
     throw new Error(
-      `External attribution ${params.attributionIdToReplace} can't replace manual attribution`,
+      `External attribution ${params.attributionUuidToReplaceWith} can't replace manual attribution`,
     );
   }
 
-  const connectedResources = await trx
-    .selectFrom('resource_to_attribution')
-    .select('resource_id')
-    .where('attribution_uuid', '=', params.attributionIdToReplace)
-    .execute();
+  const connectedResources = (
+    await trx
+      .selectFrom('resource_to_attribution')
+      .select('resource_id')
+      .distinct()
+      .where('attribution_uuid', 'in', params.attributionUuidsToReplace)
+      .execute()
+  ).map((r) => r.resource_id);
 
   // Reassign resource links to the replacement attribution, skipping conflicts
   // (conflicting links will be cascade deleted when the old attribution is removed)
   await sql`
   UPDATE OR IGNORE resource_to_attribution
-  SET attribution_uuid = ${params.attributionIdToReplaceWith}
-  WHERE attribution_uuid = ${params.attributionIdToReplace}
-`.execute(trx);
+  SET attribution_uuid = ${params.attributionUuidToReplaceWith}
+  WHERE attribution_uuid in (${sql.join(params.attributionUuidsToReplace)})
+  `.execute(trx);
 
   await trx
     .deleteFrom('attribution')
-    .where('uuid', '=', params.attributionIdToReplace)
+    .where('uuid', 'in', params.attributionUuidsToReplace)
     .execute();
 
   await removeRedundantAttributions(trx, {
-    resourceIds: connectedResources.map((r) => r.resource_id),
+    resourceIds: connectedResources,
   });
 }
 

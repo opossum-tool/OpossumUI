@@ -21,7 +21,7 @@ import { type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setSelectedAttributionIdIfRemapped } from '../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getIsPackageInfoDirty,
@@ -52,9 +52,9 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
 
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
-  const linkAttribution = backend.createOrMatchAttribution.useMutation();
-  const updateOrMatch = backend.updateOrMatchAttribution.useMutation();
-  const createOrMatch = backend.createOrMatchAttribution.useMutation();
+  const linkAttribution = backend.createOrMatchAttributions.useMutation();
+  const updateOrMatch = backend.updateOrMatchAttributions.useMutation();
+  const createOrMatch = backend.createOrMatchAttributions.useMutation();
   const mutationPending = useIsMutating() > 0;
 
   const { data: resolvedExternalAttributions } =
@@ -110,19 +110,26 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
       if (hasMultipleResources) {
         setIsConfirmSavePopupOpen(true);
       } else if (packageInfo.id) {
-        const { matchedAttribution } = await updateOrMatch.mutateAsync({
-          packageInfo,
+        const result = await updateOrMatch.mutateAsync({
+          attributions: { [packageInfo.id]: packageInfo },
         });
-        if (matchedAttribution) {
-          dispatch(setSelectedAttributionId(matchedAttribution));
-        }
+        dispatch(
+          setSelectedAttributionIdIfRemapped(
+            result.oldUuidsToNewUuids,
+            packageInfo.id,
+          ),
+        );
       } else {
         const result = await createOrMatch.mutateAsync({
-          packageInfo,
           resourcePath: selectedResourceId,
+          attributions: { [packageInfo.id]: packageInfo },
         });
-
-        dispatch(setSelectedAttributionId(result.attribution));
+        dispatch(
+          setSelectedAttributionIdIfRemapped(
+            result.inputKeysToNewUuids,
+            packageInfo.id,
+          ),
+        );
       }
     }
   }, [
@@ -244,9 +251,14 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             onClick={async () => {
               const result = await linkAttribution.mutateAsync({
                 resourcePath: selectedResourceId,
-                packageInfo,
+                attributions: { [packageInfo.id]: packageInfo },
               });
-              dispatch(setSelectedAttributionId(result.attribution));
+              dispatch(
+                setSelectedAttributionIdIfRemapped(
+                  result.inputKeysToNewUuids,
+                  packageInfo.id,
+                ),
+              );
             }}
           >
             {linkAttribution.isPending ? (

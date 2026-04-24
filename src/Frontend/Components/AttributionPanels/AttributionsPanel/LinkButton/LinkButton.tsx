@@ -8,9 +8,11 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
-import { useAppSelector } from '../../../../state/hooks';
+import { setSelectedAttributionIdIfRemapped } from '../../../../state/actions/resource-actions/navigation-actions';
+import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import {
   getIsPackageInfoDirty,
+  getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
@@ -24,23 +26,33 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
 }) => {
+  const dispatch = useAppDispatch();
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
-  const createOrMatch = backend.createOrMatchAttribution.useMutation();
+  const createOrMatch = backend.createOrMatchAttributions.useMutation();
   const mutationsPending = useIsMutating() > 0;
 
   const handleLink = async () => {
     if (attributions) {
-      await Promise.all(
-        selectedAttributionIds.map(async (attributionId) => {
-          await createOrMatch.mutateAsync({
-            resourcePath: selectedResourceId,
-            packageInfo: attributions[attributionId],
-          });
-        }),
+      const attributionsToLink = Object.fromEntries(
+        selectedAttributionIds.map((attributionId) => [
+          attributionId,
+          attributions[attributionId],
+        ]),
+      );
+      const result = await createOrMatch.mutateAsync({
+        resourcePath: selectedResourceId,
+        attributions: attributionsToLink,
+      });
+      dispatch(
+        setSelectedAttributionIdIfRemapped(
+          result.inputKeysToNewUuids,
+          selectedAttributionId,
+        ),
       );
     }
     setMultiSelectedAttributionIds([]);

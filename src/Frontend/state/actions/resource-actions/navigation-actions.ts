@@ -42,3 +42,19 @@ export function openResourceInResourceBrowser(
     dispatch(setSelectedResourceId(resourceId));
   };
 }
+
+export function setSelectedAttributionIdIfRemapped(
+  attributionKeyToNewUuid: Record<string, string>,
+  currentAttributionId: string,
+): AppThunkAction {
+  return (dispatch) => {
+    const newSelectedAttributionId =
+      attributionKeyToNewUuid[currentAttributionId];
+    if (
+      newSelectedAttributionId !== undefined &&
+      newSelectedAttributionId !== currentAttributionId
+    ) {
+      dispatch(setSelectedAttributionId(newSelectedAttributionId));
+    }
+  };
+}

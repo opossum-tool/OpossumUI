@@ -668,8 +668,10 @@ describe('AttributionDetails', () => {
       ],
     });
 
-    await backend.updateOrMatchAttribution.mutate({
-      packageInfo: { ...packageInfo, packageName: modifiedName },
+    await backend.updateOrMatchAttributions.mutate({
+      attributions: {
+        [packageInfo.id]: { ...packageInfo, packageName: modifiedName },
+      },
     });
 
     await waitFor(() =>

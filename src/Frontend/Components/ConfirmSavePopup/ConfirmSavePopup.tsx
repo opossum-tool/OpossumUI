@@ -5,9 +5,10 @@
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 import { text } from '../../../shared/text';
-import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import { setSelectedAttributionIdIfRemapped } from '../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -38,7 +39,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
-  const updateOrMatch = backend.updateOrMatchAttribution.useMutation();
+  const updateOrMatch = backend.updateOrMatchAttributions.useMutation();
   const modifyOrMatchOnlyOnOneResource =
     backend.modifyOrMatchOnlyOnOneResource.useMutation();
   const isSaving =
@@ -55,6 +56,17 @@ export const ConfirmSavePopup: React.FC<Props> = ({
 
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
+  );
+
+  const modifiedAttributionsToSave = useMemo(
+    () =>
+      attributionsToSave?.[selectedAttributionId]
+        ? {
+            ...attributionsToSave,
+            [selectedAttributionId]: temporaryDisplayPackageInfo,
+          }
+        : attributionsToSave,
+    [attributionsToSave, selectedAttributionId, temporaryDisplayPackageInfo],
   );
 
   const linkedResourcesTreeState = useLinkedResourcesTreeState({
@@ -78,23 +90,14 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     : undefined;
 
   const handleSaveGlobally = async () => {
-    if (attributionsToSave) {
-      await Promise.all(
-        Object.entries(attributionsToSave).map(
-          async ([attributionId, attributionData]) => {
-            const result = await updateOrMatch.mutateAsync({
-              packageInfo:
-                attributionId === selectedAttributionId
-                  ? temporaryDisplayPackageInfo
-                  : attributionData,
-            });
-            if (
-              attributionId === selectedAttributionId &&
-              result.matchedAttribution
-            ) {
-              dispatch(setSelectedAttributionId(result.matchedAttribution));
-            }
-          },
+    if (modifiedAttributionsToSave) {
+      const result = await updateOrMatch.mutateAsync({
+        attributions: modifiedAttributionsToSave,
+      });
+      dispatch(
+        setSelectedAttributionIdIfRemapped(
+          result.oldUuidsToNewUuids,
+          selectedAttributionId,
         ),
       );
     }
@@ -102,22 +105,15 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   };
 
   const handleSaveOnResource = async () => {
-    if (attributionsToSave) {
-      await Promise.all(
-        Object.entries(attributionsToSave).map(
-          async ([attributionId, attributionData]) => {
-            const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
-              resourcePath: selectedResourceId,
-              packageInfo:
-                attributionId === selectedAttributionId
-                  ? temporaryDisplayPackageInfo
-                  : attributionData,
-            });
-
-            if (attributionId === selectedAttributionId) {
-              dispatch(setSelectedAttributionId(result.attribution));
-            }
-          },
+    if (modifiedAttributionsToSave) {
+      const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
+        resourcePath: selectedResourceId,
+        attributions: modifiedAttributionsToSave,
+      });
+      dispatch(
+        setSelectedAttributionIdIfRemapped(
+          result.oldUuidsToNewUuids,
+          selectedAttributionId,
         ),
       );
     }
