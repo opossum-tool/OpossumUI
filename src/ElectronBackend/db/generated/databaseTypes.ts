@@ -74,6 +74,11 @@ export interface FrequentLicense {
   short_name: string;
 }
 
+export interface Metadata {
+  key: string;
+  value_json: string | null;
+}
+
 export interface Resource {
   base_url: string | null;
   /**
@@ -124,6 +129,7 @@ export interface DB {
   closest_attributed_ancestors: ClosestAttributedAncestors;
   external_attribution_source: ExternalAttributionSource;
   frequent_license: FrequentLicense;
+  metadata: Metadata;
   resource: Resource;
   resource_to_attribution: ResourceToAttribution;
   source_for_attribution: SourceForAttribution;

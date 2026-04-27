@@ -7,31 +7,11 @@ SPDX-License-Identifier: CC0-1.0
 
 # The Architecture of OpossumUI
 
-We started migrating the business logic from the Electron frontend (renderer thread) to the backend (main thread).
-This file gives a brief overview of the current state and the new target architecture.
+This file gives a brief overview of the OpossumUI data architecture.
 
-## Old Architecture
+## Architecture
 
-Currently, the backend only reads files, preprocesses them, and sends them to the frontend. After a change, the frontend sends the entire mutable part of the file to the backend, which saves it to disk.
-The frontend has all of the business logic: it filters, aggregates and cross-references all of the data. Most of that is done on a different thread in the `signals-worker`.
-
-As the decompressed files can get very large (currently up to ~300MB, and we plan to support more than that in the future), this has multiple problems:
-
-- Heap limits
-  - In Electron, the JavaScript heap is [limited to 4GB](https://www.electronjs.org/blog/v8-memory-cage). As we save the data not once, but multiple times (in Redux, in the `signals-worker`, in component state, `structuredClone` during sending/receiving, ...), we already hit that limit with large files. This leads to OpossumUI crashing.
-- Bandwidth between frontend and backend
-  - Transferring hundreds of MB from the backend to the frontend through the IPC channel can take minutes
-  - The other direction is less slow, because the mutable part of the data is much smaller, typically tens of MB on large files. However, we do it on every save instead of just at the beginning.
-- Slow processing
-  - JavaScript is not optimal for queries on large data structures. We have to retrieve values from all other attributions for the autocompletes, or get a list of all resources that have children with incomplete attributions. That can be slow.
-- Convoluted data flow
-  - The indirection through the `signals-worker` complicates the flow of data. When relevant information in the Redux store is changed, the worker gets notified through a listener which sends an event, recalculates its results, sends an event back, that is then entered into the Redux store. That makes understanding the flow and finding bugs a hard task.
-
-## New Architecture
-
-The main point of the new architecture is to move the data and processing into the backend (main thread) part of the application.
-
-To do that, we use a **new database**, accessible through a **new API**.
+The application data is kept in an SQLite database in the backend and exposed to the frontend through a unified API.
 
 ### Database
 
@@ -50,16 +30,6 @@ Queries and Mutations are handled with Tanstack query.
 
 Queries are automatically cached.
 Mutations return a list of names and parameters of queries that are invalidated by them. This is handled transparently, so the frontend code can always rely on the queries being up-to-date.
-
-### Migration strategy
-
-To avoid a big-bang migration, we migrate step-by-step:
-
-1.  Fill the database with data from the loaded file
-2.  Reflect all file changes in the database by syncing mutations on save _<- we are here_
-3.  Migrate the source of data in the frontend from Redux/the `signals-worker` to backend api queries
-4.  Migrate data mutations from Redux to backend api calls
-5.  Remove the now unused code, including the `signals-worker` and most of the Redux code
 
 ### Future possibilities
 
