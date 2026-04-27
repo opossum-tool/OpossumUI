@@ -17,6 +17,7 @@ const mockTmpdir = tmpdir();
 
 vi.mock('electron', () => ({
   app: {
+    getAppPath: () => './',
     getPath: () => mockTmpdir,
   },
 }));

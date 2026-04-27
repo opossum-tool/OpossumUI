@@ -21,6 +21,7 @@ vi.mock('electron', () => ({
   },
   app: {
     on: vi.fn(),
+    getAppPath: () => './',
     getPath: vi.fn(() => '/tmp'),
     getName: vi.fn(() => 'OpossumUI'),
     getVersion: vi.fn(() => '1.0.0'),

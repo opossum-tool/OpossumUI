@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import * as fs from 'fs';
+import path from 'path';
 
 import {
   type Attributions,
@@ -91,6 +92,26 @@ describe('writeCsvToFile', () => {
     );
     expect(content).toContain('"1";"";"license text, with; commas"');
     expect(content).toContain('"2";"Fancy name,: tt";""');
+  });
+
+  it('creates parent directories before writing csv output', async () => {
+    const csvPath = faker.outputPath(
+      path.join(faker.string.uuid(), 'nested', `${faker.string.uuid()}.csv`),
+    );
+
+    await writeCsvToFile({
+      path: csvPath,
+      attributions: {
+        key1: {
+          packageName: 'Fancy name,: tt',
+          criticality: Criticality.None,
+          id: faker.string.uuid(),
+        },
+      },
+      columns: ['packageName'],
+    });
+
+    expect(fs.existsSync(csvPath)).toBe(true);
   });
 
   it('writeCsvToFile shorten resources', async () => {
