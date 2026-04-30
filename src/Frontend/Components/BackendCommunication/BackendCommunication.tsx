@@ -7,7 +7,6 @@ import dayjs from 'dayjs';
 import { type IpcRendererEvent } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { type ParsedFrontendFileContent } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import {
   exportFileOrOpenUnsavedPopup,
@@ -16,7 +15,6 @@ import {
   showMergeDialogOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { loadFromFile } from '../../state/actions/resource-actions/load-actions';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { backend, setDatabaseInitialized } from '../../util/backendClient';
@@ -33,13 +31,6 @@ import { useSyncProcessingStatusUpdatesToFrontendLogs } from '../../util/use-pro
 
 export const BackendCommunication: React.FC = () => {
   const dispatch = useAppDispatch();
-
-  function fileLoadedListener(
-    _: IpcRendererEvent,
-    parsedFileContent: ParsedFrontendFileContent,
-  ): void {
-    dispatch(loadFromFile(parsedFileContent));
-  }
 
   function resetLoadedFileListener(
     _: IpcRendererEvent,
@@ -77,9 +68,6 @@ export const BackendCommunication: React.FC = () => {
     }
   }
 
-  useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
-    dispatch,
-  ]);
   useIpcRenderer(
     AllowedFrontendChannels.ResetLoadedFile,
     resetLoadedFileListener,

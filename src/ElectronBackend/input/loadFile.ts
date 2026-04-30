@@ -3,14 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
-import { cloneDeep, omit } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
 
 import {
   type Attributions,
-  EXCLUDED_FROM_FRONTEND_FILE_CONTENT,
   type ParsedFileContent,
-  type ParsedFrontendFileContent,
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
@@ -43,7 +41,6 @@ import { refineConfiguration } from './refineConfiguration';
 
 export interface LoadFileSuccess {
   ok: true;
-  frontendData: ParsedFrontendFileContent;
   inputFileRaw?: Uint8Array;
   projectTitle?: string;
   projectId: string;
@@ -236,14 +233,8 @@ export async function loadFile(
   reportProgress('Loading into database');
   await initializeDb(parsedFileContent);
 
-  const frontendData: ParsedFrontendFileContent = omit(
-    parsedFileContent,
-    EXCLUDED_FROM_FRONTEND_FILE_CONTENT,
-  );
-
   return {
     ok: true,
-    frontendData,
     inputFileRaw,
     projectTitle: parsedInputData.metadata.projectTitle,
     projectId: parsedInputData.metadata.projectId,

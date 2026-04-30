@@ -9,7 +9,6 @@ import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { initializeDb } from '../../ElectronBackend/db/initializeDb';
 import { type ParsedFileContent } from '../../shared/shared-types';
-import { loadFromFile } from '../state/actions/resource-actions/load-actions';
 import { type Action, createAppStore } from '../state/configure-store';
 import { setDatabaseInitialized } from '../util/backendClient';
 
@@ -28,11 +27,7 @@ export async function createTestStore(data?: ParsedFileContent) {
     await initializeDb(data);
     setDatabaseInitialized(true);
   }
-  const store = createAppStore();
-  if (data) {
-    store.dispatch(loadFromFile(data));
-  }
-  return store;
+  return createAppStore();
 }
 
 export async function renderComponent(

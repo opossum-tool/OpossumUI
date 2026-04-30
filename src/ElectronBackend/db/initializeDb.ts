@@ -12,6 +12,7 @@ import {
   type InputFileAttributionData,
   type PackageInfo,
   type ParsedFileContent,
+  type ProjectMetadata,
   type RawClassificationsConfig,
   type Resources,
   type ResourcesToAttributions,
@@ -95,6 +96,8 @@ export async function initializeDb(inputFile: ParsedFileContent) {
       await initializeFrequentLicenseTable(trx, inputFile.frequentLicenses);
 
       await initializeProgressBarTable(trx);
+
+      await initializeMetadataTable(trx, inputFile.metadata);
     });
 }
 
@@ -680,4 +683,25 @@ async function initializeFrequentLicenseTable(
     .on('frequent_license')
     .column('full_name')
     .execute();
+}
+
+async function initializeMetadataTable(
+  trx: Transaction<DB>,
+  metadata: ProjectMetadata,
+) {
+  await trx.schema
+    .createTable('metadata')
+    .addColumn('key', 'text', (col) => col.primaryKey().notNull())
+    .addColumn('value_json', 'text')
+    .execute();
+
+  for (const [key, value] of Object.entries(metadata)) {
+    await trx
+      .insertInto('metadata')
+      .values({
+        key,
+        value_json: JSON.stringify(value),
+      })
+      .execute();
+  }
 }
