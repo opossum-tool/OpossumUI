@@ -429,7 +429,7 @@ async function setAttributionsResolvedStatus(
   };
 }
 
-export type Mutations = typeof mutations;
+type Mutations = typeof mutations;
 export type MutationName = keyof Mutations;
 
 export type MutationParams<C extends MutationName> =

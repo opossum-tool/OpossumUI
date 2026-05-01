@@ -134,7 +134,7 @@ export interface AttributionData extends InputFileAttributionData {
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren;
 }
 
-export interface FrequentLicenseName {
+interface FrequentLicenseName {
   shortName: string;
   fullName: string;
 }
@@ -144,7 +144,7 @@ export interface FrequentLicenses {
   texts: LicenseTexts;
 }
 
-export interface LicenseTexts {
+interface LicenseTexts {
   [licenseName: string]: string;
 }
 
