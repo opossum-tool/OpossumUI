@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { type ExpressionBuilder, sql } from 'kysely';
-import { type DB } from 'kysely-codegen';
 
 import {
   type ClassificationStatistics,
@@ -12,6 +11,7 @@ import {
 } from '../../Frontend/types/types';
 import { Criticality } from '../../shared/shared-types';
 import { getDb } from '../db/db';
+import { type DB } from '../db/generated/databaseTypes';
 import {
   getClassificationResourceQuery,
   getCount,

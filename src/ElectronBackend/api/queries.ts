@@ -561,7 +561,7 @@ export const queries = {
   },
 } satisfies Record<string, QueryFunction>;
 
-export type Queries = typeof queries;
+type Queries = typeof queries;
 export type QueryName = keyof Queries;
 
 // Queries have either one parameter P (QueryParams = P) or none (QueryParams = void)
