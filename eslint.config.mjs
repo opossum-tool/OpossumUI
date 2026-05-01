@@ -83,6 +83,7 @@ export default tseslint.config(
       'react/react-in-jsx-scope': 'off',
       '@eslint-react/no-array-index-key': 'off',
       '@eslint-react/purity': 'off',
+      '@eslint-react/set-state-in-effect': 'off',
       '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/ban-ts-comment': 'error',

@@ -71,7 +71,7 @@ export const SwitchableProgressBar: React.FC = () => {
   const handleProgressBarChange = (
     event: SelectChangeEvent<SelectedProgressBar>,
   ): void => {
-    setCurrentProgressBar(event.target.value as SelectedProgressBar);
+    setCurrentProgressBar(event.target.value);
   };
 
   const effectiveCurrentProgressBar: SelectedProgressBar =

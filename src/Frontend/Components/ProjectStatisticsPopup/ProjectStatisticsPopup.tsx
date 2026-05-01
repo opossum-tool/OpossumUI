@@ -158,10 +158,12 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 }
               </MuiTypography>
               <PieChart
-                segments={transformName(statistics.signalsByCriticality, (k) =>
-                  k === null
-                    ? text.projectStatisticsPopup.charts.noLicense
-                    : CRITICALITY_LABEL[k as Criticality],
+                segments={transformName<Criticality | null, string>(
+                  statistics.signalsByCriticality,
+                  (k) =>
+                    k === null
+                      ? text.projectStatisticsPopup.charts.noLicense
+                      : CRITICALITY_LABEL[k],
                 )}
                 colorMap={{
                   ...CRITICALITY_COLORS,

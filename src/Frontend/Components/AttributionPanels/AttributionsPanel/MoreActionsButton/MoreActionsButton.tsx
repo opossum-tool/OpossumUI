@@ -13,7 +13,6 @@ import {
   type PackageInfo,
 } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
-import { useAppDispatch } from '../../../../state/hooks';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { backend } from '../../../../util/backendClient';
 import {
@@ -56,7 +55,6 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   selectedAttributionIds,
 }) => {
-  const dispatch = useAppDispatch();
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
 
@@ -131,7 +129,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
 
       handleClose();
     },
-    [attributions, dispatch, selectedAttributionIds, propertyStates],
+    [attributions, selectedAttributionIds, propertyStates],
   );
 
   const menuOptions = useMemo<Array<SelectMenuOption>>(

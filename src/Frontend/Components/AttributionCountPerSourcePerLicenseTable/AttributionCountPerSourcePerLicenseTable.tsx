@@ -99,19 +99,19 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
         {
           groupName: componentText.columns.signalCountPerSource,
           columns: [
-            ...sourceNames.map((sourceName) => ({
+            ...sourceNames.map<Column>((sourceName) => ({
               columnName: upperFirst(sourceName),
               columnType: { sourceName },
               columnId: sourceName,
-              align: 'center' as const,
-              defaultOrder: 'desc' as Order,
+              align: 'center',
+              defaultOrder: 'desc',
             })),
             {
               columnName: componentText.columns.totalSources,
               columnType: SingleColumn.TOTAL,
               columnId: SingleColumn.TOTAL,
               align: 'center',
-              defaultOrder: 'desc',
+              defaultOrder: 'desc' satisfies Order,
             },
           ],
         },
