@@ -8,7 +8,6 @@ import userEvent from '@testing-library/user-event';
 
 import {
   Criticality,
-  type ExternalAttributionSources,
   type PackageInfo,
   RawCriticality,
 } from '../../../../shared/shared-types';
@@ -113,7 +112,7 @@ describe('AttributionForm', () => {
         data: getParsedInputFileEnrichedWithTestData({
           externalAttributionSources: {
             [source.additionalName!]: { name: 'pretty name', priority: 1 },
-          } as ExternalAttributionSources,
+          },
         }),
       });
 
@@ -277,7 +276,7 @@ describe('AttributionForm', () => {
               criticality !== Criticality.None
                 ? criticality
                 : Criticality.Medium
-            ] as string,
+            ],
           );
         });
       });

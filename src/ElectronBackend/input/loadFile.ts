@@ -267,7 +267,7 @@ async function createOutputInOpossumFile(
     input: inputFileRaw,
     output: attributionJSON,
   });
-  return attributionJSON as ParsedOpossumOutputFile;
+  return attributionJSON;
 }
 
 async function parseOrCreateOutputJsonFile(

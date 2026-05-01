@@ -556,7 +556,7 @@ class Faker extends NativeFaker {
       request.mockResolvedValueOnce(new Response(JSON.stringify(item))),
     );
 
-    return { request } satisfies Partial<HttpClient> as unknown as HttpClient;
+    return { request } satisfies Partial<HttpClient>;
   }
 }
 

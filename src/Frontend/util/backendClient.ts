@@ -14,7 +14,6 @@ import { useSyncExternalStore } from 'react';
 
 import type {
   CommandName,
-  CommandParams,
   CommandResult,
 } from '../../ElectronBackend/api/commands';
 import {
@@ -146,10 +145,7 @@ export const backend = new Proxy({} as BackendClient, {
       ['backend', command, params] as const;
 
     async function mutate(params: MutationParams<MutationName>) {
-      const response = await window.electronAPI.api(
-        command,
-        params as CommandParams<typeof command>,
-      );
+      const response = await window.electronAPI.api(command, params);
       // Invalidate queries affected by the mutation
       if ('invalidates' in response && response.invalidates) {
         const invalidates = response.invalidates;
@@ -172,7 +168,7 @@ export const backend = new Proxy({} as BackendClient, {
     async function query(params?: QueryParams<QueryName>) {
       const response = await window.electronAPI.api<QueryName>(
         command as QueryName,
-        params as QueryParams<QueryName>,
+        params,
       );
       return response.result;
     }

@@ -132,7 +132,7 @@ export function parseInputJsonFile(
     resolveCallback({
       message: `Error: ${resourceFilePath.toString()} is not a valid input file.`,
       type: 'jsonParsingError',
-    } as JsonParsingError);
+    });
   });
 
   const asm = Asm.connectTo(pipeline);
@@ -150,7 +150,7 @@ export function parseInputJsonFile(
       resolveCallback({
         message: `Error: ${resourceFilePath.toString()} is not a valid input file.\n${err?.toString()}`,
         type: 'jsonParsingError',
-      } as JsonParsingError);
+      });
     }
   });
 
