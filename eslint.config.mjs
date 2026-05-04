@@ -237,7 +237,6 @@ export default tseslint.config(
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@eslint-react/no-unnecessary-use-prefix': 'off',
       '@eslint-react/no-missing-key': 'off',
-      '@eslint-react/component-hook-factories': 'off',
       '@eslint-react/rules-of-hooks': 'off',
       'vitest/expect-expect': [
         'error',
