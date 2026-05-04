@@ -15,6 +15,7 @@ vi.mock('electron', () => {
   const mockElectron = {
     BrowserWindow: class BrowserWindowMock {},
     app: {
+      getAppPath: () => './',
       isPackaged: true,
     },
     Menu: {

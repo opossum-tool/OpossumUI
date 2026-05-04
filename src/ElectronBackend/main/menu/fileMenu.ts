@@ -13,11 +13,8 @@ import os from 'os';
 import path from 'path';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import {
-  ExportType,
-  type FileFormatInfo,
-  FileType,
-} from '../../../shared/shared-types';
+import { importFileFormats } from '../../../shared/shared-constants';
+import { ExportType } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
@@ -29,24 +26,6 @@ import {
   selectBaseURLListener,
 } from '../listeners';
 import { UserSettingsService } from '../user-settings-service';
-
-export const importFileFormats: Array<FileFormatInfo> = [
-  {
-    fileType: FileType.LEGACY_OPOSSUM,
-    name: 'Legacy Opossum',
-    extensions: ['json', 'json.gz'],
-  },
-  {
-    fileType: FileType.SCANCODE_JSON,
-    name: 'ScanCode',
-    extensions: ['json'],
-  },
-  {
-    fileType: FileType.OWASP_JSON,
-    name: 'OWASP Dependency-Check',
-    extensions: ['json'],
-  },
-];
 
 function getOpenFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {

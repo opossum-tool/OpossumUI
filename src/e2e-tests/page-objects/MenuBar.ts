@@ -9,7 +9,7 @@ import {
   findMenuItem,
 } from 'electron-playwright-helpers';
 
-import { importFileFormats } from '../../ElectronBackend/main/menu/fileMenu';
+import { importFileFormats } from '../../shared/shared-constants';
 import { text } from '../../shared/text';
 
 const initiallyDisabledMenuItems = [

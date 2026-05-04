@@ -10,6 +10,7 @@ import {
   AllowedFrontendChannels,
   IpcChannel,
 } from '../../../shared/ipc-channels';
+import { importFileFormats } from '../../../shared/shared-constants';
 import { createWindow } from '../createWindow';
 import {
   openNonOpossumFileDialog,
@@ -25,11 +26,11 @@ import {
   selectBaseURLListener,
   selectFileListener,
 } from '../listeners';
-import { importFileFormats } from '../menu/fileMenu';
 
 vi.mock('electron', () => ({
   app: {
     on: vi.fn(),
+    getAppPath: () => './',
     getPath: vi.fn(),
     getName: vi.fn(),
     getVersion: vi.fn(),
