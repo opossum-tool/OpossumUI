@@ -9,6 +9,7 @@ import {
 } from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
 import { type PopupInfo, type State } from '../../types/types';
+import { type OpenFileRequest } from '../actions/view-actions/types';
 
 export function isAuditViewSelected(state: State): boolean {
   return state.viewState.view === View.Audit;
@@ -38,7 +39,7 @@ export function getPopupAttributionId(state: State): string | null {
   return (popup.length === 1 && popup[0].attributionId) || null;
 }
 
-export function getOpenFileRequest(state: State): boolean {
+export function getOpenFileRequest(state: State): OpenFileRequest | null {
   return state.viewState.openFileRequest;
 }
 

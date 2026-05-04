@@ -23,6 +23,7 @@ import { backend, setDatabaseInitialized } from '../../util/backendClient';
 import {
   type ExportFileRequestListener,
   type LoggingListener,
+  type OpenFileWithUnsavedCheckListener,
   type SetBaseURLForRootListener,
   type SetDatabaseInitializedListener,
   type ShowImportDialogListener,
@@ -120,9 +121,9 @@ export const BackendCommunication: React.FC = () => {
     showUpdateAppPopupListener,
     [dispatch],
   );
-  useIpcRenderer(
+  useIpcRenderer<OpenFileWithUnsavedCheckListener>(
     AllowedFrontendChannels.OpenFileWithUnsavedCheck,
-    () => dispatch(openFileOrOpenUnsavedPopup()),
+    (_, filePath) => dispatch(openFileOrOpenUnsavedPopup(filePath)),
     [dispatch],
   );
   useIpcRenderer<ShowImportDialogListener>(

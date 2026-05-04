@@ -5,6 +5,7 @@
 import { dialog, systemPreferences } from 'electron';
 import os from 'os';
 
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   FRONTEND_TO_DB_PROCESS_PORT,
   getDbProcessPort,
@@ -13,6 +14,7 @@ import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHand
 import { createWindow, loadWebApp } from './createWindow';
 import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
+import { setRuntimeMacOsOpenFileHandler } from './openFileRequests';
 import { setupIpcHandling } from './setUpIpcHandling';
 import { UserSettingsService } from './user-settings-service';
 
@@ -64,6 +66,13 @@ export async function main(): Promise<void> {
     await loadWebApp(mainWindow);
 
     await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu);
+
+    setRuntimeMacOsOpenFileHandler((filePath) => {
+      mainWindow.webContents.send(
+        AllowedFrontendChannels.OpenFileWithUnsavedCheck,
+        filePath,
+      );
+    });
   } catch (error) {
     if (error instanceof Error) {
       await dialog.showMessageBox(

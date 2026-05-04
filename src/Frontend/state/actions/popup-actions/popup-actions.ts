@@ -124,10 +124,18 @@ export function showMergeDialogOrOpenUnsavedPopup(
   });
 }
 
-export function openFileOrOpenUnsavedPopup(): AppThunkAction {
+export function openFileOrOpenUnsavedPopup(filePath?: string): AppThunkAction {
   return withUnsavedCheck({
-    executeImmediately: () => void window.electronAPI.openFile(),
-    requestContinuation: (dispatch) => dispatch(setOpenFileRequest(true)),
+    executeImmediately: () => void window.electronAPI.openFile(filePath),
+    requestContinuation: (dispatch) => {
+      dispatch(setTargetView(null));
+      dispatch(setTargetSelectedResourceId(null));
+      dispatch(setTargetSelectedAttributionId(null));
+      dispatch(setImportFileRequest(null));
+      dispatch(setMergeRequest(null));
+      dispatch(setExportFileRequest(null));
+      dispatch(setOpenFileRequest({ filePath }));
+    },
   });
 }
 
@@ -153,8 +161,8 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     dispatch(closePopup());
 
     if (openFileRequest) {
-      void window.electronAPI.openFile();
-      dispatch(setOpenFileRequest(false));
+      void window.electronAPI.openFile(openFileRequest.filePath);
+      dispatch(setOpenFileRequest(null));
     }
 
     if (importFileRequest) {
@@ -185,7 +193,7 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setTargetSelectedResourceId(null));
     dispatch(setTargetSelectedAttributionId(null));
     dispatch(closePopup());
-    dispatch(setOpenFileRequest(false));
+    dispatch(setOpenFileRequest(null));
     dispatch(setImportFileRequest(null));
     dispatch(setExportFileRequest(null));
     window.electronAPI.stopLoading();

@@ -22,6 +22,7 @@ import {
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   type ClosePopupAction,
+  type OpenFileRequest,
   type OpenPopupAction,
   type ResetViewStateAction,
   type SetExportFileRequestAction,
@@ -92,7 +93,7 @@ export function closePopup(): ClosePopupAction {
 }
 
 export function setOpenFileRequest(
-  openFileRequest: boolean,
+  openFileRequest: OpenFileRequest | null,
 ): SetOpenFileRequestAction {
   return { type: ACTION_SET_OPEN_FILE_REQUEST, payload: openFileRequest };
 }
