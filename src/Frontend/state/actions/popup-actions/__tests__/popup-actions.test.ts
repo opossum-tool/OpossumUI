@@ -58,6 +58,7 @@ import {
   changeSelectedAttributionOrOpenUnsavedPopup,
   closePopupAndUnsetTargets,
   navigateToSelectedPathOrOpenUnsavedPopup,
+  openFileOrOpenUnsavedPopup,
   proceedFromUnsavedPopup,
   setSelectedResourceIdOrOpenUnsavedPopup,
   setViewOrOpenUnsavedPopup,
@@ -374,14 +375,15 @@ describe('proceedFromUnsavedPopup', () => {
 
   it('proceeds with open file request', () => {
     vi.spyOn(window.electronAPI, 'openFile').mockResolvedValue({});
+    const filePath = '/path/to/project.opossum';
 
     const testStore = createAppStore();
-    testStore.dispatch(setOpenFileRequest(true));
+    testStore.dispatch(setOpenFileRequest({ filePath }));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(proceedFromUnsavedPopup());
 
-    expect(window.electronAPI.openFile).toHaveBeenCalled();
-    expect(getOpenFileRequest(testStore.getState())).toBe(false);
+    expect(window.electronAPI.openFile).toHaveBeenCalledWith(filePath);
+    expect(getOpenFileRequest(testStore.getState())).toBeNull();
   });
 
   it('proceeds with import file request', () => {
@@ -421,11 +423,12 @@ describe('proceedFromUnsavedPopup', () => {
 describe('closePopupAndUnsetTargets', () => {
   it('closes popup and unsets targets', () => {
     const testStore = createAppStore();
+    const filePath = '/path/to/project.opossum';
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(setTargetView(View.Audit));
     testStore.dispatch(setTargetSelectedResourceId('resourceID'));
     testStore.dispatch(setTargetSelectedAttributionId('attributionID'));
-    testStore.dispatch(setOpenFileRequest(true));
+    testStore.dispatch(setOpenFileRequest({ filePath }));
     testStore.dispatch(
       setImportFileRequest({
         fileType: FileType.LEGACY_OPOSSUM,
@@ -440,9 +443,50 @@ describe('closePopupAndUnsetTargets', () => {
     expect(getTargetView(testStore.getState())).toBeNull();
     expect(getTargetSelectedResourceId(testStore.getState())).toBeNull();
     expect(getTargetSelectedAttributionId(testStore.getState())).toBeNull();
-    expect(getOpenFileRequest(testStore.getState())).toBe(false);
+    expect(getOpenFileRequest(testStore.getState())).toBeNull();
     expect(getImportFileRequest(testStore.getState())).toBeNull();
     expect(getExportFileRequest(testStore.getState())).toBeNull();
     expect(getOpenPopup(testStore.getState())).toBeNull();
+  });
+
+  it('stores the requested file path in the unsaved flow', () => {
+    const testStore = createAppStore();
+    const filePath = '/path/to/project.opossum';
+
+    testStore.dispatch(setIsPackageInfoDirty(true));
+    testStore.dispatch(openFileOrOpenUnsavedPopup(filePath));
+
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
+    expect(getOpenFileRequest(testStore.getState())).toEqual({ filePath });
+  });
+
+  it('replaces an existing pending action with the requested file open', () => {
+    const testStore = createAppStore();
+    const filePath = '/path/to/project.opossum';
+    const fileFormat = {
+      fileType: FileType.LEGACY_OPOSSUM,
+      extensions: [],
+      name: '',
+    };
+
+    testStore.dispatch(setIsPackageInfoDirty(true));
+    testStore.dispatch(setImportFileRequest(fileFormat));
+    testStore.dispatch(setTargetView(View.Audit));
+    testStore.dispatch(setTargetSelectedResourceId('resourceId'));
+    testStore.dispatch(setTargetSelectedAttributionId('attributionId'));
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+
+    testStore.dispatch(openFileOrOpenUnsavedPopup(filePath));
+
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
+    expect(getOpenFileRequest(testStore.getState())).toEqual({ filePath });
+    expect(getImportFileRequest(testStore.getState())).toBeNull();
+    expect(getTargetView(testStore.getState())).toBeNull();
+    expect(getTargetSelectedResourceId(testStore.getState())).toBeNull();
+    expect(getTargetSelectedAttributionId(testStore.getState())).toBeNull();
   });
 });

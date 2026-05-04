@@ -53,6 +53,11 @@ export type ShowMergeDialogListener = (
   fileFormat: FileFormatInfo,
 ) => void;
 
+export type OpenFileWithUnsavedCheckListener = (
+  event: IpcRendererEvent,
+  filePath?: string,
+) => void;
+
 export type UserSettingsChangedListener = (
   event: IpcRendererEvent,
   payload: Partial<UserSettings>,
@@ -69,6 +74,7 @@ type Listener =
   | LoggingListener
   | ExportFileRequestListener
   | SetBaseURLForRootListener
+  | OpenFileWithUnsavedCheckListener
   | ShowImportDialogListener
   | ProcessingStateChangedListener
   | ShowMergeDialogListener
@@ -87,5 +93,5 @@ export function useIpcRenderer<T extends Listener>(
       removeListener();
     };
     // eslint-disable-next-line @eslint-react/exhaustive-deps
-  }, dependencies);
+  }, [...dependencies]);
 }
