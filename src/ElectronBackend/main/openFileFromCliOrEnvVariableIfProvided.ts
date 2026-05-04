@@ -6,6 +6,10 @@ import { type BrowserWindow } from 'electron';
 import log from 'electron-log';
 
 import { handleOpeningFile } from './listeners';
+import {
+  clearPendingMacOsOpenFilePaths,
+  consumeStartupMacOsOpenFilePath,
+} from './openFileRequests';
 
 export async function openFileFromCliOrEnvVariableIfProvided(
   mainWindow: BrowserWindow,
@@ -20,8 +24,13 @@ export async function openFileFromCliOrEnvVariableIfProvided(
   for (const arg of process.argv) {
     if (fileHasValidEnding(arg)) {
       inputFileName = arg;
+      clearPendingMacOsOpenFilePaths();
       break;
     }
+  }
+
+  if (!inputFileName) {
+    inputFileName = consumeStartupMacOsOpenFilePath();
   }
 
   const inputFileFromEnvVariable: string | undefined = process.env.OPOSSUM_FILE;

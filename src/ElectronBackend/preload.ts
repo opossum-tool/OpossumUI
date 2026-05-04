@@ -35,7 +35,7 @@ const electronAPI: ElectronAPI = {
   quit: () => ipcRenderer.invoke(IpcChannel.Quit),
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
-  openFile: () => ipcRenderer.invoke(IpcChannel.OpenFile),
+  openFile: (filePath) => ipcRenderer.invoke(IpcChannel.OpenFile, filePath),
   selectFile: (fileFormat) =>
     ipcRenderer.invoke(IpcChannel.SelectFile, fileFormat),
   importFileSelectSaveLocation: (defaultPath) =>

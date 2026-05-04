@@ -100,12 +100,17 @@ describe('NotSavedPopup', () => {
   });
 
   it('handles request to open a file', async () => {
+    const filePath = '/path/to/project.opossum';
+
     await renderComponent(<NotSavedPopup />, {
-      actions: [openPopup(PopupType.NotSavedPopup), setOpenFileRequest(true)],
+      actions: [
+        openPopup(PopupType.NotSavedPopup),
+        setOpenFileRequest({ filePath }),
+      ],
     });
 
     await userEvent.click(screen.getByText(text.unsavedChangesPopup.discard));
 
-    expect(global.window.electronAPI.openFile).toHaveBeenCalledTimes(1);
+    expect(global.window.electronAPI.openFile).toHaveBeenCalledWith(filePath);
   });
 });

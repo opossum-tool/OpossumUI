@@ -6,6 +6,10 @@ import { type BrowserWindow } from 'electron';
 import { cloneDeep } from 'lodash';
 
 import { openFileFromCliOrEnvVariableIfProvided } from '../openFileFromCliOrEnvVariableIfProvided';
+import {
+  queueMacOsOpenFile,
+  resetMacOsOpenFileHandlingForTests,
+} from '../openFileRequests';
 
 const mockHandleOpeningFile = vi.fn();
 vi.mock('../listeners', () => ({
@@ -14,6 +18,11 @@ vi.mock('../listeners', () => ({
 
 describe('openFileFromCli', () => {
   let oldProcessArgv: Array<string>;
+
+  beforeEach(() => {
+    mockHandleOpeningFile.mockClear();
+    resetMacOsOpenFileHandlingForTests();
+  });
 
   beforeAll(() => {
     oldProcessArgv = process.argv;
@@ -84,6 +93,8 @@ describe('openFileFromEnvVariable', () => {
   beforeEach(() => {
     process.env = cloneDeep(oldEnvVariables);
     process.argv = cloneDeep(oldProcessArgv);
+    mockHandleOpeningFile.mockClear();
+    resetMacOsOpenFileHandlingForTests();
   });
 
   afterAll(() => {
@@ -121,6 +132,24 @@ describe('openFileFromEnvVariable', () => {
     const inputFileName = 'path/to/file/inputfile.opossum';
     process.argv = ['app'];
     process.argv.push(inputFileName);
+
+    const updateMenu = vi.fn();
+    await openFileFromCliOrEnvVariableIfProvided(
+      'mockBrowserWindow' as unknown as BrowserWindow,
+      updateMenu,
+    );
+
+    expect(mockHandleOpeningFile).toHaveBeenCalledWith([
+      'mockBrowserWindow',
+      inputFileName,
+      updateMenu,
+    ]);
+  });
+
+  it('opens a queued macOS startup file before env variables', async () => {
+    const inputFileName = '/path/queuedFile.opossum';
+    queueMacOsOpenFile(inputFileName);
+    process.env.OPOSSUM_FILE = '/path/envFile.opossum';
 
     const updateMenu = vi.fn();
     await openFileFromCliOrEnvVariableIfProvided(

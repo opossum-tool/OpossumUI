@@ -10,9 +10,11 @@ import {
   AllowedFrontendChannels,
   IpcChannel,
 } from '../../../shared/ipc-channels';
+import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { createWindow } from '../createWindow';
 import {
   openNonOpossumFileDialog,
+  openOpossumFileDialog,
   saveFileDialog,
   selectBaseURLDialog,
 } from '../dialogs';
@@ -21,6 +23,7 @@ import {
   importFileListener,
   importFileSelectSaveLocationListener,
   linkHasHttpSchema,
+  openFileListener,
   openLinkListener,
   selectBaseURLListener,
   selectFileListener,
@@ -36,28 +39,20 @@ vi.mock('electron', () => ({
     whenReady: async (): Promise<unknown> => Promise.resolve(true),
   },
   BrowserWindow: class BrowserWindowMock {
-    constructor() {
-      return {
-        loadURL: vi.fn(() => {
-          return Promise.resolve(null);
-        }),
-        setTitle: vi.fn(),
-        getFocusedWindow: vi.fn(),
-        webContents: {
-          openDevTools: vi.fn(),
-          send: vi.fn(),
-          close: vi.fn(),
-          session: {
-            webRequest: {
-              onHeadersReceived: vi.fn(),
-            },
-          },
+    loadURL = vi.fn(() => Promise.resolve(null));
+    setTitle = vi.fn();
+    getFocusedWindow = vi.fn();
+    webContents = {
+      openDevTools: vi.fn(),
+      send: vi.fn(),
+      close: vi.fn(),
+      session: {
+        webRequest: {
+          onHeadersReceived: vi.fn(),
         },
-        close: vi.fn(() => {
-          return Promise.resolve(null);
-        }),
-      };
-    }
+      },
+    };
+    close = vi.fn(() => Promise.resolve(null));
   },
   Menu: {
     setApplicationMenu: vi.fn(),
@@ -84,6 +79,13 @@ vi.mock('../dialogs', () => ({
   openNonOpossumFileDialog: vi.fn(),
   saveFileDialog: vi.fn(),
   selectBaseURLDialog: vi.fn(),
+}));
+
+vi.mock('../user-settings-service', () => ({
+  UserSettingsService: {
+    get: vi.fn().mockResolvedValue([]),
+    update: vi.fn().mockResolvedValue(undefined),
+  },
 }));
 
 describe('getSelectBaseURLListener', () => {
@@ -132,6 +134,23 @@ describe('getImportFileListener', () => {
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowImportDialog,
       fileFormat,
+    );
+  });
+});
+
+describe('openFileListener', () => {
+  it('opens the provided file path without showing the dialog', async () => {
+    const mainWindow = initWindowAndBackendState();
+    const updateMenu = vi.fn().mockResolvedValue(undefined);
+    const listener = openFileListener(mainWindow, updateMenu);
+    const filePath = '/home/input.opossum';
+
+    await listener({} as Electron.IpcMainInvokeEvent, filePath);
+
+    expect(openOpossumFileDialog).not.toHaveBeenCalled();
+    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
+      mainWindow,
+      filePath,
     );
   });
 });
