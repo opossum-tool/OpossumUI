@@ -19,6 +19,7 @@ import {
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
+  type OpenFileRequest,
   type ViewAction,
 } from '../actions/view-actions/types';
 
@@ -26,7 +27,7 @@ export interface ViewState {
   view: View;
   targetView: View | null;
   popupInfo: Array<PopupInfo>;
-  openFileRequest: boolean;
+  openFileRequest: OpenFileRequest | null;
   importFileRequest: FileFormatInfo | null;
   mergeRequest: FileFormatInfo | null;
   exportFileRequest: ExportType | null;
@@ -36,7 +37,7 @@ const initialViewState: ViewState = {
   view: View.Audit,
   targetView: null,
   popupInfo: [],
-  openFileRequest: false,
+  openFileRequest: null,
   importFileRequest: null,
   mergeRequest: null,
   exportFileRequest: null,

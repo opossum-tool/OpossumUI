@@ -260,7 +260,7 @@ export interface ElectronAPI {
   quit: () => void;
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
-  openFile: () => Promise<unknown>;
+  openFile: (filePath?: string) => Promise<unknown>;
   selectFile: (fileFormat: FileFormatInfo) => Promise<string>;
   importFileSelectSaveLocation: (defaultPath: string) => Promise<string>;
   importFileConvertAndLoad: (

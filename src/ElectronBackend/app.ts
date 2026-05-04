@@ -5,17 +5,13 @@
 import { app } from 'electron';
 
 import { main } from './main/main';
+import { queueMacOsOpenFile } from './main/openFileRequests';
 
 // allow opening a file when double-clicking it in mac-os. Has to be called before the ready event is emitted
 app.on('open-file', (event, filePath) => {
   event.preventDefault();
   if (filePath.endsWith('.opossum')) {
-    for (const arg of process.argv) {
-      if (arg.endsWith('.opossum')) {
-        return;
-      }
-    }
-    process.argv.push(filePath);
+    queueMacOsOpenFile(filePath);
   }
 });
 

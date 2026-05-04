@@ -19,6 +19,10 @@ export const ACTION_SET_IMPORT_FILE_REQUEST = 'ACTION_SET_IMPORT_FILE_REQUEST';
 export const ACTION_SET_MERGE_REQUEST = 'ACTION_SET_MERGE_REQUEST';
 export const ACTION_SET_EXPORT_FILE_REQUEST = 'ACTION_SET_EXPORT_FILE_REQUEST';
 
+export interface OpenFileRequest {
+  filePath?: string;
+}
+
 export type ViewAction =
   | SetView
   | SetTargetView
@@ -55,7 +59,7 @@ export interface OpenPopupAction {
 
 export interface SetOpenFileRequestAction {
   type: typeof ACTION_SET_OPEN_FILE_REQUEST;
-  payload: boolean;
+  payload: OpenFileRequest | null;
 }
 
 export interface SetImportFileRequestAction {

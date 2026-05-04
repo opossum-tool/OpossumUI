@@ -99,13 +99,15 @@ export const exportFileListener =
 
 export const openFileListener =
   (mainWindow: BrowserWindow, updateMenu: () => Promise<void>) =>
-  async (): Promise<void> => {
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    requestedFilePath?: string,
+  ): Promise<void> => {
     try {
-      const filePaths = openOpossumFileDialog();
-      if (!filePaths || filePaths.length < 1) {
+      const filePath = requestedFilePath ?? openOpossumFileDialog()?.[0];
+      if (!filePath) {
         return;
       }
-      const filePath = filePaths[0];
 
       await handleOpeningFile(mainWindow, filePath, updateMenu);
     } catch (error) {
