@@ -10,10 +10,10 @@ import {
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors } from '../../shared-styles';
-import {
-  type ClassificationStatistics,
-  type FileWithAttributionsCounts,
-  type ResourceCriticalityCounts,
+import type {
+  ClassificationStatistics,
+  FileWithAttributionsCounts,
+  ResourceCriticalityCounts,
 } from '../../types/types';
 
 type Color = string;

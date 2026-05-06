@@ -8,9 +8,9 @@ import settings from 'electron-settings';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { DEFAULT_USER_SETTINGS } from '../../shared/shared-constants';
-import {
-  type UserSettings as IUserSettings,
-  type UserSettings,
+import type {
+  UserSettings as IUserSettings,
+  UserSettings,
 } from '../../shared/shared-types';
 
 let settingsLock: Promise<unknown> = Promise.resolve();

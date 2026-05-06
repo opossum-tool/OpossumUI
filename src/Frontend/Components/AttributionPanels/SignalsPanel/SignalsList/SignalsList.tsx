@@ -18,7 +18,7 @@ import {
 import { SourceIcon } from '../../../Icons/Icons';
 import { PackageCard } from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 import { GroupName } from './SignalsList.style';
 
 export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({

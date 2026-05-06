@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { type BrowserWindow, dialog, type WebContents } from 'electron';
-import { type Mock } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { getMainDbClient } from '../../dbProcess/dbProcessClient';

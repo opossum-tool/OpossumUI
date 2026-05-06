@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { serializeAttributions } from '../input/parseInputData';
-import { type OpossumOutputFile } from '../types/types';
+import type { OpossumOutputFile } from '../types/types';
 import { getSaveFileArgs } from './getSaveFileArgs';
 
 export interface SaveFileParams {

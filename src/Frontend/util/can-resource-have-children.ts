@@ -4,9 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { mapKeys } from 'lodash';
 
-import {
-  type Resources,
-  type ResourcesToAttributions,
+import type {
+  Resources,
+  ResourcesToAttributions,
 } from '../../shared/shared-types';
 
 export function canResourceHaveChildren(

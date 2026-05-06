@@ -13,9 +13,9 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import {
-  type ParsedOpossumInputFile,
-  type ParsedOpossumOutputFile,
+import type {
+  ParsedOpossumInputFile,
+  ParsedOpossumOutputFile,
 } from '../../ElectronBackend/types/types';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { AttributionDetails } from '../page-objects/AttributionDetails';

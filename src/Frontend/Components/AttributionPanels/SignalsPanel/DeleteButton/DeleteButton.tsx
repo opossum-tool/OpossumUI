@@ -10,7 +10,7 @@ import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
 import { backend } from '../../../../util/backendClient';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,

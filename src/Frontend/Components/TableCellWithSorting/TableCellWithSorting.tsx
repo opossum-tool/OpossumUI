@@ -5,11 +5,11 @@
 import { type TableCellProps, TableSortLabel } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTableCell from '@mui/material/TableCell';
-import { type SxProps } from '@mui/system';
+import type { SxProps } from '@mui/system';
 import { visuallyHidden } from '@mui/utils';
-import { type PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
 
-import { type Order } from '../../../shared/shared-types';
+import type { Order } from '../../../shared/shared-types';
 
 interface TableCellWithSortingProps extends PropsWithChildren {
   order: Order;

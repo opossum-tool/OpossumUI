@@ -11,9 +11,9 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
-import { type Filter } from '../../shared-constants';
+import type { Filter } from '../../shared-constants';
 import { baseIcon, OpossumColors } from '../../shared-styles';
-import { type UseAttributionFilters } from '../../state/variables/use-filters';
+import type { UseAttributionFilters } from '../../state/variables/use-filters';
 import {
   type FilterPropsMode,
   useFilterProperties,

@@ -8,9 +8,9 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
-import {
-  type Attributions,
-  type PackageInfo,
+import type {
+  Attributions,
+  PackageInfo,
 } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
@@ -24,7 +24,7 @@ import {
   SelectMenu,
   type SelectMenuOption,
 } from '../../../SelectMenu/SelectMenu';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 type UpdatablePropertyType = keyof Pick<
   PackageInfo,

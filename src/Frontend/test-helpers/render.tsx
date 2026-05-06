@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { initializeDb } from '../../ElectronBackend/db/initializeDb';
-import { type ParsedFileContent } from '../../shared/shared-types';
+import type { ParsedFileContent } from '../../shared/shared-types';
 import { loadFromFile } from '../state/actions/resource-actions/load-actions';
 import { type Action, createAppStore } from '../state/configure-store';
 import { setDatabaseInitialized } from '../util/backendClient';

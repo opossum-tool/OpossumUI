@@ -4,14 +4,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type ExpressionBuilder, sql } from 'kysely';
 
-import {
-  type ClassificationStatistics,
-  type FileWithAttributionsCounts,
-  type ResourceCriticalityCounts,
+import type {
+  ClassificationStatistics,
+  FileWithAttributionsCounts,
+  ResourceCriticalityCounts,
 } from '../../Frontend/types/types';
 import { Criticality } from '../../shared/shared-types';
 import { getDb } from '../db/db';
-import { type DB } from '../db/generated/databaseTypes';
+import type { DB } from '../db/generated/databaseTypes';
 import {
   getClassificationResourceQuery,
   getCount,

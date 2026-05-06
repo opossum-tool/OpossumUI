@@ -6,10 +6,10 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { type FilterProperties } from '../../../../ElectronBackend/api/queries';
+import type { FilterProperties } from '../../../../ElectronBackend/api/queries';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import { type Filter } from '../../../shared-constants';
+import type { Filter } from '../../../shared-constants';
 import {
   type AttributionFilters,
   initialFilters,

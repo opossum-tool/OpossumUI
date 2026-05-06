@@ -7,11 +7,11 @@ import zlib from 'zlib';
 
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
-import {
-  type OpossumOutputFile,
-  type ParsedOpossumInputAndOutput,
-  type ParsedOpossumInputFile,
-  type ParsedOpossumOutputFile,
+import type {
+  OpossumOutputFile,
+  ParsedOpossumInputAndOutput,
+  ParsedOpossumInputFile,
+  ParsedOpossumOutputFile,
 } from '../../types/types';
 import {
   parseInputJsonFile,

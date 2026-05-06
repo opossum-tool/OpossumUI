@@ -4,13 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import { omit } from 'lodash';
 
-import { type Attributions } from '../../shared/shared-types';
+import type { Attributions } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import {
   addManualOrExternalCaaToResources,
   removeManualOrExternalCaaFromResources,
 } from './progressBarUtils';
-import { type QueryName, type QueryParams } from './queries';
+import type { QueryName, QueryParams } from './queries';
 import {
   ensureAttributionsAreLinkedOnMultipleResources,
   ensureAttributionsAreNotExternal,

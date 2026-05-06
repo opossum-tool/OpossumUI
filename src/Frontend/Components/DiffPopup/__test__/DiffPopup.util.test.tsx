@@ -11,7 +11,7 @@ import {
 } from '../../../../shared/attribution-comparison';
 import { faker } from '../../../../testing/Faker';
 import { renderHook } from '../../../test-helpers/render';
-import { type AttributionFormConfig } from '../../AttributionForm/AttributionForm';
+import type { AttributionFormConfig } from '../../AttributionForm/AttributionForm';
 import { useAttributionFormConfigs } from '../DiffPopup.util';
 
 describe('useAttributionFormConfigs', () => {

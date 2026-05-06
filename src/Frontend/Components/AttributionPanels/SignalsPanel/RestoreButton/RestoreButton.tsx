@@ -11,7 +11,7 @@ import { useMemo } from 'react';
 import { text } from '../../../../../shared/text';
 import { useUserSettings } from '../../../../state/variables/use-user-setting';
 import { backend } from '../../../../util/backendClient';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,

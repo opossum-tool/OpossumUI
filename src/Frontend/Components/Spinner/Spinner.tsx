@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiCircularProgress from '@mui/material/CircularProgress';
-import { type SxProps } from '@mui/system';
+import type { SxProps } from '@mui/system';
 
 import { baseIcon } from '../../shared-styles';
 

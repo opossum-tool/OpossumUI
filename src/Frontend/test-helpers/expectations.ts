@@ -5,9 +5,9 @@
 import { sql } from 'kysely';
 
 import { getDb } from '../../ElectronBackend/db/db';
-import {
-  type Attributions,
-  type ResourcesToAttributions,
+import type {
+  Attributions,
+  ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { backend } from '../util/backendClient';
 

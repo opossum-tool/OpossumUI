@@ -8,7 +8,7 @@ import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
-import { type SxProps } from '@mui/system';
+import type { SxProps } from '@mui/system';
 import { useMemo, useState } from 'react';
 import {
   GroupedVirtuoso,

@@ -6,7 +6,7 @@ import electron, {
   BrowserWindow,
   type MenuItemConstructorOptions,
 } from 'electron';
-import { type Mock } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { createMenu } from '../menu';
 import { UserSettingsService } from '../user-settings-service';

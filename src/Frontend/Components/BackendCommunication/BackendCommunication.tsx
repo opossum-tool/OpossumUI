@@ -4,10 +4,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import dayjs from 'dayjs';
-import { type IpcRendererEvent } from 'electron';
+import type { IpcRendererEvent } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { type ParsedFrontendFileContent } from '../../../shared/shared-types';
+import type { ParsedFrontendFileContent } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import {
   exportFileOrOpenUnsavedPopup,

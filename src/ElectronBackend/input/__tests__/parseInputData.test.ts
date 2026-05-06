@@ -16,7 +16,7 @@ import {
   type ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
-import { type RawFrequentLicense } from '../../types/types';
+import type { RawFrequentLicense } from '../../types/types';
 import {
   deserializeAttributions,
   getAllResourcePaths,

@@ -10,10 +10,10 @@ import {
   type FilterCounts,
   FILTERS,
 } from '../../Frontend/shared-constants';
-import {
-  type ExternalAttributionSources,
-  type PackageInfo,
-  type RawClassificationsConfig,
+import type {
+  ExternalAttributionSources,
+  PackageInfo,
+  RawClassificationsConfig,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { getDb } from '../db/db';

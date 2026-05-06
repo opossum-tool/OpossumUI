@@ -4,12 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { keyBy, type ListIterator, orderBy } from 'lodash';
 
-import {
-  type Attributions,
-  type PackageInfo,
-  type Relation,
+import type {
+  Attributions,
+  PackageInfo,
+  Relation,
 } from '../../shared/shared-types';
-import { type SortOption } from '../Components/SortButton/useSortingOptions';
+import type { SortOption } from '../Components/SortButton/useSortingOptions';
 import { getCardLabels } from './get-card-labels';
 
 export function sortAttributions({

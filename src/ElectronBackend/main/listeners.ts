@@ -28,7 +28,7 @@ import {
   convertToOpossum,
   mergeFileIntoOpossum,
 } from '../opossum-file/opossum-file';
-import { type GlobalBackendState } from '../types/types';
+import type { GlobalBackendState } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import {
   openNonOpossumFileDialog,

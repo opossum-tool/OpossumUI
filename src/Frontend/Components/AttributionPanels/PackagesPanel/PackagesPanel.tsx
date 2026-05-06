@@ -13,12 +13,9 @@ import {
 } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
-import {
-  type Attributions,
-  type Relation,
-} from '../../../../shared/shared-types';
+import type { Attributions, Relation } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { type Filter } from '../../../shared-constants';
+import type { Filter } from '../../../shared-constants';
 import { OpossumColors } from '../../../shared-styles';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
@@ -26,7 +23,7 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
-import { type UseAttributionFilters } from '../../../state/variables/use-filters';
+import type { UseAttributionFilters } from '../../../state/variables/use-filters';
 import { getRelationPriority } from '../../../util/sort-attributions';
 import { useFilteredAttributionsList } from '../../../util/use-attribution-lists';
 import { usePrevious } from '../../../util/use-previous';
