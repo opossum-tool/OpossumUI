@@ -19,9 +19,9 @@ export const ACTION_SET_IMPORT_FILE_REQUEST = 'ACTION_SET_IMPORT_FILE_REQUEST';
 export const ACTION_SET_MERGE_REQUEST = 'ACTION_SET_MERGE_REQUEST';
 export const ACTION_SET_EXPORT_FILE_REQUEST = 'ACTION_SET_EXPORT_FILE_REQUEST';
 
-export interface OpenFileRequest {
-  filePath?: string;
-}
+export type OpenFileRequest =
+  | { kind: 'dialog' }
+  | { kind: 'path'; filePath: string };
 
 export type ViewAction =
   | SetView

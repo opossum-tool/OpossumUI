@@ -105,7 +105,7 @@ describe('NotSavedPopup', () => {
     await renderComponent(<NotSavedPopup />, {
       actions: [
         openPopup(PopupType.NotSavedPopup),
-        setOpenFileRequest({ filePath }),
+        setOpenFileRequest({ kind: 'path', filePath }),
       ],
     });
 
