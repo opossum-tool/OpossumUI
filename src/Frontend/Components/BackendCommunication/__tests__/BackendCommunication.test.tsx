@@ -40,6 +40,9 @@ describe('BackendCommunication', () => {
     );
 
     expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
-    expect(getOpenFileRequest(store.getState())).toEqual({ filePath });
+    expect(getOpenFileRequest(store.getState())).toEqual({
+      kind: 'path',
+      filePath,
+    });
   });
 });

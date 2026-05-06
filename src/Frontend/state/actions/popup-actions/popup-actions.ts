@@ -134,7 +134,11 @@ export function openFileOrOpenUnsavedPopup(filePath?: string): AppThunkAction {
       dispatch(setImportFileRequest(null));
       dispatch(setMergeRequest(null));
       dispatch(setExportFileRequest(null));
-      dispatch(setOpenFileRequest({ filePath }));
+      dispatch(
+        setOpenFileRequest(
+          filePath ? { kind: 'path', filePath } : { kind: 'dialog' },
+        ),
+      );
     },
   });
 }
@@ -161,7 +165,12 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     dispatch(closePopup());
 
     if (openFileRequest) {
-      void window.electronAPI.openFile(openFileRequest.filePath);
+      if (openFileRequest.kind === 'path') {
+        void window.electronAPI.openFile(openFileRequest.filePath);
+      } else {
+        void window.electronAPI.openFile();
+      }
+
       dispatch(setOpenFileRequest(null));
     }
 

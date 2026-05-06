@@ -93,5 +93,5 @@ export function useIpcRenderer<T extends Listener>(
       removeListener();
     };
     // eslint-disable-next-line @eslint-react/exhaustive-deps
-  }, [...dependencies]);
+  }, dependencies);
 }

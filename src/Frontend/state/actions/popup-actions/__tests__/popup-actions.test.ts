@@ -375,14 +375,13 @@ describe('proceedFromUnsavedPopup', () => {
 
   it('proceeds with open file request', () => {
     vi.spyOn(window.electronAPI, 'openFile').mockResolvedValue({});
-    const filePath = '/path/to/project.opossum';
 
     const testStore = createAppStore();
-    testStore.dispatch(setOpenFileRequest({ filePath }));
+    testStore.dispatch(setOpenFileRequest({ kind: 'dialog' }));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(proceedFromUnsavedPopup());
 
-    expect(window.electronAPI.openFile).toHaveBeenCalledWith(filePath);
+    expect(window.electronAPI.openFile).toHaveBeenCalledWith();
     expect(getOpenFileRequest(testStore.getState())).toBeNull();
   });
 
@@ -428,7 +427,7 @@ describe('closePopupAndUnsetTargets', () => {
     testStore.dispatch(setTargetView(View.Audit));
     testStore.dispatch(setTargetSelectedResourceId('resourceID'));
     testStore.dispatch(setTargetSelectedAttributionId('attributionID'));
-    testStore.dispatch(setOpenFileRequest({ filePath }));
+    testStore.dispatch(setOpenFileRequest({ kind: 'path', filePath }));
     testStore.dispatch(
       setImportFileRequest({
         fileType: FileType.LEGACY_OPOSSUM,
@@ -459,7 +458,10 @@ describe('closePopupAndUnsetTargets', () => {
     expect(getOpenPopup(testStore.getState())?.popup).toBe(
       PopupType.NotSavedPopup,
     );
-    expect(getOpenFileRequest(testStore.getState())).toEqual({ filePath });
+    expect(getOpenFileRequest(testStore.getState())).toEqual({
+      kind: 'path',
+      filePath,
+    });
   });
 
   it('replaces an existing pending action with the requested file open', () => {
@@ -483,7 +485,10 @@ describe('closePopupAndUnsetTargets', () => {
     expect(getOpenPopup(testStore.getState())?.popup).toBe(
       PopupType.NotSavedPopup,
     );
-    expect(getOpenFileRequest(testStore.getState())).toEqual({ filePath });
+    expect(getOpenFileRequest(testStore.getState())).toEqual({
+      kind: 'path',
+      filePath,
+    });
     expect(getImportFileRequest(testStore.getState())).toBeNull();
     expect(getTargetView(testStore.getState())).toBeNull();
     expect(getTargetSelectedResourceId(testStore.getState())).toBeNull();
