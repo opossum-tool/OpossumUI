@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
-import { uniqueId } from 'lodash';
+import { uniqueId } from 'lodash-es';
 import { tmpdir } from 'os';
 import { join } from 'path';
 

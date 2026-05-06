@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type BrowserWindow, shell } from 'electron';
 import fs from 'fs';
-import { uniq } from 'lodash';
+import { uniq } from 'lodash-es';
 import path from 'path';
 import upath from 'upath';
 

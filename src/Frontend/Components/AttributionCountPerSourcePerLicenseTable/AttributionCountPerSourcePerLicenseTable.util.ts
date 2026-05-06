@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { TableCellProps } from '@mui/material';
-import { orderBy } from 'lodash';
+import { orderBy } from 'lodash-es';
 
 import type { LicenseTableRow } from '../../../ElectronBackend/api/statistics';
 import type { Order } from '../../../shared/shared-types';

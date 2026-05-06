@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sum } from 'lodash';
+import { sum } from 'lodash-es';
 
 import {
   type ClassificationsConfig,

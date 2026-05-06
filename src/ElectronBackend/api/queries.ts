@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { sql } from 'kysely';
-import { omit, uniqBy } from 'lodash';
+import { omit, uniqBy } from 'lodash-es';
 
 import {
   type Filter,

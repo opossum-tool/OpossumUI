@@ -5,7 +5,7 @@
 import * as csv from 'fast-csv';
 import type { CsvFormatterStream } from 'fast-csv';
 import * as fs from 'fs';
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
 

@@ -5,7 +5,7 @@
 import { promises as fs } from 'fs';
 import type { Kysely } from 'kysely';
 import { SqliteDialect as CodegenDialect, generate } from 'kysely-codegen';
-import { snakeCase } from 'lodash';
+import { snakeCase } from 'lodash-es';
 
 import type { DB } from './generated/databaseTypes';
 import { comments, generatedColumnsFromJsonData } from './initializeDb';

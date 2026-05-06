@@ -20,7 +20,7 @@ import useMuiAutocomplete, {
   type AutocompleteInputChangeReason,
   type UseAutocompleteProps as MuiUseAutocompleteProps,
 } from '@mui/material/useAutocomplete';
-import { compact } from 'lodash';
+import { compact } from 'lodash-es';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { VirtuosoHandle } from 'react-virtuoso';
 

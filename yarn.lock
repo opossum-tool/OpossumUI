@@ -3594,7 +3594,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:4.17.24":
+"@types/lodash-es@npm:4.17.12":
+  version: 4.17.12
+  resolution: "@types/lodash-es@npm:4.17.12"
+  dependencies:
+    "@types/lodash": "npm:*"
+  checksum: 10/56b9a433348b11c31051c6fa9028540a033a08fb80b400c589d740446c19444d73b217cf1471d4036448ef686a83e8cf2a35d1fadcb3f2105f26701f94aebb07
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:*, @types/lodash@npm:4.17.24":
   version: 4.17.24
   resolution: "@types/lodash@npm:4.17.24"
   checksum: 10/0f2082565f60f9787eefc046edc38458054512be5a8b3584ef0bad5fd9e85d0ab55ec5a1fbfae1ed6ba015cf1f9e837d5fb4da1f99fc60b8f74b2a46146fb00f
@@ -7429,6 +7438,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash-es@npm:4.17.23":
+  version: 4.17.23
+  resolution: "lodash-es@npm:4.17.23"
+  checksum: 10/1feae200df22eb0bd93ca86d485e77784b8a9fb1d13e91b66e9baa7a7e5e04be088c12a7e20c2250fc0bd3db1bc0ef0affc7d9e3810b6af2455a3c6bf6dde59e
+  languageName: node
+  linkType: hard
+
 "lodash-es@npm:^4.17.21":
   version: 4.17.22
   resolution: "lodash-es@npm:4.17.22"
@@ -7464,7 +7480,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.18.1, lodash@npm:^4.17.15, lodash@npm:^4.17.21":
+"lodash@npm:^4.17.15, lodash@npm:^4.17.21":
   version: 4.18.1
   resolution: "lodash@npm:4.18.1"
   checksum: 10/306fea53dfd39dad1f03d45ba654a2405aebd35797b673077f401edb7df2543623dc44b9effbb98f69b32152295fff725a4cec99c684098947430600c6af0c3f
@@ -8182,6 +8198,7 @@ __metadata:
     "@types/chroma-js": "npm:3.1.2"
     "@types/js-yaml": "npm:4.0.9"
     "@types/lodash": "npm:4.17.24"
+    "@types/lodash-es": "npm:4.17.12"
     "@types/node": "npm:24.10.9"
     "@types/object-hash": "npm:3.0.6"
     "@types/react": "npm:19.2.15"
@@ -8220,7 +8237,7 @@ __metadata:
     kysely: "npm:0.29.2"
     kysely-codegen: "npm:0.20.0"
     lint-staged: "npm:17.0.5"
-    lodash: "npm:4.18.1"
+    lodash-es: "npm:4.17.23"
     mkdirp: "npm:3.0.1"
     mockdate: "npm:3.0.5"
     nunjucks: "npm:3.2.4"

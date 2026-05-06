@@ -12,7 +12,7 @@ import {
 import MuiBox from '@mui/material/Box';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
-import { compact, sortBy } from 'lodash';
+import { compact, sortBy } from 'lodash-es';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';

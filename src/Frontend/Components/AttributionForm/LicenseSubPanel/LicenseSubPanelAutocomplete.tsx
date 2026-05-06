@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { sortBy } from 'lodash';
+import { sortBy } from 'lodash-es';
 import { useMemo } from 'react';
 
 import type { PackageInfo } from '../../../../shared/shared-types';
