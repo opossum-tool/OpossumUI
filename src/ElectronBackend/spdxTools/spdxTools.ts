@@ -5,7 +5,7 @@
 import yaml from 'js-yaml';
 import hash from 'object-hash';
 import { PackageURL } from 'packageurl-js';
-import { default as spdxLicenseJson } from 'spdx-license-ids/index.json';
+import spdxLicenseJson from 'spdx-license-ids/index.json' with { type: 'json' };
 import { v4 as uuid4 } from 'uuid';
 
 import type {
