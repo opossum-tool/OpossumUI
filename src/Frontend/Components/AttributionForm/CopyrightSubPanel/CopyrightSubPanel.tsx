@@ -4,14 +4,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 
-import { type PackageInfo } from '../../../../shared/shared-types';
+import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../../state/hooks';
 import { isPackageAttributeIncomplete } from '../../../util/input-validation';
-import { type Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
-import { type AttributeConfig } from '../AttributionForm';
+import type { AttributeConfig } from '../AttributionForm';
 import { attributionColumnClasses } from '../AttributionForm.style';
 
 interface CopyrightSubPanelProps {

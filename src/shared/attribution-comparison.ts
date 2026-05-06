@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isEqual, pickBy } from 'lodash';
 
-import { type PackageInfo } from './shared-types';
+import type { PackageInfo } from './shared-types';
 
 export const THIRD_PARTY_KEYS: Array<keyof PackageInfo> = [
   'copyright',

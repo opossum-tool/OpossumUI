@@ -6,7 +6,7 @@
 import { type BrowserWindow, dialog, type WebContents } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { type SendErrorInformationArgs } from '../../../shared/shared-types';
+import type { SendErrorInformationArgs } from '../../../shared/shared-types';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import {
   getMessageBoxContentForErrorsWrapper,

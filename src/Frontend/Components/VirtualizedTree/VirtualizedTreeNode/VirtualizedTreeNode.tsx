@@ -7,7 +7,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
 import { useEffect, useRef } from 'react';
 
-import { type ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import { OpossumColors } from '../../../shared-styles';
 import { getNodeIdsToExpand } from './VirtualizedTreeNode.util';
 

@@ -7,7 +7,7 @@ import '@testing-library/jest-dom/vitest';
 import { noop } from 'lodash';
 
 import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
-import { type ElectronAPI } from '../shared/shared-types';
+import type { ElectronAPI } from '../shared/shared-types';
 
 class ResizeObserver {
   observe = noop;

@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type ExportType,
-  type FileFormatInfo,
+import type {
+  ExportType,
+  FileFormatInfo,
 } from '../../../../shared/shared-types';
 import { PopupType, type View } from '../../../enums/enums';
-import { type State } from '../../../types/types';
+import type { State } from '../../../types/types';
 import { getUserSettings } from '../../selectors/user-settings-selector';
 import { getSelectedView } from '../../selectors/view-selector';
-import { type AppThunkAction, type AppThunkDispatch } from '../../types';
+import type { AppThunkAction, AppThunkDispatch } from '../../types';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,

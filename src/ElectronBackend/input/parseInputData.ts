@@ -20,7 +20,7 @@ import {
   type Resources,
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { type RawFrequentLicense } from '../types/types';
+import type { RawFrequentLicense } from '../types/types';
 
 export function addTrailingSlashIfAbsent(resourcePath: string): string {
   return resourcePath.endsWith('/') ? resourcePath : resourcePath.concat('/');

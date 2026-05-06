@@ -6,7 +6,7 @@ import { skipToken } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { isEqualToExternalAttribution } from '../../shared/attribution-comparison';
-import { type PackageInfo } from '../../shared/shared-types';
+import type { PackageInfo } from '../../shared/shared-types';
 import { backend } from './backendClient';
 
 export function useCompareToOriginal(

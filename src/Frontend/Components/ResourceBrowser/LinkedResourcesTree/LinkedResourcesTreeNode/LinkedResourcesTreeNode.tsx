@@ -7,7 +7,7 @@ import MuiTypography from '@mui/material/Typography';
 
 import { treeItemClasses } from '../../../../shared-styles';
 import { BreakpointIcon, DirectoryIcon, FileIcon } from '../../../Icons/Icons';
-import { type TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode';
+import type { TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode';
 
 const labelDetail = 'without information';
 

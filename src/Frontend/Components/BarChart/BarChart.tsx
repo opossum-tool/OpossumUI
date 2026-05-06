@@ -18,7 +18,7 @@ import {
   chartTooltipTextStyle,
   OpossumColors,
 } from '../../shared-styles';
-import { type ChartDataItem } from '../../types/types';
+import type { ChartDataItem } from '../../types/types';
 
 const tickStyle = {
   fontFamily: 'sans-serif',

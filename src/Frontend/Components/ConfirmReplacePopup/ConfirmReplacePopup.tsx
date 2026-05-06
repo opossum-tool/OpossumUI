@@ -6,7 +6,7 @@ import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
 
-import { type PackageInfo } from '../../../shared/shared-types';
+import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../state/hooks';

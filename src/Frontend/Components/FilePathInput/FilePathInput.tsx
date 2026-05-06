@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { type TooltipProps } from '@mui/material/Tooltip';
+import type { TooltipProps } from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
 
 import { baseIcon } from '../../shared-styles';

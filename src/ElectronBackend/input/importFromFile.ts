@@ -10,7 +10,7 @@ import { text } from '../../shared/text';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
-import { type ParsingError } from '../types/types';
+import type { ParsingError } from '../types/types';
 
 async function handleParsingError(
   parsingError: ParsingError,

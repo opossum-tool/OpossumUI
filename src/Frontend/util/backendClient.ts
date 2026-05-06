@@ -16,15 +16,15 @@ import type {
   CommandName,
   CommandResult,
 } from '../../ElectronBackend/api/commands';
-import {
-  type MutationName,
-  type MutationParams,
-  type MutationResult,
+import type {
+  MutationName,
+  MutationParams,
+  MutationResult,
 } from '../../ElectronBackend/api/mutations';
-import {
-  type QueryName,
-  type QueryParams,
-  type QueryResult,
+import type {
+  QueryName,
+  QueryParams,
+  QueryResult,
 } from '../../ElectronBackend/api/queries';
 import { queryClient } from '../Components/AppContainer/queryClient';
 

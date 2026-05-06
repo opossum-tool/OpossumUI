@@ -5,10 +5,10 @@
 import chroma from 'chroma-js';
 import { useMemo } from 'react';
 
-import {
-  type ClassificationEntry,
-  type ClassificationsConfig,
-  type RawClassificationsConfig,
+import type {
+  ClassificationEntry,
+  ClassificationsConfig,
+  RawClassificationsConfig,
 } from '../../shared/shared-types';
 import { OpossumColors } from '../shared-styles';
 import { backend } from './backendClient';

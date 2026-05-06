@@ -5,16 +5,16 @@
 import { sql, type Transaction } from 'kysely';
 import { snakeCase } from 'lodash';
 
-import {
-  type BaseUrlsForSources,
-  type ExternalAttributionSources,
-  type FrequentLicenses,
-  type InputFileAttributionData,
-  type PackageInfo,
-  type ParsedFileContent,
-  type RawClassificationsConfig,
-  type Resources,
-  type ResourcesToAttributions,
+import type {
+  BaseUrlsForSources,
+  ExternalAttributionSources,
+  FrequentLicenses,
+  InputFileAttributionData,
+  PackageInfo,
+  ParsedFileContent,
+  RawClassificationsConfig,
+  Resources,
+  ResourcesToAttributions,
 } from '../../shared/shared-types';
 import {
   removeEmptyStrings,
@@ -22,7 +22,7 @@ import {
   toCanonicalLicenseName,
 } from '../api/utils';
 import { getDb, getRawDb, resetDb } from './db';
-import { type DB } from './generated/databaseTypes';
+import type { DB } from './generated/databaseTypes';
 
 /**
  * Comments that will be added to the generated types and diagram
