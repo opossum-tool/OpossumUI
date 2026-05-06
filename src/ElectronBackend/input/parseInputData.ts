@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { compact, groupBy, min, sortBy } from 'lodash';
+import { compact, groupBy, min, sortBy } from 'lodash-es';
 import objectHash from 'object-hash';
 
 import { canResourceHaveChildren } from '../../Frontend/util/can-resource-have-children';

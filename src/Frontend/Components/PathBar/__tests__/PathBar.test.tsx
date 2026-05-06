@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { compact } from 'lodash';
+import { compact } from 'lodash-es';
 
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';

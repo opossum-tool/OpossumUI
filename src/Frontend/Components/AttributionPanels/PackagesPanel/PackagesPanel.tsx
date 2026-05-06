@@ -10,7 +10,7 @@ import {
   difference,
   intersection,
   isEqual,
-} from 'lodash';
+} from 'lodash-es';
 import { useEffect, useMemo, useState } from 'react';
 
 import type { Attributions, Relation } from '../../../../shared/shared-types';

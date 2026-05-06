@@ -11,7 +11,7 @@ import type {
   UseAutocompleteRenderedOption,
 } from '@mui/material/useAutocomplete';
 import type { SxProps } from '@mui/system';
-import { groupBy as _groupBy } from 'lodash';
+import { groupBy as _groupBy } from 'lodash-es';
 import { useMemo, useState } from 'react';
 import { GroupedVirtuoso, Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 

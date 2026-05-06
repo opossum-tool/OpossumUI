@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { SxProps } from '@mui/system';
-import { remove } from 'lodash';
+import { remove } from 'lodash-es';
 import { useCallback } from 'react';
 
 import { OpossumColors } from '../../../shared-styles';

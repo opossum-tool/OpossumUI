@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator } from '@playwright/test';
-import { compact } from 'lodash';
+import { compact } from 'lodash-es';
 
 import type { RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';

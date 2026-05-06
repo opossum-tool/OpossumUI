@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
-import { groupBy as _groupBy, orderBy as _orderBy, without } from 'lodash';
+import { groupBy as _groupBy, orderBy as _orderBy, without } from 'lodash-es';
 import { useMemo } from 'react';
 
 import { TRANSITION } from '../../../../shared-styles';

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { BrowserWindow } from 'electron';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 
 import { openFileFromCliOrEnvVariableIfProvided } from '../openFileFromCliOrEnvVariableIfProvided';
 import {

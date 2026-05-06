@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import '@testing-library/jest-dom/vitest';
-import { noop } from 'lodash';
+import { noop } from 'lodash-es';
 
 import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
 import type { ElectronAPI } from '../shared/shared-types';

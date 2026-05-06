@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { act, screen } from '@testing-library/react';
 import type { IpcRendererEvent } from 'electron';
-import { noop } from 'lodash';
+import { noop } from 'lodash-es';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import type { ElectronAPI } from '../../../../shared/shared-types';

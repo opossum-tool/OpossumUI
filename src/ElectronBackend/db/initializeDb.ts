@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { sql, type Transaction } from 'kysely';
-import { snakeCase } from 'lodash';
+import { snakeCase } from 'lodash-es';
 
 import type {
   BaseUrlsForSources,

@@ -13,7 +13,7 @@ import {
   type SqlBool,
   type Transaction,
 } from 'kysely';
-import { escapeRegExp, pickBy, snakeCase } from 'lodash';
+import { escapeRegExp, pickBy, snakeCase } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
 import { FILTERS } from '../../Frontend/shared-constants';

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
-import { cloneDeep, omit } from 'lodash';
+import { cloneDeep, omit } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
 import {

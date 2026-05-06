@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { waitFor } from '@testing-library/react';
-import { without } from 'lodash';
+import { without } from 'lodash-es';
 
 import {
   FORM_ATTRIBUTES,

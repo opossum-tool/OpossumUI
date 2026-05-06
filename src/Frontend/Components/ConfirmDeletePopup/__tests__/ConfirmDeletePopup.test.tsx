@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { noop } from 'lodash';
+import { noop } from 'lodash-es';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';

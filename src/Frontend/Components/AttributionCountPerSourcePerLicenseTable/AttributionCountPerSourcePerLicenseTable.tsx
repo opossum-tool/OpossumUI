@@ -6,7 +6,7 @@ import MuiBox from '@mui/material/Box';
 import MuiTable from '@mui/material/Table';
 import MuiTableBody from '@mui/material/TableBody';
 import MuiTableContainer from '@mui/material/TableContainer';
-import { upperFirst } from 'lodash';
+import { upperFirst } from 'lodash-es';
 import { useCallback, useMemo, useState } from 'react';
 
 import type { QueryResult } from '../../../ElectronBackend/api/queries';
