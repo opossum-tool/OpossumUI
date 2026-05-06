@@ -2,8 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { Screen } from '@testing-library/dom/types/screen';
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, type Screen } from '@testing-library/react';
 
 import { Criticality } from '../../../../shared/shared-types';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
