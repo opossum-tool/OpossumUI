@@ -2,17 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import electron, { app } from 'electron';
+import electron from 'electron';
 import path from 'path';
-import upath from 'upath';
 
-import { getBasePathOfAssets } from './getPath';
+import { getBasePathOfAssets, getBasePathOfIcons } from './getPath';
 
 export function getIconPath(): string {
-  const basePath = app.isPackaged
-    ? path.join(upath.toUnix(__dirname), '..')
-    : path.join(upath.toUnix(__dirname), '..', '..', 'public');
-  return path.join(basePath, 'icons', 'icon_512x512.png');
+  return path.join(getBasePathOfIcons(), 'icon_512x512.png');
 }
 
 export function getIconBasedOnTheme(

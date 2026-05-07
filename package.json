@@ -173,7 +173,6 @@
     ],
     "files": [
       "build/**/*",
-      "bin/*",
       "!node_modules",
       "node_modules/better-sqlite3-electron/**/*",
       "node_modules/bindings/**/*",
@@ -212,6 +211,7 @@
       "main": "build/ElectronBackend/app.js"
     },
     "extraResources": [
+      "./bin/opossum-file-cli*",
       "./notices/**"
     ]
   },

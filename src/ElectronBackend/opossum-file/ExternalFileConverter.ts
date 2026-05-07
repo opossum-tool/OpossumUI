@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { text } from '../../shared/text';
 import logger from '../main/logger';
 import { FileConverter } from './FileConverter';
 
@@ -61,9 +60,7 @@ export abstract class ExternalFileConverter extends FileConverter {
       logger.error(
         `Failed to convert ${this.fileTypeName} input file:\n${getConversionErrorDetails(error)}`,
       );
-      throw new Error(text.backendError.inputFileInvalid(this.fileTypeName), {
-        cause: error,
-      });
+      throw this.createConversionError(error);
     }
   }
 }
