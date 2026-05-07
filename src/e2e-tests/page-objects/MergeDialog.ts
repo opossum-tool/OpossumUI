@@ -7,6 +7,7 @@ import path from 'path';
 
 export class MergeDialog {
   private readonly node: Locator;
+  private readonly inputFileSelectionValue: Locator;
   readonly title: Locator;
   readonly inputFileSelection: Locator;
   readonly mergeButton: Locator;
@@ -19,11 +20,16 @@ export class MergeDialog {
   constructor(window: Page) {
     this.node = window.getByLabel('merge dialog');
     this.title = this.node.getByRole('heading').getByText('Merge');
-    this.inputFileSelection = this.node
-      .getByLabel('Select file to merge')
-      .locator('..');
-    this.mergeButton = this.node.getByRole('button', { name: 'Merge' });
-    this.cancelButton = this.node.getByRole('button', { name: 'Cancel' });
+    this.inputFileSelection = window.getByTestId('merge-input-file-path-input');
+    this.inputFileSelectionValue = window.getByTestId('merge-input-file-path');
+    this.mergeButton = this.node.getByRole('button', {
+      name: 'Merge',
+      exact: true,
+    });
+    this.cancelButton = this.node.getByRole('button', {
+      name: 'Cancel',
+      exact: true,
+    });
     this.errorIcon = this.node.getByTestId('ErrorIcon').locator('path');
 
     this.scancodeFilePath = path.resolve(__dirname, '..', 'scancode.json');
@@ -40,6 +46,9 @@ export class MergeDialog {
     },
     titleIsHidden: async (): Promise<void> => {
       await expect(this.title).toBeHidden({ timeout: 30000 });
+    },
+    inputFilePathIsVisible: async (filePath: string): Promise<void> => {
+      await expect(this.inputFileSelectionValue).toContainText(filePath);
     },
     showsError: async (): Promise<void> => {
       await expect(this.errorIcon).toBeVisible();

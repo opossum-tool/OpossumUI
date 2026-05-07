@@ -9,13 +9,19 @@ import type { FileFormatInfo } from '../../shared/shared-types';
 function openFileDialog(
   filters: Array<Electron.FileFilter>,
 ): Array<string> | undefined {
-  const window = BrowserWindow.getFocusedWindow();
+  const window = getDialogWindow();
   return window
     ? dialog.showOpenDialogSync(window, {
         properties: ['openFile'],
         filters,
       })
     : undefined;
+}
+
+function getDialogWindow():
+  | Electron.CrossProcessExports.BrowserWindow
+  | undefined {
+  return BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
 }
 
 export function openOpossumFileDialog(): Array<string> | undefined {
@@ -39,14 +45,14 @@ export function openNonOpossumFileDialog(
 }
 
 export function saveFileDialog(defaultPath?: string): string | undefined {
-  const window = BrowserWindow.getFocusedWindow();
+  const window = getDialogWindow();
   return window
     ? dialog.showSaveDialogSync(window, { defaultPath })
     : undefined;
 }
 
 export function selectBaseURLDialog(): Array<string> | undefined {
-  const window = BrowserWindow.getFocusedWindow();
+  const window = getDialogWindow();
   return window
     ? dialog.showOpenDialogSync(window, {
         buttonLabel: 'Select',

@@ -109,6 +109,13 @@ export class ProjectStatisticsPopup {
     await this.detailsTab.click();
     await this.licenseTable.assert.isVisible();
   }
+
+  public async closeIfVisible(): Promise<void> {
+    if (await this.title.isVisible()) {
+      await this.closeButton.click();
+      await this.assert.titleIsHidden();
+    }
+  }
 }
 
 class ProjectStatisticsPopupLicenseTable {

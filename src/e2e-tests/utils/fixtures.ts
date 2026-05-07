@@ -115,6 +115,10 @@ export const test = base.extend<{
           : args.concat([opossumFilePath])),
       ],
       executablePath,
+      env: {
+        ...process.env,
+        RESET: '1',
+      },
     });
 
     // Capture main process stdout/stderr for debugging
@@ -163,7 +167,7 @@ export const test = base.extend<{
       info.fixme();
     });
   },
-  modKey: async ({}, use) => {
+  modKey: async ({ data: _data }, use) => {
     await use(os.platform() === 'darwin' ? 'Meta' : 'Control');
   },
   projectStatisticsPopup: async ({ window }, use) => {

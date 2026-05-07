@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import MuiBox from '@mui/material/Box';
 import type { TooltipProps } from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
 
@@ -14,6 +15,7 @@ const CustomInput: React.FC<TextBoxCustomInputProps> = (props) => {
     <MuiTypography
       sx={{ ...props.sx, whiteSpace: 'nowrap', userSelect: 'none' }}
       aria-label={props['aria-label']}
+      data-testid={props['data-testid']}
     >
       {props.value}
     </MuiTypography>
@@ -26,23 +28,50 @@ interface FilePathInputProps {
   onClick: () => void;
   tooltipProps?: Partial<TooltipProps>;
   disabled: boolean;
+  testId?: string;
 }
 
 export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
+  const onActivate = (): void => {
+    if (!props.disabled) {
+      props.onClick();
+    }
+  };
+
   return (
-    <TextBox
-      title={props.label}
-      text={props.text}
-      onClick={props.onClick}
-      startIcon={<AttachFileIcon sx={baseIcon} />}
-      cursor={'pointer'}
-      showTooltip={true}
-      tooltipProps={props.tooltipProps}
-      // using a custom input component allows us to disable a lot of TextField
-      // behavior (e.g. horizontal text scrolling) that we don't want here
-      inputComponent={CustomInput}
+    <MuiBox
+      aria-label={props.label}
+      aria-disabled={props.disabled}
+      data-testid={props.testId}
+      onClick={props.disabled ? undefined : onActivate}
+      onKeyDown={(event) => {
+        if (props.disabled) {
+          return;
+        }
+
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onActivate();
+        }
+      }}
+      role={'button'}
       sx={{ marginTop: '20px' }}
-      disabled={props.disabled}
-    />
+      tabIndex={props.disabled ? -1 : 0}
+    >
+      <TextBox
+        inputDataTestId={props.testId ? `${props.testId}-input` : undefined}
+        title={props.label}
+        text={props.text}
+        onClick={props.disabled ? undefined : onActivate}
+        startIcon={<AttachFileIcon sx={baseIcon} />}
+        cursor={'pointer'}
+        showTooltip={true}
+        tooltipProps={props.tooltipProps}
+        // using a custom input component allows us to disable a lot of TextField
+        // behavior (e.g. horizontal text scrolling) that we don't want here
+        inputComponent={CustomInput}
+        disabled={props.disabled}
+      />
+    </MuiBox>
   );
 };
