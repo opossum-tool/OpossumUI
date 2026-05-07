@@ -25,7 +25,7 @@ export default tseslint.config(
   {
     name: 'Global ignore patterns',
     ignores: [
-      '.lintstagedrc.js',
+      '.lintstagedrc.mjs',
       'commitlint.config.ts',
       'eslint.config.mjs',
       'index.html',
