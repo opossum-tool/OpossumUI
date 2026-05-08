@@ -13,13 +13,13 @@ import {
   INPUT_FILE_NAME,
   OUTPUT_FILE_NAME,
 } from '../../shared/write-file-utils';
-import {
-  type InvalidDotOpossumFileError,
-  type JsonParsingError,
-  type ParsedOpossumInputAndOutput,
-  type ParsedOpossumInputFile,
-  type ParsedOpossumOutputFile,
-  type UnzipError,
+import type {
+  InvalidDotOpossumFileError,
+  JsonParsingError,
+  ParsedOpossumInputAndOutput,
+  ParsedOpossumInputFile,
+  ParsedOpossumOutputFile,
+  UnzipError,
 } from '../types/types';
 import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';

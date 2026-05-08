@@ -2,9 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { stubDialog } from 'electron-playwright-helpers';
-
-import { faker, test } from '../utils';
+import { faker, stubOpenDialogSync, test } from '../utils';
 
 test.use({
   data: {
@@ -74,7 +72,7 @@ test('does not enable menu bar after opening file if statistics popup is immedia
   await projectStatisticsPopup.showOnStartupCheckbox.click();
   await projectStatisticsPopup.closeButton.click();
 
-  await stubDialog(window.app, 'showOpenDialogSync', [filePaths!.opossum]);
+  await stubOpenDialogSync(window.app, [filePaths!.opossum]);
   await menuBar.openFile();
 
   await projectStatisticsPopup.assert.titleIsVisible();

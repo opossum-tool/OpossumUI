@@ -12,7 +12,7 @@ import type {
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
 import { OpossumColors } from '../Frontend/shared-styles';
-import { type HttpClient } from '../Frontend/util/http-client';
+import type { HttpClient } from '../Frontend/util/http-client';
 import {
   type AdvisorySuggestion,
   type DefaultVersionResponse,

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type SxProps } from '@mui/system';
+import type { SxProps } from '@mui/system';
 import {
   Virtuoso,
   type VirtuosoHandle,

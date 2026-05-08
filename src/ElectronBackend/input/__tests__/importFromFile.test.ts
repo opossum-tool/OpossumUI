@@ -4,11 +4,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { type BrowserWindow, dialog } from 'electron';
-import { type Mock } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { type ParsedFrontendFileContent } from '../../../shared/shared-types';
+import type { ParsedFrontendFileContent } from '../../../shared/shared-types';
 import { getMainDbClient } from '../../dbProcess/dbProcessClient';
 import {
   getGlobalBackendState,

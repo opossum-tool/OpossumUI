@@ -17,7 +17,7 @@ import {
   PreSelectedIcon,
   WasPreferredIcon,
 } from '../Icons/Icons';
-import { type PackageCardConfig } from './PackageCard';
+import type { PackageCardConfig } from './PackageCard';
 
 export function getRightIcons(
   cardConfig: PackageCardConfig,

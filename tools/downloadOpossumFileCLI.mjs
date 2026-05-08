@@ -23,6 +23,12 @@ function getResourceName() {
   return `opossum-file-for-${osSuffix}`;
 }
 
+function getExecutablePath() {
+  return process.argv[2] === 'windows.exe'
+    ? 'bin/opossum-file-cli.exe'
+    : 'bin/opossum-file-cli';
+}
+
 function doesOpossumExecutableExist(filePath) {
   const folderPath = dirname(filePath);
   if (!fs.existsSync(folderPath)) {
@@ -56,7 +62,7 @@ async function downloadOpossumFileCLI() {
     requestParams,
   );
 
-  const executablePath = 'bin/opossum-file-cli';
+  const executablePath = getExecutablePath();
   if (doesOpossumExecutableExist(executablePath)) {
     if (!downloadResponse.ok) {
       const { birthtime } = fs.statSync(executablePath);

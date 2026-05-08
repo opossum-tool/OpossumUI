@@ -3,13 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
-import { uniqueId } from 'lodash';
+import { uniqueId } from 'lodash-es';
 import { tmpdir } from 'os';
 import { join } from 'path';
 
 import { FileType } from '../../../shared/shared-types';
 import { parseOpossumFile } from '../../input/parseFile';
-import { type ParsedOpossumInputAndOutput } from '../../types/types';
+import type { ParsedOpossumInputAndOutput } from '../../types/types';
 import { isOpossumFileFormat } from '../../utils/isOpossumFileFormat';
 import { convertToOpossum, mergeFileIntoOpossum } from '../opossum-file';
 
@@ -17,7 +17,9 @@ const mockTmpdir = tmpdir();
 
 vi.mock('electron', () => ({
   app: {
+    getAppPath: () => process.cwd(),
     getPath: () => mockTmpdir,
+    isPackaged: false,
   },
 }));
 

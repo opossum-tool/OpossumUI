@@ -9,7 +9,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import MuiBreadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
-import { compact, uniq } from 'lodash';
+import { compact, uniq } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 

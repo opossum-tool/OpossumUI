@@ -7,9 +7,9 @@ import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { type TableComponents } from 'react-virtuoso';
+import type { TableComponents } from 'react-virtuoso';
 
-import { type PackageInfo } from '../../../shared/shared-types';
+import type { PackageInfo } from '../../../shared/shared-types';
 import { useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
 import { TableFilterButton } from './TableFilterButton';

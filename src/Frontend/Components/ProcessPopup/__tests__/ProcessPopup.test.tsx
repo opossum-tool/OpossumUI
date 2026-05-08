@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { act, screen } from '@testing-library/react';
-import { type IpcRendererEvent } from 'electron';
-import { noop } from 'lodash';
+import type { IpcRendererEvent } from 'electron';
+import { noop } from 'lodash-es';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
-import { type ElectronAPI } from '../../../../shared/shared-types';
+import type { ElectronAPI } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { renderComponent } from '../../../test-helpers/render';

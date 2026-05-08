@@ -16,7 +16,7 @@ import {
 } from '../../../../state/selectors/resource-selectors';
 import { backend } from '../../../../util/backendClient';
 import { useIsSelectedResourceBreakpoint } from '../../../../util/use-selected-resource';
-import { type PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
+import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,

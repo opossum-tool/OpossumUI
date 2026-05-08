@@ -12,7 +12,6 @@ import { generateDiagram } from './generateDiagram';
 import { generateTypes } from './generateTypes';
 
 const directory = path.join(
-  // @ts-expect-error Executed using tsx
   path.dirname(fileURLToPath(import.meta.url)),
   'generated',
 );

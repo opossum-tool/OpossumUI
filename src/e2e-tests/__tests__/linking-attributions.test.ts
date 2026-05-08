@@ -121,7 +121,10 @@ test('links multiple attributions on resource at once', async ({
   resourcesTree,
   attributionsPanel,
   attributionDetails,
+  projectStatisticsPopup,
 }) => {
+  await projectStatisticsPopup.closeIfVisible();
+
   await resourcesTree.goto(resourceName4);
   await attributionsPanel.assert.selectedTabIs('onResource');
   await attributionDetails.attributionForm.assert.matchesPackageInfo(

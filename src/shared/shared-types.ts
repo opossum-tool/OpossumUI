@@ -11,7 +11,7 @@ import type {
   CommandParams,
   CommandReturn,
 } from '../ElectronBackend/api/commands';
-import { type AllowedFrontendChannels } from './ipc-channels';
+import type { AllowedFrontendChannels } from './ipc-channels';
 
 export interface Resources {
   [resourceName: string]: Resources | 1;

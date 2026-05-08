@@ -8,7 +8,7 @@ import {
   FORM_ATTRIBUTES,
   isEqualToExternalAttribution,
 } from '../../../shared/attribution-comparison';
-import { type PackageInfo } from '../../../shared/shared-types';
+import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';

@@ -16,7 +16,7 @@ import {
   createSpdxPackage,
   createSpdxYaml,
 } from '../spdxTools/spdxTools';
-import { type SpdxDocument } from '../spdxTools/types';
+import type { SpdxDocument } from '../spdxTools/types';
 
 const CREATOR_TOOL = 'Opossum';
 

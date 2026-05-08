@@ -4,25 +4,25 @@
 // SPDX-License-Identifier: Apache-2.0
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClearIcon from '@mui/icons-material/Clear';
-import {
-  type TextFieldProps as MuiTextFieldProps,
-  type SxProps,
+import type {
+  TextFieldProps as MuiTextFieldProps,
+  SxProps,
 } from '@mui/material';
 import MuiChip from '@mui/material/Chip';
 import MuiFade from '@mui/material/Fade';
 import MuiIconButton, {
   type IconButtonProps as MuiIconButtonProps,
 } from '@mui/material/IconButton';
-import { type TextFieldProps as MuiInputProps } from '@mui/material/TextField';
+import type { TextFieldProps as MuiInputProps } from '@mui/material/TextField';
 import MuiTooltip from '@mui/material/Tooltip';
 import useMuiAutocomplete, {
   type AutocompleteHighlightChangeReason,
   type AutocompleteInputChangeReason,
   type UseAutocompleteProps as MuiUseAutocompleteProps,
 } from '@mui/material/useAutocomplete';
-import { compact } from 'lodash';
+import { compact } from 'lodash-es';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { type VirtuosoHandle } from 'react-virtuoso';
+import type { VirtuosoHandle } from 'react-virtuoso';
 
 import { text } from '../../../shared/text';
 import { ensureArray } from '../../util/ensure-array';

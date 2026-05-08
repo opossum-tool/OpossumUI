@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type SortOption } from '../../Components/SortButton/useSortingOptions';
-import { type Filter } from '../../shared-constants';
+import type { SortOption } from '../../Components/SortButton/useSortingOptions';
+import type { Filter } from '../../shared-constants';
 import { useVariable } from './use-variable';
 
 export const MANUAL_ATTRIBUTION_FILTERS_AUDIT =

@@ -13,7 +13,7 @@ import {
   type SqlBool,
   type Transaction,
 } from 'kysely';
-import { escapeRegExp, pickBy, snakeCase } from 'lodash';
+import { escapeRegExp, pickBy, snakeCase } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
 import { FILTERS } from '../../Frontend/shared-constants';
@@ -22,12 +22,12 @@ import {
   isEqualToExternalAttribution,
   THIRD_PARTY_KEYS,
 } from '../../shared/attribution-comparison';
-import { type Attributions, type PackageInfo } from '../../shared/shared-types';
-import { type DB } from '../db/generated/databaseTypes';
+import type { Attributions, PackageInfo } from '../../shared/shared-types';
+import type { DB } from '../db/generated/databaseTypes';
 import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
-import {
-  type FilterProperties,
-  type FilterPropertiesWithCanonicalLicenseNames,
+import type {
+  FilterProperties,
+  FilterPropertiesWithCanonicalLicenseNames,
 } from './queries';
 
 export type ResourceRelationship =

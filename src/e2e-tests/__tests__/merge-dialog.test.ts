@@ -2,9 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { stubDialog } from 'electron-playwright-helpers';
-
-import { faker, test } from '../utils';
+import { faker, stubOpenDialogSync, test } from '../utils';
 
 const [resourceName] = faker.opossum.resourceName();
 
@@ -42,12 +40,13 @@ test('merges legacy opossum file', async ({
   window,
   filePaths,
 }) => {
-  await stubDialog(window.app, 'showOpenDialogSync', [filePaths!.json]);
+  await stubOpenDialogSync(window.app, [filePaths!.json]);
 
   await menuBar.mergeLegacyOpossumFile();
   await mergeDialog.assert.titleIsVisible();
 
   await mergeDialog.inputFileSelection.click();
+  await mergeDialog.assert.inputFilePathIsVisible(filePaths!.json);
   await mergeDialog.mergeButton.click();
 
   await mergeDialog.assert.titleIsHidden();
@@ -60,14 +59,13 @@ test('merges scancode file', async ({
   resourcesTree,
   window,
 }) => {
-  await stubDialog(window.app, 'showOpenDialogSync', [
-    mergeDialog.scancodeFilePath,
-  ]);
+  await stubOpenDialogSync(window.app, [mergeDialog.scancodeFilePath]);
 
   await menuBar.mergeScanCodeFile();
   await mergeDialog.assert.titleIsVisible();
 
   await mergeDialog.inputFileSelection.click();
+  await mergeDialog.assert.inputFilePathIsVisible(mergeDialog.scancodeFilePath);
   await mergeDialog.mergeButton.click();
 
   await mergeDialog.assert.titleIsHidden();
@@ -81,14 +79,13 @@ test('merges OWASP file', async ({
   resourcesTree,
   window,
 }) => {
-  await stubDialog(window.app, 'showOpenDialogSync', [
-    mergeDialog.owaspFilePath,
-  ]);
+  await stubOpenDialogSync(window.app, [mergeDialog.owaspFilePath]);
 
   await menuBar.mergeOwaspDependencyScanFile();
   await mergeDialog.assert.titleIsVisible();
 
   await mergeDialog.inputFileSelection.click();
+  await mergeDialog.assert.inputFilePathIsVisible(mergeDialog.owaspFilePath);
   await mergeDialog.mergeButton.click();
 
   await mergeDialog.assert.titleIsHidden();

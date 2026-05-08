@@ -12,7 +12,7 @@ import {
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
 import { getDb } from '../../db/db';
-import { type ParsedOpossumInputFile } from '../../types/types';
+import type { ParsedOpossumInputFile } from '../../types/types';
 import {
   loadFile,
   type LoadFileError,

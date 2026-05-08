@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { compact, groupBy, min, sortBy } from 'lodash';
+import { compact, groupBy, min, sortBy } from 'lodash-es';
 import objectHash from 'object-hash';
 
 import { canResourceHaveChildren } from '../../Frontend/util/can-resource-have-children';
@@ -20,7 +20,7 @@ import {
   type Resources,
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { type RawFrequentLicense } from '../types/types';
+import type { RawFrequentLicense } from '../types/types';
 
 export function addTrailingSlashIfAbsent(resourcePath: string): string {
   return resourcePath.endsWith('/') ? resourcePath : resourcePath.concat('/');

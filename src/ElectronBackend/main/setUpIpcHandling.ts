@@ -5,7 +5,7 @@
 import { type BrowserWindow, ipcMain } from 'electron';
 
 import { IpcChannel } from '../../shared/ipc-channels';
-import { type UserSettings } from '../../shared/shared-types';
+import type { UserSettings } from '../../shared/shared-types';
 import { getGlobalBackendState } from './globalBackendState';
 import {
   exportFileListener,

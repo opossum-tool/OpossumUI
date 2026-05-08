@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type SxProps } from '@mui/material';
+import type { SxProps } from '@mui/material';
 import MuiButton, { type ButtonProps } from '@mui/material/Button';
 import MuiDialog from '@mui/material/Dialog';
 import MuiDialogActions from '@mui/material/DialogActions';

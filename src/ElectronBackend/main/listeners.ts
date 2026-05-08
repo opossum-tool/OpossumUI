@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type BrowserWindow, shell } from 'electron';
 import fs from 'fs';
-import { uniq } from 'lodash';
+import { uniq } from 'lodash-es';
 import path from 'path';
 import upath from 'upath';
 
@@ -28,7 +28,7 @@ import {
   convertToOpossum,
   mergeFileIntoOpossum,
 } from '../opossum-file/opossum-file';
-import { type GlobalBackendState } from '../types/types';
+import type { GlobalBackendState } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import {
   openNonOpossumFileDialog,

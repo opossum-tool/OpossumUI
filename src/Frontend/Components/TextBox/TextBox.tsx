@@ -2,15 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type InputBaseComponentsPropsOverrides,
-  type SxProps,
-} from '@mui/material';
+import type { InputBaseComponentsPropsOverrides, SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiTextField, { type TextFieldProps } from '@mui/material/TextField';
 import MuiTooltip, { type TooltipProps } from '@mui/material/Tooltip';
-import { type Theme } from '@mui/system';
+import type { Theme } from '@mui/system';
 
 import { OpossumColors } from '../../shared-styles';
 import { ensureArray } from '../../util/ensure-array';
@@ -68,9 +65,13 @@ const classes = {
 
 export type TextBoxCustomInputProps =
   React.InputHTMLAttributes<HTMLInputElement> &
-    InputBaseComponentsPropsOverrides & { sx?: SxProps<Theme> };
+    InputBaseComponentsPropsOverrides & {
+      sx?: SxProps<Theme>;
+      'data-testid'?: string;
+    };
 
 export interface TextBoxProps {
+  inputDataTestId?: string;
   color?: TextFieldProps['color'];
   placeholder?: string;
   disabled?: boolean;
@@ -127,6 +128,9 @@ export function TextBox(props: TextBoxProps) {
                 input: {
                   'aria-label': props.title,
                   value: props.text || '',
+                  ...(props.inputDataTestId
+                    ? { 'data-testid': props.inputDataTestId }
+                    : {}),
                   sx: {
                     overflowX: 'hidden',
                     textOverflow: 'ellipsis',

@@ -4,14 +4,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type Kysely, sql } from 'kysely';
 
-import {
-  type Attributions,
-  type PackageInfo,
-  type ResourcesToAttributions,
-  type SaveFileArgs,
+import type {
+  Attributions,
+  PackageInfo,
+  ResourcesToAttributions,
+  SaveFileArgs,
 } from '../../shared/shared-types';
 import { getDb } from '../db/db';
-import { type DB } from '../db/generated/databaseTypes';
+import type { DB } from '../db/generated/databaseTypes';
 
 export async function getPreferredOverOriginIds(trxOrDb: Kysely<DB>) {
   const preferredOverResult = await trxOrDb

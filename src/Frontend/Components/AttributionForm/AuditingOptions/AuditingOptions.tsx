@@ -6,10 +6,10 @@ import AddIcon from '@mui/icons-material/Add';
 import CancelIcon from '@mui/icons-material/Cancel';
 import MuiBox from '@mui/material/Box';
 import MuiChip from '@mui/material/Chip';
-import { type SxProps, type Theme } from '@mui/system';
+import type { SxProps, Theme } from '@mui/system';
 import { useState } from 'react';
 
-import { type PackageInfo } from '../../../../shared/shared-types';
+import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { baseIcon } from '../../../shared-styles';
 import { SelectMenu } from '../../SelectMenu/SelectMenu';

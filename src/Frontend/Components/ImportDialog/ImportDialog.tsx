@@ -5,7 +5,7 @@
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
-import { type FileFormatInfo } from '../../../shared/shared-types';
+import type { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file-utils';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
@@ -136,6 +136,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           )}
           text={inputFilePath}
           onClick={selectInputFilePath}
+          testId={'import-input-file-path'}
           tooltipProps={{ placement: 'top' }}
           disabled={importInProgress}
         />
@@ -145,6 +146,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           )}
           text={opossumFilePath}
           onClick={selectOpossumFilePath}
+          testId={'import-opossum-file-path'}
           disabled={importInProgress}
         />
       </div>

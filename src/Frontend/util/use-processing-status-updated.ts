@@ -7,7 +7,7 @@ import { useCallback, useState } from 'react';
 import { flushSync } from 'react-dom';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import { type ProcessingStateUpdatedEvent } from '../../shared/shared-types';
+import type { ProcessingStateUpdatedEvent } from '../../shared/shared-types';
 import {
   type ProcessingStateChangedListener,
   useIpcRenderer,

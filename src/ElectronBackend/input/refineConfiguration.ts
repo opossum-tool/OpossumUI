@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { EMPTY_RAW_PROJECT_CONFIG } from '../../Frontend/shared-constants';
-import {
-  type Attributions,
-  type PackageInfo,
-  type RawClassificationsConfig,
-  type RawProjectConfig,
+import type {
+  Attributions,
+  PackageInfo,
+  RawClassificationsConfig,
+  RawProjectConfig,
 } from '../../shared/shared-types';
 
 interface Logger {

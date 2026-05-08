@@ -25,7 +25,7 @@ export default tseslint.config(
   {
     name: 'Global ignore patterns',
     ignores: [
-      '.lintstagedrc.js',
+      '.lintstagedrc.mjs',
       'commitlint.config.ts',
       'eslint.config.mjs',
       'index.html',
@@ -93,10 +93,12 @@ export default tseslint.config(
           fixStyle: 'inline-type-imports',
         },
       ],
+      '@typescript-eslint/consistent-type-exports': 'error',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-import-type-side-effects': 'error',
       '@typescript-eslint/no-magic-numbers': [
         'error',
         {
