@@ -7949,12 +7949,12 @@ __metadata:
     prettier-plugin-sh: "npm:0.18.1"
     proxy-memoize: "npm:3.0.1"
     re-resizable: "npm:6.11.2"
-    react: "npm:19.2.5"
-    react-dom: "npm:19.2.5"
+    react: "npm:19.2.6"
+    react-dom: "npm:19.2.6"
     react-error-boundary: "npm:6.1.1"
     react-hot-toast: "npm:2.6.0"
     react-hotkeys-hook: "npm:5.3.2"
-    react-is: "npm:19.2.5"
+    react-is: "npm:19.2.6"
     react-redux: "npm:9.2.0"
     react-virtuoso: "npm:4.18.6"
     recharts: "npm:3.8.1"
@@ -8540,14 +8540,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:19.2.5":
-  version: 19.2.5
-  resolution: "react-dom@npm:19.2.5"
+"react-dom@npm:19.2.6":
+  version: 19.2.6
+  resolution: "react-dom@npm:19.2.6"
   dependencies:
     scheduler: "npm:^0.27.0"
   peerDependencies:
-    react: ^19.2.5
-  checksum: 10/ba14b022c7191d27b723314b964a1a4d839832e6edd231294097e323973808f97ac647bcf182ab0104e20ae6532dbc36733aec3e8333a1446a7183099c96b255
+    react: ^19.2.6
+  checksum: 10/695122e37dec3460311231ff1f9a96368d74457d4ccf60010eaebc08c3e1c47b054c9267b40d98c689ae99d0c29a340acacfd405016a954a4f11613146191e68
   languageName: node
   linkType: hard
 
@@ -8583,10 +8583,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:19.2.5, react-is@npm:^19.2.4":
-  version: 19.2.5
-  resolution: "react-is@npm:19.2.5"
-  checksum: 10/b2e18d4efd39496474956684a3757c43b9102af56add174abf2a46a6c1441dbdfe5fa7d9e7d7ebb42f543ffc9c7941fc74eb1e2bfdbf08979ea9e2ccc36da600
+"react-is@npm:19.2.6, react-is@npm:^19.2.4":
+  version: 19.2.6
+  resolution: "react-is@npm:19.2.6"
+  checksum: 10/5248eb5cfc135794c110f97fc0716a9439dc641d6bccbb8c00487c6c492644592ce4dd959fd23790bf05c1f26e0b62f11322b1e51372715a96a4bc4565a17d74
   languageName: node
   linkType: hard
 
@@ -8648,10 +8648,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:19.2.5":
-  version: 19.2.5
-  resolution: "react@npm:19.2.5"
-  checksum: 10/1c3c7ffecb90b7f89a5c3ef635e6811f3a84600097f203b918150cb7e6b0a52915e858e5b4c82317a520dffccfa46ee4819ccf92c59c5b2d6c25cffe258dd20c
+"react@npm:19.2.6":
+  version: 19.2.6
+  resolution: "react@npm:19.2.6"
+  checksum: 10/205f0db93bd6c6485f94471d1c3437ae1d410f322297c76186fe4f658f88a6786bb0805e3cf8f330f24d1daa923b6b610ec63960d2461e9201bca64ca8361db9
   languageName: node
   linkType: hard
 
