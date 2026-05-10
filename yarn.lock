@@ -6850,12 +6850,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jiti@npm:^2.4.2, jiti@npm:^2.6.0, jiti@npm:^2.6.1":
-  version: 2.6.1
-  resolution: "jiti@npm:2.6.1"
+"jiti@npm:^2.4.2, jiti@npm:^2.6.1, jiti@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "jiti@npm:2.7.0"
   bin:
     jiti: lib/jiti-cli.mjs
-  checksum: 10/8cd72c5fd03a0502564c3f46c49761090f6dadead21fa191b73535724f095ad86c2fa89ee6fe4bc3515337e8d406cc8fb2d37b73fa0c99a34584bac35cd4a4de
+  checksum: 10/6d75a8dbd61dbee031aa0937fabb748ff8ddf370b971958cc704f5cf26b4c5bdc9dcd0563059b2627a2bd41d946fa0bc64f912fdc8981ca7945a9d63c74ad0f9
   languageName: node
   linkType: hard
 
@@ -6978,14 +6978,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knip@npm:6.11.0":
-  version: 6.11.0
-  resolution: "knip@npm:6.11.0"
+"knip@npm:6.12.1":
+  version: 6.12.1
+  resolution: "knip@npm:6.12.1"
   dependencies:
     fdir: "npm:^6.5.0"
     formatly: "npm:^0.3.0"
     get-tsconfig: "npm:4.14.0"
-    jiti: "npm:^2.6.0"
+    jiti: "npm:^2.7.0"
     minimist: "npm:^1.2.8"
     oxc-parser: "npm:^0.128.0"
     oxc-resolver: "npm:^11.19.1"
@@ -6999,7 +6999,7 @@ __metadata:
   bin:
     knip: bin/knip.js
     knip-bun: bin/knip-bun.js
-  checksum: 10/783152e86de9e4a20c996f6c7f88559f355ab56bf17b8d55904ab8f80353374c9b790980b819f8545428b2c8f994907ac18efbade62d8fd1874d178e7fbcdda3
+  checksum: 10/584f472e08f229ea8404ecddefd8f4c9ca27f3de7f7234df87171efdd5d07f9823705054875335633e705442267adfce97f52a4ab4f8fc20410788bfb454ce9b
   languageName: node
   linkType: hard
 
@@ -7927,7 +7927,7 @@ __metadata:
     husky: "npm:9.1.7"
     js-yaml: "npm:4.1.1"
     jsonschema: "npm:1.5.0"
-    knip: "npm:6.11.0"
+    knip: "npm:6.12.1"
     kysely: "npm:0.28.17"
     kysely-codegen: "npm:0.20.0"
     lint-staged: "npm:16.4.0"
