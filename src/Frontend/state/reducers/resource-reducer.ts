@@ -2,20 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type PackageInfo,
-  type ProjectMetadata,
-} from '../../../shared/shared-types';
-import {
-  EMPTY_DISPLAY_PACKAGE_INFO,
-  EMPTY_PROJECT_METADATA,
-  ROOT_PATH,
-} from '../../shared-constants';
+import { type PackageInfo } from '../../../shared/shared-types';
+import { EMPTY_DISPLAY_PACKAGE_INFO, ROOT_PATH } from '../../shared-constants';
 import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,
-  ACTION_SET_PROJECT_METADATA,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
@@ -27,7 +19,6 @@ import {
 export const initialResourceState: ResourceState = {
   expandedIds: [ROOT_PATH],
   isPackageInfoDirty: false,
-  metadata: EMPTY_PROJECT_METADATA,
   selectedAttributionId: '',
   selectedResourceId: ROOT_PATH,
   targetSelectedAttributionId: null,
@@ -38,7 +29,6 @@ export const initialResourceState: ResourceState = {
 export type ResourceState = {
   expandedIds: Array<string>;
   isPackageInfoDirty: boolean;
-  metadata: ProjectMetadata;
   selectedAttributionId: string;
   selectedResourceId: string;
   targetSelectedAttributionId: string | null;
@@ -82,11 +72,6 @@ export const resourceState = (
       return {
         ...state,
         targetSelectedAttributionId: action.payload,
-      };
-    case ACTION_SET_PROJECT_METADATA:
-      return {
-        ...state,
-        metadata: action.payload,
       };
     case ACTION_SET_IS_PACKAGE_INFO_DIRTY:
       return {

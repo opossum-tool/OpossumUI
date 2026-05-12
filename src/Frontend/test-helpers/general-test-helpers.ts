@@ -12,6 +12,7 @@ import {
   type ExternalAttributionSources,
   type FrequentLicenses,
   type ParsedFileContent,
+  type ProjectMetadata,
   type RawProjectConfig,
   type Resources,
   type ResourcesToAttributions,
@@ -57,6 +58,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
   externalAttributionSources?: ExternalAttributionSources;
   frequentLicenses?: FrequentLicenses;
   baseUrlsForSources?: BaseUrlsForSources;
+  metadata?: ProjectMetadata;
 }): ParsedFileContent {
   const defaultTestResources: Resources = {
     thirdParty: {
@@ -83,6 +85,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
     ...EMPTY_PARSED_FILE_CONTENT,
     resources,
     ...(testData.config ? { config: testData.config } : {}),
+    ...(testData.metadata ? { metadata: testData.metadata } : {}),
     manualAttributions: {
       attributions: testData.manualAttributions || {},
       resourcesToAttributions: testResourcesToManualAttributions,

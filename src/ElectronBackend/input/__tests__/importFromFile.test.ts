@@ -6,9 +6,7 @@
 import { type BrowserWindow, dialog } from 'electron';
 import { type Mock } from 'vitest';
 
-import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { type ParsedFrontendFileContent } from '../../../shared/shared-types';
 import { getMainDbClient } from '../../dbProcess/dbProcessClient';
 import {
   getGlobalBackendState,
@@ -81,10 +79,6 @@ const mainWindow = {
   setTitle: vi.fn(),
 } as unknown as BrowserWindow;
 
-const testFrontendData: ParsedFrontendFileContent = {
-  metadata: EMPTY_PROJECT_METADATA,
-};
-
 describe('loadInputAndOutputFromFilePath', () => {
   afterEach(() => {
     vi.resetAllMocks();
@@ -97,7 +91,6 @@ describe('loadInputAndOutputFromFilePath', () => {
   it('sends IPC messages and updates global state on success', async () => {
     mockLoadFile.mockResolvedValue({
       ok: true,
-      frontendData: testFrontendData,
       projectTitle: 'My Project',
       projectId: 'project-123',
     } satisfies LoadFileIpcResult);
@@ -111,12 +104,6 @@ describe('loadInputAndOutputFromFilePath', () => {
         AllowedFrontendChannels.ResetLoadedFile,
       ),
     ).toBe(1);
-    expect(
-      webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
-    ).toBe(1);
-    expect(
-      webContents.lastArgumentFromChannel(AllowedFrontendChannels.FileLoaded),
-    ).toEqual(testFrontendData);
     expect(getGlobalBackendState().projectTitle).toBe('My Project');
     expect(getGlobalBackendState().projectId).toBe('project-123');
   });
@@ -131,10 +118,6 @@ describe('loadInputAndOutputFromFilePath', () => {
     await loadInputAndOutputFromFilePath(mainWindow, '/missing/file.json');
 
     expect(dialog.showMessageBox).toHaveBeenCalled();
-    const webContents = mainWindow.webContents as unknown as MockWebContents;
-    expect(
-      webContents.numberOfCallsFromChannel(AllowedFrontendChannels.FileLoaded),
-    ).toBe(0);
   });
 
   it('routes each error type to the correct dialog', async () => {

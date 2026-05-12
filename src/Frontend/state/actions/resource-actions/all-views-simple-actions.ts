@@ -2,18 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type PackageInfo,
-  type ProjectMetadata,
-} from '../../../../shared/shared-types';
+import { type PackageInfo } from '../../../../shared/shared-types';
 import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,
-  ACTION_SET_PROJECT_METADATA,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
   type ResetResourceStateAction,
   type SetIsPackageInfoDirtyAction,
-  type SetProjectMetadata,
   type SetTemporaryDisplayPackageInfoAction,
 } from './types';
 
@@ -25,15 +20,6 @@ export function setTemporaryDisplayPackageInfo(
   packageInfo: PackageInfo,
 ): SetTemporaryDisplayPackageInfoAction {
   return { type: ACTION_SET_TEMPORARY_PACKAGE_INFO, payload: packageInfo };
-}
-
-export function setProjectMetadata(
-  metadata: ProjectMetadata,
-): SetProjectMetadata {
-  return {
-    type: ACTION_SET_PROJECT_METADATA,
-    payload: metadata,
-  };
 }
 
 export function setIsPackageInfoDirty(

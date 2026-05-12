@@ -5,7 +5,7 @@
 import { screen } from '@testing-library/react';
 
 import { type ProjectMetadata } from '../../../../shared/shared-types';
-import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup';
 
@@ -17,7 +17,7 @@ describe('The ProjectMetadataPopup', () => {
     };
 
     await renderComponent(<ProjectMetadataPopup />, {
-      actions: [setProjectMetadata(testMetadata)],
+      data: getParsedInputFileEnrichedWithTestData({ metadata: testMetadata }),
     });
     expect(screen.getByText('test-id')).toBeInTheDocument();
   });
@@ -30,7 +30,7 @@ describe('The ProjectMetadataPopup', () => {
     };
 
     await renderComponent(<ProjectMetadataPopup />, {
-      actions: [setProjectMetadata(testMetadata)],
+      data: getParsedInputFileEnrichedWithTestData({ metadata: testMetadata }),
     });
     expect(screen.getByText('Project Title')).toBeInTheDocument();
     expect(screen.getByText('Project ID')).toBeInTheDocument();
@@ -47,7 +47,7 @@ describe('The ProjectMetadataPopup', () => {
     };
 
     await renderComponent(<ProjectMetadataPopup />, {
-      actions: [setProjectMetadata(testMetadata)],
+      data: getParsedInputFileEnrichedWithTestData({ metadata: testMetadata }),
     });
     expect(screen.getByText('foo', { exact: false })).toBeInTheDocument();
     expect(screen.getByText('bar', { exact: false })).toBeInTheDocument();
