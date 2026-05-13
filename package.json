@@ -86,7 +86,7 @@
     "babel-plugin-transform-import-meta": "2.3.3",
     "cross-env": "10.1.0",
     "dotenv": "17.4.2",
-    "dpdm": "4.0.1",
+    "dpdm": "4.2.0",
     "electron": "41.2.0",
     "electron-builder": "26.8.1",
     "electron-playwright-helpers": "2.1.0",
