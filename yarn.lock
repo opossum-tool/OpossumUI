@@ -6032,10 +6032,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fflate@npm:0.8.2":
-  version: 0.8.2
-  resolution: "fflate@npm:0.8.2"
-  checksum: 10/2bd26ba6d235d428de793c6a0cd1aaa96a06269ebd4e21b46c8fd1bd136abc631acf27e188d47c3936db090bf3e1ede11d15ce9eae9bffdc4bfe1b9dc66ca9cb
+"fflate@npm:0.8.3":
+  version: 0.8.3
+  resolution: "fflate@npm:0.8.3"
+  checksum: 10/6ebf528dc9c56e78e715eac615b009b25dc33e15c1920b11ebba44e6d76181c647756a81a23e19247907496b93aa99928514c53090579a65109e026ac2824aa7
   languageName: node
   linkType: hard
 
@@ -7914,7 +7914,7 @@ __metadata:
     eslint-plugin-playwright: "npm:2.10.2"
     eslint-plugin-testing-library: "npm:7.16.2"
     fast-csv: "npm:5.0.7"
-    fflate: "npm:0.8.2"
+    fflate: "npm:0.8.3"
     globals: "npm:17.6.0"
     happy-dom: "npm:20.9.0"
     husky: "npm:9.1.7"
