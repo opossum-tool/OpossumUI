@@ -7,6 +7,7 @@
   "private": true,
   "homepage": "./",
   "dependencies": {
+    "@duckdb/node-api": "1.5.2-r.2",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@fontsource-variable/karla": "5.2.8",

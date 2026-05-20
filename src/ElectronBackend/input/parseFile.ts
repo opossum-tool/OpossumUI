@@ -41,6 +41,7 @@ export async function parseOpossumFile(
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
 
   let zip: fflate.Unzipped;
+  console.log('Reading zip');
   try {
     zip = await readZipAsync(opossumFilePath);
   } catch (err) {
@@ -62,7 +63,9 @@ export async function parseOpossumFile(
   const inputFileRaw = zip[INPUT_FILE_NAME];
 
   try {
+    console.log('Parsing input data');
     parsedInputData = JSON.parse(fflate.strFromU8(zip[INPUT_FILE_NAME]));
+    console.log('Validating input data');
     jsonSchemaValidator.validate(
       parsedInputData,
       OpossumInputFileSchema,
@@ -77,6 +80,7 @@ export async function parseOpossumFile(
 
   if (zip[OUTPUT_FILE_NAME]) {
     try {
+      console.log('Parsing output Data');
       const outputJson = fflate.strFromU8(zip[OUTPUT_FILE_NAME]);
       parsedOutputData = parseOutputJsonContent(outputJson, opossumFilePath);
     } catch (err) {
