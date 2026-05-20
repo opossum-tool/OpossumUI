@@ -19,7 +19,7 @@ describe('The ProjectMetadataPopup', () => {
     await renderComponent(<ProjectMetadataPopup />, {
       data: getParsedInputFileEnrichedWithTestData({ metadata: testMetadata }),
     });
-    expect(screen.getByText('test-id')).toBeInTheDocument();
+    expect(await screen.findByText('test-id')).toBeInTheDocument();
   });
 
   it('formats projectId, projectTitle and fileCreationDate', async () => {
@@ -32,9 +32,9 @@ describe('The ProjectMetadataPopup', () => {
     await renderComponent(<ProjectMetadataPopup />, {
       data: getParsedInputFileEnrichedWithTestData({ metadata: testMetadata }),
     });
-    expect(screen.getByText('Project Title')).toBeInTheDocument();
-    expect(screen.getByText('Project ID')).toBeInTheDocument();
-    expect(screen.getByText('File Creation Date')).toBeInTheDocument();
+    expect(await screen.findByText('Project Title')).toBeInTheDocument();
+    expect(await screen.findByText('Project ID')).toBeInTheDocument();
+    expect(await screen.findByText('File Creation Date')).toBeInTheDocument();
   });
 
   it('displays custom user metadata', async () => {
@@ -49,10 +49,14 @@ describe('The ProjectMetadataPopup', () => {
     await renderComponent(<ProjectMetadataPopup />, {
       data: getParsedInputFileEnrichedWithTestData({ metadata: testMetadata }),
     });
-    expect(screen.getByText('foo', { exact: false })).toBeInTheDocument();
-    expect(screen.getByText('bar', { exact: false })).toBeInTheDocument();
     expect(
-      screen.getByText('testObject', { exact: false }),
+      await screen.findByText('foo', { exact: false }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText('bar', { exact: false }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText('testObject', { exact: false }),
     ).toBeInTheDocument();
   });
 });
