@@ -37,7 +37,7 @@ function openDb() {
   const dialect = new SqliteDialect({ database: rawDb });
   return new Kysely<DB>({
     dialect,
-    log: process.env.DEBUG ? ['query', 'error'] : [],
+    log: [],
   });
 }
 
