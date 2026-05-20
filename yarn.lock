@@ -7925,7 +7925,7 @@ __metadata:
     run-script-os: "npm:1.1.6"
     spdx-license-ids: "npm:3.0.23"
     stream-json: "npm:1.9.1"
-    tsx: "npm:4.22.0"
+    tsx: "npm:4.22.1"
     typescript: "npm:6.0.3"
     typescript-eslint: "npm:8.59.3"
     upath: "npm:3.0.7"
@@ -9558,9 +9558,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsx@npm:4.22.0":
-  version: 4.22.0
-  resolution: "tsx@npm:4.22.0"
+"tsx@npm:4.22.1":
+  version: 4.22.1
+  resolution: "tsx@npm:4.22.1"
   dependencies:
     esbuild: "npm:~0.28.0"
     fsevents: "npm:~2.3.3"
@@ -9569,7 +9569,7 @@ __metadata:
       optional: true
   bin:
     tsx: dist/cli.mjs
-  checksum: 10/5d16edad135933fec2b527da1e85bb3d871525346af0fb7d4a94f3a3e91da31925e35298acfc0603c7bad04404f4ea322aecbcf8f53f370a7318045be197d40a
+  checksum: 10/67915e7c7b66eb92da27ab9c777bae660944f01aaa340c92abde44f09d2c191cf70f46325de0a55ac76d70114ceb4dab9804f7ce416ebf194e0039718b2684ea
   languageName: node
   linkType: hard
 
