@@ -24,6 +24,7 @@ import type {
 } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
+import { parseOpossumParquetFile } from './parseParquetFile';
 import {
   parseInputJsonFile,
   parseOpossumFile,
@@ -39,7 +40,12 @@ import {
   sanitizeResourcesToAttributions,
   serializeAttributions,
 } from './parseInputData';
+import { getParquetFilePath, isParquetFile } from './parquetFormat';
 import { refineConfiguration } from './refineConfiguration';
+import {
+  writeInputParquetsToCache,
+  writeOpossumParquetFile,
+} from './writeParquetFile';
 
 export interface LoadFileSuccess {
   ok: true;
@@ -85,42 +91,15 @@ function isParsingError(parsingResult: unknown): parsingResult is ParsingError {
   );
 }
 
-export async function loadFile(
+async function preprocessAndLoadIntoDb(
+  parsedInputData: ParsedOpossumInputFile,
+  parsedOutputDataIn: ParsedOpossumOutputFile | null,
   filePath: string,
   globalState: LoadFileGlobalState,
-  reportProgress: LoadFileProgressCallback = () => {},
-): Promise<LoadFileResult> {
-  if (!fs.existsSync(filePath)) {
-    return {
-      ok: false,
-      error: {
-        message: `Error: ${filePath} does not exist.`,
-        type: 'fileNotFoundError',
-      } satisfies FileNotFoundError,
-    };
-  }
-
-  let parsedInputData: ParsedOpossumInputFile;
-  let parsedOutputData: ParsedOpossumOutputFile | null = null;
-  let inputFileRaw: Uint8Array | undefined;
-
-  if (isOpossumFileFormat(filePath)) {
-    reportProgress(`Reading file ${filePath}`);
-    const parsingResult = await parseOpossumFile(filePath);
-    if (isParsingError(parsingResult)) {
-      return { ok: false, error: parsingResult };
-    }
-    parsedInputData = parsingResult.input;
-    parsedOutputData = parsingResult.output;
-    inputFileRaw = parsingResult.inputFileRaw;
-  } else {
-    reportProgress('Parsing input file');
-    const parsingResult = await parseInputJsonFile(filePath);
-    if (isParsingError(parsingResult)) {
-      return { ok: false, error: parsingResult };
-    }
-    parsedInputData = parsingResult;
-  }
+  reportProgress: LoadFileProgressCallback,
+  inputFileRaw: Uint8Array | undefined,
+): Promise<ParsedFileContent> {
+  let parsedOutputData = parsedOutputDataIn;
 
   reportProgress('Sanitizing map of resources to signals');
   const unmergedResourcesToExternalAttributions =
@@ -236,6 +215,76 @@ export async function loadFile(
   reportProgress('Loading into database');
   await initializeDb(parsedFileContent);
 
+  return parsedFileContent;
+}
+
+export async function loadFile(
+  filePath: string,
+  globalState: LoadFileGlobalState,
+  reportProgress: LoadFileProgressCallback = () => {},
+): Promise<LoadFileResult> {
+  if (!fs.existsSync(filePath)) {
+    return {
+      ok: false,
+      error: {
+        message: `Error: ${filePath} does not exist.`,
+        type: 'fileNotFoundError',
+      } satisfies FileNotFoundError,
+    };
+  }
+
+  const tWholeStart = performance.now();
+
+  let parsedInputData: ParsedOpossumInputFile;
+  let parsedOutputData: ParsedOpossumOutputFile | null = null;
+  let inputFileRaw: Uint8Array | undefined;
+
+  const tParseStart = performance.now();
+  if (isOpossumFileFormat(filePath)) {
+    reportProgress(`Reading file ${filePath}`);
+    const parsingResult = await parseOpossumFile(filePath);
+    if (isParsingError(parsingResult)) {
+      return { ok: false, error: parsingResult };
+    }
+    parsedInputData = parsingResult.input;
+    parsedOutputData = parsingResult.output;
+    inputFileRaw = parsingResult.inputFileRaw;
+  } else {
+    reportProgress('Parsing input file');
+    const parsingResult = await parseInputJsonFile(filePath);
+    if (isParsingError(parsingResult)) {
+      return { ok: false, error: parsingResult };
+    }
+    parsedInputData = parsingResult;
+  }
+  const msParseJson = performance.now() - tParseStart;
+
+  const tPreprocessStart = performance.now();
+  const parsedFileContent = await preprocessAndLoadIntoDb(
+    parsedInputData,
+    parsedOutputData,
+    filePath,
+    globalState,
+    reportProgress,
+    inputFileRaw,
+  );
+  const msPreprocessJson = performance.now() - tPreprocessStart;
+  const msJsonTotal = performance.now() - tWholeStart;
+
+  console.log(
+    `[parquet-bench] JSON path: parse=${msParseJson.toFixed(1)}ms, ` +
+      `preprocess+initDb=${msPreprocessJson.toFixed(1)}ms, ` +
+      `total=${msJsonTotal.toFixed(1)}ms`,
+  );
+
+  await maybeRunParquetBenchmark({
+    filePath,
+    parsedInputData,
+    parsedFileContent,
+    globalState,
+    reportProgress,
+  });
+
   const frontendData: ParsedFrontendFileContent = omit(
     parsedFileContent,
     EXCLUDED_FROM_FRONTEND_FILE_CONTENT,
@@ -248,6 +297,98 @@ export async function loadFile(
     projectTitle: parsedInputData.metadata.projectTitle,
     projectId: parsedInputData.metadata.projectId,
   };
+}
+
+async function maybeRunParquetBenchmark({
+  filePath,
+  parsedInputData,
+  parsedFileContent,
+  globalState,
+  reportProgress,
+}: {
+  filePath: string;
+  parsedInputData: ParsedOpossumInputFile;
+  parsedFileContent: ParsedFileContent;
+  globalState: LoadFileGlobalState;
+  reportProgress: LoadFileProgressCallback;
+}): Promise<void> {
+  if (!isOpossumFileFormat(filePath) || isParquetFile(filePath)) {
+    return;
+  }
+  const projectId = parsedInputData.metadata.projectId;
+  const parquetPath = getParquetFilePath(filePath);
+
+  try {
+    reportProgress('Populating parquet input cache');
+    const tCacheStart = performance.now();
+    const { msPerTable: cacheMsPerTable } = await writeInputParquetsToCache(
+      projectId,
+      parsedInputData,
+    );
+    const msCache = performance.now() - tCacheStart;
+    console.log(
+      `[parquet-bench] input cache (build) total=${msCache.toFixed(1)}ms`,
+      cacheMsPerTable,
+    );
+
+    if (!fs.existsSync(parquetPath)) {
+      reportProgress('Writing initial parquet archive');
+      const outputFile: OpossumOutputFile = {
+        metadata: {
+          projectId,
+          fileCreationDate: String(Date.now()),
+          inputFileMD5Checksum: globalState.inputFileChecksum,
+        },
+        manualAttributions: serializeAttributions(
+          parsedFileContent.manualAttributions.attributions,
+        ),
+        resourcesToAttributions:
+          parsedFileContent.manualAttributions.resourcesToAttributions,
+        resolvedExternalAttributions: Array.from(
+          parsedFileContent.resolvedExternalAttributions,
+        ),
+      };
+      const writeTimings = await writeOpossumParquetFile({
+        archivePath: parquetPath,
+        projectId,
+        outputFile,
+      });
+      console.log(
+        `[parquet-bench] initial archive write total=${writeTimings.msTotal.toFixed(1)}ms, ` +
+          `size=${writeTimings.archiveBytes} bytes`,
+        writeTimings.msPerTable,
+      );
+    }
+
+    reportProgress('Re-loading from parquet archive');
+    const tParseParquetStart = performance.now();
+    const parquetResult = await parseOpossumParquetFile(parquetPath);
+    const msParseParquet = performance.now() - tParseParquetStart;
+    console.log(
+      `[parquet-bench] Parquet parse total=${msParseParquet.toFixed(1)}ms ` +
+        `(reported=${parquetResult.msTotal.toFixed(1)}ms)`,
+      parquetResult.msPerTable,
+    );
+
+    const tPreprocessParquetStart = performance.now();
+    await preprocessAndLoadIntoDb(
+      parquetResult.result.input,
+      parquetResult.result.output,
+      filePath,
+      globalState,
+      reportProgress,
+      parquetResult.result.inputFileRaw,
+    );
+    const msPreprocessParquet = performance.now() - tPreprocessParquetStart;
+    const msParquetTotal = msParseParquet + msPreprocessParquet;
+    console.log(
+      `[parquet-bench] Parquet path: parse=${msParseParquet.toFixed(1)}ms, ` +
+        `preprocess+initDb=${msPreprocessParquet.toFixed(1)}ms, ` +
+        `total=${msParquetTotal.toFixed(1)}ms`,
+    );
+  } catch (err) {
+    console.error('[parquet-bench] error during benchmark:', err);
+  }
 }
 
 async function createOutputInOpossumFile(
