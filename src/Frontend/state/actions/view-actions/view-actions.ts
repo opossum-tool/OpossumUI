@@ -55,6 +55,7 @@ export function openStatisticsPopupAfterFileLoadIfEnabled(
   const state = getState();
   const showStatisticsPopup = getUserSettings(state).showProjectStatistics;
   if (showStatisticsPopup) {
+    console.log('Opening statistics popup after file load');
     dispatch(openPopup(PopupType.ProjectStatisticsPopup));
   }
 }
