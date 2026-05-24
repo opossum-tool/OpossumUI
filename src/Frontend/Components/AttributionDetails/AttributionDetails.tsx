@@ -17,6 +17,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
+  getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
@@ -52,6 +53,7 @@ export function AttributionDetails() {
   );
   const selectedAttribution = useSelectedAttributionPackageInfo();
   const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
 
   useLayoutEffect(() => {
     dispatch(
@@ -59,7 +61,12 @@ export function AttributionDetails() {
         selectedAttribution || EMPTY_DISPLAY_PACKAGE_INFO,
       ),
     );
-  }, [dispatch, selectedAttributionId, selectedAttribution]);
+  }, [
+    dispatch,
+    selectedAttributionId,
+    selectedAttribution,
+    selectedResourceId,
+  ]);
 
   const isDirty = useMemo(
     () =>
