@@ -359,19 +359,19 @@
 <!-- metadata -->
 <g id="node6" class="node">
 <title>metadata</title>
-<polygon fill="none" stroke="black" points="89.06,-1374.4 89.06,-1397.2 227.19,-1397.2 227.19,-1374.4 89.06,-1374.4"/>
+<polygon fill="none" stroke="black" points="92.16,-1374.4 92.16,-1397.2 224.08,-1397.2 224.08,-1374.4 92.16,-1374.4"/>
 <text xml:space="preserve" text-anchor="start" x="130.13" y="-1382.6" font-family="Times,serif" font-weight="bold" font-size="14.00">metadata</text>
-<polygon fill="none" stroke="black" points="89.06,-1351.6 89.06,-1374.4 112.56,-1374.4 112.56,-1351.6 89.06,-1351.6"/>
-<text xml:space="preserve" text-anchor="start" x="92.06" y="-1357.4" font-family="Times,serif" font-size="14.00">🔑 </text>
-<polygon fill="none" stroke="black" points="112.56,-1351.6 112.56,-1374.4 179.21,-1374.4 179.21,-1351.6 112.56,-1351.6"/>
-<text xml:space="preserve" text-anchor="start" x="115.56" y="-1357.4" font-family="Times,serif" font-size="14.00">key</text>
-<polygon fill="none" stroke="black" points="179.21,-1351.6 179.21,-1374.4 227.19,-1374.4 227.19,-1351.6 179.21,-1351.6"/>
-<text xml:space="preserve" text-anchor="start" x="182.21" y="-1357.4" font-family="Times,serif" font-size="14.00">TEXT</text>
-<polygon fill="none" stroke="black" points="89.06,-1328.8 89.06,-1351.6 112.56,-1351.6 112.56,-1328.8 89.06,-1328.8"/>
-<polygon fill="none" stroke="black" points="112.56,-1328.8 112.56,-1351.6 179.21,-1351.6 179.21,-1328.8 112.56,-1328.8"/>
-<text xml:space="preserve" text-anchor="start" x="115.56" y="-1334.6" font-family="Times,serif" font-size="14.00">value_json</text>
-<polygon fill="none" stroke="black" points="179.21,-1328.8 179.21,-1351.6 227.19,-1351.6 227.19,-1328.8 179.21,-1328.8"/>
-<text xml:space="preserve" text-anchor="start" x="182.21" y="-1334.6" font-family="Times,serif" font-size="14.00">TEXT?</text>
+<polygon fill="none" stroke="black" points="92.16,-1351.6 92.16,-1374.4 115.66,-1374.4 115.66,-1351.6 92.16,-1351.6"/>
+<text xml:space="preserve" text-anchor="start" x="95.16" y="-1357.4" font-family="Times,serif" font-size="14.00">🔑 </text>
+<polygon fill="none" stroke="black" points="115.66,-1351.6 115.66,-1374.4 182.32,-1374.4 182.32,-1351.6 115.66,-1351.6"/>
+<text xml:space="preserve" text-anchor="start" x="118.66" y="-1357.4" font-family="Times,serif" font-size="14.00">key</text>
+<polygon fill="none" stroke="black" points="182.32,-1351.6 182.32,-1374.4 224.08,-1374.4 224.08,-1351.6 182.32,-1351.6"/>
+<text xml:space="preserve" text-anchor="start" x="185.32" y="-1357.4" font-family="Times,serif" font-size="14.00">TEXT</text>
+<polygon fill="none" stroke="black" points="92.16,-1328.8 92.16,-1351.6 115.66,-1351.6 115.66,-1328.8 92.16,-1328.8"/>
+<polygon fill="none" stroke="black" points="115.66,-1328.8 115.66,-1351.6 182.32,-1351.6 182.32,-1328.8 115.66,-1328.8"/>
+<text xml:space="preserve" text-anchor="start" x="118.66" y="-1334.6" font-family="Times,serif" font-size="14.00">value_json</text>
+<polygon fill="none" stroke="black" points="182.32,-1328.8 182.32,-1351.6 224.08,-1351.6 224.08,-1328.8 182.32,-1328.8"/>
+<text xml:space="preserve" text-anchor="start" x="185.32" y="-1334.6" font-family="Times,serif" font-size="14.00">TEXT</text>
 </g>
 <!-- resource&#45;&gt;resource -->
 <g id="edge7" class="edge">

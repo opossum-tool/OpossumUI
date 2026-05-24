@@ -5,17 +5,17 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isEmpty } from 'lodash-es';
 
-import {
-  type Attributions,
-  type AttributionsToResources,
-  type BaseUrlsForSources,
-  type ExternalAttributionSources,
-  type FrequentLicenses,
-  type ParsedFileContent,
-  type ProjectMetadata,
-  type RawProjectConfig,
-  type Resources,
-  type ResourcesToAttributions,
+import type {
+  Attributions,
+  AttributionsToResources,
+  BaseUrlsForSources,
+  ExternalAttributionSources,
+  FrequentLicenses,
+  ParsedFileContent,
+  ProjectMetadata,
+  RawProjectConfig,
+  Resources,
+  ResourcesToAttributions,
 } from '../../shared/shared-types';
 import {
   EMPTY_PROJECT_METADATA,

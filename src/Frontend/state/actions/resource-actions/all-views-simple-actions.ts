@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type PackageInfo } from '../../../../shared/shared-types';
+import type { PackageInfo } from '../../../../shared/shared-types';
 import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,

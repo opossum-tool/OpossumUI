@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type PackageInfo } from '../../../shared/shared-types';
-import { type State } from '../../types/types';
+import type { PackageInfo } from '../../../shared/shared-types';
+import type { State } from '../../types/types';
 
 export function getSelectedAttributionId(state: State): string {
   return state.resourceState.selectedAttributionId;

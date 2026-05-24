@@ -6,10 +6,10 @@ import fs from 'fs';
 import { cloneDeep } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
-import {
-  type Attributions,
-  type ParsedFileContent,
-  type ResourcesToAttributions,
+import type {
+  Attributions,
+  ParsedFileContent,
+  ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { initializeDb } from '../db/initializeDb';

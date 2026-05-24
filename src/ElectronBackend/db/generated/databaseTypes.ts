@@ -76,7 +76,7 @@ export interface FrequentLicense {
 
 export interface Metadata {
   key: string;
-  value_json: string | null;
+  value_json: string;
 }
 
 export interface Resource {

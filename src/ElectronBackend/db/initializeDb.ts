@@ -692,7 +692,7 @@ async function initializeMetadataTable(
   await trx.schema
     .createTable('metadata')
     .addColumn('key', 'text', (col) => col.primaryKey().notNull())
-    .addColumn('value_json', 'text')
+    .addColumn('value_json', 'text', (col) => col.notNull())
     .execute();
 
   for (const [key, value] of Object.entries(metadata)) {
