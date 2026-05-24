@@ -199,7 +199,9 @@ export const importFileConvertAndLoadListener =
 
     try {
       if (!resourceFilePath.trim() || !fs.existsSync(resourceFilePath)) {
-        throw new Error(text.backendError.inputFileDoesNotExist);
+        throw new Error(
+          `Import: ${text.backendError.inputFileDoesNotExist}, ${resourceFilePath}, ${fs.existsSync(resourceFilePath)}`,
+        );
       }
 
       try {
@@ -261,7 +263,9 @@ export const mergeFileAndLoadListener =
 
     try {
       if (!inputFilePath.trim() || !fs.existsSync(inputFilePath)) {
-        throw new Error(text.backendError.inputFileDoesNotExist);
+        throw new Error(
+          `Merge: ${text.backendError.inputFileDoesNotExist}, ${inputFilePath}, ${fs.existsSync(inputFilePath)}`,
+        );
       }
 
       try {
