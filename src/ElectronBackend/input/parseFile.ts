@@ -5,8 +5,8 @@
 import * as fflate from 'fflate';
 import fs from 'fs';
 import { type Options, Validator } from 'jsonschema';
-import { type Parser, parser } from 'stream-json';
-import Asm from 'stream-json/Assembler';
+import parser from 'stream-json';
+import Asm, { type Assembler } from 'stream-json/assembler.js';
 import zlib from 'zlib';
 
 import {
@@ -110,15 +110,12 @@ async function readZipAsync(opossumFilePath: string): Promise<fflate.Unzipped> {
 export function parseInputJsonFile(
   resourceFilePath: fs.PathLike,
 ): Promise<ParsedOpossumInputFile | JsonParsingError> {
-  let pipeline: Parser;
-  if (resourceFilePath.toString().endsWith('.json.gz')) {
-    pipeline = fs
-      .createReadStream(resourceFilePath)
-      .pipe(zlib.createGunzip())
-      .pipe(parser());
-  } else {
-    pipeline = fs.createReadStream(resourceFilePath).pipe(parser());
-  }
+  const pipeline = resourceFilePath.toString().endsWith('.json.gz')
+    ? fs
+        .createReadStream(resourceFilePath)
+        .pipe(zlib.createGunzip())
+        .pipe(parser())
+    : fs.createReadStream(resourceFilePath).pipe(parser());
 
   let resolveCallback: (
     result: ParsedOpossumInputFile | JsonParsingError,
@@ -135,23 +132,24 @@ export function parseInputJsonFile(
     });
   });
 
-  const asm = Asm.connectTo(pipeline);
-  asm.on('done', (asm) => {
-    const opossumInputData = asm.current;
+  Asm.connectTo(pipeline, {
+    onDone: (asm: Assembler) => {
+      const opossumInputData = asm.current;
 
-    try {
-      jsonSchemaValidator.validate(
-        opossumInputData,
-        OpossumInputFileSchema,
-        validationOptions,
-      );
-      resolveCallback(opossumInputData as ParsedOpossumInputFile);
-    } catch (err) {
-      resolveCallback({
-        message: `Error: ${resourceFilePath.toString()} is not a valid input file.\n${err?.toString()}`,
-        type: 'jsonParsingError',
-      });
-    }
+      try {
+        jsonSchemaValidator.validate(
+          opossumInputData,
+          OpossumInputFileSchema,
+          validationOptions,
+        );
+        resolveCallback(opossumInputData as ParsedOpossumInputFile);
+      } catch (err) {
+        resolveCallback({
+          message: `Error: ${resourceFilePath.toString()} is not a valid input file.\n${err?.toString()}`,
+          type: 'jsonParsingError',
+        });
+      }
+    },
   });
 
   return promise;
