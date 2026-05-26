@@ -8262,7 +8262,7 @@ __metadata:
     recharts: "npm:3.8.1"
     run-script-os: "npm:1.1.6"
     spdx-license-ids: "npm:3.0.23"
-    stream-json: "npm:1.9.1"
+    stream-json: "npm:3.1.0"
     tsx: "npm:4.22.3"
     typescript: "npm:6.0.3"
     typescript-eslint: "npm:8.59.4"
@@ -9682,19 +9682,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stream-chain@npm:^2.2.5":
-  version: 2.2.5
-  resolution: "stream-chain@npm:2.2.5"
-  checksum: 10/f9c65fe21251106083ca753d8b36f5a35dc426f5cb12851d9a872b6eb69e30ea2c94d87887bfda8c820503e842183812922532fb2adab18d5878d31a4516b956
+"stream-chain@npm:^4.1.0":
+  version: 4.1.1
+  resolution: "stream-chain@npm:4.1.1"
+  checksum: 10/a9a37828dc99a2efcca8cff4875745cde980663c4d0bffcf5e40a057ceceb36781754277e3dc5139e9e0efa5103ee89dc5eecc6e6d04c09dd9944b98b807729c
   languageName: node
   linkType: hard
 
-"stream-json@npm:1.9.1":
-  version: 1.9.1
-  resolution: "stream-json@npm:1.9.1"
+"stream-json@npm:3.1.0":
+  version: 3.1.0
+  resolution: "stream-json@npm:3.1.0"
   dependencies:
-    stream-chain: "npm:^2.2.5"
-  checksum: 10/8c97d3078127aaf70197b0e4b5ca668307f1768a4eb1ac4c2030056e1f862d7a11b83094b87d2b04c3c14f76a8a8657eb87b1760d57781c172e3a513c7e2b5fd
+    stream-chain: "npm:^4.1.0"
+  checksum: 10/35fa11d498b7ba4efed9681db5210319391b0d9bb96296c597cf6dfe9a192bb0eb72b3368f798427fe312916c8b02ded3787f2375e15b72bb1b3f1bbdb637f49
   languageName: node
   linkType: hard
 
