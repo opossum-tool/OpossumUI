@@ -396,6 +396,8 @@ export const text = {
   backendError: {
     inputFileDoesNotExist: 'Input file does not exist',
     inputFilePermissionError: 'Permission error: cannot read input file',
+    fileConverterExecutionFailed: (fileTypeName: string) =>
+      `Unable to execute the Opossum file converter for ${fileTypeName} input files`,
     inputFileInvalid: (fileTypeName: string) =>
       `Input file is not a valid ${fileTypeName} file`,
     opossumFileNotSelected: 'No .opossum save location selected',
