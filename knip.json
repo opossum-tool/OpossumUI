@@ -1,17 +1,10 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["src/ElectronBackend/{app,preload,dbProcess/dbProcess}.ts"],
   "project": ["**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}!", "!.yarn/**"],
   "ignoreIssues": {
     "src/ElectronBackend/db/generated/databaseTypes.ts": ["types"]
   },
   "ignoreDependencies": ["dpdm", "better-sqlite3-electron"],
-  "ignoreBinaries": [
-    "tools/*",
-    "spdx",
-    "reuse",
-    "licenses",
-    "codesign",
-    "ship-mac"
-  ]
+  "ignoreBinaries": ["tools/*", "spdx", "reuse", "licenses", "codesign"]
 }
