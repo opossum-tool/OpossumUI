@@ -105,6 +105,7 @@ export const MergeDialog: React.FC<MergeDialogProps> = ({ fileFormat }) => {
           )}
           text={inputFilePath}
           onClick={selectInputFilePath}
+          testId={'merge-input-file-path'}
           disabled={mergeInProgress}
         />
       </div>

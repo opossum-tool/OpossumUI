@@ -65,9 +65,14 @@ const classes = {
 
 export type TextBoxCustomInputProps =
   React.InputHTMLAttributes<HTMLInputElement> &
-    InputBaseComponentsPropsOverrides & { sx?: SxProps<Theme> };
+    InputBaseComponentsPropsOverrides & {
+      sx?: SxProps<Theme>;
+      'data-testid'?: string;
+    };
 
 export interface TextBoxProps {
+  inputDataTestId?: string;
+  rootDataTestId?: string;
   color?: TextFieldProps['color'];
   placeholder?: string;
   disabled?: boolean;
@@ -95,7 +100,7 @@ export interface TextBoxProps {
 
 export function TextBox(props: TextBoxProps) {
   return (
-    <MuiBox sx={props.sx}>
+    <MuiBox data-testid={props.rootDataTestId} sx={props.sx}>
       <MuiTooltip
         title={props.showTooltip && props.text}
         disableInteractive={true}
@@ -124,6 +129,9 @@ export function TextBox(props: TextBoxProps) {
                 input: {
                   'aria-label': props.title,
                   value: props.text || '',
+                  ...(props.inputDataTestId
+                    ? { 'data-testid': props.inputDataTestId }
+                    : {}),
                   sx: {
                     overflowX: 'hidden',
                     textOverflow: 'ellipsis',

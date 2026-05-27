@@ -7,6 +7,8 @@ import * as path from 'path';
 
 export class ImportDialog {
   private readonly node: Locator;
+  private readonly inputFileSelectionValue: Locator;
+  private readonly opossumFileSelectionValue: Locator;
   readonly title: Locator;
   readonly inputFileSelection: Locator;
   readonly opossumFileSelection: Locator;
@@ -20,14 +22,22 @@ export class ImportDialog {
   constructor(window: Page) {
     this.node = window.getByLabel('import dialog');
     this.title = this.node.getByRole('heading').getByText('Import');
-    this.inputFileSelection = this.node
-      .getByLabel('Select file to import')
-      .locator('..');
-    this.opossumFileSelection = this.node
-      .getByLabel('Select opossum file save location')
-      .locator('..');
-    this.importButton = this.node.getByRole('button', { name: 'Import' });
-    this.cancelButton = this.node.getByRole('button', { name: 'Cancel' });
+    this.inputFileSelection = window.getByTestId('import-input-file-path');
+    this.opossumFileSelection = window.getByTestId('import-opossum-file-path');
+    this.inputFileSelectionValue = window.getByTestId(
+      'import-input-file-path-input',
+    );
+    this.opossumFileSelectionValue = window.getByTestId(
+      'import-opossum-file-path-input',
+    );
+    this.importButton = this.node.getByRole('button', {
+      name: 'Import',
+      exact: true,
+    });
+    this.cancelButton = this.node.getByRole('button', {
+      name: 'Cancel',
+      exact: true,
+    });
     this.errorIcon = this.node.getByTestId('ErrorIcon').locator('path');
 
     this.scancodeFilePath = path.resolve(__dirname, '..', 'scancode.json');
@@ -44,6 +54,12 @@ export class ImportDialog {
     },
     titleIsHidden: async (): Promise<void> => {
       await expect(this.title).toBeHidden({ timeout: 30000 });
+    },
+    inputFilePathIs: async (filePath: string): Promise<void> => {
+      await expect(this.inputFileSelectionValue).toContainText(filePath);
+    },
+    opossumFilePathIs: async (filePath: string): Promise<void> => {
+      await expect(this.opossumFileSelectionValue).toContainText(filePath);
     },
     showsError: async (): Promise<void> => {
       await expect(this.errorIcon).toBeVisible();

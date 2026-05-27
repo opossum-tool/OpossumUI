@@ -14,6 +14,7 @@ const CustomInput: React.FC<TextBoxCustomInputProps> = (props) => {
     <MuiTypography
       sx={{ ...props.sx, whiteSpace: 'nowrap', userSelect: 'none' }}
       aria-label={props['aria-label']}
+      data-testid={props['data-testid']}
     >
       {props.value}
     </MuiTypography>
@@ -26,14 +27,23 @@ interface FilePathInputProps {
   onClick: () => void;
   tooltipProps?: Partial<TooltipProps>;
   disabled: boolean;
+  testId?: string;
 }
 
 export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
+  const onActivate = (): void => {
+    if (!props.disabled) {
+      props.onClick();
+    }
+  };
+
   return (
     <TextBox
+      rootDataTestId={props.testId}
+      inputDataTestId={props.testId ? `${props.testId}-input` : undefined}
       title={props.label}
       text={props.text}
-      onClick={props.onClick}
+      onClick={props.disabled ? undefined : onActivate}
       startIcon={<AttachFileIcon sx={baseIcon} />}
       cursor={'pointer'}
       showTooltip={true}
@@ -41,8 +51,8 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       // using a custom input component allows us to disable a lot of TextField
       // behavior (e.g. horizontal text scrolling) that we don't want here
       inputComponent={CustomInput}
-      sx={{ marginTop: '20px' }}
       disabled={props.disabled}
+      sx={{ marginTop: '20px' }}
     />
   );
 };

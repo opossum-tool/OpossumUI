@@ -2,9 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { stubDialog } from 'electron-playwright-helpers';
-
-import { faker, test } from '../utils';
+import { faker, stubOpenDialogSync, test } from '../utils';
 
 const [resourceName] = faker.opossum.resourceName();
 
@@ -32,7 +30,7 @@ test('opens Opossum file and shows project as recently opened', async ({
 }) => {
   await menuBar.assert.openRecentIsDisabled();
 
-  await stubDialog(window.app, 'showOpenDialogSync', [filePaths!.opossum]);
+  await stubOpenDialogSync(window.app, [filePaths!.opossum]);
   await menuBar.openFile();
 
   await resourcesTree.assert.resourceIsVisible(resourceName);
@@ -51,7 +49,7 @@ test('opens file and activates initially disabled menu entries afterwards', asyn
   await menuBar.assert.openRecentIsDisabled();
   await menuBar.assert.initiallyDisabledEntriesAreDisabled();
 
-  await stubDialog(window.app, 'showOpenDialogSync', [filePaths!.opossum]);
+  await stubOpenDialogSync(window.app, [filePaths!.opossum]);
   await menuBar.openFile();
 
   await resourcesTree.assert.resourceIsVisible(resourceName);
