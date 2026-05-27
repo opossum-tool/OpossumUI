@@ -181,18 +181,21 @@ export const backend = new Proxy({} as BackendClient, {
       useQuery: (
         params?: QueryParams<QueryName> | SkipToken,
         options?: ClientQueryOptions<QueryName>,
-      ) =>
+      ) => {
+        const initialized = useDatabaseInitialized();
+
         // eslint-disable-next-line @tanstack/query/exhaustive-deps
-        useQuery({
+        return useQuery({
           queryKey: getQueryKey(command, params),
           queryFn:
-            databaseInitialized && params !== skipToken
+            initialized && params !== skipToken
               ? () => {
                   return query(params);
                 }
               : skipToken,
           ...options,
-        }),
+        });
+      },
 
       // For commands specified in src/ElectronBackend/api/mutations.ts
       mutate,

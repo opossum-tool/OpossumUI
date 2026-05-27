@@ -12,8 +12,7 @@ import MuiTypography from '@mui/material/Typography';
 import dayjs from 'dayjs';
 
 import { OpossumColors } from '../../shared-styles';
-import { useAppSelector } from '../../state/hooks';
-import { getProjectMetadata } from '../../state/selectors/resource-selectors';
+import { backend } from '../../util/backendClient';
 
 const projectMetadataTableClasses = {
   firstColumn: {
@@ -49,7 +48,7 @@ const values: { [key: string]: { title: string; date: boolean } } = {
 };
 
 export const ProjectMetadataTable: React.FC = () => {
-  const projectMetadata = useAppSelector(getProjectMetadata);
+  const projectMetadata = backend.metadata.useQuery();
 
   return (
     <MuiBox>
@@ -62,7 +61,7 @@ export const ProjectMetadataTable: React.FC = () => {
   );
 
   function renderRows(): React.ReactNode {
-    return Object.entries(projectMetadata).map(([key, value]) => (
+    return Object.entries(projectMetadata.data ?? {}).map(([key, value]) => (
       <MuiTableRow key={key}>
         <MuiTableCell sx={projectMetadataTableClasses.firstColumn}>
           {values[key]?.title ?? key}
