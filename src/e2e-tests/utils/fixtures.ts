@@ -115,6 +115,10 @@ export const test = base.extend<{
           : args.concat([opossumFilePath])),
       ],
       executablePath,
+      env: {
+        ...process.env,
+        RESET: '1',
+      },
     });
 
     // Capture main process stdout/stderr for debugging

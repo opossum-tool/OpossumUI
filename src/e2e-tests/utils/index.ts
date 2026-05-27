@@ -3,5 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 export * from '../../testing/Faker';
+export * from './dialog';
 export * from './fixtures';
 export * from './retry';

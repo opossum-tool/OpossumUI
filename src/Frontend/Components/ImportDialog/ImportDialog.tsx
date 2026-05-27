@@ -136,6 +136,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           )}
           text={inputFilePath}
           onClick={selectInputFilePath}
+          testId={'import-input-file-path'}
           tooltipProps={{ placement: 'top' }}
           disabled={importInProgress}
         />
@@ -145,6 +146,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           )}
           text={opossumFilePath}
           onClick={selectOpossumFilePath}
+          testId={'import-opossum-file-path'}
           disabled={importInProgress}
         />
       </div>
