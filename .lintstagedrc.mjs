@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-module.exports = {
+export default {
   '*': [
     () => 'yarn copyright-lint-check',
     () => 'knip',

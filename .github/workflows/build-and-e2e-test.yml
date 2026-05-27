@@ -47,6 +47,11 @@ jobs:
       - run: yarn install --immutable
 
       - run: yarn ship:auto
+        if: matrix.os != 'macos-15-intel'
+
+      # The Intel smoke test only needs a runnable app and avoids flaky DMG eject failures.
+      - run: yarn install-deps:darwin:x64 && yarn build && NODE_OPTIONS=--no-deprecation yarn electron-builder --mac --x64 --publish never --dir
+        if: matrix.os == 'macos-15-intel'
 
       - run: yarn spdx
 
