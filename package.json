@@ -37,7 +37,7 @@
     "re-resizable": "6.11.2",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "react-error-boundary": "6.1.1",
+    "react-error-boundary": "6.1.2",
     "react-hot-toast": "2.6.0",
     "react-hotkeys-hook": "5.3.2",
     "react-is": "19.2.6",
