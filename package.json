@@ -84,7 +84,7 @@
     "dotenv": "17.4.2",
     "dpdm": "4.2.0",
     "electron": "41.2.0",
-    "electron-builder": "26.11.1",
+    "electron-builder": "26.12.1",
     "electron-playwright-helpers": "2.1.0",
     "eslint": "10.4.1",
     "eslint-plugin-check-file": "3.3.1",
