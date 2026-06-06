@@ -2962,10 +2962,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@viz-js/viz@npm:3.27.0":
-  version: 3.27.0
-  resolution: "@viz-js/viz@npm:3.27.0"
-  checksum: 10/e40df9f842beaaebc996bda9521d551d25dacd518efc034d6f6e5098a7965ac306f30496101a53c5a30301609d831a42dd99d5e5a4caec6ec2381329bb21961e
+"@viz-js/viz@npm:3.28.0":
+  version: 3.28.0
+  resolution: "@viz-js/viz@npm:3.28.0"
+  checksum: 10/e890f8b35b271ed6a3677bf4e39d014dcd2baebf77bc2694e2fa26857ff16c705961af826670852633cd47a34d11a8bb75a343e38b212d8b750951901815950b
   languageName: node
   linkType: hard
 
@@ -7027,7 +7027,7 @@ __metadata:
     "@types/react-dom": "npm:19.2.3"
     "@vitejs/plugin-react": "npm:6.0.2"
     "@vitest/eslint-plugin": "npm:1.6.19"
-    "@viz-js/viz": "npm:3.27.0"
+    "@viz-js/viz": "npm:3.28.0"
     babel-plugin-react-compiler: "npm:1.0.0"
     better-sqlite3: "npm:12.10.0"
     better-sqlite3-electron: "npm:better-sqlite3@12.10.0"
