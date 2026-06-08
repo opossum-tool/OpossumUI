@@ -6013,15 +6013,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knip@npm:6.15.0":
-  version: 6.15.0
-  resolution: "knip@npm:6.15.0"
+"knip@npm:6.16.0":
+  version: 6.16.0
+  resolution: "knip@npm:6.16.0"
   dependencies:
     fdir: "npm:^6.5.0"
     formatly: "npm:^0.3.0"
     get-tsconfig: "npm:4.14.0"
     jiti: "npm:^2.7.0"
-    minimist: "npm:^1.2.8"
     oxc-parser: "npm:^0.133.0"
     oxc-resolver: "npm:^11.20.0"
     picomatch: "npm:^4.0.4"
@@ -6034,7 +6033,7 @@ __metadata:
   bin:
     knip: bin/knip.js
     knip-bun: bin/knip-bun.js
-  checksum: 10/7a2bc7cde7dd76bc7f0985b5afb50510f844082a6ff5538a846772e72fd859836e9527fa05cc64ef9b1092d62a3dd8886870078c002bddd48560f80f4cd2c5ae
+  checksum: 10/99010ec2e8bb0823bdcfb0ad4a16031f1443d952b3e44c9f36b85f2831189516c3c73d846bdd26f0f1ecc5d6ea44fd8e74c2950404cb686d615d89df0a87d923
   languageName: node
   linkType: hard
 
@@ -7048,7 +7047,7 @@ __metadata:
     husky: "npm:9.1.7"
     js-yaml: "npm:4.2.0"
     jsonschema: "npm:1.5.0"
-    knip: "npm:6.15.0"
+    knip: "npm:6.16.0"
     kysely: "npm:0.29.2"
     kysely-codegen: "npm:0.20.0"
     lint-staged: "npm:17.0.7"
