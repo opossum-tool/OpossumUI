@@ -6,26 +6,22 @@ import { pickBy } from 'lodash-es';
 
 import {
   type Attributions,
-  type AttributionsToResources,
   type BaseUrlsForSources,
   Criticality,
   type FrequentLicenses,
   type RawAttributions,
   RawCriticality,
-  type Resources,
   type ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { faker } from '../../../testing/Faker';
 import type { RawFrequentLicense } from '../../types/types';
 import {
   deserializeAttributions,
-  getAllResourcePaths,
   HASH_EXCLUDE_KEYS,
   mergeAttributions,
   mergePackageInfos,
   parseFrequentLicenses,
   sanitizeRawBaseUrlsForSources,
-  sanitizeResourcesToAttributions,
   serializeAttributions,
 } from '../parseInputData';
 
@@ -332,132 +328,6 @@ describe('parseFrequentLicenses', () => {
     expect(parseFrequentLicenses(rawFrequentLicenses)).toEqual(
       expectedFrequentLicenses,
     );
-  });
-});
-
-describe('getAllResourcePaths', () => {
-  it('calculates correctly for only base path', () => {
-    const resources: Resources = {};
-    expect(getAllResourcePaths(resources)).toStrictEqual(new Set(['/']));
-  });
-
-  it('calculates correctly for files on top level', () => {
-    const resources: Resources = {
-      file1: 1,
-      file2: 1,
-    };
-    expect(getAllResourcePaths(resources)).toStrictEqual(
-      new Set(['/', '/file1', '/file2']),
-    );
-  });
-
-  it('calculates correctly for nested files', () => {
-    const resources: Resources = {
-      file1: 1,
-      folder1: {},
-      folder2: {
-        subfolder2_1: {
-          file2: 1,
-          subfolder2_1_1: {},
-        },
-      },
-    };
-    expect(getAllResourcePaths(resources)).toStrictEqual(
-      new Set([
-        '/',
-        '/file1',
-        '/folder1/',
-        '/folder2/',
-        '/folder2/subfolder2_1/',
-        '/folder2/subfolder2_1/file2',
-        '/folder2/subfolder2_1/subfolder2_1_1/',
-      ]),
-    );
-  });
-});
-
-describe('sanitizeResourcesToAttributions', () => {
-  it('handles empty object', () => {
-    const resources: Resources = {};
-    const attributionsToResources: AttributionsToResources = {};
-
-    expect(
-      sanitizeResourcesToAttributions(resources, attributionsToResources),
-    ).toStrictEqual({});
-  });
-
-  it('includes root path', () => {
-    const resources: Resources = {};
-    const attributionsToResources: AttributionsToResources = {
-      '/': ['uuid1'],
-    };
-
-    expect(
-      sanitizeResourcesToAttributions(resources, attributionsToResources),
-    ).toStrictEqual(attributionsToResources);
-  });
-
-  it('includes correctly matching path', () => {
-    const resources: Resources = {
-      file1: 1,
-      folder1: {
-        file2: 1,
-      },
-    };
-    const attributionsToResources: AttributionsToResources = {
-      '/file1': ['uuid1'],
-      '/folder1/': ['uuid2', 'uuid3'],
-      '/folder1/file2': ['uuid1'],
-    };
-
-    expect(
-      sanitizeResourcesToAttributions(resources, attributionsToResources),
-    ).toStrictEqual(attributionsToResources);
-  });
-
-  it('includes path with missing slashes', () => {
-    const resources: Resources = {
-      file1: 1,
-      folder1: {
-        file2: 1,
-      },
-    };
-    const attributionsToResources: AttributionsToResources = {
-      '/file1': ['uuid1'],
-      '/folder1': ['uuid2', 'uuid3'],
-      '/folder1/file2': ['uuid1'],
-    };
-
-    expect(
-      sanitizeResourcesToAttributions(resources, attributionsToResources),
-    ).toStrictEqual({
-      '/file1': ['uuid1'],
-      '/folder1/': ['uuid2', 'uuid3'],
-      '/folder1/file2': ['uuid1'],
-    });
-  });
-
-  it('ignores absent path', () => {
-    const resources: Resources = {
-      file1: 1,
-      folder1: {
-        file2: 1,
-      },
-    };
-    const attributionsToResources: AttributionsToResources = {
-      '/file1': ['uuid1'],
-      '/folder1/': ['uuid2', 'uuid3'],
-      '/folder1/file2': ['uuid1'],
-      '/folder2/': ['uuid4'],
-    };
-
-    expect(
-      sanitizeResourcesToAttributions(resources, attributionsToResources),
-    ).toStrictEqual({
-      '/file1': ['uuid1'],
-      '/folder1/': ['uuid2', 'uuid3'],
-      '/folder1/file2': ['uuid1'],
-    });
   });
 });
 
