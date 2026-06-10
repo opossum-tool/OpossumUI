@@ -2,15 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type {
-  Resources,
-  ResourcesToAttributions,
-} from '../../../shared/shared-types';
-import {
-  canResourceHaveChildren,
-  correctFilePathsInResourcesMappingForOutput,
-  isIdOfResourceWithChildren,
-} from '../can-resource-have-children';
+import type { Resources } from '../../../shared/shared-types';
+import { canResourceHaveChildren } from '../can-resource-have-children';
 
 describe('canHaveChildren', () => {
   it('returns true for a folder', () => {
@@ -23,55 +16,5 @@ describe('canHaveChildren', () => {
     const testFileFromResources = 1;
 
     expect(canResourceHaveChildren(testFileFromResources)).toBe(false);
-  });
-});
-
-describe('isIdOfResourceWithChildren', () => {
-  it('returns true for a folder id', () => {
-    const testFolderPath = '/some_folder/';
-
-    expect(isIdOfResourceWithChildren(testFolderPath)).toBe(true);
-  });
-
-  it('returns false for a file id', () => {
-    const testFilePath = '/some_folder/some_file';
-
-    expect(isIdOfResourceWithChildren(testFilePath)).toBe(false);
-  });
-});
-
-describe('correctFilePathsInResourcesMappingForOutput', () => {
-  const testResourcesToAttributions: ResourcesToAttributions = {
-    '/file': ['id1'],
-    '/folder/': ['id2'],
-    '/folder/file2': ['id2', 'id3'],
-    '/fileWithChildren/': ['id4'],
-    '/fileWithChildren/file3': ['id4', 'id5'],
-  };
-  it('does nothing to paths not in files with children', () => {
-    const filesWithChildren = new Set<string>();
-    expect(
-      correctFilePathsInResourcesMappingForOutput(
-        testResourcesToAttributions,
-        filesWithChildren,
-      ),
-    ).toEqual(testResourcesToAttributions);
-  });
-
-  it('removes trailing slashes for files with children', () => {
-    const filesWithChildren = new Set(['/fileWithChildren/']);
-
-    expect(
-      correctFilePathsInResourcesMappingForOutput(
-        testResourcesToAttributions,
-        filesWithChildren,
-      ),
-    ).toEqual({
-      '/file': ['id1'],
-      '/folder/': ['id2'],
-      '/folder/file2': ['id2', 'id3'],
-      '/fileWithChildren': ['id4'],
-      '/fileWithChildren/file3': ['id4', 'id5'],
-    });
   });
 });
