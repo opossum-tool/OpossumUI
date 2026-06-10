@@ -6,7 +6,6 @@
 import { compact, groupBy, min, sortBy } from 'lodash-es';
 import objectHash from 'object-hash';
 
-import { canResourceHaveChildren } from '../../Frontend/util/can-resource-have-children';
 import {
   type Attributions,
   type AttributionsToResources,
@@ -17,69 +16,12 @@ import {
   type PackageInfo,
   type RawAttributions,
   RawCriticality,
-  type Resources,
   type ResourcesToAttributions,
 } from '../../shared/shared-types';
 import type { RawFrequentLicense } from '../types/types';
 
 export function addTrailingSlashIfAbsent(resourcePath: string): string {
   return resourcePath.endsWith('/') ? resourcePath : resourcePath.concat('/');
-}
-
-function getListOfResourcePaths(
-  basePath: string,
-  resourceName: string,
-  resources: Resources,
-): Array<string> {
-  const fullResourcePath =
-    basePath + resourceName + (canResourceHaveChildren(resources) ? '/' : '');
-
-  return [fullResourcePath].concat(
-    Object.keys(resources)
-      .map((childPath) =>
-        getListOfResourcePaths(
-          fullResourcePath,
-          childPath,
-          resources[childPath] as Resources,
-        ),
-      )
-      .flat(),
-  );
-}
-
-export function getAllResourcePaths(resources: Resources): Set<string> {
-  return new Set(getListOfResourcePaths('', '', resources));
-}
-
-export function sanitizeResourcesToAttributions(
-  resources: Resources,
-  rawResourcesToAttributions: ResourcesToAttributions,
-): ResourcesToAttributions {
-  const allResourcePaths = getAllResourcePaths(resources);
-
-  return Object.fromEntries(
-    Object.entries(rawResourcesToAttributions).reduce(
-      (
-        accumulatedResult: Array<[string, Array<string>]>,
-        [path, attributions],
-      ) => {
-        const pathWithSlash = addTrailingSlashIfAbsent(path);
-        const pathWithoutSlash = pathWithSlash.slice(
-          0,
-          pathWithSlash.length - 1,
-        );
-
-        if (allResourcePaths.has(pathWithSlash)) {
-          accumulatedResult.push([pathWithSlash, attributions]);
-        } else if (allResourcePaths.has(pathWithoutSlash)) {
-          accumulatedResult.push([pathWithoutSlash, attributions]);
-        }
-
-        return accumulatedResult;
-      },
-      [],
-    ),
-  );
 }
 
 export function getAttributionsToResources(

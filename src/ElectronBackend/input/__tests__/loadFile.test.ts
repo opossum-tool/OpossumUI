@@ -222,6 +222,56 @@ describe('loadFile', () => {
     ]);
   });
 
+  it('links attributions to the right resource regardless of the key form and drops unknown paths', async () => {
+    const externalUuid = 'ecd692d9-b154-4d4d-be8c-external';
+    const input: ParsedOpossumInputFile = {
+      metadata: EMPTY_PROJECT_METADATA,
+      resources: {
+        folder: { file: 1 },
+        'archive.zip': { inner: 1 },
+        leaf: 1,
+      },
+      config: { classifications: {} },
+      externalAttributions: {
+        [externalUuid]: {
+          source: faker.opossum.source(),
+          packageName: 'my app',
+        },
+      },
+      frequentLicenses: [],
+      resourcesToAttributions: {
+        '/folder/': [externalUuid], // folder, with trailing slash
+        '/archive.zip': [externalUuid], // files-with-children, without slash
+        '/leaf': [externalUuid], // plain file
+        '/does/not/exist': [externalUuid], // unknown path, must be dropped
+      },
+      filesWithChildren: ['/archive.zip'],
+    };
+    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    await writeFile({ path: jsonPath, content: input });
+
+    vi.spyOn(Date, 'now').mockReturnValue(1);
+
+    const result = (await loadFile(jsonPath, {})) as LoadFileSuccess;
+    expect(result.ok).toBe(true);
+
+    const links = await getDb()
+      .selectFrom('resource_to_attribution as rta')
+      .innerJoin('resource as r', 'r.id', 'rta.resource_id')
+      .select('r.path')
+      .where('attribution_is_external', '=', 1)
+      .execute();
+
+    // The DB stores resource paths without a trailing slash and resolves keys
+    // via `removeTrailingSlash`, so every known key form maps to the right
+    // resource and the unknown path is dropped.
+    expect(links.map(({ path }) => path).sort()).toEqual([
+      '/archive.zip',
+      '/folder',
+      '/leaf',
+    ]);
+  });
+
   it('returns fileNotFoundError for non-existing file', async () => {
     const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
     const result = (await loadFile(jsonPath, {})) as LoadFileError;
