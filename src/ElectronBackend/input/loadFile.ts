@@ -34,7 +34,6 @@ import {
   mergeAttributions,
   parseFrequentLicenses,
   sanitizeRawBaseUrlsForSources,
-  sanitizeResourcesToAttributions,
   serializeAttributions,
 } from './parseInputData';
 import { refineConfiguration } from './refineConfiguration';
@@ -119,13 +118,6 @@ export async function loadFile(
     parsedInputData = parsingResult;
   }
 
-  reportProgress('Sanitizing map of resources to signals');
-  const unmergedResourcesToExternalAttributions =
-    sanitizeResourcesToAttributions(
-      parsedInputData.resources,
-      parsedInputData.resourcesToAttributions,
-    );
-
   reportProgress('Deserializing signals');
   const unmergedExternalAttributions = deserializeAttributions(
     parsedInputData.externalAttributions,
@@ -133,14 +125,16 @@ export async function loadFile(
 
   reportProgress('Calculating signals to resources');
   const externalAttributionsToResources = getAttributionsToResources(
-    unmergedResourcesToExternalAttributions,
+    parsedInputData.resourcesToAttributions,
   );
 
   reportProgress('Merging similar signals');
   const [externalAttributions, resourcesToExternalAttributions] =
     mergeAttributions({
       attributions: unmergedExternalAttributions,
-      resourcesToAttributions: unmergedResourcesToExternalAttributions,
+      // mergeAttributions reassigns keys on the map it receives, so pass a copy
+      // to avoid mutating the parsed input.
+      resourcesToAttributions: { ...parsedInputData.resourcesToAttributions },
       attributionsToResources: externalAttributionsToResources,
     });
 
@@ -184,16 +178,9 @@ export async function loadFile(
     parsedInputData.filesWithChildren?.map(addTrailingSlashIfAbsent),
   );
 
-  reportProgress('Sanitizing map of resources to attributions');
-  const normalizedOutputResourcesToAttributions =
-    sanitizeResourcesToAttributions(
-      parsedInputData.resources,
-      parsedOutputData.resourcesToAttributions,
-    );
-
   reportProgress('Calculating attributions to resources');
   const manualAttributionsToResources = getAttributionsToResources(
-    normalizedOutputResourcesToAttributions,
+    parsedOutputData.resourcesToAttributions,
   );
 
   reportProgress('Deserializing attributions');
@@ -208,7 +195,7 @@ export async function loadFile(
     config: configuration,
     manualAttributions: {
       attributions: manualAttributions,
-      resourcesToAttributions: normalizedOutputResourcesToAttributions,
+      resourcesToAttributions: parsedOutputData.resourcesToAttributions,
       attributionsToResources: manualAttributionsToResources,
     },
     externalAttributions: {

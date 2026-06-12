@@ -21,7 +21,6 @@ import {
   EMPTY_PROJECT_METADATA,
   EMPTY_RAW_PROJECT_CONFIG,
 } from '../shared-constants';
-import { canResourceHaveChildren } from '../util/can-resource-have-children';
 
 const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
   metadata: EMPTY_PROJECT_METADATA,
@@ -113,9 +112,8 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
 }
 
 function getResourceIdOfRoot(resources: Resources): string {
-  return `/${Object.keys(resources)[0]}${
-    canResourceHaveChildren(resources[Object.keys(resources)[0]]) ? '' : '/'
-  }`;
+  const rootName = Object.keys(resources)[0];
+  return `/${rootName}${resources[rootName] === 1 ? '/' : ''}`;
 }
 
 function getResourcesToAttributions(
