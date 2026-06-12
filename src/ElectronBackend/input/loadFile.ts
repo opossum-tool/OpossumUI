@@ -11,7 +11,7 @@ import type {
   ParsedFileContent,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { writeFile, writeOpossumFile } from '../../shared/write-file';
+import { saveFile } from '../api/saveFile';
 import { initializeDb } from '../db/initializeDb';
 import type {
   FileNotFoundError,
@@ -156,28 +156,27 @@ export async function loadFile(
     { warn: (msg: string) => reportProgress(msg, 'warn') },
   );
 
+  // When no output exists yet we build it in memory only. The file itself is
+  // written further down via `saveFile` - i.e. the exact same serialization
+  // path used by every later save - so freshly-created output stays consistent
+  // with saved output (e.g. trailing-slash handling for files-with-children).
+  let createdOutputNeedsPersisting = false;
   if (parsedOutputData === null) {
-    reportProgress('Creating output file');
-    if (isOpossumFileFormat(filePath)) {
-      parsedOutputData = await createOutputInOpossumFile(
-        filePath,
-        externalAttributions,
-        resourcesToExternalAttributions,
-        parsedInputData.metadata.projectId,
-        inputFileRaw,
-      );
+    const outputJsonPath = isOpossumFileFormat(filePath)
+      ? undefined
+      : getFilePathWithAppendix(filePath, '_attributions.json');
+
+    if (outputJsonPath !== undefined && fs.existsSync(outputJsonPath)) {
+      parsedOutputData = parseOutputJsonFile(outputJsonPath);
     } else {
-      const outputJsonPath = getFilePathWithAppendix(
-        filePath,
-        '_attributions.json',
-      );
-      parsedOutputData = await parseOrCreateOutputJsonFile(
-        outputJsonPath,
+      reportProgress('Creating output file');
+      parsedOutputData = createJsonOutputFile(
         externalAttributions,
         resourcesToExternalAttributions,
         parsedInputData.metadata.projectId,
         globalState.inputFileChecksum,
       );
+      createdOutputNeedsPersisting = true;
     }
   }
 
@@ -233,52 +232,32 @@ export async function loadFile(
   reportProgress('Loading into database');
   await initializeDb(parsedFileContent);
 
+  if (createdOutputNeedsPersisting) {
+    reportProgress('Writing output file');
+    await saveFile(
+      isOpossumFileFormat(filePath)
+        ? {
+            projectId: parsedInputData.metadata.projectId,
+            opossumFilePath: filePath,
+          }
+        : {
+            projectId: parsedInputData.metadata.projectId,
+            inputFileChecksum: globalState.inputFileChecksum,
+            attributionFilePath: getFilePathWithAppendix(
+              filePath,
+              '_attributions.json',
+            ),
+          },
+      inputFileRaw ?? new Uint8Array(),
+    );
+  }
+
   return {
     ok: true,
     inputFileRaw,
     projectTitle: parsedInputData.metadata.projectTitle,
     projectId: parsedInputData.metadata.projectId,
   };
-}
-
-async function createOutputInOpossumFile(
-  filePath: string,
-  externalAttributions: Attributions,
-  resourcesToExternalAttributions: ResourcesToAttributions,
-  projectId: string,
-  inputFileRaw?: Uint8Array,
-): Promise<ParsedOpossumOutputFile> {
-  const attributionJSON = createJsonOutputFile(
-    externalAttributions,
-    resourcesToExternalAttributions,
-    projectId,
-  );
-  await writeOpossumFile({
-    path: filePath,
-    input: inputFileRaw,
-    output: attributionJSON,
-  });
-  return attributionJSON;
-}
-
-async function parseOrCreateOutputJsonFile(
-  filePath: string,
-  externalAttributions: Attributions,
-  resourcesToExternalAttributions: ResourcesToAttributions,
-  projectId: string,
-  inputFileMD5Checksum?: string,
-): Promise<ParsedOpossumOutputFile> {
-  if (!fs.existsSync(filePath)) {
-    const attributionJSON = createJsonOutputFile(
-      externalAttributions,
-      resourcesToExternalAttributions,
-      projectId,
-      inputFileMD5Checksum,
-    );
-    await writeFile({ path: filePath, content: attributionJSON });
-  }
-
-  return parseOutputJsonFile(filePath);
 }
 
 function createJsonOutputFile(

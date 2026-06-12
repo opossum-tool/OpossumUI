@@ -3,12 +3,18 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import fs from 'fs';
+
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { Criticality, RawCriticality } from '../../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
 import { getDb } from '../../db/db';
-import type { ParsedOpossumInputFile } from '../../types/types';
+import type {
+  OpossumOutputFile,
+  ParsedOpossumInputFile,
+} from '../../types/types';
+import { getFilePathWithAppendix } from '../../utils/getFilePathWithAppendix';
 import {
   loadFile,
   type LoadFileError,
@@ -167,6 +173,52 @@ describe('loadFile', () => {
 
     expect(resourceToManualAttribution).toEqual([
       { attribution_uuid: manualAttributionUuid, path: '/a' },
+    ]);
+  });
+
+  it('writes files-with-children attribution paths without a trailing slash to the created output', async () => {
+    const externalUuid = 'ecd692d9-b154-4d4d-be8c-external';
+    const inputWithFilesWithChildren: ParsedOpossumInputFile = {
+      metadata: EMPTY_PROJECT_METADATA,
+      // `/some/package.json` is a file-with-children: it is an object in the
+      // resource tree (so it has children) but is also listed in
+      // filesWithChildren, so on output its path must NOT get a trailing slash.
+      resources: {
+        some: {
+          'package.json': {
+            'nested-entry': 1,
+          },
+        },
+      },
+      config: { classifications: {} },
+      externalAttributions: {
+        [externalUuid]: {
+          source: faker.opossum.source(),
+          packageName: 'my app',
+          packageVersion: '1.2.3',
+          preSelected: true,
+        },
+      },
+      frequentLicenses: [],
+      // The input key is correctly written without a trailing slash.
+      resourcesToAttributions: { '/some/package.json': [externalUuid] },
+      filesWithChildren: ['/some/package.json'],
+    };
+    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    await writeFile({ path: jsonPath, content: inputWithFilesWithChildren });
+
+    vi.spyOn(Date, 'now').mockReturnValue(1);
+
+    const result = (await loadFile(jsonPath, {})) as LoadFileSuccess;
+    expect(result.ok).toBe(true);
+
+    const outputPath = getFilePathWithAppendix(jsonPath, '_attributions.json');
+    const output = JSON.parse(
+      fs.readFileSync(outputPath, 'utf-8'),
+    ) as OpossumOutputFile;
+
+    expect(Object.keys(output.resourcesToAttributions)).toEqual([
+      '/some/package.json',
     ]);
   });
 
