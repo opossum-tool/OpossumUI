@@ -5,14 +5,11 @@
 import * as fflate from 'fflate';
 import fs from 'fs';
 import { type Options, Validator } from 'jsonschema';
+import { Readable } from 'stream';
 import parser from 'stream-json';
 import Asm, { type Assembler } from 'stream-json/assembler.js';
 import zlib from 'zlib';
 
-import {
-  INPUT_FILE_NAME,
-  OUTPUT_FILE_NAME,
-} from '../../shared/write-file-utils';
 import type {
   InvalidDotOpossumFileError,
   JsonParsingError,
@@ -21,6 +18,7 @@ import type {
   ParsedOpossumOutputFile,
   UnzipError,
 } from '../types/types';
+import { readOpossumArchive } from './opossumArchive';
 import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
 
@@ -37,12 +35,9 @@ export async function parseOpossumFile(
   | JsonParsingError
   | InvalidDotOpossumFileError
 > {
-  let parsedInputData: ParsedOpossumInputFile;
-  let parsedOutputData: ParsedOpossumOutputFile | null = null;
-
-  let zip: fflate.Unzipped;
+  let archive;
   try {
-    zip = await readZipAsync(opossumFilePath);
+    archive = await readOpossumArchive(opossumFilePath);
   } catch (err) {
     return {
       message: `Error: ${opossumFilePath} could not be unzipped.\n Original error message: ${err?.toString()}`,
@@ -50,19 +45,18 @@ export async function parseOpossumFile(
     } satisfies UnzipError;
   }
 
-  if (!zip[INPUT_FILE_NAME]) {
+  if (!archive.inputBytes) {
     return {
-      message: Object.keys(zip)
-        .map((fileName) => `'${fileName}'`)
-        .join(', '),
+      message: '',
       type: 'invalidDotOpossumFileError',
     } satisfies InvalidDotOpossumFileError;
   }
 
-  const inputFileRaw = zip[INPUT_FILE_NAME];
-
+  let parsedInputData: ParsedOpossumInputFile;
   try {
-    parsedInputData = JSON.parse(fflate.strFromU8(zip[INPUT_FILE_NAME]));
+    parsedInputData = await parseJsonStream<ParsedOpossumInputFile>(
+      bytesAsStream(archive.inputBytes),
+    );
     jsonSchemaValidator.validate(
       parsedInputData,
       OpossumInputFileSchema,
@@ -75,10 +69,13 @@ export async function parseOpossumFile(
     } satisfies JsonParsingError;
   }
 
-  if (zip[OUTPUT_FILE_NAME]) {
+  let parsedOutputData: ParsedOpossumOutputFile | null = null;
+  if (archive.outputBytes) {
     try {
-      const outputJson = fflate.strFromU8(zip[OUTPUT_FILE_NAME]);
-      parsedOutputData = parseOutputJsonContent(outputJson, opossumFilePath);
+      parsedOutputData = parseOutputJsonContent(
+        fflate.strFromU8(archive.outputBytes),
+        opossumFilePath,
+      );
     } catch (err) {
       return {
         message: `Error: ${opossumFilePath} does not contain a valid output file.\n${err?.toString()}`,
@@ -90,69 +87,29 @@ export async function parseOpossumFile(
   return {
     input: parsedInputData,
     output: parsedOutputData,
-    inputFileRaw,
+    inputFileRaw: archive.inputBytes,
   };
 }
 
-async function readZipAsync(opossumFilePath: string): Promise<fflate.Unzipped> {
-  const originalZipBuffer: Buffer = await fs.promises.readFile(opossumFilePath);
-
-  return new Promise((resolve, reject) => {
-    fflate.unzip(new Uint8Array(originalZipBuffer), (err, unzipData) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(unzipData);
-    });
-  });
-}
-
-export function parseInputJsonFile(
+export async function parseInputJsonFile(
   resourceFilePath: fs.PathLike,
 ): Promise<ParsedOpossumInputFile | JsonParsingError> {
-  const pipeline = resourceFilePath.toString().endsWith('.json.gz')
-    ? fs
-        .createReadStream(resourceFilePath)
-        .pipe(zlib.createGunzip())
-        .pipe(parser())
-    : fs.createReadStream(resourceFilePath).pipe(parser());
-
-  let resolveCallback: (
-    result: ParsedOpossumInputFile | JsonParsingError,
-  ) => void;
-  const promise: Promise<ParsedOpossumInputFile | JsonParsingError> =
-    new Promise((resolve) => {
-      resolveCallback = (opossumInputData): void => resolve(opossumInputData);
-    });
-
-  pipeline.on('error', () => {
-    resolveCallback({
-      message: `Error: ${resourceFilePath.toString()} is not a valid input file.`,
+  try {
+    const data = await parseJsonStream<ParsedOpossumInputFile>(
+      openInputJsonFileStream(resourceFilePath),
+    );
+    jsonSchemaValidator.validate(
+      data,
+      OpossumInputFileSchema,
+      validationOptions,
+    );
+    return data;
+  } catch (err) {
+    return {
+      message: `Error: ${resourceFilePath.toString()} is not a valid input file.\n${err?.toString()}`,
       type: 'jsonParsingError',
-    });
-  });
-
-  Asm.connectTo(pipeline, {
-    onDone: (asm: Assembler) => {
-      const opossumInputData = asm.current;
-
-      try {
-        jsonSchemaValidator.validate(
-          opossumInputData,
-          OpossumInputFileSchema,
-          validationOptions,
-        );
-        resolveCallback(opossumInputData as ParsedOpossumInputFile);
-      } catch (err) {
-        resolveCallback({
-          message: `Error: ${resourceFilePath.toString()} is not a valid input file.\n${err?.toString()}`,
-          type: 'jsonParsingError',
-        });
-      }
-    },
-  });
-
-  return promise;
+    } satisfies JsonParsingError;
+  }
 }
 
 export function parseOutputJsonFile(
@@ -160,6 +117,13 @@ export function parseOutputJsonFile(
 ): ParsedOpossumOutputFile {
   const content = fs.readFileSync(attributionFilePath, 'utf-8');
   return parseOutputJsonContent(content, attributionFilePath);
+}
+
+function openInputJsonFileStream(filePath: fs.PathLike) {
+  const fileStream = fs.createReadStream(filePath);
+  return filePath.toString().endsWith('.json.gz')
+    ? fileStream.pipe(zlib.createGunzip())
+    : fileStream;
 }
 
 function parseOutputJsonContent(
@@ -180,4 +144,44 @@ function parseOutputJsonContent(
       { cause: err },
     );
   }
+}
+
+// Chunk size for re-streaming an in-memory buffer through `stream-json`.
+// `stream-json` decodes each incoming chunk to a JS string, so we keep chunks
+// well under V8's ~512 MB string-length cap.
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+const JSON_STREAM_CHUNK_SIZE = 1 << 20; // 1 MiB
+
+/**
+ * Chunks the array so stream-json doesn't internally build a too long string.
+ */
+function bytesAsStream(
+  bytes: Uint8Array,
+  chunkSize: number = JSON_STREAM_CHUNK_SIZE,
+): Readable {
+  return Readable.from(
+    (function* () {
+      for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+        yield bytes.subarray(offset, offset + chunkSize);
+      }
+    })(),
+  );
+}
+
+/**
+ * Streaming alternative to `JSON.parse`. Avoids materializing the input as
+ * a single JS string, which would hit V8's ~512 MB string-length cap for
+ * very large inputs.
+ */
+function parseJsonStream<T>(stream: Readable): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    // `pipe` does not forward `'error'` from source to destination, so we
+    // listen on both ends to avoid the promise hanging on source failures.
+    stream.on('error', reject);
+    const pipeline = stream.pipe(parser());
+    pipeline.on('error', reject);
+    Asm.connectTo(pipeline, {
+      onDone: (asm: Assembler) => resolve(asm.current as T),
+    });
+  });
 }

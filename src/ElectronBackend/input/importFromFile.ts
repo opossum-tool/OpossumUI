@@ -29,7 +29,7 @@ async function handleParsingError(
       return;
     case 'invalidDotOpossumFileError':
       processingStatusUpdater.endProcessing();
-      await getMessageBoxForInvalidDotOpossumFileError(parsingError.message);
+      await getMessageBoxForInvalidDotOpossumFileError();
   }
 }
 
@@ -114,9 +114,7 @@ async function getMessageBoxForUnzipError(errorMessage: string): Promise<void> {
   });
 }
 
-async function getMessageBoxForInvalidDotOpossumFileError(
-  filesInArchive: string,
-): Promise<void> {
+async function getMessageBoxForInvalidDotOpossumFileError(): Promise<void> {
   await dialog.showMessageBox({
     type: 'error',
     buttons: ['OK'],
@@ -124,7 +122,6 @@ async function getMessageBoxForInvalidDotOpossumFileError(
     title: 'Invalid File Error',
     message: "Error loading '.opossum' file.",
     detail:
-      "The '.opossum' file is invalid as it does not contain an 'input.json'. " +
-      `Actual files in the archive: ${filesInArchive}.`,
+      "The '.opossum' file is invalid as it does not contain an 'input.json'.",
   });
 }
