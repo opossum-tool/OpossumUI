@@ -1,6 +1,17 @@
+<!--
+SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+
+SPDX-License-Identifier: CC0-1.0
+-->
+
+<!-- REUSE-IgnoreStart -->
+
 ---
+
 name: add-copyright-headers
 description: Use when creating or editing any source file in this repo. Every file must carry SPDX copyright and license headers enforced by the REUSE pre-commit hook and `yarn copyright-lint-check`.
+
 ---
 
 # Add REUSE Copyright Headers
@@ -54,7 +65,7 @@ SPDX-License-Identifier: CC0-1.0
 ### YAML / JSON / TOML (no comment syntax)
 
 These files cannot carry inline headers. The copyright metadata lives in
-[`REUSE.toml`](../../REUSE.toml). Do not add comment-based headers to JSON or
+[`.reuse/dep5`](../../.reuse/dep5). Do not add comment-based headers to JSON or
 YAML files.
 
 ## License choice
@@ -88,4 +99,6 @@ reuse lint <file>
 - Using `Apache-2.0` for a documentation file that should use `CC0-1.0`, or
   vice versa.
 - Adding comment-based headers to JSON/YAML files that cannot support them —
-  rely on `REUSE.toml` instead.
+  rely on `.reuse/dep5` instead.
+
+<!-- REUSE-IgnoreEnd -->
