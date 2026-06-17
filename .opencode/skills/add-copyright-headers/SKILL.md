@@ -28,12 +28,12 @@ the system. It is not a yarn dependency.
 
 Every file must have at least:
 
+<!-- REUSE-IgnoreStart -->
+
 - `SPDX-FileCopyrightText:` line(s) naming the copyright holders
 - `SPDX-License-Identifier:` line with the applicable license
 
 ### TypeScript / JavaScript / MJS files
-
-<!-- REUSE-IgnoreStart -->
 
 ```ts
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
