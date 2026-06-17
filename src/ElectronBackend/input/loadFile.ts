@@ -63,8 +63,11 @@ export async function loadFile(
   globalState: LoadFileGlobalState,
   reportProgress: LoadFileProgressCallback = () => {},
 ): Promise<LoadFileResult> {
-  const { input: parsedInputData, output: parsedOutputData, opossumZip } =
-    archive;
+  const {
+    input: parsedInputData,
+    output: parsedOutputData,
+    opossumZip,
+  } = archive;
 
   reportProgress('Deserializing signals');
   const unmergedExternalAttributions = deserializeAttributions(

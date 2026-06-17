@@ -10,11 +10,11 @@ import parser from 'stream-json';
 import Asm, { type Assembler } from 'stream-json/assembler.js';
 import zlib from 'zlib';
 
+import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import {
   INPUT_FILE_NAME,
   OUTPUT_FILE_NAME,
 } from '../../shared/write-file-utils';
-import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import type {
   InvalidDotOpossumFileError,
   JsonParsingError,

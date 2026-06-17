@@ -251,10 +251,7 @@ describe('loadLegacyFile', () => {
   it('reads a sidecar _attributions.json file correctly', async () => {
     const inputPath = faker.outputPath(`${faker.string.uuid()}.json`);
     await writeFile({ content: correctInput, path: inputPath });
-    const attributionPath = inputPath.replace(
-      '.json',
-      '_attributions.json',
-    );
+    const attributionPath = inputPath.replace('.json', '_attributions.json');
     await writeFile({ content: correctOutput, path: attributionPath });
 
     const result = await loadLegacyFile(inputPath);
@@ -278,11 +275,11 @@ describe('loadLegacyFile', () => {
   it('returns JSONParsingError on an incorrect sidecar attributions file', async () => {
     const inputPath = faker.outputPath(`${faker.string.uuid()}.json`);
     await writeFile({ content: correctInput, path: inputPath });
-    const attributionPath = inputPath.replace(
-      '.json',
-      '_attributions.json',
-    );
-    await writeFile({ content: { test: 'Invalid file.' }, path: attributionPath });
+    const attributionPath = inputPath.replace('.json', '_attributions.json');
+    await writeFile({
+      content: { test: 'Invalid file.' },
+      path: attributionPath,
+    });
 
     const result = await loadLegacyFile(inputPath);
     expect(result).toEqual({
@@ -305,11 +302,11 @@ describe('loadLegacyFile', () => {
 
     const inputPath = faker.outputPath(`${faker.string.uuid()}.json`);
     await writeFile({ content: correctInput, path: inputPath });
-    const attributionPath = inputPath.replace(
-      '.json',
-      '_attributions.json',
-    );
-    await writeFile({ content: fileContentWithWrongProjectId, path: attributionPath });
+    const attributionPath = inputPath.replace('.json', '_attributions.json');
+    await writeFile({
+      content: fileContentWithWrongProjectId,
+      path: attributionPath,
+    });
 
     const result = await loadLegacyFile(inputPath);
     if ('type' in result) {

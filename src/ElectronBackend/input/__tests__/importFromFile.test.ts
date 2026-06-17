@@ -13,8 +13,8 @@ import {
   setGlobalBackendState,
 } from '../../main/globalBackendState';
 import {
-  loadOpossumFileFromPath,
   loadLegacyFileFromPath,
+  loadOpossumFileFromPath,
 } from '../importFromFile';
 import type { LoadFileIpcResult } from '../loadFile';
 

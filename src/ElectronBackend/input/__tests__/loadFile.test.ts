@@ -16,14 +16,11 @@ import type {
 } from '../../types/types';
 import { getFilePathWithAppendix } from '../../utils/getFilePathWithAppendix';
 import {
-  loadLegacyFile,
-  loadOpossumFile,
-} from '../parseFile';
-import {
   loadFile,
   type LoadFileError,
   type LoadFileSuccess,
 } from '../loadFile';
+import { loadLegacyFile, loadOpossumFile } from '../parseFile';
 
 const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
 const manualAttributionUuid = 'ecd692d9-b154-4d4d-be8c-manual';
@@ -251,7 +248,9 @@ describe('loadFile', () => {
 
     const outputZip = require('adm-zip')(opossumPath);
     const outputEntry = outputZip.getEntry('output.json');
-    const outputData = JSON.parse(outputEntry.getData().toString('utf-8')) as OpossumOutputFile;
+    const outputData = JSON.parse(
+      outputEntry.getData().toString('utf-8'),
+    ) as OpossumOutputFile;
 
     expect(Object.keys(outputData.resourcesToAttributions)).toEqual([
       '/some/package.json',

@@ -11,8 +11,8 @@ import {
   IpcChannel,
 } from '../../../shared/ipc-channels';
 import {
-  loadOpossumFileFromPath,
   loadLegacyFileFromPath,
+  loadOpossumFileFromPath,
 } from '../../input/importFromFile';
 import { createWindow } from '../createWindow';
 import {
@@ -152,10 +152,7 @@ describe('openFileListener', () => {
     await listener({} as Electron.IpcMainInvokeEvent, filePath);
 
     expect(openOpossumFileDialog).not.toHaveBeenCalled();
-    expect(loadOpossumFileFromPath).toHaveBeenCalledWith(
-      mainWindow,
-      filePath,
-    );
+    expect(loadOpossumFileFromPath).toHaveBeenCalledWith(mainWindow, filePath);
   });
 });
 

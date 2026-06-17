@@ -38,10 +38,9 @@ export async function loadOpossumFileFromPath(
   opossumFilePath: string,
 ): Promise<void> {
   const globalState = getGlobalBackendState();
-  const result = await getMainDbClient().loadOpossumFile(
-    opossumFilePath,
-    { inputFileChecksum: globalState.inputFileChecksum },
-  );
+  const result = await getMainDbClient().loadOpossumFile(opossumFilePath, {
+    inputFileChecksum: globalState.inputFileChecksum,
+  });
 
   await handleLoadResult(mainWindow, result);
 }
@@ -63,7 +62,12 @@ export async function loadLegacyFileFromPath(
 
 async function handleLoadResult(
   mainWindow: BrowserWindow,
-  result: { ok: boolean; error?: ParsingError; projectTitle?: string; projectId?: string },
+  result: {
+    ok: boolean;
+    error?: ParsingError;
+    projectTitle?: string;
+    projectId?: string;
+  },
 ): Promise<void> {
   const processingStatusUpdater = new ProcessingStatusUpdater(
     mainWindow.webContents,

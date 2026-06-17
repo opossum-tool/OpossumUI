@@ -24,9 +24,9 @@ import {
   type LoadFileProgressCallback,
 } from '../input/loadFile';
 import {
+  type LoadedArchive,
   loadLegacyFile,
   loadOpossumFile,
-  type LoadedArchive,
 } from '../input/parseFile';
 
 interface LoadOpossumFileMessage {
