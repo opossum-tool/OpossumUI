@@ -20,25 +20,25 @@ OpossumUI is an Electron app (TypeScript + React + Redux) for auditing open-sour
 
 ## Commands
 
-| What | Command |
-|---|---|
-| Install & setup | `yarn install` (runs postinstall: deps, electron rebuild, commit hash, husky) |
-| Copyright tool | Install [reuse](https://git.fsfe.org/reuse/tool#install) CLI — required by `yarn copyright-lint-check` and pre-commit hook |
-| Dev server | `yarn start` |
-| Unit tests (all) | `yarn test:unit` |
-| Unit tests (changed only) | `yarn test:changed` |
-| Watch unit tests | `yarn test:watch` |
-| E2E (dev server) | `yarn test:e2e` |
-| E2E (built app) | `yarn test:e2e:ci` |
-| Lint (fix) | `yarn lint` |
-| Lint (check only) | `yarn lint-check` |
-| Typecheck | `yarn typecheck` |
-| Format (fix) | `yarn format` |
-| Format (check) | `yarn format-check` |
-| Copyright check | `yarn copyright-lint-check` |
-| Circular imports | `yarn circular-import-check` |
-| Unused code | `yarn knip` |
-| Generate DB types | `yarn db:generate` |
+| What                      | Command                                                                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Install & setup           | `yarn install` (runs postinstall: deps, electron rebuild, commit hash, husky)                                              |
+| Copyright tool            | Install [reuse](https://git.fsfe.org/reuse/tool#install) CLI — required by `yarn copyright-lint-check` and pre-commit hook |
+| Dev server                | `yarn start`                                                                                                               |
+| Unit tests (all)          | `yarn test:unit`                                                                                                           |
+| Unit tests (changed only) | `yarn test:changed`                                                                                                        |
+| Watch unit tests          | `yarn test:watch`                                                                                                          |
+| E2E (dev server)          | `yarn test:e2e`                                                                                                            |
+| E2E (built app)           | `yarn test:e2e:ci`                                                                                                         |
+| Lint (fix)                | `yarn lint`                                                                                                                |
+| Lint (check only)         | `yarn lint-check`                                                                                                          |
+| Typecheck                 | `yarn typecheck`                                                                                                           |
+| Format (fix)              | `yarn format`                                                                                                              |
+| Format (check)            | `yarn format-check`                                                                                                        |
+| Copyright check           | `yarn copyright-lint-check`                                                                                                |
+| Circular imports          | `yarn circular-import-check`                                                                                               |
+| Unused code               | `yarn knip`                                                                                                                |
+| Generate DB types         | `yarn db:generate`                                                                                                         |
 
 ### Full verification sequence (mirrors CI)
 
@@ -76,6 +76,7 @@ Husky + lint-staged runs on every commit: copyright check, knip, prettier, eslin
 ## Vitest setup
 
 Three vitest projects with different environments:
+
 - **FE** (happy-dom): `src/Frontend/**/__test{s,}__/**/*.test.{ts,tsx}`
 - **BE** (node): `src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}`
 - **SH** (node): `src/shared/**/__test{s,}__/**/*.test.{ts,tsx}`
