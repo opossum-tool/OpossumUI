@@ -1,6 +1,15 @@
+<!--
+SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+
+SPDX-License-Identifier: CC0-1.0
+-->
+
 ---
+
 name: commit-and-pr
 description: Use when committing changes or creating pull requests in this repo. Covers conventional commits, DCO sign-off, the lint-staged pre-commit hook, and PR conventions.
+
 ---
 
 # Commit and PR Workflow
