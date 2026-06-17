@@ -1,15 +1,6 @@
-<!--
-SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
-SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
-
-SPDX-License-Identifier: CC0-1.0
--->
-
 ---
-
 name: add-copyright-headers
 description: Use when creating or editing any source file in this repo. Every file must carry SPDX copyright and license headers enforced by the REUSE pre-commit hook and `yarn copyright-lint-check`.
-
 ---
 
 # Add REUSE Copyright Headers
@@ -27,8 +18,6 @@ the system. It is not a yarn dependency.
 ## Header format
 
 Every file must have at least:
-
-<!-- REUSE-IgnoreStart -->
 
 - `SPDX-FileCopyrightText:` line(s) naming the copyright holders
 - `SPDX-License-Identifier:` line with the applicable license
@@ -61,8 +50,6 @@ SPDX-License-Identifier: CC0-1.0
 #
 # SPDX-License-Identifier: Apache-2.0
 ```
-
-<!-- REUSE-IgnoreEnd -->
 
 ### YAML / JSON / TOML (no comment syntax)
 
