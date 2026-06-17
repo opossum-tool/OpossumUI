@@ -1,15 +1,6 @@
-<!--
-SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
-SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
-
-SPDX-License-Identifier: CC0-1.0
--->
-
 ---
-
 name: electron-backend-change
 description: Use when modifying files under src/ElectronBackend/, especially the database layer, API commands, or the IPC boundary. Covers the dual tsconfig setup, generated DB types, better-sqlite3 builds, and the API command pattern.
-
 ---
 
 # Electron Backend Changes
