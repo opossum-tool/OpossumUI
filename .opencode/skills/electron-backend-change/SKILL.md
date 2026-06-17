@@ -71,11 +71,34 @@ Source code always imports from `better-sqlite3`. Vite aliases it to
 `better-sqlite3-electron` when building the Electron main process (see
 `vite.config.mts`).
 
-If you see ABI mismatch errors after installing or rebuilding:
+### ABI mismatch errors
+
+The two packages share the same `node_modules/better-sqlite3/` directory for
+their compiled binary. After `yarn install` or `yarn rebuild:electron`, the
+binary may be compiled for Electron's V8 ABI instead of Node's, causing
+`ERR_DLOPEN_FAILED` when Node tries to load it.
+
+**`yarn db:generate` auto-heals this** — it probes the binary and rebuilds it
+for Node if the ABI is wrong. The pre-commit hook and `yarn typecheck` both run
+`db:generate`, so they self-repair automatically.
+
+If you see ABI errors **outside** of `db:generate` (e.g. Vitest fails), fix
+manually:
 
 ```bash
-yarn rebuild:electron
+npm rebuild better-sqlite3 # rebuild for Node (fixes Vitest, db:generate)
 ```
+
+If the **app** fails to start with an ABI error (Electron variant is wrong):
+
+```bash
+yarn rebuild:electron # rebuild for Electron runtime
+```
+
+Note: these two commands are mutually exclusive — each one overwrites the
+binary in `node_modules/better-sqlite3/build/`. After running
+`yarn rebuild:electron`, you may need to run `npm rebuild better-sqlite3`
+before the next commit to restore the Node variant.
 
 ## API command pattern
 
@@ -121,5 +144,7 @@ or `e2e`.
 - Forgetting to run `db:generate` after a schema change → `yarn typecheck` fails
 - Importing `better-sqlite3-electron` directly in source → breaks Vitest;
   always import `better-sqlite3`
+- ABI mismatch in `better-sqlite3` → `yarn db:generate` auto-rebuilds for Node;
+  if Vitest fails, run `npm rebuild better-sqlite3` manually
 - Adding an IPC channel string inline instead of in
   `src/shared/ipc-channels.ts` → divergent channel names cause silent failures
