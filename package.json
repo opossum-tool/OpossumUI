@@ -118,7 +118,7 @@
     "start:win32": "tools/start_windows.bat",
     "build": "yarn generate-notice && vite build",
     "circular-import-check": "find src/ | xargs dpdm --circular -T --tree false --warning false --exit-code circular:1",
-    "db:generate": "npx tsx ./src/ElectronBackend/db/generate.ts",
+    "db:generate": "node tools/ensureNodeSqlite.mjs && npx tsx ./src/ElectronBackend/db/generate.ts",
     "typecheck": "yarn db:generate && tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test:unit": "vitest",
     "test:changed": "vitest --onlyChanged",
