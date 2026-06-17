@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import AdmZip from 'adm-zip';
 import fs from 'fs';
 import { cloneDeep } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
@@ -40,7 +41,7 @@ import { refineConfiguration } from './refineConfiguration';
 
 export interface LoadFileSuccess {
   ok: true;
-  inputFileRaw?: Uint8Array;
+  opossumZip?: AdmZip;
   projectTitle?: string;
   projectId: string;
 }
@@ -53,7 +54,8 @@ export interface LoadFileError {
 type LoadFileResult = LoadFileSuccess | LoadFileError;
 
 export type LoadFileIpcResult =
-  Omit<LoadFileSuccess, 'inputFileRaw'> | LoadFileError;
+  | Omit<LoadFileSuccess, 'opossumZip'>
+  | LoadFileError;
 
 export interface LoadFileGlobalState {
   inputFileChecksum?: string;
@@ -97,7 +99,7 @@ export async function loadFile(
 
   let parsedInputData: ParsedOpossumInputFile;
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
-  let inputFileRaw: Uint8Array | undefined;
+  let opossumZip: AdmZip | undefined;
 
   if (isOpossumFileFormat(filePath)) {
     reportProgress(`Reading file ${filePath}`);
@@ -107,7 +109,7 @@ export async function loadFile(
     }
     parsedInputData = parsingResult.input;
     parsedOutputData = parsingResult.output;
-    inputFileRaw = parsingResult.inputFileRaw;
+    opossumZip = parsingResult.opossumZip;
   } else {
     reportProgress('Parsing input file');
     const parsingResult = await parseInputJsonFile(filePath);
@@ -234,13 +236,13 @@ export async function loadFile(
               '_attributions.json',
             ),
           },
-      inputFileRaw ?? new Uint8Array(),
+      opossumZip ?? new AdmZip(),
     );
   }
 
   return {
     ok: true,
-    inputFileRaw,
+    opossumZip,
     projectTitle: parsedInputData.metadata.projectTitle,
     projectId: parsedInputData.metadata.projectId,
   };
