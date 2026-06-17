@@ -6,6 +6,8 @@
 // Receives MessagePorts from the main process via process.parentPort.
 // Each port can send any type of work message (loadFile, saveFile,
 // exportFile, executeCommand) and receives its response on the same port.
+import type AdmZip from 'adm-zip';
+
 import type { ExportType } from '../../shared/shared-types';
 import {
   type CommandName,
@@ -90,7 +92,7 @@ type ResponsePort = {
   postMessage(message: DbProcessResponse): void;
 };
 
-let storedInputFileRaw: Uint8Array | undefined;
+let storedOpossumZip: AdmZip | undefined;
 
 async function executeDbProcessMessage(
   msg: DbProcessRequest,
@@ -98,25 +100,25 @@ async function executeDbProcessMessage(
 ): Promise<SuccessPayload> {
   switch (msg.type) {
     case 'loadFile': {
-      storedInputFileRaw = undefined;
+      storedOpossumZip = undefined;
       const loadResult = await loadFile(
         msg.filePath,
         msg.globalState,
         onProgress,
       );
       if (loadResult.ok) {
-        const { inputFileRaw, ...rest } = loadResult;
-        storedInputFileRaw = inputFileRaw;
+        const { opossumZip, ...rest } = loadResult;
+        storedOpossumZip = opossumZip;
         return rest;
       }
       return loadResult;
     }
     case 'saveFile': {
-      if (!storedInputFileRaw) {
+      if (!storedOpossumZip) {
         throw new Error('Cannot save: no input file loaded');
       }
       const { id: _, type: __, ...params } = msg;
-      await saveFile(params, storedInputFileRaw);
+      await saveFile(params, storedOpossumZip);
       return undefined;
     }
     case 'exportFile': {

@@ -86,7 +86,7 @@ describe('loadFile', () => {
   it('loads .opossum file without output and creates one', async () => {
     const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
 
-    await writeOpossumFile({
+    writeOpossumFile({
       input: inputFileContent,
       path: opossumPath,
     });
