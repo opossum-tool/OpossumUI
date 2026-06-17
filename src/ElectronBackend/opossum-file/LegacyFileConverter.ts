@@ -64,7 +64,7 @@ export class LegacyFileConverter extends FileConverter {
     return undefined;
   }
 
-  override async convertToOpossum(
+  override convertToOpossum(
     toBeConvertedFilePath: string,
     opossumSaveLocation: string,
   ): Promise<void> {
@@ -77,7 +77,7 @@ export class LegacyFileConverter extends FileConverter {
     }
 
     try {
-      await writeOpossumFile({
+      writeOpossumFile({
         path: opossumSaveLocation,
         input: this.readInputJson(pathToInputJson),
         output: this.readOutputJson(pathToInputJson),
@@ -87,6 +87,8 @@ export class LegacyFileConverter extends FileConverter {
         cause: error,
       });
     }
+
+    return Promise.resolve();
   }
 
   protected override async preConvertFile(

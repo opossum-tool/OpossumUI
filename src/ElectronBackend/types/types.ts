@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type AdmZip from 'adm-zip';
+
 import type {
   BaseUrlsForSources,
   ExternalAttributionSources,
@@ -85,7 +87,7 @@ export interface ParsedOpossumOutputFile {
 export interface ParsedOpossumInputAndOutput {
   input: ParsedOpossumInputFile;
   output: ParsedOpossumOutputFile | null;
-  inputFileRaw: Uint8Array;
+  opossumZip: AdmZip;
 }
 
 export interface OpossumOutputFile {
