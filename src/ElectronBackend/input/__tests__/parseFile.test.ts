@@ -9,18 +9,12 @@ import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
 import type {
   OpossumOutputFile,
-  ParsedOpossumInputAndOutput,
-  ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
 } from '../../types/types';
-import {
-  parseInputJsonFile,
-  parseOpossumFile,
-  parseOutputJsonFile,
-} from '../parseFile';
+import { loadLegacyFile, loadOpossumFile } from '../parseFile';
 
 const testUuid: string = faker.string.uuid();
-const correctInput: ParsedOpossumInputFile = {
+const correctInput = {
   metadata: {
     projectId: '2a58a469-738e-4508-98d3-a27bce6e71f7',
     fileCreationDate: '2020-07-23 11:47:13.764544',
@@ -135,18 +129,19 @@ const correctParsedOutput: ParsedOpossumOutputFile = {
   resolvedExternalAttributions: [],
 };
 
-describe('parseOpossumFile', () => {
+describe('loadOpossumFile', () => {
   it('reads a .opossum file with only input correctly', async () => {
     const opossumFilePath = writeOpossumFile({
       input: correctInput,
       path: faker.outputPath(`${faker.string.uuid()}.opossum`),
     });
 
-    const parsingResult = (await parseOpossumFile(
-      opossumFilePath,
-    )) as ParsedOpossumInputAndOutput;
-    expect(parsingResult.input).toStrictEqual(correctInput);
-    expect(parsingResult.output).toBeNull();
+    const result = await loadOpossumFile(opossumFilePath);
+    if ('type' in result) {
+      throw new Error(`Unexpected error: ${result.message}`);
+    }
+    expect(result.input).toStrictEqual(correctInput);
+    expect(result.output).toBeNull();
   });
 
   it('reads a .opossum file with input and output correctly', async () => {
@@ -156,11 +151,12 @@ describe('parseOpossumFile', () => {
       path: faker.outputPath(`${faker.string.uuid()}.opossum`),
     });
 
-    const parsingResult = (await parseOpossumFile(
-      opossumFilePath,
-    )) as ParsedOpossumInputAndOutput;
-    expect(parsingResult.input).toStrictEqual(correctInput);
-    expect(parsingResult.output).toStrictEqual(correctParsedOutput);
+    const result = await loadOpossumFile(opossumFilePath);
+    if ('type' in result) {
+      throw new Error(`Unexpected error: ${result.message}`);
+    }
+    expect(result.input).toStrictEqual(correctInput);
+    expect(result.output).toStrictEqual(correctParsedOutput);
   });
 
   it('returns JSONParsingError on an incorrect .opossum file', async () => {
@@ -170,7 +166,7 @@ describe('parseOpossumFile', () => {
       path: faker.outputPath(`${faker.string.uuid()}.opossum`),
     });
 
-    const result = await parseOpossumFile(opossumFilePath);
+    const result = await loadOpossumFile(opossumFilePath);
     expect(result).toEqual({
       message: expect.any(String),
       type: 'jsonParsingError',
@@ -178,13 +174,16 @@ describe('parseOpossumFile', () => {
   });
 });
 
-describe('parseInputJsonFile', () => {
+describe('loadLegacyFile', () => {
   it('reads an input.json file correctly', async () => {
     const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json`);
     await writeFile({ content: correctInput, path: resourcesPath });
 
-    const resources = await parseInputJsonFile(resourcesPath);
-    expect(resources).toStrictEqual(correctInput);
+    const result = await loadLegacyFile(resourcesPath);
+    if ('type' in result) {
+      throw new Error(`Unexpected error: ${result.message}`);
+    }
+    expect(result.input).toStrictEqual(correctInput);
   });
 
   it('reads custom metadata correctly', async () => {
@@ -203,16 +202,18 @@ describe('parseInputJsonFile', () => {
     const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json`);
     await writeFile({ content: testFileContent, path: resourcesPath });
 
-    const resources = await parseInputJsonFile(resourcesPath);
+    const result = await loadLegacyFile(resourcesPath);
 
-    expect(resources).toStrictEqual(testFileContent);
+    expect(result).toStrictEqual(
+      expect.objectContaining({ input: testFileContent }),
+    );
   });
 
   it('returns JSONParsingError on an incorrect Resource.json file', async () => {
     const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json`);
     await writeFile({ content: corruptInput, path: resourcesPath });
 
-    const result = await parseInputJsonFile(resourcesPath);
+    const result = await loadLegacyFile(resourcesPath);
     expect(result).toEqual({
       message: expect.any(String),
       type: 'jsonParsingError',
@@ -226,8 +227,11 @@ describe('parseInputJsonFile', () => {
       path: resourcesPath,
     });
 
-    const resources = await parseInputJsonFile(resourcesPath);
-    expect(resources).toStrictEqual(correctInput);
+    const result = await loadLegacyFile(resourcesPath);
+    if ('type' in result) {
+      throw new Error(`Unexpected error: ${result.message}`);
+    }
+    expect(result.input).toStrictEqual(correctInput);
   });
 
   it('returns JSONParsingError on an incorrect Resource.json.gz file', async () => {
@@ -237,38 +241,54 @@ describe('parseInputJsonFile', () => {
       path: resourcesPath,
     });
 
-    const result = await parseInputJsonFile(resourcesPath);
+    const result = await loadLegacyFile(resourcesPath);
     expect(result).toEqual({
       message: expect.any(String),
       type: 'jsonParsingError',
     });
   });
-});
 
-describe('parseOutputJsonFile', () => {
-  it('reads a correct file', async () => {
-    const attributionPath = faker.outputPath(
-      `${faker.string.uuid()}_attributions.json`,
+  it('reads a sidecar _attributions.json file correctly', async () => {
+    const inputPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    await writeFile({ content: correctInput, path: inputPath });
+    const attributionPath = inputPath.replace(
+      '.json',
+      '_attributions.json',
     );
     await writeFile({ content: correctOutput, path: attributionPath });
 
-    const attributions = parseOutputJsonFile(attributionPath);
-
-    expect(attributions).toStrictEqual(correctParsedOutput);
+    const result = await loadLegacyFile(inputPath);
+    if ('type' in result) {
+      throw new Error(`Unexpected error: ${result.message}`);
+    }
+    expect(result.output).toStrictEqual(correctParsedOutput);
   });
 
-  it('throws when reading an incorrect file', async () => {
-    const attributionPath = faker.outputPath(
-      `${faker.string.uuid()}_attributions.json`,
-    );
-    await writeFile({
-      content: { test: 'Invalid file.' },
-      path: attributionPath,
-    });
+  it('returns null output when no sidecar attributions file exists', async () => {
+    const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    await writeFile({ content: correctInput, path: resourcesPath });
 
-    expect(() => parseOutputJsonFile(attributionPath)).toThrow(
-      `Error: ${attributionPath} contains an invalid output file.\n Original error message: instance requires property "metadata"`,
+    const result = await loadLegacyFile(resourcesPath);
+    if ('type' in result) {
+      throw new Error(`Unexpected error: ${result.message}`);
+    }
+    expect(result.output).toBeNull();
+  });
+
+  it('returns JSONParsingError on an incorrect sidecar attributions file', async () => {
+    const inputPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    await writeFile({ content: correctInput, path: inputPath });
+    const attributionPath = inputPath.replace(
+      '.json',
+      '_attributions.json',
     );
+    await writeFile({ content: { test: 'Invalid file.' }, path: attributionPath });
+
+    const result = await loadLegacyFile(inputPath);
+    expect(result).toEqual({
+      message: expect.any(String),
+      type: 'jsonParsingError',
+    });
   });
 
   it('tolerates an attribution file with wrong projectId', async () => {
@@ -283,16 +303,18 @@ describe('parseOutputJsonFile', () => {
       'cff9095a-5c24-46e6-b84d-cc8596b17c58',
     );
 
-    const attributionPath = faker.outputPath(
-      `${faker.string.uuid()}_attributions.json`,
+    const inputPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    await writeFile({ content: correctInput, path: inputPath });
+    const attributionPath = inputPath.replace(
+      '.json',
+      '_attributions.json',
     );
-    await writeFile({
-      content: fileContentWithWrongProjectId,
-      path: attributionPath,
-    });
+    await writeFile({ content: fileContentWithWrongProjectId, path: attributionPath });
 
-    const attributions = parseOutputJsonFile(attributionPath);
-
-    expect(attributions).toStrictEqual(parsedFileContentWithWrongProjectId);
+    const result = await loadLegacyFile(inputPath);
+    if ('type' in result) {
+      throw new Error(`Unexpected error: ${result.message}`);
+    }
+    expect(result.output).toStrictEqual(parsedFileContentWithWrongProjectId);
   });
 });

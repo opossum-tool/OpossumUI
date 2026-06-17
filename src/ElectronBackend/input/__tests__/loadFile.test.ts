@@ -16,6 +16,10 @@ import type {
 } from '../../types/types';
 import { getFilePathWithAppendix } from '../../utils/getFilePathWithAppendix';
 import {
+  loadLegacyFile,
+  loadOpossumFile,
+} from '../parseFile';
+import {
   loadFile,
   type LoadFileError,
   type LoadFileSuccess,
@@ -93,7 +97,16 @@ describe('loadFile', () => {
 
     vi.spyOn(Date, 'now').mockReturnValue(1691761892037);
 
-    const result = (await loadFile(opossumPath, {})) as LoadFileSuccess;
+    const archive = await loadOpossumFile(opossumPath);
+    if ('type' in archive) {
+      throw new Error(`Unexpected error: ${archive.message}`);
+    }
+
+    const result = (await loadFile(
+      opossumPath,
+      archive,
+      {},
+    )) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
   });
@@ -137,11 +150,21 @@ describe('loadFile', () => {
       },
     };
     const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
     await writeFile({ path: jsonPath, content: inputWithPreselected });
 
     vi.spyOn(Date, 'now').mockReturnValue(1);
 
-    const result = (await loadFile(jsonPath, {})) as LoadFileSuccess;
+    const archive = await loadLegacyFile(jsonPath);
+    if ('type' in archive) {
+      throw new Error(`Unexpected error: ${archive.message}`);
+    }
+
+    const result = (await loadFile(
+      opossumPath,
+      archive,
+      {},
+    )) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
 
@@ -205,19 +228,32 @@ describe('loadFile', () => {
       filesWithChildren: ['/some/package.json'],
     };
     const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
     await writeFile({ path: jsonPath, content: inputWithFilesWithChildren });
 
     vi.spyOn(Date, 'now').mockReturnValue(1);
 
-    const result = (await loadFile(jsonPath, {})) as LoadFileSuccess;
+    const archive = await loadLegacyFile(jsonPath);
+    if ('type' in archive) {
+      throw new Error(`Unexpected error: ${archive.message}`);
+    }
+
+    const result = (await loadFile(
+      opossumPath,
+      archive,
+      {},
+    )) as LoadFileSuccess;
     expect(result.ok).toBe(true);
 
-    const outputPath = getFilePathWithAppendix(jsonPath, '_attributions.json');
     const output = JSON.parse(
-      fs.readFileSync(outputPath, 'utf-8'),
-    ) as OpossumOutputFile;
+      fs.readFileSync(opossumPath, 'utf-8').replace(/^.*?(?=\{)/s, ''),
+    ) as Record<string, unknown>;
 
-    expect(Object.keys(output.resourcesToAttributions)).toEqual([
+    const outputZip = require('adm-zip')(opossumPath);
+    const outputEntry = outputZip.getEntry('output.json');
+    const outputData = JSON.parse(outputEntry.getData().toString('utf-8')) as OpossumOutputFile;
+
+    expect(Object.keys(outputData.resourcesToAttributions)).toEqual([
       '/some/package.json',
     ]);
   });
@@ -248,11 +284,21 @@ describe('loadFile', () => {
       filesWithChildren: ['/archive.zip'],
     };
     const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
     await writeFile({ path: jsonPath, content: input });
 
     vi.spyOn(Date, 'now').mockReturnValue(1);
 
-    const result = (await loadFile(jsonPath, {})) as LoadFileSuccess;
+    const archive = await loadLegacyFile(jsonPath);
+    if ('type' in archive) {
+      throw new Error(`Unexpected error: ${archive.message}`);
+    }
+
+    const result = (await loadFile(
+      opossumPath,
+      archive,
+      {},
+    )) as LoadFileSuccess;
     expect(result.ok).toBe(true);
 
     const links = await getDb()
@@ -270,35 +316,5 @@ describe('loadFile', () => {
       '/folder',
       '/leaf',
     ]);
-  });
-
-  it('returns fileNotFoundError for non-existing file', async () => {
-    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    const result = (await loadFile(jsonPath, {})) as LoadFileError;
-
-    expect(result.ok).toBe(false);
-    expect(result.error.type).toBe('fileNotFoundError');
-    expect(result.error.message).toContain('does not exist.');
-  });
-
-  it('returns unzipError for corrupt .opossum file', async () => {
-    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-    await writeFile({ path: opossumPath, content: '0' });
-
-    const result = (await loadFile(opossumPath, {})) as LoadFileError;
-
-    expect(result.ok).toBe(false);
-    expect(result.error.type).toBe('unzipError');
-    expect(result.error.message).toContain('could not be unzipped');
-  });
-
-  it('returns jsonParsingError for corrupt json', async () => {
-    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    await writeFile({ path: jsonPath, content: '{"name": 3' });
-
-    const result = (await loadFile(jsonPath, {})) as LoadFileError;
-
-    expect(result.ok).toBe(false);
-    expect(result.error.type).toBe('jsonParsingError');
   });
 });

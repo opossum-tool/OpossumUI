@@ -23,19 +23,33 @@ import {
   type LoadFileIpcResult,
   type LoadFileProgressCallback,
 } from '../input/loadFile';
+import {
+  loadLegacyFile,
+  loadOpossumFile,
+  type LoadedArchive,
+} from '../input/parseFile';
 
-interface LoadFileMessage {
+interface LoadOpossumFileMessage {
   type: 'loadFile';
-  filePath: string;
+  format: 'opossum';
+  opossumFilePath: string;
   globalState: LoadFileGlobalState;
 }
+
+interface LoadLegacyFileMessage {
+  type: 'loadFile';
+  format: 'legacy';
+  inputFilePath: string;
+  opossumFilePath: string;
+  globalState: LoadFileGlobalState;
+}
+
+export type LoadFileMessage = LoadOpossumFileMessage | LoadLegacyFileMessage;
 
 interface SaveFileMessage {
   type: 'saveFile';
   projectId: string;
-  inputFileChecksum?: string;
-  opossumFilePath?: string;
-  attributionFilePath?: string;
+  opossumFilePath: string;
 }
 
 interface ExportFileMessage {
@@ -94,6 +108,27 @@ type ResponsePort = {
 
 let storedOpossumZip: AdmZip | undefined;
 
+async function loadArchive(
+  msg: LoadFileMessage,
+  onProgress?: LoadFileProgressCallback,
+): Promise<LoadedArchive | LoadFileIpcResult> {
+  if (msg.format === 'opossum') {
+    onProgress?.(`Reading file ${msg.opossumFilePath}`);
+    const result = await loadOpossumFile(msg.opossumFilePath);
+    if ('type' in result && 'message' in result) {
+      return { ok: false, error: result };
+    }
+    return result;
+  }
+
+  onProgress?.('Parsing input file');
+  const result = await loadLegacyFile(msg.inputFilePath);
+  if ('type' in result && 'message' in result) {
+    return { ok: false, error: result };
+  }
+  return result;
+}
+
 async function executeDbProcessMessage(
   msg: DbProcessRequest,
   onProgress?: LoadFileProgressCallback,
@@ -101,8 +136,14 @@ async function executeDbProcessMessage(
   switch (msg.type) {
     case 'loadFile': {
       storedOpossumZip = undefined;
+      const archiveOrError = await loadArchive(msg, onProgress);
+      if ('ok' in archiveOrError) {
+        return archiveOrError;
+      }
+      const archive = archiveOrError;
       const loadResult = await loadFile(
-        msg.filePath,
+        msg.opossumFilePath,
+        archive,
         msg.globalState,
         onProgress,
       );
