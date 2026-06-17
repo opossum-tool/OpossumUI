@@ -19,8 +19,6 @@ the system. It is not a yarn dependency.
 
 Every file must have at least:
 
-<!-- REUSE-IgnoreStart -->
-
 - `SPDX-FileCopyrightText:` line(s) naming the copyright holders
 - `SPDX-License-Identifier:` line with the applicable license
 
@@ -53,13 +51,11 @@ SPDX-License-Identifier: CC0-1.0
 # SPDX-License-Identifier: Apache-2.0
 ```
 
-<!-- REUSE-IgnoreEnd -->
-
 ### YAML / JSON / TOML (no comment syntax)
 
 These files cannot carry inline headers. The copyright metadata lives in
-`REUSE.toml` or [`.reuse/dep5`](../../.reuse/dep5). Do not add comment-based
-headers to JSON or YAML files.
+[`REUSE.toml`](../../REUSE.toml). Do not add comment-based headers to JSON or
+YAML files.
 
 ## License choice
 
@@ -92,4 +88,4 @@ reuse lint <file>
 - Using `Apache-2.0` for a documentation file that should use `CC0-1.0`, or
   vice versa.
 - Adding comment-based headers to JSON/YAML files that cannot support them —
-  rely on `.reuse/dep5` instead.
+  rely on `REUSE.toml` instead.
