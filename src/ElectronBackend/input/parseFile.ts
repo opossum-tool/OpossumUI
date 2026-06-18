@@ -157,6 +157,13 @@ export async function loadLegacyFile(
   const zip = new AdmZip();
   zip.addFile(INPUT_FILE_NAME, inputJsonBytes);
 
+  if (parsedOutputData) {
+    zip.addFile(
+      OUTPUT_FILE_NAME,
+      Buffer.from(JSON.stringify(parsedOutputData), 'utf-8'),
+    );
+  }
+
   return {
     input: parsedInputData,
     output: parsedOutputData,
