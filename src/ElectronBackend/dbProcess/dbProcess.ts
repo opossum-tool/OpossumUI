@@ -10,6 +10,7 @@ import type AdmZip from 'adm-zip';
 
 import type { ExportType } from '../../shared/shared-types';
 import { writeOpossumFile } from '../../shared/write-file';
+import { buildOpossumOutputFile } from '../api/buildOpossumOutputFile';
 import {
   type CommandName,
   type CommandParams,
@@ -17,7 +18,6 @@ import {
   executeCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
-import { buildOpossumOutputFile } from '../api/buildOpossumOutputFile';
 import {
   loadFile,
   type LoadFileGlobalState,

@@ -82,10 +82,7 @@ describe('saveFileListener', () => {
 
     await saveFileListener(mainWindow)(AllowedFrontendChannels.SaveFileRequest);
 
-    expect(mockSaveFile).toHaveBeenCalledWith(
-      'uuid_1',
-      '/my/file.opossum',
-    );
+    expect(mockSaveFile).toHaveBeenCalledWith('uuid_1', '/my/file.opossum');
     expect(dialog.showMessageBox).not.toHaveBeenCalled();
   });
 
