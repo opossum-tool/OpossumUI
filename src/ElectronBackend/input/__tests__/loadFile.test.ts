@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
-import fs from 'fs';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { Criticality, RawCriticality } from '../../../shared/shared-types';
@@ -15,12 +14,7 @@ import type {
   OpossumOutputFile,
   ParsedOpossumInputFile,
 } from '../../types/types';
-import { getFilePathWithAppendix } from '../../utils/getFilePathWithAppendix';
-import {
-  loadFile,
-  type LoadFileError,
-  type LoadFileSuccess,
-} from '../loadFile';
+import { loadFile, type LoadFileSuccess } from '../loadFile';
 import { loadLegacyFile, loadOpossumFile } from '../parseFile';
 
 const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
@@ -243,12 +237,8 @@ describe('loadFile', () => {
     )) as LoadFileSuccess;
     expect(result.ok).toBe(true);
 
-    const output = JSON.parse(
-      fs.readFileSync(opossumPath, 'utf-8').replace(/^.*?(?=\{)/s, ''),
-    ) as Record<string, unknown>;
-
     const outputZip = new AdmZip(opossumPath);
-    const outputEntry = outputZip.getEntry('output.json');
+    const outputEntry = outputZip.getEntry('output.json')!;
     const outputData = JSON.parse(
       outputEntry.getData().toString('utf-8'),
     ) as OpossumOutputFile;

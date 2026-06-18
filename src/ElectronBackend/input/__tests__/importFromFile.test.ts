@@ -12,10 +12,7 @@ import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from '../../main/globalBackendState';
-import {
-  loadLegacyFileFromPath,
-  loadOpossumFileFromPath,
-} from '../importFromFile';
+import { loadOpossumFileFromPath } from '../importFromFile';
 import type { LoadFileIpcResult } from '../loadFile';
 
 vi.mock('electron', () => ({

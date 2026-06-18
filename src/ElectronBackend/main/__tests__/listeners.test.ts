@@ -10,10 +10,7 @@ import {
   AllowedFrontendChannels,
   IpcChannel,
 } from '../../../shared/ipc-channels';
-import {
-  loadLegacyFileFromPath,
-  loadOpossumFileFromPath,
-} from '../../input/importFromFile';
+import { loadOpossumFileFromPath } from '../../input/importFromFile';
 import { createWindow } from '../createWindow';
 import {
   openNonOpossumFileDialog,
@@ -75,7 +72,6 @@ vi.mock('electron', () => ({
 
 vi.mock('../../input/importFromFile', () => ({
   loadOpossumFileFromPath: vi.fn(),
-  loadLegacyFileFromPath: vi.fn(),
 }));
 
 vi.mock('../dialogs', () => ({
