@@ -13,7 +13,7 @@ import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   ExportType,
   type FileFormatInfo,
-  type FileType,
+  FileType,
   type OpenLinkArgs,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
@@ -27,6 +27,7 @@ import {
   loadOpossumFileFromPath,
 } from '../input/importFromFile';
 import {
+  convertToOpossum,
   mergeFileIntoOpossum,
 } from '../opossum-file/opossum-file';
 import type { GlobalBackendState } from '../types/types';
@@ -188,7 +189,7 @@ export const importFileConvertAndLoadListener =
   async (
     _: Electron.IpcMainInvokeEvent,
     resourceFilePath: string,
-    _fileType: FileType,
+    fileType: FileType,
     opossumFilePath: string,
   ): Promise<boolean> => {
     const processingStatusUpdater = new ProcessingStatusUpdater(
@@ -232,12 +233,20 @@ export const importFileConvertAndLoadListener =
       processingStatusUpdater.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath);
 
-      processingStatusUpdater.info('Loading input file');
-      await loadLegacyFileFromPath(
-        mainWindow,
-        resourceFilePath,
-        opossumFilePath,
-      );
+      if (fileType === FileType.LEGACY_OPOSSUM) {
+        processingStatusUpdater.info('Loading input file');
+        await loadLegacyFileFromPath(
+          mainWindow,
+          resourceFilePath,
+          opossumFilePath,
+        );
+      } else {
+        processingStatusUpdater.info(
+          'Converting input file to .opossum format',
+        );
+        await convertToOpossum(resourceFilePath, opossumFilePath, fileType);
+        await openOpossumFile(mainWindow, opossumFilePath, updateMenu);
+      }
 
       await updateRecentlyOpenedPaths(opossumFilePath);
       await updateMenu();

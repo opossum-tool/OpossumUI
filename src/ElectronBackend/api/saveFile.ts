@@ -14,16 +14,18 @@ export interface SaveFileParams {
   opossumFilePath: string;
 }
 
-export async function saveFile(
-  params: SaveFileParams,
-  opossumZip: AdmZip,
-): Promise<void> {
+export async function buildOpossumOutputFile(
+  projectId: string,
+): Promise<OpossumOutputFile> {
   const { result } = await getSaveFileArgs();
 
-  const outputFileContent: OpossumOutputFile = {
+  return {
     metadata: {
-      projectId: params.projectId,
+      projectId,
       fileCreationDate: String(Date.now()),
+      // Previously held an MD5 checksum of the raw input file (legacy JSON
+      // path). No longer computed since all files go through the opossum path.
+      inputFileMD5Checksum: undefined,
     },
     manualAttributions: serializeAttributions(result.manualAttributions),
     resourcesToAttributions: result.resourcesToAttributions,
@@ -31,6 +33,13 @@ export async function saveFile(
       result.resolvedExternalAttributions,
     ),
   };
+}
+
+export async function saveFile(
+  params: SaveFileParams,
+  opossumZip: AdmZip,
+): Promise<void> {
+  const outputFileContent = await buildOpossumOutputFile(params.projectId);
 
   writeOpossumFile({
     path: params.opossumFilePath,

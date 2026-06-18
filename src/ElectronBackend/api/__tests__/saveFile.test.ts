@@ -11,7 +11,7 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
-import { saveFile } from '../saveFile';
+import { buildOpossumOutputFile, saveFile } from '../saveFile';
 
 vi.mock('../../../shared/write-file', async () => ({
   ...(await vi.importActual('../../../shared/write-file')),
@@ -20,6 +20,42 @@ vi.mock('../../../shared/write-file', async () => ({
 
 const mockDate = 1603976726737;
 MockDate.set(new Date(mockDate));
+
+describe('buildOpossumOutputFile', () => {
+  it('builds output file with correct structure', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/a']),
+      manualAttributions: {
+        attributions: {
+          uuid1: {
+            id: 'uuid1',
+            packageName: 'opossum-pkg',
+            criticality: Criticality.None,
+          },
+        },
+        resourcesToAttributions: { '/a': ['uuid1'] },
+        attributionsToResources: { uuid1: ['/a'] },
+      },
+    });
+
+    const result = await buildOpossumOutputFile('project-1');
+
+    expect(result).toEqual({
+      metadata: {
+        projectId: 'project-1',
+        fileCreationDate: `${mockDate}`,
+        inputFileMD5Checksum: undefined,
+      },
+      manualAttributions: {
+        uuid1: expect.objectContaining({
+          packageName: 'opossum-pkg',
+        }),
+      },
+      resourcesToAttributions: { '/a': ['uuid1'] },
+      resolvedExternalAttributions: [],
+    });
+  });
+});
 
 describe('saveFile', () => {
   it('writes to opossumFilePath as .opossum format', async () => {
