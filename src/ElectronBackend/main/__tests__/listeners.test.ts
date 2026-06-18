@@ -10,7 +10,7 @@ import {
   AllowedFrontendChannels,
   IpcChannel,
 } from '../../../shared/ipc-channels';
-import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
+import { loadOpossumFileFromPath } from '../../input/importFromFile';
 import { createWindow } from '../createWindow';
 import {
   openNonOpossumFileDialog,
@@ -71,7 +71,7 @@ vi.mock('electron', () => ({
 }));
 
 vi.mock('../../input/importFromFile', () => ({
-  loadInputAndOutputFromFilePath: vi.fn(),
+  loadOpossumFileFromPath: vi.fn(),
 }));
 
 vi.mock('../dialogs', () => ({
@@ -148,10 +148,7 @@ describe('openFileListener', () => {
     await listener({} as Electron.IpcMainInvokeEvent, filePath);
 
     expect(openOpossumFileDialog).not.toHaveBeenCalled();
-    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-      mainWindow,
-      filePath,
-    );
+    expect(loadOpossumFileFromPath).toHaveBeenCalledWith(mainWindow, filePath);
   });
 });
 

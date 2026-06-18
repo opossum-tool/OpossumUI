@@ -12,6 +12,8 @@ import type {
 } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
+import { serializeAttributions } from '../input/parseInputData';
+import type { OpossumOutputFile } from '../types/types';
 
 export async function getPreferredOverOriginIds(trxOrDb: Kysely<DB>) {
   const preferredOverResult = await trxOrDb
@@ -86,7 +88,7 @@ export async function getPreferredOverOriginIds(trxOrDb: Kysely<DB>) {
   );
 }
 
-export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
+async function querySaveFileArgs(): Promise<{ result: SaveFileArgs }> {
   const queryResults = await getDb()
     .transaction()
     .execute(async (trx) => {
@@ -154,5 +156,26 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
       resourcesToAttributions,
       resolvedExternalAttributions,
     },
+  };
+}
+
+export async function buildOpossumOutputFile(
+  projectId: string,
+): Promise<OpossumOutputFile> {
+  const { result } = await querySaveFileArgs();
+
+  return {
+    metadata: {
+      projectId,
+      fileCreationDate: String(Date.now()),
+      // Previously held an MD5 checksum of the raw input file (legacy JSON
+      // path). No longer computed since all files go through the opossum path.
+      inputFileMD5Checksum: undefined,
+    },
+    manualAttributions: serializeAttributions(result.manualAttributions),
+    resourcesToAttributions: result.resourcesToAttributions,
+    resolvedExternalAttributions: Array.from(
+      result.resolvedExternalAttributions,
+    ),
   };
 }

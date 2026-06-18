@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../shared/shared-types';
 import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
-import { getPreferredOverOriginIds } from '../../api/getSaveFileArgs';
+import { getPreferredOverOriginIds } from '../../api/buildOpossumOutputFile';
 import { getDb } from '../../db/db';
 
 describe('getPreferredOverOriginIds', () => {

@@ -26,7 +26,7 @@ vi.mock('electron', () => ({
 }));
 
 vi.mock('../../input/importFromFile', () => ({
-  loadInputAndOutputFromFilePath: vi.fn(),
+  loadOpossumFileFromPath: vi.fn(),
 }));
 
 vi.mock('../../dbProcess/dbProcessClient', () => ({
@@ -82,12 +82,7 @@ describe('saveFileListener', () => {
 
     await saveFileListener(mainWindow)(AllowedFrontendChannels.SaveFileRequest);
 
-    expect(mockSaveFile).toHaveBeenCalledWith({
-      projectId: 'uuid_1',
-      inputFileChecksum: 'checksum_abc',
-      opossumFilePath: '/my/file.opossum',
-      attributionFilePath: undefined,
-    });
+    expect(mockSaveFile).toHaveBeenCalledWith('uuid_1', '/my/file.opossum');
     expect(dialog.showMessageBox).not.toHaveBeenCalled();
   });
 

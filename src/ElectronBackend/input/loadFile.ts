@@ -2,8 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import AdmZip from 'adm-zip';
-import fs from 'fs';
+import type AdmZip from 'adm-zip';
 import { cloneDeep } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
@@ -12,22 +11,15 @@ import type {
   ParsedFileContent,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { saveFile } from '../api/saveFile';
+import { writeOpossumFile } from '../../shared/write-file';
+import { OUTPUT_FILE_NAME } from '../../shared/write-file-utils';
 import { initializeDb } from '../db/initializeDb';
 import type {
-  FileNotFoundError,
   OpossumOutputFile,
-  ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
   ParsingError,
 } from '../types/types';
-import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
-import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
-import {
-  parseInputJsonFile,
-  parseOpossumFile,
-  parseOutputJsonFile,
-} from './parseFile';
+import type { LoadedArchive } from './parseFile';
 import {
   addTrailingSlashIfAbsent,
   deserializeAttributions,
@@ -41,12 +33,12 @@ import { refineConfiguration } from './refineConfiguration';
 
 export interface LoadFileSuccess {
   ok: true;
-  opossumZip?: AdmZip;
+  opossumZip: AdmZip;
   projectTitle?: string;
   projectId: string;
 }
 
-export interface LoadFileError {
+interface LoadFileError {
   ok: false;
   error: ParsingError;
 }
@@ -66,58 +58,17 @@ export type LoadFileProgressCallback = (
   level?: 'info' | 'warn',
 ) => void;
 
-const PARSING_ERROR_TYPES: ReadonlySet<string> = new Set<ParsingError['type']>([
-  'fileNotFoundError',
-  'jsonParsingError',
-  'invalidDotOpossumFileError',
-  'unzipError',
-]);
-
-function isParsingError(parsingResult: unknown): parsingResult is ParsingError {
-  return (
-    typeof parsingResult === 'object' &&
-    parsingResult !== null &&
-    'type' in parsingResult &&
-    PARSING_ERROR_TYPES.has((parsingResult as ParsingError).type)
-  );
-}
-
 export async function loadFile(
-  filePath: string,
+  opossumFilePath: string,
+  archive: LoadedArchive,
   globalState: LoadFileGlobalState,
   reportProgress: LoadFileProgressCallback = () => {},
 ): Promise<LoadFileResult> {
-  if (!fs.existsSync(filePath)) {
-    return {
-      ok: false,
-      error: {
-        message: `Error: ${filePath} does not exist.`,
-        type: 'fileNotFoundError',
-      } satisfies FileNotFoundError,
-    };
-  }
-
-  let parsedInputData: ParsedOpossumInputFile;
-  let parsedOutputData: ParsedOpossumOutputFile | null = null;
-  let opossumZip: AdmZip | undefined;
-
-  if (isOpossumFileFormat(filePath)) {
-    reportProgress(`Reading file ${filePath}`);
-    const parsingResult = await parseOpossumFile(filePath);
-    if (isParsingError(parsingResult)) {
-      return { ok: false, error: parsingResult };
-    }
-    parsedInputData = parsingResult.input;
-    parsedOutputData = parsingResult.output;
-    opossumZip = parsingResult.opossumZip;
-  } else {
-    reportProgress('Parsing input file');
-    const parsingResult = await parseInputJsonFile(filePath);
-    if (isParsingError(parsingResult)) {
-      return { ok: false, error: parsingResult };
-    }
-    parsedInputData = parsingResult;
-  }
+  const {
+    input: parsedInputData,
+    output: parsedOutputData,
+    opossumZip,
+  } = archive;
 
   reportProgress('Deserializing signals');
   const unmergedExternalAttributions = deserializeAttributions(
@@ -151,28 +102,27 @@ export async function loadFile(
     { warn: (msg: string) => reportProgress(msg, 'warn') },
   );
 
-  // When no output exists yet we build it in memory only. The file itself is
-  // written further down via `saveFile` - i.e. the exact same serialization
-  // path used by every later save - so freshly-created output stays consistent
-  // with saved output (e.g. trailing-slash handling for files-with-children).
+  // When no output exists yet we build it in memory, add it to the zip, and
+  // persist it via `saveFile` — the same serialization path used by every later
+  // save — so freshly-created output stays consistent with saved output (e.g.
+  // trailing-slash handling for files-with-children).
   let createdOutputNeedsPersisting = false;
+  let resolvedOutputData: ParsedOpossumOutputFile;
   if (parsedOutputData === null) {
-    const outputJsonPath = isOpossumFileFormat(filePath)
-      ? undefined
-      : getFilePathWithAppendix(filePath, '_attributions.json');
-
-    if (outputJsonPath !== undefined && fs.existsSync(outputJsonPath)) {
-      parsedOutputData = parseOutputJsonFile(outputJsonPath);
-    } else {
-      reportProgress('Creating output file');
-      parsedOutputData = createJsonOutputFile(
-        externalAttributions,
-        resourcesToExternalAttributions,
-        parsedInputData.metadata.projectId,
-        globalState.inputFileChecksum,
-      );
-      createdOutputNeedsPersisting = true;
-    }
+    reportProgress('Creating output file');
+    resolvedOutputData = createJsonOutputFile(
+      externalAttributions,
+      resourcesToExternalAttributions,
+      parsedInputData.metadata.projectId,
+      globalState.inputFileChecksum,
+    );
+    opossumZip.addFile(
+      OUTPUT_FILE_NAME,
+      Buffer.from(JSON.stringify(resolvedOutputData), 'utf-8'),
+    );
+    createdOutputNeedsPersisting = true;
+  } else {
+    resolvedOutputData = parsedOutputData;
   }
 
   const filesWithChildrenSet = new Set(
@@ -181,12 +131,12 @@ export async function loadFile(
 
   reportProgress('Calculating attributions to resources');
   const manualAttributionsToResources = getAttributionsToResources(
-    parsedOutputData.resourcesToAttributions,
+    resolvedOutputData.resourcesToAttributions,
   );
 
   reportProgress('Deserializing attributions');
   const manualAttributions = deserializeAttributions(
-    parsedOutputData.manualAttributions,
+    resolvedOutputData.manualAttributions,
     externalAttributions,
   );
 
@@ -196,7 +146,7 @@ export async function loadFile(
     config: configuration,
     manualAttributions: {
       attributions: manualAttributions,
-      resourcesToAttributions: parsedOutputData.resourcesToAttributions,
+      resourcesToAttributions: resolvedOutputData.resourcesToAttributions,
       attributionsToResources: manualAttributionsToResources,
     },
     externalAttributions: {
@@ -206,7 +156,7 @@ export async function loadFile(
     },
     frequentLicenses,
     resolvedExternalAttributions: new Set(
-      parsedOutputData.resolvedExternalAttributions,
+      resolvedOutputData.resolvedExternalAttributions,
     ),
     attributionBreakpoints: new Set(parsedInputData.attributionBreakpoints),
     filesWithChildren: filesWithChildrenSet,
@@ -222,22 +172,11 @@ export async function loadFile(
 
   if (createdOutputNeedsPersisting) {
     reportProgress('Writing output file');
-    await saveFile(
-      isOpossumFileFormat(filePath)
-        ? {
-            projectId: parsedInputData.metadata.projectId,
-            opossumFilePath: filePath,
-          }
-        : {
-            projectId: parsedInputData.metadata.projectId,
-            inputFileChecksum: globalState.inputFileChecksum,
-            attributionFilePath: getFilePathWithAppendix(
-              filePath,
-              '_attributions.json',
-            ),
-          },
-      opossumZip ?? new AdmZip(),
-    );
+    writeOpossumFile({
+      path: opossumFilePath,
+      zip: opossumZip,
+      output: resolvedOutputData,
+    });
   }
 
   return {

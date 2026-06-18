@@ -11,12 +11,12 @@ import type {
   CommandParams,
   CommandReturn,
 } from '../api/commands';
-import type { SaveFileParams } from '../api/saveFile';
 import type { LoadFileGlobalState, LoadFileIpcResult } from '../input/loadFile';
 import type {
   DbProcessPayload,
   DbProcessRequest,
   DbProcessResponse,
+  LoadFileMessage,
 } from './dbProcess';
 
 type ProgressCallback = (message: string, level?: 'info' | 'warn') => void;
@@ -106,19 +106,46 @@ export class DbProcessClient {
     }) as Promise<Awaited<CommandReturn<C>>>;
   }
 
-  loadFile(
-    filePath: string,
+  loadOpossumFile(
+    opossumFilePath: string,
     globalState: LoadFileGlobalState,
     onProgress?: ProgressCallback,
   ): Promise<LoadFileIpcResult> {
     return this.request(
-      { type: 'loadFile', filePath, globalState },
+      {
+        type: 'loadFile',
+        format: 'opossum',
+        opossumFilePath,
+        globalState,
+      } satisfies LoadFileMessage,
       { onProgress },
     ) as Promise<LoadFileIpcResult>;
   }
 
-  saveFile(params: SaveFileParams): Promise<void> {
-    return this.request({ type: 'saveFile', ...params }) as Promise<void>;
+  loadLegacyFile(
+    inputFilePath: string,
+    opossumFilePath: string,
+    globalState: LoadFileGlobalState,
+    onProgress?: ProgressCallback,
+  ): Promise<LoadFileIpcResult> {
+    return this.request(
+      {
+        type: 'loadFile',
+        format: 'legacy',
+        inputFilePath,
+        opossumFilePath,
+        globalState,
+      } satisfies LoadFileMessage,
+      { onProgress },
+    ) as Promise<LoadFileIpcResult>;
+  }
+
+  saveFile(projectId: string, opossumFilePath: string): Promise<void> {
+    return this.request({
+      type: 'saveFile',
+      projectId,
+      opossumFilePath,
+    }) as Promise<void>;
   }
 
   exportFile(exportType: ExportType, filePath: string): Promise<void> {
