@@ -9,7 +9,7 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
-import { buildOpossumOutputFile } from '../saveFile';
+import { buildOpossumOutputFile } from '../buildOpossumOutputFile';
 
 const mockDate = 1603976726737;
 MockDate.set(new Date(mockDate));

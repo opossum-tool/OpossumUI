@@ -17,7 +17,7 @@ import {
   executeCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
-import { buildOpossumOutputFile } from '../api/saveFile';
+import { buildOpossumOutputFile } from '../api/buildOpossumOutputFile';
 import {
   loadFile,
   type LoadFileGlobalState,
