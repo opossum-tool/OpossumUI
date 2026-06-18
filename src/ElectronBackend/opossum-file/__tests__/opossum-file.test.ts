@@ -8,8 +8,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 import { FileType } from '../../../shared/shared-types';
-import { loadOpossumFile } from '../../input/parseFile';
-import type { LoadedArchive } from '../../input/parseFile';
+import { type LoadedArchive, loadOpossumFile } from '../../input/parseFile';
 import { convertToOpossum, mergeFileIntoOpossum } from '../opossum-file';
 
 const mockTmpdir = tmpdir();

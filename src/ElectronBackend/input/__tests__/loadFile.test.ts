@@ -3,6 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import AdmZip from 'adm-zip';
 import fs from 'fs';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
@@ -246,7 +247,7 @@ describe('loadFile', () => {
       fs.readFileSync(opossumPath, 'utf-8').replace(/^.*?(?=\{)/s, ''),
     ) as Record<string, unknown>;
 
-    const outputZip = require('adm-zip')(opossumPath);
+    const outputZip = new AdmZip(opossumPath);
     const outputEntry = outputZip.getEntry('output.json');
     const outputData = JSON.parse(
       outputEntry.getData().toString('utf-8'),
