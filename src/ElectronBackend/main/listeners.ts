@@ -57,10 +57,10 @@ export const saveFileListener =
         throw new Error('Project ID not found');
       }
 
-      await getMainDbClient().saveFile({
-        projectId: globalBackendState.projectId,
-        opossumFilePath: globalBackendState.opossumFilePath!,
-      });
+      await getMainDbClient().saveFile(
+        globalBackendState.projectId,
+        globalBackendState.opossumFilePath!,
+      );
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
     }

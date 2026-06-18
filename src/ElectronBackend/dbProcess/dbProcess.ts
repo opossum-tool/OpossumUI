@@ -16,7 +16,7 @@ import {
   executeCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
-import { saveFile } from '../api/saveFile';
+import { persistOutputFile } from '../api/saveFile';
 import {
   loadFile,
   type LoadFileGlobalState,
@@ -158,8 +158,11 @@ async function executeDbProcessMessage(
       if (!storedOpossumZip) {
         throw new Error('Cannot save: no input file loaded');
       }
-      const { id: _, type: __, ...params } = msg;
-      await saveFile(params, storedOpossumZip);
+      await persistOutputFile(
+        msg.projectId,
+        msg.opossumFilePath,
+        storedOpossumZip,
+      );
       return undefined;
     }
     case 'exportFile': {

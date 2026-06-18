@@ -11,7 +11,7 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
-import { buildOpossumOutputFile, saveFile } from '../saveFile';
+import { buildOpossumOutputFile, persistOutputFile } from '../saveFile';
 
 vi.mock('../../../shared/write-file', async () => ({
   ...(await vi.importActual('../../../shared/write-file')),
@@ -57,7 +57,7 @@ describe('buildOpossumOutputFile', () => {
   });
 });
 
-describe('saveFile', () => {
+describe('persistOutputFile', () => {
   it('writes to opossumFilePath as .opossum format', async () => {
     const opossumZip = new AdmZip();
 
@@ -76,13 +76,7 @@ describe('saveFile', () => {
       },
     });
 
-    await saveFile(
-      {
-        projectId: 'project-2',
-        opossumFilePath: '/output/file.opossum',
-      },
-      opossumZip,
-    );
+    await persistOutputFile('project-2', '/output/file.opossum', opossumZip);
 
     expect(writeOpossumFile).toHaveBeenCalledWith({
       path: '/output/file.opossum',

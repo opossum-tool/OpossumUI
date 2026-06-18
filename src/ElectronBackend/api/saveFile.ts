@@ -9,11 +9,6 @@ import { serializeAttributions } from '../input/parseInputData';
 import type { OpossumOutputFile } from '../types/types';
 import { getSaveFileArgs } from './getSaveFileArgs';
 
-export interface SaveFileParams {
-  projectId: string;
-  opossumFilePath: string;
-}
-
 export async function buildOpossumOutputFile(
   projectId: string,
 ): Promise<OpossumOutputFile> {
@@ -35,14 +30,15 @@ export async function buildOpossumOutputFile(
   };
 }
 
-export async function saveFile(
-  params: SaveFileParams,
+export async function persistOutputFile(
+  projectId: string,
+  opossumFilePath: string,
   opossumZip: AdmZip,
 ): Promise<void> {
-  const outputFileContent = await buildOpossumOutputFile(params.projectId);
+  const outputFileContent = await buildOpossumOutputFile(projectId);
 
   writeOpossumFile({
-    path: params.opossumFilePath,
+    path: opossumFilePath,
     zip: opossumZip,
     output: outputFileContent,
   });
