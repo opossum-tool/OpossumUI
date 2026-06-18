@@ -37,7 +37,7 @@ export interface LoadFileSuccess {
   projectId: string;
 }
 
-export interface LoadFileError {
+interface LoadFileError {
   ok: false;
   error: ParsingError;
 }

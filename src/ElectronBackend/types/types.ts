@@ -21,10 +21,6 @@ export interface ParsingError {
     | 'unzipError';
 }
 
-export interface FileNotFoundError extends ParsingError {
-  type: 'fileNotFoundError';
-}
-
 export interface UnzipError extends ParsingError {
   type: 'unzipError';
 }
