@@ -6,6 +6,8 @@ import type AdmZip from 'adm-zip';
 import { cloneDeep } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
+import { OUTPUT_FILE_NAME } from '../../shared/write-file-utils';
+
 import type {
   Attributions,
   ParsedFileContent,
@@ -101,10 +103,10 @@ export async function loadFile(
     { warn: (msg: string) => reportProgress(msg, 'warn') },
   );
 
-  // When no output exists yet we build it in memory only. The file itself is
-  // written further down via `saveFile` - i.e. the exact same serialization
-  // path used by every later save - so freshly-created output stays consistent
-  // with saved output (e.g. trailing-slash handling for files-with-children).
+  // When no output exists yet we build it in memory, add it to the zip, and
+  // persist it via `saveFile` — the same serialization path used by every later
+  // save — so freshly-created output stays consistent with saved output (e.g.
+  // trailing-slash handling for files-with-children).
   let createdOutputNeedsPersisting = false;
   let resolvedOutputData: ParsedOpossumOutputFile;
   if (parsedOutputData === null) {
@@ -114,6 +116,10 @@ export async function loadFile(
       resourcesToExternalAttributions,
       parsedInputData.metadata.projectId,
       globalState.inputFileChecksum,
+    );
+    opossumZip.addFile(
+      OUTPUT_FILE_NAME,
+      Buffer.from(JSON.stringify(resolvedOutputData), 'utf-8'),
     );
     createdOutputNeedsPersisting = true;
   } else {

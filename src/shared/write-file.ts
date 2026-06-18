@@ -43,12 +43,7 @@ export function writeOpossumFile({
 }): string {
   if (zip) {
     if (output) {
-      const outputBuffer = toBuffer(output);
-      if (zip.getEntry(OUTPUT_FILE_NAME)) {
-        zip.updateFile(OUTPUT_FILE_NAME, outputBuffer);
-      } else {
-        zip.addFile(OUTPUT_FILE_NAME, outputBuffer);
-      }
+      zip.updateFile(OUTPUT_FILE_NAME, toBuffer(output));
     }
     zip.writeZip(path);
   } else {
