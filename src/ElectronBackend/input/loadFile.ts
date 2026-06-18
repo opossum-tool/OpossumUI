@@ -6,13 +6,12 @@ import type AdmZip from 'adm-zip';
 import { cloneDeep } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
-import { OUTPUT_FILE_NAME } from '../../shared/write-file-utils';
-
 import type {
   Attributions,
   ParsedFileContent,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
+import { OUTPUT_FILE_NAME } from '../../shared/write-file-utils';
 import { saveFile } from '../api/saveFile';
 import { initializeDb } from '../db/initializeDb';
 import type {
