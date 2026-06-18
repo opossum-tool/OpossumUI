@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { strToU8, zip } from 'fflate';
+import AdmZip from 'adm-zip';
 import fs from 'fs';
 
 import { INPUT_FILE_NAME, OUTPUT_FILE_NAME } from './write-file-utils';
@@ -32,49 +32,46 @@ export async function writeFile({
 
 export function writeOpossumFile({
   input,
-  path,
   output,
+  path,
+  zip,
 }: {
   input?: string | Uint8Array | object;
   output?: string | Uint8Array | object;
   path: string;
-}): Promise<string> {
-  return new Promise((resolve, reject) => {
-    zip(
-      {
-        ...(input && {
-          [INPUT_FILE_NAME]:
-            input instanceof Uint8Array
-              ? input
-              : strToU8(
-                  typeof input === 'string' ? input : JSON.stringify(input),
-                ),
-        }),
-        ...(output && {
-          [OUTPUT_FILE_NAME]:
-            output instanceof Uint8Array
-              ? output
-              : strToU8(
-                  typeof output === 'string'
-                    ? output
-                    : JSON.stringify(output, (_, value) =>
-                        value instanceof Set ? [...value] : value,
-                      ),
-                ),
-        }),
-      },
-      {
-        level: 5,
-      },
-      async (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          await fs.promises.writeFile(path, data);
+  zip?: AdmZip;
+}): string {
+  if (zip) {
+    if (output) {
+      zip.updateFile(OUTPUT_FILE_NAME, toBuffer(output));
+    }
+    zip.writeZip(path);
+  } else {
+    zip = new AdmZip();
+    if (input) {
+      zip.addFile(INPUT_FILE_NAME, toBuffer(input));
+    }
+    if (output) {
+      zip.addFile(OUTPUT_FILE_NAME, toBuffer(output));
+    }
+    zip.writeZip(path);
+  }
 
-          resolve(path);
-        }
-      },
-    );
-  });
+  return path;
+}
+
+function toBuffer(content: string | Uint8Array | object): Buffer {
+  if (Buffer.isBuffer(content)) {
+    return content;
+  }
+  if (content instanceof Uint8Array) {
+    return Buffer.from(content);
+  }
+  return Buffer.from(
+    typeof content === 'string'
+      ? content
+      : JSON.stringify(content, (_, value) =>
+          value instanceof Set ? [...value] : value,
+        ),
+  );
 }

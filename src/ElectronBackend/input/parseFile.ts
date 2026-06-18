@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import * as fflate from 'fflate';
+import AdmZip from 'adm-zip';
 import fs from 'fs';
 import { type Options, Validator } from 'jsonschema';
 import { Readable } from 'stream';
@@ -10,6 +10,10 @@ import parser from 'stream-json';
 import Asm, { type Assembler } from 'stream-json/assembler.js';
 import zlib from 'zlib';
 
+import {
+  INPUT_FILE_NAME,
+  OUTPUT_FILE_NAME,
+} from '../../shared/write-file-utils';
 import type {
   InvalidDotOpossumFileError,
   JsonParsingError,
@@ -18,7 +22,6 @@ import type {
   ParsedOpossumOutputFile,
   UnzipError,
 } from '../types/types';
-import { readOpossumArchive } from './opossumArchive';
 import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
 
@@ -35,9 +38,15 @@ export async function parseOpossumFile(
   | JsonParsingError
   | InvalidDotOpossumFileError
 > {
-  let archive;
+  let zip: AdmZip;
+  let inputBytes: Buffer | null;
+  let outputBytes: Buffer | null;
   try {
-    archive = await readOpossumArchive(opossumFilePath);
+    zip = new AdmZip(opossumFilePath);
+    const inputEntry = zip.getEntry(INPUT_FILE_NAME);
+    const outputEntry = zip.getEntry(OUTPUT_FILE_NAME);
+    inputBytes = inputEntry ? inputEntry.getData() : null;
+    outputBytes = outputEntry ? outputEntry.getData() : null;
   } catch (err) {
     return {
       message: `Error: ${opossumFilePath} could not be unzipped.\n Original error message: ${err?.toString()}`,
@@ -45,7 +54,7 @@ export async function parseOpossumFile(
     } satisfies UnzipError;
   }
 
-  if (!archive.inputBytes) {
+  if (!inputBytes) {
     return {
       message: '',
       type: 'invalidDotOpossumFileError',
@@ -55,7 +64,7 @@ export async function parseOpossumFile(
   let parsedInputData: ParsedOpossumInputFile;
   try {
     parsedInputData = await parseJsonStream<ParsedOpossumInputFile>(
-      bytesAsStream(archive.inputBytes),
+      bytesAsStream(inputBytes),
     );
     jsonSchemaValidator.validate(
       parsedInputData,
@@ -70,10 +79,10 @@ export async function parseOpossumFile(
   }
 
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
-  if (archive.outputBytes) {
+  if (outputBytes) {
     try {
       parsedOutputData = parseOutputJsonContent(
-        fflate.strFromU8(archive.outputBytes),
+        outputBytes.toString('utf-8'),
         opossumFilePath,
       );
     } catch (err) {
@@ -87,7 +96,7 @@ export async function parseOpossumFile(
   return {
     input: parsedInputData,
     output: parsedOutputData,
-    inputFileRaw: archive.inputBytes,
+    opossumZip: zip,
   };
 }
 

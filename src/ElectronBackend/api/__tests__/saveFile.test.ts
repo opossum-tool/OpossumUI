@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import AdmZip from 'adm-zip';
 import * as MockDate from 'mockdate';
 
 import { Criticality } from '../../../shared/shared-types';
@@ -52,7 +53,7 @@ describe('saveFile', () => {
         projectId: 'project-1',
         attributionFilePath: '/output/attributions.json',
       },
-      new Uint8Array(),
+      new AdmZip(),
     );
 
     expect(writeFile).toHaveBeenCalledWith({
@@ -76,7 +77,7 @@ describe('saveFile', () => {
   });
 
   it('writes to opossumFilePath as .opossum format', async () => {
-    const inputFileRaw = new Uint8Array([1, 2, 3]);
+    const opossumZip = new AdmZip();
 
     await initializeDbWithTestData({
       resources: pathsToResources(['/a']),
@@ -98,12 +99,12 @@ describe('saveFile', () => {
         projectId: 'project-2',
         opossumFilePath: '/output/file.opossum',
       },
-      inputFileRaw,
+      opossumZip,
     );
 
     expect(writeOpossumFile).toHaveBeenCalledWith({
       path: '/output/file.opossum',
-      input: inputFileRaw,
+      zip: opossumZip,
       output: expect.objectContaining({
         metadata: expect.objectContaining({
           projectId: 'project-2',
@@ -123,7 +124,7 @@ describe('saveFile', () => {
     await initializeDbWithTestData();
 
     await expect(
-      saveFile({ projectId: 'project-4' }, new Uint8Array()),
+      saveFile({ projectId: 'project-4' }, new AdmZip()),
     ).rejects.toThrow('No output file path configured');
   });
 });

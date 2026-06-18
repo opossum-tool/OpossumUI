@@ -266,17 +266,15 @@ async function createTestFiles({
   data: OpossumData;
   filePaths: FilePaths;
 }): Promise<string> {
-  await Promise.all([
-    writeFile({
-      path: json,
-      content: inputData,
-    }),
-    writeOpossumFile({
-      input: inputData,
-      path: opossum,
-      output: outputData,
-    }),
-  ]);
+  await writeFile({
+    path: json,
+    content: inputData,
+  });
+  writeOpossumFile({
+    input: inputData,
+    path: opossum,
+    output: outputData,
+  });
 
   return opossum;
 }
