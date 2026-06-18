@@ -2,9 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type AdmZip from 'adm-zip';
-
-import { writeOpossumFile } from '../../shared/write-file';
 import { serializeAttributions } from '../input/parseInputData';
 import type { OpossumOutputFile } from '../types/types';
 import { getSaveFileArgs } from './getSaveFileArgs';
@@ -28,18 +25,4 @@ export async function buildOpossumOutputFile(
       result.resolvedExternalAttributions,
     ),
   };
-}
-
-export async function persistOutputFile(
-  projectId: string,
-  opossumFilePath: string,
-  opossumZip: AdmZip,
-): Promise<void> {
-  const outputFileContent = await buildOpossumOutputFile(projectId);
-
-  writeOpossumFile({
-    path: opossumFilePath,
-    zip: opossumZip,
-    output: outputFileContent,
-  });
 }

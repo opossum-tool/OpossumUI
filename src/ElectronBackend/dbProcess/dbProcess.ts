@@ -9,6 +9,7 @@
 import type AdmZip from 'adm-zip';
 
 import type { ExportType } from '../../shared/shared-types';
+import { writeOpossumFile } from '../../shared/write-file';
 import {
   type CommandName,
   type CommandParams,
@@ -16,7 +17,7 @@ import {
   executeCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
-import { persistOutputFile } from '../api/saveFile';
+import { buildOpossumOutputFile } from '../api/saveFile';
 import {
   loadFile,
   type LoadFileGlobalState,
@@ -158,11 +159,12 @@ async function executeDbProcessMessage(
       if (!storedOpossumZip) {
         throw new Error('Cannot save: no input file loaded');
       }
-      await persistOutputFile(
-        msg.projectId,
-        msg.opossumFilePath,
-        storedOpossumZip,
-      );
+      const output = await buildOpossumOutputFile(msg.projectId);
+      writeOpossumFile({
+        path: msg.opossumFilePath,
+        zip: storedOpossumZip,
+        output,
+      });
       return undefined;
     }
     case 'exportFile': {
