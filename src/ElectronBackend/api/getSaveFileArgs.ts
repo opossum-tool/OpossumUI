@@ -134,8 +134,18 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
   );
 
   for (const id of Object.keys(manualAttributions)) {
-    manualAttributions[id].preferredOverOriginIds =
-      queryResults.preferredOver[id];
+    const attribution = manualAttributions[id];
+    attribution.preferredOverOriginIds = queryResults.preferredOver[id];
+
+    if (attribution.firstParty) {
+      // First-party attributions can't have copyright/license info,
+      // but we keep it in the DB in case the user wants to switch back
+      // to third-party without losing their input.
+      // So we have to remove it here.
+      attribution.copyright = undefined;
+      attribution.licenseName = undefined;
+      attribution.licenseText = undefined;
+    }
   }
 
   const resourcesToAttributions: ResourcesToAttributions = Object.fromEntries(
