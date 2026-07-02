@@ -91,7 +91,7 @@
     "eslint-plugin-jest-dom": "5.5.0",
     "eslint-plugin-playwright": "2.10.4",
     "eslint-plugin-testing-library": "7.16.2",
-    "globals": "17.6.0",
+    "globals": "17.7.0",
     "happy-dom": "20.10.6",
     "husky": "9.1.7",
     "knip": "6.17.1",
