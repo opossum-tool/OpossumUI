@@ -52,8 +52,7 @@ export function PathBar() {
     activeIndex: 0,
   });
   const activeResourceId = history.stack[history.activeIndex] as
-    | string
-    | undefined;
+    string | undefined;
   const previousActiveResourceId = usePrevious(activeResourceId);
   const isGoBackEnabled = !!history.activeIndex;
   const isGoForwardEnabled = history.activeIndex !== history.stack.length - 1;

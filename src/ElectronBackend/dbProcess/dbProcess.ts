@@ -49,17 +49,12 @@ interface ExecuteCommandMessage {
 }
 
 export type DbProcessPayload =
-  | LoadFileMessage
-  | SaveFileMessage
-  | ExportFileMessage
-  | ExecuteCommandMessage;
+  LoadFileMessage | SaveFileMessage | ExportFileMessage | ExecuteCommandMessage;
 
 export type DbProcessRequest = DbProcessPayload & { id: number };
 
 type SuccessPayload =
-  | LoadFileIpcResult
-  | Awaited<CommandReturn<CommandName>>
-  | undefined;
+  LoadFileIpcResult | Awaited<CommandReturn<CommandName>> | undefined;
 
 interface SuccessResponse {
   id: number;
@@ -82,9 +77,7 @@ interface ProgressResponse {
 }
 
 export type DbProcessResponse =
-  | SuccessResponse
-  | ErrorResponse
-  | ProgressResponse;
+  SuccessResponse | ErrorResponse | ProgressResponse;
 
 type ResponsePort = {
   postMessage(message: DbProcessResponse): void;

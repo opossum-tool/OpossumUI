@@ -31,10 +31,7 @@ import type {
 } from './queries';
 
 export type ResourceRelationship =
-  | 'same'
-  | 'ancestor'
-  | 'descendant'
-  | 'unrelated';
+  'same' | 'ancestor' | 'descendant' | 'unrelated';
 
 /**
  * If a resource (R) has the same attributions as its closest ancestor that has attributions (A), we want to delete R's attributions.

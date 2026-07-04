@@ -57,9 +57,7 @@ export interface AdvisorySuggestion {
 }
 
 export type SearchSuggestion =
-  | PackageSuggestion
-  | ProjectSuggestion
-  | AdvisorySuggestion;
+  PackageSuggestion | ProjectSuggestion | AdvisorySuggestion;
 
 export interface SearchSuggestionResponse {
   results: Array<SearchSuggestion>;
