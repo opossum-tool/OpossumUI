@@ -7034,7 +7034,7 @@ __metadata:
     upath: "npm:3.0.7"
     uuid: "npm:14.0.1"
     vite: "npm:8.1.2"
-    vite-plugin-electron: "npm:1.0.4"
+    vite-plugin-electron: "npm:1.1.0"
     vite-plugin-svgr: "npm:5.2.0"
     vitest: "npm:4.1.9"
   dependenciesMeta:
@@ -8957,9 +8957,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-electron@npm:1.0.4":
-  version: 1.0.4
-  resolution: "vite-plugin-electron@npm:1.0.4"
+"vite-plugin-electron@npm:1.1.0":
+  version: 1.1.0
+  resolution: "vite-plugin-electron@npm:1.1.0"
   dependencies:
     local-pkg: "npm:^1.2.1"
   peerDependencies:
@@ -8967,7 +8967,7 @@ __metadata:
   peerDependenciesMeta:
     vite-plugin-electron-renderer:
       optional: true
-  checksum: 10/7ad677c22d31323c301b1ebddbdfba70a6ad081fbff9c5d0f7e527a040e8e35d1a070ad7e38c4a8384081c224b8ae51295f7a8cc63b5446c5c3da67abc9ffb32
+  checksum: 10/a2515f71a2a0c300d5f8d2c80b1ef17c3085089c8758e43ef7293697d7551b8698a152f21b8e3fb0bba314e98640dc936ed0414b76f4c741ebd552ebfe14871c
   languageName: node
   linkType: hard
 
