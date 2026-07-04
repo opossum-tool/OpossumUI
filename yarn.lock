@@ -650,9 +650,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron/rebuild@npm:4.0.6, @electron/rebuild@npm:^4.0.4":
-  version: 4.0.6
-  resolution: "@electron/rebuild@npm:4.0.6"
+"@electron/rebuild@npm:4.1.0, @electron/rebuild@npm:^4.0.4":
+  version: 4.1.0
+  resolution: "@electron/rebuild@npm:4.1.0"
   dependencies:
     "@malept/cross-spawn-promise": "npm:^2.0.0"
     debug: "npm:^4.1.1"
@@ -665,7 +665,7 @@ __metadata:
       built: true
   bin:
     electron-rebuild: lib/cli.js
-  checksum: 10/5ab9abfe7e99f65764062f7b0405720b4a1299b85a2afdebeddbb6baed2029f40ac363925a91380c9b112e89460d2fe3717814698b69480630037e0fb81845aa
+  checksum: 10/4107db217eca1c69b775d3566d4fc6e16b39b119687e12d2eb8f5c045d78306ae34349faa22309f003efd22ef43e82e41804c8425f6b45c2adfef6dce846e32d
   languageName: node
   linkType: hard
 
@@ -6940,7 +6940,7 @@ __metadata:
     "@commitlint/cli": "npm:21.2.0"
     "@commitlint/config-conventional": "npm:21.2.0"
     "@commitlint/types": "npm:21.2.0"
-    "@electron/rebuild": "npm:4.0.6"
+    "@electron/rebuild": "npm:4.1.0"
     "@emotion/react": "npm:11.14.0"
     "@emotion/styled": "npm:11.14.1"
     "@eslint-react/eslint-plugin": "npm:5.10.0"
