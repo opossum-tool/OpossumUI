@@ -19,8 +19,7 @@ function openFileDialog(
 }
 
 function getDialogWindow():
-  | Electron.CrossProcessExports.BrowserWindow
-  | undefined {
+  Electron.CrossProcessExports.BrowserWindow | undefined {
   return BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
 }
 

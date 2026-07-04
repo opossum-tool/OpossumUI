@@ -285,9 +285,7 @@ export interface Log {
 export type ProcessingStateUpdatedEventLevel = 'info' | 'error' | 'warn';
 
 export type ProcessingStateChangedEvent =
-  | ProcessingStartedEvent
-  | ProcessingDoneEvent
-  | ProcessingStateUpdatedEvent;
+  ProcessingStartedEvent | ProcessingDoneEvent | ProcessingStateUpdatedEvent;
 
 export interface ProcessingStartedEvent {
   type: 'ProcessingStarted';

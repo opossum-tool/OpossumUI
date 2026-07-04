@@ -24,8 +24,7 @@ export function getContainedAttributionCount({
 }): Record<string, number> {
   const resourceIndex = pathsToIndices[resourceId] as number | undefined;
   const resourceAttributions = resourcesToAttributions[resourceId] as
-    | Array<string>
-    | undefined;
+    Array<string> | undefined;
 
   const attributionCount: Record<string, number> = {};
 

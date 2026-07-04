@@ -12,10 +12,7 @@ import { useUserSettings } from '../../state/variables/use-user-setting';
 import { ClassificationCIcon } from '../Icons/Icons';
 
 export type SortOption =
-  | 'alphabetically'
-  | 'criticality'
-  | 'occurrence'
-  | 'classification';
+  'alphabetically' | 'criticality' | 'occurrence' | 'classification';
 
 interface SortOptionConfiguration {
   label: string;

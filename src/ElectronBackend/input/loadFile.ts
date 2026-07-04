@@ -53,8 +53,7 @@ export interface LoadFileError {
 type LoadFileResult = LoadFileSuccess | LoadFileError;
 
 export type LoadFileIpcResult =
-  | Omit<LoadFileSuccess, 'inputFileRaw'>
-  | LoadFileError;
+  Omit<LoadFileSuccess, 'inputFileRaw'> | LoadFileError;
 
 export interface LoadFileGlobalState {
   inputFileChecksum?: string;
