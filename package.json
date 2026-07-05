@@ -103,7 +103,7 @@
     "prettier": "3.9.4",
     "prettier-plugin-sh": "0.18.1",
     "run-script-os": "1.1.6",
-    "tsx": "4.22.4",
+    "tsx": "4.22.5",
     "typescript": "6.0.3",
     "typescript-eslint": "8.62.1",
     "vite": "8.1.3",
