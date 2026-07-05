@@ -7026,7 +7026,7 @@ __metadata:
     typescript-eslint: "npm:8.62.1"
     upath: "npm:3.0.7"
     uuid: "npm:14.0.1"
-    vite: "npm:8.1.2"
+    vite: "npm:8.1.3"
     vite-plugin-electron: "npm:1.1.0"
     vite-plugin-svgr: "npm:5.2.0"
     vitest: "npm:4.1.9"
@@ -8977,9 +8977,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:8.1.2, vite@npm:^6.0.0 || ^7.0.0 || ^8.0.0":
-  version: 8.1.2
-  resolution: "vite@npm:8.1.2"
+"vite@npm:8.1.3, vite@npm:^6.0.0 || ^7.0.0 || ^8.0.0":
+  version: 8.1.3
+  resolution: "vite@npm:8.1.3"
   dependencies:
     fsevents: "npm:~2.3.3"
     lightningcss: "npm:^1.32.0"
@@ -9030,7 +9030,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10/0f19c652919459ee010f8795f757c2b86025658ca3c7f0b317d65198289bcb7a679187ac0340da533371960385a65f468bfe3ff52811835f015a87dad05562a6
+  checksum: 10/6dd12c59d2afb6204109d9cbbfe0706f1fb4c9dad5f88ecb43e328f94f8d071f7611f70c1d93f6e51222b451f8cdbbd9af141fae8a7c2562ceafef3800fcf45d
   languageName: node
   linkType: hard
 
