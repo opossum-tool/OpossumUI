@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
@@ -86,6 +86,11 @@ describe('AttributionDetails', () => {
     expect(
       screen.queryByRole('button', {
         name: text.attributionColumn.compareToOriginal,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: text.attributionColumn.compareWith,
       }),
     ).not.toBeInTheDocument();
   });
@@ -568,6 +573,167 @@ describe('AttributionDetails', () => {
     );
 
     expect(screen.getByText(text.diffPopup.title)).toBeInTheDocument();
+  });
+
+  it('preserves the original attribution link when applying changes from the original comparison target', async () => {
+    const signal = faker.opossum.packageInfo();
+    const attribution = faker.opossum.packageInfo({
+      originalAttributionId: signal.id,
+    });
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [attribution.id]: attribution,
+        }),
+        externalAttributions: faker.opossum.attributions({
+          [signal.id]: signal,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [attribution.id],
+        },
+        resourcesToExternalAttributions: {
+          [resourceId]: [signal.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setTemporaryDisplayPackageInfo(attribution),
+        setSelectedAttributionId(attribution.id),
+      ],
+    });
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareToOriginal,
+      }),
+    );
+
+    await userEvent.click(screen.getByTestId('packageName-undo'));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.diffPopup.applyChanges }),
+    );
+
+    await waitFor(() =>
+      expect(
+        getTemporaryDisplayPackageInfo(store.getState()).originalAttributionId,
+      ).toBe(signal.id),
+    );
+  });
+
+  it('enters compare-selection mode and shows only Cancel while previewing the compare source', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo.id]: packageInfo,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setTemporaryDisplayPackageInfo(packageInfo),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    );
+
+    expect(
+      screen.getByText(
+        text.attributionColumn.comparingWith(
+          `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+        ),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: text.attributionColumn.compareConfirm,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.save }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole('button', { name: text.buttons.cancel }),
+    );
+
+    expect(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('lets the user preview another item and opens a read-only comparison against the pinned source', async () => {
+    const source = faker.opossum.packageInfo();
+    const target = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [source.id]: source,
+          [target.id]: target,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [source.id, target.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setTemporaryDisplayPackageInfo(source),
+        setSelectedAttributionId(source.id),
+      ],
+    });
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    );
+
+    act(() => {
+      store.dispatch(setSelectedAttributionId(target.id));
+    });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(target),
+    );
+
+    expect(
+      screen.getByText(
+        text.attributionColumn.comparingWith(
+          `${source.packageName}, ${source.packageVersion}`,
+        ),
+      ),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareConfirm,
+      }),
+    );
+
+    const diffPopup = within(screen.getByLabelText('diff popup'));
+    expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
+    expect(
+      diffPopup.getByDisplayValue(target.packageName!),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('button', { name: text.diffPopup.applyChanges }),
+    ).toBeDisabled();
   });
 
   it('resets temporaryDisplayPackageInfo when selected attribution changes', async () => {

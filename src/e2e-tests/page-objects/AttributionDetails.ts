@@ -11,6 +11,9 @@ export class AttributionDetails {
   private readonly node: Locator;
   readonly attributionForm: AttributionForm;
   readonly compareButton: Locator;
+  readonly compareWithButton: Locator;
+  readonly compareSelectionConfirmButton: Locator;
+  readonly compareSelectionCancelButton: Locator;
   readonly confirmButton: Locator;
   readonly deleteButton: Locator;
   readonly linkButton: Locator;
@@ -52,6 +55,18 @@ export class AttributionDetails {
     });
     this.compareButton = this.node.getByRole('button', {
       name: text.attributionColumn.compareToOriginal,
+      exact: true,
+    });
+    this.compareWithButton = this.node.getByRole('button', {
+      name: text.attributionColumn.compareWith,
+      exact: true,
+    });
+    this.compareSelectionConfirmButton = this.node.getByRole('button', {
+      name: text.attributionColumn.compareConfirm,
+      exact: true,
+    });
+    this.compareSelectionCancelButton = this.node.getByRole('button', {
+      name: text.buttons.cancel,
       exact: true,
     });
   }
@@ -110,6 +125,23 @@ export class AttributionDetails {
     },
     compareButtonIsVisible: async (): Promise<void> => {
       await expect(this.compareButton).toBeVisible();
+    },
+    compareWithButtonIsVisible: async (): Promise<void> => {
+      await expect(this.compareWithButton).toBeVisible();
+    },
+    compareWithButtonIsHidden: async (): Promise<void> => {
+      await expect(this.compareWithButton).toBeHidden();
+    },
+    comparingWithTextIsVisible: async (name: string): Promise<void> => {
+      await expect(
+        this.node.getByText(text.attributionColumn.comparingWith(name)),
+      ).toBeVisible();
+    },
+    compareSelectionConfirmButtonIsHidden: async (): Promise<void> => {
+      await expect(this.compareSelectionConfirmButton).toBeHidden();
+    },
+    compareSelectionConfirmButtonIsVisible: async (): Promise<void> => {
+      await expect(this.compareSelectionConfirmButton).toBeVisible();
     },
     replaceButtonIsVisible: async (): Promise<void> => {
       await expect(this.replaceButton).toBeVisible();

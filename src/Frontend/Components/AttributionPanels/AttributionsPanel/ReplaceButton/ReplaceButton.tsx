@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 
 import { text } from '../../../../../shared/text';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { useCompareSelectionSource } from '../../../../state/variables/use-compare-selection';
 import { useSelectedAttributionIsExternal } from '../../../../util/use-selected-attribution';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
@@ -21,6 +22,7 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
 }) => {
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
+  const [compareSelectionSource] = useCompareSelectionSource();
   const label = attributionIdsForReplacement.length
     ? text.packageLists.cancelReplace
     : text.packageLists.replace;
@@ -47,7 +49,8 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
         !selectedAttributionIds.length ||
         !(attributionIds.length - multiSelectedAttributionIds.length) ||
         attributionIds.length < 2 ||
-        mutationsPending
+        mutationsPending ||
+        !!compareSelectionSource
       }
       size={'small'}
       onClick={() => {

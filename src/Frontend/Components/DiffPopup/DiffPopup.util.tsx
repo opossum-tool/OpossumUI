@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   FORM_ATTRIBUTES,
@@ -20,6 +20,16 @@ export function useAttributionFormConfigs({
   current: PackageInfo;
 }) {
   const [bufferPackageInfo, setBufferPackageInfo] = useState(current);
+
+  // Re-base the diff whenever the user switches the comparison target,
+  // discarding any pending edits made against the previous target.
+  const previousOriginalIdRef = useRef(original.id);
+  useEffect(() => {
+    if (previousOriginalIdRef.current !== original.id) {
+      previousOriginalIdRef.current = original.id;
+      setBufferPackageInfo(current);
+    }
+  }, [original.id, current]);
 
   const getEndIcon = useCallback(
     ({

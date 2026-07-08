@@ -72,7 +72,10 @@ export const text = {
   attributionColumn: {
     commonEcosystems: 'Common Ecosystems',
     commonLicenses: 'Common Licenses',
-    compareToOriginal: 'Compare to original signal',
+    compareConfirm: 'Compare',
+    compareToOriginal: 'Compare with original',
+    compareWith: 'Compare with…',
+    comparingWith: (name: string) => `Comparing with ${name}`,
     confidence: 'Confidence',
     confirm: 'Confirm',
     copyToClipboard: 'Copy to clipboard',
@@ -349,7 +352,8 @@ export const text = {
     openInAuditView: 'Open in Audit View',
   },
   diffPopup: {
-    title: 'Compare to Original Signal',
+    title: 'Compare',
+    compareWith: 'Compare with',
     applyChanges: 'Apply changes',
     revertAll: 'Revert all',
   },

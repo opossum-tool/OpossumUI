@@ -5,14 +5,17 @@
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import CheckIcon from '@mui/icons-material/Check';
 import CompareIcon from '@mui/icons-material/Compare';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import SaveIcon from '@mui/icons-material/Save';
 import UndoIcon from '@mui/icons-material/Undo';
+import MuiBox from '@mui/material/Box';
 import MuiButton from '@mui/material/Button';
 import MuiCircularProgress from '@mui/material/CircularProgress';
 import MuiFab from '@mui/material/Fab';
 import MuiTooltip from '@mui/material/Tooltip';
+import MuiTypography from '@mui/material/Typography';
 import { skipToken, useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -28,7 +31,9 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
+import { useCompareSelectionSource } from '../../../state/variables/use-compare-selection';
 import { backend } from '../../../util/backendClient';
+import { getCardLabels } from '../../../util/get-card-labels';
 import { isPackageInvalid } from '../../../util/input-validation';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import { useSelectedAttributionPackageInfo } from '../../../util/use-selected-attribution';
@@ -75,6 +80,17 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     : undefined;
 
   const [isDiffPopupOpen, setIsDiffPopupOpen] = useState(false);
+
+  const [compareSelectionSource, setCompareSelectionSource] =
+    useCompareSelectionSource();
+  const [isCompareSelectionDiffOpen, setIsCompareSelectionDiffOpen] =
+    useState(false);
+
+  const compareSelectionSourceQuery = backend.getAttributionData.useQuery(
+    compareSelectionSource
+      ? { attributionUuid: compareSelectionSource.id }
+      : skipToken,
+  );
 
   const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
@@ -154,11 +170,14 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     <Container>
       {attributionIdsForReplacement.length ? (
         renderReplaceButton()
+      ) : compareSelectionSource ? (
+        renderCompareSelectionControls()
       ) : (
         <>
           {renderSaveButton()}
           {renderLinkButton()}
           {renderCompareButton()}
+          {renderCompareWithButton()}
           {renderDeleteAttributionButton()}
           {renderDeleteRestoreSignalButton()}
           {renderRevertButton()}
@@ -400,6 +419,86 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
           setOpen={setIsDiffPopupOpen}
           key={isDiffPopupOpen.toString()}
         />
+      </>
+    );
+  }
+
+  function renderCompareWithButton() {
+    if (!packageInfo.id) {
+      return null;
+    }
+
+    return (
+      <MuiTooltip title={text.attributionColumn.compareWith} disableInteractive>
+        <span>
+          <MuiFab
+            aria-label={text.attributionColumn.compareWith}
+            size={'small'}
+            color={'secondary'}
+            disabled={mutationPending}
+            onClick={() => {
+              setCompareSelectionSource({
+                id: packageInfo.id,
+                label: getCardLabels(packageInfo)[0] ?? '',
+              });
+            }}
+          >
+            <CompareArrowsIcon />
+          </MuiFab>
+        </span>
+      </MuiTooltip>
+    );
+  }
+
+  function renderCompareSelectionControls() {
+    if (!compareSelectionSource) {
+      return null;
+    }
+
+    const isPreviewingSource = compareSelectionSource.id === packageInfo.id;
+    const sourcePackageInfo = compareSelectionSourceQuery.data?.packageInfo;
+
+    return (
+      <>
+        <MuiBox
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            flex: 1,
+            overflow: 'hidden',
+          }}
+        >
+          <MuiTypography variant={'body2'} noWrap>
+            {text.attributionColumn.comparingWith(compareSelectionSource.label)}
+          </MuiTypography>
+        </MuiBox>
+        {!isPreviewingSource && (
+          <MuiButton
+            variant={'contained'}
+            color={'success'}
+            disabled={!packageInfo.id || !sourcePackageInfo}
+            onClick={() => setIsCompareSelectionDiffOpen(true)}
+          >
+            {text.attributionColumn.compareConfirm}
+          </MuiButton>
+        )}
+        <MuiButton
+          variant={'contained'}
+          color={'secondary'}
+          onClick={() => setCompareSelectionSource(null)}
+        >
+          {text.buttons.cancel}
+        </MuiButton>
+        {sourcePackageInfo && !isPreviewingSource && (
+          <DiffPopup
+            original={packageInfo}
+            current={sourcePackageInfo}
+            isOpen={isCompareSelectionDiffOpen}
+            setOpen={setIsCompareSelectionDiffOpen}
+            readOnly
+            key={isCompareSelectionDiffOpen.toString()}
+          />
+        )}
       </>
     );
   }

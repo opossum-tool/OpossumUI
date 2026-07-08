@@ -22,7 +22,9 @@ import {
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
+import { COMPARE_SELECTION_SOURCE } from '../../../../state/variables/use-compare-selection';
 import {
   expectManualAttributions,
   expectResourcesToManualAttributions,
@@ -378,6 +380,37 @@ describe('AttributionsPanel', () => {
     await userEvent.click(
       await screen.findByText(
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+      ),
+    );
+
+    expect(
+      screen.getByRole('button', { name: text.packageLists.replace }),
+    ).toBeDisabled();
+  });
+
+  it('disables replace button while compare-selection mode is active', async () => {
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo1.id]: packageInfo1,
+      [packageInfo2.id]: packageInfo2,
+    });
+    await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+        metadata: faker.opossum.metadata(),
+      }),
+      actions: [
+        setVariable(COMPARE_SELECTION_SOURCE, {
+          id: packageInfo1.id,
+          label: `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
+        }),
+      ],
+    });
+
+    await userEvent.click(
+      await screen.findByText(
+        `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
       ),
     );
 

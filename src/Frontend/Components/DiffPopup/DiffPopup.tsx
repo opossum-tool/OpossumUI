@@ -25,6 +25,8 @@ interface DiffPopupProps {
   current: PackageInfo;
   isOpen: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onApply?: () => void;
+  readOnly?: boolean;
 }
 
 export function DiffPopup({
@@ -32,8 +34,11 @@ export function DiffPopup({
   original,
   isOpen,
   setOpen,
+  onApply,
+  readOnly,
 }: DiffPopupProps) {
   const dispatch = useAppDispatch();
+
   const {
     originalFormConfig,
     bufferFormConfig,
@@ -60,8 +65,15 @@ export function DiffPopup({
           licenseName: current.licenseName,
           licenseText: current.licenseText,
         }),
+        // Preserve the current attribution's origin linkage: the compared
+        // target might not be the actual original signal.
+        originalAttributionId: current.originalAttributionId,
+        originalAttributionSource: current.originalAttributionSource,
+        originalAttributionWasPreferred:
+          current.originalAttributionWasPreferred,
       }),
     );
+    onApply?.();
     setOpen(false);
   }
 
@@ -69,14 +81,16 @@ export function DiffPopup({
     <NotificationPopup
       header={text.diffPopup.title}
       leftButtonConfig={{
-        disabled: isEqualToExternalAttribution(bufferPackageInfo, current),
+        disabled:
+          readOnly || isEqualToExternalAttribution(bufferPackageInfo, current),
         buttonText: text.diffPopup.applyChanges,
         onClick: () => {
           handleApplyChanges({ current, buffer: bufferPackageInfo });
         },
       }}
       centerRightButtonConfig={{
-        disabled: isEqualToExternalAttribution(bufferPackageInfo, original),
+        disabled:
+          readOnly || isEqualToExternalAttribution(bufferPackageInfo, original),
         buttonText: text.diffPopup.revertAll,
         onClick: () => {
           setBufferPackageInfo({
