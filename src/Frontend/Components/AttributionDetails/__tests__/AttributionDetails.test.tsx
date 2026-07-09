@@ -45,7 +45,7 @@ describe('AttributionDetails', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders no buttons when the selected attribution is marked for replacement', async () => {
+  it('shows only the cancel button when the selected attribution is marked for replacement', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const { container } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
@@ -62,6 +62,14 @@ describe('AttributionDetails', () => {
 
     await waitFor(() => expect(container).not.toBeEmptyDOMElement());
 
+    expect(
+      await screen.findByRole('button', { name: text.buttons.cancel }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        text.attributionColumn.replacing(`1 ${text.packageLists.attribution}`),
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: text.attributionColumn.replace }),
     ).not.toBeInTheDocument();
@@ -93,6 +101,30 @@ describe('AttributionDetails', () => {
         name: text.attributionColumn.compareWith,
       }),
     ).not.toBeInTheDocument();
+  });
+
+  it('pluralizes the replacing label when multiple attributions are marked for replacement', async () => {
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: { [packageInfo1.id]: packageInfo1 },
+      }),
+      actions: [
+        setTemporaryDisplayPackageInfo(packageInfo1),
+        setSelectedAttributionId(packageInfo1.id),
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          packageInfo1.id,
+          packageInfo2.id,
+        ]),
+      ],
+    });
+
+    expect(
+      await screen.findByText(
+        text.attributionColumn.replacing(`2 ${text.packageLists.attribution}s`),
+      ),
+    ).toBeInTheDocument();
   });
 
   it('replaces attribution', async () => {
@@ -137,6 +169,48 @@ describe('AttributionDetails', () => {
       [resourceId]: [packageInfo1.id],
     });
     await expectResolvedExternalAttributions(new Set());
+  });
+
+  it('cancels replacement mode via cancel button', async () => {
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id, packageInfo2.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setTemporaryDisplayPackageInfo(packageInfo1),
+        setSelectedAttributionId(packageInfo1.id),
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          packageInfo2.id,
+        ]),
+      ],
+    });
+
+    expect(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.replace,
+      }),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole('button', { name: text.buttons.cancel }),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: text.attributionColumn.save }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.replace }),
+    ).not.toBeInTheDocument();
   });
 
   it('saves modified attribution', async () => {

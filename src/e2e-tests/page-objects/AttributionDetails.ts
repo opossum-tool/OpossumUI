@@ -10,10 +10,10 @@ import { AttributionForm } from './AttributionForm';
 export class AttributionDetails {
   private readonly node: Locator;
   readonly attributionForm: AttributionForm;
+  readonly cancelButton: Locator;
   readonly compareButton: Locator;
   readonly compareWithButton: Locator;
   readonly compareSelectionConfirmButton: Locator;
-  readonly compareSelectionCancelButton: Locator;
   readonly confirmButton: Locator;
   readonly deleteButton: Locator;
   readonly linkButton: Locator;
@@ -65,7 +65,7 @@ export class AttributionDetails {
       name: text.attributionColumn.compareConfirm,
       exact: true,
     });
-    this.compareSelectionCancelButton = this.node.getByRole('button', {
+    this.cancelButton = this.node.getByRole('button', {
       name: text.buttons.cancel,
       exact: true,
     });
@@ -166,6 +166,12 @@ export class AttributionDetails {
     },
     linkButtonIsDisabled: async (): Promise<void> => {
       await expect(this.linkButton).toBeDisabled();
+    },
+    cancelButtonIsVisible: async (): Promise<void> => {
+      await expect(this.cancelButton).toBeVisible();
+    },
+    cancelButtonIsHidden: async (): Promise<void> => {
+      await expect(this.cancelButton).toBeHidden();
     },
   };
 }

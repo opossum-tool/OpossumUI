@@ -35,6 +35,7 @@ import { useCompareSelectionSource } from '../../../state/variables/use-compare-
 import { backend } from '../../../util/backendClient';
 import { getCardLabels } from '../../../util/get-card-labels';
 import { isPackageInvalid } from '../../../util/input-validation';
+import { maybePluralize } from '../../../util/maybe-pluralize';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import { useSelectedAttributionPackageInfo } from '../../../util/use-selected-attribution';
 import { useIsSelectedResourceBreakpoint } from '../../../util/use-selected-resource';
@@ -92,7 +93,8 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
       : skipToken,
   );
 
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
+  const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
+    useAttributionIdsForReplacement();
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
     useState(false);
   const [isReplaceAttributionsPopupOpen, setIsReplaceAttributionsPopupOpen] =
@@ -162,10 +164,6 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     handleSave,
   ]);
 
-  if (attributionIdsForReplacement.includes(packageInfo.id)) {
-    return null;
-  }
-
   return (
     <Container>
       {attributionIdsForReplacement.length ? (
@@ -187,22 +185,67 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   );
 
   function renderReplaceButton() {
+    const isPreviewingSource = attributionIdsForReplacement.includes(
+      packageInfo.id,
+    );
+
     return (
       <>
-        <MuiButton
-          variant={'contained'}
-          color={'success'}
-          loading={mutationPending}
-          onClick={() => setIsReplaceAttributionsPopupOpen(true)}
-        >
-          {text.attributionColumn.replace}
-        </MuiButton>
-        <ConfirmReplacePopup
-          selectedAttribution={packageInfo}
-          open={isReplaceAttributionsPopupOpen}
-          onClose={() => setIsReplaceAttributionsPopupOpen(false)}
-        />
+        {renderPickerModeLabel(
+          text.attributionColumn.replacing(
+            maybePluralize(
+              attributionIdsForReplacement.length,
+              text.packageLists.attribution,
+              { showOne: true },
+            ),
+          ),
+        )}
+        {!isPreviewingSource && (
+          <MuiButton
+            variant={'contained'}
+            color={'success'}
+            loading={mutationPending}
+            onClick={() => setIsReplaceAttributionsPopupOpen(true)}
+          >
+            {text.attributionColumn.replace}
+          </MuiButton>
+        )}
+        {renderPickerModeCancelButton(() =>
+          setAttributionIdsForReplacement([]),
+        )}
+        {!isPreviewingSource && (
+          <ConfirmReplacePopup
+            selectedAttribution={packageInfo}
+            open={isReplaceAttributionsPopupOpen}
+            onClose={() => setIsReplaceAttributionsPopupOpen(false)}
+          />
+        )}
       </>
+    );
+  }
+
+  function renderPickerModeLabel(label: string) {
+    return (
+      <MuiBox
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          flex: 1,
+          overflow: 'hidden',
+        }}
+      >
+        <MuiTypography variant={'body2'} noWrap>
+          {label}
+        </MuiTypography>
+      </MuiBox>
+    );
+  }
+
+  function renderPickerModeCancelButton(onCancel: () => void) {
+    return (
+      <MuiButton variant={'contained'} color={'secondary'} onClick={onCancel}>
+        {text.buttons.cancel}
+      </MuiButton>
     );
   }
 
@@ -460,18 +503,9 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
 
     return (
       <>
-        <MuiBox
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            flex: 1,
-            overflow: 'hidden',
-          }}
-        >
-          <MuiTypography variant={'body2'} noWrap>
-            {text.attributionColumn.comparingWith(compareSelectionSource.label)}
-          </MuiTypography>
-        </MuiBox>
+        {renderPickerModeLabel(
+          text.attributionColumn.comparingWith(compareSelectionSource.label),
+        )}
         {!isPreviewingSource && (
           <MuiButton
             variant={'contained'}
@@ -482,13 +516,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             {text.attributionColumn.compareConfirm}
           </MuiButton>
         )}
-        <MuiButton
-          variant={'contained'}
-          color={'secondary'}
-          onClick={() => setCompareSelectionSource(null)}
-        >
-          {text.buttons.cancel}
-        </MuiButton>
+        {renderPickerModeCancelButton(() => setCompareSelectionSource(null))}
         {sourcePackageInfo && !isPreviewingSource && (
           <DiffPopup
             original={packageInfo}

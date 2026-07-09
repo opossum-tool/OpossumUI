@@ -76,6 +76,7 @@ export const text = {
     compareToOriginal: 'Compare with original',
     compareWith: 'Compare with…',
     comparingWith: (name: string) => `Comparing with ${name}`,
+    replacing: (attributions: string) => `Replacing ${attributions}`,
     confidence: 'Confidence',
     confirm: 'Confirm',
     copyToClipboard: 'Copy to clipboard',

@@ -45,7 +45,7 @@ test('cancels compare-selection mode without opening the diff popup', async ({
   // Can't compare the pinned item with itself.
   await attributionDetails.assert.compareSelectionConfirmButtonIsHidden();
 
-  await attributionDetails.compareSelectionCancelButton.click();
+  await attributionDetails.cancelButton.click();
 
   await attributionDetails.assert.compareWithButtonIsVisible();
   await diffPopup.assert.isHidden();
@@ -82,14 +82,17 @@ test('lets the user pick a compare target on another resource via compare-select
   await diffPopup.currentAttributionForm.assert.nameIs(
     manualPackageInfo1.packageName || '',
   );
+  await diffPopup.assert.applyButtonIsDisabled();
 
-  await diffPopup.currentAttributionForm.nameUndoButton.click();
-  await diffPopup.applyButton.click();
+  await diffPopup.cancelButton.click();
   await diffPopup.assert.isHidden();
 
-  // The changes were applied to the pinned source, not the previewed
-  // attribution, and compare-selection mode has exited.
-  await attributionDetails.assert.compareWithButtonIsVisible();
+  // Closing the read-only diff popup keeps compare-selection mode active
+  // without changing the previewed attribution.
+  await attributionDetails.assert.comparingWithTextIsVisible(
+    `${manualPackageInfo1.packageName}, ${manualPackageInfo1.packageVersion}`,
+  );
+  await attributionDetails.assert.compareSelectionConfirmButtonIsVisible();
   await attributionDetails.attributionForm.assert.nameIs(
     manualPackageInfo2.packageName || '',
   );

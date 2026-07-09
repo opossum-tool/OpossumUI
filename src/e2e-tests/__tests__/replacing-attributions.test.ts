@@ -125,6 +125,38 @@ test('replaces multiple attributions with another', async ({
   await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
 });
 
+test('shows the cancel button immediately upon entering replacement mode', async ({
+  attributionDetails,
+  attributionsPanel,
+}) => {
+  await attributionsPanel.packageCard.click(packageInfo1);
+  await attributionsPanel.replaceButton.click();
+
+  // The cancel button is available right away, without first having to
+  // select a replacement target.
+  await attributionDetails.assert.cancelButtonIsVisible();
+
+  await attributionDetails.cancelButton.click();
+
+  await attributionDetails.assert.saveButtonIsVisible();
+});
+
+test('cancels replacement mode via the cancel button', async ({
+  attributionDetails,
+  attributionsPanel,
+}) => {
+  await attributionsPanel.packageCard.click(packageInfo1);
+  await attributionsPanel.replaceButton.click();
+
+  await attributionsPanel.packageCard.click(packageInfo2);
+  await attributionDetails.assert.replaceButtonIsVisible();
+
+  await attributionDetails.cancelButton.click();
+
+  await attributionDetails.assert.replaceButtonIsHidden();
+  await attributionDetails.assert.saveButtonIsVisible();
+});
+
 test('exits replacement mode when user tries to select a signal as replacement', async ({
   attributionDetails,
   attributionsPanel,
