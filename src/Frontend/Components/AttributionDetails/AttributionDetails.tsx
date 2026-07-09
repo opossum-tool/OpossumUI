@@ -20,7 +20,7 @@ import {
   getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
-import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
+import { usePickerMode } from '../../state/variables/use-picker-mode';
 import { useIsSelectedAttributionVisible } from '../../util/use-attribution-lists';
 import { useCompareToOriginal } from '../../util/use-compare-to-original';
 import {
@@ -92,10 +92,9 @@ export function AttributionDetails() {
     useConfirmationDialog({
       skip: !wasPreferred,
     });
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
+  const pickerMode = usePickerMode();
 
-  const isEditable =
-    !attributionIdsForReplacement.length && !selectedAttributionIsExternal;
+  const isEditable = !pickerMode.isActive && !selectedAttributionIsExternal;
 
   if (!!selectedAttributionId && !isSelectedAttributionVisible) {
     return null;

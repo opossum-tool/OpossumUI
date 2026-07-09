@@ -5,7 +5,6 @@
 import MuiBox from '@mui/material/Box';
 
 import { SIGNAL_FILTERS } from '../../../shared-constants';
-import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import { useExternalAttributionFilters } from '../../../state/variables/use-filters';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { PackagesPanel } from '../PackagesPanel/PackagesPanel';
@@ -16,8 +15,6 @@ import { SignalsList } from './SignalsList/SignalsList';
 import { ToggleHiddenSignalsButton } from './ToggleHiddenSignalsButton/ToggleHiddenSignalsButton';
 
 export function SignalsPanel() {
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
-
   const [userSettings, updateUserSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
 
@@ -25,7 +22,6 @@ export function SignalsPanel() {
     <PackagesPanel
       external={true}
       availableFilters={SIGNAL_FILTERS}
-      disableSelectAll={!!attributionIdsForReplacement.length}
       renderActions={(props) => (
         <>
           <LinkButton {...props} />

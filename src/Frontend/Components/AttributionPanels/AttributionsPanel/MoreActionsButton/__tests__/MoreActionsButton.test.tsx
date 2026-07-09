@@ -35,6 +35,7 @@ describe('MoreActionsButton', () => {
     contentHeight: '100px',
     loading: false,
     multiSelectedAttributionIds: ['attr1', 'attr2'],
+    pickerMode: { mode: 'inactive', isActive: false },
     selectedAttributionId: 'attr1',
     selectedAttributionIds: ['attr1', 'attr2'],
     setMultiSelectedAttributionIds: mockSetMultiSelectedAttributionIds,

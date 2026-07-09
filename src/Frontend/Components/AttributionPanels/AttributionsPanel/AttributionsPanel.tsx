@@ -9,8 +9,8 @@ import { ATTRIBUTION_FILTERS } from '../../../shared-constants';
 import { OpossumColors } from '../../../shared-styles';
 import { useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
-import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import { useManualAttributionFilters } from '../../../state/variables/use-filters';
+import { usePickerMode } from '../../../state/variables/use-picker-mode';
 import { backend } from '../../../util/backendClient';
 import { type Alert, PackagesPanel } from '../PackagesPanel/PackagesPanel';
 import { AttributionsList } from './AttributionsList/AttributionsList';
@@ -28,10 +28,11 @@ export function AttributionsPanel() {
       resourcePath: selectedResourceId,
     });
 
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
+  const pickerMode = usePickerMode();
+  const isReplacementMode = pickerMode.mode === 'replace';
 
   const alert = useMemo<Alert | undefined>(() => {
-    if (attributionIdsForReplacement.length) {
+    if (isReplacementMode) {
       return {
         text: text.packageLists.selectReplacement,
         color: OpossumColors.green,
@@ -46,14 +47,13 @@ export function AttributionsPanel() {
     }
 
     return undefined;
-  }, [attributionIdsForReplacement.length, hasIncompleteAttributions.data]);
+  }, [isReplacementMode, hasIncompleteAttributions.data]);
 
   return (
     <PackagesPanel
       external={false}
       alert={alert}
       availableFilters={ATTRIBUTION_FILTERS}
-      disableSelectAll={!!attributionIdsForReplacement.length}
       renderActions={(props) => (
         <>
           <CreateButton {...props} />

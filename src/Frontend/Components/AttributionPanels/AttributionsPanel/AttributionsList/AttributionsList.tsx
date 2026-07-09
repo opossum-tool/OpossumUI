@@ -8,7 +8,6 @@ import { without } from 'lodash-es';
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../../../state/hooks';
-import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { isPackageIncomplete } from '../../../../util/input-validation';
 import { List, type ListItemContentProps } from '../../../List/List';
 import { PackageCard } from '../../../PackageCard/PackageCard';
@@ -21,12 +20,11 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionId,
   contentHeight,
   loading,
+  pickerMode,
   setMultiSelectedAttributionIds,
   multiSelectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
-
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
 
   return (
     <List
@@ -65,13 +63,15 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
           cardConfig={{
             selected,
             focused,
-            resolved: attributionIdsForReplacement.includes(attributionId),
+            resolved:
+              pickerMode.mode === 'replace' &&
+              pickerMode.attributionIdsForReplacement.includes(attributionId),
             incomplete: isPackageIncomplete(attribution),
           }}
           packageInfo={attribution}
           checkbox={{
             checked: multiSelectedAttributionIds.includes(attributionId),
-            disabled: !!attributionIdsForReplacement.length,
+            disabled: pickerMode.isActive,
             onChange: (event) => {
               setMultiSelectedAttributionIds(
                 event.target.checked

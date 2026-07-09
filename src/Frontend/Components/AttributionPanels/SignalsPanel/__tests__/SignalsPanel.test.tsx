@@ -10,7 +10,10 @@ import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { ROOT_PATH } from '../../../../shared-constants';
 import { setSelectedResourceId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
+import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { COMPARE_SELECTION_SOURCE } from '../../../../state/variables/use-compare-selection';
 import {
   expectResolvedExternalAttributions,
   expectResourcesToManualAttributions,
@@ -62,6 +65,65 @@ describe('SignalsPanel', () => {
     );
 
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
+  });
+
+  it('does not select signals in replacement mode', async () => {
+    const sourcePackageInfo = faker.opossum.packageInfo();
+    const targetPackageInfo = faker.opossum.packageInfo();
+    const externalAttributions = faker.opossum.attributions({
+      [targetPackageInfo.id]: targetPackageInfo,
+    });
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+        metadata: faker.opossum.metadata(),
+      }),
+      actions: [
+        setSelectedResourceId(ROOT_PATH),
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          sourcePackageInfo.id,
+        ]),
+      ],
+    });
+
+    await userEvent.click(
+      await screen.findByText(
+        `${targetPackageInfo.packageName}, ${targetPackageInfo.packageVersion}`,
+      ),
+    );
+
+    expect(getSelectedAttributionId(store.getState())).toBe('');
+  });
+
+  it('selects signals in compare-selection mode', async () => {
+    const sourcePackageInfo = faker.opossum.packageInfo();
+    const targetPackageInfo = faker.opossum.packageInfo();
+    const externalAttributions = faker.opossum.attributions({
+      [targetPackageInfo.id]: targetPackageInfo,
+    });
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+        metadata: faker.opossum.metadata(),
+      }),
+      actions: [
+        setSelectedResourceId(ROOT_PATH),
+        setVariable(COMPARE_SELECTION_SOURCE, {
+          id: sourcePackageInfo.id,
+          label: `${sourcePackageInfo.packageName}, ${sourcePackageInfo.packageVersion}`,
+        }),
+      ],
+    });
+
+    await userEvent.click(
+      await screen.findByText(
+        `${targetPackageInfo.packageName}, ${targetPackageInfo.packageVersion}`,
+      ),
+    );
+
+    expect(getSelectedAttributionId(store.getState())).toBe(
+      targetPackageInfo.id,
+    );
   });
 
   it('deletes selected signal', async () => {

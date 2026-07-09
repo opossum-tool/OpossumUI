@@ -15,7 +15,6 @@ import {
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../../../state/selectors/resource-selectors';
-import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { backend } from '../../../../util/backendClient';
 import { useIsSelectedResourceBreakpoint } from '../../../../util/use-selected-resource';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
@@ -23,11 +22,11 @@ import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   activeRelation,
   attributions,
+  pickerMode,
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
@@ -66,7 +65,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
         !selectedAttributionIds.length ||
         isPackageInfoModified ||
         activeRelation === 'resource' ||
-        !!attributionIdsForReplacement.length ||
+        pickerMode.isActive ||
         mutationsPending
       }
       loading={createOrMatch.isPending}

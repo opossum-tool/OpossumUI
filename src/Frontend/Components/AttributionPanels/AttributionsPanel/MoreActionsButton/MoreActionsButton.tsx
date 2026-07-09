@@ -13,7 +13,6 @@ import type {
   PackageInfo,
 } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
-import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { backend } from '../../../../util/backendClient';
 import {
   ExcludeFromNoticeIcon,
@@ -53,9 +52,9 @@ const menuItemConfigs: Array<MenuItemConfig> = [
 
 export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
+  pickerMode,
   selectedAttributionIds,
 }) => {
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
 
   const mutationsPending = useIsMutating() > 0;
@@ -150,7 +149,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
         aria-label={text.packageLists.moreActions}
         disabled={
           !selectedAttributionIds.length ||
-          !!attributionIdsForReplacement.length ||
+          pickerMode.isActive ||
           mutationsPending
         }
         onClick={handleClick}

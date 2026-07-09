@@ -34,12 +34,10 @@ function mockAttributions(attributions: Attributions) {
 function renderPackagesPanel({
   attributions,
   children,
-  disableSelectAll,
   actions,
 }: {
   attributions: Attributions;
   children?: (props: PackagesPanelChildrenProps) => React.ReactNode;
-  disableSelectAll?: boolean;
   actions?: Array<Action>;
 }) {
   mockAttributions(attributions);
@@ -49,7 +47,6 @@ function renderPackagesPanel({
       availableFilters={[]}
       renderActions={() => null}
       useAttributionFilters={() => [initialFilters, vi.fn()]}
-      disableSelectAll={disableSelectAll}
     >
       {children ?? (() => null)}
     </PackagesPanel>,
@@ -87,10 +84,17 @@ describe('PackagesPanel', () => {
     expect(screen.getByRole('checkbox')).toBeDisabled();
   });
 
-  it('disables select-all checkbox when there are attribution IDs but checkbox is externally disabled', async () => {
+  it('disables select-all checkbox when there are attribution IDs but a picker mode is active', async () => {
+    const packageInfo = faker.opossum.packageInfo();
     await renderPackagesPanel({
-      attributions: faker.opossum.attributions(),
-      disableSelectAll: true,
+      attributions: faker.opossum.attributions({
+        [packageInfo.id]: packageInfo,
+      }),
+      actions: [
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          packageInfo.id,
+        ]),
+      ],
     });
 
     expect(screen.getByRole('checkbox')).toBeDisabled();
@@ -217,6 +221,15 @@ describe('PackagesPanel', () => {
         [packageInfo2.id]: packageInfo2,
         [packageInfo3.id]: packageInfo3,
       }),
+      children: (props) => (
+        <button
+          onClick={() =>
+            props.setMultiSelectedAttributionIds([packageInfo1.id])
+          }
+        >
+          {'click me'}
+        </button>
+      ),
       actions: [
         setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
           packageInfo1.id,
@@ -224,7 +237,7 @@ describe('PackagesPanel', () => {
       ],
     });
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    await userEvent.click(screen.getByRole('button', { name: 'click me' }));
     await userEvent.click(
       screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
     );

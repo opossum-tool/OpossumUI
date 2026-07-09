@@ -156,12 +156,16 @@ export const PackageCard = memo(
       <MuiBox
         ref={ref}
         aria-label={`package card ${packageLabels[0]}`}
-        tabIndex={0}
-        onKeyDown={(event) => {
-          if (['Enter'].includes(event.code)) {
-            onClick?.();
-          }
-        }}
+        tabIndex={onClick ? 0 : undefined}
+        onKeyDown={
+          onClick
+            ? (event) => {
+                if (event.code === 'Enter') {
+                  onClick();
+                }
+              }
+            : undefined
+        }
         sx={{
           ...classes.root,
           ...(onClick && classes.hover),
