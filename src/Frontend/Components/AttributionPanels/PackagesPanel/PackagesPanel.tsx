@@ -16,7 +16,10 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Attributions, Relation } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import type { Filter } from '../../../shared-constants';
-import { OpossumColors } from '../../../shared-styles';
+import {
+  OpossumColors,
+  PICKER_MODE_DISABLED_OPACITY,
+} from '../../../shared-styles';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -214,8 +217,16 @@ export const PackagesPanel = ({
     setMultiSelectedAttributionIds,
   };
 
+  const isDisabledDuringReplacement = external && pickerMode.mode === 'replace';
+
   return (
-    <Panel data-testid={testId}>
+    <Panel
+      data-testid={testId}
+      sx={{
+        opacity: isDisabledDuringReplacement ? PICKER_MODE_DISABLED_OPACITY : 1,
+        transition: 'opacity 150ms ease',
+      }}
+    >
       {renderActionBar()}
       {children(childrenProps)}
     </Panel>
@@ -231,7 +242,10 @@ export const PackagesPanel = ({
           <ButtonGroup>
             <SortButton
               disabled={
-                loading || !attributionIds || attributionIds.length === 0
+                loading ||
+                !attributionIds ||
+                attributionIds.length === 0 ||
+                isDisabledDuringReplacement
               }
               anchorPosition={'right'}
               useFilteredData={useFilteredData}
@@ -241,7 +255,7 @@ export const PackagesPanel = ({
               availableFilters={availableFilters}
               anchorPosition={'right'}
               useFilteredData={useFilteredData}
-              disabled={loading}
+              disabled={loading || isDisabledDuringReplacement}
               emptyAttributions={
                 attributionIds !== null && attributionIds.length === 0
               }

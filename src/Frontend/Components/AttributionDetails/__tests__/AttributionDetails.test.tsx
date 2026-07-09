@@ -127,6 +127,43 @@ describe('AttributionDetails', () => {
     ).toBeInTheDocument();
   });
 
+  it('reduces the opacity of the attribution form while picker mode is active', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: { [packageInfo.id]: packageInfo },
+      }),
+      actions: [
+        setTemporaryDisplayPackageInfo(packageInfo),
+        setSelectedAttributionId(packageInfo.id),
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          packageInfo.id,
+        ]),
+      ],
+    });
+
+    expect(await screen.findByTestId('attribution-form-wrapper')).toHaveStyle({
+      opacity: '0.5',
+    });
+  });
+
+  it('keeps full opacity of the attribution form when picker mode is inactive', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: { [packageInfo.id]: packageInfo },
+      }),
+      actions: [
+        setTemporaryDisplayPackageInfo(packageInfo),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    expect(await screen.findByTestId('attribution-form-wrapper')).toHaveStyle({
+      opacity: '1',
+    });
+  });
+
   it('replaces attribution', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();

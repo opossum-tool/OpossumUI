@@ -6,12 +6,10 @@ import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
-import { useEffect } from 'react';
 
 import { text } from '../../../../../shared/text';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { useCompareSelectionSource } from '../../../../state/variables/use-compare-selection';
-import { useSelectedAttributionIsExternal } from '../../../../util/use-selected-attribution';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
@@ -28,18 +26,6 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
     : text.packageLists.replace;
 
   const mutationsPending = useIsMutating() > 0;
-
-  const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
-
-  useEffect(() => {
-    if (attributionIdsForReplacement.length && selectedAttributionIsExternal) {
-      setAttributionIdsForReplacement([]);
-    }
-  }, [
-    attributionIdsForReplacement.length,
-    selectedAttributionIsExternal,
-    setAttributionIdsForReplacement,
-  ]);
 
   return (
     <MuiIconButton

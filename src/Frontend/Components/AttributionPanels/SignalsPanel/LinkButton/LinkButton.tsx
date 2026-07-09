@@ -20,6 +20,7 @@ import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 
 export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
+  pickerMode,
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
 }) => {
@@ -62,6 +63,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
       disabled={
         isSelectedResourceBreakpoint ||
         !selectedAttributionIds.length ||
+        pickerMode.isActive ||
         mutationsPending
       }
       loading={createOrMatch.isPending}

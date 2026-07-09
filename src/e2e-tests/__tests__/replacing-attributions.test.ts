@@ -157,17 +157,23 @@ test('cancels replacement mode via the cancel button', async ({
   await attributionDetails.assert.saveButtonIsVisible();
 });
 
-test('exits replacement mode when user tries to select a signal as replacement', async ({
+test('disables the signals panel while in replacement mode, since signals are not valid replacement targets', async ({
   attributionDetails,
   attributionsPanel,
   signalsPanel,
 }) => {
   await attributionsPanel.packageCard.click(packageInfo1);
+  await signalsPanel.assert.isEnabledAfterReplacement();
+
   await attributionsPanel.replaceButton.click();
   await attributionDetails.assert.saveButtonIsHidden();
   await attributionDetails.assert.replaceButtonIsHidden();
+  await signalsPanel.assert.isDisabledDuringReplacement();
 
   await signalsPanel.packageCard.click(packageInfo4);
-  await attributionDetails.assert.linkButtonIsVisible();
   await attributionDetails.assert.replaceButtonIsHidden();
+  await attributionDetails.assert.linkButtonIsHidden();
+
+  await attributionDetails.cancelButton.click();
+  await signalsPanel.assert.isEnabledAfterReplacement();
 });

@@ -32,9 +32,7 @@ export const AuditingOptions: React.FC<Props> = ({
 }) => {
   const options = useAuditingOptions({ packageInfo, isEditable });
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
-  const unselectedOptions = options.filter(
-    ({ selected, interactive }) => !selected && interactive,
-  );
+  const unselectedOptions = options.filter(({ selected }) => !selected);
 
   return options.length ? (
     <>
@@ -55,11 +53,11 @@ export const AuditingOptions: React.FC<Props> = ({
 
   function renderTriggerButton() {
     return (
-      isEditable &&
       !!unselectedOptions.length && (
         <MuiChip
           label={text.auditingOptions.add}
           color={'primary'}
+          disabled={!isEditable}
           icon={<AddIcon color="primary" sx={baseIcon} />}
           size={'small'}
           onClick={(event) => setAnchorEl(event.currentTarget)}

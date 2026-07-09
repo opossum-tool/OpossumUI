@@ -126,6 +126,8 @@ export const treeItemClasses = {
 
 export const TRANSITION = 'all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms';
 
+export const PICKER_MODE_DISABLED_OPACITY = 0.5;
+
 export const chartTooltipContentStyle: React.CSSProperties = {
   fontSize: '12px',
   background: OpossumColors.grey,

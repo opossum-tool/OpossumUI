@@ -105,6 +105,7 @@ export function AttributionDetails() {
       <AttributionForm
         packageInfo={temporaryDisplayPackageInfo}
         onEdit={isEditable ? confirmEditWasPreferred : undefined}
+        dimmed={pickerMode.isActive}
       />
       <ButtonRow
         isEditable={isEditable}

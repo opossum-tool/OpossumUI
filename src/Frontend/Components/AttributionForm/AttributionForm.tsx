@@ -12,6 +12,7 @@ import type { FormAttribute } from '../../../shared/attribution-comparison';
 import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { AttributionType } from '../../enums/enums';
+import { PICKER_MODE_DISABLED_OPACITY } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
 import type { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
@@ -30,6 +31,7 @@ const classes = {
     gap: '12px',
     overflow: 'hidden auto',
     padding: '20px 20px 0 20px',
+    transition: 'opacity 150ms ease',
   },
   attributionTypeContainer: {
     position: 'relative',
@@ -51,6 +53,7 @@ interface AttributionFormProps {
   variant?: 'default' | 'diff-original' | 'diff-current';
   label?: string;
   config?: AttributionFormConfig;
+  dimmed?: boolean;
 }
 
 export function AttributionForm({
@@ -59,13 +62,21 @@ export function AttributionForm({
   onEdit,
   variant = 'default',
   config,
+  dimmed,
 }: AttributionFormProps) {
   const dispatch = useAppDispatch();
   const isDiff = variant === 'diff-original' || variant === 'diff-current';
   const showHighlight = !!onEdit;
 
   return (
-    <MuiBox sx={classes.formContainer} aria-label={label}>
+    <MuiBox
+      data-testid={'attribution-form-wrapper'}
+      sx={{
+        ...classes.formContainer,
+        opacity: dimmed ? PICKER_MODE_DISABLED_OPACITY : 1,
+      }}
+      aria-label={label}
+    >
       {!isDiff && (
         <AuditingOptions packageInfo={packageInfo} isEditable={!!onEdit} />
       )}

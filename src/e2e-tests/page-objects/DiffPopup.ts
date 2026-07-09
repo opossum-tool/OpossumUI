@@ -16,7 +16,7 @@ export class DiffPopup {
   readonly cancelButton: Locator;
 
   constructor(window: Page) {
-    this.node = window.getByLabel('diff popup');
+    this.node = window.getByLabel('diff popup', { exact: true });
     this.originalAttributionForm = new AttributionForm(
       this.node.getByLabel('original', { exact: true }),
       window,

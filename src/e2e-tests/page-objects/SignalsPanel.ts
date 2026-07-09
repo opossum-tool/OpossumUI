@@ -114,6 +114,12 @@ export class SignalsPanel {
     isHidden: async () => {
       await expect(this.node).toBeHidden();
     },
+    isDisabledDuringReplacement: async () => {
+      await expect(this.node).toHaveCSS('opacity', '0.5');
+    },
+    isEnabledAfterReplacement: async () => {
+      await expect(this.node).toHaveCSS('opacity', '1');
+    },
     selectedTabIs: async (tab: keyof typeof this.tabs) => {
       await expect(this.tabs[tab]).toHaveAttribute('aria-selected', 'true');
     },
