@@ -132,9 +132,14 @@ export class AttributionDetails {
     compareWithButtonIsHidden: async (): Promise<void> => {
       await expect(this.compareWithButton).toBeHidden();
     },
-    comparingWithTextIsVisible: async (name: string): Promise<void> => {
+    comparingWithTextIsVisible: async (_name: string): Promise<void> => {
       await expect(
-        this.node.getByText(text.attributionColumn.comparingWith(name)),
+        this.node
+          .page()
+          .getByText(text.packageLists.selectComparisonAttribution),
+      ).toBeVisible();
+      await expect(
+        this.node.page().getByText(text.packageLists.selectComparisonSignal),
       ).toBeVisible();
     },
     compareSelectionConfirmButtonIsHidden: async (): Promise<void> => {

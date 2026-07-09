@@ -92,6 +92,10 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
       return null;
     }
 
+    const isPickerSource =
+      pickerMode.mode === 'compare' &&
+      pickerMode.compareSelectionSource.id === attributionId;
+
     return (
       <>
         <PackageCard
@@ -108,6 +112,7 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
           cardConfig={{
             selected,
             focused,
+            pickerSource: isPickerSource,
             resolved: resolvedExternalAttributionIds?.has(attributionId),
           }}
           packageInfo={attribution}

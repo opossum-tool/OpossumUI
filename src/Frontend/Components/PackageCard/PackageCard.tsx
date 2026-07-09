@@ -22,6 +22,8 @@ export const PACKAGE_CARD_HEIGHT = 40;
 
 const hoveredSelectedBackgroundColor = OpossumColors.middleBlue;
 const hoveredBackgroundColor = OpossumColors.lightestBlueOnHover;
+const pickerSourceBackgroundColor = OpossumColors.almostWhiteBlue;
+const hoveredPickerSourceBackgroundColor = OpossumColors.lightestBlue;
 
 const classes = {
   root: {
@@ -60,6 +62,17 @@ const classes = {
       outline: 'none',
     },
   },
+  pickerSource: {
+    background: pickerSourceBackgroundColor,
+    boxShadow: `inset 4px 0 0 ${OpossumColors.green}`,
+    '&:hover': {
+      background: hoveredPickerSourceBackgroundColor,
+    },
+    '&:focus': {
+      background: hoveredPickerSourceBackgroundColor,
+      outline: 'none',
+    },
+  },
   resolved: {
     opacity: 0.5,
     backgroundColor: 'white',
@@ -93,6 +106,7 @@ export interface PackageCardConfig {
   needsReview?: boolean;
   originalWasPreferred?: boolean;
   preSelected?: boolean;
+  pickerSource?: boolean;
   preferred?: boolean;
   resolved?: boolean;
   selected?: boolean;
@@ -156,6 +170,7 @@ export const PackageCard = memo(
       <MuiBox
         ref={ref}
         aria-label={`package card ${packageLabels[0]}`}
+        data-picker-source={cardConfig?.pickerSource ? 'true' : undefined}
         tabIndex={onClick ? 0 : undefined}
         onKeyDown={
           onClick
@@ -169,6 +184,7 @@ export const PackageCard = memo(
         sx={{
           ...classes.root,
           ...(onClick && classes.hover),
+          ...(cardConfig?.pickerSource && classes.pickerSource),
           ...(cardConfig?.resolved && classes.resolved),
           ...(cardConfig?.selected && classes.selected),
         }}

@@ -51,6 +51,12 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
       return null;
     }
 
+    const isPickerSource =
+      (pickerMode.mode === 'replace' &&
+        pickerMode.attributionIdsForReplacement.includes(attributionId)) ||
+      (pickerMode.mode === 'compare' &&
+        pickerMode.compareSelectionSource.id === attributionId);
+
     return (
       <>
         <PackageCard
@@ -63,9 +69,7 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
           cardConfig={{
             selected,
             focused,
-            resolved:
-              pickerMode.mode === 'replace' &&
-              pickerMode.attributionIdsForReplacement.includes(attributionId),
+            pickerSource: isPickerSource,
             incomplete: isPackageIncomplete(attribution),
           }}
           packageInfo={attribution}

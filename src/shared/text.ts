@@ -148,6 +148,8 @@ export const text = {
     scrollToBottom: 'Scroll to bottom',
     scrollToTop: 'Scroll to top',
     selectAll: 'Select all',
+    selectComparisonAttribution: 'Please select an attribution to compare with',
+    selectComparisonSignal: 'Please select a signal to compare with',
     selectLicense: 'Select a license',
     selectReplacement: 'Please select an attribution as replacement',
     showDeleted: 'Show deleted',

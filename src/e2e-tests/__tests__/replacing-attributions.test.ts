@@ -79,6 +79,7 @@ test('replaces an attribution with another', async ({
   await attributionsPanel.replaceButton.click();
   await attributionDetails.assert.saveButtonIsHidden();
   await attributionDetails.assert.replaceButtonIsHidden();
+  await attributionsPanel.packageCard.assert.isPickerSource(packageInfo1);
 
   await attributionsPanel.packageCard.click(packageInfo2);
   await linkedResourcesTree.assert.resourceIsHidden(resourceName3);
@@ -109,6 +110,8 @@ test('replaces multiple attributions with another', async ({
   await attributionsPanel.packageCard.checkbox(packageInfo3).check();
 
   await attributionsPanel.replaceButton.click();
+  await attributionsPanel.packageCard.assert.isPickerSource(packageInfo2);
+  await attributionsPanel.packageCard.assert.isPickerSource(packageInfo3);
   await attributionsPanel.packageCard.click(packageInfo1);
   await attributionDetails.assert.replaceButtonIsVisible();
 

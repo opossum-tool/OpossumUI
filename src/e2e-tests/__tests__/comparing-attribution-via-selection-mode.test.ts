@@ -62,11 +62,15 @@ test('lets the user pick a compare target on another resource via compare-select
   await attributionDetails.assert.comparingWithTextIsVisible(
     `${manualPackageInfo1.packageName}, ${manualPackageInfo1.packageVersion}`,
   );
+  await attributionsPanel.packageCard.assert.isPickerSource(manualPackageInfo1);
 
   // Compare-selection mode survives navigating to another resource.
   await resourcesTree.goto(resourceName2);
   await attributionDetails.assert.comparingWithTextIsVisible(
     `${manualPackageInfo1.packageName}, ${manualPackageInfo1.packageVersion}`,
+  );
+  await attributionsPanel.packageCard.assert.isNotPickerSource(
+    manualPackageInfo2,
   );
 
   // Preview the second resource's attribution by clicking its card, like

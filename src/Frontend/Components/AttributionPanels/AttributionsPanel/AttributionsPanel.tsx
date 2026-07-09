@@ -30,11 +30,18 @@ export function AttributionsPanel() {
 
   const pickerMode = usePickerMode();
   const isReplacementMode = pickerMode.mode === 'replace';
+  const isCompareMode = pickerMode.mode === 'compare';
 
   const alert = useMemo<Alert | undefined>(() => {
     if (isReplacementMode) {
       return {
         text: text.packageLists.selectReplacement,
+        color: OpossumColors.green,
+      };
+    }
+    if (isCompareMode) {
+      return {
+        text: text.packageLists.selectComparisonAttribution,
         color: OpossumColors.green,
       };
     }
@@ -47,7 +54,7 @@ export function AttributionsPanel() {
     }
 
     return undefined;
-  }, [isReplacementMode, hasIncompleteAttributions.data]);
+  }, [isCompareMode, isReplacementMode, hasIncompleteAttributions.data]);
 
   return (
     <PackagesPanel

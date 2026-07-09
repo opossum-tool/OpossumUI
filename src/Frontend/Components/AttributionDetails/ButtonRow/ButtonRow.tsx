@@ -10,12 +10,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import SaveIcon from '@mui/icons-material/Save';
 import UndoIcon from '@mui/icons-material/Undo';
-import MuiBox from '@mui/material/Box';
 import MuiButton from '@mui/material/Button';
 import MuiCircularProgress from '@mui/material/CircularProgress';
 import MuiFab from '@mui/material/Fab';
 import MuiTooltip from '@mui/material/Tooltip';
-import MuiTypography from '@mui/material/Typography';
 import { skipToken, useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -35,7 +33,6 @@ import { useCompareSelectionSource } from '../../../state/variables/use-compare-
 import { backend } from '../../../util/backendClient';
 import { getCardLabels } from '../../../util/get-card-labels';
 import { isPackageInvalid } from '../../../util/input-validation';
-import { maybePluralize } from '../../../util/maybe-pluralize';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import { useSelectedAttributionPackageInfo } from '../../../util/use-selected-attribution';
 import { useIsSelectedResourceBreakpoint } from '../../../util/use-selected-resource';
@@ -191,15 +188,6 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
 
     return (
       <>
-        {renderPickerModeLabel(
-          text.attributionColumn.replacing(
-            maybePluralize(
-              attributionIdsForReplacement.length,
-              text.packageLists.attribution,
-              { showOne: true },
-            ),
-          ),
-        )}
         {!isPreviewingSource && (
           <MuiButton
             variant={'contained'}
@@ -221,23 +209,6 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
           />
         )}
       </>
-    );
-  }
-
-  function renderPickerModeLabel(label: string) {
-    return (
-      <MuiBox
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          flex: 1,
-          overflow: 'hidden',
-        }}
-      >
-        <MuiTypography variant={'body2'} noWrap>
-          {label}
-        </MuiTypography>
-      </MuiBox>
     );
   }
 
@@ -503,9 +474,6 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
 
     return (
       <>
-        {renderPickerModeLabel(
-          text.attributionColumn.comparingWith(compareSelectionSource.label),
-        )}
         {!isPreviewingSource && (
           <MuiButton
             variant={'contained'}

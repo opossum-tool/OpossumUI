@@ -66,11 +66,6 @@ describe('AttributionDetails', () => {
       await screen.findByRole('button', { name: text.buttons.cancel }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(
-        text.attributionColumn.replacing(`1 ${text.packageLists.attribution}`),
-      ),
-    ).toBeInTheDocument();
-    expect(
       screen.queryByRole('button', { name: text.attributionColumn.replace }),
     ).not.toBeInTheDocument();
     expect(
@@ -103,7 +98,7 @@ describe('AttributionDetails', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('pluralizes the replacing label when multiple attributions are marked for replacement', async () => {
+  it('shows only picker mode actions when multiple attributions are marked for replacement', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     await renderComponent(<AttributionDetails />, {
@@ -121,9 +116,7 @@ describe('AttributionDetails', () => {
     });
 
     expect(
-      await screen.findByText(
-        text.attributionColumn.replacing(`2 ${text.packageLists.attribution}s`),
-      ),
+      await screen.findByRole('button', { name: text.buttons.cancel }),
     ).toBeInTheDocument();
   });
 
@@ -760,13 +753,6 @@ describe('AttributionDetails', () => {
     );
 
     expect(
-      screen.getByText(
-        text.attributionColumn.comparingWith(
-          `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-        ),
-      ),
-    ).toBeInTheDocument();
-    expect(
       screen.queryByRole('button', {
         name: text.attributionColumn.compareConfirm,
       }),
@@ -821,14 +807,6 @@ describe('AttributionDetails', () => {
     await waitFor(() =>
       expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(target),
     );
-
-    expect(
-      screen.getByText(
-        text.attributionColumn.comparingWith(
-          `${source.packageName}, ${source.packageVersion}`,
-        ),
-      ),
-    ).toBeInTheDocument();
 
     await userEvent.click(
       await screen.findByRole('button', {
