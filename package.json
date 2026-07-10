@@ -95,7 +95,7 @@
     "globals": "17.7.0",
     "happy-dom": "20.10.6",
     "husky": "9.1.7",
-    "knip": "6.24.0",
+    "knip": "6.25.0",
     "kysely-codegen": "0.20.0",
     "lint-staged": "17.0.8",
     "mkdirp": "3.0.1",
