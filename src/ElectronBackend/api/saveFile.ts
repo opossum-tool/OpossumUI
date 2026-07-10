@@ -36,7 +36,7 @@ export async function saveFile(
   };
 
   if (params.opossumFilePath) {
-    writeOpossumFile({
+    await writeOpossumFile({
       path: params.opossumFilePath,
       zip: opossumZip,
       output: outputFileContent,
