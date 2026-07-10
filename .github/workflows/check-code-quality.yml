@@ -37,6 +37,8 @@ jobs:
 
       - run: yarn format-check
 
+      - run: yarn check-exact-versions
+
       - run: yarn lint-commits
 
       - run: yarn lint-check
