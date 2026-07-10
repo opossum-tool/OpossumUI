@@ -2469,7 +2469,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/adm-zip@npm:^0":
+"@types/adm-zip@npm:0.5.8":
   version: 0.5.8
   resolution: "@types/adm-zip@npm:0.5.8"
   dependencies:
@@ -6964,7 +6964,7 @@ __metadata:
     "@testing-library/react": "npm:16.3.2"
     "@testing-library/user-event": "npm:14.6.1"
     "@trivago/prettier-plugin-sort-imports": "npm:6.0.2"
-    "@types/adm-zip": "npm:^0"
+    "@types/adm-zip": "npm:0.5.8"
     "@types/babel__core": "npm:7.20.5"
     "@types/better-sqlite3": "npm:7.6.13"
     "@types/chroma-js": "npm:3.1.2"
