@@ -46,6 +46,17 @@ jobs:
 
       - run: yarn install --immutable
 
+      # Cache electron-builder's download cache (electron, snap templates, AppImage
+      # tools, ...) to avoid flaky re-downloads. The cache key is keyed on the
+      # electron-builder version so it invalidates on upgrades.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/electron-builder
+            ~/AppData/Local/electron-builder/Cache
+          key: electron-builder-${{ matrix.os }}-${{ hashFiles('yarn.lock', 'package.json') }}
+        if: matrix.os != 'macos-15-intel'
+
       - run: yarn ship:auto
         if: matrix.os != 'macos-15-intel'
 
