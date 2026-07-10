@@ -7020,7 +7020,7 @@ __metadata:
     recharts: "npm:3.9.2"
     run-script-os: "npm:1.1.6"
     spdx-license-ids: "npm:3.0.23"
-    stream-json: "npm:3.4.0"
+    stream-json: "npm:3.5.0"
     tsx: "npm:4.23.0"
     typescript: "npm:6.0.3"
     typescript-eslint: "npm:8.63.0"
@@ -8384,12 +8384,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stream-json@npm:3.4.0":
-  version: 3.4.0
-  resolution: "stream-json@npm:3.4.0"
+"stream-json@npm:3.5.0":
+  version: 3.5.0
+  resolution: "stream-json@npm:3.5.0"
   dependencies:
     stream-chain: "npm:^4.2.5"
-  checksum: 10/0fae10bfa0196715fea08ffd636a1ef21be646607aae52462fc490f3be373d6701550ba63a48b9f863d5c5bc609bc616b24857975230622fa7566917216ad71a
+  checksum: 10/7c144ddb42887d2ccbe57c686ccddfefafe97a49c4fe26b78482a56ec2c355e8834e0201dcafefa34f708f6a1e73592d09822a83e4a7617e97da8a7f974c40cf
   languageName: node
   linkType: hard
 
