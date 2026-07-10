@@ -9,6 +9,7 @@ export default {
     () => 'knip',
     'prettier --write --ignore-unknown',
   ],
+  'package.json': () => 'yarn check-exact-versions',
   '*.{ts,tsx}': 'eslint',
   '!(src/ElectronBackend/**/*)*.{ts,tsx}': () => 'tsc -p ./',
   'src/ElectronBackend/**/*.{ts,tsx}': () => [
