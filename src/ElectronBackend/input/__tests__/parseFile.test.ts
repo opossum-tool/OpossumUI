@@ -137,7 +137,7 @@ const correctParsedOutput: ParsedOpossumOutputFile = {
 
 describe('parseOpossumFile', () => {
   it('reads a .opossum file with only input correctly', async () => {
-    const opossumFilePath = writeOpossumFile({
+    const opossumFilePath = await writeOpossumFile({
       input: correctInput,
       path: faker.outputPath(`${faker.string.uuid()}.opossum`),
     });
@@ -150,7 +150,7 @@ describe('parseOpossumFile', () => {
   });
 
   it('reads a .opossum file with input and output correctly', async () => {
-    const opossumFilePath = writeOpossumFile({
+    const opossumFilePath = await writeOpossumFile({
       input: correctInput,
       output: correctOutput,
       path: faker.outputPath(`${faker.string.uuid()}.opossum`),
@@ -164,7 +164,7 @@ describe('parseOpossumFile', () => {
   });
 
   it('returns JSONParsingError on an incorrect .opossum file', async () => {
-    const opossumFilePath = writeOpossumFile({
+    const opossumFilePath = await writeOpossumFile({
       input: corruptInput,
       output: correctOutput,
       path: faker.outputPath(`${faker.string.uuid()}.opossum`),

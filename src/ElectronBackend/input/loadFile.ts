@@ -54,8 +54,7 @@ export interface LoadFileError {
 type LoadFileResult = LoadFileSuccess | LoadFileError;
 
 export type LoadFileIpcResult =
-  | Omit<LoadFileSuccess, 'opossumZip'>
-  | LoadFileError;
+  Omit<LoadFileSuccess, 'opossumZip'> | LoadFileError;
 
 export interface LoadFileGlobalState {
   inputFileChecksum?: string;

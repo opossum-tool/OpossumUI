@@ -270,7 +270,7 @@ async function createTestFiles({
     path: json,
     content: inputData,
   });
-  writeOpossumFile({
+  await writeOpossumFile({
     input: inputData,
     path: opossum,
     output: outputData,

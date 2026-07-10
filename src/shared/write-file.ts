@@ -30,7 +30,7 @@ export async function writeFile({
   }
 }
 
-export function writeOpossumFile({
+export async function writeOpossumFile({
   input,
   output,
   path,
@@ -40,12 +40,11 @@ export function writeOpossumFile({
   output?: string | Uint8Array | object;
   path: string;
   zip?: AdmZip;
-}): string {
+}): Promise<string> {
   if (zip) {
     if (output) {
       zip.updateFile(OUTPUT_FILE_NAME, toBuffer(output));
     }
-    zip.writeZip(path);
   } else {
     zip = new AdmZip();
     if (input) {
@@ -54,9 +53,9 @@ export function writeOpossumFile({
     if (output) {
       zip.addFile(OUTPUT_FILE_NAME, toBuffer(output));
     }
-    zip.writeZip(path);
   }
 
+  await zip.writeZipPromise(path);
   return path;
 }
 
