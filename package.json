@@ -222,7 +222,7 @@
   "engines": {
     "node": ">=24.0.0"
   },
-  "packageManager": "yarn@4.17.0",
+  "packageManager": "yarn@4.17.1",
   "dependenciesMeta": {
     "better-sqlite3": {
       "built": true
