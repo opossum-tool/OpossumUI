@@ -7,6 +7,7 @@ import { useCallback, useMemo } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
+import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import {
   getExpandedIds,
@@ -120,6 +121,13 @@ export function ResourceBrowser() {
             mode={'resourceTree'}
             useFilteredData={useResourceTreeFilters}
             availableFilters={[]}
+            anchorPosition={'right'}
+            activeBadgeStyle={{
+              backgroundColor: OpossumColors.white,
+              boxShadow: 'none',
+            }}
+            activeIconSx={{ color: OpossumColors.white }}
+            iconSx={{ color: OpossumColors.lightBlue }}
           />
         ),
         component: (

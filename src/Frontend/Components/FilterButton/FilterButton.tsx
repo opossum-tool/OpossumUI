@@ -6,9 +6,10 @@ import Filter3Icon from '@mui/icons-material/Filter3';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import SentimentSatisfied from '@mui/icons-material/SentimentSatisfied';
+import type { SxProps } from '@mui/material';
 import MuiBadge from '@mui/material/Badge';
 import MuiTooltip from '@mui/material/Tooltip';
-import { useMemo, useState } from 'react';
+import { type CSSProperties, useCallback, useMemo, useState } from 'react';
 
 import { text } from '../../../shared/text';
 import type { Filter } from '../../shared-constants';
@@ -34,7 +35,7 @@ import {
   type SelectMenuOption,
   type SelectMenuProps,
 } from '../SelectMenu/SelectMenu';
-import { ClearButton, IconButton } from './FilterButton.style';
+import { ClearMenuIcon, IconButton } from './FilterButton.style';
 import { LicenseAutocomplete } from './LicenseAutocomplete/LicenseAutocomplete';
 
 const FILTER_ICONS: Record<Filter, React.ReactElement<unknown>> = {
@@ -69,6 +70,9 @@ interface Props extends Pick<
   availableFilters: Array<Filter>;
   disabled?: boolean;
   emptyAttributions?: boolean;
+  activeIconSx?: SxProps;
+  activeBadgeStyle?: CSSProperties;
+  iconSx?: SxProps;
   mode: FilterPropsMode;
 }
 
@@ -79,13 +83,23 @@ export const FilterButton: React.FC<Props> = ({
   useFilteredData,
   disabled,
   emptyAttributions,
+  activeIconSx,
+  activeBadgeStyle,
+  iconSx,
   mode,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
-  const [isClearHovered, setIsClearHovered] = useState(false);
   const [{ filters, selectedLicense }, setFilteredAttributions] =
     useFilteredData();
   const isSomeFilterActive = !!filters.length || !!selectedLicense;
+
+  const clearFilters = useCallback(() => {
+    setFilteredAttributions((prev) => ({
+      ...prev,
+      filters: [],
+      selectedLicense: '',
+    }));
+  }, [setFilteredAttributions]);
 
   const { filterProps } = useFilterProperties({ mode, enabled: !!anchorEl });
 
@@ -127,9 +141,22 @@ export const FilterButton: React.FC<Props> = ({
               }
             />
           ),
-        }),
+        })
+        .concat(
+          isSomeFilterActive
+            ? {
+                selected: false,
+                id: 'clear-filters',
+                label: text.packageLists.clearFilters,
+                icon: <ClearMenuIcon />,
+                onAdd: () => clearFilters(),
+              }
+            : [],
+        ),
     [
       availableFilters,
+      clearFilters,
+      isSomeFilterActive,
       selectedLicense,
       filters,
       filterProps,
@@ -143,31 +170,35 @@ export const FilterButton: React.FC<Props> = ({
         aria-label={'filter button'}
         onClick={(event) => setAnchorEl(event.currentTarget)}
         disabled={disabled || (emptyAttributions && !isSomeFilterActive)}
-        isClearHovered={isClearHovered}
         size={'small'}
-        color={isSomeFilterActive ? 'primary' : undefined}
+        color={iconSx ? undefined : isSomeFilterActive ? 'primary' : undefined}
       >
         <MuiBadge
-          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          color={'primary'}
+          variant={'dot'}
           invisible={!isSomeFilterActive}
+          anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
           slotProps={{
             badge: {
               style: {
-                padding: 0,
-                minWidth: 'unset',
-                width: 'fit-content',
-                height: 'fit-content',
+                minWidth: '8px',
+                width: '8px',
+                height: '8px',
+                top: '4px',
+                right: '4px',
+                ...activeBadgeStyle,
               },
             },
           }}
-          badgeContent={renderClearButton()}
         >
           <MuiTooltip
             title={text.buttons.filter}
             disableInteractive
             placement={'top'}
           >
-            <FilterAltIcon />
+            <FilterAltIcon
+              sx={isSomeFilterActive ? (activeIconSx ?? iconSx) : iconSx}
+            />
           </MuiTooltip>
         </MuiBadge>
       </IconButton>
@@ -182,32 +213,4 @@ export const FilterButton: React.FC<Props> = ({
       />
     </>
   );
-
-  function renderClearButton() {
-    return (
-      <MuiTooltip
-        title={text.packageLists.clearFilters}
-        disableInteractive
-        placement={'top'}
-        enterDelay={500}
-        enterNextDelay={500}
-      >
-        <ClearButton
-          color={'error'}
-          fontSize={'inherit'}
-          onMouseEnter={() => setIsClearHovered(true)}
-          onMouseLeave={() => setIsClearHovered(false)}
-          onMouseDown={(event) => event.stopPropagation()}
-          onClick={(event) => {
-            event.stopPropagation();
-            setFilteredAttributions((prev) => ({
-              ...prev,
-              filters: [],
-              selectedLicense: '',
-            }));
-          }}
-        />
-      </MuiTooltip>
-    );
-  }
 };
