@@ -13,9 +13,15 @@ const [
   resourceName6,
   resourceName7,
 ] = faker.opossum.resourceNames({ count: 7 });
-const [attributionId1, packageInfo1] = faker.opossum.rawAttribution();
-const [attributionId2, packageInfo2] = faker.opossum.rawAttribution();
-const [attributionId3, packageInfo3] = faker.opossum.rawAttribution();
+const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
+  licenseName: 'MIT',
+});
+const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
+  licenseName: 'Apache-2.0',
+});
+const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
+  licenseName: 'BSD-3-Clause',
+});
 
 test.use({
   data: {
@@ -158,4 +164,27 @@ test('shows only resources matching search', async ({
   await window.keyboard.type(resourceName4);
   await resourcesTree.assert.resourceIsHidden(resourceName1);
   await resourcesTree.assert.resourceIsVisible(resourceName4);
+});
+
+test('shows only resources matching selected manual attribution license', async ({
+  resourcesTree,
+  signalsPanel,
+}) => {
+  await resourcesTree.goto(resourceName1, resourceName2, resourceName3);
+  await signalsPanel.packageCard.click(packageInfo1);
+  await signalsPanel.linkButton.click();
+
+  await resourcesTree.goto(resourceName4, resourceName5, resourceName6);
+  await signalsPanel.packageCard.click(packageInfo2);
+  await signalsPanel.linkButton.click();
+
+  await resourcesTree.gotoRoot();
+  await resourcesTree.filterButton.click();
+  await resourcesTree.selectLicenseName(packageInfo1.licenseName!);
+  await resourcesTree.closeMenu();
+  await resourcesTree.closeMenu();
+
+  await resourcesTree.assert.resourceIsVisible(resourceName1);
+  await resourcesTree.assert.resourceIsHidden(resourceName4);
+  await resourcesTree.assert.resourceIsHidden(resourceName7);
 });

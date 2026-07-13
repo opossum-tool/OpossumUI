@@ -11,6 +11,7 @@ export const MANUAL_ATTRIBUTION_FILTERS_AUDIT =
 export const MANUAL_ATTRIBUTION_FILTERS_REPORT =
   'manual-attribution-filters-report';
 export const EXTERNAL_ATTRIBUTION_FILTERS = 'external-attribution-filters';
+export const RESOURCE_TREE_FILTERS = 'resource-tree-filters';
 
 export interface AttributionFilters {
   filters: Array<Filter>;
@@ -45,6 +46,13 @@ export function useAttributionFiltersInReportView() {
 export function useExternalAttributionFilters() {
   return useVariable<AttributionFilters>(
     EXTERNAL_ATTRIBUTION_FILTERS,
+    structuredClone(initialFilters),
+  );
+}
+
+export function useResourceTreeFilters() {
+  return useVariable<AttributionFilters>(
+    RESOURCE_TREE_FILTERS,
     structuredClone(initialFilters),
   );
 }
