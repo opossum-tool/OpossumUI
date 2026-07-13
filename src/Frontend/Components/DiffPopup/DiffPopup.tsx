@@ -27,6 +27,7 @@ interface DiffPopupProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onApply?: () => void;
   readOnly?: boolean;
+  comparisonMode?: 'compare-to-original' | 'compare-attributions';
 }
 
 export function DiffPopup({
@@ -36,6 +37,7 @@ export function DiffPopup({
   setOpen,
   onApply,
   readOnly,
+  comparisonMode = 'compare-to-original',
 }: DiffPopupProps) {
   const dispatch = useAppDispatch();
 
@@ -47,6 +49,7 @@ export function DiffPopup({
   } = useAttributionFormConfigs({
     original: stripLicenseInfoIfFirstParty(original),
     current: stripLicenseInfoIfFirstParty(current),
+    readOnly,
   });
 
   function handleApplyChanges({
@@ -80,31 +83,41 @@ export function DiffPopup({
   return (
     <NotificationPopup
       header={text.diffPopup.title}
-      leftButtonConfig={{
-        disabled:
-          readOnly || isEqualToExternalAttribution(bufferPackageInfo, current),
-        buttonText: text.diffPopup.applyChanges,
-        onClick: () => {
-          handleApplyChanges({ current, buffer: bufferPackageInfo });
-        },
-      }}
-      centerRightButtonConfig={{
-        disabled:
-          readOnly || isEqualToExternalAttribution(bufferPackageInfo, original),
-        buttonText: text.diffPopup.revertAll,
-        onClick: () => {
-          setBufferPackageInfo({
-            ...bufferPackageInfo,
-            ...FORM_ATTRIBUTES.reduce(
-              (acc, attribute) => ({
-                ...acc,
-                [attribute]: original[attribute],
-              }),
-              {},
-            ),
-          });
-        },
-      }}
+      leftButtonConfig={
+        comparisonMode === 'compare-attributions'
+          ? undefined
+          : {
+              disabled:
+                readOnly ||
+                isEqualToExternalAttribution(bufferPackageInfo, current),
+              buttonText: text.diffPopup.applyChanges,
+              onClick: () => {
+                handleApplyChanges({ current, buffer: bufferPackageInfo });
+              },
+            }
+      }
+      centerRightButtonConfig={
+        comparisonMode === 'compare-attributions'
+          ? undefined
+          : {
+              disabled:
+                readOnly ||
+                isEqualToExternalAttribution(bufferPackageInfo, original),
+              buttonText: text.diffPopup.revertAll,
+              onClick: () => {
+                setBufferPackageInfo({
+                  ...bufferPackageInfo,
+                  ...FORM_ATTRIBUTES.reduce(
+                    (acc, attribute) => ({
+                      ...acc,
+                      [attribute]: original[attribute],
+                    }),
+                    {},
+                  ),
+                });
+              },
+            }
+      }
       rightButtonConfig={{
         buttonText: text.buttons.cancel,
         color: 'secondary',
@@ -120,6 +133,24 @@ export function DiffPopup({
   );
 
   function renderDiffView() {
+    const formSectionLabels =
+      comparisonMode === 'compare-attributions'
+        ? {
+            original: {
+              packageCoordinates:
+                text.attributionColumn.comparedPackageCoordinates,
+              legalInformation:
+                text.attributionColumn.comparedLicenseInformation,
+            },
+            current: {
+              packageCoordinates:
+                text.attributionColumn.selectedPackageCoordinates,
+              legalInformation:
+                text.attributionColumn.selectedLicenseInformation,
+            },
+          }
+        : undefined;
+
     return (
       <DiffPopupContainer>
         <AttributionForm
@@ -127,6 +158,7 @@ export function DiffPopup({
           variant={'diff-original'}
           label={'original'}
           config={originalFormConfig}
+          sectionLabels={formSectionLabels?.original}
         />
         <MuiDivider
           variant={'middle'}
@@ -138,6 +170,7 @@ export function DiffPopup({
           variant={'diff-current'}
           label={'current'}
           config={bufferFormConfig}
+          sectionLabels={formSectionLabels?.current}
         />
       </DiffPopupContainer>
     );

@@ -15,9 +15,11 @@ import { DiffEndIcon } from '../DiffEndIcon/DiffEndIcon';
 export function useAttributionFormConfigs({
   original,
   current,
+  readOnly = false,
 }: {
   original: PackageInfo;
   current: PackageInfo;
+  readOnly?: boolean;
 }) {
   const [bufferPackageInfo, setBufferPackageInfo] = useState(current);
 
@@ -41,6 +43,10 @@ export function useAttributionFormConfigs({
       wasChanged: boolean;
       attribute: FormAttribute;
     }) => {
+      if (readOnly) {
+        return undefined;
+      }
+
       if (isChanged && attribute !== 'firstParty') {
         return (
           <DiffEndIcon
@@ -117,7 +123,7 @@ export function useAttributionFormConfigs({
       }
       return undefined;
     },
-    [bufferPackageInfo, original, current],
+    [bufferPackageInfo, original, current, readOnly],
   );
 
   const [originalFormConfig, bufferFormConfig] = useMemo(

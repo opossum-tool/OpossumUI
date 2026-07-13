@@ -75,6 +75,8 @@ export const text = {
     compareConfirm: 'Compare',
     compareToOriginal: 'Compare with original',
     compareWith: 'Compare with…',
+    comparedLicenseInformation: 'Compared License Information',
+    comparedPackageCoordinates: 'Compared Component Coordinates',
     comparingWith: (name: string) => `Comparing with ${name}`,
     replacing: (attributions: string) => `Replacing ${attributions}`,
     confidence: 'Confidence',
@@ -121,6 +123,8 @@ export const text = {
     restore: 'Restore',
     revert: 'Revert',
     save: 'Save',
+    selectedLicenseInformation: 'Selected License Information',
+    selectedPackageCoordinates: 'Selected Component Coordinates',
     source: 'Source',
     unlink: 'Unlink',
     useAutocompleteSuggestion:

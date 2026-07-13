@@ -54,6 +54,10 @@ interface AttributionFormProps {
   label?: string;
   config?: AttributionFormConfig;
   dimmed?: boolean;
+  sectionLabels?: {
+    packageCoordinates: string;
+    legalInformation: string;
+  };
 }
 
 export function AttributionForm({
@@ -63,6 +67,7 @@ export function AttributionForm({
   variant = 'default',
   config,
   dimmed,
+  sectionLabels,
 }: AttributionFormProps) {
   const dispatch = useAppDispatch();
   const isDiff = variant === 'diff-original' || variant === 'diff-current';
@@ -83,9 +88,10 @@ export function AttributionForm({
       <MuiDivider variant={'middle'}>
         <MuiTypography>
           {isDiff
-            ? variant === 'diff-original'
-              ? text.attributionColumn.originalPackageCoordinates
-              : text.attributionColumn.currentPackageCoordinates
+            ? (sectionLabels?.packageCoordinates ??
+              (variant === 'diff-original'
+                ? text.attributionColumn.originalPackageCoordinates
+                : text.attributionColumn.currentPackageCoordinates))
             : text.attributionColumn.packageCoordinates}
         </MuiTypography>
       </MuiDivider>
@@ -99,9 +105,10 @@ export function AttributionForm({
       <MuiDivider variant={'middle'}>
         <MuiTypography>
           {isDiff
-            ? variant === 'diff-original'
-              ? text.attributionColumn.originalLicenseInformation
-              : text.attributionColumn.currentLicenseInformation
+            ? (sectionLabels?.legalInformation ??
+              (variant === 'diff-original'
+                ? text.attributionColumn.originalLicenseInformation
+                : text.attributionColumn.currentLicenseInformation))
             : text.attributionColumn.legalInformation}
         </MuiTypography>
       </MuiDivider>

@@ -86,7 +86,9 @@ test('lets the user pick a compare target on another resource via compare-select
   await diffPopup.currentAttributionForm.assert.nameIs(
     manualPackageInfo1.packageName || '',
   );
-  await diffPopup.assert.applyButtonIsDisabled();
+  await diffPopup.assert.applyButtonIsHidden();
+  await diffPopup.assert.revertAllButtonIsHidden();
+  await diffPopup.assert.noDiffArrowsAreVisible();
 
   await diffPopup.cancelButton.click();
   await diffPopup.assert.isHidden();

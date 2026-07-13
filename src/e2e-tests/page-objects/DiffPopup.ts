@@ -46,8 +46,20 @@ export class DiffPopup {
     isHidden: async (): Promise<void> => {
       await expect(this.node).toBeHidden();
     },
+    applyButtonIsHidden: async () => {
+      await expect(this.applyButton).toBeHidden();
+    },
     applyButtonIsDisabled: async () => {
       await expect(this.applyButton).toBeDisabled();
+    },
+    revertAllButtonIsHidden: async () => {
+      await expect(this.revertAllButton).toBeHidden();
+    },
+    noDiffArrowsAreVisible: async () => {
+      await expect(this.node.getByTestId('packageName-undo')).toBeHidden();
+      await expect(this.node.getByTestId('packageName-redo')).toBeHidden();
+      await expect(this.node.getByTestId('firstParty-undo')).toBeHidden();
+      await expect(this.node.getByTestId('firstParty-redo')).toBeHidden();
     },
     revertAllButtonIsDisabled: async () => {
       await expect(this.revertAllButton).toBeDisabled();

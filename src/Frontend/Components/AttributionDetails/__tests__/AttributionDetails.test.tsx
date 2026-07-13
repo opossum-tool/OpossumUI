@@ -676,7 +676,14 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    expect(screen.getByText(text.diffPopup.title)).toBeInTheDocument();
+    const diffPopup = within(screen.getByLabelText('diff popup'));
+    expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
+    expect(
+      diffPopup.getByText(text.attributionColumn.originalPackageCoordinates),
+    ).toBeInTheDocument();
+    expect(
+      diffPopup.getByText(text.attributionColumn.currentPackageCoordinates),
+    ).toBeInTheDocument();
   });
 
   it('preserves the original attribution link when applying changes from the original comparison target', async () => {
@@ -851,10 +858,26 @@ describe('AttributionDetails', () => {
     expect(
       diffPopup.getByDisplayValue(target.packageName!),
     ).toBeInTheDocument();
+    expect(
+      diffPopup.getByText(text.attributionColumn.comparedPackageCoordinates),
+    ).toBeInTheDocument();
+    expect(
+      diffPopup.getByText(text.attributionColumn.selectedPackageCoordinates),
+    ).toBeInTheDocument();
+    expect(
+      diffPopup.queryByText(text.attributionColumn.originalPackageCoordinates),
+    ).not.toBeInTheDocument();
 
     expect(
-      screen.getByRole('button', { name: text.diffPopup.applyChanges }),
-    ).toBeDisabled();
+      screen.queryByRole('button', { name: text.diffPopup.applyChanges }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.diffPopup.revertAll }),
+    ).not.toBeInTheDocument();
+    expect(diffPopup.queryByTestId('packageName-undo')).not.toBeInTheDocument();
+    expect(diffPopup.queryByTestId('packageName-redo')).not.toBeInTheDocument();
+    expect(diffPopup.queryByTestId('firstParty-undo')).not.toBeInTheDocument();
+    expect(diffPopup.queryByTestId('firstParty-redo')).not.toBeInTheDocument();
   });
 
   it('resets temporaryDisplayPackageInfo when selected attribution changes', async () => {

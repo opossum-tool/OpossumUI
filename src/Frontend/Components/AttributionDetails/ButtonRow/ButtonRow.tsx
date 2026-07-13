@@ -492,6 +492,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             isOpen={isCompareSelectionDiffOpen}
             setOpen={setIsCompareSelectionDiffOpen}
             readOnly
+            comparisonMode={'compare-attributions'}
             key={isCompareSelectionDiffOpen.toString()}
           />
         )}
