@@ -772,6 +772,38 @@ describe('AttributionDetails', () => {
     ).toBeInTheDocument();
   });
 
+  it('disables compare-selection mode while the attribution has unsaved changes', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo.id]: packageInfo,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    await userEvent.type(
+      await screen.findByLabelText(text.attributionColumn.packageName),
+      'unsaved changes',
+    );
+
+    expect(getIsPackageInfoDirty(store.getState())).toBe(true);
+    expect(
+      screen.getByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    ).toBeDisabled();
+  });
+
   it('lets the user preview another item and opens a read-only comparison against the pinned source', async () => {
     const source = faker.opossum.packageInfo();
     const target = faker.opossum.packageInfo();

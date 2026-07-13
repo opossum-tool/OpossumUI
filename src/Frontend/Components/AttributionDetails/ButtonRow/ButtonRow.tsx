@@ -449,7 +449,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             aria-label={text.attributionColumn.compareWith}
             size={'small'}
             color={'secondary'}
-            disabled={mutationPending}
+            disabled={mutationPending || isPackageInfoModified}
             onClick={() => {
               setCompareSelectionSource({
                 id: packageInfo.id,
