@@ -2,7 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { AttributionFilterKey } from '../../../shared/shared-constants';
+import type {
+  AttributionFilterKey,
+  AttributionValueFilters,
+} from '../../../shared/attribution-filters';
 import type { SortOption } from '../../Components/SortButton/useSortingOptions';
 import { useVariable } from './use-variable';
 
@@ -16,7 +19,7 @@ export const RESOURCE_TREE_FILTERS = 'resource-tree-filters';
 export interface AttributionFilters {
   filters: Array<AttributionFilterKey>;
   search: string;
-  selectedLicense: string;
+  valueFilters: AttributionValueFilters;
   sorting: SortOption;
 }
 
@@ -28,7 +31,7 @@ export interface ResourceTreeFilters {
 export const initialAttributionFilters: AttributionFilters = {
   filters: [],
   search: '',
-  selectedLicense: '',
+  valueFilters: {},
   sorting: 'alphabetically',
 };
 

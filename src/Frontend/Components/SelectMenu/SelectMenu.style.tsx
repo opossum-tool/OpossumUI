@@ -71,7 +71,7 @@ export const StyledMenu = styled(
 }));
 
 export const StyledMenuItem = styled(MuiMenuItem, {
-  shouldForwardProp: (name: string) => !['faded'].includes(name),
+  shouldForwardProp: (name: string) => name !== 'faded',
 })<{
   faded: boolean | undefined;
 }>(({ faded }) => ({

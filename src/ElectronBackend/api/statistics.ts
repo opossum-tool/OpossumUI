@@ -11,7 +11,11 @@ import {
 
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
-import { getFilterExpression } from './filters';
+import {
+  getFilterExpression,
+  getIncompleteCoordinatesExpression,
+  getIncompleteLegalExpression,
+} from './filters';
 import { toCanonicalLicenseName } from './utils';
 
 export async function manualAttributionStatistics() {
@@ -32,8 +36,8 @@ export async function manualAttributionStatistics() {
 
   const incompleteManualAttributions = await attributionStats(
     eb.or([
-      getFilterExpression('incompleteCoordinates'),
-      getFilterExpression('incompleteLegal'),
+      getIncompleteCoordinatesExpression(),
+      getIncompleteLegalExpression(),
     ]),
   );
   const totalManualAttributions = await attributionStats(sql`TRUE`);

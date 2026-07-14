@@ -4,26 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { UserSettings } from './shared-types';
 
-export const ATTRIBUTION_FILTER_KEYS = [
-  'currentlyPreferred',
-  'excludedFromNotice',
-  'firstParty',
-  'highConfidence',
-  'incompleteCoordinates',
-  'incompleteLegal',
-  'lowConfidence',
-  'modifiedPreferred',
-  'needsFollowUp',
-  'needsReview',
-  'notExcludedFromNotice',
-  'notPreSelected',
-  'preSelected',
-  'previouslyPreferred',
-  'thirdParty',
-] as const;
-
-export type AttributionFilterKey = (typeof ATTRIBUTION_FILTER_KEYS)[number];
-
 export const DEFAULT_PANEL_SIZES: NonNullable<UserSettings['panelSizes']> = {
   resourceBrowserWidth: 340,
   packageListsWidth: 360,

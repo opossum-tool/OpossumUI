@@ -68,7 +68,9 @@ export const ProjectStatisticsPopup: React.FC = () => {
   function handleLicenseClick(licenseName: string): void {
     setFilteredAttributions(() => ({
       ...initialAttributionFilters,
-      selectedLicense: licenseName,
+      valueFilters: {
+        license: licenseName,
+      },
     }));
     close();
   }

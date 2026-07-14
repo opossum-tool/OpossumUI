@@ -12,8 +12,11 @@ import {
 import {
   ATTRIBUTION_FILTER_KEYS,
   type AttributionFilterKey,
-} from '../../shared/shared-constants';
+  type AttributionValueFilters,
+  type MissingAttribute,
+} from '../../shared/attribution-filters';
 import type { DB } from '../db/generated/databaseTypes';
+import { toCanonicalLicenseName } from './utils';
 
 const LOW_CONFIDENCE_THRESHOLD = 60;
 
@@ -44,40 +47,6 @@ function getFilters(): Record<
       '>=',
       LOW_CONFIDENCE_THRESHOLD,
     ),
-    incompleteCoordinates: eb.and([
-      eb('exclude_from_notice', '=', 0),
-      eb('first_party', '=', 0),
-      eb.or([
-        eb('url', 'is', null),
-        eb('url', '=', ''),
-        eb('package_name', 'is', null),
-        eb('package_name', '=', ''),
-        eb('package_type', 'is', null),
-        eb('package_type', '=', ''),
-        eb.and([
-          eb('package_type', 'in', TYPES_REQUIRING_NAMESPACE),
-          eb.or([
-            eb('package_namespace', 'is', null),
-            eb('package_namespace', '=', ''),
-          ]),
-        ]),
-      ]),
-    ]),
-    incompleteLegal: eb.and([
-      eb('exclude_from_notice', '=', 0),
-      eb('first_party', '=', 0),
-      eb.or([
-        eb('copyright', 'is', null),
-        eb('copyright', '=', ''),
-        eb.and([
-          eb.or([eb('license_name', 'is', null), eb('license_name', '=', '')]),
-          eb.or([
-            eb(sql`data->>'licenseText'`, 'is', null),
-            eb(sql`data->>'licenseText'`, '=', ''),
-          ]),
-        ]),
-      ]),
-    ]),
     lowConfidence: eb(
       'attribution.attribution_confidence',
       '<',
@@ -99,6 +68,52 @@ function getFilters(): Record<
   return filters;
 }
 
+function getMissingAttributeFilters(): Record<
+  MissingAttribute,
+  OperandExpression<SqlBool>
+> {
+  const eb = expressionBuilder<DB, 'attribution'>();
+  const isRelevant = eb.and([
+    eb('exclude_from_notice', '=', 0),
+    eb('first_party', '=', 0),
+  ]);
+
+  return {
+    url: eb.and([
+      isRelevant,
+      eb.or([eb('url', 'is', null), eb('url', '=', '')]),
+    ]),
+    packageName: eb.and([
+      isRelevant,
+      eb.or([eb('package_name', 'is', null), eb('package_name', '=', '')]),
+    ]),
+    packageType: eb.and([
+      isRelevant,
+      eb.or([eb('package_type', 'is', null), eb('package_type', '=', '')]),
+    ]),
+    packageNamespace: eb.and([
+      isRelevant,
+      eb('package_type', 'in', TYPES_REQUIRING_NAMESPACE),
+      eb.or([
+        eb('package_namespace', 'is', null),
+        eb('package_namespace', '=', ''),
+      ]),
+    ]),
+    copyright: eb.and([
+      isRelevant,
+      eb.or([eb('copyright', 'is', null), eb('copyright', '=', '')]),
+    ]),
+    licenseInformation: eb.and([
+      isRelevant,
+      eb.or([eb('license_name', 'is', null), eb('license_name', '=', '')]),
+      eb.or([
+        eb(sql`data->>'licenseText'`, 'is', null),
+        eb(sql`data->>'licenseText'`, '=', ''),
+      ]),
+    ]),
+  };
+}
+
 export function getFilterExpression(
   filter: AttributionFilterKey,
 ): OperandExpression<SqlBool> {
@@ -107,6 +122,64 @@ export function getFilterExpression(
 
 export function getFilterKeys(): ReadonlyArray<AttributionFilterKey> {
   return ATTRIBUTION_FILTER_KEYS;
+}
+
+function getMissingAttributeExpression(
+  attribute: MissingAttribute,
+): OperandExpression<SqlBool> {
+  return getMissingAttributeFilters()[attribute];
+}
+
+export function getIncompleteCoordinatesExpression(): OperandExpression<SqlBool> {
+  const filters = getMissingAttributeFilters();
+  const eb = expressionBuilder<DB, 'attribution'>();
+  return eb.or([
+    filters.url,
+    filters.packageName,
+    filters.packageType,
+    filters.packageNamespace,
+  ]);
+}
+
+export function getIncompleteLegalExpression(): OperandExpression<SqlBool> {
+  const filters = getMissingAttributeFilters();
+  const eb = expressionBuilder<DB, 'attribution'>();
+  return eb.or([filters.copyright, filters.licenseInformation]);
+}
+
+export function getValueFilterExpression(
+  filters: AttributionValueFilters,
+): OperandExpression<SqlBool> | undefined {
+  const eb = expressionBuilder<DB, 'attribution'>();
+  const expressions: Array<OperandExpression<SqlBool>> = [];
+
+  if (filters.license) {
+    expressions.push(
+      eb(
+        'canonical_license_name',
+        '=',
+        toCanonicalLicenseName(filters.license),
+      ),
+    );
+  }
+
+  if (filters.incompleteCoordinates) {
+    expressions.push(
+      filters.incompleteCoordinates === 'any'
+        ? getIncompleteCoordinatesExpression()
+        : getMissingAttributeExpression(filters.incompleteCoordinates),
+    );
+  }
+
+  if (filters.incompleteLegal) {
+    expressions.push(
+      filters.incompleteLegal === 'any'
+        ? getIncompleteLegalExpression()
+        : getMissingAttributeExpression(filters.incompleteLegal),
+    );
+  }
+
+  return expressions.length ? eb.and(expressions) : undefined;
 }
 
 export function getSearchExpression(

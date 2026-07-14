@@ -5,16 +5,22 @@
 import { sql } from 'kysely';
 
 import type { SortOption } from '../../Frontend/Components/SortButton/useSortingOptions';
-import type { AttributionFilterKey } from '../../shared/shared-constants';
+import type {
+  AttributionFilterKey,
+  AttributionValueFilters,
+} from '../../shared/attribution-filters';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
-import { getFilterExpression, getSearchExpression } from './filters';
+import {
+  getFilterExpression,
+  getSearchExpression,
+  getValueFilterExpression,
+} from './filters';
 import {
   attributionToResourceRelationship,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
   type ResourceRelationship,
-  toCanonicalLicenseName,
 } from './utils';
 
 export async function listAttributions(props: {
@@ -22,7 +28,7 @@ export async function listAttributions(props: {
   filters?: Array<AttributionFilterKey>;
   resourcePathForRelationships?: string;
   sort?: SortOption;
-  license?: string;
+  valueFilters?: AttributionValueFilters;
   search?: string;
   showResolved?: boolean;
   excludeUnrelated?: boolean;
@@ -105,12 +111,11 @@ export async function listAttributions(props: {
         }
       }
 
-      if (props.license) {
-        query = query.where(
-          'canonical_license_name',
-          '=',
-          toCanonicalLicenseName(props.license),
-        );
+      const valueFilterExpression = getValueFilterExpression(
+        props.valueFilters ?? {},
+      );
+      if (valueFilterExpression) {
+        query = query.where(valueFilterExpression);
       }
 
       if (props.search) {

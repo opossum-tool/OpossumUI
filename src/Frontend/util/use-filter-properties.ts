@@ -30,7 +30,7 @@ export function useFilterProperties({
     reportTable: useAttributionFiltersInReportView,
   }[mode];
 
-  const [{ filters, search, selectedLicense }] = useFilters();
+  const [{ filters, search, valueFilters }] = useFilters();
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
@@ -42,7 +42,7 @@ export function useFilterProperties({
       external: mode === 'external',
       filters,
       search: mode === 'reportTable' ? undefined : search,
-      license: mode === 'reportTable' ? undefined : selectedLicense,
+      valueFilters,
       resourcePathForRelationships:
         mode === 'reportTable' ? ROOT_PATH : selectedResourceId,
       showResolved: mode === 'external' ? areHiddenSignalsVisible : undefined,

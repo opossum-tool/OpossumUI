@@ -7,7 +7,7 @@ import type { Ref } from 'react';
 
 import { text } from '../../../../shared/text';
 import { baseIcon, OpossumColors } from '../../../shared-styles';
-import { Autocomplete } from '../../Autocomplete/Autocomplete';
+import { ValueFilterAutocomplete } from '../ValueFilterAutocomplete/ValueFilterAutocomplete';
 
 interface Props {
   inputRef?: Ref<HTMLInputElement>;
@@ -23,32 +23,16 @@ export const LicenseAutocomplete = ({
   setSelectedLicense,
 }: Props) => {
   return (
-    <Autocomplete<string, false, false, true>
-      inputRef={inputRef}
-      sx={{ height: '38px' }}
-      background={'transparent'}
-      variant={'filled'}
-      hidePopupIndicator={!!selectedLicense}
-      placeholder={text.packageLists.selectLicense}
+    <ValueFilterAutocomplete
+      ariaLabel={'license names'}
       options={licenses}
-      optionText={{
-        sx: {
-          background: OpossumColors.lightestBlue,
-          '&:hover': {
-            background: OpossumColors.lightestBlueOnHover,
-          },
-        },
-        primary: (option) => option,
-      }}
+      placeholder={text.packageLists.selectLicense}
       startAdornment={
         <CopyrightIcon sx={{ ...baseIcon, color: OpossumColors.green }} />
       }
-      value={selectedLicense || null}
-      onChange={(_, license) => {
-        setSelectedLicense(license);
-      }}
-      filterSelectedOptions
-      aria-label={'license names'}
+      selectedValue={selectedLicense}
+      setSelectedValue={setSelectedLicense}
+      inputRef={inputRef}
     />
   );
 };

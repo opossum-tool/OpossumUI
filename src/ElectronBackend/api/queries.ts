@@ -5,7 +5,10 @@
 import { sql } from 'kysely';
 import { omit, uniqBy } from 'lodash-es';
 
-import type { AttributionFilterKey } from '../../shared/shared-constants';
+import type {
+  AttributionFilterKey,
+  AttributionValueFilters,
+} from '../../shared/attribution-filters';
 import type {
   ExternalAttributionSources,
   PackageInfo,
@@ -16,7 +19,10 @@ import { getDb } from '../db/db';
 import {
   getFilterExpression,
   getFilterKeys,
+  getIncompleteCoordinatesExpression,
+  getIncompleteLegalExpression,
   getSearchExpression,
+  getValueFilterExpression,
 } from './filters';
 import { listAttributions } from './listAttributions';
 import {
@@ -199,6 +205,7 @@ export const queries = {
   async filterProperties(props: {
     external: boolean;
     filters: Array<AttributionFilterKey>;
+    valueFilters?: AttributionValueFilters;
     resourcePathForRelationships: string;
     license?: string;
     search?: string;
@@ -249,6 +256,13 @@ export const queries = {
 
     for (const filter of props.filters) {
       query = query.where(getFilterExpression(filter));
+    }
+
+    const valueFilterExpression = getValueFilterExpression(
+      props.valueFilters ?? {},
+    );
+    if (valueFilterExpression) {
+      query = query.where(valueFilterExpression);
     }
 
     if (props.license) {
@@ -450,8 +464,8 @@ export const queries = {
           .where('attribution.is_external', '=', 0)
           .where((eb) =>
             eb.or([
-              getFilterExpression('incompleteCoordinates'),
-              getFilterExpression('incompleteLegal'),
+              getIncompleteCoordinatesExpression(),
+              getIncompleteLegalExpression(),
             ]),
           )
           .limit(1)

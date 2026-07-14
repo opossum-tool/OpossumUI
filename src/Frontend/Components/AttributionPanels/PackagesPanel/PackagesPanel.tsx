@@ -103,14 +103,15 @@ export const PackagesPanel = ({
     mode: external ? 'external' : 'manual',
   });
   const [filters, setFilteredAttributions] = useFilteredData();
-  const { filters: attributionFilters, selectedLicense } = filters;
+  const { filters: attributionFilters, valueFilters } = filters;
   const menuFilterOptions = useAttributionFilterOptions({
     filterOptions,
     filterProps,
     filters,
     setFilters: setFilteredAttributions,
   });
-  const isFilterActive = !!attributionFilters.length || !!selectedLicense;
+  const isFilterActive =
+    !!attributionFilters.length || Object.values(valueFilters).some(Boolean);
   const pickerMode = usePickerMode();
 
   const { attributions, loading } = useFilteredAttributionsList({ external });
@@ -271,7 +272,7 @@ export const PackagesPanel = ({
                 setFilteredAttributions((prev) => ({
                   ...prev,
                   filters: [],
-                  selectedLicense: '',
+                  valueFilters: {},
                 }))
               }
               anchorPosition={'right'}
