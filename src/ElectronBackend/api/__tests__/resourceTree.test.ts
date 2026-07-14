@@ -10,7 +10,10 @@ import {
   type ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
-import { getResourceTree } from '../resourceTree';
+import {
+  getResourceTree,
+  getResourceTreeUnreviewedCount,
+} from '../resourceTree';
 
 function makeAttributionData(
   attributions: Attributions,
@@ -502,46 +505,350 @@ describe('getResourceTree', () => {
     });
   });
 
-  describe('onAttributionUuids filtering', () => {
-    it('only shows resources linked to the given attribution', async () => {
-      const uuid = 'target-uuid';
-      const otherUuid = 'other-uuid';
+  describe('license filtering', () => {
+    it('only shows resources linked to matching manual attributions once', async () => {
+      const firstMitUuid = 'first-mit-uuid';
+      const secondMitUuid = 'second-mit-uuid';
+      const apacheUuid = 'apache-uuid';
 
       await initializeDbWithTestData({
         resources: {
           linked: { 'file.ts': 1 },
           unlinked: { 'other.ts': 1 },
         },
-        externalAttributions: makeAttributionData(
+        manualAttributions: makeAttributionData(
           {
-            [uuid]: {
-              packageName: 'target',
+            [firstMitUuid]: {
+              packageName: 'first MIT package',
               criticality: Criticality.None,
-              id: uuid,
+              id: firstMitUuid,
+              licenseName: 'MIT',
             },
-            [otherUuid]: {
-              packageName: 'other',
+            [secondMitUuid]: {
+              packageName: 'second MIT package',
               criticality: Criticality.None,
-              id: otherUuid,
+              id: secondMitUuid,
+              licenseName: 'MIT',
+            },
+            [apacheUuid]: {
+              packageName: 'Apache package',
+              criticality: Criticality.None,
+              id: apacheUuid,
+              licenseName: 'Apache-2.0',
             },
           },
           {
-            '/linked/file.ts': [uuid],
-            '/unlinked/other.ts': [otherUuid],
+            '/linked/file.ts': [firstMitUuid, secondMitUuid],
+            '/unlinked/other.ts': [apacheUuid],
           },
         ),
       });
 
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',
-        onAttributionUuids: [uuid],
+        license: 'MIT',
       });
 
+      expect(result.count).toBe(1);
       const labels = result.treeNodes.map((n) => n.labelText);
       expect(labels).toContain('linked');
       expect(labels).toContain('file.ts');
       expect(labels).not.toContain('unlinked');
       expect(labels).not.toContain('other.ts');
+    });
+  });
+
+  describe('onlyUnreviewedFiles filtering', () => {
+    it('shows files with only external attributions', async () => {
+      await initializeDbWithTestData({
+        resources: { src: { 'external.ts': 1, 'manual.ts': 1 } },
+        externalAttributions: makeAttributionData(
+          {
+            'external-uuid': {
+              packageName: 'external',
+              criticality: Criticality.None,
+              id: 'external-uuid',
+            },
+          },
+          { '/src/external.ts': ['external-uuid'] },
+        ),
+        manualAttributions: makeAttributionData(
+          {
+            'manual-uuid': {
+              packageName: 'manual',
+              criticality: Criticality.None,
+              id: 'manual-uuid',
+            },
+          },
+          { '/src/manual.ts': ['manual-uuid'] },
+        ),
+      });
+
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+        onlyUnreviewedFiles: true,
+      });
+
+      expect(result.count).toBe(1);
+      expect(result.treeNodes.map((node) => node.labelText)).toEqual([
+        '/',
+        'src',
+        'external.ts',
+      ]);
+    });
+
+    it('shows files with only pre-selected attributions', async () => {
+      await initializeDbWithTestData({
+        resources: { src: { 'preselected.ts': 1, 'manual.ts': 1 } },
+        manualAttributions: makeAttributionData(
+          {
+            'preselected-uuid': {
+              packageName: 'preselected',
+              criticality: Criticality.None,
+              id: 'preselected-uuid',
+              preSelected: true,
+            },
+            'manual-uuid': {
+              packageName: 'manual',
+              criticality: Criticality.None,
+              id: 'manual-uuid',
+            },
+          },
+          {
+            '/src/preselected.ts': ['preselected-uuid'],
+            '/src/manual.ts': ['manual-uuid'],
+          },
+        ),
+      });
+
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+        onlyUnreviewedFiles: true,
+      });
+
+      expect(result.count).toBe(1);
+      expect(result.treeNodes.map((node) => node.labelText)).toEqual([
+        '/',
+        'src',
+        'preselected.ts',
+      ]);
+    });
+
+    it('excludes files with non-pre-selected manual attributions', async () => {
+      await initializeDbWithTestData({
+        resources: { src: { 'manual.ts': 1 } },
+        manualAttributions: makeAttributionData(
+          {
+            'manual-uuid': {
+              packageName: 'manual',
+              criticality: Criticality.None,
+              id: 'manual-uuid',
+            },
+          },
+          { '/src/manual.ts': ['manual-uuid'] },
+        ),
+      });
+
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+        onlyUnreviewedFiles: true,
+      });
+
+      expect(result.count).toBe(0);
+      expect(result.treeNodes).toEqual([]);
+    });
+
+    it('excludes files that also have a non-pre-selected manual attribution', async () => {
+      await initializeDbWithTestData({
+        resources: { src: { 'mixed.ts': 1 } },
+        manualAttributions: makeAttributionData(
+          {
+            'preselected-uuid': {
+              packageName: 'preselected',
+              criticality: Criticality.None,
+              id: 'preselected-uuid',
+              preSelected: true,
+            },
+            'manual-uuid': {
+              packageName: 'manual',
+              criticality: Criticality.None,
+              id: 'manual-uuid',
+            },
+          },
+          { '/src/mixed.ts': ['preselected-uuid', 'manual-uuid'] },
+        ),
+      });
+
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+        onlyUnreviewedFiles: true,
+      });
+
+      expect(result.count).toBe(0);
+      expect(result.treeNodes).toEqual([]);
+    });
+
+    it('applies search and unreviewed filtering to the displayed tree', async () => {
+      await initializeDbWithTestData({
+        resources: {
+          src: {
+            'matching-external.ts': 1,
+            'matching-manual.ts': 1,
+            'other-external.ts': 1,
+          },
+        },
+        externalAttributions: makeAttributionData(
+          {
+            'matching-external-uuid': {
+              packageName: 'matching external',
+              criticality: Criticality.None,
+              id: 'matching-external-uuid',
+            },
+            'other-external-uuid': {
+              packageName: 'other external',
+              criticality: Criticality.None,
+              id: 'other-external-uuid',
+            },
+          },
+          {
+            '/src/matching-external.ts': ['matching-external-uuid'],
+            '/src/other-external.ts': ['other-external-uuid'],
+          },
+        ),
+        manualAttributions: makeAttributionData(
+          {
+            'matching-manual-uuid': {
+              packageName: 'matching manual',
+              criticality: Criticality.None,
+              id: 'matching-manual-uuid',
+            },
+          },
+          { '/src/matching-manual.ts': ['matching-manual-uuid'] },
+        ),
+      });
+
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+        onlyUnreviewedFiles: true,
+        search: 'matching',
+      });
+
+      expect(result.count).toBe(1);
+      expect(result.treeNodes.map((node) => node.labelText)).toEqual([
+        '/',
+        'src',
+        'matching-external.ts',
+      ]);
+    });
+
+    it('applies license and unreviewed filtering to the displayed tree', async () => {
+      await initializeDbWithTestData({
+        resources: {
+          src: {
+            'preselected-mit.ts': 1,
+            'reviewed-mit.ts': 1,
+            'external.ts': 1,
+          },
+        },
+        externalAttributions: makeAttributionData(
+          {
+            'external-uuid': {
+              packageName: 'external',
+              criticality: Criticality.None,
+              id: 'external-uuid',
+            },
+          },
+          { '/src/external.ts': ['external-uuid'] },
+        ),
+        manualAttributions: makeAttributionData(
+          {
+            'preselected-mit-uuid': {
+              packageName: 'preselected MIT',
+              criticality: Criticality.None,
+              id: 'preselected-mit-uuid',
+              licenseName: 'MIT',
+              preSelected: true,
+            },
+            'reviewed-mit-uuid': {
+              packageName: 'reviewed MIT',
+              criticality: Criticality.None,
+              id: 'reviewed-mit-uuid',
+              licenseName: 'MIT',
+            },
+          },
+          {
+            '/src/preselected-mit.ts': ['preselected-mit-uuid'],
+            '/src/reviewed-mit.ts': ['reviewed-mit-uuid'],
+          },
+        ),
+      });
+
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+        license: 'MIT',
+        onlyUnreviewedFiles: true,
+      });
+
+      expect(result.count).toBe(1);
+      expect(result.treeNodes.map((node) => node.labelText)).toEqual([
+        '/',
+        'src',
+        'preselected-mit.ts',
+      ]);
+    });
+
+    it('counts only unreviewed files in the current search context', async () => {
+      await initializeDbWithTestData({
+        resources: {
+          src: { 'external.ts': 1, 'manual.ts': 1, 'preselected.ts': 1 },
+        },
+        externalAttributions: makeAttributionData(
+          {
+            'external-uuid': {
+              packageName: 'external',
+              criticality: Criticality.None,
+              id: 'external-uuid',
+            },
+          },
+          { '/src/external.ts': ['external-uuid'] },
+        ),
+        manualAttributions: makeAttributionData(
+          {
+            'preselected-uuid': {
+              packageName: 'preselected',
+              criticality: Criticality.None,
+              id: 'preselected-uuid',
+              preSelected: true,
+              licenseName: 'MIT',
+            },
+            'manual-uuid': {
+              packageName: 'manual',
+              criticality: Criticality.None,
+              id: 'manual-uuid',
+            },
+          },
+          {
+            '/src/preselected.ts': ['preselected-uuid'],
+            '/src/manual.ts': ['manual-uuid'],
+          },
+        ),
+      });
+
+      await expect(
+        getResourceTreeUnreviewedCount({ search: 'src' }),
+      ).resolves.toEqual({ result: 2 });
+
+      await expect(
+        getResourceTreeUnreviewedCount({ search: 'external' }),
+      ).resolves.toEqual({ result: 1 });
+
+      await expect(
+        getResourceTreeUnreviewedCount({ search: 'manual' }),
+      ).resolves.toEqual({ result: 0 });
+
+      await expect(
+        getResourceTreeUnreviewedCount({ license: 'MIT' }),
+      ).resolves.toEqual({ result: 1 });
     });
   });
 

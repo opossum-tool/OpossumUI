@@ -18,9 +18,10 @@ import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
 import { backend } from '../../util/backendClient';
 import { useDebouncedInput } from '../../util/use-debounced-input';
-import { useFilterProperties } from '../../util/use-filter-properties';
+import { useResourceTreeFilterProperties } from '../../util/use-filter-properties';
 import { FilterButton } from '../FilterButton/FilterButton';
 import { LicenseAutocomplete } from '../FilterButton/LicenseAutocomplete/LicenseAutocomplete';
+import { UnreviewedIcon } from '../Icons/Icons';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
 import { useLinkedResourcesTreeState } from './LinkedResourcesTree/useLinkedResourcesTreeState';
@@ -53,41 +54,33 @@ export function ResourceBrowser() {
 
   // All resources
   const [
-    { selectedLicense: resourceTreeSelectedLicense },
+    { onlyUnreviewedFiles, selectedLicense: resourceTreeSelectedLicense },
     setResourceTreeFilters,
   ] = useResourceTreeFilters();
   const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
   const debouncedSearchAll = useDebouncedInput(searchAll);
   const expandedIdsAll = useAppSelector(getExpandedIds);
-  const resourceTreeAttributionsWithSelectedLicense =
-    backend.listAttributions.useQuery(
-      {
-        external: false,
-        license: resourceTreeSelectedLicense,
-      },
-      { enabled: !!resourceTreeSelectedLicense },
-    );
-  const resourceTreeAttributionUuids = useMemo(
-    () =>
-      resourceTreeSelectedLicense
-        ? Object.keys(resourceTreeAttributionsWithSelectedLicense.data ?? {})
-        : undefined,
-    [
-      resourceTreeSelectedLicense,
-      resourceTreeAttributionsWithSelectedLicense.data,
-    ],
-  );
   const resourceTreeAll = backend.getResourceTree.useQuery(
     {
       expandedNodes: expandedIdsAll,
-      onAttributionUuids: resourceTreeAttributionUuids,
+      license: resourceTreeSelectedLicense,
+      onlyUnreviewedFiles,
       search: debouncedSearchAll,
       selectedResourcePath: selectedResourceId,
     },
     { placeholderData: keepPreviousData },
   );
-  const { filterProps } = useFilterProperties({ mode: 'resourceTree' });
-  const isResourceTreeFilterActive = !!resourceTreeSelectedLicense;
+  const unreviewedFileCountQuery =
+    backend.getResourceTreeUnreviewedCount.useQuery(
+      {
+        license: resourceTreeSelectedLicense,
+        search: debouncedSearchAll,
+      },
+      { placeholderData: keepPreviousData },
+    );
+  const { filterProps } = useResourceTreeFilterProperties({});
+  const isResourceTreeFilterActive =
+    onlyUnreviewedFiles || !!resourceTreeSelectedLicense;
   // Linked resources
   const [searchLinked, setSearchLinked] = useVariable(
     LINKED_RESOURCES_SEARCH,
@@ -126,6 +119,26 @@ export function ResourceBrowser() {
           <FilterButton
             options={[
               {
+                id: 'unreviewed',
+                selected: onlyUnreviewedFiles,
+                faded: !unreviewedFileCountQuery.data,
+                label:
+                  unreviewedFileCountQuery.data === undefined
+                    ? text.filters.unreviewed
+                    : `${text.filters.unreviewed} (${new Intl.NumberFormat().format(unreviewedFileCountQuery.data)})`,
+                icon: <UnreviewedIcon noTooltip />,
+                onAdd: () =>
+                  setResourceTreeFilters((prev) => ({
+                    ...prev,
+                    onlyUnreviewedFiles: true,
+                  })),
+                onDelete: () =>
+                  setResourceTreeFilters((prev) => ({
+                    ...prev,
+                    onlyUnreviewedFiles: false,
+                  })),
+              },
+              {
                 id: 'license',
                 selected: false,
                 focusContent: () => licenseInputRef.current?.focus(),
@@ -148,6 +161,7 @@ export function ResourceBrowser() {
             onClear={() =>
               setResourceTreeFilters((prev) => ({
                 ...prev,
+                onlyUnreviewedFiles: false,
                 selectedLicense: '',
               }))
             }

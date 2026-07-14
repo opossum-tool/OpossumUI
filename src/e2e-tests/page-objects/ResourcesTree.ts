@@ -4,6 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
+import { text } from '../../shared/text';
+
 export class ResourcesTree {
   private readonly window: Page;
   private readonly node: Locator;
@@ -11,6 +13,7 @@ export class ResourcesTree {
   readonly filterButton: Locator;
   readonly filters: {
     readonly license: Locator;
+    readonly unreviewed: Locator;
   };
   readonly searchField: Locator;
   readonly clearSearchButton: Locator;
@@ -24,6 +27,9 @@ export class ResourcesTree {
     });
     this.filters = {
       license: window.getByLabel('license names'),
+      unreviewed: window.getByRole('menuitem', {
+        name: text.filters.unreviewed,
+      }),
     };
     this.searchField = this.header.getByRole('searchbox');
     this.clearSearchButton = this.header.getByLabel('clear search');

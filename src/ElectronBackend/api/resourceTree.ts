@@ -7,11 +7,20 @@ import {
   expressionBuilder,
   type ExpressionBuilder,
   sql,
+  type Transaction,
 } from 'kysely';
 
 import { getDb } from '../db/db';
 import type { DB, Resource } from '../db/generated/databaseTypes';
-import { getResourceOrThrow, removeTrailingSlash } from './utils';
+import {
+  getOnlyExternalFilesQuery,
+  getOnlyPreSelectedManualFilesQuery,
+} from './progressBarUtils';
+import {
+  getResourceOrThrow,
+  removeTrailingSlash,
+  toCanonicalLicenseName,
+} from './utils';
 
 export type ResourceTreeNodeData = Awaited<
   ReturnType<typeof getResourceTree>
@@ -23,48 +32,37 @@ type FilteredTable = { filtered_resources: { id: number } };
 export function getResourceTree({
   search,
   expandedNodes,
+  onlyUnreviewedFiles,
+  license,
   onAttributionUuids,
   selectedResourcePath,
 }: {
   search?: string;
   expandedNodes: Array<string> | 'expandAll';
+  onlyUnreviewedFiles?: boolean;
+  license?: string;
   onAttributionUuids?: Array<string>;
   selectedResourcePath?: string;
 }) {
   return getDb()
     .transaction()
     .execute(async (trx) => {
+      const hasActiveFilters = Boolean(
+        search || license || onAttributionUuids || onlyUnreviewedFiles,
+      );
       /*
-       * FILTERED_RESOURCE_TEMP_TABLE contains the name of the table that contains all the resources included by the filter on search and onAttributionUuids.
-       * If both are undefined, that is just a view on `resource` with no runtime overhead
+       * FILTERED_RESOURCE_TEMP_TABLE contains the resources included by the active filters.
+       * Without active filters, it is a view on `resource` with no runtime overhead.
        */
 
       let dropTempTable;
-      if (search || onAttributionUuids) {
-        let filterQuery;
-        if (search && onAttributionUuids) {
-          filterQuery = trx
-            .selectFrom('resource as r')
-            .innerJoin(
-              'resource_to_attribution as rta',
-              'r.id',
-              'rta.resource_id',
-            )
-            .select('id')
-            .where('r.path', 'like', `%${search}%`)
-            .where('rta.attribution_uuid', 'in', onAttributionUuids);
-        } else if (search) {
-          filterQuery = trx
-            .selectFrom('resource as r')
-            .select('id')
-            .where('r.path', 'like', `%${search}%`);
-        } else {
-          filterQuery = trx
-            .selectFrom('resource_to_attribution as rta')
-            .select('resource_id as id')
-
-            .where('rta.attribution_uuid', 'in', onAttributionUuids!);
-        }
+      if (hasActiveFilters) {
+        const filterQuery = getFilteredResourcesQuery(trx, {
+          license,
+          onlyUnreviewedFiles,
+          onAttributionUuids,
+          search,
+        });
 
         await trx.schema
           .createTable(FILTERED_RESOURCE_TEMP_TABLE)
@@ -190,7 +188,7 @@ export function getResourceTree({
                 );
               }
 
-              if (search || onAttributionUuids) {
+              if (hasActiveFilters) {
                 query = query.where((eb) =>
                   filteredResourcesContainIdBetween(
                     eb.ref('r.id'),
@@ -256,6 +254,124 @@ export function getResourceTree({
         },
       };
     });
+}
+
+export async function getResourceTreeUnreviewedCount({
+  license,
+  onAttributionUuids,
+  search,
+}: {
+  license?: string;
+  onAttributionUuids?: Array<string>;
+  search?: string;
+}) {
+  const count = await getDb()
+    .transaction()
+    .execute(async (trx) =>
+      countUnreviewedFiles(trx, { license, onAttributionUuids, search }),
+    );
+
+  return { result: count };
+}
+
+async function countUnreviewedFiles(
+  trx: Transaction<DB>,
+  {
+    license,
+    onAttributionUuids,
+    search,
+  }: {
+    license?: string;
+    onAttributionUuids?: Array<string>;
+    search?: string;
+  },
+) {
+  return (
+    await trx
+      .selectFrom(
+        getFilteredResourcesQuery(trx, {
+          license,
+          onlyUnreviewedFiles: true,
+          onAttributionUuids,
+          search,
+        }).as('filtered_resources'),
+      )
+      .select((eb) => eb.fn.countAll<number>().as('count'))
+      .executeTakeFirstOrThrow()
+  ).count;
+}
+
+function getFilteredResourcesQuery(
+  trx: Transaction<DB>,
+  {
+    license,
+    onlyUnreviewedFiles,
+    onAttributionUuids,
+    search,
+  }: {
+    license?: string;
+    onlyUnreviewedFiles?: boolean;
+    onAttributionUuids?: Array<string>;
+    search?: string;
+  },
+) {
+  let query = trx.selectFrom('resource as r').select('r.id as id');
+
+  if (search) {
+    query = query.where('r.path', 'like', `%${search}%`);
+  }
+
+  if (license) {
+    query = query.where('r.id', 'in', (eb) =>
+      eb
+        .selectFrom('attribution as a')
+        .innerJoin(
+          'resource_to_attribution as rta',
+          'rta.attribution_uuid',
+          'a.uuid',
+        )
+        .select('rta.resource_id')
+        .where('a.is_external', '=', 0)
+        .where(
+          'a.canonical_license_name',
+          '=',
+          toCanonicalLicenseName(license),
+        ),
+    );
+  }
+
+  if (onAttributionUuids) {
+    query = query.where((eb) =>
+      eb.exists((eb) =>
+        eb
+          .selectFrom('resource_to_attribution as rta')
+          .select('rta.resource_id')
+          .whereRef('rta.resource_id', '=', 'r.id')
+          .where('rta.attribution_uuid', 'in', onAttributionUuids),
+      ),
+    );
+  }
+
+  if (onlyUnreviewedFiles) {
+    const filterExpressionBuilder = expressionBuilder<
+      DB,
+      'closest_attributed_ancestors'
+    >();
+    query = query
+      .where((eb) =>
+        eb.or([
+          eb('r.id', 'in', getOnlyExternalFilesQuery(filterExpressionBuilder)),
+          eb(
+            'r.id',
+            'in',
+            getOnlyPreSelectedManualFilesQuery(filterExpressionBuilder),
+          ),
+        ]),
+      )
+      .where('r.is_file', '=', 1);
+  }
+
+  return query;
 }
 
 type TreeNodeQueryType = DB & {

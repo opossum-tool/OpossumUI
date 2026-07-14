@@ -334,6 +334,7 @@ export const text = {
     preSelected: 'Pre-selected',
     previouslyPreferred: 'Previously Preferred',
     thirdParty: 'Third Party',
+    unreviewed: 'Unreviewed',
   },
   sortings: {
     criticality: 'By Criticality',

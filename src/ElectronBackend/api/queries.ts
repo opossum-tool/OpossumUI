@@ -27,7 +27,10 @@ import {
   getNextFileToReviewForClassification,
   getNextFileToReviewForCriticality,
 } from './progressBarQueries';
-import { getResourceTree } from './resourceTree';
+import {
+  getResourceTree,
+  getResourceTreeUnreviewedCount,
+} from './resourceTree';
 import {
   externalAttributionStatistics,
   licenseTable,
@@ -83,6 +86,7 @@ type QueryFunction = (
 export const queries = {
   listAttributions,
   getResourceTree,
+  getResourceTreeUnreviewedCount,
   manualAttributionStatistics,
   externalAttributionStatistics,
   licenseTable,

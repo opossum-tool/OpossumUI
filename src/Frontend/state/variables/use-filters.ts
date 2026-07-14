@@ -20,11 +20,21 @@ export interface AttributionFilters {
   sorting: SortOption;
 }
 
+export interface ResourceTreeFilters {
+  onlyUnreviewedFiles: boolean;
+  selectedLicense: string;
+}
+
 export const initialFilters: AttributionFilters = {
   filterKeys: [],
   search: '',
   selectedLicense: '',
   sorting: 'alphabetically',
+};
+
+const initialResourceTreeFilters: ResourceTreeFilters = {
+  onlyUnreviewedFiles: false,
+  selectedLicense: '',
 };
 
 export type UseAttributionFilters = typeof useManualAttributionFilters;
@@ -58,8 +68,8 @@ export function useExternalAttributionFilters() {
 }
 
 export function useResourceTreeFilters() {
-  return useVariable<AttributionFilters>(
+  return useVariable<ResourceTreeFilters>(
     RESOURCE_TREE_FILTERS,
-    structuredClone(initialFilters),
+    structuredClone(initialResourceTreeFilters),
   );
 }
