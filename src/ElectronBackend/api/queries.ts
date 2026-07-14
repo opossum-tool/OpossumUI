@@ -5,20 +5,19 @@
 import { sql } from 'kysely';
 import { omit, uniqBy } from 'lodash-es';
 
-import {
-  type Filter,
-  type FilterCounts,
-  FILTERS,
-} from '../../Frontend/shared-constants';
+import type { AttributionFilterKey } from '../../shared/shared-constants';
 import type {
   ExternalAttributionSources,
   PackageInfo,
   ProjectMetadata,
   RawClassificationsConfig,
 } from '../../shared/shared-types';
-import { text } from '../../shared/text';
 import { getDb } from '../db/db';
-import { getFilterExpression, getSearchExpression } from './filters';
+import {
+  getFilterExpression,
+  getFilterKeys,
+  getSearchExpression,
+} from './filters';
 import { listAttributions } from './listAttributions';
 import {
   getAttributionProgressBarData,
@@ -61,10 +60,10 @@ type AutocompleteOptions = Record<
   Array<{ contained_uuid: string; value: string; count: number }>
 >;
 
-export type FilterProperties = FilterCounts & {
+export type FilterProperties = {
   total: number;
   licenses: Array<string>;
-};
+} & Partial<Record<AttributionFilterKey, number>>;
 
 export type FilterPropertiesWithCanonicalLicenseNames = Omit<
   FilterProperties,
@@ -169,7 +168,7 @@ export const queries = {
 
   async filterProperties(props: {
     external: boolean;
-    filters: Array<Filter>;
+    filters: Array<AttributionFilterKey>;
     resourcePathForRelationships: string;
     license?: string;
     search?: string;
@@ -199,7 +198,7 @@ export const queries = {
       )
       .select((eb) => eb.fn.countAll<number>().as('total'))
       .select((eb) =>
-        FILTERS.map((f) =>
+        getFilterKeys().map((f) =>
           eb.fn
             .sum<number>(
               eb.case().when(getFilterExpression(f)).then(1).else(0).end(),
@@ -421,8 +420,8 @@ export const queries = {
           .where('attribution.is_external', '=', 0)
           .where((eb) =>
             eb.or([
-              getFilterExpression(text.filters.incompleteCoordinates),
-              getFilterExpression(text.filters.incompleteLegal),
+              getFilterExpression('incompleteCoordinates'),
+              getFilterExpression('incompleteLegal'),
             ]),
           )
           .limit(1)

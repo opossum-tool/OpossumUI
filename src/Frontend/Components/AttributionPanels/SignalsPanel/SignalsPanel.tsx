@@ -6,11 +6,11 @@ import MuiBox from '@mui/material/Box';
 import { useMemo } from 'react';
 
 import { text } from '../../../../shared/text';
-import { SIGNAL_FILTERS } from '../../../shared-constants';
 import { OpossumColors } from '../../../shared-styles';
 import { useExternalAttributionFilters } from '../../../state/variables/use-filters';
 import { usePickerMode } from '../../../state/variables/use-picker-mode';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
+import { signalFilterOptions } from '../attribution-filter-options';
 import { type Alert, PackagesPanel } from '../PackagesPanel/PackagesPanel';
 import { DeleteButton } from './DeleteButton/DeleteButton';
 import { LinkButton } from './LinkButton/LinkButton';
@@ -38,7 +38,7 @@ export function SignalsPanel() {
     <PackagesPanel
       external={true}
       alert={alert}
-      availableFilters={SIGNAL_FILTERS}
+      filterOptions={signalFilterOptions}
       renderActions={(props) => (
         <>
           <LinkButton {...props} />

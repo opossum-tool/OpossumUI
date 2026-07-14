@@ -33,7 +33,7 @@ export function useFilterProperties({
     resourceTree: useResourceTreeFilters,
   }[mode];
 
-  const [{ filters, search, selectedLicense }] = useFilters();
+  const [{ filterKeys, search, selectedLicense }] = useFilters();
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
@@ -43,7 +43,7 @@ export function useFilterProperties({
   const filterPropsQuery = backend.filterProperties.useQuery(
     {
       external: mode === 'external',
-      filters,
+      filters: filterKeys,
       search:
         mode === 'reportTable' || mode === 'resourceTree' ? undefined : search,
       license:

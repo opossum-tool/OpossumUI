@@ -15,7 +15,6 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { Attributions, Relation } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import type { Filter } from '../../../shared-constants';
 import {
   OpossumColors,
   PICKER_MODE_DISABLED_OPACITY,
@@ -32,10 +31,13 @@ import {
 } from '../../../state/variables/use-picker-mode';
 import { getRelationPriority } from '../../../util/sort-attributions';
 import { useFilteredAttributionsList } from '../../../util/use-attribution-lists';
+import { useFilterProperties } from '../../../util/use-filter-properties';
 import { usePrevious } from '../../../util/use-previous';
 import { Checkbox } from '../../Checkbox/Checkbox';
 import { FilterButton } from '../../FilterButton/FilterButton';
+import { useAttributionFilterOptions } from '../../FilterButton/use-attribution-filter-options';
 import { SortButton } from '../../SortButton/SortButton';
+import type { AttributionFilterOption } from '../attribution-filter-options';
 import {
   ActionBar,
   ActionBarContainer,
@@ -73,7 +75,7 @@ export interface Alert {
 interface Props {
   external: boolean;
   alert?: Alert;
-  availableFilters: Array<Filter>;
+  filterOptions: Array<AttributionFilterOption>;
   children: (props: PackagesPanelChildrenProps) => React.ReactNode;
   useAttributionFilters: UseAttributionFilters;
   renderActions: (props: PackagesPanelChildrenProps) => React.ReactNode;
@@ -83,7 +85,7 @@ interface Props {
 export const PackagesPanel = ({
   external,
   alert,
-  availableFilters,
+  filterOptions,
   children,
   renderActions,
   useAttributionFilters: useFilteredData,
@@ -97,6 +99,18 @@ export const PackagesPanel = ({
   const [multiSelectedAttributionIds, setMultiSelectedAttributionIds] =
     useState<Array<string>>([]);
   const [activeRelation, setActiveRelation] = useState<Relation>('children');
+  const { filterProps } = useFilterProperties({
+    mode: external ? 'external' : 'manual',
+  });
+  const [filters, setFilteredAttributions] = useFilteredData();
+  const { filterKeys, selectedLicense } = filters;
+  const menuFilterOptions = useAttributionFilterOptions({
+    filterOptions,
+    filterProps,
+    filters,
+    setFilters: setFilteredAttributions,
+  });
+  const isFilterActive = !!filterKeys.length || !!selectedLicense;
   const pickerMode = usePickerMode();
 
   const { attributions, loading } = useFilteredAttributionsList({ external });
@@ -251,13 +265,21 @@ export const PackagesPanel = ({
               useFilteredData={useFilteredData}
             />
             <FilterButton
-              mode={external ? 'external' : 'manual'}
-              availableFilters={availableFilters}
+              options={menuFilterOptions}
+              isActive={isFilterActive}
+              onClear={() =>
+                setFilteredAttributions((prev) => ({
+                  ...prev,
+                  filterKeys: [],
+                  selectedLicense: '',
+                }))
+              }
               anchorPosition={'right'}
-              useFilteredData={useFilteredData}
-              disabled={loading || isDisabledDuringReplacement}
-              emptyAttributions={
-                attributionIds !== null && attributionIds.length === 0
+              disabled={
+                loading || isDisabledDuringReplacement ||
+                (attributionIds !== null &&
+                  attributionIds.length === 0 &&
+                  !isFilterActive)
               }
             />
           </ButtonGroup>

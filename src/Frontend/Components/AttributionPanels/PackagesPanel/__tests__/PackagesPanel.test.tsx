@@ -44,7 +44,7 @@ function renderPackagesPanel({
   return renderComponent(
     <PackagesPanel
       external={false}
-      availableFilters={[]}
+      filterOptions={[]}
       renderActions={() => null}
       useAttributionFilters={() => [initialFilters, vi.fn()]}
     >
@@ -62,7 +62,7 @@ function rerenderPackagesPanel(
   rerender(
     <PackagesPanel
       external={false}
-      availableFilters={[]}
+      filterOptions={[]}
       renderActions={() => null}
       useAttributionFilters={() => [initialFilters, vi.fn()]}
     >

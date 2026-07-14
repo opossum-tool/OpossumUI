@@ -16,19 +16,17 @@ import {
 import { escapeRegExp, pickBy, snakeCase } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
-import { FILTERS } from '../../Frontend/shared-constants';
 import {
   COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES,
   isEqualToExternalAttribution,
   THIRD_PARTY_KEYS,
 } from '../../shared/attribution-comparison';
+import type { AttributionFilterKey } from '../../shared/shared-constants';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
 import type { DB } from '../db/generated/databaseTypes';
+import { getFilterKeys } from './filters';
 import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
-import type {
-  FilterProperties,
-  FilterPropertiesWithCanonicalLicenseNames,
-} from './queries';
+import type { FilterPropertiesWithCanonicalLicenseNames } from './queries';
 
 export type ResourceRelationship =
   'same' | 'ancestor' | 'descendant' | 'unrelated';
@@ -461,7 +459,7 @@ export function mergeFilterProperties(
   counts: Array<FilterPropertiesWithCanonicalLicenseNames | undefined>,
 ): FilterPropertiesWithCanonicalLicenseNames {
   const result = {
-    ...Object.fromEntries(['total', ...FILTERS].map((f) => [f, 0])),
+    ...Object.fromEntries(['total', ...getFilterKeys()].map((f) => [f, 0])),
     licenses: [] as Array<{ name: string; canonical_name: string }>,
   } as FilterPropertiesWithCanonicalLicenseNames;
 
@@ -475,7 +473,8 @@ export function mergeFilterProperties(
           ]),
         ];
       } else {
-        result[k as keyof Omit<FilterProperties, 'licenses'>] += v as number;
+        const key = k as AttributionFilterKey | 'total';
+        result[key] = (result[key] ?? 0) + (v as number);
       }
     }
   }
