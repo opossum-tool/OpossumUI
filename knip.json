@@ -6,5 +6,5 @@
     "src/ElectronBackend/db/generated/databaseTypes.ts": ["types"]
   },
   "ignoreDependencies": ["dpdm", "better-sqlite3-electron"],
-  "ignoreBinaries": ["tools/*", "spdx", "reuse", "licenses", "codesign"]
+  "ignoreBinaries": ["tools/*", "spdx", "reuse", "licenses"]
 }
