@@ -102,7 +102,7 @@
     "mockdate": "3.0.5",
     "nunjucks": "3.2.4",
     "prettier": "3.9.5",
-    "prettier-plugin-sh": "0.18.1",
+    "prettier-plugin-sh": "0.19.0",
     "run-script-os": "1.1.6",
     "tsx": "4.23.0",
     "typescript": "6.0.3",
