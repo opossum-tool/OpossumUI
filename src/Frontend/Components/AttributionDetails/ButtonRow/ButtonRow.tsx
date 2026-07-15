@@ -78,16 +78,10 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
 
   const [isDiffPopupOpen, setIsDiffPopupOpen] = useState(false);
 
-  const [compareSelectionSource, setCompareSelectionSource] =
+  const { compareSelectionSource, setCompareSelectionSource } =
     useCompareSelectionSource();
   const [isCompareSelectionDiffOpen, setIsCompareSelectionDiffOpen] =
     useState(false);
-
-  const compareSelectionSourceQuery = backend.getAttributionData.useQuery(
-    compareSelectionSource
-      ? { attributionUuid: compareSelectionSource.id }
-      : skipToken,
-  );
 
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
@@ -450,9 +444,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             color={'secondary'}
             disabled={mutationPending || isPackageInfoModified}
             onClick={() => {
-              setCompareSelectionSource({
-                id: packageInfo.id,
-              });
+              setCompareSelectionSource(packageInfo.id);
             }}
           >
             <CompareArrowsIcon />
@@ -468,7 +460,6 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     }
 
     const isPreviewingSource = compareSelectionSource.id === packageInfo.id;
-    const sourcePackageInfo = compareSelectionSourceQuery.data?.packageInfo;
 
     return (
       <>
@@ -476,17 +467,17 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
           <MuiButton
             variant={'contained'}
             color={'success'}
-            disabled={!packageInfo.id || !sourcePackageInfo}
+            disabled={!packageInfo.id || !compareSelectionSource}
             onClick={() => setIsCompareSelectionDiffOpen(true)}
           >
             {text.attributionColumn.compareConfirm}
           </MuiButton>
         )}
         {renderPickerModeCancelButton(() => setCompareSelectionSource(null))}
-        {sourcePackageInfo && !isPreviewingSource && (
+        {compareSelectionSource && !isPreviewingSource && (
           <DiffPopup
             original={packageInfo}
-            current={sourcePackageInfo}
+            current={compareSelectionSource}
             isOpen={isCompareSelectionDiffOpen}
             setOpen={setIsCompareSelectionDiffOpen}
             readOnly

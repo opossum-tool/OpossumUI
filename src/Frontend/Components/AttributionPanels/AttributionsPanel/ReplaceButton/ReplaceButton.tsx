@@ -9,7 +9,6 @@ import { useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
-import { useCompareSelectionSource } from '../../../../state/variables/use-compare-selection';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
@@ -17,10 +16,10 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
   multiSelectedAttributionIds,
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
+  pickerMode,
 }) => {
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
-  const [compareSelectionSource] = useCompareSelectionSource();
   const label = attributionIdsForReplacement.length
     ? text.packageLists.cancelReplace
     : text.packageLists.replace;
@@ -36,7 +35,7 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
         !(attributionIds.length - multiSelectedAttributionIds.length) ||
         attributionIds.length < 2 ||
         mutationsPending ||
-        !!compareSelectionSource
+        pickerMode.mode === 'compare'
       }
       size={'small'}
       onClick={() => {

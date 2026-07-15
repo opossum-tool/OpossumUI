@@ -392,11 +392,7 @@ describe('AttributionsPanel', () => {
         manualAttributions,
         metadata: faker.opossum.metadata(),
       }),
-      actions: [
-        setVariable(COMPARE_SELECTION_SOURCE, {
-          id: packageInfo1.id,
-        }),
-      ],
+      actions: [setVariable(COMPARE_SELECTION_SOURCE, packageInfo1.id)],
     });
 
     await userEvent.click(
