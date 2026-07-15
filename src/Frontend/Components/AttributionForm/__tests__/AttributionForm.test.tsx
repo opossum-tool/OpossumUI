@@ -194,6 +194,22 @@ describe('AttributionForm', () => {
       );
     });
 
+    it('does not render an add button when no interactive options are unselected', async () => {
+      const packageInfo = faker.opossum.packageInfo({
+        excludeFromNotice: true,
+        followUp: true,
+        needsReview: true,
+        preferred: true,
+      });
+      await renderComponent(
+        <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
+      );
+
+      expect(
+        screen.queryByText(text.auditingOptions.add),
+      ).not.toBeInTheDocument();
+    });
+
     it('renders a chip for preferred', async () => {
       const packageInfo = faker.opossum.packageInfo({ preferred: true });
       await renderComponent(<AttributionForm packageInfo={packageInfo} />);
