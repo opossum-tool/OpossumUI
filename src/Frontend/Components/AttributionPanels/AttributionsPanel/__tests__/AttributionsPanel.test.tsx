@@ -395,7 +395,6 @@ describe('AttributionsPanel', () => {
       actions: [
         setVariable(COMPARE_SELECTION_SOURCE, {
           id: packageInfo1.id,
-          label: `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
         }),
       ],
     });

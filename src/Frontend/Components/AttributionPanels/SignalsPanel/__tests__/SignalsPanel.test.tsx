@@ -110,7 +110,6 @@ describe('SignalsPanel', () => {
         setSelectedResourceId(ROOT_PATH),
         setVariable(COMPARE_SELECTION_SOURCE, {
           id: sourcePackageInfo.id,
-          label: `${sourcePackageInfo.packageName}, ${sourcePackageInfo.packageVersion}`,
         }),
       ],
     });

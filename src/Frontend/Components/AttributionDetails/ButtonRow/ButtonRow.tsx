@@ -31,7 +31,6 @@ import {
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import { useCompareSelectionSource } from '../../../state/variables/use-compare-selection';
 import { backend } from '../../../util/backendClient';
-import { getCardLabels } from '../../../util/get-card-labels';
 import { isPackageInvalid } from '../../../util/input-validation';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import { useSelectedAttributionPackageInfo } from '../../../util/use-selected-attribution';
@@ -453,7 +452,6 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
             onClick={() => {
               setCompareSelectionSource({
                 id: packageInfo.id,
-                label: getCardLabels(packageInfo)[0] ?? '',
               });
             }}
           >

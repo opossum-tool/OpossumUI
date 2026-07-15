@@ -8,7 +8,6 @@ export const COMPARE_SELECTION_SOURCE = 'compare-selection-source';
 
 export interface CompareSelectionSource {
   id: string;
-  label: string;
 }
 
 export function useCompareSelectionSource() {

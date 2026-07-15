@@ -77,8 +77,6 @@ export const text = {
     compareWith: 'Compare with…',
     comparedLicenseInformation: 'Compared License Information',
     comparedPackageCoordinates: 'Compared Component Coordinates',
-    comparingWith: (name: string) => `Comparing with ${name}`,
-    replacing: (attributions: string) => `Replacing ${attributions}`,
     confidence: 'Confidence',
     confirm: 'Confirm',
     copyToClipboard: 'Copy to clipboard',
