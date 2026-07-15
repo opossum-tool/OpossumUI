@@ -31,7 +31,7 @@ export const ValueFilterAutocomplete: React.FC<Props> = ({
   return (
     <Autocomplete<string, false, false, false>
       sx={{ height: '38px' }}
-      background={'transparent'}
+      background={selectedValue ? OpossumColors.lightestBlue : 'transparent'}
       variant={'filled'}
       placeholder={placeholder}
       options={options}
