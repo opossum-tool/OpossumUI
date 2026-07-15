@@ -679,10 +679,20 @@ describe('AttributionDetails', () => {
     const diffPopup = within(screen.getByLabelText('diff popup'));
     expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
     expect(
-      diffPopup.getByText(text.attributionColumn.originalPackageCoordinates),
+      diffPopup.getByText(
+        text.attributionColumn.sectionTitle(
+          text.attributionColumn.original,
+          text.attributionColumn.packageCoordinates,
+        ),
+      ),
     ).toBeInTheDocument();
     expect(
-      diffPopup.getByText(text.attributionColumn.currentPackageCoordinates),
+      diffPopup.getByText(
+        text.attributionColumn.sectionTitle(
+          text.attributionColumn.current,
+          text.attributionColumn.packageCoordinates,
+        ),
+      ),
     ).toBeInTheDocument();
   });
 
@@ -859,13 +869,28 @@ describe('AttributionDetails', () => {
       diffPopup.getByDisplayValue(target.packageName!),
     ).toBeInTheDocument();
     expect(
-      diffPopup.getByText(text.attributionColumn.comparedPackageCoordinates),
+      diffPopup.getByText(
+        text.attributionColumn.sectionTitle(
+          text.attributionColumn.compared,
+          text.attributionColumn.packageCoordinates,
+        ),
+      ),
     ).toBeInTheDocument();
     expect(
-      diffPopup.getByText(text.attributionColumn.selectedPackageCoordinates),
+      diffPopup.getByText(
+        text.attributionColumn.sectionTitle(
+          text.attributionColumn.selected,
+          text.attributionColumn.packageCoordinates,
+        ),
+      ),
     ).toBeInTheDocument();
     expect(
-      diffPopup.queryByText(text.attributionColumn.originalPackageCoordinates),
+      diffPopup.queryByText(
+        text.attributionColumn.sectionTitle(
+          text.attributionColumn.original,
+          text.attributionColumn.packageCoordinates,
+        ),
+      ),
     ).not.toBeInTheDocument();
 
     expect(

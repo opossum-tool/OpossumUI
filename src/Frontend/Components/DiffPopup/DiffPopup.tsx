@@ -133,23 +133,16 @@ export function DiffPopup({
   );
 
   function renderDiffView() {
-    const formSectionLabels =
+    const sectionPrefixes =
       comparisonMode === 'compare-attributions'
         ? {
-            original: {
-              packageCoordinates:
-                text.attributionColumn.comparedPackageCoordinates,
-              legalInformation:
-                text.attributionColumn.comparedLicenseInformation,
-            },
-            current: {
-              packageCoordinates:
-                text.attributionColumn.selectedPackageCoordinates,
-              legalInformation:
-                text.attributionColumn.selectedLicenseInformation,
-            },
+            original: text.attributionColumn.compared,
+            current: text.attributionColumn.selected,
           }
-        : undefined;
+        : {
+            original: text.attributionColumn.original,
+            current: text.attributionColumn.current,
+          };
 
     return (
       <DiffPopupContainer>
@@ -158,7 +151,7 @@ export function DiffPopup({
           variant={'diff-original'}
           label={'original'}
           config={originalFormConfig}
-          sectionLabels={formSectionLabels?.original}
+          sectionPrefix={sectionPrefixes.original}
         />
         <MuiDivider
           variant={'middle'}
@@ -170,7 +163,7 @@ export function DiffPopup({
           variant={'diff-current'}
           label={'current'}
           config={bufferFormConfig}
-          sectionLabels={formSectionLabels?.current}
+          sectionPrefix={sectionPrefixes.current}
         />
       </DiffPopupContainer>
     );
