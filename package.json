@@ -82,7 +82,7 @@
     "cross-env": "10.1.0",
     "dotenv": "17.4.2",
     "dpdm": "4.2.0",
-    "electron": "41.2.0",
+    "electron": "43.1.0",
     "electron-builder": "26.15.3",
     "electron-playwright-helpers": "2.1.0",
     "eslint": "10.7.0",
@@ -222,6 +222,9 @@
     "node": ">=24.0.0"
   },
   "packageManager": "yarn@4.17.1",
+  "resolutions": {
+    "@electron/rebuild/node-abi": "4.33.0"
+  },
   "dependenciesMeta": {
     "better-sqlite3": {
       "built": true
