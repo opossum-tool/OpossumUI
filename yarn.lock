@@ -2723,13 +2723,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/js-yaml@npm:4.0.9":
-  version: 4.0.9
-  resolution: "@types/js-yaml@npm:4.0.9"
-  checksum: 10/a0ce595db8a987904badd21fc50f9f444cb73069f4b95a76cc222e0a17b3ff180669059c763ec314bc4c3ce284379177a9da80e83c5f650c6c1310cafbfaa8e6
-  languageName: node
-  linkType: hard
-
 "@types/jsesc@npm:^2.5.0":
   version: 2.5.1
   resolution: "@types/jsesc@npm:2.5.1"
@@ -6997,7 +6990,6 @@ __metadata:
     "@types/babel__core": "npm:7.20.5"
     "@types/better-sqlite3": "npm:7.6.13"
     "@types/chroma-js": "npm:3.1.2"
-    "@types/js-yaml": "npm:4.0.9"
     "@types/lodash": "npm:4.17.24"
     "@types/lodash-es": "npm:4.17.12"
     "@types/node": "npm:24.10.9"
