@@ -33,7 +33,10 @@ import { useCompareSelectionSource } from '../../../state/variables/use-compare-
 import { backend } from '../../../util/backendClient';
 import { isPackageInvalid } from '../../../util/input-validation';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
-import { useSelectedAttributionPackageInfo } from '../../../util/use-selected-attribution';
+import {
+  useSelectedAttributionIsExternal,
+  useSelectedAttributionPackageInfo,
+} from '../../../util/use-selected-attribution';
 import { useIsSelectedResourceBreakpoint } from '../../../util/use-selected-resource';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
@@ -51,6 +54,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
   const initialPackageInfo = useSelectedAttributionPackageInfo();
+  const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
 
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
@@ -178,10 +182,12 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     const isPreviewingSource = attributionIdsForReplacement.includes(
       packageInfo.id,
     );
+    const canUseAsReplacement =
+      !isPreviewingSource && selectedAttributionIsExternal === false;
 
     return (
       <>
-        {!isPreviewingSource && (
+        {canUseAsReplacement && (
           <MuiButton
             variant={'contained'}
             color={'success'}
@@ -194,7 +200,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
         {renderPickerModeCancelButton(() =>
           setAttributionIdsForReplacement([]),
         )}
-        {!isPreviewingSource && (
+        {canUseAsReplacement && (
           <ConfirmReplacePopup
             selectedAttribution={packageInfo}
             open={isReplaceAttributionsPopupOpen}

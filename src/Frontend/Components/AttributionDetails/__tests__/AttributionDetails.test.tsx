@@ -98,6 +98,35 @@ describe('AttributionDetails', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('hides use as replacement when the selected attribution is external', async () => {
+    const externalAttribution = faker.opossum.packageInfo();
+    const manualAttribution = faker.opossum.packageInfo();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: {
+          [externalAttribution.id]: externalAttribution,
+        },
+        manualAttributions: {
+          [manualAttribution.id]: manualAttribution,
+        },
+      }),
+      actions: [
+        setTemporaryDisplayPackageInfo(externalAttribution),
+        setSelectedAttributionId(externalAttribution.id),
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          manualAttribution.id,
+        ]),
+      ],
+    });
+
+    expect(
+      await screen.findByRole('button', { name: text.buttons.cancel }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.replace }),
+    ).not.toBeInTheDocument();
+  });
+
   it('shows only picker mode actions when multiple attributions are marked for replacement', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
