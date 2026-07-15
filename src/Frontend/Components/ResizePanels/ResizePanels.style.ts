@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import ClearIcon from '@mui/icons-material/Clear';
 import { alpha, styled } from '@mui/material';
+import MuiFab from '@mui/material/Fab';
 import MuiInputBase from '@mui/material/InputBase';
 import MuiPaper from '@mui/material/Paper';
 import MuiTypography from '@mui/material/Typography';
@@ -12,6 +13,19 @@ import MuiTypography from '@mui/material/Typography';
 import { OpossumColors, TRANSITION } from '../../shared-styles';
 
 export const HEADER_HEIGHT = 32;
+
+export const HeaderIconButton = styled(MuiFab)({
+  boxShadow: 'none',
+  width: '24px',
+  minWidth: '24px',
+  height: '24px',
+  minHeight: '24px',
+  backgroundColor: alpha(OpossumColors.white, 0.15),
+  '&:hover': {
+    backgroundColor: alpha(OpossumColors.white, 0.25),
+  },
+  transition: TRANSITION,
+});
 
 export const Header = styled(MuiPaper)({
   background: OpossumColors.middleBlue,

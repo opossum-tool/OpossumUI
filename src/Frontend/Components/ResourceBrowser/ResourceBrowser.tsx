@@ -7,7 +7,6 @@ import { useCallback, useMemo } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
-import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import {
   getExpandedIds,
@@ -19,14 +18,37 @@ import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
 import { backend } from '../../util/backendClient';
 import { useDebouncedInput } from '../../util/use-debounced-input';
-import { FilterButton } from '../FilterButton/FilterButton';
+import {
+  FilterButton,
+  type FilterButtonTriggerProps,
+} from '../FilterButton/FilterButton';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
 import { useLinkedResourcesTreeState } from './LinkedResourcesTree/useLinkedResourcesTreeState';
+import { FilterIconButton } from './ResourceBrowser.style';
 import { ResourcesTree } from './ResourcesTree/ResourcesTree';
 
 const ALL_RESOURCES_SEARCH = 'all-resources-search';
 const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
+
+function renderResourceBrowserFilterTrigger({
+  content,
+  disabled,
+  isSomeFilterActive,
+  onClick,
+}: FilterButtonTriggerProps) {
+  return (
+    <FilterIconButton
+      aria-label={'filter button'}
+      onClick={onClick}
+      disabled={disabled}
+      isFilterActive={isSomeFilterActive}
+      size={'small'}
+    >
+      {content}
+    </FilterIconButton>
+  );
+}
 
 export function ResourceBrowser() {
   const { panelSizes, setPanelSizes } = usePanelSizes();
@@ -49,8 +71,8 @@ export function ResourceBrowser() {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
   // All resources
-  const [{ selectedLicense: resourceTreeSelectedLicense }] =
-    useResourceTreeFilters();
+  const [resourceTreeFilters] = useResourceTreeFilters();
+  const { selectedLicense: resourceTreeSelectedLicense } = resourceTreeFilters;
   const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
   const debouncedSearchAll = useDebouncedInput(searchAll);
   const expandedIdsAll = useAppSelector(getExpandedIds);
@@ -122,12 +144,8 @@ export function ResourceBrowser() {
             useFilteredData={useResourceTreeFilters}
             availableFilters={[]}
             anchorPosition={'right'}
-            activeBadgeStyle={{
-              backgroundColor: OpossumColors.white,
-              boxShadow: 'none',
-            }}
-            activeIconSx={{ color: OpossumColors.white }}
-            iconSx={{ color: OpossumColors.lightBlue }}
+            badgeColor={'secondary'}
+            renderTrigger={renderResourceBrowserFilterTrigger}
           />
         ),
         component: (
