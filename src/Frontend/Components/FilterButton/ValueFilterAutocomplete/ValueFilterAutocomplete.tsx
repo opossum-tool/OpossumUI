@@ -5,8 +5,11 @@
 import { OpossumColors } from '../../../shared-styles';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 
+const DISABLED_FILTER_OPACITY = 0.5;
+
 interface Props {
   ariaLabel: string;
+  disabled?: boolean;
   options: Array<string>;
   placeholder: string;
   getSelectedValueLabel?: (value: string) => string;
@@ -19,6 +22,7 @@ interface Props {
 
 export const ValueFilterAutocomplete: React.FC<Props> = ({
   ariaLabel,
+  disabled,
   options,
   placeholder,
   getSelectedValueLabel,
@@ -30,8 +34,12 @@ export const ValueFilterAutocomplete: React.FC<Props> = ({
 }) => {
   return (
     <Autocomplete<string, false, false, false>
-      sx={{ height: '38px' }}
+      sx={{
+        height: '38px',
+        opacity: disabled ? DISABLED_FILTER_OPACITY : 1,
+      }}
       background={selectedValue ? OpossumColors.lightestBlue : 'transparent'}
+      disabled={disabled}
       variant={'filled'}
       placeholder={placeholder}
       options={options}

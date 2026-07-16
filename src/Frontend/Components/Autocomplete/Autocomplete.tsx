@@ -174,7 +174,7 @@ export function Autocomplete<
     groupedOptionsRef.current = groupedOptions;
   }, [groupedOptions]);
 
-  const hasPopupIndicator = !freeSolo && !hidePopupIndicator;
+  const hasPopupIndicator = !disabled && !freeSolo && !hidePopupIndicator;
   const hasClearButton =
     !disableClearable && !disabled && !readOnly && containsValue;
   const isPopupOpen = !!groupedOptions.length && popupOpen;

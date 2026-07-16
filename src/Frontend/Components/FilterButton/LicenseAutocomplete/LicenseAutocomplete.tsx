@@ -25,6 +25,7 @@ export const LicenseAutocomplete = ({
   return (
     <ValueFilterAutocomplete
       ariaLabel={'license names'}
+      disabled={licenses.length === 0 && !selectedLicense}
       options={licenses}
       placeholder={text.packageLists.selectLicense}
       startAdornment={
