@@ -10,6 +10,7 @@ import {
   EXTERNAL_ATTRIBUTION_FILTERS,
   MANUAL_ATTRIBUTION_FILTERS_AUDIT,
   MANUAL_ATTRIBUTION_FILTERS_REPORT,
+  RESOURCE_TREE_FILTERS,
 } from '../variables/use-filters';
 
 export type VariablesState = Record<string, unknown>;
@@ -24,6 +25,7 @@ export function variablesState(
         MANUAL_ATTRIBUTION_FILTERS_AUDIT,
         MANUAL_ATTRIBUTION_FILTERS_REPORT,
         EXTERNAL_ATTRIBUTION_FILTERS,
+        RESOURCE_TREE_FILTERS,
       ]);
     case SET_VARIABLE:
       return {

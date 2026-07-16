@@ -208,12 +208,14 @@ describe('FilterButton', () => {
     await userEvent.click(
       screen.getByRole('button', { name: 'filter button' }),
     );
-    await userEvent.click(screen.getByLabelText('clear button'));
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.packageLists.clearFilters }),
+    );
 
     expect(result!.selectedLicense).toBe('');
   });
 
-  it('removes all selected filters via clear button', async () => {
+  it('removes all selected filters via clear menu entry', async () => {
     let result: AttributionFilters;
     const prev: AttributionFilters = initialFilters;
     const setFilteredData = vi.fn((fn) => {
@@ -241,7 +243,7 @@ describe('FilterButton', () => {
       screen.getByRole('button', { name: 'filter button' }),
     );
     await userEvent.click(
-      screen.getByLabelText(text.packageLists.clearFilters),
+      screen.getByRole('menuitem', { name: text.packageLists.clearFilters }),
     );
 
     expect(result!.filters).toEqual([]);

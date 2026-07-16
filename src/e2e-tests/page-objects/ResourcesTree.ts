@@ -5,14 +5,26 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 export class ResourcesTree {
+  private readonly window: Page;
   private readonly node: Locator;
   private readonly header: Locator;
+  readonly filterButton: Locator;
+  readonly filters: {
+    readonly license: Locator;
+  };
   readonly searchField: Locator;
   readonly clearSearchButton: Locator;
 
   constructor(window: Page) {
+    this.window = window;
     this.node = window.getByTestId('resources-tree');
     this.header = window.getByTestId('resources-tree-header');
+    this.filterButton = this.header.getByLabel('filter button', {
+      exact: true,
+    });
+    this.filters = {
+      license: window.getByLabel('license names'),
+    };
     this.searchField = this.header.getByRole('searchbox');
     this.clearSearchButton = this.header.getByLabel('clear search');
   }
@@ -44,5 +56,15 @@ export class ResourcesTree {
     for (const resourceName of resourceNames) {
       await this.node.getByText(resourceName, { exact: true }).click();
     }
+  }
+
+  async closeMenu(): Promise<void> {
+    await this.window.keyboard.press('Escape');
+  }
+
+  async selectLicenseName(licenseName: string): Promise<void> {
+    await this.filters.license.fill(licenseName);
+    await this.window.keyboard.press('ArrowUp');
+    await this.window.keyboard.press('Enter');
   }
 }

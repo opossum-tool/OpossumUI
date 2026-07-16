@@ -28,6 +28,7 @@ const GOLDEN_RATIO = 1.61803398875;
 interface ResizePanel {
   component: React.ReactNode;
   title: string;
+  headerActions?: React.ReactNode;
   search: {
     value: string;
     setValue: (search: string) => void;
@@ -204,12 +205,16 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
 
   function renderHeader({
     title,
+    headerActions,
     search,
     showResizeButtons,
     searchRef,
     showSearch,
     headerTestId,
-  }: Pick<ResizePanel, 'title' | 'search' | 'headerTestId'> & {
+  }: Pick<
+    ResizePanel,
+    'title' | 'search' | 'headerActions' | 'headerTestId'
+  > & {
     title: string;
     showResizeButtons?: boolean;
     showSearch: boolean;
@@ -219,6 +224,7 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
       <Header data-testid={headerTestId} square>
         <HeaderText>{title}</HeaderText>
         {showSearch && renderSearchButton({ search, searchRef })}
+        {showSearch && headerActions}
         {showResizeButtons && renderDownResizeButton()}
         {showResizeButtons && renderUpResizeButton()}
       </Header>

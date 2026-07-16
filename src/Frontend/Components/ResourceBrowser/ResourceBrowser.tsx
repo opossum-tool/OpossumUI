@@ -13,13 +13,16 @@ import {
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
+import { useResourceTreeFilters } from '../../state/variables/use-filters';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
 import { backend } from '../../util/backendClient';
 import { useDebouncedInput } from '../../util/use-debounced-input';
+import { FilterButton } from '../FilterButton/FilterButton';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
 import { useLinkedResourcesTreeState } from './LinkedResourcesTree/useLinkedResourcesTreeState';
+import { resourceBrowserFilterButtonStyle } from './ResourceBrowser.style';
 import { ResourcesTree } from './ResourcesTree/ResourcesTree';
 
 const ALL_RESOURCES_SEARCH = 'all-resources-search';
@@ -46,12 +49,33 @@ export function ResourceBrowser() {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
   // All resources
+  const [resourceTreeFilters] = useResourceTreeFilters();
+  const { selectedLicense: resourceTreeSelectedLicense } = resourceTreeFilters;
   const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
   const debouncedSearchAll = useDebouncedInput(searchAll);
   const expandedIdsAll = useAppSelector(getExpandedIds);
+  const resourceTreeAttributionsWithSelectedLicense =
+    backend.listAttributions.useQuery(
+      {
+        external: false,
+        license: resourceTreeSelectedLicense,
+      },
+      { enabled: !!resourceTreeSelectedLicense },
+    );
+  const resourceTreeAttributionUuids = useMemo(
+    () =>
+      resourceTreeSelectedLicense
+        ? Object.keys(resourceTreeAttributionsWithSelectedLicense.data ?? {})
+        : undefined,
+    [
+      resourceTreeSelectedLicense,
+      resourceTreeAttributionsWithSelectedLicense.data,
+    ],
+  );
   const resourceTreeAll = backend.getResourceTree.useQuery(
     {
       expandedNodes: expandedIdsAll,
+      onAttributionUuids: resourceTreeAttributionUuids,
       search: debouncedSearchAll,
       selectedResourcePath: selectedResourceId,
     },
@@ -92,6 +116,16 @@ export function ResourceBrowser() {
           setValue: setSearchAll,
           channel: AllowedFrontendChannels.SearchResources,
         },
+        headerActions: (
+          <FilterButton
+            mode={'resourceTree'}
+            useFilteredData={useResourceTreeFilters}
+            availableFilters={[]}
+            anchorPosition={'right'}
+            badgeColor={'secondary'}
+            triggerStyle={resourceBrowserFilterButtonStyle}
+          />
+        ),
         component: (
           <ResourcesTree resources={resourceTreeAll.data?.treeNodes ?? []} />
         ),
