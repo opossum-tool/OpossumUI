@@ -9,8 +9,10 @@ import {
   type SqlBool,
 } from 'kysely';
 
-import type { Filter } from '../../Frontend/shared-constants';
-import { text } from '../../shared/text';
+import {
+  ATTRIBUTION_FILTER_KEYS,
+  type AttributionFilterKey,
+} from '../../shared/shared-constants';
 import type { DB } from '../db/generated/databaseTypes';
 
 const LOW_CONFIDENCE_THRESHOLD = 60;
@@ -28,20 +30,21 @@ const TYPES_REQUIRING_NAMESPACE = [
  * Return a kysely expression that is 1 if a column in the table
  * matches the expression, 0 else
  */
-export function getFilterExpression(
-  filter: Filter,
-): OperandExpression<SqlBool> {
+function getFilters(): Record<
+  AttributionFilterKey,
+  OperandExpression<SqlBool>
+> {
   const eb = expressionBuilder<DB, 'attribution'>();
   const filters = {
-    [text.filters.currentlyPreferred]: eb('preferred', '=', 1),
-    [text.filters.excludedFromNotice]: eb('exclude_from_notice', '=', 1),
-    [text.filters.firstParty]: eb('first_party', '=', 1),
-    [text.filters.highConfidence]: eb(
+    currentlyPreferred: eb('preferred', '=', 1),
+    excludedFromNotice: eb('exclude_from_notice', '=', 1),
+    firstParty: eb('first_party', '=', 1),
+    highConfidence: eb(
       'attribution_confidence',
       '>=',
       LOW_CONFIDENCE_THRESHOLD,
     ),
-    [text.filters.incompleteCoordinates]: eb.and([
+    incompleteCoordinates: eb.and([
       eb('exclude_from_notice', '=', 0),
       eb('first_party', '=', 0),
       eb.or([
@@ -60,7 +63,7 @@ export function getFilterExpression(
         ]),
       ]),
     ]),
-    [text.filters.incompleteLegal]: eb.and([
+    incompleteLegal: eb.and([
       eb('exclude_from_notice', '=', 0),
       eb('first_party', '=', 0),
       eb.or([
@@ -75,25 +78,35 @@ export function getFilterExpression(
         ]),
       ]),
     ]),
-    [text.filters.lowConfidence]: eb(
+    lowConfidence: eb(
       'attribution.attribution_confidence',
       '<',
       LOW_CONFIDENCE_THRESHOLD,
     ),
-    [text.filters.needsFollowUp]: eb('follow_up', '=', 1),
-    [text.filters.needsReview]: eb('needs_review', '=', 1),
-    [text.filters.notExcludedFromNotice]: eb('exclude_from_notice', '=', 0),
-    [text.filters.preSelected]: eb('pre_selected', '=', 1),
-    [text.filters.notPreSelected]: eb('pre_selected', '=', 0),
-    [text.filters.previouslyPreferred]: eb('was_preferred', '=', 1),
-    [text.filters.thirdParty]: eb('first_party', '=', 0),
-    [text.filters.modifiedPreferred]: eb.and([
+    needsFollowUp: eb('follow_up', '=', 1),
+    needsReview: eb('needs_review', '=', 1),
+    notExcludedFromNotice: eb('exclude_from_notice', '=', 0),
+    preSelected: eb('pre_selected', '=', 1),
+    notPreSelected: eb('pre_selected', '=', 0),
+    previouslyPreferred: eb('was_preferred', '=', 1),
+    thirdParty: eb('first_party', '=', 0),
+    modifiedPreferred: eb.and([
       eb('original_attribution_was_preferred', '=', 1),
       eb('was_preferred', '=', 0),
     ]),
-  } satisfies Record<Filter, OperandExpression<SqlBool>>;
+  };
 
-  return filters[filter];
+  return filters;
+}
+
+export function getFilterExpression(
+  filter: AttributionFilterKey,
+): OperandExpression<SqlBool> {
+  return getFilters()[filter];
+}
+
+export function getFilterKeys(): ReadonlyArray<AttributionFilterKey> {
+  return ATTRIBUTION_FILTER_KEYS;
 }
 
 export function getSearchExpression(

@@ -9,7 +9,7 @@ import userEvent from '@testing-library/user-event';
 import { text } from '../../../../shared/text';
 import {
   type AttributionFilters,
-  initialFilters,
+  initialAttributionFilters,
   type UseAttributionFilters,
 } from '../../../state/variables/use-filters';
 import { renderComponent } from '../../../test-helpers/render';
@@ -19,13 +19,13 @@ import type { SortOption } from '../useSortingOptions';
 describe('SortButton', () => {
   it('switches to selected sorting', async () => {
     let result: AttributionFilters;
-    const prev: AttributionFilters = initialFilters;
+    const prev: AttributionFilters = initialAttributionFilters;
     const setFilteredData = vi.fn((fn) => {
       result = fn(prev);
     });
     const sorting: SortOption = 'criticality';
     const useFilteredData: UseAttributionFilters = () => [
-      initialFilters,
+      initialAttributionFilters,
       setFilteredData,
     ];
     await renderComponent(<SortButton useFilteredData={useFilteredData} />);
@@ -40,7 +40,7 @@ describe('SortButton', () => {
 
   it('sort button is disabled when there are no attributions', async () => {
     const useFilteredData: UseAttributionFilters = () => [
-      initialFilters,
+      initialAttributionFilters,
       vi.fn(),
     ];
     await renderComponent(
@@ -52,7 +52,7 @@ describe('SortButton', () => {
 
   it('shows all sort options', async () => {
     const useFilteredData: UseAttributionFilters = () => [
-      initialFilters,
+      initialAttributionFilters,
       vi.fn(),
     ];
     await renderComponent(<SortButton useFilteredData={useFilteredData} />);

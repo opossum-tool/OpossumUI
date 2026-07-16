@@ -9,7 +9,6 @@ import {
   type SqlBool,
 } from 'kysely';
 
-import { text } from '../../shared/text';
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
 import { getFilterExpression } from './filters';
@@ -33,8 +32,8 @@ export async function manualAttributionStatistics() {
 
   const incompleteManualAttributions = await attributionStats(
     eb.or([
-      getFilterExpression(text.filters.incompleteCoordinates),
-      getFilterExpression(text.filters.incompleteLegal),
+      getFilterExpression('incompleteCoordinates'),
+      getFilterExpression('incompleteLegal'),
     ]),
   );
   const totalManualAttributions = await attributionStats(sql`TRUE`);
@@ -42,21 +41,15 @@ export async function manualAttributionStatistics() {
   const attributionsOverview = [
     {
       name: 'needsReview' as const,
-      count: await attributionStats(
-        getFilterExpression(text.filters.needsReview),
-      ),
+      count: await attributionStats(getFilterExpression('needsReview')),
     },
     {
       name: 'followUp' as const,
-      count: await attributionStats(
-        getFilterExpression(text.filters.needsFollowUp),
-      ),
+      count: await attributionStats(getFilterExpression('needsFollowUp')),
     },
     {
       name: 'firstParty' as const,
-      count: await attributionStats(
-        getFilterExpression(text.filters.firstParty),
-      ),
+      count: await attributionStats(getFilterExpression('firstParty')),
     },
     {
       name: 'incomplete' as const,

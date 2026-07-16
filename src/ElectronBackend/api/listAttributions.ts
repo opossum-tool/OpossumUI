@@ -5,7 +5,7 @@
 import { sql } from 'kysely';
 
 import type { SortOption } from '../../Frontend/Components/SortButton/useSortingOptions';
-import type { Filter } from '../../Frontend/shared-constants';
+import type { AttributionFilterKey } from '../../shared/shared-constants';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import { getFilterExpression, getSearchExpression } from './filters';
@@ -19,7 +19,7 @@ import {
 
 export async function listAttributions(props: {
   external?: boolean;
-  filters?: Array<Filter>;
+  filters?: Array<AttributionFilterKey>;
   resourcePathForRelationships?: string;
   sort?: SortOption;
   license?: string;

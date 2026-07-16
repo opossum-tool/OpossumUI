@@ -5,20 +5,19 @@
 import { sql } from 'kysely';
 import { omit, uniqBy } from 'lodash-es';
 
-import {
-  type Filter,
-  type FilterCounts,
-  FILTERS,
-} from '../../Frontend/shared-constants';
+import type { AttributionFilterKey } from '../../shared/shared-constants';
 import type {
   ExternalAttributionSources,
   PackageInfo,
   ProjectMetadata,
   RawClassificationsConfig,
 } from '../../shared/shared-types';
-import { text } from '../../shared/text';
 import { getDb } from '../db/db';
-import { getFilterExpression, getSearchExpression } from './filters';
+import {
+  getFilterExpression,
+  getFilterKeys,
+  getSearchExpression,
+} from './filters';
 import { listAttributions } from './listAttributions';
 import {
   getAttributionProgressBarData,
@@ -28,7 +27,10 @@ import {
   getNextFileToReviewForClassification,
   getNextFileToReviewForCriticality,
 } from './progressBarQueries';
-import { getResourceTree } from './resourceTree';
+import {
+  getResourceTree,
+  getResourceTreeUnreviewedCount,
+} from './resourceTree';
 import {
   externalAttributionStatistics,
   licenseTable,
@@ -39,7 +41,6 @@ import {
   GET_LEGACY_RESOURCE_PATH,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
-  mergeFilterProperties,
   removeParentFromPath,
   removeTrailingSlash,
   type ResourceRelationship,
@@ -61,10 +62,10 @@ type AutocompleteOptions = Record<
   Array<{ contained_uuid: string; value: string; count: number }>
 >;
 
-export type FilterProperties = FilterCounts & {
+export type FilterProperties = {
   total: number;
   licenses: Array<string>;
-};
+} & Partial<Record<AttributionFilterKey, number>>;
 
 export type FilterPropertiesWithCanonicalLicenseNames = Omit<
   FilterProperties,
@@ -81,9 +82,37 @@ type QueryFunction = (
   param?: any,
 ) => Promise<{ result: NonNullable<unknown> | null }>; // Tanstack doesn't allow functions to return undefined
 
+function mergeFilterProperties(
+  counts: Array<FilterPropertiesWithCanonicalLicenseNames | undefined>,
+): FilterPropertiesWithCanonicalLicenseNames {
+  const result = {
+    ...Object.fromEntries(['total', ...getFilterKeys()].map((key) => [key, 0])),
+    licenses: [] as Array<{ name: string; canonical_name: string }>,
+  } as FilterPropertiesWithCanonicalLicenseNames;
+
+  for (const count of counts.filter((count) => count !== undefined)) {
+    for (const [key, value] of Object.entries(count)) {
+      if (key === 'licenses') {
+        result.licenses = [
+          ...new Set([
+            ...result.licenses,
+            ...(value as Array<{ name: string; canonical_name: string }>),
+          ]),
+        ];
+      } else {
+        const filterKey = key as AttributionFilterKey | 'total';
+        result[filterKey] = (result[filterKey] ?? 0) + (value as number);
+      }
+    }
+  }
+
+  return result;
+}
+
 export const queries = {
   listAttributions,
   getResourceTree,
+  getResourceTreeUnreviewedCount,
   manualAttributionStatistics,
   externalAttributionStatistics,
   licenseTable,
@@ -169,7 +198,7 @@ export const queries = {
 
   async filterProperties(props: {
     external: boolean;
-    filters: Array<Filter>;
+    filters: Array<AttributionFilterKey>;
     resourcePathForRelationships: string;
     license?: string;
     search?: string;
@@ -199,7 +228,7 @@ export const queries = {
       )
       .select((eb) => eb.fn.countAll<number>().as('total'))
       .select((eb) =>
-        FILTERS.map((f) =>
+        getFilterKeys().map((f) =>
           eb.fn
             .sum<number>(
               eb.case().when(getFilterExpression(f)).then(1).else(0).end(),
@@ -421,8 +450,8 @@ export const queries = {
           .where('attribution.is_external', '=', 0)
           .where((eb) =>
             eb.or([
-              getFilterExpression(text.filters.incompleteCoordinates),
-              getFilterExpression(text.filters.incompleteLegal),
+              getFilterExpression('incompleteCoordinates'),
+              getFilterExpression('incompleteLegal'),
             ]),
           )
           .limit(1)

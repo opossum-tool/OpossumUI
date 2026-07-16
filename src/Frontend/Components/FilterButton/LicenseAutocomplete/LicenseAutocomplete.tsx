@@ -3,24 +3,28 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import CopyrightIcon from '@mui/icons-material/Copyright';
+import type { Ref } from 'react';
 
 import { text } from '../../../../shared/text';
 import { baseIcon, OpossumColors } from '../../../shared-styles';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 
 interface Props {
+  inputRef?: Ref<HTMLInputElement>;
   licenses: Array<string>;
   selectedLicense: string;
   setSelectedLicense: (license: string | null) => void;
 }
 
-export const LicenseAutocomplete: React.FC<Props> = ({
+export const LicenseAutocomplete = ({
+  inputRef,
   licenses,
   selectedLicense,
   setSelectedLicense,
-}) => {
+}: Props) => {
   return (
     <Autocomplete<string, false, false, true>
+      inputRef={inputRef}
       sx={{ height: '38px' }}
       background={'transparent'}
       variant={'filled'}

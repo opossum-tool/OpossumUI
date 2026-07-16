@@ -11,13 +11,11 @@ import {
   useAttributionFiltersInReportView,
   useExternalAttributionFilters,
   useManualAttributionFilters,
-  useResourceTreeFilters,
 } from '../state/variables/use-filters';
 import { useUserSettings } from '../state/variables/use-user-setting';
 import { backend } from './backendClient';
 
-export type FilterPropsMode =
-  'external' | 'manual' | 'reportTable' | 'resourceTree';
+export type FilterPropsMode = 'external' | 'manual' | 'reportTable';
 
 export function useFilterProperties({
   mode,
@@ -30,7 +28,6 @@ export function useFilterProperties({
     manual: useManualAttributionFilters,
     external: useExternalAttributionFilters,
     reportTable: useAttributionFiltersInReportView,
-    resourceTree: useResourceTreeFilters,
   }[mode];
 
   const [{ filters, search, selectedLicense }] = useFilters();
@@ -44,16 +41,10 @@ export function useFilterProperties({
     {
       external: mode === 'external',
       filters,
-      search:
-        mode === 'reportTable' || mode === 'resourceTree' ? undefined : search,
-      license:
-        mode === 'reportTable' || mode === 'resourceTree'
-          ? undefined
-          : selectedLicense,
+      search: mode === 'reportTable' ? undefined : search,
+      license: mode === 'reportTable' ? undefined : selectedLicense,
       resourcePathForRelationships:
-        mode === 'reportTable' || mode === 'resourceTree'
-          ? ROOT_PATH
-          : selectedResourceId,
+        mode === 'reportTable' ? ROOT_PATH : selectedResourceId,
       showResolved: mode === 'external' ? areHiddenSignalsVisible : undefined,
     },
     { enabled, placeholderData: keepPreviousData },
@@ -64,7 +55,6 @@ export function useFilterProperties({
       manual: 'all',
       external: 'sameOrDescendant',
       reportTable: 'descendant',
-      resourceTree: 'all',
     } as const
   )[mode];
 
@@ -72,4 +62,24 @@ export function useFilterProperties({
   const loading = filterPropsQuery.isLoading;
 
   return { filterProps, loading };
+}
+
+export function useResourceTreeFilterProperties({
+  enabled,
+}: {
+  enabled?: boolean;
+}) {
+  const filterPropsQuery = backend.filterProperties.useQuery(
+    {
+      external: false,
+      filters: [],
+      resourcePathForRelationships: ROOT_PATH,
+    },
+    { enabled, placeholderData: keepPreviousData },
+  );
+
+  return {
+    filterProps: filterPropsQuery.data?.all ?? null,
+    loading: filterPropsQuery.isLoading,
+  };
 }

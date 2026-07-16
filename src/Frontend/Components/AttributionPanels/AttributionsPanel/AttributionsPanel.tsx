@@ -5,13 +5,13 @@
 import { useMemo } from 'react';
 
 import { text } from '../../../../shared/text';
-import { ATTRIBUTION_FILTERS } from '../../../shared-constants';
 import { OpossumColors } from '../../../shared-styles';
 import { useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { useManualAttributionFilters } from '../../../state/variables/use-filters';
 import { usePickerMode } from '../../../state/variables/use-picker-mode';
 import { backend } from '../../../util/backendClient';
+import { attributionFilterOptions } from '../attribution-filter-options';
 import { type Alert, PackagesPanel } from '../PackagesPanel/PackagesPanel';
 import { AttributionsList } from './AttributionsList/AttributionsList';
 import { ConfirmButton } from './ConfirmButton/ConfirmButton';
@@ -60,7 +60,7 @@ export function AttributionsPanel() {
     <PackagesPanel
       external={false}
       alert={alert}
-      availableFilters={ATTRIBUTION_FILTERS}
+      filterOptions={attributionFilterOptions}
       renderActions={(props) => (
         <>
           <CreateButton {...props} />

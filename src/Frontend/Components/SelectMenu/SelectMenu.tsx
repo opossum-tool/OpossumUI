@@ -27,6 +27,7 @@ export interface SelectMenuProps {
 export interface SelectMenuOption {
   faded?: boolean;
   icon?: React.ReactElement<unknown>;
+  focusContent?(): void;
   id: string;
   label: React.ReactNode;
   onAdd?(): void;
@@ -71,7 +72,10 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
 
   function renderVisibleOptions() {
     return visibleOptions.map(
-      ({ faded, label, icon, id, selected, onAdd, onDelete }, index) => {
+      (
+        { faded, label, icon, id, selected, onAdd, onDelete, focusContent },
+        index,
+      ) => {
         const isLabelString = typeof label === 'string';
         const toggleSelected = () => {
           if (multiple) {
@@ -92,7 +96,7 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
           <StyledMenuItem
             key={index}
             aria-selected={selected}
-            onClick={isLabelString ? toggleSelected : undefined}
+            onClick={isLabelString ? toggleSelected : focusContent}
             divider={index + 1 !== visibleOptions.length}
             disableRipple
             faded={faded}

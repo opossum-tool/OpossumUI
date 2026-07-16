@@ -37,6 +37,7 @@ import {
 import type { SelectMenuOption } from '../../SelectMenu/SelectMenu';
 
 interface AuditingOption extends SelectMenuOption {
+  id: string;
   interactive: boolean;
 }
 

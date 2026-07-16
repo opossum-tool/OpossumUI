@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../shared/shared-types';
-import { text } from '../../../shared/text';
 import {
   initializeDbWithTestData,
   pathsToResources,
@@ -99,9 +98,9 @@ describe('filterProperties', () => {
       resourcePathForRelationships: '/parent/target',
     });
 
-    expect(result.all[text.filters.firstParty]).toBe(1);
-    expect(result.all[text.filters.thirdParty]).toBe(3);
-    expect(result.all[text.filters.needsFollowUp]).toBe(1);
+    expect(result.all.firstParty).toBe(1);
+    expect(result.all.thirdParty).toBe(3);
+    expect(result.all.needsFollowUp).toBe(1);
   });
 
   it('applies active filters to narrow results', async () => {
@@ -109,7 +108,7 @@ describe('filterProperties', () => {
 
     const { result } = await queries.filterProperties({
       external: true,
-      filters: [text.filters.firstParty],
+      filters: ['firstParty'],
       resourcePathForRelationships: '/parent/target',
     });
 

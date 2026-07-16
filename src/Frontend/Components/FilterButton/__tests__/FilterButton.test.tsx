@@ -1,209 +1,49 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
-// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { FilterProperties } from '../../../../ElectronBackend/api/queries';
 import { text } from '../../../../shared/text';
-import { faker } from '../../../../testing/Faker';
-import type { Filter } from '../../../shared-constants';
-import {
-  type AttributionFilters,
-  initialFilters,
-  type UseAttributionFilters,
-} from '../../../state/variables/use-filters';
 import { renderComponent } from '../../../test-helpers/render';
-import { useFilterProperties } from '../../../util/use-filter-properties';
 import { FilterButton } from '../FilterButton';
 
-vi.mock('../../../util/use-filter-properties', () => ({
-  useFilterProperties: vi.fn(),
-}));
-
-function mockFilterProperties(filterProps: FilterProperties | null = null) {
-  vi.mocked(useFilterProperties).mockReturnValue({
-    filterProps,
-    loading: false,
-  });
-}
-
 describe('FilterButton', () => {
-  beforeEach(() => {
-    mockFilterProperties();
-  });
-
-  it('adds selected filter', async () => {
-    let result: AttributionFilters;
-    const prev: AttributionFilters = initialFilters;
-    const setFilteredData = vi.fn((fn) => {
-      result = fn(prev);
-    });
-    const filter: Filter = 'Currently Preferred';
-    const useFilteredData: UseAttributionFilters = () => [
-      initialFilters,
-      setFilteredData,
-    ];
-    await renderComponent(
-      <FilterButton
-        mode={'manual'}
-        useFilteredData={useFilteredData}
-        availableFilters={[filter]}
-      />,
-    );
+  it('adds a filter', async () => {
+    const onAdd = vi.fn();
+    await renderFilterButton({ onAdd });
 
     await userEvent.click(
       screen.getByRole('button', { name: 'filter button' }),
     );
-    await userEvent.click(screen.getByRole('menuitem', { name: filter }));
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: 'test filter' }),
+    );
 
-    expect(result!.filters).toEqual([filter]);
+    expect(onAdd).toHaveBeenCalledOnce();
   });
 
-  it('removes selected filter', async () => {
-    let result: AttributionFilters;
-    const prev: AttributionFilters = initialFilters;
-    const setFilteredData = vi.fn((fn) => {
-      result = fn(prev);
+  it('removes a selected filter', async () => {
+    const onDelete = vi.fn();
+    await renderFilterButton({
+      selected: true,
+      onDelete,
     });
-    const filter: Filter = 'Currently Preferred';
-    const useFilteredData: UseAttributionFilters = () => [
-      {
-        ...initialFilters,
-        filters: [filter],
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <FilterButton
-        mode={'manual'}
-        useFilteredData={useFilteredData}
-        availableFilters={[filter]}
-      />,
-    );
 
     await userEvent.click(
       screen.getByRole('button', { name: 'filter button' }),
     );
-    await userEvent.click(screen.getByRole('menuitem', { name: filter }));
-
-    expect(result!.filters).toEqual([]);
-  });
-
-  it('filters by license name via keyboard selection', async () => {
-    let result: AttributionFilters;
-    const prev: AttributionFilters = initialFilters;
-    const setFilteredData = vi.fn((fn) => {
-      result = fn(prev);
-    });
-    const packageInfo = faker.opossum.packageInfo();
-    mockFilterProperties({ total: 0, licenses: [packageInfo.licenseName!] });
-    const useFilteredData: UseAttributionFilters = () => [
-      initialFilters,
-      setFilteredData,
-    ];
-    await renderComponent(
-      <FilterButton
-        mode={'manual'}
-        useFilteredData={useFilteredData}
-        availableFilters={[]}
-      />,
-    );
-
     await userEvent.click(
-      screen.getByRole('button', { name: 'filter button' }),
+      screen.getByRole('menuitem', { name: 'test filter' }),
     );
-    await userEvent.click(screen.getByLabelText('license names'));
-    await userEvent.keyboard('{ArrowUp}');
-    await userEvent.keyboard('{Enter}');
 
-    expect(result!.selectedLicense).toBe(packageInfo.licenseName);
+    expect(onDelete).toHaveBeenCalledOnce();
   });
 
-  it('filters by license name via search', async () => {
-    let result: AttributionFilters;
-    const prev: AttributionFilters = initialFilters;
-    const setFilteredData = vi.fn((fn) => {
-      result = fn(prev);
-    });
-    const licenseName = faker.commerce.productName();
-    const packageInfo = faker.opossum.packageInfo({ licenseName });
-    mockFilterProperties({ total: 0, licenses: [packageInfo.licenseName!] });
-    const useFilteredData: UseAttributionFilters = () => [
-      initialFilters,
-      setFilteredData,
-    ];
-    await renderComponent(
-      <FilterButton
-        mode={'manual'}
-        useFilteredData={useFilteredData}
-        availableFilters={[]}
-      />,
-    );
-
-    await userEvent.click(
-      screen.getByRole('button', { name: 'filter button' }),
-    );
-    await userEvent.click(screen.getByLabelText('license names'));
-    await userEvent.paste(licenseName);
-    await userEvent.keyboard('{ArrowUp}');
-    await userEvent.keyboard('{Enter}');
-
-    expect(result!.selectedLicense).toBe(licenseName);
-  });
-
-  it('filters by license name via mouse click', async () => {
-    let result: AttributionFilters;
-    const prev: AttributionFilters = initialFilters;
-    const setFilteredData = vi.fn((fn) => {
-      result = fn(prev);
-    });
-    const packageInfo = faker.opossum.packageInfo();
-    mockFilterProperties({ total: 0, licenses: [packageInfo.licenseName!] });
-    const useFilteredData: UseAttributionFilters = () => [
-      initialFilters,
-      setFilteredData,
-    ];
-    await renderComponent(
-      <FilterButton
-        mode={'manual'}
-        useFilteredData={useFilteredData}
-        availableFilters={[]}
-      />,
-    );
-
-    await userEvent.click(
-      screen.getByRole('button', { name: 'filter button' }),
-    );
-    await userEvent.click(screen.getByLabelText('license names'));
-    await userEvent.click(screen.getByText(packageInfo.licenseName!));
-
-    expect(result!.selectedLicense).toBe(packageInfo.licenseName);
-  });
-
-  it('removes filter by license name', async () => {
-    let result: AttributionFilters;
-    const prev: AttributionFilters = initialFilters;
-    const setFilteredData = vi.fn((fn) => {
-      result = fn(prev);
-    });
-    const packageInfo = faker.opossum.packageInfo();
-    const useFilteredData: UseAttributionFilters = () => [
-      {
-        ...initialFilters,
-        selectedLicense: packageInfo.licenseName!,
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <FilterButton
-        mode={'manual'}
-        useFilteredData={useFilteredData}
-        availableFilters={[]}
-      />,
-    );
+  it('clears filters when active', async () => {
+    const onClear = vi.fn();
+    await renderFilterButton({ isActive: true, onClear });
 
     await userEvent.click(
       screen.getByRole('button', { name: 'filter button' }),
@@ -212,60 +52,42 @@ describe('FilterButton', () => {
       screen.getByRole('menuitem', { name: text.packageLists.clearFilters }),
     );
 
-    expect(result!.selectedLicense).toBe('');
+    expect(onClear).toHaveBeenCalledOnce();
   });
 
-  it('removes all selected filters via clear menu entry', async () => {
-    let result: AttributionFilters;
-    const prev: AttributionFilters = initialFilters;
-    const setFilteredData = vi.fn((fn) => {
-      result = fn(prev);
-    });
-    const packageInfo = faker.opossum.packageInfo();
-    const filter: Filter = 'Currently Preferred';
-    const useFilteredData: UseAttributionFilters = () => [
-      {
-        ...initialFilters,
-        filters: [filter],
-        selectedLicense: packageInfo.licenseName!,
-      },
-      setFilteredData,
-    ];
-    await renderComponent(
-      <FilterButton
-        mode={'manual'}
-        useFilteredData={useFilteredData}
-        availableFilters={[filter]}
-      />,
-    );
+  it('does not show a clear action without a callback', async () => {
+    await renderFilterButton({ isActive: true });
 
     await userEvent.click(
       screen.getByRole('button', { name: 'filter button' }),
-    );
-    await userEvent.click(
-      screen.getByRole('menuitem', { name: text.packageLists.clearFilters }),
-    );
-
-    expect(result!.filters).toEqual([]);
-    expect(result!.selectedLicense).toBe('');
-  });
-
-  it('filter button is disabled when there are no attributions', async () => {
-    const useFilteredData: UseAttributionFilters = () => [
-      initialFilters,
-      vi.fn(),
-    ];
-    await renderComponent(
-      <FilterButton
-        mode={'manual'}
-        useFilteredData={useFilteredData}
-        availableFilters={[]}
-        emptyAttributions
-      />,
     );
 
     expect(
-      screen.getByRole('button', { name: 'filter button' }),
-    ).toBeDisabled();
+      screen.queryByRole('menuitem', { name: text.packageLists.clearFilters }),
+    ).not.toBeInTheDocument();
   });
 });
+
+async function renderFilterButton({
+  selected = false,
+  isActive = false,
+  onAdd = vi.fn(),
+  onDelete = vi.fn(),
+  onClear,
+}: {
+  selected?: boolean;
+  isActive?: boolean;
+  onAdd?: () => void;
+  onDelete?: () => void;
+  onClear?: () => void;
+}) {
+  return renderComponent(
+    <FilterButton
+      options={[
+        { id: 'test-filter', label: 'test filter', selected, onAdd, onDelete },
+      ]}
+      isActive={isActive}
+      onClear={onClear}
+    />,
+  );
+}

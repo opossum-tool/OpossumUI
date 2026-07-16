@@ -21,7 +21,7 @@ import useMuiAutocomplete, {
   type UseAutocompleteProps as MuiUseAutocompleteProps,
 } from '@mui/material/useAutocomplete';
 import { compact } from 'lodash-es';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type Ref, useCallback, useEffect, useRef, useState } from 'react';
 import type { VirtuosoHandle } from 'react-virtuoso';
 
 import { text } from '../../../shared/text';
@@ -55,6 +55,7 @@ type AutocompleteProps<
     background?: string;
     endAdornment?: React.ReactNode | Array<React.ReactNode>;
     highlighting?: 'error' | 'warning';
+    inputRef?: Ref<HTMLInputElement>;
     inputProps?: MuiInputProps;
     onInputChange?: (
       event: React.SyntheticEvent | undefined,
@@ -89,6 +90,7 @@ export function Autocomplete<
   groupBy,
   groupProps,
   hidePopupIndicator,
+  inputRef,
   inputProps: customInputProps,
   multiple,
   optionText,
@@ -174,6 +176,13 @@ export function Autocomplete<
   const isPopupOpen = !!groupedOptions.length && popupOpen;
 
   const { ref, color, ...inputProps } = getInputProps();
+  const mergedInputRef = useCallback(
+    (element: HTMLInputElement | null) => {
+      setRef(ref, element);
+      setRef(inputRef, element);
+    },
+    [inputRef, ref],
+  );
 
   const tooltipTitle = (() => {
     if (highlighting === 'error') {
@@ -206,7 +215,7 @@ export function Autocomplete<
               ]).length
             }
             size={'small'}
-            inputRef={ref}
+            inputRef={mergedInputRef}
             slotProps={{
               input: {
                 startAdornment: startAdornment || renderStartAdornment(),
@@ -337,5 +346,13 @@ export function Autocomplete<
         )}
       </StyledPopper>
     );
+  }
+}
+
+function setRef<T>(ref: Ref<T> | undefined, value: T | null) {
+  if (typeof ref === 'function') {
+    ref(value);
+  } else if (ref) {
+    ref.current = value;
   }
 }

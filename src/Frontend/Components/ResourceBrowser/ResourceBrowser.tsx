@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { keepPreviousData } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
@@ -18,7 +18,10 @@ import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
 import { backend } from '../../util/backendClient';
 import { useDebouncedInput } from '../../util/use-debounced-input';
+import { useResourceTreeFilterProperties } from '../../util/use-filter-properties';
 import { FilterButton } from '../FilterButton/FilterButton';
+import { LicenseAutocomplete } from '../FilterButton/LicenseAutocomplete/LicenseAutocomplete';
+import { UnreviewedIcon } from '../Icons/Icons';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
 import { useLinkedResourcesTreeState } from './LinkedResourcesTree/useLinkedResourcesTreeState';
@@ -30,6 +33,7 @@ const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
 
 export function ResourceBrowser() {
   const { panelSizes, setPanelSizes } = usePanelSizes();
+  const licenseInputRef = useRef<HTMLInputElement>(null);
 
   const setWidth = useCallback(
     (width: number) => setPanelSizes({ resourceBrowserWidth: width }),
@@ -49,39 +53,34 @@ export function ResourceBrowser() {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
   // All resources
-  const [resourceTreeFilters] = useResourceTreeFilters();
-  const { selectedLicense: resourceTreeSelectedLicense } = resourceTreeFilters;
+  const [
+    { onlyUnreviewedFiles, selectedLicense: resourceTreeSelectedLicense },
+    setResourceTreeFilters,
+  ] = useResourceTreeFilters();
   const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
   const debouncedSearchAll = useDebouncedInput(searchAll);
   const expandedIdsAll = useAppSelector(getExpandedIds);
-  const resourceTreeAttributionsWithSelectedLicense =
-    backend.listAttributions.useQuery(
-      {
-        external: false,
-        license: resourceTreeSelectedLicense,
-      },
-      { enabled: !!resourceTreeSelectedLicense },
-    );
-  const resourceTreeAttributionUuids = useMemo(
-    () =>
-      resourceTreeSelectedLicense
-        ? Object.keys(resourceTreeAttributionsWithSelectedLicense.data ?? {})
-        : undefined,
-    [
-      resourceTreeSelectedLicense,
-      resourceTreeAttributionsWithSelectedLicense.data,
-    ],
-  );
   const resourceTreeAll = backend.getResourceTree.useQuery(
     {
       expandedNodes: expandedIdsAll,
-      onAttributionUuids: resourceTreeAttributionUuids,
+      license: resourceTreeSelectedLicense,
+      onlyUnreviewedFiles,
       search: debouncedSearchAll,
       selectedResourcePath: selectedResourceId,
     },
     { placeholderData: keepPreviousData },
   );
-
+  const unreviewedFileCountQuery =
+    backend.getResourceTreeUnreviewedCount.useQuery(
+      {
+        license: resourceTreeSelectedLicense,
+        search: debouncedSearchAll,
+      },
+      { placeholderData: keepPreviousData },
+    );
+  const { filterProps } = useResourceTreeFilterProperties({});
+  const isResourceTreeFilterActive =
+    onlyUnreviewedFiles || !!resourceTreeSelectedLicense;
   // Linked resources
   const [searchLinked, setSearchLinked] = useVariable(
     LINKED_RESOURCES_SEARCH,
@@ -118,9 +117,54 @@ export function ResourceBrowser() {
         },
         headerActions: (
           <FilterButton
-            mode={'resourceTree'}
-            useFilteredData={useResourceTreeFilters}
-            availableFilters={[]}
+            options={[
+              {
+                id: 'unreviewed',
+                selected: onlyUnreviewedFiles,
+                faded: !unreviewedFileCountQuery.data,
+                label:
+                  unreviewedFileCountQuery.data === undefined
+                    ? text.filters.unreviewed
+                    : `${text.filters.unreviewed} (${new Intl.NumberFormat().format(unreviewedFileCountQuery.data)})`,
+                icon: <UnreviewedIcon noTooltip />,
+                onAdd: () =>
+                  setResourceTreeFilters((prev) => ({
+                    ...prev,
+                    onlyUnreviewedFiles: true,
+                  })),
+                onDelete: () =>
+                  setResourceTreeFilters((prev) => ({
+                    ...prev,
+                    onlyUnreviewedFiles: false,
+                  })),
+              },
+              {
+                id: 'license',
+                selected: false,
+                focusContent: () => licenseInputRef.current?.focus(),
+                label: (
+                  <LicenseAutocomplete
+                    inputRef={licenseInputRef}
+                    licenses={filterProps?.licenses ?? []}
+                    selectedLicense={resourceTreeSelectedLicense}
+                    setSelectedLicense={(license) =>
+                      setResourceTreeFilters((prev) => ({
+                        ...prev,
+                        selectedLicense: license || '',
+                      }))
+                    }
+                  />
+                ),
+              },
+            ]}
+            isActive={isResourceTreeFilterActive}
+            onClear={() =>
+              setResourceTreeFilters((prev) => ({
+                ...prev,
+                onlyUnreviewedFiles: false,
+                selectedLicense: '',
+              }))
+            }
             anchorPosition={'right'}
             badgeColor={'secondary'}
             triggerStyle={resourceBrowserFilterButtonStyle}

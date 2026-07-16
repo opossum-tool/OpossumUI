@@ -16,7 +16,7 @@ import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import {
-  initialFilters,
+  initialAttributionFilters,
   useExternalAttributionFilters,
 } from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
@@ -67,7 +67,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
 
   function handleLicenseClick(licenseName: string): void {
     setFilteredAttributions(() => ({
-      ...initialFilters,
+      ...initialAttributionFilters,
       selectedLicense: licenseName,
     }));
     close();

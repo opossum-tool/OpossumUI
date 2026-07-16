@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../shared/shared-types';
-import { text } from '../../../shared/text';
 import {
   initializeDbWithTestData,
   pathsToResources,
@@ -266,7 +265,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.needsFollowUp],
+      filters: ['needsFollowUp'],
       resourcePathForRelationships: '/resource',
     });
 
@@ -295,7 +294,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.preSelected],
+      filters: ['preSelected'],
       resourcePathForRelationships: '/resource',
     });
 
@@ -324,7 +323,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.excludedFromNotice],
+      filters: ['excludedFromNotice'],
       resourcePathForRelationships: '/resource',
     });
 
@@ -357,7 +356,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.lowConfidence],
+      filters: ['lowConfidence'],
       resourcePathForRelationships: '/resource',
     });
 
@@ -386,7 +385,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.firstParty],
+      filters: ['firstParty'],
       resourcePathForRelationships: '/resource',
     });
 
@@ -415,7 +414,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.thirdParty],
+      filters: ['thirdParty'],
       resourcePathForRelationships: '/resource',
     });
 
@@ -444,7 +443,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.needsReview],
+      filters: ['needsReview'],
       resourcePathForRelationships: '/resource',
     });
 
@@ -473,7 +472,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.currentlyPreferred],
+      filters: ['currentlyPreferred'],
       resourcePathForRelationships: '/resource',
     });
 
@@ -502,7 +501,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.previouslyPreferred],
+      filters: ['previouslyPreferred'],
       resourcePathForRelationships: '/resource',
     });
 
@@ -533,7 +532,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.incompleteCoordinates],
+      filters: ['incompleteCoordinates'],
       resourcePathForRelationships: '/resource',
     });
 
@@ -563,7 +562,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.incompleteLegal],
+      filters: ['incompleteLegal'],
       resourcePathForRelationships: '/resource',
     });
 
@@ -592,7 +591,7 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: [text.filters.modifiedPreferred],
+      filters: ['modifiedPreferred'],
       resourcePathForRelationships: '/resource',
     });
 

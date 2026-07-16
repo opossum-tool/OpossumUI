@@ -16,7 +16,6 @@ import {
 import { escapeRegExp, pickBy, snakeCase } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
-import { FILTERS } from '../../Frontend/shared-constants';
 import {
   COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES,
   isEqualToExternalAttribution,
@@ -25,10 +24,6 @@ import {
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
 import type { DB } from '../db/generated/databaseTypes';
 import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
-import type {
-  FilterProperties,
-  FilterPropertiesWithCanonicalLicenseNames,
-} from './queries';
 
 export type ResourceRelationship =
   'same' | 'ancestor' | 'descendant' | 'unrelated';
@@ -455,32 +450,6 @@ export function toCanonicalLicenseName(
   s: Expression<string | null> | string | null,
 ): RawBuilder<string | null> {
   return sql<string | null>`lower(replace(replace(${s}, '-', ''), ' ', ''))`;
-}
-
-export function mergeFilterProperties(
-  counts: Array<FilterPropertiesWithCanonicalLicenseNames | undefined>,
-): FilterPropertiesWithCanonicalLicenseNames {
-  const result = {
-    ...Object.fromEntries(['total', ...FILTERS].map((f) => [f, 0])),
-    licenses: [] as Array<{ name: string; canonical_name: string }>,
-  } as FilterPropertiesWithCanonicalLicenseNames;
-
-  for (const sum of counts.filter((s) => s !== undefined)) {
-    for (const [k, v] of Object.entries(sum)) {
-      if (k === 'licenses') {
-        result.licenses = [
-          ...new Set([
-            ...result.licenses,
-            ...(v as Array<{ name: string; canonical_name: string }>),
-          ]),
-        ];
-      } else {
-        result[k as keyof Omit<FilterProperties, 'licenses'>] += v as number;
-      }
-    }
-  }
-
-  return result;
 }
 
 const DEFAULT_BATCH_SIZE = 30000;

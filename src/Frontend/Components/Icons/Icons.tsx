@@ -174,6 +174,31 @@ export function NeedsReviewIcon({
   );
 }
 
+export function UnreviewedIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
+  return (
+    <MuiTooltip
+      title={noTooltip ? undefined : text.filters.unreviewed}
+      placement={tooltipPlacement}
+      disableInteractive
+    >
+      <QuestionMarkIcon
+        aria-label={'Unreviewed icon'}
+        sx={{
+          ...baseIcon,
+          color: `${OpossumColors.orange} !important`,
+          ...sx,
+        }}
+        className={className}
+      />
+    </MuiTooltip>
+  );
+}
+
 export function CriticalityIcon({
   className,
   criticality,
