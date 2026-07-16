@@ -20,6 +20,7 @@ import useMuiAutocomplete, {
   type AutocompleteInputChangeReason,
   type UseAutocompleteProps as MuiUseAutocompleteProps,
 } from '@mui/material/useAutocomplete';
+import { useForkRef } from '@mui/material/utils';
 import { compact } from 'lodash-es';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { VirtuosoHandle } from 'react-virtuoso';
@@ -55,6 +56,7 @@ type AutocompleteProps<
     background?: string;
     endAdornment?: React.ReactNode | Array<React.ReactNode>;
     highlighting?: 'error' | 'warning';
+    inputRef?: React.Ref<HTMLInputElement>;
     inputProps?: MuiInputProps;
     onInputChange?: (
       event: React.SyntheticEvent | undefined,
@@ -89,6 +91,7 @@ export function Autocomplete<
   groupBy,
   groupProps,
   hidePopupIndicator,
+  inputRef: externalInputRef,
   inputProps: customInputProps,
   multiple,
   optionText,
@@ -174,6 +177,7 @@ export function Autocomplete<
   const isPopupOpen = !!groupedOptions.length && popupOpen;
 
   const { ref, color, ...inputProps } = getInputProps();
+  const inputRef = useForkRef(ref, externalInputRef);
 
   const tooltipTitle = (() => {
     if (highlighting === 'error') {
@@ -206,7 +210,7 @@ export function Autocomplete<
               ]).length
             }
             size={'small'}
-            inputRef={ref}
+            inputRef={inputRef}
             slotProps={{
               input: {
                 startAdornment: startAdornment || renderStartAdornment(),

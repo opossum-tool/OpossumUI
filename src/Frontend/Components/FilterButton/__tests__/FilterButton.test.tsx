@@ -183,6 +183,57 @@ describe('FilterButton', () => {
     expect(result!.selectedLicense).toBe(packageInfo.licenseName);
   });
 
+  it('does not leave the filter button focused when closing with Escape', async () => {
+    const useFilteredData: UseAttributionFilters = () => [
+      initialFilters,
+      vi.fn(),
+    ];
+    await renderComponent(
+      <FilterButton
+        mode={'resourceTree'}
+        useFilteredData={useFilteredData}
+        availableFilters={[]}
+      />,
+    );
+
+    const filterButton = screen.getByRole('button', {
+      name: 'filter button',
+    });
+    await userEvent.click(filterButton);
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.queryByLabelText('license names')).not.toBeInTheDocument();
+    expect(filterButton).not.toHaveFocus();
+  });
+
+  it('leaves license editing with Escape', async () => {
+    const license = faker.commerce.productName();
+    mockFilterProperties({ total: 0, licenses: [license] });
+    const useFilteredData: UseAttributionFilters = () => [
+      initialFilters,
+      vi.fn(),
+    ];
+    await renderComponent(
+      <FilterButton
+        mode={'manual'}
+        useFilteredData={useFilteredData}
+        availableFilters={[]}
+      />,
+    );
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'filter button' }),
+    );
+    const licenseInput = screen.getByLabelText('license names');
+    await userEvent.click(licenseInput);
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.getByRole('listbox')).not.toBeVisible();
+    expect(screen.getByRole('menuitem')).toHaveFocus();
+  });
+
   it('removes filter by license name', async () => {
     let result: AttributionFilters;
     const prev: AttributionFilters = initialFilters;

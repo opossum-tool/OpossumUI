@@ -17,6 +17,7 @@ export interface SelectMenuProps {
   anchorArrow?: boolean;
   anchorEl: HTMLElement | undefined;
   anchorPosition?: 'left' | 'right' | 'center';
+  disableRestoreFocus?: boolean;
   hideSelected?: boolean;
   multiple?: boolean;
   options: Array<SelectMenuOption>;
@@ -26,6 +27,7 @@ export interface SelectMenuProps {
 
 export interface SelectMenuOption {
   faded?: boolean;
+  focusContent?(): void;
   icon?: React.ReactElement<unknown>;
   id: string;
   label: React.ReactNode;
@@ -38,6 +40,7 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
   anchorArrow,
   anchorEl,
   anchorPosition = 'center',
+  disableRestoreFocus,
   hideSelected,
   multiple,
   options,
@@ -61,6 +64,7 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
       anchorArrow={anchorArrow}
       anchorEl={anchorEl}
       anchorPosition={anchorPosition}
+      disableRestoreFocus={disableRestoreFocus}
       onClose={() => setAnchorEl(undefined)}
       open={!!anchorEl}
       width={width}
@@ -71,7 +75,10 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
 
   function renderVisibleOptions() {
     return visibleOptions.map(
-      ({ faded, label, icon, id, selected, onAdd, onDelete }, index) => {
+      (
+        { faded, focusContent, label, icon, id, selected, onAdd, onDelete },
+        index,
+      ) => {
         const isLabelString = typeof label === 'string';
         const toggleSelected = () => {
           if (multiple) {
@@ -96,8 +103,34 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
             divider={index + 1 !== visibleOptions.length}
             disableRipple
             faded={faded}
+            onKeyDownCapture={
+              isLabelString
+                ? undefined
+                : (event) => {
+                    if (
+                      event.target !== event.currentTarget &&
+                      event.key === 'Escape'
+                    ) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      event.currentTarget.focus();
+                    }
+                  }
+            }
             onKeyDown={
-              isLabelString ? undefined : (event) => event.stopPropagation()
+              isLabelString
+                ? undefined
+                : (event) => {
+                    if (event.target === event.currentTarget) {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        focusContent?.();
+                      }
+                      return;
+                    }
+                    event.stopPropagation();
+                  }
             }
           >
             {isLabelString ? (

@@ -10,7 +10,7 @@ import MuiBadge, { type BadgeProps } from '@mui/material/Badge';
 import MuiIconButton from '@mui/material/IconButton';
 import type { SxProps, Theme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { text } from '../../../shared/text';
 import type { Filter } from '../../shared-constants';
@@ -88,6 +88,7 @@ export const FilterButton: React.FC<Props> = ({
   triggerStyle,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
+  const licenseInputRef = useRef<HTMLInputElement>(null);
   const [{ filters, selectedLicense }, setFilteredAttributions] =
     useFilteredData();
   const isSomeFilterActive = !!filters.length || !!selectedLicense;
@@ -129,8 +130,10 @@ export const FilterButton: React.FC<Props> = ({
         .concat({
           selected: false,
           id: 'license',
+          focusContent: () => licenseInputRef.current?.focus(),
           label: (
             <LicenseAutocomplete
+              ref={licenseInputRef}
               licenses={filterProps?.licenses ?? []}
               selectedLicense={selectedLicense}
               setSelectedLicense={(license) =>
@@ -180,6 +183,7 @@ export const FilterButton: React.FC<Props> = ({
         anchorArrow={anchorArrow}
         anchorEl={anchorEl}
         anchorPosition={anchorPosition}
+        disableRestoreFocus
         multiple
         options={filterOptions}
         setAnchorEl={setAnchorEl}

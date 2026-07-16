@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { createRef } from 'react';
 
 import { faker } from '../../../../testing/Faker';
 import { renderComponent } from '../../../test-helpers/render';
@@ -125,6 +126,44 @@ describe('SelectMenu', () => {
     expect(setAnchorEl).toHaveBeenCalledWith(undefined);
     expect(onAdd).toHaveBeenCalledTimes(1);
     expect(onDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns to menu navigation when Escape is pressed in a content item', async () => {
+    const anchorEl = document.createElement('div');
+    const setAnchorEl = vi.fn();
+    const firstOption = createOption();
+    const contentInputRef = createRef<HTMLInputElement>();
+    const contentOption = createOption({
+      focusContent: () => contentInputRef.current?.focus(),
+      label: <input ref={contentInputRef} aria-label={'content input'} />,
+    });
+    const lastOption = createOption();
+    await renderComponent(
+      <SelectMenu
+        anchorEl={anchorEl}
+        setAnchorEl={setAnchorEl}
+        options={[firstOption, contentOption, lastOption]}
+      />,
+    );
+
+    const contentInput = screen.getByLabelText('content input');
+    const contentMenuItem = screen.getAllByRole('menuitem')[1];
+    await userEvent.keyboard('{ArrowDown}');
+    expect(contentMenuItem).toHaveFocus();
+
+    await userEvent.keyboard('{Enter}');
+    expect(contentInput).toHaveFocus();
+
+    await userEvent.keyboard('{Escape}');
+    expect(contentMenuItem).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowDown}');
+    expect(
+      screen.getByRole('menuitem', { name: lastOption.label!.toString() }),
+    ).toHaveFocus();
+
+    await userEvent.keyboard('{Escape}');
+    expect(setAnchorEl).toHaveBeenCalledWith(undefined);
   });
 
   it('does not display selected options in multiple mode when selected are hidden', async () => {

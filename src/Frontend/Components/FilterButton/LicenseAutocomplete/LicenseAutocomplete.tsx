@@ -14,11 +14,12 @@ interface Props {
   setSelectedLicense: (license: string | null) => void;
 }
 
-export const LicenseAutocomplete: React.FC<Props> = ({
+export const LicenseAutocomplete = ({
+  ref: inputRef,
   licenses,
   selectedLicense,
   setSelectedLicense,
-}) => {
+}: Props & { ref?: React.RefObject<HTMLInputElement | null> }) => {
   return (
     <Autocomplete<string, false, false, true>
       sx={{ height: '38px' }}
@@ -44,6 +45,7 @@ export const LicenseAutocomplete: React.FC<Props> = ({
         setSelectedLicense(license);
       }}
       filterSelectedOptions
+      inputRef={inputRef}
       aria-label={'license names'}
     />
   );
