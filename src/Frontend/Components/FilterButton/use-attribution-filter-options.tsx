@@ -32,7 +32,7 @@ export function useAttributionFilterOptions({
 
         return {
           id: key,
-          selected: filters.filterKeys.includes(key),
+          selected: filters.filters.includes(key),
           faded: !count,
           label:
             typeof count === 'number'
@@ -42,12 +42,12 @@ export function useAttributionFilterOptions({
           onAdd: () =>
             setFilters((prev) => ({
               ...prev,
-              filterKeys: [...prev.filterKeys, key],
+              filters: [...prev.filters, key],
             })),
           onDelete: () =>
             setFilters((prev) => ({
               ...prev,
-              filterKeys: prev.filterKeys.filter(
+              filters: prev.filters.filter(
                 (activeFilter) => activeFilter !== key,
               ),
             })),

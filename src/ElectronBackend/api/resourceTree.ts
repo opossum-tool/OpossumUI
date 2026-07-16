@@ -265,40 +265,23 @@ export async function getResourceTreeUnreviewedCount({
   onAttributionUuids?: Array<string>;
   search?: string;
 }) {
-  const count = await getDb()
+  return getDb()
     .transaction()
-    .execute(async (trx) =>
-      countUnreviewedFiles(trx, { license, onAttributionUuids, search }),
-    );
+    .execute(async (trx) => {
+      const count = await trx
+        .selectFrom(
+          getFilteredResourcesQuery(trx, {
+            license,
+            onlyUnreviewedFiles: true,
+            onAttributionUuids,
+            search,
+          }).as('filtered_resources'),
+        )
+        .select((eb) => eb.fn.countAll<number>().as('count'))
+        .executeTakeFirstOrThrow();
 
-  return { result: count };
-}
-
-async function countUnreviewedFiles(
-  trx: Transaction<DB>,
-  {
-    license,
-    onAttributionUuids,
-    search,
-  }: {
-    license?: string;
-    onAttributionUuids?: Array<string>;
-    search?: string;
-  },
-) {
-  return (
-    await trx
-      .selectFrom(
-        getFilteredResourcesQuery(trx, {
-          license,
-          onlyUnreviewedFiles: true,
-          onAttributionUuids,
-          search,
-        }).as('filtered_resources'),
-      )
-      .select((eb) => eb.fn.countAll<number>().as('count'))
-      .executeTakeFirstOrThrow()
-  ).count;
+      return { result: count.count };
+    });
 }
 
 function getFilteredResourcesQuery(

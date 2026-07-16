@@ -14,7 +14,7 @@ export const EXTERNAL_ATTRIBUTION_FILTERS = 'external-attribution-filters';
 export const RESOURCE_TREE_FILTERS = 'resource-tree-filters';
 
 export interface AttributionFilters {
-  filterKeys: Array<AttributionFilterKey>;
+  filters: Array<AttributionFilterKey>;
   search: string;
   selectedLicense: string;
   sorting: SortOption;
@@ -25,8 +25,8 @@ export interface ResourceTreeFilters {
   selectedLicense: string;
 }
 
-export const initialFilters: AttributionFilters = {
-  filterKeys: [],
+export const initialAttributionFilters: AttributionFilters = {
+  filters: [],
   search: '',
   selectedLicense: '',
   sorting: 'alphabetically',
@@ -49,21 +49,21 @@ export type SetAttributionFilters = (
 export function useManualAttributionFilters() {
   return useVariable<AttributionFilters>(
     MANUAL_ATTRIBUTION_FILTERS_AUDIT,
-    structuredClone(initialFilters),
+    structuredClone(initialAttributionFilters),
   );
 }
 
 export function useAttributionFiltersInReportView() {
   return useVariable<AttributionFilters>(
     MANUAL_ATTRIBUTION_FILTERS_REPORT,
-    structuredClone(initialFilters),
+    structuredClone(initialAttributionFilters),
   );
 }
 
 export function useExternalAttributionFilters() {
   return useVariable<AttributionFilters>(
     EXTERNAL_ATTRIBUTION_FILTERS,
-    structuredClone(initialFilters),
+    structuredClone(initialAttributionFilters),
   );
 }
 

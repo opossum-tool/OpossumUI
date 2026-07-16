@@ -12,7 +12,7 @@ import { setSelectedAttributionId } from '../../../../state/actions/resource-act
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import type { Action } from '../../../../state/configure-store';
 import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-ids-for-replacement';
-import { initialFilters } from '../../../../state/variables/use-filters';
+import { initialAttributionFilters } from '../../../../state/variables/use-filters';
 import { renderComponent } from '../../../../test-helpers/render';
 import { useFilteredAttributionsList } from '../../../../util/use-attribution-lists';
 import {
@@ -46,7 +46,7 @@ function renderPackagesPanel({
       external={false}
       filterOptions={[]}
       renderActions={() => null}
-      useAttributionFilters={() => [initialFilters, vi.fn()]}
+      useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
     >
       {children ?? (() => null)}
     </PackagesPanel>,
@@ -64,7 +64,7 @@ function rerenderPackagesPanel(
       external={false}
       filterOptions={[]}
       renderActions={() => null}
-      useAttributionFilters={() => [initialFilters, vi.fn()]}
+      useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
     >
       {() => null}
     </PackagesPanel>,

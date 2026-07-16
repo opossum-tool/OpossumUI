@@ -25,7 +25,7 @@ export function useFilteredAttributionsList({
     ? useExternalAttributionFilters
     : useManualAttributionFilters;
 
-  const [{ filterKeys, search, selectedLicense, sorting }] = useFilters();
+  const [{ filters, search, selectedLicense, sorting }] = useFilters();
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
@@ -34,7 +34,7 @@ export function useFilteredAttributionsList({
 
   const attributionQuery = backend.listAttributions.useQuery({
     external,
-    filters: filterKeys,
+    filters,
     search,
     sort: sorting,
     license: selectedLicense,
@@ -63,11 +63,11 @@ export function useIsSelectedAttributionVisible() {
 }
 
 export function useFilteredReportsAttributionsList() {
-  const [{ filterKeys, selectedLicense }] = useAttributionFiltersInReportView();
+  const [{ filters, selectedLicense }] = useAttributionFiltersInReportView();
 
   const attributionQuery = backend.listAttributions.useQuery({
     external: false,
-    filters: filterKeys,
+    filters,
     resourcePathForRelationships: ROOT_PATH,
     license: selectedLicense,
   });

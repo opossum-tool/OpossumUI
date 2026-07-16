@@ -30,7 +30,7 @@ export function useFilterProperties({
     reportTable: useAttributionFiltersInReportView,
   }[mode];
 
-  const [{ filterKeys, search, selectedLicense }] = useFilters();
+  const [{ filters, search, selectedLicense }] = useFilters();
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
@@ -40,7 +40,7 @@ export function useFilterProperties({
   const filterPropsQuery = backend.filterProperties.useQuery(
     {
       external: mode === 'external',
-      filters: filterKeys,
+      filters,
       search: mode === 'reportTable' ? undefined : search,
       license: mode === 'reportTable' ? undefined : selectedLicense,
       resourcePathForRelationships:
