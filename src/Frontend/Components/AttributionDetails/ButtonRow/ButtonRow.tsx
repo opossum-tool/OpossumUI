@@ -482,8 +482,8 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
         {renderPickerModeCancelButton(() => setCompareSelectionSource(null))}
         {compareSelectionSource && !isPreviewingSource && (
           <DiffPopup
-            original={packageInfo}
-            current={compareSelectionSource}
+            original={compareSelectionSource}
+            current={packageInfo}
             isOpen={isCompareSelectionDiffOpen}
             setOpen={setIsCompareSelectionDiffOpen}
             readOnly

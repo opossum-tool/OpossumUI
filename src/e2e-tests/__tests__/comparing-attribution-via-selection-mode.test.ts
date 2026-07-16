@@ -81,10 +81,10 @@ test('lets the user pick a compare target on another resource via compare-select
   await attributionDetails.compareSelectionConfirmButton.click();
   await diffPopup.assert.isVisible();
   await diffPopup.originalAttributionForm.assert.nameIs(
-    manualPackageInfo2.packageName || '',
+    manualPackageInfo1.packageName || '',
   );
   await diffPopup.currentAttributionForm.assert.nameIs(
-    manualPackageInfo1.packageName || '',
+    manualPackageInfo2.packageName || '',
   );
   await diffPopup.assert.applyButtonIsHidden();
   await diffPopup.assert.revertAllButtonIsHidden();

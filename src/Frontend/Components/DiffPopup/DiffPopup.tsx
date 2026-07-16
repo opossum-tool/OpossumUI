@@ -136,8 +136,8 @@ export function DiffPopup({
     const sectionPrefixes =
       comparisonMode === 'compare-attributions'
         ? {
-            original: text.attributionColumn.compared,
-            current: text.attributionColumn.selected,
+            original: text.attributionColumn.selected,
+            current: text.attributionColumn.compared,
           }
         : {
             original: text.attributionColumn.original,
