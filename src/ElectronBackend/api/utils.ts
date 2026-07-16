@@ -21,12 +21,9 @@ import {
   isEqualToExternalAttribution,
   THIRD_PARTY_KEYS,
 } from '../../shared/attribution-comparison';
-import type { AttributionFilterKey } from '../../shared/shared-constants';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
 import type { DB } from '../db/generated/databaseTypes';
-import { getFilterKeys } from './filters';
 import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
-import type { FilterPropertiesWithCanonicalLicenseNames } from './queries';
 
 export type ResourceRelationship =
   'same' | 'ancestor' | 'descendant' | 'unrelated';
@@ -453,33 +450,6 @@ export function toCanonicalLicenseName(
   s: Expression<string | null> | string | null,
 ): RawBuilder<string | null> {
   return sql<string | null>`lower(replace(replace(${s}, '-', ''), ' ', ''))`;
-}
-
-export function mergeFilterProperties(
-  counts: Array<FilterPropertiesWithCanonicalLicenseNames | undefined>,
-): FilterPropertiesWithCanonicalLicenseNames {
-  const result = {
-    ...Object.fromEntries(['total', ...getFilterKeys()].map((f) => [f, 0])),
-    licenses: [] as Array<{ name: string; canonical_name: string }>,
-  } as FilterPropertiesWithCanonicalLicenseNames;
-
-  for (const sum of counts.filter((s) => s !== undefined)) {
-    for (const [k, v] of Object.entries(sum)) {
-      if (k === 'licenses') {
-        result.licenses = [
-          ...new Set([
-            ...result.licenses,
-            ...(v as Array<{ name: string; canonical_name: string }>),
-          ]),
-        ];
-      } else {
-        const key = k as AttributionFilterKey | 'total';
-        result[key] = (result[key] ?? 0) + (v as number);
-      }
-    }
-  }
-
-  return result;
 }
 
 const DEFAULT_BATCH_SIZE = 30000;

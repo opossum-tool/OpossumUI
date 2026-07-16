@@ -41,7 +41,6 @@ import {
   GET_LEGACY_RESOURCE_PATH,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
-  mergeFilterProperties,
   removeParentFromPath,
   removeTrailingSlash,
   type ResourceRelationship,
@@ -82,6 +81,33 @@ type QueryFunction = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   param?: any,
 ) => Promise<{ result: NonNullable<unknown> | null }>; // Tanstack doesn't allow functions to return undefined
+
+function mergeFilterProperties(
+  counts: Array<FilterPropertiesWithCanonicalLicenseNames | undefined>,
+): FilterPropertiesWithCanonicalLicenseNames {
+  const result = {
+    ...Object.fromEntries(['total', ...getFilterKeys()].map((key) => [key, 0])),
+    licenses: [] as Array<{ name: string; canonical_name: string }>,
+  } as FilterPropertiesWithCanonicalLicenseNames;
+
+  for (const count of counts.filter((count) => count !== undefined)) {
+    for (const [key, value] of Object.entries(count)) {
+      if (key === 'licenses') {
+        result.licenses = [
+          ...new Set([
+            ...result.licenses,
+            ...(value as Array<{ name: string; canonical_name: string }>),
+          ]),
+        ];
+      } else {
+        const filterKey = key as AttributionFilterKey | 'total';
+        result[filterKey] = (result[filterKey] ?? 0) + (value as number);
+      }
+    }
+  }
+
+  return result;
+}
 
 export const queries = {
   listAttributions,
