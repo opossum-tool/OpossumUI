@@ -8,6 +8,7 @@ import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied
 import SentimentSatisfied from '@mui/icons-material/SentimentSatisfied';
 import MuiBadge, { type BadgeProps } from '@mui/material/Badge';
 import MuiIconButton from '@mui/material/IconButton';
+import type { SxProps, Theme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -62,13 +63,6 @@ const FILTER_ICONS: Record<Filter, React.ReactElement<unknown>> = {
   [text.filters.modifiedPreferred]: <ModifiedPreferredIcon noTooltip />,
 };
 
-export interface FilterButtonTriggerProps {
-  content: React.ReactElement;
-  disabled: boolean;
-  isSomeFilterActive: boolean;
-  onClick: React.MouseEventHandler<HTMLElement>;
-}
-
 interface Props extends Pick<
   SelectMenuProps,
   'anchorArrow' | 'anchorPosition'
@@ -79,7 +73,7 @@ interface Props extends Pick<
   emptyAttributions?: boolean;
   badgeColor?: BadgeProps['color'];
   mode: FilterPropsMode;
-  renderTrigger?: (props: FilterButtonTriggerProps) => React.ReactNode;
+  triggerStyle?: (isSomeFilterActive: boolean) => SxProps<Theme>;
 }
 
 export const FilterButton: React.FC<Props> = ({
@@ -91,7 +85,7 @@ export const FilterButton: React.FC<Props> = ({
   emptyAttributions,
   badgeColor = 'primary',
   mode,
-  renderTrigger,
+  triggerStyle,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const [{ filters, selectedLicense }, setFilteredAttributions] =
@@ -170,25 +164,18 @@ export const FilterButton: React.FC<Props> = ({
     ],
   );
 
-  const triggerProps: Omit<FilterButtonTriggerProps, 'content'> = {
-    disabled: isDisabled,
-    isSomeFilterActive,
-    onClick: (event) => setAnchorEl(event.currentTarget),
-  };
-
   return (
     <>
-      {renderTrigger?.({
-        ...triggerProps,
-        content: renderFilterButtonContent({ badgeColor, isSomeFilterActive }),
-      }) ??
-        renderDefaultTrigger({
-          ...triggerProps,
-          content: renderFilterButtonContent({
-            badgeColor,
-            isSomeFilterActive,
-          }),
-        })}
+      <MuiIconButton
+        aria-label={'filter button'}
+        onClick={(event) => setAnchorEl(event.currentTarget)}
+        disabled={isDisabled}
+        size={'small'}
+        color={isSomeFilterActive ? 'primary' : undefined}
+        sx={triggerStyle?.(isSomeFilterActive)}
+      >
+        {renderFilterButtonContent({ badgeColor, isSomeFilterActive })}
+      </MuiIconButton>
       <SelectMenu
         anchorArrow={anchorArrow}
         anchorEl={anchorEl}
@@ -202,29 +189,11 @@ export const FilterButton: React.FC<Props> = ({
   );
 };
 
-function renderDefaultTrigger({
-  content,
-  disabled,
-  isSomeFilterActive,
-  onClick,
-}: FilterButtonTriggerProps) {
-  return (
-    <MuiIconButton
-      aria-label={'filter button'}
-      onClick={onClick}
-      disabled={disabled}
-      size={'small'}
-      color={isSomeFilterActive ? 'primary' : undefined}
-    >
-      {content}
-    </MuiIconButton>
-  );
-}
-
 function renderFilterButtonContent({
   badgeColor,
   isSomeFilterActive,
-}: Pick<FilterButtonTriggerProps, 'isSomeFilterActive'> & {
+}: {
+  isSomeFilterActive: boolean;
   badgeColor: BadgeProps['color'];
 }) {
   return (

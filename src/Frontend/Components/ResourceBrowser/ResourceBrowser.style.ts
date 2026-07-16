@@ -3,18 +3,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { alpha, styled } from '@mui/material';
-import MuiIconButton from '@mui/material/IconButton';
+import { alpha, type SxProps, type Theme } from '@mui/material/styles';
 
 import { OpossumColors, TRANSITION } from '../../shared-styles';
 
-export const FilterIconButton = styled(MuiIconButton, {
-  shouldForwardProp: (name: string) => name !== 'isFilterActive',
-})<{ isFilterActive: boolean }>(({ isFilterActive }) => ({
+export const resourceBrowserFilterButtonStyle = (
+  isFilterActive: boolean,
+): SxProps<Theme> => ({
   padding: '2px',
   color: isFilterActive ? OpossumColors.white : OpossumColors.lightBlue,
   '&:hover': {
     backgroundColor: alpha(OpossumColors.white, 0.15),
   },
   transition: TRANSITION,
-}));
+});

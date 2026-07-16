@@ -18,37 +18,15 @@ import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
 import { backend } from '../../util/backendClient';
 import { useDebouncedInput } from '../../util/use-debounced-input';
-import {
-  FilterButton,
-  type FilterButtonTriggerProps,
-} from '../FilterButton/FilterButton';
+import { FilterButton } from '../FilterButton/FilterButton';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
 import { useLinkedResourcesTreeState } from './LinkedResourcesTree/useLinkedResourcesTreeState';
-import { FilterIconButton } from './ResourceBrowser.style';
+import { resourceBrowserFilterButtonStyle } from './ResourceBrowser.style';
 import { ResourcesTree } from './ResourcesTree/ResourcesTree';
 
 const ALL_RESOURCES_SEARCH = 'all-resources-search';
 const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
-
-function renderResourceBrowserFilterTrigger({
-  content,
-  disabled,
-  isSomeFilterActive,
-  onClick,
-}: FilterButtonTriggerProps) {
-  return (
-    <FilterIconButton
-      aria-label={'filter button'}
-      onClick={onClick}
-      disabled={disabled}
-      isFilterActive={isSomeFilterActive}
-      size={'small'}
-    >
-      {content}
-    </FilterIconButton>
-  );
-}
 
 export function ResourceBrowser() {
   const { panelSizes, setPanelSizes } = usePanelSizes();
@@ -145,7 +123,7 @@ export function ResourceBrowser() {
             availableFilters={[]}
             anchorPosition={'right'}
             badgeColor={'secondary'}
-            renderTrigger={renderResourceBrowserFilterTrigger}
+            triggerStyle={resourceBrowserFilterButtonStyle}
           />
         ),
         component: (
