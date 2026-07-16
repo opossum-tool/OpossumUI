@@ -5,6 +5,7 @@
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import CheckIcon from '@mui/icons-material/Check';
 import CompareIcon from '@mui/icons-material/Compare';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import SaveIcon from '@mui/icons-material/Save';
@@ -28,10 +29,14 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
+import { useCompareSelectionSource } from '../../../state/variables/use-compare-selection';
 import { backend } from '../../../util/backendClient';
 import { isPackageInvalid } from '../../../util/input-validation';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
-import { useSelectedAttributionPackageInfo } from '../../../util/use-selected-attribution';
+import {
+  useSelectedAttributionIsExternal,
+  useSelectedAttributionPackageInfo,
+} from '../../../util/use-selected-attribution';
 import { useIsSelectedResourceBreakpoint } from '../../../util/use-selected-resource';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
@@ -49,6 +54,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
   const initialPackageInfo = useSelectedAttributionPackageInfo();
+  const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
 
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
@@ -76,7 +82,13 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
 
   const [isDiffPopupOpen, setIsDiffPopupOpen] = useState(false);
 
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
+  const { compareSelectionSource, setCompareSelectionSource } =
+    useCompareSelectionSource();
+  const [isCompareSelectionDiffOpen, setIsCompareSelectionDiffOpen] =
+    useState(false);
+
+  const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
+    useAttributionIdsForReplacement();
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
     useState(false);
   const [isReplaceAttributionsPopupOpen, setIsReplaceAttributionsPopupOpen] =
@@ -146,19 +158,18 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     handleSave,
   ]);
 
-  if (attributionIdsForReplacement.includes(packageInfo.id)) {
-    return null;
-  }
-
   return (
     <Container>
       {attributionIdsForReplacement.length ? (
         renderReplaceButton()
+      ) : compareSelectionSource ? (
+        renderCompareSelectionControls()
       ) : (
         <>
           {renderSaveButton()}
           {renderLinkButton()}
           {renderCompareButton()}
+          {renderCompareWithButton()}
           {renderDeleteAttributionButton()}
           {renderDeleteRestoreSignalButton()}
           {renderRevertButton()}
@@ -168,22 +179,43 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   );
 
   function renderReplaceButton() {
+    const isPreviewingSource = attributionIdsForReplacement.includes(
+      packageInfo.id,
+    );
+    const canUseAsReplacement =
+      !isPreviewingSource && selectedAttributionIsExternal === false;
+
     return (
       <>
-        <MuiButton
-          variant={'contained'}
-          color={'success'}
-          loading={mutationPending}
-          onClick={() => setIsReplaceAttributionsPopupOpen(true)}
-        >
-          {text.attributionColumn.replace}
-        </MuiButton>
-        <ConfirmReplacePopup
-          selectedAttribution={packageInfo}
-          open={isReplaceAttributionsPopupOpen}
-          onClose={() => setIsReplaceAttributionsPopupOpen(false)}
-        />
+        {canUseAsReplacement && (
+          <MuiButton
+            variant={'contained'}
+            color={'success'}
+            loading={mutationPending}
+            onClick={() => setIsReplaceAttributionsPopupOpen(true)}
+          >
+            {text.attributionColumn.replace}
+          </MuiButton>
+        )}
+        {renderPickerModeCancelButton(() =>
+          setAttributionIdsForReplacement([]),
+        )}
+        {canUseAsReplacement && (
+          <ConfirmReplacePopup
+            selectedAttribution={packageInfo}
+            open={isReplaceAttributionsPopupOpen}
+            onClose={() => setIsReplaceAttributionsPopupOpen(false)}
+          />
+        )}
       </>
+    );
+  }
+
+  function renderPickerModeCancelButton(onCancel: () => void) {
+    return (
+      <MuiButton variant={'contained'} color={'secondary'} onClick={onCancel}>
+        {text.buttons.cancel}
+      </MuiButton>
     );
   }
 
@@ -400,6 +432,65 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
           setOpen={setIsDiffPopupOpen}
           key={isDiffPopupOpen.toString()}
         />
+      </>
+    );
+  }
+
+  function renderCompareWithButton() {
+    if (!packageInfo.id) {
+      return null;
+    }
+
+    return (
+      <MuiTooltip title={text.attributionColumn.compareWith} disableInteractive>
+        <span>
+          <MuiFab
+            aria-label={text.attributionColumn.compareWith}
+            size={'small'}
+            color={'secondary'}
+            disabled={mutationPending || isPackageInfoModified}
+            onClick={() => {
+              setCompareSelectionSource(packageInfo.id);
+            }}
+          >
+            <CompareArrowsIcon />
+          </MuiFab>
+        </span>
+      </MuiTooltip>
+    );
+  }
+
+  function renderCompareSelectionControls() {
+    if (!compareSelectionSource) {
+      return null;
+    }
+
+    const isPreviewingSource = compareSelectionSource.id === packageInfo.id;
+
+    return (
+      <>
+        {!isPreviewingSource && (
+          <MuiButton
+            variant={'contained'}
+            color={'success'}
+            disabled={!packageInfo.id || !compareSelectionSource}
+            onClick={() => setIsCompareSelectionDiffOpen(true)}
+          >
+            {text.attributionColumn.compareConfirm}
+          </MuiButton>
+        )}
+        {renderPickerModeCancelButton(() => setCompareSelectionSource(null))}
+        {compareSelectionSource && !isPreviewingSource && (
+          <DiffPopup
+            original={compareSelectionSource}
+            current={packageInfo}
+            isOpen={isCompareSelectionDiffOpen}
+            setOpen={setIsCompareSelectionDiffOpen}
+            readOnly
+            comparisonMode={'compare-attributions'}
+            key={isCompareSelectionDiffOpen.toString()}
+          />
+        )}
       </>
     );
   }

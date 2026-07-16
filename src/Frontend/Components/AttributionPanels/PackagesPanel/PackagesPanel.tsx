@@ -16,14 +16,20 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Attributions, Relation } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import type { Filter } from '../../../shared-constants';
-import { OpossumColors } from '../../../shared-styles';
+import {
+  OpossumColors,
+  PICKER_MODE_DISABLED_OPACITY,
+} from '../../../shared-styles';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
-import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
 import type { UseAttributionFilters } from '../../../state/variables/use-filters';
+import {
+  type PickerMode,
+  usePickerMode,
+} from '../../../state/variables/use-picker-mode';
 import { getRelationPriority } from '../../../util/sort-attributions';
 import { useFilteredAttributionsList } from '../../../util/use-attribution-lists';
 import { usePrevious } from '../../../util/use-previous';
@@ -50,6 +56,7 @@ export interface PackagesPanelChildrenProps {
   contentHeight: string;
   loading: boolean;
   multiSelectedAttributionIds: Array<string>;
+  pickerMode: PickerMode;
   selectedAttributionId: string;
   selectedAttributionIds: Array<string>;
   setMultiSelectedAttributionIds: React.Dispatch<
@@ -68,7 +75,6 @@ interface Props {
   alert?: Alert;
   availableFilters: Array<Filter>;
   children: (props: PackagesPanelChildrenProps) => React.ReactNode;
-  disableSelectAll?: boolean;
   useAttributionFilters: UseAttributionFilters;
   renderActions: (props: PackagesPanelChildrenProps) => React.ReactNode;
   testId?: string;
@@ -79,7 +85,6 @@ export const PackagesPanel = ({
   alert,
   availableFilters,
   children,
-  disableSelectAll,
   renderActions,
   useAttributionFilters: useFilteredData,
   testId,
@@ -92,7 +97,7 @@ export const PackagesPanel = ({
   const [multiSelectedAttributionIds, setMultiSelectedAttributionIds] =
     useState<Array<string>>([]);
   const [activeRelation, setActiveRelation] = useState<Relation>('children');
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
+  const pickerMode = usePickerMode();
 
   const { attributions, loading } = useFilteredAttributionsList({ external });
 
@@ -172,12 +177,12 @@ export const PackagesPanel = ({
     }
   }, [dispatch, effectiveSelectedIds, prevEffectiveSelectedIds]);
 
-  // reset multi-selected IDs when active relation changes and not in replacement mode
+  // reset multi-selected IDs when active relation changes and not in replacement or compare-selection mode
   useEffect(() => {
-    if (activeRelation && !attributionIdsForReplacement.length) {
+    if (activeRelation && !pickerMode.isActive) {
       setMultiSelectedAttributionIds([]);
     }
-  }, [activeRelation, attributionIdsForReplacement.length]);
+  }, [activeRelation, pickerMode.isActive]);
 
   // reset active relation when active relation no longer exists
   useEffect(() => {
@@ -206,13 +211,22 @@ export const PackagesPanel = ({
     contentHeight: `calc(100% - 42px - ${groupedIds && Object.keys(groupedIds).length ? TABS_CONTAINER_HEIGHT : 0}px - ${alert ? ALERT_CONTAINER_HEIGHT : 0}px)`,
     loading,
     multiSelectedAttributionIds,
+    pickerMode,
     selectedAttributionId,
     selectedAttributionIds,
     setMultiSelectedAttributionIds,
   };
 
+  const isDisabledDuringReplacement = external && pickerMode.mode === 'replace';
+
   return (
-    <Panel data-testid={testId}>
+    <Panel
+      data-testid={testId}
+      sx={{
+        opacity: isDisabledDuringReplacement ? PICKER_MODE_DISABLED_OPACITY : 1,
+        transition: 'opacity 150ms ease',
+      }}
+    >
       {renderActionBar()}
       {children(childrenProps)}
     </Panel>
@@ -228,7 +242,10 @@ export const PackagesPanel = ({
           <ButtonGroup>
             <SortButton
               disabled={
-                loading || !attributionIds || attributionIds.length === 0
+                loading ||
+                !attributionIds ||
+                attributionIds.length === 0 ||
+                isDisabledDuringReplacement
               }
               anchorPosition={'right'}
               useFilteredData={useFilteredData}
@@ -238,7 +255,7 @@ export const PackagesPanel = ({
               availableFilters={availableFilters}
               anchorPosition={'right'}
               useFilteredData={useFilteredData}
-              disabled={loading}
+              disabled={loading || isDisabledDuringReplacement}
               emptyAttributions={
                 attributionIds !== null && attributionIds.length === 0
               }
@@ -317,7 +334,7 @@ export const PackagesPanel = ({
         }}
       >
         <Checkbox
-          disabled={!attributionIds?.length || disableSelectAll}
+          disabled={!attributionIds?.length || pickerMode.isActive}
           checked={areAllAttributionsSelected}
           indeterminate={
             !areAllAttributionsSelected && !!multiSelectedAttributionIds.length

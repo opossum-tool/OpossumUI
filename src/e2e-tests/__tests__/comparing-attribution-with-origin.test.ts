@@ -63,6 +63,19 @@ test('opens the diff popup if attribution has original and compare button is cli
   await diffPopup.assert.isVisible();
 });
 
+test('shows the original attribution in the diff popup', async ({
+  attributionDetails,
+  diffPopup,
+  resourcesTree,
+}) => {
+  await resourcesTree.goto(resourceName2);
+  await attributionDetails.compareButton.click();
+  await diffPopup.assert.isVisible();
+  await diffPopup.originalAttributionForm.assert.nameIs(
+    externalPackageInfo.packageName || '',
+  );
+});
+
 test('reverts all changes and applies reverted state to temporary package info', async ({
   attributionDetails,
   diffPopup,

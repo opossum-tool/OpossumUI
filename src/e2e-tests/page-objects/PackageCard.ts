@@ -31,6 +31,12 @@ export class PackageCard {
     );
   }
 
+  private label(packageInfo: RawPackageInfo): Locator {
+    return this.node(packageInfo).getByText(this.getCardLabel(packageInfo), {
+      exact: true,
+    });
+  }
+
   public checkbox(packageInfo: RawPackageInfo): Locator {
     return this.node(packageInfo).getByRole('checkbox');
   }
@@ -94,6 +100,18 @@ export class PackageCard {
     checkboxIsUnchecked: async (packageInfo: RawPackageInfo): Promise<void> => {
       await expect(this.checkbox(packageInfo)).not.toBeChecked();
     },
+    isPickerSource: async (packageInfo: RawPackageInfo): Promise<void> => {
+      await expect(this.node(packageInfo)).toHaveAttribute(
+        'data-picker-source',
+        'true',
+      );
+    },
+    isNotPickerSource: async (packageInfo: RawPackageInfo): Promise<void> => {
+      await expect(this.node(packageInfo)).not.toHaveAttribute(
+        'data-picker-source',
+        'true',
+      );
+    },
     signalAboveSecondSignal: async (
       signal1: RawPackageInfo,
       signal2: RawPackageInfo,
@@ -108,6 +126,6 @@ export class PackageCard {
   };
 
   async click(packageInfo: RawPackageInfo): Promise<void> {
-    await this.node(packageInfo).click();
+    await this.label(packageInfo).click();
   }
 }

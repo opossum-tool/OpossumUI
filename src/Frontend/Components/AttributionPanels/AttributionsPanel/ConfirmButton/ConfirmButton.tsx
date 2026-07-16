@@ -9,16 +9,15 @@ import { useIsMutating } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { text } from '../../../../../shared/text';
-import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { ConfirmSavePopup } from '../../../ConfirmSavePopup/ConfirmSavePopup';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
+  pickerMode,
   selectedAttributionIds,
 }) => {
   const [isConfirmSavePopupOpen, setIsConfirmSavePopupOpen] = useState(false);
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const preSelectedAttributionIds = selectedAttributionIds.filter(
     (id) => attributions?.[id]?.preSelected,
   );
@@ -30,7 +29,7 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
         aria-label={text.packageLists.confirm}
         disabled={
           !preSelectedAttributionIds.length ||
-          !!attributionIdsForReplacement.length ||
+          pickerMode.isActive ||
           mutationsPending
         }
         onClick={() => setIsConfirmSavePopupOpen(true)}

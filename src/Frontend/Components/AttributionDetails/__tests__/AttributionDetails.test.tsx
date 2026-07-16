@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
@@ -45,7 +45,7 @@ describe('AttributionDetails', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders no buttons when the selected attribution is marked for replacement', async () => {
+  it('shows only the cancel button when the selected attribution is marked for replacement', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const { container } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
@@ -62,6 +62,9 @@ describe('AttributionDetails', () => {
 
     await waitFor(() => expect(container).not.toBeEmptyDOMElement());
 
+    expect(
+      await screen.findByRole('button', { name: text.buttons.cancel }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: text.attributionColumn.replace }),
     ).not.toBeInTheDocument();
@@ -88,6 +91,99 @@ describe('AttributionDetails', () => {
         name: text.attributionColumn.compareToOriginal,
       }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides use as replacement when the selected attribution is external', async () => {
+    const externalAttribution = faker.opossum.packageInfo();
+    const manualAttribution = faker.opossum.packageInfo();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: {
+          [externalAttribution.id]: externalAttribution,
+        },
+        manualAttributions: {
+          [manualAttribution.id]: manualAttribution,
+        },
+      }),
+      actions: [
+        setTemporaryDisplayPackageInfo(externalAttribution),
+        setSelectedAttributionId(externalAttribution.id),
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          manualAttribution.id,
+        ]),
+      ],
+    });
+
+    expect(
+      await screen.findByRole('button', { name: text.buttons.cancel }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.replace }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows only picker mode actions when multiple attributions are marked for replacement', async () => {
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: { [packageInfo1.id]: packageInfo1 },
+      }),
+      actions: [
+        setTemporaryDisplayPackageInfo(packageInfo1),
+        setSelectedAttributionId(packageInfo1.id),
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          packageInfo1.id,
+          packageInfo2.id,
+        ]),
+      ],
+    });
+
+    expect(
+      await screen.findByRole('button', { name: text.buttons.cancel }),
+    ).toBeInTheDocument();
+  });
+
+  it('reduces the opacity of the attribution form while picker mode is active', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: { [packageInfo.id]: packageInfo },
+      }),
+      actions: [
+        setTemporaryDisplayPackageInfo(packageInfo),
+        setSelectedAttributionId(packageInfo.id),
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          packageInfo.id,
+        ]),
+      ],
+    });
+
+    expect(await screen.findByTestId('attribution-form-wrapper')).toHaveStyle({
+      opacity: '0.5',
+    });
+  });
+
+  it('keeps full opacity of the attribution form when picker mode is inactive', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions: { [packageInfo.id]: packageInfo },
+      }),
+      actions: [
+        setTemporaryDisplayPackageInfo(packageInfo),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    expect(await screen.findByTestId('attribution-form-wrapper')).toHaveStyle({
+      opacity: '1',
+    });
   });
 
   it('replaces attribution', async () => {
@@ -132,6 +228,48 @@ describe('AttributionDetails', () => {
       [resourceId]: [packageInfo1.id],
     });
     await expectResolvedExternalAttributions(new Set());
+  });
+
+  it('cancels replacement mode via cancel button', async () => {
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo1.id, packageInfo2.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setTemporaryDisplayPackageInfo(packageInfo1),
+        setSelectedAttributionId(packageInfo1.id),
+        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+          packageInfo2.id,
+        ]),
+      ],
+    });
+
+    expect(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.replace,
+      }),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole('button', { name: text.buttons.cancel }),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: text.attributionColumn.save }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.replace }),
+    ).not.toBeInTheDocument();
   });
 
   it('saves modified attribution', async () => {
@@ -567,7 +705,233 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    expect(screen.getByText(text.diffPopup.title)).toBeInTheDocument();
+    const diffPopup = within(screen.getByLabelText('diff popup'));
+    expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
+    expect(
+      diffPopup.getByText(
+        text.attributionColumn.sectionTitle(
+          text.attributionColumn.original,
+          text.attributionColumn.packageCoordinates,
+        ),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      diffPopup.getByText(
+        text.attributionColumn.sectionTitle(
+          text.attributionColumn.current,
+          text.attributionColumn.packageCoordinates,
+        ),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('preserves the original attribution link when applying changes from the original comparison target', async () => {
+    const signal = faker.opossum.packageInfo();
+    const attribution = faker.opossum.packageInfo({
+      originalAttributionId: signal.id,
+    });
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [attribution.id]: attribution,
+        }),
+        externalAttributions: faker.opossum.attributions({
+          [signal.id]: signal,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [attribution.id],
+        },
+        resourcesToExternalAttributions: {
+          [resourceId]: [signal.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setTemporaryDisplayPackageInfo(attribution),
+        setSelectedAttributionId(attribution.id),
+      ],
+    });
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareToOriginal,
+      }),
+    );
+
+    await userEvent.click(screen.getByTestId('packageName-undo'));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.diffPopup.applyChanges }),
+    );
+
+    await waitFor(() =>
+      expect(
+        getTemporaryDisplayPackageInfo(store.getState()).originalAttributionId,
+      ).toBe(signal.id),
+    );
+  });
+
+  it('enters compare-selection mode and shows only Cancel while previewing the compare source', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo.id]: packageInfo,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setTemporaryDisplayPackageInfo(packageInfo),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    );
+
+    expect(
+      screen.queryByRole('button', {
+        name: text.attributionColumn.compareConfirm,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.save }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole('button', { name: text.buttons.cancel }),
+    );
+
+    expect(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('disables compare-selection mode while the attribution has unsaved changes', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [packageInfo.id]: packageInfo,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    await userEvent.type(
+      await screen.findByLabelText(text.attributionColumn.packageName),
+      'unsaved changes',
+    );
+
+    expect(getIsPackageInfoDirty(store.getState())).toBe(true);
+    expect(
+      screen.getByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    ).toBeDisabled();
+  });
+
+  it('lets the user preview another item and opens a read-only comparison against the pinned source', async () => {
+    const source = faker.opossum.packageInfo();
+    const target = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: faker.opossum.attributions({
+          [source.id]: source,
+          [target.id]: target,
+        }),
+        resourcesToManualAttributions: {
+          [resourceId]: [source.id, target.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setTemporaryDisplayPackageInfo(source),
+        setSelectedAttributionId(source.id),
+      ],
+    });
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    );
+
+    act(() => {
+      store.dispatch(setSelectedAttributionId(target.id));
+    });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(target),
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareConfirm,
+      }),
+    );
+
+    const diffPopup = within(screen.getByLabelText('diff popup'));
+    expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
+    expect(
+      diffPopup.getByDisplayValue(target.packageName!),
+    ).toBeInTheDocument();
+    expect(
+      diffPopup.getByText(
+        text.attributionColumn.sectionTitle(
+          text.attributionColumn.compared,
+          text.attributionColumn.packageCoordinates,
+        ),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      diffPopup.getByText(
+        text.attributionColumn.sectionTitle(
+          text.attributionColumn.selected,
+          text.attributionColumn.packageCoordinates,
+        ),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      diffPopup.queryByText(
+        text.attributionColumn.sectionTitle(
+          text.attributionColumn.original,
+          text.attributionColumn.packageCoordinates,
+        ),
+      ),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByRole('button', { name: text.diffPopup.applyChanges }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.diffPopup.revertAll }),
+    ).not.toBeInTheDocument();
+    expect(diffPopup.queryByTestId('packageName-undo')).not.toBeInTheDocument();
+    expect(diffPopup.queryByTestId('packageName-redo')).not.toBeInTheDocument();
+    expect(diffPopup.queryByTestId('firstParty-undo')).not.toBeInTheDocument();
+    expect(diffPopup.queryByTestId('firstParty-redo')).not.toBeInTheDocument();
   });
 
   it('resets temporaryDisplayPackageInfo when selected attribution changes', async () => {

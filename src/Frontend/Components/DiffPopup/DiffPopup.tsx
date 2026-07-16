@@ -25,6 +25,9 @@ interface DiffPopupProps {
   current: PackageInfo;
   isOpen: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onApply?: () => void;
+  readOnly?: boolean;
+  comparisonMode?: 'compare-to-original' | 'compare-attributions';
 }
 
 export function DiffPopup({
@@ -32,8 +35,12 @@ export function DiffPopup({
   original,
   isOpen,
   setOpen,
+  onApply,
+  readOnly,
+  comparisonMode = 'compare-to-original',
 }: DiffPopupProps) {
   const dispatch = useAppDispatch();
+
   const {
     originalFormConfig,
     bufferFormConfig,
@@ -42,6 +49,7 @@ export function DiffPopup({
   } = useAttributionFormConfigs({
     original: stripLicenseInfoIfFirstParty(original),
     current: stripLicenseInfoIfFirstParty(current),
+    readOnly,
   });
 
   function handleApplyChanges({
@@ -60,37 +68,56 @@ export function DiffPopup({
           licenseName: current.licenseName,
           licenseText: current.licenseText,
         }),
+        // Preserve the current attribution's origin linkage: the compared
+        // target might not be the actual original signal.
+        originalAttributionId: current.originalAttributionId,
+        originalAttributionSource: current.originalAttributionSource,
+        originalAttributionWasPreferred:
+          current.originalAttributionWasPreferred,
       }),
     );
+    onApply?.();
     setOpen(false);
   }
 
   return (
     <NotificationPopup
       header={text.diffPopup.title}
-      leftButtonConfig={{
-        disabled: isEqualToExternalAttribution(bufferPackageInfo, current),
-        buttonText: text.diffPopup.applyChanges,
-        onClick: () => {
-          handleApplyChanges({ current, buffer: bufferPackageInfo });
-        },
-      }}
-      centerRightButtonConfig={{
-        disabled: isEqualToExternalAttribution(bufferPackageInfo, original),
-        buttonText: text.diffPopup.revertAll,
-        onClick: () => {
-          setBufferPackageInfo({
-            ...bufferPackageInfo,
-            ...FORM_ATTRIBUTES.reduce(
-              (acc, attribute) => ({
-                ...acc,
-                [attribute]: original[attribute],
-              }),
-              {},
-            ),
-          });
-        },
-      }}
+      leftButtonConfig={
+        comparisonMode === 'compare-attributions'
+          ? undefined
+          : {
+              disabled:
+                readOnly ||
+                isEqualToExternalAttribution(bufferPackageInfo, current),
+              buttonText: text.diffPopup.applyChanges,
+              onClick: () => {
+                handleApplyChanges({ current, buffer: bufferPackageInfo });
+              },
+            }
+      }
+      centerRightButtonConfig={
+        comparisonMode === 'compare-attributions'
+          ? undefined
+          : {
+              disabled:
+                readOnly ||
+                isEqualToExternalAttribution(bufferPackageInfo, original),
+              buttonText: text.diffPopup.revertAll,
+              onClick: () => {
+                setBufferPackageInfo({
+                  ...bufferPackageInfo,
+                  ...FORM_ATTRIBUTES.reduce(
+                    (acc, attribute) => ({
+                      ...acc,
+                      [attribute]: original[attribute],
+                    }),
+                    {},
+                  ),
+                });
+              },
+            }
+      }
       rightButtonConfig={{
         buttonText: text.buttons.cancel,
         color: 'secondary',
@@ -106,6 +133,17 @@ export function DiffPopup({
   );
 
   function renderDiffView() {
+    const sectionPrefixes =
+      comparisonMode === 'compare-attributions'
+        ? {
+            original: text.attributionColumn.selected,
+            current: text.attributionColumn.compared,
+          }
+        : {
+            original: text.attributionColumn.original,
+            current: text.attributionColumn.current,
+          };
+
     return (
       <DiffPopupContainer>
         <AttributionForm
@@ -113,6 +151,7 @@ export function DiffPopup({
           variant={'diff-original'}
           label={'original'}
           config={originalFormConfig}
+          sectionPrefix={sectionPrefixes.original}
         />
         <MuiDivider
           variant={'middle'}
@@ -124,6 +163,7 @@ export function DiffPopup({
           variant={'diff-current'}
           label={'current'}
           config={bufferFormConfig}
+          sectionPrefix={sectionPrefixes.current}
         />
       </DiffPopupContainer>
     );

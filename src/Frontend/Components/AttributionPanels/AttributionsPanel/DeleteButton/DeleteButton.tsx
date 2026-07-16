@@ -9,14 +9,13 @@ import { useIsMutating } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { text } from '../../../../../shared/text';
-import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { ConfirmDeletePopup } from '../../../ConfirmDeletePopup/ConfirmDeletePopup';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
+  pickerMode,
   selectedAttributionIds,
 }) => {
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
     useState(false);
 
@@ -28,7 +27,7 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
         aria-label={text.packageLists.delete}
         disabled={
           !selectedAttributionIds.length ||
-          !!attributionIdsForReplacement.length ||
+          pickerMode.isActive ||
           mutationsPending
         }
         onClick={() => setIsConfirmDeletionPopupOpen(true)}

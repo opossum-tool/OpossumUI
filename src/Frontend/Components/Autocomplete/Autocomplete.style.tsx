@@ -66,6 +66,10 @@ export const Input = styled(MuiTextField, {
     '& .Mui-readOnly:hover:not(.Mui-focused) fieldset': {
       borderColor: 'rgba(0, 0, 0, 0.23)',
     },
+    '& .Mui-readOnly.Mui-focused fieldset': {
+      borderColor: 'rgba(0, 0, 0, 0.23)',
+      borderWidth: '1px',
+    },
   };
 });
 

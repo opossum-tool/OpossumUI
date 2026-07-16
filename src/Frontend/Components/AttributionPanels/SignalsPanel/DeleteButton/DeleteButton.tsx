@@ -13,6 +13,7 @@ import { backend } from '../../../../util/backendClient';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
+  pickerMode,
   selectedAttributionIds,
 }) => {
   const resolveAttributions = backend.resolveAttributions.useMutation();
@@ -31,7 +32,11 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   return (
     <MuiIconButton
       aria-label={text.packageLists.delete}
-      disabled={!someSelectedAttributionsAreVisible || mutationsPending}
+      disabled={
+        !someSelectedAttributionsAreVisible ||
+        pickerMode.isActive ||
+        mutationsPending
+      }
       size={'small'}
       onClick={() =>
         resolveAttributions.mutateAsync({

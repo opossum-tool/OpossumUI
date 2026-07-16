@@ -14,6 +14,7 @@ import { backend } from '../../../../util/backendClient';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
+  pickerMode,
   selectedAttributionIds,
 }) => {
   const unresolveAttributions = backend.unresolveAttributions.useMutation({
@@ -40,7 +41,11 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   return (
     <MuiIconButton
       aria-label={text.packageLists.restore}
-      disabled={!someSelectedAttributionsAreHidden || mutationsPending}
+      disabled={
+        !someSelectedAttributionsAreHidden ||
+        pickerMode.isActive ||
+        mutationsPending
+      }
       size={'small'}
       onClick={async () => {
         await unresolveAttributions.mutateAsync({

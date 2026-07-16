@@ -2,12 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  act,
-  screen,
-  waitForElementToBeRemoved,
-  within,
-} from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../../shared/text';
@@ -18,11 +13,10 @@ import {
   setIsPackageInfoDirty,
   setTemporaryDisplayPackageInfo,
 } from '../../../../state/actions/resource-actions/all-views-simple-actions';
-import {
-  setSelectedAttributionId,
-  setSelectedResourceId,
-} from '../../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setSelectedResourceId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
+import { COMPARE_SELECTION_SOURCE } from '../../../../state/variables/use-compare-selection';
 import {
   expectManualAttributions,
   expectResourcesToManualAttributions,
@@ -386,6 +380,32 @@ describe('AttributionsPanel', () => {
     ).toBeDisabled();
   });
 
+  it('disables replace button while compare-selection mode is active', async () => {
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo1.id]: packageInfo1,
+      [packageInfo2.id]: packageInfo2,
+    });
+    await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+        metadata: faker.opossum.metadata(),
+      }),
+      actions: [setVariable(COMPARE_SELECTION_SOURCE, packageInfo1.id)],
+    });
+
+    await userEvent.click(
+      await screen.findByText(
+        `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
+      ),
+    );
+
+    expect(
+      screen.getByRole('button', { name: text.packageLists.replace }),
+    ).toBeDisabled();
+  });
+
   it('disables various buttons in replacement mode', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
@@ -421,41 +441,5 @@ describe('AttributionsPanel', () => {
     expect(
       screen.getByRole('button', { name: text.packageLists.delete }),
     ).toBeDisabled();
-  });
-
-  // eslint-disable-next-line vitest/expect-expect
-  it('exits replacement mode when an external attribution is selected', async () => {
-    const packageInfo1 = faker.opossum.packageInfo();
-    const packageInfo2 = faker.opossum.packageInfo();
-    const packageInfo3 = faker.opossum.packageInfo();
-    const manualAttributions = faker.opossum.attributions({
-      [packageInfo1.id]: packageInfo1,
-      [packageInfo2.id]: packageInfo2,
-    });
-    const { store } = await renderComponent(<AttributionsPanel />, {
-      data: getParsedInputFileEnrichedWithTestData({
-        manualAttributions,
-        externalAttributions: {
-          [packageInfo3.id]: packageInfo3,
-        },
-        metadata: faker.opossum.metadata(),
-      }),
-    });
-
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
-      ),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.packageLists.replace }),
-    );
-    act(() => {
-      store.dispatch(setSelectedAttributionId(packageInfo3.id));
-    });
-
-    await waitForElementToBeRemoved(() =>
-      screen.queryByText(text.packageLists.selectReplacement),
-    );
   });
 });

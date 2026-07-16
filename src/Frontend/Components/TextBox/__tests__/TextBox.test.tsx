@@ -25,4 +25,12 @@ describe('TextBox', () => {
 
     expect(screen.getByText('Test Icon')).toBeInTheDocument();
   });
+
+  it('forwards the readOnly state to the input', () => {
+    render(<TextBox title={'Test Title'} text={'Test Content'} readOnly />);
+
+    const input = screen.getByRole('textbox');
+
+    expect(input).toHaveAttribute('readonly');
+  });
 });

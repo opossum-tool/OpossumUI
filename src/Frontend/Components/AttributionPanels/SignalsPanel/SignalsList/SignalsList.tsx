@@ -9,7 +9,6 @@ import { useMemo } from 'react';
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../../../state/hooks';
-import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { backend } from '../../../../util/backendClient';
 import {
   GroupedList,
@@ -27,15 +26,16 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionId,
   contentHeight,
   loading,
+  pickerMode,
   setMultiSelectedAttributionIds,
   multiSelectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
+  const canSelectSignals = pickerMode.mode !== 'replace';
   const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
   const { data: sources } = backend.getExternalAttributionSources.useQuery();
 
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
   const groupedIds = useMemo(
     () =>
       attributions &&
@@ -92,24 +92,33 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
       return null;
     }
 
+    const isPickerSource =
+      pickerMode.mode === 'compare' &&
+      pickerMode.compareSelectionSource.id === attributionId;
+
     return (
       <>
         <PackageCard
-          onClick={() => {
-            selectedAttributionId !== attributionId &&
-              dispatch(
-                changeSelectedAttributionOrOpenUnsavedPopup(attribution),
-              );
-          }}
+          onClick={
+            canSelectSignals
+              ? () => {
+                  selectedAttributionId !== attributionId &&
+                    dispatch(
+                      changeSelectedAttributionOrOpenUnsavedPopup(attribution),
+                    );
+                }
+              : undefined
+          }
           cardConfig={{
             selected,
             focused,
+            pickerSource: isPickerSource,
             resolved: resolvedExternalAttributionIds?.has(attributionId),
           }}
           packageInfo={attribution}
           checkbox={{
             checked: multiSelectedAttributionIds.includes(attributionId),
-            disabled: !!attributionIdsForReplacement.length,
+            disabled: pickerMode.isActive,
             onChange: (event) => {
               setMultiSelectedAttributionIds(
                 event.target.checked

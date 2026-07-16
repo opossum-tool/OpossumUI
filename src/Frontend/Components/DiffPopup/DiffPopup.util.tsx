@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   FORM_ATTRIBUTES,
@@ -15,11 +15,23 @@ import { DiffEndIcon } from '../DiffEndIcon/DiffEndIcon';
 export function useAttributionFormConfigs({
   original,
   current,
+  readOnly = false,
 }: {
   original: PackageInfo;
   current: PackageInfo;
+  readOnly?: boolean;
 }) {
   const [bufferPackageInfo, setBufferPackageInfo] = useState(current);
+
+  // Re-base the diff whenever the user switches the comparison target,
+  // discarding any pending edits made against the previous target.
+  const previousOriginalIdRef = useRef(original.id);
+  useEffect(() => {
+    if (previousOriginalIdRef.current !== original.id) {
+      previousOriginalIdRef.current = original.id;
+      setBufferPackageInfo(current);
+    }
+  }, [original.id, current]);
 
   const getEndIcon = useCallback(
     ({
@@ -31,6 +43,10 @@ export function useAttributionFormConfigs({
       wasChanged: boolean;
       attribute: FormAttribute;
     }) => {
+      if (readOnly) {
+        return undefined;
+      }
+
       if (isChanged && attribute !== 'firstParty') {
         return (
           <DiffEndIcon
@@ -107,7 +123,7 @@ export function useAttributionFormConfigs({
       }
       return undefined;
     },
-    [bufferPackageInfo, original, current],
+    [bufferPackageInfo, original, current, readOnly],
   );
 
   const [originalFormConfig, bufferFormConfig] = useMemo(

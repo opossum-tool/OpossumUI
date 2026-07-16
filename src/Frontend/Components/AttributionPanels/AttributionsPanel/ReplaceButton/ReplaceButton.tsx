@@ -6,11 +6,9 @@ import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
-import { useEffect } from 'react';
 
 import { text } from '../../../../../shared/text';
 import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
-import { useSelectedAttributionIsExternal } from '../../../../util/use-selected-attribution';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
@@ -18,6 +16,7 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
   multiSelectedAttributionIds,
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
+  pickerMode,
 }) => {
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
@@ -27,18 +26,6 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
 
   const mutationsPending = useIsMutating() > 0;
 
-  const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
-
-  useEffect(() => {
-    if (attributionIdsForReplacement.length && selectedAttributionIsExternal) {
-      setAttributionIdsForReplacement([]);
-    }
-  }, [
-    attributionIdsForReplacement.length,
-    selectedAttributionIsExternal,
-    setAttributionIdsForReplacement,
-  ]);
-
   return (
     <MuiIconButton
       aria-label={label}
@@ -47,7 +34,8 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
         !selectedAttributionIds.length ||
         !(attributionIds.length - multiSelectedAttributionIds.length) ||
         attributionIds.length < 2 ||
-        mutationsPending
+        mutationsPending ||
+        pickerMode.mode === 'compare'
       }
       size={'small'}
       onClick={() => {

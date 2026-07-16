@@ -38,6 +38,10 @@ const classes = {
     '& .Mui-readOnly:hover:not(.Mui-focused) fieldset': {
       borderColor: 'rgb(192, 192, 192)',
     },
+    '& .Mui-readOnly.Mui-focused fieldset': {
+      borderColor: 'rgb(192, 192, 192)',
+      borderWidth: '1px',
+    },
   },
   defaultHighlightedTextField: {
     '& div': {

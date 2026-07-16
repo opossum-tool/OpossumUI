@@ -3,12 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
+import { useMemo } from 'react';
 
+import { text } from '../../../../shared/text';
 import { SIGNAL_FILTERS } from '../../../shared-constants';
-import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
+import { OpossumColors } from '../../../shared-styles';
 import { useExternalAttributionFilters } from '../../../state/variables/use-filters';
+import { usePickerMode } from '../../../state/variables/use-picker-mode';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
-import { PackagesPanel } from '../PackagesPanel/PackagesPanel';
+import { type Alert, PackagesPanel } from '../PackagesPanel/PackagesPanel';
 import { DeleteButton } from './DeleteButton/DeleteButton';
 import { LinkButton } from './LinkButton/LinkButton';
 import { RestoreButton } from './RestoreButton/RestoreButton';
@@ -16,16 +19,26 @@ import { SignalsList } from './SignalsList/SignalsList';
 import { ToggleHiddenSignalsButton } from './ToggleHiddenSignalsButton/ToggleHiddenSignalsButton';
 
 export function SignalsPanel() {
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
-
   const [userSettings, updateUserSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
+  const pickerMode = usePickerMode();
+
+  const alert = useMemo<Alert | undefined>(() => {
+    if (pickerMode.mode === 'compare') {
+      return {
+        text: text.packageLists.selectComparisonSignal,
+        color: OpossumColors.green,
+      };
+    }
+
+    return undefined;
+  }, [pickerMode.mode]);
 
   return (
     <PackagesPanel
       external={true}
+      alert={alert}
       availableFilters={SIGNAL_FILTERS}
-      disableSelectAll={!!attributionIdsForReplacement.length}
       renderActions={(props) => (
         <>
           <LinkButton {...props} />
