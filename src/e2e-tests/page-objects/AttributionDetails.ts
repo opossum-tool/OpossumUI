@@ -132,7 +132,7 @@ export class AttributionDetails {
     compareWithButtonIsHidden: async (): Promise<void> => {
       await expect(this.compareWithButton).toBeHidden();
     },
-    comparingWithTextIsVisible: async (_name: string): Promise<void> => {
+    comparingWithTextIsVisible: async (): Promise<void> => {
       await expect(
         this.node
           .page()

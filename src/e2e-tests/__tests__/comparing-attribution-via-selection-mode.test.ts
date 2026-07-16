@@ -39,9 +39,7 @@ test('cancels compare-selection mode without opening the diff popup', async ({
   await resourcesTree.goto(resourceName1);
   await attributionDetails.compareWithButton.click();
 
-  await attributionDetails.assert.comparingWithTextIsVisible(
-    `${manualPackageInfo1.packageName}, ${manualPackageInfo1.packageVersion}`,
-  );
+  await attributionDetails.assert.comparingWithTextIsVisible();
   // Can't compare the pinned item with itself.
   await attributionDetails.assert.compareSelectionConfirmButtonIsHidden();
 
@@ -59,16 +57,12 @@ test('lets the user pick a compare target on another resource via compare-select
 }) => {
   await resourcesTree.goto(resourceName1);
   await attributionDetails.compareWithButton.click();
-  await attributionDetails.assert.comparingWithTextIsVisible(
-    `${manualPackageInfo1.packageName}, ${manualPackageInfo1.packageVersion}`,
-  );
+  await attributionDetails.assert.comparingWithTextIsVisible();
   await attributionsPanel.packageCard.assert.isPickerSource(manualPackageInfo1);
 
   // Compare-selection mode survives navigating to another resource.
   await resourcesTree.goto(resourceName2);
-  await attributionDetails.assert.comparingWithTextIsVisible(
-    `${manualPackageInfo1.packageName}, ${manualPackageInfo1.packageVersion}`,
-  );
+  await attributionDetails.assert.comparingWithTextIsVisible();
   await attributionsPanel.packageCard.assert.isNotPickerSource(
     manualPackageInfo2,
   );
@@ -95,9 +89,7 @@ test('lets the user pick a compare target on another resource via compare-select
 
   // Closing the read-only diff popup keeps compare-selection mode active
   // without changing the previewed attribution.
-  await attributionDetails.assert.comparingWithTextIsVisible(
-    `${manualPackageInfo1.packageName}, ${manualPackageInfo1.packageVersion}`,
-  );
+  await attributionDetails.assert.comparingWithTextIsVisible();
   await attributionDetails.assert.compareSelectionConfirmButtonIsVisible();
   await attributionDetails.attributionForm.assert.nameIs(
     manualPackageInfo2.packageName || '',
