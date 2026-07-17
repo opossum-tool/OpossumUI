@@ -30,7 +30,7 @@ import { ResourcesTree } from './ResourcesTree/ResourcesTree';
 
 const ALL_RESOURCES_SEARCH = 'all-resources-search';
 const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
-const isLicenseFilterBasedOnExternalAttributions = false;
+const IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS = true;
 
 export function ResourceBrowser() {
   const { panelSizes, setPanelSizes } = usePanelSizes();
@@ -64,7 +64,7 @@ export function ResourceBrowser() {
   const resourceTreeLicenseFilter = resourceTreeSelectedLicense
     ? {
         licenseName: resourceTreeSelectedLicense,
-        external: isLicenseFilterBasedOnExternalAttributions,
+        external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
       }
     : undefined;
   const resourceTreeAll = backend.getResourceTree.useQuery(
@@ -86,7 +86,7 @@ export function ResourceBrowser() {
       { placeholderData: keepPreviousData },
     );
   const { filterProps } = useResourceTreeFilterProperties({
-    external: isLicenseFilterBasedOnExternalAttributions,
+    external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
   });
   const isResourceTreeFilterActive =
     onlyUnreviewedFiles || !!resourceTreeSelectedLicense;

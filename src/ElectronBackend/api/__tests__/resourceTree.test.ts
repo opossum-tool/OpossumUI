@@ -506,7 +506,7 @@ describe('getResourceTree', () => {
   });
 
   describe('license filtering', () => {
-    it('only shows resources linked to matching signals once', async () => {
+    it('only shows resources linked to matching external attributions once', async () => {
       const firstMitUuid = 'first-mit-uuid';
       const secondMitUuid = 'second-mit-uuid';
       const apacheUuid = 'apache-uuid';

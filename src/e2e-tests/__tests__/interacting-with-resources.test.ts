@@ -22,6 +22,9 @@ const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
 const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
   licenseName: 'BSD-3-Clause',
 });
+const [attributionId4, packageInfo4] = faker.opossum.rawAttribution({
+  licenseName: 'MIT',
+});
 
 test.use({
   data: {
@@ -44,6 +47,16 @@ test.use({
           attributionId2,
         ],
         [faker.opossum.filePath(resourceName7)]: [attributionId3],
+      }),
+    }),
+    outputData: faker.opossum.outputData({
+      manualAttributions: faker.opossum.rawAttributions({
+        [attributionId4]: packageInfo4,
+      }),
+      resourcesToAttributions: faker.opossum.resourcesToAttributions({
+        [faker.opossum.filePath(resourceName4, resourceName5, resourceName6)]: [
+          attributionId4,
+        ],
       }),
     }),
   },
@@ -166,18 +179,9 @@ test('shows only resources matching search', async ({
   await resourcesTree.assert.resourceIsVisible(resourceName4);
 });
 
-test('shows only resources matching selected manual attribution license', async ({
+test('shows only resources matching selected external attribution license', async ({
   resourcesTree,
-  signalsPanel,
 }) => {
-  await resourcesTree.goto(resourceName1, resourceName2, resourceName3);
-  await signalsPanel.packageCard.click(packageInfo1);
-  await signalsPanel.linkButton.click();
-
-  await resourcesTree.goto(resourceName4, resourceName5, resourceName6);
-  await signalsPanel.packageCard.click(packageInfo2);
-  await signalsPanel.linkButton.click();
-
   await resourcesTree.gotoRoot();
   await resourcesTree.filterButton.click();
   await resourcesTree.selectLicenseName(packageInfo1.licenseName!);
