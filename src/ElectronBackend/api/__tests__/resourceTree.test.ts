@@ -506,7 +506,7 @@ describe('getResourceTree', () => {
   });
 
   describe('license filtering', () => {
-    it('only shows resources linked to matching manual attributions once', async () => {
+    it('only shows resources linked to matching signals once', async () => {
       const firstMitUuid = 'first-mit-uuid';
       const secondMitUuid = 'second-mit-uuid';
       const apacheUuid = 'apache-uuid';
@@ -516,7 +516,7 @@ describe('getResourceTree', () => {
           linked: { 'file.ts': 1 },
           unlinked: { 'other.ts': 1 },
         },
-        manualAttributions: makeAttributionData(
+        externalAttributions: makeAttributionData(
           {
             [firstMitUuid]: {
               packageName: 'first MIT package',
@@ -546,7 +546,10 @@ describe('getResourceTree', () => {
 
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',
-        license: 'MIT',
+        licenseFilter: {
+          licenseName: 'MIT',
+          external: true,
+        },
       });
 
       expect(result.count).toBe(1);
@@ -555,6 +558,51 @@ describe('getResourceTree', () => {
       expect(labels).toContain('file.ts');
       expect(labels).not.toContain('unlinked');
       expect(labels).not.toContain('other.ts');
+    });
+
+    it('filters resources by manual attribution license when requested', async () => {
+      await initializeDbWithTestData({
+        resources: {
+          attribution: { 'file.ts': 1 },
+          signal: { 'file.ts': 1 },
+        },
+        externalAttributions: makeAttributionData(
+          {
+            'signal-uuid': {
+              packageName: 'signal',
+              criticality: Criticality.None,
+              id: 'signal-uuid',
+              licenseName: 'MIT',
+            },
+          },
+          { '/signal/file.ts': ['signal-uuid'] },
+        ),
+        manualAttributions: makeAttributionData(
+          {
+            'attribution-uuid': {
+              packageName: 'attribution',
+              criticality: Criticality.None,
+              id: 'attribution-uuid',
+              licenseName: 'MIT',
+            },
+          },
+          { '/attribution/file.ts': ['attribution-uuid'] },
+        ),
+      });
+
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+        licenseFilter: {
+          licenseName: 'MIT',
+          external: false,
+        },
+      });
+
+      expect(result.treeNodes.map((node) => node.labelText)).toEqual([
+        '/',
+        'attribution',
+        'file.ts',
+      ]);
     });
   });
 
@@ -741,7 +789,7 @@ describe('getResourceTree', () => {
       ]);
     });
 
-    it('applies license and unreviewed filtering to the displayed tree', async () => {
+    it('filters the displayed tree by signal license', async () => {
       await initializeDbWithTestData({
         resources: {
           src: {
@@ -756,6 +804,7 @@ describe('getResourceTree', () => {
               packageName: 'external',
               criticality: Criticality.None,
               id: 'external-uuid',
+              licenseName: 'MIT',
             },
           },
           { '/src/external.ts': ['external-uuid'] },
@@ -785,7 +834,10 @@ describe('getResourceTree', () => {
 
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',
-        license: 'MIT',
+        licenseFilter: {
+          licenseName: 'MIT',
+          external: true,
+        },
         onlyUnreviewedFiles: true,
       });
 
@@ -793,7 +845,7 @@ describe('getResourceTree', () => {
       expect(result.treeNodes.map((node) => node.labelText)).toEqual([
         '/',
         'src',
-        'preselected-mit.ts',
+        'external.ts',
       ]);
     });
 
@@ -808,6 +860,7 @@ describe('getResourceTree', () => {
               packageName: 'external',
               criticality: Criticality.None,
               id: 'external-uuid',
+              licenseName: 'MIT',
             },
           },
           { '/src/external.ts': ['external-uuid'] },
@@ -819,7 +872,7 @@ describe('getResourceTree', () => {
               criticality: Criticality.None,
               id: 'preselected-uuid',
               preSelected: true,
-              licenseName: 'MIT',
+              licenseName: 'Apache-2.0',
             },
             'manual-uuid': {
               packageName: 'manual',
@@ -847,8 +900,22 @@ describe('getResourceTree', () => {
       ).resolves.toEqual({ result: 0 });
 
       await expect(
-        getResourceTreeUnreviewedCount({ license: 'MIT' }),
+        getResourceTreeUnreviewedCount({
+          licenseFilter: {
+            licenseName: 'MIT',
+            external: true,
+          },
+        }),
       ).resolves.toEqual({ result: 1 });
+
+      await expect(
+        getResourceTreeUnreviewedCount({
+          licenseFilter: {
+            licenseName: 'MIT',
+            external: false,
+          },
+        }),
+      ).resolves.toEqual({ result: 0 });
     });
   });
 

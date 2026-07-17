@@ -66,12 +66,14 @@ export function useFilterProperties({
 
 export function useResourceTreeFilterProperties({
   enabled,
+  external,
 }: {
   enabled?: boolean;
+  external: boolean;
 }) {
   const filterPropsQuery = backend.filterProperties.useQuery(
     {
-      external: false,
+      external,
       filters: [],
       resourcePathForRelationships: ROOT_PATH,
     },
