@@ -3,8 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { SxProps } from '@mui/system';
+import type { MouseEvent } from 'react';
 
 import type { QueryResult } from '../../../ElectronBackend/api/queries';
+import type { ResourceTreeNodeData } from '../../../ElectronBackend/api/resourceTree';
 import { List } from '../List/List';
 import { SearchList } from '../SearchList/SearchList';
 import {
@@ -16,6 +18,10 @@ interface VirtualizedTreeProps {
   TreeNodeLabel: React.FC<TreeNode>;
   resources: QueryResult<'getResourceTree'>['treeNodes'];
   onSelect: (nodeId: string) => void;
+  onContextMenu?: (
+    event: MouseEvent<HTMLElement>,
+    resource: ResourceTreeNodeData,
+  ) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   readOnly?: boolean;
   selectedNodeId?: string;
@@ -26,6 +32,7 @@ interface VirtualizedTreeProps {
 export function VirtualizedTree({
   TreeNodeLabel,
   onSelect,
+  onContextMenu,
   onToggle,
   readOnly,
   resources,
@@ -42,6 +49,7 @@ export function VirtualizedTree({
           TreeNodeLabel={TreeNodeLabel}
           onToggle={onToggle}
           onSelect={onSelect}
+          onContextMenu={onContextMenu}
           readOnly={readOnly}
           selected={selected}
           focused={focused}
