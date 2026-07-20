@@ -30,6 +30,7 @@ import { ResourcesTree } from './ResourcesTree/ResourcesTree';
 
 const ALL_RESOURCES_SEARCH = 'all-resources-search';
 const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
+const IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS = true;
 
 export function ResourceBrowser() {
   const { panelSizes, setPanelSizes } = usePanelSizes();
@@ -60,10 +61,16 @@ export function ResourceBrowser() {
   const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
   const debouncedSearchAll = useDebouncedInput(searchAll);
   const expandedIdsAll = useAppSelector(getExpandedIds);
+  const resourceTreeLicenseFilter = resourceTreeSelectedLicense
+    ? {
+        licenseName: resourceTreeSelectedLicense,
+        external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
+      }
+    : undefined;
   const resourceTreeAll = backend.getResourceTree.useQuery(
     {
       expandedNodes: expandedIdsAll,
-      license: resourceTreeSelectedLicense,
+      licenseFilter: resourceTreeLicenseFilter,
       onlyUnreviewedFiles,
       search: debouncedSearchAll,
       selectedResourcePath: selectedResourceId,
@@ -73,12 +80,14 @@ export function ResourceBrowser() {
   const unreviewedFileCountQuery =
     backend.getResourceTreeUnreviewedCount.useQuery(
       {
-        license: resourceTreeSelectedLicense,
+        licenseFilter: resourceTreeLicenseFilter,
         search: debouncedSearchAll,
       },
       { placeholderData: keepPreviousData },
     );
-  const { filterProps } = useResourceTreeFilterProperties({});
+  const { filterProps } = useResourceTreeFilterProperties({
+    external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
+  });
   const isResourceTreeFilterActive =
     onlyUnreviewedFiles || !!resourceTreeSelectedLicense;
   // Linked resources

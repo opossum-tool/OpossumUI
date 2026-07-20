@@ -11,7 +11,7 @@ const [
   reviewedApacheResourceName,
 ] = faker.opossum.resourceNames({ count: 4 });
 const [externalAttributionId, externalPackageInfo] =
-  faker.opossum.rawAttribution();
+  faker.opossum.rawAttribution({ licenseName: 'MIT' });
 const [preselectedAttributionId, preselectedPackageInfo] =
   faker.opossum.rawAttribution({ licenseName: 'MIT', preSelected: true });
 const [reviewedMitAttributionId, reviewedMitPackageInfo] =
@@ -69,19 +69,19 @@ test('filters the resource tree to unreviewed files', async ({
   await resourcesTree.assert.resourceIsHidden(reviewedApacheResourceName);
 });
 
-test('combines unreviewed and license filters in the resource tree', async ({
+test('combines unreviewed and external attribution license filters in the resource tree', async ({
   resourcesTree,
 }) => {
   await resourcesTree.filterButton.click();
   await resourcesTree.filters.unreviewed.click();
   await resourcesTree.closeMenu();
   await resourcesTree.filterButton.click();
-  await resourcesTree.selectLicenseName(preselectedPackageInfo.licenseName!);
+  await resourcesTree.selectLicenseName(externalPackageInfo.licenseName!);
   await resourcesTree.closeMenu();
   await resourcesTree.closeMenu();
 
-  await resourcesTree.assert.resourceIsHidden(externalResourceName);
-  await resourcesTree.assert.resourceIsVisible(preselectedResourceName);
+  await resourcesTree.assert.resourceIsVisible(externalResourceName);
+  await resourcesTree.assert.resourceIsHidden(preselectedResourceName);
   await resourcesTree.assert.resourceIsHidden(reviewedMitResourceName);
   await resourcesTree.assert.resourceIsHidden(reviewedApacheResourceName);
 });

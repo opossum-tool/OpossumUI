@@ -28,19 +28,23 @@ export type ResourceTreeNodeData = Awaited<
 
 const FILTERED_RESOURCE_TEMP_TABLE = 'filtered_resources';
 type FilteredTable = { filtered_resources: { id: number } };
+type LicenseFilter = {
+  licenseName: string;
+  external: boolean;
+};
 
 export function getResourceTree({
   search,
   expandedNodes,
   onlyUnreviewedFiles,
-  license,
+  licenseFilter,
   onAttributionUuids,
   selectedResourcePath,
 }: {
   search?: string;
   expandedNodes: Array<string> | 'expandAll';
   onlyUnreviewedFiles?: boolean;
-  license?: string;
+  licenseFilter?: LicenseFilter;
   onAttributionUuids?: Array<string>;
   selectedResourcePath?: string;
 }) {
@@ -48,7 +52,7 @@ export function getResourceTree({
     .transaction()
     .execute(async (trx) => {
       const hasActiveFilters = Boolean(
-        search || license || onAttributionUuids || onlyUnreviewedFiles,
+        search || licenseFilter || onAttributionUuids || onlyUnreviewedFiles,
       );
       /*
        * FILTERED_RESOURCE_TEMP_TABLE contains the resources included by the active filters.
@@ -58,7 +62,7 @@ export function getResourceTree({
       let dropTempTable;
       if (hasActiveFilters) {
         const filterQuery = getFilteredResourcesQuery(trx, {
-          license,
+          licenseFilter,
           onlyUnreviewedFiles,
           onAttributionUuids,
           search,
@@ -257,11 +261,11 @@ export function getResourceTree({
 }
 
 export async function getResourceTreeUnreviewedCount({
-  license,
+  licenseFilter,
   onAttributionUuids,
   search,
 }: {
-  license?: string;
+  licenseFilter?: LicenseFilter;
   onAttributionUuids?: Array<string>;
   search?: string;
 }) {
@@ -271,7 +275,7 @@ export async function getResourceTreeUnreviewedCount({
       const count = await trx
         .selectFrom(
           getFilteredResourcesQuery(trx, {
-            license,
+            licenseFilter,
             onlyUnreviewedFiles: true,
             onAttributionUuids,
             search,
@@ -287,12 +291,12 @@ export async function getResourceTreeUnreviewedCount({
 function getFilteredResourcesQuery(
   trx: Transaction<DB>,
   {
-    license,
+    licenseFilter,
     onlyUnreviewedFiles,
     onAttributionUuids,
     search,
   }: {
-    license?: string;
+    licenseFilter?: LicenseFilter;
     onlyUnreviewedFiles?: boolean;
     onAttributionUuids?: Array<string>;
     search?: string;
@@ -304,7 +308,7 @@ function getFilteredResourcesQuery(
     query = query.where('r.path', 'like', `%${search}%`);
   }
 
-  if (license) {
+  if (licenseFilter) {
     query = query.where('r.id', 'in', (eb) =>
       eb
         .selectFrom('attribution as a')
@@ -314,11 +318,11 @@ function getFilteredResourcesQuery(
           'a.uuid',
         )
         .select('rta.resource_id')
-        .where('a.is_external', '=', 0)
+        .where('a.is_external', '=', Number(licenseFilter.external))
         .where(
           'a.canonical_license_name',
           '=',
-          toCanonicalLicenseName(license),
+          toCanonicalLicenseName(licenseFilter.licenseName),
         ),
     );
   }

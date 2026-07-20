@@ -4,17 +4,19 @@
 // SPDX-License-Identifier: Apache-2.0
 import { faker, test } from '../utils';
 
+const SELECTED_LICENSE = 'MIT';
 const [
-  resourceName1,
-  resourceName2,
-  resourceName3,
-  resourceName4,
-  resourceName5,
-  resourceName6,
-  resourceName7,
-] = faker.opossum.resourceNames({ count: 7 });
+  resourceWithExternalSelectedLicense,
+  nestedResourceWithExternalSelectedLicense,
+  leafResourceWithExternalSelectedLicense,
+  resourceWithExternalDifferentLicense,
+  nestedResourceWithExternalDifferentLicense,
+  leafResourceWithExternalDifferentLicense,
+  anotherResourceWithExternalDifferentLicense,
+  resourceWithManualSelectedLicense,
+] = faker.opossum.resourceNames({ count: 8 });
 const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
-  licenseName: 'MIT',
+  licenseName: SELECTED_LICENSE,
 });
 const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
   licenseName: 'Apache-2.0',
@@ -22,14 +24,26 @@ const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
 const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
   licenseName: 'BSD-3-Clause',
 });
+const [attributionId4, packageInfo4] = faker.opossum.rawAttribution({
+  licenseName: SELECTED_LICENSE,
+});
 
 test.use({
   data: {
     inputData: faker.opossum.inputData({
       resources: faker.opossum.resources({
-        [resourceName1]: { [resourceName2]: { [resourceName3]: 1 } },
-        [resourceName4]: { [resourceName5]: { [resourceName6]: 1 } },
-        [resourceName7]: 1,
+        [resourceWithExternalSelectedLicense]: {
+          [nestedResourceWithExternalSelectedLicense]: {
+            [leafResourceWithExternalSelectedLicense]: 1,
+          },
+        },
+        [resourceWithExternalDifferentLicense]: {
+          [nestedResourceWithExternalDifferentLicense]: {
+            [leafResourceWithExternalDifferentLicense]: 1,
+          },
+        },
+        [anotherResourceWithExternalDifferentLicense]: 1,
+        [resourceWithManualSelectedLicense]: 1,
       }),
       externalAttributions: faker.opossum.rawAttributions({
         [attributionId1]: packageInfo1,
@@ -37,13 +51,29 @@ test.use({
         [attributionId3]: packageInfo3,
       }),
       resourcesToAttributions: faker.opossum.resourcesToAttributions({
-        [faker.opossum.filePath(resourceName1, resourceName2, resourceName3)]: [
-          attributionId1,
+        [faker.opossum.filePath(
+          resourceWithExternalSelectedLicense,
+          nestedResourceWithExternalSelectedLicense,
+          leafResourceWithExternalSelectedLicense,
+        )]: [attributionId1],
+        [faker.opossum.filePath(
+          resourceWithExternalDifferentLicense,
+          nestedResourceWithExternalDifferentLicense,
+          leafResourceWithExternalDifferentLicense,
+        )]: [attributionId2],
+        [faker.opossum.filePath(anotherResourceWithExternalDifferentLicense)]: [
+          attributionId3,
         ],
-        [faker.opossum.filePath(resourceName4, resourceName5, resourceName6)]: [
-          attributionId2,
+      }),
+    }),
+    outputData: faker.opossum.outputData({
+      manualAttributions: faker.opossum.rawAttributions({
+        [attributionId4]: packageInfo4,
+      }),
+      resourcesToAttributions: faker.opossum.resourcesToAttributions({
+        [faker.opossum.filePath(resourceWithManualSelectedLicense)]: [
+          attributionId4,
         ],
-        [faker.opossum.filePath(resourceName7)]: [attributionId3],
       }),
     }),
   },
@@ -52,19 +82,44 @@ test.use({
 test('shows expected resources as user browses through resources', async ({
   resourcesTree,
 }) => {
-  await resourcesTree.assert.resourceIsVisible(resourceName1);
-  await resourcesTree.assert.resourceIsVisible(resourceName4);
-  await resourcesTree.assert.resourceIsVisible(resourceName7);
-  await resourcesTree.assert.resourceIsHidden(resourceName2);
-  await resourcesTree.assert.resourceIsHidden(resourceName3);
-  await resourcesTree.assert.resourceIsHidden(resourceName5);
-  await resourcesTree.assert.resourceIsHidden(resourceName6);
+  await resourcesTree.assert.resourceIsVisible(
+    resourceWithExternalSelectedLicense,
+  );
+  await resourcesTree.assert.resourceIsVisible(
+    resourceWithExternalDifferentLicense,
+  );
+  await resourcesTree.assert.resourceIsVisible(
+    anotherResourceWithExternalDifferentLicense,
+  );
+  await resourcesTree.assert.resourceIsVisible(
+    resourceWithManualSelectedLicense,
+  );
+  await resourcesTree.assert.resourceIsHidden(
+    nestedResourceWithExternalSelectedLicense,
+  );
+  await resourcesTree.assert.resourceIsHidden(
+    leafResourceWithExternalSelectedLicense,
+  );
+  await resourcesTree.assert.resourceIsHidden(
+    nestedResourceWithExternalDifferentLicense,
+  );
+  await resourcesTree.assert.resourceIsHidden(
+    leafResourceWithExternalDifferentLicense,
+  );
 
-  await resourcesTree.goto(resourceName4);
-  await resourcesTree.assert.resourceIsVisible(resourceName5);
-  await resourcesTree.assert.resourceIsVisible(resourceName6);
-  await resourcesTree.assert.resourceIsHidden(resourceName2);
-  await resourcesTree.assert.resourceIsHidden(resourceName3);
+  await resourcesTree.goto(resourceWithExternalDifferentLicense);
+  await resourcesTree.assert.resourceIsVisible(
+    nestedResourceWithExternalDifferentLicense,
+  );
+  await resourcesTree.assert.resourceIsVisible(
+    leafResourceWithExternalDifferentLicense,
+  );
+  await resourcesTree.assert.resourceIsHidden(
+    nestedResourceWithExternalSelectedLicense,
+  );
+  await resourcesTree.assert.resourceIsHidden(
+    leafResourceWithExternalSelectedLicense,
+  );
 });
 
 test('cycles through resources as user clicks on progress bar', async ({
@@ -106,41 +161,60 @@ test('shows expected breadcrumbs as user navigates through browser history', asy
   await pathBar.assert.goBackButtonIsDisabled();
   await pathBar.assert.goForwardButtonIsDisabled();
 
-  await resourcesTree.goto(resourceName1, resourceName2, resourceName3);
+  await resourcesTree.goto(
+    resourceWithExternalSelectedLicense,
+    nestedResourceWithExternalSelectedLicense,
+    leafResourceWithExternalSelectedLicense,
+  );
   await pathBar.assert.goBackButtonIsEnabled();
   await pathBar.assert.goForwardButtonIsDisabled();
   await pathBar.assert.breadcrumbsAreVisible(
-    resourceName1,
-    resourceName2,
-    resourceName3,
+    resourceWithExternalSelectedLicense,
+    nestedResourceWithExternalSelectedLicense,
+    leafResourceWithExternalSelectedLicense,
   );
 
   await pathBar.goBackButton.click();
   await pathBar.assert.goForwardButtonIsEnabled();
-  await pathBar.assert.breadcrumbsAreVisible(resourceName1, resourceName2);
-  await pathBar.assert.breadcrumbsAreHidden(resourceName3);
+  await pathBar.assert.breadcrumbsAreVisible(
+    resourceWithExternalSelectedLicense,
+    nestedResourceWithExternalSelectedLicense,
+  );
+  await pathBar.assert.breadcrumbsAreHidden(
+    leafResourceWithExternalSelectedLicense,
+  );
 
   await pathBar.goForwardButton.click();
   await pathBar.assert.breadcrumbsAreVisible(
-    resourceName1,
-    resourceName2,
-    resourceName3,
+    resourceWithExternalSelectedLicense,
+    nestedResourceWithExternalSelectedLicense,
+    leafResourceWithExternalSelectedLicense,
   );
 
-  await pathBar.clickOnBreadcrumb(resourceName1);
-  await pathBar.assert.breadcrumbsAreVisible(resourceName1);
-  await pathBar.assert.breadcrumbsAreHidden(resourceName2, resourceName3);
+  await pathBar.clickOnBreadcrumb(resourceWithExternalSelectedLicense);
+  await pathBar.assert.breadcrumbsAreVisible(
+    resourceWithExternalSelectedLicense,
+  );
+  await pathBar.assert.breadcrumbsAreHidden(
+    nestedResourceWithExternalSelectedLicense,
+    leafResourceWithExternalSelectedLicense,
+  );
 
   await window.keyboard.press(`${modKey}+ArrowLeft`);
   await pathBar.assert.breadcrumbsAreVisible(
-    resourceName1,
-    resourceName2,
-    resourceName3,
+    resourceWithExternalSelectedLicense,
+    nestedResourceWithExternalSelectedLicense,
+    leafResourceWithExternalSelectedLicense,
   );
 
   await window.keyboard.press(`${modKey}+ArrowRight`);
-  await pathBar.assert.breadcrumbsAreVisible(resourceName1);
-  await pathBar.assert.breadcrumbsAreHidden(resourceName2, resourceName3);
+  await pathBar.assert.breadcrumbsAreVisible(
+    resourceWithExternalSelectedLicense,
+  );
+  await pathBar.assert.breadcrumbsAreHidden(
+    nestedResourceWithExternalSelectedLicense,
+    leafResourceWithExternalSelectedLicense,
+  );
 });
 
 test('shows only resources matching search', async ({
@@ -148,43 +222,59 @@ test('shows only resources matching search', async ({
   window,
   modKey,
 }) => {
-  await resourcesTree.assert.resourceIsVisible(resourceName1);
-  await resourcesTree.assert.resourceIsVisible(resourceName4);
+  await resourcesTree.assert.resourceIsVisible(
+    resourceWithExternalSelectedLicense,
+  );
+  await resourcesTree.assert.resourceIsVisible(
+    resourceWithExternalDifferentLicense,
+  );
 
-  await resourcesTree.searchField.fill(resourceName4);
-  await resourcesTree.assert.resourceIsHidden(resourceName1);
-  await resourcesTree.assert.resourceIsVisible(resourceName4);
+  await resourcesTree.searchField.fill(resourceWithExternalDifferentLicense);
+  await resourcesTree.assert.resourceIsHidden(
+    resourceWithExternalSelectedLicense,
+  );
+  await resourcesTree.assert.resourceIsVisible(
+    resourceWithExternalDifferentLicense,
+  );
 
   await resourcesTree.clearSearchButton.click();
-  await resourcesTree.assert.resourceIsVisible(resourceName1);
-  await resourcesTree.assert.resourceIsVisible(resourceName4);
+  await resourcesTree.assert.resourceIsVisible(
+    resourceWithExternalSelectedLicense,
+  );
+  await resourcesTree.assert.resourceIsVisible(
+    resourceWithExternalDifferentLicense,
+  );
 
   await resourcesTree.gotoRoot();
   await window.keyboard.press(`${modKey}+F`);
-  await window.keyboard.type(resourceName4);
-  await resourcesTree.assert.resourceIsHidden(resourceName1);
-  await resourcesTree.assert.resourceIsVisible(resourceName4);
+  await window.keyboard.type(resourceWithExternalDifferentLicense);
+  await resourcesTree.assert.resourceIsHidden(
+    resourceWithExternalSelectedLicense,
+  );
+  await resourcesTree.assert.resourceIsVisible(
+    resourceWithExternalDifferentLicense,
+  );
 });
 
-test('shows only resources matching selected manual attribution license', async ({
+test('shows only resources matching selected external attribution license', async ({
   resourcesTree,
-  signalsPanel,
 }) => {
-  await resourcesTree.goto(resourceName1, resourceName2, resourceName3);
-  await signalsPanel.packageCard.click(packageInfo1);
-  await signalsPanel.linkButton.click();
-
-  await resourcesTree.goto(resourceName4, resourceName5, resourceName6);
-  await signalsPanel.packageCard.click(packageInfo2);
-  await signalsPanel.linkButton.click();
-
   await resourcesTree.gotoRoot();
   await resourcesTree.filterButton.click();
-  await resourcesTree.selectLicenseName(packageInfo1.licenseName!);
+  await resourcesTree.selectLicenseName(SELECTED_LICENSE);
   await resourcesTree.closeMenu();
   await resourcesTree.closeMenu();
 
-  await resourcesTree.assert.resourceIsVisible(resourceName1);
-  await resourcesTree.assert.resourceIsHidden(resourceName4);
-  await resourcesTree.assert.resourceIsHidden(resourceName7);
+  await resourcesTree.assert.resourceIsVisible(
+    resourceWithExternalSelectedLicense,
+  );
+  await resourcesTree.assert.resourceIsHidden(
+    resourceWithManualSelectedLicense,
+  );
+  await resourcesTree.assert.resourceIsHidden(
+    resourceWithExternalDifferentLicense,
+  );
+  await resourcesTree.assert.resourceIsHidden(
+    anotherResourceWithExternalDifferentLicense,
+  );
 });
