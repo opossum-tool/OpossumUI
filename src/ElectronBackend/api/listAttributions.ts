@@ -39,12 +39,14 @@ export async function listAttributions(props: {
         ? await getResourceOrThrow(trx, props.resourcePathForRelationships)
         : undefined;
 
-      const closestAncestor = resourceForRelationships
-        ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-            trx,
-            resourceForRelationships.id,
-          )
-        : undefined;
+      // External attributions don't have inference, so showing the ancestor attributions would be confusing
+      const closestAncestor =
+        !props.external && resourceForRelationships
+          ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+              trx,
+              resourceForRelationships.id,
+            )
+          : undefined;
 
       let query = trx
         .selectFrom('attribution')
