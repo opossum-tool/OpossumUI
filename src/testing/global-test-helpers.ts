@@ -28,6 +28,7 @@ export function makeResourceTreeNode(
     isFile: true,
     criticality: null,
     classification: null,
+    matchesFilters: false,
     ...overrides,
   };
 }
