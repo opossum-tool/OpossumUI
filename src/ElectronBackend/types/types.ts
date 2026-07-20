@@ -12,6 +12,7 @@ import type {
   RawProjectConfig,
   Resources,
   ResourcesToAttributions,
+  SplitInfo,
 } from '../../shared/shared-types';
 
 export interface ParsingError {
@@ -87,6 +88,7 @@ export interface ParsedOpossumOutputFile {
 export interface ParsedOpossumInputAndOutput {
   input: ParsedOpossumInputFile;
   output: ParsedOpossumOutputFile | null;
+  splitInfo: SplitInfo | null;
   opossumZip: AdmZip;
 }
 

@@ -10,9 +10,11 @@ import parser from 'stream-json';
 import Asm, { type Assembler } from 'stream-json/assembler.js';
 import zlib from 'zlib';
 
+import type { SplitInfo } from '../../shared/shared-types';
 import {
   INPUT_FILE_NAME,
   OUTPUT_FILE_NAME,
+  SPLIT_INFO_FILE_NAME,
 } from '../../shared/write-file-utils';
 import type {
   InvalidDotOpossumFileError,
@@ -24,6 +26,7 @@ import type {
 } from '../types/types';
 import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
+import * as OpossumSplitInfoSchema from './OpossumSplitInfoSchema.json';
 
 const jsonSchemaValidator = new Validator();
 const validationOptions: Options = {
@@ -41,12 +44,15 @@ export async function parseOpossumFile(
   let zip: AdmZip;
   let inputBytes: Buffer | null;
   let outputBytes: Buffer | null;
+  let splitInfoBytes: Buffer | null;
   try {
     zip = new AdmZip(opossumFilePath);
     const inputEntry = zip.getEntry(INPUT_FILE_NAME);
     const outputEntry = zip.getEntry(OUTPUT_FILE_NAME);
+    const splitInfoEntry = zip.getEntry(SPLIT_INFO_FILE_NAME);
     inputBytes = inputEntry ? inputEntry.getData() : null;
     outputBytes = outputEntry ? outputEntry.getData() : null;
+    splitInfoBytes = splitInfoEntry ? splitInfoEntry.getData() : null;
   } catch (err) {
     return {
       message: `Error: ${opossumFilePath} could not be unzipped.\n Original error message: ${err?.toString()}`,
@@ -93,11 +99,34 @@ export async function parseOpossumFile(
     }
   }
 
+  let splitInfo: SplitInfo | null = null;
+  if (splitInfoBytes) {
+    try {
+      splitInfo = parseSplitInfoContent(splitInfoBytes.toString('utf-8'));
+    } catch (err) {
+      return {
+        message: `Error: ${opossumFilePath} does not contain valid split metadata.\n${err?.toString()}`,
+        type: 'jsonParsingError',
+      } satisfies JsonParsingError;
+    }
+  }
+
   return {
     input: parsedInputData,
     output: parsedOutputData,
+    splitInfo,
     opossumZip: zip,
   };
+}
+
+function parseSplitInfoContent(content: string): SplitInfo {
+  const parsedContent = JSON.parse(content);
+  jsonSchemaValidator.validate(
+    parsedContent,
+    OpossumSplitInfoSchema,
+    validationOptions,
+  );
+  return parsedContent;
 }
 
 export async function parseInputJsonFile(
