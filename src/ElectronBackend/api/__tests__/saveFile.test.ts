@@ -11,6 +11,7 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
+import { getDb } from '../../db/db';
 import { saveFile } from '../saveFile';
 
 vi.mock('../../../shared/write-file', async () => ({
@@ -105,6 +106,7 @@ describe('saveFile', () => {
     expect(writeOpossumFile).toHaveBeenCalledWith({
       path: '/output/file.opossum',
       zip: opossumZip,
+      splitInfo: null,
       output: expect.objectContaining({
         metadata: expect.objectContaining({
           projectId: 'project-2',
@@ -118,6 +120,34 @@ describe('saveFile', () => {
       }),
     });
     expect(writeFile).not.toHaveBeenCalled();
+  });
+
+  it('passes split metadata from the database to the archive writer', async () => {
+    const opossumZip = new AdmZip();
+    await initializeDbWithTestData();
+    await getDb()
+      .insertInto('split_info')
+      .values({ split_id: 'split-id', input_sha256: 'a'.repeat(64) })
+      .execute();
+    await getDb()
+      .insertInto('readonly_rule')
+      .values({ path: '/readonly', readonly: 1 })
+      .execute();
+
+    await saveFile(
+      { projectId: 'project-3', opossumFilePath: '/output/file.opossum' },
+      opossumZip,
+    );
+
+    expect(writeOpossumFile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        splitInfo: {
+          splitId: 'split-id',
+          inputSha256: 'a'.repeat(64),
+          readonlyRules: [{ path: '/readonly', readonly: true }],
+        },
+      }),
+    );
   });
 
   it('throws when no output file path is configured', async () => {

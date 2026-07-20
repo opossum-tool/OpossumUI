@@ -121,6 +121,23 @@ export class DbProcessClient {
     return this.request({ type: 'saveFile', ...params }) as Promise<void>;
   }
 
+  splitOpossumFile({
+    selectedFolderPaths,
+    selectedPartitionPath,
+    ...params
+  }: SaveFileParams & {
+    opossumFilePath: string;
+    selectedFolderPaths: Array<string>;
+    selectedPartitionPath: string;
+  }): Promise<void> {
+    return this.request({
+      type: 'splitOpossumFile',
+      ...params,
+      selectedFolderPaths,
+      selectedPartitionPath,
+    }) as Promise<void>;
+  }
+
   exportFile(exportType: ExportType, filePath: string): Promise<void> {
     return this.request({
       type: 'exportFile',

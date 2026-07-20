@@ -10,6 +10,7 @@ export enum IpcChannel {
   ImportFileSelectSaveLocation = 'import-file-select-save-location',
   ImportFileConvertAndLoad = 'import-file-convert-and-load',
   MergeFileAndLoad = 'merge-file-and-load',
+  SplitFile = 'split-file',
   OpenLink = 'open-link',
   SaveFile = 'save-file',
   ExportFile = 'export-file',

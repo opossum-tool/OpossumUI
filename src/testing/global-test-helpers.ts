@@ -89,10 +89,12 @@ export async function initializeDbWithTestData(
     filesWithChildren: new Set<string>(),
     baseUrlsForSources: {},
     externalAttributionSources: {},
+    splitInfo: null,
   } satisfies ParsedFileContent;
 
   await initializeDb({
     ...emptyFileContent,
     ...overrides,
+    splitInfo: overrides?.splitInfo ?? null,
   });
 }

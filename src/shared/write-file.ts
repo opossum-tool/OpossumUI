@@ -5,7 +5,12 @@
 import AdmZip from 'adm-zip';
 import fs from 'fs';
 
-import { INPUT_FILE_NAME, OUTPUT_FILE_NAME } from './write-file-utils';
+import type { SplitInfo } from './shared-types';
+import {
+  INPUT_FILE_NAME,
+  OUTPUT_FILE_NAME,
+  SPLIT_INFO_FILE_NAME,
+} from './write-file-utils';
 
 export async function writeFile({
   content,
@@ -34,11 +39,13 @@ export async function writeOpossumFile({
   input,
   output,
   path,
+  splitInfo,
   zip,
 }: {
   input?: string | Uint8Array | object;
   output?: string | Uint8Array | object;
   path: string;
+  splitInfo?: SplitInfo | null;
   zip?: AdmZip;
 }): Promise<string> {
   if (zip) {
@@ -59,8 +66,26 @@ export async function writeOpossumFile({
     }
   }
 
+  updateSplitInfo(zip, splitInfo);
+
   await zip.writeZipPromise(path);
   return path;
+}
+
+function updateSplitInfo(
+  zip: AdmZip,
+  splitInfo: SplitInfo | null | undefined,
+): void {
+  if (splitInfo === undefined) {
+    return;
+  }
+  if (splitInfo === null) {
+    zip.deleteFile(SPLIT_INFO_FILE_NAME);
+  } else if (zip.getEntry(SPLIT_INFO_FILE_NAME)) {
+    zip.updateFile(SPLIT_INFO_FILE_NAME, toBuffer(splitInfo));
+  } else {
+    zip.addFile(SPLIT_INFO_FILE_NAME, toBuffer(splitInfo));
+  }
 }
 
 function toBuffer(content: string | Uint8Array | object): Buffer {

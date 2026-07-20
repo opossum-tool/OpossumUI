@@ -3,11 +3,21 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import AdmZip from 'adm-zip';
+import { createHash } from 'crypto';
 import fs from 'fs';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
-import { Criticality, RawCriticality } from '../../../shared/shared-types';
+import {
+  Criticality,
+  RawCriticality,
+  type SplitInfo,
+} from '../../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
+import {
+  INPUT_FILE_NAME,
+  SPLIT_INFO_FILE_NAME,
+} from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
 import { getDb } from '../../db/db';
 import type {
@@ -96,6 +106,42 @@ describe('loadFile', () => {
     const result = (await loadFile(opossumPath, {})) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
+  });
+
+  it('loads split metadata into the ephemeral database', async () => {
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+    const inputBytes = Buffer.from(JSON.stringify(inputFileContent));
+    const splitInfo: SplitInfo = {
+      splitId: '4d051d68-ecb4-4891-9495-804fbdd29c5e',
+      inputSha256: createHash('sha256').update(inputBytes).digest('hex'),
+      readonlyRules: [{ path: '/folder', readonly: true }],
+    };
+    const zip = new AdmZip();
+    zip.addFile(INPUT_FILE_NAME, inputBytes);
+    zip.addFile(SPLIT_INFO_FILE_NAME, Buffer.from(JSON.stringify(splitInfo)));
+    await zip.writeZipPromise(opossumPath);
+
+    const result = await loadFile(opossumPath, {});
+
+    expect(result.ok).toBe(true);
+    const splitInfoRow = await getDb()
+      .selectFrom('split_info')
+      .select(['split_id', 'input_sha256'])
+      .executeTakeFirstOrThrow();
+    expect(splitInfoRow).toEqual({
+      split_id: splitInfo.splitId,
+      input_sha256: splitInfo.inputSha256,
+    });
+    const readonlyRules = await getDb()
+      .selectFrom('readonly_rule')
+      .select(['path', 'readonly'])
+      .execute();
+    expect(readonlyRules).toEqual([
+      {
+        path: '/folder',
+        readonly: Number(splitInfo.readonlyRules[0].readonly),
+      },
+    ]);
   });
 
   it('converts preSelected external attributions to manual attributions', async () => {

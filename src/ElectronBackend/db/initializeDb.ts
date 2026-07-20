@@ -16,6 +16,7 @@ import type {
   RawClassificationsConfig,
   Resources,
   ResourcesToAttributions,
+  SplitInfo,
 } from '../../shared/shared-types';
 import {
   removeEmptyStrings,
@@ -48,6 +49,16 @@ export const comments: Record<string, Record<string, string>> = {
   resource_to_attribution: {
     attribution_is_external:
       'Denormalized data for faster checking if a resource has manual/external attribution',
+  },
+  split_info: {
+    _table_:
+      'Split identity loaded from split-info.json. It is absent for unsplit projects.',
+    singleton:
+      'Internal fixed key enforcing that this table has at most one row.',
+  },
+  readonly_rule: {
+    _table_:
+      'Readonly path overrides loaded from split-info.json. The most specific matching path applies.',
   },
 };
 
@@ -98,6 +109,8 @@ export async function initializeDb(inputFile: ParsedFileContent) {
       await initializeProgressBarTable(trx);
 
       await initializeMetadataTable(trx, inputFile.metadata);
+
+      await initializeSplitInfoTable(trx, inputFile.splitInfo);
     });
 }
 
@@ -702,6 +715,50 @@ async function initializeMetadataTable(
         key,
         value_json: JSON.stringify(value),
       })
+      .execute();
+  }
+}
+
+async function initializeSplitInfoTable(
+  trx: Transaction<DB>,
+  splitInfo: SplitInfo | null,
+) {
+  await trx.schema
+    .createTable('split_info')
+    .addColumn('singleton', 'integer', (col) =>
+      col
+        .primaryKey()
+        .notNull()
+        .check(sql`singleton = 1`),
+    )
+    .addColumn('split_id', 'text', (col) => col.notNull())
+    .addColumn('input_sha256', 'text', (col) => col.notNull())
+    .execute();
+
+  await trx.schema
+    .createTable('readonly_rule')
+    .addColumn('path', 'text', (col) => col.primaryKey().notNull())
+    .addColumn('readonly', 'integer', (col) => col.notNull())
+    .execute();
+
+  if (splitInfo) {
+    await trx
+      .insertInto('split_info')
+      .values({
+        singleton: 1,
+        split_id: splitInfo.splitId,
+        input_sha256: splitInfo.inputSha256,
+      })
+      .execute();
+
+    await trx
+      .insertInto('readonly_rule')
+      .values(
+        splitInfo.readonlyRules.map((rule) => ({
+          path: rule.path,
+          readonly: Number(rule.readonly),
+        })),
+      )
       .execute();
   }
 }

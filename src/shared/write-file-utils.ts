@@ -6,6 +6,7 @@
 export const OPOSSUM_FILE_EXTENSION = '.opossum';
 export const INPUT_FILE_NAME = 'input.json';
 export const OUTPUT_FILE_NAME = 'output.json';
+export const SPLIT_INFO_FILE_NAME = 'split-info.json';
 
 export function getDotOpossumFilePath(
   resourceFilePath: string,

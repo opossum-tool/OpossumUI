@@ -17,6 +17,7 @@ import {
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
 import { saveFile } from '../api/saveFile';
+import { splitOpossumFile } from '../api/splitOpossumFile';
 import {
   loadFile,
   type LoadFileGlobalState,
@@ -38,6 +39,15 @@ interface SaveFileMessage {
   attributionFilePath?: string;
 }
 
+interface SplitOpossumFileMessage {
+  type: 'splitOpossumFile';
+  projectId: string;
+  inputFileChecksum?: string;
+  opossumFilePath: string;
+  selectedFolderPaths: Array<string>;
+  selectedPartitionPath: string;
+}
+
 interface ExportFileMessage {
   type: 'exportFile';
   exportType: ExportType;
@@ -51,7 +61,11 @@ interface ExecuteCommandMessage {
 }
 
 export type DbProcessPayload =
-  LoadFileMessage | SaveFileMessage | ExportFileMessage | ExecuteCommandMessage;
+  | LoadFileMessage
+  | SaveFileMessage
+  | SplitOpossumFileMessage
+  | ExportFileMessage
+  | ExecuteCommandMessage;
 
 export type DbProcessRequest = DbProcessPayload & { id: number };
 
@@ -112,6 +126,14 @@ async function executeDbProcessMessage(
       }
       const { id: _, type: __, ...params } = msg;
       await saveFile(params, storedOpossumZip);
+      return undefined;
+    }
+    case 'splitOpossumFile': {
+      if (!storedOpossumZip) {
+        throw new Error('Cannot split: no .opossum file is loaded');
+      }
+      const { id: _, type: __, ...params } = msg;
+      await splitOpossumFile(params, storedOpossumZip);
       return undefined;
     }
     case 'exportFile': {

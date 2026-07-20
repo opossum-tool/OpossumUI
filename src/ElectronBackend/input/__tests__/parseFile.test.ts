@@ -176,6 +176,25 @@ describe('parseOpossumFile', () => {
       type: 'jsonParsingError',
     });
   });
+
+  it('rejects split metadata without readonly rules', async () => {
+    const opossumFilePath = await writeOpossumFile({
+      input: correctInput,
+      path: faker.outputPath(`${faker.string.uuid()}.opossum`),
+      splitInfo: {
+        splitId: 'split-id',
+        inputSha256: 'a'.repeat(64),
+        readonlyRules: [],
+      },
+    });
+
+    const result = await parseOpossumFile(opossumFilePath);
+
+    expect(result).toEqual({
+      message: expect.any(String),
+      type: 'jsonParsingError',
+    });
+  });
 });
 
 describe('parseInputJsonFile', () => {
