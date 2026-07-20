@@ -8,7 +8,7 @@ import MuiTypography from '@mui/material/Typography';
 
 import { Criticality } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
-import { treeItemClasses } from '../../../../shared-styles';
+import { OpossumColors, treeItemClasses } from '../../../../shared-styles';
 import { useUserSettings } from '../../../../state/variables/use-user-setting';
 import {
   BreakpointIcon,
@@ -66,7 +66,17 @@ export function ResourcesTreeNode({ resource }: TreeNode) {
   }
 
   return (
-    <MuiBox sx={treeItemClasses.labelRoot}>
+    <MuiBox
+      sx={{
+        ...treeItemClasses.labelRoot,
+        ...(resource.matchesFilters
+          ? {
+              backgroundColor: OpossumColors.lightBlue,
+              borderRadius: '3px',
+            }
+          : {}),
+      }}
+    >
       {resource.isFile ? (
         <FileIcon sx={iconSx} labelDetail={labelDetail} />
       ) : resource.isAttributionBreakpoint ? (

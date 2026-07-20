@@ -51,9 +51,12 @@ export function getResourceTree({
   return getDb()
     .transaction()
     .execute(async (trx) => {
-      const hasActiveFilters = Boolean(
-        search || licenseFilter || onAttributionUuids || onlyUnreviewedFiles,
+      const hasActiveNonSearchFilters = Boolean(
+        licenseFilter || onAttributionUuids || onlyUnreviewedFiles,
       );
+
+      const hasActiveFilters = Boolean(search || hasActiveNonSearchFilters);
+
       /*
        * FILTERED_RESOURCE_TEMP_TABLE contains the resources included by the active filters.
        * Without active filters, it is a view on `resource` with no runtime overhead.
@@ -159,6 +162,10 @@ export function getResourceTree({
               sb.val(0).as('has_parent_with_manual_attribution'),
             ])
             .select((eb) => getTreeNodeProps(eb))
+            .select([
+              sql`FALSE`.as('matches_filters'),
+              sql`FALSE`.as('ancestor_matches_filters'),
+            ])
             .where('path', '=', '')
 
             // Recursion: If parent is in shown resource, then include its children
@@ -182,7 +189,38 @@ export function getResourceTree({
                     'has_parent_with_manual_attribution',
                   ),
                 ])
-                .select((eb) => getTreeNodeProps(eb));
+                .select((eb) => getTreeNodeProps(eb))
+                .select((eb) => {
+                  if (!hasActiveFilters) {
+                    return sql`FALSE`.as('matches_filters');
+                  }
+
+                  if (hasActiveNonSearchFilters) {
+                    return filteredResourcesContainIdBetween(
+                      eb.ref('r.id'),
+                      eb.ref('r.id'),
+                    ).as('matches_filters');
+                  }
+
+                  // Search only: Only highlight where the file matches, not the entire subtree
+                  const lastSearchPart = removeTrailingSlash(search!)
+                    .split('/')
+                    .at(-1);
+                  return eb
+                    .and([
+                      eb('r.path', 'like', `%${removeTrailingSlash(search!)}%`),
+                      eb('r.name', 'like', `%${lastSearchPart}%`),
+                    ])
+                    .as('matches_filters');
+                })
+                .select((eb) =>
+                  eb
+                    .or([
+                      eb.ref('parent.matches_filters'),
+                      eb.ref('parent.ancestor_matches_filters'),
+                    ])
+                    .as('ancestor_matches_filters'),
+                );
 
               if (expandedNodes !== 'expandAll') {
                 query = query.where(
@@ -194,10 +232,16 @@ export function getResourceTree({
 
               if (hasActiveFilters) {
                 query = query.where((eb) =>
-                  filteredResourcesContainIdBetween(
-                    eb.ref('r.id'),
-                    eb.ref('r.max_descendant_id'),
-                  ),
+                  eb.or([
+                    filteredResourcesContainIdBetween(
+                      eb.ref('r.id'),
+                      eb.ref('r.max_descendant_id'),
+                    ),
+                    eb.or([
+                      eb.ref('parent.matches_filters'),
+                      eb.ref('parent.ancestor_matches_filters'),
+                    ]),
+                  ]),
                 );
               }
 
@@ -207,10 +251,14 @@ export function getResourceTree({
         .selectFrom('shown_resources')
         .selectAll()
         .select((eb) =>
-          filteredResourcesContainIdBetween(
-            sql<number>`shown_resources.id + 1`,
-            eb.ref('shown_resources.max_descendant_id'),
-          ).as('is_expandable'),
+          eb
+            .exists((eb) =>
+              eb
+                .selectFrom('resource as child')
+                .selectAll()
+                .whereRef('child.parent_id', '=', 'shown_resources.id'),
+            )
+            .as('is_expandable'),
         );
 
       query = query.orderBy('id');
@@ -246,6 +294,7 @@ export function getResourceTree({
         criticality: node.max_criticality_on_unresolved_external_attribution,
         classification:
           node.max_classification_on_unresolved_external_attribution,
+        matchesFilters: Boolean(node.matches_filters),
       }));
 
       await dropTempTable();
@@ -305,7 +354,7 @@ function getFilteredResourcesQuery(
   let query = trx.selectFrom('resource as r').select('r.id as id');
 
   if (search) {
-    query = query.where('r.path', 'like', `%${search}%`);
+    query = query.where('r.path', 'like', `%${removeTrailingSlash(search)}%`);
   }
 
   if (licenseFilter) {
