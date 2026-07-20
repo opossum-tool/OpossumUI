@@ -5,7 +5,7 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
-import { useEffect, useRef } from 'react';
+import { type MouseEvent, useEffect, useRef } from 'react';
 
 import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import { OpossumColors } from '../../../shared-styles';
@@ -74,6 +74,10 @@ export interface TreeNode {
 interface VirtualizedTreeNodeProps extends TreeNode {
   TreeNodeLabel: React.FC<TreeNode>;
   onSelect: (nodeId: string) => void;
+  onContextMenu?: (
+    event: MouseEvent<HTMLElement>,
+    resource: ResourceTreeNodeData,
+  ) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   readOnly?: boolean;
   selected: boolean;
@@ -84,6 +88,7 @@ export function VirtualizedTreeNode({
   TreeNodeLabel,
   resource,
   onSelect,
+  onContextMenu,
   onToggle,
   readOnly,
   selected,
@@ -114,6 +119,7 @@ export function VirtualizedTreeNode({
     <MuiBox
       sx={classes.listNode}
       onClick={handleClick}
+      onContextMenu={(event) => onContextMenu?.(event, resource)}
       tabIndex={0}
       ref={ref}
       onKeyDown={async (event) => {
