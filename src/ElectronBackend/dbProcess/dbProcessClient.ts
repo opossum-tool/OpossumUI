@@ -122,17 +122,20 @@ export class DbProcessClient {
   }
 
   splitOpossumFile({
+    overwriteExistingDestination,
     selectedFolderPaths,
     selectedPartitionPath,
     ...params
   }: SaveFileParams & {
     opossumFilePath: string;
+    overwriteExistingDestination?: boolean;
     selectedFolderPaths: Array<string>;
     selectedPartitionPath: string;
   }): Promise<void> {
     return this.request({
       type: 'splitOpossumFile',
       ...params,
+      overwriteExistingDestination,
       selectedFolderPaths,
       selectedPartitionPath,
     }) as Promise<void>;

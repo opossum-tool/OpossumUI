@@ -46,6 +46,7 @@ interface SplitOpossumFileMessage {
   opossumFilePath: string;
   selectedFolderPaths: Array<string>;
   selectedPartitionPath: string;
+  overwriteExistingDestination?: boolean;
 }
 
 interface ExportFileMessage {

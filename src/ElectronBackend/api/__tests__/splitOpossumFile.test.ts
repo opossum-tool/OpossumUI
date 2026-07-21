@@ -144,6 +144,34 @@ describe('splitOpossumFile', () => {
     });
   });
 
+  it('overwrites a destination approved by the file picker', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/docs/README.md']),
+    });
+    const { opossumFilePath, selectedPartitionPath } = createPaths();
+    fs.writeFileSync(selectedPartitionPath, 'existing archive');
+
+    await splitOpossumFile(
+      {
+        projectId: 'project-id',
+        opossumFilePath,
+        overwriteExistingDestination: true,
+        selectedFolderPaths: ['/docs'],
+        selectedPartitionPath,
+      },
+      createOpossumZip(),
+    );
+
+    expect(getSplitInfoFromArchive(selectedPartitionPath)).toEqual({
+      splitId: expect.any(String),
+      inputSha256: expect.any(String),
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/docs', readonly: false },
+      ],
+    });
+  });
+
   it('rejects a selected resource path that does not exist', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/docs/README.md']),

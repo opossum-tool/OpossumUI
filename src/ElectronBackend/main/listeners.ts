@@ -34,6 +34,7 @@ import {
   openNonOpossumFileDialog,
   openOpossumFileDialog,
   saveFileDialog,
+  saveOpossumFileDialog,
   selectBaseURLDialog,
 } from './dialogs';
 import {
@@ -84,15 +85,23 @@ export const splitCurrentOpossumFileListener =
       const currentFilePath = globalBackendState.opossumFilePath;
       const parsedPath = path.parse(currentFilePath);
       const selectedFolderName = path.posix.basename(selectedFolderPaths[0]);
+      const defaultSelectedPartitionPath = path.join(
+        parsedPath.dir,
+        `${parsedPath.name}-${selectedFolderName}${parsedPath.ext}`,
+      );
+      const selectedPartitionPath = saveOpossumFileDialog(
+        defaultSelectedPartitionPath,
+      );
+      if (!selectedPartitionPath) {
+        return false;
+      }
       await getMainDbClient().splitOpossumFile({
         projectId: globalBackendState.projectId,
         inputFileChecksum: globalBackendState.inputFileChecksum,
         opossumFilePath: currentFilePath,
+        overwriteExistingDestination: true,
         selectedFolderPaths,
-        selectedPartitionPath: path.join(
-          parsedPath.dir,
-          `${parsedPath.name}-${selectedFolderName}${parsedPath.ext}`,
-        ),
+        selectedPartitionPath,
       });
       return true;
     } catch (error) {

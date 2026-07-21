@@ -17,6 +17,7 @@ import { saveFile, type SaveFileParams } from './saveFile';
 
 export interface SplitOpossumFileParams extends SaveFileParams {
   opossumFilePath: string;
+  overwriteExistingDestination?: boolean;
   selectedFolderPaths: Array<string>;
   selectedPartitionPath: string;
 }
@@ -25,6 +26,7 @@ export async function splitOpossumFile(
   {
     selectedFolderPaths,
     selectedPartitionPath,
+    overwriteExistingDestination,
     ...saveFileParams
   }: SplitOpossumFileParams,
   opossumZip: AdmZip,
@@ -54,6 +56,7 @@ export async function splitOpossumFile(
     opossumFilePath: saveFileParams.opossumFilePath,
     selectedFolderPaths: normalizedSelectedFolderPaths,
     selectedPartitionPath,
+    overwriteExistingDestination,
     sourceZip: opossumZip,
     splitInfo: currentSplitInfo,
   });
