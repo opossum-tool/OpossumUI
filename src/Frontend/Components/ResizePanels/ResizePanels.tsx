@@ -136,7 +136,6 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
       }}
       sx={{
         display: 'flex',
-        flex: 1,
         flexDirection: 'column',
         minHeight: 0,
         transition: isResizing ? undefined : TRANSITION,
