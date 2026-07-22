@@ -114,6 +114,7 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
         selectedNodeId={selectedResourceId}
         TreeNodeLabel={ResourcesTreeNode}
         onContextMenu={handleContextMenu}
+        contextMenuNodeId={contextMenu?.resource.id}
         sx={sx}
         testId={'resources-tree'}
       />

@@ -23,6 +23,7 @@ interface VirtualizedTreeProps {
     resource: ResourceTreeNodeData,
   ) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
+  contextMenuNodeId?: string;
   readOnly?: boolean;
   selectedNodeId?: string;
   sx?: SxProps;
@@ -34,6 +35,7 @@ export function VirtualizedTree({
   onSelect,
   onContextMenu,
   onToggle,
+  contextMenuNodeId,
   readOnly,
   resources,
   selectedNodeId,
@@ -51,7 +53,7 @@ export function VirtualizedTree({
           onSelect={onSelect}
           onContextMenu={onContextMenu}
           readOnly={readOnly}
-          selected={selected}
+          selected={selected || resource.id === contextMenuNodeId}
           focused={focused}
           resource={resource}
         />
