@@ -100,10 +100,12 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
       return;
     }
     const resourcePath = contextMenu.resource.id.replace(/\/$/, '');
-    const splitSucceeded = await window.electronAPI.splitFile([resourcePath]);
+    const splitResult = await window.electronAPI.splitFile([resourcePath]);
     setContextMenu(null);
-    if (splitSucceeded) {
+    if (splitResult.status === 'success') {
       toast.success('Split archive created.');
+    } else if (splitResult.status === 'error') {
+      toast.error(`Could not create split archive: ${splitResult.message}`);
     }
   }, [contextMenu]);
 

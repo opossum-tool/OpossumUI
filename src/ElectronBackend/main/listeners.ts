@@ -16,6 +16,7 @@ import {
   type FileFormatInfo,
   type FileType,
   type OpenLinkArgs,
+  type SplitFileResult,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
@@ -68,11 +69,11 @@ export const saveFileListener =
   };
 
 export const splitCurrentOpossumFileListener =
-  (mainWindow: BrowserWindow) =>
+  (_mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,
     selectedFolderPaths: Array<string>,
-  ): Promise<boolean> => {
+  ): Promise<SplitFileResult> => {
     try {
       const globalBackendState = getGlobalBackendState();
       if (
@@ -93,7 +94,7 @@ export const splitCurrentOpossumFileListener =
         defaultSelectedPartitionPath,
       );
       if (!selectedPartitionPath) {
-        return false;
+        return { status: 'cancelled' };
       }
       await getMainDbClient().splitOpossumFile({
         projectId: globalBackendState.projectId,
@@ -103,10 +104,14 @@ export const splitCurrentOpossumFileListener =
         selectedFolderPaths,
         selectedPartitionPath,
       });
-      return true;
+      return { status: 'success' };
     } catch (error) {
-      await showListenerErrorInMessageBox(mainWindow, error);
-      return false;
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Unexpected internal error while creating the split archive';
+      logger.error(`Could not create split archive: ${message}`);
+      return { status: 'error', message };
     }
   };
 
