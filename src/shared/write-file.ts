@@ -43,7 +43,11 @@ export async function writeOpossumFile({
 }): Promise<string> {
   if (zip) {
     if (output) {
-      zip.updateFile(OUTPUT_FILE_NAME, toBuffer(output));
+      if (zip.getEntry(OUTPUT_FILE_NAME)) {
+        zip.updateFile(OUTPUT_FILE_NAME, toBuffer(output));
+      } else {
+        zip.addFile(OUTPUT_FILE_NAME, toBuffer(output));
+      }
     }
   } else {
     zip = new AdmZip();
