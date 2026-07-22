@@ -237,6 +237,7 @@ export const text = {
   resourceBrowser: {
     allResources: (selectedResources: number, totalCount: number) =>
       `Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,
+    splitHere: 'Create collaborative partition',
     linkedResources: (selectedResources: number, totalCount: number) =>
       `Linked Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,
     hasHighlyCriticalSignals: 'Has highly critical signals',
@@ -415,6 +416,20 @@ export const text = {
           ? `File to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
           : `Select file to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
     },
+  },
+  splitDialog: {
+    title: (resourcePath: string) =>
+      `Create Collaborative Partition at ${resourcePath}`,
+    explanationText: (resourcePath: string) =>
+      `Create a separate Opossum file for collaborative work. ${resourcePath} will become readonly in the currently open Opossum file.`,
+    destinationPath: {
+      textFieldLabel: (hasBeenSelected: boolean) =>
+        hasBeenSelected
+          ? 'New Opossum file location'
+          : 'Select new Opossum file save location',
+    },
+    create: 'Create Partition',
+    success: 'Partition created successfully.',
   },
   backendError: {
     inputFileDoesNotExist: 'Input file does not exist',

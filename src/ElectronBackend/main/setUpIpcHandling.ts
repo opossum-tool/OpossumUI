@@ -16,6 +16,7 @@ import {
   openLinkListener,
   saveFileListener,
   selectFileListener,
+  selectSplitDestinationListener,
   splitCurrentOpossumFileListener,
 } from './listeners';
 import { ProcessingStatusUpdater } from './ProcessingStatusUpdater';
@@ -46,6 +47,10 @@ export function setupIpcHandling(
     mergeFileAndLoadListener(window, updateMenu),
   );
   ipcMain.handle(IpcChannel.SaveFile, saveFileListener(window));
+  ipcMain.handle(
+    IpcChannel.SelectSplitDestination,
+    selectSplitDestinationListener(window),
+  );
   ipcMain.handle(IpcChannel.SplitFile, splitCurrentOpossumFileListener(window));
   ipcMain.handle(IpcChannel.ExportFile, exportFileListener(window));
   ipcMain.handle(IpcChannel.StopLoading, () =>
