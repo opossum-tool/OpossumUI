@@ -139,12 +139,15 @@ export function AttributionForm({
           exclusive
           onChange={(_, newValue) =>
             onEdit?.(() => {
-              dispatch(
-                setTemporaryDisplayPackageInfo({
-                  ...packageInfo,
-                  firstParty: newValue,
-                }),
-              );
+              // newValue is null when clicking on the already selected tab
+              if (newValue !== null) {
+                dispatch(
+                  setTemporaryDisplayPackageInfo({
+                    ...packageInfo,
+                    firstParty: newValue,
+                  }),
+                );
+              }
             })
           }
           size={'small'}
