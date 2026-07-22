@@ -17,6 +17,7 @@
 /src/e2e-tests/artifacts
 playwright-report
 /test-output
+/test-results
 /bin
 
 # production
@@ -52,3 +53,4 @@ yarn-error.log*
 .gitconfig
 
 dev.db
+dev.db-journal
