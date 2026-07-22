@@ -14,18 +14,11 @@ import {
   pathsToResources,
 } from '../../../testing/global-test-helpers';
 import { getReadonlyRules } from '../../db/split-info';
-import { saveFile } from '../saveFile';
 import { splitOpossumFile } from '../splitOpossumFile';
-
-vi.mock('../saveFile', () => ({ saveFile: vi.fn() }));
 
 const inputBytes = Buffer.from('{"resources":{}}');
 
 describe('splitOpossumFile', () => {
-  beforeEach(() => {
-    vi.mocked(saveFile).mockReset();
-  });
-
   it('stores the source split info after an initial split', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/docs/README.md', '/frontend/App.tsx']),
@@ -34,7 +27,8 @@ describe('splitOpossumFile', () => {
 
     await splitOpossumFile(
       {
-        saveFileParams: { projectId: 'project-id', opossumFilePath },
+        projectId: 'project-id',
+        opossumFilePath,
         selectedFolderPaths: ['/docs'],
         partitionOutputPath,
       },
@@ -48,13 +42,6 @@ describe('splitOpossumFile', () => {
       { path: '/', readonly: true },
       { path: '/docs', readonly: false },
     ]);
-    expect(saveFile).toHaveBeenCalledWith(
-      {
-        projectId: 'project-id',
-        opossumFilePath,
-      },
-      expect.anything(),
-    );
   });
 
   it('allows splitting an individual file resource', async () => {
@@ -65,7 +52,8 @@ describe('splitOpossumFile', () => {
 
     await splitOpossumFile(
       {
-        saveFileParams: { projectId: 'project-id', opossumFilePath },
+        projectId: 'project-id',
+        opossumFilePath,
         selectedFolderPaths: ['/docs/README.md'],
         partitionOutputPath,
       },
@@ -89,10 +77,8 @@ describe('splitOpossumFile', () => {
 
     await splitOpossumFile(
       {
-        saveFileParams: {
-          projectId: 'project-id',
-          opossumFilePath: firstPaths.opossumFilePath,
-        },
+        projectId: 'project-id',
+        opossumFilePath: firstPaths.opossumFilePath,
         selectedFolderPaths: ['/frontend'],
         partitionOutputPath: firstPaths.partitionOutputPath,
       },
@@ -113,10 +99,8 @@ describe('splitOpossumFile', () => {
 
     await splitOpossumFile(
       {
-        saveFileParams: {
-          projectId: 'project-id',
-          opossumFilePath: firstPaths.partitionOutputPath,
-        },
+        projectId: 'project-id',
+        opossumFilePath: firstPaths.partitionOutputPath,
         selectedFolderPaths: ['/frontend/components'],
         partitionOutputPath: secondPaths.partitionOutputPath,
       },
@@ -139,7 +123,8 @@ describe('splitOpossumFile', () => {
     await expect(
       splitOpossumFile(
         {
-          saveFileParams: { projectId: 'project-id', opossumFilePath },
+          projectId: 'project-id',
+          opossumFilePath,
           selectedFolderPaths: ['/missing'],
           partitionOutputPath,
         },

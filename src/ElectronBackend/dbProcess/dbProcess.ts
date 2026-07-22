@@ -9,6 +9,8 @@
 import type AdmZip from 'adm-zip';
 
 import type { ExportType } from '../../shared/shared-types';
+import { writeOpossumFile } from '../../shared/write-file';
+import { buildOpossumOutputFile } from '../api/buildOpossumOutputFile';
 import {
   type CommandName,
   type CommandParams,
@@ -16,8 +18,8 @@ import {
   executeCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
-import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
+import { getReadonlyRules } from '../db/split-info';
 import {
   loadFile,
   type LoadFileGlobalState,
@@ -41,7 +43,6 @@ interface SaveFileMessage {
 interface SplitOpossumFileMessage {
   type: 'splitOpossumFile';
   projectId: string;
-  inputFileChecksum?: string;
   opossumFilePath: string;
   selectedFolderPaths: Array<string>;
   partitionOutputPath: string;
@@ -130,25 +131,21 @@ async function executeDbProcessMessage(
       if (!storedOpossumZip) {
         throw new Error('Cannot save: no input file loaded');
       }
-      const { id: _, type: __, ...params } = msg;
-      await saveFile(params, storedOpossumZip);
+      const output = await buildOpossumOutputFile(msg.projectId);
+      await writeOpossumFile({
+        path: msg.opossumFilePath,
+        zip: storedOpossumZip,
+        output,
+        readonlyRules: await getReadonlyRules(),
+      });
       return undefined;
     }
     case 'splitOpossumFile': {
       if (!storedOpossumZip) {
         throw new Error('Cannot split: no .opossum file is loaded');
       }
-      const {
-        id: _,
-        type: __,
-        selectedFolderPaths,
-        partitionOutputPath,
-        ...saveFileParams
-      } = msg;
-      await splitOpossumFile(
-        { saveFileParams, selectedFolderPaths, partitionOutputPath },
-        storedOpossumZip,
-      );
+      const { id: _, type: __, ...params } = msg;
+      await splitOpossumFile(params, storedOpossumZip);
       return undefined;
     }
     case 'exportFile': {

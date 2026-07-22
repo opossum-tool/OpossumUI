@@ -54,10 +54,10 @@ export const saveFileListener =
         throw new Error('Project ID not found');
       }
 
-      await getMainDbClient().saveFile({
-        projectId: globalBackendState.projectId,
-        opossumFilePath: globalBackendState.opossumFilePath!,
-      });
+      await getMainDbClient().saveFile(
+        globalBackendState.projectId,
+        globalBackendState.opossumFilePath!,
+      );
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
     }
@@ -82,10 +82,8 @@ export const splitCurrentOpossumFileListener =
       const parsedPath = path.parse(currentFilePath);
       const selectedFolderName = path.posix.basename(selectedFolderPaths[0]);
       await getMainDbClient().splitOpossumFile({
-        saveFileParams: {
-          projectId: globalBackendState.projectId,
-          opossumFilePath: currentFilePath,
-        },
+        projectId: globalBackendState.projectId,
+        opossumFilePath: currentFilePath,
         selectedFolderPaths,
         partitionOutputPath: path.join(
           parsedPath.dir,
