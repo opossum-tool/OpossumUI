@@ -166,12 +166,32 @@ describe('splitCurrentOpossumFileListener', () => {
   it('does not split when selecting a destination is cancelled', async () => {
     vi.mocked(saveOpossumFileDialog).mockReturnValue(undefined);
 
-    const splitSucceeded = await splitCurrentOpossumFileListener(mainWindow)(
+    const splitResult = await splitCurrentOpossumFileListener(mainWindow)(
       {} as Electron.IpcMainInvokeEvent,
       ['/source'],
     );
 
-    expect(splitSucceeded).toBe(false);
+    expect(splitResult).toEqual({ status: 'cancelled' });
     expect(mockSplitOpossumFile).not.toHaveBeenCalled();
+  });
+
+  it('returns an error result without showing a fatal error dialog', async () => {
+    vi.mocked(saveOpossumFileDialog).mockReturnValue(
+      '/partitions/split.opossum',
+    );
+    mockSplitOpossumFile.mockRejectedValue(
+      new Error('Destination is not writable'),
+    );
+
+    const splitResult = await splitCurrentOpossumFileListener(mainWindow)(
+      {} as Electron.IpcMainInvokeEvent,
+      ['/source'],
+    );
+
+    expect(splitResult).toEqual({
+      status: 'error',
+      message: 'Destination is not writable',
+    });
+    expect(dialog.showMessageBox).not.toHaveBeenCalled();
   });
 });

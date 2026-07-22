@@ -201,6 +201,11 @@ export interface SendErrorInformationArgs {
   errorInfo: ErrorInfo;
 }
 
+export type SplitFileResult =
+  | { status: 'success' }
+  | { status: 'cancelled' }
+  | { status: 'error'; message: string };
+
 export interface SaveFileArgs {
   manualAttributions: Attributions;
   resourcesToAttributions: ResourcesToAttributions;
@@ -260,7 +265,7 @@ export interface ElectronAPI {
     inputFilePath: string,
     fileType: FileType,
   ) => Promise<boolean>;
-  splitFile: (splitPaths: Array<string>) => Promise<boolean>;
+  splitFile: (splitPaths: Array<string>) => Promise<SplitFileResult>;
   saveFile: () => void;
   exportFile: (exportType: ExportType) => Promise<void>;
   /**
