@@ -2,27 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { LoadedFileFormat } from '../../enums/enums';
 import type { GlobalBackendState } from '../../types/types';
-import {
-  getLoadedFilePath,
-  getLoadedFileType,
-  isFileLoaded,
-} from '../getLoadedFile';
+import { getLoadedFilePath, isFileLoaded } from '../getLoadedFile';
 
 describe('getLoadedFilePath', () => {
-  it('Finds json file', () => {
-    const resourceFilePath = '/some/path.json';
-    const attributionFilePath = '/some/other_path.json';
-    const globalBackendState: GlobalBackendState = {
-      resourceFilePath,
-      attributionFilePath,
-    };
-
-    const loadedFilePath = getLoadedFilePath(globalBackendState);
-    expect(loadedFilePath).toEqual(resourceFilePath);
-  });
-
   it('Finds opossum file', () => {
     const opossumFilePath = '/some/path.opossum';
     const globalBackendState: GlobalBackendState = {
@@ -42,15 +25,6 @@ describe('getLoadedFilePath', () => {
 });
 
 describe('isFileLoaded', () => {
-  it('Finds json file', () => {
-    const resourceFilePath = '/some/path.json';
-    const globalBackendState: GlobalBackendState = {
-      resourceFilePath,
-    };
-
-    expect(isFileLoaded(globalBackendState)).toBe(true);
-  });
-
   it('Finds opossum file', () => {
     const opossumFilePath = '/some/path.opossum';
     const globalBackendState: GlobalBackendState = {
@@ -64,35 +38,5 @@ describe('isFileLoaded', () => {
     const globalBackendState: GlobalBackendState = {};
 
     expect(isFileLoaded(globalBackendState)).toBe(false);
-  });
-});
-
-describe('getLoadedFileType', () => {
-  it('Finds json file', () => {
-    const resourceFilePath = '/some/path.json';
-    const globalBackendState: GlobalBackendState = {
-      resourceFilePath,
-    };
-
-    const loadedFileType = getLoadedFileType(globalBackendState);
-    expect(loadedFileType).toEqual(LoadedFileFormat.Json);
-  });
-
-  it('Finds opossum file', () => {
-    const opossumFilePath = '/some/path.opossum';
-    const globalBackendState: GlobalBackendState = {
-      opossumFilePath,
-    };
-
-    const loadedFileType = getLoadedFileType(globalBackendState);
-    expect(loadedFileType).toEqual(LoadedFileFormat.Opossum);
-  });
-
-  it('Throws error if no file exists', () => {
-    const globalBackendState: GlobalBackendState = {};
-
-    expect(() => getLoadedFileType(globalBackendState)).toThrow(
-      'Tried to get file type when no file is loaded',
-    );
   });
 });

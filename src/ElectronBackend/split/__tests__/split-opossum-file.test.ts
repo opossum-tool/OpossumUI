@@ -10,7 +10,7 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
-import { parseOpossumFile } from '../../input/parseFile';
+import { loadOpossumFile } from '../../input/parseFile';
 import type { ParsedOpossumInputFile } from '../../types/types';
 import {
   splitOpossumArchive,
@@ -228,7 +228,7 @@ async function splitArchive({
 }
 
 async function parseReadonlyRules(filePath: string) {
-  const parsedFile = await parseOpossumFile(filePath);
+  const parsedFile = await loadOpossumFile(filePath);
   if ('type' in parsedFile) {
     throw new Error('Expected a valid .opossum file with split metadata.');
   }

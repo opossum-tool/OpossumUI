@@ -12,7 +12,7 @@ import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from '../../main/globalBackendState';
-import { loadInputAndOutputFromFilePath } from '../importFromFile';
+import { loadOpossumFileFromPath } from '../importFromFile';
 import type { LoadFileIpcResult } from '../loadFile';
 
 vi.mock('electron', () => ({
@@ -30,10 +30,10 @@ vi.mock('../../dbProcess/dbProcessClient', () => ({
   getMainDbClient: vi.fn(),
 }));
 
-const mockLoadFile = vi.fn();
+const mockLoadOpossumFile = vi.fn();
 
 (getMainDbClient as Mock).mockReturnValue({
-  loadFile: mockLoadFile,
+  loadOpossumFile: mockLoadOpossumFile,
 });
 
 type SendCall = {
@@ -79,24 +79,24 @@ const mainWindow = {
   setTitle: vi.fn(),
 } as unknown as BrowserWindow;
 
-describe('loadInputAndOutputFromFilePath', () => {
+describe('loadOpossumFileFromPath', () => {
   afterEach(() => {
     vi.resetAllMocks();
     (getMainDbClient as Mock).mockReturnValue({
-      loadFile: mockLoadFile,
+      loadOpossumFile: mockLoadOpossumFile,
     });
     (mainWindow.webContents as unknown as MockWebContents).reset();
   });
 
   it('sends IPC messages and updates global state on success', async () => {
-    mockLoadFile.mockResolvedValue({
+    mockLoadOpossumFile.mockResolvedValue({
       ok: true,
       projectTitle: 'My Project',
       projectId: 'project-123',
     } satisfies LoadFileIpcResult);
 
     setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow, '/some/file.opossum');
+    await loadOpossumFileFromPath(mainWindow, '/some/file.opossum');
 
     const webContents = mainWindow.webContents as unknown as MockWebContents;
     expect(
@@ -109,13 +109,13 @@ describe('loadInputAndOutputFromFilePath', () => {
   });
 
   it('shows error dialog and does not send FileLoaded on error', async () => {
-    mockLoadFile.mockResolvedValue({
+    mockLoadOpossumFile.mockResolvedValue({
       ok: false,
       error: { type: 'fileNotFoundError', message: 'File not found' },
     } satisfies LoadFileIpcResult);
 
     setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow, '/missing/file.json');
+    await loadOpossumFileFromPath(mainWindow, '/missing/file.opossum');
 
     expect(dialog.showMessageBox).toHaveBeenCalled();
   });
@@ -140,17 +140,17 @@ describe('loadInputAndOutputFromFilePath', () => {
     for (const { type, expectedMessage } of errorTypes) {
       vi.resetAllMocks();
       (getMainDbClient as Mock).mockReturnValue({
-        loadFile: mockLoadFile,
+        loadOpossumFile: mockLoadOpossumFile,
       });
       (mainWindow.webContents as unknown as MockWebContents).reset();
 
-      mockLoadFile.mockResolvedValue({
+      mockLoadOpossumFile.mockResolvedValue({
         ok: false,
         error: { type, message: 'test error' },
       } satisfies LoadFileIpcResult);
 
       setGlobalBackendState({});
-      await loadInputAndOutputFromFilePath(mainWindow, '/file');
+      await loadOpossumFileFromPath(mainWindow, '/file');
 
       expect(dialog.showMessageBox).toHaveBeenCalledWith(
         expect.objectContaining({

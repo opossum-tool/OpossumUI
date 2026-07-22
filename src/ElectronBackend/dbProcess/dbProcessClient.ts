@@ -18,6 +18,7 @@ import type {
   DbProcessPayload,
   DbProcessRequest,
   DbProcessResponse,
+  LoadFileMessage,
 } from './dbProcess';
 
 type ProgressCallback = (message: string, level?: 'info' | 'warn') => void;
@@ -107,13 +108,17 @@ export class DbProcessClient {
     }) as Promise<Awaited<CommandReturn<C>>>;
   }
 
-  loadFile(
-    filePath: string,
+  loadOpossumFile(
+    opossumFilePath: string,
     globalState: LoadFileGlobalState,
     onProgress?: ProgressCallback,
   ): Promise<LoadFileIpcResult> {
     return this.request(
-      { type: 'loadFile', filePath, globalState },
+      {
+        type: 'loadFile',
+        opossumFilePath,
+        globalState,
+      } satisfies LoadFileMessage,
       { onProgress },
     ) as Promise<LoadFileIpcResult>;
   }

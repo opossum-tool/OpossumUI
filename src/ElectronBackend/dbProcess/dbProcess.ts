@@ -24,19 +24,18 @@ import {
   type LoadFileIpcResult,
   type LoadFileProgressCallback,
 } from '../input/loadFile';
+import { loadOpossumFile } from '../input/parseFile';
 
-interface LoadFileMessage {
+export interface LoadFileMessage {
   type: 'loadFile';
-  filePath: string;
+  opossumFilePath: string;
   globalState: LoadFileGlobalState;
 }
 
 interface SaveFileMessage {
   type: 'saveFile';
   projectId: string;
-  inputFileChecksum?: string;
-  opossumFilePath?: string;
-  attributionFilePath?: string;
+  opossumFilePath: string;
 }
 
 interface SplitOpossumFileMessage {
@@ -108,8 +107,15 @@ async function executeDbProcessMessage(
   switch (msg.type) {
     case 'loadFile': {
       storedOpossumZip = undefined;
+      onProgress?.(`Reading file ${msg.opossumFilePath}`);
+      const archiveOrError = await loadOpossumFile(msg.opossumFilePath);
+      if ('type' in archiveOrError && 'message' in archiveOrError) {
+        return { ok: false, error: archiveOrError };
+      }
+      const archive = archiveOrError;
       const loadResult = await loadFile(
-        msg.filePath,
+        msg.opossumFilePath,
+        archive,
         msg.globalState,
         onProgress,
       );

@@ -10,8 +10,7 @@ import {
 
 describe('The global backend state', () => {
   const newGlobalBackendState: GlobalBackendState = {
-    resourceFilePath: '/some/path.json',
-    attributionFilePath: '/some/other_path.json',
+    opossumFilePath: '/some/path.opossum',
     projectId: 'uuid_1',
   };
 
