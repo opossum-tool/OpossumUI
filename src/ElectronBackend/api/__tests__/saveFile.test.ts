@@ -6,76 +6,58 @@ import AdmZip from 'adm-zip';
 import * as MockDate from 'mockdate';
 
 import { Criticality } from '../../../shared/shared-types';
-import { writeFile, writeOpossumFile } from '../../../shared/write-file';
+import { writeOpossumFile } from '../../../shared/write-file';
 import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
-import { saveFile } from '../saveFile';
+import { buildOpossumOutputFile, saveFile } from '../saveFile';
 
 vi.mock('../../../shared/write-file', async () => ({
   ...(await vi.importActual('../../../shared/write-file')),
-  writeFile: vi.fn(),
   writeOpossumFile: vi.fn(),
 }));
 
 const mockDate = 1603976726737;
 MockDate.set(new Date(mockDate));
 
-describe('saveFile', () => {
-  it('writes to attributionFilePath as JSON for legacy format', async () => {
+describe('buildOpossumOutputFile', () => {
+  it('builds output file with correct structure', async () => {
     await initializeDbWithTestData({
-      resources: pathsToResources(['/resource']),
+      resources: pathsToResources(['/a']),
       manualAttributions: {
         attributions: {
           uuid1: {
             id: 'uuid1',
-            packageName: 'my-package',
-            packageVersion: '1.0.0',
+            packageName: 'opossum-pkg',
             criticality: Criticality.None,
           },
         },
-        resourcesToAttributions: { '/resource': ['uuid1'] },
-        attributionsToResources: { uuid1: ['/resource'] },
+        resourcesToAttributions: { '/a': ['uuid1'] },
+        attributionsToResources: { uuid1: ['/a'] },
       },
-      externalAttributions: {
-        attributions: {
-          ext1: { id: 'ext1', criticality: Criticality.None },
-        },
-        resourcesToAttributions: {},
-        attributionsToResources: {},
-      },
-      resolvedExternalAttributions: new Set(['ext1']),
     });
 
-    await saveFile(
-      {
+    const result = await buildOpossumOutputFile('project-1');
+
+    expect(result).toEqual({
+      metadata: {
         projectId: 'project-1',
-        attributionFilePath: '/output/attributions.json',
+        fileCreationDate: `${mockDate}`,
+        inputFileMD5Checksum: undefined,
       },
-      new AdmZip(),
-    );
-
-    expect(writeFile).toHaveBeenCalledWith({
-      path: '/output/attributions.json',
-      content: expect.objectContaining({
-        metadata: expect.objectContaining({
-          projectId: 'project-1',
-          fileCreationDate: `${mockDate}`,
+      manualAttributions: {
+        uuid1: expect.objectContaining({
+          packageName: 'opossum-pkg',
         }),
-        manualAttributions: {
-          uuid1: expect.objectContaining({
-            packageName: 'my-package',
-            packageVersion: '1.0.0',
-          }),
-        },
-        resourcesToAttributions: { '/resource': ['uuid1'] },
-        resolvedExternalAttributions: ['ext1'],
-      }),
+      },
+      resourcesToAttributions: { '/a': ['uuid1'] },
+      resolvedExternalAttributions: [],
     });
-    expect(writeOpossumFile).not.toHaveBeenCalled();
   });
+});
 
+describe('saveFile', () => {
   it('writes to opossumFilePath as .opossum format', async () => {
     const opossumZip = new AdmZip();
 
@@ -117,14 +99,5 @@ describe('saveFile', () => {
         resourcesToAttributions: { '/a': ['uuid1'] },
       }),
     });
-    expect(writeFile).not.toHaveBeenCalled();
-  });
-
-  it('throws when no output file path is configured', async () => {
-    await initializeDbWithTestData();
-
-    await expect(
-      saveFile({ projectId: 'project-4' }, new AdmZip()),
-    ).rejects.toThrow('No output file path configured');
   });
 });

@@ -2,25 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { cloneDeep, set } from 'lodash-es';
-import zlib from 'zlib';
-
-import { writeFile, writeOpossumFile } from '../../../shared/write-file';
+import { writeOpossumFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
 import type {
   OpossumOutputFile,
-  ParsedOpossumInputAndOutput,
-  ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
 } from '../../types/types';
-import {
-  parseInputJsonFile,
-  parseOpossumFile,
-  parseOutputJsonFile,
-} from '../parseFile';
+import { loadOpossumFile } from '../parseFile';
 
 const testUuid: string = faker.string.uuid();
-const correctInput: ParsedOpossumInputFile = {
+const correctInput = {
   metadata: {
     projectId: '2a58a469-738e-4508-98d3-a27bce6e71f7',
     fileCreationDate: '2020-07-23 11:47:13.764544',
@@ -135,18 +126,19 @@ const correctParsedOutput: ParsedOpossumOutputFile = {
   resolvedExternalAttributions: [],
 };
 
-describe('parseOpossumFile', () => {
+describe('loadOpossumFile', () => {
   it('reads a .opossum file with only input correctly', async () => {
     const opossumFilePath = await writeOpossumFile({
       input: correctInput,
       path: faker.outputPath(`${faker.string.uuid()}.opossum`),
     });
 
-    const parsingResult = (await parseOpossumFile(
-      opossumFilePath,
-    )) as ParsedOpossumInputAndOutput;
-    expect(parsingResult.input).toStrictEqual(correctInput);
-    expect(parsingResult.output).toBeNull();
+    const result = await loadOpossumFile(opossumFilePath);
+    if ('type' in result) {
+      throw new Error(`Unexpected error: ${result.message}`);
+    }
+    expect(result.input).toStrictEqual(correctInput);
+    expect(result.output).toBeNull();
   });
 
   it('reads a .opossum file with input and output correctly', async () => {
@@ -156,11 +148,12 @@ describe('parseOpossumFile', () => {
       path: faker.outputPath(`${faker.string.uuid()}.opossum`),
     });
 
-    const parsingResult = (await parseOpossumFile(
-      opossumFilePath,
-    )) as ParsedOpossumInputAndOutput;
-    expect(parsingResult.input).toStrictEqual(correctInput);
-    expect(parsingResult.output).toStrictEqual(correctParsedOutput);
+    const result = await loadOpossumFile(opossumFilePath);
+    if ('type' in result) {
+      throw new Error(`Unexpected error: ${result.message}`);
+    }
+    expect(result.input).toStrictEqual(correctInput);
+    expect(result.output).toStrictEqual(correctParsedOutput);
   });
 
   it('returns JSONParsingError on an incorrect .opossum file', async () => {
@@ -170,129 +163,10 @@ describe('parseOpossumFile', () => {
       path: faker.outputPath(`${faker.string.uuid()}.opossum`),
     });
 
-    const result = await parseOpossumFile(opossumFilePath);
+    const result = await loadOpossumFile(opossumFilePath);
     expect(result).toEqual({
       message: expect.any(String),
       type: 'jsonParsingError',
     });
-  });
-});
-
-describe('parseInputJsonFile', () => {
-  it('reads an input.json file correctly', async () => {
-    const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    await writeFile({ content: correctInput, path: resourcesPath });
-
-    const resources = await parseInputJsonFile(resourcesPath);
-    expect(resources).toStrictEqual(correctInput);
-  });
-
-  it('reads custom metadata correctly', async () => {
-    const testFileContent = {
-      ...correctInput,
-      metadata: {
-        ...correctInput.metadata,
-        customObject: {
-          foo: 'bar',
-          nested: {
-            object: 'value',
-          },
-        },
-      },
-    };
-    const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    await writeFile({ content: testFileContent, path: resourcesPath });
-
-    const resources = await parseInputJsonFile(resourcesPath);
-
-    expect(resources).toStrictEqual(testFileContent);
-  });
-
-  it('returns JSONParsingError on an incorrect Resource.json file', async () => {
-    const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    await writeFile({ content: corruptInput, path: resourcesPath });
-
-    const result = await parseInputJsonFile(resourcesPath);
-    expect(result).toEqual({
-      message: expect.any(String),
-      type: 'jsonParsingError',
-    });
-  });
-
-  it('reads an input.json.gz file correctly', async () => {
-    const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json.gz`);
-    await writeFile({
-      content: zlib.gzipSync(JSON.stringify(correctInput)),
-      path: resourcesPath,
-    });
-
-    const resources = await parseInputJsonFile(resourcesPath);
-    expect(resources).toStrictEqual(correctInput);
-  });
-
-  it('returns JSONParsingError on an incorrect Resource.json.gz file', async () => {
-    const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json.gz`);
-    await writeFile({
-      content: zlib.gzipSync(JSON.stringify(corruptInput)),
-      path: resourcesPath,
-    });
-
-    const result = await parseInputJsonFile(resourcesPath);
-    expect(result).toEqual({
-      message: expect.any(String),
-      type: 'jsonParsingError',
-    });
-  });
-});
-
-describe('parseOutputJsonFile', () => {
-  it('reads a correct file', async () => {
-    const attributionPath = faker.outputPath(
-      `${faker.string.uuid()}_attributions.json`,
-    );
-    await writeFile({ content: correctOutput, path: attributionPath });
-
-    const attributions = parseOutputJsonFile(attributionPath);
-
-    expect(attributions).toStrictEqual(correctParsedOutput);
-  });
-
-  it('throws when reading an incorrect file', async () => {
-    const attributionPath = faker.outputPath(
-      `${faker.string.uuid()}_attributions.json`,
-    );
-    await writeFile({
-      content: { test: 'Invalid file.' },
-      path: attributionPath,
-    });
-
-    expect(() => parseOutputJsonFile(attributionPath)).toThrow(
-      `Error: ${attributionPath} contains an invalid output file.\n Original error message: instance requires property "metadata"`,
-    );
-  });
-
-  it('tolerates an attribution file with wrong projectId', async () => {
-    const fileContentWithWrongProjectId: OpossumOutputFile = set(
-      cloneDeep(correctOutput),
-      'metadata.projectId',
-      'cff9095a-5c24-46e6-b84d-cc8596b17c58',
-    );
-    const parsedFileContentWithWrongProjectId: ParsedOpossumOutputFile = set(
-      cloneDeep(correctParsedOutput),
-      'metadata.projectId',
-      'cff9095a-5c24-46e6-b84d-cc8596b17c58',
-    );
-
-    const attributionPath = faker.outputPath(
-      `${faker.string.uuid()}_attributions.json`,
-    );
-    await writeFile({
-      content: fileContentWithWrongProjectId,
-      path: attributionPath,
-    });
-
-    const attributions = parseOutputJsonFile(attributionPath);
-
-    expect(attributions).toStrictEqual(parsedFileContentWithWrongProjectId);
   });
 });

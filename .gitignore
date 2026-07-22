@@ -54,3 +54,4 @@ yarn-error.log*
 
 dev.db
 dev.db-journal
+.omo/

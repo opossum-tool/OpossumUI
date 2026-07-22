@@ -7,7 +7,7 @@ import { type BrowserWindow, dialog, type WebContents } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import type { SendErrorInformationArgs } from '../../../shared/shared-types';
-import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
+import { loadOpossumFileFromPath } from '../../input/importFromFile';
 import {
   getMessageBoxContentForErrorsWrapper,
   getMessageBoxForErrors,
@@ -25,7 +25,7 @@ vi.mock('electron', () => ({
 }));
 
 vi.mock('../../input/importFromFile', () => ({
-  loadInputAndOutputFromFilePath: vi.fn(),
+  loadOpossumFileFromPath: vi.fn(),
 }));
 
 vi.mock('../../main/listeners', () => ({
@@ -97,7 +97,7 @@ describe('error handling', () => {
       expect(mockCallback.mock.calls[0][0]).toContain(
         AllowedFrontendChannels.RestoreFrontend,
       );
-      expect(loadInputAndOutputFromFilePath).toHaveBeenCalled();
+      expect(loadOpossumFileFromPath).toHaveBeenCalled();
     });
   });
 });

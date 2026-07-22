@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export const OPOSSUM_FILE_EXTENSION = '.opossum';
+const OPOSSUM_FILE_EXTENSION = '.opossum';
 export const INPUT_FILE_NAME = 'input.json';
 export const OUTPUT_FILE_NAME = 'output.json';
 

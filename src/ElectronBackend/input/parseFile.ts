@@ -3,12 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
-import fs from 'fs';
 import { type Options, Validator } from 'jsonschema';
 import { Readable } from 'stream';
 import parser from 'stream-json';
 import Asm, { type Assembler } from 'stream-json/assembler.js';
-import zlib from 'zlib';
 
 import {
   INPUT_FILE_NAME,
@@ -17,7 +15,6 @@ import {
 import type {
   InvalidDotOpossumFileError,
   JsonParsingError,
-  ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
   UnzipError,
@@ -25,19 +22,23 @@ import type {
 import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
 
+export interface LoadedArchive {
+  input: ParsedOpossumInputFile;
+  output: ParsedOpossumOutputFile | null;
+  opossumZip: AdmZip;
+}
+
+type LoadArchiveError =
+  UnzipError | JsonParsingError | InvalidDotOpossumFileError;
+
 const jsonSchemaValidator = new Validator();
 const validationOptions: Options = {
   throwError: true,
 };
 
-export async function parseOpossumFile(
+export async function loadOpossumFile(
   opossumFilePath: string,
-): Promise<
-  | ParsedOpossumInputAndOutput
-  | UnzipError
-  | JsonParsingError
-  | InvalidDotOpossumFileError
-> {
+): Promise<LoadedArchive | LoadArchiveError> {
   let zip: AdmZip;
   let inputBytes: Buffer | null;
   let outputBytes: Buffer | null;
@@ -100,44 +101,9 @@ export async function parseOpossumFile(
   };
 }
 
-export async function parseInputJsonFile(
-  resourceFilePath: fs.PathLike,
-): Promise<ParsedOpossumInputFile | JsonParsingError> {
-  try {
-    const data = await parseJsonStream<ParsedOpossumInputFile>(
-      openInputJsonFileStream(resourceFilePath),
-    );
-    jsonSchemaValidator.validate(
-      data,
-      OpossumInputFileSchema,
-      validationOptions,
-    );
-    return data;
-  } catch (err) {
-    return {
-      message: `Error: ${resourceFilePath.toString()} is not a valid input file.\n${err?.toString()}`,
-      type: 'jsonParsingError',
-    } satisfies JsonParsingError;
-  }
-}
-
-export function parseOutputJsonFile(
-  attributionFilePath: fs.PathLike,
-): ParsedOpossumOutputFile {
-  const content = fs.readFileSync(attributionFilePath, 'utf-8');
-  return parseOutputJsonContent(content, attributionFilePath);
-}
-
-function openInputJsonFileStream(filePath: fs.PathLike) {
-  const fileStream = fs.createReadStream(filePath);
-  return filePath.toString().endsWith('.json.gz')
-    ? fileStream.pipe(zlib.createGunzip())
-    : fileStream;
-}
-
 function parseOutputJsonContent(
   fileContent: string,
-  filePath: fs.PathLike,
+  filePath: string,
 ): ParsedOpossumOutputFile {
   try {
     const jsonContent = JSON.parse(fileContent);
