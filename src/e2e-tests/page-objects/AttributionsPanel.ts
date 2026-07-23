@@ -181,8 +181,10 @@ export class AttributionsPanel {
 
   async selectLicenseName(licenseName: string) {
     await this.filters.license.fill(licenseName);
-    await this.window.keyboard.press('ArrowUp');
-    await this.window.keyboard.press('Enter');
+    await this.window
+      .getByRole('option', { name: licenseName, exact: true })
+      .click();
+    await expect(this.filters.license).toHaveValue(licenseName);
   }
 
   async selectIncompleteCoordinates(value: string) {
