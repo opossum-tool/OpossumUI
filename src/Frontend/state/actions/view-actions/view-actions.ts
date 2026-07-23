@@ -19,6 +19,7 @@ import {
   ACTION_SET_IMPORT_FILE_REQUEST,
   ACTION_SET_MERGE_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
+  ACTION_SET_SPLIT_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   type ClosePopupAction,
@@ -29,6 +30,7 @@ import {
   type SetImportFileRequestAction,
   type SetMergeRequestAction,
   type SetOpenFileRequestAction,
+  type SetSplitFileRequestAction,
   type SetTargetView,
   type SetView,
 } from './types';
@@ -88,6 +90,13 @@ export function openPopup(
   };
 }
 
+export function openSplitDialog(resourcePath: string): OpenPopupAction {
+  return {
+    type: ACTION_OPEN_POPUP,
+    payload: { popup: PopupType.SplitDialog, resourcePath },
+  };
+}
+
 export function closePopup(): ClosePopupAction {
   return { type: ACTION_CLOSE_POPUP };
 }
@@ -114,4 +123,10 @@ export function setExportFileRequest(
   exportFileRequest: ExportType | null,
 ): SetExportFileRequestAction {
   return { type: ACTION_SET_EXPORT_FILE_REQUEST, payload: exportFileRequest };
+}
+
+export function setSplitFileRequest(
+  splitFileRequest: string | null,
+): SetSplitFileRequestAction {
+  return { type: ACTION_SET_SPLIT_FILE_REQUEST, payload: splitFileRequest };
 }

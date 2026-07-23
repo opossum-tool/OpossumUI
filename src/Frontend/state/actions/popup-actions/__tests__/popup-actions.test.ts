@@ -35,6 +35,7 @@ import {
   getOpenFileRequest,
   getOpenPopup,
   getSelectedView,
+  getSplitFileRequest,
   getTargetView,
 } from '../../../selectors/view-selector';
 import {
@@ -57,6 +58,7 @@ import {
   setExportFileRequest,
   setImportFileRequest,
   setOpenFileRequest,
+  setSplitFileRequest,
   setTargetView,
 } from '../../view-actions/view-actions';
 import {
@@ -68,6 +70,7 @@ import {
   proceedFromUnsavedPopup,
   setSelectedResourceIdOrOpenUnsavedPopup,
   setViewOrOpenUnsavedPopup,
+  showSplitDialogOrOpenUnsavedPopup,
 } from '../popup-actions';
 
 describe('The actions checking for unsaved changes', () => {
@@ -377,6 +380,33 @@ describe('The actions checking for unsaved changes', () => {
       );
     });
   });
+
+  describe('showSplitDialogOrOpenUnsavedPopup', () => {
+    const resourcePath = '/path/to/resource';
+
+    it('opens the split dialog immediately when there are no unsaved changes', () => {
+      const testStore = createAppStore();
+
+      testStore.dispatch(showSplitDialogOrOpenUnsavedPopup(resourcePath));
+
+      expect(getOpenPopup(testStore.getState())).toStrictEqual({
+        popup: PopupType.SplitDialog,
+        resourcePath,
+      });
+    });
+
+    it('stores the split request and opens the unsaved-changes popup', () => {
+      const testStore = createAppStore();
+      testStore.dispatch(setIsPackageInfoDirty(true));
+
+      testStore.dispatch(showSplitDialogOrOpenUnsavedPopup(resourcePath));
+
+      expect(getOpenPopup(testStore.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
+      expect(getSplitFileRequest(testStore.getState())).toBe(resourcePath);
+    });
+  });
 });
 
 describe('proceedFromUnsavedPopup', () => {
@@ -467,6 +497,21 @@ describe('proceedFromUnsavedPopup', () => {
       ExportType.FollowUp,
     );
     expect(getExportFileRequest(testStore.getState())).toBeNull();
+  });
+
+  it('proceeds with split file request', () => {
+    const testStore = createAppStore();
+    const resourcePath = '/path/to/resource';
+    testStore.dispatch(setSplitFileRequest(resourcePath));
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+
+    testStore.dispatch(proceedFromUnsavedPopup());
+
+    expect(getOpenPopup(testStore.getState())).toStrictEqual({
+      popup: PopupType.SplitDialog,
+      resourcePath,
+    });
+    expect(getSplitFileRequest(testStore.getState())).toBeNull();
   });
 });
 

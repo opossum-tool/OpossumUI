@@ -38,6 +38,7 @@ export interface PopupInfo {
   popup: PopupType;
   attributionId?: string;
   fileFormat?: FileFormatInfo;
+  resourcePath?: string;
 }
 
 export interface ChartDataItem extends Record<string, unknown> {

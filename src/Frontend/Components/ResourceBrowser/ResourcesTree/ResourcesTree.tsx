@@ -10,6 +10,7 @@ import { type MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import { text } from '../../../../shared/text';
+import { PopupType } from '../../../enums/enums';
 import {
   EMPTY_DISPLAY_PACKAGE_INFO,
   ROOT_PATH,
@@ -17,16 +18,19 @@ import {
 import {
   changeSelectedAttributionOrOpenUnsavedPopup,
   setSelectedResourceIdOrOpenUnsavedPopup,
+  showSplitDialogOrOpenUnsavedPopup,
 } from '../../../state/actions/popup-actions/popup-actions';
 import {
   setExpandedIds,
   setSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { closePopup } from '../../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
+import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { backend } from '../../../util/backendClient';
 import { SplitDialog } from '../../SplitDialog/SplitDialog';
 import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
@@ -41,12 +45,16 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
   const dispatch = useAppDispatch();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const expandedIds = useAppSelector(getExpandedIds);
+  const openPopup = useAppSelector(getOpenPopup);
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
     mouseY: number;
     resource: ResourceTreeNodeData;
   } | null>(null);
-  const [splitResourcePath, setSplitResourcePath] = useState<string>();
+  const splitResourcePath =
+    openPopup?.popup === PopupType.SplitDialog
+      ? openPopup.resourcePath
+      : undefined;
 
   useEffect(() => {
     if (!selectedResourceId) {
@@ -102,8 +110,12 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
       return;
     }
     setContextMenu(null);
-    setSplitResourcePath(contextMenu.resource.id.replace(/\/$/, ''));
-  }, [contextMenu]);
+    dispatch(
+      showSplitDialogOrOpenUnsavedPopup(
+        contextMenu.resource.id.replace(/\/$/, ''),
+      ),
+    );
+  }, [contextMenu, dispatch]);
 
   return (
     <>
@@ -138,7 +150,7 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
       <SplitDialog
         open={Boolean(splitResourcePath)}
         resourcePath={splitResourcePath ?? ''}
-        onClose={() => setSplitResourcePath(undefined)}
+        onClose={() => dispatch(closePopup())}
       />
     </>
   );

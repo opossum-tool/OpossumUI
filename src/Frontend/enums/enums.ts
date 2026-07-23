@@ -17,6 +17,7 @@ export enum PopupType {
   UpdateAppPopup = 'UpdateAppPopup',
   ImportDialog = 'ImportDialog',
   MergeDialog = 'MergeDialog',
+  SplitDialog = 'SplitDialog',
 }
 
 export enum AttributionType {

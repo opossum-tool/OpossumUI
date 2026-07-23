@@ -19,6 +19,7 @@ import {
   getImportFileRequest,
   getMergeRequest,
   getOpenFileRequest,
+  getSplitFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
 import type { AppThunkAction } from '../../types';
@@ -43,10 +44,12 @@ import {
   closePopup,
   navigateToView,
   openPopup,
+  openSplitDialog,
   setExportFileRequest,
   setImportFileRequest,
   setMergeRequest,
   setOpenFileRequest,
+  setSplitFileRequest,
   setTargetView,
 } from '../view-actions/view-actions';
 
@@ -186,6 +189,16 @@ export function exportFileOrOpenUnsavedPopup(
   });
 }
 
+export function showSplitDialogOrOpenUnsavedPopup(
+  resourcePath: string,
+): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) => dispatch(openSplitDialog(resourcePath)),
+    requestContinuation: (dispatch) =>
+      dispatch(setSplitFileRequest(resourcePath)),
+  });
+}
+
 export function proceedFromUnsavedPopup(): AppThunkAction {
   return (dispatch, getState) => {
     const targetView = getTargetView(getState());
@@ -193,6 +206,7 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     const importFileRequest = getImportFileRequest(getState());
     const mergeRequest = getMergeRequest(getState());
     const exportFileRequest = getExportFileRequest(getState());
+    const splitFileRequest = getSplitFileRequest(getState());
     const targetAttributionFilterChange =
       getTargetAttributionFilterChange(getState());
 
@@ -221,6 +235,11 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     if (exportFileRequest) {
       dispatch(() => void window.electronAPI.exportFile(exportFileRequest));
       dispatch(setExportFileRequest(null));
+    }
+
+    if (splitFileRequest) {
+      dispatch(openSplitDialog(splitFileRequest));
+      dispatch(setSplitFileRequest(null));
     }
 
     if (targetAttributionFilterChange) {
@@ -255,6 +274,7 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setOpenFileRequest(null));
     dispatch(setImportFileRequest(null));
     dispatch(setExportFileRequest(null));
+    dispatch(setSplitFileRequest(null));
     window.electronAPI.stopLoading();
   };
 }
