@@ -4,12 +4,24 @@
 // SPDX-License-Identifier: Apache-2.0
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 
-// Get Node.js version bundled with Electron
+// Ensure the Electron binary is downloaded before querying its version.
+// Electron 42+ removed the postinstall script, so the binary is downloaded
+// lazily on first require. This also prevents the "Downloading Electron
+// binary..." message from polluting the stdout of the version query below.
+const require = createRequire(import.meta.url);
+require('electron');
+
+// Get Node.js version bundled with Electron.
+// Use ELECTRON_RUN_AS_NODE so electron behaves as a plain Node runtime.
 const nodeVersion = execSync(
   'ELECTRON_RUN_AS_NODE=1 ./node_modules/.bin/electron -e "console.log(process.versions.node)"',
   { encoding: 'utf-8' },
-).trim();
+)
+  .trim()
+  .split('\n')
+  .pop();
 
 const majorVersion = nodeVersion.split('.')[0];
 
