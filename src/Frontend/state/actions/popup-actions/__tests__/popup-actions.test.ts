@@ -24,6 +24,7 @@ import {
   getExpandedIds,
   getSelectedAttributionId,
   getSelectedResourceId,
+  getTargetAttributionFilterChange,
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
   getTemporaryDisplayPackageInfo,
@@ -36,6 +37,10 @@ import {
   getSelectedView,
   getTargetView,
 } from '../../../selectors/view-selector';
+import {
+  type AttributionFilters,
+  MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+} from '../../../variables/use-filters';
 import {
   setIsPackageInfoDirty,
   setTemporaryDisplayPackageInfo,
@@ -55,6 +60,7 @@ import {
   setTargetView,
 } from '../../view-actions/view-actions';
 import {
+  changeAttributionFiltersOrOpenUnsavedPopup,
   changeSelectedAttributionOrOpenUnsavedPopup,
   closePopupAndUnsetTargets,
   navigateToSelectedPathOrOpenUnsavedPopup,
@@ -65,6 +71,51 @@ import {
 } from '../popup-actions';
 
 describe('The actions checking for unsaved changes', () => {
+  describe('changeAttributionFiltersOrOpenUnsavedPopup', () => {
+    it('defers filters until unsaved changes are discarded', () => {
+      const testStore = createAppStore();
+      const packageInfo: PackageInfo = {
+        packageName: 'React',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      };
+      const filters: AttributionFilters = {
+        filters: [],
+        search: 'react',
+        valueFilters: {},
+        sorting: 'alphabetically',
+      };
+
+      testStore.dispatch(setIsPackageInfoDirty(true));
+      testStore.dispatch(
+        changeAttributionFiltersOrOpenUnsavedPopup({
+          discardedPackageInfo: packageInfo,
+          external: false,
+          filters,
+        }),
+      );
+
+      expect(getTargetAttributionFilterChange(testStore.getState())).toEqual({
+        discardedPackageInfo: packageInfo,
+        external: false,
+        filters,
+      });
+      expect(getOpenPopup(testStore.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
+
+      testStore.dispatch(proceedFromUnsavedPopup());
+
+      expect(
+        testStore.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+      ).toEqual(filters);
+      expect(getTargetAttributionFilterChange(testStore.getState())).toBeNull();
+      expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
+        packageInfo,
+      );
+    });
+  });
+
   describe('navigateToSelectedPathOrOpenUnsavedPopup', () => {
     it('sets view, selectedResourceId and expandedResources', () => {
       const testStore = createAppStore();

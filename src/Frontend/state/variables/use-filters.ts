@@ -41,13 +41,6 @@ const initialResourceTreeFilters: ResourceTreeFilters = {
 };
 
 export type UseAttributionFilters = typeof useManualAttributionFilters;
-export type SetAttributionFilters = (
-  newValue:
-    | AttributionFilters
-    | ((
-        prev: AttributionFilters,
-      ) => AttributionFilters | Promise<AttributionFilters>),
-) => void;
 
 export function useManualAttributionFilters() {
   return useVariable<AttributionFilters>(

@@ -4,10 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { ROOT_PATH } from '../shared-constants';
 import { useAppSelector } from '../state/hooks';
-import {
-  getSelectedAttributionId,
-  getSelectedResourceId,
-} from '../state/selectors/resource-selectors';
+import { getSelectedResourceId } from '../state/selectors/resource-selectors';
 import {
   useAttributionFiltersInReportView,
   useExternalAttributionFilters,
@@ -47,19 +44,6 @@ export function useFilteredAttributionsList({
   const loading = attributionQuery.isLoading;
 
   return { attributions, loading };
-}
-
-export function useIsSelectedAttributionVisible() {
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const { attributions } = useFilteredAttributionsList({ external: false });
-  const { attributions: signals } = useFilteredAttributionsList({
-    external: true,
-  });
-
-  return (
-    !!attributions?.[selectedAttributionId] ||
-    !!signals?.[selectedAttributionId]
-  );
 }
 
 export function useFilteredReportsAttributionsList() {

@@ -111,6 +111,36 @@ test('combines and clears value filters in audit view', async ({
   await attributionsPanel.packageCard.assert.isVisible(packageInfo3);
 });
 
+test('applies a filter after discarding unsaved attribution changes', async ({
+  attributionDetails,
+  attributionsPanel,
+  notSavedPopup,
+  resourcesTree,
+}) => {
+  const comment = faker.lorem.sentences();
+  await resourcesTree.goto(resourceName4);
+  await attributionDetails.attributionForm.comment.fill(comment);
+
+  await attributionsPanel.filterButton.click();
+  await attributionsPanel.filters.needsFollowUp.click();
+  await notSavedPopup.assert.isVisible();
+
+  await notSavedPopup.cancelButton.click();
+  await attributionDetails.attributionForm.assert.commentIs(comment);
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
+
+  await attributionsPanel.closeMenu();
+  await attributionsPanel.filterButton.click();
+  await attributionsPanel.filters.needsFollowUp.click();
+  await notSavedPopup.discardButton.click();
+
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
+  await attributionDetails.attributionForm.assert.nameIs(
+    packageInfo1.packageName!,
+  );
+});
+
 test('filters attributions in report view', async ({ reportView, topBar }) => {
   await topBar.gotoReportView();
   await reportView.assert.attributionIsVisible(attributionId1);

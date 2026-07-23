@@ -29,11 +29,11 @@ export const TableFilterButton: React.FC = () => {
       options={filterOptions}
       isActive={isFilterActive}
       onClear={() =>
-        setFilteredAttributions((prev) => ({
-          ...prev,
+        setFilteredAttributions({
+          ...filters,
           filters: [],
           valueFilters: {},
-        }))
+        })
       }
       anchorPosition={'left'}
       disabled={

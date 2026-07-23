@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { PackageInfo } from '../../../../shared/shared-types';
+import type { AttributionFilters } from '../../variables/use-filters';
 
 export const ACTION_SET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_SELECTED_ATTRIBUTION_ID';
@@ -18,6 +19,8 @@ export const ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID';
 export const ACTION_SET_IS_PACKAGE_INFO_DIRTY =
   'ACTION_SET_IS_PACKAGE_INFO_DIRTY';
+export const ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE =
+  'ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE';
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -27,7 +30,8 @@ export type ResourceAction =
   | SetTargetSelectedResourceId
   | SetSelectedAttributionId
   | SetTargetSelectedAttributionIdAction
-  | SetIsPackageInfoDirtyAction;
+  | SetIsPackageInfoDirtyAction
+  | SetTargetAttributionFilterChangeAction;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -66,4 +70,15 @@ export interface SetTargetSelectedAttributionIdAction {
 export interface SetIsPackageInfoDirtyAction {
   type: typeof ACTION_SET_IS_PACKAGE_INFO_DIRTY;
   payload: boolean;
+}
+
+export interface TargetAttributionFilterChange {
+  discardedPackageInfo: PackageInfo;
+  external: boolean;
+  filters: AttributionFilters;
+}
+
+export interface SetTargetAttributionFilterChangeAction {
+  type: typeof ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE;
+  payload: TargetAttributionFilterChange | null;
 }

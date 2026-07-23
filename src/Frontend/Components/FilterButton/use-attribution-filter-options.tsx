@@ -10,10 +10,7 @@ import {
   INCOMPLETE_LEGAL_FILTER_VALUES,
 } from '../../../shared/attribution-filters';
 import { text } from '../../../shared/text';
-import type {
-  AttributionFilters,
-  SetAttributionFilters,
-} from '../../state/variables/use-filters';
+import type { AttributionFilters } from '../../state/variables/use-filters';
 import type { AttributionFilterOption } from '../AttributionPanels/attribution-filter-options';
 import { IncompleteIcon } from '../Icons/Icons';
 import type { SelectMenuOption } from '../SelectMenu/SelectMenu';
@@ -48,6 +45,8 @@ const selectedIncompleteLegalLabels = {
   licenseInformation: text.filters.selectedMissingLicenseInformation,
 };
 
+type SetFilters = (filters: AttributionFilters) => void;
+
 export function useAttributionFilterOptions({
   filterOptions,
   filterProps,
@@ -57,7 +56,7 @@ export function useAttributionFilterOptions({
   filterOptions: Array<AttributionFilterOption>;
   filterProps: FilterProperties | null;
   filters: AttributionFilters;
-  setFilters: SetAttributionFilters;
+  setFilters: SetFilters;
 }): Array<SelectMenuOption> {
   const licenseInputRef = useRef<HTMLInputElement>(null);
   return useMemo(
@@ -75,17 +74,17 @@ export function useAttributionFilterOptions({
               : label,
           icon,
           onAdd: () =>
-            setFilters((prev) => ({
-              ...prev,
-              filters: [...prev.filters, key],
-            })),
+            setFilters({
+              ...filters,
+              filters: [...filters.filters, key],
+            }),
           onDelete: () =>
-            setFilters((prev) => ({
-              ...prev,
-              filters: prev.filters.filter(
+            setFilters({
+              ...filters,
+              filters: filters.filters.filter(
                 (activeFilter) => activeFilter !== key,
               ),
-            })),
+            }),
         };
       }),
       getLicenseFilterOption({
@@ -110,7 +109,7 @@ function getLicenseFilterOption({
   filterProps: FilterProperties | null;
   filters: AttributionFilters;
   licenseInputRef: React.RefObject<HTMLInputElement | null>;
-  setFilters: SetAttributionFilters;
+  setFilters: SetFilters;
 }): SelectMenuOption {
   return {
     id: 'license',
@@ -122,10 +121,13 @@ function getLicenseFilterOption({
         licenses={filterProps?.licenses ?? []}
         selectedLicense={filters.valueFilters.license ?? ''}
         setSelectedLicense={(value) =>
-          setFilters((prev) => ({
-            ...prev,
-            valueFilters: { ...prev.valueFilters, license: value ?? undefined },
-          }))
+          setFilters({
+            ...filters,
+            valueFilters: {
+              ...filters.valueFilters,
+              license: value ?? undefined,
+            },
+          })
         }
       />
     ),
@@ -137,7 +139,7 @@ function getIncompleteCoordinatesFilterOption({
   setFilters,
 }: {
   filters: AttributionFilters;
-  setFilters: SetAttributionFilters;
+  setFilters: SetFilters;
 }): SelectMenuOption {
   return {
     id: 'incompleteCoordinates',
@@ -165,17 +167,17 @@ function getIncompleteCoordinatesFilterOption({
             : ''
         }
         setSelectedValue={(value) =>
-          setFilters((prev) => ({
-            ...prev,
+          setFilters({
+            ...filters,
             valueFilters: {
-              ...prev.valueFilters,
+              ...filters.valueFilters,
               incompleteCoordinates:
                 INCOMPLETE_COORDINATE_FILTER_VALUES.find(
                   (attribute) =>
                     incompleteCoordinateLabels[attribute] === value,
                 ) ?? undefined,
             },
-          }))
+          })
         }
         startAdornment={<IncompleteIcon noTooltip />}
       />
@@ -188,7 +190,7 @@ function getIncompleteLegalFilterOption({
   setFilters,
 }: {
   filters: AttributionFilters;
-  setFilters: SetAttributionFilters;
+  setFilters: SetFilters;
 }): SelectMenuOption {
   return {
     id: 'incompleteLegal',
@@ -214,16 +216,16 @@ function getIncompleteLegalFilterOption({
             : ''
         }
         setSelectedValue={(value) =>
-          setFilters((prev) => ({
-            ...prev,
+          setFilters({
+            ...filters,
             valueFilters: {
-              ...prev.valueFilters,
+              ...filters.valueFilters,
               incompleteLegal:
                 INCOMPLETE_LEGAL_FILTER_VALUES.find(
                   (attribute) => incompleteLegalLabels[attribute] === value,
                 ) ?? undefined,
             },
-          }))
+          })
         }
         startAdornment={<IncompleteIcon noTooltip />}
       />

@@ -10,10 +10,12 @@ import {
   ACTION_SET_IS_PACKAGE_INFO_DIRTY,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
+  ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
   type ResourceAction,
+  type TargetAttributionFilterChange,
 } from '../actions/resource-actions/types';
 
 export const initialResourceState: ResourceState = {
@@ -22,6 +24,7 @@ export const initialResourceState: ResourceState = {
   selectedAttributionId: '',
   selectedResourceId: ROOT_PATH,
   targetSelectedAttributionId: null,
+  targetAttributionFilterChange: null,
   targetSelectedResourceId: null,
   temporaryDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
 };
@@ -32,6 +35,7 @@ export type ResourceState = {
   selectedAttributionId: string;
   selectedResourceId: string;
   targetSelectedAttributionId: string | null;
+  targetAttributionFilterChange: TargetAttributionFilterChange | null;
   targetSelectedResourceId: string | null;
   temporaryDisplayPackageInfo: PackageInfo;
 };
@@ -72,6 +76,11 @@ export const resourceState = (
       return {
         ...state,
         targetSelectedAttributionId: action.payload,
+      };
+    case ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE:
+      return {
+        ...state,
+        targetAttributionFilterChange: action.payload,
       };
     case ACTION_SET_IS_PACKAGE_INFO_DIRTY:
       return {
