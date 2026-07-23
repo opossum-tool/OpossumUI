@@ -2,13 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { Attributions } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
-import { setSelectedAttributionId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
+import {
+  setSelectedAttributionId,
+  setSelectedResourceId,
+} from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import type { Action } from '../../../../state/configure-store';
 import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-ids-for-replacement';
@@ -346,6 +349,26 @@ describe('PackagesPanel', () => {
     ).toHaveAttribute('aria-selected', 'false');
     expect(
       screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
+    ).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('selects the first available tab after a resource change', async () => {
+    const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
+    const packageInfo2 = faker.opossum.packageInfo({ relation: 'unrelated' });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+      }),
+    });
+
+    await userEvent.click(
+      screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
+    );
+    await act(() => store.dispatch(setSelectedResourceId('/next-resource')));
+
+    expect(
+      screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
     ).toHaveAttribute('aria-selected', 'true');
   });
 
