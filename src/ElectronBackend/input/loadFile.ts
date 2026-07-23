@@ -11,8 +11,8 @@ import type {
   ParsedFileContent,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
+import { writeOpossumFile } from '../../shared/write-file';
 import { OUTPUT_FILE_NAME } from '../../shared/write-file-utils';
-import { saveFile } from '../api/saveFile';
 import { initializeDb } from '../db/initializeDb';
 import type {
   OpossumOutputFile,
@@ -171,13 +171,11 @@ export async function loadFile(
 
   if (createdOutputNeedsPersisting) {
     reportProgress('Writing output file');
-    await saveFile(
-      {
-        projectId: parsedInputData.metadata.projectId,
-        opossumFilePath,
-      },
-      opossumZip,
-    );
+    await writeOpossumFile({
+      path: opossumFilePath,
+      zip: opossumZip,
+      output: resolvedOutputData,
+    });
   }
 
   return {

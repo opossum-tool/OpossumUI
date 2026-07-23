@@ -11,7 +11,6 @@ import type {
   CommandParams,
   CommandReturn,
 } from '../api/commands';
-import type { SaveFileParams } from '../api/saveFile';
 import type { LoadFileGlobalState, LoadFileIpcResult } from '../input/loadFile';
 import type {
   DbProcessPayload,
@@ -122,8 +121,12 @@ export class DbProcessClient {
     ) as Promise<LoadFileIpcResult>;
   }
 
-  saveFile(params: SaveFileParams): Promise<void> {
-    return this.request({ type: 'saveFile', ...params }) as Promise<void>;
+  saveFile(projectId: string, opossumFilePath: string): Promise<void> {
+    return this.request({
+      type: 'saveFile',
+      projectId,
+      opossumFilePath,
+    }) as Promise<void>;
   }
 
   exportFile(exportType: ExportType, filePath: string): Promise<void> {
