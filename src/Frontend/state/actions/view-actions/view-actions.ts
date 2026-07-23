@@ -33,6 +33,7 @@ import {
   type SetSplitFileRequestAction,
   type SetTargetView,
   type SetView,
+  type SplitFileRequest,
 } from './types';
 
 export function resetViewState(): ResetViewStateAction {
@@ -112,10 +113,13 @@ export function openMergeDialog(fileFormat: FileFormatInfo): OpenPopupAction {
   };
 }
 
-export function openSplitDialog(resourcePath: string): OpenPopupAction {
+export function openSplitDialog(resourcePath?: string): OpenPopupAction {
   return {
     type: ACTION_OPEN_POPUP,
-    payload: { popup: PopupType.SplitDialog, resourcePath },
+    payload: {
+      popup: PopupType.SplitDialog,
+      ...(resourcePath && { resourcePath }),
+    },
   };
 }
 
@@ -148,7 +152,7 @@ export function setExportFileRequest(
 }
 
 export function setSplitFileRequest(
-  splitFileRequest: string | null,
+  splitFileRequest: SplitFileRequest | null,
 ): SetSplitFileRequestAction {
   return { type: ACTION_SET_SPLIT_FILE_REQUEST, payload: splitFileRequest };
 }

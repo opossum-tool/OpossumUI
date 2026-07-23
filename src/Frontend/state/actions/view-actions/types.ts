@@ -78,7 +78,11 @@ export interface SetExportFileRequestAction {
   payload: ExportType | null;
 }
 
+export interface SplitFileRequest {
+  resourcePath?: string;
+}
+
 export interface SetSplitFileRequestAction {
   type: typeof ACTION_SET_SPLIT_FILE_REQUEST;
-  payload: string | null;
+  payload: SplitFileRequest | null;
 }

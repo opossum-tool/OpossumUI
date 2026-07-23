@@ -45,19 +45,27 @@ export class SplitDialog {
     succeeded: async (): Promise<void> => {
       await expect(this.node.getByText(text.splitDialog.success)).toBeVisible();
     },
-    titleIsHidden: async (resourcePath: string): Promise<void> => {
+    titleIsHidden: async (): Promise<void> => {
       await expect(
         this.node.getByRole('heading', {
-          name: text.splitDialog.title(resourcePath),
+          name: text.splitDialog.title,
         }),
       ).toBeHidden();
     },
-    titleIsVisible: async (resourcePath: string): Promise<void> => {
+    titleIsVisible: async (): Promise<void> => {
       await expect(
         this.node.getByRole('heading', {
-          name: text.splitDialog.title(resourcePath),
+          name: text.splitDialog.title,
         }),
       ).toBeVisible();
     },
   };
+
+  async toggleResourceSelection(resourceName: string): Promise<void> {
+    await this.node
+      .getByText(resourceName, { exact: true })
+      .locator('..')
+      .getByRole('checkbox')
+      .click();
+  }
 }

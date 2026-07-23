@@ -18,6 +18,7 @@ import {
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   type OpenFileRequest,
+  type SplitFileRequest,
   type ViewAction,
 } from '../actions/view-actions/types';
 
@@ -29,7 +30,7 @@ export interface ViewState {
   importFileRequest: FileFormatInfo | null;
   mergeRequest: FileFormatInfo | null;
   exportFileRequest: ExportType | null;
-  splitFileRequest: string | null;
+  splitFileRequest: SplitFileRequest | null;
 }
 
 const initialViewState: ViewState = {

@@ -42,11 +42,21 @@ test('opens and cancels the create collaborative partition dialog', async ({
   splitDialog,
 }) => {
   await resourcesTree.openCreateCollaborativePartitionDialog(firstResourceName);
-  await splitDialog.assert.titleIsVisible(firstResourcePath);
+  await splitDialog.assert.titleIsVisible();
 
   await splitDialog.cancelButton.click();
 
-  await splitDialog.assert.titleIsHidden(firstResourcePath);
+  await splitDialog.assert.titleIsHidden();
+});
+
+test('opens the create collaborative partition dialog from the File menu', async ({
+  menuBar,
+  splitDialog,
+}) => {
+  await menuBar.createCollaborativePartition();
+
+  await splitDialog.assert.titleIsVisible();
+  await expect(splitDialog.createButton).toBeDisabled();
 });
 
 test('warns user of unsaved changes before creating a collaborative partition', async ({
@@ -88,6 +98,33 @@ test('creates complementary collaborative partitions', async ({
   expect(getReadonlyRules(partitionPath)).toEqual([
     { path: '/', readonly: true },
     { path: firstResourcePath, readonly: false },
+  ]);
+});
+
+test('creates a collaborative partition from multiple resources', async ({
+  resourcesTree,
+  splitDialog,
+  window,
+  filePaths,
+}, testInfo) => {
+  const partitionPath = testInfo.outputPath('multiple-resources.opossum');
+  await stubSaveDialogSync(window.app, partitionPath);
+
+  await resourcesTree.openCreateCollaborativePartitionDialog(firstResourceName);
+  await splitDialog.toggleResourceSelection(secondResourceName);
+  await splitDialog.destinationPathSelection.click();
+  await splitDialog.createButton.click();
+
+  await splitDialog.assert.succeeded();
+  await expect.poll(() => fs.existsSync(partitionPath)).toBe(true);
+
+  const selectedResourcePaths = [firstResourcePath, secondResourcePath].sort();
+  expect(getReadonlyRules(filePaths!.opossum)).toEqual(
+    selectedResourcePaths.map((path) => ({ path, readonly: true })),
+  );
+  expect(getReadonlyRules(partitionPath)).toEqual([
+    { path: '/', readonly: true },
+    ...selectedResourcePaths.map((path) => ({ path, readonly: false })),
   ]);
 });
 

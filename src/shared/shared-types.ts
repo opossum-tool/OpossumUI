@@ -265,7 +265,7 @@ export interface ElectronAPI {
     inputFilePath: string,
     fileType: FileType,
   ) => Promise<boolean>;
-  selectSplitDestination: (splitPath: string) => Promise<string>;
+  selectSplitDestination: (splitPaths: Array<string>) => Promise<string>;
   splitFile: (
     splitPaths: Array<string>,
     partitionOutputPath: string,

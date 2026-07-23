@@ -22,6 +22,7 @@ const initiallyDisabledMenuItems = [
   text.menu.editSubmenu.searchResourceLinked,
   text.menu.editSubmenu.searchResourcesAll,
   text.menu.fileSubmenu.merge,
+  text.menu.fileSubmenu.createCollaborativePartition,
   text.menu.fileSubmenu.export,
 ];
 
@@ -29,6 +30,7 @@ const popupDisabledMenuItems = [
   text.menu.fileSubmenu.open,
   text.menu.fileSubmenu.import,
   text.menu.fileSubmenu.merge,
+  text.menu.fileSubmenu.createCollaborativePartition,
   text.menu.fileSubmenu.save,
   text.menu.fileSubmenu.export,
   text.menu.fileSubmenu.projectMetadata,
@@ -182,6 +184,12 @@ export class MenuBar {
 
   async openFile(): Promise<void> {
     await this.clickMenuItem(text.menu.fileSubmenu.open);
+  }
+
+  async createCollaborativePartition(): Promise<void> {
+    await this.clickMenuItem(
+      text.menu.fileSubmenu.createCollaborativePartition,
+    );
   }
 
   private async clickSubmenuItem(

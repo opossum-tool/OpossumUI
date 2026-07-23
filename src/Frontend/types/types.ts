@@ -47,7 +47,7 @@ export type PopupInfo =
       popup: PopupType.ImportDialog | PopupType.MergeDialog;
       fileFormat: FileFormatInfo;
     }
-  | { popup: PopupType.SplitDialog; resourcePath: string };
+  | { popup: PopupType.SplitDialog; resourcePath?: string };
 
 export interface ChartDataItem extends Record<string, unknown> {
   name: string;

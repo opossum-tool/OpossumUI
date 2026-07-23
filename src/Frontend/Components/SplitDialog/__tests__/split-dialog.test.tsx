@@ -30,9 +30,9 @@ describe('SplitDialog', () => {
     fireEvent.click(screen.getByTestId('split-destination-path-input'));
 
     await waitFor(() => {
-      expect(window.electronAPI.selectSplitDestination).toHaveBeenCalledWith(
+      expect(window.electronAPI.selectSplitDestination).toHaveBeenCalledWith([
         resourcePath,
-      );
+      ]);
     });
     expect(
       screen.getByRole('button', { name: text.splitDialog.create }),
@@ -105,6 +105,10 @@ describe('SplitDialog', () => {
       screen.getByRole('button', { name: text.splitDialog.create }),
     );
 
+    expect(window.electronAPI.splitFile).toHaveBeenCalledWith(
+      [resourcePath],
+      '/partitions/source.opossum',
+    );
     expect(
       await screen.findByText(text.splitDialog.success),
     ).toBeInTheDocument();

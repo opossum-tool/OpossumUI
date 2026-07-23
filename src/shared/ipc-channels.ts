@@ -40,6 +40,7 @@ export enum AllowedFrontendChannels {
   OpenFileWithUnsavedCheck = 'open-file-with-unsaved-check',
   ShowImportDialog = 'show-import-dialog',
   ShowMergeDialog = 'show-merge-dialog',
+  ShowSplitDialogWithUnsavedCheck = 'show-split-dialog-with-unsaved-check',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
   ShowUpdateAppPopup = 'show-update-app-pop-up',
