@@ -95,6 +95,7 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
         return (
           <StyledMenuItem
             key={index}
+            selected={selected}
             aria-selected={selected}
             onClick={isLabelString ? toggleSelected : focusContent}
             divider={index + 1 !== visibleOptions.length}

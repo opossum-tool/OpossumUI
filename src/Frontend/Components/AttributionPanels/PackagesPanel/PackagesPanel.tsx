@@ -11,7 +11,7 @@ import {
   intersection,
   isEqual,
 } from 'lodash-es';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { Attributions, Relation } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -19,12 +19,16 @@ import {
   OpossumColors,
   PICKER_MODE_DISABLED_OPACITY,
 } from '../../../shared-styles';
+import { changeAttributionFiltersOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
-import type { UseAttributionFilters } from '../../../state/variables/use-filters';
+import type {
+  AttributionFilters,
+  UseAttributionFilters,
+} from '../../../state/variables/use-filters';
 import {
   type PickerMode,
   usePickerMode,
@@ -103,17 +107,35 @@ export const PackagesPanel = ({
     mode: external ? 'external' : 'manual',
   });
   const [filters, setFilteredAttributions] = useFilteredData();
-  const { filters: attributionFilters, selectedLicense } = filters;
+  const { filters: attributionFilters, valueFilters } = filters;
+  const { attributions, loading } = useFilteredAttributionsList({ external });
+  const selectedAttribution = attributions?.[selectedAttributionId];
+  const setFiltersWithUnsavedCheck = useCallback(
+    (nextFilters: AttributionFilters) => {
+      if (selectedAttribution) {
+        dispatch(
+          changeAttributionFiltersOrOpenUnsavedPopup({
+            discardedPackageInfo: selectedAttribution,
+            external,
+            filters: nextFilters,
+          }),
+        );
+        return;
+      }
+
+      setFilteredAttributions(nextFilters);
+    },
+    [dispatch, external, selectedAttribution, setFilteredAttributions],
+  );
   const menuFilterOptions = useAttributionFilterOptions({
     filterOptions,
     filterProps,
     filters,
-    setFilters: setFilteredAttributions,
+    setFilters: setFiltersWithUnsavedCheck,
   });
-  const isFilterActive = !!attributionFilters.length || !!selectedLicense;
+  const isFilterActive =
+    !!attributionFilters.length || Object.values(valueFilters).some(Boolean);
   const pickerMode = usePickerMode();
-
-  const { attributions, loading } = useFilteredAttributionsList({ external });
 
   const attributionIds = attributions && Object.keys(attributions);
 
@@ -268,11 +290,11 @@ export const PackagesPanel = ({
               options={menuFilterOptions}
               isActive={isFilterActive}
               onClear={() =>
-                setFilteredAttributions((prev) => ({
-                  ...prev,
+                setFiltersWithUnsavedCheck({
+                  ...filters,
                   filters: [],
-                  selectedLicense: '',
-                }))
+                  valueFilters: {},
+                })
               }
               anchorPosition={'right'}
               disabled={

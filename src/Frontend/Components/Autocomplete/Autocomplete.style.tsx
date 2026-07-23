@@ -54,6 +54,17 @@ export const Input = styled(MuiTextField, {
       paddingLeft: '12px',
       paddingRight: `calc(12px + ${numberOfEndAdornments} * 28px)`,
     },
+    '& .MuiInputBase-root.Mui-disabled': {
+      backgroundColor: background || errorBackground,
+    },
+    '& .MuiInputBase-input.Mui-disabled': {
+      color: OpossumColors.black,
+      WebkitTextFillColor: OpossumColors.black,
+    },
+    '& .MuiInputBase-input.Mui-disabled::placeholder': {
+      color: OpossumColors.black,
+      WebkitTextFillColor: OpossumColors.black,
+    },
     '& .MuiInputBase-input': {
       flex: 1,
       padding: 0,

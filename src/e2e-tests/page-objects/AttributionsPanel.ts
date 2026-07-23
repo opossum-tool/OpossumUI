@@ -32,6 +32,7 @@ export class AttributionsPanel {
     readonly needsReviewByQA: Locator;
     readonly preferred: Locator;
     readonly preSelected: Locator;
+    readonly incompleteCoordinates: Locator;
     readonly license: Locator;
   };
   readonly tabs: {
@@ -103,6 +104,9 @@ export class AttributionsPanel {
       preSelected: window.getByRole('menuitem', {
         name: text.filters.preSelected,
       }),
+      incompleteCoordinates: window.getByLabel(
+        'incomplete component coordinates',
+      ),
       license: window.getByLabel('license names'),
     };
     this.tabs = {
@@ -179,5 +183,16 @@ export class AttributionsPanel {
     await this.filters.license.fill(licenseName);
     await this.window.keyboard.press('ArrowUp');
     await this.window.keyboard.press('Enter');
+  }
+
+  async selectIncompleteCoordinates(value: string) {
+    await this.filters.incompleteCoordinates.click();
+    await this.window.getByRole('option', { name: value, exact: true }).click();
+  }
+
+  async clearFilters() {
+    await this.window
+      .getByRole('menuitem', { name: text.packageLists.clearFilters })
+      .click();
   }
 }

@@ -14,25 +14,26 @@ export const TableFilterButton: React.FC = () => {
   const { filterProps } = useFilterProperties({ mode: 'reportTable' });
   const [filters, setFilteredAttributions] =
     useAttributionFiltersInReportView();
-  const { filters: attributionFilters, selectedLicense } = filters;
+  const { filters: attributionFilters, valueFilters } = filters;
   const filterOptions = useAttributionFilterOptions({
     filterOptions: attributionFilterOptions,
     filterProps,
     filters,
     setFilters: setFilteredAttributions,
   });
-  const isFilterActive = !!attributionFilters.length || !!selectedLicense;
+  const isFilterActive =
+    !!attributionFilters.length || Object.values(valueFilters).some(Boolean);
 
   return (
     <FilterButton
       options={filterOptions}
       isActive={isFilterActive}
       onClear={() =>
-        setFilteredAttributions((prev) => ({
-          ...prev,
+        setFilteredAttributions({
+          ...filters,
           filters: [],
-          selectedLicense: '',
-        }))
+          valueFilters: {},
+        })
       }
       anchorPosition={'left'}
       disabled={

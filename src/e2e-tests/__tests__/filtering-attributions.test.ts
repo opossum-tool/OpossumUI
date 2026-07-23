@@ -2,15 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { text } from '../../shared/text';
 import { faker, test } from '../utils';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });
 const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
   followUp: 'FOLLOW_UP',
+  licenseName: 'MIT',
+  url: '',
   wasPreferred: true,
 });
-const [attributionId2, packageInfo2] = faker.opossum.rawAttribution();
+const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
+  licenseName: 'Apache-2.0',
+});
 const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
   firstParty: true,
 });
@@ -86,6 +91,54 @@ test('filters attributions in audit view', async ({ attributionsPanel }) => {
   await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
   await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
   await attributionsPanel.packageCard.assert.isHidden(packageInfo3);
+});
+
+test('combines and clears value filters in audit view', async ({
+  attributionsPanel,
+}) => {
+  await attributionsPanel.filterButton.click();
+  await attributionsPanel.selectLicenseName(packageInfo1.licenseName!);
+  await attributionsPanel.selectIncompleteCoordinates(text.filters.any);
+
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo3);
+
+  await attributionsPanel.clearFilters();
+
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo3);
+});
+
+test('applies a filter after discarding unsaved attribution changes', async ({
+  attributionDetails,
+  attributionsPanel,
+  notSavedPopup,
+  resourcesTree,
+}) => {
+  const comment = faker.lorem.sentences();
+  await resourcesTree.goto(resourceName4);
+  await attributionDetails.attributionForm.comment.fill(comment);
+
+  await attributionsPanel.filterButton.click();
+  await attributionsPanel.filters.needsFollowUp.click();
+  await notSavedPopup.assert.isVisible();
+
+  await notSavedPopup.cancelButton.click();
+  await attributionDetails.attributionForm.assert.commentIs(comment);
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
+
+  await attributionsPanel.closeMenu();
+  await attributionsPanel.filterButton.click();
+  await attributionsPanel.filters.needsFollowUp.click();
+  await notSavedPopup.discardButton.click();
+
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
+  await attributionDetails.attributionForm.assert.nameIs(
+    packageInfo1.packageName!,
+  );
 });
 
 test('filters attributions in report view', async ({ reportView, topBar }) => {

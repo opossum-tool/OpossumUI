@@ -12,6 +12,7 @@ import { PopupType, type View } from '../../../enums/enums';
 import {
   getIsPackageInfoDirty,
   getSelectedResourceId,
+  getTargetAttributionFilterChange,
 } from '../../selectors/resource-selectors';
 import {
   getExportFileRequest,
@@ -21,9 +22,16 @@ import {
   getTargetView,
 } from '../../selectors/view-selector';
 import type { AppThunkAction } from '../../types';
+import type { AttributionFilters } from '../../variables/use-filters';
 import {
+  setIsPackageInfoDirty,
+  setTemporaryDisplayPackageInfo,
+} from '../resource-actions/all-views-simple-actions';
+import {
+  setAttributionFilters,
   setSelectedAttributionId,
   setSelectedResourceId,
+  setTargetAttributionFilterChange,
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../resource-actions/audit-view-simple-actions';
@@ -82,6 +90,29 @@ export function changeSelectedAttributionOrOpenUnsavedPopup(
   });
 }
 
+export function changeAttributionFiltersOrOpenUnsavedPopup({
+  discardedPackageInfo,
+  external,
+  filters,
+}: {
+  discardedPackageInfo: PackageInfo;
+  external: boolean;
+  filters: AttributionFilters;
+}): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) =>
+      setAttributionFilters(dispatch, external, filters),
+    requestContinuation: (dispatch) =>
+      dispatch(
+        setTargetAttributionFilterChange({
+          discardedPackageInfo,
+          external,
+          filters,
+        }),
+      ),
+  });
+}
+
 export function setViewOrOpenUnsavedPopup(selectedView: View): AppThunkAction {
   return withUnsavedCheck({
     executeImmediately: (dispatch) => dispatch(navigateToView(selectedView)),
@@ -131,6 +162,7 @@ export function openFileOrOpenUnsavedPopup(filePath?: string): AppThunkAction {
       dispatch(setTargetView(null));
       dispatch(setTargetSelectedResourceId(null));
       dispatch(setTargetSelectedAttributionId(null));
+      dispatch(setTargetAttributionFilterChange(null));
       dispatch(setImportFileRequest(null));
       dispatch(setMergeRequest(null));
       dispatch(setExportFileRequest(null));
@@ -161,6 +193,8 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     const importFileRequest = getImportFileRequest(getState());
     const mergeRequest = getMergeRequest(getState());
     const exportFileRequest = getExportFileRequest(getState());
+    const targetAttributionFilterChange =
+      getTargetAttributionFilterChange(getState());
 
     dispatch(closePopup());
 
@@ -189,6 +223,21 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
       dispatch(setExportFileRequest(null));
     }
 
+    if (targetAttributionFilterChange) {
+      setAttributionFilters(
+        dispatch,
+        targetAttributionFilterChange.external,
+        targetAttributionFilterChange.filters,
+      );
+      dispatch(
+        setTemporaryDisplayPackageInfo(
+          targetAttributionFilterChange.discardedPackageInfo,
+        ),
+      );
+      dispatch(setIsPackageInfoDirty(false));
+      dispatch(setTargetAttributionFilterChange(null));
+    }
+
     dispatch(setSelectedResourceOrAttributionIdToTargetValue());
     if (targetView) {
       dispatch(navigateToView(targetView));
@@ -201,6 +250,7 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setTargetView(null));
     dispatch(setTargetSelectedResourceId(null));
     dispatch(setTargetSelectedAttributionId(null));
+    dispatch(setTargetAttributionFilterChange(null));
     dispatch(closePopup());
     dispatch(setOpenFileRequest(null));
     dispatch(setImportFileRequest(null));

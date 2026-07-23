@@ -57,6 +57,7 @@ type AutocompleteProps<
     highlighting?: 'error' | 'warning';
     inputRef?: Ref<HTMLInputElement>;
     inputProps?: MuiInputProps;
+    inputReadOnly?: boolean;
     onInputChange?: (
       event: React.SyntheticEvent | undefined,
       value: string,
@@ -70,6 +71,7 @@ type AutocompleteProps<
     variant?: MuiTextFieldProps['variant'];
     disableCloseOnSelect?: boolean;
     forceTop?: boolean;
+    hideTags?: boolean;
   };
 
 export function Autocomplete<
@@ -90,8 +92,10 @@ export function Autocomplete<
   groupBy,
   groupProps,
   hidePopupIndicator,
+  hideTags,
   inputRef,
   inputProps: customInputProps,
+  inputReadOnly,
   multiple,
   optionText,
   placeholder,
@@ -170,7 +174,7 @@ export function Autocomplete<
     groupedOptionsRef.current = groupedOptions;
   }, [groupedOptions]);
 
-  const hasPopupIndicator = !freeSolo && !hidePopupIndicator;
+  const hasPopupIndicator = !disabled && !freeSolo && !hidePopupIndicator;
   const hasClearButton =
     !disableClearable && !disabled && !readOnly && containsValue;
   const isPopupOpen = !!groupedOptions.length && popupOpen;
@@ -220,7 +224,7 @@ export function Autocomplete<
               input: {
                 startAdornment: startAdornment || renderStartAdornment(),
                 endAdornment: renderEndAdornment(),
-                readOnly,
+                readOnly: readOnly || inputReadOnly,
                 sx,
                 ...(variant === 'filled' && { disableUnderline: true }),
               },
@@ -249,7 +253,7 @@ export function Autocomplete<
   );
 
   function renderStartAdornment() {
-    if (!multiple || !Array.isArray(value) || !value.length) {
+    if (hideTags || !multiple || !Array.isArray(value) || !value.length) {
       return null;
     }
 

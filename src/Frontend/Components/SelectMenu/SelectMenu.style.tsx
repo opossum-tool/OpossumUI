@@ -9,6 +9,8 @@ import MuiMenu, { type MenuProps as MuiMenuProps } from '@mui/material/Menu';
 import MuiMenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/material/styles';
 
+import { OpossumColors } from '../../shared-styles';
+
 export const StyledMenu = styled(
   ({
     anchorArrow,
@@ -71,12 +73,15 @@ export const StyledMenu = styled(
 }));
 
 export const StyledMenuItem = styled(MuiMenuItem, {
-  shouldForwardProp: (name: string) => !['faded'].includes(name),
+  shouldForwardProp: (name: string) => name !== 'faded',
 })<{
   faded: boolean | undefined;
 }>(({ faded }) => ({
   padding: 0,
   opacity: faded ? 0.5 : 1,
+  '&.Mui-selected, &.Mui-selected:hover': {
+    backgroundColor: OpossumColors.lightestBlue,
+  },
 }));
 
 export const StyledCheckIcon = styled(CheckIcon, {

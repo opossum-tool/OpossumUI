@@ -6,14 +6,13 @@ import Filter3Icon from '@mui/icons-material/Filter3';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
 
-import type { AttributionFilterKey } from '../../../shared/shared-constants';
+import type { AttributionFilterKey } from '../../../shared/attribution-filters';
 import { text } from '../../../shared/text';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
-  IncompleteIcon,
   ModifiedPreferredIcon,
   NeedsReviewIcon,
   PreferredIcon,
@@ -46,16 +45,6 @@ const previouslyPreferred: AttributionFilterOption = {
 export const attributionFilterOptions: Array<AttributionFilterOption> = [
   firstParty,
   thirdParty,
-  {
-    key: 'incompleteLegal',
-    label: text.filters.incompleteLegal,
-    icon: <IncompleteIcon noTooltip />,
-  },
-  {
-    key: 'incompleteCoordinates',
-    label: text.filters.incompleteCoordinates,
-    icon: <IncompleteIcon noTooltip />,
-  },
   {
     key: 'excludedFromNotice',
     label: text.filters.excludedFromNotice,

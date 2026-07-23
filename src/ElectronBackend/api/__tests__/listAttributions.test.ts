@@ -209,7 +209,7 @@ describe('listAttributions', () => {
     expect(Object.keys(result)).toEqual(['uuid1']);
   });
 
-  it('filters by license', async () => {
+  it('filters by selected licenses', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/resource']),
       manualAttributions: {
@@ -236,7 +236,7 @@ describe('listAttributions', () => {
     const { result } = await listAttributions({
       external: false,
       filters: [],
-      license: 'MIT',
+      valueFilters: { license: 'MIT' },
       resourcePathForRelationships: '/resource',
     });
 
@@ -508,7 +508,7 @@ describe('listAttributions', () => {
     expect(Object.keys(result)).toEqual(['uuid1']);
   });
 
-  it('filters with incomplete-coordinates filter', async () => {
+  it('filters with missing coordinate attributes', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/resource']),
       manualAttributions: {
@@ -532,14 +532,15 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: ['incompleteCoordinates'],
+      filters: [],
+      valueFilters: { incompleteCoordinates: 'url' },
       resourcePathForRelationships: '/resource',
     });
 
     expect(Object.keys(result)).toEqual(['uuid1']);
   });
 
-  it('filters with incomplete-legal filter', async () => {
+  it('filters with missing legal attributes', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/resource']),
       manualAttributions: {
@@ -562,7 +563,87 @@ describe('listAttributions', () => {
 
     const { result } = await listAttributions({
       external: false,
-      filters: ['incompleteLegal'],
+      filters: [],
+      valueFilters: { incompleteLegal: 'copyright' },
+      resourcePathForRelationships: '/resource',
+    });
+
+    expect(Object.keys(result)).toEqual(['uuid1']);
+  });
+
+  it('combines license and incomplete coordinate filters', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/resource']),
+      manualAttributions: {
+        attributions: {
+          uuid1: {
+            id: 'uuid1',
+            criticality: Criticality.None,
+            licenseName: 'MIT',
+          },
+          uuid2: {
+            id: 'uuid2',
+            criticality: Criticality.None,
+            licenseName: 'MIT',
+            packageName: 'package',
+            packageType: 'npm',
+            url: 'https://example.com',
+          },
+          uuid3: {
+            id: 'uuid3',
+            criticality: Criticality.None,
+            licenseName: 'Apache-2.0',
+          },
+        },
+        resourcesToAttributions: {
+          '/resource': ['uuid1', 'uuid2', 'uuid3'],
+        },
+        attributionsToResources: {
+          uuid1: ['/resource'],
+          uuid2: ['/resource'],
+          uuid3: ['/resource'],
+        },
+      },
+    });
+
+    const { result } = await listAttributions({
+      external: false,
+      filters: [],
+      valueFilters: {
+        license: 'MIT',
+        incompleteCoordinates: 'any',
+      },
+      resourcePathForRelationships: '/resource',
+    });
+
+    expect(Object.keys(result)).toEqual(['uuid1']);
+  });
+
+  it('filters with any missing legal attribute', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/resource']),
+      manualAttributions: {
+        attributions: {
+          uuid1: { id: 'uuid1', criticality: Criticality.None },
+          uuid2: {
+            id: 'uuid2',
+            criticality: Criticality.None,
+            copyright: '(c) 2024',
+            licenseName: 'MIT',
+          },
+        },
+        resourcesToAttributions: { '/resource': ['uuid1', 'uuid2'] },
+        attributionsToResources: {
+          uuid1: ['/resource'],
+          uuid2: ['/resource'],
+        },
+      },
+    });
+
+    const { result } = await listAttributions({
+      external: false,
+      filters: [],
+      valueFilters: { incompleteLegal: 'any' },
       resourcePathForRelationships: '/resource',
     });
 
