@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiListItemIcon from '@mui/material/ListItemIcon';
 import MuiMenu from '@mui/material/Menu';
 import MuiMenuItem from '@mui/material/MenuItem';
 import type { SxProps } from '@mui/system';
@@ -10,7 +11,6 @@ import { type MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import { text } from '../../../../shared/text';
-import { PopupType } from '../../../enums/enums';
 import {
   EMPTY_DISPLAY_PACKAGE_INFO,
   ROOT_PATH,
@@ -24,15 +24,12 @@ import {
   setExpandedIds,
   setSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { closePopup } from '../../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
-import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { backend } from '../../../util/backendClient';
-import { SplitDialog } from '../../SplitDialog/SplitDialog';
 import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
 import { ResourcesTreeNode } from './ResourcesTreeNode/ResourcesTreeNode';
 
@@ -45,16 +42,11 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
   const dispatch = useAppDispatch();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const expandedIds = useAppSelector(getExpandedIds);
-  const openPopup = useAppSelector(getOpenPopup);
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
     mouseY: number;
     resource: ResourceTreeNodeData;
   } | null>(null);
-  const splitResourcePath =
-    openPopup?.popup === PopupType.SplitDialog
-      ? openPopup.resourcePath
-      : undefined;
 
   useEffect(() => {
     if (!selectedResourceId) {
@@ -144,14 +136,12 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
           disabled={contextMenu?.resource.id === ROOT_PATH}
           onClick={handleSplit}
         >
+          <MuiListItemIcon>
+            <img alt={''} src={'assets/icons/follow-up-black.png'} />
+          </MuiListItemIcon>
           {text.resourceBrowser.splitHere}
         </MuiMenuItem>
       </MuiMenu>
-      <SplitDialog
-        open={Boolean(splitResourcePath)}
-        resourcePath={splitResourcePath ?? ''}
-        onClose={() => dispatch(closePopup())}
-      />
     </>
   );
 };

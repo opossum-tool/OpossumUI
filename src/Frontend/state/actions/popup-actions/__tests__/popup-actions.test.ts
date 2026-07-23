@@ -404,7 +404,9 @@ describe('The actions checking for unsaved changes', () => {
       expect(getOpenPopup(testStore.getState())?.popup).toBe(
         PopupType.NotSavedPopup,
       );
-      expect(getSplitFileRequest(testStore.getState())).toBe(resourcePath);
+      expect(getSplitFileRequest(testStore.getState())).toEqual({
+        resourcePath,
+      });
     });
   });
 });
@@ -501,7 +503,7 @@ describe('proceedFromUnsavedPopup', () => {
   it('proceeds with split file request', () => {
     const testStore = createAppStore();
     const resourcePath = '/path/to/resource';
-    testStore.dispatch(setSplitFileRequest(resourcePath));
+    testStore.dispatch(setSplitFileRequest({ resourcePath }));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
 
     testStore.dispatch(proceedFromUnsavedPopup());

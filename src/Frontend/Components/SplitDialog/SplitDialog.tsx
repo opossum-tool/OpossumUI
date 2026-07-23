@@ -6,14 +6,14 @@ import MuiTypography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 
 import { text } from '../../../shared/text';
-import { useFrontendPopupOpen } from '../../util/use-app-menu-disabled';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import { MultiResourcePicker } from './MultiResourcePicker';
 
 interface SplitDialogProps {
   onClose: () => void;
   open: boolean;
-  resourcePath: string;
+  resourcePath?: string;
 }
 
 export const SplitDialog: React.FC<SplitDialogProps> = ({
@@ -25,25 +25,35 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
   const [errorMessage, setErrorMessage] = useState<string>();
   const [splitInProgress, setSplitInProgress] = useState(false);
   const [splitSucceeded, setSplitSucceeded] = useState(false);
-
-  useFrontendPopupOpen(open);
+  const [selectedResourcePaths, setSelectedResourcePaths] = useState(() =>
+    getInitialSelectedResourcePaths(resourcePath),
+  );
+  const [pickerInstance, setPickerInstance] = useState(0);
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      setSelectedResourcePaths(getInitialSelectedResourcePaths(resourcePath));
+      setPickerInstance((currentPickerInstance) => currentPickerInstance + 1);
+    } else {
       setDestinationPath('');
       setErrorMessage(undefined);
       setSplitInProgress(false);
       setSplitSucceeded(false);
     }
-  }, [open]);
+  }, [open, resourcePath]);
 
   async function selectDestinationPath(): Promise<void> {
-    if (splitInProgress || splitSucceeded) {
+    if (
+      splitInProgress ||
+      splitSucceeded ||
+      selectedResourcePaths.length === 0
+    ) {
       return;
     }
 
-    const selectedPath =
-      await window.electronAPI.selectSplitDestination(resourcePath);
+    const selectedPath = await window.electronAPI.selectSplitDestination(
+      selectedResourcePaths,
+    );
     if (selectedPath) {
       setDestinationPath(selectedPath);
       setErrorMessage(undefined);
@@ -55,7 +65,7 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
     setErrorMessage(undefined);
     try {
       const result = await window.electronAPI.splitFile(
-        [resourcePath],
+        selectedResourcePaths,
         destinationPath,
       );
       if (result.status === 'success') {
@@ -73,7 +83,7 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
 
   return (
     <NotificationPopup
-      header={text.splitDialog.title(resourcePath)}
+      header={text.splitDialog.title}
       width={'80vw'}
       minWidth={'300px'}
       maxWidth={'700px'}
@@ -84,7 +94,10 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
           : {
               onClick: createSplit,
               buttonText: text.splitDialog.create,
-              disabled: !destinationPath || splitInProgress,
+              disabled:
+                !destinationPath ||
+                selectedResourcePaths.length === 0 ||
+                splitInProgress,
               loading: splitInProgress,
             }
       }
@@ -99,9 +112,13 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
       aria-label={'split dialog'}
     >
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <MuiTypography>
-          {text.splitDialog.explanationText(resourcePath)}
-        </MuiTypography>
+        <MuiTypography>{text.splitDialog.explanationText}</MuiTypography>
+        <MultiResourcePicker
+          key={`${resourcePath}-${pickerInstance}`}
+          initialSelectedPaths={getInitialSelectedResourcePaths(resourcePath)}
+          open={open}
+          onSelectionChange={setSelectedResourcePaths}
+        />
         <FilePathInput
           label={text.splitDialog.destinationPath.textFieldLabel(
             Boolean(destinationPath),
@@ -109,7 +126,11 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
           text={destinationPath}
           onClick={() => void selectDestinationPath()}
           testId={'split-destination-path'}
-          disabled={splitInProgress || splitSucceeded}
+          disabled={
+            splitInProgress ||
+            splitSucceeded ||
+            selectedResourcePaths.length === 0
+          }
         />
         {splitSucceeded ? (
           <MuiAlert severity={'success'} sx={{ marginTop: '20px' }}>
@@ -125,3 +146,9 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
     </NotificationPopup>
   );
 };
+
+function getInitialSelectedResourcePaths(
+  resourcePath: string | undefined,
+): Array<string> {
+  return resourcePath ? [resourcePath] : [];
+}

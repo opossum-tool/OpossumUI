@@ -108,19 +108,25 @@ export const splitCurrentOpossumFileListener =
 
 export const selectSplitDestinationListener =
   (_mainWindow: BrowserWindow) =>
-  (_: Electron.IpcMainInvokeEvent, selectedFolderPath: string): string => {
+  (
+    _: Electron.IpcMainInvokeEvent,
+    selectedFolderPaths: Array<string>,
+  ): string => {
     const opossumFilePath = getGlobalBackendState().opossumFilePath;
     if (!opossumFilePath) {
       return '';
     }
 
     const parsedPath = path.parse(opossumFilePath);
-    const selectedFolderName = path.posix.basename(selectedFolderPath);
-    const defaultSelectedPartitionPath = path.join(
+    const partitionSuffix =
+      selectedFolderPaths.length === 1
+        ? path.posix.basename(selectedFolderPaths[0])
+        : 'partition';
+    const partitionPath = path.join(
       parsedPath.dir,
-      `${parsedPath.name}-${selectedFolderName}${parsedPath.ext}`,
+      `${parsedPath.name}-${partitionSuffix}${parsedPath.ext}`,
     );
-    return saveOpossumFileDialog(defaultSelectedPartitionPath) ?? '';
+    return saveOpossumFileDialog(partitionPath) ?? '';
   };
 
 function getExportFilePath(exportType: ExportType): string {

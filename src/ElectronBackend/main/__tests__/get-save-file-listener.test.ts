@@ -197,7 +197,7 @@ describe('splitCurrentOpossumFileListener', () => {
 
     const selectedPath = selectSplitDestinationListener(mainWindow)(
       {} as Electron.IpcMainInvokeEvent,
-      '/source',
+      ['/source'],
     );
 
     expect(saveOpossumFileDialog).toHaveBeenCalledWith(

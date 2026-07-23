@@ -190,12 +190,12 @@ export function exportFileOrOpenUnsavedPopup(
 }
 
 export function showSplitDialogOrOpenUnsavedPopup(
-  resourcePath: string,
+  resourcePath?: string,
 ): AppThunkAction {
   return withUnsavedCheck({
     executeImmediately: (dispatch) => dispatch(openSplitDialog(resourcePath)),
     requestContinuation: (dispatch) =>
-      dispatch(setSplitFileRequest(resourcePath)),
+      dispatch(setSplitFileRequest({ resourcePath })),
   });
 }
 
@@ -238,7 +238,7 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     }
 
     if (splitFileRequest) {
-      dispatch(openSplitDialog(splitFileRequest));
+      dispatch(openSplitDialog(splitFileRequest.resourcePath));
       dispatch(setSplitFileRequest(null));
     }
 

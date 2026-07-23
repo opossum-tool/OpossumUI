@@ -19,6 +19,7 @@ export const text = {
       importSubmenu: menuLabelForFileFormat,
       merge: 'Merge',
       mergeSubmenu: menuLabelForFileFormat,
+      createCollaborativePartition: 'Create Collaborative Partition…',
       save: 'Save',
       projectMetadata: 'Project Metadata',
       projectStatistics: 'Project Statistics',
@@ -418,10 +419,17 @@ export const text = {
     },
   },
   splitDialog: {
-    title: (resourcePath: string) =>
-      `Create Collaborative Partition at ${resourcePath}`,
-    explanationText: (resourcePath: string) =>
-      `Create a separate Opossum file for collaborative work. ${resourcePath} will become readonly in the currently open Opossum file.`,
+    title: 'Create Collaborative Partition',
+    explanationText:
+      'Create a separate Opossum file for collaborative work. Selected resources will become readonly in the currently open Opossum file.',
+    resourcePicker: {
+      collapse: (path: string) => `collapse ${path}`,
+      expand: (path: string) => `expand ${path}`,
+      explanationText:
+        'Select the resources that belong in the new collaborative partition.',
+      loadingResources: 'Loading resources…',
+      noResourcesSelected: 'No resources selected',
+    },
     destinationPath: {
       textFieldLabel: (hasBeenSelected: boolean) =>
         hasBeenSelected

@@ -14,6 +14,7 @@ import { MergeDialog } from '../MergeDialog/MergeDialog';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
+import { SplitDialogPopup } from '../SplitDialog/SplitDialogPopup';
 import { UpdateAppPopup } from '../UpdateAppPopup/UpdateAppPopup';
 
 function getPopupComponent(popupInfo: PopupInfo | null) {
@@ -32,6 +33,8 @@ function getPopupComponent(popupInfo: PopupInfo | null) {
       return <ImportDialog fileFormat={popupInfo.fileFormat} />;
     case PopupType.MergeDialog:
       return <MergeDialog fileFormat={popupInfo.fileFormat} />;
+    case PopupType.SplitDialog:
+      return <SplitDialogPopup resourcePath={popupInfo.resourcePath} />;
     default:
       return null;
   }

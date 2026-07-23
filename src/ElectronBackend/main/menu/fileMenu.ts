@@ -169,6 +169,23 @@ function getSaveFile(webContents: WebContents): MenuItemConstructorOptions {
   };
 }
 
+function getCreateCollaborativePartition(
+  webContents: WebContents,
+): MenuItemConstructorOptions {
+  return {
+    icon: getIconBasedOnTheme(
+      'icons/follow-up-white.png',
+      'icons/follow-up-black.png',
+    ),
+    label: text.menu.fileSubmenu.createCollaborativePartition,
+    click: () =>
+      webContents.send(AllowedFrontendChannels.ShowSplitDialogWithUnsavedCheck),
+    enabled:
+      isFileLoaded(getGlobalBackendState()) &&
+      !getGlobalBackendState().frontendPopupOpen,
+  };
+}
+
 function getProjectMetadata(
   webContents: WebContents,
 ): MenuItemConstructorOptions {
@@ -348,6 +365,7 @@ export async function getFileMenu(
       getImportFile(mainWindow),
       getMerge(mainWindow),
       getSaveFile(webContents),
+      getCreateCollaborativePartition(webContents),
       getExportSubMenu(webContents),
       getProjectMetadata(webContents),
       getProjectStatistics(webContents),
