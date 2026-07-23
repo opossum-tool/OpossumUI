@@ -479,7 +479,6 @@ describe('proceedFromUnsavedPopup', () => {
 
     expect(getOpenPopup(testStore.getState())).toStrictEqual({
       popup: PopupType.ImportDialog,
-      attributionId: undefined,
       fileFormat,
     });
     expect(getImportFileRequest(testStore.getState())).toBeNull();

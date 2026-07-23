@@ -29,13 +29,9 @@ function getPopupComponent(popupInfo: PopupInfo | null) {
     case PopupType.UpdateAppPopup:
       return <UpdateAppPopup />;
     case PopupType.ImportDialog:
-      return popupInfo?.fileFormat ? (
-        <ImportDialog fileFormat={popupInfo?.fileFormat} />
-      ) : null;
+      return <ImportDialog fileFormat={popupInfo.fileFormat} />;
     case PopupType.MergeDialog:
-      return popupInfo?.fileFormat ? (
-        <MergeDialog fileFormat={popupInfo?.fileFormat} />
-      ) : null;
+      return <MergeDialog fileFormat={popupInfo.fileFormat} />;
     default:
       return null;
   }
