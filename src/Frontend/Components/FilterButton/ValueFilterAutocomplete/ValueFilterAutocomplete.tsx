@@ -42,7 +42,7 @@ export const ValueFilterAutocomplete: React.FC<Props> = ({
       disabled={disabled}
       variant={'filled'}
       placeholder={placeholder}
-      options={options}
+      options={selectedValue ? [selectedValue] : options}
       getOptionLabel={getSelectedValueLabel}
       optionText={{
         sx: {
