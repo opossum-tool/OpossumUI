@@ -8,7 +8,7 @@ import type {
   FileFormatInfo,
   PackageInfo,
 } from '../../../../shared/shared-types';
-import { PopupType, type View } from '../../../enums/enums';
+import type { View } from '../../../enums/enums';
 import {
   getIsPackageInfoDirty,
   getSelectedResourceId,
@@ -43,7 +43,9 @@ import {
 import {
   closePopup,
   navigateToView,
-  openPopup,
+  openImportDialog,
+  openMergeDialog,
+  openNotSavedPopup,
   openSplitDialog,
   setExportFileRequest,
   setImportFileRequest,
@@ -63,7 +65,7 @@ function withUnsavedCheck({
   return (dispatch, getState) => {
     if (getIsPackageInfoDirty(getState())) {
       dispatch(requestContinuation);
-      dispatch(openPopup(PopupType.NotSavedPopup));
+      dispatch(openNotSavedPopup());
     } else {
       dispatch(executeImmediately);
     }
@@ -141,8 +143,7 @@ export function showImportDialogOrOpenUnsavedPopup(
   fileFormat: FileFormatInfo,
 ): AppThunkAction {
   return withUnsavedCheck({
-    executeImmediately: (dispatch) =>
-      dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat)),
+    executeImmediately: (dispatch) => dispatch(openImportDialog(fileFormat)),
     requestContinuation: (dispatch) =>
       dispatch(setImportFileRequest(fileFormat)),
   });
@@ -152,8 +153,7 @@ export function showMergeDialogOrOpenUnsavedPopup(
   fileFormat: FileFormatInfo,
 ): AppThunkAction {
   return withUnsavedCheck({
-    executeImmediately: (dispatch) =>
-      dispatch(openPopup(PopupType.MergeDialog, undefined, fileFormat)),
+    executeImmediately: (dispatch) => dispatch(openMergeDialog(fileFormat)),
     requestContinuation: (dispatch) => dispatch(setMergeRequest(fileFormat)),
   });
 }
@@ -223,12 +223,12 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     }
 
     if (importFileRequest) {
-      dispatch(openPopup(PopupType.ImportDialog, undefined, importFileRequest));
+      dispatch(openImportDialog(importFileRequest));
       dispatch(setImportFileRequest(null));
     }
 
     if (mergeRequest) {
-      dispatch(openPopup(PopupType.MergeDialog, undefined, mergeRequest));
+      dispatch(openMergeDialog(mergeRequest));
       dispatch(setMergeRequest(null));
     }
 

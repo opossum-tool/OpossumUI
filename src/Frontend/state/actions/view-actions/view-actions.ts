@@ -7,7 +7,7 @@ import type {
   FileFormatInfo,
 } from '../../../../shared/shared-types';
 import { PopupType, type View } from '../../../enums/enums';
-import type { State } from '../../../types/types';
+import type { PopupWithoutPayload, State } from '../../../types/types';
 import { getUserSettings } from '../../selectors/user-settings-selector';
 import { getSelectedView } from '../../selectors/view-selector';
 import type { AppThunkAction, AppThunkDispatch } from '../../types';
@@ -75,18 +75,40 @@ export function setTargetView(targetView: View | null): SetTargetView {
   };
 }
 
+export function openPopup(popup: PopupWithoutPayload): OpenPopupAction;
 export function openPopup(
-  popup: PopupType,
+  popup: PopupType.NotSavedPopup,
   attributionId?: string,
-  fileFormat?: FileFormatInfo,
+): OpenPopupAction;
+export function openPopup(
+  popup: PopupWithoutPayload | PopupType.NotSavedPopup,
+  attributionId?: string,
 ): OpenPopupAction {
   return {
     type: ACTION_OPEN_POPUP,
-    payload: {
-      popup,
-      attributionId,
-      fileFormat,
-    },
+    payload:
+      popup === PopupType.NotSavedPopup ? { popup, attributionId } : { popup },
+  };
+}
+
+export function openNotSavedPopup(attributionId?: string): OpenPopupAction {
+  return {
+    type: ACTION_OPEN_POPUP,
+    payload: { popup: PopupType.NotSavedPopup, attributionId },
+  };
+}
+
+export function openImportDialog(fileFormat: FileFormatInfo): OpenPopupAction {
+  return {
+    type: ACTION_OPEN_POPUP,
+    payload: { popup: PopupType.ImportDialog, fileFormat },
+  };
+}
+
+export function openMergeDialog(fileFormat: FileFormatInfo): OpenPopupAction {
+  return {
+    type: ACTION_OPEN_POPUP,
+    payload: { popup: PopupType.MergeDialog, fileFormat },
   };
 }
 

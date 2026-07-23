@@ -34,12 +34,20 @@ export interface ResourceCriticalityCounts {
   nonCriticalResourceCount: number;
 }
 
-export interface PopupInfo {
-  popup: PopupType;
-  attributionId?: string;
-  fileFormat?: FileFormatInfo;
-  resourcePath?: string;
-}
+export type PopupWithoutPayload =
+  | PopupType.InvalidLinkPopup
+  | PopupType.ProjectMetadataPopup
+  | PopupType.ProjectStatisticsPopup
+  | PopupType.UpdateAppPopup;
+
+export type PopupInfo =
+  | { popup: PopupWithoutPayload }
+  | { popup: PopupType.NotSavedPopup; attributionId?: string }
+  | {
+      popup: PopupType.ImportDialog | PopupType.MergeDialog;
+      fileFormat: FileFormatInfo;
+    }
+  | { popup: PopupType.SplitDialog; resourcePath: string };
 
 export interface ChartDataItem extends Record<string, unknown> {
   name: string;
