@@ -11,7 +11,7 @@ import {
   intersection,
   isEqual,
 } from 'lodash-es';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { Attributions, Relation } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -20,6 +20,7 @@ import {
   PICKER_MODE_DISABLED_OPACITY,
 } from '../../../shared-styles';
 import { changeAttributionFiltersOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
+import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -37,6 +38,7 @@ import { getRelationPriority } from '../../../util/sort-attributions';
 import { useFilteredAttributionsList } from '../../../util/use-attribution-lists';
 import { useFilterProperties } from '../../../util/use-filter-properties';
 import { usePrevious } from '../../../util/use-previous';
+import { useSelectedAttributionIsExternal } from '../../../util/use-selected-attribution';
 import { Checkbox } from '../../Checkbox/Checkbox';
 import { FilterButton } from '../../FilterButton/FilterButton';
 import { useAttributionFilterOptions } from '../../FilterButton/use-attribution-filter-options';
@@ -97,7 +99,9 @@ export const PackagesPanel = ({
 }: Props) => {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const lastResourceIdWithAutoSelectionRef = useRef(selectedResourceId);
   const previousSelectedResourceId = usePrevious(selectedResourceId);
 
   const [multiSelectedAttributionIds, setMultiSelectedAttributionIds] =
@@ -110,6 +114,51 @@ export const PackagesPanel = ({
   const { filters: attributionFilters, valueFilters } = filters;
   const { attributions, loading } = useFilteredAttributionsList({ external });
   const selectedAttribution = attributions?.[selectedAttributionId];
+
+  // Automatic attribution selection
+  useEffect(() => {
+    if (loading || !attributions) {
+      return;
+    }
+
+    if (
+      !external &&
+      lastResourceIdWithAutoSelectionRef.current !== selectedResourceId
+    ) {
+      lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
+      const closestAttribution =
+        Object.values(attributions).find(
+          ({ relation }) => relation === 'resource',
+        ) ??
+        Object.values(attributions).find(
+          ({ relation }) => relation === 'parents',
+        );
+
+      dispatch(setSelectedAttributionId(closestAttribution?.id ?? ''));
+      return;
+    }
+
+    const replacementAttribution = attributions
+      ? Object.values(attributions)[0]
+      : undefined;
+
+    if (
+      selectedAttributionId &&
+      selectedAttributionIsExternal === external &&
+      !attributions?.[selectedAttributionId] &&
+      replacementAttribution
+    ) {
+      dispatch(setSelectedAttributionId(replacementAttribution.id));
+    }
+  }, [
+    attributions,
+    dispatch,
+    external,
+    loading,
+    selectedAttributionId,
+    selectedAttributionIsExternal,
+    selectedResourceId,
+  ]);
   const setFiltersWithUnsavedCheck = useCallback(
     (nextFilters: AttributionFilters) => {
       if (selectedAttribution) {
