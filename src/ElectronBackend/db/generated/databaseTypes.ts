@@ -79,6 +79,14 @@ export interface Metadata {
   value_json: string;
 }
 
+/**
+ * Readonly path overrides loaded from split-info.json. The most specific matching path applies.
+ */
+export interface ReadonlyRule {
+  path: string;
+  readonly: number;
+}
+
 export interface Resource {
   base_url: string | null;
   /**
@@ -123,6 +131,18 @@ export interface SourceForAttribution {
   external_attribution_source_key: string;
 }
 
+/**
+ * Split identity loaded from split-info.json. It is absent for unsplit projects.
+ */
+export interface SplitInfo {
+  input_sha256: string;
+  /**
+   * Internal fixed key enforcing that this table has at most one row.
+   */
+  singleton: Generated<number>;
+  split_id: string;
+}
+
 export interface DB {
   attribution: Attribution;
   classification: Classification;
@@ -130,7 +150,9 @@ export interface DB {
   external_attribution_source: ExternalAttributionSource;
   frequent_license: FrequentLicense;
   metadata: Metadata;
+  readonly_rule: ReadonlyRule;
   resource: Resource;
   resource_to_attribution: ResourceToAttribution;
   source_for_attribution: SourceForAttribution;
+  split_info: SplitInfo;
 }

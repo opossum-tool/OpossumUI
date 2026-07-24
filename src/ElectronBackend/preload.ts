@@ -49,6 +49,8 @@ const electronAPI: ElectronAPI = {
     ),
   mergeFileAndLoad: (inputFilePath, fileType) =>
     ipcRenderer.invoke(IpcChannel.MergeFileAndLoad, inputFilePath, fileType),
+  splitFile: (splitPaths) =>
+    ipcRenderer.invoke(IpcChannel.SplitFile, splitPaths),
   saveFile: () => ipcRenderer.invoke(IpcChannel.SaveFile),
   exportFile: (exportType) =>
     ipcRenderer.invoke(IpcChannel.ExportFile, exportType),

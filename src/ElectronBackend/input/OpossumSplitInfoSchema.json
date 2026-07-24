@@ -1,0 +1,30 @@
+{
+  "id": "#OpossumSplitInfoSchema",
+  "title": "Opossum split metadata schema",
+  "type": "object",
+  "required": ["splitId", "inputSha256", "readonlyRules"],
+  "properties": {
+    "splitId": {
+      "type": "string"
+    },
+    "inputSha256": {
+      "type": "string"
+    },
+    "readonlyRules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "readonly"],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "readonly": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

@@ -66,6 +66,41 @@ export const saveFileListener =
     }
   };
 
+export const splitCurrentOpossumFileListener =
+  (mainWindow: BrowserWindow) =>
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    selectedFolderPaths: Array<string>,
+  ): Promise<boolean> => {
+    try {
+      const globalBackendState = getGlobalBackendState();
+      if (
+        !globalBackendState.projectId ||
+        !globalBackendState.opossumFilePath
+      ) {
+        throw new Error('No .opossum project is currently open.');
+      }
+
+      const currentFilePath = globalBackendState.opossumFilePath;
+      const parsedPath = path.parse(currentFilePath);
+      const selectedFolderName = path.posix.basename(selectedFolderPaths[0]);
+      await getMainDbClient().splitOpossumFile({
+        projectId: globalBackendState.projectId,
+        inputFileChecksum: globalBackendState.inputFileChecksum,
+        opossumFilePath: currentFilePath,
+        selectedFolderPaths,
+        selectedPartitionPath: path.join(
+          parsedPath.dir,
+          `${parsedPath.name}-${selectedFolderName}${parsedPath.ext}`,
+        ),
+      });
+      return true;
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
+      return false;
+    }
+  };
+
 function getExportFilePath(exportType: ExportType): string {
   const globalState = getGlobalBackendState();
   const pathMap: Record<ExportType, string | undefined> = {
