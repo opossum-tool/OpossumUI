@@ -112,7 +112,7 @@ function validateDestinationPath({
   'opossumFilePath' | 'overwriteExistingDestination' | 'selectedPartitionPath'
 >): void {
   const resolvedSelectedPartitionPath = path.resolve(selectedPartitionPath);
-  if (resolvedSelectedPartitionPath === path.resolve(opossumFilePath)) {
+  if (areSameFile(resolvedSelectedPartitionPath, opossumFilePath)) {
     throw new SplitOpossumFileError(
       'invalid-destination',
       'Destination file must differ from the currently open .opossum file',
@@ -138,6 +138,22 @@ function validateDestinationPath({
       'invalid-destination',
       'Destination file already exists',
     );
+  }
+}
+
+function areSameFile(firstPath: string, secondPath: string): boolean {
+  if (path.resolve(firstPath) === path.resolve(secondPath)) {
+    return true;
+  }
+
+  try {
+    const firstStats = fs.statSync(firstPath);
+    const secondStats = fs.statSync(secondPath);
+    return (
+      firstStats.dev === secondStats.dev && firstStats.ino === secondStats.ino
+    );
+  } catch {
+    return false;
   }
 }
 
