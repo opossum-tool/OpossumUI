@@ -33,10 +33,31 @@ async function handleParsingError(
   }
 }
 
-export async function loadInputAndOutputFromFilePath(
+export async function loadOpossumFileFromPath(
   mainWindow: BrowserWindow,
-  filePath: string,
+  opossumFilePath: string,
 ): Promise<void> {
+  const globalState = getGlobalBackendState();
+  const result = await getMainDbClient().loadOpossumFile(opossumFilePath, {
+    inputFileChecksum: globalState.inputFileChecksum,
+  });
+
+  await handleLoadResult(mainWindow, result);
+}
+
+async function handleLoadResult(
+  mainWindow: BrowserWindow,
+  result: {
+    ok: boolean;
+    error?: ParsingError;
+    projectTitle?: string;
+    projectId?: string;
+  },
+): Promise<void> {
+  const processingStatusUpdater = new ProcessingStatusUpdater(
+    mainWindow.webContents,
+  );
+
   mainWindow.webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
     resetState: true,
   });
@@ -45,25 +66,8 @@ export async function loadInputAndOutputFromFilePath(
     false,
   );
 
-  const processingStatusUpdater = new ProcessingStatusUpdater(
-    mainWindow.webContents,
-  );
-
-  const globalState = getGlobalBackendState();
-  const result = await getMainDbClient().loadFile(
-    filePath,
-    { inputFileChecksum: globalState.inputFileChecksum },
-    (message, level) => {
-      if (level === 'warn') {
-        processingStatusUpdater.warn(message);
-      } else {
-        processingStatusUpdater.info(message);
-      }
-    },
-  );
-
   if (!result.ok) {
-    await handleParsingError(result.error, processingStatusUpdater);
+    await handleParsingError(result.error!, processingStatusUpdater);
     return;
   }
 
@@ -73,6 +77,7 @@ export async function loadInputAndOutputFromFilePath(
   );
 
   processingStatusUpdater.info('Finalizing global state');
+  const globalState = getGlobalBackendState();
   globalState.projectTitle = result.projectTitle;
   globalState.projectId = result.projectId;
 }

@@ -12,7 +12,7 @@ import {
 } from 'electron';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
+import { loadOpossumFileFromPath } from '../input/importFromFile';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import logger from '../main/logger';
 import type { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
@@ -102,7 +102,7 @@ function performButtonAction(
   switch (buttonIndex) {
     case 0:
       mainWindow.webContents.send(AllowedFrontendChannels.RestoreFrontend);
-      void loadInputAndOutputFromFilePath(
+      void loadOpossumFileFromPath(
         mainWindow,
         getLoadedFilePath(globalBackendState) as string,
       );

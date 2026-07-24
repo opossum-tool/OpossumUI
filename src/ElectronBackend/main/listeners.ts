@@ -9,7 +9,6 @@ import { uniq } from 'lodash-es';
 import path from 'path';
 import upath from 'upath';
 
-import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   ExportType,
@@ -23,7 +22,7 @@ import {
   sendListenerErrorToFrontend,
   showListenerErrorInMessageBox,
 } from '../errorHandling/errorHandling';
-import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
+import { loadOpossumFileFromPath } from '../input/importFromFile';
 import {
   convertToOpossum,
   mergeFileIntoOpossum,
@@ -57,9 +56,7 @@ export const saveFileListener =
 
       await getMainDbClient().saveFile({
         projectId: globalBackendState.projectId,
-        inputFileChecksum: globalBackendState.inputFileChecksum,
-        opossumFilePath: globalBackendState.opossumFilePath,
-        attributionFilePath: globalBackendState.attributionFilePath,
+        opossumFilePath: globalBackendState.opossumFilePath!,
       });
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
@@ -123,9 +120,9 @@ export async function handleOpeningFile(
   const statusUpdater = new ProcessingStatusUpdater(mainWindow.webContents);
   statusUpdater.startProcessing();
   statusUpdater.info('Initializing global backend state');
-  initializeGlobalBackendState(filePath, true);
+  initializeGlobalBackendState(filePath);
 
-  await openFile(mainWindow, filePath, updateMenu);
+  await openOpossumFile(mainWindow, filePath, updateMenu);
 
   await updateRecentlyOpenedPaths(filePath);
 
@@ -230,13 +227,15 @@ export const importFileConvertAndLoadListener =
         });
       }
 
+      processingStatusUpdater.info('Updating global backend state');
+      initializeGlobalBackendState(opossumFilePath);
+
       processingStatusUpdater.info('Converting input file to .opossum format');
       await convertToOpossum(resourceFilePath, opossumFilePath, fileType);
+      await openOpossumFile(mainWindow, opossumFilePath, updateMenu);
 
-      processingStatusUpdater.info('Updating global backend state');
-      initializeGlobalBackendState(opossumFilePath, true);
-
-      await openFile(mainWindow, opossumFilePath, updateMenu);
+      await updateRecentlyOpenedPaths(opossumFilePath);
+      await updateMenu();
 
       return true;
     } catch (error) {
@@ -296,7 +295,7 @@ export const mergeFileAndLoadListener =
         fileType,
       );
 
-      await openFile(mainWindow, currentOpossumFilePath, updateMenu);
+      await openOpossumFile(mainWindow, currentOpossumFilePath, updateMenu);
 
       return true;
     } catch (error) {
@@ -308,27 +307,25 @@ export const mergeFileAndLoadListener =
   };
 
 function initializeGlobalBackendState(
-  filePath: string,
-  isOpossumFormat: boolean,
+  opossumFilePath: string,
   inputFileChecksum?: string,
 ): void {
   const newGlobalBackendState: GlobalBackendState = {
-    resourceFilePath: isOpossumFormat ? undefined : filePath,
-    attributionFilePath: isOpossumFormat
-      ? undefined
-      : getFilePathWithAppendix(filePath, legacyOutputFileEnding),
-    opossumFilePath: isOpossumFormat ? filePath : undefined,
-    followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
+    opossumFilePath,
+    followUpFilePath: getFilePathWithAppendix(
+      opossumFilePath,
+      '_follow_up.csv',
+    ),
     compactBomFilePath: getFilePathWithAppendix(
-      filePath,
+      opossumFilePath,
       '_compact_component_list.csv',
     ),
     detailedBomFilePath: getFilePathWithAppendix(
-      filePath,
+      opossumFilePath,
       '_detailed_component_list.csv',
     ),
-    spdxYamlFilePath: getFilePathWithAppendix(filePath, '.spdx.yaml'),
-    spdxJsonFilePath: getFilePathWithAppendix(filePath, '.spdx.json'),
+    spdxYamlFilePath: getFilePathWithAppendix(opossumFilePath, '.spdx.yaml'),
+    spdxJsonFilePath: getFilePathWithAppendix(opossumFilePath, '.spdx.json'),
     inputFileChecksum,
   };
   setGlobalBackendState(newGlobalBackendState);
@@ -358,12 +355,12 @@ function formatBaseURL(baseURL: string): string {
   return `file://${baseURL}/{path}`;
 }
 
-async function openFile(
+async function openOpossumFile(
   mainWindow: BrowserWindow,
   filePath: string,
   updateMenu: () => Promise<void>,
 ): Promise<void> {
-  await loadInputAndOutputFromFilePath(mainWindow, filePath);
+  await loadOpossumFileFromPath(mainWindow, filePath);
   setTitle(mainWindow, filePath);
   await updateMenu();
 }
