@@ -99,7 +99,7 @@
     "mkdirp": "3.0.1",
     "mockdate": "3.0.5",
     "nunjucks": "3.2.4",
-    "prettier": "3.9.5",
+    "prettier": "3.9.6",
     "prettier-plugin-sh": "0.19.0",
     "run-script-os": "1.1.6",
     "tsx": "4.23.1",
