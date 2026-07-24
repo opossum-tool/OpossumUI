@@ -64,6 +64,21 @@ export class ResourcesTree {
     }
   }
 
+  async openContextMenu(resourceName: string): Promise<void> {
+    await this.node
+      .getByText(resourceName, { exact: true })
+      .click({ button: 'right' });
+  }
+
+  async openCreateCollaborativePartitionDialog(
+    resourceName: string,
+  ): Promise<void> {
+    await this.openContextMenu(resourceName);
+    await this.window
+      .getByRole('menuitem', { name: text.resourceBrowser.splitHere })
+      .click();
+  }
+
   async closeMenu(): Promise<void> {
     await this.window.keyboard.press('Escape');
   }

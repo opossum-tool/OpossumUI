@@ -19,6 +19,7 @@ export const text = {
       importSubmenu: menuLabelForFileFormat,
       merge: 'Merge',
       mergeSubmenu: menuLabelForFileFormat,
+      createCollaborativePartition: 'Create Collaborative Partition…',
       save: 'Save',
       projectMetadata: 'Project Metadata',
       projectStatistics: 'Project Statistics',
@@ -237,6 +238,7 @@ export const text = {
   resourceBrowser: {
     allResources: (selectedResources: number, totalCount: number) =>
       `Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,
+    splitHere: 'Create collaborative partition',
     linkedResources: (selectedResources: number, totalCount: number) =>
       `Linked Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,
     hasHighlyCriticalSignals: 'Has highly critical signals',
@@ -415,6 +417,27 @@ export const text = {
           ? `File to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
           : `Select file to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
     },
+  },
+  splitDialog: {
+    title: 'Create Collaborative Partition',
+    explanationText:
+      'Create a separate Opossum file for collaborative work. Selected resources will become readonly in the currently open Opossum file.',
+    resourcePicker: {
+      collapse: (path: string) => `collapse ${path}`,
+      expand: (path: string) => `expand ${path}`,
+      explanationText:
+        'Select the resources that belong in the new collaborative partition.',
+      loadingResources: 'Loading resources…',
+      noResourcesSelected: 'No resources selected',
+    },
+    destinationPath: {
+      textFieldLabel: (hasBeenSelected: boolean) =>
+        hasBeenSelected
+          ? 'New Opossum file location'
+          : 'Select new Opossum file save location',
+    },
+    create: 'Create Partition',
+    success: 'Partition created successfully.',
   },
   backendError: {
     inputFileDoesNotExist: 'Input file does not exist',

@@ -4,9 +4,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { ExportType, FileFormatInfo } from '../../../shared/shared-types';
-import { View } from '../../enums/enums';
+import { PopupType, View } from '../../enums/enums';
 import type { PopupInfo, State } from '../../types/types';
-import type { OpenFileRequest } from '../actions/view-actions/types';
+import type {
+  OpenFileRequest,
+  SplitFileRequest,
+} from '../actions/view-actions/types';
 
 export function isAuditViewSelected(state: State): boolean {
   return state.viewState.view === View.Audit;
@@ -32,8 +35,9 @@ export function getOpenPopup(state: State): null | PopupInfo {
 
 export function getPopupAttributionId(state: State): string | null {
   const popup = state.viewState.popupInfo.slice(-1);
-
-  return (popup.length === 1 && popup[0].attributionId) || null;
+  return popup[0]?.popup === PopupType.NotSavedPopup
+    ? (popup[0].attributionId ?? null)
+    : null;
 }
 
 export function getOpenFileRequest(state: State): OpenFileRequest | null {
@@ -50,4 +54,8 @@ export function getMergeRequest(state: State): FileFormatInfo | null {
 
 export function getExportFileRequest(state: State): ExportType | null {
   return state.viewState.exportFileRequest;
+}
+
+export function getSplitFileRequest(state: State): SplitFileRequest | null {
+  return state.viewState.splitFileRequest;
 }

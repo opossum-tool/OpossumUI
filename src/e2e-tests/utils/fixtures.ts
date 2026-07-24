@@ -38,6 +38,7 @@ import { ProjectStatisticsPopup } from '../page-objects/ProjectStatisticsPopup';
 import { ReportView } from '../page-objects/ReportView';
 import { ResourcesTree } from '../page-objects/ResourcesTree';
 import { SignalsPanel } from '../page-objects/SignalsPanel';
+import { SplitDialog } from '../page-objects/SplitDialog';
 import { TopBar } from '../page-objects/TopBar';
 
 const LOAD_TIMEOUT = 15000;
@@ -81,6 +82,7 @@ export const test = base.extend<{
   reportView: ReportView;
   resourcesTree: ResourcesTree;
   signalsPanel: SignalsPanel;
+  splitDialog: SplitDialog;
   topBar: TopBar;
 }>({
   data: undefined,
@@ -217,6 +219,9 @@ export const test = base.extend<{
   },
   signalsPanel: async ({ window }, use) => {
     await use(new SignalsPanel(window));
+  },
+  splitDialog: async ({ window }, use) => {
+    await use(new SplitDialog(window));
   },
   confirmSavePopup: async ({ window }, use) => {
     await use(new ConfirmSavePopup(window));

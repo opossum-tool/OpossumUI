@@ -8,7 +8,7 @@ import type {
   FileFormatInfo,
   PackageInfo,
 } from '../../../../shared/shared-types';
-import { PopupType, type View } from '../../../enums/enums';
+import type { View } from '../../../enums/enums';
 import {
   getIsPackageInfoDirty,
   getSelectedResourceId,
@@ -19,6 +19,7 @@ import {
   getImportFileRequest,
   getMergeRequest,
   getOpenFileRequest,
+  getSplitFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
 import type { AppThunkAction } from '../../types';
@@ -42,11 +43,15 @@ import {
 import {
   closePopup,
   navigateToView,
-  openPopup,
+  openImportDialog,
+  openMergeDialog,
+  openNotSavedPopup,
+  openSplitDialog,
   setExportFileRequest,
   setImportFileRequest,
   setMergeRequest,
   setOpenFileRequest,
+  setSplitFileRequest,
   setTargetView,
 } from '../view-actions/view-actions';
 
@@ -60,7 +65,7 @@ function withUnsavedCheck({
   return (dispatch, getState) => {
     if (getIsPackageInfoDirty(getState())) {
       dispatch(requestContinuation);
-      dispatch(openPopup(PopupType.NotSavedPopup));
+      dispatch(openNotSavedPopup());
     } else {
       dispatch(executeImmediately);
     }
@@ -138,8 +143,7 @@ export function showImportDialogOrOpenUnsavedPopup(
   fileFormat: FileFormatInfo,
 ): AppThunkAction {
   return withUnsavedCheck({
-    executeImmediately: (dispatch) =>
-      dispatch(openPopup(PopupType.ImportDialog, undefined, fileFormat)),
+    executeImmediately: (dispatch) => dispatch(openImportDialog(fileFormat)),
     requestContinuation: (dispatch) =>
       dispatch(setImportFileRequest(fileFormat)),
   });
@@ -149,8 +153,7 @@ export function showMergeDialogOrOpenUnsavedPopup(
   fileFormat: FileFormatInfo,
 ): AppThunkAction {
   return withUnsavedCheck({
-    executeImmediately: (dispatch) =>
-      dispatch(openPopup(PopupType.MergeDialog, undefined, fileFormat)),
+    executeImmediately: (dispatch) => dispatch(openMergeDialog(fileFormat)),
     requestContinuation: (dispatch) => dispatch(setMergeRequest(fileFormat)),
   });
 }
@@ -186,6 +189,16 @@ export function exportFileOrOpenUnsavedPopup(
   });
 }
 
+export function showSplitDialogOrOpenUnsavedPopup(
+  resourcePath?: string,
+): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) => dispatch(openSplitDialog(resourcePath)),
+    requestContinuation: (dispatch) =>
+      dispatch(setSplitFileRequest({ resourcePath })),
+  });
+}
+
 export function proceedFromUnsavedPopup(): AppThunkAction {
   return (dispatch, getState) => {
     const targetView = getTargetView(getState());
@@ -193,6 +206,7 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     const importFileRequest = getImportFileRequest(getState());
     const mergeRequest = getMergeRequest(getState());
     const exportFileRequest = getExportFileRequest(getState());
+    const splitFileRequest = getSplitFileRequest(getState());
     const targetAttributionFilterChange =
       getTargetAttributionFilterChange(getState());
 
@@ -209,18 +223,23 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     }
 
     if (importFileRequest) {
-      dispatch(openPopup(PopupType.ImportDialog, undefined, importFileRequest));
+      dispatch(openImportDialog(importFileRequest));
       dispatch(setImportFileRequest(null));
     }
 
     if (mergeRequest) {
-      dispatch(openPopup(PopupType.MergeDialog, undefined, mergeRequest));
+      dispatch(openMergeDialog(mergeRequest));
       dispatch(setMergeRequest(null));
     }
 
     if (exportFileRequest) {
       dispatch(() => void window.electronAPI.exportFile(exportFileRequest));
       dispatch(setExportFileRequest(null));
+    }
+
+    if (splitFileRequest) {
+      dispatch(openSplitDialog(splitFileRequest.resourcePath));
+      dispatch(setSplitFileRequest(null));
     }
 
     if (targetAttributionFilterChange) {
@@ -255,6 +274,7 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setOpenFileRequest(null));
     dispatch(setImportFileRequest(null));
     dispatch(setExportFileRequest(null));
+    dispatch(setSplitFileRequest(null));
     window.electronAPI.stopLoading();
   };
 }

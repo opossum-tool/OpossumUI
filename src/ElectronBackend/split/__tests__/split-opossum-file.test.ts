@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
 import { createHash } from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
 import type { SplitInfo } from '../../../shared/shared-types';
 import { INPUT_FILE_NAME } from '../../../shared/write-file-utils';
@@ -141,6 +143,31 @@ describe('splitOpossumArchive', () => {
     expect(() => validateSelectedFolderPaths(selectedFolderPaths, [])).toThrow(
       SplitOpossumFileError,
     );
+  });
+
+  it('rejects a destination symlink that points to the source archive', async () => {
+    const sourcePath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+    const selectedPartitionPath = faker.outputPath(
+      `${faker.string.uuid()}.opossum`,
+    );
+    const sourceZip = new AdmZip();
+    sourceZip.addFile(INPUT_FILE_NAME, Buffer.from(JSON.stringify(input)));
+    sourceZip.writeZip(sourcePath);
+    fs.symlinkSync(path.resolve(sourcePath), selectedPartitionPath);
+
+    await expect(
+      splitOpossumArchive({
+        opossumFilePath: sourcePath,
+        overwriteExistingDestination: true,
+        selectedFolderPaths: ['/docs'],
+        selectedPartitionPath,
+        sourceZip,
+        splitInfo: null,
+      }),
+    ).rejects.toThrow('Destination file must differ');
+
+    fs.unlinkSync(selectedPartitionPath);
+    fs.unlinkSync(sourcePath);
   });
 });
 

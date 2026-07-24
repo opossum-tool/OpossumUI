@@ -8,8 +8,13 @@ import type { Mock } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { getMainDbClient } from '../../dbProcess/dbProcessClient';
+import { saveOpossumFileDialog } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
-import { saveFileListener } from '../listeners';
+import {
+  saveFileListener,
+  selectSplitDestinationListener,
+  splitCurrentOpossumFileListener,
+} from '../listeners';
 
 vi.mock('electron', () => ({
   app: {
@@ -33,10 +38,16 @@ vi.mock('../../dbProcess/dbProcessClient', () => ({
   getMainDbClient: vi.fn(),
 }));
 
+vi.mock('../dialogs', () => ({
+  saveOpossumFileDialog: vi.fn(),
+}));
+
 const mockSaveFile = vi.fn();
+const mockSplitOpossumFile = vi.fn();
 
 (getMainDbClient as Mock).mockReturnValue({
   saveFile: mockSaveFile,
+  splitOpossumFile: mockSplitOpossumFile,
 });
 
 describe('saveFileListener', () => {
@@ -44,6 +55,7 @@ describe('saveFileListener', () => {
     vi.resetAllMocks();
     (getMainDbClient as Mock).mockReturnValue({
       saveFile: mockSaveFile,
+      splitOpossumFile: mockSplitOpossumFile,
     });
   });
 
@@ -113,5 +125,84 @@ describe('saveFileListener', () => {
         buttons: ['Reload File', 'Quit'],
       }),
     );
+  });
+});
+
+describe('splitCurrentOpossumFileListener', () => {
+  const mainWindow = {
+    webContents: { send: vi.fn() } as unknown,
+  } as BrowserWindow;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setGlobalBackendState({
+      inputFileChecksum: 'checksum_abc',
+      opossumFilePath: '/my/file.opossum',
+      projectId: 'uuid_1',
+    });
+  });
+
+  it('uses the destination provided by the split dialog', async () => {
+    const selectedPartitionPath = '/partitions/source-partition.opossum';
+
+    await splitCurrentOpossumFileListener(mainWindow)(
+      {} as Electron.IpcMainInvokeEvent,
+      ['/source'],
+      selectedPartitionPath,
+    );
+
+    expect(mockSplitOpossumFile).toHaveBeenCalledWith({
+      projectId: 'uuid_1',
+      inputFileChecksum: 'checksum_abc',
+      opossumFilePath: '/my/file.opossum',
+      overwriteExistingDestination: true,
+      selectedFolderPaths: ['/source'],
+      selectedPartitionPath,
+    });
+  });
+
+  it('does not split without a destination', async () => {
+    const splitResult = await splitCurrentOpossumFileListener(mainWindow)(
+      {} as Electron.IpcMainInvokeEvent,
+      ['/source'],
+      '',
+    );
+
+    expect(splitResult).toEqual({ status: 'cancelled' });
+    expect(mockSplitOpossumFile).not.toHaveBeenCalled();
+  });
+
+  it('returns an error result without showing a fatal error dialog', async () => {
+    mockSplitOpossumFile.mockRejectedValue(
+      new Error('Destination is not writable'),
+    );
+
+    const splitResult = await splitCurrentOpossumFileListener(mainWindow)(
+      {} as Electron.IpcMainInvokeEvent,
+      ['/source'],
+      '/partitions/split.opossum',
+    );
+
+    expect(splitResult).toEqual({
+      status: 'error',
+      message: 'Destination is not writable',
+    });
+    expect(dialog.showMessageBox).not.toHaveBeenCalled();
+  });
+
+  it('opens a save dialog with a derived default split destination', () => {
+    vi.mocked(saveOpossumFileDialog).mockReturnValue(
+      '/partitions/source-partition.opossum',
+    );
+
+    const selectedPath = selectSplitDestinationListener(mainWindow)(
+      {} as Electron.IpcMainInvokeEvent,
+      ['/source'],
+    );
+
+    expect(saveOpossumFileDialog).toHaveBeenCalledWith(
+      '/my/file-source.opossum',
+    );
+    expect(selectedPath).toBe('/partitions/source-partition.opossum');
   });
 });

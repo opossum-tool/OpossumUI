@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiListItemIcon from '@mui/material/ListItemIcon';
 import MuiMenu from '@mui/material/Menu';
 import MuiMenuItem from '@mui/material/MenuItem';
 import type { SxProps } from '@mui/system';
@@ -9,6 +10,8 @@ import { remove } from 'lodash-es';
 import { type MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
+import { text } from '../../../../shared/text';
 import {
   EMPTY_DISPLAY_PACKAGE_INFO,
   ROOT_PATH,
@@ -16,6 +19,7 @@ import {
 import {
   changeSelectedAttributionOrOpenUnsavedPopup,
   setSelectedResourceIdOrOpenUnsavedPopup,
+  showSplitDialogOrOpenUnsavedPopup,
 } from '../../../state/actions/popup-actions/popup-actions';
 import {
   setExpandedIds,
@@ -27,7 +31,6 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
 import { backend } from '../../../util/backendClient';
-import { toast } from '../../Toaster';
 import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
 import { ResourcesTreeNode } from './ResourcesTreeNode/ResourcesTreeNode';
 
@@ -40,6 +43,7 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
   const dispatch = useAppDispatch();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const expandedIds = useAppSelector(getExpandedIds);
+  const [isOpossumFileLoaded, setIsOpossumFileLoaded] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
     mouseY: number;
@@ -51,6 +55,14 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
       dispatch(setSelectedResourceId(ROOT_PATH));
     }
   }, [dispatch, selectedResourceId]);
+
+  useEffect(
+    () =>
+      window.electronAPI.on(AllowedFrontendChannels.ResetLoadedFile, () => {
+        setIsOpossumFileLoaded(false);
+      }),
+    [],
+  );
 
   const handleToggle = useCallback(
     (nodeIdsToExpand: Array<string>) => {
@@ -86,6 +98,9 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
   const handleContextMenu = useCallback(
     (event: MouseEvent<HTMLElement>, resource: ResourceTreeNodeData) => {
       event.preventDefault();
+      void window.electronAPI
+        .isOpossumFileLoaded()
+        .then(setIsOpossumFileLoaded);
       setContextMenu({
         mouseX: event.clientX,
         mouseY: event.clientY,
@@ -95,17 +110,17 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
     [],
   );
 
-  const handleSplit = useCallback(async () => {
+  const handleSplit = useCallback(() => {
     if (!contextMenu) {
       return;
     }
-    const resourcePath = contextMenu.resource.id.replace(/\/$/, '');
-    const splitSucceeded = await window.electronAPI.splitFile([resourcePath]);
     setContextMenu(null);
-    if (splitSucceeded) {
-      toast.success('Split archive created.');
-    }
-  }, [contextMenu]);
+    dispatch(
+      showSplitDialogOrOpenUnsavedPopup(
+        contextMenu.resource.id.replace(/\/$/, ''),
+      ),
+    );
+  }, [contextMenu, dispatch]);
 
   return (
     <>
@@ -116,6 +131,7 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
         selectedNodeId={selectedResourceId}
         TreeNodeLabel={ResourcesTreeNode}
         onContextMenu={handleContextMenu}
+        contextMenuNodeId={contextMenu?.resource.id}
         sx={sx}
         testId={'resources-tree'}
       />
@@ -130,10 +146,15 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
         open={contextMenu !== null}
       >
         <MuiMenuItem
-          disabled={contextMenu?.resource.id === ROOT_PATH}
-          onClick={() => void handleSplit()}
+          disabled={
+            !isOpossumFileLoaded || contextMenu?.resource.id === ROOT_PATH
+          }
+          onClick={handleSplit}
         >
-          Split here
+          <MuiListItemIcon>
+            <img alt={''} src={'assets/icons/follow-up-black.png'} />
+          </MuiListItemIcon>
+          {text.resourceBrowser.splitHere}
         </MuiMenuItem>
       </MuiMenu>
     </>

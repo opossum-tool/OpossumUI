@@ -16,6 +16,7 @@ import {
 
 interface SplitOpossumArchivePaths {
   opossumFilePath: string;
+  overwriteExistingDestination?: boolean;
   selectedFolderPaths: Array<string>;
   selectedPartitionPath: string;
 }
@@ -51,12 +52,17 @@ export class SplitOpossumFileError extends Error {
 
 export async function splitOpossumArchive({
   opossumFilePath,
+  overwriteExistingDestination = false,
   selectedFolderPaths,
   selectedPartitionPath,
   sourceZip,
   splitInfo: existingSplitInfo,
 }: SplitOpossumArchiveArgs): Promise<SplitOpossumArchiveResult> {
-  validateDestinationPath(selectedPartitionPath);
+  validateDestinationPath({
+    opossumFilePath,
+    overwriteExistingDestination,
+    selectedPartitionPath,
+  });
 
   const inputBytes = sourceZip.getEntry(INPUT_FILE_NAME)?.getData();
   if (!inputBytes) {
@@ -97,8 +103,21 @@ export async function splitOpossumArchive({
   };
 }
 
-function validateDestinationPath(selectedPartitionPath: string): void {
+function validateDestinationPath({
+  opossumFilePath,
+  overwriteExistingDestination,
+  selectedPartitionPath,
+}: Pick<
+  SplitOpossumArchivePaths,
+  'opossumFilePath' | 'overwriteExistingDestination' | 'selectedPartitionPath'
+>): void {
   const resolvedSelectedPartitionPath = path.resolve(selectedPartitionPath);
+  if (areSameFile(resolvedSelectedPartitionPath, opossumFilePath)) {
+    throw new SplitOpossumFileError(
+      'invalid-destination',
+      'Destination file must differ from the currently open .opossum file',
+    );
+  }
   if (path.extname(resolvedSelectedPartitionPath) !== OPOSSUM_FILE_EXTENSION) {
     throw new SplitOpossumFileError(
       'invalid-destination',
@@ -111,11 +130,30 @@ function validateDestinationPath(selectedPartitionPath: string): void {
       'Destination directory does not exist',
     );
   }
-  if (fs.existsSync(resolvedSelectedPartitionPath)) {
+  if (
+    fs.existsSync(resolvedSelectedPartitionPath) &&
+    !overwriteExistingDestination
+  ) {
     throw new SplitOpossumFileError(
       'invalid-destination',
       'Destination file already exists',
     );
+  }
+}
+
+function areSameFile(firstPath: string, secondPath: string): boolean {
+  if (path.resolve(firstPath) === path.resolve(secondPath)) {
+    return true;
+  }
+
+  try {
+    const firstStats = fs.statSync(firstPath);
+    const secondStats = fs.statSync(secondPath);
+    return (
+      firstStats.dev === secondStats.dev && firstStats.ino === secondStats.ino
+    );
+  } catch {
+    return false;
   }
 }
 

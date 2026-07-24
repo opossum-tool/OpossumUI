@@ -7,7 +7,7 @@ import type {
   FileFormatInfo,
 } from '../../../../shared/shared-types';
 import { PopupType, type View } from '../../../enums/enums';
-import type { State } from '../../../types/types';
+import type { PopupWithoutPayload, State } from '../../../types/types';
 import { getUserSettings } from '../../selectors/user-settings-selector';
 import { getSelectedView } from '../../selectors/view-selector';
 import type { AppThunkAction, AppThunkDispatch } from '../../types';
@@ -19,6 +19,7 @@ import {
   ACTION_SET_IMPORT_FILE_REQUEST,
   ACTION_SET_MERGE_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
+  ACTION_SET_SPLIT_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   type ClosePopupAction,
@@ -29,8 +30,10 @@ import {
   type SetImportFileRequestAction,
   type SetMergeRequestAction,
   type SetOpenFileRequestAction,
+  type SetSplitFileRequestAction,
   type SetTargetView,
   type SetView,
+  type SplitFileRequest,
 } from './types';
 
 export function resetViewState(): ResetViewStateAction {
@@ -73,17 +76,49 @@ export function setTargetView(targetView: View | null): SetTargetView {
   };
 }
 
+export function openPopup(popup: PopupWithoutPayload): OpenPopupAction;
 export function openPopup(
-  popup: PopupType,
+  popup: PopupType.NotSavedPopup,
   attributionId?: string,
-  fileFormat?: FileFormatInfo,
+): OpenPopupAction;
+export function openPopup(
+  popup: PopupWithoutPayload | PopupType.NotSavedPopup,
+  attributionId?: string,
 ): OpenPopupAction {
   return {
     type: ACTION_OPEN_POPUP,
+    payload:
+      popup === PopupType.NotSavedPopup ? { popup, attributionId } : { popup },
+  };
+}
+
+export function openNotSavedPopup(attributionId?: string): OpenPopupAction {
+  return {
+    type: ACTION_OPEN_POPUP,
+    payload: { popup: PopupType.NotSavedPopup, attributionId },
+  };
+}
+
+export function openImportDialog(fileFormat: FileFormatInfo): OpenPopupAction {
+  return {
+    type: ACTION_OPEN_POPUP,
+    payload: { popup: PopupType.ImportDialog, fileFormat },
+  };
+}
+
+export function openMergeDialog(fileFormat: FileFormatInfo): OpenPopupAction {
+  return {
+    type: ACTION_OPEN_POPUP,
+    payload: { popup: PopupType.MergeDialog, fileFormat },
+  };
+}
+
+export function openSplitDialog(resourcePath?: string): OpenPopupAction {
+  return {
+    type: ACTION_OPEN_POPUP,
     payload: {
-      popup,
-      attributionId,
-      fileFormat,
+      popup: PopupType.SplitDialog,
+      ...(resourcePath && { resourcePath }),
     },
   };
 }
@@ -114,4 +149,10 @@ export function setExportFileRequest(
   exportFileRequest: ExportType | null,
 ): SetExportFileRequestAction {
   return { type: ACTION_SET_EXPORT_FILE_REQUEST, payload: exportFileRequest };
+}
+
+export function setSplitFileRequest(
+  splitFileRequest: SplitFileRequest | null,
+): SetSplitFileRequestAction {
+  return { type: ACTION_SET_SPLIT_FILE_REQUEST, payload: splitFileRequest };
 }

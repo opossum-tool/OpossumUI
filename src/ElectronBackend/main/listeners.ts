@@ -16,6 +16,7 @@ import {
   type FileFormatInfo,
   type FileType,
   type OpenLinkArgs,
+  type SplitFileResult,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
@@ -34,6 +35,7 @@ import {
   openNonOpossumFileDialog,
   openOpossumFileDialog,
   saveFileDialog,
+  saveOpossumFileDialog,
   selectBaseURLDialog,
 } from './dialogs';
 import {
@@ -67,11 +69,12 @@ export const saveFileListener =
   };
 
 export const splitCurrentOpossumFileListener =
-  (mainWindow: BrowserWindow) =>
+  (_mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,
     selectedFolderPaths: Array<string>,
-  ): Promise<boolean> => {
+    selectedPartitionPath: string,
+  ): Promise<SplitFileResult> => {
     try {
       const globalBackendState = getGlobalBackendState();
       if (
@@ -81,24 +84,49 @@ export const splitCurrentOpossumFileListener =
         throw new Error('No .opossum project is currently open.');
       }
 
-      const currentFilePath = globalBackendState.opossumFilePath;
-      const parsedPath = path.parse(currentFilePath);
-      const selectedFolderName = path.posix.basename(selectedFolderPaths[0]);
+      if (!selectedPartitionPath) {
+        return { status: 'cancelled' };
+      }
       await getMainDbClient().splitOpossumFile({
         projectId: globalBackendState.projectId,
         inputFileChecksum: globalBackendState.inputFileChecksum,
-        opossumFilePath: currentFilePath,
+        opossumFilePath: globalBackendState.opossumFilePath,
+        overwriteExistingDestination: true,
         selectedFolderPaths,
-        selectedPartitionPath: path.join(
-          parsedPath.dir,
-          `${parsedPath.name}-${selectedFolderName}${parsedPath.ext}`,
-        ),
+        selectedPartitionPath,
       });
-      return true;
+      return { status: 'success' };
     } catch (error) {
-      await showListenerErrorInMessageBox(mainWindow, error);
-      return false;
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Unexpected internal error while creating the split archive';
+      logger.error(`Could not create split archive: ${message}`);
+      return { status: 'error', message };
     }
+  };
+
+export const selectSplitDestinationListener =
+  (_mainWindow: BrowserWindow) =>
+  (
+    _: Electron.IpcMainInvokeEvent,
+    selectedFolderPaths: Array<string>,
+  ): string => {
+    const opossumFilePath = getGlobalBackendState().opossumFilePath;
+    if (!opossumFilePath) {
+      return '';
+    }
+
+    const parsedPath = path.parse(opossumFilePath);
+    const partitionSuffix =
+      selectedFolderPaths.length === 1
+        ? path.posix.basename(selectedFolderPaths[0])
+        : 'partition';
+    const partitionPath = path.join(
+      parsedPath.dir,
+      `${parsedPath.name}-${partitionSuffix}${parsedPath.ext}`,
+    );
+    return saveOpossumFileDialog(partitionPath) ?? '';
   };
 
 function getExportFilePath(exportType: ExportType): string {

@@ -25,11 +25,11 @@ export function isFileLoaded(globalBackendState: GlobalBackendState): boolean {
 
 export function getLoadedFileType(
   globalBackendState: GlobalBackendState,
-): LoadedFileFormat {
+): LoadedFileFormat | null {
   if (globalBackendState.resourceFilePath) {
     return LoadedFileFormat.Json;
   } else if (globalBackendState.opossumFilePath) {
     return LoadedFileFormat.Opossum;
   }
-  throw Error('Tried to get file type when no file is loaded');
+  return null;
 }
