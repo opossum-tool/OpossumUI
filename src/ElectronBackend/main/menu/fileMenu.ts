@@ -19,7 +19,8 @@ import {
   FileType,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { isFileLoaded } from '../../utils/getLoadedFile';
+import { LoadedFileFormat } from '../../enums/enums';
+import { getLoadedFileType, isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import {
@@ -172,6 +173,7 @@ function getSaveFile(webContents: WebContents): MenuItemConstructorOptions {
 function getCreateCollaborativePartition(
   webContents: WebContents,
 ): MenuItemConstructorOptions {
+  const globalBackendState = getGlobalBackendState();
   return {
     icon: getIconBasedOnTheme(
       'icons/follow-up-white.png',
@@ -181,8 +183,8 @@ function getCreateCollaborativePartition(
     click: () =>
       webContents.send(AllowedFrontendChannels.ShowSplitDialogWithUnsavedCheck),
     enabled:
-      isFileLoaded(getGlobalBackendState()) &&
-      !getGlobalBackendState().frontendPopupOpen,
+      getLoadedFileType(globalBackendState) === LoadedFileFormat.Opossum &&
+      !globalBackendState.frontendPopupOpen,
   };
 }
 

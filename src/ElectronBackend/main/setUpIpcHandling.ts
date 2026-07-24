@@ -6,6 +6,8 @@ import { type BrowserWindow, ipcMain } from 'electron';
 
 import { IpcChannel } from '../../shared/ipc-channels';
 import type { UserSettings } from '../../shared/shared-types';
+import { LoadedFileFormat } from '../enums/enums';
+import { getLoadedFileType } from '../utils/getLoadedFile';
 import { getGlobalBackendState } from './globalBackendState';
 import {
   exportFileListener,
@@ -51,6 +53,10 @@ export function setupIpcHandling(
     IpcChannel.SelectSplitDestination,
     selectSplitDestinationListener(window),
   );
+  ipcMain.handle(IpcChannel.IsOpossumFileLoaded, () => {
+    const globalBackendState = getGlobalBackendState();
+    return getLoadedFileType(globalBackendState) === LoadedFileFormat.Opossum;
+  });
   ipcMain.handle(IpcChannel.SplitFile, splitCurrentOpossumFileListener(window));
   ipcMain.handle(IpcChannel.ExportFile, exportFileListener(window));
   ipcMain.handle(IpcChannel.StopLoading, () =>

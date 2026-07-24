@@ -88,11 +88,9 @@ describe('getLoadedFileType', () => {
     expect(loadedFileType).toEqual(LoadedFileFormat.Opossum);
   });
 
-  it('Throws error if no file exists', () => {
+  it('returns null if no file exists', () => {
     const globalBackendState: GlobalBackendState = {};
 
-    expect(() => getLoadedFileType(globalBackendState)).toThrow(
-      'Tried to get file type when no file is loaded',
-    );
+    expect(getLoadedFileType(globalBackendState)).toBeNull();
   });
 });

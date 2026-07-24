@@ -10,6 +10,7 @@ import { remove } from 'lodash-es';
 import { type MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { text } from '../../../../shared/text';
 import {
   EMPTY_DISPLAY_PACKAGE_INFO,
@@ -42,6 +43,7 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
   const dispatch = useAppDispatch();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const expandedIds = useAppSelector(getExpandedIds);
+  const [isOpossumFileLoaded, setIsOpossumFileLoaded] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
     mouseY: number;
@@ -53,6 +55,14 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
       dispatch(setSelectedResourceId(ROOT_PATH));
     }
   }, [dispatch, selectedResourceId]);
+
+  useEffect(
+    () =>
+      window.electronAPI.on(AllowedFrontendChannels.ResetLoadedFile, () => {
+        setIsOpossumFileLoaded(false);
+      }),
+    [],
+  );
 
   const handleToggle = useCallback(
     (nodeIdsToExpand: Array<string>) => {
@@ -88,6 +98,9 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
   const handleContextMenu = useCallback(
     (event: MouseEvent<HTMLElement>, resource: ResourceTreeNodeData) => {
       event.preventDefault();
+      void window.electronAPI
+        .isOpossumFileLoaded()
+        .then(setIsOpossumFileLoaded);
       setContextMenu({
         mouseX: event.clientX,
         mouseY: event.clientY,
@@ -133,7 +146,9 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
         open={contextMenu !== null}
       >
         <MuiMenuItem
-          disabled={contextMenu?.resource.id === ROOT_PATH}
+          disabled={
+            !isOpossumFileLoaded || contextMenu?.resource.id === ROOT_PATH
+          }
           onClick={handleSplit}
         >
           <MuiListItemIcon>
