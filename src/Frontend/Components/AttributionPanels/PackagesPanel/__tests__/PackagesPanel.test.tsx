@@ -2,15 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { Attributions } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
+import { closePopupAndUnsetTargets } from '../../../../state/actions/popup-actions/popup-actions';
 import {
   setSelectedAttributionId,
   setSelectedResourceId,
+  setTargetSelectedResourceId,
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import type { Action } from '../../../../state/configure-store';
@@ -18,6 +20,7 @@ import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../../state/variables/use
 import { initialAttributionFilters } from '../../../../state/variables/use-filters';
 import { renderComponent } from '../../../../test-helpers/render';
 import { useFilteredAttributionsList } from '../../../../util/use-attribution-lists';
+import { useSelectedAttributionIsExternal } from '../../../../util/use-selected-attribution';
 import {
   PackagesPanel,
   type PackagesPanelChildrenProps,
@@ -25,6 +28,10 @@ import {
 
 vi.mock('../../../../util/use-attribution-lists', () => ({
   useFilteredAttributionsList: vi.fn(),
+}));
+
+vi.mock('../../../../util/use-selected-attribution', () => ({
+  useSelectedAttributionIsExternal: vi.fn(),
 }));
 
 function mockAttributions(attributions: Attributions) {
@@ -44,6 +51,7 @@ function renderPackagesPanel({
   actions?: Array<Action>;
 }) {
   mockAttributions(attributions);
+  vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(false);
   return renderComponent(
     <PackagesPanel
       external={false}
@@ -75,6 +83,71 @@ function rerenderPackagesPanel(
 }
 
 describe('PackagesPanel', () => {
+  it('selects the attribution on the selected resource', async () => {
+    const resourceAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const unrelatedAttribution = faker.opossum.packageInfo({
+      relation: 'unrelated',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [resourceAttribution.id]: resourceAttribution,
+        [unrelatedAttribution.id]: unrelatedAttribution,
+      }),
+    });
+
+    await act(() => store.dispatch(setSelectedResourceId('/another-resource')));
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        resourceAttribution.id,
+      );
+    });
+  });
+
+  it('does not auto-select when a resource navigation is cancelled', async () => {
+    const selectedAttribution = faker.opossum.packageInfo({
+      relation: 'unrelated',
+    });
+    const resourceAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [selectedAttribution.id]: selectedAttribution,
+        [resourceAttribution.id]: resourceAttribution,
+      }),
+      actions: [
+        setSelectedAttributionId(selectedAttribution.id),
+        setTargetSelectedResourceId('/cancelled-resource'),
+      ],
+    });
+
+    act(() => store.dispatch(closePopupAndUnsetTargets()));
+
+    expect(store.getState().resourceState.selectedAttributionId).toBe(
+      selectedAttribution.id,
+    );
+  });
+
+  it('selects the first visible manual attribution when the selection is filtered out', async () => {
+    const selectedAttribution = faker.opossum.packageInfo();
+    const replacementAttribution = faker.opossum.packageInfo();
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [replacementAttribution.id]: replacementAttribution,
+      }),
+      actions: [setSelectedAttributionId(selectedAttribution.id)],
+    });
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        replacementAttribution.id,
+      );
+    });
+  });
+
   it('enables select-all checkbox when there are attribution IDs', async () => {
     await renderPackagesPanel({ attributions: faker.opossum.attributions() });
 
