@@ -266,6 +266,7 @@ export interface ElectronAPI {
     fileType: FileType,
   ) => Promise<boolean>;
   selectSplitDestination: (splitPaths: Array<string>) => Promise<string>;
+  isOpossumFileLoaded: () => Promise<boolean>;
   splitFile: (
     splitPaths: Array<string>,
     partitionOutputPath: string,
