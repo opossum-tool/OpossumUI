@@ -3445,7 +3445,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"better-sqlite3-electron@npm:better-sqlite3@12.11.1, better-sqlite3@npm:12.11.1":
+"better-sqlite3-electron@npm:better-sqlite3@13.0.1":
+  version: 13.0.1
+  resolution: "better-sqlite3@npm:13.0.1"
+  dependencies:
+    node-addon-api: "npm:^8.0.0"
+    node-gyp: "npm:latest"
+  checksum: 10/cbb180430796b9465ea245b7b6532c2725bc078a6b737a3f089d74d3fa046397cc8671d3f3196a99bd25561b036377282b52e132aafe6586b78ea7a080c3d1b7
+  languageName: node
+  linkType: hard
+
+"better-sqlite3@npm:12.11.1":
   version: 12.11.1
   resolution: "better-sqlite3@npm:12.11.1"
   dependencies:
@@ -6734,6 +6744,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-addon-api@npm:^8.0.0":
+  version: 8.9.0
+  resolution: "node-addon-api@npm:8.9.0"
+  dependencies:
+    node-gyp: "npm:latest"
+  checksum: 10/0dd87e2248c5067202c521a7c6c1ba7bbf7fd7a33088b7e5bb73736eb5e14d914efb0c98e43a1c9369479b9f695afee35e0f46893e1ab78e18096edc831a57aa
+  languageName: node
+  linkType: hard
+
 "node-api-version@npm:^0.2.1":
   version: 0.2.1
   resolution: "node-api-version@npm:0.2.1"
@@ -6931,7 +6950,7 @@ __metadata:
     adm-zip: "npm:0.6.0"
     babel-plugin-react-compiler: "npm:1.0.0"
     better-sqlite3: "npm:12.11.1"
-    better-sqlite3-electron: "npm:better-sqlite3@12.11.1"
+    better-sqlite3-electron: "npm:better-sqlite3@13.0.1"
     chroma-js: "npm:3.2.0"
     compare-versions: "npm:6.1.1"
     cross-env: "npm:10.1.0"

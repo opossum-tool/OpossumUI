@@ -19,7 +19,7 @@
     "@viz-js/viz": "3.28.0",
     "adm-zip": "0.6.0",
     "better-sqlite3": "12.11.1",
-    "better-sqlite3-electron": "npm:better-sqlite3@12.11.1",
+    "better-sqlite3-electron": "npm:better-sqlite3@13.0.1",
     "chroma-js": "3.2.0",
     "compare-versions": "6.1.1",
     "dayjs": "1.11.21",
