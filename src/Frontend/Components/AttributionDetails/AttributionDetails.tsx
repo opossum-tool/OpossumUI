@@ -14,7 +14,6 @@ import {
   setIsPackageInfoDirty,
   setTemporaryDisplayPackageInfo,
 } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -89,30 +88,7 @@ export function AttributionDetails() {
   const isSelectedAttributionVisible =
     !!attributions?.[selectedAttributionId] ||
     !!signals?.[selectedAttributionId];
-  const selectedAttributionList = selectedAttributionIsExternal
-    ? signals
-    : attributions;
 
-  useEffect(() => {
-    const replacementAttribution = selectedAttributionList
-      ? Object.values(selectedAttributionList)[0]
-      : undefined;
-
-    if (
-      selectedAttributionId &&
-      selectedAttributionIsExternal !== null &&
-      selectedAttributionIsExternal !== undefined &&
-      !selectedAttributionList?.[selectedAttributionId] &&
-      replacementAttribution
-    ) {
-      dispatch(setSelectedAttributionId(replacementAttribution.id));
-    }
-  }, [
-    dispatch,
-    selectedAttributionId,
-    selectedAttributionIsExternal,
-    selectedAttributionList,
-  ]);
   const compareToOriginal = useCompareToOriginal(temporaryDisplayPackageInfo);
 
   const wasPreferred =
