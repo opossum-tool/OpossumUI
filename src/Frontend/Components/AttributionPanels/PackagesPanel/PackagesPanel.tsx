@@ -102,7 +102,7 @@ export const PackagesPanel = ({
 
   const [multiSelectedAttributionIds, setMultiSelectedAttributionIds] =
     useState<Array<string>>([]);
-  const [activeRelation, setActiveRelation] = useState<Relation>('children');
+  const [activeRelation, setActiveRelation] = useState<Relation | null>(null);
   const { filterProps } = useFilterProperties({
     mode: external ? 'external' : 'manual',
   });
@@ -192,13 +192,13 @@ export const PackagesPanel = ({
     effectiveSelectedIds,
   );
 
-  // reset multi-selected IDs when selected resource changes
+  // reset resource-dependent state when the selected resource changes
   useEffect(() => {
-    if (
-      selectedResourceId !== previousSelectedResourceId &&
-      multiSelectedAttributionIds.length
-    ) {
-      setMultiSelectedAttributionIds([]);
+    if (selectedResourceId !== previousSelectedResourceId) {
+      if (multiSelectedAttributionIds.length) {
+        setMultiSelectedAttributionIds([]);
+      }
+      setActiveRelation(null);
     }
   }, [
     multiSelectedAttributionIds.length,
@@ -223,12 +223,13 @@ export const PackagesPanel = ({
   // reset active relation when active relation no longer exists
   useEffect(() => {
     if (
+      !loading &&
       availableRelations?.length &&
       (!activeRelation || !availableRelations.includes(activeRelation))
     ) {
       setActiveRelation(availableRelations[0]);
     }
-  }, [activeRelation, availableRelations]);
+  }, [activeRelation, availableRelations, loading]);
 
   // switch to the tab of a newly selected attribution
   useEffect(() => {
@@ -238,9 +239,8 @@ export const PackagesPanel = ({
   }, [selectedAttributionRelation]);
 
   const childrenProps: PackagesPanelChildrenProps = {
-    activeAttributionIds: groupedIds
-      ? (groupedIds[activeRelation] ?? [])
-      : null,
+    activeAttributionIds:
+      groupedIds && activeRelation ? (groupedIds[activeRelation] ?? []) : null,
     activeRelation,
     attributionIds,
     attributions,
