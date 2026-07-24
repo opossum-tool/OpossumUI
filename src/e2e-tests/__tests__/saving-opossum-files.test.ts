@@ -64,48 +64,60 @@ const saveScenarios: Array<SaveScenario> = [
 ];
 
 for (const { data, packageInfo, title } of saveScenarios) {
-  test.describe(title, () => {
+  test.describe(`${title} when opened from the CLI`, () => {
+    test.use({ data, openFromCLI: true });
+    runSavingTest(packageInfo);
+  });
+
+  test.describe(`${title} when opened with the file dialog`, () => {
     test.use({ data, openFromCLI: false });
 
-    test('persists a modified attribution', async ({
-      attributionDetails,
-      attributionsPanel,
-      filePaths,
-      menuBar,
-      resourcesTree,
-      window,
-    }) => {
-      const comment = faker.lorem.sentences();
-
+    test.beforeEach(async ({ filePaths, menuBar, window }) => {
       await stubOpenDialogSync(window.app, [filePaths!.opossum]);
       await menuBar.openFile();
-      await menuBar.assert.initiallyDisabledEntriesAreEnabled();
-      await resourcesTree.goto(resourceName);
-      await attributionsPanel.packageCard.click(packageInfo);
-      await attributionDetails.attributionForm.comment.fill(comment);
-      await menuBar.saveChanges();
-
-      await expect
-        .poll(
-          () =>
-            hasPersistedAttribution({
-              comment,
-              opossumFilePath: filePaths!.opossum,
-              packageName: packageInfo.packageName!,
-              resourcePath,
-            }),
-          {
-            message: 'Expected output.json to contain the updated attribution',
-          },
-        )
-        .toBe(true);
-
-      await stubOpenDialogSync(window.app, [filePaths!.opossum]);
-      await menuBar.openFile();
-      await resourcesTree.goto(resourceName);
-      await attributionsPanel.packageCard.click(packageInfo);
-      await attributionDetails.attributionForm.assert.commentIs(comment);
     });
+
+    runSavingTest(packageInfo);
+  });
+}
+
+function runSavingTest(packageInfo: RawPackageInfo): void {
+  test('persists a modified attribution', async ({
+    attributionDetails,
+    attributionsPanel,
+    filePaths,
+    menuBar,
+    resourcesTree,
+    window,
+  }) => {
+    const comment = faker.lorem.sentences();
+
+    await menuBar.assert.initiallyDisabledEntriesAreEnabled();
+    await resourcesTree.goto(resourceName);
+    await attributionsPanel.packageCard.click(packageInfo);
+    await attributionDetails.attributionForm.comment.fill(comment);
+    await menuBar.saveChanges();
+
+    await expect
+      .poll(
+        () =>
+          hasPersistedAttribution({
+            comment,
+            opossumFilePath: filePaths!.opossum,
+            packageName: packageInfo.packageName!,
+            resourcePath,
+          }),
+        {
+          message: 'Expected output.json to contain the updated attribution',
+        },
+      )
+      .toBe(true);
+
+    await stubOpenDialogSync(window.app, [filePaths!.opossum]);
+    await menuBar.openFile();
+    await resourcesTree.goto(resourceName);
+    await attributionsPanel.packageCard.click(packageInfo);
+    await attributionDetails.attributionForm.assert.commentIs(comment);
   });
 }
 
