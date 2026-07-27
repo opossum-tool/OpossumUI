@@ -20,8 +20,12 @@ export class TopBar {
   constructor(window: Page) {
     this.window = window;
     this.node = window.getByLabel('top bar');
-    this.auditViewButton = this.node.getByRole('button', { name: 'audit' });
-    this.reportViewButton = this.node.getByRole('button', { name: 'report' });
+    this.auditViewButton = this.node.getByRole('button', {
+      name: text.topBar.audit,
+    });
+    this.reportViewButton = this.node.getByRole('button', {
+      name: text.topBar.report,
+    });
     this.progressBar = this.node.getByLabel(/Progress bar.*/);
     this.progressBarSelector = this.node.getByLabel(
       text.topBar.switchableProgressBar.selectAriaLabel,
