@@ -117,7 +117,7 @@ export function getResourceTree({
 
       const total = (
         await trx
-          .withTables<FilteredTable>()
+          .$extendTables<FilteredTable>()
           .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
           .select((eb) => eb.fn.countAll<number>().as('count'))
           .executeTakeFirstOrThrow()
@@ -132,7 +132,7 @@ export function getResourceTree({
 
         belowSelectedResourceTotal = (
           await trx
-            .withTables<FilteredTable>()
+            .$extendTables<FilteredTable>()
             .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
             .select((eb) => eb.fn.countAll<number>().as('count'))
             .where((eb) =>

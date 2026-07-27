@@ -118,7 +118,7 @@ export async function removeRedundantAttributions(
 
   const affectedAttributionUuids = (
     await trx
-      .withTables<{ duplicate_resources: { resource_id: number } }>()
+      .$extendTables<{ duplicate_resources: { resource_id: number } }>()
       .selectFrom('resource_to_attribution')
       .select('attribution_uuid')
       .where('attribution_is_external', '=', 0)
@@ -131,7 +131,7 @@ export async function removeRedundantAttributions(
   ).map((attribution) => attribution.attribution_uuid);
 
   await trx
-    .withTables<{ duplicate_resources: { resource_id: number } }>()
+    .$extendTables<{ duplicate_resources: { resource_id: number } }>()
     .deleteFrom('resource_to_attribution')
     .where('attribution_is_external', '=', 0)
     .where('resource_id', 'in', (eb) =>
@@ -148,7 +148,7 @@ export async function removeRedundantAttributions(
   // so they can't be ignored when checking for remaining attributions on the resources.
   await removeManualOrExternalCaaFromResources(trx, 'manual', {
     resourceIds: trx
-      .withTables<{ duplicate_resources: { resource_id: number } }>()
+      .$extendTables<{ duplicate_resources: { resource_id: number } }>()
       .selectFrom('duplicate_resources')
       .select('resource_id'),
   });
