@@ -121,6 +121,48 @@ export async function initializeDb(inputFile: ParsedFileContent) {
     });
 }
 
+export async function refreshReadonlyDataAfterSplit() {
+  await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      await sql`
+        WITH RECURSIVE resource_readonly(id, is_readonly) AS (
+          SELECT r.id, COALESCE(rule.readonly, 0)
+          FROM resource AS r
+          LEFT JOIN readonly_rule AS rule ON rule.path = '/'
+          WHERE r.path = ''
+
+          UNION ALL
+
+          SELECT child.id, COALESCE(rule.readonly, parent.is_readonly)
+          FROM resource AS child
+          INNER JOIN resource_readonly AS parent ON parent.id = child.parent_id
+          LEFT JOIN readonly_rule AS rule ON rule.path = child.path
+        )
+        UPDATE resource
+        SET is_readonly = (
+          SELECT is_readonly
+          FROM resource_readonly
+          WHERE resource_readonly.id = resource.id
+        )
+      `.execute(trx);
+
+      await sql`
+        UPDATE resource AS parent
+        SET has_editable_descendant = EXISTS (
+          SELECT 1
+          FROM resource AS descendant
+          WHERE descendant.id BETWEEN parent.id AND parent.max_descendant_id
+            AND descendant.is_readonly = 0
+        )
+      `.execute(trx);
+
+      await trx.schema.dropTable('closest_attributed_ancestors').execute();
+      await initializeProgressBarTable(trx);
+      await initializeAttributionResourceAccess(trx, false);
+    });
+}
+
 async function initializeProgressBarTable(trx: Transaction<DB>) {
   await trx.schema
     .createTable('closest_attributed_ancestors')
@@ -741,7 +783,10 @@ async function initializeResourceToAttributionTable(
     .execute();
 }
 
-async function initializeAttributionResourceAccess(trx: Transaction<DB>) {
+async function initializeAttributionResourceAccess(
+  trx: Transaction<DB>,
+  createIndex = true,
+) {
   await sql`
     WITH resource_accesses AS MATERIALIZED (
       SELECT
@@ -766,11 +811,13 @@ async function initializeAttributionResourceAccess(trx: Transaction<DB>) {
     )
   `.execute(trx);
 
-  await trx.schema
-    .createIndex('attribution_resource_access_audit_idx')
-    .on('attribution')
+  if (createIndex) {
+    await trx.schema
+      .createIndex('attribution_resource_access_audit_idx')
+      .on('attribution')
       .columns(['resource_access', 'is_external', 'is_resolved', 'uuid'])
-      .execute();
+    .execute();
+  }
 }
 
 async function initializeFrequentLicenseTable(

@@ -5,7 +5,10 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { renderComponent } from '../../../test-helpers/render';
+import { queryClient } from '../../AppContainer/queryClient';
 import { SplitDialog } from '../SplitDialog';
 
 describe('SplitDialog', () => {
@@ -85,6 +88,7 @@ describe('SplitDialog', () => {
 
   it('displays a success message until the user closes the dialog', async () => {
     const onClose = vi.fn();
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
     vi.mocked(window.electronAPI.selectSplitDestination).mockResolvedValue(
       '/partitions/source.opossum',
     );
@@ -92,8 +96,9 @@ describe('SplitDialog', () => {
       status: 'success',
     });
 
-    await renderComponent(
+    const { store } = await renderComponent(
       <SplitDialog open={true} resourcePath={resourcePath} onClose={onClose} />,
+      { actions: [setSelectedResourceId(resourcePath)] },
     );
 
     fireEvent.click(screen.getByTestId('split-destination-path-input'));
@@ -113,6 +118,10 @@ describe('SplitDialog', () => {
     expect(
       await screen.findByText(text.splitDialog.success),
     ).toBeInTheDocument();
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['backend'],
+    });
+    expect(getSelectedResourceId(store.getState())).toBe('/');
     expect(onClose).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: text.buttons.close }));

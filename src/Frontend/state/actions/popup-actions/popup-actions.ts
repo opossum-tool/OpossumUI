@@ -7,8 +7,10 @@ import type {
   ExportType,
   FileFormatInfo,
   PackageInfo,
+  SplitFileResult,
 } from '../../../../shared/shared-types';
 import type { View } from '../../../enums/enums';
+import { invalidateBackendQueries } from '../../../util/backendClient';
 import {
   getIsPackageInfoDirty,
   getSelectedResourceId,
@@ -25,6 +27,7 @@ import {
 import type { AppThunkAction } from '../../types';
 import type { AttributionFilters } from '../../variables/use-filters';
 import {
+  resetResourceState,
   setIsPackageInfoDirty,
   setTemporaryDisplayPackageInfo,
 } from '../resource-actions/all-views-simple-actions';
@@ -197,6 +200,23 @@ export function showSplitDialogOrOpenUnsavedPopup(
     requestContinuation: (dispatch) =>
       dispatch(setSplitFileRequest({ resourcePath })),
   });
+}
+
+export function createSplit(
+  selectedResourcePaths: Array<string>,
+  destinationPath: string,
+): AppThunkAction<Promise<SplitFileResult>> {
+  return async (dispatch) => {
+    const result = await window.electronAPI.splitFile(
+      selectedResourcePaths,
+      destinationPath,
+    );
+    if (result.status === 'success') {
+      dispatch(resetResourceState());
+      await invalidateBackendQueries();
+    }
+    return result;
+  };
 }
 
 export function proceedFromUnsavedPopup(): AppThunkAction {

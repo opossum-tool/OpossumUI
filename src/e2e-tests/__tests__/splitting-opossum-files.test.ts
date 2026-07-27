@@ -11,19 +11,26 @@ import type { ResourcesTree } from '../page-objects/ResourcesTree';
 import type { SplitDialog } from '../page-objects/SplitDialog';
 import { faker, stubOpenDialogSync, stubSaveDialogSync, test } from '../utils';
 
-const [firstResourceName, secondResourceName] = faker.opossum.resourceNames({
-  count: 2,
-});
-const firstResourcePath = faker.opossum.filePath(firstResourceName);
-const secondResourcePath = faker.opossum.filePath(secondResourceName);
+const [
+  firstDirectoryName,
+  secondDirectoryName,
+  firstResourceName,
+  secondResourceName,
+] = faker.opossum.resourceNames({ count: 4 });
+const firstDirectoryPath = faker.opossum.filePath(firstDirectoryName);
+const secondDirectoryPath = faker.opossum.filePath(secondDirectoryName);
+const firstResourcePath = faker.opossum.filePath(
+  firstDirectoryName,
+  firstResourceName,
+);
 const [attributionId, packageInfo] = faker.opossum.rawAttribution();
 
 test.use({
   data: {
     inputData: faker.opossum.inputData({
       resources: faker.opossum.resources({
-        [firstResourceName]: 1,
-        [secondResourceName]: 1,
+        [firstDirectoryName]: { [firstResourceName]: 1 },
+        [secondDirectoryName]: { [secondResourceName]: 1 },
       }),
       metadata: faker.opossum.metadata({ projectId: 'test_project' }),
     }),
@@ -42,7 +49,7 @@ test('opens and cancels the create split dialog', async ({
   resourcesTree,
   splitDialog,
 }) => {
-  await resourcesTree.openSplitDialog(firstResourceName);
+  await resourcesTree.openSplitDialog(firstDirectoryName);
   await splitDialog.assert.titleIsVisible();
 
   await splitDialog.cancelButton.click();
@@ -65,12 +72,12 @@ test('warns user of unsaved changes before creating a split', async ({
   notSavedPopup,
   resourcesTree,
 }) => {
-  await resourcesTree.goto(firstResourceName);
+  await resourcesTree.goto(firstDirectoryName, firstResourceName);
   await attributionDetails.attributionForm.comment.fill(
     faker.lorem.sentences(),
   );
 
-  await resourcesTree.openSplitDialog(firstResourceName);
+  await resourcesTree.openSplitDialog(firstDirectoryName);
 
   await notSavedPopup.assert.isVisible();
 });
@@ -78,14 +85,16 @@ test('warns user of unsaved changes before creating a split', async ({
 test('opens the new split file', async ({
   attributionsPanel,
   menuBar,
+  reportView,
   resourcesTree,
   splitDialog,
+  topBar,
   window,
 }, testInfo) => {
   const partitionPath = testInfo.outputPath('partition.opossum');
   await stubSaveDialogSync(window.app, partitionPath);
 
-  await resourcesTree.openSplitDialog(firstResourceName);
+  await resourcesTree.openSplitDialog(firstDirectoryName);
   await splitDialog.destinationPathSelection.click();
   await splitDialog.assert.destinationPathIs(partitionPath);
 
@@ -95,12 +104,19 @@ test('opens the new split file', async ({
   await expect.poll(() => fs.existsSync(partitionPath)).toBe(true);
   await splitDialog.closeButton.click();
 
+  await resourcesTree.assert.resourceIsHidden(firstDirectoryName);
+  await resourcesTree.assert.resourceIsVisible(secondDirectoryName);
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo);
+  await topBar.gotoReportView();
+  await reportView.assert.attributionIsHidden(attributionId);
+  await topBar.gotoAuditView();
+
   await stubOpenDialogSync(window.app, [partitionPath]);
   await menuBar.openFile();
 
-  await resourcesTree.assert.resourceIsVisible(firstResourceName);
-  await resourcesTree.assert.resourceIsHidden(secondResourceName);
-  await resourcesTree.goto(firstResourceName);
+  await resourcesTree.assert.resourceIsVisible(firstDirectoryName);
+  await resourcesTree.assert.resourceIsHidden(secondDirectoryName);
+  await resourcesTree.goto(firstDirectoryName, firstResourceName);
   await attributionsPanel.packageCard.assert.isVisible(packageInfo);
 });
 
@@ -113,15 +129,18 @@ test('creates a split from multiple resources', async ({
   const partitionPath = testInfo.outputPath('multiple-resources.opossum');
   await stubSaveDialogSync(window.app, partitionPath);
 
-  await resourcesTree.openSplitDialog(firstResourceName);
-  await splitDialog.toggleResourceSelection(secondResourceName);
+  await resourcesTree.openSplitDialog(firstDirectoryName);
+  await splitDialog.toggleResourceSelection(secondDirectoryName);
   await splitDialog.destinationPathSelection.click();
   await splitDialog.createButton.click();
 
   await splitDialog.assert.succeeded();
   await expect.poll(() => fs.existsSync(partitionPath)).toBe(true);
 
-  const selectedResourcePaths = [firstResourcePath, secondResourcePath].sort();
+  const selectedResourcePaths = [
+    firstDirectoryPath,
+    secondDirectoryPath,
+  ].sort();
   expect(getReadonlyRules(filePaths!.opossum)).toEqual(
     selectedResourcePaths.map((path) => ({ path, readonly: true })),
   );
@@ -142,63 +161,38 @@ test('creates two consecutive partitions from writable resources', async ({
 
   await createPartition({
     destinationPath: firstPartitionPath,
-    resourceName: firstResourceName,
+    resourceName: firstDirectoryName,
     resourcesTree,
     splitDialog,
     window,
   });
   await splitDialog.closeButton.click();
 
-  await createPartition({
-    destinationPath: secondPartitionPath,
-    resourceName: secondResourceName,
-    resourcesTree,
-    splitDialog,
-    window,
-  });
+  await resourcesTree.assert.resourceIsHidden(firstDirectoryName);
+  await resourcesTree.assert.resourceIsVisible(secondDirectoryName);
+
+  await stubSaveDialogSync(window.app, secondPartitionPath);
+  await resourcesTree.openSplitDialog(secondDirectoryName);
+  await splitDialog.assert.resourceIsHidden(firstDirectoryName);
+  await splitDialog.assert.resourceIsVisible(secondDirectoryName);
+  await splitDialog.destinationPathSelection.click();
+  await splitDialog.createButton.click();
+  await splitDialog.assert.succeeded();
 
   await expect.poll(() => fs.existsSync(secondPartitionPath)).toBe(true);
 
   expect(getReadonlyRules(filePaths!.opossum)).toEqual([
-    { path: firstResourcePath, readonly: true },
-    { path: secondResourcePath, readonly: true },
+    { path: firstDirectoryPath, readonly: true },
+    { path: secondDirectoryPath, readonly: true },
   ]);
   expect(getReadonlyRules(firstPartitionPath)).toEqual([
     { path: '/', readonly: true },
-    { path: firstResourcePath, readonly: false },
+    { path: firstDirectoryPath, readonly: false },
   ]);
   expect(getReadonlyRules(secondPartitionPath)).toEqual([
     { path: '/', readonly: true },
-    { path: secondResourcePath, readonly: false },
+    { path: secondDirectoryPath, readonly: false },
   ]);
-});
-
-test('rejects a second split of a readonly resource', async ({
-  resourcesTree,
-  splitDialog,
-  window,
-}, testInfo) => {
-  const firstPartitionPath = testInfo.outputPath('first-partition.opossum');
-  const rejectedPartitionPath = testInfo.outputPath(
-    'rejected-partition.opossum',
-  );
-
-  await createPartition({
-    destinationPath: firstPartitionPath,
-    resourceName: firstResourceName,
-    resourcesTree,
-    splitDialog,
-    window,
-  });
-  await splitDialog.closeButton.click();
-
-  await stubSaveDialogSync(window.app, rejectedPartitionPath);
-  await resourcesTree.openSplitDialog(firstResourceName);
-  await splitDialog.destinationPathSelection.click();
-  await splitDialog.createButton.click();
-
-  await splitDialog.assert.showsError(`'${firstResourcePath}' is readonly`);
-  expect(fs.existsSync(rejectedPartitionPath)).toBe(false);
 });
 
 async function createPartition({

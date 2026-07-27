@@ -7,6 +7,8 @@ import MuiTypography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 
 import { text } from '../../../shared/text';
+import { createSplit } from '../../state/actions/popup-actions/popup-actions';
+import { useAppDispatch } from '../../state/hooks';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { MultiResourcePicker } from './MultiResourcePicker';
@@ -22,6 +24,7 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
   open,
   resourcePath,
 }) => {
+  const dispatch = useAppDispatch();
   const [destinationPath, setDestinationPath] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>();
   const [splitInProgress, setSplitInProgress] = useState(false);
@@ -61,13 +64,12 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
     }
   }
 
-  async function createSplit(): Promise<void> {
+  async function handleCreateSplit(): Promise<void> {
     setSplitInProgress(true);
     setErrorMessage(undefined);
     try {
-      const result = await window.electronAPI.splitFile(
-        selectedResourcePaths,
-        destinationPath,
+      const result = await dispatch(
+        createSplit(selectedResourcePaths, destinationPath),
       );
       if (result.status === 'success') {
         setSplitSucceeded(true);
@@ -93,7 +95,7 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
         splitSucceeded
           ? undefined
           : {
-              onClick: createSplit,
+              onClick: handleCreateSplit,
               buttonText: text.splitDialog.create,
               disabled:
                 !destinationPath ||
