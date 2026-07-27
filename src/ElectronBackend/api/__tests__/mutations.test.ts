@@ -12,6 +12,16 @@ import { AttributionResourceAccess } from '../../types/types';
 import { listAttributions } from '../listAttributions';
 import { mutations } from '../mutations';
 
+async function resourceAccessOf(attributionUuid: string) {
+  return (
+    await getDb()
+      .selectFrom('attribution')
+      .select('resource_access')
+      .where('uuid', '=', attributionUuid)
+      .executeTakeFirstOrThrow()
+  ).resource_access;
+}
+
 describe('attribution resource access', () => {
   async function initializeReadonlyStructuralAncestor() {
     await initializeDbWithTestData({
@@ -118,6 +128,9 @@ describe('attribution resource access', () => {
     expect(Object.keys(attributions)).toEqual(
       Object.values(result.inputKeysToNewUuids),
     );
+    expect(await resourceAccessOf(result.inputKeysToNewUuids.new)).toBe(
+      AttributionResourceAccess.Writable,
+    );
   });
 
   it('hides an attribution after its last writable link is removed', async () => {
@@ -146,6 +159,9 @@ describe('attribution resource access', () => {
     });
 
     expect(attributions).toEqual({});
+    expect(await resourceAccessOf('shared')).toBe(
+      AttributionResourceAccess.Readonly,
+    );
   });
 });
 
@@ -190,16 +206,6 @@ describe('mixed attribution mutations', () => {
         .where('resource.path', '=', path)
         .execute()
     ).map((link) => link.attribution_uuid);
-  }
-
-  async function resourceAccessOf(attributionUuid: string) {
-    return (
-      await getDb()
-        .selectFrom('attribution')
-        .select('resource_access')
-        .where('uuid', '=', attributionUuid)
-        .executeTakeFirstOrThrow()
-    ).resource_access;
   }
 
   it('clones a mixed attribution before updating its writable partition', async () => {

@@ -90,11 +90,14 @@ describe('splitOpossumFile', () => {
       resources: pathsToResources(['/docs/README.md', '/frontend/App.tsx']),
       manualAttributions: {
         attributions: {
+          readonly: { id: 'readonly', criticality: Criticality.None },
           shared: { id: 'shared', criticality: Criticality.None },
+          unlinked: { id: 'unlinked', criticality: Criticality.None },
+          writable: { id: 'writable', criticality: Criticality.None },
         },
         resourcesToAttributions: {
-          '/docs/README.md': ['shared'],
-          '/frontend/App.tsx': ['shared'],
+          '/docs/README.md': ['readonly', 'shared'],
+          '/frontend/App.tsx': ['shared', 'writable'],
         },
         attributionsToResources: {},
       },
@@ -150,10 +153,15 @@ describe('splitOpossumFile', () => {
     expect(
       await getDb()
         .selectFrom('attribution')
-        .select('resource_access')
-        .where('uuid', '=', 'shared')
-        .executeTakeFirstOrThrow(),
-    ).toEqual({ resource_access: AttributionResourceAccess.Mixed });
+        .select(['uuid', 'resource_access'])
+        .orderBy('uuid')
+        .execute(),
+    ).toEqual([
+      { uuid: 'readonly', resource_access: AttributionResourceAccess.Readonly },
+      { uuid: 'shared', resource_access: AttributionResourceAccess.Mixed },
+      { uuid: 'unlinked', resource_access: AttributionResourceAccess.Unlinked },
+      { uuid: 'writable', resource_access: AttributionResourceAccess.Writable },
+    ]);
   });
 
   it('retains readonly rules across consecutive splits', async () => {
