@@ -7,6 +7,8 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
+import { getDb } from '../../db/db';
+import { AttributionResourceAccess } from '../../types/types';
 import { listAttributions } from '../listAttributions';
 import { mutations } from '../mutations';
 
@@ -61,5 +63,163 @@ describe('attribution resource access', () => {
     });
 
     expect(attributions).toEqual({});
+  });
+});
+
+describe('mixed attribution mutations', () => {
+  async function initializeMixedAttribution() {
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/readonly/file.ts',
+        '/writable/file.ts',
+        '/writable/replacement.ts',
+      ]),
+      manualAttributions: {
+        attributions: {
+          shared: {
+            id: 'shared',
+            criticality: Criticality.None,
+            packageName: 'original',
+          },
+          replacement: {
+            id: 'replacement',
+            criticality: Criticality.None,
+            packageName: 'replacement',
+          },
+        },
+        resourcesToAttributions: {
+          '/readonly/file.ts': ['shared'],
+          '/writable/file.ts': ['shared'],
+          '/writable/replacement.ts': ['replacement'],
+        },
+        attributionsToResources: {},
+      },
+      splitInfo: {
+        splitId: 'split-id',
+        inputSha256: 'a'.repeat(64),
+        readonlyRules: [{ path: '/readonly', readonly: true }],
+      },
+    });
+  }
+
+  async function attributionUuidsOn(path: string) {
+    return (
+      await getDb()
+        .selectFrom('resource_to_attribution as rta')
+        .innerJoin('resource', 'resource.id', 'rta.resource_id')
+        .select('attribution_uuid')
+        .where('resource.path', '=', path)
+        .execute()
+    ).map((link) => link.attribution_uuid);
+  }
+
+  async function resourceAccessOf(attributionUuid: string) {
+    return (
+      await getDb()
+        .selectFrom('attribution')
+        .select('resource_access')
+        .where('uuid', '=', attributionUuid)
+        .executeTakeFirstOrThrow()
+    ).resource_access;
+  }
+
+  it('clones a mixed attribution before updating its writable partition', async () => {
+    await initializeMixedAttribution();
+
+    await mutations.updateAttributions({
+      attributions: {
+        shared: {
+          id: 'shared',
+          criticality: Criticality.None,
+          packageName: 'updated',
+        },
+      },
+    });
+
+    expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
+    const writableUuids = await attributionUuidsOn('/writable/file.ts');
+    expect(writableUuids).toHaveLength(1);
+    expect(writableUuids).not.toContain('shared');
+    expect(await resourceAccessOf('shared')).toBe(
+      AttributionResourceAccess.Readonly,
+    );
+    expect(await resourceAccessOf(writableUuids[0])).toBe(
+      AttributionResourceAccess.Writable,
+    );
+    expect(
+      await getDb()
+        .selectFrom('attribution')
+        .select('package_name')
+        .where('uuid', '=', 'shared')
+        .executeTakeFirstOrThrow(),
+    ).toEqual({ package_name: 'original' });
+    expect(
+      await getDb()
+        .selectFrom('attribution')
+        .select('package_name')
+        .where('uuid', '=', writableUuids[0])
+        .executeTakeFirstOrThrow(),
+    ).toEqual({ package_name: 'updated' });
+  });
+
+  it('returns the writable clone UUID after updating a mixed attribution', async () => {
+    await initializeMixedAttribution();
+
+    const response = await mutations.updateAttributions({
+      attributions: {
+        shared: {
+          id: 'shared',
+          criticality: Criticality.None,
+          packageName: 'updated',
+        },
+      },
+    });
+
+    expect(response).toMatchObject({
+      result: {
+        oldUuidsToNewUuids: {
+          shared: expect.not.stringMatching(/^shared$/),
+        },
+      },
+    });
+  });
+
+  it('clones a mixed attribution before deleting its writable partition', async () => {
+    await initializeMixedAttribution();
+
+    await mutations.deleteAttributions({ attributionUuids: ['shared'] });
+
+    expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
+    expect(await attributionUuidsOn('/writable/file.ts')).toEqual([]);
+    expect(
+      await getDb()
+        .selectFrom('attribution')
+        .select('uuid')
+        .where('uuid', '=', 'shared')
+        .executeTakeFirst(),
+    ).toEqual({ uuid: 'shared' });
+    expect(await resourceAccessOf('shared')).toBe(
+      AttributionResourceAccess.Readonly,
+    );
+  });
+
+  it('clones a mixed attribution before replacing its writable partition', async () => {
+    await initializeMixedAttribution();
+
+    await mutations.replaceAttributions({
+      attributionUuidsToReplace: ['shared'],
+      attributionUuidToReplaceWith: 'replacement',
+    });
+
+    expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
+    expect(await attributionUuidsOn('/writable/file.ts')).toEqual([
+      'replacement',
+    ]);
+    expect(await resourceAccessOf('shared')).toBe(
+      AttributionResourceAccess.Readonly,
+    );
+    expect(await resourceAccessOf('replacement')).toBe(
+      AttributionResourceAccess.Writable,
+    );
   });
 });

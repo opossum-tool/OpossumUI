@@ -605,10 +605,60 @@ async function updateAttributionResourceAccess(
   `.execute(trx);
 }
 
+export async function cloneMixedAttributionsForWritableResources(
+  trx: Transaction<DB>,
+  attributionUuids: Array<string>,
+): Promise<Record<string, string>> {
+  if (attributionUuids.length === 0) {
+    return {};
+  }
+
+  const mixedAttributions = await trx
+    .selectFrom('attribution')
+    .select(['uuid', 'data', 'is_external', 'is_resolved'])
+    .where('uuid', 'in', attributionUuids)
+    .where('resource_access', '=', AttributionResourceAccess.Mixed)
+    .execute();
+  const oldUuidsToNewUuids: Record<string, string> = {};
+
+  for (const attribution of mixedAttributions) {
+    const newUuid = uuid4();
+    const data = JSON.parse(attribution.data) as PackageInfo;
+
+    await trx
+      .insertInto('attribution')
+      .values({
+        uuid: newUuid,
+        data: JSON.stringify({ ...data, id: newUuid }),
+        is_external: attribution.is_external,
+        is_resolved: attribution.is_resolved,
+      })
+      .execute();
+
+    await trx
+      .updateTable('resource_to_attribution')
+      .set('attribution_uuid', newUuid)
+      .where('attribution_uuid', '=', attribution.uuid)
+      .where('resource_id', 'in', (eb) =>
+        eb.selectFrom('resource').select('id').where('is_readonly', '=', 0),
+      )
+      .execute();
+
+    oldUuidsToNewUuids[attribution.uuid] = newUuid;
+  }
+
+  await updateAttributionResourceAccess(trx, [
+    ...mixedAttributions.map((attribution) => attribution.uuid),
+    ...Object.values(oldUuidsToNewUuids),
+  ]);
+
+  return oldUuidsToNewUuids;
+}
+
 export async function findMatchingAttributionUuid(
   trx: Transaction<DB>,
   packageInfo: PackageInfo,
-  options?: { ignorePreSelected?: boolean },
+  options?: { ignorePreSelected?: boolean; excludeUuids?: Array<string> },
 ) {
   const strippedPackageInfo = removeEmptyStrings(packageInfo);
 
@@ -616,7 +666,10 @@ export async function findMatchingAttributionUuid(
     .selectFrom('attribution')
     .select('uuid')
     .where('is_external', '=', 0)
-    .$if(!options?.ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0));
+    .$if(!options?.ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0))
+    .$if(options?.excludeUuids !== undefined, (eb) =>
+      eb.where('uuid', 'not in', options!.excludeUuids!),
+    );
 
   const attributesToCompare = COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES.filter(
     (a) => !(strippedPackageInfo.firstParty && THIRD_PARTY_KEYS.includes(a)),
@@ -764,7 +817,15 @@ export async function replaceAttributions(
     attributionUuidToReplaceWith: string;
   },
 ) {
-  await ensureAttributionsAreNotExternal(trx, params.attributionUuidsToReplace);
+  const oldUuidsToNewUuids = await cloneMixedAttributionsForWritableResources(
+    trx,
+    params.attributionUuidsToReplace,
+  );
+  const attributionUuidsToReplace = params.attributionUuidsToReplace.map(
+    (attributionUuid) => oldUuidsToNewUuids[attributionUuid] ?? attributionUuid,
+  );
+
+  await ensureAttributionsAreNotExternal(trx, attributionUuidsToReplace);
 
   const toReplaceWith = await getAttributionOrThrow(
     trx,
@@ -782,7 +843,7 @@ export async function replaceAttributions(
       .selectFrom('resource_to_attribution')
       .select('resource_id')
       .distinct()
-      .where('attribution_uuid', 'in', params.attributionUuidsToReplace)
+      .where('attribution_uuid', 'in', attributionUuidsToReplace)
       .execute()
   ).map((r) => r.resource_id);
 
@@ -791,12 +852,12 @@ export async function replaceAttributions(
   await sql`
   UPDATE OR IGNORE resource_to_attribution
   SET attribution_uuid = ${params.attributionUuidToReplaceWith}
-  WHERE attribution_uuid in (${sql.join(params.attributionUuidsToReplace)})
+  WHERE attribution_uuid in (${sql.join(attributionUuidsToReplace)})
   `.execute(trx);
 
   await trx
     .deleteFrom('attribution')
-    .where('uuid', 'in', params.attributionUuidsToReplace)
+    .where('uuid', 'in', attributionUuidsToReplace)
     .execute();
 
   await updateAttributionResourceAccess(trx, [
@@ -806,6 +867,8 @@ export async function replaceAttributions(
   await removeRedundantAttributions(trx, {
     resourceIds: connectedResources,
   });
+
+  return oldUuidsToNewUuids;
 }
 
 export function removeEmptyStrings(packageInfo: PackageInfo): PackageInfo {

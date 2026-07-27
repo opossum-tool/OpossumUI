@@ -48,8 +48,9 @@ export const ConfirmReplacePopup = ({
     );
 
   const handleReplace = async () => {
+    let replacementAttribution = selectedAttribution;
     if (selectedAttribution.preSelected) {
-      await updateAttributions.mutateAsync({
+      const { oldUuidsToNewUuids } = await updateAttributions.mutateAsync({
         attributions: {
           [selectedAttribution.id]: {
             ...selectedAttribution,
@@ -57,13 +58,21 @@ export const ConfirmReplacePopup = ({
           },
         },
       });
+      replacementAttribution = {
+        ...selectedAttribution,
+        id:
+          oldUuidsToNewUuids[selectedAttribution.id] ?? selectedAttribution.id,
+        preSelected: undefined,
+      };
     }
     await replaceAttributions.mutateAsync({
       attributionUuidsToReplace: attributionIdsForReplacement,
-      attributionUuidToReplaceWith: selectedAttribution.id,
+      attributionUuidToReplaceWith: replacementAttribution.id,
     });
     setAttributionIdsForReplacement([]);
-    dispatch(changeSelectedAttributionOrOpenUnsavedPopup(selectedAttribution));
+    dispatch(
+      changeSelectedAttributionOrOpenUnsavedPopup(replacementAttribution),
+    );
     onClose();
   };
 
