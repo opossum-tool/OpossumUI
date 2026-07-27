@@ -290,4 +290,30 @@ describe('SignalsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
     ).toBeDisabled();
   });
+
+  it('disables link button on a readonly structural ancestor', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const filePath = '/editable/file.ts';
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([filePath]),
+        externalAttributions: { [packageInfo.id]: packageInfo },
+        resourcesToExternalAttributions: { [filePath]: [packageInfo.id] },
+        readonlyRules: [
+          { path: '/', readonly: true },
+          { path: '/editable', readonly: false },
+        ],
+      }),
+    });
+
+    await userEvent.click(
+      await screen.findByText(
+        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+      ),
+    );
+
+    expect(
+      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
+    ).toBeDisabled();
+  });
 });

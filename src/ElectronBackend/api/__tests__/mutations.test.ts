@@ -13,6 +13,89 @@ import { listAttributions } from '../listAttributions';
 import { mutations } from '../mutations';
 
 describe('attribution resource access', () => {
+  async function initializeReadonlyStructuralAncestor() {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/editable/file.ts']),
+      manualAttributions: {
+        attributions: {
+          shared: { id: 'shared', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/': ['shared'],
+          '/editable/file.ts': ['shared'],
+        },
+        attributionsToResources: {},
+      },
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/editable', readonly: false },
+      ],
+    });
+  }
+
+  it('rejects creating an attribution on a readonly structural ancestor', async () => {
+    await initializeReadonlyStructuralAncestor();
+
+    await expect(
+      mutations.createOrMatchAttributions({
+        resourcePath: '/',
+        attributions: {
+          new: { id: 'new', criticality: Criticality.None },
+        },
+      }),
+    ).rejects.toThrow(/readonly/i);
+    expect(
+      await getDb()
+        .selectFrom('attribution')
+        .select('uuid')
+        .where('uuid', '=', 'new')
+        .execute(),
+    ).toEqual([]);
+  });
+
+  it('rejects modifying an attribution only on a readonly structural ancestor', async () => {
+    await initializeReadonlyStructuralAncestor();
+
+    await expect(
+      mutations.modifyOrMatchOnlyOnOneResource({
+        resourcePath: '/',
+        attributions: {
+          shared: {
+            id: 'shared',
+            criticality: Criticality.None,
+            packageName: 'updated',
+          },
+        },
+      }),
+    ).rejects.toThrow(/readonly/i);
+    expect(
+      await getDb()
+        .selectFrom('attribution')
+        .select('package_name')
+        .where('uuid', '=', 'shared')
+        .executeTakeFirstOrThrow(),
+    ).toEqual({ package_name: null });
+  });
+
+  it('rejects unlinking an attribution from a readonly structural ancestor', async () => {
+    await initializeReadonlyStructuralAncestor();
+
+    await expect(
+      mutations.unlinkResourceFromAttributions({
+        resourcePath: '/',
+        attributionUuids: ['shared'],
+      }),
+    ).rejects.toThrow(/readonly/i);
+    expect(
+      await getDb()
+        .selectFrom('resource_to_attribution as rta')
+        .innerJoin('resource', 'resource.id', 'rta.resource_id')
+        .select('attribution_uuid')
+        .where('resource.path', '=', '')
+        .execute(),
+    ).toEqual([{ attribution_uuid: 'shared' }]);
+  });
+
   it('makes a newly linked attribution visible without reloading the file', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/writable/file.ts']),
@@ -94,11 +177,7 @@ describe('mixed attribution mutations', () => {
         },
         attributionsToResources: {},
       },
-      splitInfo: {
-        splitId: 'split-id',
-        inputSha256: 'a'.repeat(64),
-        readonlyRules: [{ path: '/readonly', readonly: true }],
-      },
+      readonlyRules: [{ path: '/readonly', readonly: true }],
     });
   }
 

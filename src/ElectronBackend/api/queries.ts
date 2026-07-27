@@ -569,6 +569,16 @@ export const queries = {
       .execute();
     return { result: new Set(result.map((r) => r.path)) };
   },
+
+  async getReadonlyResourcePaths() {
+    const result = await getDb()
+      .selectFrom('resource')
+      .select('path')
+      .where('is_readonly', '=', 1)
+      .execute();
+    return { result: new Set(result.map((r) => r.path)) };
+  },
+
   async getResourceCountOnAttribution(props: { attributionUuid: string }) {
     const resourceCount = await getDb()
       .selectFrom('resource_to_attribution')

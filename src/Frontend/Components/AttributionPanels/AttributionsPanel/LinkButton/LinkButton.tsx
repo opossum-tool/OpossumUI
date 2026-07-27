@@ -16,7 +16,10 @@ import {
   getSelectedResourceId,
 } from '../../../../state/selectors/resource-selectors';
 import { backend } from '../../../../util/backendClient';
-import { useIsSelectedResourceBreakpoint } from '../../../../util/use-selected-resource';
+import {
+  useIsSelectedResourceBreakpoint,
+  useIsSelectedResourceReadonly,
+} from '../../../../util/use-selected-resource';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
@@ -29,6 +32,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   const dispatch = useAppDispatch();
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
+  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
@@ -62,6 +66,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
       aria-label={text.packageLists.linkAsAttribution}
       disabled={
         isSelectedResourceBreakpoint ||
+        isSelectedResourceReadonly ||
         !selectedAttributionIds.length ||
         isPackageInfoModified ||
         activeRelation === 'resource' ||

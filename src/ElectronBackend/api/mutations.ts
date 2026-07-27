@@ -15,6 +15,7 @@ import {
   cloneMixedAttributionsForWritableResources,
   ensureAttributionsAreLinkedOnMultipleResources,
   ensureAttributionsAreNotExternal,
+  ensureResourceIsWritable,
   findMatchingAttributionUuid,
   getAttributionOrThrow,
   getResourceOrThrow,
@@ -213,6 +214,7 @@ export const mutations = {
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
+        ensureResourceIsWritable(resource);
         await removeManualOrExternalCaaFromResources(trx, 'manual', {
           attributionUuids: params.attributionUuids,
           resourceIds: [resource.id],
@@ -259,6 +261,7 @@ export const mutations = {
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
+        ensureResourceIsWritable(resource);
         const inputUuids = Object.keys(params.attributions);
         await ensureAttributionsAreNotExternal(trx, inputUuids);
         await ensureAttributionsAreLinkedOnMultipleResources(trx, inputUuids);
@@ -306,6 +309,7 @@ export const mutations = {
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
+        ensureResourceIsWritable(resource);
 
         const inputKeysToNewUuids = await matchOrCreateAttributions(
           trx,

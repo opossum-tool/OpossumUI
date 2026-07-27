@@ -33,6 +33,21 @@ import { backend } from '../../../util/backendClient';
 import { AttributionDetails } from '../AttributionDetails';
 
 describe('AttributionDetails', () => {
+  it('renders nothing for a readonly structural ancestor without a selected attribution', async () => {
+    const { container } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/editable/file.ts']),
+        readonlyRules: [
+          { path: '/', readonly: true },
+          { path: '/editable', readonly: false },
+        ],
+      }),
+      actions: [setSelectedResourceId('/')],
+    });
+
+    await waitFor(() => expect(container).toBeEmptyDOMElement());
+  });
+
   it('renders nothing when the selected attribution ID is not visible', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const { container } = await renderComponent(<AttributionDetails />, {
@@ -375,6 +390,7 @@ describe('AttributionDetails', () => {
         resourcesToManualAttributions: {
           [resourceId]: [packageInfo1.id, packageInfo2.id],
         },
+        resources: pathsToResources([resourceId]),
       }),
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo1),
@@ -393,6 +409,7 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
+    const otherResourceId = faker.system.filePath();
     await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions: faker.opossum.attributions({
@@ -401,8 +418,9 @@ describe('AttributionDetails', () => {
         }),
         resourcesToManualAttributions: {
           [resourceId]: [packageInfo1.id],
+          [otherResourceId]: [packageInfo2.id],
         },
-        resources: pathsToResources([resourceId]),
+        resources: pathsToResources([resourceId, otherResourceId]),
       }),
       actions: [
         setSelectedResourceId(resourceId),
@@ -423,6 +441,7 @@ describe('AttributionDetails', () => {
     });
     await expectResourcesToManualAttributions({
       [resourceId]: [packageInfo1.id, packageInfo2.id],
+      [otherResourceId]: [packageInfo2.id],
     });
     await expectResolvedExternalAttributions(new Set());
   });
@@ -431,6 +450,7 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
+    const otherResourceId = faker.system.filePath();
     const { store } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions: faker.opossum.attributions({
@@ -439,8 +459,9 @@ describe('AttributionDetails', () => {
         }),
         resourcesToManualAttributions: {
           [resourceId]: [packageInfo1.id],
+          [otherResourceId]: [packageInfo2.id],
         },
-        resources: pathsToResources([resourceId]),
+        resources: pathsToResources([resourceId, otherResourceId]),
       }),
       actions: [
         setSelectedResourceId(resourceId),

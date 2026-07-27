@@ -216,7 +216,7 @@ export async function getResourceOrThrow(
 
   const resource = await dbOrTrx
     .selectFrom('resource')
-    .select(['id', 'max_descendant_id'])
+    .select(['id', 'max_descendant_id', 'is_readonly'])
     .where('path', '=', strippedResourcePath)
     .executeTakeFirst();
 
@@ -225,6 +225,12 @@ export async function getResourceOrThrow(
   }
 
   return resource;
+}
+
+export function ensureResourceIsWritable(resource: { is_readonly: number }) {
+  if (resource.is_readonly) {
+    throw new Error("Readonly resources can't be modified.");
+  }
 }
 
 export async function getClosestAncestorWithManualAttributionsBelowBreakpoint(
