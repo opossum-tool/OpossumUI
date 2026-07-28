@@ -67,25 +67,6 @@ All database queries (except bulk writes) should go through Kysely using
 `getDb()` from `src/ElectronBackend/db/db.ts`. Do not import `better-sqlite3`
 directly for query logic.
 
-## Dual better-sqlite3 builds
-
-This project uses `better-sqlite3` as a native Node.js addon, installed twice:
-
-| Package name              | Compiled for | Used by                         |
-| ------------------------- | ------------ | ------------------------------- |
-| `better-sqlite3`          | Node.js      | Vitest unit tests, Node scripts |
-| `better-sqlite3-electron` | Electron     | App at runtime                  |
-
-Source code always imports from `better-sqlite3`. Vite aliases it to
-`better-sqlite3-electron` when building the Electron main process (see
-`vite.config.mts`).
-
-If you see ABI mismatch errors after installing or rebuilding:
-
-```bash
-yarn rebuild:electron
-```
-
 ## API command pattern
 
 Backend API commands are the bridge between frontend and backend. The pattern:
@@ -128,7 +109,5 @@ or `e2e`.
 - Editing `databaseTypes.ts` by hand → overwritten on next `db:generate`,
   typecheck breaks
 - Forgetting to run `db:generate` after a schema change → `yarn typecheck` fails
-- Importing `better-sqlite3-electron` directly in source → breaks Vitest;
-  always import `better-sqlite3`
 - Adding an IPC channel string inline instead of in
   `src/shared/ipc-channels.ts` → divergent channel names cause silent failures
