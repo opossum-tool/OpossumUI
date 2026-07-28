@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import type AdmZip from 'adm-zip';
 
-import { getDb } from '../db/db';
 import { getReadonlyRules, replaceReadonlyRules } from '../db/split-info';
 import {
   splitOpossumArchive,
@@ -29,33 +28,15 @@ export async function splitOpossumFile(
 ): Promise<void> {
   await saveFile(saveFileParams, opossumZip);
   const currentReadonlyRules = await getReadonlyRules();
-  const normalizedSelectedFolderPaths = validateSelectedFolderPaths(
-    selectedFolderPaths,
-    currentReadonlyRules,
-  );
-  const selectedResources = await getDb()
-    .selectFrom('resource')
-    .select('path')
-    .where('path', 'in', normalizedSelectedFolderPaths)
-    .execute();
-  const selectedResourcePathsInDatabase = new Set(
-    selectedResources.map((resource) => resource.path),
-  );
-  for (const selectedFolderPath of normalizedSelectedFolderPaths) {
-    if (!selectedResourcePathsInDatabase.has(selectedFolderPath)) {
-      throw new Error(
-        `Selected resource '${selectedFolderPath}' does not exist`,
-      );
-    }
-  }
+  await validateSelectedFolderPaths(selectedFolderPaths, currentReadonlyRules);
   const result = await splitOpossumArchive({
     paths: {
       opossumFilePath: saveFileParams.opossumFilePath,
-      selectedFolderPaths: normalizedSelectedFolderPaths,
+      selectedFolderPaths,
       partitionOutputPath,
     },
     sourceZip: opossumZip,
     readonlyRules: currentReadonlyRules,
   });
-  await replaceReadonlyRules(result.complementReadonlyRules);
+  await replaceReadonlyRules(result.sourceReadonlyRules);
 }

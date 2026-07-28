@@ -6,6 +6,10 @@ import AdmZip from 'adm-zip';
 import type { ReadonlyRule } from '../../../shared/shared-types';
 import { INPUT_FILE_NAME } from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
+import {
+  initializeDbWithTestData,
+  pathsToResources,
+} from '../../../testing/global-test-helpers';
 import { parseOpossumFile } from '../../input/parseFile';
 import type { ParsedOpossumInputFile } from '../../types/types';
 import {
@@ -38,14 +42,14 @@ const input: ParsedOpossumInputFile = {
 };
 
 describe('splitOpossumArchive', () => {
-  it('creates complementary rules for an initial split', async () => {
-    const { complement, selected, partitionOutputPath, sourcePath } =
+  it('creates source rules for an initial split', async () => {
+    const { source, selected, partitionOutputPath, sourcePath } =
       await splitArchive({
         selectedFolderPaths: ['/docs', '/frontend'],
         readonlyRules: [],
       });
 
-    expect(complement).toEqual([
+    expect(source).toEqual([
       { path: '/docs', readonly: true },
       { path: '/frontend', readonly: true },
     ]);
@@ -63,7 +67,7 @@ describe('splitOpossumArchive', () => {
   });
 
   it('removes a writable override when that folder is split', async () => {
-    const { complement, selected } = await splitArchive({
+    const { source, selected } = await splitArchive({
       selectedFolderPaths: ['/frontend'],
       readonlyRules: [
         { path: '/', readonly: true },
@@ -71,15 +75,15 @@ describe('splitOpossumArchive', () => {
       ],
     });
 
-    expect(complement).toEqual([{ path: '/', readonly: true }]);
+    expect(source).toEqual([{ path: '/', readonly: true }]);
     expect(selected).toEqual([
       { path: '/', readonly: true },
       { path: '/frontend', readonly: false },
     ]);
   });
 
-  it('locks only the selected nested folder in the complement', async () => {
-    const { complement, selected } = await splitArchive({
+  it('locks only the selected nested folder in the source', async () => {
+    const { source, selected } = await splitArchive({
       selectedFolderPaths: ['/frontend/components'],
       readonlyRules: [
         { path: '/', readonly: true },
@@ -87,7 +91,7 @@ describe('splitOpossumArchive', () => {
       ],
     });
 
-    expect(complement).toEqual([
+    expect(source).toEqual([
       { path: '/', readonly: true },
       { path: '/frontend', readonly: false },
       { path: '/frontend/components', readonly: true },
@@ -98,8 +102,38 @@ describe('splitOpossumArchive', () => {
     ]);
   });
 
+  it('removes readonly rules below a selected folder in the source', async () => {
+    const { source, selected } = await splitArchive({
+      selectedFolderPaths: ['/frontend'],
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/frontend', readonly: false },
+        { path: '/frontend/components', readonly: true },
+      ],
+    });
+
+    expect(source).toEqual([{ path: '/', readonly: true }]);
+    expect(selected).toEqual([
+      { path: '/', readonly: true },
+      { path: '/frontend', readonly: false },
+    ]);
+  });
+
+  it('removes descendant rules below a selected folder without a rule of its own', async () => {
+    const { source, selected } = await splitArchive({
+      selectedFolderPaths: ['/frontend'],
+      readonlyRules: [{ path: '/frontend/components', readonly: true }],
+    });
+
+    expect(source).toEqual([{ path: '/frontend', readonly: true }]);
+    expect(selected).toEqual([
+      { path: '/', readonly: true },
+      { path: '/frontend', readonly: false },
+    ]);
+  });
+
   it('rewrites rules for several folders in an existing partition', async () => {
-    const { complement, selected } = await splitArchive({
+    const { source, selected } = await splitArchive({
       selectedFolderPaths: ['/docs', '/frontend/components'],
       readonlyRules: [
         { path: '/', readonly: true },
@@ -108,7 +142,7 @@ describe('splitOpossumArchive', () => {
       ],
     });
 
-    expect(complement).toEqual([
+    expect(source).toEqual([
       { path: '/', readonly: true },
       { path: '/frontend', readonly: false },
       { path: '/frontend/components', readonly: true },
@@ -120,8 +154,8 @@ describe('splitOpossumArchive', () => {
     ]);
   });
 
-  it('rejects a folder that is readonly under existing rules', () => {
-    expect(() =>
+  it('rejects a folder that is readonly under existing rules', async () => {
+    await expect(
       validateSelectedFolderPaths(
         ['/docs'],
         [
@@ -129,17 +163,31 @@ describe('splitOpossumArchive', () => {
           { path: '/frontend', readonly: false },
         ],
       ),
-    ).toThrow("'/docs' is readonly");
+    ).rejects.toThrow("'/docs' is readonly");
+  });
+
+  it('requires selected resource paths to exist', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/docs/README.md']),
+    });
+
+    await expect(
+      validateSelectedFolderPaths(['/docs/README.md'], []),
+    ).resolves.toBeUndefined();
+    await expect(validateSelectedFolderPaths(['/missing'], [])).rejects.toThrow(
+      "Selected resource '/missing' does not exist",
+    );
   });
 
   it.each([
     { selectedFolderPaths: [] },
     { selectedFolderPaths: ['/frontend', '/frontend/components'] },
+    { selectedFolderPaths: ['/foo', '/foo.txt', '/foo/bar'] },
     { selectedFolderPaths: ['/'] },
-  ])('rejects invalid folder selections', ({ selectedFolderPaths }) => {
-    expect(() => validateSelectedFolderPaths(selectedFolderPaths, [])).toThrow(
-      SplitOpossumFileError,
-    );
+  ])('rejects invalid folder selections', async ({ selectedFolderPaths }) => {
+    await expect(
+      validateSelectedFolderPaths(selectedFolderPaths, []),
+    ).rejects.toThrow(SplitOpossumFileError);
   });
 });
 
@@ -150,7 +198,7 @@ async function splitArchive({
   selectedFolderPaths: Array<string>;
   readonlyRules: Array<ReadonlyRule>;
 }): Promise<{
-  complement: Array<ReadonlyRule>;
+  source: Array<ReadonlyRule>;
   selected: Array<ReadonlyRule>;
   partitionOutputPath: string;
   sourcePath: string;
@@ -172,7 +220,7 @@ async function splitArchive({
     readonlyRules,
   });
   return {
-    complement: await parseReadonlyRules(sourcePath),
+    source: await parseReadonlyRules(sourcePath),
     selected: await parseReadonlyRules(partitionOutputPath),
     partitionOutputPath,
     sourcePath,

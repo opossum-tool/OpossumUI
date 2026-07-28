@@ -26,7 +26,7 @@ describe('splitOpossumFile', () => {
     vi.mocked(saveFile).mockReset();
   });
 
-  it('stores the complement split info after an initial split', async () => {
+  it('stores the source split info after an initial split', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/docs/README.md', '/frontend/App.tsx']),
     });

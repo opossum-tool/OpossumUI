@@ -11,6 +11,7 @@ import {
   INPUT_FILE_NAME,
   OPOSSUM_FILE_EXTENSION,
 } from '../../shared/write-file-utils';
+import { getDb } from '../db/db';
 
 interface SplitOpossumArchivePaths {
   opossumFilePath: string;
@@ -27,7 +28,7 @@ export interface SplitOpossumArchiveArgs {
 export interface SplitOpossumArchiveResult {
   selectedFolderPaths: Array<string>;
   partitionOutputPath: string;
-  complementReadonlyRules: Array<ReadonlyRule>;
+  sourceReadonlyRules: Array<ReadonlyRule>;
 }
 
 export type SplitOpossumFileErrorCode =
@@ -55,7 +56,7 @@ export async function splitOpossumArchive({
     throw new Error('Loaded .opossum archive does not contain input.json');
   }
 
-  const { complementReadonlyRules, selectedReadonlyRules } = createSplitRules(
+  const { sourceReadonlyRules, selectedReadonlyRules } = createSplitRules(
     existingReadonlyRules,
     paths.selectedFolderPaths,
   );
@@ -67,14 +68,14 @@ export async function splitOpossumArchive({
     partitionOutputPath: paths.partitionOutputPath,
     sourceZip: sourcePartitionZip,
     selectedPartitionZip,
-    complementReadonlyRules,
+    sourceReadonlyRules,
     selectedReadonlyRules,
   });
 
   return {
     selectedFolderPaths: paths.selectedFolderPaths,
     partitionOutputPath: paths.partitionOutputPath,
-    complementReadonlyRules,
+    sourceReadonlyRules,
   };
 }
 
@@ -100,23 +101,45 @@ function validateDestinationPath(partitionOutputPath: string): void {
   }
 }
 
-export function validateSelectedFolderPaths(
+async function validateResourcesExist(paths: string[]) {
+  const selectedResources = await getDb()
+    .selectFrom('resource')
+    .select('path')
+    .where('path', 'in', paths)
+    .execute();
+  const selectedResourcePathsInDatabase = new Set(
+    selectedResources.map((resource) => resource.path),
+  );
+  for (const selectedFolderPath of paths) {
+    if (!selectedResourcePathsInDatabase.has(selectedFolderPath)) {
+      throw new Error(
+        `Selected resource '${selectedFolderPath}' does not exist`,
+      );
+    }
+  }
+}
+
+export async function validateSelectedFolderPaths(
   selectedFolderPaths: Array<string>,
   readonlyRules: Array<ReadonlyRule>,
-): Array<string> {
+) {
   if (selectedFolderPaths.length === 0) {
     throw new SplitOpossumFileError(
       'invalid-selection',
       'Select at least one writable folder',
     );
   }
+  if (selectedFolderPaths.length !== new Set(selectedFolderPaths).size) {
+    throw new SplitOpossumFileError(
+      'invalid-selection',
+      'Selected folders must be unique',
+    );
+  }
 
-  const normalizedPaths = [...selectedFolderPaths].sort();
   const rulesByPath = new Map(
     readonlyRules.map((rule) => [rule.path, rule.readonly]),
   );
-  for (let index = 0; index < normalizedPaths.length; index += 1) {
-    const selectedPath = normalizedPaths[index];
+  for (const selectedPath of selectedFolderPaths) {
     if (!isCanonicalNonRootPath(selectedPath)) {
       throw new SplitOpossumFileError(
         'invalid-selection',
@@ -129,78 +152,65 @@ export function validateSelectedFolderPaths(
         `'${selectedPath}' is readonly`,
       );
     }
-    if (
-      index > 0 &&
-      (selectedPath === normalizedPaths[index - 1] ||
-        isEqualOrDescendant(selectedPath, normalizedPaths[index - 1]))
-    ) {
-      throw new SplitOpossumFileError(
-        'invalid-selection',
-        'Selected folders must be unique and non-overlapping',
-      );
-    }
   }
-  return normalizedPaths;
+
+  if (
+    selectedFolderPaths.some((path) =>
+      selectedFolderPaths.some((otherPath) => isDescendant(path, otherPath)),
+    )
+  ) {
+    throw new SplitOpossumFileError(
+      'invalid-selection',
+      'Selected folders must be non-overlapping',
+    );
+  }
+
+  await validateResourcesExist(selectedFolderPaths);
 }
 
 function createSplitRules(
   existingReadonlyRules: Array<ReadonlyRule>,
   selectedPaths: Array<string>,
 ): {
-  complementReadonlyRules: Array<ReadonlyRule>;
+  sourceReadonlyRules: Array<ReadonlyRule>;
   selectedReadonlyRules: Array<ReadonlyRule>;
 } {
-  const currentReadonlyRules = existingReadonlyRules;
   return {
-    complementReadonlyRules: createReadonlyRules(
-      currentReadonlyRules,
+    sourceReadonlyRules: createSourceReadonlyRules(
+      existingReadonlyRules,
       selectedPaths,
-      'complement',
     ),
-    selectedReadonlyRules: createReadonlyRules(
-      currentReadonlyRules,
-      selectedPaths,
-      'selected',
-    ),
+    selectedReadonlyRules: createSelectedReadonlyRules(selectedPaths),
   };
 }
 
-function createReadonlyRules(
+function createSelectedReadonlyRules(
+  selectedPaths: Array<string>,
+): Array<ReadonlyRule> {
+  return [
+    { path: '/', readonly: true },
+    ...selectedPaths.map((path) => ({ path, readonly: false })),
+  ];
+}
+
+function createSourceReadonlyRules(
   currentReadonlyRules: Array<ReadonlyRule>,
   selectedPaths: Array<string>,
-  partition: 'selected' | 'complement',
 ): Array<ReadonlyRule> {
-  const rules: Array<ReadonlyRule> = [];
-  const currentRulesByPath = new Map(
-    currentReadonlyRules.map((rule) => [rule.path, rule.readonly]),
+  const selectedPathsWithCurrentRule = selectedPaths.filter((selectedPath) =>
+    currentReadonlyRules.some((rule) => rule.path === selectedPath),
   );
-  const rulesByPath = new Map<string, boolean>();
-  const boundaryPaths = new Set([
-    '/',
-    ...currentReadonlyRules.map((rule) => rule.path),
-    ...selectedPaths,
-  ]);
 
-  for (const resourcePath of [...boundaryPaths].sort()) {
-    const currentReadonly = getReadonlyState(resourcePath, currentRulesByPath);
-    const isSelected = selectedPaths.some((selectedPath) =>
-      isEqualOrDescendant(resourcePath, selectedPath),
-    );
-    const readonly =
-      partition === 'selected'
-        ? currentReadonly || !isSelected
-        : currentReadonly || isSelected;
-    const inheritedReadonly =
-      resourcePath === '/'
-        ? false
-        : getReadonlyState(path.posix.dirname(resourcePath), rulesByPath);
-
-    if (readonly !== inheritedReadonly) {
-      rules.push({ path: resourcePath, readonly });
-      rulesByPath.set(resourcePath, readonly);
-    }
-  }
-  return rules;
+  return [
+    ...currentReadonlyRules,
+    ...selectedPaths.map((path) => ({ path, readonly: true })),
+  ].filter(
+    (rule) =>
+      !selectedPathsWithCurrentRule.includes(rule.path) &&
+      !selectedPaths.some((selectedPath) =>
+        isDescendant(rule.path, selectedPath),
+      ),
+  );
 }
 
 function getReadonlyState(
@@ -225,10 +235,10 @@ async function writeSplitArchives({
   partitionOutputPath,
   sourceZip,
   selectedPartitionZip,
-  complementReadonlyRules,
+  sourceReadonlyRules,
   selectedReadonlyRules,
 }: {
-  complementReadonlyRules: Array<ReadonlyRule>;
+  sourceReadonlyRules: Array<ReadonlyRule>;
   selectedReadonlyRules: Array<ReadonlyRule>;
   sourcePath: string;
   partitionOutputPath: string;
@@ -243,7 +253,7 @@ async function writeSplitArchives({
   await writeOpossumFile({
     path: sourcePath,
     zip: sourceZip,
-    readonlyRules: complementReadonlyRules,
+    readonlyRules: sourceReadonlyRules,
   });
 }
 
@@ -255,6 +265,6 @@ function isCanonicalNonRootPath(resourcePath: string): boolean {
   );
 }
 
-function isEqualOrDescendant(path: string, ancestorPath: string): boolean {
-  return path === ancestorPath || path.startsWith(`${ancestorPath}/`);
+function isDescendant(path: string, ancestorPath: string): boolean {
+  return path.startsWith(`${ancestorPath}/`);
 }
