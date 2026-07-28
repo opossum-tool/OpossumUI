@@ -18,8 +18,7 @@
     "@tanstack/react-query": "5.101.3",
     "@viz-js/viz": "3.28.0",
     "adm-zip": "0.6.0",
-    "better-sqlite3": "12.11.1",
-    "better-sqlite3-electron": "npm:better-sqlite3@12.11.1",
+    "better-sqlite3": "13.0.1",
     "chroma-js": "3.2.0",
     "compare-versions": "6.1.1",
     "dayjs": "1.11.21",
@@ -54,7 +53,6 @@
     "@commitlint/cli": "21.2.1",
     "@commitlint/config-conventional": "21.2.0",
     "@commitlint/types": "21.2.0",
-    "@electron/rebuild": "4.2.0",
     "@eslint-react/eslint-plugin": "5.17.3",
     "@eslint/compat": "2.1.0",
     "@eslint/js": "10.0.1",
@@ -149,14 +147,13 @@
     "ship:auto:linux": "yarn ship-linux",
     "ship:auto:win32": "yarn ship-win",
     "clean": "rm -rf ./build/ ./release/",
-    "postinstall": "yarn install-deps && yarn rebuild:electron && yarn update-commit-hash && husky",
+    "postinstall": "yarn install-deps && yarn update-commit-hash && husky",
     "pre-commit": "lint-staged",
     "install-deps": "run-script-os",
     "install-deps:darwin:arm64": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs mac-arm64",
     "install-deps:darwin:x64": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs mac-intel",
     "install-deps:linux": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs linux",
-    "install-deps:win32": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs windows.exe",
-    "rebuild:electron": "electron-rebuild -o better-sqlite3-electron -f"
+    "install-deps:win32": "yarn node --env-file-if-exists=.env tools/downloadOpossumFileCLI.mjs windows.exe"
   },
   "main": "build/ElectronBackend/app.js",
   "build": {
@@ -169,7 +166,7 @@
     "files": [
       "build/**/*",
       "!node_modules",
-      "node_modules/better-sqlite3-electron/**/*",
+      "node_modules/better-sqlite3/**/*",
       "node_modules/bindings/**/*",
       "node_modules/file-uri-to-path/**/*",
       "!build/**/__tests__/**/*"
@@ -224,9 +221,6 @@
   "packageManager": "yarn@4.17.1",
   "dependenciesMeta": {
     "better-sqlite3": {
-      "built": true
-    },
-    "better-sqlite3-electron": {
       "built": true
     },
     "electron": {

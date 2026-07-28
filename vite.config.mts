@@ -16,19 +16,10 @@ function getElectronProcessViteConfig(): InlineConfig {
       rollupOptions: {
         external: [
           'electron',
-          'better-sqlite3-electron',
+          'better-sqlite3',
           'bindings',
           'file-uri-to-path',
         ],
-      },
-    },
-    resolve: {
-      alias: {
-        // Electron needs its dependencies to be rebuilt to fit its packaged node version: https://www.electronjs.org/docs/latest/tutorial/using-native-node-modules
-        // Our local node can't work with the rebuilt binaries
-        // So we install better-sqlite3 twice, once with the `-electron` suffix, and then we rebuild only that one
-        // Then we make electron use the rebuilt one using this alias
-        'better-sqlite3': 'better-sqlite3-electron',
       },
     },
   };
