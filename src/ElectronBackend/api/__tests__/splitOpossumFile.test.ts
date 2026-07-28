@@ -13,7 +13,7 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
-import { getSplitInfo } from '../../db/split-info';
+import { getReadonlyRules } from '../../db/split-info';
 import { saveFile } from '../saveFile';
 import { splitOpossumFile } from '../splitOpossumFile';
 
@@ -42,19 +42,13 @@ describe('splitOpossumFile', () => {
       createOpossumZip(),
     );
 
-    const expectedSplitInfo = {
-      splitId: expect.any(String),
-      inputSha256: expect.any(String),
-      readonlyRules: [{ path: '/docs', readonly: true }],
-    };
-    expect(await getSplitInfo()).toEqual(expectedSplitInfo);
-    expect(getSplitInfoFromArchive(selectedPartitionPath)).toEqual({
-      ...expectedSplitInfo,
-      readonlyRules: [
-        { path: '/', readonly: true },
-        { path: '/docs', readonly: false },
-      ],
-    });
+    expect(await getReadonlyRules()).toEqual([
+      { path: '/docs', readonly: true },
+    ]);
+    expect(getReadonlyRulesFromArchive(selectedPartitionPath)).toEqual([
+      { path: '/', readonly: true },
+      { path: '/docs', readonly: false },
+    ]);
     expect(saveFile).toHaveBeenCalledWith(
       {
         projectId: 'project-id',
@@ -80,22 +74,16 @@ describe('splitOpossumFile', () => {
       createOpossumZip(),
     );
 
-    expect(await getSplitInfo()).toEqual({
-      splitId: expect.any(String),
-      inputSha256: expect.any(String),
-      readonlyRules: [{ path: '/docs/README.md', readonly: true }],
-    });
-    expect(getSplitInfoFromArchive(selectedPartitionPath)).toEqual({
-      splitId: expect.any(String),
-      inputSha256: expect.any(String),
-      readonlyRules: [
-        { path: '/', readonly: true },
-        { path: '/docs/README.md', readonly: false },
-      ],
-    });
+    expect(await getReadonlyRules()).toEqual([
+      { path: '/docs/README.md', readonly: true },
+    ]);
+    expect(getReadonlyRulesFromArchive(selectedPartitionPath)).toEqual([
+      { path: '/', readonly: true },
+      { path: '/docs/README.md', readonly: false },
+    ]);
   });
 
-  it('retains the split identity and input hash across consecutive splits', async () => {
+  it('retains readonly rules across consecutive splits', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/frontend/components/Button.tsx']),
     });
@@ -110,16 +98,16 @@ describe('splitOpossumFile', () => {
       },
       createOpossumZip(),
     );
-    const firstSplitInfo = getSplitInfoFromArchive(
+    const firstReadonlyRules = getReadonlyRulesFromArchive(
       firstPaths.selectedPartitionPath,
     );
-    if (!firstSplitInfo) {
+    if (!firstReadonlyRules) {
       throw new Error('Expected split metadata in selected archive.');
     }
 
     await initializeDbWithTestData({
       resources: pathsToResources(['/frontend/components/Button.tsx']),
-      splitInfo: firstSplitInfo,
+      readonlyRules: firstReadonlyRules,
     });
     const secondPaths = createPaths();
 
@@ -133,15 +121,11 @@ describe('splitOpossumFile', () => {
       new AdmZip(firstPaths.selectedPartitionPath),
     );
 
-    expect(await getSplitInfo()).toEqual({
-      splitId: firstSplitInfo.splitId,
-      inputSha256: firstSplitInfo.inputSha256,
-      readonlyRules: [
-        { path: '/', readonly: true },
-        { path: '/frontend', readonly: false },
-        { path: '/frontend/components', readonly: true },
-      ],
-    });
+    expect(await getReadonlyRules()).toEqual([
+      { path: '/', readonly: true },
+      { path: '/frontend', readonly: false },
+      { path: '/frontend/components', readonly: true },
+    ]);
   });
 
   it('rejects a selected resource path that does not exist', async () => {
@@ -182,8 +166,7 @@ function createPaths(): {
   };
 }
 
-function getSplitInfoFromArchive(filePath: string) {
-  return JSON.parse(
-    new AdmZip(filePath).readAsText(SPLIT_INFO_FILE_NAME),
-  ) as Awaited<ReturnType<typeof getSplitInfo>>;
+function getReadonlyRulesFromArchive(filePath: string) {
+  return JSON.parse(new AdmZip(filePath).readAsText(SPLIT_INFO_FILE_NAME))
+    .readonlyRules as Awaited<ReturnType<typeof getReadonlyRules>>;
 }

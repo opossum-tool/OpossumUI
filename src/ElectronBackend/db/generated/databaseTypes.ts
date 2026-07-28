@@ -80,7 +80,7 @@ export interface Metadata {
 }
 
 /**
- * Readonly path overrides loaded from split-info.json. The most specific matching path applies.
+ * Readonly path overrides loaded from split-info.json. An empty table represents an unsplit project. The most specific matching path applies.
  */
 export interface ReadonlyRule {
   path: string;
@@ -131,18 +131,6 @@ export interface SourceForAttribution {
   external_attribution_source_key: string;
 }
 
-/**
- * Split identity loaded from split-info.json. It is absent for unsplit projects.
- */
-export interface SplitInfo {
-  input_sha256: string;
-  /**
-   * Internal fixed key enforcing that this table has at most one row.
-   */
-  singleton: Generated<number>;
-  split_id: string;
-}
-
 export interface DB {
   attribution: Attribution;
   classification: Classification;
@@ -154,5 +142,4 @@ export interface DB {
   resource: Resource;
   resource_to_attribution: ResourceToAttribution;
   source_for_attribution: SourceForAttribution;
-  split_info: SplitInfo;
 }

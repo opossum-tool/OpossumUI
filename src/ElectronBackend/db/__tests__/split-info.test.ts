@@ -3,34 +3,27 @@
 // SPDX-License-Identifier: Apache-2.0
 import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
 import { getDb } from '../db';
-import { createSplitInfo, deleteSplitInfo, getSplitInfo } from '../split-info';
+import { getReadonlyRules, setReadonlyRules } from '../split-info';
 
-const splitInfo = {
-  splitId: 'split-id',
-  inputSha256: 'a'.repeat(64),
-  readonlyRules: [{ path: '/folder', readonly: true }],
-};
+const readonlyRules = [{ path: '/folder', readonly: true }];
 
 describe('split info database state', () => {
   beforeEach(async () => {
     await initializeDbWithTestData();
   });
 
-  it('enforces a single split identity', async () => {
-    await createSplitInfo(splitInfo);
+  it('returns readonly rules as split metadata', async () => {
+    await setReadonlyRules(readonlyRules);
 
-    await expect(
-      createSplitInfo({ ...splitInfo, splitId: 'another-split-id' }),
-    ).rejects.toThrow();
-    expect(await getSplitInfo()).toEqual(splitInfo);
+    expect(await getReadonlyRules()).toEqual(readonlyRules);
   });
 
-  it('deletes the split identity and its readonly rules', async () => {
-    await createSplitInfo(splitInfo);
+  it('clears split metadata when no readonly rules remain', async () => {
+    await setReadonlyRules(readonlyRules);
 
-    await deleteSplitInfo();
+    await setReadonlyRules([]);
 
-    expect(await getSplitInfo()).toBeNull();
+    expect(await getReadonlyRules()).toEqual([]);
     expect(
       await getDb().selectFrom('readonly_rule').selectAll().execute(),
     ).toEqual([]);

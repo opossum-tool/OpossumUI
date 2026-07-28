@@ -10,7 +10,7 @@ import parser from 'stream-json';
 import Asm, { type Assembler } from 'stream-json/assembler.js';
 import zlib from 'zlib';
 
-import type { SplitInfo } from '../../shared/shared-types';
+import type { ReadonlyRule } from '../../shared/shared-types';
 import {
   INPUT_FILE_NAME,
   OUTPUT_FILE_NAME,
@@ -44,15 +44,17 @@ export async function parseOpossumFile(
   let zip: AdmZip;
   let inputBytes: Buffer | null;
   let outputBytes: Buffer | null;
-  let splitInfoBytes: Buffer | null;
+  let readonlyRulesBytes: Buffer | null;
   try {
     zip = new AdmZip(opossumFilePath);
     const inputEntry = zip.getEntry(INPUT_FILE_NAME);
     const outputEntry = zip.getEntry(OUTPUT_FILE_NAME);
-    const splitInfoEntry = zip.getEntry(SPLIT_INFO_FILE_NAME);
+    const readonlyRulesEntry = zip.getEntry(SPLIT_INFO_FILE_NAME);
     inputBytes = inputEntry ? inputEntry.getData() : null;
     outputBytes = outputEntry ? outputEntry.getData() : null;
-    splitInfoBytes = splitInfoEntry ? splitInfoEntry.getData() : null;
+    readonlyRulesBytes = readonlyRulesEntry
+      ? readonlyRulesEntry.getData()
+      : null;
   } catch (err) {
     return {
       message: `Error: ${opossumFilePath} could not be unzipped.\n Original error message: ${err?.toString()}`,
@@ -99,10 +101,10 @@ export async function parseOpossumFile(
     }
   }
 
-  let splitInfo: SplitInfo | null = null;
-  if (splitInfoBytes) {
+  let readonlyRules: Array<ReadonlyRule> = [];
+  if (readonlyRulesBytes) {
     try {
-      splitInfo = parseSplitInfoContent(splitInfoBytes.toString('utf-8'));
+      readonlyRules = parseReadonlyRules(readonlyRulesBytes.toString('utf-8'));
     } catch (err) {
       return {
         message: `Error: ${opossumFilePath} does not contain valid split metadata.\n${err?.toString()}`,
@@ -114,19 +116,19 @@ export async function parseOpossumFile(
   return {
     input: parsedInputData,
     output: parsedOutputData,
-    splitInfo,
+    readonlyRules,
     opossumZip: zip,
   };
 }
 
-function parseSplitInfoContent(content: string): SplitInfo {
+function parseReadonlyRules(content: string): Array<ReadonlyRule> {
   const parsedContent = JSON.parse(content);
   jsonSchemaValidator.validate(
     parsedContent,
     OpossumSplitInfoSchema,
     validationOptions,
   );
-  return parsedContent;
+  return parsedContent.readonlyRules as Array<ReadonlyRule>;
 }
 
 export async function parseInputJsonFile(

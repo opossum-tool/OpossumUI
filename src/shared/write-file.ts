@@ -5,7 +5,7 @@
 import AdmZip from 'adm-zip';
 import fs from 'fs';
 
-import type { SplitInfo } from './shared-types';
+import type { ReadonlyRule } from './shared-types';
 import {
   INPUT_FILE_NAME,
   OUTPUT_FILE_NAME,
@@ -39,13 +39,13 @@ export async function writeOpossumFile({
   input,
   output,
   path,
-  splitInfo,
+  readonlyRules,
   zip,
 }: {
   input?: string | Uint8Array | object;
   output?: string | Uint8Array | object;
   path: string;
-  splitInfo?: SplitInfo | null;
+  readonlyRules?: Array<ReadonlyRule>;
   zip?: AdmZip;
 }): Promise<string> {
   if (zip) {
@@ -65,26 +65,24 @@ export async function writeOpossumFile({
       zip.addFile(OUTPUT_FILE_NAME, toBuffer(output));
     }
   }
-
-  updateSplitInfo(zip, splitInfo);
+  if (readonlyRules !== undefined) {
+    updateReadonlyRules(zip, readonlyRules);
+  }
 
   await zip.writeZipPromise(path);
   return path;
 }
 
-function updateSplitInfo(
+function updateReadonlyRules(
   zip: AdmZip,
-  splitInfo: SplitInfo | null | undefined,
+  readonlyRules: Array<ReadonlyRule>,
 ): void {
-  if (splitInfo === undefined) {
-    return;
-  }
-  if (splitInfo === null) {
+  if (readonlyRules.length === 0) {
     zip.deleteFile(SPLIT_INFO_FILE_NAME);
   } else if (zip.getEntry(SPLIT_INFO_FILE_NAME)) {
-    zip.updateFile(SPLIT_INFO_FILE_NAME, toBuffer(splitInfo));
+    zip.updateFile(SPLIT_INFO_FILE_NAME, toBuffer({ readonlyRules }));
   } else {
-    zip.addFile(SPLIT_INFO_FILE_NAME, toBuffer(splitInfo));
+    zip.addFile(SPLIT_INFO_FILE_NAME, toBuffer({ readonlyRules }));
   }
 }
 

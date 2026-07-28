@@ -4,11 +4,7 @@
 import type AdmZip from 'adm-zip';
 
 import { getDb } from '../db/db';
-import {
-  createSplitInfo,
-  getSplitInfo,
-  setReadonlyRules,
-} from '../db/split-info';
+import { getReadonlyRules, setReadonlyRules } from '../db/split-info';
 import {
   splitOpossumArchive,
   validateSelectedFolderPaths,
@@ -30,10 +26,10 @@ export async function splitOpossumFile(
   opossumZip: AdmZip,
 ): Promise<void> {
   await saveFile(saveFileParams, opossumZip);
-  const currentSplitInfo = await getSplitInfo();
+  const currentReadonlyRules = await getReadonlyRules();
   const normalizedSelectedFolderPaths = validateSelectedFolderPaths(
     selectedFolderPaths,
-    currentSplitInfo?.readonlyRules ?? [],
+    currentReadonlyRules,
   );
   const selectedResources = await getDb()
     .selectFrom('resource')
@@ -55,11 +51,7 @@ export async function splitOpossumFile(
     selectedFolderPaths: normalizedSelectedFolderPaths,
     selectedPartitionPath,
     sourceZip: opossumZip,
-    splitInfo: currentSplitInfo,
+    readonlyRules: currentReadonlyRules,
   });
-  if (currentSplitInfo) {
-    await setReadonlyRules(result.complementSplitInfo.readonlyRules);
-  } else {
-    await createSplitInfo(result.complementSplitInfo);
-  }
+  await setReadonlyRules(result.complementReadonlyRules);
 }

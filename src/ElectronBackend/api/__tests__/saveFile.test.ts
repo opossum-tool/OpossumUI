@@ -106,7 +106,7 @@ describe('saveFile', () => {
     expect(writeOpossumFile).toHaveBeenCalledWith({
       path: '/output/file.opossum',
       zip: opossumZip,
-      splitInfo: null,
+      readonlyRules: [],
       output: expect.objectContaining({
         metadata: expect.objectContaining({
           projectId: 'project-2',
@@ -122,13 +122,9 @@ describe('saveFile', () => {
     expect(writeFile).not.toHaveBeenCalled();
   });
 
-  it('passes split metadata from the database to the archive writer', async () => {
+  it('passes readonly split metadata from the database to the archive writer', async () => {
     const opossumZip = new AdmZip();
     await initializeDbWithTestData();
-    await getDb()
-      .insertInto('split_info')
-      .values({ split_id: 'split-id', input_sha256: 'a'.repeat(64) })
-      .execute();
     await getDb()
       .insertInto('readonly_rule')
       .values({ path: '/readonly', readonly: 1 })
@@ -141,11 +137,7 @@ describe('saveFile', () => {
 
     expect(writeOpossumFile).toHaveBeenCalledWith(
       expect.objectContaining({
-        splitInfo: {
-          splitId: 'split-id',
-          inputSha256: 'a'.repeat(64),
-          readonlyRules: [{ path: '/readonly', readonly: true }],
-        },
+        readonlyRules: [{ path: '/readonly', readonly: true }],
       }),
     );
   });

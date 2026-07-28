@@ -2,12 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
-import { createHash } from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { v4 as uuid4 } from 'uuid';
 
-import type { ReadonlyRule, SplitInfo } from '../../shared/shared-types';
+import type { ReadonlyRule } from '../../shared/shared-types';
 import { writeOpossumFile } from '../../shared/write-file';
 import {
   INPUT_FILE_NAME,
@@ -20,19 +18,15 @@ interface SplitOpossumArchivePaths {
   selectedPartitionPath: string;
 }
 
-interface SplitOpossumFileResult {
-  splitId: string;
-  selectedFolderPaths: Array<string>;
-  selectedPartitionPath: string;
-}
-
 export interface SplitOpossumArchiveArgs extends SplitOpossumArchivePaths {
   sourceZip: AdmZip;
-  splitInfo: SplitInfo | null;
+  readonlyRules: Array<ReadonlyRule>;
 }
 
-export interface SplitOpossumArchiveResult extends SplitOpossumFileResult {
-  complementSplitInfo: SplitInfo;
+export interface SplitOpossumArchiveResult {
+  selectedFolderPaths: Array<string>;
+  selectedPartitionPath: string;
+  complementReadonlyRules: Array<ReadonlyRule>;
 }
 
 export type SplitOpossumFileErrorCode =
@@ -54,27 +48,16 @@ export async function splitOpossumArchive({
   selectedFolderPaths,
   selectedPartitionPath,
   sourceZip,
-  splitInfo: existingSplitInfo,
+  readonlyRules: existingReadonlyRules,
 }: SplitOpossumArchiveArgs): Promise<SplitOpossumArchiveResult> {
   validateDestinationPath(selectedPartitionPath);
 
-  const inputBytes = sourceZip.getEntry(INPUT_FILE_NAME)?.getData();
-  if (!inputBytes) {
+  if (!sourceZip.getEntry(INPUT_FILE_NAME)) {
     throw new Error('Loaded .opossum archive does not contain input.json');
   }
 
-  const inputSha256 = createHash('sha256').update(inputBytes).digest('hex');
-  if (
-    existingSplitInfo?.inputSha256 !== undefined &&
-    existingSplitInfo.inputSha256 !== inputSha256
-  ) {
-    throw new Error('Loaded split metadata does not match input.json');
-  }
-
-  const { complementSplitInfo, selectedSplitInfo } = createSplitInfos(
-    existingSplitInfo?.splitId,
-    existingSplitInfo?.readonlyRules,
-    inputSha256,
+  const { complementReadonlyRules, selectedReadonlyRules } = createSplitRules(
+    existingReadonlyRules,
     selectedFolderPaths,
   );
 
@@ -85,15 +68,14 @@ export async function splitOpossumArchive({
     selectedPartitionPath,
     sourceZip: sourcePartitionZip,
     selectedPartitionZip,
-    complementSplitInfo,
-    selectedSplitInfo,
+    complementReadonlyRules,
+    selectedReadonlyRules,
   });
 
   return {
-    splitId: selectedSplitInfo.splitId,
     selectedFolderPaths,
     selectedPartitionPath,
-    complementSplitInfo,
+    complementReadonlyRules,
   };
 }
 
@@ -162,33 +144,25 @@ export function validateSelectedFolderPaths(
   return normalizedPaths;
 }
 
-function createSplitInfos(
-  existingSplitId: string | undefined,
-  existingReadonlyRules: ReadonlyRule[] | undefined,
-  inputSha256: string,
+function createSplitRules(
+  existingReadonlyRules: Array<ReadonlyRule>,
   selectedPaths: Array<string>,
-): { complementSplitInfo: SplitInfo; selectedSplitInfo: SplitInfo } {
-  const currentReadonlyRules = existingReadonlyRules ?? [];
-  const splitId = existingSplitId ?? uuid4();
+): {
+  complementReadonlyRules: Array<ReadonlyRule>;
+  selectedReadonlyRules: Array<ReadonlyRule>;
+} {
+  const currentReadonlyRules = existingReadonlyRules;
   return {
-    complementSplitInfo: {
-      splitId,
-      inputSha256,
-      readonlyRules: createReadonlyRules(
-        currentReadonlyRules,
-        selectedPaths,
-        'complement',
-      ),
-    },
-    selectedSplitInfo: {
-      splitId,
-      inputSha256,
-      readonlyRules: createReadonlyRules(
-        currentReadonlyRules,
-        selectedPaths,
-        'selected',
-      ),
-    },
+    complementReadonlyRules: createReadonlyRules(
+      currentReadonlyRules,
+      selectedPaths,
+      'complement',
+    ),
+    selectedReadonlyRules: createReadonlyRules(
+      currentReadonlyRules,
+      selectedPaths,
+      'selected',
+    ),
   };
 }
 
@@ -252,11 +226,11 @@ async function writeSplitArchives({
   selectedPartitionPath,
   sourceZip,
   selectedPartitionZip,
-  complementSplitInfo,
-  selectedSplitInfo,
+  complementReadonlyRules,
+  selectedReadonlyRules,
 }: {
-  complementSplitInfo: SplitInfo;
-  selectedSplitInfo: SplitInfo;
+  complementReadonlyRules: Array<ReadonlyRule>;
+  selectedReadonlyRules: Array<ReadonlyRule>;
   sourcePath: string;
   selectedPartitionPath: string;
   sourceZip: AdmZip;
@@ -265,12 +239,12 @@ async function writeSplitArchives({
   await writeOpossumFile({
     path: selectedPartitionPath,
     zip: selectedPartitionZip,
-    splitInfo: selectedSplitInfo,
+    readonlyRules: selectedReadonlyRules,
   });
   await writeOpossumFile({
     path: sourcePath,
     zip: sourceZip,
-    splitInfo: complementSplitInfo,
+    readonlyRules: complementReadonlyRules,
   });
 }
 

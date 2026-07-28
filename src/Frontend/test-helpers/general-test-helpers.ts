@@ -42,7 +42,7 @@ const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
   filesWithChildren: new Set(),
   baseUrlsForSources: {},
   externalAttributionSources: {},
-  splitInfo: null,
+  readonlyRules: [],
 };
 
 export function getParsedInputFileEnrichedWithTestData(testData: {

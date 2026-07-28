@@ -177,12 +177,6 @@ export interface ReadonlyRule {
   readonly: boolean;
 }
 
-export interface SplitInfo {
-  splitId: string;
-  inputSha256: string;
-  readonlyRules: Array<ReadonlyRule>;
-}
-
 export interface ParsedFileContent {
   metadata: ProjectMetadata;
   resources: Resources;
@@ -195,7 +189,7 @@ export interface ParsedFileContent {
   filesWithChildren: Set<string>;
   baseUrlsForSources: BaseUrlsForSources;
   externalAttributionSources: ExternalAttributionSources;
-  splitInfo: SplitInfo | null;
+  readonlyRules: Array<ReadonlyRule>;
 }
 
 export interface BaseUrlsForSources {
