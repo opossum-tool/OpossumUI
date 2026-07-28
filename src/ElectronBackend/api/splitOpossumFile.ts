@@ -11,17 +11,19 @@ import {
 } from '../split/split-opossum-file';
 import { saveFile, type SaveFileParams } from './saveFile';
 
-export interface SplitOpossumFileParams extends SaveFileParams {
-  opossumFilePath: string;
+export interface SplitOpossumFileParams {
+  saveFileParams: Omit<SaveFileParams, 'opossumFilePath'> & {
+    opossumFilePath: string;
+  };
   selectedFolderPaths: Array<string>;
   partitionOutputPath: string;
 }
 
 export async function splitOpossumFile(
   {
+    saveFileParams,
     selectedFolderPaths,
     partitionOutputPath,
-    ...saveFileParams
   }: SplitOpossumFileParams,
   opossumZip: AdmZip,
 ): Promise<void> {
@@ -47,9 +49,11 @@ export async function splitOpossumFile(
     }
   }
   const result = await splitOpossumArchive({
-    opossumFilePath: saveFileParams.opossumFilePath,
-    selectedFolderPaths: normalizedSelectedFolderPaths,
-    partitionOutputPath,
+    paths: {
+      opossumFilePath: saveFileParams.opossumFilePath,
+      selectedFolderPaths: normalizedSelectedFolderPaths,
+      partitionOutputPath,
+    },
     sourceZip: opossumZip,
     readonlyRules: currentReadonlyRules,
   });

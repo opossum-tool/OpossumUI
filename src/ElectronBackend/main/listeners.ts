@@ -85,9 +85,11 @@ export const splitCurrentOpossumFileListener =
       const parsedPath = path.parse(currentFilePath);
       const selectedFolderName = path.posix.basename(selectedFolderPaths[0]);
       await getMainDbClient().splitOpossumFile({
-        projectId: globalBackendState.projectId,
-        inputFileChecksum: globalBackendState.inputFileChecksum,
-        opossumFilePath: currentFilePath,
+        saveFileParams: {
+          projectId: globalBackendState.projectId,
+          inputFileChecksum: globalBackendState.inputFileChecksum,
+          opossumFilePath: currentFilePath,
+        },
         selectedFolderPaths,
         partitionOutputPath: path.join(
           parsedPath.dir,

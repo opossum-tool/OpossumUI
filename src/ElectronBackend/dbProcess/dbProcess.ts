@@ -132,8 +132,17 @@ async function executeDbProcessMessage(
       if (!storedOpossumZip) {
         throw new Error('Cannot split: no .opossum file is loaded');
       }
-      const { id: _, type: __, ...params } = msg;
-      await splitOpossumFile(params, storedOpossumZip);
+      const {
+        id: _,
+        type: __,
+        selectedFolderPaths,
+        partitionOutputPath,
+        ...saveFileParams
+      } = msg;
+      await splitOpossumFile(
+        { saveFileParams, selectedFolderPaths, partitionOutputPath },
+        storedOpossumZip,
+      );
       return undefined;
     }
     case 'exportFile': {

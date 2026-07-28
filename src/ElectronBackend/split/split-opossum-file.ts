@@ -18,9 +18,10 @@ interface SplitOpossumArchivePaths {
   partitionOutputPath: string;
 }
 
-export interface SplitOpossumArchiveArgs extends SplitOpossumArchivePaths {
+export interface SplitOpossumArchiveArgs {
   sourceZip: AdmZip;
   readonlyRules: Array<ReadonlyRule>;
+  paths: SplitOpossumArchivePaths;
 }
 
 export interface SplitOpossumArchiveResult {
@@ -44,13 +45,11 @@ export class SplitOpossumFileError extends Error {
 }
 
 export async function splitOpossumArchive({
-  opossumFilePath,
-  selectedFolderPaths,
-  partitionOutputPath,
+  paths,
   sourceZip,
   readonlyRules: existingReadonlyRules,
 }: SplitOpossumArchiveArgs): Promise<SplitOpossumArchiveResult> {
-  validateDestinationPath(partitionOutputPath);
+  validateDestinationPath(paths.partitionOutputPath);
 
   if (!sourceZip.getEntry(INPUT_FILE_NAME)) {
     throw new Error('Loaded .opossum archive does not contain input.json');
@@ -58,14 +57,14 @@ export async function splitOpossumArchive({
 
   const { complementReadonlyRules, selectedReadonlyRules } = createSplitRules(
     existingReadonlyRules,
-    selectedFolderPaths,
+    paths.selectedFolderPaths,
   );
 
   const sourcePartitionZip = new AdmZip(sourceZip.toBuffer());
   const selectedPartitionZip = new AdmZip(sourceZip.toBuffer());
   await writeSplitArchives({
-    sourcePath: opossumFilePath,
-    partitionOutputPath,
+    sourcePath: paths.opossumFilePath,
+    partitionOutputPath: paths.partitionOutputPath,
     sourceZip: sourcePartitionZip,
     selectedPartitionZip,
     complementReadonlyRules,
@@ -73,8 +72,8 @@ export async function splitOpossumArchive({
   });
 
   return {
-    selectedFolderPaths,
-    partitionOutputPath,
+    selectedFolderPaths: paths.selectedFolderPaths,
+    partitionOutputPath: paths.partitionOutputPath,
     complementReadonlyRules,
   };
 }

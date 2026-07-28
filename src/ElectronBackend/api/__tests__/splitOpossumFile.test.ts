@@ -34,8 +34,7 @@ describe('splitOpossumFile', () => {
 
     await splitOpossumFile(
       {
-        projectId: 'project-id',
-        opossumFilePath,
+        saveFileParams: { projectId: 'project-id', opossumFilePath },
         selectedFolderPaths: ['/docs'],
         partitionOutputPath,
       },
@@ -66,8 +65,7 @@ describe('splitOpossumFile', () => {
 
     await splitOpossumFile(
       {
-        projectId: 'project-id',
-        opossumFilePath,
+        saveFileParams: { projectId: 'project-id', opossumFilePath },
         selectedFolderPaths: ['/docs/README.md'],
         partitionOutputPath,
       },
@@ -91,8 +89,10 @@ describe('splitOpossumFile', () => {
 
     await splitOpossumFile(
       {
-        projectId: 'project-id',
-        opossumFilePath: firstPaths.opossumFilePath,
+        saveFileParams: {
+          projectId: 'project-id',
+          opossumFilePath: firstPaths.opossumFilePath,
+        },
         selectedFolderPaths: ['/frontend'],
         partitionOutputPath: firstPaths.partitionOutputPath,
       },
@@ -113,8 +113,10 @@ describe('splitOpossumFile', () => {
 
     await splitOpossumFile(
       {
-        projectId: 'project-id',
-        opossumFilePath: firstPaths.partitionOutputPath,
+        saveFileParams: {
+          projectId: 'project-id',
+          opossumFilePath: firstPaths.partitionOutputPath,
+        },
         selectedFolderPaths: ['/frontend/components'],
         partitionOutputPath: secondPaths.partitionOutputPath,
       },
@@ -137,8 +139,7 @@ describe('splitOpossumFile', () => {
     await expect(
       splitOpossumFile(
         {
-          projectId: 'project-id',
-          opossumFilePath,
+          saveFileParams: { projectId: 'project-id', opossumFilePath },
           selectedFolderPaths: ['/missing'],
           partitionOutputPath,
         },

@@ -163,9 +163,11 @@ async function splitArchive({
   sourceZip.addFile(INPUT_FILE_NAME, Buffer.from(JSON.stringify(input)));
   sourceZip.addFile('additional-data.txt', Buffer.from('kept'));
   await splitOpossumArchive({
-    opossumFilePath: sourcePath,
-    selectedFolderPaths,
-    partitionOutputPath,
+    paths: {
+      opossumFilePath: sourcePath,
+      selectedFolderPaths,
+      partitionOutputPath,
+    },
     sourceZip,
     readonlyRules,
   });
