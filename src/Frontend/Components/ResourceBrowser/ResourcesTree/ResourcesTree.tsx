@@ -9,6 +9,7 @@ import { remove } from 'lodash-es';
 import { type MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import { text } from '../../../../shared/text';
 import { ROOT_PATH } from '../../../shared-constants';
 import { setSelectedResourceIdOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
 import {
@@ -20,7 +21,7 @@ import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
-import { toast } from '../../Toaster';
+import { SplitDialog } from '../../SplitDialog/SplitDialog';
 import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
 import { ResourcesTreeNode } from './ResourcesTreeNode/ResourcesTreeNode';
 
@@ -38,6 +39,7 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
     mouseY: number;
     resource: ResourceTreeNodeData;
   } | null>(null);
+  const [splitResourcePath, setSplitResourcePath] = useState<string>();
 
   useEffect(() => {
     if (!selectedResourceId) {
@@ -79,18 +81,12 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
     [],
   );
 
-  const handleSplit = useCallback(async () => {
+  const handleSplit = useCallback(() => {
     if (!contextMenu) {
       return;
     }
-    const resourcePath = contextMenu.resource.id.replace(/\/$/, '');
-    const splitResult = await window.electronAPI.splitFile([resourcePath]);
     setContextMenu(null);
-    if (splitResult.status === 'success') {
-      toast.success('Split archive created.');
-    } else if (splitResult.status === 'error') {
-      toast.error(`Could not create split archive: ${splitResult.message}`);
-    }
+    setSplitResourcePath(contextMenu.resource.id.replace(/\/$/, ''));
   }, [contextMenu]);
 
   return (
@@ -117,11 +113,16 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
       >
         <MuiMenuItem
           disabled={contextMenu?.resource.id === ROOT_PATH}
-          onClick={() => void handleSplit()}
+          onClick={handleSplit}
         >
-          Split here
+          {text.resourceBrowser.splitHere}
         </MuiMenuItem>
       </MuiMenu>
+      <SplitDialog
+        open={Boolean(splitResourcePath)}
+        resourcePath={splitResourcePath ?? ''}
+        onClose={() => setSplitResourcePath(undefined)}
+      />
     </>
   );
 };

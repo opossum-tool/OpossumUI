@@ -12,6 +12,7 @@ import { saveOpossumFileDialog } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   saveFileListener,
+  selectSplitDestinationListener,
   splitCurrentOpossumFileListener,
 } from '../listeners';
 
@@ -141,34 +142,31 @@ describe('splitCurrentOpossumFileListener', () => {
     });
   });
 
-  it('uses the selected destination from the opossum save dialog', async () => {
-    const selectedPartitionPath = '/partitions/source-partition.opossum';
-    vi.mocked(saveOpossumFileDialog).mockReturnValue(selectedPartitionPath);
+  it('uses the destination provided by the split dialog', async () => {
+    const partitionOutputPath = '/partitions/source-partition.opossum';
 
     await splitCurrentOpossumFileListener(mainWindow)(
       {} as Electron.IpcMainInvokeEvent,
       ['/source'],
+      partitionOutputPath,
     );
 
-    expect(saveOpossumFileDialog).toHaveBeenCalledWith(
-      '/my/file-source.opossum',
-    );
     expect(mockSplitOpossumFile).toHaveBeenCalledWith({
-      projectId: 'uuid_1',
-      inputFileChecksum: 'checksum_abc',
-      opossumFilePath: '/my/file.opossum',
-      overwriteExistingDestination: true,
+      saveFileParams: {
+        projectId: 'uuid_1',
+        inputFileChecksum: 'checksum_abc',
+        opossumFilePath: '/my/file.opossum',
+      },
       selectedFolderPaths: ['/source'],
-      selectedPartitionPath,
+      partitionOutputPath,
     });
   });
 
-  it('does not split when selecting a destination is cancelled', async () => {
-    vi.mocked(saveOpossumFileDialog).mockReturnValue(undefined);
-
+  it('does not split without a destination', async () => {
     const splitResult = await splitCurrentOpossumFileListener(mainWindow)(
       {} as Electron.IpcMainInvokeEvent,
       ['/source'],
+      '',
     );
 
     expect(splitResult).toEqual({ status: 'cancelled' });
@@ -176,9 +174,6 @@ describe('splitCurrentOpossumFileListener', () => {
   });
 
   it('returns an error result without showing a fatal error dialog', async () => {
-    vi.mocked(saveOpossumFileDialog).mockReturnValue(
-      '/partitions/split.opossum',
-    );
     mockSplitOpossumFile.mockRejectedValue(
       new Error('Destination is not writable'),
     );
@@ -186,6 +181,7 @@ describe('splitCurrentOpossumFileListener', () => {
     const splitResult = await splitCurrentOpossumFileListener(mainWindow)(
       {} as Electron.IpcMainInvokeEvent,
       ['/source'],
+      '/partitions/split.opossum',
     );
 
     expect(splitResult).toEqual({
@@ -193,5 +189,21 @@ describe('splitCurrentOpossumFileListener', () => {
       message: 'Destination is not writable',
     });
     expect(dialog.showMessageBox).not.toHaveBeenCalled();
+  });
+
+  it('opens a save dialog with a derived default split destination', () => {
+    vi.mocked(saveOpossumFileDialog).mockReturnValue(
+      '/partitions/source-partition.opossum',
+    );
+
+    const selectedPath = selectSplitDestinationListener(mainWindow)(
+      {} as Electron.IpcMainInvokeEvent,
+      '/source',
+    );
+
+    expect(saveOpossumFileDialog).toHaveBeenCalledWith(
+      '/my/file-source.opossum',
+    );
+    expect(selectedPath).toBe('/partitions/source-partition.opossum');
   });
 });

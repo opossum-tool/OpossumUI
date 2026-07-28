@@ -73,6 +73,7 @@ export const splitCurrentOpossumFileListener =
   async (
     _: Electron.IpcMainInvokeEvent,
     selectedFolderPaths: Array<string>,
+    partitionOutputPath: string,
   ): Promise<SplitFileResult> => {
     try {
       const globalBackendState = getGlobalBackendState();
@@ -83,16 +84,6 @@ export const splitCurrentOpossumFileListener =
         throw new Error('No .opossum project is currently open.');
       }
 
-      const currentFilePath = globalBackendState.opossumFilePath;
-      const parsedPath = path.parse(currentFilePath);
-      const selectedFolderName = path.posix.basename(selectedFolderPaths[0]);
-      const defaultSelectedPartitionPath = path.join(
-        parsedPath.dir,
-        `${parsedPath.name}-${selectedFolderName}${parsedPath.ext}`,
-      );
-      const partitionOutputPath = saveOpossumFileDialog(
-        defaultSelectedPartitionPath,
-      );
       if (!partitionOutputPath) {
         return { status: 'cancelled' };
       }
@@ -100,7 +91,7 @@ export const splitCurrentOpossumFileListener =
         saveFileParams: {
           projectId: globalBackendState.projectId,
           inputFileChecksum: globalBackendState.inputFileChecksum,
-          opossumFilePath: currentFilePath,
+          opossumFilePath: globalBackendState.opossumFilePath,
         },
         selectedFolderPaths,
         partitionOutputPath,
@@ -114,6 +105,23 @@ export const splitCurrentOpossumFileListener =
       logger.error(`Could not create split archive: ${message}`);
       return { status: 'error', message };
     }
+  };
+
+export const selectSplitDestinationListener =
+  (_mainWindow: BrowserWindow) =>
+  (_: Electron.IpcMainInvokeEvent, selectedFolderPath: string): string => {
+    const opossumFilePath = getGlobalBackendState().opossumFilePath;
+    if (!opossumFilePath) {
+      return '';
+    }
+
+    const parsedPath = path.parse(opossumFilePath);
+    const selectedFolderName = path.posix.basename(selectedFolderPath);
+    const defaultPartitionOutputPath = path.join(
+      parsedPath.dir,
+      `${parsedPath.name}-${selectedFolderName}${parsedPath.ext}`,
+    );
+    return saveOpossumFileDialog(defaultPartitionOutputPath) ?? '';
   };
 
 function getExportFilePath(exportType: ExportType): string {
