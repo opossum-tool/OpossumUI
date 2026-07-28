@@ -50,7 +50,7 @@ export async function splitOpossumArchive({
   sourceZip,
   readonlyRules: existingReadonlyRules,
 }: SplitOpossumArchiveArgs): Promise<SplitOpossumArchiveResult> {
-  validateDestinationPath(paths.partitionOutputPath);
+  validateDestinationPath(paths.partitionOutputPath, paths.opossumFilePath);
 
   if (!sourceZip.getEntry(INPUT_FILE_NAME)) {
     throw new Error('Loaded .opossum archive does not contain input.json');
@@ -79,8 +79,17 @@ export async function splitOpossumArchive({
   };
 }
 
-function validateDestinationPath(partitionOutputPath: string): void {
+function validateDestinationPath(
+  partitionOutputPath: string,
+  opossumFilePath: string,
+): void {
   const resolvedPartitionOutputPath = path.resolve(partitionOutputPath);
+  if (resolvedPartitionOutputPath === path.resolve(opossumFilePath)) {
+    throw new SplitOpossumFileError(
+      'invalid-destination',
+      'Destination file must differ from the currently open .opossum file',
+    );
+  }
   if (path.extname(resolvedPartitionOutputPath) !== OPOSSUM_FILE_EXTENSION) {
     throw new SplitOpossumFileError(
       'invalid-destination',
@@ -91,12 +100,6 @@ function validateDestinationPath(partitionOutputPath: string): void {
     throw new SplitOpossumFileError(
       'invalid-destination',
       'Destination directory does not exist',
-    );
-  }
-  if (fs.existsSync(resolvedPartitionOutputPath)) {
-    throw new SplitOpossumFileError(
-      'invalid-destination',
-      'Destination file already exists',
     );
   }
 }

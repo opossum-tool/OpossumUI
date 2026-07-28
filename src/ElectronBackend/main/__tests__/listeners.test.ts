@@ -78,6 +78,7 @@ vi.mock('../dialogs', () => ({
   openOpossumFileDialog: vi.fn(),
   openNonOpossumFileDialog: vi.fn(),
   saveFileDialog: vi.fn(),
+  saveOpossumFileDialog: vi.fn(),
   selectBaseURLDialog: vi.fn(),
 }));
 

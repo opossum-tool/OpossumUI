@@ -140,7 +140,11 @@ async function executeDbProcessMessage(
         ...saveFileParams
       } = msg;
       await splitOpossumFile(
-        { saveFileParams, selectedFolderPaths, partitionOutputPath },
+        {
+          saveFileParams,
+          selectedFolderPaths,
+          partitionOutputPath,
+        },
         storedOpossumZip,
       );
       return undefined;
