@@ -123,18 +123,18 @@ export class DbProcessClient {
 
   splitOpossumFile({
     selectedFolderPaths,
-    selectedPartitionPath,
+    partitionOutputPath,
     ...params
   }: SaveFileParams & {
     opossumFilePath: string;
     selectedFolderPaths: Array<string>;
-    selectedPartitionPath: string;
+    partitionOutputPath: string;
   }): Promise<void> {
     return this.request({
       type: 'splitOpossumFile',
       ...params,
       selectedFolderPaths,
-      selectedPartitionPath,
+      partitionOutputPath,
     }) as Promise<void>;
   }
 

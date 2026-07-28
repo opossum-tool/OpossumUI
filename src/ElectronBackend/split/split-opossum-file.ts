@@ -15,7 +15,7 @@ import {
 interface SplitOpossumArchivePaths {
   opossumFilePath: string;
   selectedFolderPaths: Array<string>;
-  selectedPartitionPath: string;
+  partitionOutputPath: string;
 }
 
 export interface SplitOpossumArchiveArgs extends SplitOpossumArchivePaths {
@@ -25,7 +25,7 @@ export interface SplitOpossumArchiveArgs extends SplitOpossumArchivePaths {
 
 export interface SplitOpossumArchiveResult {
   selectedFolderPaths: Array<string>;
-  selectedPartitionPath: string;
+  partitionOutputPath: string;
   complementReadonlyRules: Array<ReadonlyRule>;
 }
 
@@ -46,11 +46,11 @@ export class SplitOpossumFileError extends Error {
 export async function splitOpossumArchive({
   opossumFilePath,
   selectedFolderPaths,
-  selectedPartitionPath,
+  partitionOutputPath,
   sourceZip,
   readonlyRules: existingReadonlyRules,
 }: SplitOpossumArchiveArgs): Promise<SplitOpossumArchiveResult> {
-  validateDestinationPath(selectedPartitionPath);
+  validateDestinationPath(partitionOutputPath);
 
   if (!sourceZip.getEntry(INPUT_FILE_NAME)) {
     throw new Error('Loaded .opossum archive does not contain input.json');
@@ -65,7 +65,7 @@ export async function splitOpossumArchive({
   const selectedPartitionZip = new AdmZip(sourceZip.toBuffer());
   await writeSplitArchives({
     sourcePath: opossumFilePath,
-    selectedPartitionPath,
+    partitionOutputPath,
     sourceZip: sourcePartitionZip,
     selectedPartitionZip,
     complementReadonlyRules,
@@ -74,26 +74,26 @@ export async function splitOpossumArchive({
 
   return {
     selectedFolderPaths,
-    selectedPartitionPath,
+    partitionOutputPath,
     complementReadonlyRules,
   };
 }
 
-function validateDestinationPath(selectedPartitionPath: string): void {
-  const resolvedSelectedPartitionPath = path.resolve(selectedPartitionPath);
-  if (path.extname(resolvedSelectedPartitionPath) !== OPOSSUM_FILE_EXTENSION) {
+function validateDestinationPath(partitionOutputPath: string): void {
+  const resolvedPartitionOutputPath = path.resolve(partitionOutputPath);
+  if (path.extname(resolvedPartitionOutputPath) !== OPOSSUM_FILE_EXTENSION) {
     throw new SplitOpossumFileError(
       'invalid-destination',
       'Destination file must use the .opossum extension',
     );
   }
-  if (!fs.existsSync(path.dirname(resolvedSelectedPartitionPath))) {
+  if (!fs.existsSync(path.dirname(resolvedPartitionOutputPath))) {
     throw new SplitOpossumFileError(
       'invalid-destination',
       'Destination directory does not exist',
     );
   }
-  if (fs.existsSync(resolvedSelectedPartitionPath)) {
+  if (fs.existsSync(resolvedPartitionOutputPath)) {
     throw new SplitOpossumFileError(
       'invalid-destination',
       'Destination file already exists',
@@ -223,7 +223,7 @@ function getReadonlyState(
 
 async function writeSplitArchives({
   sourcePath,
-  selectedPartitionPath,
+  partitionOutputPath,
   sourceZip,
   selectedPartitionZip,
   complementReadonlyRules,
@@ -232,12 +232,12 @@ async function writeSplitArchives({
   complementReadonlyRules: Array<ReadonlyRule>;
   selectedReadonlyRules: Array<ReadonlyRule>;
   sourcePath: string;
-  selectedPartitionPath: string;
+  partitionOutputPath: string;
   sourceZip: AdmZip;
   selectedPartitionZip: AdmZip;
 }): Promise<void> {
   await writeOpossumFile({
-    path: selectedPartitionPath,
+    path: partitionOutputPath,
     zip: selectedPartitionZip,
     readonlyRules: selectedReadonlyRules,
   });

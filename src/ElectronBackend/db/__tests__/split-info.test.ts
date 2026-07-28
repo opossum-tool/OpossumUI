@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
 import { getDb } from '../db';
-import { getReadonlyRules, setReadonlyRules } from '../split-info';
+import { getReadonlyRules, replaceReadonlyRules } from '../split-info';
 
 const readonlyRules = [{ path: '/folder', readonly: true }];
 
@@ -13,15 +13,15 @@ describe('split info database state', () => {
   });
 
   it('returns readonly rules as split metadata', async () => {
-    await setReadonlyRules(readonlyRules);
+    await replaceReadonlyRules(readonlyRules);
 
     expect(await getReadonlyRules()).toEqual(readonlyRules);
   });
 
   it('clears split metadata when no readonly rules remain', async () => {
-    await setReadonlyRules(readonlyRules);
+    await replaceReadonlyRules(readonlyRules);
 
-    await setReadonlyRules([]);
+    await replaceReadonlyRules([]);
 
     expect(await getReadonlyRules()).toEqual([]);
     expect(

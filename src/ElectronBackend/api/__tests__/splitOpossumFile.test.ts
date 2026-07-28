@@ -30,14 +30,14 @@ describe('splitOpossumFile', () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/docs/README.md', '/frontend/App.tsx']),
     });
-    const { opossumFilePath, selectedPartitionPath } = createPaths();
+    const { opossumFilePath, partitionOutputPath } = createPaths();
 
     await splitOpossumFile(
       {
         projectId: 'project-id',
         opossumFilePath,
         selectedFolderPaths: ['/docs'],
-        selectedPartitionPath,
+        partitionOutputPath,
       },
       createOpossumZip(),
     );
@@ -45,7 +45,7 @@ describe('splitOpossumFile', () => {
     expect(await getReadonlyRules()).toEqual([
       { path: '/docs', readonly: true },
     ]);
-    expect(getReadonlyRulesFromArchive(selectedPartitionPath)).toEqual([
+    expect(getReadonlyRulesFromArchive(partitionOutputPath)).toEqual([
       { path: '/', readonly: true },
       { path: '/docs', readonly: false },
     ]);
@@ -62,14 +62,14 @@ describe('splitOpossumFile', () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/docs/README.md']),
     });
-    const { opossumFilePath, selectedPartitionPath } = createPaths();
+    const { opossumFilePath, partitionOutputPath } = createPaths();
 
     await splitOpossumFile(
       {
         projectId: 'project-id',
         opossumFilePath,
         selectedFolderPaths: ['/docs/README.md'],
-        selectedPartitionPath,
+        partitionOutputPath,
       },
       createOpossumZip(),
     );
@@ -77,7 +77,7 @@ describe('splitOpossumFile', () => {
     expect(await getReadonlyRules()).toEqual([
       { path: '/docs/README.md', readonly: true },
     ]);
-    expect(getReadonlyRulesFromArchive(selectedPartitionPath)).toEqual([
+    expect(getReadonlyRulesFromArchive(partitionOutputPath)).toEqual([
       { path: '/', readonly: true },
       { path: '/docs/README.md', readonly: false },
     ]);
@@ -94,12 +94,12 @@ describe('splitOpossumFile', () => {
         projectId: 'project-id',
         opossumFilePath: firstPaths.opossumFilePath,
         selectedFolderPaths: ['/frontend'],
-        selectedPartitionPath: firstPaths.selectedPartitionPath,
+        partitionOutputPath: firstPaths.partitionOutputPath,
       },
       createOpossumZip(),
     );
     const firstReadonlyRules = getReadonlyRulesFromArchive(
-      firstPaths.selectedPartitionPath,
+      firstPaths.partitionOutputPath,
     );
     if (!firstReadonlyRules) {
       throw new Error('Expected split metadata in selected archive.');
@@ -114,11 +114,11 @@ describe('splitOpossumFile', () => {
     await splitOpossumFile(
       {
         projectId: 'project-id',
-        opossumFilePath: firstPaths.selectedPartitionPath,
+        opossumFilePath: firstPaths.partitionOutputPath,
         selectedFolderPaths: ['/frontend/components'],
-        selectedPartitionPath: secondPaths.selectedPartitionPath,
+        partitionOutputPath: secondPaths.partitionOutputPath,
       },
-      new AdmZip(firstPaths.selectedPartitionPath),
+      new AdmZip(firstPaths.partitionOutputPath),
     );
 
     expect(await getReadonlyRules()).toEqual([
@@ -132,7 +132,7 @@ describe('splitOpossumFile', () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/docs/README.md']),
     });
-    const { opossumFilePath, selectedPartitionPath } = createPaths();
+    const { opossumFilePath, partitionOutputPath } = createPaths();
 
     await expect(
       splitOpossumFile(
@@ -140,13 +140,13 @@ describe('splitOpossumFile', () => {
           projectId: 'project-id',
           opossumFilePath,
           selectedFolderPaths: ['/missing'],
-          selectedPartitionPath,
+          partitionOutputPath,
         },
         createOpossumZip(),
       ),
     ).rejects.toThrow("Selected resource '/missing' does not exist");
 
-    expect(fs.existsSync(selectedPartitionPath)).toBe(false);
+    expect(fs.existsSync(partitionOutputPath)).toBe(false);
   });
 });
 
@@ -158,11 +158,11 @@ function createOpossumZip(): AdmZip {
 
 function createPaths(): {
   opossumFilePath: string;
-  selectedPartitionPath: string;
+  partitionOutputPath: string;
 } {
   return {
     opossumFilePath: faker.outputPath(`${faker.string.uuid()}.opossum`),
-    selectedPartitionPath: faker.outputPath(`${faker.string.uuid()}.opossum`),
+    partitionOutputPath: faker.outputPath(`${faker.string.uuid()}.opossum`),
   };
 }
 

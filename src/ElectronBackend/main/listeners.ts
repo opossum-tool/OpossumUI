@@ -89,7 +89,7 @@ export const splitCurrentOpossumFileListener =
         inputFileChecksum: globalBackendState.inputFileChecksum,
         opossumFilePath: currentFilePath,
         selectedFolderPaths,
-        selectedPartitionPath: path.join(
+        partitionOutputPath: path.join(
           parsedPath.dir,
           `${parsedPath.name}-${selectedFolderName}${parsedPath.ext}`,
         ),

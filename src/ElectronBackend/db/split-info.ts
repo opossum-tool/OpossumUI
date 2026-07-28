@@ -16,7 +16,7 @@ export async function getReadonlyRules(): Promise<Array<ReadonlyRule>> {
   }));
 }
 
-export async function setReadonlyRules(
+export async function replaceReadonlyRules(
   readonlyRules: Array<ReadonlyRule>,
 ): Promise<void> {
   await getDb()

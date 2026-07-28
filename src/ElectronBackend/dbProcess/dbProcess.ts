@@ -45,7 +45,7 @@ interface SplitOpossumFileMessage {
   inputFileChecksum?: string;
   opossumFilePath: string;
   selectedFolderPaths: Array<string>;
-  selectedPartitionPath: string;
+  partitionOutputPath: string;
 }
 
 interface ExportFileMessage {

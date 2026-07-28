@@ -39,7 +39,7 @@ const input: ParsedOpossumInputFile = {
 
 describe('splitOpossumArchive', () => {
   it('creates complementary rules for an initial split', async () => {
-    const { complement, selected, selectedPartitionPath, sourcePath } =
+    const { complement, selected, partitionOutputPath, sourcePath } =
       await splitArchive({
         selectedFolderPaths: ['/docs', '/frontend'],
         readonlyRules: [],
@@ -58,7 +58,7 @@ describe('splitOpossumArchive', () => {
       'kept',
     );
     expect(
-      new AdmZip(selectedPartitionPath).readAsText('additional-data.txt'),
+      new AdmZip(partitionOutputPath).readAsText('additional-data.txt'),
     ).toBe('kept');
   });
 
@@ -152,11 +152,11 @@ async function splitArchive({
 }): Promise<{
   complement: Array<ReadonlyRule>;
   selected: Array<ReadonlyRule>;
-  selectedPartitionPath: string;
+  partitionOutputPath: string;
   sourcePath: string;
 }> {
   const sourcePath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-  const selectedPartitionPath = faker.outputPath(
+  const partitionOutputPath = faker.outputPath(
     `${faker.string.uuid()}.opossum`,
   );
   const sourceZip = new AdmZip();
@@ -165,14 +165,14 @@ async function splitArchive({
   await splitOpossumArchive({
     opossumFilePath: sourcePath,
     selectedFolderPaths,
-    selectedPartitionPath,
+    partitionOutputPath,
     sourceZip,
     readonlyRules,
   });
   return {
     complement: await parseReadonlyRules(sourcePath),
-    selected: await parseReadonlyRules(selectedPartitionPath),
-    selectedPartitionPath,
+    selected: await parseReadonlyRules(partitionOutputPath),
+    partitionOutputPath,
     sourcePath,
   };
 }
