@@ -104,6 +104,7 @@ export default tseslint.config(
         {
           ignore: [-1, 0, 1, 2, 100],
           ignoreArrayIndexes: true,
+          ignoreEnums: true,
           ignoreTypeIndexes: true,
         },
       ],

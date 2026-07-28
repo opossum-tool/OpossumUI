@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql, type Transaction } from 'kysely';
+import { expressionBuilder, sql, type Transaction } from 'kysely';
 import { snakeCase } from 'lodash-es';
 
 import type {
@@ -14,6 +14,7 @@ import type {
   ParsedFileContent,
   ProjectMetadata,
   RawClassificationsConfig,
+  ReadonlyRule,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -22,6 +23,10 @@ import {
   removeTrailingSlash,
   toCanonicalLicenseName,
 } from '../api/utils';
+import {
+  ATTRIBUTION_RESOURCE_ACCESS_VALUES,
+  AttributionResourceAccess,
+} from '../types/types';
 import { getDb, getRawDb, resetDb } from './db';
 import type { DB } from './generated/databaseTypes';
 
@@ -33,6 +38,8 @@ export const comments: Record<string, Record<string, string>> = {
     _table_:
       "External attributions (UI: 'signals') and manual attributions (UI: 'attributions')",
     data: 'All of the attribution as JSON',
+    resource_access:
+      'Whether this attribution has no resources, only readonly resources, only writable resources, or both.',
   },
   resource: {
     name: 'The name of the root resource is the empty string',
@@ -40,6 +47,10 @@ export const comments: Record<string, Record<string, string>> = {
     can_have_children: 'Is a directory or in files_with_children',
     max_descendant_id:
       'The highest id of a descendant of this resource. As the resources are numbered depth-first, this enables us to identify the children of resource R by checking if child.id is between R.id and R.max_descendant_id, which is very fast. See https://en.wikipedia.org/wiki/Nested_set_model',
+    is_readonly:
+      'Whether the most specific split-info readonly rule makes this resource readonly.',
+    has_editable_descendant:
+      'Whether this resource or any descendant is writable and must be shown in the editable-partition tree.',
   },
   source_for_attribution: {
     external_attribution_source_key:
@@ -76,6 +87,7 @@ export async function initializeDb(inputFile: ParsedFileContent) {
         inputFile.attributionBreakpoints,
         inputFile.filesWithChildren,
         inputFile.baseUrlsForSources,
+        inputFile.readonlyRules,
       );
 
       await initializeAttributionTable(
@@ -97,6 +109,8 @@ export async function initializeDb(inputFile: ParsedFileContent) {
         resourcePathToId,
       );
 
+      await initializeAttributionResourceAccess(trx);
+
       await initializeFrequentLicenseTable(trx, inputFile.frequentLicenses);
 
       await initializeProgressBarTable(trx);
@@ -114,11 +128,14 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
       col.primaryKey().notNull().references('resource.id'),
     )
     .addColumn('is_file', 'integer', (col) => col.notNull())
+    .addColumn('resource_is_readonly', 'integer', (col) => col.notNull())
     .addColumn('breakpoint', 'integer', (col) =>
       col.notNull().references('resource.id'),
     )
     .addColumn('manual', 'integer', (col) => col.references('resource.id'))
+    .addColumn('manual_is_readonly', 'integer')
     .addColumn('external', 'integer', (col) => col.references('resource.id'))
+    .addColumn('external_is_readonly', 'integer')
     .execute();
 
   await sql`
@@ -133,27 +150,35 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
     FROM resource_to_attribution
     WHERE attribution_is_external = 1 AND attribution_uuid NOT IN (SELECT uuid FROM attribution WHERE is_external = 1 AND is_resolved = 1)
   ),
-  closest_attributed_ancestors(resource_id, parent_id, is_file, breakpoint, manual, external) AS (
-    SELECT r.id, r.parent_id, r.is_file, r.id,
+  closest_attributed_ancestors(resource_id, parent_id, is_file, resource_is_readonly, breakpoint, manual, manual_is_readonly, external, external_is_readonly) AS (
+    SELECT r.id, r.parent_id, r.is_file, r.is_readonly, r.id,
     IIF(r.id IN has_manual_attribution, r.id, NULL),
-    IIF(r.id IN has_unresolved_external_attribution, r.id, NULL)
+    IIF(r.id IN has_manual_attribution, r.is_readonly, NULL),
+    IIF(r.id IN has_unresolved_external_attribution, r.id, NULL),
+    IIF(r.id IN has_unresolved_external_attribution, r.is_readonly, NULL)
     FROM resource as r
     WHERE path = ''
 
     UNION ALL
     
-    SELECT child.id, child.parent_id, child.is_file,
+    SELECT child.id, child.parent_id, child.is_file, child.is_readonly,
     IIF(child.is_attribution_breakpoint, child.id, parent.breakpoint),
     IIF(child.id IN has_manual_attribution, child.id, 
         IIF(child.is_attribution_breakpoint, NULL, parent.manual)
     ),
+    IIF(child.id IN has_manual_attribution, child.is_readonly,
+        IIF(child.is_attribution_breakpoint, NULL, parent.manual_is_readonly)
+    ),
     IIF(child.id IN has_unresolved_external_attribution, child.id, 
         IIF(child.is_attribution_breakpoint, NULL, parent.external)
+    ),
+    IIF(child.id IN has_unresolved_external_attribution, child.is_readonly,
+        IIF(child.is_attribution_breakpoint, NULL, parent.external_is_readonly)
     )
     FROM resource as child
     JOIN closest_attributed_ancestors as parent ON child.parent_id = parent.resource_id
   )
-  SELECT resource_id, is_file, breakpoint, manual, external FROM closest_attributed_ancestors
+  SELECT resource_id, is_file, resource_is_readonly, breakpoint, manual, manual_is_readonly, external, external_is_readonly FROM closest_attributed_ancestors
   `.execute(trx);
 
   await trx.schema
@@ -186,6 +211,18 @@ async function initializeProgressBarTable(trx: Transaction<DB>) {
     .createIndex('closest_attributed_ancestors_breakpoint')
     .on('closest_attributed_ancestors')
     .columns(['breakpoint', 'manual', 'resource_id'])
+    .execute();
+
+  await trx.schema
+    .createIndex('closest_attributed_ancestors_editable_file_idx')
+    .on('closest_attributed_ancestors')
+    .columns([
+      'is_file',
+      'resource_is_readonly',
+      'manual_is_readonly',
+      'manual',
+      'resource_id',
+    ])
     .execute();
 }
 
@@ -245,6 +282,7 @@ async function initializeResourceTable(
   attributionBreakpoints: Set<string>,
   filesWithChildren: Set<string>,
   baseUrlsForSources: BaseUrlsForSources,
+  readonlyRules: ReadonlyRule[],
 ) {
   const trimmedAttributionBreakpoints = new Set(
     [...attributionBreakpoints].map(removeTrailingSlash),
@@ -268,6 +306,10 @@ async function initializeResourceTable(
       col.notNull().defaultTo(0),
     )
     .addColumn('is_file', 'integer', (col) => col.notNull().defaultTo(0))
+    .addColumn('is_readonly', 'integer', (col) => col.notNull().defaultTo(0))
+    .addColumn('has_editable_descendant', 'integer', (col) =>
+      col.notNull().defaultTo(0),
+    )
     .addColumn('can_have_children', 'integer', (col) =>
       col.notNull().defaultTo(0),
     )
@@ -282,9 +324,9 @@ async function initializeResourceTable(
   const rawDb = getRawDb();
   const insertStmt = rawDb.prepare(`
     INSERT INTO resource
-      (id, path, name, parent_id, is_attribution_breakpoint, is_file, can_have_children, base_url, max_descendant_id)
+      (id, path, name, parent_id, is_attribution_breakpoint, is_file, is_readonly, has_editable_descendant, can_have_children, base_url, max_descendant_id)
     VALUES
-      ($id, $path, $name, $parent_id, $is_attribution_breakpoint, $is_file, $can_have_children, $base_url, $max_descendant_id)
+      ($id, $path, $name, $parent_id, $is_attribution_breakpoint, $is_file, $is_readonly, $has_editable_descendant, $can_have_children, $base_url, $max_descendant_id)
   `);
   type ResourceRow = {
     id: number;
@@ -293,6 +335,8 @@ async function initializeResourceTable(
     parent_id: number | null;
     is_attribution_breakpoint: number;
     is_file: number;
+    is_readonly: number;
+    has_editable_descendant: number;
     can_have_children: number;
     base_url: string | null;
     max_descendant_id: number;
@@ -308,6 +352,9 @@ async function initializeResourceTable(
     sensitivity: 'variant',
     caseFirst: 'lower',
   });
+  const readonlyRulesByPath = new Map(
+    readonlyRules.map((rule) => [rule.path, rule.readonly]),
+  );
 
   function sortChildren(
     aIsFile: boolean,
@@ -334,18 +381,22 @@ async function initializeResourceTable(
     children: Resources | 1,
     parentId: number | null,
     parentPath: string | null,
+    parentIsReadonly: boolean,
     result: Array<ResourceRow>,
-  ): number {
+  ): { maxDescendantId: number; hasEditableDescendant: boolean } {
     const resourceId = nextId++;
     const currentPath = parentPath === null ? '' : `${parentPath}/${name}`;
     const isLeaf = children === 1;
     const isFile = isLeaf || trimmedFilesWithChildren.has(currentPath);
     const isAttributionBreakpoint =
       trimmedAttributionBreakpoints.has(currentPath);
+    const isReadonly =
+      readonlyRulesByPath.get(currentPath || '/') ?? parentIsReadonly;
 
     resourcePathToId.set(currentPath, resourceId);
 
     let lastDescendantId = resourceId;
+    let hasEditableDescendant = !isReadonly;
     if (!isLeaf) {
       const entries = Object.entries(children).map(
         ([childName, childChildren]) => ({
@@ -358,13 +409,16 @@ async function initializeResourceTable(
       );
       entries.sort((a, b) => sortChildren(a.isFile, a.name, b.isFile, b.name));
       for (const { name, children } of entries) {
-        lastDescendantId = recursivelyCollectResource(
+        const childResult = recursivelyCollectResource(
           name,
           children,
           resourceId,
           currentPath,
+          isReadonly,
           result,
         );
+        lastDescendantId = childResult.maxDescendantId;
+        hasEditableDescendant ||= childResult.hasEditableDescendant;
       }
     }
     result[resourceId - 1] = {
@@ -374,22 +428,44 @@ async function initializeResourceTable(
       parent_id: parentId,
       is_attribution_breakpoint: Number(isAttributionBreakpoint),
       is_file: Number(isFile),
+      is_readonly: Number(isReadonly),
+      has_editable_descendant: Number(hasEditableDescendant),
       can_have_children: Number(!isLeaf),
       base_url: trimmedBaseUrlsForSources[currentPath],
       max_descendant_id: lastDescendantId,
     };
-    return lastDescendantId;
+    return { maxDescendantId: lastDescendantId, hasEditableDescendant };
   }
 
   const resourcesToInsert: Array<ResourceRow> = [];
   // The root resource has '' as name and path
-  recursivelyCollectResource('', resources, null, null, resourcesToInsert);
+  recursivelyCollectResource(
+    '',
+    resources,
+    null,
+    null,
+    false,
+    resourcesToInsert,
+  );
   insertMany(resourcesToInsert);
 
   await trx.schema
     .createIndex('resource_parent_id_covering_idx')
     .on('resource')
     .columns(['parent_id', 'id', 'is_file', 'is_attribution_breakpoint'])
+    .execute();
+
+  await trx.schema
+    .createIndex('resource_is_readonly_id_idx')
+    .on('resource')
+    .columns(['is_readonly', 'id'])
+    .execute();
+
+  await trx.schema
+    .createIndex('resource_has_editable_descendant_id_idx')
+    .on('resource')
+    .column('id')
+    .where(sql.ref('has_editable_descendant'), '=', 1)
     .execute();
 
   await trx.schema
@@ -430,12 +506,24 @@ async function initializeAttributionTable(
   manualAttributions: InputFileAttributionData,
   resolvedExternalAttributions: Set<string>,
 ) {
+  const attributionExpressionBuilder = expressionBuilder<DB, 'attribution'>();
   let schema = trx.schema
     .createTable('attribution')
     .addColumn('uuid', 'text', (col) => col.primaryKey().notNull())
     .addColumn('data', 'text', (col) => col.notNull())
     .addColumn('is_external', 'integer', (col) => col.notNull())
-    .addColumn('is_resolved', 'integer', (col) => col.notNull().defaultTo(0));
+    .addColumn('is_resolved', 'integer', (col) => col.notNull().defaultTo(0))
+    .addColumn('resource_access', 'integer', (col) =>
+      col.notNull().defaultTo(AttributionResourceAccess.Unlinked),
+    )
+    .addCheckConstraint(
+      'attribution_resource_access_check',
+      attributionExpressionBuilder(
+        'resource_access',
+        'in',
+        ATTRIBUTION_RESOURCE_ACCESS_VALUES.map((value) => sql.lit(value)),
+      ),
+    );
 
   for (const [name, datatype] of generatedColumnsFromJsonData) {
     if (datatype === 'boolean') {
@@ -651,6 +739,38 @@ async function initializeResourceToAttributionTable(
     .column('resource_id')
     .column('attribution_uuid')
     .execute();
+}
+
+async function initializeAttributionResourceAccess(trx: Transaction<DB>) {
+  await sql`
+    WITH resource_accesses AS MATERIALIZED (
+      SELECT
+        rta.attribution_uuid,
+        CASE
+          WHEN MIN(r.is_readonly) = 1 THEN ${AttributionResourceAccess.Readonly}
+          WHEN MAX(r.is_readonly) = 0 THEN ${AttributionResourceAccess.Writable}
+          ELSE ${AttributionResourceAccess.Mixed}
+        END AS resource_access
+      FROM resource_to_attribution AS rta
+      INNER JOIN resource AS r ON r.id = rta.resource_id
+      GROUP BY rta.attribution_uuid
+    )
+    UPDATE attribution
+    SET resource_access = COALESCE(
+      (
+        SELECT resource_access
+        FROM resource_accesses
+        WHERE attribution_uuid = attribution.uuid
+      ),
+      ${AttributionResourceAccess.Unlinked}
+    )
+  `.execute(trx);
+
+  await trx.schema
+    .createIndex('attribution_resource_access_audit_idx')
+    .on('attribution')
+      .columns(['resource_access', 'is_external', 'is_resolved', 'uuid'])
+      .execute();
 }
 
 async function initializeFrequentLicenseTable(

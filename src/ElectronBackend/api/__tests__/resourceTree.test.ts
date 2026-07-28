@@ -96,6 +96,32 @@ describe('getResourceTree', () => {
     });
   });
 
+  it('hides readonly-only branches while retaining readonly ancestors', async () => {
+    await initializeDbWithTestData({
+      resources: {
+        readonly: { 'hidden.ts': 1, writable: { 'shown.ts': 1 } },
+        writable: { 'also-shown.ts': 1 },
+      },
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/readonly/writable', readonly: false },
+        { path: '/writable', readonly: false },
+      ],
+    });
+
+    const { result } = await getResourceTree({ expandedNodes: 'expandAll' });
+
+    expect(result.count).toBe(4);
+    expect(result.treeNodes.map((node) => node.id)).toEqual([
+      '/',
+      '/readonly/',
+      '/readonly/writable/',
+      '/readonly/writable/shown.ts',
+      '/writable/',
+      '/writable/also-shown.ts',
+    ]);
+  });
+
   describe('sorting', () => {
     it('sorts folders before files, then alphabetically', async () => {
       await initializeDbWithTestData({

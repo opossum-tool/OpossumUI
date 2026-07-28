@@ -9,7 +9,7 @@ import fs from 'fs';
 import { SPLIT_INFO_FILE_NAME } from '../../shared/write-file-utils';
 import type { ResourcesTree } from '../page-objects/ResourcesTree';
 import type { SplitDialog } from '../page-objects/SplitDialog';
-import { faker, stubSaveDialogSync, test } from '../utils';
+import { faker, stubOpenDialogSync, stubSaveDialogSync, test } from '../utils';
 
 const [firstResourceName, secondResourceName] = faker.opossum.resourceNames({
   count: 2,
@@ -75,11 +75,12 @@ test('warns user of unsaved changes before creating a split', async ({
   await notSavedPopup.assert.isVisible();
 });
 
-test('creates complementary splits', async ({
+test('opens the new split file', async ({
+  attributionsPanel,
+  menuBar,
   resourcesTree,
   splitDialog,
   window,
-  filePaths,
 }, testInfo) => {
   const partitionPath = testInfo.outputPath('partition.opossum');
   await stubSaveDialogSync(window.app, partitionPath);
@@ -92,14 +93,15 @@ test('creates complementary splits', async ({
 
   await splitDialog.assert.succeeded();
   await expect.poll(() => fs.existsSync(partitionPath)).toBe(true);
+  await splitDialog.closeButton.click();
 
-  expect(getReadonlyRules(filePaths!.opossum)).toEqual([
-    { path: firstResourcePath, readonly: true },
-  ]);
-  expect(getReadonlyRules(partitionPath)).toEqual([
-    { path: '/', readonly: true },
-    { path: firstResourcePath, readonly: false },
-  ]);
+  await stubOpenDialogSync(window.app, [partitionPath]);
+  await menuBar.openFile();
+
+  await resourcesTree.assert.resourceIsVisible(firstResourceName);
+  await resourcesTree.assert.resourceIsHidden(secondResourceName);
+  await resourcesTree.goto(firstResourceName);
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo);
 });
 
 test('creates a split from multiple resources', async ({

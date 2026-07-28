@@ -10,6 +10,33 @@ import {
 import { listAttributions } from '../listAttributions';
 
 describe('listAttributions', () => {
+  it('excludes readonly-only attributions but includes unlinked attributions', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/readonly/file.ts', '/writable/file.ts']),
+      manualAttributions: {
+        attributions: {
+          unlinked: { id: 'unlinked', criticality: Criticality.None },
+          readonly: { id: 'readonly', criticality: Criticality.None },
+          writable: { id: 'writable', criticality: Criticality.None },
+          mixed: { id: 'mixed', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/readonly/file.ts': ['readonly', 'mixed'],
+          '/writable/file.ts': ['writable', 'mixed'],
+        },
+        attributionsToResources: {},
+      },
+      readonlyRules: [{ path: '/readonly', readonly: true }],
+    });
+
+    const { result } = await listAttributions({ external: false });
+
+    expect(Object.keys(result)).toEqual(
+      expect.arrayContaining(['mixed', 'unlinked', 'writable']),
+    );
+    expect(Object.keys(result)).toHaveLength(3);
+  });
+
   it('returns all attributions without filters', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/resource']),

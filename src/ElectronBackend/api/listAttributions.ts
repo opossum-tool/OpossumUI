@@ -11,6 +11,7 @@ import type {
 } from '../../shared/attribution-filters';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
+import { EDITABLE_ATTRIBUTION_RESOURCE_ACCESS } from '../types/types';
 import {
   getFilterExpression,
   getSearchExpression,
@@ -89,6 +90,12 @@ export async function listAttributions(props: {
               .as('resource_count_below'),
           ),
         );
+
+      query = query.where(
+        'resource_access',
+        'in',
+        EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
+      );
 
       if (props.external !== undefined) {
         query = query.where('is_external', '=', Number(props.external));

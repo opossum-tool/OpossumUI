@@ -23,6 +23,7 @@ import {
 } from '../../shared/attribution-comparison';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
 import type { DB } from '../db/generated/databaseTypes';
+import { AttributionResourceAccess } from '../types/types';
 import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
 
 export type ResourceRelationship =
@@ -115,6 +116,20 @@ export async function removeRedundantAttributions(
     )
     .execute();
 
+  const affectedAttributionUuids = (
+    await trx
+      .withTables<{ duplicate_resources: { resource_id: number } }>()
+      .selectFrom('resource_to_attribution')
+      .select('attribution_uuid')
+      .where('attribution_is_external', '=', 0)
+      .where('resource_id', 'in', (eb) =>
+        eb
+          .selectFrom('duplicate_resources')
+          .select('duplicate_resources.resource_id'),
+      )
+      .execute()
+  ).map((attribution) => attribution.attribution_uuid);
+
   await trx
     .withTables<{ duplicate_resources: { resource_id: number } }>()
     .deleteFrom('resource_to_attribution')
@@ -125,6 +140,8 @@ export async function removeRedundantAttributions(
         .select('duplicate_resources.resource_id'),
     )
     .execute();
+
+  await updateAttributionResourceAccess(trx, affectedAttributionUuids);
 
   // In this case, we need to call this function after removing the attribution-resource-connection, because
   // we don't know which attributionUuid will be affected. That means we can't pass the uuids to this function,
@@ -523,6 +540,8 @@ export async function unlinkAttributions(
     .where('attribution_uuid', 'in', attributionUuids)
     .execute();
 
+  await updateAttributionResourceAccess(trx, attributionUuids);
+
   // delete any of the just-unlinked attributions that no longer link to any resource
   await trx
     .deleteFrom('attribution')
@@ -555,6 +574,35 @@ export async function linkAttributions(
       eb.onConflict((oc) => oc.doNothing()),
     )
     .execute();
+
+  await updateAttributionResourceAccess(trx, attributionUuids);
+}
+
+async function updateAttributionResourceAccess(
+  trx: Transaction<DB>,
+  attributionUuids: Array<string>,
+) {
+  if (attributionUuids.length === 0) {
+    return;
+  }
+
+  await sql`
+    UPDATE attribution
+    SET resource_access = COALESCE(
+      (
+        SELECT CASE
+          WHEN MIN(resource.is_readonly) = 1 THEN ${AttributionResourceAccess.Readonly}
+          WHEN MAX(resource.is_readonly) = 0 THEN ${AttributionResourceAccess.Writable}
+          ELSE ${AttributionResourceAccess.Mixed}
+        END
+        FROM resource_to_attribution
+        INNER JOIN resource ON resource.id = resource_to_attribution.resource_id
+        WHERE resource_to_attribution.attribution_uuid = attribution.uuid
+      ),
+      ${AttributionResourceAccess.Unlinked}
+    )
+    WHERE uuid IN (${sql.join(attributionUuids)})
+  `.execute(trx);
 }
 
 export async function findMatchingAttributionUuid(
@@ -750,6 +798,10 @@ export async function replaceAttributions(
     .deleteFrom('attribution')
     .where('uuid', 'in', params.attributionUuidsToReplace)
     .execute();
+
+  await updateAttributionResourceAccess(trx, [
+    params.attributionUuidToReplaceWith,
+  ]);
 
   await removeRedundantAttributions(trx, {
     resourceIds: connectedResources,

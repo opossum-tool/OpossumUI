@@ -16,6 +16,7 @@ import type {
   RawClassificationsConfig,
 } from '../../shared/shared-types';
 import { getDb } from '../db/db';
+import { EDITABLE_ATTRIBUTION_RESOURCE_ACCESS } from '../types/types';
 import {
   getFilterExpression,
   getFilterKeys,
@@ -128,6 +129,7 @@ export const queries = {
       .selectFrom('attribution')
       .select(['data', 'is_external'])
       .where('uuid', '=', props.attributionUuid)
+      .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
       .executeTakeFirstOrThrow();
 
     return {
@@ -158,6 +160,7 @@ export const queries = {
       .select('data')
       .where('caa.resource_id', '=', resource.id)
       .where('attribution_is_external', '=', 0)
+      .where('caa.manual_is_readonly', '=', 0)
       .limit(1)
       .executeTakeFirst();
 
@@ -188,6 +191,7 @@ export const queries = {
         eb.fn.countAll<number>().as('count'),
       ])
       .where('is_resolved', '=', 0)
+      .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
       .where(toSnakeCase(attributeName), 'is not', null)
       .where(toSnakeCase(attributeName), '!=', '')
       .groupBy(['value', 'is_external']);
@@ -253,6 +257,11 @@ export const queries = {
       .groupBy('relationship');
 
     query = query.where('is_external', '=', Number(props.external));
+    query = query.where(
+      'resource_access',
+      'in',
+      EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
+    );
 
     for (const filter of props.filters) {
       query = query.where(getFilterExpression(filter));
@@ -335,6 +344,7 @@ export const queries = {
       .selectFrom('attribution')
       .select('uuid')
       .where('is_resolved', '=', 1)
+      .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
       .execute();
 
     return { result: new Set(result.map((r) => r.uuid)) };
