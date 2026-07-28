@@ -55,36 +55,35 @@ test('filters signals', async ({ signalsPanel }) => {
 
   await signalsPanel.filterButton.click();
   await signalsPanel.filters.previouslyPreferred.click();
-  await signalsPanel.closeMenu();
+  await signalsPanel.closeFilterMenu();
   await signalsPanel.packageCard.assert.isVisible(packageInfo1);
   await signalsPanel.packageCard.assert.isHidden(packageInfo2);
   await signalsPanel.packageCard.assert.isHidden(packageInfo3);
 
   await signalsPanel.filterButton.click();
   await signalsPanel.filters.firstParty.click();
-  await signalsPanel.closeMenu();
+  await signalsPanel.closeFilterMenu();
   await signalsPanel.packageCard.assert.isHidden(packageInfo1);
   await signalsPanel.packageCard.assert.isHidden(packageInfo2);
   await signalsPanel.packageCard.assert.isHidden(packageInfo3);
 
   await signalsPanel.filterButton.click();
   await signalsPanel.filters.previouslyPreferred.click();
-  await signalsPanel.closeMenu();
+  await signalsPanel.closeFilterMenu();
   await signalsPanel.packageCard.assert.isHidden(packageInfo1);
   await signalsPanel.packageCard.assert.isHidden(packageInfo2);
   await signalsPanel.packageCard.assert.isVisible(packageInfo3);
 
   await signalsPanel.filterButton.click();
   await signalsPanel.filters.firstParty.click();
-  await signalsPanel.closeMenu();
+  await signalsPanel.closeFilterMenu();
   await signalsPanel.packageCard.assert.isVisible(packageInfo1);
   await signalsPanel.packageCard.assert.isVisible(packageInfo2);
   await signalsPanel.packageCard.assert.isVisible(packageInfo3);
 
   await signalsPanel.filterButton.click();
   await signalsPanel.selectLicenseName(packageInfo1.licenseName!);
-  await signalsPanel.closeMenu();
-  await signalsPanel.closeMenu();
+  await signalsPanel.closeFilterMenu();
   await signalsPanel.packageCard.assert.isVisible(packageInfo1);
   await signalsPanel.packageCard.assert.isHidden(packageInfo2);
   await signalsPanel.packageCard.assert.isHidden(packageInfo3);

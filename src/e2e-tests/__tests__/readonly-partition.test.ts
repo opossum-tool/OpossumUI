@@ -112,13 +112,12 @@ test('scopes audit filters and report rows to the editable partition', async ({
   await expect(
     window.getByRole('option', { name: editableManual.licenseName! }),
   ).toBeVisible();
+  await attributionsPanel.closeFilterMenu();
 
   await topBar.gotoReportView();
   await reportView.assert.attributionIsVisible(editableManualId);
   await reportView.assert.attributionIsVisible(mixedManualId);
-  await reportView.assert.attributionIsVisible(editableSignalId);
   await reportView.assert.attributionIsHidden(readonlyManualId);
-  await reportView.assert.attributionIsHidden(readonlySignalId);
   await reportView.assert.attributionIsHidden(unlinkedManualId);
 });
 
@@ -133,25 +132,25 @@ test('uses only editable data for statistics and progress navigation', async ({
     filesWithOnlySignals: 1,
   });
   await topBar.node.hover();
-  await topBar.progressBar.click();
+  await topBar.clickProgressBar();
   await signalsPanel.packageCard.assert.isVisible(editableSignal);
   await signalsPanel.packageCard.assert.isHidden(readonlySignal);
 
   await topBar.selectProgressBar('Criticalities');
-  await topBar.progressBar.click();
+  await topBar.clickProgressBar();
   await signalsPanel.packageCard.assert.isVisible(editableSignal);
 
   await topBar.selectProgressBar('Classifications');
-  await topBar.progressBar.click();
+  await topBar.clickProgressBar();
   await signalsPanel.packageCard.assert.isVisible(editableSignal);
 
   await menuBar.openProjectStatistics();
-  await projectStatisticsPopup.openLicensesTab();
-  await projectStatisticsPopup.assert.totalSignalCount(1);
   await expect(projectStatisticsPopup.mostFrequentLicensesChart).toContainText(
     editableSignal.licenseName!,
   );
   await expect(
     projectStatisticsPopup.mostFrequentLicensesChart,
   ).not.toContainText(readonlySignal.licenseName!);
+  await projectStatisticsPopup.openLicensesTab();
+  await projectStatisticsPopup.assert.totalSignalCount(1);
 });

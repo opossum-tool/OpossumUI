@@ -51,7 +51,7 @@ test('sorting signals by classification', async ({ signalsPanel }) => {
 
   await signalsPanel.sortButton.click();
   await signalsPanel.sortings.classification.click();
-  await signalsPanel.closeMenu();
+  await signalsPanel.closeFilterMenu();
 
   await signalsPanel.packageCard.assert.signalAboveSecondSignal(
     packageInfo2,

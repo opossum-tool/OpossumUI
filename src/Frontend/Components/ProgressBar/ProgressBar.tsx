@@ -136,6 +136,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       <MuiTooltip title={<Title steps={steps} />} followCursor>
         <MuiBox
           aria-label={ariaLabel}
+          data-testid={'progress-bar'}
           sx={{
             ...classes.bar,
             background: createBackgroundFromProgressBarSteps(steps),

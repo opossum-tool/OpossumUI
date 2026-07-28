@@ -26,7 +26,7 @@ export class TopBar {
     this.reportViewButton = this.node.getByRole('button', {
       name: text.topBar.report,
     });
-    this.progressBar = this.node.getByLabel(/Progress bar.*/);
+    this.progressBar = this.node.getByTestId('progress-bar');
     this.progressBarSelector = this.node.getByLabel(
       text.topBar.switchableProgressBar.selectAriaLabel,
     );
@@ -107,6 +107,10 @@ export class TopBar {
 
   async gotoReportView(): Promise<void> {
     await this.reportViewButton.click();
+  }
+
+  async clickProgressBar(): Promise<void> {
+    await this.progressBar.click();
   }
 
   async selectProgressBar(
