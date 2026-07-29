@@ -82,19 +82,19 @@ test('shows only the editable partition in audit lists and the resource tree', a
   resourcesTree,
   signalsPanel,
 }) => {
-  await attributionsPanel.packageCard.assert.isVisible(editableManual);
-  await attributionsPanel.packageCard.assert.isVisible(mixedManual);
-  await attributionsPanel.packageCard.assert.isHidden(readonlyManual);
+  await attributionsPanel.packageCard.assert.isEditable(editableManual);
+  await attributionsPanel.packageCard.assert.isEditable(mixedManual);
+  await attributionsPanel.packageCard.assert.isReadonly(readonlyManual);
   await attributionsPanel.packageCard.assert.isHidden(unlinkedManual);
-  await signalsPanel.packageCard.assert.isVisible(editableSignal);
-  await signalsPanel.packageCard.assert.isHidden(readonlySignal);
+  await signalsPanel.packageCard.assert.isEditable(editableSignal);
+  await signalsPanel.packageCard.assert.isReadonly(readonlySignal);
 
-  await resourcesTree.assert.resourceIsHidden('readonly-only');
+  await resourcesTree.assert.resourceIsReadonly('readonly-only');
   await resourcesTree.assert.resourceIsVisible('structural');
   await resourcesTree.goto('structural');
-  await resourcesTree.assert.resourceIsVisible('structural-editable');
+  await resourcesTree.assert.resourceIsEditable('structural-editable');
   await resourcesTree.goto('structural-editable');
-  await resourcesTree.assert.resourceIsVisible('mixed.ts');
+  await resourcesTree.assert.resourceIsEditable('mixed.ts');
 });
 
 test('scopes audit filters and report rows to the editable partition', async ({
@@ -115,9 +115,9 @@ test('scopes audit filters and report rows to the editable partition', async ({
   await attributionsPanel.closeFilterMenu();
 
   await topBar.gotoReportView();
-  await reportView.assert.attributionIsVisible(editableManualId);
-  await reportView.assert.attributionIsVisible(mixedManualId);
-  await reportView.assert.attributionIsHidden(readonlyManualId);
+  await reportView.assert.attributionIsEditable(editableManualId);
+  await reportView.assert.attributionIsEditable(mixedManualId);
+  await reportView.assert.attributionIsReadonly(readonlyManualId);
   await reportView.assert.attributionIsHidden(unlinkedManualId);
 });
 
@@ -133,16 +133,16 @@ test('uses only editable data for statistics and progress navigation', async ({
   });
   await topBar.node.hover();
   await topBar.clickProgressBar();
-  await signalsPanel.packageCard.assert.isVisible(editableSignal);
-  await signalsPanel.packageCard.assert.isHidden(readonlySignal);
+  await signalsPanel.packageCard.assert.isEditable(editableSignal);
+  await signalsPanel.packageCard.assert.isReadonly(readonlySignal);
 
   await topBar.selectProgressBar('Criticalities');
   await topBar.clickProgressBar();
-  await signalsPanel.packageCard.assert.isVisible(editableSignal);
+  await signalsPanel.packageCard.assert.isEditable(editableSignal);
 
   await topBar.selectProgressBar('Classifications');
   await topBar.clickProgressBar();
-  await signalsPanel.packageCard.assert.isVisible(editableSignal);
+  await signalsPanel.packageCard.assert.isEditable(editableSignal);
 
   await menuBar.openProjectStatistics();
   await expect(projectStatisticsPopup.mostFrequentLicensesChart).toContainText(

@@ -3,10 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { type ElectronApplication, expect, type Page } from '@playwright/test';
-import AdmZip from 'adm-zip';
 import fs from 'fs';
 
-import { SPLIT_INFO_FILE_NAME } from '../../shared/write-file-utils';
 import type { ResourcesTree } from '../page-objects/ResourcesTree';
 import type { SplitDialog } from '../page-objects/SplitDialog';
 import { faker, stubOpenDialogSync, stubSaveDialogSync, test } from '../utils';
@@ -17,8 +15,6 @@ const [
   firstResourceName,
   secondResourceName,
 ] = faker.opossum.resourceNames({ count: 4 });
-const firstDirectoryPath = faker.opossum.filePath(firstDirectoryName);
-const secondDirectoryPath = faker.opossum.filePath(secondDirectoryName);
 const firstResourcePath = faker.opossum.filePath(
   firstDirectoryName,
   firstResourceName,
@@ -104,8 +100,8 @@ test('opens the new split file', async ({
   await expect.poll(() => fs.existsSync(partitionPath)).toBe(true);
   await splitDialog.closeButton.click();
 
-  await resourcesTree.assert.resourceIsHidden(firstDirectoryName);
-  await resourcesTree.assert.resourceIsVisible(secondDirectoryName);
+  await resourcesTree.assert.resourceIsReadonly(firstDirectoryName);
+  await resourcesTree.assert.resourceIsEditable(secondDirectoryName);
   await attributionsPanel.packageCard.assert.isHidden(packageInfo);
   await topBar.gotoReportView();
   await reportView.assert.attributionIsHidden(attributionId);
@@ -114,17 +110,17 @@ test('opens the new split file', async ({
   await stubOpenDialogSync(window.app, [partitionPath]);
   await menuBar.openFile();
 
-  await resourcesTree.assert.resourceIsVisible(firstDirectoryName);
-  await resourcesTree.assert.resourceIsHidden(secondDirectoryName);
+  await resourcesTree.assert.resourceIsEditable(firstDirectoryName);
+  await resourcesTree.assert.resourceIsReadonly(secondDirectoryName);
   await resourcesTree.goto(firstDirectoryName, firstResourceName);
   await attributionsPanel.packageCard.assert.isVisible(packageInfo);
 });
 
 test('creates a split from multiple resources', async ({
+  menuBar,
   resourcesTree,
   splitDialog,
   window,
-  filePaths,
 }, testInfo) => {
   const partitionPath = testInfo.outputPath('multiple-resources.opossum');
   await stubSaveDialogSync(window.app, partitionPath);
@@ -136,25 +132,23 @@ test('creates a split from multiple resources', async ({
 
   await splitDialog.assert.succeeded();
   await expect.poll(() => fs.existsSync(partitionPath)).toBe(true);
+  await splitDialog.closeButton.click();
 
-  const selectedResourcePaths = [
-    firstDirectoryPath,
-    secondDirectoryPath,
-  ].sort();
-  expect(getReadonlyRules(filePaths!.opossum)).toEqual(
-    selectedResourcePaths.map((path) => ({ path, readonly: true })),
-  );
-  expect(getReadonlyRules(partitionPath)).toEqual([
-    { path: '/', readonly: true },
-    ...selectedResourcePaths.map((path) => ({ path, readonly: false })),
-  ]);
+  await resourcesTree.assert.resourceIsReadonly(firstDirectoryName);
+  await resourcesTree.assert.resourceIsReadonly(secondDirectoryName);
+
+  await stubOpenDialogSync(window.app, [partitionPath]);
+  await menuBar.openFile();
+
+  await resourcesTree.assert.resourceIsEditable(firstDirectoryName);
+  await resourcesTree.assert.resourceIsEditable(secondDirectoryName);
 });
 
 test('creates two consecutive partitions from writable resources', async ({
+  menuBar,
   resourcesTree,
   splitDialog,
   window,
-  filePaths,
 }, testInfo) => {
   const firstPartitionPath = testInfo.outputPath('first-partition.opossum');
   const secondPartitionPath = testInfo.outputPath('second-partition.opossum');
@@ -168,31 +162,32 @@ test('creates two consecutive partitions from writable resources', async ({
   });
   await splitDialog.closeButton.click();
 
-  await resourcesTree.assert.resourceIsHidden(firstDirectoryName);
-  await resourcesTree.assert.resourceIsVisible(secondDirectoryName);
+  await resourcesTree.assert.resourceIsReadonly(firstDirectoryName);
+  await resourcesTree.assert.resourceIsEditable(secondDirectoryName);
 
   await stubSaveDialogSync(window.app, secondPartitionPath);
   await resourcesTree.openSplitDialog(secondDirectoryName);
-  await splitDialog.assert.resourceIsHidden(firstDirectoryName);
-  await splitDialog.assert.resourceIsVisible(secondDirectoryName);
+  await splitDialog.assert.resourceIsReadonly(firstDirectoryName);
+  await splitDialog.assert.resourceIsEditable(secondDirectoryName);
   await splitDialog.destinationPathSelection.click();
   await splitDialog.createButton.click();
   await splitDialog.assert.succeeded();
 
   await expect.poll(() => fs.existsSync(secondPartitionPath)).toBe(true);
+  await splitDialog.closeButton.click();
 
-  expect(getReadonlyRules(filePaths!.opossum)).toEqual([
-    { path: firstDirectoryPath, readonly: true },
-    { path: secondDirectoryPath, readonly: true },
-  ]);
-  expect(getReadonlyRules(firstPartitionPath)).toEqual([
-    { path: '/', readonly: true },
-    { path: firstDirectoryPath, readonly: false },
-  ]);
-  expect(getReadonlyRules(secondPartitionPath)).toEqual([
-    { path: '/', readonly: true },
-    { path: secondDirectoryPath, readonly: false },
-  ]);
+  await resourcesTree.assert.resourceIsReadonly(firstDirectoryName);
+  await resourcesTree.assert.resourceIsReadonly(secondDirectoryName);
+
+  await stubOpenDialogSync(window.app, [firstPartitionPath]);
+  await menuBar.openFile();
+  await resourcesTree.assert.resourceIsEditable(firstDirectoryName);
+  await resourcesTree.assert.resourceIsReadonly(secondDirectoryName);
+
+  await stubOpenDialogSync(window.app, [secondPartitionPath]);
+  await menuBar.openFile();
+  await resourcesTree.assert.resourceIsReadonly(firstDirectoryName);
+  await resourcesTree.assert.resourceIsEditable(secondDirectoryName);
 });
 
 async function createPartition({
@@ -213,14 +208,4 @@ async function createPartition({
   await splitDialog.destinationPathSelection.click();
   await splitDialog.createButton.click();
   await splitDialog.assert.succeeded();
-}
-
-function getReadonlyRules(opossumFilePath: string) {
-  return (
-    JSON.parse(
-      new AdmZip(opossumFilePath).readAsText(SPLIT_INFO_FILE_NAME),
-    ) as {
-      readonlyRules: Array<{ path: string; readonly: boolean }>;
-    }
-  ).readonlyRules;
 }

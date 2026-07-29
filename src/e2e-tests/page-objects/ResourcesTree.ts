@@ -47,6 +47,16 @@ export class ResourcesTree {
         this.node.getByText(resourceName, { exact: true }),
       ).toBeVisible();
     },
+    resourceIsEditable: async (resourceName: string): Promise<void> => {
+      await expect(
+        this.node.getByText(resourceName, { exact: true }),
+      ).toBeVisible();
+    },
+    resourceIsReadonly: async (resourceName: string): Promise<void> => {
+      await expect(
+        this.node.getByText(resourceName, { exact: true }),
+      ).toBeHidden();
+    },
     resourceIsHidden: async (resourceName: string): Promise<void> => {
       await expect(
         this.node.getByText(resourceName, { exact: true }),
