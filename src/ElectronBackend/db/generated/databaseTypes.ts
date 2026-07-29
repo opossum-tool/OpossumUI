@@ -79,6 +79,14 @@ export interface Metadata {
   value_json: string;
 }
 
+/**
+ * Readonly path overrides loaded from split-info.json. An empty table represents an unsplit project. The most specific matching path applies.
+ */
+export interface ReadonlyRule {
+  path: string;
+  readonly: number;
+}
+
 export interface Resource {
   base_url: string | null;
   /**
@@ -130,6 +138,7 @@ export interface DB {
   external_attribution_source: ExternalAttributionSource;
   frequent_license: FrequentLicense;
   metadata: Metadata;
+  readonly_rule: ReadonlyRule;
   resource: Resource;
   resource_to_attribution: ResourceToAttribution;
   source_for_attribution: SourceForAttribution;

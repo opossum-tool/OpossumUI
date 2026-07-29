@@ -27,6 +27,7 @@ if (typeof window !== 'undefined') {
     importFileSelectSaveLocation: vi.fn(),
     importFileConvertAndLoad: vi.fn(),
     mergeFileAndLoad: vi.fn(),
+    splitFile: vi.fn(),
     saveFile: vi.fn(),
     exportFile: vi.fn(),
     stopLoading: vi.fn(),

@@ -89,10 +89,12 @@ export async function initializeDbWithTestData(
     filesWithChildren: new Set<string>(),
     baseUrlsForSources: {},
     externalAttributionSources: {},
+    readonlyRules: [],
   } satisfies ParsedFileContent;
 
   await initializeDb({
     ...emptyFileContent,
     ...overrides,
+    readonlyRules: overrides?.readonlyRules ?? [],
   });
 }

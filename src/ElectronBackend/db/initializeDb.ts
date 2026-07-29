@@ -49,6 +49,10 @@ export const comments: Record<string, Record<string, string>> = {
     attribution_is_external:
       'Denormalized data for faster checking if a resource has manual/external attribution',
   },
+  readonly_rule: {
+    _table_:
+      'Readonly path overrides loaded from split-info.json. An empty table represents an unsplit project. The most specific matching path applies.',
+  },
 };
 
 export async function initializeDb(inputFile: ParsedFileContent) {
@@ -98,6 +102,8 @@ export async function initializeDb(inputFile: ParsedFileContent) {
       await initializeProgressBarTable(trx);
 
       await initializeMetadataTable(trx, inputFile.metadata);
+
+      await initializeReadonlyRuleTable(trx, inputFile.readonlyRules);
     });
 }
 
@@ -702,6 +708,29 @@ async function initializeMetadataTable(
         key,
         value_json: JSON.stringify(value),
       })
+      .execute();
+  }
+}
+
+async function initializeReadonlyRuleTable(
+  trx: Transaction<DB>,
+  readonlyRules: ParsedFileContent['readonlyRules'],
+) {
+  await trx.schema
+    .createTable('readonly_rule')
+    .addColumn('path', 'text', (col) => col.primaryKey().notNull())
+    .addColumn('readonly', 'integer', (col) => col.notNull())
+    .execute();
+
+  if (readonlyRules.length > 0) {
+    await trx
+      .insertInto('readonly_rule')
+      .values(
+        readonlyRules.map((rule) => ({
+          path: rule.path,
+          readonly: Number(rule.readonly),
+        })),
+      )
       .execute();
   }
 }

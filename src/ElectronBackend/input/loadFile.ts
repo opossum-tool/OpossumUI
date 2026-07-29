@@ -10,6 +10,7 @@ import { v4 as uuid4 } from 'uuid';
 import type {
   Attributions,
   ParsedFileContent,
+  ReadonlyRule,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { saveFile } from '../api/saveFile';
@@ -99,6 +100,7 @@ export async function loadFile(
   let parsedInputData: ParsedOpossumInputFile;
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
   let opossumZip: AdmZip | undefined;
+  let readonlyRules: Array<ReadonlyRule> = [];
 
   if (isOpossumFileFormat(filePath)) {
     reportProgress(`Reading file ${filePath}`);
@@ -109,6 +111,7 @@ export async function loadFile(
     parsedInputData = parsingResult.input;
     parsedOutputData = parsingResult.output;
     opossumZip = parsingResult.opossumZip;
+    readonlyRules = parsingResult.readonlyRules;
   } else {
     reportProgress('Parsing input file');
     const parsingResult = await parseInputJsonFile(filePath);
@@ -214,6 +217,7 @@ export async function loadFile(
     ),
     externalAttributionSources:
       parsedInputData.externalAttributionSources ?? {},
+    readonlyRules,
   } satisfies ParsedFileContent;
 
   reportProgress('Loading into database');

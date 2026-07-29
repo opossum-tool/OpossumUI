@@ -172,6 +172,11 @@ export interface RawProjectConfig {
   classifications: RawClassificationsConfig;
 }
 
+export interface ReadonlyRule {
+  path: string;
+  readonly: boolean;
+}
+
 export interface ParsedFileContent {
   metadata: ProjectMetadata;
   resources: Resources;
@@ -184,6 +189,7 @@ export interface ParsedFileContent {
   filesWithChildren: Set<string>;
   baseUrlsForSources: BaseUrlsForSources;
   externalAttributionSources: ExternalAttributionSources;
+  readonlyRules: Array<ReadonlyRule>;
 }
 
 export interface BaseUrlsForSources {
@@ -254,6 +260,7 @@ export interface ElectronAPI {
     inputFilePath: string,
     fileType: FileType,
   ) => Promise<boolean>;
+  splitFile: (splitPaths: Array<string>) => Promise<boolean>;
   saveFile: () => void;
   exportFile: (exportType: ExportType) => Promise<void>;
   /**

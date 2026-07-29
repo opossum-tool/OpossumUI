@@ -3,11 +3,20 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import AdmZip from 'adm-zip';
 import fs from 'fs';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
-import { Criticality, RawCriticality } from '../../../shared/shared-types';
+import {
+  Criticality,
+  RawCriticality,
+  type ReadonlyRule,
+} from '../../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
+import {
+  INPUT_FILE_NAME,
+  SPLIT_INFO_FILE_NAME,
+} from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
 import { getDb } from '../../db/db';
 import type {
@@ -96,6 +105,34 @@ describe('loadFile', () => {
     const result = (await loadFile(opossumPath, {})) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
+  });
+
+  it('loads split metadata into the ephemeral database', async () => {
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+    const expectedReadonlyRules: Array<ReadonlyRule> = [
+      { path: '/folder', readonly: true },
+    ];
+    const zip = new AdmZip();
+    zip.addFile(INPUT_FILE_NAME, Buffer.from(JSON.stringify(inputFileContent)));
+    zip.addFile(
+      SPLIT_INFO_FILE_NAME,
+      Buffer.from(JSON.stringify({ readonlyRules: expectedReadonlyRules })),
+    );
+    await zip.writeZipPromise(opossumPath);
+
+    const result = await loadFile(opossumPath, {});
+
+    expect(result.ok).toBe(true);
+    const readonlyRules = await getDb()
+      .selectFrom('readonly_rule')
+      .select(['path', 'readonly'])
+      .execute();
+    expect(readonlyRules).toEqual([
+      {
+        path: '/folder',
+        readonly: Number(expectedReadonlyRules[0].readonly),
+      },
+    ]);
   });
 
   it('converts preSelected external attributions to manual attributions', async () => {

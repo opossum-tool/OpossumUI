@@ -10,6 +10,7 @@ import type {
   ProjectMetadata,
   RawAttributions,
   RawProjectConfig,
+  ReadonlyRule,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -87,6 +88,7 @@ export interface ParsedOpossumOutputFile {
 export interface ParsedOpossumInputAndOutput {
   input: ParsedOpossumInputFile;
   output: ParsedOpossumOutputFile | null;
+  readonlyRules: Array<ReadonlyRule>;
   opossumZip: AdmZip;
 }
 

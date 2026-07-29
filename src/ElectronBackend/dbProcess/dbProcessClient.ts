@@ -12,6 +12,7 @@ import type {
   CommandReturn,
 } from '../api/commands';
 import type { SaveFileParams } from '../api/saveFile';
+import type { SplitOpossumFileParams } from '../api/splitOpossumFile';
 import type { LoadFileGlobalState, LoadFileIpcResult } from '../input/loadFile';
 import type {
   DbProcessPayload,
@@ -119,6 +120,19 @@ export class DbProcessClient {
 
   saveFile(params: SaveFileParams): Promise<void> {
     return this.request({ type: 'saveFile', ...params }) as Promise<void>;
+  }
+
+  splitOpossumFile({
+    saveFileParams,
+    selectedFolderPaths,
+    partitionOutputPath,
+  }: SplitOpossumFileParams): Promise<void> {
+    return this.request({
+      type: 'splitOpossumFile',
+      ...saveFileParams,
+      selectedFolderPaths,
+      partitionOutputPath,
+    }) as Promise<void>;
   }
 
   exportFile(exportType: ExportType, filePath: string): Promise<void> {

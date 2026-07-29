@@ -5,6 +5,7 @@
 import type AdmZip from 'adm-zip';
 
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
+import { getReadonlyRules } from '../db/split-info';
 import { serializeAttributions } from '../input/parseInputData';
 import type { OpossumOutputFile } from '../types/types';
 import { getSaveFileArgs } from './getSaveFileArgs';
@@ -40,6 +41,7 @@ export async function saveFile(
       path: params.opossumFilePath,
       zip: opossumZip,
       output: outputFileContent,
+      readonlyRules: await getReadonlyRules(),
     });
   } else if (params.attributionFilePath) {
     await writeFile({

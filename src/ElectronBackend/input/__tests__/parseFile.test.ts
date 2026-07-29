@@ -2,10 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import AdmZip from 'adm-zip';
 import { cloneDeep, set } from 'lodash-es';
 import zlib from 'zlib';
 
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
+import { SPLIT_INFO_FILE_NAME } from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
 import type {
   OpossumOutputFile,
@@ -171,6 +173,26 @@ describe('parseOpossumFile', () => {
     });
 
     const result = await parseOpossumFile(opossumFilePath);
+    expect(result).toEqual({
+      message: expect.any(String),
+      type: 'jsonParsingError',
+    });
+  });
+
+  it('rejects split metadata without readonly rules', async () => {
+    const opossumFilePath = await writeOpossumFile({
+      input: correctInput,
+      path: faker.outputPath(`${faker.string.uuid()}.opossum`),
+    });
+    const zip = new AdmZip(opossumFilePath);
+    zip.addFile(
+      SPLIT_INFO_FILE_NAME,
+      Buffer.from(JSON.stringify({ readonlyRules: [] })),
+    );
+    await zip.writeZipPromise(opossumFilePath);
+
+    const result = await parseOpossumFile(opossumFilePath);
+
     expect(result).toEqual({
       message: expect.any(String),
       type: 'jsonParsingError',
