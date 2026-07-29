@@ -119,7 +119,7 @@ export async function parseOpossumFile(
   };
 }
 
-function parseReadonlyRules(content: string): Array<ReadonlyRule> {
+export function parseReadonlyRules(content: string): Array<ReadonlyRule> {
   const parsedContent = JSON.parse(content);
   jsonSchemaValidator.validate(
     parsedContent,
@@ -129,7 +129,7 @@ function parseReadonlyRules(content: string): Array<ReadonlyRule> {
   return parsedContent.readonlyRules as Array<ReadonlyRule>;
 }
 
-function parseOutputJsonContent(
+export function parseOutputJsonContent(
   fileContent: string,
   filePath: string,
 ): ParsedOpossumOutputFile {

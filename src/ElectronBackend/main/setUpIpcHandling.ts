@@ -11,7 +11,9 @@ import {
   exportFileListener,
   importFileConvertAndLoadListener,
   importFileSelectSaveLocationListener,
+  mergeCurrentOpossumFilesListener,
   mergeFileAndLoadListener,
+  mergeOpossumFilesFromPathsListener,
   openFileListener,
   openLinkListener,
   saveFileListener,
@@ -52,6 +54,14 @@ export function setupIpcHandling(
     selectSplitDestinationListener(window),
   );
   ipcMain.handle(IpcChannel.SplitFile, splitCurrentOpossumFileListener(window));
+  ipcMain.handle(
+    IpcChannel.MergeOpossumFiles,
+    mergeCurrentOpossumFilesListener(),
+  );
+  ipcMain.handle(
+    IpcChannel.MergeOpossumFilesFromPaths,
+    mergeOpossumFilesFromPathsListener,
+  );
   ipcMain.handle(IpcChannel.ExportFile, exportFileListener(window));
   ipcMain.handle(IpcChannel.StopLoading, () =>
     new ProcessingStatusUpdater(window.webContents).endProcessing(),

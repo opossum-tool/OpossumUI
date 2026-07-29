@@ -11,6 +11,7 @@ import type {
   CommandParams,
   CommandReturn,
 } from '../api/commands';
+import type { MergeOpossumFilesParams } from '../api/mergeOpossumFiles';
 import type { SaveFileParams } from '../api/saveFile';
 import type { SplitOpossumFileParams } from '../api/splitOpossumFile';
 import type { LoadFileIpcResult } from '../input/loadFile';
@@ -131,6 +132,17 @@ export class DbProcessClient {
       ...saveFileParams,
       selectedFolderPaths,
       splitOpossumFilePath,
+    }) as Promise<void>;
+  }
+
+  mergeOpossumFiles({
+    saveFileParams,
+    partitionPaths,
+  }: MergeOpossumFilesParams): Promise<void> {
+    return this.request({
+      type: 'mergeOpossumFiles',
+      ...saveFileParams,
+      partitionPaths,
     }) as Promise<void>;
   }
 

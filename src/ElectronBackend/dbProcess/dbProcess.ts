@@ -16,6 +16,7 @@ import {
   executeCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
+import { mergeOpossumFiles } from '../api/mergeOpossumFiles';
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
 import {
@@ -43,6 +44,14 @@ interface SplitOpossumFileMessage {
   splitOpossumFilePath: string;
 }
 
+interface MergeOpossumFilesMessage {
+  type: 'mergeOpossumFiles';
+  projectId: string;
+  inputFileChecksum?: string;
+  opossumFilePath: string;
+  partitionPaths: Array<string>;
+}
+
 interface ExportFileMessage {
   type: 'exportFile';
   exportType: ExportType;
@@ -59,6 +68,7 @@ export type DbProcessPayload =
   | LoadFileMessage
   | SaveFileMessage
   | SplitOpossumFileMessage
+  | MergeOpossumFilesMessage
   | ExportFileMessage
   | ExecuteCommandMessage;
 
@@ -138,6 +148,27 @@ async function executeDbProcessMessage(
         },
         storedOpossumZip,
       );
+      return undefined;
+    }
+    case 'mergeOpossumFiles': {
+      if (!storedOpossumZip) {
+        throw new Error('Cannot merge: no .opossum file is loaded');
+      }
+      const { id: _, type: __, partitionPaths, ...saveFileParams } = msg;
+      await mergeOpossumFiles(
+        { saveFileParams, partitionPaths },
+        storedOpossumZip,
+      );
+      const loadResult = await loadFile(
+        saveFileParams.opossumFilePath,
+        onProgress,
+      );
+      if (!loadResult.ok) {
+        throw new Error(
+          `Could not reload merged archive: ${loadResult.error.message}`,
+        );
+      }
+      storedOpossumZip = loadResult.opossumZip;
       return undefined;
     }
     case 'exportFile': {

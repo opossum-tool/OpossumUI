@@ -18,6 +18,7 @@ import {
   type SplitFileResult,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
+import { mergeOpossumFilesFromPaths } from '../api/mergeOpossumFiles';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import {
   sendListenerErrorToFrontend,
@@ -105,6 +106,34 @@ export const splitCurrentOpossumFileListener =
       return { status: 'error', message };
     }
   };
+
+export const mergeCurrentOpossumFilesListener =
+  () =>
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    partitionPaths: Array<string>,
+  ): Promise<void> => {
+    const globalBackendState = getGlobalBackendState();
+    if (!globalBackendState.projectId || !globalBackendState.opossumFilePath) {
+      throw new Error('No .opossum project is currently open.');
+    }
+
+    await getMainDbClient().mergeOpossumFiles({
+      saveFileParams: {
+        projectId: globalBackendState.projectId,
+        opossumFilePath: globalBackendState.opossumFilePath,
+      },
+      partitionPaths,
+    });
+  };
+
+export async function mergeOpossumFilesFromPathsListener(
+  _: Electron.IpcMainInvokeEvent,
+  inputPaths: Array<string>,
+  outputPath: string,
+): Promise<void> {
+  await mergeOpossumFilesFromPaths({ inputPaths, outputPath });
+}
 
 export const selectSplitDestinationListener =
   (_mainWindow: BrowserWindow) =>
