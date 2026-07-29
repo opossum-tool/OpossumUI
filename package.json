@@ -42,7 +42,7 @@
     "react-is": "19.2.8",
     "react-redux": "9.3.0",
     "react-virtuoso": "4.18.11",
-    "recharts": "3.10.0",
+    "recharts": "3.10.1",
     "spdx-license-ids": "3.0.23",
     "stream-json": "3.5.0",
     "upath": "3.0.8",
