@@ -14,6 +14,7 @@ import {
   ACTION_SET_IMPORT_FILE_REQUEST,
   ACTION_SET_MERGE_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
+  ACTION_SET_SPLIT_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   type OpenFileRequest,
@@ -28,6 +29,7 @@ export interface ViewState {
   importFileRequest: FileFormatInfo | null;
   mergeRequest: FileFormatInfo | null;
   exportFileRequest: ExportType | null;
+  splitFileRequest: string | null;
 }
 
 const initialViewState: ViewState = {
@@ -38,6 +40,7 @@ const initialViewState: ViewState = {
   importFileRequest: null,
   mergeRequest: null,
   exportFileRequest: null,
+  splitFileRequest: null,
 };
 
 export function viewState(
@@ -90,6 +93,11 @@ export function viewState(
       return {
         ...state,
         exportFileRequest: action.payload,
+      };
+    case ACTION_SET_SPLIT_FILE_REQUEST:
+      return {
+        ...state,
+        splitFileRequest: action.payload,
       };
     default:
       return state;

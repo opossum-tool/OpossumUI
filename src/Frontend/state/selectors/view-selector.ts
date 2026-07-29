@@ -51,3 +51,7 @@ export function getMergeRequest(state: State): FileFormatInfo | null {
 export function getExportFileRequest(state: State): ExportType | null {
   return state.viewState.exportFileRequest;
 }
+
+export function getSplitFileRequest(state: State): string | null {
+  return state.viewState.splitFileRequest;
+}

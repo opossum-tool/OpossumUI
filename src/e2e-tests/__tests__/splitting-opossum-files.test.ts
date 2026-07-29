@@ -15,6 +15,7 @@ const [firstResourceName, secondResourceName] = faker.opossum.resourceNames({
 });
 const firstResourcePath = faker.opossum.filePath(firstResourceName);
 const secondResourcePath = faker.opossum.filePath(secondResourceName);
+const [attributionId, packageInfo] = faker.opossum.rawAttribution();
 
 test.use({
   data: {
@@ -25,7 +26,14 @@ test.use({
       }),
       metadata: faker.opossum.metadata({ projectId: 'test_project' }),
     }),
-    outputData: faker.opossum.outputData({}),
+    outputData: faker.opossum.outputData({
+      manualAttributions: faker.opossum.rawAttributions({
+        [attributionId]: packageInfo,
+      }),
+      resourcesToAttributions: faker.opossum.resourcesToAttributions({
+        [firstResourcePath]: [attributionId],
+      }),
+    }),
   },
 });
 
@@ -39,6 +47,21 @@ test('opens and cancels the create collaborative partition dialog', async ({
   await splitDialog.cancelButton.click();
 
   await splitDialog.assert.titleIsHidden(firstResourcePath);
+});
+
+test('warns user of unsaved changes before creating a collaborative partition', async ({
+  attributionDetails,
+  notSavedPopup,
+  resourcesTree,
+}) => {
+  await resourcesTree.goto(firstResourceName);
+  await attributionDetails.attributionForm.comment.fill(
+    faker.lorem.sentences(),
+  );
+
+  await resourcesTree.openCreateCollaborativePartitionDialog(firstResourceName);
+
+  await notSavedPopup.assert.isVisible();
 });
 
 test('creates complementary collaborative partitions', async ({
