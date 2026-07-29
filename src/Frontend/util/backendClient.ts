@@ -184,7 +184,6 @@ export const backend = new Proxy({} as BackendClient, {
       ) => {
         const initialized = useDatabaseInitialized();
 
-        // eslint-disable-next-line @tanstack/query/exhaustive-deps
         return useQuery({
           queryKey: getQueryKey(command, params),
           queryFn:
