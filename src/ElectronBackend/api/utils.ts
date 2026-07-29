@@ -546,8 +546,6 @@ export async function unlinkAttributions(
     .where('attribution_uuid', 'in', attributionUuids)
     .execute();
 
-  await updateAttributionResourceAccess(trx, attributionUuids);
-
   // delete any of the just-unlinked attributions that no longer link to any resource
   await trx
     .deleteFrom('attribution')
@@ -559,6 +557,8 @@ export async function unlinkAttributions(
         .where('attribution_is_external', '=', 0),
     )
     .execute();
+
+  await updateAttributionResourceAccess(trx, attributionUuids);
 }
 
 export async function linkAttributions(
@@ -605,7 +605,14 @@ async function updateAttributionResourceAccess(
         INNER JOIN resource ON resource.id = resource_to_attribution.resource_id
         WHERE resource_to_attribution.attribution_uuid = attribution.uuid
       ),
-      ${AttributionResourceAccess.Unlinked}
+      (
+        SELECT CASE
+          WHEN is_readonly = 1 THEN ${AttributionResourceAccess.Readonly}
+          ELSE ${AttributionResourceAccess.Writable}
+        END
+        FROM resource
+        WHERE path = ''
+      )
     )
     WHERE uuid IN (${sql.join(attributionUuids)})
   `.execute(trx);

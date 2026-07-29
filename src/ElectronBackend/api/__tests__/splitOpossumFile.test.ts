@@ -159,7 +159,7 @@ describe('splitOpossumFile', () => {
     ).toEqual([
       { uuid: 'readonly', resource_access: AttributionResourceAccess.Readonly },
       { uuid: 'shared', resource_access: AttributionResourceAccess.Mixed },
-      { uuid: 'unlinked', resource_access: AttributionResourceAccess.Unlinked },
+      { uuid: 'unlinked', resource_access: AttributionResourceAccess.Writable },
       { uuid: 'writable', resource_access: AttributionResourceAccess.Writable },
     ]);
   });

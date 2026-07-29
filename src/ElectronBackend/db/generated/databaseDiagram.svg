@@ -45,7 +45,7 @@
 <polygon fill="none" stroke="black" points="585.68,-666.4 585.68,-689.2 657.77,-689.2 657.77,-666.4 585.68,-666.4"/>
 <text xml:space="preserve" text-anchor="start" x="588.68" y="-672.2" font-family="Times,serif" font-size="14.00">INTEGER</text>
 <polygon fill="none" stroke="black" points="360.25,-643.6 360.25,-666.4 383.75,-666.4 383.75,-643.6 360.25,-643.6"/>
-<g id="a_node1_2"><a xlink:title="Whether this attribution has no resources, only readonly resources, only writable resources, or both.">
+<g id="a_node1_2"><a xlink:title="Whether this attribution has only readonly resources, only writable resources, or both. Attributions without resources use the root resource access.">
 <polygon fill="none" stroke="black" points="383.75,-643.6 383.75,-666.4 585.68,-666.4 585.68,-643.6 383.75,-643.6"/>
 <text xml:space="preserve" text-anchor="start" x="386.75" y="-649.4" font-family="Times,serif" font-size="14.00">resource_access 📝</text>
 </a>

@@ -39,7 +39,7 @@ export const comments: Record<string, Record<string, string>> = {
       "External attributions (UI: 'signals') and manual attributions (UI: 'attributions')",
     data: 'All of the attribution as JSON',
     resource_access:
-      'Whether this attribution has no resources, only readonly resources, only writable resources, or both.',
+      'Whether this attribution has only readonly resources, only writable resources, or both. Attributions without resources use the root resource access.',
   },
   resource: {
     name: 'The name of the root resource is the empty string',
@@ -556,7 +556,7 @@ async function initializeAttributionTable(
     .addColumn('is_external', 'integer', (col) => col.notNull())
     .addColumn('is_resolved', 'integer', (col) => col.notNull().defaultTo(0))
     .addColumn('resource_access', 'integer', (col) =>
-      col.notNull().defaultTo(AttributionResourceAccess.Unlinked),
+      col.notNull().defaultTo(AttributionResourceAccess.Writable),
     )
     .addCheckConstraint(
       'attribution_resource_access_check',
@@ -807,7 +807,14 @@ async function initializeAttributionResourceAccess(
         FROM resource_accesses
         WHERE attribution_uuid = attribution.uuid
       ),
-      ${AttributionResourceAccess.Unlinked}
+      (
+        SELECT CASE
+          WHEN is_readonly = 1 THEN ${AttributionResourceAccess.Readonly}
+          ELSE ${AttributionResourceAccess.Writable}
+        END
+        FROM resource
+        WHERE path = ''
+      )
     )
   `.execute(trx);
 

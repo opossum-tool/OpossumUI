@@ -16,10 +16,9 @@ import type {
 } from '../../shared/shared-types';
 
 export enum AttributionResourceAccess {
-  Unlinked = 0,
-  Readonly = 1,
-  Writable = 2,
-  Mixed = 3,
+  Readonly = 0,
+  Writable = 1,
+  Mixed = 2,
 }
 
 export const ATTRIBUTION_RESOURCE_ACCESS_VALUES: number[] = Object.values(
@@ -27,7 +26,6 @@ export const ATTRIBUTION_RESOURCE_ACCESS_VALUES: number[] = Object.values(
 ).filter((v) => typeof v === 'number');
 
 export const EDITABLE_ATTRIBUTION_RESOURCE_ACCESS = [
-  AttributionResourceAccess.Unlinked,
   AttributionResourceAccess.Writable,
   AttributionResourceAccess.Mixed,
 ] as const;

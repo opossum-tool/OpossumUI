@@ -61,7 +61,7 @@ describe('database initialization', () => {
     ]);
   });
 
-  it('calculates attribution resource access from direct resource links', async () => {
+  it('uses root access for attributions without resource links', async () => {
     await initializeDbWithTestData({
       resources: {
         readonly: { 'readonly.ts': 1 },
@@ -80,7 +80,10 @@ describe('database initialization', () => {
         },
         attributionsToResources: {},
       },
-      readonlyRules: [{ path: '/readonly', readonly: true }],
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/writable', readonly: false },
+      ],
     });
 
     const attributions = await getDb()
@@ -92,7 +95,7 @@ describe('database initialization', () => {
     expect(attributions).toEqual([
       {
         uuid: 'orphaned',
-        resource_access: AttributionResourceAccess.Unlinked,
+        resource_access: AttributionResourceAccess.Readonly,
       },
       {
         uuid: 'readonly',
@@ -104,6 +107,14 @@ describe('database initialization', () => {
         resource_access: AttributionResourceAccess.Writable,
       },
     ]);
+
+    expect(
+      await getDb()
+        .selectFrom('resource_to_attribution')
+        .select('attribution_uuid')
+        .where('attribution_uuid', '=', 'orphaned')
+        .execute(),
+    ).toEqual([]);
   });
 
   it('defaults resources to writable when split metadata is absent', async () => {
