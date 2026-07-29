@@ -180,16 +180,25 @@ function createSplitRules(
       existingReadonlyRules,
       selectedPaths,
     ),
-    selectedReadonlyRules: createSelectedReadonlyRules(selectedPaths),
+    selectedReadonlyRules: createSelectedReadonlyRules(
+      existingReadonlyRules,
+      selectedPaths,
+    ),
   };
 }
 
 function createSelectedReadonlyRules(
+  currentReadonlyRules: Array<ReadonlyRule>,
   selectedPaths: Array<string>,
 ): Array<ReadonlyRule> {
   return [
     { path: '/', readonly: true },
     ...selectedPaths.map((path) => ({ path, readonly: false })),
+    ...currentReadonlyRules.filter((rule) =>
+      selectedPaths.some((selectedPath) =>
+        isDescendant(rule.path, selectedPath),
+      ),
+    ),
   ];
 }
 
