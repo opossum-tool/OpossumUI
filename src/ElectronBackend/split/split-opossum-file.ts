@@ -13,6 +13,12 @@ import {
   OPOSSUM_FILE_EXTENSION,
 } from '../../shared/write-file-utils';
 import { getDb } from '../db/db';
+import {
+  createSplitRules,
+  getReadonlyRuleMap,
+  getReadonlyState,
+  isDescendant,
+} from './readonly-rules';
 
 interface SplitOpossumArchivePaths {
   sourceOpossumFilePath: string;
@@ -141,9 +147,7 @@ export async function validateSelectedFolderPaths(
     );
   }
 
-  const rulesByPath = new Map(
-    readonlyRules.map((rule) => [rule.path, rule.readonly]),
-  );
+  const rulesByPath = getReadonlyRuleMap(readonlyRules);
   for (const selectedPath of selectedFolderPaths) {
     if (!isCanonicalNonRootPath(selectedPath)) {
       throw new SplitOpossumFileError(
@@ -171,77 +175,6 @@ export async function validateSelectedFolderPaths(
   }
 
   await validateResourcesExist(selectedFolderPaths);
-}
-
-function createSplitRules(
-  existingReadonlyRules: Array<ReadonlyRule>,
-  selectedPaths: Array<string>,
-): {
-  sourceReadonlyRules: Array<ReadonlyRule>;
-  splitReadonlyRules: Array<ReadonlyRule>;
-} {
-  return {
-    sourceReadonlyRules: createSourceReadonlyRules(
-      existingReadonlyRules,
-      selectedPaths,
-    ),
-    splitReadonlyRules: createSplitReadonlyRules(
-      existingReadonlyRules,
-      selectedPaths,
-    ),
-  };
-}
-
-function createSplitReadonlyRules(
-  currentReadonlyRules: Array<ReadonlyRule>,
-  selectedPaths: Array<string>,
-): Array<ReadonlyRule> {
-  return [
-    { path: '/', readonly: true },
-    ...selectedPaths.map((path) => ({ path, readonly: false })),
-    ...currentReadonlyRules.filter((rule) =>
-      selectedPaths.some((selectedPath) =>
-        isDescendant(rule.path, selectedPath),
-      ),
-    ),
-  ];
-}
-
-function createSourceReadonlyRules(
-  currentReadonlyRules: Array<ReadonlyRule>,
-  selectedPaths: Array<string>,
-): Array<ReadonlyRule> {
-  const selectedPathsWithCurrentRule = selectedPaths.filter((selectedPath) =>
-    currentReadonlyRules.some((rule) => rule.path === selectedPath),
-  );
-
-  return [
-    ...currentReadonlyRules,
-    ...selectedPaths.map((path) => ({ path, readonly: true })),
-  ].filter(
-    (rule) =>
-      !selectedPathsWithCurrentRule.includes(rule.path) &&
-      !selectedPaths.some((selectedPath) =>
-        isDescendant(rule.path, selectedPath),
-      ),
-  );
-}
-
-function getReadonlyState(
-  resourcePath: string,
-  rulesByPath: Map<string, boolean>,
-): boolean {
-  let currentPath = resourcePath;
-  while (true) {
-    const readonly = rulesByPath.get(currentPath);
-    if (readonly !== undefined) {
-      return readonly;
-    }
-    if (currentPath === '/') {
-      return false;
-    }
-    currentPath = path.posix.dirname(currentPath);
-  }
 }
 
 async function writeSplitArchives({
@@ -277,8 +210,4 @@ function isCanonicalNonRootPath(resourcePath: string): boolean {
     !resourcePath.endsWith('/') &&
     resourcePath !== '/'
   );
-}
-
-function isDescendant(path: string, ancestorPath: string): boolean {
-  return path.startsWith(`${ancestorPath}/`);
 }
