@@ -8,9 +8,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 import { FileType } from '../../../shared/shared-types';
-import { parseOpossumFile } from '../../input/parseFile';
-import type { ParsedOpossumInputAndOutput } from '../../types/types';
-import { isOpossumFileFormat } from '../../utils/isOpossumFileFormat';
+import { type LoadedArchive, loadOpossumFile } from '../../input/parseFile';
 import { convertToOpossum, mergeFileIntoOpossum } from '../opossum-file';
 
 const mockTmpdir = tmpdir();
@@ -46,9 +44,8 @@ describe('conversion to opossum', () => {
       FileType.SCANCODE_JSON,
     );
     expect(fs.existsSync(opossumPath)).toBe(true);
-    expect(isOpossumFileFormat(opossumPath)).toBe(true);
 
-    const parsingResult = await parseOpossumFile(opossumPath);
+    const parsingResult = await loadOpossumFile(opossumPath);
     expect(parsingResult).toHaveProperty('input');
   }, 30000);
 
@@ -56,9 +53,8 @@ describe('conversion to opossum', () => {
     const opossumPath = join(mockTmpdir, `${uniqueId('opossum_')}.opossum`);
     await convertToOpossum(OWASP_TEST_FILE, opossumPath, FileType.OWASP_JSON);
     expect(fs.existsSync(opossumPath)).toBe(true);
-    expect(isOpossumFileFormat(opossumPath)).toBe(true);
 
-    const parsingResult = await parseOpossumFile(opossumPath);
+    const parsingResult = await loadOpossumFile(opossumPath);
     expect(parsingResult).toHaveProperty('input');
   }, 30000);
 
@@ -69,18 +65,14 @@ describe('conversion to opossum', () => {
       LEGACY_OPOSSUM_TEST_FILE_COPY,
       FileType.LEGACY_OPOSSUM,
     );
-    const parsingResult = await parseOpossumFile(LEGACY_OPOSSUM_TEST_FILE_COPY);
+    const parsingResult = await loadOpossumFile(LEGACY_OPOSSUM_TEST_FILE_COPY);
 
     expect(parsingResult).toHaveProperty('input');
     expect(
-      (parsingResult as ParsedOpossumInputAndOutput).input.resources[
-        'index.tsx'
-      ],
+      (parsingResult as LoadedArchive).input.resources['index.tsx'],
     ).toBeDefined();
     expect(
-      (parsingResult as ParsedOpossumInputAndOutput).input.resources[
-        'index.html'
-      ],
+      (parsingResult as LoadedArchive).input.resources['index.html'],
     ).toBeDefined();
   }, 30000);
 
@@ -91,16 +83,14 @@ describe('conversion to opossum', () => {
       SCANCODE_TEST_FILE_COPY,
       FileType.SCANCODE_JSON,
     );
-    const parsingResult = await parseOpossumFile(SCANCODE_TEST_FILE_COPY);
+    const parsingResult = await loadOpossumFile(SCANCODE_TEST_FILE_COPY);
 
     expect(parsingResult).toHaveProperty('input');
     expect(
-      (parsingResult as ParsedOpossumInputAndOutput).input.resources[
-        'index.tsx'
-      ],
+      (parsingResult as LoadedArchive).input.resources['index.tsx'],
     ).toBeDefined();
     expect(
-      (parsingResult as ParsedOpossumInputAndOutput).input.resources['src'],
+      (parsingResult as LoadedArchive).input.resources['src'],
     ).toBeDefined();
   }, 30000);
 
@@ -111,16 +101,14 @@ describe('conversion to opossum', () => {
       OWASP_TEST_FILE_COPY,
       FileType.OWASP_JSON,
     );
-    const parsingResult = await parseOpossumFile(OWASP_TEST_FILE_COPY);
+    const parsingResult = await loadOpossumFile(OWASP_TEST_FILE_COPY);
 
     expect(parsingResult).toHaveProperty('input');
     expect(
-      (parsingResult as ParsedOpossumInputAndOutput).input.resources[
-        'index.tsx'
-      ],
+      (parsingResult as LoadedArchive).input.resources['index.tsx'],
     ).toBeDefined();
     expect(
-      (parsingResult as ParsedOpossumInputAndOutput).input.resources['contrib'],
+      (parsingResult as LoadedArchive).input.resources['contrib'],
     ).toBeDefined();
   }, 30000);
 });

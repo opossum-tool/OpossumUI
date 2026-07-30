@@ -11,6 +11,7 @@ import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import type { ParsingError } from '../types/types';
+import type { LoadFileIpcResult } from './loadFile';
 
 async function handleParsingError(
   parsingError: ParsingError,
@@ -33,26 +34,19 @@ async function handleParsingError(
   }
 }
 
-export async function loadInputAndOutputFromFilePath(
+export async function loadOpossumFileFromPath(
   mainWindow: BrowserWindow,
-  filePath: string,
+  opossumFilePath: string,
 ): Promise<void> {
-  mainWindow.webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
-    resetState: true,
-  });
-  mainWindow.webContents.send(
-    AllowedFrontendChannels.SetDatabaseInitialized,
-    false,
-  );
-
   const processingStatusUpdater = new ProcessingStatusUpdater(
     mainWindow.webContents,
   );
-
   const globalState = getGlobalBackendState();
-  const result = await getMainDbClient().loadFile(
-    filePath,
-    { inputFileChecksum: globalState.inputFileChecksum },
+  const result = await getMainDbClient().loadOpossumFile(
+    opossumFilePath,
+    {
+      inputFileChecksum: globalState.inputFileChecksum,
+    },
     (message, level) => {
       if (level === 'warn') {
         processingStatusUpdater.warn(message);
@@ -60,6 +54,22 @@ export async function loadInputAndOutputFromFilePath(
         processingStatusUpdater.info(message);
       }
     },
+  );
+
+  await handleLoadResult(mainWindow, result, processingStatusUpdater);
+}
+
+async function handleLoadResult(
+  mainWindow: BrowserWindow,
+  result: LoadFileIpcResult,
+  processingStatusUpdater: ProcessingStatusUpdater,
+): Promise<void> {
+  mainWindow.webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
+    resetState: true,
+  });
+  mainWindow.webContents.send(
+    AllowedFrontendChannels.SetDatabaseInitialized,
+    false,
   );
 
   if (!result.ok) {
@@ -73,6 +83,7 @@ export async function loadInputAndOutputFromFilePath(
   );
 
   processingStatusUpdater.info('Finalizing global state');
+  const globalState = getGlobalBackendState();
   globalState.projectTitle = result.projectTitle;
   globalState.projectId = result.projectId;
 }

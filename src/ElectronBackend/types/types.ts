@@ -2,15 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type AdmZip from 'adm-zip';
-
 import type {
   BaseUrlsForSources,
   ExternalAttributionSources,
   ProjectMetadata,
   RawAttributions,
   RawProjectConfig,
-  ReadonlyRule,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -22,10 +19,6 @@ export interface ParsingError {
     | 'jsonParsingError'
     | 'invalidDotOpossumFileError'
     | 'unzipError';
-}
-
-export interface FileNotFoundError extends ParsingError {
-  type: 'fileNotFoundError';
 }
 
 export interface UnzipError extends ParsingError {
@@ -42,8 +35,6 @@ export interface InvalidDotOpossumFileError extends ParsingError {
 
 export interface GlobalBackendState {
   projectTitle?: string;
-  resourceFilePath?: string;
-  attributionFilePath?: string;
   opossumFilePath?: string;
   followUpFilePath?: string;
   compactBomFilePath?: string;
@@ -83,13 +74,6 @@ export interface ParsedOpossumOutputFile {
   manualAttributions: RawAttributions;
   resourcesToAttributions: ResourcesToAttributions;
   resolvedExternalAttributions: Array<string> | undefined;
-}
-
-export interface ParsedOpossumInputAndOutput {
-  input: ParsedOpossumInputFile;
-  output: ParsedOpossumOutputFile | null;
-  readonlyRules: Array<ReadonlyRule>;
-  opossumZip: AdmZip;
 }
 
 export interface OpossumOutputFile {

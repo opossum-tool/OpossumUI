@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type AdmZip from 'adm-zip';
 
-import { writeFile, writeOpossumFile } from '../../shared/write-file';
+import { writeOpossumFile } from '../../shared/write-file';
 import { getReadonlyRules } from '../db/split-info';
 import { serializeAttributions } from '../input/parseInputData';
 import type { OpossumOutputFile } from '../types/types';
@@ -12,22 +12,21 @@ import { getSaveFileArgs } from './getSaveFileArgs';
 
 export interface SaveFileParams {
   projectId: string;
-  inputFileChecksum?: string;
-  opossumFilePath?: string;
-  attributionFilePath?: string;
+  opossumFilePath: string;
 }
 
-export async function saveFile(
-  params: SaveFileParams,
-  opossumZip: AdmZip,
-): Promise<void> {
+export async function buildOpossumOutputFile(
+  projectId: string,
+): Promise<OpossumOutputFile> {
   const { result } = await getSaveFileArgs();
 
-  const outputFileContent: OpossumOutputFile = {
+  return {
     metadata: {
-      projectId: params.projectId,
+      projectId,
       fileCreationDate: String(Date.now()),
-      inputFileMD5Checksum: params.inputFileChecksum,
+      // Previously held an MD5 checksum of the raw input file (legacy JSON
+      // path). No longer computed since all files go through the opossum path.
+      inputFileMD5Checksum: undefined,
     },
     manualAttributions: serializeAttributions(result.manualAttributions),
     resourcesToAttributions: result.resourcesToAttributions,
@@ -35,20 +34,18 @@ export async function saveFile(
       result.resolvedExternalAttributions,
     ),
   };
+}
 
-  if (params.opossumFilePath) {
-    await writeOpossumFile({
-      path: params.opossumFilePath,
-      zip: opossumZip,
-      output: outputFileContent,
-      readonlyRules: await getReadonlyRules(),
-    });
-  } else if (params.attributionFilePath) {
-    await writeFile({
-      path: params.attributionFilePath,
-      content: outputFileContent,
-    });
-  } else {
-    throw new Error('No output file path configured');
-  }
+export async function saveFile(
+  params: SaveFileParams,
+  opossumZip: AdmZip,
+): Promise<void> {
+  const outputFileContent = await buildOpossumOutputFile(params.projectId);
+
+  await writeOpossumFile({
+    path: params.opossumFilePath,
+    zip: opossumZip,
+    output: outputFileContent,
+    readonlyRules: await getReadonlyRules(),
+  });
 }

@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect } from '@playwright/test';
 
-import { parseOpossumFile } from '../../ElectronBackend/input/parseFile';
+import { loadOpossumFile } from '../../ElectronBackend/input/parseFile';
 import type {
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
@@ -132,7 +132,7 @@ async function hasPersistedAttribution({
   packageName: string;
   resourcePath: string;
 }): Promise<boolean> {
-  const parsedFile = await parseOpossumFile(opossumFilePath);
+  const parsedFile = await loadOpossumFile(opossumFilePath);
   if (!('input' in parsedFile) || parsedFile.output === null) {
     return false;
   }

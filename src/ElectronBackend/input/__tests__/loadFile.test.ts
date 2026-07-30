@@ -4,11 +4,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
-import fs from 'fs';
+import { tmpdir } from 'os';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import {
   Criticality,
+  FileType,
   RawCriticality,
   type ReadonlyRule,
 } from '../../../shared/shared-types';
@@ -19,19 +20,26 @@ import {
 } from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
 import { getDb } from '../../db/db';
+import { convertToOpossum } from '../../opossum-file/opossum-file';
 import type {
   OpossumOutputFile,
   ParsedOpossumInputFile,
 } from '../../types/types';
-import { getFilePathWithAppendix } from '../../utils/getFilePathWithAppendix';
-import {
-  loadFile,
-  type LoadFileError,
-  type LoadFileSuccess,
-} from '../loadFile';
+import { loadFile, type LoadFileSuccess } from '../loadFile';
+import { loadOpossumFile } from '../parseFile';
 
 const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
 const manualAttributionUuid = 'ecd692d9-b154-4d4d-be8c-manual';
+
+const mockTmpdir = tmpdir();
+
+vi.mock('electron', () => ({
+  app: {
+    getAppPath: () => process.cwd(),
+    getPath: () => mockTmpdir,
+    isPackaged: false,
+  },
+}));
 
 vi.mock('uuid', () => ({
   v4: (): string => manualAttributionUuid,
@@ -102,7 +110,16 @@ describe('loadFile', () => {
 
     vi.spyOn(Date, 'now').mockReturnValue(1691761892037);
 
-    const result = (await loadFile(opossumPath, {})) as LoadFileSuccess;
+    const archive = await loadOpossumFile(opossumPath);
+    if ('type' in archive) {
+      throw new Error(`Unexpected error: ${archive.message}`);
+    }
+
+    const result = (await loadFile(
+      opossumPath,
+      archive,
+      {},
+    )) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
   });
@@ -120,7 +137,16 @@ describe('loadFile', () => {
     );
     await zip.writeZipPromise(opossumPath);
 
-    const result = await loadFile(opossumPath, {});
+    const archive = await loadOpossumFile(opossumPath);
+    if ('type' in archive) {
+      throw new Error(`Unexpected error: ${archive.message}`);
+    }
+
+    const result = (await loadFile(
+      opossumPath,
+      archive,
+      {},
+    )) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
     const readonlyRules = await getDb()
@@ -174,11 +200,22 @@ describe('loadFile', () => {
       },
     };
     const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
     await writeFile({ path: jsonPath, content: inputWithPreselected });
 
     vi.spyOn(Date, 'now').mockReturnValue(1);
 
-    const result = (await loadFile(jsonPath, {})) as LoadFileSuccess;
+    await convertToOpossum(jsonPath, opossumPath, FileType.LEGACY_OPOSSUM);
+    const archive = await loadOpossumFile(opossumPath);
+    if ('type' in archive) {
+      throw new Error(`Unexpected error: ${archive.message}`);
+    }
+
+    const result = (await loadFile(
+      opossumPath,
+      archive,
+      {},
+    )) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
 
@@ -242,19 +279,31 @@ describe('loadFile', () => {
       filesWithChildren: ['/some/package.json'],
     };
     const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
     await writeFile({ path: jsonPath, content: inputWithFilesWithChildren });
 
     vi.spyOn(Date, 'now').mockReturnValue(1);
 
-    const result = (await loadFile(jsonPath, {})) as LoadFileSuccess;
+    await convertToOpossum(jsonPath, opossumPath, FileType.LEGACY_OPOSSUM);
+    const archive = await loadOpossumFile(opossumPath);
+    if ('type' in archive) {
+      throw new Error(`Unexpected error: ${archive.message}`);
+    }
+
+    const result = (await loadFile(
+      opossumPath,
+      archive,
+      {},
+    )) as LoadFileSuccess;
     expect(result.ok).toBe(true);
 
-    const outputPath = getFilePathWithAppendix(jsonPath, '_attributions.json');
-    const output = JSON.parse(
-      fs.readFileSync(outputPath, 'utf-8'),
+    const outputZip = new AdmZip(opossumPath);
+    const outputEntry = outputZip.getEntry('output.json')!;
+    const outputData = JSON.parse(
+      outputEntry.getData().toString('utf-8'),
     ) as OpossumOutputFile;
 
-    expect(Object.keys(output.resourcesToAttributions)).toEqual([
+    expect(Object.keys(outputData.resourcesToAttributions)).toEqual([
       '/some/package.json',
     ]);
   });
@@ -285,11 +334,22 @@ describe('loadFile', () => {
       filesWithChildren: ['/archive.zip'],
     };
     const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
     await writeFile({ path: jsonPath, content: input });
 
     vi.spyOn(Date, 'now').mockReturnValue(1);
 
-    const result = (await loadFile(jsonPath, {})) as LoadFileSuccess;
+    await convertToOpossum(jsonPath, opossumPath, FileType.LEGACY_OPOSSUM);
+    const archive = await loadOpossumFile(opossumPath);
+    if ('type' in archive) {
+      throw new Error(`Unexpected error: ${archive.message}`);
+    }
+
+    const result = (await loadFile(
+      opossumPath,
+      archive,
+      {},
+    )) as LoadFileSuccess;
     expect(result.ok).toBe(true);
 
     const links = await getDb()
@@ -307,35 +367,5 @@ describe('loadFile', () => {
       '/folder',
       '/leaf',
     ]);
-  });
-
-  it('returns fileNotFoundError for non-existing file', async () => {
-    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    const result = (await loadFile(jsonPath, {})) as LoadFileError;
-
-    expect(result.ok).toBe(false);
-    expect(result.error.type).toBe('fileNotFoundError');
-    expect(result.error.message).toContain('does not exist.');
-  });
-
-  it('returns unzipError for corrupt .opossum file', async () => {
-    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-    await writeFile({ path: opossumPath, content: '0' });
-
-    const result = (await loadFile(opossumPath, {})) as LoadFileError;
-
-    expect(result.ok).toBe(false);
-    expect(result.error.type).toBe('unzipError');
-    expect(result.error.message).toContain('could not be unzipped');
-  });
-
-  it('returns jsonParsingError for corrupt json', async () => {
-    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
-    await writeFile({ path: jsonPath, content: '{"name": 3' });
-
-    const result = (await loadFile(jsonPath, {})) as LoadFileError;
-
-    expect(result.ok).toBe(false);
-    expect(result.error.type).toBe('jsonParsingError');
   });
 });
