@@ -102,24 +102,29 @@ describe('splitOpossumArchive', () => {
     ]);
   });
 
-  it('removes readonly rules below a selected folder in the source', async () => {
+  it('preserves readonly overrides below a selected folder', async () => {
     const { source, selected } = await splitArchive({
       selectedFolderPaths: ['/frontend'],
       readonlyRules: [
         { path: '/', readonly: true },
+        { path: '/docs', readonly: false },
         { path: '/frontend', readonly: false },
         { path: '/frontend/components', readonly: true },
       ],
     });
 
-    expect(source).toEqual([{ path: '/', readonly: true }]);
+    expect(source).toEqual([
+      { path: '/', readonly: true },
+      { path: '/docs', readonly: false },
+    ]);
     expect(selected).toEqual([
       { path: '/', readonly: true },
       { path: '/frontend', readonly: false },
+      { path: '/frontend/components', readonly: true },
     ]);
   });
 
-  it('removes descendant rules below a selected folder without a rule of its own', async () => {
+  it('moves descendant rules when the selected folder has no explicit rule', async () => {
     const { source, selected } = await splitArchive({
       selectedFolderPaths: ['/frontend'],
       readonlyRules: [{ path: '/frontend/components', readonly: true }],
@@ -129,6 +134,7 @@ describe('splitOpossumArchive', () => {
     expect(selected).toEqual([
       { path: '/', readonly: true },
       { path: '/frontend', readonly: false },
+      { path: '/frontend/components', readonly: true },
     ]);
   });
 
