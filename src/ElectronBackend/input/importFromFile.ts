@@ -11,6 +11,7 @@ import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import { ProcessingStatusUpdater } from '../main/ProcessingStatusUpdater';
 import type { ParsingError } from '../types/types';
+import type { LoadFileIpcResult } from './loadFile';
 
 async function handleParsingError(
   parsingError: ParsingError,
@@ -60,12 +61,7 @@ export async function loadOpossumFileFromPath(
 
 async function handleLoadResult(
   mainWindow: BrowserWindow,
-  result: {
-    ok: boolean;
-    error?: ParsingError;
-    projectTitle?: string;
-    projectId?: string;
-  },
+  result: LoadFileIpcResult,
   processingStatusUpdater: ProcessingStatusUpdater,
 ): Promise<void> {
   mainWindow.webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
@@ -77,7 +73,7 @@ async function handleLoadResult(
   );
 
   if (!result.ok) {
-    await handleParsingError(result.error!, processingStatusUpdater);
+    await handleParsingError(result.error, processingStatusUpdater);
     return;
   }
 
