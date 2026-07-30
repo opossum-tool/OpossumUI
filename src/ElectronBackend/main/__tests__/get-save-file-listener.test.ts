@@ -143,12 +143,12 @@ describe('splitCurrentOpossumFileListener', () => {
   });
 
   it('uses the destination provided by the split dialog', async () => {
-    const partitionOutputPath = '/partitions/source-partition.opossum';
+    const splitOpossumFilePath = '/partitions/source-partition.opossum';
 
     await splitCurrentOpossumFileListener(mainWindow)(
       {} as Electron.IpcMainInvokeEvent,
       ['/source'],
-      partitionOutputPath,
+      splitOpossumFilePath,
     );
 
     expect(mockSplitOpossumFile).toHaveBeenCalledWith({
@@ -158,7 +158,7 @@ describe('splitCurrentOpossumFileListener', () => {
         opossumFilePath: '/my/file.opossum',
       },
       selectedFolderPaths: ['/source'],
-      partitionOutputPath,
+      splitOpossumFilePath,
     });
   });
 

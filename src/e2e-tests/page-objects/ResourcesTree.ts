@@ -70,9 +70,7 @@ export class ResourcesTree {
       .click({ button: 'right' });
   }
 
-  async openCreateCollaborativePartitionDialog(
-    resourceName: string,
-  ): Promise<void> {
+  async openSplitDialog(resourceName: string): Promise<void> {
     await this.openContextMenu(resourceName);
     await this.window
       .getByRole('menuitem', { name: text.resourceBrowser.splitHere })

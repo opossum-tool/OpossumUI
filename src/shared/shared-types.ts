@@ -268,7 +268,7 @@ export interface ElectronAPI {
   selectSplitDestination: (splitPaths: Array<string>) => Promise<string>;
   splitFile: (
     splitPaths: Array<string>,
-    partitionOutputPath: string,
+    splitOpossumFilePath: string,
   ) => Promise<SplitFileResult>;
   saveFile: () => void;
   exportFile: (exportType: ExportType) => Promise<void>;

@@ -19,7 +19,7 @@ export const text = {
       importSubmenu: menuLabelForFileFormat,
       merge: 'Merge',
       mergeSubmenu: menuLabelForFileFormat,
-      createCollaborativePartition: 'Create Collaborative Partition…',
+      split: 'Split…',
       save: 'Save',
       projectMetadata: 'Project Metadata',
       projectStatistics: 'Project Statistics',
@@ -238,7 +238,7 @@ export const text = {
   resourceBrowser: {
     allResources: (selectedResources: number, totalCount: number) =>
       `Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,
-    splitHere: 'Create collaborative partition',
+    splitHere: 'Split here',
     linkedResources: (selectedResources: number, totalCount: number) =>
       `Linked Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,
     hasHighlyCriticalSignals: 'Has highly critical signals',
@@ -419,14 +419,14 @@ export const text = {
     },
   },
   splitDialog: {
-    title: 'Create Collaborative Partition',
+    title: 'Split Opossum file',
     explanationText:
       'Create a separate Opossum file for collaborative work. Selected resources will become readonly in the currently open Opossum file.',
     resourcePicker: {
       collapse: (path: string) => `collapse ${path}`,
       expand: (path: string) => `expand ${path}`,
       explanationText:
-        'Select the resources that belong in the new collaborative partition.',
+        'Select the resources that will be editable in the new Opossum file.',
       loadingResources: 'Loading resources…',
       noResourcesSelected: 'No resources selected',
     },
@@ -436,8 +436,8 @@ export const text = {
           ? 'New Opossum file location'
           : 'Select new Opossum file save location',
     },
-    create: 'Create Partition',
-    success: 'Partition created successfully.',
+    create: 'Split',
+    success: 'Opossum file split successfully.',
   },
   backendError: {
     inputFileDoesNotExist: 'Input file does not exist',

@@ -15,9 +15,9 @@ import {
 import { getDb } from '../db/db';
 
 interface SplitOpossumArchivePaths {
-  opossumFilePath: string;
+  sourceOpossumFilePath: string;
   selectedFolderPaths: Array<string>;
-  partitionOutputPath: string;
+  splitOpossumFilePath: string;
 }
 
 export interface SplitOpossumArchiveArgs {
@@ -28,7 +28,7 @@ export interface SplitOpossumArchiveArgs {
 
 export interface SplitOpossumArchiveResult {
   selectedFolderPaths: Array<string>;
-  partitionOutputPath: string;
+  splitOpossumFilePath: string;
   sourceReadonlyRules: Array<ReadonlyRule>;
 }
 
@@ -51,53 +51,54 @@ export async function splitOpossumArchive({
   sourceZip,
   readonlyRules: existingReadonlyRules,
 }: SplitOpossumArchiveArgs): Promise<SplitOpossumArchiveResult> {
-  validateDestinationPath(paths.partitionOutputPath, paths.opossumFilePath);
+  validateDestinationPath(
+    paths.splitOpossumFilePath,
+    paths.sourceOpossumFilePath,
+  );
 
   if (!sourceZip.getEntry(INPUT_FILE_NAME)) {
     throw new Error('Loaded .opossum archive does not contain input.json');
   }
 
-  const { sourceReadonlyRules, selectedReadonlyRules } = createSplitRules(
+  const { sourceReadonlyRules, splitReadonlyRules } = createSplitRules(
     existingReadonlyRules,
     paths.selectedFolderPaths,
   );
 
-  const sourcePartitionZip = new AdmZip(sourceZip.toBuffer());
-  const selectedPartitionZip = new AdmZip(sourceZip.toBuffer());
   await writeSplitArchives({
-    sourcePath: paths.opossumFilePath,
-    partitionOutputPath: paths.partitionOutputPath,
-    sourceZip: sourcePartitionZip,
-    selectedPartitionZip,
+    sourcePath: paths.sourceOpossumFilePath,
+    splitOpossumFilePath: paths.splitOpossumFilePath,
+    sourceZip: new AdmZip(sourceZip.toBuffer()),
+    splitZip: new AdmZip(sourceZip.toBuffer()),
     sourceReadonlyRules,
-    selectedReadonlyRules,
+    splitReadonlyRules,
   });
 
   return {
     selectedFolderPaths: paths.selectedFolderPaths,
-    partitionOutputPath: paths.partitionOutputPath,
+    splitOpossumFilePath: paths.splitOpossumFilePath,
     sourceReadonlyRules,
   };
 }
 
 function validateDestinationPath(
-  partitionOutputPath: string,
+  splitOpossumFilePath: string,
   opossumFilePath: string,
 ): void {
-  const resolvedPartitionOutputPath = path.resolve(partitionOutputPath);
-  if (resolvedPartitionOutputPath === path.resolve(opossumFilePath)) {
+  const resolvedSplitOpossumFilePath = path.resolve(splitOpossumFilePath);
+  if (resolvedSplitOpossumFilePath === path.resolve(opossumFilePath)) {
     throw new SplitOpossumFileError(
       'invalid-destination',
       'Destination file must differ from the currently open .opossum file',
     );
   }
-  if (path.extname(resolvedPartitionOutputPath) !== OPOSSUM_FILE_EXTENSION) {
+  if (path.extname(resolvedSplitOpossumFilePath) !== OPOSSUM_FILE_EXTENSION) {
     throw new SplitOpossumFileError(
       'invalid-destination',
       'Destination file must use the .opossum extension',
     );
   }
-  if (!fs.existsSync(path.dirname(resolvedPartitionOutputPath))) {
+  if (!fs.existsSync(path.dirname(resolvedSplitOpossumFilePath))) {
     throw new SplitOpossumFileError(
       'invalid-destination',
       'Destination directory does not exist',
@@ -177,21 +178,21 @@ function createSplitRules(
   selectedPaths: Array<string>,
 ): {
   sourceReadonlyRules: Array<ReadonlyRule>;
-  selectedReadonlyRules: Array<ReadonlyRule>;
+  splitReadonlyRules: Array<ReadonlyRule>;
 } {
   return {
     sourceReadonlyRules: createSourceReadonlyRules(
       existingReadonlyRules,
       selectedPaths,
     ),
-    selectedReadonlyRules: createSelectedReadonlyRules(
+    splitReadonlyRules: createSplitReadonlyRules(
       existingReadonlyRules,
       selectedPaths,
     ),
   };
 }
 
-function createSelectedReadonlyRules(
+function createSplitReadonlyRules(
   currentReadonlyRules: Array<ReadonlyRule>,
   selectedPaths: Array<string>,
 ): Array<ReadonlyRule> {
@@ -245,23 +246,23 @@ function getReadonlyState(
 
 async function writeSplitArchives({
   sourcePath,
-  partitionOutputPath,
+  splitOpossumFilePath,
   sourceZip,
-  selectedPartitionZip,
+  splitZip,
   sourceReadonlyRules,
-  selectedReadonlyRules,
+  splitReadonlyRules,
 }: {
   sourceReadonlyRules: Array<ReadonlyRule>;
-  selectedReadonlyRules: Array<ReadonlyRule>;
+  splitReadonlyRules: Array<ReadonlyRule>;
   sourcePath: string;
-  partitionOutputPath: string;
+  splitOpossumFilePath: string;
   sourceZip: AdmZip;
-  selectedPartitionZip: AdmZip;
+  splitZip: AdmZip;
 }): Promise<void> {
   await writeOpossumFile({
-    path: partitionOutputPath,
-    zip: selectedPartitionZip,
-    readonlyRules: selectedReadonlyRules,
+    path: splitOpossumFilePath,
+    zip: splitZip,
+    readonlyRules: splitReadonlyRules,
   });
   await writeOpossumFile({
     path: sourcePath,

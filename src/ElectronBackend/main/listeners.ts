@@ -73,7 +73,7 @@ export const splitCurrentOpossumFileListener =
   async (
     _: Electron.IpcMainInvokeEvent,
     selectedFolderPaths: Array<string>,
-    partitionOutputPath: string,
+    splitOpossumFilePath: string,
   ): Promise<SplitFileResult> => {
     try {
       const globalBackendState = getGlobalBackendState();
@@ -84,7 +84,7 @@ export const splitCurrentOpossumFileListener =
         throw new Error('No .opossum project is currently open.');
       }
 
-      if (!partitionOutputPath) {
+      if (!splitOpossumFilePath) {
         return { status: 'cancelled' };
       }
       await getMainDbClient().splitOpossumFile({
@@ -94,7 +94,7 @@ export const splitCurrentOpossumFileListener =
           opossumFilePath: globalBackendState.opossumFilePath,
         },
         selectedFolderPaths,
-        partitionOutputPath,
+        splitOpossumFilePath,
       });
       return { status: 'success' };
     } catch (error) {

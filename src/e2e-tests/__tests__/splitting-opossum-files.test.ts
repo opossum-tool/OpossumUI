@@ -38,11 +38,11 @@ test.use({
   },
 });
 
-test('opens and cancels the create collaborative partition dialog', async ({
+test('opens and cancels the create split dialog', async ({
   resourcesTree,
   splitDialog,
 }) => {
-  await resourcesTree.openCreateCollaborativePartitionDialog(firstResourceName);
+  await resourcesTree.openSplitDialog(firstResourceName);
   await splitDialog.assert.titleIsVisible();
 
   await splitDialog.cancelButton.click();
@@ -50,17 +50,17 @@ test('opens and cancels the create collaborative partition dialog', async ({
   await splitDialog.assert.titleIsHidden();
 });
 
-test('opens the create collaborative partition dialog from the File menu', async ({
+test('opens the create split dialog from the File menu', async ({
   menuBar,
   splitDialog,
 }) => {
-  await menuBar.createCollaborativePartition();
+  await menuBar.createSplit();
 
   await splitDialog.assert.titleIsVisible();
   await expect(splitDialog.createButton).toBeDisabled();
 });
 
-test('warns user of unsaved changes before creating a collaborative partition', async ({
+test('warns user of unsaved changes before creating a split', async ({
   attributionDetails,
   notSavedPopup,
   resourcesTree,
@@ -70,12 +70,12 @@ test('warns user of unsaved changes before creating a collaborative partition', 
     faker.lorem.sentences(),
   );
 
-  await resourcesTree.openCreateCollaborativePartitionDialog(firstResourceName);
+  await resourcesTree.openSplitDialog(firstResourceName);
 
   await notSavedPopup.assert.isVisible();
 });
 
-test('creates complementary collaborative partitions', async ({
+test('creates complementary splits', async ({
   resourcesTree,
   splitDialog,
   window,
@@ -84,7 +84,7 @@ test('creates complementary collaborative partitions', async ({
   const partitionPath = testInfo.outputPath('partition.opossum');
   await stubSaveDialogSync(window.app, partitionPath);
 
-  await resourcesTree.openCreateCollaborativePartitionDialog(firstResourceName);
+  await resourcesTree.openSplitDialog(firstResourceName);
   await splitDialog.destinationPathSelection.click();
   await splitDialog.assert.destinationPathIs(partitionPath);
 
@@ -102,7 +102,7 @@ test('creates complementary collaborative partitions', async ({
   ]);
 });
 
-test('creates a collaborative partition from multiple resources', async ({
+test('creates a split from multiple resources', async ({
   resourcesTree,
   splitDialog,
   window,
@@ -111,7 +111,7 @@ test('creates a collaborative partition from multiple resources', async ({
   const partitionPath = testInfo.outputPath('multiple-resources.opossum');
   await stubSaveDialogSync(window.app, partitionPath);
 
-  await resourcesTree.openCreateCollaborativePartitionDialog(firstResourceName);
+  await resourcesTree.openSplitDialog(firstResourceName);
   await splitDialog.toggleResourceSelection(secondResourceName);
   await splitDialog.destinationPathSelection.click();
   await splitDialog.createButton.click();
@@ -191,7 +191,7 @@ test('rejects a second split of a readonly resource', async ({
   await splitDialog.closeButton.click();
 
   await stubSaveDialogSync(window.app, rejectedPartitionPath);
-  await resourcesTree.openCreateCollaborativePartitionDialog(firstResourceName);
+  await resourcesTree.openSplitDialog(firstResourceName);
   await splitDialog.destinationPathSelection.click();
   await splitDialog.createButton.click();
 
@@ -213,7 +213,7 @@ async function createPartition({
   window: Page & { app: ElectronApplication };
 }): Promise<void> {
   await stubSaveDialogSync(window.app, destinationPath);
-  await resourcesTree.openCreateCollaborativePartitionDialog(resourceName);
+  await resourcesTree.openSplitDialog(resourceName);
   await splitDialog.destinationPathSelection.click();
   await splitDialog.createButton.click();
   await splitDialog.assert.succeeded();

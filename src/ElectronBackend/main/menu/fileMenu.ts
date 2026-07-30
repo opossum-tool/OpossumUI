@@ -166,13 +166,11 @@ function getSaveFile(webContents: WebContents): MenuItemConstructorOptions {
   };
 }
 
-function getCreateCollaborativePartition(
-  webContents: WebContents,
-): MenuItemConstructorOptions {
+function getSplit(webContents: WebContents): MenuItemConstructorOptions {
   const globalBackendState = getGlobalBackendState();
   return {
     icon: getIconBasedOnTheme('icons/split-white.png', 'icons/split-black.png'),
-    label: text.menu.fileSubmenu.createCollaborativePartition,
+    label: text.menu.fileSubmenu.split,
     click: () => webContents.send(AllowedFrontendChannels.ShowSplitDialog),
     enabled:
       isFileLoaded(globalBackendState) && !globalBackendState.frontendPopupOpen,
@@ -358,7 +356,7 @@ export async function getFileMenu(
       getImportFile(mainWindow),
       getMerge(mainWindow),
       getSaveFile(webContents),
-      getCreateCollaborativePartition(webContents),
+      getSplit(webContents),
       getExportSubMenu(webContents),
       getProjectMetadata(webContents),
       getProjectStatistics(webContents),
