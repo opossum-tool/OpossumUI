@@ -28,7 +28,6 @@ if (typeof window !== 'undefined') {
     importFileConvertAndLoad: vi.fn(),
     mergeFileAndLoad: vi.fn(),
     selectSplitDestination: vi.fn(),
-    isOpossumFileLoaded: vi.fn().mockResolvedValue(true),
     splitFile: vi.fn(),
     saveFile: vi.fn(),
     exportFile: vi.fn(),

@@ -19,8 +19,7 @@ import {
   FileType,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { LoadedFileFormat } from '../../enums/enums';
-import { getLoadedFileType, isFileLoaded } from '../../utils/getLoadedFile';
+import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import {
@@ -183,8 +182,7 @@ function getCreateCollaborativePartition(
     click: () =>
       webContents.send(AllowedFrontendChannels.ShowSplitDialogWithUnsavedCheck),
     enabled:
-      getLoadedFileType(globalBackendState) === LoadedFileFormat.Opossum &&
-      !globalBackendState.frontendPopupOpen,
+      isFileLoaded(globalBackendState) && !globalBackendState.frontendPopupOpen,
   };
 }
 

@@ -11,7 +11,6 @@ export enum IpcChannel {
   ImportFileConvertAndLoad = 'import-file-convert-and-load',
   MergeFileAndLoad = 'merge-file-and-load',
   SelectSplitDestination = 'select-split-destination',
-  IsOpossumFileLoaded = 'is-opossum-file-loaded',
   SplitFile = 'split-file',
   OpenLink = 'open-link',
   SaveFile = 'save-file',
