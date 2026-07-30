@@ -53,10 +53,7 @@ function getOpenFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
     icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
     label: text.menu.fileSubmenu.open,
     accelerator: 'CmdOrCtrl+O',
-    click: () =>
-      mainWindow.webContents.send(
-        AllowedFrontendChannels.OpenFileWithUnsavedCheck,
-      ),
+    click: () => mainWindow.webContents.send(AllowedFrontendChannels.OpenFile),
     enabled: !getGlobalBackendState().frontendPopupOpen,
   };
 }
@@ -179,8 +176,7 @@ function getCreateCollaborativePartition(
       'icons/follow-up-black.png',
     ),
     label: text.menu.fileSubmenu.createCollaborativePartition,
-    click: () =>
-      webContents.send(AllowedFrontendChannels.ShowSplitDialogWithUnsavedCheck),
+    click: () => webContents.send(AllowedFrontendChannels.ShowSplitDialog),
     enabled:
       isFileLoaded(globalBackendState) && !globalBackendState.frontendPopupOpen,
   };

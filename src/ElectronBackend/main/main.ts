@@ -68,10 +68,7 @@ export async function main(): Promise<void> {
     await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu);
 
     setRuntimeMacOsOpenFileHandler((filePath) => {
-      mainWindow.webContents.send(
-        AllowedFrontendChannels.OpenFileWithUnsavedCheck,
-        filePath,
-      );
+      mainWindow.webContents.send(AllowedFrontendChannels.OpenFile, filePath);
     });
   } catch (error) {
     if (error instanceof Error) {
