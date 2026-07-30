@@ -37,12 +37,25 @@ export async function loadOpossumFileFromPath(
   mainWindow: BrowserWindow,
   opossumFilePath: string,
 ): Promise<void> {
+  const processingStatusUpdater = new ProcessingStatusUpdater(
+    mainWindow.webContents,
+  );
   const globalState = getGlobalBackendState();
-  const result = await getMainDbClient().loadOpossumFile(opossumFilePath, {
-    inputFileChecksum: globalState.inputFileChecksum,
-  });
+  const result = await getMainDbClient().loadOpossumFile(
+    opossumFilePath,
+    {
+      inputFileChecksum: globalState.inputFileChecksum,
+    },
+    (message, level) => {
+      if (level === 'warn') {
+        processingStatusUpdater.warn(message);
+      } else {
+        processingStatusUpdater.info(message);
+      }
+    },
+  );
 
-  await handleLoadResult(mainWindow, result);
+  await handleLoadResult(mainWindow, result, processingStatusUpdater);
 }
 
 async function handleLoadResult(
@@ -53,11 +66,8 @@ async function handleLoadResult(
     projectTitle?: string;
     projectId?: string;
   },
+  processingStatusUpdater: ProcessingStatusUpdater,
 ): Promise<void> {
-  const processingStatusUpdater = new ProcessingStatusUpdater(
-    mainWindow.webContents,
-  );
-
   mainWindow.webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
     resetState: true,
   });
