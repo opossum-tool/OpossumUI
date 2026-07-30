@@ -226,12 +226,13 @@ describe('mergeCurrentOpossumFilesListener', () => {
     await mergeCurrentOpossumFilesListener()(
       {} as Electron.IpcMainInvokeEvent,
       ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
+      false,
     );
 
     expect(mockMergeOpossumFiles).toHaveBeenCalledWith({
+      ignoreReadonlyResourceOutputConflicts: false,
       saveFileParams: {
         projectId: 'uuid_1',
-        inputFileChecksum: 'checksum_abc',
         opossumFilePath: '/my/file.opossum',
       },
       partitionPaths: [
@@ -245,9 +246,11 @@ describe('mergeCurrentOpossumFilesListener', () => {
     setGlobalBackendState({});
 
     await expect(
-      mergeCurrentOpossumFilesListener()({} as Electron.IpcMainInvokeEvent, [
-        '/partitions/docs.opossum',
-      ]),
+      mergeCurrentOpossumFilesListener()(
+        {} as Electron.IpcMainInvokeEvent,
+        ['/partitions/docs.opossum'],
+        false,
+      ),
     ).rejects.toThrow('No .opossum project is currently open.');
   });
 });
@@ -258,9 +261,11 @@ describe('mergeOpossumFilesFromPathsListener', () => {
       {} as Electron.IpcMainInvokeEvent,
       ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
       '/merged/project.opossum',
+      false,
     );
 
     expect(mergeOpossumFilesFromPaths).toHaveBeenCalledWith({
+      ignoreReadonlyResourceOutputConflicts: false,
       inputPaths: ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
       outputPath: '/merged/project.opossum',
     });

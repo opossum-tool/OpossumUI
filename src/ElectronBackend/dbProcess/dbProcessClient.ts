@@ -136,10 +136,12 @@ export class DbProcessClient {
   }
 
   mergeOpossumFiles({
+    ignoreReadonlyResourceOutputConflicts,
     saveFileParams,
     partitionPaths,
   }: MergeOpossumFilesParams): Promise<void> {
     return this.request({
+      ignoreReadonlyResourceOutputConflicts,
       type: 'mergeOpossumFiles',
       ...saveFileParams,
       partitionPaths,

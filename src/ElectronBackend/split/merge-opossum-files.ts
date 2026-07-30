@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
 import fs from 'fs';
+import { isDeepStrictEqual } from 'node:util';
 import path from 'path';
 
 import type { ReadonlyRule } from '../../shared/shared-types';
@@ -24,6 +25,7 @@ import {
 } from './readonly-rules';
 
 export interface MergeOpossumArchivesArgs {
+  ignoreReadonlyResourceOutputConflicts?: boolean;
   inputPaths: Array<string>;
   outputPath: string;
 }
@@ -43,6 +45,7 @@ export class MergeOpossumFilesError extends Error {
 }
 
 export async function mergeOpossumArchives({
+  ignoreReadonlyResourceOutputConflicts = false,
   inputPaths,
   outputPath,
 }: MergeOpossumArchivesArgs): Promise<void> {
@@ -51,7 +54,7 @@ export async function mergeOpossumArchives({
   validateProjectIds(archives);
 
   const readonlyRules = mergeReadonlyRules(archives);
-  const output = mergeOutput(archives);
+  const output = mergeOutput(archives, ignoreReadonlyResourceOutputConflicts);
 
   await writeOpossumFile({
     path: outputPath,
@@ -154,19 +157,29 @@ function mergeReadonlyRules(
   }
 }
 
-function mergeOutput(archives: Array<MergeArchive>): ParsedOpossumOutputFile {
+function mergeOutput(
+  archives: Array<MergeArchive>,
+  ignoreReadonlyResourceOutputConflicts: boolean,
+): ParsedOpossumOutputFile {
   const manualAttributions: ParsedOpossumOutputFile['manualAttributions'] = {};
   const resourcesToAttributions: ParsedOpossumOutputFile['resourcesToAttributions'] =
     {};
   const { outputJsonResourcePaths, referencedAttributionUuids } =
     getOutputJsonResourcePathsAndReferencedAttributionUuids(archives);
+  const readonlyResourceOutputConflicts: Array<string> = [];
 
   for (const outputJsonResourcePath of outputJsonResourcePaths) {
     const editableArchive = findEditableArchive(
       getResourcePath(outputJsonResourcePath),
       archives,
     );
-    // TODO: Validate that all archives agree on readonly resource output.
+    if (
+      !ignoreReadonlyResourceOutputConflicts &&
+      !editableArchive &&
+      !hasEqualReadonlyResourceOutput(outputJsonResourcePath, archives)
+    ) {
+      readonlyResourceOutputConflicts.push(outputJsonResourcePath);
+    }
     const outputArchive = editableArchive ?? archives[0];
     const attributionUuids =
       outputArchive.output.resourcesToAttributions[outputJsonResourcePath];
@@ -195,6 +208,12 @@ function mergeOutput(archives: Array<MergeArchive>): ParsedOpossumOutputFile {
     }
   }
 
+  if (readonlyResourceOutputConflicts.length > 0) {
+    throw new MergeOpossumFilesError(
+      `Input archives disagree on readonly resource output for paths: ${readonlyResourceOutputConflicts.map((path) => `'${path}'`).join(', ')}`,
+    );
+  }
+
   return {
     ...archives[0].output,
     manualAttributions,
@@ -207,6 +226,37 @@ function mergeOutput(archives: Array<MergeArchive>): ParsedOpossumOutputFile {
       ),
     ),
   };
+}
+
+function hasEqualReadonlyResourceOutput(
+  outputJsonResourcePath: string,
+  archives: Array<MergeArchive>,
+): boolean {
+  const [firstArchive, ...otherArchives] = archives;
+  const attributionUuids =
+    firstArchive.output.resourcesToAttributions[outputJsonResourcePath];
+
+  for (const archive of otherArchives) {
+    if (
+      !isDeepStrictEqual(
+        archive.output.resourcesToAttributions[outputJsonResourcePath],
+        attributionUuids,
+      )
+    ) {
+      return false;
+    }
+    for (const attributionUuid of attributionUuids ?? []) {
+      if (
+        !isDeepStrictEqual(
+          archive.output.manualAttributions[attributionUuid],
+          firstArchive.output.manualAttributions[attributionUuid],
+        )
+      ) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 function findEditableArchive(

@@ -45,6 +45,7 @@ interface SplitOpossumFileMessage {
 }
 
 interface MergeOpossumFilesMessage {
+  ignoreReadonlyResourceOutputConflicts: boolean;
   type: 'mergeOpossumFiles';
   projectId: string;
   inputFileChecksum?: string;
@@ -154,9 +155,19 @@ async function executeDbProcessMessage(
       if (!storedOpossumZip) {
         throw new Error('Cannot merge: no .opossum file is loaded');
       }
-      const { id: _, type: __, partitionPaths, ...saveFileParams } = msg;
+      const {
+        id: _,
+        type: __,
+        ignoreReadonlyResourceOutputConflicts,
+        partitionPaths,
+        ...saveFileParams
+      } = msg;
       await mergeOpossumFiles(
-        { saveFileParams, partitionPaths },
+        {
+          ignoreReadonlyResourceOutputConflicts,
+          saveFileParams,
+          partitionPaths,
+        },
         storedOpossumZip,
       );
       const loadResult = await loadFile(

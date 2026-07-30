@@ -8,6 +8,7 @@ import { mergeOpossumArchives } from '../split/merge-opossum-files';
 import { saveFile, type SaveFileParams } from './saveFile';
 
 export interface MergeOpossumFilesParams {
+  ignoreReadonlyResourceOutputConflicts: boolean;
   saveFileParams: Omit<SaveFileParams, 'opossumFilePath'> & {
     opossumFilePath: string;
   };
@@ -15,23 +16,34 @@ export interface MergeOpossumFilesParams {
 }
 
 export interface MergeOpossumFilesFromPathsParams {
+  ignoreReadonlyResourceOutputConflicts: boolean;
   inputPaths: Array<string>;
   outputPath: string;
 }
 
 export async function mergeOpossumFilesFromPaths({
+  ignoreReadonlyResourceOutputConflicts,
   inputPaths,
   outputPath,
 }: MergeOpossumFilesFromPathsParams): Promise<void> {
-  await mergeOpossumArchives({ inputPaths, outputPath });
+  await mergeOpossumArchives({
+    ignoreReadonlyResourceOutputConflicts,
+    inputPaths,
+    outputPath,
+  });
 }
 
 export async function mergeOpossumFiles(
-  { saveFileParams, partitionPaths }: MergeOpossumFilesParams,
+  {
+    ignoreReadonlyResourceOutputConflicts,
+    saveFileParams,
+    partitionPaths,
+  }: MergeOpossumFilesParams,
   opossumZip: AdmZip,
 ): Promise<void> {
   await saveFile(saveFileParams, opossumZip);
   await mergeOpossumArchives({
+    ignoreReadonlyResourceOutputConflicts,
     inputPaths: [saveFileParams.opossumFilePath, ...partitionPaths],
     outputPath: saveFileParams.opossumFilePath,
   });

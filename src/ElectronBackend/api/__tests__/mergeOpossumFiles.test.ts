@@ -23,6 +23,7 @@ describe('mergeOpossumFiles', () => {
 
     await mergeOpossumFiles(
       {
+        ignoreReadonlyResourceOutputConflicts: true,
         saveFileParams,
         partitionPaths: ['/partitions/docs.opossum'],
       },
@@ -31,6 +32,7 @@ describe('mergeOpossumFiles', () => {
 
     expect(saveFile).toHaveBeenCalledWith(saveFileParams, opossumZip);
     expect(mergeOpossumArchives).toHaveBeenCalledWith({
+      ignoreReadonlyResourceOutputConflicts: true,
       inputPaths: ['/partitions/open.opossum', '/partitions/docs.opossum'],
       outputPath: '/partitions/open.opossum',
     });

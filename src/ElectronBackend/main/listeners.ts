@@ -112,6 +112,7 @@ export const mergeCurrentOpossumFilesListener =
   async (
     _: Electron.IpcMainInvokeEvent,
     partitionPaths: Array<string>,
+    ignoreReadonlyResourceOutputConflicts: boolean,
   ): Promise<void> => {
     const globalBackendState = getGlobalBackendState();
     if (!globalBackendState.projectId || !globalBackendState.opossumFilePath) {
@@ -119,6 +120,7 @@ export const mergeCurrentOpossumFilesListener =
     }
 
     await getMainDbClient().mergeOpossumFiles({
+      ignoreReadonlyResourceOutputConflicts,
       saveFileParams: {
         projectId: globalBackendState.projectId,
         opossumFilePath: globalBackendState.opossumFilePath,
@@ -131,8 +133,13 @@ export async function mergeOpossumFilesFromPathsListener(
   _: Electron.IpcMainInvokeEvent,
   inputPaths: Array<string>,
   outputPath: string,
+  ignoreReadonlyResourceOutputConflicts: boolean,
 ): Promise<void> {
-  await mergeOpossumFilesFromPaths({ inputPaths, outputPath });
+  await mergeOpossumFilesFromPaths({
+    ignoreReadonlyResourceOutputConflicts,
+    inputPaths,
+    outputPath,
+  });
 }
 
 export const selectSplitDestinationListener =

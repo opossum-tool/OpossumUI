@@ -203,7 +203,43 @@ describe('mergeOpossumArchives', () => {
     ]);
   });
 
-  it('keeps readonly resource output from the first archive', async () => {
+  it('rejects conflicting readonly resource attribution mappings', async () => {
+    const firstPath = await createArchive({
+      output: output({
+        attributions: { other: 'first-other', shared: 'first-shared' },
+      }),
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/docs', readonly: false },
+      ],
+    });
+    const outputPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+
+    await expect(
+      mergeOpossumArchives({
+        inputPaths: [
+          firstPath,
+          await createArchive({
+            output: output({
+              attributions: {
+                other: 'second-other',
+                shared: 'second-shared',
+              },
+            }),
+            readonlyRules: [
+              { path: '/', readonly: true },
+              { path: '/frontend', readonly: false },
+            ],
+          }),
+        ],
+        outputPath,
+      }),
+    ).rejects.toThrow(
+      "readonly resource output for paths: '/other/', '/shared/'",
+    );
+  });
+
+  it('uses the first archive readonly resource output when conflicts are ignored', async () => {
     const firstPath = await createArchive({
       output: output({ attributions: { shared: 'first-shared' } }),
       readonlyRules: [
@@ -214,6 +250,7 @@ describe('mergeOpossumArchives', () => {
     const outputPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
 
     await mergeOpossumArchives({
+      ignoreReadonlyResourceOutputConflicts: true,
       inputPaths: [
         firstPath,
         await createArchive({
@@ -233,6 +270,35 @@ describe('mergeOpossumArchives', () => {
         'first-shared': { packageName: 'first-shared' },
       },
     });
+  });
+
+  it('rejects conflicting readonly manual attribution payloads', async () => {
+    const firstOutput = output({ attributions: { shared: 'shared' } });
+    const secondOutput = output({ attributions: { shared: 'shared' } });
+    secondOutput.manualAttributions.shared = { packageName: 'updated-shared' };
+    const outputPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+
+    await expect(
+      mergeOpossumArchives({
+        inputPaths: [
+          await createArchive({
+            output: firstOutput,
+            readonlyRules: [
+              { path: '/', readonly: true },
+              { path: '/docs', readonly: false },
+            ],
+          }),
+          await createArchive({
+            output: secondOutput,
+            readonlyRules: [
+              { path: '/', readonly: true },
+              { path: '/frontend', readonly: false },
+            ],
+          }),
+        ],
+        outputPath,
+      }),
+    ).rejects.toThrow("readonly resource output for paths: '/shared/'");
   });
 
   it('rejects archives with different project IDs', async () => {
