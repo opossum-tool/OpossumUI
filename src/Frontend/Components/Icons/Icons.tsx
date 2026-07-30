@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AnnouncementIcon from '@mui/icons-material/Announcement';
+import CallSplitIcon from '@mui/icons-material/CallSplit';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ExploreIcon from '@mui/icons-material/Explore';
 import Filter1Icon from '@mui/icons-material/Filter1';
@@ -334,6 +335,10 @@ export function BreakpointIcon() {
       sx={{ ...classes.resourceIcon, ...classes.resourceDefaultColor }}
     />
   );
+}
+
+export function SplitIcon() {
+  return <CallSplitIcon aria-label={'Split icon'} sx={{ rotate: '90deg' }} />;
 }
 
 export function FileIcon({ sx, labelDetail }: LabelDetailIconProps) {

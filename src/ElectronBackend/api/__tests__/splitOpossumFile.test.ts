@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -30,13 +31,13 @@ describe('splitOpossumFile', () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/docs/README.md', '/frontend/App.tsx']),
     });
-    const { opossumFilePath, partitionOutputPath } = createPaths();
+    const { opossumFilePath, splitOpossumFilePath } = createPaths();
 
     await splitOpossumFile(
       {
         saveFileParams: { projectId: 'project-id', opossumFilePath },
         selectedFolderPaths: ['/docs'],
-        partitionOutputPath,
+        splitOpossumFilePath,
       },
       createOpossumZip(),
     );
@@ -44,7 +45,7 @@ describe('splitOpossumFile', () => {
     expect(await getReadonlyRules()).toEqual([
       { path: '/docs', readonly: true },
     ]);
-    expect(getReadonlyRulesFromArchive(partitionOutputPath)).toEqual([
+    expect(getReadonlyRulesFromArchive(splitOpossumFilePath)).toEqual([
       { path: '/', readonly: true },
       { path: '/docs', readonly: false },
     ]);
@@ -61,13 +62,13 @@ describe('splitOpossumFile', () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/docs/README.md']),
     });
-    const { opossumFilePath, partitionOutputPath } = createPaths();
+    const { opossumFilePath, splitOpossumFilePath } = createPaths();
 
     await splitOpossumFile(
       {
         saveFileParams: { projectId: 'project-id', opossumFilePath },
         selectedFolderPaths: ['/docs/README.md'],
-        partitionOutputPath,
+        splitOpossumFilePath,
       },
       createOpossumZip(),
     );
@@ -75,7 +76,7 @@ describe('splitOpossumFile', () => {
     expect(await getReadonlyRules()).toEqual([
       { path: '/docs/README.md', readonly: true },
     ]);
-    expect(getReadonlyRulesFromArchive(partitionOutputPath)).toEqual([
+    expect(getReadonlyRulesFromArchive(splitOpossumFilePath)).toEqual([
       { path: '/', readonly: true },
       { path: '/docs/README.md', readonly: false },
     ]);
@@ -94,12 +95,12 @@ describe('splitOpossumFile', () => {
           opossumFilePath: firstPaths.opossumFilePath,
         },
         selectedFolderPaths: ['/frontend'],
-        partitionOutputPath: firstPaths.partitionOutputPath,
+        splitOpossumFilePath: firstPaths.splitOpossumFilePath,
       },
       createOpossumZip(),
     );
     const firstReadonlyRules = getReadonlyRulesFromArchive(
-      firstPaths.partitionOutputPath,
+      firstPaths.splitOpossumFilePath,
     );
     if (!firstReadonlyRules) {
       throw new Error('Expected split metadata in selected archive.');
@@ -115,12 +116,12 @@ describe('splitOpossumFile', () => {
       {
         saveFileParams: {
           projectId: 'project-id',
-          opossumFilePath: firstPaths.partitionOutputPath,
+          opossumFilePath: firstPaths.splitOpossumFilePath,
         },
         selectedFolderPaths: ['/frontend/components'],
-        partitionOutputPath: secondPaths.partitionOutputPath,
+        splitOpossumFilePath: secondPaths.splitOpossumFilePath,
       },
-      new AdmZip(firstPaths.partitionOutputPath),
+      new AdmZip(firstPaths.splitOpossumFilePath),
     );
 
     expect(await getReadonlyRules()).toEqual([
@@ -134,20 +135,20 @@ describe('splitOpossumFile', () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/docs/README.md']),
     });
-    const { opossumFilePath, partitionOutputPath } = createPaths();
+    const { opossumFilePath, splitOpossumFilePath } = createPaths();
 
     await expect(
       splitOpossumFile(
         {
           saveFileParams: { projectId: 'project-id', opossumFilePath },
           selectedFolderPaths: ['/missing'],
-          partitionOutputPath,
+          splitOpossumFilePath,
         },
         createOpossumZip(),
       ),
     ).rejects.toThrow("Selected resource '/missing' does not exist");
 
-    expect(fs.existsSync(partitionOutputPath)).toBe(false);
+    expect(fs.existsSync(splitOpossumFilePath)).toBe(false);
   });
 });
 
@@ -159,11 +160,11 @@ function createOpossumZip(): AdmZip {
 
 function createPaths(): {
   opossumFilePath: string;
-  partitionOutputPath: string;
+  splitOpossumFilePath: string;
 } {
   return {
     opossumFilePath: faker.outputPath(`${faker.string.uuid()}.opossum`),
-    partitionOutputPath: faker.outputPath(`${faker.string.uuid()}.opossum`),
+    splitOpossumFilePath: faker.outputPath(`${faker.string.uuid()}.opossum`),
   };
 }
 

@@ -13,6 +13,7 @@ import {
   openFileOrOpenUnsavedPopup,
   showImportDialogOrOpenUnsavedPopup,
   showMergeDialogOrOpenUnsavedPopup,
+  showSplitDialogOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
@@ -21,11 +22,12 @@ import { backend, setDatabaseInitialized } from '../../util/backendClient';
 import {
   type ExportFileRequestListener,
   type LoggingListener,
-  type OpenFileWithUnsavedCheckListener,
+  type OpenFileListener,
   type SetBaseURLForRootListener,
   type SetDatabaseInitializedListener,
   type ShowImportDialogListener,
   type ShowMergeDialogListener,
+  type ShowSplitDialog,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
 import { useSyncProcessingStatusUpdatesToFrontendLogs } from '../../util/use-processing-status-updated';
@@ -109,8 +111,8 @@ export const BackendCommunication: React.FC = () => {
     showUpdateAppPopupListener,
     [dispatch],
   );
-  useIpcRenderer<OpenFileWithUnsavedCheckListener>(
-    AllowedFrontendChannels.OpenFileWithUnsavedCheck,
+  useIpcRenderer<OpenFileListener>(
+    AllowedFrontendChannels.OpenFile,
     (_, filePath) => dispatch(openFileOrOpenUnsavedPopup(filePath)),
     [dispatch],
   );
@@ -122,6 +124,11 @@ export const BackendCommunication: React.FC = () => {
   useIpcRenderer<ShowMergeDialogListener>(
     AllowedFrontendChannels.ShowMergeDialog,
     (_, fileFormat) => dispatch(showMergeDialogOrOpenUnsavedPopup(fileFormat)),
+    [dispatch],
+  );
+  useIpcRenderer<ShowSplitDialog>(
+    AllowedFrontendChannels.ShowSplitDialog,
+    () => dispatch(showSplitDialogOrOpenUnsavedPopup()),
     [dispatch],
   );
   useIpcRenderer<SetDatabaseInitializedListener>(

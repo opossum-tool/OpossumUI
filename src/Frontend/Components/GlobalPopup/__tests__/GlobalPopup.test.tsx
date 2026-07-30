@@ -6,7 +6,10 @@ import { screen } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
 import { PopupType } from '../../../enums/enums';
-import { openPopup } from '../../../state/actions/view-actions/view-actions';
+import {
+  openPopup,
+  openSplitDialog,
+} from '../../../state/actions/view-actions/view-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { GlobalPopup } from '../GlobalPopup';
@@ -71,6 +74,19 @@ describe('The GlobalPopUp', () => {
     });
 
     expect(screen.getByText(text.updateAppPopup.title)).toBeInTheDocument();
+    expect(
+      global.window.electronAPI.setFrontendPopupOpen,
+    ).toHaveBeenLastCalledWith(true);
+  });
+
+  it('opens the SplitDialog', async () => {
+    await renderComponent(<GlobalPopup />, {
+      actions: [openSplitDialog()],
+    });
+
+    expect(
+      screen.getByRole('dialog', { name: text.splitDialog.title }),
+    ).toBeVisible();
     expect(
       global.window.electronAPI.setFrontendPopupOpen,
     ).toHaveBeenLastCalledWith(true);

@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiListItemIcon from '@mui/material/ListItemIcon';
 import MuiMenu from '@mui/material/Menu';
 import MuiMenuItem from '@mui/material/MenuItem';
 import type { SxProps } from '@mui/system';
@@ -9,8 +10,12 @@ import { remove } from 'lodash-es';
 import { type MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import { text } from '../../../../shared/text';
 import { ROOT_PATH } from '../../../shared-constants';
-import { setSelectedResourceIdOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
+import {
+  setSelectedResourceIdOrOpenUnsavedPopup,
+  showSplitDialogOrOpenUnsavedPopup,
+} from '../../../state/actions/popup-actions/popup-actions';
 import {
   setExpandedIds,
   setSelectedResourceId,
@@ -20,7 +25,7 @@ import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
-import { toast } from '../../Toaster';
+import { SplitIcon } from '../../Icons/Icons';
 import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
 import { ResourcesTreeNode } from './ResourcesTreeNode/ResourcesTreeNode';
 
@@ -79,17 +84,17 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
     [],
   );
 
-  const handleSplit = useCallback(async () => {
+  const handleSplit = useCallback(() => {
     if (!contextMenu) {
       return;
     }
-    const resourcePath = contextMenu.resource.id.replace(/\/$/, '');
-    const splitSucceeded = await window.electronAPI.splitFile([resourcePath]);
     setContextMenu(null);
-    if (splitSucceeded) {
-      toast.success('Split archive created.');
-    }
-  }, [contextMenu]);
+    dispatch(
+      showSplitDialogOrOpenUnsavedPopup(
+        contextMenu.resource.id.replace(/\/$/, ''),
+      ),
+    );
+  }, [contextMenu, dispatch]);
 
   return (
     <>
@@ -100,6 +105,7 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
         selectedNodeId={selectedResourceId}
         TreeNodeLabel={ResourcesTreeNode}
         onContextMenu={handleContextMenu}
+        contextMenuNodeId={contextMenu?.resource.id}
         sx={sx}
         testId={'resources-tree'}
       />
@@ -115,9 +121,12 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
       >
         <MuiMenuItem
           disabled={contextMenu?.resource.id === ROOT_PATH}
-          onClick={() => void handleSplit()}
+          onClick={handleSplit}
         >
-          Split here
+          <MuiListItemIcon>
+            <SplitIcon />
+          </MuiListItemIcon>
+          {text.resourceBrowser.splitHere}
         </MuiMenuItem>
       </MuiMenu>
     </>

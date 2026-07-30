@@ -53,10 +53,7 @@ function getOpenFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
     icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
     label: text.menu.fileSubmenu.open,
     accelerator: 'CmdOrCtrl+O',
-    click: () =>
-      mainWindow.webContents.send(
-        AllowedFrontendChannels.OpenFileWithUnsavedCheck,
-      ),
+    click: () => mainWindow.webContents.send(AllowedFrontendChannels.OpenFile),
     enabled: !getGlobalBackendState().frontendPopupOpen,
   };
 }
@@ -166,6 +163,17 @@ function getSaveFile(webContents: WebContents): MenuItemConstructorOptions {
     enabled:
       isFileLoaded(getGlobalBackendState()) &&
       !getGlobalBackendState().frontendPopupOpen,
+  };
+}
+
+function getSplit(webContents: WebContents): MenuItemConstructorOptions {
+  const globalBackendState = getGlobalBackendState();
+  return {
+    icon: getIconBasedOnTheme('icons/split-white.png', 'icons/split-black.png'),
+    label: text.menu.fileSubmenu.split,
+    click: () => webContents.send(AllowedFrontendChannels.ShowSplitDialog),
+    enabled:
+      isFileLoaded(globalBackendState) && !globalBackendState.frontendPopupOpen,
   };
 }
 
@@ -348,6 +356,7 @@ export async function getFileMenu(
       getImportFile(mainWindow),
       getMerge(mainWindow),
       getSaveFile(webContents),
+      getSplit(webContents),
       getExportSubMenu(webContents),
       getProjectMetadata(webContents),
       getProjectStatistics(webContents),

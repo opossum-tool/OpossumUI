@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -43,7 +44,7 @@ const input: ParsedOpossumInputFile = {
 
 describe('splitOpossumArchive', () => {
   it('creates source rules for an initial split', async () => {
-    const { source, selected, partitionOutputPath, sourcePath } =
+    const { source, selected, splitOpossumFilePath, sourceOpossumFilePath } =
       await splitArchive({
         selectedFolderPaths: ['/docs', '/frontend'],
         readonlyRules: [],
@@ -58,11 +59,11 @@ describe('splitOpossumArchive', () => {
       { path: '/docs', readonly: false },
       { path: '/frontend', readonly: false },
     ]);
-    expect(new AdmZip(sourcePath).readAsText('additional-data.txt')).toBe(
-      'kept',
-    );
     expect(
-      new AdmZip(partitionOutputPath).readAsText('additional-data.txt'),
+      new AdmZip(sourceOpossumFilePath).readAsText('additional-data.txt'),
+    ).toBe('kept');
+    expect(
+      new AdmZip(splitOpossumFilePath).readAsText('additional-data.txt'),
     ).toBe('kept');
   });
 
@@ -206,11 +207,13 @@ async function splitArchive({
 }): Promise<{
   source: Array<ReadonlyRule>;
   selected: Array<ReadonlyRule>;
-  partitionOutputPath: string;
-  sourcePath: string;
+  splitOpossumFilePath: string;
+  sourceOpossumFilePath: string;
 }> {
-  const sourcePath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-  const partitionOutputPath = faker.outputPath(
+  const sourceOpossumFilePath = faker.outputPath(
+    `${faker.string.uuid()}.opossum`,
+  );
+  const splitOpossumFilePath = faker.outputPath(
     `${faker.string.uuid()}.opossum`,
   );
   const sourceZip = new AdmZip();
@@ -218,18 +221,18 @@ async function splitArchive({
   sourceZip.addFile('additional-data.txt', Buffer.from('kept'));
   await splitOpossumArchive({
     paths: {
-      opossumFilePath: sourcePath,
+      sourceOpossumFilePath,
       selectedFolderPaths,
-      partitionOutputPath,
+      splitOpossumFilePath,
     },
     sourceZip,
     readonlyRules,
   });
   return {
-    source: await parseReadonlyRules(sourcePath),
-    selected: await parseReadonlyRules(partitionOutputPath),
-    partitionOutputPath,
-    sourcePath,
+    source: await parseReadonlyRules(sourceOpossumFilePath),
+    selected: await parseReadonlyRules(splitOpossumFilePath),
+    splitOpossumFilePath,
+    sourceOpossumFilePath,
   };
 }
 

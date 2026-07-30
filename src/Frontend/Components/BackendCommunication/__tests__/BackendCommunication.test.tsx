@@ -34,7 +34,7 @@ describe('BackendCommunication', () => {
     });
     const filePath = '/path/to/project.opossum';
 
-    listeners.get(AllowedFrontendChannels.OpenFileWithUnsavedCheck)?.(
+    listeners.get(AllowedFrontendChannels.OpenFile)?.(
       {} as IpcRendererEvent,
       filePath,
     );

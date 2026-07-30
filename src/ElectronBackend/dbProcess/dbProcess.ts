@@ -45,7 +45,7 @@ interface SplitOpossumFileMessage {
   inputFileChecksum?: string;
   opossumFilePath: string;
   selectedFolderPaths: Array<string>;
-  partitionOutputPath: string;
+  splitOpossumFilePath: string;
 }
 
 interface ExportFileMessage {
@@ -136,11 +136,15 @@ async function executeDbProcessMessage(
         id: _,
         type: __,
         selectedFolderPaths,
-        partitionOutputPath,
+        splitOpossumFilePath,
         ...saveFileParams
       } = msg;
       await splitOpossumFile(
-        { saveFileParams, selectedFolderPaths, partitionOutputPath },
+        {
+          saveFileParams,
+          selectedFolderPaths,
+          splitOpossumFilePath,
+        },
         storedOpossumZip,
       );
       return undefined;

@@ -125,13 +125,13 @@ export class DbProcessClient {
   splitOpossumFile({
     saveFileParams,
     selectedFolderPaths,
-    partitionOutputPath,
+    splitOpossumFilePath,
   }: SplitOpossumFileParams): Promise<void> {
     return this.request({
       type: 'splitOpossumFile',
       ...saveFileParams,
       selectedFolderPaths,
-      partitionOutputPath,
+      splitOpossumFilePath,
     }) as Promise<void>;
   }
 

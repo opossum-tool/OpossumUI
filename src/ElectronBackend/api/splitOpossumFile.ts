@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -11,10 +12,10 @@ import {
 import { saveFile, type SaveFileParams } from './saveFile';
 
 /**
- * Input for splitting the current .opossum archive into a separate partition.
+ * Input for splitting the current .opossum archive.
  *
  * The original archive is saved to `opossumFilePath` before the partition is
- * created at `partitionOutputPath`. The paths must therefore refer to separate
+ * created at `splitOpossumFilePath`. The paths must therefore refer to separate
  * files.
  */
 export interface SplitOpossumFileParams {
@@ -24,8 +25,8 @@ export interface SplitOpossumFileParams {
   };
   /** Resource paths to include in the new partition archive. */
   selectedFolderPaths: Array<string>;
-  /** Path at which to create the partition .opossum archive. */
-  partitionOutputPath: string;
+  /** Path at which to create the new .opossum archive. */
+  splitOpossumFilePath: string;
 }
 
 /**
@@ -36,7 +37,7 @@ export async function splitOpossumFile(
   {
     saveFileParams,
     selectedFolderPaths,
-    partitionOutputPath,
+    splitOpossumFilePath,
   }: SplitOpossumFileParams,
   opossumZip: AdmZip,
 ): Promise<void> {
@@ -45,9 +46,9 @@ export async function splitOpossumFile(
   await validateSelectedFolderPaths(selectedFolderPaths, currentReadonlyRules);
   const result = await splitOpossumArchive({
     paths: {
-      opossumFilePath: saveFileParams.opossumFilePath,
+      sourceOpossumFilePath: saveFileParams.opossumFilePath,
       selectedFolderPaths,
-      partitionOutputPath,
+      splitOpossumFilePath,
     },
     sourceZip: opossumZip,
     readonlyRules: currentReadonlyRules,

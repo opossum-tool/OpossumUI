@@ -53,7 +53,9 @@ export type ShowMergeDialogListener = (
   fileFormat: FileFormatInfo,
 ) => void;
 
-export type OpenFileWithUnsavedCheckListener = (
+export type ShowSplitDialog = (event: IpcRendererEvent) => void;
+
+export type OpenFileListener = (
   event: IpcRendererEvent,
   filePath?: string,
 ) => void;
@@ -74,10 +76,11 @@ type Listener =
   | LoggingListener
   | ExportFileRequestListener
   | SetBaseURLForRootListener
-  | OpenFileWithUnsavedCheckListener
+  | OpenFileListener
   | ShowImportDialogListener
   | ProcessingStateChangedListener
   | ShowMergeDialogListener
+  | ShowSplitDialog
   | UserSettingsChangedListener
   | SetDatabaseInitializedListener;
 
