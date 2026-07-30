@@ -4383,9 +4383,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:43.1.0":
-  version: 43.1.0
-  resolution: "electron@npm:43.1.0"
+"electron@npm:43.2.0":
+  version: 43.2.0
+  resolution: "electron@npm:43.2.0"
   dependencies:
     "@electron-internal/extract-zip": "npm:^1.0.1"
     "@electron/get": "npm:^5.0.0"
@@ -4393,7 +4393,7 @@ __metadata:
   bin:
     electron: cli.js
     install-electron: install.js
-  checksum: 10/7b2049aa4795e9683f4d0c91b5807b43a25a441bcc3ac69ddbbb9933d469cac7fb8a2e45558856c0703d0dbbc1c25c49e268cb3e67772640ac25a027c93792cc
+  checksum: 10/70f2f822b66d8fa15e370126d40cc79545ae76795c190a26467a76576074bab8ec81e167fc1bcc092ac944843a0b03cc9f45f54326cbce6ac06a98461909a634
   languageName: node
   linkType: hard
 
@@ -6808,7 +6808,7 @@ __metadata:
     dayjs: "npm:1.11.21"
     dotenv: "npm:17.4.2"
     dpdm: "npm:4.2.0"
-    electron: "npm:43.1.0"
+    electron: "npm:43.2.0"
     electron-builder: "npm:26.15.3"
     electron-log: "npm:5.4.4"
     electron-playwright-helpers: "npm:2.1.0"
