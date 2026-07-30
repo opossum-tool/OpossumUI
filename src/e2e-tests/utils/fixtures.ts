@@ -40,6 +40,10 @@ import { ResourcesTree } from '../page-objects/ResourcesTree';
 import { SignalsPanel } from '../page-objects/SignalsPanel';
 import { SplitDialog } from '../page-objects/SplitDialog';
 import { TopBar } from '../page-objects/TopBar';
+import {
+  getUnexpectedSyncDialogCalls,
+  installDefaultSyncDialogStubs,
+} from './dialog';
 
 const LOAD_TIMEOUT = 15000;
 
@@ -122,6 +126,7 @@ export const test = base.extend<{
         RESET: '1',
       },
     });
+    await installDefaultSyncDialogStubs(app);
 
     // Capture main process stdout/stderr for debugging
     const mainProcessLogs: Array<string> = [];
@@ -146,6 +151,8 @@ export const test = base.extend<{
 
     await use(Object.assign(window, { app }));
 
+    const unexpectedDialogCalls = await getUnexpectedSyncDialogCalls(app);
+
     // Write main process logs to artifacts
     if (mainProcessLogs.length > 0) {
       fs.writeFileSync(
@@ -162,6 +169,12 @@ export const test = base.extend<{
       ),
     });
     await app.close();
+
+    if (unexpectedDialogCalls.length > 0) {
+      throw new Error(
+        `Unexpected unstubbed native dialog call${unexpectedDialogCalls.length === 1 ? '' : 's'}: ${unexpectedDialogCalls.join(', ')}`,
+      );
+    }
   },
   debug: async ({ window: _ }, use, info) => {
     await use(() => {
