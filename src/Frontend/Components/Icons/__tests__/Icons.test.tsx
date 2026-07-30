@@ -19,6 +19,7 @@ import {
   FollowUpIcon,
   NeedsReviewIcon,
   PreSelectedIcon,
+  SplitIcon,
 } from '../Icons';
 
 async function hoverOverIcon(testid: string) {
@@ -134,6 +135,12 @@ describe('The Icons', () => {
     render(<BreakpointIcon />);
 
     expect(screen.getByLabelText('Breakpoint icon')).toBeInTheDocument();
+  });
+
+  it('renders SplitIcon', () => {
+    render(<SplitIcon />);
+
+    expect(screen.getByLabelText('Split icon')).toBeInTheDocument();
   });
 
   it('renders PreSelectedIcon', () => {

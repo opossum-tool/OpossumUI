@@ -171,10 +171,7 @@ function getCreateCollaborativePartition(
 ): MenuItemConstructorOptions {
   const globalBackendState = getGlobalBackendState();
   return {
-    icon: getIconBasedOnTheme(
-      'icons/follow-up-white.png',
-      'icons/follow-up-black.png',
-    ),
+    icon: getIconBasedOnTheme('icons/split-white.png', 'icons/split-black.png'),
     label: text.menu.fileSubmenu.createCollaborativePartition,
     click: () => webContents.send(AllowedFrontendChannels.ShowSplitDialog),
     enabled:

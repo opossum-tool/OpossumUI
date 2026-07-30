@@ -25,6 +25,7 @@ import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
+import { SplitIcon } from '../../Icons/Icons';
 import { VirtualizedTree } from '../../VirtualizedTree/VirtualizedTree';
 import { ResourcesTreeNode } from './ResourcesTreeNode/ResourcesTreeNode';
 
@@ -123,7 +124,7 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
           onClick={handleSplit}
         >
           <MuiListItemIcon>
-            <img alt={''} src={'assets/icons/follow-up-black.png'} />
+            <SplitIcon />
           </MuiListItemIcon>
           {text.resourceBrowser.splitHere}
         </MuiMenuItem>
