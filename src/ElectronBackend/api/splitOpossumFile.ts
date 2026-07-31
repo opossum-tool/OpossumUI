@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type AdmZip from 'adm-zip';
 
-import { refreshReadonlyDataAfterSplit } from '../db/initializeDb';
+import { refreshReadonlyData } from '../db/refresh-readonly-data';
 import { getReadonlyRules, replaceReadonlyRules } from '../db/split-info';
 import {
   splitOpossumArchive,
@@ -49,5 +49,5 @@ export async function splitOpossumFile(
     readonlyRules: currentReadonlyRules,
   });
   await replaceReadonlyRules(result.sourceReadonlyRules);
-  await refreshReadonlyDataAfterSplit();
+  await refreshReadonlyData();
 }
