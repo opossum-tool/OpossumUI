@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type AdmZip from 'adm-zip';
 
-import { writeFile, writeOpossumFile } from '../../shared/write-file';
+import { writeOpossumFile } from '../../shared/write-file';
 import { getReadonlyRules } from '../db/split-info';
 import { serializeAttributions } from '../input/parseInputData';
 import type { OpossumOutputFile } from '../types/types';
@@ -12,9 +12,7 @@ import { getSaveFileArgs } from './getSaveFileArgs';
 
 export interface SaveFileParams {
   projectId: string;
-  inputFileChecksum?: string;
-  opossumFilePath?: string;
-  attributionFilePath?: string;
+  opossumFilePath: string;
 }
 
 export async function saveFile(
@@ -27,7 +25,6 @@ export async function saveFile(
     metadata: {
       projectId: params.projectId,
       fileCreationDate: String(Date.now()),
-      inputFileMD5Checksum: params.inputFileChecksum,
     },
     manualAttributions: serializeAttributions(result.manualAttributions),
     resourcesToAttributions: result.resourcesToAttributions,
@@ -36,19 +33,10 @@ export async function saveFile(
     ),
   };
 
-  if (params.opossumFilePath) {
-    await writeOpossumFile({
-      path: params.opossumFilePath,
-      zip: opossumZip,
-      output: outputFileContent,
-      readonlyRules: await getReadonlyRules(),
-    });
-  } else if (params.attributionFilePath) {
-    await writeFile({
-      path: params.attributionFilePath,
-      content: outputFileContent,
-    });
-  } else {
-    throw new Error('No output file path configured');
-  }
+  await writeOpossumFile({
+    path: params.opossumFilePath,
+    zip: opossumZip,
+    output: outputFileContent,
+    readonlyRules: await getReadonlyRules(),
+  });
 }

@@ -42,8 +42,6 @@ export interface InvalidDotOpossumFileError extends ParsingError {
 
 export interface GlobalBackendState {
   projectTitle?: string;
-  resourceFilePath?: string;
-  attributionFilePath?: string;
   opossumFilePath?: string;
   followUpFilePath?: string;
   compactBomFilePath?: string;
@@ -51,7 +49,6 @@ export interface GlobalBackendState {
   spdxYamlFilePath?: string;
   spdxJsonFilePath?: string;
   projectId?: string;
-  inputFileChecksum?: string;
   frontendPopupOpen?: boolean;
 }
 

@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
-import fs from 'fs';
 
 import type { ReadonlyRule } from './shared-types';
 import {
@@ -11,29 +10,6 @@ import {
   OUTPUT_FILE_NAME,
   SPLIT_INFO_FILE_NAME,
 } from './write-file-utils';
-
-export async function writeFile({
-  content,
-  path,
-}: {
-  path: string;
-  content: string | object;
-}): Promise<string> {
-  try {
-    await fs.promises.writeFile(
-      path,
-      typeof content === 'string' || Buffer.isBuffer(content)
-        ? content
-        : JSON.stringify(content),
-    );
-    return path;
-  } catch (error) {
-    throw new Error(
-      `Error while writing the file ${path}: ${error?.toString()}`,
-      { cause: error },
-    );
-  }
-}
 
 export async function writeOpossumFile({
   input,

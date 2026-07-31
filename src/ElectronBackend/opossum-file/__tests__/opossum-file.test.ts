@@ -10,7 +10,6 @@ import { join } from 'path';
 import { FileType } from '../../../shared/shared-types';
 import { parseOpossumFile } from '../../input/parseFile';
 import type { ParsedOpossumInputAndOutput } from '../../types/types';
-import { isOpossumFileFormat } from '../../utils/isOpossumFileFormat';
 import { convertToOpossum, mergeFileIntoOpossum } from '../opossum-file';
 
 const mockTmpdir = tmpdir();
@@ -46,7 +45,7 @@ describe('conversion to opossum', () => {
       FileType.SCANCODE_JSON,
     );
     expect(fs.existsSync(opossumPath)).toBe(true);
-    expect(isOpossumFileFormat(opossumPath)).toBe(true);
+    expect(opossumPath.endsWith('.opossum')).toBe(true);
 
     const parsingResult = await parseOpossumFile(opossumPath);
     expect(parsingResult).toHaveProperty('input');
@@ -56,7 +55,7 @@ describe('conversion to opossum', () => {
     const opossumPath = join(mockTmpdir, `${uniqueId('opossum_')}.opossum`);
     await convertToOpossum(OWASP_TEST_FILE, opossumPath, FileType.OWASP_JSON);
     expect(fs.existsSync(opossumPath)).toBe(true);
-    expect(isOpossumFileFormat(opossumPath)).toBe(true);
+    expect(opossumPath.endsWith('.opossum')).toBe(true);
 
     const parsingResult = await parseOpossumFile(opossumPath);
     expect(parsingResult).toHaveProperty('input');

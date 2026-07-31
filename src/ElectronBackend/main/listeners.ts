@@ -9,7 +9,6 @@ import { uniq } from 'lodash-es';
 import path from 'path';
 import upath from 'upath';
 
-import { legacyOutputFileEnding } from '../../Frontend/shared-constants';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   ExportType,
@@ -56,12 +55,13 @@ export const saveFileListener =
       if (!globalBackendState.projectId) {
         throw new Error('Project ID not found');
       }
+      if (!globalBackendState.opossumFilePath) {
+        throw new Error('No .opossum project is currently open.');
+      }
 
       await getMainDbClient().saveFile({
         projectId: globalBackendState.projectId,
-        inputFileChecksum: globalBackendState.inputFileChecksum,
         opossumFilePath: globalBackendState.opossumFilePath,
-        attributionFilePath: globalBackendState.attributionFilePath,
       });
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
@@ -90,7 +90,6 @@ export const splitCurrentOpossumFileListener =
       await getMainDbClient().splitOpossumFile({
         saveFileParams: {
           projectId: globalBackendState.projectId,
-          inputFileChecksum: globalBackendState.inputFileChecksum,
           opossumFilePath: globalBackendState.opossumFilePath,
         },
         selectedFolderPaths,
@@ -187,7 +186,7 @@ export async function handleOpeningFile(
   const statusUpdater = new ProcessingStatusUpdater(mainWindow.webContents);
   statusUpdater.startProcessing();
   statusUpdater.info('Initializing global backend state');
-  initializeGlobalBackendState(filePath, true);
+  initializeGlobalBackendState(filePath);
 
   await openFile(mainWindow, filePath, updateMenu);
 
@@ -298,7 +297,7 @@ export const importFileConvertAndLoadListener =
       await convertToOpossum(resourceFilePath, opossumFilePath, fileType);
 
       processingStatusUpdater.info('Updating global backend state');
-      initializeGlobalBackendState(opossumFilePath, true);
+      initializeGlobalBackendState(opossumFilePath);
 
       await openFile(mainWindow, opossumFilePath, updateMenu);
 
@@ -371,17 +370,9 @@ export const mergeFileAndLoadListener =
     }
   };
 
-function initializeGlobalBackendState(
-  filePath: string,
-  isOpossumFormat: boolean,
-  inputFileChecksum?: string,
-): void {
+function initializeGlobalBackendState(filePath: string): void {
   const newGlobalBackendState: GlobalBackendState = {
-    resourceFilePath: isOpossumFormat ? undefined : filePath,
-    attributionFilePath: isOpossumFormat
-      ? undefined
-      : getFilePathWithAppendix(filePath, legacyOutputFileEnding),
-    opossumFilePath: isOpossumFormat ? filePath : undefined,
+    opossumFilePath: filePath,
     followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
     compactBomFilePath: getFilePathWithAppendix(
       filePath,
@@ -393,7 +384,6 @@ function initializeGlobalBackendState(
     ),
     spdxYamlFilePath: getFilePathWithAppendix(filePath, '.spdx.yaml'),
     spdxJsonFilePath: getFilePathWithAppendix(filePath, '.spdx.json'),
-    inputFileChecksum,
   };
   setGlobalBackendState(newGlobalBackendState);
 }

@@ -20,7 +20,6 @@ import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
 import {
   loadFile,
-  type LoadFileGlobalState,
   type LoadFileIpcResult,
   type LoadFileProgressCallback,
 } from '../input/loadFile';
@@ -28,21 +27,17 @@ import {
 interface LoadFileMessage {
   type: 'loadFile';
   filePath: string;
-  globalState: LoadFileGlobalState;
 }
 
 interface SaveFileMessage {
   type: 'saveFile';
   projectId: string;
-  inputFileChecksum?: string;
-  opossumFilePath?: string;
-  attributionFilePath?: string;
+  opossumFilePath: string;
 }
 
 interface SplitOpossumFileMessage {
   type: 'splitOpossumFile';
   projectId: string;
-  inputFileChecksum?: string;
   opossumFilePath: string;
   selectedFolderPaths: Array<string>;
   splitOpossumFilePath: string;
@@ -108,11 +103,7 @@ async function executeDbProcessMessage(
   switch (msg.type) {
     case 'loadFile': {
       storedOpossumZip = undefined;
-      const loadResult = await loadFile(
-        msg.filePath,
-        msg.globalState,
-        onProgress,
-      );
+      const loadResult = await loadFile(msg.filePath, onProgress);
       if (loadResult.ok) {
         const { opossumZip, ...rest } = loadResult;
         storedOpossumZip = opossumZip;

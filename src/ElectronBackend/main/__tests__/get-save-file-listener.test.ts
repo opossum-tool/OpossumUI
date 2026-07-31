@@ -89,16 +89,13 @@ describe('saveFileListener', () => {
     setGlobalBackendState({
       opossumFilePath: '/my/file.opossum',
       projectId: 'uuid_1',
-      inputFileChecksum: 'checksum_abc',
     });
 
     await saveFileListener(mainWindow)(AllowedFrontendChannels.SaveFileRequest);
 
     expect(mockSaveFile).toHaveBeenCalledWith({
       projectId: 'uuid_1',
-      inputFileChecksum: 'checksum_abc',
       opossumFilePath: '/my/file.opossum',
-      attributionFilePath: undefined,
     });
     expect(dialog.showMessageBox).not.toHaveBeenCalled();
   });
@@ -136,7 +133,6 @@ describe('splitCurrentOpossumFileListener', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setGlobalBackendState({
-      inputFileChecksum: 'checksum_abc',
       opossumFilePath: '/my/file.opossum',
       projectId: 'uuid_1',
     });
@@ -154,7 +150,6 @@ describe('splitCurrentOpossumFileListener', () => {
     expect(mockSplitOpossumFile).toHaveBeenCalledWith({
       saveFileParams: {
         projectId: 'uuid_1',
-        inputFileChecksum: 'checksum_abc',
         opossumFilePath: '/my/file.opossum',
       },
       selectedFolderPaths: ['/source'],

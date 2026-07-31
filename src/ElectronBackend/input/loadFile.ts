@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import AdmZip from 'adm-zip';
+import type AdmZip from 'adm-zip';
 import fs from 'fs';
 import { cloneDeep } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
@@ -10,7 +10,6 @@ import { v4 as uuid4 } from 'uuid';
 import type {
   Attributions,
   ParsedFileContent,
-  ReadonlyRule,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { saveFile } from '../api/saveFile';
@@ -18,17 +17,10 @@ import { initializeDb } from '../db/initializeDb';
 import type {
   FileNotFoundError,
   OpossumOutputFile,
-  ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
   ParsingError,
 } from '../types/types';
-import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
-import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
-import {
-  parseInputJsonFile,
-  parseOpossumFile,
-  parseOutputJsonFile,
-} from './parseFile';
+import { parseOpossumFile } from './parseFile';
 import {
   addTrailingSlashIfAbsent,
   deserializeAttributions,
@@ -57,10 +49,6 @@ type LoadFileResult = LoadFileSuccess | LoadFileError;
 export type LoadFileIpcResult =
   Omit<LoadFileSuccess, 'opossumZip'> | LoadFileError;
 
-export interface LoadFileGlobalState {
-  inputFileChecksum?: string;
-}
-
 export type LoadFileProgressCallback = (
   message: string,
   level?: 'info' | 'warn',
@@ -84,7 +72,6 @@ function isParsingError(parsingResult: unknown): parsingResult is ParsingError {
 
 export async function loadFile(
   filePath: string,
-  globalState: LoadFileGlobalState,
   reportProgress: LoadFileProgressCallback = () => {},
 ): Promise<LoadFileResult> {
   if (!fs.existsSync(filePath)) {
@@ -97,29 +84,15 @@ export async function loadFile(
     };
   }
 
-  let parsedInputData: ParsedOpossumInputFile;
-  let parsedOutputData: ParsedOpossumOutputFile | null = null;
-  let opossumZip: AdmZip | undefined;
-  let readonlyRules: Array<ReadonlyRule> = [];
-
-  if (isOpossumFileFormat(filePath)) {
-    reportProgress(`Reading file ${filePath}`);
-    const parsingResult = await parseOpossumFile(filePath);
-    if (isParsingError(parsingResult)) {
-      return { ok: false, error: parsingResult };
-    }
-    parsedInputData = parsingResult.input;
-    parsedOutputData = parsingResult.output;
-    opossumZip = parsingResult.opossumZip;
-    readonlyRules = parsingResult.readonlyRules;
-  } else {
-    reportProgress('Parsing input file');
-    const parsingResult = await parseInputJsonFile(filePath);
-    if (isParsingError(parsingResult)) {
-      return { ok: false, error: parsingResult };
-    }
-    parsedInputData = parsingResult;
+  reportProgress(`Reading file ${filePath}`);
+  const parsingResult = await parseOpossumFile(filePath);
+  if (isParsingError(parsingResult)) {
+    return { ok: false, error: parsingResult };
   }
+  const parsedInputData = parsingResult.input;
+  let parsedOutputData: ParsedOpossumOutputFile | null = parsingResult.output;
+  const opossumZip = parsingResult.opossumZip;
+  const readonlyRules = parsingResult.readonlyRules;
 
   reportProgress('Deserializing signals');
   const unmergedExternalAttributions = deserializeAttributions(
@@ -159,22 +132,13 @@ export async function loadFile(
   // with saved output (e.g. trailing-slash handling for files-with-children).
   let createdOutputNeedsPersisting = false;
   if (parsedOutputData === null) {
-    const outputJsonPath = isOpossumFileFormat(filePath)
-      ? undefined
-      : getFilePathWithAppendix(filePath, '_attributions.json');
-
-    if (outputJsonPath !== undefined && fs.existsSync(outputJsonPath)) {
-      parsedOutputData = parseOutputJsonFile(outputJsonPath);
-    } else {
-      reportProgress('Creating output file');
-      parsedOutputData = createJsonOutputFile(
-        externalAttributions,
-        resourcesToExternalAttributions,
-        parsedInputData.metadata.projectId,
-        globalState.inputFileChecksum,
-      );
-      createdOutputNeedsPersisting = true;
-    }
+    reportProgress('Creating output file');
+    parsedOutputData = createOpossumOutputFile(
+      externalAttributions,
+      resourcesToExternalAttributions,
+      parsedInputData.metadata.projectId,
+    );
+    createdOutputNeedsPersisting = true;
   }
 
   const filesWithChildrenSet = new Set(
@@ -226,20 +190,11 @@ export async function loadFile(
   if (createdOutputNeedsPersisting) {
     reportProgress('Writing output file');
     await saveFile(
-      isOpossumFileFormat(filePath)
-        ? {
-            projectId: parsedInputData.metadata.projectId,
-            opossumFilePath: filePath,
-          }
-        : {
-            projectId: parsedInputData.metadata.projectId,
-            inputFileChecksum: globalState.inputFileChecksum,
-            attributionFilePath: getFilePathWithAppendix(
-              filePath,
-              '_attributions.json',
-            ),
-          },
-      opossumZip ?? new AdmZip(),
+      {
+        projectId: parsedInputData.metadata.projectId,
+        opossumFilePath: filePath,
+      },
+      opossumZip,
     );
   }
 
@@ -251,11 +206,10 @@ export async function loadFile(
   };
 }
 
-function createJsonOutputFile(
+function createOpossumOutputFile(
   externalAttributions: Attributions,
   resourcesToExternalAttributions: ResourcesToAttributions,
   projectId: string,
-  inputFileMD5Checksum?: string,
 ): OpossumOutputFile {
   const externalAttributionsCopy = cloneDeep(externalAttributions);
 
@@ -298,7 +252,6 @@ function createJsonOutputFile(
     metadata: {
       projectId,
       fileCreationDate: String(Date.now()),
-      inputFileMD5Checksum,
     },
     manualAttributions: serializeAttributions(manualAttributions),
     resourcesToAttributions,
