@@ -3,12 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
-import fs from 'fs';
 import { type Options, Validator } from 'jsonschema';
 import { Readable } from 'stream';
 import parser from 'stream-json';
 import Asm, { type Assembler } from 'stream-json/assembler.js';
-import zlib from 'zlib';
 
 import type { ReadonlyRule } from '../../shared/shared-types';
 import {
@@ -131,44 +129,9 @@ function parseReadonlyRules(content: string): Array<ReadonlyRule> {
   return parsedContent.readonlyRules as Array<ReadonlyRule>;
 }
 
-export async function parseInputJsonFile(
-  resourceFilePath: fs.PathLike,
-): Promise<ParsedOpossumInputFile | JsonParsingError> {
-  try {
-    const data = await parseJsonStream<ParsedOpossumInputFile>(
-      openInputJsonFileStream(resourceFilePath),
-    );
-    jsonSchemaValidator.validate(
-      data,
-      OpossumInputFileSchema,
-      validationOptions,
-    );
-    return data;
-  } catch (err) {
-    return {
-      message: `Error: ${resourceFilePath.toString()} is not a valid input file.\n${err?.toString()}`,
-      type: 'jsonParsingError',
-    } satisfies JsonParsingError;
-  }
-}
-
-export function parseOutputJsonFile(
-  attributionFilePath: fs.PathLike,
-): ParsedOpossumOutputFile {
-  const content = fs.readFileSync(attributionFilePath, 'utf-8');
-  return parseOutputJsonContent(content, attributionFilePath);
-}
-
-function openInputJsonFileStream(filePath: fs.PathLike) {
-  const fileStream = fs.createReadStream(filePath);
-  return filePath.toString().endsWith('.json.gz')
-    ? fileStream.pipe(zlib.createGunzip())
-    : fileStream;
-}
-
 function parseOutputJsonContent(
   fileContent: string,
-  filePath: fs.PathLike,
+  filePath: string,
 ): ParsedOpossumOutputFile {
   try {
     const jsonContent = JSON.parse(fileContent);

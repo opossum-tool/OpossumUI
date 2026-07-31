@@ -17,7 +17,7 @@ import type {
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
 } from '../../ElectronBackend/types/types';
-import { writeFile, writeOpossumFile } from '../../shared/write-file';
+import { writeOpossumFile } from '../../shared/write-file';
 import { AttributionDetails } from '../page-objects/AttributionDetails';
 import { AttributionsPanel } from '../page-objects/AttributionsPanel';
 import { ConfirmationDialog } from '../page-objects/ConfirmationDialog';
@@ -284,10 +284,7 @@ async function createTestFiles({
   data: OpossumData;
   filePaths: FilePaths;
 }): Promise<string> {
-  await writeFile({
-    path: json,
-    content: inputData,
-  });
+  await fs.promises.writeFile(json, JSON.stringify(inputData));
   await writeOpossumFile({
     input: inputData,
     path: opossum,

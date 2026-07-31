@@ -52,7 +52,6 @@ export async function loadInputAndOutputFromFilePath(
   const globalState = getGlobalBackendState();
   const result = await getMainDbClient().loadFile(
     filePath,
-    { inputFileChecksum: globalState.inputFileChecksum },
     (message, level) => {
       if (level === 'warn') {
         processingStatusUpdater.warn(message);

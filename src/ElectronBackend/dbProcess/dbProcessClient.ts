@@ -13,7 +13,7 @@ import type {
 } from '../api/commands';
 import type { SaveFileParams } from '../api/saveFile';
 import type { SplitOpossumFileParams } from '../api/splitOpossumFile';
-import type { LoadFileGlobalState, LoadFileIpcResult } from '../input/loadFile';
+import type { LoadFileIpcResult } from '../input/loadFile';
 import type {
   DbProcessPayload,
   DbProcessRequest,
@@ -109,11 +109,10 @@ export class DbProcessClient {
 
   loadFile(
     filePath: string,
-    globalState: LoadFileGlobalState,
     onProgress?: ProgressCallback,
   ): Promise<LoadFileIpcResult> {
     return this.request(
-      { type: 'loadFile', filePath, globalState },
+      { type: 'loadFile', filePath },
       { onProgress },
     ) as Promise<LoadFileIpcResult>;
   }
