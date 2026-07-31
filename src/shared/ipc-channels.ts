@@ -7,11 +7,10 @@
 export enum IpcChannel {
   OpenFile = 'open-file',
   SelectFile = 'select-file',
-  ImportFileSelectSaveLocation = 'import-file-select-save-location',
+  SelectFiles = 'select-files',
+  SelectSaveFile = 'select-save-file',
   ImportFileConvertAndLoad = 'import-file-convert-and-load',
   MergeFileAndLoad = 'merge-file-and-load',
-  SelectOpossumFiles = 'select-opossum-files',
-  SelectOpossumFileSaveLocation = 'select-opossum-file-save-location',
   SelectSplitDestination = 'select-split-destination',
   SplitFile = 'split-file',
   MergeOpossumFiles = 'merge-opossum-files',

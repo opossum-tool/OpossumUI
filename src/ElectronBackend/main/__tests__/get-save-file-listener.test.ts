@@ -8,7 +8,7 @@ import type { Mock } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { getMainDbClient } from '../../dbProcess/dbProcessClient';
-import { saveOpossumFileDialog } from '../dialogs';
+import { selectSaveFile } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   mergeCurrentOpossumFilesListener,
@@ -41,7 +41,7 @@ vi.mock('../../dbProcess/dbProcessClient', () => ({
 }));
 
 vi.mock('../dialogs', () => ({
-  saveOpossumFileDialog: vi.fn(),
+  selectSaveFile: vi.fn(),
 }));
 
 const mockSaveFile = vi.fn();
@@ -195,7 +195,7 @@ describe('splitCurrentOpossumFileListener', () => {
   });
 
   it('opens a save dialog with a derived default split destination', () => {
-    vi.mocked(saveOpossumFileDialog).mockReturnValue(
+    vi.mocked(selectSaveFile).mockReturnValue(
       '/partitions/source-partition.opossum',
     );
 
@@ -204,9 +204,10 @@ describe('splitCurrentOpossumFileListener', () => {
       ['/source'],
     );
 
-    expect(saveOpossumFileDialog).toHaveBeenCalledWith(
-      '/my/file-source.opossum',
-    );
+    expect(selectSaveFile).toHaveBeenCalledWith({
+      defaultPath: '/my/file-source.opossum',
+      filter: { extensions: ['opossum'], name: 'Opossum File' },
+    });
     expect(selectedPath).toBe('/partitions/source-partition.opossum');
   });
 });

@@ -62,8 +62,9 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
       defaultPath = derivedPath;
     }
 
-    const filePath =
-      await window.electronAPI.importFileSelectSaveLocation(defaultPath);
+    const filePath = await window.electronAPI.selectSaveFile({
+      defaultPath,
+    });
 
     if (filePath) {
       setOpossumFilePath(filePath);

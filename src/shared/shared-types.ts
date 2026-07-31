@@ -238,10 +238,23 @@ export enum FileType {
   OWASP_JSON,
 }
 
-export interface FileFormatInfo {
-  fileType: FileType;
+export interface FileFilter {
   name: string;
   extensions: Array<string>;
+}
+
+export const OPOSSUM_FILE_FORMAT: FileFilter = {
+  name: 'Opossum File',
+  extensions: ['opossum'],
+};
+
+export interface FileFormatInfo extends FileFilter {
+  fileType: FileType;
+}
+
+export interface SelectSaveFileOptions {
+  defaultPath: string;
+  filter?: FileFilter;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -252,8 +265,9 @@ export interface ElectronAPI {
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: (filePath?: string) => Promise<unknown>;
-  selectFile: (fileFormat: FileFormatInfo) => Promise<string>;
-  importFileSelectSaveLocation: (defaultPath: string) => Promise<string>;
+  selectFile: (fileFilter: FileFilter) => Promise<string>;
+  selectFiles: (fileFilter: FileFilter) => Promise<Array<string>>;
+  selectSaveFile: (options: SelectSaveFileOptions) => Promise<string>;
   importFileConvertAndLoad: (
     inputFilePath: string,
     fileType: FileType,
@@ -263,8 +277,6 @@ export interface ElectronAPI {
     inputFilePath: string,
     fileType: FileType,
   ) => Promise<boolean>;
-  selectOpossumFiles: () => Promise<Array<string>>;
-  selectOpossumFileSaveLocation: (defaultPath: string) => Promise<string>;
   selectSplitDestination: (splitPaths: Array<string>) => Promise<string>;
   splitFile: (
     splitPaths: Array<string>,

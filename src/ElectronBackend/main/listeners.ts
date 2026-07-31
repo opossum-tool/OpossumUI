@@ -12,9 +12,12 @@ import upath from 'upath';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   ExportType,
+  type FileFilter,
   type FileFormatInfo,
   type FileType,
   type OpenLinkArgs,
+  OPOSSUM_FILE_FORMAT,
+  type SelectSaveFileOptions,
   type SplitFileResult,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
@@ -31,12 +34,11 @@ import {
 import type { GlobalBackendState } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import {
-  openNonOpossumFileDialog,
   openOpossumFileDialog,
-  openOpossumFilesDialog,
-  saveFileDialog,
-  saveOpossumFileDialog,
   selectBaseURLDialog,
+  selectFile,
+  selectFiles,
+  selectSaveFile,
 } from './dialogs';
 import {
   getGlobalBackendState,
@@ -162,7 +164,12 @@ export const selectSplitDestinationListener =
       parsedPath.dir,
       `${parsedPath.name}-${partitionSuffix}${parsedPath.ext}`,
     );
-    return saveOpossumFileDialog(partitionPath) ?? '';
+    return (
+      selectSaveFile({
+        defaultPath: partitionPath,
+        filter: OPOSSUM_FILE_FORMAT,
+      }) ?? ''
+    );
   };
 
 function getExportFilePath(exportType: ExportType): string {
@@ -253,55 +260,44 @@ export const selectFileListener =
   (mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,
-    fileFormat: FileFormatInfo,
+    fileFilter: FileFilter,
   ): Promise<string> => {
     try {
-      const filePaths = openNonOpossumFileDialog(fileFormat);
+      const filePaths = selectFile(fileFilter);
 
       // NOTE: explicitly checking filePaths.length creates issues in e2e tests
       // because the mocked return value of the dialog is not an array but rather
       // and object with number indices for some reason, so filePaths.length is
       // undefined in e2e tests
-      return filePaths?.[0] || '';
+      return filePaths?.[0] ?? '';
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
       return '';
     }
   };
 
-export const selectOpossumFilesListener =
+export const selectFilesListener =
   (mainWindow: BrowserWindow) =>
-  async (_: Electron.IpcMainInvokeEvent): Promise<Array<string>> => {
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    fileFilter: FileFilter,
+  ): Promise<Array<string>> => {
     try {
-      return openOpossumFilesDialog() ?? [];
+      return selectFiles(fileFilter) ?? [];
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
       return [];
     }
   };
 
-export const selectOpossumFileSaveLocationListener =
+export const selectSaveFileListener =
   (mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,
-    defaultPath: string,
+    options: SelectSaveFileOptions,
   ): Promise<string> => {
     try {
-      return saveOpossumFileDialog(defaultPath) ?? '';
-    } catch (error) {
-      await showListenerErrorInMessageBox(mainWindow, error);
-      return '';
-    }
-  };
-
-export const importFileSelectSaveLocationListener =
-  (mainWindow: BrowserWindow) =>
-  async (
-    _: Electron.IpcMainInvokeEvent,
-    defaultPath: string,
-  ): Promise<string> => {
-    try {
-      return saveFileDialog(defaultPath) ?? '';
+      return selectSaveFile(options) ?? '';
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
       return '';
