@@ -5,6 +5,7 @@
 import type {
   Attributions,
   AttributionsToResources,
+  ReadonlyRule,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import {
@@ -116,6 +117,20 @@ describe('removeRedundantAttributions', () => {
       expectedResourcesToAttributions: {
         '/first': ['uuid1'],
         '/first/second': ['uuid2'],
+      },
+    },
+
+    {
+      name: 'does not delete attributions from readonly descendants',
+      resourcesToAttributions: {
+        '/first': ['uuid1'],
+        '/first/second': ['uuid1'],
+      },
+      readonlyRules: [{ path: '/first/second', readonly: true }],
+      onResourcePath: '/first',
+      expectedResourcesToAttributions: {
+        '/first': ['uuid1'],
+        '/first/second': ['uuid1'],
       },
     },
 
@@ -251,12 +266,14 @@ describe('removeRedundantAttributions', () => {
     name: string;
     resourcesToAttributions: Record<string, Array<string>>;
     attributionBreakpoints?: Array<string>;
+    readonlyRules?: Array<ReadonlyRule>;
     onResourcePath: string;
     expectedResourcesToAttributions: Record<string, Array<string>>;
   }>)('$name', async (props) => {
     await setupDb({
       resourcePathsToAttributionUuids: props.resourcesToAttributions,
       attributionBreakpoints: props.attributionBreakpoints,
+      readonlyRules: props.readonlyRules,
     });
 
     const resourceId = await getResourceId(props.onResourcePath);
@@ -283,6 +300,7 @@ async function getResourceId(path: string): Promise<number> {
 async function setupDb(props: {
   resourcePathsToAttributionUuids: Record<string, Array<string>>;
   attributionBreakpoints?: Array<string>;
+  readonlyRules?: Array<ReadonlyRule>;
 }) {
   const resources = pathsToResources(
     Object.keys(props.resourcePathsToAttributionUuids),
@@ -317,6 +335,7 @@ async function setupDb(props: {
       attributionsToResources,
     },
     attributionBreakpoints: new Set(props.attributionBreakpoints ?? []),
+    readonlyRules: props.readonlyRules,
   });
 }
 

@@ -93,6 +93,7 @@ export async function removeRedundantAttributions(
           'resource.parent_id',
           'closest_attributed_ancestors.resource_id',
         )
+        .where('resource.is_readonly', '=', 0)
         .where('is_attribution_breakpoint', '=', 0)
         .where(additional_selection)
         .where(
@@ -626,6 +627,8 @@ export async function cloneMixedAttributionsForWritableResources(
     return {};
   }
 
+  await ensureManualAttributionsAreNotReadonly(trx, attributionUuids);
+
   const mixedAttributions = await trx
     .selectFrom('attribution')
     .select(['uuid', 'data', 'is_external', 'is_resolved'])
@@ -798,6 +801,27 @@ export async function ensureAttributionsAreNotExternal(
   if (externalAttributions.length > 0) {
     throw new Error(
       `Attributions with uuids ${attributionUuids.join(', ')} are external`,
+    );
+  }
+}
+
+async function ensureManualAttributionsAreNotReadonly(
+  trx: Transaction<DB>,
+  attributionUuids: Array<string>,
+) {
+  const readonlyAttributions = (
+    await trx
+      .selectFrom('attribution')
+      .select('uuid')
+      .where('uuid', 'in', attributionUuids)
+      .where('is_external', '=', 0)
+      .where('resource_access', '=', AttributionResourceAccess.Readonly)
+      .execute()
+  ).map((attribution) => attribution.uuid);
+
+  if (readonlyAttributions.length > 0) {
+    throw new Error(
+      `Readonly attributions can't be modified: ${readonlyAttributions.join(', ')}`,
     );
   }
 }

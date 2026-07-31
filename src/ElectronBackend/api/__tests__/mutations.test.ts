@@ -308,3 +308,70 @@ describe('mixed attribution mutations', () => {
     );
   });
 });
+
+describe('readonly-only attribution mutations', () => {
+  async function initializeReadonlyAttribution() {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/readonly/file.ts']),
+      manualAttributions: {
+        attributions: {
+          readonly: { id: 'readonly', criticality: Criticality.None },
+          replacement: { id: 'replacement', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/readonly/file.ts': ['readonly'],
+        },
+        attributionsToResources: {},
+      },
+      readonlyRules: [{ path: '/readonly', readonly: true }],
+    });
+  }
+
+  it.each([
+    {
+      name: 'deleting',
+      mutate: () =>
+        mutations.deleteAttributions({ attributionUuids: ['readonly'] }),
+    },
+    {
+      name: 'replacing',
+      mutate: () =>
+        mutations.replaceAttributions({
+          attributionUuidsToReplace: ['readonly'],
+          attributionUuidToReplaceWith: 'replacement',
+        }),
+    },
+    {
+      name: 'updating',
+      mutate: () =>
+        mutations.updateAttributions({
+          attributions: {
+            readonly: {
+              id: 'readonly',
+              criticality: Criticality.None,
+              packageName: 'updated',
+            },
+          },
+        }),
+    },
+    {
+      name: 'update-or-matching',
+      mutate: () =>
+        mutations.updateOrMatchAttributions({
+          attributions: {
+            readonly: {
+              id: 'readonly',
+              criticality: Criticality.None,
+              packageName: 'updated',
+            },
+          },
+        }),
+    },
+  ])('rejects $name a readonly-only attribution', async ({ mutate }) => {
+    await initializeReadonlyAttribution();
+
+    await expect(mutate()).rejects.toThrow(
+      /readonly attributions can't be modified/i,
+    );
+  });
+});
