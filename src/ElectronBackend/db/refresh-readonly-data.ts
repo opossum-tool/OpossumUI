@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql } from 'kysely';
-
 import { getDb } from './db';
 import {
   initializeAttributionResourceAccess,
@@ -14,37 +12,71 @@ export async function refreshReadonlyData() {
   await getDb()
     .transaction()
     .execute(async (trx) => {
-      await sql`
-        WITH RECURSIVE resource_readonly(id, is_readonly) AS (
-          SELECT r.id, COALESCE(rule.readonly, 0)
-          FROM resource AS r
-          LEFT JOIN readonly_rule AS rule ON rule.path = '/'
-          WHERE r.path = ''
-
-          UNION ALL
-
-          SELECT child.id, COALESCE(rule.readonly, parent.is_readonly)
-          FROM resource AS child
-          INNER JOIN resource_readonly AS parent ON parent.id = child.parent_id
-          LEFT JOIN readonly_rule AS rule ON rule.path = child.path
+      await trx
+        .withRecursive('resource_readonly', (eb) =>
+          eb
+            .selectFrom('resource as r')
+            .leftJoin('readonly_rule as rule', (join) =>
+              join.on((eb) => eb('rule.path', '=', '/')),
+            )
+            .select([
+              'r.id',
+              (eb) =>
+                eb.fn.coalesce('rule.readonly', eb.lit(0)).as('is_readonly'),
+            ])
+            .where('r.path', '=', '')
+            .unionAll((eb) =>
+              eb
+                .selectFrom('resource as child')
+                .innerJoin(
+                  'resource_readonly as parent',
+                  'parent.id',
+                  'child.parent_id',
+                )
+                .leftJoin('readonly_rule as rule', 'rule.path', 'child.path')
+                .select([
+                  'child.id',
+                  (eb) =>
+                    eb.fn
+                      .coalesce('rule.readonly', 'parent.is_readonly')
+                      .as('is_readonly'),
+                ]),
+            ),
         )
-        UPDATE resource
-        SET is_readonly = (
-          SELECT is_readonly
-          FROM resource_readonly
-          WHERE resource_readonly.id = resource.id
-        )
-      `.execute(trx);
+        .updateTable('resource')
+        .set((eb) => ({
+          is_readonly: eb
+            .selectFrom('resource_readonly')
+            .select('is_readonly')
+            .whereRef('resource_readonly.id', '=', 'resource.id'),
+        }))
+        .execute();
 
-      await sql`
-        UPDATE resource AS parent
-        SET has_editable_descendant = EXISTS (
-          SELECT 1
-          FROM resource AS descendant
-          WHERE descendant.id BETWEEN parent.id AND parent.max_descendant_id
-            AND descendant.is_readonly = 0
-        )
-      `.execute(trx);
+      await trx
+        .updateTable('resource as parent')
+        .set((eb) => ({
+          has_editable_descendant: eb
+            .case()
+            .when(
+              eb.exists(
+                eb
+                  .selectFrom('resource as descendant')
+                  .select('descendant.id')
+                  .where((eb) =>
+                    eb.between(
+                      'descendant.id',
+                      eb.ref('parent.id'),
+                      eb.ref('parent.max_descendant_id'),
+                    ),
+                  )
+                  .where('descendant.is_readonly', '=', 0),
+              ),
+            )
+            .then(1)
+            .else(0)
+            .end(),
+        }))
+        .execute();
 
       await trx.schema.dropTable('closest_attributed_ancestors').execute();
       await initializeClosestAttributedAncestorsTable(trx);
