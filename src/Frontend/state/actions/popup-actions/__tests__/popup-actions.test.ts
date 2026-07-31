@@ -65,6 +65,7 @@ import {
   changeAttributionFiltersOrOpenUnsavedPopup,
   changeSelectedAttributionOrOpenUnsavedPopup,
   closePopupAndUnsetTargets,
+  mergeOpossumFilesIntoCurrentFile,
   navigateToSelectedPathOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
   proceedFromUnsavedPopup,
@@ -72,6 +73,29 @@ import {
   setViewOrOpenUnsavedPopup,
   showSplitDialogOrOpenUnsavedPopup,
 } from '../popup-actions';
+
+describe('mergeOpossumFilesIntoCurrentFile', () => {
+  it('merges partitions and resets the resource selection', async () => {
+    const partitionPaths = [
+      '/partitions/first.opossum',
+      '/partitions/second.opossum',
+    ];
+    const testStore = createAppStore();
+    testStore.dispatch(setSelectedResourceId('/selected-resource'));
+    testStore.dispatch(setSelectedAttributionId('selected-attribution'));
+
+    await testStore.dispatch(
+      mergeOpossumFilesIntoCurrentFile(partitionPaths, false),
+    );
+
+    expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith(
+      partitionPaths,
+      false,
+    );
+    expect(getSelectedResourceId(testStore.getState())).toBe('/');
+    expect(getSelectedAttributionId(testStore.getState())).toBe('');
+  });
+});
 
 describe('The actions checking for unsaved changes', () => {
   describe('changeAttributionFiltersOrOpenUnsavedPopup', () => {

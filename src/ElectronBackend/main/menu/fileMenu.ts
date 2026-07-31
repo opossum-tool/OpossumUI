@@ -150,6 +150,43 @@ function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   };
 }
 
+function getMergeSplitFiles(
+  webContents: WebContents,
+): Array<MenuItemConstructorOptions> {
+  const globalBackendState = getGlobalBackendState();
+  const enabled = !globalBackendState.frontendPopupOpen;
+
+  return [
+    {
+      icon: getIconBasedOnTheme(
+        'icons/merge-white.png',
+        'icons/merge-black.png',
+      ),
+      label: text.menu.fileSubmenu.mergeSplitFilesIntoCurrentFile,
+      click: () =>
+        webContents.send(
+          AllowedFrontendChannels.ShowMergeOpossumFilesDialog,
+          true,
+          globalBackendState.opossumFilePath,
+        ),
+      enabled: isFileLoaded(globalBackendState) && enabled,
+    },
+    {
+      icon: getIconBasedOnTheme(
+        'icons/merge-white.png',
+        'icons/merge-black.png',
+      ),
+      label: text.menu.fileSubmenu.mergeOpossumFiles,
+      click: () =>
+        webContents.send(
+          AllowedFrontendChannels.ShowMergeOpossumFilesDialog,
+          false,
+        ),
+      enabled,
+    },
+  ];
+}
+
 function getSaveFile(webContents: WebContents): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/save-white.png', 'icons/save-black.png'),
@@ -355,6 +392,7 @@ export async function getFileMenu(
       await getOpenRecent(mainWindow, updateMenu),
       getImportFile(mainWindow),
       getMerge(mainWindow),
+      ...getMergeSplitFiles(webContents),
       getSaveFile(webContents),
       getSplit(webContents),
       getExportSubMenu(webContents),

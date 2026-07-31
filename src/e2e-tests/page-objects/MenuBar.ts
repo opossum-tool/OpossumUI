@@ -246,6 +246,35 @@ export class MenuBar {
     );
   }
 
+  async mergeSplitFilesIntoCurrentFile(): Promise<void> {
+    await this.clickMenuItemAfterMenuUpdate(
+      text.menu.fileSubmenu.mergeSplitFilesIntoCurrentFile,
+    );
+  }
+
+  async mergeSplitOpossumFiles(): Promise<void> {
+    await this.clickMenuItemAfterMenuUpdate(
+      text.menu.fileSubmenu.mergeOpossumFiles,
+    );
+  }
+
+  private async clickMenuItemAfterMenuUpdate(label: string): Promise<void> {
+    await this.assertMenuItemEnabledState(label, true);
+    try {
+      await this.clickMenuItem(label);
+    } catch (error) {
+      if (
+        !(error instanceof Error) ||
+        !error.message.includes('Menu item with commandId')
+      ) {
+        throw error;
+      }
+
+      await this.assertMenuItemEnabledState(label, true);
+      await this.clickMenuItem(label);
+    }
+  }
+
   async exportFollowUp(): Promise<void> {
     await this.clickMenuItem(text.menu.fileSubmenu.exportSubmenu.followUp);
   }

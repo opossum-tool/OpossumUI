@@ -1,0 +1,38 @@
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+import { expect, type Locator, type Page } from '@playwright/test';
+
+export class MergeOpossumFilesDialog {
+  private readonly node: Locator;
+  readonly inputFileSelection: Locator;
+  readonly outputFileSelection: Locator;
+  readonly mergeButton: Locator;
+
+  constructor(window: Page) {
+    this.node = window.getByLabel('merge split Opossum files dialog');
+    this.inputFileSelection = window.getByTestId(
+      'merge-opossum-files-input-paths',
+    );
+    this.outputFileSelection = window.getByTestId(
+      'merge-opossum-files-output-path',
+    );
+    this.mergeButton = this.node.getByRole('button', {
+      name: 'Merge',
+      exact: true,
+    });
+  }
+
+  public assert = {
+    isVisible: async (): Promise<void> => {
+      await expect(this.node).toBeVisible();
+    },
+    isHidden: async (): Promise<void> => {
+      await expect(this.node).toBeHidden({ timeout: 30000 });
+    },
+    inputFileIsVisible: async (filePath: string): Promise<void> => {
+      await expect(this.node.getByText(filePath)).toBeVisible();
+    },
+  };
+}

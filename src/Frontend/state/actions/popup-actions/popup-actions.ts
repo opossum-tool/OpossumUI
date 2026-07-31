@@ -27,6 +27,7 @@ import {
 import type { AppThunkAction } from '../../types';
 import type { AttributionFilters } from '../../variables/use-filters';
 import {
+  resetResourceState,
   setIsPackageInfoDirty,
   setTemporaryDisplayPackageInfo,
 } from '../resource-actions/all-views-simple-actions';
@@ -214,6 +215,20 @@ export function createSplit(
       await invalidateBackendQueries();
     }
     return result;
+  };
+}
+
+export function mergeOpossumFilesIntoCurrentFile(
+  partitionPaths: Array<string>,
+  ignoreReadonlyResourceOutputConflicts: boolean,
+): AppThunkAction<Promise<void>> {
+  return async (dispatch) => {
+    await window.electronAPI.mergeOpossumFiles(
+      partitionPaths,
+      ignoreReadonlyResourceOutputConflicts,
+    );
+    dispatch(resetResourceState());
+    await invalidateBackendQueries();
   };
 }
 

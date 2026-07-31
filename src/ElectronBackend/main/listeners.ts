@@ -33,6 +33,7 @@ import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import {
   openNonOpossumFileDialog,
   openOpossumFileDialog,
+  openOpossumFilesDialog,
   saveFileDialog,
   saveOpossumFileDialog,
   selectBaseURLDialog,
@@ -262,6 +263,31 @@ export const selectFileListener =
       // and object with number indices for some reason, so filePaths.length is
       // undefined in e2e tests
       return filePaths?.[0] || '';
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
+      return '';
+    }
+  };
+
+export const selectOpossumFilesListener =
+  (mainWindow: BrowserWindow) =>
+  async (_: Electron.IpcMainInvokeEvent): Promise<Array<string>> => {
+    try {
+      return openOpossumFilesDialog() ?? [];
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
+      return [];
+    }
+  };
+
+export const selectOpossumFileSaveLocationListener =
+  (mainWindow: BrowserWindow) =>
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    defaultPath: string,
+  ): Promise<string> => {
+    try {
+      return saveOpossumFileDialog(defaultPath) ?? '';
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
       return '';

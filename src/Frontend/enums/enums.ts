@@ -17,6 +17,7 @@ export enum PopupType {
   UpdateAppPopup = 'UpdateAppPopup',
   ImportDialog = 'ImportDialog',
   MergeDialog = 'MergeDialog',
+  MergeOpossumFilesDialog = 'MergeOpossumFilesDialog',
   SplitDialog = 'SplitDialog',
 }
 

@@ -11,6 +11,7 @@ import { useFrontendPopupOpen } from '../../util/use-app-menu-disabled';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
 import { ImportDialog } from '../ImportDialog/ImportDialog';
 import { MergeDialog } from '../MergeDialog/MergeDialog';
+import { MergeOpossumFilesDialog } from '../MergeOpossumFilesDialog/MergeOpossumFilesDialog';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
@@ -33,6 +34,13 @@ function getPopupComponent(popupInfo: PopupInfo | null) {
       return <ImportDialog fileFormat={popupInfo.fileFormat} />;
     case PopupType.MergeDialog:
       return <MergeDialog fileFormat={popupInfo.fileFormat} />;
+    case PopupType.MergeOpossumFilesDialog:
+      return (
+        <MergeOpossumFilesDialog
+          mergeIntoCurrentFile={popupInfo.mergeIntoCurrentFile}
+          currentFilePath={popupInfo.currentFilePath}
+        />
+      );
     case PopupType.SplitDialog:
       return <SplitDialogPopup resourcePath={popupInfo.resourcePath} />;
     default:
