@@ -113,6 +113,20 @@ export function openMergeDialog(fileFormat: FileFormatInfo): OpenPopupAction {
   };
 }
 
+export function openMergeOpossumFilesDialog(
+  mergeIntoCurrentFile: boolean,
+  currentFilePath?: string,
+): OpenPopupAction {
+  return {
+    type: ACTION_OPEN_POPUP,
+    payload: {
+      popup: PopupType.MergeOpossumFilesDialog,
+      mergeIntoCurrentFile,
+      currentFilePath,
+    },
+  };
+}
+
 export function openSplitDialog(resourcePath?: string): OpenPopupAction {
   return {
     type: ACTION_OPEN_POPUP,

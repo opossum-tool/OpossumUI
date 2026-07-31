@@ -37,6 +37,13 @@ export function openOpossumFileDialog(): Array<string> | undefined {
   });
 }
 
+export function openOpossumFilesDialog(): Array<string> | undefined {
+  return showOpenDialog({
+    properties: ['openFile', 'multiSelections'],
+    filters: [OPOSSUM_FILE_FILTER],
+  });
+}
+
 export function openNonOpossumFileDialog(
   fileFormat: FileFormatInfo,
 ): Array<string> | undefined {

@@ -19,6 +19,8 @@ export const text = {
       importSubmenu: menuLabelForFileFormat,
       merge: 'Merge',
       mergeSubmenu: menuLabelForFileFormat,
+      mergeSplitFilesIntoCurrentFile: 'Merge split files into current file…',
+      mergeOpossumFiles: 'Merge split Opossum files…',
       split: 'Split…',
       save: 'Save',
       projectMetadata: 'Project Metadata',
@@ -416,6 +418,26 @@ export const text = {
         hasBeenSelected
           ? `File to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
           : `Select file to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+    },
+  },
+  mergeOpossumFilesDialog: {
+    title: (mergeIntoCurrentFile: boolean) =>
+      mergeIntoCurrentFile
+        ? 'Merge split files into current file'
+        : 'Merge split Opossum files',
+    explanationText: (mergeIntoCurrentFile: boolean) =>
+      mergeIntoCurrentFile
+        ? 'Select the split Opossum files to merge into the currently open file.'
+        : 'Select split Opossum files and an output location to merge them.',
+    filesToMerge: 'Files to merge',
+    currentFile: 'Current file',
+    addSplitFiles: 'Add split files…',
+    removeSplitFile: (filePath: string) => `Remove ${filePath}`,
+    outputFilePath: {
+      textFieldLabel: (hasBeenSelected: boolean) =>
+        hasBeenSelected
+          ? 'Merged Opossum file location'
+          : 'Select merged Opossum file location',
     },
   },
   splitDialog: {

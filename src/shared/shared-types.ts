@@ -263,6 +263,8 @@ export interface ElectronAPI {
     inputFilePath: string,
     fileType: FileType,
   ) => Promise<boolean>;
+  selectOpossumFiles: () => Promise<Array<string>>;
+  selectOpossumFileSaveLocation: (defaultPath: string) => Promise<string>;
   selectSplitDestination: (splitPaths: Array<string>) => Promise<string>;
   splitFile: (
     splitPaths: Array<string>,

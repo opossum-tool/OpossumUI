@@ -18,6 +18,8 @@ import {
   openLinkListener,
   saveFileListener,
   selectFileListener,
+  selectOpossumFileSaveLocationListener,
+  selectOpossumFilesListener,
   selectSplitDestinationListener,
   splitCurrentOpossumFileListener,
 } from './listeners';
@@ -36,6 +38,14 @@ export function setupIpcHandling(
   });
   ipcMain.handle(IpcChannel.OpenFile, openFileListener(window, updateMenu));
   ipcMain.handle(IpcChannel.SelectFile, selectFileListener(window));
+  ipcMain.handle(
+    IpcChannel.SelectOpossumFiles,
+    selectOpossumFilesListener(window),
+  );
+  ipcMain.handle(
+    IpcChannel.SelectOpossumFileSaveLocation,
+    selectOpossumFileSaveLocationListener(window),
+  );
   ipcMain.handle(
     IpcChannel.ImportFileSelectSaveLocation,
     importFileSelectSaveLocationListener(window),

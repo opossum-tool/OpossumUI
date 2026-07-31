@@ -53,6 +53,12 @@ export type ShowMergeDialogListener = (
   fileFormat: FileFormatInfo,
 ) => void;
 
+export type ShowMergeOpossumFilesDialogListener = (
+  event: IpcRendererEvent,
+  mergeIntoCurrentFile: boolean,
+  currentFilePath?: string,
+) => void;
+
 export type ShowSplitDialog = (event: IpcRendererEvent) => void;
 
 export type OpenFileListener = (
@@ -80,6 +86,7 @@ type Listener =
   | ShowImportDialogListener
   | ProcessingStateChangedListener
   | ShowMergeDialogListener
+  | ShowMergeOpossumFilesDialogListener
   | ShowSplitDialog
   | UserSettingsChangedListener
   | SetDatabaseInitializedListener;

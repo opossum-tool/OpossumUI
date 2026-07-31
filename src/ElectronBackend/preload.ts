@@ -49,6 +49,9 @@ const electronAPI: ElectronAPI = {
     ),
   mergeFileAndLoad: (inputFilePath, fileType) =>
     ipcRenderer.invoke(IpcChannel.MergeFileAndLoad, inputFilePath, fileType),
+  selectOpossumFiles: () => ipcRenderer.invoke(IpcChannel.SelectOpossumFiles),
+  selectOpossumFileSaveLocation: (defaultPath) =>
+    ipcRenderer.invoke(IpcChannel.SelectOpossumFileSaveLocation, defaultPath),
   selectSplitDestination: (splitPath) =>
     ipcRenderer.invoke(IpcChannel.SelectSplitDestination, splitPath),
   splitFile: (splitPaths, splitOpossumFilePath) =>
