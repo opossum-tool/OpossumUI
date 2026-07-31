@@ -63,7 +63,6 @@ const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<QueryInvalidationUnion> = [
 
 const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<QueryInvalidationUnion> = [
   { queryName: 'manualAttributionStatistics' },
-  { queryName: 'getManualAttributionOnResourceOrAncestor' },
   { queryName: 'resourceHasIncompleteManualAttributions' },
 ];
 

@@ -139,42 +139,6 @@ export const queries = {
       },
     };
   },
-
-  async getManualAttributionOnResourceOrAncestor(props: {
-    resourcePath: string;
-  }) {
-    const resource = await getResourceOrThrow(getDb(), props.resourcePath);
-
-    const manualAttributionOnResourceOrAncestor = await getDb()
-      .selectFrom('attribution')
-      .innerJoin(
-        'resource_to_attribution as rta',
-        'attribution.uuid',
-        'rta.attribution_uuid',
-      )
-      .innerJoin(
-        'closest_attributed_ancestors as caa',
-        'caa.manual',
-        'rta.resource_id',
-      )
-      .select('data')
-      .where('caa.resource_id', '=', resource.id)
-      .where('attribution_is_external', '=', 0)
-      .where('caa.manual_is_readonly', '=', 0)
-      .limit(1)
-      .executeTakeFirst();
-
-    if (manualAttributionOnResourceOrAncestor) {
-      return {
-        result: JSON.parse(
-          manualAttributionOnResourceOrAncestor.data,
-        ) as PackageInfo,
-      };
-    }
-
-    return { result: null };
-  },
-
   async autoCompleteOptions({
     attributeName,
   }: {

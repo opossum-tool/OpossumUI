@@ -799,33 +799,3 @@ describe('getProgressBarData', () => {
     }
   });
 });
-
-describe('getManualAttributionOnResourceOrAncestor', () => {
-  it('does not return a readonly ancestor attribution for a writable descendant', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/readonly-parent/writable/child.ts']),
-      manualAttributions: {
-        attributions: {
-          'readonly-parent-manual': {
-            id: 'readonly-parent-manual',
-            criticality: Criticality.None,
-          },
-        },
-        resourcesToAttributions: {
-          '/readonly-parent': ['readonly-parent-manual'],
-        },
-        attributionsToResources: {},
-      },
-      readonlyRules: [
-        { path: '/', readonly: true },
-        { path: '/readonly-parent/writable', readonly: false },
-      ],
-    });
-
-    const { result } = await queries.getManualAttributionOnResourceOrAncestor({
-      resourcePath: '/readonly-parent/writable/child.ts',
-    });
-
-    expect(result).toBeNull();
-  });
-});
