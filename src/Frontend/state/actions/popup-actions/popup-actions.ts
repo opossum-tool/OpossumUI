@@ -27,7 +27,6 @@ import {
 import type { AppThunkAction } from '../../types';
 import type { AttributionFilters } from '../../variables/use-filters';
 import {
-  resetResourceState,
   setIsPackageInfoDirty,
   setTemporaryDisplayPackageInfo,
 } from '../resource-actions/all-views-simple-actions';
@@ -206,13 +205,12 @@ export function createSplit(
   selectedResourcePaths: Array<string>,
   destinationPath: string,
 ): AppThunkAction<Promise<SplitFileResult>> {
-  return async (dispatch) => {
+  return async () => {
     const result = await window.electronAPI.splitFile(
       selectedResourcePaths,
       destinationPath,
     );
     if (result.status === 'success') {
-      dispatch(resetResourceState());
       await invalidateBackendQueries();
     }
     return result;

@@ -12,9 +12,10 @@ import { faker, stubOpenDialogSync, stubSaveDialogSync, test } from '../utils';
 const [
   firstDirectoryName,
   secondDirectoryName,
+  nestedDirectoryName,
   firstResourceName,
   secondResourceName,
-] = faker.opossum.resourceNames({ count: 4 });
+] = faker.opossum.resourceNames({ count: 5 });
 const firstResourcePath = faker.opossum.filePath(
   firstDirectoryName,
   firstResourceName,
@@ -26,7 +27,9 @@ test.use({
     inputData: faker.opossum.inputData({
       resources: faker.opossum.resources({
         [firstDirectoryName]: { [firstResourceName]: 1 },
-        [secondDirectoryName]: { [secondResourceName]: 1 },
+        [secondDirectoryName]: {
+          [nestedDirectoryName]: { [secondResourceName]: 1 },
+        },
       }),
       metadata: faker.opossum.metadata({ projectId: 'test_project' }),
     }),
@@ -153,6 +156,9 @@ test('creates two consecutive partitions from writable resources', async ({
   const firstPartitionPath = testInfo.outputPath('first-partition.opossum');
   const secondPartitionPath = testInfo.outputPath('second-partition.opossum');
 
+  await resourcesTree.goto(secondDirectoryName, nestedDirectoryName);
+  await resourcesTree.assert.resourceIsVisible(secondResourceName);
+
   await createPartition({
     destinationPath: firstPartitionPath,
     resourceName: firstDirectoryName,
@@ -162,6 +168,7 @@ test('creates two consecutive partitions from writable resources', async ({
   });
   await splitDialog.assert.resourceIsReadonly(firstDirectoryName);
   await splitDialog.assert.resourceIsEditable(secondDirectoryName);
+  await resourcesTree.assert.resourceIsVisible(secondResourceName);
 
   await stubSaveDialogSync(window.app, secondPartitionPath);
   await splitDialog.toggleResourceSelection(secondDirectoryName);
