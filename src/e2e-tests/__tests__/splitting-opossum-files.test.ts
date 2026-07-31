@@ -160,15 +160,11 @@ test('creates two consecutive partitions from writable resources', async ({
     splitDialog,
     window,
   });
-  await splitDialog.closeButton.click();
-
-  await resourcesTree.assert.resourceIsReadonly(firstDirectoryName);
-  await resourcesTree.assert.resourceIsEditable(secondDirectoryName);
-
-  await stubSaveDialogSync(window.app, secondPartitionPath);
-  await resourcesTree.openSplitDialog(secondDirectoryName);
   await splitDialog.assert.resourceIsReadonly(firstDirectoryName);
   await splitDialog.assert.resourceIsEditable(secondDirectoryName);
+
+  await stubSaveDialogSync(window.app, secondPartitionPath);
+  await splitDialog.toggleResourceSelection(secondDirectoryName);
   await splitDialog.destinationPathSelection.click();
   await splitDialog.createButton.click();
   await splitDialog.assert.succeeded();
