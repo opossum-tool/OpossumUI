@@ -113,7 +113,7 @@ export async function initializeDb(inputFile: ParsedFileContent) {
 
       await initializeFrequentLicenseTable(trx, inputFile.frequentLicenses);
 
-      await initializeProgressBarTable(trx);
+      await initializeClosestAttributedAncestorsTable(trx);
 
       await initializeMetadataTable(trx, inputFile.metadata);
 
@@ -158,12 +158,12 @@ export async function refreshReadonlyDataAfterSplit() {
       `.execute(trx);
 
       await trx.schema.dropTable('closest_attributed_ancestors').execute();
-      await initializeProgressBarTable(trx);
+      await initializeClosestAttributedAncestorsTable(trx);
       await initializeAttributionResourceAccess(trx, false);
     });
 }
 
-async function initializeProgressBarTable(trx: Transaction<DB>) {
+async function initializeClosestAttributedAncestorsTable(trx: Transaction<DB>) {
   await trx.schema
     .createTable('closest_attributed_ancestors')
     .addColumn('resource_id', 'integer', (col) =>
@@ -823,7 +823,7 @@ async function initializeAttributionResourceAccess(
       .createIndex('attribution_resource_access_audit_idx')
       .on('attribution')
       .columns(['resource_access', 'is_external', 'is_resolved', 'uuid'])
-    .execute();
+      .execute();
   }
 }
 
