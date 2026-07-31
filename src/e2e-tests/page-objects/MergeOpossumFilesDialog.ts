@@ -9,6 +9,8 @@ export class MergeOpossumFilesDialog {
   readonly inputFileSelection: Locator;
   readonly outputFileSelection: Locator;
   readonly mergeButton: Locator;
+  readonly mergeAnywayButton: Locator;
+  readonly warning: Locator;
 
   constructor(window: Page) {
     this.node = window.getByLabel('merge split Opossum files dialog');
@@ -22,6 +24,11 @@ export class MergeOpossumFilesDialog {
       name: 'Merge',
       exact: true,
     });
+    this.mergeAnywayButton = this.node.getByRole('button', {
+      name: 'Merge anyway',
+      exact: true,
+    });
+    this.warning = this.node.getByRole('alert');
   }
 
   public assert = {

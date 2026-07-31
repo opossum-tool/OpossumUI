@@ -7,7 +7,6 @@ import fs from 'fs';
 import { isDeepStrictEqual } from 'node:util';
 import path from 'path';
 
-import type { ReadonlyRule } from '../../shared/shared-types';
 import { writeOpossumFile } from '../../shared/write-file';
 import {
   INPUT_FILE_NAME,
@@ -20,8 +19,7 @@ import type { ParsedOpossumOutputFile } from '../types/types';
 import {
   getReadonlyRuleMap,
   getReadonlyState,
-  mergeReadonlyRules as mergePureReadonlyRules,
-  MergeReadonlyRulesError,
+  mergeReadonlyRules,
 } from './readonly-rules';
 
 export interface MergeOpossumArchivesArgs {
@@ -36,10 +34,10 @@ interface MergeArchive {
   zip: AdmZip;
 }
 
-export class MergeOpossumFilesError extends Error {
+export class ReadonlyResourceOutputConflictError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'MergeOpossumFilesError';
+    this.name = 'ReadonlyResourceOutputConflictError';
   }
 }
 
@@ -52,7 +50,9 @@ export async function mergeOpossumArchives({
   const archives = inputPaths.map(readMergeArchive);
   validateProjectIds(archives);
 
-  const readonlyRules = mergeReadonlyRules(archives);
+  const readonlyRules = mergeReadonlyRules(
+    archives.map((archive) => archive.readonlyRulesByPath),
+  );
   const output = mergeOutput(archives, ignoreReadonlyResourceOutputConflicts);
 
   await writeOpossumFile({
@@ -68,19 +68,19 @@ function readMergeArchive(filePath: string): MergeArchive {
   try {
     zip = new AdmZip(filePath);
   } catch (error) {
-    throw new MergeOpossumFilesError(
-      `Cannot merge '${filePath}': ${getErrorMessage(error)}`,
-    );
+    throw new Error(`Cannot merge '${filePath}': ${getErrorMessage(error)}`, {
+      cause: error,
+    });
   }
 
   if (!zip.getEntry(INPUT_FILE_NAME)) {
-    throw new MergeOpossumFilesError(
+    throw new Error(
       `Cannot merge '${filePath}': archive does not contain input.json`,
     );
   }
   const outputEntry = zip.getEntry(OUTPUT_FILE_NAME);
   if (!outputEntry) {
-    throw new MergeOpossumFilesError(
+    throw new Error(
       `Cannot merge '${filePath}': archive does not contain output.json`,
     );
   }
@@ -99,9 +99,9 @@ function readMergeArchive(filePath: string): MergeArchive {
       zip,
     };
   } catch (error) {
-    throw new MergeOpossumFilesError(
-      `Cannot merge '${filePath}': ${getErrorMessage(error)}`,
-    );
+    throw new Error(`Cannot merge '${filePath}': ${getErrorMessage(error)}`, {
+      cause: error,
+    });
   }
 }
 
@@ -111,21 +111,19 @@ function getErrorMessage(error: unknown): string {
 
 function validatePaths(inputPaths: Array<string>, outputPath: string): void {
   if (inputPaths.length < 2) {
-    throw new MergeOpossumFilesError('Select at least two .opossum archives');
+    throw new Error('Select at least two .opossum archives');
   }
   const resolvedInputPaths = inputPaths.map((inputPath) =>
     path.resolve(inputPath),
   );
   if (new Set(resolvedInputPaths).size !== inputPaths.length) {
-    throw new MergeOpossumFilesError('Input archives must be unique');
+    throw new Error('Input archives must be unique');
   }
   if (path.extname(outputPath) !== OPOSSUM_FILE_EXTENSION) {
-    throw new MergeOpossumFilesError(
-      'Output archive must use the .opossum extension',
-    );
+    throw new Error('Output archive must use the .opossum extension');
   }
   if (!fs.existsSync(path.dirname(path.resolve(outputPath)))) {
-    throw new MergeOpossumFilesError('Output directory does not exist');
+    throw new Error('Output directory does not exist');
   }
 }
 
@@ -134,24 +132,7 @@ function validateProjectIds(archives: Array<MergeArchive>): void {
   if (
     archives.some((archive) => archive.output.metadata.projectId !== projectId)
   ) {
-    throw new MergeOpossumFilesError(
-      'All input archives must have the same project ID',
-    );
-  }
-}
-
-function mergeReadonlyRules(
-  archives: Array<MergeArchive>,
-): Array<ReadonlyRule> {
-  try {
-    return mergePureReadonlyRules(
-      archives.map((archive) => archive.readonlyRulesByPath),
-    );
-  } catch (error) {
-    if (error instanceof MergeReadonlyRulesError) {
-      throw new MergeOpossumFilesError(error.message);
-    }
-    throw error;
+    throw new Error('All input archives must have the same project ID');
   }
 }
 
@@ -207,7 +188,7 @@ function mergeOutput(
   }
 
   if (readonlyResourceOutputConflicts.length > 0) {
-    throw new MergeOpossumFilesError(
+    throw new ReadonlyResourceOutputConflictError(
       `Input archives disagree on readonly resource output for paths: ${readonlyResourceOutputConflicts.map((path) => `'${path}'`).join(', ')}`,
     );
   }

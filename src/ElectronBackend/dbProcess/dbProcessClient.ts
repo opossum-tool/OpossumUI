@@ -5,7 +5,10 @@
 import { MessageChannelMain, utilityProcess } from 'electron';
 import path from 'path';
 
-import type { ExportType } from '../../shared/shared-types';
+import type {
+  ExportType,
+  MergeOpossumFilesResult,
+} from '../../shared/shared-types';
 import type {
   CommandName,
   CommandParams,
@@ -142,13 +145,13 @@ export class DbProcessClient {
     ignoreReadonlyResourceOutputConflicts,
     saveFileParams,
     partitionPaths,
-  }: MergeOpossumFilesParams): Promise<void> {
+  }: MergeOpossumFilesParams): Promise<MergeOpossumFilesResult> {
     return this.request({
       ignoreReadonlyResourceOutputConflicts,
       type: 'mergeOpossumFiles',
       ...saveFileParams,
       partitionPaths,
-    }) as Promise<void>;
+    }) as Promise<MergeOpossumFilesResult>;
   }
 
   mergeOpossumFilesFromPaths({

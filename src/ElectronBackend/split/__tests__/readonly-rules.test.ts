@@ -7,7 +7,6 @@ import {
   getReadonlyRuleMap,
   getReadonlyState,
   mergeReadonlyRules,
-  MergeReadonlyRulesError,
 } from '../readonly-rules';
 
 describe('getReadonlyState', () => {
@@ -156,19 +155,12 @@ describe('mergeReadonlyRules', () => {
   });
 
   it('rejects an empty list of archives', () => {
-    expect(() => mergeReadonlyRules([])).toThrow(MergeReadonlyRulesError);
     expect(() => mergeReadonlyRules([])).toThrow(
       'At least one archive is required',
     );
   });
 
   it('rejects an archive without readonly rules', () => {
-    expect(() =>
-      mergeReadonlyRules([
-        getReadonlyRuleMap([{ path: '/', readonly: true }]),
-        new Map(),
-      ]),
-    ).toThrow(MergeReadonlyRulesError);
     expect(() =>
       mergeReadonlyRules([
         getReadonlyRuleMap([{ path: '/', readonly: true }]),
@@ -214,9 +206,6 @@ describe('mergeReadonlyRules', () => {
   ])(
     'rejects invalid rule sets at $overlappingPath',
     ({ readonlyRuleMaps, overlappingPath }) => {
-      expect(() => mergeReadonlyRules(readonlyRuleMaps)).toThrow(
-        MergeReadonlyRulesError,
-      );
       expect(() => mergeReadonlyRules(readonlyRuleMaps)).toThrow(
         `'${overlappingPath}'`,
       );

@@ -6,6 +6,7 @@
 import type {
   ExportType,
   FileFormatInfo,
+  MergeOpossumFilesResult,
   PackageInfo,
   SplitFileResult,
 } from '../../../../shared/shared-types';
@@ -221,14 +222,18 @@ export function createSplit(
 export function mergeOpossumFilesIntoCurrentFile(
   partitionPaths: Array<string>,
   ignoreReadonlyResourceOutputConflicts: boolean,
-): AppThunkAction<Promise<void>> {
+): AppThunkAction<Promise<MergeOpossumFilesResult>> {
   return async (dispatch) => {
-    await window.electronAPI.mergeOpossumFiles(
+    const result = await window.electronAPI.mergeOpossumFiles(
       partitionPaths,
       ignoreReadonlyResourceOutputConflicts,
     );
+    if (result.status === 'error') {
+      return result;
+    }
     dispatch(resetResourceState());
     await invalidateBackendQueries();
+    return result;
   };
 }
 

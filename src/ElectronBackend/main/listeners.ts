@@ -15,12 +15,15 @@ import {
   type FileFilter,
   type FileFormatInfo,
   type FileType,
+  MergeOpossumFilesErrorType,
+  type MergeOpossumFilesResult,
   type OpenLinkArgs,
   OPOSSUM_FILE_FORMAT,
   type SelectSaveFileOptions,
   type SplitFileResult,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
+import { mergeOpossumFilesFromPaths } from '../api/mergeOpossumFiles';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import {
   sendListenerErrorToFrontend,
@@ -115,13 +118,17 @@ export const mergeCurrentOpossumFilesListener =
     _: Electron.IpcMainInvokeEvent,
     partitionPaths: Array<string>,
     ignoreReadonlyResourceOutputConflicts: boolean,
-  ): Promise<void> => {
+  ): Promise<MergeOpossumFilesResult> => {
     const globalBackendState = getGlobalBackendState();
     if (!globalBackendState.projectId || !globalBackendState.opossumFilePath) {
-      throw new Error('No .opossum project is currently open.');
+      return {
+        errorMessage: 'No .opossum project is currently open.',
+        errorType: MergeOpossumFilesErrorType.Unknown,
+        status: 'error',
+      };
     }
 
-    await getMainDbClient().mergeOpossumFiles({
+    return getMainDbClient().mergeOpossumFiles({
       ignoreReadonlyResourceOutputConflicts,
       saveFileParams: {
         projectId: globalBackendState.projectId,
@@ -136,8 +143,8 @@ export async function mergeOpossumFilesFromPathsListener(
   inputPaths: Array<string>,
   outputPath: string,
   ignoreReadonlyResourceOutputConflicts: boolean,
-): Promise<void> {
-  await getMainDbClient().mergeOpossumFilesFromPaths({
+): Promise<MergeOpossumFilesResult> {
+  return mergeOpossumFilesFromPaths({
     ignoreReadonlyResourceOutputConflicts,
     inputPaths,
     outputPath,

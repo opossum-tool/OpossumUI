@@ -13,7 +13,10 @@ import MuiTypography from '@mui/material/Typography';
 import { uniq } from 'lodash-es';
 import { useState } from 'react';
 
-import { OPOSSUM_FILE_FORMAT } from '../../../shared/shared-types';
+import {
+  MergeOpossumFilesErrorType,
+  OPOSSUM_FILE_FORMAT,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { mergeOpossumFilesIntoCurrentFile } from '../../state/actions/popup-actions/popup-actions';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
@@ -33,6 +36,10 @@ export const MergeOpossumFilesDialog: React.FC<
   const [inputFilePaths, setInputFilePaths] = useState<Array<string>>([]);
   const [outputFilePath, setOutputFilePath] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [
+    ignoreReadonlyResourceOutputConflicts,
+    setIgnoreReadonlyResourceOutputConflicts,
+  ] = useState(false);
   const [mergeInProgress, setMergeInProgress] = useState(false);
 
   const mergeEnabled = mergeIntoCurrentFile
@@ -44,6 +51,7 @@ export const MergeOpossumFilesDialog: React.FC<
       await window.electronAPI.selectFiles(OPOSSUM_FILE_FORMAT);
     if (selectedPaths.length > 0) {
       setErrorMessage(undefined);
+      setIgnoreReadonlyResourceOutputConflicts(false);
       setInputFilePaths((currentPaths) =>
         uniq(
           [...currentPaths, ...selectedPaths].filter(
@@ -61,34 +69,54 @@ export const MergeOpossumFilesDialog: React.FC<
     });
     if (selectedPath) {
       setErrorMessage(undefined);
+      setIgnoreReadonlyResourceOutputConflicts(false);
       setOutputFilePath(selectedPath);
     }
+  }
+
+  function removeInputFilePath(filePath: string): void {
+    setErrorMessage(undefined);
+    setIgnoreReadonlyResourceOutputConflicts(false);
+    setInputFilePaths((currentPaths) =>
+      currentPaths.filter((path) => path !== filePath),
+    );
   }
 
   async function mergeFiles(): Promise<void> {
     setMergeInProgress(true);
     setErrorMessage(undefined);
 
-    try {
-      if (mergeIntoCurrentFile) {
-        await dispatch(mergeOpossumFilesIntoCurrentFile(inputFilePaths, false));
-      } else {
-        await window.electronAPI.mergeOpossumFilesFromPaths(
+    const result = mergeIntoCurrentFile
+      ? await dispatch(
+          mergeOpossumFilesIntoCurrentFile(
+            inputFilePaths,
+            ignoreReadonlyResourceOutputConflicts,
+          ),
+        )
+      : await window.electronAPI.mergeOpossumFilesFromPaths(
           inputFilePaths,
           outputFilePath,
-          false,
+          ignoreReadonlyResourceOutputConflicts,
         );
-      }
-      dispatch(closePopup());
-    } catch (error) {
+    if (
+      result.status === 'error' &&
+      result.errorType ===
+        MergeOpossumFilesErrorType.ReadonlyResourceOutputConflict
+    ) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Unexpected internal error while merging Opossum files',
+        text.mergeOpossumFilesDialog.readonlyResourceOutputConflictWarning,
       );
-    } finally {
-      setMergeInProgress(false);
+      setIgnoreReadonlyResourceOutputConflicts(true);
+    } else if (result.status === 'error') {
+      setErrorMessage(
+        result.errorMessage ??
+          'Unexpected internal error while merging Opossum files',
+      );
+      setIgnoreReadonlyResourceOutputConflicts(false);
+    } else {
+      dispatch(closePopup());
     }
+    setMergeInProgress(false);
   }
 
   return (
@@ -106,7 +134,10 @@ export const MergeOpossumFilesDialog: React.FC<
       }}
       leftButtonConfig={{
         onClick: () => void mergeFiles(),
-        buttonText: text.buttons.merge,
+        buttonText: ignoreReadonlyResourceOutputConflicts
+          ? text.mergeOpossumFilesDialog
+              .mergeIgnoringReadonlyResourceOutputConflicts
+          : text.buttons.merge,
         disabled: !mergeEnabled || mergeInProgress,
         loading: mergeInProgress,
       }}
@@ -137,11 +168,7 @@ export const MergeOpossumFilesDialog: React.FC<
                     aria-label={text.mergeOpossumFilesDialog.removeSplitFile(
                       filePath,
                     )}
-                    onClick={() =>
-                      setInputFilePaths((currentPaths) =>
-                        currentPaths.filter((path) => path !== filePath),
-                      )
-                    }
+                    onClick={() => removeInputFilePath(filePath)}
                     disabled={mergeInProgress}
                   >
                     <ClearIcon />
@@ -173,7 +200,10 @@ export const MergeOpossumFilesDialog: React.FC<
         />
       ) : null}
       {errorMessage ? (
-        <MuiAlert severity={'error'} sx={{ marginTop: '20px' }}>
+        <MuiAlert
+          severity={ignoreReadonlyResourceOutputConflicts ? 'warning' : 'error'}
+          sx={{ marginTop: '20px' }}
+        >
           {errorMessage}
         </MuiAlert>
       ) : null}
