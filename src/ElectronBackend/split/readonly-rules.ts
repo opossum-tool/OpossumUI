@@ -6,13 +6,6 @@ import path from 'path';
 
 import type { ReadonlyRule } from '../../shared/shared-types';
 
-export class MergeReadonlyRulesError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'MergeReadonlyRulesError';
-  }
-}
-
 export function getReadonlyRuleMap(
   readonlyRules: Array<ReadonlyRule>,
 ): Map<string, boolean> {
@@ -94,12 +87,10 @@ export function mergeReadonlyRules(
   rulesByPathByArchive: Array<Map<string, boolean>>,
 ): Array<ReadonlyRule> {
   if (rulesByPathByArchive.length === 0) {
-    throw new MergeReadonlyRulesError('At least one archive is required');
+    throw new Error('At least one archive is required');
   }
   if (rulesByPathByArchive.some((rulesByPath) => rulesByPath.size === 0)) {
-    throw new MergeReadonlyRulesError(
-      'All archives must contain readonly rules',
-    );
+    throw new Error('All archives must contain readonly rules');
   }
   const candidatePaths = Array.from(
     new Set([
@@ -138,7 +129,7 @@ function getMergedReadonlyState(
     (rulesByPath) => !getReadonlyState(resourcePath, rulesByPath),
   ).length;
   if (editableArchiveCount > 1) {
-    throw new MergeReadonlyRulesError(
+    throw new Error(
       `Input archives overlap on editable path '${resourcePath}'`,
     );
   }

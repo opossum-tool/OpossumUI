@@ -437,6 +437,9 @@ export const text = {
     currentFile: 'Current file',
     addSplitFiles: 'Add split files…',
     removeSplitFile: (filePath: string) => `Remove ${filePath}`,
+    mergeIgnoringReadonlyResourceOutputConflicts: 'Merge anyway',
+    readonlyResourceOutputConflictWarning:
+      'Readonly resource outputs conflict. Merging anyway uses the output from the first file for the conflicting paths.',
     outputFilePath: {
       textFieldLabel: (hasBeenSelected: boolean) =>
         hasBeenSelected

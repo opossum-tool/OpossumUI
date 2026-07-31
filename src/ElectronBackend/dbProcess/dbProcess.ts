@@ -8,7 +8,11 @@
 // exportFile, executeCommand) and receives its response on the same port.
 import type AdmZip from 'adm-zip';
 
-import type { ExportType } from '../../shared/shared-types';
+import {
+  type ExportType,
+  MergeOpossumFilesErrorType,
+  type MergeOpossumFilesResult,
+} from '../../shared/shared-types';
 import {
   type CommandName,
   type CommandParams,
@@ -87,7 +91,10 @@ export type DbProcessPayload =
 export type DbProcessRequest = DbProcessPayload & { id: number };
 
 type SuccessPayload =
-  LoadFileIpcResult | Awaited<CommandReturn<CommandName>> | undefined;
+  | LoadFileIpcResult
+  | Awaited<CommandReturn<CommandName>>
+  | MergeOpossumFilesResult
+  | undefined;
 
 interface SuccessResponse {
   id: number;
@@ -164,7 +171,11 @@ async function executeDbProcessMessage(
     }
     case 'mergeOpossumFiles': {
       if (!storedOpossumZip) {
-        throw new Error('Cannot merge: no .opossum file is loaded');
+        return {
+          errorMessage: 'Cannot merge: no .opossum file is loaded',
+          errorType: MergeOpossumFilesErrorType.Unknown,
+          status: 'error',
+        };
       }
       const {
         id: _,
@@ -173,7 +184,7 @@ async function executeDbProcessMessage(
         partitionPaths,
         ...saveFileParams
       } = msg;
-      await mergeOpossumFiles(
+      const result = await mergeOpossumFiles(
         {
           ignoreReadonlyResourceOutputConflicts,
           saveFileParams,
@@ -181,17 +192,22 @@ async function executeDbProcessMessage(
         },
         storedOpossumZip,
       );
+      if (result.status === 'error') {
+        return result;
+      }
       const loadResult = await loadFile(
         saveFileParams.opossumFilePath,
         onProgress,
       );
       if (!loadResult.ok) {
-        throw new Error(
-          `Could not reload merged archive: ${loadResult.error.message}`,
-        );
+        return {
+          errorMessage: `Could not reload merged archive: ${loadResult.error.message}`,
+          errorType: MergeOpossumFilesErrorType.Unknown,
+          status: 'error',
+        };
       }
       storedOpossumZip = loadResult.opossumZip;
-      return undefined;
+      return result;
     }
     case 'mergeOpossumFilesFromPaths': {
       const {

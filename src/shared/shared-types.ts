@@ -23,6 +23,19 @@ export enum Criticality {
   High,
 }
 
+export enum MergeOpossumFilesErrorType {
+  Unknown = 'unknown',
+  ReadonlyResourceOutputConflict = 'readonly-resource-output-conflict',
+}
+
+export type MergeOpossumFilesResult =
+  | { status: 'success' }
+  | {
+      errorMessage?: string;
+      errorType: MergeOpossumFilesErrorType;
+      status: 'error';
+    };
+
 export const RawCriticality: Record<Criticality, string | undefined> = {
   [Criticality.None]: undefined,
   [Criticality.Medium]: 'medium',
@@ -285,12 +298,12 @@ export interface ElectronAPI {
   mergeOpossumFiles: (
     partitionPaths: Array<string>,
     ignoreReadonlyResourceOutputConflicts?: boolean,
-  ) => Promise<void>;
+  ) => Promise<MergeOpossumFilesResult>;
   mergeOpossumFilesFromPaths: (
     inputPaths: Array<string>,
     outputPath: string,
     ignoreReadonlyResourceOutputConflicts?: boolean,
-  ) => Promise<void>;
+  ) => Promise<MergeOpossumFilesResult>;
   saveFile: () => void;
   exportFile: (exportType: ExportType) => Promise<void>;
   /**

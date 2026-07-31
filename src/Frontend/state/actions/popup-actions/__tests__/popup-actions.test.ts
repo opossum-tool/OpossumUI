@@ -83,6 +83,9 @@ describe('mergeOpossumFilesIntoCurrentFile', () => {
     const testStore = createAppStore();
     testStore.dispatch(setSelectedResourceId('/selected-resource'));
     testStore.dispatch(setSelectedAttributionId('selected-attribution'));
+    vi.mocked(window.electronAPI.mergeOpossumFiles).mockResolvedValue({
+      status: 'success',
+    });
 
     await testStore.dispatch(
       mergeOpossumFilesIntoCurrentFile(partitionPaths, false),

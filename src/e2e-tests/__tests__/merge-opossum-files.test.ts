@@ -11,6 +11,11 @@ import {
 import fs from 'fs';
 
 import { parseOpossumFile } from '../../ElectronBackend/input/parseFile';
+import type {
+  ParsedOpossumInputAndOutput,
+  ParsedOpossumOutputFile,
+} from '../../ElectronBackend/types/types';
+import { writeOpossumFile } from '../../shared/write-file';
 import type { AttributionDetails } from '../page-objects/AttributionDetails';
 import type { AttributionsPanel } from '../page-objects/AttributionsPanel';
 import type { MenuBar } from '../page-objects/MenuBar';
@@ -32,7 +37,15 @@ const secondResourcePath = faker.opossum.filePath(
   secondDirectoryName,
   secondResourceName,
 );
+const [readonlyDirectoryName, readonlyResourceName] =
+  faker.opossum.resourceNames({ count: 2 });
+const readonlyResourcePath = faker.opossum.filePath(
+  readonlyDirectoryName,
+  readonlyResourceName,
+);
 const [existingAttributionId, existingPackageInfo] =
+  faker.opossum.rawAttribution();
+const [readonlyAttributionId, readonlyPackageInfo] =
   faker.opossum.rawAttribution();
 const firstPartyPackageInfo = faker.opossum.rawPackageInfo({
   attributionConfidence: undefined,
@@ -235,6 +248,93 @@ test('merges split files into a new Opossum file', async ({
   await mergeOpossumFilesDialog.assert.isHidden();
   await expect.poll(() => fs.existsSync(destinationPath)).toBe(true);
 });
+
+test.describe('merging readonly output conflicts', () => {
+  test.use({
+    data: {
+      inputData: faker.opossum.inputData({
+        resources: faker.opossum.resources({
+          [firstDirectoryName]: { [firstResourceName]: 1 },
+          [secondDirectoryName]: { [secondResourceName]: 1 },
+          [readonlyDirectoryName]: { [readonlyResourceName]: 1 },
+        }),
+        metadata: faker.opossum.metadata({ projectId: 'merge-test-project' }),
+      }),
+      outputData: faker.opossum.outputData({
+        manualAttributions: { [readonlyAttributionId]: readonlyPackageInfo },
+        resourcesToAttributions: {
+          [readonlyResourcePath]: [readonlyAttributionId],
+        },
+      }),
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: `/${firstDirectoryName}`, readonly: false },
+        { path: `/${secondDirectoryName}`, readonly: false },
+      ],
+    },
+  });
+
+  test('merges readonly output conflicts with the first file when confirmed', async ({
+    menuBar,
+    mergeOpossumFilesDialog,
+    resourcesTree,
+    splitDialog,
+    window,
+  }, testInfo) => {
+    const [firstPartitionPath, secondPartitionPath] = await createPartitions({
+      resourcesTree,
+      splitDialog,
+      testInfo,
+      window,
+    });
+    const [conflictingAttributionId, conflictingAttribution] =
+      faker.opossum.rawAttribution();
+    const firstPartition = getParsedOpossumFile(
+      await parseOpossumFile(firstPartitionPath),
+    );
+    const output = firstPartition.output;
+    await writeOpossumFile({
+      input: firstPartition.input,
+      output: {
+        ...output,
+        manualAttributions: {
+          ...output.manualAttributions,
+          [conflictingAttributionId]: conflictingAttribution,
+        },
+        resourcesToAttributions: {
+          ...output.resourcesToAttributions,
+          [readonlyResourcePath]: [conflictingAttributionId],
+        },
+      },
+      path: firstPartitionPath,
+      readonlyRules: firstPartition.readonlyRules,
+    });
+
+    await menuBar.mergeSplitFilesIntoCurrentFile();
+    await stubOpenDialogSync(window.app, [
+      firstPartitionPath,
+      secondPartitionPath,
+    ]);
+    await mergeOpossumFilesDialog.inputFileSelection.click();
+
+    await mergeOpossumFilesDialog.mergeButton.click();
+    await expect(mergeOpossumFilesDialog.warning).toBeVisible();
+    await expect(mergeOpossumFilesDialog.mergeAnywayButton).toBeVisible();
+
+    await mergeOpossumFilesDialog.mergeAnywayButton.click();
+    await mergeOpossumFilesDialog.assert.isHidden();
+    await resourcesTree.assert.resourceIsEditable(firstDirectoryName);
+  });
+});
+
+function getParsedOpossumFile(
+  parsedFile: Awaited<ReturnType<typeof parseOpossumFile>>,
+): ParsedOpossumInputAndOutput & { output: ParsedOpossumOutputFile } {
+  if (!('input' in parsedFile) || parsedFile.output === null) {
+    throw new Error('Expected the merged Opossum file to be valid');
+  }
+  return { ...parsedFile, output: parsedFile.output };
+}
 
 async function createPartitions({
   resourcesTree,
