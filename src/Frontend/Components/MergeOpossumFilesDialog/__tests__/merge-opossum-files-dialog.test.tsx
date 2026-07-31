@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 
+import { OPOSSUM_FILE_FORMAT } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { renderComponent } from '../../../test-helpers/render';
 import { MergeOpossumFilesDialog } from '../MergeOpossumFilesDialog';
@@ -18,9 +19,7 @@ describe('MergeOpossumFilesDialog', () => {
       '/partitions/first.opossum',
       '/partitions/second.opossum',
     ];
-    vi.mocked(window.electronAPI.selectOpossumFiles).mockResolvedValue(
-      inputFilePaths,
-    );
+    vi.mocked(window.electronAPI.selectFiles).mockResolvedValue(inputFilePaths);
 
     await renderComponent(
       <MergeOpossumFilesDialog
@@ -39,7 +38,9 @@ describe('MergeOpossumFilesDialog', () => {
     );
 
     await waitFor(() =>
-      expect(window.electronAPI.selectOpossumFiles).toHaveBeenCalledOnce(),
+      expect(window.electronAPI.selectFiles).toHaveBeenCalledWith(
+        OPOSSUM_FILE_FORMAT,
+      ),
     );
     expect(screen.getByText(inputFilePaths[0])).toBeInTheDocument();
     expect(screen.getByText(inputFilePaths[1])).toBeInTheDocument();
@@ -72,12 +73,10 @@ describe('MergeOpossumFilesDialog', () => {
       '/partitions/second.opossum',
     ];
     const outputFilePath = '/merged/output.opossum';
-    vi.mocked(window.electronAPI.selectOpossumFiles).mockResolvedValue(
-      inputFilePaths,
+    vi.mocked(window.electronAPI.selectFiles).mockResolvedValue(inputFilePaths);
+    vi.mocked(window.electronAPI.selectSaveFile).mockResolvedValue(
+      outputFilePath,
     );
-    vi.mocked(
-      window.electronAPI.selectOpossumFileSaveLocation,
-    ).mockResolvedValue(outputFilePath);
 
     await renderComponent(
       <MergeOpossumFilesDialog mergeIntoCurrentFile={false} />,
@@ -92,9 +91,10 @@ describe('MergeOpossumFilesDialog', () => {
     );
 
     await waitFor(() =>
-      expect(
-        window.electronAPI.selectOpossumFileSaveLocation,
-      ).toHaveBeenCalledWith('merged.opossum'),
+      expect(window.electronAPI.selectSaveFile).toHaveBeenCalledWith({
+        defaultPath: 'merged.opossum',
+        filter: OPOSSUM_FILE_FORMAT,
+      }),
     );
     expect(screen.getByText(outputFilePath)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: text.buttons.merge }));

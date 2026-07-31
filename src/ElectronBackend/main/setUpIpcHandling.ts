@@ -10,7 +10,6 @@ import { getGlobalBackendState } from './globalBackendState';
 import {
   exportFileListener,
   importFileConvertAndLoadListener,
-  importFileSelectSaveLocationListener,
   mergeCurrentOpossumFilesListener,
   mergeFileAndLoadListener,
   mergeOpossumFilesFromPathsListener,
@@ -18,8 +17,8 @@ import {
   openLinkListener,
   saveFileListener,
   selectFileListener,
-  selectOpossumFileSaveLocationListener,
-  selectOpossumFilesListener,
+  selectFilesListener,
+  selectSaveFileListener,
   selectSplitDestinationListener,
   splitCurrentOpossumFileListener,
 } from './listeners';
@@ -38,18 +37,8 @@ export function setupIpcHandling(
   });
   ipcMain.handle(IpcChannel.OpenFile, openFileListener(window, updateMenu));
   ipcMain.handle(IpcChannel.SelectFile, selectFileListener(window));
-  ipcMain.handle(
-    IpcChannel.SelectOpossumFiles,
-    selectOpossumFilesListener(window),
-  );
-  ipcMain.handle(
-    IpcChannel.SelectOpossumFileSaveLocation,
-    selectOpossumFileSaveLocationListener(window),
-  );
-  ipcMain.handle(
-    IpcChannel.ImportFileSelectSaveLocation,
-    importFileSelectSaveLocationListener(window),
-  );
+  ipcMain.handle(IpcChannel.SelectFiles, selectFilesListener(window));
+  ipcMain.handle(IpcChannel.SelectSaveFile, selectSaveFileListener(window));
   ipcMain.handle(
     IpcChannel.ImportFileConvertAndLoad,
     importFileConvertAndLoadListener(window, updateMenu),

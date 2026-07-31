@@ -13,6 +13,7 @@ import MuiTypography from '@mui/material/Typography';
 import { uniq } from 'lodash-es';
 import { useState } from 'react';
 
+import { OPOSSUM_FILE_FORMAT } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { mergeOpossumFilesIntoCurrentFile } from '../../state/actions/popup-actions/popup-actions';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
@@ -39,7 +40,8 @@ export const MergeOpossumFilesDialog: React.FC<
     : inputFilePaths.length >= 2 && Boolean(outputFilePath);
 
   async function addInputFilePaths(): Promise<void> {
-    const selectedPaths = await window.electronAPI.selectOpossumFiles();
+    const selectedPaths =
+      await window.electronAPI.selectFiles(OPOSSUM_FILE_FORMAT);
     if (selectedPaths.length > 0) {
       setErrorMessage(undefined);
       setInputFilePaths((currentPaths) =>
@@ -53,9 +55,10 @@ export const MergeOpossumFilesDialog: React.FC<
   }
 
   async function selectOutputFilePath(): Promise<void> {
-    const selectedPath = await window.electronAPI.selectOpossumFileSaveLocation(
-      outputFilePath || 'merged.opossum',
-    );
+    const selectedPath = await window.electronAPI.selectSaveFile({
+      defaultPath: outputFilePath || 'merged.opossum',
+      filter: OPOSSUM_FILE_FORMAT,
+    });
     if (selectedPath) {
       setErrorMessage(undefined);
       setOutputFilePath(selectedPath);

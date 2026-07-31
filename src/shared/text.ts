@@ -2,9 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Criticality, type FileFormatInfo } from './shared-types';
+import {
+  Criticality,
+  type FileFilter,
+  type FileFormatInfo,
+} from './shared-types';
 
-function menuLabelForFileFormat(fileFormat: FileFormatInfo): string {
+function menuLabelForFileFormat(fileFormat: FileFilter): string {
   return `${fileFormat.name} File (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})...`;
 }
 
