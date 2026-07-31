@@ -629,13 +629,21 @@ export async function cloneMixedAttributionsForWritableResources(
 
   await ensureManualAttributionsAreNotReadonly(trx, attributionUuids);
 
+  // The returned mapping covers every selected attribution. Attributions that
+  // are not mixed remain unchanged, while mixed ones are remapped below.
+  const oldUuidsToNewUuids = Object.fromEntries(
+    attributionUuids.map((attributionUuid) => [
+      attributionUuid,
+      attributionUuid,
+    ]),
+  );
+
   const mixedAttributions = await trx
     .selectFrom('attribution')
     .select(['uuid', 'data', 'is_external', 'is_resolved'])
     .where('uuid', 'in', attributionUuids)
     .where('resource_access', '=', AttributionResourceAccess.Mixed)
     .execute();
-  const oldUuidsToNewUuids: Record<string, string> = {};
 
   for (const attribution of mixedAttributions) {
     const newUuid = uuid4();
@@ -859,7 +867,7 @@ export async function replaceAttributions(
     params.attributionUuidsToReplace,
   );
   const attributionUuidsToReplace = params.attributionUuidsToReplace.map(
-    (attributionUuid) => oldUuidsToNewUuids[attributionUuid] ?? attributionUuid,
+    (attributionUuid) => oldUuidsToNewUuids[attributionUuid],
   );
 
   await ensureAttributionsAreNotExternal(trx, attributionUuidsToReplace);

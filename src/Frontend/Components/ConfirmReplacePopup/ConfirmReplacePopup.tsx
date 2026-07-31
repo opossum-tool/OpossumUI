@@ -60,8 +60,7 @@ export const ConfirmReplacePopup = ({
       });
       replacementAttribution = {
         ...selectedAttribution,
-        id:
-          oldUuidsToNewUuids[selectedAttribution.id] ?? selectedAttribution.id,
+        id: oldUuidsToNewUuids[selectedAttribution.id],
         preSelected: undefined,
       };
     }

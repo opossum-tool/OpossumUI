@@ -93,8 +93,7 @@ export const mutations = {
             params.attributionUuids,
           );
         const attributionUuids = params.attributionUuids.map(
-          (attributionUuid) =>
-            oldUuidsToNewUuids[attributionUuid] ?? attributionUuid,
+          (attributionUuid) => oldUuidsToNewUuids[attributionUuid],
         );
         await removeManualOrExternalCaaFromResources(trx, 'manual', {
           attributionUuids,
@@ -182,8 +181,7 @@ export const mutations = {
         for (const [attributionUuid, attributionData] of Object.entries(
           params.attributions,
         )) {
-          const writableAttributionUuid =
-            oldUuidsToNewUuids[attributionUuid] ?? attributionUuid;
+          const writableAttributionUuid = oldUuidsToNewUuids[attributionUuid];
           await updateAttribution(trx, writableAttributionUuid, {
             ...attributionData,
             id: writableAttributionUuid,
@@ -356,8 +354,7 @@ export const mutations = {
             trx,
             [attributionUuid],
           );
-          const writableAttributionUuid =
-            splitUuids[attributionUuid] ?? attributionUuid;
+          const writableAttributionUuid = splitUuids[attributionUuid];
           // Updating an attribution always removes preselected
           const newPackageInfo = omit(attributionData, 'preSelected');
           const matchingAttributionUuid = await findMatchingAttributionUuid(
