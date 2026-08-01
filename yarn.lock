@@ -4261,9 +4261,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dpdm@npm:4.2.0":
-  version: 4.2.0
-  resolution: "dpdm@npm:4.2.0"
+"dpdm@npm:4.3.0":
+  version: 4.3.0
+  resolution: "dpdm@npm:4.3.0"
   dependencies:
     chalk: "npm:^5.6.2"
     fs-extra: "npm:^11.3.3"
@@ -4274,7 +4274,7 @@ __metadata:
     yargs: "npm:^18.0.0"
   bin:
     dpdm: lib/bin/dpdm.js
-  checksum: 10/da25584fe0bdc338f11dd84f08c26bfbd8614e66516db27e0801073f64fef4aa2c90eaf0e78d54dcf8a13a8bd751d3d4229bf3c52f886a2f6140d5e240f04689
+  checksum: 10/a2873fee66a2af8cb024a02750bd452d1f6c1dafeacb494841022f495e668db11d3c85bce971d4425c5e9b8639028ecdcb7565e72d8b6d4efdb9fb7ede6e30cd
   languageName: node
   linkType: hard
 
@@ -6807,7 +6807,7 @@ __metadata:
     cross-env: "npm:10.1.0"
     dayjs: "npm:1.11.21"
     dotenv: "npm:17.4.2"
-    dpdm: "npm:4.2.0"
+    dpdm: "npm:4.3.0"
     electron: "npm:43.2.0"
     electron-builder: "npm:26.15.3"
     electron-log: "npm:5.4.4"
