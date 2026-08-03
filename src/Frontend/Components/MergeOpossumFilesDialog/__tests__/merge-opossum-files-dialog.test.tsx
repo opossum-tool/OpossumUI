@@ -5,17 +5,56 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { executeCommand } from '../../../../ElectronBackend/api/commands';
 import {
   MergeOpossumFilesErrorType,
   OPOSSUM_FILE_FORMAT,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import { pathsToResources } from '../../../../testing/global-test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { MergeOpossumFilesDialog } from '../MergeOpossumFilesDialog';
 
 describe('MergeOpossumFilesDialog', () => {
   beforeEach(() => {
     vi.resetAllMocks();
+  });
+
+  it('informs the user when the current project has no readonly paths', async () => {
+    vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
+
+    await renderComponent(
+      <MergeOpossumFilesDialog canMergeIntoCurrentFile={true} />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          resources: pathsToResources(['/editable/file.ts']),
+          readonlyRules: [],
+        }),
+      },
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      text.mergeOpossumFilesDialog.noReadonlyPathsWarning,
+    );
+    expect(screen.getByRole('alert')).toHaveClass('MuiAlert-colorWarning');
+    expect(screen.getByRole('switch')).toBeEnabled();
+    expect(
+      screen.getByRole('button', { name: text.buttons.merge }),
+    ).toBeDisabled();
+
+    await userEvent.click(
+      screen.getByTestId('merge-opossum-files-input-paths-input'),
+    );
+    expect(window.electronAPI.selectFiles).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('switch'));
+    expect(
+      screen.queryByText(text.mergeOpossumFilesDialog.noReadonlyPathsWarning),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId('merge-opossum-files-output-path-input'),
+    ).toBeInTheDocument();
   });
 
   it('selects input files for merging into the current file', async () => {
