@@ -42,7 +42,6 @@ export enum AllowedFrontendChannels {
   SetBaseURLForRoot = 'set-base-url-for-root',
   OpenFile = 'open-file',
   ShowImportDialog = 'show-import-dialog',
-  ShowMergeDialog = 'show-merge-dialog',
   ShowMergeOpossumFilesDialog = 'show-merge-opossum-files-dialog',
   ShowSplitDialog = 'show-split-dialog',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',

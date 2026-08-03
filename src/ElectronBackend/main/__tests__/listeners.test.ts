@@ -137,6 +137,7 @@ describe('getImportFileListener', () => {
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowImportDialog,
       fileFormat,
+      false,
     );
   });
 });

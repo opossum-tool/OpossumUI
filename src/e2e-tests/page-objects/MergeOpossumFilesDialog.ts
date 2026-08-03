@@ -4,6 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
+import { text } from '../../shared/text';
+
 export class MergeOpossumFilesDialog {
   private readonly node: Locator;
   readonly inputFileSelection: Locator;
@@ -31,6 +33,12 @@ export class MergeOpossumFilesDialog {
     this.warning = this.node.getByRole('alert');
   }
 
+  public async selectNewOutputFile(): Promise<void> {
+    await this.node
+      .getByLabel(text.mergeOpossumFilesDialog.mergeIntoCurrentProject)
+      .setChecked(false);
+  }
+
   public assert = {
     isVisible: async (): Promise<void> => {
       await expect(this.node).toBeVisible();
@@ -40,6 +48,13 @@ export class MergeOpossumFilesDialog {
     },
     inputFileIsVisible: async (filePath: string): Promise<void> => {
       await expect(this.node.getByText(filePath)).toBeVisible();
+    },
+    mergesIntoCurrentProject: async (): Promise<void> => {
+      await expect(
+        this.node.getByLabel(
+          text.mergeOpossumFilesDialog.mergeIntoCurrentProject,
+        ),
+      ).toBeChecked();
     },
   };
 }

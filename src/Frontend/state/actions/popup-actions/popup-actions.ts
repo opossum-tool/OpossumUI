@@ -20,7 +20,7 @@ import {
 import {
   getExportFileRequest,
   getImportFileRequest,
-  getMergeRequest,
+  getMergeOpossumFilesRequest,
   getOpenFileRequest,
   getSplitFileRequest,
   getTargetView,
@@ -48,12 +48,12 @@ import {
   closePopup,
   navigateToView,
   openImportDialog,
-  openMergeDialog,
+  openMergeOpossumFilesDialog,
   openNotSavedPopup,
   openSplitDialog,
   setExportFileRequest,
   setImportFileRequest,
-  setMergeRequest,
+  setMergeOpossumFilesRequest,
   setOpenFileRequest,
   setSplitFileRequest,
   setTargetView,
@@ -145,20 +145,34 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
 
 export function showImportDialogOrOpenUnsavedPopup(
   fileFormat: FileFormatInfo,
+  canImportIntoCurrentProject = false,
 ): AppThunkAction {
   return withUnsavedCheck({
-    executeImmediately: (dispatch) => dispatch(openImportDialog(fileFormat)),
+    executeImmediately: (dispatch) =>
+      dispatch(openImportDialog(fileFormat, canImportIntoCurrentProject)),
     requestContinuation: (dispatch) =>
-      dispatch(setImportFileRequest(fileFormat)),
+      dispatch(
+        setImportFileRequest({ fileFormat, canImportIntoCurrentProject }),
+      ),
   });
 }
 
-export function showMergeDialogOrOpenUnsavedPopup(
-  fileFormat: FileFormatInfo,
+export function showMergeOpossumFilesDialogOrOpenUnsavedPopup(
+  canMergeIntoCurrentFile: boolean,
+  currentFilePath?: string,
 ): AppThunkAction {
   return withUnsavedCheck({
-    executeImmediately: (dispatch) => dispatch(openMergeDialog(fileFormat)),
-    requestContinuation: (dispatch) => dispatch(setMergeRequest(fileFormat)),
+    executeImmediately: (dispatch) =>
+      dispatch(
+        openMergeOpossumFilesDialog(canMergeIntoCurrentFile, currentFilePath),
+      ),
+    requestContinuation: (dispatch) =>
+      dispatch(
+        setMergeOpossumFilesRequest({
+          canMergeIntoCurrentFile,
+          currentFilePath,
+        }),
+      ),
   });
 }
 
@@ -171,7 +185,6 @@ export function openFileOrOpenUnsavedPopup(filePath?: string): AppThunkAction {
       dispatch(setTargetSelectedAttributionId(null));
       dispatch(setTargetAttributionFilterChange(null));
       dispatch(setImportFileRequest(null));
-      dispatch(setMergeRequest(null));
       dispatch(setExportFileRequest(null));
       dispatch(
         setOpenFileRequest(
@@ -242,7 +255,7 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     const targetView = getTargetView(getState());
     const openFileRequest = getOpenFileRequest(getState());
     const importFileRequest = getImportFileRequest(getState());
-    const mergeRequest = getMergeRequest(getState());
+    const mergeOpossumFilesRequest = getMergeOpossumFilesRequest(getState());
     const exportFileRequest = getExportFileRequest(getState());
     const splitFileRequest = getSplitFileRequest(getState());
     const targetAttributionFilterChange =
@@ -261,13 +274,23 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     }
 
     if (importFileRequest) {
-      dispatch(openImportDialog(importFileRequest));
+      dispatch(
+        openImportDialog(
+          importFileRequest.fileFormat,
+          importFileRequest.canImportIntoCurrentProject,
+        ),
+      );
       dispatch(setImportFileRequest(null));
     }
 
-    if (mergeRequest) {
-      dispatch(openMergeDialog(mergeRequest));
-      dispatch(setMergeRequest(null));
+    if (mergeOpossumFilesRequest) {
+      dispatch(
+        openMergeOpossumFilesDialog(
+          mergeOpossumFilesRequest.canMergeIntoCurrentFile,
+          mergeOpossumFilesRequest.currentFilePath,
+        ),
+      );
+      dispatch(setMergeOpossumFilesRequest(null));
     }
 
     if (exportFileRequest) {
@@ -311,6 +334,7 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(closePopup());
     dispatch(setOpenFileRequest(null));
     dispatch(setImportFileRequest(null));
+    dispatch(setMergeOpossumFilesRequest(null));
     dispatch(setExportFileRequest(null));
     dispatch(setSplitFileRequest(null));
     window.electronAPI.stopLoading();

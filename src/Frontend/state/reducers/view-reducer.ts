@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { ExportType, FileFormatInfo } from '../../../shared/shared-types';
+import type { ExportType } from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
 import type { PopupInfo } from '../../types/types';
 import {
@@ -12,11 +12,13 @@ import {
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_EXPORT_FILE_REQUEST,
   ACTION_SET_IMPORT_FILE_REQUEST,
-  ACTION_SET_MERGE_REQUEST,
+  ACTION_SET_MERGE_OPOSSUM_FILES_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_SPLIT_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
+  type ImportFileRequest,
+  type MergeOpossumFilesRequest,
   type OpenFileRequest,
   type SplitFileRequest,
   type ViewAction,
@@ -27,8 +29,8 @@ export interface ViewState {
   targetView: View | null;
   popupInfo: Array<PopupInfo>;
   openFileRequest: OpenFileRequest | null;
-  importFileRequest: FileFormatInfo | null;
-  mergeRequest: FileFormatInfo | null;
+  importFileRequest: ImportFileRequest | null;
+  mergeOpossumFilesRequest: MergeOpossumFilesRequest | null;
   exportFileRequest: ExportType | null;
   splitFileRequest: SplitFileRequest | null;
 }
@@ -39,7 +41,7 @@ const initialViewState: ViewState = {
   popupInfo: [],
   openFileRequest: null,
   importFileRequest: null,
-  mergeRequest: null,
+  mergeOpossumFilesRequest: null,
   exportFileRequest: null,
   splitFileRequest: null,
 };
@@ -85,10 +87,10 @@ export function viewState(
         ...state,
         importFileRequest: action.payload,
       };
-    case ACTION_SET_MERGE_REQUEST:
+    case ACTION_SET_MERGE_OPOSSUM_FILES_REQUEST:
       return {
         ...state,
-        mergeRequest: action.payload,
+        mergeOpossumFilesRequest: action.payload,
       };
     case ACTION_SET_EXPORT_FILE_REQUEST:
       return {

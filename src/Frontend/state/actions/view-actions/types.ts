@@ -16,12 +16,23 @@ export const ACTION_CLOSE_POPUP = 'ACTION_CLOSE_POPUP';
 export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
 export const ACTION_SET_OPEN_FILE_REQUEST = 'ACTION_SET_OPEN_FILE_REQUEST';
 export const ACTION_SET_IMPORT_FILE_REQUEST = 'ACTION_SET_IMPORT_FILE_REQUEST';
-export const ACTION_SET_MERGE_REQUEST = 'ACTION_SET_MERGE_REQUEST';
+export const ACTION_SET_MERGE_OPOSSUM_FILES_REQUEST =
+  'ACTION_SET_MERGE_OPOSSUM_FILES_REQUEST';
 export const ACTION_SET_EXPORT_FILE_REQUEST = 'ACTION_SET_EXPORT_FILE_REQUEST';
 export const ACTION_SET_SPLIT_FILE_REQUEST = 'ACTION_SET_SPLIT_FILE_REQUEST';
 
 export type OpenFileRequest =
   { kind: 'dialog' } | { kind: 'path'; filePath: string };
+
+export interface ImportFileRequest {
+  canImportIntoCurrentProject: boolean;
+  fileFormat: FileFormatInfo;
+}
+
+export interface MergeOpossumFilesRequest {
+  canMergeIntoCurrentFile: boolean;
+  currentFilePath?: string;
+}
 
 export type ViewAction =
   | SetView
@@ -31,7 +42,7 @@ export type ViewAction =
   | OpenPopupAction
   | SetOpenFileRequestAction
   | SetImportFileRequestAction
-  | SetMergeRequestAction
+  | SetMergeOpossumFilesRequestAction
   | SetExportFileRequestAction
   | SetSplitFileRequestAction;
 
@@ -65,12 +76,12 @@ export interface SetOpenFileRequestAction {
 
 export interface SetImportFileRequestAction {
   type: typeof ACTION_SET_IMPORT_FILE_REQUEST;
-  payload: FileFormatInfo | null;
+  payload: ImportFileRequest | null;
 }
 
-export interface SetMergeRequestAction {
-  type: typeof ACTION_SET_MERGE_REQUEST;
-  payload: FileFormatInfo | null;
+export interface SetMergeOpossumFilesRequestAction {
+  type: typeof ACTION_SET_MERGE_OPOSSUM_FILES_REQUEST;
+  payload: MergeOpossumFilesRequest | null;
 }
 
 export interface SetExportFileRequestAction {

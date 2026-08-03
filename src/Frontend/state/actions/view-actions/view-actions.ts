@@ -17,18 +17,20 @@ import {
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_EXPORT_FILE_REQUEST,
   ACTION_SET_IMPORT_FILE_REQUEST,
-  ACTION_SET_MERGE_REQUEST,
+  ACTION_SET_MERGE_OPOSSUM_FILES_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_SPLIT_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   type ClosePopupAction,
+  type ImportFileRequest,
+  type MergeOpossumFilesRequest,
   type OpenFileRequest,
   type OpenPopupAction,
   type ResetViewStateAction,
   type SetExportFileRequestAction,
   type SetImportFileRequestAction,
-  type SetMergeRequestAction,
+  type SetMergeOpossumFilesRequestAction,
   type SetOpenFileRequestAction,
   type SetSplitFileRequestAction,
   type SetTargetView,
@@ -99,29 +101,29 @@ export function openNotSavedPopup(attributionId?: string): OpenPopupAction {
   };
 }
 
-export function openImportDialog(fileFormat: FileFormatInfo): OpenPopupAction {
+export function openImportDialog(
+  fileFormat: FileFormatInfo,
+  canImportIntoCurrentProject = false,
+): OpenPopupAction {
   return {
     type: ACTION_OPEN_POPUP,
-    payload: { popup: PopupType.ImportDialog, fileFormat },
-  };
-}
-
-export function openMergeDialog(fileFormat: FileFormatInfo): OpenPopupAction {
-  return {
-    type: ACTION_OPEN_POPUP,
-    payload: { popup: PopupType.MergeDialog, fileFormat },
+    payload: {
+      popup: PopupType.ImportDialog,
+      fileFormat,
+      canImportIntoCurrentProject,
+    },
   };
 }
 
 export function openMergeOpossumFilesDialog(
-  mergeIntoCurrentFile: boolean,
+  canMergeIntoCurrentFile: boolean,
   currentFilePath?: string,
 ): OpenPopupAction {
   return {
     type: ACTION_OPEN_POPUP,
     payload: {
       popup: PopupType.MergeOpossumFilesDialog,
-      mergeIntoCurrentFile,
+      canMergeIntoCurrentFile,
       currentFilePath,
     },
   };
@@ -148,15 +150,18 @@ export function setOpenFileRequest(
 }
 
 export function setImportFileRequest(
-  fileFormat: FileFormatInfo | null,
+  importFileRequest: ImportFileRequest | null,
 ): SetImportFileRequestAction {
-  return { type: ACTION_SET_IMPORT_FILE_REQUEST, payload: fileFormat };
+  return { type: ACTION_SET_IMPORT_FILE_REQUEST, payload: importFileRequest };
 }
 
-export function setMergeRequest(
-  fileFormat: FileFormatInfo | null,
-): SetMergeRequestAction {
-  return { type: ACTION_SET_MERGE_REQUEST, payload: fileFormat };
+export function setMergeOpossumFilesRequest(
+  mergeOpossumFilesRequest: MergeOpossumFilesRequest | null,
+): SetMergeOpossumFilesRequestAction {
+  return {
+    type: ACTION_SET_MERGE_OPOSSUM_FILES_REQUEST,
+    payload: mergeOpossumFilesRequest,
+  };
 }
 
 export function setExportFileRequest(

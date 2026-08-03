@@ -12,14 +12,11 @@ import {
   exportFileOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
   showImportDialogOrOpenUnsavedPopup,
-  showMergeDialogOrOpenUnsavedPopup,
+  showMergeOpossumFilesDialogOrOpenUnsavedPopup,
   showSplitDialogOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
-import {
-  openMergeOpossumFilesDialog,
-  openPopup,
-} from '../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { backend, setDatabaseInitialized } from '../../util/backendClient';
 import {
@@ -29,7 +26,6 @@ import {
   type SetBaseURLForRootListener,
   type SetDatabaseInitializedListener,
   type ShowImportDialogListener,
-  type ShowMergeDialogListener,
   type ShowMergeOpossumFilesDialogListener,
   type ShowSplitDialog,
   useIpcRenderer,
@@ -122,19 +118,23 @@ export const BackendCommunication: React.FC = () => {
   );
   useIpcRenderer<ShowImportDialogListener>(
     AllowedFrontendChannels.ShowImportDialog,
-    (_, fileFormat) => dispatch(showImportDialogOrOpenUnsavedPopup(fileFormat)),
-    [dispatch],
-  );
-  useIpcRenderer<ShowMergeDialogListener>(
-    AllowedFrontendChannels.ShowMergeDialog,
-    (_, fileFormat) => dispatch(showMergeDialogOrOpenUnsavedPopup(fileFormat)),
+    (_, fileFormat, canImportIntoCurrentProject) =>
+      dispatch(
+        showImportDialogOrOpenUnsavedPopup(
+          fileFormat,
+          canImportIntoCurrentProject,
+        ),
+      ),
     [dispatch],
   );
   useIpcRenderer<ShowMergeOpossumFilesDialogListener>(
     AllowedFrontendChannels.ShowMergeOpossumFilesDialog,
-    (_, mergeIntoCurrentFile, currentFilePath) =>
+    (_, canMergeIntoCurrentFile, currentFilePath) =>
       dispatch(
-        openMergeOpossumFilesDialog(mergeIntoCurrentFile, currentFilePath),
+        showMergeOpossumFilesDialogOrOpenUnsavedPopup(
+          canMergeIntoCurrentFile,
+          currentFilePath,
+        ),
       ),
     [dispatch],
   );

@@ -20,11 +20,9 @@ export const text = {
       openRecent: 'Open Recent',
       clearRecent: 'Clear Recent',
       import: 'Import',
-      importSubmenu: menuLabelForFileFormat,
-      merge: 'Merge',
-      mergeSubmenu: menuLabelForFileFormat,
-      mergeSplitFilesIntoCurrentFile: 'Merge split files into current file…',
-      mergeOpossumFiles: 'Merge split Opossum files…',
+      importFileSubmenu: menuLabelForFileFormat,
+      merge: 'Merge...',
+      mergeIntoCurrentProject: 'Merge into current project…',
       split: 'Split…',
       save: 'Save',
       projectMetadata: 'Project Metadata',
@@ -397,6 +395,9 @@ export const text = {
       'OpossumUI will convert the selected file into a new Opossum file.',
       'All changes made to the project in OpossumUI will be saved in this Opossum file.',
     ],
+    importIntoCurrentProject: 'Import into current project',
+    currentProjectWarning:
+      'The current project will be backed up before importing.',
     inputFilePath: {
       textFieldLabel: (fileFormat: FileFormatInfo, hasBeenSelected: boolean) =>
         hasBeenSelected
@@ -410,21 +411,8 @@ export const text = {
           : 'Select Opossum file save location',
     },
   },
-  mergeDialog: {
-    title: (fileFormat: FileFormatInfo) =>
-      `Merge ${fileFormat.name} file into current file`,
-    explanationText:
-      'OpossumUI will merge the selected file into the currently open Opossum file.',
-    warningText:
-      'As this action cannot be undone, OpossumUI will also create a backup of the currently open Opossum file.',
-    inputFilePath: {
-      textFieldLabel: (fileFormat: FileFormatInfo, hasBeenSelected: boolean) =>
-        hasBeenSelected
-          ? `File to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
-          : `Select file to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
-    },
-  },
   mergeOpossumFilesDialog: {
+    mergeIntoCurrentProject: 'Merge into current project',
     title: (mergeIntoCurrentFile: boolean) =>
       mergeIntoCurrentFile
         ? 'Merge split files into current file'

@@ -4,11 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import ClearIcon from '@mui/icons-material/Clear';
 import MuiAlert from '@mui/material/Alert';
+import MuiFormControlLabel from '@mui/material/FormControlLabel';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiList from '@mui/material/List';
 import MuiListItem from '@mui/material/ListItem';
 import MuiListItemText from '@mui/material/ListItemText';
 import MuiPaper from '@mui/material/Paper';
+import MuiSwitch from '@mui/material/Switch';
 import MuiTypography from '@mui/material/Typography';
 import { uniq } from 'lodash-es';
 import { useState } from 'react';
@@ -25,13 +27,13 @@ import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 interface MergeOpossumFilesDialogProps {
+  canMergeIntoCurrentFile: boolean;
   currentFilePath?: string;
-  mergeIntoCurrentFile: boolean;
 }
 
 export const MergeOpossumFilesDialog: React.FC<
   MergeOpossumFilesDialogProps
-> = ({ currentFilePath, mergeIntoCurrentFile }) => {
+> = ({ canMergeIntoCurrentFile, currentFilePath }) => {
   const dispatch = useAppDispatch();
   const [inputFilePaths, setInputFilePaths] = useState<Array<string>>([]);
   const [outputFilePath, setOutputFilePath] = useState('');
@@ -41,6 +43,9 @@ export const MergeOpossumFilesDialog: React.FC<
     setIgnoreReadonlyResourceOutputConflicts,
   ] = useState(false);
   const [mergeInProgress, setMergeInProgress] = useState(false);
+  const [mergeIntoCurrentFile, setMergeIntoCurrentFile] = useState(
+    canMergeIntoCurrentFile,
+  );
 
   const mergeEnabled = mergeIntoCurrentFile
     ? inputFilePaths.length > 0
@@ -80,6 +85,12 @@ export const MergeOpossumFilesDialog: React.FC<
     setInputFilePaths((currentPaths) =>
       currentPaths.filter((path) => path !== filePath),
     );
+  }
+
+  function changeMergeMode(mergeIntoCurrentFile: boolean): void {
+    setMergeIntoCurrentFile(mergeIntoCurrentFile);
+    setErrorMessage(undefined);
+    setIgnoreReadonlyResourceOutputConflicts(false);
   }
 
   async function mergeFiles(): Promise<void> {
@@ -143,6 +154,18 @@ export const MergeOpossumFilesDialog: React.FC<
       }}
       aria-label={'merge split Opossum files dialog'}
     >
+      {canMergeIntoCurrentFile && (
+        <MuiFormControlLabel
+          control={
+            <MuiSwitch
+              checked={mergeIntoCurrentFile}
+              onChange={(_, checked) => changeMergeMode(checked)}
+            />
+          }
+          label={text.mergeOpossumFilesDialog.mergeIntoCurrentProject}
+          sx={{ marginBottom: '10px' }}
+        />
+      )}
       <MuiTypography>
         {text.mergeOpossumFilesDialog.explanationText(mergeIntoCurrentFile)}
       </MuiTypography>

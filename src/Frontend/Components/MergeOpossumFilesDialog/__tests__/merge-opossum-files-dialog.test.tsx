@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import {
   MergeOpossumFilesErrorType,
@@ -27,7 +28,7 @@ describe('MergeOpossumFilesDialog', () => {
     await renderComponent(
       <MergeOpossumFilesDialog
         currentFilePath={'/current/project.opossum'}
-        mergeIntoCurrentFile={true}
+        canMergeIntoCurrentFile={true}
       />,
     );
 
@@ -85,7 +86,7 @@ describe('MergeOpossumFilesDialog', () => {
     );
 
     await renderComponent(
-      <MergeOpossumFilesDialog mergeIntoCurrentFile={false} />,
+      <MergeOpossumFilesDialog canMergeIntoCurrentFile={false} />,
     );
 
     fireEvent.click(
@@ -133,12 +134,13 @@ describe('MergeOpossumFilesDialog', () => {
       .mockResolvedValueOnce({ status: 'success' });
 
     await renderComponent(
-      <MergeOpossumFilesDialog mergeIntoCurrentFile={false} />,
+      <MergeOpossumFilesDialog canMergeIntoCurrentFile={false} />,
     );
 
     fireEvent.click(
       screen.getByTestId('merge-opossum-files-input-paths-input'),
     );
+    expect(await screen.findByText(inputFilePaths[0])).toBeInTheDocument();
     fireEvent.click(
       screen.getByTestId('merge-opossum-files-output-path-input'),
     );
@@ -165,6 +167,69 @@ describe('MergeOpossumFilesDialog', () => {
     );
   });
 
+  it('resets readonly conflict confirmation when changing merge mode', async () => {
+    const inputFilePaths = [
+      '/partitions/first.opossum',
+      '/partitions/second.opossum',
+    ];
+    const outputFilePath = '/merged/output.opossum';
+    vi.mocked(window.electronAPI.selectFiles).mockResolvedValue(inputFilePaths);
+    vi.mocked(window.electronAPI.selectSaveFile).mockResolvedValue(
+      outputFilePath,
+    );
+    vi.mocked(window.electronAPI.mergeOpossumFilesFromPaths).mockResolvedValue({
+      errorType: MergeOpossumFilesErrorType.ReadonlyResourceOutputConflict,
+      status: 'error',
+    });
+    vi.mocked(window.electronAPI.mergeOpossumFiles).mockResolvedValue({
+      status: 'success',
+    });
+
+    await renderComponent(
+      <MergeOpossumFilesDialog canMergeIntoCurrentFile={true} />,
+    );
+
+    await userEvent.click(screen.getByRole('switch'));
+    expect(
+      screen.getByTestId('merge-opossum-files-output-path-input'),
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByTestId('merge-opossum-files-input-paths-input'),
+    );
+    fireEvent.click(
+      screen.getByTestId('merge-opossum-files-output-path-input'),
+    );
+    expect(await screen.findByText(outputFilePath)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: text.buttons.merge }));
+
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: text.mergeOpossumFilesDialog
+          .mergeIgnoringReadonlyResourceOutputConflicts,
+      }),
+    ).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('switch'));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: text.mergeOpossumFilesDialog
+          .mergeIgnoringReadonlyResourceOutputConflicts,
+      }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: text.buttons.merge }));
+
+    await waitFor(() =>
+      expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith(
+        inputFilePaths,
+        false,
+      ),
+    );
+  });
+
   it('warns about other merge errors so the user can adjust the selection', async () => {
     const inputFilePaths = [
       '/partitions/first.opossum',
@@ -184,7 +249,7 @@ describe('MergeOpossumFilesDialog', () => {
     });
 
     await renderComponent(
-      <MergeOpossumFilesDialog mergeIntoCurrentFile={false} />,
+      <MergeOpossumFilesDialog canMergeIntoCurrentFile={false} />,
     );
 
     fireEvent.click(
