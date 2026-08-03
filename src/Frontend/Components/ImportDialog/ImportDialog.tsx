@@ -162,10 +162,11 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
           </MuiTypography>
         )}
         <FilePathInput
-          label={text.importDialog.inputFilePath.textFieldLabel(
-            fileFormat,
-            !!inputFilePath,
-          )}
+          label={
+            inputFilePath
+              ? text.importDialog.inputFilePath.label(fileFormat)
+              : text.importDialog.inputFilePath.selectLabel(fileFormat)
+          }
           text={inputFilePath}
           onClick={selectInputFilePath}
           testId={'import-input-file-path'}
@@ -174,9 +175,11 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
         />
         {!importIntoCurrentProject && (
           <FilePathInput
-            label={text.importDialog.opossumFilePath.textFieldLabel(
-              !!opossumFilePath,
-            )}
+            label={
+              opossumFilePath
+                ? text.importDialog.opossumFilePath.label
+                : text.importDialog.opossumFilePath.selectLabel
+            }
             text={opossumFilePath}
             onClick={selectOpossumFilePath}
             testId={'import-opossum-file-path'}

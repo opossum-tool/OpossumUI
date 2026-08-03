@@ -399,28 +399,24 @@ export const text = {
     currentProjectWarning:
       'The current project will be backed up before importing.',
     inputFilePath: {
-      textFieldLabel: (fileFormat: FileFormatInfo, hasBeenSelected: boolean) =>
-        hasBeenSelected
-          ? `File to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
-          : `Select file to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+      label: (fileFormat: FileFormatInfo) =>
+        `File to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+      selectLabel: (fileFormat: FileFormatInfo) =>
+        `Select file to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
     },
     opossumFilePath: {
-      textFieldLabel: (hasBeenSelected: boolean) =>
-        hasBeenSelected
-          ? 'Opossum file save location'
-          : 'Select Opossum file save location',
+      label: 'Opossum file save location',
+      selectLabel: 'Select Opossum file save location',
     },
   },
   mergeOpossumFilesDialog: {
     mergeIntoCurrentProject: 'Merge into current project',
-    title: (mergeIntoCurrentFile: boolean) =>
-      mergeIntoCurrentFile
-        ? 'Merge split files into current file'
-        : 'Merge split Opossum files',
-    explanationText: (mergeIntoCurrentFile: boolean) =>
-      mergeIntoCurrentFile
-        ? 'Select the split Opossum files to merge into the currently open file.'
-        : 'Select split Opossum files and an output location to merge them.',
+    title: 'Merge split Opossum files',
+    titleForCurrentFile: 'Merge split files into current file',
+    explanationText:
+      'Select split Opossum files and an output location to merge them.',
+    explanationTextForCurrentFile:
+      'Select the split Opossum files to merge into the currently open file.',
     filesToMerge: 'Files to merge',
     currentFile: 'Current file',
     addSplitFiles: 'Add split files…',
@@ -429,10 +425,8 @@ export const text = {
     readonlyResourceOutputConflictWarning:
       'Readonly resource outputs conflict. Merging anyway uses the output from the first file for the conflicting paths.',
     outputFilePath: {
-      textFieldLabel: (hasBeenSelected: boolean) =>
-        hasBeenSelected
-          ? 'Merged Opossum file location'
-          : 'Select merged Opossum file location',
+      label: 'Merged Opossum file location',
+      selectLabel: 'Select merged Opossum file location',
     },
   },
   splitDialog: {
@@ -448,10 +442,8 @@ export const text = {
       noResourcesSelected: 'No resources selected',
     },
     destinationPath: {
-      textFieldLabel: (hasBeenSelected: boolean) =>
-        hasBeenSelected
-          ? 'New Opossum file location'
-          : 'Select new Opossum file save location',
+      label: 'New Opossum file location',
+      selectLabel: 'Select new Opossum file save location',
     },
     create: 'Split',
     inProgress: 'Splitting Opossum file…',
