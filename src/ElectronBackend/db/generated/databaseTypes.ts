@@ -25,7 +25,7 @@ export interface Attribution {
   is_external: number;
   is_resolved: Generated<number>;
   /**
-   * Whether this attribution has only readonly resources, only writable resources, or both. Attributions without resources use the root resource access.
+   * Whether this attribution has only readonly resources, only writable resources, or both.
    */
   resource_access: Generated<number>;
   uuid: string;

@@ -39,7 +39,7 @@ export const comments: Record<string, Record<string, string>> = {
       "External attributions (UI: 'signals') and manual attributions (UI: 'attributions')",
     data: 'All of the attribution as JSON',
     resource_access:
-      'Whether this attribution has only readonly resources, only writable resources, or both. Attributions without resources use the root resource access.',
+      'Whether this attribution has only readonly resources, only writable resources, or both.',
   },
   resource: {
     name: 'The name of the root resource is the empty string',

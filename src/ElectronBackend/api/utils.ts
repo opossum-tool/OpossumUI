@@ -593,30 +593,53 @@ async function updateAttributionResourceAccess(
     return;
   }
 
-  await sql`
-    UPDATE attribution
-    SET resource_access = COALESCE(
-      (
-        SELECT CASE
-          WHEN MIN(resource.is_readonly) = 1 THEN ${AttributionResourceAccess.Readonly}
-          WHEN MAX(resource.is_readonly) = 0 THEN ${AttributionResourceAccess.Writable}
-          ELSE ${AttributionResourceAccess.Mixed}
-        END
-        FROM resource_to_attribution
-        INNER JOIN resource ON resource.id = resource_to_attribution.resource_id
-        WHERE resource_to_attribution.attribution_uuid = attribution.uuid
-      ),
-      (
-        SELECT CASE
-          WHEN is_readonly = 1 THEN ${AttributionResourceAccess.Readonly}
-          ELSE ${AttributionResourceAccess.Writable}
-        END
-        FROM resource
-        WHERE path = ''
-      )
-    )
-    WHERE uuid IN (${sql.join(attributionUuids)})
-  `.execute(trx);
+  await trx
+    .updateTable('attribution')
+    .set((eb) => ({
+      resource_access: eb.fn
+        .coalesce(
+          eb
+            .selectFrom('resource_to_attribution')
+            .innerJoin(
+              'resource',
+              'resource.id',
+              'resource_to_attribution.resource_id',
+            )
+            .select((eb) => [
+              eb
+                .case()
+                .when(eb.fn.min<number>('resource.is_readonly'), '=', 1)
+                .then(AttributionResourceAccess.Readonly)
+                .when(eb.fn.max<number>('resource.is_readonly'), '=', 0)
+                .then(AttributionResourceAccess.Writable)
+                .else(AttributionResourceAccess.Mixed)
+                .end()
+                .as('resource_access'),
+            ])
+            .whereRef(
+              'resource_to_attribution.attribution_uuid',
+              '=',
+              'attribution.uuid',
+            ),
+          // If the attribution is not linked to any resource, fall back to root.
+          // This should not be achievable with our UI, but the data model does not prevent unlinked attributions
+          eb
+            .selectFrom('resource')
+            .select((eb) => [
+              eb
+                .case()
+                .when('is_readonly', '=', 1)
+                .then(AttributionResourceAccess.Readonly)
+                .else(AttributionResourceAccess.Writable)
+                .end()
+                .as('resource_access'),
+            ])
+            .where('path', '=', ''),
+        )
+        .$notNull(),
+    }))
+    .where('uuid', 'in', attributionUuids)
+    .execute();
 }
 
 export async function cloneMixedAttributionsForWritableResources(
