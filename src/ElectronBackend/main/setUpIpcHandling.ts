@@ -55,11 +55,11 @@ export function setupIpcHandling(
   ipcMain.handle(IpcChannel.SplitFile, splitCurrentOpossumFileListener(window));
   ipcMain.handle(
     IpcChannel.MergeOpossumFiles,
-    mergeCurrentOpossumFilesListener(),
+    mergeCurrentOpossumFilesListener(window),
   );
   ipcMain.handle(
     IpcChannel.MergeOpossumFilesFromPaths,
-    mergeOpossumFilesFromPathsListener,
+    mergeOpossumFilesFromPathsListener.bind(undefined, window),
   );
   ipcMain.handle(IpcChannel.ExportFile, exportFileListener(window));
   ipcMain.handle(IpcChannel.StopLoading, () =>

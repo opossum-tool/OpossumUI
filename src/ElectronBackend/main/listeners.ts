@@ -23,7 +23,6 @@ import {
   type SplitFileResult,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
-import { mergeOpossumFilesFromPaths } from '../api/mergeOpossumFiles';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import {
   sendListenerErrorToFrontend,
@@ -113,42 +112,99 @@ export const splitCurrentOpossumFileListener =
   };
 
 export const mergeCurrentOpossumFilesListener =
-  () =>
+  (mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,
     partitionPaths: Array<string>,
     ignoreReadonlyResourceOutputConflicts: boolean,
   ): Promise<MergeOpossumFilesResult> => {
+    const processingStatusUpdater = new ProcessingStatusUpdater(
+      mainWindow.webContents,
+    );
+    processingStatusUpdater.startProcessing();
     const globalBackendState = getGlobalBackendState();
-    if (!globalBackendState.projectId || !globalBackendState.opossumFilePath) {
-      return {
-        errorMessage: 'No .opossum project is currently open.',
-        errorType: MergeOpossumFilesErrorType.Unknown,
-        status: 'error',
-      };
-    }
+    try {
+      if (
+        !globalBackendState.projectId ||
+        !globalBackendState.opossumFilePath
+      ) {
+        const errorMessage = 'No .opossum project is currently open.';
+        processingStatusUpdater.error(errorMessage);
+        return {
+          errorMessage,
+          errorType: MergeOpossumFilesErrorType.Unknown,
+          status: 'error',
+        };
+      }
 
-    return getMainDbClient().mergeOpossumFiles({
-      ignoreReadonlyResourceOutputConflicts,
-      saveFileParams: {
-        projectId: globalBackendState.projectId,
-        opossumFilePath: globalBackendState.opossumFilePath,
-      },
-      partitionPaths,
-    });
+      const result = await getMainDbClient().mergeOpossumFiles(
+        {
+          ignoreReadonlyResourceOutputConflicts,
+          saveFileParams: {
+            projectId: globalBackendState.projectId,
+            opossumFilePath: globalBackendState.opossumFilePath,
+          },
+          partitionPaths,
+        },
+        (message, level) => {
+          if (level === 'warn') {
+            processingStatusUpdater.warn(message);
+          } else {
+            processingStatusUpdater.info(message);
+          }
+        },
+      );
+      reportMergeResult(processingStatusUpdater, result);
+      return result;
+    } finally {
+      processingStatusUpdater.endProcessing();
+    }
   };
 
 export async function mergeOpossumFilesFromPathsListener(
+  mainWindow: BrowserWindow,
   _: Electron.IpcMainInvokeEvent,
   inputPaths: Array<string>,
   outputPath: string,
   ignoreReadonlyResourceOutputConflicts: boolean,
 ): Promise<MergeOpossumFilesResult> {
-  return mergeOpossumFilesFromPaths({
-    ignoreReadonlyResourceOutputConflicts,
-    inputPaths,
-    outputPath,
-  });
+  const processingStatusUpdater = new ProcessingStatusUpdater(
+    mainWindow.webContents,
+  );
+  processingStatusUpdater.startProcessing();
+  try {
+    const result = await getMainDbClient().mergeOpossumFilesFromPaths(
+      {
+        ignoreReadonlyResourceOutputConflicts,
+        inputPaths,
+        outputPath,
+      },
+      (message) => processingStatusUpdater.info(message),
+    );
+    reportMergeResult(processingStatusUpdater, result);
+    return result;
+  } finally {
+    processingStatusUpdater.endProcessing();
+  }
+}
+
+function reportMergeResult(
+  processingStatusUpdater: ProcessingStatusUpdater,
+  result: MergeOpossumFilesResult,
+): void {
+  if (result.status !== 'error') {
+    return;
+  }
+  if (
+    result.errorType ===
+    MergeOpossumFilesErrorType.ReadonlyResourceOutputConflict
+  ) {
+    processingStatusUpdater.warn('Readonly resource output conflicts detected');
+  } else {
+    processingStatusUpdater.error(
+      result.errorMessage ?? 'Unexpected internal error while merging',
+    );
+  }
 }
 
 export const selectSplitDestinationListener =

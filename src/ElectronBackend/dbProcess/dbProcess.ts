@@ -189,6 +189,7 @@ async function executeDbProcessMessage(
           ignoreReadonlyResourceOutputConflicts,
           saveFileParams,
           partitionPaths,
+          reportProgress: onProgress,
         },
         storedOpossumZip,
       );
@@ -217,12 +218,12 @@ async function executeDbProcessMessage(
         inputPaths,
         outputPath,
       } = msg;
-      await mergeOpossumFilesFromPaths({
+      return mergeOpossumFilesFromPaths({
         ignoreReadonlyResourceOutputConflicts,
         inputPaths,
         outputPath,
+        reportProgress: onProgress,
       });
-      return undefined;
     }
     case 'exportFile': {
       await exportFile(msg.exportType, msg.filePath);
