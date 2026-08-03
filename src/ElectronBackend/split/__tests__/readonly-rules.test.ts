@@ -120,8 +120,8 @@ describe('mergeReadonlyRules', () => {
     ).toEqual([
       { path: '/', readonly: true },
       { path: '/docs', readonly: false },
-      { path: '/frontend', readonly: false },
       { path: '/docs/nested', readonly: true },
+      { path: '/frontend', readonly: false },
     ]);
   });
 

@@ -126,7 +126,7 @@ export function mergeReadonlyRules(
   }
 
   return mergedRules.sort((first, second) =>
-    comparePaths(first.path, second.path),
+    first.path.localeCompare(second.path),
   );
 }
 
@@ -143,17 +143,6 @@ function getMergedReadonlyState(
     );
   }
   return editableArchiveCount === 0;
-}
-
-function comparePaths(firstPath: string, secondPath: string): number {
-  const depthDifference = getPathDepth(firstPath) - getPathDepth(secondPath);
-  return depthDifference === 0
-    ? firstPath.localeCompare(secondPath)
-    : depthDifference;
-}
-
-function getPathDepth(resourcePath: string): number {
-  return resourcePath.split('/').filter(Boolean).length;
 }
 
 export function isDescendant(
