@@ -18,7 +18,6 @@ import {
   type SplitFileResult,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
-import { mergeOpossumFilesFromPaths } from '../api/mergeOpossumFiles';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import {
   sendListenerErrorToFrontend,
@@ -135,7 +134,7 @@ export async function mergeOpossumFilesFromPathsListener(
   outputPath: string,
   ignoreReadonlyResourceOutputConflicts: boolean,
 ): Promise<void> {
-  await mergeOpossumFilesFromPaths({
+  await getMainDbClient().mergeOpossumFilesFromPaths({
     ignoreReadonlyResourceOutputConflicts,
     inputPaths,
     outputPath,

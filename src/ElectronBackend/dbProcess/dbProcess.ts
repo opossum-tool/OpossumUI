@@ -16,7 +16,10 @@ import {
   executeCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
-import { mergeOpossumFiles } from '../api/mergeOpossumFiles';
+import {
+  mergeOpossumFiles,
+  mergeOpossumFilesFromPaths,
+} from '../api/mergeOpossumFiles';
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
 import {
@@ -53,6 +56,13 @@ interface MergeOpossumFilesMessage {
   partitionPaths: Array<string>;
 }
 
+interface MergeOpossumFilesFromPathsMessage {
+  ignoreReadonlyResourceOutputConflicts: boolean;
+  inputPaths: Array<string>;
+  outputPath: string;
+  type: 'mergeOpossumFilesFromPaths';
+}
+
 interface ExportFileMessage {
   type: 'exportFile';
   exportType: ExportType;
@@ -70,6 +80,7 @@ export type DbProcessPayload =
   | SaveFileMessage
   | SplitOpossumFileMessage
   | MergeOpossumFilesMessage
+  | MergeOpossumFilesFromPathsMessage
   | ExportFileMessage
   | ExecuteCommandMessage;
 
@@ -180,6 +191,21 @@ async function executeDbProcessMessage(
         );
       }
       storedOpossumZip = loadResult.opossumZip;
+      return undefined;
+    }
+    case 'mergeOpossumFilesFromPaths': {
+      const {
+        id: _,
+        type: __,
+        ignoreReadonlyResourceOutputConflicts,
+        inputPaths,
+        outputPath,
+      } = msg;
+      await mergeOpossumFilesFromPaths({
+        ignoreReadonlyResourceOutputConflicts,
+        inputPaths,
+        outputPath,
+      });
       return undefined;
     }
     case 'exportFile': {

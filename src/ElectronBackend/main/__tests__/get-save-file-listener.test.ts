@@ -7,7 +7,6 @@ import { type BrowserWindow, dialog, type WebContents } from 'electron';
 import type { Mock } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { mergeOpossumFilesFromPaths } from '../../api/mergeOpossumFiles';
 import { getMainDbClient } from '../../dbProcess/dbProcessClient';
 import { saveOpossumFileDialog } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
@@ -41,10 +40,6 @@ vi.mock('../../dbProcess/dbProcessClient', () => ({
   getMainDbClient: vi.fn(),
 }));
 
-vi.mock('../../api/mergeOpossumFiles', () => ({
-  mergeOpossumFilesFromPaths: vi.fn(),
-}));
-
 vi.mock('../dialogs', () => ({
   saveOpossumFileDialog: vi.fn(),
 }));
@@ -52,11 +47,13 @@ vi.mock('../dialogs', () => ({
 const mockSaveFile = vi.fn();
 const mockSplitOpossumFile = vi.fn();
 const mockMergeOpossumFiles = vi.fn();
+const mockMergeOpossumFilesFromPaths = vi.fn();
 
 (getMainDbClient as Mock).mockReturnValue({
   saveFile: mockSaveFile,
   splitOpossumFile: mockSplitOpossumFile,
   mergeOpossumFiles: mockMergeOpossumFiles,
+  mergeOpossumFilesFromPaths: mockMergeOpossumFilesFromPaths,
 });
 
 describe('saveFileListener', () => {
@@ -66,6 +63,7 @@ describe('saveFileListener', () => {
       saveFile: mockSaveFile,
       splitOpossumFile: mockSplitOpossumFile,
       mergeOpossumFiles: mockMergeOpossumFiles,
+      mergeOpossumFilesFromPaths: mockMergeOpossumFilesFromPaths,
     });
   });
 
@@ -264,7 +262,7 @@ describe('mergeOpossumFilesFromPathsListener', () => {
       false,
     );
 
-    expect(mergeOpossumFilesFromPaths).toHaveBeenCalledWith({
+    expect(mockMergeOpossumFilesFromPaths).toHaveBeenCalledWith({
       ignoreReadonlyResourceOutputConflicts: false,
       inputPaths: ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
       outputPath: '/merged/project.opossum',
