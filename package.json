@@ -93,7 +93,7 @@
     "husky": "9.1.7",
     "knip": "6.29.0",
     "kysely-codegen": "0.20.0",
-    "lint-staged": "17.2.0",
+    "lint-staged": "17.3.0",
     "mkdirp": "3.0.1",
     "mockdate": "3.0.5",
     "nunjucks": "3.2.4",
