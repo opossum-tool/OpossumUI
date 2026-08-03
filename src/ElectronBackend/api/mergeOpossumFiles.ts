@@ -9,9 +9,7 @@ import { saveFile, type SaveFileParams } from './saveFile';
 
 export interface MergeOpossumFilesParams {
   ignoreReadonlyResourceOutputConflicts: boolean;
-  saveFileParams: Omit<SaveFileParams, 'opossumFilePath'> & {
-    opossumFilePath: string;
-  };
+  saveFileParams: SaveFileParams;
   partitionPaths: Array<string>;
 }
 
