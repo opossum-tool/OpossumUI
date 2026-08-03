@@ -132,7 +132,11 @@ export const MergeOpossumFilesDialog: React.FC<
 
   return (
     <NotificationPopup
-      header={text.mergeOpossumFilesDialog.title(mergeIntoCurrentFile)}
+      header={
+        mergeIntoCurrentFile
+          ? text.mergeOpossumFilesDialog.titleForCurrentFile
+          : text.mergeOpossumFilesDialog.title
+      }
       width={'80vw'}
       minWidth={'300px'}
       maxWidth={'700px'}
@@ -167,7 +171,9 @@ export const MergeOpossumFilesDialog: React.FC<
         />
       )}
       <MuiTypography>
-        {text.mergeOpossumFilesDialog.explanationText(mergeIntoCurrentFile)}
+        {mergeIntoCurrentFile
+          ? text.mergeOpossumFilesDialog.explanationTextForCurrentFile
+          : text.mergeOpossumFilesDialog.explanationText}
       </MuiTypography>
       <MuiTypography sx={{ marginTop: '20px' }}>
         {text.mergeOpossumFilesDialog.filesToMerge}
@@ -213,9 +219,11 @@ export const MergeOpossumFilesDialog: React.FC<
       />
       {!mergeIntoCurrentFile ? (
         <FilePathInput
-          label={text.mergeOpossumFilesDialog.outputFilePath.textFieldLabel(
-            Boolean(outputFilePath),
-          )}
+          label={
+            outputFilePath
+              ? text.mergeOpossumFilesDialog.outputFilePath.label
+              : text.mergeOpossumFilesDialog.outputFilePath.selectLabel
+          }
           text={outputFilePath}
           onClick={() => void selectOutputFilePath()}
           testId={'merge-opossum-files-output-path'}
