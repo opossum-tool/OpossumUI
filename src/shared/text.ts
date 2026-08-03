@@ -424,6 +424,8 @@ export const text = {
     mergeIgnoringReadonlyResourceOutputConflicts: 'Merge anyway',
     readonlyResourceOutputConflictWarning:
       'Readonly resource outputs conflict. Merging anyway uses the output from the first file for the conflicting paths.',
+    noReadonlyPathsWarning:
+      'The current project has not been split, so merging is not possible.',
     outputFilePath: {
       label: 'Merged Opossum file location',
       selectLabel: 'Select merged Opossum file location',

@@ -23,6 +23,7 @@ import { text } from '../../../shared/text';
 import { mergeOpossumFilesIntoCurrentFile } from '../../state/actions/popup-actions/popup-actions';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
+import { backend } from '../../util/backendClient';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
@@ -46,10 +47,18 @@ export const MergeOpossumFilesDialog: React.FC<
   const [mergeIntoCurrentFile, setMergeIntoCurrentFile] = useState(
     canMergeIntoCurrentFile,
   );
+  const { data: readonlyResourcePaths } =
+    backend.getReadonlyResourcePaths.useQuery(undefined, {
+      enabled: canMergeIntoCurrentFile,
+    });
 
   const mergeEnabled = mergeIntoCurrentFile
     ? inputFilePaths.length > 0
     : inputFilePaths.length >= 2 && Boolean(outputFilePath);
+  const showNoReadonlyPathsMessage =
+    mergeIntoCurrentFile && readonlyResourcePaths?.size === 0;
+  const mergeInteractionDisabled =
+    mergeInProgress || showNoReadonlyPathsMessage;
 
   async function addInputFilePaths(): Promise<void> {
     const selectedPaths =
@@ -153,7 +162,7 @@ export const MergeOpossumFilesDialog: React.FC<
           ? text.mergeOpossumFilesDialog
               .mergeIgnoringReadonlyResourceOutputConflicts
           : text.buttons.merge,
-        disabled: !mergeEnabled || mergeInProgress,
+        disabled: !mergeEnabled || mergeInteractionDisabled,
         loading: mergeInProgress,
       }}
       aria-label={'merge split Opossum files dialog'}
@@ -164,6 +173,7 @@ export const MergeOpossumFilesDialog: React.FC<
             <MuiSwitch
               checked={mergeIntoCurrentFile}
               onChange={(_, checked) => changeMergeMode(checked)}
+              disabled={mergeInProgress}
             />
           }
           label={text.mergeOpossumFilesDialog.mergeIntoCurrentProject}
@@ -175,6 +185,11 @@ export const MergeOpossumFilesDialog: React.FC<
           ? text.mergeOpossumFilesDialog.explanationTextForCurrentFile
           : text.mergeOpossumFilesDialog.explanationText}
       </MuiTypography>
+      {showNoReadonlyPathsMessage ? (
+        <MuiAlert severity={'warning'} sx={{ marginTop: '20px' }}>
+          {text.mergeOpossumFilesDialog.noReadonlyPathsWarning}
+        </MuiAlert>
+      ) : null}
       <MuiTypography sx={{ marginTop: '20px' }}>
         {text.mergeOpossumFilesDialog.filesToMerge}
       </MuiTypography>
@@ -198,7 +213,7 @@ export const MergeOpossumFilesDialog: React.FC<
                       filePath,
                     )}
                     onClick={() => removeInputFilePath(filePath)}
-                    disabled={mergeInProgress}
+                    disabled={mergeInteractionDisabled}
                   >
                     <ClearIcon />
                   </MuiIconButton>
@@ -215,7 +230,7 @@ export const MergeOpossumFilesDialog: React.FC<
         text={''}
         onClick={() => void addInputFilePaths()}
         testId={'merge-opossum-files-input-paths'}
-        disabled={mergeInProgress}
+        disabled={mergeInteractionDisabled}
       />
       {!mergeIntoCurrentFile ? (
         <FilePathInput
