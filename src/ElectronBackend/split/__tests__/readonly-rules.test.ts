@@ -31,11 +31,11 @@ describe('mergeReadonlyRules', () => {
   it('merges complementary partitions into an editable result', () => {
     expect(
       mergeReadonlyRules([
-        [{ path: '/docs', readonly: true }],
-        [
+        getReadonlyRuleMap([{ path: '/docs', readonly: true }]),
+        getReadonlyRuleMap([
           { path: '/', readonly: true },
           { path: '/docs', readonly: false },
-        ],
+        ]),
       ]),
     ).toEqual([]);
   });
@@ -43,14 +43,14 @@ describe('mergeReadonlyRules', () => {
   it('retains readonly paths that are not editable in any partition', () => {
     expect(
       mergeReadonlyRules([
-        [
+        getReadonlyRuleMap([
           { path: '/', readonly: true },
           { path: '/docs', readonly: false },
-        ],
-        [
+        ]),
+        getReadonlyRuleMap([
           { path: '/', readonly: true },
           { path: '/frontend', readonly: false },
-        ],
+        ]),
       ]),
     ).toEqual([
       { path: '/', readonly: true },
@@ -62,15 +62,15 @@ describe('mergeReadonlyRules', () => {
   it('keeps only necessary nested overrides', () => {
     expect(
       mergeReadonlyRules([
-        [
+        getReadonlyRuleMap([
           { path: '/', readonly: true },
           { path: '/frontend', readonly: false },
           { path: '/frontend/components', readonly: true },
-        ],
-        [
+        ]),
+        getReadonlyRuleMap([
           { path: '/', readonly: true },
           { path: '/frontend/components', readonly: false },
-        ],
+        ]),
       ]),
     ).toEqual([
       { path: '/', readonly: true },
@@ -81,12 +81,12 @@ describe('mergeReadonlyRules', () => {
   it('retains a readonly nested override below an editable path', () => {
     expect(
       mergeReadonlyRules([
-        [
+        getReadonlyRuleMap([
           { path: '/', readonly: true },
           { path: '/src', readonly: false },
           { path: '/src/generated', readonly: true },
-        ],
-        [{ path: '/', readonly: true }],
+        ]),
+        getReadonlyRuleMap([{ path: '/', readonly: true }]),
       ]),
     ).toEqual([
       { path: '/', readonly: true },
@@ -98,8 +98,8 @@ describe('mergeReadonlyRules', () => {
   it('keeps a fully readonly result', () => {
     expect(
       mergeReadonlyRules([
-        [{ path: '/', readonly: true }],
-        [{ path: '/', readonly: true }],
+        getReadonlyRuleMap([{ path: '/', readonly: true }]),
+        getReadonlyRuleMap([{ path: '/', readonly: true }]),
       ]),
     ).toEqual([{ path: '/', readonly: true }]);
   });
@@ -107,15 +107,15 @@ describe('mergeReadonlyRules', () => {
   it('returns rules in canonical path order', () => {
     expect(
       mergeReadonlyRules([
-        [
+        getReadonlyRuleMap([
           { path: '/docs/nested', readonly: true },
           { path: '/', readonly: true },
           { path: '/docs', readonly: false },
-        ],
-        [
+        ]),
+        getReadonlyRuleMap([
           { path: '/frontend', readonly: false },
           { path: '/', readonly: true },
-        ],
+        ]),
       ]),
     ).toEqual([
       { path: '/', readonly: true },
@@ -131,11 +131,13 @@ describe('mergeReadonlyRules', () => {
       '/frontend',
     ]);
 
-    expectMergesInAnyOrder([
-      secondSplit.sourceReadonlyRules,
-      firstSplit.splitReadonlyRules,
-      secondSplit.splitReadonlyRules,
-    ]);
+    expectMergesInAnyOrder(
+      [
+        secondSplit.sourceReadonlyRules,
+        firstSplit.splitReadonlyRules,
+        secondSplit.splitReadonlyRules,
+      ].map(getReadonlyRuleMap),
+    );
   });
 
   it('merges nested partitions in any order', () => {
@@ -144,11 +146,13 @@ describe('mergeReadonlyRules', () => {
       '/frontend/components',
     ]);
 
-    expectMergesInAnyOrder([
-      firstSplit.sourceReadonlyRules,
-      secondSplit.sourceReadonlyRules,
-      secondSplit.splitReadonlyRules,
-    ]);
+    expectMergesInAnyOrder(
+      [
+        firstSplit.sourceReadonlyRules,
+        secondSplit.sourceReadonlyRules,
+        secondSplit.splitReadonlyRules,
+      ].map(getReadonlyRuleMap),
+    );
   });
 
   it('rejects an empty list of archives', () => {
@@ -160,54 +164,60 @@ describe('mergeReadonlyRules', () => {
 
   it('rejects an archive without readonly rules', () => {
     expect(() =>
-      mergeReadonlyRules([[{ path: '/', readonly: true }], []]),
+      mergeReadonlyRules([
+        getReadonlyRuleMap([{ path: '/', readonly: true }]),
+        new Map(),
+      ]),
     ).toThrow(MergeReadonlyRulesError);
     expect(() =>
-      mergeReadonlyRules([[{ path: '/', readonly: true }], []]),
+      mergeReadonlyRules([
+        getReadonlyRuleMap([{ path: '/', readonly: true }]),
+        new Map(),
+      ]),
     ).toThrow('All archives must contain readonly rules');
   });
 
   it.each([
     {
-      readonlyRulesByPartition: [
-        [{ path: '/', readonly: false }],
-        [{ path: '/', readonly: false }],
+      readonlyRuleMaps: [
+        getReadonlyRuleMap([{ path: '/', readonly: false }]),
+        getReadonlyRuleMap([{ path: '/', readonly: false }]),
       ],
       overlappingPath: '/',
     },
     {
-      readonlyRulesByPartition: [
-        [
+      readonlyRuleMaps: [
+        getReadonlyRuleMap([
           { path: '/', readonly: true },
           { path: '/docs', readonly: false },
-        ],
-        [
+        ]),
+        getReadonlyRuleMap([
           { path: '/', readonly: true },
           { path: '/docs', readonly: false },
-        ],
+        ]),
       ],
       overlappingPath: '/docs',
     },
     {
-      readonlyRulesByPartition: [
-        [
+      readonlyRuleMaps: [
+        getReadonlyRuleMap([
           { path: '/', readonly: true },
           { path: '/docs', readonly: false },
-        ],
-        [
+        ]),
+        getReadonlyRuleMap([
           { path: '/', readonly: true },
           { path: '/docs/nested', readonly: false },
-        ],
+        ]),
       ],
       overlappingPath: '/docs/nested',
     },
   ])(
     'rejects invalid rule sets at $overlappingPath',
-    ({ readonlyRulesByPartition, overlappingPath }) => {
-      expect(() => mergeReadonlyRules(readonlyRulesByPartition)).toThrow(
+    ({ readonlyRuleMaps, overlappingPath }) => {
+      expect(() => mergeReadonlyRules(readonlyRuleMaps)).toThrow(
         MergeReadonlyRulesError,
       );
-      expect(() => mergeReadonlyRules(readonlyRulesByPartition)).toThrow(
+      expect(() => mergeReadonlyRules(readonlyRuleMaps)).toThrow(
         `'${overlappingPath}'`,
       );
     },
@@ -230,7 +240,9 @@ describe('split and merge', () => {
 
     expect(splitReadonlyRules).toEqual(currentReadonlyRules);
     expect(
-      mergeReadonlyRules([sourceReadonlyRules, splitReadonlyRules]),
+      mergeReadonlyRules(
+        [sourceReadonlyRules, splitReadonlyRules].map(getReadonlyRuleMap),
+      ),
     ).toEqual(currentReadonlyRules);
   });
 
@@ -271,16 +283,18 @@ describe('split and merge', () => {
       );
 
       expect(
-        mergeReadonlyRules([sourceReadonlyRules, splitReadonlyRules]),
+        mergeReadonlyRules(
+          [sourceReadonlyRules, splitReadonlyRules].map(getReadonlyRuleMap),
+        ),
       ).toEqual(currentReadonlyRules);
     },
   );
 });
 
 function expectMergesInAnyOrder(
-  readonlyRulesByPartition: Array<Array<{ path: string; readonly: boolean }>>,
+  readonlyRuleMaps: Array<Map<string, boolean>>,
 ): void {
-  for (const permutation of getPermutations(readonlyRulesByPartition)) {
+  for (const permutation of getPermutations(readonlyRuleMaps)) {
     expect(mergeReadonlyRules(permutation)).toEqual([]);
   }
 }

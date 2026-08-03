@@ -91,24 +91,21 @@ function createSourceReadonlyRules(
 }
 
 export function mergeReadonlyRules(
-  readonlyRulesByArchive: Array<Array<ReadonlyRule>>,
+  rulesByPathByArchive: Array<Map<string, boolean>>,
 ): Array<ReadonlyRule> {
-  if (readonlyRulesByArchive.length === 0) {
+  if (rulesByPathByArchive.length === 0) {
     throw new MergeReadonlyRulesError('At least one archive is required');
   }
-  if (
-    readonlyRulesByArchive.some((readonlyRules) => readonlyRules.length === 0)
-  ) {
+  if (rulesByPathByArchive.some((rulesByPath) => rulesByPath.size === 0)) {
     throw new MergeReadonlyRulesError(
       'All archives must contain readonly rules',
     );
   }
-  const rulesByPathByArchive = readonlyRulesByArchive.map(getReadonlyRuleMap);
   const candidatePaths = Array.from(
     new Set([
       '/',
-      ...readonlyRulesByArchive.flatMap((rules) =>
-        rules.map((rule) => rule.path),
+      ...rulesByPathByArchive.flatMap((rulesByPath) =>
+        Array.from(rulesByPath.keys()),
       ),
     ]),
   );

@@ -32,7 +32,6 @@ export interface MergeOpossumArchivesArgs {
 
 interface MergeArchive {
   output: ParsedOpossumOutputFile;
-  readonlyRules: Array<ReadonlyRule>;
   readonlyRulesByPath: Map<string, boolean>;
   zip: AdmZip;
 }
@@ -96,7 +95,6 @@ function readMergeArchive(filePath: string): MergeArchive {
         outputEntry.getData().toString('utf-8'),
         filePath,
       ),
-      readonlyRules,
       readonlyRulesByPath: getReadonlyRuleMap(readonlyRules),
       zip,
     };
@@ -147,7 +145,7 @@ function mergeReadonlyRules(
 ): Array<ReadonlyRule> {
   try {
     return mergePureReadonlyRules(
-      archives.map((archive) => archive.readonlyRules),
+      archives.map((archive) => archive.readonlyRulesByPath),
     );
   } catch (error) {
     if (error instanceof MergeReadonlyRulesError) {
