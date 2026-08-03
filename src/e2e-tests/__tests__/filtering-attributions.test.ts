@@ -58,36 +58,35 @@ test('filters attributions in audit view', async ({ attributionsPanel }) => {
 
   await attributionsPanel.filterButton.click();
   await attributionsPanel.filters.needsFollowUp.click();
-  await attributionsPanel.closeMenu();
+  await attributionsPanel.closeFilterMenu();
   await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
   await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
   await attributionsPanel.packageCard.assert.isHidden(packageInfo3);
 
   await attributionsPanel.filterButton.click();
   await attributionsPanel.filters.firstParty.click();
-  await attributionsPanel.closeMenu();
+  await attributionsPanel.closeFilterMenu();
   await attributionsPanel.packageCard.assert.isHidden(packageInfo1);
   await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
   await attributionsPanel.packageCard.assert.isHidden(packageInfo3);
 
   await attributionsPanel.filterButton.click();
   await attributionsPanel.filters.needsFollowUp.click();
-  await attributionsPanel.closeMenu();
+  await attributionsPanel.closeFilterMenu();
   await attributionsPanel.packageCard.assert.isHidden(packageInfo1);
   await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
   await attributionsPanel.packageCard.assert.isVisible(packageInfo3);
 
   await attributionsPanel.filterButton.click();
   await attributionsPanel.filters.firstParty.click();
-  await attributionsPanel.closeMenu();
+  await attributionsPanel.closeFilterMenu();
   await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
   await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
   await attributionsPanel.packageCard.assert.isVisible(packageInfo3);
 
   await attributionsPanel.filterButton.click();
   await attributionsPanel.selectLicenseName(packageInfo1.licenseName!);
-  await attributionsPanel.closeMenu();
-  await attributionsPanel.closeMenu();
+  await attributionsPanel.closeFilterMenu();
   await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
   await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
   await attributionsPanel.packageCard.assert.isHidden(packageInfo3);
@@ -129,7 +128,7 @@ test('applies a filter after discarding unsaved attribution changes', async ({
   await attributionDetails.attributionForm.assert.commentIs(comment);
   await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
 
-  await attributionsPanel.closeMenu();
+  await attributionsPanel.closeFilterMenu();
   await attributionsPanel.filterButton.click();
   await attributionsPanel.filters.needsFollowUp.click();
   await notSavedPopup.discardButton.click();
@@ -149,36 +148,35 @@ test('filters attributions in report view', async ({ reportView, topBar }) => {
 
   await reportView.filterButton.click();
   await reportView.filters.needsFollowUp.click();
-  await reportView.closeMenu();
+  await reportView.closeFilterMenu();
   await reportView.assert.attributionIsVisible(attributionId1);
   await reportView.assert.attributionIsHidden(attributionId2);
   await reportView.assert.attributionIsHidden(attributionId3);
 
   await reportView.filterButton.click();
   await reportView.filters.firstParty.click();
-  await reportView.closeMenu();
+  await reportView.closeFilterMenu();
   await reportView.assert.attributionIsHidden(attributionId1);
   await reportView.assert.attributionIsHidden(attributionId2);
   await reportView.assert.attributionIsHidden(attributionId3);
 
   await reportView.filterButton.click();
   await reportView.filters.needsFollowUp.click();
-  await reportView.closeMenu();
+  await reportView.closeFilterMenu();
   await reportView.assert.attributionIsHidden(attributionId1);
   await reportView.assert.attributionIsHidden(attributionId2);
   await reportView.assert.attributionIsVisible(attributionId3);
 
   await reportView.filterButton.click();
   await reportView.filters.firstParty.click();
-  await reportView.closeMenu();
+  await reportView.closeFilterMenu();
   await reportView.assert.attributionIsVisible(attributionId1);
   await reportView.assert.attributionIsVisible(attributionId2);
   await reportView.assert.attributionIsVisible(attributionId3);
 
   await reportView.filterButton.click();
   await reportView.selectLicenseName(packageInfo1.licenseName!);
-  await reportView.closeMenu();
-  await reportView.closeMenu();
+  await reportView.closeFilterMenu();
   await reportView.assert.attributionIsVisible(attributionId1);
   await reportView.assert.attributionIsHidden(attributionId2);
   await reportView.assert.attributionIsHidden(attributionId3);

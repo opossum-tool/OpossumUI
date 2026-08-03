@@ -46,6 +46,16 @@ export class SplitDialog {
     succeeded: async (): Promise<void> => {
       await expect(this.node.getByText(text.splitDialog.success)).toBeVisible();
     },
+    resourceIsReadonly: async (resourceName: string): Promise<void> => {
+      await expect(
+        this.node.getByText(resourceName, { exact: true }),
+      ).toBeHidden();
+    },
+    resourceIsEditable: async (resourceName: string): Promise<void> => {
+      await expect(
+        this.node.getByText(resourceName, { exact: true }),
+      ).toBeVisible();
+    },
     titleIsHidden: async (): Promise<void> => {
       await expect(
         this.node.getByRole('heading', {

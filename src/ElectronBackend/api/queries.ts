@@ -16,6 +16,7 @@ import type {
   RawClassificationsConfig,
 } from '../../shared/shared-types';
 import { getDb } from '../db/db';
+import { EDITABLE_ATTRIBUTION_RESOURCE_ACCESS } from '../types/types';
 import {
   getFilterExpression,
   getFilterKeys,
@@ -128,6 +129,7 @@ export const queries = {
       .selectFrom('attribution')
       .select(['data', 'is_external'])
       .where('uuid', '=', props.attributionUuid)
+      .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
       .executeTakeFirstOrThrow();
 
     return {
@@ -137,41 +139,6 @@ export const queries = {
       },
     };
   },
-
-  async getManualAttributionOnResourceOrAncestor(props: {
-    resourcePath: string;
-  }) {
-    const resource = await getResourceOrThrow(getDb(), props.resourcePath);
-
-    const manualAttributionOnResourceOrAncestor = await getDb()
-      .selectFrom('attribution')
-      .innerJoin(
-        'resource_to_attribution as rta',
-        'attribution.uuid',
-        'rta.attribution_uuid',
-      )
-      .innerJoin(
-        'closest_attributed_ancestors as caa',
-        'caa.manual',
-        'rta.resource_id',
-      )
-      .select('data')
-      .where('caa.resource_id', '=', resource.id)
-      .where('attribution_is_external', '=', 0)
-      .limit(1)
-      .executeTakeFirst();
-
-    if (manualAttributionOnResourceOrAncestor) {
-      return {
-        result: JSON.parse(
-          manualAttributionOnResourceOrAncestor.data,
-        ) as PackageInfo,
-      };
-    }
-
-    return { result: null };
-  },
-
   async autoCompleteOptions({
     attributeName,
   }: {
@@ -188,6 +155,7 @@ export const queries = {
         eb.fn.countAll<number>().as('count'),
       ])
       .where('is_resolved', '=', 0)
+      .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
       .where(toSnakeCase(attributeName), 'is not', null)
       .where(toSnakeCase(attributeName), '!=', '')
       .groupBy(['value', 'is_external']);
@@ -253,6 +221,11 @@ export const queries = {
       .groupBy('relationship');
 
     query = query.where('is_external', '=', Number(props.external));
+    query = query.where(
+      'resource_access',
+      'in',
+      EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
+    );
 
     for (const filter of props.filters) {
       query = query.where(getFilterExpression(filter));
@@ -335,6 +308,7 @@ export const queries = {
       .selectFrom('attribution')
       .select('uuid')
       .where('is_resolved', '=', 1)
+      .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
       .execute();
 
     return { result: new Set(result.map((r) => r.uuid)) };
@@ -559,6 +533,16 @@ export const queries = {
       .execute();
     return { result: new Set(result.map((r) => r.path)) };
   },
+
+  async getReadonlyResourcePaths() {
+    const result = await getDb()
+      .selectFrom('resource')
+      .select('path')
+      .where('is_readonly', '=', 1)
+      .execute();
+    return { result: new Set(result.map((r) => r.path)) };
+  },
+
   async getResourceCountOnAttribution(props: { attributionUuid: string }) {
     const resourceCount = await getDb()
       .selectFrom('resource_to_attribution')

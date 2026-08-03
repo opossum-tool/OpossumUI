@@ -33,6 +33,7 @@ export async function getAttributionProgressBarData(): Promise<{
         .selectFrom('resource')
         .select((eb) => eb.fn.countAll<number>().as('file_count'))
         .where('is_file', '=', 1)
+        .where('is_readonly', '=', 0)
         .executeTakeFirstOrThrow();
 
       const manual_count = await getCount(trx, getManualFilesQuery);
@@ -124,6 +125,7 @@ export async function getNextFileToReviewForAttribution(props: {
             .selectFrom('closest_attributed_ancestors')
             .select('resource_id')
             .where('is_file', '=', 1)
+            .where('resource_is_readonly', '=', 0)
             .where('manual', 'is', null)
             .where('external', 'is', null),
       ]) {

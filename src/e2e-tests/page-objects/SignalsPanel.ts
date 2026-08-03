@@ -19,6 +19,7 @@ export class SignalsPanel {
   readonly hideDeletedButton: Locator;
   readonly showDeletedButton: Locator;
   readonly filterButton: Locator;
+  readonly filterMenu: Locator;
   readonly sortButton: Locator;
   readonly sortings: {
     readonly name: Locator;
@@ -52,6 +53,7 @@ export class SignalsPanel {
       exact: true,
     });
     this.filterButton = this.node.getByLabel('filter button', { exact: true });
+    this.filterMenu = window.getByRole('menu');
     this.sortButton = this.node.getByLabel('sort button', { exact: true });
     this.linkButton = this.node.getByRole('button', {
       name: text.packageLists.linkAsAttribution,
@@ -149,13 +151,17 @@ export class SignalsPanel {
     },
   };
 
-  async closeMenu() {
-    await this.window.keyboard.press('Escape');
+  async closeFilterMenu() {
+    if (await this.filterMenu.isVisible()) {
+      await this.filterMenu.press('Escape');
+    }
   }
 
   async selectLicenseName(licenseName: string) {
     await this.filters.license.fill(licenseName);
-    await this.window.keyboard.press('ArrowUp');
-    await this.window.keyboard.press('Enter');
+    await this.window
+      .getByRole('option', { name: licenseName, exact: true })
+      .click();
+    await expect(this.filters.license).toHaveValue(licenseName);
   }
 }

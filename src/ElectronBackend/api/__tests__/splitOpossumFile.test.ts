@@ -5,6 +5,7 @@
 import AdmZip from 'adm-zip';
 import fs from 'fs';
 
+import { Criticality } from '../../../shared/shared-types';
 import {
   INPUT_FILE_NAME,
   SPLIT_INFO_FILE_NAME,
@@ -14,7 +15,9 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
+import { getDb } from '../../db/db';
 import { getReadonlyRules } from '../../db/split-info';
+import { AttributionResourceAccess } from '../../types/types';
 import { saveFile } from '../saveFile';
 import { splitOpossumFile } from '../splitOpossumFile';
 
@@ -79,6 +82,85 @@ describe('splitOpossumFile', () => {
     expect(getReadonlyRulesFromArchive(splitOpossumFilePath)).toEqual([
       { path: '/', readonly: true },
       { path: '/docs/README.md', readonly: false },
+    ]);
+  });
+
+  it('refreshes readonly-derived data for the loaded complement partition', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/docs/README.md', '/frontend/App.tsx']),
+      manualAttributions: {
+        attributions: {
+          readonly: { id: 'readonly', criticality: Criticality.None },
+          shared: { id: 'shared', criticality: Criticality.None },
+          unlinked: { id: 'unlinked', criticality: Criticality.None },
+          writable: { id: 'writable', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/docs/README.md': ['readonly', 'shared'],
+          '/frontend/App.tsx': ['shared', 'writable'],
+        },
+        attributionsToResources: {},
+      },
+    });
+    const { opossumFilePath, splitOpossumFilePath } = createPaths();
+
+    await splitOpossumFile(
+      {
+        saveFileParams: { projectId: 'project-id', opossumFilePath },
+        selectedFolderPaths: ['/docs'],
+        splitOpossumFilePath,
+      },
+      createOpossumZip(),
+    );
+
+    expect(
+      await getDb()
+        .selectFrom('resource')
+        .select(['path', 'is_readonly', 'has_editable_descendant'])
+        .where('path', 'in', ['', '/docs', '/docs/README.md', '/frontend'])
+        .orderBy('path')
+        .execute(),
+    ).toEqual([
+      { path: '', is_readonly: 0, has_editable_descendant: 1 },
+      { path: '/docs', is_readonly: 1, has_editable_descendant: 0 },
+      { path: '/docs/README.md', is_readonly: 1, has_editable_descendant: 0 },
+      { path: '/frontend', is_readonly: 0, has_editable_descendant: 1 },
+    ]);
+    expect(
+      await getDb()
+        .selectFrom('closest_attributed_ancestors as caa')
+        .innerJoin('resource as r', 'r.id', 'caa.resource_id')
+        .select([
+          'r.path',
+          'caa.resource_is_readonly',
+          'caa.manual_is_readonly',
+        ])
+        .where('r.path', 'in', ['/docs/README.md', '/frontend/App.tsx'])
+        .orderBy('r.path')
+        .execute(),
+    ).toEqual([
+      {
+        path: '/docs/README.md',
+        resource_is_readonly: 1,
+        manual_is_readonly: 1,
+      },
+      {
+        path: '/frontend/App.tsx',
+        resource_is_readonly: 0,
+        manual_is_readonly: 0,
+      },
+    ]);
+    expect(
+      await getDb()
+        .selectFrom('attribution')
+        .select(['uuid', 'resource_access'])
+        .orderBy('uuid')
+        .execute(),
+    ).toEqual([
+      { uuid: 'readonly', resource_access: AttributionResourceAccess.Readonly },
+      { uuid: 'shared', resource_access: AttributionResourceAccess.Mixed },
+      { uuid: 'unlinked', resource_access: AttributionResourceAccess.Writable },
+      { uuid: 'writable', resource_access: AttributionResourceAccess.Writable },
     ]);
   });
 

@@ -11,6 +11,7 @@ import {
 
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
+import { EDITABLE_ATTRIBUTION_RESOURCE_ACCESS } from '../types/types';
 import {
   getFilterExpression,
   getIncompleteCoordinatesExpression,
@@ -27,6 +28,7 @@ export async function manualAttributionStatistics() {
         .selectFrom('attribution')
         .select((eb) => eb.fn.countAll<number>().as('count'))
         .where('is_external', '=', 0)
+        .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
         .where(e)
         .executeTakeFirstOrThrow()
     ).count;
@@ -93,6 +95,7 @@ export async function externalAttributionStatistics() {
         ])
         .where('is_external', '=', 1)
         .where('is_resolved', '=', 0)
+        .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
         .where('license_name', 'is not', null)
         .where('license_name', '!=', '')
         .groupBy('stripped')
@@ -145,6 +148,7 @@ export async function externalAttributionStatistics() {
     ])
     .where('is_external', '=', 1)
     .where('is_resolved', '=', 0)
+    .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
     .groupBy('name')
     .orderBy('name', 'desc')
     .execute();
@@ -168,6 +172,7 @@ export async function externalAttributionStatistics() {
     ])
     .where('is_external', '=', 1)
     .where('is_resolved', '=', 0)
+    .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
     .groupBy('name')
     .orderBy('name', 'desc')
     .execute();
@@ -213,6 +218,11 @@ export async function licenseTable() {
     ])
     .where('attribution.is_external', '=', 1)
     .where('attribution.is_resolved', '=', 0)
+    .where(
+      'attribution.resource_access',
+      'in',
+      EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
+    )
     .groupBy((eb) => [
       toCanonicalLicenseName(eb.ref('license_name')),
       'criticality',

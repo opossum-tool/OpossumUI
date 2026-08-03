@@ -17,6 +17,7 @@ import type {
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
 } from '../../ElectronBackend/types/types';
+import type { ReadonlyRule } from '../../shared/shared-types';
 import { writeOpossumFile } from '../../shared/write-file';
 import { AttributionDetails } from '../page-objects/AttributionDetails';
 import { AttributionsPanel } from '../page-objects/AttributionsPanel';
@@ -50,6 +51,7 @@ const LOAD_TIMEOUT = 15000;
 interface OpossumData {
   inputData: ParsedOpossumInputFile;
   outputData?: ParsedOpossumOutputFile;
+  readonlyRules?: ReadonlyRule[];
 }
 
 interface FilePaths {
@@ -278,7 +280,7 @@ function getReleasePath(): string {
 }
 
 async function createTestFiles({
-  data: { inputData, outputData },
+  data: { inputData, outputData, readonlyRules },
   filePaths: { json, opossum },
 }: {
   data: OpossumData;
@@ -289,6 +291,7 @@ async function createTestFiles({
     input: inputData,
     path: opossum,
     output: outputData,
+    readonlyRules,
   });
 
   return opossum;

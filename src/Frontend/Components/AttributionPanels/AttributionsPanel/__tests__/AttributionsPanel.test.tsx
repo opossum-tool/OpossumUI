@@ -73,6 +73,35 @@ describe('AttributionsPanel', () => {
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
   });
 
+  it('disables create and link buttons on a readonly structural ancestor', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const filePath = '/editable/file.ts';
+    await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([filePath]),
+        manualAttributions: { [packageInfo.id]: packageInfo },
+        resourcesToManualAttributions: { [filePath]: [packageInfo.id] },
+        readonlyRules: [
+          { path: '/', readonly: true },
+          { path: '/editable', readonly: false },
+        ],
+      }),
+    });
+
+    await userEvent.click(
+      await screen.findByText(
+        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+      ),
+    );
+
+    expect(
+      screen.getByRole('button', { name: text.packageLists.create }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
+    ).toBeDisabled();
+  });
+
   it('shows alert when some attribution on current resource is incomplete', async () => {
     const resourceId = faker.system.filePath();
     const packageInfo1 = faker.opossum.packageInfo({ packageName: undefined });
@@ -160,6 +189,7 @@ describe('AttributionsPanel', () => {
     await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
+        resources: pathsToResources([filePath]),
         resourcesToManualAttributions: {
           [filePath]: [packageInfo.id],
         },
@@ -190,6 +220,7 @@ describe('AttributionsPanel', () => {
     const { store } = await renderComponent(<AttributionsPanel />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions,
+        resources: pathsToResources([filePath]),
         resourcesToManualAttributions: {
           [filePath]: [packageInfo.id],
         },

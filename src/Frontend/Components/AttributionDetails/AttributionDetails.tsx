@@ -27,6 +27,7 @@ import {
   useSelectedAttributionIsExternal,
   useSelectedAttributionPackageInfo,
 } from '../../util/use-selected-attribution';
+import { useIsSelectedResourceReadonly } from '../../util/use-selected-resource';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
 import {
   ConfirmationDialog,
@@ -54,6 +55,7 @@ export function AttributionDetails() {
   const selectedAttribution = useSelectedAttributionPackageInfo();
   const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
 
   useLayoutEffect(() => {
     dispatch(
@@ -104,6 +106,10 @@ export function AttributionDetails() {
   const isEditable = !pickerMode.isActive && !selectedAttributionIsExternal;
 
   if (!!selectedAttributionId && !isSelectedAttributionVisible) {
+    return null;
+  }
+
+  if (isSelectedResourceReadonly && !selectedAttributionId) {
     return null;
   }
 

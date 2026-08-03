@@ -15,6 +15,21 @@ import type {
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 
+export enum AttributionResourceAccess {
+  Readonly = 0,
+  Writable = 1,
+  Mixed = 2,
+}
+
+export const ATTRIBUTION_RESOURCE_ACCESS_VALUES: number[] = Object.values(
+  AttributionResourceAccess,
+).filter((v) => typeof v === 'number');
+
+export const EDITABLE_ATTRIBUTION_RESOURCE_ACCESS = [
+  AttributionResourceAccess.Writable,
+  AttributionResourceAccess.Mixed,
+] as const;
+
 export interface ParsingError {
   message: string;
   type:

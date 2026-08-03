@@ -24,6 +24,10 @@ export interface Attribution {
   data: string;
   is_external: number;
   is_resolved: Generated<number>;
+  /**
+   * Whether this attribution has only readonly resources, only writable resources, or both.
+   */
+  resource_access: Generated<number>;
   uuid: string;
   pre_selected: Generated<number>;
   criticality: Generated<number | null>;
@@ -55,9 +59,12 @@ export interface Classification {
 export interface ClosestAttributedAncestors {
   breakpoint: number;
   external: number | null;
+  external_is_readonly: number | null;
   is_file: number;
   manual: number | null;
+  manual_is_readonly: number | null;
   resource_id: Generated<number>;
+  resource_is_readonly: number;
 }
 
 export interface ExternalAttributionSource {
@@ -93,9 +100,17 @@ export interface Resource {
    * Is a directory or in files_with_children
    */
   can_have_children: Generated<number>;
+  /**
+   * Whether this resource or any descendant is writable and must be shown in the editable-partition tree.
+   */
+  has_editable_descendant: Generated<number>;
   id: Generated<number>;
   is_attribution_breakpoint: Generated<number>;
   is_file: Generated<number>;
+  /**
+   * Whether the most specific split-info readonly rule makes this resource readonly.
+   */
+  is_readonly: Generated<number>;
   /**
    * The highest id of a descendant of this resource. As the resources are numbered depth-first, this enables us to identify the children of resource R by checking if child.id is between R.id and R.max_descendant_id, which is very fast. See https://en.wikipedia.org/wiki/Nested_set_model
    */

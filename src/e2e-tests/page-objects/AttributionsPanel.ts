@@ -19,6 +19,7 @@ export class AttributionsPanel {
   readonly replaceButton: Locator;
   readonly deleteButton: Locator;
   readonly filterButton: Locator;
+  readonly filterMenu: Locator;
   readonly sortButton: Locator;
   readonly sortings: {
     readonly name: Locator;
@@ -65,6 +66,7 @@ export class AttributionsPanel {
       exact: true,
     });
     this.filterButton = this.node.getByLabel('filter button', { exact: true });
+    this.filterMenu = window.getByRole('menu');
     this.sortButton = this.node.getByLabel('sort button', { exact: true });
     this.createButton = this.node.getByRole('button', {
       name: text.packageLists.create,
@@ -175,8 +177,10 @@ export class AttributionsPanel {
     },
   };
 
-  async closeMenu() {
-    await this.window.keyboard.press('Escape');
+  async closeFilterMenu() {
+    if (await this.filterMenu.isVisible()) {
+      await this.filterMenu.press('Escape');
+    }
   }
 
   async selectLicenseName(licenseName: string) {

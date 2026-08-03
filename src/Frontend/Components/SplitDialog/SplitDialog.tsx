@@ -7,6 +7,8 @@ import MuiTypography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 
 import { text } from '../../../shared/text';
+import { createSplit } from '../../state/actions/popup-actions/popup-actions';
+import { useAppDispatch } from '../../state/hooks';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { MultiResourcePicker } from './MultiResourcePicker';
@@ -22,6 +24,7 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
   open,
   resourcePath,
 }) => {
+  const dispatch = useAppDispatch();
   const [destinationPath, setDestinationPath] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>();
   const [splitInProgress, setSplitInProgress] = useState(false);
@@ -44,11 +47,7 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
   }, [open, resourcePath]);
 
   async function selectDestinationPath(): Promise<void> {
-    if (
-      splitInProgress ||
-      splitSucceeded ||
-      selectedResourcePaths.length === 0
-    ) {
+    if (splitInProgress || selectedResourcePaths.length === 0) {
       return;
     }
 
@@ -61,16 +60,19 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
     }
   }
 
-  async function createSplit(): Promise<void> {
+  async function handleCreateSplit(): Promise<void> {
     setSplitInProgress(true);
     setErrorMessage(undefined);
+    setSplitSucceeded(false);
     try {
-      const result = await window.electronAPI.splitFile(
-        selectedResourcePaths,
-        destinationPath,
+      const result = await dispatch(
+        createSplit(selectedResourcePaths, destinationPath),
       );
       if (result.status === 'success') {
         setSplitSucceeded(true);
+        setDestinationPath('');
+        setSelectedResourcePaths([]);
+        setPickerInstance((currentPickerInstance) => currentPickerInstance + 1);
       } else if (result.status === 'error') {
         setErrorMessage(result.message);
       }
@@ -89,19 +91,15 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
       minWidth={'300px'}
       maxWidth={'700px'}
       isOpen={open}
-      leftButtonConfig={
-        splitSucceeded
-          ? undefined
-          : {
-              onClick: createSplit,
-              buttonText: text.splitDialog.create,
-              disabled:
-                !destinationPath ||
-                selectedResourcePaths.length === 0 ||
-                splitInProgress,
-              loading: splitInProgress,
-            }
-      }
+      leftButtonConfig={{
+        onClick: handleCreateSplit,
+        buttonText: text.splitDialog.create,
+        disabled:
+          !destinationPath ||
+          selectedResourcePaths.length === 0 ||
+          splitInProgress,
+        loading: splitInProgress,
+      }}
       rightButtonConfig={{
         onClick: onClose,
         buttonText: splitSucceeded ? text.buttons.close : text.buttons.cancel,
@@ -116,7 +114,7 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
         <MuiTypography>{text.splitDialog.explanationText}</MuiTypography>
         <MultiResourcePicker
           key={`${resourcePath}-${pickerInstance}`}
-          initialSelectedPaths={getInitialSelectedResourcePaths(resourcePath)}
+          initialSelectedPaths={selectedResourcePaths}
           open={open}
           onSelectionChange={setSelectedResourcePaths}
         />
@@ -127,11 +125,7 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
           text={destinationPath}
           onClick={() => void selectDestinationPath()}
           testId={'split-destination-path'}
-          disabled={
-            splitInProgress ||
-            splitSucceeded ||
-            selectedResourcePaths.length === 0
-          }
+          disabled={splitInProgress || selectedResourcePaths.length === 0}
         />
         {splitSucceeded ? (
           <MuiAlert severity={'success'} sx={{ marginTop: '20px' }}>

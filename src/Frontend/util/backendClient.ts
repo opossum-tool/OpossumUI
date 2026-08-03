@@ -209,3 +209,7 @@ export const backend = new Proxy({} as BackendClient, {
     };
   },
 });
+
+export function invalidateBackendQueries() {
+  return queryClient.invalidateQueries({ queryKey: ['backend'] });
+}

@@ -14,6 +14,7 @@ import type {
   ParsedFileContent,
   ProjectMetadata,
   RawProjectConfig,
+  ReadonlyRule,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -59,6 +60,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
   frequentLicenses?: FrequentLicenses;
   baseUrlsForSources?: BaseUrlsForSources;
   metadata?: ProjectMetadata;
+  readonlyRules?: Array<ReadonlyRule>;
 }): ParsedFileContent {
   const defaultTestResources: Resources = {
     thirdParty: {
@@ -86,6 +88,7 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
     resources,
     ...(testData.config ? { config: testData.config } : {}),
     ...(testData.metadata ? { metadata: testData.metadata } : {}),
+    readonlyRules: testData.readonlyRules ?? [],
     manualAttributions: {
       attributions: testData.manualAttributions || {},
       resourcesToAttributions: testResourcesToManualAttributions,

@@ -13,3 +13,11 @@ export function useIsSelectedResourceBreakpoint(): boolean {
     backend.getAttributionBreakpoints.useQuery();
   return attributionBreakpoints?.has(trimmedSelectedResourceId) ?? false;
 }
+
+export function useIsSelectedResourceReadonly(): boolean {
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const trimmedSelectedResourceId = selectedResourceId.replace(/\/$/, '');
+  const { data: readonlyResourcePaths } =
+    backend.getReadonlyResourcePaths.useQuery();
+  return readonlyResourcePaths?.has(trimmedSelectedResourceId) ?? false;
+}

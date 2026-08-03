@@ -9,6 +9,7 @@ import { text } from '../../shared/text';
 export class ReportView {
   private readonly window: Page;
   private readonly node: Locator;
+  private readonly filterMenu: Locator;
   readonly filterButton: Locator;
   readonly filters: {
     readonly thirdParty: Locator;
@@ -23,6 +24,7 @@ export class ReportView {
   constructor(window: Page) {
     this.window = window;
     this.node = window.getByLabel('report view');
+    this.filterMenu = window.getByRole('menu');
     this.filterButton = this.node.getByLabel('filter button', { exact: true });
     this.filters = {
       thirdParty: window.getByRole('menuitem', {
@@ -55,7 +57,13 @@ export class ReportView {
     attributionIsVisible: async (id: string): Promise<void> => {
       await expect(this.attributionRow(id)).toBeVisible();
     },
+    attributionIsEditable: async (id: string): Promise<void> => {
+      await expect(this.attributionRow(id)).toBeVisible();
+    },
     attributionIsHidden: async (id: string): Promise<void> => {
+      await expect(this.attributionRow(id)).toBeHidden();
+    },
+    attributionIsReadonly: async (id: string): Promise<void> => {
       await expect(this.attributionRow(id)).toBeHidden();
     },
   };
@@ -66,13 +74,16 @@ export class ReportView {
       .click();
   }
 
-  async closeMenu() {
-    await this.window.keyboard.press('Escape');
+  async closeFilterMenu() {
+    if (await this.filterMenu.isVisible()) {
+      await this.filterMenu.press('Escape');
+    }
   }
 
   async selectLicenseName(licenseName: string) {
     await this.filters.license.fill(licenseName);
-    await this.window.keyboard.press('ArrowUp');
-    await this.window.keyboard.press('Enter');
+    await this.window
+      .getByRole('option', { name: licenseName, exact: true })
+      .click();
   }
 }

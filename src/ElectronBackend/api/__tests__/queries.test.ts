@@ -299,6 +299,42 @@ describe('getResourcePathsAndParentsForAttributions', () => {
 });
 
 describe('getProgressBarData', () => {
+  it('excludes readonly files and attributions inherited from readonly ancestors', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/readonly/hidden.ts',
+        '/readonly/writable/shown.ts',
+      ]),
+      manualAttributions: {
+        attributions: {
+          'manual-on-readonly-parent': {
+            id: 'manual-on-readonly-parent',
+            criticality: Criticality.None,
+          },
+        },
+        resourcesToAttributions: {
+          '/readonly': ['manual-on-readonly-parent'],
+        },
+        attributionsToResources: {
+          'manual-on-readonly-parent': ['/readonly'],
+        },
+      },
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/readonly/writable', readonly: false },
+      ],
+    });
+
+    const { result } = await queries.getAttributionProgressBarData();
+
+    expect(result).toEqual({
+      fileCount: 1,
+      manualNonPreSelectedFileCount: 0,
+      manualPreSelectedFileCount: 0,
+      onlyExternalFileCount: 0,
+    });
+  });
+
   it('returns zero counts when there are no attributions', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/src/file.ts']),

@@ -6,6 +6,11 @@ import type { Action, ThunkAction, ThunkDispatch } from '@reduxjs/toolkit';
 
 import type { State } from '../types/types';
 
-export type AppThunkAction = ThunkAction<void, State, unknown, Action<string>>;
+export type AppThunkAction<Result = void> = ThunkAction<
+  Result,
+  State,
+  unknown,
+  Action<string>
+>;
 
 export type AppThunkDispatch = ThunkDispatch<State, unknown, Action>;

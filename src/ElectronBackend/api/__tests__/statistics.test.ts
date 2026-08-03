@@ -3,14 +3,97 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../shared/shared-types';
-import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
+import { initializeDbWithTestData as initializeDbWithRawTestData } from '../../../testing/global-test-helpers';
 import {
   externalAttributionStatistics,
   licenseTable,
   manualAttributionStatistics,
 } from '../statistics';
 
+async function initializeDbWithTestData(
+  overrides?: Parameters<typeof initializeDbWithRawTestData>[0],
+) {
+  function linkUnlinkedAttributionsToRoot(
+    attributionData: NonNullable<
+      Parameters<typeof initializeDbWithRawTestData>[0]
+    >['manualAttributions'],
+  ) {
+    if (!attributionData) {
+      return attributionData;
+    }
+
+    const linkedUuids = new Set(
+      Object.values(attributionData.resourcesToAttributions).flat(),
+    );
+    const unlinkedUuids = Object.keys(attributionData.attributions).filter(
+      (uuid) => !linkedUuids.has(uuid),
+    );
+    if (unlinkedUuids.length === 0) {
+      return attributionData;
+    }
+
+    return {
+      ...attributionData,
+      resourcesToAttributions: {
+        ...attributionData.resourcesToAttributions,
+        '/': [
+          ...(attributionData.resourcesToAttributions['/'] ?? []),
+          ...unlinkedUuids,
+        ],
+      },
+    };
+  }
+
+  await initializeDbWithRawTestData({
+    ...overrides,
+    ...(overrides?.manualAttributions
+      ? {
+          manualAttributions: linkUnlinkedAttributionsToRoot(
+            overrides.manualAttributions,
+          ),
+        }
+      : {}),
+    ...(overrides?.externalAttributions
+      ? {
+          externalAttributions: linkUnlinkedAttributionsToRoot(
+            overrides.externalAttributions,
+          ),
+        }
+      : {}),
+  });
+}
+
 describe('manualAttributionStatistics', () => {
+  it('excludes readonly-only attributions but includes unlinked attributions', async () => {
+    await initializeDbWithRawTestData({
+      resources: {
+        readonly: { 'file.ts': 1 },
+        writable: { 'file.ts': 1 },
+      },
+      manualAttributions: {
+        attributions: {
+          unlinked: { id: 'unlinked', criticality: Criticality.None },
+          readonly: { id: 'readonly', criticality: Criticality.None },
+          writable: { id: 'writable', criticality: Criticality.None },
+          mixed: { id: 'mixed', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/readonly/file.ts': ['readonly', 'mixed'],
+          '/writable/file.ts': ['writable', 'mixed'],
+        },
+        attributionsToResources: {},
+      },
+      readonlyRules: [{ path: '/readonly', readonly: true }],
+    });
+
+    const { result } = await manualAttributionStatistics();
+
+    expect(result.attributionsOverview).toContainEqual({
+      name: 'total',
+      count: 3,
+    });
+  });
+
   describe('attributionsOverview', () => {
     it('counts manual attributions needing review', async () => {
       await initializeDbWithTestData({

@@ -21,8 +21,10 @@ export function getOnlyExternalFilesQuery(
     .selectFrom('closest_attributed_ancestors')
     .select('resource_id')
     .where('closest_attributed_ancestors.is_file', '=', 1)
+    .where('closest_attributed_ancestors.resource_is_readonly', '=', 0)
     .where('closest_attributed_ancestors.manual', 'is', null)
-    .where('closest_attributed_ancestors.external', 'is not', null);
+    .where('closest_attributed_ancestors.external', 'is not', null)
+    .where('closest_attributed_ancestors.external_is_readonly', '=', 0);
 }
 
 export function getManualFilesQuery(
@@ -32,7 +34,9 @@ export function getManualFilesQuery(
     .selectFrom('closest_attributed_ancestors')
     .select(['resource_id', 'manual'])
     .where('closest_attributed_ancestors.is_file', '=', 1)
-    .where('closest_attributed_ancestors.manual', 'is not', null);
+    .where('closest_attributed_ancestors.resource_is_readonly', '=', 0)
+    .where('closest_attributed_ancestors.manual', 'is not', null)
+    .where('closest_attributed_ancestors.manual_is_readonly', '=', 0);
 }
 
 export function getNonPreSelectedManualFilesQuery(
@@ -95,7 +99,10 @@ export function getCriticalResourceQuery(
   return eb
     .selectFrom('closest_attributed_ancestors')
     .select('resource_id')
-    .where('manual', 'is', null)
+    .where((eb) =>
+      eb.or([eb('manual', 'is', null), eb('manual_is_readonly', '=', 1)]),
+    )
+    .where('resource_is_readonly', '=', 0)
     .where('resource_id', 'in', (eb) =>
       resourceCriticalityQuery(eb, { operator: '=', criticality }),
     )
@@ -135,7 +142,10 @@ export function getClassificationResourceQuery(
   return eb
     .selectFrom('closest_attributed_ancestors')
     .select('resource_id')
-    .where('manual', 'is', null)
+    .where((eb) =>
+      eb.or([eb('manual', 'is', null), eb('manual_is_readonly', '=', 1)]),
+    )
+    .where('resource_is_readonly', '=', 0)
     .where('resource_id', 'in', (eb) =>
       resourceClassificationQuery(eb, {
         operator: '=',
@@ -217,6 +227,22 @@ export async function removeManualOrExternalCaaFromResources(
                 )
                 .end()
                 .as('replace_with'),
+            (eb) =>
+              eb
+                .case()
+                .when('r.is_attribution_breakpoint', '=', 0)
+                .then(
+                  eb
+                    .selectFrom('closest_attributed_ancestors')
+                    .select(`${type}_is_readonly`)
+                    .whereRef(
+                      'closest_attributed_ancestors.resource_id',
+                      '=',
+                      'r.parent_id',
+                    ),
+                )
+                .end()
+                .as('replacement_is_readonly'),
           ])
           .$if(attributionUuids !== undefined, (eb) =>
             eb.where(
@@ -262,6 +288,9 @@ export async function removeManualOrExternalCaaFromResources(
       .from('impacted_resources')
       .set((eb) => ({
         [type]: eb.ref('impacted_resources.replace_with'),
+        [`${type}_is_readonly`]: eb.ref(
+          'impacted_resources.replacement_is_readonly',
+        ),
       }))
       .whereRef(type, '=', 'impacted_resources.resource_id')
       .execute();
@@ -369,6 +398,10 @@ export async function addManualOrExternalCaaToResources(
       .from('impacted_resources')
       .set((eb) => ({
         [type]: eb.ref('impacted_resources.new_id'),
+        [`${type}_is_readonly`]: eb
+          .selectFrom('resource')
+          .select('is_readonly')
+          .whereRef('resource.id', '=', 'impacted_resources.new_id'),
       }))
       .whereRef(
         'closest_attributed_ancestors.resource_id',

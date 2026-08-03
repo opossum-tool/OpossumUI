@@ -12,8 +12,10 @@ import {
 } from './progressBarUtils';
 import type { QueryName, QueryParams } from './queries';
 import {
+  cloneMixedAttributionsForWritableResources,
   ensureAttributionsAreLinkedOnMultipleResources,
   ensureAttributionsAreNotExternal,
+  ensureResourceIsWritable,
   findMatchingAttributionUuid,
   getAttributionOrThrow,
   getResourceOrThrow,
@@ -61,7 +63,6 @@ const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<QueryInvalidationUnion> = [
 
 const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<QueryInvalidationUnion> = [
   { queryName: 'manualAttributionStatistics' },
-  { queryName: 'getManualAttributionOnResourceOrAncestor' },
   { queryName: 'resourceHasIncompleteManualAttributions' },
 ];
 
@@ -86,11 +87,19 @@ export const mutations = {
     await getDb()
       .transaction()
       .execute(async (trx) => {
+        const oldUuidsToNewUuids =
+          await cloneMixedAttributionsForWritableResources(
+            trx,
+            params.attributionUuids,
+          );
+        const attributionUuids = params.attributionUuids.map(
+          (attributionUuid) => oldUuidsToNewUuids[attributionUuid],
+        );
         await removeManualOrExternalCaaFromResources(trx, 'manual', {
-          attributionUuids: params.attributionUuids,
+          attributionUuids,
         });
         const impactedResources = new Set<number>();
-        for (const attributionUuid of params.attributionUuids) {
+        for (const attributionUuid of attributionUuids) {
           const existingAttribution = await getAttributionOrThrow(
             trx,
             attributionUuid,
@@ -161,14 +170,24 @@ export const mutations = {
   },
 
   async updateAttributions(params: { attributions: Attributions }) {
-    await getDb()
+    const result = await getDb()
       .transaction()
       .execute(async (trx) => {
+        const oldUuidsToNewUuids =
+          await cloneMixedAttributionsForWritableResources(
+            trx,
+            Object.keys(params.attributions),
+          );
         for (const [attributionUuid, attributionData] of Object.entries(
           params.attributions,
         )) {
-          await updateAttribution(trx, attributionUuid, attributionData);
+          const writableAttributionUuid = oldUuidsToNewUuids[attributionUuid];
+          await updateAttribution(trx, writableAttributionUuid, {
+            ...attributionData,
+            id: writableAttributionUuid,
+          });
         }
+        return { oldUuidsToNewUuids };
       });
 
     return {
@@ -180,6 +199,7 @@ export const mutations = {
           params: { attributionUuid },
         })),
       ],
+      result,
     };
   },
 
@@ -191,6 +211,7 @@ export const mutations = {
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
+        ensureResourceIsWritable(resource);
         await removeManualOrExternalCaaFromResources(trx, 'manual', {
           attributionUuids: params.attributionUuids,
           resourceIds: [resource.id],
@@ -237,6 +258,7 @@ export const mutations = {
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
+        ensureResourceIsWritable(resource);
         const inputUuids = Object.keys(params.attributions);
         await ensureAttributionsAreNotExternal(trx, inputUuids);
         await ensureAttributionsAreLinkedOnMultipleResources(trx, inputUuids);
@@ -284,6 +306,7 @@ export const mutations = {
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
+        ensureResourceIsWritable(resource);
 
         const inputKeysToNewUuids = await matchOrCreateAttributions(
           trx,
@@ -327,21 +350,32 @@ export const mutations = {
         for (const [attributionUuid, attributionData] of Object.entries(
           params.attributions,
         )) {
+          const splitUuids = await cloneMixedAttributionsForWritableResources(
+            trx,
+            [attributionUuid],
+          );
+          const writableAttributionUuid = splitUuids[attributionUuid];
           // Updating an attribution always removes preselected
           const newPackageInfo = omit(attributionData, 'preSelected');
           const matchingAttributionUuid = await findMatchingAttributionUuid(
             trx,
             newPackageInfo,
+            {
+              excludeUuids: [attributionUuid, writableAttributionUuid],
+            },
           );
           if (matchingAttributionUuid) {
             await replaceAttributions(trx, {
-              attributionUuidsToReplace: [attributionUuid],
+              attributionUuidsToReplace: [writableAttributionUuid],
               attributionUuidToReplaceWith: matchingAttributionUuid,
             });
             oldUuidsToNewUuids[attributionUuid] = matchingAttributionUuid;
           } else {
-            await updateAttribution(trx, attributionUuid, newPackageInfo);
-            oldUuidsToNewUuids[attributionUuid] = attributionUuid;
+            await updateAttribution(trx, writableAttributionUuid, {
+              ...newPackageInfo,
+              id: writableAttributionUuid,
+            });
+            oldUuidsToNewUuids[attributionUuid] = writableAttributionUuid;
           }
         }
         return { oldUuidsToNewUuids };

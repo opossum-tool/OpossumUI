@@ -5,7 +5,16 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
+import {
+  setExpandedIds,
+  setSelectedResourceId,
+} from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import {
+  getExpandedIds,
+  getSelectedResourceId,
+} from '../../../state/selectors/resource-selectors';
 import { renderComponent } from '../../../test-helpers/render';
+import { queryClient } from '../../AppContainer/queryClient';
 import { SplitDialog } from '../SplitDialog';
 
 describe('SplitDialog', () => {
@@ -83,8 +92,9 @@ describe('SplitDialog', () => {
     ).toBeDisabled();
   });
 
-  it('displays a success message until the user closes the dialog', async () => {
+  it('resets the split inputs after a successful split', async () => {
     const onClose = vi.fn();
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
     vi.mocked(window.electronAPI.selectSplitDestination).mockResolvedValue(
       '/partitions/source.opossum',
     );
@@ -92,8 +102,14 @@ describe('SplitDialog', () => {
       status: 'success',
     });
 
-    await renderComponent(
+    const { store } = await renderComponent(
       <SplitDialog open={true} resourcePath={resourcePath} onClose={onClose} />,
+      {
+        actions: [
+          setSelectedResourceId(resourcePath),
+          setExpandedIds(['/', resourcePath]),
+        ],
+      },
     );
 
     fireEvent.click(screen.getByTestId('split-destination-path-input'));
@@ -113,6 +129,20 @@ describe('SplitDialog', () => {
     expect(
       await screen.findByText(text.splitDialog.success),
     ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('split-destination-path-input'),
+    ).toBeEmptyDOMElement();
+    expect(
+      screen.queryByRole('button', { name: resourcePath }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: text.splitDialog.create }),
+    ).toBeDisabled();
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['backend'],
+    });
+    expect(getSelectedResourceId(store.getState())).toBe(resourcePath);
+    expect(getExpandedIds(store.getState())).toEqual(['/', resourcePath]);
     expect(onClose).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: text.buttons.close }));

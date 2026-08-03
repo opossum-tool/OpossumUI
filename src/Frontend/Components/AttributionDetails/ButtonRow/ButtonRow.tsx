@@ -37,7 +37,10 @@ import {
   useSelectedAttributionIsExternal,
   useSelectedAttributionPackageInfo,
 } from '../../../util/use-selected-attribution';
-import { useIsSelectedResourceBreakpoint } from '../../../util/use-selected-resource';
+import {
+  useIsSelectedResourceBreakpoint,
+  useIsSelectedResourceReadonly,
+} from '../../../util/use-selected-resource';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
 import { ConfirmSavePopup } from '../../ConfirmSavePopup/ConfirmSavePopup';
@@ -67,6 +70,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     backend.resolvedAttributionUuids.useQuery();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
+  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
 
   const originalAttributionQuery = backend.getAttributionData.useQuery(
     packageInfo.originalAttributionId
@@ -266,6 +270,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   function renderLinkButton() {
     if (
       isSelectedResourceBreakpoint ||
+      isSelectedResourceReadonly ||
       isCreatingNewAttribution ||
       (isEditable && isSelectedResourceOnSelectedAttribution !== false)
     ) {

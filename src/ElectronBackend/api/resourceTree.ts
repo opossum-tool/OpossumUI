@@ -89,7 +89,12 @@ export function getResourceTree({
         await trx.schema
           .createView(FILTERED_RESOURCE_TEMP_TABLE)
           .temporary()
-          .as(trx.selectFrom('resource').select('id'))
+          .as(
+            trx
+              .selectFrom('resource')
+              .select('id')
+              .where('is_readonly', '=', 0),
+          )
           .execute();
 
         dropTempTable = () =>
@@ -112,7 +117,7 @@ export function getResourceTree({
 
       const total = (
         await trx
-          .withTables<FilteredTable>()
+          .$extendTables<FilteredTable>()
           .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
           .select((eb) => eb.fn.countAll<number>().as('count'))
           .executeTakeFirstOrThrow()
@@ -127,7 +132,7 @@ export function getResourceTree({
 
         belowSelectedResourceTotal = (
           await trx
-            .withTables<FilteredTable>()
+            .$extendTables<FilteredTable>()
             .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
             .select((eb) => eb.fn.countAll<number>().as('count'))
             .where((eb) =>
@@ -167,6 +172,7 @@ export function getResourceTree({
               sql`FALSE`.as('ancestor_matches_filters'),
             ])
             .where('path', '=', '')
+            .where('has_editable_descendant', '=', 1)
 
             // Recursion: If parent is in shown resource, then include its children
             .unionAll((eb) => {
@@ -245,6 +251,8 @@ export function getResourceTree({
                 );
               }
 
+              query = query.where('r.has_editable_descendant', '=', 1);
+
               return query;
             }),
         )
@@ -256,7 +264,8 @@ export function getResourceTree({
               eb
                 .selectFrom('resource as child')
                 .selectAll()
-                .whereRef('child.parent_id', '=', 'shown_resources.id'),
+                .whereRef('child.parent_id', '=', 'shown_resources.id')
+                .where('child.has_editable_descendant', '=', 1),
             )
             .as('is_expandable'),
         );
@@ -351,7 +360,10 @@ function getFilteredResourcesQuery(
     search?: string;
   },
 ) {
-  let query = trx.selectFrom('resource as r').select('r.id as id');
+  let query = trx
+    .selectFrom('resource as r')
+    .select('r.id as id')
+    .where('r.is_readonly', '=', 0);
 
   if (search) {
     query = query.where('r.path', 'like', `%${removeTrailingSlash(search)}%`);

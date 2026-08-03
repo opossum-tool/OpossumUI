@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type AdmZip from 'adm-zip';
 
+import { refreshReadonlyData } from '../db/refresh-readonly-data';
 import { getReadonlyRules, replaceReadonlyRules } from '../db/split-info';
 import {
   splitOpossumArchive,
@@ -19,20 +20,14 @@ import { saveFile, type SaveFileParams } from './saveFile';
  * files.
  */
 export interface SplitOpossumFileParams {
-  /** Parameters used to save the updated source .opossum archive. */
   saveFileParams: Omit<SaveFileParams, 'opossumFilePath'> & {
     opossumFilePath: string;
   };
-  /** Resource paths to include in the new partition archive. */
   selectedFolderPaths: Array<string>;
   /** Path at which to create the new .opossum archive. */
   splitOpossumFilePath: string;
 }
 
-/**
- * Splits the current opossum file into two collaborative partitions.
- * The selected resources will become readonly in the current file and a new opossum file will be created where everything else will be readonly.
- */
 export async function splitOpossumFile(
   {
     saveFileParams,
@@ -54,4 +49,5 @@ export async function splitOpossumFile(
     readonlyRules: currentReadonlyRules,
   });
   await replaceReadonlyRules(result.sourceReadonlyRules);
+  await refreshReadonlyData();
 }

@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
+import { text } from '../../shared/text';
 import { retry } from '../utils/retry';
 
 export class TopBar {
@@ -12,15 +13,23 @@ export class TopBar {
   readonly auditViewButton: Locator;
   readonly reportViewButton: Locator;
   readonly progressBar: Locator;
+  readonly progressBarSelector: Locator;
   readonly openFileButton: Locator;
   readonly tooltip: Locator;
 
   constructor(window: Page) {
     this.window = window;
     this.node = window.getByLabel('top bar');
-    this.auditViewButton = this.node.getByRole('button', { name: 'audit' });
-    this.reportViewButton = this.node.getByRole('button', { name: 'report' });
-    this.progressBar = this.node.getByLabel(/Progress bar.*/);
+    this.auditViewButton = this.node.getByRole('button', {
+      name: text.topBar.audit,
+    });
+    this.reportViewButton = this.node.getByRole('button', {
+      name: text.topBar.report,
+    });
+    this.progressBar = this.node.getByTestId('progress-bar');
+    this.progressBarSelector = this.node.getByLabel(
+      text.topBar.switchableProgressBar.selectAriaLabel,
+    );
     this.openFileButton = this.node.getByRole('button', { name: 'open file' });
     this.tooltip = this.window.getByRole('tooltip');
   }
@@ -98,5 +107,16 @@ export class TopBar {
 
   async gotoReportView(): Promise<void> {
     await this.reportViewButton.click();
+  }
+
+  async clickProgressBar(): Promise<void> {
+    await this.progressBar.click();
+  }
+
+  async selectProgressBar(
+    progressBar: 'Attributions' | 'Criticalities' | 'Classifications',
+  ): Promise<void> {
+    await this.progressBarSelector.click();
+    await this.window.getByRole('option', { name: progressBar }).click();
   }
 }
