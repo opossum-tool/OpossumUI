@@ -26,6 +26,7 @@ export interface MergeOpossumArchivesArgs {
   ignoreReadonlyResourceOutputConflicts?: boolean;
   inputPaths: Array<string>;
   outputPath: string;
+  reportProgress?: (message: string) => void;
 }
 
 interface MergeArchive {
@@ -45,16 +46,24 @@ export async function mergeOpossumArchives({
   ignoreReadonlyResourceOutputConflicts = false,
   inputPaths,
   outputPath,
+  reportProgress = () => {},
 }: MergeOpossumArchivesArgs): Promise<void> {
+  reportProgress('Validating input archives');
   validatePaths(inputPaths, outputPath);
-  const archives = inputPaths.map(readMergeArchive);
+  const archives = inputPaths.map((inputPath) => {
+    reportProgress(`Reading archive ${inputPath}`);
+    return readMergeArchive(inputPath);
+  });
+  reportProgress('Checking project compatibility');
   validateProjectIds(archives);
 
+  reportProgress('Merging readonly rules and attribution data');
   const readonlyRules = mergeReadonlyRules(
     archives.map((archive) => archive.readonlyRulesByPath),
   );
   const output = mergeOutput(archives, ignoreReadonlyResourceOutputConflicts);
 
+  reportProgress('Writing merged .opossum file');
   await writeOpossumFile({
     path: outputPath,
     zip: new AdmZip(archives[0].zip.toBuffer()),

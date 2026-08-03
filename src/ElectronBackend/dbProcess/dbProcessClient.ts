@@ -141,30 +141,42 @@ export class DbProcessClient {
     }) as Promise<void>;
   }
 
-  mergeOpossumFiles({
-    ignoreReadonlyResourceOutputConflicts,
-    saveFileParams,
-    partitionPaths,
-  }: MergeOpossumFilesParams): Promise<MergeOpossumFilesResult> {
-    return this.request({
+  mergeOpossumFiles(
+    {
       ignoreReadonlyResourceOutputConflicts,
-      type: 'mergeOpossumFiles',
-      ...saveFileParams,
+      saveFileParams,
       partitionPaths,
-    }) as Promise<MergeOpossumFilesResult>;
+    }: MergeOpossumFilesParams,
+    onProgress?: ProgressCallback,
+  ): Promise<MergeOpossumFilesResult> {
+    return this.request(
+      {
+        ignoreReadonlyResourceOutputConflicts,
+        type: 'mergeOpossumFiles',
+        ...saveFileParams,
+        partitionPaths,
+      },
+      { onProgress },
+    ) as Promise<MergeOpossumFilesResult>;
   }
 
-  mergeOpossumFilesFromPaths({
-    ignoreReadonlyResourceOutputConflicts,
-    inputPaths,
-    outputPath,
-  }: MergeOpossumFilesFromPathsParams): Promise<void> {
-    return this.request({
+  mergeOpossumFilesFromPaths(
+    {
       ignoreReadonlyResourceOutputConflicts,
       inputPaths,
       outputPath,
-      type: 'mergeOpossumFilesFromPaths',
-    }) as Promise<void>;
+    }: MergeOpossumFilesFromPathsParams,
+    onProgress?: ProgressCallback,
+  ): Promise<MergeOpossumFilesResult> {
+    return this.request(
+      {
+        ignoreReadonlyResourceOutputConflicts,
+        inputPaths,
+        outputPath,
+        type: 'mergeOpossumFilesFromPaths',
+      },
+      { onProgress },
+    ) as Promise<MergeOpossumFilesResult>;
   }
 
   exportFile(exportType: ExportType, filePath: string): Promise<void> {

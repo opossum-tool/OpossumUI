@@ -18,24 +18,28 @@ export interface MergeOpossumFilesParams {
   ignoreReadonlyResourceOutputConflicts: boolean;
   saveFileParams: SaveFileParams;
   partitionPaths: Array<string>;
+  reportProgress?: (message: string) => void;
 }
 
 export interface MergeOpossumFilesFromPathsParams {
   ignoreReadonlyResourceOutputConflicts: boolean;
   inputPaths: Array<string>;
   outputPath: string;
+  reportProgress?: (message: string) => void;
 }
 
 export async function mergeOpossumFilesFromPaths({
   ignoreReadonlyResourceOutputConflicts,
   inputPaths,
   outputPath,
+  reportProgress,
 }: MergeOpossumFilesFromPathsParams): Promise<MergeOpossumFilesResult> {
   try {
     await mergeOpossumArchives({
       ignoreReadonlyResourceOutputConflicts,
       inputPaths,
       outputPath,
+      reportProgress,
     });
     return { status: 'success' };
   } catch (error) {
@@ -48,15 +52,18 @@ export async function mergeOpossumFiles(
     ignoreReadonlyResourceOutputConflicts,
     saveFileParams,
     partitionPaths,
+    reportProgress,
   }: MergeOpossumFilesParams,
   opossumZip: AdmZip,
 ): Promise<MergeOpossumFilesResult> {
   try {
+    reportProgress?.('Saving current .opossum file');
     await saveFile(saveFileParams, opossumZip);
     await mergeOpossumArchives({
       ignoreReadonlyResourceOutputConflicts,
       inputPaths: [saveFileParams.opossumFilePath, ...partitionPaths],
       outputPath: saveFileParams.opossumFilePath,
+      reportProgress,
     });
     return { status: 'success' };
   } catch (error) {

@@ -16,14 +16,14 @@ import { useProcessingStatusUpdated } from '../../util/use-processing-status-upd
 import { DialogContent, GridLogDisplay } from './ProcessPopup.style';
 
 export function ProcessPopup() {
-  const isOtherPopupOpen = !!useAppSelector(getOpenPopup);
+  const openPopup = useAppSelector(getOpenPopup);
 
   const { processingStatusUpdatedEvents, processing } =
     useProcessingStatusUpdated();
 
-  const showPopup = processing && !isOtherPopupOpen;
+  const showPopup = processing;
 
-  useFrontendPopupOpen(showPopup);
+  useFrontendPopupOpen(processing && !openPopup);
 
   // Open statistics popup after closing process popup if enabled
   const previouslyShown = usePrevious(showPopup, false);
@@ -49,7 +49,9 @@ export function ProcessPopup() {
           <GridLogDisplay
             key={index}
             log={log}
-            isInProgress={index === processingStatusUpdatedEvents.length - 1}
+            isInProgress={
+              processing && index === processingStatusUpdatedEvents.length - 1
+            }
             showDate={true}
           />
         ))}
