@@ -194,12 +194,12 @@ function mergeOutput(
     }
   }
 
+  // We don't expect unlinked attributions to occur, but the data model does not prevent it.
+  // We have no way of resolving conflicts between them, so we simply choose one archive as the authority.
   const rootEditableArchive = findEditableArchive('/', archives);
-  const unlinkedAttributions =
-    rootEditableArchive?.output.manualAttributions ??
-    archives[0].output.manualAttributions;
+  const unlinkedAttributionSourceArchive = rootEditableArchive ?? archives[0];
   for (const [attributionUuid, attribution] of Object.entries(
-    unlinkedAttributions,
+    unlinkedAttributionSourceArchive.output.manualAttributions,
   )) {
     if (!referencedAttributionUuids.has(attributionUuid)) {
       manualAttributions[attributionUuid] = attribution;
