@@ -4665,9 +4665,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest-dom@npm:5.6.0":
-  version: 5.6.0
-  resolution: "eslint-plugin-jest-dom@npm:5.6.0"
+"eslint-plugin-jest-dom@npm:5.7.0":
+  version: 5.7.0
+  resolution: "eslint-plugin-jest-dom@npm:5.7.0"
   dependencies:
     "@babel/runtime": "npm:^7.16.3"
     requireindex: "npm:^1.2.0"
@@ -4677,7 +4677,7 @@ __metadata:
   peerDependenciesMeta:
     "@testing-library/dom":
       optional: true
-  checksum: 10/71edcc8e629bf2a45004a8fdd857fc6a06063370fb2d6a17cec386d179d51d774e81f338b592d01c315a791c50226a0246105ed898887a3a0f4aaad6eff6fbd5
+  checksum: 10/bbba0a151c011a6135955d463a2fc51938951a51262f2cd20416cacbd7db53ff16b5780238a8bc7c0a816f4cc5504315b8e20e28a5bd73342754ee681d7011d0
   languageName: node
   linkType: hard
 
@@ -6824,7 +6824,7 @@ __metadata:
     electron-settings: "npm:4.0.4"
     eslint: "npm:10.8.0"
     eslint-plugin-check-file: "npm:3.3.2"
-    eslint-plugin-jest-dom: "npm:5.6.0"
+    eslint-plugin-jest-dom: "npm:5.7.0"
     eslint-plugin-playwright: "npm:2.11.0"
     eslint-plugin-testing-library: "npm:7.16.2"
     fast-csv: "npm:5.0.7"
