@@ -35,6 +35,7 @@ import {
 } from '../opossum-file/opossum-file';
 import type { GlobalBackendState } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
+import { isFileLoaded } from '../utils/getLoadedFile';
 import {
   openOpossumFileDialog,
   selectBaseURLDialog,
@@ -308,14 +309,7 @@ export const importFileListener =
     mainWindow.webContents.send(
       AllowedFrontendChannels.ShowImportDialog,
       fileFormat,
-    );
-  };
-
-export const getMergeListener =
-  (mainWindow: BrowserWindow, fileFormat: FileFormatInfo) => (): void => {
-    mainWindow.webContents.send(
-      AllowedFrontendChannels.ShowMergeDialog,
-      fileFormat,
+      isFileLoaded(getGlobalBackendState()),
     );
   };
 

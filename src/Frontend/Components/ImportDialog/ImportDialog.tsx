@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiFormControlLabel from '@mui/material/FormControlLabel';
+import MuiSwitch from '@mui/material/Switch';
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
@@ -16,15 +18,22 @@ import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 interface ImportDialogProps {
+  canImportIntoCurrentProject: boolean;
   fileFormat: FileFormatInfo;
 }
 
-export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
+export const ImportDialog: React.FC<ImportDialogProps> = ({
+  canImportIntoCurrentProject,
+  fileFormat,
+}) => {
   const dispatch = useAppDispatch();
 
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
   const [importInProgress, setImportInProgress] = useState<boolean>(false);
+  const [importIntoCurrentProject, setImportIntoCurrentProject] = useState(
+    canImportIntoCurrentProject,
+  );
 
   const {
     processingStatusUpdatedEvents,
@@ -78,11 +87,16 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
 
   async function onConfirm(): Promise<void> {
     setImportInProgress(true);
-    const success = await window.electronAPI.importFileConvertAndLoad(
-      inputFilePath,
-      fileFormat.fileType,
-      opossumFilePath,
-    );
+    const success = importIntoCurrentProject
+      ? await window.electronAPI.mergeFileAndLoad(
+          inputFilePath,
+          fileFormat.fileType,
+        )
+      : await window.electronAPI.importFileConvertAndLoad(
+          inputFilePath,
+          fileFormat.fileType,
+          opossumFilePath,
+        );
 
     if (success) {
       dispatch(closePopup());
@@ -130,6 +144,23 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
         <MuiTypography sx={{ marginBottom: '10px' }}>
           {text.importDialog.explanationText[1]}
         </MuiTypography>
+        {canImportIntoCurrentProject && (
+          <MuiFormControlLabel
+            control={
+              <MuiSwitch
+                checked={importIntoCurrentProject}
+                onChange={(_, checked) => setImportIntoCurrentProject(checked)}
+              />
+            }
+            label={text.importDialog.importIntoCurrentProject}
+            sx={{ marginBottom: '10px' }}
+          />
+        )}
+        {importIntoCurrentProject && (
+          <MuiTypography sx={{ marginBottom: '10px' }}>
+            {text.importDialog.currentProjectWarning}
+          </MuiTypography>
+        )}
         <FilePathInput
           label={text.importDialog.inputFilePath.textFieldLabel(
             fileFormat,
@@ -141,15 +172,17 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ fileFormat }) => {
           tooltipProps={{ placement: 'top' }}
           disabled={importInProgress}
         />
-        <FilePathInput
-          label={text.importDialog.opossumFilePath.textFieldLabel(
-            !!opossumFilePath,
-          )}
-          text={opossumFilePath}
-          onClick={selectOpossumFilePath}
-          testId={'import-opossum-file-path'}
-          disabled={importInProgress}
-        />
+        {!importIntoCurrentProject && (
+          <FilePathInput
+            label={text.importDialog.opossumFilePath.textFieldLabel(
+              !!opossumFilePath,
+            )}
+            text={opossumFilePath}
+            onClick={selectOpossumFilePath}
+            testId={'import-opossum-file-path'}
+            disabled={importInProgress}
+          />
+        )}
       </div>
     </NotificationPopup>
   );

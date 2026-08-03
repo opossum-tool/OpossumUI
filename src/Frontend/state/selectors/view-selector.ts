@@ -3,10 +3,12 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { ExportType, FileFormatInfo } from '../../../shared/shared-types';
+import type { ExportType } from '../../../shared/shared-types';
 import { PopupType, View } from '../../enums/enums';
 import type { PopupInfo, State } from '../../types/types';
 import type {
+  ImportFileRequest,
+  MergeOpossumFilesRequest,
   OpenFileRequest,
   SplitFileRequest,
 } from '../actions/view-actions/types';
@@ -44,12 +46,14 @@ export function getOpenFileRequest(state: State): OpenFileRequest | null {
   return state.viewState.openFileRequest;
 }
 
-export function getImportFileRequest(state: State): FileFormatInfo | null {
+export function getImportFileRequest(state: State): ImportFileRequest | null {
   return state.viewState.importFileRequest;
 }
 
-export function getMergeRequest(state: State): FileFormatInfo | null {
-  return state.viewState.mergeRequest;
+export function getMergeOpossumFilesRequest(
+  state: State,
+): MergeOpossumFilesRequest | null {
+  return state.viewState.mergeOpossumFilesRequest;
 }
 
 export function getExportFileRequest(state: State): ExportType | null {

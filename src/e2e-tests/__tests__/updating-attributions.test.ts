@@ -136,6 +136,7 @@ test('warns user of unsaved changes if user attempts to import new file before s
 
 test('warns user of unsaved changes if user attempts to merge file before saving', async ({
   attributionDetails,
+  mergeOpossumFilesDialog,
   notSavedPopup,
   resourcesTree,
   menuBar,
@@ -144,8 +145,12 @@ test('warns user of unsaved changes if user attempts to merge file before saving
   await resourcesTree.goto(resourceName1);
   await attributionDetails.attributionForm.comment.fill(comment);
 
-  await menuBar.mergeLegacyOpossumFile();
+  await menuBar.mergeSplitFilesIntoCurrentFile();
   await notSavedPopup.assert.isVisible();
+
+  await notSavedPopup.discardButton.click();
+  await mergeOpossumFilesDialog.assert.isVisible();
+  await mergeOpossumFilesDialog.assert.mergesIntoCurrentProject();
 });
 
 test('warns user of unsaved changes if user attempts to export data before saving', async ({

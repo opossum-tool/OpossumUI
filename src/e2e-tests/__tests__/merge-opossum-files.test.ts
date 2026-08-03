@@ -235,6 +235,7 @@ test('merges split files into a new Opossum file', async ({
 
   await menuBar.mergeSplitOpossumFiles();
   await mergeOpossumFilesDialog.assert.isVisible();
+  await mergeOpossumFilesDialog.selectNewOutputFile();
 
   await stubOpenDialogSync(window.app, [
     firstPartitionPath,

@@ -10,7 +10,10 @@ test.use({
   data: {
     inputData: faker.opossum.inputData({
       resources: faker.opossum.resources({ [resourceName]: 1 }),
-      metadata: faker.opossum.metadata({ projectId: 'test_project' }),
+      metadata: faker.opossum.metadata({
+        projectId: 'test_project',
+        projectTitle: 'Test Project',
+      }),
     }),
     outputData: faker.opossum.outputData({}),
   },
@@ -121,4 +124,102 @@ test('shows error when no file path is set', async ({
   await importDialog.importButton.click();
 
   await importDialog.assert.showsError();
+});
+
+test.describe('when importing into the current project', () => {
+  test.use({ openFromCLI: true });
+
+  test('opens, displays and closes the import dialog', async ({
+    menuBar,
+    importDialog,
+  }) => {
+    await menuBar.importLegacyOpossumFileIntoCurrentProject();
+    await importDialog.assert.titleIsVisible();
+
+    await importDialog.cancelButton.click();
+
+    await importDialog.assert.titleIsHidden();
+  });
+
+  test('imports a legacy Opossum file', async ({
+    menuBar,
+    importDialog,
+    resourcesTree,
+    window,
+    filePaths,
+  }) => {
+    await stubOpenDialogSync(window.app, [filePaths!.json]);
+
+    await menuBar.importLegacyOpossumFileIntoCurrentProject();
+    await importDialog.inputFileSelection.click();
+    await importDialog.importButton.click();
+
+    await resourcesTree.assert.resourceIsVisible(resourceName);
+  });
+
+  test('imports a ScanCode file', async ({
+    menuBar,
+    importDialog,
+    resourcesTree,
+    window,
+  }) => {
+    await stubOpenDialogSync(window.app, [importDialog.scancodeFilePath]);
+
+    await menuBar.importScanCodeFileIntoCurrentProject();
+    await importDialog.inputFileSelection.click();
+    await importDialog.importButton.click();
+
+    await resourcesTree.assert.resourceIsVisible('src');
+  });
+
+  test('imports a legacy Opossum file after discarding unsaved changes', async ({
+    attributionDetails,
+    importDialog,
+    menuBar,
+    notSavedPopup,
+    resourcesTree,
+    window,
+    filePaths,
+  }) => {
+    await resourcesTree.goto(resourceName);
+    await attributionDetails.attributionForm.comment.fill(
+      faker.lorem.sentences(),
+    );
+    await stubOpenDialogSync(window.app, [filePaths!.json]);
+
+    await menuBar.importLegacyOpossumFileIntoCurrentProject();
+    await notSavedPopup.assert.isVisible();
+    await notSavedPopup.discardButton.click();
+    await importDialog.assert.importsIntoCurrentProject();
+
+    await importDialog.inputFileSelection.click();
+    await importDialog.importButton.click();
+
+    await importDialog.assert.titleIsHidden();
+  });
+
+  test('imports an OWASP file', async ({
+    menuBar,
+    importDialog,
+    resourcesTree,
+    window,
+  }) => {
+    await stubOpenDialogSync(window.app, [importDialog.owaspFilePath]);
+
+    await menuBar.importOwaspDependencyScanFileIntoCurrentProject();
+    await importDialog.inputFileSelection.click();
+    await importDialog.importButton.click();
+
+    await resourcesTree.assert.resourceIsVisible('contrib');
+  });
+
+  test('shows an error when no input file is selected', async ({
+    menuBar,
+    importDialog,
+  }) => {
+    await menuBar.importLegacyOpossumFileIntoCurrentProject();
+    await importDialog.importButton.click();
+
+    await importDialog.assert.showsError();
+  });
 });
