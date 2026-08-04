@@ -110,7 +110,7 @@ export const test = base.extend<{
       data && filePaths && (await createTestFiles({ data, filePaths }));
 
     const [executablePath, main] = getLaunchProps();
-    const args = ['--reset'];
+    const args = ['--reset', `--user-data-dir=${info.outputPath('user-data')}`];
     if (os.platform() === 'linux') {
       args.push('--no-sandbox');
     }
