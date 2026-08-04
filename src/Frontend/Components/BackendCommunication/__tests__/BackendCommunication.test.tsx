@@ -5,8 +5,9 @@
 import type { IpcRendererEvent } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
+import { faker } from '../../../../testing/Faker';
 import { PopupType } from '../../../enums/enums';
-import { setIsPackageInfoDirty } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getOpenFileRequest,
   getOpenPopup,
@@ -30,7 +31,7 @@ describe('BackendCommunication', () => {
     });
 
     const { store } = await renderComponent(<BackendCommunication />, {
-      actions: [setIsPackageInfoDirty(true)],
+      actions: [setTemporaryDisplayPackageInfo(faker.opossum.packageInfo())],
     });
     const filePath = '/path/to/project.opossum';
 

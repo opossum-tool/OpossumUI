@@ -6,15 +6,11 @@
 import MuiBox from '@mui/material/Box';
 import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiLinearProgress from '@mui/material/LinearProgress';
-import { useEffect, useLayoutEffect, useMemo } from 'react';
+import { useLayoutEffect } from 'react';
 
-import { isEqualToManualAttribution } from '../../../shared/attribution-comparison';
 import { text } from '../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
-import {
-  setIsPackageInfoDirty,
-  setTemporaryDisplayPackageInfo,
-} from '../../state/actions/resource-actions/all-views-simple-actions';
+import { initializePackageInfoEditing } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -69,7 +65,7 @@ export function AttributionDetails() {
   useLayoutEffect(() => {
     if (!selectedAttributionId || selectedAttribution) {
       dispatch(
-        setTemporaryDisplayPackageInfo(
+        initializePackageInfoEditing(
           selectedAttribution || EMPTY_DISPLAY_PACKAGE_INFO,
         ),
       );
@@ -80,19 +76,6 @@ export function AttributionDetails() {
     selectedAttribution,
     selectedResourceId,
   ]);
-
-  const isDirty = useMemo(
-    () =>
-      !isEqualToManualAttribution(
-        temporaryDisplayPackageInfo,
-        selectedAttribution || EMPTY_DISPLAY_PACKAGE_INFO,
-      ),
-    [temporaryDisplayPackageInfo, selectedAttribution],
-  );
-
-  useEffect(() => {
-    dispatch(setIsPackageInfoDirty(isDirty));
-  }, [dispatch, isDirty]);
 
   const { attributions, loading: manualAttributionsLoading } =
     useFilteredAttributionsList({ external: false });
