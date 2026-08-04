@@ -10,6 +10,8 @@ import {
 } from 'electron-playwright-helpers';
 
 import { menuItemIds } from '../../ElectronBackend/main/menu/menuItemIds';
+import { stubOpenDialogSync } from '../utils/dialog';
+import { ResourcesTree } from './ResourcesTree';
 
 const initiallyDisabledMenuItems = [
   menuItemIds.projectStatistics,
@@ -58,9 +60,11 @@ const popupDisabledMenuItems = [
 
 export class MenuBar {
   private readonly window: Page & { app: ElectronApplication };
+  private readonly resourcesTree: ResourcesTree;
 
   constructor(window: Page & { app: ElectronApplication }) {
     this.window = window;
+    this.resourcesTree = new ResourcesTree(window);
   }
 
   private async clickEnabledMenuItem(menuItemId: string): Promise<void> {
@@ -138,8 +142,22 @@ export class MenuBar {
     await this.clickEnabledMenuItem(menuItemIds.projectMetadata);
   }
 
-  async openFile(): Promise<void> {
+  async openFile(filePath?: string): Promise<void> {
+    if (filePath) {
+      await stubOpenDialogSync(this.window.app, [filePath]);
+    }
     await this.clickEnabledMenuItem(menuItemIds.openFile);
+  }
+
+  async openFileAndWaitForLoad(filePath: string): Promise<void> {
+    const previousResourcesTree = await this.resourcesTree.getElementHandle();
+
+    await this.openFile(filePath);
+
+    await previousResourcesTree?.waitForElementState('hidden', {
+      timeout: 30000,
+    });
+    await this.resourcesTree.assert.isVisible(30000);
   }
 
   async createSplit(): Promise<void> {

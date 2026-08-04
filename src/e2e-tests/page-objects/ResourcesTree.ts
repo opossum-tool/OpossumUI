@@ -2,7 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { expect, type Locator, type Page } from '@playwright/test';
+import {
+  type ElementHandle,
+  expect,
+  type Locator,
+  type Page,
+} from '@playwright/test';
 
 import { text } from '../../shared/text';
 
@@ -36,8 +41,8 @@ export class ResourcesTree {
   }
 
   public assert = {
-    isVisible: async (): Promise<void> => {
-      await expect(this.node).toBeVisible();
+    isVisible: async (timeout?: number): Promise<void> => {
+      await expect(this.node).toBeVisible({ timeout });
     },
     isHidden: async (): Promise<void> => {
       await expect(this.node).toBeHidden();
@@ -63,6 +68,11 @@ export class ResourcesTree {
       ).toBeHidden();
     },
   };
+
+  async getElementHandle(): Promise<ElementHandle | undefined> {
+    const [elementHandle] = await this.node.elementHandles();
+    return elementHandle;
+  }
 
   async gotoRoot(): Promise<void> {
     await this.node.getByText('/', { exact: true }).click();

@@ -9,6 +9,7 @@ import { text } from '../../shared/text';
 
 export class ImportDialog {
   private readonly node: Locator;
+  private readonly processingPopup: Locator;
   private readonly inputFileSelectionValue: Locator;
   private readonly opossumFileSelectionValue: Locator;
   readonly title: Locator;
@@ -24,6 +25,9 @@ export class ImportDialog {
 
   constructor(window: Page) {
     this.node = window.getByLabel('import dialog');
+    this.processingPopup = window.getByRole('dialog', {
+      name: text.processPopup.title,
+    });
     this.title = this.node.getByRole('heading').getByText('Import');
     this.inputFileSelection = window.getByTestId('import-input-file-path');
     this.opossumFileSelection = window.getByTestId('import-opossum-file-path');
@@ -52,6 +56,13 @@ export class ImportDialog {
       '..',
       'owasp-dependency-check-report.json',
     );
+  }
+
+  async importFile(): Promise<void> {
+    await this.importButton.click();
+    await this.assert.titleIsHidden();
+    await expect(this.processingPopup).toBeHidden({ timeout: 30000 });
+    await this.assert.titleIsHidden();
   }
 
   public assert = {

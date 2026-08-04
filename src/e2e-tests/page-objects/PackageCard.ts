@@ -122,12 +122,18 @@ export class PackageCard {
       signal1: RawPackageInfo,
       signal2: RawPackageInfo,
     ): Promise<void> => {
-      const boundingBox1 = await this.node(signal1).boundingBox();
-      const boundingBox2 = await this.node(signal2).boundingBox();
-      expect(boundingBox1).toBeTruthy();
-      expect(boundingBox2).toBeTruthy();
-      // @ts-expect-error does not take the above expects properly into account
-      expect(boundingBox1.y < boundingBox2.y).toBeTruthy();
+      await expect
+        .poll(async () => {
+          const boundingBox1 = await this.node(signal1).boundingBox();
+          const boundingBox2 = await this.node(signal2).boundingBox();
+
+          return (
+            boundingBox1 !== null &&
+            boundingBox2 !== null &&
+            boundingBox1.y < boundingBox2.y
+          );
+        })
+        .toBe(true);
     },
   };
 

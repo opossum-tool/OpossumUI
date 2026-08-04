@@ -317,7 +317,7 @@ test('switches correctly between previously-preferred and modified previously pr
     'modifiedPreferredLabel',
   );
 
-  await attributionDetails.saveButton.click();
+  await attributionDetails.saveChanges();
   await attributionsPanel.packageCard.assert.wasPreferredIconIsHidden(
     wasPreferredPackageInfo,
   );
@@ -336,7 +336,7 @@ test('switches correctly between previously-preferred and modified previously pr
     'previouslyPreferredLabel',
   );
 
-  await attributionDetails.saveButton.click();
+  await attributionDetails.saveChanges();
   await attributionsPanel.packageCard.assert.modifiedPreferredIconIsHidden(
     wasPreferredPackageInfo,
   );

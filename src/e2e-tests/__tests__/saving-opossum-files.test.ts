@@ -10,7 +10,7 @@ import type {
   ParsedOpossumOutputFile,
 } from '../../ElectronBackend/types/types';
 import type { RawPackageInfo } from '../../shared/shared-types';
-import { faker, stubOpenDialogSync, test } from '../utils';
+import { faker, test } from '../utils';
 
 const [resourceName] = faker.opossum.resourceName();
 const resourcePath = faker.opossum.filePath(resourceName);
@@ -72,9 +72,8 @@ for (const { data, packageInfo, title } of saveScenarios) {
   test.describe(`${title} when opened with the file dialog`, () => {
     test.use({ data, openFromCLI: false });
 
-    test.beforeEach(async ({ filePaths, menuBar, window }) => {
-      await stubOpenDialogSync(window.app, [filePaths!.opossum]);
-      await menuBar.openFile();
+    test.beforeEach(async ({ filePaths, menuBar }) => {
+      await menuBar.openFileAndWaitForLoad(filePaths!.opossum);
     });
 
     runSavingTest(packageInfo);
@@ -88,7 +87,6 @@ function runSavingTest(packageInfo: RawPackageInfo): void {
     filePaths,
     menuBar,
     resourcesTree,
-    window,
   }) => {
     const comment = faker.lorem.sentences();
 
@@ -113,8 +111,7 @@ function runSavingTest(packageInfo: RawPackageInfo): void {
       )
       .toBe(true);
 
-    await stubOpenDialogSync(window.app, [filePaths!.opossum]);
-    await menuBar.openFile();
+    await menuBar.openFileAndWaitForLoad(filePaths!.opossum);
     await resourcesTree.goto(resourceName);
     await attributionsPanel.packageCard.click(packageInfo);
     await attributionDetails.attributionForm.assert.commentIs(comment);
