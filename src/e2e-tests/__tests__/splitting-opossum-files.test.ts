@@ -7,7 +7,7 @@ import fs from 'fs';
 
 import type { ResourcesTree } from '../page-objects/ResourcesTree';
 import type { SplitDialog } from '../page-objects/SplitDialog';
-import { faker, stubOpenDialogSync, stubSaveDialogSync, test } from '../utils';
+import { faker, stubSaveDialogSync, test } from '../utils';
 
 const [
   firstDirectoryName,
@@ -110,8 +110,7 @@ test('opens the new split file', async ({
   await reportView.assert.attributionIsHidden(attributionId);
   await topBar.gotoAuditView();
 
-  await stubOpenDialogSync(window.app, [partitionPath]);
-  await menuBar.openFile();
+  await menuBar.openFileAndWaitForLoad(partitionPath);
 
   await resourcesTree.assert.resourceIsEditable(firstDirectoryName);
   await resourcesTree.assert.resourceIsReadonly(secondDirectoryName);
@@ -140,8 +139,7 @@ test('creates a split from multiple resources', async ({
   await resourcesTree.assert.resourceIsReadonly(firstDirectoryName);
   await resourcesTree.assert.resourceIsReadonly(secondDirectoryName);
 
-  await stubOpenDialogSync(window.app, [partitionPath]);
-  await menuBar.openFile();
+  await menuBar.openFileAndWaitForLoad(partitionPath);
 
   await resourcesTree.assert.resourceIsEditable(firstDirectoryName);
   await resourcesTree.assert.resourceIsEditable(secondDirectoryName);
@@ -182,13 +180,11 @@ test('creates two consecutive partitions from writable resources', async ({
   await resourcesTree.assert.resourceIsReadonly(firstDirectoryName);
   await resourcesTree.assert.resourceIsReadonly(secondDirectoryName);
 
-  await stubOpenDialogSync(window.app, [firstPartitionPath]);
-  await menuBar.openFile();
+  await menuBar.openFileAndWaitForLoad(firstPartitionPath);
   await resourcesTree.assert.resourceIsEditable(firstDirectoryName);
   await resourcesTree.assert.resourceIsReadonly(secondDirectoryName);
 
-  await stubOpenDialogSync(window.app, [secondPartitionPath]);
-  await menuBar.openFile();
+  await menuBar.openFileAndWaitForLoad(secondPartitionPath);
   await resourcesTree.assert.resourceIsReadonly(firstDirectoryName);
   await resourcesTree.assert.resourceIsEditable(secondDirectoryName);
 });

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { faker, stubOpenDialogSync, test } from '../utils';
+import { faker, test } from '../utils';
 
 test.use({
   data: {
@@ -65,15 +65,13 @@ test('does not enable menu bar after opening file if statistics popup is immedia
   menuBar,
   projectStatisticsPopup,
   filePaths,
-  window,
 }) => {
   await menuBar.assert.popupDisabledEntriesAreEnabled();
   await menuBar.openProjectStatistics();
   await projectStatisticsPopup.showOnStartupCheckbox.click();
   await projectStatisticsPopup.closeButton.click();
 
-  await stubOpenDialogSync(window.app, [filePaths!.opossum]);
-  await menuBar.openFile();
+  await menuBar.openFileAndWaitForLoad(filePaths!.opossum);
 
   await projectStatisticsPopup.assert.titleIsVisible();
 
