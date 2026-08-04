@@ -14,6 +14,7 @@ import { getAboutMenu } from './menu/aboutMenu';
 import { getEditMenu } from './menu/editMenu';
 import { getFileMenu } from './menu/fileMenu';
 import { getHelpMenu } from './menu/helpMenu';
+import { menuItemIds } from './menu/menuItemIds';
 import { getViewMenu } from './menu/viewMenu';
 
 export async function createMenu(mainWindow: BrowserWindow): Promise<void> {
@@ -23,7 +24,12 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<void> {
   return Menu.setApplicationMenu(
     Menu.buildFromTemplate([
       ...(os.platform() === 'darwin'
-        ? [{ role: 'appMenu' } satisfies MenuItemConstructorOptions]
+        ? [
+            {
+              id: menuItemIds.application,
+              role: 'appMenu',
+            } satisfies MenuItemConstructorOptions,
+          ]
         : []),
       await getFileMenu(mainWindow, updateMenu),
       getEditMenu(webContents),

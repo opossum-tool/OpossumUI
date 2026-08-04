@@ -16,7 +16,7 @@ test('disables menu bar when importing into the current project', async ({
 }) => {
   await menuBar.assert.popupDisabledEntriesAreEnabled();
 
-  await menuBar.importLegacyOpossumFileIntoCurrentProject();
+  await menuBar.importLegacyOpossumFile();
   await importDialog.assert.titleIsVisible();
 
   await menuBar.assert.popupDisabledEntriesAreDisabled();

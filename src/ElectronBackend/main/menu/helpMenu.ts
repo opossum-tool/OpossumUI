@@ -9,11 +9,13 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
+import { menuItemIds } from './menuItemIds';
 
 function getOpenLogFiles(): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/log-white.png', 'icons/log-black.png'),
     label: text.menu.helpSubmenu.openLogFiles,
+    id: menuItemIds.helpOpenLogFiles,
     click: () => shell.openPath(app.getPath('logs')),
   };
 }
@@ -27,6 +29,7 @@ function getCheckForUpdates(
       'icons/update-black.png',
     ),
     label: text.menu.helpSubmenu.checkForUpdates,
+    id: menuItemIds.helpCheckForUpdates,
     click: () => {
       webContents.send(AllowedFrontendChannels.ShowUpdateAppPopup, {
         showUpdateAppPopup: true,
@@ -43,6 +46,7 @@ function getUsersGuide(): MenuItemConstructorOptions {
       'icons/user-guide-black.png',
     ),
     label: text.menu.helpSubmenu.userGuide,
+    id: menuItemIds.helpUserGuide,
     click: () =>
       shell.openExternal(
         'https://github.com/opossum-tool/OpossumUI/blob/main/USER_GUIDE.md',
@@ -55,6 +59,7 @@ export function getHelpMenu(
 ): MenuItemConstructorOptions {
   return {
     label: text.menu.help,
+    id: menuItemIds.help,
     submenu: [
       getUsersGuide(),
       getOpenLogFiles(),
