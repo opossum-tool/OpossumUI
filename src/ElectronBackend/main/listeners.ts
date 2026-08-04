@@ -106,6 +106,41 @@ export const splitCurrentOpossumFileListener =
     }
   };
 
+export const mergeCurrentOpossumFilesListener =
+  () =>
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    partitionPaths: Array<string>,
+    ignoreReadonlyResourceOutputConflicts: boolean,
+  ): Promise<void> => {
+    const globalBackendState = getGlobalBackendState();
+    if (!globalBackendState.projectId || !globalBackendState.opossumFilePath) {
+      throw new Error('No .opossum project is currently open.');
+    }
+
+    await getMainDbClient().mergeOpossumFiles({
+      ignoreReadonlyResourceOutputConflicts,
+      saveFileParams: {
+        projectId: globalBackendState.projectId,
+        opossumFilePath: globalBackendState.opossumFilePath,
+      },
+      partitionPaths,
+    });
+  };
+
+export async function mergeOpossumFilesFromPathsListener(
+  _: Electron.IpcMainInvokeEvent,
+  inputPaths: Array<string>,
+  outputPath: string,
+  ignoreReadonlyResourceOutputConflicts: boolean,
+): Promise<void> {
+  await getMainDbClient().mergeOpossumFilesFromPaths({
+    ignoreReadonlyResourceOutputConflicts,
+    inputPaths,
+    outputPath,
+  });
+}
+
 export const selectSplitDestinationListener =
   (_mainWindow: BrowserWindow) =>
   (

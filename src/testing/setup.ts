@@ -29,6 +29,8 @@ if (typeof window !== 'undefined') {
     mergeFileAndLoad: vi.fn(),
     selectSplitDestination: vi.fn(),
     splitFile: vi.fn(),
+    mergeOpossumFiles: vi.fn(),
+    mergeOpossumFilesFromPaths: vi.fn(),
     saveFile: vi.fn(),
     exportFile: vi.fn(),
     stopLoading: vi.fn(),

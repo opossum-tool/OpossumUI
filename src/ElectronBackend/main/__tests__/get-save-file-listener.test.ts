@@ -11,6 +11,8 @@ import { getMainDbClient } from '../../dbProcess/dbProcessClient';
 import { saveOpossumFileDialog } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
+  mergeCurrentOpossumFilesListener,
+  mergeOpossumFilesFromPathsListener,
   saveFileListener,
   selectSplitDestinationListener,
   splitCurrentOpossumFileListener,
@@ -44,10 +46,14 @@ vi.mock('../dialogs', () => ({
 
 const mockSaveFile = vi.fn();
 const mockSplitOpossumFile = vi.fn();
+const mockMergeOpossumFiles = vi.fn();
+const mockMergeOpossumFilesFromPaths = vi.fn();
 
 (getMainDbClient as Mock).mockReturnValue({
   saveFile: mockSaveFile,
   splitOpossumFile: mockSplitOpossumFile,
+  mergeOpossumFiles: mockMergeOpossumFiles,
+  mergeOpossumFilesFromPaths: mockMergeOpossumFilesFromPaths,
 });
 
 describe('saveFileListener', () => {
@@ -56,6 +62,8 @@ describe('saveFileListener', () => {
     (getMainDbClient as Mock).mockReturnValue({
       saveFile: mockSaveFile,
       splitOpossumFile: mockSplitOpossumFile,
+      mergeOpossumFiles: mockMergeOpossumFiles,
+      mergeOpossumFilesFromPaths: mockMergeOpossumFilesFromPaths,
     });
   });
 
@@ -200,5 +208,64 @@ describe('splitCurrentOpossumFileListener', () => {
       '/my/file-source.opossum',
     );
     expect(selectedPath).toBe('/partitions/source-partition.opossum');
+  });
+});
+
+describe('mergeCurrentOpossumFilesListener', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setGlobalBackendState({
+      opossumFilePath: '/my/file.opossum',
+      projectId: 'uuid_1',
+    });
+  });
+
+  it('merges the provided partitions into the currently open archive', async () => {
+    await mergeCurrentOpossumFilesListener()(
+      {} as Electron.IpcMainInvokeEvent,
+      ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
+      false,
+    );
+
+    expect(mockMergeOpossumFiles).toHaveBeenCalledWith({
+      ignoreReadonlyResourceOutputConflicts: false,
+      saveFileParams: {
+        projectId: 'uuid_1',
+        opossumFilePath: '/my/file.opossum',
+      },
+      partitionPaths: [
+        '/partitions/docs.opossum',
+        '/partitions/frontend.opossum',
+      ],
+    });
+  });
+
+  it('rejects merging when no .opossum project is open', async () => {
+    setGlobalBackendState({});
+
+    await expect(
+      mergeCurrentOpossumFilesListener()(
+        {} as Electron.IpcMainInvokeEvent,
+        ['/partitions/docs.opossum'],
+        false,
+      ),
+    ).rejects.toThrow('No .opossum project is currently open.');
+  });
+});
+
+describe('mergeOpossumFilesFromPathsListener', () => {
+  it('forwards the selected archive paths without requiring an open project', async () => {
+    await mergeOpossumFilesFromPathsListener(
+      {} as Electron.IpcMainInvokeEvent,
+      ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
+      '/merged/project.opossum',
+      false,
+    );
+
+    expect(mockMergeOpossumFilesFromPaths).toHaveBeenCalledWith({
+      ignoreReadonlyResourceOutputConflicts: false,
+      inputPaths: ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
+      outputPath: '/merged/project.opossum',
+    });
   });
 });

@@ -16,6 +16,10 @@ import {
   executeCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
+import {
+  mergeOpossumFiles,
+  mergeOpossumFilesFromPaths,
+} from '../api/mergeOpossumFiles';
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
 import {
@@ -43,6 +47,22 @@ interface SplitOpossumFileMessage {
   splitOpossumFilePath: string;
 }
 
+interface MergeOpossumFilesMessage {
+  ignoreReadonlyResourceOutputConflicts: boolean;
+  type: 'mergeOpossumFiles';
+  projectId: string;
+  inputFileChecksum?: string;
+  opossumFilePath: string;
+  partitionPaths: Array<string>;
+}
+
+interface MergeOpossumFilesFromPathsMessage {
+  ignoreReadonlyResourceOutputConflicts: boolean;
+  inputPaths: Array<string>;
+  outputPath: string;
+  type: 'mergeOpossumFilesFromPaths';
+}
+
 interface ExportFileMessage {
   type: 'exportFile';
   exportType: ExportType;
@@ -59,6 +79,8 @@ export type DbProcessPayload =
   | LoadFileMessage
   | SaveFileMessage
   | SplitOpossumFileMessage
+  | MergeOpossumFilesMessage
+  | MergeOpossumFilesFromPathsMessage
   | ExportFileMessage
   | ExecuteCommandMessage;
 
@@ -138,6 +160,52 @@ async function executeDbProcessMessage(
         },
         storedOpossumZip,
       );
+      return undefined;
+    }
+    case 'mergeOpossumFiles': {
+      if (!storedOpossumZip) {
+        throw new Error('Cannot merge: no .opossum file is loaded');
+      }
+      const {
+        id: _,
+        type: __,
+        ignoreReadonlyResourceOutputConflicts,
+        partitionPaths,
+        ...saveFileParams
+      } = msg;
+      await mergeOpossumFiles(
+        {
+          ignoreReadonlyResourceOutputConflicts,
+          saveFileParams,
+          partitionPaths,
+        },
+        storedOpossumZip,
+      );
+      const loadResult = await loadFile(
+        saveFileParams.opossumFilePath,
+        onProgress,
+      );
+      if (!loadResult.ok) {
+        throw new Error(
+          `Could not reload merged archive: ${loadResult.error.message}`,
+        );
+      }
+      storedOpossumZip = loadResult.opossumZip;
+      return undefined;
+    }
+    case 'mergeOpossumFilesFromPaths': {
+      const {
+        id: _,
+        type: __,
+        ignoreReadonlyResourceOutputConflicts,
+        inputPaths,
+        outputPath,
+      } = msg;
+      await mergeOpossumFilesFromPaths({
+        ignoreReadonlyResourceOutputConflicts,
+        inputPaths,
+        outputPath,
+      });
       return undefined;
     }
     case 'exportFile': {

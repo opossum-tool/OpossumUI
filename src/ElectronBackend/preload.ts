@@ -53,6 +53,23 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IpcChannel.SelectSplitDestination, splitPath),
   splitFile: (splitPaths, splitOpossumFilePath) =>
     ipcRenderer.invoke(IpcChannel.SplitFile, splitPaths, splitOpossumFilePath),
+  mergeOpossumFiles: (partitionPaths, ignoreReadonlyResourceOutputConflicts) =>
+    ipcRenderer.invoke(
+      IpcChannel.MergeOpossumFiles,
+      partitionPaths,
+      ignoreReadonlyResourceOutputConflicts,
+    ),
+  mergeOpossumFilesFromPaths: (
+    inputPaths,
+    outputPath,
+    ignoreReadonlyResourceOutputConflicts,
+  ) =>
+    ipcRenderer.invoke(
+      IpcChannel.MergeOpossumFilesFromPaths,
+      inputPaths,
+      outputPath,
+      ignoreReadonlyResourceOutputConflicts,
+    ),
   saveFile: () => ipcRenderer.invoke(IpcChannel.SaveFile),
   exportFile: (exportType) =>
     ipcRenderer.invoke(IpcChannel.ExportFile, exportType),

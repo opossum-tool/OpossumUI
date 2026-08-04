@@ -12,6 +12,8 @@ export enum IpcChannel {
   MergeFileAndLoad = 'merge-file-and-load',
   SelectSplitDestination = 'select-split-destination',
   SplitFile = 'split-file',
+  MergeOpossumFiles = 'merge-opossum-files',
+  MergeOpossumFilesFromPaths = 'merge-opossum-files-from-paths',
   OpenLink = 'open-link',
   SaveFile = 'save-file',
   ExportFile = 'export-file',
