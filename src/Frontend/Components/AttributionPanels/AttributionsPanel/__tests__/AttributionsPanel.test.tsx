@@ -9,10 +9,7 @@ import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { ROOT_PATH } from '../../../../shared-constants';
-import {
-  setIsPackageInfoDirty,
-  setTemporaryDisplayPackageInfo,
-} from '../../../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
@@ -234,7 +231,9 @@ describe('AttributionsPanel', () => {
       ),
     );
     act(() => {
-      store.dispatch(setIsPackageInfoDirty(true));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(faker.opossum.packageInfo()),
+      );
     });
 
     expect(

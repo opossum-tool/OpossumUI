@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { isEqualToManualAttribution } from '../../../shared/attribution-comparison';
 import type { PackageInfo } from '../../../shared/shared-types';
 import type { State } from '../../types/types';
 import type { TargetAttributionFilterChange } from '../actions/resource-actions/types';
@@ -37,5 +38,8 @@ export function getTemporaryDisplayPackageInfo(state: State): PackageInfo {
 }
 
 export function getIsPackageInfoDirty(state: State): boolean {
-  return state.resourceState.isPackageInfoDirty;
+  return !isEqualToManualAttribution(
+    state.resourceState.temporaryDisplayPackageInfo,
+    state.resourceState.originalDisplayPackageInfo,
+  );
 }

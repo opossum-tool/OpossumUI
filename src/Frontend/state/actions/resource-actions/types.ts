@@ -10,6 +10,8 @@ export const ACTION_SET_SELECTED_ATTRIBUTION_ID =
 export const ACTION_RESET_RESOURCE_STATE = 'ACTION_RESET_RESOURCE_STATE';
 export const ACTION_SET_TEMPORARY_PACKAGE_INFO =
   'ACTION_SET_TEMPORARY_PACKAGE_INFO';
+export const ACTION_INITIALIZE_PACKAGE_INFO_EDITING =
+  'ACTION_INITIALIZE_PACKAGE_INFO_EDITING';
 export const ACTION_SET_SELECTED_RESOURCE_ID =
   'ACTION_SET_SELECTED_RESOURCE_ID';
 export const ACTION_SET_EXPANDED_IDS = 'ACTION_SET_EXPANDED_IDS';
@@ -17,20 +19,18 @@ export const ACTION_SET_TARGET_SELECTED_RESOURCE_ID =
   'ACTION_SET_TARGET_SELECTED_RESOURCE_ID';
 export const ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID';
-export const ACTION_SET_IS_PACKAGE_INFO_DIRTY =
-  'ACTION_SET_IS_PACKAGE_INFO_DIRTY';
 export const ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE =
   'ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE';
 
 export type ResourceAction =
   | ResetResourceStateAction
   | SetTemporaryDisplayPackageInfoAction
+  | InitializePackageInfoEditingAction
   | SetSelectedResourceIdAction
   | SetExpandedIdsAction
   | SetTargetSelectedResourceId
   | SetSelectedAttributionId
   | SetTargetSelectedAttributionIdAction
-  | SetIsPackageInfoDirtyAction
   | SetTargetAttributionFilterChangeAction;
 
 export interface ResetResourceStateAction {
@@ -39,6 +39,11 @@ export interface ResetResourceStateAction {
 
 export interface SetTemporaryDisplayPackageInfoAction {
   type: typeof ACTION_SET_TEMPORARY_PACKAGE_INFO;
+  payload: PackageInfo;
+}
+
+export interface InitializePackageInfoEditingAction {
+  type: typeof ACTION_INITIALIZE_PACKAGE_INFO_EDITING;
   payload: PackageInfo;
 }
 
@@ -65,11 +70,6 @@ export interface SetSelectedAttributionId {
 export interface SetTargetSelectedAttributionIdAction {
   type: typeof ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID;
   payload: string | null;
-}
-
-export interface SetIsPackageInfoDirtyAction {
-  type: typeof ACTION_SET_IS_PACKAGE_INFO_DIRTY;
-  payload: boolean;
 }
 
 export interface TargetAttributionFilterChange {

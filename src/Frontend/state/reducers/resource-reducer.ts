@@ -5,9 +5,9 @@
 import type { PackageInfo } from '../../../shared/shared-types';
 import { EMPTY_DISPLAY_PACKAGE_INFO, ROOT_PATH } from '../../shared-constants';
 import {
+  ACTION_INITIALIZE_PACKAGE_INFO_EDITING,
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_EXPANDED_IDS,
-  ACTION_SET_IS_PACKAGE_INFO_DIRTY,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE,
@@ -20,7 +20,7 @@ import {
 
 export const initialResourceState: ResourceState = {
   expandedIds: [ROOT_PATH],
-  isPackageInfoDirty: false,
+  originalDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
   selectedAttributionId: '',
   selectedResourceId: ROOT_PATH,
   targetSelectedAttributionId: null,
@@ -31,7 +31,7 @@ export const initialResourceState: ResourceState = {
 
 export type ResourceState = {
   expandedIds: Array<string>;
-  isPackageInfoDirty: boolean;
+  originalDisplayPackageInfo: PackageInfo;
   selectedAttributionId: string;
   selectedResourceId: string;
   targetSelectedAttributionId: string | null;
@@ -50,6 +50,12 @@ export const resourceState = (
     case ACTION_SET_TEMPORARY_PACKAGE_INFO:
       return {
         ...state,
+        temporaryDisplayPackageInfo: action.payload,
+      };
+    case ACTION_INITIALIZE_PACKAGE_INFO_EDITING:
+      return {
+        ...state,
+        originalDisplayPackageInfo: action.payload,
         temporaryDisplayPackageInfo: action.payload,
       };
     case ACTION_SET_SELECTED_RESOURCE_ID:
@@ -81,11 +87,6 @@ export const resourceState = (
       return {
         ...state,
         targetAttributionFilterChange: action.payload,
-      };
-    case ACTION_SET_IS_PACKAGE_INFO_DIRTY:
-      return {
-        ...state,
-        isPackageInfoDirty: action.payload,
       };
     default:
       return state;
