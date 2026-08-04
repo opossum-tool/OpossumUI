@@ -114,6 +114,10 @@ export const test = base.extend<{
     if (os.platform() === 'linux') {
       args.push('--no-sandbox');
     }
+    if (process.env.E2E_XVFB) {
+      // The purpose of this is to allow running the tests in the background. Wayland requires a configured headless compositor for this, so force X11.
+      args.push('--ozone-platform=x11');
+    }
 
     const app = await electron.launch({
       args: [

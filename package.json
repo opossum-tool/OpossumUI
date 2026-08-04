@@ -123,6 +123,7 @@
     "test:e2e": "playwright test -c src/e2e-tests/playwright.config.ts",
     "test:e2e:ui": "playwright test -c src/e2e-tests/playwright.config.ts --ui",
     "test:e2e:ci": "yarn playwright test -c src/e2e-tests/playwright.config.ts",
+    "test:e2e:xvfb": "yarn build && E2E_XVFB=1 xvfb-run --auto-servernum --server-args=\"-screen 0 1920x1080x24\" yarn test:e2e",
     "test:prepare": "NODE_ENV=e2e vite -m e2e",
     "lint": "eslint --fix --max-warnings 0",
     "lint-check": "eslint --max-warnings 0",
