@@ -21,7 +21,7 @@ export async function switchableMenuItem(
   const state = !!(await UserSettingsService.get(options.userSettingsKey));
   return {
     icon: getCheckboxBasedOnThemeAndCheckState(state),
-    id: state ? `enabled-${options.id}` : `disabled-${options.id}`,
+    id: options.id,
     label: options.label,
     click: async () => {
       await UserSettingsService.update(

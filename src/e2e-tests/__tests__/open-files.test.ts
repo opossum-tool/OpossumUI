@@ -26,7 +26,6 @@ test('opens Opossum file and shows project as recently opened', async ({
   resourcesTree,
   window,
   filePaths,
-  data,
 }) => {
   await menuBar.assert.openRecentIsDisabled();
 
@@ -35,9 +34,7 @@ test('opens Opossum file and shows project as recently opened', async ({
 
   await resourcesTree.assert.resourceIsVisible(resourceName);
   await menuBar.assert.openRecentIsEnabled();
-  await menuBar.assert.hasRecentlyOpenedProject(
-    data!.inputData.metadata.projectId,
-  );
+  await menuBar.assert.hasRecentlyOpenedProject(filePaths!.opossum);
 });
 
 test('opens file and activates initially disabled menu entries afterwards', async ({

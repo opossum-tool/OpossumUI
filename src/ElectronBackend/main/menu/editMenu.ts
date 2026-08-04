@@ -10,11 +10,13 @@ import { text } from '../../../shared/text';
 import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
+import { menuItemIds } from './menuItemIds';
 
 function getUndo(): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/undo-white.png', 'icons/undo-black.png'),
     label: text.menu.editSubmenu.undo,
+    id: menuItemIds.undo,
     accelerator: 'CmdOrCtrl+Z',
     role: 'undo',
     enabled: !getGlobalBackendState().frontendPopupOpen,
@@ -25,6 +27,7 @@ function getRedo(): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/redo-white.png', 'icons/redo-black.png'),
     label: text.menu.editSubmenu.redo,
+    id: menuItemIds.redo,
     accelerator: 'Shift+CmdOrCtrl+Z',
     role: 'redo',
     enabled: !getGlobalBackendState().frontendPopupOpen,
@@ -35,6 +38,7 @@ function getCut(): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/cut-white.png', 'icons/cut-black.png'),
     label: text.menu.editSubmenu.cut,
+    id: menuItemIds.cut,
     accelerator: 'CmdOrCtrl+X',
     role: 'cut',
   };
@@ -44,6 +48,7 @@ function getCopy(): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/copy-white.png', 'icons/copy-black.png'),
     label: text.menu.editSubmenu.copy,
+    id: menuItemIds.copy,
     accelerator: 'CmdOrCtrl+C',
     role: 'copy',
   };
@@ -53,6 +58,7 @@ function getPaste(): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/paste-white.png', 'icons/paste-black.png'),
     label: text.menu.editSubmenu.paste,
+    id: menuItemIds.paste,
     accelerator: 'CmdOrCtrl+V',
     role: 'paste',
   };
@@ -65,6 +71,7 @@ function getSelectAll(): MenuItemConstructorOptions {
       'icons/select-all-black.png',
     ),
     label: text.menu.editSubmenu.selectAll,
+    id: menuItemIds.selectAll,
     accelerator: 'CmdOrCtrl+A',
     role: 'selectAll',
     enabled: isFileLoaded(getGlobalBackendState()),
@@ -80,6 +87,7 @@ function getSearchAttributions(
       'icons/magnifying-glass-black.png',
     ),
     label: text.menu.editSubmenu.searchAttributions,
+    id: menuItemIds.searchAttributions,
     accelerator: 'CmdOrCtrl+Shift+A',
     click: () => {
       if (isFileLoaded(getGlobalBackendState())) {
@@ -101,6 +109,7 @@ function getSearchSignals(
       'icons/magnifying-glass-black.png',
     ),
     label: text.menu.editSubmenu.searchSignals,
+    id: menuItemIds.searchSignals,
     accelerator: 'CmdOrCtrl+Shift+S',
     click: () => {
       if (isFileLoaded(getGlobalBackendState())) {
@@ -122,6 +131,7 @@ function getSearchResources(
       'icons/search-black.png',
     ),
     label: text.menu.editSubmenu.searchResourcesAll,
+    id: menuItemIds.searchResources,
     accelerator: 'CmdOrCtrl+Shift+R',
     click: () => {
       if (isFileLoaded(getGlobalBackendState())) {
@@ -143,6 +153,7 @@ function getSearchLinkedResources(
       'icons/search-black.png',
     ),
     label: text.menu.editSubmenu.searchResourceLinked,
+    id: menuItemIds.searchLinkedResources,
     accelerator: 'CmdOrCtrl+Shift+L',
     click: () => {
       if (isFileLoaded(getGlobalBackendState())) {
@@ -160,6 +171,7 @@ export function getEditMenu(
 ): MenuItemConstructorOptions {
   return {
     label: text.menu.edit,
+    id: menuItemIds.edit,
     submenu: [
       getUndo(),
       getRedo(),
