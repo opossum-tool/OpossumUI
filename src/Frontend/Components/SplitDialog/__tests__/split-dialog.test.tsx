@@ -148,4 +148,40 @@ describe('SplitDialog', () => {
     fireEvent.click(screen.getByRole('button', { name: text.buttons.close }));
     expect(onClose).toHaveBeenCalledOnce();
   });
+
+  it('locks resource selection and indicates progress while splitting', async () => {
+    let resolveSplit: (result: { status: 'success' }) => void;
+    vi.mocked(window.electronAPI.selectSplitDestination).mockResolvedValue(
+      '/partitions/source.opossum',
+    );
+    vi.mocked(window.electronAPI.splitFile).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveSplit = resolve;
+        }),
+    );
+
+    await renderComponent(
+      <SplitDialog open={true} resourcePath={resourcePath} onClose={vi.fn()} />,
+    );
+
+    fireEvent.click(screen.getByTestId('split-destination-path-input'));
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: text.splitDialog.create }),
+      ).toBeEnabled(),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: text.splitDialog.create }),
+    );
+
+    expect(await screen.findByText(text.splitDialog.inProgress)).toBeVisible();
+    expect(screen.getByRole('progressbar')).toBeVisible();
+    resolveSplit!({ status: 'success' });
+    expect(await screen.findByText(text.splitDialog.success)).toBeVisible();
+    expect(
+      screen.queryByText(text.splitDialog.inProgress),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
 });

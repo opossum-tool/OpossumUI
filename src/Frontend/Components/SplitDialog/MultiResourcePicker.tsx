@@ -29,12 +29,14 @@ import {
 } from './MultiResourcePicker.style';
 
 interface MultiResourcePickerProps {
+  disabled?: boolean;
   initialSelectedPaths?: Array<string>;
   open: boolean;
   onSelectionChange(selectedPaths: Array<string>): void;
 }
 
 export function MultiResourcePicker({
+  disabled = false,
   initialSelectedPaths = [],
   open,
   onSelectionChange,
@@ -97,13 +99,14 @@ export function MultiResourcePicker({
           resources.map((resource) =>
             renderResource(
               resource,
+              disabled,
               selectedPaths,
               updateSelectedPaths,
               toggleExpanded,
             ),
           )
         )}
-        {resourceTree.isFetching ? <LoadingIndicator /> : null}
+        {resourceTree.isFetching && !disabled ? <LoadingIndicator /> : null}
       </ResourceTreeContainer>
       <SelectedPathsContainer>
         {selectedPaths.length === 0 ? (
@@ -114,6 +117,7 @@ export function MultiResourcePicker({
           selectedPaths.map((path) => (
             <MuiChip
               key={path}
+              disabled={disabled}
               label={path}
               onDelete={() => updateSelectedPaths(path)}
               size={'small'}
@@ -127,6 +131,7 @@ export function MultiResourcePicker({
 
 function renderResource(
   resource: ResourceTreeNodeData,
+  disabled: boolean,
   selectedPaths: Array<string>,
   updateSelectedPaths: (path: string) => void,
   toggleExpanded: (resource: ResourceTreeNodeData) => Promise<void>,
@@ -154,6 +159,7 @@ function renderResource(
               ? text.splitDialog.resourcePicker.collapse(path)
               : text.splitDialog.resourcePicker.expand(path)
           }
+          disabled={disabled}
           onClick={() => void toggleExpanded(resource)}
           size={'small'}
         >
@@ -168,7 +174,7 @@ function renderResource(
       )}
       <Checkbox
         checked={selectedExplicitly || selectedByAncestor}
-        disabled={selectedByAncestor}
+        disabled={disabled || selectedByAncestor}
         indeterminate={
           !selectedExplicitly &&
           !selectedByAncestor &&
