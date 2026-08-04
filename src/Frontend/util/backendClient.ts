@@ -33,7 +33,9 @@ import { queryClient } from '../Components/AppContainer/queryClient';
 type ClientMutationOptions<M extends MutationName> = Omit<
   UseMutationOptions<Awaited<MutationResult<M>>, unknown, MutationParams<M>>, // Result type, Error Type, Parameter Type
   'mutationKey' | 'mutationFn'
->;
+> & {
+  onBeforeInvalidation?: () => void;
+};
 
 type ClientMutationReturn<M extends MutationName> = ReturnType<
   typeof useMutation<Awaited<MutationResult<M>>, unknown, MutationParams<M>> // Result type, Error Type, Parameter Type
@@ -78,7 +80,7 @@ type BackendClient = {
 
     /**
      * Tanstack Query hook to mutate data in the backend, for use in React components.
-     * Automatically invalidates affected queries.
+     * Automatically invalidates affected queries after onBeforeInvalidation has run.
      */
     useMutation: (
       options?: ClientMutationOptions<M>,
@@ -146,8 +148,12 @@ export const backend = new Proxy({} as BackendClient, {
     const getQueryKey = (command: CommandName, params: unknown) =>
       ['backend', command, params] as const;
 
-    async function mutate(params: MutationParams<MutationName>) {
+    async function mutate(
+      params: MutationParams<MutationName>,
+      onSuccessBeforeInvalidation?: () => void,
+    ) {
       const response = await window.electronAPI.api(command, params);
+      onSuccessBeforeInvalidation?.();
       // Invalidate queries affected by the mutation
       if ('invalidates' in response && response.invalidates) {
         const invalidates = response.invalidates;
@@ -200,10 +206,11 @@ export const backend = new Proxy({} as BackendClient, {
       mutate,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       useMutation: (options?: ClientMutationOptions<any>) => {
+        const { onBeforeInvalidation, ...mutationOptions } = options ?? {};
         return useMutation({
           mutationKey: ['backend', command],
-          mutationFn: mutate,
-          ...options,
+          mutationFn: (params) => mutate(params, onBeforeInvalidation),
+          ...mutationOptions,
         });
       },
     };

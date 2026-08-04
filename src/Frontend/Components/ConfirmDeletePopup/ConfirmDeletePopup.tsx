@@ -35,10 +35,19 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const clearSelectedAttributionIfDeleted = () => {
+    if (attributionIdsToDelete.includes(selectedAttributionId)) {
+      dispatch(setSelectedAttributionId(''));
+    }
+  };
 
-  const deleteAttributions = backend.deleteAttributions.useMutation();
+  const deleteAttributions = backend.deleteAttributions.useMutation({
+    onBeforeInvalidation: clearSelectedAttributionIfDeleted,
+  });
   const unlinkResourceFromAttributions =
-    backend.unlinkResourceFromAttributions.useMutation();
+    backend.unlinkResourceFromAttributions.useMutation({
+      onBeforeInvalidation: clearSelectedAttributionIfDeleted,
+    });
 
   const isDeleting =
     deleteAttributions.isPending || unlinkResourceFromAttributions.isPending;
@@ -73,9 +82,6 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
     await deleteAttributions.mutateAsync({
       attributionUuids: attributionIdsToDelete,
     });
-    if (attributionIdsToDelete.includes(selectedAttributionId)) {
-      dispatch(setSelectedAttributionId(''));
-    }
     onClose();
   };
 
@@ -84,9 +90,6 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       resourcePath: selectedResourceId,
       attributionUuids: attributionIdsToDelete,
     });
-    if (attributionIdsToDelete.includes(selectedAttributionId)) {
-      dispatch(setSelectedAttributionId(''));
-    }
     onClose();
   };
 
