@@ -23,6 +23,7 @@ export function renderOccurrenceCount(
         enterDelay={500}
       >
         <MuiChip
+          data-testid={'occurrence-count'}
           sx={{ minWidth: '24px' }}
           label={new Intl.NumberFormat('en-US', {
             notation: 'compact',
@@ -48,6 +49,7 @@ export function renderOccurrenceCount(
       enterDelay={500}
     >
       <MuiChip
+        data-testid={'occurrence-count'}
         sx={{ minWidth: '24px' }}
         label={new Intl.NumberFormat('en-US', {
           notation: 'compact',

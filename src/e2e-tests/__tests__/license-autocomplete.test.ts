@@ -86,11 +86,8 @@ test('license autocomplete sorts common licenses by number of occurrences', asyn
 
     const { attributions: attributionCount, signals: signalCount } =
       occurrenceCounts[i];
-    const occurrenceText = autocompleteOption.getByText(
-      String(attributionCount + signalCount),
-    );
-    await occurrenceText.first().hover();
-    await attributionDetails.attributionForm.ensureLicenseOccurenceTooltipIsCorrect(
+    await autocompleteOption.getByTestId('occurrence-count').hover();
+    await attributionDetails.attributionForm.ensureLicenseOccurrenceTooltipIsCorrect(
       attributionCount,
       signalCount,
     );
