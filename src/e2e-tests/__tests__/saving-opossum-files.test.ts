@@ -12,7 +12,7 @@ import type {
 import type { RawPackageInfo } from '../../shared/shared-types';
 import { faker, test } from '../utils';
 
-const [resourceName] = faker.opossum.resourceName();
+const resourceName = faker.opossum.resourceName();
 const resourcePath = faker.opossum.filePath(resourceName);
 const [preselectedAttributionId, preselectedPackageInfo] =
   faker.opossum.rawAttribution({ preSelected: true });
