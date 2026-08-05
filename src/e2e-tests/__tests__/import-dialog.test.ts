@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { faker, stubOpenDialogSync, stubSaveDialogSync, test } from '../utils';
 
-const [resourceName] = faker.opossum.resourceName();
+const resourceName = faker.opossum.resourceName();
 
 test.use({
   data: {
