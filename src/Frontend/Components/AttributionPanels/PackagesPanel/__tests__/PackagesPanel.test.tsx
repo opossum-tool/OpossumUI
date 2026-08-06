@@ -265,6 +265,32 @@ describe('PackagesPanel', () => {
     expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
   });
 
+  it('selects only editable attributions when readonly cards are visible', async () => {
+    const editableAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const readonlyAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+      isReadonly: true,
+    });
+    let selectedIds: Array<string> = [];
+
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [editableAttribution.id]: editableAttribution,
+        [readonlyAttribution.id]: readonlyAttribution,
+      }),
+      children: (props) => {
+        selectedIds = props.multiSelectedAttributionIds;
+        return null;
+      },
+    });
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+
+    expect(selectedIds).toEqual([editableAttribution.id]);
+  });
+
   it('resets multi-selected IDs when active relation changes', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });

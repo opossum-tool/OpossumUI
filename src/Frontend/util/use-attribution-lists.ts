@@ -12,6 +12,7 @@ import {
 } from '../state/variables/use-filters';
 import { useUserSettings } from '../state/variables/use-user-setting';
 import { backend } from './backendClient';
+import { useIsSelectedResourceReadonly } from './use-selected-resource';
 
 export function useFilteredAttributionsList({
   external,
@@ -25,6 +26,7 @@ export function useFilteredAttributionsList({
   const [{ filters, search, valueFilters, sorting }] = useFilters();
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
 
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
@@ -37,11 +39,13 @@ export function useFilteredAttributionsList({
     valueFilters,
     resourcePathForRelationships: selectedResourceId,
     showResolved: areHiddenSignalsVisible && external,
-    excludeUnrelated: external,
+    excludeUnrelated: external || isSelectedResourceReadonly,
+    includeReadonly: true,
   });
 
   const attributions = attributionQuery.data ?? null;
-  const loading = attributionQuery.isLoading;
+  const loading =
+    attributionQuery.isLoading || attributionQuery.isPlaceholderData;
 
   return { attributions, loading };
 }
@@ -57,7 +61,8 @@ export function useFilteredReportsAttributionsList() {
   });
 
   const attributions = attributionQuery.data ?? null;
-  const loading = attributionQuery.isLoading;
+  const loading =
+    attributionQuery.isLoading || attributionQuery.isPlaceholderData;
 
   return { attributions, loading };
 }

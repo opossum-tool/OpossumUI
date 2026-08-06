@@ -14,8 +14,10 @@ import { useState } from 'react';
 import type { ResourceTreeNodeData } from '../../../ElectronBackend/api/resourceTree';
 import { text } from '../../../shared/text';
 import { ROOT_PATH } from '../../shared-constants';
+import { readonlyStyle } from '../../shared-styles';
 import { backend } from '../../util/backendClient';
 import { Checkbox } from '../Checkbox/Checkbox';
+import { ReadonlyIcon } from '../Icons/Icons';
 import { getNodeIdsToExpand } from '../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.util';
 import {
   ExpandButton,
@@ -174,7 +176,7 @@ function renderResource(
       )}
       <Checkbox
         checked={selectedExplicitly || selectedByAncestor}
-        disabled={disabled || selectedByAncestor}
+        disabled={disabled || selectedByAncestor || resource.isReadonly}
         indeterminate={
           !selectedExplicitly &&
           !selectedByAncestor &&
@@ -187,7 +189,15 @@ function renderResource(
       ) : (
         <FolderOutlinedIcon fontSize={'small'} />
       )}
-      <ResourceLabel>{resource.labelText}</ResourceLabel>
+      <ResourceLabel sx={resource.isReadonly ? readonlyStyle : undefined}>
+        {resource.labelText}
+        {resource.isReadonly && (
+          <ReadonlyIcon
+            label={'readonly resource'}
+            sx={{ height: '14px', width: '14px' }}
+          />
+        )}
+      </ResourceLabel>
     </ResourceRow>
   );
 }

@@ -10,6 +10,7 @@ import ExploreIcon from '@mui/icons-material/Explore';
 import Filter1Icon from '@mui/icons-material/Filter1';
 import FolderOutlinedIcon from '@mui/icons-material/Folder';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -43,6 +44,23 @@ interface IconProps {
   noTooltip?: boolean;
   className?: string;
   tooltipPlacement?: 'top' | 'bottom' | 'left' | 'right';
+}
+
+export function ReadonlyIcon({
+  label = 'readonly',
+  sx,
+}: IconProps & { label?: string }) {
+  return (
+    <LockOutlinedIcon
+      aria-label={label}
+      sx={{
+        color: OpossumColors.grey,
+        height: '16px',
+        width: '16px',
+        ...sx,
+      }}
+    />
+  );
 }
 
 interface LabelDetailIconProps extends IconProps {

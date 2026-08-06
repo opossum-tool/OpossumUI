@@ -10,6 +10,7 @@ import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../../../state/hooks';
 import { backend } from '../../../../util/backendClient';
+import { useIsSelectedResourceReadonly } from '../../../../util/use-selected-resource';
 import {
   GroupedList,
   type GroupedListItemContentProps,
@@ -31,6 +32,7 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   multiSelectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
+  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
   const canSelectSignals = pickerMode.mode !== 'replace';
   const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
@@ -118,7 +120,10 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
           packageInfo={attribution}
           checkbox={{
             checked: multiSelectedAttributionIds.includes(attributionId),
-            disabled: pickerMode.isActive,
+            disabled:
+              pickerMode.isActive ||
+              isSelectedResourceReadonly ||
+              attribution.isReadonly === true,
             onChange: (event) => {
               setMultiSelectedAttributionIds(
                 event.target.checked

@@ -68,7 +68,9 @@ export class PackageCard {
       await expect(this.node(packageInfo)).toBeHidden();
     },
     isReadonly: async (packageInfo: RawPackageInfo): Promise<void> => {
-      await expect(this.node(packageInfo)).toBeHidden();
+      const card = this.node(packageInfo);
+      await expect(card).toBeVisible();
+      await expect(card.getByLabel('readonly attribution')).toBeVisible();
     },
     preferredIconIsVisible: async (
       packageInfo: RawPackageInfo,

@@ -66,6 +66,7 @@ type Never<T, K extends keyof T> = Expand<
 interface EphemeralPackageInfoProps {
   count?: number;
   id: string;
+  isReadonly?: boolean;
   originalAttributionId?: string;
   originalAttributionWasPreferred?: boolean;
   originalAttributionSource?: Source;

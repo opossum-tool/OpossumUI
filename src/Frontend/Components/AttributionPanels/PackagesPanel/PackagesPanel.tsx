@@ -39,6 +39,7 @@ import { useFilteredAttributionsList } from '../../../util/use-attribution-lists
 import { useFilterProperties } from '../../../util/use-filter-properties';
 import { usePrevious } from '../../../util/use-previous';
 import { useSelectedAttributionIsExternal } from '../../../util/use-selected-attribution';
+import { useIsSelectedResourceReadonly } from '../../../util/use-selected-resource';
 import { Checkbox } from '../../Checkbox/Checkbox';
 import { FilterButton } from '../../FilterButton/FilterButton';
 import { useAttributionFilterOptions } from '../../FilterButton/use-attribution-filter-options';
@@ -101,6 +102,7 @@ export const PackagesPanel = ({
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
   const lastResourceIdWithAutoSelectionRef = useRef(selectedResourceId);
   const previousSelectedResourceId = usePrevious(selectedResourceId);
 
@@ -131,6 +133,12 @@ export const PackagesPanel = ({
   // Automatic attribution selection
   useEffect(() => {
     if (loading || !attributions) {
+      if (
+        !external &&
+        lastResourceIdWithAutoSelectionRef.current !== selectedResourceId
+      ) {
+        dispatch(setSelectedAttributionId(''));
+      }
       return;
     }
 
@@ -209,13 +217,24 @@ export const PackagesPanel = ({
           ? multiSelectedAttributionIds
           : [selectedAttributionId],
         attributionIds,
+      )?.filter(
+        (id) => !isSelectedResourceReadonly && !attributions?.[id]?.isReadonly,
       ),
-    [attributionIds, multiSelectedAttributionIds, selectedAttributionId],
+    [
+      attributionIds,
+      attributions,
+      isSelectedResourceReadonly,
+      multiSelectedAttributionIds,
+      selectedAttributionId,
+    ],
   );
 
   const areAllAttributionsSelected = useMemo(() => {
     const activeAttributionIds = attributionIds?.filter(
-      (id) => attributions?.[id].relation === activeRelation,
+      (id) =>
+        attributions?.[id].relation === activeRelation &&
+        !isSelectedResourceReadonly &&
+        !attributions?.[id]?.isReadonly,
     );
     return (
       !!activeAttributionIds?.length &&
@@ -225,8 +244,27 @@ export const PackagesPanel = ({
     activeRelation,
     attributionIds,
     attributions,
+    isSelectedResourceReadonly,
     multiSelectedAttributionIds,
   ]);
+
+  const activeSelectableAttributionIds = useMemo(
+    () =>
+      attributionIds?.filter(
+        (id) =>
+          attributions?.[id].relation === activeRelation &&
+          !isSelectedResourceReadonly &&
+          !attributions?.[id]?.isReadonly,
+      ),
+    [activeRelation, attributionIds, attributions, isSelectedResourceReadonly],
+  );
+  const selectableAttributionIds = useMemo(
+    () =>
+      attributionIds?.filter(
+        (id) => !isSelectedResourceReadonly && !attributions?.[id]?.isReadonly,
+      ),
+    [attributionIds, attributions, isSelectedResourceReadonly],
+  );
 
   const effectiveSelectedIds = useMemo(
     () => intersection(attributionIds, multiSelectedAttributionIds),
@@ -424,21 +462,23 @@ export const PackagesPanel = ({
         }}
       >
         <Checkbox
-          disabled={!attributionIds?.length || pickerMode.isActive}
+          disabled={
+            !selectableAttributionIds?.length ||
+            pickerMode.isActive ||
+            isSelectedResourceReadonly
+          }
           checked={areAllAttributionsSelected}
           indeterminate={
             !areAllAttributionsSelected && !!multiSelectedAttributionIds.length
           }
           aria-label={'select all'}
           onChange={() => {
-            attributionIds &&
+            activeSelectableAttributionIds &&
               setMultiSelectedAttributionIds(
                 areAllAttributionsSelected ||
                   !!multiSelectedAttributionIds.length
                   ? []
-                  : attributionIds.filter(
-                      (id) => attributions?.[id].relation === activeRelation,
-                    ),
+                  : activeSelectableAttributionIds,
               );
           }}
         />

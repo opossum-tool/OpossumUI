@@ -11,11 +11,12 @@ import { memo, useEffect, useMemo, useRef } from 'react';
 
 import type { Criticality, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { OpossumColors } from '../../shared-styles';
+import { OpossumColors, readonlyStyle } from '../../shared-styles';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { getCardLabels } from '../../util/get-card-labels';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { Checkbox } from '../Checkbox/Checkbox';
+import { ReadonlyIcon } from '../Icons/Icons';
 import { getRightIcons } from './PackageCard.util';
 
 export const PACKAGE_CARD_HEIGHT = 40;
@@ -186,15 +187,37 @@ export const PackageCard = memo(
           ...(onClick && classes.hover),
           ...(cardConfig?.pickerSource && classes.pickerSource),
           ...(cardConfig?.resolved && classes.resolved),
+          ...(packageInfo.isReadonly && readonlyStyle),
           ...(cardConfig?.selected && classes.selected),
         }}
       >
-        {checkbox && (
-          <Checkbox
-            checked={checkbox.checked}
-            disabled={checkbox.disabled}
-            onChange={checkbox.onChange}
-          />
+        {packageInfo.isReadonly && checkbox ? (
+          <MuiTooltip
+            title={text.packageLists.readonlyAttributionCannotBeSelected}
+            disableInteractive
+          >
+            <MuiBox
+              sx={{
+                width: '34px',
+                height: '34px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <ReadonlyIcon
+                label={text.packageLists.readonlyAttributionLabel}
+              />
+            </MuiBox>
+          </MuiTooltip>
+        ) : (
+          checkbox && (
+            <Checkbox
+              checked={checkbox.checked}
+              disabled={checkbox.disabled}
+              onChange={checkbox.onChange}
+            />
+          )
         )}
         <MuiBox sx={classes.innerRoot} onClick={onClick}>
           {packageInfo.count !== undefined && (
@@ -228,6 +251,16 @@ export const PackageCard = memo(
             )}
           </MuiBox>
           <MuiBox sx={classes.iconColumn}>{rightIcons}</MuiBox>
+          {packageInfo.isReadonly && !checkbox && (
+            <MuiTooltip
+              title={text.packageLists.readonlyAttribution}
+              disableInteractive
+            >
+              <ReadonlyIcon
+                label={text.packageLists.readonlyAttributionLabel}
+              />
+            </MuiTooltip>
+          )}
         </MuiBox>
       </MuiBox>
     );

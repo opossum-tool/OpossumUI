@@ -120,7 +120,10 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
         open={contextMenu !== null}
       >
         <MuiMenuItem
-          disabled={contextMenu?.resource.id === ROOT_PATH}
+          disabled={
+            contextMenu?.resource.id === ROOT_PATH ||
+            contextMenu?.resource.isReadonly === true
+          }
           onClick={handleSplit}
         >
           <MuiListItemIcon>

@@ -212,6 +212,7 @@ export function serializeAttributions(
           source,
           suffix,
           synthetic,
+          isReadonly,
           ...attribution
         },
       ],

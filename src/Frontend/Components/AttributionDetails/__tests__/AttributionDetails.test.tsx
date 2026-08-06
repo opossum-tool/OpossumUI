@@ -48,6 +48,38 @@ describe('AttributionDetails', () => {
     await waitFor(() => expect(container).toBeEmptyDOMElement());
   });
 
+  it('shows readonly attribution details without edit controls', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const resourcePath = '/readonly/file.ts';
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([resourcePath]),
+        manualAttributions: { [packageInfo.id]: packageInfo },
+        resourcesToManualAttributions: { [resourcePath]: [packageInfo.id] },
+        readonlyRules: [{ path: '/readonly', readonly: true }],
+      }),
+      actions: [
+        setSelectedResourceId(resourcePath),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    await waitFor(() =>
+      expect(getTemporaryDisplayPackageInfo(store.getState()).id).toBe(
+        packageInfo.id,
+      ),
+    );
+    expect(getTemporaryDisplayPackageInfo(store.getState()).isReadonly).toBe(
+      undefined,
+    );
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.save }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.delete }),
+    ).not.toBeInTheDocument();
+  });
+
   it('renders nothing when the selected attribution ID is not visible', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const { container } = await renderComponent(<AttributionDetails />, {

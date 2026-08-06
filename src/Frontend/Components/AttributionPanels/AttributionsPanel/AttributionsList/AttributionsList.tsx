@@ -9,6 +9,7 @@ import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../../../state/hooks';
 import { isPackageIncomplete } from '../../../../util/input-validation';
+import { useIsSelectedResourceReadonly } from '../../../../util/use-selected-resource';
 import { List, type ListItemContentProps } from '../../../List/List';
 import { PackageCard } from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
@@ -25,6 +26,7 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   multiSelectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
+  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
 
   return (
     <List
@@ -75,7 +77,10 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
           packageInfo={attribution}
           checkbox={{
             checked: multiSelectedAttributionIds.includes(attributionId),
-            disabled: pickerMode.isActive,
+            disabled:
+              pickerMode.isActive ||
+              isSelectedResourceReadonly ||
+              attribution.isReadonly === true,
             onChange: (event) => {
               setMultiSelectedAttributionIds(
                 event.target.checked

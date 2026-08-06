@@ -58,14 +58,25 @@ export class ResourcesTree {
       ).toBeVisible();
     },
     resourceIsReadonly: async (resourceName: string): Promise<void> => {
+      const label = this.node.getByText(resourceName, { exact: true });
+      await expect(label).toBeVisible();
       await expect(
-        this.node.getByText(resourceName, { exact: true }),
-      ).toBeHidden();
+        label.locator('..').getByLabel('readonly resource'),
+      ).toBeVisible();
     },
     resourceIsHidden: async (resourceName: string): Promise<void> => {
       await expect(
         this.node.getByText(resourceName, { exact: true }),
       ).toBeHidden();
+    },
+    splitHereIsDisabled: async (resourceName: string): Promise<void> => {
+      await this.openContextMenu(resourceName);
+      await expect(
+        this.window.getByRole('menuitem', {
+          name: text.resourceBrowser.splitHere,
+        }),
+      ).toBeDisabled();
+      await this.closeMenu();
     },
   };
 

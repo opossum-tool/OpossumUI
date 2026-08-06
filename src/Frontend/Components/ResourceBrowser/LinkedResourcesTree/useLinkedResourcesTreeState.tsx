@@ -19,10 +19,12 @@ export type LinkedResourcesTreeState = ReturnType<
 export function useLinkedResourcesTreeState({
   onAttributionUuids,
   search,
+  onlyWritable = false,
   enabled: enabledProp = true,
 }: {
   onAttributionUuids: Array<string>;
   search?: string;
+  onlyWritable?: boolean;
   enabled?: boolean;
 }) {
   const selectedResourcePath = useAppSelector(getSelectedResourceId);
@@ -58,6 +60,7 @@ export function useLinkedResourcesTreeState({
       search,
       onAttributionUuids,
       selectedResourcePath,
+      onlyWritable,
     },
     { placeholderData: keepPreviousData, enabled },
   );

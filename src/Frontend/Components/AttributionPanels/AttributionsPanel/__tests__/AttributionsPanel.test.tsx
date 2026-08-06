@@ -97,6 +97,9 @@ describe('AttributionsPanel', () => {
     expect(
       screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
     ).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.packageLists.delete }),
+    ).toBeDisabled();
   });
 
   it('shows alert when some attribution on current resource is incomplete', async () => {

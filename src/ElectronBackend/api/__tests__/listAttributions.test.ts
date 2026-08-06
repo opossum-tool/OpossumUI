@@ -37,6 +37,110 @@ describe('listAttributions', () => {
     expect(Object.keys(result)).toHaveLength(3);
   });
 
+  it('includes related readonly attributions when browsing a readonly resource', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/readonly/file.ts', '/writable/file.ts']),
+      manualAttributions: {
+        attributions: {
+          readonly: { id: 'readonly', criticality: Criticality.None },
+          writable: { id: 'writable', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/readonly/file.ts': ['readonly'],
+          '/writable/file.ts': ['writable'],
+        },
+        attributionsToResources: {},
+      },
+      readonlyRules: [{ path: '/readonly', readonly: true }],
+    });
+
+    const { result } = await listAttributions({
+      external: false,
+      resourcePathForRelationships: '/readonly/file.ts',
+      includeReadonly: true,
+    });
+
+    expect(result.readonly).toMatchObject({ isReadonly: true });
+    expect(result.writable).toMatchObject({ isReadonly: false });
+  });
+
+  it('includes related readonly descendants but excludes unrelated readonly attributions', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/parent/readonly/file.ts',
+        '/parent/writable/file.ts',
+        '/other/readonly/file.ts',
+      ]),
+      manualAttributions: {
+        attributions: {
+          relatedReadonly: {
+            id: 'relatedReadonly',
+            criticality: Criticality.None,
+          },
+          unrelatedReadonly: {
+            id: 'unrelatedReadonly',
+            criticality: Criticality.None,
+          },
+          writable: { id: 'writable', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/parent/readonly/file.ts': ['relatedReadonly'],
+          '/parent/writable/file.ts': ['writable'],
+          '/other/readonly/file.ts': ['unrelatedReadonly'],
+        },
+        attributionsToResources: {},
+      },
+      readonlyRules: [
+        { path: '/parent/readonly', readonly: true },
+        { path: '/other/readonly', readonly: true },
+      ],
+    });
+
+    const { result } = await listAttributions({
+      external: false,
+      resourcePathForRelationships: '/parent',
+      includeReadonly: true,
+    });
+
+    expect(result.relatedReadonly).toMatchObject({
+      isReadonly: true,
+      relation: 'children',
+    });
+    expect(result.writable).toMatchObject({
+      isReadonly: false,
+      relation: 'children',
+    });
+    expect(result.unrelatedReadonly).toBeUndefined();
+  });
+
+  it('can exclude unrelated attributions while browsing a readonly resource', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/readonly/file.ts', '/writable/file.ts']),
+      manualAttributions: {
+        attributions: {
+          readonly: { id: 'readonly', criticality: Criticality.None },
+          writable: { id: 'writable', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/readonly/file.ts': ['readonly'],
+          '/writable/file.ts': ['writable'],
+        },
+        attributionsToResources: {},
+      },
+      readonlyRules: [{ path: '/readonly', readonly: true }],
+    });
+
+    const { result } = await listAttributions({
+      external: false,
+      resourcePathForRelationships: '/readonly/file.ts',
+      includeReadonly: true,
+      excludeUnrelated: true,
+    });
+
+    expect(result.readonly).toBeDefined();
+    expect(result.writable).toBeUndefined();
+  });
+
   it('returns all attributions without filters', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/resource']),

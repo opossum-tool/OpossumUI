@@ -105,7 +105,7 @@ test('opens the new split file', async ({
 
   await resourcesTree.assert.resourceIsReadonly(firstDirectoryName);
   await resourcesTree.assert.resourceIsEditable(secondDirectoryName);
-  await attributionsPanel.packageCard.assert.isHidden(packageInfo);
+  await attributionsPanel.packageCard.assert.isReadonly(packageInfo);
   await topBar.gotoReportView();
   await reportView.assert.attributionIsHidden(attributionId);
   await topBar.gotoAuditView();

@@ -26,6 +26,7 @@ export function makeResourceTreeNode(
     canHaveChildren: false,
     isAttributionBreakpoint: false,
     isFile: true,
+    isReadonly: false,
     criticality: null,
     classification: null,
     matchesFilters: false,

@@ -8,7 +8,11 @@ import MuiTypography from '@mui/material/Typography';
 
 import { Criticality } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
-import { OpossumColors, treeItemClasses } from '../../../../shared-styles';
+import {
+  OpossumColors,
+  readonlyStyle,
+  treeItemClasses,
+} from '../../../../shared-styles';
 import { useUserSettings } from '../../../../state/variables/use-user-setting';
 import {
   BreakpointIcon,
@@ -16,6 +20,7 @@ import {
   CriticalityIcon,
   DirectoryIcon,
   FileIcon,
+  ReadonlyIcon,
   SignalIcon,
 } from '../../../Icons/Icons';
 import type { TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode';
@@ -69,6 +74,7 @@ export function ResourcesTreeNode({ resource }: TreeNode) {
     <MuiBox
       sx={{
         ...treeItemClasses.labelRoot,
+        ...(resource.isReadonly ? readonlyStyle : {}),
         ...(resource.matchesFilters
           ? {
               backgroundColor: OpossumColors.lightBlue,
@@ -87,6 +93,7 @@ export function ResourcesTreeNode({ resource }: TreeNode) {
       <MuiTypography
         sx={{
           ...treeItemClasses.text,
+          ...(resource.isReadonly ? { color: OpossumColors.grey } : {}),
           ...(resource.isAttributionBreakpoint
             ? treeItemClasses.breakpoint
             : {}),
@@ -94,6 +101,12 @@ export function ResourcesTreeNode({ resource }: TreeNode) {
       >
         {resource.labelText}
       </MuiTypography>
+      {resource.isReadonly && (
+        <ReadonlyIcon
+          label={'readonly resource'}
+          sx={{ height: '14px', width: '14px' }}
+        />
+      )}
       {resource.hasUnresolvedExternalAttribution &&
         (resource.criticality && showCriticality ? (
           <CriticalityIcon
