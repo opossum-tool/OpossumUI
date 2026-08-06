@@ -5,15 +5,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiDialogContentText from '@mui/material/DialogContentText';
-import { useEffect, useLayoutEffect, useMemo } from 'react';
+import MuiLinearProgress from '@mui/material/LinearProgress';
+import { useLayoutEffect } from 'react';
 
-import { isEqualToManualAttribution } from '../../../shared/attribution-comparison';
 import { text } from '../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
-import {
-  setIsPackageInfoDirty,
-  setTemporaryDisplayPackageInfo,
-} from '../../state/actions/resource-actions/all-views-simple-actions';
+import { initializePackageInfoEditing } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -23,10 +20,7 @@ import {
 import { usePickerMode } from '../../state/variables/use-picker-mode';
 import { useFilteredAttributionsList } from '../../util/use-attribution-lists';
 import { useCompareToOriginal } from '../../util/use-compare-to-original';
-import {
-  useSelectedAttributionIsExternal,
-  useSelectedAttributionPackageInfo,
-} from '../../util/use-selected-attribution';
+import { useSelectedAttribution } from '../../util/use-selected-attribution';
 import { useIsSelectedResourceReadonly } from '../../util/use-selected-resource';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
 import {
@@ -43,6 +37,14 @@ const classes = {
     width: '100%',
     position: 'relative',
   },
+  loadingIndicator: {
+    height: 2,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    zIndex: 2,
+  },
 };
 
 export function AttributionDetails() {
@@ -52,17 +54,22 @@ export function AttributionDetails() {
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
-  const selectedAttribution = useSelectedAttributionPackageInfo();
-  const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
+  const {
+    isExternal: selectedAttributionIsExternal,
+    isPending: isSelectedAttributionPending,
+    packageInfo: selectedAttribution,
+  } = useSelectedAttribution();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
 
   useLayoutEffect(() => {
-    dispatch(
-      setTemporaryDisplayPackageInfo(
-        selectedAttribution || EMPTY_DISPLAY_PACKAGE_INFO,
-      ),
-    );
+    if (!selectedAttributionId || selectedAttribution) {
+      dispatch(
+        initializePackageInfoEditing(
+          selectedAttribution || EMPTY_DISPLAY_PACKAGE_INFO,
+        ),
+      );
+    }
   }, [
     dispatch,
     selectedAttributionId,
@@ -70,23 +77,10 @@ export function AttributionDetails() {
     selectedResourceId,
   ]);
 
-  const isDirty = useMemo(
-    () =>
-      !isEqualToManualAttribution(
-        temporaryDisplayPackageInfo,
-        selectedAttribution || EMPTY_DISPLAY_PACKAGE_INFO,
-      ),
-    [temporaryDisplayPackageInfo, selectedAttribution],
-  );
-
-  useEffect(() => {
-    dispatch(setIsPackageInfoDirty(isDirty));
-  }, [dispatch, isDirty]);
-
-  const { attributions } = useFilteredAttributionsList({ external: false });
-  const { attributions: signals } = useFilteredAttributionsList({
-    external: true,
-  });
+  const { attributions, loading: manualAttributionsLoading } =
+    useFilteredAttributionsList({ external: false });
+  const { attributions: signals, loading: signalsLoading } =
+    useFilteredAttributionsList({ external: true });
   const isSelectedAttributionVisible =
     !!attributions?.[selectedAttributionId] ||
     !!signals?.[selectedAttributionId];
@@ -103,9 +97,24 @@ export function AttributionDetails() {
     });
   const pickerMode = usePickerMode();
 
-  const isEditable = !pickerMode.isActive && !selectedAttributionIsExternal;
+  const isAttributionsLoading = manualAttributionsLoading || signalsLoading;
+  const isSelectedAttributionLoading =
+    isAttributionsLoading ||
+    (!!selectedAttributionId &&
+      !selectedAttribution &&
+      isSelectedAttributionPending);
+  const hasSelectedAttributionData =
+    !isAttributionsLoading && (!selectedAttributionId || !!selectedAttribution);
+  const isEditable =
+    hasSelectedAttributionData &&
+    !pickerMode.isActive &&
+    !selectedAttributionIsExternal;
 
-  if (!!selectedAttributionId && !isSelectedAttributionVisible) {
+  if (
+    !!selectedAttributionId &&
+    !isSelectedAttributionVisible &&
+    !isSelectedAttributionLoading
+  ) {
     return null;
   }
 
@@ -115,15 +124,23 @@ export function AttributionDetails() {
 
   return (
     <MuiBox aria-label={'attribution column'} sx={classes.root}>
+      {isSelectedAttributionLoading && (
+        <MuiLinearProgress
+          data-testid={'attribution-details-loading'}
+          sx={classes.loadingIndicator}
+        />
+      )}
       <AttributionForm
         packageInfo={temporaryDisplayPackageInfo}
         onEdit={isEditable ? confirmEditWasPreferred : undefined}
         dimmed={pickerMode.isActive}
       />
-      <ButtonRow
-        isEditable={isEditable}
-        packageInfo={temporaryDisplayPackageInfo}
-      />
+      {!isSelectedAttributionLoading && (
+        <ButtonRow
+          isEditable={isEditable}
+          packageInfo={temporaryDisplayPackageInfo}
+        />
+      )}
       <ConfirmationDialog
         ref={confirmEditWasPreferredRef}
         message={

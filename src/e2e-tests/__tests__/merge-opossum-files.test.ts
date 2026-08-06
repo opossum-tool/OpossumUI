@@ -96,8 +96,7 @@ test('merges split files into the current file', async ({
   await mergeOpossumFilesDialog.assert.inputFileIsVisible(firstPartitionPath);
   await mergeOpossumFilesDialog.assert.inputFileIsVisible(secondPartitionPath);
 
-  await mergeOpossumFilesDialog.mergeButton.click();
-  await mergeOpossumFilesDialog.assert.isHidden();
+  await mergeOpossumFilesDialog.merge();
 
   await expect(
     window
@@ -152,14 +151,10 @@ test.describe('split and merge workflow', () => {
       filePath: firstPartitionPath,
       menuBar,
       resourcesTree,
-      window,
     });
     await createFirstPartyAttribution({
       attributionDetails,
       attributionsPanel,
-      filePath: firstPartitionPath,
-      menuBar,
-      resourceId: firstResourcePath,
       resourcePath: [firstDirectoryName, firstResourceName],
       resourcesTree,
     });
@@ -169,14 +164,10 @@ test.describe('split and merge workflow', () => {
       filePath: secondPartitionPath,
       menuBar,
       resourcesTree,
-      window,
     });
     await createFirstPartyAttribution({
       attributionDetails,
       attributionsPanel,
-      filePath: secondPartitionPath,
-      menuBar,
-      resourceId: secondResourcePath,
       resourcePath: [secondDirectoryName, secondResourceName],
       resourcesTree,
     });
@@ -185,7 +176,6 @@ test.describe('split and merge workflow', () => {
       filePath: filePaths!.opossum,
       menuBar,
       resourcesTree,
-      window,
     });
 
     await menuBar.mergeSplitFilesIntoCurrentFile();
@@ -201,8 +191,7 @@ test.describe('split and merge workflow', () => {
       secondPartitionPath,
     );
 
-    await mergeOpossumFilesDialog.mergeButton.click();
-    await mergeOpossumFilesDialog.assert.isHidden();
+    await mergeOpossumFilesDialog.merge();
 
     await expect(
       window
@@ -245,8 +234,7 @@ test('merges split files into a new Opossum file', async ({
   await stubSaveDialogSync(window.app, destinationPath);
   await mergeOpossumFilesDialog.outputFileSelection.click();
 
-  await mergeOpossumFilesDialog.mergeButton.click();
-  await mergeOpossumFilesDialog.assert.isHidden();
+  await mergeOpossumFilesDialog.merge();
   await expect.poll(() => fs.existsSync(destinationPath)).toBe(true);
 });
 
@@ -322,8 +310,7 @@ test.describe('merging readonly output conflicts', () => {
     await expect(mergeOpossumFilesDialog.warning).toBeVisible();
     await expect(mergeOpossumFilesDialog.mergeAnywayButton).toBeVisible();
 
-    await mergeOpossumFilesDialog.mergeAnywayButton.click();
-    await mergeOpossumFilesDialog.assert.isHidden();
+    await mergeOpossumFilesDialog.mergeAnyway();
     await resourcesTree.assert.resourceIsEditable(firstDirectoryName);
   });
 });
@@ -395,16 +382,13 @@ async function openProject({
   filePath,
   menuBar,
   resourcesTree,
-  window,
 }: {
   editableResourceName?: string;
   filePath: string;
   menuBar: MenuBar;
   resourcesTree: ResourcesTree;
-  window: Page & { app: ElectronApplication };
 }): Promise<void> {
-  await stubOpenDialogSync(window.app, [filePath]);
-  await menuBar.openFile();
+  await menuBar.openFileAndWaitForLoad(filePath);
   if (editableResourceName) {
     await resourcesTree.assert.resourceIsEditable(editableResourceName);
   } else {
@@ -415,48 +399,17 @@ async function openProject({
 async function createFirstPartyAttribution({
   attributionDetails,
   attributionsPanel,
-  filePath,
-  menuBar,
-  resourceId,
   resourcePath,
   resourcesTree,
 }: {
   attributionDetails: AttributionDetails;
   attributionsPanel: AttributionsPanel;
-  filePath: string;
-  menuBar: MenuBar;
-  resourceId: string;
   resourcePath: Array<string>;
   resourcesTree: ResourcesTree;
 }): Promise<void> {
   await resourcesTree.goto(...resourcePath);
   await attributionsPanel.createButton.click();
   await attributionDetails.attributionForm.selectAttributionType('First Party');
-  await attributionDetails.saveButton.click();
+  await attributionDetails.saveChanges();
   await attributionsPanel.packageCard.assert.isVisible(firstPartyPackageInfo);
-  await menuBar.saveChanges();
-  await expect
-    .poll(() => hasPersistedFirstPartyAttribution(filePath, resourceId))
-    .toBe(true);
-}
-
-async function hasPersistedFirstPartyAttribution(
-  opossumFilePath: string,
-  resourcePath: string,
-): Promise<boolean> {
-  const parsedFile = await parseOpossumFile(opossumFilePath);
-  if (!('input' in parsedFile) || parsedFile.output === null) {
-    return false;
-  }
-
-  const firstPartyAttribution = Object.entries(
-    parsedFile.output.manualAttributions,
-  ).find(([, attribution]) => attribution.firstParty);
-
-  return (
-    firstPartyAttribution !== undefined &&
-    parsedFile.output.resourcesToAttributions[resourcePath]?.includes(
-      firstPartyAttribution[0],
-    )
-  );
 }

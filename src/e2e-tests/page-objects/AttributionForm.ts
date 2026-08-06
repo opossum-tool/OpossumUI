@@ -351,18 +351,19 @@ export class AttributionForm {
     return this.window.getByTestId(`option-${n}`);
   }
 
-  async ensureLicenseOccurenceTooltipIsCorrect(
+  async ensureLicenseOccurrenceTooltipIsCorrect(
     attributionCount: number,
     signalCount: number,
   ): Promise<void> {
     await expect(
-      this.window.getByText(
-        `${maybePluralize(attributionCount, 'attribution', {
+      this.window.getByRole('tooltip', {
+        name: `${maybePluralize(attributionCount, 'attribution', {
           showOne: true,
         })}, ${maybePluralize(signalCount, 'signal', {
           showOne: true,
         })}`,
-      ),
+        exact: true,
+      }),
     ).toBeVisible();
   }
 }

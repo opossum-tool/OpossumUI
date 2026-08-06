@@ -7,6 +7,7 @@ import type { MenuItemConstructorOptions } from 'electron';
 
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
+import { menuItemIds } from './menuItemIds';
 import { switchableMenuItem } from './switchableMenuItem';
 
 function getShowDevTools(): MenuItemConstructorOptions {
@@ -16,6 +17,7 @@ function getShowDevTools(): MenuItemConstructorOptions {
       'icons/developer-tool-black.png',
     ),
     label: text.menu.viewSubmenu.showDevTools,
+    id: menuItemIds.viewShowDevTools,
     role: 'toggleDevTools',
   };
 }
@@ -27,6 +29,7 @@ function getToggleFullScreen(): MenuItemConstructorOptions {
       'icons/full-screen-black.png',
     ),
     label: text.menu.viewSubmenu.toggleFullScreen,
+    id: menuItemIds.viewToggleFullScreen,
     role: 'togglefullscreen',
   };
 }
@@ -38,6 +41,7 @@ function getZoomIn(): MenuItemConstructorOptions {
       'icons/zoom-in-black.png',
     ),
     label: text.menu.viewSubmenu.zoomIn,
+    id: menuItemIds.viewZoomIn,
     role: 'zoomIn',
   };
 }
@@ -49,6 +53,7 @@ function getZoomOut(): MenuItemConstructorOptions {
       'icons/zoom-out-black.png',
     ),
     label: text.menu.viewSubmenu.zoomOut,
+    id: menuItemIds.viewZoomOut,
     role: 'zoomOut',
   };
 }
@@ -57,7 +62,7 @@ async function getQaMode(
   updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   return switchableMenuItem(updateMenu, {
-    id: 'qa-mode',
+    id: menuItemIds.qaMode,
     label: text.menu.viewSubmenu.qaMode,
     userSettingsKey: 'qaMode',
   });
@@ -67,7 +72,7 @@ function getShowClassifications(
   updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   return switchableMenuItem(updateMenu, {
-    id: 'show-classifications',
+    id: menuItemIds.showClassifications,
     label: text.menu.viewSubmenu.showClassifications,
     userSettingsKey: 'showClassifications',
   });
@@ -77,7 +82,7 @@ function getShowCriticality(
   updateMenu: () => Promise<void>,
 ): Promise<MenuItemConstructorOptions> {
   return switchableMenuItem(updateMenu, {
-    id: 'show-criticality',
+    id: menuItemIds.showCriticality,
     label: text.menu.viewSubmenu.showCriticality,
     userSettingsKey: 'showCriticality',
   });
@@ -88,6 +93,7 @@ export async function getViewMenu(
 ): Promise<MenuItemConstructorOptions> {
   return {
     label: text.menu.view,
+    id: menuItemIds.view,
     submenu: [
       getShowDevTools(),
       getToggleFullScreen(),

@@ -8,6 +8,7 @@ import { text } from '../../shared/text';
 
 export class MergeOpossumFilesDialog {
   private readonly node: Locator;
+  private readonly processingPopup: Locator;
   readonly inputFileSelection: Locator;
   readonly outputFileSelection: Locator;
   readonly mergeButton: Locator;
@@ -16,6 +17,9 @@ export class MergeOpossumFilesDialog {
 
   constructor(window: Page) {
     this.node = window.getByLabel('merge split Opossum files dialog');
+    this.processingPopup = window.getByRole('dialog', {
+      name: text.processPopup.title,
+    });
     this.inputFileSelection = window.getByTestId(
       'merge-opossum-files-input-paths',
     );
@@ -37,6 +41,22 @@ export class MergeOpossumFilesDialog {
     await this.node
       .getByLabel(text.mergeOpossumFilesDialog.mergeIntoCurrentProject)
       .setChecked(false);
+  }
+
+  public async merge(): Promise<void> {
+    await this.mergeButton.click();
+    await this.waitForMergeToComplete();
+  }
+
+  public async mergeAnyway(): Promise<void> {
+    await this.mergeAnywayButton.click();
+    await this.waitForMergeToComplete();
+  }
+
+  private async waitForMergeToComplete(): Promise<void> {
+    await this.assert.isHidden();
+    await expect(this.processingPopup).toBeHidden({ timeout: 30000 });
+    await this.assert.isHidden();
   }
 
   public assert = {

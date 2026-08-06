@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { faker, stubOpenDialogSync, stubSaveDialogSync, test } from '../utils';
 
-const [resourceName] = faker.opossum.resourceName();
+const resourceName = faker.opossum.resourceName();
 
 test.use({
   data: {
@@ -51,9 +51,8 @@ test('imports legacy opossum file', async ({
   await importDialog.assert.opossumFilePathIs(
     testInfo.outputPath('report.opossum'),
   );
-  await importDialog.importButton.click();
+  await importDialog.importFile();
 
-  await importDialog.assert.titleIsHidden();
   await resourcesTree.assert.resourceIsVisible(resourceName);
   await menuBar.assert.initiallyDisabledEntriesAreEnabled();
 });
@@ -79,9 +78,8 @@ test('imports scancode file', async ({
   await importDialog.assert.opossumFilePathIs(
     testInfo.outputPath('scancode-report.opossum'),
   );
-  await importDialog.importButton.click();
+  await importDialog.importFile();
 
-  await importDialog.assert.titleIsHidden();
   await resourcesTree.assert.resourceIsVisible('src');
   await menuBar.assert.initiallyDisabledEntriesAreEnabled();
 });
@@ -107,9 +105,8 @@ test('imports OWASP file', async ({
   await importDialog.assert.opossumFilePathIs(
     testInfo.outputPath('owasp-dependency-check-report.opossum'),
   );
-  await importDialog.importButton.click();
+  await importDialog.importFile();
 
-  await importDialog.assert.titleIsHidden();
   await resourcesTree.assert.resourceIsVisible('contrib');
   await menuBar.assert.initiallyDisabledEntriesAreEnabled();
 });
@@ -133,7 +130,7 @@ test.describe('when importing into the current project', () => {
     menuBar,
     importDialog,
   }) => {
-    await menuBar.importLegacyOpossumFileIntoCurrentProject();
+    await menuBar.importLegacyOpossumFile();
     await importDialog.assert.titleIsVisible();
 
     await importDialog.cancelButton.click();
@@ -150,9 +147,9 @@ test.describe('when importing into the current project', () => {
   }) => {
     await stubOpenDialogSync(window.app, [filePaths!.json]);
 
-    await menuBar.importLegacyOpossumFileIntoCurrentProject();
+    await menuBar.importLegacyOpossumFile();
     await importDialog.inputFileSelection.click();
-    await importDialog.importButton.click();
+    await importDialog.importFile();
 
     await resourcesTree.assert.resourceIsVisible(resourceName);
   });
@@ -165,9 +162,9 @@ test.describe('when importing into the current project', () => {
   }) => {
     await stubOpenDialogSync(window.app, [importDialog.scancodeFilePath]);
 
-    await menuBar.importScanCodeFileIntoCurrentProject();
+    await menuBar.importScanCodeFile();
     await importDialog.inputFileSelection.click();
-    await importDialog.importButton.click();
+    await importDialog.importFile();
 
     await resourcesTree.assert.resourceIsVisible('src');
   });
@@ -187,15 +184,13 @@ test.describe('when importing into the current project', () => {
     );
     await stubOpenDialogSync(window.app, [filePaths!.json]);
 
-    await menuBar.importLegacyOpossumFileIntoCurrentProject();
+    await menuBar.importLegacyOpossumFile();
     await notSavedPopup.assert.isVisible();
     await notSavedPopup.discardButton.click();
     await importDialog.assert.importsIntoCurrentProject();
 
     await importDialog.inputFileSelection.click();
-    await importDialog.importButton.click();
-
-    await importDialog.assert.titleIsHidden();
+    await importDialog.importFile();
   });
 
   test('imports an OWASP file', async ({
@@ -206,9 +201,9 @@ test.describe('when importing into the current project', () => {
   }) => {
     await stubOpenDialogSync(window.app, [importDialog.owaspFilePath]);
 
-    await menuBar.importOwaspDependencyScanFileIntoCurrentProject();
+    await menuBar.importOwaspDependencyScanFile();
     await importDialog.inputFileSelection.click();
-    await importDialog.importButton.click();
+    await importDialog.importFile();
 
     await resourcesTree.assert.resourceIsVisible('contrib');
   });
@@ -217,7 +212,7 @@ test.describe('when importing into the current project', () => {
     menuBar,
     importDialog,
   }) => {
-    await menuBar.importLegacyOpossumFileIntoCurrentProject();
+    await menuBar.importLegacyOpossumFile();
     await importDialog.importButton.click();
 
     await importDialog.assert.showsError();

@@ -71,6 +71,14 @@ export class AttributionDetails {
     });
   }
 
+  async saveChanges(): Promise<void> {
+    const progressIndicator = this.saveButton.getByRole('progressbar');
+
+    await this.saveButton.click();
+    await expect(this.saveButton).toBeDisabled();
+    await expect(progressIndicator).toBeHidden();
+  }
+
   public assert = {
     isVisible: async (): Promise<void> => {
       await expect(this.node).toBeVisible();

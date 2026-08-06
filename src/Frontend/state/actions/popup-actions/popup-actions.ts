@@ -28,9 +28,8 @@ import {
 import type { AppThunkAction } from '../../types';
 import type { AttributionFilters } from '../../variables/use-filters';
 import {
+  initializePackageInfoEditing,
   resetResourceState,
-  setIsPackageInfoDirty,
-  setTemporaryDisplayPackageInfo,
 } from '../resource-actions/all-views-simple-actions';
 import {
   setAttributionFilters,
@@ -310,11 +309,10 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
         targetAttributionFilterChange.filters,
       );
       dispatch(
-        setTemporaryDisplayPackageInfo(
+        initializePackageInfoEditing(
           targetAttributionFilterChange.discardedPackageInfo,
         ),
       );
-      dispatch(setIsPackageInfoDirty(false));
       dispatch(setTargetAttributionFilterChange(null));
     }
 

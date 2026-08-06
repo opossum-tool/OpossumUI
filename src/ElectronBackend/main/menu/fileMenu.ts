@@ -28,6 +28,7 @@ import {
   selectBaseURLListener,
 } from '../listeners';
 import { UserSettingsService } from '../user-settings-service';
+import { menuItemIds } from './menuItemIds';
 
 export const importFileFormats: Array<FileFormatInfo> = [
   {
@@ -51,6 +52,7 @@ function getOpenFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
     label: text.menu.fileSubmenu.open,
+    id: menuItemIds.openFile,
     accelerator: 'CmdOrCtrl+O',
     click: () => mainWindow.webContents.send(AllowedFrontendChannels.OpenFile),
     enabled: !getGlobalBackendState().frontendPopupOpen,
@@ -71,6 +73,7 @@ async function getOpenRecent(
   return {
     icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
     label: text.menu.fileSubmenu.openRecent,
+    id: menuItemIds.openRecent,
     submenu: getOpenRecentSubmenu(
       mainWindow,
       recentlyOpenedPaths,
@@ -100,7 +103,7 @@ function getOpenRecentSubmenu(
     })),
     { type: 'separator' },
     {
-      id: 'clear-recent',
+      id: menuItemIds.clearRecent,
       label: text.menu.fileSubmenu.clearRecent,
       click: async () => {
         await UserSettingsService.update(
@@ -122,14 +125,26 @@ function getImportFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
       'icons/import-black.png',
     ),
     label: text.menu.fileSubmenu.import,
+    id: menuItemIds.import,
     submenu: importFileFormats.map((fileFormat) => ({
       label: text.menu.fileSubmenu.importFileSubmenu(fileFormat),
       click: importFileListener(mainWindow, fileFormat),
-      id: `import ${fileFormat.name}`,
+      id: getImportFileMenuItemId(fileFormat.fileType),
       enabled,
     })),
     enabled,
   };
+}
+
+function getImportFileMenuItemId(fileType: FileType): string {
+  switch (fileType) {
+    case FileType.LEGACY_OPOSSUM:
+      return menuItemIds.importLegacyOpossumFile;
+    case FileType.SCANCODE_JSON:
+      return menuItemIds.importScanCodeFile;
+    case FileType.OWASP_JSON:
+      return menuItemIds.importOwaspDependencyCheckFile;
+  }
 }
 
 function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
@@ -139,7 +154,7 @@ function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/merge-white.png', 'icons/merge-black.png'),
     label: text.menu.fileSubmenu.merge,
-    id: 'merge-opossum-files',
+    id: menuItemIds.mergeOpossumFiles,
     click: () =>
       mainWindow.webContents.send(
         AllowedFrontendChannels.ShowMergeOpossumFilesDialog,
@@ -154,6 +169,7 @@ function getSaveFile(webContents: WebContents): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/save-white.png', 'icons/save-black.png'),
     label: text.menu.fileSubmenu.save,
+    id: menuItemIds.saveFile,
     accelerator: 'CmdOrCtrl+S',
     click: () => {
       webContents.send(AllowedFrontendChannels.SaveFileRequest, {
@@ -171,6 +187,7 @@ function getSplit(webContents: WebContents): MenuItemConstructorOptions {
   return {
     icon: getIconBasedOnTheme('icons/split-white.png', 'icons/split-black.png'),
     label: text.menu.fileSubmenu.split,
+    id: menuItemIds.splitOpossumFile,
     click: () => webContents.send(AllowedFrontendChannels.ShowSplitDialog),
     enabled:
       isFileLoaded(globalBackendState) && !globalBackendState.frontendPopupOpen,
@@ -183,6 +200,7 @@ function getProjectMetadata(
   return {
     icon: getIconBasedOnTheme('icons/about-white.png', 'icons/about-black.png'),
     label: text.menu.fileSubmenu.projectMetadata,
+    id: menuItemIds.projectMetadata,
     click: () => {
       if (isFileLoaded(getGlobalBackendState())) {
         webContents.send(AllowedFrontendChannels.ShowProjectMetadataPopup, {
@@ -205,6 +223,7 @@ function getProjectStatistics(
       'icons/statictics-black.png',
     ),
     label: text.menu.fileSubmenu.projectStatistics,
+    id: menuItemIds.projectStatistics,
     click: () => {
       if (isFileLoaded(getGlobalBackendState())) {
         webContents.send(AllowedFrontendChannels.ShowProjectStatisticsPopup, {
@@ -225,6 +244,7 @@ function getSetBaseUrl(mainWindow: BrowserWindow): MenuItemConstructorOptions {
       'icons/restore-black.png',
     ),
     label: text.menu.fileSubmenu.setBaseURL,
+    id: menuItemIds.setBaseUrl,
     click: selectBaseURLListener(mainWindow),
     enabled: !getGlobalBackendState().frontendPopupOpen,
   };
@@ -234,6 +254,7 @@ function getQuit() {
   return {
     icon: getIconBasedOnTheme('icons/quit-white.png', 'icons/quit-black.png'),
     label: text.menu.fileSubmenu.quit,
+    id: menuItemIds.quit,
     accelerator: 'CmdOrCtrl+Q',
     click: () => {
       app.quit();
@@ -246,6 +267,7 @@ function getExportFollowUp(
 ): MenuItemConstructorOptions {
   return {
     label: text.menu.fileSubmenu.exportSubmenu.followUp,
+    id: menuItemIds.exportFollowUp,
     icon: getIconBasedOnTheme(
       'icons/follow-up-white.png',
       'icons/follow-up-black.png',
@@ -267,6 +289,7 @@ function getExportCompactBom(
       'icons/com-list-black.png',
     ),
     label: text.menu.fileSubmenu.exportSubmenu.compactComponentList,
+    id: menuItemIds.exportCompactBom,
     click: () =>
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
@@ -284,6 +307,7 @@ function getExportDetailedBom(
       'icons/det-list-black.png',
     ),
     label: text.menu.fileSubmenu.exportSubmenu.detailedComponentList,
+    id: menuItemIds.exportDetailedBom,
     click: () =>
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
@@ -298,6 +322,7 @@ function getExportSpdxYaml(
   return {
     icon: getIconBasedOnTheme('icons/yaml-white.png', 'icons/yaml-black.png'),
     label: text.menu.fileSubmenu.exportSubmenu.spdxYAML,
+    id: menuItemIds.exportSpdxYaml,
     click: () =>
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
@@ -312,6 +337,7 @@ function getExportSpdxJson(
   return {
     icon: getIconBasedOnTheme('icons/json-white.png', 'icons/json-black.png'),
     label: text.menu.fileSubmenu.exportSubmenu.spdxJSON,
+    id: menuItemIds.exportSpdxJson,
     click: () =>
       webContents.send(
         AllowedFrontendChannels.ExportFileRequest,
@@ -328,6 +354,7 @@ function getExportSubMenu(
     !getGlobalBackendState().frontendPopupOpen;
   return {
     label: text.menu.fileSubmenu.export,
+    id: menuItemIds.export,
     icon: getIconBasedOnTheme(
       'icons/export-white.png',
       'icons/export-black.png',
@@ -350,6 +377,7 @@ export async function getFileMenu(
   const webContents = mainWindow.webContents;
   return {
     label: text.menu.file,
+    id: menuItemIds.file,
     submenu: [
       getOpenFile(mainWindow),
       await getOpenRecent(mainWindow, updateMenu),

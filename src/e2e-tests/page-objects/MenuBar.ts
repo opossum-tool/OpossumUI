@@ -4,117 +4,100 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type ElectronApplication, expect, type Page } from '@playwright/test';
 import {
-  clickMenuItem,
   clickMenuItemById,
-  findMenuItem,
+  getMenuItemAttribute,
+  getMenuItemById,
 } from 'electron-playwright-helpers';
 
-import { importFileFormats } from '../../ElectronBackend/main/menu/fileMenu';
-import { text } from '../../shared/text';
+import { menuItemIds } from '../../ElectronBackend/main/menu/menuItemIds';
+import { stubOpenDialogSync } from '../utils/dialog';
+import { ResourcesTree } from './ResourcesTree';
 
 const initiallyDisabledMenuItems = [
-  text.menu.fileSubmenu.projectStatistics,
-  text.menu.fileSubmenu.projectMetadata,
-  text.menu.fileSubmenu.save,
-  text.menu.editSubmenu.selectAll,
-  text.menu.editSubmenu.searchAttributions,
-  text.menu.editSubmenu.searchSignals,
-  text.menu.editSubmenu.searchResourceLinked,
-  text.menu.editSubmenu.searchResourcesAll,
-  text.menu.fileSubmenu.split,
-  text.menu.fileSubmenu.export,
+  menuItemIds.projectStatistics,
+  menuItemIds.projectMetadata,
+  menuItemIds.saveFile,
+  menuItemIds.selectAll,
+  menuItemIds.searchAttributions,
+  menuItemIds.searchSignals,
+  menuItemIds.searchLinkedResources,
+  menuItemIds.searchResources,
+  menuItemIds.splitOpossumFile,
+  menuItemIds.export,
+  menuItemIds.exportFollowUp,
+  menuItemIds.exportCompactBom,
+  menuItemIds.exportDetailedBom,
+  menuItemIds.exportSpdxYaml,
+  menuItemIds.exportSpdxJson,
 ];
 
 const popupDisabledMenuItems = [
-  text.menu.fileSubmenu.open,
-  text.menu.fileSubmenu.import,
-  text.menu.fileSubmenu.merge,
-  text.menu.fileSubmenu.split,
-  text.menu.fileSubmenu.save,
-  text.menu.fileSubmenu.export,
-  text.menu.fileSubmenu.projectMetadata,
-  text.menu.fileSubmenu.projectStatistics,
-  text.menu.fileSubmenu.setBaseURL,
-  text.menu.editSubmenu.undo,
-  text.menu.editSubmenu.redo,
-  text.menu.editSubmenu.searchAttributions,
-  text.menu.editSubmenu.searchSignals,
-  text.menu.editSubmenu.searchResourcesAll,
-  text.menu.editSubmenu.searchResourceLinked,
-  text.menu.helpSubmenu.checkForUpdates,
+  menuItemIds.openFile,
+  menuItemIds.import,
+  menuItemIds.importLegacyOpossumFile,
+  menuItemIds.importScanCodeFile,
+  menuItemIds.importOwaspDependencyCheckFile,
+  menuItemIds.mergeOpossumFiles,
+  menuItemIds.splitOpossumFile,
+  menuItemIds.saveFile,
+  menuItemIds.export,
+  menuItemIds.exportFollowUp,
+  menuItemIds.exportCompactBom,
+  menuItemIds.exportDetailedBom,
+  menuItemIds.exportSpdxYaml,
+  menuItemIds.exportSpdxJson,
+  menuItemIds.projectMetadata,
+  menuItemIds.projectStatistics,
+  menuItemIds.setBaseUrl,
+  menuItemIds.undo,
+  menuItemIds.redo,
+  menuItemIds.searchAttributions,
+  menuItemIds.searchSignals,
+  menuItemIds.searchResources,
+  menuItemIds.searchLinkedResources,
+  menuItemIds.helpCheckForUpdates,
 ];
 
 export class MenuBar {
   private readonly window: Page & { app: ElectronApplication };
+  private readonly resourcesTree: ResourcesTree;
 
   constructor(window: Page & { app: ElectronApplication }) {
     this.window = window;
+    this.resourcesTree = new ResourcesTree(window);
   }
 
-  private findByLabel(label: string) {
-    return findMenuItem(this.window.app, 'label', label);
-  }
-
-  private async findSubmenuItem(menuLabel: string, itemLabel: string) {
-    const menuItem = await this.findByLabel(menuLabel);
-    return findMenuItem(this.window.app, 'label', itemLabel, menuItem?.submenu);
-  }
-
-  private readonly menuItemGetters = {
-    openRecent: () => {
-      return this.findByLabel(text.menu.fileSubmenu.openRecent);
-    },
-  };
-
-  private clickMenuItem(label: string) {
-    return clickMenuItem(this.window.app, 'label', label);
-  }
-
-  private async assertMenuItemEnabledState(label: string, enabled: boolean) {
+  private async clickEnabledMenuItem(menuItemId: string): Promise<void> {
     await expect
-      .poll(() => this.findByLabel(label).then((item) => item?.enabled), {
-        message: `Expected menu item ${label} to be ${enabled ? 'enabled' : 'disabled'}`,
-      })
-      .toBe(enabled);
-
-    // If the menu item is disabled and has a sub menu, all the sub menu items should be disabled as well
-    if (!enabled) {
-      const menuItem = await this.findByLabel(label);
-      if (menuItem?.submenu) {
-        for (const item of menuItem.submenu) {
-          if (item.type !== 'separator' && item.label) {
-            await this.assertSubMenuItemEnabledState(label, item.label, false);
-          }
-        }
-      }
-    }
+      .poll(
+        () => getMenuItemAttribute(this.window.app, menuItemId, 'enabled'),
+        { message: `Expected menu item ${menuItemId} to be enabled` },
+      )
+      .toBe(true);
+    await clickMenuItemById(this.window.app, menuItemId);
   }
 
-  private async assertMenuItemsEnabledState(
-    labels: Array<string>,
-    enabled: boolean,
-  ) {
-    for (const label of labels) {
-      await this.assertMenuItemEnabledState(label, enabled);
-    }
-  }
-
-  private async assertSubMenuItemEnabledState(
-    menuLabel: string,
-    itemLabel: string,
+  private async assertMenuItemEnabledState(
+    menuItemId: string,
     enabled: boolean,
   ) {
     await expect
       .poll(
-        () =>
-          this.findSubmenuItem(menuLabel, itemLabel).then(
-            (item) => item?.enabled,
-          ),
+        () => getMenuItemAttribute(this.window.app, menuItemId, 'enabled'),
         {
-          message: `Expected submenu item ${menuLabel}->${itemLabel} to be ${enabled ? 'enabled' : 'disabled'}`,
+          message: `Expected menu item ${menuItemId} to be ${enabled ? 'enabled' : 'disabled'}`,
         },
       )
       .toBe(enabled);
+  }
+
+  private async assertMenuItemsEnabledState(
+    menuItemIds: Array<string>,
+    enabled: boolean,
+  ) {
+    for (const menuItemId of menuItemIds) {
+      await this.assertMenuItemEnabledState(menuItemId, enabled);
+    }
   }
 
   public assert = {
@@ -122,38 +105,22 @@ export class MenuBar {
       expect(await this.window.title()).toBe(title);
     },
     openRecentIsEnabled: async (): Promise<void> => {
-      await this.assertMenuItemEnabledState(
-        text.menu.fileSubmenu.openRecent,
-        true,
-      );
+      await this.assertMenuItemEnabledState(menuItemIds.openRecent, true);
     },
     openRecentIsDisabled: async (): Promise<void> => {
-      await this.assertMenuItemEnabledState(
-        text.menu.fileSubmenu.openRecent,
-        false,
-      );
+      await this.assertMenuItemEnabledState(menuItemIds.openRecent, false);
     },
     initiallyDisabledEntriesAreEnabled: async (): Promise<void> => {
       await this.assertMenuItemsEnabledState(initiallyDisabledMenuItems, true);
 
-      //need to call the asserts sequentially here, doing that in
-      //parallel via promise all somehow breaks the app object
-      for (const fileFormat of importFileFormats) {
-        await this.assertSubMenuItemEnabledState(
-          text.menu.fileSubmenu.import,
-          text.menu.fileSubmenu.importFileSubmenu(fileFormat),
-          true,
-        );
-      }
-      for (const subMenuItem of Object.values(
-        text.menu.fileSubmenu.exportSubmenu,
-      )) {
-        await this.assertSubMenuItemEnabledState(
-          text.menu.fileSubmenu.export,
-          subMenuItem,
-          true,
-        );
-      }
+      await this.assertMenuItemsEnabledState(
+        [
+          menuItemIds.importLegacyOpossumFile,
+          menuItemIds.importScanCodeFile,
+          menuItemIds.importOwaspDependencyCheckFile,
+        ],
+        true,
+      );
     },
     initiallyDisabledEntriesAreDisabled: async (): Promise<void> => {
       await this.assertMenuItemsEnabledState(initiallyDisabledMenuItems, false);
@@ -165,116 +132,79 @@ export class MenuBar {
       await this.assertMenuItemsEnabledState(popupDisabledMenuItems, false);
     },
 
-    hasRecentlyOpenedProject: async (projectName: string): Promise<void> => {
-      const submenu = (await this.menuItemGetters.openRecent())?.submenu;
-      const menuItem = await findMenuItem(
-        this.window.app,
-        'label',
-        projectName,
-        submenu,
-      );
+    hasRecentlyOpenedProject: async (filePath: string): Promise<void> => {
+      const menuItem = await getMenuItemById(this.window.app, filePath);
       expect(menuItem).toBeDefined();
     },
   };
 
   async openProjectMetadata(): Promise<void> {
-    await this.clickMenuItem(text.menu.fileSubmenu.projectMetadata);
+    await this.clickEnabledMenuItem(menuItemIds.projectMetadata);
   }
 
-  async openFile(): Promise<void> {
-    await this.clickMenuItem(text.menu.fileSubmenu.open);
+  async openFile(filePath?: string): Promise<void> {
+    if (filePath) {
+      await stubOpenDialogSync(this.window.app, [filePath]);
+    }
+    await this.clickEnabledMenuItem(menuItemIds.openFile);
+  }
+
+  async openFileAndWaitForLoad(filePath: string): Promise<void> {
+    const previousResourcesTree = await this.resourcesTree.getElementHandle();
+
+    await this.openFile(filePath);
+
+    await previousResourcesTree?.waitForElementState('hidden', {
+      timeout: 30000,
+    });
+    await this.resourcesTree.assert.isVisible(30000);
   }
 
   async createSplit(): Promise<void> {
-    await this.clickMenuItem(text.menu.fileSubmenu.split);
-  }
-
-  private async clickSubmenuItem(
-    menuLabel: string,
-    itemLabel: string,
-  ): Promise<void> {
-    await this.assertSubMenuItemEnabledState(menuLabel, itemLabel, true);
-    const menuItem = await this.findSubmenuItem(menuLabel, itemLabel);
-    await clickMenuItemById(this.window.app, menuItem!.id!);
+    await this.clickEnabledMenuItem(menuItemIds.splitOpossumFile);
   }
 
   async openProjectStatistics(): Promise<void> {
-    await this.assertMenuItemEnabledState(
-      text.menu.fileSubmenu.projectStatistics,
-      true,
-    );
-    await this.clickMenuItem(text.menu.fileSubmenu.projectStatistics);
+    await this.clickEnabledMenuItem(menuItemIds.projectStatistics);
   }
 
   async importLegacyOpossumFile(): Promise<void> {
-    await this.clickSubmenuItem(
-      text.menu.fileSubmenu.import,
-      'Legacy Opossum File (.json/.json.gz)...',
-    );
+    await this.clickEnabledMenuItem(menuItemIds.importLegacyOpossumFile);
   }
 
   async importScanCodeFile(): Promise<void> {
-    await this.clickSubmenuItem(
-      text.menu.fileSubmenu.import,
-      'ScanCode File (.json)...',
-    );
+    await this.clickEnabledMenuItem(menuItemIds.importScanCodeFile);
   }
 
   async importOwaspDependencyScanFile(): Promise<void> {
-    await this.clickSubmenuItem(
-      text.menu.fileSubmenu.import,
-      'OWASP Dependency-Check File (.json)...',
-    );
-  }
-
-  async importLegacyOpossumFileIntoCurrentProject(): Promise<void> {
-    await this.clickSubmenuItem(
-      text.menu.fileSubmenu.import,
-      'Legacy Opossum File (.json/.json.gz)...',
-    );
-  }
-
-  async importScanCodeFileIntoCurrentProject(): Promise<void> {
-    await this.clickSubmenuItem(
-      text.menu.fileSubmenu.import,
-      'ScanCode File (.json)...',
-    );
-  }
-
-  async importOwaspDependencyScanFileIntoCurrentProject(): Promise<void> {
-    await this.clickSubmenuItem(
-      text.menu.fileSubmenu.import,
-      'OWASP Dependency-Check File (.json)...',
-    );
+    await this.clickEnabledMenuItem(menuItemIds.importOwaspDependencyCheckFile);
   }
 
   async mergeSplitFilesIntoCurrentFile(): Promise<void> {
-    await this.assertMenuItemEnabledState(text.menu.fileSubmenu.merge, true);
-    await this.clickMenuItem(text.menu.fileSubmenu.merge);
+    await this.clickEnabledMenuItem(menuItemIds.mergeOpossumFiles);
   }
 
   async mergeSplitOpossumFiles(): Promise<void> {
-    await this.assertMenuItemEnabledState(text.menu.fileSubmenu.merge, true);
-    await this.clickMenuItem(text.menu.fileSubmenu.merge);
+    await this.clickEnabledMenuItem(menuItemIds.mergeOpossumFiles);
   }
 
   async exportFollowUp(): Promise<void> {
-    await this.clickMenuItem(text.menu.fileSubmenu.exportSubmenu.followUp);
+    await this.clickEnabledMenuItem(menuItemIds.exportFollowUp);
   }
 
   async toggleQaMode(): Promise<void> {
-    await this.clickMenuItem(text.menu.viewSubmenu.qaMode);
+    await this.clickEnabledMenuItem(menuItemIds.qaMode);
   }
 
   async toggleShowClassificationOff(): Promise<void> {
-    await clickMenuItemById(this.window.app, 'enabled-show-classifications');
+    await this.clickEnabledMenuItem(menuItemIds.showClassifications);
   }
 
   async toggleShowCriticalityOff(): Promise<void> {
-    await clickMenuItemById(this.window.app, 'enabled-show-criticality');
+    await this.clickEnabledMenuItem(menuItemIds.showCriticality);
   }
 
   async saveChanges(): Promise<void> {
-    await this.clickMenuItem(text.menu.fileSubmenu.save);
+    await this.clickEnabledMenuItem(menuItemIds.saveFile);
   }
 }

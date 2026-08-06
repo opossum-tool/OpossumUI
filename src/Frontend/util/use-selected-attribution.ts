@@ -8,7 +8,7 @@ import { useAppSelector } from '../state/hooks';
 import { getSelectedAttributionId } from '../state/selectors/resource-selectors';
 import { backend } from './backendClient';
 
-export function useSelectedAttributionPackageInfo() {
+export function useSelectedAttribution() {
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
   const selectedAttributionData = backend.getAttributionData.useQuery(
@@ -20,26 +20,24 @@ export function useSelectedAttributionPackageInfo() {
   );
 
   if (!selectedAttributionId) {
-    return null;
+    return {
+      isExternal: null,
+      isPending: false,
+      packageInfo: null,
+    };
   }
 
-  return selectedAttributionData.data?.packageInfo;
+  return {
+    isExternal: selectedAttributionData.data?.isExternal,
+    isPending: selectedAttributionData.isPending,
+    packageInfo: selectedAttributionData.data?.packageInfo,
+  };
+}
+
+export function useSelectedAttributionPackageInfo() {
+  return useSelectedAttribution().packageInfo;
 }
 
 export function useSelectedAttributionIsExternal() {
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-
-  const selectedAttributionData = backend.getAttributionData.useQuery(
-    selectedAttributionId
-      ? {
-          attributionUuid: selectedAttributionId,
-        }
-      : skipToken,
-  );
-
-  if (!selectedAttributionId) {
-    return null;
-  }
-
-  return selectedAttributionData.data?.isExternal;
+  return useSelectedAttribution().isExternal;
 }

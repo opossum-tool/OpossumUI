@@ -11,6 +11,7 @@ import {
   getPathOfChromiumNoticeDocument,
   getPathOfNoticeDocument,
 } from '../notice-document-helpers';
+import { menuItemIds } from './menuItemIds';
 
 function getOpenOnGithub(): MenuItemConstructorOptions {
   return {
@@ -19,6 +20,7 @@ function getOpenOnGithub(): MenuItemConstructorOptions {
       'icons/github-black.png',
     ),
     label: text.menu.aboutSubmenu.openOnGithub,
+    id: menuItemIds.aboutOpenOnGithub,
     click: () =>
       shell.openExternal('https://github.com/opossum-tool/opossumUI'),
   };
@@ -31,6 +33,7 @@ function getOpossumUiNotices(): MenuItemConstructorOptions {
       'icons/notice-black.png',
     ),
     label: text.menu.aboutSubmenu.opossumUINotices,
+    id: menuItemIds.aboutOpossumUiNotices,
     click: () => shell.openPath(getPathOfNoticeDocument()),
   };
 }
@@ -42,6 +45,7 @@ function getChromiumNotices(): MenuItemConstructorOptions {
       'icons/chromium-black.png',
     ),
     label: text.menu.aboutSubmenu.chromiumNotices,
+    id: menuItemIds.aboutChromiumNotices,
     click: () => shell.openPath(getPathOfChromiumNoticeDocument()),
   };
 }
@@ -49,6 +53,7 @@ function getChromiumNotices(): MenuItemConstructorOptions {
 export function getAboutMenu(): MenuItemConstructorOptions {
   return {
     label: text.menu.about,
+    id: menuItemIds.about,
     submenu: [getOpenOnGithub(), getOpossumUiNotices(), getChromiumNotices()],
   };
 }
