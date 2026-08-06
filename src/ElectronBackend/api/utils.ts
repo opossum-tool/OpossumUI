@@ -650,7 +650,7 @@ export async function cloneMixedAttributionsForWritableResources(
     return {};
   }
 
-  await ensureManualAttributionsAreNotReadonly(trx, attributionUuids);
+  await ensureAttributionsAreNotReadonly(trx, attributionUuids);
 
   // The returned mapping covers every selected attribution. Attributions that
   // are not mixed remain unchanged, while mixed ones are remapped below.
@@ -836,7 +836,7 @@ export async function ensureAttributionsAreNotExternal(
   }
 }
 
-async function ensureManualAttributionsAreNotReadonly(
+export async function ensureAttributionsAreNotReadonly(
   trx: Transaction<DB>,
   attributionUuids: Array<string>,
 ) {
@@ -845,7 +845,6 @@ async function ensureManualAttributionsAreNotReadonly(
       .selectFrom('attribution')
       .select('uuid')
       .where('uuid', 'in', attributionUuids)
-      .where('is_external', '=', 0)
       .where('resource_access', '=', AttributionResourceAccess.Readonly)
       .execute()
   ).map((attribution) => attribution.uuid);
