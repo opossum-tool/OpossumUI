@@ -47,14 +47,14 @@ export class SplitDialog {
       await expect(this.node.getByText(text.splitDialog.success)).toBeVisible();
     },
     resourceIsReadonly: async (resourceName: string): Promise<void> => {
-      await expect(
-        this.node.getByText(resourceName, { exact: true }),
-      ).toBeHidden();
+      const row = this.getResourceRow(resourceName);
+      await expect(row).toBeVisible();
+      await expect(row.getByTestId('readonly-indicator')).toBeVisible();
+      await expect(this.getResourceCheckbox(resourceName)).toBeHidden();
     },
     resourceIsEditable: async (resourceName: string): Promise<void> => {
-      await expect(
-        this.node.getByText(resourceName, { exact: true }),
-      ).toBeVisible();
+      await expect(this.getResourceByName(resourceName)).toBeVisible();
+      await expect(this.getResourceCheckbox(resourceName)).toBeEnabled();
     },
     titleIsHidden: async (): Promise<void> => {
       await expect(
@@ -73,10 +73,18 @@ export class SplitDialog {
   };
 
   async toggleResourceSelection(resourceName: string): Promise<void> {
-    await this.node
-      .getByText(resourceName, { exact: true })
-      .locator('..')
-      .getByRole('checkbox')
-      .click();
+    await this.getResourceCheckbox(resourceName).click();
+  }
+
+  private getResourceByName(resourceName: string): Locator {
+    return this.node.getByText(resourceName, { exact: true });
+  }
+
+  private getResourceRow(resourceName: string): Locator {
+    return this.getResourceByName(resourceName).locator('..');
+  }
+
+  private getResourceCheckbox(resourceName: string): Locator {
+    return this.getResourceRow(resourceName).getByRole('checkbox');
   }
 }

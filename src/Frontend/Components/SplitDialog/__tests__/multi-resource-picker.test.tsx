@@ -16,6 +16,13 @@ const data = getParsedInputFileEnrichedWithTestData({
   },
 });
 
+const readonlyData = getParsedInputFileEnrichedWithTestData({
+  resources: {
+    docs: { 'README.md': 1 },
+  },
+  readonlyRules: [{ path: '/docs', readonly: true }],
+});
+
 describe('MultiResourcePicker', () => {
   it('shows top-level resources before a folder is expanded', async () => {
     await renderPicker();
@@ -76,6 +83,24 @@ describe('MultiResourcePicker', () => {
 
     fireEvent.click(docsCheckbox);
     expect(onSelectionChange).not.toHaveBeenCalled();
+  });
+
+  it('replaces readonly resource checkboxes with aligned lock icons', async () => {
+    await renderComponent(
+      <MultiResourcePicker open={true} onSelectionChange={vi.fn()} />,
+      { data: readonlyData },
+    );
+
+    await screen.findByText('docs');
+    expect(screen.getByTestId('readonly-indicator')).toBeInTheDocument();
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: text.splitDialog.resourcePicker.expand('/docs'),
+      }),
+    );
+    expect(await screen.findByText('README.md')).toBeInTheDocument();
   });
 });
 

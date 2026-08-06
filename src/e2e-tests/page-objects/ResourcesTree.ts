@@ -48,26 +48,35 @@ export class ResourcesTree {
       await expect(this.node).toBeHidden();
     },
     resourceIsVisible: async (resourceName: string): Promise<void> => {
-      await expect(
-        this.node.getByText(resourceName, { exact: true }),
-      ).toBeVisible();
+      await expect(this.getResourceByName(resourceName)).toBeVisible();
     },
     resourceIsEditable: async (resourceName: string): Promise<void> => {
       await expect(
-        this.node.getByText(resourceName, { exact: true }),
-      ).toBeVisible();
+        this.getResourceByName(resourceName).getByTestId('readonly-indicator'),
+      ).toBeHidden();
     },
     resourceIsReadonly: async (resourceName: string): Promise<void> => {
       await expect(
-        this.node.getByText(resourceName, { exact: true }),
-      ).toBeHidden();
+        this.getResourceByName(resourceName).getByTestId('readonly-indicator'),
+      ).toBeVisible();
     },
     resourceIsHidden: async (resourceName: string): Promise<void> => {
+      await expect(this.getResourceByName(resourceName)).toBeHidden();
+    },
+    splitHereIsDisabled: async (resourceName: string): Promise<void> => {
+      await this.openContextMenu(resourceName);
       await expect(
-        this.node.getByText(resourceName, { exact: true }),
-      ).toBeHidden();
+        this.window.getByRole('menuitem', {
+          name: text.resourceBrowser.splitHere,
+        }),
+      ).toBeDisabled();
+      await this.closeMenu();
     },
   };
+
+  private getResourceByName(resourceName: string): Locator {
+    return this.node.getByRole('treeitem', { name: resourceName, exact: true });
+  }
 
   async getElementHandle(): Promise<ElementHandle | undefined> {
     const [elementHandle] = await this.node.elementHandles();

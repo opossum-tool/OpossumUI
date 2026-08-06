@@ -56,6 +56,7 @@ export function AttributionDetails() {
   );
   const {
     isExternal: selectedAttributionIsExternal,
+    isReadonly: selectedAttributionIsReadonly,
     isPending: isSelectedAttributionPending,
     packageInfo: selectedAttribution,
   } = useSelectedAttribution();
@@ -108,7 +109,8 @@ export function AttributionDetails() {
   const isEditable =
     hasSelectedAttributionData &&
     !pickerMode.isActive &&
-    !selectedAttributionIsExternal;
+    !selectedAttributionIsExternal &&
+    !selectedAttributionIsReadonly;
 
   if (
     !!selectedAttributionId &&
@@ -138,6 +140,7 @@ export function AttributionDetails() {
       {!isSelectedAttributionLoading && (
         <ButtonRow
           isEditable={isEditable}
+          isReadonly={selectedAttributionIsReadonly === true}
           packageInfo={temporaryDisplayPackageInfo}
         />
       )}

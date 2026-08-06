@@ -74,6 +74,21 @@ describe('The PackageCard', () => {
     expect(screen.getByRole('checkbox')).toBeInTheDocument();
   });
 
+  it('renders a readonly lock in place of the selection checkbox', async () => {
+    const packageInfo = faker.opossum.packageInfo({ isReadonly: true });
+
+    await renderComponent(
+      <PackageCard
+        packageInfo={packageInfo}
+        onClick={vi.fn()}
+        checkbox={{ checked: false, onChange: vi.fn() }}
+      />,
+    );
+
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    expect(screen.getByTestId('readonly-indicator')).toBeInTheDocument();
+  });
+
   describe('classification icon', () => {
     it('renders the classification icon for classification > 0', async () => {
       const packageInfo = faker.opossum.packageInfo({ classification: 1 });

@@ -40,6 +40,7 @@ export function getResourceTree({
   licenseFilter,
   onAttributionUuids,
   selectedResourcePath,
+  onlyWritable,
 }: {
   search?: string;
   expandedNodes: Array<string> | 'expandAll';
@@ -47,12 +48,16 @@ export function getResourceTree({
   licenseFilter?: LicenseFilter;
   onAttributionUuids?: Array<string>;
   selectedResourcePath?: string;
+  onlyWritable?: boolean;
 }) {
   return getDb()
     .transaction()
     .execute(async (trx) => {
       const hasActiveNonSearchFilters = Boolean(
-        licenseFilter || onAttributionUuids || onlyUnreviewedFiles,
+        licenseFilter ||
+        onAttributionUuids ||
+        onlyUnreviewedFiles ||
+        onlyWritable,
       );
 
       const hasActiveFilters = Boolean(search || hasActiveNonSearchFilters);
@@ -69,6 +74,7 @@ export function getResourceTree({
           onlyUnreviewedFiles,
           onAttributionUuids,
           search,
+          onlyWritable,
         });
 
         await trx.schema
@@ -89,12 +95,7 @@ export function getResourceTree({
         await trx.schema
           .createView(FILTERED_RESOURCE_TEMP_TABLE)
           .temporary()
-          .as(
-            trx
-              .selectFrom('resource')
-              .select('id')
-              .where('is_readonly', '=', 0),
-          )
+          .as(trx.selectFrom('resource').select('id'))
           .execute();
 
         dropTempTable = () =>
@@ -162,6 +163,7 @@ export function getResourceTree({
               'max_descendant_id',
               'is_attribution_breakpoint',
               'is_file',
+              'is_readonly',
               'parent_id',
               sb.val(0).as('level'),
               sb.val(0).as('has_parent_with_manual_attribution'),
@@ -172,7 +174,6 @@ export function getResourceTree({
               sql`FALSE`.as('ancestor_matches_filters'),
             ])
             .where('path', '=', '')
-            .where('has_editable_descendant', '=', 1)
 
             // Recursion: If parent is in shown resource, then include its children
             .unionAll((eb) => {
@@ -189,6 +190,7 @@ export function getResourceTree({
                   'r.max_descendant_id',
                   'r.is_attribution_breakpoint',
                   'r.is_file',
+                  'r.is_readonly',
                   'r.parent_id',
                   sql<number>`parent.level + 1`.as('level'),
                   sql<number>`r.is_attribution_breakpoint = 0 AND (parent.has_manual_attribution OR parent.has_parent_with_manual_attribution)`.as(
@@ -243,15 +245,21 @@ export function getResourceTree({
                       eb.ref('r.id'),
                       eb.ref('r.max_descendant_id'),
                     ),
-                    eb.or([
-                      eb.ref('parent.matches_filters'),
-                      eb.ref('parent.ancestor_matches_filters'),
-                    ]),
+                    onlyWritable
+                      ? eb.and([
+                          eb('r.is_readonly', '=', 0),
+                          eb.or([
+                            eb.ref('parent.matches_filters'),
+                            eb.ref('parent.ancestor_matches_filters'),
+                          ]),
+                        ])
+                      : eb.or([
+                          eb.ref('parent.matches_filters'),
+                          eb.ref('parent.ancestor_matches_filters'),
+                        ]),
                   ]),
                 );
               }
-
-              query = query.where('r.has_editable_descendant', '=', 1);
 
               return query;
             }),
@@ -264,8 +272,7 @@ export function getResourceTree({
               eb
                 .selectFrom('resource as child')
                 .selectAll()
-                .whereRef('child.parent_id', '=', 'shown_resources.id')
-                .where('child.has_editable_descendant', '=', 1),
+                .whereRef('child.parent_id', '=', 'shown_resources.id'),
             )
             .as('is_expandable'),
         );
@@ -300,6 +307,7 @@ export function getResourceTree({
         canHaveChildren: Boolean(node.can_have_children),
         isAttributionBreakpoint: Boolean(node.is_attribution_breakpoint),
         isFile: Boolean(node.is_file),
+        isReadonly: Boolean(node.is_readonly),
         criticality: node.max_criticality_on_unresolved_external_attribution,
         classification:
           node.max_classification_on_unresolved_external_attribution,
@@ -353,17 +361,16 @@ function getFilteredResourcesQuery(
     onlyUnreviewedFiles,
     onAttributionUuids,
     search,
+    onlyWritable,
   }: {
     licenseFilter?: LicenseFilter;
     onlyUnreviewedFiles?: boolean;
     onAttributionUuids?: Array<string>;
     search?: string;
+    onlyWritable?: boolean;
   },
 ) {
-  let query = trx
-    .selectFrom('resource as r')
-    .select('r.id as id')
-    .where('r.is_readonly', '=', 0);
+  let query = trx.selectFrom('resource as r').select('r.id as id');
 
   if (search) {
     query = query.where('r.path', 'like', `%${removeTrailingSlash(search)}%`);
@@ -417,6 +424,11 @@ function getFilteredResourcesQuery(
         ]),
       )
       .where('r.is_file', '=', 1);
+    query = query.where('r.is_readonly', '=', 0);
+  }
+
+  if (onlyWritable) {
+    query = query.where('r.is_readonly', '=', 0);
   }
 
   return query;

@@ -105,7 +105,7 @@ test('opens the new split file', async ({
 
   await resourcesTree.assert.resourceIsReadonly(firstDirectoryName);
   await resourcesTree.assert.resourceIsEditable(secondDirectoryName);
-  await attributionsPanel.packageCard.assert.isHidden(packageInfo);
+  await attributionsPanel.packageCard.assert.isReadonly(packageInfo);
   await topBar.gotoReportView();
   await reportView.assert.attributionIsHidden(attributionId);
   await topBar.gotoAuditView();
@@ -166,7 +166,6 @@ test('creates two consecutive partitions from writable resources', async ({
   });
   await splitDialog.assert.resourceIsReadonly(firstDirectoryName);
   await splitDialog.assert.resourceIsEditable(secondDirectoryName);
-  await resourcesTree.assert.resourceIsVisible(secondResourceName);
 
   await stubSaveDialogSync(window.app, secondPartitionPath);
   await splitDialog.toggleResourceSelection(secondDirectoryName);

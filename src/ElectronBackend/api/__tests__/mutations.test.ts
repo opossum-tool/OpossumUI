@@ -287,6 +287,35 @@ describe('mixed attribution mutations', () => {
     });
   });
 
+  it('keeps the locked relationship unchanged immediately after updating a mixed attribution', async () => {
+    await initializeMixedAttribution();
+
+    const response = await mutations.updateAttributions({
+      attributions: {
+        shared: {
+          id: 'shared',
+          criticality: Criticality.None,
+          packageName: 'updated',
+        },
+      },
+    });
+    const cloneUuid = response.result.oldUuidsToNewUuids.shared;
+    const { result } = await listAttributions({
+      external: false,
+      resourcePathForRelationships: '/readonly/file.ts',
+      includeReadonly: true,
+    });
+
+    expect(result.shared).toMatchObject({
+      relation: 'resource',
+      packageName: 'original',
+    });
+    expect(result[cloneUuid]).toMatchObject({
+      relation: 'unrelated',
+      packageName: 'updated',
+    });
+  });
+
   it('clones a mixed attribution before deleting its writable partition', async () => {
     await initializeMixedAttribution();
 
