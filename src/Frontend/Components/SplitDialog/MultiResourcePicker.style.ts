@@ -31,6 +31,7 @@ export const SelectedPathsContainer = styled(MuiBox)({
   display: 'flex',
   flexWrap: 'wrap',
   gap: '8px',
+  minHeight: '24px',
 });
 
 export const LoadingIndicator = styled(MuiLinearProgress)({

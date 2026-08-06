@@ -437,6 +437,7 @@ export const text = {
           : 'Select new Opossum file save location',
     },
     create: 'Split',
+    inProgress: 'Splitting Opossum file…',
     success: 'Opossum file split successfully.',
   },
   backendError: {

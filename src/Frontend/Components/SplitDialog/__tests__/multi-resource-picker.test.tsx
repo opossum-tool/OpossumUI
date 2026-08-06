@@ -59,6 +59,24 @@ describe('MultiResourcePicker', () => {
     expect(await findCheckbox('single')).toBeChecked();
     expect(await findCheckbox('single')).toBeDisabled();
   });
+
+  it('disables selection changes when disabled', async () => {
+    const onSelectionChange = vi.fn();
+    await renderComponent(
+      <MultiResourcePicker
+        disabled={true}
+        open={true}
+        onSelectionChange={onSelectionChange}
+      />,
+      { data },
+    );
+
+    const docsCheckbox = await findCheckbox('docs');
+    expect(docsCheckbox).toBeDisabled();
+
+    fireEvent.click(docsCheckbox);
+    expect(onSelectionChange).not.toHaveBeenCalled();
+  });
 });
 
 async function renderPicker(onSelectionChange = vi.fn()) {

@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiAlert from '@mui/material/Alert';
+import MuiCollapse from '@mui/material/Collapse';
+import MuiLinearProgress from '@mui/material/LinearProgress';
 import MuiTypography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 
@@ -98,7 +100,6 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
           !destinationPath ||
           selectedResourcePaths.length === 0 ||
           splitInProgress,
-        loading: splitInProgress,
       }}
       rightButtonConfig={{
         onClick: onClose,
@@ -114,6 +115,7 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
         <MuiTypography>{text.splitDialog.explanationText}</MuiTypography>
         <MultiResourcePicker
           key={`${resourcePath}-${pickerInstance}`}
+          disabled={splitInProgress}
           initialSelectedPaths={selectedResourcePaths}
           open={open}
           onSelectionChange={setSelectedResourcePaths}
@@ -127,16 +129,24 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
           testId={'split-destination-path'}
           disabled={splitInProgress || selectedResourcePaths.length === 0}
         />
-        {splitSucceeded ? (
-          <MuiAlert severity={'success'} sx={{ marginTop: '20px' }}>
-            {text.splitDialog.success}
-          </MuiAlert>
-        ) : null}
-        {errorMessage ? (
-          <MuiAlert severity={'error'} sx={{ marginTop: '20px' }}>
-            {errorMessage}
-          </MuiAlert>
-        ) : null}
+        <MuiCollapse
+          in={Boolean(splitInProgress || splitSucceeded || errorMessage)}
+        >
+          <div style={{ marginTop: '20px' }}>
+            {splitInProgress ? (
+              <>
+                <MuiTypography>{text.splitDialog.inProgress}</MuiTypography>
+                <MuiLinearProgress sx={{ marginTop: '8px' }} />
+              </>
+            ) : splitSucceeded ? (
+              <MuiAlert severity={'success'}>
+                {text.splitDialog.success}
+              </MuiAlert>
+            ) : errorMessage ? (
+              <MuiAlert severity={'error'}>{errorMessage}</MuiAlert>
+            ) : null}
+          </div>
+        </MuiCollapse>
       </div>
     </NotificationPopup>
   );
