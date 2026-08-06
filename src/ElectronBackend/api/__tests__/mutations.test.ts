@@ -23,6 +23,24 @@ async function resourceAccessOf(attributionUuid: string) {
 }
 
 describe('attribution resource access', () => {
+  it('rejects resolving an external attribution only on readonly resources', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/readonly/file.ts']),
+      externalAttributions: {
+        attributions: {
+          signal: { id: 'signal', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/readonly/file.ts': ['signal'] },
+        attributionsToResources: {},
+      },
+      readonlyRules: [{ path: '/readonly', readonly: true }],
+    });
+
+    await expect(
+      mutations.resolveAttributions({ attributionUuids: ['signal'] }),
+    ).rejects.toThrow(/readonly/i);
+  });
+
   async function initializeReadonlyStructuralAncestor() {
     await initializeDbWithTestData({
       resources: pathsToResources(['/editable/file.ts']),

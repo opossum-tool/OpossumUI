@@ -15,6 +15,7 @@ import {
   cloneMixedAttributionsForWritableResources,
   ensureAttributionsAreLinkedOnMultipleResources,
   ensureAttributionsAreNotExternal,
+  ensureAttributionsAreNotReadonly,
   ensureResourceIsWritable,
   findMatchingAttributionUuid,
   getAttributionOrThrow,
@@ -411,6 +412,7 @@ async function setAttributionsResolvedStatus(
   await getDb()
     .transaction()
     .execute(async (trx) => {
+      await ensureAttributionsAreNotReadonly(trx, attributionUuids);
       await withBatching(
         attributionUuids,
         async (batch) => {
