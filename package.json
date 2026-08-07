@@ -80,7 +80,7 @@
     "cross-env": "10.1.0",
     "dotenv": "17.4.2",
     "dpdm": "4.3.0",
-    "electron": "43.2.0",
+    "electron": "43.3.0",
     "electron-builder": "26.15.3",
     "electron-playwright-helpers": "2.1.0",
     "eslint": "10.8.0",
