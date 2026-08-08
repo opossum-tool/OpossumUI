@@ -10,19 +10,19 @@ test.use({
   },
 });
 
-test('disables menu bar when merge dialog is opened', async ({
+test('disables menu bar when importing into the current project', async ({
   menuBar,
-  mergeDialog,
+  importDialog,
 }) => {
   await menuBar.assert.popupDisabledEntriesAreEnabled();
 
-  await menuBar.mergeLegacyOpossumFile();
-  await mergeDialog.assert.titleIsVisible();
+  await menuBar.importLegacyOpossumFileIntoCurrentProject();
+  await importDialog.assert.titleIsVisible();
 
   await menuBar.assert.popupDisabledEntriesAreDisabled();
 
-  await mergeDialog.cancelButton.click();
-  await mergeDialog.assert.titleIsHidden();
+  await importDialog.cancelButton.click();
+  await importDialog.assert.titleIsHidden();
 
   await menuBar.assert.popupDisabledEntriesAreEnabled();
 });

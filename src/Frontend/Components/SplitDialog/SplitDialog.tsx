@@ -121,9 +121,11 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
           onSelectionChange={setSelectedResourcePaths}
         />
         <FilePathInput
-          label={text.splitDialog.destinationPath.textFieldLabel(
-            Boolean(destinationPath),
-          )}
+          label={
+            destinationPath
+              ? text.splitDialog.destinationPath.label
+              : text.splitDialog.destinationPath.selectLabel
+          }
           text={destinationPath}
           onClick={() => void selectDestinationPath()}
           testId={'split-destination-path'}

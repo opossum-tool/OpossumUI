@@ -21,7 +21,6 @@ const initiallyDisabledMenuItems = [
   text.menu.editSubmenu.searchSignals,
   text.menu.editSubmenu.searchResourceLinked,
   text.menu.editSubmenu.searchResourcesAll,
-  text.menu.fileSubmenu.merge,
   text.menu.fileSubmenu.split,
   text.menu.fileSubmenu.export,
 ];
@@ -141,8 +140,8 @@ export class MenuBar {
       //parallel via promise all somehow breaks the app object
       for (const fileFormat of importFileFormats) {
         await this.assertSubMenuItemEnabledState(
-          text.menu.fileSubmenu.merge,
-          text.menu.fileSubmenu.mergeSubmenu(fileFormat),
+          text.menu.fileSubmenu.import,
+          text.menu.fileSubmenu.importFileSubmenu(fileFormat),
           true,
         );
       }
@@ -192,10 +191,10 @@ export class MenuBar {
 
   private async clickSubmenuItem(
     menuLabel: string,
-    submenuLabel: string,
+    itemLabel: string,
   ): Promise<void> {
-    await this.assertSubMenuItemEnabledState(menuLabel, submenuLabel, true);
-    const menuItem = await this.findSubmenuItem(menuLabel, submenuLabel);
+    await this.assertSubMenuItemEnabledState(menuLabel, itemLabel, true);
+    const menuItem = await this.findSubmenuItem(menuLabel, itemLabel);
     await clickMenuItemById(this.window.app, menuItem!.id!);
   }
 
@@ -215,7 +214,10 @@ export class MenuBar {
   }
 
   async importScanCodeFile(): Promise<void> {
-    await this.clickSubmenuItem('Import', 'ScanCode File (.json)...');
+    await this.clickSubmenuItem(
+      text.menu.fileSubmenu.import,
+      'ScanCode File (.json)...',
+    );
   }
 
   async importOwaspDependencyScanFile(): Promise<void> {
@@ -225,25 +227,35 @@ export class MenuBar {
     );
   }
 
-  async mergeLegacyOpossumFile(): Promise<void> {
+  async importLegacyOpossumFileIntoCurrentProject(): Promise<void> {
     await this.clickSubmenuItem(
-      text.menu.fileSubmenu.merge,
+      text.menu.fileSubmenu.import,
       'Legacy Opossum File (.json/.json.gz)...',
     );
   }
 
-  async mergeScanCodeFile(): Promise<void> {
+  async importScanCodeFileIntoCurrentProject(): Promise<void> {
     await this.clickSubmenuItem(
-      text.menu.fileSubmenu.merge,
+      text.menu.fileSubmenu.import,
       'ScanCode File (.json)...',
     );
   }
 
-  async mergeOwaspDependencyScanFile(): Promise<void> {
+  async importOwaspDependencyScanFileIntoCurrentProject(): Promise<void> {
     await this.clickSubmenuItem(
-      text.menu.fileSubmenu.merge,
+      text.menu.fileSubmenu.import,
       'OWASP Dependency-Check File (.json)...',
     );
+  }
+
+  async mergeSplitFilesIntoCurrentFile(): Promise<void> {
+    await this.assertMenuItemEnabledState(text.menu.fileSubmenu.merge, true);
+    await this.clickMenuItem(text.menu.fileSubmenu.merge);
+  }
+
+  async mergeSplitOpossumFiles(): Promise<void> {
+    await this.assertMenuItemEnabledState(text.menu.fileSubmenu.merge, true);
+    await this.clickMenuItem(text.menu.fileSubmenu.merge);
   }
 
   async exportFollowUp(): Promise<void> {

@@ -5,6 +5,8 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import * as path from 'path';
 
+import { text } from '../../shared/text';
+
 export class ImportDialog {
   private readonly node: Locator;
   private readonly inputFileSelectionValue: Locator;
@@ -15,6 +17,7 @@ export class ImportDialog {
   readonly importButton: Locator;
   readonly cancelButton: Locator;
   readonly errorIcon: Locator;
+  readonly importIntoCurrentProjectSwitch: Locator;
 
   readonly scancodeFilePath: string;
   readonly owaspFilePath: string;
@@ -39,6 +42,9 @@ export class ImportDialog {
       exact: true,
     });
     this.errorIcon = this.node.getByTestId('ErrorIcon').locator('path');
+    this.importIntoCurrentProjectSwitch = this.node.getByLabel(
+      text.importDialog.importIntoCurrentProject,
+    );
 
     this.scancodeFilePath = path.resolve(__dirname, '..', 'scancode.json');
     this.owaspFilePath = path.resolve(
@@ -63,6 +69,9 @@ export class ImportDialog {
     },
     showsError: async (): Promise<void> => {
       await expect(this.errorIcon).toBeVisible();
+    },
+    importsIntoCurrentProject: async (): Promise<void> => {
+      await expect(this.importIntoCurrentProjectSwitch).toBeChecked();
     },
   };
 }

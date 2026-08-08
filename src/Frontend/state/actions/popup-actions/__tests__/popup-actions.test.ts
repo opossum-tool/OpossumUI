@@ -32,6 +32,7 @@ import {
 import {
   getExportFileRequest,
   getImportFileRequest,
+  getMergeOpossumFilesRequest,
   getOpenFileRequest,
   getOpenPopup,
   getSelectedView,
@@ -57,6 +58,7 @@ import {
   openPopup,
   setExportFileRequest,
   setImportFileRequest,
+  setMergeOpossumFilesRequest,
   setOpenFileRequest,
   setSplitFileRequest,
   setTargetView,
@@ -65,6 +67,7 @@ import {
   changeAttributionFiltersOrOpenUnsavedPopup,
   changeSelectedAttributionOrOpenUnsavedPopup,
   closePopupAndUnsetTargets,
+  mergeOpossumFilesIntoCurrentFile,
   navigateToSelectedPathOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
   proceedFromUnsavedPopup,
@@ -72,6 +75,32 @@ import {
   setViewOrOpenUnsavedPopup,
   showSplitDialogOrOpenUnsavedPopup,
 } from '../popup-actions';
+
+describe('mergeOpossumFilesIntoCurrentFile', () => {
+  it('merges partitions and resets the resource selection', async () => {
+    const partitionPaths = [
+      '/partitions/first.opossum',
+      '/partitions/second.opossum',
+    ];
+    const testStore = createAppStore();
+    testStore.dispatch(setSelectedResourceId('/selected-resource'));
+    testStore.dispatch(setSelectedAttributionId('selected-attribution'));
+    vi.mocked(window.electronAPI.mergeOpossumFiles).mockResolvedValue({
+      status: 'success',
+    });
+
+    await testStore.dispatch(
+      mergeOpossumFilesIntoCurrentFile(partitionPaths, false),
+    );
+
+    expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith(
+      partitionPaths,
+      false,
+    );
+    expect(getSelectedResourceId(testStore.getState())).toBe('/');
+    expect(getSelectedAttributionId(testStore.getState())).toBe('');
+  });
+});
 
 describe('The actions checking for unsaved changes', () => {
   describe('changeAttributionFiltersOrOpenUnsavedPopup', () => {
@@ -475,15 +504,41 @@ describe('proceedFromUnsavedPopup', () => {
       extensions: [],
       name: '',
     };
-    testStore.dispatch(setImportFileRequest(fileFormat));
+    testStore.dispatch(
+      setImportFileRequest({
+        fileFormat,
+        canImportIntoCurrentProject: true,
+      }),
+    );
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(proceedFromUnsavedPopup());
 
     expect(getOpenPopup(testStore.getState())).toStrictEqual({
       popup: PopupType.ImportDialog,
       fileFormat,
+      canImportIntoCurrentProject: true,
     });
     expect(getImportFileRequest(testStore.getState())).toBeNull();
+  });
+
+  it('proceeds with merge Opossum files request', () => {
+    const testStore = createAppStore();
+    const currentFilePath = '/path/to/current.opossum';
+    testStore.dispatch(
+      setMergeOpossumFilesRequest({
+        canMergeIntoCurrentFile: true,
+        currentFilePath,
+      }),
+    );
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+    testStore.dispatch(proceedFromUnsavedPopup());
+
+    expect(getOpenPopup(testStore.getState())).toStrictEqual({
+      popup: PopupType.MergeOpossumFilesDialog,
+      canMergeIntoCurrentFile: true,
+      currentFilePath,
+    });
+    expect(getMergeOpossumFilesRequest(testStore.getState())).toBeNull();
   });
 
   it('proceeds with export file request', () => {
@@ -527,9 +582,12 @@ describe('closePopupAndUnsetTargets', () => {
     testStore.dispatch(setOpenFileRequest({ kind: 'path', filePath }));
     testStore.dispatch(
       setImportFileRequest({
-        fileType: FileType.LEGACY_OPOSSUM,
-        extensions: [],
-        name: '',
+        fileFormat: {
+          fileType: FileType.LEGACY_OPOSSUM,
+          extensions: [],
+          name: '',
+        },
+        canImportIntoCurrentProject: false,
       }),
     );
     testStore.dispatch(setExportFileRequest(ExportType.FollowUp));
@@ -571,7 +629,12 @@ describe('closePopupAndUnsetTargets', () => {
     };
 
     testStore.dispatch(setIsPackageInfoDirty(true));
-    testStore.dispatch(setImportFileRequest(fileFormat));
+    testStore.dispatch(
+      setImportFileRequest({
+        fileFormat,
+        canImportIntoCurrentProject: false,
+      }),
+    );
     testStore.dispatch(setTargetView(View.Audit));
     testStore.dispatch(setTargetSelectedResourceId('resourceId'));
     testStore.dispatch(setTargetSelectedAttributionId('attributionId'));

@@ -12,9 +12,14 @@ import upath from 'upath';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   ExportType,
+  type FileFilter,
   type FileFormatInfo,
   type FileType,
+  MergeOpossumFilesErrorType,
+  type MergeOpossumFilesResult,
   type OpenLinkArgs,
+  OPOSSUM_FILE_FORMAT,
+  type SelectSaveFileOptions,
   type SplitFileResult,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
@@ -30,12 +35,13 @@ import {
 } from '../opossum-file/opossum-file';
 import type { GlobalBackendState } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
+import { isFileLoaded } from '../utils/getLoadedFile';
 import {
-  openNonOpossumFileDialog,
   openOpossumFileDialog,
-  saveFileDialog,
-  saveOpossumFileDialog,
   selectBaseURLDialog,
+  selectFile,
+  selectFiles,
+  selectSaveFile,
 } from './dialogs';
 import {
   getGlobalBackendState,
@@ -107,38 +113,99 @@ export const splitCurrentOpossumFileListener =
   };
 
 export const mergeCurrentOpossumFilesListener =
-  () =>
+  (mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,
     partitionPaths: Array<string>,
     ignoreReadonlyResourceOutputConflicts: boolean,
-  ): Promise<void> => {
+  ): Promise<MergeOpossumFilesResult> => {
+    const processingStatusUpdater = new ProcessingStatusUpdater(
+      mainWindow.webContents,
+    );
+    processingStatusUpdater.startProcessing();
     const globalBackendState = getGlobalBackendState();
-    if (!globalBackendState.projectId || !globalBackendState.opossumFilePath) {
-      throw new Error('No .opossum project is currently open.');
-    }
+    try {
+      if (
+        !globalBackendState.projectId ||
+        !globalBackendState.opossumFilePath
+      ) {
+        const errorMessage = 'No .opossum project is currently open.';
+        processingStatusUpdater.error(errorMessage);
+        return {
+          errorMessage,
+          errorType: MergeOpossumFilesErrorType.Unknown,
+          status: 'error',
+        };
+      }
 
-    await getMainDbClient().mergeOpossumFiles({
-      ignoreReadonlyResourceOutputConflicts,
-      saveFileParams: {
-        projectId: globalBackendState.projectId,
-        opossumFilePath: globalBackendState.opossumFilePath,
-      },
-      partitionPaths,
-    });
+      const result = await getMainDbClient().mergeOpossumFiles(
+        {
+          ignoreReadonlyResourceOutputConflicts,
+          saveFileParams: {
+            projectId: globalBackendState.projectId,
+            opossumFilePath: globalBackendState.opossumFilePath,
+          },
+          partitionPaths,
+        },
+        (message, level) => {
+          if (level === 'warn') {
+            processingStatusUpdater.warn(message);
+          } else {
+            processingStatusUpdater.info(message);
+          }
+        },
+      );
+      reportMergeResult(processingStatusUpdater, result);
+      return result;
+    } finally {
+      processingStatusUpdater.endProcessing();
+    }
   };
 
 export async function mergeOpossumFilesFromPathsListener(
+  mainWindow: BrowserWindow,
   _: Electron.IpcMainInvokeEvent,
   inputPaths: Array<string>,
   outputPath: string,
   ignoreReadonlyResourceOutputConflicts: boolean,
-): Promise<void> {
-  await getMainDbClient().mergeOpossumFilesFromPaths({
-    ignoreReadonlyResourceOutputConflicts,
-    inputPaths,
-    outputPath,
-  });
+): Promise<MergeOpossumFilesResult> {
+  const processingStatusUpdater = new ProcessingStatusUpdater(
+    mainWindow.webContents,
+  );
+  processingStatusUpdater.startProcessing();
+  try {
+    const result = await getMainDbClient().mergeOpossumFilesFromPaths(
+      {
+        ignoreReadonlyResourceOutputConflicts,
+        inputPaths,
+        outputPath,
+      },
+      (message) => processingStatusUpdater.info(message),
+    );
+    reportMergeResult(processingStatusUpdater, result);
+    return result;
+  } finally {
+    processingStatusUpdater.endProcessing();
+  }
+}
+
+function reportMergeResult(
+  processingStatusUpdater: ProcessingStatusUpdater,
+  result: MergeOpossumFilesResult,
+): void {
+  if (result.status !== 'error') {
+    return;
+  }
+  if (
+    result.errorType ===
+    MergeOpossumFilesErrorType.ReadonlyResourceOutputConflict
+  ) {
+    processingStatusUpdater.warn('Readonly resource output conflicts detected');
+  } else {
+    processingStatusUpdater.error(
+      result.errorMessage ?? 'Unexpected internal error while merging',
+    );
+  }
 }
 
 export const selectSplitDestinationListener =
@@ -161,7 +228,12 @@ export const selectSplitDestinationListener =
       parsedPath.dir,
       `${parsedPath.name}-${partitionSuffix}${parsedPath.ext}`,
     );
-    return saveOpossumFileDialog(partitionPath) ?? '';
+    return (
+      selectSaveFile({
+        defaultPath: partitionPath,
+        filter: OPOSSUM_FILE_FORMAT,
+      }) ?? ''
+    );
   };
 
 function getExportFilePath(exportType: ExportType): string {
@@ -237,14 +309,7 @@ export const importFileListener =
     mainWindow.webContents.send(
       AllowedFrontendChannels.ShowImportDialog,
       fileFormat,
-    );
-  };
-
-export const getMergeListener =
-  (mainWindow: BrowserWindow, fileFormat: FileFormatInfo) => (): void => {
-    mainWindow.webContents.send(
-      AllowedFrontendChannels.ShowMergeDialog,
-      fileFormat,
+      isFileLoaded(getGlobalBackendState()),
     );
   };
 
@@ -252,30 +317,44 @@ export const selectFileListener =
   (mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,
-    fileFormat: FileFormatInfo,
+    fileFilter: FileFilter,
   ): Promise<string> => {
     try {
-      const filePaths = openNonOpossumFileDialog(fileFormat);
+      const filePaths = selectFile(fileFilter);
 
       // NOTE: explicitly checking filePaths.length creates issues in e2e tests
       // because the mocked return value of the dialog is not an array but rather
       // and object with number indices for some reason, so filePaths.length is
       // undefined in e2e tests
-      return filePaths?.[0] || '';
+      return filePaths?.[0] ?? '';
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
       return '';
     }
   };
 
-export const importFileSelectSaveLocationListener =
+export const selectFilesListener =
   (mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,
-    defaultPath: string,
+    fileFilter: FileFilter,
+  ): Promise<Array<string>> => {
+    try {
+      return selectFiles(fileFilter) ?? [];
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
+      return [];
+    }
+  };
+
+export const selectSaveFileListener =
+  (mainWindow: BrowserWindow) =>
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    options: SelectSaveFileOptions,
   ): Promise<string> => {
     try {
-      return saveFileDialog(defaultPath) ?? '';
+      return selectSaveFile(options) ?? '';
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
       return '';

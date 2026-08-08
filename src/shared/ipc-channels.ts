@@ -7,7 +7,8 @@
 export enum IpcChannel {
   OpenFile = 'open-file',
   SelectFile = 'select-file',
-  ImportFileSelectSaveLocation = 'import-file-select-save-location',
+  SelectFiles = 'select-files',
+  SelectSaveFile = 'select-save-file',
   ImportFileConvertAndLoad = 'import-file-convert-and-load',
   MergeFileAndLoad = 'merge-file-and-load',
   SelectSplitDestination = 'select-split-destination',
@@ -41,7 +42,7 @@ export enum AllowedFrontendChannels {
   SetBaseURLForRoot = 'set-base-url-for-root',
   OpenFile = 'open-file',
   ShowImportDialog = 'show-import-dialog',
-  ShowMergeDialog = 'show-merge-dialog',
+  ShowMergeOpossumFilesDialog = 'show-merge-opossum-files-dialog',
   ShowSplitDialog = 'show-split-dialog',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',

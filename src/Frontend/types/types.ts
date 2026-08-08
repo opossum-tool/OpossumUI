@@ -44,8 +44,14 @@ export type PopupInfo =
   | { popup: PopupWithoutPayload }
   | { popup: PopupType.NotSavedPopup; attributionId?: string }
   | {
-      popup: PopupType.ImportDialog | PopupType.MergeDialog;
+      popup: PopupType.ImportDialog;
       fileFormat: FileFormatInfo;
+      canImportIntoCurrentProject: boolean;
+    }
+  | {
+      popup: PopupType.MergeOpossumFilesDialog;
+      canMergeIntoCurrentFile: boolean;
+      currentFilePath?: string;
     }
   | { popup: PopupType.SplitDialog; resourcePath?: string };
 

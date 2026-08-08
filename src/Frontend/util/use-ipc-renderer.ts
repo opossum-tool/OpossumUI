@@ -46,11 +46,13 @@ export type SetBaseURLForRootListener = (
 export type ShowImportDialogListener = (
   event: IpcRendererEvent,
   fileFormat: FileFormatInfo,
+  canImportIntoCurrentProject: boolean,
 ) => void;
 
-export type ShowMergeDialogListener = (
+export type ShowMergeOpossumFilesDialogListener = (
   event: IpcRendererEvent,
-  fileFormat: FileFormatInfo,
+  canMergeIntoCurrentFile: boolean,
+  currentFilePath?: string,
 ) => void;
 
 export type ShowSplitDialog = (event: IpcRendererEvent) => void;
@@ -79,7 +81,7 @@ type Listener =
   | OpenFileListener
   | ShowImportDialogListener
   | ProcessingStateChangedListener
-  | ShowMergeDialogListener
+  | ShowMergeOpossumFilesDialogListener
   | ShowSplitDialog
   | UserSettingsChangedListener
   | SetDatabaseInitializedListener;

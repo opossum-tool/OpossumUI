@@ -4,12 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog } from 'electron';
 
-import type { FileFormatInfo } from '../../shared/shared-types';
-
-const OPOSSUM_FILE_FILTER: Electron.FileFilter = {
-  name: 'Opossum File',
-  extensions: ['opossum'],
-};
+import {
+  type FileFilter,
+  OPOSSUM_FILE_FORMAT,
+  type SelectSaveFileOptions,
+} from '../../shared/shared-types';
 
 function showOpenDialog(
   options: Electron.OpenDialogSyncOptions,
@@ -31,34 +30,30 @@ function getDialogWindow():
 }
 
 export function openOpossumFileDialog(): Array<string> | undefined {
+  return selectFile(OPOSSUM_FILE_FORMAT);
+}
+
+export function selectFile(fileFilter: FileFilter): Array<string> | undefined {
   return showOpenDialog({
     properties: ['openFile'],
-    filters: [OPOSSUM_FILE_FILTER],
+    filters: [fileFilter],
   });
 }
 
-export function openNonOpossumFileDialog(
-  fileFormat: FileFormatInfo,
-): Array<string> | undefined {
+export function selectFiles(fileFilter: FileFilter): Array<string> | undefined {
   return showOpenDialog({
-    properties: ['openFile'],
-    filters: [
-      {
-        name: `${fileFormat.name} Files (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
-        extensions: fileFormat.extensions,
-      },
-    ],
+    properties: ['openFile', 'multiSelections'],
+    filters: [fileFilter],
   });
 }
 
-export function saveFileDialog(defaultPath?: string): string | undefined {
-  return showSaveDialog({ defaultPath });
-}
-
-export function saveOpossumFileDialog(defaultPath: string): string | undefined {
+export function selectSaveFile({
+  defaultPath,
+  filter,
+}: SelectSaveFileOptions): string | undefined {
   return showSaveDialog({
     defaultPath,
-    filters: [OPOSSUM_FILE_FILTER],
+    filters: filter ? [filter] : undefined,
   });
 }
 

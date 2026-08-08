@@ -18,7 +18,7 @@ import type {
 } from '../../types/types';
 import {
   mergeOpossumArchives,
-  MergeOpossumFilesError,
+  ReadonlyResourceOutputConflictError,
 } from '../merge-opossum-files';
 import { splitOpossumArchive } from '../split-opossum-file';
 
@@ -215,26 +215,29 @@ describe('mergeOpossumArchives', () => {
     });
     const outputPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
 
-    await expect(
-      mergeOpossumArchives({
-        inputPaths: [
-          firstPath,
-          await createArchive({
-            output: output({
-              attributions: {
-                other: 'second-other',
-                shared: 'second-shared',
-              },
-            }),
-            readonlyRules: [
-              { path: '/', readonly: true },
-              { path: '/frontend', readonly: false },
-            ],
+    const mergePromise = mergeOpossumArchives({
+      inputPaths: [
+        firstPath,
+        await createArchive({
+          output: output({
+            attributions: {
+              other: 'second-other',
+              shared: 'second-shared',
+            },
           }),
-        ],
-        outputPath,
-      }),
-    ).rejects.toThrow(
+          readonlyRules: [
+            { path: '/', readonly: true },
+            { path: '/frontend', readonly: false },
+          ],
+        }),
+      ],
+      outputPath,
+    });
+
+    await expect(mergePromise).rejects.toBeInstanceOf(
+      ReadonlyResourceOutputConflictError,
+    );
+    await expect(mergePromise).rejects.toThrow(
       "readonly resource output for paths: '/other/', '/shared/'",
     );
   });
@@ -367,7 +370,7 @@ describe('mergeOpossumArchives', () => {
         ],
         outputPath,
       }),
-    ).rejects.toBeInstanceOf(MergeOpossumFilesError);
+    ).rejects.toThrow("Input archives overlap on editable path '/docs'");
   });
 });
 

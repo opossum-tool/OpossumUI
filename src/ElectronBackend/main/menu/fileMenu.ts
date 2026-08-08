@@ -23,7 +23,6 @@ import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import {
-  getMergeListener,
   handleOpeningFile,
   importFileListener,
   selectBaseURLListener,
@@ -124,7 +123,7 @@ function getImportFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
     ),
     label: text.menu.fileSubmenu.import,
     submenu: importFileFormats.map((fileFormat) => ({
-      label: text.menu.fileSubmenu.importSubmenu(fileFormat),
+      label: text.menu.fileSubmenu.importFileSubmenu(fileFormat),
       click: importFileListener(mainWindow, fileFormat),
       id: `import ${fileFormat.name}`,
       enabled,
@@ -134,18 +133,19 @@ function getImportFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
 }
 
 function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
-  const enabled =
-    isFileLoaded(getGlobalBackendState()) &&
-    !getGlobalBackendState().frontendPopupOpen;
+  const globalBackendState = getGlobalBackendState();
+  const enabled = !globalBackendState.frontendPopupOpen;
+
   return {
     icon: getIconBasedOnTheme('icons/merge-white.png', 'icons/merge-black.png'),
     label: text.menu.fileSubmenu.merge,
-    submenu: importFileFormats.map((fileFormat) => ({
-      label: text.menu.fileSubmenu.mergeSubmenu(fileFormat),
-      click: getMergeListener(mainWindow, fileFormat),
-      id: `id-${fileFormat.name}`,
-      enabled,
-    })),
+    id: 'merge-opossum-files',
+    click: () =>
+      mainWindow.webContents.send(
+        AllowedFrontendChannels.ShowMergeOpossumFilesDialog,
+        isFileLoaded(globalBackendState),
+        globalBackendState.opossumFilePath,
+      ),
     enabled,
   };
 }
@@ -354,8 +354,8 @@ export async function getFileMenu(
       getOpenFile(mainWindow),
       await getOpenRecent(mainWindow, updateMenu),
       getImportFile(mainWindow),
-      getMerge(mainWindow),
       getSaveFile(webContents),
+      getMerge(mainWindow),
       getSplit(webContents),
       getExportSubMenu(webContents),
       getProjectMetadata(webContents),

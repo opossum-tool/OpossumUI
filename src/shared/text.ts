@@ -2,9 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Criticality, type FileFormatInfo } from './shared-types';
+import {
+  Criticality,
+  type FileFilter,
+  type FileFormatInfo,
+} from './shared-types';
 
-function menuLabelForFileFormat(fileFormat: FileFormatInfo): string {
+function menuLabelForFileFormat(fileFormat: FileFilter): string {
   return `${fileFormat.name} File (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})...`;
 }
 
@@ -16,9 +20,9 @@ export const text = {
       openRecent: 'Open Recent',
       clearRecent: 'Clear Recent',
       import: 'Import',
-      importSubmenu: menuLabelForFileFormat,
-      merge: 'Merge',
-      mergeSubmenu: menuLabelForFileFormat,
+      importFileSubmenu: menuLabelForFileFormat,
+      merge: 'Merge...',
+      mergeIntoCurrentProject: 'Merge into current project…',
       split: 'Split…',
       save: 'Save',
       projectMetadata: 'Project Metadata',
@@ -391,31 +395,40 @@ export const text = {
       'OpossumUI will convert the selected file into a new Opossum file.',
       'All changes made to the project in OpossumUI will be saved in this Opossum file.',
     ],
+    importIntoCurrentProject: 'Import into current project',
+    currentProjectWarning:
+      'The current project will be backed up before importing.',
     inputFilePath: {
-      textFieldLabel: (fileFormat: FileFormatInfo, hasBeenSelected: boolean) =>
-        hasBeenSelected
-          ? `File to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
-          : `Select file to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+      label: (fileFormat: FileFormatInfo) =>
+        `File to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+      selectLabel: (fileFormat: FileFormatInfo) =>
+        `Select file to import (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
     },
     opossumFilePath: {
-      textFieldLabel: (hasBeenSelected: boolean) =>
-        hasBeenSelected
-          ? 'Opossum file save location'
-          : 'Select Opossum file save location',
+      label: 'Opossum file save location',
+      selectLabel: 'Select Opossum file save location',
     },
   },
-  mergeDialog: {
-    title: (fileFormat: FileFormatInfo) =>
-      `Merge ${fileFormat.name} file into current file`,
+  mergeOpossumFilesDialog: {
+    mergeIntoCurrentProject: 'Merge into current project',
+    title: 'Merge split Opossum files',
+    titleForCurrentFile: 'Merge split files into current file',
     explanationText:
-      'OpossumUI will merge the selected file into the currently open Opossum file.',
-    warningText:
-      'As this action cannot be undone, OpossumUI will also create a backup of the currently open Opossum file.',
-    inputFilePath: {
-      textFieldLabel: (fileFormat: FileFormatInfo, hasBeenSelected: boolean) =>
-        hasBeenSelected
-          ? `File to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`
-          : `Select file to merge (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})`,
+      'Select split Opossum files and an output location to merge them.',
+    explanationTextForCurrentFile:
+      'Select the split Opossum files to merge into the currently open file.',
+    filesToMerge: 'Files to merge',
+    currentFile: 'Current file',
+    addSplitFiles: 'Add split files…',
+    removeSplitFile: (filePath: string) => `Remove ${filePath}`,
+    mergeIgnoringReadonlyResourceOutputConflicts: 'Merge anyway',
+    readonlyResourceOutputConflictWarning:
+      'Readonly resource outputs conflict. Merging anyway uses the output from the first file for the conflicting paths.',
+    noReadonlyPathsWarning:
+      'The current project has not been split, so merging is not possible.',
+    outputFilePath: {
+      label: 'Merged Opossum file location',
+      selectLabel: 'Select merged Opossum file location',
     },
   },
   splitDialog: {
@@ -431,10 +444,8 @@ export const text = {
       noResourcesSelected: 'No resources selected',
     },
     destinationPath: {
-      textFieldLabel: (hasBeenSelected: boolean) =>
-        hasBeenSelected
-          ? 'New Opossum file location'
-          : 'Select new Opossum file save location',
+      label: 'New Opossum file location',
+      selectLabel: 'Select new Opossum file save location',
     },
     create: 'Split',
     inProgress: 'Splitting Opossum file…',
