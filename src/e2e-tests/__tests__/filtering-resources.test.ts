@@ -78,7 +78,6 @@ test('combines unreviewed and external attribution license filters in the resour
   await resourcesTree.filterButton.click();
   await resourcesTree.selectLicenseName(externalPackageInfo.licenseName!);
   await resourcesTree.closeMenu();
-  await resourcesTree.closeMenu();
 
   await resourcesTree.assert.resourceIsVisible(externalResourceName);
   await resourcesTree.assert.resourceIsHidden(preselectedResourceName);

@@ -15,6 +15,7 @@ export class ResourcesTree {
   private readonly window: Page;
   private readonly node: Locator;
   private readonly header: Locator;
+  private readonly filterMenu: Locator;
   readonly filterButton: Locator;
   readonly filters: {
     readonly license: Locator;
@@ -36,6 +37,7 @@ export class ResourcesTree {
         name: text.filters.unreviewed,
       }),
     };
+    this.filterMenu = window.getByRole('menu');
     this.searchField = this.header.getByRole('searchbox');
     this.clearSearchButton = this.header.getByLabel('clear search');
   }
@@ -107,7 +109,9 @@ export class ResourcesTree {
   }
 
   async closeMenu(): Promise<void> {
-    await this.window.keyboard.press('Escape');
+    if (await this.filterMenu.isVisible()) {
+      await this.filterMenu.press('Escape');
+    }
   }
 
   async selectLicenseName(licenseName: string): Promise<void> {
