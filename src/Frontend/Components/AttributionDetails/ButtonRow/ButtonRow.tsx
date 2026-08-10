@@ -165,19 +165,19 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
 
   return (
     <Container>
-      {isReadonly ? null : attributionIdsForReplacement.length ? (
+      {attributionIdsForReplacement.length ? (
         renderReplaceButton()
       ) : compareSelectionSource ? (
         renderCompareSelectionControls()
       ) : (
         <>
-          {renderSaveButton()}
-          {renderLinkButton()}
+          {!isReadonly && renderSaveButton()}
+          {!isReadonly && renderLinkButton()}
           {renderCompareButton()}
           {renderCompareWithButton()}
-          {renderDeleteAttributionButton()}
-          {renderDeleteRestoreSignalButton()}
-          {renderRevertButton()}
+          {!isReadonly && renderDeleteAttributionButton()}
+          {!isReadonly && renderDeleteRestoreSignalButton()}
+          {!isReadonly && renderRevertButton()}
         </>
       )}
     </Container>
@@ -188,7 +188,9 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
       packageInfo.id,
     );
     const canUseAsReplacement =
-      !isPreviewingSource && selectedAttributionIsExternal === false;
+      !isReadonly &&
+      !isPreviewingSource &&
+      selectedAttributionIsExternal === false;
 
     return (
       <>
@@ -409,7 +411,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   }
 
   function renderCompareButton() {
-    if (!isEditable || !originalAttribution) {
+    if (selectedAttributionIsExternal || !originalAttribution) {
       return null;
     }
 
