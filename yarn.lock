@@ -1396,35 +1396,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/core-downloads-tracker@npm:^9.3.0":
+"@mui/core-downloads-tracker@npm:^9.3.1":
   version: 9.3.1
   resolution: "@mui/core-downloads-tracker@npm:9.3.1"
   checksum: 10/019329e6c345544c05f8a185f87ba08abbea044df2d461ea8103a4e4a10bc81c5e6c2226db95a71ccb3e9c7d20fe2da50126914ff84e17f330ed2ad9c916e3be
   languageName: node
   linkType: hard
 
-"@mui/icons-material@npm:9.3.0":
-  version: 9.3.0
-  resolution: "@mui/icons-material@npm:9.3.0"
+"@mui/icons-material@npm:9.3.1":
+  version: 9.3.1
+  resolution: "@mui/icons-material@npm:9.3.1"
   dependencies:
     "@babel/runtime": "npm:^7.29.7"
   peerDependencies:
-    "@mui/material": ^9.3.0
+    "@mui/material": ^9.3.1
     "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
     react: ^17.0.0 || ^18.0.0 || ^19.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10/4ddf559cc6e44a4e8a6941ba19917bb431d6bdc5093125d1dbb1d297693fa7afdbfecbb5f0dd3ff158bc2bb6c5daca31e0f79f82be36f9bddef24e303fcd95d5
+  checksum: 10/2edd1cfb17a43eb1723715f9678e4284157f5191b672c2cc60316ae2572a7d75348ff8779772aa542dba7c5c8f6f22208b6533cd456346361ee2d6da1c01de16
   languageName: node
   linkType: hard
 
-"@mui/material@npm:9.3.0":
-  version: 9.3.0
-  resolution: "@mui/material@npm:9.3.0"
+"@mui/material@npm:9.3.1":
+  version: 9.3.1
+  resolution: "@mui/material@npm:9.3.1"
   dependencies:
     "@babel/runtime": "npm:^7.29.7"
-    "@mui/core-downloads-tracker": "npm:^9.3.0"
+    "@mui/core-downloads-tracker": "npm:^9.3.1"
     "@mui/system": "npm:^9.3.0"
     "@mui/types": "npm:^9.3.0"
     "@mui/utils": "npm:^9.3.0"
@@ -1451,7 +1451,7 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 10/5fe872aec41091055b12c6f9d4d87087a347013787ae3414a262779f3c67cd69378ac1ad2c522f41218be99fa68139b721171ea0c5c87db721b65dcda5febb92
+  checksum: 10/d103219e3fa27e8c2e7e054797b5c52e0e75ec3f227eb194e7fac4658bf41b000756190e092658970deda5907591d3db6b2f25fbf1a55a56e73d50046b93c41e
   languageName: node
   linkType: hard
 
@@ -6742,8 +6742,8 @@ __metadata:
     "@eslint/js": "npm:10.0.1"
     "@faker-js/faker": "npm:10.5.0"
     "@fontsource-variable/karla": "npm:5.3.0"
-    "@mui/icons-material": "npm:9.3.0"
-    "@mui/material": "npm:9.3.0"
+    "@mui/icons-material": "npm:9.3.1"
+    "@mui/material": "npm:9.3.1"
     "@mui/system": "npm:9.3.0"
     "@mui/utils": "npm:9.3.0"
     "@playwright/test": "npm:1.62.1"
