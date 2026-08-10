@@ -272,7 +272,28 @@ export function getResourceTree({
               eb
                 .selectFrom('resource as child')
                 .selectAll()
-                .whereRef('child.parent_id', '=', 'shown_resources.id'),
+                .whereRef('child.parent_id', '=', 'shown_resources.id')
+                .$if(Boolean(onlyWritable), (query) =>
+                  query.where((eb) => {
+                    const childContainsFilteredResource =
+                      filteredResourcesContainIdBetween(
+                        eb.ref('child.id'),
+                        eb.ref('child.max_descendant_id'),
+                      );
+                    const writableChildInMatchingBranch = eb.and([
+                      eb('child.is_readonly', '=', 0),
+                      eb.or([
+                        eb('shown_resources.matches_filters', '=', 1),
+                        eb('shown_resources.ancestor_matches_filters', '=', 1),
+                      ]),
+                    ]);
+
+                    return eb.or([
+                      childContainsFilteredResource,
+                      writableChildInMatchingBranch,
+                    ]);
+                  }),
+                ),
             )
             .as('is_expandable'),
         );

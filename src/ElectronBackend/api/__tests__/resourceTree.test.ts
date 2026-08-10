@@ -177,6 +177,38 @@ describe('getResourceTree', () => {
     );
   });
 
+  it('does not mark attribution-linked writable nodes expandable when all children are readonly', async () => {
+    const attributionUuid = 'manual-uuid';
+
+    await initializeDbWithTestData({
+      resources: {
+        src: { 'generated.ts': 1 },
+      },
+      manualAttributions: makeAttributionData(
+        {
+          [attributionUuid]: {
+            id: attributionUuid,
+            criticality: Criticality.None,
+          },
+        },
+        { '/src': [attributionUuid] },
+      ),
+      readonlyRules: [{ path: '/src/generated.ts', readonly: true }],
+    });
+
+    const { result } = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onlyWritable: true,
+      onAttributionUuids: [attributionUuid],
+    });
+
+    const writableNode = result.treeNodes.find((node) => node.id === '/src/');
+    expect(writableNode?.isExpandable).toBe(false);
+    expect(result.treeNodes.map((node) => node.id)).not.toContain(
+      '/src/generated.ts',
+    );
+  });
+
   describe('sorting', () => {
     it('sorts folders before files, then alphabetically', async () => {
       await initializeDbWithTestData({
