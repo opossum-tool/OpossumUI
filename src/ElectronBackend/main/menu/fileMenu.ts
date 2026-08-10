@@ -194,6 +194,26 @@ function getSplit(webContents: WebContents): MenuItemConstructorOptions {
   };
 }
 
+function getForceUnlock(
+  webContents: WebContents,
+  isProjectSplit: boolean,
+): MenuItemConstructorOptions {
+  const globalBackendState = getGlobalBackendState();
+  const enabled =
+    isFileLoaded(globalBackendState) && !globalBackendState.frontendPopupOpen;
+  return {
+    icon: getIconBasedOnTheme(
+      'icons/lock-reset-white.png',
+      'icons/lock-reset-black.png',
+    ),
+    label: text.menu.fileSubmenu.forceUnlock,
+    enabled: enabled && isProjectSplit,
+    id: menuItemIds.forceUnlock,
+    click: () =>
+      webContents.send(AllowedFrontendChannels.ShowForceUnlockDialog),
+  };
+}
+
 function getProjectMetadata(
   webContents: WebContents,
 ): MenuItemConstructorOptions {
@@ -373,6 +393,7 @@ function getExportSubMenu(
 export async function getFileMenu(
   mainWindow: BrowserWindow,
   updateMenu: () => Promise<void>,
+  isProjectSplit: boolean,
 ): Promise<MenuItemConstructorOptions> {
   const webContents = mainWindow.webContents;
   return {
@@ -385,6 +406,7 @@ export async function getFileMenu(
       getSaveFile(webContents),
       getMerge(mainWindow),
       getSplit(webContents),
+      getForceUnlock(webContents, isProjectSplit),
       getExportSubMenu(webContents),
       getProjectMetadata(webContents),
       getProjectStatistics(webContents),

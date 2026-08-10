@@ -20,6 +20,7 @@ import {
   executeCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
+import { forceUnlockOpossumFile } from '../api/forceUnlock';
 import {
   mergeOpossumFiles,
   mergeOpossumFilesFromPaths,
@@ -39,6 +40,12 @@ interface LoadFileMessage {
 
 interface SaveFileMessage {
   type: 'saveFile';
+  projectId: string;
+  opossumFilePath: string;
+}
+
+interface ForceUnlockMessage {
+  type: 'forceUnlock';
   projectId: string;
   opossumFilePath: string;
 }
@@ -82,6 +89,7 @@ interface ExecuteCommandMessage {
 export type DbProcessPayload =
   | LoadFileMessage
   | SaveFileMessage
+  | ForceUnlockMessage
   | SplitOpossumFileMessage
   | MergeOpossumFilesMessage
   | MergeOpossumFilesFromPathsMessage
@@ -94,6 +102,7 @@ type SuccessPayload =
   | LoadFileIpcResult
   | Awaited<CommandReturn<CommandName>>
   | MergeOpossumFilesResult
+  | boolean
   | undefined;
 
 interface SuccessResponse {
@@ -146,6 +155,14 @@ async function executeDbProcessMessage(
       }
       const { id: _, type: __, ...params } = msg;
       await saveFile(params, storedOpossumZip);
+      return undefined;
+    }
+    case 'forceUnlock': {
+      if (!storedOpossumZip) {
+        throw new Error('Cannot force unlock: no input file loaded');
+      }
+      const { id: _, type: __, ...params } = msg;
+      await forceUnlockOpossumFile(params, storedOpossumZip);
       return undefined;
     }
     case 'splitOpossumFile': {

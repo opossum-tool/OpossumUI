@@ -9,6 +9,7 @@ import { getOpenPopup } from '../../state/selectors/view-selector';
 import type { PopupInfo } from '../../types/types';
 import { useFrontendPopupOpen } from '../../util/use-app-menu-disabled';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
+import { ForceUnlockPopup } from '../ForceUnlockPopup/ForceUnlockPopup';
 import { ImportDialog } from '../ImportDialog/ImportDialog';
 import { MergeOpossumFilesDialog } from '../MergeOpossumFilesDialog/MergeOpossumFilesDialog';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
@@ -45,6 +46,8 @@ function getPopupComponent(popupInfo: PopupInfo | null) {
       );
     case PopupType.SplitDialog:
       return <SplitDialogPopup resourcePath={popupInfo.resourcePath} />;
+    case PopupType.ForceUnlockPopup:
+      return <ForceUnlockPopup />;
     default:
       return null;
   }

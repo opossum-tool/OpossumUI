@@ -28,6 +28,7 @@ import { ConfirmSavePopup } from '../page-objects/ConfirmSavePopup';
 import { DiffPopup } from '../page-objects/DiffPopup';
 import { ErrorPopup } from '../page-objects/ErrorPopup';
 import { FileSupportPopup } from '../page-objects/FileSupportPopup';
+import { ForceUnlockPopup } from '../page-objects/ForceUnlockPopup';
 import { ImportDialog } from '../page-objects/ImportDialog';
 import { LinkedResourcesTree } from '../page-objects/LinkedResourcesTree';
 import { MenuBar } from '../page-objects/MenuBar';
@@ -76,6 +77,7 @@ export const test = base.extend<{
   errorPopup: ErrorPopup;
   filePaths: FilePaths | null;
   fileSupportPopup: FileSupportPopup;
+  forceUnlockPopup: ForceUnlockPopup;
   importDialog: ImportDialog;
   mergeOpossumFilesDialog: MergeOpossumFilesDialog;
   linkedResourcesTree: LinkedResourcesTree;
@@ -235,6 +237,9 @@ export const test = base.extend<{
   },
   confirmationDialog: async ({ window }, use) => {
     await use(new ConfirmationDialog(window));
+  },
+  forceUnlockPopup: async ({ window }, use) => {
+    await use(new ForceUnlockPopup(window));
   },
   notSavedPopup: async ({ window }, use) => {
     await use(new NotSavedPopup(window));

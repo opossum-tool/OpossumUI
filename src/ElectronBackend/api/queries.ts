@@ -16,6 +16,7 @@ import type {
   RawClassificationsConfig,
 } from '../../shared/shared-types';
 import { getDb } from '../db/db';
+import { isProjectSplit } from '../db/split-info';
 import {
   AttributionResourceAccess,
   EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
@@ -120,6 +121,9 @@ function mergeFilterProperties(
 }
 
 export const queries = {
+  async isProjectSplit() {
+    return { result: await isProjectSplit() };
+  },
   listAttributions,
   getResourceTree,
   getResourceTreeUnreviewedCount,

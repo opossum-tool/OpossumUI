@@ -9,6 +9,7 @@ import type { UserSettings } from '../../shared/shared-types';
 import { getGlobalBackendState } from './globalBackendState';
 import {
   exportFileListener,
+  forceUnlockCurrentOpossumFileListener,
   importFileConvertAndLoadListener,
   mergeCurrentOpossumFilesListener,
   mergeFileAndLoadListener,
@@ -48,6 +49,10 @@ export function setupIpcHandling(
     mergeFileAndLoadListener(window, updateMenu),
   );
   ipcMain.handle(IpcChannel.SaveFile, saveFileListener(window));
+  ipcMain.handle(
+    IpcChannel.ForceUnlock,
+    forceUnlockCurrentOpossumFileListener(window, updateMenu),
+  );
   ipcMain.handle(
     IpcChannel.SelectSplitDestination,
     selectSplitDestinationListener(window),

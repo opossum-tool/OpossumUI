@@ -10,6 +10,9 @@ import {
 } from 'electron';
 import os from 'os';
 
+import { getMainDbClient } from '../dbProcess/dbProcessClient';
+import { isFileLoaded } from '../utils/getLoadedFile';
+import { getGlobalBackendState } from './globalBackendState';
 import { getAboutMenu } from './menu/aboutMenu';
 import { getEditMenu } from './menu/editMenu';
 import { getFileMenu } from './menu/fileMenu';
@@ -19,6 +22,9 @@ import { getViewMenu } from './menu/viewMenu';
 
 export async function createMenu(mainWindow: BrowserWindow): Promise<void> {
   const webContents = mainWindow.webContents;
+  const isProjectSplit = isFileLoaded(getGlobalBackendState())
+    ? (await getMainDbClient().api('isProjectSplit', undefined)).result
+    : false;
 
   const updateMenu = () => createMenu(mainWindow);
   return Menu.setApplicationMenu(
@@ -31,7 +37,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<void> {
             } satisfies MenuItemConstructorOptions,
           ]
         : []),
-      await getFileMenu(mainWindow, updateMenu),
+      await getFileMenu(mainWindow, updateMenu, isProjectSplit),
       getEditMenu(webContents),
       await getViewMenu(updateMenu),
       getAboutMenu(),

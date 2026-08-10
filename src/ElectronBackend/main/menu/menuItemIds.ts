@@ -19,6 +19,7 @@ export const menuItemIds = {
   exportFollowUp: 'export-follow-up',
   exportSpdxJson: 'export-spdx-json',
   exportSpdxYaml: 'export-spdx-yaml',
+  forceUnlock: 'force-unlock',
   helpCheckForUpdates: 'help-check-for-updates',
   helpOpenLogFiles: 'help-open-log-files',
   helpUserGuide: 'help-user-guide',

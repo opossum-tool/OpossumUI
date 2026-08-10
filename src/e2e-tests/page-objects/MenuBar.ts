@@ -110,6 +110,12 @@ export class MenuBar {
     openRecentIsDisabled: async (): Promise<void> => {
       await this.assertMenuItemEnabledState(menuItemIds.openRecent, false);
     },
+    forceUnlockIsEnabled: async (): Promise<void> => {
+      await this.assertMenuItemEnabledState(menuItemIds.forceUnlock, true);
+    },
+    forceUnlockIsDisabled: async (): Promise<void> => {
+      await this.assertMenuItemEnabledState(menuItemIds.forceUnlock, false);
+    },
     initiallyDisabledEntriesAreEnabled: async (): Promise<void> => {
       await this.assertMenuItemsEnabledState(initiallyDisabledMenuItems, true);
 
@@ -206,5 +212,9 @@ export class MenuBar {
 
   async saveChanges(): Promise<void> {
     await this.clickEnabledMenuItem(menuItemIds.saveFile);
+  }
+
+  async forceUnlock(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.forceUnlock);
   }
 }
