@@ -837,11 +837,16 @@ describe('getProgressBarData', () => {
     });
 
     await expect(
-      queries.getResourceCountOnAttribution({ attributionUuid: 'manual' }),
+      queries.getResourceInfoOnAttributions({
+        attributionUuids: ['manual'],
+      }),
     ).resolves.toEqual({
       result: {
-        resourceCount: 3,
-        isManual: true,
+        manual: {
+          resourceCount: 3,
+          isManual: true,
+          isMixed: true,
+        },
       },
     });
   });

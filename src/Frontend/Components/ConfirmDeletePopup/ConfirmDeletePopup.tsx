@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiAlert from '@mui/material/Alert';
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
@@ -62,6 +63,15 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
         }
       : skipToken,
   );
+
+  const { data: resourceInfoOnAttributions } =
+    backend.getResourceInfoOnAttributions.useQuery(
+      open ? { attributionUuids: attributionIdsToDelete } : skipToken,
+    );
+  const mixedAttributionCount = resourceInfoOnAttributions
+    ? Object.values(resourceInfoOnAttributions).filter((info) => info.isMixed)
+        .length
+    : 0;
 
   const linkedResourcesTreeState = useLinkedResourcesTreeState({
     onAttributionUuids: attributionIdsToDelete,
@@ -139,6 +149,17 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   function renderContent() {
     return (
       <>
+        {mixedAttributionCount > 0 && (
+          <MuiAlert severity={'warning'}>
+            {text.deleteAttributionsPopup.mixedWarning(
+              maybePluralize(
+                mixedAttributionCount,
+                text.packageLists.attribution,
+                { showOne: true },
+              ),
+            )}
+          </MuiAlert>
+        )}
         <MuiTypography>
           {text.deleteAttributionsPopup.deleteAttributions({
             attributions: maybePluralize(

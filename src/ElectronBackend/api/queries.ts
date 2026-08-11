@@ -575,18 +575,38 @@ export const queries = {
     return { result: new Set(result.map((r) => r.path)) };
   },
 
-  async getResourceCountOnAttribution(props: { attributionUuid: string }) {
-    const resourceCount = await getDb()
-      .selectFrom('resource_to_attribution')
-      .select(['attribution_is_external'])
-      .select((eb) => eb.fn.countAll<number>().as('count'))
-      .where('attribution_uuid', '=', props.attributionUuid)
-      .executeTakeFirstOrThrow();
+  async getResourceInfoOnAttributions(props: {
+    attributionUuids: Array<string>;
+  }) {
+    if (props.attributionUuids.length === 0) {
+      return { result: {} };
+    }
+
+    const attributions = await getDb()
+      .selectFrom('attribution as a')
+      .select(['a.uuid', 'a.is_external', 'a.resource_access'])
+      .select((eb) =>
+        eb
+          .selectFrom('resource_to_attribution as rta')
+          .select(eb.fn.countAll<number>().as('count'))
+          .whereRef('rta.attribution_uuid', '=', 'a.uuid')
+          .as('resource_count'),
+      )
+      .where('a.uuid', 'in', props.attributionUuids)
+      .execute();
+
     return {
-      result: {
-        resourceCount: resourceCount.count,
-        isManual: resourceCount.attribution_is_external === 0,
-      },
+      result: Object.fromEntries(
+        attributions.map((attribution) => [
+          attribution.uuid,
+          {
+            resourceCount: attribution.resource_count,
+            isManual: attribution.is_external === 0,
+            isMixed:
+              attribution.resource_access === AttributionResourceAccess.Mixed,
+          },
+        ]),
+      ),
     };
   },
 

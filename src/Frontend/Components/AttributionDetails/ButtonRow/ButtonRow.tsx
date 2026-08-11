@@ -105,11 +105,14 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   );
 
   const { data: attributionData } =
-    backend.getResourceCountOnAttribution.useQuery({
-      attributionUuid: packageInfo.id,
+    backend.getResourceInfoOnAttributions.useQuery({
+      attributionUuids: [packageInfo.id],
     });
+  const selectedAttributionResourceInfo = attributionData?.[packageInfo.id];
   const hasMultipleResources =
-    attributionData?.isManual && attributionData.resourceCount > 1;
+    selectedAttributionResourceInfo?.isManual &&
+    ((selectedAttributionResourceInfo.resourceCount ?? 0) > 1 ||
+      selectedAttributionResourceInfo.isMixed);
 
   const { data: resourceAndAttributionAreLinked } =
     backend.resourceAndAttributionAreLinked.useQuery({

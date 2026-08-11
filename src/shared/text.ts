@@ -315,6 +315,8 @@ export const text = {
     save: 'Save',
     confirm: 'Confirm',
     resource: 'resource',
+    mixedWarning: (attributions: string) =>
+      `This action will split ${attributions} into separate editable and read-only attributions. Changes will only affect the editable part.`,
   },
   deleteAttributionsPopup: {
     title: 'Delete Attributions',
@@ -330,6 +332,8 @@ export const text = {
     deleteLocally: 'Delete only on Selected',
     delete: 'Delete',
     resource: 'resource',
+    mixedWarning: (attributions: string) =>
+      `This action will split ${attributions} so that only the editable part is deleted. Read-only attributions will remain unchanged.`,
   },
   filters: {
     any: 'Any',
