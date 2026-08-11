@@ -11,7 +11,10 @@ import type {
 } from '../../shared/attribution-filters';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
 import { getDb } from '../db/db';
-import { EDITABLE_ATTRIBUTION_RESOURCE_ACCESS } from '../types/types';
+import {
+  AttributionResourceAccess,
+  EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
+} from '../types/types';
 import {
   getFilterExpression,
   getSearchExpression,
@@ -34,6 +37,7 @@ export async function listAttributions(props: {
   showResolved?: boolean;
   excludeUnrelated?: boolean;
   uuids?: Array<string>;
+  includeReadonly?: boolean;
 }): Promise<{ result: Attributions }> {
   if (props.uuids?.length === 0) {
     return { result: {} };
@@ -59,6 +63,7 @@ export async function listAttributions(props: {
         .selectFrom('attribution')
         .select('uuid')
         .select('data')
+        .select('resource_access')
         .select(
           attributionToResourceRelationship({
             resource: resourceForRelationships,
@@ -91,11 +96,28 @@ export async function listAttributions(props: {
           ),
         );
 
-      query = query.where(
+      const editableAccess = query.where(
         'resource_access',
         'in',
         EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
       );
+      if (props.includeReadonly && resourceForRelationships) {
+        query = query.where((eb) =>
+          eb.or([
+            eb('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS),
+            eb(
+              attributionToResourceRelationship({
+                resource: resourceForRelationships,
+                ancestorId: closestAncestor,
+              }),
+              '!=',
+              'unrelated',
+            ),
+          ]),
+        );
+      } else {
+        query = editableAccess;
+      }
 
       if (props.external !== undefined) {
         query = query.where('is_external', '=', Number(props.external));
@@ -196,6 +218,7 @@ export async function listAttributions(props: {
         a.uuid,
         {
           ...(JSON.parse(a.data) as PackageInfo),
+          isReadonly: a.resource_access === AttributionResourceAccess.Readonly,
           relation: backendToFrontendRelationship[a.relationship],
           count: getCount(a),
         },

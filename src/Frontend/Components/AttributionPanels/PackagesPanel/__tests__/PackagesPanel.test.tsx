@@ -265,6 +265,51 @@ describe('PackagesPanel', () => {
     expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
   });
 
+  it('selects only editable attributions when readonly cards are visible', async () => {
+    const editableAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const readonlyAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+      isReadonly: true,
+    });
+    let selectedIds: Array<string> = [];
+
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [editableAttribution.id]: editableAttribution,
+        [readonlyAttribution.id]: readonlyAttribution,
+      }),
+      children: (props) => {
+        selectedIds = props.multiSelectedAttributionIds;
+        return null;
+      },
+    });
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+
+    expect(selectedIds).toEqual([editableAttribution.id]);
+  });
+
+  it('disables select all when the active relation has no editable attributions', async () => {
+    const readonlyAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+      isReadonly: true,
+    });
+    const editableAttribution = faker.opossum.packageInfo({
+      relation: 'unrelated',
+    });
+
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [readonlyAttribution.id]: readonlyAttribution,
+        [editableAttribution.id]: editableAttribution,
+      }),
+    });
+
+    expect(screen.getByRole('checkbox', { name: 'select all' })).toBeDisabled();
+  });
+
   it('resets multi-selected IDs when active relation changes', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
     const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });

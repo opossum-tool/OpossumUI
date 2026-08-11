@@ -23,6 +23,24 @@ async function resourceAccessOf(attributionUuid: string) {
 }
 
 describe('attribution resource access', () => {
+  it('rejects resolving an external attribution only on readonly resources', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/readonly/file.ts']),
+      externalAttributions: {
+        attributions: {
+          signal: { id: 'signal', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/readonly/file.ts': ['signal'] },
+        attributionsToResources: {},
+      },
+      readonlyRules: [{ path: '/readonly', readonly: true }],
+    });
+
+    await expect(
+      mutations.resolveAttributions({ attributionUuids: ['signal'] }),
+    ).rejects.toThrow(/readonly/i);
+  });
+
   async function initializeReadonlyStructuralAncestor() {
     await initializeDbWithTestData({
       resources: pathsToResources(['/editable/file.ts']),
@@ -266,6 +284,35 @@ describe('mixed attribution mutations', () => {
           shared: expect.not.stringMatching(/^shared$/),
         },
       },
+    });
+  });
+
+  it('keeps the locked relationship unchanged immediately after updating a mixed attribution', async () => {
+    await initializeMixedAttribution();
+
+    const response = await mutations.updateAttributions({
+      attributions: {
+        shared: {
+          id: 'shared',
+          criticality: Criticality.None,
+          packageName: 'updated',
+        },
+      },
+    });
+    const cloneUuid = response.result.oldUuidsToNewUuids.shared;
+    const { result } = await listAttributions({
+      external: false,
+      resourcePathForRelationships: '/readonly/file.ts',
+      includeReadonly: true,
+    });
+
+    expect(result.shared).toMatchObject({
+      relation: 'resource',
+      packageName: 'original',
+    });
+    expect(result[cloneUuid]).toMatchObject({
+      relation: 'unrelated',
+      packageName: 'updated',
     });
   });
 

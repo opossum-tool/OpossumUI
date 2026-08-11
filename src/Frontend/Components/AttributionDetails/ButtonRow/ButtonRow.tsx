@@ -50,9 +50,10 @@ import { Container } from './ButtonRow.style';
 interface Props {
   packageInfo: PackageInfo;
   isEditable: boolean;
+  isReadonly: boolean;
 }
 
-export function ButtonRow({ packageInfo, isEditable }: Props) {
+export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   const dispatch = useAppDispatch();
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
   const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
@@ -108,7 +109,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
       attributionUuid: packageInfo.id,
     });
   const hasMultipleResources =
-    attributionData?.isManual && attributionData?.resourceCount > 1;
+    attributionData?.isManual && attributionData.resourceCount > 1;
 
   const { data: resourceAndAttributionAreLinked } =
     backend.resourceAndAttributionAreLinked.useQuery({
@@ -117,7 +118,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
     });
 
   const isSelectedResourceOnSelectedAttribution =
-    attributionData?.isManual && resourceAndAttributionAreLinked;
+    !selectedAttributionIsExternal && resourceAndAttributionAreLinked;
 
   const isCreatingNewAttribution = !packageInfo.id;
 
@@ -170,13 +171,13 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
         renderCompareSelectionControls()
       ) : (
         <>
-          {renderSaveButton()}
-          {renderLinkButton()}
+          {!isReadonly && renderSaveButton()}
+          {!isReadonly && renderLinkButton()}
           {renderCompareButton()}
           {renderCompareWithButton()}
-          {renderDeleteAttributionButton()}
-          {renderDeleteRestoreSignalButton()}
-          {renderRevertButton()}
+          {!isReadonly && renderDeleteAttributionButton()}
+          {!isReadonly && renderDeleteRestoreSignalButton()}
+          {!isReadonly && renderRevertButton()}
         </>
       )}
     </Container>
@@ -187,7 +188,9 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
       packageInfo.id,
     );
     const canUseAsReplacement =
-      !isPreviewingSource && selectedAttributionIsExternal === false;
+      !isReadonly &&
+      !isPreviewingSource &&
+      selectedAttributionIsExternal === false;
 
     return (
       <>
@@ -408,7 +411,7 @@ export function ButtonRow({ packageInfo, isEditable }: Props) {
   }
 
   function renderCompareButton() {
-    if (!isEditable || !originalAttribution) {
+    if (selectedAttributionIsExternal || !originalAttribution) {
       return null;
     }
 

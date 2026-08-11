@@ -87,6 +87,16 @@ describe('filterProperties', () => {
       expect.arrayContaining(['MIT', 'Apache-2.0']),
     );
     expect(result.sameOrDescendant.licenses).toHaveLength(2);
+
+    const withoutUnrelated = await queries.filterProperties({
+      external: true,
+      filters: [],
+      resourcePathForRelationships: '/parent/target',
+      excludeUnrelated: true,
+    });
+
+    expect(withoutUnrelated.result.unrelated).toBeUndefined();
+    expect(withoutUnrelated.result.all.total).toBe(3);
   });
 
   it('counts filter matches correctly', async () => {
@@ -797,5 +807,42 @@ describe('getProgressBarData', () => {
         queries.getNextFileToReviewForCriticality({ selectedResourcePath }),
       ).resolves.toEqual({ result });
     }
+  });
+
+  it('reports whether a manual attribution has multiple writable resources', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/readonly.ts',
+        '/writable-a.ts',
+        '/writable-b.ts',
+      ]),
+      manualAttributions: {
+        attributions: {
+          manual: { id: 'manual', criticality: 0 },
+        },
+        resourcesToAttributions: {
+          '/readonly.ts': ['manual'],
+          '/writable-a.ts': ['manual'],
+          '/writable-b.ts': ['manual'],
+        },
+        attributionsToResources: {
+          manual: ['/readonly.ts', '/writable-a.ts', '/writable-b.ts'],
+        },
+      },
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/writable-a.ts', readonly: false },
+        { path: '/writable-b.ts', readonly: false },
+      ],
+    });
+
+    await expect(
+      queries.getResourceCountOnAttribution({ attributionUuid: 'manual' }),
+    ).resolves.toEqual({
+      result: {
+        resourceCount: 3,
+        isManual: true,
+      },
+    });
   });
 });

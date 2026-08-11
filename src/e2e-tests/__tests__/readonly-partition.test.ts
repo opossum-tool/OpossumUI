@@ -77,7 +77,7 @@ test.use({
   },
 });
 
-test('shows only the editable partition in audit lists and the resource tree', async ({
+test('shows editable and readonly partitions with readonly indicators', async ({
   attributionsPanel,
   resourcesTree,
   signalsPanel,
@@ -97,12 +97,77 @@ test('shows only the editable partition in audit lists and the resource tree', a
   await resourcesTree.assert.resourceIsEditable('mixed.ts');
 });
 
+test('shows readonly resource data and keeps mixed attributions editable', async ({
+  attributionDetails,
+  attributionsPanel,
+  resourcesTree,
+  signalsPanel,
+}) => {
+  await resourcesTree.goto('readonly-only', 'hidden.ts');
+
+  await attributionsPanel.assert.selectedTabIs('onResource');
+  await attributionsPanel.assert.tabIsHidden('unrelated');
+  await attributionsPanel.packageCard.assert.isReadonly(readonlyManual);
+  await attributionDetails.assert.saveButtonIsVisible();
+  await attributionDetails.assert.deleteButtonIsVisible();
+  await attributionDetails.assert.linkButtonIsHidden();
+
+  await signalsPanel.packageCard.assert.isReadonly(readonlySignal);
+});
+
+test('shows readonly descendants and blocks resource operations', async ({
+  attributionsPanel,
+  menuBar,
+  resourcesTree,
+  splitDialog,
+}) => {
+  await resourcesTree.goto('readonly-only');
+  await attributionsPanel.assert.selectedTabIs('onChildren');
+  await attributionsPanel.packageCard.assert.isReadonly(readonlyManual);
+
+  await resourcesTree.assert.splitHereIsDisabled('readonly-only');
+
+  await menuBar.createSplit();
+  await splitDialog.assert.resourceIsReadonly('readonly-only');
+  await splitDialog.cancelButton.click();
+});
+
+test('keeps locked mixed attributions unchanged after a writable local edit', async ({
+  attributionDetails,
+  attributionsPanel,
+  confirmSavePopup,
+  resourcesTree,
+}) => {
+  const updatedName = 'mixed-edit';
+
+  await resourcesTree.goto('structural', 'structural-editable', 'mixed.ts');
+  await attributionsPanel.packageCard.click(mixedManual);
+  await attributionDetails.attributionForm.name.fill(updatedName);
+  await attributionDetails.saveButton.click();
+  await confirmSavePopup.assert.isVisible();
+  await confirmSavePopup.assert.hasText('on 1 resource');
+  await expect(confirmSavePopup.saveLocallyButton).toBeHidden();
+  await confirmSavePopup.saveButton.click();
+  await confirmSavePopup.assert.isHidden();
+  await attributionDetails.attributionForm.assert.nameIs(updatedName);
+
+  await resourcesTree.gotoRoot();
+  await resourcesTree.goto('readonly-only', 'hidden.ts');
+  await attributionsPanel.packageCard.click(mixedManual);
+  await attributionDetails.attributionForm.assert.nameIs(
+    mixedManual.packageName!,
+  );
+});
+
 test('scopes audit filters and report rows to the editable partition', async ({
   attributionsPanel,
   reportView,
+  resourcesTree,
   topBar,
   window,
 }) => {
+  await resourcesTree.goto('editable');
+  await attributionsPanel.assert.tabIsVisible('unrelated');
   await attributionsPanel.filterButton.click();
   await attributionsPanel.filters.license.fill(readonlyManual.licenseName!);
   await expect(
@@ -134,7 +199,7 @@ test('uses only editable data for statistics and progress navigation', async ({
   await topBar.node.hover();
   await topBar.clickProgressBar();
   await signalsPanel.packageCard.assert.isEditable(editableSignal);
-  await signalsPanel.packageCard.assert.isReadonly(readonlySignal);
+  await signalsPanel.packageCard.assert.isHidden(readonlySignal);
 
   await topBar.selectProgressBar('Criticalities');
   await topBar.clickProgressBar();

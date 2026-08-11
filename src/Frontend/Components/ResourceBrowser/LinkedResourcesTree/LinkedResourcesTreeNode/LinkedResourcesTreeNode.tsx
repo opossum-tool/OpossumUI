@@ -5,8 +5,14 @@
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
-import { treeItemClasses } from '../../../../shared-styles';
-import { BreakpointIcon, DirectoryIcon, FileIcon } from '../../../Icons/Icons';
+import { text } from '../../../../../shared/text';
+import { readonlyStyle, treeItemClasses } from '../../../../shared-styles';
+import {
+  BreakpointIcon,
+  DirectoryIcon,
+  FileIcon,
+  ReadonlyIcon,
+} from '../../../Icons/Icons';
 import type { TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode';
 
 const labelDetail = 'without information';
@@ -17,7 +23,12 @@ export const LinkedResourcesTreeNode: React.FC<TreeNode> = ({ resource }) => {
   const labelText = resource.labelText;
 
   return (
-    <MuiBox sx={treeItemClasses.labelRoot}>
+    <MuiBox
+      sx={{
+        ...treeItemClasses.labelRoot,
+        ...(resource.isReadonly ? readonlyStyle : {}),
+      }}
+    >
       {showFolderIcon ? (
         isAttributionBreakpoint ? (
           <BreakpointIcon />
@@ -41,6 +52,12 @@ export const LinkedResourcesTreeNode: React.FC<TreeNode> = ({ resource }) => {
       >
         {labelText}
       </MuiTypography>
+      {resource.isReadonly && (
+        <ReadonlyIcon
+          label={'readonly resource'}
+          tooltip={text.resourceBrowser.readonlyResource}
+        />
+      )}
     </MuiBox>
   );
 };

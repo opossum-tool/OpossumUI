@@ -14,8 +14,10 @@ import { useState } from 'react';
 import type { ResourceTreeNodeData } from '../../../ElectronBackend/api/resourceTree';
 import { text } from '../../../shared/text';
 import { ROOT_PATH } from '../../shared-constants';
+import { readonlyStyle } from '../../shared-styles';
 import { backend } from '../../util/backendClient';
 import { Checkbox } from '../Checkbox/Checkbox';
+import { ReadonlyIcon } from '../Icons/Icons';
 import { getNodeIdsToExpand } from '../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.util';
 import {
   ExpandButton,
@@ -25,6 +27,7 @@ import {
   ResourceRow,
   ResourceTreeContainer,
   SelectedPathsContainer,
+  SelectionControl,
   TreeNodeSpacer,
 } from './MultiResourcePicker.style';
 
@@ -172,22 +175,33 @@ function renderResource(
       ) : (
         <TreeNodeSpacer />
       )}
-      <Checkbox
-        checked={selectedExplicitly || selectedByAncestor}
-        disabled={disabled || selectedByAncestor}
-        indeterminate={
-          !selectedExplicitly &&
-          !selectedByAncestor &&
-          containsSelectedDescendant
-        }
-        onChange={() => updateSelectedPaths(path)}
-      />
+      <SelectionControl>
+        {resource.isReadonly ? (
+          <ReadonlyIcon
+            label={'readonly resource'}
+            tooltip={text.resourceBrowser.readonlyResource}
+          />
+        ) : (
+          <Checkbox
+            checked={selectedExplicitly || selectedByAncestor}
+            disabled={disabled || selectedByAncestor}
+            indeterminate={
+              !selectedExplicitly &&
+              !selectedByAncestor &&
+              containsSelectedDescendant
+            }
+            onChange={() => updateSelectedPaths(path)}
+          />
+        )}
+      </SelectionControl>
       {resource.isFile ? (
         <InsertDriveFileOutlinedIcon fontSize={'small'} />
       ) : (
         <FolderOutlinedIcon fontSize={'small'} />
       )}
-      <ResourceLabel>{resource.labelText}</ResourceLabel>
+      <ResourceLabel sx={resource.isReadonly ? readonlyStyle : undefined}>
+        {resource.labelText}
+      </ResourceLabel>
     </ResourceRow>
   );
 }

@@ -11,11 +11,12 @@ import { memo, useEffect, useMemo, useRef } from 'react';
 
 import type { Criticality, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { OpossumColors } from '../../shared-styles';
+import { OpossumColors, readonlyStyle } from '../../shared-styles';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { getCardLabels } from '../../util/get-card-labels';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { Checkbox } from '../Checkbox/Checkbox';
+import { ReadonlyIcon } from '../Icons/Icons';
 import { getRightIcons } from './PackageCard.util';
 
 export const PACKAGE_CARD_HEIGHT = 40;
@@ -45,6 +46,13 @@ const classes = {
     height: PACKAGE_CARD_HEIGHT,
     overflow: 'hidden',
     gap: '8px',
+  },
+  selectionControl: {
+    alignSelf: 'stretch',
+    aspectRatio: '1',
+    display: 'grid',
+    placeItems: 'center',
+    flexShrink: 0,
   },
   hover: {
     '&:hover': {
@@ -116,6 +124,8 @@ export interface PackageCardConfig {
 interface PackageCardProps {
   packageInfo: PackageInfo;
   cardConfig?: Partial<PackageCardConfig>;
+  readonlyIconLabel?: string;
+  readonlyTooltip?: string;
   onClick?(): void;
   checkbox?: {
     checked: boolean;
@@ -125,7 +135,14 @@ interface PackageCardProps {
 }
 
 export const PackageCard = memo(
-  ({ packageInfo, cardConfig, checkbox, onClick }: PackageCardProps) => {
+  ({
+    packageInfo,
+    cardConfig,
+    checkbox,
+    onClick,
+    readonlyIconLabel = text.packageLists.readonlyAttributionLabel,
+    readonlyTooltip = text.packageLists.readonlyAttributionCannotBeSelected,
+  }: PackageCardProps) => {
     const ref = useRef<HTMLDivElement>(null);
     const packageLabels = useMemo(
       () => getCardLabels(packageInfo),
@@ -186,15 +203,25 @@ export const PackageCard = memo(
           ...(onClick && classes.hover),
           ...(cardConfig?.pickerSource && classes.pickerSource),
           ...(cardConfig?.resolved && classes.resolved),
+          ...(packageInfo.isReadonly && readonlyStyle),
           ...(cardConfig?.selected && classes.selected),
         }}
       >
         {checkbox && (
-          <Checkbox
-            checked={checkbox.checked}
-            disabled={checkbox.disabled}
-            onChange={checkbox.onChange}
-          />
+          <MuiBox sx={classes.selectionControl}>
+            {packageInfo.isReadonly ? (
+              <ReadonlyIcon
+                label={readonlyIconLabel}
+                tooltip={readonlyTooltip}
+              />
+            ) : (
+              <Checkbox
+                checked={checkbox.checked}
+                disabled={checkbox.disabled}
+                onChange={checkbox.onChange}
+              />
+            )}
+          </MuiBox>
         )}
         <MuiBox sx={classes.innerRoot} onClick={onClick}>
           {packageInfo.count !== undefined && (
@@ -228,6 +255,12 @@ export const PackageCard = memo(
             )}
           </MuiBox>
           <MuiBox sx={classes.iconColumn}>{rightIcons}</MuiBox>
+          {packageInfo.isReadonly && !checkbox && (
+            <ReadonlyIcon
+              label={readonlyIconLabel}
+              tooltip={text.packageLists.readonlyAttribution}
+            />
+          )}
         </MuiBox>
       </MuiBox>
     );

@@ -14,6 +14,7 @@ import {
 } from '../state/variables/use-filters';
 import { useUserSettings } from '../state/variables/use-user-setting';
 import { backend } from './backendClient';
+import { useIsSelectedResourceReadonly } from './use-selected-resource';
 
 export type FilterPropsMode = 'external' | 'manual' | 'reportTable';
 
@@ -33,6 +34,7 @@ export function useFilterProperties({
   const [{ filters, search, valueFilters }] = useFilters();
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
 
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
@@ -46,6 +48,10 @@ export function useFilterProperties({
       resourcePathForRelationships:
         mode === 'reportTable' ? ROOT_PATH : selectedResourceId,
       showResolved: mode === 'external' ? areHiddenSignalsVisible : undefined,
+      includeReadonly: mode !== 'reportTable',
+      excludeUnrelated:
+        mode === 'external' ||
+        (mode !== 'reportTable' && isSelectedResourceReadonly),
     },
     { enabled, placeholderData: keepPreviousData },
   );
@@ -76,6 +82,7 @@ export function useResourceTreeFilterProperties({
       external,
       filters: [],
       resourcePathForRelationships: ROOT_PATH,
+      includeReadonly: true,
     },
     { enabled, placeholderData: keepPreviousData },
   );

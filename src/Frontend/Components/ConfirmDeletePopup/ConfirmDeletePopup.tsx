@@ -15,6 +15,7 @@ import {
 } from '../../state/selectors/resource-selectors';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { useIsSelectedResourceReadonly } from '../../util/use-selected-resource';
 import { CardList } from '../CardList/CardList';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
@@ -35,6 +36,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
   const clearSelectedAttributionIfDeleted = () => {
     if (attributionIdsToDelete.includes(selectedAttributionId)) {
       dispatch(setSelectedAttributionId(''));
@@ -64,6 +66,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   const linkedResourcesTreeState = useLinkedResourcesTreeState({
     onAttributionUuids: attributionIdsToDelete,
     enabled: open,
+    onlyWritable: true,
   });
 
   const isResourceLinkedOnAllAttributions = attributionsToDelete
@@ -76,7 +79,8 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   const isOptionToDeleteOnSelectedResourceOnlyAvailable =
     linkedResourceCount &&
     linkedResourceCount > 1 &&
-    isResourceLinkedOnAllAttributions;
+    isResourceLinkedOnAllAttributions &&
+    !isSelectedResourceReadonly;
 
   const handleDelete = async () => {
     await deleteAttributions.mutateAsync({

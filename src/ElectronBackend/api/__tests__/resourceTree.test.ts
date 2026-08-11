@@ -96,7 +96,7 @@ describe('getResourceTree', () => {
     });
   });
 
-  it('hides readonly-only branches while retaining readonly ancestors', async () => {
+  it('shows readonly-only branches while retaining readonly metadata', async () => {
     await initializeDbWithTestData({
       resources: {
         readonly: { 'hidden.ts': 1, writable: { 'shown.ts': 1 } },
@@ -111,15 +111,102 @@ describe('getResourceTree', () => {
 
     const { result } = await getResourceTree({ expandedNodes: 'expandAll' });
 
-    expect(result.count).toBe(4);
+    expect(result.count).toBe(7);
     expect(result.treeNodes.map((node) => node.id)).toEqual([
       '/',
       '/readonly/',
       '/readonly/writable/',
       '/readonly/writable/shown.ts',
+      '/readonly/hidden.ts',
       '/writable/',
       '/writable/also-shown.ts',
     ]);
+    expect(
+      result.treeNodes.find((node) => node.id === '/readonly/hidden.ts')
+        ?.isReadonly,
+    ).toBe(true);
+  });
+
+  it('can count and display only writable resources for mutation previews', async () => {
+    await initializeDbWithTestData({
+      resources: {
+        readonly: { 'locked.ts': 1 },
+        writable: { 'editable.ts': 1 },
+      },
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/writable', readonly: false },
+      ],
+    });
+
+    const { result } = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onlyWritable: true,
+    });
+
+    expect(result.count).toBe(2);
+    expect(result.treeNodes.map((node) => node.id)).not.toContain(
+      '/readonly/locked.ts',
+    );
+    expect(result.treeNodes.map((node) => node.id)).toContain(
+      '/writable/editable.ts',
+    );
+  });
+
+  it('does not include readonly descendants of a writable match', async () => {
+    await initializeDbWithTestData({
+      resources: {
+        writable: { 'locked.ts': 1, 'editable.ts': 1 },
+      },
+      readonlyRules: [
+        { path: '/writable', readonly: false },
+        { path: '/writable/locked.ts', readonly: true },
+      ],
+    });
+
+    const { result } = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onlyWritable: true,
+    });
+
+    expect(result.treeNodes.map((node) => node.id)).toContain(
+      '/writable/editable.ts',
+    );
+    expect(result.treeNodes.map((node) => node.id)).not.toContain(
+      '/writable/locked.ts',
+    );
+  });
+
+  it('does not mark attribution-linked writable nodes expandable when all children are readonly', async () => {
+    const attributionUuid = 'manual-uuid';
+
+    await initializeDbWithTestData({
+      resources: {
+        src: { 'generated.ts': 1 },
+      },
+      manualAttributions: makeAttributionData(
+        {
+          [attributionUuid]: {
+            id: attributionUuid,
+            criticality: Criticality.None,
+          },
+        },
+        { '/src': [attributionUuid] },
+      ),
+      readonlyRules: [{ path: '/src/generated.ts', readonly: true }],
+    });
+
+    const { result } = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onlyWritable: true,
+      onAttributionUuids: [attributionUuid],
+    });
+
+    const writableNode = result.treeNodes.find((node) => node.id === '/src/');
+    expect(writableNode?.isExpandable).toBe(false);
+    expect(result.treeNodes.map((node) => node.id)).not.toContain(
+      '/src/generated.ts',
+    );
   });
 
   describe('sorting', () => {

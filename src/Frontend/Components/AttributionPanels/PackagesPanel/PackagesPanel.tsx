@@ -131,6 +131,12 @@ export const PackagesPanel = ({
   // Automatic attribution selection
   useEffect(() => {
     if (loading || !attributions) {
+      if (
+        !external &&
+        lastResourceIdWithAutoSelectionRef.current !== selectedResourceId
+      ) {
+        dispatch(setSelectedAttributionId(''));
+      }
       return;
     }
 
@@ -201,6 +207,16 @@ export const PackagesPanel = ({
     groupedIds && (Object.keys(groupedIds) as Array<Relation> | null);
   const selectedAttributionRelation =
     attributions?.[selectedAttributionId]?.relation;
+  const activeAttributionIds = useMemo(
+    () =>
+      groupedIds && activeRelation ? (groupedIds[activeRelation] ?? []) : null,
+    [activeRelation, groupedIds],
+  );
+
+  const activeSelectableAttributionIds = useMemo(
+    () => activeAttributionIds?.filter((id) => !attributions?.[id]?.isReadonly),
+    [activeAttributionIds, attributions],
+  );
 
   const selectedAttributionIds = useMemo(
     () =>
@@ -209,25 +225,22 @@ export const PackagesPanel = ({
           ? multiSelectedAttributionIds
           : [selectedAttributionId],
         attributionIds,
-      ),
-    [attributionIds, multiSelectedAttributionIds, selectedAttributionId],
+      )?.filter((id) => !attributions?.[id]?.isReadonly),
+    [
+      attributionIds,
+      attributions,
+      multiSelectedAttributionIds,
+      selectedAttributionId,
+    ],
   );
 
   const areAllAttributionsSelected = useMemo(() => {
-    const activeAttributionIds = attributionIds?.filter(
-      (id) => attributions?.[id].relation === activeRelation,
-    );
     return (
-      !!activeAttributionIds?.length &&
-      !difference(activeAttributionIds, multiSelectedAttributionIds).length
+      !!activeSelectableAttributionIds?.length &&
+      !difference(activeSelectableAttributionIds, multiSelectedAttributionIds)
+        .length
     );
-  }, [
-    activeRelation,
-    attributionIds,
-    attributions,
-    multiSelectedAttributionIds,
-  ]);
-
+  }, [activeSelectableAttributionIds, multiSelectedAttributionIds]);
   const effectiveSelectedIds = useMemo(
     () => intersection(attributionIds, multiSelectedAttributionIds),
     [attributionIds, multiSelectedAttributionIds],
@@ -284,8 +297,7 @@ export const PackagesPanel = ({
   }, [selectedAttributionRelation]);
 
   const childrenProps: PackagesPanelChildrenProps = {
-    activeAttributionIds:
-      groupedIds && activeRelation ? (groupedIds[activeRelation] ?? []) : null,
+    activeAttributionIds,
     activeRelation,
     attributionIds,
     attributions,
@@ -424,21 +436,21 @@ export const PackagesPanel = ({
         }}
       >
         <Checkbox
-          disabled={!attributionIds?.length || pickerMode.isActive}
+          disabled={
+            !activeSelectableAttributionIds?.length || pickerMode.isActive
+          }
           checked={areAllAttributionsSelected}
           indeterminate={
             !areAllAttributionsSelected && !!multiSelectedAttributionIds.length
           }
           aria-label={'select all'}
           onChange={() => {
-            attributionIds &&
+            activeSelectableAttributionIds &&
               setMultiSelectedAttributionIds(
                 areAllAttributionsSelected ||
                   !!multiSelectedAttributionIds.length
                   ? []
-                  : attributionIds.filter(
-                      (id) => attributions?.[id].relation === activeRelation,
-                    ),
+                  : activeSelectableAttributionIds,
               );
           }}
         />

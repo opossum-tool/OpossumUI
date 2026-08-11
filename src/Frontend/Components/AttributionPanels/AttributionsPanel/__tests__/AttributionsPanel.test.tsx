@@ -70,6 +70,36 @@ describe('AttributionsPanel', () => {
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
   });
 
+  it('allows selecting a mixed attribution while browsing a readonly resource', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const readonlyResource = '/readonly/file.ts';
+    const writableResource = '/writable/file.ts';
+    await renderComponent(<AttributionsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([readonlyResource, writableResource]),
+        manualAttributions: { [packageInfo.id]: packageInfo },
+        resourcesToManualAttributions: {
+          [readonlyResource]: [packageInfo.id],
+          [writableResource]: [packageInfo.id],
+        },
+        readonlyRules: [{ path: '/readonly', readonly: true }],
+      }),
+      actions: [setSelectedResourceId(readonlyResource)],
+    });
+
+    const card = await screen.findByLabelText(
+      `package card ${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+    );
+    const checkbox = within(card).getByRole('checkbox');
+
+    expect(checkbox).toBeEnabled();
+    await userEvent.click(checkbox);
+
+    expect(
+      screen.getByRole('button', { name: text.packageLists.delete }),
+    ).toBeEnabled();
+  });
+
   it('disables create and link buttons on a readonly structural ancestor', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const filePath = '/editable/file.ts';
@@ -97,6 +127,9 @@ describe('AttributionsPanel', () => {
     expect(
       screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
     ).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.packageLists.delete }),
+    ).toBeEnabled();
   });
 
   it('shows alert when some attribution on current resource is incomplete', async () => {

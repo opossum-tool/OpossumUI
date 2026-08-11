@@ -58,4 +58,13 @@ export const ExpandButton = styled(MuiIconButton)({ padding: '4px' });
 
 export const TreeNodeSpacer = styled(MuiBox)({ width: '28px' });
 
+export const SelectionControl = styled(MuiBox)({
+  alignSelf: 'stretch',
+  aspectRatio: '1',
+  display: 'grid',
+  minWidth: '34px',
+  placeItems: 'center',
+  flexShrink: 0,
+});
+
 export const ResourceLabel = styled(MuiTypography)({ marginLeft: '8px' });

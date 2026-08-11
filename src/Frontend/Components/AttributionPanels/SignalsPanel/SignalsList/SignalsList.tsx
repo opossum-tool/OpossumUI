@@ -6,6 +6,7 @@ import MuiDivider from '@mui/material/Divider';
 import { groupBy as _groupBy, orderBy as _orderBy, without } from 'lodash-es';
 import { useMemo } from 'react';
 
+import { text } from '../../../../../shared/text';
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../../../state/hooks';
@@ -116,9 +117,11 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
             resolved: resolvedExternalAttributionIds?.has(attributionId),
           }}
           packageInfo={attribution}
+          readonlyIconLabel={text.packageLists.readonlySignalLabel}
+          readonlyTooltip={text.packageLists.readonlySignalCannotBeSelected}
           checkbox={{
             checked: multiSelectedAttributionIds.includes(attributionId),
-            disabled: pickerMode.isActive,
+            disabled: pickerMode.isActive || attribution.isReadonly === true,
             onChange: (event) => {
               setMultiSelectedAttributionIds(
                 event.target.checked

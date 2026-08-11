@@ -15,6 +15,7 @@ import {
   cloneMixedAttributionsForWritableResources,
   ensureAttributionsAreLinkedOnMultipleResources,
   ensureAttributionsAreNotExternal,
+  ensureAttributionsAreNotReadonly,
   ensureResourceIsWritable,
   findMatchingAttributionUuid,
   getAttributionOrThrow,
@@ -194,6 +195,8 @@ export const mutations = {
       invalidates: [
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
+        ...RESOURCE_TREE_INVALIDATIONS,
+        { queryName: 'getAttributionData' },
         ...Object.keys(params.attributions).map((attributionUuid) => ({
           queryName: 'getAttributionData' as const,
           params: { attributionUuid },
@@ -336,6 +339,7 @@ export const mutations = {
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
+        { queryName: 'getAttributionData' },
         { queryName: 'getResourceCountOnAttribution' },
       ],
       result,
@@ -389,6 +393,7 @@ export const mutations = {
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
+        { queryName: 'getAttributionData' },
         { queryName: 'getResourceCountOnAttribution' },
       ],
       result,
@@ -411,6 +416,7 @@ async function setAttributionsResolvedStatus(
   await getDb()
     .transaction()
     .execute(async (trx) => {
+      await ensureAttributionsAreNotReadonly(trx, attributionUuids);
       await withBatching(
         attributionUuids,
         async (batch) => {
