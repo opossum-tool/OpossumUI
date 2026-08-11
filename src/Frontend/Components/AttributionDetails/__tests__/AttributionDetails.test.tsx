@@ -57,7 +57,62 @@ describe('AttributionDetails', () => {
       ],
     });
 
-    expect(container).toBeEmptyDOMElement();
+    await waitFor(() => expect(container).toBeEmptyDOMElement());
+  });
+
+  it('shows a read-only form while the selected attribution is loading', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const { container } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: { [packageInfo.id]: packageInfo },
+      }),
+      actions: [setSelectedAttributionId(packageInfo.id)],
+    });
+
+    expect(
+      screen.getByTestId('attribution-details-loading'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(text.attributionColumn.packageName),
+    ).toHaveAttribute('readonly');
+    expect(container).not.toHaveTextContent(text.attributionColumn.save);
+  });
+
+  it('shows a read-only form while attributions for a new resource are loading', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const nextPackageInfo = faker.opossum.packageInfo();
+    const resourceId = faker.system.filePath();
+    const nextResourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: {
+          [packageInfo.id]: packageInfo,
+          [nextPackageInfo.id]: nextPackageInfo,
+        },
+        resources: pathsToResources([resourceId, nextResourceId]),
+        resourcesToManualAttributions: {
+          [resourceId]: [packageInfo.id],
+          [nextResourceId]: [nextPackageInfo.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    await screen.findByDisplayValue(packageInfo.packageName ?? '');
+
+    act(() => {
+      store.dispatch(setSelectedResourceId(nextResourceId));
+    });
+
+    expect(
+      screen.getByTestId('attribution-details-loading'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(text.attributionColumn.packageName),
+    ).toHaveAttribute('readonly');
   });
 
   it('shows only the cancel button when the selected attribution is marked for replacement', async () => {

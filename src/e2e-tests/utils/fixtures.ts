@@ -151,6 +151,12 @@ export const test = base.extend<{
     await window.waitForLoadState('domcontentloaded', {
       timeout: LOAD_TIMEOUT,
     });
+    if (opossumFilePath && openFromCLI) {
+      await window.getByTestId('resources-tree').waitFor({
+        state: 'visible',
+        timeout: LOAD_TIMEOUT,
+      });
+    }
     await window
       .context()
       .tracing.start({ screenshots: true, snapshots: true });

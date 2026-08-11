@@ -73,8 +73,7 @@ test('creates a new third-party attribution', async ({
   await notSavedPopup.assert.isVisible();
 
   await notSavedPopup.cancelButton.click();
-  await attributionDetails.saveButton.click();
-  await attributionDetails.assert.saveButtonIsDisabled();
+  await attributionDetails.saveChanges();
   await attributionsPanel.packageCard.assert.isVisible(newPackageInfo);
 });
 
@@ -103,7 +102,6 @@ test('creates a new first-party attribution', async ({
   );
   await attributionDetails.assert.saveButtonIsEnabled();
 
-  await attributionDetails.saveButton.click();
-  await attributionDetails.assert.saveButtonIsDisabled();
+  await attributionDetails.saveChanges();
   await attributionsPanel.packageCard.assert.isVisible(newPackageInfo);
 });

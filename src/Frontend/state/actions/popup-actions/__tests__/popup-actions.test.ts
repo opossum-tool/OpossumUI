@@ -44,7 +44,7 @@ import {
   MANUAL_ATTRIBUTION_FILTERS_AUDIT,
 } from '../../../variables/use-filters';
 import {
-  setIsPackageInfoDirty,
+  initializePackageInfoEditing,
   setTemporaryDisplayPackageInfo,
 } from '../../resource-actions/all-views-simple-actions';
 import {
@@ -118,7 +118,13 @@ describe('The actions checking for unsaved changes', () => {
         sorting: 'alphabetically',
       };
 
-      testStore.dispatch(setIsPackageInfoDirty(true));
+      testStore.dispatch(
+        setTemporaryDisplayPackageInfo({
+          packageName: 'dirty',
+          criticality: Criticality.None,
+          id: faker.string.uuid(),
+        }),
+      );
       testStore.dispatch(
         changeAttributionFiltersOrOpenUnsavedPopup({
           discardedPackageInfo: packageInfo,
@@ -213,8 +219,6 @@ describe('The actions checking for unsaved changes', () => {
             id: faker.string.uuid(),
           }),
         );
-        testStore.dispatch(setIsPackageInfoDirty(true));
-
         testStore.dispatch(
           changeSelectedAttributionOrOpenUnsavedPopup(attribution),
         );
@@ -265,7 +269,7 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(setSelectedAttributionId('uuid_2'));
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(
-        setTemporaryDisplayPackageInfo({
+        initializePackageInfoEditing({
           packageName: 'Test',
           criticality: Criticality.None,
           id: faker.string.uuid(),
@@ -311,7 +315,13 @@ describe('The actions checking for unsaved changes', () => {
           id: faker.string.uuid(),
         }),
       );
-      testStore.dispatch(setIsPackageInfoDirty(true));
+      testStore.dispatch(
+        setTemporaryDisplayPackageInfo({
+          packageName: 'dirty',
+          criticality: Criticality.None,
+          id: faker.string.uuid(),
+        }),
+      );
       testStore.dispatch(setViewOrOpenUnsavedPopup(View.Audit));
       expect(getSelectedView(testStore.getState())).toBe(View.Report);
       expect(getTargetView(testStore.getState())).toBe(View.Audit);
@@ -395,7 +405,13 @@ describe('The actions checking for unsaved changes', () => {
           id: faker.string.uuid(),
         }),
       );
-      testStore.dispatch(setIsPackageInfoDirty(true));
+      testStore.dispatch(
+        setTemporaryDisplayPackageInfo({
+          packageName: 'dirty',
+          criticality: Criticality.None,
+          id: faker.string.uuid(),
+        }),
+      );
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       testStore.dispatch(
         setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/'),
@@ -426,7 +442,13 @@ describe('The actions checking for unsaved changes', () => {
 
     it('stores the split request and opens the unsaved-changes popup', () => {
       const testStore = createAppStore();
-      testStore.dispatch(setIsPackageInfoDirty(true));
+      testStore.dispatch(
+        setTemporaryDisplayPackageInfo({
+          packageName: 'dirty',
+          criticality: Criticality.None,
+          id: faker.string.uuid(),
+        }),
+      );
 
       testStore.dispatch(showSplitDialogOrOpenUnsavedPopup(resourcePath));
 
@@ -607,7 +629,13 @@ describe('closePopupAndUnsetTargets', () => {
     const testStore = createAppStore();
     const filePath = '/path/to/project.opossum';
 
-    testStore.dispatch(setIsPackageInfoDirty(true));
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
     testStore.dispatch(openFileOrOpenUnsavedPopup(filePath));
 
     expect(getOpenPopup(testStore.getState())?.popup).toBe(
@@ -628,7 +656,13 @@ describe('closePopupAndUnsetTargets', () => {
       name: '',
     };
 
-    testStore.dispatch(setIsPackageInfoDirty(true));
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
     testStore.dispatch(
       setImportFileRequest({
         fileFormat,
