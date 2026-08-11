@@ -2,26 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiAlert from '@mui/material/Alert';
-import MuiDivider from '@mui/material/Divider';
-import MuiTypography from '@mui/material/Typography';
-import { skipToken } from '@tanstack/react-query';
-
 import { text } from '../../../shared/text';
 import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getSelectedAttributionId,
-  getSelectedResourceId,
-} from '../../state/selectors/resource-selectors';
+import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
-import { useIsSelectedResourceReadonly } from '../../util/use-selected-resource';
-import { CardList } from '../CardList/CardList';
-import { PackageCard } from '../PackageCard/PackageCard';
-import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
-import { useLinkedResourcesTreeState } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
-import { StyledNotificationPopup } from './ConfirmDeletePopup.style';
+import { useLinkedAttributionActionData } from '../AttributionAction/useLinkedAttributionActionData';
+import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
 
 interface Props {
   attributionIdsToDelete: Array<string>;
@@ -36,14 +24,11 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
 }) => {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
   const clearSelectedAttributionIfDeleted = () => {
     if (attributionIdsToDelete.includes(selectedAttributionId)) {
       dispatch(setSelectedAttributionId(''));
     }
   };
-
   const deleteAttributions = backend.deleteAttributions.useMutation({
     onBeforeInvalidation: clearSelectedAttributionIfDeleted,
   });
@@ -51,46 +36,22 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
     backend.unlinkResourceFromAttributions.useMutation({
       onBeforeInvalidation: clearSelectedAttributionIfDeleted,
     });
-
   const isDeleting =
     deleteAttributions.isPending || unlinkResourceFromAttributions.isPending;
-
-  const { data: attributionsToDelete } = backend.listAttributions.useQuery(
-    open && !isDeleting && selectedResourceId
-      ? {
-          resourcePathForRelationships: selectedResourceId,
-          uuids: attributionIdsToDelete,
-        }
-      : skipToken,
-  );
-
-  const { data: resourceInfoOnAttributions } =
-    backend.getResourceInfoOnAttributions.useQuery(
-      open ? { attributionUuids: attributionIdsToDelete } : skipToken,
-    );
-  const mixedAttributionCount = resourceInfoOnAttributions
-    ? Object.values(resourceInfoOnAttributions).filter((info) => info.isMixed)
-        .length
-    : 0;
-
-  const linkedResourcesTreeState = useLinkedResourcesTreeState({
-    onAttributionUuids: attributionIdsToDelete,
-    enabled: open,
-    onlyWritable: true,
+  const {
+    attributions: attributionsToDelete,
+    linkedResourceCount,
+    linkedResourcesTreeState,
+    mixedAttributionCount,
+    isResourceInfoReady,
+    isLocalActionAvailable,
+    selectedResourceId,
+  } = useLinkedAttributionActionData({
+    attributionIds: attributionIdsToDelete,
+    open,
+    isMutationPending: isDeleting,
+    skipWithoutSelectedResource: true,
   });
-
-  const isResourceLinkedOnAllAttributions = attributionsToDelete
-    ? Object.values(attributionsToDelete).every(
-        (a) => a.relation === 'resource',
-      )
-    : undefined;
-
-  const linkedResourceCount = linkedResourcesTreeState?.count;
-  const isOptionToDeleteOnSelectedResourceOnlyAvailable =
-    linkedResourceCount &&
-    linkedResourceCount > 1 &&
-    isResourceLinkedOnAllAttributions &&
-    !isSelectedResourceReadonly;
 
   const handleDelete = async () => {
     await deleteAttributions.mutateAsync({
@@ -98,7 +59,6 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
     });
     onClose();
   };
-
   const handleDeleteOnResource = async () => {
     await unlinkResourceFromAttributions.mutateAsync({
       resourcePath: selectedResourceId,
@@ -108,23 +68,16 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   };
 
   return (
-    <StyledNotificationPopup
+    <ConfirmAttributionActionPopup
       header={text.deleteAttributionsPopup.title}
-      leftButtonConfig={
-        isOptionToDeleteOnSelectedResourceOnlyAvailable ||
-        unlinkResourceFromAttributions.isPending
-          ? {
-              disabled: isDeleting,
-              loading: unlinkResourceFromAttributions.isPending,
-              onClick: handleDeleteOnResource,
-              buttonText: text.deleteAttributionsPopup.deleteLocally,
-              color: 'primary',
-            }
-          : undefined
-      }
-      centerLeftButtonConfig={{
-        disabled: isDeleting,
-        loading: deleteAttributions.isPending,
+      localAction={{
+        isPending: unlinkResourceFromAttributions.isPending,
+        onClick: handleDeleteOnResource,
+        buttonText: text.deleteAttributionsPopup.deleteLocally,
+        color: 'primary',
+      }}
+      globalAction={{
+        isPending: deleteAttributions.isPending,
         onClick: handleDelete,
         buttonText:
           linkedResourceCount && linkedResourceCount > 1
@@ -132,73 +85,30 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
             : text.deleteAttributionsPopup.delete,
         color: 'error',
       }}
-      rightButtonConfig={{
-        disabled: isDeleting,
-        onClick: onClose,
-        buttonText: text.buttons.cancel,
-        color: 'secondary',
-      }}
-      isOpen={open}
-      aria-label={'confirm delete popup'}
-      width={580}
-    >
-      {renderContent()}
-    </StyledNotificationPopup>
+      attributions={attributionsToDelete}
+      onClose={onClose}
+      description={text.deleteAttributionsPopup.deleteAttributions({
+        attributions: maybePluralize(
+          attributionIdsToDelete.length,
+          text.packageLists.attribution,
+        ),
+        resources: maybePluralize(
+          linkedResourceCount ?? 1,
+          text.deleteAttributionsPopup.resource,
+          { showOne: true },
+        ),
+      })}
+      mixedWarning={text.deleteAttributionsPopup.mixedWarning(
+        maybePluralize(mixedAttributionCount, text.packageLists.attribution, {
+          showOne: true,
+        }),
+      )}
+      linkedResourcesTreeState={linkedResourcesTreeState}
+      mixedAttributionCount={mixedAttributionCount}
+      isResourceInfoReady={isResourceInfoReady}
+      isLocalActionAvailable={isLocalActionAvailable}
+      open={open}
+      ariaLabel={text.deleteAttributionsPopup.ariaLabel}
+    />
   );
-
-  function renderContent() {
-    return (
-      <>
-        {mixedAttributionCount > 0 && (
-          <MuiAlert severity={'warning'}>
-            {text.deleteAttributionsPopup.mixedWarning(
-              maybePluralize(
-                mixedAttributionCount,
-                text.packageLists.attribution,
-                { showOne: true },
-              ),
-            )}
-          </MuiAlert>
-        )}
-        <MuiTypography>
-          {text.deleteAttributionsPopup.deleteAttributions({
-            attributions: maybePluralize(
-              attributionIdsToDelete.length,
-              text.packageLists.attribution,
-            ),
-            resources: maybePluralize(
-              linkedResourceCount ?? 1,
-              text.deleteAttributionsPopup.resource,
-              { showOne: true },
-            ),
-          })}
-        </MuiTypography>
-        {attributionsToDelete ? (
-          <CardList
-            data={Object.values(attributionsToDelete)}
-            renderItemContent={(attribution, { index }) => {
-              return (
-                <>
-                  <PackageCard packageInfo={attribution} />
-                  {index + 1 !== attributionIdsToDelete.length && (
-                    <MuiDivider />
-                  )}
-                </>
-              );
-            }}
-          />
-        ) : (
-          <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
-        )}
-        <LinkedResourcesTree
-          readOnly
-          disableHighlightSelected={
-            !isOptionToDeleteOnSelectedResourceOnlyAvailable
-          }
-          state={linkedResourcesTreeState}
-          sx={{ minHeight: '100px' }}
-        />
-      </>
-    );
-  }
 };

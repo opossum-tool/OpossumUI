@@ -6,7 +6,7 @@ import { styled } from '@mui/material';
 
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
-export const StyledNotificationPopup = styled(NotificationPopup)({
+export const StyledConfirmAttributionActionPopup = styled(NotificationPopup)({
   display: 'flex',
   flexDirection: 'column',
   gap: '8px',

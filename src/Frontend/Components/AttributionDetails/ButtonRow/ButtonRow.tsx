@@ -104,15 +104,18 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
     packageInfo.id,
   );
 
-  const { data: attributionData } =
+  const attributionResourceInfoQuery =
     backend.getResourceInfoOnAttributions.useQuery({
       attributionUuids: [packageInfo.id],
     });
+  const { data: attributionData } = attributionResourceInfoQuery;
   const selectedAttributionResourceInfo = attributionData?.[packageInfo.id];
   const hasMultipleResources =
     selectedAttributionResourceInfo?.isManual &&
     ((selectedAttributionResourceInfo.resourceCount ?? 0) > 1 ||
       selectedAttributionResourceInfo.isMixed);
+  const attributionResourceInfoReady =
+    !packageInfo.id || attributionResourceInfoQuery.isSuccess;
 
   const { data: resourceAndAttributionAreLinked } =
     backend.resourceAndAttributionAreLinked.useQuery({
@@ -127,6 +130,9 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
 
   const handleSave = useCallback(async () => {
     if (packageInfo.preSelected || isPackageInfoModified) {
+      if (!attributionResourceInfoReady) {
+        return;
+      }
       if (hasMultipleResources) {
         setIsConfirmSavePopupOpen(true);
       } else if (packageInfo.id) {
@@ -158,6 +164,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
     createOrMatch,
     isPackageInfoModified,
     hasMultipleResources,
+    attributionResourceInfoReady,
     selectedResourceId,
     dispatch,
   ]);
@@ -250,6 +257,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
               onClick={handleSave}
               disabled={
                 isInvalid ||
+                !attributionResourceInfoReady ||
                 (!packageInfo.preSelected && !isPackageInfoModified) ||
                 mutationPending
               }

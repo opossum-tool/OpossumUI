@@ -2,10 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiAlert from '@mui/material/Alert';
-import MuiDivider from '@mui/material/Divider';
-import MuiTypography from '@mui/material/Typography';
-import { skipToken } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { text } from '../../../shared/text';
@@ -18,12 +14,8 @@ import {
 } from '../../state/selectors/resource-selectors';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
-import { useIsSelectedResourceReadonly } from '../../util/use-selected-resource';
-import { CardList } from '../CardList/CardList';
-import { PackageCard } from '../PackageCard/PackageCard';
-import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
-import { useLinkedResourcesTreeState } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
-import { StyledNotificationPopup } from './ConfirmSavePopup.style';
+import { useLinkedAttributionActionData } from '../AttributionAction/useLinkedAttributionActionData';
+import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
 
 interface Props {
   attributionIdsToSave: Array<string>;
@@ -37,39 +29,28 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   onClose,
 }) => {
   const dispatch = useAppDispatch();
-
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
-
+  const temporaryDisplayPackageInfo = useAppSelector(
+    getTemporaryDisplayPackageInfo,
+  );
   const updateOrMatch = backend.updateOrMatchAttributions.useMutation();
   const modifyOrMatchOnlyOnOneResource =
     backend.modifyOrMatchOnlyOnOneResource.useMutation();
   const isSaving =
     updateOrMatch.isPending || modifyOrMatchOnlyOnOneResource.isPending;
-
-  const { data: attributionsToSave } = backend.listAttributions.useQuery(
-    open && !isSaving
-      ? {
-          resourcePathForRelationships: selectedResourceId,
-          uuids: attributionIdsToSave,
-        }
-      : skipToken,
-  );
-
-  const { data: resourceInfoOnAttributions } =
-    backend.getResourceInfoOnAttributions.useQuery(
-      open ? { attributionUuids: attributionIdsToSave } : skipToken,
-    );
-  const mixedAttributionCount = resourceInfoOnAttributions
-    ? Object.values(resourceInfoOnAttributions).filter((info) => info.isMixed)
-        .length
-    : 0;
-
-  const temporaryDisplayPackageInfo = useAppSelector(
-    getTemporaryDisplayPackageInfo,
-  );
-
+  const {
+    attributions: attributionsToSave,
+    linkedResourceCount,
+    linkedResourcesTreeState,
+    mixedAttributionCount,
+    isResourceInfoReady,
+    isLocalActionAvailable,
+  } = useLinkedAttributionActionData({
+    attributionIds: attributionIdsToSave,
+    open,
+    isMutationPending: isSaving,
+  });
   const modifiedAttributionsToSave = useMemo(
     () =>
       attributionsToSave?.[selectedAttributionId]
@@ -80,27 +61,10 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         : attributionsToSave,
     [attributionsToSave, selectedAttributionId, temporaryDisplayPackageInfo],
   );
-
-  const linkedResourcesTreeState = useLinkedResourcesTreeState({
-    onAttributionUuids: attributionIdsToSave,
-    enabled: open,
-    onlyWritable: true,
-  });
-
-  const linkedResourceCount = linkedResourcesTreeState?.count;
-
-  const isResourceLinkedOnAllAttributions = attributionsToSave
-    ? Object.values(attributionsToSave).every((a) => a.relation === 'resource')
-    : undefined;
-
-  const hasMultipleResourcesWhichContainSelected =
-    linkedResourceCount &&
-    linkedResourceCount > 1 &&
-    isResourceLinkedOnAllAttributions &&
-    !isSelectedResourceReadonly;
-
   const areAllAttributionsPreselected = attributionsToSave
-    ? Object.values(attributionsToSave).every((a) => a.preSelected)
+    ? Object.values(attributionsToSave).every(
+        (attribution) => attribution.preSelected,
+      )
     : undefined;
 
   const handleSaveGlobally = async () => {
@@ -135,28 +99,21 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   };
 
   return (
-    <StyledNotificationPopup
+    <ConfirmAttributionActionPopup
       header={
         areAllAttributionsPreselected
           ? text.saveAttributionsPopup.titleConfirm
           : text.saveAttributionsPopup.titleSave
       }
-      leftButtonConfig={
-        hasMultipleResourcesWhichContainSelected ||
-        modifyOrMatchOnlyOnOneResource.isPending
-          ? {
-              disabled: isSaving,
-              loading: modifyOrMatchOnlyOnOneResource.isPending,
-              onClick: handleSaveOnResource,
-              buttonText: areAllAttributionsPreselected
-                ? text.saveAttributionsPopup.confirmLocally
-                : text.saveAttributionsPopup.saveLocally,
-            }
-          : undefined
-      }
-      centerLeftButtonConfig={{
-        disabled: isSaving,
-        loading: updateOrMatch.isPending,
+      localAction={{
+        isPending: modifyOrMatchOnlyOnOneResource.isPending,
+        onClick: handleSaveOnResource,
+        buttonText: areAllAttributionsPreselected
+          ? text.saveAttributionsPopup.confirmLocally
+          : text.saveAttributionsPopup.saveLocally,
+      }}
+      globalAction={{
+        isPending: updateOrMatch.isPending,
         onClick: handleSaveGlobally,
         color: 'error',
         buttonText:
@@ -168,71 +125,32 @@ export const ConfirmSavePopup: React.FC<Props> = ({
               ? text.saveAttributionsPopup.confirm
               : text.saveAttributionsPopup.save,
       }}
-      rightButtonConfig={{
-        disabled: isSaving,
-        onClick: onClose,
-        buttonText: text.buttons.cancel,
-        color: 'secondary',
-      }}
-      isOpen={open}
-      aria-label={'confirm save popup'}
-      width={580}
-    >
-      {renderContent()}
-    </StyledNotificationPopup>
+      attributions={modifiedAttributionsToSave}
+      onClose={onClose}
+      description={(areAllAttributionsPreselected
+        ? text.saveAttributionsPopup.confirmAttributions
+        : text.saveAttributionsPopup.saveAttributions)({
+        attributions: maybePluralize(
+          attributionIdsToSave.length,
+          text.packageLists.attribution,
+        ),
+        resources: maybePluralize(
+          linkedResourceCount ?? 1,
+          text.saveAttributionsPopup.resource,
+          { showOne: true },
+        ),
+      })}
+      mixedWarning={text.saveAttributionsPopup.mixedWarning(
+        maybePluralize(mixedAttributionCount, text.packageLists.attribution, {
+          showOne: true,
+        }),
+      )}
+      linkedResourcesTreeState={linkedResourcesTreeState}
+      mixedAttributionCount={mixedAttributionCount}
+      isResourceInfoReady={isResourceInfoReady}
+      isLocalActionAvailable={isLocalActionAvailable}
+      open={open}
+      ariaLabel={text.saveAttributionsPopup.ariaLabel}
+    />
   );
-
-  function renderContent() {
-    return (
-      <>
-        {mixedAttributionCount > 0 && (
-          <MuiAlert severity={'warning'}>
-            {text.saveAttributionsPopup.mixedWarning(
-              maybePluralize(
-                mixedAttributionCount,
-                text.packageLists.attribution,
-                { showOne: true },
-              ),
-            )}
-          </MuiAlert>
-        )}
-        <MuiTypography>
-          {(areAllAttributionsPreselected
-            ? text.saveAttributionsPopup.confirmAttributions
-            : text.saveAttributionsPopup.saveAttributions)({
-            attributions: maybePluralize(
-              attributionIdsToSave.length,
-              text.packageLists.attribution,
-            ),
-            resources: maybePluralize(
-              linkedResourceCount ?? 1,
-              text.saveAttributionsPopup.resource,
-              { showOne: true },
-            ),
-          })}
-        </MuiTypography>
-        {attributionsToSave ? (
-          <CardList
-            data={Object.values(attributionsToSave)}
-            renderItemContent={(attribution, { index }) => {
-              return (
-                <>
-                  <PackageCard packageInfo={attribution} />
-                  {index + 1 !== attributionIdsToSave.length && <MuiDivider />}
-                </>
-              );
-            }}
-          />
-        ) : (
-          <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
-        )}
-        <LinkedResourcesTree
-          readOnly
-          disableHighlightSelected={!hasMultipleResourcesWhichContainSelected}
-          state={linkedResourcesTreeState}
-          sx={{ minHeight: '100px' }}
-        />
-      </>
-    );
-  }
 };

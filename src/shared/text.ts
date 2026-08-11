@@ -290,6 +290,7 @@ export const text = {
     title: 'Replace Attributions',
   },
   saveAttributionsPopup: {
+    ariaLabel: 'confirm save popup',
     titleSave: 'Save Attributions',
     titleConfirm: 'Confirm Attributions',
     saveAttributions: ({
@@ -319,6 +320,7 @@ export const text = {
       `This action will split ${attributions} into separate editable and read-only attributions. Changes will only affect the editable part.`,
   },
   deleteAttributionsPopup: {
+    ariaLabel: 'confirm delete popup',
     title: 'Delete Attributions',
     deleteAttributions: ({
       attributions,
