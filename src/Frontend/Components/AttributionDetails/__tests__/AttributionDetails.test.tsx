@@ -1185,6 +1185,10 @@ describe('AttributionDetails', () => {
     await waitFor(() =>
       expect(getIsPackageInfoDirty(store.getState())).toBe(true),
     );
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'data-dirty',
+      'true',
+    );
   });
 
   it('sets isPackageInfoDirty to false when temp matches stored', async () => {
@@ -1208,6 +1212,10 @@ describe('AttributionDetails', () => {
 
     await waitFor(() =>
       expect(getIsPackageInfoDirty(store.getState())).toBe(false),
+    );
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'data-dirty',
+      'false',
     );
   });
 });
