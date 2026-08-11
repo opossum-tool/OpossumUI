@@ -8,7 +8,10 @@ import electron, {
 } from 'electron';
 import type { Mock } from 'vitest';
 
+import { text } from '../../../shared/text';
+import { setGlobalBackendState } from '../globalBackendState';
 import { createMenu } from '../menu';
+import { getFileMenu, importFileFormats } from '../menu/fileMenu';
 import { UserSettingsService } from '../user-settings-service';
 
 vi.mock('electron', () => {
@@ -48,6 +51,10 @@ const getUsedIcons = (
 };
 
 describe('create menu', () => {
+  afterEach(() => {
+    setGlobalBackendState({});
+  });
+
   const testCases = [
     {
       darkMode: true,
@@ -80,5 +87,41 @@ describe('create menu', () => {
         expect(icon).toContain(testCase.expectedIconFileKeyword),
       );
     });
+  });
+
+  it('lists import formats directly and keeps split-file merging separate', async () => {
+    await UserSettingsService.init();
+    const mainWindow = new BrowserWindow();
+    const fileMenu = await getFileMenu(mainWindow, vi.fn());
+    const items = fileMenu.submenu as Array<MenuItemConstructorOptions>;
+    const importMenu = items.find(
+      ({ label }) => label === text.menu.fileSubmenu.import,
+    );
+    const mergeMenu = items.find(
+      ({ label }) => label === text.menu.fileSubmenu.merge,
+    );
+    const importItems =
+      importMenu?.submenu as Array<MenuItemConstructorOptions>;
+    expect(importItems.map(({ label }) => label)).toEqual(
+      importFileFormats.map(text.menu.fileSubmenu.importFileSubmenu),
+    );
+    expect(mergeMenu?.submenu).toBeUndefined();
+    expect(mergeMenu?.enabled).toBe(true);
+  });
+
+  it('enables merging into the current project for a loaded project', async () => {
+    await UserSettingsService.init();
+    setGlobalBackendState({
+      projectId: 'project-id',
+      opossumFilePath: '/tmp/project.opossum',
+    });
+
+    const mainWindow = new BrowserWindow();
+    const fileMenu = await getFileMenu(mainWindow, vi.fn());
+    const items = fileMenu.submenu as Array<MenuItemConstructorOptions>;
+    const mergeMenu = items.find(
+      ({ label }) => label === text.menu.fileSubmenu.merge,
+    );
+    expect(mergeMenu?.enabled).toBe(true);
   });
 });

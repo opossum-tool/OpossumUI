@@ -31,7 +31,7 @@ import { FileSupportPopup } from '../page-objects/FileSupportPopup';
 import { ImportDialog } from '../page-objects/ImportDialog';
 import { LinkedResourcesTree } from '../page-objects/LinkedResourcesTree';
 import { MenuBar } from '../page-objects/MenuBar';
-import { MergeDialog } from '../page-objects/MergeDialog';
+import { MergeOpossumFilesDialog } from '../page-objects/MergeOpossumFilesDialog';
 import { NotSavedPopup } from '../page-objects/NotSavedPopup';
 import { PathBar } from '../page-objects/PathBar';
 import { ProjectMetadataPopup } from '../page-objects/ProjectMetadataPopup';
@@ -77,7 +77,7 @@ export const test = base.extend<{
   filePaths: FilePaths | null;
   fileSupportPopup: FileSupportPopup;
   importDialog: ImportDialog;
-  mergeDialog: MergeDialog;
+  mergeOpossumFilesDialog: MergeOpossumFilesDialog;
   linkedResourcesTree: LinkedResourcesTree;
   menuBar: MenuBar;
   notSavedPopup: NotSavedPopup;
@@ -254,8 +254,8 @@ export const test = base.extend<{
   importDialog: async ({ window }, use) => {
     await use(new ImportDialog(window));
   },
-  mergeDialog: async ({ window }, use) => {
-    await use(new MergeDialog(window));
+  mergeOpossumFilesDialog: async ({ window }, use) => {
+    await use(new MergeOpossumFilesDialog(window));
   },
 });
 

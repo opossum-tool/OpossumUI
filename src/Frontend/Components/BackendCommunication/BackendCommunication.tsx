@@ -12,7 +12,7 @@ import {
   exportFileOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
   showImportDialogOrOpenUnsavedPopup,
-  showMergeDialogOrOpenUnsavedPopup,
+  showMergeOpossumFilesDialogOrOpenUnsavedPopup,
   showSplitDialogOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -26,7 +26,7 @@ import {
   type SetBaseURLForRootListener,
   type SetDatabaseInitializedListener,
   type ShowImportDialogListener,
-  type ShowMergeDialogListener,
+  type ShowMergeOpossumFilesDialogListener,
   type ShowSplitDialog,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
@@ -118,12 +118,24 @@ export const BackendCommunication: React.FC = () => {
   );
   useIpcRenderer<ShowImportDialogListener>(
     AllowedFrontendChannels.ShowImportDialog,
-    (_, fileFormat) => dispatch(showImportDialogOrOpenUnsavedPopup(fileFormat)),
+    (_, fileFormat, canImportIntoCurrentProject) =>
+      dispatch(
+        showImportDialogOrOpenUnsavedPopup(
+          fileFormat,
+          canImportIntoCurrentProject,
+        ),
+      ),
     [dispatch],
   );
-  useIpcRenderer<ShowMergeDialogListener>(
-    AllowedFrontendChannels.ShowMergeDialog,
-    (_, fileFormat) => dispatch(showMergeDialogOrOpenUnsavedPopup(fileFormat)),
+  useIpcRenderer<ShowMergeOpossumFilesDialogListener>(
+    AllowedFrontendChannels.ShowMergeOpossumFilesDialog,
+    (_, canMergeIntoCurrentFile, currentFilePath) =>
+      dispatch(
+        showMergeOpossumFilesDialogOrOpenUnsavedPopup(
+          canMergeIntoCurrentFile,
+          currentFilePath,
+        ),
+      ),
     [dispatch],
   );
   useIpcRenderer<ShowSplitDialog>(

@@ -13,20 +13,22 @@ import {
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { createWindow } from '../createWindow';
 import {
-  openNonOpossumFileDialog,
   openOpossumFileDialog,
-  saveFileDialog,
   selectBaseURLDialog,
+  selectFile,
+  selectFiles,
+  selectSaveFile,
 } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   importFileListener,
-  importFileSelectSaveLocationListener,
   linkHasHttpSchema,
   openFileListener,
   openLinkListener,
   selectBaseURLListener,
   selectFileListener,
+  selectFilesListener,
+  selectSaveFileListener,
 } from '../listeners';
 import { importFileFormats } from '../menu/fileMenu';
 
@@ -76,9 +78,9 @@ vi.mock('../../input/importFromFile', () => ({
 
 vi.mock('../dialogs', () => ({
   openOpossumFileDialog: vi.fn(),
-  openNonOpossumFileDialog: vi.fn(),
-  saveFileDialog: vi.fn(),
-  saveOpossumFileDialog: vi.fn(),
+  selectFile: vi.fn(),
+  selectFiles: vi.fn(),
+  selectSaveFile: vi.fn(),
   selectBaseURLDialog: vi.fn(),
 }));
 
@@ -135,6 +137,7 @@ describe('getImportFileListener', () => {
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowImportDialog,
       fileFormat,
+      false,
     );
   });
 });
@@ -156,31 +159,31 @@ describe('openFileListener', () => {
   });
 });
 
-describe('getImportFileSelectInputListener', () => {
-  it('returns file path selected by user', async () => {
+describe('selectFilesListener', () => {
+  it('returns the files selected by the user', async () => {
     const mainWindow = initWindowAndBackendState();
     const fileFormat = importFileFormats[0];
     const selectedFilePath = '/home/input.json';
 
-    const listener = selectFileListener(mainWindow);
+    const listener = selectFilesListener(mainWindow);
 
-    vi.mocked(openNonOpossumFileDialog).mockReturnValue([selectedFilePath]);
+    vi.mocked(selectFiles).mockReturnValue([selectedFilePath]);
 
     const returnedFilePath = await listener(
       {} as Electron.IpcMainInvokeEvent,
       fileFormat,
     );
 
-    expect(returnedFilePath).toBe(selectedFilePath);
+    expect(returnedFilePath).toEqual([selectedFilePath]);
   });
 
-  it('returns an empty string when no file was selected', async () => {
+  it('returns an empty array when no file was selected', async () => {
     const mainWindow = initWindowAndBackendState();
     const fileFormat = importFileFormats[0];
 
-    const listener = selectFileListener(mainWindow);
+    const listener = selectFilesListener(mainWindow);
 
-    vi.mocked(openNonOpossumFileDialog)
+    vi.mocked(selectFiles)
       .mockReturnValueOnce([])
       .mockReturnValueOnce(undefined);
 
@@ -193,41 +196,65 @@ describe('getImportFileSelectInputListener', () => {
       fileFormat,
     );
 
-    expect(returnedFilePath1).toBe('');
-    expect(returnedFilePath2).toBe('');
+    expect(returnedFilePath1).toEqual([]);
+    expect(returnedFilePath2).toEqual([]);
   });
 });
 
-describe('getImportFileSelectSaveLocationListener', () => {
-  it('calls saveFileDialog and returns received file path', async () => {
+describe('selectFileListener', () => {
+  it('returns the selected file', async () => {
+    const mainWindow = initWindowAndBackendState();
+    const fileFormat = importFileFormats[0];
+    const selectedFilePath = '/home/input.json';
+    const listener = selectFileListener(mainWindow);
+
+    vi.mocked(selectFile).mockReturnValue([selectedFilePath]);
+
+    await expect(
+      listener({} as Electron.IpcMainInvokeEvent, fileFormat),
+    ).resolves.toBe(selectedFilePath);
+  });
+
+  it('returns an empty string when no file was selected', async () => {
+    const mainWindow = initWindowAndBackendState();
+    const listener = selectFileListener(mainWindow);
+
+    vi.mocked(selectFile).mockReturnValue(undefined);
+
+    await expect(
+      listener({} as Electron.IpcMainInvokeEvent, importFileFormats[0]),
+    ).resolves.toBe('');
+  });
+});
+
+describe('selectSaveFileListener', () => {
+  it('calls selectSaveFile and returns the selected path', async () => {
     const mainWindow = initWindowAndBackendState();
     const defaultPath = '/home';
     const selectedFilePath = '/home/input.opossum';
 
-    const listener = importFileSelectSaveLocationListener(mainWindow);
+    const listener = selectSaveFileListener(mainWindow);
 
-    vi.mocked(saveFileDialog).mockReturnValue(selectedFilePath);
+    vi.mocked(selectSaveFile).mockReturnValue(selectedFilePath);
 
-    const returnedFilePath = await listener(
-      {} as Electron.IpcMainInvokeEvent,
+    const returnedFilePath = await listener({} as Electron.IpcMainInvokeEvent, {
       defaultPath,
-    );
+    });
 
-    expect(saveFileDialog).toHaveBeenCalledWith(defaultPath);
+    expect(selectSaveFile).toHaveBeenCalledWith({ defaultPath });
     expect(returnedFilePath).toBe(selectedFilePath);
   });
 
   it('returns an empty string when no save location was selected', async () => {
     const mainWindow = initWindowAndBackendState();
 
-    const listener = importFileSelectSaveLocationListener(mainWindow);
+    const listener = selectSaveFileListener(mainWindow);
 
-    vi.mocked(saveFileDialog).mockReturnValue(undefined);
+    vi.mocked(selectSaveFile).mockReturnValue(undefined);
 
-    const returnedFilePath = await listener(
-      {} as Electron.IpcMainInvokeEvent,
-      '',
-    );
+    const returnedFilePath = await listener({} as Electron.IpcMainInvokeEvent, {
+      defaultPath: '',
+    });
 
     expect(returnedFilePath).toBe('');
   });

@@ -7,8 +7,9 @@ import { type BrowserWindow, dialog, type WebContents } from 'electron';
 import type { Mock } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import { MergeOpossumFilesErrorType } from '../../../shared/shared-types';
 import { getMainDbClient } from '../../dbProcess/dbProcessClient';
-import { saveOpossumFileDialog } from '../dialogs';
+import { selectSaveFile } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   mergeCurrentOpossumFilesListener,
@@ -41,7 +42,7 @@ vi.mock('../../dbProcess/dbProcessClient', () => ({
 }));
 
 vi.mock('../dialogs', () => ({
-  saveOpossumFileDialog: vi.fn(),
+  selectSaveFile: vi.fn(),
 }));
 
 const mockSaveFile = vi.fn();
@@ -195,7 +196,7 @@ describe('splitCurrentOpossumFileListener', () => {
   });
 
   it('opens a save dialog with a derived default split destination', () => {
-    vi.mocked(saveOpossumFileDialog).mockReturnValue(
+    vi.mocked(selectSaveFile).mockReturnValue(
       '/partitions/source-partition.opossum',
     );
 
@@ -204,14 +205,19 @@ describe('splitCurrentOpossumFileListener', () => {
       ['/source'],
     );
 
-    expect(saveOpossumFileDialog).toHaveBeenCalledWith(
-      '/my/file-source.opossum',
-    );
+    expect(selectSaveFile).toHaveBeenCalledWith({
+      defaultPath: '/my/file-source.opossum',
+      filter: { extensions: ['opossum'], name: 'Opossum File' },
+    });
     expect(selectedPath).toBe('/partitions/source-partition.opossum');
   });
 });
 
 describe('mergeCurrentOpossumFilesListener', () => {
+  const mainWindow = {
+    webContents: { send: vi.fn() } as unknown,
+  } as BrowserWindow;
+
   beforeEach(() => {
     vi.clearAllMocks();
     setGlobalBackendState({
@@ -221,51 +227,115 @@ describe('mergeCurrentOpossumFilesListener', () => {
   });
 
   it('merges the provided partitions into the currently open archive', async () => {
-    await mergeCurrentOpossumFilesListener()(
+    mockMergeOpossumFiles.mockResolvedValue({ status: 'success' });
+    await mergeCurrentOpossumFilesListener(mainWindow)(
       {} as Electron.IpcMainInvokeEvent,
       ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
       false,
     );
 
-    expect(mockMergeOpossumFiles).toHaveBeenCalledWith({
-      ignoreReadonlyResourceOutputConflicts: false,
-      saveFileParams: {
-        projectId: 'uuid_1',
-        opossumFilePath: '/my/file.opossum',
+    expect(mockMergeOpossumFiles).toHaveBeenCalledWith(
+      {
+        ignoreReadonlyResourceOutputConflicts: false,
+        saveFileParams: {
+          projectId: 'uuid_1',
+          opossumFilePath: '/my/file.opossum',
+        },
+        partitionPaths: [
+          '/partitions/docs.opossum',
+          '/partitions/frontend.opossum',
+        ],
       },
-      partitionPaths: [
-        '/partitions/docs.opossum',
-        '/partitions/frontend.opossum',
-      ],
-    });
+      expect.any(Function),
+    );
   });
 
-  it('rejects merging when no .opossum project is open', async () => {
+  it('returns an error result when no .opossum project is open', async () => {
     setGlobalBackendState({});
 
     await expect(
-      mergeCurrentOpossumFilesListener()(
+      mergeCurrentOpossumFilesListener(mainWindow)(
         {} as Electron.IpcMainInvokeEvent,
         ['/partitions/docs.opossum'],
         false,
       ),
-    ).rejects.toThrow('No .opossum project is currently open.');
+    ).resolves.toEqual({
+      errorMessage: 'No .opossum project is currently open.',
+      errorType: 'unknown',
+      status: 'error',
+    });
   });
 });
 
 describe('mergeOpossumFilesFromPathsListener', () => {
+  const mainWindow = {
+    webContents: { send: vi.fn() } as unknown,
+  } as BrowserWindow;
+
   it('forwards the selected archive paths without requiring an open project', async () => {
+    mockMergeOpossumFilesFromPaths.mockResolvedValue({
+      status: 'success',
+    });
     await mergeOpossumFilesFromPathsListener(
+      mainWindow,
       {} as Electron.IpcMainInvokeEvent,
       ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
       '/merged/project.opossum',
       false,
     );
 
-    expect(mockMergeOpossumFilesFromPaths).toHaveBeenCalledWith({
-      ignoreReadonlyResourceOutputConflicts: false,
-      inputPaths: ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
-      outputPath: '/merged/project.opossum',
+    expect(mockMergeOpossumFilesFromPaths).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ignoreReadonlyResourceOutputConflicts: false,
+        inputPaths: [
+          '/partitions/docs.opossum',
+          '/partitions/frontend.opossum',
+        ],
+        outputPath: '/merged/project.opossum',
+      }),
+      expect.any(Function),
+    );
+  });
+
+  it('forwards a readonly conflict result from the merge API', async () => {
+    mockMergeOpossumFilesFromPaths.mockResolvedValue({
+      errorType: MergeOpossumFilesErrorType.ReadonlyResourceOutputConflict,
+      status: 'error',
+    });
+
+    await expect(
+      mergeOpossumFilesFromPathsListener(
+        mainWindow,
+        {} as Electron.IpcMainInvokeEvent,
+        ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
+        '/merged/project.opossum',
+        false,
+      ),
+    ).resolves.toEqual({
+      errorType: 'readonly-resource-output-conflict',
+      status: 'error',
+    });
+  });
+
+  it('forwards an unknown error result from the merge API', async () => {
+    mockMergeOpossumFilesFromPaths.mockResolvedValue({
+      errorMessage: 'Output directory does not exist',
+      errorType: MergeOpossumFilesErrorType.Unknown,
+      status: 'error',
+    });
+
+    await expect(
+      mergeOpossumFilesFromPathsListener(
+        mainWindow,
+        {} as Electron.IpcMainInvokeEvent,
+        ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
+        '/merged/project.opossum',
+        false,
+      ),
+    ).resolves.toEqual({
+      errorMessage: 'Output directory does not exist',
+      errorType: 'unknown',
+      status: 'error',
     });
   });
 });

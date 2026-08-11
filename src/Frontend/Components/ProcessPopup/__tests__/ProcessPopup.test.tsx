@@ -10,6 +10,8 @@ import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import type { ElectronAPI } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { PopupType } from '../../../enums/enums';
+import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProcessPopup } from '../ProcessPopup';
 
@@ -65,71 +67,45 @@ describe('ProcessPopup', () => {
     global.window.electronAPI = electronAPI as unknown as ElectronAPI;
   });
 
-  it('renders no dialog when loading is false', async () => {
+  it('renders no dialog when processing is false', async () => {
     await renderComponent(<ProcessPopup />);
 
     expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
+  });
+
+  it('renders on top of another popup while processing', async () => {
+    const message = faker.lorem.sentence();
+    await renderComponent(<ProcessPopup />, {
+      actions: [openPopup(PopupType.ProjectMetadataPopup)],
+    });
+
+    simulateBackendProcessingStarted();
+    simulateMessageFromBackend(message);
+
+    expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
+    expect(screen.getByText(message)).toBeInTheDocument();
     expect(electronAPI.setFrontendPopupOpen).not.toHaveBeenLastCalledWith(true);
   });
 
-  it('renders dialog when loading is true', async () => {
-    await renderComponent(<ProcessPopup />);
-
-    simulateBackendProcessingStarted();
-
-    expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
-    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
-  });
-
-  it('shows messages during processing', async () => {
-    const message = faker.lorem.sentence();
-
-    await renderComponent(<ProcessPopup />);
-    simulateBackendProcessingStarted();
-    simulateMessageFromBackend(message);
-
-    expect(screen.getByText(message)).toBeInTheDocument();
-    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
-  });
-
-  it('shows multiple messages', async () => {
-    const message = faker.lorem.sentence();
-    await renderComponent(<ProcessPopup />);
-
-    simulateBackendProcessingStarted();
-    simulateMessageFromBackend(message);
-
-    expect(screen.getByText(message)).toBeInTheDocument();
-
+  it('shows every processing message', async () => {
+    const firstMessage = faker.lorem.sentence();
     const secondMessage = faker.lorem.sentence();
+    await renderComponent(<ProcessPopup />);
+
+    simulateBackendProcessingStarted();
+    simulateMessageFromBackend(firstMessage);
     simulateMessageFromBackend(secondMessage);
 
+    expect(screen.getByText(firstMessage)).toBeInTheDocument();
     expect(screen.getByText(secondMessage)).toBeInTheDocument();
-    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
   });
 
-  it('clears previous log messages when loading begins another time', async () => {
-    const message = faker.lorem.sentence();
+  it('closes after processing has completed', async () => {
     await renderComponent(<ProcessPopup />);
 
     simulateBackendProcessingStarted();
-    simulateMessageFromBackend(message);
-
-    simulateBackendProcessingStarted();
-
-    expect(screen.queryByText(message)).not.toBeInTheDocument();
-  });
-
-  it('does not render a dialog after processing is done', async () => {
-    const message = faker.lorem.sentence();
-    await renderComponent(<ProcessPopup />);
-
-    simulateBackendProcessingStarted();
-    simulateMessageFromBackend(message);
-
     simulateBackendProcessingDone();
 
     expect(screen.queryByText(text.processPopup.title)).not.toBeVisible();
-    expect(electronAPI.setFrontendPopupOpen).not.toHaveBeenLastCalledWith(true);
   });
 });
