@@ -8,8 +8,8 @@ import {
   type FileFormatInfo,
 } from './shared-types';
 
-function menuLabelForFileFormat(fileFormat: FileFilter): string {
-  return `${fileFormat.name} File (${fileFormat.extensions.map((ext) => `.${ext}`).join('/')})...`;
+function menuLabelForFileFormat(fileFilter: FileFilter): string {
+  return `${fileFilter.name} File (${fileFilter.extensions.map((ext) => `.${ext}`).join('/')})...`;
 }
 
 export const text = {
