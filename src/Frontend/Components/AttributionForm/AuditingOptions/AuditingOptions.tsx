@@ -22,12 +22,14 @@ const classes = {
 interface Props {
   packageInfo: PackageInfo;
   isEditable: boolean;
+  keepAddButtonVisibleWhenDisabled?: boolean;
   sx?: SxProps<Theme>;
 }
 
 export const AuditingOptions: React.FC<Props> = ({
   packageInfo,
   isEditable,
+  keepAddButtonVisibleWhenDisabled,
   sx,
 }) => {
   const options = useAuditingOptions({ packageInfo, isEditable });
@@ -56,7 +58,7 @@ export const AuditingOptions: React.FC<Props> = ({
 
   function renderTriggerButton() {
     return (
-      hasUnselectedInteractiveOption && (
+      (hasUnselectedInteractiveOption || keepAddButtonVisibleWhenDisabled) && (
         <MuiChip
           label={text.auditingOptions.add}
           color={'primary'}

@@ -107,6 +107,9 @@ describe('AttributionDetails', () => {
     expect(
       screen.getByLabelText(text.attributionColumn.packageName),
     ).toHaveAttribute('readonly');
+    expect(
+      screen.getByRole('button', { name: text.auditingOptions.add }),
+    ).toHaveAttribute('aria-disabled', 'true');
     expect(container).not.toHaveTextContent(text.attributionColumn.save);
   });
 

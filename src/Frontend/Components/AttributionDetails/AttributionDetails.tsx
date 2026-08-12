@@ -142,6 +142,7 @@ export function AttributionDetails() {
         packageInfo={temporaryDisplayPackageInfo}
         onEdit={isEditable ? confirmEditWasPreferred : undefined}
         dimmed={pickerMode.isActive}
+        keepAddButtonVisibleWhenDisabled={isSelectedAttributionLoading}
       />
       {!isSelectedAttributionLoading && (
         <ButtonRow

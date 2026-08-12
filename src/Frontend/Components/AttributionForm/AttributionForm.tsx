@@ -54,6 +54,7 @@ interface AttributionFormProps {
   label?: string;
   config?: AttributionFormConfig;
   dimmed?: boolean;
+  keepAddButtonVisibleWhenDisabled?: boolean;
   sectionPrefix?: string;
 }
 
@@ -64,6 +65,7 @@ export function AttributionForm({
   variant = 'default',
   config,
   dimmed,
+  keepAddButtonVisibleWhenDisabled,
   sectionPrefix = '',
 }: AttributionFormProps) {
   const dispatch = useAppDispatch();
@@ -80,7 +82,11 @@ export function AttributionForm({
       aria-label={label}
     >
       {!isDiff && (
-        <AuditingOptions packageInfo={packageInfo} isEditable={!!onEdit} />
+        <AuditingOptions
+          packageInfo={packageInfo}
+          isEditable={!!onEdit}
+          keepAddButtonVisibleWhenDisabled={keepAddButtonVisibleWhenDisabled}
+        />
       )}
       <MuiDivider variant={'middle'}>
         <MuiTypography>
