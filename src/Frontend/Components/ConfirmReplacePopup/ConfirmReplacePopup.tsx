@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiAlert from '@mui/material/Alert';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
 
@@ -36,7 +37,7 @@ export const ConfirmReplacePopup = ({
   const isReplacing =
     updateAttributions.isPending || replaceAttributions.isPending;
 
-  const { data: attributionsForReplacement } =
+  const { data: attributionsForReplacement, isSuccess: areAttributionsReady } =
     backend.listAttributions.useQuery(
       open && !isReplacing
         ? {
@@ -44,6 +45,18 @@ export const ConfirmReplacePopup = ({
           }
         : skipToken,
     );
+  const attributionIdsThatMayBeSplit = selectedAttribution.preSelected
+    ? Array.from(
+        new Set([...attributionIdsForReplacement, selectedAttribution.id]),
+      )
+    : attributionIdsForReplacement;
+  const resourceInfoQuery = backend.getResourceInfoOnAttributions.useQuery(
+    open ? { attributionUuids: attributionIdsThatMayBeSplit } : skipToken,
+  );
+  const mixedAttributionCount = resourceInfoQuery.data
+    ? Object.values(resourceInfoQuery.data).filter((info) => info.isMixed)
+        .length
+    : 0;
 
   const handleReplace = async () => {
     let replacementAttribution = selectedAttribution;
@@ -78,6 +91,7 @@ export const ConfirmReplacePopup = ({
     <NotificationPopup
       header={text.replaceAttributionsPopup.title}
       leftButtonConfig={{
+        disabled: isReplacing || !areAttributionsReady,
         loading: isReplacing,
         onClick: handleReplace,
         buttonText: text.replaceAttributionsPopup.replace,
@@ -94,6 +108,17 @@ export const ConfirmReplacePopup = ({
       width={500}
       sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
     >
+      {mixedAttributionCount > 0 && (
+        <MuiAlert severity={'warning'}>
+          {text.confirmAttributionActionPopup.mixedWarning(
+            mixedAttributionCount,
+            maybePluralize(
+              mixedAttributionCount,
+              text.confirmAttributionActionPopup.attribution,
+            ),
+          )}
+        </MuiAlert>
+      )}
       <MuiTypography>
         {text.replaceAttributionsPopup.removeAttributions(
           maybePluralize(

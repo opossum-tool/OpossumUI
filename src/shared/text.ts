@@ -289,6 +289,13 @@ export const text = {
     replacement: 'The replacement will be:',
     title: 'Replace Attributions',
   },
+  confirmAttributionActionPopup: {
+    attribution: 'attribution',
+    linkedResources: 'Linked resources',
+    editableLinkedResources: 'Editable linked resources',
+    mixedWarning: (count: number, attributions: string) =>
+      `${count} ${attributions} are linked to both editable and read-only resources. The ${attributions} will be cloned and changes will affect only the new ${attributions}.`,
+  },
   saveAttributionsPopup: {
     ariaLabel: 'confirm save popup',
     titleSave: 'Save Attributions',
@@ -316,8 +323,6 @@ export const text = {
     save: 'Save',
     confirm: 'Confirm',
     resource: 'resource',
-    mixedWarning: (attributions: string) =>
-      `This action will split ${attributions} into separate editable and read-only attributions. Changes will only affect the editable part.`,
   },
   deleteAttributionsPopup: {
     ariaLabel: 'confirm delete popup',
@@ -334,8 +339,10 @@ export const text = {
     deleteLocally: 'Delete only on Selected',
     delete: 'Delete',
     resource: 'resource',
-    mixedWarning: (attributions: string) =>
-      `This action will split ${attributions} so that only the editable part is deleted. Read-only attributions will remain unchanged.`,
+    mixedWarning: (count: number) =>
+      count === 1
+        ? '1 attribution is linked to both editable and read-only resources. It will be removed from the affected editable resources but remain on the read-only resources.'
+        : `${count} attributions are linked to both editable and read-only resources. They will be removed from the affected editable resources but remain on the read-only resources.`,
   },
   filters: {
     any: 'Any',

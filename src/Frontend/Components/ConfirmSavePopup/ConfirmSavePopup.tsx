@@ -140,10 +140,12 @@ export const ConfirmSavePopup: React.FC<Props> = ({
           { showOne: true },
         ),
       })}
-      mixedWarning={text.saveAttributionsPopup.mixedWarning(
-        maybePluralize(mixedAttributionCount, text.packageLists.attribution, {
-          showOne: true,
-        }),
+      mixedWarning={text.confirmAttributionActionPopup.mixedWarning(
+        mixedAttributionCount,
+        maybePluralize(
+          mixedAttributionCount,
+          text.confirmAttributionActionPopup.attribution,
+        ),
       )}
       linkedResourcesTreeState={linkedResourcesTreeState}
       mixedAttributionCount={mixedAttributionCount}

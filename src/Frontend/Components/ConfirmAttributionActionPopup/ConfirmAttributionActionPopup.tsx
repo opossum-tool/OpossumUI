@@ -100,6 +100,11 @@ export function ConfirmAttributionActionPopup({
       ) : (
         <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
       )}
+      <MuiTypography variant={'subtitle2'}>
+        {mixedAttributionCount > 0
+          ? text.confirmAttributionActionPopup.editableLinkedResources
+          : text.confirmAttributionActionPopup.linkedResources}
+      </MuiTypography>
       <LinkedResourcesTree
         readOnly
         disableHighlightSelected={!isLocalActionAvailable}

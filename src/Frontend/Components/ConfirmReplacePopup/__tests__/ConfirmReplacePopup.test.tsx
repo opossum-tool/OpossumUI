@@ -22,6 +22,94 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmReplacePopup } from '../ConfirmReplacePopup';
 
 describe('ConfirmReplacePopup', () => {
+  it('warns when replacing a mixed attribution', async () => {
+    const attributionToReplace = faker.opossum.packageInfo();
+    const replacementAttribution = faker.opossum.packageInfo();
+    const editableResource = '/editable/file.ts';
+    const readonlyResource = '/readonly/file.ts';
+
+    await renderComponent(
+      <ConfirmReplacePopup
+        open
+        onClose={noop}
+        selectedAttribution={replacementAttribution}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attributionToReplace.id]: attributionToReplace,
+            [replacementAttribution.id]: replacementAttribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [editableResource]: [attributionToReplace.id],
+            [readonlyResource]: [attributionToReplace.id],
+          }),
+          resources: pathsToResources([editableResource, readonlyResource]),
+          readonlyRules: [{ path: '/readonly', readonly: true }],
+        }),
+        actions: [
+          setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+            attributionToReplace.id,
+          ]),
+        ],
+      },
+    );
+
+    expect(
+      await screen.findByText(
+        text.confirmAttributionActionPopup.mixedWarning(
+          1,
+          text.confirmAttributionActionPopup.attribution,
+        ),
+      ),
+    ).toBeVisible();
+  });
+
+  it('includes a mixed pre-selected replacement in the warning count', async () => {
+    const attributionToReplace = faker.opossum.packageInfo();
+    const replacementAttribution = faker.opossum.packageInfo({
+      preSelected: true,
+    });
+    const editableResource = '/editable/file.ts';
+    const readonlyResource = '/readonly/file.ts';
+
+    await renderComponent(
+      <ConfirmReplacePopup
+        open
+        onClose={noop}
+        selectedAttribution={replacementAttribution}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attributionToReplace.id]: attributionToReplace,
+            [replacementAttribution.id]: replacementAttribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [editableResource]: [replacementAttribution.id],
+            [readonlyResource]: [replacementAttribution.id],
+          }),
+          resources: pathsToResources([editableResource, readonlyResource]),
+          readonlyRules: [{ path: '/readonly', readonly: true }],
+        }),
+        actions: [
+          setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
+            attributionToReplace.id,
+          ]),
+        ],
+      },
+    );
+
+    expect(
+      await screen.findByText(
+        text.confirmAttributionActionPopup.mixedWarning(
+          1,
+          text.confirmAttributionActionPopup.attribution,
+        ),
+      ),
+    ).toBeVisible();
+  });
+
   it('replaces selected attribution with non-pre-selected one', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
@@ -51,6 +139,7 @@ describe('ConfirmReplacePopup', () => {
       },
     );
 
+    await screen.findByTestId('removed-attributions');
     await userEvent.click(
       screen.getByRole('button', {
         name: text.replaceAttributionsPopup.replace,
@@ -97,6 +186,7 @@ describe('ConfirmReplacePopup', () => {
       },
     );
 
+    await screen.findByTestId('removed-attributions');
     await userEvent.click(
       screen.getByRole('button', {
         name: text.replaceAttributionsPopup.replace,

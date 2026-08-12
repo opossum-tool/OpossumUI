@@ -99,9 +99,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
         ),
       })}
       mixedWarning={text.deleteAttributionsPopup.mixedWarning(
-        maybePluralize(mixedAttributionCount, text.packageLists.attribution, {
-          showOne: true,
-        }),
+        mixedAttributionCount,
       )}
       linkedResourcesTreeState={linkedResourcesTreeState}
       mixedAttributionCount={mixedAttributionCount}
