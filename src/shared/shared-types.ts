@@ -64,7 +64,7 @@ type Never<T, K extends keyof T> = Expand<
   Omit<T, K> & Partial<Record<K, never>>
 >;
 
-interface EphemeralPackageInfoProps {
+export interface EphemeralPackageInfoProps {
   count?: number;
   id: string;
   resourceAccess?: AttributionResourceAccess;
