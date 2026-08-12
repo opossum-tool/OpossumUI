@@ -45,18 +45,17 @@ export const ConfirmReplacePopup = ({
           }
         : skipToken,
     );
-  const attributionIdsThatMayBeSplit = selectedAttribution.preSelected
-    ? Array.from(
-        new Set([...attributionIdsForReplacement, selectedAttribution.id]),
-      )
-    : attributionIdsForReplacement;
-  const resourceInfoQuery = backend.getResourceInfoOnAttributions.useQuery(
-    open ? { attributionUuids: attributionIdsThatMayBeSplit } : skipToken,
-  );
-  const mixedAttributionCount = resourceInfoQuery.data
-    ? Object.values(resourceInfoQuery.data).filter((info) => info.isMixed)
-        .length
-    : 0;
+  const mixedAttributionCount =
+    (attributionsForReplacement
+      ? Object.values(attributionsForReplacement).filter(
+          (attribution) => attribution.resourceAccess === 'mixed',
+        ).length
+      : 0) +
+    (selectedAttribution.preSelected &&
+    selectedAttribution.resourceAccess === 'mixed' &&
+    !attributionIdsForReplacement.includes(selectedAttribution.id)
+      ? 1
+      : 0);
 
   const handleReplace = async () => {
     let replacementAttribution = selectedAttribution;

@@ -60,8 +60,8 @@ describe('listAttributions', () => {
       includeReadonly: true,
     });
 
-    expect(result.readonly).toMatchObject({ isReadonly: true });
-    expect(result.writable).toMatchObject({ isReadonly: false });
+    expect(result.readonly).toMatchObject({ resourceAccess: 'readonly' });
+    expect(result.writable).toMatchObject({ resourceAccess: 'writable' });
   });
 
   it('includes related readonly descendants but excludes unrelated readonly attributions', async () => {
@@ -103,11 +103,11 @@ describe('listAttributions', () => {
     });
 
     expect(result.relatedReadonly).toMatchObject({
-      isReadonly: true,
+      resourceAccess: 'readonly',
       relation: 'children',
     });
     expect(result.writable).toMatchObject({
-      isReadonly: false,
+      resourceAccess: 'writable',
       relation: 'children',
     });
     expect(result.unrelatedReadonly).toBeUndefined();

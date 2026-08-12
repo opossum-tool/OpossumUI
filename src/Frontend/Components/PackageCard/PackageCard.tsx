@@ -203,13 +203,13 @@ export const PackageCard = memo(
           ...(onClick && classes.hover),
           ...(cardConfig?.pickerSource && classes.pickerSource),
           ...(cardConfig?.resolved && classes.resolved),
-          ...(packageInfo.isReadonly && readonlyStyle),
+          ...(packageInfo.resourceAccess === 'readonly' && readonlyStyle),
           ...(cardConfig?.selected && classes.selected),
         }}
       >
         {checkbox && (
           <MuiBox sx={classes.selectionControl}>
-            {packageInfo.isReadonly ? (
+            {packageInfo.resourceAccess === 'readonly' ? (
               <ReadonlyIcon
                 label={readonlyIconLabel}
                 tooltip={readonlyTooltip}
@@ -255,7 +255,7 @@ export const PackageCard = memo(
             )}
           </MuiBox>
           <MuiBox sx={classes.iconColumn}>{rightIcons}</MuiBox>
-          {packageInfo.isReadonly && !checkbox && (
+          {packageInfo.resourceAccess === 'readonly' && !checkbox && (
             <ReadonlyIcon
               label={readonlyIconLabel}
               tooltip={text.packageLists.readonlyAttribution}

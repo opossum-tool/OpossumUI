@@ -136,10 +136,16 @@ export const queries = {
 
     return {
       result: {
-        packageInfo: JSON.parse(result.data) as PackageInfo,
+        packageInfo: {
+          ...(JSON.parse(result.data) as PackageInfo),
+          resourceAccess:
+            result.resource_access === AttributionResourceAccess.Mixed
+              ? 'mixed'
+              : result.resource_access === AttributionResourceAccess.Readonly
+                ? 'readonly'
+                : 'writable',
+        } satisfies PackageInfo,
         isExternal: Boolean(result.is_external),
-        isReadonly:
-          result.resource_access === AttributionResourceAccess.Readonly,
       },
     };
   },
@@ -584,7 +590,7 @@ export const queries = {
 
     const attributions = await getDb()
       .selectFrom('attribution as a')
-      .select(['a.uuid', 'a.is_external', 'a.resource_access'])
+      .select(['a.uuid', 'a.is_external'])
       .select((eb) =>
         eb
           .selectFrom('resource_to_attribution as rta')
@@ -602,8 +608,6 @@ export const queries = {
           {
             resourceCount: attribution.resource_count,
             isManual: attribution.is_external === 0,
-            isMixed:
-              attribution.resource_access === AttributionResourceAccess.Mixed,
           },
         ]),
       ),

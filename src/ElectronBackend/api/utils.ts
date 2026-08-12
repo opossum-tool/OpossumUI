@@ -741,9 +741,11 @@ async function matchOrCreateAttribution(
   options?: { ignorePreSelected?: boolean },
 ) {
   const wasPreferred = await computeWasPreferred(trx, packageInfo);
+  const { resourceAccess: _resourceAccess, ...persistedPackageInfo } =
+    packageInfo;
 
   const dataToInsert = {
-    ...removeEmptyStrings(packageInfo),
+    ...removeEmptyStrings(persistedPackageInfo),
     wasPreferred,
   };
 
@@ -803,12 +805,14 @@ export async function updateAttribution(
   }
 
   const wasPreferred = await computeWasPreferred(trx, packageInfo);
+  const { resourceAccess: _resourceAccess, ...persistedPackageInfo } =
+    packageInfo;
 
   await trx
     .updateTable('attribution')
     .set({
       data: JSON.stringify({
-        ...removeEmptyStrings(packageInfo),
+        ...removeEmptyStrings(persistedPackageInfo),
         wasPreferred,
       }),
     })

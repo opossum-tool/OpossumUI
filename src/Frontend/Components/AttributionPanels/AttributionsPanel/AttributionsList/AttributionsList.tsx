@@ -75,7 +75,8 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
           packageInfo={attribution}
           checkbox={{
             checked: multiSelectedAttributionIds.includes(attributionId),
-            disabled: pickerMode.isActive || attribution.isReadonly === true,
+            disabled:
+              pickerMode.isActive || attribution.resourceAccess === 'readonly',
             onChange: (event) => {
               setMultiSelectedAttributionIds(
                 event.target.checked

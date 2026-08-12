@@ -33,7 +33,7 @@ export function getFormattedCellData(
     case 'preferredOverOriginIds':
     case 'resources':
     case 'synthetic':
-    case 'isReadonly':
+    case 'resourceAccess':
       cellData = '';
       break;
     case 'packageName':

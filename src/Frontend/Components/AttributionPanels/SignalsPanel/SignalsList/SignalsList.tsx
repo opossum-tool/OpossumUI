@@ -121,7 +121,8 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
           readonlyTooltip={text.packageLists.readonlySignalCannotBeSelected}
           checkbox={{
             checked: multiSelectedAttributionIds.includes(attributionId),
-            disabled: pickerMode.isActive || attribution.isReadonly === true,
+            disabled:
+              pickerMode.isActive || attribution.resourceAccess === 'readonly',
             onChange: (event) => {
               setMultiSelectedAttributionIds(
                 event.target.checked

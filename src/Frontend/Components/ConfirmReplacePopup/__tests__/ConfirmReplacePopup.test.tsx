@@ -69,6 +69,7 @@ describe('ConfirmReplacePopup', () => {
     const attributionToReplace = faker.opossum.packageInfo();
     const replacementAttribution = faker.opossum.packageInfo({
       preSelected: true,
+      resourceAccess: 'mixed',
     });
     const editableResource = '/editable/file.ts';
     const readonlyResource = '/readonly/file.ts';

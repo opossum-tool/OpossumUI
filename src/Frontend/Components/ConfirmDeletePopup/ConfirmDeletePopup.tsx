@@ -50,7 +50,6 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
     attributionIds: attributionIdsToDelete,
     open,
     isMutationPending: isDeleting,
-    skipWithoutSelectedResource: true,
   });
 
   const handleDelete = async () => {

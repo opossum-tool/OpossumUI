@@ -75,7 +75,9 @@ describe('The PackageCard', () => {
   });
 
   it('renders a readonly lock in place of the selection checkbox', async () => {
-    const packageInfo = faker.opossum.packageInfo({ isReadonly: true });
+    const packageInfo = faker.opossum.packageInfo({
+      resourceAccess: 'readonly',
+    });
 
     await renderComponent(
       <PackageCard

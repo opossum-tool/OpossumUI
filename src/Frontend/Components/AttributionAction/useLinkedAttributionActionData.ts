@@ -14,31 +14,23 @@ export function useLinkedAttributionActionData({
   attributionIds,
   open,
   isMutationPending = false,
-  skipWithoutSelectedResource = false,
 }: {
   attributionIds: Array<string>;
   open: boolean;
   isMutationPending?: boolean;
-  skipWithoutSelectedResource?: boolean;
 }) {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
 
-  const { data: attributions } = backend.listAttributions.useQuery(
-    open &&
-      !isMutationPending &&
-      (!skipWithoutSelectedResource || !!selectedResourceId)
-      ? {
-          resourcePathForRelationships: selectedResourceId,
-          uuids: attributionIds,
-        }
-      : skipToken,
-  );
-
-  const resourceInfoQuery = backend.getResourceInfoOnAttributions.useQuery(
-    open ? { attributionUuids: attributionIds } : skipToken,
-  );
-  const { data: resourceInfoOnAttributions } = resourceInfoQuery;
+  const { data: attributions, isSuccess: areAttributionsReady } =
+    backend.listAttributions.useQuery(
+      open && !isMutationPending
+        ? {
+            resourcePathForRelationships: selectedResourceId,
+            uuids: attributionIds,
+          }
+        : skipToken,
+    );
 
   const linkedResourcesTreeState = useLinkedResourcesTreeState({
     onAttributionUuids: attributionIds,
@@ -47,9 +39,10 @@ export function useLinkedAttributionActionData({
   });
 
   const linkedResourceCount = linkedResourcesTreeState?.count;
-  const mixedAttributionCount = resourceInfoOnAttributions
-    ? Object.values(resourceInfoOnAttributions).filter((info) => info.isMixed)
-        .length
+  const mixedAttributionCount = attributions
+    ? Object.values(attributions).filter(
+        (attribution) => attribution.resourceAccess === 'mixed',
+      ).length
     : 0;
   const isResourceLinkedOnAllAttributions = attributions
     ? Object.values(attributions).every(
@@ -68,7 +61,7 @@ export function useLinkedAttributionActionData({
     linkedResourceCount,
     linkedResourcesTreeState,
     mixedAttributionCount,
-    isResourceInfoReady: resourceInfoQuery.isSuccess,
+    isResourceInfoReady: areAttributionsReady,
     isLocalActionAvailable,
     selectedResourceId,
   };

@@ -113,7 +113,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   const hasMultipleResources =
     selectedAttributionResourceInfo?.isManual &&
     ((selectedAttributionResourceInfo.resourceCount ?? 0) > 1 ||
-      selectedAttributionResourceInfo.isMixed);
+      packageInfo.resourceAccess === 'mixed');
   const attributionResourceInfoReady =
     !packageInfo.id || attributionResourceInfoQuery.isSuccess;
 

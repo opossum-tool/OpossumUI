@@ -22,7 +22,6 @@ export function useSelectedAttribution() {
   if (!selectedAttributionId) {
     return {
       isExternal: null,
-      isReadonly: null,
       isPending: false,
       packageInfo: null,
     };
@@ -30,7 +29,8 @@ export function useSelectedAttribution() {
 
   return {
     isExternal: selectedAttributionData.data?.isExternal,
-    isReadonly: selectedAttributionData.data?.isReadonly,
+    isReadonly:
+      selectedAttributionData.data?.packageInfo.resourceAccess === 'readonly',
     isPending: selectedAttributionData.isPending,
     packageInfo: selectedAttributionData.data?.packageInfo,
   };

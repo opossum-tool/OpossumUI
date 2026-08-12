@@ -845,7 +845,6 @@ describe('getProgressBarData', () => {
         manual: {
           resourceCount: 3,
           isManual: true,
-          isMixed: true,
         },
       },
     });
