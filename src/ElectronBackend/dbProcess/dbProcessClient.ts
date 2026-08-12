@@ -128,6 +128,10 @@ export class DbProcessClient {
     return this.request({ type: 'saveFile', ...params }) as Promise<void>;
   }
 
+  forceUnlock(params: SaveFileParams): Promise<void> {
+    return this.request({ type: 'forceUnlock', ...params }) as Promise<void>;
+  }
+
   splitOpossumFile({
     saveFileParams,
     selectedFolderPaths,

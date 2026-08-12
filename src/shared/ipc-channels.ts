@@ -17,6 +17,7 @@ export enum IpcChannel {
   MergeOpossumFilesFromPaths = 'merge-opossum-files-from-paths',
   OpenLink = 'open-link',
   SaveFile = 'save-file',
+  ForceUnlock = 'force-unlock',
   ExportFile = 'export-file',
   /**
    * @deprecated see https://github.com/opossum-tool/OpossumUI/issues/2812
@@ -44,6 +45,7 @@ export enum AllowedFrontendChannels {
   ShowImportDialog = 'show-import-dialog',
   ShowMergeOpossumFilesDialog = 'show-merge-opossum-files-dialog',
   ShowSplitDialog = 'show-split-dialog',
+  ShowForceUnlockDialog = 'show-force-unlock-dialog',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
   ShowUpdateAppPopup = 'show-update-app-pop-up',

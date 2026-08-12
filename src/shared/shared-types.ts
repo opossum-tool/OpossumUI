@@ -306,6 +306,7 @@ export interface ElectronAPI {
     ignoreReadonlyResourceOutputConflicts?: boolean,
   ) => Promise<MergeOpossumFilesResult>;
   saveFile: () => void;
+  forceUnlock: () => Promise<void>;
   exportFile: (exportType: ExportType) => Promise<void>;
   /**
    * @deprecated see https://github.com/opossum-tool/OpossumUI/issues/2812

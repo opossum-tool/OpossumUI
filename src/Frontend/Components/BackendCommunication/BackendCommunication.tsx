@@ -34,7 +34,6 @@ import { useSyncProcessingStatusUpdatesToFrontendLogs } from '../../util/use-pro
 
 export const BackendCommunication: React.FC = () => {
   const dispatch = useAppDispatch();
-
   function resetLoadedFileListener(
     _: IpcRendererEvent,
     resetState: boolean,
@@ -147,6 +146,11 @@ export const BackendCommunication: React.FC = () => {
     AllowedFrontendChannels.SetDatabaseInitialized,
     (_, databaseInitialized) => setDatabaseInitialized(databaseInitialized),
     [],
+  );
+  useIpcRenderer(
+    AllowedFrontendChannels.ShowForceUnlockDialog,
+    () => dispatch(openPopup(PopupType.ForceUnlockPopup)),
+    [dispatch],
   );
 
   return null;

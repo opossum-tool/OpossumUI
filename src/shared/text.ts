@@ -24,6 +24,7 @@ export const text = {
       merge: 'Merge...',
       mergeIntoCurrentProject: 'Merge into current project…',
       split: 'Split…',
+      forceUnlock: 'Force Unlock…',
       save: 'Save',
       projectMetadata: 'Project Metadata',
       projectStatistics: 'Project Statistics',
@@ -73,6 +74,14 @@ export const text = {
       checkForUpdates: 'Check for Updates',
       userGuide: 'User Guide',
     },
+  },
+  forceUnlock: {
+    title: 'Force unlock file',
+    confirm: 'Force Unlock',
+    description: 'This will make all read-only attributions editable again.',
+    warning:
+      'Only proceed if the other parts of the split have gotten lost, you will not be able to merge them after this!',
+    success: 'File force-unlocked successfully.',
   },
   attributionColumn: {
     commonEcosystems: 'Common Ecosystems',

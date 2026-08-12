@@ -92,7 +92,7 @@ describe('create menu', () => {
   it('lists import formats directly and keeps split-file merging separate', async () => {
     await UserSettingsService.init();
     const mainWindow = new BrowserWindow();
-    const fileMenu = await getFileMenu(mainWindow, vi.fn());
+    const fileMenu = await getFileMenu(mainWindow, vi.fn(), false);
     const items = fileMenu.submenu as Array<MenuItemConstructorOptions>;
     const importMenu = items.find(
       ({ label }) => label === text.menu.fileSubmenu.import,
@@ -117,7 +117,7 @@ describe('create menu', () => {
     });
 
     const mainWindow = new BrowserWindow();
-    const fileMenu = await getFileMenu(mainWindow, vi.fn());
+    const fileMenu = await getFileMenu(mainWindow, vi.fn(), false);
     const items = fileMenu.submenu as Array<MenuItemConstructorOptions>;
     const mergeMenu = items.find(
       ({ label }) => label === text.menu.fileSubmenu.merge,

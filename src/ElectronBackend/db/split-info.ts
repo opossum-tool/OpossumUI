@@ -5,6 +5,15 @@
 import type { ReadonlyRule } from '../../shared/shared-types';
 import { getDb } from './db';
 
+export async function isProjectSplit(): Promise<boolean> {
+  const result = await getDb()
+    .selectFrom('readonly_rule')
+    .select('path')
+    .limit(1)
+    .executeTakeFirst();
+  return result !== undefined;
+}
+
 export async function getReadonlyRules(): Promise<Array<ReadonlyRule>> {
   const readonlyRules = await getDb()
     .selectFrom('readonly_rule')

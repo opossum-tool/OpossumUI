@@ -33,6 +33,7 @@ if (typeof window !== 'undefined') {
     mergeOpossumFiles: vi.fn(),
     mergeOpossumFilesFromPaths: vi.fn(),
     saveFile: vi.fn(),
+    forceUnlock: vi.fn(),
     exportFile: vi.fn(),
     stopLoading: vi.fn(),
     on: vi.fn().mockReturnValue(vi.fn()),

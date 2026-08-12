@@ -74,6 +74,28 @@ export const saveFileListener =
     }
   };
 
+export const forceUnlockCurrentOpossumFileListener =
+  (mainWindow: BrowserWindow, updateMenu: () => Promise<void>) =>
+  async (): Promise<void> => {
+    try {
+      const globalBackendState = getGlobalBackendState();
+      if (
+        !globalBackendState.projectId ||
+        !globalBackendState.opossumFilePath
+      ) {
+        throw new Error('No .opossum project is currently open.');
+      }
+
+      await getMainDbClient().forceUnlock({
+        projectId: globalBackendState.projectId,
+        opossumFilePath: globalBackendState.opossumFilePath,
+      });
+      await updateMenu();
+    } catch (error) {
+      await showListenerErrorInMessageBox(mainWindow, error);
+    }
+  };
+
 export const splitCurrentOpossumFileListener =
   (_mainWindow: BrowserWindow) =>
   async (

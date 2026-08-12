@@ -47,16 +47,15 @@ export const MergeOpossumFilesDialog: React.FC<
   const [mergeIntoCurrentFile, setMergeIntoCurrentFile] = useState(
     canMergeIntoCurrentFile,
   );
-  const { data: readonlyResourcePaths } =
-    backend.getReadonlyResourcePaths.useQuery(undefined, {
-      enabled: canMergeIntoCurrentFile,
-    });
+  const { data: isProjectSplit } = backend.isProjectSplit.useQuery(undefined, {
+    enabled: canMergeIntoCurrentFile,
+  });
 
   const mergeEnabled = mergeIntoCurrentFile
     ? inputFilePaths.length > 0
     : inputFilePaths.length >= 2 && Boolean(outputFilePath);
   const showNoReadonlyPathsMessage =
-    mergeIntoCurrentFile && readonlyResourcePaths?.size === 0;
+    mergeIntoCurrentFile && isProjectSplit === false;
   const mergeInteractionDisabled =
     mergeInProgress || showNoReadonlyPathsMessage;
 

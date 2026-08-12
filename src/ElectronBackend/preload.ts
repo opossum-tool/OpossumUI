@@ -71,6 +71,7 @@ const electronAPI: ElectronAPI = {
       ignoreReadonlyResourceOutputConflicts,
     ),
   saveFile: () => ipcRenderer.invoke(IpcChannel.SaveFile),
+  forceUnlock: () => ipcRenderer.invoke(IpcChannel.ForceUnlock),
   exportFile: (exportType) =>
     ipcRenderer.invoke(IpcChannel.ExportFile, exportType),
   stopLoading: () => ipcRenderer.invoke(IpcChannel.StopLoading),
