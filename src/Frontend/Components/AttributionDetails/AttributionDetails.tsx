@@ -13,6 +13,7 @@ import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { initializePackageInfoEditing } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
+  getIsPackageInfoDirty,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
@@ -50,6 +51,7 @@ const classes = {
 export function AttributionDetails() {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
 
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
@@ -125,7 +127,11 @@ export function AttributionDetails() {
   }
 
   return (
-    <MuiBox aria-label={'attribution column'} sx={classes.root}>
+    <MuiBox
+      aria-label={'attribution column'}
+      data-dirty={isPackageInfoDirty}
+      sx={classes.root}
+    >
       {isSelectedAttributionLoading && (
         <MuiLinearProgress
           data-testid={'attribution-details-loading'}
