@@ -4326,12 +4326,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-playwright-helpers@npm:3.1.1":
-  version: 3.1.1
-  resolution: "electron-playwright-helpers@npm:3.1.1"
+"electron-playwright-helpers@npm:3.1.2":
+  version: 3.1.2
+  resolution: "electron-playwright-helpers@npm:3.1.2"
   dependencies:
     "@electron/asar": "npm:^4.2.1"
-  checksum: 10/077863b034bd6e8fdef2492125d6a56276cfb1872ac55355576dd75b20b1404c02f5ea616890682e95ce6e89ba427df45fc7c6b4428044cf481ba4f2b75683dd
+  checksum: 10/0a617ae2138e97fef7b8b332b5bd124691d452baeaab05c2ec71305b3bef38d0812d3a5a88f8098c5295a87fa6669f36f7b3ef16c33b28803e4e386609a4d205
   languageName: node
   linkType: hard
 
@@ -6799,7 +6799,7 @@ __metadata:
     electron: "npm:43.2.0"
     electron-builder: "npm:26.15.3"
     electron-log: "npm:5.4.4"
-    electron-playwright-helpers: "npm:3.1.1"
+    electron-playwright-helpers: "npm:3.1.2"
     electron-settings: "npm:4.0.4"
     eslint: "npm:10.8.1"
     eslint-plugin-check-file: "npm:3.3.2"
