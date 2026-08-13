@@ -9,7 +9,10 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import type { TableComponents } from 'react-virtuoso';
 
-import type { PackageInfo } from '../../../shared/shared-types';
+import type {
+  EphemeralPackageInfoProps,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
 import { TableFilterButton } from './TableFilterButton';
@@ -22,7 +25,10 @@ const COLUMN_WIDTHS = {
 };
 
 export interface TableConfig {
-  attributionProperty: keyof PackageInfo;
+  attributionProperty: Exclude<
+    keyof PackageInfo,
+    keyof Omit<EphemeralPackageInfoProps, 'id'>
+  >;
   displayName: React.ReactNode;
   width: string;
 }

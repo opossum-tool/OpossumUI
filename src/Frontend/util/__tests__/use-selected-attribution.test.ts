@@ -24,7 +24,7 @@ describe('useSelectedAttributionPackageInfo', () => {
     );
 
     await waitFor(() => {
-      expect(result.current).toEqual(packageInfo);
+      expect(result.current).toMatchObject(packageInfo);
     });
 
     act(() => {

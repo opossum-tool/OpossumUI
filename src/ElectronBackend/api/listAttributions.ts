@@ -218,10 +218,15 @@ export async function listAttributions(props: {
         a.uuid,
         {
           ...(JSON.parse(a.data) as PackageInfo),
-          isReadonly: a.resource_access === AttributionResourceAccess.Readonly,
+          resourceAccess:
+            a.resource_access === AttributionResourceAccess.Mixed
+              ? 'mixed'
+              : a.resource_access === AttributionResourceAccess.Readonly
+                ? 'readonly'
+                : 'writable',
           relation: backendToFrontendRelationship[a.relationship],
           count: getCount(a),
-        },
+        } satisfies PackageInfo,
       ]),
     ),
   };

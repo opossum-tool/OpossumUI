@@ -27,13 +27,7 @@ export function getFormattedCellData(
       break;
     case 'id':
     case 'originIds':
-    case 'originalAttributionId':
-    case 'originalAttributionSource':
-    case 'originalAttributionWasPreferred':
     case 'preferredOverOriginIds':
-    case 'resources':
-    case 'synthetic':
-    case 'isReadonly':
       cellData = '';
       break;
     case 'packageName':

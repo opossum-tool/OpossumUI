@@ -69,9 +69,9 @@ describe('AttributionDetails', () => {
         packageInfo.id,
       ),
     );
-    expect(getTemporaryDisplayPackageInfo(store.getState()).isReadonly).toBe(
-      undefined,
-    );
+    expect(
+      getTemporaryDisplayPackageInfo(store.getState()).resourceAccess,
+    ).toBe('readonly');
     expect(
       screen.queryByRole('button', { name: text.attributionColumn.save }),
     ).not.toBeInTheDocument();
@@ -394,7 +394,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitFor(() =>
-      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
         packageInfo1,
       ),
     );
@@ -557,7 +557,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitFor(() =>
-      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
         packageInfo2,
       ),
     );
@@ -667,7 +667,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitFor(() =>
-      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
         packageInfo1,
       ),
     );
@@ -687,7 +687,7 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
       packageInfo1,
     );
   });
@@ -728,7 +728,7 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
   });
@@ -991,7 +991,9 @@ describe('AttributionDetails', () => {
     });
 
     await waitFor(() =>
-      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(target),
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
+        target,
+      ),
     );
 
     await userEvent.click(
@@ -1064,7 +1066,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitFor(() =>
-      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
         packageInfo1,
       ),
     );
@@ -1074,7 +1076,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitFor(() =>
-      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
         packageInfo2,
       ),
     );
@@ -1100,7 +1102,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitFor(() =>
-      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
         packageInfo,
       ),
     );
@@ -1110,7 +1112,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitFor(() =>
-      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
         EMPTY_DISPLAY_PACKAGE_INFO,
       ),
     );
@@ -1147,7 +1149,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitFor(() =>
-      expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual({
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
         ...packageInfo,
         packageName: modifiedName,
       }),

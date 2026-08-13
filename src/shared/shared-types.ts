@@ -56,6 +56,7 @@ export interface Source {
 }
 
 export type Relation = 'resource' | 'children' | 'parents' | 'unrelated';
+type AttributionResourceAccess = 'readonly' | 'writable' | 'mixed';
 
 type Expand<T> = T extends unknown ? { [K in keyof T]: T[K] } : never;
 
@@ -63,10 +64,10 @@ type Never<T, K extends keyof T> = Expand<
   Omit<T, K> & Partial<Record<K, never>>
 >;
 
-interface EphemeralPackageInfoProps {
+export interface EphemeralPackageInfoProps {
   count?: number;
   id: string;
-  isReadonly?: boolean;
+  resourceAccess?: AttributionResourceAccess;
   originalAttributionId?: string;
   originalAttributionWasPreferred?: boolean;
   originalAttributionSource?: Source;

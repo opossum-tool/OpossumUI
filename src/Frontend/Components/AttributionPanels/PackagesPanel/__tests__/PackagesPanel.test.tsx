@@ -271,7 +271,7 @@ describe('PackagesPanel', () => {
     });
     const readonlyAttribution = faker.opossum.packageInfo({
       relation: 'resource',
-      isReadonly: true,
+      resourceAccess: 'readonly',
     });
     let selectedIds: Array<string> = [];
 
@@ -294,7 +294,7 @@ describe('PackagesPanel', () => {
   it('disables select all when the active relation has no editable attributions', async () => {
     const readonlyAttribution = faker.opossum.packageInfo({
       relation: 'resource',
-      isReadonly: true,
+      resourceAccess: 'readonly',
     });
     const editableAttribution = faker.opossum.packageInfo({
       relation: 'unrelated',

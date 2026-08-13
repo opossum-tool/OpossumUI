@@ -214,7 +214,10 @@ export const PackagesPanel = ({
   );
 
   const activeSelectableAttributionIds = useMemo(
-    () => activeAttributionIds?.filter((id) => !attributions?.[id]?.isReadonly),
+    () =>
+      activeAttributionIds?.filter(
+        (id) => attributions?.[id]?.resourceAccess !== 'readonly',
+      ),
     [activeAttributionIds, attributions],
   );
 
@@ -225,7 +228,7 @@ export const PackagesPanel = ({
           ? multiSelectedAttributionIds
           : [selectedAttributionId],
         attributionIds,
-      )?.filter((id) => !attributions?.[id]?.isReadonly),
+      )?.filter((id) => attributions?.[id]?.resourceAccess !== 'readonly'),
     [
       attributionIds,
       attributions,

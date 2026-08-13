@@ -142,6 +142,7 @@ export const mutations = {
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
+        { queryName: 'getResourceInfoOnAttributions' },
       ],
     };
   },
@@ -165,7 +166,7 @@ export const mutations = {
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        { queryName: 'getResourceCountOnAttribution' },
+        { queryName: 'getResourceInfoOnAttributions' },
       ],
     };
   },
@@ -201,6 +202,7 @@ export const mutations = {
           queryName: 'getAttributionData' as const,
           params: { attributionUuid },
         })),
+        { queryName: 'getResourceInfoOnAttributions' },
       ],
       result,
     };
@@ -236,7 +238,7 @@ export const mutations = {
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        { queryName: 'getResourceCountOnAttribution' } as const,
+        { queryName: 'getResourceInfoOnAttributions' } as const,
       ],
     };
   },
@@ -295,7 +297,7 @@ export const mutations = {
           queryName: 'getAttributionData' as const,
           params: { attributionUuid },
         })),
-        { queryName: 'getResourceCountOnAttribution' },
+        { queryName: 'getResourceInfoOnAttributions' },
       ],
       result,
     };
@@ -340,7 +342,7 @@ export const mutations = {
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
         { queryName: 'getAttributionData' },
-        { queryName: 'getResourceCountOnAttribution' },
+        { queryName: 'getResourceInfoOnAttributions' },
       ],
       result,
     };
@@ -394,7 +396,7 @@ export const mutations = {
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
         { queryName: 'getAttributionData' },
-        { queryName: 'getResourceCountOnAttribution' },
+        { queryName: 'getResourceInfoOnAttributions' },
       ],
       result,
     };
