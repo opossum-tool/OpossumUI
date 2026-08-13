@@ -46,6 +46,21 @@ describe('MultiResourcePicker', () => {
     expect(screen.getByText('second.ts')).toBeInTheDocument();
   });
 
+  it('expands ancestors of initially selected resources', async () => {
+    await renderComponent(
+      <MultiResourcePicker
+        initialSelectedPaths={['/src/single/first.ts']}
+        open={true}
+        onSelectionChange={vi.fn()}
+      />,
+      { data },
+    );
+
+    expect(await screen.findByText('single')).toBeInTheDocument();
+    expect(screen.getByText('first.ts')).toBeInTheDocument();
+    expect(screen.getByText('second.ts')).toBeInTheDocument();
+  });
+
   it('normalizes selections and visually includes descendants', async () => {
     const onSelectionChange = vi.fn();
     await renderPicker(onSelectionChange);

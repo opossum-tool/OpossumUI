@@ -15,6 +15,7 @@ import type { ResourceTreeNodeData } from '../../../ElectronBackend/api/resource
 import { text } from '../../../shared/text';
 import { ROOT_PATH } from '../../shared-constants';
 import { readonlyStyle } from '../../shared-styles';
+import { getParents } from '../../state/helpers/get-parents';
 import { backend } from '../../util/backendClient';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { ReadonlyIcon } from '../Icons/Icons';
@@ -45,8 +46,13 @@ export function MultiResourcePicker({
   onSelectionChange,
 }: MultiResourcePickerProps) {
   const [selectedPaths, setSelectedPaths] = useState(initialSelectedPaths);
-  const [expandedPaths, setExpandedPaths] = useState<Array<string>>([
-    ROOT_PATH,
+  const [expandedPaths, setExpandedPaths] = useState<Array<string>>(() => [
+    ...new Set([
+      ROOT_PATH,
+      ...initialSelectedPaths.flatMap((selectedPath) =>
+        getParents(selectedPath),
+      ),
+    ]),
   ]);
   const resourceTree = backend.getResourceTree.useQuery(
     {
