@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiAlert from '@mui/material/Alert';
 import MuiTypography from '@mui/material/Typography';
+import { useState } from 'react';
 
 import { text } from '../../../shared/text';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
@@ -13,11 +14,17 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export function ForceUnlockPopup() {
   const dispatch = useAppDispatch();
+  const [forceUnlockInProgress, setForceUnlockInProgress] = useState(false);
 
   async function forceUnlock(): Promise<void> {
-    await window.electronAPI.forceUnlock();
-    await invalidateBackendQueries();
-    dispatch(closePopup());
+    setForceUnlockInProgress(true);
+    try {
+      await window.electronAPI.forceUnlock();
+      await invalidateBackendQueries();
+      dispatch(closePopup());
+    } finally {
+      setForceUnlockInProgress(false);
+    }
   }
 
   return (
@@ -28,9 +35,12 @@ export function ForceUnlockPopup() {
         buttonText: text.forceUnlock.confirm,
         color: 'error',
         onClick: forceUnlock,
+        disabled: forceUnlockInProgress,
+        loading: forceUnlockInProgress,
       }}
       rightButtonConfig={{
         buttonText: text.buttons.cancel,
+        disabled: forceUnlockInProgress,
         onClick: () => dispatch(closePopup()),
       }}
       aria-label={'force unlock popup'}
