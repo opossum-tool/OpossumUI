@@ -111,10 +111,6 @@ export const ConfirmReplacePopup = ({
         <MuiAlert severity={'warning'}>
           {text.confirmAttributionActionPopup.mixedWarning(
             mixedAttributionCount,
-            maybePluralize(
-              mixedAttributionCount,
-              text.confirmAttributionActionPopup.attribution,
-            ),
           )}
         </MuiAlert>
       )}
