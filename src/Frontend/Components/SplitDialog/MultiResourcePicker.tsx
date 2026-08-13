@@ -9,7 +9,7 @@ import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutl
 import MuiChip from '@mui/material/Chip';
 import MuiTypography from '@mui/material/Typography';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import type { ResourceTreeNodeData } from '../../../ElectronBackend/api/resourceTree';
 import { text } from '../../../shared/text';
@@ -54,6 +54,10 @@ export function MultiResourcePicker({
       ),
     ]),
   ]);
+  const initiallySelectedPath = initialSelectedPaths[0];
+  const scrollToResource = useCallback((element: HTMLDivElement | null) => {
+    element?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, []);
   const resourceTree = backend.getResourceTree.useQuery(
     {
       expandedNodes: expandedPaths,
@@ -63,7 +67,6 @@ export function MultiResourcePicker({
   const resources = (resourceTree.data?.treeNodes ?? []).filter(
     (resource) => resource.id !== ROOT_PATH,
   );
-
   function updateSelectedPaths(path: string) {
     const nextSelectedPaths = selectedPaths.includes(path)
       ? selectedPaths.filter((selectedPath) => selectedPath !== path)
@@ -112,6 +115,8 @@ export function MultiResourcePicker({
               selectedPaths,
               updateSelectedPaths,
               toggleExpanded,
+              initiallySelectedPath,
+              scrollToResource,
             ),
           )
         )}
@@ -144,6 +149,8 @@ function renderResource(
   selectedPaths: Array<string>,
   updateSelectedPaths: (path: string) => void,
   toggleExpanded: (resource: ResourceTreeNodeData) => Promise<void>,
+  initiallySelectedPath: string | undefined,
+  scrollToInitiallySelectedResource: (element: HTMLDivElement | null) => void,
 ) {
   const path = removeTrailingSlash(resource.id);
   const selectedExplicitly = selectedPaths.includes(path);
@@ -158,6 +165,11 @@ function renderResource(
   return (
     <ResourceRow
       key={resource.id}
+      ref={
+        path === initiallySelectedPath
+          ? scrollToInitiallySelectedResource
+          : undefined
+      }
       resourceLevel={resource.level}
       selectedByAncestor={selectedByAncestor}
     >
