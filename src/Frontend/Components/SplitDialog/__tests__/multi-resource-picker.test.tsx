@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, screen, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
@@ -44,6 +44,29 @@ describe('MultiResourcePicker', () => {
     expect(await screen.findByText('single')).toBeInTheDocument();
     expect(screen.getByText('first.ts')).toBeInTheDocument();
     expect(screen.getByText('second.ts')).toBeInTheDocument();
+  });
+
+  it('expands ancestors of initially selected resources', async () => {
+    const scrollIntoView = vi.mocked(Element.prototype.scrollIntoView);
+
+    await renderComponent(
+      <MultiResourcePicker
+        initialSelectedPaths={['/src/single/first.ts']}
+        open={true}
+        onSelectionChange={vi.fn()}
+      />,
+      { data },
+    );
+
+    expect(await screen.findByText('single')).toBeInTheDocument();
+    expect(screen.getByText('first.ts')).toBeInTheDocument();
+    expect(screen.getByText('second.ts')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(scrollIntoView).toHaveBeenCalledWith({
+        block: 'center',
+        behavior: 'smooth',
+      }),
+    );
   });
 
   it('normalizes selections and visually includes descendants', async () => {
