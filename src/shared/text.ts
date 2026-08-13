@@ -299,11 +299,12 @@ export const text = {
     title: 'Replace Attributions',
   },
   confirmAttributionActionPopup: {
-    attribution: 'attribution',
     linkedResources: 'Linked resources',
     editableLinkedResources: 'Editable linked resources',
-    mixedWarning: (count: number, attributions: string) =>
-      `${count} ${attributions} are linked to both editable and read-only resources. The ${attributions} will be cloned and changes will affect only the new ${attributions}.`,
+    mixedWarning: (count: number) =>
+      count === 1
+        ? '1 attribution is linked to both editable and read-only resources. It will be cloned and changes will affect only the new attribution.'
+        : `${count} attributions are linked to both editable and read-only resources. They will be cloned and changes will affect only the new attributions.`,
   },
   saveAttributionsPopup: {
     ariaLabel: 'confirm save popup',

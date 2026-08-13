@@ -57,10 +57,7 @@ describe('ConfirmReplacePopup', () => {
 
     expect(
       await screen.findByText(
-        text.confirmAttributionActionPopup.mixedWarning(
-          1,
-          text.confirmAttributionActionPopup.attribution,
-        ),
+        text.confirmAttributionActionPopup.mixedWarning(1),
       ),
     ).toBeVisible();
   });
@@ -103,10 +100,7 @@ describe('ConfirmReplacePopup', () => {
 
     expect(
       await screen.findByText(
-        text.confirmAttributionActionPopup.mixedWarning(
-          1,
-          text.confirmAttributionActionPopup.attribution,
-        ),
+        text.confirmAttributionActionPopup.mixedWarning(1),
       ),
     ).toBeVisible();
   });
