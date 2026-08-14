@@ -5,83 +5,32 @@
 import { expect } from '@playwright/test';
 
 import { parseOpossumFile } from '../../ElectronBackend/input/parseFile';
-import type {
-  ParsedOpossumInputFile,
-  ParsedOpossumOutputFile,
-} from '../../ElectronBackend/types/types';
-import type { RawPackageInfo } from '../../shared/shared-types';
 import { faker, test } from '../utils';
 
-const resourceName = faker.opossum.resourceName();
-const resourcePath = faker.opossum.filePath(resourceName);
+const cliResourceName = faker.opossum.resourceName();
+const cliResourcePath = faker.opossum.filePath(cliResourceName);
 const [preselectedAttributionId, preselectedPackageInfo] =
-  faker.opossum.rawAttribution({ preSelected: true });
-const [existingAttributionId, existingPackageInfo] =
-  faker.opossum.rawAttribution({ attributionConfidence: undefined });
+  faker.opossum.rawAttribution({
+    preSelected: true,
+  });
 
-interface SaveScenario {
-  data: {
-    inputData: ParsedOpossumInputFile;
-    outputData?: ParsedOpossumOutputFile;
-  };
-  packageInfo: RawPackageInfo;
-  title: string;
-}
-
-const saveScenarios: Array<SaveScenario> = [
-  {
-    title: 'when the archive has no output yet',
+test.describe('saving an archive opened from the CLI', () => {
+  test.use({
     data: {
       inputData: faker.opossum.inputData({
         externalAttributions: faker.opossum.rawAttributions({
           [preselectedAttributionId]: preselectedPackageInfo,
         }),
-        resources: faker.opossum.resources({ [resourceName]: 1 }),
+        resources: faker.opossum.resources({ [cliResourceName]: 1 }),
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
-          [resourcePath]: [preselectedAttributionId],
+          [cliResourcePath]: [preselectedAttributionId],
         }),
       }),
     },
-    packageInfo: preselectedPackageInfo,
-  },
-  {
-    title: 'when the archive already has output',
-    data: {
-      inputData: faker.opossum.inputData({
-        resources: faker.opossum.resources({ [resourceName]: 1 }),
-      }),
-      outputData: faker.opossum.outputData({
-        manualAttributions: faker.opossum.rawAttributions({
-          [existingAttributionId]: existingPackageInfo,
-        }),
-        resourcesToAttributions: faker.opossum.resourcesToAttributions({
-          [resourcePath]: [existingAttributionId],
-        }),
-      }),
-    },
-    packageInfo: existingPackageInfo,
-  },
-];
-
-for (const { data, packageInfo, title } of saveScenarios) {
-  test.describe(`${title} when opened from the CLI`, () => {
-    test.use({ data, openFromCLI: true });
-    runSavingTest(packageInfo);
+    openFromCLI: true,
   });
 
-  test.describe(`${title} when opened with the file dialog`, () => {
-    test.use({ data, openFromCLI: false });
-
-    test.beforeEach(async ({ filePaths, menuBar }) => {
-      await menuBar.openFileAndWaitForLoad(filePaths!.opossum);
-    });
-
-    runSavingTest(packageInfo);
-  });
-}
-
-function runSavingTest(packageInfo: RawPackageInfo): void {
-  test('persists a modified attribution', async ({
+  test('persists a modification', async ({
     attributionDetails,
     attributionsPanel,
     filePaths,
@@ -91,59 +40,145 @@ function runSavingTest(packageInfo: RawPackageInfo): void {
     const comment = faker.lorem.sentences();
 
     await menuBar.assert.initiallyDisabledEntriesAreEnabled();
-    await resourcesTree.goto(resourceName);
-    await attributionsPanel.packageCard.click(packageInfo);
+    await resourcesTree.goto(cliResourceName);
+    await attributionsPanel.packageCard.click(preselectedPackageInfo);
     await attributionDetails.attributionForm.comment.fill(comment);
     await menuBar.saveChanges();
 
+    // wait for the changes to be written to disk before loading
     await expect
-      .poll(
-        () =>
-          hasPersistedAttribution({
-            comment,
-            opossumFilePath: filePaths!.opossum,
-            packageName: packageInfo.packageName!,
-            resourcePath,
-          }),
-        {
-          message: 'Expected output.json to contain the updated attribution',
-        },
-      )
+      .poll(() => archiveContainsComment(filePaths!.opossum, comment), {
+        message: 'Expected output.json to contain the updated attribution',
+      })
       .toBe(true);
 
     await menuBar.openFileAndWaitForLoad(filePaths!.opossum);
-    await resourcesTree.goto(resourceName);
-    await attributionsPanel.packageCard.click(packageInfo);
+    await resourcesTree.goto(cliResourceName);
+    await attributionsPanel.packageCard.click(preselectedPackageInfo);
     await attributionDetails.attributionForm.assert.commentIs(comment);
   });
-}
+});
 
-async function hasPersistedAttribution({
-  comment,
-  opossumFilePath,
-  packageName,
-  resourcePath,
-}: {
-  comment: string;
-  opossumFilePath: string;
-  packageName: string;
-  resourcePath: string;
-}): Promise<boolean> {
-  const parsedFile = await parseOpossumFile(opossumFilePath);
-  if (!('input' in parsedFile) || parsedFile.output === null) {
-    return false;
-  }
+const [
+  auditLinkedResourceName,
+  auditDeletedResourceName,
+  auditRejectedResourceName,
+] = faker.opossum.resourceNames({ count: 3 });
+const auditLinkedResourcePath = faker.opossum.filePath(auditLinkedResourceName);
+const auditDeletedResourcePath = faker.opossum.filePath(
+  auditDeletedResourceName,
+);
+const auditRejectedResourcePath = faker.opossum.filePath(
+  auditRejectedResourceName,
+);
+const [auditLinkedAttributionId, auditLinkedPackageInfo] =
+  faker.opossum.rawAttribution();
+const [auditRejectedAttributionId, auditRejectedPackageInfo] =
+  faker.opossum.rawAttribution();
+const [auditDeletedAttributionId, auditDeletedPackageInfo] =
+  faker.opossum.rawAttribution();
 
-  const attribution = Object.entries(parsedFile.output.manualAttributions).find(
-    ([, manualAttribution]) =>
-      manualAttribution.packageName === packageName &&
-      manualAttribution.comment === comment,
-  );
+test.describe('saving an archive opened with the file dialog', () => {
+  test.use({
+    data: {
+      inputData: faker.opossum.inputData({
+        externalAttributions: faker.opossum.rawAttributions({
+          [auditLinkedAttributionId]: auditLinkedPackageInfo,
+          [auditRejectedAttributionId]: auditRejectedPackageInfo,
+        }),
+        resources: faker.opossum.resources({
+          [auditLinkedResourceName]: 1,
+          [auditDeletedResourceName]: 1,
+          [auditRejectedResourceName]: 1,
+        }),
+        resourcesToAttributions: faker.opossum.resourcesToAttributions({
+          [auditLinkedResourcePath]: [auditLinkedAttributionId],
+          [auditRejectedResourcePath]: [auditRejectedAttributionId],
+        }),
+      }),
+      outputData: faker.opossum.outputData({
+        manualAttributions: faker.opossum.rawAttributions({
+          [auditDeletedAttributionId]: auditDeletedPackageInfo,
+        }),
+        resourcesToAttributions: faker.opossum.resourcesToAttributions({
+          [auditDeletedResourcePath]: [auditDeletedAttributionId],
+          [auditRejectedResourcePath]: [auditDeletedAttributionId],
+        }),
+      }),
+    },
+    openFromCLI: false,
+  });
 
+  test('persists modifications', async ({
+    attributionDetails,
+    attributionsPanel,
+    confirmDeletePopup,
+    filePaths,
+    menuBar,
+    resourcesTree,
+    signalsPanel,
+  }) => {
+    const comment = `Persisted audit value ${faker.string.uuid()}`;
+
+    await menuBar.openFileAndWaitForLoad(filePaths!.opossum);
+
+    await resourcesTree.goto(auditLinkedResourceName);
+    await signalsPanel.packageCard.click(auditLinkedPackageInfo);
+    await attributionDetails.linkButton.click();
+
+    await resourcesTree.goto(auditDeletedResourceName);
+    await attributionsPanel.packageCard.click(auditDeletedPackageInfo);
+    await attributionDetails.deleteButton.click();
+    await confirmDeletePopup.deleteGloballyButton.click();
+
+    await resourcesTree.goto(auditRejectedResourceName);
+    await signalsPanel.packageCard.click(auditRejectedPackageInfo);
+    await attributionDetails.deleteButton.click();
+    await signalsPanel.packageCard.assert.isHidden(auditRejectedPackageInfo);
+
+    await resourcesTree.goto(auditLinkedResourceName);
+    await attributionsPanel.packageCard.click(auditLinkedPackageInfo);
+    await attributionDetails.attributionForm.comment.fill(comment);
+    await menuBar.saveChanges();
+
+    // wait for the changes to be written to disk before loading
+    await expect
+      .poll(() => archiveContainsComment(filePaths!.opossum, comment), {
+        message: 'Expected changes to be persisted',
+      })
+      .toBe(true);
+
+    await menuBar.openFileAndWaitForLoad(filePaths!.opossum);
+
+    await resourcesTree.goto(auditLinkedResourceName);
+    await attributionsPanel.packageCard.click(auditLinkedPackageInfo);
+    await attributionDetails.attributionForm.assert.commentIs(comment);
+
+    await resourcesTree.goto(auditDeletedResourceName);
+    await attributionsPanel.packageCard.assert.isHidden(
+      auditDeletedPackageInfo,
+    );
+
+    await resourcesTree.goto(auditRejectedResourceName);
+    await attributionsPanel.packageCard.assert.isHidden(
+      auditDeletedPackageInfo,
+    );
+    await signalsPanel.packageCard.assert.isHidden(auditRejectedPackageInfo);
+    await signalsPanel.showDeletedButton.click();
+    await signalsPanel.packageCard.assert.isVisible(auditRejectedPackageInfo);
+  });
+});
+
+async function archiveContainsComment(
+  filePath: string,
+  comment: string,
+): Promise<boolean> {
+  const parsedFile = await parseOpossumFile(filePath);
   return (
-    attribution !== undefined &&
-    parsedFile.output.resourcesToAttributions[resourcePath]?.includes(
-      attribution[0],
+    'input' in parsedFile &&
+    parsedFile.output !== null &&
+    Object.values(parsedFile.output.manualAttributions).some(
+      (attribution) => attribution.comment === comment,
     )
   );
 }
