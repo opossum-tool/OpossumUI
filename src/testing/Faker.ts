@@ -67,6 +67,8 @@ type _TupleOf<
 > = L['length'] extends N ? L : _TupleOf<N, T, [T, ...L]>;
 
 class OpossumModule {
+  private static nextLicenseId = 0;
+
   public static metadata(
     props: Partial<ProjectMetadata> = {},
   ): ProjectMetadata {
@@ -253,11 +255,14 @@ class OpossumModule {
     props?: Partial<RawFrequentLicense>,
   ): RawFrequentLicense {
     const fullName = faker.commerce.productName();
+    const acronym = fullName.match(/\b([A-Z])/g)!.join('');
+    // ensure a unique shortName
+    const shortName = `${acronym}-${OpossumModule.nextLicenseId++}`;
 
     return {
       defaultText: faker.lorem.sentences(),
       fullName,
-      shortName: fullName.match(/\b([A-Z])/g)!.join(''),
+      shortName,
       ...props,
     };
   }
