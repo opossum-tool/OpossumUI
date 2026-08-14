@@ -2,14 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql } from 'kysely';
-
 import type { SortOption } from '../../Frontend/Components/SortButton/useSortingOptions';
 import type {
   AttributionFilterKey,
   AttributionValueFilters,
 } from '../../shared/attribution-filters';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
+import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
 import {
   AttributionResourceAccess,
@@ -61,9 +60,7 @@ export async function listAttributions(props: {
 
       let query = trx
         .selectFrom('attribution')
-        .select('uuid')
-        .select('data')
-        .select('resource_access')
+        .selectAll('attribution')
         .select(
           attributionToResourceRelationship({
             resource: resourceForRelationships,
@@ -179,7 +176,7 @@ export async function listAttributions(props: {
               'package_name',
               'license_name',
               'copyright',
-              sql`data->>'licenseText'`,
+              'license_text',
               'comment',
               'url',
             ]),
@@ -217,7 +214,7 @@ export async function listAttributions(props: {
       attributions.map((a) => [
         a.uuid,
         {
-          ...(JSON.parse(a.data) as PackageInfo),
+          ...packageInfoFromAttributionRow(a),
           resourceAccess:
             a.resource_access === AttributionResourceAccess.Mixed
               ? 'mixed'

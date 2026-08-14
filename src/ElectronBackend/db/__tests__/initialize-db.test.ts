@@ -2,10 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { Insertable } from 'kysely';
+
 import { Criticality } from '../../../shared/shared-types';
 import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
 import { AttributionResourceAccess } from '../../types/types';
 import { getDb } from '../db';
+import type { Attribution } from '../generated/databaseTypes';
 
 describe('database initialization', () => {
   it('calculates readonly resource state from inherited split rules', async () => {
@@ -130,5 +133,59 @@ describe('database initialization', () => {
       { path: '', is_readonly: 0 },
       { path: '/file.ts', is_readonly: 0 },
     ]);
+  });
+
+  it('enforces attribution column constraints', async () => {
+    await initializeDbWithTestData();
+
+    const invalidValues: Array<Insertable<Attribution>> = [
+      { uuid: 'invalid-boolean', is_external: 2 },
+      { uuid: 'invalid-resource-access', is_external: 0, resource_access: 99 },
+      { uuid: 'invalid-criticality', is_external: 0, criticality: 99 },
+      {
+        uuid: 'invalid-confidence',
+        is_external: 0,
+        attribution_confidence: 101,
+      },
+      { uuid: 'invalid-classification', is_external: 0, classification: -1 },
+      {
+        uuid: 'invalid-additional-data',
+        is_external: 0,
+        additional_data: '[]',
+      },
+      { uuid: 'invalid-origin-ids', is_external: 0, origin_ids: '{}' },
+      {
+        uuid: 'invalid-preferred-origin-ids',
+        is_external: 0,
+        preferred_over_origin_ids: 'not-json',
+      },
+    ];
+
+    for (const values of invalidValues) {
+      await expect(
+        getDb().insertInto('attribution').values(values).execute(),
+      ).rejects.toThrow();
+    }
+
+    await getDb()
+      .insertInto('attribution')
+      .values([
+        {
+          uuid: 'valid-lower-boundaries',
+          is_external: 0,
+          attribution_confidence: 0,
+          classification: 0,
+          additional_data: '{}',
+          origin_ids: '[]',
+          preferred_over_origin_ids: '[]',
+        },
+        {
+          uuid: 'valid-upper-confidence',
+          is_external: 0,
+          attribution_confidence: 100,
+          additional_data: '{}',
+        },
+      ])
+      .execute();
   });
 });

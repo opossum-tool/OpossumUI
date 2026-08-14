@@ -19,35 +19,52 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
  */
 export interface Attribution {
   /**
-   * All of the attribution as JSON
+   * Additional attribution properties kept as JSON for compatibility, including unknown and unused properties
    */
-  data: string;
+  additional_data: Generated<string>;
+  attribution_confidence: number | null;
+  classification: number | null;
+  comment: string | null;
+  copyright: string | null;
+  criticality: Generated<number>;
+  exclude_from_notice: Generated<number>;
+  first_party: Generated<number>;
+  follow_up: Generated<number>;
   is_external: number;
   is_resolved: Generated<number>;
+  license_name: string | null;
+  license_text: string | null;
+  needs_review: Generated<number>;
+  /**
+   * Canonical JSON array containing attribution origin IDs
+   */
+  origin_ids: string | null;
+  original_attribution_id: string | null;
+  original_attribution_source_additional_name: string | null;
+  original_attribution_source_document_confidence: number | null;
+  original_attribution_source_name: string | null;
+  original_attribution_was_preferred: Generated<number>;
+  package_name: string | null;
+  package_namespace: string | null;
+  package_purl_appendix: string | null;
+  package_type: string | null;
+  package_version: string | null;
+  pre_selected: Generated<number>;
+  preferred: Generated<number>;
+  /**
+   * Canonical JSON array containing origin IDs this attribution is preferred over
+   */
+  preferred_over_origin_ids: string | null;
   /**
    * Whether this attribution has only readonly resources, only writable resources, or both.
    */
   resource_access: Generated<number>;
+  source_additional_name: string | null;
+  source_document_confidence: number | null;
+  source_name: string | null;
+  url: string | null;
   uuid: string;
-  pre_selected: Generated<number>;
-  criticality: Generated<number | null>;
-  classification: Generated<number | null>;
-  first_party: Generated<number>;
-  exclude_from_notice: Generated<number>;
   was_preferred: Generated<number>;
-  copyright: Generated<string | null>;
-  license_name: Generated<string | null>;
-  url: Generated<string | null>;
-  package_name: Generated<string | null>;
-  package_namespace: Generated<string | null>;
-  package_version: Generated<string | null>;
-  package_type: Generated<string | null>;
-  attribution_confidence: Generated<number | null>;
-  follow_up: Generated<number>;
-  needs_review: Generated<number>;
-  preferred: Generated<number>;
-  original_attribution_was_preferred: Generated<number>;
-  comment: Generated<string | null>;
   canonical_license_name: Generated<string | null>;
 }
 

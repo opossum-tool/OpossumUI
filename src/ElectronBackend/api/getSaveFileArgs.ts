@@ -6,10 +6,10 @@ import { type Kysely, sql } from 'kysely';
 
 import type {
   Attributions,
-  PackageInfo,
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../shared/shared-types';
+import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
 
@@ -40,7 +40,7 @@ export async function getPreferredOverOriginIds(trxOrDb: Kysely<DB>) {
     .selectFrom('overridden_resources')
     .select([
       'overridden_resources.attribution_uuid',
-      sql<string>`overridden.data->'originIds'`.as('overridden_origin_ids'),
+      sql<string | null>`overridden.origin_ids`.as('overridden_origin_ids'),
     ])
     .innerJoin(
       'resource_to_attribution as has_overridden',
@@ -73,9 +73,11 @@ export async function getPreferredOverOriginIds(trxOrDb: Kysely<DB>) {
       preferredOver[row.attribution_uuid] = new Set();
     }
 
-    (JSON.parse(row.overridden_origin_ids) as Array<string>).forEach((i) =>
-      preferredOver[row.attribution_uuid].add(i),
-    );
+    if (row.overridden_origin_ids !== null) {
+      (JSON.parse(row.overridden_origin_ids) as Array<string>).forEach((i) =>
+        preferredOver[row.attribution_uuid].add(i),
+      );
+    }
   }
 
   return Object.fromEntries(
@@ -92,7 +94,7 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
     .execute(async (trx) => {
       const manualAttributionsResult = await trx
         .selectFrom('attribution')
-        .select(['uuid', 'data'])
+        .selectAll('attribution')
         .where('is_external', '=', 0)
         .execute();
 
@@ -127,9 +129,9 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
     });
 
   const manualAttributions: Attributions = Object.fromEntries(
-    queryResults.manualAttributionsResult.map(({ uuid, data }) => [
-      uuid,
-      { ...(JSON.parse(data) as PackageInfo), id: uuid },
+    queryResults.manualAttributionsResult.map((row) => [
+      row.uuid,
+      packageInfoFromAttributionRow(row),
     ]),
   );
 

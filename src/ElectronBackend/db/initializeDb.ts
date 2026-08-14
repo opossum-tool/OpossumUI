@@ -2,31 +2,32 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { expressionBuilder, sql, type Transaction } from 'kysely';
-import { snakeCase } from 'lodash-es';
-
-import type {
-  BaseUrlsForSources,
-  ExternalAttributionSources,
-  FrequentLicenses,
-  InputFileAttributionData,
-  PackageInfo,
-  ParsedFileContent,
-  ProjectMetadata,
-  RawClassificationsConfig,
-  ReadonlyRule,
-  Resources,
-  ResourcesToAttributions,
-} from '../../shared/shared-types';
 import {
-  removeEmptyStrings,
-  removeTrailingSlash,
-  toCanonicalLicenseName,
-} from '../api/utils';
+  expressionBuilder,
+  type ReferenceExpression,
+  sql,
+  type Transaction,
+} from 'kysely';
+
+import {
+  type BaseUrlsForSources,
+  Criticality,
+  type ExternalAttributionSources,
+  type FrequentLicenses,
+  type InputFileAttributionData,
+  type ParsedFileContent,
+  type ProjectMetadata,
+  type RawClassificationsConfig,
+  type ReadonlyRule,
+  type Resources,
+  type ResourcesToAttributions,
+} from '../../shared/shared-types';
+import { removeTrailingSlash, toCanonicalLicenseName } from '../api/utils';
 import {
   ATTRIBUTION_RESOURCE_ACCESS_VALUES,
   AttributionResourceAccess,
 } from '../types/types';
+import { getAttributionPersistenceValues } from './attributionData';
 import { getDb, getRawDb, resetDb } from './db';
 import type { DB } from './generated/databaseTypes';
 
@@ -37,7 +38,11 @@ export const comments: Record<string, Record<string, string>> = {
   attribution: {
     _table_:
       "External attributions (UI: 'signals') and manual attributions (UI: 'attributions')",
-    data: 'All of the attribution as JSON',
+    additional_data:
+      'Additional attribution properties kept as JSON for compatibility, including unknown and unused properties',
+    origin_ids: 'Canonical JSON array containing attribution origin IDs',
+    preferred_over_origin_ids:
+      'Canonical JSON array containing origin IDs this attribution is preferred over',
     resource_access:
       'Whether this attribution has only readonly resources, only writable resources, or both.',
   },
@@ -65,6 +70,31 @@ export const comments: Record<string, Record<string, string>> = {
       'Readonly path overrides loaded from split-info.json. An empty table represents an unsplit project. The most specific matching path applies.',
   },
 };
+
+const ATTRIBUTION_INDEX_COLUMNS = [
+  'pre_selected',
+  'criticality',
+  'classification',
+  'first_party',
+  'exclude_from_notice',
+  'was_preferred',
+  'copyright',
+  'license_name',
+  'url',
+  'package_name',
+  'package_namespace',
+  'package_version',
+  'package_type',
+  'package_purl_appendix',
+  'attribution_confidence',
+  'follow_up',
+  'needs_review',
+  'preferred',
+  'original_attribution_id',
+  'original_attribution_was_preferred',
+  'comment',
+  'canonical_license_name',
+] as const satisfies ReadonlyArray<keyof DB['attribution']>;
 
 export async function initializeDb(inputFile: ParsedFileContent) {
   resetDb();
@@ -480,28 +510,6 @@ async function initializeResourceTable(
   return resourcePathToId;
 }
 
-export const generatedColumnsFromJsonData = [
-  ['preSelected', 'boolean'],
-  ['criticality', 'integer'],
-  ['classification', 'integer'],
-  ['firstParty', 'boolean'],
-  ['excludeFromNotice', 'boolean'],
-  ['wasPreferred', 'boolean'],
-  ['copyright', 'text'],
-  ['licenseName', 'text'],
-  ['url', 'text'],
-  ['packageName', 'text'],
-  ['packageNamespace', 'text'],
-  ['packageVersion', 'text'],
-  ['packageType', 'text'],
-  ['attributionConfidence', 'integer'],
-  ['followUp', 'boolean'],
-  ['needsReview', 'boolean'],
-  ['preferred', 'boolean'],
-  ['originalAttributionWasPreferred', 'boolean'],
-  ['comment', 'text'],
-] as const satisfies Array<[keyof PackageInfo, string]>;
-
 async function initializeAttributionTable(
   trx: Transaction<DB>,
   externalAttributions: InputFileAttributionData,
@@ -509,44 +517,190 @@ async function initializeAttributionTable(
   resolvedExternalAttributions: Set<string>,
 ) {
   const attributionExpressionBuilder = expressionBuilder<DB, 'attribution'>();
-  let schema = trx.schema
+  const isBoolean = (ref: ReferenceExpression<DB, 'attribution'>) =>
+    attributionExpressionBuilder(ref, 'in', [sql.lit(0), sql.lit(1)]);
+  const isNullableJsonArray = (ref: ReferenceExpression<DB, 'attribution'>) =>
+    attributionExpressionBuilder.or([
+      attributionExpressionBuilder(ref, 'is', null),
+      attributionExpressionBuilder.and([
+        attributionExpressionBuilder(
+          attributionExpressionBuilder.fn<number>('json_valid', [ref]),
+          '=',
+          sql.lit(1),
+        ),
+        attributionExpressionBuilder(
+          attributionExpressionBuilder.fn<string>('json_type', [ref]),
+          '=',
+          sql.lit('array'),
+        ),
+      ]),
+    ]);
+
+  await trx.schema
     .createTable('attribution')
     .addColumn('uuid', 'text', (col) => col.primaryKey().notNull())
-    .addColumn('data', 'text', (col) => col.notNull())
-    .addColumn('is_external', 'integer', (col) => col.notNull())
-    .addColumn('is_resolved', 'integer', (col) => col.notNull().defaultTo(0))
-    .addColumn('resource_access', 'integer', (col) =>
-      col.notNull().defaultTo(AttributionResourceAccess.Writable),
+    .addColumn('additional_data', 'text', (col) =>
+      col
+        .notNull()
+        .defaultTo('{}')
+        .check(
+          attributionExpressionBuilder.and([
+            attributionExpressionBuilder(
+              attributionExpressionBuilder.fn<number>('json_valid', [
+                'additional_data',
+              ]),
+              '=',
+              sql.lit(1),
+            ),
+            attributionExpressionBuilder(
+              attributionExpressionBuilder.fn<string>('json_type', [
+                'additional_data',
+              ]),
+              '=',
+              sql.lit('object'),
+            ),
+          ]),
+        ),
     )
-    .addCheckConstraint(
-      'attribution_resource_access_check',
-      attributionExpressionBuilder(
-        'resource_access',
-        'in',
-        ATTRIBUTION_RESOURCE_ACCESS_VALUES.map((value) => sql.lit(value)),
+    .addColumn('is_external', 'integer', (col) =>
+      col.notNull().check(isBoolean('is_external')),
+    )
+    .addColumn('is_resolved', 'integer', (col) =>
+      col.notNull().defaultTo(0).check(isBoolean('is_resolved')),
+    )
+    .addColumn('resource_access', 'integer', (col) =>
+      col
+        .notNull()
+        .defaultTo(AttributionResourceAccess.Writable)
+        .check(
+          attributionExpressionBuilder(
+            'resource_access',
+            'in',
+            ATTRIBUTION_RESOURCE_ACCESS_VALUES.map((value) => sql.lit(value)),
+          ),
+        ),
+    )
+    .addColumn('original_attribution_source_name', 'text')
+    .addColumn(
+      'original_attribution_source_document_confidence',
+      'integer',
+      (col) =>
+        col.check(
+          attributionExpressionBuilder.or([
+            attributionExpressionBuilder(
+              'original_attribution_source_document_confidence',
+              'is',
+              null,
+            ),
+            attributionExpressionBuilder.between(
+              'original_attribution_source_document_confidence',
+              sql.lit(0),
+              sql.lit(100),
+            ),
+          ]),
+        ),
+    )
+    .addColumn('original_attribution_source_additional_name', 'text')
+    .addColumn('origin_ids', 'text', (col) =>
+      col.check(isNullableJsonArray('origin_ids')),
+    )
+    .addColumn('preferred_over_origin_ids', 'text', (col) =>
+      col.check(isNullableJsonArray('preferred_over_origin_ids')),
+    )
+    .addColumn('source_name', 'text')
+    .addColumn('source_document_confidence', 'integer', (col) =>
+      col.check(
+        attributionExpressionBuilder.or([
+          attributionExpressionBuilder(
+            'source_document_confidence',
+            'is',
+            null,
+          ),
+          attributionExpressionBuilder.between(
+            'source_document_confidence',
+            sql.lit(0),
+            sql.lit(100),
+          ),
+        ]),
       ),
-    );
-
-  for (const [name, datatype] of generatedColumnsFromJsonData) {
-    if (datatype === 'boolean') {
-      schema = schema.addColumn(snakeCase(name), 'integer', (col) =>
-        col
-          .generatedAlwaysAs(sql.raw(`COALESCE(data ->> '${name}', 0)`))
-          .stored()
-          .notNull(),
-      );
-    } else {
-      schema = schema.addColumn(snakeCase(name), datatype, (col) =>
-        col.generatedAlwaysAs(sql.raw(`data ->> '${name}'`)).stored(),
-      );
-    }
-  }
-
-  schema = schema.addColumn('canonical_license_name', 'text', (col) =>
-    col.generatedAlwaysAs(toCanonicalLicenseName(sql`license_name`)).stored(),
-  );
-
-  await schema.execute();
+    )
+    .addColumn('source_additional_name', 'text')
+    .addColumn('pre_selected', 'integer', (col) =>
+      col.notNull().defaultTo(0).check(isBoolean('pre_selected')),
+    )
+    .addColumn('criticality', 'integer', (col) =>
+      col
+        .notNull()
+        .defaultTo(Criticality.None)
+        .check(
+          attributionExpressionBuilder(
+            'criticality',
+            'in',
+            [Criticality.None, Criticality.Medium, Criticality.High].map(
+              (value) => sql.lit(value),
+            ),
+          ),
+        ),
+    )
+    .addColumn('first_party', 'integer', (col) =>
+      col.notNull().defaultTo(0).check(isBoolean('first_party')),
+    )
+    .addColumn('exclude_from_notice', 'integer', (col) =>
+      col.notNull().defaultTo(0).check(isBoolean('exclude_from_notice')),
+    )
+    .addColumn('was_preferred', 'integer', (col) =>
+      col.notNull().defaultTo(0).check(isBoolean('was_preferred')),
+    )
+    .addColumn('copyright', 'text')
+    .addColumn('license_name', 'text')
+    .addColumn('license_text', 'text')
+    .addColumn('url', 'text')
+    .addColumn('package_name', 'text')
+    .addColumn('package_namespace', 'text')
+    .addColumn('package_version', 'text')
+    .addColumn('package_type', 'text')
+    .addColumn('package_purl_appendix', 'text')
+    .addColumn('attribution_confidence', 'integer', (col) =>
+      col.check(
+        attributionExpressionBuilder.or([
+          attributionExpressionBuilder('attribution_confidence', 'is', null),
+          attributionExpressionBuilder.between(
+            'attribution_confidence',
+            sql.lit(0),
+            sql.lit(100),
+          ),
+        ]),
+      ),
+    )
+    .addColumn('follow_up', 'integer', (col) =>
+      col.notNull().defaultTo(0).check(isBoolean('follow_up')),
+    )
+    .addColumn('needs_review', 'integer', (col) =>
+      col.notNull().defaultTo(0).check(isBoolean('needs_review')),
+    )
+    .addColumn('preferred', 'integer', (col) =>
+      col.notNull().defaultTo(0).check(isBoolean('preferred')),
+    )
+    .addColumn('original_attribution_id', 'text')
+    .addColumn('original_attribution_was_preferred', 'integer', (col) =>
+      col
+        .notNull()
+        .defaultTo(0)
+        .check(isBoolean('original_attribution_was_preferred')),
+    )
+    .addColumn('comment', 'text')
+    .addColumn('classification', 'integer', (col) =>
+      col.check(
+        attributionExpressionBuilder.or([
+          attributionExpressionBuilder('classification', 'is', null),
+          attributionExpressionBuilder('classification', '>=', sql.lit(0)),
+        ]),
+      ),
+    )
+    .addColumn('canonical_license_name', 'text', (col) =>
+      col.generatedAlwaysAs(toCanonicalLicenseName(sql`license_name`)).stored(),
+    )
+    .execute();
 
   for (const [uuid, attribution] of Object.entries(
     externalAttributions.attributions,
@@ -557,7 +711,7 @@ async function initializeAttributionTable(
       .insertInto('attribution')
       .values({
         uuid,
-        data: JSON.stringify(removeEmptyStrings(attribution)),
+        ...getAttributionPersistenceValues(attribution),
         is_external: Number(true),
         is_resolved: Number(isResolved),
       })
@@ -571,22 +725,18 @@ async function initializeAttributionTable(
       .insertInto('attribution')
       .values({
         uuid,
-        data: JSON.stringify(removeEmptyStrings(attribution)),
+        ...getAttributionPersistenceValues(attribution),
         is_external: Number(false),
         is_resolved: Number(false),
       })
       .execute();
   }
 
-  for (const [name, _] of [
-    ...generatedColumnsFromJsonData,
-    ['canonicalLicenseName', 'text'],
-  ]) {
+  for (const column of ATTRIBUTION_INDEX_COLUMNS) {
     await trx.schema
-      .createIndex(`attribution_${snakeCase(name)}_idx`)
+      .createIndex(`attribution_${column}_idx`)
       .on('attribution')
-      .column('is_external')
-      .column(snakeCase(name))
+      .columns(['is_external', column])
       .execute();
   }
 

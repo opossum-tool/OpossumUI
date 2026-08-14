@@ -863,14 +863,14 @@ describe('licenseTable', () => {
     expect(result.totals.total).toBe(1);
   });
 
-  it('defaults null criticality and classification to 0', async () => {
+  it('defaults null classification to 0', async () => {
     await initializeDbWithTestData({
       resources: {},
       externalAttributions: {
         attributions: {
           ext1: {
             id: 'ext1',
-            criticality: undefined as unknown as Criticality,
+            criticality: Criticality.None,
             licenseName: 'MIT',
           },
         },

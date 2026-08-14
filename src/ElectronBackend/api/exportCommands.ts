@@ -4,11 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { sql } from 'kysely';
 
-import {
-  type Attributions,
-  ExportType,
-  type PackageInfo,
-} from '../../shared/shared-types';
+import { type Attributions, ExportType } from '../../shared/shared-types';
+import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
@@ -37,9 +34,8 @@ export async function exportFile(exportType: ExportType, filePath: string) {
 async function exportFollowUp(params: { filePath: string }) {
   const followUpAndFilePathsResult = await getDb()
     .selectFrom('attribution')
+    .selectAll('attribution')
     .select([
-      'uuid',
-      'data',
       (eb) =>
         eb
           .selectFrom('resource')
@@ -70,7 +66,7 @@ async function exportFollowUp(params: { filePath: string }) {
     followUpAndFilePathsResult.map((row) => [
       row.uuid,
       {
-        ...(JSON.parse(row.data) as PackageInfo),
+        ...packageInfoFromAttributionRow(row),
         resources: JSON.parse(row.paths ?? '[]') as Array<string>,
       },
     ]),
@@ -102,19 +98,15 @@ async function exportSpdxDocument(params: {
       'frequent_license.full_name',
       'attribution.license_name',
     )
-    .select([
-      'attribution.uuid',
-      'attribution.package_name',
-      'attribution.data',
-      'frequent_license.license_text as frequent_license_text',
-    ])
+    .selectAll('attribution')
+    .select('frequent_license.license_text as frequent_license_text')
     .where('is_external', '=', 0)
     .orderBy('attribution.package_name')
     .execute();
 
   const spdxAttributions: Attributions = {};
   for (const row of rows) {
-    const packageInfo = JSON.parse(row.data) as PackageInfo;
+    const packageInfo = packageInfoFromAttributionRow(row);
     const licenseText =
       packageInfo.licenseText ?? row.frequent_license_text ?? '';
     spdxAttributions[row.uuid] = { ...packageInfo, licenseText };
@@ -129,7 +121,7 @@ async function exportSpdxDocument(params: {
 async function exportCompactBom(params: { filePath: string }) {
   const rows = await getDb()
     .selectFrom('attribution')
-    .select(['uuid', 'data'])
+    .selectAll('attribution')
     .where('is_external', '=', 0)
     .where('follow_up', '=', 0)
     .where('first_party', '=', 0)
@@ -137,7 +129,7 @@ async function exportCompactBom(params: { filePath: string }) {
     .execute();
 
   const bomAttributions: Attributions = Object.fromEntries(
-    rows.map((row) => [row.uuid, JSON.parse(row.data) as PackageInfo]),
+    rows.map((row) => [row.uuid, packageInfoFromAttributionRow(row)]),
   );
 
   await writeCsvToFile({
@@ -156,25 +148,23 @@ async function exportCompactBom(params: { filePath: string }) {
 async function exportDetailedBom(params: { filePath: string }) {
   const manualAttributionsAndResourcesResult = await getDb()
     .selectFrom('attribution')
-    .select([
-      'uuid',
-      'data',
-      (eb) =>
-        eb
-          .selectFrom('resource')
-          .innerJoin(
-            'resource_to_attribution',
-            'resource_to_attribution.resource_id',
-            'resource.id',
-          )
-          .select(
-            sql<string>`json_group_array(resource.path ORDER BY resource.id)`.as(
-              'paths',
-            ),
-          )
-          .whereRef('attribution_uuid', '=', 'uuid')
-          .as('paths'),
-    ])
+    .selectAll('attribution')
+    .select((eb) =>
+      eb
+        .selectFrom('resource')
+        .innerJoin(
+          'resource_to_attribution',
+          'resource_to_attribution.resource_id',
+          'resource.id',
+        )
+        .select(
+          sql<string>`json_group_array(resource.path ORDER BY resource.id)`.as(
+            'paths',
+          ),
+        )
+        .whereRef('attribution_uuid', '=', 'uuid')
+        .as('paths'),
+    )
     .where('is_external', '=', 0)
     .where('follow_up', '=', 0)
     .where('first_party', '=', 0)
@@ -184,7 +174,7 @@ async function exportDetailedBom(params: { filePath: string }) {
     manualAttributionsAndResourcesResult.map((row) => [
       row.uuid,
       {
-        ...(JSON.parse(row.data) as PackageInfo),
+        ...packageInfoFromAttributionRow(row),
         resources: JSON.parse(row.paths ?? '[]') as Array<string>,
       },
     ]),
