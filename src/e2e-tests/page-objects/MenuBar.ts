@@ -155,15 +155,18 @@ export class MenuBar {
     await this.clickEnabledMenuItem(menuItemIds.openFile);
   }
 
-  async openFileAndWaitForLoad(filePath: string): Promise<void> {
+  async openFileAndWaitForLoad(
+    filePath: string,
+    timeout = 30000,
+  ): Promise<void> {
     const previousResourcesTree = await this.resourcesTree.getElementHandle();
 
     await this.openFile(filePath);
 
     await previousResourcesTree?.waitForElementState('hidden', {
-      timeout: 30000,
+      timeout,
     });
-    await this.resourcesTree.assert.isVisible(30000);
+    await this.resourcesTree.assert.isVisible(timeout);
   }
 
   async createSplit(): Promise<void> {

@@ -110,6 +110,15 @@ export class PackageCard {
     checkboxIsUnchecked: async (packageInfo: RawPackageInfo): Promise<void> => {
       await expect(this.checkbox(packageInfo)).not.toBeChecked();
     },
+    isFirstVisible: async (packageInfo: RawPackageInfo): Promise<void> => {
+      const firstCard = this.context
+        .locator('[aria-label^="package card "]')
+        .first();
+      await expect(firstCard).toHaveAttribute(
+        'aria-label',
+        `package card ${this.getCardLabel(packageInfo)}`,
+      );
+    },
     isPickerSource: async (packageInfo: RawPackageInfo): Promise<void> => {
       await expect(this.node(packageInfo)).toHaveAttribute(
         'data-picker-source',
