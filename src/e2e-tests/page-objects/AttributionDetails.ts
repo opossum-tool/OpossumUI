@@ -9,6 +9,7 @@ import { AttributionForm } from './AttributionForm';
 
 export class AttributionDetails {
   private readonly node: Locator;
+  private readonly loadingIndicator: Locator;
   readonly attributionForm: AttributionForm;
   readonly cancelButton: Locator;
   readonly compareButton: Locator;
@@ -24,6 +25,7 @@ export class AttributionDetails {
 
   constructor(window: Page) {
     this.node = window.getByLabel('attribution column');
+    this.loadingIndicator = window.getByTestId('attribution-details-loading');
     this.attributionForm = new AttributionForm(this.node, window);
     this.confirmButton = this.node.getByRole('button', {
       name: text.attributionColumn.confirm,
@@ -83,6 +85,9 @@ export class AttributionDetails {
     },
     isHidden: async (): Promise<void> => {
       await expect(this.node).toBeHidden();
+    },
+    loadingIndicatorIsHidden: async (): Promise<void> => {
+      await expect(this.loadingIndicator).toBeHidden();
     },
     saveButtonIsVisible: async (): Promise<void> => {
       await expect(this.saveButton).toBeVisible();

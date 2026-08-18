@@ -43,28 +43,28 @@ export class MergeOpossumFilesDialog {
       .setChecked(false);
   }
 
-  public async merge(): Promise<void> {
+  public async merge(timeout?: number): Promise<void> {
     await this.mergeButton.click();
-    await this.waitForMergeToComplete();
+    await this.waitForMergeToComplete(timeout);
   }
 
-  public async mergeAnyway(): Promise<void> {
+  public async mergeAnyway(timeout?: number): Promise<void> {
     await this.mergeAnywayButton.click();
-    await this.waitForMergeToComplete();
+    await this.waitForMergeToComplete(timeout);
   }
 
-  private async waitForMergeToComplete(): Promise<void> {
-    await this.assert.isHidden();
-    await expect(this.processingPopup).toBeHidden({ timeout: 30000 });
-    await this.assert.isHidden();
+  private async waitForMergeToComplete(timeout = 30000): Promise<void> {
+    await this.assert.isHidden(timeout);
+    await expect(this.processingPopup).toBeHidden({ timeout });
+    await this.assert.isHidden(timeout);
   }
 
   public assert = {
     isVisible: async (): Promise<void> => {
       await expect(this.node).toBeVisible();
     },
-    isHidden: async (): Promise<void> => {
-      await expect(this.node).toBeHidden({ timeout: 30000 });
+    isHidden: async (timeout = 30000): Promise<void> => {
+      await expect(this.node).toBeHidden({ timeout });
     },
     inputFileIsVisible: async (filePath: string): Promise<void> => {
       await expect(this.node.getByText(filePath)).toBeVisible();

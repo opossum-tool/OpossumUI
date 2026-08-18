@@ -43,8 +43,10 @@ export class SplitDialog {
     showsError: async (message: string): Promise<void> => {
       await expect(this.node.getByText(message)).toBeVisible();
     },
-    succeeded: async (): Promise<void> => {
-      await expect(this.node.getByText(text.splitDialog.success)).toBeVisible();
+    succeeded: async (timeout?: number): Promise<void> => {
+      await expect(this.node.getByText(text.splitDialog.success)).toBeVisible({
+        timeout,
+      });
     },
     resourceIsReadonly: async (resourceName: string): Promise<void> => {
       const row = this.getResourceRow(resourceName);

@@ -73,15 +73,26 @@ export class ProjectStatisticsPopup {
         text.projectStatisticsPopup.charts.count,
       );
     },
+    overviewChartsAreVisible: async (): Promise<void> => {
+      await Promise.all([
+        expect(this.attributionsOverviewChart).toBeVisible(),
+        expect(this.mostFrequentLicensesChart).toBeVisible(),
+        expect(this.signalsByCriticalityChart).toBeVisible(),
+        expect(this.signalsByClassificationChart).toBeVisible(),
+        expect(this.incompleteAttributionsChart).toBeVisible(),
+      ]);
+    },
     mostFrequentLicensesPieChartIsVisible: async (
       licenseName: string,
     ): Promise<void> => {
       await expect(this.mostFrequentLicensesChart).toContainText(licenseName);
     },
-    signalsByCriticalityIsVisible: async (): Promise<void> => {
+    signalsByCriticalityIsVisible: async (
+      expectedCategory: string = text.projectStatisticsPopup.charts
+        .criticalSignalsCountPieChart.mediumCritical,
+    ): Promise<void> => {
       await expect(this.signalsByCriticalityChart).toContainText(
-        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
-          .mediumCritical,
+        expectedCategory,
       );
     },
     signalsByCriticalityIsNotVisible: async (): Promise<void> => {
@@ -90,6 +101,13 @@ export class ProjectStatisticsPopup {
 
     signalsByClassificationIsVisible: async (): Promise<void> => {
       await expect(this.signalsByClassificationChart).toBeVisible();
+    },
+    signalsByClassificationContains: async (
+      classification: string,
+    ): Promise<void> => {
+      await expect(this.signalsByClassificationChart).toContainText(
+        classification,
+      );
     },
     signalsByClassificationIsShown: async (): Promise<void> => {
       await expect(this.signalsByClassificationChart).toBeVisible();
