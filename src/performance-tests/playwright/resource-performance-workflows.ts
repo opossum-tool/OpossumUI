@@ -17,8 +17,6 @@ import type { PerformanceWorkflowContext } from './performance-workflow-context'
 
 export async function runResourceWorkflows({
   model,
-  runFilePath,
-  appLoadTimeout,
   attributionDetails,
   attributionsPanel,
   menuBar,
@@ -38,20 +36,6 @@ export async function runResourceWorkflows({
   const attributionFilter = model.scenarios.attributionFilter;
   const signalSearch = model.scenarios.signalSearch;
   const signalSort = model.scenarios.signalSort;
-  await runScenario({
-    id: 'load-file',
-    title: 'open the performance file',
-    execute: async () => {
-      await menuBar.openFileAndWaitForLoad(runFilePath, appLoadTimeout);
-      await waitForAuditReady({
-        attributionDetails,
-        attributionsPanel,
-        resourcesTree,
-        signalsPanel,
-        topBar,
-      });
-    },
-  });
 
   await runScenario({
     id: 'expand-and-select-resource',
