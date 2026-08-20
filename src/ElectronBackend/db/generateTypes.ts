@@ -5,10 +5,9 @@
 import { promises as fs } from 'fs';
 import type { Kysely } from 'kysely';
 import { SqliteDialect as CodegenDialect, generate } from 'kysely-codegen';
-import { snakeCase } from 'lodash-es';
 
 import type { DB } from './generated/databaseTypes';
-import { comments, generatedColumnsFromJsonData } from './initializeDb';
+import { comments } from './initializeDb';
 
 export async function generateTypes(
   db: Kysely<DB>,
@@ -49,7 +48,6 @@ ${result}`;
     }
   }
 
-  result = insertGeneratedColumnsFromJsonData(result);
   result = insertGeneratedColumns(result);
 
   await fs.writeFile(filename, result, 'utf8');
@@ -77,28 +75,6 @@ function insertColumnComment(
       String.raw`(export interface ${tableName} \{[\s\S]*?)(${columnName}:)`,
     ),
     `$1/**\n   * ${comment.split('\n').join('\n   * ')}\n   */\n  $2`,
-  );
-}
-
-/**
- * In the attribution table, we automatically generate columns from the data.
- * Kysely-codegen doesn't pick them up yet (https://github.com/kysely-org/kysely/issues/1397)
- */
-function insertGeneratedColumnsFromJsonData(fileContent: string) {
-  const datatypeToType = {
-    integer: 'number',
-    text: 'string',
-  };
-  const toInsert = generatedColumnsFromJsonData
-    .map(
-      ([jsonName, datatype]) =>
-        `${snakeCase(jsonName)}: Generated<${datatype === 'boolean' ? 'number' : `${datatypeToType[datatype]} | null`}>;`,
-    )
-    .join('\n  ');
-
-  return fileContent.replace(
-    /(export interface Attribution {[^}]*)}/,
-    `$1  ${toInsert}\n}`,
   );
 }
 

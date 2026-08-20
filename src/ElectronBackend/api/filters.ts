@@ -5,7 +5,6 @@
 import {
   expressionBuilder,
   type OperandExpression,
-  sql,
   type SqlBool,
 } from 'kysely';
 
@@ -106,10 +105,7 @@ function getMissingAttributeFilters(): Record<
     licenseInformation: eb.and([
       isRelevant,
       eb.or([eb('license_name', 'is', null), eb('license_name', '=', '')]),
-      eb.or([
-        eb(sql`data->>'licenseText'`, 'is', null),
-        eb(sql`data->>'licenseText'`, '=', ''),
-      ]),
+      eb.or([eb('license_text', 'is', null), eb('license_text', '=', '')]),
     ]),
   };
 }

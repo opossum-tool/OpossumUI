@@ -184,19 +184,28 @@ describe('loadFile', () => {
 
     const manualAttributions = await getDb()
       .selectFrom('attribution')
-      .select('data')
+      .select([
+        'additional_data',
+        'package_name',
+        'package_version',
+        'comment',
+        'copyright',
+        'pre_selected',
+        'attribution_confidence',
+        'criticality',
+      ])
       .where('is_external', '=', 0)
       .execute();
 
-    expect(manualAttributions.map((a) => JSON.parse(a.data))).toEqual([
+    expect(manualAttributions).toEqual([
       {
-        packageName: 'my app',
-        packageVersion: '1.2.3',
+        additional_data: '{}',
+        package_name: 'my app',
+        package_version: '1.2.3',
         comment: 'some comment',
         copyright: '(c) first party',
-        preSelected: true,
-        attributionConfidence: 17,
-        id: manualAttributionUuid,
+        pre_selected: 1,
+        attribution_confidence: 17,
         criticality: Criticality.None,
       },
     ]);

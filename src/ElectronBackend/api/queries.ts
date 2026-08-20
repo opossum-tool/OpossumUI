@@ -15,6 +15,7 @@ import type {
   ProjectMetadata,
   RawClassificationsConfig,
 } from '../../shared/shared-types';
+import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
 import { isProjectSplit } from '../db/split-info';
 import {
@@ -134,14 +135,14 @@ export const queries = {
   async getAttributionData(props: { attributionUuid: string }) {
     const result = await getDb()
       .selectFrom('attribution')
-      .select(['data', 'is_external', 'resource_access'])
+      .selectAll('attribution')
       .where('uuid', '=', props.attributionUuid)
       .executeTakeFirstOrThrow();
 
     return {
       result: {
         packageInfo: {
-          ...(JSON.parse(result.data) as PackageInfo),
+          ...packageInfoFromAttributionRow(result),
           resourceAccess:
             result.resource_access === AttributionResourceAccess.Mixed
               ? 'mixed'
@@ -475,7 +476,7 @@ export const queries = {
         const attributions = await trx
           .selectFrom('resource_to_attribution')
           .innerJoin('attribution', 'uuid', 'attribution_uuid')
-          .select('attribution.data')
+          .select('attribution.uuid')
           .where('resource_id', '=', resource.id)
           .where('attribution.is_external', '=', 0)
           .where((eb) =>

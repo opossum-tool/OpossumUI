@@ -22,6 +22,10 @@ import {
   THIRD_PARTY_KEYS,
 } from '../../shared/attribution-comparison';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
+import {
+  getAttributionPersistenceValues,
+  packageInfoFromAttributionRow,
+} from '../db/attributionData';
 import type { DB } from '../db/generated/databaseTypes';
 import { AttributionResourceAccess } from '../types/types';
 import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
@@ -520,11 +524,11 @@ async function computeWasPreferred(
 
   const original = await trx
     .selectFrom('attribution')
-    .select('data')
+    .selectAll('attribution')
     .where('uuid', '=', originalAttributionId)
     .executeTakeFirstOrThrow();
 
-  const originalData = JSON.parse(original.data) as PackageInfo;
+  const originalData = packageInfoFromAttributionRow(original);
   return (
     (isEqualToExternalAttribution(packageInfo, originalData) &&
       originalData.wasPreferred) ||
@@ -663,20 +667,20 @@ export async function cloneMixedAttributionsForWritableResources(
 
   const mixedAttributions = await trx
     .selectFrom('attribution')
-    .select(['uuid', 'data', 'is_external', 'is_resolved'])
+    .selectAll('attribution')
     .where('uuid', 'in', attributionUuids)
     .where('resource_access', '=', AttributionResourceAccess.Mixed)
     .execute();
 
   for (const attribution of mixedAttributions) {
     const newUuid = uuid4();
-    const data = JSON.parse(attribution.data) as PackageInfo;
+    const data = packageInfoFromAttributionRow(attribution);
 
     await trx
       .insertInto('attribution')
       .values({
         uuid: newUuid,
-        data: JSON.stringify({ ...data, id: newUuid }),
+        ...getAttributionPersistenceValues({ ...data, id: newUuid }),
         is_external: attribution.is_external,
         is_resolved: attribution.is_resolved,
       })
@@ -718,15 +722,41 @@ export async function findMatchingAttributionUuid(
       eb.where('uuid', 'not in', options!.excludeUuids!),
     );
 
-  const attributesToCompare = COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES.filter(
-    (a) => !(strippedPackageInfo.firstParty && THIRD_PARTY_KEYS.includes(a)),
-  );
+  const persistenceValues =
+    getAttributionPersistenceValues(strippedPackageInfo);
 
-  for (const attribute of attributesToCompare) {
+  for (const attribute of COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES) {
+    if (attribute === 'originalAttributionSource') {
+      continue;
+    }
+    if (
+      strippedPackageInfo.firstParty &&
+      THIRD_PARTY_KEYS.includes(attribute)
+    ) {
+      continue;
+    }
+    const column = snakeCase(attribute) as keyof typeof persistenceValues;
+    const value = persistenceValues[column];
     query = query.where(
-      strippedPackageInfo[attribute] === undefined
-        ? sql<boolean>`data->${attribute} IS NULL`
-        : sql<boolean>`data->${attribute} = ${JSON.stringify(strippedPackageInfo[attribute])}`,
+      value === null
+        ? sql<boolean>`${sql.ref(column)} IS NULL`
+        : sql<boolean>`${sql.ref(column)} = ${value}`,
+    );
+  }
+
+  const sourceColumnValues = {
+    original_attribution_source_name:
+      persistenceValues.original_attribution_source_name,
+    original_attribution_source_document_confidence:
+      persistenceValues.original_attribution_source_document_confidence,
+    original_attribution_source_additional_name:
+      persistenceValues.original_attribution_source_additional_name,
+  };
+  for (const [column, value] of Object.entries(sourceColumnValues)) {
+    query = query.where(
+      value === null
+        ? sql<boolean>`${sql.ref(column)} IS NULL`
+        : sql<boolean>`${sql.ref(column)} = ${value}`,
     );
   }
 
@@ -764,10 +794,7 @@ async function matchOrCreateAttribution(
     .insertInto('attribution')
     .values({
       uuid: newUuid,
-      data: JSON.stringify({
-        ...dataToInsert,
-        id: newUuid,
-      }),
+      ...getAttributionPersistenceValues({ ...dataToInsert, id: newUuid }),
       is_external: 0,
     })
     .execute();
@@ -811,8 +838,8 @@ export async function updateAttribution(
   await trx
     .updateTable('attribution')
     .set({
-      data: JSON.stringify({
-        ...removeEmptyStrings(persistedPackageInfo),
+      ...getAttributionPersistenceValues({
+        ...persistedPackageInfo,
         wasPreferred,
       }),
     })
@@ -942,7 +969,7 @@ export async function replaceAttributions(
   return oldUuidsToNewUuids;
 }
 
-export function removeEmptyStrings(packageInfo: PackageInfo): PackageInfo {
+function removeEmptyStrings(packageInfo: PackageInfo): PackageInfo {
   return pickBy(
     packageInfo,
     (value, key) => value !== '' || key === 'id',

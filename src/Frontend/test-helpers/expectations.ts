@@ -4,6 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { sql } from 'kysely';
 
+import {
+  getAttributionExtensionData,
+  getAttributionPersistenceValues,
+} from '../../ElectronBackend/db/attributionData';
 import { getDb } from '../../ElectronBackend/db/db';
 import type {
   Attributions,
@@ -16,15 +20,27 @@ export async function expectManualAttributions(
 ) {
   const dbResult = await getDb()
     .selectFrom('attribution')
-    .select(['uuid', 'data'])
+    .selectAll()
     .where('is_external', '=', Number(false))
     .execute();
 
-  const dbManualAttributions = Object.fromEntries(
-    dbResult.map((row) => [row.uuid, JSON.parse(row.data)]),
+  expect(dbResult.map(({ uuid }) => uuid).toSorted()).toEqual(
+    Object.keys(manualAttributions).toSorted(),
   );
 
-  expect(dbManualAttributions).toEqual(manualAttributions);
+  for (const [uuid, attribution] of Object.entries(manualAttributions)) {
+    const row = dbResult.find((candidate) => candidate.uuid === uuid);
+    expect(row).toBeDefined();
+    const { additional_data: _additionalData, ...columnValues } =
+      getAttributionPersistenceValues(attribution);
+    expect(row).toMatchObject({
+      uuid,
+      ...columnValues,
+    });
+    expect(JSON.parse(row!.additional_data)).toEqual(
+      getAttributionExtensionData(attribution),
+    );
+  }
 }
 
 export async function expectResourcesToManualAttributions(

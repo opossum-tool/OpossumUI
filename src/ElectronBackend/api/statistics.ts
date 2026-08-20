@@ -137,7 +137,7 @@ export async function externalAttributionStatistics() {
         .when(
           eb.and([
             eb('license_name', 'is', null),
-            eb(sql`data->>'licenseText'`, 'is', null),
+            eb('license_text', 'is', null),
           ]),
         )
         .then(null)
@@ -161,7 +161,7 @@ export async function externalAttributionStatistics() {
         .when(
           eb.and([
             eb('license_name', 'is', null),
-            eb(sql`data->>'licenseText'`, 'is', null),
+            eb('license_text', 'is', null),
           ]),
         )
         .then(null)
