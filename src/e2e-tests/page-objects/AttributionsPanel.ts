@@ -144,6 +144,12 @@ export class AttributionsPanel {
     selectedTabIs: async (tab: keyof typeof this.tabs) => {
       await expect(this.tabs[tab]).toHaveAttribute('aria-selected', 'true');
     },
+    onResourceCountIs: async (count: number, timeout?: number) => {
+      await expect(this.tabs.onResource).toHaveAccessibleName(
+        `${text.relations.resource} (${new Intl.NumberFormat().format(count)})`,
+        { timeout },
+      );
+    },
     tabIsVisible: async (tab: keyof typeof this.tabs) => {
       await expect(this.tabs[tab]).toBeVisible();
     },

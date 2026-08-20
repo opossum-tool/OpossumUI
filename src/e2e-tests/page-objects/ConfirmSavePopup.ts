@@ -58,10 +58,5 @@ export class ConfirmSavePopup {
     hasText: async (text: string): Promise<void> => {
       await expect(this.node.getByText(text)).toBeVisible();
     },
-    saveGloballyButtonIsLoading: async (): Promise<void> => {
-      await expect(
-        this.saveGloballyButton.getByRole('progressbar'),
-      ).toBeVisible();
-    },
   };
 }

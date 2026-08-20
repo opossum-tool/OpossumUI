@@ -138,11 +138,11 @@ export class SignalsPanel {
     linkButtonIsDisabled: async () => {
       await expect(this.linkButton).toBeDisabled();
     },
+    selectAllCheckboxIsUnchecked: async (timeout?: number) => {
+      await expect(this.selectAllCheckbox).not.toBeChecked({ timeout });
+    },
     linkButtonIsEnabled: async () => {
       await expect(this.linkButton).toBeEnabled();
-    },
-    linkButtonIsLoading: async () => {
-      await expect(this.linkButton.getByRole('progressbar')).toBeVisible();
     },
     linkButtonIsNotLoading: async (timeout?: number) => {
       await expect(this.linkButton.getByRole('progressbar')).toBeHidden({
