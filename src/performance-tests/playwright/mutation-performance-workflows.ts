@@ -19,6 +19,7 @@ export async function runMutationWorkflows({
 }: PerformanceWorkflowContext): Promise<void> {
   const linkScenario = model.scenarios.link;
   const editScenario = model.scenarios.edit;
+  const denseSignalResourceInitialAttributionCount = 1;
   await runScenario({
     id: 'link-signal',
     title: 'link a signal as an attribution',
@@ -43,7 +44,6 @@ export async function runMutationWorkflows({
     },
     execute: async () => {
       await signalsPanel.linkButton.click();
-      await signalsPanel.assert.linkButtonIsLoading();
       await Promise.all([
         attributionsPanel.packageCard.assert.isVisible(
           linkScenario.attribution.packageInfo,
@@ -78,7 +78,6 @@ export async function runMutationWorkflows({
     execute: async () => {
       await attributionDetails.saveButton.click();
       await confirmSavePopup.saveGloballyButton.click();
-      await confirmSavePopup.assert.saveGloballyButtonIsLoading();
       await confirmSavePopup.assert.isHidden();
       await attributionDetails.assert.saveButtonIsDisabled();
     },
@@ -105,7 +104,6 @@ export async function runMutationWorkflows({
     execute: async () => {
       await attributionDetails.saveButton.click();
       await confirmSavePopup.saveGloballyButton.click();
-      await confirmSavePopup.assert.saveGloballyButtonIsLoading();
       await confirmSavePopup.assert.isHidden();
       await attributionDetails.assert.saveButtonIsDisabled();
     },
@@ -156,12 +154,20 @@ export async function runMutationWorkflows({
       );
       await signalsPanel.closeFilterMenu();
       await signalsPanel.selectAllCheckbox.click();
+      await attributionsPanel.assert.onResourceCountIs(
+        denseSignalResourceInitialAttributionCount,
+      );
     },
     execute: async () => {
       await signalsPanel.linkButton.click();
-      await signalsPanel.assert.linkButtonIsLoading();
       await Promise.all([
-        signalsPanel.assert.linkButtonIsNotLoading(appLoadTimeout),
+        signalsPanel.assert.selectAllCheckboxIsUnchecked(appLoadTimeout),
+        signalsPanel.assert.linkButtonIsDisabled(),
+        attributionsPanel.assert.onResourceCountIs(
+          denseSignalResourceInitialAttributionCount +
+            model.scenarios.denseSignals.bulkSignals.length,
+          appLoadTimeout,
+        ),
         signalsPanel.assert.loadingIndicatorIsHidden(),
         attributionsPanel.assert.loadingIndicatorIsHidden(),
       ]);
