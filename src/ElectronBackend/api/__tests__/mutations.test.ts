@@ -22,6 +22,15 @@ async function resourceAccessOf(attributionUuid: string) {
   ).resource_access;
 }
 
+function expectExactAffectedAttributionUuids(
+  response: { affectedAttributionUuids?: Array<string> },
+  expected: Array<string>,
+) {
+  const actual = response.affectedAttributionUuids ?? [];
+  expect(actual).toHaveLength(new Set(actual).size);
+  expect([...actual].sort()).toEqual([...expected].sort());
+}
+
 describe('attribution resource access', () => {
   it('rejects resolving an external attribution only on readonly resources', async () => {
     await initializeDbWithTestData({
@@ -129,12 +138,13 @@ describe('attribution resource access', () => {
       resources: pathsToResources(['/writable/file.ts']),
     });
 
-    const { result } = await mutations.createOrMatchAttributions({
+    const response = await mutations.createOrMatchAttributions({
       resourcePath: '/writable/file.ts',
       attributions: {
         new: { id: 'new', criticality: Criticality.None },
       },
     });
+    const { result } = response;
 
     const { result: attributions } = await listAttributions({
       external: false,
@@ -146,6 +156,9 @@ describe('attribution resource access', () => {
     expect(Object.keys(attributions)).toEqual(
       Object.values(result.inputKeysToNewUuids),
     );
+    expectExactAffectedAttributionUuids(response, [
+      ...Object.values(result.inputKeysToNewUuids),
+    ]);
     expect(await resourceAccessOf(result.inputKeysToNewUuids.new)).toBe(
       AttributionResourceAccess.Writable,
     );
@@ -167,10 +180,12 @@ describe('attribution resource access', () => {
       readonlyRules: [{ path: '/readonly', readonly: true }],
     });
 
-    await mutations.unlinkResourceFromAttributions({
+    const response = await mutations.unlinkResourceFromAttributions({
       resourcePath: '/writable/file.ts',
       attributionUuids: ['shared'],
     });
+
+    expectExactAffectedAttributionUuids(response, ['shared']);
 
     const { result: attributions } = await listAttributions({
       external: false,
@@ -278,13 +293,9 @@ describe('mixed attribution mutations', () => {
       },
     });
 
-    expect(response).toMatchObject({
-      result: {
-        oldUuidsToNewUuids: {
-          shared: expect.not.stringMatching(/^shared$/),
-        },
-      },
-    });
+    const cloneUuid = response.result.oldUuidsToNewUuids.shared;
+    expect(cloneUuid).not.toBe('shared');
+    expectExactAffectedAttributionUuids(response, ['shared', cloneUuid]);
   });
 
   it('keeps the locked relationship unchanged immediately after updating a mixed attribution', async () => {
@@ -319,7 +330,15 @@ describe('mixed attribution mutations', () => {
   it('clones a mixed attribution before deleting its writable partition', async () => {
     await initializeMixedAttribution();
 
-    await mutations.deleteAttributions({ attributionUuids: ['shared'] });
+    const response = await mutations.deleteAttributions({
+      attributionUuids: ['shared'],
+    });
+
+    const cloneUuids = response.affectedAttributionUuids.filter(
+      (uuid) => uuid !== 'shared',
+    );
+    expect(cloneUuids).toHaveLength(1);
+    expectExactAffectedAttributionUuids(response, ['shared', cloneUuids[0]]);
 
     expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
     expect(await attributionUuidsOn('/writable/file.ts')).toEqual([]);
@@ -338,10 +357,20 @@ describe('mixed attribution mutations', () => {
   it('clones a mixed attribution before replacing its writable partition', async () => {
     await initializeMixedAttribution();
 
-    await mutations.replaceAttributions({
+    const response = await mutations.replaceAttributions({
       attributionUuidsToReplace: ['shared'],
       attributionUuidToReplaceWith: 'replacement',
     });
+
+    const generatedCloneUuids = response.affectedAttributionUuids.filter(
+      (uuid) => uuid !== 'shared' && uuid !== 'replacement',
+    );
+    expect(generatedCloneUuids).toHaveLength(1);
+    expectExactAffectedAttributionUuids(response, [
+      'shared',
+      'replacement',
+      generatedCloneUuids[0],
+    ]);
 
     expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
     expect(await attributionUuidsOn('/writable/file.ts')).toEqual([
@@ -405,6 +434,286 @@ describe('bulk attribution mutations', () => {
 
     expect(createdAttributionUuids).toHaveLength(500);
     expect(linkedAttributionUuids).toHaveLength(501);
+    expectExactAffectedAttributionUuids(response, [
+      'existing',
+      ...createdAttributionUuids,
+    ]);
+  });
+});
+
+describe('attribution mutation metadata', () => {
+  it('reports inherited attributions reclassified by a local link', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          parent: { id: 'parent', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/parent': ['parent'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.createOrMatchAttributions({
+      resourcePath: '/parent/child.ts',
+      attributions: {
+        local: {
+          id: 'local',
+          criticality: Criticality.None,
+          packageName: 'local',
+        },
+      },
+    });
+    const localUuid = response.result.inputKeysToNewUuids.local;
+
+    expectExactAffectedAttributionUuids(response, ['parent', localUuid]);
+  });
+
+  it('reports inherited attributions revealed by a local unlink', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          parent: { id: 'parent', criticality: Criticality.None },
+          local: { id: 'local', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/parent': ['parent'],
+          '/parent/child.ts': ['local'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.unlinkResourceFromAttributions({
+      resourcePath: '/parent/child.ts',
+      attributionUuids: ['local'],
+    });
+
+    expectExactAffectedAttributionUuids(response, ['local', 'parent']);
+  });
+
+  it('reports inherited attributions revealed by deleting a local link', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          parent: { id: 'parent', criticality: Criticality.None },
+          local: { id: 'local', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/parent': ['parent'],
+          '/parent/child.ts': ['local'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.deleteAttributions({
+      attributionUuids: ['local'],
+    });
+
+    expectExactAffectedAttributionUuids(response, ['local', 'parent']);
+  });
+
+  it('reports an ordinary update exactly once', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts']),
+      manualAttributions: {
+        attributions: {
+          original: { id: 'original', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/writable/file.ts': ['original'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.updateAttributions({
+      attributions: {
+        original: {
+          id: 'original',
+          criticality: Criticality.None,
+          packageName: 'updated',
+        },
+      },
+    });
+
+    expectExactAffectedAttributionUuids(response, ['original']);
+  });
+
+  it('reports an ordinary delete exactly once', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts']),
+      manualAttributions: {
+        attributions: {
+          original: { id: 'original', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/writable/file.ts': ['original'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.deleteAttributions({
+      attributionUuids: ['original'],
+    });
+
+    expectExactAffectedAttributionUuids(response, ['original']);
+  });
+
+  it('reports an ordinary replacement exactly once', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts']),
+      manualAttributions: {
+        attributions: {
+          original: { id: 'original', criticality: Criticality.None },
+          replacement: { id: 'replacement', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/writable/file.ts': ['original'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.replaceAttributions({
+      attributionUuidsToReplace: ['original'],
+      attributionUuidToReplaceWith: 'replacement',
+    });
+
+    expectExactAffectedAttributionUuids(response, ['original', 'replacement']);
+  });
+
+  it('reports both update-or-match branches exactly', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts']),
+      manualAttributions: {
+        attributions: {
+          original: { id: 'original', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/writable/file.ts': ['original'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const updateResponse = await mutations.updateOrMatchAttributions({
+      attributions: {
+        original: {
+          id: 'original',
+          criticality: Criticality.None,
+          packageName: 'updated',
+        },
+      },
+    });
+    expectExactAffectedAttributionUuids(updateResponse, ['original']);
+
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts']),
+      manualAttributions: {
+        attributions: {
+          original: { id: 'original', criticality: Criticality.None },
+          replacement: {
+            id: 'replacement',
+            criticality: Criticality.None,
+            packageName: 'target',
+          },
+        },
+        resourcesToAttributions: { '/writable/file.ts': ['original'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const matchResponse = await mutations.updateOrMatchAttributions({
+      attributions: {
+        original: {
+          id: 'original',
+          criticality: Criticality.None,
+          packageName: 'target',
+        },
+      },
+    });
+    expectExactAffectedAttributionUuids(matchResponse, [
+      'original',
+      'replacement',
+    ]);
+  });
+
+  it('reports modify-or-match UUIDs exactly', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/first', '/first/second']),
+      manualAttributions: {
+        attributions: {
+          original: { id: 'original', criticality: Criticality.None },
+          replacement: {
+            id: 'replacement',
+            criticality: Criticality.None,
+            packageName: 'target',
+          },
+        },
+        resourcesToAttributions: {
+          '/first': ['original'],
+          '/first/second': ['original'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.modifyOrMatchOnlyOnOneResource({
+      resourcePath: '/first/second',
+      attributions: {
+        original: {
+          id: 'original',
+          criticality: Criticality.None,
+          packageName: 'target',
+        },
+      },
+    });
+
+    expectExactAffectedAttributionUuids(response, ['original', 'replacement']);
+  });
+
+  it('reports redundant-link cleanup UUIDs exactly', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/first', '/first/second']),
+      manualAttributions: {
+        attributions: {
+          first: { id: 'first', criticality: Criticality.None },
+          second: { id: 'second', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/first': ['second'],
+          '/first/second': ['first', 'second'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.unlinkResourceFromAttributions({
+      resourcePath: '/first/second',
+      attributionUuids: ['first'],
+    });
+
+    expectExactAffectedAttributionUuids(response, ['first', 'second']);
+  });
+
+  it('reports resolve and unresolve UUIDs exactly', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts']),
+      externalAttributions: {
+        attributions: {
+          signal: { id: 'signal', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/writable/file.ts': ['signal'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const resolveResponse = await mutations.resolveAttributions({
+      attributionUuids: ['signal'],
+    });
+    expectExactAffectedAttributionUuids(resolveResponse, ['signal']);
+
+    const unresolveResponse = await mutations.unresolveAttributions({
+      attributionUuids: ['signal'],
+    });
+    expectExactAffectedAttributionUuids(unresolveResponse, ['signal']);
   });
 });
 

@@ -27,6 +27,7 @@ import type {
   QueryResult,
 } from '../../ElectronBackend/api/queries';
 import { queryClient } from '../Components/AppContainer/queryClient';
+import { enqueueAttributionListReconciliation } from './reconcile-attribution-lists';
 
 // We use the same options as tanstack query, with the exception that the
 // consumer can't set mutationKey and mutationFn, which are set by us
@@ -154,20 +155,54 @@ export const backend = new Proxy({} as BackendClient, {
     ) {
       const response = await window.electronAPI.api(command, params);
       onSuccessBeforeInvalidation?.();
+      const affectedAttributionUuids =
+        'affectedAttributionUuids' in response
+          ? response.affectedAttributionUuids
+          : undefined;
       // Invalidate queries affected by the mutation
       if ('invalidates' in response && response.invalidates) {
-        const invalidates = response.invalidates;
-        await Promise.all(
-          invalidates.map((invalidation) => {
-            const queryKey =
-              'params' in invalidation
-                ? getQueryKey(invalidation.queryName, invalidation.params)
-                : ['backend', invalidation.queryName];
-            return queryClient.invalidateQueries({
-              queryKey,
-            });
-          }),
+        const invalidates = response.invalidates.filter(
+          (invalidation) =>
+            affectedAttributionUuids === undefined ||
+            invalidation.queryName !== 'listAttributions',
         );
+        const invalidationPromises = invalidates.map((invalidation) => {
+          const queryKey =
+            'params' in invalidation
+              ? getQueryKey(invalidation.queryName, invalidation.params)
+              : ['backend', invalidation.queryName];
+          return queryClient.invalidateQueries({
+            queryKey,
+          });
+        });
+        if (affectedAttributionUuids !== undefined) {
+          invalidationPromises.push(
+            enqueueAttributionListReconciliation({
+              queryClient,
+              affectedAttributionUuids,
+              fetchAttributions: async (listParams) => {
+                const listResponse = await window.electronAPI.api(
+                  'listAttributions',
+                  listParams,
+                );
+                return listResponse.result;
+              },
+            }),
+          );
+        }
+        await Promise.all(invalidationPromises);
+      } else if (affectedAttributionUuids !== undefined) {
+        await enqueueAttributionListReconciliation({
+          queryClient,
+          affectedAttributionUuids,
+          fetchAttributions: async (listParams) => {
+            const listResponse = await window.electronAPI.api(
+              'listAttributions',
+              listParams,
+            );
+            return listResponse.result;
+          },
+        });
       }
       window.electronAPI.saveFile();
       return 'result' in response ? response.result : undefined;

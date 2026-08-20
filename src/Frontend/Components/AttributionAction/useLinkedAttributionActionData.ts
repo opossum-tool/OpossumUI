@@ -34,7 +34,7 @@ export function useLinkedAttributionActionData({
 
   const linkedResourcesTreeState = useLinkedResourcesTreeState({
     onAttributionUuids: attributionIds,
-    enabled: open,
+    enabled: open && !isMutationPending,
     onlyWritable: true,
   });
 
