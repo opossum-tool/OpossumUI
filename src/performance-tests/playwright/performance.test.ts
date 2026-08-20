@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { runLoadFile } from './load-file-workflow';
 import { runMutationWorkflows } from './mutation-performance-workflows';
 import { test } from './performance-test-harness';
 import { createPerformanceWorkflowContext } from './performance-workflow-context';
@@ -48,6 +49,7 @@ test('measures representative performance workflows', async ({
     window,
   });
 
+  await runLoadFile(workflowContext);
   await runResourceWorkflows(workflowContext);
   await runMutationWorkflows(workflowContext);
   await runSplitWorkflows(workflowContext);
