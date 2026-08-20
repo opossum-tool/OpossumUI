@@ -89,6 +89,14 @@ export default defineConfig(({ mode }) => ({
           name: { label: 'SH', color: 'yellow' },
         },
       },
+      {
+        extends: true,
+        test: {
+          environment: 'node',
+          include: ['src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}'],
+          name: { label: 'PERF', color: 'magenta' },
+        },
+      },
     ],
     setupFiles: './src/testing/setup.ts',
     globalSetup: './src/testing/globalSetup.ts',

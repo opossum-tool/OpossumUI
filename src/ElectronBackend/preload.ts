@@ -12,6 +12,7 @@ import {
   DbProcessClient,
   FRONTEND_TO_DB_PROCESS_PORT,
 } from './dbProcess/dbProcessClient';
+import { traceBackendCommand } from './performance-tracing';
 
 let client: DbProcessClient | null = null;
 let resolveClientReady: () => void;
@@ -30,7 +31,7 @@ const electronAPI: ElectronAPI = {
     params: CommandParams<C>,
   ): Promise<Awaited<CommandReturn<C>>> => {
     await clientReady;
-    return client!.api(command, params);
+    return traceBackendCommand(command, () => client!.api(command, params));
   },
   quit: () => ipcRenderer.invoke(IpcChannel.Quit),
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),

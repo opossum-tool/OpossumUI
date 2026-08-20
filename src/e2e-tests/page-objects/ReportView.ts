@@ -54,6 +54,9 @@ export class ReportView {
   }
 
   public assert = {
+    isVisible: async (): Promise<void> => {
+      await expect(this.node).toBeVisible();
+    },
     attributionIsVisible: async (id: string): Promise<void> => {
       await expect(this.attributionRow(id)).toBeVisible();
     },

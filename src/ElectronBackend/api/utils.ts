@@ -53,16 +53,18 @@ export async function removeRedundantAttributions(
     // we only look at resources that have the same attributions as the changed one (or its parent, if it's empty)
     // Otherwise, we just deduplicate everything
 
-    const attributions = await trx
-      .selectFrom('resource_to_attribution')
-      .select('attribution_uuid')
+    const referenceAttributions = trx
+      .selectFrom('resource_to_attribution as reference_attribution')
+      .select('reference_attribution.attribution_uuid')
       .where('resource_id', '=', (eb) =>
         eb
           .selectFrom('closest_attributed_ancestors')
           .select('manual')
           .where('resource_id', '=', resourceIds[0]),
       )
-      .execute();
+      .where('reference_attribution.attribution_is_external', '=', 0);
+
+    const attributions = await referenceAttributions.execute();
 
     if (attributions.length === 0) {
       // No attributions to deduplicate
@@ -71,17 +73,27 @@ export async function removeRedundantAttributions(
 
     const eb = expressionBuilder<DB, 'resource'>();
 
-    additional_selection = eb.and(
-      attributions.map((a) =>
-        eb(
-          'resource.id',
-          'in',
-          eb
-            .selectFrom('resource_to_attribution')
-            .select('resource_id')
-            .where('attribution_uuid', '=', a.attribution_uuid),
+    additional_selection = eb(
+      'resource.id',
+      'in',
+      trx
+        .selectFrom('resource_to_attribution as candidate_attribution')
+        .innerJoin(
+          referenceAttributions.as('reference_attribution'),
+          'reference_attribution.attribution_uuid',
+          'candidate_attribution.attribution_uuid',
+        )
+        .select('candidate_attribution.resource_id')
+        .where('candidate_attribution.attribution_is_external', '=', 0)
+        .groupBy('candidate_attribution.resource_id')
+        .having(
+          (candidateEb) =>
+            candidateEb.fn
+              .count<number>('candidate_attribution.attribution_uuid')
+              .distinct(),
+          '=',
+          attributions.length,
         ),
-      ),
     );
   }
 

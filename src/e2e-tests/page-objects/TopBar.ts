@@ -99,6 +99,23 @@ export class TopBar {
         ]);
       });
     },
+    progressBarModeIs: async (
+      mode: 'Attributions' | 'Criticalities' | 'Classifications',
+    ): Promise<void> => {
+      const labels = {
+        Attributions:
+          text.topBar.switchableProgressBar.attributionBar.ariaLabel,
+        Criticalities:
+          text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
+        Classifications:
+          text.topBar.switchableProgressBar.classificationBar.ariaLabel,
+      } as const;
+      await expect(this.progressBar).toHaveAttribute(
+        'aria-label',
+        labels[mode],
+      );
+      await expect(this.progressBar).toBeVisible();
+    },
   };
 
   async gotoAuditView(): Promise<void> {
