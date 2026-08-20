@@ -19,11 +19,13 @@ import {
   ensureResourceIsWritable,
   findMatchingAttributionUuid,
   getAttributionOrThrow,
+  getEffectiveManualAttributionUuids,
   getResourceOrThrow,
   linkAttributions,
   matchOrCreateAttributions,
   removeRedundantAttributions,
   replaceAttributions,
+  uniqueAttributionUuids,
   unlinkAttributions,
   updateAttribution,
   withBatching,
@@ -43,6 +45,7 @@ type QueryInvalidationUnion = {
 type MutationFunction = (params?: any) => Promise<{
   result?: unknown;
   invalidates?: Array<QueryInvalidationUnion>;
+  affectedAttributionUuids?: Array<string>;
 }>;
 
 const PROGRESS_BAR_INVALIDATIONS: Array<QueryInvalidationUnion> = [
@@ -85,7 +88,7 @@ export const mutations = {
     });
   },
   async deleteAttributions(params: { attributionUuids: Array<string> }) {
-    await getDb()
+    const result = await getDb()
       .transaction()
       .execute(async (trx) => {
         const oldUuidsToNewUuids =
@@ -96,9 +99,6 @@ export const mutations = {
         const attributionUuids = params.attributionUuids.map(
           (attributionUuid) => oldUuidsToNewUuids[attributionUuid],
         );
-        await removeManualOrExternalCaaFromResources(trx, 'manual', {
-          attributionUuids,
-        });
         const impactedResources = new Set<number>();
         for (const attributionUuid of attributionUuids) {
           const existingAttribution = await getAttributionOrThrow(
@@ -121,16 +121,36 @@ export const mutations = {
           connectedResources.forEach((r) =>
             impactedResources.add(r.resource_id),
           );
+        }
 
+        const effectiveAttributionUuidsBefore =
+          await getEffectiveManualAttributionUuids(trx, [...impactedResources]);
+
+        await removeManualOrExternalCaaFromResources(trx, 'manual', {
+          attributionUuids,
+        });
+
+        for (const attributionUuid of attributionUuids) {
           await trx
             .deleteFrom('attribution')
             .where('uuid', '=', attributionUuid)
             .execute();
         }
 
-        await removeRedundantAttributions(trx, {
-          resourceIds: Array.from(impactedResources),
-        });
+        const redundantAttributionUuids = await removeRedundantAttributions(
+          trx,
+          {
+            resourceIds: Array.from(impactedResources),
+          },
+        );
+        const effectiveAttributionUuidsAfter =
+          await getEffectiveManualAttributionUuids(trx, [...impactedResources]);
+        return {
+          oldUuidsToNewUuids,
+          redundantAttributionUuids,
+          effectiveAttributionUuidsBefore,
+          effectiveAttributionUuidsAfter,
+        };
       });
 
     return {
@@ -144,6 +164,13 @@ export const mutations = {
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         { queryName: 'getResourceInfoOnAttributions' },
       ],
+      affectedAttributionUuids: uniqueAttributionUuids(
+        params.attributionUuids,
+        Object.values(result.oldUuidsToNewUuids),
+        result.redundantAttributionUuids,
+        result.effectiveAttributionUuidsBefore,
+        result.effectiveAttributionUuidsAfter,
+      ),
     };
   },
 
@@ -151,10 +178,10 @@ export const mutations = {
     attributionUuidsToReplace: Array<string>;
     attributionUuidToReplaceWith: string;
   }) {
-    await getDb()
+    const result = await getDb()
       .transaction()
       .execute(async (trx) => {
-        await replaceAttributions(trx, params);
+        return replaceAttributions(trx, params);
       });
 
     return {
@@ -168,6 +195,7 @@ export const mutations = {
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         { queryName: 'getResourceInfoOnAttributions' },
       ],
+      affectedAttributionUuids: result.affectedAttributionUuids,
     };
   },
 
@@ -205,6 +233,10 @@ export const mutations = {
         { queryName: 'getResourceInfoOnAttributions' },
       ],
       result,
+      affectedAttributionUuids: uniqueAttributionUuids(
+        Object.keys(params.attributions),
+        Object.values(result.oldUuidsToNewUuids),
+      ),
     };
   },
 
@@ -212,11 +244,13 @@ export const mutations = {
     resourcePath: string;
     attributionUuids: Array<string>;
   }) {
-    await getDb()
+    const result = await getDb()
       .transaction()
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
         ensureResourceIsWritable(resource);
+        const effectiveAttributionUuidsBefore =
+          await getEffectiveManualAttributionUuids(trx, [resource.id]);
         await removeManualOrExternalCaaFromResources(trx, 'manual', {
           attributionUuids: params.attributionUuids,
           resourceIds: [resource.id],
@@ -226,7 +260,17 @@ export const mutations = {
 
         await unlinkAttributions(trx, resource.id, params.attributionUuids);
 
-        await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
+        const redundantAttributionUuids = await removeRedundantAttributions(
+          trx,
+          { resourceIds: [resource.id] },
+        );
+        const effectiveAttributionUuidsAfter =
+          await getEffectiveManualAttributionUuids(trx, [resource.id]);
+        return {
+          redundantAttributionUuids,
+          effectiveAttributionUuidsBefore,
+          effectiveAttributionUuidsAfter,
+        };
       });
 
     return {
@@ -240,6 +284,12 @@ export const mutations = {
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         { queryName: 'getResourceInfoOnAttributions' } as const,
       ],
+      affectedAttributionUuids: uniqueAttributionUuids(
+        params.attributionUuids,
+        result.redundantAttributionUuids,
+        result.effectiveAttributionUuidsBefore,
+        result.effectiveAttributionUuidsAfter,
+      ),
     };
   },
 
@@ -264,6 +314,8 @@ export const mutations = {
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
         ensureResourceIsWritable(resource);
+        const effectiveAttributionUuidsBefore =
+          await getEffectiveManualAttributionUuids(trx, [resource.id]);
         const inputUuids = Object.keys(params.attributions);
         await ensureAttributionsAreNotExternal(trx, inputUuids);
         await ensureAttributionsAreLinkedOnMultipleResources(trx, inputUuids);
@@ -284,9 +336,20 @@ export const mutations = {
           },
         );
 
-        await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
+        const redundantAttributionUuids = await removeRedundantAttributions(
+          trx,
+          { resourceIds: [resource.id] },
+        );
 
-        return { oldUuidsToNewUuids };
+        const effectiveAttributionUuidsAfter =
+          await getEffectiveManualAttributionUuids(trx, [resource.id]);
+
+        return {
+          oldUuidsToNewUuids,
+          redundantAttributionUuids,
+          effectiveAttributionUuidsBefore,
+          effectiveAttributionUuidsAfter,
+        };
       });
     return {
       invalidates: [
@@ -300,6 +363,13 @@ export const mutations = {
         { queryName: 'getResourceInfoOnAttributions' },
       ],
       result,
+      affectedAttributionUuids: uniqueAttributionUuids(
+        Object.keys(params.attributions),
+        Object.values(result.oldUuidsToNewUuids),
+        result.redundantAttributionUuids,
+        result.effectiveAttributionUuidsBefore,
+        result.effectiveAttributionUuidsAfter,
+      ),
     };
   },
 
@@ -312,6 +382,8 @@ export const mutations = {
       .execute(async (trx) => {
         const resource = await getResourceOrThrow(trx, params.resourcePath);
         ensureResourceIsWritable(resource);
+        const effectiveAttributionUuidsBefore =
+          await getEffectiveManualAttributionUuids(trx, [resource.id]);
 
         const inputKeysToNewUuids = await matchOrCreateAttributions(
           trx,
@@ -331,9 +403,20 @@ export const mutations = {
           attributionUuids: Object.values(inputKeysToNewUuids),
         });
 
-        await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
+        const redundantAttributionUuids = await removeRedundantAttributions(
+          trx,
+          { resourceIds: [resource.id] },
+        );
 
-        return { inputKeysToNewUuids };
+        const effectiveAttributionUuidsAfter =
+          await getEffectiveManualAttributionUuids(trx, [resource.id]);
+
+        return {
+          inputKeysToNewUuids,
+          redundantAttributionUuids,
+          effectiveAttributionUuidsBefore,
+          effectiveAttributionUuidsAfter,
+        };
       });
 
     return {
@@ -345,6 +428,12 @@ export const mutations = {
         { queryName: 'getResourceInfoOnAttributions' },
       ],
       result,
+      affectedAttributionUuids: uniqueAttributionUuids(
+        Object.values(result.inputKeysToNewUuids),
+        result.redundantAttributionUuids,
+        result.effectiveAttributionUuidsBefore,
+        result.effectiveAttributionUuidsAfter,
+      ),
     };
   },
 
@@ -353,6 +442,7 @@ export const mutations = {
       .transaction()
       .execute(async (trx) => {
         const oldUuidsToNewUuids: Record<string, string> = {};
+        const affectedAttributionUuids: Array<string> = [];
         for (const [attributionUuid, attributionData] of Object.entries(
           params.attributions,
         )) {
@@ -371,10 +461,13 @@ export const mutations = {
             },
           );
           if (matchingAttributionUuid) {
-            await replaceAttributions(trx, {
+            const replacementResult = await replaceAttributions(trx, {
               attributionUuidsToReplace: [writableAttributionUuid],
               attributionUuidToReplaceWith: matchingAttributionUuid,
             });
+            affectedAttributionUuids.push(
+              ...replacementResult.affectedAttributionUuids,
+            );
             oldUuidsToNewUuids[attributionUuid] = matchingAttributionUuid;
           } else {
             await updateAttribution(trx, writableAttributionUuid, {
@@ -384,7 +477,7 @@ export const mutations = {
             oldUuidsToNewUuids[attributionUuid] = writableAttributionUuid;
           }
         }
-        return { oldUuidsToNewUuids };
+        return { oldUuidsToNewUuids, affectedAttributionUuids };
       });
     return {
       invalidates: [
@@ -399,6 +492,11 @@ export const mutations = {
         { queryName: 'getResourceInfoOnAttributions' },
       ],
       result,
+      affectedAttributionUuids: uniqueAttributionUuids(
+        Object.keys(params.attributions),
+        Object.values(result.oldUuidsToNewUuids),
+        result.affectedAttributionUuids,
+      ),
     };
   },
 
@@ -468,6 +566,7 @@ async function setAttributionsResolvedStatus(
       })),
       { queryName: 'getResourceTree' } as const,
     ],
+    affectedAttributionUuids: uniqueAttributionUuids(attributionUuids),
   };
 }
 

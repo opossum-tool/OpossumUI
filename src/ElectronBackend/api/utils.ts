@@ -33,6 +33,34 @@ import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
 export type ResourceRelationship =
   'same' | 'ancestor' | 'descendant' | 'unrelated';
 
+export function uniqueAttributionUuids(...uuidLists: Array<Array<string>>) {
+  return [...new Set(uuidLists.flat())];
+}
+
+export async function getEffectiveManualAttributionUuids(
+  dbOrTrx: Kysely<DB>,
+  resourceIds: Array<number>,
+) {
+  if (resourceIds.length === 0) {
+    return [];
+  }
+
+  return (
+    await dbOrTrx
+      .selectFrom('closest_attributed_ancestors as caa')
+      .innerJoin(
+        'resource_to_attribution as rta',
+        'rta.resource_id',
+        'caa.manual',
+      )
+      .select('rta.attribution_uuid')
+      .distinct()
+      .where('caa.resource_id', 'in', resourceIds)
+      .where('rta.attribution_is_external', '=', 0)
+      .execute()
+  ).map(({ attribution_uuid }) => attribution_uuid);
+}
+
 /**
  * If a resource (R) has the same attributions as its closest ancestor that has attributions (A), we want to delete R's attributions.
  * This function should be called after changing the attributions of a resource R to check whether
@@ -68,7 +96,7 @@ export async function removeRedundantAttributions(
 
     if (attributions.length === 0) {
       // No attributions to deduplicate
-      return;
+      return [];
     }
 
     const eb = expressionBuilder<DB, 'resource'>();
@@ -171,6 +199,8 @@ export async function removeRedundantAttributions(
   });
 
   await trx.schema.dropTable('duplicate_resources').execute();
+
+  return affectedAttributionUuids;
 }
 
 export const GET_LEGACY_RESOURCE_PATH =
@@ -974,11 +1004,19 @@ export async function replaceAttributions(
     params.attributionUuidToReplaceWith,
   ]);
 
-  await removeRedundantAttributions(trx, {
+  const redundantAttributionUuids = await removeRedundantAttributions(trx, {
     resourceIds: connectedResources,
   });
 
-  return oldUuidsToNewUuids;
+  return {
+    oldUuidsToNewUuids,
+    affectedAttributionUuids: uniqueAttributionUuids(
+      Object.keys(oldUuidsToNewUuids),
+      Object.values(oldUuidsToNewUuids),
+      [params.attributionUuidToReplaceWith],
+      redundantAttributionUuids,
+    ),
+  };
 }
 
 function removeEmptyStrings(packageInfo: PackageInfo): PackageInfo {
