@@ -45,20 +45,28 @@ export async function getEffectiveManualAttributionUuids(
     return [];
   }
 
-  return (
-    await dbOrTrx
-      .selectFrom('closest_attributed_ancestors as caa')
-      .innerJoin(
-        'resource_to_attribution as rta',
-        'rta.resource_id',
-        'caa.manual',
-      )
-      .select('rta.attribution_uuid')
-      .distinct()
-      .where('caa.resource_id', 'in', resourceIds)
-      .where('rta.attribution_is_external', '=', 0)
-      .execute()
-  ).map(({ attribution_uuid }) => attribution_uuid);
+  const results = await withBatching(resourceIds, async (batch) => {
+    if (batch === undefined) {
+      return [];
+    }
+
+    return (
+      await dbOrTrx
+        .selectFrom('closest_attributed_ancestors as caa')
+        .innerJoin(
+          'resource_to_attribution as rta',
+          'rta.resource_id',
+          'caa.manual',
+        )
+        .select('rta.attribution_uuid')
+        .distinct()
+        .where('caa.resource_id', 'in', batch)
+        .where('rta.attribution_is_external', '=', 0)
+        .execute()
+    ).map(({ attribution_uuid }) => attribution_uuid);
+  });
+
+  return uniqueAttributionUuids(...results);
 }
 
 /**
@@ -166,6 +174,7 @@ export async function removeRedundantAttributions(
       .$extendTables<{ duplicate_resources: { resource_id: number } }>()
       .selectFrom('resource_to_attribution')
       .select('attribution_uuid')
+      .distinct()
       .where('attribution_is_external', '=', 0)
       .where('resource_id', 'in', (eb) =>
         eb
@@ -635,57 +644,60 @@ async function updateAttributionResourceAccess(
   trx: Transaction<DB>,
   attributionUuids: Array<string>,
 ) {
-  if (attributionUuids.length === 0) {
-    return;
-  }
+  const uniqueUuids = uniqueAttributionUuids(attributionUuids);
+  await withBatching(uniqueUuids, async (batch) => {
+    if (batch === undefined) {
+      return;
+    }
 
-  await trx
-    .updateTable('attribution')
-    .set((eb) => ({
-      resource_access: eb.fn
-        .coalesce(
-          eb
-            .selectFrom('resource_to_attribution')
-            .innerJoin(
-              'resource',
-              'resource.id',
-              'resource_to_attribution.resource_id',
-            )
-            .select((eb) => [
-              eb
-                .case()
-                .when(eb.fn.min<number>('resource.is_readonly'), '=', 1)
-                .then(AttributionResourceAccess.Readonly)
-                .when(eb.fn.max<number>('resource.is_readonly'), '=', 0)
-                .then(AttributionResourceAccess.Writable)
-                .else(AttributionResourceAccess.Mixed)
-                .end()
-                .as('resource_access'),
-            ])
-            .whereRef(
-              'resource_to_attribution.attribution_uuid',
-              '=',
-              'attribution.uuid',
-            ),
-          // If the attribution is not linked to any resource, fall back to root.
-          // This should not be achievable with our UI, but the data model does not prevent unlinked attributions
-          eb
-            .selectFrom('resource')
-            .select((eb) => [
-              eb
-                .case()
-                .when('is_readonly', '=', 1)
-                .then(AttributionResourceAccess.Readonly)
-                .else(AttributionResourceAccess.Writable)
-                .end()
-                .as('resource_access'),
-            ])
-            .where('path', '=', ''),
-        )
-        .$notNull(),
-    }))
-    .where('uuid', 'in', attributionUuids)
-    .execute();
+    await trx
+      .updateTable('attribution')
+      .set((eb) => ({
+        resource_access: eb.fn
+          .coalesce(
+            eb
+              .selectFrom('resource_to_attribution')
+              .innerJoin(
+                'resource',
+                'resource.id',
+                'resource_to_attribution.resource_id',
+              )
+              .select((eb) => [
+                eb
+                  .case()
+                  .when(eb.fn.min<number>('resource.is_readonly'), '=', 1)
+                  .then(AttributionResourceAccess.Readonly)
+                  .when(eb.fn.max<number>('resource.is_readonly'), '=', 0)
+                  .then(AttributionResourceAccess.Writable)
+                  .else(AttributionResourceAccess.Mixed)
+                  .end()
+                  .as('resource_access'),
+              ])
+              .whereRef(
+                'resource_to_attribution.attribution_uuid',
+                '=',
+                'attribution.uuid',
+              ),
+            // If the attribution is not linked to any resource, fall back to root.
+            // This should not be achievable with our UI, but the data model does not prevent unlinked attributions
+            eb
+              .selectFrom('resource')
+              .select((eb) => [
+                eb
+                  .case()
+                  .when('is_readonly', '=', 1)
+                  .then(AttributionResourceAccess.Readonly)
+                  .else(AttributionResourceAccess.Writable)
+                  .end()
+                  .as('resource_access'),
+              ])
+              .where('path', '=', ''),
+          )
+          .$notNull(),
+      }))
+      .where('uuid', 'in', batch)
+      .execute();
+  });
 }
 
 export async function cloneMixedAttributionsForWritableResources(
