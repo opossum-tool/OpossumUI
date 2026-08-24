@@ -48,7 +48,7 @@ function mockAttributions(attributions: Attributions) {
   vi.mocked(useInfiniteAttributionsList).mockReturnValue({
     attributions,
     loading: false,
-    relation: Object.keys(relationCounts)[0] as Relation | undefined,
+    relation: (Object.keys(relationCounts)[0] ?? 'resource') as Relation,
     relationCounts,
     hasNextPage: false,
     isFetchingNextPage: false,

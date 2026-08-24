@@ -25,41 +25,18 @@ type Params = {
   showResolved: boolean;
   excludeUnrelated: boolean;
   includeReadonly: boolean;
-  relation: Relation | undefined;
+  relation: Relation;
 };
 
 export function useInfiniteAttributionsList(params: Params) {
   const initialized = useDatabaseInitialized();
-  const { relation: requestedRelation, sort: _sort, ...countParams } = params;
-  const relationCountsQuery = backend.listAttributionRelationCounts.useQuery(
-    countParams,
-    {
-      enabled: initialized,
-    },
-  );
-  const relation = useMemo(() => {
-    const relationCounts = relationCountsQuery.data;
-    if (!relationCounts) {
-      return undefined;
-    }
-
-    if (requestedRelation && relationCounts[requestedRelation] !== undefined) {
-      return requestedRelation;
-    }
-
-    return (['resource', 'parents', 'children', 'unrelated'] as const).find(
-      (candidate) => relationCounts[candidate] !== undefined,
-    );
-  }, [relationCountsQuery.data, requestedRelation]);
-
   const query = useInfiniteQuery({
-    queryKey: ['backend', 'listAttributionsPage', { ...params, relation }],
+    queryKey: ['backend', 'listAttributionsPage', params],
     initialPageParam: 0,
-    enabled: initialized && relation !== undefined,
+    enabled: initialized,
     queryFn: ({ pageParam }) =>
       backend.listAttributionsPage.query({
         ...params,
-        relation,
         offset: pageParam,
         limit: ATTRIBUTION_PAGE_SIZE,
       }),
@@ -68,6 +45,13 @@ export function useInfiniteAttributionsList(params: Params) {
         ? lastPage.offset + Object.keys(lastPage.attributions).length
         : undefined,
   });
+  const { relation: _relation, sort: _sort, ...countParams } = params;
+  const relationCountsQuery = backend.listAttributionRelationCounts.useQuery(
+    countParams,
+    {
+      enabled: initialized,
+    },
+  );
 
   const {
     data,
@@ -103,9 +87,8 @@ export function useInfiniteAttributionsList(params: Params) {
 
   return {
     attributions,
-    loading:
-      relationCountsQuery.isLoading || (relation !== undefined && isLoading),
-    relation,
+    loading: isLoading,
+    relation: params.relation,
     relationCounts: relationCountsQuery.data,
     hasNextPage: hasNextPage ?? false,
     isFetchingNextPage,

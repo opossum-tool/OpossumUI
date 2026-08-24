@@ -39,19 +39,15 @@ describe('listAttributionsPage', () => {
     });
   });
 
-  it('returns exact relation counts and selects the first non-empty relation', async () => {
+  it('returns a page for the requested relation without counting other relations', async () => {
     const result = await listAttributionsPage({
       external: false,
       resourcePathForRelationships: '/parent/resource',
+      relation: 'resource',
       offset: 0,
       limit: 1,
     });
 
-    expect(result.result.relation).toBe('resource');
-    expect(result.result.relationCounts).toEqual({
-      resource: 2,
-      unrelated: 3,
-    });
     expect(Object.keys(result.result.attributions)).toHaveLength(1);
     expect(result.result.hasNextPage).toBe(true);
   });
@@ -62,17 +58,7 @@ describe('listAttributionsPage', () => {
       resourcePathForRelationships: '/parent/resource',
     });
 
-    const page = await listAttributionsPage({
-      external: false,
-      resourcePathForRelationships: '/parent/resource',
-      relation: 'resource',
-      offset: 0,
-      limit: 1,
-    });
-
     expect(counts.result).toEqual({ resource: 2, unrelated: 3 });
-    expect(page.result.relation).toBe('resource');
-    expect(page.result.relationCounts).toEqual({});
   });
 
   it('concatenates into the same relation-specific order as the full query', async () => {
@@ -122,11 +108,11 @@ describe('listAttributionsPage', () => {
     const emptyResult = await listAttributionsPage({
       external: false,
       search: 'does-not-exist',
+      relation: 'resource',
       offset: 0,
       limit: 2,
     });
     expect(emptyResult.result.attributions).toEqual({});
-    expect(emptyResult.result.relationCounts).toEqual({});
     expect(emptyResult.result.hasNextPage).toBe(false);
   });
 });
