@@ -23,6 +23,7 @@ interface Props extends Pick<
   options: Array<SelectMenuOption>;
   isActive: boolean;
   onClear?: () => void;
+  onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
   activeIconSx?: SxProps;
   activeBadgeStyle?: CSSProperties;
@@ -37,6 +38,7 @@ export function FilterButton({
   options,
   isActive,
   onClear,
+  onOpenChange,
   disabled,
   activeIconSx,
   activeBadgeStyle,
@@ -45,6 +47,10 @@ export function FilterButton({
   triggerStyle,
 }: Props) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
+  const handleSetAnchorEl = (nextAnchorEl: HTMLElement | undefined) => {
+    setAnchorEl(nextAnchorEl);
+    onOpenChange?.(nextAnchorEl !== undefined);
+  };
   const menuOptions = useMemo<Array<SelectMenuOption>>(
     () => [
       ...options,
@@ -96,7 +102,7 @@ export function FilterButton({
     <>
       <IconButton
         aria-label={'filter button'}
-        onClick={(event) => setAnchorEl(event.currentTarget)}
+        onClick={(event) => handleSetAnchorEl(event.currentTarget)}
         disabled={!!disabled}
         size={'small'}
         color={isActive ? 'primary' : undefined}
@@ -110,7 +116,7 @@ export function FilterButton({
         anchorPosition={anchorPosition}
         multiple
         options={menuOptions}
-        setAnchorEl={setAnchorEl}
+        setAnchorEl={handleSetAnchorEl}
         width={336}
       />
     </>

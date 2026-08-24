@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  type QueryKey,
   skipToken,
   type SkipToken,
   useMutation,
@@ -27,7 +28,16 @@ import type {
   QueryResult,
 } from '../../ElectronBackend/api/queries';
 import { queryClient } from '../Components/AppContainer/queryClient';
-import { enqueueAttributionListReconciliation } from './reconcile-attribution-lists';
+import {
+  clearDeferredQueryRefreshes,
+  enqueueDeferredQueryRefreshes,
+  notifyForegroundActivity,
+} from './deferred-query-refresh';
+import { traceFrontendPhase } from './frontend-performance-tracing';
+import {
+  enqueueAttributionListReconciliation,
+  enqueueAttributionPageReconciliation,
+} from './reconcile-attribution-lists';
 
 // We use the same options as tanstack query, with the exception that the
 // consumer can't set mutationKey and mutationFn, which are set by us
@@ -113,6 +123,118 @@ export function useDatabaseInitialized(): boolean {
   );
 }
 
+function queryKeyForCommand(command: CommandName, params: unknown): QueryKey {
+  return ['backend', command, params];
+}
+
+function queryKeyHash(queryKey: QueryKey): string {
+  return JSON.stringify(queryKey);
+}
+
+function queryParamsContainAffectedAttribution(
+  queryName: QueryName,
+  params: unknown,
+  affectedAttributionUuids: ReadonlySet<string>,
+): boolean {
+  if (params === undefined || params === null) {
+    return false;
+  }
+
+  if (typeof params !== 'object') {
+    return false;
+  }
+
+  const queryParams = params as {
+    attributionUuid?: unknown;
+    attributionUuids?: unknown;
+  };
+  if (
+    queryName === 'getAttributionData' &&
+    typeof queryParams.attributionUuid === 'string'
+  ) {
+    return affectedAttributionUuids.has(queryParams.attributionUuid);
+  }
+
+  if (
+    (queryName === 'getResourceInfoOnAttributions' ||
+      queryName === 'resourceAndAttributionAreLinked') &&
+    Array.isArray(queryParams.attributionUuids)
+  ) {
+    return queryParams.attributionUuids.some(
+      (uuid): uuid is string =>
+        typeof uuid === 'string' && affectedAttributionUuids.has(uuid),
+    );
+  }
+
+  if (
+    queryName === 'resourceAndAttributionAreLinked' &&
+    typeof queryParams.attributionUuid === 'string'
+  ) {
+    return affectedAttributionUuids.has(queryParams.attributionUuid);
+  }
+
+  return false;
+}
+
+function getCachedQueryKeys(invalidation: {
+  queryName: QueryName;
+  params?: unknown;
+}): Array<QueryKey> {
+  if (invalidation.params !== undefined) {
+    const queryKey = queryKeyForCommand(
+      invalidation.queryName,
+      invalidation.params,
+    );
+    return queryClient.getQueryCache().find({ queryKey, exact: true })
+      ? [queryKey]
+      : [];
+  }
+
+  return queryClient
+    .getQueryCache()
+    .findAll({ queryKey: ['backend', invalidation.queryName] })
+    .map((query) => query.queryKey);
+}
+
+function patchResolvedAttributionUuids(
+  command: MutationName,
+  params: unknown,
+  affectedAttributionUuids: ReadonlySet<string>,
+) {
+  if (
+    (command !== 'resolveAttributions' &&
+      command !== 'unresolveAttributions') ||
+    typeof params !== 'object' ||
+    params === null ||
+    !('attributionUuids' in params) ||
+    !Array.isArray(params.attributionUuids)
+  ) {
+    return;
+  }
+
+  queryClient.setQueriesData<Set<string>>(
+    { queryKey: ['backend', 'resolvedAttributionUuids'] },
+    (current) => {
+      if (!(current instanceof Set)) {
+        return current;
+      }
+      const next = new Set(current);
+      const attributionUuids = params.attributionUuids as unknown[];
+      for (const uuid of attributionUuids) {
+        if (typeof uuid !== 'string' || !affectedAttributionUuids.has(uuid)) {
+          continue;
+        }
+        if (command === 'resolveAttributions') {
+          next.add(uuid);
+        } else {
+          next.delete(uuid);
+        }
+      }
+      return next;
+    },
+  );
+}
+
 /**
  * Access the backend api commands as queries and mutations.
  * Mutations automatically invalidate the appropriate queries.
@@ -146,9 +268,6 @@ export function useDatabaseInitialized(): boolean {
  */
 export const backend = new Proxy({} as BackendClient, {
   get(_, command: CommandName) {
-    const getQueryKey = (command: CommandName, params: unknown) =>
-      ['backend', command, params] as const;
-
     async function mutate(
       params: MutationParams<MutationName>,
       onSuccessBeforeInvalidation?: () => void,
@@ -159,57 +278,78 @@ export const backend = new Proxy({} as BackendClient, {
         'affectedAttributionUuids' in response
           ? response.affectedAttributionUuids
           : undefined;
-      // Invalidate queries affected by the mutation
-      if ('invalidates' in response && response.invalidates) {
-        const invalidatesAttributionPages = response.invalidates.some(
-          (invalidation) => invalidation.queryName === 'listAttributions',
-        );
-        const invalidates = response.invalidates.filter(
-          (invalidation) =>
-            affectedAttributionUuids === undefined ||
-            invalidation.queryName !== 'listAttributions',
-        );
-        const invalidationPromises = invalidates.map((invalidation) => {
-          const queryKey =
-            'params' in invalidation
-              ? getQueryKey(invalidation.queryName, invalidation.params)
-              : ['backend', invalidation.queryName];
-          return queryClient.invalidateQueries({
-            queryKey,
-          });
-        });
+
+      const affectedUuids = new Set(affectedAttributionUuids ?? []);
+      const secondaryQueryKeys = new Map<string, QueryKey>();
+      const immediateQueryKeys = new Map<string, QueryKey>();
+      const invalidations =
+        'invalidates' in response && response.invalidates
+          ? response.invalidates
+          : [];
+      const invalidatesLegacyAttributions = invalidations.some(
+        (invalidation) => invalidation.queryName === 'listAttributions',
+      );
+      const invalidatesPaginatedAttributions = invalidations.some(
+        (invalidation) => invalidation.queryName === 'listAttributionsPage',
+      );
+
+      for (const invalidation of invalidations) {
         if (
-          invalidatesAttributionPages ||
-          affectedAttributionUuids !== undefined
+          invalidation.queryName === 'listAttributions' ||
+          invalidation.queryName === 'listAttributionsPage'
         ) {
-          invalidationPromises.push(
-            queryClient.invalidateQueries({
-              queryKey: ['backend', 'listAttributionsPage'],
-            }),
-          );
+          continue;
         }
-        if (affectedAttributionUuids !== undefined) {
-          invalidationPromises.push(
-            enqueueAttributionListReconciliation({
-              queryClient,
-              affectedAttributionUuids,
-              fetchAttributions: async (listParams) => {
-                const listResponse = await window.electronAPI.api(
-                  'listAttributions',
-                  listParams,
-                );
-                return listResponse.result;
-              },
-            }),
-          );
+
+        const queryKeys = getCachedQueryKeys(invalidation);
+        for (const queryKey of queryKeys) {
+          const isAffectedDetail =
+            affectedUuids.size > 0 &&
+            queryParamsContainAffectedAttribution(
+              invalidation.queryName,
+              queryKey[2],
+              affectedUuids,
+            );
+          const destination = isAffectedDetail
+            ? immediateQueryKeys
+            : secondaryQueryKeys;
+          destination.set(queryKeyHash(queryKey), queryKey);
         }
-        await Promise.all(invalidationPromises);
-      } else if (affectedAttributionUuids !== undefined) {
-        await Promise.all([
+      }
+
+      const markDeferredQueriesStale = Promise.all(
+        [...deferredQueryKeys.values()].map((queryKey) =>
           queryClient.invalidateQueries({
-            queryKey: ['backend', 'listAttributionsPage'],
+            queryKey,
+            exact: true,
+            refetchType: 'none',
           }),
-          enqueueAttributionListReconciliation({
+        ),
+      );
+
+      const immediateInvalidations = traceFrontendPhase(
+        'mutation.invalidate-immediate',
+        { mutation: command, queryCount: immediateQueryKeys.size },
+        () =>
+          Promise.all(
+        [...immediateQueryKeys.values()].map((queryKey) =>
+          queryClient.invalidateQueries({
+            queryKey,
+            exact: true,
+          }),
+        ).then(() => undefined),)
+            );
+
+      try {
+        await Promise.all([markDeferredQueriesStale, immediateInvalidations]);
+        patchResolvedAttributionUuids(
+          command as MutationName,
+          params,
+          affectedUuids,
+        );
+
+        if (affectedAttributionUuids !== undefined) {
+          await enqueueAttributionListReconciliation({
             queryClient,
             affectedAttributionUuids,
             fetchAttributions: async (listParams) => {
@@ -219,9 +359,52 @@ export const backend = new Proxy({} as BackendClient, {
               );
               return listResponse.result;
             },
-          }),
-        ]);
+          });
+        } else if (invalidatesLegacyAttributions) {
+          const legacyQueryKeys = getCachedQueryKeys({
+            queryName: 'listAttributions',
+          });
+          legacyQueryKeys.forEach((queryKey) => {
+            secondaryQueryKeys.set(queryKeyHash(queryKey), queryKey);
+          });
+        }
+
+        if (
+          invalidatesLegacyAttributions ||
+          invalidatesPaginatedAttributions ||
+          affectedUuids.size > 0
+        ) {
+          await enqueueAttributionPageReconciliation({
+            queryClient,
+            fetchPage: async (pageParams) => {
+              const pageResponse = await window.electronAPI.api(
+                'listAttributionsPage',
+                pageParams,
+              );
+              return pageResponse.result;
+            },
+          });
+        }
+      } catch {
+        // The database mutation has already committed. Keep the affected
+        // cache entries stale without turning a cache-maintenance failure into
+        // a failed user action. They will refresh on activation or the next
+        // invalidation.
       }
+
+      void traceFrontendPhase(
+        'mutation.invalidate-secondary',
+        { mutation: command, queryCount: secondaryQueryKeys.size },
+        () =>
+          Promise.all(
+            [...secondaryQueryKeys.values()].map((queryKey) =>
+              queryClient.invalidateQueries({
+                queryKey,
+                exact: true,
+              }),
+            ),
+          ).then(() => undefined),
+      );
       window.electronAPI.saveFile();
       return 'result' in response ? response.result : undefined;
     }
@@ -244,7 +427,7 @@ export const backend = new Proxy({} as BackendClient, {
         const initialized = useDatabaseInitialized();
 
         return useQuery({
-          queryKey: getQueryKey(command, params),
+          queryKey: queryKeyForCommand(command, params),
           queryFn:
             initialized && params !== skipToken
               ? () => {

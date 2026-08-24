@@ -153,6 +153,9 @@ describe('attribution resource access', () => {
     expect(Object.values(result.inputKeysToNewUuids)).toEqual([
       expect.any(String),
     ]);
+    expect(response.invalidates).toContainEqual({
+      queryName: 'getResourcePathsAndParentsForAttributions',
+    });
     expect(Object.keys(attributions)).toEqual(
       Object.values(result.inputKeysToNewUuids),
     );

@@ -60,6 +60,7 @@ const PROGRESS_BAR_INVALIDATIONS: Array<QueryInvalidationUnion> = [
 const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<QueryInvalidationUnion> = [
   ...PROGRESS_BAR_INVALIDATIONS,
   { queryName: 'listAttributions' },
+  { queryName: 'listAttributionRelationCounts' },
   { queryName: 'filterProperties' },
   { queryName: 'licenseTable' },
   { queryName: 'autoCompleteOptions' },
@@ -78,6 +79,7 @@ const EXTERNAL_ATTRIBUTION_INVALIDATIONS: Array<QueryInvalidationUnion> = [
 const RESOURCE_TREE_INVALIDATIONS: Array<QueryInvalidationUnion> = [
   { queryName: 'getResourceTree' },
   { queryName: 'getResourcePathsAndParentsForAttributions' },
+  { queryName: 'getResourceTreeUnreviewedCount' },
 ];
 
 export const mutations = {

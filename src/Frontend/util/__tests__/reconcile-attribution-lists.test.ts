@@ -13,6 +13,7 @@ import { type Attributions, Criticality } from '../../../shared/shared-types';
 import {
   enqueueAttributionListReconciliation,
   type ReconcileAttributionListsOptions,
+  reconcileAttributionPages,
 } from '../reconcile-attribution-lists';
 
 type ListAttributionsParams = QueryParams<'listAttributions'>;
@@ -448,6 +449,106 @@ describe('enqueueAttributionListReconciliation', () => {
       exact: true,
     });
     unsubscribe();
+    queryClient.clear();
+  });
+});
+
+describe('reconcileAttributionPages', () => {
+  it('refetches the loaded prefix and replaces all loaded pages atomically', async () => {
+    const queryClient = new QueryClient();
+    const params = {
+      external: false,
+      relation: 'resource',
+      offset: 0,
+      limit: 200,
+    } satisfies QueryParams<'listAttributionsPage'>;
+    const queryKey = ['backend', 'listAttributionsPage', params] as const;
+    const page = {
+      attributions: {
+        a: attribution('a', 'old'),
+        b: attribution('b', 'unchanged'),
+      },
+      offset: 0,
+      hasNextPage: true,
+    };
+    queryClient.setQueryData(queryKey, {
+      pages: [page, { ...page, offset: 200 }],
+      pageParams: [0, 200],
+    });
+    const observer = new QueryObserver(queryClient, {
+      queryKey,
+      queryFn: () => promiseOf({ pages: [page], pageParams: [0] }),
+      staleTime: Infinity,
+    });
+    const unsubscribe = observer.subscribe(() => undefined);
+    const fetchPage = vi.fn(() =>
+      promiseOf({
+        attributions: {
+          a: attribution('a', 'updated'),
+          b: attribution('b', 'unchanged'),
+          c: attribution('c', 'new'),
+        },
+        offset: 0,
+        hasNextPage: false,
+      }),
+    );
+
+    await reconcileAttributionPages({ queryClient, fetchPage });
+
+    expect(fetchPage).toHaveBeenCalledWith({
+      ...params,
+      offset: 0,
+      limit: 200,
+    });
+    expect(queryClient.getQueryData(queryKey)).toEqual({
+      pages: [
+        {
+          attributions: {
+            a: attribution('a', 'updated'),
+            b: attribution('b', 'unchanged'),
+            c: attribution('c', 'new'),
+          },
+          offset: 0,
+          hasNextPage: false,
+        },
+      ],
+      pageParams: [0],
+    });
+    unsubscribe();
+    queryClient.clear();
+  });
+
+  it('marks inactive page queries stale without fetching', async () => {
+    const queryClient = new QueryClient();
+    const params = {
+      external: false,
+      relation: 'resource',
+      offset: 0,
+      limit: 200,
+    } satisfies QueryParams<'listAttributionsPage'>;
+    const queryKey = ['backend', 'listAttributionsPage', params] as const;
+    queryClient.setQueryData(queryKey, {
+      pages: [
+        {
+          attributions: { a: attribution('a', 'old') },
+          offset: 0,
+          hasNextPage: false,
+        },
+      ],
+      pageParams: [0],
+    });
+    const fetchPage = vi.fn(() =>
+      promiseOf({
+        attributions: {},
+        offset: 0,
+        hasNextPage: false,
+      }),
+    );
+
+    await reconcileAttributionPages({ queryClient, fetchPage });
+
+    expect(fetchPage).not.toHaveBeenCalled();
+    expect(queryClient.getQueryState(queryKey)?.isInvalidated).toBe(true);
     queryClient.clear();
   });
 });

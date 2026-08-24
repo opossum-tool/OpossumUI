@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { useState } from 'react';
+
 import { useAttributionFiltersInReportView } from '../../state/variables/use-filters';
 import { useFilteredReportsAttributionsList } from '../../util/use-attribution-lists';
 import { useFilterProperties } from '../../util/use-filter-properties';
@@ -10,8 +12,12 @@ import { FilterButton } from '../FilterButton/FilterButton';
 import { useAttributionFilterOptions } from '../FilterButton/use-attribution-filter-options';
 
 export const TableFilterButton: React.FC = () => {
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { attributions, loading } = useFilteredReportsAttributionsList();
-  const { filterProps } = useFilterProperties({ mode: 'reportTable' });
+  const { filterProps } = useFilterProperties({
+    mode: 'reportTable',
+    enabled: isFilterOpen,
+  });
   const [filters, setFilteredAttributions] =
     useAttributionFiltersInReportView();
   const { filters: attributionFilters, valueFilters } = filters;
@@ -28,6 +34,7 @@ export const TableFilterButton: React.FC = () => {
     <FilterButton
       options={filterOptions}
       isActive={isFilterActive}
+      onOpenChange={setIsFilterOpen}
       onClear={() =>
         setFilteredAttributions({
           ...filters,

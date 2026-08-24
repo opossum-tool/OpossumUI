@@ -66,6 +66,19 @@ describe('FilterButton', () => {
       screen.queryByRole('menuitem', { name: text.packageLists.clearFilters }),
     ).not.toBeInTheDocument();
   });
+
+  it('reports when the filter menu opens and closes', async () => {
+    const onOpenChange = vi.fn();
+    await renderFilterButton({ onOpenChange });
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'filter button' }),
+    );
+    expect(onOpenChange).toHaveBeenLastCalledWith(true);
+
+    await userEvent.keyboard('{Escape}');
+    expect(onOpenChange).toHaveBeenLastCalledWith(false);
+  });
 });
 
 async function renderFilterButton({
@@ -74,12 +87,14 @@ async function renderFilterButton({
   onAdd = vi.fn(),
   onDelete = vi.fn(),
   onClear,
+  onOpenChange,
 }: {
   selected?: boolean;
   isActive?: boolean;
   onAdd?: () => void;
   onDelete?: () => void;
   onClear?: () => void;
+  onOpenChange?: (open: boolean) => void;
 }) {
   return renderComponent(
     <FilterButton
@@ -88,6 +103,7 @@ async function renderFilterButton({
       ]}
       isActive={isActive}
       onClear={onClear}
+      onOpenChange={onOpenChange}
     />,
   );
 }
