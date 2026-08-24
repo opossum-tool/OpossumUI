@@ -113,7 +113,11 @@ export const PackagesPanel = ({
 
   const [multiSelectedAttributionIds, setMultiSelectedAttributionIds] =
     useState<Array<string>>([]);
-  const [activeRelation, setActiveRelation] = useState<Relation | null>(null);
+  const [activeRelation, setActiveRelation] = useState<Relation>('resource');
+  const relationForCurrentResource =
+    selectedResourceId !== previousSelectedResourceId
+      ? 'resource'
+      : activeRelation;
   const { filterProps } = useFilterProperties({
     mode: external ? 'external' : 'manual',
   });
@@ -132,7 +136,7 @@ export const PackagesPanel = ({
     showResolved: areHiddenSignalsVisible && external,
     excludeUnrelated: external || isSelectedResourceReadonly,
     includeReadonly: true,
-    relation: activeRelation ?? undefined,
+    relation: relationForCurrentResource,
   });
   const {
     attributions,
@@ -296,13 +300,13 @@ export const PackagesPanel = ({
     effectiveSelectedIds,
   );
 
-  // reset resource-dependent state when the selected resource changes
+  // reset resource-dependent selection state when the selected resource changes
   useEffect(() => {
     if (selectedResourceId !== previousSelectedResourceId) {
       if (multiSelectedAttributionIds.length) {
         setMultiSelectedAttributionIds([]);
       }
-      setActiveRelation(null);
+      setActiveRelation('resource');
     }
   }, [
     multiSelectedAttributionIds.length,
@@ -329,7 +333,7 @@ export const PackagesPanel = ({
     if (
       !loading &&
       availableRelations?.length &&
-      (!activeRelation || !availableRelations.includes(activeRelation))
+      !availableRelations.includes(activeRelation)
     ) {
       setActiveRelation(availableRelations[0]);
     }

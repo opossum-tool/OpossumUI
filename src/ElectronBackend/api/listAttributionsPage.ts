@@ -51,7 +51,7 @@ export type ListAttributionsPageProps = {
   showResolved?: boolean;
   excludeUnrelated?: boolean;
   includeReadonly?: boolean;
-  relation?: Relation;
+  relation: Relation;
   offset: number;
   limit: number;
 };
@@ -70,6 +70,9 @@ type PageQueryRow = {
 
 type PageDetailRow = Selectable<Attribution>;
 type AttributionQuery = SelectQueryBuilder<DB, 'attribution', unknown>;
+type AttributionListQueryProps = Omit<ListAttributionsPageProps, 'relation'> & {
+  relation?: Relation;
+};
 
 const backendToFrontendRelationship = {
   same: 'resource',
@@ -155,7 +158,7 @@ function addOrdering(
 
 function applyFilters(
   query: AttributionQuery,
-  props: ListAttributionsPageProps,
+  props: AttributionListQueryProps,
   resource: { id: number; max_descendant_id: number } | undefined,
   ancestorId: number | undefined,
 ): AttributionQuery {
@@ -180,7 +183,7 @@ function applyFilters(
 
 function getFilteredQuery(
   trx: Kysely<DB>,
-  props: ListAttributionsPageProps,
+  props: AttributionListQueryProps,
   resource: { id: number; max_descendant_id: number } | undefined,
   ancestorId: number | undefined,
   selectUuids: boolean,
@@ -305,8 +308,6 @@ export async function listAttributionsPage(
 ): Promise<{
   result: {
     attributions: Attributions;
-    relation: Relation;
-    relationCounts: Partial<Record<Relation, number>>;
     offset: number;
     hasNextPage: boolean;
   };
@@ -328,20 +329,10 @@ export async function listAttributionsPage(
             )
           : undefined;
 
-      const relationCounts = props.relation
-        ? undefined
-        : await getRelationCounts(trx, props, resource, closestAncestor);
-      const selectedRelation =
-        props.relation ??
-        (['resource', 'parents', 'children', 'unrelated'] as const).find(
-          (relation) => relationCounts?.[relation] !== undefined,
-        ) ??
-        'resource';
-
       const pageRows = (await addOrdering(
         getFilteredQuery(
           trx,
-          { ...props, relation: selectedRelation },
+          props,
           resource,
           closestAncestor,
           true,
@@ -391,8 +382,6 @@ export async function listAttributionsPage(
             ];
           }),
         ),
-        relation: selectedRelation,
-        relationCounts: relationCounts ?? {},
         offset,
         hasNextPage,
       };
