@@ -118,8 +118,10 @@ export const PackagesPanel = ({
     selectedResourceId !== previousSelectedResourceId
       ? 'resource'
       : activeRelation;
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterProps } = useFilterProperties({
     mode: external ? 'external' : 'manual',
+    enabled: isFilterOpen,
   });
   const [filters, setFilteredAttributions] = useFilteredData();
   const { filters: attributionFilters, valueFilters } = filters;
@@ -401,6 +403,7 @@ export const PackagesPanel = ({
             <FilterButton
               options={menuFilterOptions}
               isActive={isFilterActive}
+              onOpenChange={setIsFilterOpen}
               onClear={() =>
                 setFiltersWithUnsavedCheck({
                   ...filters,

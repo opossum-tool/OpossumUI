@@ -7,6 +7,7 @@ import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
 import Box from '@mui/system/Box';
+import { useRef } from 'react';
 
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
@@ -43,14 +44,33 @@ interface ProgressBarTooltipProps {
   steps: Array<ProgressBarStep>;
 }
 
+type NextResourceRefetch = () => Promise<{
+  data: string | null | undefined;
+}>;
+
 export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const dispatch = useAppDispatch();
+  const nextResourceRequestInFlightRef = useRef(false);
 
   function goToResource(resourcePath: string | null | undefined) {
     if (!resourcePath) {
       return;
     }
     dispatch(navigateToSelectedPathOrOpenUnsavedPopup(resourcePath));
+  }
+
+  async function goToNextResource(refetch: NextResourceRefetch) {
+    if (nextResourceRequestInFlightRef.current) {
+      return;
+    }
+
+    nextResourceRequestInFlightRef.current = true;
+    try {
+      const { data } = await refetch();
+      goToResource(data);
+    } finally {
+      nextResourceRequestInFlightRef.current = false;
+    }
   }
 
   const selectedResourcePath = useAppSelector(getSelectedResourceId);
@@ -62,7 +82,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const getNextAttributionResource =
     backend.getNextFileToReviewForAttribution.useQuery(
       { selectedResourcePath },
-      { enabled: props.selectedProgressBar === 'attribution' },
+      { enabled: false },
     );
 
   const criticalityProgressBarData =
@@ -72,7 +92,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const getNextCriticalityResource =
     backend.getNextFileToReviewForCriticality.useQuery(
       { selectedResourcePath },
-      { enabled: props.selectedProgressBar === 'criticality' },
+      { enabled: false },
     );
 
   const classificationProgressBarData =
@@ -82,7 +102,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const getNextClassificationResource =
     backend.getNextFileToReviewForClassification.useQuery(
       { selectedResourcePath },
-      { enabled: props.selectedProgressBar === 'classification' },
+      { enabled: false },
     );
   const classifications = useClassifications();
 
@@ -101,7 +121,11 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       steps: attributionsProgressBarData.data
         ? calculateAttributionBarSteps(attributionsProgressBarData.data)
         : undefined,
-      onClickHandler: () => goToResource(getNextAttributionResource.data),
+      onClickHandler: () => {
+        void goToNextResource(() =>
+          getNextAttributionResource.refetch({ cancelRefetch: false }),
+        );
+      },
     },
     criticality: {
       Title: CriticalityBarTooltipTitle,
@@ -109,7 +133,11 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       steps: criticalityProgressBarData.data
         ? calculateCriticalityBarSteps(criticalityProgressBarData.data)
         : undefined,
-      onClickHandler: () => goToResource(getNextCriticalityResource.data),
+      onClickHandler: () => {
+        void goToNextResource(() =>
+          getNextCriticalityResource.refetch({ cancelRefetch: false }),
+        );
+      },
     },
     classification: {
       Title: ClassificationBarTooltipTitle,
@@ -120,7 +148,11 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
             classifications,
           )
         : undefined,
-      onClickHandler: () => goToResource(getNextClassificationResource.data),
+      onClickHandler: () => {
+        void goToNextResource(() =>
+          getNextClassificationResource.refetch({ cancelRefetch: false }),
+        );
+      },
     },
   };
 

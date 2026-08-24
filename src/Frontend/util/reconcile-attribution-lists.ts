@@ -13,12 +13,22 @@ import { sortAttributions } from './sort-attributions';
 
 type ListAttributionsParams = QueryParams<'listAttributions'>;
 type ListAttributionsResult = NonNullable<QueryResult<'listAttributions'>>;
+type ListAttributionsPageParams = QueryParams<'listAttributionsPage'>;
+type ListAttributionsPageResult = NonNullable<
+  QueryResult<'listAttributionsPage'>
+>;
+
+type InfiniteAttributionPages = {
+  pages: Array<ListAttributionsPageResult>;
+  pageParams: Array<unknown>;
+};
 
 const LIST_ATTRIBUTIONS_QUERY_KEY = [
   'backend',
   'listAttributions',
 ] as const satisfies QueryKey;
 const TARGETED_FETCH_BATCH_SIZE = 500;
+const PAGINATED_ATTRIBUTION_PAGE_SIZE = 200;
 
 export type ReconcileAttributionListsOptions = {
   queryClient: QueryClient;
@@ -28,7 +38,15 @@ export type ReconcileAttributionListsOptions = {
   ) => Promise<ListAttributionsResult>;
 };
 
+export type ReconcileAttributionPagesOptions = {
+  queryClient: QueryClient;
+  fetchPage: (
+    params: ListAttributionsPageParams,
+  ) => Promise<ListAttributionsPageResult>;
+};
+
 let reconciliationQueue: Promise<void> = Promise.resolve();
+let pageReconciliationQueue: Promise<void> = Promise.resolve();
 
 export function enqueueAttributionListReconciliation(
   options: ReconcileAttributionListsOptions,
@@ -39,6 +57,93 @@ export function enqueueAttributionListReconciliation(
   // Keep the queue usable after a failure, but return the original promise so
   // the mutation that triggered the failed reconciliation still rejects.
   reconciliationQueue = currentReconciliation.catch(() => {});
+  return currentReconciliation;
+}
+
+export async function reconcileAttributionPages({
+  queryClient,
+  fetchPage,
+}: ReconcileAttributionPagesOptions): Promise<void> {
+  const queries = queryClient.getQueryCache().findAll({
+    queryKey: ['backend', 'listAttributionsPage'],
+  });
+
+  const errors: Array<unknown> = [];
+  for (const query of queries) {
+    if (!query.isActive()) {
+      await queryClient.invalidateQueries({
+        queryKey: query.queryKey,
+        exact: true,
+        refetchType: 'none',
+      });
+      continue;
+    }
+
+    const currentData = query.state.data as
+      InfiniteAttributionPages | undefined;
+    const loadedRowCount =
+      currentData?.pages.reduce(
+        (count, page) => count + Object.keys(page.attributions).length,
+        0,
+      ) ?? 0;
+    const params = query.queryKey[2] as ListAttributionsPageParams;
+
+    await queryClient.cancelQueries({
+      queryKey: query.queryKey,
+      exact: true,
+    });
+    if (
+      queryClient.getQueryCache().find({
+        queryKey: query.queryKey,
+        exact: true,
+      }) !== query
+    ) {
+      continue;
+    }
+
+    try {
+      const page = await fetchPage({
+        ...params,
+        offset: 0,
+        limit: Math.max(PAGINATED_ATTRIBUTION_PAGE_SIZE, loadedRowCount),
+      });
+      if (
+        queryClient.getQueryCache().find({
+          queryKey: query.queryKey,
+          exact: true,
+        }) !== query
+      ) {
+        continue;
+      }
+      queryClient.setQueryData<InfiniteAttributionPages>(query.queryKey, {
+        pages: [page],
+        pageParams: [0],
+      });
+    } catch (error) {
+      await queryClient.invalidateQueries({
+        queryKey: query.queryKey,
+        exact: true,
+        refetchType: 'none',
+      });
+      errors.push(error);
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new AggregateError(
+      errors,
+      'Failed to reconcile paginated attribution lists',
+    );
+  }
+}
+
+export function enqueueAttributionPageReconciliation(
+  options: ReconcileAttributionPagesOptions,
+): Promise<void> {
+  const currentReconciliation = pageReconciliationQueue.then(() =>
+    reconcileAttributionPages(options),
+  );
+  pageReconciliationQueue = currentReconciliation.catch(() => {});
   return currentReconciliation;
 }
 

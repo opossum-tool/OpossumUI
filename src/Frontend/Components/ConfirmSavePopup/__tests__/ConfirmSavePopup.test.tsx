@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash-es';
 
@@ -52,11 +52,11 @@ describe('ConfirmSavePopup', () => {
       },
     );
 
-    await userEvent.click(
-      screen.getByRole('button', {
-        name: text.saveAttributionsPopup.save,
-      }),
-    );
+    const saveButton = screen.getByRole('button', {
+      name: text.saveAttributionsPopup.save,
+    });
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    await userEvent.click(saveButton);
 
     await expectManualAttributions({
       [packageInfo1.id]: packageInfo2,
