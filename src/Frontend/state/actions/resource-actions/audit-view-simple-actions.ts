@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { Relation } from '../../../../shared/shared-types';
 import type { AppThunkDispatch } from '../../types';
 import {
   type AttributionFilters,
@@ -14,12 +15,14 @@ import {
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE,
+  ACTION_SET_TARGET_ATTRIBUTION_RELATION,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
   type SetExpandedIdsAction,
   type SetSelectedAttributionId,
   type SetSelectedResourceIdAction,
   type SetTargetAttributionFilterChangeAction,
+  type SetTargetAttributionRelationAction,
   type SetTargetSelectedAttributionIdAction,
   type SetTargetSelectedResourceId,
   type TargetAttributionFilterChange,
@@ -70,6 +73,15 @@ export function setTargetAttributionFilterChange(
   return {
     type: ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE,
     payload: targetAttributionFilterChange,
+  };
+}
+
+export function setTargetAttributionRelation(
+  relation: Relation | null,
+): SetTargetAttributionRelationAction {
+  return {
+    type: ACTION_SET_TARGET_ATTRIBUTION_RELATION,
+    payload: relation,
   };
 }
 export function setAttributionFilters(

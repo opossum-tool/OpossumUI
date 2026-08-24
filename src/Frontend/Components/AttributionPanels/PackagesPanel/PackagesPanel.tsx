@@ -20,11 +20,15 @@ import {
   PICKER_MODE_DISABLED_OPACITY,
 } from '../../../shared-styles';
 import { changeAttributionFiltersOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
-import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import {
+  setSelectedAttributionId,
+  setTargetAttributionRelation,
+} from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getSelectedAttributionId,
   getSelectedResourceId,
+  getTargetAttributionRelation,
 } from '../../../state/selectors/resource-selectors';
 import type {
   AttributionFilters,
@@ -108,12 +112,18 @@ export const PackagesPanel = ({
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const targetAttributionRelation = useAppSelector(
+    getTargetAttributionRelation,
+  );
   const lastResourceIdWithAutoSelectionRef = useRef(selectedResourceId);
   const previousSelectedResourceId = usePrevious(selectedResourceId);
 
   const [multiSelectedAttributionIds, setMultiSelectedAttributionIds] =
     useState<Array<string>>([]);
   const [activeRelation, setActiveRelation] = useState<Relation>('resource');
+  const updateActiveRelation = setActiveRelation;
+  const preserveSelectedAttributionRef = useRef(false);
+  const requestedRelationRef = useRef<Relation | null>(null);
   const relationForCurrentResource =
     selectedResourceId !== previousSelectedResourceId
       ? 'resource'
@@ -148,6 +158,7 @@ export const PackagesPanel = ({
     onRetryLoadMore,
     fetchNextPage,
     hasNextPage,
+    isFetching,
     relationCounts,
   } = {
     attributions: infiniteAttributions.attributions,
@@ -157,6 +168,7 @@ export const PackagesPanel = ({
     onRetryLoadMore: infiniteAttributions.fetchNextPage,
     fetchNextPage: infiniteAttributions.fetchNextPage,
     hasNextPage: infiniteAttributions.hasNextPage,
+    isFetching: infiniteAttributions.isFetching,
     relationCounts: infiniteAttributions.relationCounts,
   };
   const selectedAttribution = attributions?.[selectedAttributionId];
@@ -174,54 +186,9 @@ export const PackagesPanel = ({
     [attributions],
   );
 
-  // Automatic attribution selection
-  useEffect(() => {
-    if (loading || !attributions) {
-      if (
-        !external &&
-        lastResourceIdWithAutoSelectionRef.current !== selectedResourceId
-      ) {
-        dispatch(setSelectedAttributionId(''));
-      }
-      return;
-    }
-
-    if (
-      !external &&
-      lastResourceIdWithAutoSelectionRef.current !== selectedResourceId
-    ) {
-      lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
-      const closestAttributionId =
-        groupedIds?.resource?.[0] ?? groupedIds?.parents?.[0];
-
-      dispatch(setSelectedAttributionId(closestAttributionId ?? ''));
-      return;
-    }
-
-    const replacementAttribution = attributions
-      ? Object.values(attributions)[0]
-      : undefined;
-
-    if (
-      selectedAttributionId &&
-      selectedAttributionIsExternal === external &&
-      !attributions?.[selectedAttributionId] &&
-      replacementAttribution
-    ) {
-      dispatch(setSelectedAttributionId(replacementAttribution.id));
-    }
-  }, [
-    attributions,
-    dispatch,
-    external,
-    groupedIds,
-    loading,
-    selectedAttributionId,
-    selectedAttributionIsExternal,
-    selectedResourceId,
-  ]);
   const setFiltersWithUnsavedCheck = useCallback(
     (nextFilters: AttributionFilters) => {
+      preserveSelectedAttributionRef.current = false;
       if (selectedAttribution) {
         dispatch(
           changeAttributionFiltersOrOpenUnsavedPopup({
@@ -254,6 +221,97 @@ export const PackagesPanel = ({
         (relation) => relationCounts[relation] !== undefined,
       )
     : null;
+
+  // Automatic attribution selection. The first resource page is requested
+  // immediately; only an empty resource page waits for relation counts before
+  // falling back to the closest available relation.
+  useEffect(() => {
+    if (!external && targetAttributionRelation !== null) {
+      preserveSelectedAttributionRef.current = true;
+      requestedRelationRef.current = targetAttributionRelation;
+      updateActiveRelation(targetAttributionRelation);
+      dispatch(setTargetAttributionRelation(null));
+    }
+  }, [dispatch, external, targetAttributionRelation, updateActiveRelation]);
+
+  useEffect(() => {
+    const isAutoSelectionPending =
+      !external &&
+      lastResourceIdWithAutoSelectionRef.current !== selectedResourceId;
+
+    if (isAutoSelectionPending) {
+      dispatch(setSelectedAttributionId(''));
+
+      if (loading || !attributions) {
+        return;
+      }
+
+      const visibleAttributionIds = Object.keys(attributions);
+      if (visibleAttributionIds.length > 0) {
+        lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
+        dispatch(setSelectedAttributionId(visibleAttributionIds[0]));
+        return;
+      }
+
+      const closestSelectableRelation = availableRelations?.find(
+        (relation) => relation === 'resource' || relation === 'parents',
+      );
+      if (closestSelectableRelation === undefined) {
+        if (relationCounts !== undefined && !isFetching) {
+          lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
+        }
+        return;
+      }
+
+      if (relationForCurrentResource !== closestSelectableRelation) {
+        updateActiveRelation(closestSelectableRelation);
+        return;
+      }
+
+      if (!isFetching) {
+        lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
+      }
+      return;
+    }
+
+    const replacementAttribution = attributions
+      ? Object.values(attributions)[0]
+      : undefined;
+    const relationIsSettled = relationForCurrentResource === activeRelation;
+
+    if (
+      selectedAttributionId &&
+      selectedAttributionIsExternal === external &&
+      !attributions?.[selectedAttributionId] &&
+      replacementAttribution &&
+      relationIsSettled &&
+      !preserveSelectedAttributionRef.current
+    ) {
+      dispatch(setSelectedAttributionId(replacementAttribution.id));
+    }
+
+    if (
+      preserveSelectedAttributionRef.current &&
+      attributions?.[selectedAttributionId]
+    ) {
+      preserveSelectedAttributionRef.current = false;
+    }
+  }, [
+    activeRelation,
+    attributions,
+    availableRelations,
+    dispatch,
+    external,
+    isFetching,
+    loading,
+    relationCounts,
+    relationForCurrentResource,
+    selectedAttributionId,
+    selectedAttributionIsExternal,
+    selectedResourceId,
+    updateActiveRelation,
+  ]);
+
   const selectedAttributionRelation =
     attributions?.[selectedAttributionId]?.relation;
   const activeAttributionIds = useMemo(
@@ -308,12 +366,13 @@ export const PackagesPanel = ({
       if (multiSelectedAttributionIds.length) {
         setMultiSelectedAttributionIds([]);
       }
-      setActiveRelation('resource');
+      updateActiveRelation('resource');
     }
   }, [
     multiSelectedAttributionIds.length,
     previousSelectedResourceId,
     selectedResourceId,
+    updateActiveRelation,
   ]);
 
   // adjust multi-selected IDs when previously visible attributions become invisible
@@ -333,20 +392,31 @@ export const PackagesPanel = ({
   // reset active relation when active relation no longer exists
   useEffect(() => {
     if (
+      requestedRelationRef.current !== null &&
+      requestedRelationRef.current === activeRelation
+    ) {
+      if (availableRelations?.includes(requestedRelationRef.current)) {
+        requestedRelationRef.current = null;
+      } else {
+        return;
+      }
+    }
+
+    if (
       !loading &&
       availableRelations?.length &&
       !availableRelations.includes(activeRelation)
     ) {
-      setActiveRelation(availableRelations[0]);
+      updateActiveRelation(availableRelations[0]);
     }
-  }, [activeRelation, availableRelations, loading]);
+  }, [activeRelation, availableRelations, loading, updateActiveRelation]);
 
   // switch to the tab of a newly selected attribution
   useEffect(() => {
     if (selectedAttributionRelation) {
-      setActiveRelation(selectedAttributionRelation);
+      updateActiveRelation(selectedAttributionRelation);
     }
-  }, [selectedAttributionRelation]);
+  }, [selectedAttributionRelation, updateActiveRelation]);
 
   const childrenProps: PackagesPanelChildrenProps = {
     activeAttributionIds,
@@ -442,7 +512,8 @@ export const PackagesPanel = ({
         variant={'fullWidth'}
         value={activeTabIndex === -1 ? false : activeTabIndex}
         onChange={(_, index) => {
-          setActiveRelation(availableRelations[index]);
+          preserveSelectedAttributionRef.current = true;
+          updateActiveRelation(availableRelations[index]);
         }}
       >
         {availableRelations.map((key) => (

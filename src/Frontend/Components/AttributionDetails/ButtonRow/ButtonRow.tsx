@@ -22,6 +22,7 @@ import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setTargetAttributionRelation } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setSelectedAttributionIdIfRemapped } from '../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
@@ -310,6 +311,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
                   packageInfo.id,
                 ),
               );
+              dispatch(setTargetAttributionRelation('resource'));
             }}
           >
             {linkAttribution.isPending ? (

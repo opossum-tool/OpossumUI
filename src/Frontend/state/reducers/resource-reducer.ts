@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { PackageInfo } from '../../../shared/shared-types';
+import type { PackageInfo, Relation } from '../../../shared/shared-types';
 import { EMPTY_DISPLAY_PACKAGE_INFO, ROOT_PATH } from '../../shared-constants';
 import {
   ACTION_INITIALIZE_PACKAGE_INFO_EDITING,
@@ -11,6 +11,7 @@ import {
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE,
+  ACTION_SET_TARGET_ATTRIBUTION_RELATION,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
@@ -25,6 +26,7 @@ export const initialResourceState: ResourceState = {
   selectedResourceId: ROOT_PATH,
   targetSelectedAttributionId: null,
   targetAttributionFilterChange: null,
+  targetAttributionRelation: null,
   targetSelectedResourceId: null,
   temporaryDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
 };
@@ -36,6 +38,7 @@ export type ResourceState = {
   selectedResourceId: string;
   targetSelectedAttributionId: string | null;
   targetAttributionFilterChange: TargetAttributionFilterChange | null;
+  targetAttributionRelation: Relation | null;
   targetSelectedResourceId: string | null;
   temporaryDisplayPackageInfo: PackageInfo;
 };
@@ -87,6 +90,11 @@ export const resourceState = (
       return {
         ...state,
         targetAttributionFilterChange: action.payload,
+      };
+    case ACTION_SET_TARGET_ATTRIBUTION_RELATION:
+      return {
+        ...state,
+        targetAttributionRelation: action.payload,
       };
     default:
       return state;

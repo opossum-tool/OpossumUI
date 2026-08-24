@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { isEqualToManualAttribution } from '../../../shared/attribution-comparison';
-import type { PackageInfo } from '../../../shared/shared-types';
+import type { PackageInfo, Relation } from '../../../shared/shared-types';
 import type { State } from '../../types/types';
 import type { TargetAttributionFilterChange } from '../actions/resource-actions/types';
 
@@ -19,6 +19,10 @@ export function getTargetAttributionFilterChange(
   state: State,
 ): TargetAttributionFilterChange | null {
   return state.resourceState.targetAttributionFilterChange;
+}
+
+export function getTargetAttributionRelation(state: State): Relation | null {
+  return state.resourceState.targetAttributionRelation;
 }
 
 export function getExpandedIds(state: State): Array<string> {
