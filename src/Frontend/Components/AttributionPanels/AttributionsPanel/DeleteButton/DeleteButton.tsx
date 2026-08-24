@@ -15,6 +15,7 @@ import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   selectedAttributionIds,
+  hasNextPage,
 }) => {
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
     useState(false);
@@ -26,6 +27,7 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
       <MuiIconButton
         aria-label={text.packageLists.delete}
         disabled={
+          hasNextPage ||
           !selectedAttributionIds.length ||
           pickerMode.isActive ||
           mutationsPending

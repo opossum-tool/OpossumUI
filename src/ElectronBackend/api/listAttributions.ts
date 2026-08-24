@@ -10,15 +10,8 @@ import type {
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
 import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
-import {
-  AttributionResourceAccess,
-  EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
-} from '../types/types';
-import {
-  getFilterExpression,
-  getSearchExpression,
-  getValueFilterExpression,
-} from './filters';
+import { AttributionResourceAccess } from '../types/types';
+import { getAttributionListWhereExpressions } from './attribution-list-query-utils';
 import {
   attributionToResourceRelationship,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
@@ -26,7 +19,7 @@ import {
   type ResourceRelationship,
 } from './utils';
 
-export async function listAttributions(props: {
+export type ListAttributionsProps = {
   external?: boolean;
   filters?: Array<AttributionFilterKey>;
   resourcePathForRelationships?: string;
@@ -37,7 +30,11 @@ export async function listAttributions(props: {
   excludeUnrelated?: boolean;
   uuids?: Array<string>;
   includeReadonly?: boolean;
-}): Promise<{ result: Attributions }> {
+};
+
+export async function listAttributions(
+  props: ListAttributionsProps,
+): Promise<{ result: Attributions }> {
   if (props.uuids?.length === 0) {
     return { result: {} };
   }
@@ -93,68 +90,12 @@ export async function listAttributions(props: {
           ),
         );
 
-      const editableAccess = query.where(
-        'resource_access',
-        'in',
-        EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
-      );
-      if (props.includeReadonly && resourceForRelationships) {
-        query = query.where((eb) =>
-          eb.or([
-            eb('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS),
-            eb(
-              attributionToResourceRelationship({
-                resource: resourceForRelationships,
-                ancestorId: closestAncestor,
-              }),
-              '!=',
-              'unrelated',
-            ),
-          ]),
-        );
-      } else {
-        query = editableAccess;
-      }
-
-      if (props.external !== undefined) {
-        query = query.where('is_external', '=', Number(props.external));
-      }
-
-      if (props.excludeUnrelated) {
-        query = query.where(
-          attributionToResourceRelationship({
-            resource: resourceForRelationships,
-            ancestorId: closestAncestor,
-          }),
-          '!=',
-          'unrelated',
-        );
-      }
-
-      if (props.filters) {
-        for (const filter of props.filters) {
-          query = query.where(getFilterExpression(filter));
-        }
-      }
-
-      const valueFilterExpression = getValueFilterExpression(
-        props.valueFilters ?? {},
-      );
-      if (valueFilterExpression) {
-        query = query.where(valueFilterExpression);
-      }
-
-      if (props.search) {
-        const search = props.search;
-        query = query.where(getSearchExpression(search));
-      }
-
-      if (!props.showResolved) {
-        query = query.where('is_resolved', '=', 0);
-      }
-
-      if (props.uuids) {
-        query = query.where('uuid', 'in', props.uuids);
+      for (const expression of getAttributionListWhereExpressions(
+        props,
+        resourceForRelationships,
+        closestAncestor,
+      )) {
+        query = query.where(expression);
       }
 
       if (props.sort === 'classification') {
@@ -183,6 +124,7 @@ export async function listAttributions(props: {
           )
           .end(),
       );
+      query = query.orderBy('uuid', 'asc');
 
       return query.execute();
     });

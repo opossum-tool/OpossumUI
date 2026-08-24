@@ -34,11 +34,13 @@ import {
   type PickerMode,
   usePickerMode,
 } from '../../../state/variables/use-picker-mode';
+import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { getRelationPriority } from '../../../util/sort-attributions';
-import { useFilteredAttributionsList } from '../../../util/use-attribution-lists';
 import { useFilterProperties } from '../../../util/use-filter-properties';
+import { useInfiniteAttributionsList } from '../../../util/use-infinite-attributions-list';
 import { usePrevious } from '../../../util/use-previous';
 import { useSelectedAttributionIsExternal } from '../../../util/use-selected-attribution';
+import { useIsSelectedResourceReadonly } from '../../../util/use-selected-resource';
 import { Checkbox } from '../../Checkbox/Checkbox';
 import { FilterButton } from '../../FilterButton/FilterButton';
 import { useAttributionFilterOptions } from '../../FilterButton/use-attribution-filter-options';
@@ -63,6 +65,11 @@ export interface PackagesPanelChildrenProps {
   attributions: Attributions | null;
   contentHeight: string;
   loading: boolean;
+  loadingMore: boolean;
+  loadMoreError: unknown;
+  onRetryLoadMore: () => void;
+  fetchNextPage: () => Promise<void>;
+  hasNextPage: boolean;
   multiSelectedAttributionIds: Array<string>;
   pickerMode: PickerMode;
   selectedAttributionId: string;
@@ -112,7 +119,40 @@ export const PackagesPanel = ({
   });
   const [filters, setFilteredAttributions] = useFilteredData();
   const { filters: attributionFilters, valueFilters } = filters;
-  const { attributions, loading } = useFilteredAttributionsList({ external });
+  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
+  const [userSettings] = useUserSettings();
+  const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
+  const infiniteAttributions = useInfiniteAttributionsList({
+    external,
+    filters: attributionFilters,
+    search: filters.search,
+    sort: filters.sorting,
+    valueFilters,
+    resourcePathForRelationships: selectedResourceId,
+    showResolved: areHiddenSignalsVisible && external,
+    excludeUnrelated: external || isSelectedResourceReadonly,
+    includeReadonly: true,
+    relation: activeRelation ?? undefined,
+  });
+  const {
+    attributions,
+    loading,
+    loadingMore,
+    loadMoreError,
+    onRetryLoadMore,
+    fetchNextPage,
+    hasNextPage,
+    relationCounts,
+  } = {
+    attributions: infiniteAttributions.attributions,
+    loading: infiniteAttributions.loading,
+    loadingMore: infiniteAttributions.isFetchingNextPage,
+    loadMoreError: infiniteAttributions.nextPageError,
+    onRetryLoadMore: infiniteAttributions.fetchNextPage,
+    fetchNextPage: infiniteAttributions.fetchNextPage,
+    hasNextPage: infiniteAttributions.hasNextPage,
+    relationCounts: infiniteAttributions.relationCounts,
+  };
   const selectedAttribution = attributions?.[selectedAttributionId];
   const groupedIds = useMemo(
     () =>
@@ -203,8 +243,11 @@ export const PackagesPanel = ({
 
   const attributionIds = attributions && Object.keys(attributions);
 
-  const availableRelations =
-    groupedIds && (Object.keys(groupedIds) as Array<Relation> | null);
+  const availableRelations = relationCounts
+    ? (['resource', 'parents', 'children', 'unrelated'] as const).filter(
+        (relation) => relationCounts[relation] !== undefined,
+      )
+    : null;
   const selectedAttributionRelation =
     attributions?.[selectedAttributionId]?.relation;
   const activeAttributionIds = useMemo(
@@ -306,6 +349,11 @@ export const PackagesPanel = ({
     attributions,
     contentHeight: `calc(100% - 42px - ${groupedIds && Object.keys(groupedIds).length ? TABS_CONTAINER_HEIGHT : 0}px - ${alert ? ALERT_CONTAINER_HEIGHT : 0}px)`,
     loading,
+    loadingMore,
+    loadMoreError,
+    onRetryLoadMore,
+    fetchNextPage,
+    hasNextPage,
     multiSelectedAttributionIds,
     pickerMode,
     selectedAttributionId,
@@ -394,7 +442,7 @@ export const PackagesPanel = ({
           <Tab
             wrapped
             key={key}
-            label={`${text.relations[key]} (${new Intl.NumberFormat().format(groupedIds?.[key]?.length ?? 0)})`}
+            label={`${text.relations[key]} (${new Intl.NumberFormat().format(relationCounts?.[key] ?? 0)})`}
           />
         ))}
       </Tabs>
@@ -440,7 +488,9 @@ export const PackagesPanel = ({
       >
         <Checkbox
           disabled={
-            !activeSelectableAttributionIds?.length || pickerMode.isActive
+            !activeSelectableAttributionIds?.length ||
+            pickerMode.isActive ||
+            hasNextPage
           }
           checked={areAllAttributionsSelected}
           indeterminate={

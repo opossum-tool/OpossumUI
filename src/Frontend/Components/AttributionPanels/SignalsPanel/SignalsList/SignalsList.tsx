@@ -16,6 +16,7 @@ import {
   type GroupedListItemContentProps,
 } from '../../../GroupedList/GroupedList';
 import { SourceIcon } from '../../../Icons/Icons';
+import { INFINITE_LIST_BOTTOM_OVERSCAN } from '../../../List/List';
 import { PackageCard } from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
@@ -27,6 +28,10 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionId,
   contentHeight,
   loading,
+  loadingMore,
+  loadMoreError,
+  onRetryLoadMore,
+  fetchNextPage,
   pickerMode,
   setMultiSelectedAttributionIds,
   multiSelectedAttributionIds,
@@ -79,6 +84,11 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
         </>
       )}
       loading={loading}
+      loadingMore={loadingMore}
+      loadMoreError={loadMoreError}
+      onRetryLoadMore={onRetryLoadMore}
+      endReached={() => void fetchNextPage()}
+      increaseViewportBy={{ bottom: INFINITE_LIST_BOTTOM_OVERSCAN, top: 0 }}
       sx={{ transition: TRANSITION, height: contentHeight }}
     />
   );

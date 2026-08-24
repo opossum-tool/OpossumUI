@@ -110,7 +110,7 @@ describe('AttributionDetails', () => {
     expect(container).not.toHaveTextContent(text.attributionColumn.save);
   });
 
-  it('shows a read-only form while attributions for a new resource are loading', async () => {
+  it('keeps selected attribution details available while the resource changes', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const nextPackageInfo = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
@@ -140,11 +140,11 @@ describe('AttributionDetails', () => {
     });
 
     expect(
-      screen.getByTestId('attribution-details-loading'),
-    ).toBeInTheDocument();
+      screen.queryByTestId('attribution-details-loading'),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByLabelText(text.attributionColumn.packageName),
-    ).toHaveAttribute('readonly');
+    ).toHaveValue(packageInfo.packageName ?? '');
   });
 
   it('shows only the cancel button when the selected attribution is marked for replacement', async () => {

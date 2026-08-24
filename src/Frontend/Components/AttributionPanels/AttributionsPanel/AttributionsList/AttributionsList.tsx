@@ -9,7 +9,11 @@ import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../../../state/hooks';
 import { isPackageIncomplete } from '../../../../util/input-validation';
-import { List, type ListItemContentProps } from '../../../List/List';
+import {
+  INFINITE_LIST_BOTTOM_OVERSCAN,
+  List,
+  type ListItemContentProps,
+} from '../../../List/List';
 import { PackageCard } from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
@@ -20,6 +24,10 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionId,
   contentHeight,
   loading,
+  loadingMore,
+  loadMoreError,
+  onRetryLoadMore,
+  fetchNextPage,
   pickerMode,
   setMultiSelectedAttributionIds,
   multiSelectedAttributionIds,
@@ -37,6 +45,11 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
       components={{ List: SearchList }}
       selectedId={selectedAttributionId}
       loading={loading}
+      loadingMore={loadingMore}
+      loadMoreError={loadMoreError}
+      onRetryLoadMore={onRetryLoadMore}
+      endReached={() => void fetchNextPage()}
+      increaseViewportBy={{ bottom: INFINITE_LIST_BOTTOM_OVERSCAN, top: 0 }}
       sx={{ transition: TRANSITION, height: contentHeight }}
     />
   );

@@ -16,6 +16,7 @@ import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   selectedAttributionIds,
+  hasNextPage,
 }) => {
   const unresolveAttributions = backend.unresolveAttributions.useMutation({
     scope: { id: 'signalsPanel' },
@@ -42,6 +43,7 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
     <MuiIconButton
       aria-label={text.packageLists.restore}
       disabled={
+        hasNextPage ||
         !someSelectedAttributionsAreHidden ||
         pickerMode.isActive ||
         mutationsPending

@@ -1,0 +1,402 @@
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+import {
+  type Kysely,
+  type Selectable,
+  type SelectQueryBuilder,
+  sql,
+} from 'kysely';
+
+import type { SortOption } from '../../Frontend/Components/SortButton/useSortingOptions';
+import type {
+  AttributionFilterKey,
+  AttributionValueFilters,
+} from '../../shared/attribution-filters';
+import type {
+  Attributions,
+  PackageInfo,
+  Relation,
+} from '../../shared/shared-types';
+import { packageInfoFromAttributionRow } from '../db/attributionData';
+import { getDb } from '../db/db';
+import type { Attribution, DB } from '../db/generated/databaseTypes';
+import { AttributionResourceAccess } from '../types/types';
+import {
+  getAttributionListRelationshipExpression,
+  getAttributionListWhereExpressions,
+} from './attribution-list-query-utils';
+import {
+  getClosestAncestorWithManualAttributionsBelowBreakpoint,
+  getResourceOrThrow,
+  type ResourceRelationship,
+} from './utils';
+
+const DEFAULT_PAGE_SIZE = 200;
+
+function uuidSelection(uuids: Array<string>) {
+  return sql<string>`(
+    select value from json_each(${JSON.stringify(uuids)})
+  )`;
+}
+
+export type ListAttributionsPageProps = {
+  external?: boolean;
+  filters?: Array<AttributionFilterKey>;
+  resourcePathForRelationships?: string;
+  sort?: SortOption;
+  valueFilters?: AttributionValueFilters;
+  search?: string;
+  showResolved?: boolean;
+  excludeUnrelated?: boolean;
+  includeReadonly?: boolean;
+  relation?: Relation;
+  offset: number;
+  limit: number;
+};
+
+export type ListAttributionRelationCountsProps = Omit<
+  ListAttributionsPageProps,
+  'relation' | 'sort' | 'offset' | 'limit'
+>;
+
+type PageQueryRow = {
+  uuid: string;
+  relationship: ResourceRelationship;
+  resource_count?: number;
+  resource_count_below?: number;
+};
+
+type PageDetailRow = Selectable<Attribution>;
+type AttributionQuery = SelectQueryBuilder<DB, 'attribution', unknown>;
+
+const backendToFrontendRelationship = {
+  same: 'resource',
+  descendant: 'children',
+  ancestor: 'parents',
+  unrelated: 'unrelated',
+} as const;
+
+const frontendToBackendRelationship = {
+  resource: 'same',
+  children: 'descendant',
+  parents: 'ancestor',
+  unrelated: 'unrelated',
+} as const;
+
+function relationshipExpression(
+  resource: { id: number; max_descendant_id: number } | undefined,
+  ancestorId: number | undefined,
+) {
+  return getAttributionListRelationshipExpression(resource, ancestorId);
+}
+
+function getCount(row: PageQueryRow) {
+  if (row.relationship === 'same' || row.relationship === 'ancestor') {
+    return undefined;
+  }
+
+  if (row.relationship === 'descendant') {
+    return row.resource_count_below ?? 0;
+  }
+
+  return row.resource_count ?? 0;
+}
+
+function toPackageInfo(detail: PageDetailRow, row: PageQueryRow): PackageInfo {
+  return {
+    ...packageInfoFromAttributionRow(detail),
+    resourceAccess:
+      detail.resource_access === AttributionResourceAccess.Mixed
+        ? 'mixed'
+        : detail.resource_access === AttributionResourceAccess.Readonly
+          ? 'readonly'
+          : 'writable',
+    relation: backendToFrontendRelationship[row.relationship],
+    count: getCount(row),
+  } satisfies PackageInfo;
+}
+
+function addOrdering(
+  query: AttributionQuery,
+  props: ListAttributionsPageProps,
+): AttributionQuery {
+  // This helper is intentionally kept in the page query. The UUID tie-breaker
+  // makes offset boundaries stable even when all visible sort fields are equal.
+  if (props.sort === 'classification') {
+    query = query.orderBy(sql.ref('classification'), 'desc');
+  } else if (props.sort === 'criticality') {
+    query = query.orderBy(sql.ref('criticality'), 'desc');
+  } else if (props.sort === 'occurrence') {
+    query = query.orderBy(sql.ref('resource_count'), 'desc');
+  }
+
+  query = query.orderBy((eb) =>
+    eb
+      .case()
+      .when(sql.ref('first_party'), '=', 1)
+      .then(eb.fn<string>('concat', [eb.val('First Party'), 'comment']))
+      .else(
+        eb.fn<string>('concat', [
+          sql.ref('package_name'),
+          sql.ref('license_name'),
+          sql.ref('copyright'),
+          sql.ref('license_text'),
+          sql.ref('comment'),
+          sql.ref('url'),
+        ]),
+      )
+      .end(),
+  );
+
+  return query.orderBy(sql.ref('uuid'), 'asc');
+}
+
+function applyFilters(
+  query: AttributionQuery,
+  props: ListAttributionsPageProps,
+  resource: { id: number; max_descendant_id: number } | undefined,
+  ancestorId: number | undefined,
+): AttributionQuery {
+  for (const expression of getAttributionListWhereExpressions(
+    props,
+    resource,
+    ancestorId,
+  )) {
+    query = query.where(expression);
+  }
+
+  if (props.relation) {
+    query = query.where(
+      relationshipExpression(resource, ancestorId),
+      '=',
+      frontendToBackendRelationship[props.relation],
+    );
+  }
+
+  return query;
+}
+
+function getFilteredQuery(
+  trx: Kysely<DB>,
+  props: ListAttributionsPageProps,
+  resource: { id: number; max_descendant_id: number } | undefined,
+  ancestorId: number | undefined,
+  selectUuids: boolean,
+  includeResourceCounts: boolean,
+) {
+  const relationship = relationshipExpression(resource, ancestorId);
+  const query = trx
+    .selectFrom('attribution')
+    .$if(selectUuids, (qb) => qb.select('uuid'))
+    .select(relationship.as('relationship'))
+    .$if(includeResourceCounts, (qb) =>
+      qb.select((eb) =>
+        eb
+          .selectFrom('resource_to_attribution')
+          .select(eb.fn.countAll<number>().as('count'))
+          .whereRef('attribution_uuid', '=', 'uuid')
+          .as('resource_count'),
+      ),
+    )
+    .$if(includeResourceCounts && resource !== undefined, (qb) =>
+      qb.select((eb) =>
+        eb
+          .selectFrom('resource_to_attribution')
+          .select(eb.fn.countAll<number>().as('count'))
+          .whereRef('attribution_uuid', '=', 'uuid')
+          .where((eb) =>
+            eb.between(
+              'resource_id',
+              resource!.id,
+              resource!.max_descendant_id,
+            ),
+          )
+          .as('resource_count_below'),
+      ),
+    );
+
+  return applyFilters(query, props, resource, ancestorId) as typeof query;
+}
+
+async function getRelationCounts(
+  trx: Kysely<DB>,
+  props: ListAttributionRelationCountsProps,
+  resource: { id: number; max_descendant_id: number } | undefined,
+  closestAncestor: number | undefined,
+) {
+  const countRows = await getFilteredQuery(
+    trx,
+    { ...props, relation: undefined, offset: 0, limit: 0 },
+    resource,
+    closestAncestor,
+    false,
+    false,
+  )
+    .select((eb) => eb.fn.countAll<number>().as('relation_count'))
+    .groupBy('relationship')
+    .execute();
+
+  return Object.fromEntries(
+    countRows.map((row) => [
+      backendToFrontendRelationship[row.relationship],
+      row.relation_count,
+    ]),
+  ) as Partial<Record<Relation, number>>;
+}
+
+async function getResourceCounts(
+  trx: Kysely<DB>,
+  uuids: Array<string>,
+  resource: { id: number; max_descendant_id: number } | undefined,
+) {
+  if (uuids.length === 0) {
+    return new Map<string, { total: number; below?: number }>();
+  }
+
+  const rows = await trx
+    .selectFrom('resource_to_attribution')
+    .select('attribution_uuid')
+    .select((eb) => eb.fn.countAll<number>().as('total'))
+    .$if(resource !== undefined, (query) =>
+      query.select(
+        sql<number>`sum(case when resource_id > ${resource!.id} and resource_id <= ${resource!.max_descendant_id} then 1 else 0 end)`.as(
+          'below',
+        ),
+      ),
+    )
+    .where('attribution_uuid', 'in', uuidSelection(uuids))
+    .groupBy('attribution_uuid')
+    .execute();
+
+  return new Map(
+    rows.map((row) => [
+      row.attribution_uuid,
+      { total: row.total, below: row.below },
+    ]),
+  );
+}
+
+export async function listAttributionRelationCounts(
+  props: ListAttributionRelationCountsProps,
+): Promise<{ result: Partial<Record<Relation, number>> }> {
+  const result = await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      const resource = props.resourcePathForRelationships
+        ? await getResourceOrThrow(trx, props.resourcePathForRelationships)
+        : undefined;
+      const closestAncestor =
+        !props.external && resource
+          ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+              trx,
+              resource.id,
+            )
+          : undefined;
+      return getRelationCounts(trx, props, resource, closestAncestor);
+    });
+
+  return { result };
+}
+
+export async function listAttributionsPage(
+  props: ListAttributionsPageProps,
+): Promise<{
+  result: {
+    attributions: Attributions;
+    relation: Relation;
+    relationCounts: Partial<Record<Relation, number>>;
+    offset: number;
+    hasNextPage: boolean;
+  };
+}> {
+  const limit = props.limit > 0 ? props.limit : DEFAULT_PAGE_SIZE;
+  const offset = Math.max(0, props.offset);
+
+  const result = await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      const resource = props.resourcePathForRelationships
+        ? await getResourceOrThrow(trx, props.resourcePathForRelationships)
+        : undefined;
+      const closestAncestor =
+        !props.external && resource
+          ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+              trx,
+              resource.id,
+            )
+          : undefined;
+
+      const relationCounts = props.relation
+        ? undefined
+        : await getRelationCounts(trx, props, resource, closestAncestor);
+      const selectedRelation =
+        props.relation ??
+        (['resource', 'parents', 'children', 'unrelated'] as const).find(
+          (relation) => relationCounts?.[relation] !== undefined,
+        ) ??
+        'resource';
+
+      const pageRows = (await addOrdering(
+        getFilteredQuery(
+          trx,
+          { ...props, relation: selectedRelation },
+          resource,
+          closestAncestor,
+          true,
+          props.sort === 'occurrence',
+        ),
+        props,
+      )
+        .limit(limit + 1)
+        .offset(offset)
+        .execute()) as Array<PageQueryRow>;
+
+      const hasNextPage = pageRows.length > limit;
+      const visibleRows = pageRows.slice(0, limit);
+      const visibleUuids = visibleRows.map((row) => row.uuid);
+      const details = await trx
+        .selectFrom('attribution')
+        .selectAll()
+        .where('uuid', 'in', uuidSelection(visibleUuids))
+        .execute();
+      const detailsByUuid = new Map(
+        details.map((detail) => [detail.uuid, detail]),
+      );
+      const resourceCounts = await getResourceCounts(
+        trx,
+        visibleUuids,
+        resource,
+      );
+
+      return {
+        attributions: Object.fromEntries(
+          visibleRows.flatMap((row) => {
+            const detail = detailsByUuid.get(row.uuid);
+            if (!detail) {
+              return [];
+            }
+            const counts = resourceCounts.get(row.uuid);
+            return [
+              [
+                row.uuid,
+                toPackageInfo(detail, {
+                  ...row,
+                  resource_count: counts?.total ?? row.resource_count ?? 0,
+                  resource_count_below:
+                    counts?.below ?? row.resource_count_below,
+                }),
+              ],
+            ];
+          }),
+        ),
+        relation: selectedRelation,
+        relationCounts: relationCounts ?? {},
+        offset,
+        hasNextPage,
+      };
+    });
+
+  return { result };
+}

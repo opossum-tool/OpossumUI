@@ -17,6 +17,7 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
   pickerMode,
+  hasNextPage,
 }) => {
   const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
     useAttributionIdsForReplacement();
@@ -30,6 +31,7 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
     <MuiIconButton
       aria-label={label}
       disabled={
+        hasNextPage ||
         !attributionIds ||
         !selectedAttributionIds.length ||
         !(attributionIds.length - multiSelectedAttributionIds.length) ||
