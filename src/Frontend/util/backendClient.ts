@@ -28,11 +28,6 @@ import type {
   QueryResult,
 } from '../../ElectronBackend/api/queries';
 import { queryClient } from '../Components/AppContainer/queryClient';
-import {
-  clearDeferredQueryRefreshes,
-  enqueueDeferredQueryRefreshes,
-  notifyForegroundActivity,
-} from './deferred-query-refresh';
 import { traceFrontendPhase } from './frontend-performance-tracing';
 import {
   enqueueAttributionListReconciliation,
@@ -272,7 +267,11 @@ export const backend = new Proxy({} as BackendClient, {
       params: MutationParams<MutationName>,
       onSuccessBeforeInvalidation?: () => void,
     ) {
-      const response = await window.electronAPI.api(command, params);
+      const response = await traceFrontendPhase(
+        'mutation.execute',
+        { mutation: command },
+        () => window.electronAPI.api(command, params),
+      );
       onSuccessBeforeInvalidation?.();
       const affectedAttributionUuids =
         'affectedAttributionUuids' in response
@@ -317,31 +316,20 @@ export const backend = new Proxy({} as BackendClient, {
         }
       }
 
-      const markDeferredQueriesStale = Promise.all(
-        [...deferredQueryKeys.values()].map((queryKey) =>
-          queryClient.invalidateQueries({
-            queryKey,
-            exact: true,
-            refetchType: 'none',
-          }),
-        ),
-      );
-
-      const immediateInvalidations = traceFrontendPhase(
-        'mutation.invalidate-immediate',
-        { mutation: command, queryCount: immediateQueryKeys.size },
-        () =>
-          Promise.all(
-        [...immediateQueryKeys.values()].map((queryKey) =>
-          queryClient.invalidateQueries({
-            queryKey,
-            exact: true,
-          }),
-        ).then(() => undefined),)
-            );
-
       try {
-        await Promise.all([markDeferredQueriesStale, immediateInvalidations]);
+        await traceFrontendPhase(
+          'mutation.invalidate-immediate',
+          { mutation: command, queryCount: immediateQueryKeys.size },
+          () =>
+            Promise.all(
+              [...immediateQueryKeys.values()].map((queryKey) =>
+                queryClient.invalidateQueries({
+                  queryKey,
+                  exact: true,
+                }),
+              ),
+            ).then(() => undefined),
+        );
         patchResolvedAttributionUuids(
           command as MutationName,
           params,
@@ -349,17 +337,25 @@ export const backend = new Proxy({} as BackendClient, {
         );
 
         if (affectedAttributionUuids !== undefined) {
-          await enqueueAttributionListReconciliation({
-            queryClient,
-            affectedAttributionUuids,
-            fetchAttributions: async (listParams) => {
-              const listResponse = await window.electronAPI.api(
-                'listAttributions',
-                listParams,
-              );
-              return listResponse.result;
+          await traceFrontendPhase(
+            'mutation.reconcile-legacy-list',
+            {
+              mutation: command,
+              affectedCount: affectedAttributionUuids.length,
             },
-          });
+            () =>
+              enqueueAttributionListReconciliation({
+                queryClient,
+                affectedAttributionUuids,
+                fetchAttributions: async (listParams) => {
+                  const listResponse = await window.electronAPI.api(
+                    'listAttributions',
+                    listParams,
+                  );
+                  return listResponse.result;
+                },
+              }),
+          );
         } else if (invalidatesLegacyAttributions) {
           const legacyQueryKeys = getCachedQueryKeys({
             queryName: 'listAttributions',
@@ -374,16 +370,21 @@ export const backend = new Proxy({} as BackendClient, {
           invalidatesPaginatedAttributions ||
           affectedUuids.size > 0
         ) {
-          await enqueueAttributionPageReconciliation({
-            queryClient,
-            fetchPage: async (pageParams) => {
-              const pageResponse = await window.electronAPI.api(
-                'listAttributionsPage',
-                pageParams,
-              );
-              return pageResponse.result;
-            },
-          });
+          await traceFrontendPhase(
+            'mutation.reconcile-pages',
+            { mutation: command },
+            () =>
+              enqueueAttributionPageReconciliation({
+                queryClient,
+                fetchPage: async (pageParams) => {
+                  const pageResponse = await window.electronAPI.api(
+                    'listAttributionsPage',
+                    pageParams,
+                  );
+                  return pageResponse.result;
+                },
+              }),
+          );
         }
       } catch {
         // The database mutation has already committed. Keep the affected

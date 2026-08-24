@@ -9,6 +9,7 @@ import type {
   QueryResult,
 } from '../../ElectronBackend/api/queries';
 import type { Attributions } from '../../shared/shared-types';
+import { traceFrontendPhase } from './frontend-performance-tracing';
 import { sortAttributions } from './sort-attributions';
 
 type ListAttributionsParams = QueryParams<'listAttributions'>;
@@ -102,11 +103,24 @@ export async function reconcileAttributionPages({
     }
 
     try {
-      const page = await fetchPage({
-        ...params,
-        offset: 0,
-        limit: Math.max(PAGINATED_ATTRIBUTION_PAGE_SIZE, loadedRowCount),
-      });
+      const page = await traceFrontendPhase(
+        'attribution-page-reconcile',
+        {
+          external: params.external ?? false,
+          relation: params.relation,
+          loadedRowCount,
+          requestedLimit: Math.max(
+            PAGINATED_ATTRIBUTION_PAGE_SIZE,
+            loadedRowCount,
+          ),
+        },
+        () =>
+          fetchPage({
+            ...params,
+            offset: 0,
+            limit: Math.max(PAGINATED_ATTRIBUTION_PAGE_SIZE, loadedRowCount),
+          }),
+      );
       if (
         queryClient.getQueryCache().find({
           queryKey: query.queryKey,
