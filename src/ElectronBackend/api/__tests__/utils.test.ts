@@ -2,11 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type {
-  Attributions,
-  AttributionsToResources,
-  ReadonlyRule,
-  ResourcesToAttributions,
+import {
+  type Attributions,
+  type AttributionsToResources,
+  Criticality,
+  type ReadonlyRule,
+  type ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import {
   initializeDbWithTestData,
@@ -14,6 +15,7 @@ import {
 } from '../../../testing/global-test-helpers';
 import { getDb } from '../../db/db';
 import {
+  getEffectiveManualAttributionUuids,
   removeRedundantAttributions,
   removeTrailingSlash,
   withBatching,
@@ -66,7 +68,58 @@ describe('withBatching', () => {
   });
 });
 
+describe('getEffectiveManualAttributionUuids', () => {
+  it('batches resource IDs beyond SQLite variable limits and deduplicates results', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/file.ts']),
+      manualAttributions: {
+        attributions: {
+          manual: { id: 'manual', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/file.ts': ['manual'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const resourceId = (
+      await getDb()
+        .selectFrom('resource')
+        .select('id')
+        .where('path', '=', '/file.ts')
+        .executeTakeFirstOrThrow()
+    ).id;
+    const resourceIds = [
+      resourceId,
+      ...Array.from({ length: 33_000 }, (_, index) => index + 1),
+      resourceId,
+    ];
+
+    await expect(
+      getEffectiveManualAttributionUuids(getDb(), resourceIds),
+    ).resolves.toEqual(['manual']);
+  });
+});
+
 describe('removeRedundantAttributions', () => {
+  it('returns each affected attribution UUID once for multiple redundant resources', async () => {
+    await setupDb({
+      resourcePathsToAttributionUuids: {
+        '/first': ['uuid1'],
+        '/first/child1': ['uuid1'],
+        '/first/child2': ['uuid1'],
+      },
+    });
+
+    const resourceIds = await Promise.all(
+      ['/first', '/first/child1'].map((path) => getResourceId(path)),
+    );
+    const affectedAttributionUuids = await getDb()
+      .transaction()
+      .execute((trx) => removeRedundantAttributions(trx, { resourceIds }));
+
+    expect(affectedAttributionUuids).toEqual(['uuid1']);
+  });
+
   it.each([
     {
       name: 'upward: deletes resource attributions that match its closest ancestor',
