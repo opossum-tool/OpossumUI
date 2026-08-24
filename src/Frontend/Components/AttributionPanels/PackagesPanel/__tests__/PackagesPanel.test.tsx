@@ -37,7 +37,10 @@ vi.mock('../../../../util/use-selected-attribution', () => ({
   useSelectedAttributionIsExternal: vi.fn(),
 }));
 
-function mockAttributions(attributions: Attributions) {
+function mockAttributions(
+  attributions: Attributions,
+  visibleAttributions: Attributions = attributions,
+) {
   const relationCounts = Object.values(attributions).reduce<
     Partial<Record<Relation, number>>
   >((counts, attribution) => {
@@ -46,11 +49,12 @@ function mockAttributions(attributions: Attributions) {
     return counts;
   }, {});
   vi.mocked(useInfiniteAttributionsList).mockReturnValue({
-    attributions,
+    attributions: visibleAttributions,
     loading: false,
     relation: (Object.keys(relationCounts)[0] ?? 'resource') as Relation,
     relationCounts,
     hasNextPage: false,
+    isFetching: false,
     isFetchingNextPage: false,
     fetchNextPage: vi.fn(() => Promise.resolve()),
     nextPageError: null,
@@ -59,14 +63,16 @@ function mockAttributions(attributions: Attributions) {
 
 function renderPackagesPanel({
   attributions,
+  visibleAttributions,
   children,
   actions,
 }: {
   attributions: Attributions;
+  visibleAttributions?: Attributions;
   children?: (props: PackagesPanelChildrenProps) => React.ReactNode;
   actions?: Array<Action>;
 }) {
-  mockAttributions(attributions);
+  mockAttributions(attributions, visibleAttributions);
   vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(false);
   return renderComponent(
     <PackagesPanel
@@ -119,6 +125,24 @@ describe('PackagesPanel', () => {
       expect(store.getState().resourceState.selectedAttributionId).toBe(
         resourceAttribution.id,
       );
+    });
+  });
+
+  it('does not auto-select an unrelated attribution after resource navigation', async () => {
+    const unrelatedAttribution = faker.opossum.packageInfo({
+      relation: 'unrelated',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [unrelatedAttribution.id]: unrelatedAttribution,
+      }),
+      visibleAttributions: {},
+    });
+
+    await act(() => store.dispatch(setSelectedResourceId('/another-resource')));
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe('');
     });
   });
 

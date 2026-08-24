@@ -7,6 +7,7 @@ import {
   getExpandedIds,
   getSelectedAttributionId,
   getSelectedResourceId,
+  getTargetAttributionRelation,
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
 } from '../../../selectors/resource-selectors';
@@ -14,6 +15,7 @@ import {
   setExpandedIds,
   setSelectedAttributionId,
   setSelectedResourceId,
+  setTargetAttributionRelation,
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../audit-view-simple-actions';
@@ -60,5 +62,14 @@ describe('The audit view simple actions', () => {
 
     testStore.dispatch(setTargetSelectedAttributionId('test'));
     expect(getTargetSelectedAttributionId(testStore.getState())).toBe('test');
+  });
+
+  it('sets and gets targetAttributionRelation', () => {
+    const testStore = createAppStore();
+    expect(getTargetAttributionRelation(testStore.getState())).toBeNull();
+
+    testStore.dispatch(setTargetAttributionRelation('resource'));
+
+    expect(getTargetAttributionRelation(testStore.getState())).toBe('resource');
   });
 });

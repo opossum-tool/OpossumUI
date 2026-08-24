@@ -60,6 +60,7 @@ export function useInfiniteAttributionsList(params: Params) {
     hasNextPage,
     isFetchNextPageError,
     isFetchingNextPage,
+    isFetching,
     isLoading,
   } = query;
   const attributions = useMemo<Attributions | null>(() => {
@@ -91,6 +92,7 @@ export function useInfiniteAttributionsList(params: Params) {
     relation: params.relation,
     relationCounts: relationCountsQuery.data,
     hasNextPage: hasNextPage ?? false,
+    isFetching,
     isFetchingNextPage,
     fetchNextPage,
     nextPageError: isFetchNextPageError ? error : null,

@@ -8,6 +8,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
+import { setTargetAttributionRelation } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setSelectedAttributionIdIfRemapped } from '../../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import {
@@ -59,6 +60,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
         ),
       );
     }
+    dispatch(setTargetAttributionRelation('resource'));
     setMultiSelectedAttributionIds([]);
   };
 
