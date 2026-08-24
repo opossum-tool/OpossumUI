@@ -19,7 +19,6 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
 import { usePickerMode } from '../../state/variables/use-picker-mode';
-import { useFilteredAttributionsList } from '../../util/use-attribution-lists';
 import { useCompareToOriginal } from '../../util/use-compare-to-original';
 import { useSelectedAttribution } from '../../util/use-selected-attribution';
 import { useIsSelectedResourceReadonly } from '../../util/use-selected-resource';
@@ -80,14 +79,6 @@ export function AttributionDetails() {
     selectedResourceId,
   ]);
 
-  const { attributions, loading: manualAttributionsLoading } =
-    useFilteredAttributionsList({ external: false });
-  const { attributions: signals, loading: signalsLoading } =
-    useFilteredAttributionsList({ external: true });
-  const isSelectedAttributionVisible =
-    !!attributions?.[selectedAttributionId] ||
-    !!signals?.[selectedAttributionId];
-
   const compareToOriginal = useCompareToOriginal(temporaryDisplayPackageInfo);
 
   const wasPreferred =
@@ -100,14 +91,13 @@ export function AttributionDetails() {
     });
   const pickerMode = usePickerMode();
 
-  const isAttributionsLoading = manualAttributionsLoading || signalsLoading;
   const isSelectedAttributionLoading =
-    isAttributionsLoading ||
-    (!!selectedAttributionId &&
-      !selectedAttribution &&
-      isSelectedAttributionPending);
+    !!selectedAttributionId &&
+    !selectedAttribution &&
+    isSelectedAttributionPending;
   const hasSelectedAttributionData =
-    !isAttributionsLoading && (!selectedAttributionId || !!selectedAttribution);
+    !isSelectedAttributionLoading &&
+    (!selectedAttributionId || !!selectedAttribution);
   const isEditable =
     hasSelectedAttributionData &&
     !pickerMode.isActive &&
@@ -116,7 +106,7 @@ export function AttributionDetails() {
 
   if (
     !!selectedAttributionId &&
-    !isSelectedAttributionVisible &&
+    !selectedAttribution &&
     !isSelectedAttributionLoading
   ) {
     return null;

@@ -54,6 +54,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   pickerMode,
   selectedAttributionIds,
+  hasNextPage,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
 
@@ -148,6 +149,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
       <MuiIconButton
         aria-label={text.packageLists.moreActions}
         disabled={
+          hasNextPage ||
           !selectedAttributionIds.length ||
           pickerMode.isActive ||
           mutationsPending

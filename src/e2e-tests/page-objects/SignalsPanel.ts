@@ -141,6 +141,9 @@ export class SignalsPanel {
     selectAllCheckboxIsUnchecked: async (timeout?: number) => {
       await expect(this.selectAllCheckbox).not.toBeChecked({ timeout });
     },
+    selectAllCheckboxIsDisabled: async () => {
+      await expect(this.selectAllCheckbox).toBeDisabled();
+    },
     linkButtonIsEnabled: async () => {
       await expect(this.linkButton).toBeEnabled();
     },

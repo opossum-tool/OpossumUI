@@ -32,6 +32,10 @@ import {
 } from './filters';
 import { listAttributions } from './listAttributions';
 import {
+  listAttributionRelationCounts,
+  listAttributionsPage,
+} from './listAttributionsPage';
+import {
   getAttributionProgressBarData,
   getClassificationProgressBarData,
   getCriticalityProgressBarData,
@@ -126,6 +130,8 @@ export const queries = {
     return { result: await isProjectSplit() };
   },
   listAttributions,
+  listAttributionRelationCounts,
+  listAttributionsPage,
   getResourceTree,
   getResourceTreeUnreviewedCount,
   manualAttributionStatistics,

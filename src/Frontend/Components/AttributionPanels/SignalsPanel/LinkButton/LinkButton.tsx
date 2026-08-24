@@ -25,6 +25,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   pickerMode,
   selectedAttributionIds,
+  hasNextPage,
   setMultiSelectedAttributionIds,
 }) => {
   const dispatch = useAppDispatch();
@@ -65,6 +66,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
     <MuiIconButton
       aria-label={text.packageLists.linkAsAttribution}
       disabled={
+        hasNextPage ||
         isSelectedResourceBreakpoint ||
         isSelectedResourceReadonly ||
         !selectedAttributionIds.length ||

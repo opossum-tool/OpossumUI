@@ -15,6 +15,7 @@ import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   selectedAttributionIds,
+  hasNextPage,
 }) => {
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const mutationsPending = useIsMutating() > 0;
@@ -33,6 +34,7 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
     <MuiIconButton
       aria-label={text.packageLists.delete}
       disabled={
+        hasNextPage ||
         !someSelectedAttributionsAreVisible ||
         pickerMode.isActive ||
         mutationsPending

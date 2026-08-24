@@ -13,7 +13,13 @@ import { useVirtuosoRefs } from '../../util/use-virtuoso-refs';
 import { EmptyPlaceholder } from '../EmptyPlaceholder/EmptyPlaceholder';
 import { LoadingMask } from '../LoadingMask/LoadingMask';
 import { VirtuosoComponentContext } from '../VirtuosoComponentContext/VirtuosoComponentContext';
+import {
+  InfiniteListFooter,
+  InfiniteListFooterContext,
+} from './InfiniteListFooter';
 import { StyledLinearProgress } from './List.style';
+
+export const INFINITE_LIST_BOTTOM_OVERSCAN = 600;
 
 export interface ListItemContentProps {
   index: number;
@@ -27,6 +33,9 @@ interface ListProps<ItemType extends BaseItem> {
   className?: string;
   data: ReadonlyArray<ItemType> | null;
   loading?: boolean;
+  loadingMore?: boolean;
+  loadMoreError?: unknown;
+  onRetryLoadMore?: () => void;
   renderItemContent: (
     datum: ItemType,
     props: ListItemContentProps,
@@ -40,6 +49,9 @@ export function List<ItemType extends BaseItem>({
   className,
   data,
   loading,
+  loadingMore = false,
+  loadMoreError,
+  onRetryLoadMore,
   renderItemContent,
   selectedId,
   sx,
@@ -71,26 +83,35 @@ export function List<ItemType extends BaseItem>({
       {data && (
         // Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
         <VirtuosoComponentContext value={{ isVirtuosoFocused, loading }}>
-          <Virtuoso
-            ref={ref}
-            onFocus={() => setIsVirtuosoFocused(true)}
-            onBlur={() => setIsVirtuosoFocused(false)}
-            tabIndex={-1}
-            components={{
-              EmptyPlaceholder,
-              ...components,
+          <InfiniteListFooterContext
+            value={{
+              loading: loadingMore,
+              error: loadMoreError,
+              onRetry: () => onRetryLoadMore?.(),
             }}
-            scrollerRef={scrollerRef}
-            data={data}
-            itemContent={(index) =>
-              renderItemContent(data[index], {
-                index,
-                selected: index === selectedIndex,
-                focused: index === focusedIndex,
-              })
-            }
-            {...props}
-          />
+          >
+            <Virtuoso
+              ref={ref}
+              onFocus={() => setIsVirtuosoFocused(true)}
+              onBlur={() => setIsVirtuosoFocused(false)}
+              tabIndex={-1}
+              components={{
+                EmptyPlaceholder,
+                Footer: InfiniteListFooter,
+                ...components,
+              }}
+              scrollerRef={scrollerRef}
+              data={data}
+              itemContent={(index) =>
+                renderItemContent(data[index], {
+                  index,
+                  selected: index === selectedIndex,
+                  focused: index === focusedIndex,
+                })
+              }
+              {...props}
+            />
+          </InfiniteListFooterContext>
         </VirtuosoComponentContext>
       )}
     </LoadingMask>

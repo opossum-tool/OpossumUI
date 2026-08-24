@@ -16,6 +16,7 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   pickerMode,
   selectedAttributionIds,
+  hasNextPage,
 }) => {
   const [isConfirmSavePopupOpen, setIsConfirmSavePopupOpen] = useState(false);
   const preSelectedAttributionIds = selectedAttributionIds.filter(
@@ -28,6 +29,7 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
       <MuiIconButton
         aria-label={text.packageLists.confirm}
         disabled={
+          hasNextPage ||
           !preSelectedAttributionIds.length ||
           pickerMode.isActive ||
           mutationsPending

@@ -161,6 +161,9 @@ export const backend = new Proxy({} as BackendClient, {
           : undefined;
       // Invalidate queries affected by the mutation
       if ('invalidates' in response && response.invalidates) {
+        const invalidatesAttributionPages = response.invalidates.some(
+          (invalidation) => invalidation.queryName === 'listAttributions',
+        );
         const invalidates = response.invalidates.filter(
           (invalidation) =>
             affectedAttributionUuids === undefined ||
@@ -175,6 +178,16 @@ export const backend = new Proxy({} as BackendClient, {
             queryKey,
           });
         });
+        if (
+          invalidatesAttributionPages ||
+          affectedAttributionUuids !== undefined
+        ) {
+          invalidationPromises.push(
+            queryClient.invalidateQueries({
+              queryKey: ['backend', 'listAttributionsPage'],
+            }),
+          );
+        }
         if (affectedAttributionUuids !== undefined) {
           invalidationPromises.push(
             enqueueAttributionListReconciliation({
@@ -192,17 +205,22 @@ export const backend = new Proxy({} as BackendClient, {
         }
         await Promise.all(invalidationPromises);
       } else if (affectedAttributionUuids !== undefined) {
-        await enqueueAttributionListReconciliation({
-          queryClient,
-          affectedAttributionUuids,
-          fetchAttributions: async (listParams) => {
-            const listResponse = await window.electronAPI.api(
-              'listAttributions',
-              listParams,
-            );
-            return listResponse.result;
-          },
-        });
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: ['backend', 'listAttributionsPage'],
+          }),
+          enqueueAttributionListReconciliation({
+            queryClient,
+            affectedAttributionUuids,
+            fetchAttributions: async (listParams) => {
+              const listResponse = await window.electronAPI.api(
+                'listAttributions',
+                listParams,
+              );
+              return listResponse.result;
+            },
+          }),
+        ]);
       }
       window.electronAPI.saveFile();
       return 'result' in response ? response.result : undefined;

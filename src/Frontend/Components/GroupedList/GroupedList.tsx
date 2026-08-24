@@ -20,6 +20,10 @@ import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useVirtuosoRefs } from '../../util/use-virtuoso-refs';
 import { EmptyPlaceholder } from '../EmptyPlaceholder/EmptyPlaceholder';
+import {
+  InfiniteListFooter,
+  InfiniteListFooterContext,
+} from '../List/InfiniteListFooter';
 import { LoadingMask } from '../LoadingMask/LoadingMask';
 import { VirtuosoComponentContext } from '../VirtuosoComponentContext/VirtuosoComponentContext';
 import { GroupContainer, StyledLinearProgress } from './GroupedList.style';
@@ -34,6 +38,9 @@ interface GroupedListProps {
   className?: string;
   grouped: Record<string, ReadonlyArray<string>> | null;
   loading?: boolean;
+  loadingMore?: boolean;
+  loadMoreError?: unknown;
+  onRetryLoadMore?: () => void;
   renderGroupName?: (key: string) => React.ReactNode;
   renderItemContent: (
     datum: string,
@@ -48,6 +55,9 @@ export function GroupedList({
   className,
   grouped,
   loading,
+  loadingMore = false,
+  loadMoreError,
+  onRetryLoadMore,
   renderGroupName,
   renderItemContent,
   selectedId,
@@ -99,38 +109,47 @@ export function GroupedList({
       {groups && (
         // Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
         <VirtuosoComponentContext value={{ isVirtuosoFocused, loading }}>
-          <GroupedVirtuoso
-            ref={ref}
-            onFocus={() => setIsVirtuosoFocused(true)}
-            onBlur={() => setIsVirtuosoFocused(false)}
-            components={{
-              EmptyPlaceholder,
-              ...components,
+          <InfiniteListFooterContext
+            value={{
+              loading: loadingMore,
+              error: loadMoreError,
+              onRetry: () => onRetryLoadMore?.(),
             }}
-            tabIndex={-1}
-            scrollerRef={scrollerRef}
-            rangeChanged={setRange}
-            groupCounts={groups?.counts}
-            groupContent={(index) => (
-              <GroupContainer role={'group'}>
-                <MuiBox sx={{ display: 'flex' }}>
-                  {renderJumpUp(index)}
-                  {renderJumpDown(index)}
-                </MuiBox>
-                {renderGroupName?.(groups.keys[index]) || (
-                  <MuiBox sx={{ flex: 1 }} />
-                )}
-              </GroupContainer>
-            )}
-            itemContent={(index) =>
-              renderItemContent(groups.ids[index], {
-                index,
-                selected: index === selectedIndex,
-                focused: index === focusedIndex,
-              })
-            }
-            {...props}
-          />
+          >
+            <GroupedVirtuoso
+              ref={ref}
+              onFocus={() => setIsVirtuosoFocused(true)}
+              onBlur={() => setIsVirtuosoFocused(false)}
+              components={{
+                EmptyPlaceholder,
+                Footer: InfiniteListFooter,
+                ...components,
+              }}
+              tabIndex={-1}
+              scrollerRef={scrollerRef}
+              rangeChanged={setRange}
+              groupCounts={groups?.counts}
+              groupContent={(index) => (
+                <GroupContainer role={'group'}>
+                  <MuiBox sx={{ display: 'flex' }}>
+                    {renderJumpUp(index)}
+                    {renderJumpDown(index)}
+                  </MuiBox>
+                  {renderGroupName?.(groups.keys[index]) || (
+                    <MuiBox sx={{ flex: 1 }} />
+                  )}
+                </GroupContainer>
+              )}
+              itemContent={(index) =>
+                renderItemContent(groups.ids[index], {
+                  index,
+                  selected: index === selectedIndex,
+                  focused: index === focusedIndex,
+                })
+              }
+              {...props}
+            />
+          </InfiniteListFooterContext>
         </VirtuosoComponentContext>
       )}
     </LoadingMask>

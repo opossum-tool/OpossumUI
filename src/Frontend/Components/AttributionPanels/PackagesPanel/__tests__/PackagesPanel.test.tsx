@@ -5,7 +5,10 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { Attributions } from '../../../../../shared/shared-types';
+import type {
+  Attributions,
+  Relation,
+} from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { closePopupAndUnsetTargets } from '../../../../state/actions/popup-actions/popup-actions';
@@ -19,15 +22,15 @@ import type { Action } from '../../../../state/configure-store';
 import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-ids-for-replacement';
 import { initialAttributionFilters } from '../../../../state/variables/use-filters';
 import { renderComponent } from '../../../../test-helpers/render';
-import { useFilteredAttributionsList } from '../../../../util/use-attribution-lists';
+import { useInfiniteAttributionsList } from '../../../../util/use-infinite-attributions-list';
 import { useSelectedAttributionIsExternal } from '../../../../util/use-selected-attribution';
 import {
   PackagesPanel,
   type PackagesPanelChildrenProps,
 } from '../PackagesPanel';
 
-vi.mock('../../../../util/use-attribution-lists', () => ({
-  useFilteredAttributionsList: vi.fn(),
+vi.mock('../../../../util/use-infinite-attributions-list', () => ({
+  useInfiniteAttributionsList: vi.fn(),
 }));
 
 vi.mock('../../../../util/use-selected-attribution', () => ({
@@ -35,9 +38,22 @@ vi.mock('../../../../util/use-selected-attribution', () => ({
 }));
 
 function mockAttributions(attributions: Attributions) {
-  vi.mocked(useFilteredAttributionsList).mockReturnValue({
+  const relationCounts = Object.values(attributions).reduce<
+    Partial<Record<Relation, number>>
+  >((counts, attribution) => {
+    const relation = attribution.relation ?? 'unrelated';
+    counts[relation] = (counts[relation] ?? 0) + 1;
+    return counts;
+  }, {});
+  vi.mocked(useInfiniteAttributionsList).mockReturnValue({
     attributions,
     loading: false,
+    relation: Object.keys(relationCounts)[0] as Relation | undefined,
+    relationCounts,
+    hasNextPage: false,
+    isFetchingNextPage: false,
+    fetchNextPage: vi.fn(() => Promise.resolve()),
+    nextPageError: null,
   });
 }
 
