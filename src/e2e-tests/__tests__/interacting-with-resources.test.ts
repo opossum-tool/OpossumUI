@@ -246,7 +246,9 @@ test('shows only resources matching search', async ({
   );
 
   await resourcesTree.gotoRoot();
+  await resourcesTree.focusResource(resourceWithExternalSelectedLicense);
   await window.keyboard.press(`${modKey}+F`);
+  await resourcesTree.assert.searchIsFocused();
   await window.keyboard.type(resourceWithExternalDifferentLicense);
   await resourcesTree.assert.resourceIsHidden(
     resourceWithExternalSelectedLicense,

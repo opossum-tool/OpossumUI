@@ -10,6 +10,7 @@ import {
 } from '@playwright/test';
 import { parseElectronApp } from 'electron-playwright-helpers';
 import * as fs from 'fs';
+import { performance } from 'node:perf_hooks';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -61,9 +62,19 @@ interface FilePaths {
 }
 
 export const test = base.extend<{
-  window: Page & { app: ElectronApplication };
+  window: Page & { app: ElectronApplication; startupDurationMs: number | null };
   /** Specify the input/output data contained in the opossum file which the app will open as part of the test. */
   data: OpossumData | undefined;
+  /** Open an existing file instead of creating a test file. */
+  existingFilePath: string | null;
+  /** Override the release application path used by release E2E runs. */
+  releasePathOverride: string | null;
+  /** Enable the Playwright trace collected by regular E2E tests. */
+  playwrightTracing: boolean;
+  /** Timeout for loading an existing file into the application. */
+  appLoadTimeout: number;
+  /** Measure process launch until the empty application is ready for a file. */
+  measureStartup: boolean;
   /** Run this function at any point in a test to abort the test at that point and inspect the opossum file. */
   debug: () => void;
   modKey: string;
@@ -94,6 +105,11 @@ export const test = base.extend<{
   topBar: TopBar;
 }>({
   data: undefined,
+  existingFilePath: [null, { option: true }],
+  releasePathOverride: [null, { option: true }],
+  playwrightTracing: [true, { option: true }],
+  appLoadTimeout: [LOAD_TIMEOUT, { option: true }],
+  measureStartup: [false, { option: true }],
   openFromCLI: true,
   filePaths: async ({ data }, use, info) => {
     if (!data) {
@@ -107,11 +123,33 @@ export const test = base.extend<{
       json: info.outputPath(`${filename}.json`),
     });
   },
-  window: async ({ data, openFromCLI, filePaths }, use, info) => {
-    const opossumFilePath =
-      data && filePaths && (await createTestFiles({ data, filePaths }));
+  window: async (
+    {
+      appLoadTimeout,
+      data,
+      openFromCLI,
+      existingFilePath,
+      filePaths,
+      playwrightTracing,
+      releasePathOverride,
+      measureStartup,
+    },
+    use,
+    info,
+  ) => {
+    if (existingFilePath) {
+      try {
+        await fs.promises.access(existingFilePath);
+      } catch {
+        throw new Error(`Missing existing test file: ${existingFilePath}`);
+      }
+    }
 
-    const [executablePath, main] = getLaunchProps();
+    const opossumFilePath =
+      existingFilePath ??
+      (data && filePaths && (await createTestFiles({ data, filePaths })));
+
+    const [executablePath, main] = getLaunchProps(releasePathOverride);
     const args = ['--reset', `--user-data-dir=${info.outputPath('user-data')}`];
     if (os.platform() === 'linux') {
       args.push('--no-sandbox');
@@ -121,9 +159,10 @@ export const test = base.extend<{
       args.push('--ozone-platform=x11');
     }
 
+    const startupStartedAt = performance.now();
     const app = await electron.launch({
       args: [
-        main,
+        ...(main ? [main] : []),
         ...(!opossumFilePath || !openFromCLI
           ? args
           : args.concat([opossumFilePath])),
@@ -151,19 +190,31 @@ export const test = base.extend<{
       height: 1080,
     });
     await window.waitForLoadState('domcontentloaded', {
-      timeout: LOAD_TIMEOUT,
+      timeout: appLoadTimeout,
     });
+    await window
+      .getByRole('button', { name: 'open file' })
+      .waitFor({ state: 'visible', timeout: appLoadTimeout });
     if (opossumFilePath && openFromCLI) {
       await window.getByTestId('resources-tree').waitFor({
         state: 'visible',
-        timeout: LOAD_TIMEOUT,
+        timeout: appLoadTimeout,
       });
     }
-    await window
-      .context()
-      .tracing.start({ screenshots: true, snapshots: true });
+    if (playwrightTracing) {
+      await window
+        .context()
+        .tracing.start({ screenshots: true, snapshots: true });
+    }
 
-    await use(Object.assign(window, { app }));
+    await use(
+      Object.assign(window, {
+        app,
+        startupDurationMs: measureStartup
+          ? performance.now() - startupStartedAt
+          : null,
+      }),
+    );
 
     const unexpectedDialogCalls = await getUnexpectedSyncDialogCalls(app);
 
@@ -177,11 +228,13 @@ export const test = base.extend<{
       );
     }
 
-    await window.context().tracing.stop({
-      path: info.outputPath(
-        `${data?.inputData.metadata.projectId || 'app'}.trace.zip`,
-      ),
-    });
+    if (playwrightTracing) {
+      await window.context().tracing.stop({
+        path: info.outputPath(
+          `${data?.inputData.metadata.projectId || 'app'}.trace.zip`,
+        ),
+      });
+    }
     await app.close();
 
     if (unexpectedDialogCalls.length > 0) {
@@ -270,16 +323,27 @@ export const test = base.extend<{
   },
 });
 
-function getLaunchProps(): [executablePath: string | undefined, main: string] {
+function getLaunchProps(
+  releasePathOverride: string | null,
+): [executablePath: string | undefined, main: string | undefined] {
   if (process.env.CI || process.env.RELEASE) {
-    const appInfo = parseElectronApp(getReleasePath());
+    const releasePath = getReleasePath(releasePathOverride);
+    if (releasePath.toLowerCase().endsWith('.appimage')) {
+      return [releasePath, undefined];
+    }
+
+    const appInfo = parseElectronApp(releasePath);
     return [appInfo.executable, appInfo.main];
   }
 
   return [undefined, 'build/ElectronBackend/app.js'];
 }
 
-function getReleasePath(): string {
+function getReleasePath(releasePathOverride: string | null): string {
+  if (releasePathOverride) {
+    return path.resolve(releasePathOverride);
+  }
+
   if (os.platform() === 'win32') {
     return path.join(__dirname, '..', '..', '..', 'release', 'win-unpacked');
   } else if (os.platform() === 'darwin') {

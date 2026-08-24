@@ -119,6 +119,7 @@ export function VirtualizedTreeNode({
     <MuiBox
       role={'treeitem'}
       aria-label={resource.labelText}
+      data-resource-path={resource.id}
       sx={classes.listNode}
       onClick={handleClick}
       onContextMenu={(event) => onContextMenu?.(event, resource)}

@@ -11,6 +11,7 @@ export class SignalsPanel {
   private readonly window: Page;
   private readonly node: Locator;
   private readonly header: Locator;
+  private readonly loadingIndicator: Locator;
   readonly packageCard: PackageCard;
   readonly selectAllCheckbox: Locator;
   readonly linkButton: Locator;
@@ -44,6 +45,7 @@ export class SignalsPanel {
     this.window = window;
     this.node = window.getByTestId('signals-panel');
     this.header = window.getByTestId('signals-panel-header');
+    this.loadingIndicator = this.node.getByTestId('loading');
     this.packageCard = new PackageCard(this.node);
     this.selectAllCheckbox = this.node.getByRole('checkbox', {
       name: 'Select all',
@@ -116,6 +118,9 @@ export class SignalsPanel {
     isHidden: async () => {
       await expect(this.node).toBeHidden();
     },
+    loadingIndicatorIsHidden: async () => {
+      await expect(this.loadingIndicator).toBeHidden();
+    },
     isDisabledDuringReplacement: async () => {
       await expect(this.node).toHaveCSS('opacity', '0.5');
     },
@@ -125,11 +130,24 @@ export class SignalsPanel {
     selectedTabIs: async (tab: keyof typeof this.tabs) => {
       await expect(this.tabs[tab]).toHaveAttribute('aria-selected', 'true');
     },
+    onResourceCountIs: async (count: number) => {
+      await expect(this.tabs.onResource).toHaveAccessibleName(
+        `${text.relations.resource} (${new Intl.NumberFormat().format(count)})`,
+      );
+    },
     linkButtonIsDisabled: async () => {
       await expect(this.linkButton).toBeDisabled();
     },
+    selectAllCheckboxIsUnchecked: async (timeout?: number) => {
+      await expect(this.selectAllCheckbox).not.toBeChecked({ timeout });
+    },
     linkButtonIsEnabled: async () => {
       await expect(this.linkButton).toBeEnabled();
+    },
+    linkButtonIsNotLoading: async (timeout?: number) => {
+      await expect(this.linkButton.getByRole('progressbar')).toBeHidden({
+        timeout,
+      });
     },
     restoreButtonIsDisabled: async () => {
       await expect(this.restoreButton).toBeDisabled();
@@ -157,11 +175,22 @@ export class SignalsPanel {
     }
   }
 
+  async openSortMenu() {
+    await this.sortButton.click();
+    await this.sortings.occurrence.click({ trial: true });
+  }
+
   async selectLicenseName(licenseName: string) {
     await this.filters.license.fill(licenseName);
     await this.window
       .getByRole('option', { name: licenseName, exact: true })
       .click();
     await expect(this.filters.license).toHaveValue(licenseName);
+  }
+
+  async clearFilters() {
+    await this.window
+      .getByRole('menuitem', { name: text.packageLists.clearFilters })
+      .click();
   }
 }

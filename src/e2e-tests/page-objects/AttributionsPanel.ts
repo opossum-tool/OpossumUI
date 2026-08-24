@@ -11,6 +11,7 @@ export class AttributionsPanel {
   private readonly window: Page;
   private readonly node: Locator;
   private readonly header: Locator;
+  private readonly loadingIndicator: Locator;
   readonly packageCard: PackageCard;
   readonly selectAllCheckbox: Locator;
   readonly createButton: Locator;
@@ -49,6 +50,7 @@ export class AttributionsPanel {
     this.window = window;
     this.node = window.getByTestId('attributions-panel');
     this.header = window.getByTestId('attributions-panel-header');
+    this.loadingIndicator = this.node.getByTestId('loading');
     this.packageCard = new PackageCard(this.node);
     this.selectAllCheckbox = this.node.getByRole('checkbox', {
       name: 'Select all',
@@ -136,8 +138,17 @@ export class AttributionsPanel {
     isHidden: async () => {
       await expect(this.node).toBeHidden();
     },
+    loadingIndicatorIsHidden: async () => {
+      await expect(this.loadingIndicator).toBeHidden();
+    },
     selectedTabIs: async (tab: keyof typeof this.tabs) => {
       await expect(this.tabs[tab]).toHaveAttribute('aria-selected', 'true');
+    },
+    onResourceCountIs: async (count: number, timeout?: number) => {
+      await expect(this.tabs.onResource).toHaveAccessibleName(
+        `${text.relations.resource} (${new Intl.NumberFormat().format(count)})`,
+        { timeout },
+      );
     },
     tabIsVisible: async (tab: keyof typeof this.tabs) => {
       await expect(this.tabs[tab]).toBeVisible();

@@ -356,6 +356,58 @@ describe('mixed attribution mutations', () => {
   });
 });
 
+describe('bulk attribution mutations', () => {
+  it('links 500 distinct attributions without exceeding the SQLite expression depth', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          existing: {
+            id: 'existing',
+            criticality: Criticality.None,
+            packageName: 'existing',
+          },
+        },
+        resourcesToAttributions: { '/parent/child.ts': ['existing'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const attributions = Object.fromEntries(
+      Array.from({ length: 500 }, (_, index) => {
+        const id = `signal-${index}`;
+        return [
+          id,
+          {
+            id,
+            criticality: Criticality.None,
+            packageName: `package-${index}`,
+          },
+        ];
+      }),
+    );
+
+    const response = await mutations.createOrMatchAttributions({
+      resourcePath: '/parent/child.ts',
+      attributions,
+    });
+    const createdAttributionUuids = Object.values(
+      response.result.inputKeysToNewUuids,
+    );
+    const linkedAttributionUuids = (
+      await getDb()
+        .selectFrom('resource_to_attribution as rta')
+        .innerJoin('resource', 'resource.id', 'rta.resource_id')
+        .select('rta.attribution_uuid')
+        .where('resource.path', '=', '/parent/child.ts')
+        .execute()
+    ).map(({ attribution_uuid }) => attribution_uuid);
+
+    expect(createdAttributionUuids).toHaveLength(500);
+    expect(linkedAttributionUuids).toHaveLength(501);
+  });
+});
+
 describe('readonly-only attribution mutations', () => {
   async function initializeReadonlyAttribution() {
     await initializeDbWithTestData({
