@@ -242,23 +242,29 @@ export async function runResourceWorkflows({
         signalsPanel.packageCard.assert.isVisible(
           signalSort.rareSignal.packageInfo,
         ),
+        signalsPanel.packageCard.assert.isFirstVisible(
+          signalSort.rareSignal.packageInfo,
+        ),
       ]);
+      await signalsPanel.openSortMenu();
     },
     execute: async () => {
-      await signalsPanel.sortButton.click();
       await signalsPanel.sortings.occurrence.click();
-      await signalsPanel.closeFilterMenu();
       await Promise.all([
-        signalsPanel.packageCard.assert.isVisible(
+        signalsPanel.packageCard.assert.isFirstVisible(
           signalSort.frequentSignal.packageInfo,
         ),
         signalsPanel.assert.loadingIndicatorIsHidden(),
       ]);
     },
     teardown: async () => {
+      await signalsPanel.closeFilterMenu();
       await signalsPanel.sortButton.click();
       await signalsPanel.sortings.name.click();
       await signalsPanel.closeFilterMenu();
+      await signalsPanel.packageCard.assert.isFirstVisible(
+        signalSort.rareSignal.packageInfo,
+      );
       await signalsPanel.assert.loadingIndicatorIsHidden();
     },
   });
@@ -374,20 +380,28 @@ export async function runResourceWorkflows({
         resourcesTree,
         signalsPanel,
       });
-    },
-    execute: async () => {
-      await signalsPanel.sortButton.click();
-      await signalsPanel.sortings.occurrence.click();
-      await signalsPanel.closeFilterMenu();
-      await signalsPanel.packageCard.assert.isFirstVisible(
+      await signalsPanel.packageCard.assert.isNotFirstVisible(
         model.scenarios.denseSignals.frequentSignal.packageInfo,
       );
-      await signalsPanel.assert.loadingIndicatorIsHidden();
+      await signalsPanel.openSortMenu();
+    },
+    execute: async () => {
+      await signalsPanel.sortings.occurrence.click();
+      await Promise.all([
+        signalsPanel.packageCard.assert.isFirstVisible(
+          model.scenarios.denseSignals.frequentSignal.packageInfo,
+        ),
+        signalsPanel.assert.loadingIndicatorIsHidden(),
+      ]);
     },
     teardown: async () => {
+      await signalsPanel.closeFilterMenu();
       await signalsPanel.sortButton.click();
       await signalsPanel.sortings.name.click();
       await signalsPanel.closeFilterMenu();
+      await signalsPanel.packageCard.assert.isNotFirstVisible(
+        model.scenarios.denseSignals.frequentSignal.packageInfo,
+      );
       await signalsPanel.assert.loadingIndicatorIsHidden();
     },
   });

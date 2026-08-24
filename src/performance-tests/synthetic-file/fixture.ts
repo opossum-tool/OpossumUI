@@ -43,8 +43,8 @@ const SYNTHETIC_SCENARIO_BLUEPRINT = {
     expandAndSelectSignal: 1,
     signalSearchMatch: 2,
     signalSearchNonMatch: 3,
-    frequentSignal: 4,
-    rareSignal: 5,
+    rareSignal: 4,
+    frequentSignal: 8,
     linkSignal: 6,
   },
   manualAttributions: {
@@ -340,12 +340,12 @@ function getSyntheticPackageInfo(
       ? PERFORMANCE_ATTRIBUTION_FILTER_LICENSE
       : SYNTHETIC_LICENSE_NAMES[identityIndex % SYNTHETIC_LICENSE_NAMES.length];
   const info: RawPackageInfo = {
-    packageName: isDenseSignal
-      ? `performance-dense-signal-${(index - denseSignalStart)
-          .toString()
-          .padStart(5, '0')}`
-      : isHighFanout
-        ? `performance-high-fanout-${kind}`
+    packageName: isHighFanout
+      ? `performance-high-fanout-${kind}`
+      : isDenseSignal
+        ? `performance-dense-signal-${(index - denseSignalStart)
+            .toString()
+            .padStart(5, '0')}`
         : uniquePerformanceAttribution
           ? 'performance-unique-attribution'
           : uniquePerformanceSignal
@@ -384,7 +384,9 @@ function getSyntheticPackageInfo(
         : undefined,
     source: external
       ? {
-          name: SOURCE_NAMES[identityIndex % SOURCE_NAMES.length],
+          name: SOURCE_NAMES[
+            isDenseSignal ? 0 : identityIndex % SOURCE_NAMES.length
+          ],
           documentConfidence: 50 + (identityIndex % 51),
         }
       : undefined,

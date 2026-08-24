@@ -175,6 +175,11 @@ export class SignalsPanel {
     }
   }
 
+  async openSortMenu() {
+    await this.sortButton.click();
+    await this.sortings.occurrence.click({ trial: true });
+  }
+
   async selectLicenseName(licenseName: string) {
     await this.filters.license.fill(licenseName);
     await this.window

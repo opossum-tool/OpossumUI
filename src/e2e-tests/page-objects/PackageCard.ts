@@ -119,6 +119,15 @@ export class PackageCard {
         `package card ${this.getCardLabel(packageInfo)}`,
       );
     },
+    isNotFirstVisible: async (packageInfo: RawPackageInfo): Promise<void> => {
+      const firstCard = this.context
+        .locator('[aria-label^="package card "]')
+        .first();
+      await expect(firstCard).not.toHaveAttribute(
+        'aria-label',
+        `package card ${this.getCardLabel(packageInfo)}`,
+      );
+    },
     isPickerSource: async (packageInfo: RawPackageInfo): Promise<void> => {
       await expect(this.node(packageInfo)).toHaveAttribute(
         'data-picker-source',

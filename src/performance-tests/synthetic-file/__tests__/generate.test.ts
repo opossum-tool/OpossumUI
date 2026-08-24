@@ -250,6 +250,33 @@ describe('synthetic performance file generator', () => {
     );
   });
 
+  it('keeps the sorting scenario order observable', () => {
+    const { frequentSignal, rareSignal } = model.scenarios.signalSort;
+    const frequentName = frequentSignal.packageInfo.packageName;
+    const rareName = rareSignal.packageInfo.packageName;
+
+    if (!frequentName || !rareName) {
+      throw new Error('Sorting scenario signals must have package names');
+    }
+
+    expect(rareName.localeCompare(frequentName)).toBeLessThan(0);
+  });
+
+  it('keeps the dense sorting scenario order observable', () => {
+    const { frequentSignal, signals } = model.scenarios.denseSignals;
+    const otherSignal = signals.find(({ id }) => id !== frequentSignal.id);
+
+    if (!otherSignal) {
+      throw new Error('Dense sorting scenario must contain another signal');
+    }
+
+    expect(
+      frequentSignal.packageInfo.packageName!.localeCompare(
+        otherSignal.packageInfo.packageName!,
+      ),
+    ).toBeGreaterThan(0);
+  });
+
   it('generates dense and high-fanout performance anchors', () => {
     const dense = model.scenarios.denseSignals;
     const highFanout = model.scenarios.highFanout;
