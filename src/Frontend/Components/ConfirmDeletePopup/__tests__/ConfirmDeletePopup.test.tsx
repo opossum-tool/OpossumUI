@@ -16,6 +16,54 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmDeletePopup } from '../ConfirmDeletePopup';
 
 describe('ConfirmDeletePopup', () => {
+  it('deletes a query-wide selection while preserving exclusions', async () => {
+    const first = faker.opossum.packageInfo({ packageName: 'first' });
+    const second = faker.opossum.packageInfo({ packageName: 'second' });
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+
+    await renderComponent(
+      <ConfirmDeletePopup
+        open
+        onClose={noop}
+        attributionIdsToDelete={[]}
+        selection={{
+          mode: 'allMatching',
+          query: {
+            external: false,
+            filters: [],
+            search: '',
+            valueFilters: {},
+            resourcePathForRelationships: resource,
+            showResolved: false,
+            excludeUnrelated: false,
+            relation: 'resource',
+          },
+          excludedAttributionUuids: [second.id],
+        }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [first.id]: first,
+            [second.id]: second,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [first.id, second.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+      },
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.deleteAttributionsPopup.delete,
+      }),
+    );
+
+    await expectManualAttributions({ [second.id]: second });
+  });
+
   it('displays to-be-deleted attributions and counts the affected resources', async () => {
     const attribution1 = faker.opossum.packageInfo();
     const attribution2 = faker.opossum.packageInfo();

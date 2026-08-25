@@ -35,6 +35,7 @@ interface Props {
   mixedAttributionCount: number;
   isResourceInfoReady: boolean;
   isLocalActionAvailable: boolean | undefined;
+  aggregateSelection?: boolean;
 }
 
 export function ConfirmAttributionActionPopup({
@@ -51,6 +52,7 @@ export function ConfirmAttributionActionPopup({
   mixedAttributionCount,
   isResourceInfoReady,
   isLocalActionAvailable,
+  aggregateSelection = false,
 }: Props) {
   const isMutationPending =
     globalAction.isPending || (localAction?.isPending ?? false);
@@ -95,22 +97,26 @@ export function ConfirmAttributionActionPopup({
         <MuiAlert severity={'warning'}>{mixedWarning}</MuiAlert>
       )}
       <MuiTypography>{description}</MuiTypography>
-      {attributionValues ? (
-        <AttributionCardList attributions={attributionValues} />
-      ) : (
-        <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
+      {!aggregateSelection && (
+        <>
+          {attributionValues ? (
+            <AttributionCardList attributions={attributionValues} />
+          ) : (
+            <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
+          )}
+          <MuiTypography variant={'subtitle2'}>
+            {mixedAttributionCount > 0
+              ? text.confirmAttributionActionPopup.editableLinkedResources
+              : text.confirmAttributionActionPopup.linkedResources}
+          </MuiTypography>
+          <LinkedResourcesTree
+            readOnly
+            disableHighlightSelected={!isLocalActionAvailable}
+            state={linkedResourcesTreeState}
+            sx={{ minHeight: '100px' }}
+          />
+        </>
       )}
-      <MuiTypography variant={'subtitle2'}>
-        {mixedAttributionCount > 0
-          ? text.confirmAttributionActionPopup.editableLinkedResources
-          : text.confirmAttributionActionPopup.linkedResources}
-      </MuiTypography>
-      <LinkedResourcesTree
-        readOnly
-        disableHighlightSelected={!isLocalActionAvailable}
-        state={linkedResourcesTreeState}
-        sx={{ minHeight: '100px' }}
-      />
     </StyledConfirmAttributionActionPopup>
   );
 }

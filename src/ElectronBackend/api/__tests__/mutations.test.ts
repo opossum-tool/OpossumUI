@@ -10,7 +10,11 @@ import {
 import { getDb } from '../../db/db';
 import { AttributionResourceAccess } from '../../types/types';
 import { listAttributions } from '../listAttributions';
-import { mutations } from '../mutations';
+import {
+  type AttributionCacheImpact,
+  MAX_TARGETED_CACHE_UUIDS,
+  mutations,
+} from '../mutations';
 
 async function resourceAccessOf(attributionUuid: string) {
   return (
@@ -23,12 +27,24 @@ async function resourceAccessOf(attributionUuid: string) {
 }
 
 function expectExactAffectedAttributionUuids(
-  response: { affectedAttributionUuids?: Array<string> },
+  response: {
+    affectedAttributionUuids?: Array<string>;
+    attributionCacheImpact?: AttributionCacheImpact;
+  },
   expected: Array<string>,
 ) {
-  const actual = response.affectedAttributionUuids ?? [];
+  const actual = affectedAttributionUuidsOf(response);
   expect(actual).toHaveLength(new Set(actual).size);
   expect([...actual].sort()).toEqual([...expected].sort());
+}
+
+function affectedAttributionUuidsOf(response: {
+  affectedAttributionUuids?: Array<string>;
+  attributionCacheImpact?: AttributionCacheImpact;
+}) {
+  return response.attributionCacheImpact?.mode === 'targeted'
+    ? response.attributionCacheImpact.attributionUuids
+    : (response.affectedAttributionUuids ?? []);
 }
 
 describe('attribution resource access', () => {
@@ -337,7 +353,7 @@ describe('mixed attribution mutations', () => {
       attributionUuids: ['shared'],
     });
 
-    const cloneUuids = response.affectedAttributionUuids.filter(
+    const cloneUuids = affectedAttributionUuidsOf(response).filter(
       (uuid) => uuid !== 'shared',
     );
     expect(cloneUuids).toHaveLength(1);
@@ -365,7 +381,7 @@ describe('mixed attribution mutations', () => {
       attributionUuidToReplaceWith: 'replacement',
     });
 
-    const generatedCloneUuids = response.affectedAttributionUuids.filter(
+    const generatedCloneUuids = affectedAttributionUuidsOf(response).filter(
       (uuid) => uuid !== 'shared' && uuid !== 'replacement',
     );
     expect(generatedCloneUuids).toHaveLength(1);
@@ -389,6 +405,205 @@ describe('mixed attribution mutations', () => {
 });
 
 describe('bulk attribution mutations', () => {
+  it('excludes the replacement target from a query-wide replacement', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          first: { id: 'first', criticality: Criticality.None },
+          second: { id: 'second', criticality: Criticality.None },
+          replacement: {
+            id: 'replacement',
+            criticality: Criticality.None,
+          },
+        },
+        resourcesToAttributions: {
+          '/parent/child.ts': ['first', 'second', 'replacement'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.replaceAttributions({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/child.ts',
+          showResolved: true,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      attributionUuidToReplaceWith: 'replacement',
+    });
+
+    expect(
+      await getDb()
+        .selectFrom('resource_to_attribution as rta')
+        .innerJoin('resource as r', 'r.id', 'rta.resource_id')
+        .select('rta.attribution_uuid')
+        .where('r.path', '=', '/parent/child.ts')
+        .execute(),
+    ).toEqual([{ attribution_uuid: 'replacement' }]);
+    expectExactAffectedAttributionUuids(response, [
+      'first',
+      'second',
+      'replacement',
+    ]);
+  });
+
+  it('applies a query-wide property update with exclusions', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          first: { id: 'first', criticality: Criticality.None },
+          second: { id: 'second', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/parent/child.ts': ['first', 'second'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.updateAttributionProperty({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/child.ts',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: ['second'],
+      },
+      property: 'needsReview',
+      value: true,
+    });
+    const rows = await getDb()
+      .selectFrom('attribution')
+      .select(['uuid', 'needs_review'])
+      .orderBy('uuid')
+      .execute();
+
+    expect(rows).toEqual([
+      { uuid: 'first', needs_review: 1 },
+      { uuid: 'second', needs_review: 0 },
+    ]);
+    expectExactAffectedAttributionUuids(response, ['first']);
+    expect(response).not.toHaveProperty('affectedAttributionUuids');
+  });
+
+  it('bounds targeted cache impact independently of explicit selection mode', async () => {
+    const attributionUuids = Array.from(
+      { length: MAX_TARGETED_CACHE_UUIDS + 1 },
+      (_, index) => `attribution-${index}`,
+    );
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: Object.fromEntries(
+          attributionUuids.map((attributionUuid) => [
+            attributionUuid,
+            { id: attributionUuid, criticality: Criticality.None },
+          ]),
+        ),
+        resourcesToAttributions: {
+          '/parent/child.ts': attributionUuids,
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const targetedResponse = await mutations.updateAttributionProperty({
+      selection: {
+        mode: 'explicit',
+        attributionUuids: attributionUuids.slice(0, MAX_TARGETED_CACHE_UUIDS),
+      },
+      property: 'needsReview',
+      value: true,
+    });
+    expect(targetedResponse.attributionCacheImpact).toMatchObject({
+      mode: 'targeted',
+      attributionUuids: expect.any(Array),
+    });
+    const targetedImpact = targetedResponse.attributionCacheImpact;
+    if (targetedImpact.mode !== 'targeted') {
+      throw new Error('Expected targeted cache impact');
+    }
+    expect(targetedImpact.attributionUuids).toHaveLength(
+      MAX_TARGETED_CACHE_UUIDS,
+    );
+
+    const broadResponse = await mutations.updateAttributionProperty({
+      selection: { mode: 'explicit', attributionUuids },
+      property: 'followUp',
+      value: true,
+    });
+    expect(broadResponse.attributionCacheImpact).toEqual({ mode: 'broad' });
+    expect(
+      broadResponse.invalidates.filter(
+        (invalidation) => invalidation.queryName === 'getAttributionData',
+      ),
+    ).toEqual([{ queryName: 'getAttributionData' }]);
+  });
+
+  it('returns the focused remapping for a query-wide update-or-match', async () => {
+    const focused = {
+      id: 'focused',
+      criticality: Criticality.None,
+      packageName: 'matching-package',
+      preSelected: true,
+    };
+    const matching = {
+      ...focused,
+      id: 'matching',
+      preSelected: undefined,
+    };
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: { focused, matching },
+        resourcesToAttributions: {
+          '/parent/child.ts': [focused.id, matching.id],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.updateOrMatchAttributions({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: ['preSelected'],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/child.ts',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      focusedAttributionUuid: focused.id,
+    });
+
+    expect(response.result.oldUuidsToNewUuids).toEqual({
+      [focused.id]: matching.id,
+    });
+  });
+
   it('links 500 distinct attributions without exceeding the SQLite expression depth', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/parent/child.ts']),

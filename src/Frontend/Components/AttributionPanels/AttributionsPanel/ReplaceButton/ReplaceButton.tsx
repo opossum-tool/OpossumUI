@@ -8,7 +8,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
-import { useAttributionIdsForReplacement } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { useAttributionSelectionForReplacement } from '../../../../state/variables/use-attribution-selection-for-replacement';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
@@ -17,37 +17,43 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
   setMultiSelectedAttributionIds,
   pickerMode,
-  hasNextPage,
+  selection,
+  selectionSummary,
+  selectionSummaryLoading = false,
 }) => {
-  const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
-    useAttributionIdsForReplacement();
-  const label = attributionIdsForReplacement.length
+  const [selectionForReplacement, setSelectionForReplacement] =
+    useAttributionSelectionForReplacement();
+  const label = selectionForReplacement
     ? text.packageLists.cancelReplace
     : text.packageLists.replace;
 
   const mutationsPending = useIsMutating() > 0;
+  const isQueryWide = selection?.mode === 'allMatching';
+  const selectedCount = isQueryWide
+    ? (selectionSummary?.selectedCount ?? 0)
+    : selectedAttributionIds.length;
 
   return (
     <MuiIconButton
       aria-label={label}
       disabled={
-        hasNextPage ||
         !attributionIds ||
-        !selectedAttributionIds.length ||
-        !(attributionIds.length - multiSelectedAttributionIds.length) ||
-        attributionIds.length < 2 ||
+        !selectedCount ||
+        selectionSummaryLoading ||
+        (!isQueryWide &&
+          (!(attributionIds.length - multiSelectedAttributionIds.length) ||
+            attributionIds.length < 2)) ||
         mutationsPending ||
         pickerMode.mode === 'compare'
       }
       size={'small'}
       onClick={() => {
-        setAttributionIdsForReplacement((prev) =>
-          prev.length ? [] : selectedAttributionIds,
+        setSelectionForReplacement((prev) =>
+          prev ? null : (selection ?? null),
         );
-        attributionIdsForReplacement.length &&
-          setMultiSelectedAttributionIds([]);
+        selectionForReplacement && setMultiSelectedAttributionIds([]);
       }}
-      color={attributionIdsForReplacement.length ? 'success' : undefined}
+      color={selectionForReplacement ? 'success' : undefined}
     >
       <MuiTooltip title={label} disableInteractive placement={'top'}>
         <ChangeCircleIcon />

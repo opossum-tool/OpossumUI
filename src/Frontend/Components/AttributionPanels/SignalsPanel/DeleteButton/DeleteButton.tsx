@@ -15,36 +15,54 @@ import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   selectedAttributionIds,
-  hasNextPage,
+  selection = { mode: 'explicit', attributionUuids: selectedAttributionIds },
+  selectionSummary,
+  selectionSummaryLoading = false,
+  clearSelection,
 }) => {
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const mutationsPending = useIsMutating() > 0;
+  const selectedCount =
+    selection.mode === 'allMatching'
+      ? (selectionSummary?.selectedCount ?? 0)
+      : selectedAttributionIds.length;
   const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
   const someSelectedAttributionsAreVisible = useMemo(
     () =>
-      !!selectedAttributionIds.length &&
-      selectedAttributionIds.some(
-        (id) => !resolvedExternalAttributionIds?.has(id),
-      ),
-    [resolvedExternalAttributionIds, selectedAttributionIds],
+      selection.mode === 'allMatching'
+        ? selectedCount - (selectionSummary?.resolvedCount ?? 0) > 0
+        : !!selectedCount &&
+          selectedAttributionIds.some(
+            (id) => !resolvedExternalAttributionIds?.has(id),
+          ),
+    [
+      resolvedExternalAttributionIds,
+      selectedAttributionIds,
+      selectedCount,
+      selection,
+      selectionSummary,
+    ],
   );
 
   return (
     <MuiIconButton
       aria-label={text.packageLists.delete}
       disabled={
-        hasNextPage ||
         !someSelectedAttributionsAreVisible ||
+        selectionSummaryLoading ||
         pickerMode.isActive ||
         mutationsPending
       }
       size={'small'}
-      onClick={() =>
-        resolveAttributions.mutateAsync({
-          attributionUuids: selectedAttributionIds,
-        })
-      }
+      onClick={async () => {
+        await resolveAttributions.mutateAsync(
+          selection.mode === 'allMatching'
+            ? { selection }
+            : { attributionUuids: selectedAttributionIds },
+        );
+        clearSelection?.();
+      }}
       loading={resolveAttributions.isPending}
     >
       <MuiTooltip

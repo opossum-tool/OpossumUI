@@ -29,7 +29,7 @@ import {
   getIsPackageInfoDirty,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
-import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
+import { useAttributionSelectionForReplacement } from '../../../state/variables/use-attribution-selection-for-replacement';
 import { useCompareSelectionSource } from '../../../state/variables/use-compare-selection';
 import { backend } from '../../../util/backendClient';
 import { isPackageInvalid } from '../../../util/input-validation';
@@ -93,8 +93,8 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   const [isCompareSelectionDiffOpen, setIsCompareSelectionDiffOpen] =
     useState(false);
 
-  const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
-    useAttributionIdsForReplacement();
+  const [selectionForReplacement, setSelectionForReplacement] =
+    useAttributionSelectionForReplacement();
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
     useState(false);
   const [isReplaceAttributionsPopupOpen, setIsReplaceAttributionsPopupOpen] =
@@ -176,7 +176,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
 
   return (
     <Container>
-      {attributionIdsForReplacement.length ? (
+      {selectionForReplacement ? (
         renderReplaceButton()
       ) : compareSelectionSource ? (
         renderCompareSelectionControls()
@@ -195,9 +195,9 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   );
 
   function renderReplaceButton() {
-    const isPreviewingSource = attributionIdsForReplacement.includes(
-      packageInfo.id,
-    );
+    const isPreviewingSource =
+      selectionForReplacement?.mode === 'explicit' &&
+      selectionForReplacement.attributionUuids.includes(packageInfo.id);
     const canUseAsReplacement =
       !isReadonly &&
       !isPreviewingSource &&
@@ -215,9 +215,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             {text.attributionColumn.replace}
           </MuiButton>
         )}
-        {renderPickerModeCancelButton(() =>
-          setAttributionIdsForReplacement([]),
-        )}
+        {renderPickerModeCancelButton(() => setSelectionForReplacement(null))}
         {canUseAsReplacement && (
           <ConfirmReplacePopup
             selectedAttribution={packageInfo}

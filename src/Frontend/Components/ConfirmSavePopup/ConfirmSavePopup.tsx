@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useMemo } from 'react';
 
+import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { text } from '../../../shared/text';
 import { setSelectedAttributionIdIfRemapped } from '../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -21,12 +22,16 @@ interface Props {
   attributionIdsToSave: Array<string>;
   open: boolean;
   onClose: () => void;
+  selection?: AttributionSelection;
+  clearSelection?: () => void;
 }
 
 export const ConfirmSavePopup: React.FC<Props> = ({
   attributionIdsToSave,
   open,
   onClose,
+  selection,
+  clearSelection,
 }) => {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
@@ -39,6 +44,17 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     backend.modifyOrMatchOnlyOnOneResource.useMutation();
   const isSaving =
     updateOrMatch.isPending || modifyOrMatchOnlyOnOneResource.isPending;
+  const selectionSummaryQuery = backend.getAttributionSelectionSummary.useQuery(
+    {
+      selection: selection ?? {
+        mode: 'explicit',
+        attributionUuids: attributionIdsToSave,
+      },
+    },
+    { enabled: open && selection?.mode === 'allMatching' },
+  );
+  const aggregateSummary =
+    selection?.mode === 'allMatching' ? selectionSummaryQuery.data : undefined;
   const {
     attributions: attributionsToSave,
     linkedResourceCount,
@@ -46,10 +62,12 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     mixedAttributionCount,
     isResourceInfoReady,
     isLocalActionAvailable,
+    isSelectedResourceReadonly,
   } = useLinkedAttributionActionData({
     attributionIds: attributionIdsToSave,
     open,
     isMutationPending: isSaving,
+    selection,
   });
   const modifiedAttributionsToSave = useMemo(
     () =>
@@ -61,14 +79,27 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         : attributionsToSave,
     [attributionsToSave, selectedAttributionId, temporaryDisplayPackageInfo],
   );
-  const areAllAttributionsPreselected = attributionsToSave
-    ? Object.values(attributionsToSave).every(
-        (attribution) => attribution.preSelected,
-      )
-    : undefined;
+  const areAllAttributionsPreselected = aggregateSummary
+    ? aggregateSummary.preSelectedCount === aggregateSummary.selectedCount
+    : attributionsToSave
+      ? Object.values(attributionsToSave).every(
+          (attribution) => attribution.preSelected,
+        )
+      : undefined;
 
   const handleSaveGlobally = async () => {
-    if (modifiedAttributionsToSave) {
+    if (selection?.mode === 'allMatching') {
+      const result = await updateOrMatch.mutateAsync({
+        selection,
+        focusedAttributionUuid: selectedAttributionId,
+      });
+      dispatch(
+        setSelectedAttributionIdIfRemapped(
+          result.oldUuidsToNewUuids,
+          selectedAttributionId,
+        ),
+      );
+    } else if (modifiedAttributionsToSave) {
       const result = await updateOrMatch.mutateAsync({
         attributions: modifiedAttributionsToSave,
       });
@@ -79,11 +110,17 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         ),
       );
     }
+    clearSelection?.();
     onClose();
   };
 
   const handleSaveOnResource = async () => {
-    if (modifiedAttributionsToSave) {
+    if (selection?.mode === 'allMatching') {
+      await modifyOrMatchOnlyOnOneResource.mutateAsync({
+        resourcePath: selectedResourceId,
+        selection,
+      });
+    } else if (modifiedAttributionsToSave) {
       const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
         resourcePath: selectedResourceId,
         attributions: modifiedAttributionsToSave,
@@ -95,6 +132,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         ),
       );
     }
+    clearSelection?.();
     onClose();
   };
 
@@ -117,7 +155,9 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         onClick: handleSaveGlobally,
         color: 'error',
         buttonText:
-          linkedResourceCount && linkedResourceCount > 1
+          (aggregateSummary?.writableLinkedResourceCount ??
+            linkedResourceCount ??
+            0) > 1
             ? areAllAttributionsPreselected
               ? text.saveAttributionsPopup.confirmGlobally
               : text.saveAttributionsPopup.saveGlobally
@@ -125,28 +165,51 @@ export const ConfirmSavePopup: React.FC<Props> = ({
               ? text.saveAttributionsPopup.confirm
               : text.saveAttributionsPopup.save,
       }}
-      attributions={modifiedAttributionsToSave}
+      attributions={
+        selection?.mode === 'allMatching' ? {} : modifiedAttributionsToSave
+      }
       onClose={onClose}
       description={(areAllAttributionsPreselected
         ? text.saveAttributionsPopup.confirmAttributions
         : text.saveAttributionsPopup.saveAttributions)({
-        attributions: maybePluralize(
-          attributionIdsToSave.length,
-          text.packageLists.attribution,
-        ),
+        attributions:
+          selection?.mode === 'allMatching'
+            ? maybePluralize(
+                aggregateSummary?.selectedCount ?? 0,
+                text.packageLists.attribution,
+              )
+            : maybePluralize(
+                attributionIdsToSave.length,
+                text.packageLists.attribution,
+              ),
         resources: maybePluralize(
-          linkedResourceCount ?? 1,
+          aggregateSummary?.writableLinkedResourceCount ??
+            linkedResourceCount ??
+            1,
           text.saveAttributionsPopup.resource,
           { showOne: true },
         ),
       })}
       mixedWarning={text.confirmAttributionActionPopup.mixedWarning(
-        mixedAttributionCount,
+        aggregateSummary?.mixedCount ?? mixedAttributionCount,
       )}
       linkedResourcesTreeState={linkedResourcesTreeState}
-      mixedAttributionCount={mixedAttributionCount}
-      isResourceInfoReady={isResourceInfoReady}
-      isLocalActionAvailable={isLocalActionAvailable}
+      mixedAttributionCount={
+        aggregateSummary?.mixedCount ?? mixedAttributionCount
+      }
+      isResourceInfoReady={
+        aggregateSummary
+          ? !selectionSummaryQuery.isLoading
+          : isResourceInfoReady
+      }
+      isLocalActionAvailable={
+        aggregateSummary
+          ? aggregateSummary.allLinkedToSelectedResource &&
+            aggregateSummary.writableLinkedResourceCount > 1 &&
+            !isSelectedResourceReadonly
+          : isLocalActionAvailable
+      }
+      aggregateSelection={selection?.mode === 'allMatching'}
       open={open}
       ariaLabel={text.saveAttributionsPopup.ariaLabel}
     />

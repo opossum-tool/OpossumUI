@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
-import { without } from 'lodash-es';
 
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
@@ -29,8 +28,8 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   onRetryLoadMore,
   fetchNextPage,
   pickerMode,
-  setMultiSelectedAttributionIds,
   multiSelectedAttributionIds,
+  toggleAttributionSelection,
 }) => {
   const dispatch = useAppDispatch();
 
@@ -66,7 +65,10 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
 
     const isPickerSource =
       (pickerMode.mode === 'replace' &&
-        pickerMode.attributionIdsForReplacement.includes(attributionId)) ||
+        pickerMode.selectionForReplacement.mode === 'explicit' &&
+        pickerMode.selectionForReplacement.attributionUuids.includes(
+          attributionId,
+        )) ||
       (pickerMode.mode === 'compare' &&
         pickerMode.compareSelectionSource.id === attributionId);
 
@@ -91,11 +93,7 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
             disabled:
               pickerMode.isActive || attribution.resourceAccess === 'readonly',
             onChange: (event) => {
-              setMultiSelectedAttributionIds(
-                event.target.checked
-                  ? [...multiSelectedAttributionIds, attributionId]
-                  : without(multiSelectedAttributionIds, attributionId),
-              );
+              toggleAttributionSelection?.(attributionId, event.target.checked);
               !selectedAttributionId &&
                 dispatch(
                   changeSelectedAttributionOrOpenUnsavedPopup(attribution),

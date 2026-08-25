@@ -273,12 +273,19 @@ export const backend = new Proxy({} as BackendClient, {
         () => window.electronAPI.api(command, params),
       );
       onSuccessBeforeInvalidation?.();
-      const affectedAttributionUuids =
-        'affectedAttributionUuids' in response
-          ? response.affectedAttributionUuids
+      const attributionCacheImpact =
+        'attributionCacheImpact' in response
+          ? response.attributionCacheImpact
           : undefined;
-
-      const affectedUuids = new Set(affectedAttributionUuids ?? []);
+      const affectedAttributionUuids =
+        attributionCacheImpact?.mode === 'targeted'
+          ? attributionCacheImpact.attributionUuids
+          : 'affectedAttributionUuids' in response
+            ? response.affectedAttributionUuids
+            : undefined;
+      const hasBroadAttributionCacheImpact =
+        attributionCacheImpact?.mode === 'broad';
+      const affectedUuids = new Set<string>(affectedAttributionUuids ?? []);
       const secondaryQueryKeys = new Map<string, QueryKey>();
       const immediateQueryKeys = new Map<string, QueryKey>();
       const invalidations =
@@ -336,7 +343,10 @@ export const backend = new Proxy({} as BackendClient, {
           affectedUuids,
         );
 
-        if (affectedAttributionUuids !== undefined) {
+        if (
+          affectedAttributionUuids !== undefined &&
+          !hasBroadAttributionCacheImpact
+        ) {
           await traceFrontendPhase(
             'mutation.reconcile-legacy-list',
             {
@@ -356,7 +366,10 @@ export const backend = new Proxy({} as BackendClient, {
                 },
               }),
           );
-        } else if (invalidatesLegacyAttributions) {
+        } else if (
+          invalidatesLegacyAttributions ||
+          hasBroadAttributionCacheImpact
+        ) {
           const legacyQueryKeys = getCachedQueryKeys({
             queryName: 'listAttributions',
           });

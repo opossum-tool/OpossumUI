@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { text } from '../../../shared/text';
 import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -15,12 +16,16 @@ interface Props {
   attributionIdsToDelete: Array<string>;
   open: boolean;
   onClose: () => void;
+  selection?: AttributionSelection;
+  clearSelection?: () => void;
 }
 
 export const ConfirmDeletePopup: React.FC<Props> = ({
   attributionIdsToDelete,
   open,
   onClose,
+  selection,
+  clearSelection,
 }) => {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
@@ -36,6 +41,17 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
     backend.unlinkResourceFromAttributions.useMutation({
       onBeforeInvalidation: clearSelectedAttributionIfDeleted,
     });
+  const selectionSummaryQuery = backend.getAttributionSelectionSummary.useQuery(
+    {
+      selection: selection ?? {
+        mode: 'explicit',
+        attributionUuids: attributionIdsToDelete,
+      },
+    },
+    { enabled: open && selection?.mode === 'allMatching' },
+  );
+  const aggregateSummary =
+    selection?.mode === 'allMatching' ? selectionSummaryQuery.data : undefined;
   const isDeleting =
     deleteAttributions.isPending || unlinkResourceFromAttributions.isPending;
   const {
@@ -45,24 +61,34 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
     mixedAttributionCount,
     isResourceInfoReady,
     isLocalActionAvailable,
+    isSelectedResourceReadonly,
     selectedResourceId,
   } = useLinkedAttributionActionData({
     attributionIds: attributionIdsToDelete,
     open,
     isMutationPending: isDeleting,
+    selection,
   });
 
   const handleDelete = async () => {
-    await deleteAttributions.mutateAsync({
-      attributionUuids: attributionIdsToDelete,
-    });
+    await deleteAttributions.mutateAsync(
+      selection?.mode === 'allMatching'
+        ? { selection }
+        : { attributionUuids: attributionIdsToDelete },
+    );
+    clearSelection?.();
     onClose();
   };
   const handleDeleteOnResource = async () => {
-    await unlinkResourceFromAttributions.mutateAsync({
-      resourcePath: selectedResourceId,
-      attributionUuids: attributionIdsToDelete,
-    });
+    await unlinkResourceFromAttributions.mutateAsync(
+      selection?.mode === 'allMatching'
+        ? { resourcePath: selectedResourceId, selection }
+        : {
+            resourcePath: selectedResourceId,
+            attributionUuids: attributionIdsToDelete,
+          },
+    );
+    clearSelection?.();
     onClose();
   };
 
@@ -79,31 +105,56 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
         isPending: deleteAttributions.isPending,
         onClick: handleDelete,
         buttonText:
-          linkedResourceCount && linkedResourceCount > 1
+          (aggregateSummary?.writableLinkedResourceCount ??
+            linkedResourceCount ??
+            0) > 1
             ? text.deleteAttributionsPopup.deleteGlobally
             : text.deleteAttributionsPopup.delete,
         color: 'error',
       }}
-      attributions={attributionsToDelete}
+      attributions={
+        selection?.mode === 'allMatching' ? {} : attributionsToDelete
+      }
       onClose={onClose}
       description={text.deleteAttributionsPopup.deleteAttributions({
-        attributions: maybePluralize(
-          attributionIdsToDelete.length,
-          text.packageLists.attribution,
-        ),
+        attributions:
+          selection?.mode === 'allMatching'
+            ? maybePluralize(
+                aggregateSummary?.selectedCount ?? 0,
+                text.packageLists.attribution,
+              )
+            : maybePluralize(
+                attributionIdsToDelete.length,
+                text.packageLists.attribution,
+              ),
         resources: maybePluralize(
-          linkedResourceCount ?? 1,
+          aggregateSummary?.writableLinkedResourceCount ??
+            linkedResourceCount ??
+            1,
           text.deleteAttributionsPopup.resource,
           { showOne: true },
         ),
       })}
       mixedWarning={text.deleteAttributionsPopup.mixedWarning(
-        mixedAttributionCount,
+        aggregateSummary?.mixedCount ?? mixedAttributionCount,
       )}
       linkedResourcesTreeState={linkedResourcesTreeState}
-      mixedAttributionCount={mixedAttributionCount}
-      isResourceInfoReady={isResourceInfoReady}
-      isLocalActionAvailable={isLocalActionAvailable}
+      mixedAttributionCount={
+        aggregateSummary?.mixedCount ?? mixedAttributionCount
+      }
+      isResourceInfoReady={
+        aggregateSummary
+          ? !selectionSummaryQuery.isLoading
+          : isResourceInfoReady
+      }
+      isLocalActionAvailable={
+        aggregateSummary
+          ? aggregateSummary.allLinkedToSelectedResource &&
+            aggregateSummary.writableLinkedResourceCount > 1 &&
+            !isSelectedResourceReadonly
+          : isLocalActionAvailable
+      }
+      aggregateSelection={selection?.mode === 'allMatching'}
       open={open}
       ariaLabel={text.deleteAttributionsPopup.ariaLabel}
     />

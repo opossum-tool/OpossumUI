@@ -54,7 +54,10 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   pickerMode,
   selectedAttributionIds,
-  hasNextPage,
+  selection = { mode: 'explicit', attributionUuids: selectedAttributionIds },
+  selectionSummary,
+  selectionSummaryLoading = false,
+  clearSelection,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
 
@@ -71,8 +74,25 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   const propertyStates = useMemo(() => {
     const checkProperty = (property: UpdatablePropertyType): boolean => {
       if (
+        !selectedAttributionIds.length &&
+        (selection.mode !== 'allMatching' || !selectionSummary?.selectedCount)
+      ) {
+        return false;
+      }
+      if (selection.mode === 'allMatching') {
+        if (!selectionSummary) {
+          return false;
+        }
+        return (
+          {
+            needsReview: selectionSummary.needsReviewCount,
+            followUp: selectionSummary.followUpCount,
+            excludeFromNotice: selectionSummary.excludeFromNoticeCount,
+          }[property] === selectionSummary.selectedCount
+        );
+      }
+      if (
         !attributions ||
-        !selectedAttributionIds.length ||
         selectedAttributionIds.some((id) => !attributions[id])
       ) {
         return false;
@@ -86,7 +106,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
       followUp: checkProperty('followUp'),
       excludeFromNotice: checkProperty('excludeFromNotice'),
     };
-  }, [attributions, selectedAttributionIds]);
+  }, [attributions, selectedAttributionIds, selection, selectionSummary]);
 
   const getMenuItemText = useCallback(
     (property: UpdatablePropertyType): string => {
@@ -105,7 +125,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
 
   const handlePropertyToggle = useCallback(
     async (property: UpdatablePropertyType) => {
-      if (!attributions) {
+      if (!attributions && selection.mode !== 'allMatching') {
         return;
       }
 
@@ -113,7 +133,10 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
 
       const updatedAttributions = selectedAttributionIds.reduce(
         (acc, attributionId) => {
-          const attribution = attributions[attributionId];
+          const attribution = attributions?.[attributionId];
+          if (!attribution) {
+            return acc;
+          }
           acc[attributionId] = {
             ...attribution,
             [property]: newState,
@@ -123,13 +146,28 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
         {} as Attributions,
       );
 
-      await backend.updateAttributions.mutate({
-        attributions: updatedAttributions,
-      });
+      if (selection.mode === 'allMatching') {
+        await backend.updateAttributionProperty.mutate({
+          selection,
+          property,
+          value: newState,
+        });
+      } else {
+        await backend.updateAttributions.mutate({
+          attributions: updatedAttributions,
+        });
+      }
 
+      clearSelection?.();
       handleClose();
     },
-    [attributions, selectedAttributionIds, propertyStates],
+    [
+      attributions,
+      selectedAttributionIds,
+      propertyStates,
+      selection,
+      clearSelection,
+    ],
   );
 
   const menuOptions = useMemo<Array<SelectMenuOption>>(
@@ -149,8 +187,10 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
       <MuiIconButton
         aria-label={text.packageLists.moreActions}
         disabled={
-          hasNextPage ||
-          !selectedAttributionIds.length ||
+          !(selection.mode === 'allMatching'
+            ? selectionSummary?.selectedCount
+            : selectedAttributionIds.length) ||
+          selectionSummaryLoading ||
           pickerMode.isActive ||
           mutationsPending
         }
