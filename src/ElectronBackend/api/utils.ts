@@ -596,23 +596,28 @@ export async function unlinkAttributions(
   resourceId: number,
   attributionUuids: Array<string>,
 ) {
-  await trx
-    .deleteFrom('resource_to_attribution')
-    .where('resource_id', '=', resourceId)
-    .where('attribution_uuid', 'in', attributionUuids)
-    .execute();
+  await withBatching(attributionUuids, async (batch) => {
+    if (batch === undefined) {
+      return;
+    }
+    await trx
+      .deleteFrom('resource_to_attribution')
+      .where('resource_id', '=', resourceId)
+      .where('attribution_uuid', 'in', batch)
+      .execute();
 
-  // delete any of the just-unlinked attributions that no longer link to any resource
-  await trx
-    .deleteFrom('attribution')
-    .where('uuid', 'in', attributionUuids)
-    .where('uuid', 'not in', (eb) =>
-      eb
-        .selectFrom('resource_to_attribution')
-        .select('attribution_uuid')
-        .where('attribution_is_external', '=', 0),
-    )
-    .execute();
+    // delete any of the just-unlinked attributions that no longer link to any resource
+    await trx
+      .deleteFrom('attribution')
+      .where('uuid', 'in', batch)
+      .where('uuid', 'not in', (eb) =>
+        eb
+          .selectFrom('resource_to_attribution')
+          .select('attribution_uuid')
+          .where('attribution_is_external', '=', 0),
+      )
+      .execute();
+  });
 
   await updateAttributionResourceAccess(trx, attributionUuids);
 }
@@ -623,19 +628,28 @@ export async function linkAttributions(
   attributionUuids: Array<string>,
   options?: { ignoreExisting?: boolean },
 ) {
-  await trx
-    .insertInto('resource_to_attribution')
-    .values(
-      attributionUuids.map((attributionUuid) => ({
-        resource_id: resourceId,
-        attribution_uuid: attributionUuid,
-        attribution_is_external: 0,
-      })),
-    )
-    .$if(options?.ignoreExisting ?? false, (eb) =>
-      eb.onConflict((oc) => oc.doNothing()),
-    )
-    .execute();
+  await withBatching(
+    attributionUuids,
+    async (batch) => {
+      if (batch === undefined || batch.length === 0) {
+        return;
+      }
+      await trx
+        .insertInto('resource_to_attribution')
+        .values(
+          batch.map((attributionUuid) => ({
+            resource_id: resourceId,
+            attribution_uuid: attributionUuid,
+            attribution_is_external: 0,
+          })),
+        )
+        .$if(options?.ignoreExisting ?? false, (eb) =>
+          eb.onConflict((oc) => oc.doNothing()),
+        )
+        .execute();
+    },
+    { batchSize: 10000 },
+  );
 
   await updateAttributionResourceAccess(trx, attributionUuids);
 }
