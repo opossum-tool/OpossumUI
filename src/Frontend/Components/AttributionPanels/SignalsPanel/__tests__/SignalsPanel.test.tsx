@@ -12,7 +12,7 @@ import { ROOT_PATH } from '../../../../shared-constants';
 import { setSelectedResourceId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
-import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-selection-for-replacement';
 import { COMPARE_SELECTION_SOURCE } from '../../../../state/variables/use-compare-selection';
 import {
   expectResolvedExternalAttributions,
@@ -80,9 +80,10 @@ describe('SignalsPanel', () => {
       }),
       actions: [
         setSelectedResourceId(ROOT_PATH),
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          sourcePackageInfo.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [sourcePackageInfo.id],
+        }),
       ],
     });
 

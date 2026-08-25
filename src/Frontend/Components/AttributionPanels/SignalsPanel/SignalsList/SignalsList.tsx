@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
-import { groupBy as _groupBy, orderBy as _orderBy, without } from 'lodash-es';
+import { groupBy as _groupBy, orderBy as _orderBy } from 'lodash-es';
 import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
@@ -33,8 +33,8 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   onRetryLoadMore,
   fetchNextPage,
   pickerMode,
-  setMultiSelectedAttributionIds,
   multiSelectedAttributionIds,
+  toggleAttributionSelection,
 }) => {
   const dispatch = useAppDispatch();
   const canSelectSignals = pickerMode.mode !== 'replace';
@@ -134,11 +134,7 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
             disabled:
               pickerMode.isActive || attribution.resourceAccess === 'readonly',
             onChange: (event) => {
-              setMultiSelectedAttributionIds(
-                event.target.checked
-                  ? [...multiSelectedAttributionIds, attributionId]
-                  : without(multiSelectedAttributionIds, attributionId),
-              );
+              toggleAttributionSelection?.(attributionId, event.target.checked);
               !selectedAttributionId &&
                 dispatch(
                   changeSelectedAttributionOrOpenUnsavedPopup(attribution),

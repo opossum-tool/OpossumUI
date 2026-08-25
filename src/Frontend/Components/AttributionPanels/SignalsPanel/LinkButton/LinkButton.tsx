@@ -26,8 +26,10 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   pickerMode,
   selectedAttributionIds,
-  hasNextPage,
-  setMultiSelectedAttributionIds,
+  selection = { mode: 'explicit', attributionUuids: selectedAttributionIds },
+  clearSelection = () => undefined,
+  selectionSummary,
+  selectionSummaryLoading = false,
 }) => {
   const dispatch = useAppDispatch();
 
@@ -40,6 +42,10 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
     scope: { id: 'signalsPanel' },
   });
   const mutationsPending = useIsMutating() > 0;
+  const selectedCount =
+    selection.mode === 'allMatching'
+      ? (selectionSummary?.selectedCount ?? 0)
+      : selectedAttributionIds.length;
 
   const handleLink = async () => {
     if (attributions) {
@@ -49,10 +55,14 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
           attributions[attributionId],
         ]),
       );
-      const result = await createOrMatch.mutateAsync({
-        resourcePath: selectedResourceId,
-        attributions: attributionsToLink,
-      });
+      const result = await createOrMatch.mutateAsync(
+        selection.mode === 'allMatching'
+          ? { resourcePath: selectedResourceId, selection }
+          : {
+              resourcePath: selectedResourceId,
+              attributions: attributionsToLink,
+            },
+      );
       dispatch(
         setSelectedAttributionIdIfRemapped(
           result.inputKeysToNewUuids,
@@ -61,17 +71,17 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
       );
     }
     dispatch(setTargetAttributionRelation('resource'));
-    setMultiSelectedAttributionIds([]);
+    clearSelection();
   };
 
   return (
     <MuiIconButton
       aria-label={text.packageLists.linkAsAttribution}
       disabled={
-        hasNextPage ||
         isSelectedResourceBreakpoint ||
         isSelectedResourceReadonly ||
-        !selectedAttributionIds.length ||
+        !selectedCount ||
+        selectionSummaryLoading ||
         pickerMode.isActive ||
         mutationsPending
       }

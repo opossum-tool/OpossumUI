@@ -2,13 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type {
-  ComparisonOperatorExpression,
-  ExpressionBuilder,
-  Kysely,
-  OperandExpression,
-  SelectQueryBuilder,
-  Transaction,
+import {
+  type ComparisonOperatorExpression,
+  type ExpressionBuilder,
+  type Kysely,
+  type OperandExpression,
+  type SelectQueryBuilder,
+  sql,
+  type Transaction,
 } from 'kysely';
 
 import type { Criticality } from '../../shared/shared-types';
@@ -200,6 +201,9 @@ export async function removeManualOrExternalCaaFromResources(
     resourceIds?: Array<number> | OperandExpression<number>;
   },
 ) {
+  const attributionUuidSelection = attributionUuids
+    ? sql<string>`(select value from json_each(${JSON.stringify(attributionUuids)}))`
+    : undefined;
   // Run multiple times, since the parent might have different manual/external attributions after the update
   let finished = false;
   while (!finished) {
@@ -245,11 +249,7 @@ export async function removeManualOrExternalCaaFromResources(
                 .as('replacement_is_readonly'),
           ])
           .$if(attributionUuids !== undefined, (eb) =>
-            eb.where(
-              'rta.attribution_uuid',
-              'in',
-              attributionUuids as Array<string>,
-            ),
+            eb.where('rta.attribution_uuid', 'in', attributionUuidSelection!),
           )
           .$if(resourceIds !== undefined, (eb) =>
             eb.where('r.id', 'in', resourceIds!),
@@ -268,7 +268,7 @@ export async function removeManualOrExternalCaaFromResources(
                 eb.where(
                   'attribution_uuid',
                   'not in',
-                  attributionUuids as Array<string>,
+                  attributionUuidSelection!,
                 ),
               )
               .$if(type === 'external', (eb) =>
@@ -315,6 +315,7 @@ export async function addManualOrExternalCaaToResources(
     resourceIds,
   }: { attributionUuids: Array<string>; resourceIds?: Array<number> },
 ) {
+  const attributionUuidSelection = sql<string>`(select value from json_each(${JSON.stringify(attributionUuids)}))`;
   return (
     trxOrDB
       .with('newly_attributed_resources', (db) =>
@@ -332,7 +333,7 @@ export async function addManualOrExternalCaaToResources(
             (eb) => eb.ref(`previous_caa.${type}`).as('previous_value'),
             'previous_caa.breakpoint as closest_breakpoint',
           ])
-          .where('rta.attribution_uuid', 'in', attributionUuids)
+          .where('rta.attribution_uuid', 'in', attributionUuidSelection)
           .$if(resourceIds !== undefined, (eb) =>
             eb.where('rta.resource_id', 'in', resourceIds as Array<number>),
           )
@@ -345,7 +346,7 @@ export async function addManualOrExternalCaaToResources(
                 '=',
                 Number(type === 'external'),
               )
-              .where('attribution_uuid', 'not in', attributionUuids)
+              .where('attribution_uuid', 'not in', attributionUuidSelection)
               .$if(type === 'external', (eb) =>
                 eb.where((eb) =>
                   eb.exists(

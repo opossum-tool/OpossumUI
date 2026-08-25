@@ -97,7 +97,10 @@ describe('backend mutation cache ownership', () => {
           params: { attributionUuid: 'attribution-a' },
         },
       ],
-      affectedAttributionUuids: ['attribution-a'],
+      attributionCacheImpact: {
+        mode: 'targeted',
+        attributionUuids: ['attribution-a'],
+      },
     });
 
     let mutationSettled = false;
@@ -113,5 +116,24 @@ describe('backend mutation cache ownership', () => {
     await mutation;
     expect(mutationSettled).toBe(true);
     unsubscribe();
+  });
+
+  it('invalidates complete attribution lists for a broad cache impact', async () => {
+    const listQueryKey = [
+      'backend',
+      'listAttributions',
+      { external: false },
+    ] as const;
+    queryClient.setQueryData(listQueryKey, {});
+    vi.mocked(window.electronAPI.api).mockResolvedValueOnce({
+      invalidates: [{ queryName: 'listAttributions' }],
+      attributionCacheImpact: { mode: 'broad' },
+    });
+
+    await backend.invalidateGetAttributionData.mutate(undefined);
+
+    await vi.waitFor(() =>
+      expect(queryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(true),
+    );
   });
 });

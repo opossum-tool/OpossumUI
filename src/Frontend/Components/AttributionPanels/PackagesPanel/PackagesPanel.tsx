@@ -7,12 +7,15 @@ import MuiTypography from '@mui/material/Typography';
 import {
   groupBy as _groupBy,
   orderBy as _orderBy,
-  difference,
   intersection,
   isEqual,
 } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import type {
+  AttributionSelection,
+  AttributionSelectionQuery,
+} from '../../../../shared/attribution-selection';
 import type { Attributions, Relation } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import {
@@ -39,6 +42,7 @@ import {
   usePickerMode,
 } from '../../../state/variables/use-picker-mode';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
+import { backend } from '../../../util/backendClient';
 import { getRelationPriority } from '../../../util/sort-attributions';
 import { useFilterProperties } from '../../../util/use-filter-properties';
 import { useInfiniteAttributionsList } from '../../../util/use-infinite-attributions-list';
@@ -74,6 +78,14 @@ export interface PackagesPanelChildrenProps {
   onRetryLoadMore: () => void;
   fetchNextPage: () => Promise<void>;
   hasNextPage: boolean;
+  selection?: AttributionSelection;
+  selectionSummary?: Awaited<
+    ReturnType<typeof backend.getAttributionSelectionSummary.query>
+  >;
+  selectionSummaryLoading?: boolean;
+  isAllMatchingSelected?: boolean;
+  toggleAttributionSelection?: (id: string, selected: boolean) => void;
+  clearSelection?: () => void;
   multiSelectedAttributionIds: Array<string>;
   pickerMode: PickerMode;
   selectedAttributionId: string;
@@ -120,6 +132,8 @@ export const PackagesPanel = ({
 
   const [multiSelectedAttributionIds, setMultiSelectedAttributionIds] =
     useState<Array<string>>([]);
+  const [allMatchingSelection, setAllMatchingSelection] =
+    useState<AttributionSelection | null>(null);
   const [activeRelation, setActiveRelation] = useState<Relation>('resource');
   const updateActiveRelation = setActiveRelation;
   const preserveSelectedAttributionRef = useRef(false);
@@ -221,6 +235,9 @@ export const PackagesPanel = ({
         (relation) => relationCounts[relation] !== undefined,
       )
     : null;
+  const activeRelationCount = activeRelation
+    ? relationCounts?.[activeRelation]
+    : undefined;
 
   // Automatic attribution selection. The first resource page is requested
   // immediately; only an empty resource page waits for relation counts before
@@ -330,13 +347,19 @@ export const PackagesPanel = ({
 
   const selectedAttributionIds = useMemo(
     () =>
-      intersection(
-        multiSelectedAttributionIds.length
-          ? multiSelectedAttributionIds
-          : [selectedAttributionId],
-        attributionIds,
-      )?.filter((id) => attributions?.[id]?.resourceAccess !== 'readonly'),
+      allMatchingSelection?.mode === 'allMatching'
+        ? (activeSelectableAttributionIds?.filter(
+            (id) => !allMatchingSelection.excludedAttributionUuids.includes(id),
+          ) ?? [])
+        : intersection(
+            multiSelectedAttributionIds.length
+              ? multiSelectedAttributionIds
+              : [selectedAttributionId],
+            attributionIds,
+          )?.filter((id) => attributions?.[id]?.resourceAccess !== 'readonly'),
     [
+      activeSelectableAttributionIds,
+      allMatchingSelection,
       attributionIds,
       attributions,
       multiSelectedAttributionIds,
@@ -346,11 +369,20 @@ export const PackagesPanel = ({
 
   const areAllAttributionsSelected = useMemo(() => {
     return (
-      !!activeSelectableAttributionIds?.length &&
-      !difference(activeSelectableAttributionIds, multiSelectedAttributionIds)
-        .length
+      !!activeRelationCount?.editableCount &&
+      (allMatchingSelection?.mode === 'allMatching'
+        ? allMatchingSelection.excludedAttributionUuids.length === 0
+        : intersection(
+            activeSelectableAttributionIds,
+            multiSelectedAttributionIds,
+          ).length === activeRelationCount.editableCount)
     );
-  }, [activeSelectableAttributionIds, multiSelectedAttributionIds]);
+  }, [
+    activeRelationCount,
+    activeSelectableAttributionIds,
+    allMatchingSelection,
+    multiSelectedAttributionIds,
+  ]);
   const effectiveSelectedIds = useMemo(
     () => intersection(attributionIds, multiSelectedAttributionIds),
     [attributionIds, multiSelectedAttributionIds],
@@ -360,16 +392,131 @@ export const PackagesPanel = ({
     effectiveSelectedIds,
   );
 
+  const selectionQuery = useMemo<AttributionSelectionQuery>(
+    () => ({
+      external,
+      filters: attributionFilters,
+      search: filters.search,
+      valueFilters,
+      resourcePathForRelationships: selectedResourceId,
+      showResolved: areHiddenSignalsVisible && external,
+      excludeUnrelated: external || isSelectedResourceReadonly,
+      relation: relationForCurrentResource,
+    }),
+    [
+      areHiddenSignalsVisible,
+      attributionFilters,
+      external,
+      filters.search,
+      isSelectedResourceReadonly,
+      relationForCurrentResource,
+      selectedResourceId,
+      valueFilters,
+    ],
+  );
+  const previousSelectionQuery = usePrevious(selectionQuery);
+  const selection: AttributionSelection = allMatchingSelection ?? {
+    mode: 'explicit',
+    attributionUuids: multiSelectedAttributionIds.length
+      ? multiSelectedAttributionIds
+      : selectedAttributionId
+        ? [selectedAttributionId]
+        : [],
+  };
+  const selectionHasRows =
+    selection.mode === 'allMatching'
+      ? !!activeRelationCount?.editableCount &&
+        selection.excludedAttributionUuids.length <
+          activeRelationCount.editableCount
+      : selection.attributionUuids.length > 0;
+  const selectionSummaryQuery = backend.getAttributionSelectionSummary.useQuery(
+    { selection },
+    { enabled: selectionHasRows && selection.mode === 'allMatching' },
+  );
+  const displayedMultiSelectedAttributionIds =
+    allMatchingSelection?.mode === 'allMatching'
+      ? (activeSelectableAttributionIds?.filter(
+          (id) => !allMatchingSelection.excludedAttributionUuids.includes(id),
+        ) ?? [])
+      : multiSelectedAttributionIds;
+  const clearSelection = useCallback(() => {
+    setAllMatchingSelection(null);
+    setMultiSelectedAttributionIds([]);
+  }, []);
+  useEffect(() => {
+    if (
+      allMatchingSelection?.mode === 'allMatching' &&
+      activeRelationCount !== undefined &&
+      allMatchingSelection.excludedAttributionUuids.length >=
+        activeRelationCount.editableCount
+    ) {
+      clearSelection();
+    }
+  }, [activeRelationCount, allMatchingSelection, clearSelection]);
+  const toggleAttributionSelection = useCallback(
+    (id: string, selected: boolean) => {
+      if (allMatchingSelection?.mode === 'allMatching') {
+        setAllMatchingSelection((current) => {
+          if (current?.mode !== 'allMatching') {
+            return current;
+          }
+          const excluded = new Set(current.excludedAttributionUuids);
+          if (selected) {
+            excluded.delete(id);
+          } else {
+            excluded.add(id);
+          }
+          return {
+            ...current,
+            excludedAttributionUuids: [...excluded],
+          };
+        });
+        setMultiSelectedAttributionIds((current) =>
+          selected
+            ? current.includes(id)
+              ? current
+              : [...current, id]
+            : current.filter((currentId) => currentId !== id),
+        );
+        return;
+      }
+
+      setMultiSelectedAttributionIds((current) =>
+        selected
+          ? current.includes(id)
+            ? current
+            : [...current, id]
+          : current.filter((currentId) => currentId !== id),
+      );
+    },
+    [allMatchingSelection],
+  );
+
+  useEffect(() => {
+    if (
+      allMatchingSelection?.mode === 'allMatching' &&
+      previousSelectionQuery &&
+      !isEqual(previousSelectionQuery, selectionQuery) &&
+      !pickerMode.isActive
+    ) {
+      clearSelection();
+    }
+  }, [
+    allMatchingSelection,
+    clearSelection,
+    pickerMode.isActive,
+    previousSelectionQuery,
+    selectionQuery,
+  ]);
+
   // reset resource-dependent selection state when the selected resource changes
   useEffect(() => {
     if (selectedResourceId !== previousSelectedResourceId) {
-      if (multiSelectedAttributionIds.length) {
-        setMultiSelectedAttributionIds([]);
-      }
+      clearSelection();
       updateActiveRelation('resource');
     }
   }, [
-    multiSelectedAttributionIds.length,
+    clearSelection,
     previousSelectedResourceId,
     selectedResourceId,
     updateActiveRelation,
@@ -385,9 +532,9 @@ export const PackagesPanel = ({
   // reset multi-selected IDs when active relation changes and not in replacement or compare-selection mode
   useEffect(() => {
     if (activeRelation && !pickerMode.isActive) {
-      setMultiSelectedAttributionIds([]);
+      clearSelection();
     }
-  }, [activeRelation, pickerMode.isActive]);
+  }, [activeRelation, clearSelection, pickerMode.isActive]);
 
   // reset active relation when active relation no longer exists
   useEffect(() => {
@@ -430,7 +577,13 @@ export const PackagesPanel = ({
     onRetryLoadMore,
     fetchNextPage,
     hasNextPage,
-    multiSelectedAttributionIds,
+    selection,
+    selectionSummary: selectionSummaryQuery.data,
+    selectionSummaryLoading: selectionSummaryQuery.isLoading,
+    isAllMatchingSelected: allMatchingSelection?.mode === 'allMatching',
+    toggleAttributionSelection,
+    clearSelection,
+    multiSelectedAttributionIds: displayedMultiSelectedAttributionIds,
     pickerMode,
     selectedAttributionId,
     selectedAttributionIds,
@@ -520,7 +673,7 @@ export const PackagesPanel = ({
           <Tab
             wrapped
             key={key}
-            label={`${text.relations[key]} (${new Intl.NumberFormat().format(relationCounts?.[key] ?? 0)})`}
+            label={`${text.relations[key]} (${new Intl.NumberFormat().format(relationCounts?.[key]?.visibleCount ?? 0)})`}
           />
         ))}
       </Tabs>
@@ -544,7 +697,9 @@ export const PackagesPanel = ({
     return (
       <MuiTooltip
         title={
-          multiSelectedAttributionIds.length
+          areAllAttributionsSelected ||
+          multiSelectedAttributionIds.length ||
+          allMatchingSelection?.mode === 'allMatching'
             ? text.packageLists.deselectAll
             : text.packageLists.selectAll
         }
@@ -565,24 +720,38 @@ export const PackagesPanel = ({
         }}
       >
         <Checkbox
-          disabled={
-            !activeSelectableAttributionIds?.length ||
-            pickerMode.isActive ||
-            hasNextPage
-          }
+          disabled={!activeRelationCount?.editableCount || pickerMode.isActive}
           checked={areAllAttributionsSelected}
           indeterminate={
-            !areAllAttributionsSelected && !!multiSelectedAttributionIds.length
+            !areAllAttributionsSelected &&
+            (allMatchingSelection?.mode === 'allMatching'
+              ? allMatchingSelection.excludedAttributionUuids.length > 0
+              : !!multiSelectedAttributionIds.length)
           }
           aria-label={'select all'}
           onChange={() => {
-            activeSelectableAttributionIds &&
+            if (areAllAttributionsSelected) {
+              clearSelection();
+              return;
+            }
+            if (allMatchingSelection?.mode === 'allMatching') {
+              setAllMatchingSelection({
+                ...allMatchingSelection,
+                excludedAttributionUuids: [],
+              });
               setMultiSelectedAttributionIds(
-                areAllAttributionsSelected ||
-                  !!multiSelectedAttributionIds.length
-                  ? []
-                  : activeSelectableAttributionIds,
+                activeSelectableAttributionIds ?? [],
               );
+              return;
+            }
+            if (activeSelectableAttributionIds) {
+              setMultiSelectedAttributionIds(activeSelectableAttributionIds);
+              setAllMatchingSelection({
+                mode: 'allMatching',
+                query: selectionQuery,
+                excludedAttributionUuids: [],
+              });
+            }
           }}
         />
       </MuiTooltip>

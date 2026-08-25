@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { skipToken } from '@tanstack/react-query';
 
+import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { useAppSelector } from '../../state/hooks';
 import { getSelectedResourceId } from '../../state/selectors/resource-selectors';
 import { backend } from '../../util/backendClient';
@@ -14,17 +15,20 @@ export function useLinkedAttributionActionData({
   attributionIds,
   open,
   isMutationPending = false,
+  selection,
 }: {
   attributionIds: Array<string>;
   open: boolean;
   isMutationPending?: boolean;
+  selection?: AttributionSelection;
 }) {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
+  const isQueryWideSelection = selection?.mode === 'allMatching';
 
   const { data: attributions, isSuccess: areAttributionsReady } =
     backend.listAttributions.useQuery(
-      open && !isMutationPending
+      open && !isMutationPending && !isQueryWideSelection
         ? {
             resourcePathForRelationships: selectedResourceId,
             uuids: attributionIds,
@@ -34,7 +38,11 @@ export function useLinkedAttributionActionData({
 
   const linkedResourcesTreeState = useLinkedResourcesTreeState({
     onAttributionUuids: attributionIds,
-    enabled: open && !isMutationPending && areAttributionsReady,
+    enabled:
+      open &&
+      !isMutationPending &&
+      areAttributionsReady &&
+      !isQueryWideSelection,
     onlyWritable: true,
   });
 
@@ -61,8 +69,9 @@ export function useLinkedAttributionActionData({
     linkedResourceCount,
     linkedResourcesTreeState,
     mixedAttributionCount,
-    isResourceInfoReady: areAttributionsReady,
+    isResourceInfoReady: isQueryWideSelection || areAttributionsReady,
     isLocalActionAvailable,
+    isSelectedResourceReadonly,
     selectedResourceId,
   };
 }

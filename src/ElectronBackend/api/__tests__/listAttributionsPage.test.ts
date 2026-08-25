@@ -9,6 +9,7 @@ import {
 } from '../../../testing/global-test-helpers';
 import { listAttributions } from '../listAttributions';
 import {
+  getAttributionSelectionSummary,
   listAttributionRelationCounts,
   listAttributionsPage,
 } from '../listAttributionsPage';
@@ -32,7 +33,7 @@ describe('listAttributionsPage', () => {
         resourcesToAttributions: {
           '/parent/resource': ['resourceOne', 'resourceTwo'],
           '/parent': ['parent'],
-          '/other': ['unrelated'],
+          '/other': ['resourceTwo', 'unrelated'],
         },
         attributionsToResources: {},
       },
@@ -58,7 +59,10 @@ describe('listAttributionsPage', () => {
       resourcePathForRelationships: '/parent/resource',
     });
 
-    expect(counts.result).toEqual({ resource: 2, unrelated: 3 });
+    expect(counts.result).toEqual({
+      resource: { visibleCount: 2, editableCount: 2 },
+      unrelated: { visibleCount: 3, editableCount: 3 },
+    });
   });
 
   it('concatenates into the same relation-specific order as the full query', async () => {
@@ -114,5 +118,30 @@ describe('listAttributionsPage', () => {
     });
     expect(emptyResult.result.attributions).toEqual({});
     expect(emptyResult.result.hasNextPage).toBe(false);
+  });
+
+  it('summarizes a query-wide selection with exclusions', async () => {
+    const summary = await getAttributionSelectionSummary({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/resource',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: ['resourceOne'],
+      },
+    });
+
+    expect(summary.result).toMatchObject({
+      selectedCount: 1,
+      writableLinkedResourceCount: 2,
+      allLinkedToSelectedResource: true,
+    });
   });
 });

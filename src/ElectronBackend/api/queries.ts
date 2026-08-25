@@ -32,6 +32,7 @@ import {
 } from './filters';
 import { listAttributions } from './listAttributions';
 import {
+  getAttributionSelectionSummary,
   listAttributionRelationCounts,
   listAttributionsPage,
 } from './listAttributionsPage';
@@ -132,6 +133,7 @@ export const queries = {
   listAttributions,
   listAttributionRelationCounts,
   listAttributionsPage,
+  getAttributionSelectionSummary,
   getResourceTree,
   getResourceTreeUnreviewedCount,
   manualAttributionStatistics,

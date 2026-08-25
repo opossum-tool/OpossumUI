@@ -19,7 +19,7 @@ import {
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import type { Action } from '../../../../state/configure-store';
-import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-selection-for-replacement';
 import { initialAttributionFilters } from '../../../../state/variables/use-filters';
 import { renderComponent } from '../../../../test-helpers/render';
 import { useInfiniteAttributionsList } from '../../../../util/use-infinite-attributions-list';
@@ -42,10 +42,15 @@ function mockAttributions(
   visibleAttributions: Attributions = attributions,
 ) {
   const relationCounts = Object.values(attributions).reduce<
-    Partial<Record<Relation, number>>
+    Partial<Record<Relation, { visibleCount: number; editableCount: number }>>
   >((counts, attribution) => {
     const relation = attribution.relation ?? 'unrelated';
-    counts[relation] = (counts[relation] ?? 0) + 1;
+    const current = counts[relation] ?? { visibleCount: 0, editableCount: 0 };
+    current.visibleCount += 1;
+    if (attribution.resourceAccess !== 'readonly') {
+      current.editableCount += 1;
+    }
+    counts[relation] = current;
     return counts;
   }, {});
   vi.mocked(useInfiniteAttributionsList).mockReturnValue({
@@ -207,9 +212,10 @@ describe('PackagesPanel', () => {
         [packageInfo.id]: packageInfo,
       }),
       actions: [
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          packageInfo.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [packageInfo.id],
+        }),
       ],
     });
 
@@ -305,6 +311,61 @@ describe('PackagesPanel', () => {
     expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
   });
 
+  it('keeps select all symbolic across unloaded rows and tracks exclusions', async () => {
+    const visibleAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const unloadedAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    let latestProps: PackagesPanelChildrenProps | undefined;
+
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [visibleAttribution.id]: visibleAttribution,
+        [unloadedAttribution.id]: unloadedAttribution,
+      }),
+      visibleAttributions: faker.opossum.attributions({
+        [visibleAttribution.id]: visibleAttribution,
+      }),
+      children: (props) => {
+        latestProps = props;
+        return (
+          <button
+            onClick={() =>
+              props.toggleAttributionSelection?.(visibleAttribution.id, false)
+            }
+          >
+            {'deselect visible'}
+          </button>
+        );
+      },
+    });
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    expect(latestProps?.selection).toMatchObject({
+      mode: 'allMatching',
+      excludedAttributionUuids: [],
+    });
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'deselect visible' }),
+    );
+    expect(latestProps?.selection).toMatchObject({
+      mode: 'allMatching',
+      excludedAttributionUuids: [visibleAttribution.id],
+    });
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).toHaveAttribute('data-indeterminate', 'true');
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    expect(latestProps?.selection).toMatchObject({
+      mode: 'allMatching',
+      excludedAttributionUuids: [],
+    });
+  });
+
   it('selects only editable attributions when readonly cards are visible', async () => {
     const editableAttribution = faker.opossum.packageInfo({
       relation: 'resource',
@@ -392,9 +453,10 @@ describe('PackagesPanel', () => {
         </button>
       ),
       actions: [
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          packageInfo1.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [packageInfo1.id],
+        }),
       ],
     });
 
@@ -428,9 +490,10 @@ describe('PackagesPanel', () => {
         </button>
       ),
       actions: [
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          packageInfo1.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [packageInfo1.id],
+        }),
       ],
     });
 

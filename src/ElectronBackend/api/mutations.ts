@@ -2,10 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { Kysely } from 'kysely';
 import { omit } from 'lodash-es';
 
+import {
+  type AttributionSelection,
+  excludeAttributionFromAllMatchingSelection,
+} from '../../shared/attribution-selection';
 import type { Attributions } from '../../shared/shared-types';
+import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
+import type { DB } from '../db/generated/databaseTypes';
+import { resolveAttributionSelection } from './listAttributionsPage';
 import {
   addManualOrExternalCaaToResources,
   removeManualOrExternalCaaFromResources,
@@ -18,7 +26,6 @@ import {
   ensureAttributionsAreNotReadonly,
   ensureResourceIsWritable,
   findMatchingAttributionUuid,
-  getAttributionOrThrow,
   getEffectiveManualAttributionUuids,
   getResourceOrThrow,
   linkAttributions,
@@ -31,6 +38,39 @@ import {
   withBatching,
 } from './utils';
 
+type AttributionSelectionParams =
+  { attributionUuids: Array<string> } | { selection: AttributionSelection };
+
+async function resolveSelection(
+  trx: Kysely<DB>,
+  params: AttributionSelectionParams,
+) {
+  return 'selection' in params
+    ? resolveAttributionSelection(trx, params.selection)
+    : params.attributionUuids;
+}
+
+function isAllMatchingSelection(
+  params: { selection?: AttributionSelection } | AttributionSelectionParams,
+) {
+  return 'selection' in params && params.selection?.mode === 'allMatching';
+}
+
+async function getAttributionsByUuid(trx: Kysely<DB>, uuids: Array<string>) {
+  return (
+    await withBatching(uuids, async (batch) => {
+      if (batch === undefined || batch.length === 0) {
+        return [];
+      }
+      return trx
+        .selectFrom('attribution')
+        .selectAll()
+        .where('uuid', 'in', batch)
+        .execute();
+    })
+  ).flat();
+}
+
 type QueryInvalidation<Q extends QueryName> = {
   queryName: Q;
   params?: QueryParams<Q>;
@@ -41,12 +81,45 @@ type QueryInvalidationUnion = {
   [Q in QueryName]: QueryInvalidation<Q>;
 }[QueryName];
 
+export type AttributionCacheImpact =
+  { mode: 'targeted'; attributionUuids: Array<string> } | { mode: 'broad' };
+
+export const MAX_TARGETED_CACHE_UUIDS = 1_000;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MutationFunction = (params?: any) => Promise<{
   result?: unknown;
   invalidates?: Array<QueryInvalidationUnion>;
   affectedAttributionUuids?: Array<string>;
+  attributionCacheImpact?: AttributionCacheImpact;
 }>;
+
+function getAttributionCacheImpact(
+  ...attributionUuidGroups: Array<Iterable<string>>
+): AttributionCacheImpact {
+  const attributionUuids = new Set<string>();
+  for (const attributionUuidGroup of attributionUuidGroups) {
+    for (const attributionUuid of attributionUuidGroup) {
+      attributionUuids.add(attributionUuid);
+      if (attributionUuids.size > MAX_TARGETED_CACHE_UUIDS) {
+        return { mode: 'broad' };
+      }
+    }
+  }
+
+  return { mode: 'targeted', attributionUuids: [...attributionUuids] };
+}
+
+function getAttributionDetailInvalidations(
+  attributionCacheImpact: AttributionCacheImpact,
+): Array<QueryInvalidationUnion> {
+  return attributionCacheImpact.mode === 'targeted'
+    ? attributionCacheImpact.attributionUuids.map((attributionUuid) => ({
+        queryName: 'getAttributionData' as const,
+        params: { attributionUuid },
+      }))
+    : [{ queryName: 'getAttributionData' }];
+}
 
 const PROGRESS_BAR_INVALIDATIONS: Array<QueryInvalidationUnion> = [
   { queryName: 'getAttributionProgressBarData' },
@@ -64,6 +137,8 @@ const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<QueryInvalidationUnion> = [
   { queryName: 'filterProperties' },
   { queryName: 'licenseTable' },
   { queryName: 'autoCompleteOptions' },
+  { queryName: 'listAttributionsPage' },
+  { queryName: 'getAttributionSelectionSummary' },
 ];
 
 const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<QueryInvalidationUnion> = [
@@ -89,55 +164,53 @@ export const mutations = {
       invalidates: [{ queryName: 'getAttributionData' }],
     });
   },
-  async deleteAttributions(params: { attributionUuids: Array<string> }) {
+  async deleteAttributions(params: AttributionSelectionParams) {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
+        const attributionUuids = await resolveSelection(trx, params);
         const oldUuidsToNewUuids =
           await cloneMixedAttributionsForWritableResources(
             trx,
-            params.attributionUuids,
+            attributionUuids,
           );
-        const attributionUuids = params.attributionUuids.map(
+        const writableAttributionUuids = attributionUuids.map(
           (attributionUuid) => oldUuidsToNewUuids[attributionUuid],
         );
-        const impactedResources = new Set<number>();
-        for (const attributionUuid of attributionUuids) {
-          const existingAttribution = await getAttributionOrThrow(
-            trx,
-            attributionUuid,
-          );
-
-          if (existingAttribution.is_external) {
-            throw new Error(
-              "External attributions can't be deleted, they can only be resolved",
-            );
-          }
-
-          const connectedResources = await trx
-            .selectFrom('resource_to_attribution')
-            .select('resource_id')
-            .where('attribution_uuid', '=', attributionUuid)
-            .execute();
-
-          connectedResources.forEach((r) =>
-            impactedResources.add(r.resource_id),
-          );
-        }
+        await ensureAttributionsAreNotExternal(trx, writableAttributionUuids);
+        const impactedResources = new Set(
+          (
+            await withBatching(writableAttributionUuids, async (batch) => {
+              if (!batch?.length) {
+                return [];
+              }
+              return trx
+                .selectFrom('resource_to_attribution')
+                .select('resource_id')
+                .where('attribution_uuid', 'in', batch)
+                .execute();
+            })
+          )
+            .flat()
+            .map((row) => row.resource_id),
+        );
 
         const effectiveAttributionUuidsBefore =
           await getEffectiveManualAttributionUuids(trx, [...impactedResources]);
 
         await removeManualOrExternalCaaFromResources(trx, 'manual', {
-          attributionUuids,
+          attributionUuids: writableAttributionUuids,
         });
 
-        for (const attributionUuid of attributionUuids) {
+        await withBatching(writableAttributionUuids, async (batch) => {
+          if (!batch?.length) {
+            return;
+          }
           await trx
             .deleteFrom('attribution')
-            .where('uuid', '=', attributionUuid)
+            .where('uuid', 'in', batch)
             .execute();
-        }
+        });
 
         const redundantAttributionUuids = await removeRedundantAttributions(
           trx,
@@ -148,6 +221,7 @@ export const mutations = {
         const effectiveAttributionUuidsAfter =
           await getEffectiveManualAttributionUuids(trx, [...impactedResources]);
         return {
+          attributionUuids,
           oldUuidsToNewUuids,
           redundantAttributionUuids,
           effectiveAttributionUuidsBefore,
@@ -155,49 +229,69 @@ export const mutations = {
         };
       });
 
+    const attributionCacheImpact = getAttributionCacheImpact(
+      result.attributionUuids,
+      Object.values(result.oldUuidsToNewUuids),
+      result.redundantAttributionUuids,
+      result.effectiveAttributionUuidsBefore,
+      result.effectiveAttributionUuidsAfter,
+    );
     return {
       invalidates: [
-        ...params.attributionUuids.map((attributionUuid) => ({
-          queryName: 'getAttributionData' as const,
-          params: { attributionUuid },
-        })),
+        ...getAttributionDetailInvalidations(attributionCacheImpact),
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         { queryName: 'getResourceInfoOnAttributions' },
       ],
-      affectedAttributionUuids: uniqueAttributionUuids(
-        params.attributionUuids,
-        Object.values(result.oldUuidsToNewUuids),
-        result.redundantAttributionUuids,
-        result.effectiveAttributionUuidsBefore,
-        result.effectiveAttributionUuidsAfter,
-      ),
+      attributionCacheImpact,
     };
   },
 
   async replaceAttributions(params: {
-    attributionUuidsToReplace: Array<string>;
+    attributionUuidsToReplace?: Array<string>;
+    selection?: AttributionSelection;
     attributionUuidToReplaceWith: string;
   }) {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
-        return replaceAttributions(trx, params);
+        const selection = params.selection
+          ? excludeAttributionFromAllMatchingSelection(
+              params.selection,
+              params.attributionUuidToReplaceWith,
+            )
+          : undefined;
+        const attributionUuidsToReplace = await resolveSelection(trx, {
+          ...(selection
+            ? { selection }
+            : { attributionUuids: params.attributionUuidsToReplace ?? [] }),
+        });
+        if (
+          attributionUuidsToReplace.includes(
+            params.attributionUuidToReplaceWith,
+          )
+        ) {
+          throw new Error('An attribution cannot replace itself.');
+        }
+        return replaceAttributions(trx, {
+          ...params,
+          attributionUuidsToReplace,
+        });
       });
 
+    const attributionCacheImpact = getAttributionCacheImpact(
+      result.affectedAttributionUuids,
+    );
     return {
       invalidates: [
-        ...params.attributionUuidsToReplace.map((attributionUuid) => ({
-          queryName: 'getAttributionData' as const,
-          params: { attributionUuid },
-        })),
+        ...getAttributionDetailInvalidations(attributionCacheImpact),
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         { queryName: 'getResourceInfoOnAttributions' },
       ],
-      affectedAttributionUuids: result.affectedAttributionUuids,
+      attributionCacheImpact,
     };
   },
 
@@ -242,25 +336,82 @@ export const mutations = {
     };
   },
 
-  async unlinkResourceFromAttributions(params: {
-    resourcePath: string;
-    attributionUuids: Array<string>;
+  async updateAttributionProperty(params: {
+    selection: AttributionSelection;
+    property: 'needsReview' | 'followUp' | 'excludeFromNotice';
+    value: boolean;
   }) {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
+        const attributionUuids = await resolveSelection(trx, params);
+        const oldUuidsToNewUuids =
+          await cloneMixedAttributionsForWritableResources(
+            trx,
+            attributionUuids,
+          );
+        const writableAttributionUuids = attributionUuids.map(
+          (uuid) => oldUuidsToNewUuids[uuid] ?? uuid,
+        );
+        const update =
+          params.property === 'needsReview'
+            ? { needs_review: Number(params.value) }
+            : params.property === 'followUp'
+              ? { follow_up: Number(params.value) }
+              : { exclude_from_notice: Number(params.value) };
+        await withBatching(writableAttributionUuids, async (batch) => {
+          if (!batch?.length) {
+            return;
+          }
+          await trx
+            .updateTable('attribution')
+            .set(update)
+            .where('uuid', 'in', batch)
+            .execute();
+        });
+        return { attributionUuids, oldUuidsToNewUuids };
+      });
+    const attributionCacheImpact = getAttributionCacheImpact(
+      result.attributionUuids,
+      Object.values(result.oldUuidsToNewUuids),
+    );
+    return {
+      invalidates: [
+        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
+        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
+        ...RESOURCE_TREE_INVALIDATIONS,
+        ...getAttributionDetailInvalidations(attributionCacheImpact),
+        { queryName: 'getResourceInfoOnAttributions' },
+      ],
+      attributionCacheImpact,
+    };
+  },
+
+  async unlinkResourceFromAttributions(params: {
+    resourcePath: string;
+    attributionUuids?: Array<string>;
+    selection?: AttributionSelection;
+  }) {
+    const result = await getDb()
+      .transaction()
+      .execute(async (trx) => {
+        const attributionUuids = await resolveSelection(trx, {
+          ...(params.selection
+            ? { selection: params.selection }
+            : { attributionUuids: params.attributionUuids ?? [] }),
+        });
         const resource = await getResourceOrThrow(trx, params.resourcePath);
         ensureResourceIsWritable(resource);
         const effectiveAttributionUuidsBefore =
           await getEffectiveManualAttributionUuids(trx, [resource.id]);
         await removeManualOrExternalCaaFromResources(trx, 'manual', {
-          attributionUuids: params.attributionUuids,
+          attributionUuids,
           resourceIds: [resource.id],
         });
 
-        await ensureAttributionsAreNotExternal(trx, params.attributionUuids);
+        await ensureAttributionsAreNotExternal(trx, attributionUuids);
 
-        await unlinkAttributions(trx, resource.id, params.attributionUuids);
+        await unlinkAttributions(trx, resource.id, attributionUuids);
 
         const redundantAttributionUuids = await removeRedundantAttributions(
           trx,
@@ -269,29 +420,28 @@ export const mutations = {
         const effectiveAttributionUuidsAfter =
           await getEffectiveManualAttributionUuids(trx, [resource.id]);
         return {
+          attributionUuids,
           redundantAttributionUuids,
           effectiveAttributionUuidsBefore,
           effectiveAttributionUuidsAfter,
         };
       });
 
+    const attributionCacheImpact = getAttributionCacheImpact(
+      result.attributionUuids,
+      result.redundantAttributionUuids,
+      result.effectiveAttributionUuidsBefore,
+      result.effectiveAttributionUuidsAfter,
+    );
     return {
       invalidates: [
-        ...params.attributionUuids.map((attributionUuid) => ({
-          queryName: 'getAttributionData' as const,
-          params: { attributionUuid },
-        })),
+        ...getAttributionDetailInvalidations(attributionCacheImpact),
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         { queryName: 'getResourceInfoOnAttributions' } as const,
       ],
-      affectedAttributionUuids: uniqueAttributionUuids(
-        params.attributionUuids,
-        result.redundantAttributionUuids,
-        result.effectiveAttributionUuidsBefore,
-        result.effectiveAttributionUuidsAfter,
-      ),
+      attributionCacheImpact,
     };
   },
 
@@ -309,7 +459,8 @@ export const mutations = {
 
   async modifyOrMatchOnlyOnOneResource(params: {
     resourcePath: string;
-    attributions: Attributions;
+    attributions?: Attributions;
+    selection?: AttributionSelection;
   }) {
     const result = await getDb()
       .transaction()
@@ -318,7 +469,17 @@ export const mutations = {
         ensureResourceIsWritable(resource);
         const effectiveAttributionUuidsBefore =
           await getEffectiveManualAttributionUuids(trx, [resource.id]);
-        const inputUuids = Object.keys(params.attributions);
+        const inputUuids = params.selection
+          ? await resolveSelection(trx, { selection: params.selection })
+          : Object.keys(params.attributions ?? {});
+        const attributions = params.attributions
+          ? params.attributions
+          : Object.fromEntries(
+              (await getAttributionsByUuid(trx, inputUuids)).map((row) => [
+                row.uuid,
+                packageInfoFromAttributionRow(row),
+              ]),
+            );
         await ensureAttributionsAreNotExternal(trx, inputUuids);
         await ensureAttributionsAreLinkedOnMultipleResources(trx, inputUuids);
 
@@ -326,7 +487,7 @@ export const mutations = {
 
         const oldUuidsToNewUuids = await matchOrCreateAttributions(
           trx,
-          params.attributions,
+          attributions,
         );
 
         await linkAttributions(
@@ -347,41 +508,54 @@ export const mutations = {
           await getEffectiveManualAttributionUuids(trx, [resource.id]);
 
         return {
+          inputUuids,
           oldUuidsToNewUuids,
           redundantAttributionUuids,
           effectiveAttributionUuidsBefore,
           effectiveAttributionUuidsAfter,
         };
       });
+    const attributionCacheImpact = getAttributionCacheImpact(
+      result.inputUuids,
+      Object.values(result.oldUuidsToNewUuids),
+      result.redundantAttributionUuids,
+      result.effectiveAttributionUuidsBefore,
+      result.effectiveAttributionUuidsAfter,
+    );
     return {
       invalidates: [
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
-        ...Object.keys(params.attributions).map((attributionUuid) => ({
-          queryName: 'getAttributionData' as const,
-          params: { attributionUuid },
-        })),
+        ...getAttributionDetailInvalidations(attributionCacheImpact),
         { queryName: 'getResourceInfoOnAttributions' },
       ],
-      result,
-      affectedAttributionUuids: uniqueAttributionUuids(
-        Object.keys(params.attributions),
-        Object.values(result.oldUuidsToNewUuids),
-        result.redundantAttributionUuids,
-        result.effectiveAttributionUuidsBefore,
-        result.effectiveAttributionUuidsAfter,
-      ),
+      result: isAllMatchingSelection(params)
+        ? { oldUuidsToNewUuids: {} as Record<string, string> }
+        : result,
+      attributionCacheImpact,
     };
   },
 
   async createOrMatchAttributions(params: {
     resourcePath: string;
-    attributions: Attributions;
+    attributions?: Attributions;
+    selection?: AttributionSelection;
   }) {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
+        const selectionUuids = params.selection
+          ? await resolveSelection(trx, { selection: params.selection })
+          : [];
+        const attributions = params.attributions
+          ? params.attributions
+          : Object.fromEntries(
+              (await getAttributionsByUuid(trx, selectionUuids)).map((row) => [
+                row.uuid,
+                packageInfoFromAttributionRow(row),
+              ]),
+            );
         const resource = await getResourceOrThrow(trx, params.resourcePath);
         ensureResourceIsWritable(resource);
         const effectiveAttributionUuidsBefore =
@@ -389,7 +563,7 @@ export const mutations = {
 
         const inputKeysToNewUuids = await matchOrCreateAttributions(
           trx,
-          params.attributions,
+          attributions,
           { ignorePreSelected: true },
         );
 
@@ -421,32 +595,50 @@ export const mutations = {
         };
       });
 
+    const attributionCacheImpact = getAttributionCacheImpact(
+      Object.values(result.inputKeysToNewUuids),
+      result.redundantAttributionUuids,
+      result.effectiveAttributionUuidsBefore,
+      result.effectiveAttributionUuidsAfter,
+    );
     return {
       invalidates: [
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
-        { queryName: 'getAttributionData' },
+        ...getAttributionDetailInvalidations(attributionCacheImpact),
         { queryName: 'getResourceInfoOnAttributions' },
       ],
-      result,
-      affectedAttributionUuids: uniqueAttributionUuids(
-        Object.values(result.inputKeysToNewUuids),
-        result.redundantAttributionUuids,
-        result.effectiveAttributionUuidsBefore,
-        result.effectiveAttributionUuidsAfter,
-      ),
+      result: isAllMatchingSelection(params)
+        ? { inputKeysToNewUuids: {} as Record<string, string> }
+        : result,
+      attributionCacheImpact,
     };
   },
 
-  async updateOrMatchAttributions(params: { attributions: Attributions }) {
+  async updateOrMatchAttributions(params: {
+    attributions?: Attributions;
+    selection?: AttributionSelection;
+    focusedAttributionUuid?: string;
+  }) {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
+        const inputUuids = params.selection
+          ? await resolveSelection(trx, { selection: params.selection })
+          : Object.keys(params.attributions ?? {});
+        const attributions = params.attributions
+          ? params.attributions
+          : Object.fromEntries(
+              (await getAttributionsByUuid(trx, inputUuids)).map((row) => [
+                row.uuid,
+                packageInfoFromAttributionRow(row),
+              ]),
+            );
         const oldUuidsToNewUuids: Record<string, string> = {};
         const affectedAttributionUuids: Array<string> = [];
         for (const [attributionUuid, attributionData] of Object.entries(
-          params.attributions,
+          attributions,
         )) {
           const splitUuids = await cloneMixedAttributionsForWritableResources(
             trx,
@@ -479,45 +671,53 @@ export const mutations = {
             oldUuidsToNewUuids[attributionUuid] = writableAttributionUuid;
           }
         }
-        return { oldUuidsToNewUuids, affectedAttributionUuids };
+        return { inputUuids, oldUuidsToNewUuids, affectedAttributionUuids };
       });
+    const attributionCacheImpact = getAttributionCacheImpact(
+      result.inputUuids,
+      Object.values(result.oldUuidsToNewUuids),
+      result.affectedAttributionUuids,
+    );
+    const focusedAttributionUuid = params.focusedAttributionUuid;
+    const focusedAttributionNewUuid = focusedAttributionUuid
+      ? result.oldUuidsToNewUuids[focusedAttributionUuid]
+      : undefined;
+    const focusedAttributionRemapping =
+      focusedAttributionUuid && focusedAttributionNewUuid
+        ? { [focusedAttributionUuid]: focusedAttributionNewUuid }
+        : {};
     return {
       invalidates: [
-        ...Object.keys(params.attributions).map((attributionUuid) => ({
-          queryName: 'getAttributionData' as const,
-          params: { attributionUuid },
-        })),
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         ...RESOURCE_TREE_INVALIDATIONS,
-        { queryName: 'getAttributionData' },
+        ...getAttributionDetailInvalidations(attributionCacheImpact),
         { queryName: 'getResourceInfoOnAttributions' },
       ],
-      result,
-      affectedAttributionUuids: uniqueAttributionUuids(
-        Object.keys(params.attributions),
-        Object.values(result.oldUuidsToNewUuids),
-        result.affectedAttributionUuids,
-      ),
+      result: isAllMatchingSelection(params)
+        ? { oldUuidsToNewUuids: focusedAttributionRemapping }
+        : result,
+      attributionCacheImpact,
     };
   },
 
-  async resolveAttributions(params: { attributionUuids: Array<string> }) {
-    return setAttributionsResolvedStatus(params.attributionUuids, true);
+  async resolveAttributions(params: AttributionSelectionParams) {
+    return setAttributionsResolvedStatus(params, true);
   },
 
-  async unresolveAttributions(params: { attributionUuids: Array<string> }) {
-    return setAttributionsResolvedStatus(params.attributionUuids, false);
+  async unresolveAttributions(params: AttributionSelectionParams) {
+    return setAttributionsResolvedStatus(params, false);
   },
 } satisfies Record<string, MutationFunction>;
 
 async function setAttributionsResolvedStatus(
-  attributionUuids: Array<string>,
+  params: AttributionSelectionParams,
   resolvedStatus: boolean,
 ) {
-  await getDb()
+  const attributionUuids = await getDb()
     .transaction()
     .execute(async (trx) => {
+      const attributionUuids = await resolveSelection(trx, params);
       await ensureAttributionsAreNotReadonly(trx, attributionUuids);
       await withBatching(
         attributionUuids,
@@ -557,18 +757,17 @@ async function setAttributionsResolvedStatus(
         // The main problem is updating the caa table, which can only take 15_000 attributionUuids
         { batchSize: 15_000 },
       );
+      return attributionUuids;
     });
+  const attributionCacheImpact = getAttributionCacheImpact(attributionUuids);
   return {
     invalidates: [
       ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
       ...EXTERNAL_ATTRIBUTION_INVALIDATIONS,
-      ...attributionUuids.map((attributionUuid) => ({
-        queryName: 'getAttributionData' as const,
-        params: { attributionUuid },
-      })),
+      ...getAttributionDetailInvalidations(attributionCacheImpact),
       { queryName: 'getResourceTree' } as const,
     ],
-    affectedAttributionUuids: uniqueAttributionUuids(attributionUuids),
+    attributionCacheImpact,
   };
 }
 

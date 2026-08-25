@@ -25,6 +25,125 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmSavePopup } from '../ConfirmSavePopup';
 
 describe('ConfirmSavePopup', () => {
+  it('confirms a query-wide selection without loading its IDs in the renderer', async () => {
+    const first = faker.opossum.packageInfo({
+      packageName: 'first',
+      preSelected: true,
+    });
+    const second = faker.opossum.packageInfo({
+      packageName: 'second',
+      preSelected: true,
+    });
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+
+    await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={noop}
+        attributionIdsToSave={[]}
+        selection={{
+          mode: 'allMatching',
+          query: {
+            external: false,
+            filters: ['preSelected'],
+            search: '',
+            valueFilters: {},
+            resourcePathForRelationships: resource,
+            showResolved: false,
+            excludeUnrelated: false,
+            relation: 'resource',
+          },
+          excludedAttributionUuids: [],
+        }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [first.id]: first,
+            [second.id]: second,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [first.id, second.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+        actions: [setSelectedResourceId(resource)],
+      },
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.saveAttributionsPopup.confirm,
+      }),
+    );
+
+    await expectManualAttributions({
+      [first.id]: { ...first, preSelected: undefined },
+      [second.id]: { ...second, preSelected: undefined },
+    });
+  });
+
+  it('preserves focus when a query-wide save matches an existing attribution', async () => {
+    const focused = faker.opossum.packageInfo({
+      packageName: 'matching-package',
+      preSelected: true,
+    });
+    const matching = {
+      ...focused,
+      id: faker.string.uuid(),
+      preSelected: undefined,
+    };
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    const { store } = await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={noop}
+        attributionIdsToSave={[]}
+        selection={{
+          mode: 'allMatching',
+          query: {
+            external: false,
+            filters: ['preSelected'],
+            search: '',
+            valueFilters: {},
+            resourcePathForRelationships: resource,
+            showResolved: false,
+            excludeUnrelated: false,
+            relation: 'resource',
+          },
+          excludedAttributionUuids: [],
+        }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [focused.id]: focused,
+            [matching.id]: matching,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [focused.id, matching.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+        actions: [
+          setTemporaryDisplayPackageInfo(focused),
+          setSelectedAttributionId(focused.id),
+          setSelectedResourceId(resource),
+        ],
+      },
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.saveAttributionsPopup.confirm,
+      }),
+    );
+
+    await waitFor(() =>
+      expect(getSelectedAttributionId(store.getState())).toBe(matching.id),
+    );
+  });
+
   it('saves attribution linked to a single resource', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo({ id: packageInfo1.id });
