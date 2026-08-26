@@ -29,13 +29,11 @@ import type {
 } from '../../ElectronBackend/api/queries';
 import { queryClient } from '../Components/AppContainer/queryClient';
 import { traceFrontendPhase } from './frontend-performance-tracing';
-import {
-  enqueueAttributionListReconciliation,
-  enqueueAttributionPageReconciliation,
-} from './reconcile-attribution-lists';
+import { enqueueAttributionPageReconciliation } from './reconcile-attribution-lists';
 
 export const ATTRIBUTION_NAVIGATION_QUERY_KEY = [
-  'attribution-navigation',
+  'backend',
+  'locateAttribution',
 ] as const satisfies QueryKey;
 
 // We use the same options as tanstack query, with the exception that the
@@ -155,7 +153,8 @@ function queryParamsContainAffectedAttribution(
   }
 
   if (
-    (queryName === 'getResourceInfoOnAttributions' ||
+    (queryName === 'getAttributions' ||
+      queryName === 'getResourceInfoOnAttributions' ||
       queryName === 'resourceAndAttributionAreLinked') &&
     Array.isArray(queryParams.attributionUuids)
   ) {
@@ -297,18 +296,12 @@ export const backend = new Proxy({} as BackendClient, {
         'invalidates' in response && response.invalidates
           ? response.invalidates
           : [];
-      const invalidatesLegacyAttributions = invalidations.some(
-        (invalidation) => invalidation.queryName === 'listAttributions',
-      );
       const invalidatesPaginatedAttributions = invalidations.some(
         (invalidation) => invalidation.queryName === 'listAttributionsPage',
       );
 
       for (const invalidation of invalidations) {
-        if (
-          invalidation.queryName === 'listAttributions' ||
-          invalidation.queryName === 'listAttributionsPage'
-        ) {
+        if (invalidation.queryName === 'listAttributionsPage') {
           continue;
         }
 
@@ -348,46 +341,7 @@ export const backend = new Proxy({} as BackendClient, {
           affectedUuids,
         );
 
-        if (
-          affectedAttributionUuids !== undefined &&
-          !hasBroadAttributionCacheImpact
-        ) {
-          await traceFrontendPhase(
-            'mutation.reconcile-legacy-list',
-            {
-              mutation: command,
-              affectedCount: affectedAttributionUuids.length,
-            },
-            () =>
-              enqueueAttributionListReconciliation({
-                queryClient,
-                affectedAttributionUuids,
-                fetchAttributions: async (listParams) => {
-                  const listResponse = await window.electronAPI.api(
-                    'listAttributions',
-                    listParams,
-                  );
-                  return listResponse.result;
-                },
-              }),
-          );
-        } else if (
-          invalidatesLegacyAttributions ||
-          hasBroadAttributionCacheImpact
-        ) {
-          const legacyQueryKeys = getCachedQueryKeys({
-            queryName: 'listAttributions',
-          });
-          legacyQueryKeys.forEach((queryKey) => {
-            secondaryQueryKeys.set(queryKeyHash(queryKey), queryKey);
-          });
-        }
-
-        if (
-          invalidatesLegacyAttributions ||
-          invalidatesPaginatedAttributions ||
-          affectedUuids.size > 0
-        ) {
+        if (invalidatesPaginatedAttributions || affectedUuids.size > 0) {
           await traceFrontendPhase(
             'mutation.reconcile-pages',
             { mutation: command },
@@ -412,7 +366,6 @@ export const backend = new Proxy({} as BackendClient, {
       }
 
       if (
-        invalidatesLegacyAttributions ||
         invalidatesPaginatedAttributions ||
         affectedUuids.size > 0 ||
         hasBroadAttributionCacheImpact
@@ -491,11 +444,6 @@ export const backend = new Proxy({} as BackendClient, {
 });
 
 export async function invalidateBackendQueries() {
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: ['backend'] }),
-    queryClient.invalidateQueries({
-      queryKey: ATTRIBUTION_NAVIGATION_QUERY_KEY,
-    }),
-  ]);
+  await queryClient.invalidateQueries({ queryKey: ['backend'] });
   return undefined;
 }

@@ -6,7 +6,7 @@ import type {
   AttributionFilterKey,
   AttributionValueFilters,
 } from '../../../shared/attribution-filters';
-import type { SortOption } from '../../Components/SortButton/useSortingOptions';
+import type { SortOption } from '../../../shared/attribution-result-set';
 import { useVariable } from './use-variable';
 
 export const MANUAL_ATTRIBUTION_FILTERS_AUDIT =

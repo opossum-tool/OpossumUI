@@ -2,11 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type {
-  AttributionFilterKey,
-  AttributionValueFilters,
-} from './attribution-filters';
-import type { Relation } from './shared-types';
+import type { AttributionSelectionCriteria } from './attribution-result-set';
 
 export type FocusedAttributionOutcome =
   | { status: 'unchanged' }
@@ -18,16 +14,7 @@ export type FocusedAttributionOutcome =
     };
 
 /** The part of an attribution-list query that defines its result set. */
-export interface AttributionSelectionQuery {
-  external: boolean;
-  filters: Array<AttributionFilterKey>;
-  search: string;
-  valueFilters: AttributionValueFilters;
-  resourcePathForRelationships: string;
-  showResolved: boolean;
-  excludeUnrelated: boolean;
-  relation: Relation;
-}
+export type AttributionSelectionQuery = AttributionSelectionCriteria;
 
 export type AllMatchingAttributionSelection = {
   mode: 'allMatching';

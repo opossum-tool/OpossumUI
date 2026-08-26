@@ -9,7 +9,7 @@ import {
 } from '../../../testing/global-test-helpers';
 import { getDb } from '../../db/db';
 import { AttributionResourceAccess } from '../../types/types';
-import { listAttributions } from '../listAttributions';
+import { listAttributionsPage } from '../listAttributionsPage';
 import {
   type AttributionCacheImpact,
   MAX_TARGETED_CACHE_UUIDS,
@@ -160,9 +160,21 @@ describe('attribution resource access', () => {
         new: { id: 'new', criticality: Criticality.None },
       },
     });
-    const { result: attributions } = await listAttributions({
+    const { result: page } = await listAttributionsPage({
       external: false,
+      filters: [],
+      search: '',
+      valueFilters: {},
+      resourcePathForRelationships: '',
+      showResolved: true,
+      excludeUnrelated: false,
+      scope: { mode: 'all' },
+      sort: 'alphabetically',
+      includeReadonly: true,
+      offset: 0,
+      limit: 200,
     });
+    const attributions = page.attributions;
 
     const createdAttributionUuid = (
       await getDb()
@@ -249,9 +261,21 @@ describe('attribution resource access', () => {
 
     expectExactAffectedAttributionUuids(response, ['shared']);
 
-    const { result: attributions } = await listAttributions({
+    const { result: page } = await listAttributionsPage({
       external: false,
+      filters: [],
+      search: '',
+      valueFilters: {},
+      resourcePathForRelationships: '',
+      showResolved: true,
+      excludeUnrelated: false,
+      scope: { mode: 'all' },
+      sort: 'alphabetically',
+      includeReadonly: true,
+      offset: 0,
+      limit: 200,
     });
+    const attributions = page.attributions;
 
     expect(attributions).toEqual({});
     expect(await resourceAccessOf('shared')).toBe(
@@ -385,11 +409,21 @@ describe('mixed attribution mutations', () => {
         .where('package_name', '=', 'updated')
         .executeTakeFirstOrThrow()
     ).uuid;
-    const { result } = await listAttributions({
+    const { result: page } = await listAttributionsPage({
       external: false,
       resourcePathForRelationships: '/readonly/file.ts',
       includeReadonly: true,
+      filters: [],
+      search: '',
+      valueFilters: {},
+      showResolved: true,
+      excludeUnrelated: false,
+      scope: { mode: 'all' },
+      sort: 'alphabetically',
+      offset: 0,
+      limit: 200,
     });
+    const result = page.attributions;
 
     expect(result.shared).toMatchObject({
       relation: 'resource',

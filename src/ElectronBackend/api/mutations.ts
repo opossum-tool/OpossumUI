@@ -196,7 +196,7 @@ const PROGRESS_BAR_INVALIDATIONS: Array<QueryInvalidationUnion> = [
 
 const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<QueryInvalidationUnion> = [
   ...PROGRESS_BAR_INVALIDATIONS,
-  { queryName: 'listAttributions' },
+  { queryName: 'getAttributions' },
   { queryName: 'listAttributionRelationCounts' },
   { queryName: 'filterProperties' },
   { queryName: 'licenseTable' },

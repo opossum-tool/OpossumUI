@@ -30,11 +30,13 @@ import {
   getSearchExpression,
   getValueFilterExpression,
 } from './filters';
-import { listAttributions } from './listAttributions';
+import { getAttributions } from './getAttributions';
 import {
   getAttributionSelectionSummary,
+  listAttributionPreview,
   listAttributionRelationCounts,
   listAttributionsPage,
+  locateAttribution,
 } from './listAttributionsPage';
 import {
   getAttributionProgressBarData,
@@ -130,9 +132,11 @@ export const queries = {
   async isProjectSplit() {
     return { result: await isProjectSplit() };
   },
-  listAttributions,
+  getAttributions,
   listAttributionRelationCounts,
   listAttributionsPage,
+  listAttributionPreview,
+  locateAttribution,
   getAttributionSelectionSummary,
   getResourceTree,
   getResourceTreeUnreviewedCount,

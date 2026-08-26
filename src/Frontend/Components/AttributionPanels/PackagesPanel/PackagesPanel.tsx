@@ -12,6 +12,7 @@ import {
 } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import type { AttributionResultSetCriteria } from '../../../../shared/attribution-result-set';
 import type {
   AttributionSelection,
   AttributionSelectionQuery,
@@ -47,8 +48,8 @@ import {
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { backend, useDatabaseInitialized } from '../../../util/backendClient';
 import { getRelationPriority } from '../../../util/sort-attributions';
+import { useAuditAttributionsList } from '../../../util/use-audit-attributions-list';
 import { useFilterProperties } from '../../../util/use-filter-properties';
-import { useInfiniteAttributionsList } from '../../../util/use-infinite-attributions-list';
 import { usePrevious } from '../../../util/use-previous';
 import { useSelectedAttributionIsExternal } from '../../../util/use-selected-attribution';
 import { useIsSelectedResourceReadonly } from '../../../util/use-selected-resource';
@@ -167,21 +168,33 @@ export const PackagesPanel = ({
       : undefined;
   const pendingNavigationMatches =
     pendingAttributionNavigation?.attributionUuid === selectedAttributionId;
-  const infiniteAttributions = useInfiniteAttributionsList(
-    {
+  const resultSetCriteria = useMemo<AttributionResultSetCriteria>(
+    () => ({
       external,
       filters: attributionFilters,
       search: filters.search,
-      sort: filters.sorting,
       valueFilters,
       resourcePathForRelationships: selectedResourceId,
       showResolved: areHiddenSignalsVisible && external,
       excludeUnrelated: external || isSelectedResourceReadonly,
-      includeReadonly: true,
-      relation: relationForCurrentResource,
-    },
-    navigationTargetUuid,
+    }),
+    [
+      areHiddenSignalsVisible,
+      attributionFilters,
+      external,
+      filters.search,
+      isSelectedResourceReadonly,
+      selectedResourceId,
+      valueFilters,
+    ],
   );
+  const infiniteAttributions = useAuditAttributionsList({
+    criteria: resultSetCriteria,
+    sort: filters.sorting,
+    includeReadonly: true,
+    relation: relationForCurrentResource,
+    targetAttributionUuid: navigationTargetUuid,
+  });
   const {
     attributions,
     loading,
@@ -193,6 +206,8 @@ export const PackagesPanel = ({
     isFetching,
     relationCounts,
     navigationLoading,
+    navigationAttributions,
+    navigationRelation,
     navigationResult,
   } = {
     attributions: infiniteAttributions.attributions,
@@ -205,6 +220,8 @@ export const PackagesPanel = ({
     isFetching: infiniteAttributions.isFetching,
     relationCounts: infiniteAttributions.relationCounts,
     navigationLoading: infiniteAttributions.navigationLoading,
+    navigationAttributions: infiniteAttributions.navigationAttributions,
+    navigationRelation: infiniteAttributions.navigationRelation,
     navigationResult: infiniteAttributions.navigationResult,
   };
   useEffect(() => {
@@ -212,11 +229,17 @@ export const PackagesPanel = ({
       return;
     }
 
-    const targetIsLoaded =
-      !!attributions?.[selectedAttributionId] ||
-      !!navigationResult?.attributions[selectedAttributionId];
+    const targetIsLoaded = !!attributions?.[selectedAttributionId];
     if (targetIsLoaded) {
       dispatch(setPendingAttributionNavigation(null));
+      return;
+    }
+
+    if (
+      navigationAttributions[selectedAttributionId] &&
+      navigationRelation !== null &&
+      activeRelation !== navigationRelation
+    ) {
       return;
     }
 
@@ -225,7 +248,7 @@ export const PackagesPanel = ({
     }
 
     if (
-      navigationResult.relation === null &&
+      navigationRelation === null &&
       selectedResourceId !== pendingAttributionNavigation.fallbackResourcePath
     ) {
       lastResourceIdWithAutoSelectionRef.current =
@@ -241,18 +264,21 @@ export const PackagesPanel = ({
     dispatch(setPendingAttributionNavigation(null));
   }, [
     attributions,
+    activeRelation,
     dispatch,
     navigationLoading,
-    navigationResult,
+    navigationAttributions,
+    navigationRelation,
     pendingAttributionNavigation,
     pendingNavigationMatches,
+    navigationResult,
     selectedAttributionId,
     selectedResourceId,
   ]);
   const selectedAttributionFromPage = attributions?.[selectedAttributionId];
   const selectedAttribution =
     selectedAttributionFromPage ??
-    navigationResult?.attributions[selectedAttributionId];
+    navigationAttributions[selectedAttributionId];
   const groupedIds = useMemo(
     () =>
       attributions &&
@@ -323,7 +349,7 @@ export const PackagesPanel = ({
       pendingAttributionNavigation &&
       pendingNavigationMatches &&
       !navigationLoading &&
-      navigationResult?.relation === null &&
+      navigationRelation === null &&
       selectedResourceId !== pendingAttributionNavigation.fallbackResourcePath;
     if (isPendingRootFallback) {
       return;
@@ -377,7 +403,7 @@ export const PackagesPanel = ({
       selectedAttributionId &&
       selectedAttributionIsExternal === external &&
       !attributions?.[selectedAttributionId] &&
-      !navigationResult?.attributions[selectedAttributionId] &&
+      !navigationAttributions[selectedAttributionId] &&
       (!navigationLoading || !databaseInitialized) &&
       replacementAttribution &&
       relationIsSettled &&
@@ -406,7 +432,8 @@ export const PackagesPanel = ({
     selectedAttributionId,
     selectedAttributionIsExternal,
     navigationLoading,
-    navigationResult,
+    navigationAttributions,
+    navigationRelation,
     pendingAttributionNavigation,
     pendingNavigationMatches,
     selectedResourceId,
@@ -478,25 +505,10 @@ export const PackagesPanel = ({
 
   const selectionQuery = useMemo<AttributionSelectionQuery>(
     () => ({
-      external,
-      filters: attributionFilters,
-      search: filters.search,
-      valueFilters,
-      resourcePathForRelationships: selectedResourceId,
-      showResolved: areHiddenSignalsVisible && external,
-      excludeUnrelated: external || isSelectedResourceReadonly,
+      ...resultSetCriteria,
       relation: relationForCurrentResource,
     }),
-    [
-      areHiddenSignalsVisible,
-      attributionFilters,
-      external,
-      filters.search,
-      isSelectedResourceReadonly,
-      relationForCurrentResource,
-      selectedResourceId,
-      valueFilters,
-    ],
+    [relationForCurrentResource, resultSetCriteria],
   );
   const previousSelectionQuery = usePrevious(selectionQuery);
   const selection: AttributionSelection = allMatchingSelection ?? {

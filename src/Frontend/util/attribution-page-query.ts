@@ -8,10 +8,8 @@ import {
   type QueryKey,
 } from '@tanstack/react-query';
 
-import type {
-  QueryParams,
-  QueryResult,
-} from '../../ElectronBackend/api/queries';
+import type { QueryResult } from '../../ElectronBackend/api/queries';
+import type { AttributionPageRequest } from '../../shared/attribution-result-set';
 
 export const ATTRIBUTION_PAGE_SIZE = 200;
 
@@ -21,8 +19,8 @@ export type AttributionPageParam = {
 };
 
 export type AttributionPageParams = Omit<
-  QueryParams<'listAttributionsPage'>,
-  'offset' | 'limit' | 'targetAttributionUuid'
+  AttributionPageRequest,
+  'offset' | 'limit'
 >;
 
 export type AttributionPageResult = NonNullable<

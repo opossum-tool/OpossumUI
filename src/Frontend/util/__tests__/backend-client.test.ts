@@ -118,15 +118,15 @@ describe('backend mutation cache ownership', () => {
     unsubscribe();
   });
 
-  it('invalidates complete attribution lists for a broad cache impact', async () => {
+  it('invalidates targeted attribution lookups for a broad cache impact', async () => {
     const listQueryKey = [
       'backend',
-      'listAttributions',
-      { external: false },
+      'getAttributions',
+      { attributionUuids: ['attribution-a'] },
     ] as const;
     queryClient.setQueryData(listQueryKey, {});
     vi.mocked(window.electronAPI.api).mockResolvedValueOnce({
-      invalidates: [{ queryName: 'listAttributions' }],
+      invalidates: [{ queryName: 'getAttributions' }],
       attributionCacheImpact: { mode: 'broad' },
     });
 
@@ -138,15 +138,24 @@ describe('backend mutation cache ownership', () => {
   });
 
   it('invalidates cached attribution navigation after list-affecting mutations', async () => {
+    expect(ATTRIBUTION_NAVIGATION_QUERY_KEY).toEqual([
+      'backend',
+      'locateAttribution',
+    ]);
     const navigationQueryKey = [
       ...ATTRIBUTION_NAVIGATION_QUERY_KEY,
       { targetAttributionUuid: 'attribution-a' },
     ] as const;
     queryClient.setQueryData(navigationQueryKey, {
-      attributions: {},
+      found: true,
+      targetRelation: 'resource',
       offset: 0,
-      hasNextPage: false,
-      relation: null,
+      prefix: {
+        attributions: {},
+        offset: 0,
+        limit: 200,
+        hasNextPage: false,
+      },
     });
     vi.mocked(window.electronAPI.api).mockResolvedValueOnce({
       invalidates: [{ queryName: 'listAttributionsPage' as const }],
