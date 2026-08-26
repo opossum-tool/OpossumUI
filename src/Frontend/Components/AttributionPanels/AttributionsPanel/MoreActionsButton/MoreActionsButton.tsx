@@ -13,6 +13,12 @@ import type {
   PackageInfo,
 } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
+import { setSelectedAttributionIdIfRemapped } from '../../../../state/actions/resource-actions/navigation-actions';
+import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
+import {
+  getSelectedAttributionId,
+  getTemporaryDisplayPackageInfo,
+} from '../../../../state/selectors/resource-selectors';
 import { backend } from '../../../../util/backendClient';
 import {
   ExcludeFromNoticeIcon,
@@ -59,6 +65,11 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   selectionSummaryLoading = false,
   clearSelection,
 }) => {
+  const dispatch = useAppDispatch();
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const temporaryDisplayPackageInfo = useAppSelector(
+    getTemporaryDisplayPackageInfo,
+  );
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
 
   const mutationsPending = useIsMutating() > 0;
@@ -131,28 +142,37 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
 
       const newState = !propertyStates[property];
 
-      const updatedAttributions = selectedAttributionIds.reduce(
-        (acc, attributionId) => {
-          const attribution = attributions?.[attributionId];
-          if (!attribution) {
-            return acc;
-          }
-          acc[attributionId] = {
-            ...attribution,
-            [property]: newState,
-          };
-          return acc;
-        },
-        {} as Attributions,
-      );
-
       if (selection.mode === 'allMatching') {
-        await backend.updateAttributionProperty.mutate({
+        const result = await backend.updateAttributionProperty.mutate({
           selection,
           property,
           value: newState,
+          attributions: selectedAttributionId
+            ? { [selectedAttributionId]: temporaryDisplayPackageInfo }
+            : undefined,
+          focusedAttributionUuid: selectedAttributionId,
         });
+        dispatch(
+          setSelectedAttributionIdIfRemapped(
+            result?.oldUuidsToNewUuids ?? {},
+            selectedAttributionId,
+          ),
+        );
       } else {
+        const updatedAttributions = selectedAttributionIds.reduce(
+          (acc, attributionId) => {
+            const attribution = attributions?.[attributionId];
+            if (!attribution) {
+              return acc;
+            }
+            acc[attributionId] = {
+              ...attribution,
+              [property]: newState,
+            };
+            return acc;
+          },
+          {} as Attributions,
+        );
         await backend.updateAttributions.mutate({
           attributions: updatedAttributions,
         });
@@ -163,10 +183,13 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
     },
     [
       attributions,
+      dispatch,
       selectedAttributionIds,
       propertyStates,
       selection,
       clearSelection,
+      selectedAttributionId,
+      temporaryDisplayPackageInfo,
     ],
   );
 

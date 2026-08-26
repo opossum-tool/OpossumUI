@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiTooltip from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
+import { skipToken } from '@tanstack/react-query';
 import {
   groupBy as _groupBy,
   orderBy as _orderBy,
@@ -42,7 +43,7 @@ import {
   usePickerMode,
 } from '../../../state/variables/use-picker-mode';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
-import { backend } from '../../../util/backendClient';
+import { backend, useDatabaseInitialized } from '../../../util/backendClient';
 import { getRelationPriority } from '../../../util/sort-attributions';
 import { useFilterProperties } from '../../../util/use-filter-properties';
 import { useInfiniteAttributionsList } from '../../../util/use-infinite-attributions-list';
@@ -150,6 +151,7 @@ export const PackagesPanel = ({
   const [filters, setFilteredAttributions] = useFilteredData();
   const { filters: attributionFilters, valueFilters } = filters;
   const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
+  const databaseInitialized = useDatabaseInitialized();
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
   const infiniteAttributions = useInfiniteAttributionsList({
@@ -185,7 +187,28 @@ export const PackagesPanel = ({
     isFetching: infiniteAttributions.isFetching,
     relationCounts: infiniteAttributions.relationCounts,
   };
-  const selectedAttribution = attributions?.[selectedAttributionId];
+  const selectedAttributionFromPage = attributions?.[selectedAttributionId];
+  const selectedAttributionLookupQuery = backend.listAttributions.useQuery(
+    selectedAttributionId &&
+      databaseInitialized &&
+      selectedAttributionIsExternal === external &&
+      !selectedAttributionFromPage
+      ? {
+          external,
+          filters: attributionFilters,
+          search: filters.search,
+          valueFilters,
+          resourcePathForRelationships: selectedResourceId,
+          showResolved: areHiddenSignalsVisible && external,
+          excludeUnrelated: external || isSelectedResourceReadonly,
+          includeReadonly: true,
+          uuids: [selectedAttributionId],
+        }
+      : skipToken,
+  );
+  const selectedAttribution =
+    selectedAttributionFromPage ??
+    selectedAttributionLookupQuery.data?.[selectedAttributionId];
   const groupedIds = useMemo(
     () =>
       attributions &&
@@ -300,6 +323,8 @@ export const PackagesPanel = ({
       selectedAttributionId &&
       selectedAttributionIsExternal === external &&
       !attributions?.[selectedAttributionId] &&
+      !selectedAttributionLookupQuery.data?.[selectedAttributionId] &&
+      (selectedAttributionLookupQuery.isSuccess || !databaseInitialized) &&
       replacementAttribution &&
       relationIsSettled &&
       !preserveSelectedAttributionRef.current
@@ -325,7 +350,10 @@ export const PackagesPanel = ({
     relationForCurrentResource,
     selectedAttributionId,
     selectedAttributionIsExternal,
+    selectedAttributionLookupQuery.data,
+    selectedAttributionLookupQuery.isSuccess,
     selectedResourceId,
+    databaseInitialized,
     updateActiveRelation,
   ]);
 

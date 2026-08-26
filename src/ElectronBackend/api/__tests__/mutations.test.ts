@@ -504,6 +504,68 @@ describe('bulk attribution mutations', () => {
     expect(response).not.toHaveProperty('affectedAttributionUuids');
   });
 
+  it('preserves a focused edit during a query-wide property update', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          focused: {
+            id: 'focused',
+            criticality: Criticality.None,
+            packageName: 'before',
+          },
+          other: {
+            id: 'other',
+            criticality: Criticality.None,
+            packageName: 'other',
+          },
+        },
+        resourcesToAttributions: {
+          '/parent/child.ts': ['focused', 'other'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    await mutations.updateAttributionProperty({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/child.ts',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      property: 'needsReview',
+      value: true,
+      attributions: {
+        focused: {
+          id: 'focused',
+          criticality: Criticality.None,
+          packageName: 'after',
+        },
+      },
+      focusedAttributionUuid: 'focused',
+    });
+
+    const rows = await getDb()
+      .selectFrom('attribution')
+      .select(['uuid', 'package_name', 'needs_review'])
+      .orderBy('uuid')
+      .execute();
+
+    expect(rows).toEqual([
+      { uuid: 'focused', package_name: 'after', needs_review: 1 },
+      { uuid: 'other', package_name: 'other', needs_review: 1 },
+    ]);
+  });
+
   it('bounds targeted cache impact independently of explicit selection mode', async () => {
     const attributionUuids = Array.from(
       { length: MAX_TARGETED_CACHE_UUIDS + 1 },
@@ -602,6 +664,66 @@ describe('bulk attribution mutations', () => {
     expect(response.result.oldUuidsToNewUuids).toEqual({
       [focused.id]: matching.id,
     });
+  });
+
+  it('applies a focused override during a query-wide update-or-match', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          focused: {
+            id: 'focused',
+            criticality: Criticality.None,
+            packageName: 'before',
+            preSelected: true,
+          },
+          other: {
+            id: 'other',
+            criticality: Criticality.None,
+            packageName: 'other',
+            preSelected: true,
+          },
+        },
+        resourcesToAttributions: {
+          '/parent/child.ts': ['focused', 'other'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    await mutations.updateOrMatchAttributions({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: ['preSelected'],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/child.ts',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      attributions: {
+        focused: {
+          id: 'focused',
+          criticality: Criticality.None,
+          packageName: 'after',
+          preSelected: true,
+        },
+      },
+      focusedAttributionUuid: 'focused',
+    });
+
+    const focused = await getDb()
+      .selectFrom('attribution')
+      .select(['package_name', 'pre_selected'])
+      .where('uuid', '=', 'focused')
+      .executeTakeFirstOrThrow();
+
+    expect(focused).toEqual({ package_name: 'after', pre_selected: 0 });
   });
 
   it('links 500 distinct attributions without exceeding the SQLite expression depth', async () => {

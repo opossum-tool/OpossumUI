@@ -7,10 +7,12 @@ import userEvent from '@testing-library/user-event';
 
 import type {
   Attributions,
+  ParsedFileContent,
   Relation,
 } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
+import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { closePopupAndUnsetTargets } from '../../../../state/actions/popup-actions/popup-actions';
 import {
   setSelectedAttributionId,
@@ -21,6 +23,7 @@ import { setVariable } from '../../../../state/actions/variables-actions/variabl
 import type { Action } from '../../../../state/configure-store';
 import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-selection-for-replacement';
 import { initialAttributionFilters } from '../../../../state/variables/use-filters';
+import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
 import { useInfiniteAttributionsList } from '../../../../util/use-infinite-attributions-list';
 import { useSelectedAttributionIsExternal } from '../../../../util/use-selected-attribution';
@@ -71,11 +74,13 @@ function renderPackagesPanel({
   visibleAttributions,
   children,
   actions,
+  data,
 }: {
   attributions: Attributions;
   visibleAttributions?: Attributions;
   children?: (props: PackagesPanelChildrenProps) => React.ReactNode;
   actions?: Array<Action>;
+  data?: ParsedFileContent;
 }) {
   mockAttributions(attributions, visibleAttributions);
   vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(false);
@@ -88,7 +93,7 @@ function renderPackagesPanel({
     >
       {children ?? (() => null)}
     </PackagesPanel>,
-    { actions },
+    { actions, data },
   );
 }
 
@@ -189,6 +194,39 @@ describe('PackagesPanel', () => {
     await waitFor(() => {
       expect(store.getState().resourceState.selectedAttributionId).toBe(
         replacementAttribution.id,
+      );
+    });
+  });
+
+  it('keeps a selected attribution that matches outside the loaded page', async () => {
+    const selectedAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const loadedAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [loadedAttribution.id]: loadedAttribution,
+      }),
+      actions: [setSelectedAttributionId(selectedAttribution.id)],
+      data: {
+        ...getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [selectedAttribution.id]: selectedAttribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [selectedAttribution.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+      },
+    });
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        selectedAttribution.id,
       );
     });
   });

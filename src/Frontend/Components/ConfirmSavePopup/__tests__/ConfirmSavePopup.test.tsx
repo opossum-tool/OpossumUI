@@ -67,7 +67,14 @@ describe('ConfirmSavePopup', () => {
           }),
           resources: pathsToResources([resource]),
         }),
-        actions: [setSelectedResourceId(resource)],
+        actions: [
+          setSelectedAttributionId(first.id),
+          setSelectedResourceId(resource),
+          setTemporaryDisplayPackageInfo({
+            ...first,
+            packageName: 'edited-first',
+          }),
+        ],
       },
     );
 
@@ -78,7 +85,11 @@ describe('ConfirmSavePopup', () => {
     );
 
     await expectManualAttributions({
-      [first.id]: { ...first, preSelected: undefined },
+      [first.id]: {
+        ...first,
+        packageName: 'edited-first',
+        preSelected: undefined,
+      },
       [second.id]: { ...second, preSelected: undefined },
     });
   });
