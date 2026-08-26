@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash-es';
 
@@ -57,11 +57,11 @@ describe('ConfirmDeletePopup', () => {
       },
     );
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.deleteAttributionsPopup.delete,
-      }),
-    );
+    const deleteButton = await screen.findByRole('button', {
+      name: text.deleteAttributionsPopup.delete,
+    });
+    await waitFor(() => expect(deleteButton).toBeEnabled());
+    await userEvent.click(deleteButton);
 
     await expectManualAttributions({ [second.id]: second });
     expect(getSelectedAttributionId(store.getState())).toBe('');

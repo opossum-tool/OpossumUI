@@ -148,8 +148,8 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
         aggregateSummary?.mixedCount ?? mixedAttributionCount
       }
       isResourceInfoReady={
-        aggregateSummary
-          ? !selectionSummaryQuery.isLoading
+        selection?.mode === 'allMatching'
+          ? selectionSummaryQuery.isSuccess
           : isResourceInfoReady
       }
       isLocalActionAvailable={
@@ -159,7 +159,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
             !isSelectedResourceReadonly
           : isLocalActionAvailable
       }
-      aggregateSelection={selection?.mode === 'allMatching'}
+      selection={selection}
       open={open}
       ariaLabel={text.deleteAttributionsPopup.ariaLabel}
     />

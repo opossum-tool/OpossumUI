@@ -3,15 +3,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiAlert from '@mui/material/Alert';
-import type { ButtonProps } from '@mui/material/Button';
+import MuiButton, { type ButtonProps } from '@mui/material/Button';
 import MuiTypography from '@mui/material/Typography';
 
+import type { AttributionSelection } from '../../../shared/attribution-selection';
 import type { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
 import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
 import type { LinkedResourcesTreeState } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
 import { StyledConfirmAttributionActionPopup } from './ConfirmAttributionActionPopup.style';
+import { useAttributionPreview } from './use-attribution-preview';
 
 interface Action {
   buttonText: string;
@@ -35,7 +37,7 @@ interface Props {
   mixedAttributionCount: number;
   isResourceInfoReady: boolean;
   isLocalActionAvailable: boolean | undefined;
-  aggregateSelection?: boolean;
+  selection?: AttributionSelection;
 }
 
 export function ConfirmAttributionActionPopup({
@@ -52,8 +54,10 @@ export function ConfirmAttributionActionPopup({
   mixedAttributionCount,
   isResourceInfoReady,
   isLocalActionAvailable,
-  aggregateSelection = false,
+  selection,
 }: Props) {
+  const isAggregateSelection = selection?.mode === 'allMatching';
+  const preview = useAttributionPreview(selection, open);
   const isMutationPending =
     globalAction.isPending || (localAction?.isPending ?? false);
   const isLocalActionVisible =
@@ -97,7 +101,24 @@ export function ConfirmAttributionActionPopup({
         <MuiAlert severity={'warning'}>{mixedWarning}</MuiAlert>
       )}
       <MuiTypography>{description}</MuiTypography>
-      {!aggregateSelection && (
+      {isAggregateSelection ? (
+        preview.error ? (
+          <MuiButton size={'small'} onClick={() => void preview.retry()}>
+            {'Retry'}
+          </MuiButton>
+        ) : preview.attributions ? (
+          <AttributionCardList
+            attributions={Object.values(preview.attributions)}
+            loadingMore={preview.loadingMore}
+            loadMoreError={preview.loadMoreError}
+            onRetryLoadMore={preview.fetchNextPage}
+            endReached={preview.hasNextPage ? preview.fetchNextPage : undefined}
+            fillAvailableHeight
+          />
+        ) : (
+          <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
+        )
+      ) : (
         <>
           {attributionValues ? (
             <AttributionCardList attributions={attributionValues} />
