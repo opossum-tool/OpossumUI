@@ -9,28 +9,27 @@ import type {
   QueryResult,
 } from '../../ElectronBackend/api/queries';
 import type { Attributions } from '../../shared/shared-types';
+import {
+  type AttributionPageParam,
+  type AttributionPageParams,
+  getAttributionPrefixData,
+  getLoadedAttributionWindow,
+  type InfiniteAttributionData,
+} from './attribution-page-query';
 import { traceFrontendPhase } from './frontend-performance-tracing';
 import { sortAttributions } from './sort-attributions';
 
 type ListAttributionsParams = QueryParams<'listAttributions'>;
 type ListAttributionsResult = NonNullable<QueryResult<'listAttributions'>>;
-type ListAttributionsPageParams = QueryParams<'listAttributionsPage'>;
 type ListAttributionsPageResult = NonNullable<
   QueryResult<'listAttributionsPage'>
 >;
-
-type InfiniteAttributionPages = {
-  pages: Array<ListAttributionsPageResult>;
-  pageParams: Array<unknown>;
-};
 
 const LIST_ATTRIBUTIONS_QUERY_KEY = [
   'backend',
   'listAttributions',
 ] as const satisfies QueryKey;
 const TARGETED_FETCH_BATCH_SIZE = 500;
-const PAGINATED_ATTRIBUTION_PAGE_SIZE = 200;
-
 export type ReconcileAttributionListsOptions = {
   queryClient: QueryClient;
   affectedAttributionUuids: Array<string>;
@@ -42,7 +41,7 @@ export type ReconcileAttributionListsOptions = {
 export type ReconcileAttributionPagesOptions = {
   queryClient: QueryClient;
   fetchPage: (
-    params: ListAttributionsPageParams,
+    params: AttributionPageParams & AttributionPageParam,
   ) => Promise<ListAttributionsPageResult>;
 };
 
@@ -80,14 +79,9 @@ export async function reconcileAttributionPages({
       continue;
     }
 
-    const currentData = query.state.data as
-      InfiniteAttributionPages | undefined;
-    const loadedRowCount =
-      currentData?.pages.reduce(
-        (count, page) => count + Object.keys(page.attributions).length,
-        0,
-      ) ?? 0;
-    const params = query.queryKey[2] as ListAttributionsPageParams;
+    const currentData = query.state.data as InfiniteAttributionData | undefined;
+    const loadedWindow = getLoadedAttributionWindow(currentData);
+    const params = query.queryKey[2] as AttributionPageParams;
 
     await queryClient.cancelQueries({
       queryKey: query.queryKey,
@@ -108,17 +102,14 @@ export async function reconcileAttributionPages({
         {
           external: params.external ?? false,
           relation: params.relation,
-          loadedRowCount,
-          requestedLimit: Math.max(
-            PAGINATED_ATTRIBUTION_PAGE_SIZE,
-            loadedRowCount,
-          ),
+          loadedWindow,
+          requestedLimit: loadedWindow,
         },
         () =>
           fetchPage({
             ...params,
             offset: 0,
-            limit: Math.max(PAGINATED_ATTRIBUTION_PAGE_SIZE, loadedRowCount),
+            limit: loadedWindow,
           }),
       );
       if (
@@ -129,10 +120,10 @@ export async function reconcileAttributionPages({
       ) {
         continue;
       }
-      queryClient.setQueryData<InfiniteAttributionPages>(query.queryKey, {
-        pages: [page],
-        pageParams: [0],
-      });
+      queryClient.setQueryData<InfiniteAttributionData>(
+        query.queryKey,
+        getAttributionPrefixData(page),
+      );
     } catch (error) {
       await queryClient.invalidateQueries({
         queryKey: query.queryKey,

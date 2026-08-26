@@ -3,14 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  type InfiniteData,
   useInfiniteQuery,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import type { QueryResult } from '../../ElectronBackend/api/queries';
 import type {
   AttributionFilterKey,
   AttributionValueFilters,
@@ -18,12 +16,17 @@ import type {
 import type { Attributions, Relation } from '../../shared/shared-types';
 import type { SortOption } from '../Components/SortButton/useSortingOptions';
 import {
+  ATTRIBUTION_PAGE_SIZE,
+  getAttributionInfiniteQueryOptions,
+  getAttributionPageQueryKey,
+  getAttributionPrefixData,
+  type InfiniteAttributionData,
+} from './attribution-page-query';
+import {
   ATTRIBUTION_NAVIGATION_QUERY_KEY,
   backend,
   useDatabaseInitialized,
 } from './backendClient';
-
-const ATTRIBUTION_PAGE_SIZE = 200;
 
 type Params = {
   external: boolean;
@@ -38,16 +41,13 @@ type Params = {
   relation: Relation;
 };
 
-type PageResult = NonNullable<QueryResult<'listAttributionsPage'>>;
-type InfiniteAttributionData = InfiniteData<PageResult, number>;
-
 export function useInfiniteAttributionsList(
   params: Params,
   targetAttributionUuid?: string,
 ) {
   const initialized = useDatabaseInitialized();
   const queryClient = useQueryClient();
-  const queryKey = ['backend', 'listAttributionsPage', params] as const;
+  const queryKey = getAttributionPageQueryKey(params);
   const cachedData =
     queryClient.getQueryData<InfiniteAttributionData>(queryKey);
   const targetAlreadyLoaded = cachedData?.pages.some((page) =>
@@ -70,27 +70,20 @@ export function useInfiniteAttributionsList(
         limit: ATTRIBUTION_PAGE_SIZE,
       }),
   });
-  const query = useInfiniteQuery({
-    queryKey,
-    initialPageParam: 0,
-    enabled:
-      initialized &&
-      (!targetAttributionUuid ||
-        targetAlreadyLoaded ||
-        (targetQuery.isSuccess &&
-          (!targetQuery.data?.relation ||
-            targetQuery.data.relation === params.relation))),
-    queryFn: ({ pageParam }) =>
-      backend.listAttributionsPage.query({
-        ...params,
-        offset: pageParam,
-        limit: ATTRIBUTION_PAGE_SIZE,
-      }),
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage
-        ? lastPage.offset + Object.keys(lastPage.attributions).length
-        : undefined,
-  });
+  const query = useInfiniteQuery(
+    getAttributionInfiniteQueryOptions({
+      queryKey,
+      enabled:
+        initialized &&
+        (!targetAttributionUuid ||
+          targetAlreadyLoaded ||
+          (targetQuery.isSuccess &&
+            (!targetQuery.data?.relation ||
+              targetQuery.data.relation === params.relation))),
+      fetchPage: (pageParams) =>
+        backend.listAttributionsPage.query({ ...params, ...pageParams }),
+    }),
+  );
 
   useEffect(() => {
     const navigationResult = targetQuery.data;
@@ -102,15 +95,11 @@ export function useInfiniteAttributionsList(
     }
 
     queryClient.setQueryData<InfiniteAttributionData>(
-      [
-        'backend',
-        'listAttributionsPage',
-        { ...params, relation: navigationResult.relation },
-      ],
-      {
-        pages: [navigationResult],
-        pageParams: [0],
-      },
+      getAttributionPageQueryKey({
+        ...params,
+        relation: navigationResult.relation,
+      }),
+      getAttributionPrefixData(navigationResult),
     );
   }, [params, queryClient, targetQuery.data]);
   const { relation: _relation, sort: _sort, ...countParams } = params;

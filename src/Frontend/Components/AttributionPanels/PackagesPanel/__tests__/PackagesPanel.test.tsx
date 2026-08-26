@@ -73,6 +73,7 @@ function mockAttributions(
         ? {
             attributions,
             offset: 0,
+            limit: 200,
             hasNextPage: false,
             relation: 'resource',
             targetOffset: 0,
@@ -272,7 +273,13 @@ describe('PackagesPanel', () => {
         navigationLoading: false,
         navigationResult: isRoot
           ? undefined
-          : { attributions: {}, offset: 0, hasNextPage: false, relation: null },
+          : {
+              attributions: {},
+              offset: 0,
+              limit: 200,
+              hasNextPage: false,
+              relation: null,
+            },
       };
     });
 

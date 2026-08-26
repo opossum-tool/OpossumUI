@@ -5,39 +5,29 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useCallback, useMemo, useRef } from 'react';
 
-import type { AttributionSelection } from '../../../shared/attribution-selection';
+import type { AllMatchingAttributionSelection } from '../../../shared/attribution-selection';
 import type { Attributions } from '../../../shared/shared-types';
+import { getAttributionInfiniteQueryOptions } from '../../util/attribution-page-query';
 import { backend, useDatabaseInitialized } from '../../util/backendClient';
 
-const PREVIEW_PAGE_SIZE = 200;
-
 export function useAttributionPreview(
-  selection: AttributionSelection | undefined,
+  selection: AllMatchingAttributionSelection,
   open: boolean,
 ) {
   const initialized = useDatabaseInitialized();
-  const query = useInfiniteQuery({
-    queryKey: ['attribution-selection-preview', selection],
-    initialPageParam: 0,
-    enabled: initialized && open && selection?.mode === 'allMatching',
-    queryFn: ({ pageParam }) => {
-      if (selection?.mode !== 'allMatching') {
-        throw new Error('An all-matching selection is required for preview');
-      }
-
-      return backend.listAttributionsPage.query({
-        ...selection.query,
-        excludedAttributionUuids: selection.excludedAttributionUuids,
-        includeReadonly: false,
-        offset: pageParam,
-        limit: PREVIEW_PAGE_SIZE,
-      });
-    },
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage
-        ? lastPage.offset + Object.keys(lastPage.attributions).length
-        : undefined,
-  });
+  const query = useInfiniteQuery(
+    getAttributionInfiniteQueryOptions({
+      queryKey: ['attribution-selection-preview', selection],
+      enabled: initialized && open,
+      fetchPage: (pageParams) =>
+        backend.listAttributionsPage.query({
+          ...selection.query,
+          excludedAttributionUuids: selection.excludedAttributionUuids,
+              includeReadonly: false,
+          ...pageParams,
+        }),
+    }),
+  );
   const {
     fetchNextPage: fetchNextPageQuery,
     hasNextPage,

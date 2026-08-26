@@ -117,6 +117,7 @@ describe('listAttributionsPage', () => {
     expect(result.result).toEqual({
       attributions: {},
       offset: 0,
+      limit: 1,
       hasNextPage: false,
       relation: null,
     });
@@ -149,6 +150,7 @@ describe('listAttributionsPage', () => {
 
     expect(result.result.relation).toBe('children');
     expect(result.result.targetOffset).toBe(0);
+    expect(result.result.limit).toBe(200);
     expect(result.result.attributions.targetChild.relation).toBe('children');
   });
 
@@ -180,6 +182,7 @@ describe('listAttributionsPage', () => {
     });
 
     expect(result.result.targetOffset).toBe(200);
+    expect(result.result.limit).toBe(400);
     expect(Object.keys(result.result.attributions)).toHaveLength(250);
     expect(result.result.attributions['attribution-200']).toBeDefined();
   });
