@@ -23,6 +23,13 @@ export const ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE =
   'ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE';
 export const ACTION_SET_TARGET_ATTRIBUTION_RELATION =
   'ACTION_SET_TARGET_ATTRIBUTION_RELATION';
+export const ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION =
+  'ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION';
+
+export interface PendingAttributionNavigation {
+  attributionUuid: string;
+  fallbackResourcePath: string;
+}
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -34,7 +41,8 @@ export type ResourceAction =
   | SetSelectedAttributionId
   | SetTargetSelectedAttributionIdAction
   | SetTargetAttributionFilterChangeAction
-  | SetTargetAttributionRelationAction;
+  | SetTargetAttributionRelationAction
+  | SetPendingAttributionNavigationAction;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -89,4 +97,9 @@ export interface SetTargetAttributionFilterChangeAction {
 export interface SetTargetAttributionRelationAction {
   type: typeof ACTION_SET_TARGET_ATTRIBUTION_RELATION;
   payload: Relation | null;
+}
+
+export interface SetPendingAttributionNavigationAction {
+  type: typeof ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION;
+  payload: PendingAttributionNavigation | null;
 }

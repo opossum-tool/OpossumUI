@@ -34,6 +34,10 @@ import {
   enqueueAttributionPageReconciliation,
 } from './reconcile-attribution-lists';
 
+export const ATTRIBUTION_NAVIGATION_QUERY_KEY = [
+  'attribution-navigation',
+] as const satisfies QueryKey;
+
 // We use the same options as tanstack query, with the exception that the
 // consumer can't set mutationKey and mutationFn, which are set by us
 type ClientMutationOptions<M extends MutationName> = Omit<
@@ -407,6 +411,24 @@ export const backend = new Proxy({} as BackendClient, {
         // invalidation.
       }
 
+      if (
+        invalidatesLegacyAttributions ||
+        invalidatesPaginatedAttributions ||
+        affectedUuids.size > 0 ||
+        hasBroadAttributionCacheImpact
+      ) {
+        void traceFrontendPhase(
+          'mutation.invalidate-attribution-navigation',
+          { mutation: command },
+          () =>
+            queryClient
+              .invalidateQueries({
+                queryKey: ATTRIBUTION_NAVIGATION_QUERY_KEY,
+              })
+              .then(() => undefined),
+        );
+      }
+
       void traceFrontendPhase(
         'mutation.invalidate-secondary',
         { mutation: command, queryCount: secondaryQueryKeys.size },
@@ -468,6 +490,12 @@ export const backend = new Proxy({} as BackendClient, {
   },
 });
 
-export function invalidateBackendQueries() {
-  return queryClient.invalidateQueries({ queryKey: ['backend'] });
+export async function invalidateBackendQueries() {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: ['backend'] }),
+    queryClient.invalidateQueries({
+      queryKey: ATTRIBUTION_NAVIGATION_QUERY_KEY,
+    }),
+  ]);
+  return undefined;
 }

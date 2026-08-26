@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiTooltip from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
-import { skipToken } from '@tanstack/react-query';
 import {
   groupBy as _groupBy,
   orderBy as _orderBy,
@@ -25,11 +24,14 @@ import {
 } from '../../../shared-styles';
 import { changeAttributionFiltersOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
 import {
+  setPendingAttributionNavigation,
   setSelectedAttributionId,
   setTargetAttributionRelation,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { openResourceInResourceBrowser } from '../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
+  getPendingAttributionNavigation,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTargetAttributionRelation,
@@ -123,6 +125,9 @@ export const PackagesPanel = ({
 }: Props) => {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const pendingAttributionNavigation = useAppSelector(
+    getPendingAttributionNavigation,
+  );
   const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const targetAttributionRelation = useAppSelector(
@@ -154,18 +159,29 @@ export const PackagesPanel = ({
   const databaseInitialized = useDatabaseInitialized();
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
-  const infiniteAttributions = useInfiniteAttributionsList({
-    external,
-    filters: attributionFilters,
-    search: filters.search,
-    sort: filters.sorting,
-    valueFilters,
-    resourcePathForRelationships: selectedResourceId,
-    showResolved: areHiddenSignalsVisible && external,
-    excludeUnrelated: external || isSelectedResourceReadonly,
-    includeReadonly: true,
-    relation: relationForCurrentResource,
-  });
+  const navigationTargetUuid =
+    !preserveSelectedAttributionRef.current &&
+    selectedAttributionId &&
+    selectedAttributionIsExternal === external
+      ? selectedAttributionId
+      : undefined;
+  const pendingNavigationMatches =
+    pendingAttributionNavigation?.attributionUuid === selectedAttributionId;
+  const infiniteAttributions = useInfiniteAttributionsList(
+    {
+      external,
+      filters: attributionFilters,
+      search: filters.search,
+      sort: filters.sorting,
+      valueFilters,
+      resourcePathForRelationships: selectedResourceId,
+      showResolved: areHiddenSignalsVisible && external,
+      excludeUnrelated: external || isSelectedResourceReadonly,
+      includeReadonly: true,
+      relation: relationForCurrentResource,
+    },
+    navigationTargetUuid,
+  );
   const {
     attributions,
     loading,
@@ -176,6 +192,8 @@ export const PackagesPanel = ({
     hasNextPage,
     isFetching,
     relationCounts,
+    navigationLoading,
+    navigationResult,
   } = {
     attributions: infiniteAttributions.attributions,
     loading: infiniteAttributions.loading,
@@ -186,29 +204,55 @@ export const PackagesPanel = ({
     hasNextPage: infiniteAttributions.hasNextPage,
     isFetching: infiniteAttributions.isFetching,
     relationCounts: infiniteAttributions.relationCounts,
+    navigationLoading: infiniteAttributions.navigationLoading,
+    navigationResult: infiniteAttributions.navigationResult,
   };
+  useEffect(() => {
+    if (!pendingAttributionNavigation || !pendingNavigationMatches) {
+      return;
+    }
+
+    const targetIsLoaded =
+      !!attributions?.[selectedAttributionId] ||
+      !!navigationResult?.attributions[selectedAttributionId];
+    if (targetIsLoaded) {
+      dispatch(setPendingAttributionNavigation(null));
+      return;
+    }
+
+    if (navigationLoading || !navigationResult) {
+      return;
+    }
+
+    if (
+      navigationResult.relation === null &&
+      selectedResourceId !== pendingAttributionNavigation.fallbackResourcePath
+    ) {
+      lastResourceIdWithAutoSelectionRef.current =
+        pendingAttributionNavigation.fallbackResourcePath;
+      dispatch(
+        openResourceInResourceBrowser(
+          pendingAttributionNavigation.fallbackResourcePath,
+        ),
+      );
+      return;
+    }
+
+    dispatch(setPendingAttributionNavigation(null));
+  }, [
+    attributions,
+    dispatch,
+    navigationLoading,
+    navigationResult,
+    pendingAttributionNavigation,
+    pendingNavigationMatches,
+    selectedAttributionId,
+    selectedResourceId,
+  ]);
   const selectedAttributionFromPage = attributions?.[selectedAttributionId];
-  const selectedAttributionLookupQuery = backend.listAttributions.useQuery(
-    selectedAttributionId &&
-      databaseInitialized &&
-      selectedAttributionIsExternal === external &&
-      !selectedAttributionFromPage
-      ? {
-          external,
-          filters: attributionFilters,
-          search: filters.search,
-          valueFilters,
-          resourcePathForRelationships: selectedResourceId,
-          showResolved: areHiddenSignalsVisible && external,
-          excludeUnrelated: external || isSelectedResourceReadonly,
-          includeReadonly: true,
-          uuids: [selectedAttributionId],
-        }
-      : skipToken,
-  );
   const selectedAttribution =
     selectedAttributionFromPage ??
-    selectedAttributionLookupQuery.data?.[selectedAttributionId];
+    navigationResult?.attributions[selectedAttributionId];
   const groupedIds = useMemo(
     () =>
       attributions &&
@@ -275,6 +319,16 @@ export const PackagesPanel = ({
   }, [dispatch, external, targetAttributionRelation, updateActiveRelation]);
 
   useEffect(() => {
+    const isPendingRootFallback =
+      pendingAttributionNavigation &&
+      pendingNavigationMatches &&
+      !navigationLoading &&
+      navigationResult?.relation === null &&
+      selectedResourceId !== pendingAttributionNavigation.fallbackResourcePath;
+    if (isPendingRootFallback) {
+      return;
+    }
+
     const isAutoSelectionPending =
       !external &&
       lastResourceIdWithAutoSelectionRef.current !== selectedResourceId;
@@ -323,10 +377,11 @@ export const PackagesPanel = ({
       selectedAttributionId &&
       selectedAttributionIsExternal === external &&
       !attributions?.[selectedAttributionId] &&
-      !selectedAttributionLookupQuery.data?.[selectedAttributionId] &&
-      (selectedAttributionLookupQuery.isSuccess || !databaseInitialized) &&
+      !navigationResult?.attributions[selectedAttributionId] &&
+      (!navigationLoading || !databaseInitialized) &&
       replacementAttribution &&
       relationIsSettled &&
+      !pendingNavigationMatches &&
       !preserveSelectedAttributionRef.current
     ) {
       dispatch(setSelectedAttributionId(replacementAttribution.id));
@@ -350,15 +405,16 @@ export const PackagesPanel = ({
     relationForCurrentResource,
     selectedAttributionId,
     selectedAttributionIsExternal,
-    selectedAttributionLookupQuery.data,
-    selectedAttributionLookupQuery.isSuccess,
+    navigationLoading,
+    navigationResult,
+    pendingAttributionNavigation,
+    pendingNavigationMatches,
     selectedResourceId,
     databaseInitialized,
     updateActiveRelation,
   ]);
 
-  const selectedAttributionRelation =
-    attributions?.[selectedAttributionId]?.relation;
+  const selectedAttributionRelation = selectedAttribution?.relation;
   const activeAttributionIds = useMemo(
     () =>
       groupedIds && activeRelation ? (groupedIds[activeRelation] ?? []) : null,

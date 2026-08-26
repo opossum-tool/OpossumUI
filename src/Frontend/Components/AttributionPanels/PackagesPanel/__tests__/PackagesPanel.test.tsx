@@ -15,6 +15,7 @@ import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { closePopupAndUnsetTargets } from '../../../../state/actions/popup-actions/popup-actions';
 import {
+  setPendingAttributionNavigation,
   setSelectedAttributionId,
   setSelectedResourceId,
   setTargetSelectedResourceId,
@@ -66,6 +67,17 @@ function mockAttributions(
     isFetchingNextPage: false,
     fetchNextPage: vi.fn(() => Promise.resolve()),
     nextPageError: null,
+    navigationLoading: false,
+    navigationResult:
+      visibleAttributions !== attributions
+        ? {
+            attributions,
+            offset: 0,
+            hasNextPage: false,
+            relation: 'resource',
+            targetOffset: 0,
+          }
+        : undefined,
   });
 }
 
@@ -209,6 +221,10 @@ describe('PackagesPanel', () => {
     const { store } = await renderPackagesPanel({
       attributions: faker.opossum.attributions({
         [loadedAttribution.id]: loadedAttribution,
+        [selectedAttribution.id]: selectedAttribution,
+      }),
+      visibleAttributions: faker.opossum.attributions({
+        [loadedAttribution.id]: loadedAttribution,
       }),
       actions: [setSelectedAttributionId(selectedAttribution.id)],
       data: {
@@ -227,6 +243,76 @@ describe('PackagesPanel', () => {
     await waitFor(() => {
       expect(store.getState().resourceState.selectedAttributionId).toBe(
         selectedAttribution.id,
+      );
+    });
+  });
+
+  it('retries a report navigation at the root resource when needed', async () => {
+    const selectedAttribution = faker.opossum.packageInfo({
+      relation: 'children',
+    });
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(false);
+    vi.mocked(useInfiniteAttributionsList).mockImplementation((params) => {
+      const isRoot = params.resourcePathForRelationships === '/';
+      return {
+        attributions: isRoot
+          ? { [selectedAttribution.id]: selectedAttribution }
+          : {},
+        loading: false,
+        relation: params.relation,
+        relationCounts: isRoot
+          ? { children: { visibleCount: 1, editableCount: 1 } }
+          : {},
+        hasNextPage: false,
+        isFetching: false,
+        isFetchingNextPage: false,
+        fetchNextPage: vi.fn(() => Promise.resolve()),
+        nextPageError: null,
+        navigationLoading: false,
+        navigationResult: isRoot
+          ? undefined
+          : { attributions: {}, offset: 0, hasNextPage: false, relation: null },
+      };
+    });
+
+    const { store } = await renderComponent(
+      <PackagesPanel
+        external={false}
+        filterOptions={[]}
+        renderActions={() => null}
+        useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
+      >
+        {() => null}
+      </PackagesPanel>,
+      {
+        actions: [
+          setSelectedResourceId(resource),
+          setSelectedAttributionId(selectedAttribution.id),
+          setPendingAttributionNavigation({
+            attributionUuid: selectedAttribution.id,
+            fallbackResourcePath: '/',
+          }),
+        ],
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [selectedAttribution.id]: selectedAttribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [selectedAttribution.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+      },
+    );
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedResourceId).toBe('/');
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        selectedAttribution.id,
+      );
+      expect(store.getState().resourceState.pendingAttributionNavigation).toBe(
+        null,
       );
     });
   });

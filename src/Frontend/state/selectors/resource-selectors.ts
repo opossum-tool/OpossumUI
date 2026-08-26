@@ -5,7 +5,10 @@
 import { isEqualToManualAttribution } from '../../../shared/attribution-comparison';
 import type { PackageInfo, Relation } from '../../../shared/shared-types';
 import type { State } from '../../types/types';
-import type { TargetAttributionFilterChange } from '../actions/resource-actions/types';
+import type {
+  PendingAttributionNavigation,
+  TargetAttributionFilterChange,
+} from '../actions/resource-actions/types';
 
 export function getSelectedAttributionId(state: State): string {
   return state.resourceState.selectedAttributionId;
@@ -23,6 +26,12 @@ export function getTargetAttributionFilterChange(
 
 export function getTargetAttributionRelation(state: State): Relation | null {
   return state.resourceState.targetAttributionRelation;
+}
+
+export function getPendingAttributionNavigation(
+  state: State,
+): PendingAttributionNavigation | null {
+  return state.resourceState.pendingAttributionNavigation;
 }
 
 export function getExpandedIds(state: State): Array<string> {

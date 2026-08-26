@@ -79,6 +79,111 @@ describe('listAttributionsPage', () => {
     });
   });
 
+  it('loads the prefix through a target attribution in one request', async () => {
+    const full = await listAttributions({
+      external: false,
+      resourcePathForRelationships: '/parent/resource',
+    });
+    const expectedIds = Object.entries(full.result)
+      .filter(([, attribution]) => attribution.relation === 'resource')
+      .map(([id]) => id);
+    const result = await listAttributionsPage({
+      external: false,
+      resourcePathForRelationships: '/parent/resource',
+      relation: 'resource',
+      targetAttributionUuid: 'resourceTwo',
+      offset: 0,
+      limit: 200,
+    });
+
+    expect(result.result.relation).toBe('resource');
+    const targetOffset = expectedIds.indexOf('resourceTwo');
+    expect(result.result.targetOffset).toBe(targetOffset);
+    expect(Object.keys(result.result.attributions)).toEqual(expectedIds);
+    expect(result.result.hasNextPage).toBe(false);
+  });
+
+  it('reports a target that does not match the list criteria', async () => {
+    const result = await listAttributionsPage({
+      external: false,
+      search: 'does-not-exist',
+      resourcePathForRelationships: '/parent/resource',
+      relation: 'resource',
+      targetAttributionUuid: 'resourceTwo',
+      offset: 0,
+      limit: 1,
+    });
+
+    expect(result.result).toEqual({
+      attributions: {},
+      offset: 0,
+      hasNextPage: false,
+      relation: null,
+    });
+  });
+
+  it('locates a target in a different relation than the requested relation', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/parent/resource',
+        '/parent/resource/child',
+      ]),
+      manualAttributions: {
+        attributions: {
+          targetChild: { id: 'targetChild', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/parent/resource/child': ['targetChild'],
+        },
+        attributionsToResources: {},
+      },
+    });
+    const result = await listAttributionsPage({
+      external: false,
+      resourcePathForRelationships: '/parent/resource',
+      relation: 'resource',
+      targetAttributionUuid: 'targetChild',
+      offset: 0,
+      limit: 200,
+    });
+
+    expect(result.result.relation).toBe('children');
+    expect(result.result.targetOffset).toBe(0);
+    expect(result.result.attributions.targetChild.relation).toBe('children');
+  });
+
+  it('loads the complete batched prefix for a target beyond the first page', async () => {
+    const attributions = Object.fromEntries(
+      Array.from({ length: 250 }, (_, index) => {
+        const id = `attribution-${index.toString().padStart(3, '0')}`;
+        return [id, { id, criticality: Criticality.None }];
+      }),
+    );
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/resource']),
+      manualAttributions: {
+        attributions,
+        resourcesToAttributions: {
+          '/resource': Object.keys(attributions),
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const result = await listAttributionsPage({
+      external: false,
+      resourcePathForRelationships: '/resource',
+      relation: 'resource',
+      targetAttributionUuid: 'attribution-200',
+      offset: 0,
+      limit: 200,
+    });
+
+    expect(result.result.targetOffset).toBe(200);
+    expect(Object.keys(result.result.attributions)).toHaveLength(250);
+    expect(result.result.attributions['attribution-200']).toBeDefined();
+  });
+
   it('concatenates into the same relation-specific order as the full query', async () => {
     const props = {
       external: false,
