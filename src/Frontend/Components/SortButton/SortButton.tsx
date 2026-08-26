@@ -8,6 +8,7 @@ import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import type { SortOption } from '../../../shared/attribution-result-set';
 import { text } from '../../../shared/text';
 import type { UseAttributionFilters } from '../../state/variables/use-filters';
 import {
@@ -15,7 +16,7 @@ import {
   type SelectMenuOption,
   type SelectMenuProps,
 } from '../SelectMenu/SelectMenu';
-import { type SortOption, useSortConfiguration } from './useSortingOptions';
+import { useSortConfiguration } from './useSortingOptions';
 
 interface Props extends Pick<
   SelectMenuProps,

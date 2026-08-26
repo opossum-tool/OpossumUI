@@ -27,11 +27,11 @@ export function useLinkedAttributionActionData({
   const isQueryWideSelection = selection?.mode === 'allMatching';
 
   const { data: attributions, isSuccess: areAttributionsReady } =
-    backend.listAttributions.useQuery(
+    backend.getAttributions.useQuery(
       open && !isMutationPending && !isQueryWideSelection
         ? {
+            attributionUuids: attributionIds,
             resourcePathForRelationships: selectedResourceId,
-            uuids: attributionIds,
           }
         : skipToken,
     );

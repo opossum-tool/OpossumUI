@@ -5,13 +5,11 @@
 import {
   expressionBuilder,
   type OperandExpression,
+  sql,
   type SqlBool,
 } from 'kysely';
 
-import type {
-  AttributionFilterKey,
-  AttributionValueFilters,
-} from '../../shared/attribution-filters';
+import type { AttributionResultSetCriteria } from '../../shared/attribution-result-set';
 import type { DB } from '../db/generated/databaseTypes';
 import { EDITABLE_ATTRIBUTION_RESOURCE_ACCESS } from '../types/types';
 import {
@@ -24,15 +22,9 @@ import {
   type ResourceRelationship,
 } from './utils';
 
-export type AttributionListFilterProps = {
-  external?: boolean;
-  filters?: Array<AttributionFilterKey>;
-  valueFilters?: AttributionValueFilters;
-  search?: string;
-  showResolved?: boolean;
-  excludeUnrelated?: boolean;
+export type AttributionResultSetFilterProps = AttributionResultSetCriteria & {
+  includeReadonly: boolean;
   uuids?: Array<string>;
-  includeReadonly?: boolean;
 };
 
 export function getAttributionListRelationshipExpression(
@@ -45,8 +37,8 @@ export function getAttributionListRelationshipExpression(
   }).$castTo<ResourceRelationship>();
 }
 
-export function getAttributionListWhereExpressions(
-  props: AttributionListFilterProps,
+function getAttributionWhereExpressions(
+  props: AttributionResultSetFilterProps,
   resource: { id: number; max_descendant_id: number } | undefined,
   ancestorId: number | undefined,
 ): Array<OperandExpression<SqlBool>> {
@@ -92,8 +84,24 @@ export function getAttributionListWhereExpressions(
   }
 
   if (props.uuids) {
-    expressions.push(eb('uuid', 'in', props.uuids));
+    expressions.push(
+      eb(
+        'uuid',
+        'in',
+        sql<string>`(
+        select value from json_each(${JSON.stringify(props.uuids)})
+      )`,
+      ),
+    );
   }
 
   return expressions;
+}
+
+export function getAttributionResultSetWhereExpressions(
+  props: AttributionResultSetFilterProps,
+  resource: { id: number; max_descendant_id: number } | undefined,
+  ancestorId: number | undefined,
+): Array<OperandExpression<SqlBool>> {
+  return getAttributionWhereExpressions(props, resource, ancestorId);
 }

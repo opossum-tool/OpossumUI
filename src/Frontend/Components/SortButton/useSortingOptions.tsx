@@ -7,12 +7,10 @@ import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import { useMemo } from 'react';
 
+import type { SortOption } from '../../../shared/attribution-result-set';
 import { text } from '../../../shared/text';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { ClassificationCIcon } from '../Icons/Icons';
-
-export type SortOption =
-  'alphabetically' | 'criticality' | 'occurrence' | 'classification';
 
 interface SortOptionConfiguration {
   label: string;

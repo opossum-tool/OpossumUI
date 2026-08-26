@@ -26,15 +26,15 @@ import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../../state/variabl
 import { initialAttributionFilters } from '../../../../state/variables/use-filters';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
-import { useInfiniteAttributionsList } from '../../../../util/use-infinite-attributions-list';
+import { useAuditAttributionsList } from '../../../../util/use-audit-attributions-list';
 import { useSelectedAttributionIsExternal } from '../../../../util/use-selected-attribution';
 import {
   PackagesPanel,
   type PackagesPanelChildrenProps,
 } from '../PackagesPanel';
 
-vi.mock('../../../../util/use-infinite-attributions-list', () => ({
-  useInfiniteAttributionsList: vi.fn(),
+vi.mock('../../../../util/use-audit-attributions-list', () => ({
+  useAuditAttributionsList: vi.fn(),
 }));
 
 vi.mock('../../../../util/use-selected-attribution', () => ({
@@ -57,7 +57,7 @@ function mockAttributions(
     counts[relation] = current;
     return counts;
   }, {});
-  vi.mocked(useInfiniteAttributionsList).mockReturnValue({
+  vi.mocked(useAuditAttributionsList).mockReturnValue({
     attributions: visibleAttributions,
     loading: false,
     relation: (Object.keys(relationCounts)[0] ?? 'resource') as Relation,
@@ -71,14 +71,21 @@ function mockAttributions(
     navigationResult:
       visibleAttributions !== attributions
         ? {
-            attributions,
+            found: true,
+            targetRelation: 'resource',
             offset: 0,
-            limit: 200,
-            hasNextPage: false,
-            relation: 'resource',
-            targetOffset: 0,
+            prefix: {
+              attributions,
+              offset: 0,
+              limit: 200,
+              hasNextPage: false,
+            },
           }
         : undefined,
+    navigationAttributions:
+      visibleAttributions !== attributions ? attributions : {},
+    navigationRelation:
+      visibleAttributions !== attributions ? 'resource' : null,
   });
 }
 
@@ -254,8 +261,8 @@ describe('PackagesPanel', () => {
     });
     const resource = faker.opossum.filePath(faker.opossum.resourceName());
     vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(false);
-    vi.mocked(useInfiniteAttributionsList).mockImplementation((params) => {
-      const isRoot = params.resourcePathForRelationships === '/';
+    vi.mocked(useAuditAttributionsList).mockImplementation((params) => {
+      const isRoot = params.criteria.resourcePathForRelationships === '/';
       return {
         attributions: isRoot
           ? { [selectedAttribution.id]: selectedAttribution }
@@ -274,12 +281,10 @@ describe('PackagesPanel', () => {
         navigationResult: isRoot
           ? undefined
           : {
-              attributions: {},
-              offset: 0,
-              limit: 200,
-              hasNextPage: false,
-              relation: null,
+              found: false,
             },
+        navigationAttributions: isRoot ? {} : {},
+        navigationRelation: isRoot ? null : null,
       };
     });
 

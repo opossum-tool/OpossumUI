@@ -5,15 +5,16 @@
 import { useState } from 'react';
 
 import { useAttributionFiltersInReportView } from '../../state/variables/use-filters';
-import { useFilteredReportsAttributionsList } from '../../util/use-attribution-lists';
 import { useFilterProperties } from '../../util/use-filter-properties';
 import { attributionFilterOptions } from '../AttributionPanels/attribution-filter-options';
 import { FilterButton } from '../FilterButton/FilterButton';
 import { useAttributionFilterOptions } from '../FilterButton/use-attribution-filter-options';
 
-export const TableFilterButton: React.FC = () => {
+export const TableFilterButton: React.FC<{
+  loading: boolean;
+  empty: boolean;
+}> = ({ loading, empty }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const { attributions, loading } = useFilteredReportsAttributionsList();
   const { filterProps } = useFilterProperties({
     mode: 'reportTable',
     enabled: isFilterOpen,
@@ -43,12 +44,7 @@ export const TableFilterButton: React.FC = () => {
         })
       }
       anchorPosition={'left'}
-      disabled={
-        loading ||
-        (!!attributions &&
-          Object.keys(attributions).length === 0 &&
-          !isFilterActive)
-      }
+      disabled={loading || (empty && !isFilterActive)}
     />
   );
 };

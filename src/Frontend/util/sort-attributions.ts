@@ -5,12 +5,12 @@
 import type { ListIterator } from 'lodash';
 import { keyBy, orderBy } from 'lodash-es';
 
+import type { SortOption } from '../../shared/attribution-result-set';
 import type {
   Attributions,
   PackageInfo,
   Relation,
 } from '../../shared/shared-types';
-import type { SortOption } from '../Components/SortButton/useSortingOptions';
 import { getCardLabels } from './get-card-labels';
 
 export function sortAttributions({

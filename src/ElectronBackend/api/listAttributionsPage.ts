@@ -9,11 +9,14 @@ import {
   sql,
 } from 'kysely';
 
-import type { SortOption } from '../../Frontend/Components/SortButton/useSortingOptions';
 import type {
-  AttributionFilterKey,
-  AttributionValueFilters,
-} from '../../shared/attribution-filters';
+  AttributionNavigationRequest,
+  AttributionPageRequest,
+  AttributionPreviewRequest,
+  AttributionRelationCountRequest,
+  AttributionResultSetCriteria,
+  AttributionResultSetScope,
+} from '../../shared/attribution-result-set';
 import type { AttributionSelection } from '../../shared/attribution-selection';
 import type {
   Attributions,
@@ -23,10 +26,14 @@ import type {
 import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
 import type { Attribution, DB } from '../db/generated/databaseTypes';
-import { AttributionResourceAccess } from '../types/types';
 import {
+  AttributionResourceAccess,
+  EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
+} from '../types/types';
+import {
+  type AttributionResultSetFilterProps,
   getAttributionListRelationshipExpression,
-  getAttributionListWhereExpressions,
+  getAttributionResultSetWhereExpressions,
 } from './attribution-list-query-utils';
 import {
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
@@ -42,32 +49,10 @@ function uuidSelection(uuids: Array<string>) {
   )`;
 }
 
-export type ListAttributionsPageProps = {
-  external?: boolean;
-  filters?: Array<AttributionFilterKey>;
-  resourcePathForRelationships?: string;
-  sort?: SortOption;
-  valueFilters?: AttributionValueFilters;
-  search?: string;
-  showResolved?: boolean;
-  excludeUnrelated?: boolean;
-  includeReadonly?: boolean;
-  relation: Relation;
-  targetAttributionUuid?: string;
-  excludedAttributionUuids?: Array<string>;
-  offset: number;
-  limit: number;
-};
+export type ListAttributionsPageProps = AttributionPageRequest;
 
-export type ListAttributionRelationCountsProps = Omit<
-  ListAttributionsPageProps,
-  | 'relation'
-  | 'sort'
-  | 'offset'
-  | 'limit'
-  | 'targetAttributionUuid'
-  | 'excludedAttributionUuids'
->;
+export type ListAttributionRelationCountsProps =
+  AttributionRelationCountRequest;
 
 export type AttributionRelationCount = {
   visibleCount: number;
@@ -103,19 +88,10 @@ export async function resolveAttributionSelection(
     return selection.attributionUuids;
   }
 
-  const resource = selection.query.resourcePathForRelationships
-    ? await getResourceOrThrow(
-        trx,
-        selection.query.resourcePathForRelationships,
-      )
-    : undefined;
-  const closestAncestor =
-    !selection.query.external && resource
-      ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-          trx,
-          resource.id,
-        )
-      : undefined;
+  const { resource, closestAncestor } = await getAttributionResultSetContext(
+    trx,
+    selection.query,
+  );
   const rows = await getFilteredQuery(
     trx,
     {
@@ -142,14 +118,40 @@ type PageQueryRow = {
 
 type PageDetailRow = Selectable<Attribution>;
 type AttributionQuery = SelectQueryBuilder<DB, 'attribution', unknown>;
-type AttributionListQueryProps = Omit<
-  ListAttributionsPageProps,
-  'relation' | 'offset' | 'limit'
-> &
-  Partial<Pick<ListAttributionsPageProps, 'offset' | 'limit'>> & {
-    relation?: Relation;
-    uuids?: Array<string>;
-  };
+type AttributionListQueryProps = AttributionResultSetFilterProps & {
+  relation?: Relation;
+};
+
+type AttributionPageExecutionProps = AttributionResultSetCriteria & {
+  scope: AttributionResultSetScope;
+  sort: ListAttributionsPageProps['sort'];
+  includeReadonly: boolean;
+  offset: number;
+  limit: number;
+  targetAttributionUuid?: string;
+  excludedAttributionUuids?: Array<string>;
+};
+
+export type AttributionPageResult = {
+  attributions: Attributions;
+  offset: number;
+  limit: number;
+  hasNextPage: boolean;
+};
+
+export type AttributionNavigationResult =
+  | { found: false }
+  | {
+      found: true;
+      targetRelation: Relation;
+      offset: number;
+      prefix: AttributionPageResult;
+    };
+
+type AttributionResultSetContext = {
+  resource: { id: number; max_descendant_id: number } | undefined;
+  closestAncestor: number | undefined;
+};
 
 const backendToFrontendRelationship = {
   same: 'resource',
@@ -164,6 +166,31 @@ const frontendToBackendRelationship = {
   parents: 'ancestor',
   unrelated: 'unrelated',
 } as const;
+
+function toResourceAccess(value: number) {
+  return value === AttributionResourceAccess.Mixed
+    ? 'mixed'
+    : value === AttributionResourceAccess.Readonly
+      ? 'readonly'
+      : 'writable';
+}
+
+async function getAttributionResultSetContext(
+  trx: Kysely<DB>,
+  criteria: AttributionResultSetCriteria,
+): Promise<AttributionResultSetContext> {
+  const resource = criteria.resourcePathForRelationships
+    ? await getResourceOrThrow(trx, criteria.resourcePathForRelationships)
+    : undefined;
+  const closestAncestor =
+    !criteria.external && resource
+      ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+          trx,
+          resource.id,
+        )
+      : undefined;
+  return { resource, closestAncestor };
+}
 
 function relationshipExpression(
   resource: { id: number; max_descendant_id: number } | undefined,
@@ -187,20 +214,125 @@ function getCount(row: PageQueryRow) {
 function toPackageInfo(detail: PageDetailRow, row: PageQueryRow): PackageInfo {
   return {
     ...packageInfoFromAttributionRow(detail),
-    resourceAccess:
-      detail.resource_access === AttributionResourceAccess.Mixed
-        ? 'mixed'
-        : detail.resource_access === AttributionResourceAccess.Readonly
-          ? 'readonly'
-          : 'writable',
+    resourceAccess: toResourceAccess(detail.resource_access),
     relation: backendToFrontendRelationship[row.relationship],
     count: getCount(row),
   } satisfies PackageInfo;
 }
 
+async function hydrateAttributionRows(
+  trx: Kysely<DB>,
+  rows: Array<PageQueryRow>,
+  resource: { id: number; max_descendant_id: number } | undefined,
+): Promise<Attributions> {
+  const uuids = rows.map((row) => row.uuid);
+  if (uuids.length === 0) {
+    return {};
+  }
+
+  const details = await trx
+    .selectFrom('attribution')
+    .selectAll()
+    .where('uuid', 'in', uuidSelection(uuids))
+    .execute();
+  const detailsByUuid = new Map(details.map((detail) => [detail.uuid, detail]));
+  const resourceCounts = await getResourceCounts(trx, uuids, resource);
+
+  return Object.fromEntries(
+    rows.flatMap((row) => {
+      const detail = detailsByUuid.get(row.uuid);
+      if (!detail) {
+        return [];
+      }
+      const counts = resourceCounts.get(row.uuid);
+      return [
+        [
+          row.uuid,
+          toPackageInfo(detail, {
+            ...row,
+            resource_count: counts?.total ?? row.resource_count ?? 0,
+            resource_count_below: counts?.below ?? row.resource_count_below,
+          }),
+        ],
+      ];
+    }),
+  );
+}
+
+async function getExplicitAttributionRows(
+  trx: Kysely<DB>,
+  uuids: Array<string>,
+  resource: { id: number; max_descendant_id: number } | undefined,
+  ancestorId: number | undefined,
+): Promise<Array<PageQueryRow>> {
+  const relationship = relationshipExpression(resource, ancestorId);
+  const rows = await trx
+    .selectFrom('attribution')
+    .select('uuid')
+    .select(relationship.as('relationship'))
+    .where('uuid', 'in', uuidSelection(uuids))
+    .execute();
+  const rowsByUuid = new Map(rows.map((row) => [row.uuid, row]));
+  return uuids.flatMap((uuid) => {
+    const row = rowsByUuid.get(uuid);
+    return row ? [row] : [];
+  });
+}
+
+export async function hydrateAttributionsByUuid(
+  trx: Kysely<DB>,
+  uuids: Array<string>,
+  resourcePathForRelationships?: string,
+): Promise<Attributions> {
+  if (uuids.length === 0) {
+    return {};
+  }
+
+  if (!resourcePathForRelationships) {
+    const details = await trx
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', 'in', uuidSelection(uuids))
+      .execute();
+    const detailsByUuid = new Map(
+      details.map((detail) => [detail.uuid, detail]),
+    );
+    return Object.fromEntries(
+      uuids.flatMap((uuid) => {
+        const detail = detailsByUuid.get(uuid);
+        return detail
+          ? [
+              [
+                uuid,
+                {
+                  ...packageInfoFromAttributionRow(detail),
+                  resourceAccess: toResourceAccess(detail.resource_access),
+                },
+              ],
+            ]
+          : [];
+      }),
+    );
+  }
+
+  const resource = await getResourceOrThrow(trx, resourcePathForRelationships);
+  const closestAncestor =
+    await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+      trx,
+      resource.id,
+    );
+  const rows = await getExplicitAttributionRows(
+    trx,
+    uuids,
+    resource,
+    closestAncestor,
+  );
+  return hydrateAttributionRows(trx, rows, resource);
+}
+
 function addOrdering(
   query: AttributionQuery,
-  props: ListAttributionsPageProps,
+  props: Pick<AttributionPageExecutionProps, 'sort'>,
 ): AttributionQuery {
   // This helper is intentionally kept in the page query. The UUID tie-breaker
   // makes offset boundaries stable even when all visible sort fields are equal.
@@ -239,7 +371,7 @@ function applyFilters(
   resource: { id: number; max_descendant_id: number } | undefined,
   ancestorId: number | undefined,
 ): AttributionQuery {
-  for (const expression of getAttributionListWhereExpressions(
+  for (const expression of getAttributionResultSetWhereExpressions(
     props,
     resource,
     ancestorId,
@@ -300,6 +432,8 @@ function getFilteredQuery(
   return applyFilters(query, props, resource, ancestorId) as typeof query;
 }
 
+type AttributionMembershipQuery = ReturnType<typeof getFilteredQuery>;
+
 function applyExcludedAttributionUuids(
   query: AttributionQuery,
   excludedAttributionUuids: Array<string> | undefined,
@@ -324,8 +458,6 @@ async function getRelationCounts(
     {
       ...props,
       relation: undefined,
-      offset: 0,
-      limit: 0,
       includeReadonly: true,
     },
     resource,
@@ -342,8 +474,6 @@ async function getRelationCounts(
     {
       ...props,
       relation: undefined,
-      offset: 0,
-      limit: 0,
       includeReadonly: false,
     },
     resource,
@@ -415,16 +545,8 @@ export async function listAttributionRelationCounts(
   const result = await getDb()
     .transaction()
     .execute(async (trx) => {
-      const resource = props.resourcePathForRelationships
-        ? await getResourceOrThrow(trx, props.resourcePathForRelationships)
-        : undefined;
-      const closestAncestor =
-        !props.external && resource
-          ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-              trx,
-              resource.id,
-            )
-          : undefined;
+      const { resource, closestAncestor } =
+        await getAttributionResultSetContext(trx, props);
       return getRelationCounts(trx, props, resource, closestAncestor);
     });
 
@@ -441,40 +563,32 @@ export async function getAttributionSelectionSummary(
         props.selection.mode === 'allMatching'
           ? props.selection.query
           : undefined;
-      const resource = query?.resourcePathForRelationships
-        ? await getResourceOrThrow(trx, query.resourcePathForRelationships)
-        : undefined;
-      const closestAncestor =
-        query && !query.external && resource
-          ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-              trx,
-              resource.id,
-            )
-          : undefined;
-      const membership = getFilteredQuery(
-        trx,
-        {
-          ...(query ?? {
-            external: undefined,
-            filters: [],
-            search: '',
-            valueFilters: {},
-            resourcePathForRelationships: '',
-            showResolved: true,
-            excludeUnrelated: false,
-            relation: undefined,
-          }),
-          includeReadonly: false,
-          uuids:
-            props.selection.mode === 'explicit'
-              ? props.selection.attributionUuids
-              : undefined,
-        },
-        resource,
-        closestAncestor,
-        true,
-        false,
-      );
+      const { resource, closestAncestor } = query
+        ? await getAttributionResultSetContext(trx, query)
+        : { resource: undefined, closestAncestor: undefined };
+      let membership: AttributionMembershipQuery;
+      if (props.selection.mode === 'allMatching') {
+        membership = getFilteredQuery(
+          trx,
+          {
+            ...props.selection.query,
+            includeReadonly: false,
+          },
+          resource,
+          closestAncestor,
+          true,
+          false,
+        );
+      } else {
+        membership = trx
+          .selectFrom('attribution')
+          .selectAll('attribution')
+          .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
+          .where('uuid', 'in', uuidSelection(props.selection.attributionUuids))
+          .select((eb) =>
+            eb.val('same').as('relationship'),
+          ) as AttributionMembershipQuery;
+      }
       const membershipWithExclusions =
         props.selection.mode === 'allMatching' &&
         props.selection.excludedAttributionUuids.length > 0
@@ -544,146 +658,140 @@ export async function getAttributionSelectionSummary(
   return { result };
 }
 
-export async function listAttributionsPage(
-  props: ListAttributionsPageProps,
-): Promise<{
-  result: {
-    attributions: Attributions;
-    offset: number;
-    limit: number;
-    hasNextPage: boolean;
-    relation?: Relation | null;
-    targetOffset?: number;
+async function executeScopedPage(
+  trx: Kysely<DB>,
+  props: AttributionPageExecutionProps,
+  resource: { id: number; max_descendant_id: number } | undefined,
+  closestAncestor: number | undefined,
+): Promise<AttributionPageResult> {
+  const relation =
+    props.scope.mode === 'relation' ? props.scope.relation : undefined;
+  const query = applyExcludedAttributionUuids(
+    getFilteredQuery(
+      trx,
+      { ...props, relation },
+      resource,
+      closestAncestor,
+      true,
+      props.sort === 'occurrence',
+    ),
+    props.excludedAttributionUuids,
+  );
+  const pageRows = (await addOrdering(query, props)
+    .limit(props.limit + 1)
+    .offset(props.offset)
+    .execute()) as Array<PageQueryRow>;
+  const visibleRows = pageRows.slice(0, props.limit);
+
+  return {
+    attributions: await hydrateAttributionRows(trx, visibleRows, resource),
+    offset: props.offset,
+    limit: props.limit,
+    hasNextPage: pageRows.length > props.limit,
   };
-}> {
+}
+
+async function executeAttributionPage(
+  props: AttributionPageExecutionProps,
+): Promise<{ result: AttributionPageResult }> {
   const limit = props.limit > 0 ? props.limit : DEFAULT_PAGE_SIZE;
   const offset = Math.max(0, props.offset);
-
   const result = await getDb()
     .transaction()
     .execute(async (trx) => {
-      const resource = props.resourcePathForRelationships
-        ? await getResourceOrThrow(trx, props.resourcePathForRelationships)
-        : undefined;
-      const closestAncestor =
-        !props.external && resource
-          ? await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-              trx,
-              resource.id,
-            )
-          : undefined;
+      const { resource, closestAncestor } =
+        await getAttributionResultSetContext(trx, props);
+      return executeScopedPage(
+        trx,
+        { ...props, offset, limit },
+        resource,
+        closestAncestor,
+      );
+    });
 
-      let pageProps = { ...props, offset, limit };
-      let targetOffset: number | undefined;
-      let targetRelation: Relation | null = props.relation;
+  return { result };
+}
 
-      if (props.targetAttributionUuid) {
-        const targetQuery = applyExcludedAttributionUuids(
-          getFilteredQuery(
-            trx,
-            { ...props, relation: undefined },
-            resource,
-            closestAncestor,
-            true,
-            props.sort === 'occurrence',
-          ),
-          props.excludedAttributionUuids,
-        );
-        const orderedRows = (await addOrdering(
-          targetQuery,
-          props,
-        ).execute()) as Array<PageQueryRow>;
-        const targetRow = orderedRows.find(
-          (row) => row.uuid === props.targetAttributionUuid,
-        );
+export async function listAttributionsPage(
+  props: ListAttributionsPageProps,
+): Promise<{ result: AttributionPageResult }> {
+  const response = await executeAttributionPage(props);
+  const { attributions, offset, limit, hasNextPage } = response.result;
+  return { result: { attributions, offset, limit, hasNextPage } };
+}
 
-        if (!targetRow) {
-          return {
-            attributions: {},
-            offset: 0,
-            limit,
-            hasNextPage: false,
-            relation: null,
-          };
-        }
+export async function listAttributionPreview(
+  props: AttributionPreviewRequest,
+): Promise<{ result: AttributionPageResult }> {
+  const response = await executeAttributionPage({
+    ...props,
+    scope: { mode: 'relation', relation: props.relation },
+    sort: 'alphabetically',
+    includeReadonly: false,
+  });
+  return response;
+}
 
-        targetRelation = backendToFrontendRelationship[targetRow.relationship];
-        targetOffset = orderedRows
-          .filter((row) => row.relationship === targetRow.relationship)
-          .findIndex((row) => row.uuid === props.targetAttributionUuid);
-        pageProps = {
-          ...props,
-          relation: targetRelation,
-          offset: 0,
-          limit: (Math.floor(targetOffset / limit) + 1) * limit,
-          targetAttributionUuid: undefined,
-        };
-      }
-
-      const pageQuery = applyExcludedAttributionUuids(
+export async function locateAttribution(
+  props: AttributionNavigationRequest,
+): Promise<{ result: AttributionNavigationResult }> {
+  const limit = props.limit > 0 ? props.limit : DEFAULT_PAGE_SIZE;
+  const result = await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      const { resource, closestAncestor } =
+        await getAttributionResultSetContext(trx, props);
+      const allRows = (await addOrdering(
         getFilteredQuery(
           trx,
-          pageProps,
+          { ...props, relation: undefined },
           resource,
           closestAncestor,
           true,
           props.sort === 'occurrence',
         ),
-        props.excludedAttributionUuids,
+        props,
+      ).execute()) as Array<PageQueryRow>;
+      const targetIndex = allRows.findIndex(
+        (row) => row.uuid === props.targetAttributionUuid,
       );
-      const requestedLimit = props.targetAttributionUuid
-        ? pageProps.limit
-        : limit;
-      const pageRows = (await addOrdering(pageQuery, pageProps)
-        .limit(requestedLimit + 1)
-        .offset(pageProps.offset)
-        .execute()) as Array<PageQueryRow>;
+      if (targetIndex < 0) {
+        return { found: false } satisfies AttributionNavigationResult;
+      }
 
-      const hasNextPage = pageRows.length > requestedLimit;
-      const visibleRows = pageRows.slice(0, requestedLimit);
-      const visibleUuids = visibleRows.map((row) => row.uuid);
-      const details = await trx
-        .selectFrom('attribution')
-        .selectAll()
-        .where('uuid', 'in', uuidSelection(visibleUuids))
-        .execute();
-      const detailsByUuid = new Map(
-        details.map((detail) => [detail.uuid, detail]),
+      const targetRow = allRows[targetIndex];
+      const targetRelation =
+        backendToFrontendRelationship[targetRow.relationship];
+      const scopedRows =
+        props.navigationScope === 'all'
+          ? allRows
+          : allRows.filter(
+              (row) => row.relationship === targetRow.relationship,
+            );
+      const offset = scopedRows.findIndex(
+        (row) => row.uuid === props.targetAttributionUuid,
       );
-      const resourceCounts = await getResourceCounts(
+      const prefixLimit = (Math.floor(offset / limit) + 1) * limit;
+      const prefix = await executeScopedPage(
         trx,
-        visibleUuids,
+        {
+          ...props,
+          scope:
+            props.navigationScope === 'all'
+              ? { mode: 'all' }
+              : { mode: 'relation', relation: targetRelation },
+          offset: 0,
+          limit: prefixLimit,
+        },
         resource,
+        closestAncestor,
       );
-
       return {
-        attributions: Object.fromEntries(
-          visibleRows.flatMap((row) => {
-            const detail = detailsByUuid.get(row.uuid);
-            if (!detail) {
-              return [];
-            }
-            const counts = resourceCounts.get(row.uuid);
-            return [
-              [
-                row.uuid,
-                toPackageInfo(detail, {
-                  ...row,
-                  resource_count: counts?.total ?? row.resource_count ?? 0,
-                  resource_count_below:
-                    counts?.below ?? row.resource_count_below,
-                }),
-              ],
-            ];
-          }),
-        ),
-        offset: pageProps.offset,
-        limit: requestedLimit,
-        hasNextPage,
-        relation: targetRelation,
-        ...(targetOffset !== undefined && { targetOffset }),
-      };
+        found: true,
+        targetRelation,
+        offset,
+        prefix,
+      } satisfies AttributionNavigationResult;
     });
-
   return { result };
 }

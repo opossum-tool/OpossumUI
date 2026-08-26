@@ -50,10 +50,10 @@ export const ConfirmReplacePopup = ({
     : null;
 
   const { data: attributionsForReplacement, isSuccess: areAttributionsReady } =
-    backend.listAttributions.useQuery(
+    backend.getAttributions.useQuery(
       open && !isReplacing && !isQueryWideSelection
         ? {
-            uuids: attributionIdsForReplacement,
+            attributionUuids: attributionIdsForReplacement,
           }
         : skipToken,
     );

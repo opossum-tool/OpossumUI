@@ -20,10 +20,9 @@ export function useAttributionPreview(
       queryKey: ['attribution-selection-preview', selection],
       enabled: initialized && open,
       fetchPage: (pageParams) =>
-        backend.listAttributionsPage.query({
+        backend.listAttributionPreview.query({
           ...selection.query,
           excludedAttributionUuids: selection.excludedAttributionUuids,
-              includeReadonly: false,
           ...pageParams,
         }),
     }),

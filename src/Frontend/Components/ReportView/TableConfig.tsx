@@ -15,7 +15,6 @@ import type {
 } from '../../../shared/shared-types';
 import { useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
-import { TableFilterButton } from './TableFilterButton';
 
 const COLUMN_WIDTHS = {
   verySmall: '40px',
@@ -36,7 +35,7 @@ export interface TableConfig {
 export const tableConfigs: Array<TableConfig> = [
   {
     attributionProperty: 'id',
-    displayName: <TableFilterButton />,
+    displayName: null,
     width: COLUMN_WIDTHS.verySmall,
   },
   {
