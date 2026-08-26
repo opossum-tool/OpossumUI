@@ -5,7 +5,7 @@
 import { QueryObserver } from '@tanstack/react-query';
 
 import { queryClient } from '../../Components/AppContainer/queryClient';
-import { backend } from '../backendClient';
+import { ATTRIBUTION_NAVIGATION_QUERY_KEY, backend } from '../backendClient';
 
 const queryKey = [
   'backend',
@@ -134,6 +134,31 @@ describe('backend mutation cache ownership', () => {
 
     await vi.waitFor(() =>
       expect(queryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(true),
+    );
+  });
+
+  it('invalidates cached attribution navigation after list-affecting mutations', async () => {
+    const navigationQueryKey = [
+      ...ATTRIBUTION_NAVIGATION_QUERY_KEY,
+      { targetAttributionUuid: 'attribution-a' },
+    ] as const;
+    queryClient.setQueryData(navigationQueryKey, {
+      attributions: {},
+      offset: 0,
+      hasNextPage: false,
+      relation: null,
+    });
+    vi.mocked(window.electronAPI.api).mockResolvedValueOnce({
+      invalidates: [{ queryName: 'listAttributionsPage' as const }],
+      attributionCacheImpact: { mode: 'broad' },
+    });
+
+    await backend.invalidateGetAttributionData.mutate(undefined);
+
+    await vi.waitFor(() =>
+      expect(queryClient.getQueryState(navigationQueryKey)?.isInvalidated).toBe(
+        true,
+      ),
     );
   });
 });

@@ -53,6 +53,7 @@ export type ListAttributionsPageProps = {
   excludeUnrelated?: boolean;
   includeReadonly?: boolean;
   relation: Relation;
+  targetAttributionUuid?: string;
   excludedAttributionUuids?: Array<string>;
   offset: number;
   limit: number;
@@ -60,7 +61,12 @@ export type ListAttributionsPageProps = {
 
 export type ListAttributionRelationCountsProps = Omit<
   ListAttributionsPageProps,
-  'relation' | 'sort' | 'offset' | 'limit' | 'excludedAttributionUuids'
+  | 'relation'
+  | 'sort'
+  | 'offset'
+  | 'limit'
+  | 'targetAttributionUuid'
+  | 'excludedAttributionUuids'
 >;
 
 export type AttributionRelationCount = {
@@ -545,6 +551,8 @@ export async function listAttributionsPage(
     attributions: Attributions;
     offset: number;
     hasNextPage: boolean;
+    relation?: Relation | null;
+    targetOffset?: number;
   };
 }> {
   const limit = props.limit > 0 ? props.limit : DEFAULT_PAGE_SIZE;
@@ -564,10 +572,56 @@ export async function listAttributionsPage(
             )
           : undefined;
 
+      let pageProps = { ...props, offset, limit };
+      let targetOffset: number | undefined;
+      let targetRelation: Relation | null = props.relation;
+
+      if (props.targetAttributionUuid) {
+        const targetQuery = applyExcludedAttributionUuids(
+          getFilteredQuery(
+            trx,
+            { ...props, relation: undefined },
+            resource,
+            closestAncestor,
+            true,
+            props.sort === 'occurrence',
+          ),
+          props.excludedAttributionUuids,
+        );
+        const orderedRows = (await addOrdering(
+          targetQuery,
+          props,
+        ).execute()) as Array<PageQueryRow>;
+        const targetRow = orderedRows.find(
+          (row) => row.uuid === props.targetAttributionUuid,
+        );
+
+        if (!targetRow) {
+          return {
+            attributions: {},
+            offset: 0,
+            hasNextPage: false,
+            relation: null,
+          };
+        }
+
+        targetRelation = backendToFrontendRelationship[targetRow.relationship];
+        targetOffset = orderedRows
+          .filter((row) => row.relationship === targetRow.relationship)
+          .findIndex((row) => row.uuid === props.targetAttributionUuid);
+        pageProps = {
+          ...props,
+          relation: targetRelation,
+          offset: 0,
+          limit: (Math.floor(targetOffset / limit) + 1) * limit,
+          targetAttributionUuid: undefined,
+        };
+      }
+
       const pageQuery = applyExcludedAttributionUuids(
         getFilteredQuery(
           trx,
-          props,
+          pageProps,
           resource,
           closestAncestor,
           true,
@@ -575,13 +629,16 @@ export async function listAttributionsPage(
         ),
         props.excludedAttributionUuids,
       );
-      const pageRows = (await addOrdering(pageQuery, props)
-        .limit(limit + 1)
-        .offset(offset)
+      const requestedLimit = props.targetAttributionUuid
+        ? pageProps.limit
+        : limit;
+      const pageRows = (await addOrdering(pageQuery, pageProps)
+        .limit(requestedLimit + 1)
+        .offset(pageProps.offset)
         .execute()) as Array<PageQueryRow>;
 
-      const hasNextPage = pageRows.length > limit;
-      const visibleRows = pageRows.slice(0, limit);
+      const hasNextPage = pageRows.length > requestedLimit;
+      const visibleRows = pageRows.slice(0, requestedLimit);
       const visibleUuids = visibleRows.map((row) => row.uuid);
       const details = await trx
         .selectFrom('attribution')
@@ -618,8 +675,10 @@ export async function listAttributionsPage(
             ];
           }),
         ),
-        offset,
+        offset: pageProps.offset,
         hasNextPage,
+        relation: targetRelation,
+        ...(targetOffset !== undefined && { targetOffset }),
       };
     });
 

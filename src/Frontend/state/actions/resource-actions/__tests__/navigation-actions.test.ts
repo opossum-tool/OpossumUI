@@ -6,14 +6,21 @@ import { View } from '../../../../enums/enums';
 import { createAppStore } from '../../../configure-store';
 import {
   getExpandedIds,
+  getPendingAttributionNavigation,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
 } from '../../../selectors/resource-selectors';
 import { getSelectedView } from '../../../selectors/view-selector';
+import {
+  type AttributionFilters,
+  MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+} from '../../../variables/use-filters';
+import { setVariable } from '../../variables-actions/variables-actions';
 import { navigateToView, setTargetView } from '../../view-actions/view-actions';
 import {
+  setPendingAttributionNavigation,
   setSelectedAttributionId,
   setSelectedResourceId,
   setTargetSelectedAttributionId,
@@ -22,6 +29,7 @@ import {
 import {
   applyFocusedAttributionOutcome,
   openResourceInResourceBrowser,
+  resetManualAuditFiltersPreservingSort,
   setSelectedResourceOrAttributionIdToTargetValue,
 } from '../navigation-actions';
 
@@ -100,6 +108,51 @@ describe('setSelectedResourceOrAttributionIdToTargetValue', () => {
     expect(getSelectedView(state)).toBe(View.Audit);
     expect(getSelectedAttributionId(state)).toBe('newAttributionId');
     expect(getTargetSelectedAttributionId(state)).toBeNull();
+  });
+});
+
+describe('resetManualAuditFiltersPreservingSort', () => {
+  it('clears audit filters and search while preserving sorting', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+        filters: ['firstParty'],
+        search: 'react',
+        valueFilters: { license: 'MIT' },
+        sorting: 'criticality',
+      } satisfies AttributionFilters),
+    );
+
+    testStore.dispatch(resetManualAuditFiltersPreservingSort());
+
+    expect(
+      testStore.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: [],
+      search: '',
+      valueFilters: {},
+      sorting: 'criticality',
+    });
+  });
+});
+
+describe('pending attribution navigation', () => {
+  it('stores and clears a report fallback target', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setPendingAttributionNavigation({
+        attributionUuid: 'target',
+        fallbackResourcePath: '/',
+      }),
+    );
+
+    expect(getPendingAttributionNavigation(testStore.getState())).toEqual({
+      attributionUuid: 'target',
+      fallbackResourcePath: '/',
+    });
+
+    testStore.dispatch(setSelectedAttributionId('other'));
+    expect(getPendingAttributionNavigation(testStore.getState())).toBeNull();
   });
 });
 

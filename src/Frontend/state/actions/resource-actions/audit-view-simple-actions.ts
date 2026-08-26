@@ -12,13 +12,16 @@ import {
 import { setVariable } from '../variables-actions/variables-actions';
 import {
   ACTION_SET_EXPANDED_IDS,
+  ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE,
   ACTION_SET_TARGET_ATTRIBUTION_RELATION,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
+  type PendingAttributionNavigation,
   type SetExpandedIdsAction,
+  type SetPendingAttributionNavigationAction,
   type SetSelectedAttributionId,
   type SetSelectedResourceIdAction,
   type SetTargetAttributionFilterChangeAction,
@@ -82,6 +85,15 @@ export function setTargetAttributionRelation(
   return {
     type: ACTION_SET_TARGET_ATTRIBUTION_RELATION,
     payload: relation,
+  };
+}
+
+export function setPendingAttributionNavigation(
+  navigation: PendingAttributionNavigation | null,
+): SetPendingAttributionNavigationAction {
+  return {
+    type: ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION,
+    payload: navigation,
   };
 }
 export function setAttributionFilters(

@@ -11,6 +11,12 @@ import {
 } from '../../selectors/resource-selectors';
 import type { AppThunkAction } from '../../types';
 import {
+  type AttributionFilters,
+  initialAttributionFilters,
+  MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+} from '../../variables/use-filters';
+import { setVariable } from '../variables-actions/variables-actions';
+import {
   setExpandedIds,
   setSelectedAttributionId,
   setSelectedResourceId,
@@ -33,6 +39,20 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
       dispatch(setSelectedAttributionId(targetSelectedAttributionId));
       dispatch(setTargetSelectedAttributionId(null));
     }
+  };
+}
+
+export function resetManualAuditFiltersPreservingSort(): AppThunkAction {
+  return (dispatch, getState) => {
+    const currentFilters = getState().variablesState[
+      MANUAL_ATTRIBUTION_FILTERS_AUDIT
+    ] as AttributionFilters | undefined;
+    dispatch(
+      setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+        ...initialAttributionFilters,
+        sorting: currentFilters?.sorting ?? initialAttributionFilters.sorting,
+      }),
+    );
   };
 }
 
