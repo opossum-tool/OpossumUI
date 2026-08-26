@@ -8,6 +8,15 @@ import type {
 } from './attribution-filters';
 import type { Relation } from './shared-types';
 
+export type FocusedAttributionOutcome =
+  | { status: 'unchanged' }
+  | { status: 'removed'; attributionUuid: string }
+  | {
+      status: 'remapped';
+      attributionUuid: string;
+      newAttributionUuid: string;
+    };
+
 /** The part of an attribution-list query that defines its result set. */
 export interface AttributionSelectionQuery {
   external: boolean;

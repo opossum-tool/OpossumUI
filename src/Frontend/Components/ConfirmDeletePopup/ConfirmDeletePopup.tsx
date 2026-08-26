@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { text } from '../../../shared/text';
-import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import { applyFocusedAttributionOutcome } from '../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
 import { backend } from '../../util/backendClient';
@@ -29,17 +29,14 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
 }) => {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const clearSelectedAttributionIfDeleted = () => {
-    if (attributionIdsToDelete.includes(selectedAttributionId)) {
-      dispatch(setSelectedAttributionId(''));
-    }
-  };
   const deleteAttributions = backend.deleteAttributions.useMutation({
-    onBeforeInvalidation: clearSelectedAttributionIfDeleted,
+    onBeforeInvalidation: ({ focusedAttributionOutcome }) =>
+      dispatch(applyFocusedAttributionOutcome(focusedAttributionOutcome)),
   });
   const unlinkResourceFromAttributions =
     backend.unlinkResourceFromAttributions.useMutation({
-      onBeforeInvalidation: clearSelectedAttributionIfDeleted,
+      onBeforeInvalidation: ({ focusedAttributionOutcome }) =>
+        dispatch(applyFocusedAttributionOutcome(focusedAttributionOutcome)),
     });
   const selectionSummaryQuery = backend.getAttributionSelectionSummary.useQuery(
     {
@@ -73,8 +70,11 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   const handleDelete = async () => {
     await deleteAttributions.mutateAsync(
       selection?.mode === 'allMatching'
-        ? { selection }
-        : { attributionUuids: attributionIdsToDelete },
+        ? { selection, focusedAttributionUuid: selectedAttributionId }
+        : {
+            attributionUuids: attributionIdsToDelete,
+            focusedAttributionUuid: selectedAttributionId,
+          },
     );
     clearSelection?.();
     onClose();
@@ -82,10 +82,15 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   const handleDeleteOnResource = async () => {
     await unlinkResourceFromAttributions.mutateAsync(
       selection?.mode === 'allMatching'
-        ? { resourcePath: selectedResourceId, selection }
+        ? {
+            resourcePath: selectedResourceId,
+            selection,
+            focusedAttributionUuid: selectedAttributionId,
+          }
         : {
             resourcePath: selectedResourceId,
             attributionUuids: attributionIdsToDelete,
+            focusedAttributionUuid: selectedAttributionId,
           },
     );
     clearSelection?.();

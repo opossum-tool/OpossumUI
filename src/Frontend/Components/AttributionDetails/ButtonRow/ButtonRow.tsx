@@ -23,7 +23,7 @@ import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setTargetAttributionRelation } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { setSelectedAttributionIdIfRemapped } from '../../../state/actions/resource-actions/navigation-actions';
+import { applyFocusedAttributionOutcome } from '../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getIsPackageInfoDirty,
@@ -139,23 +139,19 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
       } else if (packageInfo.id) {
         const result = await updateOrMatch.mutateAsync({
           attributions: { [packageInfo.id]: packageInfo },
+          focusedAttributionUuid: packageInfo.id,
         });
         dispatch(
-          setSelectedAttributionIdIfRemapped(
-            result.oldUuidsToNewUuids,
-            packageInfo.id,
-          ),
+          applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
         );
       } else {
         const result = await createOrMatch.mutateAsync({
           resourcePath: selectedResourceId,
           attributions: { [packageInfo.id]: packageInfo },
+          focusedAttributionUuid: packageInfo.id,
         });
         dispatch(
-          setSelectedAttributionIdIfRemapped(
-            result.inputKeysToNewUuids,
-            packageInfo.id,
-          ),
+          applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
         );
       }
     }
@@ -302,11 +298,11 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
               const result = await linkAttribution.mutateAsync({
                 resourcePath: selectedResourceId,
                 attributions: { [packageInfo.id]: packageInfo },
+                focusedAttributionUuid: packageInfo.id,
               });
               dispatch(
-                setSelectedAttributionIdIfRemapped(
-                  result.inputKeysToNewUuids,
-                  packageInfo.id,
+                applyFocusedAttributionOutcome(
+                  result.focusedAttributionOutcome,
                 ),
               );
               dispatch(setTargetAttributionRelation('resource'));

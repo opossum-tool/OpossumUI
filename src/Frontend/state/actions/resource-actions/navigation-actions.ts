@@ -2,8 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { FocusedAttributionOutcome } from '../../../../shared/attribution-selection';
 import { getParents } from '../../helpers/get-parents';
 import {
+  getSelectedAttributionId,
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
 } from '../../selectors/resource-selectors';
@@ -43,18 +45,21 @@ export function openResourceInResourceBrowser(
   };
 }
 
-export function setSelectedAttributionIdIfRemapped(
-  attributionKeyToNewUuid: Record<string, string>,
-  currentAttributionId: string,
+export function applyFocusedAttributionOutcome(
+  outcome: FocusedAttributionOutcome,
 ): AppThunkAction {
-  return (dispatch) => {
-    const newSelectedAttributionId =
-      attributionKeyToNewUuid[currentAttributionId];
+  return (dispatch, getState) => {
     if (
-      newSelectedAttributionId !== undefined &&
-      newSelectedAttributionId !== currentAttributionId
+      outcome.status === 'unchanged' ||
+      getSelectedAttributionId(getState()) !== outcome.attributionUuid
     ) {
-      dispatch(setSelectedAttributionId(newSelectedAttributionId));
+      return;
     }
+
+    dispatch(
+      setSelectedAttributionId(
+        outcome.status === 'removed' ? '' : outcome.newAttributionUuid,
+      ),
+    );
   };
 }

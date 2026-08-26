@@ -10,6 +10,7 @@ import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { getSelectedAttributionId } from '../../../state/selectors/resource-selectors';
 import { expectManualAttributions } from '../../../test-helpers/expectations';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -21,7 +22,7 @@ describe('ConfirmDeletePopup', () => {
     const second = faker.opossum.packageInfo({ packageName: 'second' });
     const resource = faker.opossum.filePath(faker.opossum.resourceName());
 
-    await renderComponent(
+    const { store } = await renderComponent(
       <ConfirmDeletePopup
         open
         onClose={noop}
@@ -52,6 +53,7 @@ describe('ConfirmDeletePopup', () => {
           }),
           resources: pathsToResources([resource]),
         }),
+        actions: [setSelectedAttributionId(first.id)],
       },
     );
 
@@ -62,6 +64,7 @@ describe('ConfirmDeletePopup', () => {
     );
 
     await expectManualAttributions({ [second.id]: second });
+    expect(getSelectedAttributionId(store.getState())).toBe('');
   });
 
   it('displays to-be-deleted attributions and counts the affected resources', async () => {

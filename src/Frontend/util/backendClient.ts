@@ -37,14 +37,14 @@ import {
 // We use the same options as tanstack query, with the exception that the
 // consumer can't set mutationKey and mutationFn, which are set by us
 type ClientMutationOptions<M extends MutationName> = Omit<
-  UseMutationOptions<Awaited<MutationResult<M>>, unknown, MutationParams<M>>, // Result type, Error Type, Parameter Type
+  UseMutationOptions<MutationResult<M>, unknown, MutationParams<M>>, // Result type, Error Type, Parameter Type
   'mutationKey' | 'mutationFn'
 > & {
-  onBeforeInvalidation?: () => void;
+  onBeforeInvalidation?: (result: MutationResult<M>) => void;
 };
 
 type ClientMutationReturn<M extends MutationName> = ReturnType<
-  typeof useMutation<Awaited<MutationResult<M>>, unknown, MutationParams<M>> // Result type, Error Type, Parameter Type
+  typeof useMutation<MutationResult<M>, unknown, MutationParams<M>> // Result type, Error Type, Parameter Type
 >;
 
 // We use the same options as tanstack query, with the exception that the
@@ -265,14 +265,15 @@ export const backend = new Proxy({} as BackendClient, {
   get(_, command: CommandName) {
     async function mutate(
       params: MutationParams<MutationName>,
-      onSuccessBeforeInvalidation?: () => void,
+      onSuccessBeforeInvalidation?: (result: unknown) => void,
     ) {
       const response = await traceFrontendPhase(
         'mutation.execute',
         { mutation: command },
         () => window.electronAPI.api(command, params),
       );
-      onSuccessBeforeInvalidation?.();
+      const mutationResult = 'result' in response ? response.result : undefined;
+      onSuccessBeforeInvalidation?.(mutationResult);
       const attributionCacheImpact =
         'attributionCacheImpact' in response
           ? response.attributionCacheImpact
@@ -420,7 +421,7 @@ export const backend = new Proxy({} as BackendClient, {
           ).then(() => undefined),
       );
       window.electronAPI.saveFile();
-      return 'result' in response ? response.result : undefined;
+      return mutationResult;
     }
 
     async function query(params?: QueryParams<QueryName>) {

@@ -9,7 +9,7 @@ import { useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
 import { setTargetAttributionRelation } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
-import { setSelectedAttributionIdIfRemapped } from '../../../../state/actions/resource-actions/navigation-actions';
+import { applyFocusedAttributionOutcome } from '../../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import {
   getIsPackageInfoDirty,
@@ -57,17 +57,19 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
       );
       const result = await createOrMatch.mutateAsync(
         selection.mode === 'allMatching'
-          ? { resourcePath: selectedResourceId, selection }
+          ? {
+              resourcePath: selectedResourceId,
+              selection,
+              focusedAttributionUuid: selectedAttributionId,
+            }
           : {
               resourcePath: selectedResourceId,
               attributions: attributionsToLink,
+              focusedAttributionUuid: selectedAttributionId,
             },
       );
       dispatch(
-        setSelectedAttributionIdIfRemapped(
-          result.inputKeysToNewUuids,
-          selectedAttributionId,
-        ),
+        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
       );
     }
     dispatch(setTargetAttributionRelation('resource'));
