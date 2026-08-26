@@ -53,6 +53,20 @@ describe('listAttributionsPage', () => {
     expect(result.result.hasNextPage).toBe(true);
   });
 
+  it('applies exclusions before paginating a preview', async () => {
+    const result = await listAttributionsPage({
+      external: false,
+      resourcePathForRelationships: '/parent/resource',
+      relation: 'resource',
+      excludedAttributionUuids: ['resourceOne'],
+      offset: 0,
+      limit: 1,
+    });
+
+    expect(Object.keys(result.result.attributions)).toEqual(['resourceTwo']);
+    expect(result.result.hasNextPage).toBe(false);
+  });
+
   it('returns relation counts independently of page hydration', async () => {
     const counts = await listAttributionRelationCounts({
       external: false,

@@ -53,13 +53,14 @@ export type ListAttributionsPageProps = {
   excludeUnrelated?: boolean;
   includeReadonly?: boolean;
   relation: Relation;
+  excludedAttributionUuids?: Array<string>;
   offset: number;
   limit: number;
 };
 
 export type ListAttributionRelationCountsProps = Omit<
   ListAttributionsPageProps,
-  'relation' | 'sort' | 'offset' | 'limit'
+  'relation' | 'sort' | 'offset' | 'limit' | 'excludedAttributionUuids'
 >;
 
 export type AttributionRelationCount = {
@@ -291,6 +292,19 @@ function getFilteredQuery(
     );
 
   return applyFilters(query, props, resource, ancestorId) as typeof query;
+}
+
+function applyExcludedAttributionUuids(
+  query: AttributionQuery,
+  excludedAttributionUuids: Array<string> | undefined,
+): AttributionQuery {
+  return excludedAttributionUuids && excludedAttributionUuids.length > 0
+    ? query.where(
+        'attribution.uuid',
+        'not in',
+        uuidSelection(excludedAttributionUuids),
+      )
+    : query;
 }
 
 async function getRelationCounts(
@@ -550,7 +564,7 @@ export async function listAttributionsPage(
             )
           : undefined;
 
-      const pageRows = (await addOrdering(
+      const pageQuery = applyExcludedAttributionUuids(
         getFilteredQuery(
           trx,
           props,
@@ -559,8 +573,9 @@ export async function listAttributionsPage(
           true,
           props.sort === 'occurrence',
         ),
-        props,
-      )
+        props.excludedAttributionUuids,
+      );
+      const pageRows = (await addOrdering(pageQuery, props)
         .limit(limit + 1)
         .offset(offset)
         .execute()) as Array<PageQueryRow>;

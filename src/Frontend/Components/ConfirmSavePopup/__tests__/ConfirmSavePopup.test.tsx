@@ -78,11 +78,11 @@ describe('ConfirmSavePopup', () => {
       },
     );
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.saveAttributionsPopup.confirm,
-      }),
-    );
+    const confirmButton = await screen.findByRole('button', {
+      name: text.saveAttributionsPopup.confirm,
+    });
+    await waitFor(() => expect(confirmButton).toBeEnabled());
+    await userEvent.click(confirmButton);
 
     await expectManualAttributions({
       [first.id]: {

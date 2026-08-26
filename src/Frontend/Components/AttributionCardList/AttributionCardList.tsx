@@ -10,14 +10,29 @@ import { PackageCard } from '../PackageCard/PackageCard';
 export function AttributionCardList({
   attributions,
   testId,
+  loadingMore,
+  loadMoreError,
+  onRetryLoadMore,
+  endReached,
+  fillAvailableHeight,
 }: {
   attributions: Array<PackageInfo>;
   testId?: string;
+  loadingMore?: boolean;
+  loadMoreError?: unknown;
+  onRetryLoadMore?: () => void;
+  endReached?: () => void;
+  fillAvailableHeight?: boolean;
 }) {
   return (
     <CardList
       data={attributions}
       data-testid={testId}
+      loadingMore={loadingMore}
+      loadMoreError={loadMoreError}
+      onRetryLoadMore={onRetryLoadMore}
+      endReached={endReached}
+      fillAvailableHeight={fillAvailableHeight}
       renderItemContent={(attribution, { index }) => (
         <>
           <PackageCard packageInfo={attribution} />
