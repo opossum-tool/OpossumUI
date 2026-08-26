@@ -79,6 +79,13 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         : attributionsToSave,
     [attributionsToSave, selectedAttributionId, temporaryDisplayPackageInfo],
   );
+  const focusedAttributionOverride = useMemo(
+    () =>
+      selectedAttributionId
+        ? { [selectedAttributionId]: temporaryDisplayPackageInfo }
+        : undefined,
+    [selectedAttributionId, temporaryDisplayPackageInfo],
+  );
   const areAllAttributionsPreselected = aggregateSummary
     ? aggregateSummary.preSelectedCount === aggregateSummary.selectedCount
     : attributionsToSave
@@ -91,6 +98,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     if (selection?.mode === 'allMatching') {
       const result = await updateOrMatch.mutateAsync({
         selection,
+        attributions: focusedAttributionOverride,
         focusedAttributionUuid: selectedAttributionId,
       });
       dispatch(
@@ -116,10 +124,18 @@ export const ConfirmSavePopup: React.FC<Props> = ({
 
   const handleSaveOnResource = async () => {
     if (selection?.mode === 'allMatching') {
-      await modifyOrMatchOnlyOnOneResource.mutateAsync({
+      const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
         resourcePath: selectedResourceId,
         selection,
+        attributions: focusedAttributionOverride,
+        focusedAttributionUuid: selectedAttributionId,
       });
+      dispatch(
+        setSelectedAttributionIdIfRemapped(
+          result.oldUuidsToNewUuids,
+          selectedAttributionId,
+        ),
+      );
     } else if (modifiedAttributionsToSave) {
       const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
         resourcePath: selectedResourceId,

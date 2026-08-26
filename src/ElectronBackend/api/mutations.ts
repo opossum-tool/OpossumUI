@@ -71,6 +71,43 @@ async function getAttributionsByUuid(trx: Kysely<DB>, uuids: Array<string>) {
   ).flat();
 }
 
+async function resolveAttributionsWithOverrides(
+  trx: Kysely<DB>,
+  params: {
+    attributions?: Attributions;
+    selection?: AttributionSelection;
+  },
+) {
+  const inputUuids = params.selection
+    ? await resolveSelection(trx, { selection: params.selection })
+    : Object.keys(params.attributions ?? {});
+
+  if (!params.selection) {
+    return {
+      inputUuids,
+      attributions: params.attributions ?? {},
+    };
+  }
+
+  const persistedAttributions = Object.fromEntries(
+    (await getAttributionsByUuid(trx, inputUuids)).map((row) => [
+      row.uuid,
+      packageInfoFromAttributionRow(row),
+    ]),
+  );
+  const overrides = params.attributions ?? {};
+
+  return {
+    inputUuids,
+    attributions: Object.fromEntries(
+      inputUuids.flatMap((uuid) => {
+        const attribution = overrides[uuid] ?? persistedAttributions[uuid];
+        return attribution ? [[uuid, attribution]] : [];
+      }),
+    ),
+  };
+}
+
 type QueryInvalidation<Q extends QueryName> = {
   queryName: Q;
   params?: QueryParams<Q>;
@@ -340,6 +377,8 @@ export const mutations = {
     selection: AttributionSelection;
     property: 'needsReview' | 'followUp' | 'excludeFromNotice';
     value: boolean;
+    attributions?: Attributions;
+    focusedAttributionUuid?: string;
   }) {
     const result = await getDb()
       .transaction()
@@ -369,6 +408,20 @@ export const mutations = {
             .where('uuid', 'in', batch)
             .execute();
         });
+
+        const focusedAttribution = params.focusedAttributionUuid
+          ? params.attributions?.[params.focusedAttributionUuid]
+          : undefined;
+        const focusedAttributionWritableUuid = params.focusedAttributionUuid
+          ? oldUuidsToNewUuids[params.focusedAttributionUuid]
+          : undefined;
+        if (focusedAttribution && focusedAttributionWritableUuid) {
+          await updateAttribution(trx, focusedAttributionWritableUuid, {
+            ...focusedAttribution,
+            [params.property]: params.value,
+            id: focusedAttributionWritableUuid,
+          });
+        }
         return { attributionUuids, oldUuidsToNewUuids };
       });
     const attributionCacheImpact = getAttributionCacheImpact(
@@ -383,6 +436,20 @@ export const mutations = {
         ...getAttributionDetailInvalidations(attributionCacheImpact),
         { queryName: 'getResourceInfoOnAttributions' },
       ],
+      result: params.focusedAttributionUuid
+        ? {
+            oldUuidsToNewUuids: Object.fromEntries(
+              result.oldUuidsToNewUuids[params.focusedAttributionUuid]
+                ? [
+                    [
+                      params.focusedAttributionUuid,
+                      result.oldUuidsToNewUuids[params.focusedAttributionUuid],
+                    ],
+                  ]
+                : [],
+            ),
+          }
+        : undefined,
       attributionCacheImpact,
     };
   },
@@ -461,6 +528,7 @@ export const mutations = {
     resourcePath: string;
     attributions?: Attributions;
     selection?: AttributionSelection;
+    focusedAttributionUuid?: string;
   }) {
     const result = await getDb()
       .transaction()
@@ -469,17 +537,8 @@ export const mutations = {
         ensureResourceIsWritable(resource);
         const effectiveAttributionUuidsBefore =
           await getEffectiveManualAttributionUuids(trx, [resource.id]);
-        const inputUuids = params.selection
-          ? await resolveSelection(trx, { selection: params.selection })
-          : Object.keys(params.attributions ?? {});
-        const attributions = params.attributions
-          ? params.attributions
-          : Object.fromEntries(
-              (await getAttributionsByUuid(trx, inputUuids)).map((row) => [
-                row.uuid,
-                packageInfoFromAttributionRow(row),
-              ]),
-            );
+        const { inputUuids, attributions } =
+          await resolveAttributionsWithOverrides(trx, params);
         await ensureAttributionsAreNotExternal(trx, inputUuids);
         await ensureAttributionsAreLinkedOnMultipleResources(trx, inputUuids);
 
@@ -531,7 +590,14 @@ export const mutations = {
         { queryName: 'getResourceInfoOnAttributions' },
       ],
       result: isAllMatchingSelection(params)
-        ? { oldUuidsToNewUuids: {} as Record<string, string> }
+        ? {
+            oldUuidsToNewUuids: params.focusedAttributionUuid
+              ? {
+                  [params.focusedAttributionUuid]:
+                    result.oldUuidsToNewUuids[params.focusedAttributionUuid],
+                }
+              : {},
+          }
         : result,
       attributionCacheImpact,
     };
@@ -624,17 +690,8 @@ export const mutations = {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
-        const inputUuids = params.selection
-          ? await resolveSelection(trx, { selection: params.selection })
-          : Object.keys(params.attributions ?? {});
-        const attributions = params.attributions
-          ? params.attributions
-          : Object.fromEntries(
-              (await getAttributionsByUuid(trx, inputUuids)).map((row) => [
-                row.uuid,
-                packageInfoFromAttributionRow(row),
-              ]),
-            );
+        const { inputUuids, attributions } =
+          await resolveAttributionsWithOverrides(trx, params);
         const oldUuidsToNewUuids: Record<string, string> = {};
         const affectedAttributionUuids: Array<string> = [];
         for (const [attributionUuid, attributionData] of Object.entries(
