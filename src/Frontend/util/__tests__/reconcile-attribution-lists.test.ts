@@ -469,15 +469,23 @@ describe('reconcileAttributionPages', () => {
         b: attribution('b', 'unchanged'),
       },
       offset: 0,
+      limit: 200,
       hasNextPage: true,
     };
     queryClient.setQueryData(queryKey, {
       pages: [page, { ...page, offset: 200 }],
-      pageParams: [0, 200],
+      pageParams: [
+        { offset: 0, limit: 200 },
+        { offset: 200, limit: 200 },
+      ],
     });
     const observer = new QueryObserver(queryClient, {
       queryKey,
-      queryFn: () => promiseOf({ pages: [page], pageParams: [0] }),
+      queryFn: () =>
+        promiseOf({
+          pages: [page],
+          pageParams: [{ offset: 0, limit: 200 }],
+        }),
       staleTime: Infinity,
     });
     const unsubscribe = observer.subscribe(() => undefined);
@@ -489,6 +497,7 @@ describe('reconcileAttributionPages', () => {
           c: attribution('c', 'new'),
         },
         offset: 0,
+        limit: 400,
         hasNextPage: false,
       }),
     );
@@ -498,7 +507,7 @@ describe('reconcileAttributionPages', () => {
     expect(fetchPage).toHaveBeenCalledWith({
       ...params,
       offset: 0,
-      limit: 200,
+      limit: 400,
     });
     expect(queryClient.getQueryData(queryKey)).toEqual({
       pages: [
@@ -509,10 +518,11 @@ describe('reconcileAttributionPages', () => {
             c: attribution('c', 'new'),
           },
           offset: 0,
+          limit: 400,
           hasNextPage: false,
         },
       ],
-      pageParams: [0],
+      pageParams: [{ offset: 0, limit: 400 }],
     });
     unsubscribe();
     queryClient.clear();
@@ -532,15 +542,17 @@ describe('reconcileAttributionPages', () => {
         {
           attributions: { a: attribution('a', 'old') },
           offset: 0,
+          limit: 200,
           hasNextPage: false,
         },
       ],
-      pageParams: [0],
+      pageParams: [{ offset: 0, limit: 200 }],
     });
     const fetchPage = vi.fn(() =>
       promiseOf({
         attributions: {},
         offset: 0,
+        limit: 200,
         hasNextPage: false,
       }),
     );

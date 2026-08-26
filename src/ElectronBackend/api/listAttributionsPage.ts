@@ -550,6 +550,7 @@ export async function listAttributionsPage(
   result: {
     attributions: Attributions;
     offset: number;
+    limit: number;
     hasNextPage: boolean;
     relation?: Relation | null;
     targetOffset?: number;
@@ -600,6 +601,7 @@ export async function listAttributionsPage(
           return {
             attributions: {},
             offset: 0,
+            limit,
             hasNextPage: false,
             relation: null,
           };
@@ -676,6 +678,7 @@ export async function listAttributionsPage(
           }),
         ),
         offset: pageProps.offset,
+        limit: requestedLimit,
         hasNextPage,
         relation: targetRelation,
         ...(targetOffset !== undefined && { targetOffset }),

@@ -6,7 +6,10 @@ import MuiAlert from '@mui/material/Alert';
 import MuiButton, { type ButtonProps } from '@mui/material/Button';
 import MuiTypography from '@mui/material/Typography';
 
-import type { AttributionSelection } from '../../../shared/attribution-selection';
+import type {
+  AllMatchingAttributionSelection,
+  AttributionSelection,
+} from '../../../shared/attribution-selection';
 import type { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
@@ -56,8 +59,6 @@ export function ConfirmAttributionActionPopup({
   isLocalActionAvailable,
   selection,
 }: Props) {
-  const isAggregateSelection = selection?.mode === 'allMatching';
-  const preview = useAttributionPreview(selection, open);
   const isMutationPending =
     globalAction.isPending || (localAction?.isPending ?? false);
   const isLocalActionVisible =
@@ -101,23 +102,8 @@ export function ConfirmAttributionActionPopup({
         <MuiAlert severity={'warning'}>{mixedWarning}</MuiAlert>
       )}
       <MuiTypography>{description}</MuiTypography>
-      {isAggregateSelection ? (
-        preview.error ? (
-          <MuiButton size={'small'} onClick={() => void preview.retry()}>
-            {'Retry'}
-          </MuiButton>
-        ) : preview.attributions ? (
-          <AttributionCardList
-            attributions={Object.values(preview.attributions)}
-            loadingMore={preview.loadingMore}
-            loadMoreError={preview.loadMoreError}
-            onRetryLoadMore={preview.fetchNextPage}
-            endReached={preview.hasNextPage ? preview.fetchNextPage : undefined}
-            fillAvailableHeight
-          />
-        ) : (
-          <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
-        )
+      {selection?.mode === 'allMatching' ? (
+        <AttributionPreview selection={selection} open={open} />
       ) : (
         <>
           {attributionValues ? (
@@ -139,5 +125,38 @@ export function ConfirmAttributionActionPopup({
         </>
       )}
     </StyledConfirmAttributionActionPopup>
+  );
+}
+
+function AttributionPreview({
+  open,
+  selection,
+}: {
+  open: boolean;
+  selection: AllMatchingAttributionSelection;
+}) {
+  const preview = useAttributionPreview(selection, open);
+
+  if (preview.error) {
+    return (
+      <MuiButton size={'small'} onClick={() => void preview.retry()}>
+        {'Retry'}
+      </MuiButton>
+    );
+  }
+
+  if (!preview.attributions) {
+    return <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>;
+  }
+
+  return (
+    <AttributionCardList
+      attributions={Object.values(preview.attributions)}
+      loadingMore={preview.loadingMore}
+      loadMoreError={preview.loadMoreError}
+      onRetryLoadMore={preview.fetchNextPage}
+      endReached={preview.hasNextPage ? preview.fetchNextPage : undefined}
+      fillAvailableHeight
+    />
   );
 }

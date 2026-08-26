@@ -29,17 +29,19 @@ export interface AttributionSelectionQuery {
   relation: Relation;
 }
 
+export type AllMatchingAttributionSelection = {
+  mode: 'allMatching';
+  query: AttributionSelectionQuery;
+  excludedAttributionUuids: Array<string>;
+};
+
 /** A selection can stay symbolic while the matching rows are paginated. */
 export type AttributionSelection =
   | {
       mode: 'explicit';
       attributionUuids: Array<string>;
     }
-  | {
-      mode: 'allMatching';
-      query: AttributionSelectionQuery;
-      excludedAttributionUuids: Array<string>;
-    };
+  | AllMatchingAttributionSelection;
 
 export function excludeAttributionFromAllMatchingSelection(
   selection: AttributionSelection,
