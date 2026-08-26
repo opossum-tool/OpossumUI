@@ -13,7 +13,7 @@ import type {
   PackageInfo,
 } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
-import { setSelectedAttributionIdIfRemapped } from '../../../../state/actions/resource-actions/navigation-actions';
+import { applyFocusedAttributionOutcome } from '../../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -153,10 +153,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
           focusedAttributionUuid: selectedAttributionId,
         });
         dispatch(
-          setSelectedAttributionIdIfRemapped(
-            result?.oldUuidsToNewUuids ?? {},
-            selectedAttributionId,
-          ),
+          applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
         );
       } else {
         const updatedAttributions = selectedAttributionIds.reduce(
@@ -173,9 +170,13 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
           },
           {} as Attributions,
         );
-        await backend.updateAttributions.mutate({
+        const result = await backend.updateAttributions.mutate({
           attributions: updatedAttributions,
+          focusedAttributionUuid: selectedAttributionId,
         });
+        dispatch(
+          applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
+        );
       }
 
       clearSelection?.();

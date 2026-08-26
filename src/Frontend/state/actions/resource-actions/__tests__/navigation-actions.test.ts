@@ -20,9 +20,56 @@ import {
   setTargetSelectedResourceId,
 } from '../audit-view-simple-actions';
 import {
+  applyFocusedAttributionOutcome,
   openResourceInResourceBrowser,
   setSelectedResourceOrAttributionIdToTargetValue,
 } from '../navigation-actions';
+
+describe('applyFocusedAttributionOutcome', () => {
+  it('remaps the focused attribution', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(setSelectedAttributionId('old'));
+
+    testStore.dispatch(
+      applyFocusedAttributionOutcome({
+        status: 'remapped',
+        attributionUuid: 'old',
+        newAttributionUuid: 'new',
+      }),
+    );
+
+    expect(getSelectedAttributionId(testStore.getState())).toBe('new');
+  });
+
+  it('clears a removed attribution', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(setSelectedAttributionId('old'));
+
+    testStore.dispatch(
+      applyFocusedAttributionOutcome({
+        status: 'removed',
+        attributionUuid: 'old',
+      }),
+    );
+
+    expect(getSelectedAttributionId(testStore.getState())).toBe('');
+  });
+
+  it('does not overwrite a newer focus', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(setSelectedAttributionId('newer'));
+
+    testStore.dispatch(
+      applyFocusedAttributionOutcome({
+        status: 'remapped',
+        attributionUuid: 'old',
+        newAttributionUuid: 'new',
+      }),
+    );
+
+    expect(getSelectedAttributionId(testStore.getState())).toBe('newer');
+  });
+});
 
 describe('setSelectedResourceOrAttributionIdToTargetValue', () => {
   it('sets target selected resource ID', () => {

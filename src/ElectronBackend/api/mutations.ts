@@ -8,6 +8,7 @@ import { omit } from 'lodash-es';
 import {
   type AttributionSelection,
   excludeAttributionFromAllMatchingSelection,
+  type FocusedAttributionOutcome,
 } from '../../shared/attribution-selection';
 import type { Attributions } from '../../shared/shared-types';
 import { packageInfoFromAttributionRow } from '../db/attributionData';
@@ -41,6 +42,38 @@ import {
 type AttributionSelectionParams =
   { attributionUuids: Array<string> } | { selection: AttributionSelection };
 
+type AttributionSelectionWithFocus = AttributionSelectionParams & {
+  focusedAttributionUuid?: string;
+};
+
+function getFocusedAttributionRemappingOutcome(
+  focusedAttributionUuid: string | undefined,
+  oldUuidsToNewUuids: Record<string, string>,
+): FocusedAttributionOutcome {
+  if (focusedAttributionUuid === undefined) {
+    return { status: 'unchanged' };
+  }
+  const newAttributionUuid = oldUuidsToNewUuids[focusedAttributionUuid];
+  return newAttributionUuid !== undefined &&
+    newAttributionUuid !== focusedAttributionUuid
+    ? {
+        status: 'remapped',
+        attributionUuid: focusedAttributionUuid,
+        newAttributionUuid,
+      }
+    : { status: 'unchanged' };
+}
+
+function getFocusedAttributionRemovalOutcome(
+  focusedAttributionUuid: string | undefined,
+  attributionUuids: Array<string>,
+): FocusedAttributionOutcome {
+  return focusedAttributionUuid !== undefined &&
+    attributionUuids.includes(focusedAttributionUuid)
+    ? { status: 'removed', attributionUuid: focusedAttributionUuid }
+    : { status: 'unchanged' };
+}
+
 async function resolveSelection(
   trx: Kysely<DB>,
   params: AttributionSelectionParams,
@@ -48,12 +81,6 @@ async function resolveSelection(
   return 'selection' in params
     ? resolveAttributionSelection(trx, params.selection)
     : params.attributionUuids;
-}
-
-function isAllMatchingSelection(
-  params: { selection?: AttributionSelection } | AttributionSelectionParams,
-) {
-  return 'selection' in params && params.selection?.mode === 'allMatching';
 }
 
 async function getAttributionsByUuid(trx: Kysely<DB>, uuids: Array<string>) {
@@ -201,7 +228,7 @@ export const mutations = {
       invalidates: [{ queryName: 'getAttributionData' }],
     });
   },
-  async deleteAttributions(params: AttributionSelectionParams) {
+  async deleteAttributions(params: AttributionSelectionWithFocus) {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
@@ -263,6 +290,10 @@ export const mutations = {
           redundantAttributionUuids,
           effectiveAttributionUuidsBefore,
           effectiveAttributionUuidsAfter,
+          focusedAttributionOutcome: getFocusedAttributionRemovalOutcome(
+            params.focusedAttributionUuid,
+            attributionUuids,
+          ),
         };
       });
 
@@ -281,6 +312,9 @@ export const mutations = {
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         { queryName: 'getResourceInfoOnAttributions' },
       ],
+      result: {
+        focusedAttributionOutcome: result.focusedAttributionOutcome,
+      },
       attributionCacheImpact,
     };
   },
@@ -332,7 +366,10 @@ export const mutations = {
     };
   },
 
-  async updateAttributions(params: { attributions: Attributions }) {
+  async updateAttributions(params: {
+    attributions: Attributions;
+    focusedAttributionUuid?: string;
+  }) {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
@@ -350,7 +387,13 @@ export const mutations = {
             id: writableAttributionUuid,
           });
         }
-        return { oldUuidsToNewUuids };
+        return {
+          oldUuidsToNewUuids,
+          focusedAttributionOutcome: getFocusedAttributionRemappingOutcome(
+            params.focusedAttributionUuid,
+            oldUuidsToNewUuids,
+          ),
+        };
       });
 
     return {
@@ -365,7 +408,9 @@ export const mutations = {
         })),
         { queryName: 'getResourceInfoOnAttributions' },
       ],
-      result,
+      result: {
+        focusedAttributionOutcome: result.focusedAttributionOutcome,
+      },
       affectedAttributionUuids: uniqueAttributionUuids(
         Object.keys(params.attributions),
         Object.values(result.oldUuidsToNewUuids),
@@ -409,12 +454,14 @@ export const mutations = {
             .execute();
         });
 
-        const focusedAttribution = params.focusedAttributionUuid
-          ? params.attributions?.[params.focusedAttributionUuid]
-          : undefined;
-        const focusedAttributionWritableUuid = params.focusedAttributionUuid
-          ? oldUuidsToNewUuids[params.focusedAttributionUuid]
-          : undefined;
+        const focusedAttribution =
+          params.focusedAttributionUuid !== undefined
+            ? params.attributions?.[params.focusedAttributionUuid]
+            : undefined;
+        const focusedAttributionWritableUuid =
+          params.focusedAttributionUuid !== undefined
+            ? oldUuidsToNewUuids[params.focusedAttributionUuid]
+            : undefined;
         if (focusedAttribution && focusedAttributionWritableUuid) {
           await updateAttribution(trx, focusedAttributionWritableUuid, {
             ...focusedAttribution,
@@ -436,20 +483,12 @@ export const mutations = {
         ...getAttributionDetailInvalidations(attributionCacheImpact),
         { queryName: 'getResourceInfoOnAttributions' },
       ],
-      result: params.focusedAttributionUuid
-        ? {
-            oldUuidsToNewUuids: Object.fromEntries(
-              result.oldUuidsToNewUuids[params.focusedAttributionUuid]
-                ? [
-                    [
-                      params.focusedAttributionUuid,
-                      result.oldUuidsToNewUuids[params.focusedAttributionUuid],
-                    ],
-                  ]
-                : [],
-            ),
-          }
-        : undefined,
+      result: {
+        focusedAttributionOutcome: getFocusedAttributionRemappingOutcome(
+          params.focusedAttributionUuid,
+          result.oldUuidsToNewUuids,
+        ),
+      },
       attributionCacheImpact,
     };
   },
@@ -458,6 +497,7 @@ export const mutations = {
     resourcePath: string;
     attributionUuids?: Array<string>;
     selection?: AttributionSelection;
+    focusedAttributionUuid?: string;
   }) {
     const result = await getDb()
       .transaction()
@@ -491,6 +531,10 @@ export const mutations = {
           redundantAttributionUuids,
           effectiveAttributionUuidsBefore,
           effectiveAttributionUuidsAfter,
+          focusedAttributionOutcome: getFocusedAttributionRemovalOutcome(
+            params.focusedAttributionUuid,
+            attributionUuids,
+          ),
         };
       });
 
@@ -508,6 +552,9 @@ export const mutations = {
         ...MANUAL_ATTRIBUTION_INVALIDATIONS,
         { queryName: 'getResourceInfoOnAttributions' } as const,
       ],
+      result: {
+        focusedAttributionOutcome: result.focusedAttributionOutcome,
+      },
       attributionCacheImpact,
     };
   },
@@ -589,16 +636,12 @@ export const mutations = {
         ...getAttributionDetailInvalidations(attributionCacheImpact),
         { queryName: 'getResourceInfoOnAttributions' },
       ],
-      result: isAllMatchingSelection(params)
-        ? {
-            oldUuidsToNewUuids: params.focusedAttributionUuid
-              ? {
-                  [params.focusedAttributionUuid]:
-                    result.oldUuidsToNewUuids[params.focusedAttributionUuid],
-                }
-              : {},
-          }
-        : result,
+      result: {
+        focusedAttributionOutcome: getFocusedAttributionRemappingOutcome(
+          params.focusedAttributionUuid,
+          result.oldUuidsToNewUuids,
+        ),
+      },
       attributionCacheImpact,
     };
   },
@@ -607,6 +650,7 @@ export const mutations = {
     resourcePath: string;
     attributions?: Attributions;
     selection?: AttributionSelection;
+    focusedAttributionUuid?: string;
   }) {
     const result = await getDb()
       .transaction()
@@ -675,9 +719,12 @@ export const mutations = {
         ...getAttributionDetailInvalidations(attributionCacheImpact),
         { queryName: 'getResourceInfoOnAttributions' },
       ],
-      result: isAllMatchingSelection(params)
-        ? { inputKeysToNewUuids: {} as Record<string, string> }
-        : result,
+      result: {
+        focusedAttributionOutcome: getFocusedAttributionRemappingOutcome(
+          params.focusedAttributionUuid,
+          result.inputKeysToNewUuids,
+        ),
+      },
       attributionCacheImpact,
     };
   },
@@ -735,14 +782,6 @@ export const mutations = {
       Object.values(result.oldUuidsToNewUuids),
       result.affectedAttributionUuids,
     );
-    const focusedAttributionUuid = params.focusedAttributionUuid;
-    const focusedAttributionNewUuid = focusedAttributionUuid
-      ? result.oldUuidsToNewUuids[focusedAttributionUuid]
-      : undefined;
-    const focusedAttributionRemapping =
-      focusedAttributionUuid && focusedAttributionNewUuid
-        ? { [focusedAttributionUuid]: focusedAttributionNewUuid }
-        : {};
     return {
       invalidates: [
         ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
@@ -751,9 +790,12 @@ export const mutations = {
         ...getAttributionDetailInvalidations(attributionCacheImpact),
         { queryName: 'getResourceInfoOnAttributions' },
       ],
-      result: isAllMatchingSelection(params)
-        ? { oldUuidsToNewUuids: focusedAttributionRemapping }
-        : result,
+      result: {
+        focusedAttributionOutcome: getFocusedAttributionRemappingOutcome(
+          params.focusedAttributionUuid,
+          result.oldUuidsToNewUuids,
+        ),
+      },
       attributionCacheImpact,
     };
   },

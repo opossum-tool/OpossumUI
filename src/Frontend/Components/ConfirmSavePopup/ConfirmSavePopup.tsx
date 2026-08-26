@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 
 import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { text } from '../../../shared/text';
-import { setSelectedAttributionIdIfRemapped } from '../../state/actions/resource-actions/navigation-actions';
+import { applyFocusedAttributionOutcome } from '../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
@@ -102,20 +102,15 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         focusedAttributionUuid: selectedAttributionId,
       });
       dispatch(
-        setSelectedAttributionIdIfRemapped(
-          result.oldUuidsToNewUuids,
-          selectedAttributionId,
-        ),
+        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
       );
     } else if (modifiedAttributionsToSave) {
       const result = await updateOrMatch.mutateAsync({
         attributions: modifiedAttributionsToSave,
+        focusedAttributionUuid: selectedAttributionId,
       });
       dispatch(
-        setSelectedAttributionIdIfRemapped(
-          result.oldUuidsToNewUuids,
-          selectedAttributionId,
-        ),
+        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
       );
     }
     clearSelection?.();
@@ -131,21 +126,16 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         focusedAttributionUuid: selectedAttributionId,
       });
       dispatch(
-        setSelectedAttributionIdIfRemapped(
-          result.oldUuidsToNewUuids,
-          selectedAttributionId,
-        ),
+        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
       );
     } else if (modifiedAttributionsToSave) {
       const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
         resourcePath: selectedResourceId,
         attributions: modifiedAttributionsToSave,
+        focusedAttributionUuid: selectedAttributionId,
       });
       dispatch(
-        setSelectedAttributionIdIfRemapped(
-          result.oldUuidsToNewUuids,
-          selectedAttributionId,
-        ),
+        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
       );
     }
     clearSelection?.();

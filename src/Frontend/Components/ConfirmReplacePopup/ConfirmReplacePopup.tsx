@@ -89,17 +89,23 @@ export const ConfirmReplacePopup = ({
 
     let replacementAttribution = selectedAttribution;
     if (selectedAttribution.preSelected) {
-      const { oldUuidsToNewUuids } = await updateAttributions.mutateAsync({
-        attributions: {
-          [selectedAttribution.id]: {
-            ...selectedAttribution,
-            preSelected: undefined,
+      const { focusedAttributionOutcome } =
+        await updateAttributions.mutateAsync({
+          attributions: {
+            [selectedAttribution.id]: {
+              ...selectedAttribution,
+              preSelected: undefined,
+            },
           },
-        },
-      });
+          focusedAttributionUuid: selectedAttribution.id,
+        });
+      const replacementId =
+        focusedAttributionOutcome.status === 'remapped'
+          ? focusedAttributionOutcome.newAttributionUuid
+          : selectedAttribution.id;
       replacementAttribution = {
         ...selectedAttribution,
-        id: oldUuidsToNewUuids[selectedAttribution.id],
+        id: replacementId,
         preSelected: undefined,
       };
     }
