@@ -29,12 +29,7 @@ import type {
 } from '../../ElectronBackend/api/queries';
 import { queryClient } from '../Components/AppContainer/queryClient';
 import { traceFrontendPhase } from './frontend-performance-tracing';
-import { enqueueAttributionPageReconciliation } from './reconcile-attribution-lists';
-
-export const ATTRIBUTION_NAVIGATION_QUERY_KEY = [
-  'backend',
-  'locateAttribution',
-] as const satisfies QueryKey;
+import { reconcileAttributionMutationCaches } from './reconcile-attribution-mutation-caches';
 
 // We use the same options as tanstack query, with the exception that the
 // consumer can't set mutationKey and mutationFn, which are set by us
@@ -124,115 +119,6 @@ function queryKeyForCommand(command: CommandName, params: unknown): QueryKey {
   return ['backend', command, params];
 }
 
-function queryKeyHash(queryKey: QueryKey): string {
-  return JSON.stringify(queryKey);
-}
-
-function queryParamsContainAffectedAttribution(
-  queryName: QueryName,
-  params: unknown,
-  affectedAttributionUuids: ReadonlySet<string>,
-): boolean {
-  if (params === undefined || params === null) {
-    return false;
-  }
-
-  if (typeof params !== 'object') {
-    return false;
-  }
-
-  const queryParams = params as {
-    attributionUuid?: unknown;
-    attributionUuids?: unknown;
-  };
-  if (
-    queryName === 'getAttributionData' &&
-    typeof queryParams.attributionUuid === 'string'
-  ) {
-    return affectedAttributionUuids.has(queryParams.attributionUuid);
-  }
-
-  if (
-    (queryName === 'getAttributions' ||
-      queryName === 'getResourceInfoOnAttributions' ||
-      queryName === 'resourceAndAttributionAreLinked') &&
-    Array.isArray(queryParams.attributionUuids)
-  ) {
-    return queryParams.attributionUuids.some(
-      (uuid): uuid is string =>
-        typeof uuid === 'string' && affectedAttributionUuids.has(uuid),
-    );
-  }
-
-  if (
-    queryName === 'resourceAndAttributionAreLinked' &&
-    typeof queryParams.attributionUuid === 'string'
-  ) {
-    return affectedAttributionUuids.has(queryParams.attributionUuid);
-  }
-
-  return false;
-}
-
-function getCachedQueryKeys(invalidation: {
-  queryName: QueryName;
-  params?: unknown;
-}): Array<QueryKey> {
-  if (invalidation.params !== undefined) {
-    const queryKey = queryKeyForCommand(
-      invalidation.queryName,
-      invalidation.params,
-    );
-    return queryClient.getQueryCache().find({ queryKey, exact: true })
-      ? [queryKey]
-      : [];
-  }
-
-  return queryClient
-    .getQueryCache()
-    .findAll({ queryKey: ['backend', invalidation.queryName] })
-    .map((query) => query.queryKey);
-}
-
-function patchResolvedAttributionUuids(
-  command: MutationName,
-  params: unknown,
-  affectedAttributionUuids: ReadonlySet<string>,
-) {
-  if (
-    (command !== 'resolveAttributions' &&
-      command !== 'unresolveAttributions') ||
-    typeof params !== 'object' ||
-    params === null ||
-    !('attributionUuids' in params) ||
-    !Array.isArray(params.attributionUuids)
-  ) {
-    return;
-  }
-
-  queryClient.setQueriesData<Set<string>>(
-    { queryKey: ['backend', 'resolvedAttributionUuids'] },
-    (current) => {
-      if (!(current instanceof Set)) {
-        return current;
-      }
-      const next = new Set(current);
-      const attributionUuids = params.attributionUuids as unknown[];
-      for (const uuid of attributionUuids) {
-        if (typeof uuid !== 'string' || !affectedAttributionUuids.has(uuid)) {
-          continue;
-        }
-        if (command === 'resolveAttributions') {
-          next.add(uuid);
-        } else {
-          next.delete(uuid);
-        }
-      }
-      return next;
-    },
-  );
-}
-
 /**
  * Access the backend api commands as queries and mutations.
  * Mutations automatically invalidate the appropriate queries.
@@ -277,124 +163,19 @@ export const backend = new Proxy({} as BackendClient, {
       );
       const mutationResult = 'result' in response ? response.result : undefined;
       onSuccessBeforeInvalidation?.(mutationResult);
-      const attributionCacheImpact =
-        'attributionCacheImpact' in response
-          ? response.attributionCacheImpact
-          : undefined;
-      const affectedAttributionUuids =
-        attributionCacheImpact?.mode === 'targeted'
-          ? attributionCacheImpact.attributionUuids
-          : 'affectedAttributionUuids' in response
-            ? response.affectedAttributionUuids
-            : undefined;
-      const hasBroadAttributionCacheImpact =
-        attributionCacheImpact?.mode === 'broad';
-      const affectedUuids = new Set<string>(affectedAttributionUuids ?? []);
-      const secondaryQueryKeys = new Map<string, QueryKey>();
-      const immediateQueryKeys = new Map<string, QueryKey>();
-      const invalidations =
-        'invalidates' in response && response.invalidates
-          ? response.invalidates
-          : [];
-      const invalidatesPaginatedAttributions = invalidations.some(
-        (invalidation) => invalidation.queryName === 'listAttributionsPage',
-      );
-
-      for (const invalidation of invalidations) {
-        if (invalidation.queryName === 'listAttributionsPage') {
-          continue;
-        }
-
-        const queryKeys = getCachedQueryKeys(invalidation);
-        for (const queryKey of queryKeys) {
-          const isAffectedDetail =
-            affectedUuids.size > 0 &&
-            queryParamsContainAffectedAttribution(
-              invalidation.queryName,
-              queryKey[2],
-              affectedUuids,
-            );
-          const destination = isAffectedDetail
-            ? immediateQueryKeys
-            : secondaryQueryKeys;
-          destination.set(queryKeyHash(queryKey), queryKey);
-        }
-      }
-
-      try {
-        await traceFrontendPhase(
-          'mutation.invalidate-immediate',
-          { mutation: command, queryCount: immediateQueryKeys.size },
-          () =>
-            Promise.all(
-              [...immediateQueryKeys.values()].map((queryKey) =>
-                queryClient.invalidateQueries({
-                  queryKey,
-                  exact: true,
-                }),
-              ),
-            ).then(() => undefined),
-        );
-        patchResolvedAttributionUuids(
-          command as MutationName,
-          params,
-          affectedUuids,
-        );
-
-        if (invalidatesPaginatedAttributions || affectedUuids.size > 0) {
-          await traceFrontendPhase(
-            'mutation.reconcile-pages',
-            { mutation: command },
-            () =>
-              enqueueAttributionPageReconciliation({
-                queryClient,
-                fetchPage: async (pageParams) => {
-                  const pageResponse = await window.electronAPI.api(
-                    'listAttributionsPage',
-                    pageParams,
-                  );
-                  return pageResponse.result;
-                },
-              }),
+      await reconcileAttributionMutationCaches({
+        queryClient,
+        command: command as MutationName,
+        params,
+        response,
+        fetchPage: async (pageParams) => {
+          const pageResponse = await window.electronAPI.api(
+            'listAttributionsPage',
+            pageParams,
           );
-        }
-      } catch {
-        // The database mutation has already committed. Keep the affected
-        // cache entries stale without turning a cache-maintenance failure into
-        // a failed user action. They will refresh on activation or the next
-        // invalidation.
-      }
-
-      if (
-        invalidatesPaginatedAttributions ||
-        affectedUuids.size > 0 ||
-        hasBroadAttributionCacheImpact
-      ) {
-        void traceFrontendPhase(
-          'mutation.invalidate-attribution-navigation',
-          { mutation: command },
-          () =>
-            queryClient
-              .invalidateQueries({
-                queryKey: ATTRIBUTION_NAVIGATION_QUERY_KEY,
-              })
-              .then(() => undefined),
-        );
-      }
-
-      void traceFrontendPhase(
-        'mutation.invalidate-secondary',
-        { mutation: command, queryCount: secondaryQueryKeys.size },
-        () =>
-          Promise.all(
-            [...secondaryQueryKeys.values()].map((queryKey) =>
-              queryClient.invalidateQueries({
-                queryKey,
-                exact: true,
-              }),
-            ),
-          ).then(() => undefined),
-      );
+          return pageResponse.result;
+        },
+      });
       window.electronAPI.saveFile();
       return mutationResult;
     }
