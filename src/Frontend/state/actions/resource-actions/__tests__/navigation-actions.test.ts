@@ -5,6 +5,7 @@
 import { View } from '../../../../enums/enums';
 import { createAppStore } from '../../../configure-store';
 import {
+  getAttributionSelectionPendingResourceId,
   getExpandedIds,
   getPendingAttributionNavigation,
   getSelectedAttributionId,
@@ -20,6 +21,8 @@ import {
 import { setVariable } from '../../variables-actions/variables-actions';
 import { navigateToView, setTargetView } from '../../view-actions/view-actions';
 import {
+  completeAttributionSelection,
+  setAttributionSelectionPending,
   setPendingAttributionNavigation,
   setSelectedAttributionId,
   setSelectedResourceId,
@@ -162,6 +165,20 @@ describe('setSelectedResourceIdAndExpand', () => {
     testStore.dispatch(openResourceInResourceBrowser('/folder1/folder2/test'));
     const state = testStore.getState();
     expect(getSelectedResourceId(state)).toBe('/folder1/folder2/test');
+    expect(getAttributionSelectionPendingResourceId(state)).toBe(
+      '/folder1/folder2/test',
+    );
+  });
+
+  it('does not let an older completion clear a newer navigation', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(setAttributionSelectionPending('/first'));
+    testStore.dispatch(setAttributionSelectionPending('/second'));
+    testStore.dispatch(completeAttributionSelection('/first'));
+
+    expect(getAttributionSelectionPendingResourceId(testStore.getState())).toBe(
+      '/second',
+    );
   });
 
   it('sets the expandedIds', () => {

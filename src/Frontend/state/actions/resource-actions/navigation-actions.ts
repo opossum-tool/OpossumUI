@@ -6,6 +6,7 @@ import type { FocusedAttributionOutcome } from '../../../../shared/attribution-s
 import { getParents } from '../../helpers/get-parents';
 import {
   getSelectedAttributionId,
+  getSelectedResourceId,
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
 } from '../../selectors/resource-selectors';
@@ -17,6 +18,7 @@ import {
 } from '../../variables/use-filters';
 import { setVariable } from '../variables-actions/variables-actions';
 import {
+  setAttributionSelectionPending,
   setExpandedIds,
   setSelectedAttributionId,
   setSelectedResourceId,
@@ -31,6 +33,9 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
       getTargetSelectedAttributionId(getState());
 
     if (targetSelectedResourceId !== null) {
+      if (getSelectedResourceId(getState()) !== targetSelectedResourceId) {
+        dispatch(setAttributionSelectionPending(targetSelectedResourceId));
+      }
       dispatch(setSelectedResourceId(targetSelectedResourceId));
       dispatch(setTargetSelectedResourceId(null));
     }
@@ -59,7 +64,10 @@ export function resetManualAuditFiltersPreservingSort(): AppThunkAction {
 export function openResourceInResourceBrowser(
   resourceId: string,
 ): AppThunkAction {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    if (getSelectedResourceId(getState()) !== resourceId) {
+      dispatch(setAttributionSelectionPending(resourceId));
+    }
     dispatch(setExpandedIds(getParents(resourceId).concat([resourceId])));
     dispatch(setSelectedResourceId(resourceId));
   };

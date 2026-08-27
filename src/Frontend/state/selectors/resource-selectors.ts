@@ -46,6 +46,12 @@ export function getSelectedResourceId(state: State): string {
   return state.resourceState.selectedResourceId;
 }
 
+export function getAttributionSelectionPendingResourceId(
+  state: State,
+): string | null {
+  return state.resourceState.attributionSelectionPendingResourceId;
+}
+
 export function getTemporaryDisplayPackageInfo(state: State): PackageInfo {
   return state.resourceState.temporaryDisplayPackageInfo;
 }
