@@ -13,13 +13,12 @@ import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 
 export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
   attributionIds,
-  multiSelectedAttributionIds,
   selectedAttributionIds,
-  setMultiSelectedAttributionIds,
   pickerMode,
   selection,
   selectionSummary,
-  selectionSummaryLoading = false,
+  selectionSummaryLoading,
+  clearSelection,
 }) => {
   const [selectionForReplacement, setSelectionForReplacement] =
     useAttributionSelectionForReplacement();
@@ -28,7 +27,7 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
     : text.packageLists.replace;
 
   const mutationsPending = useIsMutating() > 0;
-  const isQueryWide = selection?.mode === 'allMatching';
+  const isQueryWide = selection.mode === 'allMatching';
   const selectedCount = isQueryWide
     ? (selectionSummary?.selectedCount ?? 0)
     : selectedAttributionIds.length;
@@ -41,17 +40,20 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
         !selectedCount ||
         selectionSummaryLoading ||
         (!isQueryWide &&
-          (!(attributionIds.length - multiSelectedAttributionIds.length) ||
+          (!(attributionIds.length - selectedAttributionIds.length) ||
             attributionIds.length < 2)) ||
         mutationsPending ||
         pickerMode.mode === 'compare'
       }
       size={'small'}
       onClick={() => {
-        setSelectionForReplacement((prev) =>
-          prev ? null : (selection ?? null),
-        );
-        selectionForReplacement && setMultiSelectedAttributionIds([]);
+        if (selectionForReplacement) {
+          setSelectionForReplacement(null);
+          clearSelection();
+          return;
+        }
+
+        setSelectionForReplacement(selection);
       }}
       color={selectionForReplacement ? 'success' : undefined}
     >

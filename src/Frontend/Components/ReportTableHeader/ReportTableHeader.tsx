@@ -32,13 +32,7 @@ const classes = {
   },
 } satisfies SxProps;
 
-export function ReportTableHeader({
-  loading = false,
-  empty = false,
-}: {
-  loading?: boolean;
-  empty?: boolean;
-}) {
+export function ReportTableHeader({ empty = false }: { empty?: boolean }) {
   return (
     <TableRow sx={classes.headerRow}>
       {tableConfigs.map((config) => (
@@ -55,7 +49,7 @@ export function ReportTableHeader({
           key={`table-header-${config.attributionProperty}`}
         >
           {config.attributionProperty === 'id' ? (
-            <TableFilterButton loading={loading} empty={empty} />
+            <TableFilterButton empty={empty} />
           ) : typeof config.displayName === 'string' ? (
             <MuiTypography sx={classes.headerText}>
               {config.displayName}

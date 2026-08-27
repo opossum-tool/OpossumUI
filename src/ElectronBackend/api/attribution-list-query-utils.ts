@@ -5,7 +5,6 @@
 import {
   expressionBuilder,
   type OperandExpression,
-  sql,
   type SqlBool,
 } from 'kysely';
 
@@ -24,7 +23,6 @@ import {
 
 export type AttributionResultSetFilterProps = AttributionResultSetCriteria & {
   includeReadonly: boolean;
-  uuids?: Array<string>;
 };
 
 export function getAttributionListRelationshipExpression(
@@ -37,7 +35,7 @@ export function getAttributionListRelationshipExpression(
   }).$castTo<ResourceRelationship>();
 }
 
-function getAttributionWhereExpressions(
+export function getAttributionWhereExpressions(
   props: AttributionResultSetFilterProps,
   resource: { id: number; max_descendant_id: number } | undefined,
   ancestorId: number | undefined,
@@ -56,21 +54,17 @@ function getAttributionWhereExpressions(
       : eb('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS),
   ];
 
-  if (props.external !== undefined) {
-    expressions.push(eb('is_external', '=', Number(props.external)));
-  }
+  expressions.push(eb('is_external', '=', Number(props.external)));
 
   if (props.excludeUnrelated) {
     expressions.push(eb(relationship, '!=', 'unrelated'));
   }
 
-  for (const filter of props.filters ?? []) {
+  for (const filter of props.filters) {
     expressions.push(getFilterExpression(filter));
   }
 
-  const valueFilterExpression = getValueFilterExpression(
-    props.valueFilters ?? {},
-  );
+  const valueFilterExpression = getValueFilterExpression(props.valueFilters);
   if (valueFilterExpression) {
     expressions.push(valueFilterExpression);
   }
@@ -83,25 +77,5 @@ function getAttributionWhereExpressions(
     expressions.push(eb('is_resolved', '=', 0));
   }
 
-  if (props.uuids) {
-    expressions.push(
-      eb(
-        'uuid',
-        'in',
-        sql<string>`(
-        select value from json_each(${JSON.stringify(props.uuids)})
-      )`,
-      ),
-    );
-  }
-
   return expressions;
-}
-
-export function getAttributionResultSetWhereExpressions(
-  props: AttributionResultSetFilterProps,
-  resource: { id: number; max_descendant_id: number } | undefined,
-  ancestorId: number | undefined,
-): Array<OperandExpression<SqlBool>> {
-  return getAttributionWhereExpressions(props, resource, ancestorId);
 }

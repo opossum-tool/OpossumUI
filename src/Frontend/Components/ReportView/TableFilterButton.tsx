@@ -11,9 +11,8 @@ import { FilterButton } from '../FilterButton/FilterButton';
 import { useAttributionFilterOptions } from '../FilterButton/use-attribution-filter-options';
 
 export const TableFilterButton: React.FC<{
-  loading: boolean;
   empty: boolean;
-}> = ({ loading, empty }) => {
+}> = ({ empty }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterProps } = useFilterProperties({
     mode: 'reportTable',
@@ -44,7 +43,7 @@ export const TableFilterButton: React.FC<{
         })
       }
       anchorPosition={'left'}
-      disabled={loading || (empty && !isFilterActive)}
+      disabled={empty && !isFilterActive}
     />
   );
 };

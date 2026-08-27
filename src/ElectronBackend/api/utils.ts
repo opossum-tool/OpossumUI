@@ -502,15 +502,11 @@ export function toCanonicalLicenseName(
 const DEFAULT_BATCH_SIZE = 30000;
 
 export async function withBatching<P, R>(
-  input: Array<P> | undefined,
-  f: (arg: Array<P> | undefined) => Promise<R>,
+  input: Array<P>,
+  f: (arg: Array<P>) => Promise<R>,
   props?: { batchSize: number },
 ): Promise<Array<R>> {
   const batchSize = props?.batchSize ?? DEFAULT_BATCH_SIZE;
-
-  if (input === undefined) {
-    return [await f(input)];
-  }
 
   const results: Array<R> = [];
 
@@ -565,9 +561,6 @@ export async function unlinkAttributions(
   attributionUuids: Array<string>,
 ) {
   await withBatching(attributionUuids, async (batch) => {
-    if (batch === undefined) {
-      return;
-    }
     await trx
       .deleteFrom('resource_to_attribution')
       .where('resource_id', '=', resourceId)
@@ -599,9 +592,6 @@ export async function linkAttributions(
   await withBatching(
     attributionUuids,
     async (batch) => {
-      if (batch === undefined || batch.length === 0) {
-        return;
-      }
       await trx
         .insertInto('resource_to_attribution')
         .values(
@@ -628,10 +618,6 @@ async function updateAttributionResourceAccess(
 ) {
   const uniqueUuids = uniqueAttributionUuids(attributionUuids);
   await withBatching(uniqueUuids, async (batch) => {
-    if (batch === undefined) {
-      return;
-    }
-
     await trx
       .updateTable('attribution')
       .set((eb) => ({
@@ -703,9 +689,6 @@ export async function cloneMixedAttributionsForWritableResources(
 
   const mixedAttributions = (
     await withBatching(attributionUuids, async (batch) => {
-      if (!batch?.length) {
-        return [];
-      }
       return trx
         .selectFrom('attribution')
         .selectAll('attribution')
@@ -896,9 +879,6 @@ export async function ensureAttributionsAreNotExternal(
 ) {
   const externalAttributions = (
     await withBatching(attributionUuids, async (batch) => {
-      if (!batch?.length) {
-        return [];
-      }
       return trx
         .selectFrom('attribution')
         .select('uuid')
@@ -923,9 +903,6 @@ export async function ensureAttributionsAreNotReadonly(
 ) {
   const readonlyAttributions = (
     await withBatching(attributionUuids, async (batch) => {
-      if (!batch?.length) {
-        return [];
-      }
       return trx
         .selectFrom('attribution')
         .select('uuid')
@@ -950,9 +927,6 @@ export async function ensureAttributionsAreLinkedOnMultipleResources(
 ) {
   const attributionsLinkedOnSingleResource = (
     await withBatching(attributionUuids, async (batch) => {
-      if (!batch?.length) {
-        return [];
-      }
       return trx
         .selectFrom('resource_to_attribution')
         .select('attribution_uuid')
@@ -1004,9 +978,6 @@ export async function replaceAttributions(
     ...new Set(
       (
         await withBatching(attributionUuidsToReplace, async (batch) => {
-          if (!batch?.length) {
-            return [];
-          }
           return trx
             .selectFrom('resource_to_attribution')
             .select('resource_id')
@@ -1023,9 +994,6 @@ export async function replaceAttributions(
   // Reassign resource links to the replacement attribution, skipping conflicts
   // (conflicting links will be cascade deleted when the old attribution is removed)
   await withBatching(attributionUuidsToReplace, async (batch) => {
-    if (!batch?.length) {
-      return;
-    }
     await sql`
     UPDATE OR IGNORE resource_to_attribution
     SET attribution_uuid = ${params.attributionUuidToReplaceWith}

@@ -60,9 +60,9 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   pickerMode,
   selectedAttributionIds,
-  selection = { mode: 'explicit', attributionUuids: selectedAttributionIds },
+  selection,
   selectionSummary,
-  selectionSummaryLoading = false,
+  selectionSummaryLoading,
   clearSelection,
 }) => {
   const dispatch = useAppDispatch();
@@ -179,7 +179,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
         );
       }
 
-      clearSelection?.();
+      clearSelection();
       handleClose();
     },
     [

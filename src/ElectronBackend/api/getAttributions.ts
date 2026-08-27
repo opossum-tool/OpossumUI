@@ -27,11 +27,5 @@ export async function getAttributions(
         props.resourcePathForRelationships,
       ),
     );
-  return {
-    result: Object.fromEntries(
-      props.attributionUuids.flatMap((uuid) =>
-        result[uuid] ? [[uuid, result[uuid]]] : [],
-      ),
-    ),
-  };
+  return { result };
 }

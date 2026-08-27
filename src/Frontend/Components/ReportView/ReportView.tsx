@@ -62,10 +62,7 @@ export const ReportView: React.FC = () => {
       style={{ overflowAnchor: 'none' }}
       components={TABLE_COMPONENTS}
       fixedHeaderContent={() => (
-        <ReportTableHeader
-          loading={attributions === null}
-          empty={packageInfos.length === 0}
-        />
+        <ReportTableHeader empty={packageInfos.length === 0} />
       )}
       fixedFooterContent={() => (
         <ReportTableFooter

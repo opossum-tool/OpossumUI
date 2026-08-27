@@ -17,7 +17,7 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
   selection,
   selectionSummary,
-  selectionSummaryLoading = false,
+  selectionSummaryLoading,
   clearSelection,
 }) => {
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
@@ -25,7 +25,7 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
 
   const mutationsPending = useIsMutating() > 0;
   const selectedCount =
-    selection?.mode === 'allMatching'
+    selection.mode === 'allMatching'
       ? (selectionSummary?.selectedCount ?? 0)
       : selectedAttributionIds.length;
 

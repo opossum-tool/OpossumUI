@@ -12,8 +12,6 @@ import type { PackagesPanelChildrenProps } from '../../../PackagesPanel/Packages
 import { MoreActionsButton } from '../MoreActionsButton';
 
 describe('MoreActionsButton', () => {
-  const mockSetMultiSelectedAttributionIds = vi.fn();
-
   const defaultProps: PackagesPanelChildrenProps = {
     activeAttributionIds: ['attr1', 'attr2'],
     activeRelation: 'children',
@@ -36,14 +34,15 @@ describe('MoreActionsButton', () => {
     loading: false,
     loadingMore: false,
     loadMoreError: null,
-    onRetryLoadMore: vi.fn(),
     fetchNextPage: vi.fn(() => Promise.resolve()),
-    hasNextPage: false,
-    multiSelectedAttributionIds: ['attr1', 'attr2'],
+    selection: { mode: 'explicit', attributionUuids: ['attr1', 'attr2'] },
+    selectionSummaryLoading: false,
+    toggleAttributionSelection: vi.fn(),
+    isAttributionSelected: (id) => ['attr1', 'attr2'].includes(id),
+    clearSelection: vi.fn(),
     pickerMode: { mode: 'inactive', isActive: false },
     selectedAttributionId: 'attr1',
     selectedAttributionIds: ['attr1', 'attr2'],
-    setMultiSelectedAttributionIds: mockSetMultiSelectedAttributionIds,
   };
 
   beforeEach(() => {

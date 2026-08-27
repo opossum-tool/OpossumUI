@@ -28,10 +28,10 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   pickerMode,
   selectedAttributionIds,
-  selection = { mode: 'explicit', attributionUuids: selectedAttributionIds },
-  clearSelection = () => undefined,
+  selection,
+  clearSelection,
   selectionSummary,
-  selectionSummaryLoading = false,
+  selectionSummaryLoading,
 }) => {
   const dispatch = useAppDispatch();
   const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);

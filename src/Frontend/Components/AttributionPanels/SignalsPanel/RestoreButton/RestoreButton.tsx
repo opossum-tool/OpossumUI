@@ -16,9 +16,9 @@ import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   selectedAttributionIds,
-  selection = { mode: 'explicit', attributionUuids: selectedAttributionIds },
+  selection,
   selectionSummary,
-  selectionSummaryLoading = false,
+  selectionSummaryLoading,
   clearSelection,
 }) => {
   const unresolveAttributions = backend.unresolveAttributions.useMutation({
@@ -70,7 +70,7 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
             ? { selection }
             : { attributionUuids: selectedAttributionIds },
         );
-        clearSelection?.();
+        clearSelection();
       }}
       loading={unresolveAttributions.isPending}
     >

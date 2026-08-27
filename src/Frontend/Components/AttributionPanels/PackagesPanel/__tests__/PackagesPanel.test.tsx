@@ -46,6 +46,7 @@ vi.mock('../../../../util/use-selected-attribution', () => ({
 function mockAttributions(
   attributions: Attributions,
   visibleAttributions: Attributions = attributions,
+  scopeByRelation = true,
 ) {
   const relationCounts = Object.values(attributions).reduce<
     Partial<Record<Relation, { visibleCount: number; editableCount: number }>>
@@ -59,10 +60,16 @@ function mockAttributions(
     counts[relation] = current;
     return counts;
   }, {});
-  vi.mocked(useAuditAttributionsList).mockReturnValue({
-    attributions: visibleAttributions,
+  vi.mocked(useAuditAttributionsList).mockImplementation(({ relation }) => ({
+    attributions: scopeByRelation
+      ? Object.fromEntries(
+          Object.entries(visibleAttributions).filter(
+            ([, attribution]) =>
+              (attribution.relation ?? 'unrelated') === relation,
+          ),
+        )
+      : visibleAttributions,
     loading: false,
-    relation: (Object.keys(relationCounts)[0] ?? 'resource') as Relation,
     relationCounts,
     hasNextPage: false,
     isFetching: false,
@@ -75,7 +82,6 @@ function mockAttributions(
         ? {
             found: true,
             targetRelation: 'resource',
-            offset: 0,
             prefix: {
               attributions,
               offset: 0,
@@ -88,7 +94,7 @@ function mockAttributions(
       visibleAttributions !== attributions ? attributions : {},
     navigationRelation:
       visibleAttributions !== attributions ? 'resource' : null,
-  });
+  }));
 }
 
 function renderPackagesPanel({
@@ -97,14 +103,16 @@ function renderPackagesPanel({
   children,
   actions,
   data,
+  scopeByRelation,
 }: {
   attributions: Attributions;
   visibleAttributions?: Attributions;
   children?: (props: PackagesPanelChildrenProps) => React.ReactNode;
   actions?: Array<Action>;
   data?: ParsedFileContent;
+  scopeByRelation?: boolean;
 }) {
-  mockAttributions(attributions, visibleAttributions);
+  mockAttributions(attributions, visibleAttributions, scopeByRelation);
   vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(false);
   return renderComponent(
     <PackagesPanel
@@ -123,7 +131,7 @@ function rerenderPackagesPanel(
   rerender: (ui: React.ReactElement) => void,
   attributions: Attributions,
 ) {
-  mockAttributions(attributions);
+  mockAttributions(attributions, attributions, true);
   rerender(
     <PackagesPanel
       external={false}
@@ -195,6 +203,7 @@ describe('PackagesPanel', () => {
         [selectedAttribution.id]: selectedAttribution,
         [resourceAttribution.id]: resourceAttribution,
       }),
+      scopeByRelation: false,
       actions: [
         setSelectedAttributionId(selectedAttribution.id),
         setTargetSelectedResourceId('/cancelled-resource'),
@@ -376,7 +385,7 @@ describe('PackagesPanel', () => {
       children: (props) => (
         <button
           onClick={() =>
-            props.setMultiSelectedAttributionIds([packageInfo1.id])
+            props.toggleAttributionSelection(packageInfo1.id, true)
           }
         >
           {'click me'}
@@ -418,12 +427,10 @@ describe('PackagesPanel', () => {
       }),
       children: (props) => (
         <button
-          onClick={() =>
-            props.setMultiSelectedAttributionIds([
-              packageInfo1.id,
-              packageInfo2.id,
-            ])
-          }
+          onClick={() => {
+            props.toggleAttributionSelection(packageInfo1.id, true);
+            props.toggleAttributionSelection(packageInfo2.id, true);
+          }}
         >
           {'click me'}
         </button>
@@ -476,7 +483,7 @@ describe('PackagesPanel', () => {
         return (
           <button
             onClick={() =>
-              props.toggleAttributionSelection?.(visibleAttribution.id, false)
+              props.toggleAttributionSelection(visibleAttribution.id, false)
             }
           >
             {'deselect visible'}
@@ -525,7 +532,7 @@ describe('PackagesPanel', () => {
         [readonlyAttribution.id]: readonlyAttribution,
       }),
       children: (props) => {
-        selectedIds = props.multiSelectedAttributionIds;
+        selectedIds = props.selectedAttributionIds;
         return null;
       },
     });
@@ -589,7 +596,7 @@ describe('PackagesPanel', () => {
       children: (props) => (
         <button
           onClick={() =>
-            props.setMultiSelectedAttributionIds([packageInfo1.id])
+            props.toggleAttributionSelection(packageInfo1.id, true)
           }
         >
           {'click me'}
@@ -626,7 +633,7 @@ describe('PackagesPanel', () => {
       children: (props) => (
         <button
           onClick={() =>
-            props.setMultiSelectedAttributionIds([packageInfo1.id])
+            props.toggleAttributionSelection(packageInfo1.id, true)
           }
         >
           {'click me'}
@@ -746,6 +753,7 @@ describe('PackagesPanel', () => {
         [packageInfo2.id]: packageInfo2,
         [packageInfo3.id]: packageInfo3,
       }),
+      scopeByRelation: false,
       actions: [setSelectedAttributionId(packageInfo3.id)],
     });
 
@@ -767,6 +775,7 @@ describe('PackagesPanel', () => {
         [packageInfo2.id]: packageInfo2,
         [packageInfo3.id]: packageInfo3,
       }),
+      scopeByRelation: false,
       actions: [setSelectedAttributionId(packageInfo3.id)],
     });
 

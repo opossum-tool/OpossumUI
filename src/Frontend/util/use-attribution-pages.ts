@@ -121,7 +121,6 @@ export function useAttributionPages({
     includeReadonly,
     navigationScope,
     navigationSeedKey,
-    navigationMatchesScope,
     queryClient,
     sort,
     targetFound,
@@ -146,18 +145,12 @@ export function useAttributionPages({
       data.pages.flatMap((page) => Object.entries(page.attributions)),
     );
   }, [data]);
-  const fetchLockRef = useRef(false);
   const fetchNextPage = useCallback(async () => {
-    if (fetchLockRef.current || !hasNextPage || isFetchingNextPage) {
+    if (!hasNextPage) {
       return;
     }
-    fetchLockRef.current = true;
-    try {
-      await fetchNextPageQuery();
-    } finally {
-      fetchLockRef.current = false;
-    }
-  }, [fetchNextPageQuery, hasNextPage, isFetchingNextPage]);
+    await fetchNextPageQuery({ cancelRefetch: false });
+  }, [fetchNextPageQuery, hasNextPage]);
 
   return {
     attributions,
