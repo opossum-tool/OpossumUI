@@ -33,6 +33,7 @@ import {
 } from '../resource-actions/all-views-simple-actions';
 import {
   setAttributionFilters,
+  setAttributionSelectionPending,
   setSelectedAttributionId,
   setSelectedResourceId,
   setTargetAttributionFilterChange,
@@ -135,8 +136,12 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
   resourceId: string,
 ): AppThunkAction {
   return withUnsavedCheck({
-    executeImmediately: (dispatch) =>
-      dispatch(setSelectedResourceId(resourceId)),
+    executeImmediately: (dispatch, getState) => {
+      if (getSelectedResourceId(getState()) !== resourceId) {
+        dispatch(setAttributionSelectionPending(resourceId));
+      }
+      dispatch(setSelectedResourceId(resourceId));
+    },
     requestContinuation: (dispatch) =>
       dispatch(setTargetSelectedResourceId(resourceId)),
   });

@@ -5,8 +5,10 @@
 import type { PackageInfo, Relation } from '../../../shared/shared-types';
 import { EMPTY_DISPLAY_PACKAGE_INFO, ROOT_PATH } from '../../shared-constants';
 import {
+  ACTION_COMPLETE_ATTRIBUTION_SELECTION,
   ACTION_INITIALIZE_PACKAGE_INFO_EDITING,
   ACTION_RESET_RESOURCE_STATE,
+  ACTION_SET_ATTRIBUTION_SELECTION_PENDING,
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
@@ -31,6 +33,7 @@ export const initialResourceState: ResourceState = {
   targetAttributionRelation: null,
   pendingAttributionNavigation: null,
   targetSelectedResourceId: null,
+  attributionSelectionPendingResourceId: null,
   temporaryDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
 };
 
@@ -44,6 +47,7 @@ export type ResourceState = {
   targetAttributionRelation: Relation | null;
   pendingAttributionNavigation: PendingAttributionNavigation | null;
   targetSelectedResourceId: string | null;
+  attributionSelectionPendingResourceId: string | null;
   temporaryDisplayPackageInfo: PackageInfo;
 };
 
@@ -75,6 +79,15 @@ export const resourceState = (
         ...state,
         targetSelectedResourceId: action.payload,
       };
+    case ACTION_SET_ATTRIBUTION_SELECTION_PENDING:
+      return {
+        ...state,
+        attributionSelectionPendingResourceId: action.payload,
+      };
+    case ACTION_COMPLETE_ATTRIBUTION_SELECTION:
+      return action.payload === state.attributionSelectionPendingResourceId
+        ? { ...state, attributionSelectionPendingResourceId: null }
+        : state;
     case ACTION_SET_EXPANDED_IDS:
       return {
         ...state,

@@ -25,6 +25,7 @@ import {
 } from '../../../shared-styles';
 import { changeAttributionFiltersOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
 import {
+  completeAttributionSelection,
   setPendingAttributionNavigation,
   setSelectedAttributionId,
   setTargetAttributionRelation,
@@ -370,6 +371,7 @@ export const PackagesPanel = ({
       if (visibleAttributionIds.length > 0) {
         lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
         dispatch(setSelectedAttributionId(visibleAttributionIds[0]));
+        dispatch(completeAttributionSelection(selectedResourceId));
         return;
       }
 
@@ -379,6 +381,7 @@ export const PackagesPanel = ({
       if (closestSelectableRelation === undefined) {
         if (relationCounts !== undefined && !isFetching) {
           lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
+          dispatch(completeAttributionSelection(selectedResourceId));
         }
         return;
       }
@@ -390,6 +393,7 @@ export const PackagesPanel = ({
 
       if (!isFetching) {
         lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
+        dispatch(completeAttributionSelection(selectedResourceId));
       }
       return;
     }

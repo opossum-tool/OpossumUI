@@ -11,6 +11,8 @@ import {
 } from '../../variables/use-filters';
 import { setVariable } from '../variables-actions/variables-actions';
 import {
+  ACTION_COMPLETE_ATTRIBUTION_SELECTION,
+  ACTION_SET_ATTRIBUTION_SELECTION_PENDING,
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
@@ -19,7 +21,9 @@ import {
   ACTION_SET_TARGET_ATTRIBUTION_RELATION,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
+  type CompleteAttributionSelectionAction,
   type PendingAttributionNavigation,
+  type SetAttributionSelectionPendingAction,
   type SetExpandedIdsAction,
   type SetPendingAttributionNavigationAction,
   type SetSelectedAttributionId,
@@ -30,6 +34,21 @@ import {
   type SetTargetSelectedResourceId,
   type TargetAttributionFilterChange,
 } from './types';
+
+export function setAttributionSelectionPending(
+  resourceId: string | null,
+): SetAttributionSelectionPendingAction {
+  return {
+    type: ACTION_SET_ATTRIBUTION_SELECTION_PENDING,
+    payload: resourceId,
+  };
+}
+
+export function completeAttributionSelection(
+  resourceId: string,
+): CompleteAttributionSelectionAction {
+  return { type: ACTION_COMPLETE_ATTRIBUTION_SELECTION, payload: resourceId };
+}
 
 export function setSelectedResourceId(
   resourceId: string,

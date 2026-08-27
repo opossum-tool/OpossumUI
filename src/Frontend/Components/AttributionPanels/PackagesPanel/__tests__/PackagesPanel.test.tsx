@@ -20,8 +20,10 @@ import {
   setSelectedResourceId,
   setTargetSelectedResourceId,
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
+import { openResourceInResourceBrowser } from '../../../../state/actions/resource-actions/navigation-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import type { Action } from '../../../../state/configure-store';
+import { getAttributionSelectionPendingResourceId } from '../../../../state/selectors/resource-selectors';
 import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-selection-for-replacement';
 import { initialAttributionFilters } from '../../../../state/variables/use-filters';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
@@ -149,12 +151,17 @@ describe('PackagesPanel', () => {
       }),
     });
 
-    await act(() => store.dispatch(setSelectedResourceId('/another-resource')));
+    act(() =>
+      store.dispatch(openResourceInResourceBrowser('/another-resource')),
+    );
 
     await waitFor(() => {
       expect(store.getState().resourceState.selectedAttributionId).toBe(
         resourceAttribution.id,
       );
+      expect(
+        getAttributionSelectionPendingResourceId(store.getState()),
+      ).toBeNull();
     });
   });
 

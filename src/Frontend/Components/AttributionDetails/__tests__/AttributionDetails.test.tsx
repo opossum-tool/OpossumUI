@@ -12,6 +12,7 @@ import { pathsToResources } from '../../../../testing/global-test-helpers';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
+  setAttributionSelectionPending,
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -145,6 +146,31 @@ describe('AttributionDetails', () => {
     expect(
       screen.getByLabelText(text.attributionColumn.packageName),
     ).toHaveValue(packageInfo.packageName ?? '');
+  });
+
+  it('disables editing while attribution selection is pending', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: { [packageInfo.id]: packageInfo },
+      }),
+      actions: [
+        setSelectedResourceId('/resource'),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    await screen.findByDisplayValue(packageInfo.packageName ?? '');
+    act(() => {
+      store.dispatch(setAttributionSelectionPending('/resource'));
+    });
+
+    expect(
+      screen.getByTestId('attribution-details-loading'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(text.attributionColumn.packageName),
+    ).toHaveAttribute('readonly');
   });
 
   it('shows only the cancel button when the selected attribution is marked for replacement', async () => {

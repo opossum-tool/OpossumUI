@@ -25,6 +25,10 @@ export const ACTION_SET_TARGET_ATTRIBUTION_RELATION =
   'ACTION_SET_TARGET_ATTRIBUTION_RELATION';
 export const ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION =
   'ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION';
+export const ACTION_SET_ATTRIBUTION_SELECTION_PENDING =
+  'ACTION_SET_ATTRIBUTION_SELECTION_PENDING';
+export const ACTION_COMPLETE_ATTRIBUTION_SELECTION =
+  'ACTION_COMPLETE_ATTRIBUTION_SELECTION';
 
 export interface PendingAttributionNavigation {
   attributionUuid: string;
@@ -42,7 +46,9 @@ export type ResourceAction =
   | SetTargetSelectedAttributionIdAction
   | SetTargetAttributionFilterChangeAction
   | SetTargetAttributionRelationAction
-  | SetPendingAttributionNavigationAction;
+  | SetPendingAttributionNavigationAction
+  | SetAttributionSelectionPendingAction
+  | CompleteAttributionSelectionAction;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -75,6 +81,16 @@ export interface SetExpandedIdsAction {
 
 export interface SetSelectedAttributionId {
   type: typeof ACTION_SET_SELECTED_ATTRIBUTION_ID;
+  payload: string;
+}
+
+export interface SetAttributionSelectionPendingAction {
+  type: typeof ACTION_SET_ATTRIBUTION_SELECTION_PENDING;
+  payload: string | null;
+}
+
+export interface CompleteAttributionSelectionAction {
+  type: typeof ACTION_COMPLETE_ATTRIBUTION_SELECTION;
   payload: string;
 }
 
