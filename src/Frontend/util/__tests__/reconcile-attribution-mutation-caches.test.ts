@@ -2,10 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { QueryObserver } from '@tanstack/react-query';
+import { QueryClient, QueryObserver } from '@tanstack/react-query';
 
-import { queryClient } from '../../Components/AppContainer/queryClient';
-import { ATTRIBUTION_NAVIGATION_QUERY_KEY, backend } from '../backendClient';
+import {
+  ATTRIBUTION_NAVIGATION_QUERY_KEY,
+  reconcileAttributionMutationCaches,
+} from '../reconcile-attribution-mutation-caches';
 
 const queryKey = [
   'backend',
@@ -17,9 +19,21 @@ const invalidationResponse = {
   invalidates: [{ queryName: 'getAttributionData' as const }],
 };
 
-describe('backend mutation cache ownership', () => {
+const fetchPage = vi.fn(() =>
+  Promise.resolve({
+    attributions: {},
+    offset: 0,
+    limit: 200,
+    hasNextPage: false,
+  }),
+);
+
+describe('reconcileAttributionMutationCaches', () => {
+  let queryClient: QueryClient;
+
   beforeEach(() => {
-    queryClient.clear();
+    queryClient = new QueryClient();
+    fetchPage.mockClear();
   });
 
   it('starts active secondary refreshes without awaiting their completion', async () => {
@@ -36,11 +50,13 @@ describe('backend mutation cache ownership', () => {
     });
     const unsubscribe = observer.subscribe(() => undefined);
 
-    vi.mocked(window.electronAPI.api).mockResolvedValueOnce(
-      invalidationResponse,
-    );
-
-    await backend.invalidateGetAttributionData.mutate(undefined);
+    await reconcileAttributionMutationCaches({
+      queryClient,
+      command: 'invalidateGetAttributionData',
+      params: undefined,
+      response: invalidationResponse,
+      fetchPage,
+    });
 
     expect(queryFn).toHaveBeenCalledTimes(1);
     expect(queryClient.getQueryState(queryKey)?.fetchStatus).toBe('fetching');
@@ -54,11 +70,13 @@ describe('backend mutation cache ownership', () => {
     const queryFn = vi.fn(() => Promise.resolve({ value: 'after' }));
     queryClient.setQueryData(queryKey, { value: 'before' });
 
-    vi.mocked(window.electronAPI.api).mockResolvedValueOnce(
-      invalidationResponse,
-    );
-
-    await backend.invalidateGetAttributionData.mutate(undefined);
+    await reconcileAttributionMutationCaches({
+      queryClient,
+      command: 'invalidateGetAttributionData',
+      params: undefined,
+      response: invalidationResponse,
+      fetchPage,
+    });
 
     expect(queryClient.getQueryState(queryKey)?.isInvalidated).toBe(true);
     expect(queryFn).not.toHaveBeenCalled();
@@ -90,7 +108,7 @@ describe('backend mutation cache ownership', () => {
     });
     const unsubscribe = observer.subscribe(() => undefined);
 
-    vi.mocked(window.electronAPI.api).mockResolvedValueOnce({
+    const response = {
       invalidates: [
         {
           queryName: 'getAttributionData' as const,
@@ -98,17 +116,21 @@ describe('backend mutation cache ownership', () => {
         },
       ],
       attributionCacheImpact: {
-        mode: 'targeted',
+        mode: 'targeted' as const,
         attributionUuids: ['attribution-a'],
       },
-    });
+    };
 
     let mutationSettled = false;
-    const mutation = backend.invalidateGetAttributionData
-      .mutate(undefined)
-      .then(() => {
-        mutationSettled = true;
-      });
+    const mutation = reconcileAttributionMutationCaches({
+      queryClient,
+      command: 'invalidateGetAttributionData',
+      params: undefined,
+      response,
+      fetchPage,
+    }).then(() => {
+      mutationSettled = true;
+    });
     await vi.waitFor(() => expect(queryFn).toHaveBeenCalledTimes(1));
     expect(mutationSettled).toBe(false);
 
@@ -125,12 +147,16 @@ describe('backend mutation cache ownership', () => {
       { attributionUuids: ['attribution-a'] },
     ] as const;
     queryClient.setQueryData(listQueryKey, {});
-    vi.mocked(window.electronAPI.api).mockResolvedValueOnce({
-      invalidates: [{ queryName: 'getAttributions' }],
-      attributionCacheImpact: { mode: 'broad' },
+    await reconcileAttributionMutationCaches({
+      queryClient,
+      command: 'invalidateGetAttributionData',
+      params: undefined,
+      response: {
+        invalidates: [{ queryName: 'getAttributions' }],
+        attributionCacheImpact: { mode: 'broad' },
+      },
+      fetchPage,
     });
-
-    await backend.invalidateGetAttributionData.mutate(undefined);
 
     await vi.waitFor(() =>
       expect(queryClient.getQueryState(listQueryKey)?.isInvalidated).toBe(true),
@@ -157,12 +183,16 @@ describe('backend mutation cache ownership', () => {
         hasNextPage: false,
       },
     });
-    vi.mocked(window.electronAPI.api).mockResolvedValueOnce({
-      invalidates: [{ queryName: 'listAttributionsPage' as const }],
-      attributionCacheImpact: { mode: 'broad' },
+    await reconcileAttributionMutationCaches({
+      queryClient,
+      command: 'invalidateGetAttributionData',
+      params: undefined,
+      response: {
+        invalidates: [{ queryName: 'listAttributionsPage' as const }],
+        attributionCacheImpact: { mode: 'broad' as const },
+      },
+      fetchPage,
     });
-
-    await backend.invalidateGetAttributionData.mutate(undefined);
 
     await vi.waitFor(() =>
       expect(queryClient.getQueryState(navigationQueryKey)?.isInvalidated).toBe(
