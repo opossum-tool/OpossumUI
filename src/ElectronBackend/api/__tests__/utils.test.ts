@@ -2,12 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type Attributions,
-  type AttributionsToResources,
-  Criticality,
-  type ReadonlyRule,
-  type ResourcesToAttributions,
+import type {
+  Attributions,
+  AttributionsToResources,
+  ReadonlyRule,
+  ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import {
   initializeDbWithTestData,
@@ -15,7 +14,6 @@ import {
 } from '../../../testing/global-test-helpers';
 import { getDb } from '../../db/db';
 import {
-  getEffectiveManualAttributionUuids,
   removeRedundantAttributions,
   removeTrailingSlash,
   withBatching,
@@ -65,38 +63,6 @@ describe('withBatching', () => {
 
     expect(f).not.toHaveBeenCalled();
     expect(results).toEqual([]);
-  });
-});
-
-describe('getEffectiveManualAttributionUuids', () => {
-  it('batches resource IDs beyond SQLite variable limits and deduplicates results', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/file.ts']),
-      manualAttributions: {
-        attributions: {
-          manual: { id: 'manual', criticality: Criticality.None },
-        },
-        resourcesToAttributions: { '/file.ts': ['manual'] },
-        attributionsToResources: {},
-      },
-    });
-
-    const resourceId = (
-      await getDb()
-        .selectFrom('resource')
-        .select('id')
-        .where('path', '=', '/file.ts')
-        .executeTakeFirstOrThrow()
-    ).id;
-    const resourceIds = [
-      resourceId,
-      ...Array.from({ length: 33_000 }, (_, index) => index + 1),
-      resourceId,
-    ];
-
-    await expect(
-      getEffectiveManualAttributionUuids(getDb(), resourceIds),
-    ).resolves.toEqual(['manual']);
   });
 });
 

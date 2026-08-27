@@ -76,12 +76,3 @@ export function getAttributionPrefixData(
     pageParams: [{ offset: page.offset, limit: page.limit }],
   };
 }
-
-export function getLoadedAttributionWindow(
-  data: InfiniteAttributionData | undefined,
-): number {
-  return Math.max(
-    ATTRIBUTION_PAGE_SIZE,
-    ...(data?.pages.map((page) => page.offset + page.limit) ?? []),
-  );
-}
