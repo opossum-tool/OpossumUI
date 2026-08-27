@@ -15,9 +15,9 @@ import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   selectedAttributionIds,
-  selection = { mode: 'explicit', attributionUuids: selectedAttributionIds },
+  selection,
   selectionSummary,
-  selectionSummaryLoading = false,
+  selectionSummaryLoading,
   clearSelection,
 }) => {
   const resolveAttributions = backend.resolveAttributions.useMutation();
@@ -61,7 +61,7 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
             ? { selection }
             : { attributionUuids: selectedAttributionIds },
         );
-        clearSelection?.();
+        clearSelection();
       }}
       loading={resolveAttributions.isPending}
     >

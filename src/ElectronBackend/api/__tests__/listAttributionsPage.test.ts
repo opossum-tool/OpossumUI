@@ -6,6 +6,10 @@ import type {
   AttributionFilterKey,
   AttributionValueFilters,
 } from '../../../shared/attribution-filters';
+import type {
+  AttributionPageRequest,
+  AttributionRelationCountRequest,
+} from '../../../shared/attribution-result-set';
 import { Criticality, type PackageInfo } from '../../../shared/shared-types';
 import {
   initializeDbWithTestData,
@@ -17,9 +21,7 @@ import {
   getAttributionSelectionSummary,
   listAttributionPreview,
   listAttributionRelationCounts,
-  type ListAttributionRelationCountsProps,
   listAttributionsPage,
-  type ListAttributionsPageProps,
   locateAttribution,
   resolveAttributionSelection,
 } from '../listAttributionsPage';
@@ -33,8 +35,8 @@ describe('listAttributionsPage', () => {
     resourcePathForRelationships: '',
     showResolved: false,
     excludeUnrelated: false,
-  } satisfies ListAttributionRelationCountsProps;
-  const listPage = (props: Partial<ListAttributionsPageProps>) =>
+  } satisfies AttributionRelationCountRequest;
+  const listPage = (props: Partial<AttributionPageRequest>) =>
     listAttributionsPage({
       ...defaultCriteria,
       scope: { mode: 'relation', relation: 'resource' },
@@ -44,7 +46,7 @@ describe('listAttributionsPage', () => {
       limit: 200,
       ...props,
     });
-  const allPage = (props: Partial<ListAttributionsPageProps>) =>
+  const allPage = (props: Partial<AttributionPageRequest>) =>
     listAttributionsPage({
       ...defaultCriteria,
       scope: { mode: 'all' },
@@ -54,7 +56,7 @@ describe('listAttributionsPage', () => {
       limit: 200,
       ...props,
     });
-  const relationCounts = (props: Partial<ListAttributionRelationCountsProps>) =>
+  const relationCounts = (props: Partial<AttributionRelationCountRequest>) =>
     listAttributionRelationCounts({ ...defaultCriteria, ...props });
   const preview = (
     props: Partial<Parameters<typeof listAttributionPreview>[0]>,
@@ -155,6 +157,46 @@ describe('listAttributionsPage', () => {
     });
   });
 
+  it('counts related readonly attributions as visible but not editable', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/parent/readonly/one.ts',
+        '/parent/readonly/two.ts',
+        '/parent/writable.ts',
+      ]),
+      manualAttributions: {
+        attributions: {
+          relatedReadonlyOne: {
+            id: 'relatedReadonlyOne',
+            criticality: Criticality.None,
+          },
+          relatedReadonlyTwo: {
+            id: 'relatedReadonlyTwo',
+            criticality: Criticality.None,
+          },
+          writable: { id: 'writable', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/parent/readonly/one.ts': ['relatedReadonlyOne'],
+          '/parent/readonly/two.ts': ['relatedReadonlyTwo'],
+          '/parent/writable.ts': ['writable'],
+        },
+        attributionsToResources: {},
+      },
+      readonlyRules: [{ path: '/parent/readonly', readonly: true }],
+    });
+
+    const counts = await relationCounts({
+      external: false,
+      resourcePathForRelationships: '/parent',
+    });
+
+    expect(counts.result.children).toEqual({
+      visibleCount: 3,
+      editableCount: 1,
+    });
+  });
+
   it('loads the prefix through a target attribution in one request', async () => {
     const full = await listPage({
       external: false,
@@ -173,8 +215,6 @@ describe('listAttributionsPage', () => {
       found: true,
       targetRelation: 'resource',
     });
-    const targetOffset = expectedIds.indexOf('resourceTwo');
-    expect(result.result).toMatchObject({ found: true, offset: targetOffset });
     const prefix = 'prefix' in result.result ? result.result.prefix : undefined;
     expect(Object.keys(prefix?.attributions ?? {})).toEqual(expectedIds);
     expect(prefix?.hasNextPage).toBe(false);
@@ -200,7 +240,6 @@ describe('listAttributionsPage', () => {
     expect(result.result).toMatchObject({
       found: true,
       targetRelation: 'resource',
-      offset: allIds.indexOf('resourceTwo'),
     });
     const prefix = 'prefix' in result.result ? result.result.prefix : undefined;
     expect(Object.keys(prefix?.attributions ?? {})).toEqual(allIds);
@@ -241,7 +280,6 @@ describe('listAttributionsPage', () => {
     expect(result.result).toMatchObject({
       found: true,
       targetRelation: 'children',
-      offset: 0,
     });
     const prefix = 'prefix' in result.result ? result.result.prefix : undefined;
     expect(prefix?.limit).toBe(200);
@@ -271,7 +309,7 @@ describe('listAttributionsPage', () => {
       targetAttributionUuid: 'attribution-200',
     });
 
-    expect(result.result).toMatchObject({ found: true, offset: 200 });
+    expect(result.result).toMatchObject({ found: true });
     const prefix = 'prefix' in result.result ? result.result.prefix : undefined;
     expect(prefix?.limit).toBe(400);
     expect(Object.keys(prefix?.attributions ?? {})).toHaveLength(250);
@@ -408,7 +446,6 @@ describe('listAttributionsPage', () => {
     expect(navigation.result).toMatchObject({
       found: true,
       targetRelation: 'resource',
-      offset: 1,
     });
   });
 

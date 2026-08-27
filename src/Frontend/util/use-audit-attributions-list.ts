@@ -36,7 +36,6 @@ export function useAuditAttributionsList({
 
   return {
     ...pages,
-    relation,
     relationCounts: relationCountsQuery.data,
   };
 }

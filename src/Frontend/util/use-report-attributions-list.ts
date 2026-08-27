@@ -22,7 +22,7 @@ export function useReportAttributionsList() {
     excludeUnrelated: false,
     valueFilters,
   };
-  const pages = useAttributionPages({
+  return useAttributionPages({
     criteria,
     scope: { mode: 'all' },
     sort: sorting,
@@ -30,9 +30,4 @@ export function useReportAttributionsList() {
     targetAttributionUuid: selectedAttributionId || undefined,
     navigationScope: 'all',
   });
-
-  return {
-    ...pages,
-    selectedAttribution: pages.attributions?.[selectedAttributionId],
-  };
 }

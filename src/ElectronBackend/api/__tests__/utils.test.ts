@@ -20,15 +20,6 @@ import {
 } from '../utils';
 
 describe('withBatching', () => {
-  it('calls f with undefined and wraps result when input is undefined', async () => {
-    const f = vi.fn().mockResolvedValue('result');
-
-    const results = await withBatching(undefined, f);
-
-    expect(f).toHaveBeenCalledExactlyOnceWith(undefined);
-    expect(results).toEqual(['result']);
-  });
-
   it('processes all items in a single batch when input fits', async () => {
     const input = [1, 2, 3];
     const f = vi.fn().mockResolvedValue('ok');

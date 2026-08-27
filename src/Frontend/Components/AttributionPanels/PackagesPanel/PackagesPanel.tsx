@@ -4,12 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiTooltip from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
-import {
-  groupBy as _groupBy,
-  orderBy as _orderBy,
-  intersection,
-  isEqual,
-} from 'lodash-es';
+import { intersection, isEqual } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { AttributionResultSetCriteria } from '../../../../shared/attribution-result-set';
@@ -48,7 +43,6 @@ import {
 } from '../../../state/variables/use-picker-mode';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { backend, useDatabaseInitialized } from '../../../util/backendClient';
-import { getRelationPriority } from '../../../util/sort-attributions';
 import { useAuditAttributionsList } from '../../../util/use-audit-attributions-list';
 import { useFilterProperties } from '../../../util/use-filter-properties';
 import { usePrevious } from '../../../util/use-previous';
@@ -73,31 +67,25 @@ import {
 
 export interface PackagesPanelChildrenProps {
   activeAttributionIds: Array<string> | null;
-  activeRelation: Relation | null;
+  activeRelation: Relation;
   attributionIds: Array<string> | null;
   attributions: Attributions | null;
   contentHeight: string;
   loading: boolean;
   loadingMore: boolean;
   loadMoreError: unknown;
-  onRetryLoadMore: () => void;
   fetchNextPage: () => Promise<void>;
-  hasNextPage: boolean;
-  selection?: AttributionSelection;
+  selection: AttributionSelection;
   selectionSummary?: Awaited<
     ReturnType<typeof backend.getAttributionSelectionSummary.query>
   >;
-  selectionSummaryLoading?: boolean;
-  isAllMatchingSelected?: boolean;
-  toggleAttributionSelection?: (id: string, selected: boolean) => void;
-  clearSelection?: () => void;
-  multiSelectedAttributionIds: Array<string>;
+  selectionSummaryLoading: boolean;
+  toggleAttributionSelection: (id: string, selected: boolean) => void;
+  isAttributionSelected: (id: string) => boolean;
+  clearSelection: () => void;
   pickerMode: PickerMode;
   selectedAttributionId: string;
   selectedAttributionIds: Array<string>;
-  setMultiSelectedAttributionIds: React.Dispatch<
-    React.SetStateAction<Array<string>>
-  >;
 }
 
 export interface Alert {
@@ -138,12 +126,10 @@ export const PackagesPanel = ({
   const lastResourceIdWithAutoSelectionRef = useRef(selectedResourceId);
   const previousSelectedResourceId = usePrevious(selectedResourceId);
 
-  const [multiSelectedAttributionIds, setMultiSelectedAttributionIds] =
-    useState<Array<string>>([]);
-  const [allMatchingSelection, setAllMatchingSelection] =
+  const [bulkSelection, setBulkSelection] =
     useState<AttributionSelection | null>(null);
   const [activeRelation, setActiveRelation] = useState<Relation>('resource');
-  const updateActiveRelation = setActiveRelation;
+  const relationTransitionRef = useRef(false);
   const preserveSelectedAttributionRef = useRef(false);
   const requestedRelationRef = useRef<Relation | null>(null);
   const relationForCurrentResource =
@@ -189,42 +175,25 @@ export const PackagesPanel = ({
       valueFilters,
     ],
   );
-  const infiniteAttributions = useAuditAttributionsList({
-    criteria: resultSetCriteria,
-    sort: filters.sorting,
-    includeReadonly: true,
-    relation: relationForCurrentResource,
-    targetAttributionUuid: navigationTargetUuid,
-  });
   const {
     attributions,
     loading,
-    loadingMore,
-    loadMoreError,
-    onRetryLoadMore,
+    isFetchingNextPage: loadingMore,
+    nextPageError: loadMoreError,
     fetchNextPage,
-    hasNextPage,
     isFetching,
     relationCounts,
     navigationLoading,
     navigationAttributions,
     navigationRelation,
     navigationResult,
-  } = {
-    attributions: infiniteAttributions.attributions,
-    loading: infiniteAttributions.loading,
-    loadingMore: infiniteAttributions.isFetchingNextPage,
-    loadMoreError: infiniteAttributions.nextPageError,
-    onRetryLoadMore: infiniteAttributions.fetchNextPage,
-    fetchNextPage: infiniteAttributions.fetchNextPage,
-    hasNextPage: infiniteAttributions.hasNextPage,
-    isFetching: infiniteAttributions.isFetching,
-    relationCounts: infiniteAttributions.relationCounts,
-    navigationLoading: infiniteAttributions.navigationLoading,
-    navigationAttributions: infiniteAttributions.navigationAttributions,
-    navigationRelation: infiniteAttributions.navigationRelation,
-    navigationResult: infiniteAttributions.navigationResult,
-  };
+  } = useAuditAttributionsList({
+    criteria: resultSetCriteria,
+    sort: filters.sorting,
+    includeReadonly: true,
+    relation: relationForCurrentResource,
+    targetAttributionUuid: navigationTargetUuid,
+  });
   useEffect(() => {
     if (!pendingAttributionNavigation || !pendingNavigationMatches) {
       return;
@@ -280,20 +249,6 @@ export const PackagesPanel = ({
   const selectedAttribution =
     selectedAttributionFromPage ??
     navigationAttributions[selectedAttributionId];
-  const groupedIds = useMemo(
-    () =>
-      attributions &&
-      _groupBy(
-        _orderBy(
-          Object.keys(attributions),
-          (id) => getRelationPriority(attributions[id].relation),
-          'desc',
-        ),
-        (id) => attributions[id].relation || 'unrelated',
-      ),
-    [attributions],
-  );
-
   const setFiltersWithUnsavedCheck = useCallback(
     (nextFilters: AttributionFilters) => {
       preserveSelectedAttributionRef.current = false;
@@ -322,16 +277,18 @@ export const PackagesPanel = ({
     !!attributionFilters.length || Object.values(valueFilters).some(Boolean);
   const pickerMode = usePickerMode();
 
-  const attributionIds = attributions && Object.keys(attributions);
+  useEffect(() => {
+    relationTransitionRef.current = true;
+  }, [activeRelation]);
+
+  const attributionIds = attributions ? Object.keys(attributions) : null;
 
   const availableRelations = relationCounts
     ? (['resource', 'parents', 'children', 'unrelated'] as const).filter(
         (relation) => relationCounts[relation] !== undefined,
       )
     : null;
-  const activeRelationCount = activeRelation
-    ? relationCounts?.[activeRelation]
-    : undefined;
+  const activeRelationCount = relationCounts?.[activeRelation];
 
   // Automatic attribution selection. The first resource page is requested
   // immediately; only an empty resource page waits for relation counts before
@@ -340,10 +297,10 @@ export const PackagesPanel = ({
     if (!external && targetAttributionRelation !== null) {
       preserveSelectedAttributionRef.current = true;
       requestedRelationRef.current = targetAttributionRelation;
-      updateActiveRelation(targetAttributionRelation);
+      setActiveRelation(targetAttributionRelation);
       dispatch(setTargetAttributionRelation(null));
     }
-  }, [dispatch, external, targetAttributionRelation, updateActiveRelation]);
+  }, [dispatch, external, targetAttributionRelation]);
 
   useEffect(() => {
     const isPendingRootFallback =
@@ -387,7 +344,7 @@ export const PackagesPanel = ({
       }
 
       if (relationForCurrentResource !== closestSelectableRelation) {
-        updateActiveRelation(closestSelectableRelation);
+        setActiveRelation(closestSelectableRelation);
         return;
       }
 
@@ -442,15 +399,11 @@ export const PackagesPanel = ({
     pendingNavigationMatches,
     selectedResourceId,
     databaseInitialized,
-    updateActiveRelation,
   ]);
 
   const selectedAttributionRelation = selectedAttribution?.relation;
-  const activeAttributionIds = useMemo(
-    () =>
-      groupedIds && activeRelation ? (groupedIds[activeRelation] ?? []) : null,
-    [activeRelation, groupedIds],
-  );
+  const activeAttributionIds =
+    relationForCurrentResource === activeRelation ? attributionIds : null;
 
   const activeSelectableAttributionIds = useMemo(
     () =>
@@ -460,52 +413,41 @@ export const PackagesPanel = ({
     [activeAttributionIds, attributions],
   );
 
-  const selectedAttributionIds = useMemo(
+  const selection = useMemo<AttributionSelection>(
     () =>
-      allMatchingSelection?.mode === 'allMatching'
-        ? (activeSelectableAttributionIds?.filter(
-            (id) => !allMatchingSelection.excludedAttributionUuids.includes(id),
-          ) ?? [])
-        : intersection(
-            multiSelectedAttributionIds.length
-              ? multiSelectedAttributionIds
-              : [selectedAttributionId],
-            attributionIds,
-          )?.filter((id) => attributions?.[id]?.resourceAccess !== 'readonly'),
-    [
-      activeSelectableAttributionIds,
-      allMatchingSelection,
-      attributionIds,
-      attributions,
-      multiSelectedAttributionIds,
-      selectedAttributionId,
-    ],
+      bulkSelection ?? {
+        mode: 'explicit',
+        attributionUuids: selectedAttributionId ? [selectedAttributionId] : [],
+      },
+    [bulkSelection, selectedAttributionId],
   );
+
+  const selectedAttributionIds = useMemo(() => {
+    const selectedIds =
+      selection.mode === 'allMatching'
+        ? (activeSelectableAttributionIds?.filter(
+            (id) => !selection.excludedAttributionUuids.includes(id),
+          ) ?? [])
+        : selection.attributionUuids;
+
+    return intersection(selectedIds, attributionIds ?? []).filter(
+      (id) => attributions?.[id]?.resourceAccess !== 'readonly',
+    );
+  }, [activeSelectableAttributionIds, attributionIds, attributions, selection]);
 
   const areAllAttributionsSelected = useMemo(() => {
     return (
       !!activeRelationCount?.editableCount &&
-      (allMatchingSelection?.mode === 'allMatching'
-        ? allMatchingSelection.excludedAttributionUuids.length === 0
+      (bulkSelection?.mode === 'allMatching'
+        ? bulkSelection.excludedAttributionUuids.length === 0
         : intersection(
-            activeSelectableAttributionIds,
-            multiSelectedAttributionIds,
+            activeSelectableAttributionIds ?? [],
+            bulkSelection?.mode === 'explicit'
+              ? bulkSelection.attributionUuids
+              : [],
           ).length === activeRelationCount.editableCount)
     );
-  }, [
-    activeRelationCount,
-    activeSelectableAttributionIds,
-    allMatchingSelection,
-    multiSelectedAttributionIds,
-  ]);
-  const effectiveSelectedIds = useMemo(
-    () => intersection(attributionIds, multiSelectedAttributionIds),
-    [attributionIds, multiSelectedAttributionIds],
-  );
-  const prevEffectiveSelectedIds = usePrevious(
-    effectiveSelectedIds,
-    effectiveSelectedIds,
-  );
+  }, [activeRelationCount, activeSelectableAttributionIds, bulkSelection]);
 
   const selectionQuery = useMemo<AttributionSelectionQuery>(
     () => ({
@@ -515,51 +457,33 @@ export const PackagesPanel = ({
     [relationForCurrentResource, resultSetCriteria],
   );
   const previousSelectionQuery = usePrevious(selectionQuery);
-  const selection: AttributionSelection = allMatchingSelection ?? {
-    mode: 'explicit',
-    attributionUuids: multiSelectedAttributionIds.length
-      ? multiSelectedAttributionIds
-      : selectedAttributionId
-        ? [selectedAttributionId]
-        : [],
-  };
   const selectionHasRows =
-    selection.mode === 'allMatching'
+    bulkSelection?.mode === 'allMatching'
       ? !!activeRelationCount?.editableCount &&
-        selection.excludedAttributionUuids.length <
+        bulkSelection.excludedAttributionUuids.length <
           activeRelationCount.editableCount
-      : selection.attributionUuids.length > 0;
+      : false;
   const selectionSummaryQuery = backend.getAttributionSelectionSummary.useQuery(
     { selection },
-    { enabled: selectionHasRows && selection.mode === 'allMatching' },
+    { enabled: selectionHasRows },
   );
-  const displayedMultiSelectedAttributionIds =
-    allMatchingSelection?.mode === 'allMatching'
-      ? (activeSelectableAttributionIds?.filter(
-          (id) => !allMatchingSelection.excludedAttributionUuids.includes(id),
-        ) ?? [])
-      : multiSelectedAttributionIds;
   const clearSelection = useCallback(() => {
-    setAllMatchingSelection(null);
-    setMultiSelectedAttributionIds([]);
+    setBulkSelection(null);
   }, []);
   useEffect(() => {
     if (
-      allMatchingSelection?.mode === 'allMatching' &&
+      bulkSelection?.mode === 'allMatching' &&
       activeRelationCount !== undefined &&
-      allMatchingSelection.excludedAttributionUuids.length >=
+      bulkSelection.excludedAttributionUuids.length >=
         activeRelationCount.editableCount
     ) {
       clearSelection();
     }
-  }, [activeRelationCount, allMatchingSelection, clearSelection]);
+  }, [activeRelationCount, bulkSelection, clearSelection]);
   const toggleAttributionSelection = useCallback(
     (id: string, selected: boolean) => {
-      if (allMatchingSelection?.mode === 'allMatching') {
-        setAllMatchingSelection((current) => {
-          if (current?.mode !== 'allMatching') {
-            return current;
-          }
+      setBulkSelection((current) => {
+        if (current?.mode === 'allMatching') {
           const excluded = new Set(current.excludedAttributionUuids);
           if (selected) {
             excluded.delete(id);
@@ -570,31 +494,37 @@ export const PackagesPanel = ({
             ...current,
             excludedAttributionUuids: [...excluded],
           };
-        });
-        setMultiSelectedAttributionIds((current) =>
-          selected
-            ? current.includes(id)
-              ? current
-              : [...current, id]
-            : current.filter((currentId) => currentId !== id),
-        );
-        return;
-      }
+        }
 
-      setMultiSelectedAttributionIds((current) =>
-        selected
-          ? current.includes(id)
-            ? current
-            : [...current, id]
-          : current.filter((currentId) => currentId !== id),
-      );
+        const selectedIds =
+          current?.mode === 'explicit' ? current.attributionUuids : [];
+        const nextSelectedIds = selected
+          ? selectedIds.includes(id)
+            ? selectedIds
+            : [...selectedIds, id]
+          : selectedIds.filter((currentId) => currentId !== id);
+
+        return nextSelectedIds.length
+          ? { mode: 'explicit', attributionUuids: nextSelectedIds }
+          : null;
+      });
     },
-    [allMatchingSelection],
+    [],
+  );
+  const isAttributionSelected = useCallback(
+    (id: string) =>
+      bulkSelection?.mode === 'allMatching'
+        ? activeSelectableAttributionIds?.includes(id) === true &&
+          !bulkSelection.excludedAttributionUuids.includes(id)
+        : bulkSelection?.mode === 'explicit'
+          ? bulkSelection.attributionUuids.includes(id)
+          : false,
+    [activeSelectableAttributionIds, bulkSelection],
   );
 
   useEffect(() => {
     if (
-      allMatchingSelection?.mode === 'allMatching' &&
+      bulkSelection &&
       previousSelectionQuery &&
       !isEqual(previousSelectionQuery, selectionQuery) &&
       !pickerMode.isActive
@@ -602,10 +532,10 @@ export const PackagesPanel = ({
       clearSelection();
     }
   }, [
-    allMatchingSelection,
     clearSelection,
     pickerMode.isActive,
     previousSelectionQuery,
+    bulkSelection,
     selectionQuery,
   ]);
 
@@ -613,25 +543,48 @@ export const PackagesPanel = ({
   useEffect(() => {
     if (selectedResourceId !== previousSelectedResourceId) {
       clearSelection();
-      updateActiveRelation('resource');
+      setActiveRelation('resource');
     }
-  }, [
-    clearSelection,
-    previousSelectedResourceId,
-    selectedResourceId,
-    updateActiveRelation,
-  ]);
+  }, [clearSelection, previousSelectedResourceId, selectedResourceId]);
 
-  // adjust multi-selected IDs when previously visible attributions become invisible
+  // remove explicit selections that are no longer loaded after filtering
   useEffect(() => {
-    if (!isEqual(effectiveSelectedIds, prevEffectiveSelectedIds)) {
-      setMultiSelectedAttributionIds(effectiveSelectedIds);
+    if (
+      bulkSelection?.mode !== 'explicit' ||
+      !attributionIds ||
+      relationTransitionRef.current
+    ) {
+      return;
     }
-  }, [dispatch, effectiveSelectedIds, prevEffectiveSelectedIds]);
 
-  // reset multi-selected IDs when active relation changes and not in replacement or compare-selection mode
+    const effectiveSelectedIds = intersection(
+      attributionIds,
+      bulkSelection.attributionUuids,
+    );
+    if (isEqual(effectiveSelectedIds, bulkSelection.attributionUuids)) {
+      return;
+    }
+
+    setBulkSelection((current) =>
+      current?.mode === 'explicit' && effectiveSelectedIds.length
+        ? { ...current, attributionUuids: effectiveSelectedIds }
+        : null,
+    );
+  }, [activeRelation, attributionIds, bulkSelection]);
+
   useEffect(() => {
-    if (activeRelation && !pickerMode.isActive) {
+    if (
+      relationTransitionRef.current &&
+      relationForCurrentResource === activeRelation &&
+      !loading
+    ) {
+      relationTransitionRef.current = false;
+    }
+  }, [activeRelation, loading, relationForCurrentResource, attributionIds]);
+
+  // reset selection when active relation changes and not in replacement or compare-selection mode
+  useEffect(() => {
+    if (!pickerMode.isActive) {
       clearSelection();
     }
   }, [activeRelation, clearSelection, pickerMode.isActive]);
@@ -654,40 +607,36 @@ export const PackagesPanel = ({
       availableRelations?.length &&
       !availableRelations.includes(activeRelation)
     ) {
-      updateActiveRelation(availableRelations[0]);
+      setActiveRelation(availableRelations[0]);
     }
-  }, [activeRelation, availableRelations, loading, updateActiveRelation]);
+  }, [activeRelation, availableRelations, loading]);
 
   // switch to the tab of a newly selected attribution
   useEffect(() => {
     if (selectedAttributionRelation) {
-      updateActiveRelation(selectedAttributionRelation);
+      setActiveRelation(selectedAttributionRelation);
     }
-  }, [selectedAttributionRelation, updateActiveRelation]);
+  }, [selectedAttributionRelation]);
 
   const childrenProps: PackagesPanelChildrenProps = {
     activeAttributionIds,
     activeRelation,
     attributionIds,
     attributions,
-    contentHeight: `calc(100% - 42px - ${groupedIds && Object.keys(groupedIds).length ? TABS_CONTAINER_HEIGHT : 0}px - ${alert ? ALERT_CONTAINER_HEIGHT : 0}px)`,
+    contentHeight: `calc(100% - 42px - ${availableRelations?.length ? TABS_CONTAINER_HEIGHT : 0}px - ${alert ? ALERT_CONTAINER_HEIGHT : 0}px)`,
     loading,
     loadingMore,
     loadMoreError,
-    onRetryLoadMore,
     fetchNextPage,
-    hasNextPage,
     selection,
     selectionSummary: selectionSummaryQuery.data,
     selectionSummaryLoading: selectionSummaryQuery.isLoading,
-    isAllMatchingSelected: allMatchingSelection?.mode === 'allMatching',
     toggleAttributionSelection,
+    isAttributionSelected,
     clearSelection,
-    multiSelectedAttributionIds: displayedMultiSelectedAttributionIds,
     pickerMode,
     selectedAttributionId,
     selectedAttributionIds,
-    setMultiSelectedAttributionIds,
   };
 
   const isDisabledDuringReplacement = external && pickerMode.mode === 'replace';
@@ -766,7 +715,7 @@ export const PackagesPanel = ({
         value={activeTabIndex === -1 ? false : activeTabIndex}
         onChange={(_, index) => {
           preserveSelectedAttributionRef.current = true;
-          updateActiveRelation(availableRelations[index]);
+          setActiveRelation(availableRelations[index]);
         }}
       >
         {availableRelations.map((key) => (
@@ -797,9 +746,7 @@ export const PackagesPanel = ({
     return (
       <MuiTooltip
         title={
-          areAllAttributionsSelected ||
-          multiSelectedAttributionIds.length ||
-          allMatchingSelection?.mode === 'allMatching'
+          areAllAttributionsSelected || bulkSelection
             ? text.packageLists.deselectAll
             : text.packageLists.selectAll
         }
@@ -824,9 +771,10 @@ export const PackagesPanel = ({
           checked={areAllAttributionsSelected}
           indeterminate={
             !areAllAttributionsSelected &&
-            (allMatchingSelection?.mode === 'allMatching'
-              ? allMatchingSelection.excludedAttributionUuids.length > 0
-              : !!multiSelectedAttributionIds.length)
+            !!bulkSelection &&
+            (bulkSelection.mode === 'allMatching'
+              ? bulkSelection.excludedAttributionUuids.length > 0
+              : bulkSelection.attributionUuids.length > 0)
           }
           aria-label={'select all'}
           onChange={() => {
@@ -834,19 +782,15 @@ export const PackagesPanel = ({
               clearSelection();
               return;
             }
-            if (allMatchingSelection?.mode === 'allMatching') {
-              setAllMatchingSelection({
-                ...allMatchingSelection,
+            if (bulkSelection?.mode === 'allMatching') {
+              setBulkSelection({
+                ...bulkSelection,
                 excludedAttributionUuids: [],
               });
-              setMultiSelectedAttributionIds(
-                activeSelectableAttributionIds ?? [],
-              );
               return;
             }
             if (activeSelectableAttributionIds) {
-              setMultiSelectedAttributionIds(activeSelectableAttributionIds);
-              setAllMatchingSelection({
+              setBulkSelection({
                 mode: 'allMatching',
                 query: selectionQuery,
                 excludedAttributionUuids: [],

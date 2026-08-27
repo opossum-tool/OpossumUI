@@ -84,9 +84,6 @@ async function resolveSelection(
 async function getAttributionsByUuid(trx: Kysely<DB>, uuids: Array<string>) {
   return (
     await withBatching(uuids, async (batch) => {
-      if (batch === undefined || batch.length === 0) {
-        return [];
-      }
       return trx
         .selectFrom('attribution')
         .selectAll()
@@ -172,10 +169,11 @@ const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<MutationInvalidationUnion> = [
   { queryName: 'locateAttribution' },
 ];
 
-const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidationUnion> = [
-  { queryName: 'manualAttributionStatistics' },
-  { queryName: 'resourceHasIncompleteManualAttributions' },
-];
+const MANUAL_ATTRIBUTION_STATISTICS_INVALIDATIONS: Array<MutationInvalidationUnion> =
+  [
+    { queryName: 'manualAttributionStatistics' },
+    { queryName: 'resourceHasIncompleteManualAttributions' },
+  ];
 
 const EXTERNAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidationUnion> = [
   { queryName: 'externalAttributionStatistics' },
@@ -186,6 +184,13 @@ const RESOURCE_TREE_INVALIDATIONS: Array<MutationInvalidationUnion> = [
   { queryName: 'getResourceTree' },
   { queryName: 'getResourcePathsAndParentsForAttributions' },
   { queryName: 'getResourceTreeUnreviewedCount' },
+];
+
+const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidationUnion> = [
+  ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
+  ...RESOURCE_TREE_INVALIDATIONS,
+  ...MANUAL_ATTRIBUTION_STATISTICS_INVALIDATIONS,
+  { queryName: 'getResourceInfoOnAttributions' },
 ];
 
 export const mutations = {
@@ -206,9 +211,6 @@ export const mutations = {
         const impactedResources = new Set(
           (
             await withBatching(writableAttributionUuids, async (batch) => {
-              if (!batch?.length) {
-                return [];
-              }
               return trx
                 .selectFrom('resource_to_attribution')
                 .select('resource_id')
@@ -225,9 +227,6 @@ export const mutations = {
         });
 
         await withBatching(writableAttributionUuids, async (batch) => {
-          if (!batch?.length) {
-            return;
-          }
           await trx
             .deleteFrom('attribution')
             .where('uuid', 'in', batch)
@@ -237,24 +236,16 @@ export const mutations = {
         await removeRedundantAttributions(trx, {
           resourceIds: Array.from(impactedResources),
         });
-        return {
-          oldUuidsToNewUuids,
-          focusedAttributionOutcome: getFocusedAttributionRemovalOutcome(
-            params.focusedAttributionUuid,
-            attributionUuids,
-          ),
-        };
+        return getFocusedAttributionRemovalOutcome(
+          params.focusedAttributionUuid,
+          attributionUuids,
+        );
       });
 
     return {
-      invalidates: [
-        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
-        ...RESOURCE_TREE_INVALIDATIONS,
-        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        { queryName: 'getResourceInfoOnAttributions' },
-      ],
+      invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
       result: {
-        focusedAttributionOutcome: result.focusedAttributionOutcome,
+        focusedAttributionOutcome: result,
       },
     };
   },
@@ -285,19 +276,14 @@ export const mutations = {
         ) {
           throw new Error('An attribution cannot replace itself.');
         }
-        return replaceAttributions(trx, {
+        await replaceAttributions(trx, {
           ...params,
           attributionUuidsToReplace,
         });
       });
 
     return {
-      invalidates: [
-        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
-        ...RESOURCE_TREE_INVALIDATIONS,
-        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        { queryName: 'getResourceInfoOnAttributions' },
-      ],
+      invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
     };
   },
 
@@ -322,24 +308,16 @@ export const mutations = {
             id: writableAttributionUuid,
           });
         }
-        return {
+        return getFocusedAttributionRemappingOutcome(
+          params.focusedAttributionUuid,
           oldUuidsToNewUuids,
-          focusedAttributionOutcome: getFocusedAttributionRemappingOutcome(
-            params.focusedAttributionUuid,
-            oldUuidsToNewUuids,
-          ),
-        };
+        );
       });
 
     return {
-      invalidates: [
-        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
-        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        ...RESOURCE_TREE_INVALIDATIONS,
-        { queryName: 'getResourceInfoOnAttributions' },
-      ],
+      invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
       result: {
-        focusedAttributionOutcome: result.focusedAttributionOutcome,
+        focusedAttributionOutcome: result,
       },
     };
   },
@@ -370,9 +348,6 @@ export const mutations = {
               ? { follow_up: Number(params.value) }
               : { exclude_from_notice: Number(params.value) };
         await withBatching(writableAttributionUuids, async (batch) => {
-          if (!batch?.length) {
-            return;
-          }
           await trx
             .updateTable('attribution')
             .set(update)
@@ -395,20 +370,15 @@ export const mutations = {
             id: focusedAttributionWritableUuid,
           });
         }
-        return { oldUuidsToNewUuids };
+        return getFocusedAttributionRemappingOutcome(
+          params.focusedAttributionUuid,
+          oldUuidsToNewUuids,
+        );
       });
     return {
-      invalidates: [
-        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
-        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        ...RESOURCE_TREE_INVALIDATIONS,
-        { queryName: 'getResourceInfoOnAttributions' },
-      ],
+      invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
       result: {
-        focusedAttributionOutcome: getFocusedAttributionRemappingOutcome(
-          params.focusedAttributionUuid,
-          result.oldUuidsToNewUuids,
-        ),
+        focusedAttributionOutcome: result,
       },
     };
   },
@@ -439,23 +409,16 @@ export const mutations = {
         await unlinkAttributions(trx, resource.id, attributionUuids);
 
         await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
-        return {
-          focusedAttributionOutcome: getFocusedAttributionRemovalOutcome(
-            params.focusedAttributionUuid,
-            attributionUuids,
-          ),
-        };
+        return getFocusedAttributionRemovalOutcome(
+          params.focusedAttributionUuid,
+          attributionUuids,
+        );
       });
 
     return {
-      invalidates: [
-        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
-        ...RESOURCE_TREE_INVALIDATIONS,
-        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        { queryName: 'getResourceInfoOnAttributions' } as const,
-      ],
+      invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
       result: {
-        focusedAttributionOutcome: result.focusedAttributionOutcome,
+        focusedAttributionOutcome: result,
       },
     };
   },
@@ -506,22 +469,15 @@ export const mutations = {
 
         await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
 
-        return {
+        return getFocusedAttributionRemappingOutcome(
+          params.focusedAttributionUuid,
           oldUuidsToNewUuids,
-        };
+        );
       });
     return {
-      invalidates: [
-        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
-        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        ...RESOURCE_TREE_INVALIDATIONS,
-        { queryName: 'getResourceInfoOnAttributions' },
-      ],
+      invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
       result: {
-        focusedAttributionOutcome: getFocusedAttributionRemappingOutcome(
-          params.focusedAttributionUuid,
-          result.oldUuidsToNewUuids,
-        ),
+        focusedAttributionOutcome: result,
       },
     };
   },
@@ -568,23 +524,16 @@ export const mutations = {
 
         await removeRedundantAttributions(trx, { resourceIds: [resource.id] });
 
-        return {
+        return getFocusedAttributionRemappingOutcome(
+          params.focusedAttributionUuid,
           inputKeysToNewUuids,
-        };
+        );
       });
 
     return {
-      invalidates: [
-        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
-        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        ...RESOURCE_TREE_INVALIDATIONS,
-        { queryName: 'getResourceInfoOnAttributions' },
-      ],
+      invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
       result: {
-        focusedAttributionOutcome: getFocusedAttributionRemappingOutcome(
-          params.focusedAttributionUuid,
-          result.inputKeysToNewUuids,
-        ),
+        focusedAttributionOutcome: result,
       },
     };
   },
@@ -633,20 +582,15 @@ export const mutations = {
             oldUuidsToNewUuids[attributionUuid] = writableAttributionUuid;
           }
         }
-        return { oldUuidsToNewUuids };
+        return getFocusedAttributionRemappingOutcome(
+          params.focusedAttributionUuid,
+          oldUuidsToNewUuids,
+        );
       });
     return {
-      invalidates: [
-        ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
-        ...MANUAL_ATTRIBUTION_INVALIDATIONS,
-        ...RESOURCE_TREE_INVALIDATIONS,
-        { queryName: 'getResourceInfoOnAttributions' },
-      ],
+      invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
       result: {
-        focusedAttributionOutcome: getFocusedAttributionRemappingOutcome(
-          params.focusedAttributionUuid,
-          result.oldUuidsToNewUuids,
-        ),
+        focusedAttributionOutcome: result,
       },
     };
   },
@@ -672,9 +616,6 @@ async function setAttributionsResolvedStatus(
       await withBatching(
         attributionUuids,
         async (batch) => {
-          if (batch === undefined) {
-            return;
-          }
           if (resolvedStatus) {
             await removeManualOrExternalCaaFromResources(trx, 'external', {
               attributionUuids: batch,

@@ -25,10 +25,9 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   loading,
   loadingMore,
   loadMoreError,
-  onRetryLoadMore,
   fetchNextPage,
   pickerMode,
-  multiSelectedAttributionIds,
+  isAttributionSelected,
   toggleAttributionSelection,
 }) => {
   const dispatch = useAppDispatch();
@@ -46,7 +45,7 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
       loading={loading}
       loadingMore={loadingMore}
       loadMoreError={loadMoreError}
-      onRetryLoadMore={onRetryLoadMore}
+      onRetryLoadMore={() => void fetchNextPage()}
       endReached={() => void fetchNextPage()}
       increaseViewportBy={{ bottom: INFINITE_LIST_BOTTOM_OVERSCAN, top: 0 }}
       sx={{ transition: TRANSITION, height: contentHeight }}
@@ -89,11 +88,11 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
           }}
           packageInfo={attribution}
           checkbox={{
-            checked: multiSelectedAttributionIds.includes(attributionId),
+            checked: isAttributionSelected(attributionId),
             disabled:
               pickerMode.isActive || attribution.resourceAccess === 'readonly',
             onChange: (event) => {
-              toggleAttributionSelection?.(attributionId, event.target.checked);
+              toggleAttributionSelection(attributionId, event.target.checked);
               !selectedAttributionId &&
                 dispatch(
                   changeSelectedAttributionOrOpenUnsavedPopup(attribution),

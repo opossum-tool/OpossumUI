@@ -19,7 +19,7 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionIds,
   selection,
   selectionSummary,
-  selectionSummaryLoading = false,
+  selectionSummaryLoading,
   clearSelection,
 }) => {
   const [isConfirmSavePopupOpen, setIsConfirmSavePopupOpen] = useState(false);
@@ -27,7 +27,7 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
     (id) => attributions?.[id]?.preSelected,
   );
   const preSelectedSelection: AttributionSelection =
-    selection?.mode === 'allMatching'
+    selection.mode === 'allMatching'
       ? {
           ...selection,
           query: {
@@ -45,7 +45,7 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
       <MuiIconButton
         aria-label={text.packageLists.confirm}
         disabled={
-          (selection?.mode === 'allMatching'
+          (selection.mode === 'allMatching'
             ? !selectionSummary?.preSelectedCount
             : !preSelectedAttributionIds.length) ||
           selectionSummaryLoading ||

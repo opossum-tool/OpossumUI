@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import type { AllMatchingAttributionSelection } from '../../../shared/attribution-selection';
 import type { Attributions } from '../../../shared/shared-types';
@@ -27,24 +27,13 @@ export function useAttributionPreview(
         }),
     }),
   );
-  const {
-    fetchNextPage: fetchNextPageQuery,
-    hasNextPage,
-    isFetchingNextPage,
-  } = query;
-  const fetchLockRef = useRef(false);
+  const { fetchNextPage: fetchNextPageQuery, hasNextPage } = query;
   const fetchNextPage = useCallback(async () => {
-    if (fetchLockRef.current || !hasNextPage || isFetchingNextPage) {
+    if (!hasNextPage) {
       return;
     }
-
-    fetchLockRef.current = true;
-    try {
-      await fetchNextPageQuery();
-    } finally {
-      fetchLockRef.current = false;
-    }
-  }, [fetchNextPageQuery, hasNextPage, isFetchingNextPage]);
+    await fetchNextPageQuery({ cancelRefetch: false });
+  }, [fetchNextPageQuery, hasNextPage]);
   const attributions = useMemo<Attributions | null>(() => {
     if (!query.data) {
       return null;
@@ -57,7 +46,6 @@ export function useAttributionPreview(
 
   return {
     attributions,
-    loading: query.isLoading,
     loadingMore: query.isFetchingNextPage,
     loadMoreError: query.isFetchNextPageError ? query.error : null,
     error: query.isError ? query.error : null,
