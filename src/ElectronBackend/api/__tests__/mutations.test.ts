@@ -10,11 +10,7 @@ import {
 import { getDb } from '../../db/db';
 import { AttributionResourceAccess } from '../../types/types';
 import { listAttributionsPage } from '../listAttributionsPage';
-import {
-  type AttributionCacheImpact,
-  MAX_TARGETED_CACHE_UUIDS,
-  mutations,
-} from '../mutations';
+import { mutations } from '../mutations';
 
 async function resourceAccessOf(attributionUuid: string) {
   return (
@@ -24,27 +20,6 @@ async function resourceAccessOf(attributionUuid: string) {
       .where('uuid', '=', attributionUuid)
       .executeTakeFirstOrThrow()
   ).resource_access;
-}
-
-function expectExactAffectedAttributionUuids(
-  response: {
-    affectedAttributionUuids?: Array<string>;
-    attributionCacheImpact?: AttributionCacheImpact;
-  },
-  expected: Array<string>,
-) {
-  const actual = affectedAttributionUuidsOf(response);
-  expect(actual).toHaveLength(new Set(actual).size);
-  expect([...actual].sort()).toEqual([...expected].sort());
-}
-
-function affectedAttributionUuidsOf(response: {
-  affectedAttributionUuids?: Array<string>;
-  attributionCacheImpact?: AttributionCacheImpact;
-}) {
-  return response.attributionCacheImpact?.mode === 'targeted'
-    ? response.attributionCacheImpact.attributionUuids
-    : (response.affectedAttributionUuids ?? []);
 }
 
 describe('attribution resource access', () => {
@@ -64,6 +39,28 @@ describe('attribution resource access', () => {
     await expect(
       mutations.resolveAttributions({ attributionUuids: ['signal'] }),
     ).rejects.toThrow(/readonly/i);
+  });
+
+  it('awaits the resolved attribution cache after resolving', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts']),
+      externalAttributions: {
+        attributions: {
+          signal: { id: 'signal', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/writable/file.ts': ['signal'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.resolveAttributions({
+      attributionUuids: ['signal'],
+    });
+
+    expect(response.invalidates).toContainEqual({
+      queryName: 'resolvedAttributionUuids',
+      awaitRefetch: true,
+    });
   });
 
   async function initializeReadonlyStructuralAncestor() {
@@ -187,7 +184,6 @@ describe('attribution resource access', () => {
       queryName: 'getResourcePathsAndParentsForAttributions',
     });
     expect(Object.keys(attributions)).toContain(createdAttributionUuid);
-    expectExactAffectedAttributionUuids(response, [createdAttributionUuid]);
     expect(await resourceAccessOf(createdAttributionUuid)).toBe(
       AttributionResourceAccess.Writable,
     );
@@ -254,12 +250,10 @@ describe('attribution resource access', () => {
       readonlyRules: [{ path: '/readonly', readonly: true }],
     });
 
-    const response = await mutations.unlinkResourceFromAttributions({
+    await mutations.unlinkResourceFromAttributions({
       resourcePath: '/writable/file.ts',
       attributionUuids: ['shared'],
     });
-
-    expectExactAffectedAttributionUuids(response, ['shared']);
 
     const { result: page } = await listAttributionsPage({
       external: false,
@@ -369,7 +363,7 @@ describe('mixed attribution mutations', () => {
   it('returns the writable clone UUID after updating a mixed attribution', async () => {
     await initializeMixedAttribution();
 
-    const response = await mutations.updateAttributions({
+    await mutations.updateAttributions({
       attributions: {
         shared: {
           id: 'shared',
@@ -387,7 +381,6 @@ describe('mixed attribution mutations', () => {
         .executeTakeFirstOrThrow()
     ).uuid;
     expect(cloneUuid).not.toBe('shared');
-    expectExactAffectedAttributionUuids(response, ['shared', cloneUuid]);
   });
 
   it('keeps the locked relationship unchanged immediately after updating a mixed attribution', async () => {
@@ -438,15 +431,7 @@ describe('mixed attribution mutations', () => {
   it('clones a mixed attribution before deleting its writable partition', async () => {
     await initializeMixedAttribution();
 
-    const response = await mutations.deleteAttributions({
-      attributionUuids: ['shared'],
-    });
-
-    const cloneUuids = affectedAttributionUuidsOf(response).filter(
-      (uuid) => uuid !== 'shared',
-    );
-    expect(cloneUuids).toHaveLength(1);
-    expectExactAffectedAttributionUuids(response, ['shared', cloneUuids[0]]);
+    await mutations.deleteAttributions({ attributionUuids: ['shared'] });
 
     expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
     expect(await attributionUuidsOn('/writable/file.ts')).toEqual([]);
@@ -465,20 +450,10 @@ describe('mixed attribution mutations', () => {
   it('clones a mixed attribution before replacing its writable partition', async () => {
     await initializeMixedAttribution();
 
-    const response = await mutations.replaceAttributions({
+    await mutations.replaceAttributions({
       attributionUuidsToReplace: ['shared'],
       attributionUuidToReplaceWith: 'replacement',
     });
-
-    const generatedCloneUuids = affectedAttributionUuidsOf(response).filter(
-      (uuid) => uuid !== 'shared' && uuid !== 'replacement',
-    );
-    expect(generatedCloneUuids).toHaveLength(1);
-    expectExactAffectedAttributionUuids(response, [
-      'shared',
-      'replacement',
-      generatedCloneUuids[0],
-    ]);
 
     expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
     expect(await attributionUuidsOn('/writable/file.ts')).toEqual([
@@ -513,7 +488,7 @@ describe('bulk attribution mutations', () => {
       },
     });
 
-    const response = await mutations.replaceAttributions({
+    await mutations.replaceAttributions({
       selection: {
         mode: 'allMatching',
         query: {
@@ -539,11 +514,6 @@ describe('bulk attribution mutations', () => {
         .where('r.path', '=', '/parent/child.ts')
         .execute(),
     ).toEqual([{ attribution_uuid: 'replacement' }]);
-    expectExactAffectedAttributionUuids(response, [
-      'first',
-      'second',
-      'replacement',
-    ]);
   });
 
   it('applies a query-wide property update with exclusions', async () => {
@@ -561,7 +531,7 @@ describe('bulk attribution mutations', () => {
       },
     });
 
-    const response = await mutations.updateAttributionProperty({
+    await mutations.updateAttributionProperty({
       selection: {
         mode: 'allMatching',
         query: {
@@ -589,8 +559,6 @@ describe('bulk attribution mutations', () => {
       { uuid: 'first', needs_review: 1 },
       { uuid: 'second', needs_review: 0 },
     ]);
-    expectExactAffectedAttributionUuids(response, ['first']);
-    expect(response).not.toHaveProperty('affectedAttributionUuids');
   });
 
   it('reports whether the focused attribution participates in query-wide deletion', async () => {
@@ -717,60 +685,6 @@ describe('bulk attribution mutations', () => {
       { uuid: 'focused', package_name: 'after', needs_review: 1 },
       { uuid: 'other', package_name: 'other', needs_review: 1 },
     ]);
-  });
-
-  it('bounds targeted cache impact independently of explicit selection mode', async () => {
-    const attributionUuids = Array.from(
-      { length: MAX_TARGETED_CACHE_UUIDS + 1 },
-      (_, index) => `attribution-${index}`,
-    );
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/parent/child.ts']),
-      manualAttributions: {
-        attributions: Object.fromEntries(
-          attributionUuids.map((attributionUuid) => [
-            attributionUuid,
-            { id: attributionUuid, criticality: Criticality.None },
-          ]),
-        ),
-        resourcesToAttributions: {
-          '/parent/child.ts': attributionUuids,
-        },
-        attributionsToResources: {},
-      },
-    });
-
-    const targetedResponse = await mutations.updateAttributionProperty({
-      selection: {
-        mode: 'explicit',
-        attributionUuids: attributionUuids.slice(0, MAX_TARGETED_CACHE_UUIDS),
-      },
-      property: 'needsReview',
-      value: true,
-    });
-    expect(targetedResponse.attributionCacheImpact).toMatchObject({
-      mode: 'targeted',
-      attributionUuids: expect.any(Array),
-    });
-    const targetedImpact = targetedResponse.attributionCacheImpact;
-    if (targetedImpact.mode !== 'targeted') {
-      throw new Error('Expected targeted cache impact');
-    }
-    expect(targetedImpact.attributionUuids).toHaveLength(
-      MAX_TARGETED_CACHE_UUIDS,
-    );
-
-    const broadResponse = await mutations.updateAttributionProperty({
-      selection: { mode: 'explicit', attributionUuids },
-      property: 'followUp',
-      value: true,
-    });
-    expect(broadResponse.attributionCacheImpact).toEqual({ mode: 'broad' });
-    expect(
-      broadResponse.invalidates.filter(
-        (invalidation) => invalidation.queryName === 'getAttributionData',
-      ),
-    ).toEqual([{ queryName: 'getAttributionData' }]);
   });
 
   it('returns the focused remapping for a query-wide update-or-match', async () => {
@@ -911,7 +825,7 @@ describe('bulk attribution mutations', () => {
       }),
     );
 
-    const response = await mutations.createOrMatchAttributions({
+    await mutations.createOrMatchAttributions({
       resourcePath: '/parent/child.ts',
       attributions,
     });
@@ -933,292 +847,6 @@ describe('bulk attribution mutations', () => {
 
     expect(createdAttributionUuids).toHaveLength(500);
     expect(linkedAttributionUuids).toHaveLength(501);
-    expectExactAffectedAttributionUuids(response, [
-      'existing',
-      ...createdAttributionUuids,
-    ]);
-  });
-});
-
-describe('attribution mutation metadata', () => {
-  it('reports inherited attributions reclassified by a local link', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/parent/child.ts']),
-      manualAttributions: {
-        attributions: {
-          parent: { id: 'parent', criticality: Criticality.None },
-        },
-        resourcesToAttributions: { '/parent': ['parent'] },
-        attributionsToResources: {},
-      },
-    });
-
-    const response = await mutations.createOrMatchAttributions({
-      resourcePath: '/parent/child.ts',
-      attributions: {
-        local: {
-          id: 'local',
-          criticality: Criticality.None,
-          packageName: 'local',
-        },
-      },
-    });
-    const localUuid = (
-      await getDb()
-        .selectFrom('attribution')
-        .select('uuid')
-        .where('package_name', '=', 'local')
-        .executeTakeFirstOrThrow()
-    ).uuid;
-
-    expectExactAffectedAttributionUuids(response, ['parent', localUuid]);
-  });
-
-  it('reports inherited attributions revealed by a local unlink', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/parent/child.ts']),
-      manualAttributions: {
-        attributions: {
-          parent: { id: 'parent', criticality: Criticality.None },
-          local: { id: 'local', criticality: Criticality.None },
-        },
-        resourcesToAttributions: {
-          '/parent': ['parent'],
-          '/parent/child.ts': ['local'],
-        },
-        attributionsToResources: {},
-      },
-    });
-
-    const response = await mutations.unlinkResourceFromAttributions({
-      resourcePath: '/parent/child.ts',
-      attributionUuids: ['local'],
-    });
-
-    expectExactAffectedAttributionUuids(response, ['local', 'parent']);
-  });
-
-  it('reports inherited attributions revealed by deleting a local link', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/parent/child.ts']),
-      manualAttributions: {
-        attributions: {
-          parent: { id: 'parent', criticality: Criticality.None },
-          local: { id: 'local', criticality: Criticality.None },
-        },
-        resourcesToAttributions: {
-          '/parent': ['parent'],
-          '/parent/child.ts': ['local'],
-        },
-        attributionsToResources: {},
-      },
-    });
-
-    const response = await mutations.deleteAttributions({
-      attributionUuids: ['local'],
-    });
-
-    expectExactAffectedAttributionUuids(response, ['local', 'parent']);
-  });
-
-  it('reports an ordinary update exactly once', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/writable/file.ts']),
-      manualAttributions: {
-        attributions: {
-          original: { id: 'original', criticality: Criticality.None },
-        },
-        resourcesToAttributions: { '/writable/file.ts': ['original'] },
-        attributionsToResources: {},
-      },
-    });
-
-    const response = await mutations.updateAttributions({
-      attributions: {
-        original: {
-          id: 'original',
-          criticality: Criticality.None,
-          packageName: 'updated',
-        },
-      },
-    });
-
-    expectExactAffectedAttributionUuids(response, ['original']);
-  });
-
-  it('reports an ordinary delete exactly once', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/writable/file.ts']),
-      manualAttributions: {
-        attributions: {
-          original: { id: 'original', criticality: Criticality.None },
-        },
-        resourcesToAttributions: { '/writable/file.ts': ['original'] },
-        attributionsToResources: {},
-      },
-    });
-
-    const response = await mutations.deleteAttributions({
-      attributionUuids: ['original'],
-    });
-
-    expectExactAffectedAttributionUuids(response, ['original']);
-  });
-
-  it('reports an ordinary replacement exactly once', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/writable/file.ts']),
-      manualAttributions: {
-        attributions: {
-          original: { id: 'original', criticality: Criticality.None },
-          replacement: { id: 'replacement', criticality: Criticality.None },
-        },
-        resourcesToAttributions: { '/writable/file.ts': ['original'] },
-        attributionsToResources: {},
-      },
-    });
-
-    const response = await mutations.replaceAttributions({
-      attributionUuidsToReplace: ['original'],
-      attributionUuidToReplaceWith: 'replacement',
-    });
-
-    expectExactAffectedAttributionUuids(response, ['original', 'replacement']);
-  });
-
-  it('reports both update-or-match branches exactly', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/writable/file.ts']),
-      manualAttributions: {
-        attributions: {
-          original: { id: 'original', criticality: Criticality.None },
-        },
-        resourcesToAttributions: { '/writable/file.ts': ['original'] },
-        attributionsToResources: {},
-      },
-    });
-
-    const updateResponse = await mutations.updateOrMatchAttributions({
-      attributions: {
-        original: {
-          id: 'original',
-          criticality: Criticality.None,
-          packageName: 'updated',
-        },
-      },
-    });
-    expectExactAffectedAttributionUuids(updateResponse, ['original']);
-
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/writable/file.ts']),
-      manualAttributions: {
-        attributions: {
-          original: { id: 'original', criticality: Criticality.None },
-          replacement: {
-            id: 'replacement',
-            criticality: Criticality.None,
-            packageName: 'target',
-          },
-        },
-        resourcesToAttributions: { '/writable/file.ts': ['original'] },
-        attributionsToResources: {},
-      },
-    });
-
-    const matchResponse = await mutations.updateOrMatchAttributions({
-      attributions: {
-        original: {
-          id: 'original',
-          criticality: Criticality.None,
-          packageName: 'target',
-        },
-      },
-    });
-    expectExactAffectedAttributionUuids(matchResponse, [
-      'original',
-      'replacement',
-    ]);
-  });
-
-  it('reports modify-or-match UUIDs exactly', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/first', '/first/second']),
-      manualAttributions: {
-        attributions: {
-          original: { id: 'original', criticality: Criticality.None },
-          replacement: {
-            id: 'replacement',
-            criticality: Criticality.None,
-            packageName: 'target',
-          },
-        },
-        resourcesToAttributions: {
-          '/first': ['original'],
-          '/first/second': ['original'],
-        },
-        attributionsToResources: {},
-      },
-    });
-
-    const response = await mutations.modifyOrMatchOnlyOnOneResource({
-      resourcePath: '/first/second',
-      attributions: {
-        original: {
-          id: 'original',
-          criticality: Criticality.None,
-          packageName: 'target',
-        },
-      },
-    });
-
-    expectExactAffectedAttributionUuids(response, ['original', 'replacement']);
-  });
-
-  it('reports redundant-link cleanup UUIDs exactly', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/first', '/first/second']),
-      manualAttributions: {
-        attributions: {
-          first: { id: 'first', criticality: Criticality.None },
-          second: { id: 'second', criticality: Criticality.None },
-        },
-        resourcesToAttributions: {
-          '/first': ['second'],
-          '/first/second': ['first', 'second'],
-        },
-        attributionsToResources: {},
-      },
-    });
-
-    const response = await mutations.unlinkResourceFromAttributions({
-      resourcePath: '/first/second',
-      attributionUuids: ['first'],
-    });
-
-    expectExactAffectedAttributionUuids(response, ['first', 'second']);
-  });
-
-  it('reports resolve and unresolve UUIDs exactly', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/writable/file.ts']),
-      externalAttributions: {
-        attributions: {
-          signal: { id: 'signal', criticality: Criticality.None },
-        },
-        resourcesToAttributions: { '/writable/file.ts': ['signal'] },
-        attributionsToResources: {},
-      },
-    });
-
-    const resolveResponse = await mutations.resolveAttributions({
-      attributionUuids: ['signal'],
-    });
-    expectExactAffectedAttributionUuids(resolveResponse, ['signal']);
-
-    const unresolveResponse = await mutations.unresolveAttributions({
-      attributionUuids: ['signal'],
-    });
-    expectExactAffectedAttributionUuids(unresolveResponse, ['signal']);
   });
 });
 

@@ -33,40 +33,8 @@ import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
 export type ResourceRelationship =
   'same' | 'ancestor' | 'descendant' | 'unrelated';
 
-export function uniqueAttributionUuids(...uuidLists: Array<Array<string>>) {
+function uniqueAttributionUuids(...uuidLists: Array<Array<string>>) {
   return [...new Set(uuidLists.flat())];
-}
-
-export async function getEffectiveManualAttributionUuids(
-  dbOrTrx: Kysely<DB>,
-  resourceIds: Array<number>,
-) {
-  if (resourceIds.length === 0) {
-    return [];
-  }
-
-  const results = await withBatching(resourceIds, async (batch) => {
-    if (batch === undefined) {
-      return [];
-    }
-
-    return (
-      await dbOrTrx
-        .selectFrom('closest_attributed_ancestors as caa')
-        .innerJoin(
-          'resource_to_attribution as rta',
-          'rta.resource_id',
-          'caa.manual',
-        )
-        .select('rta.attribution_uuid')
-        .distinct()
-        .where('caa.resource_id', 'in', batch)
-        .where('rta.attribution_is_external', '=', 0)
-        .execute()
-    ).map(({ attribution_uuid }) => attribution_uuid);
-  });
-
-  return uniqueAttributionUuids(...results);
 }
 
 /**
@@ -1070,19 +1038,7 @@ export async function replaceAttributions(
     params.attributionUuidToReplaceWith,
   ]);
 
-  const redundantAttributionUuids = await removeRedundantAttributions(trx, {
-    resourceIds: connectedResources,
-  });
-
-  return {
-    oldUuidsToNewUuids,
-    affectedAttributionUuids: uniqueAttributionUuids(
-      Object.keys(oldUuidsToNewUuids),
-      Object.values(oldUuidsToNewUuids),
-      [params.attributionUuidToReplaceWith],
-      redundantAttributionUuids,
-    ),
-  };
+  await removeRedundantAttributions(trx, { resourceIds: connectedResources });
 }
 
 function removeEmptyStrings(packageInfo: PackageInfo): PackageInfo {

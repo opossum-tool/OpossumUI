@@ -29,7 +29,7 @@ import type {
 } from '../../ElectronBackend/api/queries';
 import { queryClient } from '../Components/AppContainer/queryClient';
 import { traceFrontendPhase } from './frontend-performance-tracing';
-import { reconcileAttributionMutationCaches } from './reconcile-attribution-mutation-caches';
+import { invalidateMutationQueries } from './invalidate-mutation-queries';
 
 // We use the same options as tanstack query, with the exception that the
 // consumer can't set mutationKey and mutationFn, which are set by us
@@ -43,6 +43,13 @@ type ClientMutationOptions<M extends MutationName> = Omit<
 type ClientMutationReturn<M extends MutationName> = ReturnType<
   typeof useMutation<MutationResult<M>, unknown, MutationParams<M>> // Result type, Error Type, Parameter Type
 >;
+
+type GenericClientMutationOptions = Omit<
+  UseMutationOptions<unknown, unknown, MutationParams<MutationName>>,
+  'mutationKey' | 'mutationFn'
+> & {
+  onBeforeInvalidation?: (result: unknown) => void;
+};
 
 // We use the same options as tanstack query, with the exception that the
 // consumer can't set queryKey and queryFn, which are set by us
@@ -163,18 +170,11 @@ export const backend = new Proxy({} as BackendClient, {
       );
       const mutationResult = 'result' in response ? response.result : undefined;
       onSuccessBeforeInvalidation?.(mutationResult);
-      await reconcileAttributionMutationCaches({
+      await invalidateMutationQueries({
         queryClient,
-        command: command as MutationName,
-        params,
-        response,
-        fetchPage: async (pageParams) => {
-          const pageResponse = await window.electronAPI.api(
-            'listAttributionsPage',
-            pageParams,
-          );
-          return pageResponse.result;
-        },
+        mutation: command as MutationName,
+        invalidations:
+          'invalidates' in response ? (response.invalidates ?? []) : [],
       });
       window.electronAPI.saveFile();
       return mutationResult;
@@ -211,10 +211,9 @@ export const backend = new Proxy({} as BackendClient, {
 
       // For commands specified in src/ElectronBackend/api/mutations.ts
       mutate,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      useMutation: (options?: ClientMutationOptions<any>) => {
+      useMutation: (options?: GenericClientMutationOptions) => {
         const { onBeforeInvalidation, ...mutationOptions } = options ?? {};
-        return useMutation({
+        return useMutation<unknown, unknown, MutationParams<MutationName>>({
           mutationKey: ['backend', command],
           mutationFn: (params) => mutate(params, onBeforeInvalidation),
           ...mutationOptions,
