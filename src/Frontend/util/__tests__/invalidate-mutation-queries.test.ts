@@ -18,35 +18,6 @@ describe('invalidateMutationQueries', () => {
     queryClient = new QueryClient();
   });
 
-  it('invalidates an exact query when parameters are supplied', async () => {
-    const exactKey = [
-      'backend',
-      'getAttributionData',
-      { attributionUuid: 'attribution-a' },
-    ] as const;
-    const otherKey = [
-      'backend',
-      'getAttributionData',
-      { attributionUuid: 'attribution-b' },
-    ] as const;
-    queryClient.setQueryData(exactKey, { value: 'before' });
-    queryClient.setQueryData(otherKey, { value: 'before' });
-
-    await invalidateMutationQueries({
-      queryClient,
-      invalidations: [
-        {
-          queryName: 'getAttributionData',
-          params: { attributionUuid: 'attribution-a' },
-          awaitRefetch: true,
-        },
-      ],
-    });
-
-    expect(queryClient.getQueryState(exactKey)?.isInvalidated).toBe(true);
-    expect(queryClient.getQueryState(otherKey)?.isInvalidated).toBe(false);
-  });
-
   it('starts background refreshes without awaiting them', async () => {
     let resolveRefresh: (value: { value: string }) => void = () => undefined;
     const refresh = new Promise<{ value: string }>((resolve) => {
@@ -141,11 +112,7 @@ describe('invalidateMutationQueries', () => {
     const invalidation = invalidateMutationQueries({
       queryClient,
       invalidations: [
-        {
-          queryName: 'getAttributionData',
-          params: { attributionUuid: 'attribution-a' },
-          awaitRefetch: true,
-        },
+        { queryName: 'getAttributionData', awaitRefetch: true },
         { queryName: 'resolvedAttributionUuids' },
       ],
     });

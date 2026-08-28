@@ -19,7 +19,7 @@ import {
   addManualOrExternalCaaToResources,
   removeManualOrExternalCaaFromResources,
 } from './progressBarUtils';
-import type { QueryName, QueryParams } from './queries';
+import type { QueryName } from './queries';
 import {
   cloneMixedAttributionsForWritableResources,
   ensureAttributionsAreLinkedOnMultipleResources,
@@ -119,24 +119,18 @@ async function resolveAttributionsWithOverrides(
   };
 }
 
-type MutationInvalidation<Q extends QueryName = QueryName> = {
-  queryName: Q;
-  params?: QueryParams<Q>;
+export type MutationInvalidation = {
+  queryName: QueryName;
   awaitRefetch?: boolean;
 };
-
-// Immediately Indexed Mapped Type: Ensures that queryName and params match
-export type MutationInvalidationUnion = {
-  [Q in QueryName]: MutationInvalidation<Q>;
-}[QueryName];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MutationFunction = (params?: any) => Promise<{
   result?: unknown;
-  invalidates?: Array<MutationInvalidationUnion>;
+  invalidates?: Array<MutationInvalidation>;
 }>;
 
-const PROGRESS_BAR_INVALIDATIONS: Array<MutationInvalidationUnion> = [
+const PROGRESS_BAR_INVALIDATIONS: Array<MutationInvalidation> = [
   { queryName: 'getAttributionProgressBarData' },
   { queryName: 'getNextFileToReviewForAttribution' },
   { queryName: 'getCriticalityProgressBarData' },
@@ -145,7 +139,7 @@ const PROGRESS_BAR_INVALIDATIONS: Array<MutationInvalidationUnion> = [
   { queryName: 'getNextFileToReviewForClassification' },
 ];
 
-const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<MutationInvalidationUnion> = [
+const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<MutationInvalidation> = [
   ...PROGRESS_BAR_INVALIDATIONS,
   { queryName: 'getAttributionData', awaitRefetch: true },
   { queryName: 'getAttributions' },
@@ -158,24 +152,24 @@ const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<MutationInvalidationUnion> = [
   { queryName: 'locateAttribution' },
 ];
 
-const MANUAL_ATTRIBUTION_STATISTICS_INVALIDATIONS: Array<MutationInvalidationUnion> =
+const MANUAL_ATTRIBUTION_STATISTICS_INVALIDATIONS: Array<MutationInvalidation> =
   [
     { queryName: 'manualAttributionStatistics' },
     { queryName: 'resourceHasIncompleteManualAttributions' },
   ];
 
-const EXTERNAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidationUnion> = [
+const EXTERNAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidation> = [
   { queryName: 'externalAttributionStatistics' },
   { queryName: 'resolvedAttributionUuids', awaitRefetch: true },
 ];
 
-const RESOURCE_TREE_INVALIDATIONS: Array<MutationInvalidationUnion> = [
+const RESOURCE_TREE_INVALIDATIONS: Array<MutationInvalidation> = [
   { queryName: 'getResourceTree' },
   { queryName: 'getResourcePathsAndParentsForAttributions' },
   { queryName: 'getResourceTreeUnreviewedCount' },
 ];
 
-const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidationUnion> = [
+const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidation> = [
   ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
   ...RESOURCE_TREE_INVALIDATIONS,
   ...MANUAL_ATTRIBUTION_STATISTICS_INVALIDATIONS,
