@@ -28,7 +28,6 @@ import type {
   QueryResult,
 } from '../../ElectronBackend/api/queries';
 import { queryClient } from '../Components/AppContainer/queryClient';
-import { traceFrontendPhase } from './frontend-performance-tracing';
 import { invalidateMutationQueries } from './invalidate-mutation-queries';
 
 // We use the same options as tanstack query, with the exception that the
@@ -163,16 +162,11 @@ export const backend = new Proxy({} as BackendClient, {
       params: MutationParams<MutationName>,
       onSuccessBeforeInvalidation?: (result: unknown) => void,
     ) {
-      const response = await traceFrontendPhase(
-        'mutation.execute',
-        { mutation: command },
-        () => window.electronAPI.api(command, params),
-      );
+      const response = await window.electronAPI.api(command, params);
       const mutationResult = 'result' in response ? response.result : undefined;
       onSuccessBeforeInvalidation?.(mutationResult);
       await invalidateMutationQueries({
         queryClient,
-        mutation: command as MutationName,
         invalidations:
           'invalidates' in response ? (response.invalidates ?? []) : [],
       });
