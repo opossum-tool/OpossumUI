@@ -2,16 +2,27 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  act,
+  renderHook as nativeRenderHook,
+  waitFor,
+} from '@testing-library/react';
+import { Provider } from 'react-redux';
 
 import { executeCommand } from '../../../ElectronBackend/api/commands';
 import type {
   AttributionResultSetCriteria,
+  AttributionResultSetScope,
   SortOption,
 } from '../../../shared/attribution-result-set';
 import { faker } from '../../../testing/Faker';
 import { getParsedInputFileEnrichedWithTestData } from '../../test-helpers/general-test-helpers';
-import { renderHook } from '../../test-helpers/render';
+import { createTestStore, renderHook } from '../../test-helpers/render';
+import {
+  getAttributionPageQueryKey,
+  type InfiniteAttributionData,
+} from '../attribution-page-query';
 import { useAttributionPages } from '../use-attribution-pages';
 import { useAuditAttributionsList } from '../use-audit-attributions-list';
 
@@ -208,5 +219,138 @@ describe('useAttributionPages', () => {
         navigationScope: 'targetRelation',
       });
     });
+  });
+
+  it('refreshes a seeded navigation prefix after the target leaves the page', async () => {
+    const targetAttributionUuid = 'target';
+    const oldAttribution = {
+      ...faker.opossum.packageInfo(),
+      id: targetAttributionUuid,
+      packageName: 'old',
+    };
+    const newAttribution = { ...oldAttribution, packageName: 'new' };
+    const oldPage = {
+      attributions: { [targetAttributionUuid]: oldAttribution },
+      offset: 0,
+      limit: 200,
+      hasNextPage: false,
+    };
+    const emptyPage = { ...oldPage, attributions: {} };
+    const newPage = {
+      ...oldPage,
+      attributions: { [targetAttributionUuid]: newAttribution },
+    };
+    const oldLocateResult = {
+      found: true as const,
+      targetRelation: 'resource' as const,
+      prefix: oldPage,
+    };
+    const newLocateResult = {
+      ...oldLocateResult,
+      prefix: newPage,
+    };
+    let locateCallCount = 0;
+    let pageCallCount = 0;
+    let resolveLocateRefresh = () => {};
+    const locateRefresh = new Promise<void>((resolve) => {
+      resolveLocateRefresh = resolve;
+    });
+    let resolvePageRefresh = () => {};
+    const pageRefresh = new Promise<void>((resolve) => {
+      resolvePageRefresh = resolve;
+    });
+    const api = vi.mocked(window.electronAPI.api);
+    api.mockImplementation(async (command, params) => {
+      if (command === 'locateAttribution') {
+        locateCallCount += 1;
+        if (locateCallCount > 1) {
+          await locateRefresh;
+          return { result: newLocateResult };
+        }
+        return { result: oldLocateResult };
+      }
+      if (command === 'listAttributionsPage') {
+        pageCallCount += 1;
+        if (pageCallCount === 1) {
+          return { result: oldPage };
+        }
+        if (pageCallCount === 2) {
+          return { result: emptyPage };
+        }
+        await pageRefresh;
+        return { result: newPage };
+      }
+      return executeCommand(command, params);
+    });
+
+    const scope: AttributionResultSetScope = {
+      mode: 'relation',
+      relation: 'resource',
+    };
+    const pageQueryKey = getAttributionPageQueryKey({
+      ...criteria,
+      scope,
+      sort,
+      includeReadonly: false,
+    });
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const store = await createTestStore(
+      getParsedInputFileEnrichedWithTestData({
+        manualAttributions: { [targetAttributionUuid]: oldAttribution },
+      }),
+    );
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </Provider>
+    );
+    const hook = () =>
+      useAttributionPages({
+        criteria,
+        scope,
+        sort,
+        includeReadonly: false,
+        targetAttributionUuid,
+        navigationScope: 'targetRelation',
+      });
+    const { result, unmount } = nativeRenderHook(hook, { wrapper });
+
+    await waitFor(() =>
+      expect(result.current.attributions?.[targetAttributionUuid]).toEqual(
+        oldAttribution,
+      ),
+    );
+
+    await queryClient.invalidateQueries({ queryKey: pageQueryKey });
+    await waitFor(() => expect(locateCallCount).toBe(2));
+    expect(queryClient.getQueryData(pageQueryKey)).toEqual({
+      pages: [emptyPage],
+      pageParams: [{ offset: 0, limit: 200 }],
+    });
+
+    unmount();
+    const { unmount: unmountRemountedHook } = nativeRenderHook(hook, {
+      wrapper,
+    });
+    await waitFor(() => expect(pageCallCount).toBe(3));
+    expect(
+      queryClient.getQueryData<InfiniteAttributionData>(pageQueryKey)?.pages[0]
+        .attributions,
+    ).toEqual({});
+
+    act(() => resolveLocateRefresh());
+    await waitFor(() =>
+      expect(
+        queryClient.getQueryData<InfiniteAttributionData>(pageQueryKey)
+          ?.pages[0].attributions[targetAttributionUuid],
+      ).toEqual(newAttribution),
+    );
+
+    act(() => resolvePageRefresh());
+    unmountRemountedHook();
   });
 });
