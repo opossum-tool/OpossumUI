@@ -53,7 +53,6 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
       <ConfirmDeletePopup
         open={isConfirmDeletionPopupOpen}
         onClose={() => setIsConfirmDeletionPopupOpen(false)}
-        attributionIdsToDelete={selectedAttributionIds}
         selection={selection}
         clearSelection={clearSelection}
       />

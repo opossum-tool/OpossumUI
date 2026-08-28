@@ -56,11 +56,7 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
       }
       size={'small'}
       onClick={async () => {
-        await resolveAttributions.mutateAsync(
-          selection.mode === 'allMatching'
-            ? { selection }
-            : { attributionUuids: selectedAttributionIds },
-        );
+        await resolveAttributions.mutateAsync({ selection });
         clearSelection();
       }}
       loading={resolveAttributions.isPending}

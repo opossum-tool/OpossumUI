@@ -37,6 +37,7 @@ describe('ConfirmAttributionActionPopup', () => {
         mixedAttributionCount={0}
         isResourceInfoReady={false}
         isLocalActionAvailable={true}
+        selection={{ mode: 'explicit', attributionUuids: [] }}
       />,
     );
 
@@ -70,6 +71,7 @@ describe('ConfirmAttributionActionPopup', () => {
         mixedAttributionCount={0}
         isResourceInfoReady
         isLocalActionAvailable={false}
+        selection={{ mode: 'explicit', attributionUuids: [] }}
       />,
     );
 

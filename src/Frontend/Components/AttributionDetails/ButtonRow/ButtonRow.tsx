@@ -268,7 +268,10 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
           </span>
         </MuiTooltip>
         <ConfirmSavePopup
-          attributionIdsToSave={[packageInfo.id]}
+          selection={{
+            mode: 'explicit',
+            attributionUuids: [packageInfo.id],
+          }}
           open={isConfirmSavePopupOpen}
           onClose={() => setIsConfirmSavePopupOpen(false)}
         />
@@ -342,7 +345,10 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
         <ConfirmDeletePopup
           open={isConfirmDeletionPopupOpen}
           onClose={() => setIsConfirmDeletionPopupOpen(false)}
-          attributionIdsToDelete={[packageInfo.id]}
+          selection={{
+            mode: 'explicit',
+            attributionUuids: [packageInfo.id],
+          }}
         />
       </>
     );
@@ -396,10 +402,16 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             onClick={async () => {
               selectedSignalIsResolved
                 ? await unresolveAttributions.mutateAsync({
-                    attributionUuids: [packageInfo.id],
+                    selection: {
+                      mode: 'explicit',
+                      attributionUuids: [packageInfo.id],
+                    },
                   })
                 : await resolveAttributions.mutateAsync({
-                    attributionUuids: [packageInfo.id],
+                    selection: {
+                      mode: 'explicit',
+                      attributionUuids: [packageInfo.id],
+                    },
                   });
             }}
           >

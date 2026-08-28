@@ -37,10 +37,8 @@ import {
   withBatching,
 } from './utils';
 
-type AttributionSelectionParams =
-  { attributionUuids: Array<string> } | { selection: AttributionSelection };
-
-type AttributionSelectionWithFocus = AttributionSelectionParams & {
+type AttributionSelectionWithFocus = {
+  selection: AttributionSelection;
   focusedAttributionUuid?: string;
 };
 
@@ -72,15 +70,6 @@ function getFocusedAttributionRemovalOutcome(
     : { status: 'unchanged' };
 }
 
-async function resolveSelection(
-  trx: Kysely<DB>,
-  params: AttributionSelectionParams,
-) {
-  return 'selection' in params
-    ? resolveAttributionSelection(trx, params.selection)
-    : params.attributionUuids;
-}
-
 async function getAttributionsByUuid(trx: Kysely<DB>, uuids: Array<string>) {
   return (
     await withBatching(uuids, async (batch) => {
@@ -101,7 +90,7 @@ async function resolveAttributionsWithOverrides(
   },
 ) {
   const inputUuids = params.selection
-    ? await resolveSelection(trx, { selection: params.selection })
+    ? await resolveAttributionSelection(trx, params.selection)
     : Object.keys(params.attributions ?? {});
 
   if (!params.selection) {
@@ -198,7 +187,10 @@ export const mutations = {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
-        const attributionUuids = await resolveSelection(trx, params);
+        const attributionUuids = await resolveAttributionSelection(
+          trx,
+          params.selection,
+        );
         const oldUuidsToNewUuids =
           await cloneMixedAttributionsForWritableResources(
             trx,
@@ -251,24 +243,20 @@ export const mutations = {
   },
 
   async replaceAttributions(params: {
-    attributionUuidsToReplace?: Array<string>;
-    selection?: AttributionSelection;
+    selection: AttributionSelection;
     attributionUuidToReplaceWith: string;
   }) {
     await getDb()
       .transaction()
       .execute(async (trx) => {
-        const selection = params.selection
-          ? excludeAttributionFromAllMatchingSelection(
-              params.selection,
-              params.attributionUuidToReplaceWith,
-            )
-          : undefined;
-        const attributionUuidsToReplace = await resolveSelection(trx, {
-          ...(selection
-            ? { selection }
-            : { attributionUuids: params.attributionUuidsToReplace ?? [] }),
-        });
+        const selection = excludeAttributionFromAllMatchingSelection(
+          params.selection,
+          params.attributionUuidToReplaceWith,
+        );
+        const attributionUuidsToReplace = await resolveAttributionSelection(
+          trx,
+          selection,
+        );
         if (
           attributionUuidsToReplace.includes(
             params.attributionUuidToReplaceWith,
@@ -277,8 +265,8 @@ export const mutations = {
           throw new Error('An attribution cannot replace itself.');
         }
         await replaceAttributions(trx, {
-          ...params,
           attributionUuidsToReplace,
+          attributionUuidToReplaceWith: params.attributionUuidToReplaceWith,
         });
       });
 
@@ -332,7 +320,10 @@ export const mutations = {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
-        const attributionUuids = await resolveSelection(trx, params);
+        const attributionUuids = await resolveAttributionSelection(
+          trx,
+          params.selection,
+        );
         const oldUuidsToNewUuids =
           await cloneMixedAttributionsForWritableResources(
             trx,
@@ -385,18 +376,16 @@ export const mutations = {
 
   async unlinkResourceFromAttributions(params: {
     resourcePath: string;
-    attributionUuids?: Array<string>;
-    selection?: AttributionSelection;
+    selection: AttributionSelection;
     focusedAttributionUuid?: string;
   }) {
     const result = await getDb()
       .transaction()
       .execute(async (trx) => {
-        const attributionUuids = await resolveSelection(trx, {
-          ...(params.selection
-            ? { selection: params.selection }
-            : { attributionUuids: params.attributionUuids ?? [] }),
-        });
+        const attributionUuids = await resolveAttributionSelection(
+          trx,
+          params.selection,
+        );
         const resource = await getResourceOrThrow(trx, params.resourcePath);
         ensureResourceIsWritable(resource);
         await removeManualOrExternalCaaFromResources(trx, 'manual', {
@@ -492,7 +481,7 @@ export const mutations = {
       .transaction()
       .execute(async (trx) => {
         const selectionUuids = params.selection
-          ? await resolveSelection(trx, { selection: params.selection })
+          ? await resolveAttributionSelection(trx, params.selection)
           : [];
         const attributions = params.attributions
           ? params.attributions
@@ -595,23 +584,26 @@ export const mutations = {
     };
   },
 
-  async resolveAttributions(params: AttributionSelectionParams) {
+  async resolveAttributions(params: { selection: AttributionSelection }) {
     return setAttributionsResolvedStatus(params, true);
   },
 
-  async unresolveAttributions(params: AttributionSelectionParams) {
+  async unresolveAttributions(params: { selection: AttributionSelection }) {
     return setAttributionsResolvedStatus(params, false);
   },
 } satisfies Record<string, MutationFunction>;
 
 async function setAttributionsResolvedStatus(
-  params: AttributionSelectionParams,
+  params: { selection: AttributionSelection },
   resolvedStatus: boolean,
 ) {
   await getDb()
     .transaction()
     .execute(async (trx) => {
-      const attributionUuids = await resolveSelection(trx, params);
+      const attributionUuids = await resolveAttributionSelection(
+        trx,
+        params.selection,
+      );
       await ensureAttributionsAreNotReadonly(trx, attributionUuids);
       await withBatching(
         attributionUuids,

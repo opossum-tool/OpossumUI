@@ -64,7 +64,6 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
         </MuiTooltip>
       </MuiIconButton>
       <ConfirmSavePopup
-        attributionIdsToSave={preSelectedAttributionIds}
         selection={preSelectedSelection}
         open={isConfirmSavePopupOpen}
         onClose={() => setIsConfirmSavePopupOpen(false)}

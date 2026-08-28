@@ -19,18 +19,16 @@ import { useLinkedAttributionActionData } from '../AttributionAction/useLinkedAt
 import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
 
 interface Props {
-  attributionIdsToSave: Array<string>;
+  selection: AttributionSelection;
   open: boolean;
   onClose: () => void;
-  selection?: AttributionSelection;
   clearSelection?: () => void;
 }
 
 export const ConfirmSavePopup: React.FC<Props> = ({
-  attributionIdsToSave,
+  selection,
   open,
   onClose,
-  selection,
   clearSelection,
 }) => {
   const dispatch = useAppDispatch();
@@ -45,12 +43,10 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   const isSaving =
     updateOrMatch.isPending || modifyOrMatchOnlyOnOneResource.isPending;
   const {
-    selection: actionSelection,
     attributions: attributionsToSave,
     linkedResourcesTreeState,
     actionSummary,
   } = useLinkedAttributionActionData({
-    attributionIds: attributionIdsToSave,
     open,
     isMutationPending: isSaving,
     selection,
@@ -72,7 +68,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
 
   const handleSaveGlobally = async () => {
     const result = await updateOrMatch.mutateAsync({
-      selection: actionSelection,
+      selection,
       attributions: modifiedAttributionsToSave,
       focusedAttributionUuid: selectedAttributionId,
     });
@@ -84,7 +80,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   const handleSaveOnResource = async () => {
     const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
       resourcePath: selectedResourceId,
-      selection: actionSelection,
+      selection,
       attributions: modifiedAttributionsToSave,
       focusedAttributionUuid: selectedAttributionId,
     });
@@ -142,7 +138,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
       mixedAttributionCount={actionSummary.mixedAttributionCount}
       isResourceInfoReady={actionSummary.isResourceInfoReady}
       isLocalActionAvailable={actionSummary.isLocalActionAvailable}
-      selection={actionSelection}
+      selection={selection}
       open={open}
       ariaLabel={text.saveAttributionsPopup.ariaLabel}
     />
