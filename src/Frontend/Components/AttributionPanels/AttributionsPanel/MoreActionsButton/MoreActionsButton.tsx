@@ -69,6 +69,12 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   );
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
 
+  const updateAttributionProperty =
+    backend.updateAttributionProperty.useMutation({
+      onBeforeInvalidation: ({ focusedAttributionOutcome }) =>
+        dispatch(applyFocusedAttributionOutcome(focusedAttributionOutcome)),
+      onSuccess: clearSelection,
+    });
   const mutationsPending = useIsMutating() > 0;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -132,10 +138,10 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   );
 
   const handlePropertyToggle = useCallback(
-    async (property: UpdatablePropertyType) => {
+    (property: UpdatablePropertyType) => {
       const newState = !propertyStates[property];
 
-      const result = await backend.updateAttributionProperty.mutate({
+      updateAttributionProperty.mutate({
         selection,
         property,
         value: newState,
@@ -144,20 +150,14 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
           : undefined,
         focusedAttributionUuid: selectedAttributionId,
       });
-      dispatch(
-        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
-      );
-
-      clearSelection();
       handleClose();
     },
     [
-      dispatch,
       propertyStates,
       selection,
-      clearSelection,
       selectedAttributionId,
       temporaryDisplayPackageInfo,
+      updateAttributionProperty,
     ],
   );
 
@@ -186,6 +186,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
           mutationsPending
         }
         onClick={handleClick}
+        loading={updateAttributionProperty.isPending}
         size={'small'}
       >
         <MuiTooltip

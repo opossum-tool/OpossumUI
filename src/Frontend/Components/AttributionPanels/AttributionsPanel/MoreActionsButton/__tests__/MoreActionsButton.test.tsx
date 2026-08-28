@@ -5,6 +5,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import type { MutationReturn } from '../../../../../../ElectronBackend/api/mutations';
 import { getDb } from '../../../../../../ElectronBackend/db/db';
 import { text } from '../../../../../../shared/text';
 import { faker } from '../../../../../../testing/Faker';
@@ -14,6 +15,10 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../../../test-help
 import { renderComponent } from '../../../../../test-helpers/render';
 import type { PackagesPanelChildrenProps } from '../../../PackagesPanel/PackagesPanel';
 import { MoreActionsButton } from '../MoreActionsButton';
+
+type UpdateAttributionPropertyResponse = Awaited<
+  MutationReturn<'updateAttributionProperty'>
+>;
 
 describe('MoreActionsButton', () => {
   const defaultProps: PackagesPanelChildrenProps = {
@@ -160,5 +165,92 @@ describe('MoreActionsButton', () => {
         },
       ]);
     });
+  });
+
+  it('shows loading and prevents another action while the mutation is pending', async () => {
+    let resolveMutation: (
+      response: UpdateAttributionPropertyResponse,
+    ) => void = () => undefined;
+    const mutationPromise = new Promise<UpdateAttributionPropertyResponse>(
+      (resolve) => {
+        resolveMutation = resolve;
+      },
+    );
+    const api = vi.mocked(window.electronAPI.api);
+    api.mockImplementationOnce(() => mutationPromise);
+    const user = userEvent.setup();
+
+    await renderComponent(<MoreActionsButton {...defaultProps} />);
+    const moreActionsButton = screen.getByRole('button', {
+      name: text.packageLists.moreActions,
+    });
+
+    await user.click(moreActionsButton);
+    await user.click(screen.getByText('Mark as Needs Review by QA'));
+
+    expect(
+      screen.queryByText('Mark as Needs Review by QA'),
+    ).not.toBeInTheDocument();
+    expect(moreActionsButton).toBeDisabled();
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+
+    expect(api).toHaveBeenCalledOnce();
+
+    resolveMutation({
+      invalidates: [],
+      result: { focusedAttributionOutcome: { status: 'unchanged' } },
+    });
+    await waitFor(() => expect(screen.queryByRole('progressbar')).toBeNull());
+  });
+
+  it('reconciles focus and clears the selection after a successful mutation', async () => {
+    const api = vi.mocked(window.electronAPI.api);
+    api.mockImplementationOnce(() =>
+      Promise.resolve({
+        invalidates: [],
+        result: {
+          focusedAttributionOutcome: {
+            status: 'remapped',
+            attributionUuid: 'attr1',
+            newAttributionUuid: 'remapped-attr1',
+          },
+        },
+      }),
+    );
+    const clearSelection = vi.fn();
+    const { store } = await renderComponent(
+      <MoreActionsButton {...defaultProps} clearSelection={clearSelection} />,
+      { actions: [setSelectedAttributionId('attr1')] },
+    );
+
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    );
+    await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
+
+    await waitFor(() => expect(clearSelection).toHaveBeenCalledOnce());
+    expect(store.getState().resourceState.selectedAttributionId).toBe(
+      'remapped-attr1',
+    );
+  });
+
+  it('retains the selection when the mutation fails', async () => {
+    const api = vi.mocked(window.electronAPI.api);
+    api.mockImplementationOnce(() =>
+      Promise.reject(new Error('update failed')),
+    );
+    const clearSelection = vi.fn();
+    await renderComponent(
+      <MoreActionsButton {...defaultProps} clearSelection={clearSelection} />,
+    );
+
+    const moreActionsButton = screen.getByRole('button', {
+      name: text.packageLists.moreActions,
+    });
+    await userEvent.click(moreActionsButton);
+    await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
+
+    await waitFor(() => expect(moreActionsButton).toBeEnabled());
+    expect(clearSelection).not.toHaveBeenCalled();
   });
 });
