@@ -11,8 +11,6 @@ import {
 import { getAttributionInfiniteQueryOptions } from '../attribution-page-query';
 import { invalidateMutationQueries } from '../invalidate-mutation-queries';
 
-const mutation = 'updateAttributions' as const;
-
 describe('invalidateMutationQueries', () => {
   let queryClient: QueryClient;
 
@@ -36,7 +34,6 @@ describe('invalidateMutationQueries', () => {
 
     await invalidateMutationQueries({
       queryClient,
-      mutation,
       invalidations: [
         {
           queryName: 'getAttributionData',
@@ -67,7 +64,6 @@ describe('invalidateMutationQueries', () => {
 
     await invalidateMutationQueries({
       queryClient,
-      mutation,
       invalidations: [{ queryName: 'getAttributionData' }],
     });
 
@@ -97,7 +93,6 @@ describe('invalidateMutationQueries', () => {
     let settled = false;
     const invalidation = invalidateMutationQueries({
       queryClient,
-      mutation,
       invalidations: [{ queryName: 'getAttributionData', awaitRefetch: true }],
     }).then(() => {
       settled = true;
@@ -145,7 +140,6 @@ describe('invalidateMutationQueries', () => {
 
     const invalidation = invalidateMutationQueries({
       queryClient,
-      mutation,
       invalidations: [
         {
           queryName: 'getAttributionData',
@@ -202,7 +196,6 @@ describe('invalidateMutationQueries', () => {
 
     await invalidateMutationQueries({
       queryClient,
-      mutation,
       invalidations: [
         { queryName: 'listAttributionsPage', awaitRefetch: true },
       ],

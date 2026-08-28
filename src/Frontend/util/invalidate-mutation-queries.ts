@@ -4,11 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { QueryClient, QueryKey } from '@tanstack/react-query';
 
-import type {
-  MutationInvalidationUnion,
-  MutationName,
-} from '../../ElectronBackend/api/mutations';
-import { traceFrontendPhase } from './frontend-performance-tracing';
+import type { MutationInvalidationUnion } from '../../ElectronBackend/api/mutations';
 
 function queryKeyForInvalidation(
   invalidation: MutationInvalidationUnion,
@@ -20,11 +16,9 @@ function queryKeyForInvalidation(
 
 export async function invalidateMutationQueries({
   queryClient,
-  mutation,
   invalidations,
 }: {
   queryClient: QueryClient;
-  mutation: MutationName;
   invalidations: Array<MutationInvalidationUnion>;
 }): Promise<void> {
   const awaited = invalidations.filter(
@@ -40,15 +34,9 @@ export async function invalidateMutationQueries({
       exact: invalidation.params !== undefined,
     });
 
-  await traceFrontendPhase(
-    'mutation.invalidate-awaited',
-    { mutation, queryCount: awaited.length },
-    () => Promise.all(awaited.map(invalidate)).then(() => undefined),
-  ).catch(() => undefined);
+  await Promise.all(awaited.map(invalidate)).catch(() => undefined);
 
-  void traceFrontendPhase(
-    'mutation.invalidate-background',
-    { mutation, queryCount: background.length },
-    () => Promise.all(background.map(invalidate)).then(() => undefined),
-  ).catch(() => undefined);
+  void Promise.all(background.map(invalidate))
+    .then(() => undefined)
+    .catch(() => undefined);
 }
