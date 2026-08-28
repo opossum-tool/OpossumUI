@@ -37,7 +37,9 @@ describe('attribution resource access', () => {
     });
 
     await expect(
-      mutations.resolveAttributions({ attributionUuids: ['signal'] }),
+      mutations.resolveAttributions({
+        selection: { mode: 'explicit', attributionUuids: ['signal'] },
+      }),
     ).rejects.toThrow(/readonly/i);
   });
 
@@ -54,7 +56,7 @@ describe('attribution resource access', () => {
     });
 
     const response = await mutations.resolveAttributions({
-      attributionUuids: ['signal'],
+      selection: { mode: 'explicit', attributionUuids: ['signal'] },
     });
 
     expect(response.invalidates).toContainEqual({
@@ -133,7 +135,7 @@ describe('attribution resource access', () => {
     await expect(
       mutations.unlinkResourceFromAttributions({
         resourcePath: '/',
-        attributionUuids: ['shared'],
+        selection: { mode: 'explicit', attributionUuids: ['shared'] },
       }),
     ).rejects.toThrow(/readonly/i);
     expect(
@@ -252,7 +254,7 @@ describe('attribution resource access', () => {
 
     await mutations.unlinkResourceFromAttributions({
       resourcePath: '/writable/file.ts',
-      attributionUuids: ['shared'],
+      selection: { mode: 'explicit', attributionUuids: ['shared'] },
     });
 
     const { result: page } = await listAttributionsPage({
@@ -431,7 +433,9 @@ describe('mixed attribution mutations', () => {
   it('clones a mixed attribution before deleting its writable partition', async () => {
     await initializeMixedAttribution();
 
-    await mutations.deleteAttributions({ attributionUuids: ['shared'] });
+    await mutations.deleteAttributions({
+      selection: { mode: 'explicit', attributionUuids: ['shared'] },
+    });
 
     expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
     expect(await attributionUuidsOn('/writable/file.ts')).toEqual([]);
@@ -451,7 +455,7 @@ describe('mixed attribution mutations', () => {
     await initializeMixedAttribution();
 
     await mutations.replaceAttributions({
-      attributionUuidsToReplace: ['shared'],
+      selection: { mode: 'explicit', attributionUuids: ['shared'] },
       attributionUuidToReplaceWith: 'replacement',
     });
 
@@ -872,13 +876,15 @@ describe('readonly-only attribution mutations', () => {
     {
       name: 'deleting',
       mutate: () =>
-        mutations.deleteAttributions({ attributionUuids: ['readonly'] }),
+        mutations.deleteAttributions({
+          selection: { mode: 'explicit', attributionUuids: ['readonly'] },
+        }),
     },
     {
       name: 'replacing',
       mutate: () =>
         mutations.replaceAttributions({
-          attributionUuidsToReplace: ['readonly'],
+          selection: { mode: 'explicit', attributionUuids: ['readonly'] },
           attributionUuidToReplaceWith: 'replacement',
         }),
     },

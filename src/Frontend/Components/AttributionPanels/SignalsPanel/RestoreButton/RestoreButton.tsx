@@ -65,11 +65,7 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
       }
       size={'small'}
       onClick={async () => {
-        await unresolveAttributions.mutateAsync(
-          selection.mode === 'allMatching'
-            ? { selection }
-            : { attributionUuids: selectedAttributionIds },
-        );
+        await unresolveAttributions.mutateAsync({ selection });
         clearSelection();
       }}
       loading={unresolveAttributions.isPending}

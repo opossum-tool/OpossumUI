@@ -26,7 +26,6 @@ describe('ConfirmDeletePopup', () => {
       <ConfirmDeletePopup
         open
         onClose={noop}
-        attributionIdsToDelete={[]}
         selection={{
           mode: 'allMatching',
           query: {
@@ -85,7 +84,10 @@ describe('ConfirmDeletePopup', () => {
       <ConfirmDeletePopup
         open
         onClose={noop}
-        attributionIdsToDelete={[attribution1.id, attribution2.id]}
+        selection={{
+          mode: 'explicit',
+          attributionUuids: [attribution1.id, attribution2.id],
+        }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({
@@ -126,7 +128,10 @@ describe('ConfirmDeletePopup', () => {
       <ConfirmDeletePopup
         open
         onClose={noop}
-        attributionIdsToDelete={[attribution1.id, attribution2.id]}
+        selection={{
+          mode: 'explicit',
+          attributionUuids: [attribution1.id, attribution2.id],
+        }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({

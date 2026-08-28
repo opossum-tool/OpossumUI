@@ -40,7 +40,6 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[]}
         selection={{
           mode: 'allMatching',
           query: {
@@ -117,7 +116,6 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[]}
         selection={{
           mode: 'allMatching',
           query: {
@@ -171,7 +169,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo1.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo1.id] }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({
@@ -213,7 +211,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo1.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo1.id] }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({
@@ -257,7 +255,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo1.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo1.id] }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({
@@ -315,7 +313,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo.id] }}
       />,
       {
         data: parsedInputFileEnrichedWithTestData,
@@ -348,7 +346,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo.id] }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({
@@ -390,7 +388,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo.id] }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({

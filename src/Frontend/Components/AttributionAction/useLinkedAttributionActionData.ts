@@ -26,23 +26,19 @@ type AttributionActionSummary = {
 };
 
 export function useLinkedAttributionActionData({
-  attributionIds,
   open,
   isMutationPending = false,
   selection,
 }: {
-  attributionIds: Array<string>;
   open: boolean;
   isMutationPending?: boolean;
-  selection?: AttributionSelection;
+  selection: AttributionSelection;
 }) {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
-  const effectiveSelection: AttributionSelection = selection ?? {
-    mode: 'explicit',
-    attributionUuids: attributionIds,
-  };
-  const isQueryWideSelection = effectiveSelection.mode === 'allMatching';
+  const attributionIds =
+    selection.mode === 'explicit' ? selection.attributionUuids : [];
+  const isQueryWideSelection = selection.mode === 'allMatching';
 
   const { data: attributions, isSuccess: areAttributionsReady } =
     backend.getAttributions.useQuery(
@@ -55,7 +51,7 @@ export function useLinkedAttributionActionData({
     );
 
   const selectionSummaryQuery = backend.getAttributionSelectionSummary.useQuery(
-    { selection: effectiveSelection },
+    { selection },
     { enabled: open && isQueryWideSelection },
   );
 
@@ -84,7 +80,6 @@ export function useLinkedAttributionActionData({
       });
 
   return {
-    selection: effectiveSelection,
     selectedResourceId,
     attributions,
     linkedResourcesTreeState,

@@ -40,7 +40,7 @@ interface Props {
   mixedAttributionCount: number;
   isResourceInfoReady: boolean;
   isLocalActionAvailable: boolean | undefined;
-  selection?: AttributionSelection;
+  selection: AttributionSelection;
 }
 
 export function ConfirmAttributionActionPopup({

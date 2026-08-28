@@ -13,18 +13,16 @@ import { useLinkedAttributionActionData } from '../AttributionAction/useLinkedAt
 import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
 
 interface Props {
-  attributionIdsToDelete: Array<string>;
+  selection: AttributionSelection;
   open: boolean;
   onClose: () => void;
-  selection?: AttributionSelection;
   clearSelection?: () => void;
 }
 
 export const ConfirmDeletePopup: React.FC<Props> = ({
-  attributionIdsToDelete,
+  selection,
   open,
   onClose,
-  selection,
   clearSelection,
 }) => {
   const dispatch = useAppDispatch();
@@ -41,13 +39,11 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   const isDeleting =
     deleteAttributions.isPending || unlinkResourceFromAttributions.isPending;
   const {
-    selection: actionSelection,
     attributions: attributionsToDelete,
     linkedResourcesTreeState,
     selectedResourceId,
     actionSummary,
   } = useLinkedAttributionActionData({
-    attributionIds: attributionIdsToDelete,
     open,
     isMutationPending: isDeleting,
     selection,
@@ -55,7 +51,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
 
   const handleDelete = async () => {
     await deleteAttributions.mutateAsync({
-      selection: actionSelection,
+      selection,
       focusedAttributionUuid: selectedAttributionId,
     });
     clearSelection?.();
@@ -64,7 +60,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   const handleDeleteOnResource = async () => {
     await unlinkResourceFromAttributions.mutateAsync({
       resourcePath: selectedResourceId,
-      selection: actionSelection,
+      selection,
       focusedAttributionUuid: selectedAttributionId,
     });
     clearSelection?.();
@@ -109,7 +105,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       mixedAttributionCount={actionSummary.mixedAttributionCount}
       isResourceInfoReady={actionSummary.isResourceInfoReady}
       isLocalActionAvailable={actionSummary.isLocalActionAvailable}
-      selection={actionSelection}
+      selection={selection}
       open={open}
       ariaLabel={text.deleteAttributionsPopup.ariaLabel}
     />
