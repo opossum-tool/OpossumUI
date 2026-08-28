@@ -17,7 +17,7 @@ export function useAttributionPreview(
   const initialized = useDatabaseInitialized();
   const query = useInfiniteQuery(
     getAttributionInfiniteQueryOptions({
-      queryKey: ['attribution-selection-preview', selection],
+      queryKey: ['backend', 'listAttributionPreview', selection],
       enabled: initialized && open,
       fetchPage: (pageParams) =>
         backend.listAttributionPreview.query({
