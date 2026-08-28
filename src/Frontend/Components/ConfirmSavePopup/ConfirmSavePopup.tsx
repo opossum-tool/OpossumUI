@@ -44,100 +44,51 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     backend.modifyOrMatchOnlyOnOneResource.useMutation();
   const isSaving =
     updateOrMatch.isPending || modifyOrMatchOnlyOnOneResource.isPending;
-  const selectionSummaryQuery = backend.getAttributionSelectionSummary.useQuery(
-    {
-      selection: selection ?? {
-        mode: 'explicit',
-        attributionUuids: attributionIdsToSave,
-      },
-    },
-    { enabled: open && selection?.mode === 'allMatching' },
-  );
-  const aggregateSummary =
-    selection?.mode === 'allMatching' ? selectionSummaryQuery.data : undefined;
   const {
+    selection: actionSelection,
     attributions: attributionsToSave,
-    linkedResourceCount,
     linkedResourcesTreeState,
-    mixedAttributionCount,
-    isResourceInfoReady,
-    isLocalActionAvailable,
-    isSelectedResourceReadonly,
+    actionSummary,
   } = useLinkedAttributionActionData({
     attributionIds: attributionIdsToSave,
     open,
     isMutationPending: isSaving,
     selection,
   });
-  const modifiedAttributionsToSave = useMemo(
-    () =>
-      attributionsToSave?.[selectedAttributionId]
-        ? {
-            ...attributionsToSave,
-            [selectedAttributionId]: temporaryDisplayPackageInfo,
-          }
-        : attributionsToSave,
-    [attributionsToSave, selectedAttributionId, temporaryDisplayPackageInfo],
-  );
-  const focusedAttributionOverride = useMemo(
-    () =>
-      selectedAttributionId
-        ? { [selectedAttributionId]: temporaryDisplayPackageInfo }
-        : undefined,
-    [selectedAttributionId, temporaryDisplayPackageInfo],
-  );
-  const areAllAttributionsPreselected = aggregateSummary
-    ? aggregateSummary.preSelectedCount === aggregateSummary.selectedCount
-    : attributionsToSave
-      ? Object.values(attributionsToSave).every(
-          (attribution) => attribution.preSelected,
-        )
-      : undefined;
+  const modifiedAttributionsToSave = useMemo(() => {
+    if (!selectedAttributionId) {
+      return attributionsToSave;
+    }
+    if (!attributionsToSave) {
+      return { [selectedAttributionId]: temporaryDisplayPackageInfo };
+    }
+    return attributionsToSave[selectedAttributionId]
+      ? {
+          ...attributionsToSave,
+          [selectedAttributionId]: temporaryDisplayPackageInfo,
+        }
+      : attributionsToSave;
+  }, [attributionsToSave, selectedAttributionId, temporaryDisplayPackageInfo]);
 
   const handleSaveGlobally = async () => {
-    if (selection?.mode === 'allMatching') {
-      const result = await updateOrMatch.mutateAsync({
-        selection,
-        attributions: focusedAttributionOverride,
-        focusedAttributionUuid: selectedAttributionId,
-      });
-      dispatch(
-        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
-      );
-    } else if (modifiedAttributionsToSave) {
-      const result = await updateOrMatch.mutateAsync({
-        attributions: modifiedAttributionsToSave,
-        focusedAttributionUuid: selectedAttributionId,
-      });
-      dispatch(
-        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
-      );
-    }
+    const result = await updateOrMatch.mutateAsync({
+      selection: actionSelection,
+      attributions: modifiedAttributionsToSave,
+      focusedAttributionUuid: selectedAttributionId,
+    });
+    dispatch(applyFocusedAttributionOutcome(result.focusedAttributionOutcome));
     clearSelection?.();
     onClose();
   };
 
   const handleSaveOnResource = async () => {
-    if (selection?.mode === 'allMatching') {
-      const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
-        resourcePath: selectedResourceId,
-        selection,
-        attributions: focusedAttributionOverride,
-        focusedAttributionUuid: selectedAttributionId,
-      });
-      dispatch(
-        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
-      );
-    } else if (modifiedAttributionsToSave) {
-      const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
-        resourcePath: selectedResourceId,
-        attributions: modifiedAttributionsToSave,
-        focusedAttributionUuid: selectedAttributionId,
-      });
-      dispatch(
-        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
-      );
-    }
+    const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
+      resourcePath: selectedResourceId,
+      selection: actionSelection,
+      attributions: modifiedAttributionsToSave,
+      focusedAttributionUuid: selectedAttributionId,
+    });
+    dispatch(applyFocusedAttributionOutcome(result.focusedAttributionOutcome));
     clearSelection?.();
     onClose();
   };
@@ -145,14 +96,14 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   return (
     <ConfirmAttributionActionPopup
       header={
-        areAllAttributionsPreselected
+        actionSummary.areAllAttributionsPreselected
           ? text.saveAttributionsPopup.titleConfirm
           : text.saveAttributionsPopup.titleSave
       }
       localAction={{
         isPending: modifyOrMatchOnlyOnOneResource.isPending,
         onClick: handleSaveOnResource,
-        buttonText: areAllAttributionsPreselected
+        buttonText: actionSummary.areAllAttributionsPreselected
           ? text.saveAttributionsPopup.confirmLocally
           : text.saveAttributionsPopup.saveLocally,
       }}
@@ -161,61 +112,37 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         onClick: handleSaveGlobally,
         color: 'error',
         buttonText:
-          (aggregateSummary?.writableLinkedResourceCount ??
-            linkedResourceCount ??
-            0) > 1
-            ? areAllAttributionsPreselected
+          (actionSummary.linkedResourceCount ?? 0) > 1
+            ? actionSummary.areAllAttributionsPreselected
               ? text.saveAttributionsPopup.confirmGlobally
               : text.saveAttributionsPopup.saveGlobally
-            : areAllAttributionsPreselected
+            : actionSummary.areAllAttributionsPreselected
               ? text.saveAttributionsPopup.confirm
               : text.saveAttributionsPopup.save,
       }}
-      attributions={
-        selection?.mode === 'allMatching' ? {} : modifiedAttributionsToSave
-      }
+      attributions={modifiedAttributionsToSave}
       onClose={onClose}
-      description={(areAllAttributionsPreselected
+      description={(actionSummary.areAllAttributionsPreselected
         ? text.saveAttributionsPopup.confirmAttributions
         : text.saveAttributionsPopup.saveAttributions)({
-        attributions:
-          selection?.mode === 'allMatching'
-            ? maybePluralize(
-                aggregateSummary?.selectedCount ?? 0,
-                text.packageLists.attribution,
-              )
-            : maybePluralize(
-                attributionIdsToSave.length,
-                text.packageLists.attribution,
-              ),
+        attributions: maybePluralize(
+          actionSummary.selectedAttributionCount,
+          text.packageLists.attribution,
+        ),
         resources: maybePluralize(
-          aggregateSummary?.writableLinkedResourceCount ??
-            linkedResourceCount ??
-            1,
+          actionSummary.linkedResourceCount ?? 1,
           text.saveAttributionsPopup.resource,
           { showOne: true },
         ),
       })}
       mixedWarning={text.confirmAttributionActionPopup.mixedWarning(
-        aggregateSummary?.mixedCount ?? mixedAttributionCount,
+        actionSummary.mixedAttributionCount,
       )}
       linkedResourcesTreeState={linkedResourcesTreeState}
-      mixedAttributionCount={
-        aggregateSummary?.mixedCount ?? mixedAttributionCount
-      }
-      isResourceInfoReady={
-        selection?.mode === 'allMatching'
-          ? selectionSummaryQuery.isSuccess
-          : isResourceInfoReady
-      }
-      isLocalActionAvailable={
-        aggregateSummary
-          ? aggregateSummary.allLinkedToSelectedResource &&
-            aggregateSummary.writableLinkedResourceCount > 1 &&
-            !isSelectedResourceReadonly
-          : isLocalActionAvailable
-      }
-      selection={selection}
+      mixedAttributionCount={actionSummary.mixedAttributionCount}
+      isResourceInfoReady={actionSummary.isResourceInfoReady}
+      isLocalActionAvailable={actionSummary.isLocalActionAvailable}
+      selection={actionSelection}
       open={open}
       ariaLabel={text.saveAttributionsPopup.ariaLabel}
     />

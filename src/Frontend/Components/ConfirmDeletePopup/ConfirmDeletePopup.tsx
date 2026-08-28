@@ -38,28 +38,14 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       onBeforeInvalidation: ({ focusedAttributionOutcome }) =>
         dispatch(applyFocusedAttributionOutcome(focusedAttributionOutcome)),
     });
-  const selectionSummaryQuery = backend.getAttributionSelectionSummary.useQuery(
-    {
-      selection: selection ?? {
-        mode: 'explicit',
-        attributionUuids: attributionIdsToDelete,
-      },
-    },
-    { enabled: open && selection?.mode === 'allMatching' },
-  );
-  const aggregateSummary =
-    selection?.mode === 'allMatching' ? selectionSummaryQuery.data : undefined;
   const isDeleting =
     deleteAttributions.isPending || unlinkResourceFromAttributions.isPending;
   const {
+    selection: actionSelection,
     attributions: attributionsToDelete,
-    linkedResourceCount,
     linkedResourcesTreeState,
-    mixedAttributionCount,
-    isResourceInfoReady,
-    isLocalActionAvailable,
-    isSelectedResourceReadonly,
     selectedResourceId,
+    actionSummary,
   } = useLinkedAttributionActionData({
     attributionIds: attributionIdsToDelete,
     open,
@@ -68,31 +54,19 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   });
 
   const handleDelete = async () => {
-    await deleteAttributions.mutateAsync(
-      selection?.mode === 'allMatching'
-        ? { selection, focusedAttributionUuid: selectedAttributionId }
-        : {
-            attributionUuids: attributionIdsToDelete,
-            focusedAttributionUuid: selectedAttributionId,
-          },
-    );
+    await deleteAttributions.mutateAsync({
+      selection: actionSelection,
+      focusedAttributionUuid: selectedAttributionId,
+    });
     clearSelection?.();
     onClose();
   };
   const handleDeleteOnResource = async () => {
-    await unlinkResourceFromAttributions.mutateAsync(
-      selection?.mode === 'allMatching'
-        ? {
-            resourcePath: selectedResourceId,
-            selection,
-            focusedAttributionUuid: selectedAttributionId,
-          }
-        : {
-            resourcePath: selectedResourceId,
-            attributionUuids: attributionIdsToDelete,
-            focusedAttributionUuid: selectedAttributionId,
-          },
-    );
+    await unlinkResourceFromAttributions.mutateAsync({
+      resourcePath: selectedResourceId,
+      selection: actionSelection,
+      focusedAttributionUuid: selectedAttributionId,
+    });
     clearSelection?.();
     onClose();
   };
@@ -110,56 +84,32 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
         isPending: deleteAttributions.isPending,
         onClick: handleDelete,
         buttonText:
-          (aggregateSummary?.writableLinkedResourceCount ??
-            linkedResourceCount ??
-            0) > 1
+          (actionSummary.linkedResourceCount ?? 0) > 1
             ? text.deleteAttributionsPopup.deleteGlobally
             : text.deleteAttributionsPopup.delete,
         color: 'error',
       }}
-      attributions={
-        selection?.mode === 'allMatching' ? {} : attributionsToDelete
-      }
+      attributions={attributionsToDelete}
       onClose={onClose}
       description={text.deleteAttributionsPopup.deleteAttributions({
-        attributions:
-          selection?.mode === 'allMatching'
-            ? maybePluralize(
-                aggregateSummary?.selectedCount ?? 0,
-                text.packageLists.attribution,
-              )
-            : maybePluralize(
-                attributionIdsToDelete.length,
-                text.packageLists.attribution,
-              ),
+        attributions: maybePluralize(
+          actionSummary.selectedAttributionCount,
+          text.packageLists.attribution,
+        ),
         resources: maybePluralize(
-          aggregateSummary?.writableLinkedResourceCount ??
-            linkedResourceCount ??
-            1,
+          actionSummary.linkedResourceCount ?? 1,
           text.deleteAttributionsPopup.resource,
           { showOne: true },
         ),
       })}
       mixedWarning={text.deleteAttributionsPopup.mixedWarning(
-        aggregateSummary?.mixedCount ?? mixedAttributionCount,
+        actionSummary.mixedAttributionCount,
       )}
       linkedResourcesTreeState={linkedResourcesTreeState}
-      mixedAttributionCount={
-        aggregateSummary?.mixedCount ?? mixedAttributionCount
-      }
-      isResourceInfoReady={
-        selection?.mode === 'allMatching'
-          ? selectionSummaryQuery.isSuccess
-          : isResourceInfoReady
-      }
-      isLocalActionAvailable={
-        aggregateSummary
-          ? aggregateSummary.allLinkedToSelectedResource &&
-            aggregateSummary.writableLinkedResourceCount > 1 &&
-            !isSelectedResourceReadonly
-          : isLocalActionAvailable
-      }
-      selection={selection}
+      mixedAttributionCount={actionSummary.mixedAttributionCount}
+      isResourceInfoReady={actionSummary.isResourceInfoReady}
+      isLocalActionAvailable={actionSummary.isLocalActionAvailable}
+      selection={actionSelection}
       open={open}
       ariaLabel={text.deleteAttributionsPopup.ariaLabel}
     />

@@ -60,6 +60,14 @@ describe('ConfirmDeletePopup', () => {
     const deleteButton = await screen.findByRole('button', {
       name: text.deleteAttributionsPopup.delete,
     });
+    expect(
+      await screen.findByText(
+        text.deleteAttributionsPopup.deleteAttributions({
+          attributions: 'attribution',
+          resources: '1 resource',
+        }),
+      ),
+    ).toBeInTheDocument();
     await waitFor(() => expect(deleteButton).toBeEnabled());
     await userEvent.click(deleteButton);
 
