@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  hashKey,
   skipToken,
   useInfiniteQuery,
   useQueryClient,
@@ -88,11 +89,20 @@ export function useAttributionPages({
   );
   const seededNavigationRef = useRef<string | null>(null);
   const navigationSeedKey = targetFound
-    ? JSON.stringify([queryKey, targetAttributionUuid, navigationScope])
+    ? hashKey([
+        queryKey,
+        targetAttributionUuid,
+        navigationScope,
+        targetQuery.dataUpdatedAt,
+      ])
     : null;
 
   useEffect(() => {
-    if (!targetFound || seededNavigationRef.current === navigationSeedKey) {
+    if (
+      !targetFound ||
+      targetQuery.isFetching ||
+      seededNavigationRef.current === navigationSeedKey
+    ) {
       return;
     }
     const navigationResult = targetQuery.data;
@@ -124,6 +134,7 @@ export function useAttributionPages({
     queryClient,
     sort,
     targetFound,
+    targetQuery.isFetching,
     targetQuery.data,
   ]);
 
