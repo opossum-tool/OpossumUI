@@ -8,10 +8,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
-import type {
-  Attributions,
-  PackageInfo,
-} from '../../../../../shared/shared-types';
+import type { PackageInfo } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { applyFocusedAttributionOutcome } from '../../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
@@ -136,56 +133,26 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
 
   const handlePropertyToggle = useCallback(
     async (property: UpdatablePropertyType) => {
-      if (!attributions && selection.mode !== 'allMatching') {
-        return;
-      }
-
       const newState = !propertyStates[property];
 
-      if (selection.mode === 'allMatching') {
-        const result = await backend.updateAttributionProperty.mutate({
-          selection,
-          property,
-          value: newState,
-          attributions: selectedAttributionId
-            ? { [selectedAttributionId]: temporaryDisplayPackageInfo }
-            : undefined,
-          focusedAttributionUuid: selectedAttributionId,
-        });
-        dispatch(
-          applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
-        );
-      } else {
-        const updatedAttributions = selectedAttributionIds.reduce(
-          (acc, attributionId) => {
-            const attribution = attributions?.[attributionId];
-            if (!attribution) {
-              return acc;
-            }
-            acc[attributionId] = {
-              ...attribution,
-              [property]: newState,
-            };
-            return acc;
-          },
-          {} as Attributions,
-        );
-        const result = await backend.updateAttributions.mutate({
-          attributions: updatedAttributions,
-          focusedAttributionUuid: selectedAttributionId,
-        });
-        dispatch(
-          applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
-        );
-      }
+      const result = await backend.updateAttributionProperty.mutate({
+        selection,
+        property,
+        value: newState,
+        attributions: selectedAttributionId
+          ? { [selectedAttributionId]: temporaryDisplayPackageInfo }
+          : undefined,
+        focusedAttributionUuid: selectedAttributionId,
+      });
+      dispatch(
+        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
+      );
 
       clearSelection();
       handleClose();
     },
     [
-      attributions,
       dispatch,
-      selectedAttributionIds,
       propertyStates,
       selection,
       clearSelection,
