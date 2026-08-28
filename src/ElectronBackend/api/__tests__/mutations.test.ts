@@ -9,7 +9,7 @@ import {
 } from '../../../testing/global-test-helpers';
 import { getDb } from '../../db/db';
 import { AttributionResourceAccess } from '../../types/types';
-import { listAttributionsPage } from '../listAttributionsPage';
+import { listAttributionsPage } from '../attributions/listAttributionsPage';
 import { mutations } from '../mutations';
 
 async function resourceAccessOf(attributionUuid: string) {
