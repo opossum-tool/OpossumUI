@@ -81,6 +81,14 @@ describe('ConfirmSavePopup', () => {
     const confirmButton = await screen.findByRole('button', {
       name: text.saveAttributionsPopup.confirm,
     });
+    expect(
+      await screen.findByText(
+        text.saveAttributionsPopup.confirmAttributions({
+          attributions: '2 attributions',
+          resources: '1 resource',
+        }),
+      ),
+    ).toBeInTheDocument();
     await waitFor(() => expect(confirmButton).toBeEnabled());
     await userEvent.click(confirmButton);
 
