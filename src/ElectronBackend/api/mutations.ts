@@ -148,6 +148,7 @@ const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<MutationInvalidation> = [
   { queryName: 'licenseTable' },
   { queryName: 'autoCompleteOptions' },
   { queryName: 'listAttributionsPage', awaitRefetch: true },
+  { queryName: 'listAttributionPreview' },
   { queryName: 'getAttributionSelectionSummary' },
   { queryName: 'locateAttribution' },
 ];
