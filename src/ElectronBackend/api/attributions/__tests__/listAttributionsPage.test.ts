@@ -5,119 +5,23 @@
 import type {
   AttributionFilterKey,
   AttributionValueFilters,
-} from '../../../shared/attribution-filters';
-import type {
-  AttributionPageRequest,
-  AttributionRelationCountRequest,
-} from '../../../shared/attribution-result-set';
-import { Criticality, type PackageInfo } from '../../../shared/shared-types';
+} from '../../../../shared/attribution-filters';
+import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import {
   initializeDbWithTestData,
   pathsToResources,
-} from '../../../testing/global-test-helpers';
-import { getDb } from '../../db/db';
-import { getAttributions } from '../getAttributions';
+} from '../../../../testing/global-test-helpers';
 import {
-  getAttributionSelectionSummary,
-  listAttributionPreview,
-  listAttributionRelationCounts,
-  listAttributionsPage,
-  locateAttribution,
-  resolveAttributionSelection,
-} from '../listAttributionsPage';
+  allPage,
+  initializeDefaultAttributionQueryTestData,
+  listPage,
+  locate,
+  preview,
+} from './attribution-query-test-helpers';
 
 describe('listAttributionsPage', () => {
-  const defaultCriteria = {
-    external: false,
-    filters: [],
-    search: '',
-    valueFilters: {},
-    resourcePathForRelationships: '',
-    showResolved: false,
-    excludeUnrelated: false,
-  } satisfies AttributionRelationCountRequest;
-  const listPage = (props: Partial<AttributionPageRequest>) =>
-    listAttributionsPage({
-      ...defaultCriteria,
-      scope: { mode: 'relation', relation: 'resource' },
-      sort: 'alphabetically',
-      includeReadonly: false,
-      offset: 0,
-      limit: 200,
-      ...props,
-    });
-  const allPage = (props: Partial<AttributionPageRequest>) =>
-    listAttributionsPage({
-      ...defaultCriteria,
-      scope: { mode: 'all' },
-      sort: 'alphabetically',
-      includeReadonly: false,
-      offset: 0,
-      limit: 200,
-      ...props,
-    });
-  const relationCounts = (props: Partial<AttributionRelationCountRequest>) =>
-    listAttributionRelationCounts({ ...defaultCriteria, ...props });
-  const preview = (
-    props: Partial<Parameters<typeof listAttributionPreview>[0]>,
-  ) =>
-    listAttributionPreview({
-      ...defaultCriteria,
-      relation: 'resource',
-      excludedAttributionUuids: [],
-      offset: 0,
-      limit: 200,
-      ...props,
-    });
-  const locate = (props: Partial<Parameters<typeof locateAttribution>[0]>) =>
-    locateAttribution({
-      ...defaultCriteria,
-      sort: 'alphabetically',
-      includeReadonly: false,
-      targetAttributionUuid: 'target',
-      limit: 200,
-      navigationScope: 'targetRelation',
-      ...props,
-    });
-
   beforeEach(async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/parent', '/parent/resource', '/other']),
-      manualAttributions: {
-        attributions: {
-          resourceOne: {
-            id: 'resourceOne',
-            criticality: Criticality.None,
-            packageName: 'resourceOne',
-          },
-          resourceTwo: {
-            id: 'resourceTwo',
-            criticality: Criticality.None,
-            packageName: 'resourceTwo',
-          },
-          child: { id: 'child', criticality: Criticality.None },
-          parent: { id: 'parent', criticality: Criticality.None },
-          unrelated: { id: 'unrelated', criticality: Criticality.None },
-        },
-        resourcesToAttributions: {
-          '/parent/resource': ['resourceOne', 'resourceTwo'],
-          '/parent': ['parent'],
-          '/other': ['resourceTwo', 'unrelated'],
-        },
-        attributionsToResources: {},
-      },
-    });
-  });
-
-  it('loads an explicit UUID batch without applying result-set filters', async () => {
-    const result = await getAttributions({
-      attributionUuids: ['missing', 'unrelated', 'resourceOne', 'unrelated'],
-      resourcePathForRelationships: '/parent/resource',
-    });
-
-    expect(Object.keys(result.result)).toEqual(['unrelated', 'resourceOne']);
-    expect(result.result.resourceOne.relation).toBe('resource');
-    expect(result.result.unrelated.relation).toBe('unrelated');
+    await initializeDefaultAttributionQueryTestData();
   });
 
   it('returns a page for the requested relation without counting other relations', async () => {
@@ -145,58 +49,6 @@ describe('listAttributionsPage', () => {
     expect(result.result.hasNextPage).toBe(false);
   });
 
-  it('returns relation counts independently of page hydration', async () => {
-    const counts = await relationCounts({
-      external: false,
-      resourcePathForRelationships: '/parent/resource',
-    });
-
-    expect(counts.result).toEqual({
-      resource: { visibleCount: 2, editableCount: 2 },
-      unrelated: { visibleCount: 3, editableCount: 3 },
-    });
-  });
-
-  it('counts related readonly attributions as visible but not editable', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources([
-        '/parent/readonly/one.ts',
-        '/parent/readonly/two.ts',
-        '/parent/writable.ts',
-      ]),
-      manualAttributions: {
-        attributions: {
-          relatedReadonlyOne: {
-            id: 'relatedReadonlyOne',
-            criticality: Criticality.None,
-          },
-          relatedReadonlyTwo: {
-            id: 'relatedReadonlyTwo',
-            criticality: Criticality.None,
-          },
-          writable: { id: 'writable', criticality: Criticality.None },
-        },
-        resourcesToAttributions: {
-          '/parent/readonly/one.ts': ['relatedReadonlyOne'],
-          '/parent/readonly/two.ts': ['relatedReadonlyTwo'],
-          '/parent/writable.ts': ['writable'],
-        },
-        attributionsToResources: {},
-      },
-      readonlyRules: [{ path: '/parent/readonly', readonly: true }],
-    });
-
-    const counts = await relationCounts({
-      external: false,
-      resourcePathForRelationships: '/parent',
-    });
-
-    expect(counts.result.children).toEqual({
-      visibleCount: 3,
-      editableCount: 1,
-    });
-  });
-
   it('loads the prefix through a target attribution in one request', async () => {
     const full = await listPage({
       external: false,
@@ -221,16 +73,10 @@ describe('listAttributionsPage', () => {
   });
 
   it('uses the complete result-set offset for all-scope navigation', async () => {
-    const allPage = await listAttributionsPage({
-      ...defaultCriteria,
-      scope: { mode: 'all' },
-      sort: 'alphabetically',
-      includeReadonly: false,
-      offset: 0,
-      limit: 200,
+    const allScopePage = await allPage({
       resourcePathForRelationships: '/parent/resource',
     });
-    const allIds = Object.keys(allPage.result.attributions);
+    const allIds = Object.keys(allScopePage.result.attributions);
     const result = await locate({
       resourcePathForRelationships: '/parent/resource',
       targetAttributionUuid: 'resourceTwo',
@@ -367,161 +213,6 @@ describe('listAttributionsPage', () => {
     });
     expect(emptyResult.result.attributions).toEqual({});
     expect(emptyResult.result.hasNextPage).toBe(false);
-  });
-
-  it('summarizes a query-wide selection with exclusions', async () => {
-    const summary = await getAttributionSelectionSummary({
-      selection: {
-        mode: 'allMatching',
-        query: {
-          external: false,
-          filters: [],
-          search: '',
-          valueFilters: {},
-          resourcePathForRelationships: '/parent/resource',
-          showResolved: false,
-          excludeUnrelated: false,
-          relation: 'resource',
-        },
-        excludedAttributionUuids: ['resourceOne'],
-      },
-    });
-
-    expect(summary.result).toMatchObject({
-      selectedCount: 1,
-      writableLinkedResourceCount: 2,
-      allLinkedToSelectedResource: true,
-    });
-  });
-
-  it('keeps page, counts, resolution, preview, and navigation on one result set', async () => {
-    const criteria = {
-      ...defaultCriteria,
-      filters: ['thirdParty' as const],
-      search: 'resource',
-      resourcePathForRelationships: '/parent/resource',
-      showResolved: false,
-      excludeUnrelated: true,
-    };
-    const page = await listPage({
-      ...criteria,
-      scope: { mode: 'relation', relation: 'resource' },
-      sort: 'alphabetically',
-      includeReadonly: false,
-      offset: 0,
-      limit: 200,
-    });
-    const counts = await relationCounts(criteria);
-    const selection = {
-      mode: 'allMatching' as const,
-      query: { ...criteria, relation: 'resource' as const },
-      excludedAttributionUuids: [],
-    };
-    const resolved = await getDb()
-      .transaction()
-      .execute((trx) => resolveAttributionSelection(trx, selection));
-    const summary = await getAttributionSelectionSummary({ selection });
-    const preview = await listAttributionPreview({
-      ...selection.query,
-      excludedAttributionUuids: ['resourceOne'],
-      offset: 0,
-      limit: 200,
-    });
-    const navigation = await locate({
-      ...criteria,
-      targetAttributionUuid: 'resourceTwo',
-    });
-
-    expect(Object.keys(page.result.attributions)).toEqual([
-      'resourceOne',
-      'resourceTwo',
-    ]);
-    expect(counts.result.resource).toMatchObject({
-      visibleCount: 2,
-      editableCount: 2,
-    });
-    expect(resolved).toEqual(['resourceOne', 'resourceTwo']);
-    expect(summary.result.selectedCount).toBe(2);
-    expect(Object.keys(preview.result.attributions)).toEqual(['resourceTwo']);
-    expect(navigation.result).toMatchObject({
-      found: true,
-      targetRelation: 'resource',
-    });
-  });
-
-  it('preserves the complete readonly visibility matrix in the all scope', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources([
-        '/parent/readonly/file.ts',
-        '/parent/writable/file.ts',
-        '/other/readonly/file.ts',
-      ]),
-      manualAttributions: {
-        attributions: {
-          unlinked: { id: 'unlinked', criticality: Criticality.None },
-          readonly: { id: 'readonly', criticality: Criticality.None },
-          relatedReadonly: {
-            id: 'relatedReadonly',
-            criticality: Criticality.None,
-          },
-          unrelatedReadonly: {
-            id: 'unrelatedReadonly',
-            criticality: Criticality.None,
-          },
-          writable: { id: 'writable', criticality: Criticality.None },
-          mixed: { id: 'mixed', criticality: Criticality.None },
-        },
-        resourcesToAttributions: {
-          '/parent/readonly/file.ts': ['readonly', 'relatedReadonly', 'mixed'],
-          '/parent/writable/file.ts': ['writable', 'mixed'],
-          '/other/readonly/file.ts': ['unrelatedReadonly'],
-        },
-        attributionsToResources: {},
-      },
-      readonlyRules: [
-        { path: '/parent/readonly', readonly: true },
-        { path: '/other/readonly', readonly: true },
-      ],
-    });
-
-    const defaultPage = await allPage({
-      external: false,
-      resourcePathForRelationships: '',
-    });
-    expect(Object.keys(defaultPage.result.attributions)).toEqual(
-      expect.arrayContaining(['mixed', 'unlinked', 'writable']),
-    );
-    expect(Object.keys(defaultPage.result.attributions)).toHaveLength(3);
-    expect(Object.keys(defaultPage.result.attributions)).not.toContain(
-      'readonly',
-    );
-    expect(Object.keys(defaultPage.result.attributions)).not.toContain(
-      'relatedReadonly',
-    );
-
-    const relatedPage = await allPage({
-      external: false,
-      resourcePathForRelationships: '/parent',
-      includeReadonly: true,
-    });
-    expect(relatedPage.result.attributions.relatedReadonly).toMatchObject({
-      resourceAccess: 'readonly',
-      relation: 'children',
-    });
-    expect(relatedPage.result.attributions.writable).toMatchObject({
-      resourceAccess: 'writable',
-      relation: 'children',
-    });
-    expect(relatedPage.result.attributions.unrelatedReadonly).toBeUndefined();
-
-    const readonlyResourcePage = await allPage({
-      external: false,
-      resourcePathForRelationships: '/parent/readonly/file.ts',
-      includeReadonly: true,
-      excludeUnrelated: true,
-    });
-    expect(readonlyResourcePage.result.attributions.readonly).toBeDefined();
-    expect(readonlyResourcePage.result.attributions.writable).toBeUndefined();
   });
 
   it.each([
@@ -854,29 +545,6 @@ describe('listAttributionsPage', () => {
       'selected',
       'low',
     ]);
-  });
-
-  it('hydrates explicit UUID batches without calculating relationships when omitted', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/readonly/file.ts']),
-      manualAttributions: {
-        attributions: {
-          readonly: { id: 'readonly', criticality: Criticality.None },
-        },
-        resourcesToAttributions: { '/readonly/file.ts': ['readonly'] },
-        attributionsToResources: {},
-      },
-      readonlyRules: [{ path: '/readonly', readonly: true }],
-    });
-
-    const result = await getAttributions({
-      attributionUuids: ['readonly'],
-    });
-
-    expect(result.result.readonly).toMatchObject({
-      resourceAccess: 'readonly',
-    });
-    expect(result.result.readonly.relation).toBeUndefined();
   });
 
   it('sorts all-scope pages and applies the UUID tie-breaker', async () => {

@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { Attributions } from '../../shared/shared-types';
-import { getDb } from '../db/db';
+import type { Attributions } from '../../../shared/shared-types';
+import { getDb } from '../../db/db';
 import { hydrateAttributionsByUuid } from './listAttributionsPage';
 
 export type GetAttributionsProps = {

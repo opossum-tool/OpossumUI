@@ -14,7 +14,7 @@ import type { Attributions } from '../../shared/shared-types';
 import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
-import { resolveAttributionSelection } from './listAttributionsPage';
+import { resolveAttributionSelection } from './attributions/attribution-selection-queries';
 import {
   addManualOrExternalCaaToResources,
   removeManualOrExternalCaaFromResources,
