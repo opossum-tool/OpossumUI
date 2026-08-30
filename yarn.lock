@@ -2360,9 +2360,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/eslint-plugin-query@npm:5.102.4":
-  version: 5.102.4
-  resolution: "@tanstack/eslint-plugin-query@npm:5.102.4"
+"@tanstack/eslint-plugin-query@npm:5.102.7":
+  version: 5.102.7
+  resolution: "@tanstack/eslint-plugin-query@npm:5.102.7"
   dependencies:
     "@typescript-eslint/utils": "npm:^8.58.1"
   peerDependencies:
@@ -2371,25 +2371,25 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/736128adac80c52802a12378a83585d626f2966cea6bf2d1c089286aed39b069b3bfacc1bce227703643fc46abf7a0d9bb56b64d440a87adf2c2532a83ce926b
+  checksum: 10/96a511184a91d80302e2385e36f249588c766c3b1335ab07fa592cb67dfb9c26627a249fb17e65d7e4d0d947314e531162a2ce9ee3967d5d6a19fc141987a589
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.102.4":
-  version: 5.102.4
-  resolution: "@tanstack/query-core@npm:5.102.4"
-  checksum: 10/eebe289c3bc975908892694826fc19c8a22dd7803fac87912dd0c5e92a967ab63b1cc0026e73e8732d551aab86ab08a266e93e2bead212640d79063e46b194d4
+"@tanstack/query-core@npm:5.102.7":
+  version: 5.102.7
+  resolution: "@tanstack/query-core@npm:5.102.7"
+  checksum: 10/cf013a5699a79ef0e5da1e3b4c9a2a8e4af32610395216c2d29d354d91887c97f6ddc6022d93af3f5fc3d1f0f8f563c25a96dea0047ec13cbd09d5af542c1d69
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:5.102.4":
-  version: 5.102.4
-  resolution: "@tanstack/react-query@npm:5.102.4"
+"@tanstack/react-query@npm:5.102.7":
+  version: 5.102.7
+  resolution: "@tanstack/react-query@npm:5.102.7"
   dependencies:
-    "@tanstack/query-core": "npm:5.102.4"
+    "@tanstack/query-core": "npm:5.102.7"
   peerDependencies:
     react: ^18 || ^19
-  checksum: 10/2f7d23dbb6f16624092de48bf733548d6ef90b35bbfe912a521c7d6d766574586a33ad3f369a50c0364c9b85f9932f407610ec83b4252372886703a0d86b3b13
+  checksum: 10/7bbe3884fbe94300d33819062396c6a019a6c70da1f8cc956e20fa7427a5362872eff6675a94bded3317bedbfd83f5b34def11d6fc4bdd6061d7a369a1d411ce
   languageName: node
   linkType: hard
 
@@ -6767,8 +6767,8 @@ __metadata:
     "@playwright/test": "npm:1.62.1"
     "@reduxjs/toolkit": "npm:2.12.0"
     "@rolldown/plugin-babel": "npm:0.2.3"
-    "@tanstack/eslint-plugin-query": "npm:5.102.4"
-    "@tanstack/react-query": "npm:5.102.4"
+    "@tanstack/eslint-plugin-query": "npm:5.102.7"
+    "@tanstack/react-query": "npm:5.102.7"
     "@testing-library/dom": "npm:10.4.1"
     "@testing-library/jest-dom": "npm:7.0.1"
     "@testing-library/react": "npm:16.3.2"
