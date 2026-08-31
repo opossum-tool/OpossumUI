@@ -6576,12 +6576,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-abi@npm:4.34.0":
-  version: 4.34.0
-  resolution: "node-abi@npm:4.34.0"
+"node-abi@npm:4.35.0":
+  version: 4.35.0
+  resolution: "node-abi@npm:4.35.0"
   dependencies:
     semver: "npm:^7.6.3"
-  checksum: 10/e6c2bbefa39db43cfe8c4571301f1115b0e9c7645a32a352bab6fe42ccbbfdd986b07f7e9225333f39bbad42b9c79745e367890b1969e8af5fb66e04f6c0b5d0
+  checksum: 10/35b2c67b19d28d65da56d55662185215ae09c1056fea4deae834687a5d2b10ba030b3e660deb0682844ccfe10e510ff6b5ea6997208c5b86af40fa0ea21947e8
   languageName: node
   linkType: hard
 

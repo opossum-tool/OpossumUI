@@ -227,7 +227,7 @@
   },
   "packageManager": "yarn@4.18.0",
   "resolutions": {
-    "@electron/rebuild/node-abi": "4.34.0"
+    "@electron/rebuild/node-abi": "4.35.0"
   },
   "dependenciesMeta": {
     "better-sqlite3": {
