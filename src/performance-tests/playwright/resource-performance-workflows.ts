@@ -27,6 +27,7 @@ export async function runResourceWorkflows({
   runScenario,
   signalsPanel,
   topBar,
+  window,
 }: PerformanceWorkflowContext): Promise<void> {
   const expandAndSelectScenario = model.scenarios.expandAndSelect;
   const expandAndSelectAnchors = expandAndSelectScenario.anchors;
@@ -36,6 +37,7 @@ export async function runResourceWorkflows({
   const attributionFilter = model.scenarios.attributionFilter;
   const signalSearch = model.scenarios.signalSearch;
   const signalSort = model.scenarios.signalSort;
+  const highFanout = model.scenarios.highFanout;
 
   await runScenario({
     id: 'expand-and-select-resource',
@@ -101,6 +103,43 @@ export async function runResourceWorkflows({
       await resourcesTree.assert.resourceIsVisible(
         expandAndSelectAnchors.targetResourceName,
       );
+    },
+  });
+
+  await runScenario({
+    id: 'open-high-fanout-attribution-details',
+    title: 'open high-fanout attribution details before linked resources',
+    setup: async () => {
+      await navigateToResource({
+        anchor: highFanout.resource,
+        assertEditable: false,
+        attributionDetails,
+        attributionsPanel,
+        resourcesTree,
+        signalsPanel,
+      });
+      await Promise.all([
+        signalsPanel.packageCard.assert.isVisible(
+          highFanout.external.packageInfo,
+        ),
+        window
+          .locator('[data-testid="linked-resources-loading"]')
+          .waitFor({ state: 'hidden' }),
+      ]);
+    },
+    execute: async () => {
+      await signalsPanel.packageCard.click(highFanout.external.packageInfo);
+      await Promise.all([
+        attributionDetails.attributionForm.assert.matchesPackageInfo(
+          highFanout.external.packageInfo,
+        ),
+        attributionDetails.assert.loadingIndicatorIsHidden(),
+      ]);
+    },
+    teardown: async () => {
+      await window
+        .locator('[data-testid="linked-resources-loading"]')
+        .waitFor({ state: 'hidden' });
     },
   });
 

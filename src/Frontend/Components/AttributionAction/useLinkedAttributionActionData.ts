@@ -10,7 +10,7 @@ import { useAppSelector } from '../../state/hooks';
 import { getSelectedResourceId } from '../../state/selectors/resource-selectors';
 import { backend } from '../../util/backendClient';
 import { useIsSelectedResourceReadonly } from '../../util/use-selected-resource';
-import { useLinkedResourcesTreeState } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
+import { useLinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
 
 type AttributionSelectionSummary = Awaited<
   ReturnType<typeof backend.getAttributionSelectionSummary.query>
@@ -55,7 +55,7 @@ export function useLinkedAttributionActionData({
     { enabled: open && isQueryWideSelection },
   );
 
-  const linkedResourcesTreeState = useLinkedResourcesTreeState({
+  const { data: linkedResourcesTreeState } = useLinkedResourcesTree({
     onAttributionUuids: attributionIds,
     enabled:
       open &&

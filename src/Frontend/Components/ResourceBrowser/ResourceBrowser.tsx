@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiLinearProgress from '@mui/material/LinearProgress';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
 import {
   getExpandedIds,
-  getSelectedAttributionId,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
 import { useResourceTreeFilters } from '../../state/variables/use-filters';
@@ -24,9 +24,9 @@ import { LicenseAutocomplete } from '../FilterButton/LicenseAutocomplete/License
 import { UnreviewedIcon } from '../Icons/Icons';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
-import { useLinkedResourcesTreeState } from './LinkedResourcesTree/useLinkedResourcesTreeState';
 import { resourceBrowserFilterButtonStyle } from './ResourceBrowser.style';
 import { ResourcesTree } from './ResourcesTree/ResourcesTree';
+import { useLinkedResourcesPanelState } from './use-linked-resources-panel-state';
 
 const ALL_RESOURCES_SEARCH = 'all-resources-search';
 const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
@@ -50,7 +50,6 @@ export function ResourceBrowser() {
     [setPanelSizes],
   );
 
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   // All resources
   const [
@@ -98,12 +97,7 @@ export function ResourceBrowser() {
     '',
   );
   const debouncedSearchLinked = useDebouncedInput(searchLinked);
-  const onAttributionUuids = useMemo(
-    () => [selectedAttributionId],
-    [selectedAttributionId],
-  );
-  const linkedResourcesTreeState = useLinkedResourcesTreeState({
-    onAttributionUuids,
+  const linkedResourcesPanelState = useLinkedResourcesPanelState({
     search: debouncedSearchLinked,
   });
 
@@ -189,19 +183,30 @@ export function ResourceBrowser() {
           headerTestId: 'resources-tree-header',
         }}
         lowerPanel={{
-          title: linkedResourcesTreeState
+          title: linkedResourcesPanelState.treeState
             ? text.resourceBrowser.linkedResources(
-                linkedResourcesTreeState.belowSelectedResource ?? 0,
-                linkedResourcesTreeState.count,
+                linkedResourcesPanelState.treeState.belowSelectedResource ?? 0,
+                linkedResourcesPanelState.treeState.count,
               )
-            : '',
+            : text.resourceBrowser.linkedResourcesTitle,
           search: {
             value: searchLinked,
             setValue: setSearchLinked,
             channel: AllowedFrontendChannels.SearchLinkedResources,
           },
-          hidden: !linkedResourcesTreeState,
-          component: <LinkedResourcesTree state={linkedResourcesTreeState} />,
+          hidden: linkedResourcesPanelState.isHidden,
+          component: (
+            <>
+              {linkedResourcesPanelState.isLoading && (
+                <MuiLinearProgress data-testid={'linked-resources-loading'} />
+              )}
+              {linkedResourcesPanelState.treeState && (
+                <LinkedResourcesTree
+                  state={linkedResourcesPanelState.treeState}
+                />
+              )}
+            </>
+          ),
           headerTestId: 'linked-resources-tree-header',
         }}
       />

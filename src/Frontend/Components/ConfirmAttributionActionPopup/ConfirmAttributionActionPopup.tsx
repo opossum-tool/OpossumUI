@@ -36,7 +36,7 @@ interface Props {
   attributions: Attributions | undefined;
   localAction?: Action;
   globalAction: Action;
-  linkedResourcesTreeState: LinkedResourcesTreeState;
+  linkedResourcesTreeState: LinkedResourcesTreeState | undefined;
   mixedAttributionCount: number;
   isResourceInfoReady: boolean;
   isLocalActionAvailable: boolean | undefined;
@@ -122,12 +122,14 @@ export function ConfirmAttributionActionPopup({
               ? text.confirmAttributionActionPopup.editableLinkedResources
               : text.confirmAttributionActionPopup.linkedResources}
           </MuiTypography>
-          <LinkedResourcesTree
-            readOnly
-            disableHighlightSelected={!isLocalActionAvailable}
-            state={linkedResourcesTreeState}
-            sx={{ minHeight: '100px' }}
-          />
+          {linkedResourcesTreeState && (
+            <LinkedResourcesTree
+              readOnly
+              disableHighlightSelected={!isLocalActionAvailable}
+              state={linkedResourcesTreeState}
+              sx={{ minHeight: '100px' }}
+            />
+          )}
         </>
       )}
     </StyledConfirmAttributionActionPopup>

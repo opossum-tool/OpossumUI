@@ -9,7 +9,7 @@ import { getSelectedResourceId } from '../../../../state/selectors/resource-sele
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
 import { LinkedResourcesTree } from '../LinkedResourcesTree';
-import { useLinkedResourcesTreeState } from '../useLinkedResourcesTreeState';
+import { useLinkedResourcesTree } from '../useLinkedResourcesTreeState';
 
 const testUuid = 'test-attribution-uuid';
 
@@ -36,12 +36,14 @@ const testData = getParsedInputFileEnrichedWithTestData({
 });
 
 function TestLinkedResourcesTree({
+  enabled = true,
   onAttributionUuids,
 }: {
+  enabled?: boolean;
   onAttributionUuids: Array<string>;
 }) {
-  const state = useLinkedResourcesTreeState({ onAttributionUuids });
-  return <LinkedResourcesTree state={state} />;
+  const { data } = useLinkedResourcesTree({ enabled, onAttributionUuids });
+  return data ? <LinkedResourcesTree state={data} /> : null;
 }
 
 describe('LinkedResourcesTree', () => {
@@ -55,6 +57,32 @@ describe('LinkedResourcesTree', () => {
       expect(screen.getByText('resource_1')).toBeInTheDocument();
     });
     expect(screen.getByText('resource_2')).toBeInTheDocument();
+  });
+
+  it('waits for enabled before loading linked resources', async () => {
+    const api = vi.mocked(window.electronAPI.api);
+    api.mockClear();
+    const { rerender } = await renderComponent(
+      <TestLinkedResourcesTree
+        enabled={false}
+        onAttributionUuids={[testUuid]}
+      />,
+      { data: testData },
+    );
+
+    expect(api).not.toHaveBeenCalledWith(
+      'getResourcePathsAndParentsForAttributions',
+      expect.anything(),
+    );
+
+    rerender(<TestLinkedResourcesTree onAttributionUuids={[testUuid]} />);
+
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith(
+        'getResourcePathsAndParentsForAttributions',
+        expect.objectContaining({ attributionUuids: [testUuid] }),
+      ),
+    );
   });
 
   it('dispatches selectedResourceId when a resource is clicked', async () => {
