@@ -105,6 +105,22 @@ describe('synthetic performance file generator', () => {
     expect(Object.keys(output.manualAttributions)).toHaveLength(
       profile.manualAttributionCount,
     );
+    const externalOriginIds = new Set(
+      Object.values(input.externalAttributions).flatMap(
+        ({ originIds }) => originIds ?? [],
+      ),
+    );
+    const originLinkedManualAttributions = Object.values(
+      output.manualAttributions,
+    ).filter(({ originIds }) => originIds && originIds.length > 0);
+    expect(originLinkedManualAttributions).toHaveLength(
+      profile.originLinkedManualAttributionCount,
+    );
+    expect(
+      originLinkedManualAttributions.every(({ originIds }) =>
+        originIds?.every((originId) => externalOriginIds.has(originId)),
+      ),
+    ).toBe(true);
     expect(countLinks(output.resourcesToAttributions)).toBe(
       profile.manualLinkCount,
     );
