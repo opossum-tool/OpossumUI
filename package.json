@@ -74,7 +74,7 @@
     "@types/object-hash": "3.0.6",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
-    "@vitejs/plugin-react": "6.1.0",
+    "@vitejs/plugin-react": "6.1.1",
     "@vitest/eslint-plugin": "1.6.27",
     "babel-plugin-react-compiler": "1.0.0",
     "cross-env": "10.1.0",
