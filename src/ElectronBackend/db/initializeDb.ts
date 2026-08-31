@@ -3,7 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  type Compilable,
   expressionBuilder,
+  type Insertable,
   type ReferenceExpression,
   sql,
   type Transaction,
@@ -29,7 +31,38 @@ import {
 } from '../types/types';
 import { getAttributionPersistenceValues } from './attributionData';
 import { getDb, getRawDb, resetDb } from './db';
-import type { DB } from './generated/databaseTypes';
+import type {
+  Attribution,
+  DB,
+  SourceForAttribution,
+} from './generated/databaseTypes';
+
+type CompleteInsertRow<Table> = Required<Insertable<Table>>;
+type AttributionInsertRow = Omit<
+  CompleteInsertRow<Attribution>,
+  'canonical_license_name' | 'resource_access'
+>;
+type SourceForAttributionInsertRow = CompleteInsertRow<SourceForAttribution>;
+
+type SqliteInsertValue = null | number | string;
+
+function createPreparedInserter<Row extends Record<string, SqliteInsertValue>>(
+  buildQuery: (row: Row) => Compilable,
+) {
+  const rawDb = getRawDb();
+  let insertStmt: ReturnType<typeof rawDb.prepare> | undefined;
+  let columns: Array<keyof Row> = [];
+
+  return (row: Row) => {
+    if (insertStmt === undefined) {
+      const compiledQuery = buildQuery(row).compile();
+      columns = Object.keys(row);
+      insertStmt = rawDb.prepare(compiledQuery.sql);
+    }
+
+    insertStmt.run(columns.map((column) => row[column]));
+  };
+}
 
 /**
  * Comments that will be added to the generated types and diagram
@@ -702,34 +735,30 @@ async function initializeAttributionTable(
     )
     .execute();
 
+  const insertAttribution = createPreparedInserter<AttributionInsertRow>(
+    (row) => trx.insertInto('attribution').values(row),
+  );
+
   for (const [uuid, attribution] of Object.entries(
     externalAttributions.attributions,
   )) {
-    const isResolved = resolvedExternalAttributions.has(uuid);
-
-    await trx
-      .insertInto('attribution')
-      .values({
-        uuid,
-        ...getAttributionPersistenceValues(attribution),
-        is_external: Number(true),
-        is_resolved: Number(isResolved),
-      })
-      .execute();
+    insertAttribution({
+      uuid,
+      ...getAttributionPersistenceValues(attribution),
+      is_external: Number(true),
+      is_resolved: Number(resolvedExternalAttributions.has(uuid)),
+    });
   }
 
   for (const [uuid, attribution] of Object.entries(
     manualAttributions.attributions,
   )) {
-    await trx
-      .insertInto('attribution')
-      .values({
-        uuid,
-        ...getAttributionPersistenceValues(attribution),
-        is_external: Number(false),
-        is_resolved: Number(false),
-      })
-      .execute();
+    insertAttribution({
+      uuid,
+      ...getAttributionPersistenceValues(attribution),
+      is_external: Number(false),
+      is_resolved: Number(false),
+    });
   }
 
   for (const column of ATTRIBUTION_INDEX_COLUMNS) {
@@ -781,19 +810,21 @@ async function initializeSourceForAttributionTable(
     .addColumn('additional_name', 'text')
     .execute();
 
+  const insertSource = createPreparedInserter<SourceForAttributionInsertRow>(
+    (row) => trx.insertInto('source_for_attribution').values(row),
+  );
+
   for (const [uuid, attribution] of Object.entries(
     externalAttributions.attributions,
   )) {
     if (attribution.source) {
-      await trx
-        .insertInto('source_for_attribution')
-        .values({
-          attribution_uuid: uuid,
-          external_attribution_source_key: attribution.source.name,
-          document_confidence: attribution.source.documentConfidence,
-          additional_name: attribution.source.additionalName,
-        })
-        .execute();
+      const row: SourceForAttributionInsertRow = {
+        attribution_uuid: uuid,
+        external_attribution_source_key: attribution.source.name,
+        document_confidence: attribution.source.documentConfidence ?? null,
+        additional_name: attribution.source.additionalName ?? null,
+      };
+      insertSource(row);
     }
   }
 
