@@ -1,5 +1,5 @@
 {
-  "id": "#OpossumSplitInfoSchema",
+  "$id": "#OpossumSplitInfoSchema",
   "title": "Opossum split metadata schema",
   "type": "object",
   "required": ["readonlyRules"],

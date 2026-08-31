@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
-import { type Options, Validator } from 'jsonschema';
+import Ajv, { type ValidateFunction } from 'ajv';
 import { Readable } from 'stream';
 import parser from 'stream-json';
 import Asm, { type Assembler } from 'stream-json/assembler.js';
@@ -26,10 +26,25 @@ import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
 import * as OpossumSplitInfoSchema from './OpossumSplitInfoSchema.json';
 
-const jsonSchemaValidator = new Validator();
-const validationOptions: Options = {
-  throwError: true,
-};
+const ajv = new Ajv();
+const validateInput = ajv.compile<ParsedOpossumInputFile>(
+  OpossumInputFileSchema,
+);
+const validateOutput = ajv.compile<ParsedOpossumOutputFile>(
+  OpossumOutputFileSchema,
+);
+const validateSplitInfo = ajv.compile<{ readonlyRules: Array<ReadonlyRule> }>(
+  OpossumSplitInfoSchema,
+);
+
+function assertValid<T>(
+  validate: ValidateFunction<T>,
+  data: unknown,
+): asserts data is T {
+  if (!validate(data)) {
+    throw new Error(ajv.errorsText(validate.errors));
+  }
+}
 
 export async function parseOpossumFile(
   opossumFilePath: string,
@@ -70,11 +85,7 @@ export async function parseOpossumFile(
   let parsedInputData: ParsedOpossumInputFile;
   try {
     parsedInputData = await parseJsonBytes<ParsedOpossumInputFile>(inputBytes);
-    jsonSchemaValidator.validate(
-      parsedInputData,
-      OpossumInputFileSchema,
-      validationOptions,
-    );
+    assertValid(validateInput, parsedInputData);
   } catch (err) {
     return {
       message: `Error: ${opossumFilePath} does not contain a valid input file.\n Original error message: ${err?.toString()}`,
@@ -119,12 +130,8 @@ export async function parseOpossumFile(
 
 export function parseReadonlyRules(content: string): Array<ReadonlyRule> {
   const parsedContent = JSON.parse(content);
-  jsonSchemaValidator.validate(
-    parsedContent,
-    OpossumSplitInfoSchema,
-    validationOptions,
-  );
-  return parsedContent.readonlyRules as Array<ReadonlyRule>;
+  assertValid(validateSplitInfo, parsedContent);
+  return parsedContent.readonlyRules;
 }
 
 export function parseOutputJsonContent(
@@ -133,11 +140,7 @@ export function parseOutputJsonContent(
 ): ParsedOpossumOutputFile {
   try {
     const jsonContent = JSON.parse(fileContent);
-    jsonSchemaValidator.validate(
-      jsonContent,
-      OpossumOutputFileSchema,
-      validationOptions,
-    );
+    assertValid(validateOutput, jsonContent);
     return jsonContent;
   } catch (err) {
     throw new Error(
