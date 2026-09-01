@@ -5403,9 +5403,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"happy-dom@npm:20.11.12":
-  version: 20.11.12
-  resolution: "happy-dom@npm:20.11.12"
+"happy-dom@npm:20.11.15":
+  version: 20.11.15
+  resolution: "happy-dom@npm:20.11.15"
   dependencies:
     "@types/node": "npm:>=20.0.0"
     "@types/whatwg-mimetype": "npm:^3.0.2"
@@ -5414,7 +5414,7 @@ __metadata:
     entities: "npm:^7.0.1"
     whatwg-mimetype: "npm:^3.0.0"
     ws: "npm:^8.21.0"
-  checksum: 10/8f854a9843d02495cb2c4839b102b1f0825d0ec557ad2beb17a364e2135f37d00201235b0f9d133d13af59ccb5247bd6eeb66deaec6672c3263abf6496992e37
+  checksum: 10/8ed6ec657743f68e148f2d5b79f54bfcb3210e2e5b4fa64ce9ccecd5193f9b16b06c43edba77bce9b190ce713721178457777377d79dc35226c1e3b1d50290cc
   languageName: node
   linkType: hard
 
@@ -6808,7 +6808,7 @@ __metadata:
     eslint-plugin-testing-library: "npm:7.16.2"
     fast-csv: "npm:5.0.7"
     globals: "npm:17.11.0"
-    happy-dom: "npm:20.11.12"
+    happy-dom: "npm:20.11.15"
     husky: "npm:9.1.7"
     js-yaml: "npm:5.4.1"
     jsonschema: "npm:1.5.0"
