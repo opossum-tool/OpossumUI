@@ -10,6 +10,12 @@ import e2eConfig from '../e2e-tests/playwright.config';
 const PERFORMANCE_TEST_TIMEOUT = 900000;
 const PERFORMANCE_EXPECT_TIMEOUT = 15000;
 const DEFAULT_REPEAT_EACH = 3;
+const PERFORMANCE_ARTIFACTS_ROOT = path.resolve(
+  __dirname,
+  '..',
+  '..',
+  'performance-artifacts',
+);
 const repeatEach = Number(
   process.env.PERFORMANCE_REPEAT_EACH ?? DEFAULT_REPEAT_EACH,
 );
@@ -21,7 +27,7 @@ if (!Number.isInteger(repeatEach) || repeatEach < 1) {
 const config: PlaywrightTestConfig = {
   ...e2eConfig,
   testDir: 'playwright',
-  outputDir: path.resolve(__dirname, '..', '..', 'performance-artifacts'),
+  outputDir: path.join(PERFORMANCE_ARTIFACTS_ROOT, 'current'),
   globalSetup: path.resolve(__dirname, 'performance-global-setup.ts'),
   preserveOutput: 'always',
   reporter: [

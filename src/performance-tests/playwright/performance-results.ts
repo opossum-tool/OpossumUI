@@ -41,6 +41,27 @@ interface AggregatedPerformanceResult {
   noisy: boolean | null;
 }
 
+interface PerformanceComparisonResult {
+  scenario: string;
+  operation: string;
+  variant: string;
+  profile: string;
+  baselineMeanMs: number;
+  currentMeanMs: number;
+  absoluteChangeMs: number;
+  percentageChange: number | null;
+  noisy: boolean;
+}
+
+interface PerformanceComparison {
+  baselineGeneratedAt: string | null;
+  compatible: boolean;
+  compatibilityWarnings: string[];
+  unmatchedCurrentScenarios: string[];
+  unmatchedBaselineScenarios: string[];
+  results: PerformanceComparisonResult[];
+}
+
 export type PerformanceTestStatus =
   'passed' | 'failed' | 'timedout' | 'interrupted';
 
@@ -54,6 +75,7 @@ export interface PerformanceSummary {
   environment: Record<string, unknown> | null;
   seed: number | null;
   results: AggregatedPerformanceResult[];
+  comparison?: PerformanceComparison | null;
 }
 
 function getKey(
@@ -270,6 +292,87 @@ export function aggregatePerformanceResults(
       .filter((group) => group.length > 0)
       .map(aggregateSamples)
       .sort((left, right) => left.scenario.localeCompare(right.scenario)),
+    comparison: null,
+  };
+}
+
+export function comparePerformanceSummaries(
+  current: PerformanceSummary,
+  baseline: PerformanceSummary,
+): PerformanceComparison {
+  const compatibilityWarnings: string[] = [];
+  if (!baseline.validForBaseline) {
+    compatibilityWarnings.push('The baseline is not valid for comparison.');
+  }
+  if (current.expectedSampleCount !== baseline.expectedSampleCount) {
+    compatibilityWarnings.push(
+      `Sample count changed from ${baseline.expectedSampleCount} to ${current.expectedSampleCount}.`,
+    );
+  }
+  if (current.seed !== baseline.seed) {
+    compatibilityWarnings.push(
+      `Synthetic-file seed changed from ${String(baseline.seed)} to ${String(current.seed)}.`,
+    );
+  }
+  if (
+    JSON.stringify(current.environment) !== JSON.stringify(baseline.environment)
+  ) {
+    compatibilityWarnings.push('Run environment changed.');
+  }
+
+  const currentByKey = new Map(
+    current.results.map((result) => [getKey(result), result]),
+  );
+  const baselineByKey = new Map(
+    baseline.results.map((result) => [getKey(result), result]),
+  );
+  const unmatchedCurrentScenarios = current.results
+    .filter((result) => !baselineByKey.has(getKey(result)))
+    .map(({ scenario }) => scenario)
+    .sort();
+  const unmatchedBaselineScenarios = baseline.results
+    .filter((result) => !currentByKey.has(getKey(result)))
+    .map(({ scenario }) => scenario)
+    .sort();
+  if (
+    unmatchedCurrentScenarios.length > 0 ||
+    unmatchedBaselineScenarios.length > 0
+  ) {
+    compatibilityWarnings.push('Benchmark scenario definitions changed.');
+  }
+
+  const results: PerformanceComparisonResult[] = [];
+  for (const baselineResult of baseline.results) {
+    const currentResult = currentByKey.get(getKey(baselineResult));
+    if (currentResult === undefined) {
+      continue;
+    }
+    const baselineMeanMs = baselineResult.statistics.meanMs;
+    const currentMeanMs = currentResult.statistics.meanMs;
+    const absoluteChangeMs = currentMeanMs - baselineMeanMs;
+    results.push({
+      scenario: currentResult.scenario,
+      operation: currentResult.operation,
+      variant: currentResult.variant,
+      profile: currentResult.profile,
+      baselineMeanMs,
+      currentMeanMs,
+      absoluteChangeMs,
+      percentageChange:
+        baselineMeanMs === 0 ? null : (absoluteChangeMs / baselineMeanMs) * 100,
+      noisy: currentResult.noisy === true || baselineResult.noisy === true,
+    });
+  }
+
+  return {
+    baselineGeneratedAt: baseline.generatedAt,
+    compatible: compatibilityWarnings.length === 0,
+    compatibilityWarnings,
+    unmatchedCurrentScenarios,
+    unmatchedBaselineScenarios,
+    results: results.sort((left, right) =>
+      left.scenario.localeCompare(right.scenario),
+    ),
   };
 }
 
@@ -282,6 +385,10 @@ export function renderPerformanceMarkdown(summary: PerformanceSummary): string {
     summary.environment === null
       ? '—'
       : `\n\n\`\`\`json\n${JSON.stringify(summary.environment, null, 2)}\n\`\`\``;
+  const comparison = summary.comparison ?? undefined;
+  const comparisonByKey = new Map(
+    (comparison?.results ?? []).map((result) => [getKey(result), result]),
+  );
   const lines = [
     `## Performance results (${summary.expectedSampleCount} samples)`,
     '',
@@ -291,21 +398,61 @@ export function renderPerformanceMarkdown(summary: PerformanceSummary): string {
     `- Seed: **${summary.seed === null ? '—' : summary.seed}**`,
     `- Environment: ${environment}`,
     '',
-    '| Scenario | Samples (ms) | Mean (ms) | Median (ms) | Std dev (ms) | CV | Min (ms) | Max (ms) |',
-    '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
   ];
+  if (comparison !== undefined) {
+    lines.push(
+      `- Baseline comparison: **${comparison.compatible ? 'compatible' : 'incompatible'}**`,
+      `- Baseline generated: **${comparison.baselineGeneratedAt ?? 'unavailable'}**`,
+      '',
+      '| Scenario | Samples (ms) | Baseline mean (ms) | Mean (ms) | Change (ms) | Change (%) | Median (ms) | Std dev (ms) | CV | Min (ms) | Max (ms) |',
+      '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
+    );
+  } else {
+    lines.push(
+      '| Scenario | Samples (ms) | Mean (ms) | Median (ms) | Std dev (ms) | CV | Min (ms) | Max (ms) |',
+      '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
+    );
+  }
   for (const result of summary.results) {
     const stats = result.statistics;
     const cv = formatStatistic(stats.coefficientOfVariationPercent);
     const cvSuffix = result.noisy === null ? '' : '%';
     const noisySuffix = result.noisy === true ? ' (noisy)' : '';
+    const comparisonResult = comparisonByKey.get(getKey(result));
+    if (comparison === undefined) {
+      lines.push(
+        `| ${result.scenario} | ${result.samples.map(({ durationMs }) => durationMs.toFixed(2)).join(', ')} | ${formatStatistic(stats.meanMs)} | ${formatStatistic(stats.medianMs)} | ${formatStatistic(stats.sampleStandardDeviationMs)} | ${cv}${cvSuffix}${noisySuffix} | ${formatStatistic(stats.minimumMs)} | ${formatStatistic(stats.maximumMs)} |`,
+      );
+      continue;
+    }
+    const change = comparisonResult?.absoluteChangeMs;
+    const percentageChange = comparisonResult?.percentageChange;
     lines.push(
-      `| ${result.scenario} | ${result.samples.map(({ durationMs }) => durationMs.toFixed(2)).join(', ')} | ${formatStatistic(stats.meanMs)} | ${formatStatistic(stats.medianMs)} | ${formatStatistic(stats.sampleStandardDeviationMs)} | ${cv}${cvSuffix}${noisySuffix} | ${formatStatistic(stats.minimumMs)} | ${formatStatistic(stats.maximumMs)} |`,
+      `| ${result.scenario} | ${result.samples.map(({ durationMs }) => durationMs.toFixed(2)).join(', ')} | ${comparisonResult?.baselineMeanMs.toFixed(2) ?? '—'} | ${formatStatistic(stats.meanMs)} | ${change === undefined ? '—' : `${change >= 0 ? '+' : ''}${change.toFixed(2)}`} | ${percentageChange === undefined || percentageChange === null ? '—' : `${percentageChange >= 0 ? '+' : ''}${percentageChange.toFixed(2)}%`}${comparisonResult?.noisy === true ? ' (noisy)' : ''} | ${formatStatistic(stats.medianMs)} | ${formatStatistic(stats.sampleStandardDeviationMs)} | ${cv}${cvSuffix}${noisySuffix} | ${formatStatistic(stats.minimumMs)} | ${formatStatistic(stats.maximumMs)} |`,
     );
   }
   if (summary.validationErrors.length > 0) {
     lines.push('', '### Validation errors', '');
     lines.push(...summary.validationErrors.map((error) => `- ${error}`));
+  }
+  if (comparison !== undefined) {
+    if (comparison.compatibilityWarnings.length > 0) {
+      lines.push('', 'Compatibility warnings:', '');
+      lines.push(
+        ...comparison.compatibilityWarnings.map((warning) => `- ${warning}`),
+      );
+    }
+    if (comparison.unmatchedCurrentScenarios.length > 0) {
+      lines.push(
+        '',
+        `Unmatched current scenarios: ${comparison.unmatchedCurrentScenarios.join(', ')}.`,
+      );
+    }
+    if (comparison.unmatchedBaselineScenarios.length > 0) {
+      lines.push(
+        `Unmatched baseline scenarios: ${comparison.unmatchedBaselineScenarios.join(', ')}.`,
+      );
+    }
   }
   return `${lines.join('\n')}\n`;
 }
