@@ -15,6 +15,7 @@ import path from 'node:path';
 import {
   aggregatePerformanceResults,
   comparePerformanceSummaries,
+  findPerformanceComparisonResult,
   type PerformanceResult,
   type PerformanceSummary,
   renderPerformanceMarkdown,
@@ -32,57 +33,48 @@ function printTerminalSummary(
   console.log(
     `Status: ${summary.testStatus} | Complete: ${summary.complete ? 'yes' : 'no'} | Valid for baseline: ${summary.validForBaseline ? 'yes' : 'no'}`,
   );
-  const comparison = summary.comparison ?? undefined;
-  const comparisonByKey = new Map(
-    (comparison?.results ?? []).map((result) => [
-      `${result.profile}\u0000${result.scenario}\u0000${result.operation}\u0000${result.variant}`,
-      result,
-    ]),
-  );
-  const hasComparison = comparison !== undefined;
-  const headers = hasComparison
-    ? [
-        'Scenario',
-        'Baseline (ms)',
-        'Mean (ms)',
-        'Change (ms)',
-        'Change (%)',
-        'Min (ms)',
-        'Max (ms)',
-        'CV',
-      ]
-    : ['Scenario', 'Mean (ms)', 'Min (ms)', 'Max (ms)', 'CV'];
+  for (const comparison of summary.comparisons) {
+    console.log(
+      `Comparison with ${comparison.baselineLabel}: compatible=${comparison.compatible ? 'yes' : 'no'}, generated=${comparison.baselineGeneratedAt ?? 'unavailable'}`,
+    );
+  }
+  const headers = [
+    'Scenario',
+    'Mean (ms)',
+    'Median (ms)',
+    'CV',
+    'Min (ms)',
+    'Max (ms)',
+    ...summary.comparisons.map(({ baselineLabel }) => baselineLabel),
+  ];
   const rows = summary.results.map((result) => {
     const cv =
       result.statistics.coefficientOfVariationPercent === null
         ? 'n/a'
         : `${result.statistics.coefficientOfVariationPercent.toFixed(2)}%${result.noisy === true ? ' !' : ''}`;
-    const comparisonResult = comparisonByKey.get(
-      `${result.profile}\u0000${result.scenario}\u0000${result.operation}\u0000${result.variant}`,
-    );
-    if (!hasComparison) {
-      return [
-        result.scenario,
-        result.statistics.meanMs.toFixed(2),
-        result.statistics.minimumMs.toFixed(2),
-        result.statistics.maximumMs.toFixed(2),
-        cv,
-      ];
-    }
+    const comparisonCells = summary.comparisons.map((comparison) => {
+      const comparisonResult = findPerformanceComparisonResult(
+        comparison,
+        result,
+      );
+      if (comparisonResult === undefined) {
+        return '—';
+      }
+      const percentageChange = comparisonResult.percentageChange;
+      const formattedPercentageChange =
+        percentageChange === null
+          ? '—'
+          : `${percentageChange >= 0 ? '+' : ''}${percentageChange.toFixed(2)}%`;
+      return `${comparisonResult.baselineMeanMs.toFixed(2)} (${formattedPercentageChange})${comparisonResult.noisy ? ' !' : ''}`;
+    });
     return [
       result.scenario,
-      comparisonResult?.baselineMeanMs.toFixed(2) ?? '—',
       result.statistics.meanMs.toFixed(2),
-      comparisonResult === undefined
-        ? '—'
-        : `${comparisonResult.absoluteChangeMs >= 0 ? '+' : ''}${comparisonResult.absoluteChangeMs.toFixed(2)}`,
-      comparisonResult?.percentageChange === undefined ||
-      comparisonResult.percentageChange === null
-        ? '—'
-        : `${comparisonResult.percentageChange >= 0 ? '+' : ''}${comparisonResult.percentageChange.toFixed(2)}%${comparisonResult.noisy ? ' !' : ''}`,
+      result.statistics.medianMs.toFixed(2),
+      cv,
       result.statistics.minimumMs.toFixed(2),
       result.statistics.maximumMs.toFixed(2),
-      cv,
+      ...comparisonCells,
     ];
   });
   const columnWidths = headers.map((header, index) =>
@@ -109,13 +101,10 @@ function printTerminalSummary(
       console.error(`- ${error}`);
     }
   }
-  if (comparison !== undefined) {
-    console.log(
-      `Baseline comparison: ${comparison.compatible ? 'compatible' : 'incompatible'}`,
-    );
+  for (const comparison of summary.comparisons) {
     if (comparison.results.some(({ noisy }) => noisy)) {
       console.log(
-        '! noisy: current or baseline CV is above the noise threshold',
+        `! ${comparison.baselineLabel}: current or baseline CV is above the noise threshold`,
       );
     }
     for (const warning of comparison.compatibilityWarnings) {
@@ -256,14 +245,29 @@ export default class PerformanceReporter implements Reporter {
         summary.validForBaseline = false;
         outputFailed = true;
       }
-      const baselinePath = process.env.PERFORMANCE_BASELINE_PATH;
-      if (baselinePath) {
+      const baselinePaths = [
+        {
+          label: 'previous run',
+          path: process.env.PERFORMANCE_BASELINE_PATH,
+        },
+        {
+          label: `${process.env.PERFORMANCE_RELEASE_BASELINE_LABEL ?? 'previous release'}${process.env.PERFORMANCE_RELEASE_TAG ? ` (${process.env.PERFORMANCE_RELEASE_TAG})` : ''}`,
+          path: process.env.PERFORMANCE_RELEASE_BASELINE_PATH,
+        },
+      ];
+      for (const { label, path: baselinePath } of baselinePaths) {
+        if (!baselinePath) {
+          continue;
+        }
         try {
           const baseline = await readBaselineSummary(baselinePath);
-          summary.comparison = comparePerformanceSummaries(summary, baseline);
+          summary.comparisons.push(
+            comparePerformanceSummaries(summary, baseline, label),
+          );
         } catch (error) {
           outputFailed = true;
-          summary.comparison = {
+          summary.comparisons.push({
+            baselineLabel: label,
             baselineGeneratedAt: null,
             compatible: false,
             compatibilityWarnings: [
@@ -272,7 +276,7 @@ export default class PerformanceReporter implements Reporter {
             unmatchedCurrentScenarios: [],
             unmatchedBaselineScenarios: [],
             results: [],
-          };
+          });
         }
       }
       markdown = renderPerformanceMarkdown(summary);
