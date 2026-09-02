@@ -121,14 +121,21 @@ async function writeResult({
 }): Promise<void> {
   const result = {
     ...metadata,
+    repeatIndex: testInfo.repeatEachIndex,
     durationMs,
     measuredAt: new Date().toISOString(),
   };
 
+  const serializedResult = JSON.stringify(result, null, 2);
+
   await fs.writeFile(
     testInfo.outputPath(`performance-result.${scenario}.json`),
-    JSON.stringify(result, null, 2),
+    serializedResult,
   );
+  await testInfo.attach(`performance-result.${scenario}.json`, {
+    body: serializedResult,
+    contentType: 'application/json',
+  });
   console.log(`PERFORMANCE ${scenario}: ${durationMs.toFixed(2)} ms`);
 }
 
