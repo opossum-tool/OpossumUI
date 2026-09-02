@@ -13,6 +13,7 @@ export interface SyntheticFileProfile {
   readonly directoryCount: number;
   readonly externalAttributionCount: number;
   readonly manualAttributionCount: number;
+  readonly originLinkedManualAttributionCount: number;
   readonly externalLinkCount: number;
   readonly manualLinkCount: number;
   readonly breakpointCount: number;
@@ -31,6 +32,7 @@ const SMALL_PROFILE: SyntheticFileProfile = {
   directoryCount: 7500,
   externalAttributionCount: 100,
   manualAttributionCount: 50,
+  originLinkedManualAttributionCount: 10,
   externalLinkCount: 5000,
   manualLinkCount: 4500,
   breakpointCount: 4500,
@@ -49,6 +51,7 @@ const LARGE_PROFILE: SyntheticFileProfile = {
   directoryCount: 1500000,
   externalAttributionCount: 70000,
   manualAttributionCount: 70000,
+  originLinkedManualAttributionCount: 1000,
   externalLinkCount: 1000000,
   manualLinkCount: 900000,
   breakpointCount: 900000,

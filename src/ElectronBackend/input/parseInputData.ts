@@ -139,6 +139,10 @@ export function deserializeAttributions(
   rawAttributions: RawAttributions,
   originalAttributions?: Attributions,
 ): Attributions {
+  const firstOriginalAttributionByOriginId = originalAttributions
+    ? indexOriginalAttributions(originalAttributions)
+    : undefined;
+
   return Object.entries(rawAttributions).reduce<Attributions>(
     (
       attributions,
@@ -152,12 +156,10 @@ export function deserializeAttributions(
         originId || originIds?.length
           ? (originIds ?? []).concat(originId ?? [])
           : undefined;
-      const originalAttribution = originalAttributions
-        ? effectiveOriginIds &&
-          Object.values(originalAttributions).find((attribution) =>
-            attribution.originIds?.some((id) =>
-              effectiveOriginIds.includes(id),
-            ),
+      const originalAttribution = firstOriginalAttributionByOriginId
+        ? findOriginalAttribution(
+            effectiveOriginIds,
+            firstOriginalAttributionByOriginId,
           )
         : { id, ...attribution };
 
@@ -178,6 +180,50 @@ export function deserializeAttributions(
     },
     {},
   );
+}
+
+type IndexedOriginalAttribution = {
+  attribution: PackageInfo;
+  originalOrder: number;
+};
+
+function indexOriginalAttributions(
+  originalAttributions: Attributions,
+): Map<string, IndexedOriginalAttribution> {
+  const index = new Map<string, IndexedOriginalAttribution>();
+
+  Object.values(originalAttributions).forEach((attribution, order) => {
+    const indexedAttribution = { attribution, originalOrder: order };
+    attribution.originIds?.forEach((originId) => {
+      if (!index.has(originId)) {
+        index.set(originId, indexedAttribution);
+      }
+    });
+  });
+
+  return index;
+}
+
+function findOriginalAttribution(
+  originIds: Array<string> | undefined,
+  index: Map<string, IndexedOriginalAttribution>,
+): PackageInfo | undefined {
+  if (!originIds) {
+    return undefined;
+  }
+
+  let match: IndexedOriginalAttribution | undefined;
+  originIds.forEach((originId) => {
+    const candidate = index.get(originId);
+    if (
+      candidate &&
+      (!match || candidate.originalOrder < match.originalOrder)
+    ) {
+      match = candidate;
+    }
+  });
+
+  return match?.attribution;
 }
 
 function deserializeCriticality(criticality: string | undefined): Criticality {

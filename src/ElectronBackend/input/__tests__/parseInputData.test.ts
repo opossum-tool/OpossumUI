@@ -231,6 +231,54 @@ describe('deserializeAttributions', () => {
       },
     });
   });
+
+  it('preserves original attribution order when origin IDs overlap', () => {
+    const rawAttributions: RawAttributions = {
+      manual: {
+        originIds: ['second-origin', 'first-origin'],
+      },
+    };
+    const originalAttributions: Attributions = {
+      first: {
+        id: 'first',
+        originIds: ['first-origin', 'shared-origin'],
+        criticality: Criticality.None,
+      },
+      second: {
+        id: 'second',
+        originIds: ['second-origin', 'shared-origin'],
+        criticality: Criticality.None,
+      },
+    };
+
+    expect(
+      deserializeAttributions(rawAttributions, originalAttributions).manual,
+    ).toMatchObject({ originalAttributionId: 'first' });
+  });
+
+  it('uses the first original attribution for duplicate origin IDs', () => {
+    const rawAttributions: RawAttributions = {
+      manual: {
+        originIds: ['shared-origin'],
+      },
+    };
+    const originalAttributions: Attributions = {
+      first: {
+        id: 'first',
+        originIds: ['shared-origin'],
+        criticality: Criticality.None,
+      },
+      second: {
+        id: 'second',
+        originIds: ['shared-origin'],
+        criticality: Criticality.None,
+      },
+    };
+
+    expect(
+      deserializeAttributions(rawAttributions, originalAttributions).manual,
+    ).toMatchObject({ originalAttributionId: 'first' });
+  });
 });
 
 describe('serializeAttributions', () => {

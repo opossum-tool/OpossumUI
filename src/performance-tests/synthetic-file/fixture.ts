@@ -74,6 +74,25 @@ const PERFORMANCE_ATTRIBUTION_FILTER_LICENSE = 'LicenseRef-Performance-Filter';
 export const PERFORMANCE_BULK_LICENSE = 'LicenseRef-Performance-Bulk';
 const EXTRA_EARLY_LINK_COUNT = 50;
 
+function getOriginLinkOffset(
+  profile: SyntheticFileProfile,
+  kind: SyntheticAttributionKind,
+  index: number,
+): number | undefined {
+  const linkedCount = profile.originLinkedManualAttributionCount;
+  const endExclusive =
+    kind === 'external'
+      ? profile.externalAttributionCount - profile.denseSignalCount
+      : profile.manualAttributionCount - 1;
+  const start = endExclusive - linkedCount;
+
+  return index >= start && index < endExclusive ? index - start : undefined;
+}
+
+function getOriginLinkId(profile: SyntheticFileProfile, offset: number) {
+  return `synthetic-origin-${profile.seed}-${offset}`;
+}
+
 export type SyntheticAttributionKind = 'external' | 'manual';
 
 export interface SyntheticAttributionRecord {
@@ -393,9 +412,18 @@ function getSyntheticPackageInfo(
   };
 
   if (external) {
-    info.originIds = [`origin-${profile.seed}-${identityIndex % 1000}`];
+    const originIds = [`origin-${profile.seed}-${identityIndex % 1000}`];
+    const originLinkOffset = getOriginLinkOffset(profile, kind, index);
+    if (originLinkOffset !== undefined) {
+      originIds.push(getOriginLinkId(profile, originLinkOffset));
+    }
+    info.originIds = originIds;
     info.preSelected = index % 20 === 0;
   } else {
+    const originLinkOffset = getOriginLinkOffset(profile, kind, index);
+    if (originLinkOffset !== undefined) {
+      info.originIds = [getOriginLinkId(profile, originLinkOffset)];
+    }
     info.needsReview = index % 10 === 0;
     info.preSelected = index === 0;
   }

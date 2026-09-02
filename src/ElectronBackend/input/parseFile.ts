@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
-import { type Options, Validator } from 'jsonschema';
+import Ajv, { type ValidateFunction } from 'ajv';
 import { Readable } from 'stream';
 import parser from 'stream-json';
 import Asm, { type Assembler } from 'stream-json/assembler.js';
@@ -26,10 +26,25 @@ import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
 import * as OpossumSplitInfoSchema from './OpossumSplitInfoSchema.json';
 
-const jsonSchemaValidator = new Validator();
-const validationOptions: Options = {
-  throwError: true,
-};
+const ajv = new Ajv();
+const validateInput = ajv.compile<ParsedOpossumInputFile>(
+  OpossumInputFileSchema,
+);
+const validateOutput = ajv.compile<ParsedOpossumOutputFile>(
+  OpossumOutputFileSchema,
+);
+const validateSplitInfo = ajv.compile<{ readonlyRules: Array<ReadonlyRule> }>(
+  OpossumSplitInfoSchema,
+);
+
+function assertValid<T>(
+  validate: ValidateFunction<T>,
+  data: unknown,
+): asserts data is T {
+  if (!validate(data)) {
+    throw new Error(ajv.errorsText(validate.errors));
+  }
+}
 
 export async function parseOpossumFile(
   opossumFilePath: string,
@@ -69,14 +84,8 @@ export async function parseOpossumFile(
 
   let parsedInputData: ParsedOpossumInputFile;
   try {
-    parsedInputData = await parseJsonStream<ParsedOpossumInputFile>(
-      bytesAsStream(inputBytes),
-    );
-    jsonSchemaValidator.validate(
-      parsedInputData,
-      OpossumInputFileSchema,
-      validationOptions,
-    );
+    parsedInputData = await parseJsonBytes<ParsedOpossumInputFile>(inputBytes);
+    assertValid(validateInput, parsedInputData);
   } catch (err) {
     return {
       message: `Error: ${opossumFilePath} does not contain a valid input file.\n Original error message: ${err?.toString()}`,
@@ -121,12 +130,8 @@ export async function parseOpossumFile(
 
 export function parseReadonlyRules(content: string): Array<ReadonlyRule> {
   const parsedContent = JSON.parse(content);
-  jsonSchemaValidator.validate(
-    parsedContent,
-    OpossumSplitInfoSchema,
-    validationOptions,
-  );
-  return parsedContent.readonlyRules as Array<ReadonlyRule>;
+  assertValid(validateSplitInfo, parsedContent);
+  return parsedContent.readonlyRules;
 }
 
 export function parseOutputJsonContent(
@@ -135,11 +140,7 @@ export function parseOutputJsonContent(
 ): ParsedOpossumOutputFile {
   try {
     const jsonContent = JSON.parse(fileContent);
-    jsonSchemaValidator.validate(
-      jsonContent,
-      OpossumOutputFileSchema,
-      validationOptions,
-    );
+    assertValid(validateOutput, jsonContent);
     return jsonContent;
   } catch (err) {
     throw new Error(
@@ -155,6 +156,11 @@ export function parseOutputJsonContent(
 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
 const JSON_STREAM_CHUNK_SIZE = 1 << 20; // 1 MiB
 
+// Keep the native parser below a conservative size so its temporary string
+// remains well below V8's maximum string length.
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+const JSON_PARSE_FAST_PATH_MAX_BYTES = 256 * JSON_STREAM_CHUNK_SIZE;
+
 /**
  * Chunks the array so stream-json doesn't internally build a too long string.
  */
@@ -169,6 +175,18 @@ function bytesAsStream(
       }
     })(),
   );
+}
+
+/**
+ * Uses the native parser for inputs that can safely be materialized as a
+ * string, while retaining the chunked parser for larger inputs.
+ */
+function parseJsonBytes<T>(bytes: Buffer): Promise<T> {
+  if (bytes.byteLength <= JSON_PARSE_FAST_PATH_MAX_BYTES) {
+    return Promise.resolve(JSON.parse(bytes.toString('utf-8')) as T);
+  }
+
+  return parseJsonStream<T>(bytesAsStream(bytes));
 }
 
 /**

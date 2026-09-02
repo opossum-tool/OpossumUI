@@ -1,5 +1,5 @@
 {
-  "id": "#OpossumInputFileSchema",
+  "$id": "#OpossumInputFileSchema",
   "title": "Opossum input schema",
   "description": "Input files consist of a file tree, signals with attribution information for parts of the tree, and metadata.",
   "type": "object",
@@ -28,7 +28,7 @@
       }
     },
     "resources": {
-      "id": "#ResourcesSchema",
+      "$id": "#ResourcesSchema",
       "type": "object",
       "description": "A file tree stored recursively. Folders are objects with their child filenames as fields, files are the number `1`.",
       "additionalProperties": {

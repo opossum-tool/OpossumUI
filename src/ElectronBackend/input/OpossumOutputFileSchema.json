@@ -1,5 +1,5 @@
 {
-  "id": "#OpossumOutputFileSchema",
+  "$id": "#OpossumOutputFileSchema",
   "title": "Opossum output schema",
   "description": "Output files mainly consist of selected attribution information for parts of the input file tree and metadata.",
   "type": "object",

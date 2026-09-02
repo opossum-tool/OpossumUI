@@ -135,6 +135,89 @@ describe('database initialization', () => {
     ]);
   });
 
+  it('persists attribution sources and generated canonical license names', async () => {
+    await initializeDbWithTestData({
+      externalAttributions: {
+        attributions: {
+          external: {
+            id: 'external',
+            criticality: Criticality.Medium,
+            licenseName: 'MIT License',
+            source: { name: 'scanner' },
+          },
+          secondExternal: {
+            id: 'secondExternal',
+            criticality: Criticality.High,
+            licenseName: 'Apache-2.0',
+            source: {
+              name: 'other-scanner',
+              documentConfidence: 80,
+              additionalName: 'additional',
+            },
+          },
+        },
+        resourcesToAttributions: {},
+        attributionsToResources: {},
+      },
+    });
+
+    expect(
+      await getDb()
+        .selectFrom('attribution')
+        .select([
+          'uuid',
+          'is_external',
+          'license_name',
+          'canonical_license_name',
+          'source_name',
+          'source_document_confidence',
+          'source_additional_name',
+        ])
+        .orderBy('uuid')
+        .execute(),
+    ).toEqual([
+      {
+        uuid: 'external',
+        is_external: 1,
+        license_name: 'MIT License',
+        canonical_license_name: 'mitlicense',
+        source_name: 'scanner',
+        source_document_confidence: null,
+        source_additional_name: null,
+      },
+      {
+        uuid: 'secondExternal',
+        is_external: 1,
+        license_name: 'Apache-2.0',
+        canonical_license_name: 'apache2.0',
+        source_name: 'other-scanner',
+        source_document_confidence: 80,
+        source_additional_name: 'additional',
+      },
+    ]);
+
+    expect(
+      await getDb()
+        .selectFrom('source_for_attribution')
+        .selectAll()
+        .orderBy('attribution_uuid')
+        .execute(),
+    ).toEqual([
+      {
+        attribution_uuid: 'external',
+        external_attribution_source_key: 'scanner',
+        document_confidence: null,
+        additional_name: null,
+      },
+      {
+        attribution_uuid: 'secondExternal',
+        external_attribution_source_key: 'other-scanner',
+        document_confidence: 80,
+        additional_name: 'additional',
+      },
+    ]);
+  });
+
   it('enforces attribution column constraints', async () => {
     await initializeDbWithTestData();
 
