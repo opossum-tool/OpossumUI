@@ -32,6 +32,8 @@ const externalAttributions = Object.fromEntries(externalAttributionEntries);
 const firstManualAttribution = manualAttributionEntries[0][1];
 const offscreenManualAttribution =
   manualAttributionEntries[offscreenAttributionIndex][1];
+const offscreenManualAttributionId =
+  manualAttributionEntries[offscreenAttributionIndex][0];
 const firstExternalAttribution = externalAttributionEntries[0][1];
 const offscreenExternalAttribution =
   externalAttributionEntries[offscreenAttributionIndex][1];
@@ -115,5 +117,33 @@ test('keeps the first signal clickable after scrolling', async ({
   await signalsPanel.packageCard.click(firstExternalAttribution);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     firstExternalAttribution,
+  );
+});
+
+test('scrolls a selected attribution into view after report navigation', async ({
+  window,
+  resourcesTree,
+  attributionsPanel,
+  attributionDetails,
+  reportView,
+  topBar,
+}) => {
+  await window.setViewportSize({ width: 1920, height: 1080 });
+  await resourcesTree.goto(resourceName);
+  await attributionsPanel.packageCard.click(offscreenManualAttribution);
+  await attributionsPanel.scrollToTop();
+  await attributionsPanel.packageCard.assert.isFirstVisible(
+    firstManualAttribution,
+  );
+
+  await topBar.gotoReportView();
+  await reportView.openAttributionInAuditView(offscreenManualAttributionId);
+
+  await topBar.assert.auditViewIsActive();
+  await attributionsPanel.packageCard.assert.isInViewport(
+    offscreenManualAttribution,
+  );
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    offscreenManualAttribution,
   );
 });
