@@ -14,7 +14,10 @@ import {
   List,
   type ListItemContentProps,
 } from '../../../List/List';
-import { PackageCard } from '../../../PackageCard/PackageCard';
+import {
+  PACKAGE_CARD_LIST_ITEM_HEIGHT,
+  PackageCard,
+} from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
@@ -30,6 +33,8 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   isAttributionSelected,
   toggleAttributionSelection,
+  totalAttributionCount,
+  resultSetKey,
 }) => {
   const dispatch = useAppDispatch();
   const initialSelectedAttributionId = useRef(selectedAttributionId).current;
@@ -49,6 +54,9 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
           id,
         })) ?? null
       }
+      totalCount={totalAttributionCount}
+      unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}
+      resultSetKey={resultSetKey}
       components={{ List: SearchList }}
       selectedId={selectedAttributionId}
       initialTopMostItemIndex={
@@ -60,8 +68,10 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
       loading={loading}
       loadingMore={loadingMore}
       loadMoreError={loadMoreError}
-      onRetryLoadMore={() => void fetchNextPage()}
-      endReached={() => void fetchNextPage()}
+      onRetryLoadMore={(requiredEndIndex) =>
+        void fetchNextPage(requiredEndIndex)
+      }
+      endReached={(requiredEndIndex) => void fetchNextPage(requiredEndIndex)}
       increaseViewportBy={{ bottom: INFINITE_LIST_BOTTOM_OVERSCAN, top: 0 }}
       sx={{ transition: TRANSITION, height: contentHeight }}
     />

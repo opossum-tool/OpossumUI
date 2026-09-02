@@ -74,7 +74,7 @@ export interface PackagesPanelChildrenProps {
   loading: boolean;
   loadingMore: boolean;
   loadMoreError: unknown;
-  fetchNextPage: () => Promise<void>;
+  fetchNextPage: (requiredEndIndex?: number) => Promise<void>;
   selection: AttributionSelection;
   selectionSummary?: Awaited<
     ReturnType<typeof backend.getAttributionSelectionSummary.query>
@@ -84,8 +84,10 @@ export interface PackagesPanelChildrenProps {
   isAttributionSelected: (id: string) => boolean;
   clearSelection: () => void;
   pickerMode: PickerMode;
+  resultSetKey: string;
   selectedAttributionId: string;
   selectedAttributionIds: Array<string>;
+  totalAttributionCount?: number;
 }
 
 export interface Alert {
@@ -187,6 +189,7 @@ export const PackagesPanel = ({
     navigationAttributions,
     navigationRelation,
     navigationResult,
+    resultSetKey,
   } = useAuditAttributionsList({
     criteria: resultSetCriteria,
     sort: filters.sorting,
@@ -289,6 +292,7 @@ export const PackagesPanel = ({
       )
     : null;
   const activeRelationCount = relationCounts?.[activeRelation];
+  const totalAttributionCount = activeRelationCount?.visibleCount ?? 0;
 
   // Automatic attribution selection. The first resource page is requested
   // immediately; only an empty resource page waits for relation counts before
@@ -635,8 +639,10 @@ export const PackagesPanel = ({
     isAttributionSelected,
     clearSelection,
     pickerMode,
+    resultSetKey,
     selectedAttributionId,
     selectedAttributionIds,
+    totalAttributionCount,
   };
 
   const isDisabledDuringReplacement = external && pickerMode.mode === 'replace';

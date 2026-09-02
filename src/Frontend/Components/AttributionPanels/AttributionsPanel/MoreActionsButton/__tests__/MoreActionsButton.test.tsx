@@ -50,6 +50,7 @@ describe('MoreActionsButton', () => {
     isAttributionSelected: (id) => ['attr1', 'attr2'].includes(id),
     clearSelection: vi.fn(),
     pickerMode: { mode: 'inactive', isActive: false },
+    resultSetKey: 'result-set',
     selectedAttributionId: 'attr1',
     selectedAttributionIds: ['attr1', 'attr2'],
   };

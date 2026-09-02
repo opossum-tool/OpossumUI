@@ -41,6 +41,7 @@ interface Props {
   isResourceInfoReady: boolean;
   isLocalActionAvailable: boolean | undefined;
   selection: AttributionSelection;
+  attributionCount?: number;
 }
 
 export function ConfirmAttributionActionPopup({
@@ -58,6 +59,7 @@ export function ConfirmAttributionActionPopup({
   isResourceInfoReady,
   isLocalActionAvailable,
   selection,
+  attributionCount,
 }: Props) {
   const isMutationPending =
     globalAction.isPending || (localAction?.isPending ?? false);
@@ -103,7 +105,11 @@ export function ConfirmAttributionActionPopup({
       )}
       <MuiTypography>{description}</MuiTypography>
       {selection?.mode === 'allMatching' ? (
-        <AttributionPreview selection={selection} open={open} />
+        <AttributionPreview
+          selection={selection}
+          open={open}
+          attributionCount={attributionCount}
+        />
       ) : (
         <>
           {attributionValues ? (
@@ -131,11 +137,13 @@ export function ConfirmAttributionActionPopup({
 function AttributionPreview({
   open,
   selection,
+  attributionCount,
 }: {
   open: boolean;
   selection: AllMatchingAttributionSelection;
+  attributionCount?: number;
 }) {
-  const preview = useAttributionPreview(selection, open);
+  const preview = useAttributionPreview(selection, open, attributionCount);
 
   if (preview.error) {
     return (
@@ -152,10 +160,18 @@ function AttributionPreview({
   return (
     <AttributionCardList
       attributions={Object.values(preview.attributions)}
+      totalCount={attributionCount}
+      resultSetKey={preview.resultSetKey}
       loadingMore={preview.loadingMore}
       loadMoreError={preview.loadMoreError}
-      onRetryLoadMore={preview.fetchNextPage}
-      endReached={preview.hasNextPage ? preview.fetchNextPage : undefined}
+      onRetryLoadMore={(requiredEndIndex) =>
+        void preview.fetchNextPage(requiredEndIndex)
+      }
+      endReached={
+        preview.hasNextPage
+          ? (requiredEndIndex) => void preview.fetchNextPage(requiredEndIndex)
+          : undefined
+      }
       fillAvailableHeight
     />
   );

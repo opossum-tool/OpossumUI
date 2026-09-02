@@ -2,13 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  hashKey,
-  skipToken,
-  useInfiniteQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { hashKey, skipToken, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useRef } from 'react';
 
 import type {
   AttributionNavigationRequest,
@@ -16,21 +11,21 @@ import type {
   AttributionResultSetCriteria,
   AttributionResultSetScope,
 } from '../../shared/attribution-result-set';
-import type { Attributions } from '../../shared/shared-types';
 import {
   ATTRIBUTION_PAGE_SIZE,
-  getAttributionInfiniteQueryOptions,
   getAttributionPageQueryKey,
   getAttributionPrefixData,
   type InfiniteAttributionData,
 } from './attribution-page-query';
 import { backend, useDatabaseInitialized } from './backendClient';
+import { useAttributionPagination } from './use-attribution-pagination';
 
 type Params = {
   criteria: AttributionResultSetCriteria;
   scope: AttributionResultSetScope;
   sort: AttributionPageRequest['sort'];
   includeReadonly: boolean;
+  totalCount?: number;
   targetAttributionUuid?: string;
   navigationScope?: AttributionNavigationRequest['navigationScope'];
 };
@@ -40,6 +35,7 @@ export function useAttributionPages({
   scope,
   sort,
   includeReadonly,
+  totalCount,
   targetAttributionUuid,
   navigationScope = 'all',
 }: Params) {
@@ -75,18 +71,17 @@ export function useAttributionPages({
     targetQuery.data?.found !== true ||
     (scope.mode === 'relation' &&
       targetQuery.data.targetRelation === scope.relation);
-  const query = useInfiniteQuery(
-    getAttributionInfiniteQueryOptions({
-      queryKey,
-      enabled:
-        initialized &&
-        (!targetAttributionUuid ||
-          targetAlreadyLoaded ||
-          (targetQuery.isSuccess && navigationMatchesScope)),
-      fetchPage: (pageParam) =>
-        backend.listAttributionsPage.query({ ...pageRequest, ...pageParam }),
-    }),
-  );
+  const query = useAttributionPagination({
+    queryKey,
+    enabled:
+      initialized &&
+      (!targetAttributionUuid ||
+        targetAlreadyLoaded ||
+        (targetQuery.isSuccess && navigationMatchesScope)),
+    totalCount,
+    fetchPage: (pageParam) =>
+      backend.listAttributionsPage.query({ ...pageRequest, ...pageParam }),
+  });
   const seededNavigationRef = useRef<string | null>(null);
   const navigationSeedKey = targetFound
     ? hashKey([
@@ -138,39 +133,15 @@ export function useAttributionPages({
     targetQuery.data,
   ]);
 
-  const {
-    data,
-    error,
-    fetchNextPage: fetchNextPageQuery,
-    hasNextPage,
-    isFetchNextPageError,
-    isFetchingNextPage,
-    isFetching,
-    isLoading,
-  } = query;
-  const attributions = useMemo<Attributions | null>(() => {
-    if (!data) {
-      return null;
-    }
-    return Object.fromEntries(
-      data.pages.flatMap((page) => Object.entries(page.attributions)),
-    );
-  }, [data]);
-  const fetchNextPage = useCallback(async () => {
-    if (!hasNextPage) {
-      return;
-    }
-    await fetchNextPageQuery({ cancelRefetch: false });
-  }, [fetchNextPageQuery, hasNextPage]);
-
   return {
-    attributions,
-    loading: isLoading || targetQuery.isLoading,
-    hasNextPage: hasNextPage ?? false,
-    isFetching,
-    isFetchingNextPage,
-    fetchNextPage,
-    nextPageError: isFetchNextPageError ? error : null,
+    attributions: query.attributions,
+    loading: query.isLoading || targetQuery.isLoading,
+    hasNextPage: query.hasNextPage ?? false,
+    isFetching: query.isFetching,
+    isFetchingNextPage: query.isFetchingNextPage,
+    fetchNextPage: query.fetchNextPage,
+    nextPageError: query.nextPageError,
+    resultSetKey: query.resultSetKey,
     navigationLoading: targetQuery.isLoading,
     navigationResult: targetQuery.data,
     navigationAttributions:

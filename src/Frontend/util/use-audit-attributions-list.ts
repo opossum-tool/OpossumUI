@@ -23,6 +23,9 @@ export function useAuditAttributionsList({
   includeReadonly: boolean;
   targetAttributionUuid?: string;
 }) {
+  const relationCountsQuery =
+    backend.listAttributionRelationCounts.useQuery(criteria);
+  const relationCount = relationCountsQuery.data?.[relation];
   const pages = useAttributionPages({
     criteria,
     scope: { mode: 'relation', relation },
@@ -30,9 +33,10 @@ export function useAuditAttributionsList({
     includeReadonly,
     targetAttributionUuid,
     navigationScope: 'targetRelation',
+    totalCount: includeReadonly
+      ? relationCount?.visibleCount
+      : relationCount?.editableCount,
   });
-  const relationCountsQuery =
-    backend.listAttributionRelationCounts.useQuery(criteria);
 
   return {
     ...pages,

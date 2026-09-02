@@ -5,9 +5,11 @@
 import { QueryClient } from '@tanstack/react-query';
 import { describe, expect, it, vi } from 'vitest';
 
+import { faker } from '../../../testing/Faker';
 import {
   getAttributionInfiniteQueryOptions,
   getAttributionPrefixData,
+  getAttributionPrefixDataFromPages,
 } from '../attribution-page-query';
 
 describe('attribution page query', () => {
@@ -43,5 +45,45 @@ describe('attribution page query', () => {
       limit: 400,
     });
     queryClient.clear();
+  });
+
+  it('merges loaded pages into a refetchable prefix', () => {
+    const firstAttribution = faker.opossum.packageInfo();
+    const secondAttribution = faker.opossum.packageInfo();
+    const firstPage = {
+      attributions: { first: firstAttribution },
+      offset: 0,
+      limit: 200,
+      hasNextPage: true,
+    };
+    const secondPage = {
+      attributions: { second: secondAttribution },
+      offset: 200,
+      limit: 800,
+      hasNextPage: true,
+    };
+
+    expect(
+      getAttributionPrefixDataFromPages({
+        pages: [firstPage, secondPage],
+        pageParams: [
+          { offset: 0, limit: 200 },
+          { offset: 200, limit: 800 },
+        ],
+      }),
+    ).toEqual({
+      pages: [
+        {
+          attributions: {
+            first: firstAttribution,
+            second: secondAttribution,
+          },
+          offset: 0,
+          limit: 1000,
+          hasNextPage: true,
+        },
+      ],
+      pageParams: [{ offset: 0, limit: 1000 }],
+    });
   });
 });

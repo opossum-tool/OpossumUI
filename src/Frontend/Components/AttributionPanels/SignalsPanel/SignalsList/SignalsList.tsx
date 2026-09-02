@@ -17,7 +17,10 @@ import {
 } from '../../../GroupedList/GroupedList';
 import { SourceIcon } from '../../../Icons/Icons';
 import { INFINITE_LIST_BOTTOM_OVERSCAN } from '../../../List/List';
-import { PackageCard } from '../../../PackageCard/PackageCard';
+import {
+  PACKAGE_CARD_LIST_ITEM_HEIGHT,
+  PackageCard,
+} from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 import { GroupName } from './SignalsList.style';
@@ -34,6 +37,8 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   isAttributionSelected,
   toggleAttributionSelection,
+  totalAttributionCount,
+  resultSetKey,
 }) => {
   const dispatch = useAppDispatch();
   const canSelectSignals = pickerMode.mode !== 'replace';
@@ -84,9 +89,14 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
       )}
       loading={loading}
       loadingMore={loadingMore}
+      totalCount={totalAttributionCount}
+      unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}
+      resultSetKey={resultSetKey}
       loadMoreError={loadMoreError}
-      onRetryLoadMore={() => void fetchNextPage()}
-      endReached={() => void fetchNextPage()}
+      onRetryLoadMore={(requiredEndIndex) =>
+        void fetchNextPage(requiredEndIndex)
+      }
+      endReached={(requiredEndIndex) => void fetchNextPage(requiredEndIndex)}
       increaseViewportBy={{ bottom: INFINITE_LIST_BOTTOM_OVERSCAN, top: 0 }}
       sx={{ transition: TRANSITION, height: contentHeight }}
     />

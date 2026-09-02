@@ -142,6 +142,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
       isResourceInfoReady={actionSummary.isResourceInfoReady}
       isLocalActionAvailable={actionSummary.isLocalActionAvailable}
       selection={selection}
+      attributionCount={actionSummary.selectedAttributionCount}
       open={open}
       ariaLabel={text.saveAttributionsPopup.ariaLabel}
     />

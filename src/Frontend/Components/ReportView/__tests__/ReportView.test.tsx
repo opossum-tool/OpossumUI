@@ -11,9 +11,14 @@ import {
 } from '../../../../shared/shared-types';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
+import * as reportAttributionsList from '../../../util/use-report-attributions-list';
 import { ReportView } from '../ReportView';
 
 describe('ReportView', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('renders', async () => {
     const attributions: Attributions = {
       uuid1: {
@@ -70,5 +75,37 @@ describe('ReportView', () => {
 
     expect(screen.getByText('Redux')).toBeInTheDocument();
     expect(screen.getByLabelText('First party icon')).toBeInTheDocument();
+  });
+
+  it('renders loaded rows when the total count includes unloaded rows', async () => {
+    vi.spyOn(
+      reportAttributionsList,
+      'useReportAttributionsList',
+    ).mockReturnValue({
+      attributions: {
+        uuid1: {
+          packageName: 'React',
+          resources: [],
+          criticality: Criticality.None,
+          id: 'uuid1',
+        },
+      },
+      fetchNextPage: vi.fn(() => Promise.resolve()),
+      hasNextPage: true,
+      isFetching: false,
+      isFetchingNextPage: false,
+      loading: false,
+      navigationAttributions: {},
+      navigationLoading: false,
+      navigationRelation: null,
+      navigationResult: undefined,
+      nextPageError: null,
+      resultSetKey: 'result-set',
+      totalCount: 2,
+    });
+
+    await renderComponent(<ReportView />);
+
+    expect(screen.getByText('React')).toBeInTheDocument();
   });
 });

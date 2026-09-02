@@ -76,6 +76,7 @@ function mockAttributions(
     isFetchingNextPage: false,
     fetchNextPage: vi.fn(() => Promise.resolve()),
     nextPageError: null,
+    resultSetKey: 'result-set',
     navigationLoading: false,
     navigationResult:
       visibleAttributions !== attributions
@@ -293,6 +294,7 @@ describe('PackagesPanel', () => {
         isFetchingNextPage: false,
         fetchNextPage: vi.fn(() => Promise.resolve()),
         nextPageError: null,
+        resultSetKey: isRoot ? 'root' : 'resource',
         navigationLoading: false,
         navigationResult: isRoot
           ? undefined

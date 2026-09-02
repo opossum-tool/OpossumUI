@@ -7,6 +7,7 @@ import { ROOT_PATH } from '../shared-constants';
 import { useAppSelector } from '../state/hooks';
 import { getSelectedAttributionId } from '../state/selectors/resource-selectors';
 import { useAttributionFiltersInReportView } from '../state/variables/use-filters';
+import { backend } from './backendClient';
 import { useAttributionPages } from './use-attribution-pages';
 
 export function useReportAttributionsList() {
@@ -22,12 +23,23 @@ export function useReportAttributionsList() {
     excludeUnrelated: false,
     valueFilters,
   };
-  return useAttributionPages({
+  const relationCountsQuery =
+    backend.listAttributionRelationCounts.useQuery(criteria);
+  const totalCount = relationCountsQuery.data
+    ? Object.values(relationCountsQuery.data).reduce(
+        (count, relation) => count + (relation?.editableCount ?? 0),
+        0,
+      )
+    : undefined;
+  const pages = useAttributionPages({
     criteria,
     scope: { mode: 'all' },
     sort: sorting,
     includeReadonly: false,
     targetAttributionUuid: selectedAttributionId || undefined,
     navigationScope: 'all',
+    totalCount,
   });
+
+  return { ...pages, totalCount };
 }
