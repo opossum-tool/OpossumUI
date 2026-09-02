@@ -212,4 +212,12 @@ export class AttributionsPanel {
       .getByRole('menuitem', { name: text.packageLists.clearFilters })
       .click();
   }
+
+  async scrollToTop(): Promise<void> {
+    await this.node
+      .locator('[data-virtuoso-scroller="true"]')
+      .evaluate((scroller) => {
+        scroller.scrollTo({ top: 0 });
+      });
+  }
 }

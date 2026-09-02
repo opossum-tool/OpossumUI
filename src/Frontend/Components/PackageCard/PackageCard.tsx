@@ -179,7 +179,7 @@ export const PackageCard = memo(
 
     useEffect(() => {
       if (effectiveCardConfig.focused) {
-        ref.current?.focus();
+        ref.current?.focus({ preventScroll: true });
       }
     }, [effectiveCardConfig.focused]);
 
