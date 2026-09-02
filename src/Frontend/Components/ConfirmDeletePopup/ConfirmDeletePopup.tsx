@@ -4,11 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { text } from '../../../shared/text';
-import { applyFocusedAttributionOutcome } from '../../state/actions/resource-actions/navigation-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
 import { useLinkedAttributionActionData } from '../AttributionAction/useLinkedAttributionActionData';
 import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
 
@@ -25,16 +25,15 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
   onClose,
   clearSelection,
 }) => {
-  const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
   const deleteAttributions = backend.deleteAttributions.useMutation({
-    onBeforeInvalidation: ({ focusedAttributionOutcome }) =>
-      dispatch(applyFocusedAttributionOutcome(focusedAttributionOutcome)),
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
   });
   const unlinkResourceFromAttributions =
     backend.unlinkResourceFromAttributions.useMutation({
-      onBeforeInvalidation: ({ focusedAttributionOutcome }) =>
-        dispatch(applyFocusedAttributionOutcome(focusedAttributionOutcome)),
+      onBeforeInvalidation: handleFocusedAttributionOutcome,
     });
   const isDeleting =
     deleteAttributions.isPending || unlinkResourceFromAttributions.isPending;

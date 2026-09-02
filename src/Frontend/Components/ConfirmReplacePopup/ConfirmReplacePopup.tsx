@@ -14,6 +14,7 @@ import { useAppDispatch } from '../../state/hooks';
 import { useAttributionSelectionForReplacement } from '../../state/variables/use-attribution-selection-for-replacement';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
@@ -37,7 +38,11 @@ export const ConfirmReplacePopup = ({
       ? selectionForReplacement.attributionUuids
       : [];
 
-  const updateAttributions = backend.updateAttributions.useMutation();
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
+  const updateAttributions = backend.updateAttributions.useMutation({
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
+  });
   const replaceAttributions = backend.replaceAttributions.useMutation();
   const isReplacing =
     updateAttributions.isPending || replaceAttributions.isPending;

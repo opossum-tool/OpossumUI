@@ -3,12 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  type QueryClient,
   type QueryKey,
   skipToken,
   type SkipToken,
   useMutation,
   type UseMutationOptions,
   useQuery,
+  useQueryClient,
   type UseQueryOptions,
 } from '@tanstack/react-query';
 import { useSyncExternalStore } from 'react';
@@ -161,12 +163,13 @@ export const backend = new Proxy({} as BackendClient, {
     async function mutate(
       params: MutationParams<MutationName>,
       onSuccessBeforeInvalidation?: (result: unknown) => void,
+      mutationQueryClient: QueryClient = queryClient,
     ) {
       const response = await window.electronAPI.api(command, params);
       const mutationResult = 'result' in response ? response.result : undefined;
       onSuccessBeforeInvalidation?.(mutationResult);
       await invalidateMutationQueries({
-        queryClient,
+        queryClient: mutationQueryClient,
         invalidations:
           'invalidates' in response ? (response.invalidates ?? []) : [],
       });
@@ -206,10 +209,12 @@ export const backend = new Proxy({} as BackendClient, {
       // For commands specified in src/ElectronBackend/api/mutations.ts
       mutate,
       useMutation: (options?: GenericClientMutationOptions) => {
+        const mutationQueryClient = useQueryClient();
         const { onBeforeInvalidation, ...mutationOptions } = options ?? {};
         return useMutation<unknown, unknown, MutationParams<MutationName>>({
           mutationKey: ['backend', command],
-          mutationFn: (params) => mutate(params, onBeforeInvalidation),
+          mutationFn: (params) =>
+            mutate(params, onBeforeInvalidation, mutationQueryClient),
           ...mutationOptions,
         });
       },

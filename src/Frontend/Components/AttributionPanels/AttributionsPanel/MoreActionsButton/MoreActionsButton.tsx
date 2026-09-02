@@ -10,13 +10,13 @@ import { useCallback, useMemo, useState } from 'react';
 
 import type { PackageInfo } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
-import { applyFocusedAttributionOutcome } from '../../../../state/actions/resource-actions/navigation-actions';
-import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
+import { useAppSelector } from '../../../../state/hooks';
 import {
   getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
 } from '../../../../state/selectors/resource-selectors';
 import { backend } from '../../../../util/backendClient';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../../../util/use-focused-attribution-outcome';
 import {
   ExcludeFromNoticeIcon,
   FollowUpIcon,
@@ -62,17 +62,17 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   selectionSummaryLoading,
   clearSelection,
 }) => {
-  const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
 
   const updateAttributionProperty =
     backend.updateAttributionProperty.useMutation({
-      onBeforeInvalidation: ({ focusedAttributionOutcome }) =>
-        dispatch(applyFocusedAttributionOutcome(focusedAttributionOutcome)),
+      onBeforeInvalidation: handleFocusedAttributionOutcome,
       onSuccess: clearSelection,
     });
   const mutationsPending = useIsMutating() > 0;
