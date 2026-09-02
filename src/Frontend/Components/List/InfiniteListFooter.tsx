@@ -5,7 +5,7 @@
 import MuiBox from '@mui/material/Box';
 import MuiButton from '@mui/material/Button';
 import MuiLinearProgress from '@mui/material/LinearProgress';
-import { createContext, useContext } from 'react';
+import { createContext, use } from 'react';
 
 interface InfiniteListFooterContextValue {
   loading: boolean;
@@ -21,8 +21,7 @@ export const InfiniteListFooterContext =
   });
 
 export function InfiniteListFooter() {
-  // eslint-disable-next-line @eslint-react/no-use-context
-  const { loading, error, onRetry } = useContext(InfiniteListFooterContext);
+  const { loading, error, onRetry } = use(InfiniteListFooterContext);
   if (loading) {
     return <MuiLinearProgress />;
   }
