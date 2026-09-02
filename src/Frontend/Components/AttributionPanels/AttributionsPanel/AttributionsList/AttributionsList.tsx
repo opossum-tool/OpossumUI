@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
+import { useMemo, useRef } from 'react';
 
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
@@ -31,6 +32,14 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   toggleAttributionSelection,
 }) => {
   const dispatch = useAppDispatch();
+  const initialSelectedAttributionId = useRef(selectedAttributionId).current;
+  const initialSelectedAttributionIndex = useMemo(
+    () =>
+      activeAttributionIds?.findIndex(
+        (id) => id === initialSelectedAttributionId,
+      ),
+    [activeAttributionIds, initialSelectedAttributionId],
+  );
 
   return (
     <List
@@ -42,6 +51,12 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
       }
       components={{ List: SearchList }}
       selectedId={selectedAttributionId}
+      initialTopMostItemIndex={
+        initialSelectedAttributionIndex !== undefined &&
+        initialSelectedAttributionIndex >= 0
+          ? { index: initialSelectedAttributionIndex, align: 'center' }
+          : undefined
+      }
       loading={loading}
       loadingMore={loadingMore}
       loadMoreError={loadMoreError}

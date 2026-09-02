@@ -57,6 +57,7 @@ export function List<ItemType extends BaseItem>({
   sx,
   testId,
   components,
+  initialTopMostItemIndex,
   ...props
 }: ListProps<ItemType> &
   Omit<VirtuosoProps<ItemType, unknown>, 'data' | 'selected'>) {
@@ -109,6 +110,7 @@ export function List<ItemType extends BaseItem>({
                   focused: index === focusedIndex,
                 })
               }
+              initialTopMostItemIndex={initialTopMostItemIndex}
               {...props}
             />
           </InfiniteListFooterContext>

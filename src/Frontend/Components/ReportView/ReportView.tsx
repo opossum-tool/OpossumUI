@@ -58,6 +58,11 @@ export const ReportView: React.FC = () => {
     <TableVirtuoso
       aria-label={'report view'}
       ref={ref}
+      initialTopMostItemIndex={
+        selectedIndex !== undefined && selectedIndex >= 0
+          ? { index: selectedIndex, align: 'center' }
+          : undefined
+      }
       // https://github.com/petyosi/react-virtuoso/issues/609
       style={{ overflowAnchor: 'none' }}
       components={TABLE_COMPONENTS}

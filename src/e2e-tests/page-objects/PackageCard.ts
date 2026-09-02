@@ -61,6 +61,9 @@ export class PackageCard {
     isVisible: async (packageInfo: RawPackageInfo): Promise<void> => {
       await expect(this.node(packageInfo)).toBeVisible();
     },
+    isInViewport: async (packageInfo: RawPackageInfo): Promise<void> => {
+      await expect(this.node(packageInfo)).toBeInViewport();
+    },
     isEditable: async (packageInfo: RawPackageInfo): Promise<void> => {
       const card = this.node(packageInfo);
       await expect(card).toBeVisible();
