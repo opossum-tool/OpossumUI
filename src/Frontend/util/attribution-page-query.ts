@@ -46,25 +46,31 @@ export function getAttributionInfiniteQueryOptions<TQueryKey extends QueryKey>({
   queryKey,
   enabled,
   fetchPage,
+  getNextPageLimit,
 }: {
   queryKey: TQueryKey;
   enabled: boolean;
   fetchPage: (
     pageParam: AttributionPageParam,
   ) => Promise<AttributionPageResult>;
+  getNextPageLimit?: (nextOffset: number) => number;
 }) {
   return infiniteQueryOptions({
     queryKey,
     initialPageParam: FIRST_ATTRIBUTION_PAGE_PARAM,
     enabled,
     queryFn: ({ pageParam }) => fetchPage(pageParam),
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage
-        ? {
-            offset: lastPage.offset + lastPage.limit,
-            limit: ATTRIBUTION_PAGE_SIZE,
-          }
-        : undefined,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.hasNextPage) {
+        return undefined;
+      }
+
+      const nextOffset = lastPage.offset + lastPage.limit;
+      return {
+        offset: nextOffset,
+        limit: getNextPageLimit?.(nextOffset) ?? ATTRIBUTION_PAGE_SIZE,
+      };
+    },
   });
 }
 
@@ -75,4 +81,27 @@ export function getAttributionPrefixData(
     pages: [page],
     pageParams: [{ offset: page.offset, limit: page.limit }],
   };
+}
+
+export function getAttributionPrefixDataFromPages(
+  data: InfiniteAttributionData,
+): InfiniteAttributionData {
+  if (data.pages.length === 0) {
+    return data;
+  }
+
+  const firstPage = data.pages[0];
+  const lastPage = data.pages[data.pages.length - 1];
+  const page: AttributionPageResult = {
+    attributions: Object.fromEntries(
+      data.pages.flatMap((currentPage) =>
+        Object.entries(currentPage.attributions),
+      ),
+    ),
+    offset: firstPage.offset,
+    limit: lastPage.offset + lastPage.limit - firstPage.offset,
+    hasNextPage: lastPage.hasNextPage,
+  };
+
+  return getAttributionPrefixData(page);
 }

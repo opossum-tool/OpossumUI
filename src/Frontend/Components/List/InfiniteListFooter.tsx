@@ -21,13 +21,21 @@ export const InfiniteListFooterContext =
   });
 
 export function InfiniteListFooter() {
-  const { loading, error, onRetry } = use(InfiniteListFooterContext);
-  if (loading) {
-    return <MuiLinearProgress />;
-  }
+  return <InfiniteListFooterContent floating={false} />;
+}
 
-  if (error) {
-    return (
+export function FloatingInfiniteListFooter() {
+  return <InfiniteListFooterContent floating />;
+}
+
+function InfiniteListFooterContent({ floating }: { floating: boolean }) {
+  const { loading, error, onRetry } = use(InfiniteListFooterContext);
+  let footer: React.ReactNode = null;
+
+  if (loading) {
+    footer = <MuiLinearProgress />;
+  } else if (error) {
+    footer = (
       <MuiBox sx={{ display: 'flex', justifyContent: 'center', p: 1 }}>
         <MuiButton size={'small'} onClick={onRetry}>
           {'Retry'}
@@ -36,5 +44,20 @@ export function InfiniteListFooter() {
     );
   }
 
-  return null;
+  return floating && footer ? (
+    <MuiBox
+      sx={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        zIndex: 1,
+        backgroundColor: 'background.paper',
+      }}
+    >
+      {footer}
+    </MuiBox>
+  ) : (
+    footer
+  );
 }

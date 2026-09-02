@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { SxProps } from '@mui/system';
+import { useEffect, useState } from 'react';
 import {
   Virtuoso,
   type VirtuosoHandle,
@@ -14,6 +15,7 @@ import { EmptyPlaceholder } from '../EmptyPlaceholder/EmptyPlaceholder';
 import { LoadingMask } from '../LoadingMask/LoadingMask';
 import { VirtuosoComponentContext } from '../VirtuosoComponentContext/VirtuosoComponentContext';
 import {
+  FloatingInfiniteListFooter,
   InfiniteListFooter,
   InfiniteListFooterContext,
 } from './InfiniteListFooter';
@@ -29,17 +31,28 @@ export interface ListItemContentProps {
 
 export type BaseItem = { id: unknown };
 
+export type UnloadedItemsProps =
+  | {
+      totalCount?: never;
+      unloadedItemHeight?: never;
+    }
+  | {
+      totalCount: number | undefined;
+      unloadedItemHeight: number;
+    };
+
 interface ListProps<ItemType extends BaseItem> {
   className?: string;
   data: ReadonlyArray<ItemType> | null;
   loading?: boolean;
   loadingMore?: boolean;
   loadMoreError?: unknown;
-  onRetryLoadMore?: () => void;
+  onRetryLoadMore?: (requiredEndIndex?: number) => void;
   renderItemContent: (
     datum: ItemType,
     props: ListItemContentProps,
   ) => React.ReactNode;
+  resultSetKey?: string;
   selectedId?: string;
   sx?: SxProps;
   testId?: string;
@@ -53,14 +66,67 @@ export function List<ItemType extends BaseItem>({
   loadMoreError,
   onRetryLoadMore,
   renderItemContent,
+  resultSetKey,
   selectedId,
   sx,
   testId,
   components,
   initialTopMostItemIndex,
+  totalCount,
+  unloadedItemHeight,
   ...props
 }: ListProps<ItemType> &
-  Omit<VirtuosoProps<ItemType, unknown>, 'data' | 'selected'>) {
+  UnloadedItemsProps &
+  Omit<VirtuosoProps<ItemType, unknown>, 'data' | 'selected' | 'totalCount'>) {
+  const { endReached, rangeChanged } = props;
+  const [visibleRange, setVisibleRange] = useState<{
+    endIndex: number;
+    resultSetKey: string | undefined;
+  } | null>(null);
+  const visibleEndIndex =
+    visibleRange !== null && visibleRange.resultSetKey === resultSetKey
+      ? visibleRange.endIndex
+      : -1;
+  const hasUnloadedRows =
+    data !== null && totalCount !== undefined && totalCount > data.length;
+  const unloadedRangeVisible =
+    hasUnloadedRows && visibleEndIndex >= (data?.length ?? 0);
+  const effectiveTotalCount =
+    totalCount === undefined
+      ? undefined
+      : Math.max(totalCount, data?.length ?? 0);
+  const virtuosoData =
+    data === null
+      ? undefined
+      : effectiveTotalCount === undefined
+        ? data
+        : [...data, ...Array<ItemType>(effectiveTotalCount - data.length)];
+
+  useEffect(() => {
+    if (data === null) {
+      setVisibleRange(null);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (
+      !hasUnloadedRows ||
+      visibleEndIndex < (data?.length ?? 0) ||
+      loadingMore ||
+      loadMoreError ||
+      !endReached
+    ) {
+      return;
+    }
+    endReached(visibleEndIndex);
+  }, [
+    data?.length,
+    hasUnloadedRows,
+    loadMoreError,
+    loadingMore,
+    endReached,
+    visibleEndIndex,
+  ]);
   const {
     focusedIndex,
     ref,
@@ -88,31 +154,52 @@ export function List<ItemType extends BaseItem>({
             value={{
               loading: loadingMore,
               error: loadMoreError,
-              onRetry: () => onRetryLoadMore?.(),
+              onRetry: () =>
+                onRetryLoadMore?.(
+                  visibleEndIndex >= 0 ? visibleEndIndex : undefined,
+                ),
             }}
           >
             <Virtuoso
+              {...props}
               ref={ref}
               onFocus={() => setIsVirtuosoFocused(true)}
               onBlur={() => setIsVirtuosoFocused(false)}
               tabIndex={-1}
               components={{
                 EmptyPlaceholder,
-                Footer: InfiniteListFooter,
+                ...(!hasUnloadedRows ? { Footer: InfiniteListFooter } : {}),
                 ...components,
               }}
               scrollerRef={scrollerRef}
-              data={data}
+              data={virtuosoData}
+              {...(effectiveTotalCount === undefined
+                ? {}
+                : {
+                    totalCount: effectiveTotalCount,
+                    rangeChanged: (range) => {
+                      setVisibleRange({
+                        endIndex: range.endIndex,
+                        resultSetKey,
+                      });
+                      rangeChanged?.(range);
+                    },
+                    endReached: hasUnloadedRows ? undefined : endReached,
+                  })}
               itemContent={(index) =>
-                renderItemContent(data[index], {
-                  index,
-                  selected: index === selectedIndex,
-                  focused: index === focusedIndex,
-                })
+                hasUnloadedRows && !data?.[index] ? (
+                  <div style={{ height: unloadedItemHeight }} />
+                ) : (
+                  renderItemContent(data[index], {
+                    index,
+                    selected: index === selectedIndex,
+                    focused: index === focusedIndex,
+                  })
+                )
               }
               initialTopMostItemIndex={initialTopMostItemIndex}
-              {...props}
             />
+            {unloadedRangeVisible && <FloatingInfiniteListFooter />}
           </InfiniteListFooterContext>
         </VirtuosoComponentContext>
       )}

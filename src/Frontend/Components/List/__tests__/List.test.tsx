@@ -48,6 +48,7 @@ describe('List', () => {
 
     expect(screen.getByText(text.generic.noResults)).toBeInTheDocument();
   });
+
   it('does not use selectedId to initialize or reinitialize the viewport', async () => {
     const itemHeight = 40;
     const data = Array.from({ length: 10 }, (_, index) => ({
@@ -77,5 +78,28 @@ describe('List', () => {
 
     expect(screen.getByText(data[0].id)).toBeInTheDocument();
     expect(screen.getByText(data[1].id)).toBeInTheDocument();
+  });
+
+  it('reserves unloaded rows and requests the next page when they enter the range', async () => {
+    const fetchNextPage = vi.fn();
+    const itemHeight = 40;
+    await renderComponent(
+      <VirtuosoMockContext
+        value={{
+          itemHeight,
+          viewportHeight: itemHeight * 3,
+        }}
+      >
+        <List
+          data={[{ id: 'loaded' }]}
+          totalCount={4}
+          unloadedItemHeight={itemHeight}
+          endReached={fetchNextPage}
+          renderItemContent={(item) => <div>{item.id}</div>}
+        />
+      </VirtuosoMockContext>,
+    );
+
+    expect(fetchNextPage).toHaveBeenCalled();
   });
 });

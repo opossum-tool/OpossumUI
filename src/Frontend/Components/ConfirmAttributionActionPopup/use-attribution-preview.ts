@@ -2,55 +2,42 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import type { AllMatchingAttributionSelection } from '../../../shared/attribution-selection';
-import type { Attributions } from '../../../shared/shared-types';
-import { getAttributionInfiniteQueryOptions } from '../../util/attribution-page-query';
 import { backend, useDatabaseInitialized } from '../../util/backendClient';
+import { useAttributionPagination } from '../../util/use-attribution-pagination';
 
 export function useAttributionPreview(
   selection: AllMatchingAttributionSelection,
   open: boolean,
+  totalCount?: number,
 ) {
   const initialized = useDatabaseInitialized();
-  const query = useInfiniteQuery(
-    getAttributionInfiniteQueryOptions({
-      queryKey: ['backend', 'listAttributionPreview', selection],
-      enabled: initialized && open,
-      fetchPage: (pageParams) =>
-        backend.listAttributionPreview.query({
-          ...selection.query,
-          excludedAttributionUuids: selection.excludedAttributionUuids,
-          ...pageParams,
-        }),
-    }),
+  const queryKey = useMemo(
+    () => ['backend', 'listAttributionPreview', selection] as const,
+    [selection],
   );
-  const { fetchNextPage: fetchNextPageQuery, hasNextPage } = query;
-  const fetchNextPage = useCallback(async () => {
-    if (!hasNextPage) {
-      return;
-    }
-    await fetchNextPageQuery({ cancelRefetch: false });
-  }, [fetchNextPageQuery, hasNextPage]);
-  const attributions = useMemo<Attributions | null>(() => {
-    if (!query.data) {
-      return null;
-    }
-
-    return Object.fromEntries(
-      query.data.pages.flatMap((page) => Object.entries(page.attributions)),
-    );
-  }, [query.data]);
+  const query = useAttributionPagination({
+    queryKey,
+    enabled: initialized && open,
+    totalCount,
+    fetchPage: (pageParams) =>
+      backend.listAttributionPreview.query({
+        ...selection.query,
+        excludedAttributionUuids: selection.excludedAttributionUuids,
+        ...pageParams,
+      }),
+  });
 
   return {
-    attributions,
+    attributions: query.attributions,
     loadingMore: query.isFetchingNextPage,
-    loadMoreError: query.isFetchNextPageError ? query.error : null,
+    loadMoreError: query.nextPageError,
     error: query.isError ? query.error : null,
     retry: query.refetch,
-    fetchNextPage,
-    hasNextPage: hasNextPage ?? false,
+    fetchNextPage: query.fetchNextPage,
+    hasNextPage: query.hasNextPage ?? false,
+    resultSetKey: query.resultSetKey,
   };
 }

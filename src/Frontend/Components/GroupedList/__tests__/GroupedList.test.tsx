@@ -10,6 +10,32 @@ import { renderComponent } from '../../../test-helpers/render';
 import { GroupedList } from '../GroupedList';
 
 describe('GroupedList', () => {
+  it('renders headers for supplied groups', async () => {
+    await renderComponent(
+      <GroupedList
+        grouped={{ source: ['item'] }}
+        renderGroupName={(key) => <div>{key}</div>}
+        renderItemContent={(id) => <div>{id}</div>}
+      />,
+    );
+
+    expect(screen.getByText('source')).toBeInTheDocument();
+  });
+
+  it('does not render a header for a synthesized unloaded group', async () => {
+    await renderComponent(
+      <GroupedList
+        grouped={{}}
+        totalCount={1}
+        unloadedItemHeight={1}
+        renderGroupName={(key) => <div data-testid={'group-header'}>{key}</div>}
+        renderItemContent={(id) => <div>{id}</div>}
+      />,
+    );
+
+    expect(screen.queryByTestId('group-header')).not.toBeInTheDocument();
+  });
+
   it('renders list items', async () => {
     const data = faker.helpers.multiple(faker.string.uuid);
     await renderComponent(

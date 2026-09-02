@@ -8,6 +8,8 @@ const attributionCount = 20;
 const offscreenAttributionIndex = 15;
 const resourceName = 'scroll-root';
 const childResourceName = 'scroll-child';
+const emptyResourceName = 'scroll-empty-root';
+const emptyChildResourceName = 'scroll-empty-child';
 const packageVersion = '1.0.0';
 
 const manualAttributionEntries = Array.from(
@@ -18,6 +20,12 @@ const manualAttributionEntries = Array.from(
       packageVersion,
     }),
 );
+const childManualAttributionEntries = Array.from({ length: 40 }, (_, index) =>
+  faker.opossum.rawAttribution({
+    packageName: `child-manual-${index.toString().padStart(2, '0')}`,
+    packageVersion,
+  }),
+);
 const externalAttributionEntries = Array.from(
   { length: attributionCount },
   (_, index) =>
@@ -27,16 +35,22 @@ const externalAttributionEntries = Array.from(
     }),
 );
 
-const manualAttributions = Object.fromEntries(manualAttributionEntries);
+const manualAttributions = Object.fromEntries([
+  ...manualAttributionEntries,
+  ...childManualAttributionEntries,
+]);
 const externalAttributions = Object.fromEntries(externalAttributionEntries);
 const firstManualAttribution = manualAttributionEntries[0][1];
 const offscreenManualAttribution =
   manualAttributionEntries[offscreenAttributionIndex][1];
-const offscreenManualAttributionId =
-  manualAttributionEntries[offscreenAttributionIndex][0];
 const firstExternalAttribution = externalAttributionEntries[0][1];
 const offscreenExternalAttribution =
   externalAttributionEntries[offscreenAttributionIndex][1];
+const lastChildAttributionEntry =
+  childManualAttributionEntries[childManualAttributionEntries.length - 1];
+const reportChildAttribution = lastChildAttributionEntry[1];
+const reportChildAttributionId = lastChildAttributionEntry[0];
+const firstChildAttribution = childManualAttributionEntries[0][1];
 
 test.use({
   data: {
@@ -45,10 +59,15 @@ test.use({
         [resourceName]: {
           [childResourceName]: 1,
         },
+        [emptyResourceName]: {
+          [emptyChildResourceName]: 1,
+        },
       },
       externalAttributions,
       resourcesToAttributions: faker.opossum.resourcesToAttributions({
         [faker.opossum.filePath(resourceName, childResourceName)]:
+          externalAttributionEntries.map(([attributionId]) => attributionId),
+        [faker.opossum.filePath(emptyResourceName, emptyChildResourceName)]:
           externalAttributionEntries.map(([attributionId]) => attributionId),
       }),
     }),
@@ -58,6 +77,10 @@ test.use({
         [faker.opossum.filePath(resourceName)]: manualAttributionEntries.map(
           ([attributionId]) => attributionId,
         ),
+        [faker.opossum.filePath(resourceName, childResourceName)]:
+          childManualAttributionEntries.map(([attributionId]) => attributionId),
+        [faker.opossum.filePath(emptyResourceName, emptyChildResourceName)]:
+          childManualAttributionEntries.map(([attributionId]) => attributionId),
       }),
     }),
   },
@@ -129,21 +152,37 @@ test('scrolls a selected attribution into view after report navigation', async (
   topBar,
 }) => {
   await window.setViewportSize({ width: 1920, height: 1080 });
-  await resourcesTree.goto(resourceName);
-  await attributionsPanel.packageCard.click(offscreenManualAttribution);
+  await resourcesTree.goto(emptyResourceName);
+  await attributionsPanel.assert.selectedTabIs('onChildren');
+  await attributionsPanel.packageCard.assert.isNotInViewport(
+    reportChildAttribution,
+  );
+  await attributionsPanel.scrollToBottom();
+  await attributionsPanel.assert.loadingIndicatorIsHidden();
+  await attributionsPanel.packageCard.assert.isInViewport(
+    reportChildAttribution,
+  );
+  await attributionsPanel.packageCard.click(reportChildAttribution);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    reportChildAttribution,
+  );
+
   await attributionsPanel.scrollToTop();
   await attributionsPanel.packageCard.assert.isFirstVisible(
-    firstManualAttribution,
+    firstChildAttribution,
+  );
+  await attributionsPanel.packageCard.assert.isNotInViewport(
+    reportChildAttribution,
   );
 
   await topBar.gotoReportView();
-  await reportView.openAttributionInAuditView(offscreenManualAttributionId);
+  await reportView.openAttributionInAuditView(reportChildAttributionId);
 
   await topBar.assert.auditViewIsActive();
-  await attributionsPanel.packageCard.assert.isInViewport(
-    offscreenManualAttribution,
-  );
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
-    offscreenManualAttribution,
+    reportChildAttribution,
+  );
+  await attributionsPanel.packageCard.assert.isInViewport(
+    reportChildAttribution,
   );
 });

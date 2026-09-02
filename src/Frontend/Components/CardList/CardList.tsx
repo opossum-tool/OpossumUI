@@ -6,7 +6,7 @@ import type { ComponentProps } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
 import { type BaseItem, List } from '../List/List';
-import { PACKAGE_CARD_HEIGHT } from '../PackageCard/PackageCard';
+import { PACKAGE_CARD_LIST_ITEM_HEIGHT } from '../PackageCard/PackageCard';
 
 const MAX_NUMBER_OF_CARDS = 4;
 
@@ -18,7 +18,7 @@ export function CardList<ItemType extends BaseItem>({
 }) {
   const height =
     Math.min(MAX_NUMBER_OF_CARDS, props.data?.length ?? 0) *
-      (PACKAGE_CARD_HEIGHT + 1) +
+      PACKAGE_CARD_LIST_ITEM_HEIGHT +
     1;
 
   return (

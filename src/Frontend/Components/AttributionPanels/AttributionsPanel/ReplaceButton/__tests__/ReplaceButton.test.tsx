@@ -58,6 +58,7 @@ describe('ReplaceButton', () => {
         resolvedCount: 0,
       },
       pickerMode: { mode: 'inactive', isActive: false },
+      resultSetKey: 'result-set',
       selectedAttributionId: first.id,
       selectedAttributionIds: [first.id, second.id],
     };

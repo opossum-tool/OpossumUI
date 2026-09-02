@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
@@ -14,13 +14,17 @@ import {
   List,
   type ListItemContentProps,
 } from '../../../List/List';
-import { PackageCard } from '../../../PackageCard/PackageCard';
+import {
+  PACKAGE_CARD_LIST_ITEM_HEIGHT,
+  PackageCard,
+} from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   activeAttributionIds,
+  activeRelation,
   selectedAttributionId,
   contentHeight,
   loading,
@@ -30,25 +34,23 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   isAttributionSelected,
   toggleAttributionSelection,
+  totalAttributionCount,
+  resultSetKey,
 }) => {
   const dispatch = useAppDispatch();
-  const initialSelectedAttributionId = useRef(selectedAttributionId).current;
   const initialSelectedAttributionIndex = useMemo(
-    () =>
-      activeAttributionIds?.findIndex(
-        (id) => id === initialSelectedAttributionId,
-      ),
-    [activeAttributionIds, initialSelectedAttributionId],
+    () => activeAttributionIds?.findIndex((id) => id === selectedAttributionId),
+    [activeAttributionIds, selectedAttributionId],
   );
 
   return (
     <List
       renderItemContent={renderAttributionCard}
-      data={
-        activeAttributionIds?.map((id) => ({
-          id,
-        })) ?? null
-      }
+      key={activeRelation}
+      data={activeAttributionIds?.map((id) => ({ id })) ?? null}
+      totalCount={totalAttributionCount}
+      unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}
+      resultSetKey={resultSetKey}
       components={{ List: SearchList }}
       selectedId={selectedAttributionId}
       initialTopMostItemIndex={
@@ -60,8 +62,10 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
       loading={loading}
       loadingMore={loadingMore}
       loadMoreError={loadMoreError}
-      onRetryLoadMore={() => void fetchNextPage()}
-      endReached={() => void fetchNextPage()}
+      onRetryLoadMore={(requiredEndIndex) =>
+        void fetchNextPage(requiredEndIndex)
+      }
+      endReached={(requiredEndIndex) => void fetchNextPage(requiredEndIndex)}
       increaseViewportBy={{ bottom: INFINITE_LIST_BOTTOM_OVERSCAN, top: 0 }}
       sx={{ transition: TRANSITION, height: contentHeight }}
     />

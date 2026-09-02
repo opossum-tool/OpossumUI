@@ -20,10 +20,12 @@ import { faker } from '../../../testing/Faker';
 import { getParsedInputFileEnrichedWithTestData } from '../../test-helpers/general-test-helpers';
 import { createTestStore, renderHook } from '../../test-helpers/render';
 import {
+  ATTRIBUTION_PAGE_SIZE,
   getAttributionPageQueryKey,
   type InfiniteAttributionData,
 } from '../attribution-page-query';
 import { useAttributionPages } from '../use-attribution-pages';
+import { useAttributionPagination } from '../use-attribution-pagination';
 import { useAuditAttributionsList } from '../use-audit-attributions-list';
 
 const criteria: AttributionResultSetCriteria = {
@@ -187,6 +189,214 @@ describe('useAttributionPages', () => {
 
     releaseNextPage?.();
     await Promise.all([firstFetch, secondFetch]);
+  });
+
+  it('loads only the visible range when a total is known', async () => {
+    const attributions = Object.fromEntries(
+      Array.from({ length: 1000 }, () => {
+        const attribution = faker.opossum.packageInfo();
+        return [attribution.id, attribution];
+      }),
+    );
+    const api = vi.mocked(window.electronAPI.api);
+    api.mockImplementation(async (command, params) => {
+      if (command === 'listAttributionsPage' && params !== undefined) {
+        const offset = 'offset' in params ? params.offset : 0;
+        const limit =
+          'limit' in params && typeof params.limit === 'number'
+            ? params.limit
+            : 200;
+        const entries = Object.entries(attributions);
+        return {
+          result: {
+            attributions: Object.fromEntries(
+              entries.slice(offset, offset + limit),
+            ),
+            offset,
+            limit,
+            hasNextPage: offset + limit < entries.length,
+          },
+        };
+      }
+      return executeCommand(command, params);
+    });
+
+    const { result } = await renderHook(
+      () =>
+        useAttributionPages({
+          criteria,
+          scope: { mode: 'all' },
+          sort,
+          includeReadonly: false,
+          totalCount: Object.keys(attributions).length,
+        }),
+      { data: getParsedInputFileEnrichedWithTestData({}) },
+    );
+
+    await waitFor(() => expect(result.current.attributions).not.toBeNull());
+    await act(async () => {
+      await result.current.fetchNextPage(999);
+    });
+
+    expect(api).toHaveBeenCalledWith(
+      'listAttributionsPage',
+      expect.objectContaining({ offset: 200, limit: 800 }),
+    );
+    await waitFor(() =>
+      expect(Object.keys(result.current.attributions ?? {})).toHaveLength(1000),
+    );
+  });
+
+  it('preserves the loaded visible range when the query is invalidated', async () => {
+    const attributions = Object.fromEntries(
+      Array.from({ length: 1000 }, () => {
+        const attribution = faker.opossum.packageInfo();
+        return [attribution.id, attribution];
+      }),
+    );
+    const fetchPage = vi.fn(
+      ({ offset, limit }: { offset: number; limit: number }) => {
+        const entries = Object.entries(attributions);
+        return Promise.resolve({
+          attributions: Object.fromEntries(
+            entries.slice(offset, offset + limit),
+          ),
+          offset,
+          limit,
+          hasNextPage: offset + limit < entries.length,
+        });
+      },
+    );
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const { result } = nativeRenderHook(
+      () =>
+        useAttributionPagination({
+          queryKey: ['attributions', 'invalidation'],
+          enabled: true,
+          totalCount: Object.keys(attributions).length,
+          fetchPage,
+        }),
+      { wrapper },
+    );
+
+    await waitFor(() => expect(result.current.attributions).not.toBeNull());
+    await act(async () => result.current.fetchNextPage(999));
+    await waitFor(() =>
+      expect(Object.keys(result.current.attributions ?? {})).toHaveLength(1000),
+    );
+
+    fetchPage.mockClear();
+    await queryClient.invalidateQueries({
+      queryKey: ['attributions', 'invalidation'],
+    });
+
+    expect(fetchPage).toHaveBeenCalledTimes(1);
+    expect(fetchPage).toHaveBeenCalledWith({ offset: 0, limit: 1000 });
+    expect(Object.keys(result.current.attributions ?? {})).toHaveLength(1000);
+  });
+
+  it('does not request a prefix when the page reports that the result set is exhausted', async () => {
+    const attribution = faker.opossum.packageInfo();
+    const fetchPage = vi.fn(
+      ({ offset, limit }: { offset: number; limit: number }) =>
+        Promise.resolve({
+          attributions: { [attribution.id]: attribution },
+          offset,
+          limit,
+          hasNextPage: false,
+        }),
+    );
+    const { result } = await renderHook(() =>
+      useAttributionPagination({
+        queryKey: ['attributions'],
+        enabled: true,
+        totalCount: 2,
+        fetchPage,
+      }),
+    );
+
+    await waitFor(() => expect(result.current.attributions).not.toBeNull());
+    await act(async () => result.current.fetchNextPage());
+
+    expect(fetchPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('resets the required range when the query changes', async () => {
+    const firstAttribution = faker.opossum.packageInfo();
+    const secondAttribution = faker.opossum.packageInfo();
+    let releasePrefixRequest = () => {};
+    const pendingPrefixRequest = new Promise<void>((resolve) => {
+      releasePrefixRequest = resolve;
+    });
+    const firstFetchPage = vi.fn(
+      async ({ offset, limit }: { offset: number; limit: number }) => {
+        if (limit > ATTRIBUTION_PAGE_SIZE) {
+          await pendingPrefixRequest;
+        }
+        return {
+          attributions: { [firstAttribution.id]: firstAttribution },
+          offset,
+          limit,
+          hasNextPage: limit === ATTRIBUTION_PAGE_SIZE,
+        };
+      },
+    );
+    const secondFetchPage = vi.fn(
+      ({ offset, limit }: { offset: number; limit: number }) =>
+        Promise.resolve({
+          attributions: { [secondAttribution.id]: secondAttribution },
+          offset,
+          limit,
+          hasNextPage: false,
+        }),
+    );
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const { result, rerender } = nativeRenderHook(
+      ({ resultSet }: { resultSet: 'first' | 'second' }) =>
+        useAttributionPagination({
+          queryKey: ['attributions', resultSet],
+          enabled: true,
+          totalCount: 1000,
+          fetchPage: resultSet === 'first' ? firstFetchPage : secondFetchPage,
+        }),
+      {
+        initialProps: { resultSet: 'first' as 'first' | 'second' },
+        wrapper,
+      },
+    );
+
+    await waitFor(() =>
+      expect(result.current.attributions).toEqual({
+        [firstAttribution.id]: firstAttribution,
+      }),
+    );
+    let prefixRequest: Promise<void> | undefined;
+    act(() => {
+      prefixRequest = result.current.fetchNextPage(500);
+    });
+    await waitFor(() => expect(result.current.isFetchingNextPage).toBe(true));
+
+    rerender({ resultSet: 'second' });
+
+    await waitFor(() =>
+      expect(result.current.attributions).toEqual({
+        [secondAttribution.id]: secondAttribution,
+      }),
+    );
+    expect(result.current.isFetchingNextPage).toBe(false);
+
+    releasePrefixRequest();
+    await act(async () => prefixRequest);
   });
 
   it('sends navigation without relation or offset', async () => {
