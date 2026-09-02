@@ -5,6 +5,28 @@
 import type { QueryClient, QueryKey } from '@tanstack/react-query';
 
 import type { MutationInvalidation } from '../../ElectronBackend/api/mutations';
+import type { FocusedAttributionOutcome } from '../../shared/attribution-selection';
+
+export function removeFocusedAttributionQuery({
+  queryClient,
+  outcome,
+}: {
+  queryClient: QueryClient;
+  outcome: FocusedAttributionOutcome;
+}): void {
+  if (outcome.status === 'unchanged') {
+    return;
+  }
+
+  queryClient.removeQueries({
+    queryKey: [
+      'backend',
+      'getAttributionData',
+      { attributionUuid: outcome.attributionUuid },
+    ],
+    exact: true,
+  });
+}
 
 function queryKeyForInvalidation(invalidation: MutationInvalidation): QueryKey {
   return ['backend', invalidation.queryName];
@@ -40,8 +62,14 @@ async function invalidateAll({
   await Promise.all(
     invalidations
       .filter((invalidation) => !!invalidation.awaitRefetch === awaitRefetch)
-      .map(invalidate),
-  ).catch((error) =>
-    console.error('Failed to invalidate mutation queries.', error),
+      .map((invalidation) =>
+        invalidate(invalidation).catch((error) =>
+          console.error('Failed to invalidate mutation queries.', {
+            awaitRefetch,
+            error,
+            queryName: invalidation.queryName,
+          }),
+        ),
+      ),
   );
 }

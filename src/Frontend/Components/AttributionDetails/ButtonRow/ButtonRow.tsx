@@ -23,7 +23,6 @@ import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setTargetAttributionRelation } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { applyFocusedAttributionOutcome } from '../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getIsPackageInfoDirty,
@@ -33,6 +32,7 @@ import { useAttributionSelectionForReplacement } from '../../../state/variables/
 import { useCompareSelectionSource } from '../../../state/variables/use-compare-selection';
 import { backend } from '../../../util/backendClient';
 import { isPackageInvalid } from '../../../util/input-validation';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../../util/use-focused-attribution-outcome';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import {
   useSelectedAttributionIsExternal,
@@ -63,9 +63,17 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
 
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
-  const linkAttribution = backend.createOrMatchAttributions.useMutation();
-  const updateOrMatch = backend.updateOrMatchAttributions.useMutation();
-  const createOrMatch = backend.createOrMatchAttributions.useMutation();
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
+  const linkAttribution = backend.createOrMatchAttributions.useMutation({
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
+  });
+  const updateOrMatch = backend.updateOrMatchAttributions.useMutation({
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
+  });
+  const createOrMatch = backend.createOrMatchAttributions.useMutation({
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
+  });
   const mutationPending = useIsMutating() > 0;
 
   const { data: resolvedExternalAttributions } =
@@ -137,22 +145,16 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
       if (hasMultipleResources) {
         setIsConfirmSavePopupOpen(true);
       } else if (packageInfo.id) {
-        const result = await updateOrMatch.mutateAsync({
+        await updateOrMatch.mutateAsync({
           attributions: { [packageInfo.id]: packageInfo },
           focusedAttributionUuid: packageInfo.id,
         });
-        dispatch(
-          applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
-        );
       } else {
-        const result = await createOrMatch.mutateAsync({
+        await createOrMatch.mutateAsync({
           resourcePath: selectedResourceId,
           attributions: { [packageInfo.id]: packageInfo },
           focusedAttributionUuid: packageInfo.id,
         });
-        dispatch(
-          applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
-        );
       }
     }
   }, [
@@ -163,7 +165,6 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
     hasMultipleResources,
     attributionResourceInfoReady,
     selectedResourceId,
-    dispatch,
   ]);
 
   useIpcRenderer(AllowedFrontendChannels.SaveFileRequest, () => handleSave(), [
@@ -298,16 +299,11 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             color={'secondary'}
             disabled={isPackageInfoModified || mutationPending}
             onClick={async () => {
-              const result = await linkAttribution.mutateAsync({
+              await linkAttribution.mutateAsync({
                 resourcePath: selectedResourceId,
                 attributions: { [packageInfo.id]: packageInfo },
                 focusedAttributionUuid: packageInfo.id,
               });
-              dispatch(
-                applyFocusedAttributionOutcome(
-                  result.focusedAttributionOutcome,
-                ),
-              );
               dispatch(setTargetAttributionRelation('resource'));
             }}
           >

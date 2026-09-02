@@ -6,8 +6,7 @@ import { useMemo } from 'react';
 
 import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { text } from '../../../shared/text';
-import { applyFocusedAttributionOutcome } from '../../state/actions/resource-actions/navigation-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
   getSelectedResourceId,
@@ -15,6 +14,7 @@ import {
 } from '../../state/selectors/resource-selectors';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
 import { useLinkedAttributionActionData } from '../AttributionAction/useLinkedAttributionActionData';
 import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
 
@@ -31,15 +31,20 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   onClose,
   clearSelection,
 }) => {
-  const dispatch = useAppDispatch();
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
-  const updateOrMatch = backend.updateOrMatchAttributions.useMutation();
+  const updateOrMatch = backend.updateOrMatchAttributions.useMutation({
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
+  });
   const modifyOrMatchOnlyOnOneResource =
-    backend.modifyOrMatchOnlyOnOneResource.useMutation();
+    backend.modifyOrMatchOnlyOnOneResource.useMutation({
+      onBeforeInvalidation: handleFocusedAttributionOutcome,
+    });
   const isSaving =
     updateOrMatch.isPending || modifyOrMatchOnlyOnOneResource.isPending;
   const {
@@ -67,24 +72,22 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   }, [attributionsToSave, selectedAttributionId, temporaryDisplayPackageInfo]);
 
   const handleSaveGlobally = async () => {
-    const result = await updateOrMatch.mutateAsync({
+    await updateOrMatch.mutateAsync({
       selection,
       attributions: modifiedAttributionsToSave,
       focusedAttributionUuid: selectedAttributionId,
     });
-    dispatch(applyFocusedAttributionOutcome(result.focusedAttributionOutcome));
     clearSelection?.();
     onClose();
   };
 
   const handleSaveOnResource = async () => {
-    const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
+    await modifyOrMatchOnlyOnOneResource.mutateAsync({
       resourcePath: selectedResourceId,
       selection,
       attributions: modifiedAttributionsToSave,
       focusedAttributionUuid: selectedAttributionId,
     });
-    dispatch(applyFocusedAttributionOutcome(result.focusedAttributionOutcome));
     clearSelection?.();
     onClose();
   };

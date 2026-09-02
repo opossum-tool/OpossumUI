@@ -9,7 +9,6 @@ import { useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
 import { setTargetAttributionRelation } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
-import { applyFocusedAttributionOutcome } from '../../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
 import {
   getIsPackageInfoDirty,
@@ -17,6 +16,7 @@ import {
   getSelectedResourceId,
 } from '../../../../state/selectors/resource-selectors';
 import { backend } from '../../../../util/backendClient';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../../../util/use-focused-attribution-outcome';
 import {
   useIsSelectedResourceBreakpoint,
   useIsSelectedResourceReadonly,
@@ -40,7 +40,11 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
-  const createOrMatch = backend.createOrMatchAttributions.useMutation();
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
+  const createOrMatch = backend.createOrMatchAttributions.useMutation({
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
+  });
   const mutationsPending = useIsMutating() > 0;
   const selectedCount =
     selection.mode === 'allMatching'
@@ -55,7 +59,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
           attributions[attributionId],
         ]),
       );
-      const result = await createOrMatch.mutateAsync(
+      await createOrMatch.mutateAsync(
         selection.mode === 'allMatching'
           ? {
               resourcePath: selectedResourceId,
@@ -67,9 +71,6 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
               attributions: attributionsToLink,
               focusedAttributionUuid: selectedAttributionId,
             },
-      );
-      dispatch(
-        applyFocusedAttributionOutcome(result.focusedAttributionOutcome),
       );
     }
     dispatch(setTargetAttributionRelation('resource'));

@@ -9,13 +9,99 @@ import {
 } from '@tanstack/react-query';
 
 import { getAttributionInfiniteQueryOptions } from '../attribution-page-query';
-import { invalidateMutationQueries } from '../invalidate-mutation-queries';
+import {
+  invalidateMutationQueries,
+  removeFocusedAttributionQuery,
+} from '../invalidate-mutation-queries';
 
 describe('invalidateMutationQueries', () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
     queryClient = new QueryClient();
+  });
+
+  it('removes a removed focused attribution before broad invalidation', async () => {
+    const removedQueryKey = [
+      'backend',
+      'getAttributionData',
+      { attributionUuid: 'removed' },
+    ] as const;
+    const remainingQueryKey = [
+      'backend',
+      'getAttributionData',
+      { attributionUuid: 'remaining' },
+    ] as const;
+    const removedQueryFn = vi.fn(() => Promise.reject(new Error('no result')));
+    const remainingQueryFn = vi.fn(() => Promise.resolve({ value: 'after' }));
+    queryClient.setQueryData(removedQueryKey, { value: 'before' });
+    queryClient.setQueryData(remainingQueryKey, { value: 'before' });
+    const removedObserver = new QueryObserver(queryClient, {
+      queryKey: removedQueryKey,
+      queryFn: removedQueryFn,
+      staleTime: Infinity,
+    });
+    const remainingObserver = new QueryObserver(queryClient, {
+      queryKey: remainingQueryKey,
+      queryFn: remainingQueryFn,
+      staleTime: Infinity,
+    });
+    const unsubscribeRemoved = removedObserver.subscribe(() => undefined);
+    const unsubscribeRemaining = remainingObserver.subscribe(() => undefined);
+
+    removeFocusedAttributionQuery({
+      queryClient,
+      outcome: { status: 'removed', attributionUuid: 'removed' },
+    });
+    await invalidateMutationQueries({
+      queryClient,
+      invalidations: [{ queryName: 'getAttributionData', awaitRefetch: true }],
+    });
+
+    expect(removedQueryFn).not.toHaveBeenCalled();
+    expect(remainingQueryFn).toHaveBeenCalledTimes(1);
+    expect(
+      queryClient.getQueryCache().find({ queryKey: removedQueryKey }),
+    ).toBe(undefined);
+
+    unsubscribeRemoved();
+    unsubscribeRemaining();
+  });
+
+  it('keeps the focused attribution query for an unchanged outcome', () => {
+    const queryKey = [
+      'backend',
+      'getAttributionData',
+      { attributionUuid: 'unchanged' },
+    ] as const;
+    queryClient.setQueryData(queryKey, { value: 'before' });
+
+    removeFocusedAttributionQuery({
+      queryClient,
+      outcome: { status: 'unchanged' },
+    });
+
+    expect(queryClient.getQueryData(queryKey)).toEqual({ value: 'before' });
+  });
+
+  it('removes the old query for a remapped outcome', () => {
+    const queryKey = [
+      'backend',
+      'getAttributionData',
+      { attributionUuid: 'old' },
+    ] as const;
+    queryClient.setQueryData(queryKey, { value: 'before' });
+
+    removeFocusedAttributionQuery({
+      queryClient,
+      outcome: {
+        status: 'remapped',
+        attributionUuid: 'old',
+        newAttributionUuid: 'new',
+      },
+    });
+
+    expect(queryClient.getQueryCache().find({ queryKey })).toBe(undefined);
   });
 
   it('starts background refreshes without awaiting them', async () => {
