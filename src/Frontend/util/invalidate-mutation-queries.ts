@@ -39,18 +39,23 @@ export async function invalidateMutationQueries({
   queryClient: QueryClient;
   invalidations: Array<MutationInvalidation>;
 }): Promise<void> {
-  await invalidateAll({ queryClient, invalidations, awaitRefetch: true });
-  void invalidateAll({ queryClient, invalidations, awaitRefetch: false });
+  const awaitedInvalidations = invalidations.filter(
+    ({ awaitRefetch }) => awaitRefetch,
+  );
+  const backgroundInvalidations = invalidations.filter(
+    ({ awaitRefetch }) => !awaitRefetch,
+  );
+
+  await invalidateAll({ queryClient, invalidations: awaitedInvalidations });
+  void invalidateAll({ queryClient, invalidations: backgroundInvalidations });
 }
 
 async function invalidateAll({
   queryClient,
   invalidations,
-  awaitRefetch,
 }: {
   queryClient: QueryClient;
   invalidations: Array<MutationInvalidation>;
-  awaitRefetch: boolean;
 }): Promise<void> {
   const invalidate = (invalidation: MutationInvalidation) =>
     queryClient.invalidateQueries(
@@ -60,16 +65,13 @@ async function invalidateAll({
       { throwOnError: true },
     );
   await Promise.all(
-    invalidations
-      .filter((invalidation) => !!invalidation.awaitRefetch === awaitRefetch)
-      .map((invalidation) =>
-        invalidate(invalidation).catch((error) =>
-          console.error('Failed to invalidate mutation queries.', {
-            awaitRefetch,
-            error,
-            queryName: invalidation.queryName,
-          }),
-        ),
+    invalidations.map((invalidation) =>
+      invalidate(invalidation).catch((error) =>
+        console.error('Failed to invalidate mutation queries.', {
+          error,
+          queryName: invalidation.queryName,
+        }),
       ),
+    ),
   );
 }
