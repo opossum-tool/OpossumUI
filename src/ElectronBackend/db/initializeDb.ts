@@ -36,6 +36,7 @@ import type {
   DB,
   SourceForAttribution,
 } from './generated/databaseTypes';
+import { insertReadonlyRules } from './split-info';
 
 type CompleteInsertRow<Table> = Required<Insertable<Table>>;
 type AttributionInsertRow = Omit<
@@ -1043,15 +1044,5 @@ async function initializeReadonlyRuleTable(
     .addColumn('readonly', 'integer', (col) => col.notNull())
     .execute();
 
-  if (readonlyRules.length > 0) {
-    await trx
-      .insertInto('readonly_rule')
-      .values(
-        readonlyRules.map((rule) => ({
-          path: rule.path,
-          readonly: Number(rule.readonly),
-        })),
-      )
-      .execute();
-  }
+  await insertReadonlyRules(trx, readonlyRules);
 }

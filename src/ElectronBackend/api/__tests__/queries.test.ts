@@ -306,6 +306,19 @@ describe('getResourcePathsAndParentsForAttributions', () => {
 
     expect(result).toContain('/beta/');
   });
+
+  it('accepts a large attribution selection', async () => {
+    const attributionUuids = [
+      'uuid1',
+      ...Array.from({ length: 40_000 }, (_, index) => `missing-${index}`),
+    ];
+
+    const { result } = await queries.getResourcePathsAndParentsForAttributions({
+      attributionUuids,
+    });
+
+    expect(result).toContain('/src/linked/');
+  });
 });
 
 describe('getProgressBarData', () => {
