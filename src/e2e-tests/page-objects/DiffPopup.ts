@@ -5,38 +5,37 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import { text } from '../../shared/text';
-import { AttributionForm } from './AttributionForm';
+
+type DiffPopupSide = 'left' | 'right';
+type EditableAuditingOption = 'followUp' | 'needsReview' | 'excludedFromNotice';
+type AttributionType = 'First Party' | 'Third Party';
+type LegalField = 'copyright' | 'licenseName' | 'licenseText';
 
 export class DiffPopup {
-  private readonly node: Locator;
-  readonly originalAttributionForm: AttributionForm;
-  readonly currentAttributionForm: AttributionForm;
-  readonly applyButton: Locator;
-  readonly revertAllButton: Locator;
+  readonly node: Locator;
   readonly cancelButton: Locator;
+  readonly saveButton: Locator;
+  readonly leftPackageName: Locator;
+  readonly rightPackageName: Locator;
+  readonly leftPackageVersion: Locator;
+  readonly rightPackageVersion: Locator;
+  readonly header: Locator;
 
   constructor(window: Page) {
-    this.node = window.getByLabel('diff popup', { exact: true });
-    this.originalAttributionForm = new AttributionForm(
-      this.node.getByLabel('original', { exact: true }),
-      window,
-    );
-    this.currentAttributionForm = new AttributionForm(
-      this.node.getByLabel('current', { exact: true }),
-      window,
-    );
-    this.applyButton = this.node.getByRole('button', {
-      name: text.diffPopup.applyChanges,
-      exact: true,
-    });
-    this.revertAllButton = this.node.getByRole('button', {
-      name: text.diffPopup.revertAll,
-      exact: true,
-    });
+    this.node = window.getByLabel(text.diffPopup.ariaLabel, { exact: true });
     this.cancelButton = this.node.getByRole('button', {
       name: text.buttons.cancel,
       exact: true,
     });
+    this.saveButton = this.node.getByRole('button', {
+      name: text.diffPopup.saveChanges,
+      exact: true,
+    });
+    this.leftPackageName = this.node.getByTestId('left-packageName');
+    this.rightPackageName = this.node.getByTestId('right-packageName');
+    this.leftPackageVersion = this.node.getByTestId('left-packageVersion');
+    this.rightPackageVersion = this.node.getByTestId('right-packageVersion');
+    this.header = this.node.getByTestId('comparison-header');
   }
 
   public assert = {
@@ -46,23 +45,123 @@ export class DiffPopup {
     isHidden: async (): Promise<void> => {
       await expect(this.node).toBeHidden();
     },
-    applyButtonIsHidden: async () => {
-      await expect(this.applyButton).toBeHidden();
+    leftPackageNameIs: async (value: string): Promise<void> => {
+      await expect(this.leftPackageName).toHaveValue(value);
     },
-    applyButtonIsDisabled: async () => {
-      await expect(this.applyButton).toBeDisabled();
+    rightPackageNameIs: async (value: string): Promise<void> => {
+      await expect(this.rightPackageName).toHaveValue(value);
     },
-    revertAllButtonIsHidden: async () => {
-      await expect(this.revertAllButton).toBeHidden();
+    rightPackageVersionIs: async (value: string): Promise<void> => {
+      await expect(this.rightPackageVersion).toHaveValue(value);
     },
-    noDiffArrowsAreVisible: async () => {
-      await expect(this.node.getByTestId('packageName-undo')).toBeHidden();
-      await expect(this.node.getByTestId('packageName-redo')).toBeHidden();
-      await expect(this.node.getByTestId('firstParty-undo')).toBeHidden();
-      await expect(this.node.getByTestId('firstParty-redo')).toBeHidden();
+    leftTitleIs: async (value: string): Promise<void> => {
+      await expect(this.header.locator(':scope > *').first()).toContainText(
+        value,
+      );
     },
-    revertAllButtonIsDisabled: async () => {
-      await expect(this.revertAllButton).toBeDisabled();
+    rightTitleIs: async (value: string): Promise<void> => {
+      await expect(this.header.locator(':scope > *').last()).toContainText(
+        value,
+      );
+    },
+    rightPackageNameIsDirty: async (): Promise<void> => {
+      await expect(
+        this.node.getByTestId('right-packageName-field'),
+      ).toHaveAttribute('data-dirty', 'true');
+    },
+    attributionTypeIs: async (
+      side: DiffPopupSide,
+      type: AttributionType,
+    ): Promise<void> => {
+      await expect(
+        this.typeField(side).getByRole('button', { name: type, exact: true }),
+      ).toHaveAttribute('aria-pressed', 'true');
+    },
+    legalFieldsAreHidden: async (side: DiffPopupSide): Promise<void> => {
+      for (const field of [
+        'copyright',
+        'licenseName',
+        'licenseText',
+      ] as const) {
+        await expect(this.legalField(side, field)).toBeHidden();
+      }
+    },
+    legalFieldIs: async (
+      side: DiffPopupSide,
+      field: LegalField,
+      value: string,
+    ): Promise<void> => {
+      await expect(this.legalField(side, field)).toHaveValue(value);
+    },
+    auditingOptionIsVisible: async (
+      side: DiffPopupSide,
+      option: 'follow-up' | 'needs-review' | 'excluded-from-notice',
+    ): Promise<void> => {
+      await expect(
+        this.auditingOptions(side).getByTestId(`auditing-option-${option}`),
+      ).toBeVisible();
     },
   };
+
+  async addAuditingOption(
+    side: DiffPopupSide,
+    option: EditableAuditingOption,
+  ): Promise<void> {
+    await this.auditingOptions(side)
+      .getByRole('button', { name: text.auditingOptions.add, exact: true })
+      .click();
+    await this.node
+      .page()
+      .getByRole('menuitem', {
+        name: text.auditingOptions[option],
+        exact: true,
+      })
+      .click();
+    await this.node.page().keyboard.press('Escape');
+  }
+
+  async selectAttributionType(
+    side: DiffPopupSide,
+    type: AttributionType,
+  ): Promise<void> {
+    await this.typeField(side)
+      .getByRole('group', { name: text.diffPopup.attributionType })
+      .getByRole('button', { name: type, exact: true })
+      .click();
+  }
+
+  async restoreAttributionType(
+    side: DiffPopupSide,
+    originalType: AttributionType,
+    itemLabel: string,
+  ): Promise<void> {
+    await this.typeField(side)
+      .getByRole('button', {
+        name: text.diffPopup.restoreField(originalType, itemLabel),
+        exact: true,
+      })
+      .click();
+  }
+
+  async expandLicenseText(side: DiffPopupSide): Promise<void> {
+    await this.node
+      .getByTestId(`${side}-licenseName-field`)
+      .getByRole('button', {
+        name: 'license-text-toggle-button',
+        exact: true,
+      })
+      .click();
+  }
+
+  private auditingOptions(side: DiffPopupSide): Locator {
+    return this.node.getByTestId(`${side}-auditing-options`);
+  }
+
+  private typeField(side: DiffPopupSide): Locator {
+    return this.node.getByTestId(`${side}-firstParty-field`);
+  }
+
+  private legalField(side: DiffPopupSide, field: LegalField): Locator {
+    return this.node.getByTestId(`${side}-${field}`);
+  }
 }

@@ -2,112 +2,56 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import NotesIcon from '@mui/icons-material/Notes';
-import { Badge, ToggleButton } from '@mui/material';
-import MuiBox from '@mui/material/Box';
-import { skipToken } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import type { PackageInfo } from '../../../../shared/shared-types';
-import { text } from '../../../../shared/text';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../../state/hooks';
-import { backend } from '../../../util/backendClient';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
-import { TextBox } from '../../TextBox/TextBox';
-import type { AttributionFormConfig } from '../AttributionForm';
-import { LicenseSubPanelAutocomplete } from './LicenseSubPanelAutocomplete';
+import { LicenseNameField } from './LicenseNameField';
+import type { LicensePatch } from './LicenseSubPanelAutocomplete';
+import { LicenseTextField } from './LicenseTextField';
 
 interface LicenseSubPanelProps {
   packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
-  expanded?: boolean;
   hidden?: boolean;
-  config?: AttributionFormConfig;
 }
 
 export function LicenseSubPanel({
   packageInfo,
   showHighlight,
   onEdit,
-  expanded,
   hidden,
-  config,
 }: LicenseSubPanelProps) {
   const [showLicenseText, setShowLicenseText] = useState(false);
   const dispatch = useAppDispatch();
-  const frequentLicenseTextResult = backend.getFrequentLicenseText.useQuery(
-    packageInfo.licenseName && !packageInfo.licenseText
-      ? { licenseName: packageInfo.licenseName }
-      : skipToken,
-  );
-  const defaultLicenseText =
-    packageInfo.licenseText || !packageInfo.licenseName
-      ? undefined
-      : (frequentLicenseTextResult.data ?? undefined);
+  const updateLicense = (patch: LicensePatch) =>
+    onEdit?.(() =>
+      dispatch(setTemporaryDisplayPackageInfo({ ...packageInfo, ...patch })),
+    );
 
   return hidden ? null : (
     <>
-      <MuiBox sx={{ display: 'flex', alignItems: 'start', gap: '8px' }}>
-        <LicenseSubPanelAutocomplete
+      <LicenseNameField
+        licenseName={packageInfo.licenseName}
+        licenseText={packageInfo.licenseText}
+        onUpdate={updateLicense}
+        showHighlight={showHighlight}
+        readOnly={!onEdit}
+        forceTop={true}
+        showLicenseText={showLicenseText}
+        onToggleLicenseText={() => setShowLicenseText((prev) => !prev)}
+      />
+      {showLicenseText && (
+        <LicenseTextField
           packageInfo={packageInfo}
-          showHighlight={showHighlight}
-          onEdit={onEdit}
-          config={config}
-          forceTop={true}
-        />
-        {!expanded && (
-          <ToggleButton
-            value={'license-text'}
-            selected={showLicenseText}
-            onChange={() => setShowLicenseText((prev) => !prev)}
-            size={'small'}
-            aria-label="license-text-toggle-button"
-          >
-            <Badge
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              color={'info'}
-              variant={'dot'}
-              invisible={!packageInfo.licenseText}
-            >
-              <NotesIcon />
-            </Badge>
-          </ToggleButton>
-        )}
-      </MuiBox>
-      {(showLicenseText || expanded) && (
-        <TextBox
+          onUpdate={updateLicense}
           readOnly={!onEdit}
-          placeholder={defaultLicenseText}
           maxRows={8}
           minRows={3}
-          color={config?.licenseText?.color}
-          error={
-            showHighlight &&
-            !packageInfo.licenseName &&
-            !packageInfo.licenseText
-          }
-          focused={config?.licenseText?.focused}
-          multiline
-          expanded={expanded}
-          title={
-            defaultLicenseText
-              ? text.attributionColumn.licenseTextDefault
-              : text.attributionColumn.licenseText
-          }
-          text={packageInfo.licenseText}
-          handleChange={({ target: { value } }) =>
-            onEdit?.(() =>
-              dispatch(
-                setTemporaryDisplayPackageInfo({
-                  ...packageInfo,
-                  licenseText: value,
-                }),
-              ),
-            )
-          }
-          endIcon={config?.licenseText?.endIcon}
+          showHighlight={showHighlight}
         />
       )}
     </>

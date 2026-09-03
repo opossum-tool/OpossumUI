@@ -41,8 +41,6 @@ export const COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES = [
   'wasPreferred',
 ] satisfies Array<keyof PackageInfo>;
 
-export type FormAttribute = (typeof FORM_ATTRIBUTES)[number];
-
 function filterComparableAttributes(
   packageInfo: PackageInfo,
   attributeList: Array<keyof PackageInfo>,

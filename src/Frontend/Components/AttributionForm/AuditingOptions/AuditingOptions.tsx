@@ -13,6 +13,7 @@ import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { baseIcon } from '../../../shared-styles';
 import { SelectMenu } from '../../SelectMenu/SelectMenu';
+import type { AuditingPropertiesPatch } from './AuditingOptions.types';
 import { useAuditingOptions } from './AuditingOptions.util';
 
 const classes = {
@@ -22,15 +23,17 @@ const classes = {
 interface Props {
   packageInfo: PackageInfo;
   isEditable: boolean;
+  onUpdate: (patch: AuditingPropertiesPatch) => void;
   sx?: SxProps<Theme>;
 }
 
 export const AuditingOptions: React.FC<Props> = ({
   packageInfo,
   isEditable,
+  onUpdate,
   sx,
 }) => {
-  const options = useAuditingOptions({ packageInfo, isEditable });
+  const options = useAuditingOptions({ packageInfo, isEditable, onUpdate });
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const interactiveOptions = options.filter(({ interactive }) => interactive);
   const hasUnselectedInteractiveOption = options.some(
