@@ -18,6 +18,7 @@ import type {
 } from '../../../shared/attribution-result-set';
 import type { Relation } from '../../../shared/shared-types';
 import type { DB } from '../../db/generated/databaseTypes';
+import { jsonArraySelection } from '../../db/json-array-selection';
 import { EDITABLE_ATTRIBUTION_RESOURCE_ACCESS } from '../../types/types';
 import {
   getFilterExpression,
@@ -62,12 +63,6 @@ const frontendToBackendRelationship = {
   parents: 'ancestor',
   unrelated: 'unrelated',
 } as const;
-
-export function uuidSelection(uuids: Array<string>) {
-  return sql<string>`(
-    select value from json_each(${JSON.stringify(uuids)})
-  )`;
-}
 
 export function getAttributionSourceNameExpression(
   eb: ExpressionBuilder<DB, 'attribution'>,
@@ -271,7 +266,7 @@ export function applyExcludedAttributionUuids(
     ? query.where(
         'attribution.uuid',
         'not in',
-        uuidSelection(excludedAttributionUuids),
+        jsonArraySelection(excludedAttributionUuids),
       )
     : query;
 }

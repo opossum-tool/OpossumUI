@@ -13,6 +13,7 @@ import {
   OPOSSUM_FILE_EXTENSION,
 } from '../../shared/write-file-utils';
 import { getDb } from '../db/db';
+import { jsonArraySelection } from '../db/json-array-selection';
 import {
   createSplitRules,
   getReadonlyRuleMap,
@@ -116,7 +117,7 @@ async function validateResourcesExist(paths: string[]) {
   const selectedResources = await getDb()
     .selectFrom('resource')
     .select('path')
-    .where('path', 'in', paths)
+    .where('path', 'in', jsonArraySelection(paths))
     .execute();
   const selectedResourcePathsInDatabase = new Set(
     selectedResources.map((resource) => resource.path),

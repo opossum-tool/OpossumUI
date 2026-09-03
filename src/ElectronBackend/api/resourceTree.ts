@@ -13,6 +13,7 @@ import {
 
 import { getDb } from '../db/db';
 import type { DB, Resource } from '../db/generated/databaseTypes';
+import { jsonArraySelection } from '../db/json-array-selection';
 import {
   getOnlyExternalFilesQuery,
   getOnlyPreSelectedManualFilesQuery,
@@ -232,7 +233,9 @@ export function getResourceTree({
                 query = query.where(
                   'parent.path',
                   'in',
-                  expandedNodes.map((e) => removeTrailingSlash(e)),
+                  jsonArraySelection(
+                    expandedNodes.map((e) => removeTrailingSlash(e)),
+                  ),
                 );
               }
 
@@ -437,7 +440,11 @@ function getFilteredResourcesQuery(
           .selectFrom('resource_to_attribution as rta')
           .select('rta.resource_id')
           .whereRef('rta.resource_id', '=', 'r.id')
-          .where('rta.attribution_uuid', 'in', onAttributionUuids),
+          .where(
+            'rta.attribution_uuid',
+            'in',
+            jsonArraySelection(onAttributionUuids),
+          ),
       ),
     );
   }
