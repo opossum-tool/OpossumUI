@@ -74,15 +74,12 @@ test('lets the user pick a compare target on another resource via compare-select
 
   await attributionDetails.compareSelectionConfirmButton.click();
   await diffPopup.assert.isVisible();
-  await diffPopup.originalAttributionForm.assert.nameIs(
+  await diffPopup.assert.leftPackageNameIs(
     manualPackageInfo1.packageName || '',
   );
-  await diffPopup.currentAttributionForm.assert.nameIs(
+  await diffPopup.assert.rightPackageNameIs(
     manualPackageInfo2.packageName || '',
   );
-  await diffPopup.assert.applyButtonIsHidden();
-  await diffPopup.assert.revertAllButtonIsHidden();
-  await diffPopup.assert.noDiffArrowsAreVisible();
 
   await diffPopup.cancelButton.click();
   await diffPopup.assert.isHidden();
@@ -93,5 +90,57 @@ test('lets the user pick a compare target on another resource via compare-select
   await attributionDetails.assert.compareSelectionConfirmButtonIsVisible();
   await attributionDetails.attributionForm.assert.nameIs(
     manualPackageInfo2.packageName || '',
+  );
+});
+
+test('saves edits made to both sides of a comparison', async ({
+  attributionDetails,
+  attributionsPanel,
+  diffPopup,
+  resourcesTree,
+}) => {
+  const preexistingLeftPackageName = 'preexisting-left-edit';
+  const editedLeftPackageName = faker.lorem.word();
+  const editedRightPackageName = 'final-right-edit';
+
+  await resourcesTree.goto(resourceName1);
+  await attributionDetails.attributionForm.name.fill(
+    preexistingLeftPackageName,
+  );
+  await attributionDetails.saveChanges();
+  await attributionDetails.compareWithButton.click();
+  await resourcesTree.goto(resourceName2);
+  await attributionsPanel.packageCard.click(manualPackageInfo2);
+  await attributionDetails.compareSelectionConfirmButton.click();
+  await diffPopup.assert.isVisible();
+  await diffPopup.assert.leftPackageNameIs(preexistingLeftPackageName);
+
+  await diffPopup.addAuditingOption('left', 'followUp');
+  await diffPopup.addAuditingOption('right', 'needsReview');
+  await diffPopup.assert.auditingOptionIsVisible('left', 'follow-up');
+  await diffPopup.assert.auditingOptionIsVisible('right', 'needs-review');
+
+  await diffPopup.leftPackageName.fill(editedLeftPackageName);
+  await diffPopup.rightPackageName.fill(editedRightPackageName);
+  await diffPopup.saveButton.click();
+  await diffPopup.assert.isHidden();
+
+  await attributionDetails.attributionForm.assert.nameIs(
+    editedRightPackageName,
+  );
+  await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
+    'needsReviewLabel',
+  );
+
+  await resourcesTree.goto(resourceName1);
+  const editedLeftPackageInfo = {
+    ...manualPackageInfo1,
+    packageName: editedLeftPackageName,
+  };
+  await attributionsPanel.packageCard.assert.isVisible(editedLeftPackageInfo);
+  await attributionsPanel.packageCard.click(editedLeftPackageInfo);
+  await attributionDetails.attributionForm.assert.nameIs(editedLeftPackageName);
+  await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
+    'followUpLabel',
   );
 });

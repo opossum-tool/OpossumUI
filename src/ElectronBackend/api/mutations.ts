@@ -534,25 +534,35 @@ export const mutations = {
           trx,
           params,
         );
+        const resolvedAttributionEntries = Object.entries(attributions);
+        const resolvedAttributionUuids = resolvedAttributionEntries.map(
+          ([attributionUuid]) => attributionUuid,
+        );
+        const splitUuids = await cloneMixedAttributionsForWritableResources(
+          trx,
+          resolvedAttributionUuids,
+        );
+        const matchingExcludedUuids = new Set([
+          ...resolvedAttributionUuids,
+          ...Object.values(splitUuids),
+        ]);
         const oldUuidsToNewUuids: Record<string, string> = {};
-        for (const [attributionUuid, attributionData] of Object.entries(
-          attributions,
-        )) {
-          const splitUuids = await cloneMixedAttributionsForWritableResources(
-            trx,
-            [attributionUuid],
-          );
+        for (const [
+          attributionUuid,
+          attributionData,
+        ] of resolvedAttributionEntries) {
           const writableAttributionUuid = splitUuids[attributionUuid];
-          // Updating an attribution always removes preselected
-          const newPackageInfo = omit(attributionData, 'preSelected');
+
+          // Exclude pending edits so matching cannot use their old values.
+          // After processing each edit, remove its writable UUID from the
+          // exclusion set so later edits can match its final value.
+          const packageInfo = omit(attributionData, 'preSelected');
           const matchingAttributionUuid = await findMatchingAttributionUuid(
             trx,
-            newPackageInfo,
-            {
-              excludeUuids: [attributionUuid, writableAttributionUuid],
-            },
+            packageInfo,
+            { excludeUuids: [...matchingExcludedUuids] },
           );
-          if (matchingAttributionUuid) {
+          if (matchingAttributionUuid !== undefined) {
             await replaceAttributions(trx, {
               attributionUuidsToReplace: [writableAttributionUuid],
               attributionUuidToReplaceWith: matchingAttributionUuid,
@@ -560,12 +570,15 @@ export const mutations = {
             oldUuidsToNewUuids[attributionUuid] = matchingAttributionUuid;
           } else {
             await updateAttribution(trx, writableAttributionUuid, {
-              ...newPackageInfo,
+              ...packageInfo,
               id: writableAttributionUuid,
             });
             oldUuidsToNewUuids[attributionUuid] = writableAttributionUuid;
           }
+
+          matchingExcludedUuids.delete(writableAttributionUuid);
         }
+
         return getFocusedAttributionRemappingOutcome(
           params.focusedAttributionUuid,
           oldUuidsToNewUuids,

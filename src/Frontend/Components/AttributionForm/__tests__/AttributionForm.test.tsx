@@ -21,7 +21,73 @@ import { generatePurl } from '../../../util/handle-purl';
 import { AttributionForm } from '../AttributionForm';
 
 describe('AttributionForm', () => {
+  describe('attribution type', () => {
+    it('changes the attribution type after confirmation', async () => {
+      const packageInfo = faker.opossum.packageInfo({ firstParty: false });
+      const onEdit = vi.fn((onConfirm: () => unknown) => {
+        void onConfirm();
+        return Promise.resolve(true);
+      });
+      const { store } = await renderComponent(
+        <AttributionForm packageInfo={packageInfo} onEdit={onEdit} />,
+      );
+
+      await userEvent.click(
+        screen.getByRole('button', { name: text.filters.firstParty }),
+      );
+
+      expect(onEdit).toHaveBeenCalledOnce();
+      expect(getTemporaryDisplayPackageInfo(store.getState()).firstParty).toBe(
+        true,
+      );
+    });
+
+    it('ignores clicks on the selected attribution type', async () => {
+      const packageInfo = faker.opossum.packageInfo({ firstParty: false });
+      const onEdit = vi.fn((onConfirm: () => unknown) => {
+        void onConfirm();
+        return Promise.resolve(true);
+      });
+      await renderComponent(
+        <AttributionForm packageInfo={packageInfo} onEdit={onEdit} />,
+      );
+
+      await userEvent.click(
+        screen.getByRole('button', { name: text.filters.thirdParty }),
+      );
+
+      expect(onEdit).not.toHaveBeenCalled();
+    });
+
+    it('disables the attribution type when the form is read-only', async () => {
+      await renderComponent(
+        <AttributionForm packageInfo={faker.opossum.packageInfo()} />,
+      );
+
+      expect(
+        screen.getByRole('button', { name: text.filters.firstParty }),
+      ).toBeDisabled();
+    });
+  });
+
   describe('PURL handling', () => {
+    it('confirms ordinary package edits before updating the form state', async () => {
+      const packageInfo = faker.opossum.packageInfo({ packageName: 'before' });
+      const onEdit = vi.fn();
+      const { store } = await renderComponent(
+        <AttributionForm packageInfo={packageInfo} onEdit={onEdit} />,
+      );
+
+      const packageName = screen.getByDisplayValue('before');
+      await userEvent.clear(packageName);
+      await userEvent.type(packageName, 'after');
+
+      expect(onEdit).toHaveBeenCalled();
+      expect(getTemporaryDisplayPackageInfo(store.getState()).packageName).toBe(
+        undefined,
+      );
+    });
+
     it('copies PURL to clipboard', async () => {
       const writeText = vi.fn();
       vi.stubGlobal('navigator', {
@@ -39,15 +105,19 @@ describe('AttributionForm', () => {
     });
 
     it('pastes PURL from clipboard', async () => {
-      const packageInfo = faker.opossum.packageInfo();
-      const purl = generatePurl(packageInfo);
-      const readText = vi.fn().mockReturnValue(purl.toString());
+      const packageInfo = faker.opossum.packageInfo({
+        packageName: 'before',
+        packageVersion: '1.0.0',
+        packageType: 'npm',
+      });
+      const readText = vi.fn().mockReturnValue('pkg:npm/after@2.0.0');
+      const onEdit = vi.fn();
       vi.stubGlobal('navigator', {
         clipboard: { readText },
       });
 
-      await renderComponent(
-        <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
+      const { store } = await renderComponent(
+        <AttributionForm packageInfo={packageInfo} onEdit={onEdit} />,
       );
 
       await userEvent.click(
@@ -55,15 +125,34 @@ describe('AttributionForm', () => {
       );
 
       expect(readText).toHaveBeenCalledTimes(1);
-      expect(
-        screen.getByDisplayValue(packageInfo.packageName!),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByDisplayValue(packageInfo.packageVersion!),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByDisplayValue(packageInfo.packageType!),
-      ).toBeInTheDocument();
+      expect(onEdit).not.toHaveBeenCalled();
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
+        packageName: 'after',
+        packageVersion: '2.0.0',
+        packageType: 'npm',
+      });
+    });
+
+    it('confirms before URL enrichment', async () => {
+      const onEdit = vi.fn();
+      await renderComponent(
+        <AttributionForm
+          packageInfo={faker.opossum.packageInfo({
+            packageName: 'package',
+            packageType: 'npm',
+            url: undefined,
+            copyright: undefined,
+            licenseName: undefined,
+          })}
+          onEdit={onEdit}
+        />,
+      );
+
+      await userEvent.click(
+        screen.getByLabelText(text.attributionColumn.getUrlAndLegal),
+      );
+
+      expect(onEdit).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -460,9 +549,10 @@ describe('AttributionForm', () => {
         },
       );
 
-      await userEvent.click(
-        screen.getByLabelText('license-text-toggle-button'),
-      );
+      const toggle = screen.getByLabelText('license-text-toggle-button');
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      await userEvent.click(toggle);
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
 
       expect(
         screen.getByRole('textbox', {
