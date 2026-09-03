@@ -2,170 +2,134 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiDivider from '@mui/material/Divider';
+import { useIsMutating } from '@tanstack/react-query';
+import { useRef } from 'react';
 
-import {
-  FORM_ATTRIBUTES,
-  isEqualToExternalAttribution,
-} from '../../../shared/attribution-comparison';
-import type { PackageInfo } from '../../../shared/shared-types';
+import type { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch } from '../../state/hooks';
-import { AttributionForm } from '../AttributionForm/AttributionForm';
+import { OpossumColors } from '../../shared-styles';
+import { backend } from '../../util/backendClient';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { DiffPopupContainer } from './DiffPopup.style';
-import {
-  stripLicenseInfoIfFirstParty,
-  useAttributionFormConfigs,
-} from './DiffPopup.util';
+import { ComparisonView } from './ComparisonView';
+import type { ComparisonItem } from './DiffPopup.util';
+import { useComparisonState } from './use-comparison-state';
 
-interface DiffPopupProps {
-  original: PackageInfo;
-  current: PackageInfo;
+export type { ComparisonItem } from './DiffPopup.util';
+
+export interface DiffPopupProps {
+  leftItem: ComparisonItem;
+  rightItem: ComparisonItem;
+  ariaLabel?: string;
   isOpen: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  onApply?: () => void;
-  readOnly?: boolean;
-  comparisonMode?: 'compare-to-original' | 'compare-attributions';
+  onClose: () => void;
+  onSaveSuccess?: (acceptedAttributions: Attributions) => void;
 }
 
 export function DiffPopup({
-  current,
-  original,
+  leftItem,
+  rightItem,
   isOpen,
-  setOpen,
-  onApply,
-  readOnly,
-  comparisonMode = 'compare-to-original',
+  ...props
 }: DiffPopupProps) {
-  const dispatch = useAppDispatch();
+  if (!isOpen) {
+    return null;
+  }
+  return (
+    <DiffPopupSession
+      key={JSON.stringify([leftItem.packageInfo.id, rightItem.packageInfo.id])}
+      leftItem={leftItem}
+      rightItem={rightItem}
+      isOpen={isOpen}
+      {...props}
+    />
+  );
+}
 
-  const {
-    originalFormConfig,
-    bufferFormConfig,
-    bufferPackageInfo,
-    setBufferPackageInfo,
-  } = useAttributionFormConfigs({
-    original: stripLicenseInfoIfFirstParty(original),
-    current: stripLicenseInfoIfFirstParty(current),
-    readOnly,
+function DiffPopupSession({
+  leftItem,
+  rightItem,
+  ariaLabel = text.diffPopup.ariaLabel,
+  isOpen,
+  onClose,
+  onSaveSuccess,
+}: DiffPopupProps) {
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
+  const acceptedAttributionsRef = useRef<Attributions>({});
+  const updateOrMatch = backend.updateOrMatchAttributions.useMutation({
+    onBeforeInvalidation: (result) => {
+      onSaveSuccess?.(acceptedAttributionsRef.current);
+      handleFocusedAttributionOutcome(result);
+    },
   });
+  const isSaving = updateOrMatch.isPending;
+  const isBusy = useIsMutating() > 0;
+  const comparison = useComparisonState(leftItem, rightItem, isBusy);
 
-  function handleApplyChanges({
-    buffer,
-    current,
-  }: {
-    current: PackageInfo;
-    buffer: PackageInfo;
-  }) {
-    const restoreLicenseAndCopyright = current.firstParty && buffer.firstParty;
-    dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...buffer,
-        ...(restoreLicenseAndCopyright && {
-          copyright: current.copyright,
-          licenseName: current.licenseName,
-          licenseText: current.licenseText,
-        }),
-        // Preserve the current attribution's origin linkage: the compared
-        // target might not be the actual original signal.
-        originalAttributionId: current.originalAttributionId,
-        originalAttributionSource: current.originalAttributionSource,
-        originalAttributionWasPreferred:
-          current.originalAttributionWasPreferred,
-      }),
-    );
-    onApply?.();
-    setOpen(false);
+  async function handleSave() {
+    if (isBusy || !comparison.canSave) {
+      return;
+    }
+    if (Object.keys(comparison.mutationCandidates).length > 0) {
+      acceptedAttributionsRef.current = comparison.acceptedAttributions;
+      await updateOrMatch.mutateAsync({
+        attributions: comparison.mutationCandidates,
+        focusedAttributionUuid: comparison.items.right.packageInfo.id,
+      });
+    } else {
+      onSaveSuccess?.(comparison.acceptedAttributions);
+    }
+    onClose();
+  }
+
+  function handleDismiss() {
+    if (!isBusy) {
+      onClose();
+    }
   }
 
   return (
     <NotificationPopup
       header={text.diffPopup.title}
-      leftButtonConfig={
-        comparisonMode === 'compare-attributions'
-          ? undefined
-          : {
-              disabled:
-                readOnly ||
-                isEqualToExternalAttribution(bufferPackageInfo, current),
-              buttonText: text.diffPopup.applyChanges,
-              onClick: () => {
-                handleApplyChanges({ current, buffer: bufferPackageInfo });
-              },
-            }
-      }
-      centerRightButtonConfig={
-        comparisonMode === 'compare-attributions'
-          ? undefined
-          : {
-              disabled:
-                readOnly ||
-                isEqualToExternalAttribution(bufferPackageInfo, original),
-              buttonText: text.diffPopup.revertAll,
-              onClick: () => {
-                setBufferPackageInfo({
-                  ...bufferPackageInfo,
-                  ...FORM_ATTRIBUTES.reduce(
-                    (acc, attribute) => ({
-                      ...acc,
-                      [attribute]: original[attribute],
-                    }),
-                    {},
-                  ),
-                });
-              },
-            }
-      }
-      rightButtonConfig={{
-        buttonText: text.buttons.cancel,
-        color: 'secondary',
-        onClick: () => setOpen(false),
-      }}
       isOpen={isOpen}
+      onBackdropClick={handleDismiss}
+      onEscapeKeyDown={handleDismiss}
+      aria-label={ariaLabel}
       background={'lightestBlue'}
       fullWidth={true}
-      aria-label={'diff popup'}
+      width={'min(1200px, calc(100vw - 32px))'}
+      height={'calc(100vh - 64px)'}
+      titleSx={{ padding: '8px 24px 6px' }}
+      actionsSx={{ padding: '4px 8px' }}
+      sx={{
+        background: OpossumColors.almostWhiteBlue,
+        padding: 0,
+      }}
+      leftButtonConfig={{
+        buttonText: text.buttons.cancel,
+        color: 'secondary',
+        disabled: isBusy,
+        onClick: handleDismiss,
+      }}
+      rightButtonConfig={{
+        buttonText: text.diffPopup.saveChanges,
+        color: 'primary',
+        disabled: !comparison.canSave || isBusy,
+        loading: isSaving,
+        onClick: handleSave,
+      }}
     >
-      {renderDiffView()}
+      <ComparisonView
+        items={comparison.items}
+        drafts={comparison.drafts}
+        dirty={comparison.dirty}
+        isBusy={isBusy}
+        onChange={comparison.onChange}
+        onCopy={comparison.onCopy}
+        onUndo={comparison.onUndo}
+        onUndoAuditing={comparison.onUndoAuditing}
+      />
     </NotificationPopup>
   );
-
-  function renderDiffView() {
-    const sectionPrefixes =
-      comparisonMode === 'compare-attributions'
-        ? {
-            original: text.attributionColumn.selected,
-            current: text.attributionColumn.compared,
-          }
-        : {
-            original: text.attributionColumn.original,
-            current: text.attributionColumn.current,
-          };
-
-    return (
-      <DiffPopupContainer>
-        <AttributionForm
-          packageInfo={stripLicenseInfoIfFirstParty(original)}
-          variant={'diff-original'}
-          label={'original'}
-          config={originalFormConfig}
-          sectionPrefix={sectionPrefixes.original}
-        />
-        <MuiDivider
-          variant={'middle'}
-          flexItem={true}
-          orientation={'vertical'}
-        />
-        <AttributionForm
-          packageInfo={bufferPackageInfo}
-          variant={'diff-current'}
-          label={'current'}
-          config={bufferFormConfig}
-          sectionPrefix={sectionPrefixes.current}
-        />
-      </DiffPopupContainer>
-    );
-  }
 }

@@ -18,7 +18,10 @@ import { skipToken, useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
-import type { PackageInfo } from '../../../../shared/shared-types';
+import type {
+  Attributions,
+  PackageInfo,
+} from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
@@ -31,6 +34,7 @@ import {
 import { useAttributionSelectionForReplacement } from '../../../state/variables/use-attribution-selection-for-replacement';
 import { useCompareSelectionSource } from '../../../state/variables/use-compare-selection';
 import { backend } from '../../../util/backendClient';
+import { getCardLabels } from '../../../util/get-card-labels';
 import { isPackageInvalid } from '../../../util/input-validation';
 import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../../util/use-focused-attribution-outcome';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
@@ -93,11 +97,33 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   const originalAttribution = packageInfo.originalAttributionId
     ? originalAttributionQuery.data?.packageInfo
     : undefined;
+  const originalAttributionIsExternal =
+    originalAttributionQuery.data?.isExternal;
 
   const [isDiffPopupOpen, setIsDiffPopupOpen] = useState(false);
 
-  const { compareSelectionSource, setCompareSelectionSource } =
-    useCompareSelectionSource();
+  const {
+    compareSelectionSource,
+    compareSelectionSourceIsExternal,
+    clearCompareSelectionAfterSave,
+    setCompareSelectionSource,
+  } = useCompareSelectionSource();
+  const acceptDiffAttributions = useCallback(
+    (acceptedAttributions: Attributions) => {
+      const acceptedPackageInfo = acceptedAttributions[packageInfo.id];
+      if (acceptedPackageInfo !== undefined) {
+        dispatch(setTemporaryDisplayPackageInfo(acceptedPackageInfo));
+      }
+    },
+    [dispatch, packageInfo.id],
+  );
+  const handleCompareSelectionSaveSuccess = useCallback(
+    (acceptedAttributions: Attributions) => {
+      acceptDiffAttributions(acceptedAttributions);
+      clearCompareSelectionAfterSave();
+    },
+    [acceptDiffAttributions, clearCompareSelectionAfterSave],
+  );
   const [isCompareSelectionDiffOpen, setIsCompareSelectionDiffOpen] =
     useState(false);
 
@@ -449,11 +475,20 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
           </span>
         </MuiTooltip>
         <DiffPopup
-          original={originalAttribution}
-          current={packageInfo}
+          leftItem={{
+            packageInfo: originalAttribution,
+            isExternal: originalAttributionIsExternal ?? true,
+            label: text.attributionColumn.original,
+          }}
+          rightItem={{
+            packageInfo,
+            originalPackageInfo: initialPackageInfo ?? packageInfo,
+            isExternal: selectedAttributionIsExternal ?? false,
+            label: text.attributionColumn.current,
+          }}
           isOpen={isDiffPopupOpen}
-          setOpen={setIsDiffPopupOpen}
-          key={isDiffPopupOpen.toString()}
+          onClose={() => setIsDiffPopupOpen(false)}
+          onSaveSuccess={acceptDiffAttributions}
         />
       </>
     );
@@ -505,13 +540,22 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
         {renderPickerModeCancelButton(() => setCompareSelectionSource(null))}
         {compareSelectionSource && !isPreviewingSource && (
           <DiffPopup
-            original={compareSelectionSource}
-            current={packageInfo}
+            leftItem={{
+              packageInfo: compareSelectionSource,
+              isExternal: compareSelectionSourceIsExternal ?? false,
+              label:
+                getCardLabels(compareSelectionSource)[0] ??
+                compareSelectionSource.id,
+            }}
+            rightItem={{
+              packageInfo,
+              originalPackageInfo: initialPackageInfo ?? packageInfo,
+              isExternal: selectedAttributionIsExternal ?? false,
+              label: getCardLabels(packageInfo)[0] ?? packageInfo.id,
+            }}
             isOpen={isCompareSelectionDiffOpen}
-            setOpen={setIsCompareSelectionDiffOpen}
-            readOnly
-            comparisonMode={'compare-attributions'}
-            key={isCompareSelectionDiffOpen.toString()}
+            onClose={() => setIsCompareSelectionDiffOpen(false)}
+            onSaveSuccess={handleCompareSelectionSaveSuccess}
           />
         )}
       </>

@@ -3,9 +3,16 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen, waitFor, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
@@ -32,6 +39,30 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { renderComponent } from '../../../test-helpers/render';
 import { backend } from '../../../util/backendClient';
 import { AttributionDetails } from '../AttributionDetails';
+
+function makeComparisonPackage(
+  overrides: Partial<PackageInfo> = {},
+): PackageInfo {
+  return {
+    id: 'package',
+    attributionConfidence: 50,
+    criticality: Criticality.None,
+    packageName: 'react',
+    packageVersion: '18.2.0',
+    packageType: 'npm',
+    url: 'https://react.dev',
+    ...overrides,
+  };
+}
+
+function makeComparisonData(
+  overrides: Parameters<typeof getParsedInputFileEnrichedWithTestData>[0],
+) {
+  return getParsedInputFileEnrichedWithTestData({
+    resources: pathsToResources(['/comparison.ts']),
+    ...overrides,
+  });
+}
 
 describe('AttributionDetails', () => {
   it('renders nothing for a readonly structural ancestor without a selected attribution', async () => {
@@ -419,12 +450,20 @@ describe('AttributionDetails', () => {
   });
 
   it('saves modified attribution', async () => {
-    const packageInfo1 = faker.opossum.packageInfo();
-    const packageInfo2 = faker.opossum.packageInfo();
-    const newPackageName = faker.company.name();
-    const resourceId = faker.system.filePath();
+    const packageInfo1 = makeComparisonPackage({
+      id: 'first',
+      packageName: 'opening-name',
+      attributionConfidence: 50,
+    });
+    const packageInfo2 = makeComparisonPackage({
+      id: 'second',
+      packageName: 'other-name',
+      attributionConfidence: 80,
+    });
+    const newPackageName = 'edited-name';
+    const resourceId = '/comparison.ts';
     const { store } = await renderComponent(<AttributionDetails />, {
-      data: getParsedInputFileEnrichedWithTestData({
+      data: makeComparisonData({
         manualAttributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -857,71 +896,63 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    const diffPopup = within(screen.getByLabelText('diff popup'));
+    const diffPopup = within(screen.getByLabelText(text.diffPopup.ariaLabel));
     expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
     expect(
-      diffPopup.getByText(
-        text.attributionColumn.sectionTitle(
-          text.attributionColumn.original,
-          text.attributionColumn.packageCoordinates,
-        ),
-      ),
+      diffPopup.getByText(text.attributionColumn.packageCoordinates),
     ).toBeInTheDocument();
     expect(
-      diffPopup.getByText(
-        text.attributionColumn.sectionTitle(
-          text.attributionColumn.current,
-          text.attributionColumn.packageCoordinates,
-        ),
-      ),
+      diffPopup.getByText(text.attributionColumn.legalInformation),
     ).toBeInTheDocument();
   });
 
-  it('preserves the original attribution link when applying changes from the original comparison target', async () => {
-    const signal = faker.opossum.packageInfo();
-    const attribution = faker.opossum.packageInfo({
-      originalAttributionId: signal.id,
+  it('keeps unsaved details when cancelling a comparison to the persisted value', async () => {
+    const original = makeComparisonPackage({
+      id: 'original',
+      packageName: 'A',
+    });
+    const attribution = makeComparisonPackage({
+      id: 'attribution',
+      packageName: 'A',
+      originalAttributionId: original.id,
     });
     const resourceId = faker.system.filePath();
     const { store } = await renderComponent(<AttributionDetails />, {
-      data: getParsedInputFileEnrichedWithTestData({
-        manualAttributions: faker.opossum.attributions({
-          [attribution.id]: attribution,
-        }),
-        externalAttributions: faker.opossum.attributions({
-          [signal.id]: signal,
-        }),
+      data: makeComparisonData({
+        manualAttributions: { [attribution.id]: attribution },
+        externalAttributions: { [original.id]: original },
         resourcesToManualAttributions: {
           [resourceId]: [attribution.id],
         },
         resourcesToExternalAttributions: {
-          [resourceId]: [signal.id],
+          [resourceId]: [original.id],
         },
         resources: pathsToResources([resourceId]),
       }),
       actions: [
         setSelectedResourceId(resourceId),
-        setTemporaryDisplayPackageInfo(attribution),
         setSelectedAttributionId(attribution.id),
       ],
     });
 
+    const packageName = await screen.findByLabelText(
+      text.attributionColumn.packageName,
+    );
+    await waitFor(() => expect(packageName).not.toHaveAttribute('readonly'));
+    fireEvent.change(packageName, { target: { value: 'B' } });
     await userEvent.click(
       await screen.findByRole('button', {
         name: text.attributionColumn.compareToOriginal,
       }),
     );
-
-    await userEvent.click(screen.getByTestId('packageName-undo'));
     await userEvent.click(
-      screen.getByRole('button', { name: text.diffPopup.applyChanges }),
+      screen.getByRole('button', { name: text.buttons.cancel }),
     );
 
-    await waitFor(() =>
-      expect(
-        getTemporaryDisplayPackageInfo(store.getState()).originalAttributionId,
-      ).toBe(signal.id),
-    );
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
+      ...attribution,
+      packageName: 'B',
+    });
   });
 
   it('enters compare-selection mode and shows only Cancel while previewing the compare source', async () => {
@@ -1046,46 +1077,20 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    const diffPopup = within(screen.getByLabelText('diff popup'));
+    const diffPopup = within(screen.getByLabelText(text.diffPopup.ariaLabel));
     expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
     expect(
       diffPopup.getByDisplayValue(target.packageName!),
     ).toBeInTheDocument();
     expect(
-      diffPopup.getByText(
-        text.attributionColumn.sectionTitle(
-          text.attributionColumn.compared,
-          text.attributionColumn.packageCoordinates,
-        ),
-      ),
+      diffPopup.getByText(text.attributionColumn.packageCoordinates),
     ).toBeInTheDocument();
     expect(
-      diffPopup.getByText(
-        text.attributionColumn.sectionTitle(
-          text.attributionColumn.selected,
-          text.attributionColumn.packageCoordinates,
-        ),
-      ),
+      diffPopup.getByText(text.attributionColumn.legalInformation),
     ).toBeInTheDocument();
     expect(
-      diffPopup.queryByText(
-        text.attributionColumn.sectionTitle(
-          text.attributionColumn.original,
-          text.attributionColumn.packageCoordinates,
-        ),
-      ),
+      diffPopup.queryByText(text.attributionColumn.original),
     ).not.toBeInTheDocument();
-
-    expect(
-      screen.queryByRole('button', { name: text.diffPopup.applyChanges }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: text.diffPopup.revertAll }),
-    ).not.toBeInTheDocument();
-    expect(diffPopup.queryByTestId('packageName-undo')).not.toBeInTheDocument();
-    expect(diffPopup.queryByTestId('packageName-redo')).not.toBeInTheDocument();
-    expect(diffPopup.queryByTestId('firstParty-undo')).not.toBeInTheDocument();
-    expect(diffPopup.queryByTestId('firstParty-redo')).not.toBeInTheDocument();
   });
 
   it('resets temporaryDisplayPackageInfo when selected attribution changes', async () => {

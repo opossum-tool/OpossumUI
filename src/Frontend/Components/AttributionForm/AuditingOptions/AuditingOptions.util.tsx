@@ -14,9 +14,6 @@ import { useMemo } from 'react';
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { OpossumColors } from '../../../shared-styles';
-import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch, useAppStore } from '../../../state/hooks';
-import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { backend } from '../../../util/backendClient';
 import { prettifySource } from '../../../util/prettify-source';
@@ -35,6 +32,7 @@ import {
   WasPreferredIcon,
 } from '../../Icons/Icons';
 import type { SelectMenuOption } from '../../SelectMenu/SelectMenu';
+import type { AuditingPropertiesPatch } from './AuditingOptions.types';
 
 interface AuditingOption extends SelectMenuOption {
   id: string;
@@ -44,12 +42,12 @@ interface AuditingOption extends SelectMenuOption {
 export function useAuditingOptions({
   packageInfo,
   isEditable,
+  onUpdate,
 }: {
   packageInfo: PackageInfo;
   isEditable: boolean;
+  onUpdate: (patch: AuditingPropertiesPatch) => void;
 }) {
-  const dispatch = useAppDispatch();
-  const store = useAppStore();
   const { data: isPreferenceFeatureEnabled } =
     backend.isPreferenceFeatureEnabled.useQuery();
   const classifications = useClassifications();
@@ -95,20 +93,8 @@ export function useAuditingOptions({
         label: text.auditingOptions.currentlyPreferred,
         icon: <PreferredIcon noTooltip />,
         selected: !!packageInfo.preferred,
-        onAdd: () =>
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...getTemporaryDisplayPackageInfo(store.getState()),
-              preferred: true,
-            }),
-          ),
-        onDelete: () =>
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...getTemporaryDisplayPackageInfo(store.getState()),
-              preferred: false,
-            }),
-          ),
+        onAdd: () => onUpdate({ preferred: true }),
+        onDelete: () => onUpdate({ preferred: false }),
         interactive: !!isPreferenceFeatureEnabled && qaMode && isEditable,
       },
       {
@@ -144,20 +130,8 @@ export function useAuditingOptions({
         label: text.auditingOptions.followUp,
         icon: <FollowUpIcon noTooltip />,
         selected: !!packageInfo.followUp,
-        onAdd: () =>
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...getTemporaryDisplayPackageInfo(store.getState()),
-              followUp: true,
-            }),
-          ),
-        onDelete: () =>
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...getTemporaryDisplayPackageInfo(store.getState()),
-              followUp: false,
-            }),
-          ),
+        onAdd: () => onUpdate({ followUp: true }),
+        onDelete: () => onUpdate({ followUp: false }),
         interactive: isEditable,
       },
       {
@@ -165,20 +139,8 @@ export function useAuditingOptions({
         label: text.auditingOptions.needsReview,
         icon: <NeedsReviewIcon noTooltip />,
         selected: !!packageInfo.needsReview,
-        onAdd: () =>
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...getTemporaryDisplayPackageInfo(store.getState()),
-              needsReview: true,
-            }),
-          ),
-        onDelete: () =>
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...getTemporaryDisplayPackageInfo(store.getState()),
-              needsReview: false,
-            }),
-          ),
+        onAdd: () => onUpdate({ needsReview: true }),
+        onDelete: () => onUpdate({ needsReview: false }),
         interactive: isEditable,
       },
       {
@@ -186,20 +148,8 @@ export function useAuditingOptions({
         label: text.auditingOptions.excludedFromNotice,
         icon: <ExcludeFromNoticeIcon noTooltip />,
         selected: !!packageInfo.excludeFromNotice,
-        onAdd: () =>
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...getTemporaryDisplayPackageInfo(store.getState()),
-              excludeFromNotice: true,
-            }),
-          ),
-        onDelete: () =>
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...getTemporaryDisplayPackageInfo(store.getState()),
-              excludeFromNotice: false,
-            }),
-          ),
+        onAdd: () => onUpdate({ excludeFromNotice: true }),
+        onDelete: () => onUpdate({ excludeFromNotice: false }),
         interactive: isEditable,
       },
       {
@@ -247,15 +197,11 @@ export function useAuditingOptions({
               },
             }}
             value={((packageInfo.attributionConfidence || 0) / 100) * 5}
-            onChange={(_, newValue) =>
-              newValue &&
-              dispatch(
-                setTemporaryDisplayPackageInfo({
-                  ...getTemporaryDisplayPackageInfo(store.getState()),
-                  attributionConfidence: newValue * 20,
-                }),
-              )
-            }
+            onChange={(_, newValue) => {
+              if (newValue) {
+                onUpdate({ attributionConfidence: newValue * 20 });
+              }
+            }}
             slotProps={{
               icon: {
                 component: ({
@@ -270,7 +216,7 @@ export function useAuditingOptions({
                         ((packageInfo.attributionConfidence || 0) / 100) * 5,
                       ) !== value
                     }
-                    aria-label={`confidence of ${value}`}
+                    aria-label={text.auditingOptions.confidenceOf(value)}
                     {...rest}
                   >
                     {getSatisfaction(value)}
@@ -289,7 +235,6 @@ export function useAuditingOptions({
     [
       prettySources,
       classifications,
-      dispatch,
       compareToOriginal,
       isEditable,
       isPreferenceFeatureEnabled,
@@ -308,7 +253,7 @@ export function useAuditingOptions({
       showCriticality,
       source.fromOrigin,
       source.sourceName,
-      store,
+      onUpdate,
     ],
   );
 }
