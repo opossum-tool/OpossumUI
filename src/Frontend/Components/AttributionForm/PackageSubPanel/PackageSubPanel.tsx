@@ -3,318 +3,106 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import ContentPasteIcon from '@mui/icons-material/ContentPaste';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import MuiBox from '@mui/material/Box';
 import { styled } from '@mui/system';
-import { useMemo } from 'react';
 
-import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
-import { text } from '../../../../shared/text';
-import { clickableIcon } from '../../../shared-styles';
-import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch } from '../../../state/hooks';
-import { generatePurl, parsePurl } from '../../../util/handle-purl';
-import { openUrl } from '../../../util/open-url';
-import { PackageSearchHooks } from '../../../util/package-search-hooks';
-import { useDebouncedInput } from '../../../util/use-debounced-input';
+import type { PackageInfo } from '../../../../shared/shared-types';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
-import { IconButton } from '../../IconButton/IconButton';
-import { TextBox } from '../../TextBox/TextBox';
-import { toast } from '../../Toaster';
-import type { AttributionFormConfig } from '../AttributionForm';
+import type { PackagePatch } from '../attribution-form.types';
 import { attributionColumnClasses } from '../AttributionForm.style';
-import { PackageAutocomplete } from '../PackageAutocomplete/PackageAutocomplete';
+import {
+  PACKAGE_FIELD_METADATA,
+  PackageAutocomplete,
+} from '../PackageAutocomplete/PackageAutocomplete';
+import {
+  PurlField,
+  urlActions,
+  usePackageFieldDefaults,
+} from './PackageFields';
 
-/** https://github.com/package-url/purl-spec/blob/main/purl-types-index.json */
-const COMMON_PACKAGE_TYPES = [
-  'alpm',
-  'apk',
-  'bazel',
-  'bitbucket',
-  'bitnami',
-  'cargo',
-  'cocoapods',
-  'composer',
-  'conan',
-  'conda',
-  'cpan',
-  'cran',
-  'deb',
-  'docker',
-  'gem',
-  'generic',
-  'github',
-  'golang',
-  'hackage',
-  'hex',
-  'huggingface',
-  'julia',
-  'luarocks',
-  'maven',
-  'mlflow',
-  'npm',
-  'nuget',
-  'oci',
-  'pub',
-  'pypi',
-  'qpkg',
-  'rpm',
-  'swid',
-  'swift',
-];
-
-const DisplayRow = styled('div')({
-  display: 'flex',
-  gap: '8px',
-});
+const DisplayRow = styled('div')({ display: 'flex', gap: '8px' });
 
 interface PackageSubPanelProps {
   packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
-  isDiff?: boolean;
-  config?: AttributionFormConfig;
+  onUpdate: (patch: PackagePatch) => void;
 }
 
 export function PackageSubPanel({
   packageInfo,
   showHighlight,
   onEdit,
-  isDiff,
-  config,
+  onUpdate,
 }: PackageSubPanelProps) {
-  const dispatch = useAppDispatch();
-  const defaultPackageTypes = useMemo(
-    () =>
-      COMMON_PACKAGE_TYPES.map<PackageInfo>((packageType) => ({
-        id: packageType,
-        packageType,
-        source: {
-          name: text.attributionColumn.commonEcosystems,
-        },
-        criticality: Criticality.None,
-      })),
-    [],
-  );
-
-  const debouncedPackageInfo = useDebouncedInput(packageInfo);
-
-  const { packageNames } = PackageSearchHooks.usePackageNames(
-    debouncedPackageInfo,
-    { disabled: !onEdit },
-  );
-  const { packageNamespaces } = PackageSearchHooks.usePackageNamespaces(
-    debouncedPackageInfo,
-    { disabled: !onEdit },
-  );
-  const { packageVersions } = PackageSearchHooks.usePackageVersions(
-    debouncedPackageInfo,
-    { disabled: !onEdit },
-  );
-  const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo({
-    showToasts: true,
-  });
-
+  const defaults = usePackageFieldDefaults(packageInfo, !onEdit);
+  const editable = !!onEdit;
   return (
     <MuiBox sx={attributionColumnClasses.panel}>
       <DisplayRow>
-        {renderPackageName()}
-        {renderPackageNamespace()}
+        <PackageAutocomplete
+          attribute="packageName"
+          title={PACKAGE_FIELD_METADATA.packageName.label}
+          packageInfo={packageInfo}
+          defaults={defaults.packageName}
+          onUpdate={onUpdate}
+          onEdit={onEdit}
+          readOnly={!editable}
+          showHighlight={showHighlight}
+        />
+        <PackageAutocomplete
+          attribute="packageNamespace"
+          title={PACKAGE_FIELD_METADATA.packageNamespace.label}
+          packageInfo={packageInfo}
+          defaults={defaults.packageNamespace}
+          onUpdate={onUpdate}
+          onEdit={onEdit}
+          readOnly={!editable}
+          showHighlight={showHighlight}
+        />
       </DisplayRow>
       <DisplayRow>
-        {renderPackageVersion()}
-        {renderPackageType()}
+        <PackageAutocomplete
+          attribute="packageVersion"
+          title={PACKAGE_FIELD_METADATA.packageVersion.label}
+          packageInfo={packageInfo}
+          defaults={defaults.packageVersion}
+          onUpdate={onUpdate}
+          onEdit={onEdit}
+          readOnly={!editable}
+          showHighlight={showHighlight}
+        />
+        <PackageAutocomplete
+          attribute="packageType"
+          title={PACKAGE_FIELD_METADATA.packageType.label}
+          packageInfo={packageInfo}
+          defaults={defaults.packageType}
+          onUpdate={onUpdate}
+          onEdit={onEdit}
+          readOnly={!editable}
+          showHighlight={showHighlight}
+        />
       </DisplayRow>
-      {renderPurl()}
-      {renderRepositoryUrl()}
+      <PurlField
+        packageInfo={packageInfo}
+        onUpdate={onUpdate}
+        readOnly={!editable}
+      />
+      <PackageAutocomplete
+        attribute="url"
+        title={PACKAGE_FIELD_METADATA.url.label}
+        packageInfo={packageInfo}
+        onUpdate={onUpdate}
+        onEdit={onEdit}
+        readOnly={!editable}
+        showHighlight={showHighlight}
+        endAdornment={urlActions({
+          packageInfo,
+          onUpdate,
+          onEdit,
+          editable,
+        })}
+      />
     </MuiBox>
   );
-
-  function renderPackageName() {
-    return (
-      <PackageAutocomplete
-        attribute={'packageName'}
-        title={text.attributionColumn.packageName}
-        packageInfo={packageInfo}
-        readOnly={!onEdit}
-        showHighlight={showHighlight}
-        defaults={packageNames}
-        onEdit={onEdit}
-        color={config?.packageName?.color}
-        focused={config?.packageName?.focused}
-        endAdornment={config?.packageName?.endIcon}
-      />
-    );
-  }
-
-  function renderPackageNamespace() {
-    return (
-      <PackageAutocomplete
-        attribute={'packageNamespace'}
-        title={text.attributionColumn.packageNamespace}
-        packageInfo={packageInfo}
-        readOnly={!onEdit}
-        showHighlight={showHighlight}
-        defaults={packageNamespaces}
-        onEdit={onEdit}
-        color={config?.packageNamespace?.color}
-        focused={config?.packageNamespace?.focused}
-        endAdornment={config?.packageNamespace?.endIcon}
-      />
-    );
-  }
-
-  function renderPackageVersion() {
-    return (
-      <PackageAutocomplete
-        attribute={'packageVersion'}
-        title={text.attributionColumn.packageVersion}
-        packageInfo={packageInfo}
-        readOnly={!onEdit}
-        showHighlight={showHighlight}
-        defaults={packageVersions}
-        onEdit={onEdit}
-        color={config?.packageVersion?.color}
-        focused={config?.packageVersion?.focused}
-        endAdornment={config?.packageVersion?.endIcon}
-      />
-    );
-  }
-
-  function renderPackageType() {
-    return (
-      <PackageAutocomplete
-        attribute={'packageType'}
-        title={text.attributionColumn.packageType}
-        packageInfo={packageInfo}
-        readOnly={!onEdit}
-        showHighlight={showHighlight}
-        defaults={defaultPackageTypes}
-        onEdit={onEdit}
-        color={config?.packageType?.color}
-        focused={config?.packageType?.focused}
-        endAdornment={config?.packageType?.endIcon}
-      />
-    );
-  }
-
-  function renderPurl() {
-    const purl = generatePurl(packageInfo);
-
-    return (
-      <TextBox
-        sx={attributionColumnClasses.textBox}
-        title={text.attributionColumn.purl}
-        text={purl}
-        disabled
-        endIcon={
-          isDiff
-            ? undefined
-            : [
-                <IconButton
-                  tooltipTitle={text.attributionColumn.copyToClipboard}
-                  tooltipPlacement="left"
-                  onClick={async () => {
-                    await navigator.clipboard.writeText(purl);
-                    toast.success(
-                      text.attributionColumn.copyToClipboardSuccess,
-                    );
-                  }}
-                  icon={<ContentCopyIcon sx={clickableIcon} />}
-                  hidden={!purl}
-                  aria-label={text.attributionColumn.copyToClipboard}
-                  key={text.attributionColumn.copyToClipboard}
-                />,
-                <IconButton
-                  tooltipTitle={text.attributionColumn.pasteFromClipboard}
-                  hidden={!onEdit}
-                  tooltipPlacement="left"
-                  onClick={async () => {
-                    const parsedPurl = parsePurl(
-                      await navigator.clipboard.readText(),
-                    );
-                    if (parsedPurl) {
-                      dispatch(
-                        setTemporaryDisplayPackageInfo({
-                          ...packageInfo,
-                          packageName: parsedPurl.name,
-                          packageVersion: parsedPurl.version ?? undefined,
-                          packageType: parsedPurl.type,
-                          packageNamespace: parsedPurl.namespace ?? undefined,
-                        }),
-                      );
-                      toast.success(
-                        text.attributionColumn.copyToClipboardSuccess,
-                      );
-                    } else {
-                      toast.error(
-                        text.attributionColumn.pasteFromClipboardFailed,
-                      );
-                    }
-                  }}
-                  icon={<ContentPasteIcon sx={clickableIcon} />}
-                  aria-label={text.attributionColumn.pasteFromClipboard}
-                  key={text.attributionColumn.pasteFromClipboard}
-                />,
-              ]
-        }
-      />
-    );
-  }
-
-  function renderRepositoryUrl() {
-    return (
-      <PackageAutocomplete
-        attribute={'url'}
-        title={text.attributionColumn.upstreamAddress}
-        packageInfo={packageInfo}
-        readOnly={!onEdit}
-        showHighlight={showHighlight}
-        onEdit={onEdit}
-        color={config?.url?.color}
-        focused={config?.url?.focused}
-        endAdornment={
-          config?.url?.endIcon || [
-            <IconButton
-              tooltipTitle={text.attributionColumn.getUrlAndLegal}
-              tooltipPlacement={'left'}
-              hidden={
-                !packageInfo.packageName ||
-                !packageInfo.packageType ||
-                !!(
-                  packageInfo.url &&
-                  packageInfo.copyright &&
-                  packageInfo.licenseName
-                ) ||
-                !onEdit
-              }
-              onClick={() =>
-                onEdit?.(async () => {
-                  const enriched = await enrichPackageInfo(packageInfo);
-                  if (enriched) {
-                    dispatch(setTemporaryDisplayPackageInfo(enriched));
-                  }
-                })
-              }
-              icon={<AutoFixHighIcon sx={clickableIcon} />}
-              key={text.attributionColumn.getUrlAndLegal}
-            />,
-            <IconButton
-              tooltipTitle={text.attributionColumn.openLinkInBrowser}
-              tooltipPlacement={'left'}
-              onClick={() => openUrl(packageInfo.url)}
-              hidden={!packageInfo.url}
-              icon={
-                <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
-              }
-              key={text.attributionColumn.openLinkInBrowser}
-            />,
-          ]
-        }
-      />
-    );
-  }
 }

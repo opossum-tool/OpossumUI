@@ -3,9 +3,17 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen, waitFor, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { executeCommand } from '../../../../ElectronBackend/api/commands';
+import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
@@ -20,6 +28,7 @@ import { setUserSetting } from '../../../state/actions/user-settings-actions/use
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import {
   getIsPackageInfoDirty,
+  getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
 import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-selection-for-replacement';
@@ -33,7 +42,35 @@ import { renderComponent } from '../../../test-helpers/render';
 import { backend } from '../../../util/backendClient';
 import { AttributionDetails } from '../AttributionDetails';
 
+function makeComparisonPackage(
+  overrides: Partial<PackageInfo> = {},
+): PackageInfo {
+  return {
+    id: 'package',
+    attributionConfidence: 50,
+    criticality: Criticality.None,
+    packageName: 'react',
+    packageVersion: '18.2.0',
+    packageType: 'npm',
+    url: 'https://react.dev',
+    ...overrides,
+  };
+}
+
+function makeComparisonData(
+  overrides: Parameters<typeof getParsedInputFileEnrichedWithTestData>[0],
+) {
+  return getParsedInputFileEnrichedWithTestData({
+    resources: pathsToResources(['/comparison.ts']),
+    ...overrides,
+  });
+}
+
 describe('AttributionDetails', () => {
+  afterEach(() => {
+    vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
+  });
+
   it('renders nothing for a readonly structural ancestor without a selected attribution', async () => {
     const { container } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
@@ -419,12 +456,20 @@ describe('AttributionDetails', () => {
   });
 
   it('saves modified attribution', async () => {
-    const packageInfo1 = faker.opossum.packageInfo();
-    const packageInfo2 = faker.opossum.packageInfo();
-    const newPackageName = faker.company.name();
-    const resourceId = faker.system.filePath();
+    const packageInfo1 = makeComparisonPackage({
+      id: 'first',
+      packageName: 'opening-name',
+      attributionConfidence: 50,
+    });
+    const packageInfo2 = makeComparisonPackage({
+      id: 'second',
+      packageName: 'other-name',
+      attributionConfidence: 80,
+    });
+    const newPackageName = 'edited-name';
+    const resourceId = '/comparison.ts';
     const { store } = await renderComponent(<AttributionDetails />, {
-      data: getParsedInputFileEnrichedWithTestData({
+      data: makeComparisonData({
         manualAttributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
           [packageInfo2.id]: packageInfo2,
@@ -857,27 +902,132 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    const diffPopup = within(screen.getByLabelText('diff popup'));
+    const diffPopup = within(screen.getByLabelText(text.diffPopup.ariaLabel));
     expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
     expect(
-      diffPopup.getByText(
-        text.attributionColumn.sectionTitle(
-          text.attributionColumn.original,
-          text.attributionColumn.packageCoordinates,
-        ),
-      ),
+      diffPopup.getByText(text.attributionColumn.packageCoordinates),
     ).toBeInTheDocument();
     expect(
-      diffPopup.getByText(
-        text.attributionColumn.sectionTitle(
-          text.attributionColumn.current,
-          text.attributionColumn.packageCoordinates,
-        ),
-      ),
+      diffPopup.getByText(text.attributionColumn.legalInformation),
     ).toBeInTheDocument();
   });
 
-  it('preserves the original attribution link when applying changes from the original comparison target', async () => {
+  it('restores the persisted value from an unsaved comparison without updating the database', async () => {
+    const original = makeComparisonPackage({
+      id: 'original',
+      packageName: 'A',
+    });
+    const attribution = makeComparisonPackage({
+      id: 'attribution',
+      packageName: 'A',
+      originalAttributionId: original.id,
+    });
+    const resourceId = '/comparison.ts';
+    const api = vi.mocked(window.electronAPI.api);
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: makeComparisonData({
+        manualAttributions: { [attribution.id]: attribution },
+        externalAttributions: { [original.id]: original },
+        resourcesToManualAttributions: {
+          [resourceId]: [attribution.id],
+        },
+        resourcesToExternalAttributions: {
+          [resourceId]: [original.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setSelectedAttributionId(attribution.id),
+      ],
+    });
+
+    const packageName = await screen.findByLabelText(
+      text.attributionColumn.packageName,
+    );
+    await waitFor(() => expect(packageName).not.toHaveAttribute('readonly'));
+    fireEvent.change(packageName, { target: { value: 'B' } });
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareToOriginal,
+      }),
+    );
+
+    const diffPopup = within(screen.getByLabelText(text.diffPopup.ariaLabel));
+    await userEvent.click(
+      diffPopup.getByRole('button', {
+        name: `${text.diffPopup.copyLeftToRight}: ${text.attributionColumn.packageName}`,
+      }),
+    );
+    await userEvent.click(
+      diffPopup.getByRole('button', { name: text.diffPopup.saveChanges }),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.queryByLabelText(text.diffPopup.ariaLabel),
+      ).not.toBeInTheDocument(),
+    );
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
+      attribution,
+    );
+    expect(
+      api.mock.calls.filter(
+        ([command]) => command === 'updateOrMatchAttributions',
+      ),
+    ).toHaveLength(0);
+  });
+
+  it('keeps unsaved details when cancelling a comparison to the persisted value', async () => {
+    const original = makeComparisonPackage({
+      id: 'original',
+      packageName: 'A',
+    });
+    const attribution = makeComparisonPackage({
+      id: 'attribution',
+      packageName: 'A',
+      originalAttributionId: original.id,
+    });
+    const resourceId = faker.system.filePath();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: makeComparisonData({
+        manualAttributions: { [attribution.id]: attribution },
+        externalAttributions: { [original.id]: original },
+        resourcesToManualAttributions: {
+          [resourceId]: [attribution.id],
+        },
+        resourcesToExternalAttributions: {
+          [resourceId]: [original.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setSelectedAttributionId(attribution.id),
+      ],
+    });
+
+    const packageName = await screen.findByLabelText(
+      text.attributionColumn.packageName,
+    );
+    await waitFor(() => expect(packageName).not.toHaveAttribute('readonly'));
+    fireEvent.change(packageName, { target: { value: 'B' } });
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareToOriginal,
+      }),
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: text.buttons.cancel }),
+    );
+
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
+      ...attribution,
+      packageName: 'B',
+    });
+  });
+
+  it('discards local comparison edits when closing the original comparison', async () => {
     const signal = faker.opossum.packageInfo();
     const attribution = faker.opossum.packageInfo({
       originalAttributionId: signal.id,
@@ -912,15 +1062,74 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    await userEvent.click(screen.getByTestId('packageName-undo'));
     await userEvent.click(
-      screen.getByRole('button', { name: text.diffPopup.applyChanges }),
+      screen.getByRole('button', { name: text.buttons.cancel }),
+    );
+
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
+      attribution,
+    );
+  });
+
+  it('keeps backend metadata authoritative after accepting comparison edits', async () => {
+    const original = makeComparisonPackage({
+      id: 'original',
+      wasPreferred: true,
+      attributionConfidence: 80,
+    });
+    const attribution = {
+      ...original,
+      id: 'attribution',
+      originalAttributionId: original.id,
+      attributionConfidence: 50,
+      wasPreferred: false,
+    };
+    const resourceId = '/comparison.ts';
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: makeComparisonData({
+        manualAttributions: { [attribution.id]: attribution },
+        externalAttributions: { [original.id]: original },
+        resourcesToManualAttributions: {
+          [resourceId]: [attribution.id],
+        },
+        resourcesToExternalAttributions: {
+          [resourceId]: [original.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setSelectedAttributionId(attribution.id),
+      ],
+    });
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareToOriginal,
+      }),
+    );
+    const diffPopup = within(screen.getByLabelText(text.diffPopup.ariaLabel));
+    const editableSide = within(
+      diffPopup.getByTestId('right-auditing-options'),
+    );
+    fireEvent.click(
+      editableSide.getByRole('radio', {
+        name: new RegExp(text.auditingOptions.confidenceOf(1)),
+      }),
+    );
+    expect(
+      diffPopup.getByRole('button', { name: text.diffPopup.saveChanges }),
+    ).toBeEnabled();
+    await userEvent.click(
+      diffPopup.getByRole('button', { name: text.diffPopup.saveChanges }),
     );
 
     await waitFor(() =>
-      expect(
-        getTemporaryDisplayPackageInfo(store.getState()).originalAttributionId,
-      ).toBe(signal.id),
+      expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
+        id: attribution.id,
+        attributionConfidence: 20,
+        wasPreferred: true,
+      }),
     );
   });
 
@@ -1046,46 +1255,104 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    const diffPopup = within(screen.getByLabelText('diff popup'));
+    const diffPopup = within(screen.getByLabelText(text.diffPopup.ariaLabel));
     expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
     expect(
       diffPopup.getByDisplayValue(target.packageName!),
     ).toBeInTheDocument();
     expect(
-      diffPopup.getByText(
-        text.attributionColumn.sectionTitle(
-          text.attributionColumn.compared,
-          text.attributionColumn.packageCoordinates,
-        ),
-      ),
+      diffPopup.getByText(text.attributionColumn.packageCoordinates),
     ).toBeInTheDocument();
     expect(
-      diffPopup.getByText(
-        text.attributionColumn.sectionTitle(
-          text.attributionColumn.selected,
-          text.attributionColumn.packageCoordinates,
-        ),
-      ),
+      diffPopup.getByText(text.attributionColumn.legalInformation),
     ).toBeInTheDocument();
     expect(
-      diffPopup.queryByText(
-        text.attributionColumn.sectionTitle(
-          text.attributionColumn.original,
-          text.attributionColumn.packageCoordinates,
-        ),
-      ),
+      diffPopup.queryByText(text.attributionColumn.original),
     ).not.toBeInTheDocument();
+  });
 
-    expect(
-      screen.queryByRole('button', { name: text.diffPopup.applyChanges }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: text.diffPopup.revertAll }),
-    ).not.toBeInTheDocument();
-    expect(diffPopup.queryByTestId('packageName-undo')).not.toBeInTheDocument();
-    expect(diffPopup.queryByTestId('packageName-redo')).not.toBeInTheDocument();
-    expect(diffPopup.queryByTestId('firstParty-undo')).not.toBeInTheDocument();
-    expect(diffPopup.queryByTestId('firstParty-redo')).not.toBeInTheDocument();
+  it('does not refetch a compare source after saving it into the other side', async () => {
+    const source = makeComparisonPackage({
+      id: 'source',
+      packageName: 'source',
+    });
+    const target = {
+      ...source,
+      id: 'target',
+      packageName: 'target',
+    };
+    const resourceId = faker.system.filePath();
+    const queriedAttributionIds: Array<string> = [];
+    const api = vi.mocked(window.electronAPI.api);
+    api.mockImplementation((command, params) => {
+      if (
+        command === 'getAttributionData' &&
+        params !== undefined &&
+        'attributionUuid' in params
+      ) {
+        queriedAttributionIds.push(params.attributionUuid);
+      }
+      return executeCommand(command, params);
+    });
+
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: {
+          [source.id]: source,
+          [target.id]: target,
+        },
+        resourcesToManualAttributions: {
+          [resourceId]: [source.id, target.id],
+        },
+        resources: pathsToResources([resourceId]),
+      }),
+      actions: [
+        setSelectedResourceId(resourceId),
+        setTemporaryDisplayPackageInfo(source),
+        setSelectedAttributionId(source.id),
+      ],
+    });
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    );
+    act(() => {
+      store.dispatch(setSelectedAttributionId(target.id));
+    });
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareConfirm,
+      }),
+    );
+    const diffPopup = within(screen.getByLabelText(text.diffPopup.ariaLabel));
+    await waitFor(() => expect(queriedAttributionIds).toContain(source.id));
+    const sourceQueriesBeforeSave = queriedAttributionIds.filter(
+      (id) => id === source.id,
+    ).length;
+
+    fireEvent.change(diffPopup.getByTestId('left-packageName'), {
+      target: { value: 'target' },
+    });
+    await userEvent.click(
+      diffPopup.getByRole('button', { name: text.diffPopup.saveChanges }),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.queryByLabelText(text.diffPopup.ariaLabel),
+      ).not.toBeInTheDocument(),
+    );
+    expect(queriedAttributionIds.filter((id) => id === source.id)).toHaveLength(
+      sourceQueriesBeforeSave,
+    );
+    expect(getSelectedAttributionId(store.getState())).toBe(target.id);
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
+      target,
+    );
+    await expectManualAttributions({ [target.id]: target });
   });
 
   it('resets temporaryDisplayPackageInfo when selected attribution changes', async () => {

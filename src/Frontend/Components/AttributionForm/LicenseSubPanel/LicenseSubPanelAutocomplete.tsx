@@ -3,38 +3,48 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
+import type { SystemStyleObject } from '@mui/system';
 import { sortBy } from 'lodash-es';
 import { useMemo } from 'react';
 
 import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch } from '../../../state/hooks';
 import { backend } from '../../../util/backendClient';
 import { validateSpdxExpression } from '../../../util/spdx/validate-spdx';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 import { renderOccurrenceCount } from '../../Autocomplete/AutocompleteUtil';
-import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { SourceIcon } from '../../Icons/Icons';
-import type { AttributionFormConfig } from '../AttributionForm';
 import { SpdxValidationDisplay } from './SpdxValidationDisplay';
 
+export type LicensePatch = Pick<PackageInfo, 'licenseName' | 'licenseText'>;
+
 interface LicenseAutocompleteProps {
-  packageInfo: PackageInfo;
+  licenseName: PackageInfo['licenseName'];
+  licenseText: PackageInfo['licenseText'];
+  onUpdate: (patch: LicensePatch) => void;
   showHighlight?: boolean;
-  onEdit?: Confirm;
-  config?: AttributionFormConfig;
   forceTop?: boolean;
+  disabled?: boolean;
+  readOnly?: boolean;
+  sx?: SystemStyleObject;
+  startAdornment?: React.ReactNode;
+  endAdornment?: React.ReactNode | Array<React.ReactNode>;
+  inputDataTestId?: string;
 }
 
 export function LicenseSubPanelAutocomplete({
-  packageInfo,
+  licenseName,
+  licenseText,
+  onUpdate,
   showHighlight,
-  onEdit,
-  config,
   forceTop,
+  disabled,
+  readOnly,
+  sx,
+  startAdornment,
+  endAdornment,
+  inputDataTestId,
 }: LicenseAutocompleteProps) {
-  const dispatch = useAppDispatch();
   const frequentLicenseNames = backend.getFrequentLicenseNames.useQuery();
   const frequentLicenseNameSet = new Set(
     frequentLicenseNames.data?.map((n) => n.shortName),
@@ -147,18 +157,11 @@ export function LicenseSubPanelAutocomplete({
   }
 
   const validationResult = validateSpdxExpression({
-    spdxExpression: packageInfo.licenseName ?? '',
+    spdxExpression: licenseName ?? '',
     knownLicenseIds: frequentLicenseNameSet,
   });
 
-  const handleApplyFix = (newExpression: string) => {
-    dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...packageInfo,
-        licenseName: newExpression,
-      }),
-    );
-  };
+  const isEditable = !disabled && !readOnly;
 
   return (
     <MuiBox
@@ -167,6 +170,7 @@ export function LicenseSubPanelAutocomplete({
         flexDirection: 'column',
         flexGrow: 1,
         flexBasis: 0,
+        ...sx,
       }}
       data-testid="license-sub-panel"
     >
@@ -174,13 +178,13 @@ export function LicenseSubPanelAutocomplete({
         value={''}
         options={licenseOptions}
         title={text.attributionColumn.licenseExpression}
-        readOnly={!onEdit}
+        disabled={disabled}
+        readOnly={readOnly}
         highlighting={
-          showHighlight && !packageInfo.licenseName && !packageInfo.licenseText
-            ? 'warning'
-            : undefined
+          showHighlight && !licenseName && !licenseText ? 'warning' : undefined
         }
-        inputValue={packageInfo.licenseName ?? ''}
+        inputValue={licenseName ?? ''}
+        inputDataTestId={inputDataTestId}
         getOptionLabel={(option) =>
           typeof option === 'string' ? option : option.shortName
         }
@@ -201,7 +205,7 @@ export function LicenseSubPanelAutocomplete({
             typeof option === 'string'
               ? option
               : option.replaceEntireSearch ||
-                  splitAtLastExpression(packageInfo.licenseName)[0] === ''
+                  splitAtLastExpression(licenseName)[0] === ''
                 ? option.shortName
                 : `... ${option.shortName}`,
           secondary: (option) =>
@@ -209,42 +213,32 @@ export function LicenseSubPanelAutocomplete({
         }}
         onChange={(_, value) =>
           typeof value !== 'string' &&
-          onEdit?.(() => {
-            dispatch(
-              setTemporaryDisplayPackageInfo({
-                ...packageInfo,
-                licenseName: value.replaceEntireSearch
-                  ? value.shortName
-                  : `${splitAtLastExpression(packageInfo.licenseName)[0]}${value.shortName}`,
-                licenseText: '',
-              }),
-            );
+          isEditable &&
+          onUpdate({
+            licenseName: value.replaceEntireSearch
+              ? value.shortName
+              : `${splitAtLastExpression(licenseName)[0]}${value.shortName}`,
+            licenseText: '',
           })
         }
-        onInputChange={(event, value) =>
+        onInputChange={(event, value, reason) =>
           event &&
-          onEdit?.(() => {
-            dispatch(
-              setTemporaryDisplayPackageInfo({
-                ...packageInfo,
-                licenseName: value,
-              }),
-            );
-          })
+          reason === 'input' &&
+          isEditable &&
+          onUpdate({ licenseName: value })
         }
-        inputProps={{
-          color: config?.licenseName?.color,
-          focused: config?.licenseName?.focused,
-        }}
-        endAdornment={config?.licenseName?.endIcon}
         autoHighlight
         disableClearable
         freeSolo
+        startAdornment={startAdornment}
+        endAdornment={endAdornment}
       />
-      {!!onEdit && (
+      {isEditable && (
         <SpdxValidationDisplay
           validationResult={validationResult}
-          onApplyFix={handleApplyFix}
+          onApplyFix={(newExpression) =>
+            onUpdate({ licenseName: newExpression })
+          }
         />
       )}
     </MuiBox>

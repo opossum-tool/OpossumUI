@@ -12,14 +12,13 @@ import {
 import MuiBox from '@mui/material/Box';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
+import type { SxProps } from '@mui/system';
 import { compact, sortBy } from 'lodash-es';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { clickableIcon, OpossumColors } from '../../../shared-styles';
-import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch } from '../../../state/hooks';
 import { backend } from '../../../util/backendClient';
 import { generatePurl } from '../../../util/handle-purl';
 import {
@@ -34,8 +33,9 @@ import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../../IconButton/IconButton';
 import { SourceIcon } from '../../Icons/Icons';
 import { ValidationDisplay } from '../../ValidationDisplay/ValidationDisplay';
+import type { PackagePatch } from '../attribution-form.types';
 
-type AutocompleteAttribute = Extract<
+export type PackageAutocompleteAttribute = Extract<
   keyof PackageInfo,
   | 'packageType'
   | 'packageNamespace'
@@ -45,19 +45,50 @@ type AutocompleteAttribute = Extract<
   | 'licenseName'
 >;
 
+export const PACKAGE_FIELD_KEYS = [
+  'packageName',
+  'packageNamespace',
+  'packageVersion',
+  'packageType',
+  'url',
+] as const satisfies ReadonlyArray<PackageAutocompleteAttribute>;
+
+export const PACKAGE_FIELD_METADATA: Record<
+  PackageAutocompleteAttribute,
+  { label: string }
+> = {
+  packageName: { label: text.attributionColumn.packageName },
+  packageNamespace: { label: text.attributionColumn.packageNamespace },
+  packageVersion: { label: text.attributionColumn.packageVersion },
+  packageType: { label: text.attributionColumn.packageType },
+  url: { label: text.attributionColumn.upstreamAddress },
+  licenseName: { label: text.attributionColumn.licenseExpression },
+};
+
+export function isPackageFieldKey(
+  key: string,
+): key is (typeof PACKAGE_FIELD_KEYS)[number] {
+  return PACKAGE_FIELD_KEYS.includes(
+    key as (typeof PACKAGE_FIELD_KEYS)[number],
+  );
+}
+
 interface Props {
   title: string;
-  attribute: AutocompleteAttribute;
+  attribute: PackageAutocompleteAttribute;
   packageInfo: PackageInfo;
   endAdornment?: React.ReactNode | Array<React.ReactNode>;
   defaults?: Array<PackageInfo>;
   readOnly?: boolean;
   disabled?: boolean;
   showHighlight: boolean | undefined;
+  onUpdate: (patch: PackagePatch) => void;
   onEdit?: Confirm;
   color?: TextFieldProps['color'];
   focused?: boolean;
   disableCloseOnSelect?: boolean;
+  inputDataTestId?: string;
+  sx?: SxProps;
 }
 
 const AddIconButton = styled(MuiIconButton)({
@@ -74,15 +105,15 @@ export function PackageAutocomplete({
   readOnly,
   disabled,
   showHighlight,
+  onUpdate,
   onEdit,
   color,
   focused,
   disableCloseOnSelect,
+  inputDataTestId,
+  sx,
 }: Props) {
-  const dispatch = useAppDispatch();
   const attributeValue = packageInfo[attribute] || '';
-  const [inputValue, setInputValue] = useState(attributeValue);
-
   const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo();
 
   const autoCompleteResult = backend.autoCompleteOptions.useQuery({
@@ -108,12 +139,6 @@ export function PackageAutocomplete({
     return [...defaults, ...manual, ...external];
   }, [attribute, autoCompleteResult.data, defaults]);
 
-  useEffect(() => {
-    if (attributeValue !== inputValue) {
-      setInputValue(attributeValue);
-    }
-  }, [attributeValue, inputValue]);
-
   const highlighting = useMemo(() => {
     if (!showHighlight) {
       return undefined;
@@ -134,6 +159,7 @@ export function PackageAutocomplete({
         flexDirection: 'column',
         flexGrow: 1,
         flexBasis: 0,
+        ...sx,
       }}
     >
       <Autocomplete<PackageInfo, false, true, true>
@@ -143,8 +169,9 @@ export function PackageAutocomplete({
         autoHighlight
         disableClearable
         freeSolo
-        inputValue={inputValue}
+        inputValue={attributeValue}
         inputProps={{ color, focused }}
+        inputDataTestId={inputDataTestId}
         highlighting={highlighting}
         options={options}
         forceTop={!!errorMessage}
@@ -207,32 +234,39 @@ export function PackageAutocomplete({
           secondary: (option) =>
             typeof option === 'string' ? option : generatePurl(option),
         }}
-        onChange={(_, value) =>
-          typeof value !== 'string' &&
-          value[attribute] !== packageInfo[attribute] &&
-          onEdit?.(() => {
-            dispatch(
-              setTemporaryDisplayPackageInfo({
-                ...packageInfo,
+        onChange={async (_, value) => {
+          if (readOnly || disabled) {
+            return;
+          }
+          if (
+            typeof value !== 'string' &&
+            value[attribute] !== packageInfo[attribute]
+          ) {
+            const update = () =>
+              onUpdate({
                 [attribute]: value[attribute],
                 ...(attribute === 'licenseName' ? { licenseText: '' } : null),
-              }),
-            );
-          })
-        }
-        onInputChange={(event, value) =>
-          event &&
-          packageInfo[attribute] !== value &&
-          onEdit?.(() => {
-            dispatch(
-              setTemporaryDisplayPackageInfo({
-                ...packageInfo,
-                [attribute]: value,
-              }),
-            );
-            setInputValue(value);
-          })
-        }
+              });
+            if (onEdit) {
+              await onEdit(update);
+            } else {
+              update();
+            }
+          }
+        }}
+        onInputChange={async (event, value) => {
+          if (readOnly || disabled) {
+            return;
+          }
+          if (event && packageInfo[attribute] !== value) {
+            const update = () => onUpdate({ [attribute]: value });
+            if (onEdit) {
+              await onEdit(update);
+            } else {
+              update();
+            }
+          }
+        }}
         endAdornment={endAdornment}
         disableCloseOnSelect={disableCloseOnSelect}
       />
@@ -247,7 +281,7 @@ export function PackageAutocomplete({
     { id, ...option }: PackageInfo,
     { closePopper }: { closePopper: () => void },
   ) {
-    if (!option.synthetic) {
+    if (!option.synthetic || readOnly || disabled) {
       return null;
     }
 
@@ -261,11 +295,8 @@ export function PackageAutocomplete({
           onClick={async (event) => {
             event.stopPropagation();
             const merged: PackageInfo = { ...packageInfo, ...option };
-            dispatch(
-              setTemporaryDisplayPackageInfo(
-                (await enrichPackageInfo(merged)) || merged,
-              ),
-            );
+            const enriched = (await enrichPackageInfo(merged)) || merged;
+            onUpdate(toPackagePatch(enriched));
             closePopper();
           }}
           size={'small'}
@@ -275,6 +306,20 @@ export function PackageAutocomplete({
       </MuiTooltip>
     );
   }
+}
+
+export function toPackagePatch(packageInfo: PackageInfo): PackagePatch {
+  return {
+    packageName: packageInfo.packageName,
+    packageNamespace: packageInfo.packageNamespace,
+    packageVersion: packageInfo.packageVersion,
+    packageType: packageInfo.packageType,
+    url: packageInfo.url,
+    copyright: packageInfo.copyright,
+    licenseName: packageInfo.licenseName,
+    licenseText: packageInfo.licenseText,
+    comment: packageInfo.comment,
+  };
 }
 
 function toPackageInfoOptions<A extends string>(

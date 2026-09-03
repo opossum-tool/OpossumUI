@@ -56,6 +56,7 @@ type AutocompleteProps<
     endAdornment?: React.ReactNode | Array<React.ReactNode>;
     highlighting?: 'error' | 'warning';
     inputRef?: Ref<HTMLInputElement>;
+    inputDataTestId?: string;
     inputProps?: MuiInputProps;
     inputReadOnly?: boolean;
     onInputChange?: (
@@ -94,6 +95,7 @@ export function Autocomplete<
   hidePopupIndicator,
   hideTags,
   inputRef,
+  inputDataTestId,
   inputProps: customInputProps,
   inputReadOnly,
   multiple,
@@ -231,6 +233,7 @@ export function Autocomplete<
               inputLabel: getInputLabelProps(),
               htmlInput: {
                 'aria-label': props['aria-label'],
+                ...(inputDataTestId && { 'data-testid': inputDataTestId }),
                 sx: {
                   overflowX: 'hidden',
                   textOverflow: 'ellipsis',

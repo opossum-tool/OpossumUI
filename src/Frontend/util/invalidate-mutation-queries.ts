@@ -18,12 +18,21 @@ export function removeFocusedAttributionQuery({
     return;
   }
 
+  removeAttributionDataQuery({
+    queryClient,
+    attributionUuid: outcome.attributionUuid,
+  });
+}
+
+export function removeAttributionDataQuery({
+  queryClient,
+  attributionUuid,
+}: {
+  queryClient: QueryClient;
+  attributionUuid: string;
+}): void {
   queryClient.removeQueries({
-    queryKey: [
-      'backend',
-      'getAttributionData',
-      { attributionUuid: outcome.attributionUuid },
-    ],
+    queryKey: ['backend', 'getAttributionData', { attributionUuid }],
     exact: true,
   });
 }

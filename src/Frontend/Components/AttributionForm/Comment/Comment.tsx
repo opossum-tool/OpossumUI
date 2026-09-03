@@ -9,17 +9,14 @@ import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-
 import { useAppDispatch } from '../../../state/hooks';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
-import type { AttributeConfig } from '../AttributionForm';
 import { attributionColumnClasses } from '../AttributionForm.style';
 
 interface Props {
   packageInfo: PackageInfo;
   onEdit?: Confirm;
-  expanded?: boolean;
-  config?: AttributeConfig;
 }
 
-export function Comment({ packageInfo, onEdit, config, expanded }: Props) {
+export function Comment({ packageInfo, onEdit }: Props) {
   const dispatch = useAppDispatch();
 
   return (
@@ -31,9 +28,6 @@ export function Comment({ packageInfo, onEdit, config, expanded }: Props) {
         minRows={3}
         maxRows={5}
         multiline={true}
-        color={config?.color}
-        focused={config?.focused}
-        expanded={expanded}
         handleChange={({ target: { value } }) =>
           onEdit?.(() =>
             dispatch(
@@ -44,7 +38,6 @@ export function Comment({ packageInfo, onEdit, config, expanded }: Props) {
             ),
           )
         }
-        endIcon={config?.endIcon}
       />
     </MuiBox>
   );

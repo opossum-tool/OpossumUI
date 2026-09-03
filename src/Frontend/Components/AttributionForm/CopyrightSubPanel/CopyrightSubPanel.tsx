@@ -11,25 +11,20 @@ import { useAppDispatch } from '../../../state/hooks';
 import { isPackageAttributeIncomplete } from '../../../util/input-validation';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
-import type { AttributeConfig } from '../AttributionForm';
 import { attributionColumnClasses } from '../AttributionForm.style';
 
 interface CopyrightSubPanelProps {
   packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
-  expanded?: boolean;
   hidden?: boolean;
-  config?: AttributeConfig;
 }
 
 export function CopyrightSubPanel({
   packageInfo,
   onEdit,
   showHighlight,
-  expanded,
   hidden,
-  config,
 }: CopyrightSubPanelProps) {
   const dispatch = useAppDispatch();
   const isIncomplete = isPackageAttributeIncomplete('copyright', packageInfo);
@@ -43,16 +38,13 @@ export function CopyrightSubPanel({
         text={packageInfo.copyright}
         minRows={3}
         maxRows={5}
-        color={config?.color}
         tooltipProps={{
           placement: 'bottom',
           followCursor: true,
           title: text.generic.incomplete,
         }}
         showTooltip={showHighlight && isIncomplete}
-        focused={config?.focused}
         multiline
-        expanded={expanded}
         handleChange={({ target: { value } }) =>
           onEdit?.(() =>
             dispatch(
@@ -64,7 +56,6 @@ export function CopyrightSubPanel({
           )
         }
         error={showHighlight && isIncomplete}
-        endIcon={config?.endIcon}
       />
     </MuiBox>
   );

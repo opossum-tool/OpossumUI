@@ -23,6 +23,8 @@ interface NotificationPopupProps {
   isOpen: boolean;
   fullWidth?: boolean;
   sx?: SxProps;
+  titleSx?: SxProps;
+  actionsSx?: SxProps;
   'aria-label'?: string;
   customAction?: React.ReactNode;
   background?: keyof typeof OpossumColors;
@@ -63,7 +65,7 @@ export function NotificationPopup(
       }}
       aria-label={props['aria-label']}
     >
-      <MuiDialogTitle>{props.header}</MuiDialogTitle>
+      <MuiDialogTitle sx={props.titleSx}>{props.header}</MuiDialogTitle>
       <MuiDialogContent className={props.className} sx={props.sx}>
         {typeof props.children === 'string' ? (
           <MuiDialogContentText>{props.children}</MuiDialogContentText>
@@ -71,7 +73,7 @@ export function NotificationPopup(
           props.children
         )}
       </MuiDialogContent>
-      <MuiDialogActions>
+      <MuiDialogActions sx={props.actionsSx}>
         {props.customAction}
         {props.leftButtonConfig ? (
           <MuiButton
