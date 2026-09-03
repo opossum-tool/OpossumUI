@@ -598,7 +598,7 @@ export async function linkAttributions(
           batch.map((attributionUuid) => ({
             resource_id: resourceId,
             attribution_uuid: attributionUuid,
-            attribution_is_external: 0,
+            attribution_is_external: sql.lit(0),
           })),
         )
         .$if(options?.ignoreExisting ?? false, (eb) =>
@@ -606,7 +606,8 @@ export async function linkAttributions(
         )
         .execute();
     },
-    { batchSize: 10000 },
+    // Each row binds two values, so 15,000 rows stay within SQLite's 30,000-parameter limit.
+    { batchSize: 15_000 },
   );
 
   await updateAttributionResourceAccess(trx, attributionUuids);
