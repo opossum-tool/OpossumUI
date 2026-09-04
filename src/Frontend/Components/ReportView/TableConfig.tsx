@@ -15,7 +15,6 @@ import type {
 } from '../../../shared/shared-types';
 import { useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
-import { TableFilterButton } from './TableFilterButton';
 
 const COLUMN_WIDTHS = {
   verySmall: '40px',
@@ -33,10 +32,12 @@ export interface TableConfig {
   width: string;
 }
 
+export type ReportTableData = PackageInfo | undefined;
+
 export const tableConfigs: Array<TableConfig> = [
   {
     attributionProperty: 'id',
-    displayName: <TableFilterButton />,
+    displayName: null,
     width: COLUMN_WIDTHS.verySmall,
   },
   {
@@ -82,7 +83,7 @@ export const tableConfigs: Array<TableConfig> = [
 ];
 
 // Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
-export const TABLE_COMPONENTS: TableComponents<PackageInfo> = {
+export const TABLE_COMPONENTS: TableComponents<ReportTableData> = {
   Scroller: (props) => <TableContainer {...props} />,
   Table: (props) => (
     <Table
@@ -99,7 +100,7 @@ export const TABLE_COMPONENTS: TableComponents<PackageInfo> = {
     return (
       <TableRow
         hover
-        selected={props.item.id === selectedAttributionId}
+        selected={props.item?.id === selectedAttributionId}
         {...props}
       />
     );

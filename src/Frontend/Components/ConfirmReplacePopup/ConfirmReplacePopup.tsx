@@ -6,13 +6,15 @@ import MuiAlert from '@mui/material/Alert';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
 
+import { excludeAttributionFromAllMatchingSelection } from '../../../shared/attribution-selection';
 import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { useAttributionIdsForReplacement } from '../../state/variables/use-attribution-ids-for-replacement';
+import { useAttributionSelectionForReplacement } from '../../state/variables/use-attribution-selection-for-replacement';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
@@ -29,28 +31,56 @@ export const ConfirmReplacePopup = ({
 }: Props) => {
   const dispatch = useAppDispatch();
 
-  const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
-    useAttributionIdsForReplacement();
+  const [selectionForReplacement, setSelectionForReplacement] =
+    useAttributionSelectionForReplacement();
+  const attributionIdsForReplacement =
+    selectionForReplacement?.mode === 'explicit'
+      ? selectionForReplacement.attributionUuids
+      : [];
 
-  const updateAttributions = backend.updateAttributions.useMutation();
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
+  const updateAttributions = backend.updateAttributions.useMutation({
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
+  });
   const replaceAttributions = backend.replaceAttributions.useMutation();
   const isReplacing =
     updateAttributions.isPending || replaceAttributions.isPending;
+  const isQueryWideSelection = selectionForReplacement?.mode === 'allMatching';
+  const selectionForConfirmation = selectionForReplacement
+    ? excludeAttributionFromAllMatchingSelection(
+        selectionForReplacement,
+        selectedAttribution.id,
+      )
+    : null;
 
   const { data: attributionsForReplacement, isSuccess: areAttributionsReady } =
-    backend.listAttributions.useQuery(
-      open && !isReplacing
+    backend.getAttributions.useQuery(
+      open && !isReplacing && !isQueryWideSelection
         ? {
-            uuids: attributionIdsForReplacement,
+            attributionUuids: attributionIdsForReplacement,
           }
         : skipToken,
     );
+  const selectionSummaryQuery = backend.getAttributionSelectionSummary.useQuery(
+    {
+      selection: selectionForConfirmation ?? {
+        mode: 'explicit',
+        attributionUuids: attributionIdsForReplacement,
+      },
+    },
+    { enabled: open && !isReplacing && isQueryWideSelection },
+  );
+  const selectionSummary = isQueryWideSelection
+    ? selectionSummaryQuery.data
+    : undefined;
   const mixedAttributionCount =
-    (attributionsForReplacement
-      ? Object.values(attributionsForReplacement).filter(
-          (attribution) => attribution.resourceAccess === 'mixed',
-        ).length
-      : 0) +
+    (selectionSummary?.mixedCount ??
+      (attributionsForReplacement
+        ? Object.values(attributionsForReplacement).filter(
+            (attribution) => attribution.resourceAccess === 'mixed',
+          ).length
+        : 0)) +
     (selectedAttribution.preSelected &&
     selectedAttribution.resourceAccess === 'mixed' &&
     !attributionIdsForReplacement.includes(selectedAttribution.id)
@@ -58,27 +88,37 @@ export const ConfirmReplacePopup = ({
       : 0);
 
   const handleReplace = async () => {
+    if (!selectionForReplacement) {
+      return;
+    }
+
     let replacementAttribution = selectedAttribution;
     if (selectedAttribution.preSelected) {
-      const { oldUuidsToNewUuids } = await updateAttributions.mutateAsync({
-        attributions: {
-          [selectedAttribution.id]: {
-            ...selectedAttribution,
-            preSelected: undefined,
+      const { focusedAttributionOutcome } =
+        await updateAttributions.mutateAsync({
+          attributions: {
+            [selectedAttribution.id]: {
+              ...selectedAttribution,
+              preSelected: undefined,
+            },
           },
-        },
-      });
+          focusedAttributionUuid: selectedAttribution.id,
+        });
+      const replacementId =
+        focusedAttributionOutcome.status === 'remapped'
+          ? focusedAttributionOutcome.newAttributionUuid
+          : selectedAttribution.id;
       replacementAttribution = {
         ...selectedAttribution,
-        id: oldUuidsToNewUuids[selectedAttribution.id],
+        id: replacementId,
         preSelected: undefined,
       };
     }
     await replaceAttributions.mutateAsync({
-      attributionUuidsToReplace: attributionIdsForReplacement,
+      selection: selectionForConfirmation ?? selectionForReplacement,
       attributionUuidToReplaceWith: replacementAttribution.id,
     });
-    setAttributionIdsForReplacement([]);
+    setSelectionForReplacement(null);
     dispatch(
       changeSelectedAttributionOrOpenUnsavedPopup(replacementAttribution),
     );
@@ -90,7 +130,11 @@ export const ConfirmReplacePopup = ({
     <NotificationPopup
       header={text.replaceAttributionsPopup.title}
       leftButtonConfig={{
-        disabled: isReplacing || !areAttributionsReady,
+        disabled:
+          isReplacing ||
+          (isQueryWideSelection
+            ? !selectionSummaryQuery.isSuccess
+            : !areAttributionsReady),
         loading: isReplacing,
         onClick: handleReplace,
         buttonText: text.replaceAttributionsPopup.replace,
@@ -116,13 +160,18 @@ export const ConfirmReplacePopup = ({
       )}
       <MuiTypography>
         {text.replaceAttributionsPopup.removeAttributions(
-          maybePluralize(
-            attributionIdsForReplacement.length,
-            text.packageLists.attribution,
-          ),
+          isQueryWideSelection
+            ? maybePluralize(
+                selectionSummary?.selectedCount ?? 0,
+                text.packageLists.attribution,
+              )
+            : maybePluralize(
+                attributionIdsForReplacement.length,
+                text.packageLists.attribution,
+              ),
         )}
       </MuiTypography>
-      {attributionsForReplacement ? (
+      {!isQueryWideSelection && attributionsForReplacement ? (
         <AttributionCardList
           attributions={Object.values(attributionsForReplacement)}
           testId={'removed-attributions'}

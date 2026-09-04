@@ -2,8 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { AttributionSelection } from '../../../shared/attribution-selection';
 import type { PackageInfo } from '../../../shared/shared-types';
-import { useAttributionIdsForReplacement } from './use-attribution-ids-for-replacement';
+import { useAttributionSelectionForReplacement } from './use-attribution-selection-for-replacement';
 import { useCompareSelectionSource } from './use-compare-selection';
 
 export type PickerMode =
@@ -11,7 +12,7 @@ export type PickerMode =
   | {
       mode: 'replace';
       isActive: true;
-      attributionIdsForReplacement: Array<string>;
+      selectionForReplacement: AttributionSelection;
     }
   | {
       mode: 'compare';
@@ -20,14 +21,14 @@ export type PickerMode =
     };
 
 export function usePickerMode(): PickerMode {
-  const [attributionIdsForReplacement] = useAttributionIdsForReplacement();
+  const [selectionForReplacement] = useAttributionSelectionForReplacement();
   const { compareSelectionSource } = useCompareSelectionSource();
 
-  if (attributionIdsForReplacement.length) {
+  if (selectionForReplacement) {
     return {
       mode: 'replace',
       isActive: true,
-      attributionIdsForReplacement,
+      selectionForReplacement,
     };
   }
 

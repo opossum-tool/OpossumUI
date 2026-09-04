@@ -15,6 +15,11 @@ import {
 import { getSyntheticFilePath } from '../synthetic-file/writer';
 
 const APP_LOAD_TIMEOUT = 180000;
+const selectedPerformanceScenarios = process.env.PERFORMANCE_SCENARIOS?.split(
+  ',',
+)
+  .map((scenario) => scenario.trim())
+  .filter(Boolean);
 const profileConfig = getSyntheticFileProfile(
   process.env.PERFORMANCE_PROFILE ?? 'small',
 );
@@ -217,8 +222,19 @@ export const test = baseTest.extend<PerformanceFixtures>({
   runScenario: async ({ window }, provide, testInfo) => {
     await provide(
       async ({ id, title, operation, variant, setup, execute, teardown }) => {
+        const isSelected =
+          selectedPerformanceScenarios === undefined ||
+          selectedPerformanceScenarios.includes(id) ||
+          id === 'load-file';
+        if (!isSelected) {
+          return;
+        }
+
         await baseTest.step(title, async () => {
-          const tracing = process.env.PERFORMANCE_TRACING === '1';
+          const measured =
+            selectedPerformanceScenarios === undefined ||
+            selectedPerformanceScenarios.includes(id);
+          const tracing = process.env.PERFORMANCE_TRACING === '1' && measured;
           const tracePath = testInfo.outputPath(`chrome-trace.${id}.json`);
           let completed = false;
           let durationMs: number | undefined;
@@ -259,12 +275,14 @@ export const test = baseTest.extend<PerformanceFixtures>({
               );
               completed = true;
             }
-            await writeResult({
-              durationMs,
-              scenario: id,
-              testInfo,
-              metadata: await getMetadata(),
-            });
+            if (measured) {
+              await writeResult({
+                durationMs,
+                scenario: id,
+                testInfo,
+                metadata: await getMetadata(),
+              });
+            }
           } finally {
             try {
               if (recordingStarted) {

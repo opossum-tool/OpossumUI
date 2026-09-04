@@ -186,6 +186,25 @@ test('scopes audit filters and report rows to the editable partition', async ({
   await reportView.assert.attributionIsHidden(unlinkedManualId);
 });
 
+test('opens a report attribution from a readonly resource via the root', async ({
+  attributionDetails,
+  attributionsPanel,
+  reportView,
+  resourcesTree,
+  topBar,
+}) => {
+  await resourcesTree.goto('readonly-only', 'hidden.ts');
+  await topBar.gotoReportView();
+  await reportView.openAttributionInAuditView(editableManualId);
+
+  await topBar.assert.auditViewIsActive();
+  await attributionsPanel.assert.selectedTabIs('onChildren');
+  await attributionsPanel.packageCard.assert.isVisible(editableManual);
+  await attributionDetails.attributionForm.assert.nameIs(
+    editableManual.packageName!,
+  );
+});
+
 test('uses only editable data for statistics and progress navigation', async ({
   menuBar,
   projectStatisticsPopup,

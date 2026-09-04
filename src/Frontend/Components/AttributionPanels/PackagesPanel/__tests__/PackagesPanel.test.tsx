@@ -5,52 +5,115 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { Attributions } from '../../../../../shared/shared-types';
+import type {
+  Attributions,
+  ParsedFileContent,
+  Relation,
+} from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
+import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { closePopupAndUnsetTargets } from '../../../../state/actions/popup-actions/popup-actions';
 import {
+  setPendingAttributionNavigation,
   setSelectedAttributionId,
   setSelectedResourceId,
   setTargetSelectedResourceId,
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
+import { openResourceInResourceBrowser } from '../../../../state/actions/resource-actions/navigation-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import type { Action } from '../../../../state/configure-store';
-import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { getAttributionSelectionPendingResourceId } from '../../../../state/selectors/resource-selectors';
+import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-selection-for-replacement';
 import { initialAttributionFilters } from '../../../../state/variables/use-filters';
+import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
-import { useFilteredAttributionsList } from '../../../../util/use-attribution-lists';
+import { useAuditAttributionsList } from '../../../../util/use-audit-attributions-list';
 import { useSelectedAttributionIsExternal } from '../../../../util/use-selected-attribution';
 import {
   PackagesPanel,
   type PackagesPanelChildrenProps,
 } from '../PackagesPanel';
 
-vi.mock('../../../../util/use-attribution-lists', () => ({
-  useFilteredAttributionsList: vi.fn(),
+vi.mock('../../../../util/use-audit-attributions-list', () => ({
+  useAuditAttributionsList: vi.fn(),
 }));
 
 vi.mock('../../../../util/use-selected-attribution', () => ({
   useSelectedAttributionIsExternal: vi.fn(),
 }));
 
-function mockAttributions(attributions: Attributions) {
-  vi.mocked(useFilteredAttributionsList).mockReturnValue({
-    attributions,
+function mockAttributions(
+  attributions: Attributions,
+  visibleAttributions: Attributions = attributions,
+  scopeByRelation = true,
+) {
+  const relationCounts = Object.values(attributions).reduce<
+    Partial<Record<Relation, { visibleCount: number; editableCount: number }>>
+  >((counts, attribution) => {
+    const relation = attribution.relation ?? 'unrelated';
+    const current = counts[relation] ?? { visibleCount: 0, editableCount: 0 };
+    current.visibleCount += 1;
+    if (attribution.resourceAccess !== 'readonly') {
+      current.editableCount += 1;
+    }
+    counts[relation] = current;
+    return counts;
+  }, {});
+  vi.mocked(useAuditAttributionsList).mockImplementation(({ relation }) => ({
+    attributions: scopeByRelation
+      ? Object.fromEntries(
+          Object.entries(visibleAttributions).filter(
+            ([, attribution]) =>
+              (attribution.relation ?? 'unrelated') === relation,
+          ),
+        )
+      : visibleAttributions,
     loading: false,
-  });
+    relationCounts,
+    hasNextPage: false,
+    isFetching: false,
+    isFetchingNextPage: false,
+    fetchNextPage: vi.fn(() => Promise.resolve()),
+    nextPageError: null,
+    resultSetKey: 'result-set',
+    navigationLoading: false,
+    navigationResult:
+      visibleAttributions !== attributions
+        ? {
+            found: true,
+            targetRelation: 'resource',
+            prefix: {
+              attributions,
+              offset: 0,
+              limit: 200,
+              hasNextPage: false,
+            },
+          }
+        : undefined,
+    navigationAttributions:
+      visibleAttributions !== attributions ? attributions : {},
+    navigationRelation:
+      visibleAttributions !== attributions ? 'resource' : null,
+  }));
 }
 
 function renderPackagesPanel({
   attributions,
+  visibleAttributions,
   children,
   actions,
+  data,
+  scopeByRelation,
 }: {
   attributions: Attributions;
+  visibleAttributions?: Attributions;
   children?: (props: PackagesPanelChildrenProps) => React.ReactNode;
   actions?: Array<Action>;
+  data?: ParsedFileContent;
+  scopeByRelation?: boolean;
 }) {
-  mockAttributions(attributions);
+  mockAttributions(attributions, visibleAttributions, scopeByRelation);
   vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(false);
   return renderComponent(
     <PackagesPanel
@@ -61,7 +124,7 @@ function renderPackagesPanel({
     >
       {children ?? (() => null)}
     </PackagesPanel>,
-    { actions },
+    { actions, data },
   );
 }
 
@@ -69,7 +132,7 @@ function rerenderPackagesPanel(
   rerender: (ui: React.ReactElement) => void,
   attributions: Attributions,
 ) {
-  mockAttributions(attributions);
+  mockAttributions(attributions, attributions, true);
   rerender(
     <PackagesPanel
       external={false}
@@ -97,12 +160,35 @@ describe('PackagesPanel', () => {
       }),
     });
 
-    await act(() => store.dispatch(setSelectedResourceId('/another-resource')));
+    act(() =>
+      store.dispatch(openResourceInResourceBrowser('/another-resource')),
+    );
 
     await waitFor(() => {
       expect(store.getState().resourceState.selectedAttributionId).toBe(
         resourceAttribution.id,
       );
+      expect(
+        getAttributionSelectionPendingResourceId(store.getState()),
+      ).toBeNull();
+    });
+  });
+
+  it('does not auto-select an unrelated attribution after resource navigation', async () => {
+    const unrelatedAttribution = faker.opossum.packageInfo({
+      relation: 'unrelated',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [unrelatedAttribution.id]: unrelatedAttribution,
+      }),
+      visibleAttributions: {},
+    });
+
+    await act(() => store.dispatch(setSelectedResourceId('/another-resource')));
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe('');
     });
   });
 
@@ -118,6 +204,7 @@ describe('PackagesPanel', () => {
         [selectedAttribution.id]: selectedAttribution,
         [resourceAttribution.id]: resourceAttribution,
       }),
+      scopeByRelation: false,
       actions: [
         setSelectedAttributionId(selectedAttribution.id),
         setTargetSelectedResourceId('/cancelled-resource'),
@@ -148,6 +235,118 @@ describe('PackagesPanel', () => {
     });
   });
 
+  it('keeps a selected attribution that matches outside the loaded page', async () => {
+    const selectedAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const loadedAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [loadedAttribution.id]: loadedAttribution,
+        [selectedAttribution.id]: selectedAttribution,
+      }),
+      visibleAttributions: faker.opossum.attributions({
+        [loadedAttribution.id]: loadedAttribution,
+      }),
+      actions: [setSelectedAttributionId(selectedAttribution.id)],
+      data: {
+        ...getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [selectedAttribution.id]: selectedAttribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [selectedAttribution.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+      },
+    });
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        selectedAttribution.id,
+      );
+    });
+  });
+
+  it('retries a report navigation at the root resource when needed', async () => {
+    const selectedAttribution = faker.opossum.packageInfo({
+      relation: 'children',
+    });
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(false);
+    vi.mocked(useAuditAttributionsList).mockImplementation((params) => {
+      const isRoot = params.criteria.resourcePathForRelationships === '/';
+      return {
+        attributions: isRoot
+          ? { [selectedAttribution.id]: selectedAttribution }
+          : {},
+        loading: false,
+        relation: params.relation,
+        relationCounts: isRoot
+          ? { children: { visibleCount: 1, editableCount: 1 } }
+          : {},
+        hasNextPage: false,
+        isFetching: false,
+        isFetchingNextPage: false,
+        fetchNextPage: vi.fn(() => Promise.resolve()),
+        nextPageError: null,
+        resultSetKey: isRoot ? 'root' : 'resource',
+        navigationLoading: false,
+        navigationResult: isRoot
+          ? undefined
+          : {
+              found: false,
+            },
+        navigationAttributions: isRoot ? {} : {},
+        navigationRelation: isRoot ? null : null,
+      };
+    });
+
+    const { store } = await renderComponent(
+      <PackagesPanel
+        external={false}
+        filterOptions={[]}
+        renderActions={() => null}
+        useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
+      >
+        {() => null}
+      </PackagesPanel>,
+      {
+        actions: [
+          setSelectedResourceId(resource),
+          setSelectedAttributionId(selectedAttribution.id),
+          setPendingAttributionNavigation({
+            attributionUuid: selectedAttribution.id,
+            fallbackResourcePath: '/',
+          }),
+        ],
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [selectedAttribution.id]: selectedAttribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [selectedAttribution.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+      },
+    );
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedResourceId).toBe('/');
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        selectedAttribution.id,
+      );
+      expect(store.getState().resourceState.pendingAttributionNavigation).toBe(
+        null,
+      );
+    });
+  });
+
   it('enables select-all checkbox when there are attribution IDs', async () => {
     await renderPackagesPanel({ attributions: faker.opossum.attributions() });
 
@@ -167,9 +366,10 @@ describe('PackagesPanel', () => {
         [packageInfo.id]: packageInfo,
       }),
       actions: [
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          packageInfo.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [packageInfo.id],
+        }),
       ],
     });
 
@@ -187,7 +387,7 @@ describe('PackagesPanel', () => {
       children: (props) => (
         <button
           onClick={() =>
-            props.setMultiSelectedAttributionIds([packageInfo1.id])
+            props.toggleAttributionSelection(packageInfo1.id, true)
           }
         >
           {'click me'}
@@ -229,12 +429,10 @@ describe('PackagesPanel', () => {
       }),
       children: (props) => (
         <button
-          onClick={() =>
-            props.setMultiSelectedAttributionIds([
-              packageInfo1.id,
-              packageInfo2.id,
-            ])
-          }
+          onClick={() => {
+            props.toggleAttributionSelection(packageInfo1.id, true);
+            props.toggleAttributionSelection(packageInfo2.id, true);
+          }}
         >
           {'click me'}
         </button>
@@ -265,6 +463,61 @@ describe('PackagesPanel', () => {
     expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
   });
 
+  it('keeps select all symbolic across unloaded rows and tracks exclusions', async () => {
+    const visibleAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const unloadedAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    let latestProps: PackagesPanelChildrenProps | undefined;
+
+    await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [visibleAttribution.id]: visibleAttribution,
+        [unloadedAttribution.id]: unloadedAttribution,
+      }),
+      visibleAttributions: faker.opossum.attributions({
+        [visibleAttribution.id]: visibleAttribution,
+      }),
+      children: (props) => {
+        latestProps = props;
+        return (
+          <button
+            onClick={() =>
+              props.toggleAttributionSelection(visibleAttribution.id, false)
+            }
+          >
+            {'deselect visible'}
+          </button>
+        );
+      },
+    });
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    expect(latestProps?.selection).toMatchObject({
+      mode: 'allMatching',
+      excludedAttributionUuids: [],
+    });
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'deselect visible' }),
+    );
+    expect(latestProps?.selection).toMatchObject({
+      mode: 'allMatching',
+      excludedAttributionUuids: [visibleAttribution.id],
+    });
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).toHaveAttribute('data-indeterminate', 'true');
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    expect(latestProps?.selection).toMatchObject({
+      mode: 'allMatching',
+      excludedAttributionUuids: [],
+    });
+  });
+
   it('selects only editable attributions when readonly cards are visible', async () => {
     const editableAttribution = faker.opossum.packageInfo({
       relation: 'resource',
@@ -281,7 +534,7 @@ describe('PackagesPanel', () => {
         [readonlyAttribution.id]: readonlyAttribution,
       }),
       children: (props) => {
-        selectedIds = props.multiSelectedAttributionIds;
+        selectedIds = props.selectedAttributionIds;
         return null;
       },
     });
@@ -345,16 +598,17 @@ describe('PackagesPanel', () => {
       children: (props) => (
         <button
           onClick={() =>
-            props.setMultiSelectedAttributionIds([packageInfo1.id])
+            props.toggleAttributionSelection(packageInfo1.id, true)
           }
         >
           {'click me'}
         </button>
       ),
       actions: [
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          packageInfo1.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [packageInfo1.id],
+        }),
       ],
     });
 
@@ -381,16 +635,17 @@ describe('PackagesPanel', () => {
       children: (props) => (
         <button
           onClick={() =>
-            props.setMultiSelectedAttributionIds([packageInfo1.id])
+            props.toggleAttributionSelection(packageInfo1.id, true)
           }
         >
           {'click me'}
         </button>
       ),
       actions: [
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          packageInfo1.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [packageInfo1.id],
+        }),
       ],
     });
 
@@ -500,6 +755,7 @@ describe('PackagesPanel', () => {
         [packageInfo2.id]: packageInfo2,
         [packageInfo3.id]: packageInfo3,
       }),
+      scopeByRelation: false,
       actions: [setSelectedAttributionId(packageInfo3.id)],
     });
 
@@ -521,6 +777,7 @@ describe('PackagesPanel', () => {
         [packageInfo2.id]: packageInfo2,
         [packageInfo3.id]: packageInfo3,
       }),
+      scopeByRelation: false,
       actions: [setSelectedAttributionId(packageInfo3.id)],
     });
 

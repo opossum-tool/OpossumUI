@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../../shared/text';
@@ -12,7 +12,7 @@ import { ROOT_PATH } from '../../../../shared-constants';
 import { setSelectedResourceId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../../state/selectors/resource-selectors';
-import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-ids-for-replacement';
+import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-selection-for-replacement';
 import { COMPARE_SELECTION_SOURCE } from '../../../../state/variables/use-compare-selection';
 import {
   expectResolvedExternalAttributions,
@@ -80,9 +80,10 @@ describe('SignalsPanel', () => {
       }),
       actions: [
         setSelectedResourceId(ROOT_PATH),
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          sourcePackageInfo.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [sourcePackageInfo.id],
+        }),
       ],
     });
 
@@ -259,6 +260,39 @@ describe('SignalsPanel', () => {
     await expectResourcesToManualAttributions({
       [ROOT_PATH]: [expect.any(String)],
     });
+  });
+
+  it('preserves focus when linking a query-wide selection', async () => {
+    const filePath = faker.system.filePath();
+    const packageInfo = faker.opossum.packageInfo();
+    const externalAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
+    });
+    const { store } = await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        externalAttributions,
+        resourcesToExternalAttributions: {
+          [filePath]: [packageInfo.id],
+        },
+        resources: pathsToResources([filePath]),
+        metadata: faker.opossum.metadata(),
+      }),
+    });
+
+    const selectAll = screen.getByRole('checkbox', { name: 'select all' });
+    await waitFor(() => expect(selectAll).toBeEnabled());
+    await userEvent.click(selectAll);
+    const linkButton = screen.getByRole('button', {
+      name: text.packageLists.linkAsAttribution,
+    });
+    await waitFor(() => expect(linkButton).toBeEnabled());
+    await userEvent.click(linkButton);
+
+    await waitFor(() =>
+      expect(getSelectedAttributionId(store.getState())).not.toBe(
+        packageInfo.id,
+      ),
+    );
   });
 
   it('disables link button when selected resource is a breakpoint', async () => {

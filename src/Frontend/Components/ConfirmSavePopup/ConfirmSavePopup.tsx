@@ -4,9 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useMemo } from 'react';
 
+import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { text } from '../../../shared/text';
-import { setSelectedAttributionIdIfRemapped } from '../../state/actions/resource-actions/navigation-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { useAppSelector } from '../../state/hooks';
 import {
   getSelectedAttributionId,
   getSelectedResourceId,
@@ -14,101 +14,95 @@ import {
 } from '../../state/selectors/resource-selectors';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
 import { useLinkedAttributionActionData } from '../AttributionAction/useLinkedAttributionActionData';
 import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
 
 interface Props {
-  attributionIdsToSave: Array<string>;
+  selection: AttributionSelection;
   open: boolean;
   onClose: () => void;
+  clearSelection?: () => void;
 }
 
 export const ConfirmSavePopup: React.FC<Props> = ({
-  attributionIdsToSave,
+  selection,
   open,
   onClose,
+  clearSelection,
 }) => {
-  const dispatch = useAppDispatch();
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
-  const updateOrMatch = backend.updateOrMatchAttributions.useMutation();
+  const updateOrMatch = backend.updateOrMatchAttributions.useMutation({
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
+  });
   const modifyOrMatchOnlyOnOneResource =
-    backend.modifyOrMatchOnlyOnOneResource.useMutation();
+    backend.modifyOrMatchOnlyOnOneResource.useMutation({
+      onBeforeInvalidation: handleFocusedAttributionOutcome,
+    });
   const isSaving =
     updateOrMatch.isPending || modifyOrMatchOnlyOnOneResource.isPending;
   const {
     attributions: attributionsToSave,
-    linkedResourceCount,
     linkedResourcesTreeState,
-    mixedAttributionCount,
-    isResourceInfoReady,
-    isLocalActionAvailable,
+    actionSummary,
   } = useLinkedAttributionActionData({
-    attributionIds: attributionIdsToSave,
     open,
     isMutationPending: isSaving,
+    selection,
   });
-  const modifiedAttributionsToSave = useMemo(
-    () =>
-      attributionsToSave?.[selectedAttributionId]
-        ? {
-            ...attributionsToSave,
-            [selectedAttributionId]: temporaryDisplayPackageInfo,
-          }
-        : attributionsToSave,
-    [attributionsToSave, selectedAttributionId, temporaryDisplayPackageInfo],
-  );
-  const areAllAttributionsPreselected = attributionsToSave
-    ? Object.values(attributionsToSave).every(
-        (attribution) => attribution.preSelected,
-      )
-    : undefined;
+  const modifiedAttributionsToSave = useMemo(() => {
+    if (!selectedAttributionId) {
+      return attributionsToSave;
+    }
+    if (!attributionsToSave) {
+      return { [selectedAttributionId]: temporaryDisplayPackageInfo };
+    }
+    return attributionsToSave[selectedAttributionId]
+      ? {
+          ...attributionsToSave,
+          [selectedAttributionId]: temporaryDisplayPackageInfo,
+        }
+      : attributionsToSave;
+  }, [attributionsToSave, selectedAttributionId, temporaryDisplayPackageInfo]);
 
   const handleSaveGlobally = async () => {
-    if (modifiedAttributionsToSave) {
-      const result = await updateOrMatch.mutateAsync({
-        attributions: modifiedAttributionsToSave,
-      });
-      dispatch(
-        setSelectedAttributionIdIfRemapped(
-          result.oldUuidsToNewUuids,
-          selectedAttributionId,
-        ),
-      );
-    }
+    await updateOrMatch.mutateAsync({
+      selection,
+      attributions: modifiedAttributionsToSave,
+      focusedAttributionUuid: selectedAttributionId,
+    });
+    clearSelection?.();
     onClose();
   };
 
   const handleSaveOnResource = async () => {
-    if (modifiedAttributionsToSave) {
-      const result = await modifyOrMatchOnlyOnOneResource.mutateAsync({
-        resourcePath: selectedResourceId,
-        attributions: modifiedAttributionsToSave,
-      });
-      dispatch(
-        setSelectedAttributionIdIfRemapped(
-          result.oldUuidsToNewUuids,
-          selectedAttributionId,
-        ),
-      );
-    }
+    await modifyOrMatchOnlyOnOneResource.mutateAsync({
+      resourcePath: selectedResourceId,
+      selection,
+      attributions: modifiedAttributionsToSave,
+      focusedAttributionUuid: selectedAttributionId,
+    });
+    clearSelection?.();
     onClose();
   };
 
   return (
     <ConfirmAttributionActionPopup
       header={
-        areAllAttributionsPreselected
+        actionSummary.areAllAttributionsPreselected
           ? text.saveAttributionsPopup.titleConfirm
           : text.saveAttributionsPopup.titleSave
       }
       localAction={{
         isPending: modifyOrMatchOnlyOnOneResource.isPending,
         onClick: handleSaveOnResource,
-        buttonText: areAllAttributionsPreselected
+        buttonText: actionSummary.areAllAttributionsPreselected
           ? text.saveAttributionsPopup.confirmLocally
           : text.saveAttributionsPopup.saveLocally,
       }}
@@ -117,36 +111,38 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         onClick: handleSaveGlobally,
         color: 'error',
         buttonText:
-          linkedResourceCount && linkedResourceCount > 1
-            ? areAllAttributionsPreselected
+          (actionSummary.linkedResourceCount ?? 0) > 1
+            ? actionSummary.areAllAttributionsPreselected
               ? text.saveAttributionsPopup.confirmGlobally
               : text.saveAttributionsPopup.saveGlobally
-            : areAllAttributionsPreselected
+            : actionSummary.areAllAttributionsPreselected
               ? text.saveAttributionsPopup.confirm
               : text.saveAttributionsPopup.save,
       }}
       attributions={modifiedAttributionsToSave}
       onClose={onClose}
-      description={(areAllAttributionsPreselected
+      description={(actionSummary.areAllAttributionsPreselected
         ? text.saveAttributionsPopup.confirmAttributions
         : text.saveAttributionsPopup.saveAttributions)({
         attributions: maybePluralize(
-          attributionIdsToSave.length,
+          actionSummary.selectedAttributionCount,
           text.packageLists.attribution,
         ),
         resources: maybePluralize(
-          linkedResourceCount ?? 1,
+          actionSummary.linkedResourceCount ?? 1,
           text.saveAttributionsPopup.resource,
           { showOne: true },
         ),
       })}
       mixedWarning={text.confirmAttributionActionPopup.mixedWarning(
-        mixedAttributionCount,
+        actionSummary.mixedAttributionCount,
       )}
       linkedResourcesTreeState={linkedResourcesTreeState}
-      mixedAttributionCount={mixedAttributionCount}
-      isResourceInfoReady={isResourceInfoReady}
-      isLocalActionAvailable={isLocalActionAvailable}
+      mixedAttributionCount={actionSummary.mixedAttributionCount}
+      isResourceInfoReady={actionSummary.isResourceInfoReady}
+      isLocalActionAvailable={actionSummary.isLocalActionAvailable}
+      selection={selection}
+      attributionCount={actionSummary.selectedAttributionCount}
       open={open}
       ariaLabel={text.saveAttributionsPopup.ariaLabel}
     />

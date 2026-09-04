@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { expect } from '@playwright/test';
+
 import { faker, test } from '../utils';
 
 const [
@@ -50,6 +52,7 @@ test.use({
 });
 
 test('deletes single attributions and updates progress bar', async ({
+  window,
   attributionDetails,
   attributionsPanel,
   confirmDeletePopup: confirmDeletionPopup,
@@ -57,6 +60,16 @@ test('deletes single attributions and updates progress bar', async ({
   topBar,
   linkedResourcesTree,
 }) => {
+  const invalidationErrors: Array<string> = [];
+  window.on('console', (message) => {
+    if (
+      message.type() === 'error' &&
+      message.text().includes('Failed to invalidate mutation queries')
+    ) {
+      invalidationErrors.push(message.text());
+    }
+  });
+
   await resourcesTree.goto(resourceName1);
   await attributionsPanel.packageCard.click(packageInfo3);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
@@ -126,6 +139,8 @@ test('deletes single attributions and updates progress bar', async ({
   await topBar.assert.progressBarTooltipShowsValues({
     filesWithAttributions: 0,
   });
+
+  expect(invalidationErrors).toEqual([]);
 });
 
 test('deletes multiple attributions at once', async ({

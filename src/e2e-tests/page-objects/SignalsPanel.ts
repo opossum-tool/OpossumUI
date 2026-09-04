@@ -141,6 +141,9 @@ export class SignalsPanel {
     selectAllCheckboxIsUnchecked: async (timeout?: number) => {
       await expect(this.selectAllCheckbox).not.toBeChecked({ timeout });
     },
+    selectAllCheckboxIsDisabled: async () => {
+      await expect(this.selectAllCheckbox).toBeDisabled();
+    },
     linkButtonIsEnabled: async () => {
       await expect(this.linkButton).toBeEnabled();
     },
@@ -192,5 +195,13 @@ export class SignalsPanel {
     await this.window
       .getByRole('menuitem', { name: text.packageLists.clearFilters })
       .click();
+  }
+
+  async scrollToTop(): Promise<void> {
+    await this.node
+      .locator('[data-virtuoso-scroller="true"]')
+      .evaluate((scroller) => {
+        scroller.scrollTo({ top: 0 });
+      });
   }
 }

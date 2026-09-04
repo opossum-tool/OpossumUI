@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { keepPreviousData } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { keepPreviousData, skipToken } from '@tanstack/react-query';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
@@ -29,45 +29,76 @@ export function useLinkedResourcesTreeState({
 }) {
   const selectedResourcePath = useAppSelector(getSelectedResourceId);
 
-  const [expandedIds, setExpandedIds] = useState<Array<string>>([]);
+  const [expandedIds, setExpandedIds] = useState<{
+    ownerKey: string;
+    source: Array<string> | undefined;
+    values: Array<string>;
+  }>({ ownerKey: '', source: undefined, values: [] });
 
   const hasAttributionUuids =
-    onAttributionUuids &&
-    onAttributionUuids.length > 0 &&
-    !!onAttributionUuids[0];
+    onAttributionUuids.length > 0 && !!onAttributionUuids[0];
   const enabled = enabledProp && hasAttributionUuids;
-
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-    async function fetchExpandedIds() {
-      const ids = await backend.getResourcePathsAndParentsForAttributions.query(
-        {
-          attributionUuids: onAttributionUuids,
-          limit: 1000,
-          prioritizedResourcePath: selectedResourcePath,
-        },
-      );
-      setExpandedIds(ids);
-    }
-    void fetchExpandedIds();
-  }, [enabled, onAttributionUuids, selectedResourcePath]);
-
-  const resources = backend.getResourceTree.useQuery(
-    {
-      expandedNodes: expandedIds,
-      search,
-      onAttributionUuids,
-      selectedResourcePath,
-      onlyWritable,
-    },
-    { placeholderData: keepPreviousData, enabled },
+  const ownerKey = useMemo(
+    () => JSON.stringify([onAttributionUuids, selectedResourcePath]),
+    [onAttributionUuids, selectedResourcePath],
   );
 
-  if (!enabled || !resources.data) {
+  const expansionPaths =
+    backend.getResourcePathsAndParentsForAttributions.useQuery(
+      enabled
+        ? {
+            attributionUuids: onAttributionUuids,
+            limit: 1000,
+            prioritizedResourcePath: selectedResourcePath,
+          }
+        : skipToken,
+    );
+
+  useEffect(() => {
+    if (!enabled || expansionPaths.data === undefined) {
+      return;
+    }
+
+    setExpandedIds({
+      ownerKey,
+      source: expansionPaths.data,
+      values: expansionPaths.data,
+    });
+  }, [enabled, expansionPaths.data, ownerKey]);
+
+  const treeReady =
+    enabled &&
+    !expansionPaths.isFetching &&
+    !expansionPaths.isError &&
+    expansionPaths.data !== undefined &&
+    expandedIds.ownerKey === ownerKey &&
+    expandedIds.source === expansionPaths.data;
+
+  const resources = backend.getResourceTree.useQuery(
+    treeReady
+      ? {
+          expandedNodes: expandedIds.values,
+          search,
+          onAttributionUuids,
+          selectedResourcePath,
+          onlyWritable,
+        }
+      : skipToken,
+    { placeholderData: treeReady ? keepPreviousData : undefined },
+  );
+
+  if (!treeReady || !resources.data) {
     return undefined;
   }
 
-  return { ...resources.data, expandedIds, setExpandedIds };
+  return {
+    ...resources.data,
+    expandedIds: expandedIds.values,
+    setExpandedIds: (values: Array<string>) =>
+      setExpandedIds({
+        ownerKey,
+        source: expandedIds.source,
+        values,
+      }),
+  };
 }

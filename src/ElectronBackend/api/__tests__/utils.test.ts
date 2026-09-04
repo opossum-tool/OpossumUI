@@ -20,15 +20,6 @@ import {
 } from '../utils';
 
 describe('withBatching', () => {
-  it('calls f with undefined and wraps result when input is undefined', async () => {
-    const f = vi.fn().mockResolvedValue('result');
-
-    const results = await withBatching(undefined, f);
-
-    expect(f).toHaveBeenCalledExactlyOnceWith(undefined);
-    expect(results).toEqual(['result']);
-  });
-
   it('processes all items in a single batch when input fits', async () => {
     const input = [1, 2, 3];
     const f = vi.fn().mockResolvedValue('ok');
@@ -67,6 +58,25 @@ describe('withBatching', () => {
 });
 
 describe('removeRedundantAttributions', () => {
+  it('returns each affected attribution UUID once for multiple redundant resources', async () => {
+    await setupDb({
+      resourcePathsToAttributionUuids: {
+        '/first': ['uuid1'],
+        '/first/child1': ['uuid1'],
+        '/first/child2': ['uuid1'],
+      },
+    });
+
+    const resourceIds = await Promise.all(
+      ['/first', '/first/child1'].map((path) => getResourceId(path)),
+    );
+    const affectedAttributionUuids = await getDb()
+      .transaction()
+      .execute((trx) => removeRedundantAttributions(trx, { resourceIds }));
+
+    expect(affectedAttributionUuids).toEqual(['uuid1']);
+  });
+
   it.each([
     {
       name: 'upward: deletes resource attributions that match its closest ancestor',

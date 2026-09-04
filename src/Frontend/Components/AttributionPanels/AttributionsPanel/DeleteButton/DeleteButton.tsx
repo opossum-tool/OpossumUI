@@ -15,18 +15,27 @@ import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   selectedAttributionIds,
+  selection,
+  selectionSummary,
+  selectionSummaryLoading,
+  clearSelection,
 }) => {
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
     useState(false);
 
   const mutationsPending = useIsMutating() > 0;
+  const selectedCount =
+    selection.mode === 'allMatching'
+      ? (selectionSummary?.selectedCount ?? 0)
+      : selectedAttributionIds.length;
 
   return (
     <>
       <MuiIconButton
         aria-label={text.packageLists.delete}
         disabled={
-          !selectedAttributionIds.length ||
+          !selectedCount ||
+          selectionSummaryLoading ||
           pickerMode.isActive ||
           mutationsPending
         }
@@ -44,7 +53,8 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
       <ConfirmDeletePopup
         open={isConfirmDeletionPopupOpen}
         onClose={() => setIsConfirmDeletionPopupOpen(false)}
-        attributionIdsToDelete={selectedAttributionIds}
+        selection={selection}
+        clearSelection={clearSelection}
       />
     </>
   );

@@ -19,7 +19,9 @@ import { Checkbox } from '../Checkbox/Checkbox';
 import { ReadonlyIcon } from '../Icons/Icons';
 import { getRightIcons } from './PackageCard.util';
 
-export const PACKAGE_CARD_HEIGHT = 40;
+const PACKAGE_CARD_HEIGHT = 40;
+// package card + divider
+export const PACKAGE_CARD_LIST_ITEM_HEIGHT = PACKAGE_CARD_HEIGHT + 1;
 
 const hoveredSelectedBackgroundColor = OpossumColors.middleBlue;
 const hoveredBackgroundColor = OpossumColors.lightestBlueOnHover;
@@ -179,7 +181,7 @@ export const PackageCard = memo(
 
     useEffect(() => {
       if (effectiveCardConfig.focused) {
-        ref.current?.focus();
+        ref.current?.focus({ preventScroll: true });
       }
     }, [effectiveCardConfig.focused]);
 

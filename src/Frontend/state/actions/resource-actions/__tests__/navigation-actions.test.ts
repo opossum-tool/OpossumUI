@@ -5,24 +5,82 @@
 import { View } from '../../../../enums/enums';
 import { createAppStore } from '../../../configure-store';
 import {
+  getAttributionSelectionPendingResourceId,
   getExpandedIds,
+  getPendingAttributionNavigation,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
 } from '../../../selectors/resource-selectors';
 import { getSelectedView } from '../../../selectors/view-selector';
+import {
+  type AttributionFilters,
+  MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+} from '../../../variables/use-filters';
+import { setVariable } from '../../variables-actions/variables-actions';
 import { navigateToView, setTargetView } from '../../view-actions/view-actions';
 import {
+  completeAttributionSelection,
+  setAttributionSelectionPending,
+  setPendingAttributionNavigation,
   setSelectedAttributionId,
   setSelectedResourceId,
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../audit-view-simple-actions';
 import {
+  applyFocusedAttributionOutcome,
   openResourceInResourceBrowser,
+  resetManualAuditFiltersPreservingSort,
   setSelectedResourceOrAttributionIdToTargetValue,
 } from '../navigation-actions';
+
+describe('applyFocusedAttributionOutcome', () => {
+  it('remaps the focused attribution', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(setSelectedAttributionId('old'));
+
+    testStore.dispatch(
+      applyFocusedAttributionOutcome({
+        status: 'remapped',
+        attributionUuid: 'old',
+        newAttributionUuid: 'new',
+      }),
+    );
+
+    expect(getSelectedAttributionId(testStore.getState())).toBe('new');
+  });
+
+  it('clears a removed attribution', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(setSelectedAttributionId('old'));
+
+    testStore.dispatch(
+      applyFocusedAttributionOutcome({
+        status: 'removed',
+        attributionUuid: 'old',
+      }),
+    );
+
+    expect(getSelectedAttributionId(testStore.getState())).toBe('');
+  });
+
+  it('does not overwrite a newer focus', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(setSelectedAttributionId('newer'));
+
+    testStore.dispatch(
+      applyFocusedAttributionOutcome({
+        status: 'remapped',
+        attributionUuid: 'old',
+        newAttributionUuid: 'new',
+      }),
+    );
+
+    expect(getSelectedAttributionId(testStore.getState())).toBe('newer');
+  });
+});
 
 describe('setSelectedResourceOrAttributionIdToTargetValue', () => {
   it('sets target selected resource ID', () => {
@@ -56,12 +114,71 @@ describe('setSelectedResourceOrAttributionIdToTargetValue', () => {
   });
 });
 
+describe('resetManualAuditFiltersPreservingSort', () => {
+  it('clears audit filters and search while preserving sorting', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+        filters: ['firstParty'],
+        search: 'react',
+        valueFilters: { license: 'MIT' },
+        sorting: 'criticality',
+      } satisfies AttributionFilters),
+    );
+
+    testStore.dispatch(resetManualAuditFiltersPreservingSort());
+
+    expect(
+      testStore.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: [],
+      search: '',
+      valueFilters: {},
+      sorting: 'criticality',
+    });
+  });
+});
+
+describe('pending attribution navigation', () => {
+  it('stores and clears a report fallback target', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setPendingAttributionNavigation({
+        attributionUuid: 'target',
+        fallbackResourcePath: '/',
+      }),
+    );
+
+    expect(getPendingAttributionNavigation(testStore.getState())).toEqual({
+      attributionUuid: 'target',
+      fallbackResourcePath: '/',
+    });
+
+    testStore.dispatch(setSelectedAttributionId('other'));
+    expect(getPendingAttributionNavigation(testStore.getState())).toBeNull();
+  });
+});
+
 describe('setSelectedResourceIdAndExpand', () => {
   it('sets the selectedResourceId', () => {
     const testStore = createAppStore();
     testStore.dispatch(openResourceInResourceBrowser('/folder1/folder2/test'));
     const state = testStore.getState();
     expect(getSelectedResourceId(state)).toBe('/folder1/folder2/test');
+    expect(getAttributionSelectionPendingResourceId(state)).toBe(
+      '/folder1/folder2/test',
+    );
+  });
+
+  it('does not let an older completion clear a newer navigation', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(setAttributionSelectionPending('/first'));
+    testStore.dispatch(setAttributionSelectionPending('/second'));
+    testStore.dispatch(completeAttributionSelection('/first'));
+
+    expect(getAttributionSelectionPendingResourceId(testStore.getState())).toBe(
+      '/second',
+    );
   });
 
   it('sets the expandedIds', () => {

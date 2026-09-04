@@ -2,67 +2,67 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { text } from '../../../shared/text';
-import { setSelectedAttributionId } from '../../state/actions/resource-actions/audit-view-simple-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
 import { useLinkedAttributionActionData } from '../AttributionAction/useLinkedAttributionActionData';
 import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
 
 interface Props {
-  attributionIdsToDelete: Array<string>;
+  selection: AttributionSelection;
   open: boolean;
   onClose: () => void;
+  clearSelection?: () => void;
 }
 
 export const ConfirmDeletePopup: React.FC<Props> = ({
-  attributionIdsToDelete,
+  selection,
   open,
   onClose,
+  clearSelection,
 }) => {
-  const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const clearSelectedAttributionIfDeleted = () => {
-    if (attributionIdsToDelete.includes(selectedAttributionId)) {
-      dispatch(setSelectedAttributionId(''));
-    }
-  };
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
   const deleteAttributions = backend.deleteAttributions.useMutation({
-    onBeforeInvalidation: clearSelectedAttributionIfDeleted,
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
   });
   const unlinkResourceFromAttributions =
     backend.unlinkResourceFromAttributions.useMutation({
-      onBeforeInvalidation: clearSelectedAttributionIfDeleted,
+      onBeforeInvalidation: handleFocusedAttributionOutcome,
     });
   const isDeleting =
     deleteAttributions.isPending || unlinkResourceFromAttributions.isPending;
   const {
     attributions: attributionsToDelete,
-    linkedResourceCount,
     linkedResourcesTreeState,
-    mixedAttributionCount,
-    isResourceInfoReady,
-    isLocalActionAvailable,
     selectedResourceId,
+    actionSummary,
   } = useLinkedAttributionActionData({
-    attributionIds: attributionIdsToDelete,
     open,
     isMutationPending: isDeleting,
+    selection,
   });
 
   const handleDelete = async () => {
     await deleteAttributions.mutateAsync({
-      attributionUuids: attributionIdsToDelete,
+      selection,
+      focusedAttributionUuid: selectedAttributionId,
     });
+    clearSelection?.();
     onClose();
   };
   const handleDeleteOnResource = async () => {
     await unlinkResourceFromAttributions.mutateAsync({
       resourcePath: selectedResourceId,
-      attributionUuids: attributionIdsToDelete,
+      selection,
+      focusedAttributionUuid: selectedAttributionId,
     });
+    clearSelection?.();
     onClose();
   };
 
@@ -79,7 +79,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
         isPending: deleteAttributions.isPending,
         onClick: handleDelete,
         buttonText:
-          linkedResourceCount && linkedResourceCount > 1
+          (actionSummary.linkedResourceCount ?? 0) > 1
             ? text.deleteAttributionsPopup.deleteGlobally
             : text.deleteAttributionsPopup.delete,
         color: 'error',
@@ -88,22 +88,24 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       onClose={onClose}
       description={text.deleteAttributionsPopup.deleteAttributions({
         attributions: maybePluralize(
-          attributionIdsToDelete.length,
+          actionSummary.selectedAttributionCount,
           text.packageLists.attribution,
         ),
         resources: maybePluralize(
-          linkedResourceCount ?? 1,
+          actionSummary.linkedResourceCount ?? 1,
           text.deleteAttributionsPopup.resource,
           { showOne: true },
         ),
       })}
       mixedWarning={text.deleteAttributionsPopup.mixedWarning(
-        mixedAttributionCount,
+        actionSummary.mixedAttributionCount,
       )}
       linkedResourcesTreeState={linkedResourcesTreeState}
-      mixedAttributionCount={mixedAttributionCount}
-      isResourceInfoReady={isResourceInfoReady}
-      isLocalActionAvailable={isLocalActionAvailable}
+      mixedAttributionCount={actionSummary.mixedAttributionCount}
+      isResourceInfoReady={actionSummary.isResourceInfoReady}
+      isLocalActionAvailable={actionSummary.isLocalActionAvailable}
+      selection={selection}
+      attributionCount={actionSummary.selectedAttributionCount}
       open={open}
       ariaLabel={text.deleteAttributionsPopup.ariaLabel}
     />

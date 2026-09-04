@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { PackageInfo } from '../../../../shared/shared-types';
+import type { PackageInfo, Relation } from '../../../../shared/shared-types';
 import type { AttributionFilters } from '../../variables/use-filters';
 
 export const ACTION_SET_SELECTED_ATTRIBUTION_ID =
@@ -21,6 +21,19 @@ export const ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID';
 export const ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE =
   'ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE';
+export const ACTION_SET_TARGET_ATTRIBUTION_RELATION =
+  'ACTION_SET_TARGET_ATTRIBUTION_RELATION';
+export const ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION =
+  'ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION';
+export const ACTION_SET_ATTRIBUTION_SELECTION_PENDING =
+  'ACTION_SET_ATTRIBUTION_SELECTION_PENDING';
+export const ACTION_COMPLETE_ATTRIBUTION_SELECTION =
+  'ACTION_COMPLETE_ATTRIBUTION_SELECTION';
+
+export interface PendingAttributionNavigation {
+  attributionUuid: string;
+  fallbackResourcePath: string;
+}
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -31,7 +44,11 @@ export type ResourceAction =
   | SetTargetSelectedResourceId
   | SetSelectedAttributionId
   | SetTargetSelectedAttributionIdAction
-  | SetTargetAttributionFilterChangeAction;
+  | SetTargetAttributionFilterChangeAction
+  | SetTargetAttributionRelationAction
+  | SetPendingAttributionNavigationAction
+  | SetAttributionSelectionPendingAction
+  | CompleteAttributionSelectionAction;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -67,6 +84,16 @@ export interface SetSelectedAttributionId {
   payload: string;
 }
 
+export interface SetAttributionSelectionPendingAction {
+  type: typeof ACTION_SET_ATTRIBUTION_SELECTION_PENDING;
+  payload: string | null;
+}
+
+export interface CompleteAttributionSelectionAction {
+  type: typeof ACTION_COMPLETE_ATTRIBUTION_SELECTION;
+  payload: string;
+}
+
 export interface SetTargetSelectedAttributionIdAction {
   type: typeof ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID;
   payload: string | null;
@@ -81,4 +108,14 @@ export interface TargetAttributionFilterChange {
 export interface SetTargetAttributionFilterChangeAction {
   type: typeof ACTION_SET_TARGET_ATTRIBUTION_FILTER_CHANGE;
   payload: TargetAttributionFilterChange | null;
+}
+
+export interface SetTargetAttributionRelationAction {
+  type: typeof ACTION_SET_TARGET_ATTRIBUTION_RELATION;
+  payload: Relation | null;
+}
+
+export interface SetPendingAttributionNavigationAction {
+  type: typeof ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION;
+  payload: PendingAttributionNavigation | null;
 }

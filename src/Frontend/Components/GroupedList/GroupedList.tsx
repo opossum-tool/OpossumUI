@@ -9,7 +9,7 @@ import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
 import type { SxProps } from '@mui/system';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   GroupedVirtuoso,
   type GroupedVirtuosoHandle,
@@ -20,6 +20,12 @@ import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useVirtuosoRefs } from '../../util/use-virtuoso-refs';
 import { EmptyPlaceholder } from '../EmptyPlaceholder/EmptyPlaceholder';
+import {
+  FloatingInfiniteListFooter,
+  InfiniteListFooter,
+  InfiniteListFooterContext,
+} from '../List/InfiniteListFooter';
+import type { UnloadedItemsProps } from '../List/List';
 import { LoadingMask } from '../LoadingMask/LoadingMask';
 import { VirtuosoComponentContext } from '../VirtuosoComponentContext/VirtuosoComponentContext';
 import { GroupContainer, StyledLinearProgress } from './GroupedList.style';
@@ -34,11 +40,15 @@ interface GroupedListProps {
   className?: string;
   grouped: Record<string, ReadonlyArray<string>> | null;
   loading?: boolean;
+  loadingMore?: boolean;
+  loadMoreError?: unknown;
+  onRetryLoadMore?: (requiredEndIndex?: number) => void;
   renderGroupName?: (key: string) => React.ReactNode;
   renderItemContent: (
     datum: string,
     props: GroupedListItemContentProps,
   ) => React.ReactNode;
+  resultSetKey?: string;
   selectedId?: string;
   sx?: SxProps;
   testId?: string;
@@ -48,14 +58,23 @@ export function GroupedList({
   className,
   grouped,
   loading,
+  loadingMore = false,
+  loadMoreError,
+  onRetryLoadMore,
   renderGroupName,
   renderItemContent,
+  resultSetKey,
   selectedId,
   sx,
   testId,
+  totalCount,
+  unloadedItemHeight,
+  endReached,
   components,
   ...props
-}: GroupedListProps & Omit<GroupedVirtuosoProps<string, unknown>, 'selected'>) {
+}: GroupedListProps &
+  UnloadedItemsProps &
+  Omit<GroupedVirtuosoProps<string, unknown>, 'selected'>) {
   // eslint-disable-next-line @eslint-react/use-state
   const [{ startIndex, endIndex }, setRange] = useState<{
     startIndex: number;
@@ -69,12 +88,71 @@ export function GroupedList({
 
     const flattened = Object.values(grouped).flat();
 
-    return {
-      ids: flattened,
-      keys: Object.keys(grouped),
-      counts: Object.values(grouped).map((group) => group.length),
-    };
+    const keys = Object.keys(grouped);
+    const counts = Object.values(grouped).map((group) => group.length);
+    const unloadedCount = Math.max(
+      (totalCount ?? flattened.length) - flattened.length,
+      0,
+    );
+    const ids: Array<string | undefined> = [...flattened];
+    const syntheticGroupIndex =
+      unloadedCount > 0 && keys.length === 0 ? 0 : undefined;
+
+    if (unloadedCount > 0) {
+      ids.push(...Array.from({ length: unloadedCount }, () => undefined));
+      if (keys.length === 0) {
+        keys.push('');
+        counts.push(unloadedCount);
+      } else {
+        counts[counts.length - 1] += unloadedCount;
+      }
+    }
+
+    return { ids, keys, counts, syntheticGroupIndex };
+  }, [grouped, totalCount]);
+
+  const loadedItemCount = Object.values(grouped ?? {}).reduce(
+    (count, group) => count + group.length,
+    0,
+  );
+  const [visibleRange, setVisibleRange] = useState<{
+    endIndex: number;
+    resultSetKey: string | undefined;
+  } | null>(null);
+  const visibleEndIndex =
+    visibleRange !== null && visibleRange.resultSetKey === resultSetKey
+      ? visibleRange.endIndex
+      : -1;
+  const hasUnloadedRows =
+    groups !== null && (totalCount ?? loadedItemCount) > loadedItemCount;
+  const unloadedRangeVisible =
+    hasUnloadedRows && visibleEndIndex >= loadedItemCount;
+
+  useEffect(() => {
+    if (grouped === null) {
+      setVisibleRange(null);
+    }
   }, [grouped]);
+
+  useEffect(() => {
+    if (
+      !hasUnloadedRows ||
+      visibleEndIndex < loadedItemCount ||
+      loadingMore ||
+      loadMoreError ||
+      !endReached
+    ) {
+      return;
+    }
+    endReached(visibleEndIndex);
+  }, [
+    endReached,
+    hasUnloadedRows,
+    loadMoreError,
+    loadedItemCount,
+    loadingMore,
+    visibleEndIndex,
+  ]);
 
   const {
     ref,
@@ -84,7 +162,10 @@ export function GroupedList({
     selectedIndex,
     isVirtuosoFocused,
   } = useVirtuosoRefs<{ id: string }, GroupedVirtuosoHandle>({
-    data: groups?.ids.map((g) => ({ id: g })),
+    data: groups?.ids
+      .slice(0, loadedItemCount)
+      .filter((id): id is string => id !== undefined)
+      .map((id) => ({ id })),
     selectedId,
   });
 
@@ -99,38 +180,72 @@ export function GroupedList({
       {groups && (
         // Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
         <VirtuosoComponentContext value={{ isVirtuosoFocused, loading }}>
-          <GroupedVirtuoso
-            ref={ref}
-            onFocus={() => setIsVirtuosoFocused(true)}
-            onBlur={() => setIsVirtuosoFocused(false)}
-            components={{
-              EmptyPlaceholder,
-              ...components,
+          <InfiniteListFooterContext
+            value={{
+              loading: loadingMore,
+              error: loadMoreError,
+              onRetry: () =>
+                onRetryLoadMore?.(
+                  visibleEndIndex >= 0 ? visibleEndIndex : undefined,
+                ),
             }}
-            tabIndex={-1}
-            scrollerRef={scrollerRef}
-            rangeChanged={setRange}
-            groupCounts={groups?.counts}
-            groupContent={(index) => (
-              <GroupContainer role={'group'}>
-                <MuiBox sx={{ display: 'flex' }}>
-                  {renderJumpUp(index)}
-                  {renderJumpDown(index)}
-                </MuiBox>
-                {renderGroupName?.(groups.keys[index]) || (
-                  <MuiBox sx={{ flex: 1 }} />
-                )}
-              </GroupContainer>
-            )}
-            itemContent={(index) =>
-              renderItemContent(groups.ids[index], {
-                index,
-                selected: index === selectedIndex,
-                focused: index === focusedIndex,
-              })
-            }
-            {...props}
-          />
+          >
+            <GroupedVirtuoso
+              ref={ref}
+              onFocus={() => setIsVirtuosoFocused(true)}
+              onBlur={() => setIsVirtuosoFocused(false)}
+              components={{
+                EmptyPlaceholder,
+                ...(!hasUnloadedRows ? { Footer: InfiniteListFooter } : {}),
+                ...components,
+              }}
+              tabIndex={-1}
+              scrollerRef={scrollerRef}
+              rangeChanged={(range) => {
+                setRange(range);
+                setVisibleRange({
+                  endIndex: range.endIndex,
+                  resultSetKey,
+                });
+              }}
+              endReached={hasUnloadedRows ? undefined : endReached}
+              groupCounts={groups?.counts}
+              groupContent={(index) =>
+                groups.syntheticGroupIndex === index ? (
+                  <GroupContainer
+                    role={'group'}
+                    sx={{
+                      height: 0,
+                      padding: 0,
+                    }}
+                  />
+                ) : (
+                  <GroupContainer role={'group'}>
+                    <MuiBox sx={{ display: 'flex' }}>
+                      {renderJumpUp(index)}
+                      {renderJumpDown(index)}
+                    </MuiBox>
+                    {renderGroupName?.(groups.keys[index]) || (
+                      <MuiBox sx={{ flex: 1 }} />
+                    )}
+                  </GroupContainer>
+                )
+              }
+              itemContent={(index) =>
+                groups.ids[index] ? (
+                  renderItemContent(groups.ids[index], {
+                    index,
+                    selected: index === selectedIndex,
+                    focused: index === focusedIndex,
+                  })
+                ) : (
+                  <MuiBox sx={{ height: unloadedItemHeight }} />
+                )
+              }
+              {...props}
+            />
+            {unloadedRangeVisible && <FloatingInfiniteListFooter />}
+          </InfiniteListFooterContext>
         </VirtuosoComponentContext>
       )}
     </LoadingMask>

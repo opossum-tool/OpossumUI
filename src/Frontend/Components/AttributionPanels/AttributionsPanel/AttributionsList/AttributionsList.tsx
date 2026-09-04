@@ -3,14 +3,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
-import { without } from 'lodash-es';
+import { useMemo, useRef } from 'react';
 
 import { TRANSITION } from '../../../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../../../state/hooks';
 import { isPackageIncomplete } from '../../../../util/input-validation';
-import { List, type ListItemContentProps } from '../../../List/List';
-import { PackageCard } from '../../../PackageCard/PackageCard';
+import {
+  INFINITE_LIST_BOTTOM_OVERSCAN,
+  List,
+  type ListItemContentProps,
+} from '../../../List/List';
+import {
+  PACKAGE_CARD_LIST_ITEM_HEIGHT,
+  PackageCard,
+} from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
@@ -20,11 +27,24 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionId,
   contentHeight,
   loading,
+  loadingMore,
+  loadMoreError,
+  fetchNextPage,
   pickerMode,
-  setMultiSelectedAttributionIds,
-  multiSelectedAttributionIds,
+  isAttributionSelected,
+  toggleAttributionSelection,
+  totalAttributionCount,
+  resultSetKey,
 }) => {
   const dispatch = useAppDispatch();
+  const initialSelectedAttributionId = useRef(selectedAttributionId).current;
+  const initialSelectedAttributionIndex = useMemo(
+    () =>
+      activeAttributionIds?.findIndex(
+        (id) => id === initialSelectedAttributionId,
+      ),
+    [activeAttributionIds, initialSelectedAttributionId],
+  );
 
   return (
     <List
@@ -34,9 +54,25 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
           id,
         })) ?? null
       }
+      totalCount={totalAttributionCount}
+      unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}
+      resultSetKey={resultSetKey}
       components={{ List: SearchList }}
       selectedId={selectedAttributionId}
+      initialTopMostItemIndex={
+        initialSelectedAttributionIndex !== undefined &&
+        initialSelectedAttributionIndex >= 0
+          ? { index: initialSelectedAttributionIndex, align: 'center' }
+          : undefined
+      }
       loading={loading}
+      loadingMore={loadingMore}
+      loadMoreError={loadMoreError}
+      onRetryLoadMore={(requiredEndIndex) =>
+        void fetchNextPage(requiredEndIndex)
+      }
+      endReached={(requiredEndIndex) => void fetchNextPage(requiredEndIndex)}
+      increaseViewportBy={{ bottom: INFINITE_LIST_BOTTOM_OVERSCAN, top: 0 }}
       sx={{ transition: TRANSITION, height: contentHeight }}
     />
   );
@@ -53,7 +89,10 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
 
     const isPickerSource =
       (pickerMode.mode === 'replace' &&
-        pickerMode.attributionIdsForReplacement.includes(attributionId)) ||
+        pickerMode.selectionForReplacement.mode === 'explicit' &&
+        pickerMode.selectionForReplacement.attributionUuids.includes(
+          attributionId,
+        )) ||
       (pickerMode.mode === 'compare' &&
         pickerMode.compareSelectionSource.id === attributionId);
 
@@ -74,15 +113,11 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
           }}
           packageInfo={attribution}
           checkbox={{
-            checked: multiSelectedAttributionIds.includes(attributionId),
+            checked: isAttributionSelected(attributionId),
             disabled:
               pickerMode.isActive || attribution.resourceAccess === 'readonly',
             onChange: (event) => {
-              setMultiSelectedAttributionIds(
-                event.target.checked
-                  ? [...multiSelectedAttributionIds, attributionId]
-                  : without(multiSelectedAttributionIds, attributionId),
-              );
+              toggleAttributionSelection(attributionId, event.target.checked);
               !selectedAttributionId &&
                 dispatch(
                   changeSelectedAttributionOrOpenUnsavedPopup(attribution),

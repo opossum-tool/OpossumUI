@@ -12,7 +12,7 @@ import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../state/selectors/resource-selectors';
-import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-ids-for-replacement';
+import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-selection-for-replacement';
 import {
   expectManualAttributions,
   expectResourcesToManualAttributions,
@@ -48,9 +48,10 @@ describe('ConfirmReplacePopup', () => {
           readonlyRules: [{ path: '/readonly', readonly: true }],
         }),
         actions: [
-          setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-            attributionToReplace.id,
-          ]),
+          setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+            mode: 'explicit',
+            attributionUuids: [attributionToReplace.id],
+          }),
         ],
       },
     );
@@ -91,9 +92,10 @@ describe('ConfirmReplacePopup', () => {
           readonlyRules: [{ path: '/readonly', readonly: true }],
         }),
         actions: [
-          setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-            attributionToReplace.id,
-          ]),
+          setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+            mode: 'explicit',
+            attributionUuids: [attributionToReplace.id],
+          }),
         ],
       },
     );
@@ -127,9 +129,10 @@ describe('ConfirmReplacePopup', () => {
           resources: pathsToResources([resource]),
         }),
         actions: [
-          setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-            packageInfo1.id,
-          ]),
+          setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+            mode: 'explicit',
+            attributionUuids: [packageInfo1.id],
+          }),
         ],
       },
     );
@@ -148,6 +151,69 @@ describe('ConfirmReplacePopup', () => {
       [resource]: [packageInfo2.id],
     });
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo2.id);
+  });
+
+  it('replaces a query-wide selection without materializing source IDs', async () => {
+    const first = faker.opossum.packageInfo({ preSelected: true });
+    const second = faker.opossum.packageInfo({ preSelected: true });
+    const replacement = faker.opossum.packageInfo();
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    const { store } = await renderComponent(
+      <ConfirmReplacePopup
+        open
+        onClose={noop}
+        selectedAttribution={replacement}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [first.id]: first,
+            [second.id]: second,
+            [replacement.id]: replacement,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [first.id, second.id, replacement.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+        actions: [
+          setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+            mode: 'allMatching',
+            query: {
+              external: false,
+              filters: [],
+              search: '',
+              valueFilters: {},
+              resourcePathForRelationships: resource,
+              showResolved: true,
+              excludeUnrelated: false,
+              relation: 'resource',
+            },
+            excludedAttributionUuids: [],
+          }),
+        ],
+      },
+    );
+
+    expect(
+      await screen.findByText(
+        text.replaceAttributionsPopup.removeAttributions('2 attributions'),
+      ),
+    ).toBeVisible();
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.replaceAttributionsPopup.replace,
+      }),
+    );
+
+    await expectManualAttributions({ [replacement.id]: replacement });
+    await expectResourcesToManualAttributions({
+      [resource]: [replacement.id],
+    });
+    expect(
+      store.getState().variablesState[ATTRIBUTION_SELECTION_FOR_REPLACEMENT],
+    ).toBeNull();
   });
 
   it('replaces selected attribution with pre-selected one', async () => {
@@ -174,9 +240,10 @@ describe('ConfirmReplacePopup', () => {
           resources: pathsToResources([resource]),
         }),
         actions: [
-          setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-            packageInfo1.id,
-          ]),
+          setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+            mode: 'explicit',
+            attributionUuids: [packageInfo1.id],
+          }),
         ],
       },
     );

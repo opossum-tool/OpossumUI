@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
-import { groupBy as _groupBy, orderBy as _orderBy, without } from 'lodash-es';
+import { groupBy as _groupBy, orderBy as _orderBy } from 'lodash-es';
 import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
@@ -16,7 +16,11 @@ import {
   type GroupedListItemContentProps,
 } from '../../../GroupedList/GroupedList';
 import { SourceIcon } from '../../../Icons/Icons';
-import { PackageCard } from '../../../PackageCard/PackageCard';
+import { INFINITE_LIST_BOTTOM_OVERSCAN } from '../../../List/List';
+import {
+  PACKAGE_CARD_LIST_ITEM_HEIGHT,
+  PackageCard,
+} from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 import { GroupName } from './SignalsList.style';
@@ -27,9 +31,14 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   selectedAttributionId,
   contentHeight,
   loading,
+  loadingMore,
+  loadMoreError,
+  fetchNextPage,
   pickerMode,
-  setMultiSelectedAttributionIds,
-  multiSelectedAttributionIds,
+  isAttributionSelected,
+  toggleAttributionSelection,
+  totalAttributionCount,
+  resultSetKey,
 }) => {
   const dispatch = useAppDispatch();
   const canSelectSignals = pickerMode.mode !== 'replace';
@@ -79,6 +88,16 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
         </>
       )}
       loading={loading}
+      loadingMore={loadingMore}
+      totalCount={totalAttributionCount}
+      unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}
+      resultSetKey={resultSetKey}
+      loadMoreError={loadMoreError}
+      onRetryLoadMore={(requiredEndIndex) =>
+        void fetchNextPage(requiredEndIndex)
+      }
+      endReached={(requiredEndIndex) => void fetchNextPage(requiredEndIndex)}
+      increaseViewportBy={{ bottom: INFINITE_LIST_BOTTOM_OVERSCAN, top: 0 }}
       sx={{ transition: TRANSITION, height: contentHeight }}
     />
   );
@@ -120,15 +139,11 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
           readonlyIconLabel={text.packageLists.readonlySignalLabel}
           readonlyTooltip={text.packageLists.readonlySignalCannotBeSelected}
           checkbox={{
-            checked: multiSelectedAttributionIds.includes(attributionId),
+            checked: isAttributionSelected(attributionId),
             disabled:
               pickerMode.isActive || attribution.resourceAccess === 'readonly',
             onChange: (event) => {
-              setMultiSelectedAttributionIds(
-                event.target.checked
-                  ? [...multiSelectedAttributionIds, attributionId]
-                  : without(multiSelectedAttributionIds, attributionId),
-              );
+              toggleAttributionSelection(attributionId, event.target.checked);
               !selectedAttributionId &&
                 dispatch(
                   changeSelectedAttributionOrOpenUnsavedPopup(attribution),

@@ -16,22 +16,38 @@ import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPan
 export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   selectedAttributionIds,
+  selection,
+  selectionSummary,
+  selectionSummaryLoading,
+  clearSelection,
 }) => {
   const unresolveAttributions = backend.unresolveAttributions.useMutation({
     scope: { id: 'signalsPanel' },
   });
   const mutationsPending = useIsMutating() > 0;
+  const selectedCount =
+    selection.mode === 'allMatching'
+      ? (selectionSummary?.selectedCount ?? 0)
+      : selectedAttributionIds.length;
   const { data: resolvedExternalAttributionIds } =
     backend.resolvedAttributionUuids.useQuery();
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
   const someSelectedAttributionsAreHidden = useMemo(
     () =>
-      !!selectedAttributionIds.length &&
-      selectedAttributionIds.some((id) =>
-        resolvedExternalAttributionIds?.has(id),
-      ),
-    [resolvedExternalAttributionIds, selectedAttributionIds],
+      selection.mode === 'allMatching'
+        ? (selectionSummary?.resolvedCount ?? 0) > 0
+        : !!selectedCount &&
+          selectedAttributionIds.some((id) =>
+            resolvedExternalAttributionIds?.has(id),
+          ),
+    [
+      resolvedExternalAttributionIds,
+      selectedAttributionIds,
+      selectedCount,
+      selection,
+      selectionSummary,
+    ],
   );
 
   if (!areHiddenSignalsVisible) {
@@ -43,14 +59,14 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
       aria-label={text.packageLists.restore}
       disabled={
         !someSelectedAttributionsAreHidden ||
+        selectionSummaryLoading ||
         pickerMode.isActive ||
         mutationsPending
       }
       size={'small'}
       onClick={async () => {
-        await unresolveAttributions.mutateAsync({
-          attributionUuids: selectedAttributionIds,
-        });
+        await unresolveAttributions.mutateAsync({ selection });
+        clearSelection();
       }}
       loading={unresolveAttributions.isPending}
     >

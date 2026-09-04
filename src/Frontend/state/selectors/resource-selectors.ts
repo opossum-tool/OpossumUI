@@ -3,9 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { isEqualToManualAttribution } from '../../../shared/attribution-comparison';
-import type { PackageInfo } from '../../../shared/shared-types';
+import type { PackageInfo, Relation } from '../../../shared/shared-types';
 import type { State } from '../../types/types';
-import type { TargetAttributionFilterChange } from '../actions/resource-actions/types';
+import type {
+  PendingAttributionNavigation,
+  TargetAttributionFilterChange,
+} from '../actions/resource-actions/types';
 
 export function getSelectedAttributionId(state: State): string {
   return state.resourceState.selectedAttributionId;
@@ -21,6 +24,16 @@ export function getTargetAttributionFilterChange(
   return state.resourceState.targetAttributionFilterChange;
 }
 
+export function getTargetAttributionRelation(state: State): Relation | null {
+  return state.resourceState.targetAttributionRelation;
+}
+
+export function getPendingAttributionNavigation(
+  state: State,
+): PendingAttributionNavigation | null {
+  return state.resourceState.pendingAttributionNavigation;
+}
+
 export function getExpandedIds(state: State): Array<string> {
   return state.resourceState.expandedIds;
 }
@@ -31,6 +44,12 @@ export function getTargetSelectedResourceId(state: State): string | null {
 
 export function getSelectedResourceId(state: State): string {
   return state.resourceState.selectedResourceId;
+}
+
+export function getAttributionSelectionPendingResourceId(
+  state: State,
+): string | null {
+  return state.resourceState.attributionSelectionPendingResourceId;
 }
 
 export function getTemporaryDisplayPackageInfo(state: State): PackageInfo {
