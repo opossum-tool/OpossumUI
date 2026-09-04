@@ -3110,10 +3110,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@viz-js/viz@npm:3.29.0":
-  version: 3.29.0
-  resolution: "@viz-js/viz@npm:3.29.0"
-  checksum: 10/0a399b7f6b48076a1d018ca3225b5b807b156eda32f92d6ba1ad28439c3c8fa07224b4f357a573f10e1a055cd7d12afaacda22ac7c6b1cda8c62b6d5f39a47b0
+"@viz-js/viz@npm:3.30.0":
+  version: 3.30.0
+  resolution: "@viz-js/viz@npm:3.30.0"
+  checksum: 10/ac8ec51f41c5c0e27e6db675f48e52ff755fbc611f32e5bf5f646ab22cbc78d4b70fe85d6f49eb6a5895d2cbf8c1da6c45630babab83fa0e7303794fe9d0f548
   languageName: node
   linkType: hard
 
@@ -6779,7 +6779,7 @@ __metadata:
     "@types/react-dom": "npm:19.2.5"
     "@vitejs/plugin-react": "npm:6.1.1"
     "@vitest/eslint-plugin": "npm:1.6.27"
-    "@viz-js/viz": "npm:3.29.0"
+    "@viz-js/viz": "npm:3.30.0"
     adm-zip: "npm:0.6.0"
     ajv: "npm:8.20.0"
     babel-plugin-react-compiler: "npm:1.0.0"
