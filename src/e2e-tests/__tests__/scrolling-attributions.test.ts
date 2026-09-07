@@ -4,16 +4,23 @@
 // SPDX-License-Identifier: Apache-2.0
 import { faker, test } from '../utils';
 
-const attributionCount = 20;
-const offscreenAttributionIndex = 15;
+const manualAttributionCount = 20;
+const signalAttributionCount = 440;
+const signalGroupBoundary = 220;
+const offscreenAttributionIndex = 5;
 const resourceName = 'scroll-root';
 const childResourceName = 'scroll-child';
 const emptyResourceName = 'scroll-empty-root';
 const emptyChildResourceName = 'scroll-empty-child';
 const packageVersion = '1.0.0';
+const signalSource = { name: 'ScanCode', documentConfidence: 0 };
+const secondarySignalSource = {
+  name: 'known-source',
+  documentConfidence: 0,
+};
 
 const manualAttributionEntries = Array.from(
-  { length: attributionCount },
+  { length: manualAttributionCount },
   (_, index) =>
     faker.opossum.rawAttribution({
       packageName: `manual-${index.toString().padStart(2, '0')}`,
@@ -27,11 +34,13 @@ const childManualAttributionEntries = Array.from({ length: 40 }, (_, index) =>
   }),
 );
 const externalAttributionEntries = Array.from(
-  { length: attributionCount },
+  { length: signalAttributionCount },
   (_, index) =>
     faker.opossum.rawAttribution({
       packageName: `signal-${index.toString().padStart(2, '0')}`,
       packageVersion,
+      source:
+        index < signalGroupBoundary ? signalSource : secondarySignalSource,
     }),
 );
 
@@ -43,9 +52,9 @@ const externalAttributions = Object.fromEntries(externalAttributionEntries);
 const firstManualAttribution = manualAttributionEntries[0][1];
 const offscreenManualAttribution =
   manualAttributionEntries[offscreenAttributionIndex][1];
-const firstExternalAttribution = externalAttributionEntries[0][1];
-const offscreenExternalAttribution =
-  externalAttributionEntries[offscreenAttributionIndex][1];
+const firstExternalAttribution =
+  externalAttributionEntries[signalGroupBoundary][1];
+const firstExternalAttributionInSecondGroup = externalAttributionEntries[0][1];
 const lastChildAttributionEntry =
   childManualAttributionEntries[childManualAttributionEntries.length - 1];
 const reportChildAttribution = lastChildAttributionEntry[1];
@@ -64,6 +73,13 @@ test.use({
         },
       },
       externalAttributions,
+      externalAttributionSources: {
+        configured: { name: signalSource.name, priority: 2 },
+        [secondarySignalSource.name]: {
+          name: 'Known',
+          priority: 1,
+        },
+      },
       resourcesToAttributions: faker.opossum.resourcesToAttributions({
         [faker.opossum.filePath(resourceName, childResourceName)]:
           externalAttributionEntries.map(([attributionId]) => attributionId),
@@ -127,16 +143,20 @@ test('keeps the first signal clickable after scrolling', async ({
     firstExternalAttribution,
   );
 
-  await signalsPanel.packageCard.assert.isVisible(offscreenExternalAttribution);
-  await signalsPanel.packageCard.click(offscreenExternalAttribution);
+  await signalsPanel.jumpToNextGroup('Known');
+  await signalsPanel.packageCard.assert.isVisible(
+    firstExternalAttributionInSecondGroup,
+  );
+  await signalsPanel.packageCard.click(firstExternalAttributionInSecondGroup);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
-    offscreenExternalAttribution,
+    firstExternalAttributionInSecondGroup,
   );
 
-  await signalsPanel.scrollToTop();
+  await signalsPanel.jumpToPreviousGroup('ScanCode');
   await signalsPanel.packageCard.assert.isFirstVisible(
     firstExternalAttribution,
   );
+  await signalsPanel.packageCard.assert.isInViewport(firstExternalAttribution);
   await signalsPanel.packageCard.click(firstExternalAttribution);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     firstExternalAttribution,

@@ -7,7 +7,10 @@ import MuiTypography from '@mui/material/Typography';
 import { intersection, isEqual } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import type { AttributionResultSetCriteria } from '../../../../shared/attribution-result-set';
+import type {
+  AttributionResultSetCriteria,
+  AttributionSourceGroupCount,
+} from '../../../../shared/attribution-result-set';
 import type {
   AttributionSelection,
   AttributionSelectionQuery,
@@ -88,6 +91,7 @@ export interface PackagesPanelChildrenProps {
   selectedAttributionId: string;
   selectedAttributionIds: Array<string>;
   totalAttributionCount?: number;
+  sourceGroups?: Array<AttributionSourceGroupCount>;
 }
 
 export interface Alert {
@@ -643,6 +647,7 @@ export const PackagesPanel = ({
     selectedAttributionId,
     selectedAttributionIds,
     totalAttributionCount,
+    sourceGroups: activeRelationCount?.sourceGroups,
   };
 
   const isDisabledDuringReplacement = external && pickerMode.mode === 'replace';

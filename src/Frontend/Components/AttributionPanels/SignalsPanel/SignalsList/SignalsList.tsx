@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
-import { groupBy as _groupBy, orderBy as _orderBy } from 'lodash-es';
 import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
@@ -24,12 +23,14 @@ import {
 import { SearchList } from '../../../SearchList/SearchList';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 import { GroupName } from './SignalsList.style';
+import { getSignalGroups } from './SignalsList.util';
 
 export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   activeAttributionIds,
   selectedAttributionId,
   contentHeight,
+  sourceGroups,
   loading,
   loadingMore,
   loadMoreError,
@@ -46,38 +47,24 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
     backend.resolvedAttributionUuids.useQuery();
   const { data: sources } = backend.getExternalAttributionSources.useQuery();
 
-  const groupedIds = useMemo(
+  const { groupedIds } = useMemo(
     () =>
-      attributions &&
-      activeAttributionIds &&
-      _groupBy(
-        _orderBy(
-          activeAttributionIds,
-          (id) => {
-            const attribution = attributions[id];
-            return (
-              attribution &&
-              (attribution.source && sources?.[attribution.source.name])
-                ?.priority
-            );
-          },
-          'desc',
-        ),
-        (id) => {
-          const attribution = attributions[id];
-          return (
-            attribution?.source &&
-            (sources?.[attribution.source.name]?.name ||
-              attribution.source.name)
-          );
-        },
-      ),
-    [activeAttributionIds, attributions, sources],
+      getSignalGroups({
+        activeAttributionIds,
+        attributions,
+        sourceGroups,
+        sources,
+      }),
+    [activeAttributionIds, attributions, sourceGroups, sources],
   );
 
   return (
     <GroupedList
       grouped={groupedIds}
+      groupMetadata={sourceGroups?.map(({ name, visibleCount }) => ({
+        name,
+        totalCount: visibleCount,
+      }))}
       selectedId={selectedAttributionId}
       renderItemContent={renderAttributionCard}
       components={{ List: SearchList }}
@@ -87,7 +74,7 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
           <GroupName>{sourceName}</GroupName>
         </>
       )}
-      loading={loading}
+      loading={loading || groupedIds === null}
       loadingMore={loadingMore}
       totalCount={totalAttributionCount}
       unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}

@@ -52,3 +52,9 @@ export type AttributionNavigationRequest = AttributionResultSetCriteria & {
   limit: number;
   navigationScope: 'all' | 'targetRelation';
 };
+
+export type AttributionSourceGroupCount = {
+  name: string;
+  visibleCount: number;
+  editableCount: number;
+};

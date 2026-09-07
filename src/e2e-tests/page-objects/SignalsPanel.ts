@@ -204,4 +204,20 @@ export class SignalsPanel {
         scroller.scrollTo({ top: 0 });
       });
   }
+
+  async jumpToNextGroup(groupName: string): Promise<void> {
+    await this.node
+      .getByRole('group')
+      .filter({ hasText: groupName })
+      .getByLabel(text.packageLists.jumpNext)
+      .click();
+  }
+
+  async jumpToPreviousGroup(groupName: string): Promise<void> {
+    await this.node
+      .getByRole('group')
+      .filter({ hasText: groupName })
+      .getByLabel(text.packageLists.jumpPrevious)
+      .click();
+  }
 }

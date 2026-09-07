@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   expressionBuilder,
+  type ExpressionBuilder,
   type Kysely,
   type OperandExpression,
   type SelectQueryBuilder,
@@ -66,6 +67,37 @@ export function uuidSelection(uuids: Array<string>) {
   return sql<string>`(
     select value from json_each(${JSON.stringify(uuids)})
   )`;
+}
+
+export function getAttributionSourceNameExpression(
+  eb: ExpressionBuilder<DB, 'attribution'>,
+) {
+  return eb.fn.coalesce(
+    eb
+      .selectFrom('external_attribution_source')
+      .select('name')
+      .whereRef('key', '=', 'attribution.source_name'),
+    'attribution.source_name',
+    eb.val('undefined'),
+  );
+}
+
+export function getAttributionSourcePriorityExpression(
+  eb: ExpressionBuilder<DB, 'attribution'>,
+) {
+  // An unconfigured source can have the same name as a configured source's
+  // display name. Resolve the key first so it does not inherit that priority.
+  const configuredSourceName = eb
+    .selectFrom('external_attribution_source')
+    .select('name')
+    .whereRef('key', '=', 'attribution.source_name');
+
+  return eb
+    .selectFrom('external_attribution_source')
+    .select((subqueryEb) =>
+      subqueryEb.fn.max<number>('priority').as('priority'),
+    )
+    .where('name', '=', configuredSourceName);
 }
 
 type AttributionResultSetFilterProps = AttributionResultSetCriteria & {
@@ -146,8 +178,15 @@ function getAttributionWhereExpressions(
 
 export function addOrdering(
   query: AttributionQuery,
-  props: Pick<AttributionPageRequest, 'sort'>,
+  props: Pick<AttributionPageRequest, 'external' | 'sort'>,
 ): AttributionQuery {
+  if (props.external) {
+    // Signals are displayed in source groups. Keep the group ordering in the
+    // paginated query so a page boundary cannot split the global display order.
+    query = query.orderBy(getAttributionSourcePriorityExpression, 'desc');
+    query = query.orderBy(getAttributionSourceNameExpression, 'asc');
+  }
+
   // The UUID tie-breaker makes offset boundaries stable even when all visible
   // sort fields are equal.
   if (props.sort === 'classification') {

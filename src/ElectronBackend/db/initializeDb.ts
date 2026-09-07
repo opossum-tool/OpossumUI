@@ -318,6 +318,12 @@ async function initializeExternalAttributionSourceTable(
       })
       .execute();
   }
+
+  await trx.schema
+    .createIndex('external_attribution_source_name_priority_idx')
+    .on('external_attribution_source')
+    .columns(['name', 'priority'])
+    .execute();
 }
 
 async function initializeClassificationTable(

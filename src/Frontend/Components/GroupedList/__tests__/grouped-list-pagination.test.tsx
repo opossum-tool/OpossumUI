@@ -11,6 +11,7 @@ import { GroupedList } from '../GroupedList';
 const virtuosoMock = vi.hoisted(() => ({
   rangeChanged: undefined as
     ((range: { startIndex: number; endIndex: number }) => void) | undefined,
+  groupCounts: undefined as ReadonlyArray<number> | undefined,
 }));
 
 vi.mock('react-virtuoso', async (importOriginal) => {
@@ -20,16 +21,59 @@ vi.mock('react-virtuoso', async (importOriginal) => {
     ...original,
     GroupedVirtuoso: ({
       rangeChanged,
+      groupCounts,
     }: {
       rangeChanged?: (range: { startIndex: number; endIndex: number }) => void;
+      groupCounts?: ReadonlyArray<number>;
     }) => {
       virtuosoMock.rangeChanged = rangeChanged;
+      virtuosoMock.groupCounts = groupCounts;
       return <div />;
     },
   };
 });
 
 describe('GroupedList pagination', () => {
+  it('uses authoritative group totals for unloaded groups', async () => {
+    await renderComponent(
+      <GroupedList
+        grouped={{ High: ['high-1'] }}
+        groupMetadata={[
+          { name: 'High', totalCount: 2 },
+          { name: 'Low', totalCount: 3 },
+        ]}
+        totalCount={5}
+        unloadedItemHeight={1}
+        renderItemContent={(id) => <div>{id}</div>}
+      />,
+    );
+
+    expect(virtuosoMock.groupCounts).toEqual([2, 3]);
+  });
+
+  it('requests another page when an unloaded group enters the visible range', async () => {
+    const fetchNextPage = vi.fn();
+    await renderComponent(
+      <GroupedList
+        grouped={{ High: ['high-1'] }}
+        groupMetadata={[
+          { name: 'High', totalCount: 2 },
+          { name: 'Low', totalCount: 3 },
+        ]}
+        totalCount={5}
+        unloadedItemHeight={1}
+        endReached={fetchNextPage}
+        renderItemContent={(id) => <div>{id}</div>}
+      />,
+    );
+
+    act(() => {
+      virtuosoMock.rangeChanged?.({ startIndex: 1, endIndex: 2 });
+    });
+
+    expect(fetchNextPage).toHaveBeenCalledWith(2);
+  });
+
   it('keeps the retry control visible for a visible unloaded range', async () => {
     const onRetryLoadMore = vi.fn();
     await renderComponent(

@@ -10,6 +10,7 @@ import {
 import { listAttributionRelationCounts } from '../attribution-relation-counts';
 import {
   initializeDefaultAttributionQueryTestData,
+  listPage,
   relationCounts,
 } from './attribution-query-test-helpers';
 
@@ -73,5 +74,103 @@ describe('listAttributionRelationCounts', () => {
       visibleCount: 3,
       editableCount: 1,
     });
+  });
+
+  it('returns ordered external source groups with relation counts', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/resource']),
+      externalAttributions: {
+        attributions: {
+          low: {
+            id: 'low',
+            criticality: Criticality.None,
+            source: { name: 'low' },
+          },
+          highSecond: {
+            id: 'highSecond',
+            criticality: Criticality.None,
+            source: { name: 'high' },
+          },
+          highFirst: {
+            id: 'highFirst',
+            criticality: Criticality.None,
+            source: { name: 'high' },
+          },
+        },
+        resourcesToAttributions: {
+          '/resource': ['low', 'highSecond', 'highFirst'],
+        },
+        attributionsToResources: {},
+      },
+      externalAttributionSources: {
+        high: { name: 'High', priority: 2 },
+        low: { name: 'Low', priority: 1 },
+      },
+    });
+
+    const counts = await listAttributionRelationCounts({
+      external: true,
+      filters: [],
+      search: '',
+      valueFilters: {},
+      resourcePathForRelationships: '/resource',
+      showResolved: true,
+      excludeUnrelated: false,
+    });
+
+    expect(counts.result.resource).toEqual({
+      visibleCount: 3,
+      editableCount: 3,
+      sourceGroups: [
+        { name: 'High', visibleCount: 2, editableCount: 2 },
+        { name: 'Low', visibleCount: 1, editableCount: 1 },
+      ],
+    });
+  });
+
+  it('uses configured priority from sources outside the filtered relation', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/resource']),
+      externalAttributions: {
+        attributions: {
+          high: {
+            id: 'high',
+            criticality: Criticality.None,
+            source: { name: 'high-low' },
+          },
+          low: {
+            id: 'low',
+            criticality: Criticality.None,
+            source: { name: 'low' },
+          },
+        },
+        resourcesToAttributions: {
+          '/resource': ['high', 'low'],
+        },
+        attributionsToResources: {},
+      },
+      externalAttributionSources: {
+        'high-low': { name: 'High', priority: 1 },
+        'high-high': { name: 'High', priority: 3 },
+        low: { name: 'Low', priority: 2 },
+      },
+    });
+
+    const counts = await relationCounts({
+      external: true,
+      resourcePathForRelationships: '/resource',
+      showResolved: true,
+    });
+    const page = await listPage({
+      external: true,
+      resourcePathForRelationships: '/resource',
+      showResolved: true,
+      limit: 2,
+    });
+
+    expect(
+      counts.result.resource?.sourceGroups?.map(({ name }) => name),
+    ).toEqual(['High', 'Low']);
+    expect(Object.keys(page.result.attributions)).toEqual(['high', 'low']);
   });
 });

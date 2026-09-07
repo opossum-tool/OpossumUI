@@ -17,6 +17,7 @@ import {
   listPage,
   locate,
   preview,
+  relationCounts,
 } from './attribution-query-test-helpers';
 
 describe('listAttributionsPage', () => {
@@ -640,6 +641,160 @@ describe('listAttributionsPage', () => {
 
     expect(Object.keys(first.result.attributions)).toEqual(['three']);
     expect(Object.keys(second.result.attributions)).toEqual(['two']);
+  });
+
+  it('keeps external source groups contiguous across pages', async () => {
+    const attributions = {
+      low: {
+        id: 'low',
+        criticality: Criticality.None,
+        packageName: 'a',
+        source: { name: 'low' },
+      },
+      highFirst: {
+        id: 'highFirst',
+        criticality: Criticality.None,
+        packageName: 'z',
+        source: { name: 'high-low-priority' },
+      },
+      highSecond: {
+        id: 'highSecond',
+        criticality: Criticality.None,
+        packageName: 'y',
+        source: { name: 'high-high-priority' },
+      },
+    } satisfies Record<string, PackageInfo>;
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/resource']),
+      externalAttributions: {
+        attributions,
+        resourcesToAttributions: {
+          '/resource': Object.keys(attributions),
+        },
+        attributionsToResources: {},
+      },
+      externalAttributionSources: {
+        'high-low-priority': { name: 'High', priority: 1 },
+        'high-high-priority': { name: 'High', priority: 3 },
+        low: { name: 'Low', priority: 2 },
+      },
+    });
+
+    const props = {
+      external: true,
+      resourcePathForRelationships: '/resource',
+      scope: { mode: 'relation' as const, relation: 'resource' as const },
+      sort: 'alphabetically' as const,
+      showResolved: true,
+    };
+    const full = await listPage({ ...props, limit: 200 });
+    const firstPage = await listPage({ ...props, limit: 1 });
+    const secondPage = await listPage({ ...props, offset: 1, limit: 1 });
+    const thirdPage = await listPage({ ...props, offset: 2, limit: 1 });
+
+    expect(Object.keys(full.result.attributions)).toEqual([
+      'highSecond',
+      'highFirst',
+      'low',
+    ]);
+    expect(
+      [firstPage, secondPage, thirdPage].flatMap((page) =>
+        Object.keys(page.result.attributions),
+      ),
+    ).toEqual(Object.keys(full.result.attributions));
+  });
+
+  it('does not apply configured priority to an unknown source with the same display name', async () => {
+    const attributions = {
+      unknown: {
+        id: 'unknown',
+        criticality: Criticality.None,
+        packageName: 'unknown',
+        source: { name: 'ScanCode' },
+      },
+      known: {
+        id: 'known',
+        criticality: Criticality.None,
+        packageName: 'known',
+        source: { name: 'known-source' },
+      },
+    } satisfies Record<string, PackageInfo>;
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/resource']),
+      externalAttributions: {
+        attributions,
+        resourcesToAttributions: {
+          '/resource': Object.keys(attributions),
+        },
+        attributionsToResources: {},
+      },
+      externalAttributionSources: {
+        configured: { name: 'ScanCode', priority: 2 },
+        'known-source': { name: 'Known', priority: 1 },
+      },
+    });
+
+    const props = {
+      external: true,
+      resourcePathForRelationships: '/resource',
+      scope: { mode: 'relation' as const, relation: 'resource' as const },
+      sort: 'alphabetically' as const,
+      showResolved: true,
+    };
+    const groups = await relationCounts(props);
+    const page = await listPage({ ...props, limit: 2 });
+
+    expect(groups.result.resource?.sourceGroups).toEqual([
+      { name: 'Known', visibleCount: 1, editableCount: 1 },
+      { name: 'ScanCode', visibleCount: 1, editableCount: 1 },
+    ]);
+    expect(Object.keys(page.result.attributions)).toEqual(['known', 'unknown']);
+  });
+
+  it('uses SQLite ordering for equal-priority source groups', async () => {
+    const attributions = {
+      lower: {
+        id: 'lower',
+        criticality: Criticality.None,
+        packageName: 'lower',
+        source: { name: 'lower' },
+      },
+      upper: {
+        id: 'upper',
+        criticality: Criticality.None,
+        packageName: 'upper',
+        source: { name: 'upper' },
+      },
+    } satisfies Record<string, PackageInfo>;
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/resource']),
+      externalAttributions: {
+        attributions,
+        resourcesToAttributions: {
+          '/resource': Object.keys(attributions),
+        },
+        attributionsToResources: {},
+      },
+      externalAttributionSources: {
+        lower: { name: 'alpha', priority: 1 },
+        upper: { name: 'Beta', priority: 1 },
+      },
+    });
+
+    const props = {
+      external: true,
+      resourcePathForRelationships: '/resource',
+      scope: { mode: 'relation' as const, relation: 'resource' as const },
+      sort: 'alphabetically' as const,
+      showResolved: true,
+    };
+    const groups = await relationCounts(props);
+    const page = await listPage({ ...props, limit: 2 });
+
+    expect(
+      groups.result.resource?.sourceGroups?.map(({ name }) => name),
+    ).toEqual(['Beta', 'alpha']);
+    expect(Object.keys(page.result.attributions)).toEqual(['upper', 'lower']);
   });
 
   it('filters resolved rows consistently in the all scope', async () => {

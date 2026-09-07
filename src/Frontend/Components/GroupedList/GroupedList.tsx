@@ -39,6 +39,7 @@ export interface GroupedListItemContentProps {
 interface GroupedListProps {
   className?: string;
   grouped: Record<string, ReadonlyArray<string>> | null;
+  groupMetadata?: ReadonlyArray<{ name: string; totalCount: number }>;
   loading?: boolean;
   loadingMore?: boolean;
   loadMoreError?: unknown;
@@ -57,6 +58,7 @@ interface GroupedListProps {
 export function GroupedList({
   className,
   grouped,
+  groupMetadata,
   loading,
   loadingMore = false,
   loadMoreError,
@@ -75,30 +77,63 @@ export function GroupedList({
 }: GroupedListProps &
   UnloadedItemsProps &
   Omit<GroupedVirtuosoProps<string, unknown>, 'selected'>) {
-  // eslint-disable-next-line @eslint-react/use-state
-  const [{ startIndex, endIndex }, setRange] = useState<{
+  const [range, setRange] = useState<{
     startIndex: number;
     endIndex: number;
-  }>({ startIndex: 0, endIndex: 0 });
+    resultSetKey: string | undefined;
+  }>({ startIndex: 0, endIndex: 0, resultSetKey });
+  const startIndex = range.resultSetKey === resultSetKey ? range.startIndex : 0;
+  const endIndex = range.resultSetKey === resultSetKey ? range.endIndex : 0;
 
   const groups = useMemo(() => {
     if (!grouped) {
       return null;
     }
 
-    const flattened = Object.values(grouped).flat();
+    const metadataNames = new Set(groupMetadata?.map(({ name }) => name));
+    const entries = groupMetadata
+      ? [
+          ...groupMetadata.map(({ name, totalCount }) => ({
+            name,
+            ids: grouped[name] ?? [],
+            totalCount,
+          })),
+          ...Object.entries(grouped)
+            .filter(([name]) => !metadataNames.has(name))
+            .map(([name, ids]) => ({
+              name,
+              ids,
+              totalCount: ids.length,
+            })),
+        ]
+      : Object.entries(grouped).map(([name, ids]) => ({
+          name,
+          ids,
+          totalCount: ids.length,
+        }));
+    const flattened = entries.flatMap(({ ids }) => ids);
 
-    const keys = Object.keys(grouped);
-    const counts = Object.values(grouped).map((group) => group.length);
+    const keys = entries.map(({ name }) => name);
+    const counts = entries.map(({ ids, totalCount }) =>
+      Math.max(ids.length, totalCount),
+    );
+    const ids: Array<string | undefined> = entries.flatMap(
+      ({ ids: loadedIds, totalCount }) => [
+        ...loadedIds,
+        ...Array.from(
+          { length: Math.max(totalCount - loadedIds.length, 0) },
+          () => undefined,
+        ),
+      ],
+    );
     const unloadedCount = Math.max(
       (totalCount ?? flattened.length) - flattened.length,
       0,
     );
-    const ids: Array<string | undefined> = [...flattened];
     const syntheticGroupIndex =
-      unloadedCount > 0 && keys.length === 0 ? 0 : undefined;
+      !groupMetadata && unloadedCount > 0 && keys.length === 0 ? 0 : undefined;
 
-    if (unloadedCount > 0) {
+    if (!groupMetadata && unloadedCount > 0) {
       ids.push(...Array.from({ length: unloadedCount }, () => undefined));
       if (keys.length === 0) {
         keys.push('');
@@ -109,13 +144,14 @@ export function GroupedList({
     }
 
     return { ids, keys, counts, syntheticGroupIndex };
-  }, [grouped, totalCount]);
+  }, [groupMetadata, grouped, totalCount]);
 
   const loadedItemCount = Object.values(grouped ?? {}).reduce(
     (count, group) => count + group.length,
     0,
   );
   const [visibleRange, setVisibleRange] = useState<{
+    startIndex: number;
     endIndex: number;
     resultSetKey: string | undefined;
   } | null>(null);
@@ -126,13 +162,26 @@ export function GroupedList({
   const hasUnloadedRows =
     groups !== null && (totalCount ?? loadedItemCount) > loadedItemCount;
   const unloadedRangeVisible =
-    hasUnloadedRows && visibleEndIndex >= loadedItemCount;
+    hasUnloadedRows &&
+    groups?.ids
+      .slice(visibleRange?.startIndex ?? 0, visibleEndIndex + 1)
+      .some((id) => id === undefined);
 
   useEffect(() => {
     if (grouped === null) {
+      setRange((current) =>
+        current.startIndex === 0 && current.endIndex === 0
+          ? { ...current, resultSetKey }
+          : { startIndex: 0, endIndex: 0, resultSetKey },
+      );
       setVisibleRange(null);
     }
-  }, [grouped]);
+  }, [grouped, resultSetKey]);
+
+  useEffect(() => {
+    setRange({ startIndex: 0, endIndex: 0, resultSetKey });
+    setVisibleRange(null);
+  }, [resultSetKey]);
 
   useEffect(() => {
     if (
@@ -202,8 +251,9 @@ export function GroupedList({
               tabIndex={-1}
               scrollerRef={scrollerRef}
               rangeChanged={(range) => {
-                setRange(range);
+                setRange({ ...range, resultSetKey });
                 setVisibleRange({
+                  startIndex: range.startIndex,
                   endIndex: range.endIndex,
                   resultSetKey,
                 });
@@ -232,7 +282,7 @@ export function GroupedList({
                 )
               }
               itemContent={(index) =>
-                groups.ids[index] ? (
+                groups.ids[index] !== undefined ? (
                   renderItemContent(groups.ids[index], {
                     index,
                     selected: index === selectedIndex,
