@@ -19,6 +19,11 @@ const electronMock = vi.hoisted(() => ({
 
 vi.mock('electron', () => electronMock);
 
+vi.mock('path', async () => {
+  const { posixPathModule } = await import('../../../testing/mock-posix-path');
+  return posixPathModule;
+});
+
 describe('getPath helpers', () => {
   beforeEach(() => {
     electronMock.app.getAppPath.mockReturnValue('/repo');

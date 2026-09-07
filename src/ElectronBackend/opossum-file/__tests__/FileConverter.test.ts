@@ -17,6 +17,11 @@ const electronMock = vi.hoisted(() => ({
 
 vi.mock('electron', () => electronMock);
 
+vi.mock('path', async () => {
+  const { posixPathModule } = await import('../../../testing/mock-posix-path');
+  return posixPathModule;
+});
+
 class TestFileConverter extends FileConverter {
   protected override readonly fileTypeSwitch = '--test';
   protected override readonly fileTypeName = 'Test';
@@ -51,16 +56,20 @@ class TestExternalFileConverter extends ExternalFileConverter {
   }
 }
 
+function stubProcessPlatform(platform: NodeJS.Platform): void {
+  Object.defineProperty(process, 'platform', {
+    configurable: true,
+    value: platform,
+  });
+}
+
 describe('FileConverter executable resolution', () => {
   const originalPlatform = process.platform;
 
   beforeEach(() => {
     electronMock.app.getAppPath.mockReturnValue('/repo');
     electronMock.app.isPackaged = false;
-    Object.defineProperty(process, 'platform', {
-      configurable: true,
-      value: originalPlatform,
-    });
+    stubProcessPlatform(originalPlatform);
     Object.defineProperty(process, 'resourcesPath', {
       configurable: true,
       value: '/resources',
@@ -73,6 +82,7 @@ describe('FileConverter executable resolution', () => {
 
   it('uses the packaged resources bin directory when packaged', () => {
     electronMock.app.isPackaged = true;
+    stubProcessPlatform('linux');
 
     const converter = new TestFileConverter();
 
@@ -83,10 +93,7 @@ describe('FileConverter executable resolution', () => {
 
   it('uses the packaged .exe CLI on Windows', () => {
     electronMock.app.isPackaged = true;
-    Object.defineProperty(process, 'platform', {
-      configurable: true,
-      value: 'win32',
-    });
+    stubProcessPlatform('win32');
 
     const converter = new TestFileConverter();
 
@@ -97,6 +104,7 @@ describe('FileConverter executable resolution', () => {
 
   it('falls back to a repo-level bin directory in development', () => {
     electronMock.app.getAppPath.mockReturnValue('/repo/build/ElectronBackend');
+    stubProcessPlatform('linux');
 
     const converter = new TestFileConverter();
 

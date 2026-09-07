@@ -45,6 +45,11 @@ vi.mock('../dialogs', () => ({
   selectSaveFile: vi.fn(),
 }));
 
+vi.mock('path', async () => {
+  const { posixPathModule } = await import('../../../testing/mock-posix-path');
+  return posixPathModule;
+});
+
 const mockSaveFile = vi.fn();
 const mockSplitOpossumFile = vi.fn();
 const mockMergeOpossumFiles = vi.fn();
