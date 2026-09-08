@@ -18,8 +18,8 @@ const electronMock = vi.hoisted(() => ({
 vi.mock('electron', () => electronMock);
 
 vi.mock('path', async () => {
-  const { posixPathModule } = await import('../../../testing/mock-posix-path');
-  return posixPathModule;
+  const posix = await import('node:path/posix');
+  return { ...posix, default: posix };
 });
 
 class TestFileConverter extends FileConverter {

@@ -46,8 +46,8 @@ vi.mock('../dialogs', () => ({
 }));
 
 vi.mock('path', async () => {
-  const { posixPathModule } = await import('../../../testing/mock-posix-path');
-  return posixPathModule;
+  const posix = await import('node:path/posix');
+  return { ...posix, default: posix };
 });
 
 const mockSaveFile = vi.fn();
