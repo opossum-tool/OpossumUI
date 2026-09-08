@@ -8,13 +8,21 @@ import { getBasePathOfAssets, getBasePathOfIcons } from '../getPath';
 
 describe('getPath helpers', () => {
   it('uses the app path for development assets and icons when basePath is provided', () => {
-    expect(getBasePathOfAssets('/repo')).toBe(path.join('/repo', 'public', 'assets'));
-    expect(getBasePathOfIcons('/repo')).toBe(path.join('/repo', 'public', 'icons'));
+    expect(getBasePathOfAssets('/repo')).toBe(
+      path.join('/repo', 'public', 'assets'),
+    );
+    expect(getBasePathOfIcons('/repo')).toBe(
+      path.join('/repo', 'public', 'icons'),
+    );
   });
 
   it('resolves the repo root when development starts from build/ElectronBackend with basePath', () => {
-    expect(getBasePathOfAssets('/repo')).toBe(path.join('/repo', 'public', 'assets'));
-    expect(getBasePathOfIcons('/repo')).toBe(path.join('/repo', 'public', 'icons'));
+    expect(getBasePathOfAssets('/repo')).toBe(
+      path.join('/repo', 'public', 'assets'),
+    );
+    expect(getBasePathOfIcons('/repo')).toBe(
+      path.join('/repo', 'public', 'icons'),
+    );
   });
 
   it('uses packaged app path for assets and icons when basePath is provided', () => {

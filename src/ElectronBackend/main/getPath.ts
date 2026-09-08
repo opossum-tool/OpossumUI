@@ -22,9 +22,7 @@ export function getBasePathOfIcons(basePath?: string): string {
     : path.join(getDevAppRoot(), 'public', 'icons');
 }
 
-export function getPathOfExtraResource(
-  ...pathSegments: Array<string>
-): string {
+export function getPathOfExtraResource(...pathSegments: Array<string>): string {
   const devRoot = getDevAppRoot();
   return app?.isPackaged
     ? path.join(getPackagedResourcesRoot(), ...pathSegments)
