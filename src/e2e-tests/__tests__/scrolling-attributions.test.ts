@@ -174,6 +174,7 @@ test('scrolls a selected attribution into view after report navigation', async (
   await window.setViewportSize({ width: 1920, height: 1080 });
   await resourcesTree.goto(emptyResourceName);
   await attributionsPanel.assert.selectedTabIs('onChildren');
+  await attributionsPanel.packageCard.assert.isVisible(firstChildAttribution);
   await attributionsPanel.packageCard.assert.isNotInViewport(
     reportChildAttribution,
   );
