@@ -5,28 +5,41 @@
 import { keepPreviousData, skipToken } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 
+import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import { useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { backend } from '../../../util/backendClient';
 
-export type LinkedResourcesTreeState = ReturnType<
-  typeof useLinkedResourcesTreeState
->;
+export type LinkedResourcesTreeState = {
+  belowSelectedResource?: number;
+  count: number;
+  expandedIds: Array<string>;
+  setExpandedIds: (values: Array<string>) => void;
+  treeNodes: Array<ResourceTreeNodeData>;
+};
+
+export type LinkedResourcesTreeQueryProps = {
+  enabled?: boolean;
+  onAttributionUuids: Array<string>;
+  onlyWritable?: boolean;
+  search?: string;
+};
+
+export type LinkedResourcesTreeQueryResult = {
+  data: LinkedResourcesTreeState | undefined;
+  isError: boolean;
+  isLoading: boolean;
+};
 
 /**
  * Reusable hook to encapsulate the linked resource tree expanded id logic
  */
-export function useLinkedResourcesTreeState({
+export function useLinkedResourcesTree({
   onAttributionUuids,
   search,
   onlyWritable = false,
   enabled: enabledProp = true,
-}: {
-  onAttributionUuids: Array<string>;
-  search?: string;
-  onlyWritable?: boolean;
-  enabled?: boolean;
-}) {
+}: LinkedResourcesTreeQueryProps): LinkedResourcesTreeQueryResult {
   const selectedResourcePath = useAppSelector(getSelectedResourceId);
 
   const [expandedIds, setExpandedIds] = useState<{
@@ -87,18 +100,27 @@ export function useLinkedResourcesTreeState({
     { placeholderData: treeReady ? keepPreviousData : undefined },
   );
 
-  if (!treeReady || !resources.data) {
-    return undefined;
-  }
+  const state =
+    treeReady && resources.data
+      ? {
+          ...resources.data,
+          expandedIds: expandedIds.values,
+          setExpandedIds: (values: Array<string>) =>
+            setExpandedIds({
+              ownerKey,
+              source: expandedIds.source,
+              values,
+            }),
+        }
+      : undefined;
 
   return {
-    ...resources.data,
-    expandedIds: expandedIds.values,
-    setExpandedIds: (values: Array<string>) =>
-      setExpandedIds({
-        ownerKey,
-        source: expandedIds.source,
-        values,
-      }),
+    isError: enabled && (expansionPaths.isError || resources.isError),
+    isLoading:
+      enabled &&
+      !expansionPaths.isError &&
+      !resources.isError &&
+      (!treeReady || resources.isFetching),
+    data: state,
   };
 }

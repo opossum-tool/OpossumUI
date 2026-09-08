@@ -21,6 +21,7 @@ export function useSelectedAttribution() {
 
   if (!selectedAttributionId) {
     return {
+      isError: false,
       isExternal: null,
       isPending: false,
       packageInfo: null,
@@ -28,6 +29,7 @@ export function useSelectedAttribution() {
   }
 
   return {
+    isError: selectedAttributionData.isError,
     isExternal: selectedAttributionData.data?.isExternal,
     isReadonly:
       selectedAttributionData.data?.packageInfo.resourceAccess === 'readonly',

@@ -259,6 +259,7 @@ export const text = {
     splitHere: 'Split here',
     linkedResources: (selectedResources: number, totalCount: number) =>
       `Linked Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,
+    linkedResourcesTitle: 'Linked Resources',
     hasHighlyCriticalSignals: 'Has highly critical signals',
     hasMediumCriticalSignals: 'Has medium critical signals',
     hasSignals: 'Has signals',
