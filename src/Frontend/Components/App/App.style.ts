@@ -29,9 +29,9 @@ export const ViewContainer = styled(MuiBox)({
   height: '100vh',
   flexDirection: 'column',
   background: OpossumColors.lightGrey,
-  backgroundImage: 'url("icons/wave.svg")',
-  backgroundPosition: 'bottom',
-  backgroundRepeat: 'no-repeat',
+  // backgroundImage: 'url("icons/wave.svg")',
+  // backgroundPosition: 'bottom',
+  // backgroundRepeat: 'no-repeat',
 });
 
 export const theme = createTheme({
