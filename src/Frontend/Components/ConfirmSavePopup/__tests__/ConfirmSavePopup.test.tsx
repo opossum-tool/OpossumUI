@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash-es';
 
@@ -25,6 +25,142 @@ import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmSavePopup } from '../ConfirmSavePopup';
 
 describe('ConfirmSavePopup', () => {
+  it('confirms a query-wide selection without loading its IDs in the renderer', async () => {
+    const first = faker.opossum.packageInfo({
+      packageName: 'first',
+      preSelected: true,
+    });
+    const second = faker.opossum.packageInfo({
+      packageName: 'second',
+      preSelected: true,
+    });
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+
+    await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={noop}
+        selection={{
+          mode: 'allMatching',
+          query: {
+            external: false,
+            filters: ['preSelected'],
+            search: '',
+            valueFilters: {},
+            resourcePathForRelationships: resource,
+            showResolved: false,
+            excludeUnrelated: false,
+            relation: 'resource',
+          },
+          excludedAttributionUuids: [],
+        }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [first.id]: first,
+            [second.id]: second,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [first.id, second.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+        actions: [
+          setSelectedAttributionId(first.id),
+          setSelectedResourceId(resource),
+          setTemporaryDisplayPackageInfo({
+            ...first,
+            packageName: 'edited-first',
+          }),
+        ],
+      },
+    );
+
+    const confirmButton = await screen.findByRole('button', {
+      name: text.saveAttributionsPopup.confirm,
+    });
+    expect(
+      await screen.findByText(
+        text.saveAttributionsPopup.confirmAttributions({
+          attributions: '2 attributions',
+          resources: '1 resource',
+        }),
+      ),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(confirmButton).toBeEnabled());
+    await userEvent.click(confirmButton);
+
+    await expectManualAttributions({
+      [first.id]: {
+        ...first,
+        packageName: 'edited-first',
+        preSelected: undefined,
+      },
+      [second.id]: { ...second, preSelected: undefined },
+    });
+  });
+
+  it('preserves focus when a query-wide save matches an existing attribution', async () => {
+    const focused = faker.opossum.packageInfo({
+      packageName: 'matching-package',
+      preSelected: true,
+    });
+    const matching = {
+      ...focused,
+      id: faker.string.uuid(),
+      preSelected: undefined,
+    };
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    const { store } = await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={noop}
+        selection={{
+          mode: 'allMatching',
+          query: {
+            external: false,
+            filters: ['preSelected'],
+            search: '',
+            valueFilters: {},
+            resourcePathForRelationships: resource,
+            showResolved: false,
+            excludeUnrelated: false,
+            relation: 'resource',
+          },
+          excludedAttributionUuids: [],
+        }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [focused.id]: focused,
+            [matching.id]: matching,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [focused.id, matching.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+        actions: [
+          setTemporaryDisplayPackageInfo(focused),
+          setSelectedAttributionId(focused.id),
+          setSelectedResourceId(resource),
+        ],
+      },
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.saveAttributionsPopup.confirm,
+      }),
+    );
+
+    await waitFor(() =>
+      expect(getSelectedAttributionId(store.getState())).toBe(matching.id),
+    );
+  });
+
   it('saves attribution linked to a single resource', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo({ id: packageInfo1.id });
@@ -33,7 +169,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo1.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo1.id] }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({
@@ -52,11 +188,11 @@ describe('ConfirmSavePopup', () => {
       },
     );
 
-    await userEvent.click(
-      screen.getByRole('button', {
-        name: text.saveAttributionsPopup.save,
-      }),
-    );
+    const saveButton = screen.getByRole('button', {
+      name: text.saveAttributionsPopup.save,
+    });
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    await userEvent.click(saveButton);
 
     await expectManualAttributions({
       [packageInfo1.id]: packageInfo2,
@@ -75,7 +211,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo1.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo1.id] }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({
@@ -119,7 +255,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo1.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo1.id] }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({
@@ -177,7 +313,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo.id] }}
       />,
       {
         data: parsedInputFileEnrichedWithTestData,
@@ -210,7 +346,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo.id] }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({
@@ -252,7 +388,7 @@ describe('ConfirmSavePopup', () => {
       <ConfirmSavePopup
         open
         onClose={noop}
-        attributionIdsToSave={[packageInfo.id]}
+        selection={{ mode: 'explicit', attributionUuids: [packageInfo.id] }}
       />,
       {
         data: getParsedInputFileEnrichedWithTestData({

@@ -22,16 +22,17 @@ import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { setSelectedAttributionIdIfRemapped } from '../../../state/actions/resource-actions/navigation-actions';
+import { setTargetAttributionRelation } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getIsPackageInfoDirty,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
-import { useAttributionIdsForReplacement } from '../../../state/variables/use-attribution-ids-for-replacement';
+import { useAttributionSelectionForReplacement } from '../../../state/variables/use-attribution-selection-for-replacement';
 import { useCompareSelectionSource } from '../../../state/variables/use-compare-selection';
 import { backend } from '../../../util/backendClient';
 import { isPackageInvalid } from '../../../util/input-validation';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../../util/use-focused-attribution-outcome';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import {
   useSelectedAttributionIsExternal,
@@ -62,9 +63,17 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
 
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
-  const linkAttribution = backend.createOrMatchAttributions.useMutation();
-  const updateOrMatch = backend.updateOrMatchAttributions.useMutation();
-  const createOrMatch = backend.createOrMatchAttributions.useMutation();
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
+  const linkAttribution = backend.createOrMatchAttributions.useMutation({
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
+  });
+  const updateOrMatch = backend.updateOrMatchAttributions.useMutation({
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
+  });
+  const createOrMatch = backend.createOrMatchAttributions.useMutation({
+    onBeforeInvalidation: handleFocusedAttributionOutcome,
+  });
   const mutationPending = useIsMutating() > 0;
 
   const { data: resolvedExternalAttributions } =
@@ -92,8 +101,8 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   const [isCompareSelectionDiffOpen, setIsCompareSelectionDiffOpen] =
     useState(false);
 
-  const [attributionIdsForReplacement, setAttributionIdsForReplacement] =
-    useAttributionIdsForReplacement();
+  const [selectionForReplacement, setSelectionForReplacement] =
+    useAttributionSelectionForReplacement();
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
     useState(false);
   const [isReplaceAttributionsPopupOpen, setIsReplaceAttributionsPopupOpen] =
@@ -136,26 +145,16 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
       if (hasMultipleResources) {
         setIsConfirmSavePopupOpen(true);
       } else if (packageInfo.id) {
-        const result = await updateOrMatch.mutateAsync({
+        await updateOrMatch.mutateAsync({
           attributions: { [packageInfo.id]: packageInfo },
+          focusedAttributionUuid: packageInfo.id,
         });
-        dispatch(
-          setSelectedAttributionIdIfRemapped(
-            result.oldUuidsToNewUuids,
-            packageInfo.id,
-          ),
-        );
       } else {
-        const result = await createOrMatch.mutateAsync({
+        await createOrMatch.mutateAsync({
           resourcePath: selectedResourceId,
           attributions: { [packageInfo.id]: packageInfo },
+          focusedAttributionUuid: packageInfo.id,
         });
-        dispatch(
-          setSelectedAttributionIdIfRemapped(
-            result.inputKeysToNewUuids,
-            packageInfo.id,
-          ),
-        );
       }
     }
   }, [
@@ -166,7 +165,6 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
     hasMultipleResources,
     attributionResourceInfoReady,
     selectedResourceId,
-    dispatch,
   ]);
 
   useIpcRenderer(AllowedFrontendChannels.SaveFileRequest, () => handleSave(), [
@@ -175,7 +173,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
 
   return (
     <Container>
-      {attributionIdsForReplacement.length ? (
+      {selectionForReplacement ? (
         renderReplaceButton()
       ) : compareSelectionSource ? (
         renderCompareSelectionControls()
@@ -194,9 +192,9 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   );
 
   function renderReplaceButton() {
-    const isPreviewingSource = attributionIdsForReplacement.includes(
-      packageInfo.id,
-    );
+    const isPreviewingSource =
+      selectionForReplacement?.mode === 'explicit' &&
+      selectionForReplacement.attributionUuids.includes(packageInfo.id);
     const canUseAsReplacement =
       !isReadonly &&
       !isPreviewingSource &&
@@ -214,9 +212,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             {text.attributionColumn.replace}
           </MuiButton>
         )}
-        {renderPickerModeCancelButton(() =>
-          setAttributionIdsForReplacement([]),
-        )}
+        {renderPickerModeCancelButton(() => setSelectionForReplacement(null))}
         {canUseAsReplacement && (
           <ConfirmReplacePopup
             selectedAttribution={packageInfo}
@@ -273,7 +269,10 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
           </span>
         </MuiTooltip>
         <ConfirmSavePopup
-          attributionIdsToSave={[packageInfo.id]}
+          selection={{
+            mode: 'explicit',
+            attributionUuids: [packageInfo.id],
+          }}
           open={isConfirmSavePopupOpen}
           onClose={() => setIsConfirmSavePopupOpen(false)}
         />
@@ -300,16 +299,12 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             color={'secondary'}
             disabled={isPackageInfoModified || mutationPending}
             onClick={async () => {
-              const result = await linkAttribution.mutateAsync({
+              await linkAttribution.mutateAsync({
                 resourcePath: selectedResourceId,
                 attributions: { [packageInfo.id]: packageInfo },
+                focusedAttributionUuid: packageInfo.id,
               });
-              dispatch(
-                setSelectedAttributionIdIfRemapped(
-                  result.inputKeysToNewUuids,
-                  packageInfo.id,
-                ),
-              );
+              dispatch(setTargetAttributionRelation('resource'));
             }}
           >
             {linkAttribution.isPending ? (
@@ -346,7 +341,10 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
         <ConfirmDeletePopup
           open={isConfirmDeletionPopupOpen}
           onClose={() => setIsConfirmDeletionPopupOpen(false)}
-          attributionIdsToDelete={[packageInfo.id]}
+          selection={{
+            mode: 'explicit',
+            attributionUuids: [packageInfo.id],
+          }}
         />
       </>
     );
@@ -400,10 +398,16 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             onClick={async () => {
               selectedSignalIsResolved
                 ? await unresolveAttributions.mutateAsync({
-                    attributionUuids: [packageInfo.id],
+                    selection: {
+                      mode: 'explicit',
+                      attributionUuids: [packageInfo.id],
+                    },
                   })
                 : await resolveAttributions.mutateAsync({
-                    attributionUuids: [packageInfo.id],
+                    selection: {
+                      mode: 'explicit',
+                      attributionUuids: [packageInfo.id],
+                    },
                   });
             }}
           >

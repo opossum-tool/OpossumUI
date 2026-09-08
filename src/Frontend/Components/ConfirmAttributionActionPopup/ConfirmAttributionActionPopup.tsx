@@ -3,15 +3,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiAlert from '@mui/material/Alert';
-import type { ButtonProps } from '@mui/material/Button';
+import MuiButton, { type ButtonProps } from '@mui/material/Button';
 import MuiTypography from '@mui/material/Typography';
 
+import type {
+  AllMatchingAttributionSelection,
+  AttributionSelection,
+} from '../../../shared/attribution-selection';
 import type { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
 import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
 import type { LinkedResourcesTreeState } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
 import { StyledConfirmAttributionActionPopup } from './ConfirmAttributionActionPopup.style';
+import { useAttributionPreview } from './use-attribution-preview';
 
 interface Action {
   buttonText: string;
@@ -35,6 +40,8 @@ interface Props {
   mixedAttributionCount: number;
   isResourceInfoReady: boolean;
   isLocalActionAvailable: boolean | undefined;
+  selection: AttributionSelection;
+  attributionCount?: number;
 }
 
 export function ConfirmAttributionActionPopup({
@@ -51,6 +58,8 @@ export function ConfirmAttributionActionPopup({
   mixedAttributionCount,
   isResourceInfoReady,
   isLocalActionAvailable,
+  selection,
+  attributionCount,
 }: Props) {
   const isMutationPending =
     globalAction.isPending || (localAction?.isPending ?? false);
@@ -95,22 +104,75 @@ export function ConfirmAttributionActionPopup({
         <MuiAlert severity={'warning'}>{mixedWarning}</MuiAlert>
       )}
       <MuiTypography>{description}</MuiTypography>
-      {attributionValues ? (
-        <AttributionCardList attributions={attributionValues} />
+      {selection?.mode === 'allMatching' ? (
+        <AttributionPreview
+          selection={selection}
+          open={open}
+          attributionCount={attributionCount}
+        />
       ) : (
-        <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
+        <>
+          {attributionValues ? (
+            <AttributionCardList attributions={attributionValues} />
+          ) : (
+            <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
+          )}
+          <MuiTypography variant={'subtitle2'}>
+            {mixedAttributionCount > 0
+              ? text.confirmAttributionActionPopup.editableLinkedResources
+              : text.confirmAttributionActionPopup.linkedResources}
+          </MuiTypography>
+          <LinkedResourcesTree
+            readOnly
+            disableHighlightSelected={!isLocalActionAvailable}
+            state={linkedResourcesTreeState}
+            sx={{ minHeight: '100px' }}
+          />
+        </>
       )}
-      <MuiTypography variant={'subtitle2'}>
-        {mixedAttributionCount > 0
-          ? text.confirmAttributionActionPopup.editableLinkedResources
-          : text.confirmAttributionActionPopup.linkedResources}
-      </MuiTypography>
-      <LinkedResourcesTree
-        readOnly
-        disableHighlightSelected={!isLocalActionAvailable}
-        state={linkedResourcesTreeState}
-        sx={{ minHeight: '100px' }}
-      />
     </StyledConfirmAttributionActionPopup>
+  );
+}
+
+function AttributionPreview({
+  open,
+  selection,
+  attributionCount,
+}: {
+  open: boolean;
+  selection: AllMatchingAttributionSelection;
+  attributionCount?: number;
+}) {
+  const preview = useAttributionPreview(selection, open, attributionCount);
+
+  if (preview.error) {
+    return (
+      <MuiButton size={'small'} onClick={() => void preview.retry()}>
+        {'Retry'}
+      </MuiButton>
+    );
+  }
+
+  if (!preview.attributions) {
+    return <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>;
+  }
+
+  return (
+    <AttributionCardList
+      attributions={Object.values(preview.attributions)}
+      totalCount={attributionCount}
+      resultSetKey={preview.resultSetKey}
+      loadingMore={preview.loadingMore}
+      loadMoreError={preview.loadMoreError}
+      onRetryLoadMore={(requiredEndIndex) =>
+        void preview.fetchNextPage(requiredEndIndex)
+      }
+      endReached={
+        preview.hasNextPage
+          ? (requiredEndIndex) => void preview.fetchNextPage(requiredEndIndex)
+          : undefined
+      }
+      fillAvailableHeight
+    />
   );
 }

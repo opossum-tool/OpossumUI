@@ -8,6 +8,7 @@ import type { SxProps } from '@mui/system';
 
 import { OpossumColors } from '../../shared-styles';
 import { tableConfigs } from '../ReportView/TableConfig';
+import { TableFilterButton } from '../ReportView/TableFilterButton';
 
 const classes = {
   headerRow: {
@@ -31,7 +32,7 @@ const classes = {
   },
 } satisfies SxProps;
 
-export function ReportTableHeader() {
+export function ReportTableHeader({ empty = false }: { empty?: boolean }) {
   return (
     <TableRow sx={classes.headerRow}>
       {tableConfigs.map((config) => (
@@ -47,7 +48,9 @@ export function ReportTableHeader() {
           }}
           key={`table-header-${config.attributionProperty}`}
         >
-          {typeof config.displayName === 'string' ? (
+          {config.attributionProperty === 'id' ? (
+            <TableFilterButton empty={empty} />
+          ) : typeof config.displayName === 'string' ? (
             <MuiTypography sx={classes.headerText}>
               {config.displayName}
             </MuiTypography>

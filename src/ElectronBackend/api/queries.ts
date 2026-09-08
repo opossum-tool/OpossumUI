@@ -22,6 +22,14 @@ import {
   AttributionResourceAccess,
   EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
 } from '../types/types';
+import { listAttributionRelationCounts } from './attributions/attribution-relation-counts';
+import { getAttributionSelectionSummary } from './attributions/attribution-selection-queries';
+import { getAttributions } from './attributions/getAttributions';
+import {
+  listAttributionPreview,
+  listAttributionsPage,
+  locateAttribution,
+} from './attributions/listAttributionsPage';
 import {
   getFilterExpression,
   getFilterKeys,
@@ -30,7 +38,6 @@ import {
   getSearchExpression,
   getValueFilterExpression,
 } from './filters';
-import { listAttributions } from './listAttributions';
 import {
   getAttributionProgressBarData,
   getClassificationProgressBarData,
@@ -125,7 +132,12 @@ export const queries = {
   async isProjectSplit() {
     return { result: await isProjectSplit() };
   },
-  listAttributions,
+  getAttributions,
+  listAttributionRelationCounts,
+  listAttributionsPage,
+  listAttributionPreview,
+  locateAttribution,
+  getAttributionSelectionSummary,
   getResourceTree,
   getResourceTreeUnreviewedCount,
   manualAttributionStatistics,

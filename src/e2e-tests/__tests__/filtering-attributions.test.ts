@@ -182,6 +182,29 @@ test('filters attributions in report view', async ({ reportView, topBar }) => {
   await reportView.assert.attributionIsHidden(attributionId3);
 });
 
+test('navigates to an attribution excluded by audit filters', async ({
+  attributionDetails,
+  attributionsPanel,
+  reportView,
+  topBar,
+}) => {
+  await attributionsPanel.filterButton.click();
+  await attributionsPanel.filters.firstParty.click();
+  await attributionsPanel.closeFilterMenu();
+  await attributionsPanel.packageCard.assert.isHidden(packageInfo1);
+
+  await topBar.gotoReportView();
+  await topBar.assert.reportViewIsActive();
+  await reportView.assert.attributionIsVisible(attributionId1);
+  await reportView.openAttributionInAuditView(attributionId1);
+
+  await topBar.assert.auditViewIsActive();
+  await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
+  await attributionDetails.attributionForm.assert.nameIs(
+    packageInfo1.packageName!,
+  );
+});
+
 test('only displays attributions matching search term', async ({
   attributionsPanel,
   window,

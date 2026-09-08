@@ -60,7 +60,7 @@ export function useFilterProperties({
     {
       manual: 'all',
       external: 'sameOrDescendant',
-      reportTable: 'descendant',
+      reportTable: 'all',
     } as const
   )[mode];
 

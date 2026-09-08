@@ -13,8 +13,11 @@ import { Fragment } from 'react';
 import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
+import { ROOT_PATH } from '../../shared-constants';
 import { clickableIcon, OpossumColors } from '../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { setPendingAttributionNavigation } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import { resetManualAuditFiltersPreservingSort } from '../../state/actions/resource-actions/navigation-actions';
 import { navigateToView } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { backend } from '../../util/backendClient';
@@ -200,6 +203,13 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
           tooltipTitle={text.reportView.openInAuditView}
           tooltipPlacement={'right'}
           onClick={() => {
+            dispatch(
+              setPendingAttributionNavigation({
+                attributionUuid: packageInfo.id,
+                fallbackResourcePath: ROOT_PATH,
+              }),
+            );
+            dispatch(resetManualAuditFiltersPreservingSort());
             dispatch(changeSelectedAttributionOrOpenUnsavedPopup(packageInfo));
             dispatch(navigateToView(View.Audit));
           }}

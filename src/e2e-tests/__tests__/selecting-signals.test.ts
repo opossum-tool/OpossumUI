@@ -6,14 +6,21 @@ import { faker, test } from '../utils';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });
+const signalSource = {
+  name: 'selecting-test-source',
+  documentConfidence: 0,
+};
 const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
   packageName: 'a',
+  source: signalSource,
 });
 const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
   packageName: 'b',
+  source: signalSource,
 });
 const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
   packageName: 'c',
+  source: signalSource,
 });
 
 test.use({

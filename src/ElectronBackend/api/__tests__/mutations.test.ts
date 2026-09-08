@@ -9,7 +9,7 @@ import {
 } from '../../../testing/global-test-helpers';
 import { getDb } from '../../db/db';
 import { AttributionResourceAccess } from '../../types/types';
-import { listAttributions } from '../listAttributions';
+import { listAttributionsPage } from '../attributions/listAttributionsPage';
 import { mutations } from '../mutations';
 
 async function resourceAccessOf(attributionUuid: string) {
@@ -37,8 +37,32 @@ describe('attribution resource access', () => {
     });
 
     await expect(
-      mutations.resolveAttributions({ attributionUuids: ['signal'] }),
+      mutations.resolveAttributions({
+        selection: { mode: 'explicit', attributionUuids: ['signal'] },
+      }),
     ).rejects.toThrow(/readonly/i);
+  });
+
+  it('awaits the resolved attribution cache after resolving', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts']),
+      externalAttributions: {
+        attributions: {
+          signal: { id: 'signal', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/writable/file.ts': ['signal'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.resolveAttributions({
+      selection: { mode: 'explicit', attributionUuids: ['signal'] },
+    });
+
+    expect(response.invalidates).toContainEqual({
+      queryName: 'resolvedAttributionUuids',
+      awaitRefetch: true,
+    });
   });
 
   async function initializeReadonlyStructuralAncestor() {
@@ -111,7 +135,7 @@ describe('attribution resource access', () => {
     await expect(
       mutations.unlinkResourceFromAttributions({
         resourcePath: '/',
-        attributionUuids: ['shared'],
+        selection: { mode: 'explicit', attributionUuids: ['shared'] },
       }),
     ).rejects.toThrow(/readonly/i);
     expect(
@@ -129,26 +153,87 @@ describe('attribution resource access', () => {
       resources: pathsToResources(['/writable/file.ts']),
     });
 
-    const { result } = await mutations.createOrMatchAttributions({
+    const response = await mutations.createOrMatchAttributions({
       resourcePath: '/writable/file.ts',
       attributions: {
         new: { id: 'new', criticality: Criticality.None },
       },
     });
-
-    const { result: attributions } = await listAttributions({
+    const { result: page } = await listAttributionsPage({
       external: false,
+      filters: [],
+      search: '',
+      valueFilters: {},
+      resourcePathForRelationships: '',
+      showResolved: true,
+      excludeUnrelated: false,
+      scope: { mode: 'all' },
+      sort: 'alphabetically',
+      includeReadonly: true,
+      offset: 0,
+      limit: 200,
     });
+    const attributions = page.attributions;
 
-    expect(Object.values(result.inputKeysToNewUuids)).toEqual([
-      expect.any(String),
-    ]);
-    expect(Object.keys(attributions)).toEqual(
-      Object.values(result.inputKeysToNewUuids),
-    );
-    expect(await resourceAccessOf(result.inputKeysToNewUuids.new)).toBe(
+    const createdAttributionUuid = (
+      await getDb()
+        .selectFrom('attribution')
+        .select('uuid')
+        .where('package_name', 'is', null)
+        .executeTakeFirstOrThrow()
+    ).uuid;
+    expect(response.invalidates).toContainEqual({
+      queryName: 'getResourcePathsAndParentsForAttributions',
+    });
+    expect(Object.keys(attributions)).toContain(createdAttributionUuid);
+    expect(await resourceAccessOf(createdAttributionUuid)).toBe(
       AttributionResourceAccess.Writable,
     );
+  });
+
+  it('returns only the focused remapping for a query-wide link', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts']),
+      externalAttributions: {
+        attributions: {
+          focused: { id: 'focused', criticality: Criticality.None },
+          other: { id: 'other', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/writable/file.ts': ['focused', 'other'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.createOrMatchAttributions({
+      resourcePath: '/writable/file.ts',
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: true,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/writable/file.ts',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      focusedAttributionUuid: 'focused',
+    });
+
+    const { focusedAttributionOutcome } = response.result;
+    expect(focusedAttributionOutcome).toMatchObject({
+      status: 'remapped',
+      attributionUuid: 'focused',
+    });
+    if (focusedAttributionOutcome.status !== 'remapped') {
+      throw new Error('Expected focused attribution to be remapped');
+    }
+    expect(focusedAttributionOutcome.newAttributionUuid).not.toBe('focused');
   });
 
   it('hides an attribution after its last writable link is removed', async () => {
@@ -169,12 +254,24 @@ describe('attribution resource access', () => {
 
     await mutations.unlinkResourceFromAttributions({
       resourcePath: '/writable/file.ts',
-      attributionUuids: ['shared'],
+      selection: { mode: 'explicit', attributionUuids: ['shared'] },
     });
 
-    const { result: attributions } = await listAttributions({
+    const { result: page } = await listAttributionsPage({
       external: false,
+      filters: [],
+      search: '',
+      valueFilters: {},
+      resourcePathForRelationships: '',
+      showResolved: true,
+      excludeUnrelated: false,
+      scope: { mode: 'all' },
+      sort: 'alphabetically',
+      includeReadonly: true,
+      offset: 0,
+      limit: 200,
     });
+    const attributions = page.attributions;
 
     expect(attributions).toEqual({});
     expect(await resourceAccessOf('shared')).toBe(
@@ -268,7 +365,7 @@ describe('mixed attribution mutations', () => {
   it('returns the writable clone UUID after updating a mixed attribution', async () => {
     await initializeMixedAttribution();
 
-    const response = await mutations.updateAttributions({
+    await mutations.updateAttributions({
       attributions: {
         shared: {
           id: 'shared',
@@ -278,19 +375,20 @@ describe('mixed attribution mutations', () => {
       },
     });
 
-    expect(response).toMatchObject({
-      result: {
-        oldUuidsToNewUuids: {
-          shared: expect.not.stringMatching(/^shared$/),
-        },
-      },
-    });
+    const cloneUuid = (
+      await getDb()
+        .selectFrom('attribution')
+        .select('uuid')
+        .where('package_name', '=', 'updated')
+        .executeTakeFirstOrThrow()
+    ).uuid;
+    expect(cloneUuid).not.toBe('shared');
   });
 
   it('keeps the locked relationship unchanged immediately after updating a mixed attribution', async () => {
     await initializeMixedAttribution();
 
-    const response = await mutations.updateAttributions({
+    await mutations.updateAttributions({
       attributions: {
         shared: {
           id: 'shared',
@@ -299,12 +397,28 @@ describe('mixed attribution mutations', () => {
         },
       },
     });
-    const cloneUuid = response.result.oldUuidsToNewUuids.shared;
-    const { result } = await listAttributions({
+    const cloneUuid = (
+      await getDb()
+        .selectFrom('attribution')
+        .select('uuid')
+        .where('package_name', '=', 'updated')
+        .executeTakeFirstOrThrow()
+    ).uuid;
+    const { result: page } = await listAttributionsPage({
       external: false,
       resourcePathForRelationships: '/readonly/file.ts',
       includeReadonly: true,
+      filters: [],
+      search: '',
+      valueFilters: {},
+      showResolved: true,
+      excludeUnrelated: false,
+      scope: { mode: 'all' },
+      sort: 'alphabetically',
+      offset: 0,
+      limit: 200,
     });
+    const result = page.attributions;
 
     expect(result.shared).toMatchObject({
       relation: 'resource',
@@ -319,7 +433,9 @@ describe('mixed attribution mutations', () => {
   it('clones a mixed attribution before deleting its writable partition', async () => {
     await initializeMixedAttribution();
 
-    await mutations.deleteAttributions({ attributionUuids: ['shared'] });
+    await mutations.deleteAttributions({
+      selection: { mode: 'explicit', attributionUuids: ['shared'] },
+    });
 
     expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
     expect(await attributionUuidsOn('/writable/file.ts')).toEqual([]);
@@ -339,7 +455,7 @@ describe('mixed attribution mutations', () => {
     await initializeMixedAttribution();
 
     await mutations.replaceAttributions({
-      attributionUuidsToReplace: ['shared'],
+      selection: { mode: 'explicit', attributionUuids: ['shared'] },
       attributionUuidToReplaceWith: 'replacement',
     });
 
@@ -357,6 +473,332 @@ describe('mixed attribution mutations', () => {
 });
 
 describe('bulk attribution mutations', () => {
+  it('excludes the replacement target from a query-wide replacement', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          first: { id: 'first', criticality: Criticality.None },
+          second: { id: 'second', criticality: Criticality.None },
+          replacement: {
+            id: 'replacement',
+            criticality: Criticality.None,
+          },
+        },
+        resourcesToAttributions: {
+          '/parent/child.ts': ['first', 'second', 'replacement'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    await mutations.replaceAttributions({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/child.ts',
+          showResolved: true,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      attributionUuidToReplaceWith: 'replacement',
+    });
+
+    expect(
+      await getDb()
+        .selectFrom('resource_to_attribution as rta')
+        .innerJoin('resource as r', 'r.id', 'rta.resource_id')
+        .select('rta.attribution_uuid')
+        .where('r.path', '=', '/parent/child.ts')
+        .execute(),
+    ).toEqual([{ attribution_uuid: 'replacement' }]);
+  });
+
+  it('applies a query-wide property update with exclusions', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          first: { id: 'first', criticality: Criticality.None },
+          second: { id: 'second', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/parent/child.ts': ['first', 'second'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    await mutations.updateAttributionProperty({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/child.ts',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: ['second'],
+      },
+      property: 'needsReview',
+      value: true,
+    });
+    const rows = await getDb()
+      .selectFrom('attribution')
+      .select(['uuid', 'needs_review'])
+      .orderBy('uuid')
+      .execute();
+
+    expect(rows).toEqual([
+      { uuid: 'first', needs_review: 1 },
+      { uuid: 'second', needs_review: 0 },
+    ]);
+  });
+
+  it('reports whether the focused attribution participates in query-wide deletion', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          focused: { id: 'focused', criticality: Criticality.None },
+          excluded: { id: 'excluded', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/parent/child.ts': ['focused', 'excluded'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const selection = {
+      mode: 'allMatching' as const,
+      query: {
+        external: false,
+        filters: [],
+        search: '',
+        valueFilters: {},
+        resourcePathForRelationships: '/parent/child.ts',
+        showResolved: false,
+        excludeUnrelated: false,
+        relation: 'resource' as const,
+      },
+      excludedAttributionUuids: ['excluded'],
+    };
+
+    const affectedResponse = await mutations.deleteAttributions({
+      selection,
+      focusedAttributionUuid: 'focused',
+    });
+    expect(affectedResponse.result).toEqual({
+      focusedAttributionOutcome: {
+        status: 'removed',
+        attributionUuid: 'focused',
+      },
+    });
+
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          focused: { id: 'focused', criticality: Criticality.None },
+          excluded: { id: 'excluded', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/parent/child.ts': ['focused', 'excluded'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const excludedResponse = await mutations.deleteAttributions({
+      selection,
+      focusedAttributionUuid: 'excluded',
+    });
+    expect(excludedResponse.result).toEqual({
+      focusedAttributionOutcome: { status: 'unchanged' },
+    });
+  });
+
+  it('preserves a focused edit during a query-wide property update', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          focused: {
+            id: 'focused',
+            criticality: Criticality.None,
+            packageName: 'before',
+          },
+          other: {
+            id: 'other',
+            criticality: Criticality.None,
+            packageName: 'other',
+          },
+        },
+        resourcesToAttributions: {
+          '/parent/child.ts': ['focused', 'other'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    await mutations.updateAttributionProperty({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/child.ts',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      property: 'needsReview',
+      value: true,
+      attributions: {
+        focused: {
+          id: 'focused',
+          criticality: Criticality.None,
+          packageName: 'after',
+        },
+      },
+      focusedAttributionUuid: 'focused',
+    });
+
+    const rows = await getDb()
+      .selectFrom('attribution')
+      .select(['uuid', 'package_name', 'needs_review'])
+      .orderBy('uuid')
+      .execute();
+
+    expect(rows).toEqual([
+      { uuid: 'focused', package_name: 'after', needs_review: 1 },
+      { uuid: 'other', package_name: 'other', needs_review: 1 },
+    ]);
+  });
+
+  it('returns the focused remapping for a query-wide update-or-match', async () => {
+    const focused = {
+      id: 'focused',
+      criticality: Criticality.None,
+      packageName: 'matching-package',
+      preSelected: true,
+    };
+    const matching = {
+      ...focused,
+      id: 'matching',
+      preSelected: undefined,
+    };
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: { focused, matching },
+        resourcesToAttributions: {
+          '/parent/child.ts': [focused.id, matching.id],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.updateOrMatchAttributions({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: ['preSelected'],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/child.ts',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      focusedAttributionUuid: focused.id,
+    });
+
+    expect(response.result.focusedAttributionOutcome).toEqual({
+      status: 'remapped',
+      attributionUuid: focused.id,
+      newAttributionUuid: matching.id,
+    });
+  });
+
+  it('applies a focused override during a query-wide update-or-match', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/child.ts']),
+      manualAttributions: {
+        attributions: {
+          focused: {
+            id: 'focused',
+            criticality: Criticality.None,
+            packageName: 'before',
+            preSelected: true,
+          },
+          other: {
+            id: 'other',
+            criticality: Criticality.None,
+            packageName: 'other',
+            preSelected: true,
+          },
+        },
+        resourcesToAttributions: {
+          '/parent/child.ts': ['focused', 'other'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    await mutations.updateOrMatchAttributions({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: ['preSelected'],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/child.ts',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      attributions: {
+        focused: {
+          id: 'focused',
+          criticality: Criticality.None,
+          packageName: 'after',
+          preSelected: true,
+        },
+      },
+      focusedAttributionUuid: 'focused',
+    });
+
+    const focused = await getDb()
+      .selectFrom('attribution')
+      .select(['package_name', 'pre_selected'])
+      .where('uuid', '=', 'focused')
+      .executeTakeFirstOrThrow();
+
+    expect(focused).toEqual({ package_name: 'after', pre_selected: 0 });
+  });
+
   it('links 500 distinct attributions without exceeding the SQLite expression depth', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/parent/child.ts']),
@@ -387,13 +829,17 @@ describe('bulk attribution mutations', () => {
       }),
     );
 
-    const response = await mutations.createOrMatchAttributions({
+    await mutations.createOrMatchAttributions({
       resourcePath: '/parent/child.ts',
       attributions,
     });
-    const createdAttributionUuids = Object.values(
-      response.result.inputKeysToNewUuids,
-    );
+    const createdAttributionUuids = (
+      await getDb()
+        .selectFrom('attribution')
+        .select('uuid')
+        .where('package_name', 'like', 'package-%')
+        .execute()
+    ).map(({ uuid }) => uuid);
     const linkedAttributionUuids = (
       await getDb()
         .selectFrom('resource_to_attribution as rta')
@@ -430,13 +876,15 @@ describe('readonly-only attribution mutations', () => {
     {
       name: 'deleting',
       mutate: () =>
-        mutations.deleteAttributions({ attributionUuids: ['readonly'] }),
+        mutations.deleteAttributions({
+          selection: { mode: 'explicit', attributionUuids: ['readonly'] },
+        }),
     },
     {
       name: 'replacing',
       mutate: () =>
         mutations.replaceAttributions({
-          attributionUuidsToReplace: ['readonly'],
+          selection: { mode: 'explicit', attributionUuids: ['readonly'] },
           attributionUuidToReplaceWith: 'replacement',
         }),
     },

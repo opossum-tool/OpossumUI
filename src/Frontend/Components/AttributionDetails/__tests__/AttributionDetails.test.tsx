@@ -12,6 +12,7 @@ import { pathsToResources } from '../../../../testing/global-test-helpers';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
+  setAttributionSelectionPending,
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -21,7 +22,7 @@ import {
   getIsPackageInfoDirty,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
-import { ATTRIBUTION_IDS_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-ids-for-replacement';
+import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-selection-for-replacement';
 import {
   expectManualAttributions,
   expectResolvedExternalAttributions,
@@ -110,7 +111,7 @@ describe('AttributionDetails', () => {
     expect(container).not.toHaveTextContent(text.attributionColumn.save);
   });
 
-  it('shows a read-only form while attributions for a new resource are loading', async () => {
+  it('keeps selected attribution details available while the resource changes', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const nextPackageInfo = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
@@ -140,6 +141,31 @@ describe('AttributionDetails', () => {
     });
 
     expect(
+      screen.queryByTestId('attribution-details-loading'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByLabelText(text.attributionColumn.packageName),
+    ).toHaveValue(packageInfo.packageName ?? '');
+  });
+
+  it('disables editing while attribution selection is pending', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: { [packageInfo.id]: packageInfo },
+      }),
+      actions: [
+        setSelectedResourceId('/resource'),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    await screen.findByDisplayValue(packageInfo.packageName ?? '');
+    act(() => {
+      store.dispatch(setAttributionSelectionPending('/resource'));
+    });
+
+    expect(
       screen.getByTestId('attribution-details-loading'),
     ).toBeInTheDocument();
     expect(
@@ -156,9 +182,10 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          packageInfo.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [packageInfo.id],
+        }),
       ],
     });
 
@@ -215,9 +242,10 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(externalAttribution),
         setSelectedAttributionId(externalAttribution.id),
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          manualAttribution.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [manualAttribution.id],
+        }),
       ],
     });
 
@@ -239,10 +267,10 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          packageInfo1.id,
-          packageInfo2.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [packageInfo1.id, packageInfo2.id],
+        }),
       ],
     });
 
@@ -260,9 +288,10 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          packageInfo.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [packageInfo.id],
+        }),
       ],
     });
 
@@ -306,9 +335,10 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          packageInfo2.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'explicit',
+          attributionUuids: [packageInfo2.id],
+        }),
       ],
     });
 
@@ -336,7 +366,7 @@ describe('AttributionDetails', () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    await renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
@@ -350,9 +380,20 @@ describe('AttributionDetails', () => {
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
-        setVariable<Array<string>>(ATTRIBUTION_IDS_FOR_REPLACEMENT, [
-          packageInfo2.id,
-        ]),
+        setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+          mode: 'allMatching',
+          query: {
+            external: false,
+            filters: [],
+            search: '',
+            valueFilters: {},
+            resourcePathForRelationships: resourceId,
+            showResolved: false,
+            excludeUnrelated: false,
+            relation: 'resource',
+          },
+          excludedAttributionUuids: [],
+        }),
       ],
     });
 
@@ -372,6 +413,9 @@ describe('AttributionDetails', () => {
     expect(
       screen.queryByRole('button', { name: text.attributionColumn.replace }),
     ).not.toBeInTheDocument();
+    expect(
+      store.getState().variablesState[ATTRIBUTION_SELECTION_FOR_REPLACEMENT],
+    ).toBeNull();
   });
 
   it('saves modified attribution', async () => {

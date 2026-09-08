@@ -2,13 +2,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { FocusedAttributionOutcome } from '../../../../shared/attribution-selection';
 import { getParents } from '../../helpers/get-parents';
 import {
+  getSelectedAttributionId,
+  getSelectedResourceId,
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
 } from '../../selectors/resource-selectors';
 import type { AppThunkAction } from '../../types';
 import {
+  type AttributionFilters,
+  initialAttributionFilters,
+  MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+} from '../../variables/use-filters';
+import { setVariable } from '../variables-actions/variables-actions';
+import {
+  setAttributionSelectionPending,
   setExpandedIds,
   setSelectedAttributionId,
   setSelectedResourceId,
@@ -23,6 +33,9 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
       getTargetSelectedAttributionId(getState());
 
     if (targetSelectedResourceId !== null) {
+      if (getSelectedResourceId(getState()) !== targetSelectedResourceId) {
+        dispatch(setAttributionSelectionPending(targetSelectedResourceId));
+      }
       dispatch(setSelectedResourceId(targetSelectedResourceId));
       dispatch(setTargetSelectedResourceId(null));
     }
@@ -34,27 +47,47 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
   };
 }
 
+export function resetManualAuditFiltersPreservingSort(): AppThunkAction {
+  return (dispatch, getState) => {
+    const currentFilters = getState().variablesState[
+      MANUAL_ATTRIBUTION_FILTERS_AUDIT
+    ] as AttributionFilters | undefined;
+    dispatch(
+      setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+        ...initialAttributionFilters,
+        sorting: currentFilters?.sorting ?? initialAttributionFilters.sorting,
+      }),
+    );
+  };
+}
+
 export function openResourceInResourceBrowser(
   resourceId: string,
 ): AppThunkAction {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    if (getSelectedResourceId(getState()) !== resourceId) {
+      dispatch(setAttributionSelectionPending(resourceId));
+    }
     dispatch(setExpandedIds(getParents(resourceId).concat([resourceId])));
     dispatch(setSelectedResourceId(resourceId));
   };
 }
 
-export function setSelectedAttributionIdIfRemapped(
-  attributionKeyToNewUuid: Record<string, string>,
-  currentAttributionId: string,
+export function applyFocusedAttributionOutcome(
+  outcome: FocusedAttributionOutcome,
 ): AppThunkAction {
-  return (dispatch) => {
-    const newSelectedAttributionId =
-      attributionKeyToNewUuid[currentAttributionId];
+  return (dispatch, getState) => {
     if (
-      newSelectedAttributionId !== undefined &&
-      newSelectedAttributionId !== currentAttributionId
+      outcome.status === 'unchanged' ||
+      getSelectedAttributionId(getState()) !== outcome.attributionUuid
     ) {
-      dispatch(setSelectedAttributionId(newSelectedAttributionId));
+      return;
     }
+
+    dispatch(
+      setSelectedAttributionId(
+        outcome.status === 'removed' ? '' : outcome.newAttributionUuid,
+      ),
+    );
   };
 }

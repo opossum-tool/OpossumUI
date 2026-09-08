@@ -33,6 +33,10 @@ import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
 export type ResourceRelationship =
   'same' | 'ancestor' | 'descendant' | 'unrelated';
 
+function uniqueAttributionUuids(...uuidLists: Array<Array<string>>) {
+  return [...new Set(uuidLists.flat())];
+}
+
 /**
  * If a resource (R) has the same attributions as its closest ancestor that has attributions (A), we want to delete R's attributions.
  * This function should be called after changing the attributions of a resource R to check whether
@@ -68,7 +72,7 @@ export async function removeRedundantAttributions(
 
     if (attributions.length === 0) {
       // No attributions to deduplicate
-      return;
+      return [];
     }
 
     const eb = expressionBuilder<DB, 'resource'>();
@@ -138,6 +142,7 @@ export async function removeRedundantAttributions(
       .$extendTables<{ duplicate_resources: { resource_id: number } }>()
       .selectFrom('resource_to_attribution')
       .select('attribution_uuid')
+      .distinct()
       .where('attribution_is_external', '=', 0)
       .where('resource_id', 'in', (eb) =>
         eb
@@ -171,6 +176,8 @@ export async function removeRedundantAttributions(
   });
 
   await trx.schema.dropTable('duplicate_resources').execute();
+
+  return affectedAttributionUuids;
 }
 
 export const GET_LEGACY_RESOURCE_PATH =
@@ -178,7 +185,7 @@ export const GET_LEGACY_RESOURCE_PATH =
     'path',
   );
 
-export async function getAttributionOrThrow(
+async function getAttributionOrThrow(
   dbOrTrx: Kysely<DB>,
   attributionUuid: string,
   options?: {
@@ -495,15 +502,11 @@ export function toCanonicalLicenseName(
 const DEFAULT_BATCH_SIZE = 30000;
 
 export async function withBatching<P, R>(
-  input: Array<P> | undefined,
-  f: (arg: Array<P> | undefined) => Promise<R>,
+  input: Array<P>,
+  f: (arg: Array<P>) => Promise<R>,
   props?: { batchSize: number },
 ): Promise<Array<R>> {
   const batchSize = props?.batchSize ?? DEFAULT_BATCH_SIZE;
-
-  if (input === undefined) {
-    return [await f(input)];
-  }
 
   const results: Array<R> = [];
 
@@ -557,23 +560,25 @@ export async function unlinkAttributions(
   resourceId: number,
   attributionUuids: Array<string>,
 ) {
-  await trx
-    .deleteFrom('resource_to_attribution')
-    .where('resource_id', '=', resourceId)
-    .where('attribution_uuid', 'in', attributionUuids)
-    .execute();
+  await withBatching(attributionUuids, async (batch) => {
+    await trx
+      .deleteFrom('resource_to_attribution')
+      .where('resource_id', '=', resourceId)
+      .where('attribution_uuid', 'in', batch)
+      .execute();
 
-  // delete any of the just-unlinked attributions that no longer link to any resource
-  await trx
-    .deleteFrom('attribution')
-    .where('uuid', 'in', attributionUuids)
-    .where('uuid', 'not in', (eb) =>
-      eb
-        .selectFrom('resource_to_attribution')
-        .select('attribution_uuid')
-        .where('attribution_is_external', '=', 0),
-    )
-    .execute();
+    // delete any of the just-unlinked attributions that no longer link to any resource
+    await trx
+      .deleteFrom('attribution')
+      .where('uuid', 'in', batch)
+      .where('uuid', 'not in', (eb) =>
+        eb
+          .selectFrom('resource_to_attribution')
+          .select('attribution_uuid')
+          .where('attribution_is_external', '=', 0),
+      )
+      .execute();
+  });
 
   await updateAttributionResourceAccess(trx, attributionUuids);
 }
@@ -584,19 +589,26 @@ export async function linkAttributions(
   attributionUuids: Array<string>,
   options?: { ignoreExisting?: boolean },
 ) {
-  await trx
-    .insertInto('resource_to_attribution')
-    .values(
-      attributionUuids.map((attributionUuid) => ({
-        resource_id: resourceId,
-        attribution_uuid: attributionUuid,
-        attribution_is_external: 0,
-      })),
-    )
-    .$if(options?.ignoreExisting ?? false, (eb) =>
-      eb.onConflict((oc) => oc.doNothing()),
-    )
-    .execute();
+  await withBatching(
+    attributionUuids,
+    async (batch) => {
+      await trx
+        .insertInto('resource_to_attribution')
+        .values(
+          batch.map((attributionUuid) => ({
+            resource_id: resourceId,
+            attribution_uuid: attributionUuid,
+            attribution_is_external: sql.lit(0),
+          })),
+        )
+        .$if(options?.ignoreExisting ?? false, (eb) =>
+          eb.onConflict((oc) => oc.doNothing()),
+        )
+        .execute();
+    },
+    // Each row binds two values, so 15,000 rows stay within SQLite's 30,000-parameter limit.
+    { batchSize: 15_000 },
+  );
 
   await updateAttributionResourceAccess(trx, attributionUuids);
 }
@@ -605,57 +617,56 @@ async function updateAttributionResourceAccess(
   trx: Transaction<DB>,
   attributionUuids: Array<string>,
 ) {
-  if (attributionUuids.length === 0) {
-    return;
-  }
-
-  await trx
-    .updateTable('attribution')
-    .set((eb) => ({
-      resource_access: eb.fn
-        .coalesce(
-          eb
-            .selectFrom('resource_to_attribution')
-            .innerJoin(
-              'resource',
-              'resource.id',
-              'resource_to_attribution.resource_id',
-            )
-            .select((eb) => [
-              eb
-                .case()
-                .when(eb.fn.min<number>('resource.is_readonly'), '=', 1)
-                .then(AttributionResourceAccess.Readonly)
-                .when(eb.fn.max<number>('resource.is_readonly'), '=', 0)
-                .then(AttributionResourceAccess.Writable)
-                .else(AttributionResourceAccess.Mixed)
-                .end()
-                .as('resource_access'),
-            ])
-            .whereRef(
-              'resource_to_attribution.attribution_uuid',
-              '=',
-              'attribution.uuid',
-            ),
-          // If the attribution is not linked to any resource, fall back to root.
-          // This should not be achievable with our UI, but the data model does not prevent unlinked attributions
-          eb
-            .selectFrom('resource')
-            .select((eb) => [
-              eb
-                .case()
-                .when('is_readonly', '=', 1)
-                .then(AttributionResourceAccess.Readonly)
-                .else(AttributionResourceAccess.Writable)
-                .end()
-                .as('resource_access'),
-            ])
-            .where('path', '=', ''),
-        )
-        .$notNull(),
-    }))
-    .where('uuid', 'in', attributionUuids)
-    .execute();
+  const uniqueUuids = uniqueAttributionUuids(attributionUuids);
+  await withBatching(uniqueUuids, async (batch) => {
+    await trx
+      .updateTable('attribution')
+      .set((eb) => ({
+        resource_access: eb.fn
+          .coalesce(
+            eb
+              .selectFrom('resource_to_attribution')
+              .innerJoin(
+                'resource',
+                'resource.id',
+                'resource_to_attribution.resource_id',
+              )
+              .select((eb) => [
+                eb
+                  .case()
+                  .when(eb.fn.min<number>('resource.is_readonly'), '=', 1)
+                  .then(AttributionResourceAccess.Readonly)
+                  .when(eb.fn.max<number>('resource.is_readonly'), '=', 0)
+                  .then(AttributionResourceAccess.Writable)
+                  .else(AttributionResourceAccess.Mixed)
+                  .end()
+                  .as('resource_access'),
+              ])
+              .whereRef(
+                'resource_to_attribution.attribution_uuid',
+                '=',
+                'attribution.uuid',
+              ),
+            // If the attribution is not linked to any resource, fall back to root.
+            // This should not be achievable with our UI, but the data model does not prevent unlinked attributions
+            eb
+              .selectFrom('resource')
+              .select((eb) => [
+                eb
+                  .case()
+                  .when('is_readonly', '=', 1)
+                  .then(AttributionResourceAccess.Readonly)
+                  .else(AttributionResourceAccess.Writable)
+                  .end()
+                  .as('resource_access'),
+              ])
+              .where('path', '=', ''),
+          )
+          .$notNull(),
+      }))
+      .where('uuid', 'in', batch)
+      .execute();
+  });
 }
 
 export async function cloneMixedAttributionsForWritableResources(
@@ -677,12 +688,16 @@ export async function cloneMixedAttributionsForWritableResources(
     ]),
   );
 
-  const mixedAttributions = await trx
-    .selectFrom('attribution')
-    .selectAll('attribution')
-    .where('uuid', 'in', attributionUuids)
-    .where('resource_access', '=', AttributionResourceAccess.Mixed)
-    .execute();
+  const mixedAttributions = (
+    await withBatching(attributionUuids, async (batch) => {
+      return trx
+        .selectFrom('attribution')
+        .selectAll('attribution')
+        .where('uuid', 'in', batch)
+        .where('resource_access', '=', AttributionResourceAccess.Mixed)
+        .execute();
+    })
+  ).flat();
 
   for (const attribution of mixedAttributions) {
     const newUuid = uuid4();
@@ -864,13 +879,17 @@ export async function ensureAttributionsAreNotExternal(
   attributionUuids: Array<string>,
 ) {
   const externalAttributions = (
-    await trx
-      .selectFrom('attribution')
-      .select('uuid')
-      .where('uuid', 'in', attributionUuids)
-      .where('is_external', '=', 1)
-      .execute()
-  ).map((a) => a.uuid);
+    await withBatching(attributionUuids, async (batch) => {
+      return trx
+        .selectFrom('attribution')
+        .select('uuid')
+        .where('uuid', 'in', batch)
+        .where('is_external', '=', 1)
+        .execute();
+    })
+  )
+    .flat()
+    .map((a) => a.uuid);
 
   if (externalAttributions.length > 0) {
     throw new Error(
@@ -884,13 +903,17 @@ export async function ensureAttributionsAreNotReadonly(
   attributionUuids: Array<string>,
 ) {
   const readonlyAttributions = (
-    await trx
-      .selectFrom('attribution')
-      .select('uuid')
-      .where('uuid', 'in', attributionUuids)
-      .where('resource_access', '=', AttributionResourceAccess.Readonly)
-      .execute()
-  ).map((attribution) => attribution.uuid);
+    await withBatching(attributionUuids, async (batch) => {
+      return trx
+        .selectFrom('attribution')
+        .select('uuid')
+        .where('uuid', 'in', batch)
+        .where('resource_access', '=', AttributionResourceAccess.Readonly)
+        .execute();
+    })
+  )
+    .flat()
+    .map((attribution) => attribution.uuid);
 
   if (readonlyAttributions.length > 0) {
     throw new Error(
@@ -904,14 +927,18 @@ export async function ensureAttributionsAreLinkedOnMultipleResources(
   attributionUuids: Array<string>,
 ) {
   const attributionsLinkedOnSingleResource = (
-    await trx
-      .selectFrom('resource_to_attribution')
-      .select('attribution_uuid')
-      .where('attribution_uuid', 'in', attributionUuids)
-      .groupBy('attribution_uuid')
-      .having((eb) => eb.fn.countAll(), '<=', 1)
-      .execute()
-  ).map((attribution) => attribution.attribution_uuid);
+    await withBatching(attributionUuids, async (batch) => {
+      return trx
+        .selectFrom('resource_to_attribution')
+        .select('attribution_uuid')
+        .where('attribution_uuid', 'in', batch)
+        .groupBy('attribution_uuid')
+        .having((eb) => eb.fn.countAll(), '<=', 1)
+        .execute();
+    })
+  )
+    .flat()
+    .map((attribution) => attribution.attribution_uuid);
 
   if (attributionsLinkedOnSingleResource.length > 0) {
     throw new Error(
@@ -948,37 +975,39 @@ export async function replaceAttributions(
     );
   }
 
-  const connectedResources = (
-    await trx
-      .selectFrom('resource_to_attribution')
-      .select('resource_id')
-      .distinct()
-      .where('attribution_uuid', 'in', attributionUuidsToReplace)
-      .execute()
-  ).map((r) => r.resource_id);
+  const connectedResources = [
+    ...new Set(
+      (
+        await withBatching(attributionUuidsToReplace, async (batch) => {
+          return trx
+            .selectFrom('resource_to_attribution')
+            .select('resource_id')
+            .distinct()
+            .where('attribution_uuid', 'in', batch)
+            .execute();
+        })
+      )
+        .flat()
+        .map((row) => row.resource_id),
+    ),
+  ];
 
   // Reassign resource links to the replacement attribution, skipping conflicts
   // (conflicting links will be cascade deleted when the old attribution is removed)
-  await sql`
-  UPDATE OR IGNORE resource_to_attribution
-  SET attribution_uuid = ${params.attributionUuidToReplaceWith}
-  WHERE attribution_uuid in (${sql.join(attributionUuidsToReplace)})
-  `.execute(trx);
-
-  await trx
-    .deleteFrom('attribution')
-    .where('uuid', 'in', attributionUuidsToReplace)
-    .execute();
+  await withBatching(attributionUuidsToReplace, async (batch) => {
+    await sql`
+    UPDATE OR IGNORE resource_to_attribution
+    SET attribution_uuid = ${params.attributionUuidToReplaceWith}
+    WHERE attribution_uuid in (${sql.join(batch)})
+    `.execute(trx);
+    await trx.deleteFrom('attribution').where('uuid', 'in', batch).execute();
+  });
 
   await updateAttributionResourceAccess(trx, [
     params.attributionUuidToReplaceWith,
   ]);
 
-  await removeRedundantAttributions(trx, {
-    resourceIds: connectedResources,
-  });
-
-  return oldUuidsToNewUuids;
+  await removeRedundantAttributions(trx, { resourceIds: connectedResources });
 }
 
 function removeEmptyStrings(packageInfo: PackageInfo): PackageInfo {

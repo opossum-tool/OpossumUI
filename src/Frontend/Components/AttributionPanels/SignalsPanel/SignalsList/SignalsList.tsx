@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
-import { groupBy as _groupBy, orderBy as _orderBy, without } from 'lodash-es';
 import { useMemo } from 'react';
 
 import { text } from '../../../../../shared/text';
@@ -16,20 +15,31 @@ import {
   type GroupedListItemContentProps,
 } from '../../../GroupedList/GroupedList';
 import { SourceIcon } from '../../../Icons/Icons';
-import { PackageCard } from '../../../PackageCard/PackageCard';
+import { INFINITE_LIST_BOTTOM_OVERSCAN } from '../../../List/List';
+import {
+  PACKAGE_CARD_LIST_ITEM_HEIGHT,
+  PackageCard,
+} from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 import { GroupName } from './SignalsList.style';
+import { getSignalGroups } from './SignalsList.util';
 
 export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   activeAttributionIds,
   selectedAttributionId,
   contentHeight,
+  sourceGroups,
   loading,
+  loadingMore,
+  loadMoreError,
+  fetchNextPage,
   pickerMode,
-  setMultiSelectedAttributionIds,
-  multiSelectedAttributionIds,
+  isAttributionSelected,
+  toggleAttributionSelection,
+  totalAttributionCount,
+  resultSetKey,
 }) => {
   const dispatch = useAppDispatch();
   const canSelectSignals = pickerMode.mode !== 'replace';
@@ -37,38 +47,24 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
     backend.resolvedAttributionUuids.useQuery();
   const { data: sources } = backend.getExternalAttributionSources.useQuery();
 
-  const groupedIds = useMemo(
+  const { groupedIds } = useMemo(
     () =>
-      attributions &&
-      activeAttributionIds &&
-      _groupBy(
-        _orderBy(
-          activeAttributionIds,
-          (id) => {
-            const attribution = attributions[id];
-            return (
-              attribution &&
-              (attribution.source && sources?.[attribution.source.name])
-                ?.priority
-            );
-          },
-          'desc',
-        ),
-        (id) => {
-          const attribution = attributions[id];
-          return (
-            attribution?.source &&
-            (sources?.[attribution.source.name]?.name ||
-              attribution.source.name)
-          );
-        },
-      ),
-    [activeAttributionIds, attributions, sources],
+      getSignalGroups({
+        activeAttributionIds,
+        attributions,
+        sourceGroups,
+        sources,
+      }),
+    [activeAttributionIds, attributions, sourceGroups, sources],
   );
 
   return (
     <GroupedList
       grouped={groupedIds}
+      groupMetadata={sourceGroups?.map(({ name, visibleCount }) => ({
+        name,
+        totalCount: visibleCount,
+      }))}
       selectedId={selectedAttributionId}
       renderItemContent={renderAttributionCard}
       components={{ List: SearchList }}
@@ -78,7 +74,17 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
           <GroupName>{sourceName}</GroupName>
         </>
       )}
-      loading={loading}
+      loading={loading || groupedIds === null}
+      loadingMore={loadingMore}
+      totalCount={totalAttributionCount}
+      unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}
+      resultSetKey={resultSetKey}
+      loadMoreError={loadMoreError}
+      onRetryLoadMore={(requiredEndIndex) =>
+        void fetchNextPage(requiredEndIndex)
+      }
+      endReached={(requiredEndIndex) => void fetchNextPage(requiredEndIndex)}
+      increaseViewportBy={{ bottom: INFINITE_LIST_BOTTOM_OVERSCAN, top: 0 }}
       sx={{ transition: TRANSITION, height: contentHeight }}
     />
   );
@@ -120,15 +126,11 @@ export const SignalsList: React.FC<PackagesPanelChildrenProps> = ({
           readonlyIconLabel={text.packageLists.readonlySignalLabel}
           readonlyTooltip={text.packageLists.readonlySignalCannotBeSelected}
           checkbox={{
-            checked: multiSelectedAttributionIds.includes(attributionId),
+            checked: isAttributionSelected(attributionId),
             disabled:
               pickerMode.isActive || attribution.resourceAccess === 'readonly',
             onChange: (event) => {
-              setMultiSelectedAttributionIds(
-                event.target.checked
-                  ? [...multiSelectedAttributionIds, attributionId]
-                  : without(multiSelectedAttributionIds, attributionId),
-              );
+              toggleAttributionSelection(attributionId, event.target.checked);
               !selectedAttributionId &&
                 dispatch(
                   changeSelectedAttributionOrOpenUnsavedPopup(attribution),

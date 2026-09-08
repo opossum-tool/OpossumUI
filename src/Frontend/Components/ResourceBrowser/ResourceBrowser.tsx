@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { keepPreviousData } from '@tanstack/react-query';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
@@ -66,6 +66,8 @@ export function ResourceBrowser() {
         external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
       }
     : undefined;
+  const [isResourceTreeFilterOpen, setIsResourceTreeFilterOpen] =
+    useState(false);
   const resourceTreeAll = backend.getResourceTree.useQuery(
     {
       expandedNodes: expandedIdsAll,
@@ -82,10 +84,11 @@ export function ResourceBrowser() {
         licenseFilter: resourceTreeLicenseFilter,
         search: debouncedSearchAll,
       },
-      { placeholderData: keepPreviousData },
+      { enabled: isResourceTreeFilterOpen, placeholderData: keepPreviousData },
     );
   const { filterProps } = useResourceTreeFilterProperties({
     external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
+    enabled: isResourceTreeFilterOpen,
   });
   const isResourceTreeFilterActive =
     onlyUnreviewedFiles || !!resourceTreeSelectedLicense;
@@ -167,6 +170,7 @@ export function ResourceBrowser() {
                 },
               ]}
               isActive={isResourceTreeFilterActive}
+              onOpenChange={setIsResourceTreeFilterOpen}
               onClear={() =>
                 setResourceTreeFilters((prev) => ({
                   ...prev,

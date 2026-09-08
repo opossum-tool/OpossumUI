@@ -8,12 +8,15 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
-import type {
-  Attributions,
-  PackageInfo,
-} from '../../../../../shared/shared-types';
+import type { PackageInfo } from '../../../../../shared/shared-types';
 import { text } from '../../../../../shared/text';
+import { useAppSelector } from '../../../../state/hooks';
+import {
+  getSelectedAttributionId,
+  getTemporaryDisplayPackageInfo,
+} from '../../../../state/selectors/resource-selectors';
 import { backend } from '../../../../util/backendClient';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../../../util/use-focused-attribution-outcome';
 import {
   ExcludeFromNoticeIcon,
   FollowUpIcon,
@@ -54,9 +57,24 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   attributions,
   pickerMode,
   selectedAttributionIds,
+  selection,
+  selectionSummary,
+  selectionSummaryLoading,
+  clearSelection,
 }) => {
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const temporaryDisplayPackageInfo = useAppSelector(
+    getTemporaryDisplayPackageInfo,
+  );
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
+  const handleFocusedAttributionOutcome =
+    useFocusedAttributionOutcomeBeforeInvalidation();
 
+  const updateAttributionProperty =
+    backend.updateAttributionProperty.useMutation({
+      onBeforeInvalidation: handleFocusedAttributionOutcome,
+      onSuccess: clearSelection,
+    });
   const mutationsPending = useIsMutating() > 0;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -70,8 +88,25 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   const propertyStates = useMemo(() => {
     const checkProperty = (property: UpdatablePropertyType): boolean => {
       if (
+        !selectedAttributionIds.length &&
+        (selection.mode !== 'allMatching' || !selectionSummary?.selectedCount)
+      ) {
+        return false;
+      }
+      if (selection.mode === 'allMatching') {
+        if (!selectionSummary) {
+          return false;
+        }
+        return (
+          {
+            needsReview: selectionSummary.needsReviewCount,
+            followUp: selectionSummary.followUpCount,
+            excludeFromNotice: selectionSummary.excludeFromNoticeCount,
+          }[property] === selectionSummary.selectedCount
+        );
+      }
+      if (
         !attributions ||
-        !selectedAttributionIds.length ||
         selectedAttributionIds.some((id) => !attributions[id])
       ) {
         return false;
@@ -85,7 +120,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
       followUp: checkProperty('followUp'),
       excludeFromNotice: checkProperty('excludeFromNotice'),
     };
-  }, [attributions, selectedAttributionIds]);
+  }, [attributions, selectedAttributionIds, selection, selectionSummary]);
 
   const getMenuItemText = useCallback(
     (property: UpdatablePropertyType): string => {
@@ -103,32 +138,27 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   );
 
   const handlePropertyToggle = useCallback(
-    async (property: UpdatablePropertyType) => {
-      if (!attributions) {
-        return;
-      }
-
+    (property: UpdatablePropertyType) => {
       const newState = !propertyStates[property];
 
-      const updatedAttributions = selectedAttributionIds.reduce(
-        (acc, attributionId) => {
-          const attribution = attributions[attributionId];
-          acc[attributionId] = {
-            ...attribution,
-            [property]: newState,
-          };
-          return acc;
-        },
-        {} as Attributions,
-      );
-
-      await backend.updateAttributions.mutate({
-        attributions: updatedAttributions,
+      updateAttributionProperty.mutate({
+        selection,
+        property,
+        value: newState,
+        attributions: selectedAttributionId
+          ? { [selectedAttributionId]: temporaryDisplayPackageInfo }
+          : undefined,
+        focusedAttributionUuid: selectedAttributionId,
       });
-
       handleClose();
     },
-    [attributions, selectedAttributionIds, propertyStates],
+    [
+      propertyStates,
+      selection,
+      selectedAttributionId,
+      temporaryDisplayPackageInfo,
+      updateAttributionProperty,
+    ],
   );
 
   const menuOptions = useMemo<Array<SelectMenuOption>>(
@@ -148,11 +178,15 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
       <MuiIconButton
         aria-label={text.packageLists.moreActions}
         disabled={
-          !selectedAttributionIds.length ||
+          !(selection.mode === 'allMatching'
+            ? selectionSummary?.selectedCount
+            : selectedAttributionIds.length) ||
+          selectionSummaryLoading ||
           pickerMode.isActive ||
           mutationsPending
         }
         onClick={handleClick}
+        loading={updateAttributionProperty.isPending}
         size={'small'}
       >
         <MuiTooltip
