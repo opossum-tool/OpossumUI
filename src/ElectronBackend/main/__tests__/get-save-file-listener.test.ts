@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { type BrowserWindow, dialog, type WebContents } from 'electron';
+import path from 'path';
 import type { Mock } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
@@ -206,7 +207,7 @@ describe('splitCurrentOpossumFileListener', () => {
     );
 
     expect(selectSaveFile).toHaveBeenCalledWith({
-      defaultPath: '/my/file-source.opossum',
+      defaultPath: path.join('/my', 'file-source.opossum'),
       filter: { extensions: ['opossum'], name: 'Opossum File' },
     });
     expect(selectedPath).toBe('/partitions/source-partition.opossum');

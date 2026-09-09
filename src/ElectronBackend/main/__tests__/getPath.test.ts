@@ -38,7 +38,9 @@ describe('getPath helpers', () => {
   });
 
   it('resolves the repo root when development starts from build/ElectronBackend', () => {
-    electronMock.app.getAppPath.mockReturnValue('/repo/build/ElectronBackend');
+    electronMock.app.getAppPath.mockReturnValue(
+      path.join('/repo', 'build', 'ElectronBackend'),
+    );
 
     expect(getBasePathOfAssets()).toBe(path.join('/repo', 'public', 'assets'));
     expect(getBasePathOfIcons()).toBe(path.join('/repo', 'public', 'icons'));
@@ -49,7 +51,9 @@ describe('getPath helpers', () => {
 
   it('uses bundled build paths for packaged assets and resourcesPath for extra resources', () => {
     electronMock.app.isPackaged = true;
-    electronMock.app.getAppPath.mockReturnValue('/packaged/app.asar');
+    electronMock.app.getAppPath.mockReturnValue(
+      path.join('/packaged', 'app.asar'),
+    );
 
     expect(getBasePathOfAssets()).toBe(
       path.join('/packaged/app.asar', 'build', 'assets'),
@@ -64,7 +68,9 @@ describe('getPath helpers', () => {
 
   it('falls back to the packaged app parent when resourcesPath is unavailable', () => {
     electronMock.app.isPackaged = true;
-    electronMock.app.getAppPath.mockReturnValue('/packaged/resources/app.asar');
+    electronMock.app.getAppPath.mockReturnValue(
+      path.join('/packaged', 'resources', 'app.asar'),
+    );
     Object.defineProperty(process, 'resourcesPath', {
       configurable: true,
       value: undefined,
