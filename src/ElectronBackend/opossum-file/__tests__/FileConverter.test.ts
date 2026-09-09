@@ -17,11 +17,6 @@ const electronMock = vi.hoisted(() => ({
 
 vi.mock('electron', () => electronMock);
 
-vi.mock('path', async () => {
-  const posix = await import('node:path/posix');
-  return { ...posix, default: posix };
-});
-
 class TestFileConverter extends FileConverter {
   protected override readonly fileTypeSwitch = '--test';
   protected override readonly fileTypeName = 'Test';
@@ -103,7 +98,9 @@ describe('FileConverter executable resolution', () => {
   });
 
   it('falls back to a repo-level bin directory in development', () => {
-    electronMock.app.getAppPath.mockReturnValue('/repo/build/ElectronBackend');
+    electronMock.app.getAppPath.mockReturnValue(
+      path.join('/repo', 'build', 'ElectronBackend'),
+    );
     stubProcessPlatform('linux');
 
     const converter = new TestFileConverter();

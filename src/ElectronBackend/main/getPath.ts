@@ -4,29 +4,22 @@
 import { app } from 'electron';
 import path from 'path';
 
-export function getBasePathOfAssets(basePath?: string): string {
-  if (basePath) {
-    return path.join(basePath, 'public', 'assets');
-  }
+export function getBasePathOfAssets(): string {
   return app?.isPackaged
     ? path.join(getAppPath(), 'build', 'assets')
     : path.join(getDevAppRoot(), 'public', 'assets');
 }
 
-export function getBasePathOfIcons(basePath?: string): string {
-  if (basePath) {
-    return path.join(basePath, 'public', 'icons');
-  }
+export function getBasePathOfIcons(): string {
   return app?.isPackaged
     ? path.join(getAppPath(), 'build', 'icons')
     : path.join(getDevAppRoot(), 'public', 'icons');
 }
 
 export function getPathOfExtraResource(...pathSegments: Array<string>): string {
-  const devRoot = getDevAppRoot();
   return app?.isPackaged
     ? path.join(getPackagedResourcesRoot(), ...pathSegments)
-    : path.join(devRoot, ...pathSegments);
+    : path.join(getDevAppRoot(), ...pathSegments);
 }
 
 function getAppPath(): string {
