@@ -8,6 +8,7 @@ import electron, {
 } from 'electron';
 import type { Mock } from 'vitest';
 
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { setGlobalBackendState } from '../globalBackendState';
 import { createMenu } from '../menu';
@@ -123,5 +124,29 @@ describe('create menu', () => {
       ({ label }) => label === text.menu.fileSubmenu.merge,
     );
     expect(mergeMenu?.enabled).toBe(true);
+  });
+
+  it('uses the currently loaded file when the merge menu is clicked', async () => {
+    await UserSettingsService.init();
+    const send = vi.fn();
+    const mainWindow = {
+      webContents: { send },
+    } as unknown as BrowserWindow;
+    setGlobalBackendState({ opossumFilePath: '/tmp/file-a.opossum' });
+
+    const fileMenu = await getFileMenu(mainWindow, vi.fn(), false);
+    const items = fileMenu.submenu as Array<MenuItemConstructorOptions>;
+    const mergeMenu = items.find(
+      ({ label }) => label === text.menu.fileSubmenu.merge,
+    );
+
+    setGlobalBackendState({ opossumFilePath: '/tmp/file-b.opossum' });
+    mergeMenu?.click?.({} as Electron.MenuItem, mainWindow, {});
+
+    expect(send).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ShowMergeOpossumFilesDialog,
+      true,
+      '/tmp/file-b.opossum',
+    );
   });
 });
