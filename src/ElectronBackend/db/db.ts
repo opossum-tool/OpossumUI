@@ -42,9 +42,7 @@ function openDb() {
 }
 
 export async function resetDb() {
-  if (db) {
-    await db.destroy()
-  }
+  await db?.destroy()
   db = openDb();
 }
 
