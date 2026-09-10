@@ -45,7 +45,11 @@ function TestLinkedResourcesTree({
   onAttributionUuids: Array<string>;
   search?: string;
 }) {
-  const { data } = useLinkedResourcesTree({ enabled, onAttributionUuids, search });
+  const { data } = useLinkedResourcesTree({
+    enabled,
+    onAttributionUuids,
+    search,
+  });
   return data ? <LinkedResourcesTree state={data} /> : null;
 }
 
