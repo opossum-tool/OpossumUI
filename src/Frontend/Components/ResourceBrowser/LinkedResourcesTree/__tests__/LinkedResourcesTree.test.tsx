@@ -2,9 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 
 import { Criticality } from '../../../../../shared/shared-types';
+import { OpossumColors } from '../../../../shared-styles';
 import { getSelectedResourceId } from '../../../../state/selectors/resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
@@ -139,24 +140,19 @@ describe('LinkedResourcesTree', () => {
       expect(screen.getByText('resource_1')).toBeInTheDocument();
     });
 
-    const { container } = await renderComponent(
-      <TestLinkedResourcesTree
-        onAttributionUuids={[testUuid]}
-        search={'resource_1'}
-      />,
-      { data: testData },
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('resource_1')).toBeInTheDocument();
-    });
-
-    expect(within(container).queryByText('resource_1')).not.toBeInTheDocument();
-    expect(within(container).queryByText('resource_2')).not.toBeInTheDocument();
+    expect(screen.getByText('resource_2')).toBeInTheDocument();
+    expect(
+      screen.getByTestId(
+        'linked-resources-tree-node-/folder1/folder2/resource_1',
+      ),
+    ).not.toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
+    expect(
+      screen.getByTestId('linked-resources-tree-node-/resource_2'),
+    ).not.toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
   });
 
   it('filters the tree to matching linked resources and highlights them during search', async () => {
-    const { container } = await renderComponent(
+    await renderComponent(
       <TestLinkedResourcesTree
         onAttributionUuids={[testUuid]}
         search={'resource_1'}
@@ -168,12 +164,16 @@ describe('LinkedResourcesTree', () => {
       expect(screen.getByText('resource_1')).toBeInTheDocument();
     });
 
-    expect(within(container).getByText('resource_1')).toBeInTheDocument();
+    expect(
+      screen.getByTestId(
+        'linked-resources-tree-node-/folder1/folder2/resource_1',
+      ),
+    ).toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
     expect(screen.queryByText('resource_2')).not.toBeInTheDocument();
   });
 
   it('highlights folders whose own name matches the search', async () => {
-    const { container } = await renderComponent(
+    await renderComponent(
       <TestLinkedResourcesTree
         onAttributionUuids={[testUuid]}
         search={'folder'}
@@ -185,9 +185,17 @@ describe('LinkedResourcesTree', () => {
       expect(screen.getByText('resource_1')).toBeInTheDocument();
     });
 
-    expect(within(container).getByText('folder1')).toBeInTheDocument();
-    expect(within(container).getByText('folder2')).toBeInTheDocument();
-    expect(within(container).getByText('resource_1')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('linked-resources-tree-node-/folder1/'),
+    ).toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
+    expect(
+      screen.getByTestId('linked-resources-tree-node-/folder1/folder2/'),
+    ).toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
+    expect(
+      screen.getByTestId(
+        'linked-resources-tree-node-/folder1/folder2/resource_1',
+      ),
+    ).not.toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
     expect(screen.queryByText('resource_2')).not.toBeInTheDocument();
   });
 });
