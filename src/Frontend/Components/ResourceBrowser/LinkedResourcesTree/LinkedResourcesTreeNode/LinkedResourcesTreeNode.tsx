@@ -6,11 +6,7 @@ import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
 import { text } from '../../../../../shared/text';
-import {
-  OpossumColors,
-  readonlyStyle,
-  treeItemClasses,
-} from '../../../../shared-styles';
+import { readonlyStyle, treeItemClasses } from '../../../../shared-styles';
 import {
   BreakpointIcon,
   DirectoryIcon,
@@ -32,12 +28,7 @@ export const LinkedResourcesTreeNode: React.FC<TreeNode> = ({ resource }) => {
       sx={{
         ...treeItemClasses.labelRoot,
         ...(resource.isReadonly ? readonlyStyle : {}),
-        ...(resource.matchesFilters
-          ? {
-              backgroundColor: OpossumColors.lightBlue,
-              borderRadius: '3px',
-            }
-          : {}),
+        ...(resource.matchesFilters ? treeItemClasses.matchesFilters : {}),
       }}
     >
       {showFolderIcon ? (
