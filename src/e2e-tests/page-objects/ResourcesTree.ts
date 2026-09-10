@@ -16,6 +16,7 @@ export class ResourcesTree {
   private readonly node: Locator;
   private readonly header: Locator;
   private readonly filterMenu: Locator;
+  private readonly loadingIndicators: Locator;
   readonly filterButton: Locator;
   readonly filters: {
     readonly license: Locator;
@@ -28,6 +29,11 @@ export class ResourcesTree {
     this.window = window;
     this.node = window.getByTestId('resources-tree');
     this.header = window.getByTestId('resources-tree-header');
+    this.loadingIndicators = window
+      .getByTestId('attributions-panel')
+      .getByTestId('loading')
+      .or(window.getByTestId('signals-panel').getByTestId('loading'))
+      .or(window.getByTestId('attribution-details-loading'));
     this.filterButton = this.header.getByLabel('filter button', {
       exact: true,
     });
@@ -157,35 +163,29 @@ export class ResourcesTree {
       .getByLabel('path bar')
       .getByText('Home', { exact: true })
       .click();
+    await expect(
+      this.window.getByLabel('path bar').getByRole('listitem'),
+    ).toHaveText(['Home']);
+    await expect(this.loadingIndicators).toHaveCount(0);
   }
 
   async goto(...resourceNames: Array<string>): Promise<void> {
     for (const resourceName of resourceNames) {
-      await this.node.getByText(resourceName, { exact: true }).click();
+      await this.clickResource(resourceName);
+      await expect(this.getResourceByName(resourceName)).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(this.loadingIndicators).toHaveCount(0);
     }
+  }
+
+  async clickResource(resourceName: string): Promise<void> {
+    await this.getResourceByName(resourceName).click();
   }
 
   async focusResource(resourceName: string): Promise<void> {
     await this.getResourceByName(resourceName).focus();
-  }
-
-  async gotoPath(resourceNames: ReadonlyArray<string>): Promise<void> {
-    const firstResource = this.getResourceByName(resourceNames[0]);
-    if (!(await firstResource.isVisible())) {
-      await this.gotoRoot();
-    }
-
-    for (const [index, resourceName] of resourceNames.entries()) {
-      const resource = this.getResourceByName(resourceName);
-      await expect(resource).toBeVisible();
-      const nextResourceName = resourceNames[index + 1];
-      if (
-        nextResourceName === undefined ||
-        !(await this.getResourceByName(nextResourceName).isVisible())
-      ) {
-        await resource.click();
-      }
-    }
   }
 
   async openContextMenu(resourceName: string): Promise<void> {

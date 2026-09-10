@@ -81,6 +81,7 @@ interface VirtualizedTreeNodeProps extends TreeNode {
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   readOnly?: boolean;
   selected: boolean;
+  highlighted: boolean;
   focused: boolean;
 }
 
@@ -92,6 +93,7 @@ export function VirtualizedTreeNode({
   onToggle,
   readOnly,
   selected,
+  highlighted,
   focused,
 }: VirtualizedTreeNodeProps) {
   const marginRight =
@@ -119,6 +121,7 @@ export function VirtualizedTreeNode({
     <MuiBox
       role={'treeitem'}
       aria-label={resource.labelText}
+      aria-selected={selected}
       data-resource-path={resource.id}
       sx={classes.listNode}
       onClick={handleClick}
@@ -153,9 +156,9 @@ export function VirtualizedTreeNode({
         className={'tree-node-selected-indicator'}
         sx={{
           ...classes.treeNodeSelectedIndicator,
-          display: selected ? 'block' : 'none',
+          display: highlighted ? 'block' : 'none',
           // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-          opacity: selected ? 1 : 0.5,
+          opacity: highlighted ? 1 : 0.5,
           cursor: handleClick ? 'pointer' : 'default',
         }}
       />
