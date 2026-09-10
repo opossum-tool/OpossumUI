@@ -12,7 +12,6 @@ import SaveIcon from '@mui/icons-material/Save';
 import UndoIcon from '@mui/icons-material/Undo';
 import MuiButton from '@mui/material/Button';
 import MuiCircularProgress from '@mui/material/CircularProgress';
-import { Fab } from './ButtonRow.style';
 import MuiTooltip from '@mui/material/Tooltip';
 import { skipToken, useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
@@ -46,7 +45,7 @@ import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup'
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
 import { ConfirmSavePopup } from '../../ConfirmSavePopup/ConfirmSavePopup';
 import { DiffPopup } from '../../DiffPopup/DiffPopup';
-import { Container } from './ButtonRow.style';
+import { Container, Fab } from './ButtonRow.style';
 
 interface Props {
   packageInfo: PackageInfo;

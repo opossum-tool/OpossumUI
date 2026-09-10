@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { styled } from '@mui/material';
-import MuiBox from '@mui/system/Box';
 import MuiFab from '@mui/material/Fab';
+import MuiBox from '@mui/system/Box';
 
 export const Container = styled(MuiBox)({
   display: 'flex',

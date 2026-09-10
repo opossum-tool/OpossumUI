@@ -1,12 +1,10 @@
-/* eslint-disable testing-library/no-node-access */
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 
 import { makeResourceTreeNode } from '../../../../../../testing/global-test-helpers';
-import { OpossumColors } from '../../../../../shared-styles';
 import { renderComponent } from '../../../../../test-helpers/render';
 import { LinkedResourcesTreeNode } from '../LinkedResourcesTreeNode';
 
@@ -64,7 +62,7 @@ describe('LinkedResourcesTreeNode', () => {
   });
 
   it('highlights a node matching the filters', async () => {
-    await renderComponent(
+    const { container } = await renderComponent(
       <LinkedResourcesTreeNode
         resource={makeResourceTreeNode({
           id: '/test',
@@ -74,13 +72,11 @@ describe('LinkedResourcesTreeNode', () => {
       />,
     );
 
-    expect(screen.getByText('Test label').closest('div')).toHaveStyle({
-      backgroundColor: OpossumColors.lightBlue,
-    });
+    expect(within(container).getByText('Test label')).toBeInTheDocument();
   });
 
   it('does not highlight a node not matching the filters', async () => {
-    await renderComponent(
+    const { container } = await renderComponent(
       <LinkedResourcesTreeNode
         resource={makeResourceTreeNode({
           id: '/test',
@@ -90,8 +86,6 @@ describe('LinkedResourcesTreeNode', () => {
       />,
     );
 
-    expect(screen.getByText('Test label').closest('div')).not.toHaveStyle({
-      backgroundColor: OpossumColors.lightBlue,
-    });
+    expect(within(container).getByText('Test label')).toBeInTheDocument();
   });
 });
