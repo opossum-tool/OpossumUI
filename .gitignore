@@ -55,5 +55,3 @@ yarn-error.log*
 
 dev.db
 dev.db-journal
-local-reuse.js
-.local-pre-commit/pre-commit
