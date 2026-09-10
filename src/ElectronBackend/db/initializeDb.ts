@@ -130,7 +130,7 @@ const ATTRIBUTION_INDEX_COLUMNS = [
 ] as const satisfies ReadonlyArray<keyof DB['attribution']>;
 
 export async function initializeDb(inputFile: ParsedFileContent) {
-  resetDb();
+  await resetDb();
   await getDb()
     .transaction()
     .execute(async (trx) => {

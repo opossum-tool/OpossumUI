@@ -41,7 +41,8 @@ function openDb() {
   });
 }
 
-export function resetDb() {
+export async function resetDb() {
+  await db?.destroy();
   db = openDb();
 }
 
