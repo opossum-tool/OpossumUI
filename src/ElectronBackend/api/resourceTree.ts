@@ -215,13 +215,14 @@ export function getResourceTree({
                   }
 
                   // Search only: Only highlight where the file matches, not the entire subtree
-                  const lastSearchPart = removeTrailingSlash(search!)
-                    .split('/')
-                    .at(-1);
                   return eb
                     .and([
-                      eb('r.path', 'like', `%${removeTrailingSlash(search!)}%`),
-                      eb('r.name', 'like', `%${lastSearchPart}%`),
+                      eb(
+                        'r.path',
+                        'like',
+                        `%${removeTrailingSlash(search ?? '')}%`,
+                      ),
+                      eb('r.name', 'like', `%${searchLastPart}%`),
                     ])
                     .as('matches_filters');
                 })
