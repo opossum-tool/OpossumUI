@@ -62,6 +62,10 @@ export function getResourceTree({
 
       const hasActiveFilters = Boolean(search || hasActiveNonSearchFilters);
 
+      const searchLastPart = removeTrailingSlash(search ?? '')
+        .split('/')
+        .at(-1);
+
       /*
        * FILTERED_RESOURCE_TEMP_TABLE contains the resources included by the active filters.
        * Without active filters, it is a view on `resource` with no runtime overhead.
@@ -211,13 +215,14 @@ export function getResourceTree({
                   }
 
                   // Search only: Only highlight where the file matches, not the entire subtree
-                  const lastSearchPart = removeTrailingSlash(search!)
-                    .split('/')
-                    .at(-1);
                   return eb
                     .and([
-                      eb('r.path', 'like', `%${removeTrailingSlash(search!)}%`),
-                      eb('r.name', 'like', `%${lastSearchPart}%`),
+                      eb(
+                        'r.path',
+                        'like',
+                        `%${removeTrailingSlash(search ?? '')}%`,
+                      ),
+                      eb('r.name', 'like', `%${searchLastPart}%`),
                     ])
                     .as('matches_filters');
                 })
@@ -296,6 +301,18 @@ export function getResourceTree({
                 ),
             )
             .as('is_expandable'),
+        )
+        .select((eb) =>
+          eb
+            .and([
+              eb(
+                'shown_resources.path',
+                'like',
+                `%${removeTrailingSlash(search ?? '')}%`,
+              ),
+              eb('shown_resources.name', 'like', `%${searchLastPart}%`),
+            ])
+            .as('highlight_matches'),
         );
 
       query = query.orderBy('id');
@@ -332,7 +349,15 @@ export function getResourceTree({
         criticality: node.max_criticality_on_unresolved_external_attribution,
         classification:
           node.max_classification_on_unresolved_external_attribution,
-        matchesFilters: Boolean(node.matches_filters),
+        /*
+         * For attribution-filtered queries (linked resources tree), the
+         * highlight comes from the search term only, mirroring the main
+         * tree's search-only behavior (path and name match). Without a
+         * search, no node is highlighted.
+         */
+        matchesFilters: onAttributionUuids
+          ? Boolean(search && node.highlight_matches)
+          : Boolean(node.matches_filters),
       }));
 
       await dropTempTable();

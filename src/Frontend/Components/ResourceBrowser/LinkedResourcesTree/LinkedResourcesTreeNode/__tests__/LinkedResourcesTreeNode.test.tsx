@@ -5,6 +5,7 @@
 import { screen } from '@testing-library/react';
 
 import { makeResourceTreeNode } from '../../../../../../testing/global-test-helpers';
+import { OpossumColors } from '../../../../../shared-styles';
 import { renderComponent } from '../../../../../test-helpers/render';
 import { LinkedResourcesTreeNode } from '../LinkedResourcesTreeNode';
 
@@ -59,5 +60,39 @@ describe('LinkedResourcesTreeNode', () => {
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(screen.getByLabelText('Breakpoint icon')).toBeInTheDocument();
+  });
+
+  it('highlights a node matching the filters', async () => {
+    await renderComponent(
+      <LinkedResourcesTreeNode
+        resource={makeResourceTreeNode({
+          id: '/test',
+          labelText: 'Test label',
+          matchesFilters: true,
+        })}
+      />,
+    );
+
+    expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(screen.getByTestId('linked-resources-tree-node-/test')).toHaveStyle({
+      backgroundColor: OpossumColors.lightBlue,
+    });
+  });
+
+  it('does not highlight a node not matching the filters', async () => {
+    await renderComponent(
+      <LinkedResourcesTreeNode
+        resource={makeResourceTreeNode({
+          id: '/test',
+          labelText: 'Test label',
+          matchesFilters: false,
+        })}
+      />,
+    );
+
+    expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('linked-resources-tree-node-/test'),
+    ).not.toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
   });
 });

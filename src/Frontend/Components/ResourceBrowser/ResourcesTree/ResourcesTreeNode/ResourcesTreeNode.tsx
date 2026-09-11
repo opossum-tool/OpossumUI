@@ -75,12 +75,7 @@ export function ResourcesTreeNode({ resource }: TreeNode) {
       sx={{
         ...treeItemClasses.labelRoot,
         ...(resource.isReadonly ? readonlyStyle : {}),
-        ...(resource.matchesFilters
-          ? {
-              backgroundColor: OpossumColors.lightBlue,
-              borderRadius: '3px',
-            }
-          : {}),
+        ...(resource.matchesFilters ? treeItemClasses.matchesFilters : {}),
       }}
     >
       {resource.isFile ? (

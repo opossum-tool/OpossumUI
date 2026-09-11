@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { styled } from '@mui/material';
+import MuiFab from '@mui/material/Fab';
 import MuiBox from '@mui/system/Box';
 
 export const Container = styled(MuiBox)({
@@ -11,4 +12,11 @@ export const Container = styled(MuiBox)({
   justifyContent: 'flex-end',
   flexWrap: 'wrap',
   padding: '12px',
+});
+
+export const Fab = styled(MuiFab)({
+  '&:disabled': {
+    opacity: 0.7,
+    border: '1px solid currentColor',
+  },
 });
