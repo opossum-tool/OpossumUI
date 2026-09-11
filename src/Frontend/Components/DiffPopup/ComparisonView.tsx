@@ -18,6 +18,7 @@ import {
   type PackageFieldDefaults,
   usePackageFieldDefaults,
 } from '../AttributionForm/PackageSubPanel/PackageFields';
+import type { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import {
   ComparisonRows,
   DerivedPurlRow,
@@ -46,6 +47,7 @@ interface ComparisonViewProps {
   onCopy: (source: Side, destination: Side, key: FormAttribute) => void;
   onUndo: (side: Side, key: FormAttribute) => void;
   onUndoAuditing: (side: Side) => void;
+  editConfirmations: Record<Side, Confirm>;
 }
 
 const SECTION_LABELS = {
@@ -62,6 +64,7 @@ export function ComparisonView({
   onCopy,
   onUndo,
   onUndoAuditing,
+  editConfirmations,
 }: ComparisonViewProps) {
   const partyTypesDiffer =
     (drafts.left.firstParty === true) !== (drafts.right.firstParty === true);
@@ -97,6 +100,7 @@ export function ComparisonView({
             showLicenseText={showLicenseText}
             onToggleLicenseText={toggleLicenseText}
             packageDefaults={packageDefaults}
+            editConfirmations={editConfirmations}
           />
         </ComparisonSection>
         <DerivedPurlRow
@@ -104,6 +108,7 @@ export function ComparisonView({
           items={items}
           isBusy={isBusy}
           onChange={onChange}
+          editConfirmations={editConfirmations}
         />
         <ComparisonSection title={SECTION_LABELS.legal}>
           <ComparisonRows
@@ -122,6 +127,7 @@ export function ComparisonView({
             showLicenseText={showLicenseText}
             onToggleLicenseText={toggleLicenseText}
             packageDefaults={packageDefaults}
+            editConfirmations={editConfirmations}
           />
           {partyTypesDiffer && (
             <IndependentComparisonColumns
@@ -135,6 +141,7 @@ export function ComparisonView({
               showLicenseText={showLicenseText}
               onToggleLicenseText={toggleLicenseText}
               packageDefaults={packageDefaults}
+              editConfirmations={editConfirmations}
             />
           )}
         </ComparisonSection>
@@ -151,6 +158,7 @@ export function ComparisonView({
             showLicenseText={showLicenseText}
             onToggleLicenseText={toggleLicenseText}
             packageDefaults={packageDefaults}
+            editConfirmations={editConfirmations}
           />
         )}
       </MuiBox>

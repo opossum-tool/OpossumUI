@@ -2,6 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { expect } from '@playwright/test';
+
+import { parseOpossumFile } from '../../ElectronBackend/input/parseFile';
 import { faker, test } from '../utils';
 
 const [resourceName1, resourceName2] = faker.opossum.resourceNames({
@@ -96,6 +99,7 @@ test('lets the user pick a compare target on another resource via compare-select
 test('saves edits made to both sides of a comparison', async ({
   attributionDetails,
   attributionsPanel,
+  confirmSavePopup,
   diffPopup,
   resourcesTree,
 }) => {
@@ -123,6 +127,9 @@ test('saves edits made to both sides of a comparison', async ({
   await diffPopup.leftPackageName.fill(editedLeftPackageName);
   await diffPopup.rightPackageName.fill(editedRightPackageName);
   await diffPopup.saveButton.click();
+  await confirmSavePopup.assert.isVisible();
+  await confirmSavePopup.saveGloballyButton.click();
+  await confirmSavePopup.assert.isHidden();
   await diffPopup.assert.isHidden();
 
   await attributionDetails.attributionForm.assert.nameIs(
@@ -143,4 +150,76 @@ test('saves edits made to both sides of a comparison', async ({
   await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
     'followUpLabel',
   );
+});
+
+test('keeps both drafts when save confirmation is cancelled and persists the reopened save', async ({
+  attributionDetails,
+  attributionsPanel,
+  confirmSavePopup,
+  diffPopup,
+  filePaths,
+  menuBar,
+  resourcesTree,
+}) => {
+  const firstLeftPackageName = 'cancelled-left-edit';
+  const firstRightPackageName = 'cancelled-right-edit';
+  const finalLeftPackageName = 'reopened-left-edit';
+  const finalRightPackageName = 'reopened-right-edit';
+
+  await resourcesTree.goto(resourceName1);
+  await attributionDetails.compareWithButton.click();
+  await resourcesTree.goto(resourceName2);
+  await attributionsPanel.packageCard.click(manualPackageInfo2);
+  await attributionDetails.compareSelectionConfirmButton.click();
+  await diffPopup.assert.isVisible();
+
+  await diffPopup.leftPackageName.fill(firstLeftPackageName);
+  await diffPopup.rightPackageName.fill(firstRightPackageName);
+  await diffPopup.saveButton.click();
+  await confirmSavePopup.assert.isVisible();
+  await confirmSavePopup.cancelButton.click();
+  await confirmSavePopup.assert.isHidden();
+  await diffPopup.assert.isVisible();
+  await diffPopup.assert.leftPackageNameIs(firstLeftPackageName);
+  await diffPopup.assert.rightPackageNameIs(firstRightPackageName);
+
+  await diffPopup.leftPackageName.fill(finalLeftPackageName);
+  await diffPopup.rightPackageName.fill(finalRightPackageName);
+  await diffPopup.saveButton.click();
+  await confirmSavePopup.assert.isVisible();
+  await confirmSavePopup.saveGloballyButton.click();
+  await confirmSavePopup.assert.isHidden();
+  await diffPopup.assert.isHidden();
+
+  await menuBar.saveChanges();
+  await expect
+    .poll(async () => {
+      const parsed = await parseOpossumFile(filePaths!.opossum);
+      return 'input' in parsed ? parsed.output : null;
+    })
+    .toEqual(
+      expect.objectContaining({
+        manualAttributions: expect.objectContaining({
+          [attributionId1]: expect.objectContaining({
+            packageName: finalLeftPackageName,
+          }),
+          [attributionId2]: expect.objectContaining({
+            packageName: finalRightPackageName,
+          }),
+        }),
+      }),
+    );
+
+  await resourcesTree.goto(resourceName1);
+  await attributionsPanel.packageCard.click({
+    ...manualPackageInfo1,
+    packageName: finalLeftPackageName,
+  });
+  await attributionDetails.attributionForm.assert.nameIs(finalLeftPackageName);
+  await resourcesTree.goto(resourceName2);
+  await attributionsPanel.packageCard.click({
+    ...manualPackageInfo2,
+    packageName: finalRightPackageName,
+  });
+  await attributionDetails.attributionForm.assert.nameIs(finalRightPackageName);
 });

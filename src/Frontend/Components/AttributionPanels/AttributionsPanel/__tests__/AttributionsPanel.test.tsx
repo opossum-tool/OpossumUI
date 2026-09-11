@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../../shared/text';
@@ -203,9 +203,11 @@ describe('AttributionsPanel', () => {
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.delete }),
     );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.deleteAttributionsPopup.delete }),
-    );
+    const deleteButton = screen.getByRole('button', {
+      name: text.deleteAttributionsPopup.delete,
+    });
+    await waitFor(() => expect(deleteButton).toBeEnabled());
+    await userEvent.click(deleteButton);
 
     await expectManualAttributions({});
   });
@@ -358,9 +360,11 @@ describe('AttributionsPanel', () => {
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.confirm }),
     );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.saveAttributionsPopup.confirm }),
-    );
+    const confirmButton = screen.getByRole('button', {
+      name: text.saveAttributionsPopup.confirm,
+    });
+    await waitFor(() => expect(confirmButton).toBeEnabled());
+    await userEvent.click(confirmButton);
 
     await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },

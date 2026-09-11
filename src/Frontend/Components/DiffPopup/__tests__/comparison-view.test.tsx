@@ -11,6 +11,7 @@ import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { theme } from '../../App/App.style';
 import type { AuditingOptions } from '../../AttributionForm/AuditingOptions/AuditingOptions';
+import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import type { ComparisonFieldEditor } from '../ComparisonFieldEditor';
 import { ComparisonView } from '../ComparisonView';
 import type { ComparisonItem } from '../DiffPopup';
@@ -18,6 +19,10 @@ import { useComparisonState } from '../use-comparison-state';
 
 type AuditingOptionsProps = ComponentProps<typeof AuditingOptions>;
 type ComparisonFieldEditorProps = ComponentProps<typeof ComparisonFieldEditor>;
+const confirm: Confirm = (onConfirm) => {
+  void onConfirm();
+  return Promise.resolve(true);
+};
 
 vi.mock('../../AttributionForm/AuditingOptions/AuditingOptions', () => ({
   AuditingOptions: ({
@@ -122,7 +127,13 @@ function ComparisonHarness({
   rightItem: ComparisonItem;
 }) {
   const comparison = useComparisonState(leftItem, rightItem, false);
-  return <ComparisonView {...comparison} isBusy={false} />;
+  return (
+    <ComparisonView
+      {...comparison}
+      isBusy={false}
+      editConfirmations={{ left: confirm, right: confirm }}
+    />
+  );
 }
 
 function renderComparison(

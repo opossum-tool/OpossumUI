@@ -48,7 +48,7 @@ import {
 } from '../../../util/use-selected-resource';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
-import { ConfirmSavePopup } from '../../ConfirmSavePopup/ConfirmSavePopup';
+import { AttributionFormConfirmSavePopup } from '../../ConfirmSavePopup/AttributionFormConfirmSavePopup';
 import { DiffPopup } from '../../DiffPopup/DiffPopup';
 import { Container } from './ButtonRow.style';
 
@@ -117,7 +117,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
     },
     [dispatch, packageInfo.id],
   );
-  const handleCompareSelectionSaveSuccess = useCallback(
+  const handleCompareSelectionAcceptDrafts = useCallback(
     (acceptedAttributions: Attributions) => {
       acceptDiffAttributions(acceptedAttributions);
       clearCompareSelectionAfterSave();
@@ -294,7 +294,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             </MuiFab>
           </span>
         </MuiTooltip>
-        <ConfirmSavePopup
+        <AttributionFormConfirmSavePopup
           selection={{
             mode: 'explicit',
             attributionUuids: [packageInfo.id],
@@ -488,7 +488,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
           }}
           isOpen={isDiffPopupOpen}
           onClose={() => setIsDiffPopupOpen(false)}
-          onSaveSuccess={acceptDiffAttributions}
+          onAcceptDrafts={acceptDiffAttributions}
         />
       </>
     );
@@ -555,7 +555,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             }}
             isOpen={isCompareSelectionDiffOpen}
             onClose={() => setIsCompareSelectionDiffOpen(false)}
-            onSaveSuccess={handleCompareSelectionSaveSuccess}
+            onAcceptDrafts={handleCompareSelectionAcceptDrafts}
           />
         )}
       </>

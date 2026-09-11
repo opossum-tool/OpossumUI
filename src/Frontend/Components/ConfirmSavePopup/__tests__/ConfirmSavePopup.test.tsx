@@ -7,6 +7,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash-es';
 
+import { executeCommand } from '../../../../ElectronBackend/api/commands';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
@@ -22,9 +23,191 @@ import {
 } from '../../../test-helpers/expectations';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
+import { toast } from '../../Toaster';
+import { AttributionFormConfirmSavePopup } from '../AttributionFormConfirmSavePopup';
 import { ConfirmSavePopup } from '../ConfirmSavePopup';
 
-describe('ConfirmSavePopup', () => {
+describe('AttributionFormConfirmSavePopup', () => {
+  afterEach(() => {
+    vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
+  });
+
+  it('uses explicit overrides only for attributions in the selection', async () => {
+    const selected = faker.opossum.packageInfo({ packageName: 'selected' });
+    const unselected = faker.opossum.packageInfo({ packageName: 'unselected' });
+    const updatedSelected = { ...selected, packageName: 'updated selected' };
+    const updatedUnselected = {
+      ...unselected,
+      packageName: 'updated unselected',
+    };
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+
+    await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={noop}
+        selection={{ mode: 'explicit', attributionUuids: [selected.id] }}
+        attributions={{
+          [selected.id]: updatedSelected,
+          [unselected.id]: updatedUnselected,
+        }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [selected.id]: selected,
+            [unselected.id]: unselected,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [selected.id, unselected.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+      },
+    );
+
+    const saveButton = await screen.findByRole('button', {
+      name: text.saveAttributionsPopup.save,
+    });
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    await userEvent.click(saveButton);
+
+    await expectManualAttributions({
+      [selected.id]: updatedSelected,
+      [unselected.id]: unselected,
+    });
+  });
+
+  it('accepts drafts before closing the confirmation and completing the save', async () => {
+    const attribution = faker.opossum.packageInfo();
+    const updatedAttribution = {
+      ...attribution,
+      packageName: 'updated attribution',
+    };
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    const events: Array<string> = [];
+
+    await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={() => events.push('close')}
+        onAcceptDrafts={() => events.push('accept')}
+        onSaveComplete={() => events.push('complete')}
+        selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
+        attributions={{ [attribution.id]: updatedAttribution }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attribution.id]: attribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [attribution.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+      },
+    );
+
+    const saveButton = await screen.findByRole('button', {
+      name: text.saveAttributionsPopup.save,
+    });
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    await userEvent.click(saveButton);
+
+    await waitFor(() =>
+      expect(events).toEqual(['accept', 'close', 'complete']),
+    );
+  });
+
+  it('keeps the confirmation open and skips callbacks when saving fails', async () => {
+    const attribution = faker.opossum.packageInfo();
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    const onAcceptDrafts = vi.fn();
+    const onClose = vi.fn();
+    const onSaveComplete = vi.fn();
+    const error = new Error('save failed');
+    vi.mocked(window.electronAPI.api).mockImplementation((command, params) =>
+      command === 'updateOrMatchAttributions'
+        ? Promise.reject(error)
+        : executeCommand(command, params as never),
+    );
+    const toastError = vi.spyOn(toast, 'error').mockImplementation(vi.fn());
+
+    await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={onClose}
+        onAcceptDrafts={onAcceptDrafts}
+        onSaveComplete={onSaveComplete}
+        selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
+        attributions={{ [attribution.id]: attribution }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attribution.id]: attribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [attribution.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+      },
+    );
+
+    const saveButton = await screen.findByRole('button', {
+      name: text.saveAttributionsPopup.save,
+    });
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    await userEvent.click(saveButton);
+
+    await waitFor(() => expect(toastError).toHaveBeenCalledWith(error.message));
+    expect(onAcceptDrafts).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(onSaveComplete).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('offers only the global action when local saves are disabled', async () => {
+    const attribution = faker.opossum.packageInfo();
+    const firstResource = faker.opossum.filePath(faker.opossum.resourceName());
+    const secondResource = faker.opossum.filePath(faker.opossum.resourceName());
+
+    await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={noop}
+        allowLocalSave={false}
+        selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
+        attributions={{ [attribution.id]: attribution }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attribution.id]: attribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [firstResource]: [attribution.id],
+            [secondResource]: [attribution.id],
+          }),
+          resources: pathsToResources([firstResource, secondResource]),
+        }),
+      },
+    );
+
+    expect(
+      await screen.findByRole('button', {
+        name: text.saveAttributionsPopup.saveGlobally,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: text.saveAttributionsPopup.saveLocally,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
   it('confirms a query-wide selection without loading its IDs in the renderer', async () => {
     const first = faker.opossum.packageInfo({
       packageName: 'first',
@@ -37,7 +220,7 @@ describe('ConfirmSavePopup', () => {
     const resource = faker.opossum.filePath(faker.opossum.resourceName());
 
     await renderComponent(
-      <ConfirmSavePopup
+      <AttributionFormConfirmSavePopup
         open
         onClose={noop}
         selection={{
@@ -113,7 +296,7 @@ describe('ConfirmSavePopup', () => {
     };
     const resource = faker.opossum.filePath(faker.opossum.resourceName());
     const { store } = await renderComponent(
-      <ConfirmSavePopup
+      <AttributionFormConfirmSavePopup
         open
         onClose={noop}
         selection={{
@@ -150,11 +333,11 @@ describe('ConfirmSavePopup', () => {
       },
     );
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.saveAttributionsPopup.confirm,
-      }),
-    );
+    const confirmButton = await screen.findByRole('button', {
+      name: text.saveAttributionsPopup.confirm,
+    });
+    await waitFor(() => expect(confirmButton).toBeEnabled());
+    await userEvent.click(confirmButton);
 
     await waitFor(() =>
       expect(getSelectedAttributionId(store.getState())).toBe(matching.id),
@@ -166,7 +349,7 @@ describe('ConfirmSavePopup', () => {
     const packageInfo2 = faker.opossum.packageInfo({ id: packageInfo1.id });
     const resource = faker.opossum.filePath(faker.opossum.resourceName());
     await renderComponent(
-      <ConfirmSavePopup
+      <AttributionFormConfirmSavePopup
         open
         onClose={noop}
         selection={{ mode: 'explicit', attributionUuids: [packageInfo1.id] }}
@@ -208,7 +391,7 @@ describe('ConfirmSavePopup', () => {
     const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
     const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
     await renderComponent(
-      <ConfirmSavePopup
+      <AttributionFormConfirmSavePopup
         open
         onClose={noop}
         selection={{ mode: 'explicit', attributionUuids: [packageInfo1.id] }}
@@ -252,7 +435,7 @@ describe('ConfirmSavePopup', () => {
     const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
     const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
     const { store } = await renderComponent(
-      <ConfirmSavePopup
+      <AttributionFormConfirmSavePopup
         open
         onClose={noop}
         selection={{ mode: 'explicit', attributionUuids: [packageInfo1.id] }}
@@ -310,7 +493,7 @@ describe('ConfirmSavePopup', () => {
       });
 
     await renderComponent(
-      <ConfirmSavePopup
+      <AttributionFormConfirmSavePopup
         open
         onClose={noop}
         selection={{ mode: 'explicit', attributionUuids: [packageInfo.id] }}
@@ -324,11 +507,11 @@ describe('ConfirmSavePopup', () => {
       },
     );
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.saveAttributionsPopup.confirm,
-      }),
-    );
+    const confirmButton = await screen.findByRole('button', {
+      name: text.saveAttributionsPopup.confirm,
+    });
+    await waitFor(() => expect(confirmButton).toBeEnabled());
+    await userEvent.click(confirmButton);
 
     await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
@@ -343,7 +526,7 @@ describe('ConfirmSavePopup', () => {
     const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
     const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
     await renderComponent(
-      <ConfirmSavePopup
+      <AttributionFormConfirmSavePopup
         open
         onClose={noop}
         selection={{ mode: 'explicit', attributionUuids: [packageInfo.id] }}
@@ -385,7 +568,7 @@ describe('ConfirmSavePopup', () => {
     const resource1 = faker.opossum.filePath(faker.opossum.resourceName());
     const resource2 = faker.opossum.filePath(faker.opossum.resourceName());
     const { store } = await renderComponent(
-      <ConfirmSavePopup
+      <AttributionFormConfirmSavePopup
         open
         onClose={noop}
         selection={{ mode: 'explicit', attributionUuids: [packageInfo.id] }}
