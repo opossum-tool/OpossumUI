@@ -17,6 +17,7 @@ import {
   removeRedundantAttributions,
   removeTrailingSlash,
   withBatching,
+  withSqlBatching,
 } from '../utils';
 
 describe('withBatching', () => {
@@ -24,7 +25,7 @@ describe('withBatching', () => {
     const input = [1, 2, 3];
     const f = vi.fn().mockResolvedValue('ok');
 
-    const results = await withBatching(input, f);
+    const results = await withSqlBatching(input, f);
 
     expect(f).toHaveBeenCalledExactlyOnceWith([1, 2, 3]);
     expect(results).toEqual(['ok']);
@@ -38,7 +39,7 @@ describe('withBatching', () => {
         Promise.resolve(batch.reduce((a, b) => a + b, 0)),
       );
 
-    const results = await withBatching(input, f, { batchSize: 2 });
+    const results = await withBatching(input, f, 2);
 
     expect(f).toHaveBeenCalledTimes(3);
     expect(f).toHaveBeenNthCalledWith(1, [1, 2]);
@@ -50,7 +51,7 @@ describe('withBatching', () => {
   it('returns an empty array for empty input', async () => {
     const f = vi.fn();
 
-    const results = await withBatching([], f);
+    const results = await withSqlBatching([], f);
 
     expect(f).not.toHaveBeenCalled();
     expect(results).toEqual([]);

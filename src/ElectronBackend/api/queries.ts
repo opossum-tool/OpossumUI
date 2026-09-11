@@ -60,6 +60,7 @@ import {
   GET_LEGACY_RESOURCE_PATH,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
+  jsonArraySelection,
   removeParentFromPath,
   removeTrailingSlash,
   type ResourceRelationship,
@@ -615,7 +616,7 @@ export const queries = {
           .whereRef('rta.attribution_uuid', '=', 'a.uuid')
           .as('resource_count'),
       )
-      .where('a.uuid', 'in', props.attributionUuids)
+      .where('a.uuid', 'in', jsonArraySelection(props.attributionUuids))
       .execute();
 
     return {
