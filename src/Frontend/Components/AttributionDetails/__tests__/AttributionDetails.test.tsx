@@ -717,9 +717,11 @@ describe('AttributionDetails', () => {
         name: text.attributionColumn.delete,
       }),
     );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.deleteAttributionsPopup.delete }),
-    );
+    const deleteButton = screen.getByRole('button', {
+      name: text.deleteAttributionsPopup.delete,
+    });
+    await waitFor(() => expect(deleteButton).toBeEnabled());
+    await userEvent.click(deleteButton);
 
     await expectManualAttributions({
       [packageInfo2.id]: packageInfo2,
