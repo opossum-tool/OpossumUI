@@ -111,7 +111,10 @@ describe('AttributionForm', () => {
         packageType: 'npm',
       });
       const readText = vi.fn().mockReturnValue('pkg:npm/after@2.0.0');
-      const onEdit = vi.fn();
+      const onEdit = vi.fn((onConfirm) => {
+        void onConfirm();
+        return Promise.resolve(true);
+      });
       vi.stubGlobal('navigator', {
         clipboard: { readText },
       });
@@ -125,7 +128,7 @@ describe('AttributionForm', () => {
       );
 
       expect(readText).toHaveBeenCalledTimes(1);
-      expect(onEdit).not.toHaveBeenCalled();
+      expect(onEdit).toHaveBeenCalledOnce();
       expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
         packageName: 'after',
         packageVersion: '2.0.0',

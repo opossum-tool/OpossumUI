@@ -22,6 +22,7 @@ interface Action {
   buttonText: string;
   onClick: () => void;
   isPending: boolean;
+  disabled?: boolean;
   color?: ButtonProps['color'];
   available?: boolean;
 }
@@ -40,6 +41,7 @@ interface Props {
   mixedAttributionCount: number;
   isResourceInfoReady: boolean;
   isLocalActionAvailable: boolean | undefined;
+  isCloseDisabled?: boolean;
   selection: AttributionSelection;
   attributionCount?: number;
 }
@@ -58,6 +60,7 @@ export function ConfirmAttributionActionPopup({
   mixedAttributionCount,
   isResourceInfoReady,
   isLocalActionAvailable,
+  isCloseDisabled,
   selection,
   attributionCount,
 }: Props) {
@@ -75,7 +78,10 @@ export function ConfirmAttributionActionPopup({
       leftButtonConfig={
         isLocalActionVisible
           ? {
-              disabled: isMutationPending || !isResourceInfoReady,
+              disabled:
+                isMutationPending ||
+                localAction.disabled ||
+                !isResourceInfoReady,
               loading: localAction.isPending,
               onClick: localAction.onClick,
               buttonText: localAction.buttonText,
@@ -84,14 +90,15 @@ export function ConfirmAttributionActionPopup({
           : undefined
       }
       centerLeftButtonConfig={{
-        disabled: isMutationPending || !isResourceInfoReady,
+        disabled:
+          isMutationPending || globalAction.disabled || !isResourceInfoReady,
         loading: globalAction.isPending,
         onClick: globalAction.onClick,
         buttonText: globalAction.buttonText,
         color: globalAction.color,
       }}
       rightButtonConfig={{
-        disabled: isMutationPending,
+        disabled: isMutationPending || isCloseDisabled,
         onClick: onClose,
         buttonText: text.buttons.cancel,
         color: 'secondary',

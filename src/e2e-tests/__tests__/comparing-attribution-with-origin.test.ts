@@ -72,6 +72,7 @@ test('opens the diff popup with the original signal and current draft', async ({
 
 test('preserves legal data when restoring the comparison attribution type', async ({
   attributionDetails,
+  confirmSavePopup,
   diffPopup,
   resourcesTree,
 }) => {
@@ -95,6 +96,9 @@ test('preserves legal data when restoring the comparison attribution type', asyn
   await diffPopup.assert.legalFieldIs('right', 'licenseText', 'MIT License');
 
   await diffPopup.saveButton.click();
+  await confirmSavePopup.assert.isVisible();
+  await confirmSavePopup.saveButton.click();
+  await confirmSavePopup.assert.isHidden();
   await diffPopup.assert.isHidden();
   await attributionDetails.attributionForm.assert.nameIs(changedPackageName);
   await attributionDetails.attributionForm.assert.attributionTypeIs(
@@ -136,6 +140,7 @@ test('preexisting attribution edits are visible when comparison opens', async ({
 
 test('restores an unsaved details edit through comparison', async ({
   attributionDetails,
+  confirmSavePopup,
   diffPopup,
   notSavedPopup,
   resourcesTree,
@@ -150,6 +155,7 @@ test('restores an unsaved details edit through comparison', async ({
   await diffPopup.rightPackageName.fill(packageName);
   await expect(diffPopup.saveButton).toBeEnabled();
   await diffPopup.saveButton.click();
+  await confirmSavePopup.assert.isHidden();
   await diffPopup.assert.isHidden();
   await attributionDetails.attributionForm.assert.nameIs(packageName);
   await attributionDetails.assert.saveButtonIsDisabled();

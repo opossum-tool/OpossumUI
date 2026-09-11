@@ -333,6 +333,7 @@ export const text = {
     save: 'Save',
     confirm: 'Confirm',
     resource: 'resource',
+    saveFailure: 'Unable to save attributions.',
   },
   deleteAttributionsPopup: {
     ariaLabel: 'confirm delete popup',

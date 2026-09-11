@@ -3,13 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { useIsMutating } from '@tanstack/react-query';
-import { useRef } from 'react';
+import { useState } from 'react';
 
 import type { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
-import { backend } from '../../util/backendClient';
-import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
+import { useConfirmAttributionEdit } from '../AttributionDetails/use-confirm-attribution-edit';
+import { ConfirmSavePopup } from '../ConfirmSavePopup/ConfirmSavePopup';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { ComparisonView } from './ComparisonView';
 import type { ComparisonItem } from './DiffPopup.util';
@@ -23,7 +23,7 @@ export interface DiffPopupProps {
   ariaLabel?: string;
   isOpen: boolean;
   onClose: () => void;
-  onSaveSuccess?: (acceptedAttributions: Attributions) => void;
+  onAcceptDrafts?: (acceptedAttributions: Attributions) => void;
 }
 
 export function DiffPopup({
@@ -52,39 +52,44 @@ function DiffPopupSession({
   ariaLabel = text.diffPopup.ariaLabel,
   isOpen,
   onClose,
-  onSaveSuccess,
+  onAcceptDrafts,
 }: DiffPopupProps) {
-  const handleFocusedAttributionOutcome =
-    useFocusedAttributionOutcomeBeforeInvalidation();
-  const acceptedAttributionsRef = useRef<Attributions>({});
-  const updateOrMatch = backend.updateOrMatchAttributions.useMutation({
-    onBeforeInvalidation: (result) => {
-      onSaveSuccess?.(acceptedAttributionsRef.current);
-      handleFocusedAttributionOutcome(result);
-    },
-  });
-  const isSaving = updateOrMatch.isPending;
   const isBusy = useIsMutating() > 0;
+  const [saveRequest, setSaveRequest] = useState<{
+    acceptedAttributions: Attributions;
+    mutationCandidates: Attributions;
+    focusedAttributionUuid: string;
+  }>();
   const comparison = useComparisonState(leftItem, rightItem, isBusy);
+  const leftEdit = useConfirmAttributionEdit(
+    comparison.drafts.left,
+    comparison.items.left.label,
+  );
+  const rightEdit = useConfirmAttributionEdit(
+    comparison.drafts.right,
+    comparison.items.right.label,
+  );
+  const isChildOpen =
+    Boolean(saveRequest) || leftEdit.isOpen || rightEdit.isOpen;
 
-  async function handleSave() {
-    if (isBusy || !comparison.canSave) {
+  function handleSave() {
+    if (isBusy || isChildOpen || !comparison.canSave) {
       return;
     }
     if (Object.keys(comparison.mutationCandidates).length > 0) {
-      acceptedAttributionsRef.current = comparison.acceptedAttributions;
-      await updateOrMatch.mutateAsync({
-        attributions: comparison.mutationCandidates,
+      setSaveRequest({
+        acceptedAttributions: comparison.acceptedAttributions,
+        mutationCandidates: comparison.mutationCandidates,
         focusedAttributionUuid: comparison.items.right.packageInfo.id,
       });
     } else {
-      onSaveSuccess?.(comparison.acceptedAttributions);
+      onAcceptDrafts?.(comparison.acceptedAttributions);
+      onClose();
     }
-    onClose();
   }
 
   function handleDismiss() {
-    if (!isBusy) {
+    if (!isBusy && !isChildOpen) {
       onClose();
     }
   }
@@ -109,14 +114,13 @@ function DiffPopupSession({
       leftButtonConfig={{
         buttonText: text.buttons.cancel,
         color: 'secondary',
-        disabled: isBusy,
+        disabled: isBusy || isChildOpen,
         onClick: handleDismiss,
       }}
       rightButtonConfig={{
         buttonText: text.diffPopup.saveChanges,
         color: 'primary',
-        disabled: !comparison.canSave || isBusy,
-        loading: isSaving,
+        disabled: !comparison.canSave || isBusy || isChildOpen,
         onClick: handleSave,
       }}
     >
@@ -124,12 +128,37 @@ function DiffPopupSession({
         items={comparison.items}
         drafts={comparison.drafts}
         dirty={comparison.dirty}
-        isBusy={isBusy}
+        isBusy={isBusy || isChildOpen}
         onChange={comparison.onChange}
-        onCopy={comparison.onCopy}
+        onCopy={async (source, destination, key) =>
+          (destination === 'left' ? leftEdit.confirm : rightEdit.confirm)(() =>
+            comparison.onCopy(source, destination, key),
+          )
+        }
         onUndo={comparison.onUndo}
         onUndoAuditing={comparison.onUndoAuditing}
+        editConfirmations={{ left: leftEdit.confirm, right: rightEdit.confirm }}
       />
+      {leftEdit.dialog}
+      {rightEdit.dialog}
+      {saveRequest && (
+        <ConfirmSavePopup
+          selection={{
+            mode: 'explicit',
+            attributionUuids: Object.keys(saveRequest.mutationCandidates),
+          }}
+          open
+          onClose={() => setSaveRequest(undefined)}
+          attributions={saveRequest.mutationCandidates}
+          focusedAttributionUuid={saveRequest.focusedAttributionUuid}
+          allowLocalSave={false}
+          action={'save'}
+          onAcceptDrafts={() =>
+            onAcceptDrafts?.(saveRequest.acceptedAttributions)
+          }
+          onSaveComplete={onClose}
+        />
+      )}
     </NotificationPopup>
   );
 }

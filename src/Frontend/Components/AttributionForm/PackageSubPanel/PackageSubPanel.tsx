@@ -86,6 +86,7 @@ export function PackageSubPanel({
       <PurlField
         packageInfo={packageInfo}
         onUpdate={onUpdate}
+        onEdit={onEdit}
         readOnly={!editable}
       />
       <PackageAutocomplete

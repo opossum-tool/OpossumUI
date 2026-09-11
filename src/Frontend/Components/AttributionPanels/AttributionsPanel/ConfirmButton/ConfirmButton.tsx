@@ -10,7 +10,7 @@ import { useState } from 'react';
 
 import type { AttributionSelection } from '../../../../../shared/attribution-selection';
 import { text } from '../../../../../shared/text';
-import { ConfirmSavePopup } from '../../../ConfirmSavePopup/ConfirmSavePopup';
+import { AttributionFormConfirmSavePopup } from '../../../ConfirmSavePopup/AttributionFormConfirmSavePopup';
 import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
 export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
@@ -63,7 +63,7 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
           <CheckIcon />
         </MuiTooltip>
       </MuiIconButton>
-      <ConfirmSavePopup
+      <AttributionFormConfirmSavePopup
         selection={preSelectedSelection}
         open={isConfirmSavePopupOpen}
         onClose={() => setIsConfirmSavePopupOpen(false)}

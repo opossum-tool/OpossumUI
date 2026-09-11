@@ -10,6 +10,7 @@ import type { ComponentProps } from 'react';
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { theme } from '../../App/App.style';
+import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { ComparisonFieldEditor } from '../ComparisonFieldEditor';
 import { ComparisonRows } from '../ComparisonRows';
 import type { ComparisonItem } from '../DiffPopup';
@@ -46,6 +47,11 @@ const typeField: FieldDefinition = {
   label: text.diffPopup.attributionType,
 };
 const defaults = { left: {}, right: {} };
+const confirm: Confirm = (onConfirm) => {
+  void onConfirm();
+  return Promise.resolve(true);
+};
+const editConfirmations = { left: confirm, right: confirm };
 
 function renderEditor(
   props: Partial<React.ComponentProps<typeof ComparisonFieldEditor>> = {},
@@ -69,6 +75,7 @@ function renderEditor(
           showLicenseText={false}
           onToggleLicenseText={vi.fn()}
           packageDefaults={defaults}
+          onEdit={props.onEdit ?? confirm}
           {...props}
         />
       </ThemeProvider>,
@@ -178,6 +185,7 @@ describe('ComparisonFieldEditor', () => {
           showLicenseText={false}
           onToggleLicenseText={vi.fn()}
           packageDefaults={defaults}
+          onEdit={confirm}
         />
       </ThemeProvider>,
     );
@@ -191,6 +199,22 @@ describe('ComparisonFieldEditor', () => {
       target: { value: 'edited' },
     });
     expect(onChange).toHaveBeenCalledWith('right', { comment: 'edited' });
+  });
+
+  it('confirms a text edit before applying its captured value', () => {
+    const onEdit: Confirm = (onConfirm) => {
+      void onConfirm();
+      return Promise.resolve(true);
+    };
+    const { onChange } = renderEditor({ onEdit });
+
+    fireEvent.change(screen.getByTestId('right-comment'), {
+      target: { value: 'confirmed edit' },
+    });
+
+    expect(onChange).toHaveBeenCalledWith('right', {
+      comment: 'confirmed edit',
+    });
   });
 
   it('shows undo only after a value changes and restores attribution type labels', async () => {
@@ -217,6 +241,7 @@ describe('ComparisonFieldEditor', () => {
           showLicenseText={false}
           onToggleLicenseText={vi.fn()}
           packageDefaults={defaults}
+          onEdit={confirm}
         />
       </ThemeProvider>,
     );
@@ -249,6 +274,7 @@ describe('ComparisonRows', () => {
           showLicenseText={false}
           onToggleLicenseText={vi.fn()}
           packageDefaults={defaults}
+          editConfirmations={editConfirmations}
         />
       </ThemeProvider>,
     );
@@ -293,6 +319,7 @@ describe('ComparisonRows', () => {
           showLicenseText={false}
           onToggleLicenseText={vi.fn()}
           packageDefaults={defaults}
+          editConfirmations={editConfirmations}
         />
       </ThemeProvider>,
     );
@@ -313,6 +340,7 @@ describe('ComparisonRows', () => {
           showLicenseText={false}
           onToggleLicenseText={vi.fn()}
           packageDefaults={defaults}
+          editConfirmations={editConfirmations}
         />
       </ThemeProvider>,
     );

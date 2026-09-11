@@ -16,6 +16,7 @@ import {
   type PackageFieldDefaults,
   PurlField,
 } from '../AttributionForm/PackageSubPanel/PackageFields';
+import type { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { ComparisonFieldEditor } from './ComparisonFieldEditor';
 import { diffPopupStyles } from './DiffPopup.style';
 import {
@@ -40,6 +41,7 @@ interface ComparisonRenderProps {
   showLicenseText: boolean;
   onToggleLicenseText: () => void;
   packageDefaults: Record<Side, PackageFieldDefaults>;
+  editConfirmations: Record<Side, Confirm>;
 }
 
 interface ComparisonRowsProps extends ComparisonRenderProps {
@@ -64,6 +66,7 @@ export function ComparisonRows({
   showLicenseText,
   onToggleLicenseText,
   packageDefaults,
+  editConfirmations,
 }: ComparisonRowsProps) {
   return (
     <MuiBox sx={diffPopupStyles.comparisonRows}>
@@ -83,6 +86,7 @@ export function ComparisonRows({
             showLicenseText={showLicenseText}
             onToggleLicenseText={onToggleLicenseText}
             packageDefaults={packageDefaults}
+            editConfirmations={editConfirmations}
           />
         ))}
     </MuiBox>
@@ -100,6 +104,7 @@ export function IndependentComparisonColumns({
   showLicenseText,
   onToggleLicenseText,
   packageDefaults,
+  editConfirmations,
 }: ComparisonRenderProps & { fields: Array<FieldDefinition> }) {
   const sides = [
     { side: 'left' as const, item: left, draft: drafts.left },
@@ -127,6 +132,7 @@ export function IndependentComparisonColumns({
                     showLicenseText={showLicenseText}
                     onToggleLicenseText={onToggleLicenseText}
                     packageDefaults={packageDefaults}
+                    onEdit={editConfirmations[side]}
                   />
                 ) : null,
               )}
@@ -150,6 +156,7 @@ function ComparisonFieldRow({
   showLicenseText,
   onToggleLicenseText,
   packageDefaults,
+  editConfirmations,
 }: ComparisonFieldProps) {
   const leftFieldVisible = isFieldVisible(field.key, drafts.left);
   const rightFieldVisible = isFieldVisible(field.key, drafts.right);
@@ -204,6 +211,7 @@ function ComparisonFieldRow({
             showLicenseText={showLicenseText}
             onToggleLicenseText={onToggleLicenseText}
             packageDefaults={packageDefaults}
+            onEdit={editConfirmations.left}
           />
         )}
       </MuiBox>
@@ -251,6 +259,7 @@ function ComparisonFieldRow({
             showLicenseText={showLicenseText}
             onToggleLicenseText={onToggleLicenseText}
             packageDefaults={packageDefaults}
+            onEdit={editConfirmations.right}
           />
         )}
       </MuiBox>
@@ -303,11 +312,13 @@ export function DerivedPurlRow({
   items,
   isBusy,
   onChange,
+  editConfirmations,
 }: {
   drafts: Record<Side, PackageInfo>;
   items: Record<Side, ComparisonItem>;
   isBusy: boolean;
   onChange: UpdateField;
+  editConfirmations: Record<Side, Confirm>;
 }) {
   const leftPurl = generatePurl(drafts.left) || text.diffPopup.emptyPurl;
   const rightPurl = generatePurl(drafts.right) || text.diffPopup.emptyPurl;
@@ -324,6 +335,7 @@ export function DerivedPurlRow({
           readOnly={!isEditable(items.left)}
           disabled={isBusy}
           sx={isDifferent ? diffPopupStyles.differenceField : undefined}
+          onEdit={editConfirmations.left}
         />
       </MuiBox>
       <MuiBox
@@ -338,6 +350,7 @@ export function DerivedPurlRow({
           readOnly={!isEditable(items.right)}
           disabled={isBusy}
           sx={isDifferent ? diffPopupStyles.differenceField : undefined}
+          onEdit={editConfirmations.right}
         />
       </MuiBox>
     </MuiBox>
