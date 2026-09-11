@@ -148,19 +148,20 @@ function getImportFileMenuItemId(fileType: FileType): string {
 }
 
 function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
-  const globalBackendState = getGlobalBackendState();
-  const enabled = !globalBackendState.frontendPopupOpen;
+  const enabled = !getGlobalBackendState().frontendPopupOpen;
 
   return {
     icon: getIconBasedOnTheme('icons/merge-white.png', 'icons/merge-black.png'),
     label: text.menu.fileSubmenu.merge,
     id: menuItemIds.mergeOpossumFiles,
-    click: () =>
+    click: () => {
+      const globalBackendState = getGlobalBackendState();
       mainWindow.webContents.send(
         AllowedFrontendChannels.ShowMergeOpossumFilesDialog,
         isFileLoaded(globalBackendState),
         globalBackendState.opossumFilePath,
-      ),
+      );
+    },
     enabled,
   };
 }
