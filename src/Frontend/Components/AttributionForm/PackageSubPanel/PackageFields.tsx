@@ -106,12 +106,14 @@ export function usePackageFieldDefaults(
 export function PurlField({
   packageInfo,
   onUpdate,
+  onEdit,
   readOnly,
   disabled,
   sx = attributionColumnClasses.textBox,
 }: {
   packageInfo: PackageInfo;
   onUpdate: (patch: PackagePatch) => void;
+  onEdit?: Confirm;
   readOnly?: boolean;
   disabled?: boolean;
   sx?: object;
@@ -143,13 +145,21 @@ export function PurlField({
           onClick={async () => {
             const parsedPurl = parsePurl(await navigator.clipboard.readText());
             if (parsedPurl) {
-              onUpdate({
+              const patch = {
                 packageName: parsedPurl.name,
                 packageVersion: parsedPurl.version ?? undefined,
                 packageType: parsedPurl.type,
                 packageNamespace: parsedPurl.namespace ?? undefined,
-              });
-              toast.success(text.attributionColumn.copyToClipboardSuccess);
+              };
+              const update = () => {
+                onUpdate(patch);
+                toast.success(text.attributionColumn.copyToClipboardSuccess);
+              };
+              if (onEdit) {
+                await onEdit(update);
+              } else {
+                update();
+              }
             } else {
               toast.error(text.attributionColumn.pasteFromClipboardFailed);
             }

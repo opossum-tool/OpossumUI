@@ -54,6 +54,7 @@ test.describe('saving writable comparison edits', () => {
   test('swaps two attribution values while preserving resource associations', async ({
     attributionDetails,
     attributionsPanel,
+    confirmSavePopup,
     diffPopup,
     filePaths,
     menuBar,
@@ -73,6 +74,9 @@ test.describe('saving writable comparison edits', () => {
     await diffPopup.leftPackageName.fill('bar');
     await diffPopup.rightPackageName.fill('foo');
     await diffPopup.saveButton.click();
+    await confirmSavePopup.assert.isVisible();
+    await confirmSavePopup.saveGloballyButton.click();
+    await confirmSavePopup.assert.isHidden();
     await diffPopup.assert.isHidden();
     await attributionDetails.attributionForm.assert.nameIs('foo');
 
@@ -140,6 +144,9 @@ test.describe('saving writable comparison edits', () => {
     await diffPopup.leftPackageName.fill('merged');
     await diffPopup.rightPackageName.fill('merged');
     await diffPopup.saveButton.click();
+    await confirmSavePopup.assert.isVisible();
+    await confirmSavePopup.saveGloballyButton.click();
+    await confirmSavePopup.assert.isHidden();
     await diffPopup.assert.isHidden();
     await attributionDetails.attributionForm.assert.nameIs('merged');
     await linkedResourcesTree.assert.resourceIsVisible('left.ts');
@@ -233,6 +240,7 @@ test.describe('saving a mixed readonly comparison edit', () => {
   test('partitions a mixed attribution when saving its edited value', async ({
     attributionDetails,
     attributionsPanel,
+    confirmSavePopup,
     diffPopup,
     filePaths,
     menuBar,
@@ -252,6 +260,9 @@ test.describe('saving a mixed readonly comparison edit', () => {
 
     await diffPopup.rightPackageName.fill(editedName);
     await diffPopup.saveButton.click();
+    await confirmSavePopup.assert.isVisible();
+    await confirmSavePopup.saveButton.click();
+    await confirmSavePopup.assert.isHidden();
     await diffPopup.assert.isHidden();
     await attributionDetails.attributionForm.assert.nameIs(editedName);
 

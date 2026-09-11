@@ -295,9 +295,16 @@ export function PackageAutocomplete({
           onClick={async (event) => {
             event.stopPropagation();
             const merged: PackageInfo = { ...packageInfo, ...option };
-            const enriched = (await enrichPackageInfo(merged)) || merged;
-            onUpdate(toPackagePatch(enriched));
-            closePopper();
+            const enrich = async () => {
+              const enriched = (await enrichPackageInfo(merged)) || merged;
+              onUpdate(toPackagePatch(enriched));
+              closePopper();
+            };
+            if (onEdit) {
+              await onEdit(enrich);
+            } else {
+              await enrich();
+            }
           }}
           size={'small'}
         >

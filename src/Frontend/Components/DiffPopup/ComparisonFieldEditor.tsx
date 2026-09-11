@@ -26,6 +26,7 @@ import {
   type PackageFieldDefaults,
   urlActions,
 } from '../AttributionForm/PackageSubPanel/PackageFields';
+import type { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../TextBox/TextBox';
 import { ValidationDisplay } from '../ValidationDisplay/ValidationDisplay';
 import { diffPopupStyles } from './DiffPopup.style';
@@ -54,6 +55,7 @@ interface FieldEditorProps {
   showLicenseText: boolean;
   onToggleLicenseText: () => void;
   packageDefaults: Record<Side, PackageFieldDefaults>;
+  onEdit: Confirm;
 }
 
 export function ComparisonFieldEditor({
@@ -69,6 +71,7 @@ export function ComparisonFieldEditor({
   showLicenseText,
   onToggleLicenseText,
   packageDefaults,
+  onEdit,
 }: FieldEditorProps) {
   const itemIsEditable = isEditable(item);
   const isDisabled =
@@ -125,7 +128,9 @@ export function ComparisonFieldEditor({
           dirty={isDirty}
           openingValue={openingPackageInfo.firstParty}
           itemLabel={item.label}
-          onChange={(value) => onChange(side, { firstParty: value })}
+          onChange={(value) =>
+            void onEdit(() => onChange(side, { firstParty: value }))
+          }
           onUndo={() => onUndo(side, field.key)}
           isBusy={isBusy}
         />
@@ -138,7 +143,7 @@ export function ComparisonFieldEditor({
           {...commonInputProps}
           licenseName={draft.licenseName}
           licenseText={draft.licenseText}
-          onUpdate={(patch) => onChange(side, patch)}
+          onUpdate={(patch) => void onEdit(() => onChange(side, patch))}
           showHighlight={showIncomplete}
           disabled={isDisabled && itemIsEditable}
           readOnly={!itemIsEditable}
@@ -155,7 +160,7 @@ export function ComparisonFieldEditor({
         <LicenseTextField
           {...commonInputProps}
           packageInfo={draft}
-          onUpdate={(patch) => onChange(side, patch)}
+          onUpdate={(patch) => void onEdit(() => onChange(side, patch))}
           showHighlight={showIncomplete}
           disabled={isDisabled && itemIsEditable}
           readOnly={!itemIsEditable}
@@ -175,6 +180,7 @@ export function ComparisonFieldEditor({
           packageInfo={draft}
           defaults={packageDefaults[side][field.key]}
           onUpdate={(patch) => onChange(side, patch)}
+          onEdit={onEdit}
           readOnly={!itemIsEditable}
           disabled={isBusy}
           showHighlight={showIncomplete}
@@ -183,6 +189,7 @@ export function ComparisonFieldEditor({
               ? urlActions({
                   packageInfo: draft,
                   onUpdate: (patch) => onChange(side, patch),
+                  onEdit,
                   editable: itemIsEditable && !isBusy,
                 })
               : []),
@@ -208,9 +215,10 @@ export function ComparisonFieldEditor({
         tooltipProps={
           showIncomplete ? { title: text.generic.incomplete } : undefined
         }
-        handleChange={(event) =>
-          onChange(side, { [field.key]: event.target.value })
-        }
+        handleChange={(event) => {
+          const value = event.target.value;
+          void onEdit(() => onChange(side, { [field.key]: value }));
+        }}
         endIcon={undo}
       />
     );
