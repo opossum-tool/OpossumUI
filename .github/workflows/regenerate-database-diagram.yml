@@ -1,0 +1,45 @@
+# SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+# SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Regenerate database diagram
+
+on:
+  push:
+    branches:
+      - 'renovate/viz-js-viz*'
+    paths:
+      - 'yarn.lock'
+
+jobs:
+  regenerate-database-diagram:
+    runs-on: ubuntu-latest
+    # Skip the commit created by this workflow.
+    if: "!contains(github.event.head_commit.message, 'chore(regenerate-database-diagram)')"
+    permissions:
+      contents: write
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          cache: 'yarn'
+          node-version-file: '.nvmrc'
+
+      - run: yarn install --immutable
+
+      - run: yarn db:generate
+
+      - name: Commit changes
+        uses: planetscale/ghcommit-action@a6b150b81dca5dd027baa898604418eec9e11465 # v0.2.22
+        with:
+          commit_message: 'chore(regenerate-database-diagram): regenerate database diagram'
+          repo: ${{ github.repository }}
+          branch: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
