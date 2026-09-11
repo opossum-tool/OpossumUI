@@ -69,7 +69,7 @@ test('creates a new third-party attribution', async ({
     newPackageInfo,
   );
 
-  await resourcesTree.goto(resourceName2);
+  await resourcesTree.clickResource(resourceName2);
   await notSavedPopup.assert.isVisible();
 
   await notSavedPopup.cancelButton.click();

@@ -53,7 +53,8 @@ export function VirtualizedTree({
           onSelect={onSelect}
           onContextMenu={onContextMenu}
           readOnly={readOnly}
-          selected={selected || resource.id === contextMenuNodeId}
+          selected={selected}
+          highlighted={selected || resource.id === contextMenuNodeId}
           focused={focused}
           resource={resource}
         />

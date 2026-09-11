@@ -11,9 +11,13 @@ import { text } from '../../shared/text';
 
 class ValidationDisplay {
   readonly node: Locator;
+  readonly collapse: Locator;
   readonly expandButton: Locator;
   constructor(parentLocator: Locator) {
     this.node = parentLocator.getByTestId('validation-display');
+    this.collapse = parentLocator.locator('.MuiCollapse-root', {
+      has: parentLocator.page().getByTestId('validation-display'),
+    });
     this.expandButton = this.node.getByLabel('expand messages');
   }
   public assert = {
@@ -28,6 +32,8 @@ class ValidationDisplay {
     },
   };
   public clickSuggestion = async (suggestionText: string): Promise<void> => {
+    // Scrolling during expansion can shift the suggestion before the click lands.
+    await expect(this.collapse).toHaveClass(/MuiCollapse-entered/);
     await this.node.getByText(suggestionText, { exact: true }).click();
   };
 }
