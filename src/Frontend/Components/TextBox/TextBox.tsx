@@ -5,12 +5,17 @@
 import type { InputBaseComponentsPropsOverrides, SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
+import MuiTextareaAutosize, {
+  type TextareaAutosizeProps,
+} from '@mui/material/TextareaAutosize';
 import MuiTextField, { type TextFieldProps } from '@mui/material/TextField';
 import MuiTooltip, { type TooltipProps } from '@mui/material/Tooltip';
 import type { Theme } from '@mui/system';
 
 import { OpossumColors } from '../../shared-styles';
 import { ensureArray } from '../../util/ensure-array';
+
+const INPUT_VERTICAL_PADDING = '8.5px';
 
 const classes = {
   textField: {
@@ -65,7 +70,50 @@ const classes = {
     marginRight: '8px',
     height: 0,
   },
+  multilineEndAdornmentRoot: {
+    position: 'sticky',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    height: 'auto',
+    marginTop: 0,
+    marginLeft: 0,
+    marginRight: '8px',
+  },
 } satisfies SxProps;
+
+function MultilineInput({
+  maxRows,
+  endAdornment,
+  ...props
+}: TextareaAutosizeProps & {
+  endAdornment?: React.ReactNode;
+}) {
+  return (
+    <MuiBox
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr) auto',
+        alignItems: 'start',
+        boxSizing: 'content-box',
+        width: '100%',
+        overflow: 'auto',
+        paddingBlock: INPUT_VERTICAL_PADDING,
+        scrollPaddingBlock: INPUT_VERTICAL_PADDING,
+        maxBlockSize: maxRows ? `${maxRows}lh` : 'none',
+      }}
+    >
+      <MuiTextareaAutosize {...props} />
+      {endAdornment && (
+        <MuiInputAdornment
+          sx={classes.multilineEndAdornmentRoot}
+          position="end"
+        >
+          {endAdornment}
+        </MuiInputAdornment>
+      )}
+    </MuiBox>
+  );
+}
 
 export type TextBoxCustomInputProps =
   React.InputHTMLAttributes<HTMLInputElement> &
@@ -103,6 +151,7 @@ export interface TextBoxProps {
 }
 
 export function TextBox(props: TextBoxProps) {
+  const minRows = props.expanded ? props.maxRows : props.minRows;
   return (
     <MuiBox data-testid={props.rootDataTestId} sx={props.sx}>
       <MuiTooltip
@@ -129,19 +178,30 @@ export function TextBox(props: TextBoxProps) {
             },
             input: {
               readOnly: props.readOnly,
+              inputComponent: props.multiline ? MultilineInput : undefined,
               slotProps: {
                 input: {
                   'aria-label': props.title,
                   value: props.text || '',
+                  ...(props.multiline
+                    ? {
+                        minRows,
+                        maxRows: props.maxRows,
+                        endAdornment: props.endIcon,
+                      }
+                    : {}),
                   ...(props.inputDataTestId
                     ? { 'data-testid': props.inputDataTestId }
                     : {}),
                   sx: {
+                    ...(props.multiline ? { boxSizing: 'border-box' } : {}),
                     overflowX: 'hidden',
                     textOverflow: 'ellipsis',
-                    paddingY: '8.5px',
+                    paddingY: props.multiline ? 0 : INPUT_VERTICAL_PADDING,
                     paddingLeft: `calc(14px + ${ensureArray(props.startIcon).length} * 20px)`,
-                    paddingRight: `calc(14px + ${ensureArray(props.endIcon).length} * 20px)`,
+                    paddingRight: props.multiline
+                      ? '14px'
+                      : `calc(14px + ${ensureArray(props.endIcon).length} * 20px)`,
                   },
                 },
               },
@@ -155,7 +215,7 @@ export function TextBox(props: TextBoxProps) {
                   {props.startIcon}
                 </MuiInputAdornment>
               ),
-              endAdornment: props.endIcon && (
+              endAdornment: !props.multiline && props.endIcon && (
                 <MuiInputAdornment sx={classes.endAdornmentRoot} position="end">
                   {props.endIcon}
                 </MuiInputAdornment>
@@ -163,7 +223,7 @@ export function TextBox(props: TextBoxProps) {
             },
           }}
           multiline={props.multiline}
-          minRows={props.expanded ? props.maxRows : props.minRows}
+          minRows={minRows}
           maxRows={props.maxRows}
           variant="outlined"
           size="small"

@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { TextBox } from '../TextBox';
 
@@ -32,5 +33,34 @@ describe('TextBox', () => {
     const input = screen.getByRole('textbox');
 
     expect(input).toHaveAttribute('readonly');
+  });
+
+  it('preserves multiline focus and selection when the end icon changes', async () => {
+    const user = userEvent.setup();
+    const props = {
+      title: 'Comment',
+      text: 'Test Content',
+      multiline: true,
+      minRows: 3,
+      maxRows: 5,
+    };
+    const { rerender } = render(<TextBox {...props} />);
+    const input = screen.getByRole('textbox');
+    await user.click(input);
+    await user.keyboard('{ArrowLeft}');
+
+    rerender(<TextBox {...props} endIcon={<button>Undo</button>} />);
+
+    expect(screen.getByRole('textbox')).toBe(input);
+    expect(input).toHaveFocus();
+    expect(input).toHaveProperty('selectionStart', 11);
+    expect(input).toHaveProperty('selectionEnd', 11);
+
+    rerender(<TextBox {...props} />);
+
+    expect(screen.getByRole('textbox')).toBe(input);
+    expect(input).toHaveFocus();
+    expect(input).toHaveProperty('selectionStart', 11);
+    expect(input).toHaveProperty('selectionEnd', 11);
   });
 });
