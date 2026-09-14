@@ -322,10 +322,10 @@ export function Autocomplete<
 
   function renderPopper() {
     const padding = 16;
-    const availableTopHeight = anchorEl
-      ? anchorEl.getBoundingClientRect().top - padding
-      : undefined;
-
+    const availableTopHeight =
+      isPopupOpen && props.forceTop && anchorEl
+        ? anchorEl.getBoundingClientRect().top - padding
+        : undefined;
     return (
       <StyledPopper
         anchorEl={anchorEl}
