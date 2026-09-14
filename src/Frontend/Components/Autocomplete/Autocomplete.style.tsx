@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
@@ -23,7 +24,7 @@ export const Input = styled(MuiTextField, {
   background?: string;
   color?: 'error' | 'warning';
   numberOfEndAdornments: number;
-}>(({ background, color, numberOfEndAdornments }) => {
+}>(({ theme, background, color, numberOfEndAdornments }) => {
   const errorBackground = (() => {
     switch (color) {
       case 'error':
@@ -37,7 +38,7 @@ export const Input = styled(MuiTextField, {
   return {
     '& .MuiInputLabel-root': {
       backgroundColor: background || errorBackground,
-      padding: '0px 3px',
+      padding: theme.spacing(0, 0.75),
       fontSize: '13px',
       top: '1px',
     },
@@ -47,11 +48,11 @@ export const Input = styled(MuiTextField, {
       display: 'flex',
       flexWrap: 'wrap',
       alignItems: 'center',
-      gap: '8px',
+      gap: theme.spacing(2),
       minHeight: '36.67px',
-      paddingTop: '6px',
-      paddingBottom: '6px',
-      paddingLeft: '12px',
+      paddingTop: theme.spacing(1.5),
+      paddingBottom: theme.spacing(1.5),
+      paddingLeft: theme.spacing(1.5),
       paddingRight: `calc(12px + ${numberOfEndAdornments} * 28px)`,
     },
     '& .MuiInputBase-root.Mui-disabled': {

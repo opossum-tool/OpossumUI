@@ -32,6 +32,7 @@ export const ViewContainer = styled(MuiBox)({
 });
 
 export const theme = createTheme({
+  spacing: 4,
   typography: {
     fontFamily: ['Karla Variable', 'sans-serif'].join(','),
     body1: {
