@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import useEventCallback from '@mui/utils/useEventCallback';
 import { useState } from 'react';
 
 import type { PackageInfo } from '../../../../shared/shared-types';
-import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch } from '../../../state/hooks';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import type { PackagePatch } from '../attribution-form.types';
 import { LicenseNameField } from './LicenseNameField';
 import type { LicensePatch } from './LicenseSubPanelAutocomplete';
 import { LicenseTextField } from './LicenseTextField';
@@ -17,6 +17,7 @@ interface LicenseSubPanelProps {
   showHighlight?: boolean;
   onEdit?: Confirm;
   hidden?: boolean;
+  onUpdate: (patch: PackagePatch) => void;
 }
 
 export function LicenseSubPanel({
@@ -24,13 +25,15 @@ export function LicenseSubPanel({
   showHighlight,
   onEdit,
   hidden,
+  onUpdate,
 }: LicenseSubPanelProps) {
   const [showLicenseText, setShowLicenseText] = useState(false);
-  const dispatch = useAppDispatch();
-  const updateLicense = (patch: LicensePatch) =>
-    onEdit?.(() =>
-      dispatch(setTemporaryDisplayPackageInfo({ ...packageInfo, ...patch })),
-    );
+  const updateLicense = useEventCallback((patch: LicensePatch) =>
+    onEdit?.(() => onUpdate(patch)),
+  );
+  const toggleLicenseText = useEventCallback(() =>
+    setShowLicenseText((previous) => !previous),
+  );
 
   return hidden ? null : (
     <>
@@ -42,7 +45,7 @@ export function LicenseSubPanel({
         readOnly={!onEdit}
         forceTop={true}
         showLicenseText={showLicenseText}
-        onToggleLicenseText={() => setShowLicenseText((prev) => !prev)}
+        onToggleLicenseText={toggleLicenseText}
       />
       {showLicenseText && (
         <LicenseTextField

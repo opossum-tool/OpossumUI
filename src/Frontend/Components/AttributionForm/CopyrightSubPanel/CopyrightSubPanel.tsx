@@ -3,14 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
+import useEventCallback from '@mui/utils/useEventCallback';
+import { memo } from 'react';
 
 import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch } from '../../../state/hooks';
 import { isPackageAttributeIncomplete } from '../../../util/input-validation';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../../TextBox/TextBox';
+import type { PackagePatch } from '../attribution-form.types';
 import { attributionColumnClasses } from '../AttributionForm.style';
 
 interface CopyrightSubPanelProps {
@@ -18,6 +19,7 @@ interface CopyrightSubPanelProps {
   showHighlight?: boolean;
   onEdit?: Confirm;
   hidden?: boolean;
+  onUpdate: (patch: PackagePatch) => void;
 }
 
 export function CopyrightSubPanel({
@@ -25,17 +27,51 @@ export function CopyrightSubPanel({
   onEdit,
   showHighlight,
   hidden,
+  onUpdate,
 }: CopyrightSubPanelProps) {
-  const dispatch = useAppDispatch();
   const isIncomplete = isPackageAttributeIncomplete('copyright', packageInfo);
+  const handleChange = useEventCallback(
+    ({
+      target: { value },
+    }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      onEdit?.(() => onUpdate({ copyright: value })),
+  );
 
   return hidden ? null : (
     <MuiBox sx={attributionColumnClasses.panel}>
-      <TextBox
+      <CopyrightInput
         readOnly={!onEdit}
+        text={packageInfo.copyright}
+        showTooltip={!!showHighlight && isIncomplete}
+        error={!!showHighlight && isIncomplete}
+        handleChange={handleChange}
+      />
+    </MuiBox>
+  );
+}
+
+const CopyrightInput = memo(
+  ({
+    text: copyright,
+    readOnly,
+    showTooltip,
+    error,
+    handleChange,
+  }: {
+    text?: string;
+    readOnly: boolean;
+    showTooltip: boolean;
+    error: boolean;
+    handleChange: React.ChangeEventHandler<
+      HTMLInputElement | HTMLTextAreaElement
+    >;
+  }) => {
+    return (
+      <TextBox
+        readOnly={readOnly}
         sx={attributionColumnClasses.textBox}
         title={'Copyright'}
-        text={packageInfo.copyright}
+        text={copyright}
         minRows={3}
         maxRows={5}
         tooltipProps={{
@@ -43,20 +79,11 @@ export function CopyrightSubPanel({
           followCursor: true,
           title: text.generic.incomplete,
         }}
-        showTooltip={showHighlight && isIncomplete}
+        showTooltip={showTooltip}
         multiline
-        handleChange={({ target: { value } }) =>
-          onEdit?.(() =>
-            dispatch(
-              setTemporaryDisplayPackageInfo({
-                ...packageInfo,
-                copyright: value,
-              }),
-            ),
-          )
-        }
-        error={showHighlight && isIncomplete}
+        handleChange={handleChange}
+        error={error}
       />
-    </MuiBox>
-  );
-}
+    );
+  },
+);

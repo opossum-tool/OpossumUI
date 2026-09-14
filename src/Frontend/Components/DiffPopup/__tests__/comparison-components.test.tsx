@@ -16,6 +16,14 @@ import { ComparisonRows } from '../ComparisonRows';
 import type { ComparisonItem } from '../DiffPopup';
 import type { FieldDefinition } from '../DiffPopup.util';
 
+vi.mock('../../../util/backendClient', () => ({
+  backend: {
+    getFrequentLicenseText: {
+      useQuery: () => ({ data: undefined }),
+    },
+  },
+}));
+
 function packageInfo(overrides: Partial<PackageInfo> = {}): PackageInfo {
   return {
     id: 'package',
@@ -39,6 +47,12 @@ function item(overrides: Partial<ComparisonItem> = {}): ComparisonItem {
 const commentField: FieldDefinition = {
   key: 'comment',
   label: text.diffPopup.comment,
+  multiline: true,
+  rows: 5,
+};
+const licenseTextField: FieldDefinition = {
+  key: 'licenseText',
+  label: text.attributionColumn.licenseText,
   multiline: true,
   rows: 5,
 };
@@ -215,6 +229,24 @@ describe('ComparisonFieldEditor', () => {
     expect(onChange).toHaveBeenCalledWith('right', {
       comment: 'confirmed edit',
     });
+  });
+
+  it('keeps license-text edits behind confirmation cancellation', () => {
+    const onChange = vi.fn();
+    const onEdit = vi.fn(() => Promise.resolve(false));
+    renderEditor({
+      field: licenseTextField,
+      draft: packageInfo({ licenseText: 'stored text' }),
+      onChange,
+      onEdit,
+    });
+
+    fireEvent.change(screen.getByTestId('right-licenseText'), {
+      target: { value: 'changed text' },
+    });
+
+    expect(onEdit).toHaveBeenCalledOnce();
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   it('shows undo only after a value changes and restores attribution type labels', async () => {
