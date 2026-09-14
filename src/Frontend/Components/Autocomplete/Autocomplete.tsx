@@ -292,7 +292,7 @@ export function Autocomplete<
           <MuiIconButton
             aria-label={'clear button'}
             size={'small'}
-            sx={{ padding: '4px' }}
+            sx={{ p: 1 }}
             {...(getClearProps() as MuiIconButtonProps)}
           >
             <ClearIcon fontSize={'small'} />
@@ -301,7 +301,7 @@ export function Autocomplete<
         {hasPopupIndicator && (
           <MuiIconButton
             sx={{
-              padding: '2px',
+              p: 0.5,
               transform: popupOpen ? 'rotate(180deg)' : 'rotate(0deg)',
               transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
             }}
