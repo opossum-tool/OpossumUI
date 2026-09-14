@@ -6,6 +6,7 @@ import {
   type Expression,
   expressionBuilder,
   type ExpressionBuilder,
+  type ReferenceExpression,
   sql,
   type Transaction,
 } from 'kysely';
@@ -61,10 +62,6 @@ export function getResourceTree({
       );
 
       const hasActiveFilters = Boolean(search || hasActiveNonSearchFilters);
-
-      const searchLastPart = removeTrailingSlash(search ?? '')
-        .split('/')
-        .at(-1);
 
       /*
        * FILTERED_RESOURCE_TEMP_TABLE contains the resources included by the active filters.
@@ -215,16 +212,12 @@ export function getResourceTree({
                   }
 
                   // Search only: Only highlight where the file matches, not the entire subtree
-                  return eb
-                    .and([
-                      eb(
-                        'r.path',
-                        'like',
-                        `%${removeTrailingSlash(search ?? '')}%`,
-                      ),
-                      eb('r.name', 'like', `%${searchLastPart}%`),
-                    ])
-                    .as('matches_filters');
+                  return getSearchMatchExpression(
+                    eb,
+                    'r.path',
+                    'r.name',
+                    search,
+                  ).as('matches_filters');
                 })
                 .select((eb) =>
                   eb
@@ -303,16 +296,12 @@ export function getResourceTree({
             .as('is_expandable'),
         )
         .select((eb) =>
-          eb
-            .and([
-              eb(
-                'shown_resources.path',
-                'like',
-                `%${removeTrailingSlash(search ?? '')}%`,
-              ),
-              eb('shown_resources.name', 'like', `%${searchLastPart}%`),
-            ])
-            .as('highlight_matches'),
+          getSearchMatchExpression(
+            eb,
+            'shown_resources.path',
+            'shown_resources.name',
+            search,
+          ).as('highlight_matches'),
         );
 
       query = query.orderBy('id');
@@ -352,8 +341,8 @@ export function getResourceTree({
         /*
          * For attribution-filtered queries (linked resources tree), the
          * highlight comes from the search term only, mirroring the main
-         * tree's search-only behavior (path and name match). Without a
-         * search, no node is highlighted.
+         * tree's search-only behavior (getSearchMatchExpression). Without
+         * a search, no node is highlighted.
          */
         matchesFilters: onAttributionUuids
           ? Boolean(search && node.highlight_matches)
@@ -483,6 +472,22 @@ function getFilteredResourcesQuery(
 type TreeNodeQueryType = DB & {
   r: Resource;
 };
+
+function getSearchMatchExpression<TDB, TB extends keyof TDB & string>(
+  eb: ExpressionBuilder<TDB, TB>,
+  pathColumn: ReferenceExpression<TDB, TB>,
+  nameColumn: ReferenceExpression<TDB, TB>,
+  search: string | undefined,
+) {
+  const searchPath = removeTrailingSlash(search ?? '');
+  const searchLastPart = searchPath.split('/').at(-1);
+
+  return eb.and([
+    eb(pathColumn, 'like', `%${searchPath}%`),
+    eb(nameColumn, 'like', `%${searchLastPart}%`),
+  ]);
+}
+
 function getTreeNodeProps(eb: ExpressionBuilder<TreeNodeQueryType, 'r'>) {
   return [
     eb.ref('r.name').as('name'),
