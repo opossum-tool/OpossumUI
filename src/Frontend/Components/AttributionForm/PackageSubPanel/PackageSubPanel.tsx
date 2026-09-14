@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import { styled } from '@mui/system';
+import { useMemo } from 'react';
 
 import type { PackageInfo } from '../../../../shared/shared-types';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
@@ -18,6 +19,7 @@ import {
   PurlField,
   urlActions,
   usePackageFieldDefaults,
+  useUrlEnrichmentAction,
 } from './PackageFields';
 
 const DisplayRow = styled('div')({ display: 'flex', gap: '8px' });
@@ -37,6 +39,21 @@ export function PackageSubPanel({
 }: PackageSubPanelProps) {
   const defaults = usePackageFieldDefaults(packageInfo, !onEdit);
   const editable = !!onEdit;
+  const onEnrich = useUrlEnrichmentAction({ packageInfo, onUpdate, onEdit });
+  const needsEnrichment =
+    editable &&
+    !!packageInfo.packageName &&
+    !!packageInfo.packageType &&
+    !(packageInfo.url && packageInfo.copyright && packageInfo.licenseName);
+  const urlEndAdornment = useMemo(
+    () =>
+      urlActions({
+        url: packageInfo.url,
+        needsEnrichment,
+        onEnrich,
+      }),
+    [needsEnrichment, onEnrich, packageInfo.url],
+  );
   return (
     <MuiBox sx={attributionColumnClasses.panel}>
       <DisplayRow>
@@ -97,12 +114,7 @@ export function PackageSubPanel({
         onEdit={onEdit}
         readOnly={!editable}
         showHighlight={showHighlight}
-        endAdornment={urlActions({
-          packageInfo,
-          onUpdate,
-          onEdit,
-          editable,
-        })}
+        endAdornment={urlEndAdornment}
       />
     </MuiBox>
   );

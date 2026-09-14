@@ -5,6 +5,7 @@
 import MuiBox from '@mui/material/Box';
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
+import useEventCallback from '@mui/utils/useEventCallback';
 
 import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -12,6 +13,7 @@ import { PICKER_MODE_DISABLED_OPACITY } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
 import type { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
+import type { PackagePatch } from './attribution-form.types';
 import { AttributionTypeField } from './attribution-type-field';
 import { AuditingOptions } from './AuditingOptions/AuditingOptions';
 import { Comment } from './Comment/Comment';
@@ -49,6 +51,17 @@ export function AttributionForm({
 }: AttributionFormProps) {
   const dispatch = useAppDispatch();
   const showHighlight = !!onEdit;
+  const updatePackageInfo = useEventCallback((patch: PackagePatch) => {
+    dispatch(
+      setTemporaryDisplayPackageInfo({
+        ...packageInfo,
+        ...patch,
+      }),
+    );
+  });
+  const onAttributionTypeChange = useEventCallback((firstParty: boolean) => {
+    void onEdit?.(() => updatePackageInfo({ firstParty }));
+  });
 
   return (
     <MuiBox
@@ -84,14 +97,20 @@ export function AttributionForm({
         showHighlight={showHighlight}
         onEdit={onEdit}
         hidden={packageInfo.firstParty}
+        onUpdate={updatePackageInfo}
       />
       <LicenseSubPanel
         packageInfo={packageInfo}
         showHighlight={showHighlight}
         onEdit={onEdit}
         hidden={packageInfo.firstParty}
+        onUpdate={updatePackageInfo}
       />
-      <Comment packageInfo={packageInfo} onEdit={onEdit} />
+      <Comment
+        packageInfo={packageInfo}
+        onEdit={onEdit}
+        onUpdate={updatePackageInfo}
+      />
     </MuiBox>
   );
 
@@ -101,27 +120,9 @@ export function AttributionForm({
         <AttributionTypeField
           value={packageInfo.firstParty}
           disabled={!onEdit}
-          onChange={(firstParty) =>
-            onEdit?.(() => {
-              dispatch(
-                setTemporaryDisplayPackageInfo({
-                  ...packageInfo,
-                  firstParty,
-                }),
-              );
-            })
-          }
+          onChange={onAttributionTypeChange}
         />
       </MuiBox>
-    );
-  }
-
-  function updatePackageInfo(patch: Partial<PackageInfo>) {
-    dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...packageInfo,
-        ...patch,
-      }),
     );
   }
 }

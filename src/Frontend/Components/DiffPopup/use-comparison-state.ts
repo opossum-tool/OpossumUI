@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import useEventCallback from '@mui/utils/useEventCallback';
 import { useMemo, useState } from 'react';
 
 import type { Attributions, PackageInfo } from '../../../shared/shared-types';
@@ -94,7 +95,7 @@ export function useComparisonState(
     Object.keys(saveState.acceptedAttributions).length > 0 &&
     !Object.values(saveState.acceptedAttributions).some(isPackageInvalid);
 
-  function onChange(side: Side, patch: PackagePatch) {
+  const onChange = useEventCallback((side: Side, patch: PackagePatch) => {
     if (!isEditable(items[side])) {
       return;
     }
@@ -102,24 +103,26 @@ export function useComparisonState(
       ...current,
       [side]: { ...current[side], ...patch },
     }));
-  }
+  });
 
-  function onCopy(source: Side, destination: Side, key: FormAttribute) {
-    setDrafts((current) => {
-      if (!canTransfer(source, destination, key, current, items, isBusy)) {
-        return current;
-      }
-      return {
-        ...current,
-        [destination]: {
-          ...current[destination],
-          [key]: current[source][key],
-        },
-      };
-    });
-  }
+  const onCopy = useEventCallback(
+    (source: Side, destination: Side, key: FormAttribute) => {
+      setDrafts((current) => {
+        if (!canTransfer(source, destination, key, current, items, isBusy)) {
+          return current;
+        }
+        return {
+          ...current,
+          [destination]: {
+            ...current[destination],
+            [key]: current[source][key],
+          },
+        };
+      });
+    },
+  );
 
-  function onUndo(side: Side, key: FormAttribute) {
+  const onUndo = useEventCallback((side: Side, key: FormAttribute) => {
     if (isBusy || !isEditable(items[side])) {
       return;
     }
@@ -127,9 +130,9 @@ export function useComparisonState(
       ...current,
       [side]: { ...current[side], [key]: items[side].packageInfo[key] },
     }));
-  }
+  });
 
-  function onUndoAuditing(side: Side) {
+  const onUndoAuditing = useEventCallback((side: Side) => {
     if (isBusy || !isEditable(items[side])) {
       return;
     }
@@ -141,7 +144,7 @@ export function useComparisonState(
         AUDITING_PROPERTY_NAMES,
       ),
     }));
-  }
+  });
 
   return {
     ...saveState,

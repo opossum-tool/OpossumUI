@@ -13,8 +13,9 @@ import MuiBox from '@mui/material/Box';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import type { SxProps } from '@mui/system';
+import useEventCallback from '@mui/utils/useEventCallback';
 import { compact, sortBy } from 'lodash-es';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -91,6 +92,8 @@ interface Props {
   sx?: SxProps;
 }
 
+const EMPTY_SUGGESTIONS: Array<PackageInfo> = [];
+
 const AddIconButton = styled(MuiIconButton)({
   backgroundColor: OpossumColors.lightestGrey,
   '&:hover': { backgroundColor: OpossumColors.lightGrey },
@@ -101,7 +104,7 @@ export function PackageAutocomplete({
   title,
   packageInfo,
   endAdornment,
-  defaults = [],
+  defaults = EMPTY_SUGGESTIONS,
   readOnly,
   disabled,
   showHighlight,
@@ -150,6 +153,54 @@ export function PackageAutocomplete({
   }, [attribute, packageInfo, showHighlight]);
 
   const errorMessage = getPackageAttributeInvalidError(attribute, packageInfo);
+  const inputProps = useMemo(() => ({ color, focused }), [color, focused]);
+
+  const onSelection = useEventCallback(async (value: PackageInfo | string) => {
+    if (
+      readOnly ||
+      disabled ||
+      typeof value === 'string' ||
+      value[attribute] === packageInfo[attribute]
+    ) {
+      return;
+    }
+    const update = () =>
+      onUpdate({
+        [attribute]: value[attribute],
+        ...(attribute === 'licenseName' ? { licenseText: '' } : null),
+      });
+    if (onEdit) {
+      await onEdit(update);
+    } else {
+      update();
+    }
+  });
+  const onInput = useEventCallback(async (value: string) => {
+    if (readOnly || disabled || packageInfo[attribute] === value) {
+      return;
+    }
+    const update = () => onUpdate({ [attribute]: value });
+    if (onEdit) {
+      await onEdit(update);
+    } else {
+      update();
+    }
+  });
+  const onSuggestionEnrich = useEventCallback(
+    async (option: Omit<PackageInfo, 'id'>, closePopper: () => void) => {
+      const merged: PackageInfo = { ...packageInfo, ...option };
+      const enrich = async () => {
+        const enriched = (await enrichPackageInfo(merged)) || merged;
+        onUpdate(toPackagePatch(enriched));
+        closePopper();
+      };
+      if (onEdit) {
+        await onEdit(enrich);
+      } else {
+        await enrich();
+      }
+    },
+  );
 
   return (
     <MuiBox
@@ -162,6 +213,75 @@ export function PackageAutocomplete({
         ...sx,
       }}
     >
+      <PackageAutocompleteInput
+        title={title}
+        disabled={disabled}
+        readOnly={readOnly}
+        inputProps={inputProps}
+        inputDataTestId={inputDataTestId}
+        highlighting={highlighting}
+        options={options}
+        forceTop={!!errorMessage}
+        value={attributeValue}
+        attribute={attribute}
+        onSelection={onSelection}
+        onInput={onInput}
+        onSuggestionEnrich={onSuggestionEnrich}
+        endAdornment={endAdornment}
+        disableCloseOnSelect={disableCloseOnSelect}
+      />
+      <ValidationDisplay
+        messages={errorMessage ? [errorMessage] : []}
+        severity="error"
+      />
+    </MuiBox>
+  );
+}
+
+const PackageAutocompleteInput = memo(
+  ({
+    attribute,
+    title,
+    disabled,
+    readOnly,
+    highlighting,
+    options,
+    forceTop,
+    value,
+    inputProps,
+    inputDataTestId,
+    endAdornment,
+    disableCloseOnSelect,
+    onSelection,
+    onInput,
+    onSuggestionEnrich,
+  }: Omit<
+    Props,
+    | 'packageInfo'
+    | 'defaults'
+    | 'showHighlight'
+    | 'onUpdate'
+    | 'onEdit'
+    | 'color'
+    | 'focused'
+    | 'sx'
+  > & {
+    highlighting: 'warning' | undefined;
+    options: Array<PackageInfo>;
+    forceTop: boolean;
+    value: string;
+    inputProps: {
+      color: TextFieldProps['color'];
+      focused: boolean | undefined;
+    };
+    onSelection: (value: PackageInfo | string) => Promise<void>;
+    onInput: (value: string) => Promise<void>;
+    onSuggestionEnrich: (
+      option: Omit<PackageInfo, 'id'>,
+      closePopper: () => void,
+    ) => Promise<void>;
+  }) => {
+    return (
       <Autocomplete<PackageInfo, false, true, true>
         title={title}
         disabled={disabled}
@@ -169,12 +289,13 @@ export function PackageAutocomplete({
         autoHighlight
         disableClearable
         freeSolo
-        inputValue={attributeValue}
-        inputProps={{ color, focused }}
+        inputValue={value}
+        inputProps={inputProps}
         inputDataTestId={inputDataTestId}
         highlighting={highlighting}
         options={options}
-        forceTop={!!errorMessage}
+        forceTop={forceTop}
+        value={value}
         getOptionLabel={(option) =>
           typeof option === 'string' ? option : option[attribute] || ''
         }
@@ -189,22 +310,33 @@ export function PackageAutocomplete({
               ]).join()
         }
         renderOptionStartIcon={(option) => renderOccurrenceCount(option.count)}
-        renderOptionEndIcon={renderOptionEndIcon}
-        value={packageInfo}
+        renderOptionEndIcon={({ id: _id, ...option }, { closePopper }) =>
+          option.synthetic && !readOnly && !disabled ? (
+            <MuiTooltip
+              title={text.attributionColumn.useAutocompleteSuggestion}
+              enterDelay={1000}
+              disableInteractive
+            >
+              <AddIconButton
+                onClick={(event) => {
+                  event.stopPropagation();
+                  void onSuggestionEnrich(option, closePopper);
+                }}
+                size={'small'}
+              >
+                <AddIcon fontSize={'inherit'} color={'primary'} />
+              </AddIconButton>
+            </MuiTooltip>
+          ) : null
+        }
         filterOptions={createFilterOptions({
-          stringify: (option) => {
-            switch (attribute) {
-              case 'packageName':
-                return `${option.packageName || ''}${option.packageNamespace || ''}`;
-              default:
-                return `${option[attribute] || ''} ${option.suffix || ''}`.trim();
-            }
-          },
+          stringify: (option) =>
+            attribute === 'packageName'
+              ? `${option.packageName || ''}${option.packageNamespace || ''}`
+              : `${option[attribute] || ''} ${option.suffix || ''}`.trim(),
         })}
-        isOptionEqualToValue={(option, value) =>
-          typeof value === 'string'
-            ? false
-            : option[attribute] === value[attribute]
+        isOptionEqualToValue={(option, selectedValue) =>
+          option[attribute] === selectedValue
         }
         groupBy={(option) => option.source?.name || text.generic.unknown}
         groupProps={{
@@ -218,102 +350,25 @@ export function PackageAutocomplete({
           ),
         }}
         optionText={{
-          primary: (option) => {
-            if (typeof option === 'string') {
-              return option;
-            }
-
-            const optionValue = option[attribute];
-
-            if (!optionValue) {
-              return '';
-            }
-
-            return `${optionValue} ${option.suffix || ''}`.trim();
-          },
+          primary: (option) =>
+            typeof option === 'string'
+              ? option
+              : `${option[attribute] || ''} ${option.suffix || ''}`.trim(),
           secondary: (option) =>
             typeof option === 'string' ? option : generatePurl(option),
         }}
-        onChange={async (_, value) => {
-          if (readOnly || disabled) {
-            return;
-          }
-          if (
-            typeof value !== 'string' &&
-            value[attribute] !== packageInfo[attribute]
-          ) {
-            const update = () =>
-              onUpdate({
-                [attribute]: value[attribute],
-                ...(attribute === 'licenseName' ? { licenseText: '' } : null),
-              });
-            if (onEdit) {
-              await onEdit(update);
-            } else {
-              update();
-            }
-          }
-        }}
-        onInputChange={async (event, value) => {
-          if (readOnly || disabled) {
-            return;
-          }
-          if (event && packageInfo[attribute] !== value) {
-            const update = () => onUpdate({ [attribute]: value });
-            if (onEdit) {
-              await onEdit(update);
-            } else {
-              update();
-            }
+        onChange={(_, selectedValue) => void onSelection(selectedValue)}
+        onInputChange={(event, inputValue) => {
+          if (event) {
+            void onInput(inputValue);
           }
         }}
         endAdornment={endAdornment}
         disableCloseOnSelect={disableCloseOnSelect}
       />
-      <ValidationDisplay
-        messages={errorMessage ? [errorMessage] : []}
-        severity="error"
-      />
-    </MuiBox>
-  );
-
-  function renderOptionEndIcon(
-    { id, ...option }: PackageInfo,
-    { closePopper }: { closePopper: () => void },
-  ) {
-    if (!option.synthetic || readOnly || disabled) {
-      return null;
-    }
-
-    return (
-      <MuiTooltip
-        title={text.attributionColumn.useAutocompleteSuggestion}
-        enterDelay={1000}
-        disableInteractive
-      >
-        <AddIconButton
-          onClick={async (event) => {
-            event.stopPropagation();
-            const merged: PackageInfo = { ...packageInfo, ...option };
-            const enrich = async () => {
-              const enriched = (await enrichPackageInfo(merged)) || merged;
-              onUpdate(toPackagePatch(enriched));
-              closePopper();
-            };
-            if (onEdit) {
-              await onEdit(enrich);
-            } else {
-              await enrich();
-            }
-          }}
-          size={'small'}
-        >
-          <AddIcon fontSize={'inherit'} color={'primary'} />
-        </AddIconButton>
-      </MuiTooltip>
     );
-  }
-}
+  },
+);
 
 export function toPackagePatch(packageInfo: PackageInfo): PackagePatch {
   return {
