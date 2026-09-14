@@ -3,6 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
+import chroma from 'chroma-js';
+
+import { OpossumColors } from '../../Frontend/shared-styles';
+
+const lightBlueBackground = `rgb(${chroma(OpossumColors.lightBlue).rgb().join(', ')})`;
 
 export class LinkedResourcesTree {
   private readonly node: Locator;
@@ -33,6 +38,28 @@ export class LinkedResourcesTree {
       await expect(
         this.node.getByText(resourceName, { exact: true }),
       ).toBeHidden();
+    },
+    resourceIsHighlighted: async (resourceName: string): Promise<void> => {
+      const node = this.node
+        .getByText(resourceName, { exact: true })
+        .locator('..');
+      await expect(node).toHaveCSS('border-radius', '3px');
+      await expect(node).toHaveCSS('background-color', lightBlueBackground);
+    },
+    resourceIsNotHighlighted: async (resourceName: string): Promise<void> => {
+      const node = this.node
+        .getByText(resourceName, { exact: true })
+        .locator('..');
+      await expect
+        .poll(async () => {
+          if ((await node.count()) === 0) {
+            return true;
+          }
+          return node.evaluate(
+            (el) => getComputedStyle(el).borderRadius !== '3px',
+          );
+        })
+        .toBe(true);
     },
   };
 
