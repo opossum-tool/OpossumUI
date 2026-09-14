@@ -6,7 +6,8 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { useMemo } from 'react';
+import useEventCallback from '@mui/utils/useEventCallback';
+import { memo, useMemo } from 'react';
 
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -64,6 +65,8 @@ const COMMON_PACKAGE_TYPES = [
   'swift',
 ];
 
+const EMPTY_PACKAGE_SUGGESTIONS: Array<PackageInfo> = [];
+
 export type PackageFieldDefaults = Partial<
   Record<PackageAutocompleteAttribute, Array<PackageInfo>>
 >;
@@ -82,23 +85,41 @@ export function usePackageFieldDefaults(
       })),
     [],
   );
-  const debouncedPackageInfo = useDebouncedInput(packageInfo);
+  const packageSearchInput = useMemo(
+    () => ({
+      id: packageInfo.id,
+      criticality: packageInfo.criticality,
+      packageName: packageInfo.packageName,
+      packageNamespace: packageInfo.packageNamespace,
+      packageType: packageInfo.packageType,
+      packageVersion: packageInfo.packageVersion,
+    }),
+    [
+      packageInfo.criticality,
+      packageInfo.id,
+      packageInfo.packageName,
+      packageInfo.packageNamespace,
+      packageInfo.packageType,
+      packageInfo.packageVersion,
+    ],
+  );
+  const debouncedPackageSearchInput = useDebouncedInput(packageSearchInput);
   const { packageNames } = PackageSearchHooks.usePackageNames(
-    debouncedPackageInfo,
+    debouncedPackageSearchInput,
     { disabled },
   );
   const { packageNamespaces } = PackageSearchHooks.usePackageNamespaces(
-    debouncedPackageInfo,
+    debouncedPackageSearchInput,
     { disabled },
   );
   const { packageVersions } = PackageSearchHooks.usePackageVersions(
-    debouncedPackageInfo,
+    debouncedPackageSearchInput,
     { disabled },
   );
   return {
-    packageName: packageNames ?? [],
-    packageNamespace: packageNamespaces ?? [],
-    packageVersion: packageVersions ?? [],
+    packageName: packageNames ?? EMPTY_PACKAGE_SUGGESTIONS,
+    packageNamespace: packageNamespaces ?? EMPTY_PACKAGE_SUGGESTIONS,
+    packageVersion: packageVersions ?? EMPTY_PACKAGE_SUGGESTIONS,
     packageType: packageTypes,
   };
 }
@@ -119,7 +140,60 @@ export function PurlField({
   sx?: object;
 }) {
   const purl = generatePurl(packageInfo);
+  const onCopy = useEventCallback(async () => {
+    await navigator.clipboard.writeText(purl);
+    toast.success(text.attributionColumn.copyToClipboardSuccess);
+  });
+  const onPaste = useEventCallback(async () => {
+    const parsedPurl = parsePurl(await navigator.clipboard.readText());
+    if (parsedPurl) {
+      const patch = {
+        packageName: parsedPurl.name,
+        packageVersion: parsedPurl.version ?? undefined,
+        packageType: parsedPurl.type,
+        packageNamespace: parsedPurl.namespace ?? undefined,
+      };
+      const update = () => {
+        onUpdate(patch);
+        toast.success(text.attributionColumn.copyToClipboardSuccess);
+      };
+      if (onEdit) {
+        await onEdit(update);
+      } else {
+        update();
+      }
+    } else {
+      toast.error(text.attributionColumn.pasteFromClipboardFailed);
+    }
+  });
   return (
+    <PurlInput
+      purl={purl}
+      readOnly={readOnly}
+      disabled={disabled}
+      sx={sx}
+      onCopy={onCopy}
+      onPaste={onPaste}
+    />
+  );
+}
+
+const PurlInput = memo(
+  ({
+    purl,
+    readOnly,
+    disabled,
+    sx,
+    onCopy,
+    onPaste,
+  }: {
+    purl: string;
+    readOnly?: boolean;
+    disabled?: boolean;
+    sx: object;
+    onCopy: () => Promise<void>;
+    onPaste: () => Promise<void>;
+  }) => (
     <TextBox
       sx={sx}
       title={text.attributionColumn.purl}
@@ -129,10 +203,7 @@ export function PurlField({
         <IconButton
           tooltipTitle={text.attributionColumn.copyToClipboard}
           tooltipPlacement="left"
-          onClick={async () => {
-            await navigator.clipboard.writeText(purl);
-            toast.success(text.attributionColumn.copyToClipboardSuccess);
-          }}
+          onClick={() => void onCopy()}
           icon={<ContentCopyIcon sx={clickableIcon} />}
           hidden={!purl}
           aria-label={text.attributionColumn.copyToClipboard}
@@ -142,70 +213,40 @@ export function PurlField({
           tooltipTitle={text.attributionColumn.pasteFromClipboard}
           hidden={readOnly || disabled}
           tooltipPlacement="left"
-          onClick={async () => {
-            const parsedPurl = parsePurl(await navigator.clipboard.readText());
-            if (parsedPurl) {
-              const patch = {
-                packageName: parsedPurl.name,
-                packageVersion: parsedPurl.version ?? undefined,
-                packageType: parsedPurl.type,
-                packageNamespace: parsedPurl.namespace ?? undefined,
-              };
-              const update = () => {
-                onUpdate(patch);
-                toast.success(text.attributionColumn.copyToClipboardSuccess);
-              };
-              if (onEdit) {
-                await onEdit(update);
-              } else {
-                update();
-              }
-            } else {
-              toast.error(text.attributionColumn.pasteFromClipboardFailed);
-            }
-          }}
+          onClick={() => void onPaste()}
           icon={<ContentPasteIcon sx={clickableIcon} />}
           aria-label={text.attributionColumn.pasteFromClipboard}
           key={text.attributionColumn.pasteFromClipboard}
         />,
       ]}
     />
-  );
-}
+  ),
+);
 
 export function urlActions({
-  packageInfo,
-  onUpdate,
-  onEdit,
-  editable,
+  url,
+  needsEnrichment,
+  onEnrich,
 }: {
-  packageInfo: PackageInfo;
-  onUpdate: (patch: PackagePatch) => void;
-  onEdit?: Confirm;
-  editable: boolean;
+  url?: string;
+  needsEnrichment: boolean;
+  onEnrich: () => Promise<void>;
 }) {
-  const needsEnrichment =
-    editable &&
-    !!packageInfo.packageName &&
-    !!packageInfo.packageType &&
-    !(packageInfo.url && packageInfo.copyright && packageInfo.licenseName);
   return [
     ...(needsEnrichment
       ? [
-          <EnrichButton
-            packageInfo={packageInfo}
-            onUpdate={onUpdate}
-            onEdit={onEdit}
+          <EnrichButtonFromAction
+            onEnrich={onEnrich}
             key={text.attributionColumn.getUrlAndLegal}
           />,
         ]
       : []),
-    ...(packageInfo.url
+    ...(url
       ? [
           <IconButton
             tooltipTitle={text.attributionColumn.openLinkInBrowser}
             tooltipPlacement="left"
-            onClick={() => openUrl(packageInfo.url)}
+            onClick={() => openUrl(url)}
             icon={<OpenInNewIcon aria-label="Url icon" sx={clickableIcon} />}
             key={text.attributionColumn.openLinkInBrowser}
           />,
@@ -214,7 +255,7 @@ export function urlActions({
   ];
 }
 
-function EnrichButton({
+export function useUrlEnrichmentAction({
   packageInfo,
   onUpdate,
   onEdit,
@@ -226,23 +267,31 @@ function EnrichButton({
   const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo({
     showToasts: true,
   });
+  return useEventCallback(async () => {
+    const enrich = async () => {
+      const enriched = await enrichPackageInfo(packageInfo);
+      if (enriched) {
+        onUpdate(toPackagePatch(enriched));
+      }
+    };
+    if (onEdit) {
+      await onEdit(enrich);
+    } else {
+      await enrich();
+    }
+  });
+}
+
+function EnrichButtonFromAction({
+  onEnrich,
+}: {
+  onEnrich: () => Promise<void>;
+}) {
   return (
     <IconButton
       tooltipTitle={text.attributionColumn.getUrlAndLegal}
       tooltipPlacement="left"
-      onClick={async () => {
-        const enrich = async () => {
-          const enriched = await enrichPackageInfo(packageInfo);
-          if (enriched) {
-            onUpdate(toPackagePatch(enriched));
-          }
-        };
-        if (onEdit) {
-          await onEdit(enrich);
-        } else {
-          await enrich();
-        }
-      }}
+      onClick={() => void onEnrich()}
       icon={<AutoFixHighIcon sx={clickableIcon} />}
     />
   );

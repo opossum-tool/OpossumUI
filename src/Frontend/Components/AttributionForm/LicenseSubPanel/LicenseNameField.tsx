@@ -5,6 +5,7 @@
 import NotesIcon from '@mui/icons-material/Notes';
 import { Badge, ToggleButton } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import { memo } from 'react';
 
 import { LicenseSubPanelAutocomplete } from './LicenseSubPanelAutocomplete';
 
@@ -15,41 +16,43 @@ interface LicenseNameFieldProps extends React.ComponentProps<
   onToggleLicenseText: () => void;
 }
 
-export function LicenseNameField({
-  licenseText,
-  showLicenseText,
-  onToggleLicenseText,
-  ...autocompleteProps
-}: LicenseNameFieldProps) {
-  return (
-    <MuiBox
-      sx={{
-        display: 'flex',
-        alignItems: 'start',
-        gap: '8px',
-      }}
-    >
-      <LicenseSubPanelAutocomplete
-        licenseText={licenseText}
-        {...autocompleteProps}
-      />
-      <ToggleButton
-        value={'license-text'}
-        selected={showLicenseText}
-        onChange={onToggleLicenseText}
-        size={'small'}
-        aria-label={'license-text-toggle-button'}
-        aria-expanded={showLicenseText}
+export const LicenseNameField = memo(
+  ({
+    licenseText,
+    showLicenseText,
+    onToggleLicenseText,
+    ...autocompleteProps
+  }: LicenseNameFieldProps) => {
+    return (
+      <MuiBox
+        sx={{
+          display: 'flex',
+          alignItems: 'start',
+          gap: '8px',
+        }}
       >
-        <Badge
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          color={'info'}
-          variant={'dot'}
-          invisible={!licenseText}
+        <LicenseSubPanelAutocomplete
+          licenseText={licenseText}
+          {...autocompleteProps}
+        />
+        <ToggleButton
+          value={'license-text'}
+          selected={showLicenseText}
+          onChange={onToggleLicenseText}
+          size={'small'}
+          aria-label={'license-text-toggle-button'}
+          aria-expanded={showLicenseText}
         >
-          <NotesIcon />
-        </Badge>
-      </ToggleButton>
-    </MuiBox>
-  );
-}
+          <Badge
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            color={'info'}
+            variant={'dot'}
+            invisible={!licenseText}
+          >
+            <NotesIcon />
+          </Badge>
+        </ToggleButton>
+      </MuiBox>
+    );
+  },
+);
