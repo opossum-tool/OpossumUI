@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql, type SqlBool, type Transaction } from 'kysely';
+import type { SqlBool, Transaction } from 'kysely';
 
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
@@ -141,10 +141,15 @@ export async function getNodePathsToExpand({
             .innerJoin('nodes', 'resource.parent_id', 'nodes.id')
             .select(['resource.id', GET_LEGACY_RESOURCE_PATH])
             .where('resource.can_have_children', '=', 1)
-            .where(
-              sql<number>`(select count(*) from resource where parent_id = nodes.id)`,
-              '=',
-              1,
+            .where((eb) =>
+              eb(
+                eb
+                  .selectFrom('resource as child')
+                  .select((eb) => eb.fn.countAll<number>().as('count'))
+                  .whereRef('child.parent_id', '=', 'nodes.id'),
+                '=',
+                1,
+              ),
             ),
         ),
     )
