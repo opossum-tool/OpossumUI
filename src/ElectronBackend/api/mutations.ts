@@ -20,6 +20,7 @@ import {
   removeManualOrExternalCaaFromResources,
 } from './progressBarUtils';
 import type { QueryName } from './queries';
+import { invalidateBackendQueryCaches } from './queryInvalidations';
 import {
   cloneMixedAttributionsForWritableResources,
   ensureAttributionsAreLinkedOnMultipleResources,
@@ -124,11 +125,13 @@ export type MutationInvalidation = {
   awaitRefetch?: boolean;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type MutationFunction = (params?: any) => Promise<{
+export type MutationResponse = {
+  invalidates?: ReadonlyArray<MutationInvalidation>;
   result?: unknown;
-  invalidates?: Array<MutationInvalidation>;
-}>;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type MutationFunction = (params?: any) => Promise<MutationResponse>;
 
 const PROGRESS_BAR_INVALIDATIONS: Array<MutationInvalidation> = [
   { queryName: 'getAttributionProgressBarData' },
@@ -177,7 +180,7 @@ const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidation> = [
   { queryName: 'getResourceInfoOnAttributions' },
 ];
 
-export const mutations = {
+const mutationImplementations = {
   async deleteAttributions(params: AttributionSelectionWithFocus) {
     const result = await getDb()
       .transaction()
@@ -587,6 +590,31 @@ export const mutations = {
     return setAttributionsResolvedStatus(params, false);
   },
 } satisfies Record<string, MutationFunction>;
+
+function decorateMutation<P, R extends MutationResponse>(
+  handler: (params: P) => Promise<R>,
+) {
+  return async (params: P): Promise<R> => {
+    const response = await handler(params);
+    invalidateBackendQueryCaches(response.invalidates ?? []);
+    return response;
+  };
+}
+
+export function decorateMutationRegistry<
+  T extends Record<string, MutationFunction>,
+>(implementations: T): T {
+  // Object.entries and Object.fromEntries cannot preserve each key's function
+  // parameter and return correlation, so restore the mapped registry shape.
+  return Object.fromEntries(
+    Object.entries(implementations).map(([name, implementation]) => [
+      name,
+      decorateMutation(implementation),
+    ]),
+  ) as T;
+}
+
+export const mutations = decorateMutationRegistry(mutationImplementations);
 
 async function setAttributionsResolvedStatus(
   params: { selection: AttributionSelection },
