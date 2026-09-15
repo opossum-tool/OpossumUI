@@ -4,11 +4,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiLinearProgress from '@mui/material/LinearProgress';
 import { useLayoutEffect } from 'react';
 
-import { text } from '../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { initializePackageInfoEditing } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -20,16 +18,11 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
 import { usePickerMode } from '../../state/variables/use-picker-mode';
-import { useCompareToOriginal } from '../../util/use-compare-to-original';
 import { useSelectedAttribution } from '../../util/use-selected-attribution';
 import { useIsSelectedResourceReadonly } from '../../util/use-selected-resource';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
-import {
-  ConfirmationDialog,
-  useConfirmationDialog,
-} from '../ConfirmationDialog/ConfirmationDialog';
-import { WasPreferredIcon } from '../Icons/Icons';
 import { ButtonRow } from './ButtonRow/ButtonRow';
+import { useConfirmAttributionEdit } from './use-confirm-attribution-edit';
 
 const classes = {
   root: {
@@ -83,16 +76,9 @@ export function AttributionDetails() {
     selectedResourceId,
   ]);
 
-  const compareToOriginal = useCompareToOriginal(temporaryDisplayPackageInfo);
-
-  const wasPreferred =
-    compareToOriginal.hasOriginal &&
-    compareToOriginal.isEqualToOriginal === true &&
-    temporaryDisplayPackageInfo.originalAttributionWasPreferred;
-  const [confirmEditWasPreferredRef, confirmEditWasPreferred] =
-    useConfirmationDialog({
-      skip: !wasPreferred,
-    });
+  const confirmAttributionEdit = useConfirmAttributionEdit(
+    temporaryDisplayPackageInfo,
+  );
   const pickerMode = usePickerMode();
 
   const isSelectedAttributionLoading =
@@ -135,7 +121,7 @@ export function AttributionDetails() {
       )}
       <AttributionForm
         packageInfo={temporaryDisplayPackageInfo}
-        onEdit={isEditable ? confirmEditWasPreferred : undefined}
+        onEdit={isEditable ? confirmAttributionEdit.confirm : undefined}
         dimmed={pickerMode.isActive}
       />
       {!isSelectedAttributionLoading && (
@@ -145,19 +131,7 @@ export function AttributionDetails() {
           packageInfo={temporaryDisplayPackageInfo}
         />
       )}
-      <ConfirmationDialog
-        ref={confirmEditWasPreferredRef}
-        message={
-          <MuiDialogContentText
-            style={{ display: 'flex', alignItems: 'center' }}
-          >
-            {text.modifyWasPreferredPopup.message}
-            <WasPreferredIcon />
-            {'.'}
-          </MuiDialogContentText>
-        }
-        title={text.modifyWasPreferredPopup.title}
-      />
+      {confirmAttributionEdit.dialog}
     </MuiBox>
   );
 }

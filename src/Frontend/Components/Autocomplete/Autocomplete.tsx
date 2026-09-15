@@ -56,6 +56,7 @@ type AutocompleteProps<
     endAdornment?: React.ReactNode | Array<React.ReactNode>;
     highlighting?: 'error' | 'warning';
     inputRef?: Ref<HTMLInputElement>;
+    inputDataTestId?: string;
     inputProps?: MuiInputProps;
     inputReadOnly?: boolean;
     onInputChange?: (
@@ -94,6 +95,7 @@ export function Autocomplete<
   hidePopupIndicator,
   hideTags,
   inputRef,
+  inputDataTestId,
   inputProps: customInputProps,
   inputReadOnly,
   multiple,
@@ -231,6 +233,7 @@ export function Autocomplete<
               inputLabel: getInputLabelProps(),
               htmlInput: {
                 'aria-label': props['aria-label'],
+                ...(inputDataTestId && { 'data-testid': inputDataTestId }),
                 sx: {
                   overflowX: 'hidden',
                   textOverflow: 'ellipsis',
@@ -319,10 +322,10 @@ export function Autocomplete<
 
   function renderPopper() {
     const padding = 16;
-    const availableTopHeight = anchorEl
-      ? anchorEl.getBoundingClientRect().top - padding
-      : undefined;
-
+    const availableTopHeight =
+      isPopupOpen && props.forceTop && anchorEl
+        ? anchorEl.getBoundingClientRect().top - padding
+        : undefined;
     return (
       <StyledPopper
         anchorEl={anchorEl}

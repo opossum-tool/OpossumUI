@@ -4,19 +4,17 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiDivider from '@mui/material/Divider';
-import MuiToggleButton from '@mui/material/ToggleButton';
-import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
+import useEventCallback from '@mui/utils/useEventCallback';
 
-import type { FormAttribute } from '../../../shared/attribution-comparison';
 import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { AttributionType } from '../../enums/enums';
 import { PICKER_MODE_DISABLED_OPACITY } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
 import type { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
-import type { TextBoxProps } from '../TextBox/TextBox';
+import type { PackagePatch } from './attribution-form.types';
+import { AttributionTypeField } from './attribution-type-field';
 import { AuditingOptions } from './AuditingOptions/AuditingOptions';
 import { Comment } from './Comment/Comment';
 import { CopyrightSubPanel } from './CopyrightSubPanel/CopyrightSubPanel';
@@ -38,37 +36,32 @@ const classes = {
   },
 };
 
-export type AttributeConfig = Pick<
-  TextBoxProps,
-  'color' | 'focused' | 'endIcon'
->;
-
-export type AttributionFormConfig = Partial<
-  Record<FormAttribute, AttributeConfig>
->;
-
 interface AttributionFormProps {
   packageInfo: PackageInfo;
   onEdit?: Confirm;
-  variant?: 'default' | 'diff-original' | 'diff-current';
   label?: string;
-  config?: AttributionFormConfig;
   dimmed?: boolean;
-  sectionPrefix?: string;
 }
 
 export function AttributionForm({
   packageInfo,
   label,
   onEdit,
-  variant = 'default',
-  config,
   dimmed,
-  sectionPrefix = '',
 }: AttributionFormProps) {
   const dispatch = useAppDispatch();
-  const isDiff = variant === 'diff-original' || variant === 'diff-current';
   const showHighlight = !!onEdit;
+  const updatePackageInfo = useEventCallback((patch: PackagePatch) => {
+    dispatch(
+      setTemporaryDisplayPackageInfo({
+        ...packageInfo,
+        ...patch,
+      }),
+    );
+  });
+  const onAttributionTypeChange = useEventCallback((firstParty: boolean) => {
+    void onEdit?.(() => updatePackageInfo({ firstParty }));
+  });
 
   return (
     <MuiBox
@@ -79,54 +72,44 @@ export function AttributionForm({
       }}
       aria-label={label}
     >
-      {!isDiff && (
-        <AuditingOptions packageInfo={packageInfo} isEditable={!!onEdit} />
-      )}
+      <AuditingOptions
+        packageInfo={packageInfo}
+        isEditable={!!onEdit}
+        onUpdate={updatePackageInfo}
+      />
       <MuiDivider variant={'middle'}>
         <MuiTypography>
-          {text.attributionColumn.sectionTitle(
-            sectionPrefix,
-            text.attributionColumn.packageCoordinates,
-          )}
+          {text.attributionColumn.packageCoordinates}
         </MuiTypography>
       </MuiDivider>
       <PackageSubPanel
         packageInfo={packageInfo}
         showHighlight={showHighlight}
         onEdit={onEdit}
-        isDiff={isDiff}
-        config={config}
+        onUpdate={updatePackageInfo}
       />
       <MuiDivider variant={'middle'}>
-        <MuiTypography>
-          {text.attributionColumn.sectionTitle(
-            sectionPrefix,
-            text.attributionColumn.legalInformation,
-          )}
-        </MuiTypography>
+        <MuiTypography>{text.attributionColumn.legalInformation}</MuiTypography>
       </MuiDivider>
       {renderAttributionType()}
       <CopyrightSubPanel
         packageInfo={packageInfo}
         showHighlight={showHighlight}
         onEdit={onEdit}
-        expanded={isDiff}
-        hidden={isDiff ? false : packageInfo.firstParty}
-        config={config?.copyright}
+        hidden={packageInfo.firstParty}
+        onUpdate={updatePackageInfo}
       />
       <LicenseSubPanel
         packageInfo={packageInfo}
         showHighlight={showHighlight}
         onEdit={onEdit}
-        expanded={isDiff}
-        hidden={isDiff ? false : packageInfo.firstParty}
-        config={config}
+        hidden={packageInfo.firstParty}
+        onUpdate={updatePackageInfo}
       />
       <Comment
         packageInfo={packageInfo}
         onEdit={onEdit}
-        expanded={isDiff}
-        config={config?.comment}
+        onUpdate={updatePackageInfo}
       />
     </MuiBox>
   );
@@ -134,46 +117,11 @@ export function AttributionForm({
   function renderAttributionType() {
     return (
       <MuiBox sx={classes.attributionTypeContainer}>
-        <MuiToggleButtonGroup
-          value={packageInfo.firstParty || false}
-          exclusive
-          onChange={(_, newValue) =>
-            onEdit?.(() => {
-              // newValue is null when clicking on the already selected tab
-              if (newValue !== null) {
-                dispatch(
-                  setTemporaryDisplayPackageInfo({
-                    ...packageInfo,
-                    firstParty: newValue,
-                  }),
-                );
-              }
-            })
-          }
-          size={'small'}
-          fullWidth
+        <AttributionTypeField
+          value={packageInfo.firstParty}
           disabled={!onEdit}
-          color={config?.firstParty?.color}
-        >
-          <MuiToggleButton value={false} disableRipple>
-            {AttributionType.ThirdParty}
-          </MuiToggleButton>
-          <MuiToggleButton value={true} disableRipple>
-            {AttributionType.FirstParty}
-          </MuiToggleButton>
-        </MuiToggleButtonGroup>
-        {!config?.firstParty?.endIcon ? null : (
-          <MuiBox
-            sx={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-            }}
-          >
-            {config.firstParty.endIcon}
-          </MuiBox>
-        )}
+          onChange={onAttributionTypeChange}
+        />
       </MuiBox>
     );
   }
