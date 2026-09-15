@@ -5,10 +5,8 @@
 import { keepPreviousData, skipToken } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 
-import type {
-  ResourceTreeFilters,
-  ResourceTreeNodeData,
-} from '../../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
 import { useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { backend } from '../../../util/backendClient';

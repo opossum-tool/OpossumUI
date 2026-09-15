@@ -7,10 +7,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
 import { type MouseEvent, useEffect, useRef } from 'react';
 
-import type {
-  ResourceTreeFilters,
-  ResourceTreeNodeData,
-} from '../../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
 import { OpossumColors } from '../../../shared-styles';
 import { getNodeIdsToExpand } from './VirtualizedTreeNode.util';
 
