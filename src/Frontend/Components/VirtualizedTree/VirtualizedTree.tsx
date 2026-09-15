@@ -6,10 +6,8 @@ import type { SxProps } from '@mui/system';
 import type { MouseEvent } from 'react';
 
 import type { QueryResult } from '../../../ElectronBackend/api/queries';
-import type {
-  ResourceTreeFilters,
-  ResourceTreeNodeData,
-} from '../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeNodeData } from '../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeFilters } from '../../../ElectronBackend/api/resourceTreeFilters';
 import { List } from '../List/List';
 import { SearchList } from '../SearchList/SearchList';
 import {

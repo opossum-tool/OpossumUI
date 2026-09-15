@@ -12,7 +12,7 @@ import {
   type FilteredTable,
   invalidateFilteredResourcesCache,
   withFilteredResourcesTable,
-} from '../resourceTree';
+} from '../resourceTreeFilters';
 
 const firstFilters = { search: 'first' };
 const secondFilters = { search: 'second' };
