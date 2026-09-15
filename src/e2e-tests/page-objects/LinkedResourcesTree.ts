@@ -56,7 +56,10 @@ export class LinkedResourcesTree {
             return true;
           }
           return node.evaluate(
-            (el) => getComputedStyle(el).borderRadius !== '3px',
+            (el, expectedBackground) =>
+              getComputedStyle(el).borderRadius !== '3px' &&
+              getComputedStyle(el).backgroundColor !== expectedBackground,
+            lightBlueBackground,
           );
         })
         .toBe(true);

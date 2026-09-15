@@ -77,22 +77,20 @@ test('shows only linked resources matching search', async ({
   await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
 
   await linkedResourcesTree.searchField.fill(resourceName4);
-  await linkedResourcesTree.assert.resourceIsHighlighted(resourceName4);
-  await linkedResourcesTree.assert.resourceIsNotHighlighted(resourceName1);
   await linkedResourcesTree.assert.resourceIsHidden(resourceName1);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
+  await linkedResourcesTree.assert.resourceIsHighlighted(resourceName4);
 
   await linkedResourcesTree.clearSearchButton.click();
-  await linkedResourcesTree.assert.resourceIsNotHighlighted(resourceName1);
-  await linkedResourcesTree.assert.resourceIsNotHighlighted(resourceName4);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName1);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
+  await linkedResourcesTree.assert.resourceIsNotHighlighted(resourceName1);
+  await linkedResourcesTree.assert.resourceIsNotHighlighted(resourceName4);
 
   await linkedResourcesTree.goto(resourceName1);
   await window.keyboard.press(`${modKey}+F`);
   await window.keyboard.type(resourceName4);
-  await linkedResourcesTree.assert.resourceIsHighlighted(resourceName4);
-  await linkedResourcesTree.assert.resourceIsNotHighlighted(resourceName1);
   await linkedResourcesTree.assert.resourceIsHidden(resourceName1);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
+  await linkedResourcesTree.assert.resourceIsHighlighted(resourceName4);
 });
