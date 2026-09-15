@@ -24,9 +24,11 @@ export const LinkedResourcesTreeNode: React.FC<TreeNode> = ({ resource }) => {
 
   return (
     <MuiBox
+      data-testid={`linked-resources-tree-node-${resource.id}`}
       sx={{
         ...treeItemClasses.labelRoot,
         ...(resource.isReadonly ? readonlyStyle : {}),
+        ...(resource.matchesFilters ? treeItemClasses.matchesFilters : {}),
       }}
     >
       {showFolderIcon ? (
