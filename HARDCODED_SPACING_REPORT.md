@@ -36,37 +36,37 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 ### Autocomplete
 
-| File                                                               | Line | Property        | Value      | Converted to            |
-| ------------------------------------------------------------------ | ---- | --------------- | ---------- | ----------------------- |
-| `src/Frontend/Components/Autocomplete/Listbox/Listbox.tsx:139`     | 139  | `paddingTop`    | `2px`      | `sx={{ p: 0.5 }}`         |
-| `src/Frontend/Components/Autocomplete/Listbox/Listbox.tsx:185`     | 185  | `gap`           | `12px`     | `sx={{ gap: 3 }}`       |
-| `src/Frontend/Components/Autocomplete/Listbox/Listbox.style.ts:14` | 14   | `gap`           | `8px`      | `theme.spacing(2)`      |
-| `src/Frontend/Components/Autocomplete/Listbox/Listbox.style.ts:15` | 15   | `padding`       | `4px 10px` | `theme.spacing(1, 2.5)`   |
+| File                                                               | Line | Property        | Value      | Converted to             |
+| ------------------------------------------------------------------ | ---- | --------------- | ---------- | ------------------------ |
+| `src/Frontend/Components/Autocomplete/Listbox/Listbox.tsx:139`     | 139  | `paddingTop`    | `2px`      | `sx={{ p: 0.5 }}`        |
+| `src/Frontend/Components/Autocomplete/Listbox/Listbox.tsx:185`     | 185  | `gap`           | `12px`     | `sx={{ gap: 3 }}`        |
+| `src/Frontend/Components/Autocomplete/Listbox/Listbox.style.ts:14` | 14   | `gap`           | `8px`      | `theme.spacing(2)`       |
+| `src/Frontend/Components/Autocomplete/Listbox/Listbox.style.ts:15` | 15   | `padding`       | `4px 10px` | `theme.spacing(1, 2.5)`  |
 | `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:40`   | 40   | `padding`       | `0px 3px`  | `theme.spacing(0, 0.75)` |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:50`   | 50   | `gap`           | `8px`      | `theme.spacing(1)`      |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:52`   | 52   | `paddingTop`    | `6px`      | `theme.spacing(1.5)`      |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:53`   | 53   | `paddingBottom` | `6px`      | `theme.spacing(1.5)`      |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:54`   | 54   | `paddingLeft`   | `12px`     | `theme.spacing(3)`      |
-| `src/Frontend/Components/Autocomplete/Autocomplete.tsx:295`        | 295  | `padding`       | `4px`      | `sx={{ p: 1 }}`         |
-| `src/Frontend/Components/Autocomplete/Autocomplete.tsx:304`        | 304  | `padding`       | `2px`      | `sx={{ p: 0.5 }}`         |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:50`   | 50   | `gap`           | `8px`      | `theme.spacing(1)`       |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:52`   | 52   | `paddingTop`    | `6px`      | `theme.spacing(1.5)`     |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:53`   | 53   | `paddingBottom` | `6px`      | `theme.spacing(1.5)`     |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:54`   | 54   | `paddingLeft`   | `12px`     | `theme.spacing(3)`       |
+| `src/Frontend/Components/Autocomplete/Autocomplete.tsx:295`        | 295  | `padding`       | `4px`      | `sx={{ p: 1 }}`          |
+| `src/Frontend/Components/Autocomplete/Autocomplete.tsx:304`        | 304  | `padding`       | `2px`      | `sx={{ p: 0.5 }}`        |
 
 ### Checkbox
 
-| File                                               | Line | Property     | Value | Converted to |
-| -------------------------------------------------- | ---- | ------------ | ----- | ------------ |
-| `src/Frontend/Components/Checkbox/Checkbox.tsx:60` | 60   | `sx.padding` | `7px` | *            |
+| File                                               | Line | Property     | Value | Converted to       |
+| -------------------------------------------------- | ---- | ------------ | ----- | ------------------ |
+| `src/Frontend/Components/Checkbox/Checkbox.tsx:60` | 60   | `sx.padding` | `7px` | `sx={{ p: 1.75 }}` |
 
 ### ConfirmAttributionActionPopup
 
-| File                                                                                              | Line | Property | Value | Converted to |
-| ------------------------------------------------------------------------------------------------- | ---- | -------- | ----- | ------------ |
-| `src/Frontend/Components/ConfirmAttributionActionPopup/ConfirmAttributionActionPopup.style.ts:12` | 12   | `gap`    | `8px` | *            |
+| File                                                                                              | Line | Property | Value | Converted to       |
+| ------------------------------------------------------------------------------------------------- | ---- | -------- | ----- | ------------------ |
+| `src/Frontend/Components/ConfirmAttributionActionPopup/ConfirmAttributionActionPopup.style.ts:12` | 12   | `gap`    | `8px` | `theme.spacing(2)` |
 
 ### ConfirmReplacePopup
 
-| File                                                                      | Line | Property | Value | Converted to |
-| ------------------------------------------------------------------------- | ---- | -------- | ----- | ------------ |
-| `src/Frontend/Components/ConfirmReplacePopup/ConfirmReplacePopup.tsx:152` | 152  | `sx.gap` | `8px` | *            |
+| File                                                                      | Line | Property | Value | Converted to    |
+| ------------------------------------------------------------------------- | ---- | -------- | ----- | --------------- |
+| `src/Frontend/Components/ConfirmReplacePopup/ConfirmReplacePopup.tsx:152` | 152  | `sx.gap` | `8px` | `sx={{ p: 2 }}` |
 
 ### VirtualizedTree
 
@@ -79,9 +79,9 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 ### ErrorFallback
 
-| File                                                              | Line | Property | Value  | Converted to |
-| ----------------------------------------------------------------- | ---- | -------- | ------ | ------------ |
-| `src/Frontend/Components/ErrorFallback/ErrorFallback.style.ts:19` | 19   | `gap`    | `20px` | *            |
+| File                                                              | Line | Property | Value  | Converted to     |
+| ----------------------------------------------------------------- | ---- | -------- | ------ | ---------------- |
+| `src/Frontend/Components/ErrorFallback/ErrorFallback.style.ts:19` | 19   | `gap`    | `20px` | `sx={{ mt: 5 }}` |
 
 ### FilePathInput
 

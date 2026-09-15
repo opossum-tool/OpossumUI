@@ -6,9 +6,11 @@ import { styled } from '@mui/material';
 
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
-export const StyledConfirmAttributionActionPopup = styled(NotificationPopup)({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '8px',
-  height: '400px',
-});
+export const StyledConfirmAttributionActionPopup = styled(NotificationPopup)(
+  ({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2),
+    height: '400px',
+  }),
+);

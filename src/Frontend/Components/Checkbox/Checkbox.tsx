@@ -57,7 +57,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
           }}
           disableRipple={disableRipple}
           size={'small'}
-          sx={{ padding: '7px' }}
+          sx={{ p: 1.75 }}
         />
       }
     />
