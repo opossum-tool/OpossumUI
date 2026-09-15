@@ -9,10 +9,8 @@ import type { SxProps } from '@mui/system';
 import { remove } from 'lodash-es';
 import { type MouseEvent, useCallback, useEffect, useState } from 'react';
 
-import type {
-  ResourceTreeFilters,
-  ResourceTreeNodeData,
-} from '../../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
 import { text } from '../../../../shared/text';
 import { ROOT_PATH } from '../../../shared-constants';
 import {

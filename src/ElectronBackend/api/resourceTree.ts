@@ -2,48 +2,27 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type Expression,
-  expressionBuilder,
-  type ExpressionBuilder,
-  type Kysely,
-  sql,
-  type SqlBool,
-  type Transaction,
-} from 'kysely';
+import { type ExpressionBuilder, sql, type Transaction } from 'kysely';
 
 import { getDb } from '../db/db';
 import type { DB, Resource } from '../db/generated/databaseTypes';
 import {
-  getOnlyExternalFilesQuery,
-  getOnlyPreSelectedManualFilesQuery,
-} from './progressBarUtils';
-import {
-  GET_LEGACY_RESOURCE_PATH,
-  getResourceOrThrow,
-  removeTrailingSlash,
-  toCanonicalLicenseName,
-} from './utils';
+  FILTERED_RESOURCE_TEMP_TABLE,
+  type FilteredTable,
+  getFilteredResourcesQuery,
+  getMatchesFiltersExpression,
+  getSearchMatchExpression,
+  getVisibleWithFiltersExpression,
+  hasActiveFilters,
+  type LicenseFilter,
+  type ResourceTreeFilters,
+  withFilteredResourcesTable,
+} from './resourceTreeFilters';
+import { getResourceOrThrow, removeTrailingSlash } from './utils';
 
 export type ResourceTreeNodeData = Awaited<
   ReturnType<typeof getResourceTree>
 >['result']['treeNodes'][number];
-
-const FILTERED_RESOURCE_TEMP_TABLE = 'filtered_resources';
-export type FilteredTable = { filtered_resources: { id: number } };
-export type LicenseFilter = { licenseName: string; external: boolean };
-export type ResourceTreeFilters = {
-  search?: string;
-  onlyUnreviewedFiles?: boolean;
-  licenseFilter?: LicenseFilter;
-  onAttributionUuids?: Array<string>;
-  onlyWritable?: boolean;
-};
-type FilteredResourcesCacheEntry = { key?: string };
-const filteredResourcesCaches = new WeakMap<
-  Kysely<DB>,
-  FilteredResourcesCacheEntry
->();
 
 export async function getResourceTree({
   search,
@@ -286,140 +265,6 @@ export async function getResourceTree({
     : db.transaction().execute(runQuery);
 }
 
-function getFilterKey(filters: ResourceTreeFilters) {
-  return JSON.stringify([
-    filters.search,
-    filters.licenseFilter,
-    filters.onlyUnreviewedFiles,
-    filters.onAttributionUuids,
-    filters.onlyWritable,
-  ]);
-}
-
-export function invalidateFilteredResourcesCache(db: Kysely<DB>) {
-  filteredResourcesCaches.delete(db);
-}
-
-function hasActiveNonSearchFilters(filters: ResourceTreeFilters) {
-  return Boolean(
-    filters.licenseFilter ||
-    filters.onAttributionUuids ||
-    filters.onlyUnreviewedFiles ||
-    filters.onlyWritable,
-  );
-}
-
-function hasActiveFilters(filters: ResourceTreeFilters) {
-  return Boolean(filters.search || hasActiveNonSearchFilters(filters));
-}
-
-async function prepareFilteredResourcesTable(
-  trx: Transaction<DB>,
-  filters: ResourceTreeFilters,
-): Promise<void> {
-  await trx.schema.dropTable(FILTERED_RESOURCE_TEMP_TABLE).ifExists().execute();
-  await trx.schema
-    .createTable(FILTERED_RESOURCE_TEMP_TABLE)
-    .temporary()
-    .as(getFilteredResourcesQuery(trx, filters))
-    .execute();
-  await trx.schema
-    .createIndex('temp.filtered_resources_id_idx')
-    .on(FILTERED_RESOURCE_TEMP_TABLE)
-    .column('id')
-    .execute();
-}
-
-export async function withFilteredResourcesTable<T>(
-  filters: ResourceTreeFilters,
-  query: (trx: Transaction<DB>) => Promise<T>,
-): Promise<T> {
-  const db = getDb();
-  const key = getFilterKey(filters);
-  return db.transaction().execute(async (trx) => {
-    // The transaction may have waited behind another read that prepared this
-    // table, so inspect the cache only after it has acquired the connection.
-    if (filteredResourcesCaches.get(db)?.key === key) {
-      return query(trx);
-    }
-
-    const entry: FilteredResourcesCacheEntry = {};
-    filteredResourcesCaches.set(db, entry);
-    await prepareFilteredResourcesTable(trx, filters);
-    const result = await query(trx);
-    entry.key = key;
-    return result;
-  });
-}
-
-function filteredResourcesContainIdBetween(
-  a: Expression<number>,
-  b: Expression<number>,
-) {
-  const eb = expressionBuilder<DB & FilteredTable>();
-  return eb.exists((eb) =>
-    eb
-      .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
-      .selectAll()
-      .where((eb) => eb.between('id', a, b)),
-  );
-}
-
-function getMatchesFiltersExpression({
-  id,
-  path,
-  name,
-  filters,
-}: {
-  id: Expression<number>;
-  path: Expression<string>;
-  name: Expression<string>;
-  filters: ResourceTreeFilters;
-}) {
-  const eb = expressionBuilder<DB & FilteredTable>();
-  if (hasActiveNonSearchFilters(filters)) {
-    return filteredResourcesContainIdBetween(id, id);
-  }
-  return getSearchMatchExpression(eb, path, name, filters.search);
-}
-
-function getSearchMatchExpression<TDB, TB extends keyof TDB & string>(
-  eb: ExpressionBuilder<TDB, TB>,
-  path: Expression<string>,
-  name: Expression<string>,
-  search: string | undefined,
-) {
-  const normalizedSearch = removeTrailingSlash(search ?? '');
-  const lastSearchPart = normalizedSearch.split('/').at(-1);
-
-  return eb.and([
-    eb(path, 'like', `%${normalizedSearch}%`),
-    eb(name, 'like', `%${lastSearchPart}%`),
-  ]);
-}
-
-function getVisibleWithFiltersExpression({
-  id,
-  maxDescendantId,
-  isReadonly,
-  inheritedMatch,
-  filters,
-}: {
-  id: Expression<number>;
-  maxDescendantId: Expression<number>;
-  isReadonly: Expression<number>;
-  inheritedMatch: Expression<SqlBool>;
-  filters: ResourceTreeFilters;
-}) {
-  const eb = expressionBuilder<DB & FilteredTable>();
-  return eb.or([
-    filteredResourcesContainIdBetween(id, maxDescendantId),
-    filters.onlyWritable
-      ? eb.and([eb(isReadonly, '=', 0), inheritedMatch])
-      : inheritedMatch,
-  ]);
-}
-
 export async function getResourceTreeUnreviewedCount({
   licenseFilter,
   onAttributionUuids,
@@ -446,80 +291,6 @@ export async function getResourceTreeUnreviewedCount({
 
       return { result: count.count };
     });
-}
-
-function getFilteredResourcesQuery(
-  trx: Transaction<DB>,
-  {
-    licenseFilter,
-    onlyUnreviewedFiles,
-    onAttributionUuids,
-    search,
-    onlyWritable,
-  }: ResourceTreeFilters,
-) {
-  let query = trx.selectFrom('resource as r').select('r.id as id');
-
-  if (search) {
-    query = query.where('r.path', 'like', `%${removeTrailingSlash(search)}%`);
-  }
-
-  if (licenseFilter) {
-    query = query.where('r.id', 'in', (eb) =>
-      eb
-        .selectFrom('attribution as a')
-        .innerJoin(
-          'resource_to_attribution as rta',
-          'rta.attribution_uuid',
-          'a.uuid',
-        )
-        .select('rta.resource_id')
-        .where('a.is_external', '=', Number(licenseFilter.external))
-        .where(
-          'a.canonical_license_name',
-          '=',
-          toCanonicalLicenseName(licenseFilter.licenseName),
-        ),
-    );
-  }
-
-  if (onAttributionUuids) {
-    query = query.where((eb) =>
-      eb.exists((eb) =>
-        eb
-          .selectFrom('resource_to_attribution as rta')
-          .select('rta.resource_id')
-          .whereRef('rta.resource_id', '=', 'r.id')
-          .where('rta.attribution_uuid', 'in', onAttributionUuids),
-      ),
-    );
-  }
-
-  if (onlyUnreviewedFiles) {
-    const filterExpressionBuilder = expressionBuilder<
-      DB,
-      'closest_attributed_ancestors'
-    >();
-    query = query
-      .where((eb) =>
-        eb.or([
-          eb('r.id', 'in', getOnlyExternalFilesQuery(filterExpressionBuilder)),
-          eb(
-            'r.id',
-            'in',
-            getOnlyPreSelectedManualFilesQuery(filterExpressionBuilder),
-          ),
-        ]),
-      )
-      .where('r.is_file', '=', 1)
-      .where('r.is_readonly', '=', 0);
-  }
-
-  if (onlyWritable) {
-    query = query.where('r.is_readonly', '=', 0);
-  }
-
-  return query;
 }
 
 type TreeNodeQueryType = DB & {
@@ -639,143 +410,4 @@ function getTreeNodeProps(eb: ExpressionBuilder<TreeNodeQueryType, 'r'>) {
       )
       .as('contains_resource_with_only_external_attribution'),
   ];
-}
-type ExpansionNode = {
-  id: number;
-  can_have_children: number;
-  inherited_match: SqlBool;
-  path: string;
-};
-
-async function getStartingNode(
-  trx: Transaction<DB>,
-  fromNodePath: string,
-  filters: ResourceTreeFilters,
-): Promise<ExpansionNode | undefined> {
-  return trx
-    .selectFrom('resource as r')
-    .select(['r.id', 'r.path', 'r.can_have_children'])
-    .select((eb) =>
-      eb
-        .exists((eb) =>
-          eb
-            .selectFrom('resource as ancestor')
-            .selectAll()
-            .whereRef('ancestor.id', '<=', 'r.id')
-            .whereRef('ancestor.max_descendant_id', '>=', 'r.id')
-            .where('ancestor.path', '!=', '')
-            .where((eb) =>
-              getMatchesFiltersExpression({
-                id: eb.ref('ancestor.id'),
-                path: eb.ref('ancestor.path'),
-                name: eb.ref('ancestor.name'),
-                filters,
-              }),
-            ),
-        )
-        .as('inherited_match'),
-    )
-    .where('r.path', '=', removeTrailingSlash(fromNodePath))
-    .executeTakeFirst();
-}
-
-async function getVisibleChildren(
-  trx: Transaction<DB>,
-  parent: ExpansionNode,
-  filters: ResourceTreeFilters,
-) {
-  const inheritedMatch = Boolean(parent.inherited_match);
-  const childrenQuery = trx
-    .selectFrom('resource as child')
-    .select(['child.id', 'child.path', 'child.can_have_children'])
-    .where('child.parent_id', '=', parent.id)
-    .where((eb) =>
-      getVisibleWithFiltersExpression({
-        id: eb.ref('child.id'),
-        maxDescendantId: eb.ref('child.max_descendant_id'),
-        isReadonly: eb.ref('child.is_readonly'),
-        inheritedMatch: eb.val<0 | 1>(inheritedMatch ? 1 : 0),
-        filters,
-      }),
-    )
-    .orderBy('child.id')
-    .limit(2);
-
-  return childrenQuery
-    .select((eb) =>
-      (inheritedMatch
-        ? eb.val<0 | 1>(1)
-        : getMatchesFiltersExpression({
-            id: eb.ref('child.id'),
-            path: eb.ref('child.path'),
-            name: eb.ref('child.name'),
-            filters,
-          })
-      ).as('inherited_match'),
-    )
-    .execute();
-}
-
-async function getFilteredNodePathsToExpand(
-  trx: Transaction<DB>,
-  fromNodePath: string,
-  filters: ResourceTreeFilters,
-): Promise<{ result: Array<string> }> {
-  let node = await getStartingNode(trx, fromNodePath, filters);
-  if (!node) {
-    return { result: [] };
-  }
-
-  const paths = [node.path + (node.can_have_children ? '/' : '')];
-
-  while (node.can_have_children) {
-    const children = await getVisibleChildren(trx, node, filters);
-    if (children.length !== 1 || !children[0].can_have_children) {
-      break;
-    }
-
-    const child = children[0];
-    paths.push(`${child.path}/`);
-    node = child;
-  }
-
-  return { result: paths };
-}
-
-export async function getNodePathsToExpand({
-  fromNodePath,
-  ...filters
-}: { fromNodePath: string } & ResourceTreeFilters): Promise<{
-  result: Array<string>;
-}> {
-  if (hasActiveFilters(filters)) {
-    return withFilteredResourcesTable(filters, (trx) =>
-      getFilteredNodePathsToExpand(trx, fromNodePath, filters),
-    );
-  }
-
-  const nodesToExpand = await getDb()
-    .withRecursive('nodes', (eb) =>
-      eb
-        .selectFrom('resource')
-        .select(['id', GET_LEGACY_RESOURCE_PATH])
-        .where('path', '=', removeTrailingSlash(fromNodePath))
-        .unionAll(
-          eb
-            .selectFrom('resource')
-            .innerJoin('nodes', 'resource.parent_id', 'nodes.id')
-            .select(['resource.id', GET_LEGACY_RESOURCE_PATH])
-            .where('resource.can_have_children', '=', 1)
-            .where(
-              sql<number>`(select count(*) from resource where parent_id = nodes.id)`,
-              '=',
-              1,
-            ),
-        ),
-    )
-    .selectFrom('nodes')
-    .select('path')
-    .execute();
-
-  return { result: nodesToExpand.map((node) => node.path) };
 }

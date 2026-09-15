@@ -47,10 +47,10 @@ import {
   getNextFileToReviewForCriticality,
 } from './progressBarQueries';
 import {
-  getNodePathsToExpand,
   getResourceTree,
   getResourceTreeUnreviewedCount,
 } from './resourceTree';
+import { getNodePathsToExpand } from './resourceTreeExpansion';
 import {
   externalAttributionStatistics,
   licenseTable,
