@@ -7,7 +7,10 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
 import { type MouseEvent, useEffect, useRef } from 'react';
 
-import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import type {
+  ResourceTreeFilters,
+  ResourceTreeNodeData,
+} from '../../../../ElectronBackend/api/resourceTree';
 import { OpossumColors } from '../../../shared-styles';
 import { getNodeIdsToExpand } from './VirtualizedTreeNode.util';
 
@@ -83,6 +86,7 @@ interface VirtualizedTreeNodeProps extends TreeNode {
   selected: boolean;
   highlighted: boolean;
   focused: boolean;
+  expansionFilters?: ResourceTreeFilters;
 }
 
 export function VirtualizedTreeNode({
@@ -95,12 +99,23 @@ export function VirtualizedTreeNode({
   selected,
   highlighted,
   focused,
+  expansionFilters,
 }: VirtualizedTreeNodeProps) {
   const marginRight =
     resource.level * INDENT_PER_DEPTH_LEVEL +
     (resource.isExpandable ? 0 : SIMPLE_FOLDER_EXTRA_INDENT);
 
   const ref = useRef<HTMLDivElement>(null);
+  const expansionFiltersRef = useRef(expansionFilters);
+  expansionFiltersRef.current = expansionFilters;
+
+  async function expand() {
+    const filters = expansionFiltersRef.current;
+    const nodeIds = await getNodeIdsToExpand(resource.id, filters);
+    if (filters === expansionFiltersRef.current) {
+      onToggle(nodeIds);
+    }
+  }
 
   useEffect(() => {
     if (focused) {
@@ -112,7 +127,7 @@ export function VirtualizedTreeNode({
     ? undefined
     : async () => {
         if (resource.isExpandable && !resource.isExpanded) {
-          onToggle(await getNodeIdsToExpand(resource.id));
+          await expand();
         }
         onSelect(resource.id);
       };
@@ -134,10 +149,12 @@ export function VirtualizedTreeNode({
           await handleClick?.();
         } else if (event.code === 'ArrowRight' && !resource.isExpanded) {
           event.preventDefault();
-          onToggle?.([resource.id]);
+          if (resource.isExpandable) {
+            await expand();
+          }
         } else if (event.code === 'ArrowLeft' && resource.isExpanded) {
           event.preventDefault();
-          onToggle?.([resource.id]);
+          onToggle([resource.id]);
         }
       }}
     >
@@ -174,7 +191,11 @@ export function VirtualizedTreeNode({
       <MuiBox
         onClick={async (event) => {
           event.stopPropagation();
-          onToggle(await getNodeIdsToExpand(resource.id));
+          if (resource.isExpanded) {
+            onToggle([resource.id]);
+          } else {
+            await expand();
+          }
         }}
         aria-label={
           resource.isExpanded

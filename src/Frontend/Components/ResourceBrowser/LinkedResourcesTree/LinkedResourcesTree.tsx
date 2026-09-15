@@ -76,6 +76,7 @@ export function LinkedResourcesTree({
       selectedNodeId={disableHighlightSelected ? '' : selectedResourceId}
       readOnly={readOnly}
       TreeNodeLabel={LinkedResourcesTreeNode}
+      expansionFilters={state.expansionFilters}
       testId={'linked-resources-tree'}
     />
   );

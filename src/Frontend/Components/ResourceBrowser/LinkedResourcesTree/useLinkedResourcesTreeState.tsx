@@ -5,7 +5,10 @@
 import { keepPreviousData, skipToken } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import type {
+  ResourceTreeFilters,
+  ResourceTreeNodeData,
+} from '../../../../ElectronBackend/api/resourceTree';
 import { useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { backend } from '../../../util/backendClient';
@@ -16,6 +19,7 @@ export type LinkedResourcesTreeState = {
   expandedIds: Array<string>;
   setExpandedIds: (values: Array<string>) => void;
   treeNodes: Array<ResourceTreeNodeData>;
+  expansionFilters?: ResourceTreeFilters;
 };
 
 export type LinkedResourcesTreeQueryProps = {
@@ -55,6 +59,10 @@ export function useLinkedResourcesTree({
     () => JSON.stringify([onAttributionUuids, selectedResourcePath]),
     [onAttributionUuids, selectedResourcePath],
   );
+  const expansionFilters = useMemo(
+    () => ({ onAttributionUuids, onlyWritable, search }),
+    [onAttributionUuids, onlyWritable, search],
+  );
 
   const expansionPaths =
     backend.getResourcePathsAndParentsForAttributions.useQuery(
@@ -90,11 +98,9 @@ export function useLinkedResourcesTree({
   const resources = backend.getResourceTree.useQuery(
     treeReady
       ? {
+          ...expansionFilters,
           expandedNodes: expandedIds.values,
-          search,
-          onAttributionUuids,
           selectedResourcePath,
-          onlyWritable,
         }
       : skipToken,
     { placeholderData: treeReady ? keepPreviousData : undefined },
@@ -104,6 +110,7 @@ export function useLinkedResourcesTree({
     treeReady && resources.data
       ? {
           ...resources.data,
+          expansionFilters,
           expandedIds: expandedIds.values,
           setExpandedIds: (values: Array<string>) =>
             setExpandedIds({

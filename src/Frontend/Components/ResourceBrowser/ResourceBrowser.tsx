@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiLinearProgress from '@mui/material/LinearProgress';
 import { keepPreviousData } from '@tanstack/react-query';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
@@ -59,20 +59,25 @@ export function ResourceBrowser() {
   const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
   const debouncedSearchAll = useDebouncedInput(searchAll);
   const expandedIdsAll = useAppSelector(getExpandedIds);
-  const resourceTreeLicenseFilter = resourceTreeSelectedLicense
-    ? {
-        licenseName: resourceTreeSelectedLicense,
-        external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
-      }
-    : undefined;
+  const allResourceTreeFilters = useMemo(
+    () => ({
+      licenseFilter: resourceTreeSelectedLicense
+        ? {
+            licenseName: resourceTreeSelectedLicense,
+            external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
+          }
+        : undefined,
+      onlyUnreviewedFiles,
+      search: debouncedSearchAll,
+    }),
+    [debouncedSearchAll, onlyUnreviewedFiles, resourceTreeSelectedLicense],
+  );
   const [isResourceTreeFilterOpen, setIsResourceTreeFilterOpen] =
     useState(false);
   const resourceTreeAll = backend.getResourceTree.useQuery(
     {
+      ...allResourceTreeFilters,
       expandedNodes: expandedIdsAll,
-      licenseFilter: resourceTreeLicenseFilter,
-      onlyUnreviewedFiles,
-      search: debouncedSearchAll,
       selectedResourcePath: selectedResourceId,
     },
     { placeholderData: keepPreviousData },
@@ -80,8 +85,8 @@ export function ResourceBrowser() {
   const unreviewedFileCountQuery =
     backend.getResourceTreeUnreviewedCount.useQuery(
       {
-        licenseFilter: resourceTreeLicenseFilter,
-        search: debouncedSearchAll,
+        licenseFilter: allResourceTreeFilters.licenseFilter,
+        search: allResourceTreeFilters.search,
       },
       { enabled: isResourceTreeFilterOpen, placeholderData: keepPreviousData },
     );
@@ -178,7 +183,10 @@ export function ResourceBrowser() {
             />
           ),
           component: (
-            <ResourcesTree resources={resourceTreeAll.data?.treeNodes ?? []} />
+            <ResourcesTree
+              resources={resourceTreeAll.data?.treeNodes ?? []}
+              expansionFilters={allResourceTreeFilters}
+            />
           ),
           headerTestId: 'resources-tree-header',
         }}
