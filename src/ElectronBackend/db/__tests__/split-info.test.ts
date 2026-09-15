@@ -41,4 +41,15 @@ describe('split info database state', () => {
       await getDb().selectFrom('readonly_rule').selectAll().execute(),
     ).toEqual([]);
   });
+
+  it('inserts readonly rules in batches', async () => {
+    const manyReadonlyRules = Array.from({ length: 20_000 }, (_, index) => ({
+      path: `/folder-${index}`,
+      readonly: true,
+    }));
+
+    await replaceReadonlyRules(manyReadonlyRules);
+
+    expect(await getReadonlyRules()).toHaveLength(manyReadonlyRules.length);
+  });
 });

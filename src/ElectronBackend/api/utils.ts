@@ -33,6 +33,14 @@ import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
 export type ResourceRelationship =
   'same' | 'ancestor' | 'descendant' | 'unrelated';
 
+export function jsonArraySelection<T extends string | number>(
+  values: Array<T>,
+) {
+  return sql<T>`(
+    select value from json_each(${JSON.stringify(values)})
+  )`;
+}
+
 function uniqueAttributionUuids(...uuidLists: Array<Array<string>>) {
   return [...new Set(uuidLists.flat())];
 }
@@ -380,7 +388,11 @@ export async function resourcesToExpand(
                       eb.ref('child.max_descendant_id'),
                     ),
                   )
-                  .where('attribution_uuid', 'in', props.aboveAttributionUuids),
+                  .where(
+                    'attribution_uuid',
+                    'in',
+                    jsonArraySelection(props.aboveAttributionUuids!),
+                  ),
               ),
             );
           }
@@ -499,15 +511,24 @@ export function toCanonicalLicenseName(
   return sql<string | null>`lower(replace(replace(${s}, '-', ''), ' ', ''))`;
 }
 
-const DEFAULT_BATCH_SIZE = 30000;
+const SQL_PARAMETER_LIMIT = 30000;
+
+export async function withSqlBatching<P, R>(
+  input: Array<P>,
+  f: (arg: Array<P>) => Promise<R>,
+  props?: { parametersPerItem: number },
+): Promise<Array<R>> {
+  const batchSize = Math.floor(
+    SQL_PARAMETER_LIMIT / (props?.parametersPerItem ?? 1),
+  );
+  return withBatching(input, f, batchSize);
+}
 
 export async function withBatching<P, R>(
   input: Array<P>,
   f: (arg: Array<P>) => Promise<R>,
-  props?: { batchSize: number },
+  batchSize: number,
 ): Promise<Array<R>> {
-  const batchSize = props?.batchSize ?? DEFAULT_BATCH_SIZE;
-
   const results: Array<R> = [];
 
   const numBatches = Math.ceil(input.length / batchSize);
@@ -560,7 +581,7 @@ export async function unlinkAttributions(
   resourceId: number,
   attributionUuids: Array<string>,
 ) {
-  await withBatching(attributionUuids, async (batch) => {
+  await withSqlBatching(attributionUuids, async (batch) => {
     await trx
       .deleteFrom('resource_to_attribution')
       .where('resource_id', '=', resourceId)
@@ -589,7 +610,7 @@ export async function linkAttributions(
   attributionUuids: Array<string>,
   options?: { ignoreExisting?: boolean },
 ) {
-  await withBatching(
+  await withSqlBatching(
     attributionUuids,
     async (batch) => {
       await trx
@@ -606,8 +627,7 @@ export async function linkAttributions(
         )
         .execute();
     },
-    // Each row binds two values, so 15,000 rows stay within SQLite's 30,000-parameter limit.
-    { batchSize: 15_000 },
+    { parametersPerItem: 2 },
   );
 
   await updateAttributionResourceAccess(trx, attributionUuids);
@@ -618,7 +638,7 @@ async function updateAttributionResourceAccess(
   attributionUuids: Array<string>,
 ) {
   const uniqueUuids = uniqueAttributionUuids(attributionUuids);
-  await withBatching(uniqueUuids, async (batch) => {
+  await withSqlBatching(uniqueUuids, async (batch) => {
     await trx
       .updateTable('attribution')
       .set((eb) => ({
@@ -689,7 +709,7 @@ export async function cloneMixedAttributionsForWritableResources(
   );
 
   const mixedAttributions = (
-    await withBatching(attributionUuids, async (batch) => {
+    await withSqlBatching(attributionUuids, async (batch) => {
       return trx
         .selectFrom('attribution')
         .selectAll('attribution')
@@ -739,14 +759,15 @@ export async function findMatchingAttributionUuid(
   options?: { ignorePreSelected?: boolean; excludeUuids?: Array<string> },
 ) {
   const strippedPackageInfo = removeEmptyStrings(packageInfo);
+  const excludeUuids = options?.excludeUuids;
 
   let query = trx
     .selectFrom('attribution')
     .select('uuid')
     .where('is_external', '=', 0)
     .$if(!options?.ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0))
-    .$if(options?.excludeUuids !== undefined, (eb) =>
-      eb.where('uuid', 'not in', options!.excludeUuids!),
+    .$if(excludeUuids !== undefined, (eb) =>
+      eb.where('uuid', 'not in', jsonArraySelection(excludeUuids!)),
     );
 
   const persistenceValues =
@@ -879,7 +900,7 @@ export async function ensureAttributionsAreNotExternal(
   attributionUuids: Array<string>,
 ) {
   const externalAttributions = (
-    await withBatching(attributionUuids, async (batch) => {
+    await withSqlBatching(attributionUuids, async (batch) => {
       return trx
         .selectFrom('attribution')
         .select('uuid')
@@ -903,7 +924,7 @@ export async function ensureAttributionsAreNotReadonly(
   attributionUuids: Array<string>,
 ) {
   const readonlyAttributions = (
-    await withBatching(attributionUuids, async (batch) => {
+    await withSqlBatching(attributionUuids, async (batch) => {
       return trx
         .selectFrom('attribution')
         .select('uuid')
@@ -927,7 +948,7 @@ export async function ensureAttributionsAreLinkedOnMultipleResources(
   attributionUuids: Array<string>,
 ) {
   const attributionsLinkedOnSingleResource = (
-    await withBatching(attributionUuids, async (batch) => {
+    await withSqlBatching(attributionUuids, async (batch) => {
       return trx
         .selectFrom('resource_to_attribution')
         .select('attribution_uuid')
@@ -978,7 +999,7 @@ export async function replaceAttributions(
   const connectedResources = [
     ...new Set(
       (
-        await withBatching(attributionUuidsToReplace, async (batch) => {
+        await withSqlBatching(attributionUuidsToReplace, async (batch) => {
           return trx
             .selectFrom('resource_to_attribution')
             .select('resource_id')
@@ -994,7 +1015,7 @@ export async function replaceAttributions(
 
   // Reassign resource links to the replacement attribution, skipping conflicts
   // (conflicting links will be cascade deleted when the old attribution is removed)
-  await withBatching(attributionUuidsToReplace, async (batch) => {
+  await withSqlBatching(attributionUuidsToReplace, async (batch) => {
     await sql`
     UPDATE OR IGNORE resource_to_attribution
     SET attribution_uuid = ${params.attributionUuidToReplaceWith}

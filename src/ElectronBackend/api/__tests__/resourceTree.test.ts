@@ -96,6 +96,27 @@ describe('getResourceTree', () => {
     });
   });
 
+  it('accepts large expanded node and attribution selections', async () => {
+    await initializeDbWithTestData({
+      resources: { src: { 'file.ts': 1 } },
+    });
+    const largeSelection = Array.from(
+      { length: 40_000 },
+      (_, index) => `/missing-${index}`,
+    );
+
+    const expandedResult = await getResourceTree({
+      expandedNodes: largeSelection,
+    });
+    expect(expandedResult.result.treeNodes).toHaveLength(1);
+
+    const filteredResult = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: largeSelection,
+    });
+    expect(filteredResult.result.treeNodes).toEqual([]);
+  });
+
   it('shows readonly-only branches while retaining readonly metadata', async () => {
     await initializeDbWithTestData({
       resources: {
