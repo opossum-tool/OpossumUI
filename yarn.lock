@@ -6851,6 +6851,7 @@ __metadata:
     react-redux: "npm:9.3.0"
     react-virtuoso: "npm:4.18.13"
     recharts: "npm:3.10.1"
+    rolldown: "npm:1.2.8"
     run-script-os: "npm:1.1.6"
     spdx-license-ids: "npm:3.0.23"
     stream-json: "npm:3.6.0"
@@ -7785,7 +7786,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rolldown@npm:~1.2.6":
+"rolldown@npm:1.2.8, rolldown@npm:~1.2.6":
   version: 1.2.8
   resolution: "rolldown@npm:1.2.8"
   dependencies:
