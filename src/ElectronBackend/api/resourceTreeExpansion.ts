@@ -29,16 +29,38 @@ async function getStartingNode(
   cacheId: number,
 ): Promise<ExpansionNode | undefined> {
   return trx
-    .selectFrom('resource as r')
+    .withRecursive('ancestors', (eb) =>
+      eb
+        .selectFrom('resource as r')
+        .select([
+          'r.id',
+          'r.parent_id',
+          'r.path',
+          'r.name',
+          'r.can_have_children',
+        ])
+        .where('r.path', '=', removeTrailingSlash(fromNodePath))
+        .unionAll((eb) =>
+          eb
+            .selectFrom('resource as parent')
+            .innerJoin('ancestors as child', 'child.parent_id', 'parent.id')
+            .select([
+              'parent.id',
+              'parent.parent_id',
+              'parent.path',
+              'parent.name',
+              'parent.can_have_children',
+            ]),
+        ),
+    )
+    .selectFrom('ancestors as r')
     .select(['r.id', 'r.path', 'r.can_have_children'])
     .select((eb) =>
       eb
         .exists((eb) =>
           eb
-            .selectFrom('resource as ancestor')
+            .selectFrom('ancestors as ancestor')
             .selectAll()
-            .whereRef('ancestor.id', '<=', 'r.id')
-            .whereRef('ancestor.max_descendant_id', '>=', 'r.id')
             .where('ancestor.path', '!=', '')
             .where((eb) =>
               getMatchesFiltersExpression({

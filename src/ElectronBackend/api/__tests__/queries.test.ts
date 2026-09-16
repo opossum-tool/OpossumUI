@@ -7,6 +7,7 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
+import { getRawDb } from '../../db/db';
 import { queries } from '../queries';
 
 describe('filterProperties', () => {
@@ -265,6 +266,78 @@ describe('getNodePathsToExpand', () => {
 
     expect(unfiltered.result).toEqual(['/a/']);
     expect(filtered.result).toEqual(['/a/', '/a/directory/']);
+  });
+
+  it('inherits a search match from an ancestor', async () => {
+    await initializeDbWithTestData({
+      resources: { a: { matched: { child: { 'file.ts': 1 } } } },
+    });
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/a/matched/child/',
+      search: 'matched',
+    });
+
+    expect(result).toEqual(['/a/matched/child/']);
+  });
+
+  it('does not inherit a search match from an unrelated sibling', async () => {
+    await initializeDbWithTestData({
+      resources: {
+        a: {
+          matched: { 'file.ts': 1 },
+          other: { child: { 'file.ts': 1 } },
+        },
+      },
+    });
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/a/other/',
+      search: 'matched',
+    });
+
+    expect(result).toEqual(['/a/other/']);
+  });
+
+  it('returns no paths for a missing filtered starting path', async () => {
+    await initializeDbWithTestData({ resources: { a: { 'file.ts': 1 } } });
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/missing/',
+      search: 'file',
+    });
+
+    expect(result).toEqual([]);
+  });
+
+  it('uses indexed starting-path and parent lookups for filtered expansion', async () => {
+    await initializeDbWithTestData({
+      resources: { a: { matched: { child: { 'file.ts': 1 } } } },
+    });
+    const prepare = vi.spyOn(getRawDb(), 'prepare');
+
+    await queries.getNodePathsToExpand({
+      fromNodePath: '/a/matched/child/',
+      search: 'matched',
+    });
+
+    const expansionQuery = prepare.mock.calls
+      .map(([query]) => query)
+      .find((query) => query.includes('with recursive "ancestors"'));
+    expect(expansionQuery).toBeDefined();
+    const parameterCount = (expansionQuery!.match(/\?/g) ?? []).length;
+    const queryPlan = getRawDb()
+      .prepare(`EXPLAIN QUERY PLAN ${expansionQuery}`)
+      .all(...Array<string>(parameterCount).fill('')) as Array<{
+      detail: string;
+    }>;
+
+    expect(queryPlan.map((row) => row.detail)).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/SEARCH r USING.*path/),
+        expect.stringMatching(/SEARCH parent USING INTEGER PRIMARY KEY/),
+      ]),
+    );
   });
 
   it.each([
