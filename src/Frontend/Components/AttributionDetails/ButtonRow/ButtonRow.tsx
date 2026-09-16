@@ -12,7 +12,6 @@ import SaveIcon from '@mui/icons-material/Save';
 import UndoIcon from '@mui/icons-material/Undo';
 import MuiButton from '@mui/material/Button';
 import MuiCircularProgress from '@mui/material/CircularProgress';
-import MuiFab from '@mui/material/Fab';
 import MuiTooltip from '@mui/material/Tooltip';
 import { skipToken, useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
@@ -46,7 +45,7 @@ import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup'
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
 import { ConfirmSavePopup } from '../../ConfirmSavePopup/ConfirmSavePopup';
 import { DiffPopup } from '../../DiffPopup/DiffPopup';
-import { Container } from './ButtonRow.style';
+import { Container, Fab } from './ButtonRow.style';
 
 interface Props {
   packageInfo: PackageInfo;
@@ -246,7 +245,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
       <>
         <MuiTooltip title={label} disableInteractive>
           <span>
-            <MuiFab
+            <Fab
               aria-label={label}
               size={'small'}
               color={'secondary'}
@@ -265,7 +264,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
               ) : (
                 <SaveIcon />
               )}
-            </MuiFab>
+            </Fab>
           </span>
         </MuiTooltip>
         <ConfirmSavePopup
@@ -293,7 +292,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
     return (
       <MuiTooltip title={text.attributionColumn.link} disableInteractive>
         <span>
-          <MuiFab
+          <Fab
             aria-label={text.attributionColumn.link}
             size={'small'}
             color={'secondary'}
@@ -312,7 +311,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             ) : (
               <CallMergeIcon />
             )}
-          </MuiFab>
+          </Fab>
         </span>
       </MuiTooltip>
     );
@@ -327,7 +326,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
       <>
         <MuiTooltip title={text.attributionColumn.delete} disableInteractive>
           <span>
-            <MuiFab
+            <Fab
               aria-label={text.attributionColumn.delete}
               size={'small'}
               color={'secondary'}
@@ -335,7 +334,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
               onClick={() => setIsConfirmDeletionPopupOpen(true)}
             >
               <DeleteIcon />
-            </MuiFab>
+            </Fab>
           </span>
         </MuiTooltip>
         <ConfirmDeletePopup
@@ -358,7 +357,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
     return (
       <MuiTooltip title={text.attributionColumn.revert} disableInteractive>
         <span>
-          <MuiFab
+          <Fab
             aria-label={text.attributionColumn.revert}
             size={'small'}
             color={'secondary'}
@@ -372,7 +371,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             }}
           >
             <UndoIcon />
-          </MuiFab>
+          </Fab>
         </span>
       </MuiTooltip>
     );
@@ -390,7 +389,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
     return (
       <MuiTooltip title={label} disableInteractive>
         <span>
-          <MuiFab
+          <Fab
             aria-label={label}
             size={'small'}
             color={'secondary'}
@@ -419,7 +418,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             ) : (
               <DeleteIcon />
             )}
-          </MuiFab>
+          </Fab>
         </span>
       </MuiTooltip>
     );
@@ -437,7 +436,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
           disableInteractive
         >
           <span>
-            <MuiFab
+            <Fab
               aria-label={text.attributionColumn.compareToOriginal}
               size={'small'}
               color={'secondary'}
@@ -445,7 +444,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
               disabled={mutationPending}
             >
               <CompareIcon />
-            </MuiFab>
+            </Fab>
           </span>
         </MuiTooltip>
         <DiffPopup
@@ -467,7 +466,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
     return (
       <MuiTooltip title={text.attributionColumn.compareWith} disableInteractive>
         <span>
-          <MuiFab
+          <Fab
             aria-label={text.attributionColumn.compareWith}
             size={'small'}
             color={'secondary'}
@@ -477,7 +476,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             }}
           >
             <CompareArrowsIcon />
-          </MuiFab>
+          </Fab>
         </span>
       </MuiTooltip>
     );

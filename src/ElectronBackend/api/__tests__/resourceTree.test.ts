@@ -299,6 +299,94 @@ describe('getResourceTree', () => {
     });
   });
 
+  describe('search with attribution filter', () => {
+    const uuid = 'search-attribution-uuid';
+
+    beforeEach(async () => {
+      await initializeDbWithTestData({
+        resources: { linked: { 'match.ts': 1, 'other.ts': 1 } },
+        externalAttributions: makeAttributionData(
+          {
+            [uuid]: {
+              packageName: 'pkg',
+              criticality: Criticality.None,
+              id: uuid,
+            },
+          },
+          { '/linked/match.ts': [uuid], '/linked/other.ts': [uuid] },
+        ),
+      });
+    });
+
+    it('filters the tree to matching linked resources and highlights them', async () => {
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+        onAttributionUuids: [uuid],
+        search: 'match',
+      });
+
+      const labels = result.treeNodes.map((n) => n.labelText);
+      expect(labels).toContain('linked');
+      expect(labels).toContain('match.ts');
+      expect(labels).not.toContain('other.ts');
+
+      const highlighted = result.treeNodes.filter((n) => n.matchesFilters);
+      expect(highlighted.map((n) => n.id)).toEqual(['/linked/match.ts']);
+      expect(result.count).toBe(1);
+    });
+
+    it('treats the search case-insensitively within the linked resources', async () => {
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+        onAttributionUuids: [uuid],
+        search: 'MATCH',
+      });
+
+      expect(result.treeNodes.map((n) => n.id)).toContain('/linked/match.ts');
+      expect(result.treeNodes.map((n) => n.id)).not.toContain(
+        '/linked/other.ts',
+      );
+    });
+
+    it('does not highlight a linked folder when only an ancestor path segment matches the search', async () => {
+      await initializeDbWithTestData({
+        resources: { libs: { react: { 'index.js': 1 } } },
+        externalAttributions: makeAttributionData(
+          {
+            [uuid]: {
+              packageName: 'pkg',
+              criticality: Criticality.None,
+              id: uuid,
+            },
+          },
+          { '/libs/react/': [uuid], '/libs/react/index.js': [uuid] },
+        ),
+      });
+
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+        onAttributionUuids: [uuid],
+        search: 'libs',
+      });
+
+      const labels = result.treeNodes.map((n) => n.labelText);
+      expect(labels).toContain('react');
+      expect(labels).toContain('index.js');
+
+      const highlighted = result.treeNodes.filter((n) => n.matchesFilters);
+      expect(highlighted.map((n) => n.id)).toEqual(['/libs/']);
+    });
+
+    it('does not highlight linked resources when no search is given', async () => {
+      const { result } = await getResourceTree({
+        expandedNodes: 'expandAll',
+        onAttributionUuids: [uuid],
+      });
+
+      expect(result.treeNodes.filter((n) => n.matchesFilters)).toEqual([]);
+    });
+  });
+
   describe('attribution flags', () => {
     const externalUuid = 'ext-uuid';
     const manualUuid = 'manual-uuid';

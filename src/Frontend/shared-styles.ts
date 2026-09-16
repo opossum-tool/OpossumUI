@@ -119,6 +119,10 @@ export const treeItemClasses = {
   resourceWithoutInformation: {
     color: OpossumColors.disabledGrey,
   },
+  matchesFilters: {
+    backgroundColor: OpossumColors.lightBlue,
+    borderRadius: '3px',
+  },
   notContainsResourcesWithOnlyExternalAttribution: {
     color: OpossumColors.pastelMiddleGreen,
   },
