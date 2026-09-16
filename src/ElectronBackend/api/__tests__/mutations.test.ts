@@ -335,7 +335,7 @@ describe('filtered-resource cache invalidation', () => {
   it('does not invalidate the filtered-resource cache for an unrelated mutation', async () => {
     await initializeDbWithTestData({ resources: {} });
     const invalidateFilteredResourcesCache = vi.spyOn(
-      await import('../resourceTreeFilters'),
+      await import('../resource-tree-cache'),
       'invalidateFilteredResourcesCache',
     );
 
@@ -347,7 +347,7 @@ describe('filtered-resource cache invalidation', () => {
   it('does not invalidate the filtered-resource cache for a rejected mutation', async () => {
     await initializeDbWithTestData({ resources: {} });
     const invalidateFilteredResourcesCache = vi.spyOn(
-      await import('../resourceTreeFilters'),
+      await import('../resource-tree-cache'),
       'invalidateFilteredResourcesCache',
     );
 

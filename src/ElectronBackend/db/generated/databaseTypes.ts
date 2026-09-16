@@ -91,6 +91,11 @@ export interface ExternalAttributionSource {
   priority: number;
 }
 
+export interface FilteredResources {
+  cache_id: number;
+  id: number;
+}
+
 export interface FrequentLicense {
   full_name: string;
   id: Generated<number>;
@@ -168,6 +173,7 @@ export interface DB {
   classification: Classification;
   closest_attributed_ancestors: ClosestAttributedAncestors;
   external_attribution_source: ExternalAttributionSource;
+  filtered_resources: FilteredResources;
   frequent_license: FrequentLicense;
   metadata: Metadata;
   readonly_rule: ReadonlyRule;

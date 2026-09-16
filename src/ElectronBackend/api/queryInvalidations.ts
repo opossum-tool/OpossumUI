@@ -4,7 +4,7 @@
 import { getDb } from '../db/db';
 import type { MutationInvalidation } from './mutations';
 import type { QueryName } from './queries';
-import { invalidateFilteredResourcesCache } from './resourceTreeFilters';
+import { invalidateFilteredResourcesCache } from './resource-tree-cache';
 
 const cacheInvalidators: Partial<Record<QueryName, () => void>> = {
   getResourceTree: () => invalidateFilteredResourcesCache(getDb()),

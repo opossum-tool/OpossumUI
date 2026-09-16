@@ -6,12 +6,10 @@ import {
   type Expression,
   type ExpressionBuilder,
   expressionBuilder,
-  type Kysely,
   type SqlBool,
   type Transaction,
 } from 'kysely';
 
-import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
 import { jsonArraySelection } from '../db/json-array-selection';
 import {
@@ -20,8 +18,9 @@ import {
 } from './progressBarUtils';
 import { removeTrailingSlash, toCanonicalLicenseName } from './utils';
 
-export const FILTERED_RESOURCE_TEMP_TABLE = 'filtered_resources';
-export type FilteredTable = { filtered_resources: { id: number } };
+export type FilteredTable = {
+  filtered_resources: { cache_id: number; id: number };
+};
 export type LicenseFilter = { licenseName: string; external: boolean };
 export type ResourceTreeFilters = {
   search?: string;
@@ -31,27 +30,7 @@ export type ResourceTreeFilters = {
   onlyWritable?: boolean;
 };
 
-type FilteredResourcesCacheEntry = { key?: string };
-const filteredResourcesCaches = new WeakMap<
-  Kysely<DB>,
-  FilteredResourcesCacheEntry
->();
-
-function getFilterKey(filters: ResourceTreeFilters) {
-  return JSON.stringify([
-    filters.search,
-    filters.licenseFilter,
-    filters.onlyUnreviewedFiles,
-    filters.onAttributionUuids,
-    filters.onlyWritable,
-  ]);
-}
-
-export function invalidateFilteredResourcesCache(db: Kysely<DB>) {
-  filteredResourcesCaches.delete(db);
-}
-
-export function hasActiveNonSearchFilters(filters: ResourceTreeFilters) {
+function hasActiveNonSearchFilters(filters: ResourceTreeFilters) {
   return Boolean(
     filters.licenseFilter ||
     filters.onAttributionUuids ||
@@ -64,54 +43,17 @@ export function hasActiveFilters(filters: ResourceTreeFilters) {
   return Boolean(filters.search || hasActiveNonSearchFilters(filters));
 }
 
-async function prepareFilteredResourcesTable(
-  trx: Transaction<DB>,
-  filters: ResourceTreeFilters,
-): Promise<void> {
-  await trx.schema.dropTable(FILTERED_RESOURCE_TEMP_TABLE).ifExists().execute();
-  await trx.schema
-    .createTable(FILTERED_RESOURCE_TEMP_TABLE)
-    .temporary()
-    .as(getFilteredResourcesQuery(trx, filters))
-    .execute();
-  await trx.schema
-    .createIndex('temp.filtered_resources_id_idx')
-    .on(FILTERED_RESOURCE_TEMP_TABLE)
-    .column('id')
-    .execute();
-}
-
-export async function withFilteredResourcesTable<T>(
-  filters: ResourceTreeFilters,
-  query: (trx: Transaction<DB>) => Promise<T>,
-): Promise<T> {
-  const db = getDb();
-  const key = getFilterKey(filters);
-  return db.transaction().execute(async (trx) => {
-    // The transaction may have waited behind another read that prepared this
-    // table, so inspect the cache only after it has acquired the connection.
-    if (filteredResourcesCaches.get(db)?.key === key) {
-      return query(trx);
-    }
-
-    const entry: FilteredResourcesCacheEntry = {};
-    filteredResourcesCaches.set(db, entry);
-    await prepareFilteredResourcesTable(trx, filters);
-    const result = await query(trx);
-    entry.key = key;
-    return result;
-  });
-}
-
-export function filteredResourcesContainIdBetween(
+function filteredResourcesContainIdBetween(
+  cacheId: number,
   a: Expression<number>,
   b: Expression<number>,
 ) {
   const eb = expressionBuilder<DB & FilteredTable>();
   return eb.exists((eb) =>
     eb
-      .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
+      .selectFrom('filtered_resources')
       .selectAll()
+      .where('cache_id', '=', cacheId)
       .where((eb) => eb.between('id', a, b)),
   );
 }
@@ -121,15 +63,17 @@ export function getMatchesFiltersExpression({
   path,
   name,
   filters,
+  cacheId,
 }: {
   id: Expression<number>;
   path: Expression<string>;
   name: Expression<string>;
   filters: ResourceTreeFilters;
+  cacheId: number;
 }) {
   const eb = expressionBuilder<DB & FilteredTable>();
   if (hasActiveNonSearchFilters(filters)) {
-    return filteredResourcesContainIdBetween(id, id);
+    return filteredResourcesContainIdBetween(cacheId, id, id);
   }
   return getSearchMatchExpression(eb, path, name, filters.search);
 }
@@ -155,16 +99,18 @@ export function getVisibleWithFiltersExpression({
   isReadonly,
   inheritedMatch,
   filters,
+  cacheId,
 }: {
   id: Expression<number>;
   maxDescendantId: Expression<number>;
   isReadonly: Expression<number>;
   inheritedMatch: Expression<SqlBool>;
   filters: ResourceTreeFilters;
+  cacheId: number;
 }) {
   const eb = expressionBuilder<DB & FilteredTable>();
   return eb.or([
-    filteredResourcesContainIdBetween(id, maxDescendantId),
+    filteredResourcesContainIdBetween(cacheId, id, maxDescendantId),
     filters.onlyWritable
       ? eb.and([eb(isReadonly, '=', 0), inheritedMatch])
       : inheritedMatch,

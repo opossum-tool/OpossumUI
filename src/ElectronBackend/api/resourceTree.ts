@@ -7,8 +7,8 @@ import { type ExpressionBuilder, sql, type Transaction } from 'kysely';
 import { getDb } from '../db/db';
 import type { DB, Resource } from '../db/generated/databaseTypes';
 import { jsonArraySelection } from '../db/json-array-selection';
+import { withFilteredResourcesTable } from './resource-tree-cache';
 import {
-  FILTERED_RESOURCE_TEMP_TABLE,
   type FilteredTable,
   getFilteredResourcesQuery,
   getMatchesFiltersExpression,
@@ -17,7 +17,6 @@ import {
   hasActiveFilters,
   type LicenseFilter,
   type ResourceTreeFilters,
-  withFilteredResourcesTable,
 } from './resourceTreeFilters';
 import { getResourceOrThrow, removeTrailingSlash } from './utils';
 
@@ -46,20 +45,23 @@ export async function getResourceTree({
     onlyWritable,
   };
   const filtersAreActive = hasActiveFilters(filters);
-  const runQuery = async (trx: Transaction<DB>) => {
+  const runQuery = async (trx: Transaction<DB>, cacheId?: number) => {
     /*
-     * FILTERED_RESOURCE_TEMP_TABLE contains the resources included by the active filters.
+     * filtered_resources contains the resources included by the active filters.
      * Without active filters, counts read from `resource` directly.
      */
 
     const resourceIdsTable = filtersAreActive
-      ? FILTERED_RESOURCE_TEMP_TABLE
+      ? 'filtered_resources'
       : 'resource';
     const total = (
       await trx
         .$extendTables<FilteredTable>()
         .selectFrom(resourceIdsTable)
         .select((eb) => eb.fn.countAll<number>().as('count'))
+        .$if(filtersAreActive, (query) =>
+          query.where('cache_id', '=', cacheId!),
+        )
         .executeTakeFirstOrThrow()
     ).count;
 
@@ -75,6 +77,9 @@ export async function getResourceTree({
           .$extendTables<FilteredTable>()
           .selectFrom(resourceIdsTable)
           .select((eb) => eb.fn.countAll<number>().as('count'))
+          .$if(filtersAreActive, (query) =>
+            query.where('cache_id', '=', cacheId!),
+          )
           .where((eb) =>
             eb.between(
               'id',
@@ -146,6 +151,7 @@ export async function getResourceTree({
                   path: eb.ref('r.path'),
                   name: eb.ref('r.name'),
                   filters,
+                  cacheId: cacheId!,
                 }).as('matches_filters');
               })
               .select((eb) =>
@@ -161,10 +167,11 @@ export async function getResourceTree({
               query = query.where(
                 'parent.path',
                 'in',
-                jsonArraySelection(expandedNodes.map((e) => removeTrailingSlash(e)),
-              ),
-            );
-              }
+                jsonArraySelection(
+                  expandedNodes.map((e) => removeTrailingSlash(e)),
+                ),
+              );
+            }
 
             if (filtersAreActive) {
               query = query.where((eb) =>
@@ -177,6 +184,7 @@ export async function getResourceTree({
                     eb.ref('parent.ancestor_matches_filters'),
                   ]),
                   filters,
+                  cacheId: cacheId!,
                 }),
               );
             }
@@ -204,6 +212,7 @@ export async function getResourceTree({
                       eb('shown_resources.ancestor_matches_filters', '=', 1),
                     ]),
                     filters,
+                    cacheId: cacheId!,
                   });
                 }),
               ),

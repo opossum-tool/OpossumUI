@@ -135,6 +135,8 @@ export async function initializeDb(inputFile: ParsedFileContent) {
   await getDb()
     .transaction()
     .execute(async (trx) => {
+      await initializeFilteredResourcesTable(trx);
+
       await initializeExternalAttributionSourceTable(
         trx,
         inputFile.externalAttributionSources,
@@ -183,6 +185,19 @@ export async function initializeDb(inputFile: ParsedFileContent) {
 
       await initializeReadonlyRuleTable(trx, inputFile.readonlyRules);
     });
+}
+
+async function initializeFilteredResourcesTable(trx: Transaction<DB>) {
+  await trx.schema
+    .createTable('filtered_resources')
+    .addColumn('cache_id', 'integer', (column) => column.notNull())
+    .addColumn('id', 'integer', (column) => column.notNull())
+    .execute();
+  await trx.schema
+    .createIndex('filtered_resources_cache_id_id_idx')
+    .on('filtered_resources')
+    .columns(['cache_id', 'id'])
+    .execute();
 }
 
 export async function initializeClosestAttributedAncestorsTable(

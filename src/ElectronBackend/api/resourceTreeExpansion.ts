@@ -6,12 +6,12 @@ import type { SqlBool, Transaction } from 'kysely';
 
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
+import { withFilteredResourcesTable } from './resource-tree-cache';
 import {
   getMatchesFiltersExpression,
   getVisibleWithFiltersExpression,
   hasActiveFilters,
   type ResourceTreeFilters,
-  withFilteredResourcesTable,
 } from './resourceTreeFilters';
 import { GET_LEGACY_RESOURCE_PATH, removeTrailingSlash } from './utils';
 
@@ -26,6 +26,7 @@ async function getStartingNode(
   trx: Transaction<DB>,
   fromNodePath: string,
   filters: ResourceTreeFilters,
+  cacheId: number,
 ): Promise<ExpansionNode | undefined> {
   return trx
     .selectFrom('resource as r')
@@ -45,6 +46,7 @@ async function getStartingNode(
                 path: eb.ref('ancestor.path'),
                 name: eb.ref('ancestor.name'),
                 filters,
+                cacheId,
               }),
             ),
         )
@@ -58,6 +60,7 @@ async function getVisibleChildren(
   trx: Transaction<DB>,
   parent: ExpansionNode,
   filters: ResourceTreeFilters,
+  cacheId: number,
 ) {
   const inheritedMatch = Boolean(parent.inherited_match);
   const childrenQuery = trx
@@ -71,6 +74,7 @@ async function getVisibleChildren(
         isReadonly: eb.ref('child.is_readonly'),
         inheritedMatch: eb.val<0 | 1>(inheritedMatch ? 1 : 0),
         filters,
+        cacheId,
       }),
     )
     .orderBy('child.id')
@@ -85,6 +89,7 @@ async function getVisibleChildren(
             path: eb.ref('child.path'),
             name: eb.ref('child.name'),
             filters,
+            cacheId,
           })
       ).as('inherited_match'),
     )
@@ -95,8 +100,9 @@ async function getFilteredNodePathsToExpand(
   trx: Transaction<DB>,
   fromNodePath: string,
   filters: ResourceTreeFilters,
+  cacheId: number,
 ): Promise<{ result: Array<string> }> {
-  let node = await getStartingNode(trx, fromNodePath, filters);
+  let node = await getStartingNode(trx, fromNodePath, filters, cacheId);
   if (!node) {
     return { result: [] };
   }
@@ -104,7 +110,7 @@ async function getFilteredNodePathsToExpand(
   const paths = [node.path + (node.can_have_children ? '/' : '')];
 
   while (node.can_have_children) {
-    const children = await getVisibleChildren(trx, node, filters);
+    const children = await getVisibleChildren(trx, node, filters, cacheId);
     if (children.length !== 1 || !children[0].can_have_children) {
       break;
     }
@@ -124,8 +130,8 @@ export async function getNodePathsToExpand({
   result: Array<string>;
 }> {
   if (hasActiveFilters(filters)) {
-    return withFilteredResourcesTable(filters, (trx) =>
-      getFilteredNodePathsToExpand(trx, fromNodePath, filters),
+    return withFilteredResourcesTable(filters, (trx, cacheId) =>
+      getFilteredNodePathsToExpand(trx, fromNodePath, filters, cacheId),
     );
   }
 
