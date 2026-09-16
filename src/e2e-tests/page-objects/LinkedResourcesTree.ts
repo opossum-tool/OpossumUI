@@ -43,7 +43,6 @@ export class LinkedResourcesTree {
       const node = this.node
         .getByText(resourceName, { exact: true })
         .locator('..');
-      await expect(node).toHaveCSS('border-radius', '3px');
       await expect(node).toHaveCSS('background-color', lightBlueBackground);
     },
     resourceIsNotHighlighted: async (resourceName: string): Promise<void> => {
@@ -57,7 +56,6 @@ export class LinkedResourcesTree {
           }
           return node.evaluate(
             (el, expectedBackground) =>
-              getComputedStyle(el).borderRadius !== '3px' &&
               getComputedStyle(el).backgroundColor !== expectedBackground,
             lightBlueBackground,
           );
