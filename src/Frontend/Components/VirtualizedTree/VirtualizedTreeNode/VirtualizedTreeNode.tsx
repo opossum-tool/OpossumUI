@@ -37,8 +37,8 @@ const classes = {
   clickableIcon: {
     width: '16px',
     height: '20px',
-    padding: '0px',
-    margin: '0px',
+    p: 0,
+    m: 0,
   },
   treeItemLabel: {
     position: 'relative',
@@ -51,8 +51,8 @@ const classes = {
     zIndex: 1,
     width: '16px',
     height: '20px',
-    padding: '0px',
-    margin: '0px',
+    p: 0,
+    m: 0,
     color: OpossumColors.darkBlue,
     '&:hover': {
       color: OpossumColors.black,

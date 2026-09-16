@@ -176,7 +176,7 @@ export const MergeOpossumFilesDialog: React.FC<
             />
           }
           label={text.mergeOpossumFilesDialog.mergeIntoCurrentProject}
-          sx={{ marginBottom: '10px' }}
+          sx={{ mb: 2.5 }}
         />
       )}
       <MuiTypography>
@@ -185,15 +185,15 @@ export const MergeOpossumFilesDialog: React.FC<
           : text.mergeOpossumFilesDialog.explanationText}
       </MuiTypography>
       {showNoReadonlyPathsMessage ? (
-        <MuiAlert severity={'warning'} sx={{ marginTop: '20px' }}>
+        <MuiAlert severity={'warning'} sx={{ mt: 5 }}>
           {text.mergeOpossumFilesDialog.noReadonlyPathsWarning}
         </MuiAlert>
       ) : null}
-      <MuiTypography sx={{ marginTop: '20px' }}>
+      <MuiTypography sx={{ mt: 5 }}>
         {text.mergeOpossumFilesDialog.filesToMerge}
       </MuiTypography>
       {mergeIntoCurrentFile || inputFilePaths.length > 0 ? (
-        <MuiPaper variant={'outlined'} sx={{ marginTop: '10px' }}>
+        <MuiPaper variant={'outlined'} sx={{ mt: 2.5 }}>
           <MuiList dense>
             {mergeIntoCurrentFile && currentFilePath ? (
               <MuiListItem>
@@ -247,7 +247,7 @@ export const MergeOpossumFilesDialog: React.FC<
       {errorMessage ? (
         <MuiAlert
           severity={ignoreReadonlyResourceOutputConflicts ? 'warning' : 'error'}
-          sx={{ marginTop: '20px' }}
+          sx={{ mt: 5 }}
         >
           {errorMessage}
         </MuiAlert>

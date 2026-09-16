@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
@@ -8,13 +9,13 @@ import MuiTypography from '@mui/material/Typography';
 
 import { OpossumColors } from '../../shared-styles';
 
-export const TitleTypography = styled(MuiTypography)({
+export const TitleTypography = styled(MuiTypography)(({ theme }) => ({
   color: OpossumColors.mediumGrey,
   opacity: 0.5,
-  marginBottom: '200px',
+  marginBottom: theme.spacing(50),
   fontWeight: 900,
   userSelect: 'none',
-});
+}));
 
 export const TitleContainer = styled(MuiBox)({
   width: '100%',
@@ -77,9 +78,9 @@ export const theme = createTheme({
     },
     MuiToggleButton: {
       styleOverrides: {
-        root: {
-          padding: '5px',
-        },
+        root: ({ theme }) => ({
+          padding: theme.spacing(1.25),
+        }),
       },
     },
     MuiSwitch: {
